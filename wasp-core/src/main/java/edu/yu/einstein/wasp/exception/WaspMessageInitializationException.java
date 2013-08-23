@@ -1,6 +1,6 @@
 package edu.yu.einstein.wasp.exception;
 
-public class WaspMessageInitializationException extends RuntimeException {
+public class WaspMessageInitializationException extends WaspRuntimeException {
 	/**
 	 * 
 	 */

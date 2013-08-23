@@ -25,7 +25,7 @@ public class SelLabUtilsJqGrid extends SelBaseTest{
 	  	  }
 		  WebElement element;
 		  
-		  SeleniumHelper.login(sUserName, sUserPass, driver);	
+		  SeleniumHelper.login(sUserName, sUserPass);	
 		  Assert.assertTrue(driver.findElements(By.xpath("//a[contains(@href,'/wasp/lab/list.do')]")).size() != 0, "Cannot locate 'Lab Utils' link.");
 		  driver.findElement(By.xpath("//a[contains(@href,'/wasp/lab/list.do')]")).click();
 		  Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+"/wasp/lab/list.do");

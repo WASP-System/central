@@ -35,7 +35,7 @@ public class SelNewRequest extends SelBaseTest {
 	   */
 	  @Test (groups = "integration-tests",  dataProvider = "DP1")
 	  public void requestAccessToLab(String sUserName, String sUserPass,String sPIName, String sUrl, String successUrl) throws Exception {   
-		  SeleniumHelper.login(sUserName, sUserPass, driver);	 
+		  SeleniumHelper.login(sUserName, sUserPass);	 
 		  driver.get("http://"+baseUrl+"/wasp/dashboard.do");
 		  
 		  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-home')]")), "Unable to locate 'My Account' tab.");
@@ -75,7 +75,7 @@ public class SelNewRequest extends SelBaseTest {
 	  public void createNewLabRequest(String sUserName, String sUserPass,String sLab, String sPhone, 
 			  						  String sAddress, String sPhone2, String sUrl, String successUrl) throws Exception {   
 			
-		  SeleniumHelper.login(sUserName, sUserPass, driver);	 
+		  SeleniumHelper.login(sUserName, sUserPass);	 
 		  driver.get("http://"+baseUrl+"/wasp/dashboard.do");
 		  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-home')]")), "Unable to locate 'My Account' tab.");
 		  driver.findElement(By.xpath("//a[contains(@href,'#tabs-home')]")).click();
@@ -117,7 +117,7 @@ public class SelNewRequest extends SelBaseTest {
 	  @Test (groups = "integration-tests",  dataProvider = "DP3")
 	  public void approveAccessToLab(String sUserName, String sUserPass, String sUserEmail) {
 		  
-		  SeleniumHelper.login(sUserName, sUserPass, driver);
+		  SeleniumHelper.login(sUserName, sUserPass);
 		/*  
 	      Assert.assertNotNull(driver.findElement(By.linkText("APPROVE")), "'APPROVE' link does not exist");
 		  driver.findElement(By.xpath("//p[contains(.,'"+sUserEmail+"')]/a[contains(.,'APPROVE')]")).click();
@@ -151,7 +151,7 @@ public class SelNewRequest extends SelBaseTest {
 	  @Test (groups = "integration-tests",  dataProvider = "DP4")
 	  public void approveCreateNewLabRequest (String sUserName, String sUserPass, String sLab) {
 		  
-		  SeleniumHelper.login(sUserName, sUserPass, driver);	 
+		  SeleniumHelper.login(sUserName, sUserPass);	 
 		  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-daAdmin')]")), "Unable to locate 'Dept Admin' tab.");
 		  driver.findElement(By.xpath("//a[contains(@href, '#tabs-daAdmin')]")).click();
 		  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'/wasp/department/list.do')]")), "Unable to locate 'Department Management' link.");
@@ -164,7 +164,7 @@ public class SelNewRequest extends SelBaseTest {
 		  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'/wasp/department/dapendingtasklist.do')]")), "Unable to locate 'Pending Department Admin Tasks' link.");
 		  driver.findElement(By.xpath("//a[contains(@href, '/wasp/department/dapendingtasklist.do')]")).click();
 		  
-		  Assert.assertTrue(SeleniumHelper.verifyTextPresent(sLab, driver),"Lab "+ sLab +" not found");
+		  Assert.assertTrue(SeleniumHelper.verifyTextPresent(sLab),"Lab "+ sLab +" not found");
 		  driver.findElement(By.xpath("//a[contains(.,'"+sLab+"')]")).click();
 
 		  Assert.assertTrue(driver.findElements(By.xpath("//a[contains(@href,'/wasp/lab/pending/approve/')]")).size() != 0, "Cannot locate APPROVE link");
@@ -183,7 +183,7 @@ public class SelNewRequest extends SelBaseTest {
 	  @Test (groups = "integration-tests",  dataProvider = "DP5")
 	  public void rejecteAccessToLab(String sUserName, String sUserPass, String sUserEmail) {
 		  
-		  SeleniumHelper.login(sUserName, sUserPass, driver);
+		  SeleniumHelper.login(sUserName, sUserPass);
 		  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-labUtils')]")), "Unable to locate 'Lab Utils' tab.");
 		  driver.findElement(By.xpath("//a[contains(@href,'#tabs-labUtils')]")).click();
 
@@ -210,7 +210,7 @@ public class SelNewRequest extends SelBaseTest {
 	  @Test (groups = "integration-tests",  dataProvider = "DP6")
 	  public void rejectCreateNewLabRequest (String sUserName, String sUserPass, String sLab) {
 		  
-		  SeleniumHelper.login(sUserName, sUserPass, driver);	 
+		  SeleniumHelper.login(sUserName, sUserPass);	 
 		  
 		  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-daAdmin')]")), "Unable to locate 'Dept Admin' tab.");
 		  driver.findElement(By.xpath("//a[contains(@href, '#tabs-daAdmin')]")).click();
@@ -225,7 +225,7 @@ public class SelNewRequest extends SelBaseTest {
 		  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'/wasp/department/dapendingtasklist.do')]")), "Unable to locate 'Pending Department Admin Tasks' link.");
 		  driver.findElement(By.xpath("//a[contains(@href, '/wasp/department/dapendingtasklist.do')]")).click();
 		  
-		  Assert.assertTrue(SeleniumHelper.verifyTextPresent(sLab, driver),"Lab "+ sLab +" not found");
+		  Assert.assertTrue(SeleniumHelper.verifyTextPresent(sLab),"Lab "+ sLab +" not found");
 		  driver.findElement(By.xpath("//a[contains(.,'"+sLab+"')]")).click();
 		  Assert.assertTrue(driver.findElements(By.xpath("//a[contains(@href,'/wasp/lab/pending/reject/')]")).size() != 0, "Cannot locate REJECT link");
 		  driver.findElement(By.xpath("//a[contains(@href,'/wasp/lab/pending/reject/')]")).click();

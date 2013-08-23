@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.AcctQuote;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class AcctQuoteDaoImpl extends WaspDaoImpl<AcctQuote> implements edu.yu.einstein.wasp.dao.AcctQuoteDao {
 
@@ -44,7 +44,7 @@ public class AcctQuoteDaoImpl extends WaspDaoImpl<AcctQuote> implements edu.yu.e
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public AcctQuote getAcctQuoteByQuoteId (final int quoteId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", quoteId);

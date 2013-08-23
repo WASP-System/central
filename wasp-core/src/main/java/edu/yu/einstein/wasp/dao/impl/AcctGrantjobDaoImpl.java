@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.AcctGrantjob;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class AcctGrantjobDaoImpl extends WaspDaoImpl<AcctGrantjob> implements edu.yu.einstein.wasp.dao.AcctGrantjobDao {
 
@@ -44,7 +44,7 @@ public class AcctGrantjobDaoImpl extends WaspDaoImpl<AcctGrantjob> implements ed
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public AcctGrantjob getAcctGrantjobByJobId (final int jobId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", jobId);

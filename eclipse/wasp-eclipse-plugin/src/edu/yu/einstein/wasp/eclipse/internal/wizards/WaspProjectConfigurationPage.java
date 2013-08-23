@@ -44,6 +44,7 @@ public class WaspProjectConfigurationPage extends WizardPage {
 
 	Text projName;
 	Text projNamespace;
+	Text projDescription;
 	Button defaultWorkspace;
 	Button forms;
 	Button resource;
@@ -100,6 +101,12 @@ public class WaspProjectConfigurationPage extends WizardPage {
 				validate();
 			}
 		});
+		
+		Label projectDescription = new Label(projGroup, SWT.NONE);
+		projectDescription
+				.setText(Messages.WizardConfigurationPage_projectDescription);
+		projDescription = new Text(projGroup, SWT.BORDER);
+		projDescription.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
 
 		defaultWorkspace = new Button(container, SWT.CHECK);
 		GridData useDefaultWorkspaceData = new GridData(SWT.LEFT, SWT.CENTER,
@@ -309,6 +316,9 @@ public class WaspProjectConfigurationPage extends WizardPage {
 	}
 	public String getProjectNamespace() {
 		return projNamespace.getText();
+	}
+	public String getProjectDescription() {
+		return projDescription.getText();
 	}
 	public boolean isDefaultWorkspace() {
 		return defaultWorkspace.getSelection();

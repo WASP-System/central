@@ -23,7 +23,7 @@ import edu.yu.einstein.wasp.dao.FileTypeDao;
 import edu.yu.einstein.wasp.model.FileType;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class FileTypeDaoImpl extends WaspDaoImpl<FileType> implements FileTypeDao {
 
@@ -47,7 +47,7 @@ public class FileTypeDaoImpl extends WaspDaoImpl<FileType> implements FileTypeDa
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public FileType getFileTypeByFileTypeId (final Integer fileTypeId) {
     	HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", fileTypeId);
@@ -70,7 +70,7 @@ public class FileTypeDaoImpl extends WaspDaoImpl<FileType> implements FileTypeDa
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public FileType getFileTypeByIName(final String iName) {
     	HashMap<String, String> m = new HashMap<String, String>();
 		m.put("iName", iName);
@@ -86,7 +86,7 @@ public class FileTypeDaoImpl extends WaspDaoImpl<FileType> implements FileTypeDa
 
 	@SuppressWarnings("unchecked")
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public Set<FileType> getFileTypes() {
 		HashSet<FileType> result = new HashSet<FileType>();
 		Query q = getEntityManager().createQuery("from FileType");

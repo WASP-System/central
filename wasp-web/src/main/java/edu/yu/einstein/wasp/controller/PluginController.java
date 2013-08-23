@@ -1,10 +1,10 @@
 package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +25,6 @@ public class PluginController extends WaspController {
 	private MessageService messageService;
 
 	@Autowired
-	@Qualifier("messageServiceWebappImpl")
 	public void setMessageService(MessageService messageService) {
 		this.messageService = messageService;
 	}
@@ -39,6 +38,7 @@ public class PluginController extends WaspController {
 		List<WebHyperlink> registeredPluginDescriptions = new ArrayList<WebHyperlink>();
 		for (WebInterfacing webPlugin : pluginRegistry.getPlugins(WebInterfacing.class))
 			registeredPluginDescriptions.add(new WebHyperlink(webPlugin.getDescriptionPageHyperlink(), messageService));
+		Collections.sort(registeredPluginDescriptions);
 		m.addAttribute("pluginDescriptionHyperlinks", registeredPluginDescriptions);
 		return "plugin/list";
 	}

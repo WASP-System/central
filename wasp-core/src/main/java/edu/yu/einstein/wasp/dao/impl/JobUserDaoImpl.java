@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.JobUser;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class JobUserDaoImpl extends WaspDaoImpl<JobUser> implements edu.yu.einstein.wasp.dao.JobUserDao {
 
@@ -44,7 +44,7 @@ public class JobUserDaoImpl extends WaspDaoImpl<JobUser> implements edu.yu.einst
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public JobUser getJobUserByJobUserId (final int jobUserId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", jobUserId);
@@ -69,7 +69,7 @@ public class JobUserDaoImpl extends WaspDaoImpl<JobUser> implements edu.yu.einst
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public JobUser getJobUserByJobIdUserId (final int jobId, final int userId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("jobId", jobId);

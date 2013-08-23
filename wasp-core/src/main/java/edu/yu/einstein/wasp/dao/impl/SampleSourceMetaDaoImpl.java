@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.SampleSourceMeta;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class SampleSourceMetaDaoImpl extends WaspMetaDaoImpl<SampleSourceMeta> implements edu.yu.einstein.wasp.dao.SampleSourceMetaDao {
 
@@ -44,7 +44,7 @@ public class SampleSourceMetaDaoImpl extends WaspMetaDaoImpl<SampleSourceMeta> i
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public SampleSourceMeta getSampleSourceMetaBySampleSourceMetaId (final int sampleSourceMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", sampleSourceMetaId);
@@ -69,7 +69,7 @@ public class SampleSourceMetaDaoImpl extends WaspMetaDaoImpl<SampleSourceMeta> i
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public SampleSourceMeta getSampleSourceMetaByKSampleSourceId (final String k, final int sampleSourceId) {
     	HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);

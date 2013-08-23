@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.ResourceBarcode;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class ResourceBarcodeDaoImpl extends WaspDaoImpl<ResourceBarcode> implements edu.yu.einstein.wasp.dao.ResourceBarcodeDao {
 
@@ -44,7 +44,7 @@ public class ResourceBarcodeDaoImpl extends WaspDaoImpl<ResourceBarcode> impleme
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public ResourceBarcode getResourceBarcodeByResourceBarcodeId (final Integer resourceBarcodeId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", resourceBarcodeId);
@@ -69,7 +69,7 @@ public class ResourceBarcodeDaoImpl extends WaspDaoImpl<ResourceBarcode> impleme
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public ResourceBarcode getResourceBarcodeByResourceId (final Integer resourceId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("resourceId", resourceId);
@@ -94,7 +94,7 @@ public class ResourceBarcodeDaoImpl extends WaspDaoImpl<ResourceBarcode> impleme
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public ResourceBarcode getResourceBarcodeByBarcodeId (final Integer barcodeId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("barcodeId", barcodeId);

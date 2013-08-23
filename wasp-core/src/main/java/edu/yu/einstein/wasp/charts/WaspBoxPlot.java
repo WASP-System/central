@@ -15,18 +15,18 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 public class WaspBoxPlot extends WaspChart2D {
 	
 	public static class BoxPlotSeries{
-		public static final String BOX_AND_WHISKER="box_and_whisker";
-		public static final String RUNNING_MEAN="running_mean";
-		public static final String OUTLIERS="outliers";
+		public static final String BOX_AND_WHISKER="waspBoxPlot.boxAndWhisker.label";
+		public static final String RUNNING_MEAN="waspBoxPlot.runningMean.label";
+		public static final String OUTLIERS="waspBoxPlot.outliers.label";
 	}
 	
 	
 	public static class BoxAndWhiskerComponent{
-		public static final String LOW="low";
-		public static final String LQ="lq";
-		public static final String MEDIAN="median";
-		public static final String UQ="uq";
-		public static final String HIGH="high";
+		public static final String LOW="waspBoxPlot.boxAndWhisker_low.label";
+		public static final String LQ="waspBoxPlot.boxAndWhisker_lq.label";
+		public static final String MEDIAN="waspBoxPlot.boxAndWhisker_median.label";
+		public static final String UQ="waspBoxPlot.boxAndWhisker_uq.label";
+		public static final String HIGH="waspBoxPlot.boxAndWhisker_high.label";
 	}
 	
 	public WaspBoxPlot() {

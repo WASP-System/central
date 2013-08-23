@@ -3,6 +3,7 @@ package edu.yu.einstein.wasp.charts;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
@@ -10,48 +11,63 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import edu.yu.einstein.wasp.service.MessageService;
+
 /**
  * Base class to generalize all charts
  * @author asmclellan
  *
  */
-public abstract class WaspChart {
+public class WaspChart {
 	
 	protected String title;
 	
-	protected String legend;
+	protected String description;
 	
 	protected List<DataSeries> dataSeries;
 	
 	protected Map<String, Object> properties;
 
-	public WaspChart() {}
+	public WaspChart() {
+		dataSeries = new ArrayList<DataSeries>();
+		properties = new HashMap<String, Object>();
+		title = "";
+		description = "";
+	}
 	
-	/**
-	 * Set up object from JSON representation
-	 * @param JSON
-	 * @return
-	 * @throws JSONException
-	 */
 	public String getTitle() {
 		return title;
+	}
+	
+	public String getLocalizedTitle(MessageService messageService) {
+		return messageService.getMessage(title);
+	}
+	
+	public String getLocalizedTitle(MessageService messageService, Locale locale) {
+		return messageService.getMessage(title, locale);
 	}
 
 	public void setTitle(String title) {
 		this.title = title;
 	}
 	
-	public String getLegend() {
-		return legend;
+	public String getDescription() {
+		return description;
+	}
+	
+	public String getLocalizedDescription(MessageService messageService) {
+		return messageService.getMessage(description);
+	}
+	
+	public String getLocalizedDescription(MessageService messageService, Locale locale) {
+		return messageService.getMessage(description, locale);
 	}
 
-	public void setLegend(String legend) {
-		this.legend = legend;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	
 	public List<DataSeries> getDataSeries() {
-		if (dataSeries == null)
-			return new ArrayList<DataSeries>();
 		return dataSeries;
 	}
 
@@ -60,12 +76,19 @@ public abstract class WaspChart {
 	}
 	
 	/**
+	 * Add a data series
+	 * @param dataSeries
+	 */
+	@JsonIgnore
+	public void addDataSeries(DataSeries dataSeries){
+		this.dataSeries.add(dataSeries);
+	}
+	
+	/**
 	 * Get a generic map of properties which may be associated with this plot or an empty Map if none set.
 	 * @param properties
 	 */
 	public Map<String, Object> getProperties() {
-		if (properties == null)
-			return new HashMap<String, Object>();
 		return properties;
 	}
 
@@ -85,8 +108,6 @@ public abstract class WaspChart {
 	 */
 	@JsonIgnore
 	public void addProperty(String key, Object value){
-		if (properties == null)
-			properties =  new HashMap<String, Object>();
 		properties.put(key, value);
 	}
 	
@@ -125,7 +146,7 @@ public abstract class WaspChart {
 		try{
 			return mapper.readValue(json.toString(), clazz);
 		} catch(Exception e){
-			throw new JSONException("Cannot create object of type " + clazz.getName() + " from json");
+			throw new JSONException("Cannot create object of type " + clazz.getName() + " from json: " + e.getLocalizedMessage());
 		}
 	}
 	

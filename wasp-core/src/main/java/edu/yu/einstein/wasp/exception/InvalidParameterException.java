@@ -5,7 +5,7 @@ package edu.yu.einstein.wasp.exception;
  * @author asmclellan
  *
  */
-public class InvalidParameterException extends RuntimeException{
+public class InvalidParameterException extends WaspRuntimeException{
 	
 	/**
 	 * 

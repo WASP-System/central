@@ -85,7 +85,7 @@
 			</div>
 		</sec:authorize>
   		<div id="content"> 
-  			<wasp:breadcrumbs />
+  			<!-- <wasp:breadcrumbs /> -->
   			<wasp:errorMessage />
   			<wasp:message />
 			<tiles:insertAttribute name="body-content" />

@@ -4,7 +4,6 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +19,6 @@ import edu.yu.einstein.wasp.service.MessageServiceWebapp;
  *
  */
 @Service
-@Qualifier("messageServiceWebappImpl")
 @Transactional("entityManager")
 public class MessageServiceWebappImpl extends MessageServiceImpl implements MessageServiceWebapp{
 
@@ -31,11 +29,11 @@ public class MessageServiceWebappImpl extends MessageServiceImpl implements Mess
 			HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
 			message =  messageSource.getMessage(key, null, RequestContextUtils.getLocale(request));
 		} catch (Exception e) {
-			logger.warn("Cannot resolve message '" + key + "' using Locale from resource HttpServletRequest (" + e.getMessage() + "), will fallback to US locale");
+			logger.trace("Cannot resolve message '" + key + "' using Locale from resource HttpServletRequest (" + e.getMessage() + "), will fallback to US locale");
 			try {
 				message = messageSource.getMessage(key, null, Locale.US); // try to fallback to US locale
 			} catch (NoSuchMessageException nsme) {
-				logger.warn("Cannot resolve message '" + key + "' from messageSource (" + nsme.getMessage() + ")");
+				logger.trace("Cannot resolve message '" + key + "' from messageSource (" + nsme.getMessage() + ")");
 			}
 		}
 		return message;

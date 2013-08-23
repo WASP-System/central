@@ -14,6 +14,7 @@
   <context:component-scan base-package="edu.yu.einstein.wasp.messaging" />
   <context:component-scan base-package="edu.yu.einstein.wasp.load.service.impl" />
   <context:component-scan base-package="edu.yu.einstein.wasp.filetype.service.impl" />
+   <context:component-scan base-package="edu.yu.einstein.wasp.plugin.**.service.impl" />
   
   <context:annotation-config/>
   
@@ -85,9 +86,6 @@
   <!-- load local configuration context -->
   <import resource="classpath*:/wasp-site-context.xml" />
   
-  <!-- load universal file type service beans -->
-  <bean id="fastqService" class="edu.yu.einstein.wasp.filetype.service.impl.FastqServiceImpl" />
-
-
+  
 
 </beans>

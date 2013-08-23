@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.UserMeta;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class UserMetaDaoImpl extends WaspMetaDaoImpl<UserMeta> implements edu.yu.einstein.wasp.dao.UserMetaDao {
 
@@ -44,7 +44,7 @@ public class UserMetaDaoImpl extends WaspMetaDaoImpl<UserMeta> implements edu.yu
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public UserMeta getUserMetaByUserMetaId (final int userMetaId) {
     	HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", userMetaId);
@@ -69,7 +69,7 @@ public class UserMetaDaoImpl extends WaspMetaDaoImpl<UserMeta> implements edu.yu
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public UserMeta getUserMetaByKUserId (final String k, final int userId) {
     	HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);

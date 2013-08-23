@@ -118,6 +118,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
 		
 		List<StepExecution> stepExecutions = jobExplorer.getStepExecutions("listenForJobApproved", parameterMap, false, BatchStatus.STARTED);
+		Assert.assertNotNull(stepExecutions);
 		Assert.assertEquals(stepExecutions.size(), 1); // expect to be STARTED
 	}
 	
@@ -134,6 +135,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
 		
 		List<StepExecution> stepExecutions = jobExplorer.getStepExecutions("listenForJobApproved", parameterMap, false, BatchStatus.STARTED);
+		Assert.assertNotNull(stepExecutions);
 		Assert.assertTrue(stepExecutions.isEmpty()); //expect to be COMPLETE
 	}
 	
@@ -143,6 +145,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	@Test(groups = "unit-tests")
 	public void testGettingStepExecutionNormalTest5(){
 		List<StepExecution> stepExecutions = jobExplorer.getStepExecutions();
+		Assert.assertNotNull(stepExecutions);
 		Assert.assertEquals(stepExecutions.size(), 8); 
 	}
 	
@@ -158,6 +161,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
 		
 		List<StepExecution> stepExecutions = jobExplorer.getStepExecutions(parameterMap, true);
+		Assert.assertNotNull(stepExecutions);
 		Assert.assertTrue(stepExecutions.isEmpty()); 
 	}
 	
@@ -177,6 +181,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 		
 		List<StepExecution> stepExecutions = jobExplorer.getStepExecutions(parameterMap, true);
+		Assert.assertNotNull(stepExecutions);
 		Assert.assertEquals(stepExecutions.size(), 8); 
 	}
 	
@@ -195,6 +200,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 		jobIdStringSet.add("*");
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 		List<StepExecution> stepExecutions = jobExplorer.getStepExecutions(parameterMap, true);
+		Assert.assertNotNull(stepExecutions);
 		Assert.assertEquals(stepExecutions.size(), 5); 
 	}
 	
@@ -248,6 +254,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 		} catch (ParameterValueRetrievalException e){
 			Assert.fail("Caught unexpected ParameterValueRetrievalException: " + e.getMessage());
 		}
+		Assert.assertNotNull(value);
 		Assert.assertEquals(value, SAMPLE_ID_1.toString());
 	}
 	
@@ -287,6 +294,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	@Test(groups = "unit-tests", dependsOnMethods="testGettingStepExecutionNormalTest1")
 	public void testGettingMostRecentStepExecution1(){
 		StepExecution stepExecution = jobExplorer.getMostRecentlyStartedStepExecutionInList(jobExplorer.getStepExecutions());
+		Assert.assertNotNull(stepExecution);
 		Assert.assertEquals(stepExecution.getId(), new Long(8));
 	}
 	
@@ -296,6 +304,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	@Test(groups = "unit-tests", dependsOnMethods="testGettingStepExecutionNormalTest1")
 	public void testGettingMostRecentStepExecution2(){
 		StepExecution stepExecution = jobExplorer.getMostRecentlyStartedStepExecutionInList(jobExplorer.getStepExecutions("listenForExitCondition"));
+		Assert.assertNotNull(stepExecution);
 		Assert.assertEquals(stepExecution.getId(), new Long(6));
 	}
 	
@@ -317,6 +326,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 		} catch (BatchDaoDataRetrievalException e) {
 			Assert.fail("Got unexpected BatchDaoDataRetrievalException");
 		}
+		Assert.assertNotNull(jobExecution);
 		Assert.assertEquals(jobExecution.getId(), new Long(2));
 	}
 	
@@ -326,6 +336,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	@Test(groups = "unit-tests")
 	public void testGettingJobExecutionNormalTest2(){
 		List<JobExecution> jobExecutions = jobExplorer.getJobExecutions(BatchStatus.COMPLETED);
+		Assert.assertNotNull(jobExecutions);
 		Assert.assertEquals(jobExecutions.size(), 1); 
 	}
 	
@@ -335,6 +346,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	@Test(groups = "unit-tests")
 	public void testGettingJobExecutionNormalTest3(){
 		List<JobExecution> jobExecutions = jobExplorer.getJobExecutions(BatchStatus.COMPLETED, ExitStatus.EXECUTING);
+		Assert.assertNotNull(jobExecutions);
 		Assert.assertTrue(jobExecutions.isEmpty()); 
 	}
 	
@@ -349,6 +361,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 		jobIdStringSet.add("*");
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 		List<JobExecution> jobExecutions = jobExplorer.getJobExecutions(parameterMap, false);
+		Assert.assertNotNull(jobExecutions);
 		Assert.assertEquals(jobExecutions.size(), 2); 
 	}
 	
@@ -399,6 +412,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 		} catch (ParameterValueRetrievalException e){
 			Assert.fail("Caught unexpected ParameterValueRetrievalException: " + e.getMessage());
 		}
+		Assert.assertNotNull(value);
 		Assert.assertEquals(value, SAMPLE_ID_1.toString());
 	}
 	

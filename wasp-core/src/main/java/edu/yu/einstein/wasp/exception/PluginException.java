@@ -1,6 +1,6 @@
 package edu.yu.einstein.wasp.exception;
 
-public class PluginException extends RuntimeException {
+public class PluginException extends WaspRuntimeException {
 
 	private static final long serialVersionUID = -5930567252661250215L;
 

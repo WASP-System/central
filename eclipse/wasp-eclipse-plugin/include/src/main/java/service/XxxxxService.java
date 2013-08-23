@@ -2,7 +2,7 @@
  * Created by Wasp System Eclipse Plugin
  * @author 
  */
-package ___package___.___pluginname___.service;
+package ___package___.service;
 
 import edu.yu.einstein.wasp.service.WaspService;
 

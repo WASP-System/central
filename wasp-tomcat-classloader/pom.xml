@@ -6,7 +6,7 @@
 		<groupId>edu.yu.einstein.wasp</groupId>
 		<artifactId>wasp-parent</artifactId>
 		<version>0.1.0-SNAPSHOT</version>
-		<relativePath>../wasp-parent/pom.xml</relativePath>
+		<relativePath>../wasp-parent</relativePath>
 	</parent>
 
 	<artifactId>wasp-tomcat-classloader</artifactId>

@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class ConfirmEmailAuthDaoImpl extends WaspDaoImpl<ConfirmEmailAuth> implements edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao {
     
@@ -46,7 +46,7 @@ public class ConfirmEmailAuthDaoImpl extends WaspDaoImpl<ConfirmEmailAuth> imple
 	*/
 	
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public ConfirmEmailAuth getConfirmEmailAuthByConfirmEmailAuthId (final int confirmEmailAuthId) {
 	    HashMap<String, Integer> m = new HashMap<String, Integer>();
 	    		m.put("id", confirmEmailAuthId);
@@ -71,7 +71,7 @@ public class ConfirmEmailAuthDaoImpl extends WaspDaoImpl<ConfirmEmailAuth> imple
 	*/
 	
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public ConfirmEmailAuth getConfirmEmailAuthByAuthcode (final String authcode) {
 	    HashMap<String, String> m = new HashMap<String, String>();
 	    		m.put("authcode", authcode);

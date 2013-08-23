@@ -28,9 +28,11 @@ import edu.yu.einstein.wasp.dao.FileHandleDao;
 import edu.yu.einstein.wasp.exception.FileDownloadException;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.GridException;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
@@ -38,6 +40,10 @@ import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.WaspPlugin;
+import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
+import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing.Status;
+import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 @Service
 public interface FileService extends WaspService {
@@ -192,18 +198,17 @@ public interface FileService extends WaspService {
 	
 	public FileHandle getFileHandle(UUID uuid) throws FileNotFoundException;
 
-
 	public void removeUploadedFileFromJobDraft(Integer jobDraftId, Integer fileGroupId, Integer fileHandleId) throws FileNotFoundException;
 
 	public Map<String, Hyperlink> getFileDetailsByFileType(FileGroup filegroup);
+	
+	List<FileDataTabViewing> getTabViewProvidingPluginsByFileGroup(FileGroup fileGroup);
 
 	public FileType getFileType(Integer id);
 
-	public Map<FileType, Set<FileGroup>> getFilesForCellLibraryMappedToFileType(
-			Sample cell, Sample library) throws SampleTypeException;
+	public Map<FileType, Set<FileGroup>> getFilesForCellLibraryMappedToFileType(Sample cell, Sample library) throws SampleTypeException;
 
-	public Set<FileGroup> getFilesForCellLibraryByType(Sample cell, Sample library,
-			FileType fileType) throws SampleTypeException;
+	public Set<FileGroup> getFilesForCellLibraryByType(Sample cell, Sample library, FileType fileType) throws SampleTypeException;
 
 	/**
 	 * @param group
@@ -244,6 +249,8 @@ public interface FileService extends WaspService {
 	
 
 	public String generateUniqueBaseFileName(SampleSource cellLibrary);
+
+	public List<FileGroupMeta> saveFileGroupMeta(List<FileGroupMeta> metaList, FileGroup filegroup) throws MetadataException;
 
 
 }

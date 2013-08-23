@@ -30,18 +30,16 @@ public class ResourceTypeLoadServiceImpl extends WaspLoadServiceImpl implements	
 
 		ResourceType resourceType = resourceTypeDao.getResourceTypeByIName(iname);
 		// inserts or update sampleSubtype
-		if (resourceType.getResourceTypeId() == null) {
+		if (resourceType.getId() == null) {
 			resourceType.setIName(iname);
 			resourceType.setName(name);
 			resourceType.setIsActive(isActive.intValue());
 			resourceType = resourceTypeDao.save(resourceType);
 		} else {
-			if (!resourceType.getName().equals(name)) {
+			if (resourceType.getName() == null || !resourceType.getName().equals(name)) 
 				resourceType.setName(name);
-			}
-			if (resourceType.getIsActive().intValue() != isActive.intValue()) {
+			if (resourceType.getIsActive().intValue() != isActive.intValue()) 
 				resourceType.setIsActive(isActive.intValue());
-			}
 		}
 		return resourceType;
 	}

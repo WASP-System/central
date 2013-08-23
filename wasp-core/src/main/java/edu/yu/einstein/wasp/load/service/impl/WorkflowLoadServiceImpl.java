@@ -83,7 +83,7 @@ public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	Work
 	private Workflow addOrUpdateWorkflow(String iname, String name, int isActive, List<ResourceType> dependencies){
 		Workflow workflow = workflowDao.getWorkflowByIName(iname);
 	    // inserts or update workflow
-	    if (workflow.getWorkflowId() == null) { 
+	    if (workflow.getId() == null) { 
 	      workflow = new Workflow();
 
 	      workflow.setIName(iname);
@@ -105,25 +105,25 @@ public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	Work
 	    // update dependencies
 	    Map<Integer,WorkflowResourceType> oldWorkflowResourceTypes = new HashMap<Integer, WorkflowResourceType>();
 	    for (WorkflowResourceType old : safeList(workflow.getWorkflowResourceType()) ){
-		   oldWorkflowResourceTypes.put(old.getWorkflowresourcetypeId(), old);
+		   oldWorkflowResourceTypes.put(old.getId(), old);
 	    }
 	    List<Integer> resourceTypeIdList = new ArrayList<Integer>();
 	    for (ResourceType dependency: safeList(dependencies)) { 
-	      Integer resourceTypeId = dependency.getResourceTypeId();
+	      Integer resourceTypeId = dependency.getId();
 	      if (resourceTypeId == null){
 	    	// the specified resourceType does not exist!!
 	    	  throw new NullResourceTypeException("No resource type defined with iname='"+dependency+"'");
 	      }
 	      
-	      WorkflowResourceType workflowResourceType = workflowresourcetypeDao.getWorkflowResourceTypeByWorkflowIdResourceTypeId(workflow.getWorkflowId(), resourceTypeId);
-		  if (workflowResourceType.getWorkflowresourcetypeId() == null){
+	      WorkflowResourceType workflowResourceType = workflowresourcetypeDao.getWorkflowResourceTypeByWorkflowIdResourceTypeId(workflow.getId(), resourceTypeId);
+		  if (workflowResourceType.getId() == null){
 			  // doesn't exist so create and save
-		      workflowResourceType.setWorkflowId(workflow.getWorkflowId()); 
+		      workflowResourceType.setWorkflowId(workflow.getId()); 
 		      workflowResourceType.setResourceTypeId(resourceTypeId); 
 		      workflowresourcetypeDao.save(workflowResourceType);
 		  } else {
 			  // already exists
-			  oldWorkflowResourceTypes.remove(workflowResourceType.getWorkflowresourcetypeId());
+			  oldWorkflowResourceTypes.remove(workflowResourceType.getId());
 		  } 
 	    }
 	    // remove old no longer used dependencies
@@ -142,7 +142,7 @@ public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	Work
 	        dependencyQueryMap.put("isactive", 1);
 	        Boolean isActiveDependencyMatch = false; 
 	        for (Software dependency : softwareDao.findByMap(dependencyQueryMap)){
-	      	  if (workflowSoftwareDao.getWorkflowSoftwareByWorkflowIdSoftwareId(workflow.getWorkflowId(), dependency.getSoftwareId()).getWorkflowSoftwareId() != null){
+	      	  if (workflowSoftwareDao.getWorkflowSoftwareByWorkflowIdSoftwareId(workflow.getId(), dependency.getId()).getId() != null){
 	      		isActiveDependencyMatch = true;
 	      		break;
 	      	  }
@@ -151,7 +151,7 @@ public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	Work
 	        	continue;
 	        for (ResourceCategory dependency : resourceCategoryDao.findByMap(dependencyQueryMap)){
 	        	  if (workflowResourceCategoryDao
-	        			  .getWorkflowresourcecategoryByWorkflowIdResourcecategoryId(workflow.getWorkflowId(), dependency.getResourceCategoryId())
+	        			  .getWorkflowresourcecategoryByWorkflowIdResourcecategoryId(workflow.getId(), dependency.getId())
 	        			  .getResourcecategoryId() != null){
 	        		  isActiveDependencyMatch = true;
 	        		  break;
@@ -190,23 +190,15 @@ public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	Work
 	      if (oldWorkflowMetas.containsKey(workflowMeta.getK())) {
 	    	// current meta key exists in db already
 	        WorkflowMeta old = oldWorkflowMetas.get(workflowMeta.getK());
-	        boolean changed = false;
-	        if (!old.getV().equals(workflowMeta.getV())){
+	        if (old.getV() == null || !old.getV().equals(workflowMeta.getV()))
 	        	old.setV(workflowMeta.getV());
-	        	changed = true;
-	        }
-	        if (old.getPosition().intValue() != workflowMeta.getPosition()){
+	        if (old.getPosition() == null || old.getPosition().intValue() != workflowMeta.getPosition())
 	        	old.setPosition(workflowMeta.getPosition());
-	        	changed = true;
-	        }
-	        if (changed)
-	        	workflowMetaDao.save(old);
-
 	        oldWorkflowMetas.remove(old.getK()); // remove this key from the old meta list as we're done with it
 	        continue;
 	      }
 	      // current meta key does not exist in db already. Save this new metadata
-	      workflowMeta.setWorkflowId(workflow.getWorkflowId());
+	      workflowMeta.setWorkflowId(workflow.getId());
 	      workflowMeta.setPosition(1);
 	      workflowMetaDao.save(workflowMeta);
 	    }
@@ -225,7 +217,7 @@ public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	Work
 	
 	private void syncWorkflowSampleSubtypes(Workflow workflow, Set<String> sampleSubtypeInames){
 	    Map<String, Integer> m = new HashMap<String, Integer>();
-	    m.put("workflowId", workflow.getWorkflowId());
+	    m.put("workflowId", workflow.getId());
 	    List<WorkflowSampleSubtype> oldWorkflowSampleSubtypes = workflow.getWorkflowSampleSubtype();
 
 	    // todo better logic so updates.
@@ -249,10 +241,10 @@ public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	Work
 	    // the leftovers were not in the db so create
 	    for (String sampleSubtypeIName: safeSet(sampleSubtypeInames)) {
 	      SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeByIName(sampleSubtypeIName);
-	      if (sampleSubtype.getSampleSubtypeId() != null){
+	      if (sampleSubtype.getId() != null){
 		      WorkflowSampleSubtype newWorkflowSampleSubtype = new WorkflowSampleSubtype();
-		      newWorkflowSampleSubtype.setWorkflowId(workflow.getWorkflowId()); 
-		      newWorkflowSampleSubtype.setSampleSubtypeId(sampleSubtype.getSampleSubtypeId());
+		      newWorkflowSampleSubtype.setWorkflowId(workflow.getId()); 
+		      newWorkflowSampleSubtype.setSampleSubtypeId(sampleSubtype.getId());
 		
 		      workflowsamplesubtypeDao.save(newWorkflowSampleSubtype);
 	      } else {
