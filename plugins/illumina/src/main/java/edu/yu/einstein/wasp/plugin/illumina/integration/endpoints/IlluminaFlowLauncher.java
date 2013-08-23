@@ -5,14 +5,10 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageHeaders;
 import org.springframework.integration.MessagingException;
-import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.annotation.Transformer;
-import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
@@ -21,42 +17,14 @@ import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate;
-import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.plugin.illumina.plugin.IlluminaResourceCategory;
 import edu.yu.einstein.wasp.plugin.illumina.plugin.WaspIlluminaHiseqPlugin;
-import edu.yu.einstein.wasp.service.RunService;
 
-@Transactional("entityManager")
 public class IlluminaFlowLauncher {
 	
-	private RunService runService;
-	
-	private String hiseqPluginArea;
-	
-	private String personalSeqPluginArea;
-	
-	public void setRunService(RunService runService) {
-		this.runService = runService;
-	}
-	
-	
-	public void setHiseqPluginArea(String hiseqPluginArea) {
-		this.hiseqPluginArea = hiseqPluginArea;
-	}
-	
-
-	public void setPersonalSeqPluginArea(String personalSeqPluginArea) {
-		this.personalSeqPluginArea = personalSeqPluginArea;
-	}
-
 	private static final Logger logger = LoggerFactory.getLogger(IlluminaFlowLauncher.class);
 	
 	public IlluminaFlowLauncher(){}
-	
-	public IlluminaFlowLauncher(RunService runService, String hiseqPluginArea, String personalSeqPluginArea){
-		setHiseqPluginArea(hiseqPluginArea);
-		setPersonalSeqPluginArea(personalSeqPluginArea);
-		setRunService(runService);
-	}
 	
 	@Transformer
 	public Message<BatchJobLaunchContext> launchIlluminaFlowJob(Message<?> message){ 
@@ -69,24 +37,27 @@ public class IlluminaFlowLauncher {
 			logger.debug("Message has the wrong status or payload value.");
 			return null;
 		}
-		Run run = runService.getRunDao().getRunByRunId(runStatusMessageTemplate.getRunId());
-		String rcIname = run.getResourceCategory().getIName();
+		Integer runId = runStatusMessageTemplate.getRunId();
+		String rcIname = (String) runStatusMessageTemplate.getHeader(WaspJobParameters.RUN_RESOURCE_CATEGORY_INAME);
+		String runName = (String) runStatusMessageTemplate.getHeader(WaspJobParameters.RUN_NAME);
+		logger.debug("Processing run message: runId=" + runId);
+		logger.debug("Processing run message: rcIname=" + rcIname);
+		logger.debug("Processing run message: runName=" + runName);
 		String flowName = null;
-		if (rcIname.equals(hiseqPluginArea))
+		if (rcIname.equals(IlluminaResourceCategory.HISEQ_2000) || rcIname.equals(IlluminaResourceCategory.HISEQ_2500))
 			flowName = WaspIlluminaHiseqPlugin.FLOW_NAME;
-		//else if (rcIname.equals(personalSeqPluginArea))
+		//else if (rcIname.equals(IlluminaResourceCategory.PERSONAL))
 		//	flowName = ;
 		if (flowName == null){
-			logger.debug("Run with id=" + run.getId() + " has a resource-category iname=" + rcIname + " which is not applicable to this plugin");
+			logger.debug("Run with id=" + runId + " has a resource-category iname=" + rcIname + " which is not applicable to this plugin");
 			return null;
 		}
 		// all checks out so create the batch job launch message
 		Map<String, String> jobParameters = new HashMap<String, String>();
-		jobParameters.put(WaspJobParameters.RUN_ID, run.getId().toString() );
-		jobParameters.put(WaspJobParameters.RUN_NAME, run.getName());
+		jobParameters.put(WaspJobParameters.RUN_ID, runId.toString() );
+		jobParameters.put(WaspJobParameters.RUN_NAME, runName);
 		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate(new BatchJobLaunchContext(flowName, jobParameters) );
 		try {
-			
 			if (message.getHeaders().containsKey(MessageHeaders.REPLY_CHANNEL))
 				batchJobLaunchMessageTemplate.getHeaders().put(MessageHeaders.REPLY_CHANNEL, message.getHeaders().get(MessageHeaders.REPLY_CHANNEL));
 			Message<BatchJobLaunchContext> launchMessage = batchJobLaunchMessageTemplate.build();

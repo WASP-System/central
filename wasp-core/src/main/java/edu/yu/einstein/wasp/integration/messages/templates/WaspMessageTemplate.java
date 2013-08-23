@@ -68,6 +68,7 @@ public abstract class WaspMessageTemplate implements MessageTemplate{
 			setUserCreatingMessage((User) message.getHeaders().get(USER_KEY));
 		if (message.getHeaders().containsKey(COMMENT_KEY))
 			setComment((String) message.getHeaders().get(COMMENT_KEY));
+		headers.putAll(message.getHeaders());
 	}	
 	
 	public User getUserCreatingMessage() {
@@ -131,7 +132,7 @@ public abstract class WaspMessageTemplate implements MessageTemplate{
 		return headers.get(key);
 	}
 	
-	public void setHeader(String key, Object value){
+	public void addHeader(String key, Object value){
 		headers.put(key, value);
 	}
 	

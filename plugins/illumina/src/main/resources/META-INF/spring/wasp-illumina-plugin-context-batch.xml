@@ -15,11 +15,7 @@
 	<import resource="wasp-illumina-plugin-context-common.xml" />
 		
 	<int:transformer id="illuminaFlowLauncher" input-channel="wasp.channel.notification.run" output-channel="wasp.channel.queue.launch" >
-		<bean class="edu.yu.einstein.wasp.plugin.illumina.integration.endpoints.IlluminaFlowLauncher" >
-			<constructor-arg name="runService" ref="runServiceImpl" />
-			<constructor-arg name="hiseqPluginArea" ref="hiseqPluginArea" />
-			<constructor-arg name="personalSeqPluginArea" ref="personalSeqPluginArea" />
-		</bean>
+		<bean class="edu.yu.einstein.wasp.plugin.illumina.integration.endpoints.IlluminaFlowLauncher" />
 	</int:transformer>
 	
 </beans>

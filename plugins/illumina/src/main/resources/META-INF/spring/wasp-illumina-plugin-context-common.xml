@@ -32,6 +32,8 @@
 		</constructor-arg>
 	</bean>
 	
+	<bean id="illuminaResourceCategory" class="edu.yu.einstein.wasp.plugin.illumina.plugin.IlluminaResourceCategory" />
+	
 	<!-- channel for communications with this plugin. -->
 	<int:channel id="wasp.channel.plugin.waspIlluminaHiSeq" />
 
@@ -48,8 +50,8 @@
 		</property>
 		<property name="handles" >
 			<set>
-				<ref bean="illuminaHiSeq2000Area" />
-				<ref bean="illuminaHiSeq2500Area" />
+				<value>#{illuminaResourceCategory.HISEQ_2000}</value> 
+				<value>#{illuminaResourceCategory.HISEQ_2500}</value>
 			</set>
 		</property>
 		<property name="casava" ref="casava" />

@@ -197,6 +197,8 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		RunStatusMessageTemplate messageTemplate = new RunStatusMessageTemplate(run.getId());
 		messageTemplate.setUserCreatingMessageFromSession(userService);
 		messageTemplate.setStatus(WaspStatus.CREATED);
+		messageTemplate.addHeader(WaspJobParameters.RUN_RESOURCE_CATEGORY_INAME, run.getResourceCategory().getIName());
+		messageTemplate.addHeader(WaspJobParameters.RUN_NAME, run.getName());
 		try {
 			sendOutboundMessage(messageTemplate.build(), true);
 		} catch (WaspMessageBuildingException e){

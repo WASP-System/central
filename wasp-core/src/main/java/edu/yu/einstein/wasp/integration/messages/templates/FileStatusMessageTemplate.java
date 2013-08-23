@@ -20,7 +20,7 @@ public class FileStatusMessageTemplate extends WaspStatusMessageTemplate {
 	
 	public FileStatusMessageTemplate(Integer fileGroupId){
 		super();
-		setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.FILE);
+		addHeader(WaspMessageType.HEADER_KEY, WaspMessageType.FILE);
 		setFileGroupId(fileGroupId);
 	}
 	
@@ -37,7 +37,7 @@ public class FileStatusMessageTemplate extends WaspStatusMessageTemplate {
 	}
 
 	public void setFileGroupId(Integer fileGroupId) {
-		setHeader(WaspJobParameters.FILE_GROUP_ID, fileGroupId);
+		addHeader(WaspJobParameters.FILE_GROUP_ID, fileGroupId);
 	}
 	
 	
