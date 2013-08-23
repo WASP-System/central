@@ -33,7 +33,7 @@ public class BabrahamStatusMessageTemplate extends SimpleBabrahamStatusMessageTe
 	}
 
 	public void setFileGroupId(Integer fileGroupId) {
-		setHeader(WaspJobParameters.FILE_GROUP_ID, fileGroupId);
+		addHeader(WaspJobParameters.FILE_GROUP_ID, fileGroupId);
 	}
 
 	

@@ -11,18 +11,18 @@
 
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="bwaAlignerUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
-    <property name="baseArea" value="#{bwaAlignerArea}" />
+    <property name="baseArea" ref="bwaAlignerArea" />
   </bean>
 
   <bean id="bwa" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
-  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.mps.bwa.BWASoftwareComponent</value></property>
+  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.bwa.software.BWASoftwareComponent</value></property>
     <property name="name" value="BWA" />
-    <property name="area" value="#{bwaAlignerArea}" />
+    <property name="area" ref="bwaAlignerArea" />
     <property name="resourceType" ref="referenceBasedAlignerResourceType" />
 	
 	<property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" value="#{bwaAlignerArea}" />
+         <property name="area" ref="bwaAlignerArea" />
          <property name="metaList">
          	<list>
          		<value>#{waspSoftware['currentVersion']}=0.6.2</value>

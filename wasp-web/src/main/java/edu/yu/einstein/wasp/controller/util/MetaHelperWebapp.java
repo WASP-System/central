@@ -157,6 +157,95 @@ public class MetaHelperWebapp extends MetaHelper {
 		return list;
 	}
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 *  Populates provided list from json.  
+	 *	[parentarea]Meta_[metakey] (ie. "userMeta_user.phone");
+	 * @param Map<String,String> jsonMap (json converted to Map<String,String>)
+	 * @param clazz
+	 * @return
+	 */
+	public final <T extends MetaBase> List<T> getFromJson(Map<String,String> jsonMap, List<T> list, Class<T> clazz) {
+		return getFromJson(jsonMap, list, (Map<String, MetaAttribute.FormVisibility>) null, clazz);
+	}
+	
+	/**
+	 *  Generates Master List and pulls in from values from json.  
+	 *	[parentarea]Meta_[metakey] (ie. "userMeta_user.phone");
+	 * @param Map<String,String> jsonMap (json converted to Map<String,String>)
+	 * @param clazz
+	 * @return
+	 */
+	public final <T extends MetaBase> List<T> getFromJson(Map<String,String> jsonMap, Class<T> clazz) {
+		return getFromJson(jsonMap, getMasterList(clazz), (Map<String, MetaAttribute.FormVisibility>) null, clazz);
+	}
+
+	/**
+	 * Generates Master List and pulls in from values from json.  
+	 *	[parentarea]Meta_[metakey] (ie. "userMeta_user.phone");
+	 * @param Map<String,String> jsonMap (json converted to Map<String,String>)
+	 * @param visibility 
+	 * @param clazz
+	 * @return
+	 */
+	public final <T extends MetaBase> List<T> getFromJson(Map<String,String> jsonMap, Map<String, MetaAttribute.FormVisibility> visibility, Class<T> clazz) {
+		return getFromJson(jsonMap, getMasterList(visibility, clazz), visibility, clazz);
+	}
+	
+	/**
+	 *  Populates provided list from json.  
+	 *	[parentarea]Meta_[metakey] (ie. "userMeta_user.phone");
+	 * @param Map<String,String> jsonMap (json converted to Map<String,String>)
+	 * @param visibility 
+	 * @param clazz
+	 * @return
+	 */
+	public final <T extends MetaBase> List<T> getFromJson(Map<String,String> jsonMap, List<T> list, Map<String, MetaAttribute.FormVisibility> visibility, Class<T> clazz) {
+
+		for (T obj: list) {
+			String requestKey = parentArea + "Meta" + "_" + obj.getK();
+			if (! jsonMap.containsKey(requestKey)) { continue; }
+			try {
+				obj.setV(jsonMap.get(requestKey));
+			} catch (Throwable e) {
+				throw new IllegalStateException("cannot merge attributes ",e);
+			}
+			displayDebugInfoMessage(obj, "getFromRequest() syncing");
+		}
+
+		this.lastList =  list; 
+
+		return list;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	/**
 	 * Generates Master List and pulls in from values from request (Json form)
 	 * @param request

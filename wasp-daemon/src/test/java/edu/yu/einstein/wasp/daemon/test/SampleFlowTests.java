@@ -131,7 +131,9 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			parameterMap.put( JOB_ID_KEY, new JobParameter(JOB_ID.toString()) );
 			parameterMap.put( SAMPLE_ID_KEY, new JobParameter(SAMPLE_ID.toString()) );
 			JobExecution jobExecution = jobLauncher.run(job, new JobParameters(parameterMap));
-			Thread.sleep(500); // allow some time for flow initialization
+			try{
+				Thread.sleep(500);
+			} catch (InterruptedException e){}; // allow some time for flow initialization
 			
 			// send CREATED sample message (simulating button presses in web view when sample received)
 			SampleStatusMessageTemplate sampleTemplate = new SampleStatusMessageTemplate(SAMPLE_ID);
@@ -139,8 +141,8 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			Message<WaspStatus> sampleCreatedNotificationMessage = sampleTemplate.build();
 			logger.info("testDNASampleReceived(): Sending message via 'outbound rmi gateway': "+sampleCreatedNotificationMessage.toString());
 			Message<?> replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), sampleCreatedNotificationMessage);
-			if (replyMessage != null)
-				Assert.fail("testDNASampleReceived(): Got unexpected reply message: "+ replyMessage.toString());
+			if (replyMessage == null)
+				Assert.fail("testDNASampleReceived(): Failed to receive reply message");
 			
 			// send ACCEPTED message (simulating job approval tasks completed by wasp job flow)
 			JobStatusMessageTemplate jobTemplate = new JobStatusMessageTemplate(JOB_ID);
@@ -148,10 +150,12 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			Message<WaspStatus> jobAcceptedNotificationMessage = jobTemplate.build();
 			logger.info("testDNASampleReceived(): Sending message via 'outbound rmi gateway': "+jobAcceptedNotificationMessage.toString());
 			replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), jobAcceptedNotificationMessage);
-			if (replyMessage != null)
-				Assert.fail("testDNASampleReceived(): Got unexpected reply message: "+ replyMessage.toString());
+			if (replyMessage == null)
+				Assert.fail("testDNASampleReceived(): Failed to receive reply message");
 			
-			Thread.sleep(1000); // delay to allow processing of messages
+			try{
+				Thread.sleep(1000);
+			} catch (InterruptedException e){}; // delay to allow processing of messages
 			
 			// send COMPLETED message (simulating job approval tasks completed by wasp job flow)
 			sampleTemplate.setStatus(WaspStatus.COMPLETED);
@@ -159,8 +163,8 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			Message<WaspStatus> qcPassedNotificationMessage = sampleTemplate.build();
 			logger.info("testDNASampleReceived(): Sending message via 'outbound rmi gateway': "+qcPassedNotificationMessage.toString());
 			replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), qcPassedNotificationMessage);
-			if (replyMessage != null)
-				Assert.fail("testDNASampleReceived(): Got unexpected reply message: "+ replyMessage.toString());
+			if (replyMessage == null)
+				Assert.fail("testDNASampleReceived(): Failed to receive reply message");
 			
 			// Delay to allow message receiving and transitions. Time out after 10s.
 			int repeat = 0;
@@ -168,13 +172,17 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 					(! SampleStatusMessageTemplate.actUponMessage(message, SAMPLE_ID, WaspJobTask.NOTIFY_STATUS)) || 
 					!message.getPayload().equals(WaspStatus.ACCEPTED)) && repeat < 10){
 				message = null;
-				Thread.sleep(1000);
+				try{
+					Thread.sleep(1000);
+				} catch (InterruptedException e){};
 				repeat++;
 			}
 			if (message == null)
 				Assert.fail("testDNASampleReceived(): Timeout waiting to receive message on 'wasp.channel.notification.sample'");
 			
-			Thread.sleep(1000); // wait for message receiving and job completion events
+			try{
+				Thread.sleep(1000);
+			} catch (InterruptedException e){}; // wait for message receiving and job completion events
 			
 			// check BatchStatus and ExitStatus are as expected
 			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.COMPLETED);
@@ -211,7 +219,9 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			parameterMap.put( JOB_ID_KEY, new JobParameter(JOB_ID.toString()) );
 			parameterMap.put( SAMPLE_ID_KEY, new JobParameter(SAMPLE_ID2.toString()) );
 			JobExecution jobExecution = jobLauncher.run(job, new JobParameters(parameterMap));
-			Thread.sleep(1000); // allow some time for flow initialization
+			try{
+				Thread.sleep(1000);
+			} catch (InterruptedException e){}; // allow some time for flow initialization
 			
 			// send CREATED sample message (simulating button presses in web view when sample received)
 			LibraryStatusMessageTemplate sampleTemplate = new LibraryStatusMessageTemplate(SAMPLE_ID2);
@@ -219,8 +229,8 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			Message<WaspStatus> sampleCreatedNotificationMessage = sampleTemplate.build();
 			logger.info("testLibrarySampleReceived(): Sending message via 'outbound rmi gateway': "+sampleCreatedNotificationMessage.toString());
 			Message<?> replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), sampleCreatedNotificationMessage);
-			if (replyMessage != null)
-				Assert.fail("testLibrarySampleReceived(): Got unexpected reply message: "+ replyMessage.toString());
+			if (replyMessage == null)
+				Assert.fail("testLibrarySampleReceived(): Failed to receive reply message");
 			
 			// send ACCEPTED message (simulating job approval tasks completed by wasp job flow)
 			JobStatusMessageTemplate jobTemplate = new JobStatusMessageTemplate(JOB_ID);
@@ -228,29 +238,35 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			Message<WaspStatus> jobAcceptedNotificationMessage = jobTemplate.build();
 			logger.info("testLibrarySampleReceived(): Sending message via 'outbound rmi gateway': "+jobAcceptedNotificationMessage.toString());
 			replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), jobAcceptedNotificationMessage);
-			if (replyMessage != null)
-				Assert.fail("testLibrarySampleReceived(): Got unexpected reply message: "+ replyMessage.toString());
-			
+			if (replyMessage == null)
+				Assert.fail("testLibrarySampleReceived(): Failed to receive reply message");
+			try{
+				Thread.sleep(100);
+			} catch (InterruptedException e){};
 			sampleTemplate.setTask(WaspLibraryTask.QC);
 			sampleTemplate.setStatus(WaspStatus.COMPLETED);
 			Message<WaspStatus> sampleQCNotificationMessage = sampleTemplate.build();
 			logger.info("testLibrarySampleReceived(): Sending message via 'outbound rmi gateway': "+sampleQCNotificationMessage.toString());
 			replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), sampleQCNotificationMessage);
-			if (replyMessage != null)
-				Assert.fail("testLibrarySampleReceived(): Got unexpected reply message: "+ replyMessage.toString());
+			if (replyMessage == null)
+				Assert.fail("testLibrarySampleReceived(): Failed to receive reply message");
 			
 			int repeat = 0;
 			while ((message == null || 
 					(! LibraryStatusMessageTemplate.actUponMessage(message, SAMPLE_ID2, WaspJobTask.NOTIFY_STATUS)) || 
 					!message.getPayload().equals(WaspStatus.ACCEPTED)) && repeat < 10){
 				message = null;
-				Thread.sleep(1000);
+				try{
+					Thread.sleep(1000);
+				} catch (InterruptedException e){};
 				repeat++;
 			}
 			if (message == null)
 				Assert.fail("testLibrarySampleReceived(): Timeout waiting to receive message on 'wasp.channel.notification.library'");
 			
-			Thread.sleep(1000); // wait for message receiving and job completion events
+			try{
+				Thread.sleep(1000);
+			} catch (InterruptedException e){}; // wait for message receiving and job completion events
 			
 			// check BatchStatus and ExitStatus are as expected
 			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.COMPLETED);
@@ -258,6 +274,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			jobExecution.stop();
 		} catch (Exception e){
 			// caught an unexpected exception
+			e.printStackTrace();
 			Assert.fail("testLibrarySampleReceived(): Caught Exception: "+e.getMessage());
 		}
 	}
@@ -287,7 +304,9 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			parameterMap.put( JOB_ID_KEY, new JobParameter(JOB_ID.toString()) );
 			parameterMap.put( SAMPLE_ID_KEY, new JobParameter(SAMPLE_ID3.toString()) );
 			JobExecution jobExecution = jobLauncher.run(job, new JobParameters(parameterMap));
-			Thread.sleep(500); // allow some time for flow initialization
+			try{
+				Thread.sleep(500);
+			} catch (InterruptedException e){}; // allow some time for flow initialization
 			
 			// send ACCEPTED message (simulating job approval tasks completed by wasp job flow)
 			JobStatusMessageTemplate jobTemplate = new JobStatusMessageTemplate(JOB_ID);
@@ -295,8 +314,8 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			Message<WaspStatus> jobAcceptedNotificationMessage = jobTemplate.build();
 			logger.info("testSampleFailedQC(): Sending message via 'outbound rmi gateway': "+jobAcceptedNotificationMessage.toString());
 			Message<?> replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), jobAcceptedNotificationMessage);
-			if (replyMessage != null)
-				Assert.fail("testSampleFailedQC(): Got unexpected reply message: "+ replyMessage.toString());
+			if (replyMessage == null)
+				Assert.fail("testSampleFailedQC(): Failed to receive reply message");
 			
 			// send CREATED sample message (simulating button presses in web view when sample not going to be received)
 			SampleStatusMessageTemplate sampleTemplate = new SampleStatusMessageTemplate(SAMPLE_ID3);
@@ -304,10 +323,12 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			Message<WaspStatus> sampleCreatedNotificationMessage = sampleTemplate.build();
 			logger.info("testSampleFailedQC(): Sending message via 'outbound rmi gateway': "+sampleCreatedNotificationMessage.toString());
 			replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), sampleCreatedNotificationMessage);
-			if (replyMessage != null)
-				Assert.fail("testSampleFailedQC(): Got unexpected reply message: "+ replyMessage.toString());
+			if (replyMessage == null)
+				Assert.fail("testSampleFailedQC(): Failed to receive reply message");
 						
-			Thread.sleep(500); // delay to allow processing of messages
+			try{
+				Thread.sleep(500);
+			} catch (InterruptedException e){}; // delay to allow processing of messages
 			
 			// send FAILED message (simulating QC fail notification completed by wasp job flow)
 			sampleTemplate.setStatus(WaspStatus.FAILED);
@@ -315,8 +336,8 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			Message<WaspStatus> qcFailedNotificationMessage = sampleTemplate.build();
 			logger.info("testSampleFailedQC(): Sending message via 'outbound rmi gateway': "+qcFailedNotificationMessage.toString());
 			replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), qcFailedNotificationMessage);
-			if (replyMessage != null)
-				Assert.fail("testSampleFailedQC(): Got unexpected reply message: "+ replyMessage.toString());
+			if (replyMessage == null)
+				Assert.fail("testSampleFailedQC(): Failed to receive reply message");
 			
 			// Delay to allow message receiving and transitions. Time out after 10s.
 			int repeat = 0;
@@ -324,13 +345,17 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 					(! SampleStatusMessageTemplate.actUponMessage(message, SAMPLE_ID3, WaspJobTask.NOTIFY_STATUS)) || 
 					!message.getPayload().equals(WaspStatus.ABANDONED)) && repeat < 10){
 				message = null;
-				Thread.sleep(1000);
+				try{
+					Thread.sleep(1000);
+				} catch (InterruptedException e){};
 				repeat++;
 			}
 			if (message == null)
 				Assert.fail("testSampleFailedQC(): Timeout waiting to receive message on 'wasp.channel.notification.abort'");
 			
-			Thread.sleep(1000); // wait for message receiving and job completion events
+			try{
+				Thread.sleep(1000);
+			} catch (InterruptedException e){}; // wait for message receiving and job completion events
 			
 			// check BatchStatus and ExitStatus are as expected
 			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.STOPPED);

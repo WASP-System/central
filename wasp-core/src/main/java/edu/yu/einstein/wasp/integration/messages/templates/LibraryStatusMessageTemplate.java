@@ -17,7 +17,7 @@ public class LibraryStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	
 	public LibraryStatusMessageTemplate(Integer libraryId){
 		super();
-		setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.LIBRARY);
+		addHeader(WaspMessageType.HEADER_KEY, WaspMessageType.LIBRARY);
 		setLibraryId(libraryId);
 	}
 	
@@ -34,7 +34,7 @@ public class LibraryStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	}
 
 	public void setLibraryId(Integer libraryId) {
-		setHeader(WaspJobParameters.LIBRARY_ID, libraryId);
+		addHeader(WaspJobParameters.LIBRARY_ID, libraryId);
 	}
 	
 	

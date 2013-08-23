@@ -22,7 +22,7 @@ public abstract class WaspStatusMessageTemplate extends WaspMessageTemplate impl
 	public WaspStatusMessageTemplate(Message<WaspStatus> message){
 		super(message);
 		if (message.getHeaders().containsKey(EXIT_DESCRIPTION_HEADER))
-			setHeader(EXIT_DESCRIPTION_HEADER, message.getHeaders().get(EXIT_DESCRIPTION_HEADER));
+			addHeader(EXIT_DESCRIPTION_HEADER, message.getHeaders().get(EXIT_DESCRIPTION_HEADER));
 		status = message.getPayload();
 	}
 	
@@ -46,7 +46,7 @@ public abstract class WaspStatusMessageTemplate extends WaspMessageTemplate impl
 	}
 
 	public void setExitDescription(String exitDescription) {
-		setHeader(EXIT_DESCRIPTION_HEADER, exitDescription);
+		addHeader(EXIT_DESCRIPTION_HEADER, exitDescription);
 	}
 
 	@Override

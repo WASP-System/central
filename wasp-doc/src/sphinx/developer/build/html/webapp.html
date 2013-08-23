@@ -1,0 +1,290 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Working with the web layer &mdash; Wasp System 0.1.0-RELEASE documentation</title>
+    
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1.0-RELEASE',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/theme_extras.js"></script>
+    <link rel="top" title="Wasp System 0.1.0-RELEASE documentation" href="index.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="index.html">
+          <span>Wasp System 0.1.0-RELEASE documentation</span></a></h1>
+        <h2 class="heading"><span>Working with the web layer</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        <a class="uplink" href="index.html">Contents</a>
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="working-with-the-web-layer">
+<h1>Working with the web layer<a class="headerlink" href="#working-with-the-web-layer" title="Permalink to this headline">¶</a></h1>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Email communication is essential for proper WASP flow, particularly during user registration and initial steps of job submission.
+Currently, WASP does NOT provide a backup system if email communication fails. While this will be remedied in a future release,
+until that time, it is essential to properly configure the email system and to confirm that emails to and from the system function as expected.</p>
+</div>
+<div class="section" id="users">
+<h2>Users<a class="headerlink" href="#users" title="Permalink to this headline">¶</a></h2>
+<p>There exist two general categories of WASP users and the procedure used to create accounts differs for each category.</p>
+<p>The two general classes of user are:</p>
+<ol class="arabic simple">
+<li>Job Submitters</li>
+<li>Core Laboratory Personnel and Administrators</li>
+</ol>
+<p>Job Submitters include Principal Investigators and their lab members who request services from a Core Laboratory Facility.
+The function of the Core Laboratory Facility is to provide services to Job Submitters, generally by performing assays and data analysis,
+and returning results.</p>
+<p>Core Laboratory Personnel and Administrators include individuals directly or indirectly associated with the Core
+Laboratory Facility, including Facility Managers, Facility Technicians, Departmental Administrators, General Administrators,
+System Administrators, etc. While the two groups of users are not mutually exclusive, the mechanism for creating each account is
+different; creating accounts for Job Submitters (PIs and their lab members) generally occurs from outside WASP while creating accounts
+for Core Facility Personnel generally occurs from within WASP.</p>
+</div>
+<div class="section" id="roles">
+<h2>Roles<a class="headerlink" href="#roles" title="Permalink to this headline">¶</a></h2>
+<p>WASP supports user roles as a means of regulating access to system functionality. Users can be granted no role or
+many different roles, which controls what they are able to to do within the system.  For example, a typical job submitter
+that registers as a member of some lab is conferred with the role of lab user (LU), which permits that user to submit
+job requests, to view ones own job requests and the progress of those jobs, and to view all data associated with those
+jobs. A job submitter that registers as a Principal Investigator is conferred with roles PI, LM (lab manager),
+and LU (lab user), which permits the PI to submit job requests, view ones own job requests and data generated from
+those requests, and to view job requests and data belonging to other lab users registered with that PI&#8217;s lab.</p>
+<p>By contrast, the PI, LM, and LU roles are NOT sufficient to permit access Core Laboratory Facility functions, which include the
+generation of libraries, the loading of flow cells, and the creation / initiation of a sequencing run, as these functions are
+restricted to individuals granted the roles of Facility Manager (FM) and Facility Technician (FT role). Some roles, such as PI
+and LU are granted automatically by the system during the registration process; other roles, such as Facility Manager and Technician,
+are granted or revoked explicitly (see Super User below). Current roles that can be granted explicitly include Facilities Manager,
+System Administrator, General Administrator, Facilities Technician, Lab Manager, and Super User, however the System Administrator
+and General Administrator roles have yet to be fully defined. The system also includes a special role, Super User, which permits
+access to all WASP functionality.</p>
+</div>
+<div class="section" id="special-user-role">
+<h2>Special User &amp; Role<a class="headerlink" href="#special-user-role" title="Permalink to this headline">¶</a></h2>
+<p>WASP is delivered with a single registered user with a username / password combination of super / user and a role of Super User.
+The role of Super User confers access to ALL system privileges. Note that other users can be granted the Super User role. It is suggested
+that the role of Super User be granted to individuals that in addition have been granted the role of Facility Manager.</p>
+</div>
+<div class="section" id="logging-in">
+<h2>Logging In<a class="headerlink" href="#logging-in" title="Permalink to this headline">¶</a></h2>
+<p>To log into WASP, a user requires a valid account, which is obtained through the registration process. Once the registration
+process is complete, a user will have obtained a username and password which are required to log in. To log in, point your browser
+to the WASP login page, enter your username and password, and click the Login button.</p>
+</div>
+<div class="section" id="dashboard">
+<h2>Dashboard<a class="headerlink" href="#dashboard" title="Permalink to this headline">¶</a></h2>
+<p>Navigation through WASP begins at the Dashboard web page, which appears upon successful login. You may return to the
+Dashboard at any time by clicking on the WASP &#8220;beehive&#8221; logo or the Dashboard link located on the upper-left or upper-right portion
+of each webpage, respectively.</p>
+</div>
+<div class="section" id="registration">
+<h2>Registration<a class="headerlink" href="#registration" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="creating-an-account-for-job-submitters">
+<h3>Creating An Account For Job Submitters<a class="headerlink" href="#creating-an-account-for-job-submitters" title="Permalink to this headline">¶</a></h3>
+<p>WASP is laboratory-based, which helps facilitate data sharing. This means that when a PI creates a new PI account,
+they simultaneously create a lab which others (lab members) may join. Because of this, a lab member may not join a lab
+until the lab&#8217;s PI has successfully registered. New PIs and new lab members register for a new account from
+outside the system by navigating to the WASP login page and selecting the appropriate link (&#8220;New PI&#8221; or New User&#8221;).
+Note that the choice of Wasp username is not restricted, however we suggest the format of initial of first name followed
+directly by complete last name (no spaces, all lower case). In addition, it is important to pay particular attention to the
+email address that is entered in this form, as email is the primary mechanism by which users complete the registration
+process and an incorrect email addresses at this time can result in difficult to detect delays.</p>
+</div>
+<div class="section" id="creating-a-new-pi-account">
+<h3>Creating A New PI Account<a class="headerlink" href="#creating-a-new-pi-account" title="Permalink to this headline">¶</a></h3>
+<p>For individuals that do NOT have a WASP account and wish to register for a new account as a PI of a particular lab,
+the process is as follows. A new PI registers for an account by selecting the &#8220;New PI&#8221; link located on the WASP login page.
+Users may choose their own username and password. Once the form is successfully submitted, the new PI will receive an email
+asking to confirm his/her email address, which is done by clicking on a link from within the email.</p>
+<p>Following email confirmation, someone with the appropriate authority must enter the system and approve or reject
+the &#8220;New PI&#8221; request. It is expected that a Department Administrator for the new PI&#8217;s department will be the one to approve
+the request, however, any user with Super User privileges may perform this function. The appropriate Department Administrator
+will receive an email informing them that a new PI request is awaiting action. To approve or reject a new PI, navigate to
+Dashboard/Tasks tab/Department Administration Tasks. Click on the accordion bar to reveal information about the PI and either
+accept or reject their application. This results in the new PI receiving an email informing them that their new account has been
+rejected or approved; if approved they may log in.</p>
+</div>
+<div class="section" id="creating-a-new-lab-member-account">
+<h3>Creating A New Lab Member Account<a class="headerlink" href="#creating-a-new-lab-member-account" title="Permalink to this headline">¶</a></h3>
+<p>For individuals that do NOT have a WASP account and wish to register for a new account as a member of a particular lab,
+the process is as follows. Navigate to the WASP login page and select the &#8220;New User&#8221; link. Complete the New User form and submit.
+Note that to complete the form, you MUST provide the WASP username of the PI whose lab you wish to join. This implies that the
+PI must have an active WASP PI account prior to any lab member registration. Once submitted, the new user will receive an email
+requesting that they confirm their email address.</p>
+<p>After a pending new user confirms his/her email address, the specified PI (or any designated lab manager assigned to that lab)
+will receive an email informing them that a new lab member has requested to join their lab. (To designate a lab manager, see below.)
+The email will instruct the PI or lab manager to log in to WASP and accept or reject the new pending lab member. To accept/reject
+the new user, The PI or lab manager is expected to log in,  navigate to Dashboard/Tasks tab/Lab Management Tasks link, click on
+the accordion bar to reveal information about the prospective lab member, and approve or reject their application. Notification
+to the lab member will be by email. If approved, the user can now log in. In addition to the PI or lab manager, any user with
+Super User privileges may accept or reject the pending new user.</p>
+</div>
+<div class="section" id="joining-another-lab">
+<h3>Joining Another Lab<a class="headerlink" href="#joining-another-lab" title="Permalink to this headline">¶</a></h3>
+<p>This section deals with users that already have a WASP account. The procedure for a registered WASP user to join another
+lab is straightforward and does NOT include the creation of a new account. As before, the PI of the other lab must be a
+registered WASP user. To join a second (or third) lab, navigate to Dashboard/My Account tab/Request Access To A Lab.
+Note that there are two sections to the resulting page, &#8220;Request Access To Lab&#8221; &amp;amp; &#8220;Create New Lab&#8221; Request. To join
+another lab as a regular lab member, complete the Request Access To Lab section by typing in the WASP username of the
+PI for the lab you wish to join and submit using the Request Access button. The PI (and any Lab Managers) of the specified
+lab will receive an email informing them of the request and asking that they log in to WASP and Approve or reject the user&#8217;s
+request through the Dashboard/Tasks tab/Lab Management Tasks link. (In addition, any user with Super User privileges may
+approve/reject this application.)</p>
+<p>The procedure for a registered WASP user to become the PI of a new lab is as follows and does NOT include the
+creation of a new account. Navigate to Dashboard/My Account tab/Request Access To A Lab and complete the Create New Lab
+Request form in order to apply to become a PI of a new lab. Once submitted, the request will need to be approved by a
+Department Administrator or by someone with the role of Super User (see Approving/Rejecting A New PI Account).</p>
+</div>
+<div class="section" id="creating-an-account-for-core-laboratory-personnel-administrators">
+<h3>Creating An Account For Core Laboratory Personnel &amp; Administrators<a class="headerlink" href="#creating-an-account-for-core-laboratory-personnel-administrators" title="Permalink to this headline">¶</a></h3>
+<p>While the majority of WASP users are PIs and their lab members who wish to submit job requests,
+a smaller number of WASP users include core laboratory personnel, typically a Facility Manager,
+Facility Technicians, as well as Department Administrators. Core laboratory personnel do NOT create accounts themselves. Instead,
+the creation of accounts for new Core Lab Personnel is restricted to users with the role of Super User. Once an individual
+with Super User status has logged in, select the &#8220;Superuser Utils&#8221; tab from the dashboard, followed by the &#8220;User Utils&#8221; link,
+which will bring you to a &#8220;List of Users&#8221; grid.  This grid provides access to data about all registered users; access to that
+data is through double-clicking an entry. In addition to information about existing users, the grid is used to create a record
+for a new core lab user. To create a new user, click in the &#8220;+&#8221; icon located at the bottom left of the grid; the &#8220;Add new row&#8221;
+tooltip should appear when you hover over the &#8220;+&#8221; sign.  Complete the &#8220;Add Record&#8221; form that appears and submit. Note that the
+choice of Wasp username is not restricted, however we suggest the format of initial of first name followed directly by last name
+(no space, all lower case). It is important to pay particular attention to the email address that is entered in this form,
+as email is the primary mechanism by which users complete the registration process and an incorrect email addresses at this
+time can result in difficult to detect delays.</p>
+<p>Once the new record has been submitted, it is strongly suggested that the new user be assigned one or more roles. To
+assign a role, return to the dashboard, select the &#8220;Superuser Utils&#8221; tab, then select the &#8220;System Users&#8221; link, which will
+take you to the &#8220;System User Management&#8221; page.  Complete the form entitled Add System Role to User located at the bottom of the
+page. To do so, select a new role for the user and then indicate the user to which this role is to be applied. To indicate the
+user, begin typing the name of that user in the &#8220;Existing User&#8221; textbox. Once 2 - 3 letters of the name have been entered,
+autocomplete functionality attached to the text box will generate a set of possible user names. Select the correct user
+from the list and submit. (N.B.: You MUST select a user from the autocomplete list rather than simply typing the name of
+the user. This is necessary as both the name of the user, and his/her unique WASP username, will appear on the list and are
+necessary for proper granting of the new role. If the name does not appear using autocomplete, you most likely introduced a
+spelling error. Note that more than one role may be assigned to any user. (For example, as mentioned above, it may be prudent
+to assign the roles of Facility Manager and Super User to the individual responsible for the Facility laboratory.)</p>
+<p>While the roles of the Facility Manager and Facility Technician appear obvious, that of Departmental Administrator
+requires explanation and is applied differently from those described previously. The role of Departmental Administrator
+is two-fold: 1) to approve or reject new PI&#8217;s applying for a (new) WASP account and 2) to approve or reject new job
+requisitions. It is envisioned that a Departmental Administrator will handle new PI applications and job submission
+requests on a department basis.  The system ships with two default departments, &#8216;Internal - Default Department&#8217; and
+&#8216;External - Default Department.&#8217;  Additional internal departments (for example, Genetics) may be created and Departmental
+Administrators may be assigned to them, although creating a new department requires Super User privileges.  Users are
+assigned the role of Department Administrator on a department by department basis. This can occur in one of two ways.
+By the first method, a user with Super User privileges navigates to Dashboard, selects the Dept Admin tab, followed by
+the Department Management link. At the top of the page resulting page, enter the name of the new department and the name
+of the new administrator (must be someone already in WASP). The name of the new Administrator will autocomplete.
+Select that person and submit. The second way is to navigate to Dashboard/Dept Admin tab/Department Management link
+and then choose a department from the list at the bottom of the page. On the next page, type in the name of the new
+Administrator (Administrator Name / Create Administrator), which will autocomplete; submit.</p>
+<p>Following the successful submission of the form creating this new user, an email will be sent to the user welcoming
+them to WASP, informing them of their WASP username, and asking that they click a link within the email confirming their
+email address. (Obviously, if the new user fails to receive this initial email within a reasonable amount of time, it may
+be assumed that an incorrect email address was entered on to the initial &#8220;Add Record&#8221; form or the WASP email system failed
+to function properly.) Once the user confirms his/her email address, they will receive a second email describing the process
+required to reset their password.  Once their password is reset and confirmed, the registration process is complete and the
+new core lab user may log in.</p>
+</div>
+</div>
+<div class="section" id="job-submission">
+<h2>Job Submission<a class="headerlink" href="#job-submission" title="Permalink to this headline">¶</a></h2>
+<p>Submitting a job request is restricted to PIs and lab members. To submit a new job, navigate to dashboard, Job Utils tab,
+and select the Submit A Job link. To initiate a new request, complete the Create A Job page. Once this first page is completed,
+information about the job is saved, permitting the job request to be completed at some time in the future if desired.
+The new (draft) request, while saved by the system, is not visible to the core lab facility until all parts of the request are properly
+completed and submitted. If you need to save a job request prior to completion, it can be accessed at any time through dashboard,
+Job Utils tab, Draft Jobs link. Complete the initial Create A Job page by providing a name for the job, selecting the lab to be
+billed, and selecting the type of assay workflow that should be followed for this particular submission. (An example of a workflow
+might be ChiP-Seq or RNA-Seq). The submission continues by requesting information about the type of sequencing machine to be used
+for the job, as well as the requested read length and read type. This is followed by the names and types of samples being submitted;
+the system accepts new samples will shortly accept samples submitted to previous jobs. Users may also upload files that may be useful
+to the Core Lab Facility to document specifics about the samples being submitted (such as the size distribution of a user-submitted
+library prep or the quality of an RNA preparation). This is followed by number of sequencing lanes requested and how the samples
+should be run on those lanes, the pairings specific for the ChiP-Seq analysis, and finally specific regarding software used
+for the alignment and peak calling. Once a job request has been submitted, it may be viewed.</p>
+</div>
+<div class="section" id="core-lab-functionality">
+<h2>Core Lab Functionality<a class="headerlink" href="#core-lab-functionality" title="Permalink to this headline">¶</a></h2>
+<p>The following sections describe functionality essential to the core lab.</p>
+<div class="section" id="workflow-configuration">
+<h3>Workflow Configuration<a class="headerlink" href="#workflow-configuration" title="Permalink to this headline">¶</a></h3>
+<p>Types of sequencing jobs (referred to as a workflow) require configuration prior to any job submission. To
+configure a workflow requires Super User privileges. Navigate to Dashboard/SuperUser Utils tab and select the Workflow
+Utils link. The resulting webpage displays a grid listing available workflows. Select the workflow of interest and
+click on its configure link. On the next webpage, select the options most appropriate and submit. Once a workflow is
+configured, users may submit job requests of that type of workflow.</p>
+</div>
+<div class="section" id="create-a-machine-record">
+<h3>Create A Machine Record<a class="headerlink" href="#create-a-machine-record" title="Permalink to this headline">¶</a></h3>
+<p>Currently, types of machines available to the core facility (such as an Illumina HiSeq 2000) are pulled into
+the system from a configuration file.  By contrast, instances of a machine (such as the Illumina HiSeq 2000 machine
+in room 202 with serial number 102123) must be input manually. To view the current list of machines and to create a
+new machine, navigate to Dashboard/Facility Utils/List All Machines link. To add a new machine, select the &#8220;+&#8221; at the
+bottom left of the grid, complete the resulting form, and submit.</p>
+</div>
+<div class="section" id="create-a-platform-unit-record">
+<h3>Create A Platform Unit Record<a class="headerlink" href="#create-a-platform-unit-record" title="Permalink to this headline">¶</a></h3>
+<p>Currently, types of platform units (flow cells) available to the core facility (such as Illumina Flow Cell Version 3)
+are pulled into the system from a configuration file. Prior to adding libraries to a platform unit, a record for instances of
+a platform unit (such as an Illumina Flow Cell Version 3 with barcode AZX102TTA) must be created. To create a new platform unit
+record, navigate to Dashboard/Facility Util/List-Create link located under the platform unit utils subsection. After selecting a
+type of machine, followed by selecting a type of platform unit, you will see a grid listing the specific instances of platform
+units that are already recorded in the system. To generate a new instance of a particular type of platform unit, click the &#8220;+&#8221;
+at the bottom left of the grid, complete the form, and submit. To view a virtual display of the platform unit, select &#8220;details&#8221;
+from the grid entry of interest.</p>
+</div>
+<div class="section" id="create-a-control-library">
+<h3>Create A Control Library<a class="headerlink" href="#create-a-control-library" title="Permalink to this headline">¶</a></h3>
+<p>Control libraries may be added to any lane of a flow cell, regardless of the presence of other libraries on the lane. Controls
+are used to gain a feel for the quality of a sequence run as well as for reducing the signal generated from Illumina amplicon libraries
+or 5&#8217; indexed Illumina libraries which contain a common sequence at one or both ends of an insert. Controls must be entered into the
+WASP database prior to their initial use. To generate a control, navigate to Dashboard/Facility Utils tab/Control Libraries link. Select
+the &#8220;Create New Library&#8221; button, fill in the form, and submit. Currently, controls may be added to a flow cell lane whether they
+conflict with user&#8217;s libraries or not. This may require remediation.</p>
+</div>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        <a class="uplink" href="index.html">Contents</a>
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2013, Albert Einstein College of Medicine.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

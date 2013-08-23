@@ -39,13 +39,13 @@ import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.analysis.WaspJobSoftwareLaunchTasklet;
 import edu.yu.einstein.wasp.dao.RunDao;
+import edu.yu.einstein.wasp.integration.endpoints.RunSuccessSplitter;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
-import edu.yu.einstein.wasp.integration.splitters.RunSuccessSplitter;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobSoftware;
@@ -223,7 +223,6 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 			PowerMockito.when(mockSampleService.getJobOfLibraryOnCell(libraryCell)).thenReturn(job);
 			
 			BatchJobProviding plugin = new BatchJobProviding() {
-				@Override public String getBatchJobNameByArea(String BatchJobType, String area) {return null;}
 				@Override public String getBatchJobName(String BatchJobType) {return "skipTaskletJob";}
 				@Override public Set<?> getProvides() { return null;	}
 				@Override public Set<?> getHandles() { return null;	}
@@ -241,7 +240,9 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 			Message<?> replyMessage = messagingTemplate.sendAndReceive(outboundMessageChannelRun, runCompletedMessage);
 			if (replyMessage != null)
 				logger.debug("testJobApproved(): Got reply message: "+ replyMessage.toString());
-			Thread.sleep(500); // wait for message receiving and job completion events
+			try{
+				Thread.sleep(500);
+			} catch (InterruptedException e){}; // wait for message receiving and job completion events
 			Assert.assertEquals(messages.size(), 1);
 			Assert.assertTrue(BatchJobLaunchMessageTemplate.isMessageOfCorrectType(messages.get(0)));
 		} catch (Exception e){
@@ -256,7 +257,6 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 		final String LAUNCH_JOB_NAME = "test.launchSoftwareJob";
 		final String ALIGN_JOB_NAME = "test.doAlign";
 		BatchJobProviding testPlugin = new BatchJobProviding() {
-			@Override public String getBatchJobNameByArea(String BatchJobType, String area) {return null;}
 			@Override public String getBatchJobName(String BatchJobType) {return ALIGN_JOB_NAME;}
 			@Override public Set<?> getProvides() { return null;	}
 			@Override public Set<?> getHandles() { return null;	}
@@ -302,8 +302,8 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 			Message<BatchJobLaunchContext> launchMessage = batchJobLaunchMessageTemplate.build();
 			logger.debug("Sending the following launch message via channel " + MessageChannelRegistry.OUTBOUND_MESSAGE_CHANNEL + " : " + launchMessage);
 			Message<?> replyMessage = messagingTemplate.sendAndReceive(outboundMessageChannelLaunch, launchMessage);
-			if (replyMessage != null)
-				logger.debug("testJobApproved(): Got reply message: "+ replyMessage.toString());
+			if (replyMessage == null)
+				logger.debug("testJobApproved(): Failed to receive reply message");
 
 			int repeat = 0;
 			boolean done = false;
@@ -312,7 +312,9 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 					if (AnalysisStatusMessageTemplate.actUponMessage(m, 1))
 						done = true;
 				}
-				Thread.sleep(500);
+				try{
+					Thread.sleep(500);
+				} catch (InterruptedException e){};
 				repeat++;
 				if (repeat == 40)
 					Assert.fail("Timeout waiting to receive messages");
@@ -334,7 +336,7 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 
 	@Override
 	public void handleMessage(Message<?> message) throws MessagingException {
-		logger.debug("Message recieved by handleMessage(): "+message.toString());
+		logger.debug("Message received by handleMessage(): "+message.toString());
 		messages.add(message);
 	}
 

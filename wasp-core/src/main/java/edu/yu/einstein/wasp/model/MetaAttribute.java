@@ -238,6 +238,25 @@ public final class MetaAttribute implements Serializable {
 				public void setLabel(String label) {
 					this.label = label;
 				}
+				
+				@Override
+				public boolean equals(Object obj){
+					if (this == obj)
+						return true;
+					if (obj == null || this.getClass() != obj.getClass())
+						return false;
+					Option op = (Option) obj;
+					if (op.label.equals(this.label) && op.value.equals(this.value))
+						return true;
+					return false;
+				}
+				
+				public int hashCode(){
+					int hash = 7;
+					hash = 31 * hash + (null == label ? 0 : label.hashCode());
+					hash = 31 * hash + (null == value ? 0 : value.hashCode());
+					return hash;
+				}
 
 				@Override
 				public String toString() {

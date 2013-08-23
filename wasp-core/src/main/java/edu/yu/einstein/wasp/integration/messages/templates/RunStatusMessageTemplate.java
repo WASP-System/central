@@ -18,7 +18,7 @@ public class RunStatusMessageTemplate extends WaspStatusMessageTemplate {
 	
 	public RunStatusMessageTemplate(Integer runId) {
 		super();
-		setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.RUN);
+		addHeader(WaspMessageType.HEADER_KEY, WaspMessageType.RUN);
 		setRunId(runId);
 	}
 	
@@ -35,7 +35,7 @@ public class RunStatusMessageTemplate extends WaspStatusMessageTemplate {
 	}
 
 	public void setRunId(Integer runId) {
-		setHeader(WaspJobParameters.RUN_ID, runId);
+		addHeader(WaspJobParameters.RUN_ID, runId);
 	}
 
 	/**

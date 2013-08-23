@@ -1,0 +1,301 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installation &mdash; Wasp System 0.1.0-RELEASE documentation</title>
+    
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1.0-RELEASE',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/theme_extras.js"></script>
+    <link rel="top" title="Wasp System 0.1.0-RELEASE documentation" href="index.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="index.html">
+          <span>Wasp System 0.1.0-RELEASE documentation</span></a></h1>
+        <h2 class="heading"><span>Installation</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        <a class="uplink" href="index.html">Contents</a>
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>What you need to get WASP installed.</p>
+<div class="section" id="getting-the-wasp-system-source-code-from-github">
+<h2>Getting the WASP System Source Code from GitHub<a class="headerlink" href="#getting-the-wasp-system-source-code-from-github" title="Permalink to this headline">¶</a></h2>
+<p>Make sure you have Git on your server (obtain from <a class="reference external" href="http://git-scm.com">http://git-scm.com</a>) and obtain the latest WASP System code from <a class="reference external" href="https://github.com/WASP-System">https://github.com/WASP-System</a>.
+Please make sure you understand the importance of line endings in Git and adjust your setting accordingly: <a class="reference external" href="http://help.github.com/articles/dealing-with-line-endings">http://help.github.com/articles/dealing-with-line-endings</a>
+We provide a script to help clone and install the main components to speed up the installation process (see <a class="reference internal" href="#installing"><em>Installing, Building and Deploying WASP</em></a>).</p>
+<p>After cloning the WASP System source code, you’ll notice the project contains many folders. Most of these represent modules of the system, wrapped up into individual Maven projects:</p>
+<table border="1" class="docutils" id="folders">
+<caption>Wasp System project folder contents</caption>
+<colgroup>
+<col width="19%" />
+<col width="81%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Subfolder</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>db</td>
+<td>Contains database initialization files</td>
+</tr>
+<tr class="row-odd"><td>wasp-parent</td>
+<td>Hosts a parent.pom that defines common dependencies and versions required by other components. Maven Project.</td>
+</tr>
+<tr class="row-even"><td>wasp-web</td>
+<td>The WASP System webapp. Maven/Spring project. Builds a war file for Tomcat7 deployment.</td>
+</tr>
+<tr class="row-odd"><td>wasp-file</td>
+<td>File download webapp for delivering files to users.  Maven/Spring project. Builds a war file for Tomcat7 deployment.</td>
+</tr>
+<tr class="row-even"><td>wasp-core</td>
+<td>Spring component containing core code. Maven/Spring project. Builds a jar.</td>
+</tr>
+<tr class="row-odd"><td>wasp-cli</td>
+<td>Used to run wasp analysis jobs from the command line. Maven/Spring project. Builds a jar and wrapper script.</td>
+</tr>
+<tr class="row-even"><td>wasp-config</td>
+<td>local configuration e.g. database and email sever details etc. Maven/Spring project. Builds a jar.</td>
+</tr>
+<tr class="row-odd"><td>wasp-daemon</td>
+<td>Spring component that runs WASP System task management flows and pipeline flows.</td>
+</tr>
+<tr class="row-even"><td>wasp-exec</td>
+<td>Builds a jar to execute the wasp-daemon component. Maven/Spring project.</td>
+</tr>
+<tr class="row-odd"><td>wasp-plugin</td>
+<td>Contains a .pom file that serves as a parent for .pom files in all plugin projects. Maven project.</td>
+</tr>
+<tr class="row-even"><td>wasp-interface</td>
+<td>location for interfaces used across projects. Maven/Spring project. Builds a jar</td>
+</tr>
+<tr class="row-odd"><td>wasp-tomcat-classloader</td>
+<td>Extends WebappClassLoader to allow loading of classes from the waspPlugins folder in the Tomcat base folder. Maven project. Builds a jar.</td>
+</tr>
+<tr class="row-even"><td>wasp-doc</td>
+<td>Wasp System documentation</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="setting-up-the-server-linux">
+<h2>Setting up the Server (Linux)<a class="headerlink" href="#setting-up-the-server-linux" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic">
+<li><p class="first">Download the latest versions of  the following software packages and install according to the provider’s instructions:</p>
+<ul class="simple">
+<li>Apache Tomcat7 (<a class="reference external" href="http://tomcat.apache.org">http://tomcat.apache.org</a>)</li>
+<li>Apache Maven3(<a class="reference external" href="http://maven.apache.org">http://maven.apache.org</a>)</li>
+<li>Oracle Java SE 6 (<a class="reference external" href="http://www.oracle.com">http://www.oracle.com</a>) (OpenJDK is currently in testing and appears to work well)</li>
+<li>MySQL Community Server (<a class="reference external" href="http://www.mysql.com/downloads/mysql">http://www.mysql.com/downloads/mysql</a>)</li>
+</ul>
+</li>
+<li><p class="first">Add environment variables to your user profile and set the values to the paths of the installations above:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">ANT_HOME</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">JAVA_HOME</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">CATALINA_HOME</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">MAVEN_HOME</span></tt></li>
+</ul>
+</li>
+<li><p class="first">Then set the PATH environment variable to point to the relevant binaries.</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">PATH=$JAVA_HOME/bin:$ANT_HOME/bin:$MAVEN_HOME/bin:$PATH</span></tt></li>
+</ul>
+<p>E.g. in a typical Linux setup using bash, your .bashrc file should contain something similar to this:</p>
+<div class="highlight-python"><pre>export ANT_HOME=/opt/ant
+export JAVA_HOME=/usr/java/latest
+export CATALINA_HOME=/usr/local/tomcat/tomcat/current
+export WASP_HOME=$HOME/waspSystem
+export MAVEN_HOME=/opt/maven/current
+export PATH=$JAVA_HOME/bin:$ANT_HOME/bin:$MAVEN_HOME/bin:$PATH</pre>
+</div>
+</li>
+</ol>
+</div>
+<div class="section" id="tomcat-7-setup">
+<h2>Tomcat 7 setup<a class="headerlink" href="#tomcat-7-setup" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic">
+<li><p class="first">Using your favorite editor, create a new file in folder <tt class="docutils literal"><span class="pre">$CATALINA_HOME/bin</span></tt>
+called <tt class="docutils literal"><span class="pre">setenv.sh</span></tt>, and put the following text into it and save:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">CATALINA_HOME</span><span class="o">=</span><span class="s">&quot;/usr/local/tomcat/tomcat&quot;</span>
+<span class="n">JAVA_OPTS</span><span class="o">=</span><span class="s">&quot;-Xms128m -Xmx512m -XX:PermSize=128m -XX:MaxPermSize=512m&quot;</span>
+<span class="n">JAVA_HOME</span><span class="o">=</span><span class="s">&quot;/usr/java/latest&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Open <tt class="docutils literal"><span class="pre">$CATALINA_HOME/conf/tomcat-users.xml</span></tt> using your favorite editor and add the
+following (replacing placeholders ‘myGuiPass’ and ‘myScriptPass’ with your own choice of
+passwords:</p>
+<div class="highlight-python"><pre>&lt;/tomcat-users&gt;
+   &lt;role rolename="manager-gui"/&gt;
+   &lt;user username="tomcat" password="myGuiPass" roles="manager-gui"/&gt;
+   &lt;role rolename="manager-script"/&gt;
+   &lt;user username="tomcat-script" password="myScriptPass" roles="manager-script"/&gt;
+ &lt;/tomcat-users&gt;</pre>
+</div>
+<p>The manager-script account is used to deploy The WASP System using Maven. The managergui
+account can be used to manage your tomcat installation at <a class="reference external" href="http://localhost:8080/manager">http://localhost:8080/manager</a>.
+To deploy wasp using Maven, the following complementary information about the server needs
+to be added to your local maven configuration as follows:</p>
+<p>From within your home folder, open the .m2/settings.xml file and locate the tags. In between these tags place the following
+(replacing placeholder myScriptPass with the         same password you used above for the tomcat-script account):</p>
+<div class="highlight-python"><pre>&lt;server&gt;
+  &lt;id&gt;tomcat-localhost&lt;/id&gt;
+  &lt;username&gt;tomcat-script&lt;/username&gt;
+  &lt;password&gt;myScriptPass&lt;/password&gt;
+&lt;/server&gt;</pre>
+</div>
+</li>
+<li><p class="first">Create the folder: <tt class="docutils literal"><span class="pre">$CATALINA_HOME/waspPlugins</span></tt>
+Ensure that their permissions are set such that Maven can copy files into the <tt class="docutils literal"><span class="pre">waspPlugins</span></tt> folder.</p>
+</li>
+<li><p class="first">To create a startup launch daemon (Debian based instructions):</p>
+</li>
+<li><p class="first">Type the following at the command line:</p>
+<div class="highlight-python"><pre>$ cd $CATALINA_HOME/bin
+$ tar xvfz commons-daemon-native.tar.gz
+$ cd commons-daemon-1.0.x-native-src/unix
+$ ./configure
+$ make
+$ cp jsvc ../..</pre>
+</div>
+<ol class="loweralpha simple">
+<li>Using your favorite editor and sudo, copy the contents of the file <tt class="docutils literal"><span class="pre">tomcat7-init.d.sh</span></tt> to the location <tt class="docutils literal"><span class="pre">/etc/init.d/tomcat7</span></tt>.</li>
+</ol>
+<blockquote>
+<div><div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">Replace the values of the variables under &#8220;local config section&#8221; at the top with values relevant to your setup</p>
+</div>
+</div></blockquote>
+<ol class="loweralpha simple" start="2">
+<li>At the command line run:</li>
+</ol>
+<blockquote>
+<div><p>$ chkconfig &#8211;add tomcat7</p>
+</div></blockquote>
+<ol class="loweralpha simple" start="3">
+<li>At the command line run <tt class="docutils literal"><span class="pre">$</span> <span class="pre">sudo</span> <span class="pre">/etc/init.d/tomcat7</span> <span class="pre">start</span></tt> to start tomcat. You should see a welcome page at
+<a class="reference external" href="http://localhost:8080">http://localhost:8080</a> if all went well.</li>
+</ol>
+</li>
+</ol>
+</div>
+<div class="section" id="installing-building-and-deploying-wasp">
+<span id="installing"></span><h2>Installing, Building and Deploying WASP<a class="headerlink" href="#installing-building-and-deploying-wasp" title="Permalink to this headline">¶</a></h2>
+<p>There are three main component types comprising the Wasp System as detailed below:</p>
+<p>The wasp-web Webapp is deployed on Tomcat and represents the graphial UI for the system. It is part of the central git project</p>
+<p>The wasp-damon is an independent software component which leverages Spring Integration and Spring Batch to control task flows and analysis flows.
+It responds to messages (via RMI) from the web interface and command line interface (CLI). It maintains its own state and starts up from where it left off after
+shutdown (or failure) and restart. This component is also part of the central git project</p>
+<p>Plugins are individual git versioned projects that, when built and placed int the &#8216;waspPlugins&#8217; folder under the tomcat home folder, are weaved into the system.
+They extend the web and/or daemon components to add new functionality.</p>
+<p>The fastet way to get going is to download and run the setupWasp.sh bash script. It clones and installs select projects hosted
+on the wasp-system GitHub repository <a class="reference external" href="https://github.com/WASP-System">https://github.com/WASP-System</a>. If you run again later it updates the installation for you taking the lates changes from GitHub.
+First it installs the central project into a git managed folder called &#8216;wasp&#8217;, deploys the webapp then clones select plugin projects.  Before running the script,
+you must uncomment and set the WASP_HOME and CATALINA_HOME variables at the top of the script if they are
+not already set in your environment. You may also wish to uncomment out the lines to shutdown and restart the wasp-daemon application.
+After installation is complete, take a look at the <tt class="docutils literal"><span class="pre">$WASP_HOME/wasp-plugins/wasp-config/src/main/resources</span></tt> folder. This is where most custom
+properties can be set including the database settings.</p>
+<ol class="arabic simple">
+<li>Initialize the wasp database by running the following at the command line (remember to edit the database</li>
+</ol>
+<blockquote>
+<div><p>settings in the scripts first if they have been changed in the config):</p>
+<div class="highlight-python"><pre>$ mysql -uroot -p &lt; $WASP_HOME/wasp/db/InitializeWaspDb.sql
+$ mysql -uroot -p wasp &lt; $WASP_HOME/wasp/db/createSpringBatchTables.sql</pre>
+</div>
+</div></blockquote>
+<ol class="arabic" start="2">
+<li><p class="first">Post Installation checks:</p>
+<ol class="loweralpha">
+<li><p class="first">Check to see that <tt class="docutils literal"><span class="pre">wasp-tomcat-classloader-x.x.x-SNAPSHOT.jar</span></tt> has been copied into the
+<tt class="docutils literal"><span class="pre">$CATALINA_HOME/lib</span></tt> folder. If not (due to a permissions issue) you should do this manually:</p>
+<div class="highlight-python"><pre>$ sudo cp $WASP_HOME/wasp/wasp-tomcat-classloader/target/wasp-tomcat-classloader-?.?.?-SNAPSHOT.jar $CATALINA_HOME/lib</pre>
+</div>
+</li>
+<li><p class="first">Verify the installed plugins by navigating to <tt class="docutils literal"><span class="pre">$CATALINA_HOME/waspPlugins</span></tt>. Plugins should have been installed here. If
+old versions of plugins persist these must be deleted as only one version of each plugin can be present in this folder.</p>
+</li>
+<li><p class="first">Verify that the wasp system webapp was started by navigating to localhost:8080/wasp in
+a local web browser. If you see the login page you have set up the webapp properly. On a Linux system you could also use command-line tool lynx to do this:</p>
+<div class="highlight-python"><pre>$ lynx http://localhost:8080/wasp</pre>
+</div>
+<p>If not already performed by the setupWasp script, you may start up the wasp-daemon executable component (task management) in a new shell as follows:</p>
+<div class="highlight-python"><pre>$ cd $WASP_HOME/wasp/wasp-exec
+$ java -Xms128m -Xmx256m -XX:PermSize=128m -XX:MaxPermSize=256m \
+  -Dcatalina.home=$CATALINA_HOME \
+  -cp "target/wasp-exec-0.1.0-SNAPSHOT.jar:$CATALINA_HOME/waspPlugins/*" \
+  edu.yu.einstein.wasp.daemon.StartDaemon</pre>
+</div>
+<p>To run it in the background with no terminal output use this variant of the command instead:</p>
+<div class="highlight-python"><pre>$ nohupjava -Xms128m -Xmx256m -XX:PermSize=128m -XX:MaxPermSize=256m \
+  -Dcatalina.home=$CATALINA_HOME \
+  -cp "target/wasp-exec-0.1.0-SNAPSHOT.jar:$CATALINA_HOME/waspPlugins/*" \
+  edu.yu.einstein.wasp.daemon.StartDaemon &gt; /dev/null 2&gt;&amp;1 &amp;</pre>
+</div>
+</li>
+</ol>
+</li>
+</ol>
+</div>
+<div class="section" id="building-the-documentation">
+<h2>Building the Documentation<a class="headerlink" href="#building-the-documentation" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>The Sphinx documentation (<a class="reference external" href="http://sphinx-doc.org">http://sphinx-doc.org</a>) can be built by running the following commands::</dt>
+<dd>$ cd wasp-doc/src/sphinx
+$ make html
+$ make latexpdf # requires pdftolatex install</dd>
+</dl>
+<p>Javadoc can be generated by running <tt class="docutils literal"><span class="pre">$</span> <span class="pre">mvn</span> <span class="pre">javadoc:javadoc</span></tt> in any component parent folder, e.g.
+<tt class="docutils literal"><span class="pre">WASP_HOME/wasp-web</span></tt> (for the WASP SYSTEM webapp) or <tt class="docutils literal"><span class="pre">$WASP_HOME/wasp-core</span></tt>
+(for the core code). The documentation can then be found in <tt class="docutils literal"><span class="pre">target/apidocs</span></tt> folder under the component parent folder.</p>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        <a class="uplink" href="index.html">Contents</a>
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2013, Albert Einstein College of Medicine.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

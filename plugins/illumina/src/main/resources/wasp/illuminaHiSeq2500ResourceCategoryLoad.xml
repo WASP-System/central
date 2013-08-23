@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.1.xsd"
+    default-autowire="byName">
+    
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="illuminaHiSeq2500UiFieldWrapper">
+    <property name="baseLocale" value="en_US" />
+    <property name="baseArea" value="#{illuminaResourceCategory.HISEQ_2500}" />
+  </bean>
+
+  <bean id="illuminaHiSeq2500" class="edu.yu.einstein.wasp.load.ResourceCategoryLoaderAndFactory">
+    <property name="name" value="Illumina HiSeq 2500" />
+    <property name="area" value="#{illuminaResourceCategory.HISEQ_2500}" />
+    <property name="resourceType" ref="mpsResourceType" />
+	 <property name="metaFromWrapper">
+       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
+         <property name="area" value="#{illuminaResourceCategory.HISEQ_2500}" />
+         <property name="metaList">
+         	<list>
+         		<value>allowableUiField.readLength=50:50;75:75;100:100;150:150</value>
+         		<value>allowableUiField.readType=single:single;paired:paired</value>
+         		<value>allowableUiField.runType=high-output:high-output;rapid-run:rapid-run</value>
+				<value>#{waspGenericInstrumentType['platformUnitSelector']}=A:A;B:B</value>
+         	</list>
+         </property>
+       </bean>
+    </property> 
+
+    <property name="uiFieldsFromWrapper">
+      <list>
+      	<bean parent="illuminaHiSeq2500UiFieldWrapper">
+          <property name="baseName" value="runType" />
+          <property name="metaposition" value="10" />
+          <property name="label" value="Run Type" />
+          <property name="control" value="select:#{dollar}{resourceOptions.get(runType)}:value:label" /> 
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="You must choose a run type" />
+        </bean>
+        
+        <bean parent="illuminaHiSeq2500UiFieldWrapper">
+          <property name="baseName" value="readLength" />
+          <property name="metaposition" value="20" />
+          <property name="label" value="Read Length" />
+          <property name="control" value="select:#{dollar}{resourceOptions.get(readLength)}:value:label" /> 
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="You must choose a read length" />
+        </bean>
+
+        <bean parent="illuminaHiSeq2500UiFieldWrapper">
+          <property name="baseName" value="readType" />
+          <property name="metaposition" value="30" />
+          <property name="label" value="Read Type" />
+          <property name="control" value="select:#{dollar}{resourceOptions.get(readType)}:value:label" /> 
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="You must choose a read type" />
+        </bean>
+      </list>
+    </property>
+  </bean>
+
+</beans>

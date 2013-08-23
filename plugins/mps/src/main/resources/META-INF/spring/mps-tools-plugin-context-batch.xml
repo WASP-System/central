@@ -15,7 +15,7 @@
 	<import resource="mps-tools-plugin-context-common.xml" />
 	
 	<int:splitter input-channel="wasp.channel.notification.run.success" output-channel="wasp.channel.batch">
-		<bean class="edu.yu.einstein.wasp.fileformat.plugin.RunSuccessFastqcSplitter" />
+		<bean class="edu.yu.einstein.wasp.plugin.mps.integration.endpoints.RunSuccessFastqcSplitter" />
 	</int:splitter>
 	
 </beans>

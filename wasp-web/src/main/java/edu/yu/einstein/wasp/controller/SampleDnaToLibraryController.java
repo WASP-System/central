@@ -395,7 +395,7 @@ public class SampleDnaToLibraryController extends WaspController {
 			libraryAdaptorMap.put(library, adaptor);	
 			List<Sample> cells = sampleService.getCellsForLibrary(library, job);//5-10-13, added expanded this service to include library,job. Without job, this could be a disaster!
 			for (Sample cell : cells){
-				System.out.println("---cell: " + cell.getName());
+				//System.out.println("---cell: " + cell.getName());
 				if (cellsByLibrary.get(library) == null){
 					cellsByLibrary.put(library, new ArrayList<CellWrapper>());
 				}//5-10-13 this bracket was missing.
