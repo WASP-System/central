@@ -23,10 +23,8 @@
 		<li><a id="fileUploadAnchor"  href="<c:url value="/job/${job.getId()}/fileUploadManager.do" />" >Uploaded Files</a></li>
 		<li><a id="requestsAnchor"  href="<c:url value="/job/${job.getId()}/requests.do" />" >Requests</a></li>
 	    <li><a id="samplesAnchor"  href="<c:url value="/job/${job.getId()}/samples.do" />" >Samples, Libraries &amp; Runs</a></li>
-		<li><a id="dataByTreeViewAnchor"  href="javascript:void(0);" onclick='alert("not yet implemented"); return false;'>Data Treeview</a></li>
-		<%-- 
-			<li><a id="dataByTreeViewAnchor"  href="<c:url value="/jobresults/treeview/job/${job.getId()}.do" />" >Data Treeview</a></li>
-		--%>
+		<li><a id="dataByTreeViewAnchor"  href="javascript:void(0);" onclick='window.location.href="<c:url value="/jobresults/treeview/job/${job.getId()}.do" />"; return false;' >Data Treeview</a></li>
+		
 		<%-- 
 		<li><a id="dataByRunsAnchor"  href="javascript:void(0);" onclick='loadIFrameAnotherWay(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/runs.do" />");' >Data By Runs</a></li>
 		--%>

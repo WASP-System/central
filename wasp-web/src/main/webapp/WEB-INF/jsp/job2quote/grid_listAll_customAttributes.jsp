@@ -2,3 +2,6 @@
 caption:"<fmt:message key="job2quote.job2quote_list.label" />",
 url:"/wasp/" + _area + "/listAllJSON.do?selId=${param.selId}",
 
+ondblClickRow: function(rowid) {
+	<%--should suppress the ondoubleclick row being visible --%>
+},
