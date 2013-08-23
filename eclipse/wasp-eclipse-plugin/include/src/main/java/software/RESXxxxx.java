@@ -21,24 +21,8 @@ public class ___Pluginname___ extends SoftwarePackage{
 	//___Pluginname___Service  ___pluginname___Service;
 	
 	public ___Pluginname___() {
-		// TODO Auto-generated constructor stub
+		setSoftwareVersion("0.0.0"); // TODO: Set this value. This default may also be overridden in wasp.site.properties
 	}
 
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getSoftwareVersion() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setSoftwareVersion(String softwareVersion) {
-		// TODO Auto-generated method stub
-	}
 	
 }

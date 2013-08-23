@@ -23,7 +23,7 @@
 		
 		<batch:step id="edu.yu.einstein.wasp.plugin.babraham.fastqc.mainFlow.fastQC" next="edu.yu.einstein.wasp.plugin.babraham.fastqc.mainFlow.notifyQCComplete">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.plugin.babraham.tasklet.FastQCTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.plugin.babraham.batch.tasklet.FastQCTasklet" scope="step">
 					<constructor-arg name="fileGroupId" value="#{jobParameters[waspJobParameters.FILE_GROUP_ID]}" />
 				</bean>
 			</batch:tasklet>

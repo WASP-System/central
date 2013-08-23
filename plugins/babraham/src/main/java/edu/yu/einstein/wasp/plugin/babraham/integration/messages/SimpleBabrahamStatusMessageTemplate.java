@@ -20,7 +20,7 @@ public class SimpleBabrahamStatusMessageTemplate extends WaspStatusMessageTempla
 
 	public SimpleBabrahamStatusMessageTemplate() {
 		super();
-		setHeader(WaspMessageType.HEADER_KEY, BabrahamMessageType.BABRAHAM);
+		addHeader(WaspMessageType.HEADER_KEY, BabrahamMessageType.BABRAHAM);
 	}
 	
 	public SimpleBabrahamStatusMessageTemplate(Message<WaspStatus> message){

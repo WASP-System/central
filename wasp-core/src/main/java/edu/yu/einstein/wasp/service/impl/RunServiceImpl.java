@@ -194,27 +194,17 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Assert.assertParameterNotNull(run, "run cannot be null");
 		Assert.assertParameterNotNull(run.getId(), "run is not valid");
 		// send message to initiate job processing
-		Map<String, String> jobParameters = new HashMap<String, String>();
-		jobParameters.put(WaspJobParameters.RUN_ID, run.getId().toString() );
-		jobParameters.put(WaspJobParameters.RUN_NAME, run.getName());
-		String rcIname = run.getResourceCategory().getIName();
-		logger.debug("launching Batch job for runId=" + run.getId().toString() + ", looking for GENERIC flows handling area '" + rcIname + "'");
-		for (BatchJobProviding plugin : waspPluginRegistry.getPluginsHandlingArea(rcIname, BatchJobProviding.class)) {
-			// TODO: check the transactional behavior of this block when
-			// one job launch fails after successfully sending another
-			logger.debug("Getting generic flow for plugin: '" + plugin.getPluginName() + "'");
-			String flowName = plugin.getBatchJobNameByArea(BatchJobTask.GENERIC, rcIname);
-			if (flowName == null){
-				logger.warn("No generic flow found for plugin handling " + rcIname);
-				continue;
-			}
-			try {
-				logger.debug("Going to launch Batch job '" + flowName + "'");
-				launchBatchJob(flowName, jobParameters);
-			} catch (WaspMessageBuildingException e) {
-				throw new MessagingException(e.getLocalizedMessage(), e);
-			}
+		RunStatusMessageTemplate messageTemplate = new RunStatusMessageTemplate(run.getId());
+		messageTemplate.setUserCreatingMessageFromSession(userService);
+		messageTemplate.setStatus(WaspStatus.CREATED);
+		messageTemplate.addHeader(WaspJobParameters.RUN_RESOURCE_CATEGORY_INAME, run.getResourceCategory().getIName());
+		messageTemplate.addHeader(WaspJobParameters.RUN_NAME, run.getName());
+		try {
+			sendOutboundMessage(messageTemplate.build(), true);
+		} catch (WaspMessageBuildingException e){
+			throw new MessagingException(e.getLocalizedMessage());
 		}
+		
 	}
 	
 	
@@ -596,7 +586,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		messageTemplate.setTask(WaspRunTask.QC);
 		messageTemplate.setStatus(WaspStatus.COMPLETED); 
 		try{
-			sendOutboundMessage(messageTemplate.build(), false);
+			sendOutboundMessage(messageTemplate.build(), true);
 		} catch (MessagingException e){
 			throw new WaspMessageBuildingException(e.getLocalizedMessage());
 		}

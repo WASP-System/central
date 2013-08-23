@@ -30,8 +30,6 @@ import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.dao.RunDao;
-import edu.yu.einstein.wasp.fileformat.plugin.RunSuccessFastqcSplitter;
-import edu.yu.einstein.wasp.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -41,6 +39,8 @@ import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Workflow;
+import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
+import edu.yu.einstein.wasp.plugin.mps.integration.endpoints.RunSuccessFastqcSplitter;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;

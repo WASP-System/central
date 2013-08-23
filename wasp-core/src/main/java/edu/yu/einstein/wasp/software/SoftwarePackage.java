@@ -13,6 +13,8 @@ import edu.yu.einstein.wasp.model.Software;
 public abstract class SoftwarePackage extends Software {
 	
 	private static final long serialVersionUID = 522863647514139874L;
+	
+	private String softwareVersion;
 
 	/**
 	 * A unique name for the software component. Can be overridden at the configuration level 
@@ -39,9 +41,13 @@ public abstract class SoftwarePackage extends Software {
 	 *  
 	 * @return
 	 */
-	public abstract String getSoftwareVersion();
+	public String getSoftwareVersion(){
+		return softwareVersion;
+	}
 	
-	public abstract void setSoftwareVersion(String softwareVersion);
+	public void setSoftwareVersion(String softwareVersion){
+		this.softwareVersion = softwareVersion;
+	}
 	
 	
 }

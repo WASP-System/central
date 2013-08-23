@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -746,7 +747,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  }
 		  messageTemplate.setStatus(status); // sample received (CREATED) or abandoned (ABANDONED)
 		  try{
-			  sendOutboundMessage(messageTemplate.build(), false);
+			  sendOutboundMessage(messageTemplate.build(), true);
 		  } catch (MessagingException e){
 			  throw new WaspMessageBuildingException(e.getLocalizedMessage());
 		  }
@@ -774,7 +775,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  }
 		  messageTemplate.setStatus(status); // sample received (COMPLETED) or abandoned (FAILED)
 		  try{
-			  sendOutboundMessage(messageTemplate.build(), false);
+			  sendOutboundMessage(messageTemplate.build(), true);
 		  } catch (MessagingException e){
 			  throw new WaspMessageBuildingException(e.getLocalizedMessage());
 		  }
@@ -878,9 +879,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
 		  Set<Integer> IdsForPlatformUnitsNotAvailable = new LinkedHashSet<Integer>();
 		  List<JobExecution> allRelevantJobExecutions = new ArrayList<JobExecution>();
-		  allRelevantJobExecutions.addAll( batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.EXECUTING) );
-		  allRelevantJobExecutions.addAll( batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.COMPLETED) );
-		  allRelevantJobExecutions.addAll( batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.FAILED) );
+		  allRelevantJobExecutions.addAll( batchJobExplorer.getJobExecutions(parameterMap, false, ExitStatus.EXECUTING) );
+		  allRelevantJobExecutions.addAll( batchJobExplorer.getJobExecutions(parameterMap, false, ExitStatus.COMPLETED) );
+		  allRelevantJobExecutions.addAll( batchJobExplorer.getJobExecutions(parameterMap, false, ExitStatus.FAILED) );
 		  
 		  // make platform unit available again if ExitStatus is STOPPED (aborted) 
 		  // so comment the following line out for now:
@@ -889,8 +890,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  // get sample id for all platform units associated with the batch job executions retrieved
 		  for (JobExecution je: allRelevantJobExecutions){
 			  try{
-				  String puIdStr = batchJobExplorer.getJobParameterValueByKey(je, WaspJobParameters.PLATFORM_UNIT_ID);
-				  IdsForPlatformUnitsNotAvailable.add(Integer.valueOf(puIdStr));
+				  Run run = runService.getRunById(Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(je, WaspJobParameters.RUN_ID)));
+				  IdsForPlatformUnitsNotAvailable.add(run.getPlatformUnit().getId());
 			  } catch (ParameterValueRetrievalException e){
 				  logger.warn(e.getLocalizedMessage());
 				  continue;
@@ -2932,17 +2933,15 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  public String getPlatformunitViewLink(Sample platformunit){
 			  Assert.assertParameterNotNull(platformunit, "a platformunit must be supplied");
 			  Assert.assertTrue(isPlatformUnit(platformunit), "sample is not a platformunit");
-			  ResourceCategory rc = resourceService.getAssignedResourceCategory(platformunit);
-			  String area = null;
-			  if (rc != null)
-				  area = rc.getIName();
-			  List<SequencingViewProviding> plugins = pluginRegistry.getPluginsHandlingArea(area, SequencingViewProviding.class);
-			  // we expect one (and ONLY one) plugin to handle the area otherwise we do not know which one to show so programming defensively:
-			  if (plugins.size() == 0)
-				  throw new PluginException("No plugins found for area=" + area + " with class=SequencingViewProviding");
-			  if (plugins.size() > 1)
-				  throw new PluginException("More than one plugin found for area=" + area + " with class=SequencingViewProviding");
-			  return plugins.get(0).getShowPlatformUnitViewLink(platformunit.getId());
+			  Set<SequencingViewProviding> plugins = new LinkedHashSet<>(); // use set so duplicates not added
+			  for (ResourceCategory rc : resourceService.getAssignedResourceCategory(platformunit))
+				  plugins.addAll(pluginRegistry.getPluginsHandlingArea(rc.getIName(), SequencingViewProviding.class));
+			  // we expect one (and ONLY one) plugin to handle the platformunit otherwise we do not know which one to show so programming defensively:
+			 if (plugins.size() > 1)
+				  throw new PluginException("More than one SequencingViewProviding plugin found");
+			  for (SequencingViewProviding plugin : plugins)
+				  return plugin.getShowPlatformUnitViewLink(platformunit.getId()); // should only be one so this is ok
+			  throw new PluginException("No SequencingViewProviding plugins found");
 		  }
 
 		@Override

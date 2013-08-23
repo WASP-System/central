@@ -23,6 +23,7 @@
   	<property name="compatibleResources">
   		<list>
   			<ref bean ="illuminaHiSeq2000" />
+  			<ref bean ="illuminaHiSeq2500" />
   		</list>
   	</property>
   	<property name="adaptorList">

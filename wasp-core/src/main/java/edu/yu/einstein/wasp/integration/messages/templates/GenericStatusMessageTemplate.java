@@ -12,7 +12,7 @@ public class GenericStatusMessageTemplate extends WaspStatusMessageTemplate {
 
 	public GenericStatusMessageTemplate(){
 		super();
-		setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.GENERIC);
+		addHeader(WaspMessageType.HEADER_KEY, WaspMessageType.GENERIC);
 	}
 	
 	public GenericStatusMessageTemplate(Message<WaspStatus> message){

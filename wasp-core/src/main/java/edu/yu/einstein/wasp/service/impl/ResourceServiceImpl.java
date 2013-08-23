@@ -1,7 +1,10 @@
 package edu.yu.einstein.wasp.service.impl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.model.Job;
@@ -84,70 +87,76 @@ public class ResourceServiceImpl extends WaspServiceImpl implements ResourceServ
 	} 
 	
 	@Override
-	public ResourceCategory getAssignedResourceCategory(Job job){
+	public Set<ResourceCategory> getAssignedResourceCategory(Job job){
 		Assert.assertParameterNotNull(job, "a job must be provided");
 		Assert.assertParameterNotNull(job.getId(), "a valid job must be provided");
-		List<JobResourcecategory> jrc = job.getJobResourcecategory();
-		if (jrc == null || jrc.size() == 0 || jrc.size() > 1){
+		List<JobResourcecategory> jrcs = job.getJobResourcecategory();
+		Set<ResourceCategory> rcs = new HashSet<>();
+		if (jrcs == null || jrcs.size() == 0){
 			logger.warn("Unable to resolve a unique resource category for job with id=" + job.getId());
-			return null;
+			return rcs;
 		}
-		return jrc.get(0).getResourceCategory();
+		for (JobResourcecategory jrc: jrcs)
+			rcs.add(jrc.getResourceCategory());
+		return rcs;
 	}
 	
 	@Override
-	public ResourceCategory getAssignedResourceCategory(Sample platformUnit){
+	public Set<ResourceCategory> getAssignedResourceCategory(Sample platformUnit){
 		Assert.assertParameterNotNull(platformUnit, "a sample must be provided");
 		Assert.assertParameterNotNull(platformUnit.getId(), "a valid sample must be provided");
 		Assert.assertTrue(sampleService.isPlatformUnit(platformUnit), "sample must be of type platformUnit");
-		List<SampleSubtypeResourceCategory> src = platformUnit.getSampleSubtype().getSampleSubtypeResourceCategory();
-		if (src == null || src.size() == 0 || src.size() > 1){
+		List<SampleSubtypeResourceCategory> srcs = platformUnit.getSampleSubtype().getSampleSubtypeResourceCategory();
+		Set<ResourceCategory> rcs = new HashSet<>();
+		if (srcs == null || srcs.size() == 0){
 			logger.warn("Unable to resolve a unique resource category for platformUnit with id=" + platformUnit.getId());
-			return null;
+			return rcs;
 		}
-		return src.get(0).getResourceCategory();
+		for (SampleSubtypeResourceCategory src: srcs)
+			rcs.add(src.getResourceCategory());
+		return rcs;
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Option> getResourceCategorySelectOptions(ResourceCategory resourceCategory, String metaKey) {
-		List<Option> list = new ArrayList<Option>();
+	public Set<Option> getResourceCategorySelectOptions(ResourceCategory resourceCategory, String metaKey) {
+		Set<Option> set = new LinkedHashSet<Option>();
 		for(ResourceCategoryMeta rcm : resourceCategory.getResourceCategoryMeta()){
 			if( rcm.getK().indexOf(metaKey) > -1 ){//such as readLength
 				String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
 				for(String token : tokens){//token could be single:single
 					String[] colonTokens = token.split(":");
-					list.add(new Option(colonTokens[0], colonTokens[1]));							
+					set.add(new Option(colonTokens[0], colonTokens[1]));							
 				}
 			}		
 		}	
-		return list;
+		return set;
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Option> getResourceCategorySelectOptions(SampleSubtype sampleSubtype, String metaKey) {
-		List<Option> list = new ArrayList<Option>();
-		for(SampleSubtypeResourceCategory ssrc : sampleSubtype.getSampleSubtypeResourceCategory()){			
-			list.addAll(getResourceCategorySelectOptions(ssrc.getResourceCategory(), metaKey));
+	public Set<Option> getResourceCategorySelectOptions(SampleSubtype sampleSubtype, String metaKey) {
+		Set<Option> set = new LinkedHashSet<Option>();
+		for(SampleSubtypeResourceCategory ssrc : sampleSubtype.getSampleSubtypeResourceCategory()){
+			set.addAll(getResourceCategorySelectOptions(ssrc.getResourceCategory(), metaKey));
 		}	
-		return list;
+		return set;
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Option> getResourceCategorySelectOptions(Sample sample, String metaKey) {
-		List<Option> list = new ArrayList<Option>();
+	public Set<Option> getResourceCategorySelectOptions(Sample sample, String metaKey) {
+		Set<Option> set = new LinkedHashSet<Option>();
 		for(SampleSubtypeResourceCategory ssrc : sample.getSampleSubtype().getSampleSubtypeResourceCategory()){			
-			list.addAll(getResourceCategorySelectOptions(ssrc.getResourceCategory(), metaKey));
+			set.addAll(getResourceCategorySelectOptions(ssrc.getResourceCategory(), metaKey));
 		}	
-		return list;
+		return set;
 	}
 
 }

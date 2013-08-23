@@ -11,12 +11,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
-import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.SubscribableChannel;
 
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
@@ -29,7 +27,7 @@ import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate
  * and stops the entire job if a relevant notifying abort message is received at any time. 
  * @author asmclellan
  */
-public class ListenForExitConditionTasklet extends WaspTasklet implements MessageHandler, StepExecutionListener {
+public class ListenForExitConditionTasklet extends WaspMessageHandlingTasklet {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -131,7 +129,9 @@ public class ListenForExitConditionTasklet extends WaspTasklet implements Messag
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
 		logger.trace(name + "execute() invoked");
 		if (message == null){
-			Thread.sleep(executeRepeatDelay);
+			try{
+				Thread.sleep(executeRepeatDelay);
+			} catch (InterruptedException e){} // happens when message handled 
 			return RepeatStatus.CONTINUABLE;
 		}
 		return RepeatStatus.FINISHED;
@@ -163,11 +163,6 @@ public class ListenForExitConditionTasklet extends WaspTasklet implements Messag
 				}
 			}
 		}
-	}
-
-	@Override
-	public void beforeStep(StepExecution stepExecution) {
-		// Do Nothing here
 	}
 
 }
