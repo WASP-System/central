@@ -17,7 +17,7 @@ public class JobStatusMessageTemplate extends WaspStatusMessageTemplate {
 	
 	public JobStatusMessageTemplate(Integer jobId){
 		super();
-		setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.JOB);
+		addHeader(WaspMessageType.HEADER_KEY, WaspMessageType.JOB);
 		setJobId(jobId);
 	}
 	
@@ -34,7 +34,7 @@ public class JobStatusMessageTemplate extends WaspStatusMessageTemplate {
 	}
 
 	public void setJobId(Integer jobId) {
-		setHeader(WaspJobParameters.JOB_ID, jobId);
+		addHeader(WaspJobParameters.JOB_ID, jobId);
 	}
 	
 	

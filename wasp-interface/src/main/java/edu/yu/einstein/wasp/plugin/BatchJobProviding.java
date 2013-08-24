@@ -9,13 +9,5 @@ public interface BatchJobProviding extends WaspPluginI{
 	 * @return
 	 */
 	public String getBatchJobName(String batchJobType);
-	
-	/**
-	 * get batch job name given a resource category and batchJobType
-	 * @param area
-	 * @param BatchJobType
-	 * @return
-	 */
-	public String getBatchJobNameByArea(String batchJobType, String area);
 
 }

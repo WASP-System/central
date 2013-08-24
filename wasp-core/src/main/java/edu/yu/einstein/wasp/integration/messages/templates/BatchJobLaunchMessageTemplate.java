@@ -21,7 +21,7 @@ public class BatchJobLaunchMessageTemplate extends WaspMessageTemplate{
 	
 	public BatchJobLaunchMessageTemplate(BatchJobLaunchContext batchJobLaunchContext){
 		super();
-		setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.LAUNCH_BATCH_JOB);
+		addHeader(WaspMessageType.HEADER_KEY, WaspMessageType.LAUNCH_BATCH_JOB);
 		this.batchJobLaunchContext = batchJobLaunchContext;
 	}
 	

@@ -1579,7 +1579,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  
 	  WaspMessageHandlingServiceImpl mockWaspMsgHdlSrvImpl = EasyMock.createStrictMock(WaspMessageHandlingServiceImpl.class);
       try {
-    	  mockWaspMsgHdlSrvImpl.sendOutboundMessage(messageTemplate.build(), false);
+    	  mockWaspMsgHdlSrvImpl.sendOutboundMessage(messageTemplate.build(), true);
 	  } catch (WaspMessageBuildingException e) {
 		  // TODO Auto-generated catch block
 		  e.printStackTrace();

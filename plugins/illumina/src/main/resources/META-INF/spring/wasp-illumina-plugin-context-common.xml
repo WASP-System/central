@@ -13,22 +13,36 @@
 			<value>edu.yu.einstein.wasp.illumina</value>
 		</constructor-arg>
 	</bean>
-
+	
 	<bean id="illuminaPluginArea" class="java.lang.String">
 		<constructor-arg>
 			<value>wasp-illumina</value>
 		</constructor-arg>
 	</bean>
+
+	<bean id="hiseqPluginArea" class="java.lang.String">
+		<constructor-arg>
+			<value>waspIlluminaHiSeq</value>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="personalSeqPluginArea" class="java.lang.String">
+		<constructor-arg>
+			<value>waspIlluminaPersonalSeq</value>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="illuminaResourceCategory" class="edu.yu.einstein.wasp.plugin.illumina.plugin.IlluminaResourceCategory" />
 	
 	<!-- channel for communications with this plugin. -->
-	<int:channel id="wasp.channel.plugin.wasp-illumina" />
+	<int:channel id="wasp.channel.plugin.waspIlluminaHiSeq" />
 
-	<int:service-activator input-channel="wasp.channel.plugin.wasp-illumina" ref="wasp-illumina.WaspPluginBean" method="process" />
+	<int:service-activator input-channel="wasp.channel.plugin.waspIlluminaHiSeq" ref="waspIlluminaHiseqPlugin" method="process" />
 	
-	<bean id="wasp-illumina.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.illumina.WaspIlluminaPlugin" depends-on="mps-tools">
-		<constructor-arg name="pluginName" ref="illuminaPluginArea" />
+	<bean id="waspIlluminaHiseqPlugin" class="edu.yu.einstein.wasp.plugin.illumina.plugin.WaspIlluminaHiseqPlugin" depends-on="mps-tools">
+		<constructor-arg name="pluginName" ref="hiseqPluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
-		<constructor-arg name="channel" ref="wasp.channel.plugin.wasp-illumina" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.waspIlluminaHiSeq" />
 		<property name="provides" >
 			<set>
 				<ref bean="casava" />
@@ -36,13 +50,11 @@
 		</property>
 		<property name="handles" >
 			<set>
-				<ref bean="illuminaHiSeq2000Area" />
-				<ref bean="illuminaMiSeqPersonalSequencerArea" />
+				<value>#{illuminaResourceCategory.HISEQ_2000}</value> 
+				<value>#{illuminaResourceCategory.HISEQ_2500}</value>
 			</set>
 		</property>
 		<property name="casava" ref="casava" />
 	</bean>
-	
-	
 
 </beans>

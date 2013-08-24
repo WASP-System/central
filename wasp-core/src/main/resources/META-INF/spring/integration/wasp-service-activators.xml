@@ -7,6 +7,6 @@
 
 	<!-- handles email notifications based on job status messages-->
 	<int:service-activator input-channel="wasp.channel.notification.job" ref="jobEmailServiceActivator" />
-	<bean id="jobEmailServiceActivator" class="edu.yu.einstein.wasp.integration.serviceactivators.JobEmailServiceActivator" />
+	<bean id="jobEmailServiceActivator" class="edu.yu.einstein.wasp.integration.endpoints.JobEmailServiceActivator" />
 
 </beans>

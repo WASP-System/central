@@ -21,7 +21,7 @@
 	<!-- channel for communications with this plugin. -->
 	<int:channel id="wasp.channel.plugin.wasp-genericDnaSeq" />
 	
-	<bean id="wasp-genericDnaSeq.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.assay.WaspGenericDnaSeqPlugin">
+	<bean id="wasp-genericDnaSeq.WaspPluginBean" class="edu.yu.einstein.wasp.genericDnaSeq.plugin.WaspGenericDnaSeqPlugin">
 		<constructor-arg name="pluginName" ref="waspGenericDnaSeqPluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.wasp-genericDnaSeq" />

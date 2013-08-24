@@ -418,9 +418,10 @@ public class WaspProjectCreator {
 		folderSet.add(javaMainPackage + "/plugin");
 		if(resource || pipeline){
 			folderSet.add(javaMainPackage + "/integration/messages");
+			folderSet.add(javaMainPackage + "/integration/endpoints");
 			folderSet.add(javaRes + "/flows");
-			folderSet.add(javaMainPackage + "/tasklet");
-			folderSet.add(javaTestPackage + "/integration/messages");
+			folderSet.add(javaMainPackage + "/batch/tasklet");
+			folderSet.add(javaTestPackage + "/integration/messages/test");
 			if (resource){
 				folderSet.add(javaMainPackage + "/software");
 			}

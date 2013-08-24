@@ -90,16 +90,12 @@ public class FastQScreenPlugin extends BabrahamPluginBase{
 		return MessageBuilder.withPayload(mstr).build();
 	}
 	
-	@Override
-	public String getBatchJobNameByArea(String batchJobType, String area){
-		if (batchJobType.equals(BatchJobTask.GENERIC))
-			return FLOW_NAME;
-		return null;
-	}
 	
 	@Override
 	public String getBatchJobName(String batchJobType) {
-		return getBatchJobNameByArea(batchJobType, null);
+		if (batchJobType.equals(BatchJobTask.GENERIC))
+			return FLOW_NAME;
+		return null;
 	}
 
 	@Override
