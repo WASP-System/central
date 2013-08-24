@@ -570,3 +570,13 @@ TABLE.data TD.value-centered-small {
 .no-close .ui-dialog-titlebar-close {
   display: none;
 }
+
+#wait_dialog-modal{
+	padding:15px;
+	font-size: 14px;
+	z-index:100;
+}
+
+#wait_dialog-modal td{
+	vertical-align: middle;
+}
