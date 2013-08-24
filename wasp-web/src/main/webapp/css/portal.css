@@ -58,13 +58,13 @@
     font-size: 12px;
 }
 .settings {
-    background-image:url(../shared/icons/fam/folder_wrench.png);
+    background-image:url(ext/images/icons/fam/folder_wrench.png);
 }
 .nav {
-    background-image:url(../shared/icons/fam/folder_go.png);
+    background-image:url(ext/images/icons/fam/folder_go.png);
 }
 .info {
-    background-image:url(../shared/icons/fam/information.png);
+    background-image:url(ext/images/icons/fam/information.png);
 }
 
 .noPlugin {
@@ -76,3 +76,15 @@
 }
 
 
+div.tooltip {
+	position: absolute;
+	text-align: left;
+	width: auto;
+	height: auto;
+	padding: 3px;
+	font: 12px sans-serif;
+	background: #ffff99;
+	border: solid 1px #aaa;
+	border-radius: 5px;
+	pointer-events: none;
+}
