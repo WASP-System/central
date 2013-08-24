@@ -76,6 +76,14 @@
 
 <body >
 	<div id="container">
+		<div id="wait_dialog-modal" title="<fmt:message key="wasp.wait_title.label" />"  >
+			<table border="0" cellpadding="5">
+			<tr>
+			<td><img src="/wasp/images/spinner.gif" align="left" border="0" ></td>
+			<td><fmt:message key="wasp.wait_message.label" /></td>
+			</tr>
+			</table>
+		</div>
   		<div id="header">
 			<tiles:insertAttribute name="banner-content" />
 		</div>

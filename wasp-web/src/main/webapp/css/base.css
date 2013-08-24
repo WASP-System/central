@@ -566,3 +566,7 @@ TABLE.data TD.value-centered-small {
     bottom: -20px;
     top: auto;
   }
+ 
+.no-close .ui-dialog-titlebar-close {
+  display: none;
+}

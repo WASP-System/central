@@ -1106,7 +1106,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	}
 
 	@Override
-	public void copyFileHandleToOutputStream(FileHandle fileHandle, OutputStream os) throws FileDownloadException, FileNotFoundException, GridException{
+	public void copyFileHandleToOutputStream(FileHandle fileHandle, OutputStream os) throws FileUploadException, FileDownloadException, FileNotFoundException, GridException{
 		
 		if(tempDir == null){
 			String mess = "Temporary directory on local host has not been configured!  Please set \"wasp.temporary.dir\" in wasp-config.";
@@ -1190,7 +1190,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	}
 	
 	@Override
-	public void copyFileHandlesInFileGroupToOutputStream(FileGroup fileGroup, OutputStream os) throws FileDownloadException, FileNotFoundException, GridException{
+	public void copyFileHandlesInFileGroupToOutputStream(FileGroup fileGroup, OutputStream os) throws FileDownloadException, FileNotFoundException, GridException, FileUploadException{
 		
 		if(tempDir == null){
 			String mess = "Temporary directory on local host has not been configured!  Please set \"wasp.temporary.dir\" in wasp-config.";
