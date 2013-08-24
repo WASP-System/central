@@ -5,7 +5,6 @@
 <c:set var="jobDraftDb" value="${jobDraft}" />
 <%@ include file="/WEB-INF/jsp/jobsubmit/jobsubmitinfo.jsp" %>
 <div class="instructions"><fmt:message key="jobDraft.verify_instructions.label"/></div>
-<div id="dialog"><br />Processing! Please Wait.....</div>
 <form method="POST" onsubmit="return submitDocument(this)">
   <div id="buttons" class="submit">
     <input name="waitButton" class="fm-button" type="button" onClick="location.href='/wasp/dashboard.do';" value="<fmt:message key='jobDraft.submit_later_button.label'/>" /> 
@@ -16,19 +15,11 @@
 
 <script type="text/javascript">
 function submitDocument(thisForm){
-	
-	$( "#wait_dialog-modal" ).dialog("open");
+	$( "#wait_dialog-modal" ).dialog("close");
 	thisForm.submit(); 
 	return true; 
 }
 </script>
-<style>
-#hiddenMessage{
-	visibility: hidden;	
-	font-size:xx-large;
-	color:red;
-	position: absolute;
-}
-</style>
+
 
 

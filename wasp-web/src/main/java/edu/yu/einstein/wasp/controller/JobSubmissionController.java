@@ -299,8 +299,6 @@ public class JobSubmissionController extends WaspController {
 
 		int currentWorkflowIndex = found + 1;
 		String targetPage = pageFlowArray[currentWorkflowIndex] + ".do"; 
-		if (currentWorkflowIndex == pageFlowArray.length - 1)
-			doReauth(); // last page 
 		targetPage = targetPage.replaceAll("\\{n\\}", ""+jobDraft.getId());
 		logger.debug("Next page: " + targetPage);
 
@@ -533,6 +531,10 @@ public class JobSubmissionController extends WaspController {
 		// that the job name already exists. Also happens if the back button is used on job creation
 		// Check session to see if we have already submitted job
 		request.getSession().setAttribute("jobDraftId", (Integer) jobDraftDb.getId());
+		
+		// Adds the jobdraft to authorized list
+ 		doReauth();
+
 		return nextPage(jobDraftDb);
 	}
 	
@@ -2016,7 +2018,11 @@ public class JobSubmissionController extends WaspController {
 		
 	}
 
-
+	@RequestMapping(value="/ok.do", method=RequestMethod.GET)
+	public String ok(){
+		doReauth();
+		return "jobsubmit/ok";
+	}
 	
 	
 	
