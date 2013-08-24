@@ -4,10 +4,11 @@
 
 <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
 
-<!--script type="text/javascript" src="http://cdn.sencha.com/ext/gpl/4.2.1/ext-all-debug.js"></script-->
-<script type="text/javascript" src="/wasp/scripts/extjs/ext-all.js"></script>
+<script type="text/javascript" src="http://cdn.sencha.com/ext/gpl/4.2.1/ext-all-debug.js"></script>
+<!--script type="text/javascript" src="/wasp/scripts/extjs/ext-all.js"></script-->
 
-<script type="text/javascript" src="/wasp/scripts/extjs/ext-theme-neptune-wasp.js"></script>
+<script type="text/javascript" src="http://cdn.sencha.com/ext/gpl/4.2.1/packages/ext-theme-neptune/build/ext-theme-neptune.js"></script>
+<!--script type="text/javascript" src="/wasp/scripts/extjs/ext-theme-neptune-wasp.js"></script-->
 
 <!--script type="text/javascript" src="/wasp/scripts/extjs/examples/shared/include-ext.js"></script-->
 <!--script type="text/javascript" src="/wasp/scripts/extjs/packages/ext-theme-neptune/build/ext-theme-neptune-wasp.js"></script-->
@@ -21,9 +22,17 @@
 
 <script type="text/javascript">
 
-//$.getScript("http://cdn.sencha.com/ext/gpl/4.2.1/ext-all-debug.js", function() {
-//    $.getScript("http://cdn.sencha.com/ext/gpl/4.2.1/packages/ext-theme-neptune/build/ext-theme-neptune-wasp.js");
-//});
+String.prototype.width = function(font) {
+  var f = font || '13px sans-serif',
+      o = $('<div>' + this + '</div>')
+            .css({'position': 'absolute', 'float': 'left', 'white-space': 'nowrap', 'visibility': 'hidden', 'font': f})
+            .appendTo($('body')),
+      w = o.width();
+
+  o.remove();
+
+  return w;
+};
 
 var margin = {top: 20, right: 30, bottom: 20, left: 20};
 var treeviewWidth,
@@ -36,6 +45,8 @@ var treeviewWidth,
     
 var barHeight = 20,	barWidth;
 
+var div;
+            
 var tree = d3.layout.tree().size([treeviewHeight, 100]);
 
 var diagonal = d3.svg.diagonal()
@@ -60,6 +71,12 @@ var rootstr = JSON.stringify(root, function(key, val) {
  
 var activeNode = {myid: null, type: null};
 
+Ext.Loader.setConfig({
+	enabled	: true,
+	paths	: {
+		'Wasp':	'/wasp/scripts/extjs/wasp'
+	}
+});
 
 Ext.require([
     'Ext.layout.container.*',
@@ -67,13 +84,13 @@ Ext.require([
     'Ext.fx.target.Element',
     'Ext.fx.target.Component',
     'Ext.window.Window',
-    'Ext.wasp.Portal'
+    'Wasp.Portal'
 ]);
 
 var extPortal;
 
 Ext.onReady(function(){
-	extPortal = Ext.create('Ext.wasp.Portal', {width: $('#content').width()});
+	extPortal = Ext.create('Wasp.Portal', {width: $('#content').width()});
 //	Ext.Msg.alert('Alert',$('#content').width());
 
 	jQuery(window).bind('resize', function() {
@@ -81,9 +98,13 @@ Ext.onReady(function(){
 		}).trigger('resize');
 
 	treeviewWidth = $('#content').width() * 0.3 - margin.left - margin.right;
-	treeviewHeight = $('#content').height() - margin.top - margin.bottom;
+	treeviewHeight = $('#content').height() - margin.top - margin.bottom + 500;
 	barWidth = treeviewWidth * .5;
 	barHeight = 20;
+	
+	div = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
 	
 	d3.json("/wasp/jobresults/getTreeJson.do?node="+rootstr, function(json) {	
 		vis = d3.select("#treeview").append("svg:svg")
@@ -131,6 +152,14 @@ function collapse(d) {
 //var g = d3.select("g");
 //g.call(drag);
 
+function getNodeName(d) {
+	if (d.name.length>30) {
+		d.fullname = d.name;
+		d.name = d.fullname.substring(0,26)+'...';
+	}
+	return d.name;
+}
+
 function update(source) {
 
 	// Compute the new tree layout.
@@ -153,20 +182,23 @@ function update(source) {
 		.style("opacity", 1e-6)
 		.on("click", click)
 		.on("mouseover", onMouseOver)
+		.on("mousemove", onMouseMove)
 		.on("mouseout", onMouseOut);
 
 	// Enter any new nodes at the parent's previous position.
 	nodeEnter.append("svg:rect")
 	  .attr("y", -barHeight / 2)
 	  .attr("height", barHeight)
-	  .attr("width", localBarWidth)
+//	  .attr("width", localBarWidth)
+	  .attr("width", barWidth)
 	  .style("fill", color)
 	  .on("dblclick", toggle);
 	
 	nodeEnter.append("svg:text")
 	  .attr("dy", 3.5)
 	  .attr("dx", 13.5)
-	  .text(function(d) { return d.name; });
+//	  .text(function(d) { return d.name; });
+	  .text(getNodeName);
 	
 	// Add checkbox
 	nodeEnter.append("svg:circle")
@@ -236,8 +268,8 @@ function update(source) {
 	
 	// Stash the old positions for transition.
 	nodes.forEach(function(d) {
-	d.x0 = d.x;
-	d.y0 = d.y;
+		d.x0 = d.x;
+		d.y0 = d.y;
 	});
 
 	// store the parent's id in everynode
@@ -341,7 +373,7 @@ function click(d) {
 			var createPortal = function(){
 				var summaryPanel;
 				if (result.statuslist.length > 0){
-					summaryPanel = Ext.create('Ext.wasp.GridPortlet', { statusData: result.statuslist, tabPanel: tabpanel });
+					summaryPanel = Ext.create('Wasp.GridPortlet', { statusData: result.statuslist, tabPanel: tabpanel });
 				} else{
 					summaryPanel = {
 						html: '<div class="noPlugin">No registered plugins handle this data.</div>'
@@ -457,8 +489,9 @@ function click(d) {
 		});
 	}
 
+	toggle(d);
+
 	if (d.myid !== activeNode.myid && d.type !== activeNode.type) {
-		toggle(d);
 		activeNode.myid = d.myid;
 		activeNode.type = d.type;
 	}
@@ -484,6 +517,21 @@ function onMouseOver(d)
 	if (d.parent)
 	{
 	}
+	
+	if(d.fullname) {
+		div.transition()
+			.duration(200)
+			.style("opacity", .8);
+	}
+}
+
+function onMouseMove(d) {
+	if(d.fullname) {
+		div.text(d.fullname)
+			//.style("width", x(txt))
+			.style("left", (d3.event.pageX) + "px")
+			.style("top", (d3.event.pageY+18) + "px");
+	}
 }
 
 function onMouseOut(d)
@@ -493,6 +541,10 @@ function onMouseOut(d)
 	if (d.parent)
 	{
 	}
+	
+	div.transition()
+		.duration(100)
+		.style("opacity", 0);
 }
 
 </script>
