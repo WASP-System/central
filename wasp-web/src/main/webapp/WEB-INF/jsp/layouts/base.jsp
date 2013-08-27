@@ -42,14 +42,7 @@
 		waspTooltip();
   		waspFade("waspErrorMessage");
   		waspFade("waspMessage");
-  		
-  		$( "#wait_dialog-modal" ).dialog({
-  			dialogClass: "no-close",
-			height: 170,
-			autoOpen: false,
-			modal: true
-		});
-  		
+  		  		
   		waspOnLoad();
   	});
   
@@ -70,6 +63,16 @@
 			},7500);
 		}
 	}
+  	
+  	function waitDialogDisplay(){
+  		document.getElementById("wait_dialog-modal").style.visibility = "visible";
+  		return true;
+  	}
+  	
+  	function waitDialogHide(){
+  		document.getElementById("wait_dialog-modal").style.visibility = "hidden";
+  		return true;
+  	}
   
     var waspOnLoad=function() {
       // re-define the waspOnLoad var 
@@ -82,8 +85,18 @@
   <tiles:insertAttribute name="head-style" />
 </head>
 
-<body >
-	<div id="container">
+<body>
+	<div id="wait_dialog-modal">
+		<div title="<fmt:message key="wasp.wait_title.label" />"  >
+			<table>
+			<tr>
+			<td><img src="/wasp/images/spinner.gif" align="left" border="0" ></td>
+			<td><fmt:message key="wasp.wait_message.label" /></td>
+			</tr>
+			</table>
+		</div>
+	</div>
+	<div id="container" >
   		<div id="header">
 			<tiles:insertAttribute name="banner-content" />
 		</div>
@@ -94,14 +107,6 @@
 		</sec:authorize>
   		<div id="content"> 
   			<!-- <wasp:breadcrumbs /> -->
-  			<div id="wait_dialog-modal" title="<fmt:message key="wasp.wait_title.label" />"  >
-				<table border="0" cellpadding="5">
-				<tr>
-				<td><img src="/wasp/images/spinner.gif" align="left" border="0" ></td>
-				<td><fmt:message key="wasp.wait_message.label" /></td>
-				</tr>
-				</table>
-			</div>
   			<wasp:errorMessage />
   			<wasp:message />
 			<tiles:insertAttribute name="body-content" />
