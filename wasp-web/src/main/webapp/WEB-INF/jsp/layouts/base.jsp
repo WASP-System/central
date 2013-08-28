@@ -5,7 +5,7 @@
 <%@ page import="edu.yu.einstein.wasp.resourcebundle.DBResourceBundle" %> 
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html lang="en">
+<html>
 <head>
   <meta charset="utf-8" />
   <title> 	 	
@@ -22,15 +22,14 @@
   <script type="text/javascript">
   
   function submitViaAjaxAndOpenReceivedPageHtml(frm){
+	    $("#wait_dialog-modal").dialog("open");
   		$.ajax({
 			type: frm.attr('method'),
 	        url: frm.attr('action'),
 	        data: frm.serialize(),
-	        success: function (data) {
-	        	// open a new page using the returned page html
-	       		document.open("text/html","replace");
-	       		document.write(data);
-	        	document.close();
+	        success: function (data, textStatus, jqXHR) {
+	        	$("#wait_dialog-modal").dialog("close");
+	        	$('body').html(data.replace(/< *body.*>(.*)< *\/body *>/, "$1"));
 	     	}
 	    });
   }
@@ -96,7 +95,7 @@
   <tiles:insertAttribute name="head-style" />
 </head>
 
-<body >
+<body>
 	<div id="container">
   		<div id="header">
 			<tiles:insertAttribute name="banner-content" />
