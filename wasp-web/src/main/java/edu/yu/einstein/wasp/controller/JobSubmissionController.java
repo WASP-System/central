@@ -1975,9 +1975,11 @@ public class JobSubmissionController extends WaspController {
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public Callable<String> submitJob(@PathVariable("jobDraftId") final Integer jobDraftId, final ModelMap m) {
 		final User me = authenticationService.getAuthenticatedUser(); // need to do this here as no access to SecurityContextHolder off the main thread
-		// use asynchronous request processing to handle the business logic here as job submission process make take a few secs due to daemon delays
+		
+		// Use asynchronous request processing to handle the business logic here as job submission process make take a few secs due to daemon delays
 		// and we should do this work on a separate thread to free up the servlet for other tasks.
-		// Note that (as with all anonymous inner classes) the variables passed in must be final to prohibit object re-assignment.
+		// NOTE 1: As for all anonymous inner classes, the variables passed in MUST be final to prohibit object re-assignment.
+		// NOTE 2: As we use the security context when writing pages, we must use 'redirect' when returning the destination page. 
 		return new Callable<String>() {
 
 			@Override
@@ -2009,17 +2011,35 @@ public class JobSubmissionController extends WaspController {
 					error = true;
 				}
 				if(error){
-					m.put("jobDraft", jobDraft);
-					return "jobsubmit/failed";
+					// need to re-direct here and provide a function to handle the request mapping rather than simply going 
+					// to 'jobsubmit/failed' as we used to.
+					// This is because there is no access to the security context within a Callable thread which is required when creating new page).
+					// By re-directing we return back to the main servlet thread again and all is well with accessing security information.
+					return "redirect:/jobsubmit/failed/" + jobDraftId + ".do";
 				}
-				return nextPage(jobDraft);//currently goes to submitjob/ok
+				return nextPage(jobDraft); // no Security Context problem as evaluates to a redirected link e.g 'redirect:/submitjob/ok.do'
 			}
 		};
 		
 	}
+	
+	@RequestMapping(value="/failed/{jobDraftId}.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String failed(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		m.put("jobDraft", jobDraft);
+
+		List <SampleDraft> sampleDraftList = jobDraft.getSampleDraft();
+		m.put("sampleDraft", sampleDraftList);
+        m.put("pageFlowMap", getPageFlowMap(jobDraft));
+		return "jobsubmit/failed";
+	}
 
 	@RequestMapping(value="/ok.do", method=RequestMethod.GET)
-	public String ok(){
+	public String ok(ModelMap m){
+		// need this function as using Callable (no access to security context within Callable thread)
 		doReauth();
 		return "jobsubmit/ok";
 	}

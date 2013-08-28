@@ -89,7 +89,7 @@ public class WaspController {
 	  List<Department> result=new ArrayList<Department>();
 	  for(Department d:in) {
 		  Department dep=new Department();
-		  dep.setDepartmentId(d.getDepartmentId());
+		  dep.setId(d.getId());
 		  dep.setName(d.getName());
 		  result.add(dep);
 	  }
@@ -103,7 +103,7 @@ public class WaspController {
     UserDetails currentUserDetails = (UserDetails) currentUser.getPrincipal();
 
     UserDetails u = userDetailsService.loadUserByUsername(currentUserDetails.getUsername());
-
+    logger.debug("logged-in userDetails for " + u.getUsername() + ": " + u.toString());
     UsernamePasswordAuthenticationToken newToken = new UsernamePasswordAuthenticationToken(u.getUsername(), u.getPassword());
 
     SecurityContextHolder.getContext().setAuthentication(newToken);
