@@ -10,6 +10,11 @@
 	<br /><h2>Most Recent Quote: <c:out value="${localCurrencyIcon}" /> <c:out value="${mostRecentQuote}" /></h2>
 </c:if>
 <br />
+<a href="javascript:void(0);" onclick='$("#createNewQuote").css("display", "block");'>New Quote</a>
+ | <a href="javascript:void(0);" onclick='$("#updateCurrentQuote").css("display", "block");'>Update Current Quote</a>
+ 
+
+<br />
 <form id="fileUploadFormId" action="<c:url value="/job/${job.getId()}/fileUploadManager.do" />" method="POST"  enctype="multipart/form-data" onsubmit='return false;' >
 	<table class="data" style="margin: 0px 0px">
 		<%-- 
@@ -87,3 +92,53 @@
 	</table>
 </form>
 <br />
+<div id="createNewQuote" style="display:none">
+	<span style='font-weight:bold'>1. Library Constructions Expected For This Job: <c:out value="${numberOfLibrariesExpectedToBeConstructed}" />
+		<c:if test="${numberOfLibrariesExpectedToBeConstructed > 0}">
+			&nbsp;&nbsp;[if no charge for a library, please set its cost to 0]
+		</c:if>
+	</span><br /><br />
+	<table class="data" style="margin: 0px 0px">
+		<tr class="FormData">
+			<td class="label-centered" style="background-color:#FAF2D6">Number</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Submitted Sample</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Material</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Library Cost</td>
+		</tr>
+		
+		<c:forEach items="${submittedSamples}" var="submittedSample" >
+			<input type='hidden' name="submittedSampleId" value="${submittedSample.getSampleId()}"/>
+			<tr>
+				<td class="DataTD"  style="text-align:center; white-space:nowrap;">
+					<c:out value="${submittedSample.getNumber()}" />
+				</td>
+				<td class="DataTD"  style="text-align:center; white-space:nowrap;">
+					<c:out value="${submittedSample.getSampleName()}" />
+				</td>
+				<td class="DataTD"  style="text-align:center; white-space:nowrap;">
+					<c:out value="${submittedSample.getMaterial()}"/>
+				</td>
+				<td class="DataTD"  style="text-align:center; white-space:nowrap;">
+				
+					<c:choose>
+						<c:when test='${submittedSample.getCost()=="N/A"}'>
+							<c:out value="${submittedSample.getCost()}" />
+							<input type='hidden' name="libraryCost_${submittedSample.getSampleId()}" value="${submittedSample.getCost()}"/>
+						</c:when>
+						<c:otherwise>
+							<c:out value="${localCurrencyIcon}" /><input style="text-align:right;" name="libraryCost_${submittedObject.getId()}" type="text" maxlength="4" size="4" value="<c:out value="${submittedSample.getCost()}" />"/>.00
+						</c:otherwise>
+					</c:choose>
+					
+					
+				</td>
+			</tr>
+		</c:forEach>
+			
+	</table>
+	<br /><br />
+
+</div>
+<div id="updateCurrentQuote" style="display:none">
+ b<br />b<br />b<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />
+</div>

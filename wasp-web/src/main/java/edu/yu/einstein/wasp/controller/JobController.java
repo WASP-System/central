@@ -108,6 +108,8 @@ import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.model.WaspModel;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
+import edu.yu.einstein.wasp.quote.MPSQuote;
+import edu.yu.einstein.wasp.quote.SubmittedSample;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FilterService;
@@ -970,6 +972,36 @@ public class JobController extends WaspController {
 			return "job/home/message";
 		}
 		populateCostPage(job, m);
+		
+		
+		
+		//8-27-13
+ 		//if there is no existing quote (for the moment there is none)
+ 		MPSQuote mpsQuote = new MPSQuote();
+ 		List<SubmittedSample> submittedSamples = mpsQuote.getSubmittedSamples();
+ 		int counter = 0;
+ 		int numberOfLibrariesExpectedToBeConstructed = 0;
+ 		for(Sample s : jobService.getSubmittedSamples(job)){
+ 			counter++;
+ 			System.out.println("---submittedSample from job list: "+s.getName());
+ 			String cost = "";
+ 			if(s.getSampleType().getIName().toLowerCase().equals("library")){
+ 				cost = "N/A";
+ 			}
+ 			else{
+ 				numberOfLibrariesExpectedToBeConstructed++;
+ 			}
+ 			SubmittedSample submittedSample = new SubmittedSample(new Integer(counter), s.getId(), s.getName(), s.getSampleType().getName(), cost, "");
+ 			submittedSamples.add(submittedSample);
+ 		}
+ 		System.out.println("---------numberOfLibrariesExpectedToBeConstructed: "+numberOfLibrariesExpectedToBeConstructed);
+ 		m.addAttribute("submittedSamples", submittedSamples);
+ 		m.addAttribute("numberOfLibrariesExpectedToBeConstructed", numberOfLibrariesExpectedToBeConstructed);
+ 	
+		for(SubmittedSample ss : submittedSamples){
+			System.out.println("-ss " + ss.getNumber() + " : " + ss.getSampleId()+ " : " + ss.getSampleName()+ " : " + ss.getMaterial() + " : " +  ss.getCost() + " : " + ss.getError());
+		}
+		
 		
 		return "job/home/costManager";
 	}
