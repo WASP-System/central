@@ -19,27 +19,9 @@
 
 $('#submissionForm').submit(function(){
 	$("#wait_dialog-modal").dialog("open");
-	submitAjaxReceivePageHtml($(this));
+	submitViaAjaxAndOpenReceivedPageHtml($(this));
 	return false; // set as false to disable default behaviour i.e do not submit normally as we did this already via ajax
 });
-
-/*
-frm.submit(function () {
-	// submit via ajax in order for css modifications to show up due to using Callable on the server side
-	waitDialogDisplay();
-    $.ajax({
-        type: frm.attr('method'),
-        url: frm.attr('action'),
-        data: frm.serialize(),
-        success: function (data) {
-        	document.open();
-            document.write(data);
-            document.close();
-        }
-    });
-    return false; // set as false to disable default behaviour i.e do not submit normally as we did this already via ajax
-});
-*/
 
 </script>
 

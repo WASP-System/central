@@ -21,14 +21,14 @@
   
   <script type="text/javascript">
   
-  function submitAjaxReceivePageHtml(frm){
+  function submitViaAjaxAndOpenReceivedPageHtml(frm){
   		$.ajax({
 			type: frm.attr('method'),
 	        url: frm.attr('action'),
 	        data: frm.serialize(),
 	        success: function (data) {
 	        	// open a new page using the returned page html
-	       		document.open();
+	       		document.open("text/html","replace");
 	       		document.write(data);
 	        	document.close();
 	     	}

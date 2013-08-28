@@ -2041,6 +2041,11 @@ public class JobSubmissionController extends WaspController {
 	public String ok(ModelMap m){
 		// need this function as using Callable (no access to security context within Callable thread)
 		doReauth();
+		return "redirect:/jobsubmit/complete.do"; // must insert a redirect to ensure using updated SecurityContextHolder
+	}
+	
+	@RequestMapping(value="/complete.do", method=RequestMethod.GET)
+	public String complete(ModelMap m){
 		return "jobsubmit/ok";
 	}
 	

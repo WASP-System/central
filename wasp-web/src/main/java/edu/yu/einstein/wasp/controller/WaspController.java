@@ -98,6 +98,7 @@ public class WaspController {
   }
 
   public void doReauth() {
+	// Must be called from request filtered by Spring Security, otherwise SecurityContextHolder is not updated
     SecurityContext securityContext= SecurityContextHolder.getContext();
     Authentication currentUser = securityContext.getAuthentication();
     UserDetails currentUserDetails = (UserDetails) currentUser.getPrincipal();
@@ -106,8 +107,7 @@ public class WaspController {
     logger.debug("logged-in userDetails for " + u.getUsername() + ": " + u.toString());
     UsernamePasswordAuthenticationToken newToken = new UsernamePasswordAuthenticationToken(u.getUsername(), u.getPassword());
 
-    SecurityContextHolder.getContext().setAuthentication(newToken);
-
+    securityContext.setAuthentication(newToken);
   }
 
   public void waspMessage(String propertyString)   {
