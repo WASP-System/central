@@ -29,7 +29,10 @@
 	        data: frm.serialize(),
 	        success: function (data, textStatus, jqXHR) {
 	        	$("#wait_dialog-modal").dialog("close");
-	        	$('body').html(data.replace(/< *body.*>(.*)< *\/body *>/, "$1"));
+	        	// data represents the entire html from returned page. We just need to replace the title and body sections of the current page.
+	        	$('title').html(data.replace(/^[\s\S]*<title>([\s\S]*)<\/title>[\s\S]*$/, "$1"));
+	        	$('body').html(data.replace(/^[\s\S]*<body>([\s\S]*)<\/body>[\s\S]*$/, "$1"));
+	        	readyFn(); // run document ready code
 	     	}
 	    });
   }
@@ -50,9 +53,9 @@
 	  	      }
 	  	    });
 	}
-
-	$( document ).ready( function(){
-		waspTooltip();
+  
+  	function readyFn(){
+  		waspTooltip();
   		waspFade("waspErrorMessage");
   		waspFade("waspMessage");
   		
@@ -64,7 +67,9 @@
 		});
   		
   		waspOnLoad();
-  	});
+  	}
+
+	$( document ).ready( readyFn );
   
   	function waspFade(el, msg) {
 		if (msg != null && msg != ""){
