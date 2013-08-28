@@ -17,7 +17,13 @@
 
 <script>
 
-var frm = $('#submissionForm');
+$('#submissionForm').submit(function(){
+	$("#wait_dialog-modal").dialog("open");
+	submitAjaxReceivePageHtml($(this));
+	return false; // set as false to disable default behaviour i.e do not submit normally as we did this already via ajax
+});
+
+/*
 frm.submit(function () {
 	// submit via ajax in order for css modifications to show up due to using Callable on the server side
 	waitDialogDisplay();
@@ -33,6 +39,7 @@ frm.submit(function () {
     });
     return false; // set as false to disable default behaviour i.e do not submit normally as we did this already via ajax
 });
+*/
 
 </script>
 
