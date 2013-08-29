@@ -109,6 +109,7 @@ import edu.yu.einstein.wasp.model.WaspModel;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.quote.AdditionalCost;
+import edu.yu.einstein.wasp.quote.Comment;
 import edu.yu.einstein.wasp.quote.Discount;
 import edu.yu.einstein.wasp.quote.MPSQuote;
 import edu.yu.einstein.wasp.quote.SequenceRun;
@@ -1028,6 +1029,11 @@ public class JobController extends WaspController {
 		discountTypes.add(Currency.getInstance(Locale.getDefault()).getSymbol());
 		m.addAttribute("discountTypes", discountTypes);
 		
+		List<Comment> comments = mpsQuote.getComments();
+		//fake test data
+		comments.add(new Comment("Here's my first comment; how do you like it??", "Error In Row"));
+		comments.add(new Comment("This is my second comment!!"));
+
 		m.addAttribute("mpsQuote", mpsQuote);
 		
 		return "job/home/costManager";

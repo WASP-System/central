@@ -36,6 +36,13 @@
 							"</tr>");
 			rowCounter++;
 		});
+		$("#commentAddRowButton").bind('click', function(){
+			$("#commentTableVeryLastRow").before("<tr id=commentRow_"+rowCounter+" class=FormData>"+
+							"<td align=center><textarea id=comments name=comments cols=60 rows=4 ></textarea><br /></td>"+
+							"<td align=center><input type=button  onclick='$(\"#commentRow_"+rowCounter+"\").remove();' value='Delete' /></td>"+
+							"</tr>");
+			rowCounter++;
+		});
 		
 	});
 
@@ -223,7 +230,7 @@
 			</tr>
 			<c:set value="${rowCounter + 1}" var="rowCounter" />
 		</c:forEach>
-		<tr id="additionalCostTableVeryLastRow"><td colspan="6" align="center"><input id="additionalCostAddRowButton" style="width:300" type="button"  value="ADD ADDITIONAL ROW"/></td></tr>
+		<tr id="additionalCostTableVeryLastRow"><td colspan="4" align="center"><input id="additionalCostAddRowButton" style="width:300" type="button"  value="ADD ADDITIONAL ROW"/></td></tr>
 	</table>
 	<br /><br />
 
@@ -268,12 +275,27 @@
 			</tr>
 			<c:set value="${rowCounter + 1}" var="rowCounter" />
 		</c:forEach>
-		<tr id="discountTableVeryLastRow"><td colspan="6" align="center"><input id="discountAddRowButton" style="width:300" type="button"  value="ADD ADDITIONAL ROW"/></td></tr>
+		<tr id="discountTableVeryLastRow"><td colspan="4" align="center"><input id="discountAddRowButton" style="width:300" type="button"  value="ADD ADDITIONAL ROW"/></td></tr>
 	</table>
 	<sup>*</sup><span style="font-size:small;color:red">Please select any particular discount/credit reason only once</span>
 	<br /><br />
 
-
+	<span style='font-weight:bold'>5. Comments For This Job: </span><br /><br />
+	<table  class="data" style="margin: 0px 0px">
+		<tr class="FormData">
+			<td class="label-centered" style="background-color:#FAF2D6">Comment</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Action</td>		
+		</tr>
+		<c:forEach items="${mpsQuote.getComments()}" var="comment">
+			<tr id="commentRow_${rowCounter}">
+				<td align='center'><textarea id="comments" name="comments" cols="60" rows="4" >${comment.getComment()}</textarea><br /></td>
+				<td align='center'><span style="font-weight:bold;color:red;"><c:out value="${comment.getError()}" /><c:if test="${not empty comment.getError()}">&nbsp;</c:if></span><input type="button" onclick='$("#commentRow_${rowCounter}").remove();' value="Delete"/></td>
+			</tr>
+			<c:set value="${rowCounter + 1}" var="rowCounter" />
+		</c:forEach>
+		<tr id="commentTableVeryLastRow"><td colspan="2" align="center"><input id="commentAddRowButton" style="width:300" type="button"  value="ADD ADDITIONAL ROW"/></td></tr>
+	</table>
+	<br /><br />
 
 	<%-- this next script MUST be at bottom, so that assignment of rowCounter is accurate --%>
 	<script type="text/javascript">
