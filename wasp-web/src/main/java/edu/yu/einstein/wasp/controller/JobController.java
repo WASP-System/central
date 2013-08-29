@@ -1,6 +1,5 @@
 package edu.yu.einstein.wasp.controller;
 
-import java.io.BufferedReader;
 import java.text.DateFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -9,43 +8,31 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.Map.Entry;
+import java.util.concurrent.Callable;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.type.TypeReference;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.integration.MessagingException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
@@ -65,7 +52,6 @@ import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleMultiplexException;
-import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.Adaptor;
@@ -88,26 +74,24 @@ import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.model.WaspModel;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
-import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
-import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
-import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.RunService;
+import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.SampleWrapper;
@@ -1165,58 +1149,64 @@ public class JobController extends WaspController {
 	//Note: we use MultipartHttpServletRequest to be able to upload files using Ajax. See http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/
 	@RequestMapping(value="/{jobId}/fileUploadManager", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-	  public String jobFileUploadPostPage(@PathVariable("jobId") Integer jobId,
-			  MultipartHttpServletRequest request, 
-			  HttpServletResponse response,
+	  public Callable<String> jobFileUploadPostPage(@PathVariable("jobId") final Integer jobId,
+			  final MultipartHttpServletRequest request, 
+			  final HttpServletResponse response,
 			  //since this is now an ajax call, we no longer need/use @RequestParam("file_description") String fileDescription, @RequestParam("file_upload") MultipartFile mpFile,
-			  ModelMap m) throws SampleTypeException {
+			  final ModelMap m) throws SampleTypeException {
 	
-		Job job = jobService.getJobByJobId(jobId);
-		if(job.getId()==null){
-		   	logger.warn("Job unexpectedly not found");
-		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
-			return "job/home/message";
-		}
+			  return new Callable<String>() {
 
-		List<MultipartFile> mpFiles = request.getFiles("file_upload");
-	    if(mpFiles.isEmpty()){
-	    	String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed_fileEmpty.error");
-	    	logger.warn(errorMessage);
-	    	m.addAttribute("errorMessage", errorMessage);
-	    	populateFileUploadPage(job, m);
-			return "job/home/fileUploadManager";
-	    }
-	   	MultipartFile mpFile = mpFiles.get(0);
-	   	if(mpFile==null){
-	   		String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed_fileEmpty.error");
-	    	logger.warn(errorMessage);
-	    	m.addAttribute("errorMessage", errorMessage);
-	    	populateFileUploadPage(job, m);
-			return "job/home/fileUploadManager";
-		}
+					@Override
+					public String call() throws Exception {
+						Job job = jobService.getJobByJobId(jobId);
+						if(job.getId()==null){
+						   	logger.warn("Job unexpectedly not found");
+						   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+							return "job/home/message";
+						}
 		
-	   	String fileDescription = request.getParameter("file_description");
-	    fileDescription = fileDescription==null?"":fileDescription.trim();
-	    
-	    if("".equals(fileDescription)){
-	    	String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed_fileDescriptionEmpty.error");
-	    	logger.warn(errorMessage);
-	    	m.addAttribute("errorMessage", errorMessage);
-	    	populateFileUploadPage(job, m);
-			return "job/home/fileUploadManager";
-	    }	    
-	   			
-		Random randomNumberGenerator = new Random(System.currentTimeMillis());
-		try{
-			fileService.uploadJobFile(mpFile, job, fileDescription, randomNumberGenerator);//will upload and perform all database updates
-			m.addAttribute("successMessage", messageService.getMessage("listJobSamples.fileUploadedSuccessfully.label"));
-		} catch(FileUploadException e){
-			String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed.error");
-			logger.warn(errorMessage);
-			m.addAttribute("errorMessage", errorMessage);
-		}
-		populateFileUploadPage(job, m);
-		return "job/home/fileUploadManager";
+						List<MultipartFile> mpFiles = request.getFiles("file_upload");
+					    if(mpFiles.isEmpty()){
+					    	String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed_fileEmpty.error");
+					    	logger.warn(errorMessage);
+					    	m.addAttribute("errorMessage", errorMessage);
+					    	populateFileUploadPage(job, m);
+							return "job/home/fileUploadManager";
+					    }
+					   	MultipartFile mpFile = mpFiles.get(0);
+					   	if(mpFile==null){
+					   		String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed_fileEmpty.error");
+					    	logger.warn(errorMessage);
+					    	m.addAttribute("errorMessage", errorMessage);
+					    	populateFileUploadPage(job, m);
+							return "job/home/fileUploadManager";
+						}
+						
+					   	String fileDescription = request.getParameter("file_description");
+					    fileDescription = fileDescription==null?"":fileDescription.trim();
+					    
+					    if("".equals(fileDescription)){
+					    	String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed_fileDescriptionEmpty.error");
+					    	logger.warn(errorMessage);
+					    	m.addAttribute("errorMessage", errorMessage);
+					    	populateFileUploadPage(job, m);
+							return "job/home/fileUploadManager";
+					    }	    
+					   			
+						Random randomNumberGenerator = new Random(System.currentTimeMillis());
+						try{
+							fileService.uploadJobFile(mpFile, job, fileDescription, randomNumberGenerator);//will upload and perform all database updates
+							m.addAttribute("successMessage", messageService.getMessage("listJobSamples.fileUploadedSuccessfully.label"));
+						} catch(FileUploadException e){
+							String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed.error");
+							logger.warn(errorMessage);
+							m.addAttribute("errorMessage", errorMessage);
+						}
+						populateFileUploadPage(job, m);
+						return "job/home/fileUploadManager";
+					}
+			  };
 	}
 	
 	@RequestMapping(value="/{jobId}/requests", method=RequestMethod.GET)

@@ -127,10 +127,12 @@ function postFormWithAjaxJson(formObjectId, theUrl){
 //from http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/ 
 //uses plugin jquery.form.js; see script tag at top of this page:  see http://malsup.com/jquery/form/
 function uploadJqueryForm(formObjectId){	
+	$("#wait_dialog-modal").dialog("open");
 	var frm = $("#" + formObjectId);
    	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel 
 	frm.ajaxForm({ 
     success:function(data) { 
+    	$("#wait_dialog-modal").dialog("close");
     	selectedPanel.html(data);
      },
      dataType:"text" 

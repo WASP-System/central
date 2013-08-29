@@ -20,6 +20,22 @@
   --%>
   <script type="text/javascript">
   
+  function submitViaAjaxAndOpenReceivedPageHtml(frm){
+	    $("#wait_dialog-modal").dialog("open");
+		$.ajax({
+			type: frm.attr('method'),
+	        url: frm.attr('action'),
+	        data: frm.serialize(),
+	        success: function (data, textStatus, jqXHR) {
+	        	$("#wait_dialog-modal").dialog("close");
+	        	// data represents the entire html from returned page. We just need to replace the head and body sections of the current page.
+	        	$('head').html(data.replace(/^[\s\S]*[\s>;]<head>([\s\S]*)<\/head>[\s\S]*$/, "$1"));
+	        	$('body').html(data.replace(/^[\s\S]*<body>([\s\S]*)<\/body>[\s\S]*$/, "$1"));
+	        	readyFn(); // run document ready code
+	     	}
+	    });
+}
+  
   function waspTooltip(){
 		$( ".tooltip" ).tooltip({
 	  	      position: {
@@ -37,30 +53,21 @@
 	  	    });
 	}
 
-	$( document ).ready( function(){
+    function readyFn(){
 		waspTooltip();
-  		waspFade("waspErrorMessage");
-  		waspFade("waspMessage");
-  		waspOnLoad();
-  	});
-  
-  	function waspFade(el, msg) {
-		if (msg != null && msg != ""){
-			$('#'+el).html(msg);
-		}
-		if ($('#'+el).html() == ''){
-			$('#'+el).hide();
-		} else {
-			$('#'+el).show();
-			setTimeout(function() {
-				$('#'+el).fadeOut('slow',
-					function() {
-						// after fadeout do the following
-						$('#'+el).html('');
-					});
-			},7500);
-		}
+		
+		$( "#wait_dialog-modal" ).dialog({
+			dialogClass: "no-close",
+			height: 170,
+			autoOpen: false,
+			modal: true
+		});
+		
+		waspOnLoad();
 	}
+
+	$( document ).ready( readyFn );
+  
   
     var waspOnLoad=function() {
       // re-define the waspOnLoad var 
