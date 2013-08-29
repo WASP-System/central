@@ -14,6 +14,28 @@
 							"</tr>");
 			rowCounter++;
 		});
+		$("#additionalCostAddRowButton").bind('click', function(){
+			$("#additionalCostTableVeryLastRow").before("<tr id=additionalCostRow_"+rowCounter+" class=FormData>"+
+							"<td align=center><input type=text size=20 maxlength=44 name=additionalCostReason id=additionalCostReason ></td>"+ 
+							"<td align=center><input type=text style=text-align:right; size=4 maxlength=4 name=additionalCostUnits id=additionalCostUnits></td>"+
+							"<td align=center>"+localCurrencyIcon+"<input type='text' style=text-align:right; size=6 maxlength=6 name=additionalCostPricePerUnit id=additionalCostPricePerUnit>.00</td>"+
+							"<td align=center><input type=button  onclick='$(\"#additionalCostRow_"+rowCounter+"\").remove();' value='Delete' /></td>"+
+							"</tr>");
+			rowCounter++;
+		});
+		$("#discountAddRowButton").bind('click', function(){
+			$("#discountTableVeryLastRow").before("<tr id=discountRow_"+rowCounter+" class=FormData>"+
+							"<td align=center><select name=discountReason id=discountReason size=1><option value=''>--SELECT--"+
+							discountReasonsAsOptions+
+							"</select></td>"+ 
+							"<td align=center><select name=discountType id=discountType size=1><option value=''>--SELECT--"+
+							discountTypesAsOptions+
+							"</select></td>"+ 
+							"<td align=center><input type='text' style=text-align:right; size=4 maxlength=4 name=discountValue id=discountValue>.00</td>"+
+							"<td align=center><input type=button  onclick='$(\"#discountRow_"+rowCounter+"\").remove();' value='Delete' /></td>"+
+							"</tr>");
+			rowCounter++;
+		});
 		
 	});
 
@@ -114,22 +136,23 @@
 <br />
 <div id="createNewQuote" style="display:none">
 
-	<c:set value="${1}" var="rowCounter" />
-
+	<c:set value="${1}" var="rowCounter" />	
+	<c:set value="${mpsQuote}" var="mpsQuote" />
+	
 	<span style='font-weight:bold'>1. Library Constructions Expected For This Job: <c:out value="${numberOfLibrariesExpectedToBeConstructed}" />
 		<c:if test="${numberOfLibrariesExpectedToBeConstructed > 0}">
 			&nbsp;&nbsp;[if no charge for a library, please set its cost to 0]
 		</c:if>
-	</span><br /><br />
+	</span>
+	<br /><br />
 	<table class="data" style="margin: 0px 0px">
 		<tr class="FormData">
 			<td class="label-centered" style="background-color:#FAF2D6">Number</td>
 			<td class="label-centered" style="background-color:#FAF2D6">Submitted Sample</td>
 			<td class="label-centered" style="background-color:#FAF2D6">Material</td>
 			<td class="label-centered" style="background-color:#FAF2D6">Library Cost</td>
-		</tr>
-		
-		<c:forEach items="${submittedSamples}" var="submittedSample" >
+		</tr>		
+		<c:forEach items="${mpsQuote.getSubmittedSamples()}" var="submittedSample" >
 			<input type='hidden' name="submittedSampleId" value="${submittedSample.getSampleId()}"/>
 			<tr>
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;">
@@ -151,48 +174,131 @@
 						<c:otherwise>
 							<c:out value="${localCurrencyIcon}" /><input style="text-align:right;" name="libraryCost_${submittedSample.getSampleId()}" type="text" maxlength="4" size="4" value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${submittedSample.getCost()}" />"/>.00
 						</c:otherwise>
-					</c:choose>
-					
-					
+					</c:choose>					
 				</td>
 			</tr>
-		</c:forEach>
-			
+		</c:forEach>			
 	</table>
 	<br /><br />
-<span style='font-weight:bold'>2. Sequencing Lanes Expected For This Job: <c:out value="${numberOfLanesRequested}" /></span><br /><br />
-<table id="sequenceRunTable" class="data" style="margin: 0px 0px">
-	<tr class="FormData">
-		<td class="label-centered" style="background-color:#FAF2D6">Machine</td>
-		<td class="label-centered" style="background-color:#FAF2D6">ReadLength</td>
-		<td class="label-centered" style="background-color:#FAF2D6">ReadType</td>
-		<td class="label-centered" style="background-color:#FAF2D6">No. Lanes</td>
-		<td class="label-centered" style="background-color:#FAF2D6">Cost/Lane</td>
-		<td class="label-centered" style="background-color:#FAF2D6">Action</td>
-	</tr>
-	<c:forEach items="${sequenceRuns}" var="sequenceRun" varStatus="status">
-		<tr id="sequenceRunRow_${status.count}">
-			<td align='center'><input type='text' size='20' maxlength='44' name='runCostMachine' id='runCostMachine' value="${sequenceRun.getMachine()}"></td>
-			<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='runCostReadLength' id='runCostReadLength' value="${sequenceRun.getReadLength()}"></td>
-			<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostReadType' id='runCostReadType' value="${sequenceRun.getReadType()}"></td>
-			<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostNumberLanes' id='runCostNumberLanes' value="${sequenceRun.getNumberOfLanes()}"></td>
-			<%-- <td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostPricePerLane' id='runCostPricePerLane' value="${sequenceRun.getCostPerLane()}">.00</td>--%>
-			<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostPricePerLane' id='runCostPricePerLane' value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${sequenceRun.getCostPerLane()}" />">.00</td>
-			<td align='center'><span style="font-weight:bold;color:red;"><c:out value="${sequenceRun.getError()}" /><c:if test="${not empty sequenceRun.getError()}">&nbsp;</c:if></span><input type="button" onclick='$("#sequenceRunRow_${status.count}").remove();' value="Delete"/></td>
+	<span style='font-weight:bold'>2. Sequencing Lanes Expected For This Job: <c:out value="${numberOfLanesRequested}" /></span><br /><br />
+	<table class="data" style="margin: 0px 0px">
+		<tr class="FormData">
+			<td class="label-centered" style="background-color:#FAF2D6">Machine</td>
+			<td class="label-centered" style="background-color:#FAF2D6">ReadLength</td>
+			<td class="label-centered" style="background-color:#FAF2D6">ReadType</td>
+			<td class="label-centered" style="background-color:#FAF2D6">No. Lanes</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Cost/Lane</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Action</td>
 		</tr>
-		<c:set value="${rowCounter + 1}" var="rowCounter" />		
-	</c:forEach>
-	<tr id="sequenceRunTableVeryLastRow"><td colspan="6" align="center"><input id="sequenceRunAddRowButton" style="width:300" type="button"  value="ADD ADDITIONAL ROW"/></td></tr>
-</table>
-<br /><br />
+		<c:forEach items="${mpsQuote.getSequenceRuns()}" var="sequenceRun" >
+			<tr id="sequenceRunRow_${rowCounter}">
+				<td align='center'><input type='text' size='20' maxlength='44' name='runCostMachine' id='runCostMachine' value="${sequenceRun.getMachine()}"></td>
+				<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='runCostReadLength' id='runCostReadLength' value="${sequenceRun.getReadLength()}"></td>
+				<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostReadType' id='runCostReadType' value="${sequenceRun.getReadType()}"></td>
+				<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostNumberLanes' id='runCostNumberLanes' value="${sequenceRun.getNumberOfLanes()}"></td>
+				<%-- <td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostPricePerLane' id='runCostPricePerLane' value="${sequenceRun.getCostPerLane()}">.00</td>--%>
+				<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostPricePerLane' id='runCostPricePerLane' value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${sequenceRun.getCostPerLane()}" />">.00</td>
+				<td align='center'><span style="font-weight:bold;color:red;"><c:out value="${sequenceRun.getError()}" /><c:if test="${not empty sequenceRun.getError()}">&nbsp;</c:if></span><input type="button" onclick='$("#sequenceRunRow_${rowCounter}").remove();' value="Delete"/></td>
+			</tr>
+			<c:set value="${rowCounter + 1}" var="rowCounter" />		
+		</c:forEach>
+		<tr id="sequenceRunTableVeryLastRow"><td colspan="6" align="center"><input id="sequenceRunAddRowButton" style="width:300" type="button"  value="ADD ADDITIONAL ROW"/></td></tr>
+	</table>
+	<br /><br />
+	<span style='font-weight:bold'>3. Additional Costs Expected For This Job: </span>
+	<br /><br />
+	<table class="data" style="margin: 0px 0px">
+		<tr class="FormData">
+			<td class="label-centered" style="background-color:#FAF2D6">Reason</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Units</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Cost/Unit</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Action</td>
+		</tr>
+		<c:forEach items="${mpsQuote.getAdditionalCosts()}" var="additionalCost">
+			<tr id="additionalCostRow_${rowCounter}">
+				<td align='center'><input type='text' size='20' maxlength='44' name='additionalCostReason' id='additionalCostReason' value="${additionalCost.getReason()}"></td>
+				<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalCostUnits' id='additionalCostUnits' value="${additionalCost.getNumberOfUnits()}"></td>
+				<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='6' maxlength='6' name='additionalCostPricePerUnit' id='additionalCostPricePerUnit' value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${additionalCost.getCostPerUnit()}" />">.00</td>
+				<td align='center'><span style="font-weight:bold;color:red;"><c:out value="${additionalCost.getError()}" /><c:if test="${not empty additionalCost.getError()}">&nbsp;</c:if></span><input type="button" onclick='$("#additionalCostRow_${rowCounter}").remove();' value="Delete"/></td>
+			</tr>
+			<c:set value="${rowCounter + 1}" var="rowCounter" />
+		</c:forEach>
+		<tr id="additionalCostTableVeryLastRow"><td colspan="6" align="center"><input id="additionalCostAddRowButton" style="width:300" type="button"  value="ADD ADDITIONAL ROW"/></td></tr>
+	</table>
+	<br /><br />
+
+
+	<span style='font-weight:bold'>4. Discounts/Credits Expected For This Job: </span><br /><br />
+	<table  class="data" style="margin: 0px 0px">
+		<tr class="FormData">
+			<td class="label-centered" style="background-color:#FAF2D6">Reason<sup>*</sup></td>
+			<td class="label-centered" style="background-color:#FAF2D6"><c:out value="${localCurrencyIcon}" /> Or %</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Discount</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Action</td>
+		</tr>
+		<c:forEach items="${mpsQuote.getDiscounts()}" var="discount">
+			<tr id="discountRow_${rowCounter}">
+				<%-- <td align='center'><input onkeydown='robtest_autocomplete(this);'  type='text' size='20' maxlength='44' name='discountReason' id='discountReason'></td>--%>
+				<td align='center'>
+					<select name='discountReason' id='discountReason' size='1'>
+						<option value=''>--SELECT--
+						<c:forEach items="${discountReasons}" var="discountReason">
+							<c:set value="" var="selected" />
+							<c:if test="${discountReason == discount.getReason()}">
+								<c:set value="SELECTED" var="selected" />
+							</c:if>
+							<option value='<c:out value="${discountReason}" />' <c:out value="${selected}" /> ><c:out value="${discountReason}" />
+						</c:forEach>
+					</select>
+				</td>
+				<td align='center'>
+					<select name='discountType' id='discountType' size='1'>
+						<option value=''>--SELECT--
+						<c:forEach items="${discountTypes}" var="discountType">
+							<c:set value="" var="selected" />
+							<c:if test="${discountType == discount.getType()}">
+								<c:set value="SELECTED" var="selected" />
+							</c:if>
+							<option value='<c:out value="${discountType}" />' <c:out value="${selected}" /> ><c:out value="${discountType}" />
+						</c:forEach>					
+					</select>
+				</td>
+				<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='discountValue' id='discountValue' value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${discount.getValue()}" />">.00</td>
+				<td align='center'><span style="font-weight:bold;color:red;"><c:out value="${discount.getError()}" /><c:if test="${not empty discount.getError()}">&nbsp;</c:if></span><input type="button" onclick='$("#discountRow_${rowCounter}").remove();' value="Delete"/></td>
+			</tr>
+			<c:set value="${rowCounter + 1}" var="rowCounter" />
+		</c:forEach>
+		<tr id="discountTableVeryLastRow"><td colspan="6" align="center"><input id="discountAddRowButton" style="width:300" type="button"  value="ADD ADDITIONAL ROW"/></td></tr>
+	</table>
+	<sup>*</sup><span style="font-size:small;color:red">Please select any particular discount/credit reason only once</span>
+	<br /><br />
+
+
 
 	<%-- this next script MUST be at bottom, so that assignment of rowCounter is accurate --%>
 	<script type="text/javascript">
 		var localCurrencyIcon = "<c:out value="${localCurrencyIcon}" />";
-		var rowCounter = "<c:out value="${rowCounter}" />"; <%-- --%> 
-	</script>
-
-	
+		var rowCounter = "<c:out value="${rowCounter}" />"; 
+		
+		var discountReasons = "<c:out value="${discountReasons}" />";
+		discountReasons = discountReasons.indexOf('[') == 0 ? discountReasons.substring(1) : discountReasons;
+		discountReasons = discountReasons.indexOf(']') == discountReasons.length-1 ? discountReasons.substring(0, discountReasons.length-1) : discountReasons;
+		var discountReasonsSplitOnComma = discountReasons.split(",");
+		var discountReasonsAsOptions = "";
+		for(var i = 0; i < discountReasonsSplitOnComma.length; i++){
+			discountReasonsAsOptions += "<option value="+discountReasonsSplitOnComma[i]+">"+discountReasonsSplitOnComma[i];
+		} 
+		
+		var discountTypes = "<c:out value="${discountTypes}" />";
+		discountTypes = discountTypes.indexOf('[') == 0 ? discountTypes.substring(1) : discountTypes;
+		discountTypes = discountTypes.indexOf(']') == discountTypes.length-1 ? discountTypes.substring(0, discountTypes.length-1) : discountTypes;
+		var discountTypesSplitOnComma = discountTypes.split(",");
+		var discountTypesAsOptions = "";
+		for(var i = 0; i < discountTypesSplitOnComma.length; i++){
+			discountTypesAsOptions += "<option value="+discountTypesSplitOnComma[i]+">"+discountTypesSplitOnComma[i];
+		} <%-- --%>
+		
+	</script>	
 </div>
 <%-- 
 <div id="updateCurrentQuote" style="display:none">

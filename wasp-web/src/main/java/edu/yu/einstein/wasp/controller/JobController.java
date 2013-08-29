@@ -108,6 +108,8 @@ import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.model.WaspModel;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
+import edu.yu.einstein.wasp.quote.AdditionalCost;
+import edu.yu.einstein.wasp.quote.Discount;
 import edu.yu.einstein.wasp.quote.MPSQuote;
 import edu.yu.einstein.wasp.quote.SequenceRun;
 import edu.yu.einstein.wasp.quote.SubmittedSample;
@@ -984,7 +986,6 @@ public class JobController extends WaspController {
  		int numberOfLibrariesExpectedToBeConstructed = 0;
  		for(Sample s : jobService.getSubmittedSamples(job)){
  			counter++;
- 			System.out.println("---submittedSample from job list: "+s.getName());
  			String cost = "";
  			if(s.getSampleType().getIName().toLowerCase().equals("library")){
  				cost = "N/A";
@@ -995,21 +996,38 @@ public class JobController extends WaspController {
  			SubmittedSample submittedSample = new SubmittedSample(new Integer(counter), s.getId(), s.getName(), s.getSampleType().getName(), cost, "");
  			submittedSamples.add(submittedSample);
  		}
- 		System.out.println("---------numberOfLibrariesExpectedToBeConstructed: "+numberOfLibrariesExpectedToBeConstructed);
- 		m.addAttribute("submittedSamples", submittedSamples);
  		m.addAttribute("numberOfLibrariesExpectedToBeConstructed", numberOfLibrariesExpectedToBeConstructed);
- 	
-		for(SubmittedSample ss : submittedSamples){
-			System.out.println("-ss " + ss.getNumber() + " : " + ss.getSampleId()+ " : " + ss.getSampleName()+ " : " + ss.getMaterial() + " : " +  ss.getCost() + " : " + ss.getError());
-		}
-		
-		m.addAttribute("numberOfLanesRequested", job.getJobCellSelection().size());
+ 		
 		List<SequenceRun> sequenceRuns = mpsQuote.getSequenceRuns();
+		//fake testing data only
 		sequenceRuns.add(new SequenceRun("HiSeq2000", new Integer(50), "Single", new Integer(2), new Float(1000), "Error In Row"));
 		sequenceRuns.add(new SequenceRun("HiSeq2500", new Integer(50), "Single", new Integer(1), new Float(1000)));
 		sequenceRuns.add(new SequenceRun("MySeq", new Integer(50), "Single", new Integer(1), new Float(500)));
+		m.addAttribute("numberOfLanesRequested", job.getJobCellSelection().size());
+
+		List<AdditionalCost> additionalCosts = mpsQuote.getAdditionalCosts();
+		//fake test data
+		additionalCosts.add(new AdditionalCost("Additional Multiplex Fee", new Integer(1), new Float(50)));
+		additionalCosts.add(new AdditionalCost("Bioanalyzer Fee", new Integer(6), new Float(20), "Error In Row"));
+
+		List<Discount> discounts = mpsQuote.getDiscounts();
+		//fake test data
+		discounts.add(new Discount("Institutional Cost Share", "%", new Float(25)));
+		discounts.add(new Discount("Facility Discount", "$", new Float(100), "Error In Row"));
+
+		List<String> discountReasons = new ArrayList<String>();
+		discountReasons.add("Institutional Cost Share");
+		discountReasons.add("Departmental Cost Share");
+		discountReasons.add("Center Cost Share");
+		discountReasons.add("Facility Credit");
+		discountReasons.add("Facility Discount");
+		m.addAttribute("discountReasons", discountReasons);
 		
-		m.addAttribute("sequenceRuns", sequenceRuns);
+		List<String> discountTypes = new ArrayList<String>();
+		discountTypes.add("%");
+		discountTypes.add(Currency.getInstance(Locale.getDefault()).getSymbol());
+		m.addAttribute("discountTypes", discountTypes);
+		
 		m.addAttribute("mpsQuote", mpsQuote);
 		
 		return "job/home/costManager";

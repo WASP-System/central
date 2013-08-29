@@ -134,7 +134,7 @@
 		<td class="label-centered" style="background-color:#FAF2D6">Action</td>
 	</tr>
 	<tr><td align='center'><input type='text' size='20' maxlength='44' name='runCostMachine' id='runCostMachine'></td>
-	<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='runCostReadLength' id='runCostReadLength'></td>
+	<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='runCostReadLength' id='runCostReadLength' ></td>
 	<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostReadType' id='runCostReadType'></td>
 	<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostNumberLanes' id='runCostNumberLanes'></td>
 	<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostPricePerLane' id='runCostPricePerLane' >.00</td>
@@ -169,7 +169,7 @@
 	</tr>
 	<tr>
 		<%-- <td align='center'><input onkeydown='robtest_autocomplete(this);'  type='text' size='20' maxlength='44' name='discountReason' id='discountReason'></td>--%>
-		<td align='center'><select name='discountReason' id='discountReason' size='1'><option value=''>--SELECT--<option value='Institutional Cost Share'>Institutional Cost Share<option value='Departmental Cost Share'>Departmental Cost Share<option value='Center Cost Share'>Center Cost Share<option value='Facility Credit'>Facility Credit<option value='Departmental Cost Share'>Facility Discount</select></td>
+		<td align='center'><select name='discountReason' id='discountReason' size='1'><option value=''>--SELECT--<option value='Institutional Cost Share'>Institutional Cost Share<option value='Departmental Cost Share'>Departmental Cost Share<option value='Center Cost Share'>Center Cost Share<option value='Facility Credit'>Facility Credit<option value='Facility Discount'>Facility Discount</select></td>
 		<td align='center'><select name='discountType' id='discountType' size='1'><option value=''>--SELECT--<option value='%'>%<option value='<c:out value="${localCurrencyIcon}" />'><c:out value="${localCurrencyIcon}" /></select></td>
 		<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='discountValue' id='discountValue'>.00</td>
 		<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
