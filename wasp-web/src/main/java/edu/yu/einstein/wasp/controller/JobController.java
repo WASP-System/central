@@ -109,6 +109,7 @@ import edu.yu.einstein.wasp.model.WaspModel;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.quote.MPSQuote;
+import edu.yu.einstein.wasp.quote.SequenceRun;
 import edu.yu.einstein.wasp.quote.SubmittedSample;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
@@ -1002,6 +1003,14 @@ public class JobController extends WaspController {
 			System.out.println("-ss " + ss.getNumber() + " : " + ss.getSampleId()+ " : " + ss.getSampleName()+ " : " + ss.getMaterial() + " : " +  ss.getCost() + " : " + ss.getError());
 		}
 		
+		m.addAttribute("numberOfLanesRequested", job.getJobCellSelection().size());
+		List<SequenceRun> sequenceRuns = mpsQuote.getSequenceRuns();
+		sequenceRuns.add(new SequenceRun("HiSeq2000", new Integer(50), "Single", new Integer(2), new Float(1000)));
+		sequenceRuns.add(new SequenceRun("HiSeq2500", new Integer(50), "Single", new Integer(1), new Float(1000)));
+		sequenceRuns.add(new SequenceRun("MySeq", new Integer(50), "Single", new Integer(1), new Float(500)));
+		
+		m.addAttribute("sequenceRuns", sequenceRuns);
+		m.addAttribute("mpsQuote", mpsQuote);
 		
 		return "job/home/costManager";
 	}

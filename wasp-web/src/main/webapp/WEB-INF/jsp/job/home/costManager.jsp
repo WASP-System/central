@@ -1,4 +1,27 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+<script type="text/javascript">
+
+	$(document).ready(function(){
+		
+		$("#sequenceRunAddRowButton").bind('click', function(){
+			//alert("test dubin; the value is: " + sequenceRunTableNextRowCounter + "and the new currency thing is " + localCurrencyIcon);
+			//$("#sequenceRunTableVeryLastRow").before("<tr><td colspan=6>test3221234511111 row: "+ sequenceRunTableNextRowCounter+"</td></tr>");
+			$("#sequenceRunTableVeryLastRow").before("<tr id=sequenceRunRow_"+sequenceRunTableNextRowCounter+" class=FormData>"+
+							"<td align=center><input type=text size=20 maxlength=44 name=runCostMachine id=runCostMachine ></td>"+
+							"<td align=center><input type=text style=text-align:right; size=4 maxlength=4 name=runCostReadLength id=runCostReadLength></td>"+
+							"<td align=center><input type=text style=text-align:right; size=6 maxlength=6 name=runCostReadType id=runCostReadType ></td>"+
+							"<td align=center><input type=text style=text-align:right; size=6 maxlength=6 name=runCostNumberLanes id=runCostNumberLanes></td>"+
+							"<td align=center>"+localCurrencyIcon+"<input type='text' style=text-align:right; size=6 maxlength=6 name=runCostPricePerLane id=runCostPricePerLane>.00</td>"+
+							"<td align=center><input type=button  onclick='$(\"#sequenceRunRow_"+sequenceRunTableNextRowCounter+"\").remove();' value='Delete This Row' /></td>"+
+							"</tr>");
+			sequenceRunTableNextRowCounter++;
+		});
+		
+		//function robtest(){alert("alert in document ready");} 
+});
+
+</script>
+
 <c:import url="/WEB-INF/jsp/job/home/fadingMessage.jsp" />
 <%-- What was used was: from http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/ --%>
 <%--Apparently need onsubmit='return false' to suppress hitting the event when the ENTER key is pressed with the cursor in the description input box --%>
@@ -93,6 +116,8 @@
 </form>
 <br />
 <div id="createNewQuote" style="display:none">
+
+
 	<span style='font-weight:bold'>1. Library Constructions Expected For This Job: <c:out value="${numberOfLibrariesExpectedToBeConstructed}" />
 		<c:if test="${numberOfLibrariesExpectedToBeConstructed > 0}">
 			&nbsp;&nbsp;[if no charge for a library, please set its cost to 0]
@@ -137,8 +162,58 @@
 			
 	</table>
 	<br /><br />
+<span style='font-weight:bold'>2. Sequencing Lanes Expected For This Job: <c:out value="${numberOfLanesRequested}" /></span><br /><br />
+<table id="sequenceRunTable" class="data" style="margin: 0px 0px">
+	<tr class="FormData">
+		<td class="label-centered" style="background-color:#FAF2D6">Machine</td>
+		<td class="label-centered" style="background-color:#FAF2D6">ReadLength</td>
+		<td class="label-centered" style="background-color:#FAF2D6">ReadType</td>
+		<td class="label-centered" style="background-color:#FAF2D6">No. Lanes</td>
+		<td class="label-centered" style="background-color:#FAF2D6">Cost/Lane</td>
+		<td class="label-centered" style="background-color:#FAF2D6">Action</td>
+	</tr>
+	
+	
+	<c:forEach items="${sequenceRuns}" var="sequenceRun" varStatus="status">
+		<tr id="sequenceRunRow_${status.count}">
+			<td align='center'><input type='text' size='20' maxlength='44' name='runCostMachine' id='runCostMachine' value="${sequenceRun.getMachine()}"></td>
+			<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='runCostReadLength' id='runCostReadLength' value="${sequenceRun.getReadLength()}"></td>
+			<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostReadType' id='runCostReadType' value="${sequenceRun.getReadType()}"></td>
+			<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostNumberLanes' id='runCostNumberLanes' value="${sequenceRun.getNumberOfLanes()}"></td>
+			<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostPricePerLane' id='runCostPricePerLane' value="${sequenceRun.getCostPerLane()}">.00</td>
+			<td align='center'><input type="button" onclick='$("#sequenceRunRow_${status.count}").remove();' value="Delete This Row"/></td>
+		</tr>
+			
+		
+	</c:forEach>
+	<%--
+	<tr id="sequenceRunTableVeryLastRow"><td colspan="6" align="center"><input style="width:300" type="button" onclick='alert("dubin test: " + sequenceRunTableNextRowCounter); $("#sequenceRunTableVeryLastRow").before("<tr><td colspan=6>test row</td></tr>");' value="ADD ADDITIONAL ROW"/></td></tr>
+	--%>
+	
+	<tr id="sequenceRunTableVeryLastRow"><td colspan="6" align="center"><input id="sequenceRunAddRowButton" style="width:300" type="button"  value="ADD ADDITIONAL ROW"/></td></tr>
+	
+	<%-- 
+	<tr><td align='center'><input type='text' size='20' maxlength='44' name='runCostMachine' id='runCostMachine'></td>
+	<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='runCostReadLength' id='runCostReadLength'></td>
+	<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostReadType' id='runCostReadType'></td>
+	<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostNumberLanes' id='runCostNumberLanes'></td>
+	<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostPricePerLane' id='runCostPricePerLane' >.00</td>
+	<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
+	</tr>
+	
+<tr><td colspan="6" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
+--%>
+</table>
+<br /><br />
 
+	<%-- <input type='hidden' id="hiddenLocalCurrencyIcon" value="${localCurrencyIcon}"/> this element is NOT actually visible on the web page, but is needed to get the value into a javascript variable; the javascript varialbe is used for building new rows on the fly (after the page is loaded). --%>
+	<script type="text/javascript">
+		var localCurrencyIcon = "<c:out value="${localCurrencyIcon}" />";//$("#hiddenLocalCurrencyIcon").val();
+		var sequenceRunTableNextRowCounter = $("#sequenceRunTable tr").length + 1; 
+	</script>
+
+	
 </div>
 <div id="updateCurrentQuote" style="display:none">
  b<br />b<br />b<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />
-</div>
+</div>.
