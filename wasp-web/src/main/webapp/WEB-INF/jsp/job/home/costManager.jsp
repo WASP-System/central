@@ -4,21 +4,18 @@
 	$(document).ready(function(){
 		
 		$("#sequenceRunAddRowButton").bind('click', function(){
-			alert("test dubin; the value is:: " + rowCounter + "and the new currency thing is " + localCurrencyIcon);
-			//$("#sequenceRunTableVeryLastRow").before("<tr><td colspan=6>test3221234511111 row: "+ rowCounter+"</td></tr>");
 			$("#sequenceRunTableVeryLastRow").before("<tr id=sequenceRunRow_"+rowCounter+" class=FormData>"+
 							"<td align=center><input type=text size=20 maxlength=44 name=runCostMachine id=runCostMachine ></td>"+
 							"<td align=center><input type=text style=text-align:right; size=4 maxlength=4 name=runCostReadLength id=runCostReadLength></td>"+
 							"<td align=center><input type=text style=text-align:right; size=6 maxlength=6 name=runCostReadType id=runCostReadType ></td>"+
 							"<td align=center><input type=text style=text-align:right; size=6 maxlength=6 name=runCostNumberLanes id=runCostNumberLanes></td>"+
 							"<td align=center>"+localCurrencyIcon+"<input type='text' style=text-align:right; size=6 maxlength=6 name=runCostPricePerLane id=runCostPricePerLane>.00</td>"+
-							"<td align=center><input type=button  onclick='$(\"#sequenceRunRow_"+rowCounter+"\").remove();' value='Delete This Row' /></td>"+
+							"<td align=center><input type=button  onclick='$(\"#sequenceRunRow_"+rowCounter+"\").remove();' value='Delete' /></td>"+
 							"</tr>");
 			rowCounter++;
 		});
 		
-		//function robtest(){alert("alert in document ready");} 
-});
+	});
 
 </script>
 
@@ -117,6 +114,7 @@
 <br />
 <div id="createNewQuote" style="display:none">
 
+	<c:set value="${1}" var="rowCounter" />
 
 	<span style='font-weight:bold'>1. Library Constructions Expected For This Job: <c:out value="${numberOfLibrariesExpectedToBeConstructed}" />
 		<c:if test="${numberOfLibrariesExpectedToBeConstructed > 0}">
@@ -151,7 +149,7 @@
 							<input type='hidden' name="libraryCost_${submittedSample.getSampleId()}" value="${submittedSample.getCost()}"/>
 						</c:when>
 						<c:otherwise>
-							<c:out value="${localCurrencyIcon}" /><input style="text-align:right;" name="libraryCost_${submittedObject.getId()}" type="text" maxlength="4" size="4" value="<c:out value="${submittedSample.getCost()}" />"/>.00
+							<c:out value="${localCurrencyIcon}" /><input style="text-align:right;" name="libraryCost_${submittedSample.getSampleId()}" type="text" maxlength="4" size="4" value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${submittedSample.getCost()}" />"/>.00
 						</c:otherwise>
 					</c:choose>
 					
@@ -172,49 +170,32 @@
 		<td class="label-centered" style="background-color:#FAF2D6">Cost/Lane</td>
 		<td class="label-centered" style="background-color:#FAF2D6">Action</td>
 	</tr>
-	
-	<c:set value="${1}" var="rowCounter" />
-	
 	<c:forEach items="${sequenceRuns}" var="sequenceRun" varStatus="status">
 		<tr id="sequenceRunRow_${status.count}">
 			<td align='center'><input type='text' size='20' maxlength='44' name='runCostMachine' id='runCostMachine' value="${sequenceRun.getMachine()}"></td>
 			<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='runCostReadLength' id='runCostReadLength' value="${sequenceRun.getReadLength()}"></td>
 			<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostReadType' id='runCostReadType' value="${sequenceRun.getReadType()}"></td>
 			<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostNumberLanes' id='runCostNumberLanes' value="${sequenceRun.getNumberOfLanes()}"></td>
-			<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostPricePerLane' id='runCostPricePerLane' value="${sequenceRun.getCostPerLane()}">.00</td>
-			<td align='center'><input type="button" onclick='$("#sequenceRunRow_${status.count}").remove();' value="Delete This Row"/></td>
+			<%-- <td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostPricePerLane' id='runCostPricePerLane' value="${sequenceRun.getCostPerLane()}">.00</td>--%>
+			<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostPricePerLane' id='runCostPricePerLane' value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${sequenceRun.getCostPerLane()}" />">.00</td>
+			<td align='center'><span style="font-weight:bold;color:red;"><c:out value="${sequenceRun.getError()}" /><c:if test="${not empty sequenceRun.getError()}">&nbsp;</c:if></span><input type="button" onclick='$("#sequenceRunRow_${status.count}").remove();' value="Delete"/></td>
 		</tr>
-		<c:set value="${rowCounter + 1}" var="rowCounter" />
-		
+		<c:set value="${rowCounter + 1}" var="rowCounter" />		
 	</c:forEach>
-	<%--
-	<tr id="sequenceRunTableVeryLastRow"><td colspan="6" align="center"><input style="width:300" type="button" onclick='alert("dubin test: " + rowCounter); $("#sequenceRunTableVeryLastRow").before("<tr><td colspan=6>test row</td></tr>");' value="ADD ADDITIONAL ROW"/></td></tr>
-	--%>
-	
 	<tr id="sequenceRunTableVeryLastRow"><td colspan="6" align="center"><input id="sequenceRunAddRowButton" style="width:300" type="button"  value="ADD ADDITIONAL ROW"/></td></tr>
-	
-	<%-- 
-	<tr><td align='center'><input type='text' size='20' maxlength='44' name='runCostMachine' id='runCostMachine'></td>
-	<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='runCostReadLength' id='runCostReadLength'></td>
-	<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostReadType' id='runCostReadType'></td>
-	<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostNumberLanes' id='runCostNumberLanes'></td>
-	<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostPricePerLane' id='runCostPricePerLane' >.00</td>
-	<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
-	</tr>
-	
-<tr><td colspan="6" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
---%>
 </table>
 <br /><br />
 
-	<%-- <input type='hidden' id="hiddenLocalCurrencyIcon" value="${localCurrencyIcon}"/> this element is NOT actually visible on the web page, but is needed to get the value into a javascript variable; the javascript varialbe is used for building new rows on the fly (after the page is loaded). --%>
+	<%-- this next script MUST be at bottom, so that assignment of rowCounter is accurate --%>
 	<script type="text/javascript">
-		var localCurrencyIcon = "<c:out value="${localCurrencyIcon}" />";<%--//$("#hiddenLocalCurrencyIcon").val(); --%>
-		var rowCounter = "<c:out value="${rowCounter}" />";<%--//$("#sequenceRunTable tr").length + 1;   --%> 
+		var localCurrencyIcon = "<c:out value="${localCurrencyIcon}" />";
+		var rowCounter = "<c:out value="${rowCounter}" />"; <%-- --%> 
 	</script>
 
 	
 </div>
+<%-- 
 <div id="updateCurrentQuote" style="display:none">
  b<br />b<br />b<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />a<br />
-</div>.
+</div>
+--%>

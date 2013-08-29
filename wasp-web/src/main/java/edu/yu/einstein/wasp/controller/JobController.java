@@ -1005,7 +1005,7 @@ public class JobController extends WaspController {
 		
 		m.addAttribute("numberOfLanesRequested", job.getJobCellSelection().size());
 		List<SequenceRun> sequenceRuns = mpsQuote.getSequenceRuns();
-		sequenceRuns.add(new SequenceRun("HiSeq2000", new Integer(50), "Single", new Integer(2), new Float(1000)));
+		sequenceRuns.add(new SequenceRun("HiSeq2000", new Integer(50), "Single", new Integer(2), new Float(1000), "Error In Row"));
 		sequenceRuns.add(new SequenceRun("HiSeq2500", new Integer(50), "Single", new Integer(1), new Float(1000)));
 		sequenceRuns.add(new SequenceRun("MySeq", new Integer(50), "Single", new Integer(1), new Float(500)));
 		
