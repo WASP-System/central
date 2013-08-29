@@ -4,17 +4,17 @@
 	$(document).ready(function(){
 		
 		$("#sequenceRunAddRowButton").bind('click', function(){
-			//alert("test dubin; the value is: " + sequenceRunTableNextRowCounter + "and the new currency thing is " + localCurrencyIcon);
-			//$("#sequenceRunTableVeryLastRow").before("<tr><td colspan=6>test3221234511111 row: "+ sequenceRunTableNextRowCounter+"</td></tr>");
-			$("#sequenceRunTableVeryLastRow").before("<tr id=sequenceRunRow_"+sequenceRunTableNextRowCounter+" class=FormData>"+
+			alert("test dubin; the value is:: " + rowCounter + "and the new currency thing is " + localCurrencyIcon);
+			//$("#sequenceRunTableVeryLastRow").before("<tr><td colspan=6>test3221234511111 row: "+ rowCounter+"</td></tr>");
+			$("#sequenceRunTableVeryLastRow").before("<tr id=sequenceRunRow_"+rowCounter+" class=FormData>"+
 							"<td align=center><input type=text size=20 maxlength=44 name=runCostMachine id=runCostMachine ></td>"+
 							"<td align=center><input type=text style=text-align:right; size=4 maxlength=4 name=runCostReadLength id=runCostReadLength></td>"+
 							"<td align=center><input type=text style=text-align:right; size=6 maxlength=6 name=runCostReadType id=runCostReadType ></td>"+
 							"<td align=center><input type=text style=text-align:right; size=6 maxlength=6 name=runCostNumberLanes id=runCostNumberLanes></td>"+
 							"<td align=center>"+localCurrencyIcon+"<input type='text' style=text-align:right; size=6 maxlength=6 name=runCostPricePerLane id=runCostPricePerLane>.00</td>"+
-							"<td align=center><input type=button  onclick='$(\"#sequenceRunRow_"+sequenceRunTableNextRowCounter+"\").remove();' value='Delete This Row' /></td>"+
+							"<td align=center><input type=button  onclick='$(\"#sequenceRunRow_"+rowCounter+"\").remove();' value='Delete This Row' /></td>"+
 							"</tr>");
-			sequenceRunTableNextRowCounter++;
+			rowCounter++;
 		});
 		
 		//function robtest(){alert("alert in document ready");} 
@@ -173,6 +173,7 @@
 		<td class="label-centered" style="background-color:#FAF2D6">Action</td>
 	</tr>
 	
+	<c:set value="${1}" var="rowCounter" />
 	
 	<c:forEach items="${sequenceRuns}" var="sequenceRun" varStatus="status">
 		<tr id="sequenceRunRow_${status.count}">
@@ -183,11 +184,11 @@
 			<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostPricePerLane' id='runCostPricePerLane' value="${sequenceRun.getCostPerLane()}">.00</td>
 			<td align='center'><input type="button" onclick='$("#sequenceRunRow_${status.count}").remove();' value="Delete This Row"/></td>
 		</tr>
-			
+		<c:set value="${rowCounter + 1}" var="rowCounter" />
 		
 	</c:forEach>
 	<%--
-	<tr id="sequenceRunTableVeryLastRow"><td colspan="6" align="center"><input style="width:300" type="button" onclick='alert("dubin test: " + sequenceRunTableNextRowCounter); $("#sequenceRunTableVeryLastRow").before("<tr><td colspan=6>test row</td></tr>");' value="ADD ADDITIONAL ROW"/></td></tr>
+	<tr id="sequenceRunTableVeryLastRow"><td colspan="6" align="center"><input style="width:300" type="button" onclick='alert("dubin test: " + rowCounter); $("#sequenceRunTableVeryLastRow").before("<tr><td colspan=6>test row</td></tr>");' value="ADD ADDITIONAL ROW"/></td></tr>
 	--%>
 	
 	<tr id="sequenceRunTableVeryLastRow"><td colspan="6" align="center"><input id="sequenceRunAddRowButton" style="width:300" type="button"  value="ADD ADDITIONAL ROW"/></td></tr>
@@ -208,8 +209,8 @@
 
 	<%-- <input type='hidden' id="hiddenLocalCurrencyIcon" value="${localCurrencyIcon}"/> this element is NOT actually visible on the web page, but is needed to get the value into a javascript variable; the javascript varialbe is used for building new rows on the fly (after the page is loaded). --%>
 	<script type="text/javascript">
-		var localCurrencyIcon = "<c:out value="${localCurrencyIcon}" />";//$("#hiddenLocalCurrencyIcon").val();
-		var sequenceRunTableNextRowCounter = $("#sequenceRunTable tr").length + 1; 
+		var localCurrencyIcon = "<c:out value="${localCurrencyIcon}" />";<%--//$("#hiddenLocalCurrencyIcon").val(); --%>
+		var rowCounter = "<c:out value="${rowCounter}" />";<%--//$("#sequenceRunTable tr").length + 1;   --%> 
 	</script>
 
 	
