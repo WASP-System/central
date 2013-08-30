@@ -18,7 +18,7 @@ public class Simple___Pluginname___StatusMessageTemplate extends WaspStatusMessa
 
 	public Simple___Pluginname___StatusMessageTemplate() {
 		super();
-		setHeader(WaspMessageType.HEADER_KEY, ___Pluginname___MessageType.___PLUGINNAME___);
+		addHeader(WaspMessageType.HEADER_KEY, ___Pluginname___MessageType.___PLUGINNAME___);
 	}
 	
 	public Simple___Pluginname___StatusMessageTemplate(Message<WaspStatus> message){
@@ -32,7 +32,7 @@ public class Simple___Pluginname___StatusMessageTemplate extends WaspStatusMessa
 	 */
 	@Override
 	public boolean actUponMessage(Message<?> message){
-		String task = (String) addHeader(WaspJobTask.HEADER_KEY);
+		String task = (String) getHeader(WaspJobTask.HEADER_KEY);
 		return actUponMessage(message, task);
 	}
 	
