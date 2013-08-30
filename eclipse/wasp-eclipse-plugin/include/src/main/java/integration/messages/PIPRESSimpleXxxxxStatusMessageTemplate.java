@@ -18,7 +18,7 @@ public class Simple___Pluginname___StatusMessageTemplate extends WaspStatusMessa
 
 	public Simple___Pluginname___StatusMessageTemplate() {
 		super();
-		setHeader(WaspMessageType.HEADER_KEY, ___Pluginname___MessageType.___PLUGINNAME___);
+		addHeader(WaspMessageType.HEADER_KEY, ___Pluginname___MessageType.___PLUGINNAME___);
 	}
 	
 	public Simple___Pluginname___StatusMessageTemplate(Message<WaspStatus> message){
