@@ -1,52 +1,4 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<script type="text/javascript">
-
-	$(document).ready(function(){
-		
-		$("#sequenceRunAddRowButton").bind('click', function(){
-			$("#sequenceRunTableVeryLastRow").before("<tr id=sequenceRunRow_"+rowCounter+" class=FormData>"+
-							"<td align=center><input type=text size=20 maxlength=44 name=runCostMachine id=runCostMachine ></td>"+
-							"<td align=center><input type=text style=text-align:right; size=4 maxlength=4 name=runCostReadLength id=runCostReadLength></td>"+
-							"<td align=center><input type=text style=text-align:right; size=6 maxlength=6 name=runCostReadType id=runCostReadType ></td>"+
-							"<td align=center><input type=text style=text-align:right; size=6 maxlength=6 name=runCostNumberLanes id=runCostNumberLanes></td>"+
-							"<td align=center>"+localCurrencyIcon+"<input type='text' style=text-align:right; size=6 maxlength=6 name=runCostPricePerLane id=runCostPricePerLane>.00</td>"+
-							"<td align=center><input type=button  onclick='$(\"#sequenceRunRow_"+rowCounter+"\").remove();' value='Delete' /></td>"+
-							"</tr>");
-			rowCounter++;
-		});
-		$("#additionalCostAddRowButton").bind('click', function(){
-			$("#additionalCostTableVeryLastRow").before("<tr id=additionalCostRow_"+rowCounter+" class=FormData>"+
-							"<td align=center><input type=text size=20 maxlength=44 name=additionalCostReason id=additionalCostReason ></td>"+ 
-							"<td align=center><input type=text style=text-align:right; size=4 maxlength=4 name=additionalCostUnits id=additionalCostUnits></td>"+
-							"<td align=center>"+localCurrencyIcon+"<input type='text' style=text-align:right; size=6 maxlength=6 name=additionalCostPricePerUnit id=additionalCostPricePerUnit>.00</td>"+
-							"<td align=center><input type=button  onclick='$(\"#additionalCostRow_"+rowCounter+"\").remove();' value='Delete' /></td>"+
-							"</tr>");
-			rowCounter++;
-		});
-		$("#discountAddRowButton").bind('click', function(){
-			$("#discountTableVeryLastRow").before("<tr id=discountRow_"+rowCounter+" class=FormData>"+
-							"<td align=center><select name=discountReason id=discountReason size=1><option value=''>--SELECT--"+
-							discountReasonsAsOptions+
-							"</select></td>"+ 
-							"<td align=center><select name=discountType id=discountType size=1><option value=''>--SELECT--"+
-							discountTypesAsOptions+
-							"</select></td>"+ 
-							"<td align=center><input type='text' style=text-align:right; size=4 maxlength=4 name=discountValue id=discountValue>.00</td>"+
-							"<td align=center><input type=button  onclick='$(\"#discountRow_"+rowCounter+"\").remove();' value='Delete' /></td>"+
-							"</tr>");
-			rowCounter++;
-		});
-		$("#commentAddRowButton").bind('click', function(){
-			$("#commentTableVeryLastRow").before("<tr id=commentRow_"+rowCounter+" class=FormData>"+
-							"<td align=center><textarea id=comments name=comments cols=60 rows=4 ></textarea><br /></td>"+
-							"<td align=center><input type=button  onclick='$(\"#commentRow_"+rowCounter+"\").remove();' value='Delete' /></td>"+
-							"</tr>");
-			rowCounter++;
-		});
-		
-	});
-
-</script>
 
 <c:import url="/WEB-INF/jsp/job/home/fadingMessage.jsp" />
 <%-- What was used was: from http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/ --%>
@@ -297,7 +249,7 @@
 	</table>
 	<br /><br />
 
-	<%-- this next script MUST be at bottom, so that assignment of rowCounter is accurate --%>
+	<%-- this next script section MUST be at bottom, so that assignment of rowCounter is accurate --%>
 	<script type="text/javascript">
 		var localCurrencyIcon = "<c:out value="${localCurrencyIcon}" />";
 		var rowCounter = "<c:out value="${rowCounter}" />"; 
@@ -318,9 +270,56 @@
 		var discountTypesAsOptions = "";
 		for(var i = 0; i < discountTypesSplitOnComma.length; i++){
 			discountTypesAsOptions += "<option value="+discountTypesSplitOnComma[i]+">"+discountTypesSplitOnComma[i];
-		} <%-- --%>
+		} 
 		
-	</script>	
+
+	$(document).ready(function(){
+		
+		$("#sequenceRunAddRowButton").bind('click', function(){
+			$("#sequenceRunTableVeryLastRow").before("<tr id=sequenceRunRow_"+rowCounter+" class=FormData>"+
+							"<td align=center><input type=text size=20 maxlength=44 name=runCostMachine id=runCostMachine ></td>"+
+							"<td align=center><input type=text style=text-align:right; size=4 maxlength=4 name=runCostReadLength id=runCostReadLength></td>"+
+							"<td align=center><input type=text style=text-align:right; size=6 maxlength=6 name=runCostReadType id=runCostReadType ></td>"+
+							"<td align=center><input type=text style=text-align:right; size=6 maxlength=6 name=runCostNumberLanes id=runCostNumberLanes></td>"+
+							"<td align=center>"+localCurrencyIcon+"<input type='text' style=text-align:right; size=6 maxlength=6 name=runCostPricePerLane id=runCostPricePerLane>.00</td>"+
+							"<td align=center><input type=button  onclick='$(\"#sequenceRunRow_"+rowCounter+"\").remove();' value='Delete' /></td>"+
+							"</tr>");
+			rowCounter++;
+		});
+		$("#additionalCostAddRowButton").bind('click', function(){
+			$("#additionalCostTableVeryLastRow").before("<tr id=additionalCostRow_"+rowCounter+" class=FormData>"+
+							"<td align=center><input type=text size=20 maxlength=44 name=additionalCostReason id=additionalCostReason ></td>"+ 
+							"<td align=center><input type=text style=text-align:right; size=4 maxlength=4 name=additionalCostUnits id=additionalCostUnits></td>"+
+							"<td align=center>"+localCurrencyIcon+"<input type='text' style=text-align:right; size=6 maxlength=6 name=additionalCostPricePerUnit id=additionalCostPricePerUnit>.00</td>"+
+							"<td align=center><input type=button  onclick='$(\"#additionalCostRow_"+rowCounter+"\").remove();' value='Delete' /></td>"+
+							"</tr>");
+			rowCounter++;
+		});
+		$("#discountAddRowButton").bind('click', function(){
+			$("#discountTableVeryLastRow").before("<tr id=discountRow_"+rowCounter+" class=FormData>"+
+							"<td align=center><select name=discountReason id=discountReason size=1><option value=''>--SELECT--"+
+							discountReasonsAsOptions+
+							"</select></td>"+ 
+							"<td align=center><select name=discountType id=discountType size=1><option value=''>--SELECT--"+
+							discountTypesAsOptions+
+							"</select></td>"+ 
+							"<td align=center><input type='text' style=text-align:right; size=4 maxlength=4 name=discountValue id=discountValue>.00</td>"+
+							"<td align=center><input type=button  onclick='$(\"#discountRow_"+rowCounter+"\").remove();' value='Delete' /></td>"+
+							"</tr>");
+			rowCounter++;
+		});
+		$("#commentAddRowButton").bind('click', function(){
+			$("#commentTableVeryLastRow").before("<tr id=commentRow_"+rowCounter+" class=FormData>"+
+							"<td align=center><textarea id=comments name=comments cols=60 rows=4 ></textarea><br /></td>"+
+							"<td align=center><input type=button  onclick='$(\"#commentRow_"+rowCounter+"\").remove();' value='Delete' /></td>"+
+							"</tr>");
+			rowCounter++;
+		});
+		
+	});  <%-- --%> 
+
+</script>
+	
 </div>
 <%-- 
 <div id="updateCurrentQuote" style="display:none">
