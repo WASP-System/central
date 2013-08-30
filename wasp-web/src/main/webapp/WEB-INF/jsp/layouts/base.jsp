@@ -16,6 +16,7 @@
   <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/base.css" />
   <link rel="stylesheet" type="text/css" href="/wasp/css/tree-interactive.css" />
   <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/menu.css" />
+  <script type="text/javascript" src="https://github.com/rgrove/lazyload/raw/master/lazyload.js"></script>
   <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.js"></script>
   <script type="text/javascript" src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script> 
   
@@ -28,11 +29,23 @@
 	        url: frm.attr('action'),
 	        data: frm.serialize(),
 	        success: function (data, textStatus, jqXHR) {
-	        	$("#wait_dialog-modal").dialog("close");
 	        	// data represents the entire html from returned page. We just need to replace the head and body sections of the current page.
-	        	$('head').html(data.replace(/^[\s\S]*[\s>;]<head>([\s\S]*)<\/head>[\s\S]*$/, "$1"));
+	        	// strip loaded scripts from head and use LazyLoad to load them. This means we can take advantage of the callback on script loading
+	        	// to call readyFn(). Left as was, the scripts load but readyFn() may execute before this is finished and try and access not-yet available
+	        	// methods. Sadly document-ready code ONLY works when the DOM is created, not when modified by ajax so this is our best solution.
+	        	var newHeadCode = data.replace(/^[\s\S]*[\s>;]<head>([\s\S]*)<\/head>[\s\S]*$/, "$1");
+	        	var regEx = /^[\s\S]*<script[\s\S]*src=["']([\s\S]*)["'][\s\S]*><\/script>[\s\S]*$/g;
+	        	var scripts = [];
+	        	var match;
+	        	while (match = regEx.exec(newHeadCode)){
+	        		scripts.push(match[0]);
+	        	}
+	        	$('head').html(newHeadCode.replace(regEx, ""));
 	        	$('body').html(data.replace(/^[\s\S]*<body>([\s\S]*)<\/body>[\s\S]*$/, "$1"));
-	        	readyFn(); // run document ready code
+	        	LazyLoad.js(scripts, function(){
+	        		readyFn(); // run document ready code when all dependencies loaded
+	        		$("#wait_dialog-modal").dialog("close");
+	        	});
 	     	}
 	    });
   }

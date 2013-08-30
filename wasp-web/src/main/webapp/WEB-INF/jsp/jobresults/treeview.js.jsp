@@ -1,7 +1,5 @@
 <script type="text/javascript"	src="/wasp/scripts/jquery/jquery.cookie.js"></script>
 
-<script type="text/javascript"	src="https://github.com/rgrove/lazyload/raw/master/lazyload.js"></script>
-
 <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
 
 <script type="text/javascript" src="http://cdn.sencha.com/ext/gpl/4.2.1/ext-all-debug.js"></script>

@@ -1263,38 +1263,45 @@ public class JobSubmissionController extends WaspController {
 	
 	@RequestMapping(value="/samples/{jobDraftId}", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
-	public String submitSampleDraftList(
-			@PathVariable("jobDraftId") Integer jobDraftId, 
-			@RequestParam("file_description") List<String> fileDescriptions,
-			@RequestParam("file_upload") List<MultipartFile> mpFiles) {
-		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
-		if (! isJobDraftEditable(jobDraft))
-			return "redirect:/dashboard.do";
+	public Callable<String> submitSampleDraftList(
+			@PathVariable("jobDraftId") final Integer jobDraftId, 
+			@RequestParam("file_description") final List<String> fileDescriptions,
+			@RequestParam("file_upload") final List<MultipartFile> mpFiles) {
+		final JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		
-		Random randomNumberGenerator = new Random(System.currentTimeMillis());
-		
-		if (mpFiles != null){
-			int fileCount = -1;
-			for (MultipartFile mpFile: mpFiles){
-				fileCount++;
-				if (mpFile.isEmpty())
-					continue;
-				try{
-					fileService.uploadJobDraftFile(mpFile, jobDraft, fileDescriptions.get(fileCount), randomNumberGenerator);//uploads file and performs database updates
-					//////FileGroup group = fileService.processUploadedFile(mpFile, jobDraft, fileDescriptions.get(fileCount), randomNumberGenerator);
-					//////fileService.linkFileGroupWithJobDraft(group, jobDraft);
-				} catch(Exception e){
-					logger.warn(e.getMessage());
-					e.printStackTrace();
-					waspErrorMessage("jobDraft.upload_file.error");
+		final User me = authenticationService.getAuthenticatedUser(); // need to do this here as no access to SecurityContextHolder off the main thread
+		return new Callable<String>() {
+
+			@Override
+			public String call() throws Exception {
+				if (! isJobDraftEditable(jobDraft, me))
+					return "redirect:/dashboard.do";
+				
+				Random randomNumberGenerator = new Random(System.currentTimeMillis());
+				
+				if (mpFiles != null){
+					int fileCount = -1;
+					for (MultipartFile mpFile: mpFiles){
+						fileCount++;
+						if (mpFile.isEmpty())
+							continue;
+						try{
+							fileService.uploadJobDraftFile(mpFile, jobDraft, fileDescriptions.get(fileCount), randomNumberGenerator);//uploads file and performs database updates
+						} catch(Exception e){
+							logger.warn(e.getMessage());
+							e.printStackTrace();
+							waspErrorMessage("jobDraft.upload_file.error");
+						}
+					}
 				}
+				if (jobDraft.getSampleDraft().isEmpty()){
+					waspErrorMessage("jobDraft.noSamples.error");
+					return "redirect:/jobsubmit/samples/"+jobDraftId+".do"; 
+				}
+				return nextPage(jobDraft);
 			}
-		}
-		if (jobDraft.getSampleDraft().isEmpty()){
-			waspErrorMessage("jobDraft.noSamples.error");
-			return "redirect:/jobsubmit/samples/"+jobDraftId+".do"; 
-		}
-		return nextPage(jobDraft);
+		};
+		
 	}
 	
 	@Transactional
