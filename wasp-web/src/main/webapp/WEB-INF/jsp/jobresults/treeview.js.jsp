@@ -98,7 +98,7 @@ Ext.onReady(function(){
 		}).trigger('resize');
 
 	treeviewWidth = $('#content').width() * 0.3 - margin.left - margin.right;
-	treeviewHeight = $('#content').height() - margin.top - margin.bottom + 500;
+	treeviewHeight = $('#content').height() - margin.top - margin.bottom + 500;[]
 	barWidth = treeviewWidth * .5;
 	barHeight = 20;
 	
@@ -340,138 +340,174 @@ function click(d) {
 		type: 'GET',
 		dataType: 'json',
 		success: function (result) {
-			//return;
-			if (d.type!='filegroup') return;  
-	      
-			//remove all existing tabs from tabpanel first
+
 			var tabpanel = Ext.getCmp('wasp-tabpanel');
 			if(tabpanel===undefined) {
 				// alert if the tabpanel is undefined
 				extPortal.showMsg("wasp-tabpanel is not defined!");
 				return;
 			}
-			tabpanel.removeAll();
-	
-			var jsList = new Array(), cssList = new Array();
-			$.each(result.paneltablist, function (index, item) {
-				$.each(item.panels, function(index1, item1){
-					for(var i=0,len=item1.content.scriptDependencies.length; i<len; i++) {
-						if (jscssfilesadded.indexOf("["+item1.content.scriptDependencies[i]+"]")==-1){ //if the file not been loaded before
-							jsList.push(item1.content.scriptDependencies[i]);
-							jscssfilesadded+="["+item1.content.scriptDependencies[i]+"]";
-						}
-					}
-					for(var i=0,len=item1.content.cssDependencies.length; i<len; i++) {
-						if (jscssfilesadded.indexOf("["+item1.content.cssDependencies[i]+"]")==-1){ //if the file not been loaded before
-							cssList.push(item1.content.cssDependencies[i]);
-							jscssfilesadded+="["+item1.content.cssDependencies[i]+"]";
-						}
-					}
-				});
-			});
-	    	
-			var createPortal = function(){
-				var summaryPanel;
-				if (result.statuslist.length > 0){
-					summaryPanel = Ext.create('Wasp.GridPortlet', { statusData: result.statuslist, tabPanel: tabpanel });
-				} else{
-					summaryPanel = {
-						html: '<div class="noPlugin">No registered plugins handle this data.</div>'
-					}
-				}
+
+			if (d.type.indexOf('filetype')>-1) {
+				//remove all existing tabs from tabpanel first
+				tabpanel.removeAll();
+				
+				var filePanel = Ext.create('Wasp.FileDownloadGridPortlet', { fileDownloadArray: result.filedownloadlist });
 				var summarytab = tabpanel.add({
-                	id: 'summary-tab',
-                	xtype: 'panel',
-                	title: 'Summary',
-                	layout: 'card',
-                	activeItem: 1,
-                	items: [{
-                    	layout: 'fit'
-                    },{
-                    	xtype: 'portalpanel',
+	            	id: 'file-tab',
+	            	xtype: 'panel',
+	            	title: 'File Download',
+	            	layout: 'card',
+	            	activeItem: 1,
+	            	items: [{
+	                	layout: 'fit'
+	                },{
+	                	xtype: 'portalpanel',
 	                    //items: [{
 	                        //id: 'col-',
 	                        items: [{
 	                            //id: 'portlet-',
 	                        	xtype: 'portlet',
-	                            title: 'Completion Status for Plugins Handling this Data',
+	                            title: 'File Download Panel',
 	                            //tools: extPortal.getTools(),
 	                            //frame: false,
 	                            closable: false,
 	                            collapsible: false,
 	                            draggable: false,
-	                            items: summaryPanel
+	                            items: filePanel
 	                        }]
 	                    //}]
-                	}]
+	            	}]
 				});
-				
+			}
+			else if (d.type=='filegroup') { 
+				//remove all existing tabs from tabpanel first
+				tabpanel.removeAll();
+		
+				var jsList = new Array(), cssList = new Array();
 				$.each(result.paneltablist, function (index, item) {
-					var tabTitle;
-					
-					if ((d.type.split('-'))[0]=="filetype") {
-						tabTitle = "Download "+(d.type.split('-'))[1].toUpperCase()+" files";
-				        return;
-					} else {
-						tabTitle = item.name; //d.name+" Details";
-					}
-					
-					
-					var tabid = index;
-					var tab = tabpanel.add({
-						xtype: 'panel',
-						id: tabid,
-				        title: tabTitle,
-				        layout:'card',
-						activeItem: 1,
-				        items: [{
-				            layout: 'fit'
-				        }]
+					$.each(item.panels, function(index1, item1){
+						for(var i=0,len=item1.content.scriptDependencies.length; i<len; i++) {
+							if (jscssfilesadded.indexOf("["+item1.content.scriptDependencies[i]+"]")==-1){ //if the file not been loaded before
+								jsList.push(item1.content.scriptDependencies[i]);
+								jscssfilesadded+="["+item1.content.scriptDependencies[i]+"]";
+							}
+						}
+						for(var i=0,len=item1.content.cssDependencies.length; i<len; i++) {
+							if (jscssfilesadded.indexOf("["+item1.content.cssDependencies[i]+"]")==-1){ //if the file not been loaded before
+								cssList.push(item1.content.cssDependencies[i]);
+								jscssfilesadded+="["+item1.content.cssDependencies[i]+"]";
+							}
+						}
 					});
-					var ptlpnl = tab.add({xtype: 'portalpanel'});
-				    var ptlcolArray = new Array;
-				    
-				    numcol = item.numberOfColumns;
-				    for(var i=0;i<numcol;i++) {
-				    	ptlcolArray.push(ptlpnl.add({id: tabid+'-col-'+(i+1)}));
-				    }
-
-				    var colid = 0;
-			        $.each(item.panels, function (index1, item1) {
-			            ptlcolArray[colid++].add({
-		                    title: item1.title,
-		                    tools: extPortal.getTools(),
-		                    closable: false,
-		                    html: item1.content.htmlCode,
-		                    listeners: {
-								'render': Ext.bind(new Function("portlet", item1.execOnRenderCode), extPortal),
-								'resize': Ext.bind(new Function("portlet", item1.execOnResizeCode), extPortal),
-								'expand': Ext.bind(new Function("portlet", item1.execOnExpandCode), extPortal)
-		                    }
-			            });
-			            colid %= numcol;
-		        	});
 				});
-			   		
-				tabpanel.setActiveTab(0);
-			};
-			
-			// load all css then all js then create portal
-	   		if(cssList.length>0) {
-	        	LazyLoad.css(cssList, function () {
-	        		if(jsList.length>0) {
+		    	
+				var createPortal = function(){
+					var summaryPanel;
+					if (result.statuslist.length > 0){
+						summaryPanel = Ext.create('Wasp.PluginSummaryGridPortlet', { statusData: result.statuslist, tabPanel: tabpanel });
+					} else{
+						summaryPanel = {
+							html: '<div class="noPlugin">No registered plugins handle this data.</div>'
+						}
+					}
+					var summarytab = tabpanel.add({
+	                	id: 'summary-tab',
+	                	xtype: 'panel',
+	                	title: 'Summary',
+	                	layout: 'card',
+	                	activeItem: 1,
+	                	items: [{
+	                    	layout: 'fit'
+	                    },{
+	                    	xtype: 'portalpanel',
+		                    //items: [{
+		                        //id: 'col-',
+		                        items: [{
+		                            //id: 'portlet-',
+		                        	xtype: 'portlet',
+		                            title: 'Completion Status for Plugins Handling this Data',
+		                            //tools: extPortal.getTools(),
+		                            //frame: false,
+		                            closable: false,
+		                            collapsible: false,
+		                            draggable: false,
+		                            items: summaryPanel
+		                        }]
+		                    //}]
+	                	}]
+					});
+					
+					$.each(result.paneltablist, function (index, item) {
+						var tabTitle;
+						
+						if ((d.type.split('-'))[0]=="filetype") {
+							tabTitle = "Download "+(d.type.split('-'))[1].toUpperCase()+" files";
+					        return;
+						} else {
+							tabTitle = item.name; //d.name+" Details";
+						}
+						
+						
+						var tabid = index;
+						var tab = tabpanel.add({
+							xtype: 'panel',
+							id: tabid,
+					        title: tabTitle,
+					        layout:'card',
+							activeItem: 1,
+					        items: [{
+					            layout: 'fit'
+					        }]
+						});
+						var ptlpnl = tab.add({xtype: 'portalpanel'});
+					    var ptlcolArray = new Array;
+					    
+					    numcol = item.numberOfColumns;
+					    for(var i=0;i<numcol;i++) {
+					    	ptlcolArray.push(ptlpnl.add({id: tabid+'-col-'+(i+1)}));
+					    }
+	
+					    var colid = 0;
+				        $.each(item.panels, function (index1, item1) {
+				            ptlcolArray[colid++].add({
+			                    title: item1.title,
+			                    tools: extPortal.getTools(),
+			                    closable: false,
+			                    html: item1.content.htmlCode,
+			                    listeners: {
+									'render': Ext.bind(new Function("portlet", item1.execOnRenderCode), extPortal),
+									'resize': Ext.bind(new Function("portlet", item1.execOnResizeCode), extPortal),
+									'expand': Ext.bind(new Function("portlet", item1.execOnExpandCode), extPortal)
+			                    }
+				            });
+				            colid %= numcol;
+			        	});
+					});
+				   		
+					tabpanel.setActiveTab(0);
+				};
+				
+				// load all css then all js then create portal
+		   		if(cssList.length>0) {
+		        	LazyLoad.css(cssList, function () {
+		        		if(jsList.length>0) {
+				        	LazyLoad.js(jsList, function () {
+				        		createPortal();
+							});
+		        		} else { createPortal(); }
+					});
+		   		} else {
+		    		if(jsList.length>0) {
 			        	LazyLoad.js(jsList, function () {
 			        		createPortal();
 						});
-	        		} else { createPortal(); }
-				});
-	   		} else {
-	    		if(jsList.length>0) {
-		        	LazyLoad.js(jsList, function () {
-		        		createPortal();
-					});
-	    		} else { createPortal(); }
-	   		}
+		    		} else { createPortal(); }
+		   		}
+			}
+			else {
+				return;
+			}
 		}
 	});
 

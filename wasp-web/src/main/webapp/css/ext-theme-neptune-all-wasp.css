@@ -15099,6 +15099,11 @@ a.x-color-picker-item:hover {
   border-style: solid;
 }
 
+/* added by AJ, for removing padding on the first column where checkbox is */
+.grid-portlet-checkbox-column-first .x-grid-cell-first {
+	padding: 0
+}
+
 /* line 26, ../../../ext-theme-neutral/sass/src/panel/Table.scss */
 .x-grid-row-alt .x-grid-td {
   background-color: #fafafa;

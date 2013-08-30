@@ -1,4 +1,4 @@
-Ext.define('Wasp.GridPortlet', {
+Ext.define('Wasp.PluginSummaryGridPortlet', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.gridportlet',
     uses: [

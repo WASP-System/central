@@ -27,10 +27,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
+import edu.yu.einstein.wasp.Hyperlink;
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.charts.highchartsjs.HighChartsJsBase;
+import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobMeta;
@@ -240,9 +243,31 @@ public class ResultViewController extends WaspController {
 						fgSet.addAll(fileService.getFilesForLibraryByType(library, ft));
 					}
 				}
+				
+				Set<FileHandle> fhSet = new HashSet<FileHandle>();
+				for (FileGroup fg : fgSet) {
+					fhSet.addAll(fg.getFileHandles());
+				}
+				
+				String[][] fileDownloadArray = new String[fhSet.size()][5];
+				Hyperlink hl;
+				int i = 0;
+				for (FileHandle fh : fhSet) {
+					try {
+						hl = new Hyperlink("Download", fileUrlResolver.getURL(fh).toString());
+						fileDownloadArray[i][0] = "true";
+						fileDownloadArray[i][1] = fh.getFileName();
+						fileDownloadArray[i][2] = fh.getSizek().toString();
+						fileDownloadArray[i][3] = fh.getMd5hash();
+						fileDownloadArray[i][4] = hl.getTargetLink();
+					} catch (GridUnresolvableHostException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					i++;
+				}
 
-				//TODO: only use one element in the filegroup set, need to confirm this
-				//jsDetails.putAll(fileService.getPanelTabSetByFileType(fgSet.iterator().next()));
+				jsDetailsTabs.put("filedownloadlist", fileDownloadArray);
 			} else if(type.startsWith("filegroup")) {
 				FileGroup fg = fileService.getFileGroupById(id);
 				List<FileDataTabViewing> plugins = fileService.getTabViewProvidingPluginsByFileGroup(fg);
