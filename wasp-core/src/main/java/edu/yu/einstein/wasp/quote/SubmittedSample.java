@@ -7,15 +7,13 @@ package edu.yu.einstein.wasp.quote;
  */
 public class SubmittedSample {
 	
-	private Integer number;
 	private Integer sampleId;
 	private String sampleName;
 	private String material;
 	private String cost;
 	private String error;
 	
-	public SubmittedSample(Integer number, Integer sampleId, String sampleName, String material, String cost){
-		this.number = number;
+	public SubmittedSample(Integer sampleId, String sampleName, String material, String cost){
 		this.sampleId = sampleId;
 		this.sampleName = sampleName;
 		this.material = material;
@@ -23,8 +21,7 @@ public class SubmittedSample {
 		this.error = "";
 	}
 	
-	public SubmittedSample(Integer number, Integer sampleId, String sampleName, String material, String cost, String error){
-		this.number = number;
+	public SubmittedSample(Integer sampleId, String sampleName, String material, String cost, String error){
 		this.sampleId = sampleId;
 		this.sampleName = sampleName;
 		this.material = material;
@@ -32,9 +29,6 @@ public class SubmittedSample {
 		this.error = error;
 	}
 
-	public Integer getNumber(){
-		return this.number;
-	}
 	public Integer getSampleId(){
 		return this.sampleId;
 	}
@@ -49,9 +43,6 @@ public class SubmittedSample {
 	}
 	public String getError(){
 		return this.error;
-	}
-	public void setNumber(Integer number){
-		this.number = number;
 	}
 	public void setSampleId(Integer sampleId){
 		this.sampleId = sampleId;

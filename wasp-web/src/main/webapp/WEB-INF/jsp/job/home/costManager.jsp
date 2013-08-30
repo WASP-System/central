@@ -111,11 +111,11 @@
 			<td class="label-centered" style="background-color:#FAF2D6">Material</td>
 			<td class="label-centered" style="background-color:#FAF2D6">Library Cost</td>
 		</tr>		
-		<c:forEach items="${mpsQuote.getSubmittedSamples()}" var="submittedSample" >
+		<c:forEach items="${mpsQuote.getSubmittedSamples()}" var="submittedSample" varStatus="submittedSampleStatus">
 			<input type='hidden' name="submittedSampleId" value="${submittedSample.getSampleId()}"/>
 			<tr>
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;">
-					<c:out value="${submittedSample.getNumber()}" />
+					<c:out value="${submittedSampleStatus.count}" />
 				</td>
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;">
 					<c:out value="${submittedSample.getSampleName()}" />

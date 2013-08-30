@@ -983,18 +983,24 @@ public class JobController extends WaspController {
  		//if there is no existing quote (for the moment there is none)
  		MPSQuote mpsQuote = new MPSQuote();
  		List<SubmittedSample> submittedSamples = mpsQuote.getSubmittedSamples();
- 		int counter = 0;
+ 
  		int numberOfLibrariesExpectedToBeConstructed = 0;
  		for(Sample s : jobService.getSubmittedSamples(job)){
- 			counter++;
+ 			System.out.println("------"+s.getName()+" : "+sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(s)));
+			sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(s));			
+			sampleService.isSampleReceived(s);
+
  			String cost = "";
  			if(s.getSampleType().getIName().toLowerCase().equals("library")){
  				cost = "N/A";
  			}
+ 			else if(sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(s)).equalsIgnoreCase("withdrawn")){
+ 				cost = "Withdrawn";
+ 			}
  			else{
  				numberOfLibrariesExpectedToBeConstructed++;
  			}
- 			SubmittedSample submittedSample = new SubmittedSample(new Integer(counter), s.getId(), s.getName(), s.getSampleType().getName(), cost, "");
+ 			SubmittedSample submittedSample = new SubmittedSample(s.getId(), s.getName(), s.getSampleType().getName(), cost, "");
  			submittedSamples.add(submittedSample);
  		}
  		m.addAttribute("numberOfLibrariesExpectedToBeConstructed", numberOfLibrariesExpectedToBeConstructed);
@@ -1034,7 +1040,7 @@ public class JobController extends WaspController {
 		comments.add(new Comment("Here's my first comment; how do you like it??", "Error In Row"));
 		comments.add(new Comment("This is my second comment!!"));
 
-		m.addAttribute("mpsQuote", mpsQuote);
+		//m.addAttribute("mpsQuote", mpsQuote);
 		
 		return "job/home/costManager";
 	}
@@ -1134,6 +1140,72 @@ public class JobController extends WaspController {
  		}
  		m.addAttribute("sequencingMachines", activeSequencingMachineList); 		
 
+ 		
+ 		
+ 		 		//8-30-13
+ 		//if there is no existing quote (for the moment there is none)
+ 		MPSQuote mpsQuote = new MPSQuote();
+ 		List<SubmittedSample> submittedSamples = mpsQuote.getSubmittedSamples();
+
+ 		int numberOfLibrariesExpectedToBeConstructed = 0;
+ 		for(Sample s : jobService.getSubmittedSamples(job)){
+ 			
+ 			String cost = "";
+ 			if(s.getSampleType().getIName().toLowerCase().equals("library")){
+ 				cost = "N/A";
+ 			}
+ 			else if(sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(s)).equalsIgnoreCase("withdrawn")){
+ 				cost = "Withdrawn";
+ 			}
+ 			else{
+ 				numberOfLibrariesExpectedToBeConstructed++;
+ 			}
+ 			SubmittedSample submittedSample = new SubmittedSample(s.getId(), s.getName(), s.getSampleType().getName(), cost, "");
+ 			submittedSamples.add(submittedSample);
+ 		}
+ 		m.addAttribute("numberOfLibrariesExpectedToBeConstructed", numberOfLibrariesExpectedToBeConstructed);
+ 		
+		List<SequenceRun> sequenceRuns = mpsQuote.getSequenceRuns();
+		//fake testing data only
+		sequenceRuns.add(new SequenceRun("HiSeq2000", new Integer(50), "Single", new Integer(2), new Float(1000), "Error In Row"));
+		sequenceRuns.add(new SequenceRun("HiSeq2500", new Integer(50), "Single", new Integer(1), new Float(1000)));
+		sequenceRuns.add(new SequenceRun("MySeq", new Integer(50), "Single", new Integer(1), new Float(500)));
+		m.addAttribute("numberOfLanesRequested", job.getJobCellSelection().size());
+		
+		List<AdditionalCost> additionalCosts = mpsQuote.getAdditionalCosts();
+		//fake test data
+		additionalCosts.add(new AdditionalCost("Additional Multiplex Fee", new Integer(1), new Float(50)));
+		additionalCosts.add(new AdditionalCost("Bioanalyzer Fee", new Integer(6), new Float(20), "Error In Row"));
+		
+		List<Discount> discounts = mpsQuote.getDiscounts();
+		//fake test data
+		discounts.add(new Discount("Institutional Cost Share", "%", new Float(25)));
+		discounts.add(new Discount("Facility Discount", "$", new Float(100), "Error In Row"));
+		
+		List<String> discountReasons = new ArrayList<String>();
+		discountReasons.add("Institutional Cost Share");
+		discountReasons.add("Departmental Cost Share");
+		discountReasons.add("Center Cost Share");
+		discountReasons.add("Facility Credit");
+		discountReasons.add("Facility Discount");
+		m.addAttribute("discountReasons", discountReasons);
+		
+		List<String> discountTypes = new ArrayList<String>();
+		discountTypes.add("%");
+		discountTypes.add(Currency.getInstance(Locale.getDefault()).getSymbol());
+		m.addAttribute("discountTypes", discountTypes);
+		
+		List<Comment> comments = mpsQuote.getComments();
+		//fake test data
+		comments.add(new Comment("Here's my first comment; how do you like it??", "Error In Row"));
+		comments.add(new Comment("This is my second comment!!"));
+
+		m.addAttribute("mpsQuote", mpsQuote);
+		
+ 		 
+ 		
+ 		
+ 		
 		return "job/home/createQuoteOrInvoice";
 	}
 	

@@ -83,12 +83,15 @@
 | <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<c:url value="/job/${job.getId()}/saveQuote.do" />");' >Save Quote</a>
 </span>
 <br /><br /><br />
-<c:set value="${fn:length(submittedMacromoleculeList)}" var="numberOfLibrariesThatShouldBeConstructed" />
-<span style='font-weight:bold'>1. Library Constructions Expected For This Job: <c:out value="${numberOfLibrariesThatShouldBeConstructed}" />
-	<c:if test="${numberOfLibrariesThatShouldBeConstructed > 0}">
+
+<c:set value="${mpsQuote}" var="mpsQuote" />
+
+<span style='font-weight:bold'>1. Library Constructions Expected For This Job: <c:out value="${numberOfLibrariesExpectedToBeConstructed}" />
+	<c:if test="${numberOfLibrariesExpectedToBeConstructed > 0}">
 		&nbsp;&nbsp;[if no charge for a library, please set its cost to 0]
 	</c:if>
 </span><br /><br />
+
 <table class="data" style="margin: 0px 0px">
 	<tr class="FormData">
 		<td class="label-centered" style="background-color:#FAF2D6">Number</td>
@@ -96,6 +99,34 @@
 		<td class="label-centered" style="background-color:#FAF2D6">Material</td>
 		<td class="label-centered" style="background-color:#FAF2D6">Library Cost</td>
 	</tr>
+	<c:forEach items="${mpsQuote.getSubmittedSamples()}" var="submittedSample" varStatus="submittedSampleStatus">
+			<input type='hidden' name="submittedSampleId" value="${submittedSample.getSampleId()}"/>
+			<tr>
+				<td class="DataTD"  style="text-align:center; white-space:nowrap;">
+					<c:out value="${submittedSampleStatus.count}" />
+				</td>
+				<td class="DataTD"  style="text-align:center; white-space:nowrap;">
+					<input type='hidden' name="submittedSampleName" value="${submittedSample.getSampleName()}"/>
+					<c:out value="${submittedSample.getSampleName()}" />
+				</td>
+				<td class="DataTD"  style="text-align:center; white-space:nowrap;">
+					<input type='hidden' name="submittedSampleMaterial" value="${submittedSample.getMaterial()}"/>
+					<c:out value="${submittedSample.getMaterial()}"/>
+				</td>
+				<td class="DataTD"  style="text-align:center; white-space:nowrap;">
+				
+					<c:choose>
+					<c:when test='${submittedSample.getCost()=="" || submittedSample.getCost().matches("[0-9]+")}'>
+								<c:out value="${localCurrencyIcon}" /><input style="text-align:right;" name="submittedSampleCost" type="text" maxlength="4" size="4" value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${submittedSample.getCost()}" />"/>.00
+						</c:when>
+						<c:otherwise>
+							<c:out value="${submittedSample.getCost()}" />
+							<input type='hidden' name="submittedSampleCost" value="${submittedSample.getCost()}"/></c:otherwise>
+					</c:choose>					
+				</td>
+			</tr>
+		</c:forEach>
+<%--
 	<c:forEach items="${submittedObjectList}" var="submittedObject" varStatus="statusSubmittedObject">
 		<input type='hidden' name="submittedObjectId" value="${submittedObject.getId()}"/>
 		<tr>
@@ -120,9 +151,11 @@
 				</c:choose>
 			</td>
 		</tr>
-	</c:forEach>	
+	</c:forEach>
+--%>	
 </table>
 <br /><br />
+
 <span style='font-weight:bold'>2. Sequencing Lanes Expected For This Job: <c:out value="${numberOfLanesRequested}" /></span><br /><br />
 <table  class="data" style="margin: 0px 0px">
 	<tr class="FormData">
@@ -133,16 +166,34 @@
 		<td class="label-centered" style="background-color:#FAF2D6">Cost/Lane</td>
 		<td class="label-centered" style="background-color:#FAF2D6">Action</td>
 	</tr>
-	<tr><td align='center'><input type='text' size='20' maxlength='44' name='runCostMachine' id='runCostMachine'></td>
-	<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='runCostReadLength' id='runCostReadLength' ></td>
-	<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostReadType' id='runCostReadType'></td>
-	<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostNumberLanes' id='runCostNumberLanes'></td>
-	<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostPricePerLane' id='runCostPricePerLane' >.00</td>
-	<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
-	</tr>
-<tr><td colspan="6" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
+	<c:choose>
+	<c:when test="${not empty mpsQuote.getSequenceRuns()}">
+		<c:forEach items="${mpsQuote.getSequenceRuns()}" var="sequenceRun" >
+			<tr>
+				<td align='center'><input type='text' size='20' maxlength='44' name='runCostMachine' id='runCostMachine' value="${sequenceRun.getMachine()}"></td>
+				<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='runCostReadLength' id='runCostReadLength' value="${sequenceRun.getReadLength()}"></td>
+				<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostReadType' id='runCostReadType' value="${sequenceRun.getReadType()}"></td>
+				<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostNumberLanes' id='runCostNumberLanes' value="${sequenceRun.getNumberOfLanes()}"></td>
+				<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostPricePerLane' id='runCostPricePerLane' value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${sequenceRun.getCostPerLane()}" />">.00</td>
+				<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
+			</tr>	
+		</c:forEach>
+	</c:when>
+	<c:otherwise>
+		<tr>
+			<td align='center'><input type='text' size='20' maxlength='44' name='runCostMachine' id='runCostMachine'></td>
+			<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='runCostReadLength' id='runCostReadLength' ></td>
+			<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostReadType' id='runCostReadType'></td>
+			<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostNumberLanes' id='runCostNumberLanes'></td>
+			<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostPricePerLane' id='runCostPricePerLane' >.00</td>
+			<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
+		</tr>	
+	</c:otherwise>
+	</c:choose>
+	<tr><td colspan="6" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
 </table>
 <br /><br />
+
 <span style='font-weight:bold'>3. Additional Costs Expected For This Job: </span><br /><br />
 <table  class="data" style="margin: 0px 0px">
 	<tr class="FormData">
@@ -151,14 +202,29 @@
 		<td class="label-centered" style="background-color:#FAF2D6">Cost/Unit</td>
 		<td class="label-centered" style="background-color:#FAF2D6">Action</td>
 	</tr>
-	<tr><td align='center'><input type='text' size='20' maxlength='44' name='additionalCostReason' id='additionalCostReason'></td>
-	<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalCostUnits' id='additionalCostUnits'></td>
-	<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalCostPricePerUnit' id='additionalCostPricePerUnit' >.00</td>
-	<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
-</tr>
-<tr><td colspan="4" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
+	<c:choose>
+		<c:when test="${not empty mpsQuote.getAdditionalCosts()}">
+			<c:forEach items="${mpsQuote.getAdditionalCosts()}" var="additionalCost">
+				<tr>
+					<td align='center'><input type='text' size='20' maxlength='44' name='additionalCostReason' id='additionalCostReason' value="${additionalCost.getReason()}"></td>
+					<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalCostUnits' id='additionalCostUnits' value="${additionalCost.getNumberOfUnits()}"></td>
+					<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='6' maxlength='6' name='additionalCostPricePerUnit' id='additionalCostPricePerUnit' value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${additionalCost.getCostPerUnit()}" />">.00</td>
+					<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>				</tr>
+			</c:forEach>
+		</c:when>
+		<c:otherwise>
+			<tr>
+				<td align='center'><input type='text' size='20' maxlength='44' name='additionalCostReason' id='additionalCostReason'></td>
+				<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalCostUnits' id='additionalCostUnits'></td>
+				<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalCostPricePerUnit' id='additionalCostPricePerUnit' >.00</td>
+				<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
+			</tr>
+		</c:otherwise>
+	</c:choose>
+	<tr><td colspan="4" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
 </table>
 <br /><br />
+
 <span style='font-weight:bold'>4. Discounts/Credits Expected For This Job: </span><br /><br />
 <table  class="data" style="margin: 0px 0px">
 	<tr class="FormData">
@@ -167,13 +233,72 @@
 		<td class="label-centered" style="background-color:#FAF2D6">Discount</td>
 		<td class="label-centered" style="background-color:#FAF2D6">Action</td>
 	</tr>
-	<tr>
-		<%-- <td align='center'><input onkeydown='robtest_autocomplete(this);'  type='text' size='20' maxlength='44' name='discountReason' id='discountReason'></td>--%>
-		<td align='center'><select name='discountReason' id='discountReason' size='1'><option value=''>--SELECT--<option value='Institutional Cost Share'>Institutional Cost Share<option value='Departmental Cost Share'>Departmental Cost Share<option value='Center Cost Share'>Center Cost Share<option value='Facility Credit'>Facility Credit<option value='Facility Discount'>Facility Discount</select></td>
-		<td align='center'><select name='discountType' id='discountType' size='1'><option value=''>--SELECT--<option value='%'>%<option value='<c:out value="${localCurrencyIcon}" />'><c:out value="${localCurrencyIcon}" /></select></td>
-		<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='discountValue' id='discountValue'>.00</td>
-		<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
-	</tr>
+	<c:choose>
+		<c:when test="${not empty mpsQuote.getDiscounts()}">
+			<c:forEach items="${mpsQuote.getDiscounts()}" var="discount">
+				<tr>
+					<%-- <td align='center'><input onkeydown='robtest_autocomplete(this);'  type='text' size='20' maxlength='44' name='discountReason' id='discountReason'></td>--%>
+					<td align='center'>
+						<select name='discountReason' id='discountReason' size='1'>
+							<option value=''>--SELECT--
+							<c:forEach items="${discountReasons}" var="discountReason">
+								<c:set value="" var="selected" />
+								<c:if test="${discountReason == discount.getReason()}">
+									<c:set value="SELECTED" var="selected" />
+								</c:if>
+								<option value='<c:out value="${discountReason}" />' <c:out value="${selected}" /> ><c:out value="${discountReason}" />
+							</c:forEach>
+						</select>
+					</td>
+					<td align='center'>
+						<select name='discountType' id='discountType' size='1'>
+							<option value=''>--SELECT--
+							<c:forEach items="${discountTypes}" var="discountType">
+								<c:set value="" var="selected" />
+								<c:if test="${discountType == discount.getType()}">
+									<c:set value="SELECTED" var="selected" />
+								</c:if>
+								<option value='<c:out value="${discountType}" />' <c:out value="${selected}" /> ><c:out value="${discountType}" />
+							</c:forEach>					
+						</select>
+					</td>
+					<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='discountValue' id='discountValue' value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${discount.getValue()}" />">.00</td>
+					<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
+				</tr>
+			</c:forEach>
+		</c:when>
+		<c:otherwise>
+			<tr>
+				<%-- <td align='center'><input onkeydown='robtest_autocomplete(this);'  type='text' size='20' maxlength='44' name='discountReason' id='discountReason'></td>--%>
+				<td align='center'>
+					<select name='discountReason' id='discountReason' size='1'>
+						<option value=''>--SELECT--
+							<c:forEach items="${discountReasons}" var="discountReason">
+								<c:set value="" var="selected" />
+								<c:if test="${discountReason == discount.getReason()}">
+									<c:set value="SELECTED" var="selected" />
+								</c:if>
+								<option value='<c:out value="${discountReason}" />' <c:out value="${selected}" /> ><c:out value="${discountReason}" />
+							</c:forEach>
+					</select>
+				</td>
+				<td align='center'>
+					<select name='discountType' id='discountType' size='1'>
+					<option value=''>--SELECT--
+						<c:forEach items="${discountTypes}" var="discountType">
+							<c:set value="" var="selected" />
+							<c:if test="${discountType == discount.getType()}">
+								<c:set value="SELECTED" var="selected" />
+							</c:if>
+							<option value='<c:out value="${discountType}" />' <c:out value="${selected}" /> ><c:out value="${discountType}" />
+						</c:forEach>
+					</select>
+				</td>
+				<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='discountValue' id='discountValue'>.00</td>
+				<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
+			</tr>
+		</c:otherwise>
+	</c:choose>	
 	<tr><td colspan="5" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
 </table>
 <sup>*</sup><span style="font-size:small;color:red">Please select any particular discount/credit reason only once</span>
@@ -184,10 +309,22 @@
 		<td class="label-centered" style="background-color:#FAF2D6">Comment</td>
 		<td class="label-centered" style="background-color:#FAF2D6">Action</td>		
 	</tr>
-	<tr>
-		<td align='center'><textarea id="comments" name="comments" cols="60" rows="4"></textarea><br /></td>
-		<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
-	</tr>
+	<c:choose>
+		<c:when test="${not empty mpsQuote.getComments()}">
+			<c:forEach items="${mpsQuote.getComments()}" var="comment">
+				<tr>
+					<td align='center'><textarea id="comments" name="comments" cols="60" rows="4" >${comment.getComment()}</textarea><br /></td>
+					<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
+				</tr>
+			</c:forEach>
+		</c:when>
+		<c:otherwise>
+			<tr>
+				<td align='center'><textarea id="comments" name="comments" cols="60" rows="4"></textarea><br /></td>
+				<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
+			</tr>
+		</c:otherwise>
+	</c:choose>	
 	<tr><td colspan="2" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
 </table>
 <br /><br />
