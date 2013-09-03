@@ -1,32 +1,34 @@
 package edu.yu.einstein.wasp.quote;
 
+import edu.yu.einstein.wasp.model.ResourceCategory;
+
 /**
  * 
  * @author dubin
  *
  */
 
-public class SequenceRun {
+public class SequencingCost {
 
-	private String machine;
+	private ResourceCategory resourceCategory;//the sequencing machine; a resourceCategory with resourcetype of mps
 	private Integer readLength;
 	private String readType;
 	private Integer numberOfLanes;
 	private Float costPerLane;
 	private String error;
 	
-	public SequenceRun(String machine, Integer readLength, String readType, Integer numberOfLanes, Float costPerLane){
+	public SequencingCost(ResourceCategory resourceCategory, Integer readLength, String readType, Integer numberOfLanes, Float costPerLane){
 		
-		this.machine = machine;
+		this.resourceCategory = resourceCategory;
 		this.readLength = readLength;
 		this.readType = readType;
 		this.numberOfLanes = numberOfLanes;
 		this.costPerLane = costPerLane;
 		this.error = "";
 	}
-	public SequenceRun(String machine, Integer readLength, String readType, Integer numberOfLanes, Float costPerLane, String error){
+	public SequencingCost(ResourceCategory resourceCategory, Integer readLength, String readType, Integer numberOfLanes, Float costPerLane, String error){
 		
-		this.machine = machine;
+		this.resourceCategory = resourceCategory;
 		this.readLength = readLength;
 		this.readType = readType;
 		this.numberOfLanes = numberOfLanes;
@@ -34,8 +36,8 @@ public class SequenceRun {
 		this.error = error;
 	}
 	
-	public String getMachine(){
-		return this.machine;
+	public ResourceCategory getResourceCategory(){
+		return this.resourceCategory;
 	}
 	public Integer getReadLength(){
 		return this.readLength;
@@ -53,8 +55,8 @@ public class SequenceRun {
 		return this.error;
 	}
 	
-	public void setMachine(String machine){
-		this.machine = machine;
+	public void setResourceCategory(ResourceCategory resourceCategory){
+		this.resourceCategory = resourceCategory;
 	}
 	public void setReadLength(Integer readLength){
 		this.readLength = readLength;

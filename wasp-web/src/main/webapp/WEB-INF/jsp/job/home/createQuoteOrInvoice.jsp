@@ -85,9 +85,10 @@
 <br /><br /><br />
 
 <c:set value="${mpsQuote}" var="mpsQuote" />
+<c:set value="${mpsQuote.getLocalCurrencyIcon()}" var="localCurrencyIcon" />
 
-<span style='font-weight:bold'>1. Library Constructions Expected For This Job: <c:out value="${numberOfLibrariesExpectedToBeConstructed}" />
-	<c:if test="${numberOfLibrariesExpectedToBeConstructed > 0}">
+<span style='font-weight:bold'>1. Library Constructions Expected For This Job: <c:out value="${mpsQuote.getNumberOfLibrariesExpectedToBeConstructed()}" />
+	<c:if test="${mpsQuote.getNumberOfLibrariesExpectedToBeConstructed() > 0}">
 		&nbsp;&nbsp;[if no charge for a library, please set its cost to 0]
 	</c:if>
 </span><br /><br />
@@ -99,29 +100,29 @@
 		<td class="label-centered" style="background-color:#FAF2D6">Material</td>
 		<td class="label-centered" style="background-color:#FAF2D6">Library Cost</td>
 	</tr>
-	<c:forEach items="${mpsQuote.getSubmittedSamples()}" var="submittedSample" varStatus="submittedSampleStatus">
-			<input type='hidden' name="submittedSampleId" value="${submittedSample.getSampleId()}"/>
+	<c:forEach items="${mpsQuote.getLibraryCosts()}" var="libraryCost" varStatus="libraryCostStatus">
+			<input type='hidden' name="submittedSampleId" value="${libraryCost.getSampleId()}"/>
 			<tr>
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;">
-					<c:out value="${submittedSampleStatus.count}" />
+					<c:out value="${libraryCostStatus.count}" />
 				</td>
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;">
-					<input type='hidden' name="submittedSampleName" value="${submittedSample.getSampleName()}"/>
-					<c:out value="${submittedSample.getSampleName()}" />
+					<input type='hidden' name="submittedSampleName" value="${libraryCost.getSampleName()}"/>
+					<c:out value="${libraryCost.getSampleName()}" />
 				</td>
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;">
-					<input type='hidden' name="submittedSampleMaterial" value="${submittedSample.getMaterial()}"/>
-					<c:out value="${submittedSample.getMaterial()}"/>
+					<input type='hidden' name="submittedSampleMaterial" value="${libraryCost.getMaterial()}"/>
+					<c:out value="${libraryCost.getMaterial()}"/>
 				</td>
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;">
 				
 					<c:choose>
-					<c:when test='${submittedSample.getCost()=="" || submittedSample.getCost().matches("[0-9]+")}'>
-								<c:out value="${localCurrencyIcon}" /><input style="text-align:right;" name="submittedSampleCost" type="text" maxlength="4" size="4" value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${submittedSample.getCost()}" />"/>.00
+					<c:when test='${libraryCost.getLibraryCost()=="" || libraryCost.getLibraryCost().matches("[0-9]+")}'>
+								<c:out value="${localCurrencyIcon}" /><input style="text-align:right;" name="submittedSampleCost" type="text" maxlength="4" size="4" value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${libraryCost.getLibraryCost()}" />"/>.00
 						</c:when>
 						<c:otherwise>
-							<c:out value="${submittedSample.getCost()}" />
-							<input type='hidden' name="submittedSampleCost" value="${submittedSample.getCost()}"/></c:otherwise>
+							<c:out value="${libraryCost.getLibraryCost()}" />
+							<input type='hidden' name="submittedSampleCost" value="${libraryCost.getLibraryCost()}"/></c:otherwise>
 					</c:choose>					
 				</td>
 			</tr>
@@ -156,7 +157,7 @@
 </table>
 <br /><br />
 
-<span style='font-weight:bold'>2. Sequencing Lanes Expected For This Job: <c:out value="${numberOfLanesRequested}" /></span><br /><br />
+<span style='font-weight:bold'>2. Sequencing Lanes Expected For This Job: <c:out value="${mpsQuote.getNumberOfLanesRequested()}" /></span><br /><br />
 <table  class="data" style="margin: 0px 0px">
 	<tr class="FormData">
 		<td class="label-centered" style="background-color:#FAF2D6">Machine</td>
@@ -167,14 +168,14 @@
 		<td class="label-centered" style="background-color:#FAF2D6">Action</td>
 	</tr>
 	<c:choose>
-	<c:when test="${not empty mpsQuote.getSequenceRuns()}">
-		<c:forEach items="${mpsQuote.getSequenceRuns()}" var="sequenceRun" >
+	<c:when test="${not empty mpsQuote.getSequencingCosts()}">
+		<c:forEach items="${mpsQuote.getSequencingCosts()}" var="sequencingCost" >
 			<tr>
-				<td align='center'><input type='text' size='20' maxlength='44' name='runCostMachine' id='runCostMachine' value="${sequenceRun.getMachine()}"></td>
-				<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='runCostReadLength' id='runCostReadLength' value="${sequenceRun.getReadLength()}"></td>
-				<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostReadType' id='runCostReadType' value="${sequenceRun.getReadType()}"></td>
-				<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostNumberLanes' id='runCostNumberLanes' value="${sequenceRun.getNumberOfLanes()}"></td>
-				<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostPricePerLane' id='runCostPricePerLane' value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${sequenceRun.getCostPerLane()}" />">.00</td>
+				<td align='center'><input type='text' size='20' maxlength='44' name='runCostMachine' id='runCostMachine' value="${sequencingCost.getResourceCategory().getName()}"></td>
+				<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='runCostReadLength' id='runCostReadLength' value="${sequencingCost.getReadLength()}"></td>
+				<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostReadType' id='runCostReadType' value="${sequencingCost.getReadType()}"></td>
+				<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostNumberLanes' id='runCostNumberLanes' value="${sequencingCost.getNumberOfLanes()}"></td>
+				<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostPricePerLane' id='runCostPricePerLane' value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${sequencingCost.getCostPerLane()}" />">.00</td>
 				<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
 			</tr>	
 		</c:forEach>
@@ -338,192 +339,3 @@
 </div>
 </form>
 </sec:authorize>
-
-
-
-
-<%-- 
-<div class="ui-widget">
-<div id="container_div_for_adding_rows" >
-
-<br />
-<a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<c:url value="/job/${job.getId()}/basic.do" />");' >View Basic Request</a>
-<a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<c:url value="/job/${job.getId()}/requests.do?onlyDisplayCellsRequested=true" />");' >View Lane Request</a>
-<a class="button" href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/costManager.do" />");' >Return To Costs Page</a>
-<a class="button" href="javascript:void(0);" onclick='showModalessDialog("<c:url value="/job/${job.getId()}/previewQuote.do" />");' >Preview Quote</a>
-<a class="button" href="javascript:void(0);" onclick='showModalessDialog("<c:url value="/job/${job.getId()}/saveQuote.do" />");' >Save Quote</a>
-<br /><br />
-
-<span style='font-weight:bold'>1. Additional Submitted Sample Costs Expected For This Job: </span><br /><br />
-<table  class="data" style="margin: 0px 0px">
-	<tr class="FormData">
-		<td class="label-centered" style="background-color:#FAF2D6">Reason</td>
-		<td class="label-centered" style="background-color:#FAF2D6">No. Submitted Samples</td>
-		<td class="label-centered" style="background-color:#FAF2D6">Cost/Submitted Sample</td>
-		<td class="label-centered" style="background-color:#FAF2D6">Action</td>
-	</tr>
-	<tr><td align='center'><input type='text' size='20' maxlength='44' name='additionalSubmittedSampleCostReason' id='additionalSubmittedSampleCostReason'></td>
-	<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalSubmittedSampleCostUnits' id='additionalSubmittedSampleCostUnits'></td>
-	<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalSubmittedSampleCostPricePerUnit' id='additionalSubmittedSampleCostPricePerUnit' >.00</td>
-	<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
-</tr>
-<tr><td colspan="4" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
-</table>
-<br /><br />
-<c:set value="${fn:length(submittedMacromoleculeList)}" var="numberOfLibrariesThatShouldBeConstructed" />
-<span style='font-weight:bold'>2. Library Constructions Expected For This Job: <c:out value="${numberOfLibrariesThatShouldBeConstructed}" /></span><br /><br />
-<table class="data" style="margin: 0px 0px">
-	<tr class="FormData">
-		<td class="label-centered" style="background-color:#FAF2D6">Number</td>
-		<td class="label-centered" style="background-color:#FAF2D6">Submitted Sample</td>
-		<td class="label-centered" style="background-color:#FAF2D6">Material</td>
-		<td class="label-centered" style="background-color:#FAF2D6">Library Cost</td>
-	</tr>
-	<c:forEach items="${submittedObjectList}" var="submittedObject" varStatus="statusSubmittedObject">
-		<tr>
-			<td class="DataTD"  style="text-align:center; white-space:nowrap;">
-				<c:out value="${statusSubmittedObject.index + 1}" />
-			</td>
-			<td class="DataTD"  style="text-align:center; white-space:nowrap;">
-				<c:out value="${submittedObject.getName()}" />
-			</td>
-			<td class="DataTD"  style="text-align:center; white-space:nowrap;">
-				<c:out value="${submittedObject.getSampleType().getName()}"/>
-			</td>
-			<td class="DataTD"  style="text-align:center; white-space:nowrap;">
-				<c:choose>
-					<c:when test="${submittedMacromoleculeList.contains(submittedObject)}">
-						<c:out value="${localCurrencyIcon}" /><input style="text-align:right;" name="libraryCost_${submittedObject.getId()}" type="text" maxlength="4" size="4" />.00
-					</c:when>
-					<c:otherwise>
-						N/A
-						<input type='hidden' name="libraryCost_${submittedObject.getId()}" value='0'/>			 				
-					</c:otherwise>
-				</c:choose>
-			</td>
-		</tr>
-	</c:forEach>
-	
-</table>
-<br /><br />
-<span style='font-weight:bold'>3. Additional Library Costs Expected For This Job: </span><br /><br />
-<table  class="data" style="margin: 0px 0px">
-	<tr class="FormData">
-		<td class="label-centered" style="background-color:#FAF2D6">Reason</td>
-		<td class="label-centered" style="background-color:#FAF2D6">No. Libraries</td>
-		<td class="label-centered" style="background-color:#FAF2D6">Cost/Library</td>
-		<td class="label-centered" style="background-color:#FAF2D6">Action</td>
-	</tr>
-	<tr><td align='center'><input type='text' size='20' maxlength='44' name='additionalLibCostReason' id='additionalLibCostReason'></td>
-	<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalLibCostUnits' id='additionalLibCostUnits'></td>
-	<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalLibCostPricePerUnit' id='additionalLibCostPricePerUnit' >.00</td>
-	<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
-</tr>
-<tr><td colspan="4" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
-</table>
-<br /><br />
-<span style='font-weight:bold'>4. Sequencing Lanes Expected For This Job: <c:out value="${numberOfLanesRequested}" /></span><br /><br />
-<table  class="data" style="margin: 0px 0px">
-	<tr class="FormData">
-		<td class="label-centered" style="background-color:#FAF2D6">Machine</td>
-		<td class="label-centered" style="background-color:#FAF2D6">ReadLength</td>
-		<td class="label-centered" style="background-color:#FAF2D6">ReadType</td>
-		<td class="label-centered" style="background-color:#FAF2D6">No. Lanes</td>
-		<td class="label-centered" style="background-color:#FAF2D6">Cost/Lane</td>
-		<td class="label-centered" style="background-color:#FAF2D6">Action</td>
-	</tr>
-	<tr><td align='center'><input type='text' size='20' maxlength='44' name='runCostMachine' id='runCostMachine'></td>
-	<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='runCostReadLength' id='runCostReadLength'></td>
-	<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostReadType' id='runCostReadType'></td>
-	<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostNumberLanes' id='runCostNumberLanes'></td>
-	<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostPricePerLane' id='runCostPricePerLane' >.00</td>
-	<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
-</tr>
-<tr><td colspan="6" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
-</table>
-<br /><br />
-<span style='font-weight:bold'>5. Additional Sequencing Costs Expected For This Job: </span><br /><br />
-<table  class="data" style="margin: 0px 0px">
-	<tr class="FormData">
-		<td class="label-centered" style="background-color:#FAF2D6">Reason</td>
-		<td class="label-centered" style="background-color:#FAF2D6">No. Lanes</td>
-		<td class="label-centered" style="background-color:#FAF2D6">Cost/Lane</td>
-		<td class="label-centered" style="background-color:#FAF2D6">Action</td>
-	</tr>
-	<tr><td align='center'><input type='text' size='20' maxlength='44' name='additionalRunCostReason' id='additionalRunCostReason'></td>
-	<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalRunCostUnits' id='additionalRunCostUnits'></td>
-	<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalRunCostPricePerUnit' id='additionalRunCostPricePerUnit' >.00</td>
-	<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
-</tr>
-<tr><td colspan="4" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
-</table>
-<br /><br />
-<span style='font-weight:bold'>5. Discounts Expected For This Job: </span><br /><br />
-<table  class="data" style="margin: 0px 0px">
-	<tr class="FormData">
-		<td class="label-centered" style="background-color:#FAF2D6">Reason</td>
-		<td class="label-centered" style="background-color:#FAF2D6"><c:out value="${localCurrencyIcon}" /> Or %</td>
-		<td class="label-centered" style="background-color:#FAF2D6">Discount</td>
-		<td class="label-centered" style="background-color:#FAF2D6">Action</td>
-	</tr>
-	<tr>
-		<td align='center'><input onkeydown='robtest_autocomplete(this);'  type='text' size='20' maxlength='44' name='discountReason' id='discountReason'></td>
-		<td align='center'><select name='discountReason' id='discountReason' size='1'><option value=''>--SELECT--<option value='Institutional Cost Share'>Institutional Cost Share<option value='Departmental Cost Share'>Departmental Cost Share<option value='Center Cost Share'>Center Cost Share<option value='Facility Credit'>Facility Credit<option value='Departmental Cost Share'>Facility Discount</select></td>
-		<td align='center'><select name='discountType' id='discountType' size='1'><option value=''>--SELECT--<option value='%'>%<option value='<c:out value="${localCurrencyIcon}" />'><c:out value="${localCurrencyIcon}" /></select></td>
-		<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='discountValue' id='discountValue'>.00</td>
-		<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
-	</tr>
-	<tr><td colspan="5" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
-</table>
-</div>
-</div>
-</sec:authorize>
---%>
-
-
-
-
-
-<%-- <select name='user_conc_by_fluorometry[]' id='user_conc_by_fluorometry[]' size='1'><option value=''>--SELECT--<option value='YES'>YES <option value='NO'>NO </select>
-<table >
-	<tr class="FormData">
-		<td colspan="2" class="label-centered" style="background-color:#FAF2D6">Library Construction</td>
-	</tr>
-	<tr>
-		<td class="DataTD value-centered">Number Of Library Constructions</td>
-		<td class="DataTD value-centered" ><input style="text-align:right;" type="text" maxlength="4" size="4" name="numberOfLibraryConstructions" /></td>
-	</tr>
-	<tr>
-		<td class="DataTD value-centered">Cost Per Library (<c:out value="${localCurrencyIcon}" />)</td>
-		<td class="DataTD value-centered" ><input style="text-align:right;" type="text" maxlength="4" size="4" name="costPerLibrary" /></td>
-	</tr>
-</table>
-<br /><br />
-
-<br /><br />
-<table  border="1">
-<tr><th style='text-align:center; background:#CCCCCC'>Library Name<sup>*</sup></th><th style='text-align:center; background:#CCCCCC'>Library Size<sup>**</sup> (bp)</th><th style='text-align:center; background:#CCCCCC'>Conc. (ng/&micro;l)</th><th style='text-align:center; background:#CCCCCC'>Conc. By Fluorometry?<sup>***</sup></th><th style='text-align:center; background:#CCCCCC'>Volume (&micro;l)</th><th style='text-align:center; background:#CCCCCC'>Buffer</th><th style='text-align:center; background:#CCCCCC'>Action</th></tr>
-<tr><td align='center'><input type='text' size='20' maxlength='44' name='library_name[]' id='library_name[]'></td>
-	<td align='center'><input type='text' size='12' maxlength='20' name='library_size[]' id='library_size[]'></td>
-	<td align='center'><input type='text' size='10' maxlength='10' name='concentration[]' id='concentration[]'  onKeyPress='return nan_to_null(this,event)'></td>
-	<td align='center'><select name='user_conc_by_fluorometry[]' id='user_conc_by_fluorometry[]' size='1'><option value=''>--SELECT--<option value='YES'>YES <option value='NO'>NO </select></td>
-	<td align='center'><input type='text' size='8' maxlength='10' name='volume[]' id='volume[]' onKeyPress='return nan_to_null(this,event)'></td>
-	<td align='center'><input type='text' size='8' maxlength='20' name='buffer[]' id='buffer[]'></td>
-	<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
-</tr>
-<tr><td colspan="7" align="center"><input style="width:300" type="button" class="addRow" value="ADD ANOTHER LIBRARY"/></td></tr>
-</table>
-<br />
-<table  border="1">
-<tr><th style='text-align:center; background:#CCCCCC'>Library Name<sup>*</sup></th><th style='text-align:center; background:#CCCCCC'>Library Size<sup>**</sup> (bp)</th><th style='text-align:center; background:#CCCCCC'>Conc. (ng/&micro;l)</th><th style='text-align:center; background:#CCCCCC'>Conc. By Fluorometry?<sup>***</sup></th><th style='text-align:center; background:#CCCCCC'>Volume (&micro;l)</th><th style='text-align:center; background:#CCCCCC'>Buffer</th><th style='text-align:center; background:#CCCCCC'>Action</th></tr>
-<tr><td align='center'><input type='text' size='20' maxlength='44' name='library_name[]' id='library_name[]'></td>
-	<td align='center'><input type='text' size='12' maxlength='20' name='library_size[]' id='library_size[]'></td>
-	<td align='center'><input type='text' size='10' maxlength='10' name='concentration[]' id='concentration[]'  onKeyPress='return nan_to_null(this,event)'></td>
-	<td align='center'><select name='user_conc_by_fluorometry[]' id='user_conc_by_fluorometry[]' size='1'><option value=''>--SELECT--<option value='YES'>YES <option value='NO'>NO </select></td>
-	<td align='center'><input type='text' size='8' maxlength='10' name='volume[]' id='volume[]' onKeyPress='return nan_to_null(this,event)'></td>
-	<td align='center'><input type='text' size='8' maxlength='20' name='buffer[]' id='buffer[]'></td>
-	<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
-</tr>
-<tr><td colspan="7" align="center"><input style="width:300" type="button" class="addRow" value="ADD ANOTHER LIBRARY"/></td></tr>
-</table>
---%>

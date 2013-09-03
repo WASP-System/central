@@ -111,9 +111,9 @@ import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.quote.AdditionalCost;
 import edu.yu.einstein.wasp.quote.Comment;
 import edu.yu.einstein.wasp.quote.Discount;
+import edu.yu.einstein.wasp.quote.LibraryCost;
 import edu.yu.einstein.wasp.quote.MPSQuote;
-import edu.yu.einstein.wasp.quote.SequenceRun;
-import edu.yu.einstein.wasp.quote.SubmittedSample;
+import edu.yu.einstein.wasp.quote.SequencingCost;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FilterService;
@@ -977,7 +977,7 @@ public class JobController extends WaspController {
 		}
 		populateCostPage(job, m);
 		
-		
+		/*no longer used
 		
 		//8-27-13
  		//if there is no existing quote (for the moment there is none)
@@ -1005,11 +1005,11 @@ public class JobController extends WaspController {
  		}
  		m.addAttribute("numberOfLibrariesExpectedToBeConstructed", numberOfLibrariesExpectedToBeConstructed);
  		
-		List<SequenceRun> sequenceRuns = mpsQuote.getSequenceRuns();
+		List<SequencingCost> sequenceRuns = mpsQuote.getSequenceRuns();
 		//fake testing data only
-		sequenceRuns.add(new SequenceRun("HiSeq2000", new Integer(50), "Single", new Integer(2), new Float(1000), "Error In Row"));
-		sequenceRuns.add(new SequenceRun("HiSeq2500", new Integer(50), "Single", new Integer(1), new Float(1000)));
-		sequenceRuns.add(new SequenceRun("MySeq", new Integer(50), "Single", new Integer(1), new Float(500)));
+		sequenceRuns.add(new SequencingCost("HiSeq2000", new Integer(50), "Single", new Integer(2), new Float(1000), "Error In Row"));
+		sequenceRuns.add(new SequencingCost("HiSeq2500", new Integer(50), "Single", new Integer(1), new Float(1000)));
+		sequenceRuns.add(new SequencingCost("MySeq", new Integer(50), "Single", new Integer(1), new Float(500)));
 		m.addAttribute("numberOfLanesRequested", job.getJobCellSelection().size());
 
 		List<AdditionalCost> additionalCosts = mpsQuote.getAdditionalCosts();
@@ -1041,7 +1041,7 @@ public class JobController extends WaspController {
 		comments.add(new Comment("This is my second comment!!"));
 
 		//m.addAttribute("mpsQuote", mpsQuote);
-		
+		*/
 		return "job/home/costManager";
 	}
 
@@ -1126,27 +1126,36 @@ public class JobController extends WaspController {
 		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
 			return "job/home/message";
 		}
-		getSampleLibraryRunData(job, m);
- 		//String localCurrencyIcon = Currency.getInstance(Locale.getDefault()).getSymbol();//+String.format("%.2f", price));
- 		m.addAttribute("localCurrencyIcon", Currency.getInstance(Locale.getDefault()).getSymbol()); 		
- 		m.addAttribute("numberOfLanesRequested", job.getJobCellSelection().size());
  		
+		//list to populate dropdown
  		ResourceType resourceType = resourceService.getResourceTypeDao().getResourceTypeByIName("mps");
- 		List<ResourceCategory>  activeSequencingMachineList = new ArrayList<ResourceCategory>();
- 		for(ResourceCategory rc : resourceService.getResourceCategoryDao().getActiveResourceCategories()){
+ 		List<ResourceCategory>  sequencingMachines = new ArrayList<ResourceCategory>();
+ 		for(ResourceCategory rc : resourceService.getResourceCategoryDao().findAll()){
  			if(rc.getResourceTypeId()==resourceType.getId().intValue()){
- 				activeSequencingMachineList.add(rc);
+ 				sequencingMachines.add(rc);
  			}
  		}
- 		m.addAttribute("sequencingMachines", activeSequencingMachineList); 		
+ 		m.addAttribute("sequencingMachines", sequencingMachines); 		
 
- 		
+ 		//list to populate dropdown
+		List<String> discountReasons = new ArrayList<String>();
+		discountReasons.add("Institutional Cost Share");
+		discountReasons.add("Departmental Cost Share");
+		discountReasons.add("Center Cost Share");
+		discountReasons.add("Facility Credit");
+		discountReasons.add("Facility Discount");
+		m.addAttribute("discountReasons", discountReasons);
+		
+		//list to populate dropdown
+		List<String> discountTypes = new ArrayList<String>();
+		discountTypes.add("%");
+		discountTypes.add(Currency.getInstance(Locale.getDefault()).getSymbol());
+		m.addAttribute("discountTypes", discountTypes);
  		
  		 		//8-30-13
  		//if there is no existing quote (for the moment there is none)
- 		MPSQuote mpsQuote = new MPSQuote();
- 		List<SubmittedSample> submittedSamples = mpsQuote.getSubmittedSamples();
-
+ 		MPSQuote mpsQuote = new MPSQuote(jobId);
+ 		List<LibraryCost> libraryCosts = mpsQuote.getLibraryCosts();
  		int numberOfLibrariesExpectedToBeConstructed = 0;
  		for(Sample s : jobService.getSubmittedSamples(job)){
  			
@@ -1160,16 +1169,19 @@ public class JobController extends WaspController {
  			else{
  				numberOfLibrariesExpectedToBeConstructed++;
  			}
- 			SubmittedSample submittedSample = new SubmittedSample(s.getId(), s.getName(), s.getSampleType().getName(), cost, "");
- 			submittedSamples.add(submittedSample);
+  			LibraryCost libraryCost = new LibraryCost(s.getId(), s.getName(), s.getSampleType().getName(), cost, "");
+ 			libraryCosts.add(libraryCost);
  		}
- 		m.addAttribute("numberOfLibrariesExpectedToBeConstructed", numberOfLibrariesExpectedToBeConstructed);
+ 		mpsQuote.setLocalCurrencyIcon(Currency.getInstance(Locale.getDefault()).getSymbol());
+ 		mpsQuote.setNumberOfLibrariesExpectedToBeConstructed(new Integer(numberOfLibrariesExpectedToBeConstructed));
+ 		mpsQuote.setNumberOfLanesRequested(new Integer(job.getJobCellSelection().size()));
  		
-		List<SequenceRun> sequenceRuns = mpsQuote.getSequenceRuns();
+ 		
+		List<SequencingCost> sequencingCosts = mpsQuote.getSequencingCosts();
 		//fake testing data only
-		sequenceRuns.add(new SequenceRun("HiSeq2000", new Integer(50), "Single", new Integer(2), new Float(1000), "Error In Row"));
-		sequenceRuns.add(new SequenceRun("HiSeq2500", new Integer(50), "Single", new Integer(1), new Float(1000)));
-		sequenceRuns.add(new SequenceRun("MySeq", new Integer(50), "Single", new Integer(1), new Float(500)));
+		sequencingCosts.add(new SequencingCost(sequencingMachines.get(0), new Integer(50), "Single", new Integer(2), new Float(1000), "Error In Row"));
+		sequencingCosts.add(new SequencingCost(sequencingMachines.get(1), new Integer(50), "Single", new Integer(1), new Float(1000)));
+		sequencingCosts.add(new SequencingCost(sequencingMachines.get(2), new Integer(50), "Single", new Integer(1), new Float(500)));
 		m.addAttribute("numberOfLanesRequested", job.getJobCellSelection().size());
 		
 		List<AdditionalCost> additionalCosts = mpsQuote.getAdditionalCosts();
@@ -1182,18 +1194,6 @@ public class JobController extends WaspController {
 		discounts.add(new Discount("Institutional Cost Share", "%", new Float(25)));
 		discounts.add(new Discount("Facility Discount", "$", new Float(100), "Error In Row"));
 		
-		List<String> discountReasons = new ArrayList<String>();
-		discountReasons.add("Institutional Cost Share");
-		discountReasons.add("Departmental Cost Share");
-		discountReasons.add("Center Cost Share");
-		discountReasons.add("Facility Credit");
-		discountReasons.add("Facility Discount");
-		m.addAttribute("discountReasons", discountReasons);
-		
-		List<String> discountTypes = new ArrayList<String>();
-		discountTypes.add("%");
-		discountTypes.add(Currency.getInstance(Locale.getDefault()).getSymbol());
-		m.addAttribute("discountTypes", discountTypes);
 		
 		List<Comment> comments = mpsQuote.getComments();
 		//fake test data
