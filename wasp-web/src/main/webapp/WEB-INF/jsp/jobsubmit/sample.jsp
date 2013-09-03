@@ -89,7 +89,7 @@
 <div class="instructions">
    <fmt:message key="jobDraft.upload_file_description.label"/>
 </div>
-<form id="submissionForm" method="POST"  enctype="multipart/form-data" >
+<form method="POST"  enctype="multipart/form-data" onsubmit='return validate(this)'>
 <table id="fileUploadTbl"  class="EditTable ui-widget ui-widget-content">
 	<tr>
 		<td class="CaptionTD top-heading"><fmt:message key="jobDraft.file.label"/></td><td class="CaptionTD top-heading"><fmt:message key="jobDraft.file_description.label"/></td><td class="CaptionTD top-heading"><fmt:message key="jobDraft.file_action.label"/></td>
@@ -109,9 +109,8 @@
 	</tr>
 </table>
 <input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<c:url value="/dashboard.do"/>'" /> 
-<input class="fm-button" onclick="return submitForm();" type="button" value="<fmt:message key="jobDraft.continue.label"/>">
+<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="jobDraft.continue.label"/>">
 </form>
-
 
 
 

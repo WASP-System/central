@@ -18,8 +18,8 @@
 <script>
 
 $('#submissionForm').submit(function(){
-	submitViaAjaxAndOpenReceivedPageHtml($(this));
-	return false; // set as false to disable default behaviour i.e do not submit normally as we did this already via ajax
+	$("#wait_dialog-modal").dialog("open");
+	return true; 
 });
 
 </script>

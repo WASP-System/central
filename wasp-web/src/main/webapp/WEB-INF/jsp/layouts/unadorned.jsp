@@ -20,22 +20,6 @@
   --%>
   <script type="text/javascript">
   
-  function submitViaAjaxAndOpenReceivedPageHtml(frm){
-	    $("#wait_dialog-modal").dialog("open");
-		$.ajax({
-			type: frm.attr('method'),
-	        url: frm.attr('action'),
-	        data: frm.serialize(),
-	        success: function (data, textStatus, jqXHR) {
-	        	$("#wait_dialog-modal").dialog("close");
-	        	// data represents the entire html from returned page. We just need to replace the head and body sections of the current page.
-	        	$('head').html(data.replace(/^[\s\S]*[\s>;]<head>([\s\S]*)<\/head>[\s\S]*$/, "$1"));
-	        	$('body').html(data.replace(/^[\s\S]*<body>([\s\S]*)<\/body>[\s\S]*$/, "$1"));
-	        	readyFn(); // run document ready code
-	     	}
-	    });
-}
-  
   function waspTooltip(){
 		$( ".tooltip" ).tooltip({
 	  	      position: {
