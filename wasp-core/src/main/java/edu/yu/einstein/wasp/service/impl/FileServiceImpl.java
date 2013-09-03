@@ -890,7 +890,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		}
 		
 		for(JobDraftFile jdf : jobDraft.getJobDraftFile()){
-			if(jdf.getFileGroup().getId() == fileGroupId){
+			if(jdf.getFileGroup().getId().intValue() == fileGroupId.intValue()){
 				jobDraftFile = jdf;
 				break;
 			}

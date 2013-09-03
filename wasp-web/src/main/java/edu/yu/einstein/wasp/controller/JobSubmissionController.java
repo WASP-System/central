@@ -1254,7 +1254,7 @@ public class JobSubmissionController extends WaspController {
 			fileService.removeUploadedFileFromJobDraft(jobDraftId, fileGroupId, fileHandleId);
 			waspMessage("jobDraft.upload_file_removed.label");
 		}catch (FileNotFoundException e){
-			logger.debug(e.getMessage());
+			logger.warn("Cannot remove file from jobdraft (id=" + jobDraftId + ") where fileGroupId=" + fileGroupId + " and fileHandleId=" + fileHandleId + " : " + e.getMessage());
 			waspErrorMessage("jobDraft.upload_file_removal_failed.label");
 		}
 		return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
