@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import edu.yu.einstein.wasp.model.Job;
+
 /**
  * 
  * @author dubin
@@ -14,7 +16,7 @@ import java.util.Map;
 
 public class MPSQuote {
 
-	private Integer jobId;
+	private Job job;
 	private Integer numberOfLibrariesExpectedToBeConstructed;
 	private Integer numberOfLanesRequested;
 	private String localCurrencyIcon;
@@ -24,8 +26,8 @@ public class MPSQuote {
 	private List<Discount> discounts;
 	private List<Comment> comments;
 	
-	public MPSQuote(Integer jobId){
-		this.jobId = jobId;
+	public MPSQuote(Job job){
+		this.job = job;
 		this.numberOfLibrariesExpectedToBeConstructed = new Integer(0);
 		this.numberOfLanesRequested = new Integer(0);
 		this.localCurrencyIcon = "";
@@ -36,7 +38,7 @@ public class MPSQuote {
 		this.comments = new ArrayList<Comment>();
 	}
 	
-	public void setJobId(Integer jobId){this.jobId = jobId;}
+	public void setJobId(Job job){this.job = job;}
 	public void setNumberOfLibrariesExpectedToBeConstructed(Integer numberOfLibrariesExpectedToBeConstructed){
 		this.numberOfLibrariesExpectedToBeConstructed = numberOfLibrariesExpectedToBeConstructed;
 	}
@@ -62,7 +64,7 @@ public class MPSQuote {
 	public void setComments(List<Comment> comments){
 		this.comments = comments;
 	}
-	public Integer getJobId(){return this.jobId;}
+	public Job getJob(){return this.job;}
 	public Integer getNumberOfLibrariesExpectedToBeConstructed(){return this.numberOfLibrariesExpectedToBeConstructed;}
 	public Integer getNumberOfLanesRequested(){return this.numberOfLanesRequested;}
 	public String getLocalCurrencyIcon(){return this.localCurrencyIcon;}

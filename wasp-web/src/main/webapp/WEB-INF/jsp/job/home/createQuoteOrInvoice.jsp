@@ -75,20 +75,28 @@
 <div class="ui-widget">
 <div id="container_div_for_adding_rows" >
 <br />
-<span style="padding:3px; border: 1px solid black;">
-<a <%-- class="button" --%> href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/costManager.do" />");' >Return To Costs Page</a>
-| <a <%-- class="button" --%> href="javascript:void(0);" onclick='showSmallModalessDialog("<c:url value="/job/${job.getId()}/basic.do" />");' >View Basic Request</a>
-| <a <%-- class="button" --%> href="javascript:void(0);" onclick='showSmallModalessDialog("<c:url value="/job/${job.getId()}/requests.do?onlyDisplayCellsRequested=true" />");' >View Lane Request</a>
-| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<c:url value="/job/${job.getId()}/previewQuote.do" />");' >Preview Quote</a>
-| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<c:url value="/job/${job.getId()}/saveQuote.do" />");' >Save Quote</a>
-</span>
-<br /><br /><br />
 
 <c:set value="${mpsQuote}" var="mpsQuote" />
 <c:set value="${mpsQuote.getLocalCurrencyIcon()}" var="localCurrencyIcon" />
+<input type='hidden' name="localCurrencyIcon" value="${localCurrencyIcon}"/>
 
-<span style='font-weight:bold'>1. Library Constructions Expected For This Job: <c:out value="${mpsQuote.getNumberOfLibrariesExpectedToBeConstructed()}" />
-	<c:if test="${mpsQuote.getNumberOfLibrariesExpectedToBeConstructed() > 0}">
+<c:set value="${mpsQuote.getNumberOfLibrariesExpectedToBeConstructed()}" var="numberOfLibrariesExpectedToBeConstructed" />
+<input type='hidden' name="numberOfLibrariesExpectedToBeConstructed" value="${numberOfLibrariesExpectedToBeConstructed}"/>
+
+<c:set value="${mpsQuote.getNumberOfLanesRequested()}" var="numberOfLanesRequested" />
+<input type='hidden' name="numberOfLanesRequested" value="${numberOfLanesRequested}"/>
+			
+<span style="padding:3px; border: 1px solid black;">
+<a <%-- class="button" --%> href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${mpsQuote.getJob().getId()}/costManager.do" />");' >Return To Costs Page</a>
+| <a <%-- class="button" --%> href="javascript:void(0);" onclick='showSmallModalessDialog("<c:url value="/job/${mpsQuote.getJob().getId()}/basic.do" />");' >View Basic Request</a>
+| <a <%-- class="button" --%> href="javascript:void(0);" onclick='showSmallModalessDialog("<c:url value="/job/${mpsQuote.getJob().getId()}/requests.do?onlyDisplayCellsRequested=true" />");' >View Lane Request</a>
+| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<c:url value="/job/${mpsQuote.getJob().getId()}/previewQuote.do" />");' >Preview Quote</a>
+| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<c:url value="/job/${mpsQuote.getJob().getId()}/saveQuote.do" />");' >Save Quote</a>
+</span>
+<br /><br /><br />
+
+<span style='font-weight:bold'>1. Library Constructions Expected For This Job: <c:out value="${numberOfLibrariesExpectedToBeConstructed}" />
+	<c:if test="${numberOfLibrariesExpectedToBeConstructed > 0}">
 		&nbsp;&nbsp;[if no charge for a library, please set its cost to 0]
 	</c:if>
 </span><br /><br />
@@ -101,7 +109,7 @@
 		<td class="label-centered" style="background-color:#FAF2D6">Library Cost</td>
 	</tr>
 	<c:forEach items="${mpsQuote.getLibraryCosts()}" var="libraryCost" varStatus="libraryCostStatus">
-			<input type='hidden' name="submittedSampleId" value="${libraryCost.getSampleId()}"/>
+			<input type='hidden' name="submittedSampleId" value="${libraryCost.getSample().getId()}"/>
 			<tr>
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;">
 					<c:out value="${libraryCostStatus.count}" />
@@ -157,7 +165,7 @@
 </table>
 <br /><br />
 
-<span style='font-weight:bold'>2. Sequencing Lanes Expected For This Job: <c:out value="${mpsQuote.getNumberOfLanesRequested()}" /></span><br /><br />
+<span style='font-weight:bold'>2. Sequencing Lanes Expected For This Job: <c:out value="${numberOfLanesRequested}" /></span><br /><br />
 <table  class="data" style="margin: 0px 0px">
 	<tr class="FormData">
 		<td class="label-centered" style="background-color:#FAF2D6">Machine</td>
@@ -171,7 +179,18 @@
 	<c:when test="${not empty mpsQuote.getSequencingCosts()}">
 		<c:forEach items="${mpsQuote.getSequencingCosts()}" var="sequencingCost" >
 			<tr>
-				<td align='center'><input type='text' size='20' maxlength='44' name='runCostMachine' id='runCostMachine' value="${sequencingCost.getResourceCategory().getName()}"></td>
+				<td align='center'>	
+					<select name='resourceCategoryId' id='resourceCategoryId' size='1'>
+						<option value=''>--SELECT--
+						<c:forEach items="${sequencingMachines}" var="resourceCategory">
+							<c:set value="" var="selected" />
+							<c:if test="${resourceCategory.getId() == sequencingCost.getResourceCategory().getId()}">
+								<c:set value="SELECTED" var="selected" />
+							</c:if>
+							<option value='<c:out value="${resourceCategory.getId()}" />' <c:out value="${selected}" /> ><c:out value="${resourceCategory.getName()}" />
+						</c:forEach>
+					</select>
+				</td>				
 				<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='runCostReadLength' id='runCostReadLength' value="${sequencingCost.getReadLength()}"></td>
 				<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostReadType' id='runCostReadType' value="${sequencingCost.getReadType()}"></td>
 				<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostNumberLanes' id='runCostNumberLanes' value="${sequencingCost.getNumberOfLanes()}"></td>
@@ -182,7 +201,14 @@
 	</c:when>
 	<c:otherwise>
 		<tr>
-			<td align='center'><input type='text' size='20' maxlength='44' name='runCostMachine' id='runCostMachine'></td>
+			<td align='center'>
+				<select name='resourceCategoryId' id='resourceCategoryId' size='1'>
+					<option value=''>--SELECT--
+					<c:forEach items="${sequencingMachines}" var="resourceCategory">						
+						<option value='<c:out value="${resourceCategory.getId()}" />' ><c:out value="${resourceCategory.getName()}" />
+					</c:forEach>
+				</select>
+			</td>
 			<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='runCostReadLength' id='runCostReadLength' ></td>
 			<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostReadType' id='runCostReadType'></td>
 			<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostNumberLanes' id='runCostNumberLanes'></td>
@@ -210,7 +236,8 @@
 					<td align='center'><input type='text' size='20' maxlength='44' name='additionalCostReason' id='additionalCostReason' value="${additionalCost.getReason()}"></td>
 					<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalCostUnits' id='additionalCostUnits' value="${additionalCost.getNumberOfUnits()}"></td>
 					<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='6' maxlength='6' name='additionalCostPricePerUnit' id='additionalCostPricePerUnit' value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${additionalCost.getCostPerUnit()}" />">.00</td>
-					<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>				</tr>
+					<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>				
+				</tr>
 			</c:forEach>
 		</c:when>
 		<c:otherwise>
@@ -275,11 +302,7 @@
 					<select name='discountReason' id='discountReason' size='1'>
 						<option value=''>--SELECT--
 							<c:forEach items="${discountReasons}" var="discountReason">
-								<c:set value="" var="selected" />
-								<c:if test="${discountReason == discount.getReason()}">
-									<c:set value="SELECTED" var="selected" />
-								</c:if>
-								<option value='<c:out value="${discountReason}" />' <c:out value="${selected}" /> ><c:out value="${discountReason}" />
+								<option value='<c:out value="${discountReason}" />'  ><c:out value="${discountReason}" />
 							</c:forEach>
 					</select>
 				</td>
@@ -287,11 +310,7 @@
 					<select name='discountType' id='discountType' size='1'>
 					<option value=''>--SELECT--
 						<c:forEach items="${discountTypes}" var="discountType">
-							<c:set value="" var="selected" />
-							<c:if test="${discountType == discount.getType()}">
-								<c:set value="SELECTED" var="selected" />
-							</c:if>
-							<option value='<c:out value="${discountType}" />' <c:out value="${selected}" /> ><c:out value="${discountType}" />
+							<option value='<c:out value="${discountType}" />'  ><c:out value="${discountType}" />
 						</c:forEach>
 					</select>
 				</td>
@@ -331,8 +350,8 @@
 <br /><br />
 <span style="padding:3px; border: 1px solid black;">
 <a href="javascript:void(0);" onclick='$("html, body").animate({ scrollTop: 0 }, "fast");' >Return To Top Of Page</a>
-| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<c:url value="/job/${job.getId()}/previewQuote.do" />");' >Preview Quote</a>
-| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<c:url value="/job/${job.getId()}/saveQuote.do" />");' >Save Quote</a>
+| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<c:url value="/job/${mpsQuote.getJob().getId()}/previewQuote.do" />");' >Preview Quote</a>
+| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<c:url value="/job/${mpsQuote.getJob().getId()}/saveQuote.do" />");' >Save Quote</a>
 </span>
 <br /><br />
 </div>
