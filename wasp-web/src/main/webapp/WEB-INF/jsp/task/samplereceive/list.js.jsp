@@ -16,6 +16,7 @@
 			alert("<fmt:message key="task.samplereceive_validateAlert.label" />");
 			return false;
 		}
+		openWaitDialog();
 		return true;
 	}
 	function set(formId, status){

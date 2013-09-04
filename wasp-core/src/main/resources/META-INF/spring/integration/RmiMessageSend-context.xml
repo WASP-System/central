@@ -12,8 +12,8 @@
 	<int-rmi:outbound-gateway id="outboundRmiGateway" 
 		remote-channel="wasp.channel.remoting.inbound" 
 		request-channel="wasp.channel.remoting.outbound" 
-		reply-timeout="1000"
-		request-timeout="1000"
+		reply-timeout="5000"
+		request-timeout="5000"
 		host="127.0.0.1" 
 		port="23533" />
 </beans>

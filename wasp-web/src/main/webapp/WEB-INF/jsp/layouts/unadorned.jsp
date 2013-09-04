@@ -20,6 +20,10 @@
   --%>
   <script type="text/javascript">
   
+  function openWaitDialog(){
+	  $("#wait_dialog-modal").dialog("open");
+  }
+  
   function waspTooltip(){
 		$( ".tooltip" ).tooltip({
 	  	      position: {

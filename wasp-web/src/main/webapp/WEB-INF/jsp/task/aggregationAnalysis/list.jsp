@@ -12,7 +12,7 @@
 		<c:if test='${currentJobId != "-1"}'>
 	 		<tr><td colspan="8" style='background-color:black'></td></tr>
 	 	</c:if>
-	 	<form  id="theForm${job.getJobId()}" method="POST" onsubmit="return validate(this);"  >
+	 	<form  id="theForm${job.getJobId()}" method="POST" onsubmit="openWaitDialog();"  >
 	 	<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobId" value="${job.getJobId()}"> 
 	 	<tr class="FormData">
 			<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.cellLibraryqc_jobId.label" /></th>
