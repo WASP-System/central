@@ -22,20 +22,20 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	
 	public AnalysisStatusMessageTemplate(Integer jobId, Integer libraryId){
 		super();
-		setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.ANALYSIS);
+		addHeader(WaspMessageType.HEADER_KEY, WaspMessageType.ANALYSIS);
 		setLibraryId(libraryId);
 		setJobId(jobId);
 	}
 	
 	public AnalysisStatusMessageTemplate(Integer jobId){
 		super();
-		setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.ANALYSIS);
+		addHeader(WaspMessageType.HEADER_KEY, WaspMessageType.ANALYSIS);
 		setJobId(jobId);
 	}
 	
 	public AnalysisStatusMessageTemplate(){
 		super();
-		setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.ANALYSIS);
+		addHeader(WaspMessageType.HEADER_KEY, WaspMessageType.ANALYSIS);
 	}
 	
 		
@@ -59,7 +59,7 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	}
 
 	public void setLibraryId(Integer libraryId) {
-		setHeader(WaspJobParameters.LIBRARY_ID, libraryId);
+		addHeader(WaspJobParameters.LIBRARY_ID, libraryId);
 	}
 	
 	public Integer getJobId() {
@@ -67,7 +67,7 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	}
 
 	public void setJobId(Integer jobId) {
-		setHeader(WaspJobParameters.JOB_ID, jobId);
+		addHeader(WaspJobParameters.JOB_ID, jobId);
 	}
 	
 	public void setCellLibraryId(Integer cellLibraryId){

@@ -8,7 +8,7 @@
 
 		<batch:step id="wasp-bwa.alignmentFlow.BWAaln">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.mps.bwa.BWAalnTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.plugin.bwa.batch.tasklet.BWAalnTasklet" scope="step">
 					<constructor-arg name="cellLibraryIds" value="#{jobParameters[waspSoftwareJobParameters.LIBRARY_CELL_ID_LIST]}" />
 				</bean>
 			</batch:tasklet>
@@ -21,7 +21,7 @@
 
 		<batch:step id="wasp-bwa.alignmentFlow.BWAsam">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.mps.bwa.BWAsamTasklet" scope="step" />
+				<bean class="edu.yu.einstein.wasp.plugin.bwa.batch.tasklet.BWAsamTasklet" scope="step" />
 			</batch:tasklet>
 			<batch:next on="FAILED" to="wasp-bwa.alignmentFlow.notifyBWAFailed" />
 			<batch:next on="*" to="wasp-bwa.alignmentFlow.mergeBAM" />
@@ -29,7 +29,7 @@
 
 		<batch:step id="wasp-bwa.alignmentFlow.mergeBAM" >
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.mps.bwa.BWAMergeSortTasklet" scope="step" />
+				<bean class="edu.yu.einstein.wasp.plugin.bwa.batch.tasklet.BWAMergeSortTasklet" scope="step" />
 			</batch:tasklet>
 			<batch:next on="FAILED" to="wasp-bwa.alignmentFlow.notifyBWAFailed" />
 			<batch:next on="*" to="wasp-bwa.alignmentFlow.notifyBWAComplete" />

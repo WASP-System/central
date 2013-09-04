@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.Callable;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -75,7 +76,6 @@ import edu.yu.einstein.wasp.dao.WorkflowResourceTypeDao;
 import edu.yu.einstein.wasp.dao.WorkflowSoftwareDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
-import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.MetadataTypeException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
@@ -283,20 +283,24 @@ public class JobSubmissionController extends WaspController {
 		String currentMapping = uri.replaceFirst(context, "").replaceFirst("\\.do.*$", "");
 
 		int found = -1;
-		for (int i=0; i < pageFlowArray.length -1; i++) {
+		for (int i=0; i < pageFlowArray.length; i++) {
 			String page = pageFlowArray[i];
 			page = page.replaceAll("\\{n\\}", ""+jobDraft.getId());
 	
 			if (currentMapping.equals(page)) {
 				found = i;
+				if (found == pageFlowArray.length - 1){
+					waspErrorMessage("jobDraft.noMoreWorkflowPages.error");
+					return "redirect:/dashboard.do";
+				}
 				break;
 			}
 		}
 
-
-		String targetPage = pageFlowArray[found+1] + ".do"; 
-
+		int currentWorkflowIndex = found + 1;
+		String targetPage = pageFlowArray[currentWorkflowIndex] + ".do"; 
 		targetPage = targetPage.replaceAll("\\{n\\}", ""+jobDraft.getId());
+		logger.debug("Next page: " + targetPage);
 
 		return "redirect:" + targetPage;
 	}
@@ -540,15 +544,24 @@ public class JobSubmissionController extends WaspController {
 	 * @param jobDraft
 	 * @return boolean
 	 */
-	@Transactional
 	protected boolean isJobDraftEditable(JobDraft jobDraft){
+		User me = authenticationService.getAuthenticatedUser();
+		return isJobDraftEditable(jobDraft, me);
+	}
+	
+	/**
+	 * Returns true if the current logged in user is the job drafter, the jobDraft status is pending
+	 * and the jobDraft object is not null and has a not-null jobDraftId
+	 * @param jobDraft
+	 * @return boolean
+	 */
+	protected boolean isJobDraftEditable(JobDraft jobDraft, User me){
 		if (jobDraft == null || jobDraft.getId() == null){
 			waspErrorMessage("jobDraft.jobDraft_null.error");
 			return false;
 		}
 		
 		// check if i am the drafter
-		User me = authenticationService.getAuthenticatedUser();
 		if (me.getId().intValue() != jobDraft.getUserId().intValue()) {
 			waspErrorMessage("jobDraft.user_incorrect.error");
 			return false;
@@ -561,7 +574,7 @@ public class JobSubmissionController extends WaspController {
 		}
 		return true;
 	}
-
+	
 	@Transactional
 	@RequestMapping(value="/modify/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
@@ -1241,47 +1254,54 @@ public class JobSubmissionController extends WaspController {
 			fileService.removeUploadedFileFromJobDraft(jobDraftId, fileGroupId, fileHandleId);
 			waspMessage("jobDraft.upload_file_removed.label");
 		}catch (FileNotFoundException e){
-			logger.debug(e.getMessage());
+			logger.warn("Cannot remove file from jobdraft (id=" + jobDraftId + ") where fileGroupId=" + fileGroupId + " and fileHandleId=" + fileHandleId + " : " + e.getMessage());
 			waspErrorMessage("jobDraft.upload_file_removal_failed.label");
 		}
 		return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
 	}
 
 	
-	@Transactional
 	@RequestMapping(value="/samples/{jobDraftId}", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
-	public String submitSampleDraftList(
-			@PathVariable("jobDraftId") Integer jobDraftId, 
-			@RequestParam("file_description") List<String> fileDescriptions,
-			@RequestParam("file_upload") List<MultipartFile> mpFiles) {
-		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
-		if (! isJobDraftEditable(jobDraft))
-			return "redirect:/dashboard.do";
+	public Callable<String> submitSampleDraftList(
+			@PathVariable("jobDraftId") final Integer jobDraftId, 
+			@RequestParam("file_description") final List<String> fileDescriptions,
+			@RequestParam("file_upload") final List<MultipartFile> mpFiles) {
+		final JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		
-		Random randomNumberGenerator = new Random(System.currentTimeMillis());
-		
-		if (mpFiles != null){
-			int fileCount = -1;
-			for (MultipartFile mpFile: mpFiles){
-				fileCount++;
-				if (mpFile.isEmpty())
-					continue;
-				try{
-					fileService.uploadJobDraftFile(mpFile, jobDraft, fileDescriptions.get(fileCount), randomNumberGenerator);//uploads file and performs database updates
-					//////FileGroup group = fileService.processUploadedFile(mpFile, jobDraft, fileDescriptions.get(fileCount), randomNumberGenerator);
-					//////fileService.linkFileGroupWithJobDraft(group, jobDraft);
-				} catch(FileUploadException e){
-					logger.warn(e.getMessage());
-					waspErrorMessage("jobDraft.upload_file.error");
+		final User me = authenticationService.getAuthenticatedUser(); // need to do this here as no access to SecurityContextHolder off the main thread
+		return new Callable<String>() {
+
+			@Override
+			public String call() throws Exception {
+				if (! isJobDraftEditable(jobDraft, me))
+					return "redirect:/dashboard.do";
+				
+				Random randomNumberGenerator = new Random(System.currentTimeMillis());
+				
+				if (mpFiles != null){
+					int fileCount = -1;
+					for (MultipartFile mpFile: mpFiles){
+						fileCount++;
+						if (mpFile.isEmpty())
+							continue;
+						try{
+							fileService.uploadJobDraftFile(mpFile, jobDraft, fileDescriptions.get(fileCount), randomNumberGenerator);//uploads file and performs database updates
+						} catch(Exception e){
+							logger.warn(e.getMessage());
+							e.printStackTrace();
+							waspErrorMessage("jobDraft.upload_file.error");
+						}
+					}
 				}
+				if (jobDraft.getSampleDraft().isEmpty()){
+					waspErrorMessage("jobDraft.noSamples.error");
+					return "redirect:/jobsubmit/samples/"+jobDraftId+".do"; 
+				}
+				return nextPage(jobDraft);
 			}
-		}
-		if (jobDraft.getSampleDraft().isEmpty()){
-			waspErrorMessage("jobDraft.noSamples.error");
-			return "redirect:/jobsubmit/samples/"+jobDraftId+".do"; 
-		}
-		return nextPage(jobDraft);
+		};
+		
 	}
 	
 	@Transactional
@@ -1960,45 +1980,81 @@ public class JobSubmissionController extends WaspController {
 
 	@RequestMapping(value="/submit/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
-	public String submitJob(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
-		User me = authenticationService.getAuthenticatedUser();
+	public Callable<String> submitJob(@PathVariable("jobDraftId") final Integer jobDraftId, final ModelMap m) {
+		final User me = authenticationService.getAuthenticatedUser(); // need to do this here as no access to SecurityContextHolder off the main thread
+		
+		// Use asynchronous request processing to handle the business logic here as job submission process make take a few secs due to daemon delays
+		// and we should do this work on a separate thread to free up the servlet for other tasks.
+		// NOTE 1: As for all anonymous inner classes, the variables passed in MUST be final to prohibit object re-assignment.
+		// NOTE 2: As we use the security context when writing pages, we must use 'redirect' when returning the destination page. 
+		return new Callable<String>() {
+
+			@Override
+			public String call() throws Exception {
+				
+				JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+				boolean error = false;
+				if (! isJobDraftEditable(jobDraft, me))
+					return "redirect:/dashboard.do";
+				Job newJob = null;
+				try {
+					newJob = jobService.createJobFromJobDraft(jobDraft, me);
+					if(newJob==null || newJob.getId()==null || newJob.getId().intValue()<=0){
+						logger.warn("Error creating new job");
+						waspErrorMessage("jobDraft.createJobFromJobDraft.error");
+						error = true;
+					} 
+				} catch (FileMoveException e) {
+					logger.warn(e.getMessage());
+					waspErrorMessage("jobDraft.createJobFromJobDraft.error");
+					error = true;
+				} catch (MessagingException e) {
+					logger.warn(e.getMessage());
+					waspErrorMessage("jobDraft.createJobFromJobDraft.error");
+					error = true;
+				} catch (Exception e){
+					logger.warn("Caught unknown exception: " + e.getMessage());
+					waspErrorMessage("jobDraft.createJobFromJobDraft.error");
+					error = true;
+				}
+				if(error){
+					// need to re-direct here and provide a function to handle the request mapping rather than simply going 
+					// to 'jobsubmit/failed' as we used to.
+					// This is because there is no access to the security context within a Callable thread which is required when creating new page).
+					// By re-directing we return back to the main servlet thread again and all is well with accessing security information.
+					return "redirect:/jobsubmit/failed/" + jobDraftId + ".do";
+				}
+				return nextPage(jobDraft); // no Security Context problem as evaluates to a redirected link e.g 'redirect:/submitjob/ok.do'
+			}
+		};
+		
+	}
+	
+	@RequestMapping(value="/failed/{jobDraftId}.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String failed(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
-		boolean error = false;
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
-		Job newJob = null;
-		try {
-			newJob = jobService.createJobFromJobDraft(jobDraft, me);
-			if(newJob==null || newJob.getId()==null || newJob.getId().intValue()<=0){
-				logger.warn("Error creating new job");
-				waspErrorMessage("jobDraft.createJobFromJobDraft.error");
-				error = true;
-			} 
-		} catch (FileMoveException e) {
-			logger.warn(e.getMessage());
-			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
-			error = true;
-		} catch (MessagingException e) {
-			logger.warn(e.getMessage());
-			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
-			error = true;
-		} catch (Exception e){
-			logger.warn("Caught unknown exception: " + e.getMessage());
-			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
-			error = true;
-		}
-		if(error){
-			m.put("jobDraft", jobDraft);
-			return "jobsubmit/failed";
-		}
-		
-		// Adds new Job to Authorized List
-		doReauth();
+		m.put("jobDraft", jobDraft);
 
-		return nextPage(jobDraft);//currently goes do submitjob/ok
+		List <SampleDraft> sampleDraftList = jobDraft.getSampleDraft();
+		m.put("sampleDraft", sampleDraftList);
+        m.put("pageFlowMap", getPageFlowMap(jobDraft));
+		return "jobsubmit/failed";
 	}
 
-
+	@RequestMapping(value="/ok.do", method=RequestMethod.GET)
+	public String ok(ModelMap m){
+		// need this function as using Callable (no access to security context within Callable thread)
+		doReauth();
+		return "redirect:/jobsubmit/complete.do"; // must insert a redirect to ensure using updated SecurityContextHolder
+	}
+	
+	@RequestMapping(value="/complete.do", method=RequestMethod.GET)
+	public String complete(ModelMap m){
+		return "jobsubmit/ok";
+	}
 	
 	
 	

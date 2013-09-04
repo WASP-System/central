@@ -110,7 +110,7 @@
 	<int:channel id="wasp.channel.batch.success" />
 	
 	<int:router id="splitSuccessAndNotifyAbortMessages" input-channel="wasp.channel.batch">
-		<bean id="successOrFailureRouter" class="edu.yu.einstein.wasp.integration.routers.SuccessOrAbortMessageRouter">
+		<bean id="successOrFailureRouter" class="edu.yu.einstein.wasp.integration.endpoints.SuccessOrAbortMessageRouter">
 			<constructor-arg name="successChannel" ref="wasp.channel.batch.success" />
 			<constructor-arg name="abortChannel" ref="wasp.channel.notification.abort" />
 		</bean>
@@ -119,11 +119,11 @@
 	<int:publish-subscribe-channel id="wasp.channel.notification.run.success" />
 	
 	<int:filter input-channel="wasp.channel.notification.run" output-channel="wasp.channel.notification.run.success" >
-		<bean class="edu.yu.einstein.wasp.integration.filters.RunSuccessFilter" />
+		<bean class="edu.yu.einstein.wasp.integration.endpoints.RunSuccessFilter" />
 	</int:filter>
 		
 	<int:splitter input-channel="wasp.channel.notification.run.success" output-channel="wasp.channel.batch">
-		<bean class="edu.yu.einstein.wasp.integration.splitters.RunSuccessSplitter" />
+		<bean class="edu.yu.einstein.wasp.integration.endpoints.RunSuccessSplitter" />
 	</int:splitter>
 		
 	

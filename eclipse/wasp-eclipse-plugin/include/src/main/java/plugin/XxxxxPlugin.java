@@ -27,6 +27,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspJobParameters; ///// PIP RE
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;  ///// PIP RES
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.FileGroup; ///// VIZ
+import edu.yu.einstein.wasp.model.Software;  ///// VIZ
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;  ///// PIP RES
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WebInterfacing; ///// FORM RES
@@ -141,22 +142,15 @@ public class ___Pluginname___Plugin extends WaspPlugin
 		return id;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getBatchJobNameByArea(String batchJobType, String area){ 
-		if (batchJobType.equals(BatchJobTask.GENERIC)) 
-			return FLOW_NAME;
-		return null;
-	}
 
 	/** 
 	 * {@inheritDoc}
 	 */
 	@Override
 	public String getBatchJobName(String batchJobType) {
-		return getBatchJobNameByArea(batchJobType, null);
+		if (batchJobType.equals(BatchJobTask.GENERIC)) 
+			return FLOW_NAME;
+		return null;
 	}
 	
 ////<
@@ -184,6 +178,12 @@ public class ___Pluginname___Plugin extends WaspPlugin
 	 */
 	@Override
 	public PanelTab getViewPanelTab(FileGroup fileGroup) throws PanelException {
+		return null;
+	}
+	
+	@Override
+	public Software getSoftware() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 	

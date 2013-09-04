@@ -18,7 +18,14 @@
   
   <context:annotation-config/>
   
-   
+   <!--<bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />-->
+
+	<bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="${wasp.batch.corePoolSize:5}" />
+		<property name="maxPoolSize" value="${wasp.batch.maxPoolSize:10000}" />
+		<property name="keepAliveSeconds" value="${wasp.batch.keepAliveSeconds:60}" />
+		<property name="queueCapacity" value="${wasp.batch.queueCapacity:0}" />
+	</bean>
   
   <!-- mail configuration -->
   <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">

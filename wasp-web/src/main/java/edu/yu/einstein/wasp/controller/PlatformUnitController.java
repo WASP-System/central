@@ -953,7 +953,7 @@ public class PlatformUnitController extends WaspController {
 			return;
 		}
 		try{
-			sampleService.addLibraryToCell(cellSample, librarySample, libConcInCellPicoMFloat);
+			sampleService.addLibraryToCell(cellSample, librarySample, libConcInCellPicoMFloat, job);
 		} catch(SampleTypeException ste){
 			waspErrorMessage("platformunit.sampleType.error");
 			logger.warn(ste.getMessage()); // print more detailed error to warn logs

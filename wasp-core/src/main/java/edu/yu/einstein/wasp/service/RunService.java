@@ -67,6 +67,7 @@ public interface RunService extends WaspMessageHandlingService {
 	/**
 	 * Sets up a sequencing run and sends a message via RMI to the wasp-daemon to initiate sequencing run flow
 	 * @param run
+	 * @throws WaspMessageBuildingException 
 	 */
 	public void initiateRun(Run run);
 
@@ -200,6 +201,7 @@ public interface RunService extends WaspMessageHandlingService {
 	 * save and initiate a run
 	 * @param run
 	 * @return
+	 * @throws WaspMessageBuildingException 
 	 */
 	public Run updateAndInitiateRun(Run run);
 

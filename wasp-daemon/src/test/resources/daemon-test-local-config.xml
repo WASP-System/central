@@ -32,7 +32,7 @@
 	<import resource="daemon-test-persistence-config.xml" />
 	
 		
-	
+	<bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />
 	
 	
 	

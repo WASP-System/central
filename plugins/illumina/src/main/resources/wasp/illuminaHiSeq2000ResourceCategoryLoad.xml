@@ -9,22 +9,18 @@
         http://www.springframework.org/schema/context/spring-context-3.1.xsd"
     default-autowire="byName">
     
-  <bean id="illuminaHiSeq2000Area" class="java.lang.String">
-  	<constructor-arg><value>illuminaHiSeq2000</value></constructor-arg>
-  </bean>
-
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="illuminaHiSeq2000UiFieldWrapper">
     <property name="baseLocale" value="en_US" />
-    <property name="baseArea" ref="illuminaHiSeq2000Area" />
+    <property name="baseArea" value="#{illuminaResourceCategory.HISEQ_2000}" />
   </bean>
 
   <bean id="illuminaHiSeq2000" class="edu.yu.einstein.wasp.load.ResourceCategoryLoaderAndFactory">
     <property name="name" value="Illumina HiSeq 2000" />
-    <property name="area" ref="illuminaHiSeq2000Area" />
+    <property name="area" value="#{illuminaResourceCategory.HISEQ_2000}" />
     <property name="resourceType" ref="mpsResourceType" />
 	 <property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" ref="illuminaHiSeq2000Area" />
+         <property name="area" value="#{illuminaResourceCategory.HISEQ_2000}" />
          <property name="metaList">
          	<list>
          		<value>allowableUiField.readLength=50:50;75:75;100:100;150:150</value>

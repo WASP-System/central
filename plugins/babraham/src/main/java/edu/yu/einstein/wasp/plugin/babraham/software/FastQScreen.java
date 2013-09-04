@@ -15,8 +15,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.GridException;
-import edu.yu.einstein.wasp.fileformat.plugin.FastqComparator;
-import edu.yu.einstein.wasp.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
@@ -26,6 +24,8 @@ import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamQCParseModule;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
+import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqComparator;
+import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
@@ -40,9 +40,9 @@ public class FastQScreen extends SoftwarePackage {
 	@Autowired
 	private FastqService fastqService;
 	
-	// cannot autowire as IlluminaSequenceRunProcessor here which is all we really need. Beans referenced by base type so must
+	// cannot autowire as IlluminaHiseqSequenceRunProcessor here which is all we really need. Beans referenced by base type so must
 	// as Software and use @Qualifier to specify the casava bean. 
-	// Seems to be an issue for batch but not Web which accepts IlluminaSequenceRunProcessor.
+	// Seems to be an issue for batch but not Web which accepts IlluminaHiseqSequenceRunProcessor.
 	@Autowired
 	@Qualifier("casava")
 	private Software casava;
@@ -76,26 +76,9 @@ public class FastQScreen extends SoftwarePackage {
 	 * 
 	 */
 	public FastQScreen() {
-		// TODO Auto-generated constructor stub
+		setSoftwareVersion("0.4.1"); // this default may be overridden in wasp.site.properties
 	}
 
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getSoftwareVersion() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setSoftwareVersion(String softwareVersion) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	public WorkUnit getFastQScreen(Integer fileGroupId) {
 		WorkUnit w = new WorkUnit();

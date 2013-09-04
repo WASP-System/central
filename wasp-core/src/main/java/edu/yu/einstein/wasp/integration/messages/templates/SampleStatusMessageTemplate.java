@@ -17,7 +17,7 @@ public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate{
 	
 	public SampleStatusMessageTemplate(Integer sampleId){
 		super();
-		setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.SAMPLE);
+		addHeader(WaspMessageType.HEADER_KEY, WaspMessageType.SAMPLE);
 		setSampleId(sampleId);
 	}
 	
@@ -34,7 +34,7 @@ public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate{
 	}
 
 	public void setSampleId(Integer sampleId) {
-		setHeader(WaspJobParameters.SAMPLE_ID, sampleId);
+		addHeader(WaspJobParameters.SAMPLE_ID, sampleId);
 	}
 	
 	
