@@ -29,8 +29,44 @@ update site (http://waspsystem.org/eclipse):
 Creating a New Wasp System Plugin Project
 *****************************************
 
+From the STS menu bar select *File* -> *New* -> *Project* -> *WASP Plugin* -> *WASP Plugin Project* and click *Next*. Fill in the Project information 
+as requested and configure the project by selecting the desire features (:num:`figure #fig-configureProj`):
+
+.. _fig-configureProj
+ 
+.. figure:: figures/configureWaspProj.png 
+   :width: 14cm
+   :align: center
+   
+   Configuration of a new wasp plugin.
 
 
-In the STS select the *Help* menu
+* Web forms:
+	Sets up the project to aid with producing a plugin that is web-enabled. Provides a folder structure, configuration files and classes necessary to interact
+	with the *wasp-web* application. Check this option if providing a resource such as a DNA sequencer, an assay workflow, or software for primary analysis 
+	where user parameter selection / configuration is possible.
+	
+* Resource:
+	Checking this option adds files and folders that help with developing a plugin that provides a resource (particularly software).
+	
+* Pipeline:
+	This option should be checked if the plugin is going to provide one or more Spring Batch Workflows. It ensures inclusion of necessary configuration files
+	and a suitable folder structure.
+	
+* Visualization:
+	If a plugin is designed to provide visualizations, e.g. present plots of data or a table of information, ensure that this item is checked.
+	
+
+After configuring the project click *finish* and the project will be built and appear in the *Package Explorer* on the left-hand side of the Eclipse IDE 
+(:num:`figure #fig-picardProjStructure`).
+
+.. _fig-picardProjStructure
+
+.. figure:: figures/fig-picardProjStructure.png
+   :width: 10cm
+   :align: center
+   
+   Example project folder structure (all configuration options checked).
+
 
 
