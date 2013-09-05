@@ -125,13 +125,37 @@
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;">
 				
 					<c:choose>
-					<c:when test='${libraryCost.getLibraryCost()=="" || libraryCost.getLibraryCost().matches("[0-9]+")}'>
+					
+						<c:when test='${not empty libraryCost.getReasonForNoLibraryCost()}'>
+							<c:out value="${libraryCost.getReasonForNoLibraryCost()}" />
+							<input type='hidden' name="reasonForNoLibraryCost" value="${libraryCost.getReasonForNoLibraryCost()}"/>
+							<input type='hidden' name="submittedSampleCost" value="${libraryCost.getLibraryCost()}"/>							
+						</c:when>
+						
+						<c:when test='${empty libraryCost.getLibraryCost()}'>
+							<input type='hidden' name="reasonForNoLibraryCost" value="${libraryCost.getReasonForNoLibraryCost()}"/>
+							<c:out value="${localCurrencyIcon}" /><input style="text-align:right;" name="submittedSampleCost" type="text" maxlength="4" size="4" value="" />.00
+						</c:when>
+						
+						
+						<c:when test='${not empty libraryCost.getLibraryCost()}'>
+							<input type='hidden' name="reasonForNoLibraryCost" value="${libraryCost.getReasonForNoLibraryCost()}"/>
+							<c:out value="${localCurrencyIcon}" /><input style="text-align:right;" name="submittedSampleCost" type="text" maxlength="4" size="4" value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${libraryCost.getLibraryCost()}" />"/>.00
+						</c:when>
+						
+					</c:choose>	
+					
+					
+					<%-- 
+					
+						<c:when test='${libraryCost.getLibraryCost()=="" || libraryCost.getLibraryCost().matches("[0-9]+")}'>
 								<c:out value="${localCurrencyIcon}" /><input style="text-align:right;" name="submittedSampleCost" type="text" maxlength="4" size="4" value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${libraryCost.getLibraryCost()}" />"/>.00
 						</c:when>
 						<c:otherwise>
 							<c:out value="${libraryCost.getLibraryCost()}" />
 							<input type='hidden' name="submittedSampleCost" value="${libraryCost.getLibraryCost()}"/></c:otherwise>
-					</c:choose>					
+					</c:choose>
+					--%>					
 				</td>
 			</tr>
 		</c:forEach>
@@ -180,7 +204,7 @@
 		<c:forEach items="${mpsQuote.getSequencingCosts()}" var="sequencingCost" >
 			<tr>
 				<td align='center'>	
-					<select name='resourceCategoryId' id='resourceCategoryId' size='1'>
+					<select name='runCostResourceCategoryId' id='runCostResourceCategoryId' size='1'>
 						<option value=''>--SELECT--
 						<c:forEach items="${sequencingMachines}" var="resourceCategory">
 							<c:set value="" var="selected" />
@@ -202,7 +226,7 @@
 	<c:otherwise>
 		<tr>
 			<td align='center'>
-				<select name='resourceCategoryId' id='resourceCategoryId' size='1'>
+				<select name='runCostResourceCategoryId' id='runCostResourceCategoryId' size='1'>
 					<option value=''>--SELECT--
 					<c:forEach items="${sequencingMachines}" var="resourceCategory">						
 						<option value='<c:out value="${resourceCategory.getId()}" />' ><c:out value="${resourceCategory.getName()}" />

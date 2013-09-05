@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-<br /><br />
+
 <%-- <h1><a  href="<c:url value="/job/${job.jobId}/homepage.do" />">JobID J<c:out value="${job.jobId}" /></a>: <c:out value="${job.getName()}" /></h1>	--%>
 <h1>JobID J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" /></h1>
 <%-- these dialog areas are not displayed until called --%>

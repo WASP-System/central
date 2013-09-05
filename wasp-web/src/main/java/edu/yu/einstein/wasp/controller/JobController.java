@@ -1127,56 +1127,6 @@ public class JobController extends WaspController {
 			return "job/home/message";
 		}
 		
-		//8-30-13
- 		//if there is no existing quote (for the moment there is none)
- 		MPSQuote mpsQuote = new MPSQuote(job);
- 		List<LibraryCost> libraryCosts = mpsQuote.getLibraryCosts();
- 		int numberOfLibrariesExpectedToBeConstructed = 0;
- 		for(Sample s : jobService.getSubmittedSamples(job)){
- 			
- 			String cost = "";
- 			if(s.getSampleType().getIName().toLowerCase().equals("library")){
- 				cost = "N/A";
- 			}
- 			else if(sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(s)).equalsIgnoreCase("withdrawn")){
- 				cost = "Withdrawn";
- 			}
- 			else{
- 				numberOfLibrariesExpectedToBeConstructed++;
- 			}
-  			LibraryCost libraryCost = new LibraryCost(s, s.getName(), s.getSampleType().getName(), cost, "");
- 			libraryCosts.add(libraryCost);
- 		}
- 		mpsQuote.setLocalCurrencyIcon(Currency.getInstance(Locale.getDefault()).getSymbol());
- 		mpsQuote.setNumberOfLibrariesExpectedToBeConstructed(new Integer(numberOfLibrariesExpectedToBeConstructed));
- 		mpsQuote.setNumberOfLanesRequested(new Integer(job.getJobCellSelection().size()));
- 		
- /*		
-		List<SequencingCost> sequencingCosts = mpsQuote.getSequencingCosts();
-		//fake testing data only
-		sequencingCosts.add(new SequencingCost(sequencingMachines.get(0), new Integer(50), "Single", new Integer(2), new Float(1000), "Error In Row"));
-		sequencingCosts.add(new SequencingCost(sequencingMachines.get(1), new Integer(50), "Single", new Integer(1), new Float(1000)));
-		sequencingCosts.add(new SequencingCost(sequencingMachines.get(2), new Integer(50), "Single", new Integer(1), new Float(500)));
-		m.addAttribute("numberOfLanesRequested", job.getJobCellSelection().size());
-		
-		List<AdditionalCost> additionalCosts = mpsQuote.getAdditionalCosts();
-		//fake test data
-		additionalCosts.add(new AdditionalCost("Additional Multiplex Fee", new Integer(1), new Float(50)));
-		additionalCosts.add(new AdditionalCost("Bioanalyzer Fee", new Integer(6), new Float(20), "Error In Row"));
-		
-		List<Discount> discounts = mpsQuote.getDiscounts();
-		//fake test data
-		discounts.add(new Discount("Institutional Cost Share", "%", new Float(25)));
-		discounts.add(new Discount("Facility Discount", "$", new Float(100), "Error In Row"));
-		
-		
-		List<Comment> comments = mpsQuote.getComments();
-		//fake test data
-		comments.add(new Comment("Here's my first comment; how do you like it??", "Error In Row"));
-		comments.add(new Comment("This is my second comment!!"));
-*/
-		m.addAttribute("mpsQuote", mpsQuote);
-		
 		//list to populate dropdown
  		ResourceType resourceType = resourceService.getResourceTypeDao().getResourceTypeByIName("mps");
  		List<ResourceCategory>  sequencingMachines = new ArrayList<ResourceCategory>();
@@ -1201,10 +1151,62 @@ public class JobController extends WaspController {
 		discountTypes.add("%");
 		discountTypes.add(Currency.getInstance(Locale.getDefault()).getSymbol());
 		m.addAttribute("discountTypes", discountTypes);
- 		 
+ 	
+		//8-30-13
+ 		//if there is no existing quote (for the moment there is none)
+ 		MPSQuote mpsQuote = new MPSQuote(job);
+ 		List<LibraryCost> libraryCosts = mpsQuote.getLibraryCosts();
+ 		int numberOfLibrariesExpectedToBeConstructed = 0;
+ 		for(Sample s : jobService.getSubmittedSamples(job)){
+ 			
+ 			String reasonForNoLibraryCost = "";
+ 			if(s.getSampleType().getIName().toLowerCase().equals("library")){
+ 				reasonForNoLibraryCost = "N/A";
+ 			}
+ 			else if(sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(s)).equalsIgnoreCase("withdrawn")){
+ 				reasonForNoLibraryCost = "Withdrawn";
+ 			}
+ 			else{
+ 				numberOfLibrariesExpectedToBeConstructed++;
+ 			}
+ 			LibraryCost libraryCost = null;
+ 			if(reasonForNoLibraryCost.isEmpty()){
+ 				libraryCost = new LibraryCost(s, s.getName(), s.getSampleType().getName(), reasonForNoLibraryCost, null, "");
+ 			}
+ 			else{
+ 				libraryCost = new LibraryCost(s, s.getName(), s.getSampleType().getName(), reasonForNoLibraryCost, new Float(0.0), "");
+ 			}
+ 			libraryCosts.add(libraryCost);
+ 		}
+ 		mpsQuote.setLocalCurrencyIcon(Currency.getInstance(Locale.getDefault()).getSymbol());
+ 		mpsQuote.setNumberOfLibrariesExpectedToBeConstructed(new Integer(numberOfLibrariesExpectedToBeConstructed));
+ 		mpsQuote.setNumberOfLanesRequested(new Integer(job.getJobCellSelection().size()));
  		
  		
- 		
+		List<SequencingCost> sequencingCosts = mpsQuote.getSequencingCosts();
+		//fake testing data only
+		sequencingCosts.add(new SequencingCost(sequencingMachines.get(0), new Integer(50), "Single", new Integer(2), new Float(1000), "Error In Row"));
+		sequencingCosts.add(new SequencingCost(sequencingMachines.get(1), new Integer(50), "Single", new Integer(1), new Float(1000)));
+		sequencingCosts.add(new SequencingCost(sequencingMachines.get(2), new Integer(50), "Single", new Integer(1), new Float(500)));
+		m.addAttribute("numberOfLanesRequested", job.getJobCellSelection().size());
+		
+		List<AdditionalCost> additionalCosts = mpsQuote.getAdditionalCosts();
+		//fake test data
+		additionalCosts.add(new AdditionalCost("Additional Multiplex Fee", new Integer(1), new Float(50)));
+		additionalCosts.add(new AdditionalCost("Bioanalyzer Fee", new Integer(6), new Float(20), "Error In Row"));
+		
+		List<Discount> discounts = mpsQuote.getDiscounts();
+		//fake test data
+		discounts.add(new Discount("Institutional Cost Share", "%", new Float(25)));
+		discounts.add(new Discount("Facility Discount", "$", new Float(100), "Error In Row"));
+		
+		List<Comment> comments = mpsQuote.getComments();
+		//fake test data
+		comments.add(new Comment("Here's my first comment; how do you like it??", "Error In Row"));
+		comments.add(new Comment("This is my second comment!!"));
+
+		m.addAttribute("mpsQuote", mpsQuote);
+	 		
 		return "job/home/createQuoteOrInvoice";
 	}
 	
@@ -1514,20 +1516,18 @@ public class JobController extends WaspController {
 	@RequestMapping(value="/{jobId}/saveQuote", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
 	public void jobSaveQuote(@PathVariable("jobId") Integer jobId,
-			  @RequestParam("submittedObjectId") List<Integer> submittedObjectIdList,
-			  ModelMap m, HttpServletRequest request, HttpServletResponse response) throws SampleTypeException {
+			   ModelMap m, HttpServletRequest request, HttpServletResponse response) throws SampleTypeException {
 
-		previewOrSaveQuote(jobId, submittedObjectIdList, m, request, response, "save");
+		previewOrSaveQuote(jobId, m, request, response, "save");
 			
 	}
 	
 	@RequestMapping(value="/{jobId}/previewQuote", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
 	public void jobPreviewQuote(@PathVariable("jobId") Integer jobId,
-			  @RequestParam("submittedObjectId") List<Integer> submittedObjectIdList,
 			  ModelMap m, HttpServletRequest request, HttpServletResponse response) throws SampleTypeException {
 
-		previewOrSaveQuote(jobId, submittedObjectIdList, m, request, response, "preview");
+		previewOrSaveQuote(jobId, m, request, response, "preview");
 	}
 	
 	public static final Font BIG_BOLD =  new Font(FontFamily.TIMES_ROMAN, 13, Font.BOLD );
@@ -1535,7 +1535,7 @@ public class JobController extends WaspController {
 	public static final Font NORMAL_BOLD =  new Font(FontFamily.TIMES_ROMAN, 11, Font.BOLD );
 	public static final Font TINY_BOLD =  new Font(FontFamily.TIMES_ROMAN, 8, Font.BOLD );
 	
-	private void previewOrSaveQuote(Integer jobId, List<Integer> submittedObjectIdList, ModelMap m, 
+	private void previewOrSaveQuote(Integer jobId, ModelMap m, 
 			  HttpServletRequest request, HttpServletResponse response, String previewOrSave) throws SampleTypeException {
 		
 		String headerHtml = "<html><body><h2 style='color:red;font-weight:bold;'>Errors Detected</h2>";
@@ -1554,23 +1554,78 @@ public class JobController extends WaspController {
 		   	}catch(Exception e){logger.warn(e.getMessage()); return; }
 		}
 		
+		MPSQuote mpsQuote = new MPSQuote(job);
+		try{
+			mpsQuote.setNumberOfLanesRequested(new Integer(request.getParameter("numberOfLanesRequested")));
+			mpsQuote.setNumberOfLibrariesExpectedToBeConstructed(new Integer(request.getParameter("numberOfLibrariesExpectedToBeConstructed")));
+			mpsQuote.setLocalCurrencyIcon(request.getParameter("localCurrencyIcon"));
+		}catch(Exception e){
+			errorMessage = "Unexpected problem interpreting numberOfLanesRequested or numberOfLibrariesExpectedToBeConstructed";
+			try{
+		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+		   		return;
+			}catch(Exception e2){logger.warn(e2.getMessage()); return;}
+		}
+		
 		//b. here deal with unexpected submitted sample errors (sample not in database; sample not in job, both very unexpected)
+		String param = "submittedSampleId";
+		String [] submittedSampleIdAsStringArray = request.getParameterValues(param);
+		param = "submittedSampleCost";
+		String [] submittedSampleCostAsStringArray = request.getParameterValues(param);
+		param = "submittedSampleName";
+		String [] submittedSampleNameArray = request.getParameterValues(param);		
+		param = "submittedSampleMaterial";
+		String [] submittedSampleMaterialArray = request.getParameterValues(param);
+		param = "reasonForNoLibraryCost";
+		String [] submittedSampleReasonForNoLibraryCostArray = request.getParameterValues(param);
+		
+		if( submittedSampleIdAsStringArray==null || submittedSampleCostAsStringArray==null || submittedSampleNameArray==null || submittedSampleMaterialArray==null || submittedSampleReasonForNoLibraryCostArray==null){
+			errorMessage = "Unexpected problem interpreting submitted sample information";
+			try{
+		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+		   		return;
+			}catch(Exception e){logger.warn(e.getMessage()); return;}
+		}
+		int numberOfSubmittedSampleRows = submittedSampleIdAsStringArray.length;
+		if(numberOfSubmittedSampleRows != submittedSampleCostAsStringArray.length && numberOfSubmittedSampleRows!= submittedSampleNameArray.length && numberOfSubmittedSampleRows != submittedSampleMaterialArray.length && numberOfSubmittedSampleRows != submittedSampleReasonForNoLibraryCostArray.length){
+			errorMessage = "Unexpected problem interpreting submitted sample information";
+			try{
+		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+		   		return;
+			}catch(Exception e){logger.warn(e.getMessage()); return;}
+		}
 		List<Sample>  allJobSamplesList = job.getSample();//all samples in this job (from the database)
 		
-		List<Sample> submittedObjectList = new ArrayList<Sample>();
-		for(Integer submittedObjectId : submittedObjectIdList){
-			Sample submittedObject = sampleService.getSampleById(submittedObjectId);
-			if(submittedObject.getId()==null){
-				errorMessage += "<br />Unexpected Problem: Submitted sample (ID: " + submittedObjectId.intValue() + ") unexpectedly not found in database";
-			}
-			else if(!allJobSamplesList.contains(submittedObject)){
-				errorMessage += "<br />Unexpected Problem: Submitted sample (ID: " + submittedObjectId.intValue() + ") unexpectedly not part of this job";
+		List<Sample> submittedSampleList = new ArrayList<Sample>();
+		for(String submittedSampleIdAsString : submittedSampleIdAsStringArray){
+			Integer sampleId = null;
+			try{
+				sampleId = new Integer(submittedSampleIdAsString);
+			}catch(Exception e){
+				errorMessage += "<br />Unexpected Problem: Submitted sample (ID: " + submittedSampleIdAsString + ") unexpectedly not a number";
+				continue;
 			}			
-			submittedObjectList.add(submittedObject);		}
+			Sample submittedSample = sampleService.getSampleById(sampleId);
+			if(submittedSample.getId()==null){
+				errorMessage += "<br />Unexpected Problem: Submitted sample (ID: " + sampleId.intValue() + ") unexpectedly not found in database";
+			}
+			else if(!allJobSamplesList.contains(submittedSample)){
+				errorMessage += "<br />Unexpected Problem: Submitted sample (ID: " + sampleId.intValue() + ") unexpectedly not part of this job";
+			}			
+			submittedSampleList.add(submittedSample);		
+		}
+		if(!"".equals(errorMessage)){
+			logger.warn(errorMessage);
+		   	try{
+		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+		   		return;
+		   	}catch(Exception e){logger.warn(e.getMessage()); return;}
+		}
+		
 		
 		//c. here get the runCost parameters and check for highly unexpected errors
-		String param = "runCostMachine";
-		String [] runCostMachineArray = request.getParameterValues(param);
+		param = "runCostResourceCategoryId";
+		String [] runCostResourceCategoryIdAsStringArray = request.getParameterValues(param);
 		param = "runCostReadLength";
 		String [] runCostReadLengthArray = request.getParameterValues(param);
 		param = "runCostReadType";
@@ -1579,7 +1634,7 @@ public class JobController extends WaspController {
 		String [] runCostNumberLanesArray = request.getParameterValues(param);
 		param = "runCostPricePerLane";
 		String [] runCostPricePerLaneArray = request.getParameterValues(param);	
-		if(runCostMachineArray==null || runCostReadLengthArray==null || runCostReadTypeArray==null || 
+		if(runCostResourceCategoryIdAsStringArray==null || runCostReadLengthArray==null || runCostReadTypeArray==null || 
 				runCostNumberLanesArray==null || runCostPricePerLaneArray==null){
 			errorMessage = "Unexpected problem interpreting sequence run information";
 			try{
@@ -1587,7 +1642,7 @@ public class JobController extends WaspController {
 		   		return;
 			}catch(Exception e){logger.warn(e.getMessage()); return;}
 		}			
-		int numberOfRunRows = runCostMachineArray.length;
+		int numberOfRunRows = runCostResourceCategoryIdAsStringArray.length;
 		if(runCostReadLengthArray.length != numberOfRunRows && runCostReadTypeArray.length != numberOfRunRows  &&
 				runCostNumberLanesArray.length != numberOfRunRows && runCostPricePerLaneArray.length != numberOfRunRows ){
 			errorMessage = "Unexpected problem interpreting sequence run information";
@@ -1661,180 +1716,136 @@ public class JobController extends WaspController {
 				commentsList.add(commentsArray[i].trim());
 			}
 		}
-				
+
+		
+
+		
 		//Secondly, deal with expected errors (person left out data on the form or filled in a letter when a number was needed)
 		//1. library construction costs (no empty entries permitted if the submitted sample is a library; must enter 0 if no charge for that library).
-		Map<Sample, Integer> submittedObjectLibraryCostMap = new HashMap<Sample, Integer>();
-		for(Sample submittedObject : submittedObjectList){
-			String param2 = "libraryCost_"+submittedObject.getId().intValue();
-			String value = request.getParameter(param2);
+		////Map<Sample, Integer> submittedObjectLibraryCostMap = new HashMap<Sample, Integer>();
+		List<LibraryCost> libraryCosts = mpsQuote.getLibraryCosts();
+		int counter = 0;
+		for(Sample submittedObject : submittedSampleList){
+			String submittedSampleCostAsString = submittedSampleCostAsStringArray[counter];
+			String reasonForNoLibraryCost = submittedSampleReasonForNoLibraryCostArray[counter];
 			
-			if(value != null){
-				value = value.trim();
+			if(!reasonForNoLibraryCost.trim().isEmpty()){
+				libraryCosts.add(new LibraryCost(submittedObject, submittedSampleNameArray[counter], submittedSampleMaterialArray[counter], reasonForNoLibraryCost, new Float(0.0)  ));
 			}
+			else if(reasonForNoLibraryCost.isEmpty()){
 			
-			if(value==null || "".equals(value)){
-				errorMessage += "<br />No library cost provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero";
-				continue;
+				submittedSampleCostAsString = submittedSampleCostAsString.trim();
+				if(submittedSampleCostAsString.isEmpty()){
+					errorMessage += "<br />No library cost provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero";	
+				}
+				else if(submittedSampleCostAsString.matches("\\D")){//any character in string that is not a digit 
+					errorMessage += "<br />Invalid library cost ("+ submittedSampleCostAsString + ") provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero";
+				}
+				else{				
+					try{					
+						Float libCost = new Float(submittedSampleCostAsString);
+						libraryCosts.add(new LibraryCost(submittedObject, submittedSampleNameArray[counter], submittedSampleMaterialArray[counter], reasonForNoLibraryCost, libCost  ));
+					}catch(Exception e){errorMessage += "<br />Invalid library cost ("+ submittedSampleCostAsString + ") provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero";}
+				}
 			}
-			
-			if(value.matches("\\D")){//any character in string that is not a digit 
-				errorMessage += "<br />Invalid library cost ("+ value + ") provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero";
-			}
-			else{				
-				try{					
-					Integer libCost = new Integer(value);
-					submittedObjectLibraryCostMap.put(submittedObject, libCost);
-				}catch(Exception e){errorMessage += "<br />Invalid library cost ("+ value + ") provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero";}
-			}
+			counter++;
 		}
-				
+
+
 		//2. sequence runs and costs (optional, so an empty row is allowed; it just won't be used in any way)		
-		boolean [] runRowIsCompletelyEmpty = new boolean[numberOfRunRows];
-		boolean [] runRowIsMissingSomething = new boolean[numberOfRunRows];
-		boolean [] runRowIsComplete = new boolean[numberOfRunRows];
-		int numberRunRowsCompletelyEmpty = 0;
-		int numberRunRowsMissingSomething = 0;
-		int numberRunRowsComplete = 0;
-		
-		List<String> machineList = new ArrayList<String>();
-		List<String> readLengthList = new ArrayList<String>();
-		List<String> readTypeList = new ArrayList<String>();
-		List<Integer> numLanesList = new ArrayList<Integer>();
-		List<Integer> pricePerLaneList = new ArrayList<Integer>();
+		List<SequencingCost> sequencingCosts = mpsQuote.getSequencingCosts();
 		
 		for(int i = 0; i < numberOfRunRows; i++){ 
-			if( "".equals(runCostMachineArray[i].trim())	 &&
+			if( "".equals(runCostResourceCategoryIdAsStringArray[i].trim())	 &&
 				"".equals(runCostReadLengthArray[i].trim())	 &&
 				"".equals(runCostReadTypeArray[i].trim())	 &&
 				"".equals(runCostNumberLanesArray[i].trim()) &&
 				"".equals(runCostPricePerLaneArray[i].trim()) ){
-				numberRunRowsCompletelyEmpty++;
-				numberRunRowsMissingSomething++;
-				runRowIsCompletelyEmpty[i]=true;
-				runRowIsMissingSomething[i]=true;
-				runRowIsComplete[i]=false;
 				continue;
 			}
-			if( "".equals(runCostMachineArray[i].trim())    ||
+			if( "".equals(runCostResourceCategoryIdAsStringArray[i].trim())    ||
 				"".equals(runCostReadLengthArray[i].trim())	||
 				"".equals(runCostReadTypeArray[i].trim())	||
 				"".equals(runCostNumberLanesArray[i].trim()) ||
 				"".equals(runCostPricePerLaneArray[i].trim()) ){
 					errorMessage += "<br />Row " +(i+1)+ " in Sequence Run section is missing information - Please review";
+					continue;
 			}
-			Integer numLanes=null;
-			Integer pricePerLane=null;
-			try{
-				if(!"".equals(runCostNumberLanesArray[i].trim())){
-					numLanes = new Integer(runCostNumberLanesArray[i].trim());
+			ResourceCategory resourceCategory = null;
+			if(!runCostResourceCategoryIdAsStringArray[i].trim().isEmpty()){
+				try{
+					resourceCategory = resourceService.getResourceCategoryDao().findById(Integer.parseInt(runCostResourceCategoryIdAsStringArray[i].trim()));
+				}catch(Exception e){
+					errorMessage += "<br />Row " +(i+1)+ " in Sequence Run section: unable to interpret correct sequencing machine - Please review";
 				}
+			}
+			if(resourceCategory != null && resourceCategory.getId()==null){
+				errorMessage += "<br />Row " +(i+1)+ " in Sequence Run section: sequencing machine unexpectedly not found in database.";
+			}
+			
+			
+			Integer readLength = null;
+			Integer numberOfLanes=null;
+			Integer costPerLane=null;
+			try{
+				readLength = new Integer(runCostReadLengthArray[i].trim());
+			}catch(Exception e){errorMessage += "<br />Row " +(i+1)+ " in Sequence Run section is missing information - whole number required for read length";}
+			try{
+				numberOfLanes = new Integer(runCostNumberLanesArray[i].trim());
 			}catch(Exception e){errorMessage += "<br />Row " +(i+1)+ " in Sequence Run section is missing information - whole number required for no. lanes";}
 			try{
-				if(!"".equals(runCostPricePerLaneArray[i].trim())){
-					pricePerLane = new Integer(runCostPricePerLaneArray[i].trim());
-				}
+				costPerLane = new Integer(runCostPricePerLaneArray[i].trim());
 			}catch(Exception e){errorMessage += "<br />Row " +(i+1)+ " in Sequence Run section is missing information - whole number required for cost/lane; if no charge, enter zero";}
-			if(!"".equals(errorMessage)){
-				numberRunRowsMissingSomething++;
-				runRowIsCompletelyEmpty[i]=false;
-				runRowIsMissingSomething[i]=true;
-				runRowIsComplete[i]=false;
-			}
-			else{
-				numberRunRowsComplete++;
-				runRowIsCompletelyEmpty[i]=false;
-				runRowIsMissingSomething[i]=false;
-				runRowIsComplete[i]=true;
-				machineList.add(runCostMachineArray[i].trim());
-				readLengthList.add(runCostReadLengthArray[i].trim());
-				readTypeList.add(runCostReadTypeArray[i].trim());
-				numLanesList.add(numLanes); 
-				pricePerLaneList.add(pricePerLane);
+			if("".equals(errorMessage)){
+				sequencingCosts.add(new SequencingCost(resourceCategory, readLength, runCostReadTypeArray[i].trim(),numberOfLanes, new Float(costPerLane)));
 			}
 		}
-		
+
 		//3. additional costs (optional, so empty rows allowed; it just won't be used in any way)
-		boolean [] additionalCostsCompletelyEmpty = new boolean[numberOfAdditionalCostRows];
-		boolean [] additionalCostsIsMissingSomething = new boolean[numberOfAdditionalCostRows];
-		boolean [] additionalCostsIsComplete = new boolean[numberOfAdditionalCostRows];
-		int numberAdditionalCostsCompletelyEmpty = 0;
-		int numberAdditionalCostsMissingSomething = 0;
-		int numberAdditionalCostsComplete = 0;
-		
-		List<String> additionalCostReasonList = new ArrayList<String>();
-		List<Integer> additionalCostUnitsList = new ArrayList<Integer>();
-		List<Integer> additionalCostPricePerUnitList = new ArrayList<Integer>();
+		List<AdditionalCost> additionalCosts = mpsQuote.getAdditionalCosts();
 
 		for(int i = 0; i < numberOfAdditionalCostRows; i++){
 			if( "".equals(additionalCostReasonArray[i].trim())	 &&
 				"".equals(additionalCostUnitsArray[i].trim())	 &&
 				"".equals(additionalCostPricePerUnitArray[i].trim()) ){
-					numberAdditionalCostsCompletelyEmpty++;
-					numberAdditionalCostsMissingSomething++;
-					additionalCostsCompletelyEmpty[i]=true;
-					additionalCostsIsMissingSomething[i]=true;
-					additionalCostsIsComplete[i]=false;
 					continue;
-			}
+			}			
 			else if( "".equals(additionalCostReasonArray[i].trim())	 ||
 					 "".equals(additionalCostUnitsArray[i].trim())	 ||
 					 "".equals(additionalCostPricePerUnitArray[i].trim()) ){
 						errorMessage += "<br />Row "+(i+1) + " in Additional Costs section is missing information - Please review";
+						continue;
 			}
-			Integer numUnits = null;
-			Integer pricePerUnit = null;
+			Integer numberOfUnits = null;
+			Integer costPerUnit = null;
 			try{
 				if(!"".equals(additionalCostUnitsArray[i].trim())){
-					numUnits = new Integer(additionalCostUnitsArray[i].trim());
+					numberOfUnits = new Integer(additionalCostUnitsArray[i].trim());
 				}
 			}catch(Exception e){errorMessage += "<br />Row "+(i+1) + " in Additional Costs section is missing information - whole number required for units";}
 			try{
 				if(!"".equals(additionalCostPricePerUnitArray[i].trim())){
-					pricePerUnit = new Integer(additionalCostPricePerUnitArray[i].trim());
+					costPerUnit = new Integer(additionalCostPricePerUnitArray[i].trim());
 				}
-			}catch(Exception e){errorMessage += "<br />Row "+(i+1) + " in Additional Costs section is missing information - whole number required for cost/unit; if no charge, enter zero";}
-			if(!"".equals(errorMessage)){
-				numberAdditionalCostsMissingSomething++;
-				additionalCostsCompletelyEmpty[i]=false;
-				additionalCostsIsMissingSomething[i]=true;
-				additionalCostsIsComplete[i]=false;
-			}
-			else{
-				numberAdditionalCostsComplete++;
-				additionalCostsCompletelyEmpty[i]=false;
-				additionalCostsIsMissingSomething[i]=false;
-				additionalCostsIsComplete[i]=true;
-				additionalCostReasonList.add(additionalCostReasonArray[i]);
-				additionalCostUnitsList.add(numUnits);
-				additionalCostPricePerUnitList.add(pricePerUnit);
+			}catch(Exception e){System.out.println("threw the predicted exception"); errorMessage += "<br />Row "+(i+1) + " in Additional Costs section is missing information - whole number required for cost/unit; if no charge, enter zero";}
+			if("".equals(errorMessage)){
+				additionalCosts.add(new AdditionalCost(additionalCostReasonArray[i].trim(), numberOfUnits, new Float(costPerUnit)));
 			}
 		}
-				
-		//4. discounts/credits (optional, so empty rows allowed; it just won't be used in any way)		
-		boolean [] discountsCompletelyEmpty = new boolean[numberOfDiscountRows];
-		boolean [] discountsIsMissingSomething = new boolean[numberOfDiscountRows];
-		boolean [] discountsIsComplete = new boolean[numberOfDiscountRows];
-		int numberDiscountsCompletelyEmpty = 0;
-		int numberDiscountsMissingSomething = 0;
-		int numberDiscountsComplete = 0;
+					
+		//4. discounts/credits (optional, so empty rows allowed; it just won't be used in any way)	
+		
+		List<Discount> discounts = mpsQuote.getDiscounts();
 
 		int cumulativePercentDiscount = 0;
  	    List<String> discountReasonList = new ArrayList<String>();
- 	    Map<String, Integer> discountReasonAbsolutePriceMap = new HashMap<String, Integer>();
- 	    Map<String, Integer> discountReasonPercentMap = new HashMap<String, Integer>();
 
- 		String currencyIcon = Currency.getInstance(Locale.getDefault()).getSymbol();//+String.format("%.2f", price));
+ 		String currencyIcon = mpsQuote.getLocalCurrencyIcon();//Currency.getInstance(Locale.getDefault()).getSymbol();//+String.format("%.2f", price)); 
 
  		for(int i = 0; i < numberOfDiscountRows; i++){
 			if( "".equals(discountReasonArray[i].trim())	 &&
 				"".equals(discountTypeArray[i].trim())	 &&
 				"".equals(discountValueArray[i].trim()) ){
-					numberDiscountsCompletelyEmpty++;
-					numberDiscountsMissingSomething++;
-					discountsCompletelyEmpty[i]=true;
-					discountsIsMissingSomething[i]=true;
-					discountsIsComplete[i]=false;
 					continue;
 			}
 			else if( "".equals(discountReasonArray[i].trim())	 ||
@@ -1842,6 +1853,15 @@ public class JobController extends WaspController {
 					 "".equals(discountValueArray[i].trim()) ){
 						errorMessage += "<br />Row "+(i+1) + " in Discount/Credit section is missing information - Please review";
 			}
+			if(!"".equals(discountReasonArray[i].trim())){
+				if(discountReasonList.contains(discountReasonArray[i].trim())){
+					errorMessage += "<br />Row "+(i+1) + " in Discount/Credit section: Any particular reason for a Discount/Credit may be used only once. ";
+				}
+				else{
+					discountReasonList.add(discountReasonArray[i].trim());
+				}
+			}
+			
 			if(!"".equals(discountTypeArray[i].trim())){
 					if( !currencyIcon.equals(discountTypeArray[i].trim()) && !"%".equals(discountTypeArray[i].trim())){
 						errorMessage += "<br />Row "+(i+1) + " in Discount/Credit section is missing information - you must select either " + currencyIcon + " or %";
@@ -1860,34 +1880,22 @@ public class JobController extends WaspController {
 				}
 			}catch(Exception e){errorMessage += "<br />Row "+(i+1) + " in Discount/Credit section is missing information - enter a whole number for discount; no fractions allowed (example: enter 25 for 25%)";}
 			
-			if(discountReasonList.contains(discountReasonArray[i].trim())){
-				errorMessage += "<br />Row "+(i+1) + " in Discount/Credit section: Any particular reason for a Discount/Credit may be used only once. ";
-			}
-			
-			if(!"".equals(errorMessage)){
-				numberDiscountsMissingSomething++;
-				discountsCompletelyEmpty[i]=false;
-				discountsIsMissingSomething[i]=true;
-				discountsIsComplete[i]=false;
-			}
-			else{
-				numberDiscountsComplete++;
-				discountsCompletelyEmpty[i]=false;
-				discountsIsMissingSomething[i]=false;
-				discountsIsComplete[i]=true;
-				discountReasonList.add(discountReasonArray[i].trim());
-				if("%".equals(discountTypeArray[i].trim())){
-					discountReasonPercentMap.put(discountReasonArray[i].trim(), discountValue);
-				}
-				else{
-					discountReasonAbsolutePriceMap.put(discountReasonArray[i].trim(), discountValue);
-				}
+			if("".equals(errorMessage)){
+				discounts.add(new Discount(discountReasonArray[i].trim(), discountTypeArray[i].trim(), new Float(discountValue)));
 			}
 		}
+ 		
  		if(cumulativePercentDiscount>100){
 			errorMessage += "<br />Cumulative Discount Percent may not exceed 100%";
 		}
- 				
+ 		
+ 		List<Comment> comments = mpsQuote.getComments();
+ 		if(!commentsList.isEmpty()){
+ 			for(String comment : commentsList){
+ 				comments.add(new Comment(comment));
+ 			}
+ 		}
+ 		
  		//if the user input contains errors, inform user and get out of here.
 		if(!"".equals(errorMessage)){
 			logger.warn(errorMessage);
@@ -1922,15 +1930,15 @@ public class JobController extends WaspController {
 	 	    addLetterhead(document, imageLocation, title, justUnderLetterheadLineList);
 	 	    DateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
 	 	    addNoteLine(document, "", dateFormat.format(now));
-	 	    addressTheLetterToSubmitterAndPI(document, job);
-	 	    addNoteLine(document, "Re.: ", "Estimated costs for Job ID " + job.getId());
+	 	    addressTheLetterToSubmitterAndPI(document, mpsQuote.getJob());
+	 	    addNoteLine(document, "Re.: ", "Estimated costs for Job ID " + mpsQuote.getJob().getId());
 	 	    document.add(new LineSeparator());
-	 	    Paragraph jobDetailsParagraph = startJobDetailsParagraphAndAddCommonJobDetails(job);//start new paragraph containing common job details (put the paragraph is NOT added to the document in this method, thus permitting more to be added to it)
-	 	    jobDetailsParagraph = addMPSDetailsToJobDetailsParagraph(job, jobDetailsParagraph);//add msp-specific info to the jobDetails paragraph
+	 	    Paragraph jobDetailsParagraph = startJobDetailsParagraphAndAddCommonJobDetails(mpsQuote.getJob());//start new paragraph containing common job details (put the paragraph is NOT added to the document in this method, thus permitting more to be added to it)
+	 	    jobDetailsParagraph = addMPSDetailsToJobDetailsParagraph(mpsQuote.getJob(), jobDetailsParagraph);//add msp-specific info to the jobDetails paragraph
 	 	    document.add(jobDetailsParagraph);//add the paragraph to the document
 	 	    
-	 	    Integer libraryConstructionTotalCost = addSubmittedSamplesMultiplexRequestAndLibraryCostsAsTable(document, job, submittedObjectList, submittedObjectLibraryCostMap);
-	 	    Integer sequenceRunsTotalCost = addSequenceRunsAndCostAsTable(document, job, machineList, readLengthList, readTypeList, numLanesList, pricePerLaneList);
+//	 	    Integer libraryConstructionTotalCost = addSubmittedSamplesMultiplexRequestAndLibraryCostsAsTable(document, job, submittedSampleList, submittedObjectLibraryCostMap);
+/*	 	    Integer sequenceRunsTotalCost = addSequenceRunsAndCostAsTable(document, job, machineList, readLengthList, readTypeList, numLanesList, pricePerLaneList);
 	 	    Integer additionalTotalCost = addAdditionalCostsAsTable(document, job, additionalCostReasonList, additionalCostUnitsList, additionalCostPricePerUnitList);
 	 	    
 	 	    addCommentsAsTable(document, job, commentsList);
@@ -1946,13 +1954,14 @@ public class JobController extends WaspController {
 	 	    	costReasonPriceMap.put("Total Additional Costs",additionalTotalCost);
 	 	    } 
 	 	    Integer totalFinalCost = addCostSummaryTable(document, job, costReasonList, costReasonPriceMap, discountReasonList, discountReasonAbsolutePriceMap, discountReasonPercentMap);
-
+*/
 	 	    document.close();
 	 	    
 	 	    if ("preview".equalsIgnoreCase(previewOrSave)){
 	 	    	outputStream.close();//apparently not really needed here but doesn't hurt
 	 	    	return;//nothing apparently needs to be done for it to work fine
 	 	    }
+	 	    /*
 	 	    else if ("save".equalsIgnoreCase(previewOrSave)){
 	 		   outputStream.close();//file has been save to local location
 	 		   
@@ -1965,7 +1974,7 @@ public class JobController extends WaspController {
 		 	   String footerHtml2 = "<br /></body></html>";
 		 	   response.getOutputStream().print(headerHtml2+successMessage+footerHtml2);
 		 	   return;
-	 	    }	 	    
+	 	    */	 	    
 		}catch(Exception e){
 			errorMessage = "Major problems encountered while creating file";
 			logger.warn(errorMessage);
@@ -1973,7 +1982,8 @@ public class JobController extends WaspController {
 				response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
 				return;
 			}catch(Exception e2){logger.warn(e.getMessage()); return;}
-		}		
+		}
+				
 	}
 	
 	private void addLetterhead(Document document, String imageLocation, String title, List<String> justUnderLetterheadLineList) throws DocumentException{
