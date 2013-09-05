@@ -1182,9 +1182,10 @@ public class JobController extends WaspController {
  		mpsQuote.setNumberOfLibrariesExpectedToBeConstructed(new Integer(numberOfLibrariesExpectedToBeConstructed));
  		mpsQuote.setNumberOfLanesRequested(new Integer(job.getJobCellSelection().size()));
  		
- 		
+ 		/*
 		List<SequencingCost> sequencingCosts = mpsQuote.getSequencingCosts();
 		//fake testing data only
+		
 		sequencingCosts.add(new SequencingCost(sequencingMachines.get(0), new Integer(50), "Single", new Integer(2), new Float(1000), "Error In Row"));
 		sequencingCosts.add(new SequencingCost(sequencingMachines.get(1), new Integer(50), "Single", new Integer(1), new Float(1000)));
 		sequencingCosts.add(new SequencingCost(sequencingMachines.get(2), new Integer(50), "Single", new Integer(1), new Float(500)));
@@ -1204,7 +1205,8 @@ public class JobController extends WaspController {
 		//fake test data
 		comments.add(new Comment("Here's my first comment; how do you like it??", "Error In Row"));
 		comments.add(new Comment("This is my second comment!!"));
-
+*/
+		
 		m.addAttribute("mpsQuote", mpsQuote);
 	 		
 		return "job/home/createQuoteOrInvoice";
@@ -1937,12 +1939,12 @@ public class JobController extends WaspController {
 	 	    jobDetailsParagraph = addMPSDetailsToJobDetailsParagraph(mpsQuote.getJob(), jobDetailsParagraph);//add msp-specific info to the jobDetails paragraph
 	 	    document.add(jobDetailsParagraph);//add the paragraph to the document
 	 	    
-//	 	    Integer libraryConstructionTotalCost = addSubmittedSamplesMultiplexRequestAndLibraryCostsAsTable(document, job, submittedSampleList, submittedObjectLibraryCostMap);
-/*	 	    Integer sequenceRunsTotalCost = addSequenceRunsAndCostAsTable(document, job, machineList, readLengthList, readTypeList, numLanesList, pricePerLaneList);
-	 	    Integer additionalTotalCost = addAdditionalCostsAsTable(document, job, additionalCostReasonList, additionalCostUnitsList, additionalCostPricePerUnitList);
+	 	    Integer libraryConstructionTotalCost = addSubmittedSamplesMultiplexRequestAndLibraryCostsAsTable(document, mpsQuote);
+	 	    Integer sequenceRunsTotalCost = addSequenceRunsAndCostAsTable(document, mpsQuote);
+	 	    Integer additionalTotalCost = addAdditionalCostsAsTable(document, mpsQuote);
 	 	    
-	 	    addCommentsAsTable(document, job, commentsList);
-	 	    
+	 	    addCommentsAsTable(document, mpsQuote);
+	 	   
 	 	    List<String> costReasonList = new ArrayList<String>();
 	 	    Map<String, Integer> costReasonPriceMap = new HashMap<String, Integer>();
 	 	    costReasonList.add("Total Library Costs");
@@ -1953,20 +1955,21 @@ public class JobController extends WaspController {
 	 	    	costReasonList.add("Total Additional Costs");
 	 	    	costReasonPriceMap.put("Total Additional Costs",additionalTotalCost);
 	 	    } 
-	 	    Integer totalFinalCost = addCostSummaryTable(document, job, costReasonList, costReasonPriceMap, discountReasonList, discountReasonAbsolutePriceMap, discountReasonPercentMap);
-*/
+	 	    Integer totalFinalCost = addCostSummaryTable(document, mpsQuote, costReasonList, costReasonPriceMap);
+
 	 	    document.close();
+	 	    
+	 	    //JSONObject jsonObject = mpsQuote.getAsJSON();
 	 	    
 	 	    if ("preview".equalsIgnoreCase(previewOrSave)){
 	 	    	outputStream.close();//apparently not really needed here but doesn't hurt
 	 	    	return;//nothing apparently needs to be done for it to work fine
-	 	    }
-	 	    /*
+	 	    }	 	    
 	 	    else if ("save".equalsIgnoreCase(previewOrSave)){
 	 		   outputStream.close();//file has been save to local location
 	 		   
 	 		   //if new quote, save the file to remote location and create new acctQuote record
-	 		   jobService.createNewQuoteAndSaveQuoteFile(job, localFile, new Float(totalFinalCost));
+	 		   jobService.createNewQuoteAndSaveQuoteFile(mpsQuote, localFile, new Float(totalFinalCost), true);
 	 		   
 		 	   response.setContentType("text/html"); 
 		 	   String headerHtml2 = "<html><body>";
@@ -1974,10 +1977,12 @@ public class JobController extends WaspController {
 		 	   String footerHtml2 = "<br /></body></html>";
 		 	   response.getOutputStream().print(headerHtml2+successMessage+footerHtml2);
 		 	   return;
-	 	    */	 	    
+	 	    }	 	    
 		}catch(Exception e){
 			errorMessage = "Major problems encountered while creating file";
 			logger.warn(errorMessage);
+			System.out.println("-----the real exception message: "+ e.getMessage());
+			//e.printStackTrace();
 			try{
 				response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
 				return;
@@ -2175,7 +2180,7 @@ public class JobController extends WaspController {
 		return jobDetailsParagraph;
 	}
 	
-	private Integer addSubmittedSamplesMultiplexRequestAndLibraryCostsAsTable(Document document, Job job, List<Sample> submittedSampleList, Map<Sample, Integer> submittedObjectLibraryCostMap) throws DocumentException{
+	private Integer addSubmittedSamplesMultiplexRequestAndLibraryCostsAsTable(Document document, MPSQuote mpsQuote) throws DocumentException{
 		
  	 	Paragraph sampleLibraryTitle = new Paragraph();
  	 	sampleLibraryTitle.setSpacingBefore(5);
@@ -2204,18 +2209,19 @@ public class JobController extends WaspController {
 
  		int sampleCounter = 1;
  		int cumulativeCostForAllLibraries = 0;
- 		Map<Sample,String> coverageMap = jobService.getCoverageMap(job);//a user-submitted request: which samples are to be run on which lanes 
-		String currencyIcon = Currency.getInstance(Locale.getDefault()).getSymbol();
+ 		Map<Sample,String> coverageMap = jobService.getCoverageMap(mpsQuote.getJob());//a user-submitted request: which samples are to be run on which lanes 
+		String currencyIcon = mpsQuote.getLocalCurrencyIcon();
 
- 		for(Sample sample : submittedSampleList){
+ 		for(LibraryCost libraryCost : mpsQuote.getLibraryCosts()){
  			
  			sampleLibraryTable.addCell(new Phrase(""+sampleCounter, NORMAL));
- 			sampleLibraryTable.addCell(new Phrase(sample.getName(), NORMAL));
- 			sampleLibraryTable.addCell(new Phrase(sample.getSampleType().getName(), NORMAL));
+ 			sampleLibraryTable.addCell(new Phrase(libraryCost.getSampleName(), NORMAL));
+ 			sampleLibraryTable.addCell(new Phrase(libraryCost.getMaterial(), NORMAL));
  
- 			String coverageString = coverageMap.get(sample);
+ 			Sample sample = libraryCost.getSample();
+ 			String coverageString = coverageMap.get(sample);//for example, a coverage string for this sample might look like 00101 which would mean run this sample on lanes 3 and 5
  			StringBuffer runOnWhichLanesSB = new StringBuffer();
- 			char testChar = '1';
+ 			char testChar = '1';//means run this sample on the lane (the lane number is set by i+1)
  			for(int i = 0; i < coverageString.length(); i++){
  				if(coverageString.charAt(i) == testChar){//run on lane i+1
  					if(runOnWhichLanesSB.length()>0){
@@ -2229,19 +2235,17 @@ public class JobController extends WaspController {
  			String runOnWhichLanes = new String(runOnWhichLanesSB);
  			sampleLibraryTable.addCell(new Phrase(runOnWhichLanes, NORMAL));
  
- 			if("library".equalsIgnoreCase(sample.getSampleType().getIName())){
- 				PdfPCell cost = new PdfPCell(new Phrase("N/A", NORMAL));
- 				cost.setHorizontalAlignment(Element.ALIGN_RIGHT);
- 				sampleLibraryTable.addCell(cost);
+			PdfPCell cost = null;
+ 			if(libraryCost.getReasonForNoLibraryCost().isEmpty()){
+ 				Integer libCost = new Integer(libraryCost.getLibraryCost().intValue());//convert the Float to Integer
+ 				cumulativeCostForAllLibraries += libCost.intValue();
+ 				cost = new PdfPCell(new Phrase(currencyIcon+" "+libCost.toString(), NORMAL));
  			}
  			else{
- 				Integer libCost = submittedObjectLibraryCostMap.get(sample);
- 				cumulativeCostForAllLibraries += libCost.intValue();
- 				////sampleLibraryTable.addCell(new Phrase(currencyIcon+" "+libCost.toString(), NORMAL));
- 				PdfPCell cost = new PdfPCell(new Phrase(currencyIcon+" "+libCost.toString(), NORMAL));
- 				cost.setHorizontalAlignment(Element.ALIGN_RIGHT);
- 				sampleLibraryTable.addCell(cost);
+ 				cost = new PdfPCell(new Phrase(libraryCost.getReasonForNoLibraryCost(), NORMAL)); 				
  			}
+ 			cost.setHorizontalAlignment(Element.ALIGN_RIGHT);
+			sampleLibraryTable.addCell(cost);
  			sampleCounter++;
  		}
  		
@@ -2260,16 +2264,16 @@ public class JobController extends WaspController {
  		return new Integer (cumulativeCostForAllLibraries);
 	}
 	
-	private Integer addSequenceRunsAndCostAsTable(Document document, Job job, List<String> machineList, 
-											List<String> readLengthList, List<String> readTypeList, 
-											List<Integer> numLanesList, List<Integer> pricePerLaneList) throws DocumentException{
+	private Integer addSequenceRunsAndCostAsTable(Document document, MPSQuote mpsQuote) throws DocumentException{
 		
 		int cumulativeCostForAllSequenceRuns = 0;
+		
+		List<SequencingCost> sequencingCosts = mpsQuote.getSequencingCosts();
 		
 	 	Paragraph sequenceRunTitle = new Paragraph();
 	 	sequenceRunTitle.setSpacingBefore(5);
 	 	sequenceRunTitle.setSpacingAfter(5);
-	 	if(machineList.size()==0){
+	 	if(sequencingCosts.size()==0){
 		 	sequenceRunTitle.add(new Chunk("Sequence Runs: No Sequence Runs To Be Performed", NORMAL_BOLD));
 		 	document.add(sequenceRunTitle);
 		 	return cumulativeCostForAllSequenceRuns;
@@ -2303,16 +2307,16 @@ public class JobController extends WaspController {
  		runTable.addCell(totalPerRun);
 
  		int runCounter = 1;
-		String currencyIcon = Currency.getInstance(Locale.getDefault()).getSymbol();
+		String currencyIcon = mpsQuote.getLocalCurrencyIcon();
 
-		for(int i = 0; i < machineList.size(); i++){
+		for(SequencingCost sequencingCost : sequencingCosts){
 			runTable.addCell(new Phrase(""+runCounter, NORMAL));
-			runTable.addCell(new Phrase(machineList.get(i), NORMAL));
-			runTable.addCell(new Phrase(readLengthList.get(i), NORMAL));
-			runTable.addCell(new Phrase(readTypeList.get(i), NORMAL));
-			Integer numLanes = numLanesList.get(i);
+			runTable.addCell(new Phrase(sequencingCost.getResourceCategory().getName(), NORMAL));
+			runTable.addCell(new Phrase(sequencingCost.getReadLength().toString(), NORMAL));
+			runTable.addCell(new Phrase(sequencingCost.getReadType(), NORMAL));
+			Integer numLanes = sequencingCost.getNumberOfLanes();
 			runTable.addCell(new Phrase(numLanes.toString(), NORMAL));
-			Integer pricePerLane = pricePerLaneList.get(i);
+			Integer pricePerLane = new Integer(sequencingCost.getCostPerLane().intValue());
 			runTable.addCell(new Phrase(currencyIcon + " " + pricePerLane.toString(), NORMAL));
 			Integer totalCostPerSequenceRun = numLanes * pricePerLane;
 			PdfPCell totalCostPerSequenceRunCell = new PdfPCell(new Phrase(currencyIcon + " " + totalCostPerSequenceRun.toString(), NORMAL));
@@ -2337,12 +2341,13 @@ public class JobController extends WaspController {
 		return new Integer(cumulativeCostForAllSequenceRuns);
 	}
 	
-	private Integer addAdditionalCostsAsTable(Document document, Job job, List<String> additionalCostReasonList, 
-			List<Integer> additionalCostUnitsList, List<Integer> additionalCostPricePerUnitList) throws DocumentException{
+	private Integer addAdditionalCostsAsTable(Document document, MPSQuote mpsQuote) throws DocumentException{
 
 		int cumulativeAdditionalCost = 0;
 
-		if(additionalCostReasonList.size()==0){
+		List<AdditionalCost>  additionalCosts = mpsQuote.getAdditionalCosts();
+		
+		if(additionalCosts.size()==0){
 			return cumulativeAdditionalCost;
 		}
 		
@@ -2371,16 +2376,15 @@ public class JobController extends WaspController {
  		cellTotalCost.setHorizontalAlignment(Element.ALIGN_CENTER);
  		additionalCostTable.addCell(cellTotalCost);
  		
-
  		int additionalCostCounter = 1;
-		String currencyIcon = Currency.getInstance(Locale.getDefault()).getSymbol();
+		String currencyIcon = mpsQuote.getLocalCurrencyIcon();
 
-		for(int i = 0; i < additionalCostReasonList.size(); i++){
+		for(AdditionalCost additionalCost : additionalCosts){
 			additionalCostTable.addCell(new Phrase(""+additionalCostCounter, NORMAL));
-			additionalCostTable.addCell(new Phrase(additionalCostReasonList.get(i), NORMAL));
-			Integer units = additionalCostUnitsList.get(i);
+			additionalCostTable.addCell(new Phrase(additionalCost.getReason(), NORMAL));
+			Integer units = additionalCost.getNumberOfUnits();
 			additionalCostTable.addCell(new Phrase(units.toString(), NORMAL));
-			Integer pricePerUnit = additionalCostPricePerUnitList.get(i);
+			Integer pricePerUnit = new Integer(additionalCost.getCostPerUnit().intValue());
 			additionalCostTable.addCell(new Phrase(currencyIcon + " " + pricePerUnit.toString(), NORMAL));
 			Integer totalCostPerAdditionalCost = units * pricePerUnit;
 			PdfPCell totalCostPerAdditionalCostCell = new PdfPCell(new Phrase(currencyIcon + " " + totalCostPerAdditionalCost.toString(), NORMAL));
@@ -2406,9 +2410,10 @@ public class JobController extends WaspController {
 	}
 	
 	
-	private void addCommentsAsTable(Document document, Job job, List<String> commentsList) throws DocumentException{
+	private void addCommentsAsTable(Document document, MPSQuote mpsQuote) throws DocumentException{
 
-		if(commentsList.size()==0){
+		List<Comment> comments = mpsQuote.getComments();
+		if(comments.size()==0){
 			return;
 		}
 		
@@ -2429,12 +2434,12 @@ public class JobController extends WaspController {
 		commentsTable.addCell(commentHeader);
 		
 		int commentsCounter = 1;
-		for(int i = 0; i < commentsList.size(); i++){
+		for(Comment comment : comments){
 			PdfPCell numberCell = new PdfPCell(new Phrase(""+commentsCounter, NORMAL));
 			numberCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 	 		commentsTable.addCell(numberCell);
 	 		
-			commentsTable.addCell(new Phrase(commentsList.get(i), NORMAL));
+			commentsTable.addCell(new Phrase(comment.getComment(), NORMAL));
 			commentsCounter++;			
 		}
 		
@@ -2442,10 +2447,12 @@ public class JobController extends WaspController {
 		
 	}	
 	
-	private Integer addCostSummaryTable(Document document, Job job, List<String>costReasonList, Map<String, Integer>costReasonPriceMap, List<String>discountReasonList, Map<String, Integer>discountReasonAbsolutePriceMap, Map<String, Integer> discountReasonPercentMap) throws DocumentException{
+	private Integer addCostSummaryTable(Document document, MPSQuote mpsQuote, List<String>costReasonList, Map<String, Integer>costReasonPriceMap) throws DocumentException{
 	
-		String currencyIcon = Currency.getInstance(Locale.getDefault()).getSymbol();
+		String currencyIcon = mpsQuote.getLocalCurrencyIcon();
 
+		List<Discount> discounts = mpsQuote.getDiscounts();
+		
 		int totalFinalCost = 0;
 		int totalCosts = 0;
 		int totalDiscounts = 0;
@@ -2473,7 +2480,7 @@ public class JobController extends WaspController {
  	 	    costTable.addCell(secondCell); 	 
  	    }
  
- 	    if(discountReasonList.size()>0){
+ 	    if(discounts.size()>0){
  		    costTable.addCell(new Phrase("Subtotal", NORMAL_BOLD));
  	 	   
  	 	    PdfPCell subtotalCell = new PdfPCell(new Phrase(currencyIcon + " " + totalCosts, NORMAL_BOLD));
@@ -2489,11 +2496,11 @@ public class JobController extends WaspController {
 	 	    costTable.addCell(blankCell);
 	 	    
 	 	    //next add the discounts and get it's discountTotal
-	 	    for(String discountReason : discountReasonList){
+	 	    for(Discount discount : discounts){
 	 	    	
-	 	    	if(discountReasonPercentMap.containsKey(discountReason)){
-	 	    		int percentOff = discountReasonPercentMap.get(discountReason).intValue();
-	 	    		costTable.addCell(new Phrase(discountReason + " (" + percentOff + "%)", NORMAL_BOLD));
+	 	    	if(discount.getType().equals("%")){
+	 	    		int percentOff = discount.getValue().intValue();
+	 	    		costTable.addCell(new Phrase(discount.getReason() + " (" + percentOff + discount.getType()+")", NORMAL_BOLD));
 	 	    		int thisDiscount = totalCosts * percentOff / 100;
 	 	    		totalDiscounts += thisDiscount;
 	 	    		PdfPCell secondCell = new PdfPCell(new Phrase("("+currencyIcon + " " + thisDiscount+")", NORMAL_BOLD));
@@ -2501,9 +2508,9 @@ public class JobController extends WaspController {
 		 		    secondCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
 		 	 	    costTable.addCell(secondCell); 
 	 	    	}
-	 	    	else if(discountReasonAbsolutePriceMap.containsKey(discountReason)){
-	 	    		int thisDiscount = discountReasonAbsolutePriceMap.get(discountReason).intValue();
-	 	    		costTable.addCell(new Phrase(discountReason, NORMAL_BOLD));
+	 	    	else if(discount.getType().equals(currencyIcon)){
+	 	    		int thisDiscount = discount.getValue().intValue();
+	 	    		costTable.addCell(new Phrase(discount.getReason(), NORMAL_BOLD));
 	 	    		totalDiscounts += thisDiscount;
 	 	    		PdfPCell secondCell = new PdfPCell(new Phrase("("+currencyIcon + " " + thisDiscount+")", NORMAL_BOLD));
 	 	    		secondCell.setBorder(0);

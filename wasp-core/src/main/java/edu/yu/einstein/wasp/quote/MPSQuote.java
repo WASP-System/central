@@ -6,6 +6,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import edu.yu.einstein.wasp.model.Job;
 
 /**
@@ -38,7 +43,7 @@ public class MPSQuote {
 		this.comments = new ArrayList<Comment>();
 	}
 	
-	public void setJobId(Job job){this.job = job;}
+	public void setJob(Job job){this.job = job;}
 	public void setNumberOfLibrariesExpectedToBeConstructed(Integer numberOfLibrariesExpectedToBeConstructed){
 		this.numberOfLibrariesExpectedToBeConstructed = numberOfLibrariesExpectedToBeConstructed;
 	}
@@ -73,4 +78,39 @@ public class MPSQuote {
 	public List<AdditionalCost>  getAdditionalCosts(){return this.additionalCosts;}
 	public List<Discount> getDiscounts(){return this.discounts;}
 	public List<Comment> getComments(){return this.comments;}
+	
+	
+	/**
+	* sets parameters based on JSON input
+	* @param <T>
+	* @param json
+	* @return
+	* @throws JSONException
+	*/
+	
+	@JsonIgnore
+	public static <T> T getMPSQuoteFromJSONObject(JSONObject json, Class<T> clazz) throws JSONException{
+		ObjectMapper mapper = new ObjectMapper();
+		try{
+			return mapper.readValue(json.toString(), clazz);
+		} catch(Exception e){
+			throw new JSONException("Cannot create object of type " + clazz.getName() + " from json: " + e.getLocalizedMessage());
+		}
+	}
+
+	@JsonIgnore
+	public JSONObject getAsJSON() throws JSONException {
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			// use jackson object mapper to create json as text then wrap in JSONObject (Jackson understands @JsonIgnore)
+			return new JSONObject(mapper.writeValueAsString(this));
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new JSONException("Cannot convert object to JSON");
+			
+		}
+	}
+	
+	
+	
 } 

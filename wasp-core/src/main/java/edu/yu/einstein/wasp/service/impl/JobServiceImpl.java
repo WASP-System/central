@@ -118,6 +118,7 @@ import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
+import edu.yu.einstein.wasp.quote.MPSQuote;
 import edu.yu.einstein.wasp.sequence.SequenceReadProperties;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
@@ -2404,8 +2405,10 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void createNewQuoteAndSaveQuoteFile(Job job, File file, Float totalFinalCost) throws Exception{
+	public void createNewQuoteAndSaveQuoteFile(MPSQuote mpsQuote, File file, Float totalFinalCost, boolean saveQuoteAsJSON) throws Exception{
 			
+			Job job = mpsQuote.getJob();
+		
 			Date now = new Date();
 			DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd");		 	   
 	 	   	Random randomNumberGenerator = new Random(System.currentTimeMillis());
@@ -2422,7 +2425,12 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 	   	acctQuoteMeta.setK("acctQuote.fileGroupId");
 	 	   	acctQuoteMeta.setV(fileGroup.getId().toString());
 	 	   	acctQuoteMetaList.add(acctQuoteMeta);
+	 	   	if(saveQuoteAsJSON==true){
+	 	   		AcctQuoteMeta acctQuoteMeta2 = new AcctQuoteMeta();
+	 	   		acctQuoteMeta2.setK("acctQuote.json");
+	 	   		acctQuoteMeta2.setV(mpsQuote.getAsJSON().toString());
+	 	   		acctQuoteMetaList.add(acctQuoteMeta2);
+	 	   	}
 	 	   	this.addNewQuote(job.getId(), acctQuote, acctQuoteMetaList);
-
 	}
 }

@@ -50,6 +50,7 @@ import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.quote.MPSQuote;
 import edu.yu.einstein.wasp.util.WaspJobContext;
 
 @Service
@@ -630,7 +631,8 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @param Job job
 	 * @param File localFile
 	 * @param Float totalFinalCost
+	 * @param boolean saveQuoteAsJSON
 	 * @return void
 	 */
-	public void createNewQuoteAndSaveQuoteFile(Job job, File file, Float totalFinalCost)throws Exception;
+	public void createNewQuoteAndSaveQuoteFile(MPSQuote mpsQuote, File file, Float totalFinalCost, boolean saveQuoteAsJSON)throws Exception;
 }
