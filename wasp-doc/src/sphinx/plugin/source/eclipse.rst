@@ -68,7 +68,128 @@ After configuring the project click *finish* and the project will be built and a
    
    Example project folder structure (all configuration options checked).
 
-Lets look at the structure and examine the various components.
+Lets look at the structure and examine the various components. Firstly a brief introduction to some specifics of Spring. Spring facilitates the creation of 
+powerful applications without worrying about the plumbing or writing boilerplate code. It is configuration-centric, creating an application context during 
+application initialization which consists of Java beans which have been pre-configured either in code or XML files. By programming to interfaces, it is easy
+to swap out components for testing or upgrading the application. For example, it is easy to change from using a mysql database to an Oracle datavase
+simply by swapping out database adapters, without changing any business logic. 
+
+In the Wasp System, application 
+configuration files in turn import the configuration files defined in plugins. In the *src/main/resources:META-INF/spring* folder within the project structure 
+you will see XML 
+configuration files suffixed by *common.xml*, *batch.xml* and *web.xml* (the latter two are optional depending on the plugin type). Looking in the picard 
+project *picard-plugin-context-common.xml* file, a very simple bean is defined representing a string instance called *picardPluginArea* which has the value 
+"picard" injected via the constructor:
+
+.. code-block:: xml
+ 
+	<bean id="picardPluginArea" class="java.lang.String">
+		<constructor-arg>
+			<value>picard</value>
+		</constructor-arg>
+	</bean>
+	
+The second bean in this file is declaring a configured instance of the *edu.yu.einstein.wasp.picard.plugin.PicardPlugin* class:
+
+.. code-block:: xml
+
+   <bean id="picard" class="edu.yu.einstein.wasp.picard.plugin.PicardPlugin">
+		<constructor-arg name="pluginName" ref="picardPluginArea" />
+		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.picard" />
+		<property name="pluginDescription" value="A tool for working with NGS data in BAM format" />
+		<property name="provides" >
+			<set>
+				<ref bean="picard" /> 
+			</set>
+		</property>
+		<property name="handles" >
+			<set>
+				<ref bean="picardPluginArea" />
+			</set>
+		</property>
+	</bean>
+
+Notice how the *picardPluginArea* bean is injected into the *picard* bean by providing its object reference as a constructor argument. Notice also how 
+collections may be injected, in this case a collection of type *java.util.Set*. You can see another example of passing by value with the setting of the 
+*pluginDescription*  property. Under the hood, spring doesn't directly set the value of *pluginDescription*, instead it expects there to be a public method 
+*void setPluginDescription(String)* defined in the *PicardPlugin* class. Similarly, for the *provides* property, Spring expects the *PicardPlugin* class to 
+define a method *void setProvides(Set<?>)*.
+
+It is possible to evaluate expressions and inject the result into a bean during instantiation e.g.:
+
+.. code-block:: java
+
+    <bean class="org.baz.bar.Foo">
+	    <property name="foobar">
+	    	<value>${wasp.config.foobar}</value>
+	    </property>
+	    <property name="name" value="#{picard.getName()}" />
+	</bean>
+	
+In the above example two properties called *foobar* and *name* are being set. The *foobar* property value is intended to be an evaluated property. In the 
+Wasp System, custom and system properties are both defined in the *wasp-config* plugin in the *src/main/resources/\*.properties* files. In this example,
+one of these files is expected to contain the line "wasp.config.foobar=My Foo Plugin". Thus, during bean instantiation, the *${wasp.config.foobar}* placeholder
+is replaced with the String value "My Foo Plugin". The *name* property value is obtained by evaluating a `Spring Expression Language (SpEL) 
+<http://static.springsource.org/spring/docs/3.0.x/reference/expressions.html>`_ construct. In this case, it assumes a bean called "picard" is defined, and 
+evaluates its *getName()* method.
+
+An alternative to injecting constructor / property values in the XML bean definitions is to do it in the Class definition. An *@Autowired* annotation placed 
+above a field, setter method or constructor 
+signifies that Spring should locate and inject a bean of the correct type during initialization. Most of the time single instances of a particular class are
+instantiated as beans, however, if there is more than one bean of a particular type, Spring need to know which one you wish to autowire. This is accomplished 
+using the *@Qualifier("theBeanIWant")* annotation. It is also possible to inject property values using *@Value*. These concepts are illustrated below:
+
+.. code-block:: java
+   
+      
+   Bar bar;
+   
+   // The '@Autowired' annotation tells Spring that we expect there to be a single bean (a dependency) of type 
+   // Bar configured in the application context which should be injected on bean initialization. 
+   // When testing the class we can set the value of bar explicitly, e.g. by providing a stub or mock object.
+   @Autowired 
+   void setBar(Bar bar){
+     this.bar = bar;
+   }
+   
+   // Qualifying here because the application context contains two beans of type Foo called 'foo' and 'fooey'.
+   // We need to tell Spring which one to use
+   @Autowired
+   @Qualifier("foo") 
+   Foo foo;
+   
+   // Here we inject a value defined in a .properties file in the *wasp-config* plugin (see above). If no value is specified we 
+   // provide a default value "not set" (this is optional).
+   @Value("${wasp.config.foobar:not set}")
+   String foobar;
+   
+   void setFoobar(String foobar){
+     this.foobar = foobar;
+   }
+   
+If a class is annotated to allow autowiring of dependencies and does not require any custom configuration, it is possible to have Spring load an instance
+automatically without any XML definition. Simply add the *@Component* annotation above the class declaration (or a more appropriate derivative, e.g. *@Service* 
+for service classes) and the line *<context:component-scan base-package="org.baz.bar.packageToScan" />* in an appropriate configuration file within 
+*src/main/resources:META-INF/spring* (replacing "org.baz.bar.packageToScan" with the actual package enclosing any annotated class(es) to be loaded by Spring). 
+On application initialization, Spring creates an instance of each component-scanned class, giving it a name identical to the simple name of the class with the
+first letter de-capitalized.
+
+.. important::
+
+   You should be aware of the bean life-cycle. During application initialization: 
+     
+     1. Bean definitions are loaded.  
+     2. Properties are evaluated.
+     3. Dependencies are injected.
+     4. Beans are post processed. Normally, when instantiating a class, work can be performed in a constructor using values provided. However, when using values
+        injected into beans, they are not available immediately after construction. Such work should, instead, be performed in a public method annotated with 
+        *@PostConstruct*. All injected values will be available for use when such an annotated method is executed by Spring. If any cleanup is required prior 
+        to bean destruction, e.g. closing a resource, a public method annotated with *@PreDestroy* may also be provided.
+     5. Beans ready for use. 
+
+With a basic introduction to the concepts of Spring required to generate plugins, it is now possible to examine the details of the project structure for a 
+plugin:
 
 * **src/main/java**
 
@@ -142,17 +263,20 @@ Lets look at the structure and examine the various components.
     
     .. note::
     
-      Any class derived from *WaspPlugin* is registered in a bean of type *wasp-core:edu.yu.einstein.wasp.plugin.WaspPluginRegistry* which 
-      can be autowired into any class and interrogated using the *Set<WaspPlugin> getPluginsHandlingArea(String area)* and 
-      *List<T> getPluginsHandlingArea(String area, Class<T> clazz)* methods.
+       Any class derived from *WaspPlugin* is registered in a bean of type *wasp-core:edu.yu.einstein.wasp.plugin.WaspPluginRegistry* which 
+       can be autowired into any class and interrogated using the *Set<WaspPlugin> getPluginsHandlingArea(String area)* and 
+       *List<T> getPluginsHandlingArea(String area, Class<T> clazz)* methods.
   
   - **{package_root}.service.impl**
     Plugin business logic that accesses data access objects (DAOs) defined in the wasp-core can be implemented here. Any classes defined in here with 
     annotations @Service or @Component will be automatically instantiated as beans on application startup.
   
   - **{package_root}.software**
-    This package is intended for inclusion of Classes extending the *wasp-core:edu.yu.einstein.wasp.software.SoftwarePackage* class. Each class defined here 
-    should provide methods relevant for executing the software it is wrapping. *src/main/resources:META-INF/spring/* folder
+    This package is intended for inclusion of Classes extending the *wasp-core:edu.yu.einstein.wasp.software.SoftwarePackage* class. Each class defined in
+    this package should provide methods relevant for executing the software it is wrapping. A loader configuration file (filename ending in *Load.xml*) should 
+    be provided in the *src/main/resources:wasp/* folder which creates a bean instance of each software class via the 
+    *edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory* factory bean. This is pre-configured for you when you created the project. The bean is generated via 
+    a "factory bean" because certain attributes must be stored in the core database.
   
   - **{package_root}.**
   
