@@ -21,7 +21,7 @@ import edu.yu.einstein.wasp.model.Job;
 
 public class MPSQuote {
 
-	private Job job;
+	private Integer jobId;
 	private Integer numberOfLibrariesExpectedToBeConstructed;
 	private Integer numberOfLanesRequested;
 	private String localCurrencyIcon;
@@ -31,8 +31,20 @@ public class MPSQuote {
 	private List<Discount> discounts;
 	private List<Comment> comments;
 	
-	public MPSQuote(Job job){
-		this.job = job;
+	public MPSQuote(){
+		this.jobId = new Integer(0);
+		this.numberOfLibrariesExpectedToBeConstructed = new Integer(0);
+		this.numberOfLanesRequested = new Integer(0);
+		this.localCurrencyIcon = "";
+		this.libraryCosts = new ArrayList<LibraryCost>();
+		this.sequencingCosts = new ArrayList<SequencingCost>();
+		this.additionalCosts = new ArrayList<AdditionalCost>();
+		this.discounts = new ArrayList<Discount>();
+		this.comments = new ArrayList<Comment>();
+	}
+
+	public MPSQuote(Integer jobId){
+		this.jobId = jobId;
 		this.numberOfLibrariesExpectedToBeConstructed = new Integer(0);
 		this.numberOfLanesRequested = new Integer(0);
 		this.localCurrencyIcon = "";
@@ -43,7 +55,7 @@ public class MPSQuote {
 		this.comments = new ArrayList<Comment>();
 	}
 	
-	public void setJob(Job job){this.job = job;}
+	public void setJobId(Integer jobId){this.jobId = jobId;}
 	public void setNumberOfLibrariesExpectedToBeConstructed(Integer numberOfLibrariesExpectedToBeConstructed){
 		this.numberOfLibrariesExpectedToBeConstructed = numberOfLibrariesExpectedToBeConstructed;
 	}
@@ -69,7 +81,7 @@ public class MPSQuote {
 	public void setComments(List<Comment> comments){
 		this.comments = comments;
 	}
-	public Job getJob(){return this.job;}
+	public Integer getJobId(){return this.jobId;}
 	public Integer getNumberOfLibrariesExpectedToBeConstructed(){return this.numberOfLibrariesExpectedToBeConstructed;}
 	public Integer getNumberOfLanesRequested(){return this.numberOfLanesRequested;}
 	public String getLocalCurrencyIcon(){return this.localCurrencyIcon;}

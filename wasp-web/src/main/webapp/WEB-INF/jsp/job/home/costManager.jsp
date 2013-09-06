@@ -43,6 +43,7 @@
 				<tr><td colspan="3" align="center" style="color:red;font-weight:bold"><c:out value="${errorMessage}" /></td></tr>
 		</c:if>
 		--%>
+		<c:set value="${true}" var="headingNeedsDisplay"/>
 		<c:choose>
 			<c:when test="${empty fileGroups }">
 				<tr class="FormData">
@@ -55,13 +56,16 @@
 				</tr>			
 			</c:when>
 			<c:otherwise>
-				<c:forEach items="${fileGroups}" var="fileGroup" varStatus="fileGroupCounter">
-					<c:if test="${fileGroupCounter.first}">
+			<c:forEach items="${acctQuoteList}" var="acctQuote" >
+				<c:if test="${not empty acctQuoteFileGroupMap.get(acctQuote) }">
+					<c:set value="${acctQuoteFileGroupMap.get(acctQuote)}" var="fileGroup"/>				
+					<c:if test="${headingNeedsDisplay==true}">
 						<tr class="FormData">
 							<td class="label-centered" style="background-color:#FAF2D6">Job Quotes / Invoices</td>
 							<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_description.label"/></td>
 							<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_action.label"/></td>
-						</tr>		
+						</tr>
+						<c:set value="${false}" var="headingNeedsDisplay"/>		
 					</c:if>
 				 	<c:set value="${fileGroupFileHandlesMap.get(fileGroup)}" var="fileHandles"/>
 				 	<c:choose>
@@ -74,8 +78,11 @@
 				 		  			<td class="DataTD value-centered"><a href="<c:url value="/file/fileHandle/${fileHandle.getId()}/download.do" />" ><fmt:message key="listJobSamples.file_download.label"/></a> 
 				 		  				<c:if test="${fileHandlesThatCanBeViewedList.contains(fileHandle)}">
 			 		  					| <a href="javascript:void(0);" onclick='parent.showModalessDialog("<c:url value="/file/fileHandle/${fileHandle.getId()}/view.do" />");' ><fmt:message key="listJobSamples.file_view.label"/></a>
-			 		  				<!-- no longer wanted	| <a href="javascript:void(0);" onclick='doGetWithAjax("<c:url value="/job/${job.getId()}/createQuote.do" />");' >CreateQuote</a> -->
-			 		  				</c:if>
+			 		  						<!-- no longer wanted	| <a href="javascript:void(0);" onclick='doGetWithAjax("<c:url value="/job/${job.getId()}/createQuote.do" />");' >CreateQuote</a> -->
+			 		  					</c:if>
+			 		  					<c:if test="${acctQuotesWithJsonEntry.contains(acctQuote)}">
+			 		  					| <a href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/acctQuote/${acctQuote.getId()}/createUpdateQuote.do" />");' >Update</a>
+			 		  					</c:if>
 				 		  			</td>
 				 		  		</tr>
 				 			</c:forEach>
@@ -87,8 +94,9 @@
 				 		  		<td class="DataTD value-centered"><a href="<c:url value="/file/fileGroup/${fileGroup.getId()}/download.do" />" ><fmt:message key="listJobSamples.file_download.label"/></a></td>
 				 		  	</tr>
 				 		</c:otherwise>			 		
-				 	</c:choose>
-				</c:forEach>
+				 	</c:choose>				
+				</c:if>
+			</c:forEach>	
 			</c:otherwise>
 		</c:choose>		
 	</table>

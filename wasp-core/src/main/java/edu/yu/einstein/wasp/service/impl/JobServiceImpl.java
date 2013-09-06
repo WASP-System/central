@@ -2407,7 +2407,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	@Override
 	public void createNewQuoteAndSaveQuoteFile(MPSQuote mpsQuote, File file, Float totalFinalCost, boolean saveQuoteAsJSON) throws Exception{
 			
-			Job job = mpsQuote.getJob();
+			Job job = this.getJobByJobId(mpsQuote.getJobId());
 		
 			Date now = new Date();
 			DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd");		 	   

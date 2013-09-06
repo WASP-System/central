@@ -17,6 +17,14 @@ public class SequencingCost {
 	private Float costPerLane;
 	private String error;
 	
+	public SequencingCost(){		
+		this.resourceCategory = new ResourceCategory();
+		this.readLength = new Integer(0);
+		this.readType = "";
+		this.numberOfLanes = new Integer(0);
+		this.costPerLane = new Float(0);
+		this.error = "";
+	}
 	public SequencingCost(ResourceCategory resourceCategory, Integer readLength, String readType, Integer numberOfLanes, Float costPerLane){
 		
 		this.resourceCategory = resourceCategory;

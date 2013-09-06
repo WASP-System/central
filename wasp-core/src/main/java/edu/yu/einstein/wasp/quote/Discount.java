@@ -12,6 +12,12 @@ public class Discount {
 	private Float value;//such as 155.00 (as in $5.00) or 10 (as in 10%)
 	private String error;
 	
+	public Discount(){
+		this.reason="";
+		this.type="";
+		this.value=new Float(0);
+		this.error="";
+	}
 	public Discount(String reason, String type, Float value, String error){
 		this.reason=reason;
 		this.type=type;

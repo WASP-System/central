@@ -1069,7 +1069,7 @@ public class JobController extends WaspController {
 		Map<FileGroup, List<FileHandle>> fileGroupFileHandlesMap = new HashMap<FileGroup, List<FileHandle>>();
 		List<FileHandle> fileHandlesThatCanBeViewedList = new ArrayList<FileHandle>();
 		Map<AcctQuote, FileGroup> acctQuoteFileGroupMap= new HashMap<AcctQuote, FileGroup>();
-		List<AcctQuote>acctQuoteWithJsonEntry = new ArrayList<AcctQuote>();
+		List<AcctQuote>acctQuotesWithJsonEntry = new ArrayList<AcctQuote>();
 		
 		for(AcctQuote acctQuote : acctQuoteList){//most recent is first, least recent is last
 			List<AcctQuoteMeta> acctQuoteMetaList = acctQuote.getAcctQuoteMeta();
@@ -1094,7 +1094,7 @@ public class JobController extends WaspController {
 					}catch(Exception e){logger.warn("FileGroup unexpectedly not found");}
 				}
 				if(acctQuoteMeta.getK().toLowerCase().contains("json")){
-					acctQuoteWithJsonEntry.add(acctQuote);
+					acctQuotesWithJsonEntry.add(acctQuote);
 				}
 			}
 		}
@@ -1121,7 +1121,7 @@ public class JobController extends WaspController {
 		m.addAttribute("fileHandlesThatCanBeViewedList", fileHandlesThatCanBeViewedList);
 		m.addAttribute("acctQuoteList", acctQuoteList);
 		m.addAttribute("acctQuoteFileGroupMap", acctQuoteFileGroupMap);
-		m.addAttribute("acctQuoteWithJsonEntry", acctQuoteWithJsonEntry);		
+		m.addAttribute("acctQuotesWithJsonEntry", acctQuotesWithJsonEntry);		
 		
 	}
 	
@@ -1165,13 +1165,48 @@ public class JobController extends WaspController {
 		//8-30-13
  		//if there is no existing quote (for the moment there is none)
 		MPSQuote mpsQuote=null;
+		System.out.println("--------AcctQuoteID from parameter is: " + quoteId);
 		
 		if(quoteId != 0){
-			//mpsQuote = 
+			Set<AcctQuote> acctQuoteSet = job.getAcctQuote();
+			AcctQuote acctQuote = null;
+			for(AcctQuote ac : acctQuoteSet){
+				if(ac.getId().intValue()==quoteId){
+					acctQuote = ac;
+					break;
+				}
+			}
+			if(acctQuote==null){
+				System.out.println("--------AcctQuote is null");
+				//error message and get out of here
+			}
+			else if(acctQuote!=null){
+				System.out.println("--------AcctQuote is NOT null");
+				List<AcctQuoteMeta> acctQuoteMetaList = acctQuote.getAcctQuoteMeta();
+				for(AcctQuoteMeta acm : acctQuoteMetaList){
+					System.out.println("-------------AcctQuoteMeta is : " + acm.getV());
+					if(acm.getK().toLowerCase().contains("json")){
+						try{
+							System.out.println("-----------------AcctQuoteMeta is json so next line will attempt to get the JSONobject");
+							
+								JSONObject jsonObject = new JSONObject(acm.getV());
+								System.out.println("-----------------GOT jsonOBJECT so next line will attempt to get the MPPSQuote");
+								
+								mpsQuote = MPSQuote.getMPSQuoteFromJSONObject(jsonObject, MPSQuote.class);
+								System.out.println("-----------------GOT THE MPSQUOTE object");
+								
+						}catch(Exception e){
+							//error message and get out
+							System.out.println("-----------------the exception message is: " + e.getMessage());
+							
+						}
+					}
+				}
+			}
 		}
 		
  		if(quoteId==0){		
-			mpsQuote = new MPSQuote(job);
+			mpsQuote = new MPSQuote(jobId);
 	 		List<LibraryCost> libraryCosts = mpsQuote.getLibraryCosts();
 	 		int numberOfLibrariesExpectedToBeConstructed = 0;
 	 		for(Sample s : jobService.getSubmittedSamples(job)){
@@ -1188,10 +1223,10 @@ public class JobController extends WaspController {
 	 			}
 	 			LibraryCost libraryCost = null;
 	 			if(reasonForNoLibraryCost.isEmpty()){
-	 				libraryCost = new LibraryCost(s, s.getName(), s.getSampleType().getName(), reasonForNoLibraryCost, null, "");
+	 				libraryCost = new LibraryCost(s.getId(), s.getName(), s.getSampleType().getName(), reasonForNoLibraryCost, null, "");
 	 			}
 	 			else{
-	 				libraryCost = new LibraryCost(s, s.getName(), s.getSampleType().getName(), reasonForNoLibraryCost, new Float(0.0), "");
+	 				libraryCost = new LibraryCost(s.getId(), s.getName(), s.getSampleType().getName(), reasonForNoLibraryCost, new Float(0.0), "");
 	 			}
 	 			libraryCosts.add(libraryCost);
 	 		}
@@ -1573,7 +1608,7 @@ public class JobController extends WaspController {
 		   	}catch(Exception e){logger.warn(e.getMessage()); return; }
 		}
 		
-		MPSQuote mpsQuote = new MPSQuote(job);
+		MPSQuote mpsQuote = new MPSQuote(jobId);
 		try{
 			mpsQuote.setNumberOfLanesRequested(new Integer(request.getParameter("numberOfLanesRequested")));
 			mpsQuote.setNumberOfLibrariesExpectedToBeConstructed(new Integer(request.getParameter("numberOfLibrariesExpectedToBeConstructed")));
@@ -1749,7 +1784,7 @@ public class JobController extends WaspController {
 			String reasonForNoLibraryCost = submittedSampleReasonForNoLibraryCostArray[counter];
 			
 			if(!reasonForNoLibraryCost.trim().isEmpty()){
-				libraryCosts.add(new LibraryCost(submittedObject, submittedSampleNameArray[counter], submittedSampleMaterialArray[counter], reasonForNoLibraryCost, new Float(0.0)  ));
+				libraryCosts.add(new LibraryCost(submittedObject.getId(), submittedSampleNameArray[counter], submittedSampleMaterialArray[counter], reasonForNoLibraryCost, new Float(0.0)  ));
 			}
 			else if(reasonForNoLibraryCost.isEmpty()){
 			
@@ -1763,7 +1798,7 @@ public class JobController extends WaspController {
 				else{				
 					try{					
 						Float libCost = new Float(submittedSampleCostAsString);
-						libraryCosts.add(new LibraryCost(submittedObject, submittedSampleNameArray[counter], submittedSampleMaterialArray[counter], reasonForNoLibraryCost, libCost  ));
+						libraryCosts.add(new LibraryCost(submittedObject.getId(), submittedSampleNameArray[counter], submittedSampleMaterialArray[counter], reasonForNoLibraryCost, libCost  ));
 					}catch(Exception e){errorMessage += "<br />Invalid library cost ("+ submittedSampleCostAsString + ") provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero";}
 				}
 			}
@@ -1949,11 +1984,11 @@ public class JobController extends WaspController {
 	 	    addLetterhead(document, imageLocation, title, justUnderLetterheadLineList);
 	 	    DateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
 	 	    addNoteLine(document, "", dateFormat.format(now));
-	 	    addressTheLetterToSubmitterAndPI(document, mpsQuote.getJob());
-	 	    addNoteLine(document, "Re.: ", "Estimated costs for Job ID " + mpsQuote.getJob().getId());
+	 	    addressTheLetterToSubmitterAndPI(document, job);
+	 	    addNoteLine(document, "Re.: ", "Estimated costs for Job ID " + mpsQuote.getJobId());
 	 	    document.add(new LineSeparator());
-	 	    Paragraph jobDetailsParagraph = startJobDetailsParagraphAndAddCommonJobDetails(mpsQuote.getJob());//start new paragraph containing common job details (put the paragraph is NOT added to the document in this method, thus permitting more to be added to it)
-	 	    jobDetailsParagraph = addMPSDetailsToJobDetailsParagraph(mpsQuote.getJob(), jobDetailsParagraph);//add msp-specific info to the jobDetails paragraph
+	 	    Paragraph jobDetailsParagraph = startJobDetailsParagraphAndAddCommonJobDetails(job);//start new paragraph containing common job details (put the paragraph is NOT added to the document in this method, thus permitting more to be added to it)
+	 	    jobDetailsParagraph = addMPSDetailsToJobDetailsParagraph(job, jobDetailsParagraph);//add msp-specific info to the jobDetails paragraph
 	 	    document.add(jobDetailsParagraph);//add the paragraph to the document
 	 	    
 	 	    Integer libraryConstructionTotalCost = addSubmittedSamplesMultiplexRequestAndLibraryCostsAsTable(document, mpsQuote);
@@ -2226,7 +2261,7 @@ public class JobController extends WaspController {
 
  		int sampleCounter = 1;
  		int cumulativeCostForAllLibraries = 0;
- 		Map<Sample,String> coverageMap = jobService.getCoverageMap(mpsQuote.getJob());//a user-submitted request: which samples are to be run on which lanes 
+ 		Map<Sample,String> coverageMap = jobService.getCoverageMap(jobService.getJobByJobId(mpsQuote.getJobId()));//a user-submitted request: which samples are to be run on which lanes 
 		String currencyIcon = mpsQuote.getLocalCurrencyIcon();
 
  		for(LibraryCost libraryCost : mpsQuote.getLibraryCosts()){
@@ -2235,7 +2270,7 @@ public class JobController extends WaspController {
  			sampleLibraryTable.addCell(new Phrase(libraryCost.getSampleName(), NORMAL));
  			sampleLibraryTable.addCell(new Phrase(libraryCost.getMaterial(), NORMAL));
  
- 			Sample sample = libraryCost.getSample();
+ 			Sample sample = sampleService.getSampleById(libraryCost.getSampleId());
  			String coverageString = coverageMap.get(sample);//for example, a coverage string for this sample might look like 00101 which would mean run this sample on lanes 3 and 5
  			StringBuffer runOnWhichLanesSB = new StringBuffer();
  			char testChar = '1';//means run this sample on the lane (the lane number is set by i+1)

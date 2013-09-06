@@ -13,6 +13,12 @@ public class AdditionalCost {
 	private Float costPerUnit;
 	private String error;
 	
+	public AdditionalCost(){
+		this.reason="";
+		this.numberOfUnits = new Integer(0);
+		this.costPerUnit = new Float(0);
+		this.error= "";
+	}
 	public AdditionalCost(String reason, Integer numberOfUnits, Float costPerUnit){
 		this.reason=reason;
 		this.numberOfUnits = numberOfUnits;

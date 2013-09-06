@@ -10,6 +10,10 @@ public class Comment {
 	private String comment;
 	private String error;
 	
+	public Comment(){
+		this.comment = "";
+		this.error = "";
+	}
 	public Comment(String comment, String error){
 		this.comment = comment;
 		this.error = error;
