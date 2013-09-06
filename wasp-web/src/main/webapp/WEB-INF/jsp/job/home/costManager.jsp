@@ -5,15 +5,16 @@
 <%--Apparently need onsubmit='return false' to suppress hitting the event when the ENTER key is pressed with the cursor in the description input box --%>
 
 <sec:authorize access="hasRole('su') or hasRole('ft') or hasRole('da')">
-	<br /><a class="button" href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/createQuoteOrInvoice.do" />");' >Create Quote / Invoice</a><br />
+	<br /><a class="button" href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/acctQuote/0/createUpdateQuote.do" />");' >Create Quote / Invoice</a><br />
 </sec:authorize>
 <c:if test="${not empty mostRecentQuote }">
 	<br /><h2>Most Recent Quote: <c:out value="${localCurrencyIcon}" /> <c:out value="${mostRecentQuote}" /></h2>
 </c:if>
+<%-- experiment that is no longer in use
 <br />
 <a href="javascript:void(0);" onclick='$("#createNewQuote").css("display", "block");'>New Quote</a>
  | <a href="javascript:void(0);" onclick='$("#updateCurrentQuote").css("display", "block");'>Update Current Quote</a>
- 
+--%> 
 
 <br />
 <form id="fileUploadFormId" action="<c:url value="/job/${job.getId()}/fileUploadManager.do" />" method="POST"  enctype="multipart/form-data" onsubmit='return false;' >
@@ -93,6 +94,8 @@
 	</table>
 </form>
 <br />
+<%-- experiment that is no longer in use, can delete the rest --%>
+
 <div id="createNewQuote" style="display:none">
 
 	<c:set value="${1}" var="rowCounter" />	

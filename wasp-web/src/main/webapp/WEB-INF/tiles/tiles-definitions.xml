@@ -243,8 +243,8 @@
 	<definition name="job/home/costManager" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/costManager.jsp" />
 	</definition>
-	<definition name="job/home/createQuoteOrInvoice" extends="template-unadorned">
-		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/createQuoteOrInvoice.jsp" />
+	<definition name="job/home/createUpdateQuote" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/createUpdateQuote.jsp" />
 	</definition>
 	<definition name="job/home/viewerManager" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/viewerManager.jsp" />

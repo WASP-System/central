@@ -1068,6 +1068,8 @@ public class JobController extends WaspController {
 		List<FileGroup> fileGroups = new ArrayList<FileGroup>();
 		Map<FileGroup, List<FileHandle>> fileGroupFileHandlesMap = new HashMap<FileGroup, List<FileHandle>>();
 		List<FileHandle> fileHandlesThatCanBeViewedList = new ArrayList<FileHandle>();
+		Map<AcctQuote, FileGroup> acctQuoteFileGroupMap= new HashMap<AcctQuote, FileGroup>();
+		List<AcctQuote>acctQuoteWithJsonEntry = new ArrayList<AcctQuote>();
 		
 		for(AcctQuote acctQuote : acctQuoteList){//most recent is first, least recent is last
 			List<AcctQuoteMeta> acctQuoteMetaList = acctQuote.getAcctQuoteMeta();
@@ -1076,6 +1078,7 @@ public class JobController extends WaspController {
 					try{
 						FileGroup fileGroup = fileService.getFileGroupById(Integer.parseInt(acctQuoteMeta.getV()));
 						if(fileGroup.getId()!=null){
+							acctQuoteFileGroupMap.put(acctQuote, fileGroup);
 							fileGroups.add(fileGroup);
 							List<FileHandle> fileHandles = new ArrayList<FileHandle>();
 							for(FileHandle fh : fileGroup.getFileHandles()){
@@ -1087,8 +1090,11 @@ public class JobController extends WaspController {
 							}
 							fileGroupFileHandlesMap.put(fileGroup, fileHandles);
 						}
-						break;
+						
 					}catch(Exception e){logger.warn("FileGroup unexpectedly not found");}
+				}
+				if(acctQuoteMeta.getK().toLowerCase().contains("json")){
+					acctQuoteWithJsonEntry.add(acctQuote);
 				}
 			}
 		}
@@ -1113,11 +1119,15 @@ public class JobController extends WaspController {
 		m.addAttribute("fileGroups", fileGroups);
 		m.addAttribute("fileGroupFileHandlesMap", fileGroupFileHandlesMap);
 		m.addAttribute("fileHandlesThatCanBeViewedList", fileHandlesThatCanBeViewedList);
+		m.addAttribute("acctQuoteList", acctQuoteList);
+		m.addAttribute("acctQuoteFileGroupMap", acctQuoteFileGroupMap);
+		m.addAttribute("acctQuoteWithJsonEntry", acctQuoteWithJsonEntry);		
+		
 	}
 	
-	@RequestMapping(value="/{jobId}/createQuoteOrInvoice", method=RequestMethod.GET)
+	@RequestMapping(value="/{jobId}/acctQuote/{quoteId}/createUpdateQuote", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
-	  public String createJobQuoteOrInvoicePage(@PathVariable("jobId") Integer jobId,
+	  public String createJobQuoteOrInvoicePage(@PathVariable("jobId") Integer jobId,@PathVariable("quoteId") Integer quoteId,
 			  ModelMap m) throws SampleTypeException {
 		
 		Job job = jobService.getJobByJobId(jobId);
@@ -1154,34 +1164,41 @@ public class JobController extends WaspController {
  	
 		//8-30-13
  		//if there is no existing quote (for the moment there is none)
- 		MPSQuote mpsQuote = new MPSQuote(job);
- 		List<LibraryCost> libraryCosts = mpsQuote.getLibraryCosts();
- 		int numberOfLibrariesExpectedToBeConstructed = 0;
- 		for(Sample s : jobService.getSubmittedSamples(job)){
- 			
- 			String reasonForNoLibraryCost = "";
- 			if(s.getSampleType().getIName().toLowerCase().equals("library")){
- 				reasonForNoLibraryCost = "N/A";
- 			}
- 			else if(sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(s)).equalsIgnoreCase("withdrawn")){
- 				reasonForNoLibraryCost = "Withdrawn";
- 			}
- 			else{
- 				numberOfLibrariesExpectedToBeConstructed++;
- 			}
- 			LibraryCost libraryCost = null;
- 			if(reasonForNoLibraryCost.isEmpty()){
- 				libraryCost = new LibraryCost(s, s.getName(), s.getSampleType().getName(), reasonForNoLibraryCost, null, "");
- 			}
- 			else{
- 				libraryCost = new LibraryCost(s, s.getName(), s.getSampleType().getName(), reasonForNoLibraryCost, new Float(0.0), "");
- 			}
- 			libraryCosts.add(libraryCost);
- 		}
- 		mpsQuote.setLocalCurrencyIcon(Currency.getInstance(Locale.getDefault()).getSymbol());
- 		mpsQuote.setNumberOfLibrariesExpectedToBeConstructed(new Integer(numberOfLibrariesExpectedToBeConstructed));
- 		mpsQuote.setNumberOfLanesRequested(new Integer(job.getJobCellSelection().size()));
- 		
+		MPSQuote mpsQuote=null;
+		
+		if(quoteId != 0){
+			//mpsQuote = 
+		}
+		
+ 		if(quoteId==0){		
+			mpsQuote = new MPSQuote(job);
+	 		List<LibraryCost> libraryCosts = mpsQuote.getLibraryCosts();
+	 		int numberOfLibrariesExpectedToBeConstructed = 0;
+	 		for(Sample s : jobService.getSubmittedSamples(job)){
+	 			
+	 			String reasonForNoLibraryCost = "";
+	 			if(s.getSampleType().getIName().toLowerCase().equals("library")){
+	 				reasonForNoLibraryCost = "N/A";
+	 			}
+	 			else if(sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(s)).equalsIgnoreCase("withdrawn")){
+	 				reasonForNoLibraryCost = "Withdrawn";
+	 			}
+	 			else{
+	 				numberOfLibrariesExpectedToBeConstructed++;
+	 			}
+	 			LibraryCost libraryCost = null;
+	 			if(reasonForNoLibraryCost.isEmpty()){
+	 				libraryCost = new LibraryCost(s, s.getName(), s.getSampleType().getName(), reasonForNoLibraryCost, null, "");
+	 			}
+	 			else{
+	 				libraryCost = new LibraryCost(s, s.getName(), s.getSampleType().getName(), reasonForNoLibraryCost, new Float(0.0), "");
+	 			}
+	 			libraryCosts.add(libraryCost);
+	 		}
+	 		mpsQuote.setLocalCurrencyIcon(Currency.getInstance(Locale.getDefault()).getSymbol());
+	 		mpsQuote.setNumberOfLibrariesExpectedToBeConstructed(new Integer(numberOfLibrariesExpectedToBeConstructed));
+	 		mpsQuote.setNumberOfLanesRequested(new Integer(job.getJobCellSelection().size()));
+ 		}	
  		/*
 		List<SequencingCost> sequencingCosts = mpsQuote.getSequencingCosts();
 		//fake testing data only
@@ -1209,7 +1226,7 @@ public class JobController extends WaspController {
 		
 		m.addAttribute("mpsQuote", mpsQuote);
 	 		
-		return "job/home/createQuoteOrInvoice";
+		return "job/home/createUpdateQuote";
 	}
 	
 	@RequestMapping(value="/{jobId}/viewerManager", method=RequestMethod.GET)
