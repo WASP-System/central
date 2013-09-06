@@ -2333,6 +2333,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 */
 	@Override
 	public void addNewQuote(Integer jobId, AcctQuote quoteForm, List<AcctQuoteMeta> metaList) throws Exception{
+System.out.println("-----7");
 		Assert.assertParameterNotNullNotZero(jobId, "jobId cannot be null or zero");
 		Job job = jobDao.getById(jobId);
 		Assert.assertParameterNotNull(job, "job cannot be null");
@@ -2340,6 +2341,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		Assert.assertParameterNotNull(quoteForm, "quoteForm cannot be null");
 		Assert.assertParameterNotNull(quoteForm.getAmount(), "quoteForm.getAmount() cannot be null");
 		//Assert.assertParameterNotNullNotEmpty(metaList, "metaList cannot be null or empty");
+System.out.println("-----8");
 		quoteForm.setJobId(jobId);
 		quoteForm.setId(null);//new one; must leave this - problem without it
 		User user = authenticationService.getAuthenticatedUser();
@@ -2351,12 +2353,15 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			logger.warn(str);
 			throw new Exception(str);
 		}
+System.out.println("-----9");
 		//might want to confirm the values in the meta are strings representing floats?? not currently checked, in case other fields are later added
 		try{
 			if(metaList!=null && !metaList.isEmpty()){
+				System.out.println("-----10");
 				this.acctQuoteMetaDao.setMeta(metaList, quoteId);
 			}
 		} catch (MetadataException e){
+			System.out.println("-----11");
 			logger.warn(e.getMessage());
 			throw new Exception(e.getMessage());
 		}
@@ -2364,12 +2369,19 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 					
 			job.getAcctQuote().add(quoteForm);//no real reason to do this here
 		}
-		job.setCurrentQuote(quoteForm);		
-		this.getJobDao().save(job);		
+		System.out.println("-----12");
+		job.setCurrentQuote(quoteForm);	
+		System.out.println("-----13");
+		this.getJobDao().save(job);	
+		System.out.println("-----14");
 		try{	
+			System.out.println("-----15");
 			this.updateJobQuoteStatus(job, WaspStatus.COMPLETED);	
+			System.out.println("-----16");
 		} catch (WaspMessageBuildingException e){
+			System.out.println("-----17");
 			logger.warn(e.getMessage());
+			System.out.println("-----18");
 			throw new Exception(e.getMessage());
 		}
 	}
@@ -2406,17 +2418,17 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 */
 	@Override
 	public void createNewQuoteAndSaveQuoteFile(MPSQuote mpsQuote, File file, Float totalFinalCost, boolean saveQuoteAsJSON) throws Exception{
-			
+System.out.println("-----1");		
 			Job job = this.getJobByJobId(mpsQuote.getJobId());
 		
 			Date now = new Date();
 			DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd");		 	   
 	 	   	Random randomNumberGenerator = new Random(System.currentTimeMillis());
-	 	   
+ System.out.println("-----2");	 	   
 	 	   	//if this is a new quote, save quote; if invoice, save invoice
 	 	   	FileGroup fileGroup = fileService.saveLocalQuoteOrInvoiceFile(job, file, "Job"+job.getId()+"_Quote_"+dateFormat.format(now)+".pdf", "Quote", randomNumberGenerator);
 
-	 	   
+System.out.println("-----3");	 	   
 	 	   	//if this is a new quote, save quote; if invoice, save invoice
 	 	   	AcctQuote acctQuote = new AcctQuote();
 	 	   	acctQuote.setAmount(totalFinalCost);
@@ -2426,11 +2438,14 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 	   	acctQuoteMeta.setV(fileGroup.getId().toString());
 	 	   	acctQuoteMetaList.add(acctQuoteMeta);
 	 	   	if(saveQuoteAsJSON==true){
+System.out.println("-----4");
 	 	   		AcctQuoteMeta acctQuoteMeta2 = new AcctQuoteMeta();
 	 	   		acctQuoteMeta2.setK("acctQuote.json");
 	 	   		acctQuoteMeta2.setV(mpsQuote.getAsJSON().toString());
 	 	   		acctQuoteMetaList.add(acctQuoteMeta2);
 	 	   	}
+System.out.println("-----5");
 	 	   	this.addNewQuote(job.getId(), acctQuote, acctQuoteMetaList);
+System.out.println("-----6");
 	}
 }
