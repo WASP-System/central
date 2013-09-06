@@ -29,6 +29,9 @@ update site (http://waspsystem.org/eclipse):
 Creating a New Wasp System Plugin Project
 *****************************************
 
+Using the Eclipse Plugin Wizard
+===============================
+
 From the STS menu bar select *File* -> *New* -> *Project* -> *WASP Plugin* -> *WASP Plugin Project* and click *Next*. Fill in the Project information 
 as requested and configure the project by selecting the desire features (:num:`figure #fig-configureProj`):
 
@@ -67,6 +70,9 @@ After configuring the project click *finish* and the project will be built and a
    :align: center
    
    Example project folder structure (all configuration options checked).
+   
+Dissecting the Project Structure
+================================
 
 Lets look at the structure and examine the various components. Firstly a brief introduction to some specifics of Spring. Spring facilitates the creation of 
 powerful applications without worrying about the plumbing or writing boilerplate code. It is configuration-centric, creating an application context during 
@@ -83,32 +89,32 @@ project *picard-plugin-context-common.xml* file, a very simple bean is defined r
 
 .. code-block:: xml
  
-	<bean id="picardPluginArea" class="java.lang.String">
-		<constructor-arg>
-			<value>picard</value>
-		</constructor-arg>
-	</bean>
+   <bean id="picardPluginArea" class="java.lang.String">
+       <constructor-arg>
+           <value>picard</value>
+       </constructor-arg>
+   </bean>
 	
 The second bean in this file is declaring a configured instance of the *edu.yu.einstein.wasp.picard.plugin.PicardPlugin* class:
 
 .. code-block:: xml
 
    <bean id="picard" class="edu.yu.einstein.wasp.picard.plugin.PicardPlugin">
-		<constructor-arg name="pluginName" ref="picardPluginArea" />
-		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
-		<constructor-arg name="channel" ref="wasp.channel.plugin.picard" />
-		<property name="pluginDescription" value="A tool for working with NGS data in BAM format" />
-		<property name="provides" >
-			<set>
-				<ref bean="picard" /> 
-			</set>
-		</property>
-		<property name="handles" >
-			<set>
-				<ref bean="picardPluginArea" />
-			</set>
-		</property>
-	</bean>
+       <constructor-arg name="pluginName" ref="picardPluginArea" />
+       <constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
+       <constructor-arg name="channel" ref="wasp.channel.plugin.picard" />
+       <property name="pluginDescription" value="A tool for working with NGS data in BAM format" />
+       <property name="provides" >
+           <set>
+             <ref bean="picard" /> 
+           </set>
+        </property>
+        <property name="handles" >
+            <set>
+                <ref bean="picardPluginArea" />
+            </set>
+        </property>
+   </bean>
 
 Notice how the *picardPluginArea* bean is injected into the *picard* bean by providing its object reference as a constructor argument. Notice also how 
 collections may be injected, in this case a collection of type *java.util.Set*. You can see another example of passing by value with the setting of the 
@@ -120,12 +126,12 @@ It is possible to evaluate expressions and inject the result into a bean during 
 
 .. code-block:: java
 
-    <bean class="org.baz.bar.Foo">
-	    <property name="foobar">
-	    	<value>${wasp.config.foobar}</value>
-	    </property>
-	    <property name="name" value="#{picard.getName()}" />
-	</bean>
+   <bean class="org.baz.bar.Foo">
+       <property name="foobar">
+           <value>${wasp.config.foobar}</value>
+       </property>
+       <property name="name" value="#{picard.getName()}" />
+   </bean>
 	
 In the above example two properties called *foobar* and *name* are being set. The *foobar* property value is intended to be an evaluated property. In the 
 Wasp System, custom and system properties are both defined in the *wasp-config* plugin in the *src/main/resources/\*.properties* files. In this example,
