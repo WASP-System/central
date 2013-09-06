@@ -24,6 +24,7 @@
 		<property name="idleConnectionTestPeriod"><value>${batchdb.jdbc.idleConnectionTestPeriod}</value></property>
 		<property name="numHelperThreads"><value>${batchdb.jdbc.numHelperThreads}</value></property>
 		<property name="checkoutTimeout"><value>${batchdb.jdbc.checkoutTimeout}</value></property>
+		<property name="maxStatements"><value>${batchdb.jdbc.maxStatements}</value></property>
 	</bean>
 
 	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
@@ -41,6 +42,7 @@
 		<property name="idleConnectionTestPeriod"><value>${db.jdbc.idleConnectionTestPeriod}</value></property>
 		<property name="numHelperThreads"><value>${db.jdbc.numHelperThreads}</value></property>
 		<property name="checkoutTimeout"><value>${db.jdbc.checkoutTimeout}</value></property>
+		<property name="maxStatements"><value>${db.jdbc.maxStatements}</value></property>
 	</bean>
 
 	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">

@@ -26,7 +26,9 @@
     <!-- defines a route to inject messages into the system from within the WASP System-->
     <int-rmi:inbound-gateway id="internalRmiGateway"
     	request-channel="wasp.channel.remoting.inbound" 
-    	reply-channel="wasp.channel.reply"
+    	expect-reply="true"
+    	reply-timeout="5000"
+		request-timeout="5000"
     	registry-port="23533" 
 
  	/>
@@ -43,7 +45,9 @@
     <!-- defines a secure route to inject messages into the system from outside the WASP System-->
     <int-rmi:inbound-gateway id="externalSecureRmiGateway"
     	request-channel="wasp.channel.remoting.secure.inbound" 
-    	reply-channel="wasp.channel.reply"
+    	expect-reply="true"
+    	reply-timeout="5000"
+		request-timeout="5000"
     	registry-port="23532" />
     
     

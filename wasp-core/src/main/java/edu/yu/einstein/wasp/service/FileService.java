@@ -41,10 +41,7 @@ import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
-import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing.Status;
-import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 @Service
 public interface FileService extends WaspService {
@@ -231,18 +228,19 @@ public interface FileService extends WaspService {
 
 
 	/**
+	 * @throws FileUploadException 
 	 * 
 	 */
-	public void copyFileHandleToOutputStream(FileHandle fileHandle, OutputStream os) throws FileDownloadException, FileNotFoundException, GridException;
+	public void copyFileHandleToOutputStream(FileHandle fileHandle, OutputStream os) throws FileDownloadException, FileNotFoundException, GridException, FileUploadException;
 	
 	/**
+	 * @throws FileUploadException 
 	 * 
 	 */
-	public void copyFileHandlesInFileGroupToOutputStream(FileGroup fileGroup, OutputStream os) throws FileDownloadException, FileNotFoundException, GridException;
+	public void copyFileHandlesInFileGroupToOutputStream(FileGroup fileGroup, OutputStream os) throws FileDownloadException, FileNotFoundException, GridException, FileUploadException;
 
 
 	/**
-	 * in Java7 this will be a lot easier, but for now, fake it
 	 * @param String fileName
 	 * @return String mimeType (if not known, return empty string)
 	 */

@@ -43,6 +43,7 @@
 			commentObj.focus();
 			return false;
 		}
+		openWaitDialog();
 		return true;
 	}
 	function selectedFail(formId){
