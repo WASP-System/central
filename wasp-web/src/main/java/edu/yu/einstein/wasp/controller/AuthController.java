@@ -58,8 +58,8 @@ public class AuthController extends WaspController {
     binder.setValidator(validator);
   }
   
-  @RequestMapping(value="/loginHandler", method=RequestMethod.GET)
-  public String loginHandler(ModelMap m){
+  @RequestMapping(value="/login", method=RequestMethod.GET)
+  public String login(ModelMap m){
 	  logger.debug("Using external authentication = " + authenticationService.isAuthenticationSetExternal());
 	  if (authenticationService.isAuthenticatedWaspUser()){
 		  User authUser = authenticationService.getAuthenticatedUser();
@@ -74,10 +74,10 @@ public class AuthController extends WaspController {
 	  } else if (authenticationService.isAuthenticated()){
 		  authenticationService.logoutUser();
 		  waspErrorMessage("auth.authenticatedButNoWaspAccount.error");
-		  return "redirect:/auth/loginHandler.do";
+		  return "redirect:/auth/login.do";
 	  }
 	  m.addAttribute("isAuthenticationExternal", authenticationService.isAuthenticationSetExternal());
-	  return "auth/login";
+	  return "auth/loginPage";
   }
   
   @RequestMapping(value="/confirmemail/requestEmailChange", method=RequestMethod.GET)
@@ -337,7 +337,7 @@ public class AuthController extends WaspController {
 		confirmEmailAuthDao.remove(auth);
 		if (authenticationService.isAuthenticationSetExternal()){
 			waspMessage("user.email_change_confirmed.label");
-			return "redirect:/auth/loginHandler.do"; 	
+			return "redirect:/auth/login.do"; 	
 		}
 		return "redirect:/auth/resetpassword/form.do?authcode="+getUserPasswordAuthcode(user);//sets the password authcode in database (see function above)
 	}
@@ -355,7 +355,7 @@ public class AuthController extends WaspController {
 			return "redirect:/auth/resetpassword/form.do?authcode="+userpasswordauth.getAuthcode();
 		}
 		waspMessage("user.email_change_confirmed.label");
-		return "redirect:/auth/loginHandler.do";	
+		return "redirect:/auth/login.do";	
 	}
 	// get here if no ConfirmEmailAuth object for current authcode (maybe already clicked on the link or expired) 
 	// and externally authenticating or not admin created
