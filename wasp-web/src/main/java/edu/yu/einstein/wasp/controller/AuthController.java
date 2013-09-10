@@ -378,7 +378,7 @@ public class AuthController extends WaspController {
 		}
 		// authcode and email match 
 		confirmEmailAuthDao.remove(auth);
-		if (authenticationService.isAuthenticationSetExternal()){
+		if (isAdminCreated == 0 || authenticationService.isAuthenticationSetExternal()){
 			waspMessage("user.email_change_confirmed.label");
 			return "redirect:/auth/login.do"; 	
 		}
