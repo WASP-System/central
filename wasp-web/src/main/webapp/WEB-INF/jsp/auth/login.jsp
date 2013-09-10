@@ -6,7 +6,7 @@
 </c:if>
 
 <h1>
-	<fmt:message key="pageTitle.auth/login.label" />
+	<fmt:message key="pageTitle.auth/loginPage.label" />
 </h1>
 
 <div class="instructions">
