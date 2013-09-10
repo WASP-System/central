@@ -1,17 +1,26 @@
 package edu.yu.einstein.wasp.controller;
 
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URLDecoder;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletResponse;
 
 import nl.captcha.Captcha;
 
+import org.apache.http.HttpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -59,8 +68,20 @@ public class AuthController extends WaspController {
   }
   
   @RequestMapping(value="/login", method=RequestMethod.GET)
-  public String login(ModelMap m){
+  public String login(HttpServletResponse response, ModelMap m){
 	  logger.debug("Using external authentication = " + authenticationService.isAuthenticationSetExternal());
+	  String targetURL = "";
+	  SavedRequest savedRequest =  new HttpSessionRequestCache().getRequest(request, response);
+	  if (savedRequest != null){
+		  targetURL = savedRequest.getRedirectUrl(); // get the target url from which we were redirected to login (if set)
+		  if (!targetURL.isEmpty()){
+			  logger.debug("target URL is provided so setting session variable for target = " + targetURL);
+			  // store target URL in session variable. During login process the original target from which
+			  // Spring Security redirected non-authenticated user will be preserved and can be retrieved from the session after successful login.
+			  // target URL is ONLY set if Spring Security forces a re-direction to the login page.
+			  request.getSession().setAttribute("targetURL", targetURL); 
+		  }
+	  }
 	  if (authenticationService.isAuthenticatedWaspUser()){
 		  User authUser = authenticationService.getAuthenticatedUser();
 		  ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByUserId(authUser.getId());
@@ -69,6 +90,26 @@ public class AuthController extends WaspController {
 			  authenticationService.logoutUser();
 			  return "redirect:/auth/confirmemail/emailchanged.do";
 		  } else {
+			  // if a target URL was set, get it out of the session variable and redirect to it otherwise go to dashboard. Target URL is a location 
+			  // within the secure area of the system from which Spring Security re-directed to the login page because
+			  // the user was not logged in (note difference from referring URL).
+			  targetURL = (String) request.getSession().getAttribute("targetURL");
+			  if (targetURL != null ){
+				  request.getSession().removeAttribute("targetURL"); // remove used session variable
+				  logger.debug("targetURL from session =" + targetURL);
+				  // extract relative path for redirect destination from the target url
+				  String servletPathCaptureExp = "^.*?" + request.getServerName() + "(:\\d+)?\\" + request.getContextPath() + "(/.+)?\\s*$";
+				  Pattern pattern = Pattern.compile(servletPathCaptureExp);
+				  Matcher matcher = pattern.matcher(targetURL);
+				  if (matcher.find()){
+					  String destPath = matcher.group(2);
+					  logger.debug("redirecting to target destination " + destPath);
+					  return "redirect:" + targetURL;
+				  } else {
+					  logger.warn("Unable to extract destination path from target URL");
+				  }
+			  }
+			  logger.debug("Login success so redirecting to dashboard");
 			  return "redirect:/dashboard.do";
 		  }
 	  } else if (authenticationService.isAuthenticated()){
