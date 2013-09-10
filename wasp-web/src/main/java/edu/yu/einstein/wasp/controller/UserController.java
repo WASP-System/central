@@ -692,6 +692,7 @@ public class UserController extends WaspController {
 		user.setUserMeta(getMetaHelperWebapp().syncWithMaster(user.getUserMeta()));
 		
 		m.addAttribute("user", user);
+		m.addAttribute("isAuthenticationExternal", authenticationService.isAuthenticationSetExternal());
 		
 		prepareSelectListData(m);
 		

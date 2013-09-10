@@ -22,9 +22,9 @@
         <intercept-url pattern="/open/**" access="permitAll" />
         <intercept-url pattern="/**" access="isAuthenticated()" />
 
-        <form-login login-page="/auth/loginHandler.do"
+        <form-login login-page="/auth/login.do"
            authentication-failure-url="/auth/login.do?error=1"
-           default-target-url="/auth/loginHandler.do"   
+           default-target-url="/auth/login.do"   
            always-use-default-target="true"
            />
         <logout />
