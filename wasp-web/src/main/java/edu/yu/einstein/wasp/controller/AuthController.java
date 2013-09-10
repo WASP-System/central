@@ -61,6 +61,8 @@ public class AuthController extends WaspController {
   @Autowired
   private ConfirmEmailAuthDao confirmEmailAuthDao;
   
+  private static final String TARGET_URL_KEY = "targetURL";
+  
   @Override
   @InitBinder
   protected void initBinder(WebDataBinder binder) {
@@ -79,7 +81,7 @@ public class AuthController extends WaspController {
 			  // store target URL in session variable. During login process the original target from which
 			  // Spring Security redirected non-authenticated user will be preserved and can be retrieved from the session after successful login.
 			  // target URL is ONLY set if Spring Security forces a re-direction to the login page.
-			  request.getSession().setAttribute("targetURL", targetURL); 
+			  request.getSession().setAttribute(TARGET_URL_KEY, targetURL); 
 		  }
 	  }
 	  if (authenticationService.isAuthenticatedWaspUser()){
@@ -93,7 +95,7 @@ public class AuthController extends WaspController {
 			  // if a target URL was set, get it out of the session variable and redirect to it otherwise go to dashboard. Target URL is a location 
 			  // within the secure area of the system from which Spring Security re-directed to the login page because
 			  // the user was not logged in (note difference from referring URL).
-			  targetURL = (String) request.getSession().getAttribute("targetURL");
+			  targetURL = (String) request.getSession().getAttribute(TARGET_URL_KEY);
 			  if (targetURL != null ){
 				  request.getSession().removeAttribute("targetURL"); // remove used session variable
 				  logger.debug("targetURL from session =" + targetURL);
