@@ -10,7 +10,12 @@
 </h1>
 
 <div class="instructions">
-	<fmt:message key="auth.login_instructions.label" />
+	<c:if test="${isAuthenticationExternal == true}">
+		<fmt:message key="auth.login_instructions_external.label" />
+	</c:if>
+	<c:if test="${isAuthenticationExternal == false}">
+		<fmt:message key="auth.login_instructions_internal.label" />
+	</c:if>
 </div>
 
 <form name="f" action="<c:url value='/j_spring_security_check'/>"
@@ -42,7 +47,9 @@
 
 
 <nav id="loginNav">
-	<a href="/wasp/auth/resetpassword/request.do"><fmt:message	key="auth.login_anchor_forgotpass.label" /></a> | 
+	<c:if test="${isAuthenticationExternal == false }">
+		<a href="/wasp/auth/resetpassword/request.do"><fmt:message	key="auth.login_anchor_forgotpass.label" /></a> | 
+	</c:if>
 	<a href="/wasp/auth/newuser.do"><fmt:message key="auth.login_anchor_newuser.label" /></a> | 
 	<a href="/wasp/auth/newpi/institute.do"><fmt:message key="auth.login_anchor_newpi.label" /></a> <%--  |
 	<a href="/wasp/static/about.do"><fmt:message key="auth.login_anchor_about.label" /></a> --%>
