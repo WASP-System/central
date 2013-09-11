@@ -8,6 +8,14 @@ distribution. Plugins can provide a variety of functionalities, common examples 
 * Software: definition, dependencies and workflows
 * Visualization tools: Generation of panels
 
+This section demonstrates how to create a working plugin from scratch, walking the reader through the process step by step. The plugin we will create is
+the "Picard" plugin. `Picard <http://picard.sourceforge.net>`_ is a set of command line Java executables that manipulate SAM / BAM files. 
+We would like this plugin to:
+
+1. Define a software wrapper for each command line tool (for this example we will only be implementing the *CollectAlignmentSummaryMetrics* tool).
+2. Hook into the Wasp messaging system (wasp-daemon) to be notified when any BAM files are made in order to the QC tools on those files automatically.
+3. Parse output from the QC analyses for display in a panel when a system user is examining output related to a particular BAM file.
+
 Installing and Using the Wasp System Eclipse Plugin
 ***************************************************
 
@@ -69,23 +77,25 @@ After configuring the project click *finish* and the project will be built and a
    :width: 10cm
    :align: center
    
-   Example project folder structure (all configuration options checked).
+   Picard example project folder structure (all configuration options checked).
    
-Dissecting the Project Structure
-================================
+Spring 101
+==========
 
-Lets look at the structure and examine the various components. Firstly a brief introduction to some specifics of Spring. Spring facilitates the creation of 
+Before we look in detail at the structure of the project we have created and examine the various components, we first need to understand some basic 
+fundamentals of the Spring framework.
+
+Spring facilitates the creation of 
 powerful applications without worrying about the plumbing or writing boilerplate code. It is configuration-centric, creating an application context during 
 application initialization which consists of Java beans which have been pre-configured either in code or XML files. By programming to interfaces, it is easy
-to swap out components for testing or upgrading the application. For example, it is easy to change from using a mysql database to an Oracle datavase
-simply by swapping out database adapters, without changing any business logic. 
+to swap out components for testing or upgrading the application. For example, it is easy to change from using a mysql database to an Oracle database
+simply by swapping out database adapters in configuration and without changing any business logic (POJOs). 
 
-In the Wasp System, application 
-configuration files in turn import the configuration files defined in plugins. In the *src/main/resources:META-INF/spring* folder within the project structure 
-you will see XML 
-configuration files suffixed by *common.xml*, *batch.xml* and *web.xml* (the latter two are optional depending on the plugin type). Looking in the picard 
-project *picard-plugin-context-common.xml* file, a very simple bean is defined representing a string instance called *picardPluginArea* which has the value 
-"picard" injected via the constructor:
+In the Wasp System, the configuration (XML) files defining the application contexts of the core components (*wasp-core*, *wasp-daemon* and *wasp-web*) import 
+plugin-specific configuration files from each registered plugin. In the *src/main/resources:META-INF/spring* folder within the project structure we have 
+created (:num:`figure #fig-picardProjStructure`), you will see XML configuration files suffixed by *common.xml*, *batch.xml* and *web.xml* (the latter two are 
+optional depending on how the plugin was configured). Looking in the picard project *picard-plugin-context-common.xml* file, a very simple bean is defined 
+representing a string instance called *picardPluginArea* which has the value "picard" injected via the constructor:
 
 .. code-block:: xml
  
@@ -134,7 +144,7 @@ It is possible to evaluate expressions and inject the result into a bean during 
    </bean>
 	
 In the above example two properties called *foobar* and *name* are being set. The *foobar* property value is intended to be an evaluated property. In the 
-Wasp System, custom and system properties are both defined in the *wasp-config* plugin in the *src/main/resources/\*.properties* files. In this example,
+Wasp System, custom and system properties are both defined in the *wasp-config* plugin within the *src/main/resources/\*.properties* files. In this example,
 one of these files is expected to contain the line "wasp.config.foobar=My Foo Plugin". Thus, during bean instantiation, the *${wasp.config.foobar}* placeholder
 is replaced with the String value "My Foo Plugin". The *name* property value is obtained by evaluating a `Spring Expression Language (SpEL) 
 <http://static.springsource.org/spring/docs/3.0.x/reference/expressions.html>`_ construct. In this case, it assumes a bean called "picard" is defined, and 
@@ -194,28 +204,28 @@ first letter de-capitalized.
         to bean destruction, e.g. closing a resource, a public method annotated with *@PreDestroy* may also be provided.
      5. Beans ready for use. 
 
-With a basic introduction to the concepts of Spring required to generate plugins, it is now possible to examine the details of the project structure for a 
+With a basic introduction to the concepts of Spring required to generate plugins, we can move on to examine the details of the project structure for a 
 plugin:
 
 * **src/main/java**
 
-  - **{package_root}.batch.tasklet** 
+  **<package_root>.batch.tasklet** 
     Location for batch job tasklets. Tasklets contain the code executed in each step of the batch flow. They extend abstract class 
     *wasp-daemon:edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet*
     
-  - **{package_root}.batch.controller**
+  **<package_root>.batch.controller**
     MVC controller code. For web-enabled plugins the request mappings and associated business logic are defined here. Classes should extend the 
     *wasp-web:edu.yu.einstein.wasp.controller/WaspController* class.
     
-  - **{package_root}.exception**
+  **<package_root>.exception**
     Package for placing plugin-specific exceptions. An extension of Exception and RuntimeException are provided and can be extended further.
     
-  - **{package_root}.integration.endpoints**
+  **<package_root>.integration.endpoints**
     This package is where custom Spring Integration message endpoint classes can be defined. These include service activators, channel adapters, transformers, 
     filters, routers, splitters and aggregators. See the SpringSource documentation (http://static.springsource.org/spring-integration/reference) for more 
     information message endpoints.
   
-  - **{package_root}.integration.messages**
+  **<package_root>.integration.messages**
     Spring Integration provides for messages and message channels to be defined that allow communication between the core wasp systems and plugins. Messages 
     are simply a set of 
     headers (key-value) and a payload object. The name and value of headers and the type and value of the payload can all be used to determine how a message 
@@ -227,39 +237,39 @@ plugin:
     
     .. code-block:: java
     
-	    public class WaspMessageType {
-			public static final String HEADER_KEY = "messagetype"; // constant for use with message headers
-			public static final String JOB = "job"; 
-			public static final String PLUGIN = "plugin";
-			public static final String RUN = "run";
-			public static final String SAMPLE = "sample";
-			public static final String LIBRARY = "library";
-			public static final String ANALYSIS = "analysis";
-			public static final String GENERIC = "generic";
-			public static final String FILE = "file";
-			public static final String LAUNCH_BATCH_JOB = "launchBatchJob";
-		}
+       public class WaspMessageType {
+         public static final String HEADER_KEY = "messagetype"; // header name
+         public static final String JOB = "job"; 
+         public static final String PLUGIN = "plugin";
+         public static final String RUN = "run";
+         public static final String SAMPLE = "sample";
+         public static final String LIBRARY = "library";
+         public static final String ANALYSIS = "analysis";
+         public static final String GENERIC = "generic";
+         public static final String FILE = "file";
+         public static final String LAUNCH_BATCH_JOB = "launchBatchJob";
+       }
 		
-		public class WaspJobParameters {
-			public static final String GENOME_STRING = "genomeString";
-			public static final String JOB_ID = "jobId";
-			public static final String JOB_NAME = "jobName";
-			public static final String SAMPLE_ID = "sampleId";
-			public static final String SAMPLE_NAME = "sampleName";
-			public static final String LIBRARY_ID = "sampleId";
-			public static final String LIBRARY_NAME = "libraryName";
-			public static final String LIBRARY_CELL_ID = "libraryCellId";
-			public static final String RUN_ID = "runId";
-			public static final String RUN_NAME = "runName";
-			public static final String RUN_RESOURCE_CATEGORY_INAME = "runResourceCatIname";
-			public static final String PLATFORM_UNIT_ID = "platformUnitId";
-			public static final String PLATFORM_UNIT_NAME = "platformUnitName";
-			public static final String BATCH_JOB_TASK = "batchJobTask";
-			public static final String FILE_GROUP_ID = "fileGroupId";
-			public static final String TEST_ID = "testId";
-		}
+       public class WaspJobParameters {
+         public static final String GENOME_STRING = "genomeString";
+         public static final String JOB_ID = "jobId";
+         public static final String JOB_NAME = "jobName";
+         public static final String SAMPLE_ID = "sampleId";
+         public static final String SAMPLE_NAME = "sampleName";
+         public static final String LIBRARY_ID = "sampleId";
+         public static final String LIBRARY_NAME = "libraryName";
+         public static final String LIBRARY_CELL_ID = "libraryCellId";
+         public static final String RUN_ID = "runId";
+         public static final String RUN_NAME = "runName";
+         public static final String RUN_RESOURCE_CATEGORY_INAME = "runResourceCatIname";
+         public static final String PLATFORM_UNIT_ID = "platformUnitId";
+         public static final String PLATFORM_UNIT_NAME = "platformUnitName";
+         public static final String BATCH_JOB_TASK = "batchJobTask";
+         public static final String FILE_GROUP_ID = "fileGroupId";
+         public static final String TEST_ID = "testId";
+       }
   
-  - **{package_root}.plugin**
+  **<package_root>.plugin**
     This is the location of the plugin definition class. A bean derived from type *wasp-core:edu.yu.einstein.wasp.plugin.WaspPlugin* is defined in the 
     configuration for the plugin which is located in the *src/main/resources:META-INF/spring/* folder. Optionally, the plugin may declare properties "provides" 
     and "handles" which declare services that the plugin implements and resources that it may act upon.  For example, a plugin may declare that it implements
@@ -273,30 +283,50 @@ plugin:
        can be autowired into any class and interrogated using the *Set<WaspPlugin> getPluginsHandlingArea(String area)* and 
        *List<T> getPluginsHandlingArea(String area, Class<T> clazz)* methods.
   
-  - **{package_root}.service.impl**
+  **<package_root>.service.impl**
     Plugin business logic that accesses data access objects (DAOs) defined in the wasp-core can be implemented here. Any classes defined in here with 
     annotations @Service or @Component will be automatically instantiated as beans on application startup.
   
-  - **{package_root}.software**
+  **<package_root>.software**
     This package is intended for inclusion of Classes extending the *wasp-core:edu.yu.einstein.wasp.software.SoftwarePackage* class. Each class defined in
     this package should provide methods relevant for executing the software it is wrapping. A loader configuration file (filename ending in *Load.xml*) should 
     be provided in the *src/main/resources:wasp/* folder which creates a bean instance of each software class via the 
     *edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory* factory bean. This is pre-configured for you when you created the project. The bean is generated via 
     a "factory bean" because certain attributes must be stored in the core database.
   
-  - **{package_root}.**
-  
-  - **{package_root}.**
-  
-  - **{package_root}.**
-  
-  - **{package_root}.**
-  
-  - **{package_root}.**
-  
-  - **{package_root}.**
-  
-  - **{package_root}.**
-  
-  - **{package_root}.**
+* **src/main/resources**
 
+  **css** 
+    project specific .css files go here
+  
+  **flows**
+    Spring batch flows should be place in here. All files within this folder (or subdirectories of this folder) are imported by the 'wasp-daemon' commonent of
+    the Wasp System during application initialization.
+    
+  **i18n**
+    Internationalization properties files go here. Typically internalization properties defined within here may be evaluated in code by injecting the 
+    *messageServiceImpl* bean (implements *edu.yu.einstein.wasp.service.MessageService*) e.g for a property in the *messages_en_US.properties* file defined
+    ``foo.warning=Do not mess with foo``, in the following example the method *getInternationalizedFooWarning()* returns the string "Do not mess with foo".
+    
+    .. code-block:: java
+    
+      @Autowired
+      private MessageService messageService;
+	
+      String getdefaultInternationalizedFooWarning(){
+        return messageService.getMessage("foo.warning"); // defaults to Locale.US
+      }
+      
+      String getInternationalizedFooWarning(){
+        return messageService.getMessage("foo.warning", Locale.US);
+      }
+    
+    Also in web views, these properties may be evaluated within jsp pages. In the example shown below the text "Foo says: Do not mess with foo" would 
+    be displayed in the browser:
+    
+    .. code-block:: jsp
+    
+      <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+      
+      <%-- gets locale automatically from HttpServletRequest --%>
+      Foo says: <fmt:message key="foo.warning" />  
