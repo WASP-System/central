@@ -34,7 +34,6 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqComparator;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
-import edu.yu.einstein.wasp.plugin.mps.tools.Picard;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
@@ -54,9 +53,6 @@ public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionLis
 	
 	@Autowired
 	private SampleService sampleService;
-	
-	@Autowired
-	private Picard picard;
 	
 	@Autowired
 	private FileService fileService;
@@ -128,7 +124,6 @@ public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionLis
 		w.setRequiredFiles(fhlist);
 		
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
-		sd.add(picard);
 		w.setSoftwareDependencies(sd);
 		w.setSecureResults(true);
 		
