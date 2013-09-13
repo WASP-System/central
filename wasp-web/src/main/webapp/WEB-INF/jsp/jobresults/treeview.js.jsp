@@ -2,12 +2,14 @@
 
 <script type="text/javascript"	src="https://github.com/rgrove/lazyload/raw/master/lazyload.js"></script>
 
+<script type="text/javascript"	src="https://raw.github.com/johnculviner/jquery.fileDownload/master/src/Scripts/jquery.fileDownload.js"></script>
+
 <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
 
-<script type="text/javascript" src="http://cdn.sencha.com/ext/gpl/4.2.1/ext-all-debug.js"></script>
+<script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/ext-all-debug.js"></script>
 <!--script type="text/javascript" src="/wasp/scripts/extjs/ext-all.js"></script-->
 
-<script type="text/javascript" src="http://cdn.sencha.com/ext/gpl/4.2.1/packages/ext-theme-neptune/build/ext-theme-neptune.js"></script>
+<script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/packages/ext-theme-neptune/build/ext-theme-neptune.js"></script>
 <!--script type="text/javascript" src="/wasp/scripts/extjs/ext-theme-neptune-wasp.js"></script-->
 
 <!--script type="text/javascript" src="/wasp/scripts/extjs/examples/shared/include-ext.js"></script-->
@@ -353,6 +355,11 @@ function click(d) {
 				tabpanel.removeAll();
 				
 				var filePanel = Ext.create('Wasp.FileDownloadGridPortlet', { fileDownloadArray: result.filedownloadlist });
+				
+				//test
+				//$.fileDownload('http://phoenix.einstein.yu.edu:8080/wasp-file/get/file/c7d5237e-ab84-4837-a618-6ec17ac6add3');
+				//test
+				
 				var summarytab = tabpanel.add({
 	            	id: 'file-tab',
 	            	xtype: 'panel',

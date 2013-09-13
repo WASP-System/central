@@ -249,17 +249,16 @@ public class ResultViewController extends WaspController {
 					fhSet.addAll(fg.getFileHandles());
 				}
 				
-				String[][] fileDownloadArray = new String[fhSet.size()][5];
+				String[][] fileDownloadArray = new String[fhSet.size()][4];
 				Hyperlink hl;
 				int i = 0;
 				for (FileHandle fh : fhSet) {
 					try {
 						hl = new Hyperlink("Download", fileUrlResolver.getURL(fh).toString());
-						fileDownloadArray[i][0] = "true";
-						fileDownloadArray[i][1] = fh.getFileName();
-						fileDownloadArray[i][2] = fh.getSizek().toString();
-						fileDownloadArray[i][3] = fh.getMd5hash();
-						fileDownloadArray[i][4] = hl.getTargetLink();
+						fileDownloadArray[i][0] = fh.getFileName();
+						fileDownloadArray[i][1] = fh.getMd5hash();
+						fileDownloadArray[i][2] = fh.getSizek() != null ? fh.getSizek().toString() : "0kb";
+						fileDownloadArray[i][3] = hl.getTargetLink();
 					} catch (GridUnresolvableHostException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -304,6 +303,7 @@ public class ResultViewController extends WaspController {
 			return outputJSON(jsDetailsTabs, response);
 		} 
 		catch (Throwable e) {
+			e.printStackTrace();
 			throw new IllegalStateException("Can't marshall to JSON for " + nodeJSON, e);
 		}	
 	}

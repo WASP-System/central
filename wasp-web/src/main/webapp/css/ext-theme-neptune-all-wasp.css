@@ -5431,6 +5431,8 @@ a.x-tab {
   vertical-align: middle;
   background-repeat: no-repeat;
   font-size: 0;
+/* added by AJ, for removing padding on the first column where checkbox is */
+  padding: 0;
 }
 
 /* line 1, ../../../ext-theme-base/sass/src/tab/Panel.scss */
@@ -15097,11 +15099,6 @@ a.x-color-picker-item:hover {
   background-color: white;
   border-color: #ededed;
   border-style: solid;
-}
-
-/* added by AJ, for removing padding on the first column where checkbox is */
-.grid-portlet-checkbox-column-first .x-grid-cell-first {
-	padding: 0
 }
 
 /* line 26, ../../../ext-theme-neutral/sass/src/panel/Table.scss */

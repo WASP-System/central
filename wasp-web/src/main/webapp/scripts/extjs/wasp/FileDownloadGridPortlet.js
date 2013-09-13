@@ -4,9 +4,9 @@ Ext.define('Wasp.FileDownloadGridPortlet', {
     uses: [
         'Ext.data.ArrayStore',
         'Ext.selection.CheckboxModel',
+        'Ext.grid.plugin.RowExpander',
         'Wasp.Component'
     ],
-    tabPanel : null,
     fileDownloadArray: [],
     height: 300,
     /**
@@ -27,7 +27,6 @@ Ext.define('Wasp.FileDownloadGridPortlet', {
 
         var store = Ext.create('Ext.data.ArrayStore', {
             fields: [
-               {name: 'checked'},
                {name: 'filename'},
                {name: 'checksum'},
                {name: 'size'},
@@ -39,7 +38,7 @@ Ext.define('Wasp.FileDownloadGridPortlet', {
         var sm = Ext.create('Ext.selection.CheckboxModel', {
 			singleSelect: false,
 			sortable: false,
-			checkOnly: true//,
+			checkOnly: false//,
 //			renderer:function(value,metaData,record,rowIndex,colIndex,store,view){
 //				metaData.tdCls = Ext.baseCSSPrefix + 'grid-cell-special';
 //				return '<div class="' + Ext.baseCSSPrefix + 'grid-row-checker">&#160;</div>';   
@@ -72,7 +71,7 @@ Ext.define('Wasp.FileDownloadGridPortlet', {
 	            {
 	                id       :'filename',
 	                text   : 'Name',
-	                width    : 200,
+	                width    : 250,
 	                sortable : true,
 	                dataIndex: 'filename'
 	            },{
@@ -83,9 +82,56 @@ Ext.define('Wasp.FileDownloadGridPortlet', {
 	                dataIndex: 'checksum'
 	            },{
 	                text   : 'Size',
-	                width: 120,
+	                width: 100,
 	                sortable : true,
 	                dataIndex: 'size'
+	            },{
+	            	text: 'Download',
+	            	width: 120,
+	            	sortable: false,
+	            	dataIndex: 'downloading', 
+		            xtype: 'componentcolumn', 
+		 
+		            renderer: function(value, m, record) { 
+		                if (value === 100) { 
+		                    return 'Complete'; 
+		                }
+		                
+		                if (value === -1) { 
+		                    return 'Fail'; 
+		                }
+		 
+		                if (Ext.isDefined(value)) { 
+		                    setTimeout(function() { 
+		                        // This works because calling set() causes a view refresh 
+		                        record.set('downloading', value + 5); 
+		                    }, 250); 
+		 
+		                    return { 
+		                        animate: false, 
+		                        value: value / 100, 
+		                        xtype: 'progressbar' 
+		                    }; 
+		                } 
+		 
+		                return { 
+		                    text: 'Download', 
+		                    xtype: 'button', 
+		 
+		                    handler: function() {
+		                    	$.fileDownload(record.get('link'))
+		                    		.done(function () { 
+		                    			//alert('File download a success!'); 
+		                    			record.set('downloading', 100); 
+		                    		})
+		                    		.fail(function () {
+										//alert('File download failed!');
+		                    			record.set('downloading', -1)
+									});
+		                        //record.set('downloading', 0); 
+		                    } 
+		                }; 
+		            }
 	            }
 			],
 			dockedItems: [{
