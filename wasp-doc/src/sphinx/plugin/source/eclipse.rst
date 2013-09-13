@@ -399,6 +399,17 @@ WPP:
     
    **NEVER** think that writing tests is a waste of time or that not writing tests is ok because it saves time - in the long run this is simply not true and 
    you can end up compromising the quality, reliability and maintainability of an entire project by not taking testing seriously.
+   
+Developing the Picard WPP
+*************************
+
+The Wasp System Eclipse Plugin Wizard automatically added most of the classes we need to being working on the Picard Plugin. But before we start lets condider
+what we would like the plugin to do. Remember that Picard is a collection of discrete java command line applications. Each application has its own set of
+parameters and output files so we will consider them as independent plugins within the Picard Plugin Project to keep things atomic and prevent the tools from 
+becoming tightly coupled. So what is a WPP and individual plugin to The Wasp System? A WPP represents a project which is built into a single versioned jar. 
+Each plugin within the WPP is defined by a bean implementing an extension of the ``wasp-core:edu.yu.einstein.wasp.plugin.WaspPlugin`` class. During bean 
+ininitialization, a list of beans derived from this class are stored in a bean of type ``edu.yu.einstein.wasp.plugin.WaspPluginRegistry``. This bean can be
+autowired into a POJO and asked to return a list of plugins that implement a specific subtype or which.
 
 
      

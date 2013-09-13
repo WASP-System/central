@@ -15,33 +15,5 @@
 			<value>mps-tools</value>
 		</constructor-arg>
 	</bean>
-	
-	<!-- channel for communications with this plugin. -->
-	<int:channel id="wasp.channel.plugin.mps-tools" />
-
-	<int:service-activator input-channel="wasp.channel.plugin.mps-tools" ref="mps-tools.WaspPluginBean" method="process" />
-	
-	<bean id="mps-tools.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.mps.tools.plugin.MPSToolsPlugin">
-		<constructor-arg name="pluginName" ref="mps-tools" />
-		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
-		<constructor-arg name="channel" ref="wasp.channel.plugin.mps-tools" />
-		<property name="provides" >
-			<set>
-				<ref bean="samtools" />
-				<ref bean="picard" />
-			</set>
-		</property>
-		<!-- 
-		<property name="handles" >
-			<set>
-				<ref bean="illuminaHiSeq2000" />
-				<ref bean="illuminaHiSeq2500" />
-				<ref bean="illuminaMiSeqPersonalSequencer" />
-			</set>
-		</property>
-		-->
-		<property name="samtools" ref="samtools" />
-		<property name="picard" ref="picard" />
-	</bean>
 
 </beans>
