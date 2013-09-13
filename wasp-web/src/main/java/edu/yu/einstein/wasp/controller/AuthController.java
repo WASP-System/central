@@ -2,11 +2,17 @@ package edu.yu.einstein.wasp.controller;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletResponse;
 
 import nl.captcha.Captcha;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -52,26 +58,66 @@ public class AuthController extends WaspController {
   @Autowired
   private ConfirmEmailAuthDao confirmEmailAuthDao;
   
+  private static final String TARGET_URL_KEY = "targetURL";
+  
   @Override
   @InitBinder
   protected void initBinder(WebDataBinder binder) {
     binder.setValidator(validator);
   }
   
-  @RequestMapping(value="/loginHandler", method=RequestMethod.GET)
-  public String loginHandler(ModelMap m){
-	  if (authenticationService.isAuthenticated()){
+  @RequestMapping(value="/login", method=RequestMethod.GET)
+  public String login(HttpServletResponse response, ModelMap m){
+	  logger.debug("Using external authentication = " + authenticationService.isAuthenticationSetExternal());
+	  String targetURL = "";
+	  SavedRequest savedRequest =  new HttpSessionRequestCache().getRequest(request, response);
+	  if (savedRequest != null){
+		  targetURL = savedRequest.getRedirectUrl(); // get the target url from which we were redirected to login (if set)
+		  if (!targetURL.isEmpty()){
+			  logger.debug("target URL is provided so setting session variable for target = " + targetURL);
+			  // store target URL in session variable. During login process the original target from which
+			  // Spring Security redirected non-authenticated user will be preserved and can be retrieved from the session after successful login.
+			  // target URL is ONLY set if Spring Security forces a re-direction to the login page.
+			  request.getSession().setAttribute(TARGET_URL_KEY, targetURL); 
+		  }
+	  }
+	  if (authenticationService.isAuthenticatedWaspUser()){
 		  User authUser = authenticationService.getAuthenticatedUser();
-		  ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByUserId(authUser.getUserId());
-		  if (confirmEmailAuth.getConfirmEmailAuthId() != null){
+		  ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByUserId(authUser.getId());
+		  if (confirmEmailAuth.getId() != null){
 			  // email awaiting confirmation for this user
 			  authenticationService.logoutUser();
 			  return "redirect:/auth/confirmemail/emailchanged.do";
 		  } else {
+			  // if a target URL was set, get it out of the session variable and redirect to it otherwise go to dashboard. Target URL is a location 
+			  // within the secure area of the system from which Spring Security re-directed to the login page because
+			  // the user was not logged in (note difference from referring URL).
+			  targetURL = (String) request.getSession().getAttribute(TARGET_URL_KEY);
+			  if (targetURL != null ){
+				  request.getSession().removeAttribute("targetURL"); // remove used session variable
+				  logger.debug("targetURL from session =" + targetURL);
+				  // extract relative path for redirect destination from the target url
+				  String servletPathCaptureExp = "^.*?" + request.getServerName() + "(:\\d+)?\\" + request.getContextPath() + "(/.+)?\\s*$";
+				  Pattern pattern = Pattern.compile(servletPathCaptureExp);
+				  Matcher matcher = pattern.matcher(targetURL);
+				  if (matcher.find()){
+					  String destPath = matcher.group(2);
+					  logger.debug("redirecting to target destination " + destPath);
+					  return "redirect:" + targetURL;
+				  } else {
+					  logger.warn("Unable to extract destination path from target URL");
+				  }
+			  }
+			  logger.debug("Login success so redirecting to dashboard");
 			  return "redirect:/dashboard.do";
 		  }
-	  } 
-	  return "redirect:/auth/login.do";
+	  } else if (authenticationService.isAuthenticated()){
+		  authenticationService.logoutUser();
+		  waspErrorMessage("auth.authenticatedButNoWaspAccount.error");
+		  return "redirect:/auth/login.do";
+	  }
+	  m.addAttribute("isAuthenticationExternal", authenticationService.isAuthenticationSetExternal());
+	  return "auth/loginPage";
   }
   
   @RequestMapping(value="/confirmemail/requestEmailChange", method=RequestMethod.GET)
@@ -139,7 +185,7 @@ public class AuthController extends WaspController {
 		  return "auth/resetpassword/request";
 	  }
 	  
-	  if (user==null || user.getUserId() == null)  {
+	  if (user==null || user.getId() == null)  {
 		  waspErrorMessage("auth.resetpasswordRequest_username.error");
 		  return "auth/resetpassword/request";
 	  }
@@ -158,7 +204,7 @@ public class AuthController extends WaspController {
 	  }
 		  
 	  Userpasswordauth userpasswordauth   = userpasswordauthDao.getUserpasswordauthByAuthcode(authCode);
-	  if (userpasswordauth.getUserId() == null){
+	  if (userpasswordauth.getId() == null){
 		  waspErrorMessage("auth.resetpassword_badauthcode.error");
 		  return "auth/resetpassword/authcodeform";
 	  }
@@ -209,18 +255,18 @@ public class AuthController extends WaspController {
     Userpasswordauth userpasswordauth   = userpasswordauthDao.getUserpasswordauthByAuthcode(authCode);
     User user = userDao.getUserByLogin(username);
     
-    if (user.getUserId() == null) {
+    if (user.getId() == null) {
         waspErrorMessage("auth.resetpassword_username.error");
         m.put("authcode", authCode);
         return "auth/resetpassword/form";
      }
     
-    if (userpasswordauth.getUserId() == null){
+    if (userpasswordauth.getId() == null){
     	waspErrorMessage("auth.resetpassword_badauthcode.error");
     	return "auth/resetpassword/authcodeform";
     }
 
-    if (user.getUserId().intValue() != userpasswordauth.getUserId().intValue()) {
+    if (user.getId().intValue() != userpasswordauth.getId().intValue()) {
     	m.put("authcode", authCode);
     	waspErrorMessage("auth.resetpassword_wronguser.error");
     	return "auth/resetpassword/authcodeform";
@@ -263,7 +309,7 @@ public class AuthController extends WaspController {
 		return false;
 	}
 	ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByAuthcode(authCode);
-	if (email == null || email.isEmpty() || confirmEmailAuth.getConfirmEmailAuthId() == null) {
+	if (email == null || email.isEmpty() || confirmEmailAuth.getId() == null) {
 		waspErrorMessage("auth.confirmemail_bademail.error");
 		if (m != null) m.put("authcode", authCode);
 		return false;
@@ -284,7 +330,7 @@ public class AuthController extends WaspController {
    */
   protected String getUserPasswordAuthcode(final User user){
 	  Userpasswordauth userpasswordauth = new Userpasswordauth();
-	  userpasswordauth.setUserId(user.getUserId());
+	  userpasswordauth.setId(user.getId());
 	  String authcode = AuthCode.create(20);
 	  userpasswordauth.setAuthcode(authcode);
 	  userpasswordauthDao.merge(userpasswordauth); // merge handles both inserts and updates. Doesn't have problem with disconnected entities like persist does
@@ -304,102 +350,59 @@ public class AuthController extends WaspController {
 		  @RequestParam(value="email", required=true) String urlEncodedEmail,
 		  @RequestParam(value="isAdminCreated", required=false) Integer isAdminCreated,
 	      ModelMap m) {
+	if (authenticationService.isAuthenticatedWaspUser())
+		  authenticationService.logoutUser();
     if (isAdminCreated == null) isAdminCreated = 0;
 	if ( (authCode==null || authCode.isEmpty()) && (urlEncodedEmail==null || urlEncodedEmail.isEmpty()) ){
-		m.addAttribute("isAdminCreated", isAdminCreated);
-		// return the authcodeform view
-		return "auth/confirmemail/authcodeform";
+		logger.warn("authcode or email empty");
+		return "redirect:/auth/confirmemail/confirmemailerror.do";
 	}
 	
 	String decodedEmail;
 	try{
 		decodedEmail = URLDecoder.decode(urlEncodedEmail, "UTF-8");
-	} catch(UnsupportedEncodingException e){//not good place to go; should be a different error page.
-		waspErrorMessage("auth.confirmemail_corruptemail.error");
-		m.addAttribute("isAdminCreated", isAdminCreated);
-		return "redirect:/auth/confirmNewUserEmail.do"; // do this to clear GET parameters and forward to authcodeform view
-		
+	} catch(UnsupportedEncodingException e){
+		logger.warn("Problem decoding URL-encoded email: " + e.getLocalizedMessage());
+		return "redirect:/auth/confirmemail/confirmemailerror.do";
 	}
 	
-	//if (isAdminCreated == 0 && ! userEmailValid(authCode, decodedEmail, null)){
-	//	m.addAttribute("isAdminCreated", isAdminCreated);
-	//	return "redirect:/auth/confirmNewUserEmail.do"; // do this to clear GET parameters and forward to authcodeform view
-	//}
-	// authcode and email match if we get here
-	// remove entry for current user in email auth table
 	ConfirmEmailAuth auth = confirmEmailAuthDao.getConfirmEmailAuthByAuthcode(authCode);
-	if(auth != null && auth.getConfirmEmailAuthId()!=null && auth.getConfirmEmailAuthId().intValue()!=0){//first time clicked
+	if(auth != null && auth.getId() != null){//first time clicked
 		User user = userDao.getUserByUserId(auth.getUserId());
-		if ( ! user.getEmail().equals(decodedEmail)){//mismatch error with email address and user.email; should virtually never occur			
-			return "auth/confirmemail/confirmemailerror";
+		if ( ! user.getEmail().equals(decodedEmail)){
+			logger.warn("mismatch error with email address supplied in URL and user.email");
+			return "redirect:/auth/confirmemail/confirmemailerror.do";
 		}
+		// authcode and email match 
 		confirmEmailAuthDao.remove(auth);
+		if (isAdminCreated == 0 || authenticationService.isAuthenticationSetExternal()){
+			waspMessage("user.email_change_confirmed.label");
+			return "redirect:/auth/login.do"; 	
+		}
 		return "redirect:/auth/resetpassword/form.do?authcode="+getUserPasswordAuthcode(user);//sets the password authcode in database (see function above)
 	}
-	else if (isAdminCreated != null && isAdminCreated == 1 && !authenticationService.isAuthenticationSetExternal()){
-		
-		User user = userDao.getUserByEmail(decodedEmail);//user.email is unique 
-		if(user == null || user.getUserId().intValue()==0){
-			return "auth/confirmemail/confirmemailerror";
+	else if (isAdminCreated == 1 && !authenticationService.isAuthenticationSetExternal()){
+		// check if Userpasswordauth object exists for user who owns currently validated email and if so request change of password
+		User user = userDao.getUserByEmail(decodedEmail); //user.email is unique 
+		if(user == null){
+			logger.warn("Unable to retrieve a Wasp user by email address");
+			return "redirect:/auth/confirmemail/confirmemailerror.do";
 		}
-		Userpasswordauth userpasswordauth = userpasswordauthDao.getUserpasswordauthByUserId(user.getUserId());
+		Userpasswordauth userpasswordauth = userpasswordauthDao.getUserpasswordauthByUserId(user.getId());
 			
-		if(userpasswordauth != null && userpasswordauth.getUserId()!=null && userpasswordauth.getUserId().intValue()==user.getUserId().intValue()){
+		if(userpasswordauth != null && userpasswordauth.getId()!=null && userpasswordauth.getId().intValue()==user.getId().intValue()){
 			// request user changes their password
 			return "redirect:/auth/resetpassword/form.do?authcode="+userpasswordauth.getAuthcode();
 		}
-		return "redirect:/auth/login.do"; 		
-	}
-	
-	return "redirect:/auth/login.do";
-  }
-  
-  /**
-   * Processes pending principal investigator email validation POST request from a form view
-   * @param authCode
-   * @param email
-   * @param captchaText
-   * @param m model
-   * @return view
-   */
-  	@RequestMapping(value="/confirmNewUserEmail", method=RequestMethod.POST)
-	public String confirmNewUserEmailFromForm(
-			@RequestParam(value="authcode") String authCode,
-			@RequestParam(value="email") String email,
-			@RequestParam(value="captcha_text") String captchaText,
-			@RequestParam(value="isAdminCreated") Integer isAdminCreated,
-			ModelMap m) {
-  		if (isAdminCreated == null) isAdminCreated = 0;
-		Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
-		if (captcha == null || (! captcha.isCorrect(captchaText)) ){
-			waspErrorMessage("auth.confirmemail_captcha.error");
-			m.addAttribute("authcode", authCode);
-			m.addAttribute("email", email);
-			m.addAttribute("isAdminCreated", isAdminCreated);
-			return "auth/confirmemail/authcodeform";
-		}
-		if (! userEmailValid(authCode, email, m)){
-			m.addAttribute("isAdminCreated", isAdminCreated);
-			return "auth/confirmemail/authcodeform";
-		}
-		
-		User user = userDao.getUserByEmail(email);
-		if (user.getUserId() == null){
-			waspErrorMessage("auth.confirmemail_bademail.error");
-			m.addAttribute("isAdminCreated", isAdminCreated);
-			return "auth/confirmemail/authcodeform"; 
-		}
-		// authcode and email match if we get here
-		// remove entry for current user in email auth table
-		ConfirmEmailAuth auth = confirmEmailAuthDao.getConfirmEmailAuthByAuthcode(authCode);
-		confirmEmailAuthDao.remove(auth);
 		waspMessage("user.email_change_confirmed.label");
-		if (isAdminCreated != null && isAdminCreated == 1 && !authenticationService.isAuthenticationSetExternal()){
-			// request user changes their password
-			return "redirect:/auth/resetpassword/form.do?authcode="+getUserPasswordAuthcode(user);
-		}
-		return "redirect:/auth/loginHandler.do";
+		return "redirect:/auth/login.do";	
 	}
+	// get here if no ConfirmEmailAuth object for current authcode (maybe already clicked on the link or expired) 
+	// and externally authenticating or not admin created
+
+	return "redirect:/auth/confirmemail/confirmemailerror.do";
+  }
+
 
   @RequestMapping("/reauth")
   public String reauth(ModelMap m) {

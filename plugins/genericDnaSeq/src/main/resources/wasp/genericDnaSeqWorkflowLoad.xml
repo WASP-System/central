@@ -87,6 +87,10 @@
 					<property name="baseName" value="jobsubmit/verify" />
 					<property name="label" value="Verify Submission" />
 				</bean>
+				<bean parent="genericDnaSeqUiFieldWrapper">
+					<property name="baseName" value="jobsubmit/submit" />
+					<property name="label" value="Submit" />
+				</bean>
 			</list>
 
 		</property>

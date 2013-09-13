@@ -27,6 +27,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspJobParameters; ///// PIP RE
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;  ///// PIP RES
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.FileGroup; ///// VIZ
+import edu.yu.einstein.wasp.model.Software;  ///// VIZ
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;  ///// PIP RES
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WebInterfacing; ///// FORM RES
@@ -177,6 +178,12 @@ public class ___Pluginname___Plugin extends WaspPlugin
 	 */
 	@Override
 	public PanelTab getViewPanelTab(FileGroup fileGroup) throws PanelException {
+		return null;
+	}
+	
+	@Override
+	public Software getSoftware() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 	

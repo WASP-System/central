@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageHeaders;
 import org.springframework.integration.MessagingException;
-import org.springframework.integration.annotation.Transformer;
+import org.springframework.integration.annotation.ServiceActivator;
 
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
@@ -26,7 +26,7 @@ public class IlluminaFlowLauncher {
 	
 	public IlluminaFlowLauncher(){}
 	
-	@Transformer
+	@ServiceActivator
 	public Message<BatchJobLaunchContext> launchIlluminaFlowJob(Message<?> message){ 
 		if (!RunStatusMessageTemplate.isMessageOfCorrectType(message)){
 			logger.warn("Message is not of the correct type (a Run message). Check filter and input channel are correct");

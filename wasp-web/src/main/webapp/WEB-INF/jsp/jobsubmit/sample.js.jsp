@@ -44,6 +44,7 @@ function validate(thisForm){
 			return false;
 		} 
 	}
+	$("#wait_dialog-modal").dialog("open");
 	return true;
 }
 </script>

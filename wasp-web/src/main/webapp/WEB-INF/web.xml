@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns="http://java.sun.com/xml/ns/javaee"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-      version="2.5">
+      xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+      version="3.0">
 
 	<!-- Filter that binds a JPA EntityManager to the thread for the entire processing of the request. Intended for the "Open EntityManager in View" pattern, i.e. to allow for lazy loading in web views despite the original transactions already being completed. -->
 	<filter>
 		<filter-name>openEntityManagerInViewFilter</filter-name>
 		<filter-class>org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter</filter-class>
+		<async-supported>true</async-supported>
 		<init-param>
 			<param-name>entityManagerFactoryBeanName</param-name>
 			<!-- <param-value>entityManagerFactory</param-value> -->
@@ -45,6 +46,7 @@
 	<filter>
 		<filter-name>springSecurityFilterChain</filter-name>
 		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+		<async-supported>true</async-supported>
 	</filter>
 
 	<filter-mapping>
@@ -63,6 +65,7 @@
 	<filter>
 		<filter-name>encodingFilter</filter-name>
 		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<async-supported>true</async-supported>
 		<init-param>
 			<param-name>encoding</param-name>
 			<param-value>UTF-8</param-value>
@@ -87,6 +90,7 @@
 		<servlet-name>wasp</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
+		<async-supported>true</async-supported>
 	</servlet>
 
 	<servlet-mapping>
@@ -97,10 +101,12 @@
 	<filter>
 		<filter-name>shallowEtagHeaderFilter</filter-name>
 		<filter-class>org.springframework.web.filter.ShallowEtagHeaderFilter</filter-class>
+		<async-supported>true</async-supported>
 	</filter>
 	<filter>
 		<filter-name>hiddenHttpMethodFilter</filter-name>
 		<filter-class>org.springframework.web.filter.HiddenHttpMethodFilter</filter-class>
+		<async-supported>true</async-supported>
 	</filter>
 	<filter-mapping>
 		<filter-name>shallowEtagHeaderFilter</filter-name>
@@ -139,6 +145,7 @@
 			<param-name>height</param-name>
 			<param-value>50</param-value>
 		</init-param>
+		<async-supported>true</async-supported>
 	</servlet>
 
 	<servlet-mapping>
@@ -147,7 +154,7 @@
 	</servlet-mapping>
 
 	<welcome-file-list>
-		<welcome-file>/auth/loginHandler.do</welcome-file>
+		<welcome-file>/auth/login.do</welcome-file>
 	</welcome-file-list>
 
 </web-app>
