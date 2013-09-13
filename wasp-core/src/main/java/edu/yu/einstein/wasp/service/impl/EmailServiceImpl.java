@@ -49,6 +49,7 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
+import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.UserService;
@@ -102,6 +103,9 @@ public class EmailServiceImpl implements EmailService{
 
 	@Autowired
 	private ConfirmEmailAuthDao confirmEmailAuthDao;
+	
+	@Autowired
+	private AuthenticationService authenticationService;
 	
 	@Value("${wasp.host.baseurl}")
 	private String baseUrl;
@@ -386,7 +390,10 @@ public class EmailServiceImpl implements EmailService{
 	 */
 	@Override
 	public void informUserAccountCreatedByAdmin(final User user, final String authcode) {
-		sendEmailConfirm(user, authcode, "emails/user_created_by_admin");
+		if (authenticationService.isAuthenticationSetExternal())
+			sendEmailConfirm(user, authcode, "emails/user_created_by_admin_ext");
+		else
+			sendEmailConfirm(user, authcode, "emails/user_created_by_admin_int");
 	}
 	
 	/**
