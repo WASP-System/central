@@ -29,7 +29,37 @@
 	$(document).ready(function(){
 		$(".addRow").btnAddRow();
 		$(".delRow").btnDelRow();
-		
+	    $( "#dialog-form" ).dialog({
+	        autoOpen: false,
+	        height: 200,
+	        width: 420,
+	        modal: true,
+	        buttons: {
+	          "Apply": function() {
+	        	  var costToApplyToAllSettableLibraries = $("#costToApplyToAllSettableLibraries").val();
+	        	  var regex = /^([0-9])+$/;
+	        	  if(regex.test(costToApplyToAllSettableLibraries)){
+	        	  	$(".settableLibraryCost").val(costToApplyToAllSettableLibraries);
+	        	  	$("#costToApplyToAllSettableLibraries").val("");
+	        	  	$("#validateTipForLibraryCostModalDialogForm").text("");
+	        	  	$( this ).dialog( "close" );
+	        	  }
+	        	  else{
+	        		  $("#validateTipForLibraryCostModalDialogForm").text("Whole numbers only");
+	        	  }
+	          },
+	          Cancel: function() {
+	        	$("#costToApplyToAllSettableLibraries").val("");
+		        $("#validateTipForLibraryCostModalDialogForm").text("");		        	
+	            $( this ).dialog( "close" );
+	          }
+	        },
+	        close: function() {
+	          	$("#costToApplyToAllSettableLibraries").val("");
+	        	$("#validateTipForLibraryCostModalDialogForm").text("");	 
+	        	$( this ).dialog( "close" );
+	        }
+	      });		
 	/*	
 		$(function() {
 		    var availableTags = [
@@ -61,8 +91,6 @@
 		    });
 		  });
 		*/
-		
-		
 });
 })(jQuery);
 </script>
@@ -99,9 +127,21 @@
 	<c:if test="${numberOfLibrariesExpectedToBeConstructed > 0}">
 		&nbsp;&nbsp;[if no charge for a library, please set its cost to 0]
 	</c:if>
-</span><br /><br />
-
+</span><br /><br />			
+<div id="dialog-form" title="Apply One Cost To All Library Constructions">
+	<p></p>
+	<p style="font-weight:bold;color:red" id="validateTipForLibraryCostModalDialogForm"></p>  
+  	<fieldset>
+  		Apply one cost to all library constructions: <c:out value="${localCurrencyIcon}" /> <input id="costToApplyToAllSettableLibraries" style="text-align:right;" name="" type="text" maxlength="4" size="4" value="" />.00
+ 	</fieldset>  
+</div>
+			
 <table class="data" style="margin: 0px 0px">
+	<tr class="FormData">
+		<td colspan="4" class="label-centered" style="background-color:#FAF2D6">
+			<a href="javascript:void(0);" onclick='$( "#dialog-form" ).dialog( "open" );' >Click here to assign a single cost to all library constructions</a>
+		</td>
+	</tr>
 	<tr class="FormData">
 		<td class="label-centered" style="background-color:#FAF2D6">Number</td>
 		<td class="label-centered" style="background-color:#FAF2D6">Submitted Sample</td>
@@ -134,13 +174,13 @@
 						
 						<c:when test='${empty libraryCost.getLibraryCost()}'>
 							<input type='hidden' name="reasonForNoLibraryCost" value="${libraryCost.getReasonForNoLibraryCost()}"/>
-							<c:out value="${localCurrencyIcon}" /><input style="text-align:right;" name="submittedSampleCost" type="text" maxlength="4" size="4" value="" />.00
+							<c:out value="${localCurrencyIcon}" /><input class="settableLibraryCost"  style="text-align:right;" name="submittedSampleCost"  type="text" maxlength="4" size="4" value="" />.00
 						</c:when>
 						
 						
 						<c:when test='${not empty libraryCost.getLibraryCost()}'>
 							<input type='hidden' name="reasonForNoLibraryCost" value="${libraryCost.getReasonForNoLibraryCost()}"/>
-							<c:out value="${localCurrencyIcon}" /><input style="text-align:right;" name="submittedSampleCost" type="text" maxlength="4" size="4" value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${libraryCost.getLibraryCost()}" />"/>.00
+							<c:out value="${localCurrencyIcon}" /><input class="settableLibraryCost" style="text-align:right;" name="submittedSampleCost"  type="text" maxlength="4" size="4" value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${libraryCost.getLibraryCost()}" />"/>.00
 						</c:when>
 						
 					</c:choose>	

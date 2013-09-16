@@ -8,7 +8,7 @@
 	<br /><a class="button" href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/acctQuote/0/createUpdateQuote.do" />");' >Create Quote / Invoice</a><br />
 </sec:authorize>
 <c:if test="${not empty mostRecentQuote }">
-	<br /><h2>Most Recent Quote: <c:out value="${localCurrencyIcon}" /> <c:out value="${mostRecentQuote}" /></h2>
+	<br /><h2>Most Recent Quote: <c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentQuote}" /></h2>
 </c:if>
 <%-- experiment that is no longer in use
 <br />
@@ -81,7 +81,7 @@
 			 		  						<!-- no longer wanted	| <a href="javascript:void(0);" onclick='doGetWithAjax("<c:url value="/job/${job.getId()}/createQuote.do" />");' >CreateQuote</a> -->
 			 		  					</c:if>
 			 		  					<c:if test="${acctQuotesWithJsonEntry.contains(acctQuote)}">
-			 		  					| <a href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/acctQuote/${acctQuote.getId()}/createUpdateQuote.do" />");' >Update</a>
+			 		  				<%-- 	| <a href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/acctQuote/${acctQuote.getId()}/createUpdateQuote.do" />");' >Update</a> --%>
 			 		  					</c:if>
 				 		  			</td>
 				 		  		</tr>

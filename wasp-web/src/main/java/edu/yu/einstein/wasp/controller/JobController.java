@@ -1159,7 +1159,6 @@ public class JobController extends WaspController {
 		//8-30-13
  		//if there is no existing quote (for the moment there is none)
 		MPSQuote mpsQuote=null;
-		System.out.println("--------AcctQuoteID from parameter is: " + quoteId);
 		
 		if(quoteId != 0){
 			Set<AcctQuote> acctQuoteSet = job.getAcctQuote();
@@ -1171,28 +1170,17 @@ public class JobController extends WaspController {
 				}
 			}
 			if(acctQuote==null){
-				System.out.println("--------AcctQuote is null");
 				//error message and get out of here
 			}
 			else if(acctQuote!=null){
-				System.out.println("--------AcctQuote is NOT null");
 				List<AcctQuoteMeta> acctQuoteMetaList = acctQuote.getAcctQuoteMeta();
 				for(AcctQuoteMeta acm : acctQuoteMetaList){
-					System.out.println("-------------AcctQuoteMeta is : " + acm.getV());
 					if(acm.getK().toLowerCase().contains("json")){
-						try{
-							System.out.println("-----------------AcctQuoteMeta is json so next line will attempt to get the JSONobject");
-							
-								JSONObject jsonObject = new JSONObject(acm.getV());
-								System.out.println("-----------------GOT jsonOBJECT so next line will attempt to get the MPPSQuote");
-								
-								mpsQuote = MPSQuote.getMPSQuoteFromJSONObject(jsonObject, MPSQuote.class);
-								System.out.println("-----------------GOT THE MPSQUOTE object");
-								
+						try{							
+								JSONObject jsonObject = new JSONObject(acm.getV());								
+								mpsQuote = MPSQuote.getMPSQuoteFromJSONObject(jsonObject, MPSQuote.class);								
 						}catch(Exception e){
-							//error message and get out
-							System.out.println("-----------------the exception message is: " + e.getMessage());
-							
+							//error message and get out							
 						}
 					}
 				}
@@ -1206,13 +1194,15 @@ public class JobController extends WaspController {
 	 		for(Sample s : jobService.getSubmittedSamples(job)){
 	 			
 	 			String reasonForNoLibraryCost = "";
-	 			if(s.getSampleType().getIName().toLowerCase().equals("library")){
-	 				reasonForNoLibraryCost = "N/A";
-	 			}
-	 			else if(sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(s)).equalsIgnoreCase("withdrawn")){
+	 			
+	 			if(sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(s)).equalsIgnoreCase("withdrawn")){
 	 				reasonForNoLibraryCost = "Withdrawn";
 	 			}
-	 			else{
+	 			else if(s.getSampleType().getIName().toLowerCase().equals("library")){
+	 				reasonForNoLibraryCost = "N/A";
+	 			}
+	 				 			
+	 			if(reasonForNoLibraryCost.isEmpty()){
 	 				numberOfLibrariesExpectedToBeConstructed++;
 	 			}
 	 			LibraryCost libraryCost = null;

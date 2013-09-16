@@ -35,9 +35,13 @@ $(document).ready(function() {
         position: { my: "right top", at: "right top", of: window } 
     });
 	
+ 
+	
 	//incase the url is ..../homepage.do#tabs-2 (meaning go directly to the second tab) 
 	//get the index from URL hash and use it to select the correct tab: from http://stackoverflow.com/questions/2554951/jquery-ui-tabs-how-do-i-navigate-directly-to-a-tab-from-another-page 
 	
+	
+
 	
 });
 
