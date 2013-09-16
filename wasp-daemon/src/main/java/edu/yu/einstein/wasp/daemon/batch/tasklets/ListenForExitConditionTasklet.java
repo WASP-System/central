@@ -115,6 +115,11 @@ public class ListenForExitConditionTasklet extends WaspMessageHandlingTasklet {
 				logger.debug(name + "Stopping job due to receiving a message containing an ABANDONED / FAILED notice");
 				// Signal the JobExecution to stop. JobExecution().stop() iterates through the associated StepExecutions, 
 				// calling StepExecution.setTerminateOnly()
+				try {
+					// wait for cleaning up of steps before termination. A step may need to act on this and finalize before
+					// stopping the job execution (which may leave step in the wrong state i.e. STOPPED instead of FAILED for example)
+					Thread.sleep(6000); 
+				} catch (InterruptedException e) {} 
 				stepExecution.getJobExecution().stop(); 
 			}
 			this.message = null; // clean up in case of restart

@@ -261,7 +261,7 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			Assert.assertEquals(message.getPayload(), WaspStatus.ABANDONED);
 			
 			try{
-				Thread.sleep(1000); // allow some time for flow initialization
+				Thread.sleep(6000); // allow some time for flow completion
 			}catch (InterruptedException e){}; // allow batch to wrap up
 			// check BatchStatus and ExitStatus are as expected
 			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.STOPPED);
