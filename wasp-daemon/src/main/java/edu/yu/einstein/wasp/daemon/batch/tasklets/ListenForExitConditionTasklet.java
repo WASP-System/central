@@ -120,6 +120,7 @@ public class ListenForExitConditionTasklet extends WaspMessageHandlingTasklet {
 					// stopping the job execution (which may leave step in the wrong state i.e. STOPPED instead of FAILED for example)
 					Thread.sleep(6000); 
 				} catch (InterruptedException e) {} 
+				logger.debug("Executing: stepExecution.getJobExecution().stop();");
 				stepExecution.getJobExecution().stop(); 
 			}
 			this.message = null; // clean up in case of restart
