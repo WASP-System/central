@@ -118,7 +118,7 @@
 				</li>
 			</sec:authorize>
 			
-			<li class="main_menu-root">
-				<a href='<c:url value="/task/myTaskList.do"/>'><fmt:message key="menu.tasks.label" /></a>
+			<li class="main_menu-root" onclick='javascript:$("#wait_dialog-modal").dialog("open");'>
+				<a href='<c:url value="/task/myTaskList.do"/>'><fmt:message key="menu.tasks.label"  /></a>
 			</li>
 		</ul>
