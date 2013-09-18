@@ -35,6 +35,7 @@
 					<tr class="FormData">
 						<td class="label-centered" style="background-color:#FAF2D6">Job Quotes / Invoices</td>
 						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_description.label"/></td>
+						<td class="label-centered" style="background-color:#FAF2D6">Record Created</td>
 						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_action.label"/></td>
 					</tr>
 					<c:set value="${false}" var="headingNeedsDisplay"/>		
@@ -46,6 +47,7 @@
 			 		  		<tr>
 			 		  			<td class="DataTD value-centered"><c:out value="${fileHandle.getFileName()}" /></td>
 			 		  			<td class="DataTD value-centered"><c:out value="${fileGroup.getDescription()}" /></td>
+			 		  			<td class="DataTD value-centered"><fmt:formatDate pattern="yyyy-MM-dd" value="${acctQuote.getCreated()}" /></td>  			
 			 		  			<td class="DataTD value-centered">
 			 		  				<a href="<c:url value="/file/fileHandle/${fileHandle.getId()}/download.do" />" ><fmt:message key="listJobSamples.file_download.label"/></a> 
 			 		  				<c:if test="${fileHandlesThatCanBeViewedList.contains(fileHandle)}">
