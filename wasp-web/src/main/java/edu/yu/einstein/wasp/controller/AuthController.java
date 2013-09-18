@@ -60,27 +60,54 @@ public class AuthController extends WaspController {
   
   private static final String TARGET_URL_KEY = "targetURL";
   
+  private static final String LOGIN_EXPIRED_WARNING_KEY = "loginExpiredWarningLabel";
+
+  
   @Override
   @InitBinder
   protected void initBinder(WebDataBinder binder) {
     binder.setValidator(validator);
   }
   
-  @RequestMapping(value="/login", method=RequestMethod.GET)
-  public String login(HttpServletResponse response, ModelMap m){
+  @RequestMapping(value="/loginRedirect", method=RequestMethod.GET)
+  public String loginRefer(HttpServletResponse response, ModelMap m){
 	  logger.debug("Using external authentication = " + authenticationService.isAuthenticationSetExternal());
 	  String targetURL = "";
+	  // store target URL in session variable. During login process the original target from which
+	  // Spring Security redirected non-authenticated user will be preserved and can be retrieved from the session after successful login.
+	  // target URL is ONLY set if Spring Security forces a re-direction to the login page.
 	  SavedRequest savedRequest =  new HttpSessionRequestCache().getRequest(request, response);
 	  if (savedRequest != null){
 		  targetURL = savedRequest.getRedirectUrl(); // get the target url from which we were redirected to login (if set)
 		  if (!targetURL.isEmpty()){
+			  // HACK ALERT: Ideally we'd have an easy URL design that makes it easy to distinguish calls to pages and ajax calls for data
+			  // but we don't so need to put in some catches for handling known corner cases
+			  if (targetURL.contains("/job/") && !targetURL.matches("^.+\\/job\\/(list|\\d+\\/homepage)\\.do$")){
+				  Pattern p = Pattern.compile("^(.+\\/job\\/\\d+\\/).*$");
+				  Matcher match = p.matcher(targetURL);
+				  if (match.find()){
+					  targetURL = match.group(1) + "homepage.do";
+					  request.getSession().setAttribute(LOGIN_EXPIRED_WARNING_KEY, "auth.redirectDataNotSaved.label");
+					  logger.debug("target URL is provided so setting session variable for target = " + targetURL);
+					  request.getSession().setAttribute(TARGET_URL_KEY, targetURL); 
+				  }
+				  return "auth/loginReferralPage";
+			  } else if (targetURL.contains("JSON.do")){
+				  targetURL = targetURL.replace("JSON", "").replace("\\?.*", "");
+				  request.getSession().setAttribute(LOGIN_EXPIRED_WARNING_KEY, "auth.redirectDataNotSaved.label");
+				  logger.debug("target URL is provided so setting session variable for target = " + targetURL);
+				  request.getSession().setAttribute(TARGET_URL_KEY, targetURL); 
+				  return "auth/loginReferralPage";
+			  }
 			  logger.debug("target URL is provided so setting session variable for target = " + targetURL);
-			  // store target URL in session variable. During login process the original target from which
-			  // Spring Security redirected non-authenticated user will be preserved and can be retrieved from the session after successful login.
-			  // target URL is ONLY set if Spring Security forces a re-direction to the login page.
 			  request.getSession().setAttribute(TARGET_URL_KEY, targetURL); 
 		  }
 	  }
+	  return "redirect:/auth/login.do";
+  }
+  
+  @RequestMapping(value="/login", method=RequestMethod.GET)
+  public String login(ModelMap m){
 	  if (authenticationService.isAuthenticatedWaspUser()){
 		  User authUser = authenticationService.getAuthenticatedUser();
 		  ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByUserId(authUser.getId());
@@ -89,10 +116,13 @@ public class AuthController extends WaspController {
 			  authenticationService.logoutUser();
 			  return "redirect:/auth/confirmemail/emailchanged.do";
 		  } else {
+			  String loginExpiredWarningLabel = (String) request.getSession().getAttribute(LOGIN_EXPIRED_WARNING_KEY);
+			  if (loginExpiredWarningLabel != null && !loginExpiredWarningLabel.isEmpty())
+			  	  waspErrorMessage(loginExpiredWarningLabel);
 			  // if a target URL was set, get it out of the session variable and redirect to it otherwise go to dashboard. Target URL is a location 
 			  // within the secure area of the system from which Spring Security re-directed to the login page because
 			  // the user was not logged in (note difference from referring URL).
-			  targetURL = (String) request.getSession().getAttribute(TARGET_URL_KEY);
+			  String targetURL = (String) request.getSession().getAttribute(TARGET_URL_KEY);
 			  if (targetURL != null ){
 				  request.getSession().removeAttribute("targetURL"); // remove used session variable
 				  logger.debug("targetURL from session =" + targetURL);
