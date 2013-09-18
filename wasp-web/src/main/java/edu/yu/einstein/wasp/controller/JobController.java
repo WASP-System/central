@@ -970,72 +970,6 @@ public class JobController extends WaspController {
 			return "job/home/message";
 		}
 		populateCostPage(job, m);
-		
-		/*no longer used
-		
-		//8-27-13
- 		//if there is no existing quote (for the moment there is none)
- 		MPSQuote mpsQuote = new MPSQuote();
- 		List<SubmittedSample> submittedSamples = mpsQuote.getSubmittedSamples();
- 
- 		int numberOfLibrariesExpectedToBeConstructed = 0;
- 		for(Sample s : jobService.getSubmittedSamples(job)){
- 			System.out.println("------"+s.getName()+" : "+sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(s)));
-			sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(s));			
-			sampleService.isSampleReceived(s);
-
- 			String cost = "";
- 			if(s.getSampleType().getIName().toLowerCase().equals("library")){
- 				cost = "N/A";
- 			}
- 			else if(sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(s)).equalsIgnoreCase("withdrawn")){
- 				cost = "Withdrawn";
- 			}
- 			else{
- 				numberOfLibrariesExpectedToBeConstructed++;
- 			}
- 			SubmittedSample submittedSample = new SubmittedSample(s.getId(), s.getName(), s.getSampleType().getName(), cost, "");
- 			submittedSamples.add(submittedSample);
- 		}
- 		m.addAttribute("numberOfLibrariesExpectedToBeConstructed", numberOfLibrariesExpectedToBeConstructed);
- 		
-		List<SequencingCost> sequenceRuns = mpsQuote.getSequenceRuns();
-		//fake testing data only
-		sequenceRuns.add(new SequencingCost("HiSeq2000", new Integer(50), "Single", new Integer(2), new Float(1000), "Error In Row"));
-		sequenceRuns.add(new SequencingCost("HiSeq2500", new Integer(50), "Single", new Integer(1), new Float(1000)));
-		sequenceRuns.add(new SequencingCost("MySeq", new Integer(50), "Single", new Integer(1), new Float(500)));
-		m.addAttribute("numberOfLanesRequested", job.getJobCellSelection().size());
-
-		List<AdditionalCost> additionalCosts = mpsQuote.getAdditionalCosts();
-		//fake test data
-		additionalCosts.add(new AdditionalCost("Additional Multiplex Fee", new Integer(1), new Float(50)));
-		additionalCosts.add(new AdditionalCost("Bioanalyzer Fee", new Integer(6), new Float(20), "Error In Row"));
-
-		List<Discount> discounts = mpsQuote.getDiscounts();
-		//fake test data
-		discounts.add(new Discount("Institutional Cost Share", "%", new Float(25)));
-		discounts.add(new Discount("Facility Discount", "$", new Float(100), "Error In Row"));
-
-		List<String> discountReasons = new ArrayList<String>();
-		discountReasons.add("Institutional Cost Share");
-		discountReasons.add("Departmental Cost Share");
-		discountReasons.add("Center Cost Share");
-		discountReasons.add("Facility Credit");
-		discountReasons.add("Facility Discount");
-		m.addAttribute("discountReasons", discountReasons);
-		
-		List<String> discountTypes = new ArrayList<String>();
-		discountTypes.add("%");
-		discountTypes.add(Currency.getInstance(Locale.getDefault()).getSymbol());
-		m.addAttribute("discountTypes", discountTypes);
-		
-		List<Comment> comments = mpsQuote.getComments();
-		//fake test data
-		comments.add(new Comment("Here's my first comment; how do you like it??", "Error In Row"));
-		comments.add(new Comment("This is my second comment!!"));
-
-		//m.addAttribute("mpsQuote", mpsQuote);
-		*/
 		return "job/home/costManager";
 	}
 
@@ -1099,32 +1033,13 @@ public class JobController extends WaspController {
 					acctQuotesWithJsonEntry.add(acctQuote);
 				}
 			}
-		}
-		/*
-		for(JobFile jf: job.getJobFile()){
-			FileGroup fileGroup = jf.getFile();//returns a FileGroup
-			//include only quotes and invoices
-			if( fileGroup.getDescription().toLowerCase().startsWith("quote") || fileGroup.getDescription().toLowerCase().startsWith("invoice")){
-				fileGroups.add(fileGroup);
-				List<FileHandle> fileHandles = new ArrayList<FileHandle>();
-				for(FileHandle fh : fileGroup.getFileHandles()){
-					fileHandles.add(fh);
-					String mimeType = fileService.getMimeType(fh.getFileName());
-					if(!mimeType.isEmpty()){
-						fileHandlesThatCanBeViewedList.add(fh);
-					}
-				}
-				fileGroupFileHandlesMap.put(fileGroup, fileHandles);
-			}			
-		}
-		*/
+		}		
 		m.addAttribute("fileGroups", fileGroups);
 		m.addAttribute("fileGroupFileHandlesMap", fileGroupFileHandlesMap);
 		m.addAttribute("fileHandlesThatCanBeViewedList", fileHandlesThatCanBeViewedList);
 		m.addAttribute("acctQuoteList", acctQuoteList);
 		m.addAttribute("acctQuoteFileGroupMap", acctQuoteFileGroupMap);
-		m.addAttribute("acctQuotesWithJsonEntry", acctQuotesWithJsonEntry);		
-		
+		m.addAttribute("acctQuotesWithJsonEntry", acctQuotesWithJsonEntry);			
 	}
 	
 	@RequestMapping(value="/{jobId}/uploadQuoteOrInvoice", method=RequestMethod.GET)
@@ -1144,8 +1059,7 @@ public class JobController extends WaspController {
 		return "job/home/uploadQuoteOrInvoice";
 	}
 	
-	
-	 	//Note: we use MultipartHttpServletRequest to be able to upload files using Ajax. See http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/
+	//Note: we use MultipartHttpServletRequest to be able to upload files using Ajax. See http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/
 	@RequestMapping(value="/{jobId}/uploadQuoteOrInvoice", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
 	  public Callable<String> jobFileUploadQuoteOrInvoicePostPage(@PathVariable("jobId") final Integer jobId,
@@ -1221,7 +1135,6 @@ public class JobController extends WaspController {
 							return "job/home/uploadQuoteOrInvoice";
 						}
 					    
-						Random randomNumberGenerator = new Random(System.currentTimeMillis());
 						try{
 							jobService.createNewQuoteOrInvoiceAndUploadFile(job, mpFile, fileDescription, new Float(totalCost));
 							m.addAttribute("successMessage", messageService.getMessage("listJobSamples.fileUploadedSuccessfully.label"));
@@ -1293,7 +1206,9 @@ public class JobController extends WaspController {
 				}
 			}
 			if(acctQuote==null){
-				//error message and get out of here
+				logger.warn("Requested quote unexpectedly not found");
+			   	m.addAttribute("errorMessage", "Requested quote unexpectedly not found"); 
+				return "job/home/message";
 			}
 			else if(acctQuote!=null){
 				List<AcctQuoteMeta> acctQuoteMetaList = acctQuote.getAcctQuoteMeta();
@@ -1303,7 +1218,8 @@ public class JobController extends WaspController {
 								JSONObject jsonObject = new JSONObject(acm.getV());								
 								mpsQuote = MPSQuote.getMPSQuoteFromJSONObject(jsonObject, MPSQuote.class);								
 						}catch(Exception e){
-							//error message and get out							
+							//some acctQuotes uploaded a file, so they will not have any json string in the meta!
+							//so just catch the exception and move on.
 						}
 					}
 				}
@@ -1341,31 +1257,7 @@ public class JobController extends WaspController {
 	 		mpsQuote.setNumberOfLibrariesExpectedToBeConstructed(new Integer(numberOfLibrariesExpectedToBeConstructed));
 	 		mpsQuote.setNumberOfLanesRequested(new Integer(job.getJobCellSelection().size()));
  		}	
- 		/*
-		List<SequencingCost> sequencingCosts = mpsQuote.getSequencingCosts();
-		//fake testing data only
-		
-		sequencingCosts.add(new SequencingCost(sequencingMachines.get(0), new Integer(50), "Single", new Integer(2), new Float(1000), "Error In Row"));
-		sequencingCosts.add(new SequencingCost(sequencingMachines.get(1), new Integer(50), "Single", new Integer(1), new Float(1000)));
-		sequencingCosts.add(new SequencingCost(sequencingMachines.get(2), new Integer(50), "Single", new Integer(1), new Float(500)));
-		m.addAttribute("numberOfLanesRequested", job.getJobCellSelection().size());
-		
-		List<AdditionalCost> additionalCosts = mpsQuote.getAdditionalCosts();
-		//fake test data
-		additionalCosts.add(new AdditionalCost("Additional Multiplex Fee", new Integer(1), new Float(50)));
-		additionalCosts.add(new AdditionalCost("Bioanalyzer Fee", new Integer(6), new Float(20), "Error In Row"));
-		
-		List<Discount> discounts = mpsQuote.getDiscounts();
-		//fake test data
-		discounts.add(new Discount("Institutional Cost Share", "%", new Float(25)));
-		discounts.add(new Discount("Facility Discount", "$", new Float(100), "Error In Row"));
-		
-		List<Comment> comments = mpsQuote.getComments();
-		//fake test data
-		comments.add(new Comment("Here's my first comment; how do you like it??", "Error In Row"));
-		comments.add(new Comment("This is my second comment!!"));
-*/
-		
+ 		
 		m.addAttribute("mpsQuote", mpsQuote);
 	 		
 		return "job/home/createUpdateQuote";
