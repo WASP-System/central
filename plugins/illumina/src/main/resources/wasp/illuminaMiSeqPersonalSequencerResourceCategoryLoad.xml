@@ -14,7 +14,6 @@
   </bean>
 
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="illuminaMiSeqUiFieldWrapper">
-    <property name="baseLocale" value="en_US" />
     <property name="baseArea" ref="illuminaMiSeqPersonalSequencerArea" />
   </bean>
 
@@ -39,19 +38,19 @@
         <bean parent="illuminaMiSeqUiFieldWrapper">
           <property name="baseName" value="readLength" />
           <property name="metaposition" value="10" />
-          <property name="label" value="Read Length" />
+          <property name="label" value="illumina.rl.label" />
           <property name="control" value="select:#{dollar}{resourceOptions.get(readLength)}:value:label" /> 
           <property name="constraint" value="NotEmpty" />
-          <property name="error" value="You must choose a read length" />
+          <property name="error" value="illumina.rl.error" />
         </bean>
 
         <bean parent="illuminaMiSeqUiFieldWrapper">
           <property name="baseName" value="readType" />
           <property name="metaposition" value="20" />
-          <property name="label" value="Read Type" />
+          <property name="label" value="illumina.rt.label" />
           <property name="control" value="select:#{dollar}{resourceOptions.get(readType)}:value:label" /> 
           <property name="constraint" value="NotEmpty" />
-          <property name="error" value="You must choose a read type" />
+          <property name="error" value="illumina.rl.error" />
         </bean>
       </list>
     </property>

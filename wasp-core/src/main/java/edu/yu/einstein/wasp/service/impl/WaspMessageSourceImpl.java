@@ -26,12 +26,10 @@ import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.support.AbstractMessageSource;
 import org.springframework.util.Assert;
 
-import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
-
 
 public class WaspMessageSourceImpl extends AbstractMessageSource implements MessageSource {
 	
-	Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
 	/** Map from 'code + locale' keys to message Strings */
@@ -88,7 +86,7 @@ public class WaspMessageSourceImpl extends AbstractMessageSource implements Mess
 		} catch (NoSuchMessageException e){
 			if (isUsLocale)
 				throw new NoSuchMessageException("Unable to retrieve a message with key code = '" + code + "' and locale = '" + Locale.US.toString() + "'");
-			logger.debug("Unable to retrieve nested message with key code = '" + code + "' and locale = '" + Locale.US.toString() + "'. Going to try '" 
+			logger.trace("Unable to retrieve nested message with key code = '" + code + "' and locale = '" + Locale.US.toString() + "'. Going to try '" 
 				+ locale.toString() + "'");
 			try{
 				codeValue = getMessage(code, null, locale); // return nested message. Set args to null at this stage
@@ -104,16 +102,16 @@ public class WaspMessageSourceImpl extends AbstractMessageSource implements Mess
 			return getMessage(codeValue, args, locale);// return message using 'codeValue' and 'args' provided
 		} catch (NoSuchMessageException e){
 			if (isUsLocale){
-				logger.debug("Unable to retrieve nested message with key code = '" + codeValue + "' and locale = '" + locale.toString() 
+				logger.trace("Unable to retrieve nested message with key code = '" + codeValue + "' and locale = '" + locale.toString() 
 						+ "'. Going to return the non-nested value");
 			}
 			else {
-				logger.debug("Unable to retrieve nested message with key code = '" + codeValue + "' and locale = '" + locale.toString() 
+				logger.trace("Unable to retrieve nested message with key code = '" + codeValue + "' and locale = '" + locale.toString() 
 						+ "'. Going to try Locale.US");
 				try{
 					return getMessage(codeValue, args, Locale.US); // return message using 'codeValue' and 'args' provided from Locale.US
 				} catch (NoSuchMessageException e1){
-					logger.debug("Unable to retrieve nested message with key code = '" + codeValue + "' and locale = '" + Locale.US.toString() 
+					logger.trace("Unable to retrieve nested message with key code = '" + codeValue + "' and locale = '" + Locale.US.toString() 
 							+ "'. Going to return the non-nested value");
 				}
 			}
@@ -125,7 +123,7 @@ public class WaspMessageSourceImpl extends AbstractMessageSource implements Mess
 			try{
 				return getMessage(code, args, locale); // return message using 'code' and 'args' provided
 			} catch (NoSuchMessageException e1){
-				logger.debug("Unable to retrieve nested message with key code = '" + code + "' and locale = '" +locale.toString() + "'. Going to return value for Locale.US"); 
+				logger.trace("Unable to retrieve nested message with key code = '" + code + "' and locale = '" +locale.toString() + "'. Going to return value for Locale.US"); 
 			}
 		}
 		return getMessage(code, args, Locale.US); // return message using 'code' and 'args' provided for  Locale.US

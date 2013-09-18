@@ -31,11 +31,11 @@
   		<list>
 	  		<bean parent="illuminaFlowcellMiSeqV1UiFieldWrapper">
 	          <property name="baseName" value="#{waspPlatformUnit['cellName']}" />
-	          <property name="label" value="Lane" />
+	          <property name="label" value="illumina.cell.label" />
 	        </bean>
 	        <bean parent="illuminaFlowcellMiSeqV1UiFieldWrapper">
 	          <property name="baseName" value="#{waspPlatformUnit['platformUnitName']}" />
-	          <property name="label" value="Flow Cell" />
+	          <property name="label" value="illumina.pu.label" />
 	        </bean>
         </list>
   	</property>

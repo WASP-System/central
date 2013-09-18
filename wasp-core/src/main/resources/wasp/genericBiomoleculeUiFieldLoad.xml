@@ -6,7 +6,6 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="genericBiomoleculeUiFieldWrapper">
-    <property name="baseLocale" value="en_US" />
     <property name="baseArea" value="genericBiomolecule" />
   </bean> 
 
@@ -15,11 +14,11 @@
       <list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper">
         <bean parent="genericBiomoleculeUiFieldWrapper">
           <property name="baseName" value="organism" />
-          <property name="label" value="Organism" />
+          <property name="label" value="genBiomolecule.organism.name" />
           <property name="metaposition" value="10" />
-          <property name="control" value="select:#{dollar}{organisms}:ncbiID:name" /> 
+          <property name="control" value="genBiomolecule.organism.control" /> 
           <property name="constraint" value="NotEmpty" />
-          <property name="error" value="You must select an organism" />
+          <property name="error" value="genBiomolecule.organism.error" />
         </bean>
       </list>
     </property>
