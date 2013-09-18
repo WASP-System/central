@@ -1965,6 +1965,8 @@ public class JobController extends WaspController {
 		}
 		
 		//all ok, so develop the pdf 
+		//see here for simple use of com.itextpdf.text.pdf.PdfWriter    http://viralpatel.net/blogs/generate-pdf-file-in-java-using-itext-jar/
+ 		
 		try{
 			Date now = new Date();
 			
@@ -2610,7 +2612,7 @@ public class JobController extends WaspController {
 		
 		return new Integer(totalFinalCost);
 	}
-	
+	/* I think no longer used
 	@RequestMapping(value="/{jobId}/createQuote", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobCreateQuotePage(@PathVariable("jobId") Integer jobId,
@@ -2910,7 +2912,7 @@ public class JobController extends WaspController {
 		populateCostPage(job, m);
 		return "job/home/costManager";
 	}
-	
+	*/
 	
 	@RequestMapping(value="/{jobId}/requests", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
