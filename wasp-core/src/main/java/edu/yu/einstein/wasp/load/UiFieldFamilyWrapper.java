@@ -1,9 +1,8 @@
 package edu.yu.einstein.wasp.load;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 
 import edu.yu.einstein.wasp.exception.UiFieldParseException;
 import edu.yu.einstein.wasp.model.UiField;
@@ -37,22 +36,22 @@ public class UiFieldFamilyWrapper {
 	
 	private String customAttrValue;
 	
-	private Map<String, String> localizedDescription;
-
-	private Map<String, String> localizedLabel;
+	private String label;
 	
-	private Map<String, String> localizedControl;
+	private String control;
 	
-	private Map<String, String> localizedError;
+	private String error;
 	
-	private Map<String, String> localizedData;
+	private String data;
 	
-	private Map<String, String> localizedTooltip;
+	private String tooltip;
 	
-	public UiFieldFamilyWrapper(){}
+	public UiFieldFamilyWrapper(){
+		this.baseLocale = Locale.US.toString();
+	}
 	
-	public UiFieldFamilyWrapper(String baseLocale, String baseArea, String baseName){
-		this.baseLocale = baseLocale;
+	public UiFieldFamilyWrapper(String baseArea, String baseName){
+		this.baseLocale = Locale.US.toString();
 		this.baseArea = baseArea;
 		this.baseName = baseName;
 	}
@@ -147,86 +146,48 @@ public class UiFieldFamilyWrapper {
 	}
 	
 
-	public Map<String, String> getLocalizedLabel() {
-		return localizedLabel;
+	public String getLabel() {
+		return label;
 	}
 
-
-	public void setLocalizedLabel(Map<String, String> localizedLabel) {
-		this.localizedLabel = localizedLabel;
-	}
 	
 	public void setLabel(String label) {
-		if (this.localizedLabel == null){
-			this.localizedLabel = new HashMap<String, String>();
-		}
-		this.localizedLabel.put(this.baseLocale, label);
+		this.label = label;
 	}
 	
-	public Map<String, String> getLocalizedTooltip() {
-		return localizedTooltip;
+	public String getTooltip() {
+		return tooltip;
 	}
 
 
-	public void setLocalizedTooltip(Map<String, String> localizedTooltip) {
-		this.localizedTooltip = localizedTooltip;
-	}
-	
 	public void setTooltip(String tooltip) {
-		if (this.localizedTooltip == null){
-			this.localizedTooltip = new HashMap<String, String>();
-		}
-		this.localizedTooltip.put(this.baseLocale, tooltip);
-	}
-
-
-	public Map<String, String> getLocalizedControl() {
-		return localizedControl;
-	}
-
-
-	public void setLocalizedControl(Map<String, String> localizedControl) {
-		this.localizedControl = localizedControl;
+		this.tooltip = tooltip;
 	}
 	
+	public String getControl() {
+		return control;
+	}
+
+
 	public void setControl(String control) {
-		if (this.localizedControl == null){
-			this.localizedControl = new HashMap<String, String>();
-		}
-		this.localizedControl.put(this.baseLocale, control);
-	}
-
-
-	public Map<String, String> getLocalizedError() {
-		return localizedError;
-	}
-
-
-	public void setLocalizedError(Map<String, String> localizedError) {
-		this.localizedError = localizedError;
+		this.control = control;
 	}
 	
-	public void setError(String error) {
-		if (this.localizedError == null){
-			this.localizedError = new HashMap<String, String>();
-		}
-		this.localizedError.put(this.baseLocale, error);
+	public String getError() {
+		return error;
 	}
 
 
-	public Map<String, String> getLocalizedData() {
-		return localizedData;
+	public void setError(String error) {
+		this.error = error;
+	}
+	
+	public String getData() {
+		return data;
 	}
 	
 	public void setData(String data) {
-		if (this.localizedData == null){
-			this.localizedData = new HashMap<String, String>();
-		}
-		this.localizedData.put(this.baseLocale, data);
-	}
-
-	public void setLocalizedData(Map<String, String> localizedData) {
-		this.localizedData = localizedData;
+		this.data = data;
 	}
 
 	public void setUsingCustomAttribute(String attrName, String value){
@@ -309,99 +270,56 @@ public class UiFieldFamilyWrapper {
 			uiFieldList.add(uiField);
 		}
 		
-		if (this.localizedLabel != null){
-			for (String locale : this.localizedLabel.keySet()){
-				UiField uiField = new UiField();
-				uiField.setLocale(locale);
-				uiField.setArea(this.baseArea);
-				uiField.setName(this.baseName);
-				uiField.setAttrName("label");
-				uiField.setAttrValue(this.localizedLabel.get(locale));
-				uiFieldList.add(uiField);
-			}
+		if (this.label != null){
+			UiField uiField = new UiField();
+			uiField.setLocale(this.baseLocale);
+			uiField.setArea(this.baseArea);
+			uiField.setName(this.baseName);
+			uiField.setAttrName("label");
+			uiField.setAttrValue(this.label);
+			uiFieldList.add(uiField);
 		}
 		
-		if (this.localizedTooltip != null){
-			for (String locale : this.localizedTooltip.keySet()){
-				UiField uiField = new UiField();
-				uiField.setLocale(locale);
-				uiField.setArea(this.baseArea);
-				uiField.setName(this.baseName);
-				uiField.setAttrName("tooltip");
-				uiField.setAttrValue(this.localizedTooltip.get(locale));
-				uiFieldList.add(uiField);
-			}
-		}
-		
-		if (this.localizedDescription != null){
-			for (String locale : this.localizedDescription.keySet()){
-				UiField uiField = new UiField();
-				uiField.setLocale(locale);
-				uiField.setArea(this.baseArea);
-				uiField.setName(this.baseName);
-				uiField.setAttrName("description");
-				uiField.setAttrValue(this.localizedDescription.get(locale));
-				uiFieldList.add(uiField);
-			}
+		if (this.tooltip != null){
+			UiField uiField = new UiField();
+			uiField.setLocale(this.baseLocale);
+			uiField.setArea(this.baseArea);
+			uiField.setName(this.baseName);
+			uiField.setAttrName("tooltip");
+			uiField.setAttrValue(this.tooltip);
+			uiFieldList.add(uiField);
 		}
 
-		if (this.localizedControl != null){
-			for (String locale : this.localizedControl.keySet()){
-				UiField uiField = new UiField();
-				uiField.setLocale(locale);
-				uiField.setArea(this.baseArea);
-				uiField.setName(this.baseName);
-				uiField.setAttrName("control");
-				uiField.setAttrValue(this.localizedControl.get(locale));
-				uiFieldList.add(uiField);
-			}
+		if (this.control != null){
+			UiField uiField = new UiField();
+			uiField.setLocale(this.baseLocale);
+			uiField.setArea(this.baseArea);
+			uiField.setName(this.baseName);
+			uiField.setAttrName("control");
+			uiField.setAttrValue(this.control);
+			uiFieldList.add(uiField);
 		}
 		
-		if (this.localizedError != null){
-			for (String locale : this.localizedError.keySet()){
-				UiField uiField = new UiField();
-				uiField.setLocale(locale);
-				uiField.setArea(this.baseArea);
-				uiField.setName(this.baseName);
-				uiField.setAttrName("error");
-				uiField.setAttrValue(this.localizedError.get(locale));
-				uiFieldList.add(uiField);
-			}
+		if (this.error != null){
+			UiField uiField = new UiField();
+			uiField.setLocale(this.baseLocale);
+			uiField.setArea(this.baseArea);
+			uiField.setName(this.baseName);
+			uiField.setAttrName("error");
+			uiField.setAttrValue(this.error);
+			uiFieldList.add(uiField);
 		}
 		
-		if (this.localizedData != null){
-			for (String locale : this.localizedData.keySet()){
-				UiField uiField = new UiField();
-				uiField.setLocale(locale);
-				uiField.setArea(this.baseArea);
-				uiField.setName(this.baseName);
-				uiField.setAttrName("data");
-				uiField.setAttrValue(this.localizedData.get(locale));
-				uiFieldList.add(uiField);
-			}
+		if (this.data != null){
+			UiField uiField = new UiField();
+			uiField.setLocale(this.baseLocale);
+			uiField.setArea(this.baseArea);
+			uiField.setName(this.baseName);
+			uiField.setAttrName("data");
+			uiField.setAttrValue(this.data);
+			uiFieldList.add(uiField);
 		}
 		return uiFieldList;
-	}
-
-	/**
-	 * @return the localizedDescription
-	 */
-	public Map<String, String> getLocalizedDescription() {
-		return localizedDescription;
-	}
-
-	/**
-	 * @param localizedDescription the localizedDescription to set
-	 */
-	public void setLocalizedDescription(Map<String, String> localizedDescription) {
-		this.localizedDescription = localizedDescription;
-	}
-	
-	public void setDescription(String description) {
-		if (this.localizedDescription == null){
-			this.localizedDescription = new HashMap<String, String>();
-		}
-		this.localizedDescription.put(this.baseLocale, description);
 	}
 	
 }

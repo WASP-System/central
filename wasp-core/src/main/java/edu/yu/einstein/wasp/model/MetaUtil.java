@@ -172,8 +172,10 @@ public final class MetaUtil {
 	 * @return
 	 */
 	private static String getMessage(String key, Locale locale) {
-			
+		if (key.endsWith(".contraint") || key.endsWith(".metaposition") || key.endsWith(".type") || key.endsWith(".range"))
 			return DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null, locale);
+		else
+			return DBResourceBundle.MESSAGE_SOURCE.getNestedMessage(key, null, locale);
 	}
 		 
 	@SuppressWarnings("rawtypes")
