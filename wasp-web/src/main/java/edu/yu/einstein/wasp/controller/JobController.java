@@ -1041,6 +1041,14 @@ public class JobController extends WaspController {
 
 	private void populateCostPage(Job job, ModelMap m){
 		
+		//need this (displayMiniMenu) since might be coming from callable (and security context lost)
+		if(authenticationService.hasRole("su") || authenticationService.hasRole("ft") || authenticationService.hasRole("da")){
+			m.addAttribute("displayMiniMenu", true);
+		}
+		else{
+			m.addAttribute("displayMiniMenu", false);
+		}
+		
 		m.addAttribute("job", job);
 		
 		AcctQuote mostRecentAcctQuote = job.getCurrentQuote();
@@ -1117,6 +1125,121 @@ public class JobController extends WaspController {
 		m.addAttribute("acctQuoteFileGroupMap", acctQuoteFileGroupMap);
 		m.addAttribute("acctQuotesWithJsonEntry", acctQuotesWithJsonEntry);		
 		
+	}
+	
+	@RequestMapping(value="/{jobId}/uploadQuoteOrInvoice", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
+	  public String jobFileUploadQuoteOrInvoice(@PathVariable("jobId") Integer jobId, 
+			  @RequestParam(value="errorMessage", required=false) String errorMessage,
+			  @RequestParam(value="successMessage", required=false) String successMessage,
+			  ModelMap m) throws SampleTypeException {
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
+		m.addAttribute("localCurrencyIcon", Currency.getInstance(Locale.getDefault()).getSymbol()); 		
+		m.addAttribute("job", job);
+		return "job/home/uploadQuoteOrInvoice";
+	}
+	
+	
+	 	//Note: we use MultipartHttpServletRequest to be able to upload files using Ajax. See http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/
+	@RequestMapping(value="/{jobId}/uploadQuoteOrInvoice", method=RequestMethod.POST)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
+	  public Callable<String> jobFileUploadQuoteOrInvoicePostPage(@PathVariable("jobId") final Integer jobId,
+			  final MultipartHttpServletRequest request, 
+			  final HttpServletResponse response,
+			  //since this is now an ajax call, we no longer need/use @RequestParam("file_description") String fileDescription, @RequestParam("file_upload") MultipartFile mpFile,
+			  final ModelMap m) throws SampleTypeException {
+		
+			return new Callable<String>() {
+
+					@Override
+					public String call() throws Exception {						
+
+						Job job = jobService.getJobByJobId(jobId);
+						if(job.getId()==null){
+						   	logger.warn("Job unexpectedly not found");
+						   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+							return "job/home/message";
+						}
+						
+						m.addAttribute("localCurrencyIcon", Currency.getInstance(Locale.getDefault()).getSymbol()); 		
+						m.addAttribute("job", job);
+						
+						List<MultipartFile> mpFiles = request.getFiles("file_upload");
+					    if(mpFiles.isEmpty()){
+					    	String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed_fileEmpty.error");
+					    	logger.warn(errorMessage);
+					    	m.addAttribute("errorMessage", errorMessage);					    	
+							return "job/home/uploadQuoteOrInvoice";
+					    }
+					   	MultipartFile mpFile = mpFiles.get(0);
+					   	if(mpFile==null){
+					   		String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed_fileEmpty.error");
+					    	logger.warn(errorMessage);
+					    	m.addAttribute("errorMessage", errorMessage);
+							return "job/home/uploadQuoteOrInvoice";
+						}
+						
+					   	String fileDescription = request.getParameter("file_description");
+					    fileDescription = fileDescription==null?"":fileDescription.trim();
+					    
+					    if("".equals(fileDescription)){
+					    	String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed_fileDescriptionEmpty.error");
+					    	logger.warn(errorMessage);
+					    	m.addAttribute("errorMessage", errorMessage);
+							return "job/home/uploadQuoteOrInvoice";
+					    }
+					    
+					    if(!fileDescription.equalsIgnoreCase("quote") && !fileDescription.equalsIgnoreCase("invoice")){
+					    	String errorMessage = "Description must be Quote or Invoice";
+					    	logger.warn(errorMessage);
+					    	m.addAttribute("errorMessage", errorMessage);
+							return "job/home/uploadQuoteOrInvoice";
+					    }
+					   	
+					    String totalCostAsString = request.getParameter("totalCost");
+					    totalCostAsString = totalCostAsString==null?"":totalCostAsString.trim();
+					    
+					    if("".equals(totalCostAsString)){
+					    	String errorMessage = "Please provide a value for Total Cost";
+					    	logger.warn(errorMessage);
+					    	m.addAttribute("errorMessage", errorMessage);
+							return "job/home/uploadQuoteOrInvoice";
+					    }
+					    
+					    Integer totalCost = null;
+						try{
+							totalCost = new Integer(totalCostAsString);
+						}catch(Exception e){
+							String errorMessage = "Please provide a whole number for Total Cost";
+					    	logger.warn(errorMessage);
+					    	m.addAttribute("errorMessage", errorMessage);
+							return "job/home/uploadQuoteOrInvoice";
+						}
+					    
+						Random randomNumberGenerator = new Random(System.currentTimeMillis());
+						try{
+							jobService.createNewQuoteOrInvoiceAndUploadFile(job, mpFile, fileDescription, new Float(totalCost));
+							m.addAttribute("successMessage", messageService.getMessage("listJobSamples.fileUploadedSuccessfully.label"));
+						} catch(FileUploadException e){
+							String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed.error");
+							logger.warn(errorMessage);
+							m.addAttribute("errorMessage", errorMessage);
+							return "job/home/uploadQuoteOrInvoice";
+						} catch(Exception e){
+							String errorMessage = "Unexpected Exception";
+							logger.warn(errorMessage);
+							m.addAttribute("errorMessage", errorMessage);
+							return "job/home/uploadQuoteOrInvoice";
+						}
+						populateCostPage(job, m);
+						return "job/home/costManager";
+					}
+			  };
 	}
 	
 	@RequestMapping(value="/{jobId}/acctQuote/{quoteId}/createUpdateQuote", method=RequestMethod.GET)

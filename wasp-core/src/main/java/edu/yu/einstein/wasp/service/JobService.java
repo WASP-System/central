@@ -15,10 +15,12 @@ import java.util.LinkedHashMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
@@ -36,6 +38,7 @@ import edu.yu.einstein.wasp.dao.SampleJobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
+import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.JobContextInitializationException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
@@ -629,10 +632,21 @@ public interface JobService extends WaspMessageHandlingService {
 	/**
 	 * Create new acctQuote for a job and save it's associated file (to the remote location)
 	 * @param Job job
-	 * @param File localFile
+	 * @param File localFile (this is wasp's newly created quote.pdf, currently locally stored)
 	 * @param Float totalFinalCost
 	 * @param boolean saveQuoteAsJSON
 	 * @return void
 	 */
 	public void createNewQuoteAndSaveQuoteFile(MPSQuote mpsQuote, File file, Float totalFinalCost, boolean saveQuoteAsJSON)throws Exception;
+
+	/**
+	 * Create new acctQuote for a job and save the UPLOADED file (to the remote location)
+	 * @param Job job
+	 * @param MultipartFile mpFile (the uploaded file; uploaded from the web)
+	 * @param String fileDescription (invoice or quote only)
+	 * @param Float totalCost
+	 * @return void
+	 */
+	public void createNewQuoteOrInvoiceAndUploadFile(Job job, MultipartFile mpFile, String fileDescription, Float totalCost) throws FileUploadException, Exception;
+	
 }

@@ -38,6 +38,7 @@ import org.springframework.context.NoSuchMessageException;
 import org.springframework.integration.MessagingException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.MetaMessage;
@@ -70,6 +71,7 @@ import edu.yu.einstein.wasp.dao.SoftwareDao;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
+import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.JobContextInitializationException;
 import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
@@ -2366,11 +2368,13 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		}
 		job.setCurrentQuote(quoteForm);	
 		this.getJobDao().save(job);	
-		try{	
-			this.updateJobQuoteStatus(job, WaspStatus.COMPLETED);	
-		} catch (WaspMessageBuildingException e){
-			logger.warn(e.getMessage());
-			throw new Exception(e.getMessage());
+		if(this.isJobAwaitingQuote(job)){
+			try{	
+				this.updateJobQuoteStatus(job, WaspStatus.COMPLETED);	
+			} catch (WaspMessageBuildingException e){
+				logger.warn(e.getMessage());
+				throw new Exception(e.getMessage());
+			}
 		}
 	}
 
@@ -2430,4 +2434,26 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 	   	}
 	 	   	this.addNewQuote(job.getId(), acctQuote, acctQuoteMetaList);
 	}
+	
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void createNewQuoteOrInvoiceAndUploadFile(Job job, MultipartFile mpFile, String fileDescription, Float totalCost) throws FileUploadException, Exception{
+		if(!fileDescription.equalsIgnoreCase("quote") && !fileDescription.equalsIgnoreCase("invoice")){
+			  throw new Exception(); 
+		}
+ 	   	FileGroup fileGroup = fileService.uploadFileAndReturnFileGroup(mpFile, job, fileDescription, new Random(System.currentTimeMillis()));
+ 	   	//if this is a new quote, save quote; if invoice, save invoice
+ 	   	AcctQuote acctQuote = new AcctQuote();
+ 	   	acctQuote.setAmount(totalCost);
+ 	   	List<AcctQuoteMeta> acctQuoteMetaList = new ArrayList<AcctQuoteMeta>();
+ 	   	AcctQuoteMeta acctQuoteMeta = new AcctQuoteMeta();
+ 	   	acctQuoteMeta.setK("acctQuote.fileGroupId");
+ 	   	acctQuoteMeta.setV(fileGroup.getId().toString());
+ 	   	acctQuoteMetaList.add(acctQuoteMeta);
+ 	   	this.addNewQuote(job.getId(), acctQuote, acctQuoteMetaList);
+	}
+	
+	
 }

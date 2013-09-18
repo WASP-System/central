@@ -4,9 +4,53 @@
 <%-- What was used was: from http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/ --%>
 <%--Apparently need onsubmit='return false' to suppress hitting the event when the ENTER key is pressed with the cursor in the description input box --%>
 
-<sec:authorize access="hasRole('su') or hasRole('ft') or hasRole('da')">
-	<br /><a class="button" href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/acctQuote/0/createUpdateQuote.do" />");' >Create Quote / Invoice</a><br />
-</sec:authorize>
+<c:if test="${displayMiniMenu==true}">
+<%--<sec:authorize access="hasRole('su') or hasRole('ft') or hasRole('da')">--%>
+	<%-- 
+	<br />
+		<a class="button" href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/acctQuote/0/createUpdateQuote.do" />");' >Create Quote</a>
+		<a class="button" href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/uploadQuote.do" />");' >Upload Quote</a>
+	<br />
+	--%>
+	<br />
+	<span style="padding:3px; border: 1px solid black;">
+		<a <%--class="button"--%> href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/acctQuote/0/createUpdateQuote.do" />");' >Create A Quote</a>
+		| <a <%--class="button"--%> href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/uploadQuoteOrInvoice.do" />");' >Upload A Quote</a>
+		| <a <%--class="button"--%> href="javascript:void(0);" onclick='$("#uploadQuote").css("display", "block");' >Display Upload Quote</a>
+	</span>
+	<div id="uploadQuote" style="display:none">
+		<br />		
+		<form id="fileUploadFormId" action="<c:url value="/job/${job.getId()}/fileUploadManager.do" />" method="POST"  enctype="multipart/form-data" onsubmit='return false;' >
+			<table class="data" style="margin: 0px 0px">
+			
+			<tr class="FormData">
+				<td colspan="3" class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.fileUploadUploadNewFile.label"/></td>
+			</tr>
+			<tr class="FormData">
+				<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.fileUploadSelectFileToUpload.label"/></td>
+				<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.fileUploadProvideBriefDescription.label"/></td>
+				<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_action.label"/></td>
+			</tr>
+			<tr>
+				<td class="DataTD value-centered"><input type="file" name="file_upload" /></td>
+				<td class="DataTD value-centered" ><input type="text" maxlength="30" name="file_description" /></td>
+				<td align="center">
+					<input type="reset" name="reset" value="<fmt:message key="listJobSamples.file_reset.label" />" />
+					
+					<%--I don't know why, but having uploadJqueryForm("fileUploadFormId") wired through onsubmit via a regular submit button makes for Major problems!!!! use the button below --%>
+					
+					<a class="button" href="javascript:void(0);"  onclick='uploadJqueryForm("fileUploadFormId")' ><fmt:message key="listJobSamples.file_upload.label" /></a>
+				</td>
+			</tr>
+			<c:if test="${fn:length(errorMessage)>0}">
+					<tr><td colspan="3" align="center" style="color:red;font-weight:bold"><c:out value="${errorMessage}" /></td></tr>
+			</c:if>
+			</table>
+		</form>
+	</div>
+	<br />
+<%--</sec:authorize>--%>
+</c:if>
 <c:if test="${not empty mostRecentQuote }">
 	<br /><h2>Most Recent Quote: <c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentQuote}" /></h2>
 </c:if>

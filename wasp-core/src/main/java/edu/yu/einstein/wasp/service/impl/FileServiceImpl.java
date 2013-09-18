@@ -951,7 +951,18 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	public void uploadJobFile(MultipartFile mpFile, Job job, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
 		try{
 			FileGroup fileGroup = this.uploadFile(mpFile.getOriginalFilename(), mpFile.getInputStream(), job.getId(), fileDescription, randomNumberGenerator, "results.dir", "submitted");
-			this.linkFileGroupWithJob(fileGroup, job);
+			this.linkFileGroupWithJob(fileGroup, job);//this should really be in the job service, not fileservice
+		}catch(Exception e){
+			throw new FileUploadException(e.getMessage());
+		}
+	}
+
+	@Override
+	@Transactional
+	public FileGroup uploadFileAndReturnFileGroup(MultipartFile mpFile, Job job, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
+		try{
+			FileGroup fileGroup = this.uploadFile(mpFile.getOriginalFilename(), mpFile.getInputStream(), job.getId(), fileDescription, randomNumberGenerator, "results.dir", "submitted");
+			return fileGroup;
 		}catch(Exception e){
 			throw new FileUploadException(e.getMessage());
 		}
