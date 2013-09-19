@@ -50,6 +50,7 @@ public class MetaValidatorImpl implements MetaValidator {
 			
 			String errorFieldName = area+"Meta["+i+"].k";
 			String errorMessageKey = meta.getK() + ".error";
+			logger.debug("errorMessageKey="+errorMessageKey);
 			String defaultMessage = errorMessageKey+" (no message has been defined for this property)";
 			if (constraint != null){
 				if (! allowableConstraints.contains(Constraint.valueOf(constraint)) ){

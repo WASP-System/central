@@ -19,17 +19,13 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractMessageSource;
 import org.springframework.util.Assert;
 
 
 public class WaspMessageSourceImpl extends AbstractMessageSource {
 	
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-
+	
 	/** Map from 'code + locale' keys to message Strings */
 	private final Map<String, String> messages = new HashMap<String, String>();
 
@@ -57,6 +53,31 @@ public class WaspMessageSourceImpl extends AbstractMessageSource {
 		
 	}
 	
+
+	
+	@Override
+	protected String resolveCodeWithoutArguments(String code, Locale locale) {
+		
+		if (code==null) return null;
+		
+		String msg = getMessageInternal(code, locale);
+		
+		if (msg!=null) return msg;
+			
+		if (StringUtils.split(code, ".").length==3) {//valid 3-part key. return "code" instead of the message
+			return code;
+		} else {//invalid key. return null. 
+			return null;
+		}
+		
+	}
+
+	public String getUSMessage(String code,String defaultMessage) {
+		String msg=messages.get(code + "_" + Locale.US.toString());
+		if (msg==null) msg=defaultMessage;
+		return msg;
+	}
+	
 	private String getMessageInternal(String code, Locale locale) {
 		boolean isUsLocale = locale.equals(Locale.US);
 		String msg = this.messages.get(code + "_" + locale.toString());
@@ -72,25 +93,17 @@ public class WaspMessageSourceImpl extends AbstractMessageSource {
 		return msg;
 	}
 	
-	
-	@Override
-	protected String resolveCodeWithoutArguments(String code, Locale locale) {
-		if (code==null) 
-			return null;
-		String msg = getMessageInternal(code, locale);
-		if (msg!=null) 
-			return msg;
-		return code;
-	}
-
-		
 	@Override
 	protected MessageFormat resolveCode(String code, Locale locale) {
 		String key = code + "_" + locale.toString();
 		String msg = getMessageInternal(code, locale);
-		if (msg == null) 
-			msg = code;//fallback to code if message not defined. Sasha		 
-     
+		if (msg == null) {
+			if (StringUtils.split(code, ".").length==3) {//valid 3-part key. return "code" instead of the message
+				msg=code;//fallback to code if message not defined. Sasha
+			} else {//invalid key.  
+				msg=null;
+			}			 
+       }
 	   synchronized (this.cachedMessageFormats) {
 			MessageFormat messageFormat = this.cachedMessageFormats.get(key);
 			if (messageFormat == null) {
