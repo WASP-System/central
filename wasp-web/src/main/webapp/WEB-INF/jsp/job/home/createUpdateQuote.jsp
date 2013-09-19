@@ -87,7 +87,7 @@
 	})(jQuery);
 </script>
 
-<sec:authorize access="hasRole('su') or hasRole('ft') or hasRole('da')">
+<sec:authorize access="hasRole('su') or hasRole('ft') or hasRole('da-*')">
 
 	<form  method='post' name='quoteOrInvoiceForm' id="quoteOrInvoiceFormId" action="" >
 		<div class="ui-widget">

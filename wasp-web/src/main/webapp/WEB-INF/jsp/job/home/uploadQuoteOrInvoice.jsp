@@ -4,6 +4,8 @@
 <%-- What was used was: from http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/ --%>
 <%--Apparently need onsubmit='return false' to suppress hitting the event when the ENTER key is pressed with the cursor in the description input box --%>
 <br />
+<sec:authorize access="hasRole('su') or hasRole('ft') or hasRole('da-*')">
+
 <span style="padding:3px; border: 1px solid black;">
 	<a <%-- class="button" --%> href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/costManager.do" />");' >Return To Costs Page</a>
 </span>
@@ -44,3 +46,4 @@
 	
 </form>
 <br />
+</sec:authorize>

@@ -979,7 +979,7 @@ public class JobController extends WaspController {
 	private void populateCostPage(Job job, ModelMap m){
 		
 		//need this (viewerIsFacilityStaff) since might be coming from callable (and security context lost)
-		if(authenticationService.hasRole("su") || authenticationService.hasRole("ft") || authenticationService.hasRole("da")){
+		if(authenticationService.hasRole("su") || authenticationService.hasRole("ft") || authenticationService.hasRole("da-*")){
 			m.addAttribute("viewerIsFacilityStaff", true);
 		}
 		else{
