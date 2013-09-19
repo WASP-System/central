@@ -26,7 +26,7 @@ public class SelSubmitNewJob extends SelBaseTest{
     @DataProvider(name = "DP1")
     public Object[][] createData1() throws Exception{
         Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
-                "Test_001", "submitNewJob");
+                "loadTestNewJobs", "submitNewJob");
         return(retObjArr);
     }
     /**
@@ -35,7 +35,7 @@ public class SelSubmitNewJob extends SelBaseTest{
      * @param sUserPass
      */
   	@Test (groups = {"integration-tests", "submit-new-job"}, dataProvider = "DP1")
-	public void submitNewJob(String sUserName, String sUserPass, String sJobNum, String sDnaName, String sLibName, String labName, String sExpectedUrl) throws Exception {   
+	public void submitNewJob(String sUserName, String sUserPass, String sJobNum, String sDnaName, String sLibName, String labName, String sExpectedUrl, String workflowId) throws Exception {   
     	
   		SeleniumHelper.login(sUserName, sUserPass);
   		
@@ -58,7 +58,7 @@ public class SelSubmitNewJob extends SelBaseTest{
 		select.selectByVisibleText(labName);
 		
     	Assert.assertTrue(driver.findElements(By.name("workflowId")).size() != 0, "Cannot locate 'Assay Workflow' radio button");
-    	driver.findElement(By.xpath("//input[@type='radio' and @value='2']")).click();// set @value to 2 when testing on barcelona and to 1 when local
+    	driver.findElement(By.xpath("//input[@type='radio' and @value='"+workflowId+"']")).click();// set @value to 2 when testing on barcelona and to 1 when local
 		
     	driver.findElement(By.xpath("//input[@type='submit']")).click();
     	
