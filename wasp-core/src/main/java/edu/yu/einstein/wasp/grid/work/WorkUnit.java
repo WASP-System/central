@@ -381,6 +381,8 @@ public class WorkUnit {
 	}
 
 	/**
+	 * Software dependencies are set to ensure the work unit is sent to an appropriate host (one which
+	 * provides the requested software and has the resources to use it)
 	 * @param softwareDependencies the softwareDependencies to set
 	 */
 	public void setSoftwareDependencies(List<SoftwarePackage> softwareDependencies) {

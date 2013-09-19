@@ -40,8 +40,6 @@ public class ListenForStatusTasklet extends WaspMessageHandlingTasklet  {
 		
 	private Set<StatusMessageTemplate> abortMonitoredTemplates;
 	
-	private boolean stopStep = false;
-	
 	private boolean abandonStep = false;
 	
 	public ListenForStatusTasklet() {
@@ -90,13 +88,23 @@ public class ListenForStatusTasklet extends WaspMessageHandlingTasklet  {
 	public ExitStatus afterStep(StepExecution stepExecution){
 		ExitStatus exitStatus = stepExecution.getExitStatus();
 		// if any messages in the queue are unsuccessful we wish to return an exit status of FAILED
+		String description = exitStatus.getExitDescription();
+		if (description == null)
+			description = "";
+		else if (!description.isEmpty())
+			description += ";";
 		if (exitStatus.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())){
-			for (Message<?> message: messageQueue)
-				exitStatus.addExitDescription((String) message.getHeaders().get(WaspStatusMessageTemplate.EXIT_DESCRIPTION_HEADER));
-			if (abandonStep)
+			for (Message<?> message: messageQueue){
+				String messageExitDescription = (String) message.getHeaders().get(WaspStatusMessageTemplate.EXIT_DESCRIPTION_HEADER);
+				if (messageExitDescription != null && !messageExitDescription.isEmpty())
+					description += messageExitDescription + ";";
+			}
+			if (abandonStep){
 				exitStatus =  ExitStatus.FAILED; // modify exit code if abandoned
-			else if (stopStep)
-				exitStatus =  ExitStatus.STOPPED; // modify exit code if stopped
+				description += "Step failed due to receiving a WaspStatus message of ABANDONED or FAILED";
+			}
+			if (!description.isEmpty())
+				exitStatus.addExitDescription(description);
 		}
 		
 		// send reply messages to message channels of logged messages providing reply channels
@@ -110,7 +118,7 @@ public class ListenForStatusTasklet extends WaspMessageHandlingTasklet  {
 	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
 		logger.trace(name + "execute() invoked");
-		if (messageQueue.isEmpty() && !abandonStep && !stopStep){
+		if (messageQueue.isEmpty() && !abandonStep){
 			try{
 				Thread.sleep(executeRepeatDelay);
 			} catch (InterruptedException e){}  // happens when message handled 

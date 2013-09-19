@@ -2443,6 +2443,7 @@ public class JobController extends WaspController {
 		  Map<Sample, String> receivedStatusMap = new HashMap<Sample, String>();		 
 		  for(Sample submittedObject : submittedObjectList){
 			  submittedObjectOrganismMap.put(submittedObject, sampleService.getNameOfOrganism(submittedObject, "???"));
+			  logger.debug(submittedObject.getId() + ":" + sampleService.getReceiveSampleStatus(submittedObject) + ":" + sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(submittedObject)));
 			  receivedStatusMap.put(submittedObject, sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(submittedObject)));
 		  }
 		  m.addAttribute("submittedObjectOrganismMap", submittedObjectOrganismMap);

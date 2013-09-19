@@ -899,15 +899,15 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		  Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
 		  LinkedHashMap<String, String> jobApprovalsMap = new LinkedHashMap<String, String>();
 		  
-		  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
-		  Set<String> jobIdStringSet = new HashSet<String>();
-		  jobIdStringSet.add(job.getJobId().toString());
-		  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		  
 		  List<String> jobApproveList = new ArrayList<String>();
 		  for(int i = 0; i < this.jobApproveArray.length; i++){
 			  jobApproveList.add(jobApproveArray[i]);//piApprove, daApprove, fmApprove
 		  }	  
+		  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		  Set<String> jobIdStringSet = new HashSet<String>();
+		  jobIdStringSet.add(job.getId().toString());
+		  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+
 		  for(String jobApproveCode : jobApproveList){
 			  //List<StepExecution> stepExecutions =  batchJobExplorer.getStepExecutions("step.piApprove", parameterMap, true);
 			  List<StepExecution> stepExecutions = null;
@@ -928,7 +928,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 					  approveStatus = new String("approved");
 					  //jobApprovalsMap.put(piStatusLabel, "status.approved.label");
 				  }
-				  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.FAILED.getExitCode())){//most likely not used anymore
+				  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.FAILED.getExitCode())){
 					  approveStatus = new String("rejected");
 					  //jobApprovalsMap.put(piStatusLabel, "status.rejected.label");
 				  }
@@ -1949,56 +1949,40 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 */
 	@Override
 	public String getJobStatus(Job job){
-		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0)
+		if(job==null || job.getId()==null)
 			return "Unknown";
 		String currentStatus = "Not Yet Set";
 		//String approvalStatus = "Not Yet Set";
 		LinkedHashMap<String,String> jobApprovalsMap = this.getJobApprovals(job);
-		for(String jobApproveCode : jobApprovalsMap.keySet()){
-			//if any single jobStatus is rejected, the rest are set to abandoned, so this job is withdrawn, so break
-			if("rejected".equalsIgnoreCase(jobApprovalsMap.get(jobApproveCode))){
-				if("piApprove".equals(jobApproveCode)){
-						currentStatus = "Withdrawn By PI";
-				}
-				else if("daApprove".equals(jobApproveCode)){
-					currentStatus = "Withdrawn By Dept.";
-				}
-				else if("fmApprove".equals(jobApproveCode)){
-					currentStatus = "Withdrawn By Facility";
-				}
-				else {//should never occur
-					currentStatus = "Withdrawn";
-				}
-				break;
-			}
-			//if any single jobStatus is awaitingResponse, then none are rejected, and we are continuing to wait for additional responses, so break (some might be approved, but we're waiting for at least one)
-			if("awaitingResponse".equalsIgnoreCase(jobApprovalsMap.get(jobApproveCode))){
-				currentStatus = "Awaiting Approval(s)";
-				break;
-			}
-			//if any jobStatus is approved, then continue through the loop. If the last one is approved (we haven't hit a rejected or an awaitingResponse), then this job is fully approved
-			if("approved".equalsIgnoreCase(jobApprovalsMap.get(jobApproveCode))){
-				currentStatus = "Approved";//will be refined below
-			}
-			//if we never hit the case rejected, awaitingResponse, or approved, then it's Not yet set (should rarely occur)
-		}
-		//next need a way to tell approved and ongoing from approved and completed
-		if(currentStatus.equalsIgnoreCase("Approved")){
-			//must now distinguish between in progress and completed
-			//if the job is active, and approved, then the job is In Progress
-			boolean jobIsActive = false;
-			List<Job> activeJobsList = this.getActiveJobs();//will be used below 			
-			for(Job activeJob : activeJobsList){
-				if(activeJob.getJobId().intValue()==job.getJobId().intValue()){
-					jobIsActive = true;
+		logger.debug("isJobActive for id=" + job.getId() + " : " + isJobActive(job));
+		if(isJobActive(job)){
+			currentStatus = "In Progress";
+			for(String jobApproveCode : jobApprovalsMap.keySet()){
+				if("awaitingResponse".equalsIgnoreCase(jobApprovalsMap.get(jobApproveCode))){
+					currentStatus = "Awaiting Approval(s)";
 					break;
 				}
 			}
-			if(jobIsActive){
-				currentStatus = "In Progress";
-			}
-			else{
-				currentStatus = "Completed";
+		}
+		else{
+			currentStatus = "Completed";
+			for(String jobApproveCode : jobApprovalsMap.keySet()){
+				//if any single jobStatus is rejected, the rest are set to abandoned, so this job is withdrawn, so break
+				if("rejected".equalsIgnoreCase(jobApprovalsMap.get(jobApproveCode))){
+					if("piApprove".equals(jobApproveCode)){
+							currentStatus = "Withdrawn By PI";
+					}
+					else if("daApprove".equals(jobApproveCode)){
+						currentStatus = "Withdrawn By Dept.";
+					}
+					else if("fmApprove".equals(jobApproveCode)){
+						currentStatus = "Withdrawn By Facility";
+					}
+					else {//should never occur
+						currentStatus = "Withdrawn";
+					}
+					break;
+				}
 			}
 		}
 		return currentStatus;
