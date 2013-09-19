@@ -30,6 +30,8 @@ public class MPSQuote {
 	private List<AdditionalCost> additionalCosts;
 	private List<Discount> discounts;
 	private List<Comment> comments;
+	private List<String> errors;
+	private Integer totalFinalCost;
 	
 	public MPSQuote(){
 		this.jobId = new Integer(0);
@@ -41,6 +43,8 @@ public class MPSQuote {
 		this.additionalCosts = new ArrayList<AdditionalCost>();
 		this.discounts = new ArrayList<Discount>();
 		this.comments = new ArrayList<Comment>();
+		this.errors = new ArrayList<String>();
+		this.totalFinalCost = new Integer(0);
 	}
 
 	public MPSQuote(Integer jobId){
@@ -53,6 +57,8 @@ public class MPSQuote {
 		this.additionalCosts = new ArrayList<AdditionalCost>();
 		this.discounts = new ArrayList<Discount>();
 		this.comments = new ArrayList<Comment>();
+		this.errors = new ArrayList<String>();
+		this.totalFinalCost = new Integer(0);
 	}
 	
 	public void setJobId(Integer jobId){this.jobId = jobId;}
@@ -67,8 +73,7 @@ public class MPSQuote {
 	}
 	public void setLibraryCosts(List<LibraryCost> libraryCosts){
 		this.libraryCosts = libraryCosts;
-	}
-	
+	}	
 	public void setSequencingCosts(List<SequencingCost> sequencingCosts){
 		this.sequencingCosts = sequencingCosts;
 	}
@@ -81,6 +86,13 @@ public class MPSQuote {
 	public void setComments(List<Comment> comments){
 		this.comments = comments;
 	}
+	public void setErrors(List<String> errors){
+		this.errors = errors;
+	}
+	public void setTotalFinalCost(Integer totalFinalCost){
+		this.totalFinalCost = totalFinalCost;
+	}
+	
 	public Integer getJobId(){return this.jobId;}
 	public Integer getNumberOfLibrariesExpectedToBeConstructed(){return this.numberOfLibrariesExpectedToBeConstructed;}
 	public Integer getNumberOfLanesRequested(){return this.numberOfLanesRequested;}
@@ -90,7 +102,8 @@ public class MPSQuote {
 	public List<AdditionalCost>  getAdditionalCosts(){return this.additionalCosts;}
 	public List<Discount> getDiscounts(){return this.discounts;}
 	public List<Comment> getComments(){return this.comments;}
-	
+	public List<String> getErrors(){return this.errors;}
+	public Integer getTotalFinalCost(){return this.totalFinalCost;}
 	
 	/**
 	* sets parameters based on JSON input
