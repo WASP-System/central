@@ -167,14 +167,6 @@ public class QuoteAndInvoiceServiceImpl extends WaspServiceImpl implements Quote
 	 	    		justUnderLetterhead.add(textUnderTheLetterheadLine);
 	 	    		justUnderLetterhead.add(Chunk.NEWLINE);
 	 	    	}
-		 	/*
-	 	    Chunk facilityManagerNameAndAddress = new Chunk("Shahina Maqbool PhD (ESF Director), Albert Einstein College of Medicine, 1301 Morris Park Ave (Price 159F)", TINY_BOLD);
-	 	    facilityManager.add(facilityManagerNameAndAddress);
-		 	facilityManager.add(Chunk.NEWLINE);
-	 	    Chunk facilityManagerEmailPhone = new Chunk("Email:shahina.maqbool@einstein.yu.edu Phone:718-678-1163", TINY_BOLD);
-	 	    facilityManager.add(facilityManagerEmailPhone);
-	 	    facilityManager.add(Chunk.NEWLINE);
-	 	    */
 	 	    	justUnderLetterhead.setAlignment(Element.ALIGN_CENTER);
 	 	    	document.add(justUnderLetterhead);
 	 	    }
