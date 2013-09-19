@@ -978,12 +978,12 @@ public class JobController extends WaspController {
 
 	private void populateCostPage(Job job, ModelMap m){
 		
-		//need this (displayMiniMenu) since might be coming from callable (and security context lost)
+		//need this (viewerIsFacilityStaff) since might be coming from callable (and security context lost)
 		if(authenticationService.hasRole("su") || authenticationService.hasRole("ft") || authenticationService.hasRole("da")){
-			m.addAttribute("displayMiniMenu", true);
+			m.addAttribute("viewerIsFacilityStaff", true);
 		}
 		else{
-			m.addAttribute("displayMiniMenu", false);
+			m.addAttribute("viewerIsFacilityStaff", false);
 		}
 		
 		m.addAttribute("job", job);

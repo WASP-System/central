@@ -2,7 +2,7 @@
 
 <c:import url="/WEB-INF/jsp/job/home/fadingMessage.jsp" />
 
-<c:if test="${displayMiniMenu==true}"><%--must use this if statement; we cannot use sec:authorize for this page since sometimes we arrive at this page via a callable() <sec:authorize access="hasRole('su') or hasRole('ft') or hasRole('da')">--%>
+<c:if test="${viewerIsFacilityStaff==true}"><%--must use this if statement; we cannot use sec:authorize for this page since sometimes we arrive at this page via a callable() <sec:authorize access="hasRole('su') or hasRole('ft') or hasRole('da')">--%>
 	<br />
 	<span style="padding:3px; border: 1px solid black;">
 		<a <%--class="button"--%> href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/acctQuote/0/createUpdateQuote.do" />");' >Create A Quote</a>
@@ -53,7 +53,7 @@
 			 		  				<c:if test="${fileHandlesThatCanBeViewedList.contains(fileHandle)}">
 		 		  						| <a href="javascript:void(0);" onclick='parent.showModalessDialog("<c:url value="/file/fileHandle/${fileHandle.getId()}/view.do" />");' ><fmt:message key="listJobSamples.file_view.label"/></a>
 		 		  					</c:if>
-		 		  					<c:if test="${acctQuotesWithJsonEntry.contains(acctQuote)}">
+		 		  					<c:if test="${viewerIsFacilityStaff==true && acctQuotesWithJsonEntry.contains(acctQuote)}">
 		 		  						| <a href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/acctQuote/${acctQuote.getId()}/createUpdateQuote.do" />");' >Update With Care</a> 
 		 		  					</c:if>
 			 		  			</td>
