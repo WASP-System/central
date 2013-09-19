@@ -4,7 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
 import edu.yu.einstein.wasp.exception.UiFieldParseException;
+import edu.yu.einstein.wasp.load.service.impl.WaspLoadServiceImpl;
 import edu.yu.einstein.wasp.model.UiField;
 
 /**
@@ -12,7 +18,11 @@ import edu.yu.einstein.wasp.model.UiField;
  * @author asmclellan
  *
  */
-public class UiFieldFamilyWrapper {
+public class UiFieldFamilyWrapperAndLoader {
+	
+	@Autowired
+	@Qualifier("waspLoadServiceImpl")
+	WaspLoadServiceImpl waspLoadServiceImpl;
 
 	private String baseLocale;
 	
@@ -46,14 +56,19 @@ public class UiFieldFamilyWrapper {
 	
 	private String tooltip;
 	
-	public UiFieldFamilyWrapper(){
-		this.baseLocale = Locale.US.toString();
+	private List<UiField> uiFields;
+
+
+	public UiFieldFamilyWrapperAndLoader(){
+		baseLocale = Locale.US.toString();
+		uiFields = new ArrayList<>();
 	}
 	
-	public UiFieldFamilyWrapper(String baseArea, String baseName){
-		this.baseLocale = Locale.US.toString();
+	public UiFieldFamilyWrapperAndLoader(String baseArea, String baseName){
+		baseLocale = Locale.US.toString();
 		this.baseArea = baseArea;
 		this.baseName = baseName;
+		uiFields = new ArrayList<>();
 	}
 	
 	public String getBaseLocale() {
@@ -195,10 +210,18 @@ public class UiFieldFamilyWrapper {
 		this.customAttrValue = value;
 	}
 	
-	public List<UiField> getUiFields(){
+	public List<UiField> getUiFields() {
+		return uiFields;
+	}
+
+	public void setUiFields(List<UiField> uiFields) {
+		this.uiFields = uiFields;
+	}
+	
+	private List<UiField> generateUiFields(){
 		List<UiField> uiFieldList = new ArrayList<UiField>();
 		if (this.baseLocale == null || this.baseArea == null || this.baseName == null){
-			throw new UiFieldParseException("Cannot make a uiField object without a locale, an area and a field name");
+			throw new UiFieldParseException("Cannot make a uiField object without a locale, an area and a basename");
 		}
 		if (this.constraint != null){
 			UiField uiField = new UiField();
@@ -320,6 +343,13 @@ public class UiFieldFamilyWrapper {
 			uiFieldList.add(uiField);
 		}
 		return uiFieldList;
+	}
+	
+	@PostConstruct
+	void loadUiFields(){
+		uiFields = generateUiFields();
+		if (!uiFields.isEmpty())
+			waspLoadServiceImpl.updateUiFields(uiFields);
 	}
 	
 }

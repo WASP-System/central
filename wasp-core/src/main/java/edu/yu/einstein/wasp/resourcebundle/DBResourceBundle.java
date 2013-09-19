@@ -54,7 +54,7 @@ public class DBResourceBundle implements ApplicationContextAware{
 	//static bridge to properties
 	public static WaspMessageSourceImpl MESSAGE_SOURCE = null;
 	
-	private static final Logger logger = LoggerFactory.getLogger(WaspMessageSourceImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(DBResourceBundle.class);
 	
 	private boolean runSQL = false;
 	

@@ -15,7 +15,7 @@
 		</constructor-arg>
   </bean>
 
-  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="fastQUiFieldWrapper">
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="fastQUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
     <property name="baseArea" ref="fastQScreenArea" />
   </bean>

@@ -68,7 +68,7 @@ public class BreadcrumbsTag extends BodyTagSupport {
 			throw new JspTagException("Cannot get tiles view name or url");
 		Locale locale = (Locale) session.getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		String code = "pageTitle." + viewName + ".label";
-		String title = DBResourceBundle.MESSAGE_SOURCE.getMessage(code, null, locale);
+		String title = DBResourceBundle.MESSAGE_SOURCE.getNestedMessage(code, null, locale);
 		String newBreadcrumb = "<a href='" + waspViewUrl + "'>" + title + "</a>";
 		if (request.getAttribute("forcePageTitle") == null &&
 				!breadcrumbs.endsWith(newBreadcrumb) &&

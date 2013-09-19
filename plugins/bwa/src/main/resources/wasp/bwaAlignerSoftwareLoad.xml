@@ -9,7 +9,7 @@
         http://www.springframework.org/schema/context/spring-context-3.1.xsd"
     default-autowire="byName">
 
-  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="bwaAlignerUiFieldWrapper">
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="bwaAlignerUiFieldWrapper">
   	<property name="baseArea" ref="bwaAlignerArea" />
   </bean>
 

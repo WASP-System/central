@@ -9,7 +9,7 @@
         http://www.springframework.org/schema/context/spring-context-3.1.xsd"
     default-autowire="byName">
     
-  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="illuminaHiSeq2500UiFieldWrapper">
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="illuminaHiSeq2500UiFieldWrapper">
     <property name="baseArea" value="#{illuminaResourceCategory.HISEQ_2500}" />
   </bean>
 

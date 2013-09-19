@@ -9,7 +9,7 @@
   	<constructor-arg><value>macsPeakcaller</value></constructor-arg>
   </bean>
 
-  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="macsPeakcallerUiFieldWrapper">
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="macsPeakcallerUiFieldWrapper">
     <property name="baseArea" ref="macsPeakcallerArea" />
   </bean>
 

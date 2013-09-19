@@ -10,7 +10,7 @@
   	<constructor-arg><value>illuminaFlowcellV3</value></constructor-arg>
   </bean>
    
-  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="illuminaFlowcellV3UiFieldWrapper">
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="illuminaFlowcellV3UiFieldWrapper">
     <property name="baseLocale" value="en_US" />
     <property name="baseArea" ref="illuminaFlowcellV3UiFieldArea" />
   </bean>

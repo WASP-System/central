@@ -9,7 +9,7 @@
   	<constructor-arg><value>bowtieAligner</value></constructor-arg>
   </bean>
 
-  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="bowtieAlignerUiFieldWrapper">
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="bowtieAlignerUiFieldWrapper">
     <property name="baseArea" ref="bowtieAlignerArea" />
   </bean>
 

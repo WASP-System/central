@@ -5,13 +5,13 @@
 	default-autowire="byName"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="genericLibraryUiField">
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="genericLibraryUiField">
   	<property name="baseArea" value="genericLibrary" />
   </bean> 
 
   <bean id="genericLibraryUiFields" class="org.springframework.beans.factory.config.ListFactoryBean">
     <property name="sourceList">
-      <list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper">   
+      <list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">   
       	
       	<bean parent="genericLibraryUiField">
           <property name="baseName" value="concentration" />

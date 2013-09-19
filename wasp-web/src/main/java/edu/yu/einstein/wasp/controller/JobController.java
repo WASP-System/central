@@ -1285,10 +1285,10 @@ public class JobController extends WaspController {
 		m.addAttribute("samplePairsMap", samplePairsMap);
 		m.addAttribute("controlList", controlList);
 		String temp = job.getWorkflow().getIName() + ".control.label";
-		String controlLabel = messageService.getMessage(job.getWorkflow().getIName() + ".control.label");
+		String controlLabel = messageService.getNestedMessage(job.getWorkflow().getIName() + ".control.label");
 		if(controlLabel.equalsIgnoreCase(temp)){controlLabel = "Control";}
 		temp = job.getWorkflow().getIName() + ".test.label";
-		String testLabel = messageService.getMessage(job.getWorkflow().getIName() + ".test.label");
+		String testLabel = messageService.getNestedMessage(job.getWorkflow().getIName() + ".test.label");
 		if(testLabel.equalsIgnoreCase(temp)){testLabel = "Test";}
 		m.addAttribute("controlLabel", controlLabel);
 		m.addAttribute("testLabel", testLabel);

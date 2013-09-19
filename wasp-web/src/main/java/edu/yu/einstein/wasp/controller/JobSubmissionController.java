@@ -468,9 +468,11 @@ public class JobSubmissionController extends WaspController {
 			waspErrorMessage("jobDraft.no_workflows.error");
 			return "redirect:/dashboard.do";
 		}
-		
+		Map<Integer, String> assayWorkflows = new HashMap<>();
+		for (Workflow wf: workflowList)
+			assayWorkflows.put(wf.getId(), messageService.getNestedMessage(wf.getIName() + ".workflow.label"));
 		m.put("labs", labList); 
-		m.put("workflows", workflowList); 
+		m.put("assayWorkflows", assayWorkflows); 
 		return "jobsubmit/create";
 	}
 
@@ -2171,7 +2173,7 @@ public class JobSubmissionController extends WaspController {
 			
 		try {	
 		
-		String pageTitle=DBResourceBundle.MESSAGE_SOURCE.getMessage(code, null, locale);
+		String pageTitle=DBResourceBundle.MESSAGE_SOURCE.getNestedMessage(code, null, locale);
 		
 		if (pageTitle!=null) {		
 			return pageTitle;

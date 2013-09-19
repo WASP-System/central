@@ -213,7 +213,7 @@ public class JQFieldTag extends BodyTagSupport {
 		
 		Locale locale=(Locale)session.getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		
-		return DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null, locale);
+		return DBResourceBundle.MESSAGE_SOURCE.getNestedMessage(key, null, locale);
 	}
 	
 	@Override

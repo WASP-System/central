@@ -9,7 +9,7 @@
      <tr class="FormData"><td class="CaptionTD"><fmt:message key="librarydetail_ro.librarySampleType.label" />: </td><td class="DataTD">Library</td></tr>
      <c:set var="_area" value = "library" scope="request"/>
      <c:set var="_metaList" value = "${sample.getSampleMeta()}" scope="request" />
-     <c:import url="/WEB-INF/jsp/job/home/meta_ro.jsp" />
+     <c:import url="/WEB-INF/jsp/meta_ro.jsp" />
     <tr class="FormData"><td colspan="2" class="submitBottom"><a class="button" href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/samples.do" />");' ><fmt:message key="librarydetail_ro.cancel.label" /></a>&nbsp;
 	<sec:authorize access="hasRole('su') or hasRole('ft')"> 
 	  <a class="button" href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/library/${sample.getId()}/librarydetail_rw.do" />");' ><fmt:message key="librarydetail_ro.edit.label" /></a>

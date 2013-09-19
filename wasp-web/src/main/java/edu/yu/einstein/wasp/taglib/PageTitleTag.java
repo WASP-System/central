@@ -55,7 +55,7 @@ public class PageTitleTag extends BodyTagSupport {
 			
 			String code="pageTitle."+viewName+".label";
 				
-			title=DBResourceBundle.MESSAGE_SOURCE.getMessage(code, null, locale);
+			title=DBResourceBundle.MESSAGE_SOURCE.getNestedMessage(code, null, locale);
 		}
 		
 				

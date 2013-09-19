@@ -21,13 +21,12 @@ import java.util.TreeSet;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.support.AbstractMessageSource;
 import org.springframework.util.Assert;
 
 
-public class WaspMessageSourceImpl extends AbstractMessageSource implements MessageSource {
+public class WaspMessageSourceImpl extends AbstractMessageSource {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

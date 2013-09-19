@@ -33,36 +33,10 @@ public class WaspLoadServiceImpl implements WaspLoadService {
 	@Autowired
 	private MessageSource messageSource;
 	
-	/**
-	 * updates the UiFields for that object
-	 * assumes that UIFields were truncated on container load 
-	 * 
-	 * adds them to the cached messageSource
-	 */ 
+
 	@Override
 	public void updateUiFields(List<UiField> uiFields) {
-		updateUiFields(null, uiFields);	
-	}
-	
-	/**
-	 * updates the UiFields for that object
-	 * assumes that UIFields were truncated on container load 
-	 * 
-	 * adds them to the cached messageSource
-	 */ 
-	@Override
-	public void updateUiFields(String area, List<UiField> uiFields) {
-		// UI fields
-		// this assumes truncate to start with, so clear everything out
-		// and use uiFields
-		List<String> workingAreaList = new ArrayList<String>();
-		if (area == null){
-			// we're going to be using the actual areas represented in the uiFields list
-			workingAreaList = getAreaListFromUiFields(uiFields);
-		} else {
-			// we're going to override the areas represented in the uiFields list with the area provided
-			workingAreaList.add(area);
-		}
+		List<String> workingAreaList = getAreaListFromUiFields(uiFields);
 		
 		// get map of all uifields in current area set
 		Map<String, UiField> oldUiFields = new HashMap<String, UiField>();
@@ -76,8 +50,6 @@ public class WaspLoadServiceImpl implements WaspLoadService {
 		}
 	
 		for (UiField f: safeList(uiFields)) {
-			if (area != null && !area.equals(f.getArea()))
-				f.setArea(area);
 			String key = f.getArea() + "." + f.getName() + "." + f.getAttrName();
 			String localizedKey = f.getLocale() + "." + key;
 			String lang = f.getLocale().substring(0, 2);
@@ -100,9 +72,9 @@ public class WaspLoadServiceImpl implements WaspLoadService {
 		// remove the left overs
 		for (String key: oldUiFields.keySet()) {
 			UiField oldF = oldUiFields.get(key);
-			if (oldF.getName().indexOf("jobsubmit/")>-1) {
-				continue;//do NOT remove custom titles
-			}
+			//if (oldF.getName().indexOf("jobsubmit/")>-1) {
+			//	continue;//do NOT remove custom titles
+			//}
 			uiFieldDao.remove(oldF); 
 			uiFieldDao.flush(oldF); 
 		}

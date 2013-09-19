@@ -13,7 +13,7 @@
   	<constructor-arg><value>helptagPipeline</value></constructor-arg>
   </bean>
 
-  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="helptagPipelineUiFieldWrapper">
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="helptagPipelineUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
     <property name="baseArea" ref="helptagPipelineArea" />
   </bean>

@@ -53,7 +53,6 @@ public class ResourceCategoryLoaderAndFactory extends WaspLoader implements	Fact
 	
 	@PostConstruct
 	public void init(){
-		resourceCategoryLoadService.updateUiFields(uiFields);
 		resourceCategory =  resourceCategoryLoadService.update(meta, resourceType, iname, name, isActive);
 	}
 

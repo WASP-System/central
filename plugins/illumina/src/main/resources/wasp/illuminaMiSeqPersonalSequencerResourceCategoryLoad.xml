@@ -13,7 +13,7 @@
   	<constructor-arg><value>illuminaMiSeqPersonalSequencer</value></constructor-arg>
   </bean>
 
-  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="illuminaMiSeqUiFieldWrapper">
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="illuminaMiSeqUiFieldWrapper">
     <property name="baseArea" ref="illuminaMiSeqPersonalSequencerArea" />
   </bean>
 
