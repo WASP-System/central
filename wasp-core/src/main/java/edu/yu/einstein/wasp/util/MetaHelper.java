@@ -293,7 +293,7 @@ public class MetaHelper {
 			if (!k.startsWith(area +".")) continue; // get ONLY keys for area we are dealing with
 			String currentMessage = k; // returns key if no message found
 			try {
-				currentMessage = DBResourceBundle.MESSAGE_SOURCE.getNestedMessage(k, null, locale); // possibly nested internationalized values
+				currentMessage = DBResourceBundle.MESSAGE_SOURCE.getMessage(k, null, locale); // possibly nested internationalized values
 			} catch (NoSuchMessageException e){
 				logger.warn("Unable to retrieve message with key code = '" + k + "': " + e.getLocalizedMessage());
 			}

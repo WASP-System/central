@@ -90,7 +90,7 @@ public class ResultViewController extends WaspController {
 		
 		Locale locale = (Locale)session.getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		
-		return DBResourceBundle.MESSAGE_SOURCE.getNestedMessage(key, null, locale);
+		return DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null, locale);
 	}
 
 

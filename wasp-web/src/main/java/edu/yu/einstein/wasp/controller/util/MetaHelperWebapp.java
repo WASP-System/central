@@ -383,7 +383,7 @@ public class MetaHelperWebapp extends MetaHelper {
 		Map<String, String> messageMap = new HashMap<String, String>();
 		for(String k: keys) {
 			if (!k.startsWith("metadata.")) continue; // get ONLY keys for area we are dealing with
-			String currentMessage = DBResourceBundle.MESSAGE_SOURCE.getNestedMessage(k,null,locale);
+			String currentMessage = DBResourceBundle.MESSAGE_SOURCE.getMessage(k,null,locale);
 			String[] path=StringUtils.tokenizeToStringArray(k,"."); // e.g. splits user.login.metaposition
 			String name=path[1]; // e.g. 'login' using above example
 			messageMap.put(name, currentMessage);

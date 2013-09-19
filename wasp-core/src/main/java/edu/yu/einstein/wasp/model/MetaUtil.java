@@ -176,7 +176,7 @@ public final class MetaUtil {
 	 * @return
 	 */
 	private static String getMessage(String key, Locale locale) {
-		return DBResourceBundle.MESSAGE_SOURCE.getNestedMessage(key, null, locale);  // possibly nested internationalized values
+		return DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null, locale);  // possibly nested internationalized values
 	}
 		 
 	@SuppressWarnings("rawtypes")

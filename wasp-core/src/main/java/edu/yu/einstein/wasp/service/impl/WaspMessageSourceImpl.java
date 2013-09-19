@@ -21,7 +21,6 @@ import java.util.TreeSet;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.support.AbstractMessageSource;
 import org.springframework.util.Assert;
 
@@ -58,117 +57,40 @@ public class WaspMessageSourceImpl extends AbstractMessageSource {
 		
 	}
 	
-	/**
-	 * Attempts to resolve a nested code: e.g 'user.name.label=plugin.user.name' where the i18n file pertaining to 'locale' contains 
-	 * 'plugin.user.name=Jason'
-	 * Given code='user.name.label', this method returns "Jason".
-	 * If nested value fails to resolve initially (using provided locale) then various attempts to resolve are made:<ul>
-	 * <li>attempts to resolve nested code as Locale.US (locale isn't set to Locale.US)</li>
-	 * <li>attempts to resolve 'code' with provided locale</li>
-	 * <li>finally returns value for 'code' resolved as Locale.US</li>
-	 * <li>throws NoSuchMessageException if unable to resolve at all</li></ul>
-	 * 
-	 * @param code - the code to lookup up, such as 'user.name.label'
-	 * @param args - Array of arguments that will be filled in for params within the message (params look like "{0}", "{1,date}", "{2,time}" within a 
-	 * message), or null if none.
-	 * @param locale - the Locale in which to do the lookup 
-	 * @return
-	 * @throws NoSuchMessageException
-	 */
-	public String getNestedMessage(String code, Object[] args, Locale locale) throws NoSuchMessageException{
+	private String getMessageInternal(String code, Locale locale) {
 		boolean isUsLocale = locale.equals(Locale.US);
-		String codeValue = null;
-		
-		// First try and get a value for the provided code. It should be under Locale.US but we cannot assume that.
-		try {
-			codeValue = getMessage(code, null, Locale.US); // try and get the value of code from Locale.US (expected). Set args to null at this stage
-		} catch (NoSuchMessageException e){
-			if (isUsLocale)
-				throw new NoSuchMessageException("Unable to retrieve a message with key code = '" + code + "' and locale = '" + Locale.US.toString() + "'");
-			logger.trace("Unable to retrieve nested message with key code = '" + code + "' and locale = '" + Locale.US.toString() + "'. Going to try '" 
-				+ locale.toString() + "'");
-			try{
-				codeValue = getMessage(code, null, locale); // return nested message. Set args to null at this stage
-			} catch (NoSuchMessageException e1){
-				throw new NoSuchMessageException("Unable to retrieve a message with key code = '" + code + "' and locale = '" + locale.toString() + "' or '" 
-						+  Locale.US.toString() + "'");
-			}
+		String msg = this.messages.get(code + "_" + locale.toString());
+		if (msg == null && !isUsLocale) 
+			msg = messages.get(code + "_" + Locale.US.toString());//fallback to US locale if message not defined. Sasha
+		if (msg != null){
+			String nestedMessage = this.messages.get(msg + "_" + locale.toString());
+			if (nestedMessage == null && !isUsLocale) 
+				nestedMessage = messages.get(msg + "_" + locale.toString());
+			if (nestedMessage != null)
+				msg = nestedMessage;
 		}
-		
-		// to get here we have managed to resolve the code to a value. Now lets see if we can resolve that value as a code itself. First try with locale then
-		// Locale.US (if not the same as locale)
-		try{
-			return getMessage(codeValue, args, locale);// return message using 'codeValue' and 'args' provided
-		} catch (NoSuchMessageException e){
-			if (isUsLocale){
-				logger.trace("Unable to retrieve nested message with key code = '" + codeValue + "' and locale = '" + locale.toString() 
-						+ "'. Going to return the non-nested value");
-			}
-			else {
-				logger.trace("Unable to retrieve nested message with key code = '" + codeValue + "' and locale = '" + locale.toString() 
-						+ "'. Going to try Locale.US");
-				try{
-					return getMessage(codeValue, args, Locale.US); // return message using 'codeValue' and 'args' provided from Locale.US
-				} catch (NoSuchMessageException e1){
-					logger.trace("Unable to retrieve nested message with key code = '" + codeValue + "' and locale = '" + Locale.US.toString() 
-							+ "'. Going to return the non-nested value");
-				}
-			}
-		}
-		
-		// Ok so it seems the value obtained with 'code' cannot be reolved as a nested code itself. We should therefore return the internationalized 
-		// version of that value taking into account the provided args.
-		if (!isUsLocale){
-			try{
-				return getMessage(code, args, locale); // return message using 'code' and 'args' provided
-			} catch (NoSuchMessageException e1){
-				logger.trace("Unable to retrieve nested message with key code = '" + code + "' and locale = '" +locale.toString() + "'. Going to return value for Locale.US"); 
-			}
-		}
-		return getMessage(code, args, Locale.US); // return message using 'code' and 'args' provided for  Locale.US
+		return msg;
 	}
 	
-
 	
 	@Override
 	protected String resolveCodeWithoutArguments(String code, Locale locale) {
-		
-		if (code==null) return null;
-		
-		String msg = getMessageInternal(code, locale);
-		
-		if (msg!=null) return msg;
-			
-		if (StringUtils.split(code, ".").length==3) {//valid 3-part key. return "code" instead of the message
-			return code;
-		} else {//invalid key. return null. 
+		if (code==null) 
 			return null;
-		}
-		
+		String msg = getMessageInternal(code, locale);
+		if (msg!=null) 
+			return msg;
+		return code;
 	}
 
-	public String getUSMessage(String code,String defaultMessage) {
-		String msg=messages.get(code + "_" + Locale.US.toString());
-		if (msg==null) msg=defaultMessage;
-		return msg;
-	}
-	private String getMessageInternal(String code, Locale locale) {
-		String msg = this.messages.get(code + "_" + locale.toString());
-		if (msg == null) messages.get(code + "_" + Locale.US.toString());//fallback to US locale if message not defined. Sasha
-		return msg;
-	}
-	
+		
 	@Override
 	protected MessageFormat resolveCode(String code, Locale locale) {
 		String key = code + "_" + locale.toString();
 		String msg = getMessageInternal(code, locale);
-		if (msg == null) {
-			if (StringUtils.split(code, ".").length==3) {//valid 3-part key. return "code" instead of the message
-				msg=code;//fallback to code if message not defined. Sasha
-			} else {//invalid key.  
-				msg=null;
-			}			 
-       }
+		if (msg == null) 
+			msg = code;//fallback to code if message not defined. Sasha		 
+     
 	   synchronized (this.cachedMessageFormats) {
 			MessageFormat messageFormat = this.cachedMessageFormats.get(key);
 			if (messageFormat == null) {

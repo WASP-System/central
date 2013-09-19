@@ -38,7 +38,7 @@ public class TooltipTag extends BodyTagSupport {
 		Locale locale=(Locale) session.getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		if (locale==null) 
 			locale=Locale.US;
-		this.tooltipText = DBResourceBundle.MESSAGE_SOURCE.getNestedMessage(key, null,locale);
+		this.tooltipText = DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null,locale);
 	}
 	
 	public void setValue(String value){

@@ -37,7 +37,7 @@ public class SuccessIconTag extends BodyTagSupport {
 		Locale locale=(Locale) session.getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		if (locale==null) 
 			locale=Locale.US;
-		this.commentText = DBResourceBundle.MESSAGE_SOURCE.getNestedMessage(key, null,locale);
+		this.commentText = DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null,locale);
 	}
 	
 	public void setValue(String value){

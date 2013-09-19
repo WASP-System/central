@@ -50,12 +50,7 @@ public class MetaValidatorImpl implements MetaValidator {
 			
 			String errorFieldName = area+"Meta["+i+"].k";
 			String errorMessageKey = meta.getK() + ".error";
-			try{
-            	String value = DBResourceBundle.MESSAGE_SOURCE.getMessage(errorMessageKey, null, Locale.US);
-            	if (value.endsWith(".error"))
-            		errorMessageKey = value;
-            } catch (NoSuchMessageException e) {}
-            String defaultMessage = errorMessageKey+" (no message has been defined for this property)";
+			String defaultMessage = errorMessageKey+" (no message has been defined for this property)";
 			if (constraint != null){
 				if (! allowableConstraints.contains(Constraint.valueOf(constraint)) ){
 					throw new IllegalStateException("Unknown constraint "+constraint+"|"+meta);

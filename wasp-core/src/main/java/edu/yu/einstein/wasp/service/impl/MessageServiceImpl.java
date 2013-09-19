@@ -34,24 +34,6 @@ public class MessageServiceImpl implements MessageService {
 		return getMessage(key, Locale.US);
 	}
 	
-	@Override
-	public String getNestedMessage(String key, Locale locale) {
-		String message = key; // returns the original string by default
-		try {
-			message = DBResourceBundle.MESSAGE_SOURCE.getNestedMessage(key, null, locale);
-		} catch (NoSuchMessageException e) {
-			logger.trace("Cannot resolve message '" + key + "' from messageSource (" + e.getMessage() + ")");
-		}
-		return message;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 * Defaults to message defined for Locale.US
-	 */
-	@Override
-	public String getNestedMessage(String key) {
-		return getNestedMessage(key, Locale.US);
-	}
+
 
 }

@@ -69,7 +69,7 @@ public class MessageTag extends BodyTagSupport {
 			buf.append("<ul>\n");
 			for(String key:messageKeys) {
 				try {
-					String message="<li>"+DBResourceBundle.MESSAGE_SOURCE.getNestedMessage(key, null,locale) + "</li>\n";
+					String message="<li>"+DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null,locale) + "</li>\n";
 					buf.append(message);
 				} catch (Throwable e) {
 					log.error("Cant get message by key "+key,e);
