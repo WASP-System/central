@@ -6,6 +6,7 @@
   <test name="WASP Regression Testing" preserve-order="true">
   	
   	<classes>
+  	
          <class name="edu.yu.einstein.wasp.integration.selenium.SelBaseTest"/>
     	
       	 <class name="edu.yu.einstein.wasp.integration.selenium.SelNewPI">
@@ -35,14 +36,10 @@
 	         	
          	</methods>
          </class>
+         
       	 <class name="edu.yu.einstein.wasp.integration.selenium.SelConfigureWorkflow"/>
       	 <class name="edu.yu.einstein.wasp.integration.selenium.SelSubmitNewJob"/>
-      	
-      	 <class name="edu.yu.einstein.wasp.integration.selenium.SelApproveNewJob"/>
-      	 
-		<class name="edu.yu.einstein.wasp.integration.selenium.SelCreateNewPlatformUnit"/>
-      	 <class name="edu.yu.einstein.wasp.integration.selenium.SelAddLibraryToPlatformUnit"/>
-      	 <class name="edu.yu.einstein.wasp.integration.selenium.SelCreateNewMachine"/>
+ 		
       	
       </classes>
    </test>  
