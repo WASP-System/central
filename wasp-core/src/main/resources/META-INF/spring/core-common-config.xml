@@ -63,14 +63,7 @@
 	 <constructor-arg value="US"/>
   </bean>
 
-  <!-- load constant string value definitions -->
-  <import resource="classpath*:wasp/static-values-definition.xml" /> 
-
-  <!-- loads load scripts to update database -->
-  <import resource="classpath*:wasp/**/*Load.xml" />
-
-  <!-- load all other plugins -->
-  <import resource="classpath*:wasp/*waspPlugin.xml" /> 
+  <import resource="classpath*:wasp/**/*.xml" />
 
   <!-- load site specific properties -->
   <bean id="waspSiteProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">

@@ -28,6 +28,9 @@
 	
 	<!-- Import Tiles-related configuration -->
 	<import resource="tiles-context.xml" />
+	
+	<!-- import wasp Form UiFields  -->
+	<import resource="formUiFieldDefinitions.xml" />
 
 	<!--  configure properties files -->
 	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">  

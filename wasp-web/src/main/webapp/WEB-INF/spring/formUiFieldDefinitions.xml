@@ -1,0 +1,597 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<bean id="platformunitInstanceUiFormData" class="org.springframework.beans.factory.config.ListFactoryBean">
+	  <property name="sourceList">
+	    <list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="platformunitInstance" />
+	         <property name="baseName" value="comment" />
+	         <property name="metaposition" value="60" />
+	         <property name="label" value="platformunitInstance.comment_i18n.label" />
+	         <property name="error" value="platformunitInstance.comment_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="platformunitInstance" />
+	         <property name="baseName" value="readType" />
+	         <property name="metaposition" value="10" />
+	         <property name="label" value="platformunitInstance.readType_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="constraint" value="platformunitInstance.readType_i18n.control" />
+	         <property name="error" value="platformunitInstance.readType_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="platformunitInstance" />
+	         <property name="baseName" value="readLength" />
+	         <property name="metaposition" value="15" />
+	         <property name="label" value="platformunitInstance.readLength_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="constraint" value="platformunitInstance.readLength_i18n.control" />
+	         <property name="error" value="platformunitInstance.readLength_i18n.error" />
+	      </bean>
+	    </list>
+	  </property>
+	</bean>
+	
+	<bean id="labPendingUiFormData" class="org.springframework.beans.factory.config.ListFactoryBean">
+	  <property name="sourceList">
+	    <list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="labPending" />
+	         <property name="baseName" value="billing_address" />
+	         <property name="metaposition" value="80" />
+	         <property name="label" value="labPending.billing_address_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="labPending.billing_address_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="labPending" />
+	         <property name="baseName" value="billing_building_room" />
+	         <property name="metaposition" value="70" />
+	         <property name="label" value="labPending.billing_building_room_i18n.label" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="labPending" />
+	         <property name="baseName" value="billing_city" />
+	         <property name="metaposition" value="90" />
+	         <property name="label" value="labPending.billing_city_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="labPending.billing_city_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="labPending" />
+	         <property name="baseName" value="billing_contact" />
+	         <property name="metaposition" value="40" />
+	         <property name="label" value="labPending.billing_contact_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="labPending.billing_contact_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="labPending" />
+	         <property name="baseName" value="billing_country" />
+	         <property name="metaposition" value="110" />
+	         <property name="label" value="labPending.billing_country_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="constraint" value="labPending.billing_country_i18n.control" />
+	         <property name="error" value="labPending.billing_country_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="labPending" />
+	         <property name="baseName" value="billing_departmentId" />
+	         <property name="metaposition" value="60" />
+	         <property name="label" value="labPending.billing_departmentId_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="constraint" value="labPending.billing_departmentId_i18n.control" />
+	         <property name="error" value="labPending.billing_departmentId_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="labPending" />
+	         <property name="baseName" value="billing_institution" />
+	         <property name="metaposition" value="50" />
+	         <property name="label" value="labPending.billing_institution_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="labPending.billing_institution_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="labPending" />
+	         <property name="baseName" value="billing_phone" />
+	         <property name="metaposition" value="130" />
+	         <property name="label" value="labPending.billing_phone_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="labPending.billing_phone_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="labPending" />
+	         <property name="baseName" value="billing_state" />
+	         <property name="metaposition" value="100" />
+	         <property name="label" value="labPending.billing_state_i18n.label" />
+	         <property name="constraint" value="labPending.billing_state_i18n.control" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="labPending" />
+	         <property name="baseName" value="billing_zip" />
+	         <property name="metaposition" value="120" />
+	         <property name="label" value="labPending.billing_zip_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="labPending.billing_zip_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="labPending" />
+	         <property name="baseName" value="building_room" />
+	         <property name="metaposition" value="30" />
+	         <property name="label" value="labPending.building_room_i18n.label" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="labPending" />
+	         <property name="baseName" value="internal_external_lab" />
+	         <property name="metaposition" value="10" />
+	         <property name="label" value="labPending.internal_external_lab_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="constraint" value="labPending.internal_external_lab_i18n.control" />
+	         <property name="error" value="labPending.internal_external_lab_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="labPending" />
+	         <property name="baseName" value="phone" />
+	         <property name="metaposition" value="20" />
+	         <property name="label" value="labPending.phone_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="labPending.phone_i18n.error" />
+	      </bean>
+	    </list>
+	  </property>
+	</bean>
+	
+	<bean id="userPendingUiFormData" class="org.springframework.beans.factory.config.ListFactoryBean">
+	  <property name="sourceList">
+	    <list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="userPending" />
+	         <property name="baseName" value="address" />
+	         <property name="metaposition" value="40" />
+	         <property name="label" value="userPending.address_i18n.label" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="userPending" />
+	         <property name="baseName" value="building_room" />
+	         <property name="metaposition" value="30" />
+	         <property name="label" value="userPending.building_room_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="userPending.building_room_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="userPending" />
+	         <property name="baseName" value="fax" />
+	         <property name="metaposition" value="100" />
+	         <property name="label" value="userPending.fax_i18n.label" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="userPending" />
+	         <property name="baseName" value="phone" />
+	         <property name="metaposition" value="90" />
+	         <property name="label" value="userPending.phone_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="userPending.phone_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="userPending" />
+	         <property name="baseName" value="primaryuserid" />
+	         <property name="metaposition" value="500" />
+	         <property name="label" value="userPending.primaryuserid_i18n.label" />
+	         <property name="range" value="isValidPiId" />
+	         <property name="error" value="userPending.primaryuserid_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="userPending" />
+	         <property name="baseName" value="title" />
+	         <property name="metaposition" value="5" />
+	         <property name="label" value="userPending.title_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="constraint" value="userPending.title_i18n.control" />
+	         <property name="error" value="userPending.title_i18n.error" />
+	      </bean>
+	    </list>
+	  </property>
+	</bean>
+	
+	<bean id="resourceUiFormData" class="org.springframework.beans.factory.config.ListFactoryBean">
+	  <property name="sourceList">
+	    <list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="resource" />
+	         <property name="baseName" value="commission_date" />
+	         <property name="metaposition" value="40" />
+	         <property name="label" value="resource.commission_date_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="resource.commission_date_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="resource" />
+	         <property name="baseName" value="decommission_date" />
+	         <property name="metaposition" value="50" />
+	         <property name="label" value="resource.decommission_date_i18n.label" />
+	         <property name="error" value="resource.decommission_date_i18n.error" />
+	      </bean>
+	    </list>
+	  </property>
+	</bean>
+	
+	<bean id="runInstanceUiFormData" class="org.springframework.beans.factory.config.ListFactoryBean">
+	  <property name="sourceList">
+	    <list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="runInstance" />
+	         <property name="baseName" value="readType" />
+	         <property name="metaposition" value="10" />
+	         <property name="label" value="runInstance.readType_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="constraint" value="runInstance.readType_i18n.control" />
+	         <property name="error" value="runInstance.readType_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="runInstance" />
+	         <property name="baseName" value="readLength" />
+	         <property name="metaposition" value="15" />
+	         <property name="label" value="runInstance.readLength_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="constraint" value="runInstance.readLength_i18n.control" />
+	         <property name="error" value="runInstance.readLength_i18n.error" />
+	      </bean>
+	    </list>
+	  </property>
+	</bean>
+	
+	<bean id="fmpaymentUiFormData" class="org.springframework.beans.factory.config.ListFactoryBean">
+	  <property name="sourceList">
+	    <list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="fmpayment" />
+	         <property name="baseName" value="amount" />
+	         <property name="metaposition" value="10" />
+	         <property name="label" value="fmpayment.amount_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="fmpayment.amount_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="fmpayment" />
+	         <property name="baseName" value="comment" />
+	         <property name="metaposition" value="20" />
+	         <property name="label" value="fmpayment.comment_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="fmpayment.comment_i18n.error" />
+	      </bean>
+	    </list>
+	  </property>
+	</bean>
+	
+	<bean id="userUiFormData" class="org.springframework.beans.factory.config.ListFactoryBean">
+	  <property name="sourceList">
+	    <list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="user" />
+	         <property name="baseName" value="address" />
+	         <property name="metaposition" value="40" />
+	         <property name="label" value="user.address_i18n.label" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="user" />
+	         <property name="baseName" value="building_room" />
+	         <property name="metaposition" value="30" />
+	         <property name="label" value="user.building_room_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="user.building_room_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="user" />
+	         <property name="baseName" value="city" />
+	         <property name="metaposition" value="50" />
+	         <property name="label" value="user.city_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="user.city_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="user" />
+	         <property name="baseName" value="country" />
+	         <property name="metaposition" value="70" />
+	         <property name="label" value="user.country_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="constraint" value="user.country_i18n.control" />
+	         <property name="error" value="user.country_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="user" />
+	         <property name="baseName" value="departmentId" />
+	         <property name="metaposition" value="20" />
+	         <property name="label" value="user.departmentId_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="constraint" value="user.departmentId_i18n.control" />
+	         <property name="error" value="user.departmentId_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="user" />
+	         <property name="baseName" value="fax" />
+	         <property name="metaposition" value="100" />
+	         <property name="label" value="user.fax_i18n.label" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="user" />
+	         <property name="baseName" value="institution" />
+	         <property name="metaposition" value="10" />
+	         <property name="label" value="user.institution_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="user.institution_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="user" />
+	         <property name="baseName" value="phone" />
+	         <property name="metaposition" value="90" />
+	         <property name="label" value="user.phone_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="user.phone_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="user" />
+	         <property name="baseName" value="state" />
+	         <property name="metaposition" value="60" />
+	         <property name="label" value="user.state_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="constraint" value="user.state_i18n.control" />
+	         <property name="error" value="user.state_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="user" />
+	         <property name="baseName" value="title" />
+	         <property name="metaposition" value="1" />
+	         <property name="label" value="user.title_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="constraint" value="user.title_i18n.control" />
+	         <property name="error" value="user.title_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="user" />
+	         <property name="baseName" value="zip" />
+	         <property name="metaposition" value="80" />
+	         <property name="label" value="user.zip_i18n.label" />
+	         <property name="error" value="user.zip_i18n.error" />
+	      </bean>
+	    </list>
+	  </property>
+	</bean>
+	
+	<bean id="labUiFormData" class="org.springframework.beans.factory.config.ListFactoryBean">
+	  <property name="sourceList">
+	    <list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="lab" />
+	         <property name="baseName" value="billing_address" />
+	         <property name="metaposition" value="80" />
+	         <property name="label" value="lab.billing_address_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="lab.billing_address_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="lab" />
+	         <property name="baseName" value="billing_building_room" />
+	         <property name="metaposition" value="70" />
+	         <property name="label" value="lab.billing_building_room_i18n.label" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="lab" />
+	         <property name="baseName" value="billing_city" />
+	         <property name="metaposition" value="90" />
+	         <property name="label" value="lab.billing_city_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="lab.billing_city_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="lab" />
+	         <property name="baseName" value="billing_contact" />
+	         <property name="metaposition" value="40" />
+	         <property name="label" value="lab.billing_contact_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="lab.billing_contact_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="lab" />
+	         <property name="baseName" value="billing_country" />
+	         <property name="metaposition" value="110" />
+	         <property name="label" value="lab.billing_country_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="constraint" value="lab.billing_country_i18n.control" />
+	         <property name="error" value="lab.billing_country_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="lab" />
+	         <property name="baseName" value="billing_departmentId" />
+	         <property name="metaposition" value="60" />
+	         <property name="label" value="lab.billing_departmentId_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="constraint" value="lab.billing_departmentId_i18n.control" />
+	         <property name="error" value="lab.billing_departmentId_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="lab" />
+	         <property name="baseName" value="billing_institution" />
+	         <property name="metaposition" value="50" />
+	         <property name="label" value="lab.billing_institution_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="lab.billing_institution_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="lab" />
+	         <property name="baseName" value="billing_phone" />
+	         <property name="metaposition" value="130" />
+	         <property name="label" value="lab.billing_phone_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="lab.billing_phone_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="lab" />
+	         <property name="baseName" value="billing_state" />
+	         <property name="metaposition" value="100" />
+	         <property name="label" value="lab.billing_state_i18n.label" />
+	         <property name="constraint" value="lab.billing_state_i18n.control" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="lab" />
+	         <property name="baseName" value="billing_zip" />
+	         <property name="metaposition" value="120" />
+	         <property name="label" value="lab.billing_zip_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="lab.billing_zip_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="lab" />
+	         <property name="baseName" value="building_room" />
+	         <property name="metaposition" value="30" />
+	         <property name="label" value="lab.building_room_i18n.label" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="lab" />
+	         <property name="baseName" value="internal_external_lab" />
+	         <property name="metaposition" value="10" />
+	         <property name="label" value="lab.internal_external_lab_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="constraint" value="lab.internal_external_lab_i18n.control" />
+	         <property name="error" value="lab.internal_external_lab_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="lab" />
+	         <property name="baseName" value="phone" />
+	         <property name="metaposition" value="20" />
+	         <property name="label" value="lab.phone_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="lab.phone_i18n.error" />
+	      </bean>
+	    </list>
+	  </property>
+	</bean>
+	
+	<bean id="piPendingUiFormData" class="org.springframework.beans.factory.config.ListFactoryBean">
+	  <property name="sourceList">
+	    <list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="piPending" />
+	         <property name="baseName" value="address" />
+	         <property name="metaposition" value="40" />
+	         <property name="label" value="piPending.address_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="piPending.address_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="piPending" />
+	         <property name="baseName" value="building_room" />
+	         <property name="metaposition" value="30" />
+	         <property name="label" value="piPending.building_room_i18n.label" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="piPending" />
+	         <property name="baseName" value="city" />
+	         <property name="metaposition" value="50" />
+	         <property name="label" value="piPending.city_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="piPending.city_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="piPending" />
+	         <property name="baseName" value="country" />
+	         <property name="metaposition" value="70" />
+	         <property name="label" value="piPending.country_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="constraint" value="piPending.country_i18n.control" />
+	         <property name="error" value="piPending.country_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="piPending" />
+	         <property name="baseName" value="departmentId" />
+	         <property name="metaposition" value="20" />
+	         <property name="label" value="piPending.departmentId_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="constraint" value="piPending.departmentId_i18n.control" />
+	         <property name="error" value="piPending.departmentId_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="piPending" />
+	         <property name="baseName" value="fax" />
+	         <property name="metaposition" value="100" />
+	         <property name="label" value="piPending.fax_i18n.label" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="piPending" />
+	         <property name="baseName" value="institution" />
+	         <property name="metaposition" value="10" />
+	         <property name="label" value="piPending.institution_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="piPending.institution_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="piPending" />
+	         <property name="baseName" value="labName" />
+	         <property name="metaposition" value="1" />
+	         <property name="label" value="piPending.labName_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="piPending.labName_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="piPending" />
+	         <property name="baseName" value="phone" />
+	         <property name="metaposition" value="90" />
+	         <property name="label" value="piPending.phone_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="piPending.phone_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="piPending" />
+	         <property name="baseName" value="state" />
+	         <property name="metaposition" value="60" />
+	         <property name="label" value="piPending.state_i18n.label" />
+	         <property name="constraint" value="piPending.state_i18n.control" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="piPending" />
+	         <property name="baseName" value="title" />
+	         <property name="metaposition" value="5" />
+	         <property name="label" value="piPending.title_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="constraint" value="piPending.title_i18n.control" />
+	         <property name="error" value="piPending.title_i18n.error" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="piPending" />
+	         <property name="baseName" value="zip" />
+	         <property name="metaposition" value="80" />
+	         <property name="label" value="piPending.zip_i18n.label" />
+	         <property name="range" value="NotEmpty" />
+	         <property name="error" value="piPending.zip_i18n.error" />
+	      </bean>
+	    </list>
+	  </property>
+	</bean>
+	
+	<bean id="acctQuoteUiFormData" class="org.springframework.beans.factory.config.ListFactoryBean">
+	  <property name="sourceList">
+	    <list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="acctQuote" />
+	         <property name="baseName" value="cell_cost" />
+	         <property name="metaposition" value="40" />
+	         <property name="label" value="acctQuote.cell_cost_i18n.label" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="acctQuote" />
+	         <property name="baseName" value="library_cost" />
+	         <property name="metaposition" value="20" />
+	         <property name="label" value="acctQuote.library_cost_i18n.label" />
+	      </bean>
+	      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	         <property name="baseArea" value="acctQuote" />
+	         <property name="baseName" value="sample_cost" />
+	         <property name="metaposition" value="30" />
+	         <property name="label" value="acctQuote.sample_cost_i18n.label" />
+	      </bean>
+	    </list>
+	  </property>
+	</bean>
+</beans>

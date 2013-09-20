@@ -36,47 +36,13 @@ public class WaspLoadServiceImpl implements WaspLoadService {
 
 	@Override
 	public void updateUiFields(List<UiField> uiFields) {
-		List<String> workingAreaList = getAreaListFromUiFields(uiFields);
-		
-		// get map of all uifields in current area set
-		Map<String, UiField> oldUiFields = new HashMap<String, UiField>();
-		for (String currentArea : workingAreaList){
-			Map<String, String> m = new HashMap<String, String>();
-			m.put("area", currentArea);
-			for (UiField f : uiFieldDao.findByMap(m) ){
-				String key = f.getLocale() + "." + currentArea + "." + f.getName() + "." + f.getAttrName();
-				oldUiFields.put(key, f );
-			}
-		}
-	
 		for (UiField f: safeList(uiFields)) {
 			String key = f.getArea() + "." + f.getName() + "." + f.getAttrName();
-			String localizedKey = f.getLocale() + "." + key;
 			String lang = f.getLocale().substring(0, 2);
 			String cntry = f.getLocale().substring(3);
-			if (oldUiFields.containsKey(localizedKey)){
-				// update if changed
-				UiField existingUiField = oldUiFields.get(localizedKey);
-				if (!existingUiField.getAttrValue().equals(f.getAttrValue())){
-					existingUiField.setAttrValue(f.getAttrValue());
-					uiFieldDao.merge(existingUiField); 
-				}
-				oldUiFields.remove(localizedKey);
-			} else {
-				// add new
-				uiFieldDao.save(f); 
-			}
+			uiFieldDao.save(f); 
 			Locale locale = new Locale(lang, cntry);
 			((WaspMessageSourceImpl) messageSource).addMessage(key, locale, f.getAttrValue());
-		}
-		// remove the left overs
-		for (String key: oldUiFields.keySet()) {
-			UiField oldF = oldUiFields.get(key);
-			//if (oldF.getName().indexOf("jobsubmit/")>-1) {
-			//	continue;//do NOT remove custom titles
-			//}
-			uiFieldDao.remove(oldF); 
-			uiFieldDao.flush(oldF); 
 		}
 	}
 	
