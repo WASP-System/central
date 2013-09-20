@@ -47,7 +47,7 @@
           <property name="label" value="illumina.rt.label" />
           <property name="control" value="select:#{dollar}{resourceOptions.get(readType)}:value:label" /> 
           <property name="constraint" value="NotEmpty" />
-          <property name="error" value="illumina.rl.error" />
+          <property name="error" value="illumina.rt.error" />
         </bean>
       </list>
     </property>
