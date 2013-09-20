@@ -110,6 +110,7 @@ public abstract class WaspCoreModel implements Serializable {
 	/**
 	 * @return the lastUpdatedByUser
 	 */
+	@JsonIgnore
 	public User getLastUpdatedByUser() {
 		return lastUpdatedByUser;
 	}

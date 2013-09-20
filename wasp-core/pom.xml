@@ -493,5 +493,10 @@
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
 			</dependency>
+			<dependency>
+    			<groupId>com.lowagie.text</groupId>
+    			<artifactId>com.springsource.com.lowagie.text</artifactId>
+    		<version>5.4.0</version>
+		</dependency>
 	</dependencies>
 </project>

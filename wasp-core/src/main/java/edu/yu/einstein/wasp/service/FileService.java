@@ -11,6 +11,7 @@
 
 package edu.yu.einstein.wasp.service;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -219,6 +220,11 @@ public interface FileService extends WaspService {
 	 * 
 	 */
 	public void uploadJobFile(MultipartFile mpFile, Job job, String fileDescription, Random randomNumberGenerator) throws FileUploadException;
+	
+	/**
+	 * just uploads the file, saves it in remote loaction, and returns file group. DOES NOT add entry to jobfile table; job is only used to set the directory, using jobId.
+	 */
+	public FileGroup uploadFileAndReturnFileGroup(MultipartFile mpFile, Job job, String fileDescription, Random randomNumberGenerator) throws FileUploadException;
 
 	/**
 	 * 
@@ -248,7 +254,15 @@ public interface FileService extends WaspService {
 
 	public String generateUniqueBaseFileName(SampleSource cellLibrary);
 
+
+	public File createTempFile() throws FileUploadException;
+	
+	public FileGroup saveLocalJobFile(Job job, File localFile, String fileName, String fileDescription, Random randomNumberGenerator) throws FileUploadException;
+
+	public FileGroup saveLocalQuoteOrInvoiceFile(Job job, File localFile, String fileName, String fileDescription, Random randomNumberGenerator) throws FileUploadException;
+
 	public List<FileGroupMeta> saveFileGroupMeta(List<FileGroupMeta> metaList, FileGroup filegroup) throws MetadataException;
+
 
 
 }
