@@ -431,11 +431,6 @@
 			<groupId>com.mchange</groupId>
 			<artifactId>c3p0</artifactId>
 		</dependency>
-		<dependency>
-    		<groupId>com.lowagie.text</groupId>
-    		<artifactId>com.springsource.com.lowagie.text</artifactId>
-    		<version>5.4.0</version>
-		</dependency>
 	</dependencies>
 	<build>
 		<!-- <finalName>wasp</finalName> -->
