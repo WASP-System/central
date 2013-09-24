@@ -1,13 +1,40 @@
+Ext.require([
+    'Ext.grid.*',
+    'Ext.data.*',
+    'Ext.form.field.Number',
+    'Ext.form.field.Date',
+    'Ext.tip.QuickTipManager',
+    'Ext.selection.CheckboxModel',
+    'Wasp.RowActions'
+]);
+
+Ext.define('File', {
+    extend: 'Ext.data.Model',
+//    idProperty: 'fid',
+    fields: [
+//        {name: 'fgid', type: 'int'},
+        {name: 'fgname', type: 'string'},
+//        {name: 'fglink', type: 'string'},
+//        {name: 'fid', type: 'int'},
+        {name: 'fname', type: 'string'},
+        {name: 'md5', type: 'string'}//,
+//        {name: 'size', type: 'int'},
+        //{name: 'updated', type: 'date', dateFormat:'m/d/Y'},
+//        {name: 'link', type: 'string'}
+    ]
+});
+
 Ext.define('Wasp.FileDownloadGridPortlet', {
     extend: 'Ext.grid.Panel',
-    alias: 'widget.gridportlet',
-    uses: [
-        'Ext.data.ArrayStore',
-        'Ext.selection.CheckboxModel',
-        'Ext.grid.plugin.RowExpander',
-        'Wasp.Component'
-    ],
-    fileDownloadArray: [],
+    alias: 'widget.fdgridportlet',
+//    uses: [
+//        'Ext.grid.*',
+//        'Ext.data.*',
+//        'Ext.selection.CheckboxModel',
+//        'Wasp.Component'
+//    ],
+    fgListStr: "",
+    
     height: 300,
     /**
      * Custom function used for column renderer
@@ -25,14 +52,28 @@ Ext.define('Wasp.FileDownloadGridPortlet', {
 
     initComponent: function(){
 
-        var store = Ext.create('Ext.data.ArrayStore', {
-            fields: [
-               {name: 'filename'},
-               {name: 'checksum'},
-               {name: 'size'},
-               {name: 'link'}
-            ],
-            data: this.fileDownloadArray
+        var store = Ext.create('Ext.data.JsonStore', {
+//            fields: [
+////               {name: 'filename'},
+////               {name: 'checksum'},
+////               {name: 'size'},
+////               {name: 'link'}
+//            	'id', 'link', 'name'
+//            ],
+//            data: this.filegroupList
+			model: 'File',
+			groupField: 'fgname',
+			proxy: {
+				type: 'ajax',
+				url : '/wasp/jobresults/getFileGroupsDetailJson.do?fglist='+this.fgListStr,
+				reader: {
+					type: 'json'
+				},
+				afterRequest: function(req, res) {
+					//console.log("Ahoy!", req.operation.response);    
+				}
+			},
+			autoLoad : true
         });
 
         var sm = Ext.create('Ext.selection.CheckboxModel', {
@@ -44,6 +85,12 @@ Ext.define('Wasp.FileDownloadGridPortlet', {
 //				return '<div class="' + Ext.baseCSSPrefix + 'grid-row-checker">&#160;</div>';   
 //			}
 		});
+		
+		var groupingFeature = Ext.create('Ext.grid.feature.Grouping',{
+			groupHeaderTpl: 'File Group: {name} ({rows.length} File{[values.rows.length > 1 ? "s" : ""]})'
+		});
+
+		Ext.tip.QuickTipManager.init();
         
         Ext.apply(this, {
             //height: 300,
@@ -53,9 +100,19 @@ Ext.define('Wasp.FileDownloadGridPortlet', {
             columnLines: true,
             forceFit: true,
             selModel: sm,
-            listeners: {
-            	'cellclick' : this.onCellClick
-            },
+//            listeners: {
+//            	'cellclick' : this.onCellClick
+//            },
+			features: [
+            	groupingFeature
+//			{
+//				id: 'group',
+//				ftype: 'grouping',
+//				groupHeaderTpl: '{name}',
+//				hideGroupedHeader: true,
+//				enableGroupingMenu: false
+//			}
+			],
             columns: [
 //	            {
 //	            	id: 'checked',
@@ -69,70 +126,110 @@ Ext.define('Wasp.FileDownloadGridPortlet', {
 //					}
 //	            },
 	            {
-	                id       :'filename',
-	                text   : 'Name',
-	                width    : 250,
-	                sortable : true,
-	                dataIndex: 'filename'
-	            },{
-	                text   : 'MD5 Checksum',
-	                //width: 120,
-	                flex: 1,
-	                sortable : true,
-	                dataIndex: 'checksum'
-	            },{
-	                text   : 'Size',
-	                width: 100,
-	                sortable : true,
-	                dataIndex: 'size'
-	            },{
-	            	text: 'Download',
-	            	width: 120,
-	            	sortable: false,
-	            	dataIndex: 'downloading', 
-		            xtype: 'componentcolumn', 
-		 
-		            renderer: function(value, m, record) { 
-		                if (value === 100) { 
-		                    return 'Complete'; 
-		                }
-		                
-		                if (value === -1) { 
-		                    return 'Fail'; 
-		                }
-		 
-		                if (Ext.isDefined(value)) { 
-		                    setTimeout(function() { 
-		                        // This works because calling set() causes a view refresh 
-		                        record.set('downloading', value + 5); 
-		                    }, 250); 
-		 
-		                    return { 
-		                        animate: false, 
-		                        value: value / 100, 
-		                        xtype: 'progressbar' 
-		                    }; 
-		                } 
-		 
-		                return { 
-		                    text: 'Download', 
-		                    xtype: 'button', 
-		 
-		                    handler: function() {
-		                    	$.fileDownload(record.get('link'))
-		                    		.done(function () { 
-		                    			//alert('File download a success!'); 
-		                    			record.set('downloading', 100); 
-		                    		})
-		                    		.fail(function () {
-										//alert('File download failed!');
-		                    			record.set('downloading', -1)
-									});
-		                        //record.set('downloading', 0); 
-		                    } 
-		                }; 
-		            }
-	            }
+	            	text: 'File',
+		            flex: 1,
+		            //tdCls: 'filehandle',
+		           // sortable: true,
+		            dataIndex: 'fname'//,
+		            //hideable: false
+	            },
+//	            {
+//					header: 'File Group',
+//					flex: 1,
+//					//sortable: false,
+//					dataIndex: 'fgname'
+//				},
+	            {
+					header: 'MD5 Checksum',
+					width: 500,
+					//sortable: false,
+					dataIndex: 'md5'
+				},
+//	            {
+//	                id       :'filename',
+//	                text   : 'Name',
+//	                width    : 250,
+//	                sortable : true,
+//	                dataIndex: 'name'
+//	            },{
+//	                text   : 'MD5 Checksum',
+//	                //width: 120,
+//	                flex: 1,
+//	                sortable : true,
+//	                dataIndex: 'id'
+//	            },{
+//	                text   : 'Size',
+//	                width: 100,
+//	                sortable : true,
+//	                dataIndex: 'size'
+//	            },
+//	            {
+////	            	text: 'Download',
+//	            	width: 120,
+//	            	sortable: false,
+//	            	dataIndex: 'downloading', 
+//		            xtype: 'componentcolumn', 
+//		 
+//		            renderer: function(value, m, record) { 
+//		                if (value === 100) { 
+//		                    return 'Complete'; 
+//		                }
+//		                
+//		                if (value === -1) { 
+//		                    return 'Fail'; 
+//		                }
+//		 
+//		                if (Ext.isDefined(value)) { 
+//		                    setTimeout(function() { 
+//		                        // This works because calling set() causes a view refresh 
+//		                        record.set('downloading', value + 5); 
+//		                    }, 250); 
+//		 
+//		                    return { 
+//		                        animate: false, 
+//		                        value: value / 100, 
+//		                        xtype: 'progressbar' 
+//		                    }; 
+//		                } 
+//		 
+//		                return { 
+//		                    text: 'Download', 
+//		                    xtype: 'button', 
+//		 
+//		                    handler: function() {
+//		                    	$.fileDownload(record.get('link'))
+//		                    		.done(function () { 
+//		                    			//alert('File download a success!'); 
+//		                    			record.set('downloading', 100); 
+//		                    		})
+//		                    		.fail(function () {
+//										//alert('File download failed!');
+//		                    			record.set('downloading', -1)
+//									});
+//		                        //record.set('downloading', 0); 
+//		                    } 
+//		                }; 
+//		            }
+//	            },
+	            {
+					xtype: 'rowactions',
+					actions: [{
+						iconCls: 'icon-clear-group',
+						qtip: 'Action on Row',
+						callback: function (grid, record, action, idx, col, e, target) {
+							Ext.Msg.alert('Row Action', record.get('fname'));
+						}
+					}],
+					keepSelection: true,
+					groupActions: [{
+						iconCls: 'icon-grid',
+						qtip: 'Action on Group',
+						align: 'left',
+						callback: function (grid, records, action, groupValue) {
+							Ext.Msg.alert('Group Action', groupValue);
+						}
+					}]
+				}
 			],
 			dockedItems: [{
 				xtype: 'toolbar',

@@ -1,6 +1,6 @@
 Ext.define('Wasp.PluginSummaryGridPortlet', {
     extend: 'Ext.grid.Panel',
-    alias: 'widget.gridportlet',
+    alias: 'widget.psgridportlet',
     uses: [
         'Ext.data.ArrayStore'
     ],

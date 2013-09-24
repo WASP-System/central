@@ -250,6 +250,8 @@ public interface FileService extends WaspService {
 
 	public List<FileGroupMeta> saveFileGroupMeta(List<FileGroupMeta> metaList, FileGroup filegroup) throws MetadataException;
 
+	public FileGroup getFileGroup(UUID uuid) throws FileNotFoundException;
+
 
 }
 

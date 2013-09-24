@@ -67,20 +67,20 @@ public class FileController {
 		}
 	}
 
-	@RequestMapping(method = {RequestMethod.GET, RequestMethod.HEAD}, value = "/get/filegroups/{filegroup_ids:.+}")
-	public void getFileGroup(@PathVariable("filegroup_ids") String filegroup_ids, HttpServletRequest request, HttpServletResponse response) {
+	@RequestMapping(method = {RequestMethod.GET, RequestMethod.HEAD}, value = "/get/filegroups/{uuids:.+}")
+	public void getFileGroup(@PathVariable("uuid") String uuids, HttpServletRequest request, HttpServletResponse response) {
 		try {
-			wfService.processFileGroupListRequest(filegroup_ids, request, response);
+			wfService.processFileGroupListRequest(uuids, request, response);
 			
 		} catch (IOException ex) {
 			if (ex.toString().contains("ClientAbortException")) {
-				logger.warn("Client abort when downloading filegroups(" + filegroup_ids + ")");
+				logger.warn("Client abort when downloading filegroups(" + uuids + ")");
 			} else {
-				logger.warn("Error writing filegroups(" + filegroup_ids + ") to output stream.");
+				logger.warn("Error writing filegroups(" + uuids + ") to output stream.");
 				ex.printStackTrace();
 			}
 		} catch (WaspException e) {
-			logger.warn("unable to deliver filegroups(" + filegroup_ids + ")");
+			logger.warn("unable to deliver filegroups(" + uuids + ")");
 			try {
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			} catch (IOException e1) {

@@ -171,7 +171,7 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 	 * @return
 	 * @throws WaspException
 	 */
-	private java.io.File getFileHandleFromUUID(String uuid, String adjext)
+	private java.io.File getLocalFileFromUUID(String uuid, String adjext)
 			throws WaspException {
 		UUID uu;
 		try {
@@ -241,7 +241,7 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 	public void processFileRequest(String uuid, String adjext, 
 			HttpServletRequest request, HttpServletResponse response) throws IOException, WaspException {
     	
-		java.io.File download = getFileHandleFromUUID(uuid, adjext);
+		java.io.File download = getLocalFileFromUUID(uuid, adjext);
 		
 		String filename = download.getName();
 		
@@ -419,25 +419,26 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 	}
 
 	@Override
-	public void processFileGroupListRequest(String filegroup_ids, HttpServletRequest request, HttpServletResponse response)
+	public void processFileGroupListRequest(String uuids, HttpServletRequest request, HttpServletResponse response)
 			throws IOException, WaspException {
-		// parse the comma delimited string into a list of filegroup ids
-		List<String> fgidList = Arrays.asList(filegroup_ids.split("\\s*,\\s*"));
-		
-		// create a list of filegroups and send to web file service for downloading
-		List<FileGroup> fgList = new ArrayList<FileGroup>();
-		for (String fgid : fgidList) {
-			fgList.add(fileService.getFileGroupById(Integer.parseInt(fgid)));
-		}
+		// parse the comma delimited string into a list of filegroup uuids
+		List<String> uuidList = Arrays.asList(uuids.split("\\s*,\\s*"));
 
-		//Create list for file URLs - these are files from all different locations
-		List<java.io.File> filesList = new ArrayList<java.io.File>();
+		//Create list for local files
+		List<java.io.File> localFilesList = new ArrayList<java.io.File>();
 		
-		//Iterate all file groups to add files to the list
-		for (FileGroup fg : fgList) {
+		UUID uu;
+		for (String uuid : uuidList) {
+			try {
+				uu = UUID.fromString(uuid);
+			} catch (NumberFormatException e) {
+				throw new WaspException("unable to search for record " + uuid);
+			}
+			
+			FileGroup fg = fileService.getFileGroup(uu);
 			Set<FileHandle> fhSet = fg.getFileHandles();
 			for (FileHandle fh : fhSet) {
-				filesList.add( getFileHandleFromUUID(fh.getUUID().toString(),"") );
+				localFilesList.add( getLocalFileFromUUID(fh.getUUID().toString(),"") );
 			}
 		}
 		
@@ -449,7 +450,7 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 		ZipOutputStream out = new ZipOutputStream(baos);
 		
 		// Compress the files
-		for (java.io.File file : filesList) {
+		for (java.io.File file : localFilesList) {
 			FileInputStream fis = new FileInputStream(file);
 			BufferedInputStream bis = new BufferedInputStream(fis);
 			
@@ -475,7 +476,7 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 		ServletOutputStream sos = response.getOutputStream();
 
 		response.setContentType("application/zip");
-		response.setHeader("Content-Disposition", "attachment; filename=\"FileGroups.zip\"");
+		response.setHeader("Content-Disposition", "attachment; filename=\"FileGroup.zip\"");
 		// set 'max-age' to cache files for up to 1h (3600s) since most files shouldn't change on the server anyway. 
 		// We use 'must-revalidate' to force browser to always use this rule. 
 		response.setHeader("Cache-Control", "max-age=3600, must-revalidate"); 
