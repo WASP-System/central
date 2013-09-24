@@ -409,9 +409,149 @@ parameters and output files so we will consider them as independent plugins with
 becoming tightly coupled. So what is a WPP and individual plugin to The Wasp System? A WPP represents a project which is built into a single versioned jar. 
 Each plugin within the WPP is defined by a bean implementing an extension of the ``wasp-core:edu.yu.einstein.wasp.plugin.WaspPlugin`` class. During bean 
 ininitialization, a list of beans derived from this class are stored in a bean of type ``edu.yu.einstein.wasp.plugin.WaspPluginRegistry``. This bean can be
-autowired into a POJO and asked to return a list of plugins that implement a specific subtype or which.
+autowired into a POJO and asked to return a list of plugins that implement a specific subtype and/or which handle a particular 'area'. An area is simply a 
+namespace used for identifying an area of fuctionality. Often it is synonymous with an internal name (iname) associated with a database entity, e.g. an assay 
+workflow iname like 'chipseq'. The interfaces implemented by the plugin define its functionality and facilitate inter-component interaction. As we already saw, 
+within the picard project ``picard-plugin-context-common.xml`` file is defined a string instance called *picardPluginArea* with the value "picard":
+
+.. code-block:: xml
+ 
+   <bean id="picardPluginArea" class="java.lang.String">
+       <constructor-arg>
+           <value>picard</value>
+       </constructor-arg>
+   </bean>
+
+Running Picard's ``CollectAlignmentSummaryMetrics`` at the Linux Command Line
+=============================================================================
+
+Lets take a look at the command we wish to execute and the output we obtain. Assume we have an environment variable ``$PICARD_ROOT`` which points to the 
+location of the Picard jars:
+
+.. code-block:: bash
+
+   $ java -Xmx2g -jar $PICARD_ROOT/CollectAlignmentSummaryMetrics.jar INPUT=in.bam OUTPUT=in_bam_metrics.txt
+   
+After execution is complete, the contents of in_bam_metrics.txt look something like this:
+
+.. code-block:: text
+
+   ## net.sf.picard.metrics.StringHeader
+   # net.sf.picard.analysis.CollectAlignmentSummaryMetrics INPUT=in.bam OUTPUT=in_bam_metrics.txt VALIDATION_STRINGENCY=SILENT    
+   MAX_INSERT_SIZE=100000 ADAPTER_SEQUENCE=[AATGATACGGCGACCACCGAGATCTACACTCTTTCCCTACACGACGCTCTTCCGATCT, 
+   AGATCGGAAGAGCTCGTATGCCGTCTTCTGCTTG, AATGATACGGCGACCACCGAGATCTACACTCTTTCCCTACACGACGCTCTTCCGATCT, 
+   AGATCGGAAGAGCGGTTCAGCAGGAATGCCGAGACCGATCTCGTATGCCGTCTTCTGCTTG, AATGATACGGCGACCACCGAGATCTACACTCTTTCCCTACACGACGCTCTTCCGATCT, 
+   AGATCGGAAGAGCACACGTCTGAACTCCAGTCACNNNNNNNNATCTCGTATGCCGTCTTCTGCTTG] METRIC_ACCUMULATION_LEVEL=[ALL_READS] IS_BISULFITE_SEQUENCED=false ASSUME_SORTED=true 
+   STOP_AFTER=0 VERBOSITY=INFO QUIET=false COMPRESSION_LEVEL=5 MAX_RECORDS_IN_RAM=500000 CREATE_INDEX=false CREATE_MD5_FILE=false
+   ## net.sf.picard.metrics.StringHeader
+   # Started on: Thu Sep 12 15:05:03 EDT 2013
+
+   ## METRICS CLASS	net.sf.picard.analysis.AlignmentSummaryMetrics
+   CATEGORY	TOTAL_READS	PF_READS	PCT_PF_READS	PF_NOISE_READS	PF_READS_ALIGNED	PCT_PF_READS_ALIGNED	PF_ALIGNED_BASES	
+   PF_HQ_ALIGNED_READS	PF_HQ_ALIGNED_BASES	PF_HQ_ALIGNED_Q20_BASES	PF_HQ_MEDIAN_MISMATCHES	PF_MISMATCH_RATE	PF_HQ_ERROR_RATE	PF_INDEL_RATE	
+   MEAN_READ_LENGTH	READS_ALIGNED_IN_PAIRS	PCT_READS_ALIGNED_IN_PAIRS	BAD_CYCLES	STRAND_BALANCE	PCT_CHIMERAS	PCT_ADAPTER	SAMPLE	LIBRARY	READ_GROUP
+   UNPAIRED	36922937	36922937	1	452	0	0	0	0	0	0	0	0	0	0	101	0	0	0	00.002885	
 
 
+Running Picard's ``CollectAlignmentSummaryMetrics`` in the Picard Plugin
+======================================================================== 
      
-      
-        
+Lets assume we have registerd a bam file in the Wasp System database. We will access the location of the bam file via its FileGroup object. Every file 
+(FileHandle object) registered in the system is a member of a FileGroup object, even if there is a one-to-one mapping between fileGroup and fileHandle. Once we 
+have access to the file we need to define the work somewhere. In the Wasp System we configure a WorkUnit instance to handle command line operations. The 
+WorkUnit is a high-level wrapper over the underlying server architecture. It permits specification of a list of commands to execute, requesting of 
+resources (cpu slots, memory etc) and definition of environment variables. 
+
+So our Picard class should look like:
+
+.. code-block:: java
+
+   package edu.yu.einstein.wasp.picard.software;
+
+   import java.util.ArrayList;
+   import java.util.List;
+   import org.springframework.beans.factory.annotation.Autowired;
+   import edu.yu.einstein.wasp.grid.work.WorkUnit;
+   import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
+   import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+   import edu.yu.einstein.wasp.model.FileGroup;
+   import edu.yu.einstein.wasp.model.FileHandle;
+   import edu.yu.einstein.wasp.service.FileService;
+   import edu.yu.einstein.wasp.software.SoftwarePackage;
+
+   public class Picard extends SoftwarePackage{
+
+       private static final long serialVersionUID = -7632170113602282642L;
+
+       private static final String COLLECT_ALIGNMENT_SUMMARY_METRICS_OUTPUT = "collectAlignmentSummaryMetrics.out";
+	
+       @Autowired
+       FileService fileService;
+	
+       public Picard() {
+           setSoftwareVersion("1.96"); // This default may be overridden in wasp.site.properties
+       }
+	
+      /**
+       * Takes a FileGroup and returns a configured WorkUnit to run Picard tools on the file group.
+       * 
+       * @param fileGroup
+       * @return
+       */
+       public WorkUnit getPicard(Integer fileGroupId, String command) {
+		
+           WorkUnit w = new WorkUnit();
+		
+           // Require Picard. 
+           // The GridHostResolver can use software dependencies to choose appropriate resources on which to 
+           // execute a WorkUnit instance.
+           List<SoftwarePackage> software = new ArrayList<SoftwarePackage>();
+           software.add(this);
+           w.setSoftwareDependencies(software);
+		
+           // require 3GB memory
+           w.setMemoryRequirements(3);
+		
+           // require a single thread, execution mode PROCESS
+           // indicates this is a vanilla execution.
+           w.setProcessMode(ProcessMode.SINGLE);
+           w.setMode(ExecutionMode.PROCESS);
+		
+           // set working directory to scratch
+           w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
+		
+           // we aren't actually going to retain any files, so we will set the output
+           // directory to the scratch directory.  Also set "secure results" to
+           // false to indicate that we don't care about the output.
+           w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
+           w.setSecureResults(false);
+		
+           // add the files to the work unit
+           // files will be represented as bash variables in the work unit 
+           FileGroup fileGroup = fileService.getFileGroupById(fileGroupId);
+           List<FileHandle> files = new ArrayList<FileHandle>(fileGroup.getFileHandles());
+           w.setRequiredFiles(files);
+		
+           // set the command
+           w.setCommand(command);
+		
+           return w;
+       }
+	
+       /**
+        * Set the CollectAlignmentSummaryMetrics command. Assume $PICARD_ROOT is set in configuration
+        * WorkUnit sets up paths to data for registered 'requiredFiles'. The ${WASPFILE[0]} variable in the 
+        * command provides access to the first file in the list (in this case we only expect one file). 
+        * @param fileGroup
+        * @param workUnit
+        * @return
+        */
+        public String getCollectAlignmentSummaryMetricsCommand() {
+            String command = "java -Xmx2g -jar $PICARD_ROOT/CollectAlignmentSummaryMetrics.jar INPUT=${" 
+            	+ WorkUnit.INPUT_FILE + "[0]} OUTPUT=" + COLLECT_ALIGNMENT_SUMMARY_METRICS_OUTPUT + "\n";
+            return command;
+        }
+	
+   }
+   
+

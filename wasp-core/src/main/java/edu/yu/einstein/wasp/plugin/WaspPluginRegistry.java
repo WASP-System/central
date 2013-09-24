@@ -14,12 +14,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.integration.Message;
-import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 
-import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
-import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
  * Registry for storing and retrieving plugin bean references.  {@link WaspPlugin}
