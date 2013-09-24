@@ -10,17 +10,17 @@ Ext.require([
 
 Ext.define('File', {
     extend: 'Ext.data.Model',
-//    idProperty: 'fid',
+    idProperty: 'fid',
     fields: [
 //        {name: 'fgid', type: 'int'},
         {name: 'fgname', type: 'string'},
-//        {name: 'fglink', type: 'string'},
-//        {name: 'fid', type: 'int'},
+        {name: 'fglink', type: 'string'},
+        {name: 'fid', type: 'int'},
         {name: 'fname', type: 'string'},
-        {name: 'md5', type: 'string'}//,
-//        {name: 'size', type: 'int'},
+        {name: 'md5', type: 'string'},
+        {name: 'size', type: 'int'},
         //{name: 'updated', type: 'date', dateFormat:'m/d/Y'},
-//        {name: 'link', type: 'string'}
+        {name: 'link', type: 'string'}
     ]
 });
 
@@ -114,17 +114,6 @@ Ext.define('Wasp.FileDownloadGridPortlet', {
 //			}
 			],
             columns: [
-//	            {
-//	            	id: 'checked',
-//	            	dataIndex: 'checked', 
-//					xtype: 'componentcolumn', 
-//					renderer: function(enabled) { 
-//						return { 
-//							checked: enabled, 
-//							xtype: 'checkbox' 
-//						}; 
-//					}
-//	            },
 	            {
 	            	text: 'File',
 		            flex: 1,
@@ -133,36 +122,18 @@ Ext.define('Wasp.FileDownloadGridPortlet', {
 		            dataIndex: 'fname'//,
 		            //hideable: false
 	            },
-//	            {
-//					header: 'File Group',
-//					flex: 1,
-//					//sortable: false,
-//					dataIndex: 'fgname'
-//				},
 	            {
 					header: 'MD5 Checksum',
-					width: 500,
+					width: 400,
 					//sortable: false,
 					dataIndex: 'md5'
 				},
-//	            {
-//	                id       :'filename',
-//	                text   : 'Name',
-//	                width    : 250,
-//	                sortable : true,
-//	                dataIndex: 'name'
-//	            },{
-//	                text   : 'MD5 Checksum',
-//	                //width: 120,
-//	                flex: 1,
-//	                sortable : true,
-//	                dataIndex: 'id'
-//	            },{
-//	                text   : 'Size',
-//	                width: 100,
-//	                sortable : true,
-//	                dataIndex: 'size'
-//	            },
+				{
+	                text   : 'Size',
+	                width: 100,
+	                sortable : true,
+	                dataIndex: 'size'
+	            },
 //	            {
 ////	            	text: 'Download',
 //	            	width: 120,
@@ -215,18 +186,20 @@ Ext.define('Wasp.FileDownloadGridPortlet', {
 					xtype: 'rowactions',
 					actions: [{
 						iconCls: 'icon-clear-group',
-						qtip: 'Action on Row',
+						qtip: 'Download',
 						callback: function (grid, record, action, idx, col, e, target) {
-							Ext.Msg.alert('Row Action', record.get('fname'));
+							//Ext.Msg.alert('Download File', record.get('link'));
+							window.location = record.get('link');
 						}
 					}],
 					keepSelection: true,
 					groupActions: [{
 						iconCls: 'icon-grid',
-						qtip: 'Action on Group',
+						qtip: 'Download Files in the Group',
 						align: 'left',
 						callback: function (grid, records, action, groupValue) {
-							Ext.Msg.alert('Group Action', groupValue);
+							//Ext.Msg.alert('Download File Group',  records[0].get('fglink'));
+							window.location = records[0].get('fglink');
 						}
 					}]
 				}
