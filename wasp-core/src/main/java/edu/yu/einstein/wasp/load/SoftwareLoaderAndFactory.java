@@ -76,7 +76,6 @@ public class SoftwareLoaderAndFactory<T extends Software> extends WaspResourceLo
 	
 	@PostConstruct
 	public void init(){
-		softwareLoadService.updateUiFields(uiFields);
 		software = softwareLoadService.update(resourceType, meta, iname, name, description, isActive, clazz);
 	}
 

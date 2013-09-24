@@ -354,7 +354,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 				Assert.fail("testSampleFailedQC(): Timeout waiting to receive message on 'wasp.channel.notification.abort'");
 			
 			try{
-				Thread.sleep(1000);
+				Thread.sleep(6000);
 			} catch (InterruptedException e){}; // wait for message receiving and job completion events
 			
 			// check BatchStatus and ExitStatus are as expected

@@ -12,7 +12,7 @@
   	<constructor-arg><value>casava</value></constructor-arg>
   </bean>
 
-  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="casavaUiFieldWrapper">
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="casavaUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
     <property name="baseArea" ref="casavaArea" />
   </bean>

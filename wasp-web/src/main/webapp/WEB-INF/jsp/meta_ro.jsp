@@ -9,9 +9,9 @@
     <c:set var="_myCtxArea">${_metaArea}.</c:set>
   </c:if>
 
-  <c:set var="labelKey" value="${fn:replace(_meta.k, _myArea, _myCtxArea)}.label" />
+  <c:set var="labelKey" value="${_meta.property.label}" />
 
-  <td class="CaptionTD"><fmt:message key="${labelKey}"/>:</td>
+  <td class="CaptionTD">${labelKey}:</td>
   <td class="DataTD">
   <c:if test="${not empty _meta.property.control}">
 		 <%-- this tag will define selectItems/itemValue/itemLabel request attributes --%>

@@ -34,7 +34,6 @@ public class ResourceTypeLoaderAndFactory extends WaspLoader implements	FactoryB
 	
 	@PostConstruct
 	public void init(){
-		resourceTypeLoadService.updateUiFields(uiFields);
 		resourceType =  resourceTypeLoadService.update(iname, name, isActive);
 	}
 

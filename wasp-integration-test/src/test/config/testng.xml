@@ -7,7 +7,7 @@
   	
   	<classes>
          <class name="edu.yu.einstein.wasp.integration.selenium.SelBaseTest"/>
-      	
+    	
       	 <class name="edu.yu.einstein.wasp.integration.selenium.SelNewPI">
          	<methods>
          			<include name="navigateNewPIForm"></include>
@@ -37,7 +37,7 @@
          </class>
       	 <class name="edu.yu.einstein.wasp.integration.selenium.SelConfigureWorkflow"/>
       	 <class name="edu.yu.einstein.wasp.integration.selenium.SelSubmitNewJob"/>
-      	 
+      	
       	 <class name="edu.yu.einstein.wasp.integration.selenium.SelApproveNewJob"/>
       	 
 		<class name="edu.yu.einstein.wasp.integration.selenium.SelCreateNewPlatformUnit"/>

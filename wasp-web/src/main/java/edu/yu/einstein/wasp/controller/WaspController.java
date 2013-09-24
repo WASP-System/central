@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -41,10 +42,9 @@ public class WaspController {
   
  public  static final Map<String, String> LOCALES=new LinkedHashMap<String, String>();
   static { 
-	  LOCALES.put("en_US","English");
-      LOCALES.put("iw_IL","Hebrew");
-      LOCALES.put("ru_RU","Russian");
-      LOCALES.put("ja_JA","Japanese");
+	  for (Locale locale: Locale.getAvailableLocales()){
+		  LOCALES.put(locale.toString(), locale.getDisplayCountry());
+	  }
   }
 
 

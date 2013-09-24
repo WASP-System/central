@@ -9,14 +9,14 @@
  
   <!-- helpTag Library sample -->
 
-  <bean id="helpTagLibraryUiFieldWrapper" class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper">
+  <bean id="helpTagLibraryUiFieldWrapper" class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true">
     <property name="baseLocale" value="en_US" />
     <property name="baseArea" value="helptagLibrary" />
   </bean>
 
   <bean id="helpTagLibrarySpecificUiFields" class="org.springframework.beans.factory.config.ListFactoryBean">
     <property name="sourceList">
-     	<list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper">
+     	<list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
 	        <bean parent="helpTagLibraryUiFieldWrapper">
 	          <property name="baseName" value="fragmentSize" />
 	          <property name="label" value="Average Fragmentation Size" />

@@ -9,7 +9,7 @@
         http://www.springframework.org/schema/context/spring-context-3.1.xsd"
     default-autowire="byName">
     
-  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="helpTagUiFieldWrapper">
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="helpTagUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
     <property name="baseArea" ref="waspHelpTagPluginArea" />
   </bean>
@@ -53,61 +53,65 @@
     
     <property name="uiFieldsFromWrapper">
       <list>
-        <bean parent="helpTagUiFieldWrapper">
+      	<bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="workflow" />
-          <property name="label" value="HELP Tagging" />
+          <property name="label" value="helpTag.wf.title" />
         </bean>
         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/modifymeta" />
-          <property name="label" value="Modify HelpTag Metadata" />
+          <property name="label" value="helpTag.modifyMeta.title" />
         </bean>
         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/resource/mps" />
-          <property name="label" value="MPS Sequencer Options" />
+          <property name="label" value="helpTag.mps.title" />
         </bean>
         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/samples" />
-          <property name="label" value="Samples" />
+          <property name="label" value="helpTag.samples.title" />
         </bean>
 		<bean parent="helpTagUiFieldWrapper">
 			<property name="baseName" value="jobsubmit/genomes" />
-			<property name="label" value="Select Genomes" />
+			<property name="label" value="helpTag.genomes.title" />
 		</bean>
         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/cells" />
-          <property name="label" value="DNA Sequencer Cells" />
+          <property name="label" value="helpTag.cells.title" />
         </bean>
         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/helpTag/pair" />
-          <property name="label" value="HpaII vs MspI Pairings" />
+          <property name="label" value="helpTag.pair.title" />
         </bean>
         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/software/referenceBasedAligner" />
-          <property name="label" value="Aligner Selection" />
+          <property name="label" value="helpTag.aligner.title" />
         </bean>
         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/software/helptagPipeline" />
-          <property name="label" value="HELP-tag Pipeline Selection" />
+          <property name="label" value="helpTag.pipeline.title" />
         </bean>
-        <bean parent="helpTagUiFieldWrapper">
+         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/comment" />
-          <property name="label" value="Comments" />
+          <property name="label" value="helpTag.comments.title" />
         </bean>
         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/verify" />
-          <property name="label" value="Verify Submission" />
+          <property name="label" value="helpTag.verify.title" />
+        </bean>
+         <bean parent="helpTagUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/submit" />
+          <property name="label" value="helpTag.submit.title" />
         </bean>
         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="pairing_instructions" />
-          <property name="label" value="Please select HpaII vs MspI for all samples to be analyzed in pairs after sequencing." />
-        </bean>
+          <property name="label" value="helpTag.pair.instructions" />
+        </bean>  
         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="test" />
-          <property name="label" value="HpaII" />
+          <property name="label" value="helpTag.test.label" />
         </bean>
         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="control" />
-          <property name="label" value="MspI" />
+          <property name="label" value="helpTag.control.label" />
         </bean>
      </list>
  

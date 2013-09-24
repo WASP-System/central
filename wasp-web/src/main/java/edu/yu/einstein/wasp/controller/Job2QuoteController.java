@@ -332,7 +332,8 @@ public class Job2QuoteController extends WaspController {
 			List<String> cellList = new ArrayList<String>(
 				Arrays.asList(new String[] { 
 					//"J"+item.getId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+item.getId()+".do>details</a>) " + "<span style='color:red;font-size:11px;font-weight:bold;'>"+ noteAboutNeedingQuote+"</span>",
-					"J"+item.getId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+item.getId()+".do>details</a>)",
+					//"J"+item.getId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+item.getId()+".do>details</a>)",
+					"<a href=/wasp/job/"+item.getId()+"/homepage.do#ui-tabs-2>J"+item.getId().intValue()+"</a>",
 					currentStatus,
 					item.getName(),
 					//String.format("%.2f", amount),

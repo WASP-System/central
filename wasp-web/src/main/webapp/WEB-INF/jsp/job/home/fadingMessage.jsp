@@ -11,7 +11,7 @@
 		<c:if test="${fn:length(successMessage)>0}">
 			<H2 style="color:green;font-weight:bold;"><c:out value="${successMessage}" /></H2>
 		</c:if>
-		<br />
+		
 	</div>
 	
 	<script type="text/javascript">

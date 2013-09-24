@@ -15,23 +15,16 @@
   Apache Tiles 2: http://tiles.apache.org/
  -->
 
-  <bean id="viewResolver" class="org.springframework.web.servlet.view.UrlBasedViewResolver">
-    <!-- <property name="viewClass" value="edu.yu.einstein.wasp.tiles.WaspTilesView"/> -->
-    <property name="viewClass" value="org.springframework.web.servlet.view.tiles2.TilesView"/>
-  </bean>
-  
  <!-- Convenience subclass of UrlBasedViewResolver that supports TilesView (i.e. Tiles definitions) and custom subclasses of it. -->
  <!-- Don't forget to set the order if you declared other ViewResolvers -->
  <!-- See http://static.springsource.org/spring/docs/3.0.x/javadoc-api/org/springframework/web/servlet/view/tiles2/TilesViewResolver.html  -->
 
-  <bean id="tilesViewResolver" class="edu.yu.einstein.wasp.tiles.WaspTilesViewResolver" p:order="0"/>
-
+  <bean id="tilesViewResolver" class="edu.yu.einstein.wasp.tiles.WaspTilesViewResolver" p:order="0" />
  
   <!-- Helper class to configure Tiles 2.x for the Spring Framework -->
   <!-- See http://static.springsource.org/spring/docs/3.0.x/javadoc-api/org/springframework/web/servlet/view/tiles2/TilesConfigurer.html -->
   <!-- The actual tiles templates are in the tiles-definitions.xml -->
   <bean id="tilesConfigurer" class="org.springframework.web.servlet.view.tiles2.TilesConfigurer">
-    <!-- <property name="completeAutoload" value="true" /> -->
     <property name="definitions">
       <list>
         <value>WEB-INF/tiles/tiles-*.xml</value>

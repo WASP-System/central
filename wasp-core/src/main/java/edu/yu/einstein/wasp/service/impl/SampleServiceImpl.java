@@ -599,8 +599,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			else if(internalStatus.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())){
 				return "RECEIVED";
 			}
-			else if(internalStatus.getExitCode().equals(ExitStatus.FAILED.getExitCode())){
+			else if(internalStatus.getExitCode().equals(ExitStatus.STOPPED.getExitCode())){
 				return "WITHDRAWN";
+			} 
+			else if(internalStatus.getExitCode().equals(ExitStatus.STOPPED.getExitCode())){
+				return "ABANDONED";
 			}
 			else {
 				return "UNKNOWN";
@@ -644,6 +647,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			else if(internalStatus.getExitCode().equals(ExitStatus.FAILED.getExitCode())){
 				return "FAILED";
 			}
+			else if(internalStatus.getExitCode().equals(ExitStatus.STOPPED.getExitCode())){
+				return "ABANDONED";
+			}
 			else {
 				return "UNKNOWN";
 			}
@@ -675,7 +681,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  @Override
 	  public List<String> getReceiveSampleStatusOptionsForWeb(){
 		  // TODO: Write test!!
-		  ExitStatus [] statusList = {ExitStatus.COMPLETED, ExitStatus.FAILED, ExitStatus.STOPPED};
+		  ExitStatus [] statusList = {ExitStatus.COMPLETED, ExitStatus.FAILED};
 		  List<String> options = new ArrayList<String>();
 		  for(ExitStatus status : statusList){
 			  options.add(convertSampleReceivedStatusForWeb(status));

@@ -10,6 +10,7 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -36,6 +38,7 @@ import org.springframework.context.NoSuchMessageException;
 import org.springframework.integration.MessagingException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.MetaMessage;
@@ -68,6 +71,7 @@ import edu.yu.einstein.wasp.dao.SoftwareDao;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
+import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.JobContextInitializationException;
 import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
@@ -116,6 +120,7 @@ import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
+import edu.yu.einstein.wasp.quote.MPSQuote;
 import edu.yu.einstein.wasp.sequence.SequenceReadProperties;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
@@ -894,15 +899,15 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		  Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
 		  LinkedHashMap<String, String> jobApprovalsMap = new LinkedHashMap<String, String>();
 		  
-		  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
-		  Set<String> jobIdStringSet = new HashSet<String>();
-		  jobIdStringSet.add(job.getJobId().toString());
-		  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		  
 		  List<String> jobApproveList = new ArrayList<String>();
 		  for(int i = 0; i < this.jobApproveArray.length; i++){
 			  jobApproveList.add(jobApproveArray[i]);//piApprove, daApprove, fmApprove
 		  }	  
+		  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		  Set<String> jobIdStringSet = new HashSet<String>();
+		  jobIdStringSet.add(job.getId().toString());
+		  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+
 		  for(String jobApproveCode : jobApproveList){
 			  //List<StepExecution> stepExecutions =  batchJobExplorer.getStepExecutions("step.piApprove", parameterMap, true);
 			  List<StepExecution> stepExecutions = null;
@@ -923,7 +928,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 					  approveStatus = new String("approved");
 					  //jobApprovalsMap.put(piStatusLabel, "status.approved.label");
 				  }
-				  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.FAILED.getExitCode())){//most likely not used anymore
+				  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.FAILED.getExitCode())){
 					  approveStatus = new String("rejected");
 					  //jobApprovalsMap.put(piStatusLabel, "status.rejected.label");
 				  }
@@ -1328,7 +1333,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 */
 	@Override
 	public void updateJobQuoteStatus(Job job, WaspStatus status) throws WaspMessageBuildingException{
-		updateJobStatus(job, status, WaspJobTask.QUOTE, "", false);
+		updateJobStatus(job, status, WaspJobTask.QUOTE, "", true);
 	}
 	
 	
@@ -1946,56 +1951,40 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 */
 	@Override
 	public String getJobStatus(Job job){
-		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0)
+		if(job==null || job.getId()==null)
 			return "Unknown";
 		String currentStatus = "Not Yet Set";
 		//String approvalStatus = "Not Yet Set";
 		LinkedHashMap<String,String> jobApprovalsMap = this.getJobApprovals(job);
-		for(String jobApproveCode : jobApprovalsMap.keySet()){
-			//if any single jobStatus is rejected, the rest are set to abandoned, so this job is withdrawn, so break
-			if("rejected".equalsIgnoreCase(jobApprovalsMap.get(jobApproveCode))){
-				if("piApprove".equals(jobApproveCode)){
-						currentStatus = "Withdrawn By PI";
-				}
-				else if("daApprove".equals(jobApproveCode)){
-					currentStatus = "Withdrawn By Dept.";
-				}
-				else if("fmApprove".equals(jobApproveCode)){
-					currentStatus = "Withdrawn By Facility";
-				}
-				else {//should never occur
-					currentStatus = "Withdrawn";
-				}
-				break;
-			}
-			//if any single jobStatus is awaitingResponse, then none are rejected, and we are continuing to wait for additional responses, so break (some might be approved, but we're waiting for at least one)
-			if("awaitingResponse".equalsIgnoreCase(jobApprovalsMap.get(jobApproveCode))){
-				currentStatus = "Awaiting Approval(s)";
-				break;
-			}
-			//if any jobStatus is approved, then continue through the loop. If the last one is approved (we haven't hit a rejected or an awaitingResponse), then this job is fully approved
-			if("approved".equalsIgnoreCase(jobApprovalsMap.get(jobApproveCode))){
-				currentStatus = "Approved";//will be refined below
-			}
-			//if we never hit the case rejected, awaitingResponse, or approved, then it's Not yet set (should rarely occur)
-		}
-		//next need a way to tell approved and ongoing from approved and completed
-		if(currentStatus.equalsIgnoreCase("Approved")){
-			//must now distinguish between in progress and completed
-			//if the job is active, and approved, then the job is In Progress
-			boolean jobIsActive = false;
-			List<Job> activeJobsList = this.getActiveJobs();//will be used below 			
-			for(Job activeJob : activeJobsList){
-				if(activeJob.getJobId().intValue()==job.getJobId().intValue()){
-					jobIsActive = true;
+		logger.debug("isJobActive for id=" + job.getId() + " : " + isJobActive(job));
+		if(isJobActive(job)){
+			currentStatus = "In Progress";
+			for(String jobApproveCode : jobApprovalsMap.keySet()){
+				if("awaitingResponse".equalsIgnoreCase(jobApprovalsMap.get(jobApproveCode))){
+					currentStatus = "Awaiting Approval(s)";
 					break;
 				}
 			}
-			if(jobIsActive){
-				currentStatus = "In Progress";
-			}
-			else{
-				currentStatus = "Completed";
+		}
+		else{
+			currentStatus = "Completed";
+			for(String jobApproveCode : jobApprovalsMap.keySet()){
+				//if any single jobStatus is rejected, the rest are set to abandoned, so this job is withdrawn, so break
+				if("rejected".equalsIgnoreCase(jobApprovalsMap.get(jobApproveCode))){
+					if("piApprove".equals(jobApproveCode)){
+							currentStatus = "Withdrawn By PI";
+					}
+					else if("daApprove".equals(jobApproveCode)){
+						currentStatus = "Withdrawn By Dept.";
+					}
+					else if("fmApprove".equals(jobApproveCode)){
+						currentStatus = "Withdrawn By Facility";
+					}
+					else {//should never occur
+						currentStatus = "Withdrawn";
+					}
+					break;
+				}
 			}
 		}
 		return currentStatus;
@@ -2338,7 +2327,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		Assert.assertParameterNotNullNotZero(job.getId(), "job with id="+jobId+" not found in database");
 		Assert.assertParameterNotNull(quoteForm, "quoteForm cannot be null");
 		Assert.assertParameterNotNull(quoteForm.getAmount(), "quoteForm.getAmount() cannot be null");
-		Assert.assertParameterNotNullNotEmpty(metaList, "metaList cannot be null or empty");
+		//Assert.assertParameterNotNullNotEmpty(metaList, "metaList cannot be null or empty");
 		quoteForm.setJobId(jobId);
 		quoteForm.setId(null);//new one; must leave this - problem without it
 		User user = authenticationService.getAuthenticatedUser();
@@ -2350,28 +2339,29 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			logger.warn(str);
 			throw new Exception(str);
 		}
-			
 		//might want to confirm the values in the meta are strings representing floats?? not currently checked, in case other fields are later added
-		try{	
-			this.acctQuoteMetaDao.setMeta(metaList, quoteId);	
+		try{
+			if(metaList!=null && !metaList.isEmpty()){
+				this.acctQuoteMetaDao.setMeta(metaList, quoteId);
+			}
 		} catch (MetadataException e){
 			logger.warn(e.getMessage());
 			throw new Exception(e.getMessage());
 		}
-				
 		if (!job.getAcctQuote().contains(quoteForm)){//it will not contain it, as this is a new quote
 					
 			job.getAcctQuote().add(quoteForm);//no real reason to do this here
 		}
-		job.setCurrentQuote(quoteForm);		
-		this.getJobDao().save(job);		
-				
-		try{	
-			this.updateJobQuoteStatus(job, WaspStatus.COMPLETED);	
-		} catch (WaspMessageBuildingException e){
-			logger.warn(e.getMessage());
-			throw new Exception(e.getMessage());
-		}	
+		job.setCurrentQuote(quoteForm);	
+		this.getJobDao().save(job);	
+		if(this.isJobAwaitingQuote(job)){
+			try{	
+				this.updateJobQuoteStatus(job, WaspStatus.COMPLETED);	
+			} catch (WaspMessageBuildingException e){
+				logger.warn(e.getMessage());
+				throw new Exception(e.getMessage());
+			}
+		}
 	}
 
 	/** 
@@ -2400,4 +2390,56 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		}		
 		return libraryList;		
 	}
+	
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void createNewQuoteAndSaveQuoteFile(MPSQuote mpsQuote, File file, Float totalFinalCost, boolean saveQuoteAsJSON) throws Exception{
+			Job job = this.getJobByJobId(mpsQuote.getJobId());
+		
+			Date now = new Date();
+			DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd");		 	   
+	 	   	Random randomNumberGenerator = new Random(System.currentTimeMillis());
+	 	   	//if this is a new quote, save quote; if invoice, save invoice
+	 	   	FileGroup fileGroup = fileService.saveLocalQuoteOrInvoiceFile(job, file, "Job"+job.getId()+"_Quote_"+dateFormat.format(now)+".pdf", "Quote", randomNumberGenerator);
+
+	 	   	//if this is a new quote, save quote; if invoice, save invoice
+	 	   	AcctQuote acctQuote = new AcctQuote();
+	 	   	acctQuote.setAmount(totalFinalCost);
+	 	   	List<AcctQuoteMeta> acctQuoteMetaList = new ArrayList<AcctQuoteMeta>();
+	 	   	AcctQuoteMeta acctQuoteMeta = new AcctQuoteMeta();
+	 	   	acctQuoteMeta.setK("acctQuote.fileGroupId");
+	 	   	acctQuoteMeta.setV(fileGroup.getId().toString());
+	 	   	acctQuoteMetaList.add(acctQuoteMeta);
+	 	   	if(saveQuoteAsJSON==true){
+	 	   		AcctQuoteMeta acctQuoteMeta2 = new AcctQuoteMeta();
+	 	   		acctQuoteMeta2.setK("acctQuote.json");
+	 	   		acctQuoteMeta2.setV(mpsQuote.getAsJSON().toString());
+	 	   		acctQuoteMetaList.add(acctQuoteMeta2);
+	 	   	}
+	 	   	this.addNewQuote(job.getId(), acctQuote, acctQuoteMetaList);
+	}
+	
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void createNewQuoteOrInvoiceAndUploadFile(Job job, MultipartFile mpFile, String fileDescription, Float totalCost) throws FileUploadException, Exception{
+		if(!fileDescription.equalsIgnoreCase("quote") && !fileDescription.equalsIgnoreCase("invoice")){
+			  throw new Exception(); 
+		}
+ 	   	FileGroup fileGroup = fileService.uploadFileAndReturnFileGroup(mpFile, job, fileDescription, new Random(System.currentTimeMillis()));
+ 	   	//if this is a new quote, save quote; if invoice, save invoice
+ 	   	AcctQuote acctQuote = new AcctQuote();
+ 	   	acctQuote.setAmount(totalCost);
+ 	   	List<AcctQuoteMeta> acctQuoteMetaList = new ArrayList<AcctQuoteMeta>();
+ 	   	AcctQuoteMeta acctQuoteMeta = new AcctQuoteMeta();
+ 	   	acctQuoteMeta.setK("acctQuote.fileGroupId");
+ 	   	acctQuoteMeta.setV(fileGroup.getId().toString());
+ 	   	acctQuoteMetaList.add(acctQuoteMeta);
+ 	   	this.addNewQuote(job.getId(), acctQuote, acctQuoteMetaList);
+	}
+	
+	
 }

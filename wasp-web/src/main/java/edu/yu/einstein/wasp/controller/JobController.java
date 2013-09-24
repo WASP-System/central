@@ -1,5 +1,12 @@
 package edu.yu.einstein.wasp.controller;
 
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.net.URL;
+
 import java.text.DateFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -7,20 +14,24 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Currency;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -54,6 +65,7 @@ import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.AcctQuote;
+import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
@@ -71,6 +83,7 @@ import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.ResourceCategory;
+import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
@@ -80,8 +93,18 @@ import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
+
+import edu.yu.einstein.wasp.model.UserMeta;
+import edu.yu.einstein.wasp.model.WaspModel;
+
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
+import edu.yu.einstein.wasp.quote.AdditionalCost;
+import edu.yu.einstein.wasp.quote.Comment;
+import edu.yu.einstein.wasp.quote.Discount;
+import edu.yu.einstein.wasp.quote.LibraryCost;
+import edu.yu.einstein.wasp.quote.MPSQuote;
+import edu.yu.einstein.wasp.quote.SequencingCost;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
@@ -89,8 +112,13 @@ import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
+
+import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.ResourceService;
+
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.QuoteAndInvoiceService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -98,7 +126,22 @@ import edu.yu.einstein.wasp.util.SampleWrapper;
 import edu.yu.einstein.wasp.util.StringHelper;
 import edu.yu.einstein.wasp.web.Tooltip;
 
-
+import com.itextpdf.text.Anchor;
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Font.FontFamily;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.draw.LineSeparator;
 
 @Controller
 @Transactional
@@ -166,9 +209,13 @@ public class JobController extends WaspController {
 	@Autowired
 	private AdaptorService adaptorService;
 	@Autowired
+	private ResourceService resourceService;
+	@Autowired
 	private RunService runService;
 	@Autowired
 	private MessageServiceWebapp messageService;
+	@Autowired
+	private QuoteAndInvoiceService quoteAndInvoiceService;
 	
 	// list of baserolenames (da-department admin, lu- labuser ...)
 	// see role table
@@ -890,6 +937,16 @@ public class JobController extends WaspController {
 		m.addAttribute("job", job);
 		m.addAttribute("jobStatus", jobService.getJobStatus(job));
 		
+		
+		String submitterInstitution = "";
+		String pIInstitution = "";
+		try{
+			submitterInstitution = MetaHelper.getMetaValue("user", "institution", job.getUser().getUserMeta());
+			pIInstitution = MetaHelper.getMetaValue("user", "institution", job.getLab().getUser().getUserMeta());
+		}catch(Exception e){}
+		m.addAttribute("submitterInstitution", submitterInstitution);	
+		m.addAttribute("pIInstitution", pIInstitution);	
+		
 		//linkedHashMap because insert order is guaranteed
 		LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
 		m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);	
@@ -904,6 +961,730 @@ public class JobController extends WaspController {
 		return "job/home/basic";
 	}
   
+	@RequestMapping(value="/{jobId}/costManager", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobCostPage(@PathVariable("jobId") Integer jobId,
+			  ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
+		populateCostPage(job, m);
+		return "job/home/costManager";
+	}
+
+	private void populateCostPage(Job job, ModelMap m){
+		
+		//need this (viewerIsFacilityStaff) since might be coming from callable (and security context lost)
+		if(authenticationService.hasRole("su") || authenticationService.hasRole("ft") || authenticationService.hasRole("da-*")){
+			m.addAttribute("viewerIsFacilityStaff", true);
+		}
+		else{
+			m.addAttribute("viewerIsFacilityStaff", false);
+		}
+		
+		m.addAttribute("job", job);
+		
+		AcctQuote mostRecentAcctQuote = job.getCurrentQuote();
+		if(mostRecentAcctQuote!=null && mostRecentAcctQuote.getId()!=null){
+			m.addAttribute("mostRecentQuote", mostRecentAcctQuote.getAmount());
+		}		
+ 		m.addAttribute("localCurrencyIcon", Currency.getInstance(Locale.getDefault()).getSymbol()); 		
+
+		Set<AcctQuote> acctQuoteSet = job.getAcctQuote();
+		List<AcctQuote>  acctQuoteList = new ArrayList<AcctQuote>(acctQuoteSet);
+		class AcctQuoteCreatedComparator implements Comparator<AcctQuote> {
+			@Override
+			public int compare(AcctQuote arg0, AcctQuote arg1) {
+				return arg1.getCreated().compareTo(arg0.getCreated());
+			}
+		}
+		Collections.sort(acctQuoteList, new AcctQuoteCreatedComparator());//most recent is now first, least recent is last
+
+		List<FileGroup> fileGroups = new ArrayList<FileGroup>();
+		Map<FileGroup, List<FileHandle>> fileGroupFileHandlesMap = new HashMap<FileGroup, List<FileHandle>>();
+		List<FileHandle> fileHandlesThatCanBeViewedList = new ArrayList<FileHandle>();
+		Map<AcctQuote, FileGroup> acctQuoteFileGroupMap= new HashMap<AcctQuote, FileGroup>();
+		List<AcctQuote>acctQuotesWithJsonEntry = new ArrayList<AcctQuote>();
+		
+		for(AcctQuote acctQuote : acctQuoteList){//most recent is first, least recent is last
+			List<AcctQuoteMeta> acctQuoteMetaList = acctQuote.getAcctQuoteMeta();
+			for(AcctQuoteMeta acctQuoteMeta : acctQuoteMetaList){
+				if(acctQuoteMeta.getK().toLowerCase().contains("filegroupid")){
+					try{
+						FileGroup fileGroup = fileService.getFileGroupById(Integer.parseInt(acctQuoteMeta.getV()));
+						if(fileGroup.getId()!=null){
+							acctQuoteFileGroupMap.put(acctQuote, fileGroup);
+							fileGroups.add(fileGroup);
+							List<FileHandle> fileHandles = new ArrayList<FileHandle>();
+							for(FileHandle fh : fileGroup.getFileHandles()){
+								fileHandles.add(fh);
+								String mimeType = fileService.getMimeType(fh.getFileName());
+								if(!mimeType.isEmpty()){
+									fileHandlesThatCanBeViewedList.add(fh);
+								}
+							}
+							fileGroupFileHandlesMap.put(fileGroup, fileHandles);
+						}
+						
+					}catch(Exception e){logger.warn("FileGroup unexpectedly not found");}
+				}
+				if(acctQuoteMeta.getK().toLowerCase().contains("json")){
+					acctQuotesWithJsonEntry.add(acctQuote);
+				}
+			}
+		}		
+		m.addAttribute("fileGroups", fileGroups);
+		m.addAttribute("fileGroupFileHandlesMap", fileGroupFileHandlesMap);
+		m.addAttribute("fileHandlesThatCanBeViewedList", fileHandlesThatCanBeViewedList);
+		m.addAttribute("acctQuoteList", acctQuoteList);
+		m.addAttribute("acctQuoteFileGroupMap", acctQuoteFileGroupMap);
+		m.addAttribute("acctQuotesWithJsonEntry", acctQuotesWithJsonEntry);			
+	}
+	
+	@RequestMapping(value="/{jobId}/uploadQuoteOrInvoice", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
+	  public String jobFileUploadQuoteOrInvoice(@PathVariable("jobId") Integer jobId, 
+			  @RequestParam(value="errorMessage", required=false) String errorMessage,
+			  @RequestParam(value="successMessage", required=false) String successMessage,
+			  ModelMap m) throws SampleTypeException {
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
+		m.addAttribute("localCurrencyIcon", Currency.getInstance(Locale.getDefault()).getSymbol()); 		
+		m.addAttribute("job", job);
+		return "job/home/uploadQuoteOrInvoice";
+	}
+	
+	//Note: we use MultipartHttpServletRequest to be able to upload files using Ajax. See http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/
+	@RequestMapping(value="/{jobId}/uploadQuoteOrInvoice", method=RequestMethod.POST)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
+	  public Callable<String> jobFileUploadQuoteOrInvoicePostPage(@PathVariable("jobId") final Integer jobId,
+			  final MultipartHttpServletRequest request, 
+			  final HttpServletResponse response,
+			  //since this is now an ajax call, we no longer need/use @RequestParam("file_description") String fileDescription, @RequestParam("file_upload") MultipartFile mpFile,
+			  final ModelMap m) throws SampleTypeException {
+		
+			return new Callable<String>() {
+
+					@Override
+					public String call() throws Exception {						
+
+						Job job = jobService.getJobByJobId(jobId);
+						if(job.getId()==null){
+						   	logger.warn("Job unexpectedly not found");
+						   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+							return "job/home/message";
+						}
+						
+						m.addAttribute("localCurrencyIcon", Currency.getInstance(Locale.getDefault()).getSymbol()); 		
+						m.addAttribute("job", job);
+						
+						List<MultipartFile> mpFiles = request.getFiles("file_upload");
+					    if(mpFiles.isEmpty()){
+					    	String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed_fileEmpty.error");
+					    	logger.warn(errorMessage);
+					    	m.addAttribute("errorMessage", errorMessage);					    	
+							return "job/home/uploadQuoteOrInvoice";
+					    }
+					   	MultipartFile mpFile = mpFiles.get(0);
+					   	if(mpFile==null){
+					   		String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed_fileEmpty.error");
+					    	logger.warn(errorMessage);
+					    	m.addAttribute("errorMessage", errorMessage);
+							return "job/home/uploadQuoteOrInvoice";
+						}
+						
+					   	String fileDescription = request.getParameter("file_description");
+					    fileDescription = fileDescription==null?"":fileDescription.trim();
+					    
+					    if("".equals(fileDescription)){
+					    	String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed_fileDescriptionEmpty.error");
+					    	logger.warn(errorMessage);
+					    	m.addAttribute("errorMessage", errorMessage);
+							return "job/home/uploadQuoteOrInvoice";
+					    }
+					    
+					    if(!fileDescription.equalsIgnoreCase("quote") && !fileDescription.equalsIgnoreCase("invoice")){
+					    	String errorMessage = "Description must be Quote or Invoice";
+					    	logger.warn(errorMessage);
+					    	m.addAttribute("errorMessage", errorMessage);
+							return "job/home/uploadQuoteOrInvoice";
+					    }
+					   	
+					    String totalCostAsString = request.getParameter("totalCost");
+					    totalCostAsString = totalCostAsString==null?"":totalCostAsString.trim();
+					    
+					    if("".equals(totalCostAsString)){
+					    	String errorMessage = "Please provide a value for Total Cost";
+					    	logger.warn(errorMessage);
+					    	m.addAttribute("errorMessage", errorMessage);
+							return "job/home/uploadQuoteOrInvoice";
+					    }
+					    
+					    Integer totalCost = null;
+						try{
+							totalCost = new Integer(totalCostAsString);
+						}catch(Exception e){
+							String errorMessage = "Please provide a whole number for Total Cost";
+					    	logger.warn(errorMessage);
+					    	m.addAttribute("errorMessage", errorMessage);
+							return "job/home/uploadQuoteOrInvoice";
+						}
+					    
+						try{
+							jobService.createNewQuoteOrInvoiceAndUploadFile(job, mpFile, fileDescription, new Float(totalCost));
+							m.addAttribute("successMessage", messageService.getMessage("listJobSamples.fileUploadedSuccessfully.label"));
+						} catch(FileUploadException e){
+							String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed.error");
+							logger.warn(errorMessage);
+							m.addAttribute("errorMessage", errorMessage);
+							return "job/home/uploadQuoteOrInvoice";
+						} catch(Exception e){
+							String errorMessage = "Unexpected Exception";
+							logger.warn(errorMessage);
+							m.addAttribute("errorMessage", errorMessage);
+							return "job/home/uploadQuoteOrInvoice";
+						}
+						populateCostPage(job, m);
+						return "job/home/costManager";
+					}
+			  };
+	}
+	
+	@RequestMapping(value="/{jobId}/acctQuote/{quoteId}/createUpdateQuote", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
+	  public String createJobQuoteOrInvoicePage(@PathVariable("jobId") Integer jobId,@PathVariable("quoteId") Integer quoteId,
+			  ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
+		
+		//list to populate dropdown
+ 		ResourceType resourceType = resourceService.getResourceTypeDao().getResourceTypeByIName("mps");
+ 		List<ResourceCategory>  sequencingMachines = new ArrayList<ResourceCategory>();
+ 		for(ResourceCategory rc : resourceService.getResourceCategoryDao().findAll()){
+ 			if(rc.getResourceTypeId()==resourceType.getId().intValue()){
+ 				sequencingMachines.add(rc);
+ 			}
+ 		}
+ 		m.addAttribute("sequencingMachines", sequencingMachines); 		
+
+ 		//list to populate dropdown
+		List<String> discountReasons = new ArrayList<String>();
+		discountReasons.add("Institutional Cost Share");
+		discountReasons.add("Departmental Cost Share");
+		discountReasons.add("Center Cost Share");
+		discountReasons.add("Facility Credit");
+		discountReasons.add("Facility Discount");
+		m.addAttribute("discountReasons", discountReasons);
+		
+		//list to populate dropdown
+		List<String> discountTypes = new ArrayList<String>();
+		discountTypes.add("%");
+		discountTypes.add(Currency.getInstance(Locale.getDefault()).getSymbol());
+		m.addAttribute("discountTypes", discountTypes);
+ 	
+		//8-30-13
+ 		//if there is no existing quote (for the moment there is none)
+		MPSQuote mpsQuote=null;
+		
+		if(quoteId != 0){
+			Set<AcctQuote> acctQuoteSet = job.getAcctQuote();
+			AcctQuote acctQuote = null;
+			for(AcctQuote ac : acctQuoteSet){
+				if(ac.getId().intValue()==quoteId){
+					acctQuote = ac;
+					break;
+				}
+			}
+			if(acctQuote==null){
+				logger.warn("Requested quote unexpectedly not found");
+			   	m.addAttribute("errorMessage", "Requested quote unexpectedly not found"); 
+				return "job/home/message";
+			}
+			else if(acctQuote!=null){
+				List<AcctQuoteMeta> acctQuoteMetaList = acctQuote.getAcctQuoteMeta();
+				for(AcctQuoteMeta acm : acctQuoteMetaList){
+					if(acm.getK().toLowerCase().contains("json")){
+						try{							
+								JSONObject jsonObject = new JSONObject(acm.getV());								
+								mpsQuote = MPSQuote.getMPSQuoteFromJSONObject(jsonObject, MPSQuote.class);								
+						}catch(Exception e){
+							//some acctQuotes uploaded a file, so they will not have any json string in the meta!
+							//so just catch the exception and move on.
+						}
+					}
+				}
+			}
+		}
+		
+ 		if(quoteId==0){		
+			mpsQuote = new MPSQuote(jobId);
+	 		List<LibraryCost> libraryCosts = mpsQuote.getLibraryCosts();
+	 		int numberOfLibrariesExpectedToBeConstructed = 0;
+	 		for(Sample s : jobService.getSubmittedSamples(job)){
+	 			
+	 			String reasonForNoLibraryCost = "";
+	 			
+	 			if(sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(s)).equalsIgnoreCase("withdrawn")){
+	 				reasonForNoLibraryCost = "Withdrawn";
+	 			}
+	 			else if(s.getSampleType().getIName().toLowerCase().equals("library")){
+	 				reasonForNoLibraryCost = "N/A";
+	 			}
+	 				 			
+	 			if(reasonForNoLibraryCost.isEmpty()){
+	 				numberOfLibrariesExpectedToBeConstructed++;
+	 			}
+	 			LibraryCost libraryCost = null;
+	 			if(reasonForNoLibraryCost.isEmpty()){
+	 				libraryCost = new LibraryCost(s.getId(), s.getName(), s.getSampleType().getName(), reasonForNoLibraryCost, null, "");
+	 			}
+	 			else{
+	 				libraryCost = new LibraryCost(s.getId(), s.getName(), s.getSampleType().getName(), reasonForNoLibraryCost, new Float(0.0), "");
+	 			}
+	 			libraryCosts.add(libraryCost);
+	 		}
+	 		mpsQuote.setLocalCurrencyIcon(Currency.getInstance(Locale.getDefault()).getSymbol());
+	 		mpsQuote.setNumberOfLibrariesExpectedToBeConstructed(new Integer(numberOfLibrariesExpectedToBeConstructed));
+	 		mpsQuote.setNumberOfLanesRequested(new Integer(job.getJobCellSelection().size()));
+ 		}	
+ 		
+		m.addAttribute("mpsQuote", mpsQuote);
+	 		
+		return "job/home/createUpdateQuote";
+	}
+	
+	@RequestMapping(value="/{jobId}/previewQuote", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
+	public void jobPreviewQuote(@PathVariable("jobId") Integer jobId,
+			  HttpServletRequest request, HttpServletResponse response) throws SampleTypeException {
+
+		String headerHtml = "<html><body><h2 style='color:red;font-weight:bold;'>Errors Detected</h2>";
+		String errorMessage = "";
+		String footerHtml = "<br /></body></html>";
+		
+		//deal with unexpected job error (ie.: job not found in database)
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){//inform user and get out of here
+			errorMessage += "<br />"+messageService.getMessage("job.jobUnexpectedlyNotFound.error");
+		   	logger.warn(errorMessage);
+		   	try{
+		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+		   		return;
+		   	}catch(Exception e){logger.warn(e.getMessage()); return; }
+		}
+		
+		MPSQuote mpsQuote = constructMPSQuoteFromRequest(request, job);//check for errors; if none, construct mpsQuote from request form
+		if(!mpsQuote.getErrors().isEmpty()){
+			for(String error : mpsQuote.getErrors()){
+				errorMessage += "<br />"+error;
+			}
+		   	logger.warn(errorMessage);
+		   	try{
+		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+		   		return;
+		   	}catch(Exception e){logger.warn(e.getMessage()); return; }
+		}
+		try{
+			quoteAndInvoiceService.buildQuoteAsPDF(mpsQuote, job, response.getOutputStream());	
+			response.setContentType("application/pdf");
+			response.getOutputStream().close();//apparently not really needed here but doesn't hurt
+ 	    	return;
+ 	    	
+		}catch(Exception e){
+			errorMessage = "Major problems encountered while creating file";
+			logger.warn(errorMessage);
+			//e.printStackTrace();
+			try{
+				response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+				return;
+			}catch(Exception e2){logger.warn(e.getMessage()); return;}
+		}
+				
+	}
+	
+	@RequestMapping(value="/{jobId}/saveQuote", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
+	public void jobSaveQuote(@PathVariable("jobId") Integer jobId,
+			   HttpServletRequest request, HttpServletResponse response) throws SampleTypeException {
+
+		String headerHtml = "<html><body><h2 style='color:red;font-weight:bold;'>Errors Detected</h2>";
+		String errorMessage = "";
+		String footerHtml = "<br /></body></html>";
+		//deal with unexpected job error (ie.: not found in database)
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){//inform user and get out of here
+			errorMessage += "<br />"+messageService.getMessage("job.jobUnexpectedlyNotFound.error");
+		   	logger.warn(errorMessage);
+		   	try{
+		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+		   		return;
+		   	}catch(Exception e){logger.warn(e.getMessage()); return; }
+		}
+		
+		MPSQuote mpsQuote = constructMPSQuoteFromRequest(request, job);//check for errors; if none, construct mpsQuote from request form
+		if(!mpsQuote.getErrors().isEmpty()){
+			for(String error : mpsQuote.getErrors()){
+				errorMessage += "<br />"+error;
+			}
+		   	logger.warn(errorMessage);
+		   	try{
+		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+		   		return;
+		   	}catch(Exception e){logger.warn(e.getMessage()); return; }
+		}
+		File localFile = null;
+		OutputStream outputStream = null;
+		try{
+			localFile = fileService.createTempFile();
+			outputStream = new FileOutputStream(localFile);
+			
+			quoteAndInvoiceService.buildQuoteAsPDF(mpsQuote, job, outputStream);
+			
+			outputStream.close();//file has been save to local location
+			 
+			//save the newly created local (pdf-quote) file to the remote location and create new acctQuote record (true instructs to save mpsQuote as json)
+			jobService.createNewQuoteAndSaveQuoteFile(mpsQuote, localFile, new Float(mpsQuote.getTotalFinalCost()), true);
+	 		   
+	 	   	response.setContentType("text/html"); 
+	 	   	String headerHtml2 = "<html><body>";
+	 	   	String successMessage = "<h2 style='color:blue;font-weight:bold;'>Your New File Has Been Saved</h2>";
+	 	   	String footerHtml2 = "<br /></body></html>";
+	 	   	response.getOutputStream().print(headerHtml2+successMessage+footerHtml2);
+	 	   	return;
+			
+		}catch(Exception e){
+			errorMessage = "Major problems encountered while creating file or saving to database";
+			logger.warn(errorMessage);
+			//e.printStackTrace();
+			try{
+				response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+				return;
+			}catch(Exception e2){logger.warn(e.getMessage()); return;}
+
+		}	
+	}
+		
+	//checks for any errors in the request.
+	//if errors exist, record them in mpsQuote.errors, else fill up mpsQuote with information from the request
+	private MPSQuote constructMPSQuoteFromRequest(HttpServletRequest request, Job job){
+		
+		MPSQuote mpsQuote = new MPSQuote(job.getId());
+		List<String> errors = mpsQuote.getErrors();
+		
+		//Firstly deal with any unexpected errors (sections a-e).
+		//a. here deal with unexpected uncategorized parameter errors 		
+		try{//the try is for Integer construction
+			mpsQuote.setNumberOfLanesRequested(new Integer(request.getParameter("numberOfLanesRequested")));
+			mpsQuote.setNumberOfLibrariesExpectedToBeConstructed(new Integer(request.getParameter("numberOfLibrariesExpectedToBeConstructed")));
+			mpsQuote.setLocalCurrencyIcon(request.getParameter("localCurrencyIcon"));
+			if(mpsQuote.getLocalCurrencyIcon().isEmpty()){throw new Exception();}
+		}catch(Exception e){
+			errors.add("Unexpected problem interpreting numberOfLanesRequested, numberOfLibrariesExpectedToBeConstructed, or currencyIcon problems");
+		}
+		
+		//b. here deal with unexpected submitted sample errors (sample not in database; sample not in job, both very unexpected)
+		String param = "submittedSampleId";
+		String [] submittedSampleIdAsStringArray = request.getParameterValues(param);
+		param = "submittedSampleCost";
+		String [] submittedSampleCostAsStringArray = request.getParameterValues(param);
+		param = "submittedSampleName";
+		String [] submittedSampleNameArray = request.getParameterValues(param);		
+		param = "submittedSampleMaterial";
+		String [] submittedSampleMaterialArray = request.getParameterValues(param);
+		param = "reasonForNoLibraryCost";
+		String [] submittedSampleReasonForNoLibraryCostArray = request.getParameterValues(param);
+		
+		if( submittedSampleIdAsStringArray==null || submittedSampleCostAsStringArray==null || submittedSampleNameArray==null || submittedSampleMaterialArray==null || submittedSampleReasonForNoLibraryCostArray==null){
+			errors.add("Unexpected problem interpreting submitted sample information");
+		}
+		int numberOfSubmittedSampleRows = submittedSampleIdAsStringArray.length;
+		if(numberOfSubmittedSampleRows != submittedSampleCostAsStringArray.length && numberOfSubmittedSampleRows!= submittedSampleNameArray.length && numberOfSubmittedSampleRows != submittedSampleMaterialArray.length && numberOfSubmittedSampleRows != submittedSampleReasonForNoLibraryCostArray.length){
+			errors.add("Unexpected problem interpreting submitted sample information");
+		}
+		List<Sample>  allJobSamplesList = job.getSample();//all samples in this job (from the database)
+		
+		List<Sample> submittedSampleList = new ArrayList<Sample>();
+		for(String submittedSampleIdAsString : submittedSampleIdAsStringArray){
+			Integer sampleId = null;
+			try{
+				sampleId = new Integer(submittedSampleIdAsString);
+			}catch(Exception e){
+				errors.add("Unexpected Problem: Submitted sample (ID: " + submittedSampleIdAsString + ") unexpectedly not a number");
+				continue;
+			}			
+			Sample submittedSample = sampleService.getSampleById(sampleId);
+			if(submittedSample.getId()==null){
+				errors.add("Unexpected Problem: Submitted sample (ID: " + sampleId.intValue() + ") unexpectedly not found in database");
+			}
+			else if(!allJobSamplesList.contains(submittedSample)){
+				errors.add("Unexpected Problem: Submitted sample (ID: " + sampleId.intValue() + ") unexpectedly not part of this job");
+			}			
+			submittedSampleList.add(submittedSample);		
+		}		
+		
+		//c. here get the runCost parameters and check for highly unexpected errors
+		param = "runCostResourceCategoryId";
+		String [] runCostResourceCategoryIdAsStringArray = request.getParameterValues(param);
+		param = "runCostReadLength";
+		String [] runCostReadLengthArray = request.getParameterValues(param);
+		param = "runCostReadType";
+		String [] runCostReadTypeArray = request.getParameterValues(param);
+		param = "runCostNumberLanes";
+		String [] runCostNumberLanesArray = request.getParameterValues(param);
+		param = "runCostPricePerLane";
+		String [] runCostPricePerLaneArray = request.getParameterValues(param);	
+		if(runCostResourceCategoryIdAsStringArray==null || runCostReadLengthArray==null || runCostReadTypeArray==null || 
+				runCostNumberLanesArray==null || runCostPricePerLaneArray==null){
+			errors.add("Unexpected problem interpreting sequence run information");
+		}			
+		int numberOfRunRows = runCostResourceCategoryIdAsStringArray.length;
+		if(runCostReadLengthArray.length != numberOfRunRows && runCostReadTypeArray.length != numberOfRunRows  &&
+				runCostNumberLanesArray.length != numberOfRunRows && runCostPricePerLaneArray.length != numberOfRunRows ){
+			errors.add("Unexpected problem interpreting sequence run information");
+		}
+		
+		//d. here get the additionalCost parameters and check for highly unexpected errors
+		param = "additionalCostReason";
+		String [] additionalCostReasonArray = request.getParameterValues(param);
+		param = "additionalCostUnits";
+		String [] additionalCostUnitsArray = request.getParameterValues(param);
+		param = "additionalCostPricePerUnit";
+		String [] additionalCostPricePerUnitArray = request.getParameterValues(param);
+		if(additionalCostReasonArray==null || additionalCostUnitsArray==null || additionalCostPricePerUnitArray==null){
+			errors.add("Unexpected problem interpreting additional cost information");
+		}			
+		int numberOfAdditionalCostRows = additionalCostReasonArray.length;
+		if(additionalCostUnitsArray.length != numberOfAdditionalCostRows && additionalCostPricePerUnitArray.length != numberOfAdditionalCostRows){
+			errors.add("Unexpected problem interpreting additional cost information");
+		}
+		
+		//e. here get the discount/credit parameters and check for highly unexpected errors
+		param = "discountReason";
+		String [] discountReasonArray = request.getParameterValues(param);
+		param = "discountType";//to distinguish whether discount is supplied as $ or %
+		String [] discountTypeArray = request.getParameterValues(param);
+		param = "discountValue";
+		String [] discountValueArray = request.getParameterValues(param);
+		if(discountReasonArray==null || discountTypeArray==null || discountValueArray==null){
+			errors.add("Unexpected problem interpreting discount/credit information");
+		}			
+		int numberOfDiscountRows = discountReasonArray.length;
+		if(discountTypeArray.length != numberOfDiscountRows && discountValueArray.length != numberOfDiscountRows){
+			errors.add("Unexpected problem interpreting discount/credit information");
+		}
+		
+		//f. get comments, if any
+		param = "comments";
+		String [] commentsArray = request.getParameterValues(param);
+		List<String> commentsList = new ArrayList<String>();
+		int numberOfCommentsRows = commentsArray.length;
+		for(int i = 0; i < numberOfCommentsRows; i++){
+			if(!"".equals(commentsArray[i].trim())){
+				commentsList.add(commentsArray[i].trim());
+			}
+		}
+
+		//if there were any totally unexpected errors, get out of here.		
+		if(!errors.isEmpty()){
+			return mpsQuote;
+		}
+		
+		//Secondly, deal with expected errors (person left out data on the form or filled in a letter when a number was needed)
+		//1. library construction costs (no empty entries permitted if the submitted sample is a library; must enter 0 if no charge for that library).
+		List<LibraryCost> libraryCosts = mpsQuote.getLibraryCosts();
+		int counter = 0;
+		for(Sample submittedObject : submittedSampleList){
+			String submittedSampleCostAsString = submittedSampleCostAsStringArray[counter];
+			String reasonForNoLibraryCost = submittedSampleReasonForNoLibraryCostArray[counter];
+			
+			if(!reasonForNoLibraryCost.trim().isEmpty()){//there should be no cost here; such as sample withdrawn or sample is a library (n/a)
+				if(errors.isEmpty()){
+					libraryCosts.add(new LibraryCost(submittedObject.getId(), submittedSampleNameArray[counter], submittedSampleMaterialArray[counter], reasonForNoLibraryCost, new Float(0.0)  ));
+				}
+			}
+			else if(reasonForNoLibraryCost.isEmpty()){
+				submittedSampleCostAsString = submittedSampleCostAsString.trim();
+				if(submittedSampleCostAsString.isEmpty()){
+					errors.add("No library cost provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero");	
+				}
+				else if(submittedSampleCostAsString.matches("\\D")){//any character in string that is not a digit 
+					errors.add("Invalid library cost ("+ submittedSampleCostAsString + ") provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero");
+				}
+				else{				
+					try{	
+						Float libCost = new Float(submittedSampleCostAsString);
+						if(errors.isEmpty()){
+							libraryCosts.add(new LibraryCost(submittedObject.getId(), submittedSampleNameArray[counter], submittedSampleMaterialArray[counter], reasonForNoLibraryCost, libCost  ));
+						}
+					}catch(Exception e){
+						errors.add("Invalid library cost ("+ submittedSampleCostAsString + ") provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero");
+					}
+				}
+			}
+			counter++;
+		}
+
+		//2. sequence runs and costs (optional, so an empty row is allowed; it just won't be used in any way)		
+		List<SequencingCost> sequencingCosts = mpsQuote.getSequencingCosts();
+		
+		for(int i = 0; i < numberOfRunRows; i++){ 
+			if( "".equals(runCostResourceCategoryIdAsStringArray[i].trim())	 &&
+				"".equals(runCostReadLengthArray[i].trim())	 &&
+				"".equals(runCostReadTypeArray[i].trim())	 &&
+				"".equals(runCostNumberLanesArray[i].trim()) &&
+				"".equals(runCostPricePerLaneArray[i].trim()) ){
+				continue;
+			}
+			if( "".equals(runCostResourceCategoryIdAsStringArray[i].trim())    ||
+				"".equals(runCostReadLengthArray[i].trim())	||
+				"".equals(runCostReadTypeArray[i].trim())	||
+				"".equals(runCostNumberLanesArray[i].trim()) ||
+				"".equals(runCostPricePerLaneArray[i].trim()) ){
+				
+				errors.add("Row " +(i+1)+ " in Sequence Run section is missing information - Please review");
+				continue;
+			}
+			ResourceCategory resourceCategory = null;
+			if(!runCostResourceCategoryIdAsStringArray[i].trim().isEmpty()){
+				try{
+					resourceCategory = resourceService.getResourceCategoryDao().findById(Integer.parseInt(runCostResourceCategoryIdAsStringArray[i].trim()));
+				}catch(Exception e){
+					errors.add("Row " +(i+1)+ " in Sequence Run section: unable to interpret correct sequencing machine - Please review");
+				}
+			}
+			if(resourceCategory != null && resourceCategory.getId()==null){
+				errors.add("Row " +(i+1)+ " in Sequence Run section: sequencing machine unexpectedly not found in database.");
+			}
+						
+			Integer readLength = null;
+			Integer numberOfLanes=null;
+			Integer costPerLane=null;
+			try{
+				readLength = new Integer(runCostReadLengthArray[i].trim());
+			}catch(Exception e){errors.add("Row " +(i+1)+ " in Sequence Run section is missing information - whole number required for read length");}
+			try{
+				numberOfLanes = new Integer(runCostNumberLanesArray[i].trim());
+			}catch(Exception e){errors.add("Row " +(i+1)+ " in Sequence Run section is missing information - whole number required for no. lanes");}
+			try{
+				costPerLane = new Integer(runCostPricePerLaneArray[i].trim());
+			}catch(Exception e){errors.add("Row " +(i+1)+ " in Sequence Run section is missing information - whole number required for cost/lane; if no charge, enter zero");}
+			if(errors.isEmpty()){
+				sequencingCosts.add(new SequencingCost(resourceCategory, readLength, runCostReadTypeArray[i].trim(),numberOfLanes, new Float(costPerLane)));
+			}
+		}
+
+		//3. additional costs (optional, so empty rows allowed; it just won't be used in any way)
+		List<AdditionalCost> additionalCosts = mpsQuote.getAdditionalCosts();
+
+		for(int i = 0; i < numberOfAdditionalCostRows; i++){
+			if( "".equals(additionalCostReasonArray[i].trim())	 &&
+				"".equals(additionalCostUnitsArray[i].trim())	 &&
+				"".equals(additionalCostPricePerUnitArray[i].trim()) ){
+					continue;
+			}			
+			else if( "".equals(additionalCostReasonArray[i].trim())	 ||
+					 "".equals(additionalCostUnitsArray[i].trim())	 ||
+					 "".equals(additionalCostPricePerUnitArray[i].trim()) ){
+						errors.add("Row "+(i+1) + " in Additional Costs section is missing information - Please review");
+						continue;
+			}
+			Integer numberOfUnits = null;
+			Integer costPerUnit = null;
+			try{
+				if(!"".equals(additionalCostUnitsArray[i].trim())){
+					numberOfUnits = new Integer(additionalCostUnitsArray[i].trim());
+				}
+			}catch(Exception e){errors.add("Row "+(i+1) + " in Additional Costs section is missing information - whole number required for units");}
+			try{
+				if(!"".equals(additionalCostPricePerUnitArray[i].trim())){
+					costPerUnit = new Integer(additionalCostPricePerUnitArray[i].trim());
+				}
+			}catch(Exception e){errors.add("Row "+(i+1) + " in Additional Costs section is missing information - whole number required for cost/unit; if no charge, enter zero");}
+			if(errors.isEmpty()){
+				additionalCosts.add(new AdditionalCost(additionalCostReasonArray[i].trim(), numberOfUnits, new Float(costPerUnit)));
+			}
+		}
+					
+		//4. discounts/credits (optional, so empty rows allowed; it just won't be used in any way)	
+		
+		List<Discount> discounts = mpsQuote.getDiscounts();
+
+		int cumulativePercentDiscount = 0;
+ 	    List<String> discountReasonList = new ArrayList<String>();
+
+ 		String currencyIcon = mpsQuote.getLocalCurrencyIcon();//Currency.getInstance(Locale.getDefault()).getSymbol();//+String.format("%.2f", price)); 
+
+ 		for(int i = 0; i < numberOfDiscountRows; i++){
+			if( "".equals(discountReasonArray[i].trim())	 &&
+				"".equals(discountTypeArray[i].trim())	 &&
+				"".equals(discountValueArray[i].trim()) ){
+					continue;
+			}
+			else if( "".equals(discountReasonArray[i].trim())	 ||
+					 "".equals(discountTypeArray[i].trim())	 ||
+					 "".equals(discountValueArray[i].trim()) ){
+						errors.add("Row "+(i+1) + " in Discount/Credit section is missing information - Please review");
+			}
+			if(!"".equals(discountReasonArray[i].trim())){
+				if(discountReasonList.contains(discountReasonArray[i].trim())){
+					errors.add("Row "+(i+1) + " in Discount/Credit section: Any particular reason for a Discount/Credit may be used only once.");
+				}
+				else{
+					discountReasonList.add(discountReasonArray[i].trim());
+				}
+			}
+			
+			if(!"".equals(discountTypeArray[i].trim())){
+					if( !currencyIcon.equals(discountTypeArray[i].trim()) && !"%".equals(discountTypeArray[i].trim())){
+						errors.add("Row "+(i+1) + " in Discount/Credit section is missing information - you must select either " + currencyIcon + " or %");
+				}
+			}
+			Integer discountValue=null;
+			try{
+				if(!"".equals(discountValueArray[i].trim())){
+					discountValue = new Integer(discountValueArray[i].trim());
+					if("%".equals(discountTypeArray[i].trim())){
+						cumulativePercentDiscount += discountValue;
+						if(discountValue >100){
+							errors.add("Row "+(i+1) + " in Discount/Credit section cannot be greater than 100% - please modify or remove");
+						}
+					}										
+				}
+			}catch(Exception e){errors.add("Row "+(i+1) + " in Discount/Credit section is missing information - enter a whole number for discount; no fractions allowed (example: enter 25 for 25%)");}
+			
+			if(errors.isEmpty()){
+				discounts.add(new Discount(discountReasonArray[i].trim(), discountTypeArray[i].trim(), new Float(discountValue)));
+			}
+		}
+ 		
+ 		if(cumulativePercentDiscount>100){
+			errors.add("Cumulative Discount Percent may not exceed 100%");
+		}
+ 		
+ 		if(errors.isEmpty()){
+	 		List<Comment> comments = mpsQuote.getComments();
+	 		if(!commentsList.isEmpty()){
+	 			for(String comment : commentsList){
+	 				comments.add(new Comment(comment));
+	 			}
+	 		}
+ 		}		
+		return mpsQuote;
+	}
+	
 	@RequestMapping(value="/{jobId}/viewerManager", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobViewerManagerPage(@PathVariable("jobId") Integer jobId, 
@@ -1130,6 +1911,10 @@ public class JobController extends WaspController {
 		List<FileHandle> fileHandlesThatCanBeViewedList = new ArrayList<FileHandle>();
 		for(JobFile jf: job.getJobFile()){
 			FileGroup fileGroup = jf.getFile();//returns a FileGroup
+			//exclude quotes and invoices (as of 8/22/13, no longer needed as these files are stored through acctQuoteMeta or acctInvoiceMeta
+			//if(fileGroup.getDescription().toLowerCase().startsWith("job"+job.getId()+"_quote_")||fileGroup.getDescription().toLowerCase().startsWith("job"+job.getId()+"_invoice_")){
+			//	continue;
+			//}
 			fileGroups.add(fileGroup);
 			List<FileHandle> fileHandles = new ArrayList<FileHandle>();
 			for(FileHandle fh : fileGroup.getFileHandles()){
@@ -1658,6 +2443,7 @@ public class JobController extends WaspController {
 		  Map<Sample, String> receivedStatusMap = new HashMap<Sample, String>();		 
 		  for(Sample submittedObject : submittedObjectList){
 			  submittedObjectOrganismMap.put(submittedObject, sampleService.getNameOfOrganism(submittedObject, "???"));
+			  logger.debug(submittedObject.getId() + ":" + sampleService.getReceiveSampleStatus(submittedObject) + ":" + sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(submittedObject)));
 			  receivedStatusMap.put(submittedObject, sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(submittedObject)));
 		  }
 		  m.addAttribute("submittedObjectOrganismMap", submittedObjectOrganismMap);

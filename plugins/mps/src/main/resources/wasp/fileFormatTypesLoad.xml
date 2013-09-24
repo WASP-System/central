@@ -26,6 +26,13 @@
 	<property name="extension" value="bam" />
   </bean>
   
+  <bean id="samFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
+    <property name="name" value="SAM" />
+    <property name="area" value="sam" />
+    <property name="description" value="A SAM file (.sam) is a tab-delimited text file that contains sequence alignment data. These formats are described on the SAM Tools web site: http://samtools.sourceforge.net." />
+	<property name="extension" value="sam" />
+  </bean>
+  
   <bean id="baiFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
     <property name="name" value="BAI" />
     <property name="area" value="bai" />
