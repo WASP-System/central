@@ -67,7 +67,6 @@ public class AdaptorsetLoaderAndFactory extends WaspLoader implements FactoryBea
 	
 	@PostConstruct
 	public void init(){
-		adaptorsetLoadService.updateUiFields(this.uiFields);
 		adaptorset = adaptorsetLoadService.update(meta, adaptorList, sampleType, iname, name, isActive, compatibleResources);
 	}
 

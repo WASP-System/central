@@ -44,7 +44,6 @@ public class SampleTypeLoaderAndFactory extends WaspLoader implements FactoryBea
 	
 	@PostConstruct
 	public void init(){
-		sampleTypeLoadService.updateUiFields(uiFields);
 		sampleType =  sampleTypeLoadService.update(iname, name, sampleTypeCategory, isActive);
 	}
 

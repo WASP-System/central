@@ -468,9 +468,11 @@ public class JobSubmissionController extends WaspController {
 			waspErrorMessage("jobDraft.no_workflows.error");
 			return "redirect:/dashboard.do";
 		}
-		
+		Map<Integer, String> assayWorkflows = new HashMap<>();
+		for (Workflow wf: workflowList)
+			assayWorkflows.put(wf.getId(), messageService.getMessage(wf.getIName() + ".workflow.label"));
 		m.put("labs", labList); 
-		m.put("workflows", workflowList); 
+		m.put("assayWorkflows", assayWorkflows); 
 		return "jobsubmit/create";
 	}
 

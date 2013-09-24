@@ -14,8 +14,8 @@
 			<value>fastqc</value>
 		</constructor-arg>
   </bean>
-
-  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="fastQCUiFieldWrapper">
+   
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="fastQCUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
     <property name="baseArea" ref="fastQCArea" />
   </bean>

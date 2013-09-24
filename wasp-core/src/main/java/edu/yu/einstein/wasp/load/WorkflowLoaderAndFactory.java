@@ -61,7 +61,6 @@ public class WorkflowLoaderAndFactory extends WaspResourceLoader implements	Fact
 	
 	@PostConstruct
 	public void init(){
-		workflowLoadService.updateUiFields(uiFields);
 		workflow =  workflowLoadService.update(iname, name, isActive, meta, dependencies, sampleSubtypes, pageFlowOrder, jobFlowBatchJob);
 	}
 

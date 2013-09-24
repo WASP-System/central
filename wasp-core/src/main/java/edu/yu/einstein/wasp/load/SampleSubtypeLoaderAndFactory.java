@@ -72,7 +72,6 @@ public class SampleSubtypeLoaderAndFactory extends WaspLoader implements Factory
 	@PostConstruct
 	public void init(){
 		List<String> areaList = sampleSubtypeLoadService.getAreaListFromUiFields(uiFields);
-		sampleSubtypeLoadService.updateUiFields(uiFields);
 		sampleSubtype =  sampleSubtypeLoadService.update(iname, name, sampleType,	isActive, compatibleResources, applicableRoles, meta, areaList);
 	}
 

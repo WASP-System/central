@@ -57,7 +57,6 @@ public class FileTypeLoaderAndFactory extends WaspLoader implements FactoryBean<
 	
 	@PostConstruct
 	public void init(){
-		fileTypeLoadService.updateUiFields(uiFields);
 		fileType =  fileTypeLoadService.update(iname, name, description, extension, isActive);
 	}
 

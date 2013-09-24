@@ -33,10 +33,10 @@
   <tr class="FormData">
     <td class="CaptionTD"><fmt:message key="jobDraft.workflowId.label"/>:</td>
     <td class="DataTD">
-      <c:forEach var="workflow" items="${workflows}">
+      <c:forEach var="workflow" items="${assayWorkflows}">
         <div class="radioelement">
-          <input class="FormElement ui-widget-content ui-corner-all" type="radio" name="workflowId" value="${workflow.workflowId}" <c:if test="${workflow.workflowId == jobDraft.workflowId}"> checked</c:if> >
-          <span><fmt:message key="${workflow.IName}.workflow.label"/></span>
+          <input class="FormElement ui-widget-content ui-corner-all" type="radio" name="workflowId" value="${workflow.key}" <c:if test="${workflow.key == jobDraft.workflowId}"> checked</c:if> >
+          <span><c:out value="${workflow.value}" /></span>
         </div>
       </c:forEach>
     </td>

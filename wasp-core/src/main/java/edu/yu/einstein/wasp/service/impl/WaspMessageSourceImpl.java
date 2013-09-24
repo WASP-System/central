@@ -19,14 +19,13 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
-import org.springframework.context.MessageSource;
 import org.springframework.context.support.AbstractMessageSource;
 import org.springframework.util.Assert;
 
 
-public class WaspMessageSourceImpl extends AbstractMessageSource implements MessageSource {
-
-
+public class WaspMessageSourceImpl extends AbstractMessageSource {
+	
+	
 	/** Map from 'code + locale' keys to message Strings */
 	private final Map<String, String> messages = new HashMap<String, String>();
 
@@ -78,9 +77,19 @@ public class WaspMessageSourceImpl extends AbstractMessageSource implements Mess
 		if (msg==null) msg=defaultMessage;
 		return msg;
 	}
+	
 	private String getMessageInternal(String code, Locale locale) {
+		boolean isUsLocale = locale.equals(Locale.US);
 		String msg = this.messages.get(code + "_" + locale.toString());
-		if (msg == null) messages.get(code + "_" + Locale.US.toString());//fallback to US locale if message not defined. Sasha
+		if (msg == null && !isUsLocale) 
+			msg = messages.get(code + "_" + Locale.US.toString());//fallback to US locale if message not defined. Sasha
+		if (msg != null){
+			String nestedMessage = this.messages.get(msg + "_" + locale.toString());
+			if (nestedMessage == null && !isUsLocale) 
+				nestedMessage = messages.get(msg + "_" + locale.toString());
+			if (nestedMessage != null)
+				msg = nestedMessage;
+		}
 		return msg;
 	}
 	

@@ -10,7 +10,7 @@
   	<constructor-arg><value>illuminaFlowcellMiSeqV1</value></constructor-arg>
   </bean>
    
-  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="illuminaFlowcellMiSeqV1UiFieldWrapper">
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="illuminaFlowcellMiSeqV1UiFieldWrapper">
     <property name="baseLocale" value="en_US" />
     <property name="baseArea" ref="illuminaFlowcellMiSeqV1UiFieldArea" />
   </bean>
@@ -31,11 +31,11 @@
   		<list>
 	  		<bean parent="illuminaFlowcellMiSeqV1UiFieldWrapper">
 	          <property name="baseName" value="#{waspPlatformUnit['cellName']}" />
-	          <property name="label" value="Lane" />
+	          <property name="label" value="illumina.cell.label" />
 	        </bean>
 	        <bean parent="illuminaFlowcellMiSeqV1UiFieldWrapper">
 	          <property name="baseName" value="#{waspPlatformUnit['platformUnitName']}" />
-	          <property name="label" value="Flow Cell" />
+	          <property name="label" value="illumina.pu.label" />
 	        </bean>
         </list>
   	</property>
