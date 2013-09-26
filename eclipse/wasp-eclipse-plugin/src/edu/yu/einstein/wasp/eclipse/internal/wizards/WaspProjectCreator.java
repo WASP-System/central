@@ -427,7 +427,7 @@ public class WaspProjectCreator {
 			}
 		}
 		
-		if (web || viz || resource){
+		if (web || viz){
 			folderSet.add(javaMainPackage + "/controller");
 			folderSet.add(javaRes + "/META-INF/tiles");
 			folderSet.add(javaRes + "/css/" + name.toLowerCase());

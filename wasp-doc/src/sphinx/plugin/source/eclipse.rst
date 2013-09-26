@@ -70,16 +70,8 @@ as requested and configure the project by selecting the desire features (:num:`f
   If a WPP is designed to provide visualizations, e.g. present plots of data or a table of information, ensure that this item is checked.
 	
 
-After configuring the project click *finish* and the project will be built and appear in the *Package Explorer* on the left-hand side of the Eclipse IDE 
-(:num:`figure #fig-picardProjStructure`).
+After configuring the project click *finish* and the project will be built and appear in the *Package Explorer* on the left-hand side of the Eclipse IDE.
 
-.. _fig-picardProjStructure:
-
-.. figure:: figures/picardProjStructure.png
-   :width: 10cm
-   :align: center
-   
-   Picard example project folder structure (all configuration options checked).
    
 Spring 101
 ==========
@@ -210,6 +202,14 @@ first letter de-capitalized.
 
 With a basic introduction to the concepts of Spring required to generate WPPs, we can move on to examine the details of the project structure for a 
 WPP:
+
+.. _fig-exampleProjStructure:
+
+.. figure:: figures/exampleProjStructure.png
+   :width: 10cm
+   :align: center
+   
+   Example project folder structure for a project called Foo created with all configuration options checked.
 
 * **src/main/java**
 
