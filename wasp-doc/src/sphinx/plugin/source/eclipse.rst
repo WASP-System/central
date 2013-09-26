@@ -8,12 +8,13 @@ distribution. WPPs can provide a variety of functionalities, common examples bei
 * Software: definition, dependencies and workflows
 * Visualization tools: Generation of panels
 
-This section demonstrates how to create a working WPP from scratch, walking the reader through the process step by step. The WPP we will create is
-for the "Picard" suite of tools. `Picard <http://picard.sourceforge.net>`_ is a set of command line Java executables that manipulate SAM / BAM files. 
-We would like this WPP to:
+This section demonstrates how to create working WPPs from scratch, walking the reader through the process step by step. We will first create a simple
+plugin for the "Picard" suite of tools. `Picard <http://picard.sourceforge.net>`_ is a set of command line Java executables that manipulate SAM / BAM files. 
+Next we will make a plugin for BAM file QC which depends on the BWA plugin to implement the *CollectAlignmentSummaryMetrics* tool).
 
-1. Define a plugin class and software wrapper for each command line tool (for this example we will only be implementing the *CollectAlignmentSummaryMetrics* 
-   tool).
+Our main tasks include:
+
+1. Defining a plugin class and software wrapper for Picard.
 2. Hook into the Wasp messaging system (wasp-daemon) to be notified when any BAM files are made in order to the QC tools on those files automatically.
 3. Parse output from the QC analyses for display in a panel when a system user is examining output related to a particular BAM file.
 
@@ -460,98 +461,163 @@ Lets assume we have registerd a bam file in the Wasp System database. We will ac
 (FileHandle object) registered in the system is a member of a FileGroup object, even if there is a one-to-one mapping between fileGroup and fileHandle. Once we 
 have access to the file we need to define the work somewhere. In the Wasp System we configure a WorkUnit instance to handle command line operations. The 
 WorkUnit is a high-level wrapper over the underlying server architecture. It permits specification of a list of commands to execute, requesting of 
-resources (cpu slots, memory etc) and definition of environment variables. 
+resources (cpu slots, memory etc) and definition of environment variables.
 
-So our Picard class should look like:
+The first stage is implementation is to make our pre-generated ``Picard`` class in the ``edu.yu.einstein.wasp.plugin.picard.software`` abstract, since we want 
+this WPP to contain more than one software implementation, and derive a ``CollectAlignmentSummaryMetrics`` class from it. The autowired picardService 
+declaration has been un-commented and an autowired property of type FileService implemented as our derived classes will wish to use these. A base version for 
+the Picard software has also been set. The work performed by this Software object is encapsulated in three methods, 
+``WorkUnit getWorkUnit(Integer fileGroupId)`` to get a configured WorkUnit instance to run the command, ``String getCommand()`` to get the bash-ready command 
+to execute in the WorkUnit and ``parseOutput(String resultsDir)`` to parse the output to a JSON representation which can be stored in the database. The last 
+two methods are declared abstract and implemented in the derived class for each tool.
+
+So our Picard class should now look like:
 
 .. code-block:: java
 
-   package edu.yu.einstein.wasp.picard.software;
-
+   package edu.yu.einstein.wasp.plugin.picard.software;
    import java.util.ArrayList;
    import java.util.List;
+
+   import org.json.JSONException;
+   import org.json.JSONObject;
    import org.springframework.beans.factory.annotation.Autowired;
+
+   import edu.yu.einstein.wasp.exception.DataParseException;
+   import edu.yu.einstein.wasp.exception.GridException;
    import edu.yu.einstein.wasp.grid.work.WorkUnit;
    import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
    import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
    import edu.yu.einstein.wasp.model.FileGroup;
    import edu.yu.einstein.wasp.model.FileHandle;
+   import edu.yu.einstein.wasp.plugin.picard.service.PicardService;
    import edu.yu.einstein.wasp.service.FileService;
    import edu.yu.einstein.wasp.software.SoftwarePackage;
 
-   public class Picard extends SoftwarePackage{
+   public abstract class Picard extends SoftwarePackage{
 
-       private static final long serialVersionUID = -7632170113602282642L;
+      private static final long serialVersionUID = -2632888941035900707L;
 
-       private static final String COLLECT_ALIGNMENT_SUMMARY_METRICS_OUTPUT = "collectAlignmentSummaryMetrics.out";
+      @Autowired
+      protected PicardService  picardService;
 	
-       @Autowired
-       FileService fileService;
+      @Autowired
+      protected FileService fileService;
 	
-       public Picard() {
-           setSoftwareVersion("1.96"); // This default may be overridden in wasp.site.properties
-       }
+      public Picard() {
+         setSoftwareVersion("1.96"); // This default may be overridden in wasp.site.properties
+      }
 	
-      /**
-       * Takes a FileGroup and returns a configured WorkUnit to run Picard tools on the file group.
-       * 
-       * @param fileGroup
-       * @return
-       */
-       public WorkUnit getPicard(Integer fileGroupId, String command) {
+     /**
+      * Takes a FileGroup and returns a configured WorkUnit to run a Picard tool on the file group.
+      * @param fileGroupId
+      * @return Configured WorkUnit instance
+      */
+      public WorkUnit getWorkUnit(Integer fileGroupId) {
 		
-           WorkUnit w = new WorkUnit();
+         WorkUnit w = new WorkUnit();
 		
-           // Require Picard. 
-           // The GridHostResolver can use software dependencies to choose appropriate resources on which to 
-           // execute a WorkUnit instance.
-           List<SoftwarePackage> software = new ArrayList<SoftwarePackage>();
-           software.add(this);
-           w.setSoftwareDependencies(software);
+         // Require Picard. 
+         // The GridHostResolver can use software dependencies to choose appropriate resources on which 
+         // to execute a WorkUnit instance.
+         List<SoftwarePackage> software = new ArrayList<SoftwarePackage>();
+         software.add(this);
+         w.setSoftwareDependencies(software);
 		
-           // require 3GB memory
-           w.setMemoryRequirements(3);
+         // require 3GB memory
+         w.setMemoryRequirements(3);
 		
-           // require a single thread, execution mode PROCESS
-           // indicates this is a vanilla execution.
-           w.setProcessMode(ProcessMode.SINGLE);
-           w.setMode(ExecutionMode.PROCESS);
+         // require a single thread, execution mode PROCESS
+         // indicates this is a vanilla execution.
+         w.setProcessMode(ProcessMode.SINGLE);
+         w.setMode(ExecutionMode.PROCESS);
 		
-           // set working directory to scratch
-           w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
+         // set working directory to scratch
+         w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		
-           // we aren't actually going to retain any files, so we will set the output
-           // directory to the scratch directory.  Also set "secure results" to
-           // false to indicate that we don't care about the output.
-           w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
-           w.setSecureResults(false);
+         // we aren't actually going to retain any files, so we will set the output
+         // directory to the scratch directory.  Also set "secure results" to
+         // false to indicate that we don't care about the output.
+         w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
+         w.setSecureResults(false);
 		
-           // add the files to the work unit
-           // files will be represented as bash variables in the work unit 
-           FileGroup fileGroup = fileService.getFileGroupById(fileGroupId);
-           List<FileHandle> files = new ArrayList<FileHandle>(fileGroup.getFileHandles());
-           w.setRequiredFiles(files);
+         // add the files to the work unit
+         // files will be represented as bash variables in the work unit 
+         FileGroup fileGroup = fileService.getFileGroupById(fileGroupId);
+         List<FileHandle> files = new ArrayList<FileHandle>(fileGroup.getFileHandles());
+         w.setRequiredFiles(files);
 		
-           // set the command
-           w.setCommand(command);
+         // set the command
+         w.setCommand(getCommand());
 		
-           return w;
-       }
+         return w;
+      }
 	
-       /**
-        * Set the CollectAlignmentSummaryMetrics command. Assume $PICARD_ROOT is set in configuration
-        * WorkUnit sets up paths to data for registered 'requiredFiles'. The ${WASPFILE[0]} variable in the 
-        * command provides access to the first file in the list (in this case we only expect one file). 
-        * @param fileGroup
-        * @param workUnit
-        * @return
-        */
-        public String getCollectAlignmentSummaryMetricsCommand() {
-            String command = "java -Xmx2g -jar $PICARD_ROOT/CollectAlignmentSummaryMetrics.jar INPUT=${" 
-            	+ WorkUnit.INPUT_FILE + "[0]} OUTPUT=" + COLLECT_ALIGNMENT_SUMMARY_METRICS_OUTPUT + "\n";
-            return command;
-        }
+     /**
+      * Set the command. Assume $PICARD_ROOT is set in configuration
+      * WorkUnit sets up paths to data for registered 'requiredFiles'. The ${WASPFILE[0]} variable in the command
+      * provides access to the first file in the list (in this case we only expect one file). 
+      * @return String representing bash command
+      */
+      public abstract String getCommand();
 	
+     /**
+      * This method takes a grid result of a successfully run Picard job, gets the working directory
+      * and uses it to parse the output file into a JSONObject representing the data.  
+      * @param resultsDir
+      * @return JSONObject representation of the parsed data
+      * @throws GridException
+      * @throws DataParseException
+      * @throws JSONException 
+      */
+      public abstract JSONObject parseOutput(String resultsDir) throws GridException, DataParseException, JSONException;
    }
+   
+Our implementation defines the ``String getCommand()`` and ``WorkUnit getWorkUnit(Integer fileGroupId)`` implementations, the latter of which defers the 
+processing to a PicardService instance:
+
+.. code-block:: java
+
+   package edu.yu.einstein.wasp.plugin.picard.software;
+
+   import org.json.JSONException;
+   import org.json.JSONObject;
+
+   import edu.yu.einstein.wasp.exception.DataParseException;
+   import edu.yu.einstein.wasp.exception.GridException;
+   import edu.yu.einstein.wasp.grid.work.WorkUnit;
+
+
+   public class CollectAlignmentSummaryMetrics extends Picard {
+
+      private static final long serialVersionUID = 3681418132863339589L;
+	
+      private static final String COLLECT_ALIGNMENT_SUMMARY_METRICS_OUTPUT = "collectAlignmentSummaryMetrics.out";
+	
+      public CollectAlignmentSummaryMetrics() {
+         super();
+      }
+	
+     /**
+      * {@inheritDoc}
+      */
+      @Override
+      public String getCommand() {
+         String command = "java -Xmx2g -jar $PICARD_ROOT/CollectAlignmentSummaryMetrics.jar INPUT=${" 
+         		+ WorkUnit.INPUT_FILE + "[0]} OUTPUT=" + COLLECT_ALIGNMENT_SUMMARY_METRICS_OUTPUT + "\n";
+         return command;
+      }
+	
+     /**
+      * {@inheritDoc}
+      */
+      public JSONObject parseOutput(String resultsDir) throws GridException, DataParseException, JSONException {
+         JSONObject outputJson = picardService.parseCollectAlignmentSummaryMetricsOutput(resultsDir);
+         return outputJson;
+      }
+
+   }
+
+
    
 
