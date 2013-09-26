@@ -416,17 +416,16 @@ public class WaspProjectCreator {
 		folderSet.add(javaMainPackage + "/exception");
 		folderSet.add(javaMainPackage + "/service/impl");
 		folderSet.add(javaMainPackage + "/plugin");
-		if(resource || pipeline){
+		if(pipeline){
 			folderSet.add(javaMainPackage + "/integration/messages");
 			folderSet.add(javaMainPackage + "/integration/endpoints");
 			folderSet.add(javaRes + "/flows");
 			folderSet.add(javaMainPackage + "/batch/tasklet");
 			folderSet.add(javaTestPackage + "/integration/messages/test");
-			if (resource){
-				folderSet.add(javaMainPackage + "/software");
-			}
 		}
-		
+		if (resource){
+			folderSet.add(javaMainPackage + "/software");
+		}
 		if (web || viz){
 			folderSet.add(javaMainPackage + "/controller");
 			folderSet.add(javaRes + "/META-INF/tiles");
