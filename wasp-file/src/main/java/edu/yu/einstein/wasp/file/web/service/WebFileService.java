@@ -14,7 +14,8 @@ public interface WebFileService {
 	void processFileRequest(String uuid, String adjExtension, HttpServletRequest request,
 			HttpServletResponse response) throws IOException, WaspException;
 
-	void processFileGroupListRequest(String filegroup_ids,
-			HttpServletRequest request, HttpServletResponse response) throws IOException, WaspException;
+	void processMultipleFileDownloadRequest(String uuids, boolean fileOrGroup,
+			HttpServletRequest request, HttpServletResponse response)
+			throws IOException, WaspException;
 
 }

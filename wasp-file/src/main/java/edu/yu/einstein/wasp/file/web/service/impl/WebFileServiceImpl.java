@@ -419,13 +419,15 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 	}
 
 	@Override
-	public void processFileGroupListRequest(String uuids, HttpServletRequest request, HttpServletResponse response)
+	public void processMultipleFileDownloadRequest(String uuids, boolean fileOrGroup, HttpServletRequest request, HttpServletResponse response)
 			throws IOException, WaspException {
 		// parse the comma delimited string into a list of filegroup uuids
 		List<String> uuidList = Arrays.asList(uuids.split("\\s*,\\s*"));
 
 		//Create list for local files
 		List<java.io.File> localFilesList = new ArrayList<java.io.File>();
+		
+		String filename = "FileGroup.zip";
 		
 		UUID uu;
 		for (String uuid : uuidList) {
@@ -435,10 +437,22 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 				throw new WaspException("unable to search for record " + uuid);
 			}
 			
-			FileGroup fg = fileService.getFileGroup(uu);
-			Set<FileHandle> fhSet = fg.getFileHandles();
-			for (FileHandle fh : fhSet) {
-				localFilesList.add( getLocalFileFromUUID(fh.getUUID().toString(),"") );
+			if (fileOrGroup) {
+				localFilesList.add(getLocalFileFromUUID(uuid, ""));
+			} else {
+				FileGroup fg = fileService.getFileGroup(uu);
+				Set<FileHandle> fhSet = fg.getFileHandles();
+				for (FileHandle fh : fhSet) {
+					localFilesList.add( getLocalFileFromUUID(fh.getUUID().toString(),"") );
+				}
+			}
+		}
+		
+		if (uuidList.toArray().length==1) {
+			if (fileOrGroup) {
+				filename = getLocalFileFromUUID(uuidList.get(0), "").getName() + ".zip";
+			} else {
+				filename = fileService.getFileGroup(UUID.fromString(uuidList.get(0))).getDescription().replaceAll("\\W", "") + ".zip";
 			}
 		}
 		
@@ -476,7 +490,7 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 		ServletOutputStream sos = response.getOutputStream();
 
 		response.setContentType("application/zip");
-		response.setHeader("Content-Disposition", "attachment; filename=\"FileGroup.zip\"");
+		response.setHeader("Content-Disposition", "attachment; filename=\""+filename+"\"");
 		// set 'max-age' to cache files for up to 1h (3600s) since most files shouldn't change on the server anyway. 
 		// We use 'must-revalidate' to force browser to always use this rule. 
 		response.setHeader("Cache-Control", "max-age=3600, must-revalidate"); 

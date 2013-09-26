@@ -51,6 +51,7 @@ Ext.define('Wasp.FileDownloadGridPortlet', {
     },
 
     initComponent: function(){
+    	var grid = this;
 
         var store = Ext.create('Ext.data.JsonStore', {
 //            fields: [
@@ -213,7 +214,28 @@ Ext.define('Wasp.FileDownloadGridPortlet', {
 				},
 				items: [{
 					minWidth: 80,
-					text: 'Download Selected'
+					text: 'Download Selected',
+					handler: function () {
+						var record = grid.getSelectionModel().getSelection();
+						if (record.length == 0) {
+							Ext.MessageBox.show({
+								title: "Alert",
+								msg: "Please select at least one file."
+							})
+							return;
+						} else {
+							var links = record[0].get("link");
+							for (var i = 1; i < record.length; i++) {
+								var uuid = record[i].get("link");
+								links += "," + uuid.substring(uuid.lastIndexOf('/')+1);
+							}
+//							Ext.MessageBox.show({
+//								title: "links selected",
+//								msg: links
+//							});
+							window.location = links;
+						}
+					}
 				}]
 			}]
         });

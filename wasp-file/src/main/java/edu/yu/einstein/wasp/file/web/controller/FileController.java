@@ -40,14 +40,18 @@ public class FileController {
 	@RequestMapping(method = {RequestMethod.GET, RequestMethod.HEAD}, value = "/get/file/{uuid:.+}")
 	public void getFile(@PathVariable("uuid") String uuid, HttpServletRequest request, HttpServletResponse response) {
 		try {
-			String adjExtension = "";
-			Matcher adjm = Pattern.compile("^(.+)(\\..+)$").matcher(uuid);
-			if (adjm.find()) {
-				adjExtension = adjm.group(2);
-				uuid = adjm.group(1);
+			if (uuid.indexOf(",")>0) {
+				wfService.processMultipleFileDownloadRequest(uuid, true, request, response);
+			} else {
+				String adjExtension = "";
+				Matcher adjm = Pattern.compile("^(.+)(\\..+)$").matcher(uuid);
+				if (adjm.find()) {
+					adjExtension = adjm.group(2);
+					uuid = adjm.group(1);
 			}
 			
 			wfService.processFileRequest(uuid, adjExtension, request, response);
+			}
 			
 		} catch (IOException ex) {
 			if (ex.toString().contains("ClientAbortException")) {
@@ -67,10 +71,33 @@ public class FileController {
 		}
 	}
 
-	@RequestMapping(method = {RequestMethod.GET, RequestMethod.HEAD}, value = "/get/filegroups/{uuids:.+}")
+	@RequestMapping(method = {RequestMethod.GET, RequestMethod.HEAD}, value = "/get/files/{uuid:.+}")
+	public void getMultipleFiles(@PathVariable("uuid") String uuids, HttpServletRequest request, HttpServletResponse response) {
+		try {
+			wfService.processMultipleFileDownloadRequest(uuids, true, request, response);
+			
+		} catch (IOException ex) {
+			if (ex.toString().contains("ClientAbortException")) {
+				logger.warn("Client abort when downloading files(" + uuids + ")");
+			} else {
+				logger.warn("Error writing files(" + uuids + ") to output stream.");
+				ex.printStackTrace();
+			}
+		} catch (WaspException e) {
+			logger.warn("unable to deliver files(" + uuids + ")");
+			try {
+				response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+	}
+
+	@RequestMapping(method = {RequestMethod.GET, RequestMethod.HEAD}, value = "/get/filegroup/{uuid:.+}")
 	public void getFileGroup(@PathVariable("uuid") String uuids, HttpServletRequest request, HttpServletResponse response) {
 		try {
-			wfService.processFileGroupListRequest(uuids, request, response);
+			wfService.processMultipleFileDownloadRequest(uuids, false, request, response);
 			
 		} catch (IOException ex) {
 			if (ex.toString().contains("ClientAbortException")) {

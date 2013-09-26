@@ -8,7 +8,7 @@
 		<relativePath>../</relativePath>
 	</parent>
 	<groupId>edu.yu.einstein.wasp</groupId>
-	<artifactId>helptag</artifactId>
+	<artifactId>helptag-old</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
