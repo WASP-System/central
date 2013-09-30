@@ -63,8 +63,8 @@ public class WaspIlluminaHiseqPlugin extends WaspPlugin implements ClientMessage
 	public static final String STEP_LISTEN_FOR_QC = "waspIlluminaHiSeq.mainFlow.listenForQCCompletion";
 	public static final String STEP_CREATE_SAMPLE_SHEET = "waspIlluminaHiSeq.mainFlow.createSampleSheet";
 
-	public WaspIlluminaHiseqPlugin(String pluginIName, Properties waspSiteProperties, MessageChannel channel) {
-		super(pluginIName, waspSiteProperties, channel);
+	public WaspIlluminaHiseqPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
+		super(iName, waspSiteProperties, channel);
 	}
 
 	public Message<String> bcl2fastq(Message<String> m) {

@@ -53,8 +53,8 @@ public class FastQScreenPlugin extends BabrahamPluginBase{
 	@Qualifier("fastqscreen")
 	private Software fastqscreen;
 
-	public FastQScreenPlugin(String pluginIName, Properties waspSiteProperties, MessageChannel channel) {
-		super(pluginIName, waspSiteProperties, channel);
+	public FastQScreenPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
+		super(iName, waspSiteProperties, channel);
 	}
 
 

@@ -52,8 +52,8 @@ public class FastQCPlugin extends BabrahamPluginBase{
 
 	public static final String FLOW_NAME = "edu.yu.einstein.wasp.plugin.babraham.fastqc.mainFlow";
 
-	public FastQCPlugin(String pluginIName, Properties waspSiteProperties, MessageChannel channel) {
-		super(pluginIName, waspSiteProperties, channel);
+	public FastQCPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
+		super(iName, waspSiteProperties, channel);
 	}
 
 

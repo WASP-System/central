@@ -50,12 +50,12 @@ public class GenomePlugin extends WaspPlugin {
 	private GenomeService genomeService;
 
 	/**
-	 * @param pluginIName
+	 * @param iName
 	 * @param waspSiteProperties
 	 * @param channel
 	 */
-	public GenomePlugin(String pluginIName, Properties waspSiteProperties, MessageChannel channel) {
-		super(pluginIName, waspSiteProperties, channel);
+	public GenomePlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
+		super(iName, waspSiteProperties, channel);
 	}
 
 	public Message<String> list(Message<String> m) {

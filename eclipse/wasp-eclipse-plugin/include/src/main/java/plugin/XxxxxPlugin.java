@@ -63,8 +63,8 @@ public class ___PluginIName___Plugin extends WaspPlugin
 
 	public static final String FLOW_NAME = "___package___.mainFlow"; ///// PIP
 
-	public ___PluginIName___Plugin(String pluginIName, Properties waspSiteProperties, MessageChannel channel) {
-		super(pluginIName, waspSiteProperties, channel);
+	public ___PluginIName___Plugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
+		super(iName, waspSiteProperties, channel);
 	}
 
 	/**

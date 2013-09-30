@@ -22,10 +22,10 @@
 	<int:service-activator input-channel="wasp.channel.plugin.___pluginIName___" ref="___pluginIName___Plugin" method="process" />
 	
 	<bean id="___pluginIName___Plugin" class="___package___.plugin.___PluginIName___Plugin">
-		<constructor-arg name="pluginIName" ref="___pluginIName___PluginArea" />
+		<constructor-arg name="iName" ref="___pluginIName___PluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.___pluginIName___" />
-		<property name="pluginDescription" value="___description___" />
+		<property name="description" value="___description___" />
 ////> RES
 		<property name="provides" >
 			<set>

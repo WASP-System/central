@@ -111,10 +111,10 @@ The second bean in this file is declaring a configured instance of the ``edu.yu.
 .. code-block:: xml
 
    <bean id="picard" class="edu.yu.einstein.wasp.plugin.foo.plugin.FooPlugin">
-       <constructor-arg name="pluginIName" ref="fooPluginArea" />
+       <constructor-arg name="iName" ref="fooPluginArea" />
        <constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
        <constructor-arg name="channel" ref="wasp.channel.plugin.foo" />
-       <property name="pluginDescription" value="A foo plugin" />
+       <property name="description" value="A foo plugin" />
        <property name="provides" >
            <set>
              <ref bean="foo" /> 
@@ -129,8 +129,8 @@ The second bean in this file is declaring a configured instance of the ``edu.yu.
 
 Notice how the *fooPluginArea* bean is injected into the *foo* bean by providing its object reference as a constructor argument. Notice also how 
 collections may be injected, in this case a collection of type ``java.util.Set``. You can see another example of passing by value with the setting of the 
-*pluginDescription*  property. Under the hood, spring does not directly set the value of *pluginDescription*, instead it expects there to be a public method 
-``void setPluginDescription(String)`` defined in the ``FooPlugin`` class. Similarly, for the *provides* property, Spring expects the ``FooPlugin`` class to 
+*description*  property. Under the hood, spring does not directly set the value of *description*, instead it expects there to be a public method 
+``void setDescription(String)`` defined in the ``FooPlugin`` class. Similarly, for the *provides* property, Spring expects the ``FooPlugin`` class to 
 define a method ``void setProvides(Set<?>)``.
 
 It is possible to evaluate expressions and inject the result into a bean during instantiation e.g.:

@@ -40,11 +40,11 @@
 	<int:service-activator input-channel="wasp.channel.plugin.waspIlluminaHiSeq" ref="waspIlluminaHiseqPlugin" method="process" />
 	
 	<bean id="waspIlluminaHiseqPlugin" class="edu.yu.einstein.wasp.plugin.illumina.plugin.WaspIlluminaHiseqPlugin" depends-on="mps-tools">
-		<constructor-arg name="pluginIName" ref="hiseqPluginArea" />
+		<constructor-arg name="iName" ref="hiseqPluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.waspIlluminaHiSeq" />
-		<property name="pluginName" value="CASAVA" />
-		<property name="pluginDescription" value="Processes sequencing reads provied by RTA or OLB" />
+		<property name="name" value="CASAVA" />
+		<property name="description" value="Processes sequencing reads provied by RTA or OLB" />
 		<property name="provides" >
 			<set>
 				<ref bean="casava" />

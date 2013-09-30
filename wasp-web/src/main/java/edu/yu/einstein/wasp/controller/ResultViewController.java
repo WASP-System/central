@@ -1,6 +1,5 @@
 package edu.yu.einstein.wasp.controller;
 
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -28,7 +27,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.MetaMessage;
-import edu.yu.einstein.wasp.charts.highchartsjs.HighChartsJsBase;
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileType;
@@ -36,7 +34,6 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
-import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
@@ -45,10 +42,7 @@ import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing.Status;
-import edu.yu.einstein.wasp.viewpanel.Panel;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
-import edu.yu.einstein.wasp.viewpanel.WebContent;
-import edu.yu.einstein.wasp.viewpanel.WebPanel;
 
 @Controller
 @Transactional
@@ -255,8 +249,8 @@ public class ResultViewController extends WaspController {
 					Integer tabCount = 0;
 					for (FileDataTabViewing plugin: plugins){
 						Status status = plugin.getStatus(fg);
-						statusArray[i][0] = plugin.getPluginName();
-					    statusArray[i][1] = plugin.getPluginDescription();
+						statusArray[i][0] = plugin.getName();
+					    statusArray[i][1] = plugin.getDescription();
 					    statusArray[i][2] = status.toString();
 					    if (status.equals(Status.COMPLETED)){
 					    	PanelTab panelTab = plugin.getViewPanelTab(fg);

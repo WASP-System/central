@@ -22,11 +22,11 @@
 	<int:channel id="wasp.channel.plugin.wasp-helptag" />
 	
 	<bean id="wasp-helptag.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.assay.WaspHelpTagPlugin">
-		<constructor-arg name="pluginIName" ref="waspHelpTagPluginArea" />
+		<constructor-arg name="iName" ref="waspHelpTagPluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.wasp-helptag" />
-		<property name="pluginName" value="Help Tagging" />
-		<property name="pluginDescription" value="DNA Methylation Assay Workflow" />
+		<property name="name" value="Help Tagging" />
+		<property name="description" value="DNA Methylation Assay Workflow" />
 		<property name="handles">
 			<set>
 				<ref bean="waspHelpTagPluginArea" />

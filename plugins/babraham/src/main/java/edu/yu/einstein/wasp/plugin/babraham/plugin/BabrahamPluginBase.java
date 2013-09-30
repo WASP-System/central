@@ -38,8 +38,8 @@ public abstract class BabrahamPluginBase extends WaspPlugin implements BatchJobP
 	private static final long serialVersionUID = -1918438365161307850L;
 
 
-	public BabrahamPluginBase(String pluginIName, Properties waspSiteProperties, MessageChannel channel) {
-		super(pluginIName, waspSiteProperties, channel);
+	public BabrahamPluginBase(String iName, Properties waspSiteProperties, MessageChannel channel) {
+		super(iName, waspSiteProperties, channel);
 	}
 
 	protected final Logger logger = LoggerFactory.getLogger(getClass());

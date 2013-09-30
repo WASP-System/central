@@ -22,11 +22,11 @@
 	<int:channel id="wasp.channel.plugin.wasp-genericDnaSeq" />
 	
 	<bean id="wasp-genericDnaSeq.WaspPluginBean" class="edu.yu.einstein.wasp.genericDnaSeq.plugin.WaspGenericDnaSeqPlugin">
-		<constructor-arg name="pluginIName" ref="waspGenericDnaSeqPluginArea" />
+		<constructor-arg name="iName" ref="waspGenericDnaSeqPluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.wasp-genericDnaSeq" />
-		<property name="pluginName" value="Generic DNA Seq" />
-		<property name="pluginDescription" value="Generic DNA Sequencing Workflow" />
+		<property name="name" value="Generic DNA Seq" />
+		<property name="description" value="Generic DNA Sequencing Workflow" />
 		<property name="handles">
 			<set>
 				<ref bean="waspGenericDnaSeqPluginArea" />

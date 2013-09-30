@@ -17,16 +17,16 @@ public interface WaspPluginI {
 	/**
 	 * @return the plugin Iname
 	 */
-	public String getPluginIName();
+	public String getIName();
 	
 	/**
 	 * @return the plugin name
 	 */
-	String getPluginName();
+	String getName();
 	
 	/**
 	 * @return the plugin description
 	 */
-	public String getPluginDescription();
+	public String getDescription();
 
 }
