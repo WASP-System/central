@@ -92,7 +92,7 @@ simply by swapping out database adapters in configuration and without changing a
 
 In the Wasp System, the configuration (XML) files defining the application contexts of the core components (*wasp-core*, *wasp-daemon* and *wasp-web*) import 
 WPP-specific configuration files from each WPP. In the ``src/main/resources:META-INF/spring`` folder within the project structure we have 
-created (:num:`figure #fig-picardProjStructure`), you will see XML configuration files suffixed by ``common.xml``, ``batch.xml`` and ``web.xml`` (the latter 
+created you will see XML configuration files suffixed by ``common.xml``, ``batch.xml`` and ``web.xml`` (the latter 
 two are 
 optional depending on how the WPP was configured). Looking in the foo project ``foo-plugin-context-common.xml`` file, a very simple bean is defined 
 representing a string instance called *fooPluginArea* which has the value "foo" injected via the constructor (remember that an 'area' represents a namespace in 
@@ -110,7 +110,7 @@ The second bean in this file is declaring a configured instance of the ``edu.yu.
 
 .. code-block:: xml
 
-   <bean id="picard" class="edu.yu.einstein.wasp.plugin.foo.plugin.FooPlugin">
+   <bean id="foo" class="edu.yu.einstein.wasp.plugin.foo.plugin.FooPlugin">
        <constructor-arg name="iName" ref="fooPluginArea" />
        <constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
        <constructor-arg name="channel" ref="wasp.channel.plugin.foo" />
