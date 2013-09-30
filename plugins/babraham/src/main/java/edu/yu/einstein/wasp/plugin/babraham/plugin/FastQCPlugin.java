@@ -52,8 +52,8 @@ public class FastQCPlugin extends BabrahamPluginBase{
 
 	public static final String FLOW_NAME = "edu.yu.einstein.wasp.plugin.babraham.fastqc.mainFlow";
 
-	public FastQCPlugin(String pluginName, Properties waspSiteProperties, MessageChannel channel) {
-		super(pluginName, waspSiteProperties, channel);
+	public FastQCPlugin(String pluginIName, Properties waspSiteProperties, MessageChannel channel) {
+		super(pluginIName, waspSiteProperties, channel);
 	}
 
 
@@ -141,12 +141,6 @@ public class FastQCPlugin extends BabrahamPluginBase{
 	@Override
 	public PanelTab getViewPanelTab(FileGroup fileGroup) throws PanelException {
 		return babrahamService.getFastQCDataToDisplay(fileGroup.getId());
-	}
-
-
-	@Override
-	public Software getSoftware() {
-		return fastqc;
 	}
 
 }

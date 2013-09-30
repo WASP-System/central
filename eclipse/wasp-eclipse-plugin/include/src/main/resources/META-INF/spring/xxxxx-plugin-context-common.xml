@@ -10,32 +10,32 @@
 		
 	<context:component-scan base-package="___package___.service.impl" />
 
-	<bean id="___pluginname___PluginArea" class="java.lang.String">
+	<bean id="___pluginIName___PluginArea" class="java.lang.String">
 		<constructor-arg>
-			<value>___pluginname___</value>
+			<value>___pluginIName___</value>
 		</constructor-arg>
 	</bean>
 	
 	<!-- channel for communications with this plugin. -->
-	<int:channel id="wasp.channel.plugin.___pluginname___" />
+	<int:channel id="wasp.channel.plugin.___pluginIName___" />
 
-	<int:service-activator input-channel="wasp.channel.plugin.___pluginname___" ref="___pluginname___Plugin" method="process" />
+	<int:service-activator input-channel="wasp.channel.plugin.___pluginIName___" ref="___pluginIName___Plugin" method="process" />
 	
-	<bean id="___pluginname___Plugin" class="___package___.plugin.___Pluginname___Plugin">
-		<constructor-arg name="pluginName" ref="___pluginname___PluginArea" />
+	<bean id="___pluginIName___Plugin" class="___package___.plugin.___PluginIName___Plugin">
+		<constructor-arg name="pluginIName" ref="___pluginIName___PluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
-		<constructor-arg name="channel" ref="wasp.channel.plugin.___pluginname___" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.___pluginIName___" />
 		<property name="pluginDescription" value="___description___" />
 ////> RES
 		<property name="provides" >
 			<set>
-				<ref bean="___pluginname___" /> 
+				<ref bean="___pluginIName___" /> 
 			</set>
 		</property>
 ////<
 		<property name="handles" >
 			<set>
-				<ref bean="___pluginname___PluginArea" />
+				<ref bean="___pluginIName___PluginArea" />
 			</set>
 		</property>
 	</bean>

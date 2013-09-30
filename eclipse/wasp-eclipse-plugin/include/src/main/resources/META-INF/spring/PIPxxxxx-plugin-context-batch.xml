@@ -10,9 +10,9 @@
 
 	
 	<!-- common definitions -->
-	<import resource="___pluginname___-plugin-context-common.xml" />
+	<import resource="___pluginIName___-plugin-context-common.xml" />
 	
 	<!-- statics for tasks associated with messages  -->
-	<bean id="___pluginname___BatchJobTask" class="___package___.integration.messages.___Pluginname___BatchJobTask"/>
+	<bean id="___pluginIName___BatchJobTask" class="___package___.integration.messages.___PluginIName___BatchJobTask"/>
 	
 </beans>

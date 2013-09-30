@@ -48,7 +48,7 @@ public class WaspPluginRegistry implements ClientMessageI, BeanPostProcessor {
 	 * @param name
 	 */
 	public void addPlugin(WaspPlugin plugin) {
-		String name = plugin.getPluginName();
+		String name = plugin.getPluginIName();
 		if (plugins.containsKey(name)) {
 			logger.warn("Plugin with name '" + name
 					+ "' already in the registry, replacing.");
@@ -107,7 +107,7 @@ public class WaspPluginRegistry implements ClientMessageI, BeanPostProcessor {
 		List<WaspPlugin> pluginList = new ArrayList<WaspPlugin>(plugins.values());
 		Collections.sort(pluginList);
 		for (WaspPlugin plugin : pluginList) {
-			reply += index++ + ") " + plugin.getPluginName();
+			reply += index++ + ") " + plugin.getPluginIName();
 			if (plugin.getPluginDescription() != null && !plugin.getPluginDescription().isEmpty()) 
 				reply += " -> " + plugin.getPluginDescription();
 			reply += "\n";

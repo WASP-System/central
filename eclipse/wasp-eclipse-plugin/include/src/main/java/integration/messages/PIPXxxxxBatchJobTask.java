@@ -9,7 +9,7 @@ import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 /**
  * @author 
  */
-public class ___Pluginname___BatchJobTask extends BatchJobTask {
+public class ___PluginIName___BatchJobTask extends BatchJobTask {
 
 	// e.g. public static final String FOO = "bar";
 

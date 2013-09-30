@@ -16,12 +16,12 @@ import edu.yu.einstein.wasp.plugin.WaspPlugin;
 public class SystemPlugin extends WaspPlugin {
 
 	/**
-	 * @param pluginName
+	 * @param pluginIName
 	 * @param waspSiteProperties
 	 * @param channel
 	 */
-	public SystemPlugin(String pluginName, Properties waspSiteProperties, MessageChannel channel) {
-		super(pluginName, waspSiteProperties, channel);
+	public SystemPlugin(String pluginIName, Properties waspSiteProperties, MessageChannel channel) {
+		super(pluginIName, waspSiteProperties, channel);
 		// TODO Auto-generated constructor stub
 	}
 

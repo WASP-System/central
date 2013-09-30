@@ -226,6 +226,7 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 				@Override public String getBatchJobName(String BatchJobType) {return "skipTaskletJob";}
 				@Override public Set<?> getProvides() { return null;	}
 				@Override public Set<?> getHandles() { return null;	}
+				@Override public String getPluginIName() { return null; }
 				@Override public String getPluginName() { return null; }
 				@Override public String getPluginDescription() { return null; }
 			};
@@ -260,6 +261,7 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 			@Override public String getBatchJobName(String BatchJobType) {return ALIGN_JOB_NAME;}
 			@Override public Set<?> getProvides() { return null;	}
 			@Override public Set<?> getHandles() { return null;	}
+			@Override public String getPluginIName() { return null; }
 			@Override public String getPluginName() { return null; }
 			@Override public String getPluginDescription() { return null; }
 		};

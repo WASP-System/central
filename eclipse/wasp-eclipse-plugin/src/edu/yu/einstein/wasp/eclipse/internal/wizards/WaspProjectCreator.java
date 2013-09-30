@@ -64,8 +64,8 @@ import edu.yu.einstein.wasp.eclipse.internal.Messages;
  * 
  * then the text will be removed from the file name and the file will be included.
  * 
- * Additional placeholders for content within the files include "___pluginname___" (uncapitalized 
- * plugin name), "___PLUGINNAME___" (capitalized plugin name), "___Pluginname___" (first letter capitalized plugin name), 
+ * Additional placeholders for content within the files include "___pluginIName___" (uncapitalized 
+ * plugin name), "___PluginIName___" (capitalized plugin name), "___PluginIName___" (first letter capitalized plugin name), 
  * and "___package___" (full java package name).  
  * 
  * A special comment using '/////' or '#////' (depending on file type)  at the end of a line preceding the FORM, RES, PIP, 
@@ -212,9 +212,9 @@ public class WaspProjectCreator {
 			String line = in.readLine();
 			while (line != null) {
 				
-				line = line.replaceAll("___pluginname___", name);
-				line = line.replaceAll("___Pluginname___", cName);
-				line = line.replaceAll("___PLUGINNAME___", cAllName);
+				line = line.replaceAll("___pluginIName___", name);
+				line = line.replaceAll("___PluginIName___", cName);
+				line = line.replaceAll("___PluginIName___", cAllName);
 				line = line.replaceAll("___package___", pkg + "." + name.toLowerCase());
 				line = line.replaceAll("___description___", description);
 				

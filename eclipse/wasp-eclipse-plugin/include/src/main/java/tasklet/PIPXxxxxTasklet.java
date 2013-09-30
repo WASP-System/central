@@ -21,7 +21,7 @@ import edu.yu.einstein.wasp.service.JobService;
  * @author 
  * 
  */
-public class ___Pluginname___Tasklet extends WaspTasklet {
+public class ___PluginIName___Tasklet extends WaspTasklet {
 	
 	@Autowired
 	private JobService jobService;
@@ -32,11 +32,11 @@ public class ___Pluginname___Tasklet extends WaspTasklet {
 	private GridHostResolver gridHostResolver;
 	
 
-	public ___Pluginname___Tasklet() {
+	public ___PluginIName___Tasklet() {
 		// proxy
 	}
 
-	public ___Pluginname___Tasklet(String jobId) {
+	public ___PluginIName___Tasklet(String jobId) {
 		this.job = jobService.getJobByJobId(Integer.parseInt(jobId));
 	}
 

@@ -255,9 +255,8 @@ public class ResultViewController extends WaspController {
 					Integer tabCount = 0;
 					for (FileDataTabViewing plugin: plugins){
 						Status status = plugin.getStatus(fg);
-						Software software = plugin.getSoftware();
-						statusArray[i][0] = software.getName();
-					    statusArray[i][1] = software.getDescription();
+						statusArray[i][0] = plugin.getPluginName();
+					    statusArray[i][1] = plugin.getPluginDescription();
 					    statusArray[i][2] = status.toString();
 					    if (status.equals(Status.COMPLETED)){
 					    	PanelTab panelTab = plugin.getViewPanelTab(fg);

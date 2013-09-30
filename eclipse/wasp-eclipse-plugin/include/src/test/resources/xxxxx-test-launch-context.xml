@@ -4,6 +4,6 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!-- import local configuration -->
-	<import resource="___pluginname___-test-local-config.xml" />
+	<import resource="___pluginIName___-test-local-config.xml" />
 	
 </beans>

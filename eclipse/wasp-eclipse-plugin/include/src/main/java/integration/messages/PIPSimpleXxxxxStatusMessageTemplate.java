@@ -13,15 +13,15 @@ import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemp
  * @author 
  * 
  */
-public class Simple___Pluginname___StatusMessageTemplate extends WaspStatusMessageTemplate {
+public class Simple___PluginIName___StatusMessageTemplate extends WaspStatusMessageTemplate {
 
 
-	public Simple___Pluginname___StatusMessageTemplate() {
+	public Simple___PluginIName___StatusMessageTemplate() {
 		super();
-		addHeader(WaspMessageType.HEADER_KEY, ___Pluginname___MessageType.___PLUGINNAME___);
+		addHeader(WaspMessageType.HEADER_KEY, ___PluginIName___MessageType.___PluginIName___);
 	}
 	
-	public Simple___Pluginname___StatusMessageTemplate(Message<WaspStatus> message){
+	public Simple___PluginIName___StatusMessageTemplate(Message<WaspStatus> message){
 		super(message);
 		if (!isMessageOfCorrectType(message))
 			throw new WaspMessageInitializationException("message is not of the correct type");
@@ -55,7 +55,7 @@ public class Simple___Pluginname___StatusMessageTemplate extends WaspStatusMessa
 	 */
 	public static boolean actUponMessage(Message<?> message, String task ){
 		if (!message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) ||
-				!((String) message.getHeaders().get(WaspMessageType.HEADER_KEY)).equals(___Pluginname___MessageType.___PLUGINNAME___))
+				!((String) message.getHeaders().get(WaspMessageType.HEADER_KEY)).equals(___PluginIName___MessageType.___PluginIName___))
 				return false;
 		if (task == null)
 			return true;
@@ -65,13 +65,13 @@ public class Simple___Pluginname___StatusMessageTemplate extends WaspStatusMessa
 	}
 	
 	/**
-	 * Returns true is the message is of the correct ___Pluginname___MessageType
+	 * Returns true is the message is of the correct ___PluginIName___MessageType
 	 * @param message
 	 * @return
 	 */
 	public static boolean isMessageOfCorrectType(Message<?> message) {
 		return message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) &&  
-				message.getHeaders().get(WaspMessageType.HEADER_KEY).equals(___Pluginname___MessageType.___PLUGINNAME___);
+				message.getHeaders().get(WaspMessageType.HEADER_KEY).equals(___PluginIName___MessageType.___PluginIName___);
 	}
 
 }

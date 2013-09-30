@@ -1,7 +1,7 @@
 /**
  * 
  */
-package edu.yu.einstein.wasp.grid.software;
+package edu.yu.einstein.wasp.plugin.mps.grid.software;
 
 import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Genome;
