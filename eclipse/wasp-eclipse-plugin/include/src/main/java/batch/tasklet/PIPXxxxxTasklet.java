@@ -2,7 +2,7 @@
  * Created by Wasp System Eclipse Plugin
  * @author
  */
-package ___package___.tasklet;
+package ___package___.batch.tasklet;
 
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;

@@ -27,7 +27,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspJobParameters; ///// PIP
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;  ///// PIP
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.FileGroup; ///// VIZ
-import edu.yu.einstein.wasp.model.Software;  ///// VIZ
+import edu.yu.einstein.wasp.model.Software;  ///// RES
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;  ///// PIP 
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WebInterfacing; ///// FORM
@@ -60,7 +60,13 @@ public class ___PluginIName___Plugin extends WaspPlugin
 
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
-
+	
+	////> RES
+	@Autowired
+	@Qualifier("___pluginIName___")
+	private Software ___pluginIName___;
+	
+	////<
 	public static final String FLOW_NAME = "___package___.mainFlow"; ///// PIP
 
 	public ___PluginIName___Plugin(String iName, Properties waspSiteProperties, MessageChannel channel) {

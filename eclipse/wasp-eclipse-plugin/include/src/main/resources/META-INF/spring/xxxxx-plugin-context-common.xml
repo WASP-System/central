@@ -25,6 +25,7 @@
 		<constructor-arg name="iName" ref="___pluginIName___PluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.___pluginIName___" />
+		<property name="name" value="___name___" />
 		<property name="description" value="___description___" />
 ////> RES
 		<property name="provides" >
