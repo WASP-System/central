@@ -35,8 +35,8 @@ public class StrategyLoadServiceImpl extends WaspLoadServiceImpl implements Stra
 		String nameAndDescription = meta.getV();
 		String [] array = nameAndDescription.split("::");
 		Strategy strategy = new Strategy();
-		strategy.setIName(k);
-		strategy.setName(array[0]);
+/////////////		strategy.setIName(k);
+//////////////		strategy.setName(array[0]);
 		strategy.setDescription(array[1]);
 		return strategy;
 		/*

@@ -86,7 +86,7 @@ public class MetaDaoImpl extends WaspDaoImpl<Meta> implements edu.yu.einstein.wa
 
 	/**
 	 * setMeta(final String k, final String v)
-	 *
+	 * creates and returns a new Meta object in memory only
 	 * @param final String k, final String v
 	 *
 	 * @return meta
@@ -98,7 +98,7 @@ public class MetaDaoImpl extends WaspDaoImpl<Meta> implements edu.yu.einstein.wa
 		Meta meta = new Meta();
 		meta.setK(k);
 		meta.setV(v);
-		return this.save(meta);
+		return meta;
 	}
 
 	/**

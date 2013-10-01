@@ -9,29 +9,40 @@ import edu.yu.einstein.wasp.additionalClasses.Strategy;
 import edu.yu.einstein.wasp.load.service.StrategyLoadService;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.SampleTypeCategory;
+import edu.yu.einstein.wasp.service.StrategyService;
 
 public class StrategyLoaderAndFactory implements FactoryBean<Strategy> {
 
 	@Autowired
-	private StrategyLoadService strategyLoadService;
+	private StrategyService strategyService;
 	
 	private Strategy strategy;
 
-	private String v;
-	private String k;
+	private String sraStrategy;
+	private String displayStrategy;
+	private String description;	
+	private String available;
+
+	public void setSraStrategy(String strategy){ this.sraStrategy = strategy; }
+	public void setDisplayStrategy(String displayStrategy){ this.displayStrategy = displayStrategy; }
+	public void setDescription(String description){ this.description = description; }
+	public void setAvailable(String available){ this.available = available; }
 	
-	public void setV(String v){
-		this.v = v;
-	}
-	public void setK(String k){
-		this.k = k;
-	}
-	public String getV(){return v;}
-	public String getK(){return k;}
+	public String getSraStrategy(){ return this.sraStrategy; }
+	public String getDisplayStrategy(){ return this.displayStrategy; }
+	public String getDescription(){ return this.description; }
+	public String getAvailable(){ return this.available; }
+
+	StrategyLoaderAndFactory(){ this.strategy = new Strategy(); }
 	
 	@PostConstruct
 	public void init(){
-		strategy =  strategyLoadService.update(k, v);
+		if(strategy==null){ this.strategy = new Strategy(); }
+		this.strategy.setSraStrategy(this.sraStrategy);
+		this.strategy.setDisplayStrategy(this.displayStrategy);
+		this.strategy.setDescription(this.description);
+		this.strategy.setAvailable(this.available);
+		this.strategy =  strategyService.save(strategy);
 	}
 
 	@Override
