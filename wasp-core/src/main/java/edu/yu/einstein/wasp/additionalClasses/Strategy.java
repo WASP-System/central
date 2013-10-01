@@ -3,38 +3,66 @@ package edu.yu.einstein.wasp.additionalClasses;
 import edu.yu.einstein.wasp.model.WaspModel;
 
 //see table 1 in http://www.ncbi.nlm.nih.gov/books/NBK47529/ for list of strategies
+//dubin; 10-1-13
 
 public class Strategy extends WaspModel {
 
-	public static final String KEY_PREFIX = "sra.strategy.";
+	public static final String KEY_PREFIX = "strategy.";
 	public static final String SEPARATOR = "::";	
 	
-	private String sraStrategy;
+	private String strategy;
 	private String displayStrategy;
 	private String description;	
-	private String available;	
+	private String available;
+	private String sraCompatible;
+	private Integer id;
 	
 	public Strategy(){}
 	
-	public Strategy(String sraStrategy, String displayStrategy, String description, String available){
-		setSraStrategy(sraStrategy);
+	/*
+	public Strategy(String strategy, String displayStrategy, String description, String available){
+		setStrategy(strategy);
 		setDisplayStrategy(displayStrategy);
 		setDescription(description);
 		setAvailable(available);
 	}
+	 */	
 	
-	public void setSraStrategy(String sraStrategy){ this.sraStrategy = sraStrategy; }
+	public Strategy(Integer id, String strategy, String displayStrategy, String description, String available, String sraCompatible){
+		setStrategy(strategy);
+		setDisplayStrategy(displayStrategy);
+		setDescription(description);
+		setAvailable(available);
+		setSraCompatible(sraCompatible);
+		
+		setId(id);
+	}
+
+	public void setStrategy(String strategy){ this.strategy = strategy; }
 	public void setDisplayStrategy(String displayStrategy){ this.displayStrategy = displayStrategy; }
 	public void setDescription(String description){ this.description = description; }
 	public void setAvailable(String available){ this.available = available; }
-
-	public String getSraStrategy(){ return this.sraStrategy; }
+	public void setSraCompatible(String sraCompatible){ this.sraCompatible = sraCompatible; }
+	
+	public void setId(Integer id){ this.id = id; }
+	
+	public String getStrategy(){ return this.strategy; }
 	public String getDisplayStrategy(){ return this.displayStrategy; }
 	public String getDescription(){ return this.description; }
 	public String getAvailable(){ return this.available; }
-
+	public String getSraCompatible(){ return this.sraCompatible; }
+	
+	public Integer getId(){ return this.id; }
+	
 	public boolean isAvailable(){ 
 		if(available.equalsIgnoreCase("true")) 
+			return true; 
+		else
+			return false; 
+	}
+	
+	public boolean isSraCompatible(){ 
+		if(this.sraCompatible.equalsIgnoreCase("true")) 
 			return true; 
 		else
 			return false; 

@@ -16,38 +16,44 @@ public class StrategyLoaderAndFactory implements FactoryBean<Strategy> {
 	@Autowired
 	private StrategyService strategyService;
 	
-	private Strategy strategy;
+	private Strategy strategyObject;
 
-	private String sraStrategy;
+	private String strategy;
 	private String displayStrategy;
 	private String description;	
 	private String available;
+	private String sraCompatible; 
 
-	public void setSraStrategy(String strategy){ this.sraStrategy = strategy; }
+	public void setStrategy(String strategy){ this.strategy = strategy; }
 	public void setDisplayStrategy(String displayStrategy){ this.displayStrategy = displayStrategy; }
 	public void setDescription(String description){ this.description = description; }
 	public void setAvailable(String available){ this.available = available; }
+	public void setSraCompatible(String sraCompatible){ this.sraCompatible = sraCompatible; }
 	
-	public String getSraStrategy(){ return this.sraStrategy; }
+	public String getStrategy(){ return this.strategy; }
 	public String getDisplayStrategy(){ return this.displayStrategy; }
 	public String getDescription(){ return this.description; }
 	public String getAvailable(){ return this.available; }
+	public String getSraCompatible(){ return this.sraCompatible; }
 
-	StrategyLoaderAndFactory(){ this.strategy = new Strategy(); }
+	StrategyLoaderAndFactory(){ this.strategyObject = new Strategy(); }
 	
 	@PostConstruct
 	public void init(){
-		if(strategy==null){ this.strategy = new Strategy(); }
-		this.strategy.setSraStrategy(this.sraStrategy);
-		this.strategy.setDisplayStrategy(this.displayStrategy);
-		this.strategy.setDescription(this.description);
-		this.strategy.setAvailable(this.available);
-		this.strategy =  strategyService.save(strategy);
+		if(strategyObject==null){ 
+			this.strategyObject = new Strategy();
+		}
+		this.strategyObject.setStrategy(this.strategy);
+		this.strategyObject.setDisplayStrategy(this.displayStrategy);
+		this.strategyObject.setDescription(this.description);
+		this.strategyObject.setAvailable(this.available);
+		this.strategyObject.setSraCompatible(this.sraCompatible);
+		this.strategyObject =  strategyService.save(this.strategyObject);
 	}
 
 	@Override
 	public Strategy getObject() throws Exception {
-		return strategy;
+		return strategyObject;
 	}
 
 	@Override

@@ -149,22 +149,26 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 	
 	public Strategy save(Strategy strategy){
 		
-			Assert.assertParameterNotNull(strategy.getSraStrategy(), "sraStrategy Cannot be null");
+			Assert.assertParameterNotNull(strategy.getStrategy(), "strategy Cannot be null");
 			Assert.assertParameterNotNull(strategy.getDisplayStrategy(), "display Cannot be null");
 			Assert.assertParameterNotNull(strategy.getDescription(), "description Cannot be null");
 			Assert.assertParameterNotNull(strategy.getAvailable(), "available Cannot be null");
+			Assert.assertParameterNotNull(strategy.getSraCompatible(), "sraCompatible Cannot be null");
 			
-			Meta meta = metaDao.getMetaByK(Strategy.KEY_PREFIX+strategy.getSraStrategy());
+			Meta meta = metaDao.getMetaByK(Strategy.KEY_PREFIX+strategy.getStrategy());
 			
-			meta.setK(Strategy.KEY_PREFIX+strategy.getSraStrategy());
+			meta.setK(Strategy.KEY_PREFIX+strategy.getStrategy());
 			
-			meta.setV( strategy.getSraStrategy()+Strategy.SEPARATOR+
+			meta.setV( strategy.getStrategy()+Strategy.SEPARATOR+
 					   strategy.getDisplayStrategy()+Strategy.SEPARATOR+
 					   strategy.getDescription()+Strategy.SEPARATOR+
-					   strategy.getAvailable() );
+					   strategy.getAvailable()+Strategy.SEPARATOR+
+					   strategy.getSraCompatible());
 			
 			meta = metaDao.save(meta);
-			
+			if(meta.getId()!=null){
+				strategy.setId(meta.getId());
+			}
 			return strategy;
 	}
 	
@@ -177,34 +181,59 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 					continue;
 				}
 				String [] stringArray = meta.getV().split(Strategy.SEPARATOR);
-				if(stringArray.length != 4){
+				if(stringArray.length != 5){
 					continue;
 				}
-				Strategy strategy = new Strategy(stringArray[0],stringArray[1],stringArray[2],stringArray[3]);
+				Strategy strategy = new Strategy(meta.getId(), stringArray[0],stringArray[1],stringArray[2],stringArray[3], stringArray[4]);
 				strategies.add(strategy);
 			}
 		}
 		return strategies;		
 	}
 	
-	public Strategy getStrategyBySraStrategy(String sraStrategy){
+	public List<Strategy> getAllStrategiesOrderedByStrategy(){
+		List<Strategy> strategies = this.getAllStrategies();
+		Collections.sort(strategies, new StrategyComparatorOrderByStrategy());
+		return strategies;
+	}
+	
+	public List<Strategy> getAllStrategiesOrderedByDisplayStrategy(){
+		List<Strategy> strategies = this.getAllStrategies();
+		Collections.sort(strategies, new StrategyComparatorByOrderByDisplayStrategy());
+		return strategies;
+	}
+	
+	class StrategyComparatorOrderByStrategy implements Comparator<Strategy> {
+	    @Override
+	    public int compare(Strategy arg0, Strategy arg1) {
+	        return arg0.getStrategy().compareToIgnoreCase(arg1.getStrategy());
+	    }
+	}
+	class StrategyComparatorByOrderByDisplayStrategy implements Comparator<Strategy> {
+	    @Override
+	    public int compare(Strategy arg0, Strategy arg1) {
+	        return arg0.getDisplayStrategy().compareToIgnoreCase(arg1.getDisplayStrategy());
+	    }
+	}
+	
+	public Strategy getStrategyObjectByStrategy(String strategy){
 		Meta meta;
-		Strategy strategy = new Strategy();
-		if(sraStrategy.startsWith(Strategy.KEY_PREFIX)){
-			meta = metaDao.getMetaByK(sraStrategy);
+		Strategy strategyObject = new Strategy();
+		if(strategy.startsWith(Strategy.KEY_PREFIX)){
+			meta = metaDao.getMetaByK(strategy);
 		}
 		else{
-			meta = metaDao.getMetaByK(Strategy.KEY_PREFIX+sraStrategy);
+			meta = metaDao.getMetaByK(Strategy.KEY_PREFIX+strategy);
 		}
 		if(meta.getId()!=null){
 			String encodedStrategy = meta.getV();
 			if(encodedStrategy!=null){
 				String [] stringArray = meta.getV().split(Strategy.SEPARATOR);
-				if(stringArray.length == 4){
-					strategy = new Strategy(stringArray[0],stringArray[1],stringArray[2],stringArray[3]);
+				if(stringArray.length == 5){
+					strategyObject = new Strategy(meta.getId(), stringArray[0],stringArray[1],stringArray[2],stringArray[3], stringArray[4]);
 				}
 			}
 		}
-		return strategy;
+		return strategyObject;
 	}
 }
