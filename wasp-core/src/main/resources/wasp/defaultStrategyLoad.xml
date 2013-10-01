@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- taken from Table 1 on web page http://www.ncbi.nlm.nih.gov/books/NBK47529/ -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	default-autowire="byName"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="wgaStrategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory" >
+    <property name="v" value="WGA::Random sequencing of the whole genome following non-pcr amplification" />
+    <property name="k" value="wgaStrategy" />
+   </bean>
+   
+  <bean id="wgsStrategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory" >
+    <property name="v" value="WGS::Random sequencing of the whole genome" />
+    <property name="k" value="wgsStrategy" />
+   </bean>
+  
+  <bean id="wxsStrategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
+     <property name="v" value="WXS::Random sequencing of exonic regions selected from the genome" />
+    <property name="k" value="wxsStrategy" />
+  </bean>
+
+  <bean id="rna-seqStrategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
+     <property name="v" value="RNA-Seq::Random sequencing of whole transcriptome" />
+   <property name="k" value="rna-seqStrategy" />
+  </bean>
+  
+  <bean id="mirna-seqStrategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
+     <property name="v" value="miRNA-Seq::Random sequencing of small miRNAs" />
+   <property name="k" value="mirna-seqStrategy" />
+  </bean>
+ 
+ 
+ 
+ 
+ 
+ 
+   <bean id="wcsStrategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
+     <property name="v" value="WCS::Random sequencing of a whole chromosome or other replicon isolated from a genome" />
+   <property name="k" value="wcsStrategy" />
+  </bean>
+ 
+ 
+ 
+   <bean id="cloneStrategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
+     <property name="v" value="CLONE::Genomic clone based (hierarchical) sequencing" />
+   <property name="k" value="cloneStrategy" />
+  </bean>
+ 
+ 
+ 
+   <bean id="poolcloneStrategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
+     <property name="v" value="POOLCLONE::Shotgun of pooled clones (usually BACs and Fosmids)" />
+   <property name="k" value="poolcloneStrategy" />
+  </bean>
+ 
+ 
+ 
+ 
+   <bean id="ampliconStrategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
+     <property name="v" value="AMPLICON::Sequencing of overlapping or distinct PCR or RT-PCR products" />
+   <property name="k" value="ampliconStrategy" />
+  </bean>
+ 
+ 
+ 
+   <bean id="cloneendStrategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
+     <property name="v" value="CLONEEND::Clone end (5', 3', or both) sequencing" />
+   <property name="k" value="cloneendStrategy" />
+  </bean>
+ 
+ 
+ 
+   <bean id="finishingStrategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
+     <property name="v" value="FINISHING::Sequencing intended to finish (close) gaps in existing coverage" />
+   <property name="k" value="finishingStrategy" />
+  </bean>
+  
+  
+  
+  
+   <bean id="chip-seqStrategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
+     <property name="v" value="ChIP-Seq::Direct sequencing of chromatin immunoprecipitates" />
+   <property name="k" value="chip-seqStrategy" />
+  </bean>
+  
+  
+   <bean id="mnase-seqStrategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
+     <property name="v" value="MNase-Seq::Direct sequencing following MNase digestion" />
+   <property name="k" value="mnase-seqStrategy" />
+  </bean>
+  
+  
+  
+   <bean id="dnase-hypersensitivityStrategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
+     <property name="v" value="DNase-Hypersensitivity::Sequencing of hypersensitive sites, or segments of open chromatin that are more readily cleaved by DNaseI" />
+   	<property name="k" value="dnase-hypersensitivityStrategy" />
+  </bean>
+  
+  
+  
+   <bean id="bisulfite-seqStrategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
+     <property name="v" value="Bisulfite-Seq::Sequencing following treatment of DNA with bisulfite to convert cytosine residues to uracil depending on methylation status" />
+   <property name="k" value="bisulfite-seqStrategy" />
+  </bean>
+  
+  
+  
+   <bean id="tn-seqStrategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
+     <property name="v" value="Tn-Seq::Sequencing from transposon insertion sites" />
+   <property name="k" value="tn-seqStrategy" />
+  </bean>
+  
+  
+  
+  
+   <bean id="estStrategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
+     <property name="v" value="EST::Single pass sequencing of cDNA templates" />
+   <property name="k" value="estStrategy" />
+  </bean>
+  
+  
+   <bean id="fl-cdnaStrategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
+     <property name="v" value="FL-cDNA::Full-length sequencing of cDNA templates" />
+   <property name="k" value="fl-cdnaStrategy" />
+  </bean>
+   <bean id="ctsStrategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
+     <property name="v" value="CTS::Concatenated Tag Sequencing" />
+   <property name="k" value="ctsStrategy" />
+  </bean>
+  
+  
+  
+   <bean id="mre-seqStrategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
+     <property name="v" value="MRE-Seq::Methylation-Sensitive Restriction Enzyme Sequencing strategy" />
+   <property name="k" value="mre-seqStrategy" />
+  </bean>
+  
+   <bean id="medip-seqStrategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
+     <property name="v" value="MeDIP-Seq::Methylated DNA Immunoprecipitation Sequencing strategy" />
+   <property name="k" value="medip-seqStrategy" />
+  </bean>
+  
+  
+   <bean id="mbd-seqStrategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
+     <property name="v" value="MBD-Seq::Direct sequencing of methylated fractions sequencing strategy" />
+   <property name="k" value="mbd-seqStrategy" />
+  </bean>
+  
+  
+   <bean id="otherStrategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
+     <property name="v" value="OTHER::Library strategy not listed" />
+   <property name="k" value="otherStrategy" />
+  </bean>
+  
+  
+   
+ 
+ 
+</beans>
+
