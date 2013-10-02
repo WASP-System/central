@@ -7,7 +7,7 @@
 Ext.define('Wasp.Portal', {
 
     extend: 'Ext.container.Container',
-    requires: ['Wasp.PortalPanel', 'Wasp.PortalColumn', 'Wasp.GridPortlet', 'Wasp.ChartPortlet'],
+    requires: ['Wasp.PortalPanel', 'Wasp.PortalColumn', 'Wasp.PluginSummaryGridPortlet', 'Wasp.FileDownloadGridPortlet', 'Wasp.ChartPortlet'],
     
     width: 1500,
     height: 800,
@@ -94,6 +94,15 @@ Ext.define('Wasp.Portal', {
                     xtype: 'tabpanel',
                     region: 'center',
                     activeTab: 0,
+                    tabBar: {
+				        defaults: {
+				            //flex: 1, // if you want them to stretch all the way
+				            //height: 20, // set the height
+				        	border: 2,
+				            padding: 6 // set the padding
+				         },
+				        dock: 'top'
+				    },
                     items: []
                 }]
             }]

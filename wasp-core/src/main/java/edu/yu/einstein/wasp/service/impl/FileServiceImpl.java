@@ -191,6 +191,17 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		return fileGroupDao.getFileGroupById(id);
 	}
 
+	@Override
+	public FileGroup getFileGroup(UUID uuid) throws FileNotFoundException {
+		TypedQuery<FileGroup> fgq = fileGroupDao.getEntityManager()
+				.createQuery("select f from FileGroup f where f.uuid = :uuid", FileGroup.class)
+				.setParameter("uuid", uuid);
+		FileGroup fg = fgq.getSingleResult();
+		if (fg == null)
+			throw new FileNotFoundException("File group represented by " + uuid.toString() + " was not found.");
+		return fg;
+	}
+	
 	/**
 	 * this has actually been replaced by this.uploadJobDraftFile();
 	 * Upload submitted file to a temporary location on the remote host.
