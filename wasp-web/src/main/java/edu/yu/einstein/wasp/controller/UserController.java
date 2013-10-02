@@ -288,7 +288,8 @@ public class UserController extends WaspController {
 							user.getLastName(),	
 							rolesAsString,
 							user.getEmail(),
-							LOCALES.get(user.getLocale()),
+							//LOCALES.get(user.getLocale()),
+							this.getLocales().get(user.getLocale()),
 							user.getIsActive().intValue()==1?"yes":"no"
 				}));
 				 
