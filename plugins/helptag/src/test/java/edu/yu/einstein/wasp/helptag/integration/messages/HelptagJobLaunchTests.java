@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.yu.einstein.wasp.helptag.integration.messages.SimpleHelptagStatusMessageTemplate;
 import edu.yu.einstein.wasp.helptag.plugin.HelptagPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
