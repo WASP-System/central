@@ -74,6 +74,13 @@
 			</props>
 		</property>
 	</bean>
+	
+	<bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="${wasp.taskexecutor.corePoolSize:5}" />
+		<property name="maxPoolSize" value="${wasp.taskexecutor.maxPoolSize:10000}" />
+		<property name="keepAliveSeconds" value="${wasp.taskexecutor.keepAliveSeconds:60}" />
+		<property name="queueCapacity" value="${wasp.taskexecutor.queueCapacity:0}" />
+	</bean>
 
 	<bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
 		<property name="velocityProperties">
