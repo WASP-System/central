@@ -51,4 +51,10 @@ import edu.yu.einstein.wasp.util.SampleWrapper;
 @Service
 public interface StrategyService extends WaspMessageHandlingService{
 	public Strategy save(Strategy strategy);
+	public List<Strategy> getAllStrategies();
+	public List<Strategy> getAllStrategiesOrderedByStrategy();
+	public List<Strategy> getAllStrategiesOrderedByDisplayStrategy();
+	public Strategy getStrategyObjectByStrategy(String strategy);
+		
+		
 }
