@@ -43,6 +43,8 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
+import edu.yu.einstein.wasp.model.Workflow;
+import edu.yu.einstein.wasp.model.WorkflowMeta;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
 import edu.yu.einstein.wasp.service.impl.SampleServiceImpl.LockStatus;
 import edu.yu.einstein.wasp.util.SampleWrapper;
@@ -50,11 +52,16 @@ import edu.yu.einstein.wasp.util.SampleWrapper;
 
 @Service
 public interface StrategyService extends WaspMessageHandlingService{
-	public Strategy save(Strategy strategy);
-	public List<Strategy> getAllStrategies();
-	public List<Strategy> getAllStrategiesOrderedByStrategy();
-	public List<Strategy> getAllStrategiesOrderedByDisplayStrategy();
-	public Strategy getStrategyObjectByStrategy(String strategy);
 		
+	static final String WORKFLOW_KEY = "workflow.strategy";
+
+	public Strategy save(Strategy strategy);//save to table Meta
+	public List<Strategy> getAllStrategies();//from table Meta
+	public List<Strategy> getAllStrategiesOrderedByStrategy();//from table Meta
+	public List<Strategy> getAllStrategiesOrderedByDisplayStrategy();//from table Meta
+	public Strategy getStrategyObjectByStrategy(String strategy);//from table Meta
+	
+	public WorkflowMeta saveStrategyToWorkflowMeta(Workflow workflow, Strategy strategy);//save to WorkflowMeta
+	public Strategy getStrategyFromWorkflowMeta(Workflow workflow);//get from WorkflowMeta
 		
 }

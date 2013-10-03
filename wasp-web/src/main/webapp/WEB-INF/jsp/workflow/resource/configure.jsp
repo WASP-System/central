@@ -14,7 +14,10 @@
 		var="workflowResourceType">
 		<section style="margin-bottom: 20px">
 			<h2>
-				<c:out value="${workflowResourceType.resourceType.name}" />
+				<c:out value="${workflowResourceType.resourceType.name}" /> 
+				<c:if test='${workflowResourceType.resourceType.getIName()=="libraryStrategy"}'>
+					<a <%-- class="button" --%> id="libraryStrategyAnchor" style="font-size: x-small;" href="javascript:void(0);" >View / Hide SRA Definitions</a>
+				</c:if>
 			</h2>
 			<c:forEach items="${workflowResourceType.resourceType.resourceCategory}"	var="rc">
 				<c:if test="${rc.isActive == 1 }">
@@ -99,7 +102,29 @@
 						</div>
 					</div>
 				</c:if>
-			</c:forEach>
+			</c:forEach>			 
+			<c:if test='${workflowResourceType.resourceType.getIName()=="libraryStrategy"}'>
+				<div id="libraryStrategyTable" style="display:none">
+				    <br />
+				  	<table class="data" style="margin: 0px 0px">
+				  		<tr class="FormData">
+				  			<td class="label-centered" style="background-color:#FAF2D6">Common-Name Strategy</td><td  class="label-centered" style="background-color:#FAF2D6">SRA Strategy</td><td  class="label-centered" style="background-color:#FAF2D6">SRA Definition</td>
+				  		</tr>
+				  		<c:forEach items="${strategies}" var="strategy">
+				  		<tr>
+				  			<td ><c:out value="${strategy.getDisplayStrategy()}" /></td><td ><c:out value="${strategy.getStrategy()}" /></td><td style="width:250px"><c:out value="${strategy.getDescription()}" /></td>
+				  		</tr>
+				  		</c:forEach>
+				 	</table>
+				 	<br />
+			  	</div>
+			  	<select class="FormElement ui-widget-content ui-corner-all" name="strategy" id="strategy" size="1" >
+					<option value="">--Select--</option>
+					<c:forEach items="${strategies}" var="strategy">								
+						<option value="<c:out value="${strategy.getStrategy()}" />" <c:if test="${strategy.getStrategy()==thisWorkflowStrategy.getStrategy()}">SELECTED</c:if> ><c:out value="${strategy.getDisplayStrategy()}" /> (SRA: <c:out value="${strategy.getStrategy()}" />)</option>
+					</c:forEach>
+				</select>			
+			</c:if>
 		</section>
 	</c:forEach>
 	<input type="hidden" name="requiredResourceCategoryOptions" value="<c:out value="${requiredResourceCategoryOptions}" />" />

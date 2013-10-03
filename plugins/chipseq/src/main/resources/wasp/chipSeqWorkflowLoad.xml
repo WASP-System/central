@@ -41,6 +41,7 @@
         <ref bean="mpsResourceType" />
         <ref bean="referenceBasedAlignerResourceType" />
         <ref bean="peakcallerResourceType" />
+        <ref bean="libraryStrategyResourceType" />
       </list>
     </property>
 

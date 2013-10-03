@@ -72,6 +72,7 @@ import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.SoftwareDao;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
+import edu.yu.einstein.wasp.dao.WorkflowMetaDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
@@ -121,6 +122,8 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.Workflow;
+import edu.yu.einstein.wasp.model.WorkflowMeta;
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.quote.MPSQuote;
@@ -146,6 +149,8 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 
 	@Autowired
 	private MetaDao metaDao;
+	@Autowired
+	private WorkflowMetaDao workflowMetaDao;
 	
 	public Strategy save(Strategy strategy){
 		
@@ -235,5 +240,27 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 			}
 		}
 		return strategyObject;
+	}
+	
+
+	public WorkflowMeta saveStrategyToWorkflowMeta(Workflow workflow, Strategy strategy){//save to WorkflowMeta
+				
+		WorkflowMeta workflowMeta = workflowMetaDao.getWorkflowMetaByKWorkflowId(StrategyService.WORKFLOW_KEY, workflow.getId());
+		workflowMeta.setK(StrategyService.WORKFLOW_KEY);
+		workflowMeta.setV( Strategy.KEY_PREFIX+strategy.getStrategy() );
+		workflowMeta.setWorkflowId(workflow.getId());
+		
+		workflowMeta = workflowMetaDao.save(workflowMeta);		
+		return workflowMeta;
+	}
+
+	public Strategy getStrategyFromWorkflowMeta(Workflow workflow){//get from WorkflowMeta
+		
+		WorkflowMeta workflowMeta = workflowMetaDao.getWorkflowMetaByKWorkflowId(StrategyService.WORKFLOW_KEY, workflow.getId());
+		if(workflowMeta.getId()==null){
+			return new Strategy();
+		}
+		Strategy strategy = this.getStrategyObjectByStrategy(workflowMeta.getV());
+		return strategy;
 	}
 }

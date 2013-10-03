@@ -185,7 +185,7 @@
    
    <bean id="OTHER_Strategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
      <property name="strategy" value="OTHER" />
-     <property name="displayStrategy" value="OTHER" />
+     <property name="displayStrategy" value="Other" />
      <property name="description" value="Library strategy not listed" />
      <property name="available" value="true" />
     <property name="sraCompatible" value="true" />
