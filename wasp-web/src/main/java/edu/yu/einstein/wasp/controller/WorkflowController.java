@@ -289,7 +289,13 @@ public class WorkflowController extends WaspController {
 		}
 
 		// loads all strategies
-		List<Strategy> strategies = strategyService.getAllStrategiesOrderedByDisplayStrategy();
+		List<Strategy> strategies = new ArrayList<Strategy>();
+		for(WorkflowResourceType wfrt :workflowResourceTypes){
+			if(wfrt.getResourceType().getIName().toLowerCase().contains(Strategy.KEY_PREFIX.toLowerCase())){
+				strategies = strategyService.getAllStrategiesByStrategyType(wfrt.getResourceType().getIName().toLowerCase());
+				strategyService.orderStrategiesByDisplayStrategy(strategies);
+			}
+		}
 		//get this workflow's strategy (if assigned)
 		Strategy thisWorkflowStrategy = strategyService.getStrategyFromWorkflowMeta(workflow);
 		
@@ -532,7 +538,7 @@ public class WorkflowController extends WaspController {
 					WorkflowMeta workflowMeta = strategyService.saveStrategyToWorkflowMeta(workflow, strategyObject);
 					if(workflowMeta.getId()!=null){System.out.println("-----at D");
 						for(WorkflowResourceType wrt: workflow.getWorkflowResourceType()){System.out.println("-----at E");
-							if(wrt.getResourceType().getIName().toLowerCase().contains("library") && wrt.getResourceType().getIName().toLowerCase().contains("strategy")){
+							if(wrt.getResourceType().getIName().toLowerCase().contains(Strategy.KEY_PREFIX)){
 								System.out.println("-----at F");
 								if (resourceTypeIds.contains(wrt.getResourceTypeId())){System.out.println("-----at G");
 									resourceTypeIds.remove(wrt.getResourceTypeId());

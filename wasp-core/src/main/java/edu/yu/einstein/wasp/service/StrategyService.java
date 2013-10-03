@@ -55,10 +55,17 @@ public interface StrategyService extends WaspMessageHandlingService{
 		
 	static final String WORKFLOW_KEY = "workflow.strategy";
 
-	public Strategy save(Strategy strategy);//save to table Meta
+	public Strategy saveDuringInitialLoading(Strategy strategy);//save to table Meta
 	public List<Strategy> getAllStrategies();//from table Meta
-	public List<Strategy> getAllStrategiesOrderedByStrategy();//from table Meta
-	public List<Strategy> getAllStrategiesOrderedByDisplayStrategy();//from table Meta
+	public List<Strategy> getAllStrategiesByStrategyType(String strategyType);//from table Meta
+		
+	public List<Strategy> getAllStrategiesOrderByStrategy();//from table Meta
+	public List<Strategy> getAllStrategiesOrderByDisplayStrategy();//from table Meta
+	
+	public void orderStrategiesByDisplayStrategy(List<Strategy> strategies);//from table Meta
+	public void orderStrategiesByStrategy(List<Strategy> strategies);//from table Meta
+
+	
 	public Strategy getStrategyObjectByStrategy(String strategy);//from table Meta
 	
 	public WorkflowMeta saveStrategyToWorkflowMeta(Workflow workflow, Strategy strategy);//save to WorkflowMeta

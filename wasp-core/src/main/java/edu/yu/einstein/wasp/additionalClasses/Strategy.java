@@ -7,15 +7,16 @@ import edu.yu.einstein.wasp.model.WaspModel;
 
 public class Strategy extends WaspModel {
 
-	public static final String KEY_PREFIX = "strategy.";
+	public static final String KEY_PREFIX = "strategy";
 	public static final String SEPARATOR = "::";	
 	
+	private String type;
 	private String strategy;
 	private String displayStrategy;
 	private String description;	
 	private String available;
 	private String sraCompatible;
-	private Integer id;
+	private Integer id;//id is stolen from meta.getId()
 	
 	public Strategy(){}
 	
@@ -28,7 +29,8 @@ public class Strategy extends WaspModel {
 	}
 	 */	
 	
-	public Strategy(Integer id, String strategy, String displayStrategy, String description, String available, String sraCompatible){
+	public Strategy(Integer id, String type, String strategy, String displayStrategy, String description, String available, String sraCompatible){
+		setType(type);
 		setStrategy(strategy);
 		setDisplayStrategy(displayStrategy);
 		setDescription(description);
@@ -38,6 +40,7 @@ public class Strategy extends WaspModel {
 		setId(id);
 	}
 
+	public void setType(String type){ this.type = type; }
 	public void setStrategy(String strategy){ this.strategy = strategy; }
 	public void setDisplayStrategy(String displayStrategy){ this.displayStrategy = displayStrategy; }
 	public void setDescription(String description){ this.description = description; }
@@ -46,6 +49,7 @@ public class Strategy extends WaspModel {
 	
 	public void setId(Integer id){ this.id = id; }
 	
+	public String getType(){ return this.type; }
 	public String getStrategy(){ return this.strategy; }
 	public String getDisplayStrategy(){ return this.displayStrategy; }
 	public String getDescription(){ return this.description; }
