@@ -8,7 +8,6 @@ import edu.yu.einstein.wasp.model.WaspModel;
 
 public class Strategy extends WaspModel {
 
-	//public static final String KEY_PREFIX = "strategy";
 	public static final String SEPARATOR = "::";	
 	
 	private String type;
@@ -21,14 +20,6 @@ public class Strategy extends WaspModel {
 	
 	public Strategy(){}
 	
-	/*
-	public Strategy(String strategy, String displayStrategy, String description, String available){
-		setStrategy(strategy);
-		setDisplayStrategy(displayStrategy);
-		setDescription(description);
-		setAvailable(available);
-	}
-	 */	
 	
 	public Strategy(Integer id, String type, String strategy, String displayStrategy, String description, String available, String sraCompatible){
 		setType(type);

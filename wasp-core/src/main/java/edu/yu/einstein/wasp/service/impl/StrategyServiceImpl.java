@@ -23,10 +23,8 @@ import edu.yu.einstein.wasp.additionalClasses.Strategy;
 import edu.yu.einstein.wasp.dao.MetaDao;
 import edu.yu.einstein.wasp.dao.WorkflowMetaDao;
 import edu.yu.einstein.wasp.model.Meta;
-import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.WorkflowMeta;
-import edu.yu.einstein.wasp.model.WorkflowResourceType;
 import edu.yu.einstein.wasp.service.StrategyService;
 
 @Service
@@ -64,26 +62,7 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 			}
 			return strategy;
 	}
-	/*
-	public List<Strategy> getAllStrategies(){
-		List<Strategy> strategies = new ArrayList<Strategy>();
-		for(Meta meta : metaDao.findAll()){
-			if(meta.getK().startsWith(Strategy.KEY_PREFIX)){
-				String encodedStrategy = meta.getV();
-				if(encodedStrategy==null){
-					continue;
-				}
-				String [] stringArray = meta.getV().split(Strategy.SEPARATOR);
-				if(stringArray.length != 6){
-					continue;
-				}
-				Strategy strategy = new Strategy(meta.getId(), stringArray[0],stringArray[1],stringArray[2],stringArray[3], stringArray[4], stringArray[5]);
-				strategies.add(strategy);
-			}
-		}
-		return strategies;		
-	}
-	*/
+
 	public List<Strategy> getStrategiesByStrategyType(String strategyType){
 		List<Strategy> filteredStrategies = new ArrayList<Strategy>();
 		for(Meta meta : metaDao.findAll()){
@@ -103,19 +82,6 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 		return filteredStrategies;	
 	}
 
-	/*
-	public List<Strategy> getAllStrategiesOrderByStrategy(){
-		List<Strategy> strategies = this.getAllStrategies();
-		Collections.sort(strategies, new StrategyComparatorOrderByStrategy());
-		return strategies;
-	}
-	
-	public List<Strategy> getAllStrategiesOrderByDisplayStrategy(){
-		List<Strategy> strategies = this.getAllStrategies();
-		Collections.sort(strategies, new StrategyComparatorOrderByDisplayStrategy());
-		return strategies;
-	}
-	*/
 	public void orderStrategiesByDisplayStrategy(List<Strategy> strategies){
 		Collections.sort(strategies, new StrategyComparatorOrderByDisplayStrategy());
 	}
@@ -202,17 +168,6 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 		return workflowMeta;
 	}
 
-	/*
-	public Strategy getStrategyFromWorkflowMeta(Workflow workflow){//get from WorkflowMeta
-		
-		WorkflowMeta workflowMeta = workflowMetaDao.getWorkflowMetaByKWorkflowId("abc", workflow.getId());
-		if(workflowMeta.getId()==null){
-			return new Strategy();
-		}
-		Strategy strategy = this.getStrategyObjectByStrategy(workflowMeta.getV());
-		return strategy;
-	}
-	*/
 	public List<Strategy> getThisWorkflowsStrategies(String strategyType, Workflow workflow){
 		List<Strategy> strategies = new ArrayList<Strategy>();
 		WorkflowMeta workflowMeta = workflowMetaDao.getWorkflowMetaByKWorkflowId(strategyType, workflow.getId());

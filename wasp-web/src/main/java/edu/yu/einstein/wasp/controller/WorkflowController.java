@@ -301,8 +301,6 @@ public class WorkflowController extends WaspController {
 			}
 		}
 		
-		System.out.println("---------count: "+thisWorkflowsStrategies.size());
-		
 		m.put("workflowId", workflowId);
 		m.put("workflow", workflow);
 		m.put("workflowResourceTypeMap", workflowResourceTypes);
