@@ -15,9 +15,6 @@
 		<section style="margin-bottom: 20px">
 			<h2>
 				<c:out value="${workflowResourceType.resourceType.name}" /> 
-				<c:if test='${workflowResourceType.resourceType.getIName()=="libraryStrategy"}'>
-					<a <%-- class="button" --%> id="libraryStrategyAnchor" style="font-size: x-small;" href="javascript:void(0);" >View / Hide SRA Definitions</a>
-				</c:if>
 			</h2>
 			<c:forEach items="${workflowResourceType.resourceType.resourceCategory}"	var="rc">
 				<c:if test="${rc.isActive == 1 }">
@@ -103,58 +100,12 @@
 					</div>
 				</c:if>
 			</c:forEach>			 
-			<c:if test='${workflowResourceType.resourceType.getIName()=="libraryStrategy"}'>
-				<%-- 
-				<div id="libraryStrategyTable" style="display:none">
-				    <br />
-				  	<table class="data" style="margin: 0px 0px">
-				  		<tr class="FormData">
-				  			<td class="label-centered" style="background-color:#FAF2D6">Common-Name Strategy</td><td  class="label-centered" style="background-color:#FAF2D6">SRA Strategy</td><td  class="label-centered" style="background-color:#FAF2D6">SRA Definition</td>
-				  		</tr>
-				  		<c:forEach items="${strategies}" var="strategy">
-				  		<tr>
-				  			<td ><c:out value="${strategy.getDisplayStrategy()}" /></td><td ><c:out value="${strategy.getStrategy()}" /></td><td style="width:250px"><c:out value="${strategy.getDescription()}" /></td>
-				  		</tr>
-				  		</c:forEach>
-				 	</table>
-				 	<br />
-			  	</div>
-			  	<select class="FormElement ui-widget-content ui-corner-all" name="strategyKey" id="strategyKey" size="${fn:length(strategies)}" multiple>
-					<!--  <option value="">--Select Option(s)--</option>-->
-					<c:forEach items="${strategies}" var="strategy">								
-						<option value="<c:out value="${strategy.getType()}" /><c:out value="." /><c:out value="${strategy.getStrategy()}" />" 
-						
-						<c:forEach items="${thisWorkflowsStrategies}" var="workflowStrategy">						
-							<c:if test="${strategy.getId()==workflowStrategy.getId()}">
-								style="color:red; font-weight:bold; " 
-							</c:if> 
-						</c:forEach>
-						
-						><c:out value="${strategy.getDisplayStrategy()}" /> (SRA: <c:out value="${strategy.getStrategy()}" />)</option>
-					</c:forEach>
-				</select>
-				<br />
-				<select class="FormElement ui-widget-content ui-corner-all" name="strategyKey" id="strategyKey" size="${fn:length(strategies)}" multiple>
-					 <option value="">--Select Option(s)--</option>
-					<c:forEach items="${strategies}" var="strategy">								
-						<option value="<c:out value="${strategy.getType()}" /><c:out value="." /><c:out value="${strategy.getStrategy()}" />" 
-						
-						<c:forEach items="${thisWorkflowsStrategies}" var="workflowStrategy">						
-							<c:if test="${strategy.getId()==workflowStrategy.getId()}">
-								SELECTED 
-							</c:if> 
-						</c:forEach>
-						
-						><c:out value="${strategy.getDisplayStrategy()}" /> (SRA: <c:out value="${strategy.getStrategy()}" />)</option>
-					</c:forEach>
-				</select>
-				<br />
-				 --%>
+			<c:if test='${fn:containsIgnoreCase(workflowResourceType.resourceType.getIName(), "strategy")}'>
 				 <table class="data" style="margin: 0px 0px">
-				  		<tr class="FormData">
-				  			<td class="label-centered" style="background-color:#FAF2D6">Common-Name Strategy</td><td  class="label-centered" style="background-color:#FAF2D6">SRA Strategy</td><td  class="label-centered" style="background-color:#FAF2D6">SRA Definition</td>
-				  		</tr>
-				  		<c:forEach items="${strategies}" var="strategy">
+			  		<tr class="FormData">
+			  			<td class="label-centered" style="background-color:#FAF2D6">Common-Name Strategy</td><td  class="label-centered" style="background-color:#FAF2D6">SRA Strategy</td><td  class="label-centered" style="background-color:#FAF2D6">SRA Definition</td>
+			  		</tr>
+			  		<c:forEach items="${strategies}" var="strategy">
 				  		<tr>
 				  			<td style="font-size:small">
 				  				<input type="checkbox" name="strategyKey" value="<c:out value="${strategy.getType()}" /><c:out value="." /><c:out value="${strategy.getStrategy()}" />" 
@@ -167,14 +118,8 @@
 				  				&nbsp;<c:out value="${strategy.getDisplayStrategy()}" /></td><td style="font-size:small"><c:out value="${strategy.getStrategy()}" /></td><td style="font-size:small;width:250px"><c:out value="${strategy.getDescription()}" />
 				  			</td>
 				  		</tr>
-				  		</c:forEach>
-				 	</table>	
-				 	
-			 	
-				 	
-				 	
-				 	
-				 		
+			  		</c:forEach>
+				</table>	
 			</c:if>
 		</section>
 	</c:forEach>
