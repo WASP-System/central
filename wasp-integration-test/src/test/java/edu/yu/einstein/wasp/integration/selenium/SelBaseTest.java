@@ -16,6 +16,7 @@ import org.openqa.selenium.firefox.FirefoxBinary;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.firefox.internal.ProfilesIni;
+import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.ITestContext;
 import org.testng.annotations.AfterSuite;
@@ -59,7 +60,13 @@ public class SelBaseTest {
 	    driver = new FirefoxDriver(firefoxBinary, null);
 	    driver.manage().window().setSize(new Dimension(1920, 1080));	   
 	    driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        
+	    
+	    /*
+	    driver = new SafariDriver();
+	    driver.manage().window().setSize(new Dimension(1920, 1080));	   
+	    driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        */
+	    
         // Take snapshot of browser
         File srcFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
         FileUtils.copyFile(srcFile, new File("ffsnapshot.png"));
@@ -90,7 +97,7 @@ public class SelBaseTest {
 	@AfterSuite
     public void tearDown() throws SQLException{
         connection.close();
-        driver.quit();
+        //driver.quit();
         
     } 
 	
