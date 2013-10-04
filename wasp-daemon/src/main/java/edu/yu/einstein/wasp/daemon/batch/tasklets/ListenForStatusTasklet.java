@@ -19,6 +19,7 @@ import org.springframework.integration.MessagingException;
 import org.springframework.integration.core.SubscribableChannel;
 
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
+import edu.yu.einstein.wasp.exception.TaskletRetryException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
@@ -118,11 +119,12 @@ public class ListenForStatusTasklet extends WaspMessageHandlingTasklet  {
 	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
 		logger.trace(name + "execute() invoked");
-		if (messageQueue.isEmpty() && !abandonStep){
+		while (messageQueue.isEmpty() && !abandonStep){
 			try{
 				Thread.sleep(executeRepeatDelay);
 			} catch (InterruptedException e){}  // happens when message handled 
-			return RepeatStatus.CONTINUABLE;
+			//return RepeatStatus.CONTINUABLE;
+			//throw new TaskletRetryException("task not complete.");
 		}	
 		return RepeatStatus.FINISHED;
 	}

@@ -11,6 +11,7 @@
 	<batch:flow id="default.waspJob.flow.approvals.v1" >
 	    <batch:step id="default.waspJob.step.started" next="default.waspJob.postSubmitApprovalTasks">
 			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
@@ -40,6 +41,7 @@
 				</batch:step>
 				<batch:step id="default.waspJob.step.rejectedByPi">
 					<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 						<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 							<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 							<constructor-arg name="messageTemplate">
@@ -54,6 +56,7 @@
 				
 				<batch:step id="default.waspJob.step.approvedByPi">
 					<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 						<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" />
 					</batch:tasklet>
 				</batch:step>
@@ -85,6 +88,7 @@
 		</batch:split>
 		<batch:step id="default.waspJob.step.approved" next="default.waspJob.step.listenForAnalysisComplete">
 			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
@@ -98,6 +102,7 @@
 		</batch:step>
 		<batch:step id="default.waspJob.step.rejected">
 			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
@@ -111,6 +116,7 @@
 		</batch:step>
 		<batch:step id="default.waspJob.step.listenForAnalysisComplete" next="default.waspJob.step.notifyJobComplete">
 			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
 					<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.analysis" />
 					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
@@ -127,6 +133,7 @@
 		</batch:step>
 		<batch:step id="default.waspJob.step.notifyJobComplete">
 			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
@@ -146,6 +153,7 @@
 		<!-- or if the job is aborted with an ABANDONED message at time e.g. via a message from the web layer -->
 		<batch:step id="default.waspJob.step.listenForExitCondition">
 			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForExitConditionTasklet" scope="step">
 					<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
 					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
