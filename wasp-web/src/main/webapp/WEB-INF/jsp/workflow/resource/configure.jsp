@@ -101,21 +101,25 @@
 				</c:if>
 			</c:forEach>			 
 			<c:if test='${fn:containsIgnoreCase(workflowResourceType.resourceType.getIName(), "strategy")}'>
+				<span style="padding:3px; border: 1px solid black;">
+					<a id="checkAllStrategies" <%-- class="button" --%> href="javascript:void(0);"  >check all</a>
+					| <a id="uncheckAllStrategies" <%-- class="button" --%> href="javascript:void(0);" >uncheck all</a>
+				</span><br /><br />
 				 <table class="data" style="margin: 0px 0px">
 			  		<tr class="FormData">
 			  			<td class="label-centered" style="background-color:#FAF2D6">Common-Name Strategy</td><td  class="label-centered" style="background-color:#FAF2D6">SRA Strategy</td><td  class="label-centered" style="background-color:#FAF2D6">SRA Definition</td>
 			  		</tr>
 			  		<c:forEach items="${strategies}" var="strategy">
 				  		<tr>
-				  			<td style="font-size:small">
-				  				<input type="checkbox" name="strategyKey" value="<c:out value="${strategy.getType()}" /><c:out value="." /><c:out value="${strategy.getStrategy()}" />" 
+				  			<td style="font-size:x-small">
+				  				<input type="checkbox" id="strategyKey${strategy.getStrategy()}" name="strategyKey" value="<c:out value="${strategy.getType()}" /><c:out value="." /><c:out value="${strategy.getStrategy()}" />" 
 				  					<c:forEach items="${thisWorkflowsStrategies}" var="workflowStrategy">						
 										<c:if test="${strategy.getId()==workflowStrategy.getId()}">
 											CHECKED 
 										</c:if> 
 									</c:forEach>
 				  				/>
-				  				&nbsp;<c:out value="${strategy.getDisplayStrategy()}" /></td><td style="font-size:small"><c:out value="${strategy.getStrategy()}" /></td><td style="font-size:small;width:250px"><c:out value="${strategy.getDescription()}" />
+				  				&nbsp;<c:out value="${strategy.getDisplayStrategy()}" /></td><td style="font-size:x-small"><c:out value="${strategy.getStrategy()}" /></td><td style="font-size:x-small;width:250px"><c:out value="${strategy.getDescription()}" />
 				  			</td>
 				  		</tr>
 			  		</c:forEach>
@@ -127,6 +131,7 @@
 	<input type="hidden" name="requiredSoftwareOptions" value="<c:out value="${requiredSoftwareOptions}" />" />
 	<div class="submit">
 		<input class="FormElement ui-widget-content ui-corner-all" type="submit" name="submit" value="<fmt:message key="workflow.submit.label" />" />
+		<input class="FormElement ui-widget-content ui-corner-all" type="reset" name="reset" value="Reset">
 		<input class="FormElement ui-widget-content ui-corner-all" type="submit" name="submit" value="<fmt:message key="workflow.cancel.label" />">
 	</div>
 </form:form>
