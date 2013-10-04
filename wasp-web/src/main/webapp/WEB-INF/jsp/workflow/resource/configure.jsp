@@ -104,6 +104,7 @@
 				</c:if>
 			</c:forEach>			 
 			<c:if test='${workflowResourceType.resourceType.getIName()=="libraryStrategy"}'>
+				<%-- 
 				<div id="libraryStrategyTable" style="display:none">
 				    <br />
 				  	<table class="data" style="margin: 0px 0px">
@@ -118,12 +119,62 @@
 				 	</table>
 				 	<br />
 			  	</div>
-			  	<select class="FormElement ui-widget-content ui-corner-all" name="strategy" id="strategy" size="1" >
-					<option value="">--Select--</option>
+			  	<select class="FormElement ui-widget-content ui-corner-all" name="strategyKey" id="strategyKey" size="${fn:length(strategies)}" multiple>
+					<!--  <option value="">--Select Option(s)--</option>-->
 					<c:forEach items="${strategies}" var="strategy">								
-						<option value="<c:out value="${strategy.getStrategy()}" />" <c:if test="${strategy.getStrategy()==thisWorkflowStrategy.getStrategy()}">SELECTED</c:if> ><c:out value="${strategy.getDisplayStrategy()}" /> (SRA: <c:out value="${strategy.getStrategy()}" />)</option>
+						<option value="<c:out value="${strategy.getType()}" /><c:out value="." /><c:out value="${strategy.getStrategy()}" />" 
+						
+						<c:forEach items="${thisWorkflowsStrategies}" var="workflowStrategy">						
+							<c:if test="${strategy.getId()==workflowStrategy.getId()}">
+								style="color:red; font-weight:bold; " 
+							</c:if> 
+						</c:forEach>
+						
+						><c:out value="${strategy.getDisplayStrategy()}" /> (SRA: <c:out value="${strategy.getStrategy()}" />)</option>
 					</c:forEach>
-				</select>			
+				</select>
+				<br />
+				<select class="FormElement ui-widget-content ui-corner-all" name="strategyKey" id="strategyKey" size="${fn:length(strategies)}" multiple>
+					 <option value="">--Select Option(s)--</option>
+					<c:forEach items="${strategies}" var="strategy">								
+						<option value="<c:out value="${strategy.getType()}" /><c:out value="." /><c:out value="${strategy.getStrategy()}" />" 
+						
+						<c:forEach items="${thisWorkflowsStrategies}" var="workflowStrategy">						
+							<c:if test="${strategy.getId()==workflowStrategy.getId()}">
+								SELECTED 
+							</c:if> 
+						</c:forEach>
+						
+						><c:out value="${strategy.getDisplayStrategy()}" /> (SRA: <c:out value="${strategy.getStrategy()}" />)</option>
+					</c:forEach>
+				</select>
+				<br />
+				 --%>
+				 <table class="data" style="margin: 0px 0px">
+				  		<tr class="FormData">
+				  			<td class="label-centered" style="background-color:#FAF2D6">Common-Name Strategy</td><td  class="label-centered" style="background-color:#FAF2D6">SRA Strategy</td><td  class="label-centered" style="background-color:#FAF2D6">SRA Definition</td>
+				  		</tr>
+				  		<c:forEach items="${strategies}" var="strategy">
+				  		<tr>
+				  			<td style="font-size:small">
+				  				<input type="checkbox" name="strategyKey" value="<c:out value="${strategy.getType()}" /><c:out value="." /><c:out value="${strategy.getStrategy()}" />" 
+				  					<c:forEach items="${thisWorkflowsStrategies}" var="workflowStrategy">						
+										<c:if test="${strategy.getId()==workflowStrategy.getId()}">
+											CHECKED 
+										</c:if> 
+									</c:forEach>
+				  				/>
+				  				&nbsp;<c:out value="${strategy.getDisplayStrategy()}" /></td><td style="font-size:small"><c:out value="${strategy.getStrategy()}" /></td><td style="font-size:small;width:250px"><c:out value="${strategy.getDescription()}" />
+				  			</td>
+				  		</tr>
+				  		</c:forEach>
+				 	</table>	
+				 	
+			 	
+				 	
+				 	
+				 	
+				 		
 			</c:if>
 		</section>
 	</c:forEach>

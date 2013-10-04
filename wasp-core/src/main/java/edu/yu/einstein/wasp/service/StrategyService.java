@@ -56,19 +56,21 @@ public interface StrategyService extends WaspMessageHandlingService{
 	static final String WORKFLOW_KEY = "workflow.strategy";
 
 	public Strategy saveDuringInitialLoading(Strategy strategy);//save to table Meta
-	public List<Strategy> getAllStrategies();//from table Meta
-	public List<Strategy> getAllStrategiesByStrategyType(String strategyType);//from table Meta
+	//public List<Strategy> getAllStrategies();//from table Meta
+	public List<Strategy> getStrategiesByStrategyType(String strategyType);//from table Meta
 		
-	public List<Strategy> getAllStrategiesOrderByStrategy();//from table Meta
-	public List<Strategy> getAllStrategiesOrderByDisplayStrategy();//from table Meta
+	//public List<Strategy> getAllStrategiesOrderByStrategy();//from table Meta
+	//public List<Strategy> getAllStrategiesOrderByDisplayStrategy();//from table Meta
 	
 	public void orderStrategiesByDisplayStrategy(List<Strategy> strategies);//from table Meta
 	public void orderStrategiesByStrategy(List<Strategy> strategies);//from table Meta
 
 	
-	public Strategy getStrategyObjectByStrategy(String strategy);//from table Meta
+	//public Strategy getStrategyObjectByStrategy(String strategy);//from table Meta
+	public Strategy getStrategyByKey(String key); //from table Meta
 	
+	public WorkflowMeta saveStrategiesToWorkflowMeta(Workflow workflow, List<String> strategyKeyList, String strategyType) throws Exception;//save to WorkflowMeta
 	public WorkflowMeta saveStrategyToWorkflowMeta(Workflow workflow, Strategy strategy);//save to WorkflowMeta
-	public Strategy getStrategyFromWorkflowMeta(Workflow workflow);//get from WorkflowMeta
-		
+	//public Strategy getStrategyFromWorkflowMeta(Workflow workflow);//get from WorkflowMeta
+	public List<Strategy> getThisWorkflowsStrategies(String strategyType,  Workflow workflow);	//get from WorkflowMeta
 }

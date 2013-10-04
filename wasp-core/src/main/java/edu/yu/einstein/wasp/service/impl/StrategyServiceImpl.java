@@ -23,8 +23,10 @@ import edu.yu.einstein.wasp.additionalClasses.Strategy;
 import edu.yu.einstein.wasp.dao.MetaDao;
 import edu.yu.einstein.wasp.dao.WorkflowMetaDao;
 import edu.yu.einstein.wasp.model.Meta;
+import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.WorkflowMeta;
+import edu.yu.einstein.wasp.model.WorkflowResourceType;
 import edu.yu.einstein.wasp.service.StrategyService;
 
 @Service
@@ -44,9 +46,10 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 			Assert.assertParameterNotNull(strategy.getAvailable(), "available Cannot be null");
 			Assert.assertParameterNotNull(strategy.getSraCompatible(), "sraCompatible Cannot be null");
 			
-			Meta meta = metaDao.getMetaByK(Strategy.KEY_PREFIX+strategy.getStrategy());
+			String key = strategy.getType()+"."+strategy.getStrategy();
+			Meta meta = metaDao.getMetaByK(key);
 			
-			meta.setK(Strategy.KEY_PREFIX+strategy.getStrategy());
+			meta.setK(strategy.getType()+"."+strategy.getStrategy());
 			
 			meta.setV( strategy.getType()+Strategy.SEPARATOR+
 					   strategy.getStrategy()+Strategy.SEPARATOR+
@@ -61,7 +64,7 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 			}
 			return strategy;
 	}
-	
+	/*
 	public List<Strategy> getAllStrategies(){
 		List<Strategy> strategies = new ArrayList<Strategy>();
 		for(Meta meta : metaDao.findAll()){
@@ -80,18 +83,27 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 		}
 		return strategies;		
 	}
-	
-	public List<Strategy> getAllStrategiesByStrategyType(String strategyType){
+	*/
+	public List<Strategy> getStrategiesByStrategyType(String strategyType){
 		List<Strategy> filteredStrategies = new ArrayList<Strategy>();
-		for(Strategy strategyObject : getAllStrategies()){
-			if(strategyObject.getType().toLowerCase().contains(strategyType.toLowerCase())){
-				filteredStrategies.add(strategyObject);
+		for(Meta meta : metaDao.findAll()){
+			if(meta.getK().toLowerCase().startsWith(strategyType.toLowerCase())){
+				String encodedStrategy = meta.getV();
+				if(encodedStrategy==null){
+					continue;
+				}
+				String [] stringArray = meta.getV().split(Strategy.SEPARATOR);
+				if(stringArray.length != 6){
+					continue;
+				}
+				Strategy strategy = new Strategy(meta.getId(), stringArray[0],stringArray[1],stringArray[2],stringArray[3], stringArray[4], stringArray[5]);
+				filteredStrategies.add(strategy);
 			}
 		}
-		return filteredStrategies;		
+		return filteredStrategies;	
 	}
 
-	
+	/*
 	public List<Strategy> getAllStrategiesOrderByStrategy(){
 		List<Strategy> strategies = this.getAllStrategies();
 		Collections.sort(strategies, new StrategyComparatorOrderByStrategy());
@@ -103,7 +115,7 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 		Collections.sort(strategies, new StrategyComparatorOrderByDisplayStrategy());
 		return strategies;
 	}
-	
+	*/
 	public void orderStrategiesByDisplayStrategy(List<Strategy> strategies){
 		Collections.sort(strategies, new StrategyComparatorOrderByDisplayStrategy());
 	}
@@ -125,46 +137,96 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 	    }
 	}
 	
-	public Strategy getStrategyObjectByStrategy(String strategy){
+	public Strategy getStrategyByKey(String key){
 		Meta meta;
-		Strategy strategyObject = new Strategy();
-		if(strategy.startsWith(Strategy.KEY_PREFIX)){
-			meta = metaDao.getMetaByK(strategy);
-		}
-		else{
-			meta = metaDao.getMetaByK(Strategy.KEY_PREFIX+strategy);
-		}
+		Strategy strategy = new Strategy();
+		meta = metaDao.getMetaByK(key);
+		
 		if(meta.getId()!=null){
 			String encodedStrategy = meta.getV();
 			if(encodedStrategy!=null){
 				String [] stringArray = meta.getV().split(Strategy.SEPARATOR);
 				if(stringArray.length == 6){
-					strategyObject = new Strategy(meta.getId(), stringArray[0],stringArray[1],stringArray[2],stringArray[3], stringArray[4], stringArray[5]);
+					strategy = new Strategy(meta.getId(), stringArray[0],stringArray[1],stringArray[2],stringArray[3], stringArray[4], stringArray[5]);
 				}
 			}
 		}
-		return strategyObject;
+		return strategy;
 	}
 	
-
+	public WorkflowMeta saveStrategiesToWorkflowMeta(Workflow workflow, List<String> strategyKeyList, String strategyType)throws Exception{//save to WorkflowMeta
+	
+		String workflowMetaValue = "";
+		
+		for(String strategyKey : strategyKeyList){
+			Strategy strategyObject = this.getStrategyByKey(strategyKey);
+			if(strategyObject.getId()==null){
+				String message = "unable to find strategy "+strategyKey+" in table meta";
+				logger.warn(message);
+				throw new Exception(message);
+			}
+			if(!strategyObject.getType().toLowerCase().equalsIgnoreCase(strategyType)){
+				String message = "all strategies must be of same strategy type";
+				logger.warn(message);
+				throw new Exception(message);
+			}
+			if(workflowMetaValue.equals("")){
+				
+				workflowMetaValue = strategyObject.getType()+"."+strategyObject.getStrategy();
+			}
+			else{
+				workflowMetaValue += Strategy.SEPARATOR+strategyObject.getType()+"."+strategyObject.getStrategy();
+			}			
+		}
+		WorkflowMeta workflowMeta = workflowMetaDao.getWorkflowMetaByKWorkflowId(strategyType, workflow.getId());
+		workflowMeta.setK(strategyType);
+		workflowMeta.setV(workflowMetaValue);
+		workflowMeta.setWorkflowId(workflow.getId());
+		workflowMeta = workflowMetaDao.save(workflowMeta);
+		return workflowMeta;				
+	}
+	
 	public WorkflowMeta saveStrategyToWorkflowMeta(Workflow workflow, Strategy strategy){//save to WorkflowMeta
 				
-		WorkflowMeta workflowMeta = workflowMetaDao.getWorkflowMetaByKWorkflowId(Strategy.KEY_PREFIX, workflow.getId());
-		workflowMeta.setK(Strategy.KEY_PREFIX);
-		workflowMeta.setV( Strategy.KEY_PREFIX+strategy.getStrategy() );
+		WorkflowMeta workflowMeta = workflowMetaDao.getWorkflowMetaByKWorkflowId(strategy.getType(), workflow.getId());
+		workflowMeta.setK(strategy.getType());
+		if(workflowMeta.getV().isEmpty()){
+			workflowMeta.setV( strategy.getType()+"."+strategy.getStrategy() );
+		}
+		else{
+			workflowMeta.setV(workflowMeta.getV()+Strategy.SEPARATOR+strategy.getType()+"."+strategy.getStrategy() );
+		}
 		workflowMeta.setWorkflowId(workflow.getId());
 		
 		workflowMeta = workflowMetaDao.save(workflowMeta);		
 		return workflowMeta;
 	}
 
+	/*
 	public Strategy getStrategyFromWorkflowMeta(Workflow workflow){//get from WorkflowMeta
 		
-		WorkflowMeta workflowMeta = workflowMetaDao.getWorkflowMetaByKWorkflowId(Strategy.KEY_PREFIX, workflow.getId());
+		WorkflowMeta workflowMeta = workflowMetaDao.getWorkflowMetaByKWorkflowId("abc", workflow.getId());
 		if(workflowMeta.getId()==null){
 			return new Strategy();
 		}
 		Strategy strategy = this.getStrategyObjectByStrategy(workflowMeta.getV());
 		return strategy;
+	}
+	*/
+	public List<Strategy> getThisWorkflowsStrategies(String strategyType, Workflow workflow){
+		List<Strategy> strategies = new ArrayList<Strategy>();
+		WorkflowMeta workflowMeta = workflowMetaDao.getWorkflowMetaByKWorkflowId(strategyType, workflow.getId());
+		if(workflowMeta.getId()!=null){
+			String [] stringArray = workflowMeta.getV().split(Strategy.SEPARATOR);
+			for(String s : stringArray){
+				Strategy strategy = this.getStrategyByKey(s);
+				if(strategy.getId()!=null){
+					if(strategyType.equalsIgnoreCase(strategy.getType())){
+						strategies.add(strategy);
+					}
+				}
+			}
+		}
+		return strategies;
 	}
 }

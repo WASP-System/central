@@ -2,12 +2,13 @@ package edu.yu.einstein.wasp.additionalClasses;
 
 import edu.yu.einstein.wasp.model.WaspModel;
 
-//see table 1 in http://www.ncbi.nlm.nih.gov/books/NBK47529/ for list of strategies
+//see table 1 in http://www.ncbi.nlm.nih.gov/books/NBK47529/ for list of library strategies
+//also http://www.ebi.ac.uk/ena/about/sra_library_strategy and http://www.ebi.ac.uk/ena/about/sra_format for library strategy
 //dubin; 10-1-13
 
 public class Strategy extends WaspModel {
 
-	public static final String KEY_PREFIX = "strategy";
+	//public static final String KEY_PREFIX = "strategy";
 	public static final String SEPARATOR = "::";	
 	
 	private String type;

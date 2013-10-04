@@ -288,16 +288,20 @@ public class WorkflowController extends WaspController {
 			}
 		}
 
-		// loads all strategies
-		List<Strategy> strategies = new ArrayList<Strategy>();
+		// loads all strategies and get this workflow's strategy (if assigned)
+		List<Strategy> strategies = new ArrayList<Strategy>();//complete list of strategies of a particular strategytype (such as libraryStrategy)
+		List<Strategy> thisWorkflowsStrategies = new ArrayList<Strategy>();//those associated with with this workflow 
 		for(WorkflowResourceType wfrt :workflowResourceTypes){
-			if(wfrt.getResourceType().getIName().toLowerCase().contains(Strategy.KEY_PREFIX.toLowerCase())){
-				strategies = strategyService.getAllStrategiesByStrategyType(wfrt.getResourceType().getIName().toLowerCase());
+			if(wfrt.getResourceType().getIName().toLowerCase().contains("strategy")){
+				String strategyType = wfrt.getResourceType().getIName();
+				strategies = strategyService.getStrategiesByStrategyType(strategyType);
 				strategyService.orderStrategiesByDisplayStrategy(strategies);
+				thisWorkflowsStrategies = strategyService.getThisWorkflowsStrategies(strategyType, workflow);
+				break;//only one strategytype permitted per workflow!!!
 			}
 		}
-		//get this workflow's strategy (if assigned)
-		Strategy thisWorkflowStrategy = strategyService.getStrategyFromWorkflowMeta(workflow);
+		
+		System.out.println("---------count: "+thisWorkflowsStrategies.size());
 		
 		m.put("workflowId", workflowId);
 		m.put("workflow", workflow);
@@ -311,7 +315,7 @@ public class WorkflowController extends WaspController {
 		m.put("workflowSoftwareVersionedNameMap", workflowSoftwareVersionedNameMap);
 		
 		m.put("strategies", strategies);
-		m.put("thisWorkflowStrategy", thisWorkflowStrategy);
+		m.put("thisWorkflowsStrategies", thisWorkflowsStrategies);
 
 		return "workflow/resource/configure";
 	}
@@ -332,7 +336,7 @@ public class WorkflowController extends WaspController {
 			@RequestParam(value="resourceCategoryOption", required=false) String[] resourceCategoryOptionParams,
 			@RequestParam(value="software", required=false) String[] softwareParams,
 			@RequestParam(value="softwareOption", required=false) String[] softwareOptionParams,
-			@RequestParam(value="strategy", required=false) String strategy,
+			@RequestParam(value="strategyKey", required=false) List<String> strategyKeyList,
 
 			ModelMap m) {
 		// return to list if cancel button pressed
@@ -530,26 +534,29 @@ public class WorkflowController extends WaspController {
 			}
 		}
 
-		//strategy
-		if(strategy!=null){System.out.println("-----at A");
-			if(!strategy.isEmpty()){System.out.println("-----at B");
-				Strategy strategyObject = strategyService.getStrategyObjectByStrategy(strategy);
-				if(strategyObject.getId()!=null){System.out.println("-----at C");
-					WorkflowMeta workflowMeta = strategyService.saveStrategyToWorkflowMeta(workflow, strategyObject);
-					if(workflowMeta.getId()!=null){System.out.println("-----at D");
-						for(WorkflowResourceType wrt: workflow.getWorkflowResourceType()){System.out.println("-----at E");
-							if(wrt.getResourceType().getIName().toLowerCase().contains(Strategy.KEY_PREFIX)){
-								System.out.println("-----at F");
-								if (resourceTypeIds.contains(wrt.getResourceTypeId())){System.out.println("-----at G");
-									resourceTypeIds.remove(wrt.getResourceTypeId());
-								}
+		String strategyType = "";
+		Integer strategyResourceTypeId = null;
+		for(WorkflowResourceType wrt: workflow.getWorkflowResourceType()){
+			if(wrt.getResourceType().getIName().toLowerCase().contains("strategy")){
+				strategyType = wrt.getResourceType().getIName();
+				strategyResourceTypeId = wrt.getResourceTypeId();
+				break;//only one strategytype per workflow
+			}
+		}
+		if(!strategyType.isEmpty()){//there is a strategy for this workflow
+			if(strategyKeyList!=null){//there are selections from webpage
+				if(!strategyKeyList.isEmpty()){//there are selections from webpage
+					try{
+						WorkflowMeta workflowMeta  = strategyService.saveStrategiesToWorkflowMeta(workflow, strategyKeyList, strategyType);
+						if(workflowMeta.getId()!=null){
+							if (resourceTypeIds.contains(strategyResourceTypeId)){
+								resourceTypeIds.remove(strategyResourceTypeId);
 							}
 						}
-					}
+					}catch(Exception e){}			
 				}
 			}
 		}
-		
 		
 		if (!requiredResourceCategoryOptions.isEmpty() || !requiredSoftwareOptions.isEmpty() || !resourceTypeIds.isEmpty()){
 			if (!requiredResourceCategoryOptions.isEmpty() || !requiredSoftwareOptions.isEmpty()){
