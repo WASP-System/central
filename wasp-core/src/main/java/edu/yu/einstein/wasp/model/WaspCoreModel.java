@@ -119,7 +119,7 @@ public abstract class WaspCoreModel implements Serializable {
 	 * @param lastUpdatedByUser the lastUpdatedByUser to set
 	 */
 	public void setLastUpdatedByUser(User lastUpdatedByUser) {
-		logger.debug("Setting lastUpdatedByUser to " + lastUpdatedByUser.getId());
+		logger.trace("Setting lastUpdatedByUser to " + lastUpdatedByUser.getId());
 		this.lastUpdatedByUser = lastUpdatedByUser;
 	}
 	

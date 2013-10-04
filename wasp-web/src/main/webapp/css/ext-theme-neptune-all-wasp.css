@@ -5431,6 +5431,8 @@ a.x-tab {
   vertical-align: middle;
   background-repeat: no-repeat;
   font-size: 0;
+/* added by AJ, for removing padding on the first column where checkbox is */
+  padding: 0;
 }
 
 /* line 1, ../../../ext-theme-base/sass/src/tab/Panel.scss */

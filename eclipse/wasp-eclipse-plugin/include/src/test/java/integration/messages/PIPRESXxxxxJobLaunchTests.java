@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ___package___.plugin.___Pluginname___Plugin;
+import ___package___.plugin.___PluginIName___Plugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
@@ -37,16 +37,16 @@ import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 
 // The test context is created using the configuration files provided in the @ContextConfiguration locations list
-@ContextConfiguration(locations={"/___pluginname___-test-launch-context.xml","/flows/___pluginname___.mainFlow.v1.xml"})
+@ContextConfiguration(locations={"/___pluginIName___-test-launch-context.xml","/flows/___pluginIName___.mainFlow.v1.xml"})
 
 /**
- * TestNG Test of Launching and successful completion of the ___Pluginname___Plugin.FLOW_NAME batch job flow (defined in /flows/___pluginname___.mainFlow.v1.xml)
+ * TestNG Test of Launching and successful completion of the ___PluginIName___Plugin.FLOW_NAME batch job flow (defined in /flows/___pluginIName___.mainFlow.v1.xml)
  * @author 
  * 
  */
-public class ___Pluginname___JobLaunchTests extends AbstractTestNGSpringContextTests implements MessageHandler {
+public class ___PluginIName___JobLaunchTests extends AbstractTestNGSpringContextTests implements MessageHandler {
 	
-	private final Logger logger = LoggerFactory.getLogger(___Pluginname___JobLaunchTests.class);
+	private final Logger logger = LoggerFactory.getLogger(___PluginIName___JobLaunchTests.class);
 	
 	// define constants
 	private final Integer TEST_ID = 1;
@@ -111,19 +111,19 @@ public class ___Pluginname___JobLaunchTests extends AbstractTestNGSpringContextT
 
 		
 	/**
-	 * This test involves sending a message to the remote wasp-daemon to initiate the ___Pluginname___Plugin.FLOW_NAME job flow. 
+	 * This test involves sending a message to the remote wasp-daemon to initiate the ___PluginIName___Plugin.FLOW_NAME job flow. 
 	 * We check (from the response)	that this was successful, then verify that we recieve the two messages sent by the first and third steps of the job-flow 
 	 * in the correct order. 
 	 * Finally we check that the job execution exited with a success status of COMPLETED.
 	 */
-	@Test (groups = "___pluginname___-tests")
-	public void testSuccessful___Pluginname___JobLaunch() throws Exception{
+	@Test (groups = "___pluginIName___-tests")
+	public void testSuccessful___PluginIName___JobLaunch() throws Exception{
 		try{
 			Map<String, String> jobParameters = new HashMap<String, String>();
-			// The ___pluginname___ flow doesn't actually require any job parameters but we'll add one for demonstration purposes. 
+			// The ___pluginIName___ flow doesn't actually require any job parameters but we'll add one for demonstration purposes. 
 			// Any parameters supplied to a batch job are available from within steps
 			jobParameters.put(WaspJobParameters.TEST_ID, TEST_ID.toString());
-			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(___Pluginname___Plugin.FLOW_NAME, jobParameters) );
+			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(___PluginIName___Plugin.FLOW_NAME, jobParameters) );
 			Message<BatchJobLaunchContext> messageToSend = batchJobLaunchMessageTemplate.build();
 			logger.debug("testSuccessfulJobLaunch(): Sending message : "+messageToSend.toString());
 			Message<?> replyMessage = messagingTemplate.sendAndReceive(outboundMessageChannel, messageToSend);
@@ -138,20 +138,20 @@ public class ___Pluginname___JobLaunchTests extends AbstractTestNGSpringContextT
 			Assert.assertEquals(replyMessage.getPayload(), WaspStatus.COMPLETED);
 			
 			// verify that batch flow ran and completed normally. 
-			// The ___Pluginname___Plugin.FLOW_NAME job flow sends two messages which we will catch and verify
+			// The ___PluginIName___Plugin.FLOW_NAME job flow sends two messages which we will catch and verify
 			int repeats = 0;
 			final int EXPECTED_MESSAGE_COUNT = 2; 
 			while (receivedMessages.size() < EXPECTED_MESSAGE_COUNT && repeats++ < (MESSAGE_TIMEOUT / MESSAGE_WAIT_INTERVAL) )
 				Thread.sleep(MESSAGE_WAIT_INTERVAL); // allow time for spring batch job execution and message sending
 			
-			// Check the receivedMessages list for receiving of the two messages sent by the ___Pluginname___Plugin.FLOW_NAME job flow.
+			// Check the receivedMessages list for receiving of the two messages sent by the ___PluginIName___Plugin.FLOW_NAME job flow.
 			Assert.assertEquals(receivedMessages.size(), EXPECTED_MESSAGE_COUNT);
 			Assert.assertEquals(receivedMessages.get(0).getPayload(), WaspStatus.STARTED);
 			Assert.assertEquals(receivedMessages.get(1).getPayload(), WaspStatus.COMPLETED);
 			
 			// get the JobExecution for the job we just executed and verify that it completed successfully.
 			// We can use the jobExplorer to get this.
-			BatchStatus jobExecutionStatus = jobExplorer.getMostRecentlyStartedJobExecutionInList(jobExplorer.getJobExecutions(___Pluginname___Plugin.FLOW_NAME)).getStatus();
+			BatchStatus jobExecutionStatus = jobExplorer.getMostRecentlyStartedJobExecutionInList(jobExplorer.getJobExecutions(___PluginIName___Plugin.FLOW_NAME)).getStatus();
 			Assert.assertEquals(jobExecutionStatus, BatchStatus.COMPLETED);
 		} catch (Exception e){
 			logger.error("Caught unexpected exception: " + e.getLocalizedMessage());
@@ -166,10 +166,10 @@ public class ___Pluginname___JobLaunchTests extends AbstractTestNGSpringContextT
 	@Override
 	public void handleMessage(Message<?> messageIn) throws MessagingException {
 		logger.debug("Message received by handleMessage(): " + messageIn.toString());
-		// We can use static methods of the Simple___Pluginname___StatusMessageTemplate to check if the message is one we might be interested in.
-		// In this case we just test whether the message was generated by the Simple___Pluginname___StatusMessageTemplate.
-		if (Simple___Pluginname___StatusMessageTemplate.isMessageOfCorrectType(messageIn))
-			receivedMessages.add(messageIn); // keep ___Pluginname___ messages only
+		// We can use static methods of the Simple___PluginIName___StatusMessageTemplate to check if the message is one we might be interested in.
+		// In this case we just test whether the message was generated by the Simple___PluginIName___StatusMessageTemplate.
+		if (Simple___PluginIName___StatusMessageTemplate.isMessageOfCorrectType(messageIn))
+			receivedMessages.add(messageIn); // keep ___PluginIName___ messages only
 	}
 	
 }

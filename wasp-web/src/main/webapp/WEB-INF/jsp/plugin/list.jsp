@@ -5,12 +5,12 @@
 </div>
 <div>
 <c:choose>
-	<c:when test="${empty pluginDescriptionHyperlinks}">
+	<c:when test="${empty descriptionHyperlinks}">
 		<fmt:message key="plugin.none.label" />
 	</c:when>
 	<c:otherwise>
 		<ul class="navTabs">
-		<c:forEach items="${pluginDescriptionHyperlinks}" var="hyperlink">
+		<c:forEach items="${descriptionHyperlinks}" var="hyperlink">
 			<li>
 				<a href='<c:url value="${hyperlink.getTargetLink()}"/>'>${hyperlink.getLabel()}</a>
 			</li>

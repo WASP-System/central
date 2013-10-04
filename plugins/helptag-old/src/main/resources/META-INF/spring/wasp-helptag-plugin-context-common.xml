@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans"
+	default-autowire="byName"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="waspHelpTagPluginDomain" class="java.lang.String">
+		<constructor-arg>
+			<value>edu.yu.einstein.wasp.helptag</value>
+		</constructor-arg>
+	</bean>
+
+	<bean id="waspHelpTagPluginArea" class="java.lang.String">
+		<constructor-arg>
+			<value>wasp-helpTagPlugin</value>
+		</constructor-arg>
+	</bean>
+	
+	<!-- channel for communications with this plugin. -->
+	<int:channel id="wasp.channel.plugin.wasp-helptag" />
+	
+	<bean id="wasp-helptag.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.assay.WaspHelpTagPlugin">
+		<constructor-arg name="iName" ref="waspHelpTagPluginArea" />
+		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.wasp-helptag" />
+		<property name="name" value="Help Tagging" />
+		<property name="description" value="DNA Methylation Assay Workflow" />
+		<property name="handles">
+			<set>
+				<ref bean="waspHelpTagPluginArea" />
+			</set>
+		</property>
+	</bean>
+
+</beans>

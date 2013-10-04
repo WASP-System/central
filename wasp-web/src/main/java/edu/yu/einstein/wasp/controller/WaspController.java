@@ -2,10 +2,13 @@ package edu.yu.einstein.wasp.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +34,7 @@ import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.MetaAttribute.Country;
 import edu.yu.einstein.wasp.model.MetaAttribute.State;
+import edu.yu.einstein.wasp.service.PropertiesLoadService;
 import edu.yu.einstein.wasp.taglib.ErrorMessageTag;
 import edu.yu.einstein.wasp.taglib.MessageTag;
 
@@ -39,14 +43,14 @@ public class WaspController {
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-  
+ /* replaced with function below: this.getLocales()
  public  static final Map<String, String> LOCALES=new LinkedHashMap<String, String>();
   static { 
 	  for (Locale locale: Locale.getAvailableLocales()){
 		  LOCALES.put(locale.toString(), locale.getDisplayCountry());
 	  }
   }
-
+*/
 
   @Autowired
   private DepartmentDao departmentDao;
@@ -67,6 +71,8 @@ public class WaspController {
   @Autowired
   private BeanValidator validator;
 
+  @Autowired
+  private PropertiesLoadService propertiesLoadService;
 
   @InitBinder
   protected void initBinder(WebDataBinder binder) {
@@ -77,7 +83,8 @@ public class WaspController {
   protected void prepareSelectListData(ModelMap m) {
     m.addAttribute("countries", Country.getList());
     m.addAttribute("states", State.getList());
-    m.addAttribute("locales", LOCALES);
+    //m.addAttribute("locales", LOCALES);
+    m.addAttribute("locales", this.getLocales());
     m.addAttribute("departments", strip(departmentDao.findAll()));
     //m.addAttribute("deptDao", departmentDao);
    
@@ -156,4 +163,20 @@ public class WaspController {
 		return null;		
 }
 
+  public Map<String, String> getLocales(){
+	  Map<String, String> locales = new TreeMap<String,String>();//tree map as it sorts naturally on the key
+	  Set<String> languagesCurrentlyUsedForWaspMessages = propertiesLoadService.getLanguagesCurrentlyUsedForWaspMessages();//an entry here is something like en_US
+	  Locale [] availableLocales = Locale.getAvailableLocales();
+	  for (Locale locale: availableLocales){
+		  //LOCALES.put(locale.toString(), locale.getDisplayCountry());
+		  //locales.put(locale.toString(), locale.getDisplayCountry());
+		  if(locale.getDisplayName().contains("(") && locale.getDisplayName().contains(")") ){	
+			  if(languagesCurrentlyUsedForWaspMessages.contains(locale.toString())){
+				  locales.put(locale.toString(), locale.getDisplayName());
+			  }
+		  }
+	  }
+	  return locales;
+  }
+  
 }

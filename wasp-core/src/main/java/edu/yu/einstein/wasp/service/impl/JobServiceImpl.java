@@ -1828,6 +1828,8 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			ftNode.put("myid", ft.getId());
 			ftNode.put("type", "filetype-"+ft.getIName());
 			ftNode.put("libid", library.getId());
+			if (cell!=null)
+				ftNode.put("cellid", cell.getId());
 			
 			List<Map> children = new ArrayList<Map>();
 			Set<FileGroup> fgByTypeSet = ftMap.get(ft);

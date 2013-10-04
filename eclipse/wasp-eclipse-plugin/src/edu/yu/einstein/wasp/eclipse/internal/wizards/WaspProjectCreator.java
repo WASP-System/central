@@ -64,8 +64,8 @@ import edu.yu.einstein.wasp.eclipse.internal.Messages;
  * 
  * then the text will be removed from the file name and the file will be included.
  * 
- * Additional placeholders for content within the files include "___pluginname___" (uncapitalized 
- * plugin name), "___PLUGINNAME___" (capitalized plugin name), "___Pluginname___" (first letter capitalized plugin name), 
+ * Additional placeholders for content within the files include "___pluginIName___" (uncapitalized 
+ * plugin name), "___PluginIName___" (capitalized plugin name), "___PluginIName___" (first letter capitalized plugin name), 
  * and "___package___" (full java package name).  
  * 
  * A special comment using '/////' or '#////' (depending on file type)  at the end of a line preceding the FORM, RES, PIP, 
@@ -92,23 +92,23 @@ public class WaspProjectCreator {
 	 * @throws CoreException
 	 *             Eclipse failed to create the project
 	 */
-	public static IProject createProject(String name, String namespace,
+	public static IProject createProject(String iname, String namespace,
 			IPath location, boolean web, boolean resource, boolean pipeline, boolean viz) throws CoreException {
-		Assert.isNotNull(name);
-		Assert.isTrue(name.trim().length() > 0);
+		Assert.isNotNull(iname);
+		Assert.isTrue(iname.trim().length() > 0);
 
 		final IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		final IWorkspaceRoot root = workspace.getRoot();
 
-		IProject project = root.getProject(name);
+		IProject project = root.getProject(iname);
 
 		try {
 			// create project and configure maven
-			configureMaven(name, namespace, project, location, web, resource, pipeline, viz);
+			configureMaven(iname, namespace, project, location, web, resource, pipeline, viz);
 			// configure additional project natures (e.g. spring)
 			configureNatures(project);
 			// add package folders to the project
-			addPackages(name, namespace, project);
+			addPackages(iname, namespace, project);
 		} catch (CoreException e1) {
 			e1.printStackTrace();
 			throw e1;
@@ -118,13 +118,13 @@ public class WaspProjectCreator {
 
 	}
 
-	public static void copyAndRewriteFiles(String name, String namespace, String description, IPath location, IProject project, IPath projectRoot,
+	public static void copyAndRewriteFiles(String iname, String namespace, String name, String description, IPath location, IProject project, IPath projectRoot,
 			boolean web, boolean resource, boolean pipeline, boolean viz) {
 		Bundle bundle = Platform.getBundle("wasp-eclipse-plugin");
 		Enumeration<URL> files = bundle.findEntries("include", "*", true);
 		String ns = namespace.replaceAll("\\.", "/").toLowerCase();
-		String cname = name.toLowerCase().substring(0, 1).toUpperCase() + name.toLowerCase().substring(1);
-		String lname = name.toLowerCase();
+		String cname = iname.toLowerCase().substring(0, 1).toUpperCase() + iname.toLowerCase().substring(1);
+		String lname = iname.toLowerCase();
 
 		while (files.hasMoreElements()) {
 			URL f = files.nextElement();
@@ -190,18 +190,18 @@ public class WaspProjectCreator {
 				e.printStackTrace();
 			}
 
-			rewrite(new File(projectRoot + File.separator + lname + File.separator + dest.toFile().getPath()), lname, namespace, description,
+			rewrite(new File(projectRoot + File.separator + lname + File.separator + dest.toFile().getPath()), lname, namespace, name, description,
 					web, resource, pipeline, viz);
 
 		}
 
 	}
 
-	private static void rewrite(File file, String name, String pkg, String description,
+	private static void rewrite(File file, String iname, String pkg, String name, String description,
 			boolean web, boolean resource, boolean pipeline, boolean viz) {
 		
-		String cAllName = name.toUpperCase();
-		String cName = name.toLowerCase().substring(0, 1).toUpperCase() + name.toLowerCase().substring(1);
+		String cAllName = iname.toUpperCase();
+		String cName = iname.toLowerCase().substring(0, 1).toUpperCase() + iname.toLowerCase().substring(1);
 
 		List<String> lines = new ArrayList<String>();
 
@@ -212,10 +212,11 @@ public class WaspProjectCreator {
 			String line = in.readLine();
 			while (line != null) {
 				
-				line = line.replaceAll("___pluginname___", name);
-				line = line.replaceAll("___Pluginname___", cName);
-				line = line.replaceAll("___PLUGINNAME___", cAllName);
-				line = line.replaceAll("___package___", pkg + "." + name.toLowerCase());
+				line = line.replaceAll("___pluginIName___", iname);
+				line = line.replaceAll("___PluginIName___", cName);
+				line = line.replaceAll("___PluginIName___", cAllName);
+				line = line.replaceAll("___package___", pkg + "." + iname.toLowerCase());
+				line = line.replaceAll("___name___", name);
 				line = line.replaceAll("___description___", description);
 				
 				// marked for possible removal
@@ -281,7 +282,7 @@ public class WaspProjectCreator {
 	 * @param location
 	 * @throws CoreException
 	 */
-	private static void configureMaven(String name, String namespace,
+	private static void configureMaven(String iname, String namespace,
 			IProject project, IPath location, boolean web, boolean resource, boolean pipeline, boolean viz) throws CoreException {
 		
 		String propertiesFile = "/META-INF/maven/edu.yu.einstein.wasp/wasp-eclipse/pom.properties";
@@ -308,7 +309,7 @@ public class WaspProjectCreator {
 		Model model = new Model();
 		model.setModelVersion("4.0.0");
 		model.setGroupId(namespace);
-		model.setArtifactId(name);
+		model.setArtifactId(iname);
 		model.setPackaging("jar");
 		model.setVersion(Messages.Project_defaultVersion);
 
@@ -400,8 +401,8 @@ public class WaspProjectCreator {
 		
 		// put all folders to be created here...
 		
-		String javaMainPackage = "src/main/java/" + ns + "/" + name.toLowerCase();
-		String javaTestPackage = "src/test/java/" + ns + "/" + name.toLowerCase();
+		String javaMainPackage = "src/main/java/" + ns + "/" + iname.toLowerCase();
+		String javaTestPackage = "src/test/java/" + ns + "/" + iname.toLowerCase();
 		String javaRes = "src/main/resources";
 		Set<String> folderSet = new LinkedHashSet<String>();
 		folderSet.add("src/main/java");
@@ -412,27 +413,26 @@ public class WaspProjectCreator {
 		folderSet.add(javaRes + "/i18n/en_US");
 		folderSet.add(javaRes + "/wasp");
 		folderSet.add(javaRes + "/META-INF/spring");
-		folderSet.add(javaRes + "/images/" + name.toLowerCase());
+		folderSet.add(javaRes + "/images/" + iname.toLowerCase());
 		folderSet.add(javaMainPackage + "/exception");
 		folderSet.add(javaMainPackage + "/service/impl");
 		folderSet.add(javaMainPackage + "/plugin");
-		if(resource || pipeline){
+		if(pipeline){
 			folderSet.add(javaMainPackage + "/integration/messages");
 			folderSet.add(javaMainPackage + "/integration/endpoints");
 			folderSet.add(javaRes + "/flows");
 			folderSet.add(javaMainPackage + "/batch/tasklet");
 			folderSet.add(javaTestPackage + "/integration/messages/test");
-			if (resource){
-				folderSet.add(javaMainPackage + "/software");
-			}
 		}
-		
-		if (web || viz || resource){
+		if (resource){
+			folderSet.add(javaMainPackage + "/software");
+		}
+		if (web || viz){
 			folderSet.add(javaMainPackage + "/controller");
 			folderSet.add(javaRes + "/META-INF/tiles");
-			folderSet.add(javaRes + "/css/" + name.toLowerCase());
-			folderSet.add(javaRes + "/scripts/" + name.toLowerCase());
-			folderSet.add("src/main/webapp/WEB-INF/jsp/" + name.toLowerCase());
+			folderSet.add(javaRes + "/css/" + iname.toLowerCase());
+			folderSet.add(javaRes + "/scripts/" + iname.toLowerCase());
+			folderSet.add("src/main/webapp/WEB-INF/jsp/" + iname.toLowerCase());
 		}
 		
 		IProjectConfigurationManager mavenConfig = MavenPlugin.getProjectConfigurationManager();

@@ -42,6 +42,7 @@ import org.eclipse.swt.widgets.Text;
  */
 public class WaspProjectConfigurationPage extends WizardPage {
 
+	Text projIName;
 	Text projName;
 	Text projNamespace;
 	Text projDescription;
@@ -58,10 +59,10 @@ public class WaspProjectConfigurationPage extends WizardPage {
 	boolean initialized = false;
 	private Map<String, List<Combo>> fieldsWithHistory;
 
-	protected WaspProjectConfigurationPage(String pageName,
+	protected WaspProjectConfigurationPage(String pageIName,
 			String pageDescription) {
-		super(pageName);
-		setTitle(pageName);
+		super(pageIName);
+		setTitle(pageIName);
 		setDescription(pageDescription);
 		validate();
 		fieldsWithHistory = new HashMap<String, List<Combo>>();
@@ -80,11 +81,11 @@ public class WaspProjectConfigurationPage extends WizardPage {
 				1));
 		projGroup.setLayout(new GridLayout(2, false));
 
-		Label projectName = new Label(projGroup, SWT.NONE);
-		projectName.setText(Messages.WizardConfigurationPage_projectName);
-		projName = new Text(projGroup, SWT.BORDER);
-		projName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		projName.addModifyListener(new ModifyListener() {
+		Label projectIName = new Label(projGroup, SWT.NONE);
+		projectIName.setText(Messages.WizardConfigurationPage_projectIName);
+		projIName = new Text(projGroup, SWT.BORDER);
+		projIName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		projIName.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				validate();
 			}
@@ -97,6 +98,16 @@ public class WaspProjectConfigurationPage extends WizardPage {
 		projNamespace.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true,
 				false));
 		projNamespace.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				validate();
+			}
+		});
+		
+		Label projectName = new Label(projGroup, SWT.NONE);
+		projectName.setText(Messages.WizardConfigurationPage_projectName);
+		projName = new Text(projGroup, SWT.BORDER);
+		projName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		projName.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				validate();
 			}
@@ -224,16 +235,23 @@ public class WaspProjectConfigurationPage extends WizardPage {
 		IPath projPath = getLocation();
 		String loc = projPath.toOSString();
 
-		if (projName.getText().length() > 0) {
-			if ( (!projName.getText().matches("[a-zA-Z]+")) || javaKeywords.contains(projName.getText().toLowerCase()) ) {
+		if (projIName.getText().length() > 0) {
+			if ( (!projIName.getText().matches("[a-zA-Z]+")) || javaKeywords.contains(projIName.getText().toLowerCase()) ) {
 				setPageComplete(false);
-				setErrorMessage(Messages.WizardConfigurationPage_enterValidProjName);
+				setErrorMessage(Messages.WizardConfigurationPage_enterValidProjIName);
 				return;
 			} else {
 				setMessage(null);
 				setErrorMessage(null);
 			}
 		} else {
+			setPageComplete(false);
+			setErrorMessage(null);
+			setMessage(Messages.WizardConfigurationPage_enterProjIName);
+			return;
+		}
+		
+		if (projName.getText().length() == 0) {
 			setPageComplete(false);
 			setErrorMessage(null);
 			setMessage(Messages.WizardConfigurationPage_enterProjName);
@@ -287,7 +305,7 @@ public class WaspProjectConfigurationPage extends WizardPage {
 
 		if (!defaultWorkspace.getSelection()) {
 			IStatus locStatus = workspace.validateProjectLocation(workspace
-					.getRoot().getProject(projName.getText()), projPath.append(projName.getText()));
+					.getRoot().getProject(projIName.getText()), projPath.append(projIName.getText()));
 			
 			if (!locStatus.isOK()) {
 				setErrorMessage(locStatus.getMessage());
@@ -311,6 +329,9 @@ public class WaspProjectConfigurationPage extends WizardPage {
 		}
 	}
 	
+	public String getProjectIName() {
+		return projIName.getText();
+	}
 	public String getProjectName() {
 		return projName.getText();
 	}

@@ -33,8 +33,8 @@ public class WaspGenericDnaSeqPlugin extends WaspPlugin implements ClientMessage
 	 */
 	private static final long serialVersionUID = -654454985142650980L;
 
-	public WaspGenericDnaSeqPlugin(String pluginName, Properties waspSiteProperties, MessageChannel channel) {
-		super(pluginName, waspSiteProperties, channel);
+	public WaspGenericDnaSeqPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
+		super(iName, waspSiteProperties, channel);
 	}
 
 

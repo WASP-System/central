@@ -14,12 +14,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.integration.Message;
-import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 
-import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
-import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
  * Registry for storing and retrieving plugin bean references.  {@link WaspPlugin}
@@ -51,7 +48,7 @@ public class WaspPluginRegistry implements ClientMessageI, BeanPostProcessor {
 	 * @param name
 	 */
 	public void addPlugin(WaspPlugin plugin) {
-		String name = plugin.getPluginName();
+		String name = plugin.getIName();
 		if (plugins.containsKey(name)) {
 			logger.warn("Plugin with name '" + name
 					+ "' already in the registry, replacing.");
@@ -110,9 +107,9 @@ public class WaspPluginRegistry implements ClientMessageI, BeanPostProcessor {
 		List<WaspPlugin> pluginList = new ArrayList<WaspPlugin>(plugins.values());
 		Collections.sort(pluginList);
 		for (WaspPlugin plugin : pluginList) {
-			reply += index++ + ") " + plugin.getPluginName();
-			if (plugin.getPluginDescription() != null && !plugin.getPluginDescription().isEmpty()) 
-				reply += " -> " + plugin.getPluginDescription();
+			reply += index++ + ") " + plugin.getIName();
+			if (plugin.getDescription() != null && !plugin.getDescription().isEmpty()) 
+				reply += " -> " + plugin.getDescription();
 			reply += "\n";
 		}
 		return MessageBuilder.withPayload(reply).build();
