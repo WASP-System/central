@@ -4,7 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -44,7 +43,6 @@ import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
-import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
@@ -109,6 +107,9 @@ public class EmailServiceImpl implements EmailService{
 	
 	@Value("${wasp.host.baseurl}")
 	private String baseUrl;
+	
+	@Value("${email.sending.enabled:true}")
+	private Boolean isSendingEmailEnabled;
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -281,12 +282,12 @@ public class EmailServiceImpl implements EmailService{
 		// send email to PI and all lab managers in the requested lab
 		Map labManagerQueryMap = new HashMap();
 		for (Lab lab : primaryUser.getLab()){
-			if (lab.getPrimaryUserId().intValue() == primaryUser.getUserId().intValue()){
-				labManagerQueryMap.put("labId", lab.getLabId());
+			if (lab.getPrimaryUserId().intValue() == primaryUser.getId().intValue()){
+				labManagerQueryMap.put("labId", lab.getId());
 				model.put("lab", lab);
 				break;
 			}
-			throw new MailPreparationException("Cannot email principal user with id '" + Integer.toString(primaryUser.getUserId()) + "' because this user is not the principal of any labs"); 
+			throw new MailPreparationException("Cannot email principal user with id '" + Integer.toString(primaryUser.getId()) + "' because this user is not the principal of any labs"); 
 		}
 		
 		// send email to PI
@@ -294,7 +295,7 @@ public class EmailServiceImpl implements EmailService{
 		prepareAndSend(primaryUser, "emails/pending_labuser_request_confirm", model);
 		
 		// send email to lab managers
-		labManagerQueryMap.put("roleId", roleDao.getRoleByRoleName("lm").getRoleId());
+		labManagerQueryMap.put("roleId", roleDao.getRoleByRoleName("lm").getId());
 		for (LabUser labUserLM : labUserDao.findByMap(labManagerQueryMap)){
 			User labManager = labUserLM.getUser();
 			model.put("primaryuser", labManager);
@@ -323,7 +324,7 @@ public class EmailServiceImpl implements EmailService{
 		// send email to lab managers
 		Map labManagerQueryMap = new HashMap();
 		labManagerQueryMap.put("labId", labUser.getLabId());
-		labManagerQueryMap.put("roleId", roleDao.getRoleByRoleName("lm").getRoleId());
+		labManagerQueryMap.put("roleId", roleDao.getRoleByRoleName("lm").getId());
 		for (LabUser labUserLM : labUserDao.findByMap(labManagerQueryMap)){
 			User labManager = labUserLM.getUser();
 			model.put("primaryuser", labManager);
@@ -406,13 +407,19 @@ public class EmailServiceImpl implements EmailService{
 	 */
 	@SuppressWarnings("rawtypes")
 	protected void prepareAndSend(final User user, final String template, final Map model){
+		if (!isSendingEmailEnabled){
+			logger.info("Not sending email to user " + user.getLastName() + ", " + user.getFirstName() + 
+					" with template '" + template  + "' and parameters: " + model.toString() + " because mail-sending is not enabled in configuration");
+			return;
+		}
 		MimeMessagePreparator preparator = new MimeMessagePreparator() {
 			@Override
 			public void prepare(MimeMessage mimeMessage) throws MailPreparationException {
 				generateMessage(user, template, model, mimeMessage); 
 			}
 		};
-		logger.debug("Sending email with template '" + template  + "' and parameters: " + model.toString());
+		logger.debug("Sending email to user " + user.getLastName() + ", " + user.getFirstName() + 
+					" with template '" + template  + "' and parameters: " + model.toString());
 		this.mailSender.send(preparator);
 	}
 	
@@ -496,9 +503,9 @@ public class EmailServiceImpl implements EmailService{
 	@Override
 	public String getNewAuthcodeForUser(User user) {
 		String authcode = AuthCode.create(20);
-		ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByUserId(user.getUserId());
+		ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByUserId(user.getId());
 		confirmEmailAuth.setAuthcode(authcode);
-		confirmEmailAuth.setUserId(user.getUserId());
+		confirmEmailAuth.setUserId(user.getId());
 		confirmEmailAuthDao.save(confirmEmailAuth);
 		return authcode;
 	}
@@ -506,9 +513,9 @@ public class EmailServiceImpl implements EmailService{
 	@Override
 	public String getNewAuthcodeForUserPending(UserPending userpending) {
 		String authcode = AuthCode.create(20);
-		ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByUserpendingId(userpending.getUserPendingId());
+		ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByUserpendingId(userpending.getId());
 		confirmEmailAuth.setAuthcode(authcode);
-		confirmEmailAuth.setUserpendingId(userpending.getUserPendingId());
+		confirmEmailAuth.setUserpendingId(userpending.getId());
 		confirmEmailAuthDao.save(confirmEmailAuth);
 		return authcode;
 	}
@@ -624,11 +631,9 @@ public class EmailServiceImpl implements EmailService{
 		}
 		*/
 		List<JobResourcecategory> jobResourceCategoryList = job.getJobResourcecategory();
-		String area = null;
 		for(JobResourcecategory jrc : jobResourceCategoryList){
 			if(jrc.getResourceCategory().getResourceType().getIName().equals("mps")){
 				  machine = jrc.getResourceCategory().getName();
-				  area = jrc.getResourceCategory().getIName();
 				  break;
 			}
 		}
