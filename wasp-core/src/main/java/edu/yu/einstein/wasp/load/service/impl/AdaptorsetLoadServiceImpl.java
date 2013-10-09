@@ -115,11 +115,15 @@ public class AdaptorsetLoadServiceImpl extends WaspLoadServiceImpl implements Ad
 	      adaptorsetMetaDao.save(adaptorsetMeta); 
 	    }
 
+	    // The next block was commented out by Dubin; 10-07-2013 as it removes meta 
+	    //that is added any time after the initial data upload
+	    /*
 	   for (String adaptorsetMetaKey : oldAdaptorsetMetas.keySet()) {
 	      AdaptorsetMeta adaptorsetMeta = oldAdaptorsetMetas.get(adaptorsetMetaKey); 
 	      adaptorsetMetaDao.remove(adaptorsetMeta); 
 	      adaptorsetMetaDao.flush(adaptorsetMeta); 
 	    }
+	    */
 	}
 	
 	private void syncAdaptorsetResources(Adaptorset adaptorset, List<ResourceCategory> compatibleResources){
@@ -239,11 +243,15 @@ public class AdaptorsetLoadServiceImpl extends WaspLoadServiceImpl implements Ad
 	    	    }
 
 	    	    // delete the left overs
+	    	    // The next block was commented out by Dubin; 10-07-2013 as it removes meta 
+	    	    //that is added any time after the initial data upload
+	    	    /*
 	    	    for (String adaptorMetaKey : oldAdaptorMetas.keySet()) {
 	    	    	AdaptorMeta adaptorMeta = oldAdaptorMetas.get(adaptorMetaKey); 
 	    	    	adaptorMetaDao.remove(adaptorMeta); 
 	    	    	adaptorMetaDao.flush(adaptorMeta); 
 	    	    }
+	    	    */
 	    	} else {
 	    		// new adaptor
 	    		adaptor = adaptorIn;

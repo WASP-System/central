@@ -4,6 +4,8 @@ package edu.yu.einstein.wasp.controller;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,6 +41,7 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
+import edu.yu.einstein.wasp.additionalClasses.Strategy;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.controller.util.SampleAndSampleDraftMetaHelper;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
@@ -117,6 +120,7 @@ import edu.yu.einstein.wasp.service.JobDraftService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.StrategyService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -253,6 +257,9 @@ public class JobSubmissionController extends WaspController {
 	
 	@Autowired
 	protected GenomeService genomeService;
+
+	@Autowired
+	protected StrategyService strategyService;
 	
 	@Value("${wasp.temporary.dir}")
 	protected String downloadFolder;
@@ -463,6 +470,10 @@ public class JobSubmissionController extends WaspController {
 			return "redirect:/dashboard.do";
 		}
 
+		List<Strategy> libraryStrategies = strategyService.getStrategiesByStrategyType("libraryStrategy");
+		strategyService.orderStrategiesByDisplayStrategy(libraryStrategies);
+		m.put("libraryStrategies", libraryStrategies);
+		
 		List <Workflow> workflowList = workflowDao.getActiveWorkflows();
 		if (workflowList.isEmpty()){
 			waspErrorMessage("jobDraft.no_workflows.error");
@@ -486,6 +497,61 @@ public class JobSubmissionController extends WaspController {
 		}
 		m.put("jobDraft", new JobDraft()); 
 		return generateCreateForm(m);
+	}
+	
+	@Transactional
+	@RequestMapping(value="/getWorkflowsForAStrategy.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('lu-*')")
+	public void getWorkflowsForAStrategy(HttpServletResponse response) {
+		
+		String param = request.getParameter("strategy");
+		System.out.println("------Value of the strategy param: "+ param);
+		
+		Strategy requestedStrategy = strategyService.getStrategyByKey(param);
+		
+		List <Workflow> activeWorkflows = workflowDao.getActiveWorkflows();
+		Set <Workflow> workflowsForTheRequestedStrategyAsSet = new HashSet<Workflow>();
+		for(Workflow workflow : activeWorkflows){
+			List<Strategy>  strategyiesForAWorkflow = strategyService.getThisWorkflowsStrategies("libraryStrategy", workflow);
+			for(Strategy strategy : strategyiesForAWorkflow){
+				if(requestedStrategy.getId().intValue() == strategy.getId().intValue()){
+					workflowsForTheRequestedStrategyAsSet.add(workflow);
+				}
+			}
+		}
+		
+		//must put the set into a list, then order the list for display of the web by the workflow.name
+		List <Workflow> workflowsForTheRequestedStrategyAsList = new ArrayList<Workflow>(workflowsForTheRequestedStrategyAsSet);
+		class WorkflowComparatorOrderByName implements Comparator<Workflow> {
+		    @Override
+		    public int compare(Workflow arg0, Workflow arg1) {
+		        return arg0.getName().compareToIgnoreCase(arg1.getName());
+		    }
+		}
+		Collections.sort(workflowsForTheRequestedStrategyAsList, new WorkflowComparatorOrderByName());
+
+		for(int i = 0; i < 10; i++){
+			System.out.println("------At "+i);
+		}
+		
+		for(Workflow wf : workflowsForTheRequestedStrategyAsSet){
+			System.out.println("----------set: workflow "+wf.getName());
+		}
+		for(Workflow wf : workflowsForTheRequestedStrategyAsList){
+			System.out.println("----------ordered list: workflow "+wf.getName());
+		}
+		try{
+		//List <Workflow> workflowList = workflowDao.getActiveWorkflows();
+		//if (workflowList.isEmpty()){
+		//	waspErrorMessage("jobDraft.no_workflows.error");
+			//return "redirect:/dashboard.do";
+		//}
+		Map<Integer, String> assayWorkflows = new HashMap<>();
+		for (Workflow wf: workflowsForTheRequestedStrategyAsList)
+			assayWorkflows.put(wf.getId(), messageService.getMessage(wf.getIName() + ".workflow.label"));
+
+		outputJSON(assayWorkflows, response);
+		}catch(Exception e){}
 	}
 
 	@Transactional

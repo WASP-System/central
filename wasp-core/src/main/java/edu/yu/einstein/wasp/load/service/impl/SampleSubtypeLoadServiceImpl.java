@@ -134,11 +134,15 @@ public class SampleSubtypeLoadServiceImpl extends WaspLoadServiceImpl implements
 		    }
 
 		    // delete the left overs
+		       // The next block was commented out by Dubin; 10-07-2013 as it removes meta 
+		    //that is added any time after the initial data upload
+		    /*
 		    for (String sampleSubtypeMetaKey : oldSampleSubtypeMetas.keySet()) {
 		      SampleSubtypeMeta sampleSubtypeMeta = oldSampleSubtypeMetas.get(sampleSubtypeMetaKey);
 		      sampleSubtypeMetaDao.remove(sampleSubtypeMeta);
 		      sampleSubtypeMetaDao.flush(sampleSubtypeMeta);
 		    }
+		    */
 	  }
 	  
 	  private void syncSampleSubtypeResourceCategories(SampleSubtype sampleSubtype, List<ResourceCategory> compatibleResources){

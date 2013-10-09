@@ -87,11 +87,15 @@ public class ResourceCategoryLoadServiceImpl extends WaspLoadServiceImpl impleme
 	    }
 
 	    // delete the left overs
+	    // The next block was commented out by Dubin; 10-07-2013 as it removes meta 
+		//that is added any time after the initial data upload
+		/*
 	    for (String resourceMetaKey : oldResourceCatMetas.keySet()) {
 	      ResourceCategoryMeta resourceCatMeta = oldResourceCatMetas.get(resourceMetaKey); 
 	      resourceCategoryMetaDao.remove(resourceCatMeta); 
 	      resourceCategoryMetaDao.flush(resourceCatMeta); 
 	    }
+	    */
 	}
 	
 
