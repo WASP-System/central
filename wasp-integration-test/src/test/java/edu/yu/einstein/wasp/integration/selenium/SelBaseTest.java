@@ -68,8 +68,8 @@ public class SelBaseTest {
         */
 	    
         // Take snapshot of browser
-        File srcFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
-        FileUtils.copyFile(srcFile, new File("ffsnapshot.png"));
+        //File srcFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
+        //FileUtils.copyFile(srcFile, new File("ffsnapshot.png"));
 		
        
 		try {
