@@ -504,65 +504,28 @@ public class JobSubmissionController extends WaspController {
 		m.put("jobDraft", jobDraft);
 		
 		Strategy strategy = new Strategy();
-		strategy.setType("libraryStrategy");//need a way to know this from the type of job
+		strategy.setType("libraryStrategy");//need a way to know strategy.Type from the type of jobdraft (which currently does not exist)
 		return generateCreateForm(strategy, m);
 	}
 	
 	@Transactional
 	@RequestMapping(value="/getWorkflowsForAStrategy.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('lu-*')")
-	public void getWorkflowsForAStrategy(HttpServletResponse response) {//THIS IS AN AJAX CALL FROM WEB
+	public void getWorkflowsForAStrategy(HttpServletResponse response) {
+		
+		//THIS IS AN AJAX CALL FROM WEB
 		
 		String param = request.getParameter("strategy");
-		System.out.println("------Value of the strategy param: "+ param);
 		
 		Strategy requestedStrategy = strategyService.getStrategyByKey(param);
-		//WHAT IF NOT FOUND
-/*		
-		List <Workflow> activeWorkflows = workflowDao.getActiveWorkflows();
-		Set <Workflow> workflowsForTheRequestedStrategyAsSet = new HashSet<Workflow>();
-		for(Workflow workflow : activeWorkflows){
-			List<Strategy>  strategyiesForAWorkflow = strategyService.getThisWorkflowsStrategies("libraryStrategy", workflow);
-			for(Strategy strategy : strategyiesForAWorkflow){
-				if(requestedStrategy.getId().intValue() == strategy.getId().intValue()){
-					workflowsForTheRequestedStrategyAsSet.add(workflow);
-				}
-			}
-		}
 		
-		//must put the set into a list, then order the list for display of the web by the workflow.name
-		List <Workflow> workflowsForTheRequestedStrategyAsList = new ArrayList<Workflow>(workflowsForTheRequestedStrategyAsSet);
-		class WorkflowComparatorOrderByName implements Comparator<Workflow> {
-		    @Override
-		    public int compare(Workflow arg0, Workflow arg1) {
-		        return arg0.getName().compareToIgnoreCase(arg1.getName());
-		    }
-		}
-		Collections.sort(workflowsForTheRequestedStrategyAsList, new WorkflowComparatorOrderByName());
-
-		for(int i = 0; i < 10; i++){
-			System.out.println("------At "+i);
-		}
-		
-		for(Workflow wf : workflowsForTheRequestedStrategyAsSet){
-			System.out.println("----------set: workflow "+wf.getName());
-		}
-		for(Workflow wf : workflowsForTheRequestedStrategyAsList){
-			System.out.println("----------ordered list: workflow "+wf.getName());
-		}
-		*/
-		try{
-		//List <Workflow> workflowList = workflowDao.getActiveWorkflows();
-		//if (workflowList.isEmpty()){
-		//	waspErrorMessage("jobDraft.no_workflows.error");
-			//return "redirect:/dashboard.do";
-		//}
 		List <Workflow> workflowsForTheRequestedStrategyAsList = strategyService.getActiveWorkflowsForStrategyOrderByWorkflowName(requestedStrategy);
 		Map<Integer, String> assayWorkflows = new HashMap<>();
-		for (Workflow wf: workflowsForTheRequestedStrategyAsList)
+		for (Workflow wf: workflowsForTheRequestedStrategyAsList){
 			assayWorkflows.put(wf.getId(), messageService.getMessage(wf.getIName() + ".workflow.label"));
-
-		outputJSON(assayWorkflows, response);
+		}
+		try{
+			outputJSON(assayWorkflows, response);
 		}catch(Exception e){}
 	}
 
@@ -574,66 +537,67 @@ public class JobSubmissionController extends WaspController {
 			BindingResult result,
 			SessionStatus status,
 			ModelMap m) {
-		System.out.println("------------at 1");
+
+		// this is here if the user has pressed submit twice or used the back button and potentially modified the form
 		if (request.getSession().getAttribute("jobDraftId") != null){
-			// user has pressed submit twice or used the back button and potentially modified the form
 			return modify((Integer) request.getSession().getAttribute("jobDraftId"), jobDraftForm, result, status, m);
 		}
-System.out.println("------------at 2");
-		
-		User me = authenticationService.getAuthenticatedUser();
-System.out.println("------------at 3");
 		
 		Errors errors = new BindException(result.getTarget(), "jobDraft");
-		if (jobDraftForm.getLabId() == null || jobDraftForm.getLabId().intValue() < 1){
-			errors.rejectValue("labId", "jobDraft.labId.error", "jobDraft.labId.error (no message has been defined for this property");
-		}
-System.out.println("------------at 4");
 		
 		Map<String, String> jobDraftQuery = new HashMap<String, String>();
 		String name = jobDraftForm.getName();
 		if (name != null && !name.isEmpty()){
 			// check we don't already have a job with this name
+			// really should really check both a user's jobDrafts and a user's submitted jobs
 			jobDraftQuery.put("name", name);
 			if (!jobDraftDao.findByMap(jobDraftQuery).isEmpty()){
 				errors.rejectValue("name", "jobDraft.name_exists.error", "jobDraft.name_exists.error (no message has been defined for this property");
 			}
 		}
-System.out.println("------------at 5");
+
+		if (jobDraftForm.getLabId() == null || jobDraftForm.getLabId().intValue() < 1){
+			errors.rejectValue("labId", "jobDraft.labId.error", "jobDraft.labId.error (no message has been defined for this property");
+		}
 		
-		//save strategy to jobMeta
+		if(jobDraftForm.getWorkflowId() == null || jobDraftForm.getWorkflowId().intValue() <= 0 ){
+			errors.rejectValue("workflowId", "jobDraft.workflowId.error", "jobDraft.workflowId.error (no message has been defined for this property)");
+		}
+		
+		//get the strategy info from the web page
 		Strategy strategy = new Strategy();
+		String strategyError = "";
 		String strategyParameter = request.getParameter("strategy"); //I suppose that some types of jobs, not yet defined, may not have any strategy. 
-		//strategy will be empty string if none ever sent by the web. I suppose this could be an indication that no strategy is to be captured for this job
-		//by contrast, strategy will be -1 if the select box is set to --select-- . I suppose this could be an error by the submitter
 		if(!strategyParameter.isEmpty()){
 			if("-1".equals(strategyParameter)){//this is not expected, as the submit button is never displayed when this is true
-				//would be nice to have an error message somehow, however, as the submit button is never displayed when this is true, it's not essential at the moment
+				strategyError = "Please select a strategy";//needs to be internationalized
+				strategy.setType("libraryStrategy");//for now, but we need to do better
 			}
 			else{
 				strategy = strategyService.getStrategyByKey(strategyParameter);
-				if(strategy.getId()==null){
-					//need an error message here and 
+				if(strategy.getId()==null){//rather unlikely event
+					strategyError = "Selected strategy unexpectedly not found";//needs to be internationalized 
 				}
 			}
 		}
-
-		System.out.println("-------in the post for create.do");
-		System.out.println("-------strategyParameter: " + strategyParameter);
-		System.out.println("-------strategyObject's displayDescription = " + strategy.getDisplayStrategy());
-System.out.println("------------at 6");
-		
 		result.addAllErrors(errors);
-		if (result.hasErrors()) {
+
+		if (!strategyError.isEmpty() || result.hasErrors()) {
 			waspErrorMessage("jobDraft.form.error");
+			m.put("jobDraft", jobDraftForm);//unexpectedly, the web behaves without this line. Andy thinks that the @Valid automatically adds the form to the map
+			m.put("strategyError", strategyError);
 			return generateCreateForm(strategy, m);
 		}
 		
+		User me = authenticationService.getAuthenticatedUser();
 		jobDraftForm.setUserId(me.getId());
 		jobDraftForm.setStatus("PENDING");
 		jobDraftForm.setCreatets(new Date());
 		JobDraft jobDraftDb = jobDraftDao.save(jobDraftForm); 
-				
+		
+		//save the strategy to jobDraftMeta
+		JobDraftMeta jobDraftMeta = strategyService.saveStrategyToJobDraftMeta(jobDraftDb, strategy);//what if save fails?
+
 		// sometimes if user presses submit button twice a job is created but on re-submission it complains
 		// that the job name already exists. Also happens if the back button is used on job creation
 		// Check session to see if we have already submitted job
@@ -697,18 +661,6 @@ System.out.println("------------at 6");
 			return "redirect:/dashboard.do";
 
 		m.put("jobDraft", jobDraft);
-		
-		//Strategy thisJobDraftsStrategy = strategyService.getThisJobDraftsStrategy("libraryStrategy", jobDraft);
-		//this will be added to the map in generateCreateForm
-		
-		//what if none??
-		///m.put("thisJobDraftsStrategy", thisJobDraftsStrategy);
-		//List <Workflow> workflowsForTheRequestedStrategyAsList = strategyService.getActiveWorkflowsForStrategyOrderByWorkflowName(thisJobDraftsStrategy);
-		//Map<Integer, String> assayWorkflows = new HashMap<>();
-		//for (Workflow wf: workflowsForTheRequestedStrategyAsList){//why do we have this??????
-		//	assayWorkflows.put(wf.getId(), messageService.getMessage(wf.getIName() + ".workflow.label"));
-		//}
-
 		//we really require some mechanism to be able to derive, from the type of job, the desired strategy: for example,  mps job wants a libraryStrategy
 		String strategyTypeForThisJob = "libraryStrategy";
 		Strategy strategy = strategyService.getThisJobDraftsStrategy(strategyTypeForThisJob, jobDraft);
@@ -740,7 +692,7 @@ System.out.println("------------at 6");
 		String name = jobDraftForm.getName();
 		if (name != null && !name.isEmpty() && !name.equals(jobDraft.getName())){
 			// check we don't already have a job with this name
-			//nb: this should really check a users existing jobs and other jobdrafts
+			//nb: this should really check a users existing jobs and that user's other jobdrafts
 			jobDraftQuery.put("name", name);
 			if (!jobDraftDao.findByMap(jobDraftQuery).isEmpty()){
 				errors.rejectValue("name", "jobDraft.name_exists.error", "jobDraft.name_exists.error (no message has been defined for this property");
@@ -751,7 +703,10 @@ System.out.println("------------at 6");
 			errors.rejectValue("labId", "jobDraft.labId.error", "jobDraft.labId.error (no message has been defined for this property");
 		}
 		
-		if(jobDraftForm.getWorkflowId() != null && jobDraft.getWorkflowId() != null && jobDraft.getWorkflowId() != jobDraftForm.getWorkflowId() && jobDraft.getSampleDraft().size() > 0){//added 3/29/13; dubin: user is attempting to change workflow but there are samples/libraries already submitted (for example chipseq samples but converting to helpgtag)
+		if(jobDraftForm.getWorkflowId() == null || jobDraftForm.getWorkflowId().intValue() <= 0 ){
+			errors.rejectValue("workflowId", "jobDraft.workflowId.error", "jobDraft.workflowId.error (no message has been defined for this property)");
+		}
+		else if(jobDraftForm.getWorkflowId() != null && jobDraft.getWorkflowId() != null && jobDraft.getWorkflowId() != jobDraftForm.getWorkflowId() && jobDraft.getSampleDraft().size() > 0){//added 3/29/13; dubin: user is attempting to change workflow but there are samples/libraries already submitted (for example chipseq samples but converting to helpgtag)
 			errors.rejectValue("workflowId", "jobDraft.workflowId_change.error");//, "jobDraft.workflowId_change.error (You must remove all samples from the job draft prior to changing the workflow assay)");
 			jobDraftForm.setWorkflowId(jobDraft.getWorkflowId());//set it back for re-display
 		}
@@ -760,11 +715,10 @@ System.out.println("------------at 6");
 		Strategy strategy = new Strategy();
 		String strategyError = "";
 		String strategyParameter = request.getParameter("strategy"); //I suppose that some types of jobs, not yet defined, may not have any strategy. 
-		//strategy will be empty string if none is sent by the web. I suppose this could be an indication that no strategy is to be captured for this job
-		//by contrast, strategy will be -1 if the select box is set to --select-- . I suppose this could be an error by the submitter
 		if(!strategyParameter.isEmpty()){
 			if("-1".equals(strategyParameter)){//this is not expected to occur, as the submit button on this web page is not displayed when this value is -1
 				strategyError = "Please select a strategy";//needs to be internationalized
+				strategy.setType("libraryStrategy");//for now
 			}
 			else{
 				strategy = strategyService.getStrategyByKey(strategyParameter);//searches table Meta
@@ -773,7 +727,6 @@ System.out.println("------------at 6");
 				}
 			}
 		}
-
 		result.addAllErrors(errors);
 		if (!strategyError.isEmpty() || result.hasErrors()) {
 			waspErrorMessage("jobDraft.form.error");
@@ -781,7 +734,6 @@ System.out.println("------------at 6");
 			m.put("strategyError", strategyError);
 			return generateCreateForm(strategy, m);
 		}
-
 		jobDraft.setName(jobDraftForm.getName());
 		jobDraft.setWorkflowId(jobDraftForm.getWorkflowId());
 		jobDraft.setLabId(jobDraftForm.getLabId());
@@ -794,7 +746,7 @@ System.out.println("------------at 6");
 
 /* dubin 10-10-13 ---does NOT appear to be used anywhere
 	@Transactional
-	public String doModify (////does not appear to be used in this controller
+	public String doModify (////does not appear to be used in this controller, or anywhere else that I can see
 			@Valid JobDraft jobDraftForm,
 			BindingResult result,
 			SessionStatus status,

@@ -19,7 +19,7 @@ $(document).ready(function() {
 					  $("#workflowId").empty();
 					  
 					  if(numberOfEntries == 0){
-						  	$("#workflowId").append("<option value='-1'>Unable to access workflows</option>"); 
+						  	$("#workflowId").append("<option value='-1'>No workflows found</option>"); 
 					  }
 					  else if(numberOfEntries > 1){
 					  	$("#workflowId").append("<option value='-1'><fmt:message key="wasp.default_select.label"/></option>"); 
