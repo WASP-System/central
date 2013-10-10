@@ -75,7 +75,9 @@ $(document).ready(function() {
 </div>
 
 <form:form  cssClass="FormGrid" commandName="jobDraft">
+
 <table class="EditTable ui-widget ui-widget-content">
+
   <tr class="FormData">
     <td class="CaptionTD"><fmt:message key="jobDraft.name.label"/>:</td>
     <td class="DataTD">
@@ -97,81 +99,50 @@ $(document).ready(function() {
   </tr>
   
   <c:if test="${not empty strategies}">
-  <tr class="FormData">
-    <td class="CaptionTD">Library Strategy:</td>
-    <td class="DataTD">
-      <select class="FormElement ui-widget-content ui-corner-all" id="strategy" name="strategy">
-        <option value='-1'><fmt:message key="wasp.default_select.label"/></option>
-        <c:forEach var="strategy" items="${strategies}">
-          <option value="${strategy.getType()}.${strategy.getStrategy()}"  <c:if test="${strategy.getId() == thisJobDraftsStrategy.getId()}"> SELECTED</c:if>  ><c:out value="${strategy.getDisplayStrategy()}"/></option>
-        </c:forEach>
-      </select>
-    </td>
-    <td class="CaptionTD error"> <c:out value="${strategyError}"/> <%--this is not a real part of jobDraft object, so it's toxic here <form:errors path="strategy" />--%></td>
-  </tr>
+	  <tr class="FormData">
+	    <td class="CaptionTD">Library Strategy:</td>
+	    <td class="DataTD">
+	      <select class="FormElement ui-widget-content ui-corner-all" id="strategy" name="strategy">
+	        <option value='-1'><fmt:message key="wasp.default_select.label"/></option>
+	        <c:forEach var="strategy" items="${strategies}">
+	          <option value="${strategy.getType()}.${strategy.getStrategy()}"  <c:if test="${strategy.getId() == thisJobDraftsStrategy.getId()}"> SELECTED</c:if>  ><c:out value="${strategy.getDisplayStrategy()}"/></option>
+	        </c:forEach>
+	      </select>
+	    </td>
+	    <td class="CaptionTD error"> <c:out value="${strategyError}"/> <%--this is not a real part of jobDraft object, so it's toxic here <form:errors path="strategy" />--%></td>
+	  </tr>
   </c:if>
   
   <c:choose>
-  <c:when test="${empty assayWorkflows}">
-  <tr id="workflowRowId" class="FormData" style="display:none">
-    <td class="CaptionTD"><fmt:message key="jobDraft.workflowId.label"/>:</td>
-    <td class="DataTD">
-    
-          <select class="FormElement ui-widget-content ui-corner-all" id="workflowId" name="workflowId">
-        	<%-- 
-        	<option value='-1'><fmt:message key="wasp.default_select.label"/></option>
-				<div id="workflowOptionsDivId">
-				<option value='test'>this is a test</option>
-    			</div>
-    		--%>
-    		</select>
-    <%-- 
-      <c:forEach var="workflow" items="${assayWorkflows}">
-        <div class="radioelement">
-          <input class="FormElement ui-widget-content ui-corner-all" type="radio" name="workflowId" value="${workflow.key}" <c:if test="${workflow.key == jobDraft.workflowId}"> checked</c:if> >
-          <span><c:out value="${workflow.value}" /></span>
-        </div>
-      </c:forEach>
-    --%>
-    </td>
-    <td class="CaptionTD error"><form:errors path="workflowId" /></td>
-  </tr>
-  </c:when>
-  <c:otherwise>
-    <tr id="workflowRowId" class="FormData" >
-    <td class="CaptionTD"><fmt:message key="jobDraft.workflowId.label"/>:</td>
-    <td class="DataTD">
-    
-          <select class="FormElement ui-widget-content ui-corner-all" id="workflowId" name="workflowId">
-        	<c:if test="${fn:length(assayWorkflows)>1}">
-        		<option value='-1'><fmt:message key="wasp.default_select.label"/></option>
-        	</c:if>
-        	<c:forEach var="workflow" items="${assayWorkflows}">
-        		<option value="${workflow.key}"  <c:if test="${workflow.key == jobDraft.workflowId}"> SELECTED</c:if>   >${workflow.value}</option>
-        	</c:forEach>
-        	
-        	
-        	<%-- 
-        	<option value='-1'><fmt:message key="wasp.default_select.label"/></option>
-				<div id="workflowOptionsDivId">
-				<option value='test'>this is a test</option>
-    			</div>
-    		--%>
-    		</select>
-    <%-- 
-      <c:forEach var="workflow" items="${assayWorkflows}">
-        <div class="radioelement">
-          <input class="FormElement ui-widget-content ui-corner-all" type="radio" name="workflowId" value="${workflow.key}" <c:if test="${workflow.key == jobDraft.workflowId}"> checked</c:if> >
-          <span><c:out value="${workflow.value}" /></span>
-        </div>
-      </c:forEach>
-    --%>
-    </td>
-    <td class="CaptionTD error"><form:errors path="workflowId" /></td>
-  </tr>
-  </c:otherwise>
-  </c:choose>
-  
+  	<c:when test="${empty assayWorkflows}">
+  		<tr id="workflowRowId" class="FormData" style="display:none">
+    		<td class="CaptionTD"><fmt:message key="jobDraft.workflowId.label"/>:</td>
+    		<td class="DataTD">
+    			<select class="FormElement ui-widget-content ui-corner-all" id="workflowId" name="workflowId">
+        			<%-- options will be gotten via ajax call --%>
+    			</select>
+ 
+    		</td>
+    		<td class="CaptionTD error"><form:errors path="workflowId" /></td>
+  		</tr>
+  	</c:when>
+  	<c:otherwise>
+	    <tr id="workflowRowId" class="FormData" >
+		    <td class="CaptionTD"><fmt:message key="jobDraft.workflowId.label"/>:</td>
+		    <td class="DataTD">
+		          <select class="FormElement ui-widget-content ui-corner-all" id="workflowId" name="workflowId">
+		        	<c:if test="${fn:length(assayWorkflows)>1}">
+		        		<option value='-1'><fmt:message key="wasp.default_select.label"/></option>
+		        	</c:if>
+		        	<c:forEach var="workflow" items="${assayWorkflows}">
+		        		<option value="${workflow.key}"  <c:if test="${workflow.key == jobDraft.workflowId}"> SELECTED</c:if>   >${workflow.value}</option>
+		        	</c:forEach>
+		    	 </select>
+		    </td>
+		    <td class="CaptionTD error"><form:errors path="workflowId" /></td>
+	  </tr>
+  	</c:otherwise>
+  </c:choose>  
   
   </table>
 
@@ -184,7 +155,7 @@ $(document).ready(function() {
 	</div>
   </div>
 
-  </form:form>
+</form:form>
 
 
 
