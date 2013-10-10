@@ -4,95 +4,42 @@
 
 $(document).ready(function() {
 	$( "#strategy" ).change(function() {
-		  //alert( "Handler for .change() called." );
-		  
 		  if($( this ).val()=='-1'){
 			  $("#workflowRowId").css("display", "none"); 
 			  $("#continueButtonDivId").css("display", "none"); 
 		  }
-		  else{
-			  
+		  else{			  
 			  $.getJSON("<c:url value="/jobsubmit/getWorkflowsForAStrategy.do" />", { strategy: $( this ).val() }, function( data ) {
-				  //var items = [];
-				 // var response = $.parseJSON(data);
-				 // alert(response.rows.length);
-					
-				 var numberOfEntries = 0;
-				 //unable to find a way to get this number directly. $.parseJSON(data) seems to screw up the data 
-				 $.each( data, function( key, val ) {
-					 numberOfEntries++ ;
-				  });
-				 
-				  $("#workflowId").empty();
-				  
-				  if(numberOfEntries == 0){
-					  	$("#workflowId").append("<option value='-1'>Unable to access workflows</option>"); 
-				  }
-				  else if(numberOfEntries > 1){
-				  	$("#workflowId").append("<option value='-1'><fmt:message key="wasp.default_select.label"/></option>"); 
-				  }
-				  
-				  $.each( data, function( key, val ) {
-				  //  items.push( "<li id='" + key + "'>" + val + "</li>" );
-				  //alert("key: " + key + "; value: " + val );
-					  //$("#workflowId").append("<option value='test'>this is the sssssSECOND test</option>");
-					  $("#workflowId").append("<option value='"+key+"'>"+val+"</option>");  
-						 
-				  });
-				 
-				 // $( "<ul/>", {
-				 //   "class": "my-new-list",
-				  //  html: items.join( "" )
-				 // }).appendTo( "body" );
-				  //$("#workflowId").empty().append("<option value='-1'><fmt:message key="wasp.default_select.label"/></option>"); 
-				  
-				  //////////$("#workflowId").append("<option value='test'>this is the sssssSECOND test</option>"); 
-				 
-				  //$("#workflowRowId").css("display", "table-row"); 
-				  //if($( this ).val()!='-1' && numberOfEntries == 1){
-				  //	$("#continueButtonDivId").css("display", "inline");
-				 // } 
-				  
-				  
-				});
+					 var numberOfEntries = 0;
+					 //unable to find a way to get this number directly. $.parseJSON(data) seems to screw up the data 
+					 $.each( data, function( key, val ) {
+						 numberOfEntries++ ;
+					  });
+					 
+					  $("#workflowId").empty();
+					  
+					  if(numberOfEntries == 0){
+						  	$("#workflowId").append("<option value='-1'>Unable to access workflows</option>"); 
+					  }
+					  else if(numberOfEntries > 1){
+					  	$("#workflowId").append("<option value='-1'><fmt:message key="wasp.default_select.label"/></option>"); 
+					  }
+					  
+					  $.each( data, function( key, val ) {
+						  $("#workflowId").append("<option value='"+key+"'>"+val+"</option>");						 
+					  });				  
+				});//end of getJSON method 
 			  
-			  
-			  
-			  
-			  //$("#workflowId").empty().append("<option value='-1'><fmt:message key="wasp.default_select.label"/></option>"); 
-			 // $("#workflowId").append("<option value='test'>this is the sSECOND test</option>"); 
-			  $("#workflowRowId").css("display", "table-row"); 
-			  
-			  if($( this ).val()!='-1'){
-			  	$("#continueButtonDivId").css("display", "inline");
-			  }
-		  } 
-		  
-		  
-		  
-//		  $.getJSON("<c:url value="/jobsubmit/getWorkflowsForAStrategy.do" />", function( data ) {
-			  //var items = [];
-			 // $.each( data, function( key, val ) {
-			  //  items.push( "<li id='" + key + "'>" + val + "</li>" );
-			  //});
-			 
-			 // $( "<ul/>", {
-			 //   "class": "my-new-list",
-			  //  html: items.join( "" )
-			 // }).appendTo( "body" );
-//			});
-		  
-		  
-		  
+				$("#workflowRowId").css("display", "table-row");			  
+			  	if($( this ).val()!='-1'){
+			  		$("#continueButtonDivId").css("display", "inline");
+			  	}
+		  } 		  
 	});
 
 	/*
 	$("html, body").animate({ scrollTop: 0 }, "fast");
 
-	$(function() {
-		    $( "#tabs" ).tabs();
-	}); 
-	
 	//http://api.jqueryui.com/dialog/
 	$("#modalDialog").dialog({
         autoOpen: false,
@@ -149,21 +96,23 @@ $(document).ready(function() {
     <td class="CaptionTD error"><form:errors path="labId" /></td>
   </tr>
   
-  
+  <c:if test="${not empty strategies}">
   <tr class="FormData">
     <td class="CaptionTD">Library Strategy:</td>
     <td class="DataTD">
       <select class="FormElement ui-widget-content ui-corner-all" id="strategy" name="strategy">
         <option value='-1'><fmt:message key="wasp.default_select.label"/></option>
-        <c:forEach var="strategy" items="${libraryStrategies}">
-          <option value="${strategy.getType()}.${strategy.getStrategy()}"><c:out value="${strategy.getDisplayStrategy()}"/></option>
+        <c:forEach var="strategy" items="${strategies}">
+          <option value="${strategy.getType()}.${strategy.getStrategy()}"  <c:if test="${strategy.getId() == thisJobDraftsStrategy.getId()}"> SELECTED</c:if>  ><c:out value="${strategy.getDisplayStrategy()}"/></option>
         </c:forEach>
       </select>
     </td>
-    <td class="CaptionTD error"><%-- <form:errors path="strategy" />--%></td>
+    <td class="CaptionTD error"> <c:out value="${strategyError}"/> <%--this is not a real part of jobDraft object, so it's toxic here <form:errors path="strategy" />--%></td>
   </tr>
+  </c:if>
   
-  
+  <c:choose>
+  <c:when test="${empty assayWorkflows}">
   <tr id="workflowRowId" class="FormData" style="display:none">
     <td class="CaptionTD"><fmt:message key="jobDraft.workflowId.label"/>:</td>
     <td class="DataTD">
@@ -187,6 +136,41 @@ $(document).ready(function() {
     </td>
     <td class="CaptionTD error"><form:errors path="workflowId" /></td>
   </tr>
+  </c:when>
+  <c:otherwise>
+    <tr id="workflowRowId" class="FormData" >
+    <td class="CaptionTD"><fmt:message key="jobDraft.workflowId.label"/>:</td>
+    <td class="DataTD">
+    
+          <select class="FormElement ui-widget-content ui-corner-all" id="workflowId" name="workflowId">
+        	<c:if test="${fn:length(assayWorkflows)>1}">
+        		<option value='-1'><fmt:message key="wasp.default_select.label"/></option>
+        	</c:if>
+        	<c:forEach var="workflow" items="${assayWorkflows}">
+        		<option value="${workflow.key}"  <c:if test="${workflow.key == jobDraft.workflowId}"> SELECTED</c:if>   >${workflow.value}</option>
+        	</c:forEach>
+        	
+        	
+        	<%-- 
+        	<option value='-1'><fmt:message key="wasp.default_select.label"/></option>
+				<div id="workflowOptionsDivId">
+				<option value='test'>this is a test</option>
+    			</div>
+    		--%>
+    		</select>
+    <%-- 
+      <c:forEach var="workflow" items="${assayWorkflows}">
+        <div class="radioelement">
+          <input class="FormElement ui-widget-content ui-corner-all" type="radio" name="workflowId" value="${workflow.key}" <c:if test="${workflow.key == jobDraft.workflowId}"> checked</c:if> >
+          <span><c:out value="${workflow.value}" /></span>
+        </div>
+      </c:forEach>
+    --%>
+    </td>
+    <td class="CaptionTD error"><form:errors path="workflowId" /></td>
+  </tr>
+  </c:otherwise>
+  </c:choose>
   
   
   </table>
@@ -195,7 +179,7 @@ $(document).ready(function() {
     <c:if test="${jobDraft != null && jobDraft.jobDraftId != null }">
       <input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<c:url value="/dashboard.do"/>'" /> 
     </c:if>
-    <div id="continueButtonDivId" style="display:none">
+    <div id="continueButtonDivId"   <c:choose><c:when test="${empty assayWorkflows}">style="display:none"</c:when><c:otherwise>style="display:inline"</c:otherwise></c:choose> >
      <input  class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="jobDraft.continue.label"/>">
 	</div>
   </div>

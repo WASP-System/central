@@ -13,15 +13,21 @@ package edu.yu.einstein.wasp.service.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.additionalClasses.Strategy;
+import edu.yu.einstein.wasp.dao.JobDraftMetaDao;
 import edu.yu.einstein.wasp.dao.MetaDao;
+import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.dao.WorkflowMetaDao;
+import edu.yu.einstein.wasp.model.JobDraft;
+import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.Meta;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.WorkflowMeta;
@@ -32,7 +38,11 @@ import edu.yu.einstein.wasp.service.StrategyService;
 public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implements StrategyService {
 
 	@Autowired
+	private JobDraftMetaDao jobDraftMetaDao;
+	@Autowired
 	private MetaDao metaDao;
+	@Autowired
+	private WorkflowDao workflowDao;
 	@Autowired
 	private WorkflowMetaDao workflowMetaDao;
 	
@@ -184,4 +194,51 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 		}
 		return strategies;
 	}
+	
+	public JobDraftMeta saveStrategyToJobDraftMeta(JobDraft jobDraft, Strategy strategy){ //save to JobdraftMeta
+		JobDraftMeta jobDraftMeta = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(strategy.getType(), jobDraft.getId());
+		jobDraftMeta.setK(strategy.getType());
+		jobDraftMeta.setV(strategy.getType()+"."+strategy.getStrategy());
+		jobDraftMeta.setJobDraftId(jobDraft.getId());
+		jobDraftMeta = jobDraftMetaDao.save(jobDraftMeta);
+		return jobDraftMeta;
+	}
+	
+	public Strategy getThisJobDraftsStrategy(String strategyType, JobDraft jobDraft){	//get from JobdraftMeta
+		Strategy strategy = new Strategy();
+		JobDraftMeta jobDraftMeta = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(strategyType, jobDraft.getId());
+		if(jobDraftMeta.getId()!=null){
+			strategy = this.getStrategyByKey(jobDraftMeta.getV());
+		}
+		return strategy;
+	}
+	
+	public List<Workflow> getActiveWorkflowsForStrategyOrderByWorkflowName(Strategy requestedStrategy){
+		
+		if(requestedStrategy.getId()==null){//strategy is empty, so return empty list
+			return new ArrayList<Workflow>();
+		}
+		
+		List <Workflow> activeWorkflows = workflowDao.getActiveWorkflows();
+		Set <Workflow> workflowsForTheRequestedStrategyAsSet = new HashSet<Workflow>();
+		for(Workflow workflow : activeWorkflows){
+			List<Strategy>  strategyiesForAWorkflow = this.getThisWorkflowsStrategies(requestedStrategy.getType(), workflow);
+			for(Strategy strategy : strategyiesForAWorkflow){
+				if(requestedStrategy.getId().intValue() == strategy.getId().intValue()){
+					workflowsForTheRequestedStrategyAsSet.add(workflow);
+				}
+			}
+		}		
+		//must put the set into a list, then order the list for display of the web by the workflow.name
+		List <Workflow> workflowsForTheRequestedStrategyAsList = new ArrayList<Workflow>(workflowsForTheRequestedStrategyAsSet);
+		class WorkflowComparatorOrderByName implements Comparator<Workflow> {
+		    @Override
+		    public int compare(Workflow arg0, Workflow arg1) {
+		        return arg0.getName().compareToIgnoreCase(arg1.getName());
+		    }
+		}
+		Collections.sort(workflowsForTheRequestedStrategyAsList, new WorkflowComparatorOrderByName());
+		return workflowsForTheRequestedStrategyAsList;
+	}
+
 }
