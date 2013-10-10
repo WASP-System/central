@@ -23,5 +23,6 @@ public class WaspJobParameters {
 	public static final String BATCH_JOB_TASK = "batchJobTask";
 	public static final String FILE_GROUP_ID = "fileGroupId";
 	public static final String TEST_ID = "testId";
+	public static final String JOB_EXECUTION_ID = "jobExecutionId";
 	
 }

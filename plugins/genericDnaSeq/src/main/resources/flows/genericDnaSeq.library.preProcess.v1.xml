@@ -9,7 +9,6 @@
 	<batch:flow id="genericDnaSeq.library.preProcess.flow.v1" >
 		<batch:step id="genericDnaSeq.library.preProcess.step.notifyStarted" next="genericDnaSeq.library.preProcess.step.align">
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
@@ -27,7 +26,6 @@
 		</batch:step>
 		<batch:step id="genericDnaSeq.library.preProcess.step.align" next="genericDnaSeq.library.preProcess.step.listenForAlignComplete">
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.analysis.WaspJobSoftwareLaunchTaskletImpl" scope="step">
 					<constructor-arg name="libraryCellId" value="#{jobParameters[waspSoftwareJobParameters.LIBRARY_CELL_ID]}"/>
 					<constructor-arg name="softwareResourceType" ref="referenceBasedAlignerResourceType" />
@@ -38,7 +36,6 @@
 		</batch:step>
 		<batch:step id="genericDnaSeq.library.preProcess.step.listenForAlignComplete" >
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
 					<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.analysis" />
 					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
@@ -57,13 +54,11 @@
 		</batch:step>
 		<batch:step id="genericDnaSeq.library.preProcess.step.stageFiles" next="genericDnaSeq.library.preProcess.step.notifyCompleted">
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" />
 			</batch:tasklet>
 		</batch:step>
 		<batch:step id="genericDnaSeq.library.preProcess.step.notifyCompleted" >
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
@@ -79,7 +74,6 @@
 		</batch:step>
 		<batch:step id="genericDnaSeq.library.preProcess.step.notifyFailed" >
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
@@ -101,7 +95,6 @@
 		<!-- or if the job is aborted with an ABANDONED /FAILED message at time e.g. via a message from the web layer -->
 		<batch:step id="genericDnaSeq.library.preProcess.step.listenForExitCondition">
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForExitConditionTasklet" scope="step">
 					<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.analysis" />
 					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />

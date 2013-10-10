@@ -82,10 +82,6 @@
 	<int:bridge id="wasp.channel.bridge.analysis"  input-channel="wasp.channel.priority.analysis" output-channel="wasp.channel.notification.analysis">
 		<int:poller max-messages-per-poll="1" fixed-rate="10" />
 	</int:bridge>
-		
-	<int:bridge id="wasp.channel.bridge.default"  input-channel="wasp.channel.priority.default" output-channel="wasp.channel.notification.default">
-		<int:poller max-messages-per-poll="1" fixed-rate="10" />
-	</int:bridge>
 	
 	<int:bridge id="wasp.channel.bridge.file"  input-channel="wasp.channel.priority.file" output-channel="wasp.channel.notification.file">
 		<int:poller max-messages-per-poll="1" fixed-rate="10" />
@@ -107,14 +103,7 @@
 	    </int:interceptors>
 	</int:channel>
 	
-	<int:channel id="wasp.channel.batch.success" />
 	
-	<int:router id="splitSuccessAndNotifyAbortMessages" input-channel="wasp.channel.batch">
-		<bean id="successOrFailureRouter" class="edu.yu.einstein.wasp.integration.endpoints.SuccessOrAbortMessageRouter">
-			<constructor-arg name="successChannel" ref="wasp.channel.batch.success" />
-			<constructor-arg name="abortChannel" ref="wasp.channel.notification.abort" />
-		</bean>
-	</int:router>	
 	
 	<int:publish-subscribe-channel id="wasp.channel.notification.run.success" />
 	
@@ -125,22 +114,20 @@
 	<int:splitter input-channel="wasp.channel.notification.run.success" output-channel="wasp.channel.batch">
 		<bean class="edu.yu.einstein.wasp.integration.endpoints.RunSuccessSplitter" />
 	</int:splitter>
+	
+	
+	<int:service-activator input-channel="wasp.channel.priority.default" >
+		<bean class="edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager" />
+	</int:service-activator>
 		
 	
 	<!-- header-router to sort inbound messages into appropriate channels -->
 	<int:header-value-router id="waspMessageTypeRouter" 
 		header-name="#{waspMessageType.HEADER_KEY}" 
-		input-channel="wasp.channel.batch.success" 
+		input-channel="wasp.channel.batch" 
 		default-output-channel="wasp.channel.priority.default"
 		resolution-required="false" >
 		<int:mapping value="#{waspMessageType.LAUNCH_BATCH_JOB}" channel="wasp.channel.queue.launch"/>
-		<int:mapping value="#{waspMessageType.JOB}" channel="wasp.channel.priority.job"/>
-		<int:mapping value="#{waspMessageType.RUN}" channel="wasp.channel.priority.run"/>
-		<int:mapping value="#{waspMessageType.SAMPLE}" channel="wasp.channel.priority.sample"/>
-		<int:mapping value="#{waspMessageType.LIBRARY}" channel="wasp.channel.priority.library"/>
-		<int:mapping value="#{waspMessageType.ANALYSIS}" channel="wasp.channel.priority.analysis"/>
-		<int:mapping value="#{waspMessageType.GENERIC}" channel="wasp.channel.priority.default"/>
-		<int:mapping value="#{waspMessageType.FILE}" channel="wasp.channel.priority.file"/>
 	</int:header-value-router>
 		
 	

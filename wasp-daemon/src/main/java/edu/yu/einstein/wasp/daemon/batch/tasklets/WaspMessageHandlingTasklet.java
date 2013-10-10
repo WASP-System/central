@@ -1,29 +1,39 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets;
 
-import java.util.List;
+import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.core.scope.context.StepContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.MessageHeaders;
 import org.springframework.integration.channel.PublishSubscribeChannel;
-import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.MessagingTemplate;
 import org.springframework.integration.support.MessageBuilder;
 
+import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.templates.MessageAwokenHibernationMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.templates.MessageTemplate;
 
-public abstract class WaspMessageHandlingTasklet extends WaspTasklet implements MessageHandler, StepExecutionListener{
+public abstract class WaspMessageHandlingTasklet extends WaspTasklet implements StepExecutionListener{
 	
-	protected List<Message<?>> messageQueue;
+	protected Set<Message<?>> messageQueue;
+	
+	protected boolean wasHibernationSuccessfullyRequested = false;
 	
 	@Autowired
 	@Qualifier("wasp.channel.reply")
 	PublishSubscribeChannel replyChannel;
+	
+	@Autowired
+	@Qualifier("wasp.channel.priority.default")
+	MessageChannel sendChannel;
 	
 	protected void sendSuccessReplyToAllMessagesInQueue(){
 		MessagingTemplate messagingTemplate = new MessagingTemplate();
@@ -50,6 +60,40 @@ public abstract class WaspMessageHandlingTasklet extends WaspTasklet implements 
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	protected void requestHibernation(ChunkContext context, Set<MessageTemplate> messages){
+		StepContext stepContext = context.getStepContext();
+		Long jobExecutionId = stepContext.getStepExecution().getJobExecutionId();
+		logger.info("Going to hibernate job " + stepContext.getJobName() + 
+				" (execution id=" + stepContext.getStepExecution().getJobExecutionId() + ") from step " + 
+				stepContext.getStepName() + " (step id=" + stepContext.getStepExecution().getId() + ")");
+		stepContext.setAttribute(BatchJobHibernationManager.HIBERNATING_KEY, true);
+		stepContext.getStepExecution().setTerminateOnly(); // stops step and surrounding job
+		MessageAwokenHibernationMessageTemplate messageTemplate = new MessageAwokenHibernationMessageTemplate(jobExecutionId);
+		messageTemplate.setAwakenJobExecutionOnMessages(messages);
+		Message<Set<MessageTemplate>> message = null;
+		try {
+			message = messageTemplate.build();
+			logger.debug("sending message: " + message);
+			MessagingTemplate messagingTemplate = new MessagingTemplate();
+			messagingTemplate.send(sendChannel, message);
+			wasHibernationSuccessfullyRequested = true;
+		} catch (Exception e) {
+			logger.warn("Unable to hibernate batch JobExecution id= " + jobExecutionId + ". Failure to send reply message (reason: " + 
+					e.getLocalizedMessage() + ") to reply channel specified in source message : " + message.toString() + ". Original exception stack: ");
+			e.printStackTrace();
+		}
+	}
+	
+	protected boolean wasHibernating(ChunkContext context){
+		if (!context.getStepContext().getJobExecutionContext().containsKey(BatchJobHibernationManager.HIBERNATING_KEY))
+			return false;
+		return (boolean) context.getStepContext().getJobExecutionContext().get(BatchJobHibernationManager.HIBERNATING_KEY);	
+	}
+	
+	protected void setWasHibernatingFlag(ChunkContext context, boolean value){
+		context.getStepContext().getJobExecutionContext().put(BatchJobHibernationManager.HIBERNATING_KEY, value);
 	}
 	
 	@Override

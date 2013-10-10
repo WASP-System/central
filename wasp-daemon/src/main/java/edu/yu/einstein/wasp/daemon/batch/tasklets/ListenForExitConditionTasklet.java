@@ -19,8 +19,9 @@ import org.springframework.integration.core.SubscribableChannel;
 
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.exception.TaskletRetryException;
+import edu.yu.einstein.wasp.exception.TaskletWaitTimeoutException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
-import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
+import edu.yu.einstein.wasp.integration.messages.templates.MessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
 
 /**
@@ -42,15 +43,17 @@ public class ListenForExitConditionTasklet extends WaspMessageHandlingTasklet {
 	
 	private boolean stopJobNotificationReceived = false;
 	
+	private boolean isHibernationRequested = false;
+	
 	public ListenForExitConditionTasklet() {
 		// proxy
 	}
 	
 	public ListenForExitConditionTasklet(SubscribableChannel inputSubscribableChannel, SubscribableChannel abortMonitoringChannel, StatusMessageTemplate messageTemplate) {
-		this.messageTemplates = new HashSet<StatusMessageTemplate>();
+		this.messageTemplates = new HashSet<>();
 		this.messageTemplates.add(messageTemplate);
 		this.abortMonitoringChannel = abortMonitoringChannel;
-		this.subscribeChannels = new HashSet<SubscribableChannel>();
+		this.subscribeChannels = new HashSet<>();
 		this.subscribeChannels.add(inputSubscribableChannel);
 	}
 	
@@ -84,10 +87,10 @@ public class ListenForExitConditionTasklet extends WaspMessageHandlingTasklet {
 		
 		// subscribe to injected message channels
 		logger.debug(name + "subscribing to abort message channel");
-		abortMonitoringChannel.subscribe(this);
+		//abortMonitoringChannel.subscribe(this);
 		logger.debug(name + "subscribing to subscribe channel(s)");
-		for (SubscribableChannel subscribeChannel: subscribeChannels)
-			subscribeChannel.subscribe(this);
+		//for (SubscribableChannel subscribeChannel: subscribeChannels)
+		//	subscribeChannel.subscribe(this);
 	}
 
 
@@ -95,15 +98,15 @@ public class ListenForExitConditionTasklet extends WaspMessageHandlingTasklet {
 	protected void destroy() throws Throwable{
 		// unregister from message channel only if this object gets garbage collected
 		if (subscribeChannels != null && !subscribeChannels.isEmpty()){
-			for (SubscribableChannel subscribeChannel: subscribeChannels){
-				subscribeChannel.unsubscribe(this); 
-				subscribeChannel = null;
-			}
+			//for (SubscribableChannel subscribeChannel: subscribeChannels){
+			//	subscribeChannel.unsubscribe(this); 
+			//	subscribeChannel = null;
+			//}
 		} 
-		if (abortMonitoringChannel != null){
-			abortMonitoringChannel.unsubscribe(this); 
-			abortMonitoringChannel = null;
-		} 
+		//if (abortMonitoringChannel != null){
+		//	abortMonitoringChannel.unsubscribe(this); 
+		//	abortMonitoringChannel = null;
+		//} 
 	}
 	
 	@Override
@@ -133,14 +136,21 @@ public class ListenForExitConditionTasklet extends WaspMessageHandlingTasklet {
 
 	@Override
 	@RetryOnExceptionFixed
-	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
+	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		logger.trace(name + "execute() invoked");
-		while (message == null){
-			throw new TaskletRetryException("task not complete.");
+		if (wasHibernating(context)){
+			logger.debug("Was woken up from hibernation. Skipping to next step");
+			setWasHibernatingFlag(context, false);
+			return RepeatStatus.FINISHED;
 		}
-		return RepeatStatus.FINISHED;
+		if (!wasHibernationSuccessfullyRequested){
+			Set<MessageTemplate> messages = new HashSet<>();
+			messages.addAll(messageTemplates);
+			requestHibernation(context, messages);
+		}
+		throw new TaskletRetryException();
 	}
-	
+	/*
 	@SuppressWarnings("unchecked") 
 	@Override
 	public void handleMessage(Message<?> message) throws MessagingException {
@@ -168,5 +178,5 @@ public class ListenForExitConditionTasklet extends WaspMessageHandlingTasklet {
 			}
 		}
 	}
-
+*/
 }

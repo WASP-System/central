@@ -11,7 +11,6 @@
 		<batch:step id="wasp.library.step.libraryQC">
 			<!-- Wait for QC result to be notified. If failed abandon this library flow otherwise library ready -->
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
 					<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.library" />
 					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort"/>
@@ -32,7 +31,6 @@
 		<batch:step id="wasp.library.step.notifyLibraryAccepted" >
 			<!-- publish that library is ready for further processing -->
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
@@ -47,7 +45,6 @@
 		<batch:step id="wasp.library.step.notifyLibraryAbandoned">
 			<!-- publish that library had been abandoned  -->
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
@@ -68,7 +65,6 @@
 				<batch:step id="wasp.library.step.listenForLibraryReceived">
 					<!-- Listen for library CREATED message: tells us library is physically received -->
 					<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 						<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
 							<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.library" />
 							<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort"/>
@@ -87,7 +83,6 @@
 				<batch:step id="wasp.library.step.listenForJobApproved">
 					<!-- Listen for job ACCEPTED message: tells us job is approved -->
 					<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 						<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
 							<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
 							<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort"/>
@@ -112,7 +107,6 @@
 		<batch:step id="wasp.userLibrary.step.notifyLibraryAbandoned">
 			<!-- publish that library had been abandoned  -->
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
@@ -132,7 +126,6 @@
 		<!-- e.g. via a message from the web layer -->
 		<batch:step id="wasp.library.step.listenForExitCondition">
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForExitConditionTasklet" scope="step">
 					<constructor-arg name="inputSubscribableChannels">
 						<set>

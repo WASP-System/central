@@ -14,7 +14,6 @@
 				<batch:step id="wasp.sample.step.listenForSampleReceived">
 					<!-- Listen for sample CREATED message: tells us sample is physically received -->
 					<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 						<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
 							<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.sample" />
 							<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort"/>
@@ -33,7 +32,6 @@
 				<batch:step id="wasp.sample.step.listenForJobApproved">
 					<!-- Listen for job ACCEPTED message: tells us job is approved -->
 					<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 						<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
 							<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
 							<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort"/>
@@ -56,7 +54,6 @@
 			<!-- Wait for QC result to be notified. If failed abandon this sample flow otherwise sample ready -->
 			<!-- for library making -->
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
 					<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.sample" />
 					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort"/>
@@ -77,7 +74,6 @@
 		<batch:step id="wasp.sample.step.notifySampleAccepted">
 			<!-- publish that sample is ready for further processing -->
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
@@ -92,7 +88,6 @@
 		<batch:step id="wasp.sample.step.notifySampleAbandoned">
 			<!-- publish that sample had been abandoned  -->
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
@@ -112,7 +107,6 @@
 		<!-- e.g. via a message from the web layer -->
 		<batch:step id="wasp.sample.step.listenForExitCondition">
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForExitConditionTasklet" scope="step">
 					<constructor-arg name="inputSubscribableChannels">
 						<set>
