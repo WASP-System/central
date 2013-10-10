@@ -31,12 +31,7 @@ public class SelTestWaspLogin extends SelBaseTest {
 	 * If you want it to run before all methods, you need to use the alwaysRun = true:
 	 * @throws Exception
 	 */
-	@Override
-	@BeforeClass (alwaysRun = true)
-	@Parameters("environment")
-    public void setUp(String environment) throws Exception {
-		
-	}
+	
 
     /**
      * 

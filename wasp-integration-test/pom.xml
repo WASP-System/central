@@ -181,7 +181,7 @@
 				                        <environment>${env.USER}</environment>		
 				                    </systemPropertyVariables>         
 									<excludedGroups>none</excludedGroups><!-- Need to have this because if left out, surefire plugin will exclude groups that were specified in the above configuration -->	
-										<suiteXmlFiles> <suiteXmlFile>src/test/config/testng.xml</suiteXmlFile> 
+										<suiteXmlFiles> <suiteXmlFile>src/test/config/loadTestNewJobs.xml</suiteXmlFile> 
 										</suiteXmlFiles>
 									</configuration>
 								</execution>
