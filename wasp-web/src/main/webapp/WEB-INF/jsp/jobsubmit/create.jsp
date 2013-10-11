@@ -3,6 +3,7 @@
 <script type="text/javascript">
 
 $(document).ready(function() {
+	
 	$( "#strategy" ).change(function() {
 		  if($( this ).val()=='-1'){
 			  $("#workflowRowId").css("display", "none"); 
@@ -37,33 +38,16 @@ $(document).ready(function() {
 		  } 		  
 	});
 
-	/*
-	$("html, body").animate({ scrollTop: 0 }, "fast");
-
-	//http://api.jqueryui.com/dialog/
-	$("#modalDialog").dialog({
-        autoOpen: false,
-        modal: true,
-        height: 800,
-        width: 800,
-        position: { my: "right top", at: "right top", of: window } //http://docs.jquery.com/UI/API/1.8/Position
-    });
-	$("#modalessDialog").dialog({
-        autoOpen: false,
-        modal: false,
-        height: 800,
-        width: 650,
-        position: { my: "right top", at: "right top", of: window } 
-    }); 
-	
-	$("#smallModalessDialog").dialog({
-        autoOpen: false,
-        modal: false,
-        height: 500,
-        width: 500,
-        position: { my: "right top", at: "right top", of: window } 
-    });
-	*/
+	$( "#viewDefinitionsAnchor" ).click(function() {
+		if($(this).text()=="View Help"){
+			$("#strategySummary").css("display", "inline");
+			$(this).text("Hide Help");
+		}
+		else{
+			$("#strategySummary").css("display", "none");
+			$(this).text("View Help");
+		}
+	});
 });
 </script>
 
@@ -74,88 +58,105 @@ $(document).ready(function() {
 <fmt:message key="jobDraft.create_instructions.label"/>
 </div>
 
-<form:form  cssClass="FormGrid" commandName="jobDraft">
-
-<table class="EditTable ui-widget ui-widget-content">
-
-  <tr class="FormData">
-    <td class="CaptionTD"><fmt:message key="jobDraft.name.label"/>:</td>
-    <td class="DataTD">
-      <input class="FormElement ui-widget-content ui-corner-all" name="name" value="<c:out value="${jobDraft.name}"/>">
-    </td>
-    <td class="CaptionTD error"><form:errors path="name" /></td>
-  </tr>
-  <tr class="FormData">
-    <td class="CaptionTD"><fmt:message key="jobDraft.labId.label"/>:</td>
-    <td class="DataTD">
-      <select class="FormElement ui-widget-content ui-corner-all" name="labId">
-        <option value='-1'><fmt:message key="wasp.default_select.label"/></option>
-        <c:forEach var="lab" items="${labs}">
-          <option value="${lab.labId}" <c:if test="${lab.labId == jobDraft.labId}"> selected</c:if>><c:out value="${lab.getUser().getNameFstLst()}"/> Lab</option>
-        </c:forEach>
-      </select>
-    </td>
-    <td class="CaptionTD error"><form:errors path="labId" /></td>
-  </tr>
-  
-  <c:if test="${not empty strategies}">
+<div style="float:left"> 
+	<form:form  cssClass="FormGrid" commandName="jobDraft">
+	
+	<table class="EditTable ui-widget ui-widget-content">
+	
 	  <tr class="FormData">
-	    <td class="CaptionTD">Library Strategy:</td>
+	    <td class="CaptionTD"><fmt:message key="jobDraft.name.label"/>:</td>
 	    <td class="DataTD">
-	      <select class="FormElement ui-widget-content ui-corner-all" id="strategy" name="strategy">
+	      <input class="FormElement ui-widget-content ui-corner-all" name="name" value="<c:out value="${jobDraft.name}"/>">
+	    </td>
+	    <td class="CaptionTD error"><form:errors path="name" /></td>
+	  </tr>
+	  <tr class="FormData">
+	    <td class="CaptionTD"><fmt:message key="jobDraft.labId.label"/>:</td>
+	    <td class="DataTD">
+	      <select class="FormElement ui-widget-content ui-corner-all" name="labId">
 	        <option value='-1'><fmt:message key="wasp.default_select.label"/></option>
-	        <c:forEach var="strategy" items="${strategies}">
-	          <option value="${strategy.getType()}.${strategy.getStrategy()}"  <c:if test="${strategy.getId() == thisJobDraftsStrategy.getId()}"> SELECTED</c:if>  ><c:out value="${strategy.getDisplayStrategy()}"/></option>
+	        <c:forEach var="lab" items="${labs}">
+	          <option value="${lab.labId}" <c:if test="${lab.labId == jobDraft.labId}"> selected</c:if>><c:out value="${lab.getUser().getNameFstLst()}"/> Lab</option>
 	        </c:forEach>
 	      </select>
 	    </td>
-	    <td class="CaptionTD error"> <c:out value="${strategyError}"/> <%--this is not a real part of jobDraft object, so it's toxic here <form:errors path="strategy" />--%></td>
+	    <td class="CaptionTD error"><form:errors path="labId" /></td>
 	  </tr>
-  </c:if>
-  
-  <c:choose>
-  	<c:when test="${empty assayWorkflows}">
-  		<tr id="workflowRowId" class="FormData" style="display:none">
-    		<td class="CaptionTD"><fmt:message key="jobDraft.workflowId.label"/>:</td>
-    		<td class="DataTD">
-    			<select class="FormElement ui-widget-content ui-corner-all" id="workflowId" name="workflowId">
-        			<%-- options will be gotten via ajax call --%>
-    			</select>
- 
-    		</td>
-    		<td class="CaptionTD error"><form:errors path="workflowId" /></td>
-  		</tr>
-  	</c:when>
-  	<c:otherwise>
-	    <tr id="workflowRowId" class="FormData" >
-		    <td class="CaptionTD"><fmt:message key="jobDraft.workflowId.label"/>:</td>
+	  
+	  <c:if test="${not empty strategies}">
+		  <tr class="FormData">
+		    <td class="CaptionTD">Library Strategy:</td>
 		    <td class="DataTD">
-		          <select class="FormElement ui-widget-content ui-corner-all" id="workflowId" name="workflowId">
-		        	<c:if test="${fn:length(assayWorkflows)>1}">
-		        		<option value='-1'><fmt:message key="wasp.default_select.label"/></option>
-		        	</c:if>
-		        	<c:forEach var="workflow" items="${assayWorkflows}">
-		        		<option value="${workflow.key}"  <c:if test="${workflow.key == jobDraft.workflowId}"> SELECTED</c:if>   >${workflow.value}</option>
-		        	</c:forEach>
-		    	 </select>
+		      <select class="FormElement ui-widget-content ui-corner-all" id="strategy" name="strategy">
+		        <option value='-1'><fmt:message key="wasp.default_select.label"/></option>
+		        <c:forEach var="strategy" items="${strategies}">
+		          <option value="${strategy.getType()}.${strategy.getStrategy()}"  <c:if test="${strategy.getId() == thisJobDraftsStrategy.getId()}"> SELECTED</c:if>  ><c:out value="${strategy.getDisplayStrategy()}"/></option>
+		        </c:forEach>
+		      </select>
+		      <a id="viewDefinitionsAnchor" href="javascript:void(0);">View Help</a>
 		    </td>
-		    <td class="CaptionTD error"><form:errors path="workflowId" /></td>
-	  </tr>
-  	</c:otherwise>
-  </c:choose>  
-  
+		    <td class="CaptionTD error"> <c:out value="${strategyError}"/> <%--this is not a real part of jobDraft object, so it's toxic here <form:errors path="strategy" />--%></td>
+		  </tr>
+	  </c:if>
+	  
+	  <c:choose>
+	  	<c:when test="${empty assayWorkflows}">
+	  		<tr id="workflowRowId" class="FormData" style="display:none">
+	    		<td class="CaptionTD"><fmt:message key="jobDraft.workflowId.label"/>:</td>
+	    		<td class="DataTD">
+	    			<select class="FormElement ui-widget-content ui-corner-all" id="workflowId" name="workflowId">
+	        			<%-- options will be gotten via ajax call --%>
+	    			</select>
+	 
+	    		</td>
+	    		<td class="CaptionTD error"><form:errors path="workflowId" /></td>
+	  		</tr>
+	  	</c:when>
+	  	<c:otherwise>
+		    <tr id="workflowRowId" class="FormData" >
+			    <td class="CaptionTD"><fmt:message key="jobDraft.workflowId.label"/>:</td>
+			    <td class="DataTD">
+			          <select class="FormElement ui-widget-content ui-corner-all" id="workflowId" name="workflowId">
+			        	<c:if test="${fn:length(assayWorkflows)>1}">
+			        		<option value='-1'><fmt:message key="wasp.default_select.label"/></option>
+			        	</c:if>
+			        	<c:forEach var="workflow" items="${assayWorkflows}">
+			        		<option value="${workflow.key}"  <c:if test="${workflow.key == jobDraft.workflowId}"> SELECTED</c:if>   >${workflow.value}</option>
+			        	</c:forEach>
+			    	 </select>
+			    </td>
+			    <td class="CaptionTD error"><form:errors path="workflowId" /></td>
+		  </tr>
+	  	</c:otherwise>
+	  </c:choose>  
+	  
+	  </table>
+	
+	  <div class="submit">
+	    <c:if test="${jobDraft != null && jobDraft.jobDraftId != null }">
+	      <input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<c:url value="/dashboard.do"/>'" /> 
+	    </c:if>
+	    <div id="continueButtonDivId"   <c:choose><c:when test="${empty assayWorkflows}">style="display:none"</c:when><c:otherwise>style="display:inline"</c:otherwise></c:choose> >
+	     <input  class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="jobDraft.continue.label"/>">
+		</div>
+	  </div>
+	
+	</form:form>
+</div>
+
+<div id="strategySummary" style="float:left; margin-left:10px; display:none"> 
+  <table class="data" style="margin: 0px 0px">
+ 	<tr class="FormData">
+ 		<td class="label-centered" style="background-color:#FAF2D6">Common-Name Strategy</td><td  class="label-centered" style="background-color:#FAF2D6">SRA Strategy</td><td  class="label-centered" style="background-color:#FAF2D6">SRA Definition</td>
+ 	</tr>
+ 	<c:forEach items="${strategies}" var="strategy">
+  		<tr>
+  			<td style="font-size:x-small"><c:out value="${strategy.getDisplayStrategy()}" /></td>
+  			<td style="font-size:x-small"><c:out value="${strategy.getStrategy()}" /></td>
+  			<td style="font-size:x-small;width:250px"><c:out value="${strategy.getDescription()}" /></td>
+  		</tr>
+	</c:forEach>
   </table>
+</div>
 
-  <div class="submit">
-    <c:if test="${jobDraft != null && jobDraft.jobDraftId != null }">
-      <input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<c:url value="/dashboard.do"/>'" /> 
-    </c:if>
-    <div id="continueButtonDivId"   <c:choose><c:when test="${empty assayWorkflows}">style="display:none"</c:when><c:otherwise>style="display:inline"</c:otherwise></c:choose> >
-     <input  class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="jobDraft.continue.label"/>">
-	</div>
-  </div>
-
-</form:form>
-
-
-
+<div style="clear:both"></div>
