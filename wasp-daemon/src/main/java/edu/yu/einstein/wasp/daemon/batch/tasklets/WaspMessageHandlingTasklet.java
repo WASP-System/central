@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets;
 
+import java.util.Collection;
 import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
@@ -20,7 +21,7 @@ import org.springframework.integration.support.MessageBuilder;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.MessageAwokenHibernationMessageTemplate;
-import edu.yu.einstein.wasp.integration.messages.templates.MessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 public abstract class WaspMessageHandlingTasklet extends WaspTasklet implements StepExecutionListener{
 	
@@ -63,15 +64,15 @@ public abstract class WaspMessageHandlingTasklet extends WaspTasklet implements 
 		}
 	}
 	
-	protected void requestHibernation(ChunkContext context, Set<MessageTemplate> messages){
+	protected void requestHibernation(ChunkContext context, Collection<WaspStatusMessageTemplate> messageTemplates){
 		StepContext stepContext = context.getStepContext();
 		Long jobExecutionId = stepContext.getStepExecution().getJobExecutionId();
 		logger.info("Going to hibernate job " + stepContext.getJobName() + 
 				" (execution id=" + stepContext.getStepExecution().getJobExecutionId() + ") from step " + 
 				stepContext.getStepName() + " (step id=" + stepContext.getStepExecution().getId() + ")");
 		MessageAwokenHibernationMessageTemplate messageTemplate = new MessageAwokenHibernationMessageTemplate(stepContext.getStepExecution());
-		messageTemplate.setAwakenJobExecutionOnMessages(messages);
-		Message<Set<MessageTemplate>> message = null;
+		messageTemplate.setAwakenJobExecutionOnMessages(messageTemplates);
+		Message<Set<WaspStatusMessageTemplate>> message = null;
 		try {
 			message = messageTemplate.build();
 			logger.debug("sending message: " + message);

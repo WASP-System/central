@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.integration.endpoints;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -23,11 +24,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.integration.annotation.ServiceActivator;
 
+import edu.yu.einstein.wasp.batch.MessageAwokenBatchJobStep;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.MessageAwokenHibernationMessageTemplate;
-import edu.yu.einstein.wasp.integration.messages.templates.MessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.TimeoutAwokenHibernationMessageTemplate;
-import edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 
@@ -37,6 +37,8 @@ import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemp
  *
  */
 public class BatchJobHibernationManager {
+	
+	
 	
 	public static final String HIBERNATING_CODE = "HIBERNATING";
 	
@@ -48,7 +50,7 @@ public class BatchJobHibernationManager {
 	
 	private JobRepository jobRepository;
 	
-	private Map<MessageTemplate, Set<Long>> messageTemplatesForJob = new HashMap<>();
+	private Map<WaspStatusMessageTemplate, Set<MessageAwokenBatchJobStep>> messageTemplatesForJob = new HashMap<>(); // use HashMap for fast message searching
 
 	public BatchJobHibernationManager() {}
 	
@@ -68,18 +70,18 @@ public class BatchJobHibernationManager {
 		this.jobOperator = jobOperator;
 	}
 	
-	public void addMessageTemplatesForJob(Long jobExecutionId, Set<MessageTemplate> messages) {
-		for (MessageTemplate message: messages){
-			if (!messageTemplatesForJob.containsKey(message))
-				messageTemplatesForJob.put(message, new HashSet<Long>());
-			messageTemplatesForJob.get(message).add(jobExecutionId);
+	public void addMessageTemplatesForJob(Long jobExecutionId, Long stepExecutionId, Collection<WaspStatusMessageTemplate> messagesTemplates) {
+		for (WaspStatusMessageTemplate messageTemplate: messagesTemplates){
+			if (!messageTemplatesForJob.containsKey(messageTemplate))
+				messageTemplatesForJob.put(messageTemplate, new HashSet<MessageAwokenBatchJobStep>());
+			messageTemplatesForJob.get(messageTemplate).add(new MessageAwokenBatchJobStep(jobExecutionId, stepExecutionId, messagesTemplates));
 		}
 	}
 	
-	public void addMessageTemplateForJob(Long jobExecutionId, MessageTemplate message) {
-		Set<MessageTemplate> messages = new HashSet<>();
-		messages.add(message);
-		addMessageTemplatesForJob(jobExecutionId, messages);
+	public void addMessageTemplateForJob(Long jobExecutionId, Long stepExecutionId, WaspStatusMessageTemplate messageTemplate) {
+		Set<WaspStatusMessageTemplate> messageTemplates = new HashSet<>();
+		messageTemplates.add(messageTemplate);
+		addMessageTemplatesForJob(jobExecutionId, stepExecutionId, messageTemplates);
 	}
 	
 	@ServiceActivator
@@ -88,33 +90,34 @@ public class BatchJobHibernationManager {
 		if (MessageAwokenHibernationMessageTemplate.actUponMessageIgnoringExecutionIds(message)){
 			logger.debug("Message is to request stop and re-awaken on message");
 			MessageAwokenHibernationMessageTemplate messageTemplate = new MessageAwokenHibernationMessageTemplate(message);
-			addMessageTemplatesForJob(messageTemplate.getJobExecutionId(), messageTemplate.getAwakenJobExecutionOnMessages());
+			addMessageTemplatesForJob(messageTemplate.getJobExecutionId(), messageTemplate.getStepExecutionId(), messageTemplate.getAwakenJobExecutionOnMessages());
 			stopJobExecution(messageTemplate.getJobExecutionId());
 		} else if (TimeoutAwokenHibernationMessageTemplate.actUponMessageIgnoringExecutionIds(message)){
 			logger.debug("Message is to request stop and re-awaken on timeout");
 			// TODO: functionality here
 		} else {
 			logger.debug("Message is not a request stop message");
-			for (MessageTemplate testMessageTemplate : messageTemplatesForJob.keySet()){
-				if (testMessageTemplate.actUponMessage(message) && 
-						testMessageTemplate.getPayload().getClass().isInstance(message) && 
-						testMessageTemplate.getPayload().equals(message.getPayload())){
-					for (Long jobExecutionId : messageTemplatesForJob.get(testMessageTemplate)){
-						logger.debug("restarting job with JobExecution id=" + jobExecutionId + " on receiving message " + message);
-						restartJobExecution(jobExecutionId);
+			if (WaspStatus.class.isInstance(message.getPayload())){
+				WaspStatusMessageTemplate incomingStatusMessageTemplate = new WaspStatusMessageTemplate((Message<WaspStatus>) message);
+				if (messageTemplatesForJob.keySet().contains(incomingStatusMessageTemplate)){
+					for (MessageAwokenBatchJobStep messageAwokenBatchJobStep : messageTemplatesForJob.get(incomingStatusMessageTemplate)){
+						logger.debug("restarting job with JobExecution id=" + messageAwokenBatchJobStep.getJobExecutionId() + " on receiving message " + message);
+						restartJobExecution(messageAwokenBatchJobStep);
 					}
-				}
+				}		
 			}
+		}	
+		for (WaspStatusMessageTemplate t : messageTemplatesForJob.keySet()){
+			logger.debug("Dump of messageTemplatesForJob: key=" + t + ", value=" + messageTemplatesForJob.get(t));			
 		}
-		
 	}
 	
-	private void restartJobExecution(Long jobExecutionId){
+	private void restartJobExecution(MessageAwokenBatchJobStep messageAwokenBatchJobStep){
 		try {
-			jobOperator.restart(jobExecutionId);
+			jobOperator.restart(messageAwokenBatchJobStep.getJobExecutionId());
 		} catch (JobInstanceAlreadyCompleteException | NoSuchJobExecutionException | NoSuchJobException | JobRestartException | JobParametersInvalidException e) {
-			logger.warn("Unable to restart job with JobExecution id=" + jobExecutionId + " (got " + e.getClass().getName() + " Exception :" + 
-					e.getLocalizedMessage() + ")");
+			logger.warn("Unable to restart job with JobExecution id=" + messageAwokenBatchJobStep.getJobExecutionId() + 
+					" (got " + e.getClass().getName() + " Exception :" + e.getLocalizedMessage() + ")");
 		}
 	}
 	

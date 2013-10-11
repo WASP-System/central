@@ -10,10 +10,7 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.integration.core.SubscribableChannel;
 
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
-import edu.yu.einstein.wasp.exception.TaskletRetryException;
-import edu.yu.einstein.wasp.integration.messages.templates.MessageTemplate;
-import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 /**
  * Listens on the provided subscribable channel for a message with a task and status specified in the
@@ -26,9 +23,9 @@ public class ListenForStatusTasklet extends WaspMessageHandlingTasklet  {
 
 	
 	// TODO:: merge the following two attributes  
-	private StatusMessageTemplate messageTemplate;
+	private WaspStatusMessageTemplate messageTemplate;
 	
-	private Set<StatusMessageTemplate> abortMonitoredTemplates;
+	private Set<WaspStatusMessageTemplate> abortMonitoredTemplates;
 	
 	
 	public ListenForStatusTasklet() {
@@ -36,15 +33,15 @@ public class ListenForStatusTasklet extends WaspMessageHandlingTasklet  {
 	}
 	
 	// TODO:: remove this
-	public void setAdditionalAbortMonitoredTemplates(Set<StatusMessageTemplate> additionalAbortMessageMonitoredTemplates){
+	public void setAdditionalAbortMonitoredTemplates(Set<WaspStatusMessageTemplate> additionalAbortMessageMonitoredTemplates){
 		this.abortMonitoredTemplates.addAll(additionalAbortMessageMonitoredTemplates);
 	}
 	
 	// TODO:: remove SubscribableChannel inputSubscribableChannel, SubscribableChannel abortMonitoringChannel
-	public ListenForStatusTasklet(SubscribableChannel inputSubscribableChannel, SubscribableChannel abortMonitoringChannel, StatusMessageTemplate messageTemplate) {
+	public ListenForStatusTasklet(SubscribableChannel inputSubscribableChannel, SubscribableChannel abortMonitoringChannel, WaspStatusMessageTemplate messageTemplate) {
 		this.messageTemplate = messageTemplate;
 		this.messageQueue = new HashSet<>();
-		this.abortMonitoredTemplates = new HashSet<StatusMessageTemplate>();
+		this.abortMonitoredTemplates = new HashSet<WaspStatusMessageTemplate>();
 		this.abortMonitoredTemplates.add(messageTemplate);
 	}
 	
@@ -57,7 +54,7 @@ public class ListenForStatusTasklet extends WaspMessageHandlingTasklet  {
 			return RepeatStatus.FINISHED;
 		}
 		if (!wasHibernationSuccessfullyRequested){
-			Set<MessageTemplate> messages = new HashSet<>();
+			Set<WaspStatusMessageTemplate> messages = new HashSet<>();
 			messages.addAll(abortMonitoredTemplates);
 			messages.add(messageTemplate);
 			requestHibernation(context, messages);

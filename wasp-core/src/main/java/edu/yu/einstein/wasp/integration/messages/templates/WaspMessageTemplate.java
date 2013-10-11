@@ -34,7 +34,7 @@ public abstract class WaspMessageTemplate implements MessageTemplate{
 	
 	public static final String COMMENT_KEY = "comment";
 	
-	private Map<String, Object> headers = new HashMap<>();
+	protected Map<String, Object> headers = new HashMap<>();
 	
 	
 	/**

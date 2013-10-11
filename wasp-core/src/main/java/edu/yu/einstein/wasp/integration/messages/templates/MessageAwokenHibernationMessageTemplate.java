@@ -1,5 +1,7 @@
 package edu.yu.einstein.wasp.integration.messages.templates;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.batch.core.StepExecution;
@@ -12,7 +14,7 @@ import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 
 public class MessageAwokenHibernationMessageTemplate extends AbstractHibernationMessageTemplate {
 	
-	private Set<MessageTemplate> awakenJobExecutionOnMessages;
+	private Set<WaspStatusMessageTemplate> awakenJobExecutionOnMessages = new HashSet<>();
 
 	public MessageAwokenHibernationMessageTemplate(StepExecution stepExecution) {
 		super(stepExecution);
@@ -26,14 +28,14 @@ public class MessageAwokenHibernationMessageTemplate extends AbstractHibernation
 
 	public MessageAwokenHibernationMessageTemplate(Message<?> message) {
 		super(message);
-		setAwakenJobExecutionOnMessages( (Set<MessageTemplate>) message.getPayload());
+		setAwakenJobExecutionOnMessages( (Set<WaspStatusMessageTemplate>) message.getPayload());
 	}
 
 	@Override
-	public Message<Set<MessageTemplate>> build() throws WaspMessageBuildingException{
+	public Message<Set<WaspStatusMessageTemplate>> build() throws WaspMessageBuildingException{
 		if (this.awakenJobExecutionOnMessages == null)
 			throw new WaspMessageBuildingException("no list of MessageTemplates message defined");
-		Message<Set<MessageTemplate>> message = null;
+		Message<Set<WaspStatusMessageTemplate>> message = null;
 
 		try {
 			message = MessageBuilder.withPayload(awakenJobExecutionOnMessages)
@@ -45,12 +47,12 @@ public class MessageAwokenHibernationMessageTemplate extends AbstractHibernation
 		return message;
 	}
 
-	public Set<MessageTemplate> getAwakenJobExecutionOnMessages() {
+	public Set<WaspStatusMessageTemplate> getAwakenJobExecutionOnMessages() {
 		return awakenJobExecutionOnMessages;
 	}
 
-	public void setAwakenJobExecutionOnMessages(Set<MessageTemplate> awakenJobExecutionOnMessages) {
-		this.awakenJobExecutionOnMessages = awakenJobExecutionOnMessages;
+	public void setAwakenJobExecutionOnMessages(Collection<WaspStatusMessageTemplate> awakenJobExecutionOnMessages) {
+		this.awakenJobExecutionOnMessages.addAll(awakenJobExecutionOnMessages);
 	}
 	
 	public static boolean actUponMessageIgnoringExecutionIds(Message<?> message){

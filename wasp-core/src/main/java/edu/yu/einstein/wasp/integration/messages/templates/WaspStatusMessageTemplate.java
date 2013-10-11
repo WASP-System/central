@@ -1,21 +1,22 @@
 package edu.yu.einstein.wasp.integration.messages.templates;
 
-import java.util.Map;
-
 import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
+import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
 
 
 
 /**
- * Abstract base class defining common attributes.
+ * Class defining the the status message template which may be extended further. A WaspMessageType header may or may not be defined.
  * @author asmclellan
  *
  */
-public abstract class WaspStatusMessageTemplate extends WaspMessageTemplate implements StatusMessageTemplate{
+public class WaspStatusMessageTemplate extends WaspMessageTemplate implements StatusMessageTemplate{
 	
 	public static final String EXIT_DESCRIPTION_HEADER = "description";
 	
@@ -97,9 +98,84 @@ public abstract class WaspStatusMessageTemplate extends WaspMessageTemplate impl
 		return sb.toString();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean actUponMessage(Message<?> message){
+		String task = (String) getHeader(WaspJobTask.HEADER_KEY);
+		return actUponMessage(message, task);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean actUponMessageIgnoringTask(Message<?> message){
+		return actUponMessage(message, null);
+	}
+	
+	/**
+	 * Takes a message and checks its headers to see if the message should be acted upon or not
+	 * @param message
+	 * @param task
+	 * @return
+	 */
+	private boolean actUponMessage(Message<?> message, String task ){
+		if ( (!message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) && headers.containsKey(WaspMessageType.HEADER_KEY)) || 
+				(message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) && !headers.containsKey(WaspMessageType.HEADER_KEY)) )
+			return false;
+		
+		if ( message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) && headers.containsKey(WaspMessageType.HEADER_KEY) && 
+						!message.getHeaders().get(WaspMessageType.HEADER_KEY).equals(headers.get(WaspMessageType.HEADER_KEY)) ){
+				return false;
+		}
+		if (task == null)
+			return true;
+		if (message.getHeaders().containsKey(WaspTask.HEADER_KEY) && message.getHeaders().get(WaspTask.HEADER_KEY).equals(task))
+			return true;
+		return false;
+	}
+	
 	@Override
 	public Object getPayload(){
 		return getStatus();
 	}
+	
+	@Override
+	public boolean equals(Object obj){
+		if (this == obj)
+			return true;
+		if (obj == null || !getClass().isInstance(obj))
+			return false;
+		WaspStatusMessageTemplate messageTemplate = (WaspStatusMessageTemplate) obj;
+		if (!messageTemplate.getStatus().equals(this.getStatus()))
+			return false;
+		if (headers.size() != messageTemplate.getHeaders().size())
+			return false;
+		for (String header : headers.keySet()){
+			if (!messageTemplate.getHeaders().containsKey(header))
+				return false;
+			if ((headers.get(header) == null && messageTemplate.getHeaders().get(header) != null) || 
+					(headers.get(header) != null && messageTemplate.getHeaders().get(header) == null))
+				return false;
+			if (!headers.get(header).equals(messageTemplate.getHeaders().get(header)))
+				return false;
+		}
+		return true;
+	}
+	
+	@Override
+	public int hashCode(){
+		int hash = 7;
+		hash = 31 * hash + (null == status ? 0 : status.hashCode());
+		for (String header : headers.keySet()){
+			Object value = headers.get(header);
+			hash = 31 * hash + header.hashCode();
+			hash = 31 * hash + (null == value ? 0 : value.hashCode());
+		}
+		return hash;
+	}
+
 }
 	

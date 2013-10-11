@@ -17,12 +17,9 @@ import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
 import org.springframework.integration.core.SubscribableChannel;
 
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
-import edu.yu.einstein.wasp.exception.TaskletRetryException;
-import edu.yu.einstein.wasp.exception.TaskletWaitTimeoutException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
-import edu.yu.einstein.wasp.integration.messages.templates.MessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 /**
  * Listens on the provided subscribable channel(s) for relevant completion messages. Also monitors the abort monitoring channel
@@ -33,7 +30,7 @@ public class ListenForExitConditionTasklet extends WaspMessageHandlingTasklet {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private Set<StatusMessageTemplate> messageTemplates;
+	private Set<WaspStatusMessageTemplate> messageTemplates;
 	
 	private SubscribableChannel abortMonitoringChannel;
 	
@@ -49,7 +46,7 @@ public class ListenForExitConditionTasklet extends WaspMessageHandlingTasklet {
 		// proxy
 	}
 	
-	public ListenForExitConditionTasklet(SubscribableChannel inputSubscribableChannel, SubscribableChannel abortMonitoringChannel, StatusMessageTemplate messageTemplate) {
+	public ListenForExitConditionTasklet(SubscribableChannel inputSubscribableChannel, SubscribableChannel abortMonitoringChannel, WaspStatusMessageTemplate messageTemplate) {
 		this.messageTemplates = new HashSet<>();
 		this.messageTemplates.add(messageTemplate);
 		this.abortMonitoringChannel = abortMonitoringChannel;
@@ -57,21 +54,21 @@ public class ListenForExitConditionTasklet extends WaspMessageHandlingTasklet {
 		this.subscribeChannels.add(inputSubscribableChannel);
 	}
 	
-	public ListenForExitConditionTasklet(Set<SubscribableChannel> inputSubscribableChannels, SubscribableChannel abortMonitoringChannel, Set<StatusMessageTemplate> messageTemplates) {
+	public ListenForExitConditionTasklet(Set<SubscribableChannel> inputSubscribableChannels, SubscribableChannel abortMonitoringChannel, Set<WaspStatusMessageTemplate> messageTemplates) {
 		this.messageTemplates = messageTemplates;
 		this.abortMonitoringChannel = abortMonitoringChannel;
 		this.subscribeChannels = inputSubscribableChannels;
 	}
 	
-	public ListenForExitConditionTasklet(SubscribableChannel inputSubscribableChannel, SubscribableChannel abortMonitoringChannel, Set<StatusMessageTemplate> messageTemplates) {
+	public ListenForExitConditionTasklet(SubscribableChannel inputSubscribableChannel, SubscribableChannel abortMonitoringChannel, Set<WaspStatusMessageTemplate> messageTemplates) {
 		this.messageTemplates = messageTemplates;
 		this.abortMonitoringChannel = abortMonitoringChannel;
 		this.subscribeChannels = new HashSet<SubscribableChannel>();
 		this.subscribeChannels.add(inputSubscribableChannel);
 	}
 	
-	public ListenForExitConditionTasklet(Set<SubscribableChannel> inputSubscribableChannels, SubscribableChannel abortMonitoringChannel, StatusMessageTemplate messageTemplate) {
-		this.messageTemplates = new HashSet<StatusMessageTemplate>();
+	public ListenForExitConditionTasklet(Set<SubscribableChannel> inputSubscribableChannels, SubscribableChannel abortMonitoringChannel, WaspStatusMessageTemplate messageTemplate) {
+		this.messageTemplates = new HashSet<WaspStatusMessageTemplate>();
 		this.messageTemplates.add(messageTemplate);
 		this.abortMonitoringChannel = abortMonitoringChannel;
 		this.subscribeChannels = inputSubscribableChannels;
@@ -143,7 +140,7 @@ public class ListenForExitConditionTasklet extends WaspMessageHandlingTasklet {
 			return RepeatStatus.FINISHED;
 		}
 		if (!wasHibernationSuccessfullyRequested){
-			Set<MessageTemplate> messages = new HashSet<>();
+			Set<WaspStatusMessageTemplate> messages = new HashSet<>();
 			messages.addAll(messageTemplates);
 			requestHibernation(context, messages);
 		}
