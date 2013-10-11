@@ -30,6 +30,8 @@
 
  	
 	<!-- import configuration files  -->
-	<import resource="___pluginname___-test-persistence-config.xml" />
+	<import resource="___pluginIName___-test-persistence-config.xml" />
 ////<
+
+	<bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />
 </beans>

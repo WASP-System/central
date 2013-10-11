@@ -8,14 +8,23 @@ distribution. WPPs can provide a variety of functionalities, common examples bei
 * Software: definition, dependencies and workflows
 * Visualization tools: Generation of panels
 
-This section demonstrates how to create a working WPP from scratch, walking the reader through the process step by step. The WPP we will create is
-for the "Picard" suite of tools. `Picard <http://picard.sourceforge.net>`_ is a set of command line Java executables that manipulate SAM / BAM files. 
-We would like this WPP to:
+This section demonstrates how to create working WPPs from scratch, walking the reader through the process step by step. We will first create a simple
+plugin for the "Picard" suite of tools. `Picard <http://picard.sourceforge.net>`_ is a set of command line Java executables that manipulate SAM / BAM files. 
+Next we will make a plugin for BAM file QC which depends on the BWA plugin to implement the *CollectAlignmentSummaryMetrics* tool).
 
-1. Define a plugin class and software wrapper for each command line tool (for this example we will only be implementing the *CollectAlignmentSummaryMetrics* 
-   tool).
+Our main tasks include:
+
+1. Defining a plugin class and software wrapper for Picard.
 2. Hook into the Wasp messaging system (wasp-daemon) to be notified when any BAM files are made in order to the QC tools on those files automatically.
+3. Defining a plugin class and software wrapper for BamQC
 3. Parse output from the QC analyses for display in a panel when a system user is examining output related to a particular BAM file.
+
+So what is a WPP and individual plugin to The Wasp System? A WPP represents a project which is built into a single versioned jar. 
+Each plugin within the WPP is defined by a bean implementing an extension of the ``wasp-core:edu.yu.einstein.wasp.plugin.WaspPlugin`` class. During bean 
+ininitialization, a list of beans derived from this class are stored in a bean of type ``edu.yu.einstein.wasp.plugin.WaspPluginRegistry``. This bean can be
+autowired into a POJO and asked to return a list of plugins that implement a specific subtype and/or which handle a particular 'area'. An area is simply a 
+namespace used for identifying an area of fuctionality. Often it is synonymous with an internal name (iname) associated with a database entity, e.g. an assay 
+workflow iname like 'chipseq'. The interfaces implemented by the plugin define its functionality and facilitate inter-component interaction.
 
 Installing and Using the Wasp System Eclipse Plugin
 ***************************************************
@@ -35,11 +44,8 @@ update site (http://waspsystem.org/eclipse):
 5) When prompted, click the button to restart Eclipse.
 
 
-Creating a New WPP
-******************
-
-Using the Wasp System Eclipse Plugin Wizard
-===========================================
+Creating a New WPP using the Wasp System Eclipse Plugin Wizard
+**************************************************************
 
 From the STS menu bar select *File* -> *New* -> *Project* -> *WASP Plugin* -> *WASP Plugin Project* and click *Next*. Fill in the Project information 
 as requested and configure the project by selecting the desire features (:num:`figure #fig-configureProj`):
@@ -47,7 +53,7 @@ as requested and configure the project by selecting the desire features (:num:`f
 .. _fig-configureProj:
  
 .. figure:: figures/configureWaspProj.png 
-   :width: 14cm
+   :width: 20cm
    :align: center
    
    Configuration of a new WPP.
@@ -69,21 +75,13 @@ as requested and configure the project by selecting the desire features (:num:`f
   If a WPP is designed to provide visualizations, e.g. present plots of data or a table of information, ensure that this item is checked.
 	
 
-After configuring the project click *finish* and the project will be built and appear in the *Package Explorer* on the left-hand side of the Eclipse IDE 
-(:num:`figure #fig-picardProjStructure`).
+After configuring the project click *finish* and the project will be built and appear in the *Package Explorer* on the left-hand side of the Eclipse IDE.
 
-.. _fig-picardProjStructure:
-
-.. figure:: figures/picardProjStructure.png
-   :width: 10cm
-   :align: center
    
-   Picard example project folder structure (all configuration options checked).
-   
-Spring 101
-==========
+A Quick Look at Some Spring Framework Fundamentals
+**************************************************
 
-Before we look in detail at the structure of the project we have created and examine the various components, we first need to understand some basic 
+Before we look in detail at the structure of the foo project and examine the various components, we first need to understand some basic 
 fundamentals of the Spring framework.
 
 Spring facilitates the creation of 
@@ -94,62 +92,63 @@ simply by swapping out database adapters in configuration and without changing a
 
 In the Wasp System, the configuration (XML) files defining the application contexts of the core components (*wasp-core*, *wasp-daemon* and *wasp-web*) import 
 WPP-specific configuration files from each WPP. In the ``src/main/resources:META-INF/spring`` folder within the project structure we have 
-created (:num:`figure #fig-picardProjStructure`), you will see XML configuration files suffixed by ``common.xml``, ``batch.xml`` and ``web.xml`` (the latter 
+created you will see XML configuration files suffixed by ``common.xml``, ``batch.xml`` and ``web.xml`` (the latter 
 two are 
-optional depending on how the WPP was configured). Looking in the picard project ``picard-plugin-context-common.xml`` file, a very simple bean is defined 
-representing a string instance called *picardPluginArea* which has the value "picard" injected via the constructor:
+optional depending on how the WPP was configured). Looking in the foo project ``foo-plugin-context-common.xml`` file, a very simple bean is defined 
+representing a string instance called *fooPluginArea* which has the value "foo" injected via the constructor (remember that an 'area' represents a namespace in 
+The Wasp System):
 
 .. code-block:: xml
  
-   <bean id="picardPluginArea" class="java.lang.String">
+   <bean id="fooPluginArea" class="java.lang.String">
        <constructor-arg>
-           <value>picard</value>
+           <value>foo</value>
        </constructor-arg>
    </bean>
 	
-The second bean in this file is declaring a configured instance of the ``edu.yu.einstein.wasp.picard.plugin.PicardPlugin`` class:
+The second bean in this file is declaring a configured instance of the ``edu.yu.einstein.wasp.plugin.foo.plugin.FooPlugin`` class:
 
 .. code-block:: xml
 
-   <bean id="picard" class="edu.yu.einstein.wasp.picard.plugin.PicardPlugin">
-       <constructor-arg name="pluginName" ref="picardPluginArea" />
+   <bean id="foo" class="edu.yu.einstein.wasp.plugin.foo.plugin.FooPlugin">
+       <constructor-arg name="iName" ref="fooPluginArea" />
        <constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
-       <constructor-arg name="channel" ref="wasp.channel.plugin.picard" />
-       <property name="pluginDescription" value="A tool for working with NGS data in BAM format" />
+       <constructor-arg name="channel" ref="wasp.channel.plugin.foo" />
+       <property name="description" value="A foo plugin" />
        <property name="provides" >
            <set>
-             <ref bean="picard" /> 
+             <ref bean="foo" /> 
            </set>
         </property>
         <property name="handles" >
             <set>
-                <ref bean="picardPluginArea" />
+                <ref bean="fooPluginArea" />
             </set>
         </property>
    </bean>
 
-Notice how the *picardPluginArea* bean is injected into the *picard* bean by providing its object reference as a constructor argument. Notice also how 
+Notice how the *fooPluginArea* bean is injected into the *foo* bean by providing its object reference as a constructor argument. Notice also how 
 collections may be injected, in this case a collection of type ``java.util.Set``. You can see another example of passing by value with the setting of the 
-*pluginDescription*  property. Under the hood, spring doesn't directly set the value of *pluginDescription*, instead it expects there to be a public method 
-``void setPluginDescription(String)`` defined in the ``PicardPlugin`` class. Similarly, for the *provides* property, Spring expects the ``PicardPlugin`` class to 
+*description*  property. Under the hood, spring does not directly set the value of *description*, instead it expects there to be a public method 
+``void setDescription(String)`` defined in the ``FooPlugin`` class. Similarly, for the *provides* property, Spring expects the ``FooPlugin`` class to 
 define a method ``void setProvides(Set<?>)``.
 
 It is possible to evaluate expressions and inject the result into a bean during instantiation e.g.:
 
 .. code-block:: java
 
-   <bean class="org.baz.bar.Foo">
+   <bean class="org.baz.bar.MyClass">
        <property name="foobar">
            <value>${wasp.config.foobar}</value>
        </property>
-       <property name="name" value="#{picard.getName()}" />
+       <property name="name" value="#{anotherBean.getName()}" />
    </bean>
 	
 In the above example two properties called *foobar* and *name* are being set. The *foobar* property value is intended to be an evaluated property. In the 
 Wasp System, custom and system properties are both defined in the *wasp-config* WPP within the ``src/main/resources/\*.properties`` files. In this example,
 one of these files is expected to contain the line ``wasp.config.foobar=My Foo Plugin``. Thus, during bean instantiation, the *${wasp.config.foobar}* placeholder
 is replaced with the String value "My Foo Plugin". The *name* property value is obtained by evaluating a `Spring Expression Language (SpEL) 
-<http://static.springsource.org/spring/docs/3.0.x/reference/expressions.html>`_ construct. In this case, it assumes a bean called "picard" is defined, and 
+<http://static.springsource.org/spring/docs/3.0.x/reference/expressions.html>`_ construct. In this case, it assumes a bean called "anotherBean" is defined, and 
 evaluates its ``getName()`` method.
 
 An alternative to injecting constructor / property values in the XML bean definitions is to do it in the Class definition. An ``@Autowired`` annotation placed 
@@ -207,8 +206,15 @@ first letter de-capitalized.
         to bean destruction, e.g. closing a resource, a public method annotated with ``@PreDestroy`` may also be provided.
      5. Beans ready for use. 
 
-With a basic introduction to the concepts of Spring required to generate WPPs, we can move on to examine the details of the project structure for a 
-WPP:
+With a basic introduction to the concepts of Spring required to generate WPPs, we can move on to examine the details of the project structure for a WPP:
+
+.. _fig-exampleProjStructure:
+
+.. figure:: figures/exampleProjStructure.png
+   :width: 10cm
+   :align: center
+   
+   Example project folder structure for a project called Foo created with all configuration options checked.
 
 * **src/main/java**
 
@@ -403,30 +409,57 @@ WPP:
 Developing the Picard WPP
 *************************
 
-The Wasp System Eclipse Plugin Wizard automatically added most of the classes we need to being working on the Picard Plugin. But before we start lets condider
-what we would like the plugin to do. Remember that Picard is a collection of discrete java command line applications. Each application has its own set of
-parameters and output files so we will consider them as independent plugins within the Picard Plugin Project to keep things atomic and prevent the tools from 
-becoming tightly coupled. So what is a WPP and individual plugin to The Wasp System? A WPP represents a project which is built into a single versioned jar. 
-Each plugin within the WPP is defined by a bean implementing an extension of the ``wasp-core:edu.yu.einstein.wasp.plugin.WaspPlugin`` class. During bean 
-ininitialization, a list of beans derived from this class are stored in a bean of type ``edu.yu.einstein.wasp.plugin.WaspPluginRegistry``. This bean can be
-autowired into a POJO and asked to return a list of plugins that implement a specific subtype and/or which handle a particular 'area'. An area is simply a 
-namespace used for identifying an area of fuctionality. Often it is synonymous with an internal name (iname) associated with a database entity, e.g. an assay 
-workflow iname like 'chipseq'. The interfaces implemented by the plugin define its functionality and facilitate inter-component interaction. As we already saw, 
-within the picard project ``picard-plugin-context-common.xml`` file is defined a string instance called *picardPluginArea* with the value "picard":
+Before we start lets consider
+what we would like the plugin to do. Remember that Picard is a collection of discrete java command line applications. Some are file processing tools whilst 
+others provide statistical summaries for BAM files. We wish to declare a Software bean for Picard so that wasp is able to load information about it
+from configuration and enable it to be injected as a dependency for an units of work (see ``WorkUnit`` class) that wish to use Picard tools. To create the
+picard plugin, generate a new Wasp Eclipse Plugin Project with only the 'Resources' feature is chosen:
 
-.. code-block:: xml
- 
-   <bean id="picardPluginArea" class="java.lang.String">
-       <constructor-arg>
-           <value>picard</value>
-       </constructor-arg>
-   </bean>
+.. _fig-configurePicardProj:
+
+.. figure:: figures/configurePicardProj.png
+   :width: 10cm
+   :align: center
+
+There is actually no changes that need to be made to this project. We simply need to register some properties in the *wasp-config* project 
+``src/main/resources/wasp.site.properties`` to allow the *GridHostResolver* to be able to load the Picard software module when a dependency to Picard is 
+declared (we will see how this is achieved in practise when developing the BamQC plugin). So we simply open the 
+``wasp-config:src/main/resources/wasp.site.properties`` file and add the following:
+
+.. code-block:: text
+
+   #assumes a host called 'myhost' has been defined. We use this as a prefix.
+   #picard
+   myhost.software.picard.name=picard
+   myhost.software.picard.version=1.96
+   myhost.software.picard.availableversions=1.96
+   
+Under the hood, when a WorkUnit declares a dependency of *Picard*, the SoftwareManager places bash code in the execution script to set a bash variable 
+``$PICARD_ROOT`` which points to the location of the Picard jars. If using the ModulesManager implementation of SoftwareManager, this is achieved by running: 
+
+   ``module load picard/1.96``
+
+
+Developing the BamQC WPP
+************************
+
+Remember this plugin is designed to run Picard's ``CollectAlignmentSummaryMetrics`` on a BAM file on notification of its creation. The output file will then be 
+parsed and the data displayed in a user-friendly manner when a user is examining data associated with the BAM file.
+
+First we need to create the WPP in the usual way. This time selecting the *Pipeline* and *Visualization* features:
+
+.. _fig-configureBamQcProj:
+
+.. figure:: figures/configureBamQcProj.png
+   :width: 10cm
+   :align: center
+
 
 Running Picard's ``CollectAlignmentSummaryMetrics`` at the Linux Command Line
 =============================================================================
 
-Lets take a look at the command we wish to execute and the output we obtain. Assume we have an environment variable ``$PICARD_ROOT`` which points to the 
-location of the Picard jars:
+Lets first take a look at the command we wish to execute and the output we obtain. Assume we have an environment variable ``$PICARD_ROOT`` which points to the 
+location of the Picard jars (see previous section):
 
 .. code-block:: bash
 
@@ -453,105 +486,167 @@ After execution is complete, the contents of in_bam_metrics.txt look something l
    UNPAIRED	36922937	36922937	1	452	0	0	0	0	0	0	0	0	0	0	101	0	0	0	00.002885	
 
 
-Running Picard's ``CollectAlignmentSummaryMetrics`` in the Picard Plugin
+Running Picard's ``CollectAlignmentSummaryMetrics`` in the BamQC Plugin
 ======================================================================== 
      
 Lets assume we have registerd a bam file in the Wasp System database. We will access the location of the bam file via its FileGroup object. Every file 
 (FileHandle object) registered in the system is a member of a FileGroup object, even if there is a one-to-one mapping between fileGroup and fileHandle. Once we 
 have access to the file we need to define the work somewhere. In the Wasp System we configure a WorkUnit instance to handle command line operations. The 
 WorkUnit is a high-level wrapper over the underlying server architecture. It permits specification of a list of commands to execute, requesting of 
-resources (cpu slots, memory etc) and definition of environment variables. 
+resources (cpu slots, memory etc) and definition of environment variables.
 
-So our Picard class should look like:
+The first stage is implementation is to edit the pre-generated ``BamqcPlugin`` class in the ``edu.yu.einstein.wasp.plugin.bamqc.plugin`` package. The work 
+performed by this Software object is encapsulated in three methods, 
+``WorkUnit getWorkUnit(Integer fileGroupId)`` to get a configured WorkUnit instance to run the command, ``String getCommand()`` to get the bash-ready command 
+to execute in the WorkUnit and ``parseOutput(String resultsDir)`` to parse the output to a JSON representation which can be stored in the database. 
+
+So our Bamqc class should now look like:
 
 .. code-block:: java
 
-   package edu.yu.einstein.wasp.picard.software;
-
+   package edu.yu.einstein.wasp.plugin.picard.software;
    import java.util.ArrayList;
    import java.util.List;
+
+   import org.json.JSONException;
+   import org.json.JSONObject;
    import org.springframework.beans.factory.annotation.Autowired;
+
+   import edu.yu.einstein.wasp.exception.DataParseException;
+   import edu.yu.einstein.wasp.exception.GridException;
    import edu.yu.einstein.wasp.grid.work.WorkUnit;
    import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
    import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
    import edu.yu.einstein.wasp.model.FileGroup;
    import edu.yu.einstein.wasp.model.FileHandle;
+   import edu.yu.einstein.wasp.plugin.picard.service.PicardService;
    import edu.yu.einstein.wasp.service.FileService;
    import edu.yu.einstein.wasp.software.SoftwarePackage;
 
-   public class Picard extends SoftwarePackage{
+   public abstract class Picard extends SoftwarePackage{
 
-       private static final long serialVersionUID = -7632170113602282642L;
+      private static final long serialVersionUID = -2632888941035900707L;
 
-       private static final String COLLECT_ALIGNMENT_SUMMARY_METRICS_OUTPUT = "collectAlignmentSummaryMetrics.out";
+      @Autowired
+      protected PicardService  picardService;
 	
-       @Autowired
-       FileService fileService;
+      @Autowired
+      protected FileService fileService;
 	
-       public Picard() {
-           setSoftwareVersion("1.96"); // This default may be overridden in wasp.site.properties
-       }
+      public Picard() {
+         setSoftwareVersion("1.96"); // This default may be overridden in wasp.site.properties
+      }
 	
-      /**
-       * Takes a FileGroup and returns a configured WorkUnit to run Picard tools on the file group.
-       * 
-       * @param fileGroup
-       * @return
-       */
-       public WorkUnit getPicard(Integer fileGroupId, String command) {
+     /**
+      * Takes a FileGroup and returns a configured WorkUnit to run a Picard tool on the file group.
+      * @param fileGroupId
+      * @return Configured WorkUnit instance
+      */
+      public WorkUnit getWorkUnit(Integer fileGroupId) {
 		
-           WorkUnit w = new WorkUnit();
+         WorkUnit w = new WorkUnit();
 		
-           // Require Picard. 
-           // The GridHostResolver can use software dependencies to choose appropriate resources on which to 
-           // execute a WorkUnit instance.
-           List<SoftwarePackage> software = new ArrayList<SoftwarePackage>();
-           software.add(this);
-           w.setSoftwareDependencies(software);
+         // Require Picard. 
+         // The GridHostResolver can use software dependencies to choose appropriate resources on which 
+         // to execute a WorkUnit instance.
+         List<SoftwarePackage> software = new ArrayList<SoftwarePackage>();
+         software.add(this);
+         w.setSoftwareDependencies(software);
 		
-           // require 3GB memory
-           w.setMemoryRequirements(3);
+         // require 3GB memory
+         w.setMemoryRequirements(3);
 		
-           // require a single thread, execution mode PROCESS
-           // indicates this is a vanilla execution.
-           w.setProcessMode(ProcessMode.SINGLE);
-           w.setMode(ExecutionMode.PROCESS);
+         // require a single thread, execution mode PROCESS
+         // indicates this is a vanilla execution.
+         w.setProcessMode(ProcessMode.SINGLE);
+         w.setMode(ExecutionMode.PROCESS);
 		
-           // set working directory to scratch
-           w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
+         // set working directory to scratch
+         w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		
-           // we aren't actually going to retain any files, so we will set the output
-           // directory to the scratch directory.  Also set "secure results" to
-           // false to indicate that we don't care about the output.
-           w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
-           w.setSecureResults(false);
+         // we aren't actually going to retain any files, so we will set the output
+         // directory to the scratch directory.  Also set "secure results" to
+         // false to indicate that we don't care about the output.
+         w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
+         w.setSecureResults(false);
 		
-           // add the files to the work unit
-           // files will be represented as bash variables in the work unit 
-           FileGroup fileGroup = fileService.getFileGroupById(fileGroupId);
-           List<FileHandle> files = new ArrayList<FileHandle>(fileGroup.getFileHandles());
-           w.setRequiredFiles(files);
+         // add the files to the work unit
+         // files will be represented as bash variables in the work unit 
+         FileGroup fileGroup = fileService.getFileGroupById(fileGroupId);
+         List<FileHandle> files = new ArrayList<FileHandle>(fileGroup.getFileHandles());
+         w.setRequiredFiles(files);
 		
-           // set the command
-           w.setCommand(command);
+         // set the command
+         w.setCommand(getCommand());
 		
-           return w;
-       }
+         return w;
+      }
 	
-       /**
-        * Set the CollectAlignmentSummaryMetrics command. Assume $PICARD_ROOT is set in configuration
-        * WorkUnit sets up paths to data for registered 'requiredFiles'. The ${WASPFILE[0]} variable in the 
-        * command provides access to the first file in the list (in this case we only expect one file). 
-        * @param fileGroup
-        * @param workUnit
-        * @return
-        */
-        public String getCollectAlignmentSummaryMetricsCommand() {
-            String command = "java -Xmx2g -jar $PICARD_ROOT/CollectAlignmentSummaryMetrics.jar INPUT=${" 
-            	+ WorkUnit.INPUT_FILE + "[0]} OUTPUT=" + COLLECT_ALIGNMENT_SUMMARY_METRICS_OUTPUT + "\n";
-            return command;
-        }
+     /**
+      * Set the command. Assume $PICARD_ROOT is set in configuration
+      * WorkUnit sets up paths to data for registered 'requiredFiles'. The ${WASPFILE[0]} variable in the command
+      * provides access to the first file in the list (in this case we only expect one file). 
+      * @return String representing bash command
+      */
+      public abstract String getCommand();
 	
+     /**
+      * This method takes a grid result of a successfully run Picard job, gets the working directory
+      * and uses it to parse the output file into a JSONObject representing the data.  
+      * @param resultsDir
+      * @return JSONObject representation of the parsed data
+      * @throws GridException
+      * @throws DataParseException
+      * @throws JSONException 
+      */
+      public abstract JSONObject parseOutput(String resultsDir) throws GridException, DataParseException, JSONException;
    }
+   
+Our implementation defines the ``String getCommand()`` and ``WorkUnit getWorkUnit(Integer fileGroupId)`` implementations, the latter of which defers the 
+processing to a PicardService instance:
+
+.. code-block:: java
+
+   package edu.yu.einstein.wasp.plugin.picard.software;
+
+   import org.json.JSONException;
+   import org.json.JSONObject;
+
+   import edu.yu.einstein.wasp.exception.DataParseException;
+   import edu.yu.einstein.wasp.exception.GridException;
+   import edu.yu.einstein.wasp.grid.work.WorkUnit;
+
+
+   public class CollectAlignmentSummaryMetrics extends Picard {
+
+      private static final long serialVersionUID = 3681418132863339589L;
+	
+      private static final String COLLECT_ALIGNMENT_SUMMARY_METRICS_OUTPUT = "collectAlignmentSummaryMetrics.out";
+	
+      public CollectAlignmentSummaryMetrics() {
+         super();
+      }
+	
+     /**
+      * {@inheritDoc}
+      */
+      @Override
+      public String getCommand() {
+         String command = "java -Xmx2g -jar $PICARD_ROOT/CollectAlignmentSummaryMetrics.jar INPUT=${" 
+         		+ WorkUnit.INPUT_FILE + "[0]} OUTPUT=" + COLLECT_ALIGNMENT_SUMMARY_METRICS_OUTPUT + "\n";
+         return command;
+      }
+	
+     /**
+      * {@inheritDoc}
+      */
+      public JSONObject parseOutput(String resultsDir) throws GridException, DataParseException, JSONException {
+         JSONObject outputJson = picardService.parseCollectAlignmentSummaryMetricsOutput(resultsDir);
+         return outputJson;
+      }
+
+   }
+
+
    
 

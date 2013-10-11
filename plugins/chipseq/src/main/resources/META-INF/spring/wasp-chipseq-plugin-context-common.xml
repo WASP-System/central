@@ -22,9 +22,11 @@
 	<int:channel id="wasp.channel.plugin.wasp-chipseq" />
 	
 	<bean id="wasp-chipseq.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.assay.WaspChipSeqPlugin">
-		<constructor-arg name="pluginName" ref="waspChipSeqPluginArea" />
+		<constructor-arg name="iName" ref="waspChipSeqPluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.wasp-chipseq" />
+		<property name="name" value="ChIP-seq" />
+		<property name="description" value="Peak Calling Workflow" />
 		<property name="handles">
 			<set>
 				<ref bean="waspChipSeqPluginArea" />

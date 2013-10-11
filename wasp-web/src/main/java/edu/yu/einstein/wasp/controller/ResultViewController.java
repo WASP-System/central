@@ -1,6 +1,6 @@
 package edu.yu.einstein.wasp.controller;
 
-import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -27,16 +27,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
+import edu.yu.einstein.wasp.Hyperlink;
 import edu.yu.einstein.wasp.MetaMessage;
-import edu.yu.einstein.wasp.charts.highchartsjs.HighChartsJsBase;
+import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
-import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
@@ -45,10 +46,7 @@ import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing.Status;
-import edu.yu.einstein.wasp.viewpanel.Panel;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
-import edu.yu.einstein.wasp.viewpanel.WebContent;
-import edu.yu.einstein.wasp.viewpanel.WebPanel;
 
 @Controller
 @Transactional
@@ -108,7 +106,72 @@ public class ResultViewController extends WaspController {
 		
 		return "jobresults/treeview"; 	
 	}
-	
+
+	// get the JSON data of the given filegroup id list
+	@RequestMapping(value="/getFileGroupsDetailJson", method = RequestMethod.GET)
+	public @ResponseBody String getFileGroupListJson(@RequestParam("fglist") String fgListStr, HttpServletResponse response) {
+		try {
+//			List<Map<String, String>> fgMapList = new ArrayList<Map<String,String>>();
+//			Hyperlink hl;
+//			for (String s : fgListStr.split(",")) {
+//				FileGroup fg = fileService.getFileGroupById(Integer.parseInt(s.trim()));
+//				Map<String,String> fgMap = new HashMap<String,String>();
+//				fgMap.put("id", fg.getId().toString());
+//				fgMap.put("name", fg.getDescription());
+//				try {
+//					hl = new Hyperlink("Download", fileUrlResolver.getURL(fg).toString());
+//					fgMap.put("link", hl.getTargetLink());
+//				} catch (GridUnresolvableHostException e) {
+//					logger.debug("Cannot resolver host for filegroup id " + s);
+//					e.printStackTrace();
+//				}
+//				
+//				fgMapList.add(fgMap);
+//			}
+//			
+//			return outputJSON(fgMapList, response);
+			
+			Set<FileHandle> fhSet = new HashSet<FileHandle>();
+			List<Map<String,String>> fileMapList = new ArrayList<Map<String,String>>();
+			Hyperlink hl;
+			try {
+				for (String s : fgListStr.split(",")) {
+					FileGroup fg = fileService.getFileGroupById(Integer.parseInt(s.trim()));
+
+					String fgidStr = fg.getId().toString();
+					String fgName = fg.getDescription();
+					hl = new Hyperlink("Download", fileUrlResolver.getURL(fg).toString());
+					String fgLink = hl.getTargetLink();
+					
+					fhSet = fg.getFileHandles();
+					for (FileHandle fh : fhSet) {
+						Map<String,String> fileMap = new HashMap<String,String>();
+						
+						fileMap.put("fgid", fgidStr);
+						fileMap.put("fgname", fgName);
+						fileMap.put("fglink", fgLink);
+						
+						fileMap.put("fid", fh.getId().toString());
+						fileMap.put("fname", fh.getFileName());
+						fileMap.put("md5", fh.getMd5hash());
+						fileMap.put("size", fh.getSizek() != null ? fh.getSizek().toString() : "0");
+						//fileMap.put("updated", fh.getUpdated().);
+						hl = new Hyperlink("Download", fileUrlResolver.getURL(fh).toString());
+						fileMap.put("link", hl.getTargetLink());
+						
+						fileMapList.add(fileMap);
+					}
+				}
+			} catch (GridUnresolvableHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			return outputJSON(fileMapList, response);
+		} catch (Throwable e) {
+			throw new IllegalStateException("Can't marshall to JSON for " + fgListStr, e);
+		}	
+	}
 
 	// get the JSON data to construct the tree 
 	@RequestMapping(value="/getTreeJson", method = RequestMethod.GET)
@@ -240,9 +303,44 @@ public class ResultViewController extends WaspController {
 						fgSet.addAll(fileService.getFilesForLibraryByType(library, ft));
 					}
 				}
-
-				//TODO: only use one element in the filegroup set, need to confirm this
-				//jsDetails.putAll(fileService.getPanelTabSetByFileType(fgSet.iterator().next()));
+				
+				String fgList = "";
+				for (FileGroup fg : fgSet) {
+					fgList += "," + fg.getId().toString();
+				}
+				
+/*				Set<FileHandle> fhSet = new HashSet<FileHandle>();
+				Set<Map<String,String>> fgMapSet = new HashSet<Map<String,String>>();
+				Map<Integer, Map<String,String>> fileMapMap = new HashMap<Integer, Map<String,String>>();
+				try {
+					for (FileGroup fg : fgSet) {
+						Hyperlink hl;
+	
+						Map<String,String> fgMap = new HashMap<String,String>();
+						fgMap.put("id", fg.getId().toString());
+						fgMap.put("name", fg.getDescription());
+						hl = new Hyperlink("Download", fileUrlResolver.getURL(fg).toString());
+						fgMap.put("link", hl.getTargetLink());
+						fgMapSet.add(fgMap);
+						
+						fhSet = fg.getFileHandles();
+						Map<String,String> fileMap = new HashMap<String,String>();
+						for (FileHandle fh : fhSet) {
+							hl = new Hyperlink("Download", fileUrlResolver.getURL(fh).toString());
+							fileMap.put("name", fh.getFileName());
+							fileMap.put("md5", fh.getMd5hash());
+							fileMap.put("size", fh.getSizek() != null ? fh.getSizek().toString() : "0kb");
+							fileMap.put("link", hl.getTargetLink());
+						}
+						fileMapMap.put(fg.getId(), fileMap);
+					}
+				} catch (GridUnresolvableHostException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+*/
+				jsDetailsTabs.put("fgliststr", fgList.substring(1));
+				//jsDetailsTabs.put("filelistmap", fileMapMap);
 			} else if(type.startsWith("filegroup")) {
 				FileGroup fg = fileService.getFileGroupById(id);
 				List<FileDataTabViewing> plugins = fileService.getTabViewProvidingPluginsByFileGroup(fg);
@@ -255,9 +353,8 @@ public class ResultViewController extends WaspController {
 					Integer tabCount = 0;
 					for (FileDataTabViewing plugin: plugins){
 						Status status = plugin.getStatus(fg);
-						Software software = plugin.getSoftware();
-						statusArray[i][0] = software.getName();
-					    statusArray[i][1] = software.getDescription();
+						statusArray[i][0] = plugin.getName();
+					    statusArray[i][1] = plugin.getDescription();
 					    statusArray[i][2] = status.toString();
 					    if (status.equals(Status.COMPLETED)){
 					    	PanelTab panelTab = plugin.getViewPanelTab(fg);
@@ -279,6 +376,7 @@ public class ResultViewController extends WaspController {
 			return outputJSON(jsDetailsTabs, response);
 		} 
 		catch (Throwable e) {
+			e.printStackTrace();
 			throw new IllegalStateException("Can't marshall to JSON for " + nodeJSON, e);
 		}	
 	}

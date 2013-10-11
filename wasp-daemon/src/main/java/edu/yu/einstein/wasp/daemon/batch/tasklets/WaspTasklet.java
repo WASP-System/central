@@ -56,9 +56,6 @@ public abstract class WaspTasklet implements Tasklet {
 	
 	protected String name = "";
 	
-	@Value("${wasp.task.delay:50}")
-	protected Long executeRepeatDelay;
-	
 	public String getName() {
 		return name;
 	}

@@ -4,12 +4,12 @@
  */
 package ___package___.plugin;
 
-import java.util.HashMap; ///// PIP RES
-import java.util.Map; ///// PIP RES
+import java.util.HashMap; ///// PIP
+import java.util.Map; ///// PIP
 import java.util.Properties;
 
-import org.json.JSONException; ///// PIP RES
-import org.json.JSONObject; ///// PIP RES
+import org.json.JSONException; ///// PIP
+import org.json.JSONObject; ///// PIP
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,19 +18,19 @@ import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 
-import edu.yu.einstein.wasp.Hyperlink;  ///// FORM RES VIZ
+import edu.yu.einstein.wasp.Hyperlink;  ///// FORMVIZ
 import edu.yu.einstein.wasp.exception.PanelException; ///// VIZ
-import edu.yu.einstein.wasp.exception.WaspMessageBuildingException; ///// PIP RES
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException; ///// PIP 
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
-import edu.yu.einstein.wasp.integration.messages.WaspJobParameters; ///// PIP RES
-import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;  ///// PIP RES
+import edu.yu.einstein.wasp.integration.messages.WaspJobParameters; ///// PIP
+import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;  ///// PIP
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.FileGroup; ///// VIZ
-import edu.yu.einstein.wasp.model.Software;  ///// VIZ
-import edu.yu.einstein.wasp.plugin.BatchJobProviding;  ///// PIP RES
+import edu.yu.einstein.wasp.model.Software;  ///// RES
+import edu.yu.einstein.wasp.plugin.BatchJobProviding;  ///// PIP 
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
-import edu.yu.einstein.wasp.plugin.WebInterfacing; ///// FORM RES
+import edu.yu.einstein.wasp.plugin.WebInterfacing; ///// FORM
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing; ///// VIZ
 import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
@@ -39,10 +39,10 @@ import edu.yu.einstein.wasp.viewpanel.PanelTab; ///// VIZ
 /**
  * @author 
  */
-public class ___Pluginname___Plugin extends WaspPlugin 
+public class ___PluginIName___Plugin extends WaspPlugin 
 		implements 
-			BatchJobProviding,	///// PIP RES
-			WebInterfacing, ///// FORM RES
+			BatchJobProviding,	///// PIP
+			WebInterfacing, ///// FORM
 			FileDataTabViewing, ///// VIZ
 			ClientMessageI {
 
@@ -60,11 +60,17 @@ public class ___Pluginname___Plugin extends WaspPlugin
 
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
+	
+	////> RES
+	@Autowired
+	@Qualifier("___pluginIName___")
+	private Software ___pluginIName___;
+	
+	////<
+	public static final String FLOW_NAME = "___package___.mainFlow"; ///// PIP
 
-	public static final String FLOW_NAME = "___package___.mainFlow"; ///// PIP RES
-
-	public ___Pluginname___Plugin(String pluginName, Properties waspSiteProperties, MessageChannel channel) {
-		super(pluginName, waspSiteProperties, channel);
+	public ___PluginIName___Plugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
+		super(iName, waspSiteProperties, channel);
 	}
 
 	/**
@@ -87,12 +93,12 @@ public class ___Pluginname___Plugin extends WaspPlugin
 	}
 	
 	private Message<String> helloWorldHelp() {
-		String mstr = "\n___Pluginname___ plugin: hello world!\n" +
-				"wasp -T ___pluginname___ -t helloWorld\n";
+		String mstr = "\n___PluginIName___ plugin: hello world!\n" +
+				"wasp -T ___pluginIName___ -t helloWorld\n";
 		return MessageBuilder.withPayload(mstr).build();
 	}
 
-////> PIP RES
+////> PIP
 	public Message<String> launchTestFlow(Message<String> m) {
 		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
 			return launchTestFlowHelp();
@@ -117,8 +123,8 @@ public class ___Pluginname___Plugin extends WaspPlugin
 	}
 	
 	private Message<String> launchTestFlowHelp() {
-		String mstr = "\n___Pluginname___ plugin: launch the test flow.\n" +
-				"wasp -T ___pluginname___ -t launchTestFlow -m \'{id:\"1\"}\'\n";
+		String mstr = "\n___PluginIName___ plugin: launch the test flow.\n" +
+				"wasp -T ___pluginIName___ -t launchTestFlow -m \'{id:\"1\"}\'\n";
 		return MessageBuilder.withPayload(mstr).build();
 	}
 	
@@ -154,13 +160,13 @@ public class ___Pluginname___Plugin extends WaspPlugin
 	}
 	
 ////<
-////> VIZ FORM RES
+////> VIZ FORM
 	/** 
 	 * {@inheritDoc} 
 	 */
 	@Override
 	public Hyperlink getDescriptionPageHyperlink() {
-		return new Hyperlink("___pluginname___.hyperlink.label", "/___pluginname___/displayDescription.do");
+		return new Hyperlink("___pluginIName___.hyperlink.label", "/___pluginIName___/displayDescription.do");
 	}
 	
 ////<
@@ -178,12 +184,6 @@ public class ___Pluginname___Plugin extends WaspPlugin
 	 */
 	@Override
 	public PanelTab getViewPanelTab(FileGroup fileGroup) throws PanelException {
-		return null;
-	}
-	
-	@Override
-	public Software getSoftware() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	

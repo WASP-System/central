@@ -15,15 +15,18 @@ public interface WaspPluginI {
 	public Set<?> getHandles();
 	
 	/**
+	 * @return the plugin Iname
+	 */
+	public String getIName();
+	
+	/**
 	 * @return the plugin name
 	 */
-	public String getPluginName();
+	String getName();
 	
 	/**
 	 * @return the plugin description
 	 */
-	public String getPluginDescription();
-	
-	
+	public String getDescription();
 
 }

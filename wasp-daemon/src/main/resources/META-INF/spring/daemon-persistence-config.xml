@@ -67,7 +67,8 @@
 	</bean>
 	
 	<!-- default (batch database transactions) -->
-	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	<!-- <bean id="transactionManager" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager" />  -->
+	 <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="batchDataSource" />
 	</bean>
 	

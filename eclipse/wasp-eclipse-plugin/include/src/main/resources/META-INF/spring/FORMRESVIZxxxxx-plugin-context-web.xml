@@ -10,6 +10,6 @@
   	<context:component-scan base-package="___package___.controller" />
 
 	<!-- common definitions -->
-	<import resource="___pluginname___-plugin-context-common.xml" />
+	<import resource="___pluginIName___-plugin-context-common.xml" />
 	
 </beans>

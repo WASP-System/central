@@ -9,7 +9,7 @@
     <property name="name" value="Generic Plugin" />
     <property name="area" value="genericPlugin" />
   </bean>
-   
+
   <bean id="mpsResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
     <property name="name" value="Massively Parallel DNA Sequencer" />
     <property name="area" value="mps" />
@@ -49,6 +49,7 @@
   	<property name="name" value="Library Strategy" />
   	<property name="area" value="libraryStrategy" />
   </bean>
+
  
 </beans>
 

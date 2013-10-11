@@ -7,6 +7,7 @@
 	<batch:flow id="waspIlluminaHiSeq.mainFlow">
 		<batch:step id="waspIlluminaHiSeq.mainFlow.notifyIlluminaStart" next="waspIlluminaHiSeq.mainFlow.listenForRunStart">
 			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
@@ -21,6 +22,7 @@
 		<batch:step id="waspIlluminaHiSeq.mainFlow.listenForRunStart" next="waspIlluminaHiSeq.mainFlow.listenForRunCompletion">
 			<!-- look for evidence of a started illumina run. One of the first steps is to write the runParameters.xml file -->
 			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.file.ExternalFileExistsTasklet" scope="step">
 					<constructor-arg name="softwarePackage" ref="casava" />
 					<constructor-arg name="directoryId" value="illumina.data.dir" />
@@ -31,6 +33,7 @@
 		<batch:step id="waspIlluminaHiSeq.mainFlow.listenForRunCompletion" next="waspIlluminaHiSeq.mainFlow.updateRunCompleted">
 			<!-- look for evidence of a completed illumina run. At the moment, we look for "RTAComplete.txt" (not present in MiSeq) -->
 			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.file.ExternalFileExistsTasklet" scope="step">
 					<constructor-arg name="softwarePackage" ref="casava" />
 					<constructor-arg name="directoryId" value="illumina.data.dir" />
@@ -41,6 +44,7 @@
 		<batch:step id="waspIlluminaHiSeq.mainFlow.updateRunCompleted" next="waspIlluminaHiSeq.mainFlow.createSampleSheet">
 			<!-- task to create a sample sheet. Should do some rudimentary checking on samples. -->
 			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.UpdateRunCompletedTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 				</bean>
@@ -49,6 +53,7 @@
 		<batch:step id="waspIlluminaHiSeq.mainFlow.createSampleSheet" next="waspIlluminaHiSeq.mainFlow.startIlluminaPipeline">
 			<!-- task to create a sample sheet. Should do some rudimentary checking on samples. -->
 			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.SampleSheetTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 				</bean>
@@ -57,6 +62,7 @@
 		<batch:step id="waspIlluminaHiSeq.mainFlow.startIlluminaPipeline" next="waspIlluminaHiSeq.mainFlow.stageResults">
 			<!-- initiate the illumina pipeline -->
 			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.PipelineTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 				</bean>
@@ -64,6 +70,7 @@
 		</batch:step>
 		<batch:step id="waspIlluminaHiSeq.mainFlow.stageResults" next="waspIlluminaHiSeq.mainFlow.demultiplex">
 			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.StageResultsTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 				</bean>
@@ -75,6 +82,7 @@
 		</batch:step>
 		<batch:step id="waspIlluminaHiSeq.mainFlow.registerFiles" next="waspIlluminaHiSeq.mainFlow.listenForQCCompletion">
 			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.RegisterFilesTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 				</bean>
@@ -82,6 +90,7 @@
 		</batch:step>
 		<batch:step id="waspIlluminaHiSeq.mainFlow.listenForQCCompletion" next="waspIlluminaHiSeq.mainFlow.notifyRunComplete">
 			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
 					<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.run" />
 					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort"/>
@@ -97,6 +106,7 @@
 		</batch:step>
 		<batch:step id="waspIlluminaHiSeq.mainFlow.notifyRunComplete">
 			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
@@ -118,6 +128,7 @@
 		<!-- e.g. via a message from the web layer -->
 		<batch:step id="waspIlluminaHiSeq.step.listenForExitCondition">
 			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForExitConditionTasklet" scope="step">
 					<constructor-arg name="inputSubscribableChannels">
 						<set>
