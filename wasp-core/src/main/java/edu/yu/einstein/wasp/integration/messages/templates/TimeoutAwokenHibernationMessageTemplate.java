@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.integration.messages.templates;
 
+import org.springframework.batch.core.StepExecution;
 import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 
@@ -11,13 +12,13 @@ public class TimeoutAwokenHibernationMessageTemplate extends AbstractHibernation
 	
 	private Long timeout; // ms
 
-	public TimeoutAwokenHibernationMessageTemplate(Long jobExecutionId) {
-		super(jobExecutionId);
+	public TimeoutAwokenHibernationMessageTemplate(StepExecution stepExecution) {
+		super(stepExecution);
 		super.setTask(JobExecutionTask.STOP_AND_AWAKE_ON_TIMEOUT);
 	}
 
-	public TimeoutAwokenHibernationMessageTemplate(Long jobExecutionId, String target) {
-		super(jobExecutionId, target);
+	public TimeoutAwokenHibernationMessageTemplate(StepExecution stepExecution, String target) {
+		super(stepExecution, target);
 		super.setTask(JobExecutionTask.STOP_AND_AWAKE_ON_TIMEOUT);
 	}
 
@@ -42,7 +43,7 @@ public class TimeoutAwokenHibernationMessageTemplate extends AbstractHibernation
 		return message;
 	}
 	
-	public static boolean actUponMessageIgnoringJobExecutionId(Message<?> message){
+	public static boolean actUponMessageIgnoringExecutionIds(Message<?> message){
 		if (isMessageOfCorrectType(message) && message.getHeaders().containsKey(WaspJobTask.HEADER_KEY) &&	
 				message.getHeaders().get(WaspJobTask.HEADER_KEY).equals(JobExecutionTask.STOP_AND_AWAKE_ON_TIMEOUT))
 			return true;
@@ -71,5 +72,10 @@ public class TimeoutAwokenHibernationMessageTemplate extends AbstractHibernation
 	@Override
 	public void setTask(String task){
 		// do nothing
+	}
+	
+	@Override
+	public Object getPayload(){
+		return getTimeout();
 	}
 }

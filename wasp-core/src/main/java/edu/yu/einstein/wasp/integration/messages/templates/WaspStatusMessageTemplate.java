@@ -1,5 +1,7 @@
 package edu.yu.einstein.wasp.integration.messages.templates;
 
+import java.util.Map;
+
 import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 
@@ -83,6 +85,21 @@ public abstract class WaspStatusMessageTemplate extends WaspMessageTemplate impl
 		return message;
 	}
 	
+	@Override
+	public String toString(){
+		StringBuilder sb = new StringBuilder();
+		sb.append("WaspStatusMessage:[Status=" + this.status + "][Headers={");
+		for (String headerKey : this.getHeaders().keySet()){
+			sb.append(headerKey + "=" + this.getHeaders().get(headerKey).toString() + ", ");
+		}
+		sb.delete(sb.length() - 2, sb.length());
+		sb.append("}]\n");
+		return sb.toString();
+	}
 	
+	@Override
+	public Object getPayload(){
+		return getStatus();
+	}
 }
 	

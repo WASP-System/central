@@ -135,11 +135,10 @@ public class ListenForExitConditionTasklet extends WaspMessageHandlingTasklet {
 	}
 
 	@Override
-	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		logger.trace(name + "execute() invoked");
 		if (wasHibernating(context)){
-			logger.debug("Was woken up from hibernation. Skipping to next step");
+			logger.debug("StepExecution id=" + context.getStepContext().getStepExecution().getId() + " was woken up from hibernation. Skipping to next step");
 			setWasHibernatingFlag(context, false);
 			return RepeatStatus.FINISHED;
 		}
@@ -148,7 +147,7 @@ public class ListenForExitConditionTasklet extends WaspMessageHandlingTasklet {
 			messages.addAll(messageTemplates);
 			requestHibernation(context, messages);
 		}
-		throw new TaskletRetryException();
+		return RepeatStatus.CONTINUABLE;
 	}
 	/*
 	@SuppressWarnings("unchecked") 

@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.integration.messages.templates;
 
 import java.util.Set;
 
+import org.springframework.batch.core.StepExecution;
 import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 
@@ -13,13 +14,13 @@ public class MessageAwokenHibernationMessageTemplate extends AbstractHibernation
 	
 	private Set<MessageTemplate> awakenJobExecutionOnMessages;
 
-	public MessageAwokenHibernationMessageTemplate(Long jobExecutionId) {
-		super(jobExecutionId);
+	public MessageAwokenHibernationMessageTemplate(StepExecution stepExecution) {
+		super(stepExecution);
 		super.setTask(JobExecutionTask.STOP_AND_AWAKE_ON_MESSAGE);
 	}
 
-	public MessageAwokenHibernationMessageTemplate(Long jobExecutionId, String target) {
-		super(jobExecutionId, target);
+	public MessageAwokenHibernationMessageTemplate(StepExecution stepExecution, String target) {
+		super(stepExecution, target);
 		super.setTask(JobExecutionTask.STOP_AND_AWAKE_ON_MESSAGE);
 	}
 
@@ -52,7 +53,7 @@ public class MessageAwokenHibernationMessageTemplate extends AbstractHibernation
 		this.awakenJobExecutionOnMessages = awakenJobExecutionOnMessages;
 	}
 	
-	public static boolean actUponMessageIgnoringJobExecutionId(Message<?> message){
+	public static boolean actUponMessageIgnoringExecutionIds(Message<?> message){
 		if (isMessageOfCorrectType(message) && message.getHeaders().containsKey(WaspJobTask.HEADER_KEY) &&	
 				message.getHeaders().get(WaspJobTask.HEADER_KEY).equals(JobExecutionTask.STOP_AND_AWAKE_ON_MESSAGE))
 			return true;
@@ -65,5 +66,10 @@ public class MessageAwokenHibernationMessageTemplate extends AbstractHibernation
 	@Override
 	public void setTask(String task){
 		// do nothing
+	}
+	
+	@Override
+	public Object getPayload(){
+		return getAwakenJobExecutionOnMessages();
 	}
 }

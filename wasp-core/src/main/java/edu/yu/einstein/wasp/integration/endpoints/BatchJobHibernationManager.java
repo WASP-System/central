@@ -17,14 +17,18 @@ import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.launch.NoSuchJobException;
 import org.springframework.batch.core.launch.NoSuchJobExecutionException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.integration.annotation.ServiceActivator;
 
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.MessageAwokenHibernationMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.MessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.TimeoutAwokenHibernationMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 
 /**
@@ -34,7 +38,7 @@ import edu.yu.einstein.wasp.integration.messages.templates.TimeoutAwokenHibernat
  */
 public class BatchJobHibernationManager {
 	
-	public static final String HIBERNATING_KEY = "hibernating";
+	public static final String HIBERNATING_CODE = "HIBERNATING";
 	
 	private Logger logger = LoggerFactory.getLogger(getClass());
 	
@@ -42,7 +46,9 @@ public class BatchJobHibernationManager {
 	
 	private JobExplorer jobExplorer;
 	
-	private Map<MessageTemplate, Set<Long>> messagesForJob = new HashMap<>();
+	private JobRepository jobRepository;
+	
+	private Map<MessageTemplate, Set<Long>> messageTemplatesForJob = new HashMap<>();
 
 	public BatchJobHibernationManager() {}
 	
@@ -51,39 +57,54 @@ public class BatchJobHibernationManager {
 		this.jobExplorer = jobExplorer;
 	}
 	
+	@Autowired
+	public void setJobRepository(JobRepository jobRepository){
+		this.jobRepository = jobRepository;
+	}
+	
 	
 	@Autowired
 	public void setJobOperator(JobOperator jobOperator){
 		this.jobOperator = jobOperator;
 	}
 	
-	public void addMessagesForJob(Long jobExecutionId, Set<MessageTemplate> messages) {
+	public void addMessageTemplatesForJob(Long jobExecutionId, Set<MessageTemplate> messages) {
 		for (MessageTemplate message: messages){
-			if (!messagesForJob.containsKey(message))
-				messagesForJob.put(message, new HashSet<Long>());
-			messagesForJob.get(message).add(jobExecutionId);
+			if (!messageTemplatesForJob.containsKey(message))
+				messageTemplatesForJob.put(message, new HashSet<Long>());
+			messageTemplatesForJob.get(message).add(jobExecutionId);
 		}
 	}
 	
-	public void addMessageForJob(Long jobExecutionId, MessageTemplate message) {
+	public void addMessageTemplateForJob(Long jobExecutionId, MessageTemplate message) {
 		Set<MessageTemplate> messages = new HashSet<>();
 		messages.add(message);
-		addMessagesForJob(jobExecutionId, messages);
+		addMessageTemplatesForJob(jobExecutionId, messages);
 	}
 	
 	@ServiceActivator
 	public void handleMessage(Message<?> message){
-		if (MessageAwokenHibernationMessageTemplate.actUponMessageIgnoringJobExecutionId(message)){
+		logger.debug("handling message: " + message);
+		if (MessageAwokenHibernationMessageTemplate.actUponMessageIgnoringExecutionIds(message)){
+			logger.debug("Message is to request stop and re-awaken on message");
 			MessageAwokenHibernationMessageTemplate messageTemplate = new MessageAwokenHibernationMessageTemplate(message);
-			addMessagesForJob(messageTemplate.getJobExecutionId(), messageTemplate.getAwakenJobExecutionOnMessages());
+			addMessageTemplatesForJob(messageTemplate.getJobExecutionId(), messageTemplate.getAwakenJobExecutionOnMessages());
 			stopJobExecution(messageTemplate.getJobExecutionId());
-		} else if (TimeoutAwokenHibernationMessageTemplate.actUponMessageIgnoringJobExecutionId(message)){
+		} else if (TimeoutAwokenHibernationMessageTemplate.actUponMessageIgnoringExecutionIds(message)){
+			logger.debug("Message is to request stop and re-awaken on timeout");
 			// TODO: functionality here
 		} else {
-			for (MessageTemplate testMessage : messagesForJob.keySet())
-				if (testMessage.actUponMessage(message))
-					for (Long jobExecutionId : messagesForJob.get(testMessage))
+			logger.debug("Message is not a request stop message");
+			for (MessageTemplate testMessageTemplate : messageTemplatesForJob.keySet()){
+				if (testMessageTemplate.actUponMessage(message) && 
+						testMessageTemplate.getPayload().getClass().isInstance(message) && 
+						testMessageTemplate.getPayload().equals(message.getPayload())){
+					for (Long jobExecutionId : messageTemplatesForJob.get(testMessageTemplate)){
+						logger.debug("restarting job with JobExecution id=" + jobExecutionId + " on receiving message " + message);
 						restartJobExecution(jobExecutionId);
+					}
+				}
+			}
 		}
 		
 	}
@@ -92,32 +113,38 @@ public class BatchJobHibernationManager {
 		try {
 			jobOperator.restart(jobExecutionId);
 		} catch (JobInstanceAlreadyCompleteException | NoSuchJobExecutionException | NoSuchJobException | JobRestartException | JobParametersInvalidException e) {
-			logger.warn("Unable to re-start JobExecution with id=" + jobExecutionId);
-			e.printStackTrace();
+			logger.warn("Unable to restart job with JobExecution id=" + jobExecutionId + " (got " + e.getClass().getName() + " Exception :" + 
+					e.getLocalizedMessage() + ")");
 		}
 	}
 	
 	private void stopJobExecution(Long jobExecutionId){
+		logger.debug("Going to stop JobExecution id=" + jobExecutionId);
 		try {
 			jobOperator.stop(jobExecutionId);
-		} catch (NoSuchJobExecutionException | JobExecutionNotRunningException e) {
-			logger.warn("Unable to stop JobExecution with id=" + jobExecutionId);
-			e.printStackTrace();
+			logger.debug("updating exit status of stopped job execution with id=" + jobExecutionId);
+			JobExecution je = jobExplorer.getJobExecution(jobExecutionId);
+			ExitStatus newExitStatus = new ExitStatus(BatchJobHibernationManager.HIBERNATING_CODE);
+			while (!je.getExitStatus().getExitCode().equals(ExitStatus.STOPPED.getExitCode())){
+				try {
+					Thread.sleep(50); // defend against delay shutting down job
+				} catch (InterruptedException e) {} 
+				je = jobExplorer.getJobExecution(jobExecutionId);
+			}
+			je = jobExplorer.getJobExecution(jobExecutionId); // get fresh
+			for (StepExecution se : je.getStepExecutions()){
+				se.setExitStatus(newExitStatus);
+				jobRepository.update(se);
+			}
+			je.setExitStatus(newExitStatus);
+			jobRepository.update(je);
+			je.getExecutionContext().put(BatchJobHibernationManager.HIBERNATING_CODE, true);
+			jobRepository.updateExecutionContext(je);
+			logger.debug("status updated :)");
+		} catch (NoSuchJobExecutionException | JobExecutionNotRunningException e1) {
+			logger.warn("Unable to stop job with JobExecution id=" + jobExecutionId + " (got " + e1.getClass().getName() + " Exception :" + 
+					e1.getLocalizedMessage() + ")");
 		}
-		logger.debug("updating exit status of stopped job exectuion with id=" + jobExecutionId);
-		JobExecution je = jobExplorer.getJobExecution(jobExecutionId);
-		je.getExecutionContext().put(BatchJobHibernationManager.HIBERNATING_KEY, true);
-		ExitStatus newExitStatus = ExitStatus.EXECUTING;
-		newExitStatus.addExitDescription(HIBERNATING_KEY);
-		while (!je.getExitStatus().getExitCode().equals(ExitStatus.STOPPED)){
-			try {
-				Thread.sleep(500); // defend against delay shutting down job
-			} catch (InterruptedException e) {} 
-		}
-		je.setExitStatus(newExitStatus);
-		for (StepExecution se : je.getStepExecutions())
-			se.setExitStatus(newExitStatus);
-		logger.debug("status updated :)");
 	}
 
 }

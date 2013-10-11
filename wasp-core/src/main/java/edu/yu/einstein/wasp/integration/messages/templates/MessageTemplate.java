@@ -35,5 +35,7 @@ public interface MessageTemplate {
 	public boolean actUponMessageIgnoringTask(Message<?> message);
 	
 	public String getTask();
+	
+	public Object getPayload();
 
 }

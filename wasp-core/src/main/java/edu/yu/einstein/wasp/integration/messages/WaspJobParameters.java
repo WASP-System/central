@@ -24,5 +24,5 @@ public class WaspJobParameters {
 	public static final String FILE_GROUP_ID = "fileGroupId";
 	public static final String TEST_ID = "testId";
 	public static final String JOB_EXECUTION_ID = "jobExecutionId";
-	
+	public static final String STEP_EXECUTION_ID = "stepExecutionId";
 }

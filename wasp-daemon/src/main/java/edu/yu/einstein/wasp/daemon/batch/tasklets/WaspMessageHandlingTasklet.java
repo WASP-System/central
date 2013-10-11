@@ -7,6 +7,7 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.scope.context.StepContext;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.Message;
@@ -68,9 +69,7 @@ public abstract class WaspMessageHandlingTasklet extends WaspTasklet implements 
 		logger.info("Going to hibernate job " + stepContext.getJobName() + 
 				" (execution id=" + stepContext.getStepExecution().getJobExecutionId() + ") from step " + 
 				stepContext.getStepName() + " (step id=" + stepContext.getStepExecution().getId() + ")");
-		stepContext.setAttribute(BatchJobHibernationManager.HIBERNATING_KEY, true);
-		stepContext.getStepExecution().setTerminateOnly(); // stops step and surrounding job
-		MessageAwokenHibernationMessageTemplate messageTemplate = new MessageAwokenHibernationMessageTemplate(jobExecutionId);
+		MessageAwokenHibernationMessageTemplate messageTemplate = new MessageAwokenHibernationMessageTemplate(stepContext.getStepExecution());
 		messageTemplate.setAwakenJobExecutionOnMessages(messages);
 		Message<Set<MessageTemplate>> message = null;
 		try {
@@ -87,13 +86,17 @@ public abstract class WaspMessageHandlingTasklet extends WaspTasklet implements 
 	}
 	
 	protected boolean wasHibernating(ChunkContext context){
-		if (!context.getStepContext().getJobExecutionContext().containsKey(BatchJobHibernationManager.HIBERNATING_KEY))
+		ExecutionContext executionContext = context.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
+		if (!executionContext.containsKey(BatchJobHibernationManager.HIBERNATING_CODE))
 			return false;
-		return (boolean) context.getStepContext().getJobExecutionContext().get(BatchJobHibernationManager.HIBERNATING_KEY);	
+		boolean isHibernating = (boolean) executionContext.get(BatchJobHibernationManager.HIBERNATING_CODE);
+		logger.debug("StepExecutionId=" + context.getStepContext().getStepExecution().getId() + " isHibernating=" + isHibernating);
+		return isHibernating;	
 	}
 	
 	protected void setWasHibernatingFlag(ChunkContext context, boolean value){
-		context.getStepContext().getJobExecutionContext().put(BatchJobHibernationManager.HIBERNATING_KEY, value);
+		ExecutionContext executionContext = context.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
+		executionContext.put(BatchJobHibernationManager.HIBERNATING_CODE, value);
 	}
 	
 	@Override
