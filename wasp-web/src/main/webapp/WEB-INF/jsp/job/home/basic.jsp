@@ -46,7 +46,7 @@
 					</c:otherwise>
 				</c:choose>
 			</td>
-			<td class="DataTD"><c:out value="${strategy.getDisplayStrategy()}" /></td>
+			<td class="DataTD"><c:out value="${strategy.getDisplayStrategy()}" /> <wasp:tooltip value="${strategy.getDescription()}" /></td>
 		</tr>
 	</c:if>
 	<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobWorkflow.label" />:</td><td class="DataTD"><c:out value="${job.workflow.name}" /></td></tr>
