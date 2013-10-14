@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import edu.yu.einstein.wasp.additionalClasses.Strategy;
 
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.Workflow;
@@ -31,4 +32,7 @@ public interface StrategyService extends WaspMessageHandlingService{
 	public Strategy getThisJobDraftsStrategy(String strategyType,  JobDraft jobDraft);	//get from JobdraftMeta
 
 	public List<Workflow> getActiveWorkflowsForStrategyOrderByWorkflowName(Strategy requestedStrategy);
+	
+	public Strategy getThisJobsStrategy(String strategyType,  Job job);	//get from JobMeta
+
 }

@@ -23,11 +23,15 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.additionalClasses.Strategy;
 import edu.yu.einstein.wasp.dao.JobDraftMetaDao;
+import edu.yu.einstein.wasp.dao.JobMetaDao;
 import edu.yu.einstein.wasp.dao.MetaDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.dao.WorkflowMetaDao;
+import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
+import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.Meta;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.WorkflowMeta;
@@ -39,6 +43,8 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 
 	@Autowired
 	private JobDraftMetaDao jobDraftMetaDao;
+	@Autowired
+	private JobMetaDao jobMetaDao;
 	@Autowired
 	private MetaDao metaDao;
 	@Autowired
@@ -239,6 +245,15 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 		}
 		Collections.sort(workflowsForTheRequestedStrategyAsList, new WorkflowComparatorOrderByName());
 		return workflowsForTheRequestedStrategyAsList;
+	}
+
+	public Strategy getThisJobsStrategy(String strategyType,  Job job){	//get from JobMeta
+		Strategy strategy = new Strategy();
+		JobMeta jobMeta = jobMetaDao.getJobMetaByKJobId(strategyType, job.getId());
+		if(jobMeta.getId()!=null){
+			strategy = this.getStrategyByKey(jobMeta.getV());
+		}
+		return strategy;
 	}
 
 }
