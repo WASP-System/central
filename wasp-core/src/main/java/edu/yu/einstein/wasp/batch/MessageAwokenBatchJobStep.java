@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.springframework.integration.Message;
 
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.MessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
@@ -67,12 +68,9 @@ public class MessageAwokenBatchJobStep implements Serializable{
 		this.messageTemplatesToWakeJob.add(messageTemplateToWakeJob);
 	}
 	
-	public boolean doesMessageWakeJob(Message<?> message){
-		for (MessageTemplate template : messageTemplatesToWakeJob){
-			if (template.actUponMessage(message) && message.getPayload().equals(template.getPayload()))
-				return true;
-		}
-		return false;
+	public boolean doesMessageWakeJob(Message<WaspStatus> message){
+		WaspStatusMessageTemplate incomingMessageTemplate = new WaspStatusMessageTemplate(message);
+		return messageTemplatesToWakeJob.contains(incomingMessageTemplate);
 	}
 	
 	@Override

@@ -25,7 +25,9 @@ import org.springframework.integration.Message;
 import org.springframework.integration.annotation.ServiceActivator;
 
 import edu.yu.einstein.wasp.batch.MessageAwokenBatchJobStep;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.MessageAwokenHibernationMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.TimeoutAwokenHibernationMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
@@ -107,9 +109,6 @@ public class BatchJobHibernationManager {
 				}		
 			}
 		}	
-		for (WaspStatusMessageTemplate t : messageTemplatesForJob.keySet()){
-			logger.debug("Dump of messageTemplatesForJob: key=" + t + ", value=" + messageTemplatesForJob.get(t));			
-		}
 	}
 	
 	private void restartJobExecution(MessageAwokenBatchJobStep messageAwokenBatchJobStep){

@@ -1,5 +1,8 @@
 package edu.yu.einstein.wasp.integration.messages.templates;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 
@@ -18,6 +21,7 @@ import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
  */
 public class WaspStatusMessageTemplate extends WaspMessageTemplate implements StatusMessageTemplate{
 	
+		
 	public static final String EXIT_DESCRIPTION_HEADER = "description";
 	
 	protected WaspStatus status;
@@ -142,6 +146,9 @@ public class WaspStatusMessageTemplate extends WaspMessageTemplate implements St
 		return getStatus();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(Object obj){
 		if (this == obj)
@@ -151,11 +158,13 @@ public class WaspStatusMessageTemplate extends WaspMessageTemplate implements St
 		WaspStatusMessageTemplate messageTemplate = (WaspStatusMessageTemplate) obj;
 		if (!messageTemplate.getStatus().equals(this.getStatus()))
 			return false;
-		if (headers.size() != messageTemplate.getHeaders().size())
-			return false;
-		for (String header : headers.keySet()){
-			if (!messageTemplate.getHeaders().containsKey(header))
-				return false;
+		Set<String> myHeaders = headers.keySet();
+		Set<String> objHeaders = messageTemplate.getHeaders().keySet();
+		Set<String> commonHeaders = new HashSet<>(myHeaders);
+		commonHeaders.retainAll(objHeaders);
+		if (myHeaders.size() > commonHeaders.size() || objHeaders.size() > commonHeaders.size())
+			return false; // there exists extra headers in one object that are not added by spring integration
+		for (String header : commonHeaders){
 			if ((headers.get(header) == null && messageTemplate.getHeaders().get(header) != null) || 
 					(headers.get(header) != null && messageTemplate.getHeaders().get(header) == null))
 				return false;
@@ -176,6 +185,7 @@ public class WaspStatusMessageTemplate extends WaspMessageTemplate implements St
 		}
 		return hash;
 	}
+	
 
 }
 	
