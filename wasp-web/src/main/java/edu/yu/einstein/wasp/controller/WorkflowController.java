@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import edu.yu.einstein.wasp.additionalClasses.Strategy;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.SoftwareDao;
@@ -43,6 +44,7 @@ import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.model.WorkflowsoftwareMeta;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
+import edu.yu.einstein.wasp.service.StrategyService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 
 @Controller
@@ -69,6 +71,8 @@ public class WorkflowController extends WaspController {
 	private WorkflowSoftwareDao workflowSoftwareDao;
 	@Autowired
 	private WorkflowsoftwareMetaDao workflowSoftwareMetaDao;
+	@Autowired
+	private StrategyService strategyService;
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp("workflow", WorkflowMeta.class,
@@ -284,6 +288,19 @@ public class WorkflowController extends WaspController {
 			}
 		}
 
+		// loads all strategies and get this workflow's strategy (if assigned)
+		List<Strategy> strategies = new ArrayList<Strategy>();//complete list of strategies of a particular strategytype (such as libraryStrategy)
+		List<Strategy> thisWorkflowsStrategies = new ArrayList<Strategy>();//those associated with with this workflow 
+		for(WorkflowResourceType wfrt :workflowResourceTypes){
+			if(wfrt.getResourceType().getIName().toLowerCase().contains("strategy")){
+				String strategyType = wfrt.getResourceType().getIName();
+				strategies = strategyService.getStrategiesByStrategyType(strategyType);
+				strategyService.orderStrategiesByDisplayStrategy(strategies);
+				thisWorkflowsStrategies = strategyService.getThisWorkflowsStrategies(strategyType, workflow);
+				break;//only one strategytype permitted per workflow!!!
+			}
+		}
+		
 		m.put("workflowId", workflowId);
 		m.put("workflow", workflow);
 		m.put("workflowResourceTypeMap", workflowResourceTypes);
@@ -294,6 +311,9 @@ public class WorkflowController extends WaspController {
 		m.put("workflowSoftwareMap", workflowSoftwareMap);
 		m.put("workflowSoftwareOptions", workflowSoftwareOptions);
 		m.put("workflowSoftwareVersionedNameMap", workflowSoftwareVersionedNameMap);
+		
+		m.put("strategies", strategies);
+		m.put("thisWorkflowsStrategies", thisWorkflowsStrategies);
 
 		return "workflow/resource/configure";
 	}
@@ -314,6 +334,7 @@ public class WorkflowController extends WaspController {
 			@RequestParam(value="resourceCategoryOption", required=false) String[] resourceCategoryOptionParams,
 			@RequestParam(value="software", required=false) String[] softwareParams,
 			@RequestParam(value="softwareOption", required=false) String[] softwareOptionParams,
+			@RequestParam(value="strategyKey", required=false) List<String> strategyKeyList,
 
 			ModelMap m) {
 		// return to list if cancel button pressed
@@ -511,6 +532,30 @@ public class WorkflowController extends WaspController {
 			}
 		}
 
+		String strategyType = "";
+		Integer strategyResourceTypeId = null;
+		for(WorkflowResourceType wrt: workflow.getWorkflowResourceType()){
+			if(wrt.getResourceType().getIName().toLowerCase().contains("strategy")){
+				strategyType = wrt.getResourceType().getIName();
+				strategyResourceTypeId = wrt.getResourceTypeId();
+				break;//only one strategytype per workflow
+			}
+		}
+		if(!strategyType.isEmpty()){//there is a strategy for this workflow
+			if(strategyKeyList!=null){//there are selections from webpage
+				if(!strategyKeyList.isEmpty()){//there are selections from webpage
+					try{
+						WorkflowMeta workflowMeta  = strategyService.saveStrategiesToWorkflowMeta(workflow, strategyKeyList, strategyType);
+						if(workflowMeta.getId()!=null){
+							if (resourceTypeIds.contains(strategyResourceTypeId)){
+								resourceTypeIds.remove(strategyResourceTypeId);
+							}
+						}
+					}catch(Exception e){}			
+				}
+			}
+		}
+		
 		if (!requiredResourceCategoryOptions.isEmpty() || !requiredSoftwareOptions.isEmpty() || !resourceTypeIds.isEmpty()){
 			if (!requiredResourceCategoryOptions.isEmpty() || !requiredSoftwareOptions.isEmpty()){
 				// at least one required parameter was not processed from the returned request parameters
