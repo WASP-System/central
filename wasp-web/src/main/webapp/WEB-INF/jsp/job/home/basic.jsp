@@ -35,7 +35,19 @@
 	<tr class="FormData"><td>&nbsp;</td><td></td></tr>
 
 	<c:if test="${not empty strategy && not empty strategy.getId()}">
-			<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.libraryStrategy.label" />:</td><td class="DataTD"><c:out value="${strategy.getDisplayStrategy()}" /></td></tr>
+		<tr class="FormData">
+			<td class="CaptionTD">
+				<c:choose>
+					<c:when test="${strategy.getType()=='libraryStrategy'}">
+						<fmt:message key="jobdetail_for_import.libraryStrategy.label" />:
+					</c:when>
+					<c:otherwise>
+						<fmt:message key="jobdetail_for_import.strategy.label" />:
+					</c:otherwise>
+				</c:choose>
+			</td>
+			<td class="DataTD"><c:out value="${strategy.getDisplayStrategy()}" /></td>
+		</tr>
 	</c:if>
 	<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobWorkflow.label" />:</td><td class="DataTD"><c:out value="${job.workflow.name}" /></td></tr>
 	<c:forEach items="${extraJobDetailsMap.keySet()}" var="detailKey">
