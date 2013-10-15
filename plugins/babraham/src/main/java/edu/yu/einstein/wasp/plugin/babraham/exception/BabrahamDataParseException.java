@@ -1,8 +1,10 @@
 package edu.yu.einstein.wasp.plugin.babraham.exception;
 
-import edu.yu.einstein.wasp.exception.WaspException;
+import edu.yu.einstein.wasp.exception.DataParseException;
 
-public class BabrahamDataParseException extends WaspException {
+public class BabrahamDataParseException extends DataParseException {
+
+	private static final long serialVersionUID = -1836027047134479957L;
 
 	public BabrahamDataParseException() {
 		// TODO Auto-generated constructor stub

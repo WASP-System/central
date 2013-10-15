@@ -53,8 +53,8 @@ public class FastQScreenPlugin extends BabrahamPluginBase{
 	@Qualifier("fastqscreen")
 	private Software fastqscreen;
 
-	public FastQScreenPlugin(String pluginName, Properties waspSiteProperties, MessageChannel channel) {
-		super(pluginName, waspSiteProperties, channel);
+	public FastQScreenPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
+		super(iName, waspSiteProperties, channel);
 	}
 
 
@@ -131,11 +131,4 @@ public class FastQScreenPlugin extends BabrahamPluginBase{
 		return babrahamService.getFastQScreenDataToDisplay(fileGroup.getId());
 	}
 
-
-	@Override
-	public Software getSoftware() {
-		return fastqscreen;
-	}
-
-	
 }

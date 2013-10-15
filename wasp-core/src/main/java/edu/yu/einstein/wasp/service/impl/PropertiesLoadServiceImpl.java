@@ -5,8 +5,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,6 +44,10 @@ public class PropertiesLoadServiceImpl implements ApplicationContextAware, Prope
 	
 	private ApplicationContext applicationContext;
 	
+    private Set<String> languagesCurrentlyUsedForWaspMessages =new HashSet<String>();
+	
+    public Set<String> getLanguagesCurrentlyUsedForWaspMessages(){return languagesCurrentlyUsedForWaspMessages;}
+    
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext=applicationContext;
@@ -69,9 +77,11 @@ public class PropertiesLoadServiceImpl implements ApplicationContextAware, Prope
 				if (matcher.group(1) != null){
 					locale = matcher.group(1);
 					logger.info("Current properties have locale of "+locale);
+					languagesCurrentlyUsedForWaspMessages.add(locale);
 				} else{
 					locale = "en_US";
 					logger.warn("Cannot identify Locale from resource filename. Defaulting to 'en_US'");
+					languagesCurrentlyUsedForWaspMessages.add(locale);
 				}
 			}
 			

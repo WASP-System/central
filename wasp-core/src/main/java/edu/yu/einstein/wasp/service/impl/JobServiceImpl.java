@@ -42,6 +42,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.MetaMessage;
+import edu.yu.einstein.wasp.additionalClasses.Strategy;
 import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.dao.AcctQuoteDao;
@@ -129,6 +130,7 @@ import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.StrategyService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.WorkflowService;
@@ -263,6 +265,9 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	
 	@Autowired
 	private SampleService sampleService;
+
+	@Autowired
+	private StrategyService strategyService;
 
 	@Autowired
 	private AuthenticationService authenticationService;
@@ -2441,5 +2446,15 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
  	   	this.addNewQuote(job.getId(), acctQuote, acctQuoteMetaList);
 	}
 	
-	
+	/*
+	 * 
+	 * 
+	 */
+	@Override
+	public Strategy getStrategy(String strategyType, Job job)throws Exception{
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(strategyType, "strategyType cannot be null");
+		Assert.assertParameterNotNullNotZero(job.getId(), "job with id="+job.getId()+" not found in database");
+		return strategyService.getThisJobsStrategy(strategyType, job);
+	}
 }

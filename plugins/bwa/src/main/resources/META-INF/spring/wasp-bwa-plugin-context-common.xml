@@ -17,9 +17,11 @@
 	<int:service-activator input-channel="wasp.channel.plugin.bwa" ref="wasp-bwa.WaspPluginBean" method="process" />
 
 	<bean id="wasp-bwa.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.bwa.plugin.BWAPlugin" depends-on="mps-tools">
-		<constructor-arg name="pluginName" ref="bwaAlignerArea" />
+		<constructor-arg name="iName" ref="bwaAlignerArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.bwa" />
+		<property name="name" value="BWA" />
+		<property name="description" value="Burrows-Wheeler Aligner" />
 		<property name="provides">
 			<set>
 				<ref bean="bwa" />

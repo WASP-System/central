@@ -27,7 +27,7 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  * Abstract Class for defining Wasp System plugins. Requires that a name (string
  * that refers to the target of messages), siteProperties (which possibly has
  * local configuration for the plugin), a message channel (of the format:
- * wasp.channel.plugin.pluginName), and a handle to the {@link WaspPluginRegistry} (in
+ * wasp.channel.plugin.iName), and a handle to the {@link WaspPluginRegistry} (in
  * which the bean registers itself, after properties have been set.
  * 
  * Optionally, the plugin may declare properties "provides" and "handles"
@@ -53,9 +53,11 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 
 	private Set<String> handles = new HashSet<String>();
 
-	private String pluginName;
+	private String iName;
 	
-	private String pluginDescription = "";
+	private String name;
+	
+	private String description = "";
 
 	private Properties waspSiteProperties;
 
@@ -66,30 +68,30 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 	/**
 	 * Parent constructor for a WaspPlugin.
 	 * 
-	 * @param pluginName String that represents a unique name and the name of the message channel
+	 * @param iName String that represents a unique name and the name of the message channel
 	 * @param waspSiteProperties local configuration bean
-	 * @param channel MessageChannel for this plugin (named with the format wasp.channel.plugin.pluginName)
+	 * @param channel MessageChannel for this plugin (named with the format wasp.channel.plugin.iName)
 	 * @param pluginRegistry handle to the {@link WaspPluginRegistry}
 	 */
-	public WaspPlugin(String pluginName, Properties waspSiteProperties,	MessageChannel channel) {
-		Assert.assertParameterNotNull(pluginName, "plugin must be assigned a name");
-		this.setPluginName(pluginName);
+	public WaspPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
+		Assert.assertParameterNotNull(iName, "plugin must be assigned a name");
+		this.setIName(iName);
 		this.waspSiteProperties = waspSiteProperties;
 		
-		String prefix = "plugin." + pluginName;
+		String prefix = "plugin." + iName;
 		if (waspSiteProperties != null){
 			for (String key : this.waspSiteProperties.stringPropertyNames()) {
 				if (key.startsWith(prefix)) {
 					String newKey = key.replaceFirst(prefix, "");
 					String value = this.waspSiteProperties.getProperty(key);
 					this.put(newKey, value);
-					logger.debug("Configured plugin " + pluginName + " with "
+					logger.debug("Configured plugin " + iName + " with "
 							+ newKey + "=" + value);
 				}
 			}
 		}
 		this.messageChannel = channel;
-		logger.debug("created " + pluginName + " plugin bean");
+		logger.debug("created " + iName + " plugin bean");
 	}
 	
 	@Override
@@ -123,7 +125,7 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 	private Message getStandardHelp() {
 		Set<String> methods = getMethods();
 		String retval = "";
-		retval += this.getPluginName() + "\n" 
+		retval += this.getIName() + "\n" 
 				+ "------------------------------\n"
 				+ "available tasks:\n\n";
 		for (String m : methods) {
@@ -188,30 +190,47 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getPluginName() {
-		return pluginName;
+	public String getIName() {
+		return iName;
 	}
 
 
 	/**
-	 * @param pluginName
-	 *            the pluginName to set
+	 * @param iName
+	 *            the iName to set
 	 */
-	public void setPluginName(String pluginName) {
-		this.pluginName = pluginName;
+	public void setIName(String iName) {
+		this.iName = iName;
 	}
 	
 	/**
-	 * @param pluginDescription
-	 *            the pluginDescription to set
+	 * {@inheritDoc}
 	 */
-	public void setPluginDescription(String pluginDescription) {
-		this.pluginDescription = pluginDescription;
+	@Override
+	public String getName() {
+		return name;
+	}
+
+
+	/**
+	 * @param name
+	 *            the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	/**
+	 * @param description
+	 *            the description to set
+	 */
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	
 	@Override
-	public String getPluginDescription() {
-		return pluginDescription;
+	public String getDescription() {
+		return description;
 	}
 
 	/**
@@ -231,7 +250,7 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 	
 	@Override
 	public int compareTo(WaspPlugin o){
-		return getPluginName().compareToIgnoreCase(o.getPluginName());
+		return getIName().compareToIgnoreCase(o.getIName());
 	}
 	
 	

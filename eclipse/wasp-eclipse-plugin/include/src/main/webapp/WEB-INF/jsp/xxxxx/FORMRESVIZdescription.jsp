@@ -3,8 +3,8 @@
 <%-- message keys link to internationalized text. Conversions can be specified in the .properties files in /src/main/resources/i18n --%>
 
 <h1>
-	<fmt:message key="pageTitle.___pluginname___/description.label" />
+	<fmt:message key="pageTitle.___pluginIName___/description.label" />
 </h1>
 <div class="instructions">
-	<fmt:message key="___pluginname___.maintext.label" />
+	<fmt:message key="___pluginIName___.maintext.label" />
 </div>

@@ -85,7 +85,7 @@ public class SelNewPI extends SelBaseTest {
 		driver.findElement(By.id("email")).sendKeys(sEmail);
 		driver.findElement(By.id("password")).sendKeys(pwd);
 		driver.findElement(By.name("password2")).sendKeys(pwd);
-		driver.findElement(By.name("locale")).sendKeys(locale);
+		//driver.findElement(By.name("locale")).sendKeys(locale);
 		driver.findElement(By.id("labName")).sendKeys(sLab);
 		driver.findElement(By.id("title")).sendKeys(title);
 		driver.findElement(By.id("institution")).sendKeys(sInst);

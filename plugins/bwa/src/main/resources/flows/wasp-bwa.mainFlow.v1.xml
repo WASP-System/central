@@ -8,6 +8,7 @@
 
 		<batch:step id="wasp-bwa.alignmentFlow.BWAaln">
 			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.plugin.bwa.batch.tasklet.BWAalnTasklet" scope="step">
 					<constructor-arg name="cellLibraryIds" value="#{jobParameters[waspSoftwareJobParameters.LIBRARY_CELL_ID_LIST]}" />
 				</bean>
@@ -21,6 +22,7 @@
 
 		<batch:step id="wasp-bwa.alignmentFlow.BWAsam">
 			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.plugin.bwa.batch.tasklet.BWAsamTasklet" scope="step" />
 			</batch:tasklet>
 			<batch:next on="FAILED" to="wasp-bwa.alignmentFlow.notifyBWAFailed" />
@@ -29,6 +31,7 @@
 
 		<batch:step id="wasp-bwa.alignmentFlow.mergeBAM" >
 			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.plugin.bwa.batch.tasklet.BWAMergeSortTasklet" scope="step" />
 			</batch:tasklet>
 			<batch:next on="FAILED" to="wasp-bwa.alignmentFlow.notifyBWAFailed" />
@@ -37,6 +40,7 @@
 
 		<batch:step id="wasp-bwa.alignmentFlow.notifyBWAComplete">
 			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
@@ -52,6 +56,7 @@
 		
 		<batch:step id="wasp-bwa.alignmentFlow.notifyBWAFailed">
 			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">

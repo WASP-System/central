@@ -9,7 +9,7 @@ import edu.yu.einstein.wasp.service.WaspService;
 /**
  * 
  */
-public interface ___Pluginname___Service extends WaspService {
+public interface ___PluginIName___Service extends WaspService {
 
 		/**
 		 * Perform Service

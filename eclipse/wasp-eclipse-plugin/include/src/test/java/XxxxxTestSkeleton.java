@@ -14,16 +14,16 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 // The test context is created using the configuration files provided in the @ContextConfiguration locations list
-@ContextConfiguration(locations={"/___pluginname___-test-launch-context.xml"})
+@ContextConfiguration(locations={"/___pluginIName___-test-launch-context.xml"})
 
 /**
  * Test Skeleton
  * @author 
  * 
  */
-public class ___Pluginname___TestSkeleton extends AbstractTestNGSpringContextTests{
+public class ___PluginIName___TestSkeleton extends AbstractTestNGSpringContextTests{
 	
-	private final Logger logger = LoggerFactory.getLogger(___Pluginname___TestSkeleton.class);
+	private final Logger logger = LoggerFactory.getLogger(___PluginIName___TestSkeleton.class);
 	
 	/**
 	 * Code to execute before running any tests
@@ -46,8 +46,8 @@ public class ___Pluginname___TestSkeleton extends AbstractTestNGSpringContextTes
 	 * Simple Test skeleton
 	 * @throws Exception
 	 */
-	@Test (groups = "___pluginname___-tests")
-	public void test___Pluginname___TestSkeleton() throws Exception{
+	@Test (groups = "___pluginIName___-tests")
+	public void test___PluginIName___TestSkeleton() throws Exception{
 		try{
 			// TODO: Test logic here. 
 			Assert.assertTrue(true); // pass  default

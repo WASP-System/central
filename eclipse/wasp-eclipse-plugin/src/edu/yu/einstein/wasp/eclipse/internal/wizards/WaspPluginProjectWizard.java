@@ -77,8 +77,8 @@ public class WaspPluginProjectWizard extends Wizard implements INewWizard {
 		
 		IPath projectRoot = configPage.getLocation();
 
-		boolean exists = projectRoot.append(configPage.getProjectName()).toFile().exists();
-		boolean pomExists = projectRoot.append(configPage.getProjectName()).append("pom.xml").toFile().exists();
+		boolean exists = projectRoot.append(configPage.getProjectIName()).toFile().exists();
+		boolean pomExists = projectRoot.append(configPage.getProjectIName()).append("pom.xml").toFile().exists();
 		
 		if (exists || pomExists) {
 			MessageDialog.openError(getShell(),
@@ -98,22 +98,23 @@ public class WaspPluginProjectWizard extends Wizard implements INewWizard {
 						IPath projectRoot = configPage.getLocation();
 						IPath loc = null; 
 						if (!configPage.isDefaultWorkspace())
-							loc = projectRoot.addTrailingSeparator().append(configPage.getProjectName());
-						IProject project = root.getProject(configPage.getProjectName());
+							loc = projectRoot.addTrailingSeparator().append(configPage.getProjectIName());
+						IProject project = root.getProject(configPage.getProjectIName());
 						
 						boolean web = configPage.createForms();
 						boolean resource = configPage.createResource();
 						boolean pipeline = configPage.createPipeline();
 						boolean viz = configPage.createViz();
 						
+						String iname = configPage.getProjectIName();
 						String name = configPage.getProjectName();
 						String namespace = configPage.getProjectNamespace();
 						String description = configPage.getProjectDescription();
 						
 						// create project
-						WaspProjectCreator.createProject(name, namespace, loc, web, resource, pipeline, viz);
+						WaspProjectCreator.createProject(iname, namespace, loc, web, resource, pipeline, viz);
 						// copy files and rewrite placeholders
-						WaspProjectCreator.copyAndRewriteFiles(name, namespace, description, loc, project, projectRoot, web, resource, pipeline, viz);
+						WaspProjectCreator.copyAndRewriteFiles(iname, namespace, name, description, loc, project, projectRoot, web, resource, pipeline, viz);
 
 					} catch (Exception e) {
 						MessageDialog.openError(getShell(),

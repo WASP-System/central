@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.yu.einstein.wasp.helptag.integration.messages.SimpleHelptagStatusMessageTemplate;
 import edu.yu.einstein.wasp.helptag.plugin.HelptagPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,10 +38,10 @@ import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 
 // The test context is created using the configuration files provided in the @ContextConfiguration locations list
-@ContextConfiguration(locations={"/helptag-test-launch-context.xml","/flows/helptag.mainFlow.v1.xml"})
+@ContextConfiguration(locations={"/helptag-test-launch-context.xml","/flows/helptag.prepFlow.v1.xml"})
 
 /**
- * TestNG Test of Launching and successful completion of the HelptagPlugin.FLOW_NAME batch job flow (defined in /flows/helptag.mainFlow.v1.xml)
+ * TestNG Test of Launching and successful completion of the HelptagPlugin.FLOW_NAME batch job flow (defined in /flows/helptag.prepFlow.v1.xml)
  * @author 
  * 
  */
@@ -123,7 +124,7 @@ public class HelptagJobLaunchTests extends AbstractTestNGSpringContextTests impl
 			// The helptag flow doesn't actually require any job parameters but we'll add one for demonstration purposes. 
 			// Any parameters supplied to a batch job are available from within steps
 			jobParameters.put(WaspJobParameters.TEST_ID, TEST_ID.toString());
-			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(HelptagPlugin.FLOW_NAME, jobParameters) );
+			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(HelptagPlugin.PREP_FLOW_NAME, jobParameters) );
 			Message<BatchJobLaunchContext> messageToSend = batchJobLaunchMessageTemplate.build();
 			logger.debug("testSuccessfulJobLaunch(): Sending message : "+messageToSend.toString());
 			Message<?> replyMessage = messagingTemplate.sendAndReceive(outboundMessageChannel, messageToSend);
@@ -151,7 +152,7 @@ public class HelptagJobLaunchTests extends AbstractTestNGSpringContextTests impl
 			
 			// get the JobExecution for the job we just executed and verify that it completed successfully.
 			// We can use the jobExplorer to get this.
-			BatchStatus jobExecutionStatus = jobExplorer.getMostRecentlyStartedJobExecutionInList(jobExplorer.getJobExecutions(HelptagPlugin.FLOW_NAME)).getStatus();
+			BatchStatus jobExecutionStatus = jobExplorer.getMostRecentlyStartedJobExecutionInList(jobExplorer.getJobExecutions(HelptagPlugin.PREP_FLOW_NAME)).getStatus();
 			Assert.assertEquals(jobExecutionStatus, BatchStatus.COMPLETED);
 		} catch (Exception e){
 			logger.error("Caught unexpected exception: " + e.getLocalizedMessage());

@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import edu.yu.einstein.wasp.MetaMessage;
+import edu.yu.einstein.wasp.additionalClasses.Strategy;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobDraftDao;
@@ -649,4 +650,13 @@ public interface JobService extends WaspMessageHandlingService {
 	 */
 	public void createNewQuoteOrInvoiceAndUploadFile(Job job, MultipartFile mpFile, String fileDescription, Float totalCost) throws FileUploadException, Exception;
 	
+	
+	/**
+	 * Get Strategy for a job (in this case, it's a library strategy)
+	 * @param Job
+	 * @param String strategyType
+	 * @return Strategy
+	 * @throws Exception
+	 */
+	public Strategy getStrategy(String strategyType, Job job)throws Exception;
 }

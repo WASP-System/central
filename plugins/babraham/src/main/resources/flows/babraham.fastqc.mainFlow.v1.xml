@@ -8,6 +8,7 @@
 	<batch:job id="edu.yu.einstein.wasp.plugin.babraham.fastqc.mainFlow">
 		<batch:step id="edu.yu.einstein.wasp.plugin.babraham.fastqc.mainFlow.notifyQCStart" next="edu.yu.einstein.wasp.plugin.babraham.fastqc.mainFlow.fastQC">
 			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
@@ -23,6 +24,7 @@
 		
 		<batch:step id="edu.yu.einstein.wasp.plugin.babraham.fastqc.mainFlow.fastQC" next="edu.yu.einstein.wasp.plugin.babraham.fastqc.mainFlow.notifyQCComplete">
 			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.plugin.babraham.batch.tasklet.FastQCTasklet" scope="step">
 					<constructor-arg name="fileGroupId" value="#{jobParameters[waspJobParameters.FILE_GROUP_ID]}" />
 				</bean>
@@ -31,6 +33,7 @@
 
 		<batch:step id="edu.yu.einstein.wasp.plugin.babraham.fastqc.mainFlow.notifyQCComplete">
 			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">

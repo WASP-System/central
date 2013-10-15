@@ -21,7 +21,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.Callable;
+//import java.util.concurrent.Callable;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -45,6 +45,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import edu.yu.einstein.wasp.MetaMessage;
+import edu.yu.einstein.wasp.additionalClasses.Strategy;
 import edu.yu.einstein.wasp.controller.util.JsonHelperWebapp;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.controller.util.SampleWrapperWebapp;
@@ -201,6 +202,8 @@ public class JobController extends WaspController {
 		return new MetaHelperWebapp(JobMeta.class, request.getSession());
 	}
 	
+	final public String LIBRARY_STRATEGY = "libraryStrategy";
+
 	@RequestMapping(value = "/analysisParameters/{jobId}", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('jv-' + #jobId)")
 	public String jobAnalysisParameters(@PathVariable("jobId") Integer jobId, ModelMap m) {
@@ -931,6 +934,11 @@ public class JobController extends WaspController {
 		HashMap<String, MetaMessage> jobApprovalsCommentsMap = jobService.getLatestJobApprovalsComments(jobApprovalsMap.keySet(), jobId);
 		m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
 	
+		try{
+			Strategy strategy = jobService.getStrategy(LIBRARY_STRATEGY, job);
+			m.addAttribute("strategy", strategy);	 
+		}catch(Exception e){ logger.warn("Job Strategy unexpectedly not found"); }
+		
 		return "job/home/basic";
 	}
   
@@ -1038,16 +1046,16 @@ public class JobController extends WaspController {
 	//Note: we use MultipartHttpServletRequest to be able to upload files using Ajax. See http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/
 	@RequestMapping(value="/{jobId}/uploadQuoteOrInvoice", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
-	  public Callable<String> jobFileUploadQuoteOrInvoicePostPage(@PathVariable("jobId") final Integer jobId,
+	  public /*Callable<String>*/ String jobFileUploadQuoteOrInvoicePostPage(@PathVariable("jobId") final Integer jobId,
 			  final MultipartHttpServletRequest request, 
 			  final HttpServletResponse response,
 			  //since this is now an ajax call, we no longer need/use @RequestParam("file_description") String fileDescription, @RequestParam("file_upload") MultipartFile mpFile,
 			  final ModelMap m) throws SampleTypeException {
 		
-			return new Callable<String>() {
+			//return new Callable<String>() {
 
-					@Override
-					public String call() throws Exception {						
+			//		@Override
+			//		public String call() throws Exception {						
 
 						Job job = jobService.getJobByJobId(jobId);
 						if(job.getId()==null){
@@ -1127,8 +1135,8 @@ public class JobController extends WaspController {
 						}
 						populateCostPage(job, m);
 						return "job/home/costManager";
-					}
-			  };
+				//	}
+			 // };
 	}
 	
 	@RequestMapping(value="/{jobId}/acctQuote/{quoteId}/createUpdateQuote", method=RequestMethod.GET)
@@ -1907,16 +1915,16 @@ public class JobController extends WaspController {
 	//Note: we use MultipartHttpServletRequest to be able to upload files using Ajax. See http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/
 	@RequestMapping(value="/{jobId}/fileUploadManager", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-	  public Callable<String> jobFileUploadPostPage(@PathVariable("jobId") final Integer jobId,
+	  public /*Callable<String>*/ String jobFileUploadPostPage(@PathVariable("jobId") final Integer jobId,
 			  final MultipartHttpServletRequest request, 
 			  final HttpServletResponse response,
 			  //since this is now an ajax call, we no longer need/use @RequestParam("file_description") String fileDescription, @RequestParam("file_upload") MultipartFile mpFile,
 			  final ModelMap m) throws SampleTypeException {
 	
-			  return new Callable<String>() {
+			  //return new Callable<String>() {
 
-					@Override
-					public String call() throws Exception {
+			//		@Override
+				//	public String call() throws Exception {
 						Job job = jobService.getJobByJobId(jobId);
 						if(job.getId()==null){
 						   	logger.warn("Job unexpectedly not found");
@@ -1963,8 +1971,8 @@ public class JobController extends WaspController {
 						}
 						populateFileUploadPage(job, m);
 						return "job/home/fileUploadManager";
-					}
-			  };
+				//	}
+			  //};
 	}
 	
 	@RequestMapping(value="/{jobId}/requests", method=RequestMethod.GET)
