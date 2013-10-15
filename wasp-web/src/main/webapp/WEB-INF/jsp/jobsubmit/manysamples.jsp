@@ -154,11 +154,7 @@
 				<c:if test="${not empty _meta.property.tooltip}">
 					<wasp:tooltip value="${_meta.property.tooltip}" />
 				</c:if>	
-				<br /><a href="javascript:void(0);"  onclick='alert("test"); var ele = document.getElementById("antibody"); alert(ele.value); ele.value="robert dubin";' >copy first to all</a>		
-				<br /><a href="javascript:void(0);"  onclick='alert("test"); var dateRE = /^antibody/; var dates=[]; var els=document.getElementsByTagName("*"); alert(els.length); for (var i=0; i < els.length; i++){ if ( dateRE.test(els[i].id) ){ dates.push(els[i]); } } alert(dates.length);' >copy first to all</a>		
-				<br /><a href="javascript:void(0);"  onclick='alert("test"); var dateRE = /^antibody/; var dates=[]; var els=document.getElementsByTagName("*"); alert(els.length); for (var i=0; i < els.length; i++){ if ( dateRE.test(els[i].id) ){ els[i].value = "robert dubin"; } } alert(dates.length);' >copy first to all</a>		
-				<br /><a href="javascript:void(0);"  onclick='var foundFirstOne = false; var valueOfFirst = ""; alert("test"); var dateRE = /^antibody/; var dates=[]; var els=document.getElementsByTagName("*"); alert(els.length); for (var i=0; i < els.length; i++){ if ( dateRE.test(els[i].id) ){ if(foundFirstOne==false){foundFirstOne=true; valueOfFirstOne = els[i].value;} els[i].value = valueOfFirstOne; } } alert(dates.length);' >copy first to all</a>		
-				<br /><a href="javascript:void(0);"  onclick='var foundFirstOne = false; var valueOfFirst = ""; var idRE = /^<c:out value="${id}" />/; var dates=[]; var els=document.getElementsByTagName("*"); for (var i=0; i < els.length; i++){ if ( idRE.test(els[i].id) ){ if(foundFirstOne==false){foundFirstOne=true; valueOfFirstOne = els[i].value;} els[i].value = valueOfFirstOne; } } ' >copy first to all</a>		
+				<br /><a href="javascript:void(0);"  onclick='var foundFirstOne = false; var valueOfFirst = ""; var idRE = /^<c:out value="${id}" />/; var dates=[]; var els=document.getElementsByTagName("*"); for (var i=0; i < els.length; i++){ if ( idRE.test(els[i].id) ){ if(foundFirstOne==false){foundFirstOne=true; valueOfFirstOne = els[i].value;} els[i].value = valueOfFirstOne; } } ' >first &rarr; all</a>		
 			</td>
 			<c:set var="colspan" value = '${colspan + 1}' scope="request"/>
 		</c:if>
