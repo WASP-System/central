@@ -82,10 +82,10 @@
 				<a class="button" href="/wasp/jobsubmit/manysamples/add/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleSubtype.getSampleSubtypeId() }"/>.do">
 				<c:choose>
 					<c:when test="${sampleSubtype.getSampleType().getIName()=='library'}">
-						Many New Libraries
+						New Libraries
 					</c:when>
 					<c:otherwise>
-						Many New Samples
+						New Samples
 					</c:otherwise>
 				</c:choose>
 				</a>
