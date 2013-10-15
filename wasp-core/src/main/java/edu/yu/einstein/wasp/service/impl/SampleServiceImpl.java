@@ -15,13 +15,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
@@ -37,6 +35,7 @@ import org.springframework.validation.Errors;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
+import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.BarcodeDao;
@@ -411,11 +410,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public ExitStatus getReceiveSampleStatus(final Sample sample){
+	  public WaspBatchExitStatus getReceiveSampleStatus(final Sample sample){
 		// TODO: Write test!!
 		  Assert.assertParameterNotNull(sample, "No Sample provided");
 		  Assert.assertParameterNotNullNotZero(sample.getId(), "Invalid Sample Provided");
-		  ExitStatus sampleReceivedStatus = ExitStatus.UNKNOWN;
+		  WaspBatchExitStatus sampleReceivedStatus = new WaspBatchExitStatus(ExitStatus.UNKNOWN);
 		  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		  Set<String> sampleIdStringSet = new LinkedHashSet<String>();
 		  sampleIdStringSet.add(sample.getId().toString());
@@ -423,7 +422,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false);
 		  stepExecutions.addAll(batchJobExplorer.getStepExecutions("wasp.library.step.listenForLibraryReceived", parameterMap, false));
 		  if (!stepExecutions.isEmpty())
-			  sampleReceivedStatus =  batchJobExplorer.getMostRecentlyStartedStepExecutionInList(stepExecutions).getExitStatus();
+			  sampleReceivedStatus =  new WaspBatchExitStatus(batchJobExplorer.getMostRecentlyStartedStepExecutionInList(stepExecutions).getExitStatus());
 		  return sampleReceivedStatus;
 	  }
 	  
@@ -431,7 +430,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public ExitStatus getSampleQCStatus(final Sample sample){
+	  public WaspBatchExitStatus getSampleQCStatus(final Sample sample){
 		  // TODO: Write test!!
 		  Assert.assertParameterNotNull(sample, "No Sample provided");
 		  Assert.assertParameterNotNullNotZero(sample.getId(), "Invalid Sample Provided");
@@ -440,9 +439,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  sampleIdStringSet.add(sample.getId().toString());
 		  parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
 		  List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.sample.step.sampleQC", parameterMap, false);
-		  ExitStatus sampleQCStatus = ExitStatus.UNKNOWN;
+		  WaspBatchExitStatus sampleQCStatus = new WaspBatchExitStatus(ExitStatus.UNKNOWN);
 		  if (!stepExecutions.isEmpty())
-			  sampleQCStatus =  batchJobExplorer.getMostRecentlyStartedStepExecutionInList(stepExecutions).getExitStatus();
+			  sampleQCStatus = new WaspBatchExitStatus(batchJobExplorer.getMostRecentlyStartedStepExecutionInList(stepExecutions).getExitStatus());
 		  return sampleQCStatus;
 	  }
 	  
@@ -450,7 +449,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public ExitStatus getLibraryQCStatus(final Sample library){
+	  public WaspBatchExitStatus getLibraryQCStatus(final Sample library){
 		// TODO: Write test!!
 		Assert.assertParameterNotNull(library, "No library provided");
 		Assert.assertParameterNotNullNotZero(library.getId(), "Invalid library Provided");
@@ -459,9 +458,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		sampleIdStringSet.add(library.getId().toString());
 		parameterMap.put(WaspJobParameters.LIBRARY_ID, sampleIdStringSet);
 		List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.library.step.libraryQC", parameterMap, false);
-		ExitStatus libraryQCStatus = ExitStatus.UNKNOWN;
+		WaspBatchExitStatus libraryQCStatus = new WaspBatchExitStatus(ExitStatus.UNKNOWN);
 		if (!stepExecutions.isEmpty())
-			libraryQCStatus =  batchJobExplorer.getMostRecentlyStartedStepExecutionInList(stepExecutions).getExitStatus();
+			libraryQCStatus = new WaspBatchExitStatus(batchJobExplorer.getMostRecentlyStartedStepExecutionInList(stepExecutions).getExitStatus());
 		return libraryQCStatus;
 	  }
 	  
@@ -539,9 +538,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions("wasp.facilityLibrary.jobflow", parameterMap, false);
 			
 			for (JobExecution jobExecution: jobExecutions){
-				if (jobExecution.getStatus().equals(BatchStatus.STARTING) || 
-						jobExecution.getStatus().equals(BatchStatus.STARTED) ||
-						jobExecution.getStatus().equals(BatchStatus.COMPLETED) ){
+				WaspBatchExitStatus jobExitStatus = new WaspBatchExitStatus(jobExecution.getExitStatus());
+				if (jobExitStatus.isRunning() || jobExitStatus.isCompleted() ){
 					// a library is still active or completed so not awaiting creation.
 					// to make a new library despite this requires special logic
 					return false;  
@@ -590,21 +588,18 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public String convertSampleReceivedStatusForWeb(ExitStatus internalStatus){
+	  public String convertSampleReceivedStatusForWeb(WaspBatchExitStatus internalStatus){
 		  // TODO: Write test!!
 		  Assert.assertParameterNotNull(internalStatus, "No internalStatus provided");
-		  if(internalStatus.getExitCode().equals(ExitStatus.EXECUTING.getExitCode())){
+		  if(internalStatus.isRunning()){
 			  return "NOT ARRIVED";
 			}
-			else if(internalStatus.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())){
+			else if(internalStatus.isCompleted()){
 				return "RECEIVED";
 			}
-			else if(internalStatus.getExitCode().equals(ExitStatus.STOPPED.getExitCode())){
+			else if(internalStatus.isTerminated()){
 				return "WITHDRAWN";
 			} 
-			else if(internalStatus.getExitCode().equals(ExitStatus.STOPPED.getExitCode())){
-				return "ABANDONED";
-			}
 			else {
 				return "UNKNOWN";
 			}
@@ -632,27 +627,18 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public String convertSampleQCStatusForWeb(ExitStatus internalStatus){
+	  public String convertSampleQCStatusForWeb(WaspBatchExitStatus internalStatus){
 		  // TODO: Write test!!
 		  Assert.assertParameterNotNull(internalStatus, "No internalStatus provided");
-		  	if( internalStatus.getExitCode().equals(ExitStatus.UNKNOWN.getExitCode()) ){
-			  return "NONEXISTENT";
-		  	}
-		  	else if(internalStatus.getExitCode().equals(ExitStatus.EXECUTING.getExitCode())){
+		  if(internalStatus.isRunning())
 			  return "AWAITING QC";
-		  	}
-			else if(internalStatus.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())){
-				return "PASSED";
-			}
-			else if(internalStatus.getExitCode().equals(ExitStatus.FAILED.getExitCode())){
-				return "FAILED";
-			}
-			else if(internalStatus.getExitCode().equals(ExitStatus.STOPPED.getExitCode())){
-				return "ABANDONED";
-			}
-			else {
-				return "UNKNOWN";
-			}
+		  if(internalStatus.isCompleted())
+			  return "PASSED";
+		  if(internalStatus.isFailed())
+			  return "FAILED";
+		  if(internalStatus.isTerminated())
+			  return "ABANDONED";
+		  return "UNKNOWN";
 	  }
 	  
 	  /**
@@ -662,15 +648,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  public WaspStatus convertSampleQCStatusFromWeb(String webStatus){
 		  // TODO: Write test!!
 		  Assert.assertParameterNotNull(webStatus, "No webStatus provided");
-		  	if(webStatus.equals(STATUS_PASSED)){
+		  	if(webStatus.equals(STATUS_PASSED))
 				return WaspStatus.COMPLETED;
-			}
-			else if(webStatus.equals(STATUS_FAILED)){
+			if(webStatus.equals(STATUS_FAILED))
 				return WaspStatus.FAILED;
-			}
-			else {
-				return WaspStatus.UNKNOWN;
-			}
+			return WaspStatus.UNKNOWN;
 	  }
 	  
 
@@ -680,12 +662,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	   */
 	  @Override
 	  public List<String> getReceiveSampleStatusOptionsForWeb(){
-		  // TODO: Write test!!
-		  ExitStatus [] statusList = {ExitStatus.COMPLETED, ExitStatus.FAILED};
 		  List<String> options = new ArrayList<String>();
-		  for(ExitStatus status : statusList){
-			  options.add(convertSampleReceivedStatusForWeb(status));
-		  }
+		  options.add(convertSampleReceivedStatusForWeb(new WaspBatchExitStatus(ExitStatus.COMPLETED)));
+		  options.add(convertSampleReceivedStatusForWeb(new WaspBatchExitStatus(ExitStatus.FAILED)));
 		  return options;
 	  }
 	  
@@ -2585,7 +2564,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		 *  {@inheritDoc}
 		 */
 		@Override
-		public ExitStatus getCellLibraryPreprocessingStatus(SampleSource cellLibrary) throws SampleTypeException{
+		public WaspBatchExitStatus getCellLibraryPreprocessingStatus(SampleSource cellLibrary) throws SampleTypeException{
 			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
 			Assert.assertParameterNotNull(cellLibrary.getId(), "sourceSampleId cannot be null");
 			ExitStatus status = ExitStatus.UNKNOWN;
@@ -2598,15 +2577,15 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			jobParameters.put(WaspJobParameters.BATCH_JOB_TASK, jobTaskSet);
 			JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer.getJobExecutions(jobParameters, true));
 			if (je != null)
-				status = je.getExitStatus();
-			return status;
+				status = new WaspBatchExitStatus(je.getExitStatus());
+			return new WaspBatchExitStatus(status);
 		}
 		
 		/**
 		 *  {@inheritDoc}
 		 */
 		@Override
-		public ExitStatus getCellLibraryAggregationAnalysisStatus(SampleSource cellLibrary) throws SampleTypeException{
+		public WaspBatchExitStatus getCellLibraryAggregationAnalysisStatus(SampleSource cellLibrary) throws SampleTypeException{
 			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
 			Assert.assertParameterNotNull(cellLibrary.getId(), "sourceSampleId cannot be null");
 			ExitStatus status = ExitStatus.UNKNOWN;
@@ -2619,8 +2598,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			jobParameters.put(WaspJobParameters.BATCH_JOB_TASK, jobTaskSet);
 			JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer.getJobExecutions(jobParameters, true));
 			if (je != null)	
-				status = je.getExitStatus();
-			return status;
+				status = new WaspBatchExitStatus(je.getExitStatus());
+			return new WaspBatchExitStatus(status);
 		}
 		
 		/**
@@ -2634,7 +2613,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				isCellLibraryPassedQC(cellLibrary);
 			} catch (MetaAttributeNotFoundException e){
 				// no value recorded yet
-				if (getCellLibraryPreprocessingStatus(cellLibrary).getExitCode().equals(ExitStatus.COMPLETED.getExitCode()))
+				if (getCellLibraryPreprocessingStatus(cellLibrary).isCompleted())
 					return true;
 			}
 			return false;
@@ -2705,10 +2684,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		@Override
 		public List<SampleSource> getCellLibrariesPassQCAndNoAggregateAnalysis(Job job) throws SampleTypeException{
 			List<SampleSource> cellLibrariesPassQCAndNoAggregateAnalysis = new ArrayList<SampleSource>();
-			for(SampleSource cellLibrary : getCellLibrariesThatPassedQCForJob(job)){
-				if (!this.getCellLibraryAggregationAnalysisStatus(cellLibrary).getExitCode().equals(ExitStatus.UNKNOWN.getExitCode()))
-					cellLibrariesPassQCAndNoAggregateAnalysis.add(cellLibrary);
-			}
+			for(SampleSource cellLibrary : getCellLibrariesThatPassedQCForJob(job))
+				cellLibrariesPassQCAndNoAggregateAnalysis.add(cellLibrary);
 			return cellLibrariesPassQCAndNoAggregateAnalysis;			
 		}
 
@@ -2895,11 +2872,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			  */
 		  }
 		  
-		  public Map<SampleSource, ExitStatus> getCellLibrariesWithPreprocessingStatus(Job job){
-			  Map<SampleSource, ExitStatus> preprocessedCellLibraries = new HashMap<SampleSource, ExitStatus>();//preprocessed means sequenced and aligned
+		  public Map<SampleSource, WaspBatchExitStatus> getCellLibrariesWithPreprocessingStatus(Job job){
+			  Map<SampleSource, WaspBatchExitStatus> preprocessedCellLibraries = new HashMap<SampleSource, WaspBatchExitStatus>();//preprocessed means sequenced and aligned
 			  for (SampleSource cellLibrary: this.getCellLibrariesForJob(job)){
 				  try{
-					  ExitStatus preprocessingStatus = this.getCellLibraryPreprocessingStatus(cellLibrary);
+					  WaspBatchExitStatus preprocessingStatus = this.getCellLibraryPreprocessingStatus(cellLibrary);
 					  preprocessedCellLibraries.put(cellLibrary, preprocessingStatus);
 				  }
 				  catch(SampleTypeException e){logger.warn("Expected sampletype of cellLibrary for SampleSource with Id of " + cellLibrary.getId()); 

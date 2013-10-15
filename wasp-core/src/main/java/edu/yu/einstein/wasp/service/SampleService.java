@@ -13,12 +13,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.batch.core.ExitStatus;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
 import edu.yu.einstein.wasp.MetaMessage;
+import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleDraftDao;
 import edu.yu.einstein.wasp.dao.SampleDraftMetaDao;
@@ -30,7 +29,6 @@ import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.ResourceException;
-import edu.yu.einstein.wasp.exception.RunException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleIndexException;
 import edu.yu.einstein.wasp.exception.SampleMultiplexException;
@@ -44,7 +42,6 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Run;
-import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleMeta;
@@ -142,21 +139,21 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @param Sample
 	   * @return String
 	   */
-	  public ExitStatus getReceiveSampleStatus(final Sample sample);
+	  public WaspBatchExitStatus getReceiveSampleStatus(final Sample sample);
 	  
 	  /**
 	   * Returns status of a sample's QC Sample step
 	   * @param sample
 	   * @return
 	   */
-	  public ExitStatus getSampleQCStatus(Sample sample);
+	  public WaspBatchExitStatus getSampleQCStatus(Sample sample);
 	  
 	  /**
 	   * Returns status of a library's QC Sample step
 	   * @param library
 	   * @return
 	   */
-	  public ExitStatus getLibraryQCStatus(Sample library);
+	  public WaspBatchExitStatus getLibraryQCStatus(Sample library);
 	  
 	  /**
 		 * Returns true if provided sample is received, otherwise returns false
@@ -191,7 +188,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @param String status
 	   * @return String 
 	   */
-	  public String convertSampleReceivedStatusForWeb(ExitStatus internalStatus);
+	  public String convertSampleReceivedStatusForWeb(WaspBatchExitStatus internalStatus);
 	  
 	  /**
 	   * Converts sample's Receive Sample status from human-comprehensible meaning for viewing on the web to a WaspStatus
@@ -212,7 +209,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @param String status
 	   * @return String 
 	   */
-	  public String convertSampleQCStatusForWeb(ExitStatus internalStatus);
+	  public String convertSampleQCStatusForWeb(WaspBatchExitStatus internalStatus);
 	  
 	  /**
 	   * Converts sample's QC Sample status from human-comprehensible meaning for viewing on the web to a WaspStatus
@@ -893,7 +890,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @return boolean
 	   * @throws SampleTypeException
 	   */
-	  public ExitStatus getCellLibraryPreprocessingStatus(SampleSource cellLibrary) throws SampleTypeException;
+	  public WaspBatchExitStatus getCellLibraryPreprocessingStatus(SampleSource cellLibrary) throws SampleTypeException;
 			
 	  /**
 		 * has cellLibrary passed QC?
@@ -948,7 +945,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	 * @param job
 	 * @return
 	 */
-	public Map<SampleSource, ExitStatus> getCellLibrariesWithPreprocessingStatus(Job job);
+	public Map<SampleSource, WaspBatchExitStatus> getCellLibrariesWithPreprocessingStatus(Job job);
 	
 	/**
 	 * has save both the in_aggregate_analysis meta and a comment meta
@@ -1030,7 +1027,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	   */
 	  public List<Sample> getCellsForLibrary(Sample library, Job job) throws SampleTypeException;
 
-	public ExitStatus getCellLibraryAggregationAnalysisStatus(SampleSource cellLibrary) throws SampleTypeException;
+	public WaspBatchExitStatus getCellLibraryAggregationAnalysisStatus(SampleSource cellLibrary) throws SampleTypeException;
 	
 	/**
 	 * Returns true if no QC status recorded against cell-library and primary analysis has been performed successfully

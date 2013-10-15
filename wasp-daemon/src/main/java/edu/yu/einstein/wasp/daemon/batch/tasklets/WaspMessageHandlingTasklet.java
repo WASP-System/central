@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets;
 
 import java.util.Collection;
+import java.util.Random;
 import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
@@ -24,6 +25,10 @@ import edu.yu.einstein.wasp.integration.messages.templates.MessageAwokenHibernat
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 public abstract class WaspMessageHandlingTasklet extends WaspTasklet implements StepExecutionListener{
+	
+	private static final int PAUSE_BEFORE_SLEEP_BASE = 50; 
+	
+	private static final int PAUSE_BEFORE_SLEEP_RND = 200; 
 	
 	protected Set<Message<?>> messageQueue;
 	
@@ -95,10 +100,20 @@ public abstract class WaspMessageHandlingTasklet extends WaspTasklet implements 
 		return isHibernating;	
 	}
 	
+	protected boolean wasWokenOnMessage(ChunkContext context){
+		ExecutionContext executionContext = context.getStepContext().getStepExecution().getExecutionContext();
+		if (!executionContext.containsKey(BatchJobHibernationManager.WOKEN_ON_MESSAGE_KEY))
+			return false;
+		boolean waspWoken = (boolean) executionContext.get(BatchJobHibernationManager.WOKEN_ON_MESSAGE_KEY);
+		logger.debug("StepExecutionId=" + context.getStepContext().getStepExecution().getId() + " wasWokenByMessage=" + waspWoken);
+		return waspWoken;	
+	}
+	
 	protected void setWasHibernatingFlag(ChunkContext context, boolean value){
 		ExecutionContext executionContext = context.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
 		executionContext.put(BatchJobHibernationManager.HIBERNATING_CODE, value);
 	}
+	
 	
 	@Override
 	public void beforeStep(StepExecution stepExecution) {

@@ -10,7 +10,6 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.repository.dao.JdbcJobExecutionDao;
@@ -21,6 +20,8 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
+
+import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
 
 /**
  * 
@@ -118,7 +119,7 @@ public class JdbcWaspJobExecutionDao extends JdbcJobExecutionDao implements Wasp
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<JobExecution> getJobExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus){
+	public List<JobExecution> getJobExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, ExitStatus exitStatus){
 		Assert.notNull(jobInstanceDao, "jobInstanceDao must not be null");
 		final List<JobExecution> jobExecutions = new ArrayList<JobExecution>();
 		
@@ -134,13 +135,16 @@ public class JdbcWaspJobExecutionDao extends JdbcJobExecutionDao implements Wasp
 		parameterSource.addValue("name1", "%" + name, Types.VARCHAR);
 		parameterSource.addValue("name2", name + "%", Types.VARCHAR);
 		
-		if (batchStatus != null){
-			sql += " and STATUS = :status ";
-			parameterSource.addValue("status", batchStatus.toString(), Types.VARCHAR);
-		}
 		if (exitStatus != null){
-			sql += " and EXIT_CODE = :exitStatus ";
-			parameterSource.addValue("exitStatus", exitStatus.getExitCode(), Types.VARCHAR);
+			if (exitStatus.getExitCode().equals(WaspBatchExitStatus.RUNNING.getExitCode())){
+				sql += " and (EXIT_CODE = :exitStatus1 OR EXIT_CODE = :exitStatus2 OR EXIT_CODE = :exitStatus3) ";
+				parameterSource.addValue("exitStatus1", ExitStatus.EXECUTING.getExitCode().toString(), Types.VARCHAR);
+				parameterSource.addValue("exitStatus2", ExitStatus.UNKNOWN.getExitCode().toString(), Types.VARCHAR);
+				parameterSource.addValue("exitStatus3", WaspBatchExitStatus.HIBERNATING.getExitCode().toString(), Types.VARCHAR);
+			} else {
+				sql += " and EXIT_CODE = :exitStatus ";
+				parameterSource.addValue("exitStatus", exitStatus.getExitCode().toString(), Types.VARCHAR);
+			}
 		}
 		if (parameterMap != null){
 			if (exclusive == null)

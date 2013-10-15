@@ -8,7 +8,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
@@ -31,6 +30,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
@@ -185,8 +185,8 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			} catch (InterruptedException e){}; // wait for message receiving and job completion events
 			
 			// check BatchStatus and ExitStatus are as expected
-			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.COMPLETED);
-			Assert.assertEquals(jobExecution.getExitStatus().getExitCode(), ExitStatus.COMPLETED.getExitCode());
+			WaspBatchExitStatus status = new WaspBatchExitStatus(jobExecution.getExitStatus());
+			Assert.assertTrue(status.isCompleted());
 			jobExecution.stop();
 		} catch (Exception e){
 			// caught an unexpected exception
@@ -269,8 +269,8 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			} catch (InterruptedException e){}; // wait for message receiving and job completion events
 			
 			// check BatchStatus and ExitStatus are as expected
-			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.COMPLETED);
-			Assert.assertEquals(jobExecution.getExitStatus().getExitCode(), ExitStatus.COMPLETED.getExitCode());
+			WaspBatchExitStatus status = new WaspBatchExitStatus(jobExecution.getExitStatus());
+			Assert.assertTrue(status.isCompleted());
 			jobExecution.stop();
 		} catch (Exception e){
 			// caught an unexpected exception
@@ -358,8 +358,8 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			} catch (InterruptedException e){}; // wait for message receiving and job completion events
 			
 			// check BatchStatus and ExitStatus are as expected
-			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.STOPPED);
-			Assert.assertEquals(jobExecution.getExitStatus().getExitCode(), ExitStatus.STOPPED.getExitCode());
+			WaspBatchExitStatus status = new WaspBatchExitStatus(jobExecution.getExitStatus());
+			Assert.assertTrue(status.isCompleted());
 			
 		} catch (Exception e){
 			// caught an unexpected exception

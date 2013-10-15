@@ -70,10 +70,10 @@ public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunni
 	public void doLaunchAllRunningJobs(){
 		long oneSecondAgo = System.currentTimeMillis() - 1000; // set date one second in the past to avoid possible last execution job conflict
 		
-		// First clean up all existing step executions in states STARTING and STARTED. We should set these to FAILED
+		// First clean up all existing step executions in ExitStatus UNKNOWN or EXECUTING. We should set these to FAILED
 		Set<StepExecution> stepExecutionsToRestart = new HashSet<StepExecution>();
-		stepExecutionsToRestart.addAll(jobExplorer.getStepExecutions(BatchStatus.STARTING));
-		stepExecutionsToRestart.addAll(jobExplorer.getStepExecutions(BatchStatus.STARTED));
+		stepExecutionsToRestart.addAll(jobExplorer.getStepExecutions(ExitStatus.UNKNOWN));
+		stepExecutionsToRestart.addAll(jobExplorer.getStepExecutions(ExitStatus.EXECUTING));
 		for (StepExecution stepExecution: stepExecutionsToRestart){
 			stepExecution.setStatus(BatchStatus.FAILED);
         	stepExecution.setExitStatus(new ExitStatus("FAILED", "Failed because wasp-daemon was shutdown inproperly (was found in an active state on startup)"));
@@ -81,11 +81,11 @@ public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunni
         	jobRepository.update(stepExecution);
 		}
 		
-		// Now we can clean up all existing job executions in states STARTING and STARTED. We should set these to FAILED
+		// Now we can clean up all existing job executions in ExitStatus UNKNOWN or EXECUTING. We should set these to FAILED
 		// then restart them.
 		Set<JobExecution> jobExecutionsToRestart = new HashSet<JobExecution>();
-		jobExecutionsToRestart.addAll(jobExplorer.getJobExecutions(BatchStatus.STARTING));
-		jobExecutionsToRestart.addAll(jobExplorer.getJobExecutions(BatchStatus.STARTED));
+		jobExecutionsToRestart.addAll(jobExplorer.getJobExecutions(ExitStatus.UNKNOWN));
+		jobExecutionsToRestart.addAll(jobExplorer.getJobExecutions(ExitStatus.EXECUTING));
 		for (JobExecution jobExecution: jobExecutionsToRestart){
 			String jobName = jobExecution.getJobInstance().getJobName();
 			JobParameters jobParameters = jobExecution.getJobParameters();

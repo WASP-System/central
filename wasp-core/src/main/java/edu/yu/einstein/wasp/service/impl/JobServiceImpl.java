@@ -28,7 +28,6 @@ import java.util.Random;
 import java.util.Set;
 
 import org.slf4j.Logger;
-import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
@@ -44,6 +43,7 @@ import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.additionalClasses.Strategy;
 import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
+import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.dao.AcctQuoteDao;
 import edu.yu.einstein.wasp.dao.AcctQuoteMetaDao;
@@ -78,7 +78,6 @@ import edu.yu.einstein.wasp.exception.JobContextInitializationException;
 import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
-import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
@@ -397,8 +396,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		Set<String> jobIdStringSet = new HashSet<String>();
 		jobIdStringSet.add(job.getJobId().toString());
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false, BatchStatus.STARTED);
-		stepExecutions.addAll(batchJobExplorer.getStepExecutions("wasp.library.step.listenForLibraryReceived", parameterMap, false, BatchStatus.STARTED));
+		List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false, WaspBatchExitStatus.RUNNING);
+		stepExecutions.addAll(batchJobExplorer.getStepExecutions("wasp.library.step.listenForLibraryReceived", parameterMap, false, WaspBatchExitStatus.RUNNING));
 		for (StepExecution stepExecution: stepExecutions){
 			if (!stepExecution.getJobExecution().isRunning())
 				continue;
@@ -433,7 +432,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		Set<String> jobIdStringSet = new HashSet<String>();
 		jobIdStringSet.add(job.getJobId().toString());
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		for (StepExecution stepExecution: batchJobExplorer.getStepExecutions("wasp.sample.step.sampleQC", parameterMap, false, BatchStatus.STARTED)){
+		for (StepExecution stepExecution: batchJobExplorer.getStepExecutions("wasp.sample.step.sampleQC", parameterMap, false, WaspBatchExitStatus.RUNNING)){
 			if (!stepExecution.getJobExecution().isRunning())
 				continue;
 			Integer sampleId = null;
@@ -467,7 +466,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		Set<String> jobIdStringSet = new HashSet<String>();
 		jobIdStringSet.add(job.getJobId().toString());
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		for (StepExecution stepExecution: batchJobExplorer.getStepExecutions("wasp.library.step.libraryQC", parameterMap, false, BatchStatus.STARTED)){
+		for (StepExecution stepExecution: batchJobExplorer.getStepExecutions("wasp.library.step.libraryQC", parameterMap, false, WaspBatchExitStatus.RUNNING)){
 			if (!stepExecution.getJobExecution().isRunning())
 				continue;
 			Integer libraryId = null;
@@ -496,12 +495,12 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		
 		List<Job> activeJobList = new ArrayList<Job>();
 		// get all job executions from the Batch database which only have one parameter which is job_id but we want all
-		// jobIds (so use '*'). Also only get those with a BatchStatus of STARTED. Then get the value of the job ids from the parameter
+		// jobIds (so use '*'). Also only get those with WaspBatchExitStatus.RUNNING. Then get the value of the job ids from the parameter
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		Set<String> jobIdStringSet = new HashSet<String>();
 		jobIdStringSet.add("*");
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions("default.waspJob.jobflow", parameterMap, true, BatchStatus.STARTED);
+		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions("default.waspJob.jobflow", parameterMap, true, WaspBatchExitStatus.RUNNING);
 		logger.debug("getJobExecutions() returned " + jobExecutions.size() + " result(s)");
 		for (JobExecution jobExecution: jobExecutions){
 			try{
@@ -535,7 +534,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		Set<String> jobIdStringSet = new HashSet<String>();
 		jobIdStringSet.add(job.getId().toString());
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions("default.waspJob.jobflow", parameterMap, true, BatchStatus.STARTED);
+		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions("default.waspJob.jobflow", parameterMap, true, WaspBatchExitStatus.RUNNING);
 		if (!jobExecutions.isEmpty())
 			return true;
 		return false;
@@ -755,7 +754,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			Set<String> jobIdStringSet = new HashSet<String>();
 			jobIdStringSet.add(job.getJobId().toString());
 			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-			if (!batchJobExplorer.getStepExecutions("step.piApprove", parameterMap, true, BatchStatus.STARTED).isEmpty())
+			if (!batchJobExplorer.getStepExecutions("step.piApprove", parameterMap, true, WaspBatchExitStatus.RUNNING).isEmpty())
 				return true;
 			return false;
 		}
@@ -772,7 +771,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			Set<String> jobIdStringSet = new HashSet<String>();
 			jobIdStringSet.add(job.getJobId().toString());
 			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-			if (!batchJobExplorer.getStepExecutions("step.daApprove", parameterMap, true, BatchStatus.STARTED).isEmpty())
+			if (!batchJobExplorer.getStepExecutions("step.daApprove", parameterMap, true, WaspBatchExitStatus.RUNNING).isEmpty())
 				return true;
 			return false;
 		}
@@ -788,7 +787,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			Set<String> jobIdStringSet = new HashSet<String>();
 			jobIdStringSet.add(job.getJobId().toString());
 			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-			if (!batchJobExplorer.getStepExecutions("step.fmApprove", parameterMap, true, BatchStatus.STARTED).isEmpty())
+			if (!batchJobExplorer.getStepExecutions("step.fmApprove", parameterMap, true, WaspBatchExitStatus.RUNNING).isEmpty())
 				return true;
 			return false;
 		}
@@ -820,7 +819,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			Set<String> jobIdStringSet = new HashSet<String>();
 			jobIdStringSet.add(job.getJobId().toString());
 			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-			if (!batchJobExplorer.getStepExecutions("step.quote", parameterMap, true, BatchStatus.STARTED).isEmpty())
+			if (!batchJobExplorer.getStepExecutions("step.quote", parameterMap, true, WaspBatchExitStatus.RUNNING).isEmpty())
 				return true;
 			return false;
 		}
@@ -924,20 +923,20 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 				  approveStatus = new String("notYetSet");
 			  }
 			  else {
-				  ExitStatus adminApprovalStatus = stepExecution.getExitStatus();
-				  if(adminApprovalStatus.getExitCode().equals(ExitStatus.EXECUTING.getExitCode())){
+				  WaspBatchExitStatus adminApprovalStatus = new WaspBatchExitStatus(stepExecution.getExitStatus());
+				  if( adminApprovalStatus.isRunning()){
 					  approveStatus = new String("awaitingResponse");
 					  //jobApprovalsMap.put(piStatusLabel, "status.awaitingResponse.label");
 				  }
-				  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())){
+				  else if( adminApprovalStatus.isCompleted()){
 					  approveStatus = new String("approved");
 					  //jobApprovalsMap.put(piStatusLabel, "status.approved.label");
 				  }
-				  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.FAILED.getExitCode())){
+				  else if( adminApprovalStatus.isFailed()){
 					  approveStatus = new String("rejected");
 					  //jobApprovalsMap.put(piStatusLabel, "status.rejected.label");
 				  }
-				  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.STOPPED.getExitCode())){
+				  else if(adminApprovalStatus.isTerminated()){
 					  approveStatus = new String("abandoned");
 					  //jobApprovalsMap.put(piStatusLabel, "status.abandoned.label");
 				  }
@@ -2106,8 +2105,8 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 					cellLibraryPreprocessFailedOrPassedQc = cellLibrary;
 				} catch (MetaAttributeNotFoundException e){
 					// no QC recorded against cell library so see if it failed pre-processing
-					String preProcessingStatus = sampleService.getCellLibraryPreprocessingStatus(cellLibrary).getExitCode();
-					if (preProcessingStatus.equals(ExitStatus.FAILED.getExitCode()) || preProcessingStatus.equals(ExitStatus.STOPPED.getExitCode()))
+					WaspBatchExitStatus preProcessingStatus = sampleService.getCellLibraryPreprocessingStatus(cellLibrary);
+					if (preProcessingStatus.isFailed() || preProcessingStatus.isTerminated())
 						cellLibraryPreprocessFailedOrPassedQc = cellLibrary;
 				}
 				if (cellLibraryPreprocessFailedOrPassedQc != null){
@@ -2158,10 +2157,8 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				}
 				try{
 					if (sampleService.isCellSequencedSuccessfully(sampleService.getCell(cellLibrary))){
-						String preProcessingStatus = sampleService.getCellLibraryPreprocessingStatus(cellLibrary).getExitCode();
-						if (!preProcessingStatus.equals(ExitStatus.COMPLETED.getExitCode()) &&
-								!preProcessingStatus.equals(ExitStatus.FAILED.getExitCode()) &&
-								!preProcessingStatus.equals(ExitStatus.STOPPED.getExitCode())){
+						WaspBatchExitStatus preProcessingStatus = sampleService.getCellLibraryPreprocessingStatus(cellLibrary);
+						if (!preProcessingStatus.isCompleted() && !preProcessingStatus.isFailed() && !preProcessingStatus.isTerminated()){
 							logger.debug("job " + job.getId() + ": the library has been run and it's cell has passed QC but has not completed pre-processing yet - returning true");
 							return true; // the library has been run and passed QC but has not been pre-processed yet
 						} else if (sampleService.isCellLibraryAwaitingQC(cellLibrary)){
@@ -2278,7 +2275,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		Set<String> jobIdStringSet = new HashSet<String>();
 		jobIdStringSet.add(job.getJobId().toString());
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		if (batchJobExplorer.getJobExecutions("default.waspJob.jobflow", parameterMap, true, BatchStatus.STOPPED).size() > 0)
+		if (batchJobExplorer.getJobExecutions("default.waspJob.jobflow", parameterMap, true, ExitStatus.STOPPED).size() > 0)
 			return true;
 		return false;
 	}

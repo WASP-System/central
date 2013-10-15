@@ -51,7 +51,7 @@ public interface WaspJobExecutionDao extends JobExecutionDao{
 	 * @return
 	 */
 
-	public List<JobExecution> getJobExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus);
+	public List<JobExecution> getJobExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, ExitStatus exitStatus);
 	
 	/**
 	 * Obtains job name for a given JobExecution

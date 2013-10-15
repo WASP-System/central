@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
@@ -27,6 +26,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
@@ -163,7 +163,8 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			Assert.assertEquals(message.getPayload(), WaspStatus.ACCEPTED);
 			
 			// check BatchStatus and ExitStatus is as expected
-			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.STARTED);
+			WaspBatchExitStatus status = new WaspBatchExitStatus(jobExecution.getExitStatus());
+			Assert.assertTrue(status.isRunning());
 			
 			// send message to tell exit condition monitoring tasklet that job is finished
 			template.setTask(WaspJobTask.NOTIFY_STATUS);
@@ -177,7 +178,8 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 				Thread.sleep(500); // allow some time for flow initialization
 			} catch (InterruptedException e){}; // wait for message receiving and job completion events
 			// check BatchStatus and ExitStatus are as expected
-			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.STARTED);
+			status = new WaspBatchExitStatus(jobExecution.getExitStatus());
+			Assert.assertTrue(status.isRunning());
 			jobExecution.stop();
 		} catch (Exception e){
 			// caught an unexpected exception
@@ -240,7 +242,8 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			}catch (InterruptedException e){}; // allow batch to wrap up
 			// check BatchStatus is as expected. 
 			// TODO: Ideally shouldn't be in state STOPPING. I think this is a quirk of the test but check this in future
-			Assert.assertTrue(jobExecution.getStatus() == BatchStatus.STOPPED || jobExecution.getStatus() == BatchStatus.STOPPING);
+			WaspBatchExitStatus status = new WaspBatchExitStatus(jobExecution.getExitStatus());
+			Assert.assertTrue(status.isTerminated());
 			jobExecution.stop();
 		} catch (Exception e){
 			// caught an unexpected exception

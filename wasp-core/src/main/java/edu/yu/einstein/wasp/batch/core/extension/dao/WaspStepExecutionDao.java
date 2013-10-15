@@ -31,7 +31,7 @@ public interface WaspStepExecutionDao extends StepExecutionDao{
 	 * @param exitStatus (may be null)
 	 * @return
 	 */
-	public List<StepExecution> getStepExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus);
+	public List<StepExecution> getStepExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, ExitStatus exitStatus);
 
 	
 	/**

@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets;
 
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -20,6 +21,8 @@ import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemp
 public class ListenForStatusTasklet extends WaspMessageHandlingTasklet  {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	
 
 	
 	// TODO:: merge the following two attributes  
@@ -49,9 +52,13 @@ public class ListenForStatusTasklet extends WaspMessageHandlingTasklet  {
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		logger.trace(name + "execute() invoked");
 		if (wasHibernating(context)){
-			logger.debug("StepExecution id=" + context.getStepContext().getStepExecution().getId() + " was woken up from hibernation. Skipping to next step");
-			setWasHibernatingFlag(context, false);
-			return RepeatStatus.FINISHED;
+			if (wasWokenOnMessage(context)){
+				logger.debug("StepExecution id=" + context.getStepContext().getStepExecution().getId() + " was woken up from hibernation for a message. Skipping to next step...");
+				setWasHibernatingFlag(context, false);
+				return RepeatStatus.FINISHED;
+			}
+			// If we get here, this step is one part of a split step that was not woken
+			return RepeatStatus.CONTINUABLE; 
 		}
 		if (!wasHibernationSuccessfullyRequested){
 			Set<WaspStatusMessageTemplate> messages = new HashSet<>();

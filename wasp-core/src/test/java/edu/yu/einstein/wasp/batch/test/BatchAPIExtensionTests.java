@@ -8,7 +8,6 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
@@ -21,6 +20,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
+import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
 import edu.yu.einstein.wasp.exception.BatchDaoDataRetrievalException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
@@ -80,7 +80,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 			Assert.fail("Unable to get status");
 		}
 		Assert.assertNotNull(stepExecution);
-		Assert.assertEquals(stepExecution.getStatus(), BatchStatus.COMPLETED);
+		Assert.assertTrue(new WaspBatchExitStatus(stepExecution.getExitStatus()).isCompleted());
 	}
 	
 	/**
@@ -107,7 +107,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	
 	/**
 	 * API extension testing. Testing access of state information via API extension.The test Batch db tables should contain two steps called 
-	 * 'wasp.sample.step.listenForJobApproved' one with a BatchStatus of COMPLETED (sample 2) and one with BatchStatus of STARTED (sample 1).
+	 * 'wasp.sample.step.listenForJobApproved' one with a WaspBatchExitStatus of COMPLETED (sample 2) and one with WaspBatchExitStatus of RUNNING (sample 1).
 	 */
 	@Test(groups = "unit-tests")
 	public void testGettingStepExecutionNormalTest3(){
@@ -117,14 +117,14 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 		sampleIdStringSet.add(SAMPLE_ID_1.toString());
 		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
 		
-		List<StepExecution> stepExecutions = jobExplorer.getStepExecutions("listenForJobApproved", parameterMap, false, BatchStatus.STARTED);
+		List<StepExecution> stepExecutions = jobExplorer.getStepExecutions("listenForJobApproved", parameterMap, false, WaspBatchExitStatus.RUNNING);
 		Assert.assertNotNull(stepExecutions);
 		Assert.assertEquals(stepExecutions.size(), 1); // expect to be STARTED
 	}
 	
 	/**
 	 * API extension testing. Testing access of state information via API extension.The test Batch db tables should contain two steps called 
-	 * 'wasp.sample.step.listenForJobApproved' one with a BatchStatus of COMPLETED (sample 2) and one with BatchStatus of STARTED (sample 1).
+	 * 'wasp.sample.step.listenForJobApproved' one with a WaspBatchExitStatus of COMPLETED (sample 2) and one with WaspBatchExitStatus of RUNNING (sample 1).
 	 */
 	@Test(groups = "unit-tests")
 	public void testGettingStepExecutionNormalTest4(){
@@ -134,7 +134,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 		sampleIdStringSet.add(SAMPLE_ID_2.toString());
 		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
 		
-		List<StepExecution> stepExecutions = jobExplorer.getStepExecutions("listenForJobApproved", parameterMap, false, BatchStatus.STARTED);
+		List<StepExecution> stepExecutions = jobExplorer.getStepExecutions("listenForJobApproved", parameterMap, false, WaspBatchExitStatus.RUNNING);
 		Assert.assertNotNull(stepExecutions);
 		Assert.assertTrue(stepExecutions.isEmpty()); //expect to be COMPLETE
 	}
@@ -331,23 +331,13 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	}
 	
 	/**
-	 * API extension testing. Testing getting all JobExecutions with BatchStatus=COMPLETED. Should be 1
+	 * API extension testing. Testing getting all JobExecutions with WaspBatchExitStatus=COMPLETED. Should be 1
 	 */
 	@Test(groups = "unit-tests")
 	public void testGettingJobExecutionNormalTest2(){
-		List<JobExecution> jobExecutions = jobExplorer.getJobExecutions(BatchStatus.COMPLETED);
+		List<JobExecution> jobExecutions = jobExplorer.getJobExecutions(WaspBatchExitStatus.COMPLETED);
 		Assert.assertNotNull(jobExecutions);
 		Assert.assertEquals(jobExecutions.size(), 1); 
-	}
-	
-	/**
-	 * API extension testing. Testing getting all JobExecutions with BatchStatus=COMPLETED and ExitStatus=EXECUTION. Should be impossible
-	 */
-	@Test(groups = "unit-tests")
-	public void testGettingJobExecutionNormalTest3(){
-		List<JobExecution> jobExecutions = jobExplorer.getJobExecutions(BatchStatus.COMPLETED, ExitStatus.EXECUTING);
-		Assert.assertNotNull(jobExecutions);
-		Assert.assertTrue(jobExecutions.isEmpty()); 
 	}
 	
 	/**

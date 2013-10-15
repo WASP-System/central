@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameter;
@@ -47,10 +46,10 @@ public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplor
 	 * {@inheritDoc}
 	 */
 	@Override
-	public StepExecution getStepExecution(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus) throws BatchDaoDataRetrievalException{
+	public StepExecution getStepExecution(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, ExitStatus exitStatus) throws BatchDaoDataRetrievalException{
 		if (exclusive == null)
 			exclusive = false;
-		List<StepExecution> stepExecutions = stepExecutionDao.getStepExecutions(name, parameterMap, exclusive, batchStatus, exitStatus);
+		List<StepExecution> stepExecutions = stepExecutionDao.getStepExecutions(name, parameterMap, exclusive, exitStatus);
 		if (stepExecutions == null || stepExecutions.isEmpty())
 			return null;
 		if (stepExecutions.size() != 1)
@@ -62,16 +61,16 @@ public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplor
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<StepExecution> getStepExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus){
-		return stepExecutionDao.getStepExecutions(name, parameterMap, exclusive, batchStatus, exitStatus);
+	public List<StepExecution> getStepExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, ExitStatus exitStatus){
+		return stepExecutionDao.getStepExecutions(name, parameterMap, exclusive, exitStatus);
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public StepExecution getStepExecution(Map<String, Set<String>> parameterMap,	Boolean exclusive) throws BatchDaoDataRetrievalException {
-		return getStepExecution(null, parameterMap, exclusive, null, null);
+	public StepExecution getStepExecution(Map<String, Set<String>> parameterMap, Boolean exclusive) throws BatchDaoDataRetrievalException {
+		return getStepExecution(null, parameterMap, exclusive, null);
 	}
 
 	/**
@@ -79,7 +78,7 @@ public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplor
 	 */
 	@Override
 	public List<StepExecution> getStepExecutions(Map<String, Set<String>> parameterMap, Boolean exclusive) {
-		return getStepExecutions(null, parameterMap, exclusive, null, null);
+		return getStepExecutions(null, parameterMap, exclusive, null);
 	}
 
 	/**
@@ -87,15 +86,7 @@ public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplor
 	 */
 	@Override
 	public StepExecution getStepExecution(String name, Map<String, Set<String>> parameterMap, Boolean exclusive)	throws BatchDaoDataRetrievalException {
-		return getStepExecution(name, parameterMap, exclusive, null, null);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public StepExecution getStepExecution(Map<String, Set<String>> parameterMap,	Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus) throws BatchDaoDataRetrievalException {
-		return getStepExecution(null, parameterMap, exclusive, batchStatus, exitStatus);
+		return getStepExecution(name, parameterMap, exclusive, null);
 	}
 
 	/**
@@ -103,62 +94,13 @@ public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplor
 	 */
 	@Override
 	public List<StepExecution> getStepExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive) {
-		return getStepExecutions(name, parameterMap, exclusive, null, null);
+		return getStepExecutions(name, parameterMap, exclusive, null);
 	}
 
-	@Override
-	public List<StepExecution> getStepExecutions(Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus) {
-		return getStepExecutions(null, parameterMap, exclusive, batchStatus, exitStatus);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public StepExecution getStepExecution(String name, Map<String, Set<String>> parameterMap, Boolean exclusive,	BatchStatus batchStatus) throws BatchDaoDataRetrievalException {
-		return getStepExecution(name, parameterMap, exclusive, batchStatus, null);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public StepExecution getStepExecution(Map<String, Set<String>> parameterMap,	Boolean exclusive, BatchStatus batchStatus) throws BatchDaoDataRetrievalException {
-		return getStepExecution(null, parameterMap, exclusive, batchStatus, null);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<StepExecution> getStepExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus) {
-		return getStepExecutions(name, parameterMap, exclusive, batchStatus, null);
-	}
-
-	@Override
-	public List<StepExecution> getStepExecutions(Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus) {
-		return getStepExecutions(null, parameterMap, exclusive, batchStatus, null);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public StepExecution getStepExecution(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, ExitStatus exitStatus) throws BatchDaoDataRetrievalException {
-		return getStepExecution(name, parameterMap, exclusive, null, exitStatus);
-	}
 
 	@Override
 	public StepExecution getStepExecution(Map<String, Set<String>> parameterMap,	Boolean exclusive, ExitStatus exitStatus) throws BatchDaoDataRetrievalException {
-		return getStepExecution(null, parameterMap, exclusive, null, exitStatus);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<StepExecution> getStepExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, ExitStatus exitStatus) {
-		return getStepExecutions(name, parameterMap, exclusive, null, exitStatus);
+		return getStepExecution(null, parameterMap, exclusive, exitStatus);
 	}
 
 	/**
@@ -166,54 +108,29 @@ public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplor
 	 */
 	@Override
 	public List<StepExecution> getStepExecutions(Map<String, Set<String>> parameterMap, Boolean exclusive, ExitStatus exitStatus) {
-		return getStepExecutions(null, parameterMap, exclusive, null, exitStatus);
+		return getStepExecutions(null, parameterMap, exclusive, exitStatus);
 	}
 	
 	@Override
 	public List<StepExecution> getStepExecutions(String name) {
-		return stepExecutionDao.getStepExecutions(name, null, null, null, null);
+		return stepExecutionDao.getStepExecutions(name, null, null, null);
 	}
 
 
 	@Override
 	public List<StepExecution> getStepExecutions() {
-		return stepExecutionDao.getStepExecutions(null, null, null, null, null);
+		return stepExecutionDao.getStepExecutions(null, null, null, null);
 	}
-
-
-	@Override
-	public List<StepExecution> getStepExecutions(String name, BatchStatus batchStatus, ExitStatus exitStatus) {
-		return stepExecutionDao.getStepExecutions(name, null, null, batchStatus, exitStatus);
-	}
-
-
-	@Override
-	public List<StepExecution> getStepExecutions(BatchStatus batchStatus, ExitStatus exitStatus) {
-		return stepExecutionDao.getStepExecutions(null, null, null, batchStatus, exitStatus);
-	}
-	
-
-	@Override
-	public List<StepExecution> getStepExecutions(String name, BatchStatus batchStatus) {
-		return stepExecutionDao.getStepExecutions(name, null, null, batchStatus, null);
-	}
-
-
-	@Override
-	public List<StepExecution> getStepExecutions(BatchStatus batchStatus) {
-		return stepExecutionDao.getStepExecutions(null, null, null, batchStatus, null);
-	}
-
 
 	@Override
 	public List<StepExecution> getStepExecutions(String name, ExitStatus exitStatus) {
-		return stepExecutionDao.getStepExecutions(name, null, null, null, exitStatus);
+		return stepExecutionDao.getStepExecutions(name, null, null, exitStatus);
 	}
 
 
 	@Override
 	public List<StepExecution> getStepExecutions(ExitStatus exitStatus) {
-		return stepExecutionDao.getStepExecutions(null, null, null, null, exitStatus);
+		return stepExecutionDao.getStepExecutions(null, null, null, exitStatus);
 	}
 	
 	// getJobExecution/s methods
@@ -222,10 +139,10 @@ public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplor
 	 * {@inheritDoc}
 	 */
 	@Override
-	public JobExecution getJobExecution(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus) throws BatchDaoDataRetrievalException{
+	public JobExecution getJobExecution(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, ExitStatus exitStatus) throws BatchDaoDataRetrievalException{
 		if (exclusive == null)
 			exclusive = false;
-		List<JobExecution> JobExecutions = jobExecutionDao.getJobExecutions(name, parameterMap, exclusive, batchStatus, exitStatus);
+		List<JobExecution> JobExecutions = jobExecutionDao.getJobExecutions(name, parameterMap, exclusive, exitStatus);
 		if (JobExecutions.isEmpty())
 			return null;
 		if (JobExecutions.size() != 1)
@@ -237,8 +154,8 @@ public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplor
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<JobExecution> getJobExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus){
-		return jobExecutionDao.getJobExecutions(name, parameterMap, exclusive, batchStatus, exitStatus);
+	public List<JobExecution> getJobExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, ExitStatus exitStatus){
+		return jobExecutionDao.getJobExecutions(name, parameterMap, exclusive, exitStatus);
 	}
 	
 	/**
@@ -246,7 +163,7 @@ public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplor
 	 */
 	@Override
 	public JobExecution getJobExecution(Map<String, Set<String>> parameterMap,	Boolean exclusive) throws BatchDaoDataRetrievalException {
-		return getJobExecution(null, parameterMap, exclusive, null, null);
+		return getJobExecution(null, parameterMap, exclusive, null);
 	}
 
 	/**
@@ -254,7 +171,7 @@ public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplor
 	 */
 	@Override
 	public List<JobExecution> getJobExecutions(Map<String, Set<String>> parameterMap, Boolean exclusive) {
-		return getJobExecutions(null, parameterMap, exclusive, null, null);
+		return getJobExecutions(null, parameterMap, exclusive, null);
 	}
 
 	/**
@@ -262,15 +179,7 @@ public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplor
 	 */
 	@Override
 	public JobExecution getJobExecution(String name, Map<String, Set<String>> parameterMap, Boolean exclusive)	throws BatchDaoDataRetrievalException {
-		return getJobExecution(name, parameterMap, exclusive, null, null);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public JobExecution getJobExecution(Map<String, Set<String>> parameterMap,	Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus) throws BatchDaoDataRetrievalException {
-		return getJobExecution(null, parameterMap, exclusive, batchStatus, exitStatus);
+		return getJobExecution(name, parameterMap, exclusive, null);
 	}
 
 	/**
@@ -278,62 +187,12 @@ public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplor
 	 */
 	@Override
 	public List<JobExecution> getJobExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive) {
-		return getJobExecutions(name, parameterMap, exclusive, null, null);
-	}
-
-	@Override
-	public List<JobExecution> getJobExecutions(Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus) {
-		return getJobExecutions(null, parameterMap, exclusive, batchStatus, exitStatus);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public JobExecution getJobExecution(String name, Map<String, Set<String>> parameterMap, Boolean exclusive,	BatchStatus batchStatus) throws BatchDaoDataRetrievalException {
-		return getJobExecution(name, parameterMap, exclusive, batchStatus, null);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public JobExecution getJobExecution(Map<String, Set<String>> parameterMap,	Boolean exclusive, BatchStatus batchStatus) throws BatchDaoDataRetrievalException {
-		return getJobExecution(null, parameterMap, exclusive, batchStatus, null);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<JobExecution> getJobExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus) {
-		return getJobExecutions(name, parameterMap, exclusive, batchStatus, null);
-	}
-
-	@Override
-	public List<JobExecution> getJobExecutions(Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus) {
-		return getJobExecutions(null, parameterMap, exclusive, batchStatus, null);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public JobExecution getJobExecution(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, ExitStatus exitStatus) throws BatchDaoDataRetrievalException {
-		return getJobExecution(name, parameterMap, exclusive, null, exitStatus);
+		return getJobExecutions(name, parameterMap, exclusive, null);
 	}
 
 	@Override
 	public JobExecution getJobExecution(Map<String, Set<String>> parameterMap,	Boolean exclusive, ExitStatus exitStatus) throws BatchDaoDataRetrievalException {
-		return getJobExecution(null, parameterMap, exclusive, null, exitStatus);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<JobExecution> getJobExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, ExitStatus exitStatus) {
-		return getJobExecutions(name, parameterMap, exclusive, null, exitStatus);
+		return getJobExecution(null, parameterMap, exclusive, exitStatus);
 	}
 
 	/**
@@ -341,55 +200,33 @@ public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplor
 	 */
 	@Override
 	public List<JobExecution> getJobExecutions(Map<String, Set<String>> parameterMap, Boolean exclusive, ExitStatus exitStatus) {
-		return getJobExecutions(null, parameterMap, exclusive, null, exitStatus);
+		return getJobExecutions(null, parameterMap, exclusive, exitStatus);
 	}
 	
 	
 	@Override
 	public List<JobExecution> getJobExecutions(String name) {
-		return jobExecutionDao.getJobExecutions(name, null, null, null, null);
+		return jobExecutionDao.getJobExecutions(name, null, null, null);
 	}
 
 
 	@Override
 	public List<JobExecution> getJobExecutions() {
-		return jobExecutionDao.getJobExecutions(null, null, null, null, null);
+		return jobExecutionDao.getJobExecutions(null, null, null, null);
 	}
 
 
-	@Override
-	public List<JobExecution> getJobExecutions(String name, BatchStatus batchStatus, ExitStatus exitStatus) {
-		return jobExecutionDao.getJobExecutions(name, null, null, batchStatus, exitStatus);
-	}
-
-
-	@Override
-	public List<JobExecution> getJobExecutions(BatchStatus batchStatus, ExitStatus exitStatus) {
-		return jobExecutionDao.getJobExecutions(null, null, null, batchStatus, exitStatus);
-	}
-	
-
-	@Override
-	public List<JobExecution> getJobExecutions(String name, BatchStatus batchStatus) {
-		return jobExecutionDao.getJobExecutions(name, null, null, batchStatus, null);
-	}
-
-
-	@Override
-	public List<JobExecution> getJobExecutions(BatchStatus batchStatus) {
-		return jobExecutionDao.getJobExecutions(null, null, null, batchStatus, null);
-	}
 
 
 	@Override
 	public List<JobExecution> getJobExecutions(String name, ExitStatus exitStatus) {
-		return jobExecutionDao.getJobExecutions(name, null, null, null, exitStatus);
+		return jobExecutionDao.getJobExecutions(name, null, null, exitStatus);
 	}
 
 
 	@Override
 	public List<JobExecution> getJobExecutions(ExitStatus exitStatus) {
-		return jobExecutionDao.getJobExecutions(null, null, null, null, exitStatus);
+		return jobExecutionDao.getJobExecutions(null, null, null, exitStatus);
 	}
 
 

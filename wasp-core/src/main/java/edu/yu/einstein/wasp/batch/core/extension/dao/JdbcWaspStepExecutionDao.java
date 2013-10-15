@@ -10,13 +10,11 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.repository.dao.JdbcStepExecutionDao;
-import org.springframework.batch.core.repository.dao.JobExecutionDao;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -24,6 +22,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
 
+import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
 import edu.yu.einstein.wasp.exception.BatchDaoDataRetrievalException;
 
 /**
@@ -49,10 +48,9 @@ public class JdbcWaspStepExecutionDao extends JdbcStepExecutionDao implements Wa
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<StepExecution> getStepExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus){
+	public List<StepExecution> getStepExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, ExitStatus exitStatus){
 		Assert.notNull(waspJobExecutionDao, "waspJobExecutionDao cannot be  null");
 		final List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
-		
 		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
 		String sql = "select SE.JOB_EXECUTION_ID, STEP_EXECUTION_ID from %PREFIX%STEP_EXECUTION SE, %PREFIX%JOB_EXECUTION JE where "
 				+ "(STEP_NAME LIKE :name1 or STEP_NAME LIKE :name2) and JE.JOB_EXECUTION_ID = SE.JOB_EXECUTION_ID";
@@ -60,13 +58,16 @@ public class JdbcWaspStepExecutionDao extends JdbcStepExecutionDao implements Wa
 			name = "";
 		parameterSource.addValue("name1", "%" + name, Types.VARCHAR);
 		parameterSource.addValue("name2", name + "%", Types.VARCHAR);
-		if (batchStatus != null){
-			sql += " and SE.STATUS = :status ";
-			parameterSource.addValue("status", batchStatus.toString(), Types.VARCHAR);
-		}
 		if (exitStatus != null){
-			sql += " and EXIT_CODE = :exitStatus ";
-			parameterSource.addValue("exitStatus", exitStatus.getExitCode().toString(), Types.VARCHAR);
+			if (exitStatus.getExitCode().equals(WaspBatchExitStatus.RUNNING.getExitCode())){
+				sql += " and (SE.EXIT_CODE = :exitStatus1 OR SE.EXIT_CODE = :exitStatus2 OR SE.EXIT_CODE = :exitStatus3) ";
+				parameterSource.addValue("exitStatus1", ExitStatus.EXECUTING.getExitCode().toString(), Types.VARCHAR);
+				parameterSource.addValue("exitStatus2", ExitStatus.UNKNOWN.getExitCode().toString(), Types.VARCHAR);
+				parameterSource.addValue("exitStatus3", WaspBatchExitStatus.HIBERNATING.getExitCode().toString(), Types.VARCHAR);
+			} else {
+				sql += " and SE.EXIT_CODE = :exitStatus ";
+				parameterSource.addValue("exitStatus", exitStatus.getExitCode().toString(), Types.VARCHAR);
+			}
 		}
 		if (parameterMap != null){
 			if (exclusive == null)

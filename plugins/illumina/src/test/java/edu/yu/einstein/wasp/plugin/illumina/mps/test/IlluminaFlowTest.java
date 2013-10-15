@@ -11,7 +11,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -32,6 +31,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 
+import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.grid.file.SshFileService;
@@ -174,9 +174,9 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 		Thread.sleep(1000);
 		
 		StepExecution se = (StepExecution) je.getStepExecutions().toArray()[0];
-		
+		WaspBatchExitStatus stepExitStatus = new WaspBatchExitStatus(se.getExitStatus());
 		//file exists, step completes
-		Assert.assertEquals(se.getStatus(), BatchStatus.COMPLETED);
+		Assert.assertTrue(stepExitStatus.isCompleted());
 	}
 
 	// @Test
@@ -194,9 +194,9 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 		Thread.sleep(1000);
 		
 		StepExecution se = (StepExecution) je.getStepExecutions().toArray()[0];
-		
+		WaspBatchExitStatus stepExitStatus = new WaspBatchExitStatus(se.getExitStatus());
 		//file does not exist, step repeats.
-		Assert.assertEquals(se.getStatus(), BatchStatus.STARTED);
+		Assert.assertTrue(stepExitStatus.isRunning());
 	}
 	
 	// @Test
@@ -213,9 +213,9 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 		Thread.sleep(1000);
 		
 		StepExecution se = (StepExecution) je.getStepExecutions().toArray()[0];
-		
+		WaspBatchExitStatus stepExitStatus = new WaspBatchExitStatus(se.getExitStatus());
 		//file exists, step completes
-		Assert.assertEquals(se.getStatus(), BatchStatus.COMPLETED);
+		Assert.assertTrue(stepExitStatus.isCompleted());
 		
 	}
 	
