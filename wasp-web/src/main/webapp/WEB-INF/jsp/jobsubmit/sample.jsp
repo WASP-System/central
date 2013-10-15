@@ -77,6 +77,19 @@
 				</c:choose>
 				</a>
 			</c:forEach>
+			<c:forEach items="${ sampleSubtypeList }" var="sampleSubtype">
+				<%-- <a class="button" href="/wasp/jobsubmit/samples/add/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleSubtype.getSampleSubtypeId() }"/>.do">+ <c:out value="${ sampleSubtype.getName() }"/></a>--%>
+				<a class="button" href="/wasp/jobsubmit/manysamples/add/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleSubtype.getSampleSubtypeId() }"/>.do">
+				<c:choose>
+					<c:when test="${sampleSubtype.getSampleType().getIName()=='library'}">
+						Many New Libraries
+					</c:when>
+					<c:otherwise>
+						Many New Samples
+					</c:otherwise>
+				</c:choose>
+				</a>
+			</c:forEach>
 			<!-- TODO: re-implement line below when functionality added
 			<a class="button" href="/wasp/jobsubmit/samples/addExisting/<c:out value="${ jobDraft.getJobDraftId() }"/>.do">+ <fmt:message key="jobDraft.sample_add_existing.label"/></a>  
 			-->	

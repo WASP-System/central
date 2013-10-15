@@ -1620,7 +1620,39 @@ public class JobSubmissionController extends WaspController {
 		m.addAttribute("jobDraft", jobDraft);
 		return "jobsubmit/sample/sampledetail_rw";
 	}
-	
+	@Transactional
+	@RequestMapping(value="/manysamples/add/{jobDraftId}/{sampleSubtypeId}.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String newManySampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, @PathVariable("sampleSubtypeId") Integer sampleSubtypeId, ModelMap m) {
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		SampleDraft sampleDraft = new SampleDraft();
+		SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId);
+		if (sampleSubtype.getId() == null){
+			waspErrorMessage("jobDraft.sampleSubtype_null.error");
+			return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
+		}
+		sampleDraft.setSampleSubtypeId(sampleSubtypeId);
+		sampleDraft.setSampleSubtype(sampleSubtype);
+		sampleDraft.setSampleTypeId(sampleSubtype.getSampleType().getId());
+		sampleDraft.setSampleType(sampleSubtype.getSampleType());
+		List<SampleDraftMeta> normalizedMeta = new ArrayList<SampleDraftMeta>();
+		try {
+			normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(sampleSubtype, SampleDraftMeta.class));
+		} catch (MetadataTypeException e) {
+			logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
+		}
+		if (sampleService.isLibrary(sampleDraft)){
+			prepareAdaptorsetsAndAdaptors(jobDraft, normalizedMeta, m);
+		}
+		m.addAttribute("organisms",  genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
+		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_add_heading.label"));
+		m.addAttribute("normalizedMeta", normalizedMeta);
+		m.addAttribute("sampleDraft", sampleDraft);
+		m.addAttribute("jobDraft", jobDraft);
+		return "jobsubmit/manysamples";
+	}
 	@Transactional
 	@RequestMapping(value="/samples/add/{jobDraftId}/{sampleSubtypeId}", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
