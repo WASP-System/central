@@ -115,10 +115,9 @@
 		<bean class="edu.yu.einstein.wasp.integration.endpoints.RunSuccessSplitter" />
 	</int:splitter>
 	
+	<bean id="batchJobHibernationManager" class="edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager" />
 	
-	<int:service-activator input-channel="wasp.channel.priority.default" >
-		<bean class="edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager" />
-	</int:service-activator>
+	<int:service-activator input-channel="wasp.channel.priority.default" ref="batchJobHibernationManager" />
 		
 	
 	<!-- header-router to sort inbound messages into appropriate channels -->

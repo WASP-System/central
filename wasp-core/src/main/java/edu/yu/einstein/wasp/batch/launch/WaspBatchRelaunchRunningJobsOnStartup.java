@@ -15,7 +15,9 @@ import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.repository.JobRepository;
 
+import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
 import edu.yu.einstein.wasp.batch.core.extension.WaspBatchJobExplorer;
+import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 
 /**
  * Re-launches all batch jobs in state STARTED or STARTING 
@@ -31,11 +33,14 @@ public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunni
 	private JobOperator jobOperator;
 	
 	private JobRepository jobRepository;
+	
+	private BatchJobHibernationManager hibernationManager;
 
-	public WaspBatchRelaunchRunningJobsOnStartup(JobRepository jobRepository, JobExplorer jobExplorer, JobOperator jobOperator) {
+	public WaspBatchRelaunchRunningJobsOnStartup(JobRepository jobRepository, JobExplorer jobExplorer, JobOperator jobOperator, BatchJobHibernationManager hibernationManager) {
 		this.jobRepository = jobRepository;
 		this.jobExplorer = (WaspBatchJobExplorer) jobExplorer;
 		this.jobOperator = jobOperator;
+		this.hibernationManager = hibernationManager;
 	}
 
 	public JobRepository getJobRepository() {
@@ -63,12 +68,25 @@ public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunni
 	}
 
 	
+	public BatchJobHibernationManager getHibernationManager() {
+		return hibernationManager;
+	}
+
+	public void setHibernationManager(BatchJobHibernationManager hibernationManager) {
+		this.hibernationManager = hibernationManager;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void doLaunchAllRunningJobs(){
 		long oneSecondAgo = System.currentTimeMillis() - 1000; // set date one second in the past to avoid possible last execution job conflict
+		
+		// re-populate hibernation manager with all persisted messages to wake steps
+		logger.debug("Re-populate hibernation manager...");
+		for (StepExecution se : jobExplorer.getStepExecutions(WaspBatchExitStatus.HIBERNATING))
+			hibernationManager.addMessageTemplatesForJobStep(se.getJobExecutionId(), se.getId());
 		
 		// First clean up all existing step executions in ExitStatus UNKNOWN or EXECUTING. We should set these to FAILED
 		Set<StepExecution> stepExecutionsToRestart = new HashSet<StepExecution>();

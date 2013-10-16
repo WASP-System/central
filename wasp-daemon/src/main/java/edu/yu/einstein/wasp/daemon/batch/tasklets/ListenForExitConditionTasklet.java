@@ -141,12 +141,6 @@ public class ListenForExitConditionTasklet extends WaspMessageHandlingTasklet {
 				return RepeatStatus.FINISHED;
 			}
 			// If we get here, this step is one part of a split step that was not woken
-			return RepeatStatus.CONTINUABLE; 
-		}
-		if (!wasHibernationSuccessfullyRequested){
-			Set<WaspStatusMessageTemplate> messages = new HashSet<>();
-			messages.addAll(messageTemplates);
-			requestHibernation(context, messages);
 		}
 		return RepeatStatus.CONTINUABLE;
 	}

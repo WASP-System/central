@@ -8,7 +8,6 @@ import java.util.Set;
 import org.springframework.integration.Message;
 
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
-import edu.yu.einstein.wasp.integration.messages.templates.MessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 public class MessageAwokenBatchJobStep implements Serializable{

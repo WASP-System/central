@@ -75,5 +75,16 @@
 	
 	<!-- loads all the plugin root contexts -->
   	<import resource="classpath*:META-INF/spring/*-plugin-context-batch.xml" />
+  	
+  	<bean id="batchRelaunchRunningJobsOnStartup" class="edu.yu.einstein.wasp.batch.launch.WaspBatchRelaunchRunningJobsOnStartup">
+		<constructor-arg name="jobRepository" ref="jobRepository" />
+		<constructor-arg name="jobOperator" ref="jobOperator" />
+		<constructor-arg name="jobExplorer" ref="jobExplorer" />
+		<constructor-arg name="hibernationManager" ref="batchJobHibernationManager" />
+	</bean>
+	
+	<bean id="batchJobTasks" class="edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask" />
+	
+	<bean id="sequencingBatchJobTasks" class="edu.yu.einstein.wasp.integration.messages.tasks.SequencingBatchJobTask" />
 
 </beans>

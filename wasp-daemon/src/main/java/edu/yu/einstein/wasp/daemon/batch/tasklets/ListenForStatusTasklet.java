@@ -1,7 +1,6 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets;
 
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 
 import org.slf4j.Logger;

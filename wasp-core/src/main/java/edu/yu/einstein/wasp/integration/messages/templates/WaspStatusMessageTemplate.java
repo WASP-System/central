@@ -1,8 +1,12 @@
 package edu.yu.einstein.wasp.integration.messages.templates;
 
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 
@@ -24,6 +28,10 @@ public class WaspStatusMessageTemplate extends WaspMessageTemplate implements St
 		
 	public static final String EXIT_DESCRIPTION_HEADER = "description";
 	
+	private static final String JSON_HEADERS_KEY = "w_hdrs";
+	
+	private static final String JSON_STATUS_KEY = "w_st";
+	
 	protected WaspStatus status;
 	
 	public WaspStatusMessageTemplate(Message<WaspStatus> message){
@@ -31,6 +39,17 @@ public class WaspStatusMessageTemplate extends WaspMessageTemplate implements St
 		if (message.getHeaders().containsKey(EXIT_DESCRIPTION_HEADER))
 			addHeader(EXIT_DESCRIPTION_HEADER, message.getHeaders().get(EXIT_DESCRIPTION_HEADER));
 		status = message.getPayload();
+	}
+	
+	public WaspStatusMessageTemplate(JSONObject json) throws JSONException{
+		logger.debug("creating new WaspStatusMessageTemplate object from JSON string: " + json.toString());
+		JSONObject jsonForHeaders = json.getJSONObject(JSON_HEADERS_KEY);
+		Iterator<String> headerIterator = jsonForHeaders.keys();
+		while (headerIterator.hasNext()){
+			String headerKey = headerIterator.next();
+			addHeader(headerKey, jsonForHeaders.get(headerKey));
+		}
+		setStatus(json.getString(JSON_STATUS_KEY));
 	}
 	
 	public WaspStatusMessageTemplate(){
@@ -139,6 +158,13 @@ public class WaspStatusMessageTemplate extends WaspMessageTemplate implements St
 		if (message.getHeaders().containsKey(WaspTask.HEADER_KEY) && message.getHeaders().get(WaspTask.HEADER_KEY).equals(task))
 			return true;
 		return false;
+	}
+	
+	public JSONObject getAsJson() throws JSONException{
+		JSONObject json = new JSONObject();
+		json.put(JSON_HEADERS_KEY, headers);
+		json.put(JSON_STATUS_KEY, getStatus());
+		return json;
 	}
 	
 	@Override

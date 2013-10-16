@@ -1,7 +1,6 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets;
 
 import java.util.Collection;
-import java.util.Random;
 import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
@@ -25,10 +24,6 @@ import edu.yu.einstein.wasp.integration.messages.templates.MessageAwokenHibernat
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 public abstract class WaspMessageHandlingTasklet extends WaspTasklet implements StepExecutionListener{
-	
-	private static final int PAUSE_BEFORE_SLEEP_BASE = 50; 
-	
-	private static final int PAUSE_BEFORE_SLEEP_RND = 200; 
 	
 	protected Set<Message<?>> messageQueue;
 	
@@ -113,7 +108,6 @@ public abstract class WaspMessageHandlingTasklet extends WaspTasklet implements 
 		ExecutionContext executionContext = context.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
 		executionContext.put(BatchJobHibernationManager.HIBERNATING_CODE, value);
 	}
-	
 	
 	@Override
 	public void beforeStep(StepExecution stepExecution) {

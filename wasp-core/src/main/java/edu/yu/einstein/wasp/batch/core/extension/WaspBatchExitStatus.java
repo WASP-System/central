@@ -59,5 +59,13 @@ public class WaspBatchExitStatus extends ExitStatus {
 	public boolean isTerminated(){
 		return getExitCode().equals(TERMINATED);
 	}
+	
+	/**
+	 * true if exit code is EXECUTING or UNKNOWN
+	 * @return
+	 */
+	public boolean isRunningAndAwake(){
+		return super.isRunning();
+	}
 
 }
