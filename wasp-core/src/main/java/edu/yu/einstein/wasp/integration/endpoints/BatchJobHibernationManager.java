@@ -111,7 +111,7 @@ public class BatchJobHibernationManager {
 	
 	@ServiceActivator
 	public void handleMessage(Message<?> message){
-		logger.debug("handling message: " + message);
+		logger.trace("handling message: " + message);
 		if (MessageAwokenHibernationMessageTemplate.actUponMessageIgnoringExecutionIds(message)){
 			logger.debug("Message is to request stop and re-awaken on message");
 			MessageAwokenHibernationMessageTemplate messageTemplate = new MessageAwokenHibernationMessageTemplate(message);
@@ -134,13 +134,13 @@ public class BatchJobHibernationManager {
 			logger.debug("Message is to request stop and re-awaken on timeout");
 			// TODO: functionality here
 		} else {
-			logger.debug("Message is not a request stop message");
+			logger.trace("Message is not a request stop message");
 			if (WaspStatus.class.isInstance(message.getPayload())){
-				logger.debug("Message payload is of type WaspStatus");
+				logger.trace("Message payload is of type WaspStatus");
 				WaspStatusMessageTemplate incomingStatusMessageTemplate = new WaspStatusMessageTemplate((Message<WaspStatus>) message);
-				logger.debug("Handling message: " + incomingStatusMessageTemplate.toString());
+				logger.trace("Handling message: " + incomingStatusMessageTemplate.toString());
 				if (messageTemplatesForJob.keySet().contains(incomingStatusMessageTemplate)){
-					logger.debug("messageTemplatesForJob.keySet() contains message");
+					logger.trace("messageTemplatesForJob.keySet() contains message");
 					for (MessageAwokenBatchJobStep messageAwokenBatchJobStep : messageTemplatesForJob.get(incomingStatusMessageTemplate)){
 						logger.debug("restarting job with JobExecution id=" + messageAwokenBatchJobStep.getJobExecutionId() + " on receiving message " + message);
 						reawakenJobExecution(messageAwokenBatchJobStep);
@@ -196,7 +196,7 @@ public class BatchJobHibernationManager {
 	private String getJsonStringForAwakenMessages(Set<WaspStatusMessageTemplate> templates) throws JSONException{
 		JSONArray jsonForMessages = new JSONArray();
 		for (WaspStatusMessageTemplate template: templates){
-			logger.debug("template as json : " + template.getAsJson());
+			logger.trace("template as json : " + template.getAsJson());
 			jsonForMessages.put(template.getAsJson());
 		}
 		JSONObject json = new JSONObject();
@@ -209,7 +209,7 @@ public class BatchJobHibernationManager {
 		Set<WaspStatusMessageTemplate> templates = new HashSet<>();
 		ExecutionContext context = stepExecution.getExecutionContext();
 		if (!context.containsKey(MESSAGES_TO_WAKE)){
-			logger.debug("Execution context of stepExecution id=" + stepExecution.getId() + " contains no wake messages");
+			logger.trace("Execution context of stepExecution id=" + stepExecution.getId() + " contains no wake messages");
 			return templates; // empty set
 		}
 		JSONObject json = new JSONObject(context.getString(MESSAGES_TO_WAKE));
