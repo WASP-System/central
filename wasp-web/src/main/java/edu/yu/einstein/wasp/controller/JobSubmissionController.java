@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -32,7 +33,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.DataBinder;
 import org.springframework.validation.Errors;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -1660,6 +1663,7 @@ public class JobSubmissionController extends WaspController {
 			@PathVariable("jobDraftId") Integer jobDraftId, 
 			@PathVariable("sampleSubtypeId") Integer sampleSubtypeId,
 			@Valid SampleDraft sampleDraftForm, BindingResult result, SessionStatus status, ModelMap m) {
+		
 		if ( request.getParameter("submit").equals("Cancel") ){//equals(messageService.getMessage("userDetail.cancel.label")
 			return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
 		}
@@ -1706,7 +1710,135 @@ public class JobSubmissionController extends WaspController {
 		waspMessage("sampleDetail.updated_success.label");
 		return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
 	}
-	
+	@Transactional
+	@RequestMapping(value="/manysamples/add/{jobDraftId}/{sampleSubtypeId}", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String updateNewManySampleDraft(
+			@PathVariable("jobDraftId") Integer jobDraftId, 
+			@PathVariable("sampleSubtypeId") Integer sampleSubtypeId,
+			@RequestParam("sampleTypeId") final Integer sampleTypeId,
+			ModelMap m) {
+		
+		//final String metaPrefix = "sampleDraftMeta_";
+		MetaHelperWebapp metaHelper = new MetaHelperWebapp(SampleDraftMeta.class);
+		String parentArea = metaHelper.getParentArea();//it is sampleDraft
+		String fullParentArea = parentArea + "Meta_";//sampleDraftMeta_
+		
+		System.out.println("----------parentArea = " + parentArea);
+		if ( request.getParameter("submit").equals("Cancel") ){//equals(messageService.getMessage("userDetail.cancel.label")
+			return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
+		}
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId);
+		
+		Enumeration<String> parameterNames = request.getParameterNames();
+		List<String> metaParameters = new ArrayList<String>();
+		while(parameterNames.hasMoreElements()){
+			String theParamName = (String)parameterNames.nextElement();
+			if(theParamName.startsWith(parentArea)){
+				metaParameters.add(theParamName);
+			}
+		}
+		Map<String, String[]> parameterMap = request.getParameterMap();
+		List<String> sampleNames = new ArrayList<String>();
+		String[] sampleNamesAsStringArray = parameterMap.get("sampleName");
+		List<SampleDraft> sampleDraftList = new ArrayList<SampleDraft>();
+		int counter = 0;
+		for(String s : sampleNamesAsStringArray){
+						
+			SampleDraft sampleDraft = new SampleDraft();
+			sampleDraft.setName(s.trim());
+			System.out.println("----------sample name: "+ sampleDraft.getName());
+			sampleDraft.setSampleSubtype(sampleSubtype);
+			sampleDraft.setSampleType(sampleTypeDao.getSampleTypeBySampleTypeId(sampleTypeId));
+			List<SampleDraftMeta> sampleDraftMetaList = new ArrayList<SampleDraftMeta>();
+			DataBinder dataBinder = new DataBinder(sampleDraft, "sampleDraft");
+			BindingResult result = dataBinder.getBindingResult();
+			
+			try {
+				//sampleDraftMetaList.addAll(SampleAndSampleDraftMetaHelper.getValidatedMetaFromRequestAndTemplateToSubtype(request, sampleSubtype, result, SampleDraftMeta.class));
+				sampleDraftMetaList.addAll(SampleAndSampleDraftMetaHelper.getValidatedMetaFromRequestAndTemplateToSubtype(request, sampleSubtype, result, SampleDraftMeta.class));
+			} catch (MetadataTypeException e) {
+				logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
+			}
+			System.out.println("------------Now the meta: ");
+			for(SampleDraftMeta sdm : sampleDraftMetaList){
+				System.out.println("--------------K:V = "+sdm.getK()+":"+sdm.getV());
+			}
+			
+			//List<SampleDraftMeta> sampleDraftMetaMasterList = metaHelper.getMasterList(SampleDraftMeta.class);
+			//System.out.println("-------MasterList has items: "+sampleDraftMetaMasterList.size());
+			//for(SampleDraftMeta sdm : sampleDraftMetaMasterList){
+			//	System.out.println("---------MasterList k = " + sdm.getK());
+			//}
+			/*
+			for(String k : metaParameters){//example of k: sampleDraftMeta_genericLibrary.size
+				String[] stringArray = parameterMap.get(k);
+				String v  = stringArray[counter];
+				System.out.println("---------------metaK: "+ k);
+				System.out.println("---------------metaK-fixed: "+ k.replace(fullParentArea, ""));
+				System.out.println("---------------metaV: "+ v);
+				
+				SampleDraftMeta sampleDraftMeta = new SampleDraftMeta();
+				
+				//sampleDraftMeta.setP
+				sampleDraftMeta.setK(k);
+				//sdm.setK(k.replace(fullParentArea, ""));
+				sampleDraftMeta.setV(v);
+				//SampleAndSampleDraftMetaHelper.
+				sampleDraftMetaList.add(sampleDraftMeta);
+			}
+*/
+			////////////////////////////
+			
+			sampleDraft.setSampleDraftMeta(sampleDraftMetaList);
+			
+			//////////////////////////
+			//System.out.println("sampleDraftMetaList contains how many elements: "+sampleDraftMetaList.size());
+			
+			if(result==null){
+				System.out.println("---------------Result is null");
+			}
+			else{
+				System.out.println("---------------Result is NOT NULL");
+				if(result.hasErrors()){
+					List<FieldError> fieldErrors = result.getFieldErrors();
+					for(FieldError fe : fieldErrors){
+						System.out.println(fe.getCode());
+						System.out.println(fe.getDefaultMessage());
+						System.out.println(fe.getField());
+						System.out.println(fe.getObjectName());
+						System.out.println(fe.getRejectedValue());
+					}
+				}
+			}
+			
+			///NO NO//MetaHelperWebapp.getMetaValidator().validate(sampleDraftMetas, result, "sampleDraft");//.validate("sampleDraft", sampleDraftMetas, result);
+			
+			//MetaHelperWebapp.validate(metaHelper.getParentArea(), sampleDraftMetaList, result);
+
+			
+			/*
+			if(result.hasErrors()){
+				System.out.println("---------------Result HAS Errors");
+			}
+			else{
+				System.out.println("---------------Result HAS NO Errors");
+			}
+			 	*/
+			
+			
+			
+			
+			sampleDraftList.add(sampleDraft);
+			counter++;
+		}
+		waspMessage("sampleDetail.updated_success.label");
+		return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
+
+	}
 	@Transactional
 	@RequestMapping(value="/samples/addExisting/{jobDraftId}", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")

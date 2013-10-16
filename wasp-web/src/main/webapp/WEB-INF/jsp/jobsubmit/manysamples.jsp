@@ -135,6 +135,9 @@
 <br /><br />
 <c:set var="colspan" value = '0' scope="request"/>
 <span style="font-size:x-small">Click first &rarr; others to populate all rows with value found in a column's first row</span>
+
+<form action="<c:url value="/jobsubmit/manysamples/add/${jobDraft.getId()}/${sampleDraft.sampleSubtype.getId()}.do" />" method="POST" >
+<input type='hidden' name="sampleTypeId" value="${sampleDraft.sampleType.getId()}"/>		
 <table class="data" style="margin: 0px 0px" >
 <tr class="FormData">
 	<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap>Sample Name<span style="color:red">*</span></td>
@@ -231,11 +234,11 @@
 </tr>
 <tr><td colspan="${colspan}" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
 </table>
-</div>
 <input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<c:url value="/dashboard.do"/>'" /> 
-<input class="fm-button" type="button" value="Previous Page" onClick="window.location='<c:url value="/jobsubmit/samples/${jobDraft.getId()}.do"/>'" /> 
-<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="jobDraft.continue.label"/>">
-
+<input type="submit" name="submit" value="<fmt:message key="jobDraft.cancel.label"/>" />
+<input type="submit" name="submit" value="<fmt:message key="jobDraft.save.label"/>" />
+</form>
+</div>
 <%--
 <form:form cssClass="FormGrid" commandName="sampleDraft">
 <form:hidden path='sampleSubtypeId' />
