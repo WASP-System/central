@@ -159,6 +159,7 @@ public class WaspStatusMessageTemplate extends WaspMessageTemplate implements St
 		return false;
 	}
 	
+	
 	public JSONObject getAsJson() throws JSONException{
 		JSONObject json = new JSONObject();
 		json.put(JSON_HEADERS_KEY, headers);

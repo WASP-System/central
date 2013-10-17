@@ -2,49 +2,91 @@ package edu.yu.einstein.wasp.integration.messages.templates;
 
 import org.springframework.batch.core.StepExecution;
 import org.springframework.integration.Message;
+import org.springframework.integration.support.MessageBuilder;
 
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.exception.WaspMessageInitializationException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 
-public abstract class AbstractHibernationMessageTemplate extends WaspMessageTemplate {
+public class HibernationMessageTemplate extends WaspMessageTemplate {
 	
+	public enum HibernationType {
+		STOP_AND_AWAKE_ON_MESSAGE,
+		STOP_AND_AWAKE_ON_TIMEOUT,
+		UNKNOWN
+	}
 	
-	public AbstractHibernationMessageTemplate(Long jobExecutionId, Long stepExecutionId) {
+	private HibernationType hibernationType = HibernationType.UNKNOWN;
+	
+	public HibernationMessageTemplate(Long jobExecutionId, Long stepExecutionId) {
 		super();
 		addHeader(WaspMessageType.HEADER_KEY, WaspMessageType.HIBERNATION);
 		setJobExecutionId(jobExecutionId);
 		setStepExecutionId(stepExecutionId);
 	}
 
-	public AbstractHibernationMessageTemplate(Long jobExecutionId, Long stepExecutionId, String target) {
+	public HibernationMessageTemplate(Long jobExecutionId, Long stepExecutionId, String target) {
 		super(target);
 		setJobExecutionId(jobExecutionId);
 		setStepExecutionId(stepExecutionId);
 	}
 
-	public AbstractHibernationMessageTemplate(Long jobExecutionId, Long stepExecutionId, String target, String task) {
+	public HibernationMessageTemplate(Long jobExecutionId, Long stepExecutionId, String target, String task) {
 		super(target, task);
 		setJobExecutionId(jobExecutionId);
 		setStepExecutionId(stepExecutionId);
 	}
 	
-	public AbstractHibernationMessageTemplate(StepExecution stepExecution) {
+	public HibernationMessageTemplate(StepExecution stepExecution) {
 		this(stepExecution.getJobExecutionId(), stepExecution.getId());
 	}
 	
-	public AbstractHibernationMessageTemplate(StepExecution stepExecution, String target) {
+	public HibernationMessageTemplate(StepExecution stepExecution, String target) {
 		this(stepExecution.getJobExecutionId(), stepExecution.getId(), target);
 	}
 	
-	public AbstractHibernationMessageTemplate(StepExecution stepExecution, String target, String task) {
+	public HibernationMessageTemplate(StepExecution stepExecution, String target, String task) {
 		this(stepExecution.getJobExecutionId(), stepExecution.getId(), target, task);
 	}
 	
-	
+	public HibernationMessageTemplate(Long jobExecutionId, Long stepExecutionId, HibernationType hibernationType) {
+		super();
+		addHeader(WaspMessageType.HEADER_KEY, WaspMessageType.HIBERNATION);
+		setJobExecutionId(jobExecutionId);
+		setStepExecutionId(stepExecutionId);
+		setHibernationType(hibernationType);
+	}
 
-	public AbstractHibernationMessageTemplate(Message<?> message) {
+	public HibernationMessageTemplate(Long jobExecutionId, Long stepExecutionId, String target, HibernationType hibernationType) {
+		super(target);
+		setJobExecutionId(jobExecutionId);
+		setStepExecutionId(stepExecutionId);
+		setHibernationType(hibernationType);
+	}
+
+	public HibernationMessageTemplate(Long jobExecutionId, Long stepExecutionId, String target, String task, HibernationType hibernationType) {
+		super(target, task);
+		setJobExecutionId(jobExecutionId);
+		setStepExecutionId(stepExecutionId);
+		setHibernationType(hibernationType);
+	}
+	
+	public HibernationMessageTemplate(StepExecution stepExecution, HibernationType hibernationType) {
+		this(stepExecution.getJobExecutionId(), stepExecution.getId(), hibernationType);
+	}
+	
+	public HibernationMessageTemplate(StepExecution stepExecution, String target, HibernationType hibernationType) {
+		this(stepExecution.getJobExecutionId(), stepExecution.getId(), target, hibernationType);
+	}
+	
+	public HibernationMessageTemplate(StepExecution stepExecution, String target, String task, HibernationType hibernationType) {
+		this(stepExecution.getJobExecutionId(), stepExecution.getId(), target, task, hibernationType);
+	}
+	
+	public HibernationMessageTemplate(Message<?> message) {
 		super(message);
 		if (!isMessageOfCorrectType(message))
 			throw new WaspMessageInitializationException("message is not of the correct type");
@@ -52,8 +94,18 @@ public abstract class AbstractHibernationMessageTemplate extends WaspMessageTemp
 			setJobExecutionId((Long) message.getHeaders().get(WaspJobParameters.JOB_EXECUTION_ID));
 		if (message.getHeaders().containsKey(WaspJobParameters.STEP_EXECUTION_ID))
 			setStepExecutionId((Long) message.getHeaders().get(WaspJobParameters.STEP_EXECUTION_ID));
+		if (HibernationType.class.isInstance(message.getPayload()))
+			setHibernationType((HibernationType) message.getPayload()); 
 	}
 	
+	public HibernationType getHibernationType() {
+		return hibernationType;
+	}
+
+	public void setHibernationType(HibernationType hibernationType) {
+		this.hibernationType = hibernationType;
+	}
+
 	public Long getJobExecutionId() {
 		return (Long) getHeader(WaspJobParameters.JOB_EXECUTION_ID);
 	}
@@ -158,6 +210,26 @@ public abstract class AbstractHibernationMessageTemplate extends WaspMessageTemp
 	public static boolean isMessageOfCorrectType(Message<?> message) {
 		return message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) &&  
 				message.getHeaders().get(WaspMessageType.HEADER_KEY).equals(WaspMessageType.HIBERNATION);
+	}
+
+	@Override
+	public Message<HibernationType> build() throws WaspMessageBuildingException {
+		if (this.hibernationType == null)
+			throw new WaspMessageBuildingException("no status message defined");
+		Message<HibernationType> message = null;
+		try {
+			message = MessageBuilder.withPayload(hibernationType)
+						.copyHeaders(getHeaders())
+						.build();
+		} catch(Exception e){
+			throw new WaspMessageBuildingException("build() failed to build message: "+e.getMessage());
+		}
+		return message;
+	}
+
+	@Override
+	public Object getPayload() {
+		return getHibernationType();
 	}
 
 }

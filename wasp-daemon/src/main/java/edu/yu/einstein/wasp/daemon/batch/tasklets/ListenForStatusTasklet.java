@@ -1,15 +1,23 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.core.scope.context.StepContext;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.integration.core.SubscribableChannel;
+import org.springframework.integration.Message;
+import org.springframework.integration.core.MessagingTemplate;
 
+import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
+import edu.yu.einstein.wasp.integration.messages.templates.HibernationMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.templates.HibernationMessageTemplate.HibernationType;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 /**
@@ -17,34 +25,25 @@ import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemp
  * provided message template.
  * @author asmclellan
  */
-public class ListenForStatusTasklet extends WaspMessageHandlingTasklet  {
+public class ListenForStatusTasklet extends WaspHibernatingTasklet  {
 	
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private static final Logger logger = LoggerFactory.getLogger(ListenForStatusTasklet.class);
 	
 	
-
 	
-	// TODO:: merge the following two attributes  
-	private WaspStatusMessageTemplate messageTemplate;
-	
-	private Set<WaspStatusMessageTemplate> abortMonitoredTemplates;
+	private Set<WaspStatusMessageTemplate> messageTemplates = new HashSet<>();
 	
 	
 	public ListenForStatusTasklet() {
 		// proxy
 	}
 	
-	// TODO:: remove this
-	public void setAdditionalAbortMonitoredTemplates(Set<WaspStatusMessageTemplate> additionalAbortMessageMonitoredTemplates){
-		this.abortMonitoredTemplates.addAll(additionalAbortMessageMonitoredTemplates);
+	public ListenForStatusTasklet(WaspStatusMessageTemplate messageTemplate) {
+		this.messageTemplates.add(messageTemplate);
 	}
 	
-	// TODO:: remove SubscribableChannel inputSubscribableChannel, SubscribableChannel abortMonitoringChannel
-	public ListenForStatusTasklet(SubscribableChannel inputSubscribableChannel, SubscribableChannel abortMonitoringChannel, WaspStatusMessageTemplate messageTemplate) {
-		this.messageTemplate = messageTemplate;
-		this.messageQueue = new HashSet<>();
-		this.abortMonitoredTemplates = new HashSet<WaspStatusMessageTemplate>();
-		this.abortMonitoredTemplates.add(messageTemplate);
+	public ListenForStatusTasklet(Set<WaspStatusMessageTemplate> messageTemplates) {
+		this.messageTemplates.addAll(messageTemplates);
 	}
 	
 	@Override
@@ -52,7 +51,8 @@ public class ListenForStatusTasklet extends WaspMessageHandlingTasklet  {
 		logger.trace(name + "execute() invoked");
 		if (wasHibernating(context)){
 			if (wasWokenOnMessage(context)){
-				logger.debug("StepExecution id=" + context.getStepContext().getStepExecution().getId() + " was woken up from hibernation for a message. Skipping to next step...");
+				logger.debug("StepExecution id=" + context.getStepContext().getStepExecution().getId() + 
+						" was woken up from hibernation for a message. Skipping to next step...");
 				setWasHibernatingFlag(context, false);
 				return RepeatStatus.FINISHED;
 			}
@@ -60,47 +60,46 @@ public class ListenForStatusTasklet extends WaspMessageHandlingTasklet  {
 			return RepeatStatus.CONTINUABLE; 
 		}
 		if (!wasHibernationSuccessfullyRequested){
-			Set<WaspStatusMessageTemplate> messages = new HashSet<>();
-			messages.addAll(abortMonitoredTemplates);
-			messages.add(messageTemplate);
-			requestHibernation(context, messages);
+			addStatusMessagesToContext(context, messageTemplates);
+			requestHibernation(context, messageTemplates);
 		}
 		return RepeatStatus.CONTINUABLE;
 	}
 	
-/*
-	@SuppressWarnings("unchecked") 
 	@Override
-	public void handleMessage(Message<?> message) throws MessagingException {
-		logger.debug(name + "handleMessage() invoked. Received message: " + message.toString());
-		if (! WaspStatus.class.isInstance(message.getPayload()))
-			return;
-		WaspStatus statusFromMessage = (WaspStatus) message.getPayload();
-		
-		// first check if any abort / failure messages have been delivered from a monitored message template
-		if (statusFromMessage.isUnsuccessful()){
-			for (StatusMessageTemplate messageTemplate: abortMonitoredTemplates){
-				if (messageTemplate.actUponMessage(message)){
-					this.messageQueue.add(message);
-					logger.debug(name + "handleMessage() found ABANDONED or FAILED message for abort-monitored template " + 
-							messageTemplate.getClass().getName() + ". Going to fail step.");
-					abandonStep = true;
-					return; // we have found a valid abort message so return
-				}
-			}
-		}
-		
-		// then check the message and it's status against the status we are interested in for a reportable match
-		if (messageTemplate.actUponMessage(message) && statusFromMessage.equals(messageTemplate.getStatus()) ){
-			this.messageQueue.add(message);
-			logger.debug(name + "handleMessage() adding found message to be compatible so adding to queue: " + message.toString());
-			if (statusFromMessage.isUnsuccessful()){
-				logger.debug(name + "handleMessage() found ABANDONED or FAILED message to act upon for expected task. Going to fail step.");
-				abandonStep = true;
-			}
+	protected void requestHibernation(ChunkContext context, Object trigger){
+		Collection<WaspStatusMessageTemplate> messageTemplates = (Collection<WaspStatusMessageTemplate>) trigger;
+		StepContext stepContext = context.getStepContext();
+		Long jobExecutionId = stepContext.getStepExecution().getJobExecutionId();
+		logger.info("Going to hibernate job " + stepContext.getJobName() + 
+				" (execution id=" + stepContext.getStepExecution().getJobExecutionId() + ") from step " + 
+				stepContext.getStepName() + " (step id=" + stepContext.getStepExecution().getId() + ")");
+		HibernationMessageTemplate messageTemplate = new HibernationMessageTemplate(stepContext.getStepExecution(), HibernationType.STOP_AND_AWAKE_ON_MESSAGE);
+		Message<HibernationType> message = null;
+		try {
+			message = messageTemplate.build();
+			logger.debug("sending message: " + message);
+			MessagingTemplate messagingTemplate = new MessagingTemplate();
+			messagingTemplate.send(sendChannel, message);
+			wasHibernationSuccessfullyRequested = true;
+		} catch (Exception e) {
+			logger.warn("Unable to hibernate batch JobExecution id= " + jobExecutionId + ". Failure to send reply message (reason: " + 
+					e.getLocalizedMessage() + ") to reply channel specified in source message : " + message.toString() + ". Original exception stack: ");
+			e.printStackTrace();
 		}
 	}
 	
-	*/
+	private boolean wasWokenOnMessage(ChunkContext context){
+		ExecutionContext executionContext = context.getStepContext().getStepExecution().getExecutionContext();
+		if (!executionContext.containsKey(BatchJobHibernationManager.WOKEN_ON_MESSAGE_KEY))
+			return false;
+		boolean waspWoken = (boolean) executionContext.get(BatchJobHibernationManager.WOKEN_ON_MESSAGE_KEY);
+		logger.debug("StepExecutionId=" + context.getStepContext().getStepExecution().getId() + " wasWokenByMessage=" + waspWoken);
+		return waspWoken;	
+	}
+	
+	private void addStatusMessagesToContext(ChunkContext context, Set<WaspStatusMessageTemplate> templates) throws JSONException{
+		BatchJobHibernationManager.setWakeMessages(context.getStepContext().getStepExecution(), templates);
+	}
 
 }

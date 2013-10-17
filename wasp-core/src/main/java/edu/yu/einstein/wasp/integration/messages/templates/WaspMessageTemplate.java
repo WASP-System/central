@@ -6,7 +6,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.integration.Message;
-import org.springframework.integration.MessageHeaders;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
@@ -34,6 +33,8 @@ public abstract class WaspMessageTemplate implements MessageTemplate{
 	public static final String USER_KEY = "user";
 	
 	public static final String COMMENT_KEY = "comment";
+	
+	public static final String DESTINATION = "destination";
 	
 	protected Map<String, Object> headers = new HashMap<>();
 	
@@ -69,7 +70,7 @@ public abstract class WaspMessageTemplate implements MessageTemplate{
 			setUserCreatingMessage((User) message.getHeaders().get(USER_KEY));
 		if (message.getHeaders().containsKey(COMMENT_KEY))
 			setComment((String) message.getHeaders().get(COMMENT_KEY));
-		headers.putAll(getSanitizedHeaders(message.getHeaders()));
+		headers.putAll(message.getHeaders());
 	}	
 	
 	public User getUserCreatingMessage() {
@@ -137,27 +138,10 @@ public abstract class WaspMessageTemplate implements MessageTemplate{
 		headers.put(key, value);
 	}
 	
-	/**
-	 * Remove spring integration headers (specified in {@link MessageHeaders}) from header set (if any)
-	 * @param headers
-	 * @return
-	 */
-	protected HashMap<String, Object> getSanitizedHeaders(final MessageHeaders headers){
-		HashMap<String, Object> sanitizedHeaders = new HashMap<>(headers);
-		sanitizedHeaders.remove(MessageHeaders.CONTENT_TYPE);
-		sanitizedHeaders.remove(MessageHeaders.CORRELATION_ID);
-		sanitizedHeaders.remove(MessageHeaders.ERROR_CHANNEL);
-		sanitizedHeaders.remove(MessageHeaders.EXPIRATION_DATE);
-		sanitizedHeaders.remove(MessageHeaders.ID);
-		sanitizedHeaders.remove(MessageHeaders.POSTPROCESS_RESULT);
-		sanitizedHeaders.remove(MessageHeaders.PRIORITY);
-		sanitizedHeaders.remove(MessageHeaders.REPLY_CHANNEL);
-		sanitizedHeaders.remove(MessageHeaders.SEQUENCE_DETAILS);
-		sanitizedHeaders.remove(MessageHeaders.SEQUENCE_NUMBER);
-		sanitizedHeaders.remove(MessageHeaders.SEQUENCE_SIZE);
-		sanitizedHeaders.remove(MessageHeaders.TIMESTAMP);
-		return sanitizedHeaders;
+	public void removeHeader(String key){
+		headers.remove(key);
 	}
+	
 
 }
 	

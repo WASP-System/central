@@ -7,7 +7,7 @@
 
 		
 	<!-- define sample main flow -->
-	<batch:flow id="wasp.default.sample.mainFlow.v1">
+	<batch:job id="wasp.sample.jobflow.v1" restartable="true">
 		<batch:split id="wasp.sample.waitUntilActionable" task-executor="taskExecutor">
 			<!-- We need to wait for the sample to be received and for the job to be approved before working on the sample -->
 			<batch:flow>
@@ -15,8 +15,6 @@
 					<!-- Listen for sample CREATED message: tells us sample is physically received -->
 					<batch:tasklet>
 						<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
-							<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.sample" />
-							<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort"/>
 							<constructor-arg name="messageTemplate">
 								<bean class="edu.yu.einstein.wasp.integration.messages.templates.SampleStatusMessageTemplate" >
 									<constructor-arg name="sampleId" value="#{jobParameters[waspJobParameters.SAMPLE_ID]}" />
@@ -33,8 +31,6 @@
 					<!-- Listen for job ACCEPTED message: tells us job is approved -->
 					<batch:tasklet>
 						<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
-							<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
-							<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort"/>
 							<constructor-arg name="messageTemplate">
 								<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate" >
 									<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}" />
@@ -55,8 +51,6 @@
 			<!-- for library making -->
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
-					<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.sample" />
-					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort"/>
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.integration.messages.templates.SampleStatusMessageTemplate">
 							<constructor-arg name="sampleId" value="#{jobParameters[waspJobParameters.SAMPLE_ID]}" />
@@ -99,46 +93,6 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-	</batch:flow>
-	
-	<batch:flow id="wasp.default.sample.mainFlow.exitCondition">
-		<!-- Will listen for indicators that the flow should terminate such as the wasp job flow has been aborted or -->
-		<!-- if the wasp.default.sample.mainFlow flow completes (broadcasting an ACCEPTED status message) or is aborted -->
-		<!-- e.g. via a message from the web layer -->
-		<batch:step id="wasp.sample.step.listenForExitCondition">
-			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForExitConditionTasklet" scope="step">
-					<constructor-arg name="inputSubscribableChannels">
-						<set>
-							<ref bean="wasp.channel.notification.sample" />
-							<ref bean="wasp.channel.notification.job" />
-						</set>
-					</constructor-arg>
-					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
-					<constructor-arg name="messageTemplates">
-						<set>
-							<bean class="edu.yu.einstein.wasp.integration.messages.templates.SampleStatusMessageTemplate">
-								<constructor-arg name="sampleId" value="#{jobParameters[waspJobParameters.SAMPLE_ID]}"/>
-								<property name="status" value="ACCEPTED" />
-							</bean>
-							<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
-								<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
-								<property name="status" value="COMPLETED" />
-							</bean>
-						</set>
-					</constructor-arg>
-					<property name="name" value="waspSampleExitCondition" />
-				</bean>	
-			</batch:tasklet>
-		</batch:step>
-	</batch:flow>
-	
-	<!-- for dispatching job, call with parameter 'sampleId' and 'jobId' -->
-	<batch:job id="wasp.sample.jobflow.v1" restartable="true">
-		<batch:split id="wasp.sample.jobFlow.split" task-executor="taskExecutor">
-			<batch:flow parent="wasp.default.sample.mainFlow.v1" />
-			<batch:flow parent="wasp.default.sample.mainFlow.exitCondition" />
-		</batch:split>
 	</batch:job>
 	
 </beans>

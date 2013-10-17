@@ -8,9 +8,7 @@ import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
-import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.integration.Message;
@@ -26,7 +24,7 @@ import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemp
  * and stops the entire job if a relevant notifying abort message is received at any time. 
  * @author asmclellan
  */
-public class ListenForExitConditionTasklet extends WaspMessageHandlingTasklet {
+public class ListenForExitConditionTasklet extends WaspHibernatingTasklet {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -106,7 +104,7 @@ public class ListenForExitConditionTasklet extends WaspMessageHandlingTasklet {
 		//} 
 	}
 	
-	@Override
+/*	@Override
 	public ExitStatus afterStep(StepExecution stepExecution){
 		ExitStatus exitStatus = stepExecution.getExitStatus();
 		if (message != null){
@@ -129,19 +127,11 @@ public class ListenForExitConditionTasklet extends WaspMessageHandlingTasklet {
 		}
 		logger.debug(name + "AfterStep() going return ExitStatus of '"+exitStatus.getExitCode().toString()+"'");
 		return exitStatus;
-	}
+	}*/
 
 	@Override
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		logger.trace(name + "execute() invoked");
-		if (wasHibernating(context)){
-			if (wasWokenOnMessage(context)){
-				logger.debug("StepExecution id=" + context.getStepContext().getStepExecution().getId() + " was woken up from hibernation for a message. Skipping to next step...");
-				setWasHibernatingFlag(context, false);
-				return RepeatStatus.FINISHED;
-			}
-			// If we get here, this step is one part of a split step that was not woken
-		}
 		return RepeatStatus.CONTINUABLE;
 	}
 	/*
@@ -173,4 +163,10 @@ public class ListenForExitConditionTasklet extends WaspMessageHandlingTasklet {
 		}
 	}
 */
+
+	@Override
+	protected void requestHibernation(ChunkContext context, Object trigger) {
+		// TODO Auto-generated method stub
+		
+	}
 }

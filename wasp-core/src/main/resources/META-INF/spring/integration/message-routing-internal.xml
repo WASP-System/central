@@ -117,7 +117,9 @@
 	
 	<bean id="batchJobHibernationManager" class="edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager" />
 	
-	<int:service-activator input-channel="wasp.channel.priority.default" ref="batchJobHibernationManager" />
+	<int:service-activator input-channel="wasp.channel.priority.default" 
+		output-channel="wasp.channel.reply" ref="batchJobHibernationManager" 
+		requires-reply="false" />
 		
 	
 	<!-- header-router to sort inbound messages into appropriate channels -->
