@@ -129,21 +129,26 @@
 <%@ include file="/WEB-INF/jsp/jobsubmit/jobsubmitinfo.jsp" %>
 
 <div id="container_div_for_adding_rows" >
-<h2>Sample Type: <c:out value="${sampleDraft.sampleType.name}" /></h2>
-<h2>Sample Subtype: <c:out value="${sampleDraft.sampleSubtype.name}" /></h2>
+<h2>Sample Type: <c:out value="${sampleType.name}" /></h2>
+<h2>Sample Subtype: <c:out value="${sampleSubtype.name}" /></h2>
 <a style="font-weight:bold" href="javascript:void(0);"  id="addMoreRowsAnchor">Click</a> To Add <input type='text' style="text-align:right;" size='3' maxlength='3' name='addMoreRows' id='addMoreRows' > more rows
 <br /><br />
 <c:set var="colspan" value = '0' scope="request"/>
 <span style="font-size:x-small">Click first &rarr; others to populate all rows with value found in a column's first row</span>
 
-<form action="<c:url value="/jobsubmit/manysamples/add/${jobDraft.getId()}/${sampleDraft.sampleSubtype.getId()}.do" />" method="POST" >
-<input type='hidden' name="sampleTypeId" value="${sampleDraft.sampleType.getId()}"/>		
+<form action="<c:url value="/jobsubmit/manysamples/add/${jobDraft.getId()}/${sampleSubtype.getId()}.do" />" method="POST" >
 <table class="data" style="margin: 0px 0px" >
+<c:forEach items="${sampleDraftList}" var="sampleDraft" varStatus="sampleDraftStatus">
+<c:if test="${sampleDraftStatus.first}">
 <tr class="FormData">
+	<c:if test="${fn:length(errorList)>0}">
+		<td align='center' style="background-color:#FAF2D6; font-weight:bold; color:red" nowrap>Errors</td>
+		<c:set var="colspan" value = '${colspan + 1}' scope="request"/>
+	</c:if>
 	<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap>Sample Name<span style="color:red">*</span></td>
 	<c:set var="colspan" value = '${colspan + 1}' scope="request"/>
      <c:set var="_area" value = "sampleDraft" scope="request"/>
-	 <c:set var="_metaList" value = "${normalizedMeta}" scope="request" />		
+	 <c:set var="_metaList" value = "${sampleDraft.getSampleDraftMeta()}" scope="request" />		
      <c:forEach items="${_metaList}" var="_meta" varStatus="status">
 		<c:if test="${_meta.property.formVisibility != 'ignore'}">
 			<c:set var="_myArea">${_area}.</c:set>
@@ -181,9 +186,22 @@
 	<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap>Action</td>
 	<c:set var="colspan" value = '${colspan + 1}' scope="request"/>
 </tr>
+</c:if>
 
 <tr>
-	<td><input type="text" class="FormElement ui-widget-content ui-corner-all"   name='sampleName' id='sampleName' ></td>
+	<c:if test="${fn:length(errorList)>0}">
+		<c:choose>
+			<c:when test="${empty errorList.get(sampleDraftStatus.index)}">
+				<td >&nbsp;</td>
+			</c:when>
+			<c:otherwise>
+				<td id="errorMessageThatShouldNotBeCopied" align='center' style="background-color:red;" nowrap><wasp:tooltip value="${errorList.get(sampleDraftStatus.index)}" /></td>
+			</c:otherwise>
+		</c:choose>
+	</c:if>
+	<td><input type="text" class="FormElement ui-widget-content ui-corner-all"   name='sampleName' id='sampleName' value="${sampleDraft.getName()}"></td>
+	<c:set var="_area" value = "sampleDraft" scope="request"/>
+	<c:set var="_metaList" value = "${sampleDraft.getSampleDraftMeta()}" scope="request" />		
 	<c:forEach items="${_metaList}" var="_meta" varStatus="status">
 		<c:if test="${_meta.property.formVisibility != 'ignore'}">
 			<c:set var="_myArea">${_area}.</c:set>
@@ -213,7 +231,7 @@
 							</c:if>
 							<c:forEach var="option" items="${selectItems}">
 								<c:if test="${fn:length(selectItems) == 1 || option[itemValue] == _meta.v || _meta.property.formVisibility != 'immutable' }">
-									<option value="${option[itemValue]}"<c:if test="${fn:length(selectItems) == 1 || option[itemValue] == _meta.v || (useDefault==1 && option[itemValue] == _meta.property.defaultVal)}"> selected</c:if>>
+									<option value="${option[itemValue]}"<c:if test="${fn:length(selectItems) == 1 || (not empty _meta.v && option[itemValue] == _meta.v) || (useDefault==1 && option[itemValue] == _meta.property.defaultVal)}"> selected</c:if>>
 									<c:out value="${option[itemLabel]}"/></option>
 								</c:if>
 							</c:forEach>																									
@@ -232,6 +250,7 @@
 	</c:forEach>
 	<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
 </tr>
+</c:forEach>
 <tr><td colspan="${colspan}" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
 </table>
 <input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<c:url value="/dashboard.do"/>'" /> 

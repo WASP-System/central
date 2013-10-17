@@ -1624,39 +1624,7 @@ public class JobSubmissionController extends WaspController {
 		m.addAttribute("jobDraft", jobDraft);
 		return "jobsubmit/sample/sampledetail_rw";
 	}
-	@Transactional
-	@RequestMapping(value="/manysamples/add/{jobDraftId}/{sampleSubtypeId}.do", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
-	public String newManySampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, @PathVariable("sampleSubtypeId") Integer sampleSubtypeId, ModelMap m) {
-		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
-		if (! isJobDraftEditable(jobDraft))
-			return "redirect:/dashboard.do";
-		SampleDraft sampleDraft = new SampleDraft();
-		SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId);
-		if (sampleSubtype.getId() == null){
-			waspErrorMessage("jobDraft.sampleSubtype_null.error");
-			return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
-		}
-		sampleDraft.setSampleSubtypeId(sampleSubtypeId);
-		sampleDraft.setSampleSubtype(sampleSubtype);
-		sampleDraft.setSampleTypeId(sampleSubtype.getSampleType().getId());
-		sampleDraft.setSampleType(sampleSubtype.getSampleType());
-		List<SampleDraftMeta> normalizedMeta = new ArrayList<SampleDraftMeta>();
-		try {
-			normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(sampleSubtype, SampleDraftMeta.class));
-		} catch (MetadataTypeException e) {
-			logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
-		}
-		if (sampleService.isLibrary(sampleDraft)){
-			prepareAdaptorsetsAndAdaptors(jobDraft, normalizedMeta, m);
-		}
-		m.addAttribute("organisms",  genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
-		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_add_heading.label"));
-		m.addAttribute("normalizedMeta", normalizedMeta);
-		m.addAttribute("sampleDraft", sampleDraft);
-		m.addAttribute("jobDraft", jobDraft);
-		return "jobsubmit/manysamples";
-	}
+
 	@Transactional
 	@RequestMapping(value="/samples/add/{jobDraftId}/{sampleSubtypeId}", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
@@ -1711,13 +1679,62 @@ public class JobSubmissionController extends WaspController {
 		waspMessage("sampleDetail.updated_success.label");
 		return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
 	}
+	
+	@Transactional
+	@RequestMapping(value="/manysamples/add/{jobDraftId}/{sampleSubtypeId}.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String newManySampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, @PathVariable("sampleSubtypeId") Integer sampleSubtypeId, ModelMap m) {
+		
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft)){
+			return "redirect:/dashboard.do";
+		}
+		SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId);
+		if (sampleSubtype.getId() == null){
+			waspErrorMessage("jobDraft.sampleSubtype_null.error");
+			return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
+		}
+		SampleType sampleType = sampleSubtype.getSampleType();
+		
+		List<SampleDraftMeta> normalizedMeta = new ArrayList<SampleDraftMeta>();
+		try {
+			normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(sampleSubtype, SampleDraftMeta.class));
+		} catch (MetadataTypeException e) {
+			logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
+		}
+		SampleDraft sampleDraft = new SampleDraft();
+		sampleDraft.setSampleDraftMeta(normalizedMeta);
+			
+		//make web responsive to a list of sampleDrafts, even though this method only sends one, because
+		//in the post to this method, may have a list of many sampleDrafts
+		List<SampleDraft> sampleDraftList = new ArrayList<SampleDraft>();
+		sampleDraftList.add(sampleDraft);
+		
+		m.addAttribute("jobDraft", jobDraft);
+		m.addAttribute("sampleDraftList", sampleDraftList);
+		m.addAttribute("sampleSubtype", sampleSubtype);
+		m.addAttribute("sampleType", sampleType);
+		m.addAttribute("organisms",  genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
+		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_add_heading.label"));
+		
+		//these sets (or at least one of them) are required for the next if statement
+		sampleDraft.setSampleSubtypeId(sampleSubtypeId);
+		sampleDraft.setSampleSubtype(sampleSubtype);
+		sampleDraft.setSampleTypeId(sampleSubtype.getSampleType().getId());
+		sampleDraft.setSampleType(sampleType);
+		if (sampleService.isLibrary(sampleDraft)){
+			prepareAdaptorsetsAndAdaptors(jobDraft, normalizedMeta, m);
+		}
+		
+		return "jobsubmit/manysamples";
+	}
+	
 	@Transactional
 	@RequestMapping(value="/manysamples/add/{jobDraftId}/{sampleSubtypeId}", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String updateNewManySampleDraft(
 			@PathVariable("jobDraftId") Integer jobDraftId, 
 			@PathVariable("sampleSubtypeId") Integer sampleSubtypeId,
-			@RequestParam("sampleTypeId") final Integer sampleTypeId,
 			ModelMap m) {
 		
 		if ( request.getParameter("submit").equals("Cancel") ){//equals(messageService.getMessage("userDetail.cancel.label")
@@ -1728,7 +1745,7 @@ public class JobSubmissionController extends WaspController {
 			return "redirect:/dashboard.do";
 		}
 		SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId);
-		SampleType sampleType = sampleTypeDao.getSampleTypeBySampleTypeId(sampleTypeId);
+		SampleType sampleType = sampleSubtype.getSampleType();
 				
 		String[] sampleDraftNamesAsStringArray = request.getParameterValues("sampleName");
 		List<String> sampleDraftNamesAsList = new ArrayList<String>();
@@ -1759,7 +1776,7 @@ public class JobSubmissionController extends WaspController {
 			if(sampleDraftRowIsCompletelyEmpty(sampleDraft)){//currently checks sample name and all the metadata
 				continue;
 			}
-
+			
 			//since we know this row is NOT completely empty, check sample name and metaData for entry errors
 			String errorsForThisSample = "";
 			
@@ -1803,7 +1820,32 @@ public class JobSubmissionController extends WaspController {
 		}
 		
 		if(atLeastOneErrorExists==true){
+			
+			System.out.println("------Print out the errors in errorList:");
+			for(String error : errorList){
+				System.out.println("------"+error);
+			}
+
 			//fill up map, get assorted other info, and return to web page
+			waspErrorMessage("sampleDetail.updated.error");
+			m.addAttribute("errorList", errorList);
+			m.addAttribute("jobDraft", jobDraft);
+			m.addAttribute("sampleDraftList", sampleDraftList);
+			m.addAttribute("sampleSubtype", sampleSubtype);
+			m.addAttribute("sampleType", sampleType);
+			m.addAttribute("organisms",  genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
+			m.addAttribute("heading", messageService.getMessage("jobDraft.sample_add_heading.label"));
+			
+			//this is not good, so must work on fixing this **********************************
+			//these sets (or at least one of them) are required for the next if statement
+			sampleDraftList.get(0).setSampleSubtypeId(sampleSubtypeId);
+			sampleDraftList.get(0).setSampleSubtype(sampleSubtype);
+			sampleDraftList.get(0).setSampleTypeId(sampleSubtype.getSampleType().getId());
+			sampleDraftList.get(0).setSampleType(sampleType);
+			if (sampleService.isLibrary(sampleDraftList.get(0))){
+				prepareAdaptorsetsAndAdaptors(jobDraft, sampleDraftList.get(0).getSampleDraftMeta(), m);
+			}
+			return "jobsubmit/manysamples";
 		}
 		
 		//if no errors, iterate through the sampleDraftList and save each new sampleDraft
@@ -1811,10 +1853,6 @@ public class JobSubmissionController extends WaspController {
 		//sampleDraft.setSampleSubtype(sampleSubtype);//should be done just befor save
 		//sampleDraft.setSampleType(sampleType);//should be done just befor save
 
-		System.out.println("------Any errors in errorList??");
-		for(String error : errorList){
-			System.out.println("------"+error);
-		}
 		waspMessage("sampleDetail.updated_success.label");
 		return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
 	}
@@ -1825,8 +1863,10 @@ public class JobSubmissionController extends WaspController {
 			return false;
 		}
 		for(SampleDraftMeta sdm : sampleDraftRow.getSampleDraftMeta()){
-			if(!sdm.getV().trim().isEmpty()){
-				return false;
+			if(sdm!=null && sdm.getV()!=null){//sometimes adaptor might be null
+				if(!sdm.getV().trim().isEmpty()){
+					return false;
+				}
 			}
 		}
 		return true;
