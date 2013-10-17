@@ -1719,126 +1719,120 @@ public class JobSubmissionController extends WaspController {
 			@RequestParam("sampleTypeId") final Integer sampleTypeId,
 			ModelMap m) {
 		
-		//final String metaPrefix = "sampleDraftMeta_";
-		MetaHelperWebapp metaHelper = new MetaHelperWebapp(SampleDraftMeta.class);
-		String parentArea = metaHelper.getParentArea();//it is sampleDraft
-		String fullParentArea = parentArea + "Meta_";//sampleDraftMeta_
-		
-		System.out.println("----------parentArea = " + parentArea);
 		if ( request.getParameter("submit").equals("Cancel") ){//equals(messageService.getMessage("userDetail.cancel.label")
 			return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
 		}
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
-		if (! isJobDraftEditable(jobDraft))
+		if (! isJobDraftEditable(jobDraft)){
 			return "redirect:/dashboard.do";
+		}
 		SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId);
 		
-		Enumeration<String> parameterNames = request.getParameterNames();
-		List<String> metaParameters = new ArrayList<String>();
-		while(parameterNames.hasMoreElements()){
-			String theParamName = (String)parameterNames.nextElement();
-			if(theParamName.startsWith(parentArea)){
-				metaParameters.add(theParamName);
-			}
-		}
-		Map<String, String[]> parameterMap = request.getParameterMap();
-		List<String> sampleNames = new ArrayList<String>();
-		String[] sampleNamesAsStringArray = parameterMap.get("sampleName");
-		List<SampleDraft> sampleDraftList = new ArrayList<SampleDraft>();
+		String[] sampleNamesAsStringArray = request.getParameterValues("sampleName");
+		List<String> sampleNamesAsList = new ArrayList<String>();
+		
+		List<String> errorList = new ArrayList<String>();
+		
+		List<SampleDraft> sampleDraftList = new ArrayList<SampleDraft>();		
 		int counter = 0;
-		for(String s : sampleNamesAsStringArray){
-						
+		for(String s : sampleNamesAsStringArray){	
+			String errorsForThisSample = "";
 			SampleDraft sampleDraft = new SampleDraft();
 			sampleDraft.setName(s.trim());
 			System.out.println("----------sample name: "+ sampleDraft.getName());
 			sampleDraft.setSampleSubtype(sampleSubtype);
 			sampleDraft.setSampleType(sampleTypeDao.getSampleTypeBySampleTypeId(sampleTypeId));
 			List<SampleDraftMeta> sampleDraftMetaList = new ArrayList<SampleDraftMeta>();
-			DataBinder dataBinder = new DataBinder(sampleDraft, "sampleDraft");
-			BindingResult result = dataBinder.getBindingResult();
+			DataBinder dataBinderForName = new DataBinder(sampleDraft, "sampleDraft");
+			BindingResult resultForName = dataBinderForName.getBindingResult();
+			if(sampleDraft.getName().isEmpty()){
+				//errorList.add("Provide a name for sample " + (counter + 1) );
+				//System.out.println("Sample " + (counter + 1) + " name is missing");
+				if(errorsForThisSample.isEmpty()){
+					errorsForThisSample = "Sample " + (counter + 1) + ": name empty";
+				}
+			}
+			validateSampleDraftNameUnique(sampleDraft.getName(), 0, jobDraft, resultForName);//checks against sample names ALREADY in the database, for this draft job
+			if(resultForName.hasErrors()){
+				errorList.add("The sample name " + sampleDraft.getName() + " already used in this job submission. Check previously submitted samples.");
+				//System.out.println("Sample " + (counter + 1) + " name used by previously submitted sample");
+				if(errorsForThisSample.isEmpty()){
+					errorsForThisSample = sampleDraft.getName() + ": name already in database for this job";
+				}
+				else{
+					errorsForThisSample += "; name already in database for this job";
+				}
+			}
+			if(sampleNamesAsList.contains(sampleDraft.getName())){//check against the sample names on this form (not yet in database)
+				errorList.add("The sample name " + sampleDraft.getName() + " used at least twice on this form.");
+				//System.out.println("Sample name " + sampleDraft.getName() + " used at least twice on this form");
+				if(errorsForThisSample.isEmpty()){
+					errorsForThisSample = sampleDraft.getName() + ": name used at least twice";
+				}
+				else{
+					errorsForThisSample += "; name used at least twice";
+				}
+			}
+			sampleNamesAsList.add(sampleDraft.getName());
 			
+			
+			DataBinder dataBinderForMeta = new DataBinder(sampleDraft, "sampleDraft");
+			BindingResult resultForMeta = dataBinderForMeta.getBindingResult();
+
 			try {
-				//sampleDraftMetaList.addAll(SampleAndSampleDraftMetaHelper.getValidatedMetaFromRequestAndTemplateToSubtype(request, sampleSubtype, result, SampleDraftMeta.class));
-				sampleDraftMetaList.addAll(SampleAndSampleDraftMetaHelper.getValidatedMetaFromRequestAndTemplateToSubtype(request, sampleSubtype, result, SampleDraftMeta.class));
+				sampleDraftMetaList.addAll(SampleAndSampleDraftMetaHelper.getValidatedMetaFromRequestAndTemplateToSubtype(request, sampleSubtype, resultForMeta, SampleDraftMeta.class, counter));
 			} catch (MetadataTypeException e) {
 				logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
 			}
+
 			System.out.println("------------Now the meta: ");
 			for(SampleDraftMeta sdm : sampleDraftMetaList){
 				System.out.println("--------------K:V = "+sdm.getK()+":"+sdm.getV());
 			}
 			
-			//List<SampleDraftMeta> sampleDraftMetaMasterList = metaHelper.getMasterList(SampleDraftMeta.class);
-			//System.out.println("-------MasterList has items: "+sampleDraftMetaMasterList.size());
-			//for(SampleDraftMeta sdm : sampleDraftMetaMasterList){
-			//	System.out.println("---------MasterList k = " + sdm.getK());
-			//}
-			/*
-			for(String k : metaParameters){//example of k: sampleDraftMeta_genericLibrary.size
-				String[] stringArray = parameterMap.get(k);
-				String v  = stringArray[counter];
-				System.out.println("---------------metaK: "+ k);
-				System.out.println("---------------metaK-fixed: "+ k.replace(fullParentArea, ""));
-				System.out.println("---------------metaV: "+ v);
-				
-				SampleDraftMeta sampleDraftMeta = new SampleDraftMeta();
-				
-				//sampleDraftMeta.setP
-				sampleDraftMeta.setK(k);
-				//sdm.setK(k.replace(fullParentArea, ""));
-				sampleDraftMeta.setV(v);
-				//SampleAndSampleDraftMetaHelper.
-				sampleDraftMetaList.add(sampleDraftMeta);
-			}
-*/
-			////////////////////////////
-			
 			sampleDraft.setSampleDraftMeta(sampleDraftMetaList);
-			
-			//////////////////////////
-			//System.out.println("sampleDraftMetaList contains how many elements: "+sampleDraftMetaList.size());
-			
-			if(result==null){
+						
+			if(resultForMeta==null){
 				System.out.println("---------------Result is null");
 			}
 			else{
 				System.out.println("---------------Result is NOT NULL");
-				if(result.hasErrors()){
-					List<FieldError> fieldErrors = result.getFieldErrors();
+				System.out.println("----------any Meta errors?");
+				if(resultForMeta.hasErrors()){
+					List<FieldError> fieldErrors = resultForMeta.getFieldErrors();
 					for(FieldError fe : fieldErrors){
 						System.out.println(fe.getCode());
 						System.out.println(fe.getDefaultMessage());
 						System.out.println(fe.getField());
 						System.out.println(fe.getObjectName());
 						System.out.println(fe.getRejectedValue());
+						String displayCode = fe.getCode().substring(fe.getCode().indexOf(".")+1);
+						displayCode = displayCode.replace(".", " ");
+						
+						if(errorsForThisSample.isEmpty()){
+							errorsForThisSample = sampleDraft.getName() + ": " + displayCode;
+						}
+						else{
+							errorsForThisSample += "; " + displayCode;
+						}
 					}
 				}
 			}
-			
-			///NO NO//MetaHelperWebapp.getMetaValidator().validate(sampleDraftMetas, result, "sampleDraft");//.validate("sampleDraft", sampleDraftMetas, result);
-			
-			//MetaHelperWebapp.validate(metaHelper.getParentArea(), sampleDraftMetaList, result);
-
-			
-			/*
-			if(result.hasErrors()){
-				System.out.println("---------------Result HAS Errors");
+			if(!errorsForThisSample.isEmpty()){
+				errorList.add(errorsForThisSample);
 			}
-			else{
-				System.out.println("---------------Result HAS NO Errors");
-			}
-			 	*/
-			
-			
-			
-			
+			//if all attributes are empty, this is an empty row. so do not add to the list
 			sampleDraftList.add(sampleDraft);
 			counter++;
 		}
+		System.out.println("------Any errors in errorList??");
+		for(String error : errorList){
+			System.out.println("------"+error);
+		}
 		waspMessage("sampleDetail.updated_success.label");
 		return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
-
 	}
+	
 	@Transactional
 	@RequestMapping(value="/samples/addExisting/{jobDraftId}", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
