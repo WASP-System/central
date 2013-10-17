@@ -204,6 +204,9 @@ public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	Work
 	    }
 
 	    // delete the left overs if not in the do not delete list
+        // The next block was commented out by Dubin; 10-07-2013 as it removes meta 
+	    //that is added any time after the initial data upload
+	    /*
 	    for (String workflowMetaKey : oldWorkflowMetas.keySet()) {
 	      WorkflowMeta workflowMeta = oldWorkflowMetas.get(workflowMetaKey);
 	      if (doNotDeleteKeyList.contains(workflowMeta.getK()))
@@ -211,7 +214,7 @@ public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	Work
 	      workflowMetaDao.remove(workflowMeta);
 	      workflowMetaDao.flush(workflowMeta);
 	    }
-	    
+	    */
 
 	}
 	

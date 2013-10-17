@@ -21,6 +21,10 @@
   
   <script type="text/javascript">
   
+  function openWaitDialog(){
+	  $("#wait_dialog-modal").dialog("open");
+  }
+  
   function waspTooltip(){
 		$( ".tooltip" ).tooltip({
 	  	      position: {
@@ -42,6 +46,14 @@
 		waspTooltip();
   		waspFade("waspErrorMessage");
   		waspFade("waspMessage");
+  		
+  		$( "#wait_dialog-modal" ).dialog({
+  			dialogClass: "no-close",
+			height: 170,
+			autoOpen: false,
+			modal: true
+		});
+  		
   		waspOnLoad();
   	});
   
@@ -86,6 +98,14 @@
 		</sec:authorize>
   		<div id="content"> 
   			<!-- <wasp:breadcrumbs /> -->
+  			<div id="wait_dialog-modal" title="<fmt:message key="wasp.wait_title.label" />"  >
+				<table border="0" cellpadding="5">
+				<tr>
+				<td><img src="/wasp/images/spinner.gif" align="left" border="0" ></td>
+				<td><fmt:message key="wasp.wait_message.label" /></td>
+				</tr>
+				</table>
+			</div>
   			<wasp:errorMessage />
   			<wasp:message />
 			<tiles:insertAttribute name="body-content" />

@@ -10,4 +10,6 @@
 	<!-- import configuration files  -->
 	<import resource="test-batch-persistence-config.xml" />
 	
+	<bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />
+	
 </beans>

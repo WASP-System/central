@@ -51,6 +51,9 @@ public class JobEmailServiceActivator {
 
 	@Value("${wasp.email.jobcompleted.rolenames:js;pi;lm;fm;da;su;}")
 	private String jobCompletedRolenames;
+	
+	@Value("${email.sending.enabled:true}")
+	private Boolean isSendingEmailEnabled;
 
 	private static final Logger logger = LoggerFactory.getLogger(JobEmailServiceActivator.class);
 	
@@ -65,7 +68,8 @@ public class JobEmailServiceActivator {
 	
 	@ServiceActivator
 	public void handleJobStatusMessage(Message<WaspStatus> jobStatusMessage) {
-		
+		if (!isSendingEmailEnabled)
+			return;
 		if (!JobStatusMessageTemplate.isMessageOfCorrectType(jobStatusMessage)){
 			logger.warn("Message is not of the correct type (a Job message). Check service activator and input channel are correct");
 			return;

@@ -28,7 +28,7 @@ import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.MetaBase;
 
 @Repository
-public abstract class WaspMetaDaoImpl<E extends MetaBase> extends WaspDaoImpl<E> implements WaspMetaDao<E> {
+public class WaspMetaDaoImpl<E extends MetaBase> extends WaspDaoImpl<E> implements WaspMetaDao<E> {
 	
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 	

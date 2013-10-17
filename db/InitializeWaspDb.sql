@@ -12,18 +12,16 @@ flush privileges;
 
 use wasp;
 
-
-
 # ************************************************************
 # Sequel Pro SQL dump
-# Version 4004
+# Version 4096
 #
 # http://www.sequelpro.com/
 # http://code.google.com/p/sequel-pro/
 #
-# Host: 127.0.0.1 (MySQL 5.1.66-log)
+# Host: 127.0.0.1 (MySQL 5.1.70)
 # Database: wasp
-# Generation Time: 2013-04-10 20:54:52 +0000
+# Generation Time: 2013-10-07 20:45:40 +0000
 # ************************************************************
 
 
@@ -184,6 +182,7 @@ CREATE TABLE `acct_quotemeta` (
   PRIMARY KEY (`id`),
   KEY `FK91F08D5550566623` (`lastupdatebyuser`),
   KEY `FK91F08D559B63709` (`quoteid`),
+  KEY `FK91F08D5550566623k` (`k`),
   CONSTRAINT `FK91F08D559B63709` FOREIGN KEY (`quoteid`) REFERENCES `acct_quote` (`id`),
   CONSTRAINT `FK91F08D5550566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -287,6 +286,7 @@ CREATE TABLE `adaptormeta` (
   PRIMARY KEY (`id`),
   KEY `FK33FFF00A50566623` (`lastupdatebyuser`),
   KEY `FK33FFF00AF88E976E` (`adaptorid`),
+  KEY `FK33FFF00A50566623k` (`k`),
   CONSTRAINT `FK33FFF00AF88E976E` FOREIGN KEY (`adaptorid`) REFERENCES `adaptor` (`id`),
   CONSTRAINT `FK33FFF00A50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -336,6 +336,7 @@ CREATE TABLE `adaptorsetmeta` (
   PRIMARY KEY (`id`),
   KEY `FK822AFD4250566623` (`lastupdatebyuser`),
   KEY `FK822AFD42DA18E62C` (`adaptorsetid`),
+  KEY `FK822AFD4250566623k` (`k`),
   CONSTRAINT `FK822AFD42DA18E62C` FOREIGN KEY (`adaptorsetid`) REFERENCES `adaptorset` (`id`),
   CONSTRAINT `FK822AFD4250566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -546,6 +547,7 @@ CREATE TABLE `filegroupmeta` (
   PRIMARY KEY (`id`),
   KEY `FK92D2B08181C758A` (`filegroupid`),
   KEY `FK92D2B0850566623` (`lastupdatebyuser`),
+  KEY `FK92D2B08181C758Ak` (`k`),
   CONSTRAINT `FK92D2B0850566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
   CONSTRAINT `FK92D2B08181C758A` FOREIGN KEY (`filegroupid`) REFERENCES `filegroup` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -571,6 +573,7 @@ CREATE TABLE `filemeta` (
   PRIMARY KEY (`id`),
   KEY `FKD433ED8150566623` (`lastupdatebyuser`),
   KEY `FKD433ED81D1800F32` (`fileid`),
+  KEY `FKD433ED8150566623k` (`k`),
   CONSTRAINT `FKD433ED81D1800F32` FOREIGN KEY (`fileid`) REFERENCES `file` (`id`),
   CONSTRAINT `FKD433ED8150566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -619,6 +622,7 @@ CREATE TABLE `filetypemeta` (
   PRIMARY KEY (`id`),
   KEY `FK884C31BB50566623` (`lastupdatebyuser`),
   KEY `FK884C31BB175EFBBE` (`filetypeid`),
+  KEY `FK884C31BB50566623k` (`k`),
   CONSTRAINT `FK884C31BB175EFBBE` FOREIGN KEY (`filetypeid`) REFERENCES `filetype` (`id`),
   CONSTRAINT `FK884C31BB50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -799,6 +803,7 @@ CREATE TABLE `jobdraftmeta` (
   PRIMARY KEY (`id`),
   KEY `FK2FB7200950566623` (`lastupdatebyuser`),
   KEY `FK2FB72009E3C3069A` (`jobdraftid`),
+  KEY `FK2FB7200950566623k` (`k`),
   CONSTRAINT `FK2FB72009E3C3069A` FOREIGN KEY (`jobdraftid`) REFERENCES `jobdraft` (`id`),
   CONSTRAINT `FK2FB7200950566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -900,6 +905,7 @@ CREATE TABLE `jobmeta` (
   PRIMARY KEY (`id`),
   KEY `FKAA568B4250566623` (`lastupdatebyuser`),
   KEY `FKAA568B428FCE445E` (`jobid`),
+  KEY `FKAA568B4250566623k` (`k`),
   CONSTRAINT `FKAA568B428FCE445E` FOREIGN KEY (`jobid`) REFERENCES `job` (`id`),
   CONSTRAINT `FKAA568B4250566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -973,6 +979,7 @@ CREATE TABLE `jobsamplemeta` (
   PRIMARY KEY (`id`),
   KEY `FK20677A2C50566623` (`lastupdatebyuser`),
   KEY `FK20677A2C55379B12` (`jobsampleid`),
+  KEY `FK20677A2C50566623k` (`k`),
   CONSTRAINT `FK20677A2C55379B12` FOREIGN KEY (`jobsampleid`) REFERENCES `jobsample` (`id`),
   CONSTRAINT `FK20677A2C50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1075,6 +1082,7 @@ CREATE TABLE `labmeta` (
   PRIMARY KEY (`id`),
   KEY `FKFC3F291250566623` (`lastupdatebyuser`),
   KEY `FKFC3F29128FE41BFE` (`labid`),
+  KEY `FKFC3F291250566623k` (`k`),
   CONSTRAINT `FKFC3F29128FE41BFE` FOREIGN KEY (`labid`) REFERENCES `lab` (`id`),
   CONSTRAINT `FKFC3F291250566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1129,6 +1137,7 @@ CREATE TABLE `labpendingmeta` (
   PRIMARY KEY (`id`),
   KEY `FKDD9ED06F50566623` (`lastupdatebyuser`),
   KEY `FKDD9ED06F7498AA26` (`labpendingid`),
+  KEY `FKDD9ED06F50566623k` (`k`),
   CONSTRAINT `FKDD9ED06F7498AA26` FOREIGN KEY (`labpendingid`) REFERENCES `labpending` (`id`),
   CONSTRAINT `FKDD9ED06F50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1179,6 +1188,7 @@ CREATE TABLE `meta` (
   `lastupdatebyuser` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK33160550566623` (`lastupdatebyuser`),
+  KEY `FK33160550566623k` (`k`),
   CONSTRAINT `FK33160550566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -1302,6 +1312,7 @@ CREATE TABLE `resourcecategorymeta` (
   PRIMARY KEY (`id`),
   KEY `FK38C3431150566623` (`lastupdatebyuser`),
   KEY `FK38C34311FBCBFFEA` (`resourcecategoryid`),
+  KEY `FK38C3431150566623k` (`k`),
   CONSTRAINT `FK38C34311FBCBFFEA` FOREIGN KEY (`resourcecategoryid`) REFERENCES `resourcecategory` (`id`),
   CONSTRAINT `FK38C3431150566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1351,6 +1362,7 @@ CREATE TABLE `resourcemeta` (
   PRIMARY KEY (`id`),
   KEY `FKE922231350566623` (`lastupdatebyuser`),
   KEY `FKE92223133AB44C4E` (`resourceid`),
+  KEY `FKE922231350566623k` (`k`),
   CONSTRAINT `FKE92223133AB44C4E` FOREIGN KEY (`resourceid`) REFERENCES `resource` (`id`),
   CONSTRAINT `FKE922231350566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1486,6 +1498,7 @@ CREATE TABLE `runmeta` (
   PRIMARY KEY (`id`),
   KEY `FK5C6E931050566623` (`lastupdatebyuser`),
   KEY `FK5C6E93109042067A` (`runid`),
+  KEY `FK5C6E931050566623k` (`k`),
   CONSTRAINT `FK5C6E93109042067A` FOREIGN KEY (`runid`) REFERENCES `run` (`id`),
   CONSTRAINT `FK5C6E931050566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1641,6 +1654,7 @@ CREATE TABLE `sampledraftmeta` (
   PRIMARY KEY (`id`),
   KEY `FKFC7320BC50566623` (`lastupdatebyuser`),
   KEY `FKFC7320BC4E0649B2` (`sampledraftid`),
+  KEY `FKFC7320BC50566623k` (`k`),
   CONSTRAINT `FKFC7320BC4E0649B2` FOREIGN KEY (`sampledraftid`) REFERENCES `sampledraft` (`id`),
   CONSTRAINT `FKFC7320BC50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1733,6 +1747,7 @@ CREATE TABLE `samplemeta` (
   PRIMARY KEY (`id`),
   KEY `FK893A6AFB8A37246` (`sampleid`),
   KEY `FK893A6AF50566623` (`lastupdatebyuser`),
+  KEY `FK893A6AFB8A37246k` (`k`),
   CONSTRAINT `FK893A6AF50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
   CONSTRAINT `FK893A6AFB8A37246` FOREIGN KEY (`sampleid`) REFERENCES `sample` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1800,6 +1815,7 @@ CREATE TABLE `samplesourcemeta` (
   PRIMARY KEY (`id`),
   KEY `FKA063E1CA50566623` (`lastupdatebyuser`),
   KEY `FKA063E1CA267BC79C` (`samplesourceid`),
+  KEY `FKA063E1CA50566623k` (`k`),
   CONSTRAINT `FKA063E1CA267BC79C` FOREIGN KEY (`samplesourceid`) REFERENCES `samplesource` (`id`),
   CONSTRAINT `FKA063E1CA50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1850,6 +1866,7 @@ CREATE TABLE `samplesubtypemeta` (
   PRIMARY KEY (`id`),
   KEY `FK92A0329550566623` (`lastupdatebyuser`),
   KEY `FK92A0329539050DE4` (`samplesubtypeid`),
+  KEY `FK92A0329550566623k` (`k`),
   CONSTRAINT `FK92A0329539050DE4` FOREIGN KEY (`samplesubtypeid`) REFERENCES `samplesubtype` (`id`),
   CONSTRAINT `FK92A0329550566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1969,6 +1986,7 @@ CREATE TABLE `softwaremeta` (
   PRIMARY KEY (`id`),
   KEY `FKA56F4C2C50566623` (`lastupdatebyuser`),
   KEY `FKA56F4C2C21328540` (`softwareid`),
+  KEY `FKA56F4C2C50566623k` (`k`),
   CONSTRAINT `FKA56F4C2C21328540` FOREIGN KEY (`softwareid`) REFERENCES `software` (`id`),
   CONSTRAINT `FKA56F4C2C50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1994,6 +2012,9 @@ CREATE TABLE `uifield` (
   `lastupdatebyuser` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FKE6348EE650566623` (`lastupdatebyuser`),
+  KEY `FKE6348EE650566624ar` (`area`),
+  KEY `FKE6348EE650566625an` (`attrname`),
+  KEY `FKE6348EE650566626n` (`name`),
   CONSTRAINT `FKE6348EE650566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -2018,6 +2039,7 @@ CREATE TABLE `usermeta` (
   PRIMARY KEY (`id`),
   KEY `FKF029245050566623` (`lastupdatebyuser`),
   KEY `FKF02924507CFE8408` (`userid`),
+  KEY `FKF029245050566623k` (`k`),
   CONSTRAINT `FKF02924507CFE8408` FOREIGN KEY (`userid`) REFERENCES `wuser` (`id`),
   CONSTRAINT `FKF029245050566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -2093,6 +2115,7 @@ CREATE TABLE `userpendingmeta` (
   PRIMARY KEY (`id`),
   KEY `FK511D537150566623` (`lastupdatebyuser`),
   KEY `FK511D5371FF4502DC` (`userpendingid`),
+  KEY `FK511D537150566623k` (`k`),
   CONSTRAINT `FK511D5371FF4502DC` FOREIGN KEY (`userpendingid`) REFERENCES `userpending` (`id`),
   CONSTRAINT `FK511D537150566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -2164,6 +2187,7 @@ CREATE TABLE `workflowmeta` (
   PRIMARY KEY (`id`),
   KEY `FK5D0EF64450566623` (`lastupdatebyuser`),
   KEY `FK5D0EF6448BDE4B70` (`workflowid`),
+  KEY `FK5D0EF64450566623k` (`k`),
   CONSTRAINT `FK5D0EF6448BDE4B70` FOREIGN KEY (`workflowid`) REFERENCES `workflow` (`id`),
   CONSTRAINT `FK5D0EF64450566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -2213,6 +2237,7 @@ CREATE TABLE `workflowresourcecategorymeta` (
   PRIMARY KEY (`id`),
   KEY `FKFBACC55050566623` (`lastupdatebyuser`),
   KEY `FKFBACC550AD019488` (`workflowresourcecategoryid`),
+  KEY `FKFBACC55050566623k` (`k`),
   CONSTRAINT `FKFBACC550AD019488` FOREIGN KEY (`workflowresourcecategoryid`) REFERENCES `workflowresourcecategory` (`id`),
   CONSTRAINT `FKFBACC55050566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -2310,6 +2335,7 @@ CREATE TABLE `workflowsoftwaremeta` (
   PRIMARY KEY (`id`),
   KEY `FK55427D6B50566623` (`lastupdatebyuser`),
   KEY `FK55427D6B2148801E` (`workflowsoftwareid`),
+  KEY `FK55427D6B50566623k` (`k`),
   CONSTRAINT `FK55427D6B2148801E` FOREIGN KEY (`workflowsoftwareid`) REFERENCES `workflowsoftware` (`id`),
   CONSTRAINT `FK55427D6B50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

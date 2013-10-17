@@ -18,6 +18,7 @@ import org.springframework.integration.MessagingException;
 import org.springframework.integration.core.SubscribableChannel;
 
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
+import edu.yu.einstein.wasp.exception.TaskletRetryException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
@@ -115,6 +116,12 @@ public class ListenForExitConditionTasklet extends WaspMessageHandlingTasklet {
 				logger.debug(name + "Stopping job due to receiving a message containing an ABANDONED / FAILED notice");
 				// Signal the JobExecution to stop. JobExecution().stop() iterates through the associated StepExecutions, 
 				// calling StepExecution.setTerminateOnly()
+				try {
+					// wait for cleaning up of steps before termination. A step may need to act on this and finalize before
+					// stopping the job execution (which may leave step in the wrong state i.e. STOPPED instead of FAILED for example)
+					Thread.sleep(6000); 
+				} catch (InterruptedException e) {} 
+				logger.debug("Executing: stepExecution.getJobExecution().stop();");
 				stepExecution.getJobExecution().stop(); 
 			}
 			this.message = null; // clean up in case of restart
@@ -128,11 +135,8 @@ public class ListenForExitConditionTasklet extends WaspMessageHandlingTasklet {
 	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
 		logger.trace(name + "execute() invoked");
-		if (message == null){
-			try{
-				Thread.sleep(executeRepeatDelay);
-			} catch (InterruptedException e){} // happens when message handled 
-			return RepeatStatus.CONTINUABLE;
+		while (message == null){
+			throw new TaskletRetryException("task not complete.");
 		}
 		return RepeatStatus.FINISHED;
 	}

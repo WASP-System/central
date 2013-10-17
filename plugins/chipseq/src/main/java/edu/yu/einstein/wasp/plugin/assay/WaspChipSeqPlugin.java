@@ -27,8 +27,8 @@ public class WaspChipSeqPlugin extends WaspPlugin implements ClientMessageI, Web
 	 */
 	private static final long serialVersionUID = -6546554985142070980L;
 
-	public WaspChipSeqPlugin(String pluginName, Properties waspSiteProperties, MessageChannel channel) {
-		super(pluginName, waspSiteProperties, channel);
+	public WaspChipSeqPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
+		super(iName, waspSiteProperties, channel);
 	}
 
 

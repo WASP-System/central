@@ -13,6 +13,7 @@ import java.util.TreeSet;
 import org.apache.commons.lang.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.exception.MetadataException;
@@ -290,7 +291,12 @@ public class MetaHelper {
 		Set<String> keys=DBResourceBundle.MESSAGE_SOURCE.getKeys(Locale.US);
 		for(String k: keys) {
 			if (!k.startsWith(area +".")) continue; // get ONLY keys for area we are dealing with
-			String currentMessage = DBResourceBundle.MESSAGE_SOURCE.getMessage(k,null,locale);
+			String currentMessage = k; // returns key if no message found
+			try {
+				currentMessage = DBResourceBundle.MESSAGE_SOURCE.getMessage(k, null, locale); // possibly nested internationalized values
+			} catch (NoSuchMessageException e){
+				logger.warn("Unable to retrieve message with key code = '" + k + "': " + e.getLocalizedMessage());
+			}
 
 		
 			bundleResource.put(k, currentMessage);

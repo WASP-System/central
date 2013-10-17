@@ -8,8 +8,7 @@
         http://www.springframework.org/schema/context/spring-context-3.1.xsd"
 	default-autowire="byName">
 	
-	<bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="genericDnaSeqUiFieldWrapper">
-	    <property name="baseLocale" value="en_US" />
+	<bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="genericDnaSeqUiFieldWrapper">
 	    <property name="baseArea" ref="waspGenericDnaSeqPluginArea" />
   	</bean>
 
@@ -36,8 +35,9 @@
 		<property name="dependencies">
 			<list>
 				<ref bean="mpsResourceType" />
-        		<ref bean="referenceBasedAlignerResourceType" />
-			</list>
+        		<ref bean="referenceBasedAlignerResourceType" />       
+        		<ref bean="libraryStrategyResourceType" />
+ 			</list>
 		</property>
 		
 		<property name="sampleSubtypes">
@@ -53,39 +53,43 @@
 			<list>
 				<bean parent="genericDnaSeqUiFieldWrapper">
 					<property name="baseName" value="workflow" />
-					<property name="label" value="Generic DNA Seq" />
+					<property name="label" value="genDNASeq.wf.title" />
 				</bean>
 				<bean parent="genericDnaSeqUiFieldWrapper">
 					<property name="baseName" value="jobsubmit/modifymeta" />
-					<property name="label" value="Modify Generic DNA Seq Metadata" />
+					<property name="label" value="genDNASeq.modifyMeta.title" />
 				</bean>
 				<bean parent="genericDnaSeqUiFieldWrapper">
 					<property name="baseName" value="jobsubmit/resource/mps" />
-					<property name="label" value="MPS Sequencer Options" />
+					<property name="label" value="genDNASeq.mps.title" />
 				</bean>
 				<bean parent="genericDnaSeqUiFieldWrapper">
 					<property name="baseName" value="jobsubmit/samples" />
-					<property name="label" value="Samples" />
+					<property name="label" value="genDNASeq.samples.title" />
 				</bean>
 				<bean parent="genericDnaSeqUiFieldWrapper">
 					<property name="baseName" value="jobsubmit/genomes" />
-					<property name="label" value="Select Genomes" />
+					<property name="label" value="genDNASeq.genomes.title" />
 				</bean>
 				<bean parent="genericDnaSeqUiFieldWrapper">
 					<property name="baseName" value="jobsubmit/cells" />
-					<property name="label" value="DNA Sequencer Cells" />
+					<property name="label" value="genDNASeq.cells.title" />
 				</bean>
 				<bean parent="genericDnaSeqUiFieldWrapper">
 					<property name="baseName" value="jobsubmit/software/aligner" />
-					<property name="label" value="Aligner Selection" />
+					<property name="label" value="genDNASeq.aligner.title" />
 				</bean>
 				<bean parent="genericDnaSeqUiFieldWrapper">
 					<property name="baseName" value="jobsubmit/comment" />
-					<property name="label" value="Comments" />
+					<property name="label" value="genDNASeq.comments.title" />
 				</bean>
 				<bean parent="genericDnaSeqUiFieldWrapper">
 					<property name="baseName" value="jobsubmit/verify" />
-					<property name="label" value="Verify Submission" />
+					<property name="label" value="genDNASeq.verify.title" />
+				</bean>
+				<bean parent="genericDnaSeqUiFieldWrapper">
+					<property name="baseName" value="jobsubmit/submit" />
+					<property name="label" value="genDNASeq.submit.title" />
 				</bean>
 			</list>
 

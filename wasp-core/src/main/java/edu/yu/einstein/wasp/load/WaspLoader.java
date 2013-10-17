@@ -84,17 +84,17 @@ public abstract class WaspLoader {
 		}
 	}
 	
-	public void setUiFieldsFromWrapper(List<UiFieldFamilyWrapper> uiFieldWrappers) {
-		for (UiFieldFamilyWrapper uiFieldWrapper : safeList(uiFieldWrappers)){
+	public void setUiFieldsFromWrapper(List<UiFieldFamilyWrapperAndLoader> uiFieldWrappers) {
+		for (UiFieldFamilyWrapperAndLoader uiFieldWrapper : safeList(uiFieldWrappers)){
 			this.setUiFields(uiFieldWrapper.getUiFields());
 		}
 	}
 	
-	public void setUiFieldGroupsFromWrapper(List< List<UiFieldFamilyWrapper> > uiFieldWrappers) {
+	public void setUiFieldGroupsFromWrapper(List< List<UiFieldFamilyWrapperAndLoader> > uiFieldWrappers) {
 		int metapositionOffset = 0;
-		for (List<UiFieldFamilyWrapper> uiFieldWrapperSet : safeList(uiFieldWrappers)){
+		for (List<UiFieldFamilyWrapperAndLoader> uiFieldWrapperSet : safeList(uiFieldWrappers)){
 			int metapositionMaxPos = -1;
-			for (UiFieldFamilyWrapper uiFieldWrapper : uiFieldWrapperSet){
+			for (UiFieldFamilyWrapperAndLoader uiFieldWrapper : uiFieldWrapperSet){
 				for (UiField uiField : uiFieldWrapper.getUiFields()){
 					if (uiField.getArea() == null)
 						uiField.setArea(area);

@@ -7,11 +7,11 @@
 		<c:if test="${_metaArea != null}">		
 			<c:set var="_myCtxArea">${_metaArea}.</c:set>
 		</c:if>
-		<c:set var="labelKey" value="${fn:replace(_meta.k, _myArea, _myCtxArea)}.label" />
+		<c:set var="labelKey" value="${_meta.property.label}" />
 		<c:set var="id" value="${fn:substringAfter(_meta.k,'.')}" />
 
 		<tr class="FormData" id="row_${id}">
-			<td class="CaptionTD"><fmt:message key="${labelKey}"/>:</td>
+			<td class="CaptionTD">${labelKey}:</td>
 			<td class="DataTD">
 			<c:choose>
 				<c:when test="${not empty _meta.property.control}">

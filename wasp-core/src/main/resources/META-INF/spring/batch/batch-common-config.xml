@@ -11,15 +11,6 @@
 
 	<batch:job-repository id="jobRepository" data-source="batchDataSource"/>
 	
-	<!--<bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />-->
-
-	<bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="${wasp.batch.corePoolSize:5}" />
-		<property name="maxPoolSize" value="${wasp.batch.maxPoolSize:10000}" />
-		<property name="keepAliveSeconds" value="${wasp.batch.keepAliveSeconds:60}" />
-		<property name="queueCapacity" value="${wasp.batch.queueCapacity:0}" />
-	</bean>
-	
 	<bean id="jobLauncher" class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
 		<property name="jobRepository" ref="jobRepository" />
 		<property name="taskExecutor" ref="taskExecutor" />
@@ -74,7 +65,7 @@
     <!-- AOP advice to restart methods with @RetryOnExceptionFixed annotation-->
     <aop:config>
         <aop:pointcut id="taskletRetryFixedPointcut" expression="execution(@edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed * *(..))"/>
-        <aop:advisor pointcut-ref="taskletRetryFixedPointcut" advice-ref="fixedBackoffTaskletRetryAdvice" order="-1" />
+        <aop:advisor pointcut-ref="taskletRetryFixedPointcut" advice-ref="fixedBackoffTaskletRetryAdvice" />
     </aop:config>
 
     <bean id="fixedBackoffTaskletRetryAdvice"  class="org.springframework.retry.interceptor.RetryOperationsInterceptor">
@@ -87,7 +78,6 @@
 							<map>
 								<entry key="edu.yu.einstein.wasp.exception.TaskletRetryException" value="true" />
 								<entry key="org.springframework.dao.DeadlockLoserDataAccessException" value="true"/>
-								<entry key="java.sql.SQLException" value="true"/>
 							</map>
 						</constructor-arg>
                     </bean>
@@ -119,7 +109,6 @@
 							<map>
 								<entry key="edu.yu.einstein.wasp.exception.TaskletRetryException" value="true" />
 								<entry key="org.springframework.dao.DeadlockLoserDataAccessException" value="true"/>
-								<entry key="java.sql.SQLException" value="true"/>
 							</map>
 						</constructor-arg>
 					</bean>

@@ -6,7 +6,14 @@
     <form:form  commandName="user" cssClass="FormGrid">
      <table class="EditTable ui-widget ui-widget-content">
      	   <tr class="FormData">
-              <td class="CaptionTD"><fmt:message key="wasp.authentication.label" /> <fmt:message key="user.login.label" />:</td>
+              <td class="CaptionTD">
+              <c:if test="${isAuthenticationExternal == true}">
+	          	<fmt:message key="wasp.authentication_external.label" /> 
+	          </c:if>
+	          <c:if test="${isAuthenticationExternal == false}">
+	          	<fmt:message key="wasp.authentication_internal.label" /> 
+	          </c:if>
+              <fmt:message key="user.login.label" />:</td>
               <td class="DataTD"><form:input path="login"  readonly="true" cssClass="FormElement ui-widget-content ui-corner-all" /></td>
               <td class="CaptionTD error"><form:errors path="login"/></td>
           </tr> 	   	

@@ -14,8 +14,8 @@
 	<!-- common definitions -->
 	<import resource="wasp-illumina-plugin-context-common.xml" />
 		
-	<int:transformer id="illuminaFlowLauncher" input-channel="wasp.channel.notification.run" output-channel="wasp.channel.queue.launch" >
+	<int:service-activator id="illuminaFlowLauncher" input-channel="wasp.channel.notification.run" output-channel="wasp.channel.queue.launch" >
 		<bean class="edu.yu.einstein.wasp.plugin.illumina.integration.endpoints.IlluminaFlowLauncher" />
-	</int:transformer>
+	</int:service-activator>
 	
 </beans>

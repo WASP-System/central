@@ -9,8 +9,7 @@
         http://www.springframework.org/schema/context/spring-context-3.1.xsd"
     default-autowire="byName">
     
-  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="illuminaHiSeq2500UiFieldWrapper">
-    <property name="baseLocale" value="en_US" />
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="illuminaHiSeq2500UiFieldWrapper">
     <property name="baseArea" value="#{illuminaResourceCategory.HISEQ_2500}" />
   </bean>
 
@@ -37,28 +36,28 @@
       	<bean parent="illuminaHiSeq2500UiFieldWrapper">
           <property name="baseName" value="runType" />
           <property name="metaposition" value="10" />
-          <property name="label" value="Run Type" />
+          <property name="label" value="illumina.runType.label" />
           <property name="control" value="select:#{dollar}{resourceOptions.get(runType)}:value:label" /> 
           <property name="constraint" value="NotEmpty" />
-          <property name="error" value="You must choose a run type" />
+          <property name="error" value="illumina.runType.error" />
         </bean>
         
         <bean parent="illuminaHiSeq2500UiFieldWrapper">
           <property name="baseName" value="readLength" />
-          <property name="metaposition" value="20" />
-          <property name="label" value="Read Length" />
+          <property name="metaposition" value="10" />
+          <property name="label" value="illumina.rl.label" />
           <property name="control" value="select:#{dollar}{resourceOptions.get(readLength)}:value:label" /> 
           <property name="constraint" value="NotEmpty" />
-          <property name="error" value="You must choose a read length" />
+          <property name="error" value="illumina.rl.error" />
         </bean>
 
         <bean parent="illuminaHiSeq2500UiFieldWrapper">
           <property name="baseName" value="readType" />
-          <property name="metaposition" value="30" />
-          <property name="label" value="Read Type" />
+          <property name="metaposition" value="20" />
+          <property name="label" value="illumina.rt.label" />
           <property name="control" value="select:#{dollar}{resourceOptions.get(readType)}:value:label" /> 
           <property name="constraint" value="NotEmpty" />
-          <property name="error" value="You must choose a read type" />
+          <property name="error" value="illumina.rt.error" />
         </bean>
       </list>
     </property>

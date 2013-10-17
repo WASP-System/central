@@ -29,7 +29,7 @@ public class WaspMessageHandlingServiceImpl extends WaspServiceImpl implements W
 	/**
 	 * Set the timeout when waiting for reply (in millis).  Default 5000 (5s).
 	 */
-	@Value(value="${wasp.message.timeout:5000}")
+	@Value(value="${wasp.message.timeout:30000}")
 	public void setMessageTimeoutInMillis(int messageTimeout) {
 		this.messageTimeoutInMillis = messageTimeout;
 	}
@@ -57,7 +57,8 @@ public class WaspMessageHandlingServiceImpl extends WaspServiceImpl implements W
 			if (isReplyExpected){
 				replyMessage = messagingTemplate.sendAndReceive(outboundRemotingChannel, message);
 				if(replyMessage == null)
-					throw new MessageHandlingException(message, "Did not receive a reply on sending outbound message :"+ message.toString());
+					throw new MessageHandlingException(message, "Did not receive a reply on sending outbound message (timeout after " 
+							+ messageTimeoutInMillis + "):"+ message.toString());
 				logger.debug("Received reply  :"+ replyMessage.toString());
 				if (replyMessage.getHeaders().containsKey(WaspTask.EXCEPTION))
 					throw new MessageHandlingException(message, "Problem encountered sending message '" + message.toString() + "' : " + replyMessage.getHeaders().get(WaspTask.EXCEPTION));
@@ -67,6 +68,7 @@ public class WaspMessageHandlingServiceImpl extends WaspServiceImpl implements W
 				messagingTemplate.send(outboundRemotingChannel, message);
 			}
 		} catch(Exception e){
+			e.printStackTrace();
 			throw new MessageHandlingException(message, "Problem encountered sending message '" + message.toString() + ": " + e.getLocalizedMessage());
 		}
 	}

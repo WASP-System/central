@@ -1,5 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <br />
+<a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<c:url value="/job/${job.getId()}/basic.do" />");' >View Basic Request</a>
 <a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<c:url value="/job/${job.getId()}/requests.do?onlyDisplayCellsRequested=true" />");' >View Lane Request</a>
 <sec:authorize access="hasRole('su') or hasRole('ft')">
 	<%--<c:if test="${numberOfLibrariesAwaitingPlatformUnitPlacement>1}"> --%>

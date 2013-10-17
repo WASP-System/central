@@ -11,6 +11,7 @@
 
 package edu.yu.einstein.wasp.service;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -40,10 +41,7 @@ import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
-import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing.Status;
-import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 @Service
 public interface FileService extends WaspService {
@@ -222,6 +220,11 @@ public interface FileService extends WaspService {
 	 * 
 	 */
 	public void uploadJobFile(MultipartFile mpFile, Job job, String fileDescription, Random randomNumberGenerator) throws FileUploadException;
+	
+	/**
+	 * just uploads the file, saves it in remote loaction, and returns file group. DOES NOT add entry to jobfile table; job is only used to set the directory, using jobId.
+	 */
+	public FileGroup uploadFileAndReturnFileGroup(MultipartFile mpFile, Job job, String fileDescription, Random randomNumberGenerator) throws FileUploadException;
 
 	/**
 	 * 
@@ -230,18 +233,19 @@ public interface FileService extends WaspService {
 
 
 	/**
+	 * @throws FileUploadException 
 	 * 
 	 */
-	public void copyFileHandleToOutputStream(FileHandle fileHandle, OutputStream os) throws FileDownloadException, FileNotFoundException, GridException;
+	public void copyFileHandleToOutputStream(FileHandle fileHandle, OutputStream os) throws FileDownloadException, FileNotFoundException, GridException, FileUploadException;
 	
 	/**
+	 * @throws FileUploadException 
 	 * 
 	 */
-	public void copyFileHandlesInFileGroupToOutputStream(FileGroup fileGroup, OutputStream os) throws FileDownloadException, FileNotFoundException, GridException;
+	public void copyFileHandlesInFileGroupToOutputStream(FileGroup fileGroup, OutputStream os) throws FileDownloadException, FileNotFoundException, GridException, FileUploadException;
 
 
 	/**
-	 * in Java7 this will be a lot easier, but for now, fake it
 	 * @param String fileName
 	 * @return String mimeType (if not known, return empty string)
 	 */
@@ -250,7 +254,17 @@ public interface FileService extends WaspService {
 
 	public String generateUniqueBaseFileName(SampleSource cellLibrary);
 
+
+	public File createTempFile() throws FileUploadException;
+	
+	public FileGroup saveLocalJobFile(Job job, File localFile, String fileName, String fileDescription, Random randomNumberGenerator) throws FileUploadException;
+
+	public FileGroup saveLocalQuoteOrInvoiceFile(Job job, File localFile, String fileName, String fileDescription, Random randomNumberGenerator) throws FileUploadException;
+
 	public List<FileGroupMeta> saveFileGroupMeta(List<FileGroupMeta> metaList, FileGroup filegroup) throws MetadataException;
+
+	public FileGroup getFileGroup(UUID uuid) throws FileNotFoundException;
+
 
 
 }

@@ -662,6 +662,7 @@ public class Job extends WaspModel {
 	/**
 	 * @return the current
 	 */
+	@JsonIgnore
 	public AcctQuote getCurrentQuote() {
 		return currentQuote;
 	}

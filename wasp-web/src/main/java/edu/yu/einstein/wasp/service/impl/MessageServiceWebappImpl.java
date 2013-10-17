@@ -11,6 +11,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
+import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 
 /**
@@ -27,16 +28,17 @@ public class MessageServiceWebappImpl extends MessageServiceImpl implements Mess
 		String message = key; // returns the original string by default
 		try {
 			HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-			message =  messageSource.getMessage(key, null, RequestContextUtils.getLocale(request));
+			message =  DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null, RequestContextUtils.getLocale(request));
 		} catch (Exception e) {
 			logger.trace("Cannot resolve message '" + key + "' using Locale from resource HttpServletRequest (" + e.getMessage() + "), will fallback to US locale");
 			try {
-				message = messageSource.getMessage(key, null, Locale.US); // try to fallback to US locale
+				message = DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null, Locale.US); // try to fallback to US locale
 			} catch (NoSuchMessageException nsme) {
 				logger.trace("Cannot resolve message '" + key + "' from messageSource (" + nsme.getMessage() + ")");
 			}
 		}
 		return message;
 	}
+	
 
 }

@@ -3,7 +3,9 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:context="http://www.springframework.org/schema/context"
 	default-autowire="byName"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
   <bean id="messageSource" class="edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl" />
@@ -18,7 +20,11 @@
   
   <context:annotation-config/>
   
-   
+  <task:executor id="taskExecutor" 
+ 		keep-alive="${wasp.taskexecutor.keepAliveSeconds:60}" 
+ 		queue-capacity="${wasp.taskexecutor.queueCapacity:0}" 
+ 		pool-size="${wasp.taskexecutor.corePoolSize:5}-${wasp.taskexecutor.maxPoolSize:10000}" 
+ 		rejection-policy="CALLER_RUNS" />
   
   <!-- mail configuration -->
   <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
@@ -56,14 +62,7 @@
 	 <constructor-arg value="US"/>
   </bean>
 
-  <!-- load constant string value definitions -->
-  <import resource="classpath*:wasp/static-values-definition.xml" /> 
-
-  <!-- loads load scripts to update database -->
-  <import resource="classpath*:wasp/**/*Load.xml" />
-
-  <!-- load all other plugins -->
-  <import resource="classpath*:wasp/*waspPlugin.xml" /> 
+  <import resource="classpath*:wasp/**/*.xml" />
 
   <!-- load site specific properties -->
   <bean id="waspSiteProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">

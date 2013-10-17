@@ -47,8 +47,8 @@ public class FilePlugin extends WaspPlugin implements InitializingBean, Disposab
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
 
-	public FilePlugin(String pluginName, Properties waspSiteProperties, MessageChannel channel) {
-		super(pluginName, waspSiteProperties, channel);
+	public FilePlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
+		super(iName, waspSiteProperties, channel);
 	}
 
 	/**

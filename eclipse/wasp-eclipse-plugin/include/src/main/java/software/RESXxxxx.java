@@ -6,7 +6,7 @@ package ___package___.software;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 // Un-comment the following if using the plugin service
 // import org.springframework.beans.factory.annotation.Autowired;
-// import package ___package___.service. ___Pluginname___Service;
+// import package ___package___.service. ___PluginIName___Service;
 
 
 
@@ -14,13 +14,13 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
 /**
  * @author
  */
-public class ___Pluginname___ extends SoftwarePackage{
+public class ___PluginIName___ extends SoftwarePackage{
 
 	// Un-comment the following if using the plugin service
 	//@Autowired
-	//___Pluginname___Service  ___pluginname___Service;
+	//___PluginIName___Service  ___pluginIName___Service;
 	
-	public ___Pluginname___() {
+	public ___PluginIName___() {
 		setSoftwareVersion("0.0.0"); // TODO: Set this value. This default may also be overridden in wasp.site.properties
 	}
 

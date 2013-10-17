@@ -77,8 +77,8 @@ public class BWAPlugin extends WaspPlugin implements ClientMessageI, BatchJobPro
 		this.bwa = bwa;
 	}
 
-	public BWAPlugin(String pluginName, Properties waspSiteProperties, MessageChannel channel) {
-		super(pluginName, waspSiteProperties, channel);
+	public BWAPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
+		super(iName, waspSiteProperties, channel);
 	}
 
 	//@Transactional

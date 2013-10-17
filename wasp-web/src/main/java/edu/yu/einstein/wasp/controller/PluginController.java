@@ -35,11 +35,11 @@ public class PluginController extends WaspController {
 	
 	@RequestMapping(value = "/listAll", method = RequestMethod.GET)
 	public String getPluginList(ModelMap m){
-		List<WebHyperlink> registeredPluginDescriptions = new ArrayList<WebHyperlink>();
+		List<WebHyperlink> registeredDescriptions = new ArrayList<WebHyperlink>();
 		for (WebInterfacing webPlugin : pluginRegistry.getPlugins(WebInterfacing.class))
-			registeredPluginDescriptions.add(new WebHyperlink(webPlugin.getDescriptionPageHyperlink(), messageService));
-		Collections.sort(registeredPluginDescriptions);
-		m.addAttribute("pluginDescriptionHyperlinks", registeredPluginDescriptions);
+			registeredDescriptions.add(new WebHyperlink(webPlugin.getDescriptionPageHyperlink(), messageService));
+		Collections.sort(registeredDescriptions);
+		m.addAttribute("descriptionHyperlinks", registeredDescriptions);
 		return "plugin/list";
 	}
 

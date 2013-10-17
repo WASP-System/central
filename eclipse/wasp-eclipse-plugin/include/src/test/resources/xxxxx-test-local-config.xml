@@ -16,7 +16,7 @@
 ////> RES PIP
 	<mockito:mock id ="authenticationService" class="edu.yu.einstein.wasp.service.AuthenticationService"/>
 	
-	<mockito:mock id ="runSuccessSplitter" class="edu.yu.einstein.wasp.integration.splitters.RunSuccessSplitter"/>
+	<mockito:mock id ="runSuccessSplitter" class="edu.yu.einstein.wasp.integration.endpoints.RunSuccessSplitter"/>
 	
 	<mockito:mock id ="runService" class="edu.yu.einstein.wasp.service.impl.RunServiceImpl" />
 	
@@ -30,6 +30,8 @@
 
  	
 	<!-- import configuration files  -->
-	<import resource="___pluginname___-test-persistence-config.xml" />
+	<import resource="___pluginIName___-test-persistence-config.xml" />
 ////<
+
+	<bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />
 </beans>

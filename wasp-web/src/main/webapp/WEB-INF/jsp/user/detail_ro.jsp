@@ -7,7 +7,14 @@
      <table class="EditTable ui-widget ui-widget-content">
        <sec:authorize access="hasRole('su') or hasRole('fm') or hasRole('da-*') or hasRole('u-${user.userId}')">
      	  <tr class="FormData">
-              <td class="CaptionTD"><fmt:message key="wasp.authentication.label" /> <fmt:message key="user.login.label" />:</td>
+              <td class="CaptionTD">
+              <c:if test="${isAuthenticationExternal == true}">
+	          	<fmt:message key="wasp.authentication_external.label" /> 
+	          </c:if>
+	          <c:if test="${isAuthenticationExternal == false}">
+	          	<fmt:message key="wasp.authentication_internal.label" /> 
+	          </c:if> 
+              <fmt:message key="user.login.label" />:</td>
               <td class="DataTD">${user.login}</td>            
           </tr> 
         </sec:authorize>         	
