@@ -105,6 +105,7 @@ import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftJobDraftCellSelection;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
+import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.WorkflowMeta;
@@ -1727,110 +1728,108 @@ public class JobSubmissionController extends WaspController {
 			return "redirect:/dashboard.do";
 		}
 		SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId);
-		
-		String[] sampleNamesAsStringArray = request.getParameterValues("sampleName");
-		List<String> sampleNamesAsList = new ArrayList<String>();
-		
-		List<String> errorList = new ArrayList<String>();
+		SampleType sampleType = sampleTypeDao.getSampleTypeBySampleTypeId(sampleTypeId);
+				
+		String[] sampleDraftNamesAsStringArray = request.getParameterValues("sampleName");
+		List<String> sampleDraftNamesAsList = new ArrayList<String>();
 		
 		List<SampleDraft> sampleDraftList = new ArrayList<SampleDraft>();		
+		List<String> errorList = new ArrayList<String>();
+		boolean atLeastOneErrorExists = false;
+		
 		int counter = 0;
-		for(String s : sampleNamesAsStringArray){	
-			String errorsForThisSample = "";
-			SampleDraft sampleDraft = new SampleDraft();
-			sampleDraft.setName(s.trim());
-			System.out.println("----------sample name: "+ sampleDraft.getName());
-			sampleDraft.setSampleSubtype(sampleSubtype);
-			sampleDraft.setSampleType(sampleTypeDao.getSampleTypeBySampleTypeId(sampleTypeId));
+		for(String sampleName : sampleDraftNamesAsStringArray){	
+			
+			SampleDraft sampleDraft = new SampleDraft();			
+			sampleDraft.setName(sampleName.trim());//get sampleDraft's sample name
+			
+			//get sampleDraftMeta and in process, check it for errors
 			List<SampleDraftMeta> sampleDraftMetaList = new ArrayList<SampleDraftMeta>();
-			DataBinder dataBinderForName = new DataBinder(sampleDraft, "sampleDraft");
-			BindingResult resultForName = dataBinderForName.getBindingResult();
-			if(sampleDraft.getName().isEmpty()){
-				//errorList.add("Provide a name for sample " + (counter + 1) );
-				//System.out.println("Sample " + (counter + 1) + " name is missing");
-				if(errorsForThisSample.isEmpty()){
-					errorsForThisSample = "Sample " + (counter + 1) + ": name empty";
-				}
-			}
-			validateSampleDraftNameUnique(sampleDraft.getName(), 0, jobDraft, resultForName);//checks against sample names ALREADY in the database, for this draft job
-			if(resultForName.hasErrors()){
-				errorList.add("The sample name " + sampleDraft.getName() + " already used in this job submission. Check previously submitted samples.");
-				//System.out.println("Sample " + (counter + 1) + " name used by previously submitted sample");
-				if(errorsForThisSample.isEmpty()){
-					errorsForThisSample = sampleDraft.getName() + ": name already in database for this job";
-				}
-				else{
-					errorsForThisSample += "; name already in database for this job";
-				}
-			}
-			if(sampleNamesAsList.contains(sampleDraft.getName())){//check against the sample names on this form (not yet in database)
-				errorList.add("The sample name " + sampleDraft.getName() + " used at least twice on this form.");
-				//System.out.println("Sample name " + sampleDraft.getName() + " used at least twice on this form");
-				if(errorsForThisSample.isEmpty()){
-					errorsForThisSample = sampleDraft.getName() + ": name used at least twice";
-				}
-				else{
-					errorsForThisSample += "; name used at least twice";
-				}
-			}
-			sampleNamesAsList.add(sampleDraft.getName());
-			
-			
 			DataBinder dataBinderForMeta = new DataBinder(sampleDraft, "sampleDraft");
 			BindingResult resultForMeta = dataBinderForMeta.getBindingResult();
-
 			try {
 				sampleDraftMetaList.addAll(SampleAndSampleDraftMetaHelper.getValidatedMetaFromRequestAndTemplateToSubtype(request, sampleSubtype, resultForMeta, SampleDraftMeta.class, counter));
 			} catch (MetadataTypeException e) {
 				logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
 			}
+			sampleDraft.setSampleDraftMeta(sampleDraftMetaList);
+			
+			//we now have all attributes that need to be checked stored within sampleDraft, 
+			//so first check for a completely empty row - if completely empty, then ignore the entire row
+			if(sampleDraftRowIsCompletelyEmpty(sampleDraft)){//currently checks sample name and all the metadata
+				continue;
+			}
 
-			System.out.println("------------Now the meta: ");
-			for(SampleDraftMeta sdm : sampleDraftMetaList){
-				System.out.println("--------------K:V = "+sdm.getK()+":"+sdm.getV());
+			//since we know this row is NOT completely empty, check sample name and metaData for entry errors
+			String errorsForThisSample = "";
+			
+			//first, deal with sample name errors
+			if(sampleDraft.getName().isEmpty()){
+				errorsForThisSample += errorsForThisSample.isEmpty()?"sample name cannot be empty":"; sample name cannot be empty";
+			}
+			else{				
+				//next check against sample names ALREADY in the database, for this draft job
+				DataBinder dataBinderForName = new DataBinder(sampleDraft, "sampleDraft");
+				BindingResult resultForName = dataBinderForName.getBindingResult();
+				validateSampleDraftNameUnique(sampleDraft.getName(), 0, jobDraft, resultForName);
+				if(resultForName.hasErrors()){
+					errorsForThisSample += errorsForThisSample.isEmpty()?"sample name already used on this job submission":"; sample name already used on this job submission";
+				}				
+				//finally check against the sample names on this form (not yet in database)
+				if(sampleDraftNamesAsList.contains(sampleDraft.getName())){
+					errorsForThisSample += errorsForThisSample.isEmpty()?"sample name used at least twice on this form":"; sample name used at least twice on this form";
+				}				
+				
+				sampleDraftNamesAsList.add(sampleDraft.getName()); //add to this list only if sample name is NOT empty
 			}
 			
-			sampleDraft.setSampleDraftMeta(sampleDraftMetaList);
-						
-			if(resultForMeta==null){
-				System.out.println("---------------Result is null");
-			}
-			else{
-				System.out.println("---------------Result is NOT NULL");
-				System.out.println("----------any Meta errors?");
-				if(resultForMeta.hasErrors()){
-					List<FieldError> fieldErrors = resultForMeta.getFieldErrors();
-					for(FieldError fe : fieldErrors){
-						System.out.println(fe.getCode());
-						System.out.println(fe.getDefaultMessage());
-						System.out.println(fe.getField());
-						System.out.println(fe.getObjectName());
-						System.out.println(fe.getRejectedValue());
-						String displayCode = fe.getCode().substring(fe.getCode().indexOf(".")+1);
-						displayCode = displayCode.replace(".", " ");
-						
-						if(errorsForThisSample.isEmpty()){
-							errorsForThisSample = sampleDraft.getName() + ": " + displayCode;
-						}
-						else{
-							errorsForThisSample += "; " + displayCode;
-						}
-					}
+			//second deal with sampleDraftMeta errors, which are currently stored in resultForMeta (a BindingResult object)
+			if(resultForMeta.hasErrors()){
+				List<FieldError> fieldErrors = resultForMeta.getFieldErrors();
+				for(FieldError fe : fieldErrors){
+					//System.out.println(fe.getCode());//this is something like chipseqDna.fragmentSize.error
+					String metaErrorForDisplay = fe.getCode().substring(fe.getCode().indexOf(".")+1);//something like fragmentSize.error
+					metaErrorForDisplay = metaErrorForDisplay.replace(".", " ");//something like fragmentSize error
+					errorsForThisSample += errorsForThisSample.isEmpty()?metaErrorForDisplay:"; " + metaErrorForDisplay;
 				}
 			}
-			if(!errorsForThisSample.isEmpty()){
-				errorList.add(errorsForThisSample);
-			}
-			//if all attributes are empty, this is an empty row. so do not add to the list
+			
 			sampleDraftList.add(sampleDraft);
+			errorList.add(errorsForThisSample);
+			if(!errorsForThisSample.isEmpty()){
+				atLeastOneErrorExists = true;				
+			}
 			counter++;
 		}
+		
+		if(atLeastOneErrorExists==true){
+			//fill up map, get assorted other info, and return to web page
+		}
+		
+		//if no errors, iterate through the sampleDraftList and save each new sampleDraft
+		//***********MUST DO THIS JUST BEFORE A SAVE TO Database
+		//sampleDraft.setSampleSubtype(sampleSubtype);//should be done just befor save
+		//sampleDraft.setSampleType(sampleType);//should be done just befor save
+
 		System.out.println("------Any errors in errorList??");
 		for(String error : errorList){
 			System.out.println("------"+error);
 		}
 		waspMessage("sampleDetail.updated_success.label");
 		return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
+	}
+	
+	private boolean sampleDraftRowIsCompletelyEmpty(SampleDraft sampleDraftRow){
+		//checks only for sample name and all meta attributes
+		if(!sampleDraftRow.getName().trim().isEmpty()){
+			return false;
+		}
+		for(SampleDraftMeta sdm : sampleDraftRow.getSampleDraftMeta()){
+			if(!sdm.getV().trim().isEmpty()){
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	@Transactional
