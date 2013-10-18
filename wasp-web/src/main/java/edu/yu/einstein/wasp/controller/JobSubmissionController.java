@@ -1742,7 +1742,7 @@ public class JobSubmissionController extends WaspController {
 			return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
 		}
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
-		if (! isJobDraftEditable(jobDraft)){
+		if (jobDraft.getId()==null || ! isJobDraftEditable(jobDraft)){
 			return "redirect:/dashboard.do";
 		}
 		SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId);
@@ -1774,7 +1774,7 @@ public class JobSubmissionController extends WaspController {
 			
 			//we now have all attributes that need to be checked stored within sampleDraft, 
 			//so first check for a completely empty row - if completely empty, then ignore the entire row
-			if(sampleDraftRowIsCompletelyEmpty(sampleDraft,"adaptorset")){//currently checks sample name and all the metadata
+			if(sampleDraftRowIsCompletelyEmpty(sampleDraft,"adaptorset")){//currently checks sample name and all the metadata; but, ignore adaptorset, as it could be set even if rest of row is empty
 				continue;
 			}
 			
@@ -1822,11 +1822,13 @@ public class JobSubmissionController extends WaspController {
 		
 		if(atLeastOneErrorExists==true){
 			
+			/* ********for testing only
 			System.out.println("------Print out the errors in errorList:");
 			for(String error : errorList){
 				System.out.println("------"+error);
 			}
-
+			 */
+			
 			//fill up map, get assorted other info, and return to web page
 			waspErrorMessage("sampleDetail.updated.error");
 			m.addAttribute("errorList", errorList);
@@ -1837,8 +1839,8 @@ public class JobSubmissionController extends WaspController {
 			m.addAttribute("organisms",  genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
 			m.addAttribute("heading", messageService.getMessage("jobDraft.sample_add_heading.label"));
 			
-			//this is not good, so must work on fixing this **********************************
-			//these sets (or at least one of them) are required for the next if statement
+			//this is not a very good way to do this, but we need to set 
+			//these (or at least one of them) in order to execute the next if statement (sampleService.isLibrary())
 			sampleDraftList.get(0).setSampleSubtypeId(sampleSubtypeId);
 			sampleDraftList.get(0).setSampleSubtype(sampleSubtype);
 			sampleDraftList.get(0).setSampleTypeId(sampleSubtype.getSampleType().getId());
@@ -1850,11 +1852,27 @@ public class JobSubmissionController extends WaspController {
 			return "jobsubmit/manysamples";
 		}
 		
-		//if no errors, iterate through the sampleDraftList and save each new sampleDraft
-		//***********MUST DO THIS JUST BEFORE A SAVE TO Database
-		//sampleDraft.setSampleSubtype(sampleSubtype);//should be done just befor save
-		//sampleDraft.setSampleType(sampleType);//should be done just befor save
-
+		//no errors, so iterate through sampleDraftList and save each new sampleDraft (excluding rows completely empty)
+		for(SampleDraft sampleDraftToBeSaved : sampleDraftList){
+			
+			//must pull this sampleDraftMeta list out of the sampleDraft prior to saving sampleDraftToBeSaved
+			//the meta is subsequently saved after saving sampleDraftToBeSaved
+			List<SampleDraftMeta> sampleDraftMetaToBeSaved = sampleDraftToBeSaved.getSampleDraftMeta();
+			
+			sampleDraftToBeSaved.setSampleSubtype(sampleSubtype);
+			sampleDraftToBeSaved.setSampleType(sampleType);
+			sampleDraftToBeSaved.setLabId(jobDraft.getLabId());
+			sampleDraftToBeSaved.setUserId(jobDraft.getUserId());
+			sampleDraftToBeSaved.setJobDraftId(jobDraft.getId());
+			
+			SampleDraft sampleDraftSavedToDB = sampleDraftDao.save(sampleDraftToBeSaved);
+			try {
+				sampleDraftMetaDao.setMeta(sampleDraftMetaToBeSaved, sampleDraftSavedToDB.getId());
+			} catch (MetadataException e) {
+				waspErrorMessage("sampleDetail.updated.error");
+				logger.warn("Failed to update metadata!!: " + e.getLocalizedMessage());
+			}
+		}		
 		waspMessage("sampleDetail.updated_success.label");
 		return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
 	}
