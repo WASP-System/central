@@ -5,6 +5,10 @@
 	(function($){ 
 		$(document).ready(function(){
 			
+			//if these are libraries, the next two lines are absolutely needed to dynamically set this colspan
+			var tableColspan = $("#singleCellInVeryLastTableRow").attr('colspan');//last row 
+			$("#singleCellInOptionalAdaptorsetTableRow").attr('colspan',tableColspan);//first row 
+			
 			var selectedAdaptorSet=$('select#adaptorset option:selected').val();
 			if (!selectedAdaptorSet) {
 				$('tr#row_adaptor').hide();
@@ -39,8 +43,10 @@
 						}
 						$('select#adaptor').html(options);
 						$('tr#row_adaptor').show();
+						$('input[type=hidden]#adaptorset').val(selectedAdaptorSet);
 				   	});
 			    });
+			
 			$(".addRow").btnAddRow();
 			$(".delRow").btnDelRow();
 			
@@ -52,6 +58,15 @@
 					}
 					$("#addMoreRows").val("");
 			});
+			
+			//if libraries, then absolutely necessary to update these hidden attributes just before submitting form 
+			$( "#submit" ).click(function() {				
+				var selectedAdaptorSet=$('select#adaptorset option:selected').val();
+				$('input[type=hidden]#adaptorset').val(selectedAdaptorSet);
+				//alert("I am here");
+				//return false;				
+			});
+			
 			
 			//not used here!!!
 		    $( "#dialog-form" ).dialog({
@@ -120,8 +135,6 @@
 	})(jQuery);
 </script>
 
-
-
 <br />
 
 <h1><fmt:message key="jobDraft.create.label"/> -- <c:out value="${heading}"/></h1>
@@ -131,13 +144,29 @@
 <div id="container_div_for_adding_rows" >
 <h2>Sample Type: <c:out value="${sampleType.name}" /></h2>
 <h2>Sample Subtype: <c:out value="${sampleSubtype.name}" /></h2>
-<a style="font-weight:bold" href="javascript:void(0);"  id="addMoreRowsAnchor">Click</a> To Add <input type='text' style="text-align:right;" size='3' maxlength='3' name='addMoreRows' id='addMoreRows' > more rows
+<a style="font-weight:bold" href="javascript:void(0);"  id="addMoreRowsAnchor">Click</a> To Add <input type='text' style="text-align:right;" size='3' maxlength='3' name='addMoreRows' id='addMoreRows' > more row(s)
 <br /><br />
 <c:set var="colspan" value = '0' scope="request"/>
+<form action="<c:url value="/jobsubmit/manysamples/add/${jobDraft.getId()}/${sampleSubtype.getId()}.do" />" method="POST" >
+
 <span style="font-size:x-small">Click first &rarr; others to populate all rows with value found in a column's first row</span>
 
-<form action="<c:url value="/jobsubmit/manysamples/add/${jobDraft.getId()}/${sampleSubtype.getId()}.do" />" method="POST" >
+<div class="fixed-width_scrollable">
 <table class="data" style="margin: 0px 0px" >
+
+<c:if test="${not empty adaptorsets}">
+<tr class="FormData">
+<td id="singleCellInOptionalAdaptorsetTableRow" colspan="1" <%--this colspan will be dynamically changed; see javascript--%>align='center' style="background-color:#FAF2D6; font-weight:bold; padding:15px 15px 15px 15px;" nowrap>SELECT AN ADAPTOR SET 
+<select class="FormElement ui-widget-content ui-corner-all" name="theSelectedAdaptorset" id="adaptorset" class="FormElement ui-widget-content ui-corner-all">
+	<option value=''><fmt:message key="wasp.default_select.label"/></option>
+	<c:forEach items="${adaptorsets}" var="adaptorset">
+		<option value='${adaptorset.getId()}'  <c:if test="${theSelectedAdaptorset == adaptorset.getId()}">selected</c:if>      ><c:out value="${adaptorset.getName()}"></c:out></option>	
+	</c:forEach>
+</select>				
+</td>
+</tr>
+</c:if>
+
 <c:forEach items="${sampleDraftList}" var="sampleDraft" varStatus="sampleDraftStatus">
 <c:if test="${sampleDraftStatus.first}">
 <tr class="FormData">
@@ -170,6 +199,7 @@
 				<c:set var="labelKey" value="${fn:replace(labelKey, 'Volume', 'Vol.')}" />
 			</c:if>
 			<c:set var="id" value="${fn:substringAfter(_meta.k,'.')}" />
+			<c:if test="${id!='adaptorset' }">
 			<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap>${labelKey}
 				<c:if test="${not empty _meta.property.constraint}">
 					<span style="color:red">*</span>
@@ -181,6 +211,7 @@
 				<br /><a href="javascript:void(0);"  onclick='var foundFirstOne = false; var valueOfFirst = ""; var id = "<c:out value="${id}" />"; var dates=[]; var els=document.getElementsByTagName("*"); for (var i=0; i < els.length; i++){ if ( id==els[i].id ){ if(foundFirstOne==false){foundFirstOne=true; valueOfFirstOne = els[i].value;} els[i].value = valueOfFirstOne; } } ' >first &rarr; others</a>		
 			</td>
 			<c:set var="colspan" value = '${colspan + 1}' scope="request"/>
+			</c:if>
 		</c:if>
 	</c:forEach>
 	<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap>Action</td>
@@ -210,7 +241,8 @@
 				<c:set var="_myCtxArea">${_metaArea}.</c:set>
 			</c:if>
 			<c:set var="labelKey" value="${_meta.property.label}" />
-			<c:set var="id" value="${fn:substringAfter(_meta.k,'.')}" />			
+			<c:set var="id" value="${fn:substringAfter(_meta.k,'.')}" />
+			<c:if test="${ id!='adaptorset' }">
 			<td align='center' class="DataTD">
 				<c:choose>
 					<c:when test="${not empty _meta.property.control}">
@@ -245,19 +277,25 @@
 						<input type="text" class="FormElement ui-widget-content ui-corner-all" size="10" maxlength="25" name="${_area}Meta_${_meta.k}" id="${id}"  value="${inputVal}" <c:if test= "${_meta.property.formVisibility == 'immutable'}"> readonly="readonly"</c:if> />
 					</c:otherwise>
 				</c:choose>
-			</td>		
+			</td>
+			</c:if>
+			<c:if test="${ id=='adaptorset' }">
+				 <input type='hidden' name="${_area}Meta_${_meta.k}" id="${id}" value=''/>			 				
+			</c:if>
 		</c:if>			 
 	</c:forEach>
 	<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
 </tr>
 </c:forEach>
-<tr><td colspan="${colspan}" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
+<tr ><td id="singleCellInVeryLastTableRow" colspan="${colspan}" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
 </table>
+</div>
 <input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<c:url value="/dashboard.do"/>'" /> 
 <input type="submit" name="submit" value="<fmt:message key="jobDraft.cancel.label"/>" />
-<input type="submit" name="submit" value="<fmt:message key="jobDraft.save.label"/>" />
+<input type="submit" name="submit" id="submit" value="<fmt:message key="jobDraft.save.label"/>" />
 </form>
 </div>
+
 <%--
 <form:form cssClass="FormGrid" commandName="sampleDraft">
 <form:hidden path='sampleSubtypeId' />

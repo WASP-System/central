@@ -1735,6 +1735,7 @@ public class JobSubmissionController extends WaspController {
 	public String updateNewManySampleDraft(
 			@PathVariable("jobDraftId") Integer jobDraftId, 
 			@PathVariable("sampleSubtypeId") Integer sampleSubtypeId,
+			@RequestParam (value = "theSelectedAdaptorset", required = false) String theSelectedAdaptorset,
 			ModelMap m) {
 		
 		if ( request.getParameter("submit").equals("Cancel") ){//equals(messageService.getMessage("userDetail.cancel.label")
@@ -1773,7 +1774,7 @@ public class JobSubmissionController extends WaspController {
 			
 			//we now have all attributes that need to be checked stored within sampleDraft, 
 			//so first check for a completely empty row - if completely empty, then ignore the entire row
-			if(sampleDraftRowIsCompletelyEmpty(sampleDraft)){//currently checks sample name and all the metadata
+			if(sampleDraftRowIsCompletelyEmpty(sampleDraft,"adaptorset")){//currently checks sample name and all the metadata
 				continue;
 			}
 			
@@ -1844,6 +1845,7 @@ public class JobSubmissionController extends WaspController {
 			sampleDraftList.get(0).setSampleType(sampleType);
 			if (sampleService.isLibrary(sampleDraftList.get(0))){
 				prepareAdaptorsetsAndAdaptors(jobDraft, sampleDraftList.get(0).getSampleDraftMeta(), m);
+				m.addAttribute("theSelectedAdaptorset", theSelectedAdaptorset);
 			}
 			return "jobsubmit/manysamples";
 		}
@@ -1857,13 +1859,18 @@ public class JobSubmissionController extends WaspController {
 		return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
 	}
 	
-	private boolean sampleDraftRowIsCompletelyEmpty(SampleDraft sampleDraftRow){
+	private boolean sampleDraftRowIsCompletelyEmpty(SampleDraft sampleDraftRow, String excludeThisMetaFromConsideration){
+		
+		if(excludeThisMetaFromConsideration==null){
+			excludeThisMetaFromConsideration="";
+		}
+		
 		//checks only for sample name and all meta attributes
 		if(!sampleDraftRow.getName().trim().isEmpty()){
 			return false;
 		}
 		for(SampleDraftMeta sdm : sampleDraftRow.getSampleDraftMeta()){
-			if(sdm!=null && sdm.getV()!=null){//sometimes adaptor might be null
+			if(sdm!=null && sdm.getV()!=null && sdm.getK()!=null && !sdm.getK().contains(excludeThisMetaFromConsideration)){//sometimes adaptor might be null
 				if(!sdm.getV().trim().isEmpty()){
 					return false;
 				}
