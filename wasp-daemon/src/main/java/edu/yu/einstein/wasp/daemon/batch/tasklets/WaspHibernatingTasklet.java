@@ -23,9 +23,9 @@ public abstract class WaspHibernatingTasklet extends WaspTasklet implements Step
 	
 	protected boolean wasHibernating(ChunkContext context){
 		ExecutionContext executionContext = context.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
-		if (!executionContext.containsKey(BatchJobHibernationManager.HIBERNATING_CODE))
+		if (!executionContext.containsKey(BatchJobHibernationManager.HIBERNATING))
 			return false;
-		boolean isHibernating = (boolean) executionContext.get(BatchJobHibernationManager.HIBERNATING_CODE);
+		boolean isHibernating = (boolean) executionContext.get(BatchJobHibernationManager.HIBERNATING);
 		logger.debug("StepExecutionId=" + context.getStepContext().getStepExecution().getId() + " isHibernating=" + isHibernating);
 		return isHibernating;	
 	}
@@ -33,7 +33,7 @@ public abstract class WaspHibernatingTasklet extends WaspTasklet implements Step
 	
 	protected void setWasHibernatingFlag(ChunkContext context, boolean value){
 		ExecutionContext executionContext = context.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
-		executionContext.put(BatchJobHibernationManager.HIBERNATING_CODE, value);
+		executionContext.put(BatchJobHibernationManager.HIBERNATING, value);
 	}
 	
 	

@@ -47,7 +47,7 @@ import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemp
  */
 public class BatchJobHibernationManager {
 
-	public static final String HIBERNATING_CODE = "HIBERNATING";
+	public static final String HIBERNATING = "HIBERNATING";
 	public static final String WOKEN_ON_MESSAGE_KEY = "wokenOnMessage";
 	public static final String MESSAGES_TO_WAKE = "w_msgs";
 	
@@ -102,69 +102,79 @@ public class BatchJobHibernationManager {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	@ServiceActivator
-	public Message<WaspStatus> handleMessage(Message<WaspStatus> message){
+	public Message<WaspStatus> handleMessage(Message<?> message){
 		logger.debug("handling message: " + message);
 		Message<WaspStatus> replyMessage = null;
 		if (HibernationMessageTemplate.isMessageOfCorrectType(message)){
-			HibernationMessageTemplate messageTemplate = new HibernationMessageTemplate(message);
-			if (messageTemplate.getHibernationType().equals(HibernationType.STOP_AND_AWAKE_ON_MESSAGE)){
-				logger.debug("Message is to request stop and re-awaken on message");
-				addMessageTemplatesForJobStep(messageTemplate.getJobExecutionId(), messageTemplate.getStepExecutionId());
-				WaspBatchExitStatus exitStatus = new WaspBatchExitStatus(jobExplorer.getJobExecution(messageTemplate.getJobExecutionId()).getExitStatus());
-				if (exitStatus.isRunningAndAwake()){
-					logger.debug("Going to hibernate JobExecution id=" + messageTemplate.getJobExecutionId() + " (requested from step Id=" + 
-							messageTemplate.getStepExecutionId() + ")");
-					hibernateJobExecution(messageTemplate.getJobExecutionId());
-				}
-			} else if (messageTemplate.getHibernationType().equals(HibernationType.STOP_AND_AWAKE_ON_TIMEOUT)){
-				logger.debug("Message is to request stop and re-awaken on timeout");
-				// TODO: functionality here
-			}
+			processHibernateMessage((Message<HibernationType>) message);
 		} else {
 			logger.trace("Message is not a request stop message");
 			if (WaspStatus.class.isInstance(message.getPayload())){
 				logger.trace("Message payload is of type WaspStatus");
-				WaspStatusMessageTemplate incomingStatusMessageTemplate = new WaspStatusMessageTemplate((Message<WaspStatus>) message);
-				//remove superfluous headers if present (these are not used to make decisions about acting on messages)
-				sanitizeHeaders(incomingStatusMessageTemplate);
-				logger.debug("Handling message: " + incomingStatusMessageTemplate.toString());
-				if (messageTemplatesWakingStepExecutions.keySet().contains(incomingStatusMessageTemplate)){
-					logger.debug("messageTemplatesForJob.keySet() contains message");
-					for (StepExecution se : messageTemplatesWakingStepExecutions.get(incomingStatusMessageTemplate)){
-						logger.debug("restarting job with JobExecution id=" +se.getJobExecutionId() + " for step " + se.getId() + 
-								" on receiving message " + message);
-						try{
-							reawakenJobExecution(se);
-							// remove all stepExecutions from the re-awoken job from messageTemplatesWakingStepExecutions and remove awake message
-							// if no longer needed
-							for (StepExecution seForJob : jobExplorer.getJobExecution(se.getJobExecutionId()).getStepExecutions()){
-								for (StatusMessageTemplate template : messageTemplatesWakingStepExecutions.keySet()){
-									if (messageTemplatesWakingStepExecutions.get(template).contains(seForJob)){
-										logger.debug("Removing re-awoken stepExecution id=" + seForJob.getId() + 
-												" from list of step executions re-awoken by message template : " + template.toString());
-										messageTemplatesWakingStepExecutions.get(template).remove(seForJob);
-									}
-									if (messageTemplatesWakingStepExecutions.get(template).isEmpty()){
-										logger.debug("Removing message template from list of messages to watch for as no more StepExecutions depend on it : " + 
-												template.toString());
-										messageTemplatesWakingStepExecutions.remove(template);
-									}
-								}
-							}
-						} catch (WaspBatchJobExecutionException e){
-							logger.warn("Problem reawakening job execution and cleaning up 'messageTemplatesWakingStepExecutions': " + e.getLocalizedMessage());
-						}
-					}
-				}	
-				else
-					logger.debug("messageTemplatesForJob.keySet() does not contain message");
-					for (WaspStatusMessageTemplate mt : messageTemplatesWakingStepExecutions.keySet())
-						logger.debug("messageTemplatesForJob entry : " + mt.toString());
+				processStatusMessage((Message<WaspStatus>) message);
+				replyMessage = getReplyMessage((Message<WaspStatus>) message);
 			}
-			replyMessage = getReplyMessage(message);
 		}	
 		return replyMessage;
+	}
+	
+	private void processHibernateMessage(Message<HibernationType> message){
+		HibernationMessageTemplate messageTemplate = new HibernationMessageTemplate(message);
+		if (messageTemplate.getHibernationType().equals(HibernationType.STOP_AND_AWAKE_ON_MESSAGE)){
+			logger.debug("Message is to request stop and re-awaken on message");
+			addMessageTemplatesForJobStep(messageTemplate.getJobExecutionId(), messageTemplate.getStepExecutionId());
+			WaspBatchExitStatus exitStatus = new WaspBatchExitStatus(jobExplorer.getJobExecution(messageTemplate.getJobExecutionId()).getExitStatus());
+			if (exitStatus.isRunningAndAwake()){
+				logger.debug("Going to hibernate JobExecution id=" + messageTemplate.getJobExecutionId() + " (requested from step Id=" + 
+						messageTemplate.getStepExecutionId() + ")");
+				hibernateJobExecution(messageTemplate.getJobExecutionId());
+			}
+		} else if (messageTemplate.getHibernationType().equals(HibernationType.STOP_AND_AWAKE_ON_TIMEOUT)){
+			logger.debug("Message is to request stop and re-awaken on timeout");
+			// TODO: functionality here
+		}
+	}
+	
+	private void processStatusMessage(Message<WaspStatus> message){
+		WaspStatusMessageTemplate incomingStatusMessageTemplate = new WaspStatusMessageTemplate((Message<WaspStatus>) message);
+		//remove superfluous headers if present (these are not used to make decisions about acting on messages)
+		sanitizeHeaders(incomingStatusMessageTemplate);
+		logger.debug("Handling message: " + incomingStatusMessageTemplate.toString());
+		if (messageTemplatesWakingStepExecutions.keySet().contains(incomingStatusMessageTemplate)){
+			logger.debug("messageTemplatesForJob.keySet() contains message");
+			for (StepExecution se : messageTemplatesWakingStepExecutions.get(incomingStatusMessageTemplate)){
+				logger.debug("restarting job with JobExecution id=" +se.getJobExecutionId() + " for step " + se.getId() + 
+						" on receiving message " + message);
+				try{
+					reawakenJobExecution(se);
+					// remove all stepExecutions from the re-awoken job from messageTemplatesWakingStepExecutions and remove awake message
+					// if no longer needed
+					for (StepExecution seForJob : jobExplorer.getJobExecution(se.getJobExecutionId()).getStepExecutions()){
+						Set<StatusMessageTemplate> templates = new HashSet<StatusMessageTemplate>(messageTemplatesWakingStepExecutions.keySet());
+						for (StatusMessageTemplate template :templates){
+							if (messageTemplatesWakingStepExecutions.get(template).contains(seForJob)){
+								logger.debug("Removing re-awoken stepExecution id=" + seForJob.getId() + 
+										" from list of step executions re-awoken by message template : " + template.toString());
+								messageTemplatesWakingStepExecutions.get(template).remove(seForJob);
+							}
+							if (messageTemplatesWakingStepExecutions.get(template).isEmpty()){
+								logger.debug("Removing message template from list of messages to watch for as no more StepExecutions depend on it : " + 
+										template.toString());
+								messageTemplatesWakingStepExecutions.remove(template);
+							}
+						}
+					}
+				} catch (WaspBatchJobExecutionException e){
+					logger.warn("Problem reawakening job execution and cleaning up 'messageTemplatesWakingStepExecutions': " + e.getLocalizedMessage());
+				}
+			}
+		}	
+		else
+			logger.debug("messageTemplatesForJob.keySet() does not contain message");
+			for (WaspStatusMessageTemplate mt : messageTemplatesWakingStepExecutions.keySet())
+				logger.debug("messageTemplatesForJob entry : " + mt.toString());
 	}
 	
 	private void reawakenJobExecution(StepExecution se) throws WaspBatchJobExecutionException{
@@ -194,7 +204,7 @@ public class BatchJobHibernationManager {
 			}
 			je = jobExplorer.getJobExecution(jobExecutionId); // get fresh
 			updateBatchJobExitStatus(je, ExitStatus.STOPPED, WaspBatchExitStatus.HIBERNATING);
-			je.getExecutionContext().put(BatchJobHibernationManager.HIBERNATING_CODE, true);
+			je.getExecutionContext().put(BatchJobHibernationManager.HIBERNATING, true);
 			jobRepository.updateExecutionContext(je);
 			logger.debug("status updated :)");
 		} catch (NoSuchJobExecutionException | JobExecutionNotRunningException e1) {
