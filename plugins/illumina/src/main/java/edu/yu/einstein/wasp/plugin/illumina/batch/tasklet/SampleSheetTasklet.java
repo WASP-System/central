@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
 import edu.yu.einstein.wasp.exception.GridException;
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
@@ -32,6 +33,7 @@ public class SampleSheetTasklet extends WaspTasklet {
 	
 	private int runId;
 	private Run run;
+	private int method;
 	
 	@Autowired
 	private IlluminaHiseqSequenceRunProcessor casava;
@@ -41,8 +43,14 @@ public class SampleSheetTasklet extends WaspTasklet {
 	/**
 	 * 
 	 */
-	public SampleSheetTasklet(Integer runId) {
+	public SampleSheetTasklet(Integer runId, int method) {
 		this.runId = runId;
+		if (method != IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX || method != IlluminaHiseqSequenceRunProcessor.DUAL_INDEX) {
+		    logger.error("unable to run illumina pipeline in mode " + method);
+		    throw new WaspRuntimeException("unknown illumina pipeline mode: " + method);
+		}
+		this.method = method;
+		    
 	}
 	
 	public SampleSheetTasklet() {
@@ -57,7 +65,7 @@ public class SampleSheetTasklet extends WaspTasklet {
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws GridException {
 		run = runService.getRunById(runId);
 		logger.debug("preparing sample sheet for " + run.getName() + ":" + run.getPlatformUnit().getName());
-		casava.doSampleSheet(run);
+		casava.doSampleSheet(run, method);
 		return RepeatStatus.FINISHED;
 	}
 

@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.plugin.illumina.batch.tasklet;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,10 +23,13 @@ import edu.yu.einstein.wasp.grid.work.SoftwareManager;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
 import edu.yu.einstein.wasp.service.RunService;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 import edu.yu.einstein.wasp.util.PropertyHelper;
+import edu.yu.einstein.wasp.plugin.babraham.software.TrimGalore;
 
 /**
  * 
@@ -34,9 +38,12 @@ import edu.yu.einstein.wasp.util.PropertyHelper;
  * 
  */
 @Component
-public class StageResultsTasklet extends WaspTasklet {
+public class TrimTasklet extends WaspTasklet {
 
 	private RunService runService;
+	
+	@Autowired
+	private SampleService sampleService;
 
 	private int runId;
 	private Run run;
@@ -45,15 +52,15 @@ public class StageResultsTasklet extends WaspTasklet {
 	private GridHostResolver hostResolver;
 
 	@Autowired
-	private IlluminaHiseqSequenceRunProcessor casava;
+	private TrimGalore trim_galore;
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	public StageResultsTasklet() {
+	public TrimTasklet() {
 		// required by cglib
 	}
 	
-	public StageResultsTasklet(Integer runId) {
+	public TrimTasklet(Integer runId) {
 		this.runId = runId;
 	}
 
@@ -68,9 +75,11 @@ public class StageResultsTasklet extends WaspTasklet {
 			return RepeatStatus.FINISHED;
 		
 		run = runService.getRunById(runId);
+		
+		Set<SampleSource> sampleSources = runService.getCellLibrariesOnSuccessfulRunCells(run);
 
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
-		sd.add(casava);
+		sd.add(trim_galore);
 		
 		WorkUnit w = new WorkUnit();
 		w.setProcessMode(ProcessMode.SINGLE);
@@ -84,42 +93,26 @@ public class StageResultsTasklet extends WaspTasklet {
 		if (!PropertyHelper.isSet(stageDir))
 			throw new GridException("illumina.data.stage is not defined!");
 		
-		w.setWorkingDirectory(dataDir + "/" + run.getName() + "/");
+		w.setWorkingDirectory(dataDir + "/" + run.getName() + "/Unaligned/");
 		
 		w.setResultsDirectory(stageDir + "/" + run.getName());
 		
-		w.setCommand("mkdir -p ${WASP_RESULT_DIR}/Project_WASP");
-		
-		// copy files from single barcode truseq run
-		w.addCommand("if [ -e Unaligned ]; then");
-		w.addCommand("mkdir ${WASP_RESULT_DIR}/Unaligned");
-		w.addCommand("cp -f Unaligned/*.xml ${WASP_RESULT_DIR}/Unaligned/");
-		w.addCommand("cp -f Unaligned/*.txt ${WASP_RESULT_DIR}/Unaligned/");
-		w.addCommand("cp -fR Unaligned/Project_WASP/* ${WASP_RESULT_DIR}/Project_WASP/");
-		w.addCommand("cp -fR Unaligned/Undetermined_indices ${WASP_RESULT_DIR}/Unaligned/");
-		w.addCommand("fi");
-		
-		// copy files from dual barcode truseq run
-		w.addCommand("if [ -e DualUnaligned ]; then");
-		w.addCommand("mkdir ${WASP_RESULT_DIR}/DualUnaligned");
-		w.addCommand("cp -f DualUnaligned/*.xml ${WASP_RESULT_DIR}/DualUnaligned/");
-		w.addCommand("cp -f DualUnaligned/*.txt ${WASP_RESULT_DIR}/DualUnaligned/");
-		w.addCommand("cp -fR DualUnaligned/Project_WASP/* ${WASP_RESULT_DIR}/Project_WASP/");
-		w.addCommand("cp -fR DualUnaligned/Undetermined_indices ${WASP_RESULT_DIR}/DualUnaligned/");
-		w.addCommand("fi");
-		
-		// copy run-specific files
-		w.addCommand("cp -f RunInfo.xml ${WASP_RESULT_DIR}");
-		w.addCommand("cp -f Data/Intensities/BaseCalls/*SampleSheet.csv ${WASP_RESULT_DIR}");
+		w.setCommand("mkdir -p ${WASP_RESULT_DIR}");
+		w.addCommand("cp -f *.xml ${WASP_RESULT_DIR}");
+		w.addCommand("cp -f ../RunInfo.xml ${WASP_RESULT_DIR}");
+		w.addCommand("cp -f ../Data/Intensities/BaseCalls/SampleSheet.csv ${WASP_RESULT_DIR}");
+		w.addCommand("cp -f *.txt ${WASP_RESULT_DIR}");
+		w.addCommand("cp -fR Project_* ${WASP_RESULT_DIR}");
+		w.addCommand("cp -fR Undetermined_indices ${WASP_RESULT_DIR}");
 		w.addCommand("mkdir -p ${WASP_RESULT_DIR}/reports/FWHM");
 		w.addCommand("mkdir -p ${WASP_RESULT_DIR}/reports/Intensity");
 		w.addCommand("mkdir -p ${WASP_RESULT_DIR}/reports/NumGT30");
 		w.addCommand("mkdir -p ${WASP_RESULT_DIR}/reports/ByCycle");
-		w.addCommand("cp -f Data/reports/{*.xml,*[^@].png} ${WASP_RESULT_DIR}/reports");
-		w.addCommand("cp -f Data/reports/FWHM/{*.xml,*[^@].png} ${WASP_RESULT_DIR}/reports/FWHM");
-		w.addCommand("cp -f Data/reports/Intensity/{*.xml,*[^@].png} ${WASP_RESULT_DIR}/reports/Intensity");
-		w.addCommand("cp -f Data/reports/NumGT30/{*.xml,*[^@].png} ${WASP_RESULT_DIR}/reports/NumGT30");
-		w.addCommand("cp -f Data/reports/ByCycle/*.png ${WASP_RESULT_DIR}/reports/ByCycle");
+		w.addCommand("cp -f ../Data/reports/{*.xml,*[^@].png} ${WASP_RESULT_DIR}/reports");
+		w.addCommand("cp -f ../Data/reports/FWHM/{*.xml,*[^@].png} ${WASP_RESULT_DIR}/reports/FWHM");
+		w.addCommand("cp -f ../Data/reports/Intensity/{*.xml,*[^@].png} ${WASP_RESULT_DIR}/reports/Intensity");
+		w.addCommand("cp -f ../Data/reports/NumGT30/{*.xml,*[^@].png} ${WASP_RESULT_DIR}/reports/NumGT30");
+		w.addCommand("cp -f ../Data/reports/ByCycle/*.png ${WASP_RESULT_DIR}/reports/ByCycle");
 
 		GridResult result = gws.execute(w);
 		

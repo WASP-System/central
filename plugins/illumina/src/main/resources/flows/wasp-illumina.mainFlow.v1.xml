@@ -41,7 +41,7 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="waspIlluminaHiSeq.mainFlow.updateRunCompleted" next="waspIlluminaHiSeq.mainFlow.createSampleSheet">
+		<batch:step id="waspIlluminaHiSeq.mainFlow.updateRunCompleted" next="waspIlluminaHiSeq.mainFlow.dualIndexSplit">
 			<!-- task to create a sample sheet. Should do some rudimentary checking on samples. -->
 			<batch:tasklet>
 						<batch:transaction-attributes propagation="NEVER"/>
@@ -50,28 +50,66 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
+		<batch:split id="waspIlluminaHiSeq.mainFlow.dualIndexSplit" next="waspIlluminaHiSeq.mainFlow.stageResults">
+		<!--  processing of illumina runs proceeds in a split step since single index reads and dual index
+				reads require separate runs of the CASAVA pipeline.  Under no circumstances should single
+				index reads and dual index reads be run in the same flowcell lane.   -->
+		<batch:flow>
 		<batch:step id="waspIlluminaHiSeq.mainFlow.createSampleSheet" next="waspIlluminaHiSeq.mainFlow.startIlluminaPipeline">
 			<!-- task to create a sample sheet. Should do some rudimentary checking on samples. -->
 			<batch:tasklet>
 						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.SampleSheetTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+					<constructor-arg name="method" value="single" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="waspIlluminaHiSeq.mainFlow.startIlluminaPipeline" next="waspIlluminaHiSeq.mainFlow.stageResults">
+		<batch:step id="waspIlluminaHiSeq.mainFlow.startIlluminaPipeline">
 			<!-- initiate the illumina pipeline -->
 			<batch:tasklet>
 						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.PipelineTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+					<constructor-arg name="method" value="single" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="waspIlluminaHiSeq.mainFlow.stageResults" next="waspIlluminaHiSeq.mainFlow.demultiplex">
+		</batch:flow>
+		<batch:flow>
+		<batch:step id="waspIlluminaHiSeq.mainFlow.createSampleSheetDual" next="waspIlluminaHiSeq.mainFlow.startIlluminaPipelineDual">
+			<!-- task to create a sample sheet. Should do some rudimentary checking on samples. -->
+			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
+				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.SampleSheetTasklet" scope="step">
+					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+					<constructor-arg name="method" value="dual" />
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		<batch:step id="waspIlluminaHiSeq.mainFlow.startIlluminaPipelineDual">
+			<!-- initiate the illumina pipeline -->
+			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
+				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.PipelineTasklet" scope="step">
+					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+					<constructor-arg name="method" value="dual" />
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		</batch:flow>
+		</batch:split>
+		<batch:step id="waspIlluminaHiSeq.mainFlow.stageResults" next="waspIlluminaHiSeq.mainFlow.trim">
 			<batch:tasklet>
 						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.StageResultsTasklet" scope="step">
+					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		<batch:step id="waspIlluminaHiSeq.mainFlow.trim" next="waspIlluminaHiSeq.mainFlow.demultiplex">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.TrimTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 				</bean>
 			</batch:tasklet>

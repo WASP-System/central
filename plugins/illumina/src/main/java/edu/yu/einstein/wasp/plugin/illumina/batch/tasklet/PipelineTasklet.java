@@ -18,6 +18,7 @@ import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.TaskletRetryException;
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
@@ -45,6 +46,8 @@ public class PipelineTasklet extends WaspTasklet {
 	private int runId;
 	private Run run;
 	
+	private int method;
+	
 	@Autowired
 	private GridHostResolver hostResolver;
 	
@@ -60,8 +63,13 @@ public class PipelineTasklet extends WaspTasklet {
 	/**
 	 * 
 	 */
-	public PipelineTasklet(Integer runId) {
+	public PipelineTasklet(Integer runId, int method) {
 		this.runId = runId;
+		if (method != IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX || method != IlluminaHiseqSequenceRunProcessor.DUAL_INDEX) {
+		    logger.error("unable to run illumina pipeline in mode " + method);
+		    throw new WaspRuntimeException("unknown illumina pipeline mode: " + method);
+		}
+		this.method = method;
 	}
 
 	/* (non-Javadoc)
@@ -85,6 +93,18 @@ public class PipelineTasklet extends WaspTasklet {
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(casava);
 		
+		String outputFolder;
+		String sampleSheetName;
+		
+		if (method == IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX) {
+		    outputFolder = "Unaligned";
+		    sampleSheetName = "SampleSheet.csv";
+		} else {
+		    outputFolder = "DualUnaligned";
+		    sampleSheetName = "DualSampleSheet.csv";
+		}
+		
+		// TODO: handle single and dual situations.
 		
 		// creating a work unit this way sets the runID from the jobparameters
 		WorkUnit w = new WorkUnit();
@@ -107,7 +127,7 @@ public class PipelineTasklet extends WaspTasklet {
 		
 		w.setResultsDirectory(dataDir + "/" + run.getName() + "/Unaligned");
 		
-		w.setCommand(getConfigureBclToFastqString(sm, procs));
+		w.setCommand(getConfigureBclToFastqString(sm, procs, sampleSheetName, outputFolder));
 
 		GridResult result = gws.execute(w);
 		
@@ -119,7 +139,7 @@ public class PipelineTasklet extends WaspTasklet {
 		return RepeatStatus.CONTINUABLE;
 	}
 	
-	private String getConfigureBclToFastqString(SoftwareManager sm, int proc) {
+	private String getConfigureBclToFastqString(SoftwareManager sm, int proc, String sampleSheetName, String outputFolder) {
 		String failed = sm.getConfiguredSetting("casava.with-failed-reads");
 		String mismatches = sm.getConfiguredSetting("casava.mismatches");
 		String missingStats = sm.getConfiguredSetting("casava.ignore-missing-stats");
@@ -127,7 +147,9 @@ public class PipelineTasklet extends WaspTasklet {
 		String missingControl = sm.getConfiguredSetting("casava.ignore-missing-control");
 		String fastqNclusters = sm.getConfiguredSetting("casava.fastq-cluster-count");
 		
-		String retval = "if [ ! -e wasp_begin.txt ]; then\n";
+		String semaphore = sampleSheetName.equals("SampleSheet.csv") ? "wasp_begin.txt" : "dual_wasp_begin.txt";
+		
+		String retval = "if [ ! -e " + semaphore + " ]; then\n";
 		
 		retval+=" loc=\"_pos.txt\"\n" + 
 				" if [ -e ../L001/s_1_1101.clocs ]; then\n" +
@@ -136,14 +158,17 @@ public class PipelineTasklet extends WaspTasklet {
 				"  loc=.locs\n" +
 				" fi\n\n";
 		
-		retval += " configureBclToFastq.pl --force --positions-format ${loc} ";
+		retval += " configureBclToFastq.pl --force --positions-format ${loc} --sample-sheet " + sampleSheetName + " --output-dir ../../../" + outputFolder + " ";
 		
 		if (PropertyHelper.isSet(failed) && failed == "true")
 			retval += "--with-failed-reads ";
 		if (PropertyHelper.isSet(mismatches)) {
 			int mm = new Integer(mismatches).intValue();
-			if (mm == 0 || mm == 1) 
+			if (mm == 0 || mm == 1) { 
 				retval += "--mismatches " + mm + " ";
+			} else {
+			    logger.warn("unknown bcl2fastq mismatch option: " + mm + ", using default");
+			}
 		}
 		if (PropertyHelper.isSet(missingStats) && missingStats == "true")
 			retval += "--ignore-missing-stats ";
@@ -156,9 +181,9 @@ public class PipelineTasklet extends WaspTasklet {
 			retval += "--fastq-cluster-count " + fqc;
 		}
 		
-		retval += "\n\n touch wasp_begin.txt\n\n";
+		retval += "\n\n touch " + semaphore + "\n\n";
 		
-		retval += " cd ../../../Unaligned && make -j ${threads} \n\nfi\n\n";
+		retval += " cd ../../../" + outputFolder + " && make -j ${threads} \n\nfi\n\n";
 
 		return retval;
 	}

@@ -5,6 +5,7 @@ package edu.yu.einstein.wasp.filetype.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -124,6 +125,42 @@ public abstract class FileTypeServiceImpl extends WaspServiceImpl implements Fil
 		fileMeta.setK(area + "." + metaKey);
 		fileMeta.setV(metaValue);
 		fileGroupMetaDao.setMeta(fileMeta);
+	}
+
+	@Override
+	public void addAttribute(FileGroup fg, String attribute) {
+	    // TODO Auto-generated method stub
+	    
+	}
+
+	@Override
+	public void removeAttribute(FileGroup fg, String attribute) {
+	    // TODO Auto-generated method stub
+	    
+	}
+
+	@Override
+	public void setAttributes(FileGroup fg, Set<String> attributes) {
+	    // TODO Auto-generated method stub
+	    
+	}
+
+	@Override
+	public Set<String> getAttributes(FileGroup fg) {
+	    // TODO Auto-generated method stub
+	    return null;
+	}
+
+	@Override
+	public boolean hasAttributes(FileGroup fg, Set<String> attributes) {
+	    // TODO Auto-generated method stub
+	    return false;
+	}
+
+	@Override
+	public boolean hasOnlyAttributes(FileGroup fg, Set<String> attributes) {
+	    // TODO Auto-generated method stub
+	    return false;
 	}
 	
 }

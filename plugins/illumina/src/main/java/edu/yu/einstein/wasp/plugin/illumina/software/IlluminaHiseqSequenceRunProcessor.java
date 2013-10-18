@@ -20,6 +20,7 @@ import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
@@ -58,21 +59,37 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 	private String truseqIndexedDnaArea;
 	
 	public IlluminaHiseqSequenceRunProcessor(){
-		setSoftwareVersion("0.8.2"); // this default may be overridden in wasp.site.properties
+		setSoftwareVersion("1.8.2"); // this default may be overridden in wasp.site.properties
 	}
+	
+	/**
+	 * Static value to indicate that an illumina run was performed on a particular lane as a single index illumina barcode. 
+	 */
+	public static final int SINGLE_INDEX = 1;
+	
+	
+	/**
+	 * Static value to indicate that an illumina run was performed on a particular lane as a dual index illumina barcode.
+	 */
+	public static final int DUAL_INDEX = 2;
 
 	/**
 	 * Called first to set up analysis run.
 	 * 
-	 * @param platformUnit
-	 * @param ghs
-	 * @throws GridException 
+	 * @param run
+	 * @param method IlluminaSequenceRunProcessor.SINGLE_INDEX or DUAL_INDEX
+	 * @throws GridException
 	 */
-	public void doSampleSheet(Run run) throws GridException {
+	public void doSampleSheet(Run run, int method) throws GridException {
 		
 		logger.debug("sample sheet for " + run.getName() + ":" + run.getPlatformUnit().getName());
 		
 		logger.debug(sampleService.toString());
+		
+		if (method != SINGLE_INDEX || method != DUAL_INDEX) {
+		    logger.error("sample sheet method called with unknown strategy: " + method);
+		    throw new WaspRuntimeException("sample sheet method called with unknown strategy: " + method);
+		}
 		
 		WorkUnit w = new WorkUnit();
 				
@@ -99,6 +116,13 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 		
 		String directory = "";
 		
+		String sampleSheetName;
+		if (method == SINGLE_INDEX) {
+		    sampleSheetName = "SampleSheet.csv";
+		} else {
+		    sampleSheetName = "DualSampleSheet.csv";
+		}
+		
 		try {
 			directory = gws.getTransportConnection().getConfiguredSetting("illumina.data.dir") + "/" + run.getName();
 			logger.debug("configured remote directory as " + directory);
@@ -108,7 +132,7 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 			w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 			w.setResultsDirectory(newDir);
 			
-			gfs.put(f, newDir + "SampleSheet.csv");
+			gfs.put(f, newDir + sampleSheetName);
 			logger.debug("deleting temporary local sample sheet " + f.getAbsolutePath());
 			f.delete();
 		} catch (Exception e) {

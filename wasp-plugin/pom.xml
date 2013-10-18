@@ -28,6 +28,11 @@
 	<version>${module.version}</version>
 	</dependency>
 	<dependency>
+	<groupId>edu.yu.einstein.wasp.plugin</groupId>
+	<artifactId>babraham</artifactId>
+	<version>${module.version}</version>
+	</dependency>
+	<dependency>
 	<groupId>edu.yu.einstein.wasp</groupId>
 	<artifactId>illumina</artifactId>
 	<version>${module.version}</version>

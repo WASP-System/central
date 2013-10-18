@@ -24,6 +24,8 @@ public interface FastqService extends WaspService {
 	
 	public static final String FASTQ_INAME = "fastq";
 	
+	public static final String FASTQ_ATTRIBUTE_TRIMMED = "trimmed";
+	
 	/**
 	 * Get FASTQ read number from a FASTQ file.  For Illumina, 1=F 2=R. 
 	 * Returns null if not found.
