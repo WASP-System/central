@@ -11,7 +11,7 @@
 
 	<batch:job-repository id="jobRepository" data-source="batchDataSource"/>
 	
-	<bean id="jobLauncher" class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+	<bean id="jobLauncher" class="edu.yu.einstein.wasp.batch.core.extension.WaspBatchJobLauncher">
 		<property name="jobRepository" ref="jobRepository" />
 		<property name="taskExecutor" ref="taskExecutor" />
 	</bean>
@@ -32,7 +32,7 @@
     </bean>
     
     
-    <bean id="jobOperator" class="org.springframework.batch.core.launch.support.SimpleJobOperator">
+    <bean id="jobOperator" class="edu.yu.einstein.wasp.batch.core.extension.WaspBatchJobOperator">
     	<property name="jobExplorer" ref="jobExplorer" />
     	<property name="jobLauncher" ref="jobLauncher" />
     	<property name="jobRegistry" ref="jobRegistry" />

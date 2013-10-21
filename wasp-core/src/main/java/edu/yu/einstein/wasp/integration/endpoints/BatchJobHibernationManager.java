@@ -31,6 +31,7 @@ import org.springframework.integration.MessageHeaders;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.support.MessageBuilder;
 
+import edu.yu.einstein.wasp.batch.core.extension.JobOperatorWasp;
 import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
@@ -53,7 +54,7 @@ public class BatchJobHibernationManager {
 	
 	private static final Logger logger = LoggerFactory.getLogger(BatchJobHibernationManager.class);
 	
-	private JobOperator jobOperator;
+	private JobOperatorWasp jobOperator;
 	
 	private JobExplorer jobExplorer;
 	
@@ -76,7 +77,7 @@ public class BatchJobHibernationManager {
 	
 	@Autowired
 	public void setJobOperator(JobOperator jobOperator){
-		this.jobOperator = jobOperator;
+		this.jobOperator = (JobOperatorWasp) jobOperator;
 	}
 	
 	/**
@@ -182,8 +183,7 @@ public class BatchJobHibernationManager {
 			se = jobExplorer.getStepExecution(se.getJobExecutionId(), se.getId()); // get fresh object from jobExplorer
 			se.getExecutionContext().put(WOKEN_ON_MESSAGE_KEY, true);
 			jobRepository.updateExecutionContext(se);
-			jobOperator.restart(se.getJobExecutionId());
-			updateBatchJobExitStatus(jobExplorer.getJobExecution(se.getJobExecutionId()), WaspBatchExitStatus.HIBERNATING, ExitStatus.STOPPED);
+			jobOperator.wake(se.getJobExecutionId());
 		} catch (JobInstanceAlreadyCompleteException | NoSuchJobExecutionException | NoSuchJobException | JobRestartException | JobParametersInvalidException e) {
 			throw new WaspBatchJobExecutionException("Unable to restart job with JobExecution id=" + se.getJobExecutionId() + 
 					" (got " + e.getClass().getName() + " Exception :" + e.getLocalizedMessage() + ")");
@@ -193,20 +193,7 @@ public class BatchJobHibernationManager {
 	// TODO: do this work on another thread
 	private void hibernateJobExecution(Long jobExecutionId){
 		try {
-			jobOperator.stop(jobExecutionId);
-			logger.debug("updating exit status of stopped job execution with id=" + jobExecutionId);
-			JobExecution je = jobExplorer.getJobExecution(jobExecutionId);
-			while (!je.getStatus().equals(BatchStatus.STOPPED)){
-				try {
-					Thread.sleep(50); // defend against delay shutting down job
-				} catch (InterruptedException e) {} 
-				je = jobExplorer.getJobExecution(jobExecutionId);
-			}
-			je = jobExplorer.getJobExecution(jobExecutionId); // get fresh
-			updateBatchJobExitStatus(je, ExitStatus.STOPPED, WaspBatchExitStatus.HIBERNATING);
-			je.getExecutionContext().put(BatchJobHibernationManager.HIBERNATING, true);
-			jobRepository.updateExecutionContext(je);
-			logger.debug("status updated :)");
+			jobOperator.hibernate(jobExecutionId);
 		} catch (NoSuchJobExecutionException | JobExecutionNotRunningException e1) {
 			logger.warn("Unable to stop job with JobExecution id=" + jobExecutionId + " (got " + e1.getClass().getName() + " Exception :" + 
 					e1.getLocalizedMessage() + ")");
@@ -265,19 +252,6 @@ public class BatchJobHibernationManager {
 			e.printStackTrace();
 		}
 		return null;
-	}
-	
-	private void updateBatchJobExitStatus(JobExecution jobExecution, ExitStatus oldStatus, ExitStatus newStatus){
-		for (StepExecution se : jobExecution.getStepExecutions()){
-			if (se.getExitStatus().getExitCode().equals(oldStatus.getExitCode())){
-				se.setExitStatus(newStatus);
-				jobRepository.update(se);
-			}
-		}
-		if (jobExecution.getExitStatus().getExitCode().equals(oldStatus.getExitCode())){
-			jobExecution.setExitStatus(newStatus);
-			jobRepository.update(jobExecution);
-		}
 	}
 	
 	/**
