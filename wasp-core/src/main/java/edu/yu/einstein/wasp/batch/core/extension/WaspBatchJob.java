@@ -56,7 +56,9 @@ import org.springframework.util.ClassUtils;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 
 /**
- * Code modified from {@link AbstractJob} and {@link SimpleJob}
+ * Code taken from {@link AbstractJob} and {@link SimpleJob} and modified. Unfortunately it was not possible to inherit from
+ * either directly due to need to modify final method execute(). Also many required methods / fields were private (not protected) so it
+ * was more practical to duplicate and modify the code rather than extend it.
  * @author asmclellan
  *
  */
@@ -103,27 +105,35 @@ public class WaspBatchJob implements Job, StepLocator, BeanNameAware, Initializi
             this.jobParametersValidator = job.getJobParametersValidator();
             this.name = job.getName();
             this.restartable = job.isRestartable();
-            try {
-            	// set listener. Unfortunately no getters for this so use reflection.
-            	Field listenerField = job.getClass().getDeclaredField("listener");
-            	listenerField.setAccessible(true); // because field is private
-				this.listener = (CompositeJobExecutionListener) listenerField.get(job);
-			} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-				logger.warn("Unable to obtain value for 'listener' from provided Job object by reflection: " + e.getLocalizedMessage());
-			}
-            try {
-            	// set jobRepository and stepHandler. Unfortunately no getters for these so use reflection.
-            	Field jobRepositoryField = job.getClass().getDeclaredField("jobRepository");
-            	jobRepositoryField.setAccessible(true); // because field is private
-				setJobRepository( (JobRepository) jobRepositoryField.get(job) );
-			} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-				logger.warn("Unable to obtain value for 'jobRepository' from provided Job object by reflection: " + e.getLocalizedMessage());
-			}
             if (SimpleJob.class.isInstance(job)){
-            	this.steps.clear();
             	SimpleJob sj = (SimpleJob) job;
+            	 try {
+                 	// set listener. Unfortunately no getters for this so use reflection.
+                 	Field listenerField = sj.getClass().getDeclaredField("listener");
+                 	listenerField.setAccessible(true); // because field is private
+     				this.listener = (CompositeJobExecutionListener) listenerField.get(sj);
+     			} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
+     				logger.warn("Unable to obtain value for 'listener' from provided Job object by reflection: " + e.getLocalizedMessage());
+     				e.printStackTrace();
+     			}
+                 try {
+                 	// set jobRepository and stepHandler. Unfortunately no getters for these so use reflection.
+                 	Field jobRepositoryField = sj.getClass().getDeclaredField("jobRepository");
+                 	jobRepositoryField.setAccessible(true); // because field is private
+     				setJobRepository( (JobRepository) jobRepositoryField.get(sj) );
+     			} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
+     				logger.warn("Unable to obtain value for 'jobRepository' from provided Job object by reflection: " + e.getLocalizedMessage());
+     				e.printStackTrace();
+     			}
+                 // set steps
+                this.steps.clear();
             	for ( String stepName : sj.getStepNames() )
             		this.steps.add(sj.getStep(stepName));
+            } else if (WaspBatchJob.class.isInstance(job)){
+            	WaspBatchJob bj = (WaspBatchJob) job;
+            	this.listener = bj.getListener();
+            	setJobRepository(bj.getJobRepository());
+            	this.steps = new ArrayList<>(bj.getSteps());
             }
         }
 
@@ -189,7 +199,15 @@ public class WaspBatchJob implements Job, StepLocator, BeanNameAware, Initializi
                 return jobParametersValidator;
         }
 
-        /**
+        public CompositeJobExecutionListener getListener() {
+			return listener;
+		}
+
+		public List<Step> getSteps() {
+			return steps;
+		}
+
+		/**
          * Boolean flag to prevent categorically a job from restarting, even if it
          * has failed previously.
          *
