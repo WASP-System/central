@@ -114,11 +114,15 @@ public class SoftwareLoadServiceImpl extends WaspLoadServiceImpl implements	Soft
 	    }
 
 	    // delete the left overs
+        // The next block was commented out by Dubin; 10-07-2013 as it removes meta 
+	    //that is added any time after the initial data upload
+	    /*
 	    for (String softwareMetaKey : oldSoftwareMetas.keySet()) {
 	      SoftwareMeta softwareMeta = oldSoftwareMetas.get(softwareMetaKey); 
 	      softwareMetaDao.remove(softwareMeta); 
 	      softwareMetaDao.flush(softwareMeta); 
 	    }
+	    */
 	}
 
 	@SuppressWarnings("unchecked")

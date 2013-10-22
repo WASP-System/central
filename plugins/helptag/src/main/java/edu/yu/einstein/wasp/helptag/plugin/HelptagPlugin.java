@@ -60,7 +60,8 @@ public class HelptagPlugin extends WaspPlugin
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
 
-	public static final String FLOW_NAME = "edu.yu.einstein.wasp.helptag.mainFlow";
+	public static final String PREP_FLOW_NAME = "edu.yu.einstein.wasp.helptag.prepFlow";
+	public static final String AGGR_FLOW_NAME = "edu.yu.einstein.wasp.helptag.aggrFlow";
 
 	public HelptagPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
 		super(iName, waspSiteProperties, channel);
@@ -103,13 +104,13 @@ public class HelptagPlugin extends WaspPlugin
 				return MessageBuilder.withPayload("Unable to determine id from message: " + m.getPayload().toString()).build();
 			
 			Map<String, String> jobParameters = new HashMap<String, String>();
-			logger.info("Sending launch message with flow " + FLOW_NAME + " and id: " + id);
+			logger.info("Sending launch message with flow " + PREP_FLOW_NAME + " and id: " + id);
 			jobParameters.put(WaspJobParameters.TEST_ID, id.toString());
-			waspMessageHandlingService.launchBatchJob(FLOW_NAME, jobParameters);
+			waspMessageHandlingService.launchBatchJob(PREP_FLOW_NAME, jobParameters);
 			return (Message<String>) MessageBuilder.withPayload("Initiating test flow on id " + id).build();
 		} catch (WaspMessageBuildingException e1) {
-			logger.warn("unable to build message to launch batch job " + FLOW_NAME);
-			return MessageBuilder.withPayload("Unable to launch batch job " + FLOW_NAME).build();
+			logger.warn("unable to build message to launch batch job " + PREP_FLOW_NAME);
+			return MessageBuilder.withPayload("Unable to launch batch job " + PREP_FLOW_NAME).build();
 		}
 		
 	}
@@ -146,8 +147,10 @@ public class HelptagPlugin extends WaspPlugin
 	 */
 	@Override
 	public String getBatchJobName(String batchJobType) {
-		if (batchJobType.equals(BatchJobTask.GENERIC)) 
-			return FLOW_NAME;
+		if (batchJobType.equals(BatchJobTask.ANALYSIS_LIBRARY_PREPROCESS)) 
+			return PREP_FLOW_NAME;
+		else if (batchJobType.equals(BatchJobTask.ANALYSIS_AGGREGATE))
+			return AGGR_FLOW_NAME;
 		return null;
 	}
 	
