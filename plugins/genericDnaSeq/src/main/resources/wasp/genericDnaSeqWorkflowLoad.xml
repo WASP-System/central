@@ -35,8 +35,9 @@
 		<property name="dependencies">
 			<list>
 				<ref bean="mpsResourceType" />
-        		<ref bean="referenceBasedAlignerResourceType" />
-			</list>
+        		<ref bean="referenceBasedAlignerResourceType" />       
+        		<ref bean="libraryStrategyResourceType" />
+ 			</list>
 		</property>
 		
 		<property name="sampleSubtypes">
