@@ -5,28 +5,32 @@
 	(function($){ 
 		$(document).ready(function(){
 			
+			<c:if test="${empty edit}">
+			
+				//needed for the addrow and delete row functionality:
+				$(".addRow").btnAddRow();
+				$(".delRow").btnDelRow();
+							
+				$( "#addMoreRowsAnchor" ).click(function() {				
+					var numRowsToAdd = $("#addMoreRows").val();
+					
+					for(var i = 0; i < numRowsToAdd; i++){
+						$(".addRow").trigger("click");
+					}
+					$("#addMoreRows").val("");
+				});
+			
+			</c:if>
+			
 			//if these are libraries, the next two lines are absolutely needed to dynamically set this colspan
 			var tableColspan = $("#singleCellInVeryLastTableRow").attr('colspan');//last row 
 			$("#singleCellInOptionalAdaptorsetTableRow").attr('colspan',tableColspan);//first row 
-			
-			//needed for the addrow and delete row functionality:
-			$(".addRow").btnAddRow();
-			$(".delRow").btnDelRow();
-			
+
 			var selectedAdaptorSet=$('select#adaptorset option:selected').val();
 			if (!selectedAdaptorSet) {
 				$('tr#row_adaptor').hide();
 			}
-			
-			$( "#addMoreRowsAnchor" ).click(function() {				
-				var numRowsToAdd = $("#addMoreRows").val();
-				
-				for(var i = 0; i < numRowsToAdd; i++){
-					$(".addRow").trigger("click");
-				}
-				$("#addMoreRows").val("");
-			});
-		
+
 			//if libraries, then absolutely necessary to update these hidden attributes just before submitting form 
 			$( "#submit" ).click(function() {				
 				var selectedAdaptorSet=$('select#adaptorset option:selected').val();
@@ -65,6 +69,7 @@
 				   	});
 			    });
 		});
+
 	})(jQuery);
 </script>
 
@@ -77,8 +82,11 @@
 <div id="container_div_for_adding_rows" >
 	<h2>Sample Type: <c:out value="${sampleType.name}" /></h2>
 	<h2>Sample Subtype: <c:out value="${sampleSubtype.name}" /></h2>
-	<a style="font-weight:bold" href="javascript:void(0);"  id="addMoreRowsAnchor">Click</a> To Add <input type='text' style="text-align:right;" size='3' maxlength='3' name='addMoreRows' id='addMoreRows' > more row(s)
-	<br /><br />
+	<c:if test="${empty edit}">
+		<a style="font-weight:bold" href="javascript:void(0);"  id="addMoreRowsAnchor">Click</a> To Add <input type='text' style="text-align:right;" size='3' maxlength='3' name='addMoreRows' id='addMoreRows' > more row(s)
+		<br />
+	</c:if>
+	<br />
 	
 	<c:set var="colspan" value = '0' scope="request"/>
 	
@@ -149,7 +157,15 @@
 								</c:if>
 							</c:if>
 						</c:forEach>
-						<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap>Action</td>
+						<c:if test="${empty edit}">
+							<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap>Action</td>
+						</c:if>
+						<c:if test="${edit=='true'}">
+							<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap>
+								Delete Row
+								<br /><a href="javascript:void(0);"  onclick='var foundFirstOne = false; var valueOfFirst = ""; var id = "deleteRow"; var dates=[]; var els=document.getElementsByTagName("*"); for (var i=0; i < els.length; i++){ if ( id==els[i].id ){ if(foundFirstOne==false){foundFirstOne=true; valueOfFirstOne = els[i].value;} els[i].value = valueOfFirstOne; } } ' >first &rarr; others</a>			
+							</td>
+						</c:if>
 						<c:set var="colspan" value = '${colspan + 1}' scope="request"/>
 					</tr>
 				</c:if>
@@ -165,7 +181,10 @@
 							</c:otherwise>
 						</c:choose>
 					</c:if>
-					<td><input type="text" class="FormElement ui-widget-content ui-corner-all"   name='sampleName' id='sampleName' value="${sampleDraft.getName()}"></td>
+					<td>					
+						<input type='hidden' name="sampleId" id="" value='${sampleDraft.getId()}'/>
+						<input type="text" class="FormElement ui-widget-content ui-corner-all"   name='sampleName' id='sampleName' value="${sampleDraft.getName()}">
+					</td>
 					<c:set var="_area" value = "sampleDraft" scope="request"/>
 					<c:set var="_metaList" value = "${sampleDraft.getSampleDraftMeta()}" scope="request" />		
 					<c:forEach items="${_metaList}" var="_meta" varStatus="status">
@@ -219,10 +238,23 @@
 							</c:if>
 						</c:if>			 
 					</c:forEach>
-					<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
+					<td align='center'>
+						<c:if test="${empty edit}">
+							<input type="button" class="delRow" value="Delete Row"/><%--this button IS controlled by the javascript that removes a new row; it's used for new samples or new libraries --%>
+						</c:if>
+						<c:if test="${edit=='true'}">
+							<%-- <input type="button" class="delRow" value="Need To Do: Delete Row"/>--%><%--NOT controlled by that javascript that removes new rows --%>
+							<select name="deleteRow" id="deleteRow" class="FormElement ui-widget-content ui-corner-all">
+								<option value="no"  <c:if test="${deleteRowsList.get(sampleDraftStatus.index)=='no'}">selected</c:if>  >NO</option>
+								<option value="yes" <c:if test="${deleteRowsList.get(sampleDraftStatus.index)=='yes'}">selected</c:if>  >YES</option>
+							</select>
+							<input type='hidden' name="edit" id="" value='${edit}'/><%--need this here if user hits save button and there are errors in the post; we need to inform that this is an edit --%>
+						</c:if>
+					</td>
 				</tr>
 			</c:forEach>
-			<tr ><td id="singleCellInVeryLastTableRow" colspan="${colspan}" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
+			<%--do NOT remove this next line; it's colspan is needed to set colspan of first table row if there are libraries!! --%>
+			<tr ><td id="singleCellInVeryLastTableRow" colspan="${colspan}" align="center"><c:if test="${empty edit}"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></c:if></td></tr>
 			</table>
 		</div>
 		<input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<c:url value="/dashboard.do"/>'" /> 

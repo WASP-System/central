@@ -1343,7 +1343,25 @@ public class JobSubmissionController extends WaspController {
 		m.addAttribute("pageFlowMap", getPageFlowMap(jobDraft));
 		m.addAttribute("fileGroups", fileGroups);
 		m.addAttribute("fileGroupFileHandlesMap", fileGroupFileHandlesMap);
+		m.addAttribute("adaptorSetsUsedOnThisJobDraft", getAdaptorSets(jobDraft));
 		return "jobsubmit/sample";
+	}
+	
+	private List<Adaptorset> getAdaptorSets(JobDraft jobDraft){
+		List<Adaptorset> jobDraftAdaptorSet = new ArrayList<Adaptorset>();
+		for(SampleDraft sampleDraft : jobDraft.getSampleDraft()){
+			try{	
+	  			Adaptorset adaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(Integer.valueOf( MetaHelper.getMetaValue("genericLibrary", "adaptorset", sampleDraft.getSampleDraftMeta())) );
+	  			if(!jobDraftAdaptorSet.contains(adaptorset)){
+	  				jobDraftAdaptorSet.add(adaptorset);
+	  			}
+	  		} catch(MetadataException e){
+	  			logger.warn("Cannot get metadata genericLibrary.adaptorset. Presumably not be defined: " + e.getMessage());
+	  		} catch(NumberFormatException e){
+	  			logger.warn("Cannot convert to numeric value for metadata " + e.getMessage());
+	  		}
+		}
+		return jobDraftAdaptorSet;
 	}
 	
 	@Transactional
@@ -1728,7 +1746,76 @@ public class JobSubmissionController extends WaspController {
 		
 		return "jobsubmit/manysamples";
 	}
-	
+	@Transactional
+	@RequestMapping(value="/manysamples/edit/{jobDraftId}/{sampleSubtypeId}.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String editManySampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, 
+			@PathVariable("sampleSubtypeId") Integer sampleSubtypeId, 
+			@RequestParam (value = "theSelectedAdaptorset", required = false) String theSelectedAdaptorset,
+			ModelMap m) {
+		////************manysamples/edit
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft)){
+			return "redirect:/dashboard.do";
+		}
+	////************manysamples/edit
+		////IF this is library, must segregate by adaptor type!!!!!!
+		SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId);
+		if (sampleSubtype.getId() == null){
+			waspErrorMessage("jobDraft.sampleSubtype_null.error");
+			return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
+		}
+		SampleType sampleType = sampleSubtype.getSampleType();
+		////************manysamples/edit
+		List<SampleDraft> sampleDraftList = new ArrayList<SampleDraft>();
+		for(SampleDraft sampleDraft : jobDraft.getSampleDraft()){
+			if(sampleDraft.getSampleSubtype().getId().intValue()==sampleSubtype.getId().intValue()){
+				List<SampleDraftMeta> normalizedMeta = new ArrayList<SampleDraftMeta>();
+				try {			
+					normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(sampleDraft.getSampleSubtype(), sampleDraft.getSampleDraftMeta(), SampleDraftMeta.class));
+					//not right for here: normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(sampleSubtype, SampleDraftMeta.class));
+				} catch (MetadataTypeException e) {
+					logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
+				}
+				sampleDraft.setSampleDraftMeta(normalizedMeta);
+				if(sampleService.isLibrary(sampleDraft)){
+					try{	
+						Adaptorset adaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(Integer.valueOf( MetaHelper.getMetaValue("genericLibrary", "adaptorset", sampleDraft.getSampleDraftMeta())) );
+						if(adaptorset.getId().intValue() == Integer.parseInt(theSelectedAdaptorset)){
+							sampleDraftList.add(sampleDraft);
+						}
+					}catch(Exception e){
+						logger.warn("Could not get adaptor set from sampledraftmeta: "+ e.getMessage());
+					}
+				}
+				else{
+					sampleDraftList.add(sampleDraft);
+				}
+			}
+		}
+		////************manysamples/edit
+		m.addAttribute("edit", "true");
+		m.addAttribute("jobDraft", jobDraft);
+		m.addAttribute("sampleDraftList", sampleDraftList);
+		m.addAttribute("sampleSubtype", sampleSubtype);
+		m.addAttribute("sampleType", sampleType);
+		m.addAttribute("organisms",  genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
+		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_add_heading.label"));
+		
+		if(theSelectedAdaptorset!=null & theSelectedAdaptorset != ""){
+			m.addAttribute("theSelectedAdaptorset", new Integer(theSelectedAdaptorset));
+		}
+		else{
+			m.addAttribute("theSelectedAdaptorset", "");
+		}
+		
+		///manysamples/edit
+		if (! sampleDraftList.isEmpty() && sampleService.isLibrary(sampleDraftList.get(0))){
+			prepareAdaptorsetsAndAdaptors(jobDraft, sampleDraftList.get(0).getSampleDraftMeta(), m);
+		}
+		
+		return "jobsubmit/manysamples";
+	}
 	@Transactional
 	@RequestMapping(value="/manysamples/add/{jobDraftId}/{sampleSubtypeId}", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
@@ -1747,19 +1834,41 @@ public class JobSubmissionController extends WaspController {
 		}
 		SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId);
 		SampleType sampleType = sampleSubtype.getSampleType();
-				
+
+		String[] sampleIdsAsStringArray = request.getParameterValues("sampleId");
+
 		String[] sampleDraftNamesAsStringArray = request.getParameterValues("sampleName");
 		List<String> sampleDraftNamesAsList = new ArrayList<String>();
 		
-		List<SampleDraft> sampleDraftList = new ArrayList<SampleDraft>();		
+		String[] deleteRowsAsStringArray = request.getParameterValues("deleteRow");//used only for samples/libraries existing already in the database
+		List<String> deleteRowsList = new ArrayList<String>();
+		
+		List<SampleDraft> sampleDraftList = new ArrayList<SampleDraft>();
+		
 		List<String> errorList = new ArrayList<String>();
 		boolean atLeastOneErrorExists = false;
 		
 		int counter = 0;
 		for(String sampleName : sampleDraftNamesAsStringArray){	
 			
-			SampleDraft sampleDraft = new SampleDraft();			
+			String errorsForThisSample = "";
+			
+			SampleDraft sampleDraft = new SampleDraft();
+			String sampleIdAsString = sampleIdsAsStringArray[counter];
+			if( !sampleIdAsString.isEmpty() ){				
+				try{
+					Integer id = new Integer(sampleIdAsString);
+					sampleDraft = sampleDraftDao.getSampleDraftBySampleDraftId(id);
+				}
+				catch(Exception e){
+					continue;//don't know what to do here. for not, skip this 
+				}
+			}
 			sampleDraft.setName(sampleName.trim());//get sampleDraft's sample name
+			
+			if(deleteRowsAsStringArray!=null){
+				deleteRowsList.add(deleteRowsAsStringArray[counter]);//will be yes or no
+			}
 			
 			//get sampleDraftMeta and in process, check it for errors
 			List<SampleDraftMeta> sampleDraftMetaList = new ArrayList<SampleDraftMeta>();
@@ -1779,7 +1888,6 @@ public class JobSubmissionController extends WaspController {
 			}
 			
 			//since we know this row is NOT completely empty, check sample name and metaData for entry errors
-			String errorsForThisSample = "";
 			
 			//first, deal with sample name errors
 			if(sampleDraft.getName().isEmpty()){
@@ -1789,7 +1897,12 @@ public class JobSubmissionController extends WaspController {
 				//next check against sample names ALREADY in the database, for this draft job
 				DataBinder dataBinderForName = new DataBinder(sampleDraft, "sampleDraft");
 				BindingResult resultForName = dataBinderForName.getBindingResult();
-				validateSampleDraftNameUnique(sampleDraft.getName(), 0, jobDraft, resultForName);
+				if(sampleDraft.getId()==null){
+					validateSampleDraftNameUnique(sampleDraft.getName(), 0, jobDraft, resultForName);
+				}else{
+					validateSampleDraftNameUnique(sampleDraft.getName(), sampleDraft.getId(), jobDraft, resultForName);
+				}
+			
 				if(resultForName.hasErrors()){
 					errorsForThisSample += errorsForThisSample.isEmpty()?"sample name already used on this job submission":"; sample name already used on this job submission";
 				}				
@@ -1832,12 +1945,14 @@ public class JobSubmissionController extends WaspController {
 			//fill up map, get assorted other info, and return to web page
 			waspErrorMessage("sampleDetail.updated.error");
 			m.addAttribute("errorList", errorList);
+			m.addAttribute("edit", request.getParameter("edit"));//if this is an edit request, send this paramater back to web
 			m.addAttribute("jobDraft", jobDraft);
 			m.addAttribute("sampleDraftList", sampleDraftList);
 			m.addAttribute("sampleSubtype", sampleSubtype);
 			m.addAttribute("sampleType", sampleType);
 			m.addAttribute("organisms",  genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
 			m.addAttribute("heading", messageService.getMessage("jobDraft.sample_add_heading.label"));
+			m.addAttribute("deleteRowsList", deleteRowsList);//used only during editing of existing samples/libraries
 			
 			//this is not a very good way to do this, but we need to set 
 			//these (or at least one of them) in order to execute the next if statement (sampleService.isLibrary())
@@ -1847,30 +1962,56 @@ public class JobSubmissionController extends WaspController {
 			sampleDraftList.get(0).setSampleType(sampleType);
 			if (sampleService.isLibrary(sampleDraftList.get(0))){
 				prepareAdaptorsetsAndAdaptors(jobDraft, sampleDraftList.get(0).getSampleDraftMeta(), m);
-				m.addAttribute("theSelectedAdaptorset", theSelectedAdaptorset);
+				if(theSelectedAdaptorset!=null & theSelectedAdaptorset != ""){
+					m.addAttribute("theSelectedAdaptorset", new Integer(theSelectedAdaptorset));
+				}
+				else{
+					m.addAttribute("theSelectedAdaptorset", "");
+				}
 			}
 			return "jobsubmit/manysamples";
 		}
 		
 		//no errors, so iterate through sampleDraftList and save each new sampleDraft (excluding rows completely empty)
+		int counter2 = -1;
 		for(SampleDraft sampleDraftToBeSaved : sampleDraftList){
 			
-			//must pull this sampleDraftMeta list out of the sampleDraft prior to saving sampleDraftToBeSaved
-			//the meta is subsequently saved after saving sampleDraftToBeSaved
-			List<SampleDraftMeta> sampleDraftMetaToBeSaved = sampleDraftToBeSaved.getSampleDraftMeta();
-			
-			sampleDraftToBeSaved.setSampleSubtype(sampleSubtype);
-			sampleDraftToBeSaved.setSampleType(sampleType);
-			sampleDraftToBeSaved.setLabId(jobDraft.getLabId());
-			sampleDraftToBeSaved.setUserId(jobDraft.getUserId());
-			sampleDraftToBeSaved.setJobDraftId(jobDraft.getId());
-			
-			SampleDraft sampleDraftSavedToDB = sampleDraftDao.save(sampleDraftToBeSaved);
-			try {
-				sampleDraftMetaDao.setMeta(sampleDraftMetaToBeSaved, sampleDraftSavedToDB.getId());
-			} catch (MetadataException e) {
-				waspErrorMessage("sampleDetail.updated.error");
-				logger.warn("Failed to update metadata!!: " + e.getLocalizedMessage());
+			counter2++;
+
+			//this method now also deals with deleting sampleDrafts (those sampleDrafts that already exist in the database),
+			//do if a sampleDraft is due to be deleted, then do execute that next.
+			if(!deleteRowsList.isEmpty() && "yes".equals(deleteRowsList.get(counter2).toLowerCase()) && sampleDraftToBeSaved.getId()!=null){
+				Map<String, Integer> query = new HashMap<String, Integer>();
+				query.put("sampleDraftId", sampleDraftToBeSaved.getId());
+				for (SampleDraftJobDraftCellSelection cellSelection : sampleDraftToBeSaved.getSampleDraftJobDraftCellSelection()){
+					sampleDraftJobDraftCellSelectionDao.remove(cellSelection);
+				}
+				for (SampleDraftMeta sdm : sampleDraftMetaDao.findByMap(query)){
+					sampleDraftMetaDao.remove(sdm);
+				}
+				sampleDraftDao.remove(sampleDraftToBeSaved);//obviously a misnomer, since we're deleting this sampleDraft
+			}
+			else{//else save; will save draft samples/libraries already in the database and new ones as well
+				
+				//must pull this sampleDraftMeta list out of the sampleDraft and put into a new list, prior to saving sampleDraftToBeSaved; if we did not do this, and the sampleDraft already had an Id, then the meta would be destroyed for some reason, during sampleDraft.save()
+				//the meta is subsequently saved, separately, after saving sampleDraftToBeSaved
+				List<SampleDraftMeta> sampleDraftMetaToBeSaved = new ArrayList<SampleDraftMeta>(sampleDraftToBeSaved.getSampleDraftMeta());
+				
+				sampleDraftToBeSaved.setSampleSubtype(sampleSubtype);
+				sampleDraftToBeSaved.setSampleType(sampleType);
+				sampleDraftToBeSaved.setLabId(jobDraft.getLabId());
+				sampleDraftToBeSaved.setUserId(jobDraft.getUserId());
+				sampleDraftToBeSaved.setJobDraftId(jobDraft.getId());
+				
+				SampleDraft sampleDraftSavedToDB = sampleDraftDao.save(sampleDraftToBeSaved);
+	
+				try {
+					sampleDraftMetaDao.setMeta(sampleDraftMetaToBeSaved, sampleDraftSavedToDB.getId());
+				} catch (MetadataException e) {
+					waspErrorMessage("sampleDetail.updated.error");
+					logger.warn("Failed to update metadata!!: " + e.getLocalizedMessage());
+					return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
+				}
 			}
 		}		
 		waspMessage("sampleDetail.updated_success.label");
