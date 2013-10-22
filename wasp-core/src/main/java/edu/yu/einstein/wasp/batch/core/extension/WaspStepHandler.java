@@ -18,6 +18,7 @@ package edu.yu.einstein.wasp.batch.core.extension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.JobInterruptedException;
@@ -109,7 +110,7 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
             JobInstance jobInstance = execution.getJobInstance();
 
             StepExecution lastStepExecution = jobRepository.getLastStepExecution(jobInstance, step.getName());
-            boolean wasHibernating = lastStepExecution.getExitStatus().getExitCode().equals(WaspBatchExitStatus.HIBERNATING.getExitCode());
+            boolean wasHibernating = execution.getExitStatus().getExitCode().equals(WaspBatchExitStatus.HIBERNATING.getExitCode());
             if (stepExecutionPartOfExistingJobExecution(execution, lastStepExecution) && !wasHibernating) {
                     // If the last execution of this step was in the same job, it's
                     // probably intentional so we want to run it again...
@@ -193,10 +194,10 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
     private boolean shouldStart(StepExecution lastStepExecution, JobInstance jobInstance, Step step, boolean wasHibernating)
                     throws JobRestartException, StartLimitExceededException {
             BatchStatus stepStatus;
+            ExitStatus exitStatus;
             if (lastStepExecution == null || wasHibernating) {
                     stepStatus = BatchStatus.STARTING;
-            }
-            else {
+            } else {
                     stepStatus = lastStepExecution.getStatus();
             }
 

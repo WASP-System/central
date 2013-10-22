@@ -15,6 +15,8 @@
 */
 package edu.yu.einstein.wasp.batch.core.extension;
 
+import java.lang.reflect.Field;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
@@ -24,15 +26,19 @@ import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.UnexpectedJobExecutionException;
 import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.job.flow.FlowJob;
 import org.springframework.batch.core.launch.JobExecutionNotRunningException;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.NoSuchJobException;
 import org.springframework.batch.core.launch.NoSuchJobExecutionException;
+import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.batch.core.launch.support.SimpleJobOperator;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 
@@ -44,44 +50,25 @@ import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 public class WaspBatchJobOperator extends SimpleJobOperator implements JobOperatorWasp {
 	
 	private static final String ILLEGAL_STATE_MSG = "Illegal state (only happens on a race condition): %s with name=%s and parameters=%s";
-	
-	private JobRegistry jobRegistry;
-	
-	private JobExplorer jobExplorer;
-
-    private JobLauncherWasp jobLauncher;
-
-    private JobRepository jobRepository;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
 	public WaspBatchJobOperator() {
 		super();
 	}
-
 	
-	public void setJobRegistry(JobRegistry jobRegistry) {
-		this.jobRegistry = jobRegistry;
-		super.setJobRegistry(jobRegistry);
-	}
-
-
-	public void setJobLauncher(JobLauncherWasp jobLauncher) {
-		this.jobLauncher = jobLauncher;
-		super.setJobLauncher(jobLauncher);
-	}
-	
-	@Override
-	public void setJobExplorer(JobExplorer jobExplorer) {
-		this.jobExplorer = jobExplorer;
-		super.setJobExplorer(jobExplorer);
-	}
-
-	@Override
-	public void setJobRepository(JobRepository jobRepository) {
-		this.jobRepository = jobRepository;
-		super.setJobRepository(jobRepository);
-	}
+	/**
+     * Check mandatory properties.
+     *
+     * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
+     */
+    @Override
+    public void afterPropertiesSet() throws Exception {
+            Assert.notNull(getJobLauncher(), "JobLauncher must be provided");
+            Assert.notNull(getJobRegistry(), "JobLocator must be provided");
+            Assert.notNull(getJobExplorer(), "JobExplorer must be provided");
+            Assert.notNull(getJobRepository(), "JobRepository must be provided");
+    }
 
 	@Override
 	public Long wake(long executionId) throws JobInstanceAlreadyCompleteException, NoSuchJobExecutionException, NoSuchJobException, JobRestartException, JobParametersInvalidException {
@@ -89,16 +76,15 @@ public class WaspBatchJobOperator extends SimpleJobOperator implements JobOperat
         JobExecution jobExecution = findExecutionById(executionId);
 
         String jobName = jobExecution.getJobInstance().getJobName();
-        Job job = new WaspBatchJob(jobRegistry.getJob(jobName));
+        WaspBatchJob job = new WaspBatchJob((FlowJob) getJobRegistry().getJob(jobName));
         JobParameters parameters = jobExecution.getJobParameters();
 
         logger.info(String.format("Attempting to resume job with name=%s and parameters=%s", jobName, parameters));
         try {
-                return jobLauncher.wake(job, parameters).getId();
+                return getJobLauncher().wake(job, parameters).getId();
         }
         catch (JobExecutionAlreadyRunningException e) {
-                throw new UnexpectedJobExecutionException(String.format(ILLEGAL_STATE_MSG, "job execution already running",
-                                jobName, parameters), e);
+                throw new UnexpectedJobExecutionException(String.format(ILLEGAL_STATE_MSG, "job execution already running", jobName, parameters), e);
         }
 	}
 
@@ -108,18 +94,86 @@ public class WaspBatchJobOperator extends SimpleJobOperator implements JobOperat
 		stop(executionId);
 		JobExecution jobExecution = findExecutionById(executionId);
 		jobExecution.getExecutionContext().put(BatchJobHibernationManager.HIBERNATING, true);
-		jobRepository.updateExecutionContext(jobExecution);
+		getJobRepository().updateExecutionContext(jobExecution);
 		return true;
 	}
 	
 	 private JobExecution findExecutionById(long executionId) throws NoSuchJobExecutionException {
-         JobExecution jobExecution = jobExplorer.getJobExecution(executionId);
+         JobExecution jobExecution = getJobExplorer().getJobExecution(executionId);
          
          if (jobExecution == null) {
                  throw new NoSuchJobExecutionException("No JobExecution found for id: [" + executionId + "]");
          }
          return jobExecution;
 
- }
+	 }
+	 
+	 /**
+      * No getter was declared in SimpleJobOperator so we need to use reflection to extract the private value
+      * @return
+      */
+      private JobRepository getJobRepository(){
+    	  	Field jobRepositoryField = null;
+			try {
+				jobRepositoryField = SimpleJobOperator.class.getDeclaredField("jobRepository");
+				jobRepositoryField.setAccessible(true);
+	        	return (JobRepository) jobRepositoryField.get((SimpleJobOperator) this);
+			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+				logger.debug("Unable to obtain JobRepository from super via reflection");
+				e.printStackTrace();
+			}
+			return null;
+     }
+      
+      /**
+       * No getter was declared in SimpleJobOperator so we need to use reflection to extract the private value
+       * @return
+       */
+       private WaspBatchJobLauncher getJobLauncher(){
+     	  	Field jobLauncherField = null;
+ 			try {
+ 				jobLauncherField = SimpleJobOperator.class.getDeclaredField("jobLauncher");
+ 				jobLauncherField.setAccessible(true);
+ 	        	return (WaspBatchJobLauncher) jobLauncherField.get((SimpleJobOperator) this);
+ 			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+ 				logger.debug("Unable to obtain JobLauncher from super via reflection");
+ 				e.printStackTrace();
+ 			}
+ 			return null;
+      }
+       
+       /**
+        * No getter was declared in SimpleJobOperator so we need to use reflection to extract the private value
+        * @return
+        */
+        private JobRegistry getJobRegistry(){
+      	  	Field jobRegistryField = null;
+  			try {
+  				jobRegistryField = SimpleJobOperator.class.getDeclaredField("jobRegistry");
+  				jobRegistryField.setAccessible(true);
+  	        	return (JobRegistry) jobRegistryField.get((SimpleJobOperator) this);
+  			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+  				logger.debug("Unable to obtain JobRegistry from super via reflection");
+  				e.printStackTrace();
+  			}
+  			return null;
+       }
+        
+        /**
+         * No getter was declared in SimpleJobOperator so we need to use reflection to extract the private value
+         * @return
+         */
+         private JobExplorer getJobExplorer(){
+       	  	Field jobExplorerField = null;
+   			try {
+   				jobExplorerField = SimpleJobOperator.class.getDeclaredField("jobExplorer");
+   				jobExplorerField.setAccessible(true);
+   	        	return (JobExplorer) jobExplorerField.get((SimpleJobOperator) this);
+   			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+   				logger.debug("Unable to obtain JobExplorer from super via reflection");
+   				e.printStackTrace();
+   			}
+   			return null;
+        }
 
 }

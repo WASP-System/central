@@ -20,10 +20,7 @@
 package edu.yu.einstein.wasp.batch.core.extension;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,277 +28,109 @@ import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobExecutionListener;
+import org.springframework.batch.core.JobExecutionException;
 import org.springframework.batch.core.JobInterruptedException;
-import org.springframework.batch.core.JobParametersIncrementer;
-import org.springframework.batch.core.JobParametersValidator;
 import org.springframework.batch.core.StartLimitExceededException;
-import org.springframework.batch.core.Step;
-import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.job.AbstractJob;
-import org.springframework.batch.core.job.DefaultJobParametersValidator;
-import org.springframework.batch.core.job.SimpleJob;
+import org.springframework.batch.core.job.flow.Flow;
+import org.springframework.batch.core.job.flow.FlowExecutionException;
+import org.springframework.batch.core.job.flow.FlowJob;
+import org.springframework.batch.core.job.flow.JobFlowExecutor;
 import org.springframework.batch.core.launch.NoSuchJobException;
 import org.springframework.batch.core.launch.support.ExitCodeMapper;
 import org.springframework.batch.core.listener.CompositeJobExecutionListener;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.core.repository.JobRestartException;
-import org.springframework.batch.core.step.StepLocator;
 import org.springframework.batch.repeat.RepeatException;
-import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
 
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 
 /**
- * Code taken from {@link AbstractJob} and {@link SimpleJob} and modified. Unfortunately it was not possible to inherit from
- * either directly due to need to modify final method execute(). Also many required methods / fields were private (not protected) so it
- * was more practical to duplicate and modify the code rather than extend it.
  * @author asmclellan
  *
  */
-public class WaspBatchJob implements Job, StepLocator, BeanNameAware, InitializingBean {
+public class WaspBatchJob extends FlowJob {
 
         protected static final Logger logger = LoggerFactory.getLogger(WaspBatchJob.class);
 
-        private String name;
-
-        private boolean restartable = true;
-
-        private JobRepository jobRepository;
-
-        private CompositeJobExecutionListener listener = new CompositeJobExecutionListener();
-
-        private JobParametersIncrementer jobParametersIncrementer;
-
-        private JobParametersValidator jobParametersValidator = new DefaultJobParametersValidator();
-
-        private WaspStepHandler stepHandler;
-        
-        private List<Step> steps = new ArrayList<Step>();
-
         /**
-         * Default constructor.
+         * Create a {@link WaspBatchJob} with null name and no flow (invalid state).
          */
         public WaspBatchJob() {
                 super();
         }
 
         /**
-         * Convenience constructor to immediately add name (which is mandatory but
-         * not final).
-         *
-         * @param name
+         * Create a {@link WaspBatchJob} with provided name and no flow (invalid state).
          */
         public WaspBatchJob(String name) {
-                super();
-                this.name = name;
+                super(name);
         }
         
-        public WaspBatchJob(Job job) {
-            this.jobParametersIncrementer = job.getJobParametersIncrementer();
-            this.jobParametersValidator = job.getJobParametersValidator();
-            this.name = job.getName();
-            this.restartable = job.isRestartable();
-            if (SimpleJob.class.isInstance(job)){
-            	SimpleJob sj = (SimpleJob) job;
-            	 try {
-                 	// set listener. Unfortunately no getters for this so use reflection.
-                 	Field listenerField = sj.getClass().getDeclaredField("listener");
-                 	listenerField.setAccessible(true); // because field is private
-     				this.listener = (CompositeJobExecutionListener) listenerField.get(sj);
-     			} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-     				logger.warn("Unable to obtain value for 'listener' from provided Job object by reflection: " + e.getLocalizedMessage());
-     				e.printStackTrace();
-     			}
-                 try {
-                 	// set jobRepository and stepHandler. Unfortunately no getters for these so use reflection.
-                 	Field jobRepositoryField = sj.getClass().getDeclaredField("jobRepository");
-                 	jobRepositoryField.setAccessible(true); // because field is private
-     				setJobRepository( (JobRepository) jobRepositoryField.get(sj) );
-     			} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-     				logger.warn("Unable to obtain value for 'jobRepository' from provided Job object by reflection: " + e.getLocalizedMessage());
-     				e.printStackTrace();
-     			}
-                 // set steps
-                this.steps.clear();
-            	for ( String stepName : sj.getStepNames() )
-            		this.steps.add(sj.getStep(stepName));
-            } else if (WaspBatchJob.class.isInstance(job)){
-            	WaspBatchJob bj = (WaspBatchJob) job;
-            	this.listener = bj.getListener();
-            	setJobRepository(bj.getJobRepository());
-            	this.steps = new ArrayList<>(bj.getSteps());
-            }
+        public WaspBatchJob(FlowJob job) {
+        	setJobParametersIncrementer(job.getJobParametersIncrementer());
+            setJobParametersValidator(job.getJobParametersValidator());
+            setName(job.getName());
+            setRestartable(job.isRestartable());
+            try {
+             	// set listener. Unfortunately no getters for this so use reflection.
+             	Field listenerField = AbstractJob.class.getDeclaredField("listener");
+             	listenerField.setAccessible(true); // because field is private
+             	listenerField.set(this, listenerField.get((AbstractJob) job));
+ 			} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
+ 				logger.warn("Unable to set value for 'listener' from value provided Job object by reflection: " + e.getLocalizedMessage());
+ 				e.printStackTrace();
+ 			}
+            try {
+             	// set jobRepository. Unfortunately no getters for these so use reflection.
+             	Field jobRepositoryField = AbstractJob.class.getDeclaredField("jobRepository");
+             	jobRepositoryField.setAccessible(true); // because field is private
+ 				setJobRepository( (JobRepository) jobRepositoryField.get((AbstractJob) job) );
+ 			} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
+ 				logger.warn("Unable to obtain value for 'jobRepository' from provided Job object by reflection: " + e.getLocalizedMessage());
+ 				e.printStackTrace();
+ 			}
+            try {
+             	// set flow. Unfortunately no getters for this so use reflection.
+             	Field flowField = FlowJob.class.getDeclaredField("flow");
+             	flowField.setAccessible(true); // because field is private
+ 				setFlow((Flow) flowField.get(job));
+ 			} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
+ 				logger.warn("Unable to obtain value for 'flow' from provided Job object by reflection: " + e.getLocalizedMessage());
+ 				e.printStackTrace();
+ 			}
+            try {
+             	// set stepMap. Unfortunately no getters for this so use reflection.
+             	Field stepMapField = FlowJob.class.getDeclaredField("stepMap");
+             	stepMapField.setAccessible(true); // because field is private
+             	stepMapField.set(this, stepMapField.get(job));
+ 			} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
+ 				logger.warn("Unable to obtain value for 'stepMap' from provided Job object by reflection: " + e.getLocalizedMessage());
+ 				e.printStackTrace();
+ 			}
+            try {
+             	// set initialized. Unfortunately no getters for this so use reflection.
+             	Field initializedField = FlowJob.class.getDeclaredField("initialized");
+             	initializedField.setAccessible(true); // because field is private
+             	initializedField.set(this, initializedField.get(job));
+ 			} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
+ 				logger.warn("Unable to obtain value for 'initialized' from provided Job object by reflection: " + e.getLocalizedMessage());
+ 				e.printStackTrace();
+ 			}
         }
+        
 
         /**
-         * A validator for job parameters. Defaults to a vanilla
-         * {@link DefaultJobParametersValidator}.
-         *
-         * @param jobParametersValidator
-         * a validator instance
-         */
-        public void setJobParametersValidator(JobParametersValidator jobParametersValidator) {
-                this.jobParametersValidator = jobParametersValidator;
-        }
-
-        /**
-         * Assert mandatory properties: {@link JobRepository}.
-         *
-         * @see InitializingBean#afterPropertiesSet()
-         */
-        @Override
-        public void afterPropertiesSet() throws Exception {
-                Assert.notNull(jobRepository, "JobRepository must be set");
-        }
-
-        /**
-         * Set the name property if it is not already set. Because of the order of
-         * the callbacks in a Spring container the name property will be set first
-         * if it is present. Care is needed with bean definition inheritance - if a
-         * parent bean has a name, then its children need an explicit name as well,
-         * otherwise they will not be unique.
-         *
-         * @see org.springframework.beans.factory.BeanNameAware#setBeanName(java.lang.String)
-         */
-        @Override
-        public void setBeanName(String name) {
-                if (this.name == null) {
-                        this.name = name;
-                }
-        }
-
-        /**
-         * Set the name property. Always overrides the default value if this object
-         * is a Spring bean.
-         *
-         * @see #setBeanName(java.lang.String)
-         */
-        public void setName(String name) {
-                this.name = name;
-        }
-
-        /*
-         * (non-Javadoc)
-         *
-         * @see org.springframework.batch.core.domain.IJob#getName()
-         */
-        @Override
-        public String getName() {
-                return name;
-        }
-
-        @Override
-        public JobParametersValidator getJobParametersValidator() {
-                return jobParametersValidator;
-        }
-
-        public CompositeJobExecutionListener getListener() {
-			return listener;
-		}
-
-		public List<Step> getSteps() {
-			return steps;
-		}
-
-		/**
-         * Boolean flag to prevent categorically a job from restarting, even if it
-         * has failed previously.
-         *
-         * @param restartable
-         * the value of the flag to set (default true)
-         */
-        public void setRestartable(boolean restartable) {
-                this.restartable = restartable;
-        }
-
-        /**
-         * @see Job#isRestartable()
-         */
-        @Override
-        public boolean isRestartable() {
-                return restartable;
-        }
-
-        /**
-         * Public setter for the {@link JobParametersIncrementer}.
-         *
-         * @param jobParametersIncrementer
-         * the {@link JobParametersIncrementer} to set
-         */
-        public void setJobParametersIncrementer(
-                        JobParametersIncrementer jobParametersIncrementer) {
-                this.jobParametersIncrementer = jobParametersIncrementer;
-        }
-
-        /*
-         * (non-Javadoc)
-         *
-         * @see org.springframework.batch.core.Job#getJobParametersIncrementer()
-         */
-        @Override
-        public JobParametersIncrementer getJobParametersIncrementer() {
-                return this.jobParametersIncrementer;
-        }
-
-		/**
-         * Public setter for injecting {@link JobExecutionListener}s. They will all
-         * be given the listener callbacks at the appropriate point in the job.
-         *
-         * @param listeners
-         * the listeners to set.
-         */
-        public void setJobExecutionListeners(JobExecutionListener[] listeners) {
-                for (int i = 0; i < listeners.length; i++) {
-                        this.listener.register(listeners[i]);
-                }
-        }
-
-        /**
-         * Register a single listener for the {@link JobExecutionListener}
-         * callbacks.
-         *
-         * @param listener
-         * a {@link JobExecutionListener}
-         */
-        public void registerJobExecutionListener(JobExecutionListener listener) {
-                this.listener.register(listener);
-        }
-
-        /**
-         * Public setter for the {@link JobRepository} that is needed to manage the
-         * state of the batch meta domain (jobs, steps, executions) during the life
-         * of a job.
-         *
-         * @param jobRepository
-         */
-        public void setJobRepository(JobRepository jobRepository) {
-                this.jobRepository = jobRepository;
-                stepHandler = new WaspStepHandler(jobRepository);
-        }
-
-        /**
-         * Convenience method for subclasses to access the job repository.
-         *
-         * @return the jobRepository
-         */
-        protected JobRepository getJobRepository() {
-                return jobRepository;
-        }
-
-        /**
+         * Alternative of the execute() function of Abstract Job for hibernating jobs
          * Run the specified job, handling all listener and repository calls, and
-         * delegating the actual processing to {@link #doExecute(JobExecution)}.
+         * delegating the actual processing to {@link #doExecuteForHibernation(JobExecution)}.
          *
          * @see Job#execute(JobExecution)
          * @throws StartLimitExceededException
          * if start limit of one of the steps was exceeded
          */
-        @Override
-        public void execute(JobExecution execution) {
+        public void executeForHibernation(JobExecution execution) {
         		boolean hasHibernatingExitStatus = false;
         	    if (execution.getExitStatus().getExitCode().equals(WaspBatchExitStatus.HIBERNATING.getExitCode())){
         	    	hasHibernatingExitStatus = true;
@@ -311,18 +140,17 @@ public class WaspBatchJob implements Job, StepLocator, BeanNameAware, Initializi
         	    }
                 try {
                 		if (!hasHibernatingExitStatus)
-                			jobParametersValidator.validate(execution.getJobParameters());
+                			getJobParametersValidator().validate(execution.getJobParameters());
 
                         if (execution.getStatus() != BatchStatus.STOPPING) {
                         		if (!hasHibernatingExitStatus){
 	                                execution.setStartTime(new Date());
-	                                listener.beforeJob(execution);
-	                                updateStatus(execution, BatchStatus.STARTED);
-                        		} else 
-                        			execution.setEndTime(null);
-
+	                                getListener().beforeJob(execution);
+                        		}
+                        		updateStatus(execution, BatchStatus.STARTED);
+                        		updateExitStatus(execution, ExitStatus.EXECUTING);
                                 try {
-                                        doExecute(execution);
+                                	doExecuteForHibernation(execution);
                                         logger.debug("Job execution complete: " + execution);
                                 } catch (RepeatException e) {
                                         throw e.getCause();
@@ -362,54 +190,77 @@ public class WaspBatchJob implements Job, StepLocator, BeanNameAware, Initializi
                         if (execution.getStatus().isLessThanOrEqualTo(BatchStatus.STOPPED)
                                         && execution.getStepExecutions().isEmpty()) {
                                 ExitStatus exitStatus = execution.getExitStatus();
-                                execution
-                                .setExitStatus(exitStatus.and(ExitStatus.NOOP
+                                execution.setExitStatus(exitStatus.and(ExitStatus.NOOP
                                                 .addExitDescription("All steps already completed or no steps configured for this job.")));
                         }
                         if (!wasHibernationRequested(execution)){
                         	execution.setEndTime(new Date());
 
 	                        try {
-	                                listener.afterJob(execution);
+	                        	getListener().afterJob(execution);
 	                        } catch (Exception e) {
 	                                logger.error("Exception encountered in afterStep callback", e);
 	                        }
                         }
 
-                        jobRepository.update(execution);
+                        getJobRepository().update(execution);
                 }
 
         }
-
+        
         /**
-         * Convenience method for subclasses to delegate the handling of a specific
-         * step in the context of the current {@link JobExecution}. Clients of this
-         * method do not need access to the {@link JobRepository}, nor do they need
-         * to worry about populating the execution context on a restart, nor
-         * detecting the interrupted state (in job or step execution).
-         *
-         * @param step
-         * the {@link Step} to execute
-         * @param execution
-         * the current {@link JobExecution}
-         * @return the {@link StepExecution} corresponding to this step
-         *
-         * @throws JobInterruptedException
-         * if the {@link JobExecution} has been interrupted, and in
-         * particular if {@link BatchStatus#ABANDONED} or
-         * {@link BatchStatus#STOPPING} is detected
-         * @throws StartLimitExceededException
-         * if the start limit has been exceeded for this step
-         * @throws JobRestartException
-         * if the job is in an inconsistent state from an earlier
-         * failure
+         * @see AbstractJob#doExecute(JobExecution)
          */
-        protected StepExecution handleStep(Step step, JobExecution execution)
-                        throws JobInterruptedException, JobRestartException,
-                        StartLimitExceededException {
-                return stepHandler.handleStep(step, execution);
-
+        protected void doExecuteForHibernation(final JobExecution execution) throws JobExecutionException {
+                try {
+                        JobFlowExecutor executor = new JobFlowExecutor(getJobRepository(),
+                                        new WaspStepHandler(getJobRepository()), execution);
+                        executor.updateJobExecutionStatus(getFlow().start(executor).getStatus());
+                }
+                catch (FlowExecutionException e) {
+                        if (e.getCause() instanceof JobExecutionException) {
+                                throw (JobExecutionException) e.getCause();
+                        }
+                        throw new JobExecutionException("Flow execution ended unexpectedly", e);
+                }
         }
+        
+        
+        /**
+         * No getter was declared in Abstract Job so we need to use reflection to extract the private value
+         * @return
+         */
+        private CompositeJobExecutionListener getListener(){
+        	Field listenerField = null;
+			try {
+				listenerField = AbstractJob.class.getDeclaredField("listener");
+	        	listenerField.setAccessible(true);
+	        	return (CompositeJobExecutionListener) listenerField.get((AbstractJob) this);
+			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+				logger.debug("Unable to obtain CompositeJobExecutionListener from super via reflection");
+				e.printStackTrace();
+			}
+			return null;
+        }
+        
+        /**
+         * No getter was declared in FlowJob so we need to use reflection to extract the private value
+         * @return
+         */
+        private Flow getFlow(){
+        	Field flowField = null;
+			try {
+				flowField = FlowJob.class.getDeclaredField("flow");
+				flowField.setAccessible(true);
+	        	return (Flow) flowField.get((FlowJob) this);
+			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+				logger.debug("Unable to obtain Flow from super via reflection");
+				e.printStackTrace();
+			}
+			return null;
+        }
+
+        
 
         /**
          * Default mapping from throwable to {@link ExitStatus}.
@@ -444,94 +295,25 @@ public class WaspBatchJob implements Job, StepLocator, BeanNameAware, Initializi
 
         private void updateStatus(JobExecution jobExecution, BatchStatus status) {
                 jobExecution.setStatus(status);
-                jobRepository.update(jobExecution);
+                getJobRepository().update(jobExecution);
         }
         
-       /**
-         * Public setter for the steps in this job. Overrides any calls to
-         * {@link #addStep(Step)}.
-         *
-         * @param steps the steps to execute
-         */
-        public void setSteps(List<Step> steps) {
-                this.steps.clear();
-                this.steps.addAll(steps);
+        private void updateExitStatus(JobExecution jobExecution,ExitStatus status) {
+            jobExecution.setExitStatus(status);
+            getJobRepository().update(jobExecution);
         }
-
+        
         /**
-         * Convenience method for clients to inspect the steps for this job.
+         * Assert mandatory properties: {@link JobRepository}.
          *
-         * @return the step names for this job
+         * @see InitializingBean#afterPropertiesSet()
          */
         @Override
-        public Collection<String> getStepNames() {
-                List<String> names = new ArrayList<String>();
-                for (Step step : steps) {
-                        names.add(step.getName());
-                }
-                return names;
+        public void afterPropertiesSet() throws Exception {
+                Assert.notNull(getJobRepository(), "JobRepository must be set");
         }
-
-        /**
-         * Convenience method for adding a single step to the job.
-         *
-         * @param step a {@link Step} to add
-         */
-        public void addStep(Step step) {
-                this.steps.add(step);
-        }
-
-        /*
-         * (non-Javadoc)
-         *
-         * @see
-         * org.springframework.batch.core.job.AbstractJob#getStep(java.lang.String)
-         */
-        @Override
-        public Step getStep(String stepName) {
-                for (Step step : this.steps) {
-                        if (step.getName().equals(stepName)) {
-                                return step;
-                        }
-                }
-                return null;
-        }
-
-        /**
-         * Handler of steps sequentially as provided, checking each one for success
-         * before moving to the next. Returns the last {@link StepExecution}
-         * successfully processed if it exists, and null if none were processed.
-         *
-         * @param execution the current {@link JobExecution}
-         *
-         * @see AbstractJob#handleStep(Step, JobExecution)
-         */
-        protected void doExecute(JobExecution execution) throws JobInterruptedException, JobRestartException, StartLimitExceededException {
-
-                StepExecution stepExecution = null;
-                for (Step step : steps) {
-                        stepExecution = handleStep(step, execution);
-                        if (stepExecution.getStatus() != BatchStatus.COMPLETED) {
-                                //
-                                // Terminate the job if a step fails
-                                //
-                                break;
-                        }
-                }
-
-                //
-                // Update the job status to be the same as the last step
-                //
-                if (stepExecution != null) {
-                        logger.debug("Upgrading JobExecution status: " + stepExecution);
-                        execution.upgradeStatus(stepExecution.getStatus());
-                        execution.setExitStatus(stepExecution.getExitStatus());
-                }
-        }
-
-        @Override
-        public String toString() {
-                return ClassUtils.getShortName(getClass()) + ": [name=" + name + "]";
-        }
+        
+       
+       
 
 }

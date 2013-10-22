@@ -15,6 +15,8 @@
 */
 package edu.yu.einstein.wasp.batch.core.extension;
 
+import java.lang.reflect.Field;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
@@ -29,6 +31,7 @@ import org.springframework.batch.core.repository.JobExecutionAlreadyRunningExcep
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.JobRestartException;
+import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.util.Assert;
@@ -37,21 +40,26 @@ public class WaspBatchJobLauncher extends SimpleJobLauncher implements JobLaunch
 	
 	protected static final Logger logger = LoggerFactory.getLogger(WaspBatchJobLauncher.class);
 
-    private JobRepository jobRepository;
-
-    private TaskExecutor taskExecutor;
-
-	public WaspBatchJobLauncher() {
+    public WaspBatchJobLauncher() {
 		super();
+	}
+	
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		 Assert.state(getJobRepository() != null, "A JobRepository has not been set.");
+         if (getTaskExecutor() == null) {
+                 logger.info("No TaskExecutor has been set, defaulting to synchronous executor.");
+                 setTaskExecutor(new SyncTaskExecutor());
+         }
 	}
 
 	@Override
-	public JobExecution wake(final Job job, final JobParameters jobParameters) throws JobExecutionAlreadyRunningException, JobRestartException,
+	public JobExecution wake(final WaspBatchJob job, final JobParameters jobParameters) throws JobExecutionAlreadyRunningException, JobRestartException,
 			JobInstanceAlreadyCompleteException, JobParametersInvalidException {
 		Assert.notNull(job, "The Job must not be null.");
         Assert.notNull(jobParameters, "The JobParameters must not be null.");
 
-        final JobExecution jobExecution = jobRepository.getLastJobExecution(job.getName(), jobParameters);
+        final JobExecution jobExecution = getJobRepository().getLastJobExecution(job.getName(), jobParameters);
         if (jobExecution != null) {
                 if (!job.isRestartable()) {
                         throw new JobRestartException("JobInstance already exists and is not restartable");
@@ -59,7 +67,7 @@ public class WaspBatchJobLauncher extends SimpleJobLauncher implements JobLaunch
                 if (!jobExecution.getExitStatus().getExitCode().equals(WaspBatchExitStatus.HIBERNATING.getExitCode())) {
                     throw new JobRestartException("JobExecution id=" + jobExecution.getJobId() + " is not of ExitStatus HIBERNATING");
                 }
-                jobRepository.update(jobExecution);
+                getJobRepository().update(jobExecution);
                 for (StepExecution execution : jobExecution.getStepExecutions()) {
                         if (!execution.getExitStatus().getExitCode().equals(WaspBatchExitStatus.HIBERNATING.getExitCode())) {
                                 //throw
@@ -71,17 +79,16 @@ public class WaspBatchJobLauncher extends SimpleJobLauncher implements JobLaunch
         // Check the validity of the parameters before doing creating anything
         // in the repository...
         job.getJobParametersValidator().validate(jobParameters);
-               
 
         try {
-                taskExecutor.execute(new Runnable() {
+        	getTaskExecutor().execute(new Runnable() {
 
                         @Override
                         public void run() {
                                 try {
                                         logger.info("Job: [" + job + "] re-launched with the following parameters: [" + jobParameters
                                                         + "]");
-                                        job.execute(jobExecution);
+                                        job.executeForHibernation(jobExecution);
                                         logger.info("Job: [" + job + "] completed with the following parameters: [" + jobParameters
                                                         + "] and the following status: [" + jobExecution.getStatus() + "]");
                                 }
@@ -109,10 +116,44 @@ public class WaspBatchJobLauncher extends SimpleJobLauncher implements JobLaunch
                 if (jobExecution.getExitStatus().equals(ExitStatus.UNKNOWN)) {
                         jobExecution.setExitStatus(ExitStatus.FAILED.addExitDescription(e));
                 }
-                jobRepository.update(jobExecution);
+                getJobRepository().update(jobExecution);
         }
 
         return jobExecution;
 	}
+	
+	/**
+     * No getter was declared in SimpleJobLauncher so we need to use reflection to extract the private value
+     * @return
+     */
+    private JobRepository getJobRepository(){
+    	Field jobRepositoryField = null;
+		try {
+			jobRepositoryField = SimpleJobLauncher.class.getDeclaredField("jobRepository");
+			jobRepositoryField.setAccessible(true);
+        	return (JobRepository) jobRepositoryField.get((SimpleJobLauncher) this);
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			logger.debug("Unable to obtain JobRepository from super via reflection");
+			e.printStackTrace();
+		}
+		return null;
+    }
+    
+    /**
+     * No getter was declared in SimpleJobLauncher so we need to use reflection to extract the private value
+     * @return
+     */
+    private TaskExecutor getTaskExecutor(){
+    	Field taskExecutorField = null;
+		try {
+			taskExecutorField = SimpleJobLauncher.class.getDeclaredField("taskExecutor");
+			taskExecutorField.setAccessible(true);
+        	return (TaskExecutor) taskExecutorField.get((SimpleJobLauncher) this);
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			logger.debug("Unable to obtain TaskExecutor from super via reflection");
+			e.printStackTrace();
+		}
+		return null;
+    }
 
 }
