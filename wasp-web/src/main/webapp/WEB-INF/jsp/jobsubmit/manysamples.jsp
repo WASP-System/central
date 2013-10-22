@@ -255,6 +255,72 @@
 			</c:forEach>
 			<%--do NOT remove this next line; it's colspan is needed to set colspan of first table row if there are libraries!! --%>
 			<tr ><td id="singleCellInVeryLastTableRow" colspan="${colspan}" align="center"><c:if test="${empty edit}"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></c:if></td></tr>
+			
+			
+			
+			<%--THE VERY FINAL ROW, WHICH PUTS ANOTHER HEADER ROW AT BOTTOM OF TABLE --%>
+			<c:forEach items="${sampleDraftList}" var="sampleDraft" varStatus="sampleDraftStatus">
+				<c:if test="${sampleDraftStatus.first}">
+					<tr class="FormData">
+						<c:if test="${fn:length(errorList)>0}">
+							<td align='center' style="background-color:#FAF2D6; font-weight:bold; color:red" nowrap>Errors</td>
+						</c:if>
+						<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap>Sample Name<span style="color:red">*</span></td>
+						<c:set var="colspan" value = '${colspan + 1}' scope="request"/>
+					    <c:set var="_area" value = "sampleDraft" scope="request"/>
+						<c:set var="_metaList" value = "${sampleDraft.getSampleDraftMeta()}" scope="request" />		
+					    <c:forEach items="${_metaList}" var="_meta" varStatus="status">
+							<c:if test="${_meta.property.formVisibility != 'ignore'}">
+								<c:set var="_myArea">${_area}.</c:set>
+								<c:set var="_myCtxArea">${_area}.</c:set>
+								<c:if test="${_metaArea != null}">		
+									<c:set var="_myCtxArea">${_metaArea}.</c:set>
+								</c:if>
+								<c:set var="labelKey" value="${_meta.property.label}" />
+								<c:if test="${fn:contains(labelKey,'Average')}">
+									<c:set var="labelKey" value="${fn:replace(labelKey, 'Average', 'Aver.')}" />
+								</c:if>
+								<c:if test="${fn:contains(labelKey,'Fragmentation')}">
+									<c:set var="labelKey" value="${fn:replace(labelKey, 'Fragmentation', 'Frag.')}" />
+								</c:if>
+								<c:if test="${fn:contains(labelKey,'Concentration')}">
+									<c:set var="labelKey" value="${fn:replace(labelKey, 'Concentration', 'Conc.')}" />
+								</c:if>
+								<c:if test="${fn:contains(labelKey,'Volume')}">
+									<c:set var="labelKey" value="${fn:replace(labelKey, 'Volume', 'Vol.')}" />
+								</c:if>
+								<c:set var="id" value="${fn:substringAfter(_meta.k,'.')}" />
+								<c:if test="${id!='adaptorset' }">
+									<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap>${labelKey}
+										<c:if test="${not empty _meta.property.constraint}">
+											<span style="color:red">*</span>
+										</c:if>
+										<c:if test="${not empty _meta.property.tooltip}">
+											<wasp:tooltip value="${_meta.property.tooltip}" />
+										</c:if>	
+										<%-- <br /><a href="javascript:void(0);"  onclick='var foundFirstOne = false; var valueOfFirst = ""; var idRE = /^<c:out value="${id}" />/; var dates=[]; var els=document.getElementsByTagName("*"); for (var i=0; i < els.length; i++){ if ( idRE.test(els[i].id) ){ if(foundFirstOne==false){foundFirstOne=true; valueOfFirstOne = els[i].value;} els[i].value = valueOfFirstOne; } } ' >first &rarr; all</a>--%>		
+										<br /><a href="javascript:void(0);"  onclick='var foundFirstOne = false; var valueOfFirst = ""; var id = "<c:out value="${id}" />"; var dates=[]; var els=document.getElementsByTagName("*"); for (var i=0; i < els.length; i++){ if ( id==els[i].id ){ if(foundFirstOne==false){foundFirstOne=true; valueOfFirstOne = els[i].value;} els[i].value = valueOfFirstOne; } } ' >first &rarr; others</a>		
+									</td>
+								</c:if>
+							</c:if>
+						</c:forEach>
+						<c:if test="${empty edit}">
+							<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap>Action</td>
+						</c:if>
+						<c:if test="${edit=='true'}">
+							<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap>
+								Delete Row
+								<br /><a href="javascript:void(0);"  onclick='var foundFirstOne = false; var valueOfFirst = ""; var id = "deleteRow"; var dates=[]; var els=document.getElementsByTagName("*"); for (var i=0; i < els.length; i++){ if ( id==els[i].id ){ if(foundFirstOne==false){foundFirstOne=true; valueOfFirstOne = els[i].value;} els[i].value = valueOfFirstOne; } } ' >first &rarr; others</a>			
+							</td>
+						</c:if>
+						</tr>
+					</c:if>
+				</c:forEach>
+				<%--END OF SECTION : THE VERY FINAL ROW, WHICH PUTS ANOTHER HEADER ROW AT BOTTOM OF TABLE --%>
+			
+				
+			
+			
 			</table>
 		</div>
 		<input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<c:url value="/dashboard.do"/>'" /> 
