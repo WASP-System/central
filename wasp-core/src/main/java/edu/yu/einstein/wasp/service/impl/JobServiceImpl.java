@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
@@ -78,7 +79,7 @@ import edu.yu.einstein.wasp.exception.JobContextInitializationException;
 import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
-import edu.yu.einstein.wasp.exception.SampleException;
+import edu.yu.einstein.wasp.exception.QuoteException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
@@ -2323,9 +2324,11 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 
 	/**
 	 * {@inheritDoc}
+	 * @throws QuoteException 
+	 * @throws WaspMessageBuildingException 
 	 */
 	@Override
-	public void addNewQuote(Integer jobId, AcctQuote quoteForm, List<AcctQuoteMeta> metaList) throws Exception{
+	public void addNewQuote(Integer jobId, AcctQuote quoteForm, List<AcctQuoteMeta> metaList) throws QuoteException, WaspMessageBuildingException {
 		Assert.assertParameterNotNullNotZero(jobId, "jobId cannot be null or zero");
 		Job job = jobDao.getById(jobId);
 		Assert.assertParameterNotNull(job, "job cannot be null");
@@ -2342,7 +2345,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		if(quoteId==null||quoteId==0){		
 			String str = "acctQuote not properly saved to database - invalid id";
 			logger.warn(str);
-			throw new Exception(str);
+			throw new QuoteException(str);
 		}
 		//might want to confirm the values in the meta are strings representing floats?? not currently checked, in case other fields are later added
 		try{
@@ -2351,7 +2354,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			}
 		} catch (MetadataException e){
 			logger.warn(e.getMessage());
-			throw new Exception(e.getMessage());
+			throw new QuoteException(e);
 		}
 		if (!job.getAcctQuote().contains(quoteForm)){//it will not contain it, as this is a new quote
 					
@@ -2364,7 +2367,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				this.updateJobQuoteStatus(job, WaspStatus.COMPLETED);	
 			} catch (WaspMessageBuildingException e){
 				logger.warn(e.getMessage());
-				throw new Exception(e.getMessage());
+				throw new WaspMessageBuildingException(e);
 			}
 		}
 	}
@@ -2398,9 +2401,14 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	
 	/** 
 	 * {@inheritDoc}
+	 * @throws FileUploadException 
+	 * @throws JSONException 
+	 * @throws WaspMessageBuildingException 
+	 * @throws QuoteException 
+	 * @throws Exception 
 	 */
 	@Override
-	public void createNewQuoteAndSaveQuoteFile(MPSQuote mpsQuote, File file, Float totalFinalCost, boolean saveQuoteAsJSON) throws Exception{
+	public void createNewQuoteAndSaveQuoteFile(MPSQuote mpsQuote, File file, Float totalFinalCost, boolean saveQuoteAsJSON) throws FileUploadException, JSONException, QuoteException{
 			Job job = this.getJobByJobId(mpsQuote.getJobId());
 		
 			Date now = new Date();
@@ -2423,16 +2431,22 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 	   		acctQuoteMeta2.setV(mpsQuote.getAsJSON().toString());
 	 	   		acctQuoteMetaList.add(acctQuoteMeta2);
 	 	   	}
-	 	   	this.addNewQuote(job.getId(), acctQuote, acctQuoteMetaList);
+	 	   	try {
+				this.addNewQuote(job.getId(), acctQuote, acctQuoteMetaList);
+			} catch (WaspMessageBuildingException e) {
+				throw new MessagingException(e.getLocalizedMessage());
+			}
 	}
 	
 	/** 
 	 * {@inheritDoc}
+	 * @throws QuoteException 
+	 * @throws WaspMessageBuildingException 
 	 */
 	@Override
-	public void createNewQuoteOrInvoiceAndUploadFile(Job job, MultipartFile mpFile, String fileDescription, Float totalCost) throws FileUploadException, Exception{
+	public void createNewQuoteOrInvoiceAndUploadFile(Job job, MultipartFile mpFile, String fileDescription, Float totalCost) throws FileUploadException, QuoteException, WaspMessageBuildingException{
 		if(!fileDescription.equalsIgnoreCase("quote") && !fileDescription.equalsIgnoreCase("invoice")){
-			  throw new Exception(); 
+			  throw new QuoteException(); 
 		}
  	   	FileGroup fileGroup = fileService.uploadFileAndReturnFileGroup(mpFile, job, fileDescription, new Random(System.currentTimeMillis()));
  	   	//if this is a new quote, save quote; if invoice, save invoice
