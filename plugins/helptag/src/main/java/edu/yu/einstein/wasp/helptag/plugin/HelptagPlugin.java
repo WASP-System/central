@@ -18,21 +18,21 @@ import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 
-import edu.yu.einstein.wasp.Hyperlink;
+import edu.yu.einstein.wasp.Hyperlink; 
 import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
-import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
+import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask; 
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.FileGroup;
-import edu.yu.einstein.wasp.plugin.BatchJobProviding;
+import edu.yu.einstein.wasp.plugin.BatchJobProviding; 
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WebInterfacing;
+import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
-import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 /**
@@ -44,6 +44,11 @@ public class HelptagPlugin extends WaspPlugin
 			WebInterfacing,
 			FileDataTabViewing,
 			ClientMessageI {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1505200481435526198L;
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
@@ -105,7 +110,7 @@ public class HelptagPlugin extends WaspPlugin
 			
 			Map<String, String> jobParameters = new HashMap<String, String>();
 			logger.info("Sending launch message with flow " + PREP_FLOW_NAME + " and id: " + id);
-			jobParameters.put(WaspJobParameters.TEST_ID, id.toString());
+			jobParameters.put(WaspJobParameters.FILE_GROUP_ID, id.toString());
 			waspMessageHandlingService.launchBatchJob(PREP_FLOW_NAME, jobParameters);
 			return (Message<String>) MessageBuilder.withPayload("Initiating test flow on id " + id).build();
 		} catch (WaspMessageBuildingException e1) {
@@ -178,7 +183,7 @@ public class HelptagPlugin extends WaspPlugin
 		return null;
 	}
 	
-		
+	
 	/**
 	 * Wasp plugins implement InitializingBean to give authors an opportunity to initialize at runtime.
 	 */
