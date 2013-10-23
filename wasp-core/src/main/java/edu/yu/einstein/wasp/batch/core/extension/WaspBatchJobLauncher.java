@@ -26,6 +26,7 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.job.flow.FlowJob;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
@@ -52,6 +53,15 @@ public class WaspBatchJobLauncher extends SimpleJobLauncher implements JobLaunch
                  setTaskExecutor(new SyncTaskExecutor());
          }
 	}
+	
+	@Override
+    public JobExecution run(final Job job, final JobParameters jobParameters)
+                    throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException,
+                    JobParametersInvalidException {
+		return super.run(new WaspBatchJob((FlowJob) job), jobParameters);
+	}
+	
+	
 
 	@Override
 	public JobExecution wake(final WaspBatchJob job, final JobParameters jobParameters) throws JobExecutionAlreadyRunningException, JobRestartException,
@@ -88,7 +98,7 @@ public class WaspBatchJobLauncher extends SimpleJobLauncher implements JobLaunch
                                 try {
                                         logger.info("Job: [" + job + "] re-launched with the following parameters: [" + jobParameters
                                                         + "]");
-                                        job.executeForHibernation(jobExecution);
+                                        job.execute(jobExecution);
                                         logger.info("Job: [" + job + "] completed with the following parameters: [" + jobParameters
                                                         + "] and the following status: [" + jobExecution.getStatus() + "]");
                                 }
