@@ -107,9 +107,9 @@ public abstract class SampleAndSampleDraftMetaHelper {
 		MetaHelperWebapp.validate(metaHelper.getParentArea(), validatedFormMeta, result);
 		return validatedFormMeta;
 	}
-	
+		
 	/**
-	 * Gets all metadata filled in on the form from the json string using the areas representative of the supplied {@link SampleSubtype} and validates. Validation errors are added to the result. 
+	 * Gets all metadata filled in on the form from the http string using the areas representative of the supplied {@link SampleSubtype} and validates. Validation errors are added to the result. 
 	 * @param request
 	 * @param areas
 	 * @param result
@@ -117,6 +117,39 @@ public abstract class SampleAndSampleDraftMetaHelper {
 	 */
 	public static <T extends MetaBase> List<T> getValidatedMetaFromRequestAndTemplateToSubtype(HttpServletRequest request, SampleSubtype sampleSubtype, BindingResult result, Class<T> clazz) throws MetadataTypeException{
 		return getValidatedMetaFromRequestAndTemplateToSubtype(request, sampleSubtype, result, null, clazz);
+	}
+	
+	/**
+	 * Gets all metadata for an object (indexed by counter) filled in on a form where the http request string contains multiple objects using the areas representative of the supplied {@link SampleSubtype} and validates. Validation errors are added to the result. 
+	 * @param request
+	 * @param areas
+	 * @param result
+	 * @param visibilityElementMap
+	 * @param int counter (zero-based index into the request)
+	 * @return list of sample meta data
+	 */
+	public static <T extends MetaBase>  List<T> getValidatedMetaFromRequestAndTemplateToSubtype(HttpServletRequest request, SampleSubtype sampleSubtype, BindingResult result, Map<String, MetaAttribute.FormVisibility> visibilityElementMap, Class<T> clazz, int counter) throws MetadataTypeException{
+		validateClass(clazz);
+		List<T> validatedFormMeta = new ArrayList<T>();
+		MetaHelperWebapp metaHelper = new MetaHelperWebapp(clazz);
+		for (String area : sampleSubtype.getComponentMetaAreas()){
+			metaHelper.setArea(area);
+			validatedFormMeta.addAll(metaHelper.getFromRequest(request, visibilityElementMap, clazz, counter));
+		}
+		MetaHelperWebapp.validate(metaHelper.getParentArea(), validatedFormMeta, result);
+		return validatedFormMeta;
+	}
+	
+	/**
+	 * Gets all metadata for an object (indexed by counter) filled in on a form where the http request string contains multiple objects using the areas representative of the supplied {@link SampleSubtype} and validates. Validation errors are added to the result. 
+	 * @param request
+	 * @param areas
+	 * @param result
+	 * @param int counter (zero-based index into the request)
+	 * @return list of sample meta data
+	 */
+	public static <T extends MetaBase> List<T> getValidatedMetaFromRequestAndTemplateToSubtype(HttpServletRequest request, SampleSubtype sampleSubtype, BindingResult result, Class<T> clazz, int counter) throws MetadataTypeException{
+		return getValidatedMetaFromRequestAndTemplateToSubtype(request, sampleSubtype, result, null, clazz, counter);
 	}
 
 	/**
