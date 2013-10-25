@@ -193,10 +193,10 @@ public class WaspBatchJob extends AbstractWaspBatchJob {
          * @see AbstractJob#doExecute(JobExecution)
          */
         @Override
-        protected void doExecute(final JobExecution execution) throws JobExecutionException {
+        protected void doExecute(final JobExecution execution, boolean wasHibernating) throws JobExecutionException {
                 try {
                         JobFlowExecutor executor = new JobFlowExecutor(getJobRepository(),
-                                        new WaspStepHandler(getJobRepository()), execution);
+                                        new WaspStepHandler(getJobRepository(), wasHibernating), execution);
                         executor.updateJobExecutionStatus(flow.start(executor).getStatus());
                 }
                 catch (FlowExecutionException e) {

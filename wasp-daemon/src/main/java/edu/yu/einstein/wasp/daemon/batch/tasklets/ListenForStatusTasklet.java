@@ -65,29 +65,7 @@ public class ListenForStatusTasklet extends WaspHibernatingTasklet  {
 		}
 		return RepeatStatus.CONTINUABLE;
 	}
-	
-	@Override
-	protected void requestHibernation(ChunkContext context, Object trigger){
-		Collection<WaspStatusMessageTemplate> messageTemplates = (Collection<WaspStatusMessageTemplate>) trigger;
-		StepContext stepContext = context.getStepContext();
-		Long jobExecutionId = stepContext.getStepExecution().getJobExecutionId();
-		logger.info("Going to hibernate job " + stepContext.getJobName() + 
-				" (execution id=" + stepContext.getStepExecution().getJobExecutionId() + ") from step " + 
-				stepContext.getStepName() + " (step id=" + stepContext.getStepExecution().getId() + ")");
-		HibernationMessageTemplate messageTemplate = new HibernationMessageTemplate(stepContext.getStepExecution(), HibernationType.STOP_AND_AWAKE_ON_MESSAGE);
-		Message<HibernationType> message = null;
-		try {
-			message = messageTemplate.build();
-			logger.debug("sending message: " + message);
-			MessagingTemplate messagingTemplate = new MessagingTemplate();
-			messagingTemplate.send(sendChannel, message);
-			wasHibernationSuccessfullyRequested = true;
-		} catch (Exception e) {
-			logger.warn("Unable to hibernate batch JobExecution id= " + jobExecutionId + ". Failure to send reply message (reason: " + 
-					e.getLocalizedMessage() + ") to reply channel specified in source message : " + message.toString() + ". Original exception stack: ");
-			e.printStackTrace();
-		}
-	}
+		
 	
 	private boolean wasWokenOnMessage(ChunkContext context){
 		ExecutionContext executionContext = context.getStepContext().getStepExecution().getExecutionContext();

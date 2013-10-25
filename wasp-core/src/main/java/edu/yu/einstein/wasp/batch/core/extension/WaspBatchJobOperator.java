@@ -86,18 +86,7 @@ public class WaspBatchJobOperator extends SimpleJobOperator implements JobOperat
 
 	@Override
 	public boolean hibernate(long executionId) throws NoSuchJobExecutionException, JobExecutionNotRunningException {
-		JobExecution jobExecution = findExecutionById(executionId);
-		if (jobExecution.getExecutionContext().containsKey(BatchJobHibernationManager.HIBERNATING) &&
-				(boolean) jobExecution.getExecutionContext().get(BatchJobHibernationManager.HIBERNATING)){
-			logger.warn("Request made to hibernate but JobExecution id=" + executionId + 
-					" is already marked as hibernating. Going to return false.");
-			return false;
-		}
-		jobExecution.getExecutionContext().put(BatchJobHibernationManager.HIBERNATING, false);
-		jobExecution.getExecutionContext().put(BatchJobHibernationManager.HIBERNATION_REQUESTED, true);
-		getJobRepository().updateExecutionContext(jobExecution);
-		stop(executionId);
-		return true;
+		return stop(executionId);
 	}
 	
 	 private JobExecution findExecutionById(long executionId) throws NoSuchJobExecutionException {

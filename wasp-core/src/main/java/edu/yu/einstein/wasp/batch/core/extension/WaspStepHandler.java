@@ -45,6 +45,8 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
 	private JobRepository jobRepository;
 	
 	private ExecutionContext executionContext;
+	
+	private boolean wasHibernating = false;
 
     
 
@@ -70,6 +72,26 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
             this.jobRepository = jobRepository;
             this.executionContext = executionContext;
     }
+    
+    /**
+     * @param jobRepository
+     * @param wasHibernating
+     */
+    public WaspStepHandler(JobRepository jobRepository, boolean wasHibernating) {
+            this.jobRepository = jobRepository;
+            this.wasHibernating = wasHibernating;
+    }
+    
+    /**
+     * @param jobRepository
+     * @param executionContext
+     * @param wasHibernating
+     */
+    public WaspStepHandler(JobRepository jobRepository, ExecutionContext executionContext, boolean wasHibernating) {
+            this.jobRepository = jobRepository;
+            this.executionContext = executionContext;
+            this.wasHibernating = wasHibernating;
+    }
 
  
     /**
@@ -89,7 +111,15 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
             this.jobRepository = jobRepository;
     }
     
-    /**
+    public boolean wasHibernating() {
+		return wasHibernating;
+	}
+
+	public void setWasHibernating(boolean wasHibernating) {
+		this.wasHibernating = wasHibernating;
+	}
+
+	/**
      * A context containing values to be added to the step execution before it
      * is handled.
      *
@@ -98,8 +128,8 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
     public void setExecutionContext(ExecutionContext executionContext) {
             this.executionContext = executionContext;
     }
-
     
+
     @Override
     public StepExecution handleStep(Step step, JobExecution execution) throws JobInterruptedException,
     JobRestartException, StartLimitExceededException {
@@ -110,7 +140,6 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
             JobInstance jobInstance = execution.getJobInstance();
 
             StepExecution lastStepExecution = jobRepository.getLastStepExecution(jobInstance, step.getName());
-            boolean wasHibernating = execution.getExitStatus().getExitCode().equals(WaspBatchExitStatus.HIBERNATING.getExitCode());
             if (stepExecutionPartOfExistingJobExecution(execution, lastStepExecution) && !wasHibernating) {
                     // If the last execution of this step was in the same job, it's
                     // probably intentional so we want to run it again...
@@ -195,8 +224,7 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
     private boolean shouldStart(StepExecution lastStepExecution, JobInstance jobInstance, Step step, boolean wasHibernating)
                     throws JobRestartException, StartLimitExceededException {
             BatchStatus stepStatus;
-            ExitStatus exitStatus;
-            if (lastStepExecution == null || wasHibernating) {
+            if (lastStepExecution == null) {
                     stepStatus = BatchStatus.STARTING;
             } else {
                     stepStatus = lastStepExecution.getStatus();
@@ -207,15 +235,21 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
                                     + "The last execution ended with a failure that could not be rolled back, "
                                     + "so it may be dangerous to proceed. Manual intervention is probably necessary.");
             }
-
-            if ((stepStatus == BatchStatus.COMPLETED && step.isAllowStartIfComplete() == false)
-                            || stepStatus == BatchStatus.ABANDONED) {
+            
+            if ((stepStatus == BatchStatus.COMPLETED && (step.isAllowStartIfComplete() == false || wasHibernating))
+                            || stepStatus == BatchStatus.ABANDONED ) {
                     // step is complete, false should be returned, indicating that the
                     // step should not be started
                     logger.info("Step already complete or not restartable, so no action to execute: " + lastStepExecution);
                     return false;
             }
-
+            if (lastStepExecution != null){
+	            WaspBatchExitStatus wbes = new WaspBatchExitStatus(lastStepExecution.getExitStatus());
+	            if (wbes.isHibernating()){
+	            	logger.debug("Job was hibernating so not applying startup limits");
+	            	return true; // no start limit
+	            }
+            }
             if (jobRepository.getStepExecutionCount(jobInstance, step.getName()) < step.getStartLimit()) {
                     // step start count is less than start max, return true
                     return true;
