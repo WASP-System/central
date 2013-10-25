@@ -143,6 +143,7 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
             			
                     try {
                             step.execute(currentStepExecution);
+                            
                     }
                     catch (JobInterruptedException e) {
                             // Ensure that the job gets the message that it is stopping

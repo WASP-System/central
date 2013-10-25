@@ -30,7 +30,6 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionException;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.AbstractJob;
-import org.springframework.batch.core.job.SimpleStepHandler;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.job.flow.FlowExecutionException;
 import org.springframework.batch.core.job.flow.FlowHolder;
@@ -96,27 +95,28 @@ public class WaspBatchJob extends AbstractWaspBatchJob {
  			}
             try {
              	// set flow. Unfortunately no getters for this so use reflection.
-             	Field flowField = job.getClass().getDeclaredField("flow");
+             	Field flowField = FlowJob.class.getDeclaredField("flow");
              	flowField.setAccessible(true); // because field is private
- 				setFlow((Flow) flowField.get(job));
+ 				flow = (Flow) flowField.get(job);
  			} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
  				logger.warn("Unable to obtain value for 'flow' from provided Job object by reflection: " + e.getLocalizedMessage());
  				e.printStackTrace();
  			}
             try {
              	// set stepMap. Unfortunately no getters for this so use reflection.
-             	Field stepMapField = job.getClass().getDeclaredField("stepMap");
+             	Field stepMapField = FlowJob.class.getDeclaredField("stepMap");
              	stepMapField.setAccessible(true); // because field is private
-             	stepMapField.set(this, stepMapField.get(job));
+             	stepMap.clear();
+             	stepMap.putAll((ConcurrentHashMap<String, Step>) stepMapField.get(job));
  			} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
  				logger.warn("Unable to obtain value for 'stepMap' from provided Job object by reflection: " + e.getLocalizedMessage());
  				e.printStackTrace();
  			}
             try {
              	// set initialized. Unfortunately no getters for this so use reflection.
-             	Field initializedField = job.getClass().getDeclaredField("initialized");
+             	Field initializedField = FlowJob.class.getDeclaredField("initialized");
              	initializedField.setAccessible(true); // because field is private
-             	initializedField.set(this, initializedField.get(job));
+             	initialized = (boolean) initializedField.get(job);
  			} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
  				logger.warn("Unable to obtain value for 'initialized' from provided Job object by reflection: " + e.getLocalizedMessage());
  				e.printStackTrace();
@@ -143,7 +143,8 @@ public class WaspBatchJob extends AbstractWaspBatchJob {
                 return stepMap.get(stepName);
         }
 
-        /**
+
+		/**
          * Initialize the step names
          */
         private void init() {
@@ -195,7 +196,7 @@ public class WaspBatchJob extends AbstractWaspBatchJob {
         protected void doExecute(final JobExecution execution) throws JobExecutionException {
                 try {
                         JobFlowExecutor executor = new JobFlowExecutor(getJobRepository(),
-                                        new SimpleStepHandler(getJobRepository()), execution);
+                                        new WaspStepHandler(getJobRepository()), execution);
                         executor.updateJobExecutionStatus(flow.start(executor).getStatus());
                 }
                 catch (FlowExecutionException e) {

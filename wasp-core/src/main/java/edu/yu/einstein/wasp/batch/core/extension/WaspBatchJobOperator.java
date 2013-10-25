@@ -34,7 +34,6 @@ import org.springframework.batch.core.repository.JobExecutionAlreadyRunningExcep
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.JobRestartException;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
@@ -86,12 +85,18 @@ public class WaspBatchJobOperator extends SimpleJobOperator implements JobOperat
 	}
 
 	@Override
-	@Transactional
 	public boolean hibernate(long executionId) throws NoSuchJobExecutionException, JobExecutionNotRunningException {
-		stop(executionId);
 		JobExecution jobExecution = findExecutionById(executionId);
-		jobExecution.getExecutionContext().put(BatchJobHibernationManager.HIBERNATING, true);
+		if (jobExecution.getExecutionContext().containsKey(BatchJobHibernationManager.HIBERNATING) &&
+				(boolean) jobExecution.getExecutionContext().get(BatchJobHibernationManager.HIBERNATING)){
+			logger.warn("Request made to hibernate but JobExecution id=" + executionId + 
+					" is already marked as hibernating. Going to return false.");
+			return false;
+		}
+		jobExecution.getExecutionContext().put(BatchJobHibernationManager.HIBERNATING, false);
+		jobExecution.getExecutionContext().put(BatchJobHibernationManager.HIBERNATION_REQUESTED, true);
 		getJobRepository().updateExecutionContext(jobExecution);
+		stop(executionId);
 		return true;
 	}
 	

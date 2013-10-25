@@ -39,25 +39,29 @@ public class WaspBatchExitStatus extends ExitStatus {
 	 */
 	@Override
 	public boolean isRunning(){
-		if (super.isRunning() || getExitCode().equals(HIBERNATING))
+		if (isRunningAndAwake() || getExitCode().equals(HIBERNATING.getExitCode()))
 			return true;
 		return false;
 	}
 	
 	public boolean isHibernating(){
-		return getExitCode().equals(HIBERNATING);
+		return getExitCode().equals(HIBERNATING.getExitCode());
 	}
 	
 	public boolean isCompleted(){
-		return getExitCode().equals(COMPLETED);
+		return getExitCode().equals(COMPLETED.getExitCode());
 	}
 	
 	public boolean isFailed(){
-		return getExitCode().equals(FAILED);
+		return getExitCode().equals(FAILED.getExitCode());
 	}
 	
 	public boolean isTerminated(){
-		return getExitCode().equals(TERMINATED);
+		return getExitCode().equals(TERMINATED.getExitCode());
+	}
+	
+	public boolean isStopped(){
+		return getExitCode().equals(STOPPED.getExitCode());
 	}
 	
 	/**
@@ -65,7 +69,7 @@ public class WaspBatchExitStatus extends ExitStatus {
 	 * @return
 	 */
 	public boolean isRunningAndAwake(){
-		return super.isRunning();
+		return getExitCode().equals(EXECUTING.getExitCode()) || getExitCode().equals(UNKNOWN.getExitCode());
 	}
 
 }
