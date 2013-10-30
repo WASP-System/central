@@ -35,6 +35,8 @@ public abstract class WaspHibernatingTasklet extends WaspTasklet implements Step
 			messageTemplates.add((WaspStatusMessageTemplate) o); 
 		ExecutionContext executionContext = context.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
 		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
+		for (Entry<String,Object> entry: context.getStepContext().getJobExecutionContext().entrySet())
+			logger.debug("JobExecutionContext : " + entry.getKey() + "=" + entry.getValue().toString());
 		for (Entry<String,Object> entry: executionContext.entrySet())
 			logger.debug("ExecutionContext : " + entry.getKey() + "=" + entry.getValue().toString());
 		for (Entry<String,Object> entry: stepExecutionContext.entrySet())
@@ -47,6 +49,10 @@ public abstract class WaspHibernatingTasklet extends WaspTasklet implements Step
 			return;
 		}
 		executionContext.put(BatchJobHibernationManager.HIBERNATION_REQUESTED, true);
+		for (Entry<String,Object> entry: executionContext.entrySet())
+			logger.debug("ExecutionContext after addition: " + entry.getKey() + "=" + entry.getValue().toString());
+		for (Entry<String,Object> entry: context.getStepContext().getJobExecutionContext().entrySet())
+			logger.debug("JobExecutionContext after addition: " + entry.getKey() + "=" + entry.getValue().toString());
 		StepContext stepContext = context.getStepContext();
 		Long jobExecutionId = stepContext.getStepExecution().getJobExecutionId();
 		logger.info("Going to hibernate job " + stepContext.getJobName() + 

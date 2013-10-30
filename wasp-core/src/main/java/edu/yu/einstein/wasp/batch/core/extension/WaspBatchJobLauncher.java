@@ -81,7 +81,8 @@ public class WaspBatchJobLauncher extends SimpleJobLauncher implements JobLaunch
 		Assert.notNull(job, "The Job must not be null.");
         Assert.notNull(jobParameters, "The JobParameters must not be null.");
         job.setJobExplorer(jobExplorer);
-        final JobExecution jobExecution = getJobRepository().getLastJobExecution(job.getName(), jobParameters);
+        final JobExecution jobExecution = jobExplorer.getJobExecution(getJobRepository().getLastJobExecution(job.getName(), jobParameters).getId());
+        //final JobExecution jobExecution = getJobRepository().getLastJobExecution(job.getName(), jobParameters);
         
         if (jobExecution != null) {
                 if (!job.isRestartable()) {

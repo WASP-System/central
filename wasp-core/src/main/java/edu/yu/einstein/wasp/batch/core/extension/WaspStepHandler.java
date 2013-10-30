@@ -134,6 +134,8 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
     public StepExecution handleStep(Step step, JobExecution execution) throws JobInterruptedException,
     JobRestartException, StartLimitExceededException {
     		logger.debug("Execution: " + execution);
+    		logger.debug("JobExecution has " + execution.getStepExecutions().size() + " steps");
+            logger.debug("JobExecutionContext contains " + execution.getExecutionContext().size() + " values in it");
             if (execution.isStopping()) {
                     throw new JobInterruptedException("JobExecution interrupted.");
             }
@@ -152,6 +154,7 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
             StepExecution currentStepExecution = lastStepExecution;
             if (shouldStart(currentStepExecution, jobInstance, step, wasHibernating)) {
             		if (wasHibernating){
+            			currentStepExecution.setEndTime(null);
             			updateStatus(currentStepExecution, BatchStatus.STARTING, ExitStatus.EXECUTING);
             			logger.info("Re-starting step after hibernation: [" + currentStepExecution + "]");
             		} else {
