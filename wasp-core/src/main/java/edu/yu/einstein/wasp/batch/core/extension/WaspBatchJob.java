@@ -70,7 +70,9 @@ public class WaspBatchJob extends AbstractWaspBatchJob {
                 super(name);
         }
         
-        public WaspBatchJob(FlowJob job) {
+       
+		@SuppressWarnings("unchecked")
+		public WaspBatchJob(FlowJob job) {
         	setJobParametersIncrementer(job.getJobParametersIncrementer());
             setJobParametersValidator(job.getJobParametersValidator());
             setName(job.getName());

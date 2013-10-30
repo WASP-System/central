@@ -25,7 +25,7 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersInvalidException;
-import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.job.flow.FlowJob;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
@@ -40,6 +40,8 @@ import org.springframework.util.Assert;
 public class WaspBatchJobLauncher extends SimpleJobLauncher implements JobLauncherWasp {
 	
 	protected static final Logger logger = LoggerFactory.getLogger(WaspBatchJobLauncher.class);
+	
+	private JobExplorer jobExplorer;
 
     public WaspBatchJobLauncher() {
 		super();
@@ -54,11 +56,21 @@ public class WaspBatchJobLauncher extends SimpleJobLauncher implements JobLaunch
          }
 	}
 	
+	public JobExplorer getJobExplorer() {
+		return jobExplorer;
+	}
+
+	public void setJobExplorer(JobExplorer jobExplorer) {
+		this.jobExplorer = jobExplorer;
+	}
+
 	@Override
     public JobExecution run(final Job job, final JobParameters jobParameters)
                     throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException,
                     JobParametersInvalidException {
-		return super.run(new WaspBatchJob((FlowJob) job), jobParameters);
+		WaspBatchJob waspBatchJob = new WaspBatchJob((FlowJob) job);
+		waspBatchJob.setJobExplorer(jobExplorer);
+		return super.run(waspBatchJob, jobParameters);
 	}
 	
 	
@@ -68,8 +80,9 @@ public class WaspBatchJobLauncher extends SimpleJobLauncher implements JobLaunch
 			JobInstanceAlreadyCompleteException, JobParametersInvalidException {
 		Assert.notNull(job, "The Job must not be null.");
         Assert.notNull(jobParameters, "The JobParameters must not be null.");
-
+        job.setJobExplorer(jobExplorer);
         final JobExecution jobExecution = getJobRepository().getLastJobExecution(job.getName(), jobParameters);
+        
         if (jobExecution != null) {
                 if (!job.isRestartable()) {
                         throw new JobRestartException("JobInstance already exists and is not restartable");
@@ -77,15 +90,11 @@ public class WaspBatchJobLauncher extends SimpleJobLauncher implements JobLaunch
                 if (!jobExecution.getExitStatus().getExitCode().equals(WaspBatchExitStatus.HIBERNATING.getExitCode())) {
                     throw new JobRestartException("JobExecution id=" + jobExecution.getJobId() + " is not of ExitStatus HIBERNATING");
                 }
-                getJobRepository().update(jobExecution);
-                for (StepExecution execution : jobExecution.getStepExecutions()) {
-                        if (!execution.getExitStatus().getExitCode().equals(WaspBatchExitStatus.HIBERNATING.getExitCode())) {
-                                //throw
-                                throw new JobRestartException("Step id=" + execution.getId() + " is not of ExitStatus HIBERNATING");
-                        }//end if
-                }//end for                        
+                                       
         }
-
+        logger.debug("Waking up JobExecution : " + jobExecution);
+        logger.debug("JobExecution has " + jobExecution.getStepExecutions().size() + " steps");
+        logger.debug("JobExecutionContext contains " + jobExecution.getExecutionContext().size() + " values in it");
         // Check the validity of the parameters before doing creating anything
         // in the repository...
         job.getJobParametersValidator().validate(jobParameters);

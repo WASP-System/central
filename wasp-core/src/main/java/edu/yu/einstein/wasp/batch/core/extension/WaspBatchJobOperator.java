@@ -19,6 +19,7 @@ import java.lang.reflect.Field;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersInvalidException;
@@ -34,6 +35,7 @@ import org.springframework.batch.core.repository.JobExecutionAlreadyRunningExcep
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.JobRestartException;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
@@ -85,8 +87,21 @@ public class WaspBatchJobOperator extends SimpleJobOperator implements JobOperat
 	}
 
 	@Override
+	@Transactional
 	public boolean hibernate(long executionId) throws NoSuchJobExecutionException, JobExecutionNotRunningException {
-		return stop(executionId);
+		JobExecution jobExecution = findExecutionById(executionId);
+        // Indicate the execution should be stopped by setting it's status to
+        // 'STOPPING'. It is assumed that
+        // the step implementation will check this status at chunk boundaries.
+        BatchStatus status = jobExecution.getStatus();
+        if (!(status == BatchStatus.STARTED || status == BatchStatus.STARTING)) {
+                throw new JobExecutionNotRunningException("JobExecution must be running so that it can be stopped: "+jobExecution);
+        }
+        jobExecution.setStatus(BatchStatus.STOPPING);
+        jobExecution.setExitStatus(jobExecution.getExitStatus().addExitDescription(BatchJobHibernationManager.HIBERNATION_REQUESTED));
+        getJobRepository().update(jobExecution);
+
+		return true;
 	}
 	
 	 private JobExecution findExecutionById(long executionId) throws NoSuchJobExecutionException {

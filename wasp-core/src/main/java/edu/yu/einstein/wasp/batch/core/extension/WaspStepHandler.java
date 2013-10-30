@@ -133,6 +133,7 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
     @Override
     public StepExecution handleStep(Step step, JobExecution execution) throws JobInterruptedException,
     JobRestartException, StartLimitExceededException {
+    		logger.debug("Execution: " + execution);
             if (execution.isStopping()) {
                     throw new JobInterruptedException("JobExecution interrupted.");
             }
@@ -151,7 +152,8 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
             StepExecution currentStepExecution = lastStepExecution;
             if (shouldStart(currentStepExecution, jobInstance, step, wasHibernating)) {
             		if (wasHibernating){
-            			logger.info("Re-starting step after hibernation: [" + step.getName() + "]");
+            			updateStatus(currentStepExecution, BatchStatus.STARTING, ExitStatus.EXECUTING);
+            			logger.info("Re-starting step after hibernation: [" + currentStepExecution + "]");
             		} else {
             			currentStepExecution = execution.createStepExecution(step.getName());
 
@@ -167,7 +169,7 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
 
                         jobRepository.add(currentStepExecution);
 
-                        logger.info("Executing step: [" + step.getName() + "]");
+                        logger.info("Executing stepExecution: [" + currentStepExecution + "]");
             		}
             			
                     try {
@@ -208,6 +210,12 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
             return stepExecution != null && stepExecution.getJobExecutionId() != null
                             && stepExecution.getJobExecutionId().equals(jobExecution.getId());
     }
+    
+    private void updateStatus(StepExecution stepExecution, BatchStatus status, ExitStatus exStatus) {
+    	stepExecution.setStatus(status);
+    	stepExecution.setExitStatus(exStatus);
+        jobRepository.update(stepExecution);
+}
 
     /**
      * Given a step and configuration, return true if the step should start,

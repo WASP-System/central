@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.integration.endpoints;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -10,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
@@ -32,8 +34,6 @@ import edu.yu.einstein.wasp.batch.core.extension.JobOperatorWasp;
 import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
-import edu.yu.einstein.wasp.integration.messages.templates.HibernationMessageTemplate;
-import edu.yu.einstein.wasp.integration.messages.templates.HibernationMessageTemplate.HibernationType;
 import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
@@ -45,7 +45,7 @@ import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemp
  */
 public class BatchJobHibernationManager {
 
-	public static final String HIBERNATING = "HIBERNATING";
+	public static final String HIBERNATING = "wasHibernating";
 	public static final String HIBERNATION_REQUESTED = "requestHibernation";
 	public static final String WOKEN_ON_MESSAGE_KEY = "wokenOnMessage";
 	public static final String MESSAGES_TO_WAKE = "w_msgs";
@@ -91,6 +91,13 @@ public class BatchJobHibernationManager {
 		} catch (Exception e) {
 			logger.warn("Unable to obtain stored wake message templates from stepExecution id=" + stepExecutionId + ": " + e.getLocalizedMessage());
 		}
+		addMessageTemplatesForJobStep(jobExecutionId, stepExecutionId, messageTemplates);
+	}
+	
+	
+	
+	public void addMessageTemplatesForJobStep(Long jobExecutionId, Long stepExecutionId, Collection<WaspStatusMessageTemplate> messageTemplates) {
+		StepExecution se = jobExplorer.getStepExecution(jobExecutionId, stepExecutionId);
 		if (!messageTemplates.isEmpty()){
 			logger.debug("Populating hibernation manager with " + messageTemplates + " message templates for stepExecution id=" + stepExecutionId);
 			for (WaspStatusMessageTemplate messageTemplate: messageTemplates){
@@ -101,43 +108,8 @@ public class BatchJobHibernationManager {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	@ServiceActivator
-	public Message<WaspStatus> handleMessage(Message<?> message){
-		logger.debug("handling message: " + message);
-		Message<WaspStatus> replyMessage = null;
-		if (HibernationMessageTemplate.isMessageOfCorrectType(message)){
-			processHibernateMessage((Message<HibernationType>) message);
-		} else {
-			logger.trace("Message is not a request stop message");
-			if (WaspStatus.class.isInstance(message.getPayload())){
-				logger.trace("Message payload is of type WaspStatus");
-				processStatusMessage((Message<WaspStatus>) message);
-				replyMessage = getReplyMessage((Message<WaspStatus>) message);
-			}
-		}	
-		return replyMessage;
-	}
-	
-	private void processHibernateMessage(Message<HibernationType> message){
-		HibernationMessageTemplate messageTemplate = new HibernationMessageTemplate(message);
-		if (messageTemplate.getHibernationType().equals(HibernationType.STOP_AND_AWAKE_ON_MESSAGE)){
-			logger.debug("Message is to request stop and re-awaken on message");
-			addMessageTemplatesForJobStep(messageTemplate.getJobExecutionId(), messageTemplate.getStepExecutionId());
-			WaspBatchExitStatus exitStatus = new WaspBatchExitStatus(jobExplorer.getJobExecution(messageTemplate.getJobExecutionId()).getExitStatus());
-			logger.debug("job with id=" + messageTemplate.getJobExecutionId() + " has ExitStatus of " + exitStatus + " and isRunningAndAwake=" + exitStatus.isRunningAndAwake());
-			if (exitStatus.isRunningAndAwake()){
-				logger.debug("Going to hibernate JobExecution id=" + messageTemplate.getJobExecutionId() + " (requested from step Id=" + 
-						messageTemplate.getStepExecutionId() + ")");
-				hibernateJobExecution(messageTemplate.getJobExecutionId());
-			}
-		} else if (messageTemplate.getHibernationType().equals(HibernationType.STOP_AND_AWAKE_ON_TIMEOUT)){
-			logger.debug("Message is to request stop and re-awaken on timeout");
-			// TODO: functionality here
-		}
-	}
-	
-	private void processStatusMessage(Message<WaspStatus> message){
+	public Message<WaspStatus> processStatusMessage(Message<WaspStatus> message){
 		WaspStatusMessageTemplate incomingStatusMessageTemplate = new WaspStatusMessageTemplate((Message<WaspStatus>) message);
 		//remove superfluous headers if present (these are not used to make decisions about acting on messages)
 		sanitizeHeaders(incomingStatusMessageTemplate);
@@ -175,26 +147,50 @@ public class BatchJobHibernationManager {
 			logger.debug("messageTemplatesForJob.keySet() does not contain message");
 			for (WaspStatusMessageTemplate mt : messageTemplatesWakingStepExecutions.keySet())
 				logger.debug("messageTemplatesForJob entry : " + mt.toString());
+		return getReplyMessage(message);
 	}
 	
-	private void reawakenJobExecution(StepExecution se) throws WaspBatchJobExecutionException{
-		try {
-			se = jobExplorer.getStepExecution(se.getJobExecutionId(), se.getId()); // get fresh object from jobExplorer
-			se.getExecutionContext().put(WOKEN_ON_MESSAGE_KEY, true);
+	/**
+	 * Attempts to extract message templates pre-stored in the stepExecutionContext 
+	 * and requests hibernation from Spring Batch extension 
+	 * @param stepExecutionId
+	 * @param jobExecutionId
+	 */
+	public void processHibernateRequest(Long jobExecutionId, Long stepExecutionId, Collection<WaspStatusMessageTemplate> messageTemplates){
+		logger.debug("Request received to request stop and re-awaken on message");
+		addMessageTemplatesForJobStep(jobExecutionId, stepExecutionId, messageTemplates);
+		WaspBatchExitStatus exitStatus = new WaspBatchExitStatus(jobExplorer.getJobExecution(jobExecutionId).getExitStatus());
+		logger.debug("job with id=" + jobExecutionId + " has ExitStatus of " + exitStatus + " and isRunningAndAwake=" + exitStatus.isRunningAndAwake());
+		if (exitStatus.isRunningAndAwake()){
+			logger.debug("Going to hibernate JobExecution id=" + jobExecutionId + " (requested from step Id=" + stepExecutionId + ")");
+			hibernateJobExecution(jobExecutionId);
+		}
+	}
+	
+	private void reawakenJobExecution(StepExecution stepExecution) throws WaspBatchJobExecutionException{
+		JobExecution je = jobExplorer.getJobExecution(stepExecution.getJobExecutionId());
+		//je.getExecutionContext().remove(HIBERNATION_REQUESTED);
+		//jobRepository.updateExecutionContext(je);
+		for (StepExecution se : je.getStepExecutions()){
+			se.getExecutionContext().put(HIBERNATING, true);
+			if (se.getId().equals(stepExecution.getId()))
+				se.getExecutionContext().put(WOKEN_ON_MESSAGE_KEY, true);
 			jobRepository.updateExecutionContext(se);
-			jobOperator.wake(se.getJobExecutionId());
+		}
+		
+		try{
+			jobOperator.wake(stepExecution.getJobExecutionId());
 		} catch (JobInstanceAlreadyCompleteException | NoSuchJobExecutionException | NoSuchJobException | JobRestartException | JobParametersInvalidException e) {
-			throw new WaspBatchJobExecutionException("Unable to restart job with JobExecution id=" + se.getJobExecutionId() + 
+			throw new WaspBatchJobExecutionException("Unable to restart job with JobExecution id=" + stepExecution.getJobExecutionId() + 
 					" (got " + e.getClass().getName() + " Exception :" + e.getLocalizedMessage() + ")");
 		}
 	}
 	
-	// TODO: do this work on another thread
 	private void hibernateJobExecution(Long jobExecutionId){
 		try {
 			jobOperator.hibernate(jobExecutionId);
 		} catch (NoSuchJobExecutionException | JobExecutionNotRunningException e1) {
-			logger.warn("Unable to stop job with JobExecution id=" + jobExecutionId + " (got " + e1.getClass().getName() + " Exception :" + 
+			logger.warn("Unable to hibernate job with JobExecution id=" + jobExecutionId + " (got " + e1.getClass().getName() + " Exception :" + 
 					e1.getLocalizedMessage() + ")");
 		}
 	}
