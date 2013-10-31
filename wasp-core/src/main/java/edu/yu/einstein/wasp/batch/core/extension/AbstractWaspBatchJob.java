@@ -337,7 +337,7 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
                                 execution.setStartTime(new Date());
                                 listener.beforeJob(execution);
                     		}
-                    		updateStatus(execution, BatchStatus.STARTED, ExitStatus.EXECUTING);
+                    		updateStatus(execution, BatchStatus.STARTED);
                             try {
                             	doExecute(execution, hasHibernatingExitStatus);
                                     logger.debug("Job execution complete: " + execution);
@@ -421,14 +421,14 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
 	                    	}
                     	} while (!allStepsComplete);
                     } else {
-                    	execution.setEndTime(new Date());
+                    	//execution.setEndTime(new Date());
                         try {
                         	listener.afterJob(execution);
                         } catch (Exception e) {
                                 logger.error("Exception encountered in afterStep callback", e);
                         }
                     }
-
+                    execution.setEndTime(new Date());
                     jobRepository.update(execution);
             }
         }
@@ -502,9 +502,8 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
     }
 
 
-        private void updateStatus(JobExecution jobExecution, BatchStatus status, ExitStatus exStatus) {
+        private void updateStatus(JobExecution jobExecution, BatchStatus status) {
                 jobExecution.setStatus(status);
-                jobExecution.setExitStatus(exStatus);
                 jobRepository.update(jobExecution);
         }
        

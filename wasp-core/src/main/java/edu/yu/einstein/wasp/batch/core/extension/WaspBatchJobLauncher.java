@@ -81,25 +81,25 @@ public class WaspBatchJobLauncher extends SimpleJobLauncher implements JobLaunch
 		Assert.notNull(job, "The Job must not be null.");
         Assert.notNull(jobParameters, "The JobParameters must not be null.");
         job.setJobExplorer(jobExplorer);
-        final JobExecution jobExecution = jobExplorer.getJobExecution(getJobRepository().getLastJobExecution(job.getName(), jobParameters).getId());
-        //final JobExecution jobExecution = getJobRepository().getLastJobExecution(job.getName(), jobParameters);
+        final JobExecution jobExecution;
+        JobExecution lastExecution = getJobRepository().getLastJobExecution(job.getName(), jobParameters);
         
-        if (jobExecution != null) {
+        if (lastExecution != null) {
                 if (!job.isRestartable()) {
                         throw new JobRestartException("JobInstance already exists and is not restartable");
                 }
-                if (!jobExecution.getExitStatus().getExitCode().equals(WaspBatchExitStatus.HIBERNATING.getExitCode())) {
-                    throw new JobRestartException("JobExecution id=" + jobExecution.getJobId() + " is not of ExitStatus HIBERNATING");
+                if (!lastExecution.getExitStatus().getExitCode().equals(WaspBatchExitStatus.HIBERNATING.getExitCode())) {
+                    throw new JobRestartException("JobExecution id=" + lastExecution.getJobId() + " is not of ExitStatus HIBERNATING");
                 }
                                        
         }
-        logger.debug("Waking up JobExecution : " + jobExecution);
-        logger.debug("JobExecution has " + jobExecution.getStepExecutions().size() + " steps");
-        logger.debug("JobExecutionContext contains " + jobExecution.getExecutionContext().size() + " values in it");
+        logger.debug("Waking up JobExecution : " + lastExecution);
+        logger.debug("JobExecution has " + lastExecution.getStepExecutions().size() + " steps");
+        logger.debug("JobExecutionContext contains " + lastExecution.getExecutionContext().size() + " values in it");
         // Check the validity of the parameters before doing creating anything
         // in the repository...
         job.getJobParametersValidator().validate(jobParameters);
-
+        jobExecution = getJobRepository().createJobExecution(job.getName(), jobParameters);
         try {
         	getTaskExecutor().execute(new Runnable() {
 

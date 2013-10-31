@@ -153,27 +153,23 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
             }
             StepExecution currentStepExecution = lastStepExecution;
             if (shouldStart(currentStepExecution, jobInstance, step, wasHibernating)) {
-            		if (wasHibernating){
-            			currentStepExecution.setEndTime(null);
-            			updateStatus(currentStepExecution, BatchStatus.STARTING, ExitStatus.EXECUTING);
-            			logger.info("Re-starting step after hibernation: [" + currentStepExecution + "]");
-            		} else {
-            			currentStepExecution = execution.createStepExecution(step.getName());
+            		
+        			currentStepExecution = execution.createStepExecution(step.getName());
 
-                        boolean isRestart = (lastStepExecution != null && !lastStepExecution.getStatus().equals(
-                                        BatchStatus.COMPLETED));
+                    boolean isRestart = (lastStepExecution != null && !lastStepExecution.getStatus().equals(
+                                    BatchStatus.COMPLETED));
 
-                        if (isRestart) {
-                                currentStepExecution.setExecutionContext(lastStepExecution.getExecutionContext());
-                        }
-                        else {
-                                currentStepExecution.setExecutionContext(new ExecutionContext(executionContext));
-                        }
+                    if (isRestart) {
+                            currentStepExecution.setExecutionContext(lastStepExecution.getExecutionContext());
+                    }
+                    else {
+                            currentStepExecution.setExecutionContext(new ExecutionContext(executionContext));
+                    }
 
-                        jobRepository.add(currentStepExecution);
+                    jobRepository.add(currentStepExecution);
 
-                        logger.info("Executing stepExecution: [" + currentStepExecution + "]");
-            		}
+                    logger.info("Executing stepExecution: [" + currentStepExecution + "]");
+            		
             			
                     try {
                             step.execute(currentStepExecution);
@@ -214,11 +210,6 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
                             && stepExecution.getJobExecutionId().equals(jobExecution.getId());
     }
     
-    private void updateStatus(StepExecution stepExecution, BatchStatus status, ExitStatus exStatus) {
-    	stepExecution.setStatus(status);
-    	stepExecution.setExitStatus(exStatus);
-        jobRepository.update(stepExecution);
-}
 
     /**
      * Given a step and configuration, return true if the step should start,

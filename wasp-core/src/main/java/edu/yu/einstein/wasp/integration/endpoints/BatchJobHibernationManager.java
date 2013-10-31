@@ -169,8 +169,8 @@ public class BatchJobHibernationManager {
 	
 	private void reawakenJobExecution(StepExecution stepExecution) throws WaspBatchJobExecutionException{
 		JobExecution je = jobExplorer.getJobExecution(stepExecution.getJobExecutionId());
-		//je.getExecutionContext().remove(HIBERNATION_REQUESTED);
-		//jobRepository.updateExecutionContext(je);
+		je.getExecutionContext().remove(HIBERNATION_REQUESTED);
+		jobRepository.updateExecutionContext(je);
 		for (StepExecution se : je.getStepExecutions()){
 			se.getExecutionContext().put(HIBERNATING, true);
 			if (se.getId().equals(stepExecution.getId()))
