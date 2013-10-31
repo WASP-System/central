@@ -37,13 +37,13 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.util.Assert;
 
+import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
+
 public class WaspBatchJobLauncher extends SimpleJobLauncher implements JobLauncherWasp {
 	
 	protected static final Logger logger = LoggerFactory.getLogger(WaspBatchJobLauncher.class);
 	
-	private JobExplorer jobExplorer;
-
-    public WaspBatchJobLauncher() {
+	public WaspBatchJobLauncher() {
 		super();
 	}
 	
@@ -56,20 +56,12 @@ public class WaspBatchJobLauncher extends SimpleJobLauncher implements JobLaunch
          }
 	}
 	
-	public JobExplorer getJobExplorer() {
-		return jobExplorer;
-	}
-
-	public void setJobExplorer(JobExplorer jobExplorer) {
-		this.jobExplorer = jobExplorer;
-	}
-
+	
 	@Override
     public JobExecution run(final Job job, final JobParameters jobParameters)
                     throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException,
                     JobParametersInvalidException {
 		WaspBatchJob waspBatchJob = new WaspBatchJob((FlowJob) job);
-		waspBatchJob.setJobExplorer(jobExplorer);
 		return super.run(waspBatchJob, jobParameters);
 	}
 	
@@ -80,7 +72,6 @@ public class WaspBatchJobLauncher extends SimpleJobLauncher implements JobLaunch
 			JobInstanceAlreadyCompleteException, JobParametersInvalidException {
 		Assert.notNull(job, "The Job must not be null.");
         Assert.notNull(jobParameters, "The JobParameters must not be null.");
-        job.setJobExplorer(jobExplorer);
         final JobExecution jobExecution;
         JobExecution lastExecution = getJobRepository().getLastJobExecution(job.getName(), jobParameters);
         
@@ -94,12 +85,18 @@ public class WaspBatchJobLauncher extends SimpleJobLauncher implements JobLaunch
                                        
         }
         logger.debug("Waking up JobExecution : " + lastExecution);
-        logger.debug("JobExecution has " + lastExecution.getStepExecutions().size() + " steps");
-        logger.debug("JobExecutionContext contains " + lastExecution.getExecutionContext().size() + " values in it");
+        
         // Check the validity of the parameters before doing creating anything
         // in the repository...
         job.getJobParametersValidator().validate(jobParameters);
         jobExecution = getJobRepository().createJobExecution(job.getName(), jobParameters);
+        jobExecution.setExecutionContext(lastExecution.getExecutionContext());
+        jobExecution.getExecutionContext().put(BatchJobHibernationManager.WAS_HIBERNATING, true);
+        getJobRepository().updateExecutionContext(jobExecution);
+        lastExecution.setExitStatus(new ExitStatus(ExitStatus.STOPPED.getExitCode(), BatchJobHibernationManager.WAS_HIBERNATING));
+        getJobRepository().update(lastExecution);
+        logger.debug("JobExecution has " + jobExecution.getStepExecutions().size() + " steps");
+        logger.debug("JobExecutionContext contains " + jobExecution.getExecutionContext().size() + " values in it");
         try {
         	getTaskExecutor().execute(new Runnable() {
 

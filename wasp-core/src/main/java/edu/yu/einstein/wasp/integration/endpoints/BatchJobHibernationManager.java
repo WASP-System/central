@@ -45,7 +45,7 @@ import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemp
  */
 public class BatchJobHibernationManager {
 
-	public static final String HIBERNATING = "wasHibernating";
+	public static final String WAS_HIBERNATING = "wasHibernating";
 	public static final String HIBERNATION_REQUESTED = "requestHibernation";
 	public static final String WOKEN_ON_MESSAGE_KEY = "wokenOnMessage";
 	public static final String MESSAGES_TO_WAKE = "w_msgs";
@@ -172,7 +172,6 @@ public class BatchJobHibernationManager {
 		je.getExecutionContext().remove(HIBERNATION_REQUESTED);
 		jobRepository.updateExecutionContext(je);
 		for (StepExecution se : je.getStepExecutions()){
-			se.getExecutionContext().put(HIBERNATING, true);
 			if (se.getId().equals(stepExecution.getId()))
 				se.getExecutionContext().put(WOKEN_ON_MESSAGE_KEY, true);
 			jobRepository.updateExecutionContext(se);

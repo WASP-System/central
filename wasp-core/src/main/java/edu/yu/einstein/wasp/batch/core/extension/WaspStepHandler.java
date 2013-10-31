@@ -33,6 +33,8 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
+import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
+
 /**
  * Largely derived from {@link SimpleStepHandler} with modifications
  * @author asmclellan
@@ -161,12 +163,17 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
 
                     if (isRestart) {
                             currentStepExecution.setExecutionContext(lastStepExecution.getExecutionContext());
+                            if (wasHibernating){
+        	                    lastStepExecution.setExitStatus(new ExitStatus(ExitStatus.STOPPED.getExitCode(), BatchJobHibernationManager.WAS_HIBERNATING));
+        	                    jobRepository.update(lastStepExecution);
+                            }
                     }
                     else {
                             currentStepExecution.setExecutionContext(new ExecutionContext(executionContext));
                     }
 
                     jobRepository.add(currentStepExecution);
+                    
 
                     logger.info("Executing stepExecution: [" + currentStepExecution + "]");
             		

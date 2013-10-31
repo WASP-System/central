@@ -20,8 +20,6 @@ package edu.yu.einstein.wasp.batch.core.extension;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +35,6 @@ import org.springframework.batch.core.JobParametersValidator;
 import org.springframework.batch.core.StartLimitExceededException;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.job.AbstractJob;
 import org.springframework.batch.core.job.DefaultJobParametersValidator;
 import org.springframework.batch.core.job.SimpleStepHandler;
@@ -70,8 +67,6 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
 
         protected JobRepository jobRepository;
         
-        protected JobExplorer jobExplorer;
-
         protected CompositeJobExecutionListener listener = new CompositeJobExecutionListener();
 
         protected JobParametersIncrementer jobParametersIncrementer;
@@ -79,6 +74,8 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
         protected JobParametersValidator jobParametersValidator = new DefaultJobParametersValidator();
 
         protected StepHandler stepHandler;
+        
+        private final Integer STEP_STATUS_RETRY_TIMEOUT = 10; // ms 
 
         /**
          * Default constructor.
@@ -235,15 +232,7 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
                 return this.jobParametersIncrementer;
         }
 
-        public JobExplorer getJobExplorer() {
-			return jobExplorer;
-		}
-
-		public void setJobExplorer(JobExplorer jobExplorer) {
-			this.jobExplorer = jobExplorer;
-		}
-
-		/**
+       /**
          * Public setter for injecting {@link JobExecutionListener}s. They will all
          * be given the listener callbacks at the appropriate point in the job.
          *
@@ -314,13 +303,15 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
          */
         @Override
         public final void execute(JobExecution execution) {
-        	//execution = jobExplorer.getJobExecution(execution.getId());
         	logger.debug("JobExecution: " + execution);
     		logger.debug("execution.getStatus()=" + execution.getStatus());
     		logger.debug("# step executions=" + execution.getStepExecutions().size());
-    		boolean hasHibernatingExitStatus = false;
-    	    if (execution.getExitStatus().getExitCode().equals(WaspBatchExitStatus.HIBERNATING.getExitCode())){
-    	    	hasHibernatingExitStatus = true;
+    		boolean isWakingFromHibernation = false;
+    	    if (execution.getExecutionContext().containsKey(BatchJobHibernationManager.WAS_HIBERNATING) && 
+    	    		(boolean) execution.getExecutionContext().get(BatchJobHibernationManager.WAS_HIBERNATING)){
+    	    	isWakingFromHibernation = true;
+    	    	execution.getExecutionContext().put(BatchJobHibernationManager.WAS_HIBERNATING, true);
+    	        jobRepository.updateExecutionContext(execution);
     	    	logger.debug("Job execution being awoken from hibernation: " + execution);
     	    } else{
     	    	logger.debug("Job execution starting: " + execution);
@@ -329,17 +320,17 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
     		logger.debug("# step executions=" + execution.getStepExecutions().size());
     		boolean hibernationRequested = false;
             try {
-            		if (!hasHibernatingExitStatus)
+            		if (!isWakingFromHibernation)
             			getJobParametersValidator().validate(execution.getJobParameters());
 
                     if (execution.getStatus() != BatchStatus.STOPPING) {
-                    		if (!hasHibernatingExitStatus){
-                                execution.setStartTime(new Date());
+                    		execution.setStartTime(new Date());
+                    		if (!isWakingFromHibernation){
                                 listener.beforeJob(execution);
                     		}
                     		updateStatus(execution, BatchStatus.STARTED);
                             try {
-                            	doExecute(execution, hasHibernatingExitStatus);
+                            	doExecute(execution, isWakingFromHibernation);
                                     logger.debug("Job execution complete: " + execution);
                             } catch (RepeatException e) {
                                     throw e.getCause();
@@ -359,16 +350,11 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
                     }
 
             } catch (JobInterruptedException e) {
-	            	logger.debug("Original JobExecution: " + execution);
-	        		logger.debug("Original execution.getStatus()=" + execution.getStatus());
-	        		logger.debug("Original # step executions=" + execution.getStepExecutions().size());
-            		//refresh execution to avoid org.springframework.dao.OptimisticLockingFailureException
-            		//execution = jobExplorer.getJobExecution(execution.getId());
-            		//logger.debug("Refreshed JobExecution: " + execution);
-            		//logger.debug("Refreshed execution.getStatus()=" + execution.getStatus());
-            		//logger.debug("Refreshed # step executions=" + execution.getStepExecutions().size()); 
-	            	hibernationRequested = isHibernationRequested(execution);
+            		hibernationRequested = isHibernationRequested(execution);
             		logger.debug("caught JobInterrupt and wasHibernationRequested=" + hibernationRequested);
+	            	logger.debug("JobExecution: " + execution);
+	        		logger.debug("execution.getStatus()=" + execution.getStatus());
+	        		logger.debug("# step executions=" + execution.getStepExecutions().size());
             		if (hibernationRequested)
             			logger.info("Encountered hibernation request executing job: " + e.getMessage());
             		else
@@ -401,8 +387,7 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
                     	do{
                     		allStepsComplete = true;
                     		// get stepExecution status from freshest JobExecution
-                    		Set<StepExecution> stepExecutions = new HashSet<>(jobExplorer.getJobExecution(execution.getId()).getStepExecutions());
-	                    	for (StepExecution se : stepExecutions){
+                    		for (StepExecution se : execution.getStepExecutions()){
 	                    		WaspBatchExitStatus currentExitStatus = new WaspBatchExitStatus(se.getExitStatus());
 	                    		logger.debug("Current exit status of StepExecution id=" + se.getId() + " : " + currentExitStatus);
 	                    		if (currentExitStatus.isStopped()){
@@ -414,9 +399,9 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
 	                    		}
 	                    	}
 	                    	if (!allStepsComplete){
-		                    	logger.debug("Not all steps have been stopped. Waiting...");
+		                    	logger.debug("Not all steps have been stopped. Trying again in " + STEP_STATUS_RETRY_TIMEOUT + "ms...");
 	                			try {
-									Thread.sleep(10);
+									Thread.sleep(STEP_STATUS_RETRY_TIMEOUT);
 								} catch (InterruptedException e) {}
 	                    	}
                     	} while (!allStepsComplete);
@@ -433,9 +418,13 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
             }
         }
         
+        private JobExecution getLatestJobExecution(JobExecution currentExecution){
+        	return jobRepository.getLastJobExecution(currentExecution.getJobInstance().getJobName(), currentExecution.getJobParameters());
+        }
         
-        boolean isHibernationRequested(JobExecution execution){
-        	execution = jobExplorer.getJobExecution(execution.getId()); // check latest
+        
+        private boolean isHibernationRequested(JobExecution execution){
+        	execution = getLatestJobExecution(execution); // check latest
         	boolean hibernationStatus = false;
         	if (execution.getExitStatus().getExitDescription().equals(BatchJobHibernationManager.HIBERNATION_REQUESTED))
         		hibernationStatus = true;

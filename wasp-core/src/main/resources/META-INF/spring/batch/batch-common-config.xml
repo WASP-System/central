@@ -13,7 +13,6 @@
 	
 	<bean id="jobLauncher" class="edu.yu.einstein.wasp.batch.core.extension.WaspBatchJobLauncher">
 		<property name="jobRepository" ref="jobRepository" />
-		<property name="jobExplorer" ref="jobExplorer" />
 		<property name="taskExecutor" ref="taskExecutor" />
 	</bean>
 	
