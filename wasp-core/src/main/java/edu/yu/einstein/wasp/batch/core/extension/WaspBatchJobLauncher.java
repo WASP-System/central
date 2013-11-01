@@ -61,7 +61,9 @@ public class WaspBatchJobLauncher extends SimpleJobLauncher implements JobLaunch
          }
 	}
 	
-	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
     public JobExecution run(final Job job, final JobParameters jobParameters)
                     throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException,
@@ -71,7 +73,9 @@ public class WaspBatchJobLauncher extends SimpleJobLauncher implements JobLaunch
 	}
 	
 	
-
+	/**
+	 * Wake hibernating job
+	 */
 	@Override
 	public JobExecution wake(final WaspFlowJob job, final JobParameters jobParameters) throws JobExecutionAlreadyRunningException, JobRestartException,
 			JobInstanceAlreadyCompleteException, JobParametersInvalidException {

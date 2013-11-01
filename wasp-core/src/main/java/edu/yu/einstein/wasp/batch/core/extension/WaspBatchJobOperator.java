@@ -1,18 +1,3 @@
-/*
-* Copyright 2006-2013 the original author or authors.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
 package edu.yu.einstein.wasp.batch.core.extension;
 
 import java.lang.reflect.Field;
@@ -41,8 +26,7 @@ import org.springframework.util.Assert;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 
 /**
- * Largely derived from {@link SimpleJobOperator} 2.2.2.RELEASE with modifications
- * (https://github.com/spring-projects/spring-batch/blob/2.2.2.RELEASE/spring-batch-core/src/main/java/org/springframework/batch/core/launch/support/SimpleJobOperator.java)
+ *
  * @author asmclellan
  *
  */
@@ -69,6 +53,9 @@ public class WaspBatchJobOperator extends SimpleJobOperator implements JobOperat
             Assert.notNull(getJobRepository(), "JobRepository must be provided");
     }
 
+    /**
+	 * Wake up job from hibernation
+	 */
 	@Override
 	public Long wake(long executionId) throws JobInstanceAlreadyCompleteException, NoSuchJobExecutionException, NoSuchJobException, JobRestartException, JobParametersInvalidException {
 		logger.info("Checking status of job execution with id=" + executionId);
@@ -87,9 +74,13 @@ public class WaspBatchJobOperator extends SimpleJobOperator implements JobOperat
         }
 	}
 
+	/**
+	 * Hibernate job
+	 */
 	@Override
 	@Transactional
 	public boolean hibernate(long executionId) throws NoSuchJobExecutionException, JobExecutionNotRunningException {
+		// based on stop() method but with exit status modified within transaction
 		JobExecution jobExecution = findExecutionById(executionId);
         // Indicate the execution should be stopped by setting it's status to
         // 'STOPPING'. It is assumed that

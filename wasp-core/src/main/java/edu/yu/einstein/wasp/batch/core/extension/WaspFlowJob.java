@@ -70,6 +70,7 @@ public class WaspFlowJob extends AbstractWaspBatchJob {
        
 		@SuppressWarnings("unchecked")
 		public WaspFlowJob(FlowJob job) {
+			// generate WaspFlowJob object from FlowJob object. Use reflection to get at the private attributes
         	setJobParametersIncrementer(job.getJobParametersIncrementer());
             setJobParametersValidator(job.getJobParametersValidator());
             setName(job.getName());
@@ -189,7 +190,7 @@ public class WaspFlowJob extends AbstractWaspBatchJob {
         }
 
         /**
-         * @see AbstractJob#doExecute(JobExecution)
+         * @see AbstractWaspBatchJob#doExecute(JobExecution)
          */
         @Override
         protected void doExecute(final JobExecution execution, boolean wasHibernating) throws JobExecutionException {
