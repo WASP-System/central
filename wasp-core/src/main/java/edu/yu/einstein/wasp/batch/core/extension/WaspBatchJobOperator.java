@@ -41,7 +41,8 @@ import org.springframework.util.Assert;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 
 /**
- * Largely derived from {@link SimpleJobOperator} with modifications
+ * Largely derived from {@link SimpleJobOperator} 2.2.2.RELEASE with modifications
+ * (https://github.com/spring-projects/spring-batch/blob/2.2.2.RELEASE/spring-batch-core/src/main/java/org/springframework/batch/core/launch/support/SimpleJobOperator.java)
  * @author asmclellan
  *
  */
@@ -74,7 +75,7 @@ public class WaspBatchJobOperator extends SimpleJobOperator implements JobOperat
         JobExecution jobExecution = findExecutionById(executionId);
 
         String jobName = jobExecution.getJobInstance().getJobName();
-        WaspBatchJob job = new WaspBatchJob((FlowJob) getJobRegistry().getJob(jobName));
+        WaspFlowJob job = new WaspFlowJob((FlowJob) getJobRegistry().getJob(jobName));
         JobParameters parameters = jobExecution.getJobParameters();
 
         logger.info(String.format("Attempting to resume job with name=%s and parameters=%s", jobName, parameters));

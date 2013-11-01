@@ -1,9 +1,5 @@
 /*
 * Copyright 2006-2013 the original author or authors.
-* @author Lucas Ward
-* @author Dave Syer
-* @author Ben Hale
-* @author Robert Kasanicky
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -42,13 +38,14 @@ import org.springframework.batch.core.step.StepHolder;
 import org.springframework.batch.core.step.StepLocator;
 
 /**
- * Code taken from {@link FlowJob} and modified. 
+ * Code modified from {@link FlowJob} 2.2.2.RELEASE. 
+ * (https://github.com/spring-projects/spring-batch/blob/2.2.2.RELEASE/spring-batch-core/src/main/java/org/springframework/batch/core/job/flow/FlowJob.java)
  * @author asmclellan
  *
  */
-public class WaspBatchJob extends AbstractWaspBatchJob {
+public class WaspFlowJob extends AbstractWaspBatchJob {
 
-        protected static final Logger logger = LoggerFactory.getLogger(WaspBatchJob.class);
+        protected static final Logger logger = LoggerFactory.getLogger(WaspFlowJob.class);
 
         private Flow flow;
 
@@ -59,20 +56,20 @@ public class WaspBatchJob extends AbstractWaspBatchJob {
         /**
          * Create a {@link FlowJob} with null name and no flow (invalid state).
          */
-        public WaspBatchJob() {
+        public WaspFlowJob() {
                 super();
         }
 
         /**
          * Create a {@link FlowJob} with provided name and no flow (invalid state).
          */
-        public WaspBatchJob(String name) {
+        public WaspFlowJob(String name) {
                 super(name);
         }
         
        
 		@SuppressWarnings("unchecked")
-		public WaspBatchJob(FlowJob job) {
+		public WaspFlowJob(FlowJob job) {
         	setJobParametersIncrementer(job.getJobParametersIncrementer());
             setJobParametersValidator(job.getJobParametersValidator());
             setName(job.getName());

@@ -1,8 +1,6 @@
 
 /*
 * Copyright 2006-2013 the original author or authors.
-* @author Lucas Ward
-* @author Dave Syer
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -54,7 +52,8 @@ import org.springframework.util.ClassUtils;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 
 /**
- * Based on {@link AbstractJob} by (@author Lucas Ward and @author Dave Syer)
+ * Based on {@link AbstractJob} 2.2.2.RELEASE
+ * (https://github.com/spring-projects/spring-batch/blob/2.2.2.RELEASE/spring-batch-core/src/main/java/org/springframework/batch/core/job/AbstractJob.java)
  * @author asmclellan
  */
 public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanNameAware, InitializingBean {

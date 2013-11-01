@@ -25,7 +25,6 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersInvalidException;
-import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.job.flow.FlowJob;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
@@ -39,6 +38,12 @@ import org.springframework.util.Assert;
 
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 
+/**
+ * Largely based on {@link SimpleJobLauncher} 2.2.2.RELEASE with modifications
+ * (https://github.com/spring-projects/spring-batch/blob/2.2.2.RELEASE/spring-batch-core/src/main/java/org/springframework/batch/core/launch/support/SimpleJobLauncher.java)
+ * @author asmclellan
+ *
+ */
 public class WaspBatchJobLauncher extends SimpleJobLauncher implements JobLauncherWasp {
 	
 	protected static final Logger logger = LoggerFactory.getLogger(WaspBatchJobLauncher.class);
@@ -61,14 +66,14 @@ public class WaspBatchJobLauncher extends SimpleJobLauncher implements JobLaunch
     public JobExecution run(final Job job, final JobParameters jobParameters)
                     throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException,
                     JobParametersInvalidException {
-		WaspBatchJob waspBatchJob = new WaspBatchJob((FlowJob) job);
-		return super.run(waspBatchJob, jobParameters);
+		WaspFlowJob waspFlowJob = new WaspFlowJob((FlowJob) job);
+		return super.run(waspFlowJob, jobParameters);
 	}
 	
 	
 
 	@Override
-	public JobExecution wake(final WaspBatchJob job, final JobParameters jobParameters) throws JobExecutionAlreadyRunningException, JobRestartException,
+	public JobExecution wake(final WaspFlowJob job, final JobParameters jobParameters) throws JobExecutionAlreadyRunningException, JobRestartException,
 			JobInstanceAlreadyCompleteException, JobParametersInvalidException {
 		Assert.notNull(job, "The Job must not be null.");
         Assert.notNull(jobParameters, "The JobParameters must not be null.");

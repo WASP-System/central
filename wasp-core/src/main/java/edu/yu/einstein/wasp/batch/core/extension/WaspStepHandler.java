@@ -36,7 +36,8 @@ import org.springframework.util.Assert;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 
 /**
- * Largely derived from {@link SimpleStepHandler} with modifications
+ * Largely based on {@link SimpleStepHandler} 2.2.2.RELEASE with modifications
+ * (https://github.com/spring-projects/spring-batch/blob/2.2.2.RELEASE/spring-batch-core/src/main/java/org/springframework/batch/core/job/SimpleStepHandler.java)
  * @author asmclellan
  *
  */

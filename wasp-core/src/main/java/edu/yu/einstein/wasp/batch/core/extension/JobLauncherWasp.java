@@ -15,7 +15,7 @@ import org.springframework.batch.core.repository.JobRestartException;
  */
 public interface JobLauncherWasp extends JobLauncher {
 	
-	public JobExecution wake(final WaspBatchJob job, final JobParameters jobParameters) throws JobExecutionAlreadyRunningException, JobRestartException, 
+	public JobExecution wake(final WaspFlowJob job, final JobParameters jobParameters) throws JobExecutionAlreadyRunningException, JobRestartException, 
 		JobInstanceAlreadyCompleteException, JobParametersInvalidException;
 	
 }
