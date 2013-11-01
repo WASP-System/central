@@ -72,7 +72,7 @@ public class AdaptorServiceImpl extends WaspServiceImpl implements
 
 	@Override
 	public Adaptor getAdaptor(Sample library) throws SampleTypeException, MetadataException {
-		Sample lib = sampleService.getSampleById(library.getSampleId());
+		Sample lib = sampleService.getSampleById(library.getId());
 		String adaptorId = MetaHelper.getMetaValue("genericLibrary", "adaptor", lib.getSampleMeta());
 		return getAdaptorByAdaptorId(new Integer(adaptorId));
 	}
