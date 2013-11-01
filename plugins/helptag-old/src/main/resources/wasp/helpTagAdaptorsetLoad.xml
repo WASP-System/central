@@ -28,14 +28,13 @@
   	</property>
   	<property name="adaptorList">
   		<list>
-<!--   			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
   				<property name="IName" value="illuminaHelptagLibrary1" />
   				<property name="name" value="helptag Adaptor" />
   				<property name="sequence" value="CGCTGCTG" />
   				<property name="barcodesequence" value="CGCTGCTG" />
   				<property name="barcodenumber" value="1" />
   			</bean>
--->
    		</list>
   	</property>
   </bean> 
