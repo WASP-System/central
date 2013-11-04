@@ -16,10 +16,12 @@ import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.repository.dao.JdbcStepExecutionDao;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
@@ -38,6 +40,8 @@ public class JdbcWaspStepExecutionDao extends JdbcStepExecutionDao implements Wa
 	private WaspJobExecutionDao waspJobExecutionDao;
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	public void setWaspJobExecutionDao(){}
 	
 	public void setWaspJobExecutionDao(WaspJobExecutionDao waspJobExecutionDao){
 		Assert.notNull(waspJobExecutionDao, "waspJobExecutionDao cannot be null");
@@ -125,6 +129,22 @@ public class JdbcWaspStepExecutionDao extends JdbcStepExecutionDao implements Wa
 	@Override
 	public JobParameters getJobParameters(StepExecution stepExecution){
 		return (waspJobExecutionDao.getJobExecution(stepExecution.getJobExecutionId())).getJobParameters();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public void deleteStepExecution(Long stepExecutionId){
+		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+		parameterSource.addValue("stepExecutionId", stepExecutionId, Types.BIGINT);
+		String sql1 = "DELETE FROM %PREFIX%STEP_EXECUTION_CONTEXT WHERE STEP_EXECUTION_ID = :stepExecutionId";
+		String sql2 = "DELETE FROM %PREFIX%STEP_EXECUTION WHERE STEP_EXECUTION_ID = :stepExecutionId";
+		if (namedParameterJdbcTemplate.update(getQuery(sql1), parameterSource) != 1)
+			throw new DataRetrievalFailureException("Not able to delete StepExecutionContext for StepExecution with id=" + stepExecutionId);
+		if (namedParameterJdbcTemplate.update(getQuery(sql2), parameterSource) != 1)
+			throw new DataRetrievalFailureException("Not able to delete StepExecution with id=" + stepExecutionId);
 	}
 	
 	

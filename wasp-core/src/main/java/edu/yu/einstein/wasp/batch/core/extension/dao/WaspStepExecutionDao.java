@@ -40,5 +40,11 @@ public interface WaspStepExecutionDao extends StepExecutionDao{
 	 * @return
 	 */
 	public JobParameters getJobParameters(StepExecution stepExecution);
+	
+	/** 
+	 * Removes a StepExecution and its StepExecutionContext
+	 * @param stepExecutionId
+	 */
+	public void deleteStepExecution(Long stepExecutionId);
 
 }

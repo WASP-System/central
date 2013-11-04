@@ -194,9 +194,11 @@ public class WaspFlowJob extends AbstractWaspBatchJob {
          */
         @Override
         protected void doExecute(final JobExecution execution, boolean wasHibernating) throws JobExecutionException {
+        		if (!WaspBatchJobRepository.class.isInstance(getJobRepository()))
+        			throw new JobExecutionException("Unable to execute flow as jobRepository is not of type " + WaspBatchJobRepository.class.getName());
                 try {
                         JobFlowExecutor executor = new JobFlowExecutor(getJobRepository(),
-                                        new WaspStepHandler(getJobRepository(), wasHibernating), execution);
+                                        new WaspStepHandler((WaspBatchJobRepository) getJobRepository(), wasHibernating), execution);
                         executor.updateJobExecutionStatus(flow.start(executor).getStatus());
                 }
                 catch (FlowExecutionException e) {

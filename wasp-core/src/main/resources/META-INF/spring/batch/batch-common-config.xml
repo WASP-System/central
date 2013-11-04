@@ -9,7 +9,9 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
 
-	<batch:job-repository id="jobRepository" data-source="batchDataSource"/>
+	<bean id="jobRepository" class="edu.yu.einstein.wasp.batch.core.extension.WaspJobRepositoryFactoryBean">
+		<constructor-arg name="dataSource" ref="batchDataSource"/>
+	</bean>
 	
 	<bean id="jobLauncher" class="edu.yu.einstein.wasp.batch.core.extension.WaspBatchJobLauncher">
 		<property name="jobRepository" ref="jobRepository" />
