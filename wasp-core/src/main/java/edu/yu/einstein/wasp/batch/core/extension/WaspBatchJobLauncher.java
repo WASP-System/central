@@ -98,12 +98,15 @@ public class WaspBatchJobLauncher extends SimpleJobLauncher implements JobLaunch
         // Check the validity of the parameters before doing creating anything
         // in the repository...
         job.getJobParametersValidator().validate(jobParameters);
-        jobExecution = getJobRepository().createJobExecution(job.getName(), jobParameters);
-        jobExecution.setExecutionContext(lastExecution.getExecutionContext());
+        //jobExecution = getJobRepository().createJobExecution(job.getName(), jobParameters);
+        //jobExecution.setExecutionContext(lastExecution.getExecutionContext());
+        jobExecution = lastExecution;
+        jobExecution.setStatus(BatchStatus.STARTING);
+        jobExecution.setExitStatus(ExitStatus.UNKNOWN);
         jobExecution.getExecutionContext().put(BatchJobHibernationManager.WAS_HIBERNATING, true);
         getJobRepository().updateExecutionContext(jobExecution);
-        lastExecution.setExitStatus(new ExitStatus(ExitStatus.STOPPED.getExitCode(), BatchJobHibernationManager.WAS_HIBERNATING));
-        getJobRepository().update(lastExecution);
+        //lastExecution.setExitStatus(new ExitStatus(ExitStatus.STOPPED.getExitCode(), BatchJobHibernationManager.WAS_HIBERNATING));
+        //getJobRepository().update(lastExecution);
         logger.debug("JobExecution has " + jobExecution.getStepExecutions().size() + " steps");
         logger.debug("JobExecutionContext contains " + jobExecution.getExecutionContext().size() + " values in it");
         try {
