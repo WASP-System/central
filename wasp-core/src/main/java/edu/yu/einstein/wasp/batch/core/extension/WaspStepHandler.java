@@ -18,7 +18,6 @@ package edu.yu.einstein.wasp.batch.core.extension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
-import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.JobInterruptedException;
@@ -32,8 +31,6 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
-import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
-
 /**
  * Largely based on {@link SimpleStepHandler} 2.2.2.RELEASE with modifications
  * (https://github.com/spring-projects/spring-batch/blob/2.2.2.RELEASE/spring-batch-core/src/main/java/org/springframework/batch/core/job/SimpleStepHandler.java)
@@ -44,7 +41,7 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
 	
 	private Logger logger = LoggerFactory.getLogger(getClass());
 	
-	private WaspBatchJobRepository jobRepository;
+	private JobRepositoryWasp jobRepository;
 	
 	private ExecutionContext executionContext;
 	
@@ -62,7 +59,7 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
     /**
      * @param jobRepository
      */
-    public WaspStepHandler(WaspBatchJobRepository jobRepository) {
+    public WaspStepHandler(JobRepositoryWasp jobRepository) {
             this(jobRepository, new ExecutionContext());
     }
 
@@ -70,7 +67,7 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
      * @param jobRepository
      * @param executionContext
      */
-    public WaspStepHandler(WaspBatchJobRepository jobRepository, ExecutionContext executionContext) {
+    public WaspStepHandler(JobRepositoryWasp jobRepository, ExecutionContext executionContext) {
             this.jobRepository = jobRepository;
             this.executionContext = executionContext;
     }
@@ -79,7 +76,7 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
      * @param jobRepository
      * @param wasHibernating
      */
-    public WaspStepHandler(WaspBatchJobRepository jobRepository, boolean wasHibernating) {
+    public WaspStepHandler(JobRepositoryWasp jobRepository, boolean wasHibernating) {
             this.jobRepository = jobRepository;
             this.wasHibernating = wasHibernating;
     }
@@ -89,7 +86,7 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
      * @param executionContext
      * @param wasHibernating
      */
-    public WaspStepHandler(WaspBatchJobRepository jobRepository, ExecutionContext executionContext, boolean wasHibernating) {
+    public WaspStepHandler(JobRepositoryWasp jobRepository, ExecutionContext executionContext, boolean wasHibernating) {
             this.jobRepository = jobRepository;
             this.executionContext = executionContext;
             this.wasHibernating = wasHibernating;
@@ -109,7 +106,7 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
     /**
      * @param jobRepository the jobRepository to set
      */
-    public void setJobRepository(WaspBatchJobRepository jobRepository) {
+    public void setJobRepository(JobRepositoryWasp jobRepository) {
             this.jobRepository = jobRepository;
     }
     

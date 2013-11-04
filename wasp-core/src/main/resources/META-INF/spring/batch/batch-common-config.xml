@@ -11,6 +11,7 @@
 
 	<bean id="jobRepository" class="edu.yu.einstein.wasp.batch.core.extension.WaspJobRepositoryFactoryBean">
 		<constructor-arg name="dataSource" ref="batchDataSource"/>
+		<constructor-arg name="transactionManager" ref= "transactionManager"/>
 	</bean>
 	
 	<bean id="jobLauncher" class="edu.yu.einstein.wasp.batch.core.extension.WaspBatchJobLauncher">
