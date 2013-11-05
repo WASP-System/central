@@ -33,7 +33,7 @@
 					</c:if>
 					<c:forEach var="option" items="${selectItems}">
 						<c:if test="${fn:length(selectItems) == 1 || option[itemValue] == _meta.v || _meta.property.formVisibility != 'immutable' }">
-							<option value="${option[itemValue]}"<c:if test="${fn:length(selectItems) == 1 || option[itemValue] == _meta.v || (useDefault==1 && option[itemValue] == _meta.property.defaultVal)}"> selected</c:if>>
+							<option value="${option[itemValue]}"<c:if test="${fn:length(selectItems) == 1 || (not empty _meta.v && option[itemValue] == _meta.v) || (useDefault==1 && option[itemValue] == _meta.property.defaultVal)}"> selected</c:if>>
 							<c:out value="${option[itemLabel]}"/></option>
 						</c:if>
 					</c:forEach>																									

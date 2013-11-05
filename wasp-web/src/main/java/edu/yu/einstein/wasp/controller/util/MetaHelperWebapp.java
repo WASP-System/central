@@ -157,7 +157,46 @@ public class MetaHelperWebapp extends MetaHelper {
 		return list;
 	}
 	
+	/**
+	 * Generates Master List and pulls in from values from request that contains multiple objects, so uses index.  
+	 *	[parentarea]Meta_[metakey] (ie. "userMeta_user.phone");
+	 * @param request
+	 * @param visibility 
+	 * @param clazz
+	 * @param int counter (zero-based index)
+	 * @return
+	 */
+	public final <T extends MetaBase> List<T> getFromRequest(HttpServletRequest request, Map<String, MetaAttribute.FormVisibility> visibility, Class<T> clazz, int counter) {
+		return getFromRequest(request, getMasterList(visibility, clazz), visibility, clazz, counter);
+	}
 	
+	/**
+	 *  Populates provided list from request that contains multiple objects, so uses index. 
+	 *	[parentarea]Meta_[metakey] (ie. "userMeta_user.phone");
+	 * @param request
+	 * @param visibility 
+	 * @param clazz
+	 * @param int counter (zero-based index)
+	 * @return
+	 */
+	public final <T extends MetaBase> List<T> getFromRequest(HttpServletRequest request, List<T> list, Map<String, MetaAttribute.FormVisibility> visibility, Class<T> clazz, int counter) {
+
+		Map<String, String[]> params = request.getParameterMap();
+		for (T obj: list) {
+			String requestKey = parentArea + "Meta" + "_" + obj.getK();
+			if (! params.containsKey(requestKey)) { continue; }
+			try {
+				obj.setV(((String[])params.get(requestKey))[counter]);
+			} catch (Throwable e) {
+				throw new IllegalStateException("cannot merge attributes ",e);
+			}
+			displayDebugInfoMessage(obj, "getFromRequest() syncing");
+		}
+
+		this.lastList =  list; 
+
+		return list;
+	}
 	
 	
 	

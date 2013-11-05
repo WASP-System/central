@@ -11,14 +11,14 @@
 
 
 
-  <bean id="helptagLibraryArea" class="java.lang.String">
-  	<constructor-arg><value>helptagLibrary</value></constructor-arg>
+  <bean id="helptagTrueSeqIndexedLibraryArea" class="java.lang.String">
+  	<constructor-arg><value>helptagTrueSeqIndexedLibrary</value></constructor-arg>
   </bean>
     
    
-  <bean id="helptagLibraryAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoaderAndFactory">
-  	<property name="area" ref="helptagLibraryArea" />
-  	<property name="name" value="HELP-tag Library" />
+  <bean id="helptagTrueSeqIndexedLibraryAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoaderAndFactory">
+  	<property name="area" ref="helptagTrueSeqIndexedLibraryArea" />
+  	<property name="name" value="HELP-tag TrueSeq Indexed Library" />
   	<property name="sampleType" ref="librarySampleType" />
   	<property name="compatibleResources">
   		<list>
