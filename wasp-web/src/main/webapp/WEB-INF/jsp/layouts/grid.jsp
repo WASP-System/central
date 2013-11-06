@@ -667,7 +667,7 @@
 				autoOpen: false,
 				modal: true
 			});
-	  		
+	  		$("#wait_dialog-modal").css("visibility", "visible");
 	  	});
 	</script>
 	<tiles:insertAttribute name="head-js" />
