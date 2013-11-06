@@ -35,7 +35,7 @@ public class SelSubmitNewJob extends SelBaseTest{
      * @param sUserPass
      */
   	@Test (groups = {"integration-tests", "submit-new-job"}, dataProvider = "DP1")
-	public void submitNewJob(String sUserName, String sUserPass, String sJobNum, String sDnaName, String sLibName, String labName, String sExpectedUrl, String workflowId) throws Exception {   
+	public void submitNewJob(String sUserName, String sUserPass, String sJobNum, String sDnaName, String sLibName, String labName, String sExpectedUrl, String strategy) throws Exception {   
     	
   		SeleniumHelper.login(sUserName, sUserPass);
   		
@@ -57,9 +57,10 @@ public class SelSubmitNewJob extends SelBaseTest{
 		Select select = new Select(driver.findElement(By.name("labId")));
 		select.selectByVisibleText(labName);
 		
-    	Assert.assertTrue(driver.findElements(By.name("workflowId")).size() != 0, "Cannot locate 'Assay Workflow' radio button");
-    	driver.findElement(By.xpath("//input[@type='radio' and @value='"+workflowId+"']")).click();// set @value to 2 when testing on barcelona and to 1 when local
-		
+		select = new Select(driver.findElement(By.id("strategy")));
+		select.selectByVisibleText(strategy);
+		select = new Select(driver.findElement(By.id("workflowId")));
+    	select.selectByValue("1");
     	driver.findElement(By.xpath("//input[@type='submit']")).click();
     	
     	select = new Select(driver.findElement(By.name("changeResource")));
@@ -99,9 +100,9 @@ public class SelSubmitNewJob extends SelBaseTest{
     	select = new Select(driver.findElement(By.id("buffer")));
     	select.selectByValue("Water");    	
     	select = new Select(driver.findElement(By.id("adaptorset")));
-    	select.selectByValue("1");  	
+    	select.selectByVisibleText("TruSEQ INDEXED DNA");  	
     	select = new Select(driver.findElement(By.id("adaptor")));
-    	select.selectByValue("1");  	
+    	select.selectByVisibleText("TruSeq Adapter, Index 1 (ATCACG)");  	
     	driver.findElement(By.id("size")).sendKeys("100");
     	driver.findElement(By.id("sizeSd")).sendKeys("10");
 

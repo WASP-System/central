@@ -60,7 +60,7 @@ public class SelConfigureWorkflow extends SelBaseTest{
    	    driver.findElement(By.xpath("//input[@id='bowtieAligner']")).click();
    	    driver.findElement(By.xpath("//input[@id='bwa']")).click();
    	    driver.findElement(By.xpath("//input[@id='macsPeakcaller']")).click();
-
+   	    driver.findElement(By.xpath("//input[@id='strategyKeyChIP-Seq']")).click();
    	    driver.findElement(By.xpath("//input[@value='Save Choices']")).click();
    	    
 		driver.findElement(By.linkText("Logout")).click();
