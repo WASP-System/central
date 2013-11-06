@@ -93,20 +93,16 @@ public class WaspBatchJobLauncher extends SimpleJobLauncher implements JobLaunch
                 }
                                        
         }
-        logger.debug("Waking up JobExecution : " + lastExecution);
+        logger.info("Waking up JobExecution : " + lastExecution);
         
         // Check the validity of the parameters before doing creating anything
         // in the repository...
         job.getJobParametersValidator().validate(jobParameters);
-        //jobExecution = getJobRepository().createJobExecution(job.getName(), jobParameters);
-        //jobExecution.setExecutionContext(lastExecution.getExecutionContext());
         jobExecution = lastExecution;
         jobExecution.setStatus(BatchStatus.STARTING);
         jobExecution.setExitStatus(ExitStatus.UNKNOWN);
         jobExecution.getExecutionContext().put(BatchJobHibernationManager.WAS_HIBERNATING, true);
         getJobRepository().updateExecutionContext(jobExecution);
-        //lastExecution.setExitStatus(new ExitStatus(ExitStatus.STOPPED.getExitCode(), BatchJobHibernationManager.WAS_HIBERNATING));
-        //getJobRepository().update(lastExecution);
         logger.debug("JobExecution has " + jobExecution.getStepExecutions().size() + " steps");
         logger.debug("JobExecutionContext contains " + jobExecution.getExecutionContext().size() + " values in it");
         try {
@@ -156,11 +152,11 @@ public class WaspBatchJobLauncher extends SimpleJobLauncher implements JobLaunch
      * @return
      */
     private JobRepository getJobRepository(){
-    	Field jobRepositoryField = null;
+    	Field field = null;
 		try {
-			jobRepositoryField = SimpleJobLauncher.class.getDeclaredField("jobRepository");
-			jobRepositoryField.setAccessible(true);
-        	return (JobRepository) jobRepositoryField.get((SimpleJobLauncher) this);
+			field = SimpleJobLauncher.class.getDeclaredField("jobRepository");
+			field.setAccessible(true);
+        	return (JobRepository) field.get((SimpleJobLauncher) this);
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			logger.debug("Unable to obtain JobRepository from super via reflection");
 			e.printStackTrace();
@@ -173,11 +169,11 @@ public class WaspBatchJobLauncher extends SimpleJobLauncher implements JobLaunch
      * @return
      */
     private TaskExecutor getTaskExecutor(){
-    	Field taskExecutorField = null;
+    	Field field = null;
 		try {
-			taskExecutorField = SimpleJobLauncher.class.getDeclaredField("taskExecutor");
-			taskExecutorField.setAccessible(true);
-        	return (TaskExecutor) taskExecutorField.get((SimpleJobLauncher) this);
+			field = SimpleJobLauncher.class.getDeclaredField("taskExecutor");
+			field.setAccessible(true);
+        	return (TaskExecutor) field.get((SimpleJobLauncher) this);
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			logger.debug("Unable to obtain TaskExecutor from super via reflection");
 			e.printStackTrace();

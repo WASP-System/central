@@ -161,9 +161,7 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
                     if (isRestart) {
                             currentStepExecution.setExecutionContext(lastStepExecution.getExecutionContext());
                             if (wasHibernating){
-                            	jobRepository.deleteStepExecution(lastStepExecution.getId());
-        	                    //lastStepExecution.setExitStatus(new ExitStatus(ExitStatus.STOPPED.getExitCode(), BatchJobHibernationManager.WAS_HIBERNATING));
-        	                    //jobRepository.update(lastStepExecution);
+                            	jobRepository.deleteStepExecution(lastStepExecution.getId()); // remove old step execution
                             }
                     }
                     else {

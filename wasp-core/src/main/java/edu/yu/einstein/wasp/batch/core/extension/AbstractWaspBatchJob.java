@@ -311,11 +311,12 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
     	    	isWakingFromHibernation = true;
     	    	execution.getExecutionContext().put(BatchJobHibernationManager.WAS_HIBERNATING, true);
     	        jobRepository.updateExecutionContext(execution);
-    	    	logger.debug("Job execution being awoken from hibernation: " + execution);
+    	    	logger.info("Job execution being awoken from hibernation: " + execution);
     	    } else{
-    	    	logger.debug("Job execution starting: " + execution);
+    	    	logger.info("Job execution starting: " + execution);
     	    }
     	    boolean hibernationRequested = false;
+    	    BatchStatus finalStatus = BatchStatus.STOPPED;
             try {
             		if (!isWakingFromHibernation)
             			getJobParametersValidator().validate(execution.getJobParameters());
@@ -329,20 +330,20 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
                     		updateStatus(execution, BatchStatus.STARTED);
                             try {
                             	doExecute(execution, isWakingFromHibernation);
-                                logger.debug("Job execution complete: " + execution);
+                                logger.info("Job execution complete: " + execution);
                             } catch (RepeatException e) {
                                     throw e.getCause();
                             }
                     } else {
                             // The job was already stopped before we even got this far. Deal
                             // with it in the same way as any other interruption.
-                            execution.setStatus(BatchStatus.STOPPED);
+                            execution.setStatus(finalStatus);
                             if (isHibernationRequested(execution)){
                             	execution.setExitStatus(WaspBatchExitStatus.HIBERNATING);
-                            	logger.debug("Job execution was hibernated: " + execution);
+                            	logger.info("Job execution was hibernated: " + execution);
                             } else {
                             	execution.setExitStatus(ExitStatus.COMPLETED);
-                            	logger.debug("Job execution was stopped: " + execution);
+                            	logger.info("Job execution was stopped: " + execution);
                             }
 
                     }
@@ -359,12 +360,13 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
             			logger.info("Encountered interruption executing job: " + e.getMessage());
                     logger.trace("Full exception", e);
                     execution.setExitStatus(getDefaultExitStatusForFailure(e, hibernationRequested));
-                    execution.setStatus(BatchStatus.max(BatchStatus.STOPPED, e.getStatus()));
-                    
-  
+                    finalStatus = BatchStatus.max(BatchStatus.STOPPED, e.getStatus());
+                    execution.setStatus(finalStatus);
+
                     if (!hibernationRequested) {
 	                    execution.addFailureException(e);
                     }
+                    logger.info(String.format("JobExecution updated with status=%s and exitStatus=%s", execution.getStatus(), execution.getExitStatus()));
             } catch (Throwable t) {
                     logger.error("Encountered fatal error executing job", t);
                     execution.setExitStatus(getDefaultExitStatusForFailure(t, hibernationRequested));
@@ -397,12 +399,16 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
 	                    		}
 	                    	}
 	                    	if (!allStepsComplete){
-		                    	logger.debug("Not all steps have been stopped. Trying again in " + STEP_STATUS_RETRY_TIMEOUT + "ms...");
+		                    	logger.info("Not all steps have been stopped. Trying again in " + STEP_STATUS_RETRY_TIMEOUT + "ms...");
 	                			try {
 									Thread.sleep(STEP_STATUS_RETRY_TIMEOUT);
 								} catch (InterruptedException e) {}
 	                    	}
                     	} while (!allStepsComplete);
+                    	if (!execution.getStatus().equals(finalStatus)){
+                    		logger.warn("Re-setting BatchStatus to " + finalStatus + ". May have been transitioned back to STOPPING by a terminated step");
+                    		execution.setStatus(finalStatus);
+                    	}
                     } else {
                     	try {
                     		// do not handle afterJob listener if entering hibernation
@@ -413,6 +419,7 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
                     }
                     execution.setEndTime(new Date());
                     jobRepository.update(execution);
+                    logger.info(String.format("JobExecution completed with status=%s and exitStatus=%s", execution.getStatus(), execution.getExitStatus()));
             }
         }
         

@@ -39,25 +39,25 @@ public abstract class WaspHibernatingTasklet extends WaspTasklet implements Step
 			logger.debug("ExecutionContext : " + entry.getKey() + "=" + entry.getValue().toString());
 		for (Entry<String,Object> entry: stepExecutionContext.entrySet())
 			logger.debug("StepExecutionContext : " + entry.getKey() + "=" + entry.getValue().toString());
-		if (executionContext.containsKey(BatchJobHibernationManager.HIBERNATION_REQUESTED) && 
-				(boolean) executionContext.get(BatchJobHibernationManager.HIBERNATION_REQUESTED)){
-			logger.debug("Not going to request hibernation as hibernation request already made by a step.");
-			hibernationManager.addMessageTemplatesForJobStep(context.getStepContext().getStepExecution().getJobExecutionId(), 
-					context.getStepContext().getStepExecution().getId(), messageTemplates);
-			return;
-		}
-		executionContext.put(BatchJobHibernationManager.HIBERNATION_REQUESTED, true);
+		
 		StepContext stepContext = context.getStepContext();
-		Long jobExecutionId = stepContext.getStepExecution().getJobExecutionId();
 		logger.info("Going to hibernate job " + stepContext.getJobName() + 
 				" (execution id=" + stepContext.getStepExecution().getJobExecutionId() + ") from step " + 
 				stepContext.getStepName() + " (step id=" + stepContext.getStepExecution().getId() + ")");
+		if (executionContext.containsKey(BatchJobHibernationManager.HIBERNATION_REQUESTED) && 
+				(boolean) executionContext.get(BatchJobHibernationManager.HIBERNATION_REQUESTED)){
+			wasHibernationRequested = true;
+			logger.debug("Execution context already contains HIBERNATION_REQUESTED=true. Setting wasHibernationRequested=true");
+		} else
+			executionContext.put(BatchJobHibernationManager.HIBERNATION_REQUESTED, true);
 		if (wasHibernationRequested){
-			logger.debug("Not going to request hibernation as hibernation request already exists. Registering messages with HibernationManager");
+			logger.debug("Hibernation request aborted as hibernation request already made by another step. Registering messages with HibernationManager");
+			hibernationManager.addMessageTemplatesForJobStep(context.getStepContext().getStepExecution().getJobExecutionId(), 
+					context.getStepContext().getStepExecution().getId(), messageTemplates);
 			return;
 		} else {
 			wasHibernationRequested = true;
-			hibernationManager.processHibernateRequest(jobExecutionId, stepContext.getStepExecution().getId(), messageTemplates);
+			hibernationManager.processHibernateRequest(stepContext.getStepExecution().getJobExecutionId(), stepContext.getStepExecution().getId(), messageTemplates);
 		}
 	}
 	

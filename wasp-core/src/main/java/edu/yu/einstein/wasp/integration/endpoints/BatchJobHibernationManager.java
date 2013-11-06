@@ -99,7 +99,7 @@ public class BatchJobHibernationManager {
 	public void addMessageTemplatesForJobStep(Long jobExecutionId, Long stepExecutionId, Collection<WaspStatusMessageTemplate> messageTemplates) {
 		StepExecution se = jobExplorer.getStepExecution(jobExecutionId, stepExecutionId);
 		if (!messageTemplates.isEmpty()){
-			logger.debug("Populating hibernation manager with " + messageTemplates + " message templates for stepExecution id=" + stepExecutionId);
+			logger.info("Populating hibernation manager with " + messageTemplates + " message templates for stepExecution id=" + stepExecutionId);
 			for (WaspStatusMessageTemplate messageTemplate: messageTemplates){
 				if (!messageTemplatesWakingStepExecutions.containsKey(messageTemplate))
 					messageTemplatesWakingStepExecutions.put(messageTemplate, new HashSet<StepExecution>());
@@ -113,7 +113,7 @@ public class BatchJobHibernationManager {
 		WaspStatusMessageTemplate incomingStatusMessageTemplate = new WaspStatusMessageTemplate((Message<WaspStatus>) message);
 		//remove superfluous headers if present (these are not used to make decisions about acting on messages)
 		sanitizeHeaders(incomingStatusMessageTemplate);
-		logger.debug("Handling message: " + incomingStatusMessageTemplate.toString());
+		logger.info("Handling message: " + incomingStatusMessageTemplate.toString());
 		if (messageTemplatesWakingStepExecutions.keySet().contains(incomingStatusMessageTemplate)){
 			logger.debug("messageTemplatesForJob.keySet() contains message");
 			for (StepExecution se : messageTemplatesWakingStepExecutions.get(incomingStatusMessageTemplate)){
@@ -127,12 +127,12 @@ public class BatchJobHibernationManager {
 						Set<StatusMessageTemplate> templates = new HashSet<StatusMessageTemplate>(messageTemplatesWakingStepExecutions.keySet());
 						for (StatusMessageTemplate template :templates){
 							if (messageTemplatesWakingStepExecutions.get(template).contains(seForJob)){
-								logger.debug("Removing re-awoken stepExecution id=" + seForJob.getId() + 
+								logger.info("Removing re-awoken stepExecution id=" + seForJob.getId() + 
 										" from list of step executions re-awoken by message template : " + template.toString());
 								messageTemplatesWakingStepExecutions.get(template).remove(seForJob);
 							}
 							if (messageTemplatesWakingStepExecutions.get(template).isEmpty()){
-								logger.debug("Removing message template from list of messages to watch for as no more StepExecutions depend on it : " + 
+								logger.info("Removing message template from list of messages to watch for as no more StepExecutions depend on it : " + 
 										template.toString());
 								messageTemplatesWakingStepExecutions.remove(template);
 							}
@@ -145,8 +145,6 @@ public class BatchJobHibernationManager {
 		}	
 		else
 			logger.debug("messageTemplatesForJob.keySet() does not contain message");
-			for (WaspStatusMessageTemplate mt : messageTemplatesWakingStepExecutions.keySet())
-				logger.debug("messageTemplatesForJob entry : " + mt.toString());
 		return getReplyMessage(message);
 	}
 	
@@ -157,12 +155,12 @@ public class BatchJobHibernationManager {
 	 * @param jobExecutionId
 	 */
 	public void processHibernateRequest(Long jobExecutionId, Long stepExecutionId, Collection<WaspStatusMessageTemplate> messageTemplates){
-		logger.debug("Request received to request stop and re-awaken on message");
+		logger.info("Request received to request stop and re-awaken on message");
 		addMessageTemplatesForJobStep(jobExecutionId, stepExecutionId, messageTemplates);
 		WaspBatchExitStatus exitStatus = new WaspBatchExitStatus(jobExplorer.getJobExecution(jobExecutionId).getExitStatus());
 		logger.debug("job with id=" + jobExecutionId + " has ExitStatus of " + exitStatus + " and isRunningAndAwake=" + exitStatus.isRunningAndAwake());
 		if (exitStatus.isRunningAndAwake()){
-			logger.debug("Going to hibernate JobExecution id=" + jobExecutionId + " (requested from step Id=" + stepExecutionId + ")");
+			logger.info("Going to hibernate JobExecution id=" + jobExecutionId + " (requested from step Id=" + stepExecutionId + ")");
 			hibernateJobExecution(jobExecutionId);
 		}
 	}
@@ -212,7 +210,7 @@ public class BatchJobHibernationManager {
 		Set<WaspStatusMessageTemplate> templates = new HashSet<>();
 		ExecutionContext executionContext = stepExecution.getExecutionContext();
 		if (!executionContext.containsKey(MESSAGES_TO_WAKE)){
-			logger.trace("Execution context of stepExecution id=" + stepExecution.getId() + " contains no wake messages");
+			logger.debug("Execution context of stepExecution id=" + stepExecution.getId() + " contains no wake messages");
 			return templates; // empty set
 		}
 		JSONObject json = new JSONObject(executionContext.getString(MESSAGES_TO_WAKE));

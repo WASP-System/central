@@ -65,7 +65,7 @@ public class WaspBatchJobOperator extends SimpleJobOperator implements JobOperat
         WaspFlowJob job = new WaspFlowJob((FlowJob) getJobRegistry().getJob(jobName));
         JobParameters parameters = jobExecution.getJobParameters();
 
-        logger.info(String.format("Attempting to resume job with name=%s and parameters=%s", jobName, parameters));
+        logger.info(String.format("Attempting to wake hibernating job with name=%s and parameters=%s", jobName, parameters));
         try {
                 return getJobLauncher().wake(job, parameters).getId();
         }
@@ -89,6 +89,7 @@ public class WaspBatchJobOperator extends SimpleJobOperator implements JobOperat
         if (!(status == BatchStatus.STARTED || status == BatchStatus.STARTING)) {
                 throw new JobExecutionNotRunningException("JobExecution must be running so that it can be stopped: "+jobExecution);
         }
+        logger.info(String.format("Attempting to hibernate job with name=%s and parameters=%s", jobExecution.getJobInstance().getJobName(), jobExecution.getJobParameters()));
         jobExecution.setStatus(BatchStatus.STOPPING);
         jobExecution.setExitStatus(jobExecution.getExitStatus().addExitDescription(BatchJobHibernationManager.HIBERNATION_REQUESTED));
         getJobRepository().update(jobExecution);
@@ -145,11 +146,11 @@ public class WaspBatchJobOperator extends SimpleJobOperator implements JobOperat
         * @return
         */
         private JobRegistry getJobRegistry(){
-      	  	Field jobRegistryField = null;
+      	  	Field field = null;
   			try {
-  				jobRegistryField = SimpleJobOperator.class.getDeclaredField("jobRegistry");
-  				jobRegistryField.setAccessible(true);
-  	        	return (JobRegistry) jobRegistryField.get((SimpleJobOperator) this);
+  				field = SimpleJobOperator.class.getDeclaredField("jobRegistry");
+  				field.setAccessible(true);
+  	        	return (JobRegistry) field.get((SimpleJobOperator) this);
   			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
   				logger.debug("Unable to obtain JobRegistry from super via reflection");
   				e.printStackTrace();
@@ -162,11 +163,11 @@ public class WaspBatchJobOperator extends SimpleJobOperator implements JobOperat
          * @return
          */
          private JobExplorer getJobExplorer(){
-       	  	Field jobExplorerField = null;
+       	  	Field field = null;
    			try {
-   				jobExplorerField = SimpleJobOperator.class.getDeclaredField("jobExplorer");
-   				jobExplorerField.setAccessible(true);
-   	        	return (JobExplorer) jobExplorerField.get((SimpleJobOperator) this);
+   				field = SimpleJobOperator.class.getDeclaredField("jobExplorer");
+   				field.setAccessible(true);
+   	        	return (JobExplorer) field.get((SimpleJobOperator) this);
    			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
    				logger.debug("Unable to obtain JobExplorer from super via reflection");
    				e.printStackTrace();
