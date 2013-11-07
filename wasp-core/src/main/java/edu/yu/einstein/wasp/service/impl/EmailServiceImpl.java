@@ -454,7 +454,7 @@ public class EmailServiceImpl implements EmailService{
 			Properties props = ((JavaMailSenderImpl)mailSender).getJavaMailProperties();
 		
 			message.setFrom(props.getProperty("mail.smtp.from")); //TODO: remove this line and un-comment line below in production code
-			// message.setTo(user.getEmail());
+			//message.setTo(user.getEmail());
 			
 			message.setTo(props.getProperty("mail.smtp.from"));
 			message.setSubject(subject);
