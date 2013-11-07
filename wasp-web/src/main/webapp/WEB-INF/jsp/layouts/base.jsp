@@ -41,19 +41,18 @@
 	  	      }
 	  	    });
 	}
-
-	$( document ).ready( function(){
+  
+  	$( document ).ready( function(){
 		waspTooltip();
   		waspFade("waspErrorMessage");
   		waspFade("waspMessage");
-  		
   		$( "#wait_dialog-modal" ).dialog({
   			dialogClass: "no-close",
 			height: 170,
 			autoOpen: false,
 			modal: true
 		});
-  		
+  		$("#wait_dialog-modal").css("visibility", "visible");
   		waspOnLoad();
   	});
   
