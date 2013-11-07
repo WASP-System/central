@@ -47,6 +47,7 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
 	
 	private boolean wasHibernating = false;
 
+	private final long DELAY_TO_ENSURE_ALL_STEPS_STARTED = 10L; //ms 
     
 
     /**
@@ -182,7 +183,13 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
                             // Ensure that the job gets the message that it is stopping
                             // and can pass it on to other steps that are executing
                             // concurrently.
-                            execution.setStatus(BatchStatus.STOPPING);
+                    		if (execution.getStatus().isLessThan(BatchStatus.STOPPING))
+                    			execution.setStatus(BatchStatus.STOPPING);
+                    		else
+                    			logger.info("Not going to signal stop of Job Execution as already stopped");
+                    		try{
+                				Thread.sleep(DELAY_TO_ENSURE_ALL_STEPS_STARTED);
+                			} catch (InterruptedException e1){}
                             throw e;
                     }
 
@@ -190,8 +197,14 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
 
                     if (currentStepExecution.getStatus() == BatchStatus.STOPPING || currentStepExecution.getStatus() == BatchStatus.STOPPED) {
                             // Ensure that the job gets the message that it is stopping
-                            execution.setStatus(BatchStatus.STOPPING);
-                            throw new JobInterruptedException("Job interrupted by step execution");
+                    	if (execution.getStatus().isLessThan(BatchStatus.STOPPING))
+                			execution.setStatus(BatchStatus.STOPPING);
+                		else
+                			logger.info("Not going to signal stop of Job Execution as already stopped");
+                    	try{
+            				Thread.sleep(DELAY_TO_ENSURE_ALL_STEPS_STARTED);
+            			} catch (InterruptedException e1){}
+                        throw new JobInterruptedException("Job interrupted by step execution");
                     }
 
             }

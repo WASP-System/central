@@ -399,16 +399,13 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
 	                    		}
 	                    	}
 	                    	if (!allStepsComplete){
+	                    		// should not get here if all steps were started before a step initiated job stopping
 		                    	logger.info("Not all steps have been stopped. Trying again in " + STEP_STATUS_RETRY_TIMEOUT + "ms...");
 	                			try {
 									Thread.sleep(STEP_STATUS_RETRY_TIMEOUT);
 								} catch (InterruptedException e) {}
 	                    	}
                     	} while (!allStepsComplete);
-                    	if (!execution.getStatus().equals(finalStatus)){
-                    		logger.warn("Re-setting BatchStatus to " + finalStatus + ". May have been transitioned back to STOPPING by a terminated step");
-                    		execution.setStatus(finalStatus);
-                    	}
                     } else {
                     	try {
                     		// do not handle afterJob listener if entering hibernation
