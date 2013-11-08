@@ -58,7 +58,8 @@ public class BatchJobHibernationManager {
 	
 	private JobRepository jobRepository;
 	
-	private Map<WaspStatusMessageTemplate, Set<StepExecution>> messageTemplatesWakingStepExecutions = new HashMap<>(); // use HashMap for fast message searching
+	// make the following volatile to prevent caching 
+	private volatile Map<WaspStatusMessageTemplate, Set<StepExecution>> messageTemplatesWakingStepExecutions = new HashMap<>(); // use HashMap for fast message searching
 
 	public BatchJobHibernationManager() {}
 	
@@ -96,7 +97,7 @@ public class BatchJobHibernationManager {
 	
 	
 	
-	public void addMessageTemplatesForJobStep(Long jobExecutionId, Long stepExecutionId, Collection<WaspStatusMessageTemplate> messageTemplates) {
+	public synchronized void addMessageTemplatesForJobStep(Long jobExecutionId, Long stepExecutionId, Collection<WaspStatusMessageTemplate> messageTemplates) {
 		StepExecution se = jobExplorer.getStepExecution(jobExecutionId, stepExecutionId);
 		if (!messageTemplates.isEmpty()){
 			logger.info("Populating hibernation manager with " + messageTemplates + " message templates for stepExecution id=" + stepExecutionId);
@@ -114,38 +115,40 @@ public class BatchJobHibernationManager {
 		//remove superfluous headers if present (these are not used to make decisions about acting on messages)
 		sanitizeHeaders(incomingStatusMessageTemplate);
 		logger.info("Handling message: " + incomingStatusMessageTemplate.toString());
-		if (messageTemplatesWakingStepExecutions.keySet().contains(incomingStatusMessageTemplate)){
-			logger.debug("messageTemplatesForJob.keySet() contains message");
-			for (StepExecution se : messageTemplatesWakingStepExecutions.get(incomingStatusMessageTemplate)){
-				logger.debug("restarting job with JobExecution id=" +se.getJobExecutionId() + " for step " + se.getId() + 
-						" on receiving message " + message);
-				try{
-					reawakenJobExecution(se);
-					// remove all stepExecutions from the re-awoken job from messageTemplatesWakingStepExecutions and remove awake message
-					// if no longer needed
-					for (StepExecution seForJob : jobExplorer.getJobExecution(se.getJobExecutionId()).getStepExecutions()){
-						Set<StatusMessageTemplate> templates = new HashSet<StatusMessageTemplate>(messageTemplatesWakingStepExecutions.keySet());
-						for (StatusMessageTemplate template :templates){
-							if (messageTemplatesWakingStepExecutions.get(template).contains(seForJob)){
-								logger.info("Removing re-awoken stepExecution id=" + seForJob.getId() + 
-										" from list of step executions re-awoken by message template : " + template.toString());
-								messageTemplatesWakingStepExecutions.get(template).remove(seForJob);
-							}
-							if (messageTemplatesWakingStepExecutions.get(template).isEmpty()){
-								logger.info("Removing message template from list of messages to watch for as no more StepExecutions depend on it : " + 
-										template.toString());
-								messageTemplatesWakingStepExecutions.remove(template);
+		synchronized (messageTemplatesWakingStepExecutions) {
+			if (messageTemplatesWakingStepExecutions.keySet().contains(incomingStatusMessageTemplate)){
+				logger.debug("messageTemplatesForJob.keySet() contains message");
+				for (StepExecution se : messageTemplatesWakingStepExecutions.get(incomingStatusMessageTemplate)){
+					logger.debug("restarting job with JobExecution id=" +se.getJobExecutionId() + " for step " + se.getId() + 
+							" on receiving message " + message);
+					try{
+						reawakenJobExecution(se);
+						// remove all stepExecutions from the re-awoken job from messageTemplatesWakingStepExecutions and remove awake message
+						// if no longer needed
+						for (StepExecution seForJob : jobExplorer.getJobExecution(se.getJobExecutionId()).getStepExecutions()){
+							Set<StatusMessageTemplate> templates = new HashSet<StatusMessageTemplate>(messageTemplatesWakingStepExecutions.keySet());
+							for (StatusMessageTemplate template :templates){
+								if (messageTemplatesWakingStepExecutions.get(template).contains(seForJob)){
+									logger.info("Removing re-awoken stepExecution id=" + seForJob.getId() + 
+											" from list of step executions re-awoken by message template : " + template.toString());
+									messageTemplatesWakingStepExecutions.get(template).remove(seForJob);
+								}
+								if (messageTemplatesWakingStepExecutions.get(template).isEmpty()){
+									logger.info("Removing message template from list of messages to watch for as no more StepExecutions depend on it : " + 
+											template.toString());
+									messageTemplatesWakingStepExecutions.remove(template);
+								}
 							}
 						}
+					} catch (WaspBatchJobExecutionException e){
+						logger.warn("Problem reawakening job execution and cleaning up 'messageTemplatesWakingStepExecutions': " + e.getLocalizedMessage());
 					}
-				} catch (WaspBatchJobExecutionException e){
-					logger.warn("Problem reawakening job execution and cleaning up 'messageTemplatesWakingStepExecutions': " + e.getLocalizedMessage());
 				}
-			}
-		}	
-		else
-			logger.debug("messageTemplatesForJob.keySet() does not contain message");
-		return getReplyMessage(message);
+			}	
+			else
+				logger.debug("messageTemplatesForJob.keySet() does not contain message");
+			return getReplyMessage(message);
+		}
 	}
 	
 	/**
