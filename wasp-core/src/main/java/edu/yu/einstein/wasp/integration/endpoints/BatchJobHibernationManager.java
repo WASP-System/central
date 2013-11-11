@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -64,7 +66,7 @@ public class BatchJobHibernationManager {
 	// make the following variables volatile to prevent caching 
 	private volatile Map<WaspStatusMessageTemplate, Set<StepExecution>> messageTemplatesWakingStepExecutions = new HashMap<>(); // use HashMap for fast message searching
 	
-	private volatile Map<Long, Set<StepExecution>> timesWakingStepExecutions = new HashMap<>(); 
+	private volatile Map<Long, Set<StepExecution>> timesWakingStepExecutions = new TreeMap<>(); 
 
 	public BatchJobHibernationManager() {}
 	
@@ -151,7 +153,7 @@ public class BatchJobHibernationManager {
 			if (messageTemplatesWakingStepExecutions.keySet().contains(incomingStatusMessageTemplate)){
 				logger.debug("messageTemplatesForJob.keySet() contains message");
 				for (StepExecution se : messageTemplatesWakingStepExecutions.get(incomingStatusMessageTemplate)){
-					logger.debug("restarting job with JobExecution id=" +se.getJobExecutionId() + " for step " + se.getId() + 
+					logger.info("restarting job with JobExecution id=" +se.getJobExecutionId() + " for step " + se.getId() + 
 							" on receiving message " + message);
 					try{
 						reawakenJobExecution(se);
@@ -288,9 +290,24 @@ public class BatchJobHibernationManager {
 	}
 	
 	// executed by taskScheduler bean periodically at a rate defined in configuration (wasp.hibernation.heartbeat)
-	public void runTimedTasks() {
-		logger.debug("Running sheduled tasks");
-	   
+	public synchronized void runTimedTasks() {
+		logger.debug("Checking to see if any StepExecutions require waking after timed sleep");
+		Set<Long> orderedTimes = new TreeSet<>(timesWakingStepExecutions.keySet());
+		Date timeNow = new Date();
+		for (Long time: orderedTimes){
+			if (time <= timeNow.getTime()){
+				for (StepExecution se : timesWakingStepExecutions.get(time)){
+					logger.info("restarting job with JobExecution id=" +se.getJobExecutionId() + " for step " + se.getId() + 
+							" on restart wait timeout");
+					try{
+						reawakenJobExecution(se);
+						timesWakingStepExecutions.remove(time);
+					} catch (WaspBatchJobExecutionException e){
+						logger.warn("Problem reawakening job execution : " + e.getLocalizedMessage());
+					}
+				}
+			}
+		}
 	}
 	
 	

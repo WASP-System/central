@@ -35,15 +35,20 @@
 		<int:priority-queue />
 	</int:channel>
 	
+	<int:channel id="wasp.channel.priority.waspStatusMessages">
+		<int:priority-queue />
+	</int:channel>
+	
 	<!-- other queue channels -->
 	<int:channel id="wasp.channel.queue.launch">
 		<int:queue />
 	</int:channel>
 	
-	<int:channel id="wasp.channel.throttled.launch" />
-	
+	<int:channel id="wasp.channel.throttled.launch" />	
 	
 	<!-- publish-subscribe channels for broadcasting messages -->	
+	<int:publish-subscribe-channel id="wasp.channel.notification.batch" />
+	
 	<int:publish-subscribe-channel id="wasp.channel.notification.job" />
 	
 	<int:publish-subscribe-channel id="wasp.channel.notification.run" />
@@ -62,7 +67,9 @@
 	
 	
 	
-	<!-- bridges between priority and publish-subscribe channels to throttle messages -->
+	<!-- bridges between priority and publish-subscribe channels -->
+	<int:bridge id="wasp.channel.bridge.notify" input-channel="wasp.channel.notification.batch" output-channel="wasp.channel.priority.waspStatusMessages" />
+	
 	<int:bridge id="wasp.channel.bridge.job" input-channel="wasp.channel.priority.job" output-channel="wasp.channel.notification.job" >
 		<int:poller max-messages-per-poll="1" fixed-rate="10" />
 	</int:bridge>
@@ -117,18 +124,32 @@
 	
 	<bean id="batchJobHibernationManager" class="edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager" />
 	
-	<int:service-activator input-channel="wasp.channel.priority.default" 
+	<int:service-activator input-channel="wasp.channel.priority.waspStatusMessages" 
 		output-channel="wasp.channel.reply" ref="batchJobHibernationManager" 
 		requires-reply="false" />
 		
-	
 	<!-- header-router to sort inbound messages into appropriate channels -->
-	<int:header-value-router id="waspMessageTypeRouter" 
+	<int:header-value-router id="waspMessageTypeRouter1" 
 		header-name="#{waspMessageType.HEADER_KEY}" 
 		input-channel="wasp.channel.batch" 
-		default-output-channel="wasp.channel.priority.default"
+		default-output-channel="wasp.channel.notification.batch"
 		resolution-required="false" >
 		<int:mapping value="#{waspMessageType.LAUNCH_BATCH_JOB}" channel="wasp.channel.queue.launch"/>
+	</int:header-value-router>
+		
+	
+	<!-- header-router to sort inbound messages into appropriate channels -->
+	<int:header-value-router id="waspMessageTypeRouter2" 
+		header-name="#{waspMessageType.HEADER_KEY}" 
+		input-channel="wasp.channel.notification.batch" 
+		default-output-channel="wasp.channel.priority.default"
+		resolution-required="false" >
+		<int:mapping value="#{waspMessageType.JOB}" channel="wasp.channel.priority.job"/>
+		<int:mapping value="#{waspMessageType.RUN}" channel="wasp.channel.priority.run"/>
+		<int:mapping value="#{waspMessageType.SAMPLE}" channel="wasp.channel.priority.sample"/>
+		<int:mapping value="#{waspMessageType.LIBRARY}" channel="wasp.channel.priority.library"/>
+		<int:mapping value="#{waspMessageType.ANALYSIS}" channel="wasp.channel.priority.analysis"/>
+		<int:mapping value="#{waspMessageType.FILE}" channel="wasp.channel.priority.file"/>
 	</int:header-value-router>
 		
 	
