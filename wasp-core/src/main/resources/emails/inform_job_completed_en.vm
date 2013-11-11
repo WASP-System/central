@@ -18,7 +18,7 @@ and click on the appropriate job number or click on View Files.</p>
 <b>Job Name &amp; Submitters</b><br />
 Reference Number: J${job.getJobId()}<br />
 Job Name: ${job.getName()}<br />
-Date Submitted: ${job.getCreatets()}<br />
+Date Submitted: ${job.getCreated()}<br />
 Submitter: ${jobSubmitter.firstName} ${jobSubmitter.lastName} (email: ${jobSubmitter.getEmail()})<br />
 Principal Investigator: ${pi.firstName} ${pi.lastName} (email: ${pi.getEmail()})<br /><br />
 
