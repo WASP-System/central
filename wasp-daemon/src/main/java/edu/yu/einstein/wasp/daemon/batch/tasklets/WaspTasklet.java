@@ -4,14 +4,15 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.TaskletRetryException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -19,7 +20,7 @@ import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 
 
-public abstract class WaspTasklet implements Tasklet {
+public abstract class WaspTasklet extends WaspHibernatingTasklet implements StepExecutionListener {
 	
 	@Autowired
 	private GridHostResolver hostResolver;
@@ -32,9 +33,8 @@ public abstract class WaspTasklet implements Tasklet {
 	 * Default implementation checks to see if a stored result is running 
 	 */
 	@Override
-	@RetryOnExceptionExponential
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
-		if (isGridWorkUnitStarted(context)) {
+		if (isGridWorkUnitStarted(context) && !wasHibernationRequested) {
 			GridResult result = getStartedResult(context);
 			GridWorkService gws = hostResolver.getGridWorkService(result);
 			try {
@@ -45,7 +45,15 @@ public abstract class WaspTasklet implements Tasklet {
 				removeStartedResult(context);
 				throw e;
 			}
-			throw new TaskletRetryException(result.getUuid() + " not complete.");
+			// not complete so hibernate if not already requested
+			if (wasHibernationRequested){
+				logger.debug("Not going to request hibernation already done: wasHibernationRequested=" + wasHibernationRequested);
+			} else {
+				Long timeoutInterval = exponentiallyIncreaseTimeoutIntervalInContext(context);
+				logger.debug("Going to request hibernation as " + result.getUuid() + " not complete and wasHibernationRequested=" + wasHibernationRequested);
+				requestHibernation(context, timeoutInterval);
+				return RepeatStatus.CONTINUABLE;
+			}
 		}
 		logger.debug("Tasklet not yet configured with a result");
 		return RepeatStatus.CONTINUABLE;
@@ -76,8 +84,7 @@ public abstract class WaspTasklet implements Tasklet {
 		 return false;
 		 
 	}
-	
-	public static void storeStartedResult(ChunkContext context, GridResult result) {
+	protected static void storeStartedResult(ChunkContext context, GridResult result) {
 		ExecutionContext executionContext = context.getStepContext().getStepExecution().getExecutionContext();
 		logger.debug(result.toString());
 		executionContext.put(GridResult.GRID_RESULT_KEY, result);
@@ -92,4 +99,15 @@ public abstract class WaspTasklet implements Tasklet {
 	public static GridResult getStartedResult(ChunkContext context) {
 		return (GridResult) context.getStepContext().getStepExecution().getExecutionContext().get(GridResult.GRID_RESULT_KEY);
 	}
+	
+	@Override
+	public void beforeStep(StepExecution stepExecution) {
+		// Do Nothing here
+	}
+	
+	@Override
+	public ExitStatus afterStep(StepExecution stepExecution){
+		return stepExecution.getExitStatus();
+	}
+	
 }

@@ -3,16 +3,13 @@ package edu.yu.einstein.wasp.daemon.batch.tasklets;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 /**
@@ -20,14 +17,11 @@ import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemp
  * provided message template.
  * @author asmclellan
  */
-public class ListenForStatusTasklet extends WaspHibernatingTasklet  {
+public class ListenForStatusTasklet extends WaspTasklet  {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ListenForStatusTasklet.class);
 	
-	
-	
 	private Set<WaspStatusMessageTemplate> messageTemplates = new HashSet<>();
-	
 	
 	public ListenForStatusTasklet() {
 		// proxy
@@ -60,19 +54,7 @@ public class ListenForStatusTasklet extends WaspHibernatingTasklet  {
 		}
 		return RepeatStatus.CONTINUABLE;
 	}
-		
 	
-	private boolean wasWokenOnMessage(ChunkContext context){
-		ExecutionContext executionContext = context.getStepContext().getStepExecution().getExecutionContext();
-		boolean waspWoken = false;
-		if (executionContext.containsKey(BatchJobHibernationManager.WOKEN_ON_MESSAGE_KEY))
-			waspWoken = (boolean) executionContext.get(BatchJobHibernationManager.WOKEN_ON_MESSAGE_KEY);
-		logger.debug("StepExecutionId=" + context.getStepContext().getStepExecution().getId() + " wasWokenByMessage=" + waspWoken);
-		return waspWoken;	
-	}
 	
-	private void addStatusMessagesToContext(ChunkContext context, Set<WaspStatusMessageTemplate> templates) throws JSONException{
-		BatchJobHibernationManager.setWakeMessages(context.getStepContext().getStepExecution(), templates);
-	}
 
 }

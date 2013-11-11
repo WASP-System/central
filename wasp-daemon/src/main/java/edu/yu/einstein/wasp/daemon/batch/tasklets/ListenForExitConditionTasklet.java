@@ -24,7 +24,7 @@ import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemp
  * and stops the entire job if a relevant notifying abort message is received at any time. 
  * @author asmclellan
  */
-public class ListenForExitConditionTasklet extends WaspHibernatingTasklet {
+public class ListenForExitConditionTasklet extends WaspTasklet {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -164,9 +164,4 @@ public class ListenForExitConditionTasklet extends WaspHibernatingTasklet {
 	}
 */
 
-	@Override
-	protected void requestHibernation(ChunkContext context, Object trigger) {
-		// TODO Auto-generated method stub
-		
-	}
 }

@@ -25,7 +25,8 @@
  		queue-capacity="${wasp.taskexecutor.queueCapacity:0}" 
  		pool-size="${wasp.taskexecutor.corePoolSize:5}-${wasp.taskexecutor.maxPoolSize:10000}" 
  		rejection-policy="CALLER_RUNS" />
-  
+ 		
+   
   <!-- mail configuration -->
   <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
     <property name="host" value="${email.host}"/>

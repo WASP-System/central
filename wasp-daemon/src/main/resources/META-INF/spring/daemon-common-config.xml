@@ -6,6 +6,12 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+		
+	<task:scheduled-tasks scheduler="taskScheduler">
+	    <task:scheduled ref="batchJobHibernationManager" method="runTimedTasks" fixed-rate="${wasp.hibernation.heartbeat}"/>
+	</task:scheduled-tasks>
+	
+	<task:scheduler id="taskScheduler" pool-size="10"/>
 
 	
 	<!-- create beans for classes containing constants -->

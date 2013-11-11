@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.integration.endpoints;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -47,8 +48,10 @@ public class BatchJobHibernationManager {
 
 	public static final String WAS_HIBERNATING = "wasHibernating";
 	public static final String HIBERNATION_REQUESTED = "requestHibernation";
-	public static final String WOKEN_ON_MESSAGE_KEY = "wokenOnMessage";
+	public static final String WOKEN_ON_MESSAGE = "wokenOnMessage";
+	public static final String WOKEN_ON_TIMEOUT = "wokenOnTimeout";
 	public static final String MESSAGES_TO_WAKE = "w_msgs";
+	public static final String TIME_TO_WAKE = "w_time";
 	
 	private static final Logger logger = LoggerFactory.getLogger(BatchJobHibernationManager.class);
 	
@@ -58,8 +61,10 @@ public class BatchJobHibernationManager {
 	
 	private JobRepository jobRepository;
 	
-	// make the following volatile to prevent caching 
+	// make the following variables volatile to prevent caching 
 	private volatile Map<WaspStatusMessageTemplate, Set<StepExecution>> messageTemplatesWakingStepExecutions = new HashMap<>(); // use HashMap for fast message searching
+	
+	private volatile Map<Long, Set<StepExecution>> timesWakingStepExecutions = new HashMap<>(); 
 
 	public BatchJobHibernationManager() {}
 	
@@ -77,6 +82,33 @@ public class BatchJobHibernationManager {
 	@Autowired
 	public void setJobOperator(JobOperator jobOperator){
 		this.jobOperator = (JobOperatorWasp) jobOperator;
+	}
+	
+	
+	
+	/**
+	 * Attempts to extract time intervals stored in the stepExecutionContext
+	 * @param jobExecutionId
+	 * @param stepExecutionId
+	 */
+	public void addTimeIntervalForJobStep(Long jobExecutionId, Long stepExecutionId) {
+		StepExecution se = jobExplorer.getStepExecution(jobExecutionId, stepExecutionId);
+		addTimeIntervalForJobStep(jobExecutionId, stepExecutionId, getWakeTimeInterval(se));
+	}
+	
+	public synchronized void addTimeIntervalForJobStep(Long jobExecutionId, Long stepExecutionId, Long interval) {
+		if (interval == null){
+			logger.warn("Unable to obtain a wake time from stepExecution id=" + stepExecutionId);
+			return;
+		}
+		StepExecution se = jobExplorer.getStepExecution(jobExecutionId, stepExecutionId);
+		
+		Date timeNow = new Date();
+		Long timeToWake = timeNow.getTime() + interval;
+		logger.info("Populating hibernation manager with a hibernate time interval of " + interval + " ms for stepExecution id=" + stepExecutionId);
+		if (!timesWakingStepExecutions.containsKey(timeToWake))
+			timesWakingStepExecutions.put(timeToWake, new HashSet<StepExecution>());
+		timesWakingStepExecutions.get(timeToWake).add(se);
 	}
 	
 	/**
@@ -152,8 +184,7 @@ public class BatchJobHibernationManager {
 	}
 	
 	/**
-	 * Attempts to extract message templates pre-stored in the stepExecutionContext 
-	 * and requests hibernation from Spring Batch extension 
+	 * Requests hibernation from Spring Batch extension 
 	 * @param stepExecutionId
 	 * @param jobExecutionId
 	 */
@@ -168,13 +199,29 @@ public class BatchJobHibernationManager {
 		}
 	}
 	
+	/**
+	 * Requests hibernation from Spring Batch extension 
+	 * @param stepExecutionId
+	 * @param jobExecutionId
+	 */
+	public void processHibernateRequest(Long jobExecutionId, Long stepExecutionId, Long timeInterval){
+		logger.info("Request received to request stop and re-awaken on message");
+		addTimeIntervalForJobStep(jobExecutionId, stepExecutionId, timeInterval);
+		WaspBatchExitStatus exitStatus = new WaspBatchExitStatus(jobExplorer.getJobExecution(jobExecutionId).getExitStatus());
+		logger.debug("job with id=" + jobExecutionId + " has ExitStatus of " + exitStatus + " and isRunningAndAwake=" + exitStatus.isRunningAndAwake());
+		if (exitStatus.isRunningAndAwake()){
+			logger.info("Going to hibernate JobExecution id=" + jobExecutionId + " (requested from step Id=" + stepExecutionId + ")");
+			hibernateJobExecution(jobExecutionId);
+		}
+	}
+	
 	private void reawakenJobExecution(StepExecution stepExecution) throws WaspBatchJobExecutionException{
 		JobExecution je = jobExplorer.getJobExecution(stepExecution.getJobExecutionId());
 		je.getExecutionContext().remove(HIBERNATION_REQUESTED);
 		jobRepository.updateExecutionContext(je);
 		for (StepExecution se : je.getStepExecutions()){
 			if (se.getId().equals(stepExecution.getId()))
-				se.getExecutionContext().put(WOKEN_ON_MESSAGE_KEY, true);
+				se.getExecutionContext().put(WOKEN_ON_MESSAGE, true);
 			jobRepository.updateExecutionContext(se);
 		}
 		
@@ -193,6 +240,23 @@ public class BatchJobHibernationManager {
 			logger.warn("Unable to hibernate job with JobExecution id=" + jobExecutionId + " (got " + e1.getClass().getName() + " Exception :" + 
 					e1.getLocalizedMessage() + ")");
 		}
+	}
+	
+	
+	
+	public static void setWakeTimeInterval(StepExecution stepExecution, Long timeInterval){
+		ExecutionContext executionContext = stepExecution.getExecutionContext();
+		executionContext.put(TIME_TO_WAKE, timeInterval);
+		
+	}
+	
+	public static Long getWakeTimeInterval(StepExecution stepExecution){
+		ExecutionContext executionContext = stepExecution.getExecutionContext();
+		if (!executionContext.containsKey(TIME_TO_WAKE)){
+			logger.debug("Execution context of stepExecution id=" + stepExecution.getId() + " contains no wake time interval");
+			return null; // empty set
+		}
+		return executionContext.getLong(TIME_TO_WAKE);
 	}
 	
 	public static void setWakeMessages(StepExecution stepExecution, Set<WaspStatusMessageTemplate> templates) throws JSONException{
@@ -222,6 +286,13 @@ public class BatchJobHibernationManager {
 			templates.add(new WaspStatusMessageTemplate(jsonArray.getJSONObject(i)));
 		return templates;
 	}
+	
+	// executed by taskScheduler bean periodically at a rate defined in configuration (wasp.hibernation.heartbeat)
+	public void runTimedTasks() {
+		logger.debug("Running sheduled tasks");
+	   
+	}
+	
 	
 	
 	
