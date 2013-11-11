@@ -77,7 +77,7 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 			executionContext.put(BatchJobHibernationManager.HIBERNATION_REQUESTED, true);
 		if (wasHibernationRequested){
 			logger.debug("Hibernation request aborted as hibernation request already made by another step. Registering messages with HibernationManager");
-			hibernationManager.addMessageTemplatesForJobStep(context.getStepContext().getStepExecution().getJobExecutionId(), 
+			hibernationManager.addMessageTemplatesForWakingJobStep(context.getStepContext().getStepExecution().getJobExecutionId(), 
 					context.getStepContext().getStepExecution().getId(), wakeMessageTemplates);
 			return;
 		} else {
@@ -121,8 +121,12 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 		return newTimeInterval;
 	}
 	
-	protected void addStatusMessagesToContext(ChunkContext context, Set<WaspStatusMessageTemplate> templates) throws JSONException{
+	protected void addStatusMessagesToWakeStepToContext(ChunkContext context, Set<WaspStatusMessageTemplate> templates) throws JSONException{
 		BatchJobHibernationManager.setWakeMessages(context.getStepContext().getStepExecution(), templates);
+	}
+	
+	protected void addStatusMessagesToAbandonStepToContext(ChunkContext context, Set<WaspStatusMessageTemplate> templates) throws JSONException{
+		BatchJobHibernationManager.setAbandonMessages(context.getStepContext().getStepExecution(), templates);
 	}
 	
 	protected boolean wasWokenOnMessage(ChunkContext context){
