@@ -88,10 +88,10 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.outputEncoding>UTF-8</project.build.outputEncoding>
 		<site.basedir>${project.basedir}</site.basedir>
-		<spring.framework.version>3.2.4.RELEASE</spring.framework.version>
+		<spring.framework.version>3.2.5.RELEASE</spring.framework.version>
 		<springsec.version>3.2.0.RC1</springsec.version>
 		<spring.batch.version>2.2.2.RELEASE</spring.batch.version>
-		<spring.integration.version>2.2.5.RELEASE</spring.integration.version>
+		<spring.integration.version>2.2.6.RELEASE</spring.integration.version>
 		<logback.version>1.0.7</logback.version>
 		<slf4j.version>1.7.2</slf4j.version>
 		<powermock.version>1.4.12</powermock.version>
