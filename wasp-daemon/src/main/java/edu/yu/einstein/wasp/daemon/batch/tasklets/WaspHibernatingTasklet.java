@@ -21,6 +21,8 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	
 	private static final Logger logger = LoggerFactory.getLogger(WaspHibernatingTasklet.class);
 	
+	protected boolean wasHibernationRequested = false;
+	
 	@Autowired
 	@Value("${wasp.hibernation.retry.exponential.initialInterval:5000}")
 	private Long initialExponentialInterval;
@@ -29,11 +31,14 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	@Value("${wasp.hibernation.retry.exponential.maxInterval:60000}")
 	private Long maxExponentialInterval;
 	
-	protected boolean wasHibernationRequested = false;
-	
 	@Autowired
 	private BatchJobHibernationManager hibernationManager;
 	
+	/**
+	 * Request hibernation of this jobExecution, to be woken again after specified time interval.
+	 * @param context
+	 * @param timeInterval
+	 */
 	protected void requestHibernation(ChunkContext context, Long timeInterval){
 		// NOTE: due to transactional behavior, execution contexts are not visible in the database outside of this job thread until job stopped / completed
 		// so care is required knowing what is visible where. Any additions to job execution context here will be visible immediately job-wide.
@@ -60,6 +65,11 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 		}
 	}
 	
+	/**
+	 * Request hibernation of this jobExecution, to be woken again after any of the provided messages are received.
+	 * @param context
+	 * @param wakeMessageTemplates
+	 */
 	protected void requestHibernation(ChunkContext context, Set<WaspStatusMessageTemplate> wakeMessageTemplates){
 		// NOTE: due to transactional behavior, execution contexts are not visible in the database outside of this job thread until job stopped / completed
 		// so care is required knowing what is visible where. Any additions to job execution context here will be visible immediately job-wide.
@@ -86,7 +96,10 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 		}
 	}
 	
-	
+	/**
+	 * Display contents of the JobExecutionContext and StepExecution context. Handy for debugging.
+	 * @param context
+	 */
 	private void logContexts(ChunkContext context){
 		ExecutionContext executionContext = context.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
 		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
@@ -115,7 +128,8 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 			newTimeInterval = maxExponentialInterval;
 		else
 			newTimeInterval = previousTimeInterval * MULTIPLICATION_FACTOR;
-		logger.debug(String.format("Previous time interval was %d ms, new time interval is %d ms", previousTimeInterval, newTimeInterval));
+		logger.debug(String.format("Previously set time interval (in StepExecutionContect) was %d ms, setting new time interval to be %d ms", 
+				previousTimeInterval, newTimeInterval));
 		if (!newTimeInterval.equals(previousTimeInterval))
 			BatchJobHibernationManager.setWakeTimeInterval(stepExecution, newTimeInterval);
 		return newTimeInterval;

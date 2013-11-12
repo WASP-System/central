@@ -4,10 +4,10 @@
 	xmlns:batch="http://www.springframework.org/schema/batch"
 	xmlns:util="http://www.springframework.org/schema/util"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
 		
-	<util:set id="abandonMessageSet" set-class="java.util.HashSet">
+	<util:set id="abandonSampleMessageSet" set-class="java.util.HashSet">
 		<bean class="edu.yu.einstein.wasp.integration.messages.templates.SampleStatusMessageTemplate">
 			<constructor-arg name="sampleId" value="#{jobParameters[waspJobParameters.SAMPLE_ID]}"/>
 			<property name="status" value="ABANDONED" />
@@ -15,6 +15,10 @@
 		<bean class="edu.yu.einstein.wasp.integration.messages.templates.SampleStatusMessageTemplate">
 			<constructor-arg name="sampleId" value="#{jobParameters[waspJobParameters.SAMPLE_ID]}"/>
 			<property name="status" value="FAILED" />
+		</bean>
+		<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
+			<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+			<property name="status" value="COMPLETED" />
 		</bean>
 		<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
 			<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
@@ -42,7 +46,7 @@
 									<property name="status" value="CREATED" />
 								</bean>
 							</constructor-arg>
-							<property name="abandonMessages" ref="abandonMessageSet" />
+							<property name="abandonMessages" ref="abandonSampleMessageSet" />
 							<property name="name" value="wasp.sample.step.listenForSampleReceived" />
 						</bean>
 					</batch:tasklet>
@@ -59,7 +63,7 @@
 									<property name="status" value="ACCEPTED" />
 								</bean>
 							</constructor-arg>
-							<property name="abandonMessages" ref="abandonMessageSet" />
+							<property name="abandonMessages" ref="abandonSampleMessageSet" />
 							<property name="name" value="wasp.sample.step.listenForJobApproved" />
 						</bean>
 					</batch:tasklet>
@@ -81,7 +85,7 @@
 							<property name="status" value="COMPLETED" />
 						</bean>
 					</constructor-arg>
-					<property name="abandonMessages" ref="abandonMessageSet" />
+					<property name="abandonMessages" ref="abandonSampleMessageSet" />
 					<property name="name" value="wasp.sample.step.sampleQC" />
 				</bean>
 			</batch:tasklet>

@@ -33,7 +33,12 @@ public abstract class WaspTasklet extends WaspHibernatingTasklet implements Step
 	 */
 	@Override
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
-		if (isGridWorkUnitStarted(context) && !wasHibernationRequested) {
+		if (wasHibernationRequested){
+			logger.debug("Not going to request hibernation or check WorkUnit status as hibernation has been previously requested: wasHibernationRequested=" 
+					+ wasHibernationRequested);
+			return RepeatStatus.CONTINUABLE;
+		}
+		if (isGridWorkUnitStarted(context)){
 			GridResult result = getStartedResult(context);
 			GridWorkService gws = hostResolver.getGridWorkService(result);
 			try {
@@ -44,15 +49,10 @@ public abstract class WaspTasklet extends WaspHibernatingTasklet implements Step
 				removeStartedResult(context);
 				throw e;
 			}
-			// not complete so hibernate if not already requested
-			if (wasHibernationRequested){
-				logger.debug("Not going to request hibernation already done: wasHibernationRequested=" + wasHibernationRequested);
-			} else {
-				Long timeoutInterval = exponentiallyIncreaseTimeoutIntervalInContext(context);
-				logger.debug("Going to request hibernation as " + result.getUuid() + " not complete and wasHibernationRequested=" + wasHibernationRequested);
-				requestHibernation(context, timeoutInterval);
-				return RepeatStatus.CONTINUABLE;
-			}
+			Long timeoutInterval = exponentiallyIncreaseTimeoutIntervalInContext(context);
+			logger.debug("Going to request hibernation as " + result.getUuid() + " not complete and wasHibernationRequested=" + wasHibernationRequested);
+			requestHibernation(context, timeoutInterval);
+			return RepeatStatus.CONTINUABLE;
 		}
 		logger.debug("Tasklet not yet configured with a result");
 		return RepeatStatus.CONTINUABLE;

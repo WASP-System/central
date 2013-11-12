@@ -10,7 +10,6 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 /**
@@ -31,10 +30,12 @@ public class ListenForStatusTasklet extends WaspTasklet  {
 	}
 	
 	public ListenForStatusTasklet(WaspStatusMessageTemplate messageTemplate) {
+		this.messageTemplates.clear();
 		this.messageTemplates.add(messageTemplate);
 	}
 	
 	public ListenForStatusTasklet(Set<WaspStatusMessageTemplate> messageTemplates) {
+		this.messageTemplates.clear();
 		this.messageTemplates.addAll(messageTemplates);
 	}
 	
@@ -59,15 +60,14 @@ public class ListenForStatusTasklet extends WaspTasklet  {
 		}
 			
 		if (wasHibernationRequested){
-			logger.debug("Not going to request hibernation already done: wasHibernationRequested=" + wasHibernationRequested);
+			logger.debug("Not going to request hibernation already requested: wasHibernationRequested=" + wasHibernationRequested);
 		} else {
-			logger.debug("Going to request hibernation as not already done: wasHibernationRequested=" + wasHibernationRequested);
+			logger.debug("Going to request hibernation as not previously requested: wasHibernationRequested=" + wasHibernationRequested);
 			addStatusMessagesToWakeStepToContext(context, messageTemplates);
 			requestHibernation(context, messageTemplates);
 		}
 		return RepeatStatus.CONTINUABLE;
 	}
-	
-	
+
 
 }
