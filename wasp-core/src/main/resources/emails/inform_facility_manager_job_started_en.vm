@@ -20,7 +20,7 @@ please indicate a reason in the space provided. Note: That reason will be displa
 <b>Job Name &amp; Submitters</b><br />
 Reference Number: J${job.getJobId()}<br />
 Job Name: ${job.getName()}<br />
-Date Submitted: ${job.getCreatets()}<br />
+Date Submitted: ${job.getCreated()}<br />
 Submitter: ${jobSubmitter.firstName} ${jobSubmitter.lastName} (email: ${jobSubmitter.getEmail()})<br />
 Principal Investigator: ${pi.firstName} ${pi.lastName} (email: ${pi.getEmail()})<br /><br />
 
