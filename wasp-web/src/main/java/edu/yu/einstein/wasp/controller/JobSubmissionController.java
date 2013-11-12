@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.TreeMap;
 //import java.util.concurrent.Callable;
 
+
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -44,7 +45,7 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-import edu.yu.einstein.wasp.additionalClasses.Strategy;
+import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.controller.util.SampleAndSampleDraftMetaHelper;
 import edu.yu.einstein.wasp.dao.AdaptorDao;

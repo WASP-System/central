@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
+import edu.yu.einstein.wasp.IndexingStrategy;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.AdaptorMetaDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetDao;
@@ -16,7 +17,9 @@ import edu.yu.einstein.wasp.dao.AdaptorsetMetaDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.NullResourceCategoryException;
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.load.service.AdaptorsetLoadService;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.AdaptorMeta;
@@ -25,6 +28,7 @@ import edu.yu.einstein.wasp.model.AdaptorsetMeta;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.SampleType;
+import edu.yu.einstein.wasp.service.AdaptorService;
 
 /**
  * 
@@ -47,6 +51,10 @@ public class AdaptorsetLoadServiceImpl extends WaspLoadServiceImpl implements Ad
 	@Autowired
 	private AdaptorsetMetaDao adaptorsetMetaDao;
 	
+
+	@Autowired
+	private AdaptorService adaptorService;
+	
 	@Autowired
 	private AdaptorsetResourceCategoryDao adaptorsetResourceCategoryDao;
 	  
@@ -56,7 +64,7 @@ public class AdaptorsetLoadServiceImpl extends WaspLoadServiceImpl implements Ad
 	@Autowired
 	private SampleTypeDao sampleTypeDao;
 	
-	private Adaptorset addOrUpdateAdaptorset(SampleType sampleType, String iname, String name, Integer isActive){
+	private Adaptorset addOrUpdateAdaptorset(SampleType sampleType, String iname, String name, IndexingStrategy indexingStrategy, Integer isActive){
 		Adaptorset adaptorset = adaptorsetDao.getAdaptorsetByIName(iname);
 		// inserts or update adaptorset
 	    if (adaptorset.getId() == null) { 
@@ -74,6 +82,11 @@ public class AdaptorsetLoadServiceImpl extends WaspLoadServiceImpl implements Ad
 	      if (adaptorset.getIsActive().intValue() != isActive.intValue())
 	    	  adaptorset.setIsActive(isActive.intValue());
 	    }
+	    try {
+			adaptorService.setIndexingStrategy(adaptorset, indexingStrategy);
+		} catch (MetadataException e) {
+			throw new WaspRuntimeException("Unable to set indexing strategy for adaptor. Rolling back changes.");
+		}
 	    return adaptorset;
 	}
 	
@@ -277,11 +290,11 @@ public class AdaptorsetLoadServiceImpl extends WaspLoadServiceImpl implements Ad
 	
 	@Transactional("entityManager")
 	@Override 
-	public Adaptorset update(List<AdaptorsetMeta>  adaptorsetmeta, List<Adaptor> adaptorList, SampleType sampleType, String iname, String name, int isActive, List<ResourceCategory> compatibleResources){
+	public Adaptorset update(List<AdaptorsetMeta>  adaptorsetmeta, List<Adaptor> adaptorList, SampleType sampleType, String iname, String name, IndexingStrategy indexingStrategy, int isActive, List<ResourceCategory> compatibleResources){
 		Assert.assertParameterNotNull(iname, "iname Cannot be null");
 		Assert.assertParameterNotNull(name, "name Cannot be null");
 		Assert.assertParameterNotNull(sampleType, "sampleType Cannot be null");
-	    Adaptorset adaptorset = addOrUpdateAdaptorset(sampleType, iname, name, isActive);
+	    Adaptorset adaptorset = addOrUpdateAdaptorset(sampleType, iname, name, indexingStrategy, isActive);
 
 	    syncAdaptorsetMeta(adaptorset,adaptorsetmeta);
 

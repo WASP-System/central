@@ -24,6 +24,7 @@ import java.util.Random;
 import java.util.Set;
 //import java.util.concurrent.Callable;
 
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -50,7 +51,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.itextpdf.text.DocumentException;
 
 import edu.yu.einstein.wasp.MetaMessage;
-import edu.yu.einstein.wasp.additionalClasses.Strategy;
+import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.controller.util.JsonHelperWebapp;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.controller.util.SampleWrapperWebapp;
