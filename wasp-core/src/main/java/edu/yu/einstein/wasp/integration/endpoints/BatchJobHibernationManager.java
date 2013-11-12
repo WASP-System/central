@@ -31,7 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.MessageHeaders;
-import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.batch.core.extension.JobOperatorWasp;
@@ -92,7 +91,7 @@ public class BatchJobHibernationManager {
 	}
 	
 	/**
-	 * Method executed by the taskScheduler periodically at a rate defined in configuration (wasp.hibernation.heartbeat)
+	 * TaskScheduler executed method: executed periodically at a rate defined in configuration (wasp.hibernation.heartbeat)
 	 */
 	public synchronized void runTimedTasks() {
 		logger.debug("Checking to see if any StepExecutions require waking after timed sleep");
@@ -115,12 +114,11 @@ public class BatchJobHibernationManager {
 	}
 	
 	/**
-	 * Checks an incoming WaspStatusMessage against two sets of messages that either abandon or wake batch jobs.
+	 * ServiceActivator called method: Checks an incoming WaspStatusMessage against two sets of messages that either abandon or wake batch jobs.
 	 * @param message
 	 * @return
 	 */
-	@ServiceActivator
-	public Message<WaspStatus> processStatusMessage(Message<WaspStatus> message){
+	public Message<WaspStatus> handleStatusMessage(Message<WaspStatus> message){
 		WaspStatusMessageTemplate incomingStatusMessageTemplate = new WaspStatusMessageTemplate((Message<WaspStatus>) message);
 		//remove superfluous headers if present (these are not used to make decisions about acting on messages)
 		sanitizeHeaders(incomingStatusMessageTemplate);

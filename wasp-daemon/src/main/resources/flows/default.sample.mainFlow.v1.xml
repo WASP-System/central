@@ -7,30 +7,33 @@
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
 		
-	<util:set id="abandonSampleMessageSet" set-class="java.util.HashSet">
-		<bean class="edu.yu.einstein.wasp.integration.messages.templates.SampleStatusMessageTemplate">
-			<constructor-arg name="sampleId" value="#{jobParameters[waspJobParameters.SAMPLE_ID]}"/>
-			<property name="status" value="ABANDONED" />
-		</bean>
-		<bean class="edu.yu.einstein.wasp.integration.messages.templates.SampleStatusMessageTemplate">
-			<constructor-arg name="sampleId" value="#{jobParameters[waspJobParameters.SAMPLE_ID]}"/>
-			<property name="status" value="FAILED" />
-		</bean>
-		<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
-			<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
-			<property name="status" value="COMPLETED" />
-		</bean>
-		<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
-			<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
-			<property name="status" value="ABANDONED" />
-		</bean>
-		<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
-			<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
-			<property name="status" value="FAILED" />
-		</bean>
-	</util:set>
-
-		
+	<bean id="abstractSampleListeningTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" abstract="true">
+		<property name="abandonMessages">
+			<set>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.SampleStatusMessageTemplate">
+					<constructor-arg name="sampleId" value="#{jobParameters[waspJobParameters.SAMPLE_ID]}"/>
+					<property name="status" value="ABANDONED" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.SampleStatusMessageTemplate">
+					<constructor-arg name="sampleId" value="#{jobParameters[waspJobParameters.SAMPLE_ID]}"/>
+					<property name="status" value="FAILED" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
+					<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+					<property name="status" value="COMPLETED" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
+					<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+					<property name="status" value="ABANDONED" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
+					<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+					<property name="status" value="FAILED" />
+				</bean>
+			</set>
+		</property>	
+	</bean>
+			
 	<!-- define sample main flow -->
 	<batch:job id="wasp.sample.jobflow.v1" restartable="true">
 		<batch:split id="wasp.sample.waitUntilActionable" task-executor="taskExecutor">
@@ -39,14 +42,13 @@
 				<batch:step id="wasp.sample.step.listenForSampleReceived">
 					<!-- Listen for sample CREATED message: tells us sample is physically received -->
 					<batch:tasklet>
-						<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
-							<constructor-arg name="messageTemplate">
+						<bean parent="abstractSampleListeningTasklet" scope="step">
+							<property name="messageToListenFor">
 								<bean class="edu.yu.einstein.wasp.integration.messages.templates.SampleStatusMessageTemplate" >
 									<constructor-arg name="sampleId" value="#{jobParameters[waspJobParameters.SAMPLE_ID]}" />
 									<property name="status" value="CREATED" />
 								</bean>
-							</constructor-arg>
-							<property name="abandonMessages" ref="abandonSampleMessageSet" />
+							</property>
 							<property name="name" value="wasp.sample.step.listenForSampleReceived" />
 						</bean>
 					</batch:tasklet>
@@ -56,14 +58,13 @@
 				<batch:step id="wasp.sample.step.listenForJobApproved">
 					<!-- Listen for job ACCEPTED message: tells us job is approved -->
 					<batch:tasklet>
-						<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
-							<constructor-arg name="messageTemplate">
+						<bean parent="abstractSampleListeningTasklet" scope="step">
+							<property name="messageToListenFor">
 								<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate" >
 									<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}" />
 									<property name="status" value="ACCEPTED" />
 								</bean>
-							</constructor-arg>
-							<property name="abandonMessages" ref="abandonSampleMessageSet" />
+							</property>
 							<property name="name" value="wasp.sample.step.listenForJobApproved" />
 						</bean>
 					</batch:tasklet>
@@ -77,14 +78,14 @@
 			<!-- Wait for QC result to be notified. If failed abandon this sample flow otherwise sample ready -->
 			<!-- for library making -->
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
-					<constructor-arg name="messageTemplate">
+				<bean parent="abstractSampleListeningTasklet" scope="step">
+					<property name="messageToListenFor">
 						<bean class="edu.yu.einstein.wasp.integration.messages.templates.SampleStatusMessageTemplate">
 							<constructor-arg name="sampleId" value="#{jobParameters[waspJobParameters.SAMPLE_ID]}" />
 							<property name="task" value="#{sampleTasks.QC}" />
 							<property name="status" value="COMPLETED" />
 						</bean>
-					</constructor-arg>
+					</property>
 					<property name="abandonMessages" ref="abandonSampleMessageSet" />
 					<property name="name" value="wasp.sample.step.sampleQC" />
 				</bean>

@@ -30,11 +30,19 @@ public class ListenForStatusTasklet extends WaspTasklet  {
 	}
 	
 	public ListenForStatusTasklet(WaspStatusMessageTemplate messageTemplate) {
+		setMessageToListenFor(messageTemplate);
+	}
+	
+	public ListenForStatusTasklet(Set<WaspStatusMessageTemplate> messageTemplates) {
+		setMessagesToListenFor(messageTemplates);
+	}
+	
+	public void setMessageToListenFor(WaspStatusMessageTemplate messageTemplate) {
 		this.messageTemplates.clear();
 		this.messageTemplates.add(messageTemplate);
 	}
 	
-	public ListenForStatusTasklet(Set<WaspStatusMessageTemplate> messageTemplates) {
+	public void setMessagesToListenFor(Set<WaspStatusMessageTemplate> messageTemplates) {
 		this.messageTemplates.clear();
 		this.messageTemplates.addAll(messageTemplates);
 	}
