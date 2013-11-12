@@ -20,8 +20,9 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import edu.yu.einstein.wasp.Assert;
-import edu.yu.einstein.wasp.additionalClasses.Strategy;
+import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.dao.JobDraftMetaDao;
 import edu.yu.einstein.wasp.dao.JobMetaDao;
 import edu.yu.einstein.wasp.dao.MetaDao;
