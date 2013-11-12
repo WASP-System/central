@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.IndexingStrategy;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
+import edu.yu.einstein.wasp.dao.AdaptorsetDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetMetaDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
@@ -48,26 +49,9 @@ public class AdaptorServiceImpl extends WaspServiceImpl implements
 	
 	@Autowired
 	AdaptorsetMetaDao adaptorsetMetaDao;
-
-	@Override
-	public void setAdaptorDao(AdaptorDao adaptorDao) {
-		this.adaptorDao = adaptorDao;
-	}
 	
-	@Override
-	public AdaptorDao getAdaptorDao() {
-		return adaptorDao;
-	}
-	
-	@Override
-	public AdaptorsetMetaDao getAdaptorsetMetaDao() {
-		return adaptorsetMetaDao;
-	}
-
-	@Override
-	public void setAdaptorsetMetaDao(AdaptorsetMetaDao adaptorsetMetaDao) {
-		this.adaptorsetMetaDao = adaptorsetMetaDao;
-	}
+	@Autowired
+	AdaptorsetDao adaptorsetDao;
 
 	@Autowired
 	SampleService sampleService;
@@ -120,6 +104,16 @@ public class AdaptorServiceImpl extends WaspServiceImpl implements
 	 * @return
 	 */
 	@Override
+	public IndexingStrategy getIndexingStrategy(Integer adaptorsetId) {
+		return getIndexingStrategy(adaptorsetDao.getAdaptorsetByAdaptorsetId(adaptorsetId));
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @param adaptorset
+	 * @return
+	 */
+	@Override
 	public IndexingStrategy getIndexingStrategy(Adaptorset adaptorset) {
 		Assert.assertParameterNotNull(adaptorset, "adaptorset cannot be null");
 		String strategyString = null;
@@ -133,6 +127,38 @@ public class AdaptorServiceImpl extends WaspServiceImpl implements
 		}
 		return new IndexingStrategy(strategyString);
 	}
+
+	@Override
+	public AdaptorDao getAdaptorDao() {
+		return adaptorDao;
+	}
+
+	@Override
+	public void setAdaptorDao(AdaptorDao adaptorDao) {
+		this.adaptorDao = adaptorDao;
+	}
+
+	@Override
+	public AdaptorsetMetaDao getAdaptorsetMetaDao() {
+		return adaptorsetMetaDao;
+	}
+
+	@Override
+	public void setAdaptorsetMetaDao(AdaptorsetMetaDao adaptorsetMetaDao) {
+		this.adaptorsetMetaDao = adaptorsetMetaDao;
+	}
+
+	@Override
+	public AdaptorsetDao getAdaptorsetDao() {
+		return adaptorsetDao;
+	}
+
+	@Override
+	public void setAdaptorsetDao(AdaptorsetDao adaptorsetDao) {
+		this.adaptorsetDao = adaptorsetDao;
+	}
+
+	
 	
 
 }

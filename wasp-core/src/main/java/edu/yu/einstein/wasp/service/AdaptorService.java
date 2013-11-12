@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.IndexingStrategy;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
+import edu.yu.einstein.wasp.dao.AdaptorsetDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetMetaDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
@@ -67,5 +68,11 @@ public interface AdaptorService extends WaspService {
 	public void setIndexingStrategy(Adaptorset adaptorset, IndexingStrategy indexingStrategy) throws MetadataException;
 	
 	public IndexingStrategy getIndexingStrategy(Adaptorset adaptorset);
+	
+	public IndexingStrategy getIndexingStrategy(Integer adaptorsetId);
+	
+	public AdaptorsetDao getAdaptorsetDao();
+	
+	public void setAdaptorsetDao(AdaptorsetDao adaptorsetDao);
 
 }

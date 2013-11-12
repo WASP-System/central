@@ -190,8 +190,8 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 				
 				// if the sample is not TruSeq, do not place it in the sample sheet
 				// the cell library source sample is the library itself (cellLibrary.getSample() == cell).
-				Adaptorset adaptorset = adaptorService.getAdaptor(cellLibrary.getSourceSample()).getAdaptorset();
-				if (! adaptorService.getIndexingStrategy(adaptorset).equals(IlluminaIndexingStrategy.TRUSEQ))
+				Integer adaptorsetId = adaptorService.getAdaptor(cellLibrary.getSourceSample()).getAdaptorsetId();
+				if (! adaptorService.getIndexingStrategy(adaptorsetId).equals(IlluminaIndexingStrategy.TRUSEQ))
 					continue;
 				
 				cellMarked[cellid-1] = true;
