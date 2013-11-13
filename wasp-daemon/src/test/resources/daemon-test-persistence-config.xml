@@ -25,9 +25,7 @@
 	
 	
 	<!-- need to use qualifier 'entityManager' for WaspJobSoftwareLanuchTasklet  -->
-	<!-- to make test work simply use the 'batchDataSource' even though this is a bit of a hack  -->
-	<bean id="transactionManagerEM" class="org.springframework.jdbc.datasource.DataSourceTransactionManager" >
-		<property name="dataSource" ref="batchDataSource" />
+	<bean id="transactionManagerEM" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager" >
 		<qualifier value="entityManager" />
 	</bean>
 	

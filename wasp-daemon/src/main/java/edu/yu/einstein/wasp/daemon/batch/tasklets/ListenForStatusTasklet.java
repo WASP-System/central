@@ -72,7 +72,8 @@ public class ListenForStatusTasklet extends WaspTasklet  {
 		} else {
 			logger.debug("Going to request hibernation as not previously requested: wasHibernationRequested=" + wasHibernationRequested);
 			addStatusMessagesToWakeStepToContext(context, messageTemplates);
-			requestHibernation(context, messageTemplates);
+			addStatusMessagesToAbandonStepToContext(context, abandonTemplates);
+			requestHibernation(context, messageTemplates, abandonTemplates);
 		}
 		return RepeatStatus.CONTINUABLE;
 	}

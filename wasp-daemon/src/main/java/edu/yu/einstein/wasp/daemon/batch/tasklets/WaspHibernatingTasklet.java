@@ -70,7 +70,7 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	 * @param context
 	 * @param wakeMessageTemplates
 	 */
-	protected void requestHibernation(ChunkContext context, Set<WaspStatusMessageTemplate> wakeMessageTemplates){
+	protected void requestHibernation(ChunkContext context, Set<WaspStatusMessageTemplate> wakeMessageTemplates,Set<WaspStatusMessageTemplate> abandonMessageTemplates){
 		// NOTE: due to transactional behavior, execution contexts are not visible in the database outside of this job thread until job stopped / completed
 		// so care is required knowing what is visible where. Any additions to job execution context here will be visible immediately job-wide.
 		ExecutionContext executionContext = context.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
@@ -85,6 +85,8 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 			logger.debug("Execution context already contains HIBERNATION_REQUESTED=true. Setting wasHibernationRequested=true");
 		} else
 			executionContext.put(BatchJobHibernationManager.HIBERNATION_REQUESTED, true);
+		hibernationManager.addMessageTemplatesForAbandoningJobStep(context.getStepContext().getStepExecution().getJobExecutionId(), 
+				context.getStepContext().getStepExecution().getId(), abandonMessageTemplates);
 		if (wasHibernationRequested){
 			logger.debug("Hibernation request aborted as hibernation request already made by another step. Registering messages with HibernationManager");
 			hibernationManager.addMessageTemplatesForWakingJobStep(context.getStepContext().getStepExecution().getJobExecutionId(), 

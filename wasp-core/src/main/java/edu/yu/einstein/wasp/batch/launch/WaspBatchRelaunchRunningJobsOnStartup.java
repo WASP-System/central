@@ -85,9 +85,10 @@ public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunni
 		
 		// re-populate hibernation manager with all persisted messages to wake steps
 		logger.debug("Re-populate hibernation manager...");
-		for (StepExecution se : jobExplorer.getStepExecutions(WaspBatchExitStatus.HIBERNATING))
+		for (StepExecution se : jobExplorer.getStepExecutions(WaspBatchExitStatus.HIBERNATING)){
 			hibernationManager.addMessageTemplatesForWakingJobStep(se.getJobExecutionId(), se.getId());
-		
+			hibernationManager.addMessageTemplatesForAbandoningJobStep(se.getJobExecutionId(), se.getId());
+		}
 		// First clean up all existing step executions in ExitStatus UNKNOWN or EXECUTING. We should set these to FAILED
 		Set<StepExecution> stepExecutionsToRestart = new HashSet<StepExecution>();
 		stepExecutionsToRestart.addAll(jobExplorer.getStepExecutions(ExitStatus.UNKNOWN));
