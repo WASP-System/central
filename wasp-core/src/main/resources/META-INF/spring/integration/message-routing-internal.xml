@@ -39,8 +39,13 @@
 		<int:priority-queue />
 	</int:channel>
 	
+	
 	<!-- other queue channels -->
 	<int:channel id="wasp.channel.queue.launch">
+		<int:queue />
+	</int:channel>
+	
+	<int:channel id="wasp.channel.throttled.waspStatusMessages" >
 		<int:queue />
 	</int:channel>
 	
@@ -69,6 +74,11 @@
 	
 	<!-- bridges between priority and publish-subscribe channels -->
 	<int:bridge id="wasp.channel.bridge.notify" input-channel="wasp.channel.notification.batch" output-channel="wasp.channel.priority.waspStatusMessages" />
+	
+	<int:bridge id="wasp.channel.bridge.throttled.notify" input-channel="wasp.channel.priority.waspStatusMessages" output-channel="wasp.channel.throttled.waspStatusMessages" >
+		<!-- this delay allows time for a job to hibernate before handling a message that might wake it -->
+		<int:poller max-messages-per-poll="1" fixed-rate="500" /> 
+	</int:bridge>
 	
 	<int:bridge id="wasp.channel.bridge.job" input-channel="wasp.channel.priority.job" output-channel="wasp.channel.notification.job" >
 		<int:poller max-messages-per-poll="1" fixed-rate="10" />
@@ -124,7 +134,7 @@
 	
 	<bean id="batchJobHibernationManager" class="edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager" />
 	
-	<int:service-activator input-channel="wasp.channel.priority.waspStatusMessages" 
+	<int:service-activator input-channel="wasp.channel.throttled.waspStatusMessages" 
 		output-channel="wasp.channel.reply" ref="batchJobHibernationManager" method="handleStatusMessage"
 		requires-reply="false" />
 		

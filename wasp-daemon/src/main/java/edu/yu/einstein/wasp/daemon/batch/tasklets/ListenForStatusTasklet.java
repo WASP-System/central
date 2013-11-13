@@ -5,11 +5,14 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 /**
@@ -38,12 +41,14 @@ public class ListenForStatusTasklet extends WaspTasklet  {
 	}
 	
 	public void setMessageToListenFor(WaspStatusMessageTemplate messageTemplate) {
-		this.messageTemplates.clear();
-		this.messageTemplates.add(messageTemplate);
+		Set<WaspStatusMessageTemplate> templates = new HashSet<>();
+		templates.add(messageTemplate);
+		setMessagesToListenFor(templates);
 	}
 	
 	public void setMessagesToListenFor(Set<WaspStatusMessageTemplate> messageTemplates) {
 		this.messageTemplates.clear();
+		addAbandonedAndFailureMessageTemplates(messageTemplates);
 		this.messageTemplates.addAll(messageTemplates);
 	}
 	
@@ -53,8 +58,9 @@ public class ListenForStatusTasklet extends WaspTasklet  {
 	}
 	
 	public void setAbandonMessage(final WaspStatusMessageTemplate abandonTemplate){
-		this.abandonTemplates.clear();
-		this.abandonTemplates.add(abandonTemplate);
+		Set<WaspStatusMessageTemplate> templates = new HashSet<>();
+		templates.add(abandonTemplate);
+		setAbandonMessages(templates);
 	}
 	
 	@Override
@@ -76,6 +82,36 @@ public class ListenForStatusTasklet extends WaspTasklet  {
 			requestHibernation(context, messageTemplates, abandonTemplates);
 		}
 		return RepeatStatus.CONTINUABLE;
+	}
+	
+	/**
+	 * If waiting for a message with a CREATED / ACCEPTED status etc, we may also wish to wake in case of receiving a status of ABANDONED or FAILED
+	 * @param messageTemplates
+	 */
+	private void addAbandonedAndFailureMessageTemplates(Set<WaspStatusMessageTemplate> messageTemplates){
+		Set<WaspStatusMessageTemplate> newTemplates = new HashSet<>();
+		for (WaspStatusMessageTemplate t : messageTemplates){
+			if (!t.getStatus().equals(WaspStatus.ABANDONED)){
+				WaspStatusMessageTemplate newTemplate = t.getNewInstance(t);
+				newTemplate.setStatus(WaspStatus.ABANDONED);
+				newTemplates.add(newTemplate);
+			}
+			if (!t.getStatus().equals(WaspStatus.FAILED)){
+				WaspStatusMessageTemplate newTemplate = t.getNewInstance(t);
+				newTemplate.setStatus(WaspStatus.FAILED);
+				newTemplates.add(newTemplate);
+			}
+		}
+		messageTemplates.addAll(newTemplates);
+	}
+	
+	@Override
+	public ExitStatus afterStep(StepExecution stepExecution) {
+		ExitStatus exitStatus = stepExecution.getExitStatus();
+		if (getWokenOnMessageStatus(stepExecution).isUnsuccessful())
+			exitStatus = ExitStatus.FAILED;
+		logger.debug("Going to exit step with ExitStatus=" + exitStatus);
+		return exitStatus;
 	}
 
 

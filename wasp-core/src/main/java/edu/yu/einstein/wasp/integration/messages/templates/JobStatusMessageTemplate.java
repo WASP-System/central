@@ -107,4 +107,11 @@ public class JobStatusMessageTemplate extends WaspStatusMessageTemplate {
 				message.getHeaders().get(WaspMessageType.HEADER_KEY).equals(WaspMessageType.JOB);
 	}
 	
+	@Override
+	public JobStatusMessageTemplate getNewInstance(WaspStatusMessageTemplate messageTemplate){
+		JobStatusMessageTemplate newTemplate = new JobStatusMessageTemplate(((JobStatusMessageTemplate) messageTemplate).getJobId());
+		copyCommonProperties(messageTemplate, newTemplate);
+		return newTemplate;
+	}
+	
 }

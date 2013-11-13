@@ -75,5 +75,12 @@ public class SimpleBabrahamStatusMessageTemplate extends WaspStatusMessageTempla
 		return message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) &&  
 				message.getHeaders().get(WaspMessageType.HEADER_KEY).equals(BabrahamMessageType.BABRAHAM);
 	}
+	
+	@Override
+	public SimpleBabrahamStatusMessageTemplate getNewInstance(WaspStatusMessageTemplate messageTemplate){
+		SimpleBabrahamStatusMessageTemplate newTemplate = new SimpleBabrahamStatusMessageTemplate();
+		copyCommonProperties(messageTemplate, newTemplate);
+		return newTemplate;
+	}
 
 }

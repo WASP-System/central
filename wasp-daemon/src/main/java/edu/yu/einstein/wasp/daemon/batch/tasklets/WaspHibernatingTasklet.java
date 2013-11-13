@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 public abstract class WaspHibernatingTasklet implements Tasklet{
@@ -147,11 +148,16 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	
 	protected boolean wasWokenOnMessage(ChunkContext context){
 		ExecutionContext executionContext = context.getStepContext().getStepExecution().getExecutionContext();
-		boolean woken = false;
-		if (executionContext.containsKey(BatchJobHibernationManager.WOKEN_ON_MESSAGE))
-			woken = (boolean) executionContext.get(BatchJobHibernationManager.WOKEN_ON_MESSAGE);
-		logger.debug("StepExecutionId=" + context.getStepContext().getStepExecution().getId() + " wasWokenByMessage=" + woken);
-		return woken;	
+		return (executionContext.containsKey(BatchJobHibernationManager.WOKEN_ON_MESSAGE_STATUS));
+	}
+	
+	protected WaspStatus getWokenOnMessageStatus(StepExecution stepExecution){
+		ExecutionContext executionContext = stepExecution.getExecutionContext();
+		WaspStatus status = WaspStatus.UNKNOWN;
+		if (executionContext.containsKey(BatchJobHibernationManager.WOKEN_ON_MESSAGE_STATUS))
+			status = (WaspStatus) executionContext.get(BatchJobHibernationManager.WOKEN_ON_MESSAGE_STATUS);
+		logger.debug("StepExecutionId=" + stepExecution.getId() + " was woken with WaspStatus=" + status);
+		return status;	
 	}
 	
 	protected boolean wasWokenOnTimeout(ChunkContext context){

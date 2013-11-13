@@ -212,6 +212,29 @@ public class WaspStatusMessageTemplate extends WaspMessageTemplate implements St
 		return hash;
 	}
 	
+	public WaspStatusMessageTemplate getNewInstance(WaspStatusMessageTemplate messageTemplate){
+		WaspStatusMessageTemplate newTemplate = new WaspStatusMessageTemplate();
+		copyCommonProperties(messageTemplate, newTemplate);
+		return newTemplate;
+	}
+	
+	protected void copyCommonProperties(WaspStatusMessageTemplate source, WaspStatusMessageTemplate target){
+		if (source.getComment() != null)
+			target.setComment(source.getComment());
+		if (source.getExitDescription() != null)
+			target.setExitDescription(source.getExitDescription());
+		if (source.getHeaders() != null)
+			target.setHeaders(source.getHeaders());
+		if (source.getStatus() != null)
+			target.setStatus(source.getStatus());
+		if (source.getTarget() != null)
+			target.setTarget(source.getTarget());
+		if (source.getTask() != null)
+			target.setTask(source.getTask());
+		if (source.getUserCreatingMessage() != null)
+			target.setUserCreatingMessage(source.getUserCreatingMessage());
+	}
+	
 
 }
 	

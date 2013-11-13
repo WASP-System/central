@@ -23,47 +23,57 @@
 	<bean id='runTasks' class="edu.yu.einstein.wasp.integration.messages.tasks.WaspRunTask" />
 	
 	<!-- create common tasklet beans -->
-	<bean id="listenForJobQuotedTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
-		<constructor-arg name="messageTemplate">
+	
+	<bean id="abstractJobApprovalListeningTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" abstract="true">
+		<property name="abandonMessage">
+			<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
+				<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+				<property name="status" value="ABANDONED" />
+			</bean>
+		</property>	
+	</bean>
+	
+	<bean id="listenForJobQuotedTasklet" parent="abstractJobApprovalListeningTasklet" scope="step">
+		<property name="messageToListenFor">
 			<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate" >
 				<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
 				<property name="task" value="#{jobTasks.QUOTE}" />
 				<property name="status" value="COMPLETED" />
 			</bean>
-		</constructor-arg>
+		</property>
 		<property name="name" value="listenForJobQuotedTasklet" />
 	</bean>
 	
-	<bean id="listenForJobPiApproveTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
-		<constructor-arg name="messageTemplate">
+	<bean id="listenForJobPiApproveTasklet" parent="abstractJobApprovalListeningTasklet" scope="step">
+		<property name="messageToListenFor">
 			<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
 				<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
 				<property name="task" value="#{jobTasks.PI_APPROVE}" />
 				<property name="status" value="COMPLETED" />
 			</bean>
-		</constructor-arg>
+		</property>
 		<property name="name" value="listenForJobPiApproveTasklet" />
 	</bean>
 	
-	<bean id="listenForJobDaApproveTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
-		<constructor-arg name="messageTemplate">
+	<bean id="listenForJobDaApproveTasklet" parent="abstractJobApprovalListeningTasklet" scope="step">
+		<property name="messageToListenFor">
 			<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
 				<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
 				<property name="task" value="#{jobTasks.DA_APPROVE}" />
 				<property name="status" value="COMPLETED" />
 			</bean>
-		</constructor-arg>
+		</property>
 		<property name="name" value="listenForJobDaApproveTasklet" />
 	</bean>
 	
-	<bean id="listenForJobFmApproveTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
-		<constructor-arg name="messageTemplate">
+	<bean id="listenForJobFmApproveTasklet" parent="abstractJobApprovalListeningTasklet" scope="step">
+		<property name="messageToListenFor">
 			<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
 				<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
 				<property name="task" value="#{jobTasks.FM_APPROVE}" />
 				<property name="status" value="COMPLETED" />
 			</bean>
-		</constructor-arg>
+		</property>
 		<property name="name" value="listenForJobDaApproveTasklet" />
 	</bean>
 	

@@ -7,6 +7,7 @@
 		
 	<!-- common tasklets defined in config-common-context.xml -->
 	
+		
 	<!-- Define main job approval flow -->
 	<batch:job id="default.waspJob.jobflow.v1" restartable="true">
 	    <batch:step id="default.waspJob.step.started" next="default.waspJob.postSubmitApprovalTasks">
@@ -119,6 +120,12 @@
 							<property name="status" value="COMPLETED" />
 						</bean>
 					</constructor-arg>
+					<property name="abandonMessage">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
+							<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+							<property name="status" value="ABANDONED" />
+						</bean>
+					</property>	
 					<property name="name" value="default.waspJob.step.listenForAnalysisComplete" />
 				</bean>
 			</batch:tasklet>
