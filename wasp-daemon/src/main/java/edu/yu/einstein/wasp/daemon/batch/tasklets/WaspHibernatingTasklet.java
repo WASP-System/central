@@ -25,20 +25,18 @@ import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemp
 public abstract class WaspHibernatingTasklet implements Tasklet{
 	
 	// In the split-step scenario: 
-	// The first WaspHibernatingTasklet in the split-step of this job to call requestHibernation() gets control by the method setting 
+	// The last WaspHibernatingTasklet in the split-step of this job to call requestHibernation() gets control by the method setting 
 	// HIBERNATION_REQUESTED = true in the JobExecutionContext. All other steps in a split may also call requestHibernation() which will set 
-	// HIBERNATION_REQUESTED = true in their StepExecutionContext but will not control hibernation as it is determined that HIBERNATION_REQUESTED is 
-	// set to true already in the JobExecutionContext. 
+	// HIBERNATION_REQUESTED = true in their StepExecutionContext but will not proceed to request hibernation. 
 	// Only if all active steps have HIBERNATION_REQUESTED set to true then the controlling step will ask the hibernationManager to hibernate the job.
 	
 	// NOTE: due to transactional behavior, execution contexts are not visible in the database outside of this job thread until job stopped / completed
-	// so care is required knowing what is visible where. Any additions to job execution context here will be visible immediately job-wide.	
+	// so care is required knowing what is visible where. Any additions to job/step execution contexts here will be visible immediately job-wide from within 
+	// tasklet code.	
 	
 	private static final Logger logger = LoggerFactory.getLogger(WaspHibernatingTasklet.class);
 	
 	protected boolean wasHibernationRequested = false;
-	
-	protected boolean isTheHibernationControllingStep = false;
 	
 	@Autowired
 	@Value("${wasp.hibernation.retry.exponential.initialInterval:5000}")
@@ -56,46 +54,35 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	 * @param context
 	 */
 	protected void requestHibernation(ChunkContext context){
+		wasHibernationRequested = true;
 		logContexts(context);
 		StepContext stepContext = context.getStepContext();
-		logger.info("Going to hibernate job " + stepContext.getJobName() + 
-				" (execution id=" + stepContext.getStepExecution().getJobExecutionId() + ") from step " + 
-				stepContext.getStepName() + " (step id=" + stepContext.getStepExecution().getId() + ")");
-		setHibernationRequestedForStep(context.getStepContext().getStepExecution());
-		if (isTheHibernationControllingStep){
-			// is the hibernation controlling step so see if we are ready to hibernate yet
+		if (isHibernationRequestedForJob(stepContext.getStepExecution().getJobExecution())){
+			// another step execution has already declared itself as handling hibernation so let it do the rest
 			logger.debug("StepExecution id=" + context.getStepContext().getStepExecution().getId() + 
-					" is the hibernation controlling step. Going to check if ready to hibernate");
-			if (isAllActiveJobStepsRequestingHibernation(context.getStepContext().getStepExecution().getJobExecution())){
-				doHibernate(context.getStepContext().getStepExecution());
-			}
+					" will not proceed to request hibernation of JobExecution id=" + stepContext.getStepExecution().getJobExecutionId() + 
+					" because another step has already initiated hibernation");
+		} else if (isAllOtherActiveJobStepsRequestingHibernation(stepContext.getStepExecution())){
+			setHibernationRequestedForJob(context.getStepContext().getStepExecution().getJobExecution(), true);
+			// we are ready to hibernate so request it now
+			logger.info("Going to hibernate job " + stepContext.getJobName() + 
+					" (JobExecution id=" + stepContext.getStepExecution().getJobExecutionId() + ") from step " + 
+					stepContext.getStepName() + " (step id=" + stepContext.getStepExecution().getId() + ")");
+			doHibernate(context.getStepContext().getStepExecution());
 		} else { 
-			// is NOT the hibernation controlling step. Find out if another step is, otherwise this step should claim the title.
-			if (wasHibernationRequested){
-				// we already noted that a hibernation request has been made (we previously set wasHibernationRequested = true)
-				logger.debug("Not going to proceed with hibernation as StepExecution id=" + context.getStepContext().getStepExecution().getId() + 
-						" is not the hibernation controlling step");
-			} else {
-				wasHibernationRequested = true;
-				if (isHibernationRequestedForJob(context.getStepContext().getStepExecution().getJobExecution())){
-					// Another step is the hibernation controlling step so we don't need to do anything more other than note that a hibernation request
-					// was made by setting wasHibernationRequested = true
-					logger.debug("JobExecution (id=" + context.getStepContext().getStepExecution().getJobExecutionId() +
-							") context already contains HIBERNATION_REQUESTED=true. Setting wasHibernationRequested=true");
-				} else{
-					// we are the first step to request hibernation so we become the hibernation controlling step 
-					isTheHibernationControllingStep = true;
-					setHibernationRequestedForJob(context.getStepContext().getStepExecution().getJobExecution());
-					logger.debug("JobExecution id=" + context.getStepContext().getStepExecution().getJobExecutionId() +
-							", StepExecution id=" +  context.getStepContext().getStepExecution().getId() + 
-							" is the controlling step. Setting HIBERNATION_REQUESTED=true in JobExecutionContext and setting wasHibernationRequested=true");
-				}
-			}
+			setHibernationRequestedForStep(context.getStepContext().getStepExecution(), true);
+			logger.debug("StepExecution id=" + context.getStepContext().getStepExecution().getId() + 
+					" has requested that it wishes to hibernate but other running steps are preventing hibernation of the JobExecution id=" + 
+					stepContext.getStepExecution().getJobExecutionId() + " at this time");
 		}
 	}
 	
-	private boolean isAllActiveJobStepsRequestingHibernation(JobExecution jobExecution){
+	private boolean isAllOtherActiveJobStepsRequestingHibernation(StepExecution stepExecution){
+		Long requestingStepExecutionId = stepExecution.getId();
+		JobExecution jobExecution = stepExecution.getJobExecution();
 		for (StepExecution se : jobExecution.getStepExecutions()){
+			if (se.getId().equals(requestingStepExecutionId))
+				continue; // we are only checking the other steps
 			if (se.getStatus().equals(BatchStatus.STARTED) && !isHibernationRequestedForStep(se)){
 				logger.debug("JobExecution id=" + jobExecution.getId() + ", StepExecution id=" + se.getId() + 
 						" contains active steps which have not requested hibernation.");
@@ -108,6 +95,7 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	}
 	
 	private void doHibernate(StepExecution stepExecution){
+		logger.debug("Hibernation triggered by StepExecution id=" + stepExecution.getId());
 		Long requestingStepExecutionId = stepExecution.getId();
 		JobExecution jobExecution = stepExecution.getJobExecution();
 		Long jobExecutionId = jobExecution.getId();
@@ -143,14 +131,14 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 		hibernationManager.processHibernateRequest(jobExecution.getId(),requestingStepExecutionId);
 	}
 	
-	protected void setHibernationRequestedForJob(JobExecution jobExecution){
+	protected void setHibernationRequestedForJob(JobExecution jobExecution, boolean isRequested){
 		ExecutionContext executionContext = jobExecution.getExecutionContext();
-		executionContext.put(BatchJobHibernationManager.HIBERNATION_REQUESTED, true);
+		executionContext.put(BatchJobHibernationManager.HIBERNATION_REQUESTED, isRequested);
 	}
 	
-	protected void setHibernationRequestedForStep(StepExecution stepExecution){
+	protected void setHibernationRequestedForStep(StepExecution stepExecution, boolean isRequested){
 		ExecutionContext executionContext = stepExecution.getExecutionContext();
-		executionContext.put(BatchJobHibernationManager.HIBERNATION_REQUESTED, true);
+		executionContext.put(BatchJobHibernationManager.HIBERNATION_REQUESTED, isRequested);
 	}
 	
 	protected boolean isHibernationRequestedForJob(JobExecution jobExecution){
@@ -174,9 +162,9 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 		ExecutionContext executionContext = context.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
 		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
 		for (Entry<String,Object> entry: executionContext.entrySet())
-			logger.debug("ExecutionContext : " + entry.getKey() + "=" + entry.getValue().toString());
+			logger.trace("ExecutionContext : " + entry.getKey() + "=" + entry.getValue().toString());
 		for (Entry<String,Object> entry: stepExecutionContext.entrySet())
-			logger.debug("StepExecutionContext : " + entry.getKey() + "=" + entry.getValue().toString());
+			logger.trace("StepExecutionContext : " + entry.getKey() + "=" + entry.getValue().toString());
 	}
 	
 	/**

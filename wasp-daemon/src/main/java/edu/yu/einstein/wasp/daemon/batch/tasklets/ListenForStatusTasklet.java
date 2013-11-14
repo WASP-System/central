@@ -10,7 +10,6 @@ import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.retry.RetryException;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
@@ -62,19 +61,18 @@ public class ListenForStatusTasklet extends WaspTasklet  {
 					" was woken up from hibernation for a message. Skipping to next step...");
 			return RepeatStatus.FINISHED;
 		}
-		if (isTheHibernationControllingStep){
-			requestHibernation(context);
-			logger.debug("Hibernate controlling step detected that JobExecution is not yet ready to hibernate");
-			return RepeatStatus.CONTINUABLE;
-		}
-		if (wasHibernationRequested){
-			logger.debug("Non-hibernate controlling step awaiting hibernation");
-			return RepeatStatus.CONTINUABLE;
-		}
-		logger.debug("Going to request hibernation as not previously requested");
-		addStatusMessagesToWakeStepToContext(context, messageTemplates);
-		addStatusMessagesToAbandonStepToContext(context, abandonTemplates);
+		
+		if (!wasHibernationRequested){
+			logger.debug("Going to request hibernation from StepExecution (id=" + context.getStepContext().getStepExecution().getId() + 
+					") as not previously requested");
+			addStatusMessagesToWakeStepToContext(context, messageTemplates);
+			addStatusMessagesToAbandonStepToContext(context, abandonTemplates);
+		} else
+			logger.debug("Previous hibernation request made by this StepExecution (id=" + context.getStepContext().getStepExecution().getId() + 
+					") but we were still waiting for all steps to be ready. Going to retry request.");
 		requestHibernation(context);
+		logger.debug("Hibernate request made by this StepExecution (id=" + context.getStepContext().getStepExecution().getId() + 
+					") but JobExecution is not yet ready to hibernate");
 		return RepeatStatus.CONTINUABLE;	
 	}
 	

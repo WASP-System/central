@@ -14,7 +14,6 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.retry.RetryException;
 
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.exception.GridException;
@@ -53,21 +52,15 @@ public abstract class WaspTasklet extends WaspHibernatingTasklet implements Step
 	@Override
 	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
-		if (isTheHibernationControllingStep){
-			requestHibernation(context);
-			logger.debug("Hibernate controlling step detected that JobExecution is not yet ready to hibernate");
-			throw new RetryException("Not yet ready to hibernate");
-		}
-		if (wasHibernationRequested){
-			logger.debug("Not going to request hibernation or check WorkUnit status as hibernation has been previously requested. Awaiting Hibernation");
-			throw new RetryException("Awaiting hibernation");
-		} 
 		if (isGridWorkUnitStarted(context)){
 			GridResult result = getStartedResult(context);
 			GridWorkService gws = hostResolver.getGridWorkService(result);
 			try {
-				if (gws.isFinished(result))
+				if (gws.isFinished(result)){
+					if (wasHibernationRequested)
+						setHibernationRequestedForJob(context.getStepContext().getStepExecution().getJobExecution(), false);
 					return RepeatStatus.FINISHED;
+				}
 			} catch (GridException e) {
 				logger.debug(result.toString() + " threw exception: " + e.getLocalizedMessage() + " removing and rethrowing");
 				removeStartedResult(context);
@@ -76,9 +69,13 @@ public abstract class WaspTasklet extends WaspHibernatingTasklet implements Step
 			logger.debug("Going to request hibernation as " + result.getUuid() + " not complete");
 		}
 		logger.debug("Tasklet not yet configured with a result");
-		Long timeoutInterval = exponentiallyIncreaseTimeoutIntervalInContext(context);
-		logger.debug("Going to request hibernation for " + timeoutInterval + " ms");
-		addStatusMessagesToAbandonStepToContext(context, abandonTemplates);
+		if (!wasHibernationRequested){
+			Long timeoutInterval = exponentiallyIncreaseTimeoutIntervalInContext(context);
+			logger.debug("Going to request hibernation for " + timeoutInterval + " ms");
+			addStatusMessagesToAbandonStepToContext(context, abandonTemplates);
+		} else {
+			logger.debug("Previous hibernation request made by this step but we were still waiting for all steps to be ready. Going to retry request.");
+		}
 		requestHibernation(context);
 		return RepeatStatus.CONTINUABLE;
 	}
