@@ -100,6 +100,7 @@ public class WaspBatchJobOperator extends SimpleJobOperator implements JobOperat
 	}
 	
 	 @Override
+	 @Transactional
      public JobExecution abandon(long jobExecutionId) throws NoSuchJobExecutionException, JobExecutionAlreadyRunningException {
              JobExecution jobExecution = findExecutionById(jobExecutionId);
 

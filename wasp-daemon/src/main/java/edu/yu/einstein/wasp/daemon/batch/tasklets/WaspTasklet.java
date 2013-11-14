@@ -1,6 +1,8 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,11 +14,14 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.RetryException;
 
+import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
+import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 
 public abstract class WaspTasklet extends WaspHibernatingTasklet implements StepExecutionListener {
@@ -24,20 +29,39 @@ public abstract class WaspTasklet extends WaspHibernatingTasklet implements Step
 	@Autowired
 	private GridHostResolver hostResolver;
 	
+	protected Set<WaspStatusMessageTemplate> abandonTemplates = new HashSet<>();
+	
 	public WaspTasklet() {
 		// proxy
+	}
+	
+	
+	public void setAbandonMessages(final Set<WaspStatusMessageTemplate> abandonTemplates){
+		this.abandonTemplates.clear();
+		this.abandonTemplates.addAll(abandonTemplates);
+	}
+	
+	public void setAbandonMessage(final WaspStatusMessageTemplate abandonTemplate){
+		Set<WaspStatusMessageTemplate> templates = new HashSet<>();
+		templates.add(abandonTemplate);
+		setAbandonMessages(templates);
 	}
 	
 	/**
 	 * Default implementation checks to see if a stored result is running 
 	 */
 	@Override
+	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
-		if (wasHibernationRequested){
-			logger.debug("Not going to request hibernation or check WorkUnit status as hibernation has been previously requested: wasHibernationRequested=" 
-					+ wasHibernationRequested);
-			return RepeatStatus.CONTINUABLE;
+		if (isTheHibernationControllingStep){
+			requestHibernation(context);
+			logger.debug("Hibernate controlling step detected that JobExecution is not yet ready to hibernate");
+			throw new RetryException("Not yet ready to hibernate");
 		}
+		if (wasHibernationRequested){
+			logger.debug("Not going to request hibernation or check WorkUnit status as hibernation has been previously requested. Awaiting Hibernation");
+			throw new RetryException("Awaiting hibernation");
+		} 
 		if (isGridWorkUnitStarted(context)){
 			GridResult result = getStartedResult(context);
 			GridWorkService gws = hostResolver.getGridWorkService(result);
@@ -49,12 +73,13 @@ public abstract class WaspTasklet extends WaspHibernatingTasklet implements Step
 				removeStartedResult(context);
 				throw e;
 			}
-			Long timeoutInterval = exponentiallyIncreaseTimeoutIntervalInContext(context);
-			logger.debug("Going to request hibernation as " + result.getUuid() + " not complete and wasHibernationRequested=" + wasHibernationRequested);
-			requestHibernation(context, timeoutInterval);
-			return RepeatStatus.CONTINUABLE;
+			logger.debug("Going to request hibernation as " + result.getUuid() + " not complete");
 		}
 		logger.debug("Tasklet not yet configured with a result");
+		Long timeoutInterval = exponentiallyIncreaseTimeoutIntervalInContext(context);
+		logger.debug("Going to request hibernation for " + timeoutInterval + " ms");
+		addStatusMessagesToAbandonStepToContext(context, abandonTemplates);
+		requestHibernation(context);
 		return RepeatStatus.CONTINUABLE;
 	}
 

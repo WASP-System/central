@@ -10,8 +10,10 @@ import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.retry.RetryException;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
@@ -25,8 +27,6 @@ public class ListenForStatusTasklet extends WaspTasklet  {
 	private static final Logger logger = LoggerFactory.getLogger(ListenForStatusTasklet.class);
 	
 	private Set<WaspStatusMessageTemplate> messageTemplates = new HashSet<>();
-	
-	private Set<WaspStatusMessageTemplate> abandonTemplates = new HashSet<>();
 	
 	public ListenForStatusTasklet() {
 		// proxy
@@ -52,19 +52,9 @@ public class ListenForStatusTasklet extends WaspTasklet  {
 		this.messageTemplates.addAll(messageTemplates);
 	}
 	
-	public void setAbandonMessages(final Set<WaspStatusMessageTemplate> abandonTemplates){
-		this.abandonTemplates.clear();
-		this.abandonTemplates.addAll(abandonTemplates);
-	}
-	
-	public void setAbandonMessage(final WaspStatusMessageTemplate abandonTemplate){
-		Set<WaspStatusMessageTemplate> templates = new HashSet<>();
-		templates.add(abandonTemplate);
-		setAbandonMessages(templates);
-	}
-	
 	@Override
 	@Transactional
+	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		logger.trace(name + "execute() invoked");
 		if (wasWokenOnMessage(context)){
@@ -72,16 +62,20 @@ public class ListenForStatusTasklet extends WaspTasklet  {
 					" was woken up from hibernation for a message. Skipping to next step...");
 			return RepeatStatus.FINISHED;
 		}
-			
-		if (wasHibernationRequested){
-			logger.debug("Not going to request hibernation already requested: wasHibernationRequested=" + wasHibernationRequested);
-		} else {
-			logger.debug("Going to request hibernation as not previously requested: wasHibernationRequested=" + wasHibernationRequested);
-			addStatusMessagesToWakeStepToContext(context, messageTemplates);
-			addStatusMessagesToAbandonStepToContext(context, abandonTemplates);
-			requestHibernation(context, messageTemplates, abandonTemplates);
+		if (isTheHibernationControllingStep){
+			requestHibernation(context);
+			logger.debug("Hibernate controlling step detected that JobExecution is not yet ready to hibernate");
+			return RepeatStatus.CONTINUABLE;
 		}
-		return RepeatStatus.CONTINUABLE;
+		if (wasHibernationRequested){
+			logger.debug("Non-hibernate controlling step awaiting hibernation");
+			return RepeatStatus.CONTINUABLE;
+		}
+		logger.debug("Going to request hibernation as not previously requested");
+		addStatusMessagesToWakeStepToContext(context, messageTemplates);
+		addStatusMessagesToAbandonStepToContext(context, abandonTemplates);
+		requestHibernation(context);
+		return RepeatStatus.CONTINUABLE;	
 	}
 	
 	/**

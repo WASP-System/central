@@ -7,18 +7,57 @@
 <!-- For professional support please see                            -->
 <!--    http://www.qos.ch/shop/products/professionalSupport         -->
 <!--                                                                -->
-<configuration debug="true">
-<!-- Errors were reported during translation. -->
-<!-- No class found for appender stdout -->
-<!-- Could not find transformer for null -->
-<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
-<encoder>
-<pattern>%d [%c{1}] %m%n</pattern>
-</encoder>
-</appender>
-<logger name="org.springframework.integration" level="DEBUG"/>
-<logger name="edu.yu.einstein.wasp" level="DEBUG"/>
-<root level="INFO">
-<appender-ref ref="stdout"/>
-</root>
+<configuration>
+  <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d %p [%c{15}#%M] - %m%n</pattern>
+    </encoder>
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>DEBUG</level>
+    </filter>
+  </appender>
+  <!--
+  <appender name="logfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender
+    <File>${catalina.home}/logs/wasp-daemon.log</File>
+    <encoder>
+      <pattern>%d %p [%c] - %m%n</pattern>
+      <immediateFlush>false</immediateFlush>
+    </encoder>
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>DEBUG</level>
+    </filter>
+    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <maxIndex>3</maxIndex>
+      <FileNamePattern>${catalina.home}/logs/wasp-daemon.log.%i</FileNamePattern>
+    </rollingPolicy>
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <MaxFileSize>64MB</MaxFileSize>
+    </triggeringPolicy>
+  </appender>
+  -->
+  <logger name="org.apache.velocity.app.VelocityEngine" level="WARN"/>
+  <logger name="org.hibernate" level="WARN"/>
+  <logger name="org.springframework.integration" level="INFO"/>
+  <logger name="org.springframework" level="INFO"/>
+  <logger name="org.hibernate.SQL" level="INFO"/>
+  <logger name="org.springframework.batch" level="DEBUG"/>
+  
+  <!-- Make the next 4 INFO level to prevent obscene log bloat misery!!! -->
+  <logger name="org.springframework.batch.retry.support.RetryTemplate" level="INFO"/>
+  <logger name="org.springframework.batch.repeat.support.RepeatTemplate" level="INFO"/>
+  <logger name="org.springframework.batch.core.scope.context.StepContextRepeatCallback" level="INFO"/>
+  <logger name="org.springframework.batch.core.step.AbstractStep" level="INFO"/>
+  <logger name="org.springframework.batch.core.job.AbstractJob" level="INFO"/>
+  <logger name="org.springframework.batch.core.step.tasklet.TaskletStep" level="INFO"/>
+  <logger name="edu.yu.einstein.wasp.batch.core.extension" level="DEBUG"/>
+  
+  <logger name="edu.yu.einstein.wasp" level="DEBUG"/>
+  <logger name="org.springframework.integration.channel" level="DEBUG"/>
+  <logger name="net.schmizz" level="INFO"/>
+  <logger name="org.bouncycastle" level="INFO"/>
+  <root level="WARN">
+    <appender-ref ref="stdout"/>
+    <!-- appender-ref ref="logfile"/ -->
+  </root>
 </configuration>

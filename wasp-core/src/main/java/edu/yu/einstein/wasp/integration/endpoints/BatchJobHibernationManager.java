@@ -255,7 +255,7 @@ public class BatchJobHibernationManager {
 		Set<WaspStatusMessageTemplate> messageTemplates = new HashSet<>();
 		StepExecution se = jobExplorer.getStepExecution(jobExecutionId, stepExecutionId);
 		try {
-			messageTemplates.addAll(getWakeMessages(se));
+			messageTemplates.addAll(getWakeMessagesForStep(se));
 		} catch (Exception e) {
 			logger.warn("Unable to obtain stored wake message templates from stepExecution id=" + stepExecutionId + ": " + e.getLocalizedMessage());
 		}
@@ -291,7 +291,7 @@ public class BatchJobHibernationManager {
 		Set<WaspStatusMessageTemplate> messageTemplates = new HashSet<>();
 		StepExecution se = jobExplorer.getStepExecution(jobExecutionId, stepExecutionId);
 		try {
-			messageTemplates.addAll(getAbandonMessages(se));
+			messageTemplates.addAll(getAbandonMessagesForStep(se));
 		} catch (Exception e) {
 			logger.warn("Unable to obtain stored abandon message templates from stepExecution id=" + stepExecutionId + ": " + e.getLocalizedMessage());
 		}
@@ -342,14 +342,12 @@ public class BatchJobHibernationManager {
 	}
 	
 	/**
-	 * Requests hibernation of a specified batch JobExecution by specified StepExecution, to be re-awoken on receiving one of the provided messageTemplates
+	 * Requests hibernation of a specified batch JobExecution by specified StepExecution
 	 * @param jobExecutionId
 	 * @param stepExecutionId
-	 * @param messageTemplates
 	 */
-	public void processHibernateRequest(Long jobExecutionId, Long stepExecutionId, Collection<WaspStatusMessageTemplate> messageTemplates){
-		logger.info("Request received to request stop and re-awaken on message");
-		addMessageTemplatesForWakingJobStep(jobExecutionId, stepExecutionId, messageTemplates);
+	public void processHibernateRequest(Long jobExecutionId, Long stepExecutionId){
+		logger.info("Request received to hibernate a JobExecution");
 		WaspBatchExitStatus exitStatus = new WaspBatchExitStatus(jobExplorer.getJobExecution(jobExecutionId).getExitStatus());
 		logger.debug("job with id=" + jobExecutionId + " has ExitStatus of " + exitStatus + " and isRunningAndAwake=" + exitStatus.isRunningAndAwake());
 		if (exitStatus.isRunningAndAwake()){
@@ -359,20 +357,25 @@ public class BatchJobHibernationManager {
 	}
 	
 	/**
+	 * Requests hibernation of a specified batch JobExecution by specified StepExecution, to be re-awoken on receiving one of the provided messageTemplates
+	 * @param jobExecutionId
+	 * @param stepExecutionId
+	 * @param messageTemplates
+	 */
+	public void processHibernateRequest(Long jobExecutionId, Long stepExecutionId, Collection<WaspStatusMessageTemplate> messageTemplates){
+		addMessageTemplatesForWakingJobStep(jobExecutionId, stepExecutionId, messageTemplates);
+		processHibernateRequest(jobExecutionId, stepExecutionId);
+	}
+	
+	/**
 	 * Requests hibernation of a specified batch JobExecution by specified StepExecution, to be re-awoken after specified time interval
 	 * @param jobExecutionId
 	 * @param stepExecutionId
 	 * @param timeInterval
 	 */
 	public void processHibernateRequest(Long jobExecutionId, Long stepExecutionId, Long timeInterval){
-		logger.info("Request received to request stop and re-awaken on message");
 		addTimeIntervalForJobStep(jobExecutionId, stepExecutionId, timeInterval);
-		WaspBatchExitStatus exitStatus = new WaspBatchExitStatus(jobExplorer.getJobExecution(jobExecutionId).getExitStatus());
-		logger.debug("job with id=" + jobExecutionId + " has ExitStatus of " + exitStatus + " and isRunningAndAwake=" + exitStatus.isRunningAndAwake());
-		if (exitStatus.isRunningAndAwake()){
-			logger.info("Going to hibernate JobExecution id=" + jobExecutionId + " (requested from step Id=" + stepExecutionId + ")");
-			hibernateJobExecution(jobExecutionId);
-		}
+		processHibernateRequest(jobExecutionId, stepExecutionId);
 	}
 	
 	/**
@@ -465,7 +468,7 @@ public class BatchJobHibernationManager {
 	 * @param templates
 	 * @throws JSONException
 	 */
-	public static void setAbandonMessages(StepExecution stepExecution, Set<WaspStatusMessageTemplate> templates) throws JSONException{
+	public static void setAbandonMessagesForStep(StepExecution stepExecution, Set<WaspStatusMessageTemplate> templates) throws JSONException{
 		ExecutionContext executionContext = stepExecution.getExecutionContext();
 		JSONArray jsonForMessages = new JSONArray();
 		for (WaspStatusMessageTemplate template: templates){
@@ -485,7 +488,7 @@ public class BatchJobHibernationManager {
 	 * @return
 	 * @throws JSONException
 	 */
-	public static Set<WaspStatusMessageTemplate> getAbandonMessages(StepExecution stepExecution) throws JSONException{
+	public static Set<WaspStatusMessageTemplate> getAbandonMessagesForStep(StepExecution stepExecution) throws JSONException{
 		Set<WaspStatusMessageTemplate> templates = new HashSet<>();
 		ExecutionContext executionContext = stepExecution.getExecutionContext();
 		if (!executionContext.containsKey(MESSAGES_TO_ABANDON)){
@@ -505,7 +508,7 @@ public class BatchJobHibernationManager {
 	 * @param templates
 	 * @throws JSONException
 	 */
-	public static void setWakeMessages(StepExecution stepExecution, Set<WaspStatusMessageTemplate> templates) throws JSONException{
+	public static void setWakeMessagesForStep(StepExecution stepExecution, Set<WaspStatusMessageTemplate> templates) throws JSONException{
 		ExecutionContext executionContext = stepExecution.getExecutionContext();
 		JSONArray jsonForMessages = new JSONArray();
 		for (WaspStatusMessageTemplate template: templates){
@@ -525,7 +528,7 @@ public class BatchJobHibernationManager {
 	 * @return
 	 * @throws JSONException
 	 */
-	public static Set<WaspStatusMessageTemplate> getWakeMessages(StepExecution stepExecution) throws JSONException{
+	public static Set<WaspStatusMessageTemplate> getWakeMessagesForStep(StepExecution stepExecution) throws JSONException{
 		Set<WaspStatusMessageTemplate> templates = new HashSet<>();
 		ExecutionContext executionContext = stepExecution.getExecutionContext();
 		if (!executionContext.containsKey(MESSAGES_TO_WAKE)){

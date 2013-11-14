@@ -6,6 +6,8 @@ import java.util.Set;
 import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.scope.context.StepContext;
@@ -13,16 +15,30 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
+@Transactional
 public abstract class WaspHibernatingTasklet implements Tasklet{
+	
+	// In the split-step scenario: 
+	// The first WaspHibernatingTasklet in the split-step of this job to call requestHibernation() gets control by the method setting 
+	// HIBERNATION_REQUESTED = true in the JobExecutionContext. All other steps in a split may also call requestHibernation() which will set 
+	// HIBERNATION_REQUESTED = true in their StepExecutionContext but will not control hibernation as it is determined that HIBERNATION_REQUESTED is 
+	// set to true already in the JobExecutionContext. 
+	// Only if all active steps have HIBERNATION_REQUESTED set to true then the controlling step will ask the hibernationManager to hibernate the job.
+	
+	// NOTE: due to transactional behavior, execution contexts are not visible in the database outside of this job thread until job stopped / completed
+	// so care is required knowing what is visible where. Any additions to job execution context here will be visible immediately job-wide.	
 	
 	private static final Logger logger = LoggerFactory.getLogger(WaspHibernatingTasklet.class);
 	
 	protected boolean wasHibernationRequested = false;
+	
+	protected boolean isTheHibernationControllingStep = false;
 	
 	@Autowired
 	@Value("${wasp.hibernation.retry.exponential.initialInterval:5000}")
@@ -36,73 +52,124 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	private BatchJobHibernationManager hibernationManager;
 	
 	/**
-	 * Request hibernation of this jobExecution, to be woken again after specified time interval.
+	 * Request hibernation of this jobExecution
 	 * @param context
-	 * @param timeInterval
 	 */
-	protected void requestHibernation(ChunkContext context, Long timeInterval){
-		// NOTE: due to transactional behavior, execution contexts are not visible in the database outside of this job thread until job stopped / completed
-		// so care is required knowing what is visible where. Any additions to job execution context here will be visible immediately job-wide.
-		ExecutionContext executionContext = context.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
+	protected void requestHibernation(ChunkContext context){
 		logContexts(context);
 		StepContext stepContext = context.getStepContext();
 		logger.info("Going to hibernate job " + stepContext.getJobName() + 
 				" (execution id=" + stepContext.getStepExecution().getJobExecutionId() + ") from step " + 
 				stepContext.getStepName() + " (step id=" + stepContext.getStepExecution().getId() + ")");
-		if (executionContext.containsKey(BatchJobHibernationManager.HIBERNATION_REQUESTED) && 
-				(boolean) executionContext.get(BatchJobHibernationManager.HIBERNATION_REQUESTED)){
-			wasHibernationRequested = true;
-			logger.debug("Execution context already contains HIBERNATION_REQUESTED=true. Setting wasHibernationRequested=true");
-		} else
-			executionContext.put(BatchJobHibernationManager.HIBERNATION_REQUESTED, true);
-		if (wasHibernationRequested){
-			logger.debug("Hibernation request aborted as hibernation request already made by another step. Registering messages with HibernationManager");
-			hibernationManager.addTimeIntervalForJobStep(context.getStepContext().getStepExecution().getJobExecutionId(), 
-					context.getStepContext().getStepExecution().getId(), timeInterval);
-			return;
-		} else {
-			wasHibernationRequested = true;
-			hibernationManager.processHibernateRequest(stepContext.getStepExecution().getJobExecutionId(), stepContext.getStepExecution().getId(), timeInterval);
+		setHibernationRequestedForStep(context.getStepContext().getStepExecution());
+		if (isTheHibernationControllingStep){
+			// is the hibernation controlling step so see if we are ready to hibernate yet
+			logger.debug("StepExecution id=" + context.getStepContext().getStepExecution().getId() + 
+					" is the hibernation controlling step. Going to check if ready to hibernate");
+			if (isAllActiveJobStepsRequestingHibernation(context.getStepContext().getStepExecution().getJobExecution())){
+				doHibernate(context.getStepContext().getStepExecution());
+			}
+		} else { 
+			// is NOT the hibernation controlling step. Find out if another step is, otherwise this step should claim the title.
+			if (wasHibernationRequested){
+				// we already noted that a hibernation request has been made (we previously set wasHibernationRequested = true)
+				logger.debug("Not going to proceed with hibernation as StepExecution id=" + context.getStepContext().getStepExecution().getId() + 
+						" is not the hibernation controlling step");
+			} else {
+				wasHibernationRequested = true;
+				if (isHibernationRequestedForJob(context.getStepContext().getStepExecution().getJobExecution())){
+					// Another step is the hibernation controlling step so we don't need to do anything more other than note that a hibernation request
+					// was made by setting wasHibernationRequested = true
+					logger.debug("JobExecution (id=" + context.getStepContext().getStepExecution().getJobExecutionId() +
+							") context already contains HIBERNATION_REQUESTED=true. Setting wasHibernationRequested=true");
+				} else{
+					// we are the first step to request hibernation so we become the hibernation controlling step 
+					isTheHibernationControllingStep = true;
+					setHibernationRequestedForJob(context.getStepContext().getStepExecution().getJobExecution());
+					logger.debug("JobExecution id=" + context.getStepContext().getStepExecution().getJobExecutionId() +
+							", StepExecution id=" +  context.getStepContext().getStepExecution().getId() + 
+							" is the controlling step. Setting HIBERNATION_REQUESTED=true in JobExecutionContext and setting wasHibernationRequested=true");
+				}
+			}
 		}
 	}
 	
-	/**
-	 * Request hibernation of this jobExecution, to be woken again after any of the provided messages are received.
-	 * @param context
-	 * @param wakeMessageTemplates
-	 */
-	protected void requestHibernation(ChunkContext context, Set<WaspStatusMessageTemplate> wakeMessageTemplates,Set<WaspStatusMessageTemplate> abandonMessageTemplates){
-		// NOTE: due to transactional behavior, execution contexts are not visible in the database outside of this job thread until job stopped / completed
-		// so care is required knowing what is visible where. Any additions to job execution context here will be visible immediately job-wide.
-		ExecutionContext executionContext = context.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
-		logContexts(context);
-		StepContext stepContext = context.getStepContext();
-		logger.info("Going to hibernate job " + stepContext.getJobName() + 
-				" (execution id=" + stepContext.getStepExecution().getJobExecutionId() + ") from step " + 
-				stepContext.getStepName() + " (step id=" + stepContext.getStepExecution().getId() + ")");
-		if (executionContext.containsKey(BatchJobHibernationManager.HIBERNATION_REQUESTED) && 
-				(boolean) executionContext.get(BatchJobHibernationManager.HIBERNATION_REQUESTED)){
-			wasHibernationRequested = true;
-			logger.debug("Execution context already contains HIBERNATION_REQUESTED=true. Setting wasHibernationRequested=true");
-		} else
-			executionContext.put(BatchJobHibernationManager.HIBERNATION_REQUESTED, true);
-		hibernationManager.addMessageTemplatesForAbandoningJobStep(context.getStepContext().getStepExecution().getJobExecutionId(), 
-				context.getStepContext().getStepExecution().getId(), abandonMessageTemplates);
-		if (wasHibernationRequested){
-			logger.debug("Hibernation request aborted as hibernation request already made by another step. Registering messages with HibernationManager");
-			hibernationManager.addMessageTemplatesForWakingJobStep(context.getStepContext().getStepExecution().getJobExecutionId(), 
-					context.getStepContext().getStepExecution().getId(), wakeMessageTemplates);
-			return;
-		} else {
-			wasHibernationRequested = true;
-			hibernationManager.processHibernateRequest(stepContext.getStepExecution().getJobExecutionId(), stepContext.getStepExecution().getId(), wakeMessageTemplates);
+	private boolean isAllActiveJobStepsRequestingHibernation(JobExecution jobExecution){
+		for (StepExecution se : jobExecution.getStepExecutions()){
+			if (se.getStatus().equals(BatchStatus.STARTED) && !isHibernationRequestedForStep(se)){
+				logger.debug("JobExecution id=" + jobExecution.getId() + ", StepExecution id=" + se.getId() + 
+						" contains active steps which have not requested hibernation.");
+				return false;
+			}
 		}
+		logger.debug("JobExecution id=" + jobExecution.getId() + 
+				" contains no active steps that have not requested hibernation");
+		return true;
+	}
+	
+	private void doHibernate(StepExecution stepExecution){
+		Long requestingStepExecutionId = stepExecution.getId();
+		JobExecution jobExecution = stepExecution.getJobExecution();
+		Long jobExecutionId = jobExecution.getId();
+		
+		// register all wake triggers with hibernation manger
+		for (StepExecution se : jobExecution.getStepExecutions()){
+			if (!se.getStatus().equals(BatchStatus.STARTED))
+				continue; // not a currently active StepExecution so ignore
+			Long stepExecutionId = se.getId();
+			try{
+				Set<WaspStatusMessageTemplate> wakeMessages = BatchJobHibernationManager.getWakeMessagesForStep(se);
+				if (!wakeMessages.isEmpty())
+					hibernationManager.addMessageTemplatesForWakingJobStep(jobExecutionId, stepExecutionId, wakeMessages);
+			} catch (JSONException e) {
+				logger.warn("Unable to get Wake Messages for JobExecution id=" + jobExecutionId + ", from StepExecution id=" + stepExecutionId + ": " + 
+						e.getLocalizedMessage());
+			}
+			try{
+				Set<WaspStatusMessageTemplate> abandonMessages = BatchJobHibernationManager.getAbandonMessagesForStep(se);
+				if (!abandonMessages.isEmpty())
+					hibernationManager.addMessageTemplatesForAbandoningJobStep(jobExecutionId, stepExecutionId, abandonMessages);
+			} catch (JSONException e) {
+				logger.warn("Unable to get Abandon Messages for JobExecution id=" + jobExecutionId + ", from StepExecution id=" + stepExecutionId + ": " + 
+						e.getLocalizedMessage());
+			}
+			Long timeInterval = BatchJobHibernationManager.getWakeTimeInterval(se);
+			if (timeInterval != null)
+				hibernationManager.addTimeIntervalForJobStep(jobExecutionId, stepExecutionId, timeInterval);
+			
+		}
+		
+		// request hibernation
+		hibernationManager.processHibernateRequest(jobExecution.getId(),requestingStepExecutionId);
+	}
+	
+	protected void setHibernationRequestedForJob(JobExecution jobExecution){
+		ExecutionContext executionContext = jobExecution.getExecutionContext();
+		executionContext.put(BatchJobHibernationManager.HIBERNATION_REQUESTED, true);
+	}
+	
+	protected void setHibernationRequestedForStep(StepExecution stepExecution){
+		ExecutionContext executionContext = stepExecution.getExecutionContext();
+		executionContext.put(BatchJobHibernationManager.HIBERNATION_REQUESTED, true);
+	}
+	
+	protected boolean isHibernationRequestedForJob(JobExecution jobExecution){
+		ExecutionContext executionContext = jobExecution.getExecutionContext();
+		return executionContext.containsKey(BatchJobHibernationManager.HIBERNATION_REQUESTED) && 
+				(boolean) executionContext.get(BatchJobHibernationManager.HIBERNATION_REQUESTED);
+	}
+	
+	protected boolean isHibernationRequestedForStep(StepExecution stepExecution){
+		ExecutionContext executionContext = stepExecution.getExecutionContext();
+		return executionContext.containsKey(BatchJobHibernationManager.HIBERNATION_REQUESTED) && 
+				(boolean) executionContext.get(BatchJobHibernationManager.HIBERNATION_REQUESTED);
 	}
 	
 	/**
 	 * Display contents of the JobExecutionContext and StepExecution context. Handy for debugging.
 	 * @param context
 	 */
+	
 	private void logContexts(ChunkContext context){
 		ExecutionContext executionContext = context.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
 		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
@@ -139,11 +206,19 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	}
 	
 	protected void addStatusMessagesToWakeStepToContext(ChunkContext context, Set<WaspStatusMessageTemplate> templates) throws JSONException{
-		BatchJobHibernationManager.setWakeMessages(context.getStepContext().getStepExecution(), templates);
+		BatchJobHibernationManager.setWakeMessagesForStep(context.getStepContext().getStepExecution(), templates);
 	}
 	
 	protected void addStatusMessagesToAbandonStepToContext(ChunkContext context, Set<WaspStatusMessageTemplate> templates) throws JSONException{
-		BatchJobHibernationManager.setAbandonMessages(context.getStepContext().getStepExecution(), templates);
+		BatchJobHibernationManager.setAbandonMessagesForStep(context.getStepContext().getStepExecution(), templates);
+	}
+	
+	protected Set<WaspStatusMessageTemplate> getStatusMessagesToWakeStepFromContext(ChunkContext context) throws JSONException{
+		return BatchJobHibernationManager.getWakeMessagesForStep(context.getStepContext().getStepExecution());
+	}
+	
+	protected Set<WaspStatusMessageTemplate> getStatusMessagesToAbandonStepFromContext(ChunkContext context) throws JSONException{
+		return BatchJobHibernationManager.getAbandonMessagesForStep(context.getStepContext().getStepExecution());
 	}
 	
 	protected boolean wasWokenOnMessage(ChunkContext context){
