@@ -32,6 +32,9 @@ import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.MessageHeaders;
 import org.springframework.integration.support.MessageBuilder;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.core.extension.JobOperatorWasp;
 import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
@@ -383,6 +386,7 @@ public class BatchJobHibernationManager {
 	 * @param stepExecution
 	 * @throws WaspBatchJobExecutionException
 	 */
+	@Transactional
 	private void abandonJobExecution(StepExecution stepExecution) throws WaspBatchJobExecutionException{
 		JobExecution je = jobExplorer.getJobExecution(stepExecution.getJobExecutionId());
 		for (StepExecution se : je.getStepExecutions()){
@@ -407,6 +411,7 @@ public class BatchJobHibernationManager {
 	 * @param contextRecordValue
 	 * @throws WaspBatchJobExecutionException
 	 */
+	@Transactional
 	private void reawakenJobExecution(StepExecution stepExecution, String contextRecordKey, Object contextRecordValue) throws WaspBatchJobExecutionException{
 		JobExecution je = jobExplorer.getJobExecution(stepExecution.getJobExecutionId());
 		je.getExecutionContext().remove(HIBERNATION_REQUESTED);

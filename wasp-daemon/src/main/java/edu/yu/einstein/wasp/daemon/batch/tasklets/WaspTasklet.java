@@ -57,8 +57,6 @@ public abstract class WaspTasklet extends WaspHibernatingTasklet implements Step
 			GridWorkService gws = hostResolver.getGridWorkService(result);
 			try {
 				if (gws.isFinished(result)){
-					if (wasHibernationRequested)
-						setHibernationRequestedForJob(context.getStepContext().getStepExecution().getJobExecution(), false);
 					return RepeatStatus.FINISHED;
 				}
 			} catch (GridException e) {
