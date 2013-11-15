@@ -10,11 +10,11 @@
 	<bean id="abstractLibraryListeningTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" abstract="true">
 		<property name="abandonMessages">
 			<set>
-				<bean class="edu.yu.einstein.wasp.integration.messages.templates.SampleStatusMessageTemplate">
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate">
 					<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}"/>
 					<property name="status" value="ABANDONED" />
 				</bean>
-				<bean class="edu.yu.einstein.wasp.integration.messages.templates.SampleStatusMessageTemplate">
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate">
 					<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}"/>
 					<property name="status" value="FAILED" />
 				</bean>

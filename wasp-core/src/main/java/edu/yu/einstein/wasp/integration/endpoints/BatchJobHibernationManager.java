@@ -32,12 +32,11 @@ import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.MessageHeaders;
 import org.springframework.integration.support.MessageBuilder;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.core.extension.JobOperatorWasp;
 import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
+import edu.yu.einstein.wasp.exception.ResourceLockException;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
@@ -74,8 +73,11 @@ public class BatchJobHibernationManager {
 	private volatile Map<WaspStatusMessageTemplate, Set<StepExecution>> messageTemplatesAbandoningStepExecutions = new HashMap<>();
 	
 	private volatile Map<Long, Set<StepExecution>> timesWakingStepExecutions = new TreeMap<>(); 
+	
+	private static volatile Set<Long> jobExecutionIdsLockedForHibernating = new HashSet<>();
 
 	public BatchJobHibernationManager() {}
+	
 	
 	@Autowired
 	public void setJobExplorer(JobExplorer jobExplorer){
@@ -331,7 +333,7 @@ public class BatchJobHibernationManager {
 			Set<StatusMessageTemplate> templates = new HashSet<StatusMessageTemplate>(m.keySet());
 			for (StatusMessageTemplate template :templates){
 				if (m.get(template).contains(seForJob)){
-					logger.info("Removing aborted stepExecution id=" + seForJob.getId() + 
+					logger.info("Removing stepExecution id=" + seForJob.getId() + 
 							" from list of step executions responding to message template : " + template.toString());
 					m.get(template).remove(seForJob);
 				}
@@ -396,10 +398,17 @@ public class BatchJobHibernationManager {
 		}
 		
 		try{
+			jobOperator.stop(stepExecution.getJobExecutionId());
+		} catch (Exception e) {
+			logger.debug("Cannot stop job: " + e.getLocalizedMessage());
+		}
+		try{
 			jobOperator.abandon(stepExecution.getJobExecutionId());
-		} catch (NoSuchJobExecutionException | JobExecutionAlreadyRunningException e) {
+		} catch (Exception e) {
 			throw new WaspBatchJobExecutionException("Unable to abandon job with JobExecution id=" + stepExecution.getJobExecutionId() + 
 					" (got " + e.getClass().getName() + " Exception :" + e.getLocalizedMessage() + ")");
+		} finally{
+			removeJobExecutionIdLockedForHibernating(stepExecution.getJobExecutionId()); // remove lock if set
 		}
 	}
 	
@@ -436,10 +445,44 @@ public class BatchJobHibernationManager {
 	private void hibernateJobExecution(Long jobExecutionId){
 		try {
 			jobOperator.hibernate(jobExecutionId);
-		} catch (NoSuchJobExecutionException | JobExecutionNotRunningException e1) {
+		} catch (Exception e1) {
 			logger.warn("Unable to hibernate job with JobExecution id=" + jobExecutionId + " (got " + e1.getClass().getName() + " Exception :" + 
 					e1.getLocalizedMessage() + ")");
+			removeJobExecutionIdLockedForHibernating(jobExecutionId); // remove lock  
 		}
+	}
+	
+	/**
+	 * Registers JobExecution id locked for hibernating
+	 * @param jobExecutionId
+	 * @throws ResourceLockException 
+	 */
+	public static synchronized void addJobExecutionIdLockedForHibernating(Long jobExecutionId) throws ResourceLockException{
+		logger.debug("Adding lock for hibernation request for JobExecution id=" + jobExecutionId);
+		if (jobExecutionIdsLockedForHibernating.contains(jobExecutionId))
+			throw new ResourceLockException("Unable to get lock for JobExecution id=" + jobExecutionId + " as already locked");
+		jobExecutionIdsLockedForHibernating.add(jobExecutionId); 
+	}
+	
+	/**
+	 * Checks if JobExecution id is locked for hibernating
+	 * @param jobExecutionId
+	 * @return
+	 */
+	public static synchronized boolean isJobExecutionIdLockedForHibernating(Long jobExecutionId){
+		boolean isLocked = jobExecutionIdsLockedForHibernating.contains(jobExecutionId);
+		logger.debug("Lock for hibernation request for JobExecution id=" + jobExecutionId + ": isLocked=" + isLocked);
+		return isLocked;
+	}
+	
+	/**
+	 * Removes JobExecution id from list of those locked for hibernating
+	 * @param jobExecutionId
+	 * @return
+	 */
+	public static synchronized void removeJobExecutionIdLockedForHibernating(Long jobExecutionId){
+		logger.debug("Removing lock for hibernation request for JobExecution id=" + jobExecutionId);
+		jobExecutionIdsLockedForHibernating.remove(jobExecutionId);
 	}
 	
 	/**

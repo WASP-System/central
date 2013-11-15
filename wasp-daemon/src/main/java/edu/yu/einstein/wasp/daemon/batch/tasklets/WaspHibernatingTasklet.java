@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.exception.ResourceLockException;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
@@ -57,32 +58,41 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 		wasHibernationRequested = true;
 		logContexts(context);
 		StepContext stepContext = context.getStepContext();
-		if (isHibernationRequestedForJob(stepContext.getStepExecution().getJobExecution())){
+		StepExecution stepExecution = context.getStepContext().getStepExecution();
+		JobExecution jobExecution = stepExecution.getJobExecution();
+		Long jobExecutionId = jobExecution.getId();
+		Long stepExecutionId = stepExecution.getId();
+		if (!isHibernationRequestedForStep(stepExecution))
+			setHibernationRequestedForStep(stepExecution, true);
+		if (isHibernationRequestedForJob(jobExecution)){
 			// another step execution has already declared itself as handling hibernation so let it do the rest
-			logger.debug("StepExecution id=" + context.getStepContext().getStepExecution().getId() + 
-					" will not proceed to request hibernation of JobExecution id=" + stepContext.getStepExecution().getJobExecutionId() + 
+			logger.debug("StepExecution id=" + stepExecutionId + 
+					" will not proceed to request hibernation of JobExecution id=" + jobExecutionId + 
 					" because another step has already initiated hibernation");
-		} else if (isAllOtherActiveJobStepsRequestingHibernation(stepContext.getStepExecution())){
-			setHibernationRequestedForJob(context.getStepContext().getStepExecution().getJobExecution(), true);
-			// we are ready to hibernate so request it now
-			logger.info("Going to hibernate job " + stepContext.getJobName() + 
-					" (JobExecution id=" + stepContext.getStepExecution().getJobExecutionId() + ") from step " + 
-					stepContext.getStepName() + " (step id=" + stepContext.getStepExecution().getId() + ")");
-			doHibernate(context.getStepContext().getStepExecution());
+		} else if (isAllActiveJobStepsRequestingHibernation(stepExecution)){
+			try{
+				BatchJobHibernationManager.addJobExecutionIdLockedForHibernating(jobExecutionId);
+				setHibernationRequestedForJob(jobExecution, true);
+				// we are ready to hibernate so request it now
+				logger.info("Going to hibernate job " + stepContext.getJobName() + 
+						" (JobExecution id=" + jobExecutionId + ") from step " + 
+						stepContext.getStepName() + " (step id=" + stepExecutionId + ")");
+				doHibernate(stepExecution);
+			} catch (ResourceLockException e){
+				logger.info("Not going to hibernate job " + stepContext.getJobName() + 
+						" (JobExecution id=" + jobExecutionId + ") from step " + 
+						stepContext.getStepName() + " (step id=" + stepExecutionId + ") as already locked by another StepExecution");
+			}
 		} else { 
-			setHibernationRequestedForStep(context.getStepContext().getStepExecution(), true);
-			logger.debug("StepExecution id=" + context.getStepContext().getStepExecution().getId() + 
+			logger.debug("StepExecution id=" + stepExecutionId + 
 					" has requested that it wishes to hibernate but other running steps are preventing hibernation of the JobExecution id=" + 
-					stepContext.getStepExecution().getJobExecutionId() + " at this time");
+					jobExecutionId + " at this time");
 		}
 	}
 	
-	private boolean isAllOtherActiveJobStepsRequestingHibernation(StepExecution stepExecution){
-		Long requestingStepExecutionId = stepExecution.getId();
+	private boolean isAllActiveJobStepsRequestingHibernation(StepExecution stepExecution){
 		JobExecution jobExecution = stepExecution.getJobExecution();
 		for (StepExecution se : jobExecution.getStepExecutions()){
-			if (se.getId().equals(requestingStepExecutionId))
-				continue; // we are only checking the other steps
 			if (se.getStatus().equals(BatchStatus.STARTED) && !isHibernationRequestedForStep(se)){
 				logger.debug("JobExecution id=" + jobExecution.getId() + ", StepExecution id=" + se.getId() + 
 						" contains active steps which have not requested hibernation.");

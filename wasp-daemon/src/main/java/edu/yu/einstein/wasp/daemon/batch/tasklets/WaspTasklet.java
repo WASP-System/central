@@ -34,7 +34,6 @@ public abstract class WaspTasklet extends WaspHibernatingTasklet implements Step
 		// proxy
 	}
 	
-	
 	public void setAbandonMessages(final Set<WaspStatusMessageTemplate> abandonTemplates){
 		this.abandonTemplates.clear();
 		this.abandonTemplates.addAll(abandonTemplates);
@@ -52,6 +51,7 @@ public abstract class WaspTasklet extends WaspHibernatingTasklet implements Step
 	@Override
 	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
+		Long stepExecutionId = context.getStepContext().getStepExecution().getId();
 		if (isGridWorkUnitStarted(context)){
 			GridResult result = getStartedResult(context);
 			GridWorkService gws = hostResolver.getGridWorkService(result);
@@ -64,15 +64,16 @@ public abstract class WaspTasklet extends WaspHibernatingTasklet implements Step
 				removeStartedResult(context);
 				throw e;
 			}
-			logger.debug("Going to request hibernation as " + result.getUuid() + " not complete");
+			logger.debug("StepExecution id=" + stepExecutionId + " is going to request hibernation as " + result.getUuid() + " not complete");
 		}
-		logger.debug("Tasklet not yet configured with a result");
+		logger.debug("Tasklet not yet configured with a result (StepExecution id=" + stepExecutionId + ")");
 		if (!wasHibernationRequested){
 			Long timeoutInterval = exponentiallyIncreaseTimeoutIntervalInContext(context);
 			logger.debug("Going to request hibernation for " + timeoutInterval + " ms");
 			addStatusMessagesToAbandonStepToContext(context, abandonTemplates);
 		} else {
-			logger.debug("Previous hibernation request made by this step but we were still waiting for all steps to be ready. Going to retry request.");
+			logger.debug("Previous hibernation request made by this StepExecution (id=" + stepExecutionId + 
+					") but we were still waiting for all steps to be ready. Going to retry request.");
 		}
 		requestHibernation(context);
 		return RepeatStatus.CONTINUABLE;

@@ -244,7 +244,7 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 
 	@Override
 	public void handleMessage(Message<?> message) throws MessagingException {
-		logger.debug("Message recieved by handleMessage(): "+message.toString());
+		logger.debug("Message received by handleMessage(): "+message.toString());
 		this.message = message; 
 	}
 	

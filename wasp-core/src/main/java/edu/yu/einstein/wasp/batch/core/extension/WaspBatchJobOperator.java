@@ -6,7 +6,6 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
-import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersInvalidException;
@@ -32,6 +31,7 @@ import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
  * @author asmclellan
  *
  */
+@Transactional
 public class WaspBatchJobOperator extends SimpleJobOperator implements JobOperatorWasp {
 	
 	private static final String ILLEGAL_STATE_MSG = "Illegal state (only happens on a race condition): %s with name=%s and parameters=%s";
@@ -80,7 +80,6 @@ public class WaspBatchJobOperator extends SimpleJobOperator implements JobOperat
 	 * Hibernate job
 	 */
 	@Override
-	@Transactional
 	public boolean hibernate(long executionId) throws NoSuchJobExecutionException, JobExecutionNotRunningException {
 		// based on stop() method but with exit status modified within transaction
 		JobExecution jobExecution = findExecutionById(executionId);
@@ -100,11 +99,10 @@ public class WaspBatchJobOperator extends SimpleJobOperator implements JobOperat
 	}
 	
 	 @Override
-	 @Transactional
      public JobExecution abandon(long jobExecutionId) throws NoSuchJobExecutionException, JobExecutionAlreadyRunningException {
              JobExecution jobExecution = findExecutionById(jobExecutionId);
 
-             if (jobExecution.getStatus().isLessThan(BatchStatus.STOPPING)) {
+             if (jobExecution.getStatus().isLessThan(BatchStatus.STOPPED)) {
                      throw new JobExecutionAlreadyRunningException(
                                      "JobExecution is running or complete and therefore cannot be aborted");
              }

@@ -86,7 +86,6 @@
 							<property name="status" value="COMPLETED" />
 						</bean>
 					</property>
-					<property name="abandonMessages" ref="abandonSampleMessageSet" />
 					<property name="name" value="wasp.sample.step.sampleQC" />
 				</bean>
 			</batch:tasklet>

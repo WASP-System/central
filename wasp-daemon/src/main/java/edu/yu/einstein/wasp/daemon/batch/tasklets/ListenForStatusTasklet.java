@@ -101,29 +101,26 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 	@Override
 	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
+		Long stepExecutionId = context.getStepContext().getStepExecution().getId();
 		logger.trace(name + "execute() invoked");
 		if (!messageQueue.isEmpty()){
-			logger.debug("StepExecution id=" + context.getStepContext().getStepExecution().getId() + 
-					" received an expected message so finishing step.");
+			logger.debug("StepExecution id=" + stepExecutionId + " received an expected message so finishing step.");
 			return RepeatStatus.FINISHED;
 		}
 		if (wasWokenOnMessage(context)){
-			logger.debug("StepExecution id=" + context.getStepContext().getStepExecution().getId() + 
-					" was woken up from hibernation for a message. Skipping to next step...");
+			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation for a message. Skipping to next step...");
 			return RepeatStatus.FINISHED;
 		}
 		
 		if (!wasHibernationRequested){
-			logger.debug("Going to request hibernation from StepExecution (id=" + context.getStepContext().getStepExecution().getId() + 
-					") as not previously requested");
+			logger.debug("Going to request hibernation from StepExecution (id=" + stepExecutionId + ") as not previously requested");
 			addStatusMessagesToWakeStepToContext(context, messageTemplates);
 			addStatusMessagesToAbandonStepToContext(context, abandonTemplates);
 		} else
-			logger.debug("Previous hibernation request made by this StepExecution (id=" + context.getStepContext().getStepExecution().getId() + 
+			logger.debug("Previous hibernation request made by this StepExecution (id=" + stepExecutionId + 
 					") but we were still waiting for all steps to be ready. Going to retry request.");
 		requestHibernation(context);
-		logger.debug("Hibernate request made by this StepExecution (id=" + context.getStepContext().getStepExecution().getId() + 
-					") but JobExecution is not yet ready to hibernate");
+		logger.debug("Hibernate request made by this StepExecution (id=" + stepExecutionId + ") but JobExecution is not yet ready to hibernate");
 		return RepeatStatus.CONTINUABLE;	
 	}
 	

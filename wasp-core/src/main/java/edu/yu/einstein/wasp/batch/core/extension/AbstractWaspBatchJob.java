@@ -417,6 +417,7 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
                     execution.setEndTime(new Date());
                     jobRepository.update(execution);
                     logger.info(String.format("JobExecution completed with status=%s and exitStatus=%s", execution.getStatus(), execution.getExitStatus()));
+                    BatchJobHibernationManager.removeJobExecutionIdLockedForHibernating(execution.getId());
             }
         }
         

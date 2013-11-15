@@ -8,13 +8,13 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
@@ -25,7 +25,6 @@ import org.springframework.integration.core.SubscribableChannel;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -52,6 +51,9 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	private JobLauncher jobLauncher;
 	
 	@Autowired
+	private JobRepository jobRepository;
+	
+	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
 	
 	private final String OUTBOUND_MESSAGE_CHANNEL = "wasp.channel.remoting.outbound";
@@ -64,6 +66,8 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	private MessagingTemplate messagingTemplate;
 	
 	private final Logger logger = LoggerFactory.getLogger(SampleFlowTests.class);
+	
+	private SubscribableChannel listeningChannel;
 	
 	private Message<?> message = null;
 	
@@ -79,9 +83,6 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	private final Integer SAMPLE_ID2 = 2;
 	private final Integer SAMPLE_ID3 = 3;
 	
-	private SubscribableChannel listeningChannel;
-	private SubscribableChannel waspAbortChannel;
-	
 	
 	@BeforeClass
 	private void setup() throws SecurityException, NoSuchMethodException{
@@ -89,15 +90,10 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 		Assert.assertNotNull(messageChannelRegistry);
 		Assert.assertNotNull(jobLauncher);
 		Assert.assertNotNull(jobRegistry);
-		waspAbortChannel = messageChannelRegistry.getChannel("wasp.channel.notification.abort", SubscribableChannel.class);
-		waspAbortChannel.subscribe(this);
+		listeningChannel = messageChannelRegistry.getChannel("wasp.channel.notification.job", SubscribableChannel.class);
+		listeningChannel.subscribe(this); // register as a message handler on the listeningChannel
 		messagingTemplate = new MessagingTemplate();
 		messagingTemplate.setReceiveTimeout(2000);
-	}
-	
-	@AfterClass
-	private void tearDown(){
-		waspAbortChannel.unsubscribe(this);
 	}
 	
 	@AfterMethod
@@ -117,11 +113,11 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			listeningChannel.subscribe(this); // register as a message handler on the listeningChannel
 			// set a sampleType of 'dna' for the sample hardwired into the stub SampleDao
 			SampleType sampleType = new SampleType();
-			sampleType.setSampleTypeId(1);
+			sampleType.setId(1);
 			sampleType.setIName("dna");
 			
 			Sample sample = new Sample();
-			sample.setSampleId(SAMPLE_ID);
+			sample.setId(SAMPLE_ID);
 			sample.setSampleType(sampleType);
 			Mockito.when(mockSampleDao.getSampleBySampleId(SAMPLE_ID)).thenReturn(sample);
 			
@@ -143,7 +139,9 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			Message<?> replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), sampleCreatedNotificationMessage);
 			if (replyMessage == null)
 				Assert.fail("testDNASampleReceived(): Failed to receive reply message");
-			
+			try{
+				Thread.sleep(1);
+			} catch (InterruptedException e){}; // delay to allow processing of messages
 			// send ACCEPTED message (simulating job approval tasks completed by wasp job flow)
 			JobStatusMessageTemplate jobTemplate = new JobStatusMessageTemplate(JOB_ID);
 			jobTemplate.setStatus(WaspStatus.ACCEPTED);
@@ -185,12 +183,14 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			} catch (InterruptedException e){}; // wait for message receiving and job completion events
 			
 			// check BatchStatus and ExitStatus are as expected
-			WaspBatchExitStatus status = new WaspBatchExitStatus(jobExecution.getExitStatus());
+			JobExecution freshJe = jobRepository.getLastJobExecution(jobExecution.getJobInstance().getJobName(), jobExecution.getJobParameters());
+			logger.debug("JobExecution at end: " + freshJe.toString());
+			WaspBatchExitStatus status = new WaspBatchExitStatus(freshJe.getExitStatus());
 			Assert.assertTrue(status.isCompleted());
-			jobExecution.stop();
 		} catch (Exception e){
 			// caught an unexpected exception
 			Assert.fail("testDNASampleReceived(): Caught Exception: "+e.getMessage());
+			e.printStackTrace();
 		}
 	}
 	
@@ -205,11 +205,11 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			listeningChannel.subscribe(this); // register as a message handler on the listeningChannel
 			// set a sampleType of 'library' for the sample hardwired into the stub SampleDao
 			SampleType sampleType = new SampleType();
-			sampleType.setSampleTypeId(1);
+			sampleType.setId(1);
 			sampleType.setIName("library");
 			
 			Sample sample = new Sample();
-			sample.setSampleId(SAMPLE_ID2);
+			sample.setId(SAMPLE_ID2);
 			sample.setSampleType(sampleType);
 			Mockito.when(mockSampleDao.getSampleBySampleId(SAMPLE_ID2)).thenReturn(sample);
 			
@@ -269,13 +269,16 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			} catch (InterruptedException e){}; // wait for message receiving and job completion events
 			
 			// check BatchStatus and ExitStatus are as expected
-			WaspBatchExitStatus status = new WaspBatchExitStatus(jobExecution.getExitStatus());
+			JobExecution freshJe = jobRepository.getLastJobExecution(jobExecution.getJobInstance().getJobName(), jobExecution.getJobParameters());
+			logger.debug("JobExecution at end: " + freshJe.toString());
+			WaspBatchExitStatus status = new WaspBatchExitStatus(freshJe.getExitStatus());
 			Assert.assertTrue(status.isCompleted());
 			jobExecution.stop();
 		} catch (Exception e){
 			// caught an unexpected exception
 			e.printStackTrace();
 			Assert.fail("testLibrarySampleReceived(): Caught Exception: "+e.getMessage());
+			e.printStackTrace();
 		}
 	}
 	
@@ -290,11 +293,11 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			listeningChannel.subscribe(this); // register as a message handler on the listeningChannel
 			// set a sampleType of 'library' for the sample hardwired into the stub SampleDao
 			SampleType sampleType = new SampleType();
-			sampleType.setSampleTypeId(1);
+			sampleType.setId(1);
 			sampleType.setIName("sample");
 			
 			Sample sample = new Sample();
-			sample.setSampleId(SAMPLE_ID3);
+			sample.setId(SAMPLE_ID3);
 			sample.setSampleType(sampleType);
 			Mockito.when(mockSampleDao.getSampleBySampleId(SAMPLE_ID3)).thenReturn(sample);
 			
@@ -358,19 +361,22 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			} catch (InterruptedException e){}; // wait for message receiving and job completion events
 			
 			// check BatchStatus and ExitStatus are as expected
-			WaspBatchExitStatus status = new WaspBatchExitStatus(jobExecution.getExitStatus());
+			JobExecution freshJe = jobRepository.getLastJobExecution(jobExecution.getJobInstance().getJobName(), jobExecution.getJobParameters());
+			logger.debug("JobExecution at end: " + freshJe.toString());
+			WaspBatchExitStatus status = new WaspBatchExitStatus(freshJe.getExitStatus());
 			Assert.assertTrue(status.isCompleted());
 			
 		} catch (Exception e){
 			// caught an unexpected exception
 			Assert.fail("testSampleFailedQC(): Caught Exception: "+e.getMessage());
+			e.printStackTrace();
 		}
 		
 	}
 	
 	@Override
 	public void handleMessage(Message<?> message) throws MessagingException {
-		logger.debug("Message recieved by handleMessage(): "+message.toString());
+		logger.debug("Message received by handleMessage(): "+message.toString());
 		this.message = message; 
 	}
 	
