@@ -1,9 +1,10 @@
 package edu.yu.einstein.wasp.service;
 
 import java.util.List;
-import org.springframework.stereotype.Service;
-import edu.yu.einstein.wasp.additionalClasses.Strategy;
 
+import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftMeta;

@@ -17,17 +17,7 @@
   	<property name="area" ref="truseqIndexedDnaArea" />
   	<property name="name" value="TruSEQ INDEXED DNA" />
   	<property name="sampleType" ref="dnaSampleType" />
-	
-	<property name="metaFromWrapper">
-		<bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-  			<property name="area" ref="truseqIndexedDnaArea" />
-  			<property name="metaList">
-  				<list>
-  					<value>truseq=1</value>
-  				</list>
-  			</property>
-  		</bean>
-	</property>
+	<property name="indexingStrategy" value="TRUSEQ" />
 
   	<property name="compatibleResources">
   		<list>
