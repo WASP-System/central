@@ -102,7 +102,8 @@ public class BatchJobHibernationManager {
 		Date timeNow = new Date();
 		for (Long time: orderedTimes){
 			if (time <= timeNow.getTime()){
-				for (StepExecution se : timesWakingStepExecutions.get(time)){
+				Set<StepExecution> ses = new HashSet<>(timesWakingStepExecutions.get(time));
+				for (StepExecution se : ses){
 					logger.info("restarting job with JobExecution id=" +se.getJobExecutionId() + " for step " + se.getId() + 
 							" on restart wait timeout");
 					try{
@@ -390,7 +391,8 @@ public class BatchJobHibernationManager {
 	@Transactional
 	private void abandonJobExecution(StepExecution stepExecution) throws WaspBatchJobExecutionException{
 		JobExecution je = jobExplorer.getJobExecution(stepExecution.getJobExecutionId());
-		for (StepExecution se : je.getStepExecutions()){
+		Set<StepExecution> ses = new HashSet<>(je.getStepExecutions());
+		for (StepExecution se : ses){
 			if (se.getId().equals(stepExecution.getId()))
 				se.getExecutionContext().put(ABANDON_ON_MESSAGE, true);
 			jobRepository.updateExecutionContext(se);
@@ -424,7 +426,8 @@ public class BatchJobHibernationManager {
 		JobExecution je = jobExplorer.getJobExecution(stepExecution.getJobExecutionId());
 		je.getExecutionContext().remove(HIBERNATION_REQUESTED);
 		jobRepository.updateExecutionContext(je);
-		for (StepExecution se : je.getStepExecutions()){
+		Set<StepExecution> ses = new HashSet<>(je.getStepExecutions());
+		for (StepExecution se : ses){
 			if (se.getId().equals(stepExecution.getId()))
 				se.getExecutionContext().put(contextRecordKey, contextRecordValue);
 			jobRepository.updateExecutionContext(se);
