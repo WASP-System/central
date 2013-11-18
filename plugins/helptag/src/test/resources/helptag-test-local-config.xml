@@ -29,7 +29,7 @@
  	
  	<bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />
 
- 	
+ 	<bean id="waspJobParameters" class="edu.yu.einstein.wasp.integration.messages.WaspJobParameters" />
 	<!-- import configuration files  -->
 	<import resource="helptag-test-persistence-config.xml" />
 </beans>

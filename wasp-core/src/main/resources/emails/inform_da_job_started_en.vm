@@ -32,7 +32,7 @@ in the space provided. Note: That reason will be displayed to the PI and to the 
 <b>Job Name &amp; Submitters</b><br />
 Reference Number: J${job.getJobId()}<br />
 Job Name: ${job.getName()}<br />
-Date Submitted: ${job.getCreatets()}<br />
+Date Submitted: ${job.getCreated()}<br />
 Submitter: ${jobSubmitter.firstName} ${jobSubmitter.lastName} (email: ${jobSubmitter.getEmail()})<br />
 Principal Investigator: ${pi.firstName} ${pi.lastName} (email: ${pi.getEmail()})<br /><br />
 
