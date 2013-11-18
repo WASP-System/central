@@ -168,7 +168,8 @@ public class BatchJobHibernationManager {
 		if (messageTemplatesWakingStepExecutions.keySet().contains(messageTemplate)){
 			logger.debug("messageTemplatesWakingStepExecutions.keySet() contains message");
 			Set<Long> hibernatedJobExecutionIds = new HashSet<>();
-			for (StepExecution se : messageTemplatesWakingStepExecutions.get(messageTemplate)){
+			Set<StepExecution> ses = new HashSet<>(messageTemplatesWakingStepExecutions.get(messageTemplate));
+			for (StepExecution se : ses){
 				if (!hibernatedJobExecutionIds.contains(se.getJobExecutionId())){
 					logger.info("Waking job with JobExecution id=" +se.getJobExecutionId() + " for step " + se.getId() + 
 							" on receiving message " + messageTemplate.getPayload().toString());

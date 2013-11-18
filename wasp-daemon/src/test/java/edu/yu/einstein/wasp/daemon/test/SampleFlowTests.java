@@ -25,6 +25,7 @@ import org.springframework.integration.core.SubscribableChannel;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -67,7 +68,11 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	
 	private final Logger logger = LoggerFactory.getLogger(SampleFlowTests.class);
 	
-	private SubscribableChannel listeningChannel;
+	private SubscribableChannel jobListeningChannel;
+	
+	private SubscribableChannel sampleListeningChannel;
+	
+	private SubscribableChannel libraryListeningChannel;
 	
 	private Message<?> message = null;
 	
@@ -90,15 +95,26 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 		Assert.assertNotNull(messageChannelRegistry);
 		Assert.assertNotNull(jobLauncher);
 		Assert.assertNotNull(jobRegistry);
-		listeningChannel = messageChannelRegistry.getChannel("wasp.channel.notification.job", SubscribableChannel.class);
-		listeningChannel.subscribe(this); // register as a message handler on the listeningChannel
+		jobListeningChannel = messageChannelRegistry.getChannel("wasp.channel.notification.job", SubscribableChannel.class);
+		jobListeningChannel.subscribe(this); // register as a message handler on the listeningChannel
+		sampleListeningChannel = messageChannelRegistry.getChannel("wasp.channel.notification.sample", SubscribableChannel.class);
+		sampleListeningChannel.subscribe(this); // register as a message handler on the listeningChannel
+		libraryListeningChannel = messageChannelRegistry.getChannel("wasp.channel.notification.library", SubscribableChannel.class);
+		libraryListeningChannel.subscribe(this); // register as a message handler on the listeningChannel
 		messagingTemplate = new MessagingTemplate();
 		messagingTemplate.setReceiveTimeout(2000);
 	}
 	
 	@AfterMethod
+	private void resetMessage(){
+		message = null;
+	}
+		
+	@AfterClass
 	private void unsubscribe(){
-		listeningChannel.unsubscribe(this);
+		jobListeningChannel.unsubscribe(this);
+		sampleListeningChannel.unsubscribe(this);
+		libraryListeningChannel.unsubscribe(this);
 	}
 	
 		
@@ -109,8 +125,6 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	@Test (groups = "unit-tests-batch-integration")
 	public void testDNASampleReceived() throws Exception{
 		try{
-			listeningChannel = messageChannelRegistry.getChannel("wasp.channel.notification.sample", SubscribableChannel.class);
-			listeningChannel.subscribe(this); // register as a message handler on the listeningChannel
 			// set a sampleType of 'dna' for the sample hardwired into the stub SampleDao
 			SampleType sampleType = new SampleType();
 			sampleType.setId(1);
@@ -201,8 +215,6 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	@Test (groups = "unit-tests-batch-integration")
 	public void testLibrarySampleReceived() throws Exception{
 		try{
-			listeningChannel = messageChannelRegistry.getChannel("wasp.channel.notification.library", SubscribableChannel.class);
-			listeningChannel.subscribe(this); // register as a message handler on the listeningChannel
 			// set a sampleType of 'library' for the sample hardwired into the stub SampleDao
 			SampleType sampleType = new SampleType();
 			sampleType.setId(1);
@@ -289,8 +301,6 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	@Test (groups = "unit-tests-batch-integration")
 	public void testSampleFailedQC() throws Exception{
 		try{
-			listeningChannel = messageChannelRegistry.getChannel("wasp.channel.notification.sample", SubscribableChannel.class);
-			listeningChannel.subscribe(this); // register as a message handler on the listeningChannel
 			// set a sampleType of 'library' for the sample hardwired into the stub SampleDao
 			SampleType sampleType = new SampleType();
 			sampleType.setId(1);
