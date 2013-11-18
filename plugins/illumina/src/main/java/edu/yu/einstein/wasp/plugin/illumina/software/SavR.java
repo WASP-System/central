@@ -27,7 +27,8 @@ public class SavR extends SequenceRunProcessor {
     }
 
     public String getSavR() {
-        String retval = "R --vanilla <<EOF\n" +
+        String retval = "rm -rf Data/wasp-results/\n" +
+                        "R --vanilla <<EOF\n" +
                         "require(savR)\n" +
                         "fc <- savR('.')\n" +
                         "buildReports(fc, 'Data/wasp-reports')\n" +
