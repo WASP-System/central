@@ -43,6 +43,7 @@ public class WaspStatusMessageTemplate extends WaspMessageTemplate implements St
 	public WaspStatusMessageTemplate(JSONObject json) throws JSONException{
 		logger.debug("creating new WaspStatusMessageTemplate object from JSON string: " + json.toString());
 		JSONObject jsonForHeaders = json.getJSONObject(JSON_HEADERS_KEY);
+		@SuppressWarnings("unchecked")
 		Iterator<String> headerIterator = jsonForHeaders.keys();
 		while (headerIterator.hasNext()){
 			String headerKey = headerIterator.next();

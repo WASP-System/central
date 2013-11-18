@@ -42,7 +42,7 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 	private void setup(){
 		Assert.assertNotNull(channelRegistry);
 		Assert.assertNotNull(outboundGateway);
-		listeningChannel = channelRegistry.getChannel("wasp.channel.notification.default", SubscribableChannel.class);
+		listeningChannel = channelRegistry.getChannel("wasp.channel.notification.batch", SubscribableChannel.class);
 		listeningChannel.subscribe(this); // register as a message handler on the listeningChannel
 	}
 	
@@ -61,8 +61,9 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 			Message<WaspStatus> messageToSend =  messageTemplate.build();
 			logger.info("Sending message via 'outbound rmi gateway': "+messageToSend.toString());
 			Message<?> replyMessage = (Message<?>) outboundGateway.handleRequestMessage(messageToSend);
-			if (replyMessage != null)
-				Assert.fail("Got unexpected reply message: "+ replyMessage.toString());
+			if (replyMessage == null)
+				Assert.fail("Did not get expected reply message");
+			Assert.assertEquals((WaspStatus) replyMessage.getPayload(), WaspStatus.COMPLETED);
 			
 			// Delay to allow message receiving and transitions. Time out after 20s.
 			int repeat = 0;
@@ -84,6 +85,7 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 		} catch (Exception e){
 			// caught an unexpected exception
 			Assert.fail("Caught Exception: "+e.getMessage());
+			e.printStackTrace();
 		}
 	}
 	
