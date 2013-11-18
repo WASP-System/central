@@ -12,6 +12,8 @@
 		<property name="password" value="${testDb.jdbc.password}" />
 		<property name="driverClass" value="${testDb.jdbc.driver}" />
 		<property name="jdbcUrl" value="${testDb.jdbc.url}" />
+		<property name="maxPoolSize" value="1000" />
+		
 	</bean>
 
 	<jdbc:initialize-database data-source="batchDataSource" >
