@@ -149,9 +149,10 @@ public class BatchJobHibernationManager {
 					try{
 						abandonJobExecution(se);
 						abandondedJobExecutionIds.add(se.getJobExecutionId()); // make sure only performed once per jobExecution
-						updateMessageStepExecutionMap(se, messageTemplatesAbandoningStepExecutions);
 					} catch (WaspBatchJobExecutionException e){
 						logger.warn("Problem aborting job execution and cleaning up 'messageTemplatesAbandoningStepExecutions': " + e.getLocalizedMessage());
+					} finally {
+						updateMessageStepExecutionMap(se, messageTemplatesAbandoningStepExecutions);
 					}
 				}
 			}
@@ -177,9 +178,10 @@ public class BatchJobHibernationManager {
 					try{
 						reawakenJobExecution(se, WOKEN_ON_MESSAGE_STATUS, messageTemplate.getStatus());
 						hibernatedJobExecutionIds.add(se.getJobExecutionId()); // make sure only performed once per jobExecution
-						updateMessageStepExecutionMap(se, messageTemplatesWakingStepExecutions);
 					} catch (WaspBatchJobExecutionException e){
 						logger.warn("Problem reawakening job execution and cleaning up 'messageTemplatesWakingStepExecutions': " + e.getLocalizedMessage());
+					} finally {
+						updateMessageStepExecutionMap(se, messageTemplatesWakingStepExecutions);
 					}
 				}
 			}

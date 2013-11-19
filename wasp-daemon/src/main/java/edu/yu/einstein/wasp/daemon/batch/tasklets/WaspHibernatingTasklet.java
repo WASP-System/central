@@ -44,7 +44,7 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	private Long initialExponentialInterval;
 	
 	@Autowired
-	@Value("${wasp.hibernation.retry.exponential.maxInterval:60000}")
+	@Value("${wasp.hibernation.retry.exponential.maxInterval:3600000}")
 	private Long maxExponentialInterval;
 	
 	@Autowired

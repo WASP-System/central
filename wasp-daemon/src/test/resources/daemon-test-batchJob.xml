@@ -41,6 +41,14 @@
 		</batch:step>
 	</batch:job>
 	
+	<batch:job id="test.exponentialRepeatJob">
+		<batch:step id="test.repeatedStep" >
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.test.tasklet.TestExponentialTimedTasklet" />
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+	
 	<bean id="waspJobSoftwareLaunchTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.analysis.WaspJobSoftwareLaunchTaskletImpl"  >
 		<constructor-arg name="libraryCellId" value="1"/>
 		<constructor-arg name="softwareResourceType" ref="softwareResourceType" />
@@ -52,5 +60,6 @@
 		<property name="IName" value="testAligner"/>
 		<property name="resourceTypeId" value="1" />
 	</bean>
+	
 
 </beans>

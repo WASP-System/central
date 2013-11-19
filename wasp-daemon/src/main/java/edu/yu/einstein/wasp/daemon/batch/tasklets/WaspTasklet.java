@@ -23,16 +23,17 @@ import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 
-public abstract class WaspTasklet extends WaspHibernatingTasklet implements StepExecutionListener {
+public class WaspTasklet extends WaspHibernatingTasklet implements StepExecutionListener {
 	
 	@Autowired
 	private GridHostResolver hostResolver;
 	
 	protected Set<WaspStatusMessageTemplate> abandonTemplates = new HashSet<>();
 	
-	public WaspTasklet() {
-		// proxy
-	}
+	/**
+	 * protected constructor to prevent instantiation of this class directly
+	 */
+	protected WaspTasklet() {}
 	
 	public void setAbandonMessages(final Set<WaspStatusMessageTemplate> abandonTemplates){
 		this.abandonTemplates.clear();
@@ -52,6 +53,13 @@ public abstract class WaspTasklet extends WaspHibernatingTasklet implements Step
 	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		Long stepExecutionId = context.getStepContext().getStepExecution().getId();
+		if (wasWokenOnTimeout(context)){
+			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation after a timeout.");
+			wasHibernationRequested = false;
+		} else if (wasWokenOnMessage(context)){
+			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation for a message.");
+			wasHibernationRequested = false;
+		}
 		if (isGridWorkUnitStarted(context)){
 			GridResult result = getStartedResult(context);
 			GridWorkService gws = hostResolver.getGridWorkService(result);

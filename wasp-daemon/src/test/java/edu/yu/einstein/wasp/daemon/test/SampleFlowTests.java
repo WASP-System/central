@@ -91,6 +91,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	private final Integer SAMPLE_ID = 1;
 	private final Integer SAMPLE_ID2 = 200;
 	private final Integer SAMPLE_ID3 = 300;
+	private final Integer SAMPLE_ID4 = 400;
 	
 	
 	@BeforeClass
@@ -396,7 +397,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			while ((messages.size() == 0 || 
 					(! SampleStatusMessageTemplate.actUponMessage(messages.get(0), SAMPLE_ID3, WaspJobTask.NOTIFY_STATUS)) || 
 					!messages.get(0).getPayload().equals(WaspStatus.ABANDONED)) && repeat < 10){
-				List<Message<?>> messages = new ArrayList<>();
+				messages = new ArrayList<>();
 				try{
 					Thread.sleep(500);
 				} catch (InterruptedException e){};
@@ -421,6 +422,67 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			e.printStackTrace();
 		}
 		
+	}
+	
+	/**
+	 * This test exercises the normal sample flow with a DNA sample received.
+	 * The method sets up a listeningChannel and listens on it. It then launches the wasp.default.sample.mainFlow.v1 flow.
+	 */
+	@Test (groups = "unit-tests-batch-integration")
+	public void testJobAbandoned() throws Exception{
+		try{
+			SampleType sampleType = new SampleType();
+			sampleType.setId(1);
+			sampleType.setIName("dna");
+			
+			Sample sample = new Sample();
+			sample.setId(SAMPLE_ID4);
+			sample.setSampleType(sampleType);
+			Mockito.when(mockSampleDao.getSampleBySampleId(SAMPLE_ID4)).thenReturn(sample);
+			
+			// setup job execution for the 'wasp.default.sample.mainFlow.v1' job
+			Job job = jobRegistry.getJob("wasp.sample.jobflow.v1"); // get the 'wasp.default.sample.mainFlow.v1' job from the context
+			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
+			parameterMap.put( JOB_ID_KEY, new JobParameter(JOB_ID.toString()) );
+			parameterMap.put( SAMPLE_ID_KEY, new JobParameter(SAMPLE_ID.toString()) );
+			JobExecution jobExecution = jobLauncher.run(job, new JobParameters(parameterMap));
+			try{
+				Thread.sleep(500);
+			} catch (InterruptedException e){}; // allow some time for flow initialization
+			
+			// send CREATED sample message (simulating button presses in web view when sample received)
+			SampleStatusMessageTemplate sampleTemplate = new SampleStatusMessageTemplate(SAMPLE_ID);
+			sampleTemplate.setStatus(WaspStatus.CREATED);
+			Message<WaspStatus> sampleCreatedNotificationMessage = sampleTemplate.build();
+			logger.info("testJobAbandoned(): Sending message via 'outbound rmi gateway': "+sampleCreatedNotificationMessage.toString());
+			Message<?> replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), sampleCreatedNotificationMessage);
+			if (replyMessage == null)
+				Assert.fail("testJobAbandoned(): Failed to receive reply message");
+			try{
+				Thread.sleep(1);
+			} catch (InterruptedException e){}; // delay to allow processing of messages
+			// send ACCEPTED message (simulating job approval tasks completed by wasp job flow)
+			JobStatusMessageTemplate jobTemplate = new JobStatusMessageTemplate(JOB_ID);
+			jobTemplate.setStatus(WaspStatus.ABANDONED);
+			Message<WaspStatus> jobAcceptedNotificationMessage = jobTemplate.build();
+			logger.info("testJobAbandoned(): Sending message via 'outbound rmi gateway': "+jobAcceptedNotificationMessage.toString());
+			replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), jobAcceptedNotificationMessage);
+			if (replyMessage == null)
+				Assert.fail("testJobAbandoned(): Failed to receive reply message");
+			try{
+				Thread.sleep(500);
+			} catch (InterruptedException e){}; // delay to allow processing of messages
+			
+			// check BatchStatus and ExitStatus are as expected
+			JobExecution freshJe = jobRepository.getLastJobExecution(jobExecution.getJobInstance().getJobName(), jobExecution.getJobParameters());
+			logger.debug("JobExecution at end: " + freshJe.toString());
+			WaspBatchExitStatus status = new WaspBatchExitStatus(freshJe.getExitStatus());
+			Assert.assertEquals(status.getExitCode(), WaspBatchExitStatus.TERMINATED.getExitCode());
+		} catch (Exception e){
+			// caught an unexpected exception
+			Assert.fail("testJobAbandoned(): Caught Exception: "+e.getMessage());
+			e.printStackTrace();
+		}
 	}
 	
 	@Override
