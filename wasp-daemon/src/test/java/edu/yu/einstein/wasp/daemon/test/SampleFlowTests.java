@@ -444,14 +444,14 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			Job job = jobRegistry.getJob("wasp.sample.jobflow.v1"); // get the 'wasp.default.sample.mainFlow.v1' job from the context
 			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
 			parameterMap.put( JOB_ID_KEY, new JobParameter(JOB_ID.toString()) );
-			parameterMap.put( SAMPLE_ID_KEY, new JobParameter(SAMPLE_ID.toString()) );
+			parameterMap.put( SAMPLE_ID_KEY, new JobParameter(SAMPLE_ID4.toString()) );
 			JobExecution jobExecution = jobLauncher.run(job, new JobParameters(parameterMap));
 			try{
 				Thread.sleep(500);
 			} catch (InterruptedException e){}; // allow some time for flow initialization
 			
 			// send CREATED sample message (simulating button presses in web view when sample received)
-			SampleStatusMessageTemplate sampleTemplate = new SampleStatusMessageTemplate(SAMPLE_ID);
+			SampleStatusMessageTemplate sampleTemplate = new SampleStatusMessageTemplate(SAMPLE_ID4);
 			sampleTemplate.setStatus(WaspStatus.CREATED);
 			Message<WaspStatus> sampleCreatedNotificationMessage = sampleTemplate.build();
 			logger.info("testJobAbandoned(): Sending message via 'outbound rmi gateway': "+sampleCreatedNotificationMessage.toString());
