@@ -99,7 +99,7 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 	}
 	
 	@Override
-	@RetryOnExceptionFixed
+	//@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		Long stepExecutionId = context.getStepContext().getStepExecution().getId();
 		logger.trace(name + "execute() invoked");

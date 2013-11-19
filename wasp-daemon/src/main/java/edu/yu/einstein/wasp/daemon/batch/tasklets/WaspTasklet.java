@@ -50,7 +50,7 @@ public class WaspTasklet extends WaspHibernatingTasklet implements StepExecution
 	 * Default implementation checks to see if a stored result is running 
 	 */
 	@Override
-	@RetryOnExceptionFixed
+	//@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		Long stepExecutionId = context.getStepContext().getStepExecution().getId();
 		if (wasWokenOnTimeout(context)){
