@@ -75,6 +75,8 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
         protected StepHandler stepHandler;
         
         private final Integer STEP_STATUS_RETRY_TIMEOUT = 10; // ms 
+        
+        private final Integer STEP_STATUS_RETRY_MAXCOUNT = 1000; 
 
         /**
          * Default constructor.
@@ -384,10 +386,14 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
                     }
                     if (hibernationRequested){
                     	boolean allStepsComplete = false;
+                    	int retryCount = 0;
                     	do{
                     		allStepsComplete = true;
-                    		// get stepExecution status from freshest JobExecution
+                    		// get stepExecution status from freshest StepExecutions
                     		for (StepExecution se : execution.getStepExecutions()){
+                    			se = jobRepository.getLastStepExecution(execution.getJobInstance(), se.getStepName()); // refresh
+                    			if (se == null) // may be null if not ready
+                    				allStepsComplete = false;
 	                    		WaspBatchExitStatus currentExitStatus = new WaspBatchExitStatus(se.getExitStatus());
 	                    		logger.debug("Current exit status of StepExecution id=" + se.getId() + " : " + currentExitStatus);
 	                    		if (currentExitStatus.isStopped()){
@@ -405,7 +411,15 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
 									Thread.sleep(STEP_STATUS_RETRY_TIMEOUT);
 								} catch (InterruptedException e) {}
 	                    	}
-                    	} while (!allStepsComplete);
+                    	} while (!allStepsComplete && ++retryCount < STEP_STATUS_RETRY_MAXCOUNT);
+                    	if (!allStepsComplete){
+                    		String msg = "Encountered fatal error hibernating job: unable to modify status of all StepExecutions for JobExecution id= " +
+                    				execution.getId();
+                    		logger.error(msg);
+                            execution.setExitStatus(ExitStatus.FAILED.addExitDescription(msg));
+                            execution.setStatus(BatchStatus.FAILED);
+                            execution.addFailureException(new Exception(msg));
+                    	}
                     } else {
                     	try {
                     		// do not handle afterJob listener if entering hibernation

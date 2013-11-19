@@ -192,7 +192,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 					Assert.fail("testSamplesReceived(): Failed to receive reply message");
 			}
 			int repeat = 0;
-			while (messages.size() < expectedMessages && repeat < 10){
+			while (messages.size() < expectedMessages && repeat < 20){
 				try{
 					Thread.sleep(500);
 				} catch (InterruptedException e){};
