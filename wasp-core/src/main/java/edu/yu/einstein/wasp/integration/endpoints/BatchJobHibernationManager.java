@@ -463,8 +463,10 @@ public class BatchJobHibernationManager {
 	 */
 	public static synchronized void addJobExecutionIdLockedForHibernating(Long jobExecutionId) throws ResourceLockException{
 		logger.debug("Adding lock for hibernation request for JobExecution id=" + jobExecutionId);
-		if (jobExecutionIdsLockedForHibernating.contains(jobExecutionId))
+		if (jobExecutionIdsLockedForHibernating.contains(jobExecutionId)){
+			logger.warn("Unable to get lock for JobExecution id=" + jobExecutionId + " as already locked");
 			throw new ResourceLockException("Unable to get lock for JobExecution id=" + jobExecutionId + " as already locked");
+		}
 		jobExecutionIdsLockedForHibernating.add(jobExecutionId); 
 	}
 	
