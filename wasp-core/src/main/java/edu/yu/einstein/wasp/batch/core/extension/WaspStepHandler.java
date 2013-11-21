@@ -46,9 +46,7 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
 	private ExecutionContext executionContext;
 	
 	private boolean wasHibernating = false;
-
-	private final long DELAY_TO_ENSURE_ALL_STEPS_STARTED = 10L; //ms 
-    
+   
 
     /**
      * Convenient default constructor for configuration usage.
@@ -187,10 +185,7 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
                     			execution.setStatus(BatchStatus.STOPPING);
                     		else
                     			logger.info("Not going to signal stop of Job Execution as already stopped");
-                    		try{
-                				Thread.sleep(DELAY_TO_ENSURE_ALL_STEPS_STARTED);
-                			} catch (InterruptedException e1){}
-                            throw e;
+                    		throw e;
                     }
 
                     jobRepository.updateExecutionContext(execution);
@@ -201,10 +196,7 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
                 			execution.setStatus(BatchStatus.STOPPING);
                 		else
                 			logger.info("Not going to signal stop of Job Execution as already stopped");
-                    	try{
-            				Thread.sleep(DELAY_TO_ENSURE_ALL_STEPS_STARTED);
-            			} catch (InterruptedException e1){}
-                        throw new JobInterruptedException("Job interrupted by step execution");
+                    	throw new JobInterruptedException("Job interrupted by step execution");
                     }
 
             }

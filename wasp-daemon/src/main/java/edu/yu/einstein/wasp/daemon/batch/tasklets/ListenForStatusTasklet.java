@@ -103,11 +103,11 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 		Long stepExecutionId = context.getStepContext().getStepExecution().getId();
 		logger.trace(name + "execute() invoked");
 		if (!messageQueue.isEmpty()){
-			logger.debug("StepExecution id=" + stepExecutionId + " received an expected message so finishing step.");
+			logger.debug("StepExecution (id=" + stepExecutionId + ") received an expected message so finishing step.");
 			return RepeatStatus.FINISHED;
 		}
 		if (wasWokenOnMessage(context)){
-			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation for a message. Skipping to next step...");
+			logger.debug("StepExecution (id=" + stepExecutionId + ") was woken up from hibernation for a message. Skipping to next step...");
 			return RepeatStatus.FINISHED;
 		}
 		

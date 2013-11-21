@@ -89,9 +89,9 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	// need to use different sampleId for each test as database not reset and 
 	// it is not possible to re-submit a batch job with an identical signature (parameters)
 	private final Integer SAMPLE_ID = 1;
-	private final Integer SAMPLE_ID2 = 200;
-	private final Integer SAMPLE_ID3 = 300;
-	private final Integer SAMPLE_ID4 = 400;
+	private final Integer SAMPLE_ID2 = 500;
+	private final Integer SAMPLE_ID3 = 600;
+	private final Integer SAMPLE_ID4 = 700;
 	
 	
 	@BeforeClass
@@ -245,7 +245,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	 */
 	@Test (groups = "unit-tests-batch-integration")
 	public void testManyDNASamplesReceived() throws Exception{
-		testSamplesReceived(40, 2);
+		testSamplesReceived(500, 2);
 	}
 	
 	/**

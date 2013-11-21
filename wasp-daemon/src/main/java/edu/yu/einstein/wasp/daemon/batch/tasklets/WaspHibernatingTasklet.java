@@ -56,13 +56,18 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	 * @param context
 	 */
 	protected void requestHibernation(ChunkContext context){
-		wasHibernationRequested = true;
-		logContexts(context);
 		StepContext stepContext = context.getStepContext();
 		StepExecution stepExecution = context.getStepContext().getStepExecution();
 		JobExecution jobExecution = stepExecution.getJobExecution();
 		Long jobExecutionId = jobExecution.getId();
 		Long stepExecutionId = stepExecution.getId();
+		if (!jobExecution.getStatus().isLessThan(BatchStatus.STARTED)){
+			logger.debug("Request made by StepExecution id=" + stepExecution.getId() + " to hibernate but not going to because JobExecution id=" + 
+					jobExecution.getId() + " is not STARTED: " + jobExecution);
+			return;
+		}
+		wasHibernationRequested = true;
+		logContexts(context);
 		if (!isHibernationRequestedForStep(stepExecution))
 			setHibernationRequestedForStep(stepExecution, true);
 		if (isHibernationRequestedForJob(jobExecution)){
@@ -110,11 +115,10 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	}
 	
 	private void doHibernate(StepExecution stepExecution) throws WaspBatchJobExecutionReadinessException{
-		logger.debug("Hibernation triggered by StepExecution id=" + stepExecution.getId());
 		Long requestingStepExecutionId = stepExecution.getId();
 		JobExecution jobExecution = stepExecution.getJobExecution();
 		Long jobExecutionId = jobExecution.getId();
-		
+		logger.info("Hibernation of JobExecution=" + jobExecutionId + " triggered by StepExecution id=" + stepExecution.getId());
 		// register all wake triggers with hibernation manger
 		for (StepExecution se : jobExecution.getStepExecutions()){
 			if (!se.getStatus().equals(BatchStatus.STARTED))

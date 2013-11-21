@@ -60,7 +60,7 @@ public class BatchJobHibernationManager {
 	public static final String MESSAGES_TO_WAKE = "w_msgs";
 	public static final String MESSAGES_TO_ABANDON = "a_msgs";
 	public static final String TIME_TO_WAKE = "w_time";
-	public static final int RESEND_MESSAGE_MAX_TIMES = 10000;
+	public static final int RESEND_MESSAGE_MAX_TIMES = 100;
 	
 	private static final Logger logger = LoggerFactory.getLogger(BatchJobHibernationManager.class);
 	
@@ -533,7 +533,7 @@ public class BatchJobHibernationManager {
 	 * @throws ResourceLockException 
 	 */
 	public static synchronized void addJobExecutionIdLockedForHibernating(Long jobExecutionId) throws ResourceLockException{
-		logger.debug("Adding lock for hibernation request for JobExecution id=" + jobExecutionId);
+		logger.info("Adding lock for hibernation request for JobExecution id=" + jobExecutionId);
 		if (jobExecutionIdsLockedForHibernating.contains(jobExecutionId)){
 			logger.warn("Unable to get lock for JobExecution id=" + jobExecutionId + " as already locked");
 			throw new ResourceLockException("Unable to get lock for JobExecution id=" + jobExecutionId + " as already locked");
@@ -548,7 +548,7 @@ public class BatchJobHibernationManager {
 	 */
 	public static synchronized boolean isJobExecutionIdLockedForHibernating(Long jobExecutionId){
 		boolean isLocked = jobExecutionIdsLockedForHibernating.contains(jobExecutionId);
-		logger.debug("Lock for hibernation request for JobExecution id=" + jobExecutionId + ": isLocked=" + isLocked);
+		logger.info("Lock for hibernation request for JobExecution id=" + jobExecutionId + ": isLocked=" + isLocked);
 		return isLocked;
 	}
 	
@@ -558,7 +558,7 @@ public class BatchJobHibernationManager {
 	 * @return
 	 */
 	public static synchronized void removeJobExecutionIdLockedForHibernating(Long jobExecutionId){
-		logger.debug("Removing lock for hibernation request for JobExecution id=" + jobExecutionId);
+		logger.info("Removing lock for hibernation request for JobExecution id=" + jobExecutionId);
 		jobExecutionIdsLockedForHibernating.remove(jobExecutionId);
 	}
 	
