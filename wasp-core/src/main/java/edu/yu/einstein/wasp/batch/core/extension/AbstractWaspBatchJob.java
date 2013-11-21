@@ -406,7 +406,8 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
 	                    	}
 	                    	if (!allStepsComplete){
 	                    		// should not get here if all steps were started before a step initiated job stopping
-		                    	logger.info("Not all steps have been stopped. Trying again in " + STEP_STATUS_RETRY_TIMEOUT + "ms...");
+		                    	logger.info("Not all steps have been stopped for JobExecution id= " +
+                    				execution.getId() + ". Trying again in " + STEP_STATUS_RETRY_TIMEOUT + "ms...");
 	                			try {
 									Thread.sleep(STEP_STATUS_RETRY_TIMEOUT);
 								} catch (InterruptedException e) {}

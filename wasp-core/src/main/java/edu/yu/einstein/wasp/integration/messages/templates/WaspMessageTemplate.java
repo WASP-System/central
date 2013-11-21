@@ -36,6 +36,9 @@ public abstract class WaspMessageTemplate implements MessageTemplate{
 	
 	public static final String DESTINATION = "destination";
 	
+	public static final String RESEND = "resend";
+	
+	
 	protected Map<String, Object> headers = new HashMap<>();
 	
 	

@@ -38,7 +38,7 @@
 	<task:executor id="taskExecutor" 
  		keep-alive="${wasp.taskexecutor.keepAliveSeconds:60}" 
  		queue-capacity="${wasp.taskexecutor.queueCapacity:0}" 
- 		pool-size="${wasp.taskexecutor.corePoolSize:5}-${wasp.taskexecutor.maxPoolSize:10000}" 
+ 		pool-size="${wasp.taskexecutor.corePoolSize:5}-${wasp.taskexecutor.maxPoolSize:1000000}" 
  		rejection-policy="CALLER_RUNS" />
 	
 	

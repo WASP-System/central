@@ -49,7 +49,14 @@
 		<int:queue />
 	</int:channel>
 	
+	<int:channel id="wasp.channel.resend.waspStatusMessages">
+		<int:queue />
+	</int:channel>
+	
 	<int:channel id="wasp.channel.throttled.launch" />	
+	
+	<int:channel id="wasp.channel.reply.unfiltered" />
+	
 	
 	<!-- publish-subscribe channels for broadcasting messages -->	
 	<int:publish-subscribe-channel id="wasp.channel.notification.batch" />
@@ -76,7 +83,11 @@
 	
 	<int:bridge id="wasp.channel.bridge.throttled.batch" input-channel="wasp.channel.queue.batch" output-channel="wasp.channel.notification.batch" >
 		<!-- this delay allows time for a job to hibernate before handling a message that might wake it -->
-		<int:poller max-messages-per-poll="1" fixed-delay="500" /> 
+		<int:poller max-messages-per-poll="1" fixed-delay="10" /> 
+	</int:bridge>
+	
+	<int:bridge id="wasp.channel.bridge.resend.waspStatusMessages" input-channel="wasp.channel.resend.waspStatusMessages" output-channel="wasp.channel.priority.waspStatusMessages" >
+		<int:poller max-messages-per-poll="1" fixed-delay="100" /> 
 	</int:bridge>
 	
 	<!-- need to pass to a queue channel in case of backlog. wasp.channel.priority.waspStatusMessages will pick off messages from wasp.channel.notification.batch -->
@@ -110,7 +121,6 @@
 		<int:poller max-messages-per-poll="1" fixed-delay="100" />
 	</int:bridge>
 	
-	
 	<bean id="waspMessageType" class="edu.yu.einstein.wasp.integration.messages.WaspMessageType" />
 	<bean id="waspTask" class="edu.yu.einstein.wasp.integration.messages.tasks.WaspTask" />
 	
@@ -137,7 +147,7 @@
 	<bean id="batchJobHibernationManager" class="edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager" />
 	
 	<int:service-activator input-channel="wasp.channel.priority.waspStatusMessages" 
-		output-channel="wasp.channel.reply" ref="batchJobHibernationManager" method="handleStatusMessage"
+		output-channel="wasp.channel.reply.unfiltered" ref="batchJobHibernationManager" method="handleStatusMessage"
 		requires-reply="false" />
 		
 	<!-- header-router to sort inbound messages into appropriate channels -->
@@ -164,6 +174,14 @@
 		<int:mapping value="#{waspMessageType.FILE}" channel="wasp.channel.priority.file"/>
 	</int:header-value-router>
 		
-	
+	<!-- header-router to sort reply messages into appropriate channels -->
+	<int:header-value-router id="waspMessageTypeRouterReply" 
+		header-name="#{waspMessageType.HEADER_KEY}" 
+		input-channel="wasp.channel.reply.unfiltered" 
+		default-output-channel="wasp.channel.resend.waspStatusMessages"
+		resolution-required="false" >
+		<int:mapping value="#{waspMessageType.REPLY}" 
+			channel="wasp.channel.reply"/>
+	</int:header-value-router>
 	
 </beans>

@@ -13,7 +13,7 @@
       <pattern>%d %p [%c{15}#%M] - %m%n</pattern>
     </encoder>
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-      <level>DEBUG</level>
+      <level>INFO</level>
     </filter>
   </appender>
   <!--

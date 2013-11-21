@@ -107,7 +107,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 		libraryListeningChannel = messageChannelRegistry.getChannel("wasp.channel.notification.library", SubscribableChannel.class);
 		libraryListeningChannel.subscribe(this); // register as a message handler on the listeningChannel
 		messagingTemplate = new MessagingTemplate();
-		messagingTemplate.setReceiveTimeout(20000);
+		messagingTemplate.setReceiveTimeout(60000);
 	}
 	
 	@AfterMethod
@@ -245,7 +245,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	 */
 	@Test (groups = "unit-tests-batch-integration")
 	public void testManyDNASamplesReceived() throws Exception{
-		testSamplesReceived(20, 2);
+		testSamplesReceived(40, 2);
 	}
 	
 	/**

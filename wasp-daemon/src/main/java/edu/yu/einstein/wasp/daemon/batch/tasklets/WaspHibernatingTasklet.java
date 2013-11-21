@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.ResourceLockException;
+import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionReadinessException;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
@@ -82,6 +83,10 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 				logger.info("Not going to hibernate job " + stepContext.getJobName() + 
 						" (JobExecution id=" + jobExecutionId + ") from step " + 
 						stepContext.getStepName() + " (step id=" + stepExecutionId + ") as already locked by another StepExecution");
+			} catch (WaspBatchJobExecutionReadinessException e) {
+				logger.info("Not going to hibernate job " + stepContext.getJobName() + 
+						" (JobExecution id=" + jobExecutionId + ") from step " + 
+						stepContext.getStepName() + " (step id=" + stepExecutionId + "): " + e.getLocalizedMessage());
 			}
 		} else { 
 			logger.debug("StepExecution id=" + stepExecutionId + 
@@ -104,7 +109,7 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 		return true;
 	}
 	
-	private void doHibernate(StepExecution stepExecution){
+	private void doHibernate(StepExecution stepExecution) throws WaspBatchJobExecutionReadinessException{
 		logger.debug("Hibernation triggered by StepExecution id=" + stepExecution.getId());
 		Long requestingStepExecutionId = stepExecution.getId();
 		JobExecution jobExecution = stepExecution.getJobExecution();
@@ -116,7 +121,7 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 				continue; // not a currently active StepExecution so ignore
 			Long stepExecutionId = se.getId();
 			try{
-				Set<WaspStatusMessageTemplate> wakeMessages = BatchJobHibernationManager.getWakeMessagesForStep(se);
+				Set<WaspStatusMessageTemplate> wakeMessages = BatchJobHibernationManager.getWakeMessagesFromStepExecutionContext(se);
 				if (!wakeMessages.isEmpty())
 					hibernationManager.addMessageTemplatesForWakingJobStep(jobExecutionId, stepExecutionId, wakeMessages);
 			} catch (JSONException e) {
@@ -204,7 +209,7 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	}
 	
 	protected void addStatusMessagesToWakeStepToContext(ChunkContext context, Set<WaspStatusMessageTemplate> templates) throws JSONException{
-		BatchJobHibernationManager.setWakeMessagesForStep(context.getStepContext().getStepExecution(), templates);
+		BatchJobHibernationManager.setWakeMessagesInStepExecutionContext(context.getStepContext().getStepExecution(), templates);
 	}
 	
 	protected void addStatusMessagesToAbandonStepToContext(ChunkContext context, Set<WaspStatusMessageTemplate> templates) throws JSONException{
@@ -212,7 +217,7 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	}
 	
 	protected Set<WaspStatusMessageTemplate> getStatusMessagesToWakeStepFromContext(ChunkContext context) throws JSONException{
-		return BatchJobHibernationManager.getWakeMessagesForStep(context.getStepContext().getStepExecution());
+		return BatchJobHibernationManager.getWakeMessagesFromStepExecutionContext(context.getStepContext().getStepExecution());
 	}
 	
 	protected Set<WaspStatusMessageTemplate> getStatusMessagesToAbandonStepFromContext(ChunkContext context) throws JSONException{
