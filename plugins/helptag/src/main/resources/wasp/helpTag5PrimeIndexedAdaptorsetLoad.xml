@@ -29,112 +29,112 @@
   	<property name="adaptorList">
   		<list>
   			<bean class="edu.yu.einstein.wasp.model.Adaptor">
-  				<property name="IName" value="illuminaHelptagLibraryIndexed1" />
+  				<property name="IName" value="illuminaHelptag5PrimeIndexedLibraryIndexed1" />
   				<property name="name" value="Index 1 (TATGACGT)" />
   				<property name="sequence" value="CTGCTGTCGTATGCCGTCTTCTGCTTG" />
   				<property name="barcodesequence" value="TATGACGT" />
   				<property name="barcodenumber" value="1" />
   			</bean>
   			<bean class="edu.yu.einstein.wasp.model.Adaptor">
-  				<property name="IName" value="illuminaHelptagLibraryIndexed2" />
+  				<property name="IName" value="illuminaHelptag5PrimeIndexedLibraryIndexed2" />
   				<property name="name" value="Index 2 (ACATCTCT)" />
   				<property name="sequence" value="CTGCTGTCGTATGCCGTCTTCTGCTTG" />
   				<property name="barcodesequence" value="ACATCTCT" />
   				<property name="barcodenumber" value="2" />
   			</bean>
   			<bean class="edu.yu.einstein.wasp.model.Adaptor">
-  				<property name="IName" value="illuminaHelptagLibraryIndexed3" />
+  				<property name="IName" value="illuminaHelptag5PrimeIndexedLibraryIndexed3" />
   				<property name="name" value="Index 3 (CGGTACAT)" />
   				<property name="sequence" value="CTGCTGTCGTATGCCGTCTTCTGCTTG" />
   				<property name="barcodesequence" value="CGGTACAT" />
   				<property name="barcodenumber" value="3" />
   			</bean>
   			<bean class="edu.yu.einstein.wasp.model.Adaptor">
-  				<property name="IName" value="illuminaHelptagLibraryIndexed4" />
+  				<property name="IName" value="illuminaHelptag5PrimeIndexedLibraryIndexed4" />
   				<property name="name" value="Index 4 (GTCATGAT)" />
   				<property name="sequence" value="CTGCTGTCGTATGCCGTCTTCTGCTTG" />
   				<property name="barcodesequence" value="GTCATGAT" />
   				<property name="barcodenumber" value="4" />
   			</bean>
   			<bean class="edu.yu.einstein.wasp.model.Adaptor">
-  				<property name="IName" value="illuminaHelptagLibraryIndexed5" />
+  				<property name="IName" value="illuminaHelptag5PrimeIndexedLibraryIndexed5" />
   				<property name="name" value="Index 5 (TCGATTCT)" />
   				<property name="sequence" value="CTGCTGTCGTATGCCGTCTTCTGCTTG" />
   				<property name="barcodesequence" value="TCGATTCT" />
   				<property name="barcodenumber" value="5" />
   			</bean>
   			<bean class="edu.yu.einstein.wasp.model.Adaptor">
-  				<property name="IName" value="illuminaHelptagLibraryIndexed6" />
+  				<property name="IName" value="illuminaHelptag5PrimeIndexedLibraryIndexed6" />
   				<property name="name" value="Index 6 (AGTCACAT)" />
   				<property name="sequence" value="CTGCTGTCGTATGCCGTCTTCTGCTTG" />
   				<property name="barcodesequence" value="AGTCACAT" />
   				<property name="barcodenumber" value="6" />
   			</bean>
   			<bean class="edu.yu.einstein.wasp.model.Adaptor">
-  				<property name="IName" value="illuminaHelptagLibraryIndexed7" />
+  				<property name="IName" value="illuminaHelptag5PrimeIndexedLibraryIndexed7" />
   				<property name="name" value="Index 7 (CTAGGCAT)" />
   				<property name="sequence" value="CTGCTGTCGTATGCCGTCTTCTGCTTG" />
   				<property name="barcodesequence" value="CTAGGCAT" />
   				<property name="barcodenumber" value="7" />
   			</bean>
   			<bean class="edu.yu.einstein.wasp.model.Adaptor">
-  				<property name="IName" value="illuminaHelptagLibraryIndexed8" />
+  				<property name="IName" value="illuminaHelptag5PrimeIndexedLibraryIndexed8" />
   				<property name="name" value="Index 8 (GATTGTGT)" />
   				<property name="sequence" value="CTGCTGTCGTATGCCGTCTTCTGCTTG" />
   				<property name="barcodesequence" value="GATTGTGT" />
   				<property name="barcodenumber" value="8" />
   			</bean> 
 			<bean class="edu.yu.einstein.wasp.model.Adaptor">
-  				<property name="IName" value="illuminaHelptagLibraryIndexed9" />
+  				<property name="IName" value="illuminaHelptag5PrimeIndexedLibraryIndexed9" />
   				<property name="name" value="Index 9 (TGCTCTAT)" />
   				<property name="sequence" value="CTGCTGTCGTATGCCGTCTTCTGCTTG" />
   				<property name="barcodesequence" value="TGCTCTAT" />
   				<property name="barcodenumber" value="9" />
   			</bean>
   			<bean class="edu.yu.einstein.wasp.model.Adaptor">
-  				<property name="IName" value="illuminaHelptagLibraryIndexed10" />
+  				<property name="IName" value="illuminaHelptag5PrimeIndexedLibraryIndexed10" />
   				<property name="name" value="Index 10 (ATGAGTCT)" />
   				<property name="sequence" value="CTGCTGTCGTATGCCGTCTTCTGCTTG" />
   				<property name="barcodesequence" value="ATGAGTCT" />
   				<property name="barcodenumber" value="10" />
   			</bean>
   			<bean class="edu.yu.einstein.wasp.model.Adaptor">
-  				<property name="IName" value="illuminaHelptagLibraryIndexed11" />
+  				<property name="IName" value="illuminaHelptag5PrimeIndexedLibraryIndexed11" />
   				<property name="name" value="Index 11 (CATCATGT)" />
   				<property name="sequence" value="CTGCTGTCGTATGCCGTCTTCTGCTTG" />
   				<property name="barcodesequence" value="CATCATGT" />
   				<property name="barcodenumber" value="11" />
   			</bean>
   			<bean class="edu.yu.einstein.wasp.model.Adaptor">
-  				<property name="IName" value="illuminaHelptagLibraryIndexed12" />
+  				<property name="IName" value="illuminaHelptag5PrimeIndexedLibraryIndexed12" />
   				<property name="name" value="Index 12 (GCAGTTCT)" />
   				<property name="sequence" value="CTGCTGTCGTATGCCGTCTTCTGCTTG" />
   				<property name="barcodesequence" value="GCAGTTCT" />
   				<property name="barcodenumber" value="12" />
   			</bean>
 			<bean class="edu.yu.einstein.wasp.model.Adaptor">
-  				<property name="IName" value="illuminaHelptagLibraryIndexed13" />
+  				<property name="IName" value="illuminaHelptag5PrimeIndexedLibraryIndexed13" />
   				<property name="name" value="Index 13 (TGACTTCT)" />
   				<property name="sequence" value="CTGCTGTCGTATGCCGTCTTCTGCTTG" />
   				<property name="barcodesequence" value="TGACTTCT" />
   				<property name="barcodenumber" value="13" />
   			</bean>
   			<bean class="edu.yu.einstein.wasp.model.Adaptor">
-  				<property name="IName" value="illuminaHelptagLibraryIndexed14" />
+  				<property name="IName" value="illuminaHelptag5PrimeIndexedLibraryIndexed14" />
   				<property name="name" value="Index 14 (AGAGACGT)" />
   				<property name="sequence" value="CTGCTGTCGTATGCCGTCTTCTGCTTG" />
   				<property name="barcodesequence" value="AGAGACGT" />
   				<property name="barcodenumber" value="14" />
   			</bean>
 			<bean class="edu.yu.einstein.wasp.model.Adaptor">
-  				<property name="IName" value="illuminaHelptagLibraryIndexed15" />
+  				<property name="IName" value="illuminaHelptag5PrimeIndexedLibraryIndexed15" />
   				<property name="name" value="Index 15 (CACAACAT)" />
   				<property name="sequence" value="CTGCTGTCGTATGCCGTCTTCTGCTTG" />
   				<property name="barcodesequence" value="CACAACAT" />
   				<property name="barcodenumber" value="15" />
   			</bean>
 			<bean class="edu.yu.einstein.wasp.model.Adaptor">
-  				<property name="IName" value="illuminaHelptagLibraryIndexed16" />
+  				<property name="IName" value="illuminaHelptag5PrimeIndexedLibraryIndexed16" />
   				<property name="name" value="Index 16 (GTGCTAGT)" />
   				<property name="sequence" value="CTGCTGTCGTATGCCGTCTTCTGCTTG" />
   				<property name="barcodesequence" value="GTGCTAGT" />

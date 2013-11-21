@@ -58,7 +58,7 @@
           <property name="metaposition" value="30" />
           <property name="label" value="helptag.pipeline.uniq.label" />
           <property name="control" value="helptag.pipeline.uniq.select" />
-          <property name="default" value="no" />
+          <property name="default" value="helptag.pipeline.uniq.default" />
           <property name="tooltip" value="helptag.pipeline.uniq.tt" />
         </bean>
         
