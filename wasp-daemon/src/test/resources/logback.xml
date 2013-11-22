@@ -13,15 +13,14 @@
       <pattern>%d %p [%c{15}#%M] - %m%n</pattern>
     </encoder>
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-      <level>INFO</level>
+      <level>DEBUG</level>
     </filter>
   </appender>
-  <!--
   <appender name="logfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
     See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender
-    <File>${catalina.home}/logs/wasp-daemon.log</File>
+    <File>/Applications/Tomcat/apache-tomcat-7.0.42/logs/wasp-daemon.log</File>
     <encoder>
-      <pattern>%d %p [%c] - %m%n</pattern>
+      <pattern>>%d %p [%c{15}#%M] - %m%n</pattern>
       <immediateFlush>false</immediateFlush>
     </encoder>
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
@@ -29,13 +28,13 @@
     </filter>
     <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
       <maxIndex>3</maxIndex>
-      <FileNamePattern>${catalina.home}/logs/wasp-daemon.log.%i</FileNamePattern>
+      <FileNamePattern>/Applications/Tomcat/apache-tomcat-7.0.42/logs/wasp-daemon.log.%i</FileNamePattern>
     </rollingPolicy>
     <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
       <MaxFileSize>64MB</MaxFileSize>
     </triggeringPolicy>
   </appender>
-  -->
+  
   <logger name="org.apache.velocity.app.VelocityEngine" level="WARN"/>
   <logger name="org.hibernate" level="WARN"/>
   <logger name="org.springframework.integration" level="INFO"/>
@@ -58,6 +57,6 @@
   <logger name="org.bouncycastle" level="INFO"/>
   <root level="WARN">
     <appender-ref ref="stdout"/>
-    <!-- appender-ref ref="logfile"/ -->
+    <appender-ref ref="logfile" />
   </root>
 </configuration>

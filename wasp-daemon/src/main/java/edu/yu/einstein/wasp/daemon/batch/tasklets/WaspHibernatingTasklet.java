@@ -40,6 +40,8 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	
 	protected boolean wasHibernationRequested = false;
 	
+	protected boolean wasHibernationRequestGranted = false;
+	
 	@Autowired
 	@Value("${wasp.hibernation.retry.exponential.initialInterval:5000}")
 	private Long initialExponentialInterval;
@@ -61,11 +63,12 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 		JobExecution jobExecution = stepExecution.getJobExecution();
 		Long jobExecutionId = jobExecution.getId();
 		Long stepExecutionId = stepExecution.getId();
-		if (!jobExecution.getStatus().isLessThan(BatchStatus.STARTED)){
+		BatchStatus status = jobExecution.getStatus();
+		if (!status.equals(BatchStatus.STARTED)){
 			logger.debug("Request made by StepExecution id=" + stepExecution.getId() + " to hibernate but not going to because JobExecution id=" + 
-					jobExecution.getId() + " is not STARTED: " + jobExecution);
+					jobExecution.getId() + " is not STARTED: status=" + status);
 			return;
-		}
+		} 
 		wasHibernationRequested = true;
 		logContexts(context);
 		if (!isHibernationRequestedForStep(stepExecution))
@@ -84,6 +87,7 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 						" (JobExecution id=" + jobExecutionId + ") from step " + 
 						stepContext.getStepName() + " (step id=" + stepExecutionId + ")");
 				doHibernate(stepExecution);
+				wasHibernationRequestGranted = true;
 			} catch (ResourceLockException e){
 				logger.info("Not going to hibernate job " + stepContext.getJobName() + 
 						" (JobExecution id=" + jobExecutionId + ") from step " + 
@@ -161,9 +165,7 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	}
 	
 	protected boolean isHibernationRequestedForJob(JobExecution jobExecution){
-		ExecutionContext executionContext = jobExecution.getExecutionContext();
-		return executionContext.containsKey(BatchJobHibernationManager.HIBERNATION_REQUESTED) && 
-				(boolean) executionContext.get(BatchJobHibernationManager.HIBERNATION_REQUESTED);
+		return BatchJobHibernationManager.isJobExecutionIdLockedForHibernating(jobExecution.getId());
 	}
 	
 	protected boolean isHibernationRequestedForStep(StepExecution stepExecution){

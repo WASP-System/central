@@ -27,6 +27,7 @@ import org.springframework.integration.core.MessagingTemplate;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
@@ -103,23 +104,28 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 		Long stepExecutionId = context.getStepContext().getStepExecution().getId();
 		logger.trace(name + "execute() invoked");
 		if (!messageQueue.isEmpty()){
-			logger.debug("StepExecution (id=" + stepExecutionId + ") received an expected message so finishing step.");
-			return RepeatStatus.FINISHED;
+			logger.warn("StepExecution (id=" + stepExecutionId + ") received an expected message so finishing step.");
+			//return RepeatStatus.FINISHED;
 		}
 		if (wasWokenOnMessage(context)){
 			logger.debug("StepExecution (id=" + stepExecutionId + ") was woken up from hibernation for a message. Skipping to next step...");
 			return RepeatStatus.FINISHED;
 		}
-		
-		if (!wasHibernationRequested){
+		if (isHibernationRequestedForJob(context.getStepContext().getStepExecution().getJobExecution())){
+			logger.debug("This job is already undergoing hibernation. Awaiting hibernation...");
+		} else if (!wasHibernationRequested){
 			logger.debug("Going to request hibernation from StepExecution (id=" + stepExecutionId + ") as not previously requested");
 			addStatusMessagesToWakeStepToContext(context, messageTemplates);
 			addStatusMessagesToAbandonStepToContext(context, abandonTemplates);
-		} else
-			logger.debug("Previous hibernation request made by this StepExecution (id=" + stepExecutionId + 
-					") but we were still waiting for all steps to be ready. Going to retry request.");
-		requestHibernation(context);
-		logger.debug("Hibernate request made by this StepExecution (id=" + stepExecutionId + ") but JobExecution is not yet ready to hibernate");
+			requestHibernation(context);
+		} else if (!wasHibernationRequestGranted){
+				logger.debug("Previous hibernation request made by this StepExecution (id=" + stepExecutionId + 
+						") but we were still waiting for all steps to be ready. Going to retry request.");
+			requestHibernation(context);
+			logger.debug("Hibernate request made by this StepExecution (id=" + stepExecutionId + ") but JobExecution is not yet ready to hibernate");
+		} else {
+			logger.debug("Hibernate request was granted to this StepExecution (id=" + stepExecutionId + "). Awaiting hibernation...");
+		}
 		return RepeatStatus.CONTINUABLE;	
 	}
 	

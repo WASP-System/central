@@ -60,7 +60,7 @@ public class BatchJobHibernationManager {
 	public static final String MESSAGES_TO_WAKE = "w_msgs";
 	public static final String MESSAGES_TO_ABANDON = "a_msgs";
 	public static final String TIME_TO_WAKE = "w_time";
-	public static final int RESEND_MESSAGE_MAX_TIMES = 100;
+	public static final int RESEND_MESSAGE_MAX_TIMES = 2;
 	
 	private static final Logger logger = LoggerFactory.getLogger(BatchJobHibernationManager.class);
 	
@@ -129,7 +129,7 @@ public class BatchJobHibernationManager {
 	 */
 	public Message<WaspStatus> handleStatusMessage(Message<WaspStatus> message){
 		int resendCount = 0;
-		boolean resendMessage = false;
+		boolean resendMessage = true;
 		if (message.getHeaders().containsKey(WaspMessageTemplate.RESEND))
 			resendCount = message.getHeaders().get(WaspMessageTemplate.RESEND, Integer.class);
 		WaspStatusMessageTemplate incomingStatusMessageTemplate = new WaspStatusMessageTemplate((Message<WaspStatus>) message);
@@ -149,13 +149,9 @@ public class BatchJobHibernationManager {
 		}
 		if (resendMessage){
 			resendCount++;
-			if (resendCount > RESEND_MESSAGE_MAX_TIMES)
-				logger.warn("Discarding message after resending " + RESEND_MESSAGE_MAX_TIMES + " times: " + message);
-			else{
-				Message<WaspStatus> newMessage = getMessageToResend(message, resendCount);
-				logger.info("Returning message to queue for retry " + resendCount + " / " + RESEND_MESSAGE_MAX_TIMES + " :" + newMessage);
-				return newMessage;
-			}
+			Message<WaspStatus> newMessage = getMessageToResend(message, resendCount);
+			logger.info("Returning message to queue for retry " + resendCount + " / " + RESEND_MESSAGE_MAX_TIMES + " :" + newMessage);
+			return newMessage;
 		}
 		Message<WaspStatus> replyMessage = getReplyMessage(message);
 		logger.debug("Returning reply message: " + replyMessage);

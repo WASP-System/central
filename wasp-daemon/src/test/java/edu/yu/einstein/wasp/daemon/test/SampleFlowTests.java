@@ -245,7 +245,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	 */
 	@Test (groups = "unit-tests-batch-integration")
 	public void testManyDNASamplesReceived() throws Exception{
-		testSamplesReceived(500, 2);
+		testSamplesReceived(8, 2);
 	}
 	
 	/**

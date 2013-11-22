@@ -436,10 +436,6 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
             }
         }
         
-        private JobExecution getLatestJobExecution(JobExecution currentExecution){
-        	return jobRepository.getLastJobExecution(currentExecution.getJobInstance().getJobName(), currentExecution.getJobParameters());
-        }
-        
         
         /**
          * Check ExitStatus of latest JobExecution to see if the description implies hibernation is requested
@@ -447,12 +443,7 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
          * @return
          */
         private boolean isHibernationRequested(JobExecution execution){
-        	execution = getLatestJobExecution(execution); // check latest
-        	boolean hibernationStatus = false;
-        	if (execution.getExitStatus().getExitDescription().equals(BatchJobHibernationManager.HIBERNATION_REQUESTED))
-        		hibernationStatus = true;
-        	logger.debug("Checking hibernation status for JobExecution id=" + execution.getId() + ": requested=" + hibernationStatus);
-        	return hibernationStatus;
+        	return BatchJobHibernationManager.isJobExecutionIdLockedForHibernating(execution.getId());
         }
 
 
