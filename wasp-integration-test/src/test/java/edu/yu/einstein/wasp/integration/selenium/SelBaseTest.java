@@ -1,24 +1,16 @@
 package edu.yu.einstein.wasp.integration.selenium;
 
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.Dimension;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxBinary;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxProfile;
-import org.openqa.selenium.firefox.internal.ProfilesIni;
-import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.ITestContext;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Optional;
@@ -52,9 +44,9 @@ public class SelBaseTest {
 	    //profile.addExtension(new FileHandle(firebugPath));
 	    //profile.setPreference("extensions.firebug.currentVersion", "1.8.1"); // Avoid startup screen
 
-	    String Xport = System.getProperty("Importal.xvfb.id",":99");
+	    String xPort = System.getProperty("Importal.xvfb.id",":99");
 	    FirefoxBinary firefoxBinary = new FirefoxBinary();
-	    firefoxBinary.setEnvironmentProperty("DISPLAY", Xport);
+	    firefoxBinary.setEnvironmentProperty("DISPLAY", xPort);
 	    
 	    // Add more if needed
 	    driver = new FirefoxDriver(firefoxBinary, null);

@@ -23,7 +23,7 @@ import edu.yu.einstein.wasp.integration.selenium.SelBaseTest;
  */
 public class SeleniumHelper extends SelBaseTest{
 	
-	private static final Logger logger = LoggerFactory.getLogger(SeleniumHelper.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SeleniumHelper.class);
 	
 	/**
 	* 
@@ -35,7 +35,7 @@ public class SeleniumHelper extends SelBaseTest{
 		CharSequence csValue = value;
 		
 		if (driver.getPageSource().contains(csValue)) {
-			logger.debug("Text - "+value+" - present");
+			LOGGER.debug("Text - "+value+" - present");
 			return true;
 		}
 		return false;
@@ -51,27 +51,32 @@ public class SeleniumHelper extends SelBaseTest{
 	  public static String[][] getTableArray(String xlFilePath, String sheetName, String tableName){
 	    String[][] tabArray=null;
 	    try{
-	        logger.debug("xlFilePath="+xlFilePath);
+	        LOGGER.debug("xlFilePath="+xlFilePath);
 	        Workbook workbook = Workbook.getWorkbook(new File(xlFilePath));
-	        if (workbook == null) logger.debug("workbook is null");
+	        if (workbook == null) LOGGER.debug("workbook is null");
 
 	        Sheet sheet = workbook.getSheet(sheetName);
-	        if (sheet == null) logger.debug("sheet is null");
+	        if (sheet == null) LOGGER.debug("sheet is null");
 
-	        logger.debug("sheet name="+sheetName);
-	        int startRow,startCol, endRow, endCol,ci,cj;
-	        logger.debug("table name="+tableName);
+	        LOGGER.debug("sheet name="+sheetName);
+	        int startRow;
+	        int startCol;
+	        int endRow;
+	        int endCol;
+	        int ci; 
+	        int cj;
+	        LOGGER.debug("table name="+tableName);
 	        Cell tableStart=sheet.findCell(tableName);
-	        logger.debug("tableStart="+tableStart+"\n table name="+tableName);
+	        LOGGER.debug("tableStart="+tableStart+"\n table name="+tableName);
 	        startRow=tableStart.getRow();
-	        logger.debug("got row start");
+	        LOGGER.debug("got row start");
 
 	        startCol=tableStart.getColumn();
 	
 	        Cell tableEnd= sheet.findCell(tableName, startCol+1,startRow+1, 100, 64000,  false);                               
 	        endRow=tableEnd.getRow();
 	        endCol=tableEnd.getColumn();
-	        logger.debug("startRow="+startRow+", endRow="+endRow+", " +
+	        LOGGER.debug("startRow="+startRow+", endRow="+endRow+", " +
 	                "startCol="+startCol+", endCol="+endCol);
 	        tabArray=new String[endRow-startRow-1][endCol-startCol-1];
 	        ci=0;
@@ -80,16 +85,16 @@ public class SeleniumHelper extends SelBaseTest{
 	            cj=0;
 	            for (int j=startCol+1;j<endCol;j++,cj++){
 	            	tabArray[ci][cj]=sheet.getCell(j,i).getContents();
-	    	        logger.debug("contents="+sheet.getCell(j,i).getContents());
+	    	        LOGGER.debug("contents="+sheet.getCell(j,i).getContents());
 
 	            }
 	        }
 	    }
 	    catch (Exception e)    {
-	        logger.debug("error in getTableArray()");
+	        LOGGER.debug("error in getTableArray()");
 	    }
 	
-	    return(tabArray);
+	    return tabArray;
 	  }
 
 	  /**
@@ -129,10 +134,10 @@ public class SeleniumHelper extends SelBaseTest{
 	        } catch (org.openqa.selenium.NoSuchElementException Ex) {
 	            if (displayCustomMessage) {
 	                if (!customMessage.equals("")) {
-	                    logger.debug(customMessage);
+	                    LOGGER.debug(customMessage);
 	                }
 	            } else {
-	                logger.debug("Unable to locate Element: " + xpathLocator);
+	                LOGGER.debug("Unable to locate Element: " + xpathLocator);
 	            }
 	            return false;
 	        }
