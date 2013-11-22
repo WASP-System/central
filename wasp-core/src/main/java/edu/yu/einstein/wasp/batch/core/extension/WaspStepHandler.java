@@ -175,7 +175,6 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
             			
                     try {
                             step.execute(currentStepExecution);
-                            
                     }
                     catch (JobInterruptedException e) {
                             // Ensure that the job gets the message that it is stopping
@@ -189,7 +188,7 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
                     }
 
                     jobRepository.updateExecutionContext(execution);
-
+                    currentStepExecution = jobRepository.getLastStepExecution(jobInstance, step.getName());
                     if (currentStepExecution.getStatus() == BatchStatus.STOPPING || currentStepExecution.getStatus() == BatchStatus.STOPPED) {
                             // Ensure that the job gets the message that it is stopping
                     	if (execution.getStatus().isLessThan(BatchStatus.STOPPING))

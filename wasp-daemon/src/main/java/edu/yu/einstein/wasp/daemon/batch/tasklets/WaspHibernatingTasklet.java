@@ -165,7 +165,9 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	}
 	
 	protected boolean isHibernationRequestedForJob(JobExecution jobExecution){
-		return BatchJobHibernationManager.isJobExecutionIdLockedForHibernating(jobExecution.getId());
+		ExecutionContext executionContext = jobExecution.getExecutionContext();
+		return executionContext.containsKey(BatchJobHibernationManager.HIBERNATION_REQUESTED) && 
+				(boolean) executionContext.get(BatchJobHibernationManager.HIBERNATION_REQUESTED);
 	}
 	
 	protected boolean isHibernationRequestedForStep(StepExecution stepExecution){

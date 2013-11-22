@@ -149,7 +149,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 				jes.add(jobExecution);
 			}
 			try{
-				Thread.sleep(500);
+				Thread.sleep(Math.max(500, 50 * numSamples));
 			} catch (InterruptedException e){}; // allow some time for flow initialization
 			for (int i=0; i < numSamples; i++){ 
 				Integer id = i+startId;
@@ -162,10 +162,13 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 				if (replyMessage == null)
 					Assert.fail("testSamplesReceived(): Failed to receive reply message");
 				try{
-					Thread.sleep(1);
-				} catch (InterruptedException e){}; // delay to allow processing of messages
-				// send ACCEPTED message (simulating job approval tasks completed by wasp job flow)
+					Thread.sleep(10);
+				} catch (InterruptedException e){};
 			}
+			try{
+				Thread.sleep(500);
+			} catch (InterruptedException e){}; // delay to allow processing of messages
+			// send ACCEPTED message (simulating job approval tasks completed by wasp job flow)
 			JobStatusMessageTemplate jobTemplate = new JobStatusMessageTemplate(JOB_ID);
 			jobTemplate.setStatus(WaspStatus.ACCEPTED);
 			Message<WaspStatus> jobAcceptedNotificationMessage = jobTemplate.build();
@@ -190,6 +193,9 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 				replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), qcPassedNotificationMessage);
 				if (replyMessage == null)
 					Assert.fail("testSamplesReceived(): Failed to receive reply message");
+				try{
+					Thread.sleep(10);
+				} catch (InterruptedException e){};
 			}
 			int repeat = 0;
 			while (messages.size() < expectedMessages && repeat < 20){
@@ -245,7 +251,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	 */
 	@Test (groups = "unit-tests-batch-integration")
 	public void testManyDNASamplesReceived() throws Exception{
-		testSamplesReceived(8, 2);
+		testSamplesReceived(50, 2);
 	}
 	
 	/**

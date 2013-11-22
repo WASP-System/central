@@ -31,7 +31,6 @@ import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
  * @author asmclellan
  *
  */
-@Transactional
 public class WaspBatchJobOperator extends SimpleJobOperator implements JobOperatorWasp {
 	
 	private static final String ILLEGAL_STATE_MSG = "Illegal state (only happens on a race condition): %s with name=%s and parameters=%s";
@@ -80,6 +79,7 @@ public class WaspBatchJobOperator extends SimpleJobOperator implements JobOperat
 	 * Hibernate job
 	 */
 	@Override
+	@Transactional
 	public boolean hibernate(long executionId) throws NoSuchJobExecutionException, JobExecutionNotRunningException {
 		// based on stop() method but with exit status modified within transaction
 		JobExecution jobExecution = findExecutionById(executionId);

@@ -60,7 +60,7 @@ public class BatchJobHibernationManager {
 	public static final String MESSAGES_TO_WAKE = "w_msgs";
 	public static final String MESSAGES_TO_ABANDON = "a_msgs";
 	public static final String TIME_TO_WAKE = "w_time";
-	public static final int RESEND_MESSAGE_MAX_TIMES = 2;
+	public static final int RESEND_MESSAGE_MAX_TIMES = 10;
 	
 	private static final Logger logger = LoggerFactory.getLogger(BatchJobHibernationManager.class);
 	
@@ -129,7 +129,7 @@ public class BatchJobHibernationManager {
 	 */
 	public Message<WaspStatus> handleStatusMessage(Message<WaspStatus> message){
 		int resendCount = 0;
-		boolean resendMessage = true;
+		boolean resendMessage = false;
 		if (message.getHeaders().containsKey(WaspMessageTemplate.RESEND))
 			resendCount = message.getHeaders().get(WaspMessageTemplate.RESEND, Integer.class);
 		WaspStatusMessageTemplate incomingStatusMessageTemplate = new WaspStatusMessageTemplate((Message<WaspStatus>) message);
@@ -143,13 +143,15 @@ public class BatchJobHibernationManager {
 			logger.debug("Going to request return message to queue due to at least one job not being ready for it");
 			resendMessage = true;
 		}
-		if (stepsHandledhandled == 0){
+	/*	if (stepsHandledhandled == 0 && !replyDue){
 			logger.debug("Going to request return of message to queue due to there being no steps awaiting it yet");
 			resendMessage = true;
 		}
+		if (resendCount == 0)
+			resendMessage = true;*/
 		if (resendMessage){
 			resendCount++;
-			Message<WaspStatus> newMessage = getMessageToResend(message, resendCount);
+			Message<WaspStatus> newMessage = getMessageToResend(message, resendCount, stepsHandledhandled > 0);
 			logger.info("Returning message to queue for retry " + resendCount + " / " + RESEND_MESSAGE_MAX_TIMES + " :" + newMessage);
 			return newMessage;
 		}
@@ -158,7 +160,7 @@ public class BatchJobHibernationManager {
 		return replyMessage;
 	}
 	
-	Message<WaspStatus> getMessageToResend(Message<WaspStatus> originalMessage, int resendCount){
+	Message<WaspStatus> getMessageToResend(Message<WaspStatus> originalMessage, int resendCount, boolean replyDue){
 		// make new message of high priority
 		Message<WaspStatus> newMessage = MessageBuilder
 				.fromMessage(originalMessage)
@@ -232,7 +234,7 @@ public class BatchJobHibernationManager {
 						logger.warn("Problem reawakening job execution and cleaning up 'messageTemplatesWakingStepExecutions': " + e2.getLocalizedMessage());
 					} 
 					updateMessageStepExecutionMap(se, messageTemplatesWakingStepExecutions);
-				}
+				} 
 			}
 			if (pushMessageBackIntoQueueRequests > 0)
 				throw new WaspBatchJobExecutionReadinessException("Need to push message back into queue as " + pushMessageBackIntoQueueRequests + 
@@ -337,6 +339,16 @@ public class BatchJobHibernationManager {
 			for (WaspStatusMessageTemplate messageTemplate: messageTemplates){
 				if (!messageTemplatesWakingStepExecutions.containsKey(messageTemplate))
 					messageTemplatesWakingStepExecutions.put(messageTemplate, new HashSet<StepExecution>());
+				Set<StepExecution> ses = new HashSet<>(messageTemplatesWakingStepExecutions.get(messageTemplate));
+				for (StepExecution currentStepExecution: ses){
+					// If job re-awoken after hibernation, its original step will have a new id. Remove the old one first.
+					if (currentStepExecution.getStepName().equals(se.getStepName()) && currentStepExecution.getJobExecutionId().equals(se.getJobExecutionId())){
+						logger.debug("Removing old StepExecution (id=" + currentStepExecution.getId() + 
+								") from wake list due to receiving a new step (id=" + se.getId() + ") with the same name");
+						messageTemplatesWakingStepExecutions.get(messageTemplate).remove(currentStepExecution);
+						break;
+					}
+				}
 				messageTemplatesWakingStepExecutions.get(messageTemplate).add(se);
 			}
 		}
@@ -385,19 +397,17 @@ public class BatchJobHibernationManager {
 	 * @param m
 	 */
 	private void updateMessageStepExecutionMap(StepExecution se,  Map<WaspStatusMessageTemplate, Set<StepExecution>> m){
-		for (StepExecution seForJob : jobExplorer.getJobExecution(se.getJobExecutionId()).getStepExecutions()){
-			Set<StatusMessageTemplate> templates = new HashSet<StatusMessageTemplate>(m.keySet());
-			for (StatusMessageTemplate template :templates){
-				if (m.get(template).contains(seForJob)){
-					logger.info("Removing stepExecution id=" + seForJob.getId() + 
-							" from list of step executions responding to message template : " + template.toString());
-					m.get(template).remove(seForJob);
-				}
-				if (m.get(template).isEmpty()){
-					logger.info("Removing message template from list of messages to watch for as no more StepExecutions depend on it : " + 
-							template.toString());
-					m.remove(template);
-				}
+		Set<StatusMessageTemplate> templates = new HashSet<StatusMessageTemplate>(m.keySet());
+		for (StatusMessageTemplate template :templates){
+			if (m.get(template).contains(se)){
+				logger.info("Removing stepExecution id=" + se.getId() + 
+						" from list of step executions responding to message template : " + template.toString());
+				m.get(template).remove(se);
+			}
+			if (m.get(template).isEmpty()){
+				logger.info("Removing message template from list of messages to watch for as no more StepExecutions depend on it : " + 
+						template.toString());
+				m.remove(template);
 			}
 		}
 	}
@@ -488,8 +498,9 @@ public class BatchJobHibernationManager {
 		WaspBatchExitStatus status = new WaspBatchExitStatus(je.getExitStatus());
 		if (!status.isHibernating()){
 			throw new WaspBatchJobExecutionReadinessException("Unable to wake JobExecution (id=" + je.getId() + ") because it is not hibernating");
-		}
-		else {
+		} else if (jobExplorer.getStepExecution(stepExecution.getJobExecutionId(), stepExecution.getId()) == null){
+			throw new WaspBatchJobExecutionReadinessException("Unable to wake JobExecution (id=" + je.getId() + ") because StepExecution is stale");
+		} else {
 			je.getExecutionContext().remove(HIBERNATION_REQUESTED);
 			jobRepository.updateExecutionContext(je);
 			Set<StepExecution> ses = new HashSet<>(je.getStepExecutions());
@@ -512,7 +523,7 @@ public class BatchJobHibernationManager {
 	 */
 	private void hibernateJobExecution(Long jobExecutionId) throws WaspBatchJobExecutionReadinessException{
 		WaspBatchExitStatus status = new WaspBatchExitStatus(jobExplorer.getJobExecution(jobExecutionId).getExitStatus());
-		if (!status.isRunningAndAwake())
+		if (!status.isRunningAndAwake() && !isJobExecutionIdLockedForHibernating(jobExecutionId))
 			throw new WaspBatchJobExecutionReadinessException("Unable to hibernate JobExecution (id=" + jobExecutionId + ") because job is not running");
 		try {
 			jobOperator.hibernate(jobExecutionId);
