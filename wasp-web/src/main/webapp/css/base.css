@@ -572,6 +572,7 @@ TABLE.data TD.value-centered-small {
 }
 
 #wait_dialog-modal{
+	visibility:hidden;
 	padding:15px;
 	font-size: 14px;
 	z-index:10000;

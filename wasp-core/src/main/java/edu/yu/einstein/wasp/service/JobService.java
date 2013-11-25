@@ -18,12 +18,13 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import edu.yu.einstein.wasp.MetaMessage;
-import edu.yu.einstein.wasp.additionalClasses.Strategy;
+import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobDraftDao;
@@ -41,6 +42,7 @@ import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.JobContextInitializationException;
+import edu.yu.einstein.wasp.exception.QuoteException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
@@ -638,7 +640,7 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @param boolean saveQuoteAsJSON
 	 * @return void
 	 */
-	public void createNewQuoteAndSaveQuoteFile(MPSQuote mpsQuote, File file, Float totalFinalCost, boolean saveQuoteAsJSON)throws Exception;
+	public void createNewQuoteAndSaveQuoteFile(MPSQuote mpsQuote, File file, Float totalFinalCost, boolean saveQuoteAsJSON) throws FileUploadException, JSONException, QuoteException;
 
 	/**
 	 * Create new acctQuote for a job and save the UPLOADED file (to the remote location)
@@ -648,7 +650,7 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @param Float totalCost
 	 * @return void
 	 */
-	public void createNewQuoteOrInvoiceAndUploadFile(Job job, MultipartFile mpFile, String fileDescription, Float totalCost) throws FileUploadException, Exception;
+	public void createNewQuoteOrInvoiceAndUploadFile(Job job, MultipartFile mpFile, String fileDescription, Float totalCost) throws FileUploadException, QuoteException, WaspMessageBuildingException;
 	
 	
 	/**

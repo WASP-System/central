@@ -67,7 +67,8 @@
           <property name="type" value="NUMBER" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="genLib.libSize.error" />
-          <property name="range" value="0.0001:1000000000" />
+          <property name="range" value="0:1000000000" />
+          <property name="tooltip" value="genLib.libSize.tt" />
         </bean>
         
         <bean parent="genericLibraryUiField">
@@ -77,7 +78,8 @@
           <property name="type" value="NUMBER" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="genLib.libSizeSd.error" />
-          <property name="range" value="0.0001:1000000000" />
+          <property name="range" value="0:1000000000" />
+          <property name="tooltip" value="genLib.libSizeSd.tt" />
         </bean>
       </list>
     </property>

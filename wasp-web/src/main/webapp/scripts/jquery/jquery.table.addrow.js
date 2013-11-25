@@ -169,10 +169,14 @@
 			this.delRowButtons.show();
 			var lastRow=$("."+this.cloneClass+":last",this.target);
 			this.newRow=newRow=lastRow.clone();
+			if(newRow.find("#errorMessageThatShouldNotBeCopied")){//added 10-17-13 by Dubin; this is an id on a <td> table cells; don't want to copy an error message from the last row
+				newRow.find("#errorMessageThatShouldNotBeCopied").html("");
+				newRow.find("#errorMessageThatShouldNotBeCopied").css({'background-color' : ''});
+			}
 			newRow.find("input:text").val("");
 			newRow.find("textarea").text("");
-			//newRow.find("select").val('');//added by Rob Dubin 8-30-13; works, but not generic : so that any new select box is set to the option with value of ''
-			newRow.find("select").val([]);//added by Rob Dubin 8-30-13; works fine, deselects the options in any new select box: see http://stackoverflow.com/questions/1280499/jquery-set-select-index
+			newRow.find("select").val('');//10-13-13; Dubin; seems to work fine, and works well on firefox AND safari ; added by Rob Dubin 8-30-13; works, but not generic : so that any new select box is set to the option with value of ''
+			//newRow.find("select").val([]);//commented out on 10-13-13 by Dubin; worked badly on firefox; added by Rob Dubin 8-30-13; works fine, deselects the options in any new select box: see http://stackoverflow.com/questions/1280499/jquery-set-select-index
 			if(this.autoAddRow) newRow.find("."+this.cloneClass).hide();
 			newRow.insertAfter(lastRow);
 			if(this.ignoreClass && this.ignoreClass!=""){

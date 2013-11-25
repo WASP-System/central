@@ -492,6 +492,9 @@
 		<put-attribute name="head-js" value="/WEB-INF/jsp/jobsubmit/sampledetail_rw.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/sampledetail_rw.jsp" />
 	</definition>
+	<definition name="jobsubmit/manysamples" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/manysamples.jsp" />
+	</definition>
 	<definition name="jobsubmit/genomes" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/jobsubmit/genomes.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/genomes.jsp" />

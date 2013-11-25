@@ -36,5 +36,25 @@
     </property> 
 	
   </bean> 
+  
+  <bean id="savR" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
+  	<property name="type">
+  		<value type="java.lang.Class">edu.yu.einstein.wasp.plugin.illumina.software.SavR</value>
+  	</property>
+  	<property name="savR" />
+  	<property name="area" value="savR" />
+  	<property name="resourceType" ref="illuminaSequenceRunSubProcessor" />
+  	<property name="metaFromWrapper">
+       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
+         <property name="area" ref="savR" />
+         <property name="metaList">
+         	<list>
+         		<value>#{waspSoftware['currentVersion']}=0.2.0</value>
+         		<value>#{waspSoftware['priorVersions']}=</value>
+         	</list>
+       	 </property>
+       </bean>
+    </property> 
+  </bean>
 
 </beans>

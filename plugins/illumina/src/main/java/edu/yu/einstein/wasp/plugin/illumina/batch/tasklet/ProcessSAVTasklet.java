@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 package edu.yu.einstein.wasp.plugin.illumina.batch.tasklet;
 
 import java.util.ArrayList;
@@ -23,114 +26,102 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
+import edu.yu.einstein.wasp.plugin.illumina.software.SavR;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 import edu.yu.einstein.wasp.util.PropertyHelper;
 
 /**
- * 
+ * Determine if the Illumina pipeline is already running.  If not, create a new Work unit and monitor.  Requires 
+ * Backoff and Retry annotation.
  * 
  * @author calder
- * 
+ *
  */
 @Component
-public class StageResultsTasklet extends WaspTasklet {
-
+public class ProcessSAVTasklet extends WaspTasklet {
+	
 	private RunService runService;
 
 	private int runId;
 	private Run run;
-
+	
 	@Autowired
 	private GridHostResolver hostResolver;
-
+	
 	@Autowired
 	private IlluminaHiseqSequenceRunProcessor casava;
-
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
-
-	public StageResultsTasklet() {
-		// required by cglib
-	}
 	
-	public StageResultsTasklet(Integer runId) {
+	private SavR savR;
+	
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	public ProcessSAVTasklet() {
+		// required for AOP/CGLIB/Batch/Annotations/BeanIdentity
+	}
+
+	/**
+	 * 
+	 */
+	public ProcessSAVTasklet(Integer runId) {
 		this.runId = runId;
 	}
 
+	/* (non-Javadoc)
+	 * @see edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet#execute(org.springframework.batch.core.StepContribution, org.springframework.batch.core.scope.context.ChunkContext)
+	 */
 	@Override
 	@RetryOnExceptionExponential
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
-
+		
 		// if the work has already been started, then check to see if it is finished
 		// if not, throw an exception that is caught by the repeat policy.
 		RepeatStatus repeatStatus = super.execute(contrib, context);
 		if (repeatStatus.equals(RepeatStatus.FINISHED))
 			return RepeatStatus.FINISHED;
 		
+		// this is our first try
+		// TODO: check to see if the Makefile exists already (already configured and re-run because of grid exception).
+		
 		run = runService.getRunById(runId);
-
+		
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(casava);
+		sd.add(savR);
 		
+		
+		// creating a work unit this way sets the runID from the jobparameters
 		WorkUnit w = new WorkUnit();
-		w.setProcessMode(ProcessMode.SINGLE);
+		w.setProcessMode(ProcessMode.FIXED);
 		w.setSoftwareDependencies(sd);
 		GridWorkService gws = hostResolver.getGridWorkService(w);
-		
+		SoftwareManager sm = gws.getTransportConnection().getSoftwareManager();
+		String p = sm.getConfiguredSetting("casava.env.processors");
+		Integer procs = 1;
+		if (PropertyHelper.isSet(p)) {
+			procs = new Integer(p);
+		}
+		w.setProcessorRequirements(procs);
 		String dataDir = gws.getTransportConnection().getConfiguredSetting("illumina.data.dir");
 		if (!PropertyHelper.isSet(dataDir))
 			throw new GridException("illumina.data.dir is not defined!");
-		String stageDir = gws.getTransportConnection().getConfiguredSetting("illumina.data.stage");
-		if (!PropertyHelper.isSet(stageDir))
-			throw new GridException("illumina.data.stage is not defined!");
 		
-		w.setWorkingDirectory(dataDir + "/" + run.getName() + "/");
+		w.setWorkingDirectory(dataDir + "/" + run.getName() );
 		
-		w.setResultsDirectory(stageDir + "/" + run.getName());
+		w.setResultsDirectory(dataDir + "/" + run.getName() );
 		
-		w.setCommand("mkdir -p ${WASP_RESULT_DIR}/Project_WASP");
-		
-		// copy files from single barcode truseq run
-		w.addCommand("if [ -e Unaligned ]; then");
-		w.addCommand("mkdir ${WASP_RESULT_DIR}/Unaligned");
-		w.addCommand("cp -f Unaligned/*.xml ${WASP_RESULT_DIR}/Unaligned/");
-		w.addCommand("cp -f Unaligned/*.txt ${WASP_RESULT_DIR}/Unaligned/");
-		w.addCommand("cp -fR Unaligned/Project_WASP/* ${WASP_RESULT_DIR}/Project_WASP/");
-		w.addCommand("cp -fR Unaligned/Undetermined_indices ${WASP_RESULT_DIR}/Unaligned/");
-		w.addCommand("fi");
-		
-		// copy files from dual barcode truseq run
-		w.addCommand("if [ -e DualUnaligned ]; then");
-		w.addCommand("mkdir ${WASP_RESULT_DIR}/DualUnaligned");
-		w.addCommand("cp -f DualUnaligned/*.xml ${WASP_RESULT_DIR}/DualUnaligned/");
-		w.addCommand("cp -f DualUnaligned/*.txt ${WASP_RESULT_DIR}/DualUnaligned/");
-		w.addCommand("cp -fR DualUnaligned/Project_WASP/* ${WASP_RESULT_DIR}/Project_WASP/");
-		w.addCommand("cp -fR DualUnaligned/Undetermined_indices ${WASP_RESULT_DIR}/DualUnaligned/");
-		w.addCommand("fi");
-		
-		// copy run-specific files
-		w.addCommand("cp -f RunInfo.xml ${WASP_RESULT_DIR}");
-		w.addCommand("cp -f Data/Intensities/BaseCalls/*SampleSheet.csv ${WASP_RESULT_DIR}");
-		w.addCommand("mkdir -p ${WASP_RESULT_DIR}/reports/FWHM");
-		w.addCommand("mkdir -p ${WASP_RESULT_DIR}/reports/Intensity");
-		w.addCommand("mkdir -p ${WASP_RESULT_DIR}/reports/NumGT30");
-		w.addCommand("mkdir -p ${WASP_RESULT_DIR}/reports/ByCycle");
-		w.addCommand("cp -f ../Data/wasp-reports/{*.xml,*[^@].png} ${WASP_RESULT_DIR}/reports");
-		w.addCommand("cp -f ../Data/wasp-reports/FWHM/{*.xml,*[^@].png} ${WASP_RESULT_DIR}/reports/FWHM");
-		w.addCommand("cp -f ../Data/wasp-reports/Intensity/{*.xml,*[^@].png} ${WASP_RESULT_DIR}/reports/Intensity");
-		w.addCommand("cp -f ../Data/wasp-reports/NumGT30/{*.xml,*[^@].png} ${WASP_RESULT_DIR}/reports/NumGT30");
-		w.addCommand("cp -f ../Data/wasp-reports/ByCycle/*.png ${WASP_RESULT_DIR}/reports/ByCycle");
+		w.setCommand(savR.getSavR());
 
 		GridResult result = gws.execute(w);
 		
-		logger.debug("started staging of illumina output: " + result.getUuid());
+		logger.debug("started savR processing: " + result.getUuid());
 		
 		//place the grid result in the step context
-		WaspTasklet.storeStartedResult(context, result);
+		storeStartedResult(context, result);
 		
 		return RepeatStatus.CONTINUABLE;
-
 	}
+
 
 	/**
 	 * @return the runService
@@ -140,8 +131,7 @@ public class StageResultsTasklet extends WaspTasklet {
 	}
 
 	/**
-	 * @param runService
-	 *            the runService to set
+	 * @param runService the runService to set
 	 */
 	@Autowired
 	public void setRunService(RunService runService) {

@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.additionalClasses;
+package edu.yu.einstein.wasp;
 
 import edu.yu.einstein.wasp.model.WaspModel;
 
