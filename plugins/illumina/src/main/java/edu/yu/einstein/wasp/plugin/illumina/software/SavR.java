@@ -12,7 +12,7 @@ import edu.yu.einstein.wasp.plugin.mps.software.sequencer.SequenceRunProcessor;
  * @author calder
  * 
  */
-public class SavR extends SequenceRunProcessor {
+public class SavR extends IlluminaSequenceRunSubProcessor {
 
     /**
      * 
@@ -22,7 +22,7 @@ public class SavR extends SequenceRunProcessor {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public SavR() {
-        setSoftwareVersion("0.1.7"); // this default may be overridden in
+        setSoftwareVersion("0.2.0"); // this default may be overridden in
                                      // wasp.site.properties
     }
 
