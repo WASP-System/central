@@ -150,7 +150,7 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
                     lastStepExecution = null;
             }
             StepExecution currentStepExecution = lastStepExecution;
-            if (shouldStart(currentStepExecution, jobInstance, step, wasHibernating)) {
+            if (shouldStart(lastStepExecution, jobInstance, step, wasHibernating)) {
             		
         			currentStepExecution = execution.createStepExecution(step.getName());
 
@@ -180,21 +180,28 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
                             // Ensure that the job gets the message that it is stopping
                             // and can pass it on to other steps that are executing
                             // concurrently.
-                    		if (execution.getStatus().isLessThan(BatchStatus.STOPPING))
+                    		if (execution.getStatus().equals(BatchStatus.STARTING) || execution.getStatus().equals(BatchStatus.STARTED))
                     			execution.setStatus(BatchStatus.STOPPING);
                     		else
-                    			logger.info("Not going to signal stop of Job Execution as already stopped");
+                    			logger.debug("Not going to signal stop of Job Execution as already stopped");
                     		throw e;
                     }
 
                     jobRepository.updateExecutionContext(execution);
-                    currentStepExecution = jobRepository.getLastStepExecution(jobInstance, step.getName());
-                    if (currentStepExecution.getStatus() == BatchStatus.STOPPING || currentStepExecution.getStatus() == BatchStatus.STOPPED) {
+                    try {
+                    	// must wait here otherwise may get out of date and never signal stop !!!! Not sure why. Might be transactional issue.
+                    	// Note: interestingly this is not necessary if using debug traces only, but is for info and warning. 
+                    	// TODO: figure out the transactional issue or a better way to deal with this problem
+						Thread.sleep(150); 
+					} catch (InterruptedException e) {}
+                    // must get fresh or may be out of date
+                    BatchStatus status = jobRepository.getLastStepExecution(jobInstance, step.getName()).getStatus(); 
+                    if (status == BatchStatus.STOPPING || status == BatchStatus.STOPPED) {
                             // Ensure that the job gets the message that it is stopping
-                    	if (execution.getStatus().isLessThan(BatchStatus.STOPPING))
+                    	if (execution.getStatus().equals(BatchStatus.STARTING) || execution.getStatus().equals(BatchStatus.STARTED))
                 			execution.setStatus(BatchStatus.STOPPING);
                 		else
-                			logger.info("Not going to signal stop of Job Execution as already stopped");
+                			logger.debug("Not going to signal stop of Job Execution as already stopped");
                     	throw new JobInterruptedException("Job interrupted by step execution");
                     }
 
@@ -232,42 +239,40 @@ public class WaspStepHandler implements StepHandler, InitializingBean {
      */
     private boolean shouldStart(StepExecution lastStepExecution, JobInstance jobInstance, Step step, boolean wasHibernating)
                     throws JobRestartException, StartLimitExceededException {
-            BatchStatus stepStatus;
-            if (lastStepExecution == null) {
-                    stepStatus = BatchStatus.STARTING;
-            } else {
-                    stepStatus = lastStepExecution.getStatus();
-            }
+    	BatchStatus stepStatus;
+        if (lastStepExecution == null) {
+                stepStatus = BatchStatus.STARTING;
+        }
+        else {
+                stepStatus = lastStepExecution.getStatus();
+        }
 
-            if (stepStatus == BatchStatus.UNKNOWN) {
-                    throw new JobRestartException("Cannot restart step from UNKNOWN status. "
-                                    + "The last execution ended with a failure that could not be rolled back, "
-                                    + "so it may be dangerous to proceed. Manual intervention is probably necessary.");
-            }
-            
-            if ((stepStatus == BatchStatus.COMPLETED && (step.isAllowStartIfComplete() == false || wasHibernating))
-                            || stepStatus == BatchStatus.ABANDONED ) {
-                    // step is complete, false should be returned, indicating that the
-                    // step should not be started
-                    logger.info("Step already complete or not restartable, so no action to execute: " + lastStepExecution);
-                    return false;
-            }
-            if (lastStepExecution != null){
-	            WaspBatchExitStatus wbes = new WaspBatchExitStatus(lastStepExecution.getExitStatus());
-	            if (wbes.isHibernating()){
-	            	logger.debug("Job was hibernating so not applying startup limits");
-	            	return true; // no start limit
-	            }
-            }
-            if (jobRepository.getStepExecutionCount(jobInstance, step.getName()) < step.getStartLimit()) {
-                    // step start count is less than start max, return true
-                    return true;
-            }
-            else {
-                    // start max has been exceeded, throw an exception.
-                    throw new StartLimitExceededException("Maximum start limit exceeded for step: " + step.getName()
-                                    + "StartMax: " + step.getStartLimit());
-            }
+        if (stepStatus == BatchStatus.UNKNOWN) {
+                throw new JobRestartException("Cannot restart step from UNKNOWN status. "
+                                + "The last execution ended with a failure that could not be rolled back, "
+                                + "so it may be dangerous to proceed. Manual intervention is probably necessary.");
+        }
+
+        if ((stepStatus == BatchStatus.COMPLETED && step.isAllowStartIfComplete() == false)
+                        || stepStatus == BatchStatus.ABANDONED) {
+                // step is complete, false should be returned, indicating that the
+                // step should not be started
+                logger.info("Step already complete or not restartable, so no action to execute: " + lastStepExecution);
+                return false;
+        }
+        
+        if (wasHibernating)
+        	return true;
+
+        if (jobRepository.getStepExecutionCount(jobInstance, step.getName()) < step.getStartLimit()) {
+                // step start count is less than start max, return true
+                return true;
+        }
+        else {
+                // start max has been exceeded, throw an exception.
+                throw new StartLimitExceededException("Maximum start limit exceeded for step: " + step.getName()
+                                + "StartMax: " + step.getStartLimit());
+        }
     }
 
 }

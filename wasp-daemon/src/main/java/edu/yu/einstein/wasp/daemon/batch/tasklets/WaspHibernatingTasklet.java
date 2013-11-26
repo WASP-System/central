@@ -27,9 +27,8 @@ import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemp
 public abstract class WaspHibernatingTasklet implements Tasklet{
 	
 	// In the split-step scenario: 
-	// The last WaspHibernatingTasklet in the split-step of this job to call requestHibernation() gets control by the method setting 
-	// HIBERNATION_REQUESTED = true in the JobExecutionContext. All other steps in a split may also call requestHibernation() which will set 
-	// HIBERNATION_REQUESTED = true in their StepExecutionContext but will not proceed to request hibernation. 
+	// The last WaspHibernatingTasklet in the split-step of this job to call requestHibernation() gets control by 
+	// calling BatchJobHibernationManager.addJobExecutionIdLockedForHibernating(jobExecutionId)
 	// Only if all active steps have HIBERNATION_REQUESTED set to true then the controlling step will ask the hibernationManager to hibernate the job.
 	
 	// NOTE: due to transactional behavior, execution contexts are not visible in the database outside of this job thread until job stopped / completed
@@ -63,12 +62,6 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 		JobExecution jobExecution = stepExecution.getJobExecution();
 		Long jobExecutionId = jobExecution.getId();
 		Long stepExecutionId = stepExecution.getId();
-		BatchStatus status = jobExecution.getStatus();
-		if (!status.equals(BatchStatus.STARTED)){
-			logger.debug("Request made by StepExecution id=" + stepExecution.getId() + " to hibernate but not going to because JobExecution id=" + 
-					jobExecution.getId() + " is not STARTED: status=" + status);
-			return;
-		} 
 		wasHibernationRequested = true;
 		logContexts(context);
 		if (!isHibernationRequestedForStep(stepExecution))
@@ -81,7 +74,6 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 		} else if (isAllActiveJobStepsRequestingHibernation(stepExecution)){
 			try{
 				BatchJobHibernationManager.addJobExecutionIdLockedForHibernating(jobExecutionId);
-				setHibernationRequestedForJob(jobExecution, true);
 				// we are ready to hibernate so request it now
 				logger.info("Going to hibernate job " + stepContext.getJobName() + 
 						" (JobExecution id=" + jobExecutionId + ") from step " + 
@@ -154,20 +146,13 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 		hibernationManager.processHibernateRequest(jobExecution.getId(),requestingStepExecutionId);
 	}
 	
-	protected void setHibernationRequestedForJob(JobExecution jobExecution, boolean isRequested){
-		ExecutionContext executionContext = jobExecution.getExecutionContext();
-		executionContext.put(BatchJobHibernationManager.HIBERNATION_REQUESTED, isRequested);
-	}
-	
 	protected void setHibernationRequestedForStep(StepExecution stepExecution, boolean isRequested){
 		ExecutionContext executionContext = stepExecution.getExecutionContext();
 		executionContext.put(BatchJobHibernationManager.HIBERNATION_REQUESTED, isRequested);
 	}
 	
 	protected boolean isHibernationRequestedForJob(JobExecution jobExecution){
-		ExecutionContext executionContext = jobExecution.getExecutionContext();
-		return executionContext.containsKey(BatchJobHibernationManager.HIBERNATION_REQUESTED) && 
-				(boolean) executionContext.get(BatchJobHibernationManager.HIBERNATION_REQUESTED);
+		return BatchJobHibernationManager.isJobExecutionIdLockedForHibernating(jobExecution.getId());
 	}
 	
 	protected boolean isHibernationRequestedForStep(StepExecution stepExecution){

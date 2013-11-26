@@ -311,136 +311,139 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
     	    if (execution.getExecutionContext().containsKey(BatchJobHibernationManager.WAS_HIBERNATING) && 
     	    		(boolean) execution.getExecutionContext().get(BatchJobHibernationManager.WAS_HIBERNATING)){
     	    	isWakingFromHibernation = true;
-    	    	execution.getExecutionContext().put(BatchJobHibernationManager.WAS_HIBERNATING, true);
-    	        jobRepository.updateExecutionContext(execution);
     	    	logger.info("Job execution being awoken from hibernation: " + execution);
     	    } else{
     	    	logger.info("Job execution starting: " + execution);
     	    }
     	    boolean hibernationRequested = false;
     	    BatchStatus finalStatus = BatchStatus.STOPPED;
-            try {
-            		if (!isWakingFromHibernation)
-            			getJobParametersValidator().validate(execution.getJobParameters());
-
-                    if (execution.getStatus() != BatchStatus.STOPPING) {
-                    		execution.setStartTime(new Date());
-                    		if (!isWakingFromHibernation){
-                    			// do not handle beforeJob listener if waking from hibernation
-                                listener.beforeJob(execution);
-                    		}
-                    		updateStatus(execution, BatchStatus.STARTED);
-                            try {
-                            	doExecute(execution, isWakingFromHibernation);
-                                logger.info("Job execution complete: " + execution);
-                            } catch (RepeatException e) {
-                                    throw e.getCause();
-                            }
-                    } else {
-                            // The job was already stopped before we even got this far. Deal
-                            // with it in the same way as any other interruption.
-                            execution.setStatus(finalStatus);
-                            if (isHibernationRequested(execution)){
-                            	execution.setExitStatus(WaspBatchExitStatus.HIBERNATING);
-                            	logger.info("Job execution was hibernated: " + execution);
-                            } else {
-                            	execution.setExitStatus(ExitStatus.COMPLETED);
-                            	logger.info("Job execution was stopped: " + execution);
-                            }
-
-                    }
-
-            } catch (JobInterruptedException e) {
-            		hibernationRequested = isHibernationRequested(execution);
-            		logger.debug("caught JobInterrupt and wasHibernationRequested=" + hibernationRequested);
-	            	logger.debug("JobExecution: " + execution);
-	        		logger.debug("execution.getStatus()=" + execution.getStatus());
-	        		logger.debug("# step executions=" + execution.getStepExecutions().size());
-            		if (hibernationRequested)
-            			logger.info("Encountered hibernation request executing job: " + e.getMessage());
-            		else
-            			logger.info("Encountered interruption executing job: " + e.getMessage());
-                    logger.trace("Full exception", e);
-                    execution.setExitStatus(getDefaultExitStatusForFailure(e, hibernationRequested));
-                    finalStatus = BatchStatus.max(BatchStatus.STOPPED, e.getStatus());
-                    execution.setStatus(finalStatus);
-
-                    if (hibernationRequested){
-                    	boolean allStepsComplete = false;
-                    	int retryCount = 0;
-                    	do{
-                    		allStepsComplete = true;
-                    		// get stepExecution status from freshest StepExecutions
-                    		for (StepExecution se : execution.getStepExecutions()){
-                    			se = jobRepository.getLastStepExecution(execution.getJobInstance(), se.getStepName()); // refresh
-                    			if (se == null) // may be null if not ready
-                    				allStepsComplete = false;
-	                    		WaspBatchExitStatus currentExitStatus = new WaspBatchExitStatus(se.getExitStatus());
-	                    		logger.debug("Current exit status of StepExecution id=" + se.getId() + " : " + currentExitStatus);
-	                    		if (currentExitStatus.isStopped()){
-		                    		se.setExitStatus(WaspBatchExitStatus.HIBERNATING);
-		                        	logger.info("Step execution id=" + se.getId() + " was marked as hibernated: " + se);
-		                        	jobRepository.update(se);
-	                    		} else if (currentExitStatus.isRunningAndAwake()){
-	                    			allStepsComplete = false;
+    	    try{
+	            try {
+	            		if (!isWakingFromHibernation)
+	            			getJobParametersValidator().validate(execution.getJobParameters());
+	
+	                    if (execution.getStatus() != BatchStatus.STOPPING) {
+	                    		execution.setStartTime(new Date());
+	                    		if (!isWakingFromHibernation){
+	                    			// do not handle beforeJob listener if waking from hibernation
+	                                listener.beforeJob(execution);
 	                    		}
-	                    	}
+	                    		updateStatus(execution, BatchStatus.STARTED);
+	                            try {
+	                            	doExecute(execution, isWakingFromHibernation);
+	                                logger.info("Job execution complete: " + execution);
+	                            } catch (RepeatException e) {
+	                                    throw e.getCause();
+	                            }
+	                    } else {
+	                            // The job was already stopped before we even got this far. Deal
+	                            // with it in the same way as any other interruption.
+	                            execution.setStatus(finalStatus);
+	                            if (isHibernationRequested(execution)){
+	                            	execution.setExitStatus(WaspBatchExitStatus.HIBERNATING);
+	                            	logger.info("Job execution was hibernated: " + execution);
+	                            } else {
+	                            	execution.setExitStatus(ExitStatus.COMPLETED);
+	                            	logger.info("Job execution was stopped: " + execution);
+	                            }
+	
+	                    }
+	
+	            } catch (JobInterruptedException e) {
+	            		hibernationRequested = isHibernationRequested(execution);
+	            		logger.debug("caught JobInterrupt and wasHibernationRequested=" + hibernationRequested);
+		            	logger.debug("JobExecution: " + execution);
+		        		logger.debug("execution.getStatus()=" + execution.getStatus());
+		        		logger.debug("# step executions=" + execution.getStepExecutions().size());
+	            		if (hibernationRequested)
+	            			logger.info("Encountered hibernation request executing job: " + e.getMessage());
+	            		else
+	            			logger.info("Encountered interruption executing job: " + e.getMessage());
+	                    logger.trace("Full exception", e);
+	                    execution.setExitStatus(getDefaultExitStatusForFailure(e, hibernationRequested));
+	                    finalStatus = BatchStatus.max(BatchStatus.STOPPED, e.getStatus());
+	                    execution.setStatus(finalStatus);
+	
+	                    if (hibernationRequested){
+	                    	boolean allStepsComplete = false;
+	                    	int retryCount = 0;
+	                    	do{
+	                    		allStepsComplete = true;
+	                    		// get stepExecution status from freshest StepExecutions
+	                    		for (StepExecution se : execution.getStepExecutions()){
+	                    			se = jobRepository.getLastStepExecution(execution.getJobInstance(), se.getStepName()); // refresh
+	                    			if (se == null){ // may be null if not ready
+	                    				allStepsComplete = false;
+	                    				continue;
+	                    			}
+		                    		WaspBatchExitStatus currentExitStatus = new WaspBatchExitStatus(se.getExitStatus());
+		                    		logger.debug("Current exit status of StepExecution id=" + se.getId() + " : " + currentExitStatus);
+		                    		if (currentExitStatus.isStopped()){
+			                    		se.setExitStatus(WaspBatchExitStatus.HIBERNATING);
+			                        	logger.info("Step execution id=" + se.getId() + " was marked as hibernated: " + se);
+			                        	jobRepository.update(se);
+		                    		} else if (currentExitStatus.isRunningAndAwake()){
+		                    			allStepsComplete = false;
+		                    		}
+		                    	}
+		                    	if (!allStepsComplete){
+		                    		// should not get here if all steps were started before a step initiated job stopping
+			                    	logger.warn("Not all steps have been stopped for JobExecution id= " +
+	                    				execution.getId() + ". Trying again in " + STEP_STATUS_RETRY_TIMEOUT + "ms...: " + execution);
+		                			try {
+										Thread.sleep(STEP_STATUS_RETRY_TIMEOUT);
+									} catch (InterruptedException e1) {}
+		                    	}
+	                    	} while (!allStepsComplete && ++retryCount < STEP_STATUS_RETRY_MAXCOUNT);
 	                    	if (!allStepsComplete){
-	                    		// should not get here if all steps were started before a step initiated job stopping
-		                    	logger.warn("Not all steps have been stopped for JobExecution id= " +
-                    				execution.getId() + ". Trying again in " + STEP_STATUS_RETRY_TIMEOUT + "ms...: " + execution);
-	                			try {
-									Thread.sleep(STEP_STATUS_RETRY_TIMEOUT);
-								} catch (InterruptedException e1) {}
+	                    		String msg = "Encountered fatal error hibernating job: unable to modify status of all StepExecutions for JobExecution id= " +
+	                    				execution.getId();
+	                    		logger.error(msg);
+	                            execution.setExitStatus(ExitStatus.FAILED.addExitDescription(msg));
+	                            execution.setStatus(BatchStatus.FAILED);
+	                            execution.addFailureException(new Exception(msg));
 	                    	}
-                    	} while (!allStepsComplete && ++retryCount < STEP_STATUS_RETRY_MAXCOUNT);
-                    	if (!allStepsComplete){
-                    		String msg = "Encountered fatal error hibernating job: unable to modify status of all StepExecutions for JobExecution id= " +
-                    				execution.getId();
-                    		logger.error(msg);
-                            execution.setExitStatus(ExitStatus.FAILED.addExitDescription(msg));
-                            execution.setStatus(BatchStatus.FAILED);
-                            execution.addFailureException(new Exception(msg));
-                    	}
-                    } else {
-                    	execution.addFailureException(e);
-                    }
-                    logger.info(String.format("JobExecution updated with status=%s and exitStatus=%s", execution.getStatus(), execution.getExitStatus()));
-            } catch (Throwable t) {
-                    logger.error("Encountered fatal error executing job", t);
-                    execution.setExitStatus(getDefaultExitStatusForFailure(t, hibernationRequested));
-                    execution.setStatus(BatchStatus.FAILED);
-                    execution.addFailureException(t);
-            } finally {
-            		logger.debug("in finally block");
-            		logger.debug("execution.getStatus()=" + execution.getStatus());
-            		logger.debug("# step executions=" + execution.getStepExecutions().size());
-                    if (execution.getStatus().isLessThanOrEqualTo(BatchStatus.STOPPED)
-                                    && execution.getStepExecutions().isEmpty()) {
-                            ExitStatus exitStatus = execution.getExitStatus();
-                            execution.setExitStatus(exitStatus.and(ExitStatus.NOOP
-                                            .addExitDescription("All steps already completed or no steps configured for this job.")));
-                    }
-                    
-                    if (!hibernationRequested) {
-                    	try {
-                    		// do not handle afterJob listener if entering hibernation
-                        	listener.afterJob(execution);
-                        } catch (Exception e) {
-                        	logger.error("Exception encountered in afterStep callback", e);
-                        }
-                    }
-                    execution.setEndTime(new Date());
-                    jobRepository.update(execution);
-                    logger.info(String.format("JobExecution completed with status=%s and exitStatus=%s", execution.getStatus(), execution.getExitStatus()));
-                    BatchJobHibernationManager.removeJobExecutionIdLockedForHibernating(execution.getId());
-            }
+	                    } else {
+	                    	execution.addFailureException(e);
+	                    }
+	                    logger.info(String.format("JobExecution updated with status=%s and exitStatus=%s", execution.getStatus(), execution.getExitStatus()));
+	            } catch (Throwable t) {
+	                    logger.error("Encountered fatal error executing job", t);
+	                    execution.setExitStatus(getDefaultExitStatusForFailure(t, hibernationRequested));
+	                    execution.setStatus(BatchStatus.FAILED);
+	                    execution.addFailureException(t);
+	            } finally {
+	            		logger.debug("in finally block");
+	            		logger.debug("execution.getStatus()=" + execution.getStatus());
+	            		logger.debug("# step executions=" + execution.getStepExecutions().size());
+	                    if (execution.getStatus().isLessThanOrEqualTo(BatchStatus.STOPPED)
+	                                    && execution.getStepExecutions().isEmpty()) {
+	                            ExitStatus exitStatus = execution.getExitStatus();
+	                            execution.setExitStatus(exitStatus.and(ExitStatus.NOOP
+	                                            .addExitDescription("All steps already completed or no steps configured for this job.")));
+	                    }
+	                    
+	                    if (!hibernationRequested) {
+	                    	try {
+	                    		// do not handle afterJob listener if entering hibernation
+	                        	listener.afterJob(execution);
+	                        } catch (Exception e) {
+	                        	logger.error("Exception encountered in afterStep callback", e);
+	                        }
+	                    }
+	                    execution.setEndTime(new Date());
+	                    jobRepository.update(execution);
+	                    logger.info(String.format("JobExecution completed with status=%s and exitStatus=%s", execution.getStatus(), execution.getExitStatus()));
+	                    BatchJobHibernationManager.removeJobExecutionIdLockedForHibernating(execution.getId());
+	                    BatchJobHibernationManager.removeJobExecutionIdLockedForWaking(execution.getId());
+	            }
+    	    } catch (Throwable e){
+    	    	BatchJobHibernationManager.removeJobExecutionIdLockedForHibernating(execution.getId());
+    	    	logger.warn("Handled exception of type " + e.getClass().getName() + ". Releasing hibernation lock and re-throwing");
+    	    	throw e;
+    	    }
         }
         
-        
-        private JobExecution getLatestJobExecution(JobExecution currentExecution){
-        	return jobRepository.getLastJobExecution(currentExecution.getJobInstance().getJobName(), currentExecution.getJobParameters());
-        }
         
         /**
          * Check ExitStatus of latest JobExecution to see if the description implies hibernation is requested
@@ -448,9 +451,8 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
          * @return
          */
         private boolean isHibernationRequested(JobExecution execution){
-        	execution = getLatestJobExecution(execution); // check latest
-        	boolean hibernationStatus = false;
-        	if (execution.getExitStatus().getExitDescription().equals(BatchJobHibernationManager.HIBERNATION_REQUESTED))
+        	
+        	boolean hibernationStatus =  (BatchJobHibernationManager.isJobExecutionIdLockedForHibernating(execution.getId()));
         		hibernationStatus = true;
         	logger.debug("Checking hibernation status for JobExecution id=" + execution.getId() + ": requested=" + hibernationStatus);
         	return hibernationStatus;

@@ -49,6 +49,7 @@
 									<property name="status" value="CREATED" />
 								</bean>
 							</property>
+							<property name="parallelSiblingFlowSteps" value="1" />
 							<property name="name" value="wasp.sample.step.listenForSampleReceived" />
 						</bean>
 					</batch:tasklet>
@@ -65,6 +66,7 @@
 									<property name="status" value="ACCEPTED" />
 								</bean>
 							</property>
+							<property name="parallelSiblingFlowSteps" value="1" />
 							<property name="name" value="wasp.sample.step.listenForJobApproved" />
 						</bean>
 					</batch:tasklet>

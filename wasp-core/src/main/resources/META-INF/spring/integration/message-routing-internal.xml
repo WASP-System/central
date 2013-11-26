@@ -85,12 +85,12 @@
 	
 	<int:bridge id="wasp.channel.bridge.throttled.batch" input-channel="wasp.channel.queue.batch" output-channel="wasp.channel.notification.batch" >
 		<!-- this delay allows time for a job to hibernate before handling a message that might wake it -->
-		<int:poller max-messages-per-poll="1" fixed-delay="10" /> 
+		<int:poller max-messages-per-poll="1" fixed-rate="10" /> 
 	</int:bridge>
 	
 	<int:bridge id="wasp.channel.bridge.resend.waspStatusMessages" input-channel="wasp.channel.resend.waspStatusMessages" output-channel="wasp.channel.priority.waspStatusMessages" >
 		<!-- this delay allows time for a job to hibernate before handling a message that might wake it -->
-		<int:poller max-messages-per-poll="1" fixed-delay="50" /> 
+		<int:poller max-messages-per-poll="1" fixed-rate="10" /> 
 	</int:bridge>
 	
 	<!-- int:delayer id="wasp.channel.delayer.resend.waspStatusMessages" input-channel="wasp.channel.resend.waspStatusMessages" default-delay="50" output-channel="wasp.channel.priority.waspStatusMessages"/-->
@@ -99,31 +99,31 @@
 	<int:bridge id="wasp.channel.bridge.notify" input-channel="wasp.channel.notification.batch" output-channel="wasp.channel.priority.waspStatusMessages" />
 	
 	<int:bridge id="wasp.channel.bridge.job" input-channel="wasp.channel.priority.job" output-channel="wasp.channel.notification.job" >
-		<int:poller max-messages-per-poll="1" fixed-delay="10" />
+		<int:poller max-messages-per-poll="1" fixed-rate="10" />
 	</int:bridge>
 	
 	<int:bridge id="wasp.channel.bridge.run" input-channel="wasp.channel.priority.run" output-channel="wasp.channel.notification.run">
-		<int:poller max-messages-per-poll="1" fixed-delay="10" />
+		<int:poller max-messages-per-poll="1" fixed-rate="10" />
 	</int:bridge>
 	
 	<int:bridge id="wasp.channel.bridge.sample"  input-channel="wasp.channel.priority.sample" output-channel="wasp.channel.notification.sample">
-		<int:poller max-messages-per-poll="1" fixed-delay="10" />
+		<int:poller max-messages-per-poll="1" fixed-rate="10" />
 	</int:bridge>
 	
 	<int:bridge id="wasp.channel.bridge.library"  input-channel="wasp.channel.priority.library" output-channel="wasp.channel.notification.library">
-		<int:poller max-messages-per-poll="1" fixed-delay="10" />
+		<int:poller max-messages-per-poll="1" fixed-rate="10" />
 	</int:bridge>
 	
 	<int:bridge id="wasp.channel.bridge.analysis"  input-channel="wasp.channel.priority.analysis" output-channel="wasp.channel.notification.analysis">
-		<int:poller max-messages-per-poll="1" fixed-delay="10" />
+		<int:poller max-messages-per-poll="1" fixed-rate="10" />
 	</int:bridge>
 	
 	<int:bridge id="wasp.channel.bridge.file"  input-channel="wasp.channel.priority.file" output-channel="wasp.channel.notification.file">
-		<int:poller max-messages-per-poll="1" fixed-delay="10" />
+		<int:poller max-messages-per-poll="1" fixed-rate="10" />
 	</int:bridge>
 	
 	<int:bridge id="wasp.channel.bridge.launch"  input-channel="wasp.channel.queue.launch" output-channel="wasp.channel.throttled.launch">
-		<int:poller max-messages-per-poll="1" fixed-delay="100" />
+		<int:poller max-messages-per-poll="1" fixed-rate="100" />
 	</int:bridge>
 	
 	<bean id="waspMessageType" class="edu.yu.einstein.wasp.integration.messages.WaspMessageType" />

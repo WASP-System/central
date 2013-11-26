@@ -10,7 +10,9 @@ import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
@@ -27,7 +29,7 @@ import org.springframework.integration.core.MessagingTemplate;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
+import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
@@ -45,6 +47,8 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 	private Set<WaspStatusMessageTemplate> messageTemplates = new HashSet<>();
 	
 	private List<Message<?>> messageQueue = new ArrayList<>();
+	
+	private int parallelSiblingFlowSteps = 0; // number of parallel steps in split flows in addition to this one
 	
 	private boolean abandonStep = false;
 	
@@ -80,6 +84,14 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 		this.messageTemplates.addAll(messageTemplates);
 	}
 	
+	public int getParallelSiblingFlowSteps() {
+		return parallelSiblingFlowSteps;
+	}
+
+	public void setParallelSiblingFlowSteps(int parallelSteps) {
+		this.parallelSiblingFlowSteps = parallelSteps;
+	}
+
 	@PostConstruct
 	protected void init() throws MessagingException{
 		if (messageTemplates == null)
@@ -99,32 +111,53 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 	}
 	
 	@Override
-	//@RetryOnExceptionFixed
+	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		Long stepExecutionId = context.getStepContext().getStepExecution().getId();
+		Long jobExecutionId = context.getStepContext().getStepExecution().getJobExecutionId();
 		logger.trace(name + "execute() invoked");
 		if (!messageQueue.isEmpty()){
-			logger.warn("StepExecution (id=" + stepExecutionId + ") received an expected message so finishing step.");
+			logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + ") received an expected message so finishing step.");
 			//return RepeatStatus.FINISHED;
 		}
 		if (wasWokenOnMessage(context)){
-			logger.debug("StepExecution (id=" + stepExecutionId + ") was woken up from hibernation for a message. Skipping to next step...");
+			logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + 
+					") was woken up from hibernation for a message. Skipping to next step...");
 			return RepeatStatus.FINISHED;
 		}
 		if (isHibernationRequestedForJob(context.getStepContext().getStepExecution().getJobExecution())){
-			logger.debug("This job is already undergoing hibernation. Awaiting hibernation...");
+			logger.debug("This JobExecution (id=" + jobExecutionId + ") is already undergoing hibernation. Awaiting hibernation...");
 		} else if (!wasHibernationRequested){
-			logger.debug("Going to request hibernation from StepExecution (id=" + stepExecutionId + ") as not previously requested");
+			JobExecution je = context.getStepContext().getStepExecution().getJobExecution();
+			int numSteps = je.getStepExecutions().size();
+			if (numSteps < parallelSiblingFlowSteps + 1){
+				logger.debug("Not all steps from JobExecution id=" + jobExecutionId + " are visible. Can see " + numSteps + " but expect " + (parallelSiblingFlowSteps + 1));
+				return RepeatStatus.CONTINUABLE;
+			}
+			for (StepExecution se: je.getStepExecutions()){
+				logger.debug("Checking JobExecution id=" + jobExecutionId + " step: " + se.getStepName());
+				if (je.getStatus().equals(BatchStatus.UNKNOWN) || 
+						je.getStatus().equals(BatchStatus.STARTING) ||
+						se.getStatus().equals(BatchStatus.UNKNOWN) || 
+						se.getStatus().equals(BatchStatus.STARTING)){
+					logger.debug("JobExecution id=" + jobExecutionId + " is not yet fully started...");
+					return RepeatStatus.CONTINUABLE;
+				}
+			}
+			logger.info("Going to request hibernation from StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + 
+					") as not previously requested");
 			addStatusMessagesToWakeStepToContext(context, messageTemplates);
 			addStatusMessagesToAbandonStepToContext(context, abandonTemplates);
 			requestHibernation(context);
 		} else if (!wasHibernationRequestGranted){
-				logger.debug("Previous hibernation request made by this StepExecution (id=" + stepExecutionId + 
+				logger.debug("Previous hibernation request made by this StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + 
 						") but we were still waiting for all steps to be ready. Going to retry request.");
 			requestHibernation(context);
-			logger.debug("Hibernate request made by this StepExecution (id=" + stepExecutionId + ") but JobExecution is not yet ready to hibernate");
+			logger.debug("Hibernate request made by this StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + 
+					") but JobExecution is not yet ready to hibernate");
 		} else {
-			logger.debug("Hibernate request was granted to this StepExecution (id=" + stepExecutionId + "). Awaiting hibernation...");
+			logger.debug("Hibernate request was granted to this StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + 
+					"). Awaiting hibernation...");
 		}
 		return RepeatStatus.CONTINUABLE;	
 	}

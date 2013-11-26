@@ -24,8 +24,6 @@ import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
-
 /**
  *
  * @author asmclellan
@@ -92,7 +90,6 @@ public class WaspBatchJobOperator extends SimpleJobOperator implements JobOperat
         }
         logger.info(String.format("Attempting to hibernate job with name=%s and parameters=%s", jobExecution.getJobInstance().getJobName(), jobExecution.getJobParameters()));
         jobExecution.setStatus(BatchStatus.STOPPING);
-        jobExecution.setExitStatus(jobExecution.getExitStatus().addExitDescription(BatchJobHibernationManager.HIBERNATION_REQUESTED));
         getJobRepository().update(jobExecution);
 
 		return true;

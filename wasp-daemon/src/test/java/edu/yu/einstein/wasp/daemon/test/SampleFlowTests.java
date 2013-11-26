@@ -161,9 +161,6 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 				Message<?> replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), sampleCreatedNotificationMessage);
 				if (replyMessage == null)
 					Assert.fail("testSamplesReceived(): Failed to receive reply message");
-				try{
-					Thread.sleep(10);
-				} catch (InterruptedException e){};
 			}
 			try{
 				Thread.sleep(500);
@@ -193,14 +190,11 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 				replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), qcPassedNotificationMessage);
 				if (replyMessage == null)
 					Assert.fail("testSamplesReceived(): Failed to receive reply message");
-				try{
-					Thread.sleep(10);
-				} catch (InterruptedException e){};
 			}
 			int repeat = 0;
 			while (messages.size() < expectedMessages && repeat < 20){
 				try{
-					Thread.sleep(500);
+					Thread.sleep(1000);
 				} catch (InterruptedException e){};
 				repeat++;
 			}
@@ -251,7 +245,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	 */
 	@Test (groups = "unit-tests-batch-integration")
 	public void testManyDNASamplesReceived() throws Exception{
-		testSamplesReceived(50, 2);
+		testSamplesReceived(100, 2);
 	}
 	
 	/**
