@@ -25,7 +25,7 @@
 	
 	<mockito:mock id="jobRepository" class="org.springframework.batch.core.repository.support.SimpleJobRepository" />
 	
-	<mockito:mock id="jobOperator" class="edu.yu.einstein.wasp.batch.core.extension.WaspBatchJobOperator" />
+	<mockito:mock id="jobOperator" class="org.springframework.batch.core.launch.wasp.WaspJobOperator" />
 	
 	<int:poller id="defaultPoller" default="true" max-messages-per-poll="1" fixed-rate="10" receive-timeout="30000"/>
 

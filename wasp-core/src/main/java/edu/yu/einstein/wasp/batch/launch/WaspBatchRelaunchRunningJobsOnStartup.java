@@ -12,11 +12,11 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.explore.wasp.WaspJobExplorer;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.repository.JobRepository;
 
 import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
-import edu.yu.einstein.wasp.batch.core.extension.WaspBatchJobExplorer;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 
 /**
@@ -28,7 +28,7 @@ public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunni
 	
 	private static Logger logger = LoggerFactory.getLogger(WaspBatchRelaunchRunningJobsOnStartup.class);
 	
-	private WaspBatchJobExplorer jobExplorer;
+	private WaspJobExplorer jobExplorer;
 	
 	private JobOperator jobOperator;
 	
@@ -38,7 +38,7 @@ public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunni
 
 	public WaspBatchRelaunchRunningJobsOnStartup(JobRepository jobRepository, JobExplorer jobExplorer, JobOperator jobOperator, BatchJobHibernationManager hibernationManager) {
 		this.jobRepository = jobRepository;
-		this.jobExplorer = (WaspBatchJobExplorer) jobExplorer;
+		this.jobExplorer = (WaspJobExplorer) jobExplorer;
 		this.jobOperator = jobOperator;
 		this.hibernationManager = hibernationManager;
 	}
@@ -56,7 +56,7 @@ public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunni
 	}
 
 	public void setJobExplorer(JobExplorer jobExplorer) {
-		this.jobExplorer = (WaspBatchJobExplorer) jobExplorer;
+		this.jobExplorer = (WaspJobExplorer) jobExplorer;
 	}
 
 	public JobOperator getJobOperator() {

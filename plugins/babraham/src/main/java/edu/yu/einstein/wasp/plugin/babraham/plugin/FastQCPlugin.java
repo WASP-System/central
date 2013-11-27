@@ -12,6 +12,7 @@ import java.util.Set;
 
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.Message;
@@ -19,7 +20,6 @@ import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.Hyperlink;
-import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
 import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;

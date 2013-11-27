@@ -1,19 +1,3 @@
-
-/*
-* Copyright 2006-2013 the original author or authors.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
 package edu.yu.einstein.wasp.batch.core.extension;
 
 import java.util.Collection;
@@ -52,9 +36,9 @@ import org.springframework.util.ClassUtils;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 
 /**
- * Based on {@link AbstractJob} 2.2.2.RELEASE
- * (https://github.com/spring-projects/spring-batch/blob/2.2.2.RELEASE/spring-batch-core/src/main/java/org/springframework/batch/core/job/AbstractJob.java)
+ * 
  * @author asmclellan
+ *
  */
 public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanNameAware, InitializingBean {
 
@@ -308,8 +292,8 @@ public abstract class AbstractWaspBatchJob implements Job, StepLocator, BeanName
     		logger.debug("execution.getStatus()=" + execution.getStatus());
     		logger.debug("# step executions=" + execution.getStepExecutions().size());
     		boolean isWakingFromHibernation = false;
-    	    if (execution.getExecutionContext().containsKey(BatchJobHibernationManager.WAS_HIBERNATING) && 
-    	    		(boolean) execution.getExecutionContext().get(BatchJobHibernationManager.WAS_HIBERNATING)){
+    	    if (execution.getExecutionContext().containsKey(AbstractJob.WAS_HIBERNATING) && 
+    	    		(boolean) execution.getExecutionContext().get(AbstractJob.WAS_HIBERNATING)){
     	    	isWakingFromHibernation = true;
     	    	logger.info("Job execution being awoken from hibernation: " + execution);
     	    } else{

@@ -90,7 +90,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<site.basedir>${project.basedir}</site.basedir>
 		<spring.framework.version>3.2.5.RELEASE</spring.framework.version>
 		<springsec.version>3.2.0.RC1</springsec.version>
-		<spring.batch.version>2.2.2.RELEASE</spring.batch.version>
+		<spring.batch.version>2.2.3.RELEASE</spring.batch.version>
 		<spring.integration.version>2.2.6.RELEASE</spring.integration.version>
 		<logback.version>1.0.7</logback.version>
 		<slf4j.version>1.7.2</slf4j.version>
@@ -111,6 +111,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<module>../wasp-cli</module>
 		<module>../wasp-doc</module>
 		<module>../wasp-file</module>
+		<module>../../../spring-batch/spring-batch-core</module>
 		<module>../plugins</module>
 		</modules>
 
@@ -777,7 +778,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.batch</groupId>
-				<artifactId>spring-batch-core</artifactId>
+				<artifactId>wasp-spring-batch-core</artifactId>
 				<version>${spring.batch.version}</version>
 			</dependency>
 			<dependency>

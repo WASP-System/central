@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.job.AbstractJob;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.scope.context.StepContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
@@ -113,6 +114,7 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	private void doHibernate(StepExecution stepExecution) throws WaspBatchJobExecutionReadinessException{
 		Long requestingStepExecutionId = stepExecution.getId();
 		JobExecution jobExecution = stepExecution.getJobExecution();
+		jobExecution.getExecutionContext().put(AbstractJob.HIBERNATION_REQUESTED, true);
 		Long jobExecutionId = jobExecution.getId();
 		logger.info("Hibernation of JobExecution=" + jobExecutionId + " triggered by StepExecution id=" + stepExecution.getId());
 		// register all wake triggers with hibernation manger
@@ -148,7 +150,7 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	
 	protected void setHibernationRequestedForStep(StepExecution stepExecution, boolean isRequested){
 		ExecutionContext executionContext = stepExecution.getExecutionContext();
-		executionContext.put(BatchJobHibernationManager.HIBERNATION_REQUESTED, isRequested);
+		executionContext.put(AbstractJob.HIBERNATION_REQUESTED, isRequested);
 	}
 	
 	protected boolean isHibernationRequestedForJob(JobExecution jobExecution){
@@ -157,8 +159,8 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	
 	protected boolean isHibernationRequestedForStep(StepExecution stepExecution){
 		ExecutionContext executionContext = stepExecution.getExecutionContext();
-		return executionContext.containsKey(BatchJobHibernationManager.HIBERNATION_REQUESTED) && 
-				(boolean) executionContext.get(BatchJobHibernationManager.HIBERNATION_REQUESTED);
+		return executionContext.containsKey(AbstractJob.HIBERNATION_REQUESTED) && 
+				(boolean) executionContext.get(AbstractJob.HIBERNATION_REQUESTED);
 	}
 	
 	/**

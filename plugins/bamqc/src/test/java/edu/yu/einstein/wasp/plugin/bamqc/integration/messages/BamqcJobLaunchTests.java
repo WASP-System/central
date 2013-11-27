@@ -9,9 +9,11 @@ import java.util.List;
 import java.util.Map;
 
 import edu.yu.einstein.wasp.plugin.bamqc.plugin.BamqcPlugin;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -28,7 +30,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;

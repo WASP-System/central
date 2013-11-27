@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.Message;
@@ -34,7 +35,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.analysis.WaspJobSoftwareLaunchTasklet;

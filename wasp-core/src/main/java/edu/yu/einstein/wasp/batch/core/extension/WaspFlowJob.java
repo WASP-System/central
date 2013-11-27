@@ -26,6 +26,7 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionException;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.AbstractJob;
+import org.springframework.batch.core.job.WaspStepHandler;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.job.flow.FlowExecutionException;
 import org.springframework.batch.core.job.flow.FlowHolder;
@@ -34,6 +35,7 @@ import org.springframework.batch.core.job.flow.JobFlowExecutor;
 import org.springframework.batch.core.job.flow.State;
 import org.springframework.batch.core.listener.CompositeJobExecutionListener;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.repository.wasp.JobRepositoryWasp;
 import org.springframework.batch.core.step.StepHolder;
 import org.springframework.batch.core.step.StepLocator;
 

@@ -12,6 +12,8 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
+import org.springframework.batch.core.repository.dao.wasp.BatchDaoDataRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
@@ -19,10 +21,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
-import edu.yu.einstein.wasp.exception.BatchDaoDataRetrievalException;
-import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
+import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 
 @ContextConfiguration(locations={"classpath:batch/batch-test-context.xml"})

@@ -22,6 +22,7 @@ import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.launch.NoSuchJobException;
 import org.springframework.batch.core.launch.NoSuchJobExecutionException;
+import org.springframework.batch.core.launch.wasp.JobOperatorWasp;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.JobRestartException;
@@ -33,7 +34,6 @@ import org.springframework.integration.MessageHeaders;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.batch.core.extension.JobOperatorWasp;
 import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
 import edu.yu.einstein.wasp.exception.ResourceLockException;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionException;
@@ -52,8 +52,8 @@ import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemp
  */
 public class BatchJobHibernationManager {
 
-	public static final String WAS_HIBERNATING = "wasHibernating";
-	public static final String HIBERNATION_REQUESTED = "requestHibernation";
+	
+	
 	public static final String ABANDON_ON_MESSAGE = "abandonedOnMessage";
 	public static final String WOKEN_ON_MESSAGE_STATUS = "wokenOnMessageStatus";
 	public static final String WOKEN_ON_TIMEOUT = "wokenOnTimeout";
@@ -521,6 +521,8 @@ public class BatchJobHibernationManager {
 			} catch (JobInstanceAlreadyCompleteException | NoSuchJobExecutionException | NoSuchJobException | JobRestartException | JobParametersInvalidException e) {
 				throw new WaspBatchJobExecutionException("Unable to restart job with JobExecution id=" + stepExecution.getJobExecutionId() + 
 						" (got " + e.getClass().getName() + " Exception :" + e.getLocalizedMessage() + ")");
+			} finally {
+				removeJobExecutionIdLockedForWaking(stepExecution.getJobExecutionId()); // remove lock  
 			}
 		}
 	}
@@ -537,6 +539,7 @@ public class BatchJobHibernationManager {
 		} catch (Exception e1) {
 			logger.warn("Unable to hibernate job with JobExecution id=" + jobExecutionId + " (got " + e1.getClass().getName() + " Exception :" + 
 					e1.getLocalizedMessage() + ")");
+		} finally {
 			removeJobExecutionIdLockedForHibernating(jobExecutionId); // remove lock  
 		}
 	}

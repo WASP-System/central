@@ -16,13 +16,13 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.MessagingException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
-import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
 import edu.yu.einstein.wasp.dao.RunCellDao;
 import edu.yu.einstein.wasp.dao.RunDao;
