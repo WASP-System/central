@@ -140,13 +140,17 @@ public class BatchJobHibernationManager {
 		logger.info("Handling message: " + incomingStatusMessageTemplate.toString());
 		Set<Long> handledJobExecutionIds = new HashSet<Long>();
 		try {
-			handledJobExecutionIds = handleStepExecutionWakingOnMessage(incomingStatusMessageTemplate, new HashSet<Long>());
-			handleStepExecutionAbandonmentOnMessage(incomingStatusMessageTemplate, handledJobExecutionIds);
+			handledJobExecutionIds.addAll(handleStepExecutionWakingOnMessage(incomingStatusMessageTemplate));
 		} catch (WaspBatchJobExecutionReadinessException e) {
 			logger.debug("Going to request return message to queue due to at least one job not being ready for it");
 			resendMessage = true;
 		}
-		
+		try {
+			handledJobExecutionIds.addAll(handleStepExecutionAbandonmentOnMessage(incomingStatusMessageTemplate));
+		} catch (WaspBatchJobExecutionReadinessException e) {
+			logger.debug("Going to request return message to queue due to at least one job not being ready for it");
+			resendMessage = true;
+		}
 		if (resendMessage){
 			resendCount++;
 			Message<WaspStatus> newMessage = getMessageToResend(message, resendCount);
@@ -175,20 +179,19 @@ public class BatchJobHibernationManager {
 	 * @param messageTemplate
 	 * @return number of steps handled
 	 */
-	private synchronized Set<Long> handleStepExecutionAbandonmentOnMessage(WaspStatusMessageTemplate messageTemplate, Set<Long> jobExecutionIdsToIgnore) throws WaspBatchJobExecutionReadinessException{
+	private synchronized Set<Long> handleStepExecutionAbandonmentOnMessage(WaspStatusMessageTemplate messageTemplate) throws WaspBatchJobExecutionReadinessException{
 		Set<Long> abandondedJobExecutionIds = new HashSet<>();
 		if (messageTemplatesAbandoningStepExecutions.keySet().contains(messageTemplate)){
 			logger.debug("messageTemplatesAbandoningStepExecutions.keySet() contains message");
 			Set<StepExecution> ses = new HashSet<>(messageTemplatesAbandoningStepExecutions.get(messageTemplate));
 			for (StepExecution se :ses){
-				if (!jobExecutionIdsToIgnore.contains(se.getJobExecutionId())){
-					jobExecutionIdsToIgnore.add(se.getJobExecutionId()); // make sure only performed once per jobExecution
+				if (!abandondedJobExecutionIds.contains(se.getJobExecutionId())){
+					abandondedJobExecutionIds.add(se.getJobExecutionId()); // make sure only performed once per jobExecution
 					logger.info("Abandoning job with JobExecution id=" +se.getJobExecutionId() + " for step " + se.getId() + 
 							" on receiving message " + messageTemplate.getPayload().toString());
 					try{
 						abandonJobExecution(se);
 						abandondedJobExecutionIds.add(se.getJobExecutionId());
-						updateMessageStepExecutionMap(se, messageTemplatesWakingStepExecutions);
 						updateMessageStepExecutionMap(se, messageTemplatesAbandoningStepExecutions);
 					} catch (WaspBatchJobExecutionException e){
 						throw new WaspBatchJobExecutionReadinessException("Problem aborting job execution and cleaning up 'messageTemplatesAbandoningStepExecutions': " + e.getLocalizedMessage());
@@ -209,15 +212,15 @@ public class BatchJobHibernationManager {
 	 * @return number of steps handled
 	 * @throws WaspBatchJobExecutionReadinessException 
 	 */
-	private synchronized Set<Long> handleStepExecutionWakingOnMessage(WaspStatusMessageTemplate messageTemplate, Set<Long> jobExecutionIdsToIgnore) throws WaspBatchJobExecutionReadinessException{
+	private synchronized Set<Long> handleStepExecutionWakingOnMessage(WaspStatusMessageTemplate messageTemplate) throws WaspBatchJobExecutionReadinessException{
 		Set<Long> abandondedJobExecutionIds = new HashSet<>();
 		int pushMessageBackIntoQueueRequests = 0;
 		if (messageTemplatesWakingStepExecutions.keySet().contains(messageTemplate)){
 			logger.debug("messageTemplatesWakingStepExecutions.keySet() contains message");
 			Set<StepExecution> ses = new HashSet<>(messageTemplatesWakingStepExecutions.get(messageTemplate));
 			for (StepExecution se : ses){
-				if (!jobExecutionIdsToIgnore.contains(se.getJobExecutionId())){
-					jobExecutionIdsToIgnore.add(se.getJobExecutionId()); // make sure only performed once per jobExecution
+				if (!abandondedJobExecutionIds.contains(se.getJobExecutionId())){
+					abandondedJobExecutionIds.add(se.getJobExecutionId()); // make sure only performed once per jobExecution
 					logger.info("Waking job with JobExecution id=" +se.getJobExecutionId() + " for step " + se.getId() + 
 							" on receiving message " + messageTemplate.getPayload().toString());
 					try{
@@ -229,7 +232,6 @@ public class BatchJobHibernationManager {
 						reawakenJobExecution(se, WOKEN_ON_MESSAGE_STATUS, messageTemplate.getStatus());
 						abandondedJobExecutionIds.add(se.getJobExecutionId());
 						updateMessageStepExecutionMap(se, messageTemplatesWakingStepExecutions);
-						updateMessageStepExecutionMap(se, messageTemplatesAbandoningStepExecutions);
 					} catch (WaspBatchJobExecutionReadinessException e1){
 						logger.debug("Going to push message back into message queue: " + e1.getLocalizedMessage());
 						pushMessageBackIntoQueueRequests++;
@@ -403,20 +405,18 @@ public class BatchJobHibernationManager {
 	 * @param se
 	 * @param m
 	 */
-	private void updateMessageStepExecutionMap(StepExecution stepExecution,  Map<WaspStatusMessageTemplate, Set<StepExecution>> m){
-		for (StepExecution se : jobExplorer.getJobExecution(stepExecution.getJobExecutionId()).getStepExecutions()){
-			Set<StatusMessageTemplate> templates = new HashSet<StatusMessageTemplate>(m.keySet());
-			for (StatusMessageTemplate template :templates){
-				if (m.get(template).contains(se)){
-					logger.debug("Removing stepExecution id=" + se.getId() + 
-							" from list of step executions responding to message template : " + template.toString());
-					m.get(template).remove(se);
-				}
-				if (m.get(template).isEmpty()){
-					logger.debug("Removing message template from list of messages to watch for as no more StepExecutions depend on it : " + 
-							template.toString());
-					m.remove(template);
-				}
+	private void updateMessageStepExecutionMap(StepExecution se, Map<WaspStatusMessageTemplate, Set<StepExecution>> m){
+		Set<StatusMessageTemplate> templates = new HashSet<StatusMessageTemplate>(m.keySet());
+		for (StatusMessageTemplate template :templates){
+			if (m.get(template).contains(se)){
+				logger.debug("Removing stepExecution id=" + se.getId() + 
+						" from list of step executions responding to message template : " + template.toString());
+				m.get(template).remove(se);
+			}
+			if (m.get(template).isEmpty()){
+				logger.debug("Removing message template from list of messages to watch for as no more StepExecutions depend on it : " + 
+						template.toString());
+				m.remove(template);
 			}
 		}
 	}

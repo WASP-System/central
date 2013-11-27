@@ -42,6 +42,8 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	
 	protected boolean wasHibernationRequestGranted = false;
 	
+	protected int parallelSiblingFlowSteps = 0; // number of parallel steps in split flows in addition to this one
+	
 	@Autowired
 	@Value("${wasp.hibernation.retry.exponential.initialInterval:5000}")
 	private Long initialExponentialInterval;
@@ -52,6 +54,14 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	
 	@Autowired
 	private BatchJobHibernationManager hibernationManager;
+	
+	public int getParallelSiblingFlowSteps() {
+		return parallelSiblingFlowSteps;
+	}
+
+	public void setParallelSiblingFlowSteps(int parallelSteps) {
+		this.parallelSiblingFlowSteps = parallelSteps;
+	}
 	
 	/**
 	 * Request hibernation of this jobExecution
@@ -99,12 +109,24 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	
 	private boolean isAllActiveJobStepsRequestingHibernation(StepExecution stepExecution){
 		JobExecution jobExecution = stepExecution.getJobExecution();
+		int stepsRequestingHibernation = 0;
+		int totalSteps = 0;
+		int activeSteps = 0;
+		
 		for (StepExecution se : jobExecution.getStepExecutions()){
-			if (se.getStatus().equals(BatchStatus.STARTED) && !isHibernationRequestedForStep(se)){
-				logger.debug("JobExecution id=" + jobExecution.getId() + ", StepExecution id=" + se.getId() + 
-						" contains active steps which have not requested hibernation.");
-				return false;
+			totalSteps++;
+			if (se.getStatus().equals(BatchStatus.STARTED)){
+				activeSteps++;
+				if (isHibernationRequestedForStep(se))
+					stepsRequestingHibernation++;
 			}
+		}
+		int stepsWhichCanBeHibernated = (parallelSiblingFlowSteps + 1) - (totalSteps - activeSteps);
+		if (stepsRequestingHibernation < stepsWhichCanBeHibernated)
+		if (activeSteps - stepsRequestingHibernation  > totalSteps - (parallelSiblingFlowSteps + 1)){
+			logger.debug("JobExecution id=" + jobExecution.getId() + " currently contains " + stepsRequestingHibernation + 
+					" / " + stepsWhichCanBeHibernated + " steps requesting hibernation.");
+			return false;
 		}
 		logger.debug("JobExecution id=" + jobExecution.getId() + 
 				" contains no active steps that have not requested hibernation");

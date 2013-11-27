@@ -49,8 +49,6 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 	
 	private List<Message<?>> messageQueue = new ArrayList<>();
 	
-	private int parallelSiblingFlowSteps = 0; // number of parallel steps in split flows in addition to this one
-	
 	private boolean abandonStep = false;
 	
 	@Autowired
@@ -81,17 +79,9 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 	
 	public void setMessagesToListenFor(Set<WaspStatusMessageTemplate> messageTemplates) {
 		this.messageTemplates.clear();
-		addAbandonedAndFailureMessageTemplates(messageTemplates);
 		this.messageTemplates.addAll(messageTemplates);
 	}
 	
-	public int getParallelSiblingFlowSteps() {
-		return parallelSiblingFlowSteps;
-	}
-
-	public void setParallelSiblingFlowSteps(int parallelSteps) {
-		this.parallelSiblingFlowSteps = parallelSteps;
-	}
 
 	@PostConstruct
 	protected void init() throws MessagingException{
@@ -161,30 +151,6 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 					"). Awaiting hibernation...");
 		}
 		return RepeatStatus.CONTINUABLE;	
-	}
-	
-	/**
-	 * If waiting for a message with a CREATED / ACCEPTED status etc for a task other than NotifyStatus, we may also wish to wake in the case of receiving a 
-	 * status of ABANDONED or FAILED
-	 * @param messageTemplates
-	 */
-	private void addAbandonedAndFailureMessageTemplates(Set<WaspStatusMessageTemplate> messageTemplates){
-		Set<WaspStatusMessageTemplate> newTemplates = new HashSet<>();
-		for (WaspStatusMessageTemplate t : messageTemplates){
-			if (t.getTask() != null && !t.getTask().equals(WaspTask.NOTIFY_STATUS)){
-				if (!t.getStatus().equals(WaspStatus.ABANDONED)){
-					WaspStatusMessageTemplate newTemplate = t.getNewInstance(t);
-					newTemplate.setStatus(WaspStatus.ABANDONED);
-					newTemplates.add(newTemplate);
-				}
-				if (!t.getStatus().equals(WaspStatus.FAILED)){
-					WaspStatusMessageTemplate newTemplate = t.getNewInstance(t);
-					newTemplate.setStatus(WaspStatus.FAILED);
-					newTemplates.add(newTemplate);
-				}
-			}
-		}
-		messageTemplates.addAll(newTemplates);
 	}
 	
 	@Override
