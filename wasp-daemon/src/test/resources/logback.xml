@@ -57,6 +57,6 @@
   <logger name="org.bouncycastle" level="INFO"/>
   <root level="WARN">
     <appender-ref ref="stdout"/>
-    <appender-ref ref="logfile" />
+    <!-- appender-ref ref="logfile" /-->
   </root>
 </configuration>

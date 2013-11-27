@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
 import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
@@ -126,7 +127,7 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 			return RepeatStatus.FINISHED;
 		}
 		if (isHibernationRequestedForJob(context.getStepContext().getStepExecution().getJobExecution())){
-			logger.debug("This JobExecution (id=" + jobExecutionId + ") is already undergoing hibernation. Awaiting hibernation...");
+			logger.trace("This JobExecution (id=" + jobExecutionId + ") is already undergoing hibernation. Awaiting hibernation...");
 		} else if (!wasHibernationRequested){
 			JobExecution je = context.getStepContext().getStepExecution().getJobExecution();
 			int numSteps = je.getStepExecutions().size();
@@ -163,21 +164,24 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 	}
 	
 	/**
-	 * If waiting for a message with a CREATED / ACCEPTED status etc, we may also wish to wake in case of receiving a status of ABANDONED or FAILED
+	 * If waiting for a message with a CREATED / ACCEPTED status etc for a task other than NotifyStatus, we may also wish to wake in the case of receiving a 
+	 * status of ABANDONED or FAILED
 	 * @param messageTemplates
 	 */
 	private void addAbandonedAndFailureMessageTemplates(Set<WaspStatusMessageTemplate> messageTemplates){
 		Set<WaspStatusMessageTemplate> newTemplates = new HashSet<>();
 		for (WaspStatusMessageTemplate t : messageTemplates){
-			if (!t.getStatus().equals(WaspStatus.ABANDONED)){
-				WaspStatusMessageTemplate newTemplate = t.getNewInstance(t);
-				newTemplate.setStatus(WaspStatus.ABANDONED);
-				newTemplates.add(newTemplate);
-			}
-			if (!t.getStatus().equals(WaspStatus.FAILED)){
-				WaspStatusMessageTemplate newTemplate = t.getNewInstance(t);
-				newTemplate.setStatus(WaspStatus.FAILED);
-				newTemplates.add(newTemplate);
+			if (t.getTask() != null && !t.getTask().equals(WaspTask.NOTIFY_STATUS)){
+				if (!t.getStatus().equals(WaspStatus.ABANDONED)){
+					WaspStatusMessageTemplate newTemplate = t.getNewInstance(t);
+					newTemplate.setStatus(WaspStatus.ABANDONED);
+					newTemplates.add(newTemplate);
+				}
+				if (!t.getStatus().equals(WaspStatus.FAILED)){
+					WaspStatusMessageTemplate newTemplate = t.getNewInstance(t);
+					newTemplate.setStatus(WaspStatus.FAILED);
+					newTemplates.add(newTemplate);
+				}
 			}
 		}
 		messageTemplates.addAll(newTemplates);
@@ -190,7 +194,7 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 			for (Message<?> message: messageQueue)
 				exitStatus.addExitDescription((String) message.getHeaders().get(WaspStatusMessageTemplate.EXIT_DESCRIPTION_HEADER));
 			if (abandonStep || getWokenOnMessageStatus(stepExecution).isUnsuccessful())
-				exitStatus =  ExitStatus.FAILED; // modify exit code if abandoned
+				exitStatus = ExitStatus.FAILED; // modify exit code if abandoned
 		}
 		sendSuccessReplyToAllMessagesInQueue();
 		this.messageQueue.clear(); // clean up in case of restart

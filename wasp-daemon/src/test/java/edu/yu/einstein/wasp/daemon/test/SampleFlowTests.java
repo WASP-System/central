@@ -107,7 +107,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 		libraryListeningChannel = messageChannelRegistry.getChannel("wasp.channel.notification.library", SubscribableChannel.class);
 		libraryListeningChannel.subscribe(this); // register as a message handler on the listeningChannel
 		messagingTemplate = new MessagingTemplate();
-		messagingTemplate.setReceiveTimeout(60000);
+		messagingTemplate.setReceiveTimeout(10000);
 	}
 	
 	@AfterMethod
@@ -161,6 +161,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 				Message<?> replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), sampleCreatedNotificationMessage);
 				if (replyMessage == null)
 					Assert.fail("testSamplesReceived(): Failed to receive reply message");
+				
 			}
 			try{
 				Thread.sleep(500);
@@ -190,11 +191,12 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 				replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), qcPassedNotificationMessage);
 				if (replyMessage == null)
 					Assert.fail("testSamplesReceived(): Failed to receive reply message");
+				
 			}
 			int repeat = 0;
 			while (messages.size() < expectedMessages && repeat < 20){
 				try{
-					Thread.sleep(1000);
+					Thread.sleep(500);
 				} catch (InterruptedException e){};
 				repeat++;
 			}
@@ -245,7 +247,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	 */
 	@Test (groups = "unit-tests-batch-integration")
 	public void testManyDNASamplesReceived() throws Exception{
-		testSamplesReceived(100, 2);
+		testSamplesReceived(50, 2);
 	}
 	
 	/**
@@ -430,7 +432,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	 */
 	@Test (groups = "unit-tests-batch-integration")
 	public void testJobAbandoned() throws Exception{
-		try{
+		//try{
 			SampleType sampleType = new SampleType();
 			sampleType.setId(1);
 			sampleType.setIName("dna");
@@ -478,11 +480,11 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			logger.debug("JobExecution at end: " + freshJe.toString());
 			WaspBatchExitStatus status = new WaspBatchExitStatus(freshJe.getExitStatus());
 			Assert.assertEquals(status.getExitCode(), WaspBatchExitStatus.TERMINATED.getExitCode());
-		} catch (Exception e){
+		//} catch (Exception e){
 			// caught an unexpected exception
-			Assert.fail("testJobAbandoned(): Caught Exception: "+e.getMessage());
-			e.printStackTrace();
-		}
+		//	Assert.fail("testJobAbandoned(): Caught Exception: "+e.getMessage());
+		//	e.printStackTrace();
+		//}
 	}
 	
 	@Override

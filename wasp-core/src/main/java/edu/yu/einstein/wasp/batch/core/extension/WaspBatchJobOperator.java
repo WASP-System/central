@@ -1,7 +1,6 @@
 package edu.yu.einstein.wasp.batch.core.extension;
 
 import java.lang.reflect.Field;
-import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,22 +94,7 @@ public class WaspBatchJobOperator extends SimpleJobOperator implements JobOperat
 		return true;
 	}
 	
-	 @Override
-     public JobExecution abandon(long jobExecutionId) throws NoSuchJobExecutionException, JobExecutionAlreadyRunningException {
-             JobExecution jobExecution = findExecutionById(jobExecutionId);
 
-             if (jobExecution.getStatus().isLessThan(BatchStatus.STOPPED)) {
-                     throw new JobExecutionAlreadyRunningException(
-                                     "JobExecution is running or complete and therefore cannot be aborted");
-             }
-
-             logger.info("Aborting job execution: " + jobExecution);
-             jobExecution.upgradeStatus(BatchStatus.ABANDONED);
-             jobExecution.setExitStatus(WaspBatchExitStatus.TERMINATED);
-             jobExecution.setEndTime(new Date());
-             getJobRepository().update(jobExecution);
-             return jobExecution;
-     }
 	
 	 private JobExecution findExecutionById(long executionId) throws NoSuchJobExecutionException {
          JobExecution jobExecution = getJobExplorer().getJobExecution(executionId);
