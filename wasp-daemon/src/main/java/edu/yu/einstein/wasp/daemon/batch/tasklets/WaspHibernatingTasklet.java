@@ -114,7 +114,7 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	private void doHibernate(StepExecution stepExecution) throws WaspBatchJobExecutionReadinessException{
 		Long requestingStepExecutionId = stepExecution.getId();
 		JobExecution jobExecution = stepExecution.getJobExecution();
-		jobExecution.getExecutionContext().put(AbstractJob.HIBERNATION_REQUESTED, true);
+		setHibernationRequestedForJob(stepExecution.getJobExecution(), true);
 		Long jobExecutionId = jobExecution.getId();
 		logger.info("Hibernation of JobExecution=" + jobExecutionId + " triggered by StepExecution id=" + stepExecution.getId());
 		// register all wake triggers with hibernation manger
@@ -153,15 +153,25 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 		executionContext.put(AbstractJob.HIBERNATION_REQUESTED, isRequested);
 	}
 	
-	protected boolean isHibernationRequestedForJob(JobExecution jobExecution){
-		return BatchJobHibernationManager.isJobExecutionIdLockedForHibernating(jobExecution.getId());
-	}
-	
 	protected boolean isHibernationRequestedForStep(StepExecution stepExecution){
 		ExecutionContext executionContext = stepExecution.getExecutionContext();
 		return executionContext.containsKey(AbstractJob.HIBERNATION_REQUESTED) && 
 				(boolean) executionContext.get(AbstractJob.HIBERNATION_REQUESTED);
 	}
+	
+	protected void setHibernationRequestedForJob(JobExecution jobExecution, boolean isRequested){
+		ExecutionContext executionContext = jobExecution.getExecutionContext();
+		executionContext.put(AbstractJob.HIBERNATION_REQUESTED, isRequested);
+	}
+	
+	protected boolean isHibernationRequestedForJob(JobExecution jobExecution){
+		ExecutionContext executionContext = jobExecution.getExecutionContext();
+		if (executionContext.containsKey(AbstractJob.HIBERNATION_REQUESTED) && 
+				(boolean) executionContext.get(AbstractJob.HIBERNATION_REQUESTED))
+			return true;
+		return BatchJobHibernationManager.isJobExecutionIdLockedForHibernating(jobExecution.getId());
+	}
+	
 	
 	/**
 	 * Display contents of the JobExecutionContext and StepExecution context. Handy for debugging.
