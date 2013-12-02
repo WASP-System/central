@@ -10,5 +10,10 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/helptag/description.jsp" />
 	</definition>
 	
+	<definition name="jobsubmit/helptagform" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/helptag/helptagpair.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/helptag/helptagpair.jsp" />
+	</definition>
+
 </tiles-definitions>
 

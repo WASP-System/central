@@ -345,7 +345,7 @@ function printSelectedNodes() {
 //Toggle children
 
 function toggle(d) {
-	if (d.children) {
+	if (d.children && d.children!="") {
 		d._children = d.children;
 		d.children = null;
 	} else {
@@ -576,7 +576,7 @@ function click(d) {
 		}
 	});
 
-	if (d.children == '') {
+	if (!d.children || d.children=='') {
 		$.ajax({
 			url: '/wasp/jobresults/getTreeJson.do?node=' + dstr,
 			type: 'GET',

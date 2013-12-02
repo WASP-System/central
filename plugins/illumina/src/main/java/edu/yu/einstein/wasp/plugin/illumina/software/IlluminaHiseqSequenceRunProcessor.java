@@ -27,9 +27,11 @@ import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy;
 import edu.yu.einstein.wasp.plugin.mps.software.sequencer.SequenceRunProcessor;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -188,7 +190,8 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 				
 				// if the sample is not TruSeq, do not place it in the sample sheet
 				// the cell library source sample is the library itself (cellLibrary.getSample() == cell).
-				if (! adaptorService.getAdaptor(cellLibrary.getSourceSample()).getAdaptorset().getIName().equals(truseqIndexedDnaArea))
+				Integer adaptorsetId = adaptorService.getAdaptor(cellLibrary.getSourceSample()).getAdaptorsetId();
+				if (! adaptorService.getIndexingStrategy(adaptorsetId).equals(IlluminaIndexingStrategy.TRUSEQ))
 					continue;
 				
 				cellMarked[cellid-1] = true;

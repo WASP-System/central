@@ -3,6 +3,7 @@ package edu.yu.einstein.wasp.controller;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.Format;
@@ -23,13 +24,16 @@ import java.util.Random;
 import java.util.Set;
 //import java.util.concurrent.Callable;
 
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.integration.MessagingException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,8 +48,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.itextpdf.text.DocumentException;
+
 import edu.yu.einstein.wasp.MetaMessage;
-import edu.yu.einstein.wasp.additionalClasses.Strategy;
+import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.controller.util.JsonHelperWebapp;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.controller.util.SampleWrapperWebapp;
@@ -59,6 +65,7 @@ import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.QuoteException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
@@ -118,7 +125,6 @@ import edu.yu.einstein.wasp.util.StringHelper;
 import edu.yu.einstein.wasp.web.Tooltip;
 
 @Controller
-@Transactional
 @RequestMapping("/job")
 public class JobController extends WaspController {
 
@@ -157,7 +163,7 @@ public class JobController extends WaspController {
 
 
 	@Autowired
-	private LabDao		labDao;
+	private LabDao	labDao;
 	@Autowired
 	private WorkflowresourcecategoryDao workflowresourcecategoryDao;
 	@Autowired
@@ -203,7 +209,8 @@ public class JobController extends WaspController {
 	}
 	
 	final public String LIBRARY_STRATEGY = "libraryStrategy";
-
+	
+	@Transactional
 	@RequestMapping(value = "/analysisParameters/{jobId}", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('jv-' + #jobId)")
 	public String jobAnalysisParameters(@PathVariable("jobId") Integer jobId, ModelMap m) {
@@ -252,6 +259,7 @@ public class JobController extends WaspController {
 		return "job/analysisParameters";
 	}
 	
+	@Transactional
 	@RequestMapping(value = "/comments/{jobId}", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('jv-' + #jobId)")
 	public String jobComments(@PathVariable("jobId") Integer jobId, ModelMap m) {
@@ -288,6 +296,7 @@ public class JobController extends WaspController {
 		return "job/comments";
 	}
 	
+	@Transactional
 	@RequestMapping(value = "/comments/{jobId}", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String jobCommentsPost(@PathVariable("jobId") Integer jobId,  @RequestParam("comment") String comment, ModelMap m) {
@@ -316,6 +325,7 @@ public class JobController extends WaspController {
 		return "redirect:/job/comments/"+jobId+".do";
 	}
 	
+	@Transactional
 	@RequestMapping("/list")
 	public String list(ModelMap m) {
 		//List<Job> jobList = this.getJobDao().findAll();
@@ -335,6 +345,7 @@ public class JobController extends WaspController {
 		return "job/list";
 	}
 	
+	@Transactional
 	@RequestMapping(value="/listJSON", method=RequestMethod.GET)
 	public String getListJSON(HttpServletResponse response) {
 		
@@ -630,6 +641,7 @@ public class JobController extends WaspController {
 		}	
 	}
 	
+	@Transactional
 	@RequestMapping(value = "/subgridJSON.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('jv-' + #jobId)")
 	public String subgridJSON(@RequestParam("id") Integer jobId,ModelMap m, HttpServletResponse response) {
@@ -697,6 +709,7 @@ public class JobController extends WaspController {
 	
 	}
 	
+	@Transactional
 	@RequestMapping(value = "/detail/{jobId}", method = RequestMethod.GET)
 	public String detail(@PathVariable("jobId") Integer jobId, ModelMap m) {
 		String now = (new Date()).toString();
@@ -725,6 +738,7 @@ public class JobController extends WaspController {
 		return "job/detail";
 	}
 	
+  @Transactional
   @RequestMapping(value="/user/roleAdd", method=RequestMethod.POST)
   @PreAuthorize("hasRole('su') or hasRole('lm-' + #labId) or hasRole('js-' + #jobId)")
   public String jobViewerUserRoleAdd (
@@ -768,7 +782,7 @@ public class JobController extends WaspController {
     return "redirect:/job/detail/" + jobId + ".do";
   }
 
-	
+  @Transactional
   @RequestMapping(value="/user/roleRemove/{labId}/{jobId}/{UserId}", method=RequestMethod.GET)
   @PreAuthorize("hasRole('su') or hasRole('lm-' + #labId)")
   public String departmentUserRoleRemove (
@@ -791,7 +805,7 @@ public class JobController extends WaspController {
   	/**
 	 * show job/resource data and meta information to be modified.
 	 */
-  
+    @Transactional
 	@RequestMapping(value = "/meta/{jobId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('fm')") 
 	public String showJobMetaForm(
@@ -865,6 +879,7 @@ public class JobController extends WaspController {
 		return "job/metaform_rw";
 	}
   
+    @Transactional
 	@RequestMapping(value = "/jobsAwaitingLibraryCreation/jobsAwaitingLibraryCreationList.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('fm') or hasRole('ft') or hasRole('ga')")
 	public String jobsAwaitingLibraryCreation(ModelMap m) {
@@ -886,6 +901,7 @@ public class JobController extends WaspController {
 		return "job/jobsAwaitingLibraryCreation/jobsAwaitingLibraryCreationList";	  
 	}
   
+    @Transactional
 	@RequestMapping(value="/{jobId}/homepage", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobHomePage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
@@ -900,6 +916,7 @@ public class JobController extends WaspController {
 		return "job/home/homepage";
 	}
   
+    @Transactional
 	@RequestMapping(value="/{jobId}/basic", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobBasicPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
@@ -942,6 +959,7 @@ public class JobController extends WaspController {
 		return "job/home/basic";
 	}
   
+    @Transactional
 	@RequestMapping(value="/{jobId}/costManager", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobCostPage(@PathVariable("jobId") Integer jobId,
@@ -957,6 +975,7 @@ public class JobController extends WaspController {
 		return "job/home/costManager";
 	}
 
+    @Transactional
 	private void populateCostPage(Job job, ModelMap m){
 		
 		//need this (viewerIsFacilityStaff) since might be coming from callable (and security context lost)
@@ -1026,6 +1045,7 @@ public class JobController extends WaspController {
 		m.addAttribute("acctQuotesWithJsonEntry", acctQuotesWithJsonEntry);			
 	}
 	
+    @Transactional
 	@RequestMapping(value="/{jobId}/uploadQuoteOrInvoice", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
 	  public String jobFileUploadQuoteOrInvoice(@PathVariable("jobId") Integer jobId, 
@@ -1043,6 +1063,7 @@ public class JobController extends WaspController {
 		return "job/home/uploadQuoteOrInvoice";
 	}
 	
+    @Transactional
 	//Note: we use MultipartHttpServletRequest to be able to upload files using Ajax. See http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/
 	@RequestMapping(value="/{jobId}/uploadQuoteOrInvoice", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
@@ -1139,6 +1160,7 @@ public class JobController extends WaspController {
 			 // };
 	}
 	
+	@Transactional
 	@RequestMapping(value="/{jobId}/acctQuote/{quoteId}/createUpdateQuote", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
 	  public String createJobQuoteOrInvoicePage(@PathVariable("jobId") Integer jobId,@PathVariable("quoteId") Integer quoteId,
@@ -1247,6 +1269,7 @@ public class JobController extends WaspController {
 		return "job/home/createUpdateQuote";
 	}
 	
+	@Transactional
 	@RequestMapping(value="/{jobId}/previewQuote", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
 	public void jobPreviewQuote(@PathVariable("jobId") Integer jobId,
@@ -1328,6 +1351,7 @@ public class JobController extends WaspController {
 		}
 		File localFile = null;
 		OutputStream outputStream = null;
+		errorMessage = "";
 		try{
 			localFile = fileService.createTempFile();
 			outputStream = new FileOutputStream(localFile);
@@ -1345,19 +1369,25 @@ public class JobController extends WaspController {
 	 	   	String footerHtml2 = "<br /></body></html>";
 	 	   	response.getOutputStream().print(headerHtml2+successMessage+footerHtml2);
 	 	   	return;
-			
-		}catch(Exception e){
-			errorMessage = "Major problems encountered while creating file or saving to database";
+		} catch(MetadataException | DocumentException | QuoteException | JSONException e1){
+			errorMessage = messageService.getMessage("job.quoteGeneration.error");
+		} catch(FileUploadException | IOException e2){
+			errorMessage = messageService.getMessage("job.quoteFileUpload.error");
+		} catch(MessagingException e3){
+			errorMessage = messageService.getMessage("job.quoteUpdateStatus.error"); 
+		}
+		if (!errorMessage.isEmpty()){
 			logger.warn(errorMessage);
 			//e.printStackTrace();
 			try{
 				response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
 				return;
-			}catch(Exception e2){logger.warn(e.getMessage()); return;}
+			}catch(IOException e){logger.warn(e.getMessage()); return;}
 
-		}	
+		}
 	}
 		
+	@Transactional
 	//checks for any errors in the request.
 	//if errors exist, record them in mpsQuote.errors, else fill up mpsQuote with information from the request
 	private MPSQuote constructMPSQuoteFromRequest(HttpServletRequest request, Job job){
@@ -1666,6 +1696,7 @@ public class JobController extends WaspController {
 		return mpsQuote;
 	}
 	
+	@Transactional
 	@RequestMapping(value="/{jobId}/viewerManager", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobViewerManagerPage(@PathVariable("jobId") Integer jobId, 
@@ -1709,6 +1740,7 @@ public class JobController extends WaspController {
 		m.addAttribute("currentWebViewerIsSuperuserOrJobSubmitterOrJobPI", authenticationService.isSuperUser() || currentWebViewer.getId().intValue() == job.getUserId().intValue() || currentWebViewer.getId().intValue() == job.getLab().getPrimaryUserId().intValue());
 	}
 	
+	@Transactional
 	@RequestMapping(value="/{jobId}/viewerManager", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobViewerManagerPostPage(@PathVariable("jobId") Integer jobId, @RequestParam("newViewerEmailAddress") String newViewerEmailAddress, ModelMap m) throws SampleTypeException {
@@ -1735,6 +1767,7 @@ public class JobController extends WaspController {
 		return "job/home/viewerManager";
 	}
 	
+	@Transactional
 	@RequestMapping(value="/{jobId}/user/{userId}/removeJobViewer", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobViewerManagerRemoveUserPage(@PathVariable("jobId") Integer jobId, 
@@ -1771,6 +1804,7 @@ public class JobController extends WaspController {
 		return "job/home/viewerManager";
 	}
 	
+	@Transactional
 	@RequestMapping(value="/{jobId}/comments", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobCommentsPage(@PathVariable("jobId") Integer jobId, 
@@ -1787,7 +1821,8 @@ public class JobController extends WaspController {
 		populateComments(job, m);
 		return "job/home/comments";
 	}
-
+	
+	@Transactional
 	private void populateComments(Job job, ModelMap m){
 		
 		m.addAttribute("job", job);
@@ -1829,7 +1864,8 @@ public class JobController extends WaspController {
 		m.addAttribute("permissionToAddEditComment", permissionToAddEditComment);
 	}
 	
-	@RequestMapping(value="/{jobId}/comments", method=RequestMethod.POST)
+	  @Transactional
+	  @RequestMapping(value="/{jobId}/comments", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobCommentsPostPage(@PathVariable("jobId") Integer jobId, 
 			  @RequestParam("comment") String comment,
@@ -1866,7 +1902,8 @@ public class JobController extends WaspController {
 		return "job/home/comments";
 	}
 	
-	@RequestMapping(value="/{jobId}/fileUploadManager", method=RequestMethod.GET)
+	  @Transactional
+	  @RequestMapping(value="/{jobId}/fileUploadManager", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobFileUploadPage(@PathVariable("jobId") Integer jobId, 
 			  @RequestParam(value="errorMessage", required=false) String errorMessage,
@@ -1883,7 +1920,8 @@ public class JobController extends WaspController {
 		return "job/home/fileUploadManager";
 	}
 
-	private void populateFileUploadPage(Job job, ModelMap m){
+	  @Transactional
+	  private void populateFileUploadPage(Job job, ModelMap m){
 		
 		m.addAttribute("job", job);
 		
@@ -1913,7 +1951,8 @@ public class JobController extends WaspController {
 	}
 	
 	//Note: we use MultipartHttpServletRequest to be able to upload files using Ajax. See http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/
-	@RequestMapping(value="/{jobId}/fileUploadManager", method=RequestMethod.POST)
+	  @Transactional
+	  @RequestMapping(value="/{jobId}/fileUploadManager", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public /*Callable<String>*/ String jobFileUploadPostPage(@PathVariable("jobId") final Integer jobId,
 			  final MultipartHttpServletRequest request, 
@@ -1975,6 +2014,7 @@ public class JobController extends WaspController {
 			  //};
 	}
 	
+	  @Transactional
 	@RequestMapping(value="/{jobId}/requests", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobRequestsPage(@PathVariable("jobId") Integer jobId, 
@@ -2022,11 +2062,14 @@ public class JobController extends WaspController {
 		return "job/home/requests";
 	}
 	
+	@Transactional
 	private void getCellsRequested(Job job, ModelMap m){
 		//which libraries/samples should go on which lanes
 		m.addAttribute("cellsRequestedMap", jobService.getCoverageMap(job));
 		m.addAttribute("totalNumberCellsRequested", job.getJobCellSelection()==null?0:job.getJobCellSelection().size());		
 	}
+	
+	@Transactional
 	private void getSamplePairsRequested(Job job, ModelMap m){
 		List<Sample> submittedSamplesList = jobService.getSubmittedSamples(job);
 		List<Sample> controlList = new ArrayList<Sample>();
@@ -2059,6 +2102,8 @@ public class JobController extends WaspController {
 		m.addAttribute("controlLabel", controlLabel);
 		m.addAttribute("testLabel", testLabel);
 	}
+	
+	@Transactional
 	private void getSoftwareRequested(Job job, ModelMap m){
 		List<Software> softwareList = jobService.getSoftwareForJob(job);
 		m.addAttribute("softwareList", softwareList);
@@ -2073,6 +2118,8 @@ public class JobController extends WaspController {
 		m.addAttribute("softwareAndSyncdMetaMap", softwareAndSyncdMetaMap);
 		m.addAttribute("parentArea", "job");//do not remove; it's needed for the metadata related to the software display below
 	}
+	
+	@Transactional
 	private void getOrganism_Genome_BuildForAlignment(Job job, ModelMap m){
 		List<Sample> submittedSamplesList = jobService.getSubmittedSamples(job);
 		Map<Sample, List<String>> sampleGenomesForAlignmentListMap = new HashMap<Sample, List<String>>();
@@ -2092,6 +2139,8 @@ public class JobController extends WaspController {
 		m.addAttribute("submittedSamplesList", submittedSamplesList);
 		m.addAttribute("sampleGenomesForAlignmentListMap", sampleGenomesForAlignmentListMap);
 	}
+	
+	@Transactional
  	@RequestMapping(value="/{jobId}/addLibrariesToCell", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft')")
 	  public String jobAddLibrariesToCellPage(@PathVariable("jobId") Integer jobId, 
@@ -2109,6 +2158,7 @@ public class JobController extends WaspController {
 		return "job/home/addLibrariesToCell";
 	}
 	 
+	@Transactional
 	@RequestMapping(value="/{jobId}/addLibrariesToCell", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft')")
 	  public String jobAddLibrariesToCellPostPage(@PathVariable("jobId") Integer jobId,
@@ -2322,6 +2372,7 @@ public class JobController extends WaspController {
 		return "job/home/addLibrariesToCell";
 	}
 	
+	@Transactional
 	@RequestMapping(value="/{jobId}/mpsResultsListedBySample", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobMpsResultsListedBySamplePage(@PathVariable("jobId") Integer jobId, 
@@ -2339,6 +2390,7 @@ public class JobController extends WaspController {
 		return "job/home/mpsResultsListedBySample";
 	}
 	
+	@Transactional
 	@RequestMapping(value="/{jobId}/samples", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobSamplesPage(@PathVariable("jobId") Integer jobId, 
@@ -2356,6 +2408,7 @@ public class JobController extends WaspController {
 		return "job/home/samples";
 	}
 
+	@Transactional
 	private void getSampleLibraryRunData(Job job, ModelMap m) throws SampleTypeException {
 		
 		  m.addAttribute("job", job);
@@ -2597,6 +2650,7 @@ public class JobController extends WaspController {
 		  m.addAttribute("libraryAdaptorsetMapOnForm", libraryAdaptorsetMapOnForm);		  
 	}
 	
+	@Transactional
 	@RequestMapping(value="/{jobId}/cell/{cellId}/library/{libraryId}/updateConcentration", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft')")
 	  public String jobUpdateConcentrationToCellPostPage(
@@ -2624,6 +2678,7 @@ public class JobController extends WaspController {
 		return "job/home/samples";
 	}
 	
+	@Transactional
 	@RequestMapping(value="/{jobId}/cell/{cellId}/library/{libraryId}/removeLibrary", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft')")
 	  public String jobRemoveLibraryFromCellPage(
@@ -2652,6 +2707,7 @@ public class JobController extends WaspController {
 		return "job/home/samples";	
 	}
 	
+	@Transactional
 	@RequestMapping(value="/{jobId}/library/{libraryId}/addToCell", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft')")
 	  public String jobAddLibraryToCellPostPage(
@@ -2747,6 +2803,7 @@ public class JobController extends WaspController {
 		return "job/home/samples";	
 	}
 	
+	@Transactional
 	@RequestMapping(value="/{jobId}/macromolecule/{macromolSampleId}/createLibrary", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
 	  public String jobCreateLibraryFromMacromoleculePage(@PathVariable("jobId") Integer jobId, 
@@ -2798,6 +2855,7 @@ public class JobController extends WaspController {
 		return "job/home/createLibrary";
 	}
 	
+	@Transactional
 	  @RequestMapping(value = "/{jobId}/macromolecule/{macromolSampleId}/createLibrary", method = RequestMethod.POST)//here, macromolSampleId represents a macromolecule (genomic DNA or RNA) submitted to facility for conversion to a library
 	  @PreAuthorize("hasRole('su') or hasRole('ft')")
 	  public String createLibrary1234(
@@ -2887,6 +2945,7 @@ public class JobController extends WaspController {
 		  }
 	 }
 	
+	@Transactional
 	@RequestMapping(value="/{jobId}/sample/{sampleId}/sampledetail_ro", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobSampleDetailPage(@PathVariable("jobId") Integer jobId, 
@@ -2929,6 +2988,8 @@ public class JobController extends WaspController {
 		
 		return "job/home/sampledetail_ro";
 	}
+	
+	@Transactional
 	@RequestMapping(value="/{jobId}/sample/{sampleId}/sampledetail_rw", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')") /* or hasRole('jv-' + #jobId) */
 	  public String jobSampleDetailRWPage(@PathVariable("jobId") Integer jobId, 
@@ -2966,6 +3027,7 @@ public class JobController extends WaspController {
 		return "job/home/sampledetail_rw";
 	}	
 	
+	@Transactional
 	@RequestMapping(value = "/{jobId}/sample/{sampleId}/sampledetail_rw", method = RequestMethod.POST)//sampleId represents a macromolecule (genomic DNA or RNA) , but that could change as this evolves
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String updateJobSampleDetailRW(@PathVariable("jobId") Integer jobId, 
@@ -3044,6 +3106,7 @@ public class JobController extends WaspController {
 	}
 		
 	 
+	@Transactional
 	  @RequestMapping(value="/{jobId}/library/{libraryId}/librarydetail_ro", method=RequestMethod.GET)
 		  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 		  public String jobLibraryDetailPage(@PathVariable("jobId") Integer jobId, 
@@ -3085,6 +3148,8 @@ public class JobController extends WaspController {
 			m.addAttribute("successMessage", successMessage);//only coming from CreateLibrary and update the library; do not ever set this 
 			return "job/home/librarydetail_ro";
 		}
+	
+	@Transactional
 	  @RequestMapping(value="/{jobId}/library/{libraryId}/librarydetail_rw", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')") /* or hasRole('jv-' + #jobId) */
 	  public String jobLibraryDetailRWPage(@PathVariable("jobId") Integer jobId, 
@@ -3120,6 +3185,7 @@ public class JobController extends WaspController {
 			return "job/home/librarydetail_rw";
 	}
 	  
+	@Transactional
 	@RequestMapping(value = "/{jobId}/library/{libraryId}/librarydetail", method = RequestMethod.POST)//sampleId represents a macromolecule (genomic DNA or RNA) , but that could change as this evolves
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String updateJobLibraryDetailRW(@PathVariable("jobId") Integer jobId, 
@@ -3212,6 +3278,7 @@ public class JobController extends WaspController {
 	   * @return
 	   * @throws MetadataException
 	   */
+	@Transactional
 	  public void libraryDetail(Integer jobId, Integer libraryInId, ModelMap m) throws MetadataException{
 			// get the library subtype for this workflow as the job-viewer sees it. We will use this 
 			// to synchronize the metadata for display.
@@ -3247,6 +3314,7 @@ public class JobController extends WaspController {
 	   * @return
 	   * @throws MetadataException
 	   */
+	@Transactional
 	  public void libraryDetail(Integer jobId, Sample libraryIn, Integer libraryInId, ModelMap m) throws MetadataException{
 		  	Job job = jobDao.getJobByJobId(jobId);
 		  	
@@ -3299,6 +3367,7 @@ public class JobController extends WaspController {
 	   * @param sampleDraftMeta
 	   * @param m
 	   */
+	@Transactional
 		private void prepareAdaptorsetsAndAdaptors(Job job, List<SampleMeta> sampleMeta, ModelMap m){
 			List<Adaptorset> adaptorsets = new ArrayList<Adaptorset>();
 			for (JobResourcecategory jrc: job.getJobResourcecategory()){
