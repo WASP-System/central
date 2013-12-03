@@ -30,8 +30,8 @@ import org.springframework.integration.support.MessageBuilder;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
+import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
-import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
 import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
@@ -49,7 +49,8 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 	
 	private List<Message<?>> messageQueue = new ArrayList<>();
 	
-	private boolean abandonStep = false;
+	private List<Message<?>> abandonMessageQueue = new ArrayList<>();
+
 	
 	@Autowired
 	@Qualifier("wasp.channel.reply")
@@ -104,16 +105,24 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 	@Override
 	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
-		Long stepExecutionId = context.getStepContext().getStepExecution().getId();
+		StepExecution stepExecution =  context.getStepContext().getStepExecution();
+		Long stepExecutionId =stepExecution.getId();
 		Long jobExecutionId = context.getStepContext().getStepExecution().getJobExecutionId();
 		logger.trace(name + "execute() invoked");
-		if (!messageQueue.isEmpty()){
+		if ((!messageQueue.isEmpty() || !abandonMessageQueue.isEmpty()) && 
+				!isHibernationRequestedForJob(stepExecution.getJobExecution())){
+			if (wasHibernationRequested){
+				setHibernationRequestedForStep(stepExecution, false);
+				hibernationManager.removeStepExecutionFromWakeMessageMap(stepExecution);
+				hibernationManager.removeStepExecutionFromAbandonMessageMap(stepExecution);
+			}
 			logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + ") received an expected message so finishing step.");
 			//return RepeatStatus.FINISHED;
 		}
 		if (wasWokenOnMessage(context)){
 			logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + 
 					") was woken up from hibernation for a message. Skipping to next step...");
+			BatchJobHibernationManager.removeJobExecutionIdLockedForWaking(jobExecutionId); 
 			return RepeatStatus.FINISHED;
 		}
 		if (isHibernationRequestedForJob(context.getStepContext().getStepExecution().getJobExecution())){
@@ -123,6 +132,8 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 			int numSteps = je.getStepExecutions().size();
 			if (numSteps < parallelSiblingFlowSteps + 1){
 				logger.debug("Not all steps from JobExecution id=" + jobExecutionId + " are visible. Can see " + numSteps + " but expect " + (parallelSiblingFlowSteps + 1));
+				for (StepExecution se : je.getStepExecutions())
+					logger.debug("Can see: " + se.getStepName());
 				return RepeatStatus.CONTINUABLE;
 			}
 			for (StepExecution se: je.getStepExecutions()){
@@ -153,25 +164,38 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 		return RepeatStatus.CONTINUABLE;	
 	}
 	
+	private ExitStatus getExitStatus(ExitStatus currentExitStatus, WaspStatus waspStatus){
+		if (waspStatus.equals(WaspStatus.FAILED))
+			return ExitStatus.FAILED;
+		if (waspStatus.equals(WaspStatus.ABANDONED))
+			return ExitStatus.TERMINATED;
+		return currentExitStatus;
+	}
+	
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution) {
 		ExitStatus exitStatus = stepExecution.getExitStatus();
-		if (exitStatus.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())){
+		exitStatus = exitStatus.and(getExitStatus(exitStatus, getWokenOnMessageStatus(stepExecution)));
+		// set exit status to equal the most severe outcome of all received messages
+		if (!messageQueue.isEmpty()){
 			for (Message<?> message: messageQueue)
-				exitStatus.addExitDescription((String) message.getHeaders().get(WaspStatusMessageTemplate.EXIT_DESCRIPTION_HEADER));
-			if (abandonStep || getWokenOnMessageStatus(stepExecution).isUnsuccessful())
-				exitStatus = ExitStatus.FAILED; // modify exit code if abandoned
+				exitStatus = exitStatus.and(getExitStatus(exitStatus, (WaspStatus) message.getPayload()));
+		} else if (!abandonMessageQueue.isEmpty()){
+			for (Message<?> message: abandonMessageQueue)
+				exitStatus = exitStatus.and(getExitStatus(exitStatus, (WaspStatus) message.getPayload()));
 		}
-		sendSuccessReplyToAllMessagesInQueue();
+		// make sure all messages get replies
+		sendSuccessReplyToAllMessagesInQueue(messageQueue);
+		sendSuccessReplyToAllMessagesInQueue(abandonMessageQueue);
 		this.messageQueue.clear(); // clean up in case of restart
 		logger.debug("Going to exit step with ExitStatus=" + exitStatus);
 		return exitStatus;
 	}
 	
-	protected void sendSuccessReplyToAllMessagesInQueue(){
+	protected void sendSuccessReplyToAllMessagesInQueue(List<Message<?>> queue){
 		MessagingTemplate messagingTemplate = new MessagingTemplate();
 		logger.debug("Going to send " + messageQueue.size()  + " reply message(s)...");
-		for (Message<?> message: messageQueue){
+		for (Message<?> message: queue){
 			try{
 				logger.debug("sending reply to message: " + message.toString());
 				// this is a little complex. What we do here is attach the temporary point-to-point reply channel generated by the gateway
@@ -203,15 +227,11 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 		WaspStatus statusFromMessage = (WaspStatus) message.getPayload();
 		
 		// first check if any abort / failure messages have been delivered from a monitored message template
-		if (statusFromMessage.isUnsuccessful()){
-			for (StatusMessageTemplate messageTemplate: abandonTemplates){
-				if (messageTemplate.actUponMessage(message)){
-					this.messageQueue.add(message);
-					logger.debug(name + "handleMessage() found ABANDONED or FAILED message for abort-monitored template " + 
-							messageTemplate.getClass().getName() + ". Going to fail step.");
-					abandonStep = true;
-					return; // we have found a valid abort message so return
-				}
+		for (StatusMessageTemplate messageTemplate: abandonTemplates){
+			if (messageTemplate.actUponMessage(message)){
+				this.abandonMessageQueue.add(message);
+				logger.debug(name + "handleMessage() found ABANDONED message for abort-monitored template " + 
+						messageTemplate.getClass().getName() + ". Going to fail step.");
 			}
 		}
 		
@@ -220,10 +240,6 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 			if (messageTemplate.actUponMessage(message) && statusFromMessage.equals(messageTemplate.getStatus()) ){
 				this.messageQueue.add(message);
 				logger.debug(name + "handleMessage() adding found message to be compatible so adding to queue: " + message.toString());
-				if (statusFromMessage.isUnsuccessful()){
-					logger.debug(name + "handleMessage() found ABANDONED or FAILED message to act upon for expected task. Going to fail step.");
-					abandonStep = true;
-				}
 			}
 		}
 	}

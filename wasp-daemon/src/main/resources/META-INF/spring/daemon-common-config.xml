@@ -25,22 +25,41 @@
 	<!-- create common tasklet beans -->
 	
 	<bean id="abstractJobApprovalListeningTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" abstract="true">
-		<property name="abandonMessage">
-			<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
-				<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
-				<property name="status" value="ABANDONED" />
-			</bean>
+		<property name="abandonMessages">
+			<set>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
+					<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+					<property name="status" value="ABANDONED" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
+					<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+					<property name="status" value="FAILED" />
+				</bean>
+			</set>
 		</property>	
 	</bean>
 	
 	<bean id="listenForJobQuotedTasklet" parent="abstractJobApprovalListeningTasklet" scope="step">
-		<property name="messageToListenFor">
-			<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate" >
-				<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
-				<property name="task" value="#{jobTasks.QUOTE}" />
-				<property name="status" value="COMPLETED" />
-			</bean>
+		<property name="messagesToListenFor">
+			<set>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate" >
+					<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+					<property name="task" value="#{jobTasks.QUOTE}" />
+					<property name="status" value="COMPLETED" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate" >
+					<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+					<property name="task" value="#{jobTasks.QUOTE}" />
+					<property name="status" value="ABANDONED" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate" >
+					<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+					<property name="task" value="#{jobTasks.QUOTE}" />
+					<property name="status" value="FAILED" />
+				</bean>
+			</set>
 		</property>
+		<property name="parallelSiblingFlowSteps" value="3" />
 		<property name="name" value="listenForJobQuotedTasklet" />
 	</bean>
 	
@@ -64,6 +83,7 @@
 				</bean>
 			</set>
 		</property>
+		<property name="parallelSiblingFlowSteps" value="3" />
 		<property name="name" value="listenForJobPiApproveTasklet" />
 	</bean>
 	
@@ -87,11 +107,12 @@
 				</bean>
 			</set>
 		</property>
+		<property name="parallelSiblingFlowSteps" value="3" />
 		<property name="name" value="listenForJobDaApproveTasklet" />
 	</bean>
 	
 	<bean id="listenForJobFmApproveTasklet" parent="abstractJobApprovalListeningTasklet" scope="step">
-		<property name="messageToListenFor">
+		<property name="messagesToListenFor">
 			<set>
 				<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
 					<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
@@ -110,6 +131,7 @@
 				</bean>
 			</set>
 		</property>
+		<property name="parallelSiblingFlowSteps" value="3" />
 		<property name="name" value="listenForJobDaApproveTasklet" />
 	</bean>
 	

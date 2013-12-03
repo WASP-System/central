@@ -463,7 +463,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			try{
 				Thread.sleep(1);
 			} catch (InterruptedException e){}; // delay to allow processing of messages
-			// send ACCEPTED message (simulating job approval tasks completed by wasp job flow)
+			// send ABANDONED message (simulating job abandonment)
 			JobStatusMessageTemplate jobTemplate = new JobStatusMessageTemplate(JOB_ID);
 			jobTemplate.setStatus(WaspStatus.ABANDONED);
 			Message<WaspStatus> jobAcceptedNotificationMessage = jobTemplate.build();
@@ -472,7 +472,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			if (replyMessage == null)
 				Assert.fail("testJobAbandoned(): Failed to receive reply message");
 			try{
-				Thread.sleep(500);
+				Thread.sleep(1000);
 			} catch (InterruptedException e){}; // delay to allow processing of messages
 			
 			// check BatchStatus and ExitStatus are as expected

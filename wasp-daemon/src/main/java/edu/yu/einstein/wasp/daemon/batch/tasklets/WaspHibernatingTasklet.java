@@ -53,7 +53,7 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	private Long maxExponentialInterval;
 	
 	@Autowired
-	private BatchJobHibernationManager hibernationManager;
+	protected BatchJobHibernationManager hibernationManager;
 	
 	public int getParallelSiblingFlowSteps() {
 		return parallelSiblingFlowSteps;

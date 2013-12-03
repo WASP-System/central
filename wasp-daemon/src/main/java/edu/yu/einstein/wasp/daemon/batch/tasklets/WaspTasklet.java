@@ -19,6 +19,7 @@ import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
+import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 
@@ -52,11 +53,14 @@ public class WaspTasklet extends WaspHibernatingTasklet implements StepExecution
 	//@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		Long stepExecutionId = context.getStepContext().getStepExecution().getId();
+		Long jobExecutionId = context.getStepContext().getStepExecution().getJobExecutionId();
 		if (wasWokenOnTimeout(context)){
 			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation after a timeout.");
+			BatchJobHibernationManager.removeJobExecutionIdLockedForWaking(jobExecutionId); 
 			wasHibernationRequested = false;
 		} else if (wasWokenOnMessage(context)){
 			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation for a message.");
+			BatchJobHibernationManager.removeJobExecutionIdLockedForWaking(jobExecutionId); 
 			wasHibernationRequested = false;
 		}
 		if (isGridWorkUnitStarted(context)){

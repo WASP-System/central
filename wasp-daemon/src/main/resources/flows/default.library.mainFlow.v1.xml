@@ -40,12 +40,19 @@
 			<!-- Wait for QC result to be notified. If failed abandon this library flow otherwise library ready -->
 			<batch:tasklet>
 				<bean parent="abstractLibraryListeningTasklet" scope="step">
-					<property name="messageToListenFor">
-						<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate">
-							<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}" />
-							<property name="task" value="#{libraryTasks.QC}" />
-							<property name="status" value="COMPLETED" />
-						</bean>
+					<property name="messagesToListenFor">
+						<set>
+							<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate">
+								<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}" />
+								<property name="task" value="#{libraryTasks.QC}" />
+								<property name="status" value="COMPLETED" />
+							</bean>
+							<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate">
+								<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}" />
+								<property name="task" value="#{libraryTasks.QC}" />
+								<property name="status" value="FAILED" />
+							</bean>
+						</set>
 					</property>
 					<property name="name" value="wasp.library.step.libraryQC" />
 				</bean>
@@ -92,11 +99,21 @@
 					<!-- Listen for library CREATED message: tells us library is physically received -->
 					<batch:tasklet>
 						<bean parent="abstractLibraryListeningTasklet" scope="step">
-							<property name="messageToListenFor">
-								<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate" >
-									<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}" />
-									<property name="status" value="CREATED" />
-								</bean>
+							<property name="messagesToListenFor">
+								<set>
+									<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate" >
+										<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}" />
+										<property name="status" value="CREATED" />
+									</bean>
+									<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate" >
+										<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}" />
+										<property name="status" value="FAILED" />
+									</bean>
+									<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate" >
+										<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}" />
+										<property name="status" value="ABANDONED" />
+									</bean>
+								</set>
 							</property>
 							<property name="parallelSiblingFlowSteps" value="1" />
 							<property name="name" value="wasp.library.step.listenForLibraryReceived" />
@@ -122,6 +139,7 @@
 				</batch:step>
 			</batch:flow>
 			<batch:next on="FAILED" to="wasp.userLibrary.step.notifyLibraryAbandoned" />
+			<batch:next on="TERMINATED" to="wasp.userLibrary.step.notifyLibraryAbandoned" />
 			<batch:next on="COMPLETED" to="wasp.default.library.mainFlow.step" />
 			<batch:fail on="*" /> <!-- unexpected message -->
 		</batch:split>

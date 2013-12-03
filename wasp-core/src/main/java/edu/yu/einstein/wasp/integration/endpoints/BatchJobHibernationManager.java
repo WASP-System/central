@@ -192,7 +192,8 @@ public class BatchJobHibernationManager {
 					try{
 						abandonJobExecution(se);
 						abandondedJobExecutionIds.add(se.getJobExecutionId());
-						updateMessageStepExecutionMap(se, messageTemplatesAbandoningStepExecutions);
+						removeStepExecutionFromMessageMap(se, messageTemplatesAbandoningStepExecutions);
+						removeStepExecutionFromMessageMap(se, messageTemplatesWakingStepExecutions);
 					} catch (WaspBatchJobExecutionException e){
 						throw new WaspBatchJobExecutionReadinessException("Problem aborting job execution and cleaning up 'messageTemplatesAbandoningStepExecutions': " + e.getLocalizedMessage());
 				
@@ -231,7 +232,8 @@ public class BatchJobHibernationManager {
 						}
 						reawakenJobExecution(se, WOKEN_ON_MESSAGE_STATUS, messageTemplate.getStatus());
 						abandondedJobExecutionIds.add(se.getJobExecutionId());
-						updateMessageStepExecutionMap(se, messageTemplatesWakingStepExecutions);
+						removeStepExecutionFromMessageMap(se, messageTemplatesWakingStepExecutions);
+						removeStepExecutionFromMessageMap(se, messageTemplatesAbandoningStepExecutions);
 					} catch (WaspBatchJobExecutionReadinessException e1){
 						logger.debug("Going to push message back into message queue: " + e1.getLocalizedMessage());
 						pushMessageBackIntoQueueRequests++;
@@ -399,13 +401,20 @@ public class BatchJobHibernationManager {
 		}
 	}
 	
+	public void removeStepExecutionFromWakeMessageMap(StepExecution se){
+		removeStepExecutionFromMessageMap(se, messageTemplatesWakingStepExecutions);
+	}
+	
+	public void removeStepExecutionFromAbandonMessageMap(StepExecution se){
+		removeStepExecutionFromMessageMap(se, messageTemplatesAbandoningStepExecutions);
+	}
 	
 	/**
 	 * Removes all handled StepExecutions and messages from the provided map of message/StepExecution associations
 	 * @param se
 	 * @param m
 	 */
-	private void updateMessageStepExecutionMap(StepExecution se, Map<WaspStatusMessageTemplate, Set<StepExecution>> m){
+	private void removeStepExecutionFromMessageMap(StepExecution se, Map<WaspStatusMessageTemplate, Set<StepExecution>> m){
 		Set<StatusMessageTemplate> templates = new HashSet<StatusMessageTemplate>(m.keySet());
 		for (StatusMessageTemplate template :templates){
 			if (m.get(template).contains(se)){
@@ -469,6 +478,10 @@ public class BatchJobHibernationManager {
 	@Transactional
 	private void abandonJobExecution(StepExecution stepExecution) throws WaspBatchJobExecutionException{
 		JobExecution je = jobExplorer.getJobExecution(stepExecution.getJobExecutionId());
+		if (isJobExecutionIdLockedForHibernating(je.getId()))
+			throw new WaspBatchJobExecutionReadinessException("Unable to wake JobExecution (id=" + je.getId() + ") because it is being hibernated");
+		if (isJobExecutionIdLockedForWaking(je.getId()))
+			throw new WaspBatchJobExecutionReadinessException("Unable to wake JobExecution (id=" + je.getId() + ") because it is being Awoken");
 		Set<StepExecution> ses = new HashSet<>(je.getStepExecutions());
 		for (StepExecution se : ses){
 			if (se.getId().equals(stepExecution.getId()))
@@ -519,10 +532,9 @@ public class BatchJobHibernationManager {
 			try{
 				jobOperator.wake(stepExecution.getJobExecutionId());
 			} catch (JobInstanceAlreadyCompleteException | NoSuchJobExecutionException | NoSuchJobException | JobRestartException | JobParametersInvalidException e) {
+				removeJobExecutionIdLockedForWaking(stepExecution.getJobExecutionId()); // remove lock  
 				throw new WaspBatchJobExecutionException("Unable to restart job with JobExecution id=" + stepExecution.getJobExecutionId() + 
 						" (got " + e.getClass().getName() + " Exception :" + e.getLocalizedMessage() + ")");
-			} finally {
-				removeJobExecutionIdLockedForWaking(stepExecution.getJobExecutionId()); // remove lock  
 			}
 		}
 	}
