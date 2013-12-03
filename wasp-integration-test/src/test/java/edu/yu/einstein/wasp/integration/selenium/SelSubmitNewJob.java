@@ -16,7 +16,7 @@ import edu.yu.einstein.wasp.util.SeleniumHelper;
 
 public class SelSubmitNewJob extends SelBaseTest{
 	
-	private static final Logger logger = LoggerFactory.getLogger(SelSubmitNewJob.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SelSubmitNewJob.class);
 
 	/**
      * 
@@ -27,7 +27,7 @@ public class SelSubmitNewJob extends SelBaseTest{
     public Object[][] createData1() throws Exception{
         Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
                 "loadTestNewJobs", "submitNewJob");
-        return(retObjArr);
+        return retObjArr;
     }
     /**
      * 
@@ -156,7 +156,7 @@ public class SelSubmitNewJob extends SelBaseTest{
       }
       catch(InterruptedException ex)
       {
-        System.out.println(ex.getMessage());
+        LOGGER.debug(ex.getMessage());
       }
     }
     
