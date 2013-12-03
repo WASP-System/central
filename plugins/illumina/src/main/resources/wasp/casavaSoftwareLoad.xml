@@ -47,10 +47,10 @@
   	</property>
   	<property name="name" value="savR" />
   	<property name="area" ref="savRArea" />
-  	<property name="resourceType" ref="illuminaSequenceRunSubProcessor" />
+  	<property name="resourceType" ref="illuminaSequenceRunSubProcessorResourceType" />
   	<property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" ref="savR" />
+         <property name="area" ref="savRArea" />
          <property name="metaList">
          	<list>
          		<value>#{waspSoftware['currentVersion']}=0.2.0</value>
