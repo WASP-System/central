@@ -10,14 +10,13 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.DataProvider;
-import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.util.SeleniumHelper;
 
 public class SelApproveNewJob extends SelBaseTest{
 	
-	private static final Logger logger = LoggerFactory.getLogger(SelApproveNewJob.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SelApproveNewJob.class);
 
 	/**
      * 
@@ -28,7 +27,7 @@ public class SelApproveNewJob extends SelBaseTest{
     public Object[][] createData1() throws Exception{
         Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
                 "Test_001", "approveNewJob");
-        return(retObjArr);
+        return retObjArr;
     }
     /**
      * 
@@ -41,7 +40,6 @@ public class SelApproveNewJob extends SelBaseTest{
   		SeleniumHelper.login(sUserName, sUserPass);	     	
     	Assert.assertNotNull(driver.findElement(By.linkText("Tasks")), "Unable to locate 'Tasks' tab.");
     	
-    	List<WebElement> radios;
     	
     	//QUOTE JOB
     	driver.findElement(By.linkText("Tasks")).click();   
@@ -102,8 +100,10 @@ public class SelApproveNewJob extends SelBaseTest{
 		  driver.findElement(By.linkText("Tasks")).click();
   	      driver.findElement(By.linkText("Lab Management Tasks")).click();
   	      driver.findElement(By.xpath("//a[contains(.,'"+jobId+"')]")).click();
-	  	  
-  	      radios = driver.findElements(By.xpath("//input[@type='radio' and @value='APPROVED']"));	
+      	
+  	       
+
+  	     List<WebElement> radios = driver.findElements(By.xpath("//input[@type='radio' and @value='APPROVED']"));	
 		  /*
   	      for (int i = 0; i < radios.size(); i++) {  
 				  radios.get(i).click(); 
@@ -147,7 +147,7 @@ public class SelApproveNewJob extends SelBaseTest{
       }
       catch(InterruptedException ex)
       {
-        System.out.println(ex.getMessage());
+        LOGGER.debug(ex.getMessage());
       }
     }
     

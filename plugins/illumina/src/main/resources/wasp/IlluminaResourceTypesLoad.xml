@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	default-autowire="byName"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+   
+  <bean id="illuminaSequenceRunSubProcessorResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
+    <property name="name" value="Illumina Sequence Run Sub-processor (specialized task)" />
+    <property name="area" value="illuminaSequenceRunSubProcessor" />
+  </bean>
+
+</beans>
