@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
 import edu.yu.einstein.wasp.exception.GridException;
-import edu.yu.einstein.wasp.exception.TaskletRetryException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
@@ -52,6 +51,7 @@ public class ProcessSAVTasklet extends WaspTasklet {
 	@Autowired
 	private IlluminaHiseqSequenceRunProcessor casava;
 	
+	@Autowired
 	private SavR savR;
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
