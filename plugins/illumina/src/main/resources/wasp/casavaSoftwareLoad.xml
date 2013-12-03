@@ -10,7 +10,7 @@
     
    <bean id="casavaArea" class="java.lang.String">
   	<constructor-arg><value>casava</value></constructor-arg>
-  </bean>
+   </bean>
 
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="casavaUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
@@ -37,16 +37,20 @@
 	
   </bean> 
   
+  <bean id="savRArea" class="java.lang.String">
+  	<constructor-arg><value>savR</value></constructor-arg>
+  </bean>
+  
   <bean id="savR" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
   	<property name="type">
   		<value type="java.lang.Class">edu.yu.einstein.wasp.plugin.illumina.software.SavR</value>
   	</property>
-  	<property name="savR" />
-  	<property name="area" value="savR" />
-  	<property name="resourceType" ref="illuminaSequenceRunSubProcessor" />
+  	<property name="name" value="savR" />
+  	<property name="area" ref="savRArea" />
+  	<property name="resourceType" ref="illuminaSequenceRunSubProcessorResourceType" />
   	<property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" ref="savR" />
+         <property name="area" ref="savRArea" />
          <property name="metaList">
          	<list>
          		<value>#{waspSoftware['currentVersion']}=0.2.0</value>
