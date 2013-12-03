@@ -5,11 +5,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.openqa.selenium.By;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
-import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.util.SeleniumHelper;
@@ -21,7 +21,8 @@ import edu.yu.einstein.wasp.util.SeleniumHelper;
  */
 
 public class SelNewPI extends SelBaseTest {
-		
+	private static final Logger LOGGER = LoggerFactory.getLogger(SelSubmitNewJob.class);
+	
 	/**
 	 * Creates PIs using WaspTestData.xls
 	 *
@@ -44,7 +45,7 @@ public class SelNewPI extends SelBaseTest {
      * @param title
      * @param sInst
      * @param sDept
-     * @param building_room
+     * @param bldgRoom
      * @param address
      * @param sCity
      * @param sState
@@ -58,7 +59,7 @@ public class SelNewPI extends SelBaseTest {
   	@Test (groups = {"integration-tests", "submit-new-pi"}, dataProvider = "DP1")
 	public void navigateNewPIForm(String sUrl, String sLogin, String sFName, String sLName, 
 									String sEmail, String pwd, String locale, String sLab, 
-									String title, String sInst, String sDept, String building_room, 
+									String title, String sInst, String sDept, String bldgRoom, 
 									String address, String sCity, String sState, String sCountry, 
 									String sZip, String sPhone, String sFax, String sNewUserPICreated) throws Exception {  
   		Assert.assertNotNull(driver);	
@@ -90,7 +91,7 @@ public class SelNewPI extends SelBaseTest {
 		driver.findElement(By.id("title")).sendKeys(title);
 		driver.findElement(By.id("institution")).sendKeys(sInst);
 		driver.findElement(By.id("departmentId")).sendKeys(sDept);
-		driver.findElement(By.id("building_room")).sendKeys(building_room);
+		driver.findElement(By.id("bldgRoom")).sendKeys(bldgRoom);
 		driver.findElement(By.id("address")).sendKeys(address);
 		driver.findElement(By.id("city")).sendKeys(sCity);
 		driver.findElement(By.id("state")).sendKeys(sState);
@@ -116,7 +117,7 @@ public class SelNewPI extends SelBaseTest {
         }
         catch(InterruptedException ex)
         {
-          System.out.println(ex.getMessage());
+        	LOGGER.debug(ex.getMessage());
         }
       }
   	
@@ -138,7 +139,7 @@ public class SelNewPI extends SelBaseTest {
                 "Test_001", "addNewPI");
         Assert.assertNotNull(retObjArr, "object is null");
 
-        return(retObjArr);
+        return retObjArr;
     }
     
     /**
