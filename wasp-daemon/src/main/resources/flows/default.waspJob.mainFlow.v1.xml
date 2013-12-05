@@ -126,7 +126,6 @@
 							<property name="status" value="ABANDONED" />
 						</bean>
 					</property>	
-					<property name="name" value="default.waspJob.step.listenForAnalysisComplete" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>

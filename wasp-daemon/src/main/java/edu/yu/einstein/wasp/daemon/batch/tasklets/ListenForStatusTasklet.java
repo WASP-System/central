@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -50,7 +51,6 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 	private List<Message<?>> messageQueue = new ArrayList<>();
 	
 	private List<Message<?>> abandonMessageQueue = new ArrayList<>();
-
 	
 	@Autowired
 	@Qualifier("wasp.channel.reply")
@@ -68,7 +68,7 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 		setMessageToListenFor(messageTemplate);
 	}
 	
-	public ListenForStatusTasklet(Set<WaspStatusMessageTemplate> messageTemplates) {
+	public ListenForStatusTasklet(Collection<WaspStatusMessageTemplate> messageTemplates) {
 		setMessagesToListenFor(messageTemplates);
 	}
 	
@@ -78,7 +78,7 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 		setMessagesToListenFor(templates);
 	}
 	
-	public void setMessagesToListenFor(Set<WaspStatusMessageTemplate> messageTemplates) {
+	public void setMessagesToListenFor(Collection<WaspStatusMessageTemplate> messageTemplates) {
 		this.messageTemplates.clear();
 		this.messageTemplates.addAll(messageTemplates);
 	}
@@ -117,35 +117,23 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 				hibernationManager.removeStepExecutionFromAbandonMessageMap(stepExecution);
 			}
 			logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + ") received an expected message so finishing step.");
+			setStepStatusInJobExecutionContext(stepExecution, BatchStatus.COMPLETED);
 			//return RepeatStatus.FINISHED;
 		}
 		if (wasWokenOnMessage(context)){
 			logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + 
 					") was woken up from hibernation for a message. Skipping to next step...");
+			setStepStatusInJobExecutionContext(stepExecution, BatchStatus.COMPLETED);
 			BatchJobHibernationManager.removeJobExecutionIdLockedForWaking(jobExecutionId); 
 			return RepeatStatus.FINISHED;
 		}
 		if (isHibernationRequestedForJob(context.getStepContext().getStepExecution().getJobExecution())){
 			logger.trace("This JobExecution (id=" + jobExecutionId + ") is already undergoing hibernation. Awaiting hibernation...");
 		} else if (!wasHibernationRequested){
-			JobExecution je = context.getStepContext().getStepExecution().getJobExecution();
+			// TODO: if not already present, put this step name into the job context so that other parallel steps can see its started. Remove from
+			// the context by last step to finish (removes it's own step name and those it was looking for.
+			JobExecution je = stepExecution.getJobExecution();
 			int numSteps = je.getStepExecutions().size();
-			if (numSteps < parallelSiblingFlowSteps + 1){
-				logger.debug("Not all steps from JobExecution id=" + jobExecutionId + " are visible. Can see " + numSteps + " but expect " + (parallelSiblingFlowSteps + 1));
-				for (StepExecution se : je.getStepExecutions())
-					logger.debug("Can see: " + se.getStepName());
-				return RepeatStatus.CONTINUABLE;
-			}
-			for (StepExecution se: je.getStepExecutions()){
-				logger.debug("Checking JobExecution id=" + jobExecutionId + " step: " + se.getStepName());
-				if (je.getStatus().equals(BatchStatus.UNKNOWN) || 
-						je.getStatus().equals(BatchStatus.STARTING) ||
-						se.getStatus().equals(BatchStatus.UNKNOWN) || 
-						se.getStatus().equals(BatchStatus.STARTING)){
-					logger.debug("JobExecution id=" + jobExecutionId + " is not yet fully started...");
-					return RepeatStatus.CONTINUABLE;
-				}
-			}
 			logger.info("Going to request hibernation from StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + 
 					") as not previously requested");
 			addStatusMessagesToWakeStepToContext(context, messageTemplates);

@@ -92,15 +92,6 @@ public class WaspTasklet extends WaspHibernatingTasklet implements StepExecution
 
 	protected final static Logger logger = LoggerFactory.getLogger(WaspTasklet.class);
 	
-	protected String name = "";
-	
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name + "#";
-	}
 
 	
 	/**
@@ -140,5 +131,9 @@ public class WaspTasklet extends WaspHibernatingTasklet implements StepExecution
 	public ExitStatus afterStep(StepExecution stepExecution){
 		return stepExecution.getExitStatus();
 	}
+
+	
+
+	
 	
 }

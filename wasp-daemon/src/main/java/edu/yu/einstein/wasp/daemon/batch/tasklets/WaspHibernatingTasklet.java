@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets;
 
+import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -12,8 +13,8 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.job.AbstractJob;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.scope.context.StepContext;
-import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.ExecutionContext;
+import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +26,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 @Transactional
-public abstract class WaspHibernatingTasklet implements Tasklet{
+public abstract class WaspHibernatingTasklet implements NameAwareTasklet, BeanNameAware{
 	
 	// In the split-step scenario: 
 	// The last WaspHibernatingTasklet in the split-step of this job to call requestHibernation() gets control by 
@@ -42,7 +43,8 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	
 	protected boolean wasHibernationRequestGranted = false;
 	
-	protected int parallelSiblingFlowSteps = 0; // number of parallel steps in split flows in addition to this one
+	private Set<? extends NameAwareTasklet> parallelSiblingFlowSteps = new HashSet<>();
+
 	
 	@Autowired
 	@Value("${wasp.hibernation.retry.exponential.initialInterval:5000}")
@@ -55,11 +57,27 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	@Autowired
 	protected BatchJobHibernationManager hibernationManager;
 	
-	public int getParallelSiblingFlowSteps() {
-		return parallelSiblingFlowSteps;
+	protected String name = "";
+	
+	@Override
+	public String getName() {
+		return name;
 	}
 
-	public void setParallelSiblingFlowSteps(int parallelSteps) {
+	@Override
+	public void setBeanName(String name) {
+		this.name = name;
+		
+	}
+	
+	public Set<String> getParallelSiblingFlowStepNames() {
+		Set<String> parallelStepNames = new HashSet<>();
+		for (NameAwareTasklet tasklet : parallelSiblingFlowSteps)
+			parallelStepNames.add(tasklet.getName());
+		return parallelStepNames;
+	}
+
+	public void setParallelSiblingFlowSteps(Set<? extends NameAwareTasklet> parallelSteps) {
 		this.parallelSiblingFlowSteps = parallelSteps;
 	}
 	
@@ -75,8 +93,10 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 		Long stepExecutionId = stepExecution.getId();
 		wasHibernationRequested = true;
 		logContexts(context);
-		if (!isHibernationRequestedForStep(stepExecution))
+		if (!isHibernationRequestedForStep(stepExecution)){
 			setHibernationRequestedForStep(stepExecution, true);
+			setStepStatusInJobExecutionContext(stepExecution, BatchStatus.STOPPING);
+		}
 		if (isHibernationRequestedForJob(jobExecution)){
 			// another step execution has already declared itself as handling hibernation so let it do the rest
 			logger.debug("StepExecution id=" + stepExecutionId + 
@@ -108,28 +128,12 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 	}
 	
 	private boolean isAllActiveJobStepsRequestingHibernation(StepExecution stepExecution){
-		JobExecution jobExecution = stepExecution.getJobExecution();
-		int stepsRequestingHibernation = 0;
-		int totalSteps = 0;
-		int activeSteps = 0;
-		
-		for (StepExecution se : jobExecution.getStepExecutions()){
-			totalSteps++;
-			if (se.getStatus().equals(BatchStatus.STARTED)){
-				activeSteps++;
-				if (isHibernationRequestedForStep(se))
-					stepsRequestingHibernation++;
-			}
+		JobExecution je = stepExecution.getJobExecution();
+		for (String parallelStepName : getParallelSiblingFlowStepNames()){
+			BatchStatus stepStatus = getStepStatusInJobExecutionContext(je, parallelStepName);
+			if (stepStatus.equals(BatchStatus.UNKNOWN))
+				return false;
 		}
-		int stepsWhichCanBeHibernated = (parallelSiblingFlowSteps + 1) - (totalSteps - activeSteps);
-		if (stepsRequestingHibernation < stepsWhichCanBeHibernated)
-		if (activeSteps - stepsRequestingHibernation  > totalSteps - (parallelSiblingFlowSteps + 1)){
-			logger.debug("JobExecution id=" + jobExecution.getId() + " currently contains " + stepsRequestingHibernation + 
-					" / " + stepsWhichCanBeHibernated + " steps requesting hibernation.");
-			return false;
-		}
-		logger.debug("JobExecution id=" + jobExecution.getId() + 
-				" contains no active steps that have not requested hibernation");
 		return true;
 	}
 	
@@ -170,9 +174,18 @@ public abstract class WaspHibernatingTasklet implements Tasklet{
 		hibernationManager.processHibernateRequest(jobExecution.getId(),requestingStepExecutionId);
 	}
 	
+	protected void setStepStatusInJobExecutionContext(StepExecution stepExecution, BatchStatus status){
+		stepExecution.getJobExecution().getExecutionContext().put(name, status);
+	}
+	
+	protected BatchStatus getStepStatusInJobExecutionContext(JobExecution jobExecution, String stepName){
+		if (jobExecution.getExecutionContext().containsKey(stepName))
+			return (BatchStatus) jobExecution.getExecutionContext().get(stepName);
+		return BatchStatus.UNKNOWN;
+	}
+	
 	protected void setHibernationRequestedForStep(StepExecution stepExecution, boolean isRequested){
-		ExecutionContext executionContext = stepExecution.getExecutionContext();
-		executionContext.put(AbstractJob.HIBERNATION_REQUESTED, isRequested);
+		stepExecution.getExecutionContext().put(AbstractJob.HIBERNATION_REQUESTED, isRequested);
 	}
 	
 	protected boolean isHibernationRequestedForStep(StepExecution stepExecution){

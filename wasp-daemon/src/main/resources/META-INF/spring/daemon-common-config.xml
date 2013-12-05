@@ -59,8 +59,13 @@
 				</bean>
 			</set>
 		</property>
-		<property name="parallelSiblingFlowSteps" value="3" />
-		<property name="name" value="listenForJobQuotedTasklet" />
+		<property name="parallelSiblingFlowSteps">
+			<set>
+				<ref bean="listenForJobPiApproveTasklet" />
+				<ref bean="listenForJobDaApproveTasklet" />
+				<ref bean="listenForJobFmApproveTasklet" />
+			</set>
+		</property>
 	</bean>
 	
 	<bean id="listenForJobPiApproveTasklet" parent="abstractJobApprovalListeningTasklet" scope="step">
@@ -83,8 +88,13 @@
 				</bean>
 			</set>
 		</property>
-		<property name="parallelSiblingFlowSteps" value="3" />
-		<property name="name" value="listenForJobPiApproveTasklet" />
+		<property name="parallelSiblingFlowSteps">
+			<set value-type="edu.yu.einstein.wasp.daemon.batch.tasklets.WaspHibernatingTasklet">
+				<ref bean="listenForJobDaApproveTasklet" />
+				<ref bean="listenForJobFmApproveTasklet" />
+				<ref bean="listenForJobQuotedTasklet" />
+			</set>
+		</property>
 	</bean>
 	
 	<bean id="listenForJobDaApproveTasklet" parent="abstractJobApprovalListeningTasklet" scope="step">
@@ -107,8 +117,13 @@
 				</bean>
 			</set>
 		</property>
-		<property name="parallelSiblingFlowSteps" value="3" />
-		<property name="name" value="listenForJobDaApproveTasklet" />
+		<property name="parallelSiblingFlowSteps">
+			<set>
+				<ref bean="listenForJobPiApproveTasklet" />
+				<ref bean="listenForJobFmApproveTasklet" />
+				<ref bean="listenForJobQuotedTasklet" />
+			</set>
+		</property>
 	</bean>
 	
 	<bean id="listenForJobFmApproveTasklet" parent="abstractJobApprovalListeningTasklet" scope="step">
@@ -131,8 +146,13 @@
 				</bean>
 			</set>
 		</property>
-		<property name="parallelSiblingFlowSteps" value="3" />
-		<property name="name" value="listenForJobDaApproveTasklet" />
+		<property name="parallelSiblingFlowSteps">
+			<set>
+				<ref bean="listenForJobPiApproveTasklet" />
+				<ref bean="listenForJobDaApproveTasklet" />
+				<ref bean="listenForJobQuotedTasklet" />
+			</set>
+		</property>
 	</bean>
 	
 	

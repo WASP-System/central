@@ -18,7 +18,6 @@
 							<property name="status" value="CREATED" />
 						</bean>
 					</constructor-arg>
-					<property name="name" value="genericDnaSeq.library.preProcess.notifyStarted" />
 				</bean>
 				
 			</batch:tasklet>
@@ -30,7 +29,6 @@
 					<constructor-arg name="libraryCellId" value="#{jobParameters[waspSoftwareJobParameters.LIBRARY_CELL_ID]}"/>
 					<constructor-arg name="softwareResourceType" ref="referenceBasedAlignerResourceType" />
 					<constructor-arg name="task" value="#{batchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}" />
-					<property name="name" value="genericDnaSeq.library.preProcess.step.align" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
@@ -44,7 +42,6 @@
 							<property name="status" value="COMPLETED" />
 						</bean>
 					</constructor-arg>
-					<property name="name" value="genericDnaSeq.library.preProcess.step.listenForAlignComplete" />
 				</bean>
 			</batch:tasklet>
 			<batch:next on="FAILED" to="genericDnaSeq.library.preProcess.step.notifyFailed" />
@@ -66,7 +63,6 @@
 							<property name="status" value="COMPLETED" />
 						</bean>
 					</constructor-arg>
-					<property name="name" value="genericDnaSeq.library.preProcess.step.notifyCompleted" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
@@ -81,7 +77,6 @@
 							<property name="status" value="FAILED" />
 						</bean>
 					</constructor-arg>
-					<property name="name" value="genericDnaSeq.library.preProcess.step.notifyFailed" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
@@ -110,7 +105,6 @@
 							</bean>
 						</set>
 					</constructor-arg>
-					<property name="name" value="waspJobExitCondition" />
 				</bean>	
 			</batch:tasklet>
 		</batch:step>

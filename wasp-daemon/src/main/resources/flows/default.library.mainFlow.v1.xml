@@ -54,7 +54,6 @@
 							</bean>
 						</set>
 					</property>
-					<property name="name" value="wasp.library.step.libraryQC" />
 				</bean>
 			</batch:tasklet>
 			<batch:next on="FAILED" to="wasp.library.step.notifyLibraryAbandoned" />
@@ -115,8 +114,11 @@
 									</bean>
 								</set>
 							</property>
-							<property name="parallelSiblingFlowSteps" value="1" />
-							<property name="name" value="wasp.library.step.listenForLibraryReceived" />
+							<property name="parallelSiblingFlowSteps">
+								<set>
+									<ref bean="wasp.library.step.listenForJobApproved" />
+								</set>
+							</property>
 						</bean>
 					</batch:tasklet>
 				</batch:step>
@@ -132,8 +134,11 @@
 									<property name="status" value="ACCEPTED" />
 								</bean>
 							</property>
-							<property name="parallelSiblingFlowSteps" value="1" />
-							<property name="name" value="wasp.library.step.listenForJobApproved" />
+							<property name="parallelSiblingFlowSteps">
+								<set>
+									<ref bean="wasp.library.step.listenForLibraryReceived" />
+								</set>
+							</property>
 						</bean>
 					</batch:tasklet>
 				</batch:step>
