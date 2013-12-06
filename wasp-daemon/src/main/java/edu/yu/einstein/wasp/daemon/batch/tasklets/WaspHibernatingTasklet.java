@@ -1,10 +1,14 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
@@ -21,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.ResourceLockException;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionReadinessException;
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
@@ -129,12 +134,16 @@ public abstract class WaspHibernatingTasklet implements NameAwareTasklet, BeanNa
 	
 	private boolean isAllActiveJobStepsRequestingHibernation(StepExecution stepExecution){
 		JobExecution je = stepExecution.getJobExecution();
+		boolean returnVal = true;
 		for (String parallelStepName : getParallelSiblingFlowStepNames()){
-			BatchStatus stepStatus = getStepStatusInJobExecutionContext(je, parallelStepName);
+			BatchStatus stepStatus = BatchStatus.UNKNOWN;
+			stepStatus = getStepStatusInJobExecutionContext(je, parallelStepName);
+			logger.debug("Step status with name " + parallelStepName + " for JobExecution id=" + je.getId() + " = " + stepStatus);
 			if (stepStatus.equals(BatchStatus.UNKNOWN))
-				return false;
+				returnVal = false;
 		}
-		return true;
+		logger.debug("isAllActiveJobStepsRequestingHibernation=" + returnVal);
+		return returnVal;
 	}
 	
 	private void doHibernate(StepExecution stepExecution) throws WaspBatchJobExecutionReadinessException{
@@ -175,12 +184,14 @@ public abstract class WaspHibernatingTasklet implements NameAwareTasklet, BeanNa
 	}
 	
 	protected void setStepStatusInJobExecutionContext(StepExecution stepExecution, BatchStatus status){
-		stepExecution.getJobExecution().getExecutionContext().put(name, status);
+		ExecutionContext ec = stepExecution.getJobExecution().getExecutionContext();
+		ec.put(AbstractJob.PARALLEL_TASK_PREFIX + name, status);
 	}
 	
-	protected BatchStatus getStepStatusInJobExecutionContext(JobExecution jobExecution, String stepName){
-		if (jobExecution.getExecutionContext().containsKey(stepName))
-			return (BatchStatus) jobExecution.getExecutionContext().get(stepName);
+	private BatchStatus getStepStatusInJobExecutionContext(JobExecution jobExecution, String stepName){
+		ExecutionContext ec = jobExecution.getExecutionContext();
+		if (ec.containsKey(AbstractJob.PARALLEL_TASK_PREFIX + stepName))
+			return (BatchStatus) ec.get(AbstractJob.PARALLEL_TASK_PREFIX + stepName);
 		return BatchStatus.UNKNOWN;
 	}
 	

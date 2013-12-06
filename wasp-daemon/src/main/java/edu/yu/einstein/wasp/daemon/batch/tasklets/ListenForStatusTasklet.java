@@ -52,6 +52,8 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 	
 	private List<Message<?>> abandonMessageQueue = new ArrayList<>();
 	
+	private int counter = 0;
+	
 	@Autowired
 	@Qualifier("wasp.channel.reply")
 	PublishSubscribeChannel replyChannel;
@@ -124,16 +126,16 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 			logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + 
 					") was woken up from hibernation for a message. Skipping to next step...");
 			setStepStatusInJobExecutionContext(stepExecution, BatchStatus.COMPLETED);
-			BatchJobHibernationManager.removeJobExecutionIdLockedForWaking(jobExecutionId); 
+			BatchJobHibernationManager.removeJobExecutionIdLockedForHibernating(jobExecutionId); // remove lock  
 			return RepeatStatus.FINISHED;
 		}
 		if (isHibernationRequestedForJob(context.getStepContext().getStepExecution().getJobExecution())){
 			logger.trace("This JobExecution (id=" + jobExecutionId + ") is already undergoing hibernation. Awaiting hibernation...");
 		} else if (!wasHibernationRequested){
+			if (counter++ < 5)
+				return RepeatStatus.CONTINUABLE;
 			// TODO: if not already present, put this step name into the job context so that other parallel steps can see its started. Remove from
 			// the context by last step to finish (removes it's own step name and those it was looking for.
-			JobExecution je = stepExecution.getJobExecution();
-			int numSteps = je.getStepExecutions().size();
 			logger.info("Going to request hibernation from StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + 
 					") as not previously requested");
 			addStatusMessagesToWakeStepToContext(context, messageTemplates);
