@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
@@ -31,7 +30,6 @@ import org.springframework.integration.support.MessageBuilder;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
-import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
@@ -52,7 +50,7 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 	
 	private List<Message<?>> abandonMessageQueue = new ArrayList<>();
 	
-	private int counter = 0;
+	private int preHibernationRepeatCounter = 0;
 	
 	@Autowired
 	@Qualifier("wasp.channel.reply")
@@ -126,13 +124,14 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 			logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + 
 					") was woken up from hibernation for a message. Skipping to next step...");
 			setStepStatusInJobExecutionContext(stepExecution, BatchStatus.COMPLETED);
-			BatchJobHibernationManager.removeJobExecutionIdLockedForHibernating(jobExecutionId); // remove lock  
 			return RepeatStatus.FINISHED;
 		}
 		if (isHibernationRequestedForJob(context.getStepContext().getStepExecution().getJobExecution())){
 			logger.trace("This JobExecution (id=" + jobExecutionId + ") is already undergoing hibernation. Awaiting hibernation...");
 		} else if (!wasHibernationRequested){
-			if (counter++ < 5)
+			// let cycle a few times before attempting hibernation so that all steps and the job are fully awake and recorded in batch. Will not hibernate
+			// all steps if this isn't done.
+			if (preHibernationRepeatCounter++ < 10)
 				return RepeatStatus.CONTINUABLE;
 			// TODO: if not already present, put this step name into the job context so that other parallel steps can see its started. Remove from
 			// the context by last step to finish (removes it's own step name and those it was looking for.
