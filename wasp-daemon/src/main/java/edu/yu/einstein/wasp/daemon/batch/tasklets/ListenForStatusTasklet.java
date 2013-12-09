@@ -109,7 +109,7 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 		Long stepExecutionId =stepExecution.getId();
 		Long jobExecutionId = context.getStepContext().getStepExecution().getJobExecutionId();
 		logger.trace(name + "execute() invoked");
-		if ((!messageQueue.isEmpty() || !abandonMessageQueue.isEmpty()) && 
+		/*if ((!messageQueue.isEmpty() || !abandonMessageQueue.isEmpty()) && 
 				!isHibernationRequestedForJob(stepExecution.getJobExecution())){
 			if (wasHibernationRequested){
 				setHibernationRequestedForStep(stepExecution, false);
@@ -118,8 +118,8 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 			}
 			logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + ") received an expected message so finishing step.");
 			setStepStatusInJobExecutionContext(stepExecution, BatchStatus.COMPLETED);
-			//return RepeatStatus.FINISHED;
-		}
+			return RepeatStatus.FINISHED;
+		}*/
 		if (wasWokenOnMessage(context)){
 			logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + 
 					") was woken up from hibernation for a message. Skipping to next step...");
@@ -133,8 +133,6 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 			// all steps if this isn't done.
 			if (preHibernationRepeatCounter++ < 10)
 				return RepeatStatus.CONTINUABLE;
-			// TODO: if not already present, put this step name into the job context so that other parallel steps can see its started. Remove from
-			// the context by last step to finish (removes it's own step name and those it was looking for.
 			logger.info("Going to request hibernation from StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + 
 					") as not previously requested");
 			addStatusMessagesToWakeStepToContext(context, messageTemplates);
