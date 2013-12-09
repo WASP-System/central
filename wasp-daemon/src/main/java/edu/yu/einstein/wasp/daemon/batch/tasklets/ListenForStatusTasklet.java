@@ -151,25 +151,25 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 		return RepeatStatus.CONTINUABLE;	
 	}
 	
-	private ExitStatus getExitStatus(ExitStatus currentExitStatus, WaspStatus waspStatus){
+	private ExitStatus getExitStatus(StepExecution stepExecution, WaspStatus waspStatus){
 		if (waspStatus.equals(WaspStatus.FAILED))
 			return ExitStatus.FAILED;
-		if (waspStatus.equals(WaspStatus.ABANDONED))
+		if (waspStatus.equals(WaspStatus.ABANDONED) && stepExecution.getStatus().equals(BatchStatus.COMPLETED))
 			return ExitStatus.TERMINATED;
-		return currentExitStatus;
+		return stepExecution.getExitStatus();
 	}
 	
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution) {
 		ExitStatus exitStatus = stepExecution.getExitStatus();
-		exitStatus = exitStatus.and(getExitStatus(exitStatus, getWokenOnMessageStatus(stepExecution)));
+		exitStatus = exitStatus.and(getExitStatus(stepExecution, getWokenOnMessageStatus(stepExecution)));
 		// set exit status to equal the most severe outcome of all received messages
 		if (!messageQueue.isEmpty()){
 			for (Message<?> message: messageQueue)
-				exitStatus = exitStatus.and(getExitStatus(exitStatus, (WaspStatus) message.getPayload()));
+				exitStatus = exitStatus.and(getExitStatus(stepExecution, (WaspStatus) message.getPayload()));
 		} else if (!abandonMessageQueue.isEmpty()){
 			for (Message<?> message: abandonMessageQueue)
-				exitStatus = exitStatus.and(getExitStatus(exitStatus, (WaspStatus) message.getPayload()));
+				exitStatus = exitStatus.and(getExitStatus(stepExecution, (WaspStatus) message.getPayload()));
 		}
 		// make sure all messages get replies
 		sendSuccessReplyToAllMessagesInQueue(messageQueue);

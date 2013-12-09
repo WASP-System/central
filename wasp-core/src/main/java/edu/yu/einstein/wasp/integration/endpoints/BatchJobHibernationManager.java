@@ -488,10 +488,8 @@ public class BatchJobHibernationManager {
 	@Transactional
 	private void abandonJobExecution(StepExecution stepExecution) throws WaspBatchJobExecutionException{
 		JobExecution je = jobExplorer.getJobExecution(stepExecution.getJobExecutionId());
-		if (isJobExecutionIdLockedForHibernating(je.getId()))
-			throw new WaspBatchJobExecutionReadinessException("Unable to wake JobExecution (id=" + je.getId() + ") because it is being hibernated");
 		if (isJobExecutionIdLockedForWaking(je.getId()))
-			throw new WaspBatchJobExecutionReadinessException("Unable to wake JobExecution (id=" + je.getId() + ") because it is being Awoken");
+			throw new WaspBatchJobExecutionReadinessException("Unable to abandon JobExecution (id=" + je.getId() + ") because it is being Awoken");
 		Set<StepExecution> ses = new HashSet<>(je.getStepExecutions());
 		for (StepExecution se : ses){
 			if (se.getId().equals(stepExecution.getId()))
@@ -501,19 +499,28 @@ public class BatchJobHibernationManager {
 		if (je.getStatus().equals(BatchStatus.STARTING) || je.getStatus().equals(BatchStatus.STARTED)){
 			logger.debug("Going to stop JobExecution (id=" + je.getId() + ") because job is running");
 			try{
-				jobOperator.stop(je.getId());
-			} catch (Exception e) {
-				logger.debug("Cannot stop JobExecution (id=" + je.getId() + "): " + e.getLocalizedMessage());
-			}
+				addJobExecutionIdLockedForHibernating(stepExecution.getJobExecutionId()); // prevent hibernation from starting
+				jobOperator.stop(stepExecution.getJobExecutionId()); 
+			} catch (ResourceLockException e1){
+				logger.debug("JobExecution (id=" + je.getId() + ") already locked for hibernating so no need to stop");
+			} catch (Exception e2) {
+				logger.debug("Cannot stop JobExecution (id=" + je.getId() + "): " + e2.getLocalizedMessage());
+			} 
+			throw new WaspBatchJobExecutionReadinessException("Stopping before abandoning JobExecution (id=" + je.getId() + ")");
 		}
 		try{
 			jobOperator.abandon(stepExecution.getJobExecutionId());
 		} catch (Exception e) {
-			removeJobExecutionIdLockedForHibernating(stepExecution.getJobExecutionId());
 			throw new WaspBatchJobExecutionException("Unable to abandon job with JobExecution id=" + stepExecution.getJobExecutionId() + 
 					" (got " + e.getClass().getName() + " Exception :" + e.getLocalizedMessage() + ")");
 		} finally{
+			// clean up
+			for (StepExecution se : ses){
+				removeStepExecutionFromMessageMap(se, messageTemplatesWakingStepExecutions);
+				removeStepExecutionFromMessageMap(se, messageTemplatesAbandoningStepExecutions);
+			}
 			removeJobExecutionIdLockedForHibernating(stepExecution.getJobExecutionId()); // remove lock if set
+			removeJobExecutionIdLockedForWaking(stepExecution.getJobExecutionId()); // remove lock if set
 		}
 	}
 	
@@ -562,8 +569,8 @@ public class BatchJobHibernationManager {
 		try {
 			jobOperator.hibernate(jobExecutionId);
 		} catch (Exception e1) {
-			logger.warn("Unable to hibernate job with JobExecution id=" + jobExecutionId + " (got " + e1.getClass().getName() + " Exception :" + 
-					e1.getLocalizedMessage() + ")");
+			throw new WaspBatchJobExecutionReadinessException("Unable to hibernate JobExecution (id=" + jobExecutionId + 
+					" (got " + e1.getClass().getName() + " Exception :" +  e1.getLocalizedMessage() + ")");
 		} finally {
 			removeJobExecutionIdLockedForHibernating(jobExecutionId); // remove lock  
 		}
