@@ -23,7 +23,7 @@ import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 
-public class WaspTasklet extends WaspHibernatingTasklet implements StepExecutionListener {
+public class WaspTasklet extends WaspHibernatingTasklet {
 	
 	@Autowired
 	private GridHostResolver hostResolver;
@@ -123,13 +123,8 @@ public class WaspTasklet extends WaspHibernatingTasklet implements StepExecution
 	}
 	
 	@Override
-	public void beforeStep(StepExecution stepExecution) {
-		// Do Nothing here
-	}
-	
-	@Override
 	public ExitStatus afterStep(StepExecution stepExecution){
-		return stepExecution.getExitStatus();
+		return super.afterStep(stepExecution);
 	}
 
 	

@@ -8,8 +8,10 @@ import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.job.AbstractJob;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.scope.context.StepContext;
@@ -26,7 +28,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 @Transactional
-public abstract class WaspHibernatingTasklet implements NameAwareTasklet, BeanNameAware{
+public abstract class WaspHibernatingTasklet implements NameAwareTasklet, BeanNameAware, StepExecutionListener {
 	
 	// In the split-step scenario: 
 	// The last WaspHibernatingTasklet in the split-step of this job to call requestHibernation() gets control by 
@@ -291,6 +293,21 @@ public abstract class WaspHibernatingTasklet implements NameAwareTasklet, BeanNa
 			woken = (boolean) executionContext.get(BatchJobHibernationManager.WOKEN_ON_TIMEOUT);
 		logger.debug("StepExecutionId=" + context.getStepContext().getStepExecution().getId() + " wasWokenByTimeout=" + woken);
 		return woken;	
+	}
+	
+	@Override
+	public void beforeStep(StepExecution stepExecution) {
+		// Do Nothing here
+	}
+	
+	@Override
+	public ExitStatus afterStep(StepExecution stepExecution){
+		if (!stepExecution.getExitStatus().isRunning()){
+			// make sure all messages from this step are removed from the hibernation manager to avoid a memory leak
+			hibernationManager.removeStepExecutionFromWakeMessageMap(stepExecution);
+			hibernationManager.removeStepExecutionFromAbandonMessageMap(stepExecution);
+		}
+		return stepExecution.getExitStatus();
 	}
 	
 	

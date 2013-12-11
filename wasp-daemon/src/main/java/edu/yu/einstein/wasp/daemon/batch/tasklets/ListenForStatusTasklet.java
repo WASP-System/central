@@ -161,7 +161,7 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 	
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution) {
-		ExitStatus exitStatus = stepExecution.getExitStatus();
+		ExitStatus exitStatus = super.afterStep(stepExecution);
 		exitStatus = exitStatus.and(getExitStatus(stepExecution, getWokenOnMessageStatus(stepExecution)));
 		// set exit status to equal the most severe outcome of all received messages
 		if (!messageQueue.isEmpty()){

@@ -33,6 +33,44 @@
 			</set>
 		</property>	
 	</bean>
+	
+	<bean id="wasp.library.tasklet.listenForJobApproved" parent="abstractLibraryListeningTasklet" scope="step">
+		<property name="messageToListenFor">
+			<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate" >
+				<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}" />
+				<property name="status" value="ACCEPTED" />
+			</bean>
+		</property>
+		<property name="parallelSiblingFlowSteps">
+			<set>
+				<ref bean="wasp.library.tasklet.listenForLibraryReceived" />
+			</set>
+		</property>
+	</bean>
+	
+	<bean id="wasp.library.tasklet.listenForLibraryReceived" parent="abstractLibraryListeningTasklet" scope="step">
+		<property name="messagesToListenFor">
+			<set>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate" >
+					<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}" />
+					<property name="status" value="CREATED" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate" >
+					<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}" />
+					<property name="status" value="FAILED" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate" >
+					<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}" />
+					<property name="status" value="ABANDONED" />
+				</bean>
+			</set>
+		</property>
+		<property name="parallelSiblingFlowSteps">
+			<set>
+				<ref bean="wasp.library.tasklet.listenForJobApproved" />
+			</set>
+		</property>
+	</bean>
 		
 	<!-- define library main flow -->
 	<batch:flow id="wasp.default.library.mainFlow.v1">
@@ -96,51 +134,13 @@
 			<batch:flow>
 				<batch:step id="wasp.library.step.listenForLibraryReceived">
 					<!-- Listen for library CREATED message: tells us library is physically received -->
-					<batch:tasklet>
-						<bean parent="abstractLibraryListeningTasklet" scope="step">
-							<property name="messagesToListenFor">
-								<set>
-									<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate" >
-										<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}" />
-										<property name="status" value="CREATED" />
-									</bean>
-									<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate" >
-										<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}" />
-										<property name="status" value="FAILED" />
-									</bean>
-									<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate" >
-										<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}" />
-										<property name="status" value="ABANDONED" />
-									</bean>
-								</set>
-							</property>
-							<property name="parallelSiblingFlowSteps">
-								<set>
-									<ref bean="wasp.library.step.listenForJobApproved" />
-								</set>
-							</property>
-						</bean>
-					</batch:tasklet>
+					<batch:tasklet ref = "wasp.library.tasklet.listenForLibraryReceived" />
 				</batch:step>
 			</batch:flow>
 			<batch:flow>
 				<batch:step id="wasp.library.step.listenForJobApproved">
 					<!-- Listen for job ACCEPTED message: tells us job is approved -->
-					<batch:tasklet>
-						<bean parent="abstractLibraryListeningTasklet" scope="step">
-							<property name="messageToListenFor">
-								<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate" >
-									<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}" />
-									<property name="status" value="ACCEPTED" />
-								</bean>
-							</property>
-							<property name="parallelSiblingFlowSteps">
-								<set>
-									<ref bean="wasp.library.step.listenForLibraryReceived" />
-								</set>
-							</property>
-						</bean>
-					</batch:tasklet>
+					<batch:tasklet ref="wasp.library.tasklet.listenForJobApproved" />
 				</batch:step>
 			</batch:flow>
 			<batch:next on="FAILED" to="wasp.userLibrary.step.notifyLibraryAbandoned" />
