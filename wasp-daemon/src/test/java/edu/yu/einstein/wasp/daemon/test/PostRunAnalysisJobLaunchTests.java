@@ -13,6 +13,7 @@ import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.explore.JobExplorer;
@@ -35,7 +36,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.analysis.WaspJobSoftwareLaunchTasklet;
 import edu.yu.einstein.wasp.dao.RunDao;
@@ -323,7 +323,7 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 			}
 			// validate proper completion of alignment step and that it was called with expected parameters
 			JobExecution je = jobExplorer.getMostRecentlyStartedJobExecutionInList(jobExplorer.getJobExecutions(ALIGN_JOB_NAME));
-			WaspBatchExitStatus status = new WaspBatchExitStatus(je.getExitStatus());
+			ExitStatus status = je.getExitStatus();
 			Assert.assertTrue(status.isCompleted());
 			JobParameters params = je.getJobParameters();
 			Assert.assertEquals(params.getParameters().size(), 3);

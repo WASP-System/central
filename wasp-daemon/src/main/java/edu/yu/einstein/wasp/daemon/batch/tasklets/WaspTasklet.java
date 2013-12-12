@@ -53,14 +53,11 @@ public class WaspTasklet extends WaspHibernatingTasklet {
 	//@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		Long stepExecutionId = context.getStepContext().getStepExecution().getId();
-		Long jobExecutionId = context.getStepContext().getStepExecution().getJobExecutionId();
 		if (wasWokenOnTimeout(context)){
 			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation after a timeout.");
-			BatchJobHibernationManager.removeJobExecutionIdLockedForWaking(jobExecutionId); 
 			wasHibernationRequested = false;
 		} else if (wasWokenOnMessage(context)){
 			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation for a message.");
-			BatchJobHibernationManager.removeJobExecutionIdLockedForWaking(jobExecutionId); 
 			wasHibernationRequested = false;
 		}
 		if (isGridWorkUnitStarted(context)){

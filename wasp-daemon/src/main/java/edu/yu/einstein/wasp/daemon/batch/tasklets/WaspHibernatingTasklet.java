@@ -1,6 +1,8 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -21,9 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.exception.ResourceLockException;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionReadinessException;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
+import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager.LockType;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
@@ -105,22 +107,23 @@ public abstract class WaspHibernatingTasklet implements NameAwareTasklet, BeanNa
 					" will not proceed to request hibernation of JobExecution id=" + jobExecutionId + 
 					" because another step has already initiated hibernation");
 		} else if (isAllActiveJobStepsRequestingHibernation(stepExecution)){
-			try{
-				BatchJobHibernationManager.addJobExecutionIdLockedForHibernating(jobExecutionId);
-				// we are ready to hibernate so request it now
-				logger.info("Going to hibernate job " + stepContext.getJobName() + 
-						" (JobExecution id=" + jobExecutionId + ") from step " + 
-						stepContext.getStepName() + " (step id=" + stepExecutionId + ")");
-				doHibernate(stepExecution);
-				wasHibernationRequestGranted = true;
-			} catch (ResourceLockException e){
+			if (hibernationManager.lockJobExecution(jobExecution, LockType.HIBERNATE)){
+				try{
+					// we are ready to hibernate so request it now
+					logger.info("Going to hibernate job " + stepContext.getJobName() + 
+							" (JobExecution id=" + jobExecutionId + ") from step " + 
+							stepContext.getStepName() + " (step id=" + stepExecutionId + ")");
+					doHibernate(stepExecution);
+					wasHibernationRequestGranted = true;
+				} catch (WaspBatchJobExecutionReadinessException e) {
+					logger.info("Not going to hibernate job " + stepContext.getJobName() + 
+							" (JobExecution id=" + jobExecutionId + ") from step " + 
+							stepContext.getStepName() + " (step id=" + stepExecutionId + "): " + e.getLocalizedMessage());
+				}
+			} else {
 				logger.info("Not going to hibernate job " + stepContext.getJobName() + 
 						" (JobExecution id=" + jobExecutionId + ") from step " + 
-						stepContext.getStepName() + " (step id=" + stepExecutionId + ") as already locked by another StepExecution");
-			} catch (WaspBatchJobExecutionReadinessException e) {
-				logger.info("Not going to hibernate job " + stepContext.getJobName() + 
-						" (JobExecution id=" + jobExecutionId + ") from step " + 
-						stepContext.getStepName() + " (step id=" + stepExecutionId + "): " + e.getLocalizedMessage());
+						stepContext.getStepName() + " (step id=" + stepExecutionId + ") as currently already locked");
 			}
 		} else { 
 			logger.debug("StepExecution id=" + stepExecutionId + 
@@ -175,9 +178,39 @@ public abstract class WaspHibernatingTasklet implements NameAwareTasklet, BeanNa
 				hibernationManager.addTimeIntervalForJobStep(jobExecutionId, stepExecutionId, timeInterval);
 			
 		}
-		
+		waitUntilStateTransitionsStable(stepExecution);
 		// request hibernation
 		hibernationManager.processHibernateRequest(jobExecution.getId(),requestingStepExecutionId);
+	}
+	
+	/**
+	 * Step executions start asynchronously and there may be some transitions. We need to check that the flow state has stabilized 
+	 * @param stepExecution
+	 */
+	private void waitUntilStateTransitionsStable(StepExecution stepExecution){
+		int repeat = 0;
+		Map<String, BatchStatus> previouslyExecutingSteps = new HashMap<>();
+		while (repeat++ < 3){
+			logger.debug("Waiting for hibernation from step id=" + stepExecution.getId() + " repeat=" + repeat);
+			Map<String, BatchStatus> currentlyExecutingSteps = new HashMap<>();
+			boolean allStepsRemainSame = true;
+			for (StepExecution se : stepExecution.getJobExecution().getStepExecutions()){
+				currentlyExecutingSteps.put(se.getStepName(), se.getStatus());
+				if (allStepsRemainSame && 
+						(!previouslyExecutingSteps.containsKey(se.getStepName()) || !previouslyExecutingSteps.get(se.getStepName()).equals(se.getStatus()))
+						)
+					allStepsRemainSame = false;
+			}
+			if (allStepsRemainSame && (currentlyExecutingSteps.size() != previouslyExecutingSteps.size()))
+				allStepsRemainSame = false;
+			previouslyExecutingSteps.clear();
+			previouslyExecutingSteps.putAll(currentlyExecutingSteps);
+			if (!allStepsRemainSame)
+				repeat--;
+			try {
+				Thread.sleep(10); // delay
+			} catch (InterruptedException e) {}
+		}
 	}
 	
 	protected void setStepStatusInJobExecutionContext(StepExecution stepExecution, BatchStatus status){
@@ -212,7 +245,7 @@ public abstract class WaspHibernatingTasklet implements NameAwareTasklet, BeanNa
 		if (executionContext.containsKey(AbstractJob.HIBERNATION_REQUESTED) && 
 				(boolean) executionContext.get(AbstractJob.HIBERNATION_REQUESTED))
 			return true;
-		return BatchJobHibernationManager.isJobExecutionIdLockedForHibernating(jobExecution.getId());
+		return false;
 	}
 	
 	

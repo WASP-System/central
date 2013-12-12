@@ -16,7 +16,6 @@ import org.springframework.batch.core.explore.wasp.WaspJobExplorer;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.repository.JobRepository;
 
-import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 
 /**
@@ -85,7 +84,7 @@ public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunni
 		
 		// re-populate hibernation manager with all persisted messages to wake steps
 		logger.debug("Re-populate hibernation manager...");
-		for (StepExecution se : jobExplorer.getStepExecutions(WaspBatchExitStatus.HIBERNATING)){
+		for (StepExecution se : jobExplorer.getStepExecutions(ExitStatus.HIBERNATING)){
 			hibernationManager.addMessageTemplatesForWakingJobStep(se.getJobExecutionId(), se.getId());
 			hibernationManager.addMessageTemplatesForAbandoningJobStep(se.getJobExecutionId(), se.getId());
 		}

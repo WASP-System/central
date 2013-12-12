@@ -50,8 +50,6 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 	
 	private List<Message<?>> abandonMessageQueue = new ArrayList<>();
 	
-	private int preHibernationRepeatCounter = 0;
-	
 	@Autowired
 	@Qualifier("wasp.channel.reply")
 	PublishSubscribeChannel replyChannel;
@@ -131,8 +129,6 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 		} else if (!wasHibernationRequested){
 			// let cycle a few times before attempting hibernation so that all steps and the job are fully awake and recorded in batch. Will not hibernate
 			// all steps if this isn't done.
-			if (preHibernationRepeatCounter++ < 10)
-				return RepeatStatus.CONTINUABLE;
 			logger.info("Going to request hibernation from StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + 
 					") as not previously requested");
 			addStatusMessagesToWakeStepToContext(context, messageTemplates);

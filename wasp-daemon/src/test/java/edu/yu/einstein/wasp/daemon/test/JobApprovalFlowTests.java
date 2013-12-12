@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameter;
@@ -26,7 +27,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
@@ -166,7 +166,7 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			JobExecution freshJe = jobRepository.getLastJobExecution(jobExecution.getJobInstance().getJobName(), jobExecution.getJobParameters());
 			logger.debug("JobExecution at end: " + freshJe.toString());
 			// check BatchStatus and ExitStatus is as expected
-			WaspBatchExitStatus status = new WaspBatchExitStatus(jobExecution.getExitStatus());
+			ExitStatus status = jobExecution.getExitStatus();
 			Assert.assertTrue(status.isRunning());
 			Assert.assertTrue(status.isHibernating());
 			jobExecution.stop();
@@ -233,7 +233,7 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			}catch (InterruptedException e){}; // allow batch to wrap up
 			JobExecution freshJe = jobRepository.getLastJobExecution(jobExecution.getJobInstance().getJobName(), jobExecution.getJobParameters());
 			logger.debug("JobExecution at end: " + freshJe.toString());
-			WaspBatchExitStatus status = new WaspBatchExitStatus(freshJe.getExitStatus());
+			ExitStatus status = freshJe.getExitStatus();
 			Assert.assertTrue(status.isTerminated());
 		} catch (Exception e){
 			// caught an unexpected exception

@@ -12,6 +12,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameter;
@@ -34,7 +35,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
@@ -221,7 +221,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			for (JobExecution je: jes){
 				JobExecution freshJe = jobRepository.getLastJobExecution(je.getJobInstance().getJobName(), je.getJobParameters());
 				logger.debug("JobExecution at end: " + freshJe.toString());
-				WaspBatchExitStatus status = new WaspBatchExitStatus(freshJe.getExitStatus());
+				ExitStatus status = freshJe.getExitStatus();
 				Assert.assertTrue(status.isCompleted());
 			}
 		} catch (Exception e){
@@ -325,7 +325,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			// check BatchStatus and ExitStatus are as expected
 			JobExecution freshJe = jobRepository.getLastJobExecution(jobExecution.getJobInstance().getJobName(), jobExecution.getJobParameters());
 			logger.debug("JobExecution at end: " + freshJe.toString());
-			WaspBatchExitStatus status = new WaspBatchExitStatus(freshJe.getExitStatus());
+			ExitStatus status = freshJe.getExitStatus();
 			Assert.assertTrue(status.isCompleted());
 			jobExecution.stop();
 		} catch (Exception e){
@@ -415,7 +415,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			// check BatchStatus and ExitStatus are as expected
 			JobExecution freshJe = jobRepository.getLastJobExecution(jobExecution.getJobInstance().getJobName(), jobExecution.getJobParameters());
 			logger.debug("JobExecution at end: " + freshJe.toString());
-			WaspBatchExitStatus status = new WaspBatchExitStatus(freshJe.getExitStatus());
+			ExitStatus status = freshJe.getExitStatus();
 			Assert.assertTrue(status.isCompleted());
 			
 		} catch (Exception e){
@@ -478,8 +478,8 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			// check BatchStatus and ExitStatus are as expected
 			JobExecution freshJe = jobRepository.getLastJobExecution(jobExecution.getJobInstance().getJobName(), jobExecution.getJobParameters());
 			logger.debug("JobExecution at end: " + freshJe.toString());
-			WaspBatchExitStatus status = new WaspBatchExitStatus(freshJe.getExitStatus());
-			Assert.assertEquals(status.getExitCode(), WaspBatchExitStatus.TERMINATED.getExitCode());
+			ExitStatus status = freshJe.getExitStatus();
+			Assert.assertEquals(status.getExitCode(), ExitStatus.TERMINATED.getExitCode());
 		//} catch (Exception e){
 			// caught an unexpected exception
 		//	Assert.fail("testJobAbandoned(): Caught Exception: "+e.getMessage());
