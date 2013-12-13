@@ -432,7 +432,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	 */
 	@Test (groups = "unit-tests-batch-integration")
 	public void testJobAbandoned() throws Exception{
-		//try{
+		try{
 			SampleType sampleType = new SampleType();
 			sampleType.setId(1);
 			sampleType.setIName("dna");
@@ -480,11 +480,11 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			logger.debug("JobExecution at end: " + freshJe.toString());
 			ExitStatus status = freshJe.getExitStatus();
 			Assert.assertEquals(status.getExitCode(), ExitStatus.TERMINATED.getExitCode());
-		//} catch (Exception e){
+		} catch (Exception e){
 			// caught an unexpected exception
-		//	Assert.fail("testJobAbandoned(): Caught Exception: "+e.getMessage());
-		//	e.printStackTrace();
-		//}
+			Assert.fail("testJobAbandoned(): Caught Exception: "+e.getMessage());
+			e.printStackTrace();
+		}
 	}
 	
 	@Override

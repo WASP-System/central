@@ -78,7 +78,7 @@ public class BatchJobHibernationManager {
 	
 	public enum LockType{ HIBERNATE, WAKE, ABANDON, ANY }
 	
-	private volatile Map<Long, LockType> lockedJobExecutions = new HashMap<>();
+	private volatile static Map<Long, LockType> lockedJobExecutions = new HashMap<>();
 	
 	public BatchJobHibernationManager() {}
 	
@@ -122,9 +122,8 @@ public class BatchJobHibernationManager {
 						timesWakingStepExecutions.remove(time);
 					} catch (WaspBatchJobExecutionException e){
 						logger.warn("Problem reawakening job execution : " + e.getLocalizedMessage());
-					} finally {
 						unlockJobExecution(se.getJobExecution(), LockType.WAKE);
-					}
+					} 
 				}
 			}
 		}
@@ -249,7 +248,6 @@ public class BatchJobHibernationManager {
 						abandondedJobExecutionIds.add(se.getJobExecutionId());
 						removeStepExecutionFromMessageMap(se, messageTemplatesWakingStepExecutions);
 						removeStepExecutionFromMessageMap(se, messageTemplatesAbandoningStepExecutions);
-						unlockJobExecution(se.getJobExecution(), LockType.WAKE);
 					} catch (WaspBatchJobExecutionException e){
 						pushMessageBackIntoQueueRequests++;
 						unlockJobExecution(se.getJobExecution(), LockType.WAKE);
@@ -452,7 +450,6 @@ public class BatchJobHibernationManager {
 		if (exitStatus.isRunningAndAwake()){
 			logger.info("Going to hibernate JobExecution id=" + jobExecutionId + " (requested from step Id=" + stepExecutionId + ")");
 			hibernateJobExecution(jobExecutionId);
-			unlockJobExecution(je, LockType.HIBERNATE);
 		}
 	}
 	
@@ -569,6 +566,7 @@ public class BatchJobHibernationManager {
 	 * @param timeInterval
 	 */
 	public static void setWakeTimeInterval(StepExecution stepExecution, Long timeInterval){
+		logger.debug("Setting wake-time interval=" + timeInterval);
 		ExecutionContext executionContext = stepExecution.getExecutionContext();
 		executionContext.put(TIME_TO_WAKE, timeInterval);
 		
@@ -585,6 +583,7 @@ public class BatchJobHibernationManager {
 			logger.debug("Execution context of stepExecution id=" + stepExecution.getId() + " contains no wake time interval");
 			return null; // empty set
 		}
+		logger.debug("Wake-time interval=" + executionContext.getLong(TIME_TO_WAKE));
 		return executionContext.getLong(TIME_TO_WAKE);
 	}
 	
@@ -668,7 +667,7 @@ public class BatchJobHibernationManager {
 		return templates;
 	}
 	
-	public synchronized boolean lockJobExecution(JobExecution jobExecution, LockType type){
+	public synchronized static boolean lockJobExecution(JobExecution jobExecution, LockType type){
 		if (jobExecution == null)
 			return false;
 		Long id = jobExecution.getId();
@@ -681,7 +680,7 @@ public class BatchJobHibernationManager {
 		return true;
 	}
 	
-	public synchronized boolean isLockedJobExecution(JobExecution jobExecution, LockType type){
+	public synchronized static boolean isLockedJobExecution(JobExecution jobExecution, LockType type){
 		if ( lockedJobExecutions.containsKey(jobExecution.getId()))
 			if (type.equals(LockType.ANY))
 				return true;
@@ -690,7 +689,7 @@ public class BatchJobHibernationManager {
 		return false;
 	}
 	
-	public synchronized boolean unlockJobExecution(JobExecution jobExecution, LockType type){
+	public synchronized static boolean unlockJobExecution(JobExecution jobExecution, LockType type){
 		if ( lockedJobExecutions.containsKey(jobExecution.getId())){
 			if (type.equals(LockType.ANY)){
 				logger.debug("Unlocking JobExecution id=" + jobExecution.getId() + " for " + type);

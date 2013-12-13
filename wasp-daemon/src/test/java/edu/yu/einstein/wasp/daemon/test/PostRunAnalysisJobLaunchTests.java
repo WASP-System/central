@@ -39,6 +39,7 @@ import org.testng.annotations.Test;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.analysis.WaspJobSoftwareLaunchTasklet;
 import edu.yu.einstein.wasp.dao.RunDao;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.endpoints.RunSuccessSplitter;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
@@ -254,7 +255,7 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 	}
 
 	@Test (groups = "unit-tests-batch-integration")
-	public void softwareLaunch() {
+	public void softwareLaunch() throws WaspMessageBuildingException {
 		final String LAUNCH_JOB_NAME = "test.launchSoftwareJob";
 		final String ALIGN_JOB_NAME = "test.doAlign";
 		BatchJobProviding testPlugin = new BatchJobProviding() {
@@ -295,7 +296,7 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 		
 		PowerMockito.when(mockJobService.getJobByJobId(job.getId())).thenReturn(job);
 		PowerMockito.when(mockWaspPluginRegistry.getPlugin(Mockito.anyString(), Mockito.eq(BatchJobProviding.class))).thenReturn(testPlugin);
-		try {
+		//try {
 			Map<String, String> jobParameters = new HashMap<String, String>();
 			jobParameters.put(WaspJobParameters.LIBRARY_CELL_ID, CELL_LIBRARY_ID);
 			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
@@ -331,10 +332,10 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 			Assert.assertNotNull(params.getString("p1"));
 			Assert.assertNotNull(params.getString("p2"));
 				
-		} catch (Exception e){
+		//} catch (Exception e){
 			// caught an unexpected exception
-			Assert.fail("Caught Exception: "+e.getMessage());
-		}
+		//	Assert.fail("Caught Exception: "+e.getMessage());
+		//}
 	}
 
 	@Override

@@ -107,7 +107,7 @@ public abstract class WaspHibernatingTasklet implements NameAwareTasklet, BeanNa
 					" will not proceed to request hibernation of JobExecution id=" + jobExecutionId + 
 					" because another step has already initiated hibernation");
 		} else if (isAllActiveJobStepsRequestingHibernation(stepExecution)){
-			if (hibernationManager.lockJobExecution(jobExecution, LockType.HIBERNATE)){
+			if (BatchJobHibernationManager.lockJobExecution(jobExecution, LockType.HIBERNATE)){
 				try{
 					// we are ready to hibernate so request it now
 					logger.info("Going to hibernate job " + stepContext.getJobName() + 
@@ -242,9 +242,15 @@ public abstract class WaspHibernatingTasklet implements NameAwareTasklet, BeanNa
 	
 	protected boolean isHibernationRequestedForJob(JobExecution jobExecution){
 		ExecutionContext executionContext = jobExecution.getExecutionContext();
-		if (executionContext.containsKey(AbstractJob.HIBERNATION_REQUESTED) && 
-				(boolean) executionContext.get(AbstractJob.HIBERNATION_REQUESTED))
-			return true;
+		if (executionContext.containsKey(AbstractJob.HIBERNATION_REQUESTED)){
+			return (boolean) executionContext.get(AbstractJob.HIBERNATION_REQUESTED);
+		} else {
+			for (StepExecution se : jobExecution.getStepExecutions())
+				if (se.getStatus().equals(BatchStatus.STOPPING)){
+					logger.debug("No entry for HIBERNATION_REQUESTED in context but at least one step is stopping");
+					return true;
+				}
+		}
 		return false;
 	}
 	
@@ -335,6 +341,8 @@ public abstract class WaspHibernatingTasklet implements NameAwareTasklet, BeanNa
 	
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution){
+		if (stepExecution.getExitStatus().isHibernating())
+			BatchJobHibernationManager.unlockJobExecution(stepExecution.getJobExecution(), LockType.HIBERNATE);
 		if (!stepExecution.getExitStatus().isRunning()){
 			// make sure all messages from this step are removed from the hibernation manager to avoid a memory leak
 			hibernationManager.removeStepExecutionFromWakeMessageMap(stepExecution);

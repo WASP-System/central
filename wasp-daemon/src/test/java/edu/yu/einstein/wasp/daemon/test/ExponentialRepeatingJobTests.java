@@ -66,6 +66,10 @@ public class ExponentialRepeatingJobTests extends AbstractTestNGSpringContextTes
 					Thread.sleep(1000); // allow some time for flow initialization
 				} catch (InterruptedException e){};
 				StepExecution stepExecution = jobRepository.getLastStepExecution(jobExecution.getJobInstance(), STEP_NAME);
+				if (stepExecution == null){
+					logger.warn("StepExecution == null");
+					continue;
+				}
 				Long timeInterval = BatchJobHibernationManager.getWakeTimeInterval(stepExecution);
 				logger.debug("Current time interval = " + timeInterval);
 				if (timeInterval >= 400L){
