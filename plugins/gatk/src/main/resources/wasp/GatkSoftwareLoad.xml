@@ -10,11 +10,11 @@
     default-autowire="byName">
     
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="gatkUiFieldWrapper">
-    <property name="baseLocale" value="en_US" />
+    <!--  <property name="baseLocale" value="en_US" /> -->
     <property name="baseArea" ref="gatkPluginArea" />
   </bean>
 
-  <bean id="gatk" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
+  <bean id="gatkPipeline" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
   	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent</value></property>
     <property name="name" value="Gatk" />
     <property name="description" value="genome analysis tool kit broad institute" />

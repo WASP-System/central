@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.1.xsd"
+    default-autowire="byName">
+    
+  <bean id="gatkPipelineArea" class="java.lang.String">
+  	<constructor-arg><value>gatkPipeline</value></constructor-arg>
+  </bean>
+
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="gatkPipelineUiFieldWrapper">
+    <property name="baseLocale" value="en_US" />
+    <property name="baseArea" ref="gatkPipelineArea" />
+  </bean>
+  
+  <bean id="gatkPipelineResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
+    <property name="name" value="GATK Pipeline" />
+    <property name="area" ref="gatkPipelineArea" />
+  </bean>
+
+  <bean id="gatkPipelineSoftware" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
+    <property name="name" value="GATK Pipeline" />
+    <property name="resourceType" ref="gatkPipelineResourceType"/>
+	<property name="area" ref="gatkPipelineArea" />
+	<property name="metaFromWrapper">
+       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
+         <property name="area" ref="gatkPipelineArea" />
+          <property name="metaList">
+         	<list>
+         		<value>#{waspSoftware['currentVersion']}=1.0</value>
+         		<value>#{waspSoftware['priorVersions']}=</value>
+         	</list>
+       	 </property>
+       </bean>
+    </property> 
+
+    <property name="uiFieldsFromWrapper">
+      <list>
+        <bean parent="gatkPipelineUiFieldWrapper">
+          <property name="baseName" value="gatk-stand_call_conf" />
+          <property name="metaposition" value="10" />
+          <property name="label" value="gatk.pipeline.stand_call_conf.label" />
+          <property name="type" value="NUMBER" />
+          <property name="range" value="10:100" />
+          <property name="default" value="30" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="gatk.pipeline.stand_call_conf.error" />
+          <property name="tooltip" value="gatk.pipeline.stand_call_conf.tt" />
+        </bean>
+        
+        <bean parent="gatkPipelineUiFieldWrapper">
+          <property name="baseName" value="gatk--max_alternate_alleles" />
+          <property name="metaposition" value="20" />
+          <property name="label" value="gatk.pipeline.max_alternate_alleles.label" />
+          <property name="type" value="INTEGER" />
+          <property name="range" value="3:100" />
+          <property name="default" value="6" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="gatk.pipeline.max_alternate_alleles.error" />
+          <property name="tooltip" value="gatk.pipeline.max_alternate_alleles.tt" />
+        </bean>
+        
+        <bean parent="gatkPipelineUiFieldWrapper">
+          <property name="baseName" value="gatk-dcov" />
+          <property name="metaposition" value="30" />
+          <property name="label" value="gatk.pipeline.dcov.label" />
+          <property name="type" value="INTEGER" />
+          <property name="range" value="10:2000" />
+          <property name="default" value="250" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="gatk.pipeline.dcov.error" />
+          <property name="tooltip" value="gatk.pipeline.dcov.tt" />
+        </bean>
+ 
+        
+        
+        
+      </list>
+    </property>
+
+  </bean> 
+
+</beans>
