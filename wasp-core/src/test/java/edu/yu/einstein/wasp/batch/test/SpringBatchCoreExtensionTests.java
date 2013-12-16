@@ -26,7 +26,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 
 @ContextConfiguration(locations={"classpath:batch/batch-test-context.xml"})
 
-public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
+public class SpringBatchCoreExtensionTests extends AbstractTestNGSpringContextTests {
 	
 	private JobExplorerWasp jobExplorer;
 	
@@ -35,7 +35,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 		this.jobExplorer = (JobExplorerWasp) jobExplorer;
 	}
 	
-	private final Logger logger = LoggerFactory.getLogger(BatchAPIExtensionTests.class);
+	private final Logger logger = LoggerFactory.getLogger(SpringBatchCoreExtensionTests.class);
 	
 	private final String JOB_ID_KEY = "jobId";
 	
