@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.MetaMessage;
-import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
+import org.springframework.batch.core.ExitStatus;
 import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
 import edu.yu.einstein.wasp.exception.SampleException;
@@ -854,9 +854,9 @@ public class TaskController extends WaspController {
 			  continue;
 		  }
 		  boolean atLeastOneCellLibraryAwaitingQC = false;
-		  Map<SampleSource, WaspBatchExitStatus> jobCellLibrariesWithPreprocessingStatus = sampleService.getCellLibrariesWithPreprocessingStatus(job);//a preprocessed library is one that is sequenced and aligned
+		  Map<SampleSource, ExitStatus> jobCellLibrariesWithPreprocessingStatus = sampleService.getCellLibrariesWithPreprocessingStatus(job);//a preprocessed library is one that is sequenced and aligned
 		  for (SampleSource cellLibrary: jobCellLibrariesWithPreprocessingStatus.keySet()){
-			  WaspBatchExitStatus exitStatus = jobCellLibrariesWithPreprocessingStatus.get(cellLibrary);
+			  ExitStatus exitStatus = jobCellLibrariesWithPreprocessingStatus.get(cellLibrary);
 			  if (!exitStatus.isCompleted())
 				  continue;
 			  preprocessedCellLibraries.add(cellLibrary);
@@ -1004,7 +1004,7 @@ public class TaskController extends WaspController {
 		  if(jobService.isAggregationAnalysisBatchJob(job)){
 			  continue;
 		  }
-		  Map<SampleSource, WaspBatchExitStatus> jobCellLibrariesWithPreprocessingStatus = sampleService.getCellLibrariesWithPreprocessingStatus(job);//a preprocessed library is one that is sequenced and aligned
+		  Map<SampleSource, ExitStatus> jobCellLibrariesWithPreprocessingStatus = sampleService.getCellLibrariesWithPreprocessingStatus(job);//a preprocessed library is one that is sequenced and aligned
 		  for (SampleSource cellLibrary: jobCellLibrariesWithPreprocessingStatus.keySet()){
 			  cellLibraryWithPreprocessingStatusMap.put(cellLibrary, jobCellLibrariesWithPreprocessingStatus.get(cellLibrary).getExitCode());
 			  Boolean isCellLibraryPassedQC = null;
