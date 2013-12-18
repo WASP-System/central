@@ -190,7 +190,7 @@ public abstract class WaspHibernatingTasklet implements NameAwareTasklet, BeanNa
 	private void waitUntilStateTransitionsStable(StepExecution stepExecution){
 		int repeat = 0;
 		Map<String, BatchStatus> previouslyExecutingSteps = new HashMap<>();
-		while (repeat++ < 3){
+		while (repeat++ < 5){
 			logger.debug("Waiting for hibernation from step id=" + stepExecution.getId() + " repeat=" + repeat);
 			Map<String, BatchStatus> currentlyExecutingSteps = new HashMap<>();
 			boolean allStepsRemainSame = true;
@@ -206,9 +206,9 @@ public abstract class WaspHibernatingTasklet implements NameAwareTasklet, BeanNa
 			previouslyExecutingSteps.clear();
 			previouslyExecutingSteps.putAll(currentlyExecutingSteps);
 			if (!allStepsRemainSame)
-				repeat--;
+				repeat = 0;
 			try {
-				Thread.sleep(10); // delay
+				Thread.sleep(5); // delay
 			} catch (InterruptedException e) {}
 		}
 	}

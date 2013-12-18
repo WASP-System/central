@@ -36,7 +36,6 @@ import edu.yu.einstein.wasp.model.User;
 
 
 @ContextConfiguration(locations={"/daemon-test-launch-context.xml"})
-
 public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests implements MessageHandler {
 	
 	@Autowired
@@ -72,6 +71,7 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 	private SubscribableChannel listeningChannel;
 	
 	private SubscribableChannel abortChannel;
+	
 	
 	@BeforeClass
 	private void setup(){
@@ -153,7 +153,6 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			}
 			if (message == null)
 				Assert.fail("testJobApproved(): Timeout waiting to receive message on 'wasp.channel.notification.job'");
-			
 			// check headers as expected
 			Assert.assertTrue(message.getHeaders().containsKey(JOB_ID_KEY));
 			Assert.assertEquals(message.getHeaders().get(JOB_ID_KEY), JOB_ID);
@@ -163,16 +162,19 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			// check payload as expected
 			Assert.assertEquals(WaspStatus.class, message.getPayload().getClass());
 			Assert.assertEquals(message.getPayload(), WaspStatus.ACCEPTED);
+			try{
+				Thread.sleep(5000); // allow some time for stopping
+			} catch (InterruptedException e){};
 			JobExecution freshJe = jobRepository.getLastJobExecution(jobExecution.getJobInstance().getJobName(), jobExecution.getJobParameters());
 			logger.debug("JobExecution at end: " + freshJe.toString());
 			// check BatchStatus and ExitStatus is as expected
 			ExitStatus status = jobExecution.getExitStatus();
 			Assert.assertTrue(status.isRunning());
 			Assert.assertTrue(status.isHibernating());
-			jobExecution.stop();
 		} catch (Exception e){
 			// caught an unexpected exception
-			Assert.fail("Caught Exception: "+e.getMessage());
+			Assert.fail("Caught Exception of type "+ e.getClass().getName() + ": " + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 	
@@ -227,9 +229,8 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			// check payload as expected
 			Assert.assertEquals(WaspStatus.class, message.getPayload().getClass());
 			Assert.assertEquals(message.getPayload(), WaspStatus.ABANDONED);
-			
 			try{
-				Thread.sleep(1000); // allow some time for flow completion
+				Thread.sleep(5000); // allow some time for flow completion
 			}catch (InterruptedException e){}; // allow batch to wrap up
 			JobExecution freshJe = jobRepository.getLastJobExecution(jobExecution.getJobInstance().getJobName(), jobExecution.getJobParameters());
 			logger.debug("JobExecution at end: " + freshJe.toString());
@@ -237,7 +238,8 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			Assert.assertTrue(status.isTerminated());
 		} catch (Exception e){
 			// caught an unexpected exception
-			Assert.fail("testJobNotApproved(): Caught Exception: "+e.getMessage());
+			Assert.fail("Caught Exception of type "+ e.getClass().getName() + ": " + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 	

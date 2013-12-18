@@ -6,6 +6,8 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
+import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
+import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager.LockType;
 
 public class TestExponentialTimedTasklet extends WaspTasklet {
 
@@ -18,6 +20,7 @@ public class TestExponentialTimedTasklet extends WaspTasklet {
 		if (wasWokenOnTimeout(context)){
 			logger.debug("Woken on timeout");
 			wasHibernationRequested = false;
+			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
 		}
 		ExecutionContext ec = context.getStepContext().getStepExecution().getExecutionContext();
 		int count = 0;

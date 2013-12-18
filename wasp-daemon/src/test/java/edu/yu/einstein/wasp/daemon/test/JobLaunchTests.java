@@ -5,7 +5,9 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.configuration.JobRegistry;
+import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
@@ -25,7 +27,6 @@ import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessage
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 
 @ContextConfiguration(locations={"/daemon-test-launch-context.xml","/dummyBatchJobFlow.xml"})
-
 public class JobLaunchTests extends AbstractTestNGSpringContextTests  {
 	
 	@Autowired
@@ -33,6 +34,9 @@ public class JobLaunchTests extends AbstractTestNGSpringContextTests  {
 	
 	@Autowired 
 	private JobRegistry jobRegistry;
+	
+	@Autowired 
+	private JobExplorer jobExplorer;
 	
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
@@ -49,7 +53,7 @@ public class JobLaunchTests extends AbstractTestNGSpringContextTests  {
 	private final String BATCH_JOB_NAME_WRONG = "notARealJob";
 	
 	private final String OUTBOUND_MESSAGE_CHANNEL = "wasp.channel.remoting.outbound";
-		
+	
 	
 	@BeforeClass
 	private void setup() throws SecurityException, NoSuchMethodException{
@@ -80,9 +84,18 @@ public class JobLaunchTests extends AbstractTestNGSpringContextTests  {
 			if (replyMessage.getHeaders().containsKey(WaspTask.EXCEPTION))
 				Assert.fail("testSuccessfulJobLaunch(): Failed to launch job. Returned message: " + replyMessage.toString());
 			Assert.assertEquals(replyMessage.getPayload(), WaspStatus.COMPLETED);
+			for (JobExecution je : jobExplorer.findRunningJobExecutions(BATCH_JOB_NAME)){
+				try{
+					je.stop();
+				} catch (Exception e){}
+			}
+			try{
+				Thread.sleep(2000); // allow some time for stopping
+			} catch (InterruptedException e){};
 		} catch (Exception e){
 			 // caught an unexpected exception
-			Assert.fail("testSuccessfulJobLaunch(): Caught Exception: "+e.getMessage());
+			Assert.fail("Caught Exception of type "+ e.getClass().getName() + ": " + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 	
@@ -112,7 +125,8 @@ public class JobLaunchTests extends AbstractTestNGSpringContextTests  {
 			
 		} catch (Exception e){
 			 // caught an unexpected exception
-			Assert.fail("testFailedJobLaunch(): Caught Exception: "+e.getMessage());
+			Assert.fail("Caught Exception of type "+ e.getClass().getName() + ": " + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 	

@@ -109,11 +109,17 @@ public class BatchJobHibernationManager {
 		for (Long time: orderedTimes){
 			if (time <= timeNow.getTime()){
 				Set<StepExecution> ses = new HashSet<>(timesWakingStepExecutions.get(time));
-				for (StepExecution se : ses){
-					logger.info("restarting job with JobExecution id=" +se.getJobExecutionId() + " for step " + se.getId() + 
+				for (StepExecution seStored : ses){
+					JobExecution je = jobExplorer.getJobExecution(seStored.getJobExecutionId());
+					StepExecution se = jobRepository.getLastStepExecution(je.getJobInstance(), seStored.getStepName()); // must get fresh as may have new Id
+					if (se == null){
+						logger.warn("Attempted to get latest StepExecution for step " + seStored.getStepName() + " but it is null");
+						continue;
+					}
+					logger.info("restarting job with JobExecution id=" + je.getId() + " for step " + se.getId() + 
 							" on restart wait timeout");
 					if (!lockJobExecution(se.getJobExecution(), LockType.WAKE)){
-						logger.info("Not restarting job with JobExecution id=" +se.getJobExecutionId() + " for step " + se.getId() + 
+						logger.info("Not restarting job with JobExecution id=" + je.getId() + " for step " + se.getId() + 
 								" on restart wait timeout because execution locked");
 						continue;
 					}
@@ -122,7 +128,7 @@ public class BatchJobHibernationManager {
 						timesWakingStepExecutions.remove(time);
 					} catch (WaspBatchJobExecutionException e){
 						logger.warn("Problem reawakening job execution : " + e.getLocalizedMessage());
-						unlockJobExecution(se.getJobExecution(), LockType.WAKE);
+						unlockJobExecution(je, LockType.WAKE);
 					} 
 				}
 			}
@@ -186,23 +192,33 @@ public class BatchJobHibernationManager {
 	 */
 	private synchronized Set<Long> handleStepExecutionAbandonmentOnMessage(WaspStatusMessageTemplate messageTemplate) throws WaspBatchJobExecutionReadinessException{
 		Set<Long> abandondedJobExecutionIds = new HashSet<>();
+		int pushMessageBackIntoQueueRequests = 0;
 		if (messageTemplatesAbandoningStepExecutions.keySet().contains(messageTemplate)){
 			logger.debug("messageTemplatesAbandoningStepExecutions.keySet() contains message");
 			Set<StepExecution> ses = new HashSet<>(messageTemplatesAbandoningStepExecutions.get(messageTemplate));
-			for (StepExecution se :ses){
-				JobExecution je = se.getJobExecution();
-				if (!abandondedJobExecutionIds.contains(se.getJobExecutionId())){
-					abandondedJobExecutionIds.add(se.getJobExecutionId()); // make sure only performed once per jobExecution
-					logger.info("Abandoning job with JobExecution id=" +se.getJobExecutionId() + " for step " + se.getId() + 
+			for (StepExecution seStored :ses){
+				JobExecution je = jobExplorer.getJobExecution(seStored.getJobExecutionId());
+				StepExecution se = jobRepository.getLastStepExecution(je.getJobInstance(), seStored.getStepName()); // must get fresh as may have new Id
+				if (!abandondedJobExecutionIds.contains(je.getId())){
+					abandondedJobExecutionIds.add(je.getId()); // make sure only performed once per jobExecution
+					if (se == null){
+						logger.warn("Attempted to get latest StepExecution for step " + seStored.getStepName() + " but it is null");
+						pushMessageBackIntoQueueRequests++;
+						continue;
+					}
+					logger.info("Abandoning job with JobExecution id=" + je.getId() + " for step " + se.getId() + 
 							" on receiving message " + messageTemplate.getPayload().toString());
 					if (!isLockedJobExecution(je, LockType.ABANDON)){
 						// if already locked for abandonment do not try and lock again. We might have been stopping and waiting to try again
-						if (!lockJobExecution(je, LockType.ABANDON))
-							throw new WaspBatchJobExecutionReadinessException("Unable to abandon JobExecution (id=" + je.getId() + ") because it is locked for another task");
+						if (!lockJobExecution(je, LockType.ABANDON)){
+							logger.debug("Unable to abandon JobExecution (id=" + je.getId() + ") because it is locked for another task");
+							pushMessageBackIntoQueueRequests++;
+							continue;
+						}
 					}
 					try{
 						abandonJobExecution(se);
-						abandondedJobExecutionIds.add(se.getJobExecutionId());
+						abandondedJobExecutionIds.add(je.getId());
 						// remove all step executions being monitored for this abandoned JobExecution
 						for (StepExecution seToPurge : je.getStepExecutions()){
 							removeStepExecutionFromMessageMap(seToPurge, messageTemplatesWakingStepExecutions);
@@ -210,9 +226,15 @@ public class BatchJobHibernationManager {
 						}
 						unlockJobExecution(je, LockType.ABANDON);
 					} catch (WaspBatchJobExecutionException e){
-						throw new WaspBatchJobExecutionReadinessException("Problem aborting job execution and cleaning up 'messageTemplatesAbandoningStepExecutions': " + e.getLocalizedMessage());
+						logger.debug("Problem aborting job execution and cleaning up 'messageTemplatesAbandoningStepExecutions': " + e.getLocalizedMessage());
+						pushMessageBackIntoQueueRequests++;
+						unlockJobExecution(je, LockType.ABANDON);
 					} 
 				}
+			}
+			if (pushMessageBackIntoQueueRequests > 0){
+				throw new WaspBatchJobExecutionReadinessException("Need to push message back into queue as " + pushMessageBackIntoQueueRequests + 
+						" requests made");
 			}
 		}	
 		else
@@ -233,24 +255,33 @@ public class BatchJobHibernationManager {
 		if (messageTemplatesWakingStepExecutions.keySet().contains(messageTemplate)){
 			logger.debug("messageTemplatesWakingStepExecutions.keySet() contains message");
 			Set<StepExecution> ses = new HashSet<>(messageTemplatesWakingStepExecutions.get(messageTemplate));
-			for (StepExecution se : ses){
-				if (!abandondedJobExecutionIds.contains(se.getJobExecutionId())){
-					abandondedJobExecutionIds.add(se.getJobExecutionId()); // make sure only performed once per jobExecution
-					logger.info("Waking job with JobExecution id=" +se.getJobExecutionId() + " for step " + se.getId() + 
+			for (StepExecution seStored : ses){
+				JobExecution je = jobExplorer.getJobExecution(seStored.getJobExecutionId());
+				StepExecution se = jobRepository.getLastStepExecution(je.getJobInstance(), seStored.getStepName()); // must get fresh as may have new Id
+				if (!abandondedJobExecutionIds.contains(je.getId())){
+					abandondedJobExecutionIds.add(je.getId()); // make sure only performed once per jobExecution
+					if (se == null){
+						logger.warn("Attempted to get latest StepExecution for step " + seStored.getStepName() + " but it is null");
+						pushMessageBackIntoQueueRequests++;
+						continue;
+					}
+					logger.info("Waking job with JobExecution id=" +je.getId() + " for step " + se.getId() + 
 							" on receiving message " + messageTemplate.getPayload().toString());
 					
-					if (!lockJobExecution(se.getJobExecution(), LockType.WAKE)){
-						throw new WaspBatchJobExecutionReadinessException("Unable to get lock for JobExecution id=" +se.getJobExecutionId());
+					if (!lockJobExecution(je, LockType.WAKE)){
+						logger.debug("Unable to get lock for JobExecution id=" + je.getId());
+						pushMessageBackIntoQueueRequests++;
+						continue;
 					}
 					
 					try{
 						reawakenJobExecution(se, WOKEN_ON_MESSAGE_STATUS, messageTemplate.getStatus());
-						abandondedJobExecutionIds.add(se.getJobExecutionId());
+						abandondedJobExecutionIds.add(je.getId());
 						removeStepExecutionFromMessageMap(se, messageTemplatesWakingStepExecutions);
 						removeStepExecutionFromMessageMap(se, messageTemplatesAbandoningStepExecutions);
 					} catch (WaspBatchJobExecutionException e){
 						pushMessageBackIntoQueueRequests++;
-						unlockJobExecution(se.getJobExecution(), LockType.WAKE);
+						unlockJobExecution(je, LockType.WAKE);
 						logger.warn("Problem reawakening job execution and cleaning up 'messageTemplatesWakingStepExecutions': " + e.getLocalizedMessage());
 					} 
 				} 
@@ -527,6 +558,8 @@ public class BatchJobHibernationManager {
 		} else if (jobExplorer.getStepExecution(stepExecution.getJobExecutionId(), stepExecution.getId()) == null){
 			throw new WaspBatchJobExecutionReadinessException("Unable to wake JobExecution (id=" + je.getId() + ") because StepExecution is stale");
 		} else {
+			logger.debug("StepExecution (id=" + stepExecution.getId() + ", name=" + stepExecution.getStepName() + 
+					", JobExecutionId=" + je.getId() + ") has context=" + stepExecution.getExecutionContext());
 			logger.debug("Updating context for StepExecution (id=" + stepExecution.getId() + ", name=" + stepExecution.getStepName() + 
 					", JobExecutionId=" + je.getId() + ") setting " + contextRecordKey + "=" + contextRecordValue); 
 			stepExecution.getExecutionContext().put(contextRecordKey, contextRecordValue);
@@ -675,7 +708,7 @@ public class BatchJobHibernationManager {
 			return false;
 		if ( isLockedJobExecution(jobExecution, LockType.ANY) )
 			return false;
-		logger.debug("Locking JobExecution id=" + jobExecution.getId() + " for " + type);
+		logger.info("Locking JobExecution id=" + jobExecution.getId() + " for " + type);
 		lockedJobExecutions.put(id, type);
 		return true;
 	}
@@ -692,11 +725,11 @@ public class BatchJobHibernationManager {
 	public synchronized static boolean unlockJobExecution(JobExecution jobExecution, LockType type){
 		if ( lockedJobExecutions.containsKey(jobExecution.getId())){
 			if (type.equals(LockType.ANY)){
-				logger.debug("Unlocking JobExecution id=" + jobExecution.getId() + " for " + type);
+				logger.info("Unlocking JobExecution id=" + jobExecution.getId() + " for " + type);
 				lockedJobExecutions.remove(jobExecution.getId());
 				return true;
 			} else if (lockedJobExecutions.get(jobExecution.getId()).equals(type)){
-				logger.debug("Unlocking JobExecution id=" + jobExecution.getId() + " for " + type);
+				logger.info("Unlocking JobExecution id=" + jobExecution.getId() + " for " + type);
 				lockedJobExecutions.remove(jobExecution.getId());
 				return true;
 			}

@@ -249,7 +249,8 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 			Assert.assertTrue(BatchJobLaunchMessageTemplate.isMessageOfCorrectType(messages.get(0)));
 		} catch (Exception e){
 			// caught an unexpected exception
-			Assert.fail("Caught Exception: "+e.getMessage());
+			Assert.fail("Caught Exception of type "+ e.getClass().getName() + ": " + e.getMessage());
+			e.printStackTrace();
 		}
 					
 	}
@@ -296,7 +297,7 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 		
 		PowerMockito.when(mockJobService.getJobByJobId(job.getId())).thenReturn(job);
 		PowerMockito.when(mockWaspPluginRegistry.getPlugin(Mockito.anyString(), Mockito.eq(BatchJobProviding.class))).thenReturn(testPlugin);
-		//try {
+		try {
 			Map<String, String> jobParameters = new HashMap<String, String>();
 			jobParameters.put(WaspJobParameters.LIBRARY_CELL_ID, CELL_LIBRARY_ID);
 			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
@@ -332,10 +333,11 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 			Assert.assertNotNull(params.getString("p1"));
 			Assert.assertNotNull(params.getString("p2"));
 				
-		//} catch (Exception e){
+		} catch (Exception e){
 			// caught an unexpected exception
-		//	Assert.fail("Caught Exception: "+e.getMessage());
-		//}
+			 Assert.fail("Caught Exception of type "+ e.getClass().getName() + ": " + e.getMessage());
+			 e.printStackTrace();
+		}
 	}
 
 	@Override

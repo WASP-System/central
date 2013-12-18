@@ -24,7 +24,6 @@ import org.testng.annotations.Test;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 
 @ContextConfiguration(locations={"/daemon-test-launch-context.xml","/daemon-test-batchJob.xml"})
-
 public class ExponentialRepeatingJobTests extends AbstractTestNGSpringContextTests  {
 	
 	private final Logger logger = LoggerFactory.getLogger(ExponentialRepeatingJobTests.class);
@@ -41,7 +40,6 @@ public class ExponentialRepeatingJobTests extends AbstractTestNGSpringContextTes
 	private final String BATCH_JOB_NAME = "test.exponentialRepeatJob";
 	
 	private final String STEP_NAME = "test.repeatedStep";
-	
 		
 	@BeforeClass
 	private void setup() throws SecurityException, NoSuchMethodException{
@@ -63,7 +61,7 @@ public class ExponentialRepeatingJobTests extends AbstractTestNGSpringContextTes
 			int repeat = 0;
 			while (repeat < 120){
 				try{
-					Thread.sleep(1000); // allow some time for flow initialization
+					Thread.sleep(2000); // allow some time for flow initialization
 				} catch (InterruptedException e){};
 				StepExecution stepExecution = jobRepository.getLastStepExecution(jobExecution.getJobInstance(), STEP_NAME);
 				if (stepExecution == null){
@@ -71,6 +69,10 @@ public class ExponentialRepeatingJobTests extends AbstractTestNGSpringContextTes
 					continue;
 				}
 				Long timeInterval = BatchJobHibernationManager.getWakeTimeInterval(stepExecution);
+				if (timeInterval == null){
+					logger.warn("timeInterval == null");
+					continue;
+				}
 				logger.debug("Current time interval = " + timeInterval);
 				if (timeInterval >= 400L){
 					logger.debug("Repeats completed");
@@ -89,7 +91,8 @@ public class ExponentialRepeatingJobTests extends AbstractTestNGSpringContextTes
 			}
 		} catch (Exception e){
 			 // caught an unexpected exception
-			Assert.fail("testSuccessfulJobLaunch(): Caught Exception: "+e.getMessage());
+			Assert.fail("Caught Exception of type "+ e.getClass().getName() + ": " + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 	

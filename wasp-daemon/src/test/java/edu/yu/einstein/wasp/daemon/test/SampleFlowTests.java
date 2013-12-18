@@ -31,7 +31,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -48,8 +47,6 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleType;
 
 @ContextConfiguration(locations={"/daemon-test-launch-context.xml"})
-
-
 public class SampleFlowTests extends AbstractTestNGSpringContextTests implements MessageHandler {
 	
 	@Autowired
@@ -93,7 +90,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	private final Integer SAMPLE_ID3 = 600;
 	private final Integer SAMPLE_ID4 = 700;
 	
-	
+
 	@BeforeClass
 	private void setup() throws SecurityException, NoSuchMethodException{
 		MockitoAnnotations.initMocks(this);
@@ -110,7 +107,6 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 		messagingTemplate.setReceiveTimeout(10000);
 	}
 	
-	@AfterMethod
 	private void resetMessage(){
 		messages = new ArrayList<>();
 	}
@@ -164,7 +160,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 				
 			}
 			try{
-				Thread.sleep(500);
+				Thread.sleep(2000);
 			} catch (InterruptedException e){}; // delay to allow processing of messages
 			// send ACCEPTED message (simulating job approval tasks completed by wasp job flow)
 			JobStatusMessageTemplate jobTemplate = new JobStatusMessageTemplate(JOB_ID);
@@ -226,7 +222,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			}
 		} catch (Exception e){
 			// caught an unexpected exception
-			Assert.fail("testSamplesReceived(): Caught Exception: "+e.getMessage());
+			Assert.fail("Caught Exception of type "+ e.getClass().getName() + ": " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -330,8 +326,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			jobExecution.stop();
 		} catch (Exception e){
 			// caught an unexpected exception
-			e.printStackTrace();
-			Assert.fail("testLibrarySampleReceived(): Caught Exception: "+e.getMessage());
+			Assert.fail("Caught Exception of type "+ e.getClass().getName() + ": " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -420,7 +415,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			
 		} catch (Exception e){
 			// caught an unexpected exception
-			Assert.fail("testSampleFailedQC(): Caught Exception: "+e.getMessage());
+			Assert.fail("Caught Exception of type "+ e.getClass().getName() + ": " + e.getMessage());
 			e.printStackTrace();
 		}
 		
@@ -482,7 +477,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			Assert.assertEquals(status.getExitCode(), ExitStatus.TERMINATED.getExitCode());
 		} catch (Exception e){
 			// caught an unexpected exception
-			Assert.fail("testJobAbandoned(): Caught Exception: "+e.getMessage());
+			Assert.fail("Caught Exception of type "+ e.getClass().getName() + ": " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
