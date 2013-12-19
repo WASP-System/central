@@ -11,7 +11,7 @@ import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.core.MessagingTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -56,8 +56,8 @@ public class JobLaunchTests extends BatchDatabaseIntegrationTest  {
 		super.cleanDB();
 	}
 	
-	@AfterClass
-	protected boolean afterClassTeardown(){
+	@AfterMethod
+	protected boolean afterMethodTeardown(){
 		return super.stopRunningJobExecutions();
 	}
 	

@@ -30,6 +30,7 @@ import org.springframework.integration.core.SubscribableChannel;
 import org.springframework.test.context.ContextConfiguration;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -129,10 +130,11 @@ public class PostRunAnalysisJobLaunchTests extends BatchDatabaseIntegrationTest 
 	@BeforeMethod
 	protected void beforeMethodSetup() throws Exception{
 		super.cleanDB();
+		messages = new ArrayList<Message<?>>();
 	}
 	
-	@AfterClass
-	protected boolean afterClassTeardown(){
+	@AfterMethod
+	protected boolean afterMethodTeardown(){
 		return super.stopRunningJobExecutions();
 	}
 	
@@ -202,13 +204,6 @@ public class PostRunAnalysisJobLaunchTests extends BatchDatabaseIntegrationTest 
 		abortChannel.unsubscribe(this);
 		analysisChannel.unsubscribe(this);
 	}
-	
-	@BeforeMethod
-	public void beforeMethod() {
-		messages = new ArrayList<Message<?>>();
-	}
-
-
 	
 	@Test (groups = "unit-tests-batch-integration")
 	public void runSuccessTest() throws Exception{

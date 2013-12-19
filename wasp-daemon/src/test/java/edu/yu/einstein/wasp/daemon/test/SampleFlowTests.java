@@ -26,6 +26,7 @@ import org.springframework.integration.core.SubscribableChannel;
 import org.springframework.test.context.ContextConfiguration;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -93,16 +94,20 @@ public class SampleFlowTests extends BatchDatabaseIntegrationTest implements Mes
 		messagingTemplate.setReceiveTimeout(10000);
 	}
 	
-	@BeforeMethod
-	protected void beforeMethodSetup() throws Exception{
-		super.cleanDB();
-	}
-	
 	@AfterClass
 	private void afterClassTeardown(){
 		jobListeningChannel.unsubscribe(this);
 		sampleListeningChannel.unsubscribe(this);
 		libraryListeningChannel.unsubscribe(this);
+	}
+	
+	@BeforeMethod
+	protected void beforeMethodSetup() throws Exception{
+		super.cleanDB();
+	}
+	
+	@AfterMethod
+	private void afterMethodTearDown(){
 		stopRunningJobExecutions();
 	}
 	

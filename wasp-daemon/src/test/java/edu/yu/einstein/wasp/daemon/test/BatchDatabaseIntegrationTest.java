@@ -2,10 +2,6 @@ package edu.yu.einstein.wasp.daemon.test;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import javax.sql.DataSource;
 
@@ -22,9 +18,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 
 
 public class BatchDatabaseIntegrationTest extends AbstractTestNGSpringContextTests {
@@ -50,7 +43,7 @@ public class BatchDatabaseIntegrationTest extends AbstractTestNGSpringContextTes
 	@Value("${testDb.schema.script}")
 	private String setupSchemaScript;
 	
-	private void executeSQL(Resource resource) throws DataAccessException, IOException{
+	protected void executeSQL(Resource resource) throws DataAccessException, IOException{
 		JdbcTemplate  jdbcTemplate = new JdbcTemplate(dataSource);
 		BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()));
 		String line;
@@ -60,7 +53,6 @@ public class BatchDatabaseIntegrationTest extends AbstractTestNGSpringContextTes
 			if (!line.startsWith("--") && !line.isEmpty()){
 				sql.append(line);
 				if (line.endsWith(";")){
-					logger.debug("Executing sql: " + sql);
 					jdbcTemplate.execute(sql.toString());
 					sql = new StringBuilder();
 				}

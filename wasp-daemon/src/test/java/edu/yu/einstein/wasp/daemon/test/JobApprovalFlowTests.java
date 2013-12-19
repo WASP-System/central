@@ -20,6 +20,7 @@ import org.springframework.integration.core.SubscribableChannel;
 import org.springframework.test.context.ContextConfiguration;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -65,6 +66,11 @@ public class JobApprovalFlowTests extends BatchDatabaseIntegrationTest implement
 		super.cleanDB();
 	}
 	
+	@AfterMethod
+	private void afterMethodTearDown(){
+		stopRunningJobExecutions();
+	}
+	
 	@BeforeClass
 	@Override
 	protected void setup(){
@@ -84,7 +90,6 @@ public class JobApprovalFlowTests extends BatchDatabaseIntegrationTest implement
 	private void tearDown(){
 		listeningChannel.unsubscribe(this);
 		abortChannel.unsubscribe(this);
-		stopRunningJobExecutions();
 	}
 	
 		
