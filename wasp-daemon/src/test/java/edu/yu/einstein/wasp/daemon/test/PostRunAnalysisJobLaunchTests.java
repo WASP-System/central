@@ -16,8 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.explore.JobExplorer;
-import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
+import org.springframework.batch.core.explore.wasp.WaspJobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.Message;
@@ -29,7 +28,6 @@ import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.MessagingTemplate;
 import org.springframework.integration.core.SubscribableChannel;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -63,7 +61,7 @@ import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 
 @ContextConfiguration(locations={"/daemon-test-launch-context.xml","/daemon-test-wiretap.xml","/daemon-test-batchJob.xml"})
-public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTests implements MessageHandler {
+public class PostRunAnalysisJobLaunchTests extends BatchDatabaseIntegrationTest implements MessageHandler {
 	
 	// mockRunService and mockRunDao are mocked in context to keep Spring happy when resolving dependencies on bean creation
 	// but MUST be re-mocked here (not @Autowired in) otherwise there is autowiring issues with dependencies such as Entitymanager etc.
@@ -86,13 +84,6 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 	
 	@Autowired
 	private ResourceType softwareResourceType;
-	
-	private JobExplorerWasp jobExplorer;
-	
-	@Autowired
-	void setJobExplorer(JobExplorer jobExplorer){
-		this.jobExplorer = (JobExplorerWasp) jobExplorer;
-	}
 	
 	@Autowired
 	@Qualifier("wasp.channel.priority.run")
@@ -135,9 +126,20 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 	
 	private Job job;
 	
+	@BeforeMethod
+	protected void beforeMethodSetup() throws Exception{
+		super.cleanDB();
+	}
+	
+	@AfterClass
+	protected boolean afterClassTeardown(){
+		return super.stopRunningJobExecutions();
+	}
 	
 	@BeforeClass
-	public void beforeClass(){
+	@Override
+	public void setup(){
+		super.setup();
 		MockitoAnnotations.initMocks(this);
 		Assert.assertNotNull(mockRunDao);
 		Assert.assertNotNull(mockRunService);
@@ -147,7 +149,6 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 		Assert.assertNotNull(runSuccessSplitter);
 		Assert.assertNotNull(waspJobSoftwareLaunchTasklet);
 		Assert.assertNotNull(softwareResourceType);
-		Assert.assertNotNull(jobExplorer);
 		Assert.assertNotNull(outboundMessageChannelRun);
 		Assert.assertNotNull(outboundMessageChannelAnalysis);
 		Assert.assertNotNull(outboundMessageChannelLaunch);
@@ -212,46 +213,40 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 	@Test (groups = "unit-tests-batch-integration")
 	public void runSuccessTest() throws Exception{
 		// send run complete messages
-		try {
-			// add mocks to runSuccessSplitter (replacing Autowired versions)
-			// could also use ReflectionTestUtils.setField(runSuccessSplitter, "runService", mockRunService) - essential if no setters
-			Run run = new Run();
-			run.setId(1);
-			
-			PowerMockito.when(mockRunService.getRunDao()).thenReturn(mockRunDao);
-			PowerMockito.when(mockRunDao.getRunByRunId(1)).thenReturn(run);
-			PowerMockito.when(mockRunService.getCellLibrariesOnSuccessfulRunCellsWithoutControls(Mockito.any(Run.class))).thenReturn(libraryCells);
-			PowerMockito.when(mockSampleService.getJobOfLibraryOnCell(libraryCell)).thenReturn(job);
-			
-			BatchJobProviding plugin = new BatchJobProviding() {
-				@Override public String getBatchJobName(String BatchJobType) {return "skipTaskletJob";}
-				@Override public Set<?> getProvides() { return null;	}
-				@Override public Set<?> getHandles() { return null;	}
-				@Override public String getIName() { return null; }
-				@Override public String getName() { return null; }
-				@Override public String getDescription() { return null; }
-			};
-			
-			List<BatchJobProviding> plugins = new ArrayList<BatchJobProviding>();
-			plugins.add(plugin);
-			PowerMockito.when(mockWaspPluginRegistry.getPluginsHandlingArea("test_workflow", BatchJobProviding.class)).thenReturn(plugins);
-			RunStatusMessageTemplate template = new RunStatusMessageTemplate(RUN_ID);
-			template.setStatus(WaspStatus.COMPLETED);
-			Message<WaspStatus> runCompletedMessage = template.build();
-			logger.info("runSuccessTest(): Sending message via 'outbound rmi gateway': "+runCompletedMessage.toString());
-			Message<?> replyMessage = messagingTemplate.sendAndReceive(outboundMessageChannelRun, runCompletedMessage);
-			if (replyMessage != null)
-				logger.debug("testJobApproved(): Got reply message: "+ replyMessage.toString());
-			try{
-				Thread.sleep(500);
-			} catch (InterruptedException e){}; // wait for message receiving and job completion events
-			Assert.assertEquals(messages.size(), 1);
-			Assert.assertTrue(BatchJobLaunchMessageTemplate.isMessageOfCorrectType(messages.get(0)));
-		} catch (Exception e){
-			// caught an unexpected exception
-			Assert.fail("Caught Exception of type "+ e.getClass().getName() + ": " + e.getMessage());
-			e.printStackTrace();
-		}
+		// add mocks to runSuccessSplitter (replacing Autowired versions)
+		// could also use ReflectionTestUtils.setField(runSuccessSplitter, "runService", mockRunService) - essential if no setters
+		Run run = new Run();
+		run.setId(1);
+		
+		PowerMockito.when(mockRunService.getRunDao()).thenReturn(mockRunDao);
+		PowerMockito.when(mockRunDao.getRunByRunId(1)).thenReturn(run);
+		PowerMockito.when(mockRunService.getCellLibrariesOnSuccessfulRunCellsWithoutControls(Mockito.any(Run.class))).thenReturn(libraryCells);
+		PowerMockito.when(mockSampleService.getJobOfLibraryOnCell(libraryCell)).thenReturn(job);
+		
+		BatchJobProviding plugin = new BatchJobProviding() {
+			@Override public String getBatchJobName(String BatchJobType) {return "skipTaskletJob";}
+			@Override public Set<?> getProvides() { return null;	}
+			@Override public Set<?> getHandles() { return null;	}
+			@Override public String getIName() { return null; }
+			@Override public String getName() { return null; }
+			@Override public String getDescription() { return null; }
+		};
+		
+		List<BatchJobProviding> plugins = new ArrayList<BatchJobProviding>();
+		plugins.add(plugin);
+		PowerMockito.when(mockWaspPluginRegistry.getPluginsHandlingArea("test_workflow", BatchJobProviding.class)).thenReturn(plugins);
+		RunStatusMessageTemplate template = new RunStatusMessageTemplate(RUN_ID);
+		template.setStatus(WaspStatus.COMPLETED);
+		Message<WaspStatus> runCompletedMessage = template.build();
+		logger.info("runSuccessTest(): Sending message via 'outbound rmi gateway': "+runCompletedMessage.toString());
+		Message<?> replyMessage = messagingTemplate.sendAndReceive(outboundMessageChannelRun, runCompletedMessage);
+		if (replyMessage != null)
+			logger.debug("testJobApproved(): Got reply message: "+ replyMessage.toString());
+		try{
+			Thread.sleep(500);
+		} catch (InterruptedException e){}; // wait for message receiving and job completion events
+		Assert.assertEquals(messages.size(), 1);
+		Assert.assertTrue(BatchJobLaunchMessageTemplate.isMessageOfCorrectType(messages.get(0)));
 					
 	}
 
@@ -324,7 +319,7 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 					Assert.fail("Timeout waiting to receive messages");
 			}
 			// validate proper completion of alignment step and that it was called with expected parameters
-			JobExecution je = jobExplorer.getMostRecentlyStartedJobExecutionInList(jobExplorer.getJobExecutions(ALIGN_JOB_NAME));
+			JobExecution je = ((WaspJobExplorer) jobExplorer).getMostRecentlyStartedJobExecutionInList(((WaspJobExplorer) jobExplorer).getJobExecutions(ALIGN_JOB_NAME));
 			ExitStatus status = je.getExitStatus();
 			Assert.assertTrue(status.isCompleted());
 			JobParameters params = je.getJobParameters();
