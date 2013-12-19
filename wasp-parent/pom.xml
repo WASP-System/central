@@ -111,7 +111,6 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<module>../wasp-cli</module>
 		<module>../wasp-doc</module>
 		<module>../wasp-file</module>
-		<module>../../../spring-batch/spring-batch-core</module>
 		<module>../plugins</module>
 		</modules>
 
