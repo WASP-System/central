@@ -109,8 +109,8 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 		Long stepExecutionId =stepExecution.getId();
 		Long jobExecutionId = context.getStepContext().getStepExecution().getJobExecutionId();
 		logger.trace(name + "execute() invoked");
-		/*if ((!messageQueue.isEmpty() || !abandonMessageQueue.isEmpty()) && 
-				!isHibernationRequestedForJob(stepExecution.getJobExecution())){
+		if ((!messageQueue.isEmpty() || !abandonMessageQueue.isEmpty()) && 
+				context.getStepContext().getStepExecution().getJobExecution().getStatus().isRunning()){
 			if (wasHibernationRequested){
 				setHibernationRequestedForStep(stepExecution, false);
 				hibernationManager.removeStepExecutionFromWakeMessageMap(stepExecution);
@@ -119,7 +119,7 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 			logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + ") received an expected message so finishing step.");
 			setStepStatusInJobExecutionContext(stepExecution, BatchStatus.COMPLETED);
 			return RepeatStatus.FINISHED;
-		}*/
+		}
 		if (wasWokenOnMessage(context)){
 			logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + 
 					") was woken up from hibernation for a message. Skipping to next step...");
