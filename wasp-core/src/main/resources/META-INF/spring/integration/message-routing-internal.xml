@@ -85,7 +85,7 @@
 	
 	<int:bridge id="wasp.channel.bridge.throttled.batch" input-channel="wasp.channel.queue.batch" output-channel="wasp.channel.notification.batch" >
 		<!-- this delay allows time for a job to hibernate before handling a message that might wake it -->
-		<int:poller max-messages-per-poll="1" fixed-delay="10" /> 
+		<int:poller max-messages-per-poll="1" fixed-rate="10" /> 
 	</int:bridge>
 	
 	<int:delayer id="wasp.channel.delayer.resend.waspStatusMessages" input-channel="wasp.channel.resend.waspStatusMessages" default-delay="50" output-channel="wasp.channel.priority.waspStatusMessages"/>

@@ -49,7 +49,6 @@
   <logger name="org.springframework.batch.core.step.AbstractStep" level="INFO"/>
   <logger name="org.springframework.batch.core.job.AbstractJob" level="INFO"/>
   <logger name="org.springframework.batch.core.step.tasklet.TaskletStep" level="INFO"/>
-  <logger name="edu.yu.einstein.wasp.batch.core.extension" level="DEBUG"/>
   
   <logger name="edu.yu.einstein.wasp" level="DEBUG"/>
   <logger name="org.springframework.integration.channel" level="DEBUG"/>

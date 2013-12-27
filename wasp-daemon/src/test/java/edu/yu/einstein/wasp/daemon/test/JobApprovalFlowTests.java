@@ -5,13 +5,11 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.configuration.JobRegistry;
-import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
@@ -20,13 +18,13 @@ import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.MessagingTemplate;
 import org.springframework.integration.core.SubscribableChannel;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
@@ -36,23 +34,13 @@ import edu.yu.einstein.wasp.model.User;
 
 
 @ContextConfiguration(locations={"/daemon-test-launch-context.xml"})
-
-public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests implements MessageHandler {
-	
-	@Autowired
-	private JobLauncher jobLauncher;
-	
-	@Autowired
-	private JobRepository jobRepository;
+public class JobApprovalFlowTests extends BatchDatabaseIntegrationTest implements MessageHandler {
 	
 	@Autowired
 	private MessageChannelRegistry channelRegistry;
 	
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
-	
-	@Autowired 
-	private JobRegistry jobRegistry;
 	
 	private MessagingTemplate messagingTemplate;
 	
@@ -73,11 +61,21 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 	
 	private SubscribableChannel abortChannel;
 	
+	@BeforeMethod
+	protected void beforeMethodSetup() throws Exception{
+		super.cleanDB();
+	}
+	
+	@AfterMethod
+	private void afterMethodTearDown(){
+		stopRunningJobExecutions();
+	}
+	
 	@BeforeClass
-	private void setup(){
+	@Override
+	protected void setup(){
+		super.setup();
 		Assert.assertNotNull(channelRegistry);
-		Assert.assertNotNull(jobLauncher);
-		Assert.assertNotNull(jobRegistry);
 		Assert.assertNotNull(messageChannelRegistry);
 		listeningChannel = channelRegistry.getChannel("wasp.channel.notification.job", SubscribableChannel.class);
 		listeningChannel.subscribe(this); // register as a message handler on the listeningChannel
@@ -101,79 +99,80 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 	 */
 	@Test (groups = "unit-tests-batch-integration")
 	public void testJobApproved() throws Exception{
+		// setup job execution for the 'default.waspJob.jobflow.v1' job
+		Job job = jobRegistry.getJob("default.waspJob.jobflow.v1"); // get the 'default.waspJob.jobflow.v1' job from the context
+		Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
+		parameterMap.put( JOB_ID_KEY, new JobParameter(JOB_ID.toString()) );
+		JobExecution jobExecution = jobLauncher.run(job, new JobParameters(parameterMap));
 		try{
-			// setup job execution for the 'default.waspJob.jobflow.v1' job
-			Job job = jobRegistry.getJob("default.waspJob.jobflow.v1"); // get the 'default.waspJob.jobflow.v1' job from the context
-			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
-			parameterMap.put( JOB_ID_KEY, new JobParameter(JOB_ID.toString()) );
-			JobExecution jobExecution = jobLauncher.run(job, new JobParameters(parameterMap));
+			Thread.sleep(500); // allow some time for flow initialization
+		} catch (InterruptedException e){};
+		// send approval messages (simulating button presses in web view)
+		JobStatusMessageTemplate template = new JobStatusMessageTemplate(JOB_ID);
+		template.setStatus(WaspStatus.COMPLETED);
+		
+		template.setTask(WaspJobTask.QUOTE);
+		Message<WaspStatus> quoteApprovedMessage = template.build();
+		logger.info("testJobApproved(): Sending message via 'outbound rmi gateway': "+quoteApprovedMessage.toString());
+		Message<?> replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), quoteApprovedMessage);
+		if (replyMessage == null)
+			Assert.fail("testJobApproved(): Failed to receive reply message");
+		template.setTask(WaspJobTask.PI_APPROVE);
+		Message<WaspStatus> piApprovedMessage = template.build();
+		logger.info("testJobApproved(): Sending message via 'outbound rmi gateway': "+piApprovedMessage.toString());
+		replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), piApprovedMessage);
+		if (replyMessage == null)
+			Assert.fail("testJobApproved(): Failed to receive reply message");
+		template.setTask(WaspJobTask.DA_APPROVE);
+		Message<WaspStatus> daApprovedMessage = template.build();
+		logger.info("testJobApproved(): Sending message via 'outbound rmi gateway': "+daApprovedMessage.toString());
+		replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), daApprovedMessage);
+		if (replyMessage == null)
+			Assert.fail("testJobApproved(): Failed to receive reply message");
+		template.setTask(WaspJobTask.FM_APPROVE);
+		Message<WaspStatus> fmApprovedMessage = template.build();
+		logger.info("testJobApproved(): Sending message via 'outbound rmi gateway': "+fmApprovedMessage.toString());
+		replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), fmApprovedMessage);
+		if (replyMessage == null)
+			Assert.fail("testJobApproved(): Failed to receive reply message");
+		
+		// Delay to allow message receiving and transitions. Time out after 10s.
+		int repeat = 0;
+		while ((message == null || (! JobStatusMessageTemplate.actUponMessage(message, JOB_ID, WaspJobTask.NOTIFY_STATUS))) && repeat < 10){
+			if (message != null)
+				logger.debug("Rejected received message: " + message);
+			message = null;
 			try{
 				Thread.sleep(500); // allow some time for flow initialization
 			} catch (InterruptedException e){};
-			
-			// send approval messages (simulating button presses in web view)
-			JobStatusMessageTemplate template = new JobStatusMessageTemplate(JOB_ID);
-			template.setStatus(WaspStatus.COMPLETED);
-			
-			template.setTask(WaspJobTask.QUOTE);
-			Message<WaspStatus> quoteApprovedMessage = template.build();
-			logger.info("testJobApproved(): Sending message via 'outbound rmi gateway': "+quoteApprovedMessage.toString());
-			Message<?> replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), quoteApprovedMessage);
-			if (replyMessage == null)
-				Assert.fail("testJobApproved(): Failed to receive reply message");
-			template.setTask(WaspJobTask.PI_APPROVE);
-			Message<WaspStatus> piApprovedMessage = template.build();
-			logger.info("testJobApproved(): Sending message via 'outbound rmi gateway': "+piApprovedMessage.toString());
-			replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), piApprovedMessage);
-			if (replyMessage == null)
-				Assert.fail("testJobApproved(): Failed to receive reply message");
-			template.setTask(WaspJobTask.DA_APPROVE);
-			Message<WaspStatus> daApprovedMessage = template.build();
-			logger.info("testJobApproved(): Sending message via 'outbound rmi gateway': "+daApprovedMessage.toString());
-			replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), daApprovedMessage);
-			if (replyMessage == null)
-				Assert.fail("testJobApproved(): Failed to receive reply message");
-			template.setTask(WaspJobTask.FM_APPROVE);
-			Message<WaspStatus> fmApprovedMessage = template.build();
-			logger.info("testJobApproved(): Sending message via 'outbound rmi gateway': "+fmApprovedMessage.toString());
-			replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), fmApprovedMessage);
-			if (replyMessage == null)
-				Assert.fail("testJobApproved(): Failed to receive reply message");
-			
-			// Delay to allow message receiving and transitions. Time out after 10s.
-			int repeat = 0;
-			while ((message == null || (! JobStatusMessageTemplate.actUponMessage(message, JOB_ID, WaspJobTask.NOTIFY_STATUS))) && repeat < 10){
-				if (message != null)
-					logger.debug("Rejected received message: " + message);
-				message = null;
-				try{
-					Thread.sleep(500); // allow some time for flow initialization
-				} catch (InterruptedException e){};
-				repeat++;
-			}
-			if (message == null)
-				Assert.fail("testJobApproved(): Timeout waiting to receive message on 'wasp.channel.notification.job'");
-			
-			// check headers as expected
-			Assert.assertTrue(message.getHeaders().containsKey(JOB_ID_KEY));
-			Assert.assertEquals(message.getHeaders().get(JOB_ID_KEY), JOB_ID);
-			Assert.assertTrue(message.getHeaders().containsKey(WaspMessageType.HEADER_KEY));
-			Assert.assertEquals(message.getHeaders().get(WaspMessageType.HEADER_KEY), WaspMessageType.JOB);
-			
-			// check payload as expected
-			Assert.assertEquals(WaspStatus.class, message.getPayload().getClass());
-			Assert.assertEquals(message.getPayload(), WaspStatus.ACCEPTED);
-			JobExecution freshJe = jobRepository.getLastJobExecution(jobExecution.getJobInstance().getJobName(), jobExecution.getJobParameters());
-			logger.debug("JobExecution at end: " + freshJe.toString());
-			// check BatchStatus and ExitStatus is as expected
-			WaspBatchExitStatus status = new WaspBatchExitStatus(jobExecution.getExitStatus());
-			Assert.assertTrue(status.isRunning());
-			Assert.assertTrue(status.isHibernating());
-			jobExecution.stop();
-		} catch (Exception e){
-			// caught an unexpected exception
-			Assert.fail("Caught Exception: "+e.getMessage());
+			repeat++;
 		}
+		if (message == null)
+			Assert.fail("testJobApproved(): Timeout waiting to receive message on 'wasp.channel.notification.job'");
+		// check headers as expected
+		Assert.assertTrue(message.getHeaders().containsKey(JOB_ID_KEY));
+		Assert.assertEquals(message.getHeaders().get(JOB_ID_KEY), JOB_ID);
+		Assert.assertTrue(message.getHeaders().containsKey(WaspMessageType.HEADER_KEY));
+		Assert.assertEquals(message.getHeaders().get(WaspMessageType.HEADER_KEY), WaspMessageType.JOB);
+		
+		// check payload as expected
+		Assert.assertEquals(WaspStatus.class, message.getPayload().getClass());
+		Assert.assertEquals(message.getPayload(), WaspStatus.ACCEPTED);
+		repeat = 0;
+		JobExecution freshJe;
+		do {
+			try{
+				Thread.sleep(500); // allow some time for stopping
+			} catch (InterruptedException e){};
+			freshJe = jobRepository.getLastJobExecution(jobExecution.getJobInstance().getJobName(), jobExecution.getJobParameters());
+		} while (!freshJe.getExitStatus().isHibernating() && repeat++ < 10);
+		if (repeat == 10){
+			Assert.fail("Did not complete with ExistStatus.HIBERNATING within suitable time interval");
+		}
+		logger.debug("JobExecution at end: " + freshJe.toString());
+		// check BatchStatus and ExitStatus is as expected
+		ExitStatus status = freshJe.getExitStatus();
+		Assert.assertTrue(status.isRunning()); // hibernating is still considered running
 	}
 	
 	/**
@@ -182,63 +181,62 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 	 */
 	@Test (groups = "unit-tests-batch-integration")
 	public void testJobNotApproved() throws Exception{
+		// setup job execution for the 'default.waspJob.jobflow.v1' job
+		Job job = jobRegistry.getJob("default.waspJob.jobflow.v1"); // get the 'default.waspJob.jobflow.v1' job from the context
+		Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
+		parameterMap.put( JOB_ID_KEY, new JobParameter(JOB_ID2.toString()) );
+		JobExecution jobExecution = jobLauncher.run(job, new JobParameters(parameterMap));
 		try{
-			// setup job execution for the 'default.waspJob.jobflow.v1' job
-			Job job = jobRegistry.getJob("default.waspJob.jobflow.v1"); // get the 'default.waspJob.jobflow.v1' job from the context
-			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
-			parameterMap.put( JOB_ID_KEY, new JobParameter(JOB_ID2.toString()) );
-			JobExecution jobExecution = jobLauncher.run(job, new JobParameters(parameterMap));
+			Thread.sleep(500); // allow some time for flow initialization
+		} catch (InterruptedException e){};
+		
+		// send approval messages (simulating button presses in web view)
+		JobStatusMessageTemplate template = new JobStatusMessageTemplate(JOB_ID2);
+		template.setTask(WaspJobTask.PI_APPROVE);
+		template.setStatus(WaspStatus.ABANDONED);
+		template.setComment("A comment");
+		template.setUserCreatingMessage(new User());
+		Message<WaspStatus> piApprovedMessage = template.build();
+		logger.info("testJobNotApproved(): Sending message via 'outbound rmi gateway': "+piApprovedMessage.toString());
+		Message<?>  replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), piApprovedMessage);
+		if (replyMessage == null)
+			Assert.fail("testJobNotApproved(): Failed to receive reply message");
+		
+		// Delay to allow message receiving and transitions. Timeout after 10s.
+		int repeat = 0;
+		while ((message == null || (! JobStatusMessageTemplate.actUponMessage(message, JOB_ID2, WaspJobTask.NOTIFY_STATUS))) && repeat < 10){
+			if (message != null)
+				logger.debug("Rejected received message: " + message);
+			message = null;
 			try{
 				Thread.sleep(500); // allow some time for flow initialization
 			} catch (InterruptedException e){};
-			
-			// send approval messages (simulating button presses in web view)
-			JobStatusMessageTemplate template = new JobStatusMessageTemplate(JOB_ID2);
-			template.setTask(WaspJobTask.PI_APPROVE);
-			template.setStatus(WaspStatus.ABANDONED);
-			template.setComment("A comment");
-			template.setUserCreatingMessage(new User());
-			Message<WaspStatus> piApprovedMessage = template.build();
-			logger.info("testJobNotApproved(): Sending message via 'outbound rmi gateway': "+piApprovedMessage.toString());
-			Message<?>  replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), piApprovedMessage);
-			if (replyMessage == null)
-				Assert.fail("testJobNotApproved(): Failed to receive reply message");
-			
-			// Delay to allow message receiving and transitions. Timeout after 10s.
-			int repeat = 0;
-			while ((message == null || (! JobStatusMessageTemplate.actUponMessage(message, JOB_ID2, WaspJobTask.NOTIFY_STATUS))) && repeat < 10){
-				if (message != null)
-					logger.debug("Rejected received message: " + message);
-				message = null;
-				try{
-					Thread.sleep(500); // allow some time for flow initialization
-				} catch (InterruptedException e){};
-				repeat++;
-			}
-			if (message == null)
-				Assert.fail("testJobNotApproved(): Timeout waiting to receive message on 'wasp.channel.notification.job'");
-			
-			// check headers as expected
-			Assert.assertTrue(message.getHeaders().containsKey(JOB_ID_KEY));
-			Assert.assertEquals(message.getHeaders().get(JOB_ID_KEY), JOB_ID2);
-			Assert.assertTrue(message.getHeaders().containsKey(WaspMessageType.HEADER_KEY));
-			Assert.assertEquals(message.getHeaders().get(WaspMessageType.HEADER_KEY), WaspMessageType.JOB);
-			
-			// check payload as expected
-			Assert.assertEquals(WaspStatus.class, message.getPayload().getClass());
-			Assert.assertEquals(message.getPayload(), WaspStatus.ABANDONED);
-			
-			try{
-				Thread.sleep(1000); // allow some time for flow completion
-			}catch (InterruptedException e){}; // allow batch to wrap up
-			JobExecution freshJe = jobRepository.getLastJobExecution(jobExecution.getJobInstance().getJobName(), jobExecution.getJobParameters());
-			logger.debug("JobExecution at end: " + freshJe.toString());
-			WaspBatchExitStatus status = new WaspBatchExitStatus(freshJe.getExitStatus());
-			Assert.assertTrue(status.isTerminated());
-		} catch (Exception e){
-			// caught an unexpected exception
-			Assert.fail("testJobNotApproved(): Caught Exception: "+e.getMessage());
+			repeat++;
 		}
+		if (message == null)
+			Assert.fail("testJobNotApproved(): Timeout waiting to receive message on 'wasp.channel.notification.job'");
+		
+		// check headers as expected
+		Assert.assertTrue(message.getHeaders().containsKey(JOB_ID_KEY));
+		Assert.assertEquals(message.getHeaders().get(JOB_ID_KEY), JOB_ID2);
+		Assert.assertTrue(message.getHeaders().containsKey(WaspMessageType.HEADER_KEY));
+		Assert.assertEquals(message.getHeaders().get(WaspMessageType.HEADER_KEY), WaspMessageType.JOB);
+		
+		// check payload as expected
+		Assert.assertEquals(WaspStatus.class, message.getPayload().getClass());
+		Assert.assertEquals(message.getPayload(), WaspStatus.ABANDONED);
+		repeat = 0;
+		JobExecution freshJe;
+		do {
+			try{
+				Thread.sleep(500); // allow some time for stopping
+			} catch (InterruptedException e){};
+			freshJe = jobRepository.getLastJobExecution(jobExecution.getJobInstance().getJobName(), jobExecution.getJobParameters());
+		} while (!freshJe.getExitStatus().isTerminated() && repeat++ < 10);
+		if (repeat == 10){
+			Assert.fail("Did not complete with ExistStatus.TERMINATED within suitable time interval");
+		}
+		logger.debug("JobExecution at end: " + freshJe.toString());
 	}
 	
 

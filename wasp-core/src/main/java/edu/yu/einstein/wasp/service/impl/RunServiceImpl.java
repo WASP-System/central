@@ -16,14 +16,13 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.MessagingException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
-import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
-import edu.yu.einstein.wasp.batch.core.extension.WaspBatchExitStatus;
 import edu.yu.einstein.wasp.dao.RunCellDao;
 import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.RunMetaDao;
@@ -234,7 +233,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Set<String> runIdStringSet = new LinkedHashSet<String>();
 		runIdStringSet.add("*");
 		parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
-		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, false, WaspBatchExitStatus.RUNNING);
+		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, false, ExitStatus.RUNNING);
 		for(JobExecution jobExecution: jobExecutions){
 			try{
 				Integer runId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(jobExecution, WaspJobParameters.RUN_ID));
@@ -256,7 +255,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Set<String> runIdStringSet = new LinkedHashSet<String>();
 		runIdStringSet.add(run.getId().toString());
 		parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
-		if (! batchJobExplorer.getJobExecutions(parameterMap, false, WaspBatchExitStatus.RUNNING).isEmpty())
+		if (! batchJobExplorer.getJobExecutions(parameterMap, false, ExitStatus.RUNNING).isEmpty())
 			return true;
 		return false;
 	}
@@ -306,7 +305,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	public Set<Run> getRunsAwaitingQc(){
 		Set<Run> runsAwaitingQc = new LinkedHashSet<Run>();
 		for (RunQcProviding plugin : waspPluginRegistry.getPlugins(RunQcProviding.class)){
-			List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions(plugin.getRunQcStepName(), WaspBatchExitStatus.RUNNING);
+			List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions(plugin.getRunQcStepName(), ExitStatus.RUNNING);
 			for(StepExecution stepExec: stepExecutions){
 				try{
 					Integer runId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExec, WaspJobParameters.RUN_ID));
@@ -326,7 +325,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	@Override
 	public boolean isRunsAwaitingQc(){
 		for (RunQcProviding plugin : waspPluginRegistry.getPlugins(RunQcProviding.class)){
-			List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions(plugin.getRunQcStepName(), WaspBatchExitStatus.RUNNING);
+			List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions(plugin.getRunQcStepName(), ExitStatus.RUNNING);
 			if (stepExecutions.size() > 0)
 				return true;
 		}

@@ -18,7 +18,6 @@
 							<property name="status" value="CREATED" />
 						</bean>
 					</constructor-arg>
-					<property name="name" value="genericDnaSeq.library.aggregate.notifyStarted" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
@@ -34,7 +33,6 @@
 							<property name="status" value="COMPLETED" />
 						</bean>
 					</constructor-arg>
-					<property name="name" value="genericDnaSeq.library.aggregate.step.notifyComplete" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
