@@ -789,6 +789,12 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<groupId>org.springframework.batch</groupId>
 				<artifactId>spring-batch-test</artifactId>
 				<version>${spring.batch.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.springframework.batch</groupId>
+						<artifactId>spring-batch-core</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.batch</groupId>
@@ -798,6 +804,10 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 					<exclusion>
 						<groupId>org.slf4j</groupId>
 						<artifactId>slf4j-log4j12</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.springframework.batch</groupId>
+						<artifactId>spring-batch-core</artifactId>
 					</exclusion>
 				</exclusions>
 			</dependency>
