@@ -64,16 +64,7 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 		setSoftwareVersion("1.8.2"); // this default may be overridden in wasp.site.properties
 	}
 	
-	/**
-	 * Static value to indicate that an illumina run was performed on a particular lane as a single index illumina barcode. 
-	 */
-	public static final int SINGLE_INDEX = 1;
-	
-	
-	/**
-	 * Static value to indicate that an illumina run was performed on a particular lane as a dual index illumina barcode.
-	 */
-	public static final int DUAL_INDEX = 2;
+	public static enum IndexType { NONE, SINGLE, DUAL }; 
 
 	/**
 	 * Called first to set up analysis run.
@@ -82,13 +73,13 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 	 * @param method IlluminaSequenceRunProcessor.SINGLE_INDEX or DUAL_INDEX
 	 * @throws GridException
 	 */
-	public void doSampleSheet(Run run, int method) throws GridException {
+	public void doSampleSheet(Run run, IndexType method) throws GridException {
 		
 		logger.debug("sample sheet for " + run.getName() + ":" + run.getPlatformUnit().getName());
 		
 		logger.debug(sampleService.toString());
 		
-		if (method != SINGLE_INDEX || method != DUAL_INDEX) {
+		if (method != IndexType.SINGLE || method != IndexType.DUAL) {
 		    logger.error("sample sheet method called with unknown strategy: " + method);
 		    throw new WaspRuntimeException("sample sheet method called with unknown strategy: " + method);
 		}
@@ -119,7 +110,7 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 		String directory = "";
 		
 		String sampleSheetName;
-		if (method == SINGLE_INDEX) {
+		if (method == IndexType.SINGLE) {
 		    sampleSheetName = "SampleSheet.csv";
 		} else {
 		    sampleSheetName = "DualSampleSheet.csv";

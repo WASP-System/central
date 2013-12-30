@@ -5,14 +5,16 @@ package edu.yu.einstein.wasp.filetype.service;
 
 import java.util.Set;
 
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.service.WaspService;
 
 /**
  * @author calder
  *
  */
-public interface FileTypeService {
+public interface FileTypeService extends WaspService {
 	
 	public static final String FILETYPE_IS_SINGLE_META_KEY = "isSingleton";
 	public static final String FILETYPE_FILE_NUMBER_META_KEY = "fileNumber";
@@ -83,5 +85,20 @@ public interface FileTypeService {
 	 * @return
 	 */
 	public boolean hasOnlyAttributes(FileGroup fg, Set<String> attributes);
+	
+	/**
+	 * Copy all FileGroupMeta metadata from one FileGroup to another
+	 * @param fg
+	 * @param area
+	 * @throws MetadataException 
+	 */
+	public void copyMetaByArea(FileGroup origin, FileGroup target, String area) throws MetadataException;
+	
+	/**
+	 * Copy all FileHandleMeta metadata from one FileHandle to another
+	 * @param fh
+	 * @param area
+	 */
+	public void copyMetaByArea(FileHandle origin, FileHandle target, String area) throws MetadataException;
 
 }

@@ -245,7 +245,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	
 	protected boolean isInError(Document stdout) {
 		NodeList jatstatus = stdout.getElementsByTagName("JAT_status");
-		String jobname = stdout.getElementsByTagName("JB_job_name").item(0).getTextContent();
+		String jobname = stdout.getElementsByTagName("JB_job_name").item(0).getTextContent(); // .getFirstChild().getNodeValue()??
 		boolean retval = false;
 		for (int n = 0; n < jatstatus.getLength(); n++) {
 			String status = jatstatus.item(n).getTextContent();

@@ -138,6 +138,8 @@ public class RegisterFilesTasklet extends WaspTasklet {
 		Set<SampleSource> allCellLib = new HashSet<SampleSource>();
 		Sample platformUnit = run.getPlatformUnit();
 		logger.debug("Registering files for " + platformUnit.getName());
+		
+		Set<SampleSource> successfulCellLibraries = runService.getCellLibrariesOnSuccessfulRunCells(run);
 
 		int ncells = sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnit);
 		Map<Integer, Sample> cells = sampleService.getIndexedCellsOnPlatformUnit(platformUnit);
@@ -154,7 +156,11 @@ public class RegisterFilesTasklet extends WaspTasklet {
 
 			for (Sample s : libraries) {
 				SampleSource cellLib = sampleService.getCellLibrary(cell, s);
-				allCellLib.add(cellLib);
+				if (successfulCellLibraries.contains(cellLib)) {
+				    allCellLib.add(cellLib);
+				} else {
+				    logger.warn("cell library " + cellLib.getId() + " not present in successful run cells, discarding.");
+				}
 				if (sampleService.isControlLibrary(s))
 					continue;
 				logger.debug("setting up for sample: " + s.getId() + " using Library-cell: " + cellLib.getId());

@@ -27,6 +27,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
+import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor.IndexType;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 import edu.yu.einstein.wasp.util.PropertyHelper;
@@ -46,7 +47,7 @@ public class PipelineTasklet extends WaspTasklet {
 	private int runId;
 	private Run run;
 	
-	private int method;
+	private IndexType method;
 	
 	@Autowired
 	private GridHostResolver hostResolver;
@@ -63,13 +64,14 @@ public class PipelineTasklet extends WaspTasklet {
 	/**
 	 * 
 	 */
-	public PipelineTasklet(Integer runId, int method) {
+	public PipelineTasklet(Integer runId, IndexType method) {
 		this.runId = runId;
-		if (method != IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX || method != IlluminaHiseqSequenceRunProcessor.DUAL_INDEX) {
+		if (method != IndexType.SINGLE || method != IndexType.DUAL) {
 		    logger.error("unable to run illumina pipeline in mode " + method);
 		    throw new WaspRuntimeException("unknown illumina pipeline mode: " + method);
 		}
 		this.method = method;
+		logger.debug("PipelineTasklet with method type " + method);
 	}
 
 	/* (non-Javadoc)
@@ -96,7 +98,7 @@ public class PipelineTasklet extends WaspTasklet {
 		String outputFolder;
 		String sampleSheetName;
 		
-		if (method == IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX) {
+		if (method == IndexType.SINGLE) {
 		    outputFolder = "Unaligned";
 		    sampleSheetName = "SampleSheet.csv";
 		} else {

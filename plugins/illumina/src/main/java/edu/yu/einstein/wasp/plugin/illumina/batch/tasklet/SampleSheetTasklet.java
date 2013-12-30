@@ -17,6 +17,7 @@ import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
+import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor.IndexType;
 import edu.yu.einstein.wasp.service.RunService;
 
 /**
@@ -30,7 +31,7 @@ public class SampleSheetTasklet extends WaspTasklet {
 	
 	private int runId;
 	private Run run;
-	private int method;
+	private IndexType method;
 	
 	@Autowired
 	private IlluminaHiseqSequenceRunProcessor casava;
@@ -40,14 +41,14 @@ public class SampleSheetTasklet extends WaspTasklet {
 	/**
 	 * 
 	 */
-	public SampleSheetTasklet(Integer runId, int method) {
+	public SampleSheetTasklet(Integer runId, IndexType method) {
 		this.runId = runId;
-		if (method != IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX || method != IlluminaHiseqSequenceRunProcessor.DUAL_INDEX) {
+		if (method != IndexType.SINGLE || method != IndexType.DUAL) {
 		    logger.error("unable to run illumina pipeline in mode " + method);
 		    throw new WaspRuntimeException("unknown illumina pipeline mode: " + method);
 		}
 		this.method = method;
-		    
+		logger.debug("SampleSheetTasklet with method type " + method);
 	}
 	
 	public SampleSheetTasklet() {
