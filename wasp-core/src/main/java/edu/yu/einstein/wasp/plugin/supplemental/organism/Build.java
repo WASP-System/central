@@ -28,7 +28,7 @@ public class Build implements Comparable<Build> {
 	private URL site;
 	private URL url;
 	private Date buildDate;
-	private Map<String,OrganismMetadataSource> metadata = new HashMap<String,OrganismMetadataSource>();
+	private Map<String,String> metadata = new HashMap<String,String>();
 	
 	public Build(String name) {
 		this.name = name;
@@ -153,6 +153,31 @@ public class Build implements Comparable<Build> {
 	 */
 	public void setBuildDate(Date buildDate) {
 		this.buildDate = buildDate;
+	}
+	
+	/**
+	 * 
+	 * Set metadata from site-specific genome preferences file
+	 * 
+	 * overwrites if key already exists.
+	 * 
+	 * @param key
+	 * @param value
+	 */
+	public void addMetadata(String key, String value) {
+	    metadata.put(key, value);
+	}
+	
+	/**
+	 * Get Key-Value metadata encoded in site specific genome preferences file.
+	 * 
+	 * returns null if DNE.
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public String getMetadata(String key) {
+	    return metadata.get(key);
 	}
 	
 	public void setDate(String date) throws ParseException {

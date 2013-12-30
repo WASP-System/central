@@ -116,10 +116,10 @@ public class StageResultsTasklet extends WaspTasklet {
 		w.addCommand("mkdir -p ${WASP_RESULT_DIR}/reports/Intensity");
 		w.addCommand("mkdir -p ${WASP_RESULT_DIR}/reports/NumGT30");
 		w.addCommand("mkdir -p ${WASP_RESULT_DIR}/reports/ByCycle");
-		w.addCommand("cp -f ../Data/wasp-reports/{*.xml,*[^@].png} ${WASP_RESULT_DIR}/reports");
-		w.addCommand("cp -f ../Data/wasp-reports/FWHM/{*.xml,*[^@].png} ${WASP_RESULT_DIR}/reports/FWHM");
-		w.addCommand("cp -f ../Data/wasp-reports/Intensity/{*.xml,*[^@].png} ${WASP_RESULT_DIR}/reports/Intensity");
-		w.addCommand("cp -f ../Data/wasp-reports/NumGT30/{*.xml,*[^@].png} ${WASP_RESULT_DIR}/reports/NumGT30");
+		w.addCommand("cp -f ../Data/wasp-reports/*[^@].png ${WASP_RESULT_DIR}/reports");
+		w.addCommand("cp -f ../Data/wasp-reports/FWHM/*[^@].png ${WASP_RESULT_DIR}/reports/FWHM");
+		w.addCommand("cp -f ../Data/wasp-reports/Intensity/*[^@].png ${WASP_RESULT_DIR}/reports/Intensity");
+		w.addCommand("cp -f ../Data/wasp-reports/NumGT30/*[^@].png ${WASP_RESULT_DIR}/reports/NumGT30");
 		w.addCommand("cp -f ../Data/wasp-reports/ByCycle/*.png ${WASP_RESULT_DIR}/reports/ByCycle");
 
 		GridResult result = gws.execute(w);
