@@ -700,6 +700,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 
 		protected WorkUnit w;
 		protected String name = "not_set";
+		public String jobName;
 		protected String header = "";
 		protected String preamble = "";
 		protected String configuration = "";
@@ -725,8 +726,10 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			this.w = w;
 			this.name = w.getId();
 			
+			jobName = jobNamePrefix + name;
+			
 			header = "#!/bin/bash\n#\n" +
-					getFlag() + " -N " + jobNamePrefix + name + "\n" +
+					getFlag() + " -N " + jobName + "\n" +
 					getFlag() + " -S /bin/bash\n" +
 					getFlag() + " -V\n" +
 					getFlag() + " -o " + w.remoteWorkingDirectory + jobNamePrefix + name + ".out\n" +

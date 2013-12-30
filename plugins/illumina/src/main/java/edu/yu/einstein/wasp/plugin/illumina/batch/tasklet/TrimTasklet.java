@@ -129,7 +129,7 @@ public class TrimTasklet extends WaspTasklet {
 	        WorkUnit delete = new WorkUnit();
 	        delete.setWorkingDirectory(stageDir + "/" + run.getName() + "/wasp/sequence" );
 	        delete.setCommand("shopt -u nullglob");
-	        delete.addCommand("rm *trimm*");
+	        delete.addCommand("rm -f *trimm*");
 	        GridResult r = transportConnection.sendExecToRemote(delete);
 	        
 	        for (SampleSource cellLibrary : cellLibraries) {
