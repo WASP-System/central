@@ -126,7 +126,7 @@ public class CallVariantTasklet extends WaspTasklet implements StepExecutionList
 		
 		// TODO: temporary, fix me
 		//WorkUnit w = new WorkUnit();
-		WorkUnit w = gatk.getCallVariant(sampleSource0, fileGroups);
+		WorkUnit w = gatk.getCallVariant(sampleSource0, fileGroups, jobParameters);
 		
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
    

@@ -158,6 +158,10 @@ public class GatkPlugin extends WaspPlugin
 			jobParameters.put(WaspSoftwareJobParameters.LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(ids));
 			jobParameters.put(WaspSoftwareJobParameters.GENOME, "10090::GRCm38::70");
 			jobParameters.put("test", new Date().toGMTString());
+			jobParameters.put("gatk-stand_call_conf", "30");
+			jobParameters.put("gatk--max_alternate_alleles", "6");
+			jobParameters.put("gatk-dcov", "250");
+			jobParameters.put("gatk-L", "WGS");
 
 			waspMessageHandlingService.launchBatchJob(CALL_FLOW_NAME, jobParameters);
 			return (Message<String>) MessageBuilder.withPayload("Initiating call flow on ids " + ids).build();

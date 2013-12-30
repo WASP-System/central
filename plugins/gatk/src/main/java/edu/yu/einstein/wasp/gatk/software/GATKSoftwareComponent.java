@@ -4,6 +4,7 @@ package edu.yu.einstein.wasp.gatk.software;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -172,7 +173,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return index;
 	}
 
-	public WorkUnit getCallVariant(SampleSource sampleSource, List<FileGroup> fileGroups) {
+	public WorkUnit getCallVariant(SampleSource sampleSource, List<FileGroup> fileGroups, Map<String,Object> jobParameters) {
 		WorkUnit w = new WorkUnit();
 		
 		w.setMode(ExecutionMode.PROCESS);
@@ -194,14 +195,29 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		//${WASPFILE[@]}
 		
-
+		String gatkOpts = "";
+		
+		for (String opt : jobParameters.keySet()) {
+			if (!opt.startsWith("gatk"))
+				continue;
+			String key = opt.replace("gatk", "");
+			if (key.equals("-L"))
+				if (jobParameters.get(opt).toString().equals("WES")) {
+					gatkOpts += " " + key + " " + getGenomeIndexPath(getGenomeBuild(sampleSource)) + "wes.interval_list";
+					continue;
+				} else {
+					continue;
+				}
+			gatkOpts += " " + key + " " + jobParameters.get(opt).toString();
+		}
+		
 		
 		String command = "java -Djava.io.tmpdir=/oxford/jcai/tmp -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt 4 "+
 		"`printf -- '%s\n' ${" + WorkUnit.INPUT_FILE + "[@]} | sed 's/^/-I /g' | tr '\n' ' '` -R " + 
 		getGenomeIndexPath(getGenomeBuild(sampleSource)) + "genome.fasta -T UnifiedGenotyper -o gatk.${" + 
 		WorkUnit.JOB_NAME + "}.raw.vcf --dbsnp /cork/jcai/GATK_bundle_2.2/dbsnp_137.hg19.vcf" +
-		" -l INFO -stand_call_conf 30.0 -stand_emit_conf 10.0 -baq CALCULATE_AS_NECESSARY --max_alternate_alleles 6" +
-		" -dcov 800 -dt BY_SAMPLE -G Standard -rf BadCigar -A Coverage -A MappingQualityRankSumTest" +
+		" -l INFO -stand_emit_conf 10.0 -baq CALCULATE_AS_NECESSARY" + gatkOpts +
+		" -dt BY_SAMPLE -G Standard -rf BadCigar -A Coverage -A MappingQualityRankSumTest" +
 		" -A FisherStrand -A InbreedingCoeff -A ReadPosRankSumTest -A QualByDepth -A HaplotypeScore -A RMSMappingQuality -glm BOTH";
 
 		//
