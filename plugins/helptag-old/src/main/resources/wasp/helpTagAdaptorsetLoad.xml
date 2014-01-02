@@ -35,7 +35,6 @@
   				<property name="barcodesequence" value="CGCTGCTG" />
   				<property name="barcodenumber" value="1" />
   			</bean>
-
    		</list>
   	</property>
   </bean> 

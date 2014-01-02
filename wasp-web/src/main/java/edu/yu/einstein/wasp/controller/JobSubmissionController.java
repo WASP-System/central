@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -17,6 +18,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 //import java.util.concurrent.Callable;
+
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -32,7 +34,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.DataBinder;
 import org.springframework.validation.Errors;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -41,7 +45,7 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-import edu.yu.einstein.wasp.additionalClasses.Strategy;
+import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.controller.util.SampleAndSampleDraftMetaHelper;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
@@ -102,6 +106,7 @@ import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftJobDraftCellSelection;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
+import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.WorkflowMeta;
@@ -1339,7 +1344,25 @@ public class JobSubmissionController extends WaspController {
 		m.addAttribute("pageFlowMap", getPageFlowMap(jobDraft));
 		m.addAttribute("fileGroups", fileGroups);
 		m.addAttribute("fileGroupFileHandlesMap", fileGroupFileHandlesMap);
+		m.addAttribute("adaptorSetsUsedOnThisJobDraft", getAdaptorSets(jobDraft));
 		return "jobsubmit/sample";
+	}
+	
+	private List<Adaptorset> getAdaptorSets(JobDraft jobDraft){
+		List<Adaptorset> jobDraftAdaptorSet = new ArrayList<Adaptorset>();
+		for(SampleDraft sampleDraft : jobDraft.getSampleDraft()){
+			try{	
+	  			Adaptorset adaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(Integer.valueOf( MetaHelper.getMetaValue("genericLibrary", "adaptorset", sampleDraft.getSampleDraftMeta())) );
+	  			if(!jobDraftAdaptorSet.contains(adaptorset)){
+	  				jobDraftAdaptorSet.add(adaptorset);
+	  			}
+	  		} catch(MetadataException e){
+	  			logger.warn("Cannot get metadata genericLibrary.adaptorset. Presumably not be defined: " + e.getMessage());
+	  		} catch(NumberFormatException e){
+	  			logger.warn("Cannot convert to numeric value for metadata " + e.getMessage());
+	  		}
+		}
+		return jobDraftAdaptorSet;
 	}
 	
 	@Transactional
@@ -1620,7 +1643,7 @@ public class JobSubmissionController extends WaspController {
 		m.addAttribute("jobDraft", jobDraft);
 		return "jobsubmit/sample/sampledetail_rw";
 	}
-	
+
 	@Transactional
 	@RequestMapping(value="/samples/add/{jobDraftId}/{sampleSubtypeId}", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
@@ -1628,6 +1651,7 @@ public class JobSubmissionController extends WaspController {
 			@PathVariable("jobDraftId") Integer jobDraftId, 
 			@PathVariable("sampleSubtypeId") Integer sampleSubtypeId,
 			@Valid SampleDraft sampleDraftForm, BindingResult result, SessionStatus status, ModelMap m) {
+		
 		if ( request.getParameter("submit").equals("Cancel") ){//equals(messageService.getMessage("userDetail.cancel.label")
 			return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
 		}
@@ -1673,6 +1697,346 @@ public class JobSubmissionController extends WaspController {
 		}
 		waspMessage("sampleDetail.updated_success.label");
 		return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
+	}
+	
+	@Transactional
+	@RequestMapping(value="/manysamples/add/{jobDraftId}/{sampleSubtypeId}.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String newManySampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, @PathVariable("sampleSubtypeId") Integer sampleSubtypeId, ModelMap m) {
+		
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft)){
+			return "redirect:/dashboard.do";
+		}
+		SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId);
+		if (sampleSubtype.getId() == null){
+			waspErrorMessage("jobDraft.sampleSubtype_null.error");
+			return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
+		}
+		SampleType sampleType = sampleSubtype.getSampleType();
+		
+		List<SampleDraftMeta> normalizedMeta = new ArrayList<SampleDraftMeta>();
+		try {
+			normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(sampleSubtype, SampleDraftMeta.class));
+		} catch (MetadataTypeException e) {
+			logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
+		}
+		SampleDraft sampleDraft = new SampleDraft();
+		sampleDraft.setSampleDraftMeta(normalizedMeta);
+			
+		//make web responsive to a list of sampleDrafts, even though this method only sends one, because
+		//in the post to this method, may have a list of many sampleDrafts
+		List<SampleDraft> sampleDraftList = new ArrayList<SampleDraft>();
+		sampleDraftList.add(sampleDraft);
+		
+		m.addAttribute("jobDraft", jobDraft);
+		m.addAttribute("sampleDraftList", sampleDraftList);
+		m.addAttribute("sampleSubtype", sampleSubtype);
+		m.addAttribute("sampleType", sampleType);
+		m.addAttribute("organisms",  genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
+		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_add_heading.label"));
+		
+		//these sets (or at least one of them) are required for the next if statement
+		sampleDraft.setSampleSubtypeId(sampleSubtypeId);
+		sampleDraft.setSampleSubtype(sampleSubtype);
+		sampleDraft.setSampleTypeId(sampleSubtype.getSampleType().getId());
+		sampleDraft.setSampleType(sampleType);
+		if (sampleService.isLibrary(sampleDraft)){
+			prepareAdaptorsetsAndAdaptors(jobDraft, normalizedMeta, m);
+		}
+		
+		return "jobsubmit/manysamples";
+	}
+	@Transactional
+	@RequestMapping(value="/manysamples/edit/{jobDraftId}/{sampleSubtypeId}.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String editManySampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, 
+			@PathVariable("sampleSubtypeId") Integer sampleSubtypeId, 
+			@RequestParam (value = "theSelectedAdaptorset", required = false) String theSelectedAdaptorset,
+			ModelMap m) {
+		////************manysamples/edit
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft)){
+			return "redirect:/dashboard.do";
+		}
+	////************manysamples/edit
+		////IF this is library, must segregate by adaptor type!!!!!!
+		SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId);
+		if (sampleSubtype.getId() == null){
+			waspErrorMessage("jobDraft.sampleSubtype_null.error");
+			return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
+		}
+		SampleType sampleType = sampleSubtype.getSampleType();
+		////************manysamples/edit
+		List<SampleDraft> sampleDraftList = new ArrayList<SampleDraft>();
+		for(SampleDraft sampleDraft : jobDraft.getSampleDraft()){
+			if(sampleDraft.getSampleSubtype().getId().intValue()==sampleSubtype.getId().intValue()){
+				List<SampleDraftMeta> normalizedMeta = new ArrayList<SampleDraftMeta>();
+				try {			
+					normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(sampleDraft.getSampleSubtype(), sampleDraft.getSampleDraftMeta(), SampleDraftMeta.class));
+					//not right for here: normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(sampleSubtype, SampleDraftMeta.class));
+				} catch (MetadataTypeException e) {
+					logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
+				}
+				sampleDraft.setSampleDraftMeta(normalizedMeta);
+				if(sampleService.isLibrary(sampleDraft)){
+					try{	
+						Adaptorset adaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(Integer.valueOf( MetaHelper.getMetaValue("genericLibrary", "adaptorset", sampleDraft.getSampleDraftMeta())) );
+						if(adaptorset.getId().intValue() == Integer.parseInt(theSelectedAdaptorset)){
+							sampleDraftList.add(sampleDraft);
+						}
+					}catch(Exception e){
+						logger.warn("Could not get adaptor set from sampledraftmeta: "+ e.getMessage());
+					}
+				}
+				else{
+					sampleDraftList.add(sampleDraft);
+				}
+			}
+		}
+		////************manysamples/edit
+		m.addAttribute("edit", "true");
+		m.addAttribute("jobDraft", jobDraft);
+		m.addAttribute("sampleDraftList", sampleDraftList);
+		m.addAttribute("sampleSubtype", sampleSubtype);
+		m.addAttribute("sampleType", sampleType);
+		m.addAttribute("organisms",  genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
+		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_add_heading.label"));
+		
+		if(theSelectedAdaptorset!=null & theSelectedAdaptorset != ""){
+			m.addAttribute("theSelectedAdaptorset", new Integer(theSelectedAdaptorset));
+		}
+		else{
+			m.addAttribute("theSelectedAdaptorset", "");
+		}
+		
+		///manysamples/edit
+		if (! sampleDraftList.isEmpty() && sampleService.isLibrary(sampleDraftList.get(0))){
+			prepareAdaptorsetsAndAdaptors(jobDraft, sampleDraftList.get(0).getSampleDraftMeta(), m);
+		}
+		
+		return "jobsubmit/manysamples";
+	}
+	@Transactional
+	@RequestMapping(value="/manysamples/add/{jobDraftId}/{sampleSubtypeId}", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String updateNewManySampleDraft(
+			@PathVariable("jobDraftId") Integer jobDraftId, 
+			@PathVariable("sampleSubtypeId") Integer sampleSubtypeId,
+			@RequestParam (value = "theSelectedAdaptorset", required = false) String theSelectedAdaptorset,
+			ModelMap m) {
+		
+		if ( request.getParameter("submit").equals("Cancel") ){//equals(messageService.getMessage("userDetail.cancel.label")
+			return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
+		}
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (jobDraft.getId()==null || ! isJobDraftEditable(jobDraft)){
+			return "redirect:/dashboard.do";
+		}
+		SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId);
+		SampleType sampleType = sampleSubtype.getSampleType();
+
+		String[] sampleIdsAsStringArray = request.getParameterValues("sampleId");
+
+		String[] sampleDraftNamesAsStringArray = request.getParameterValues("sampleName");
+		List<String> sampleDraftNamesAsList = new ArrayList<String>();
+		
+		String[] deleteRowsAsStringArray = request.getParameterValues("deleteRow");//used only for samples/libraries existing already in the database
+		List<String> deleteRowsList = new ArrayList<String>();
+		
+		List<SampleDraft> sampleDraftList = new ArrayList<SampleDraft>();
+		
+		List<String> errorList = new ArrayList<String>();
+		boolean atLeastOneErrorExists = false;
+		
+		int counter = 0;
+		for(String sampleName : sampleDraftNamesAsStringArray){	
+			
+			String errorsForThisSample = "";
+			
+			SampleDraft sampleDraft = new SampleDraft();
+			String sampleIdAsString = sampleIdsAsStringArray[counter];
+			if( !sampleIdAsString.isEmpty() ){				
+				try{
+					Integer id = new Integer(sampleIdAsString);
+					sampleDraft = sampleDraftDao.getSampleDraftBySampleDraftId(id);
+				}
+				catch(Exception e){
+					continue;//don't know what to do here. for not, skip this 
+				}
+			}
+			sampleDraft.setName(sampleName.trim());//get sampleDraft's sample name
+			
+			if(deleteRowsAsStringArray!=null){
+				deleteRowsList.add(deleteRowsAsStringArray[counter]);//will be yes or no
+			}
+			
+			//get sampleDraftMeta and in process, check it for errors
+			List<SampleDraftMeta> sampleDraftMetaList = new ArrayList<SampleDraftMeta>();
+			DataBinder dataBinderForMeta = new DataBinder(sampleDraft, "sampleDraft");
+			BindingResult resultForMeta = dataBinderForMeta.getBindingResult();
+			try {
+				sampleDraftMetaList.addAll(SampleAndSampleDraftMetaHelper.getValidatedMetaFromRequestAndTemplateToSubtype(request, sampleSubtype, resultForMeta, SampleDraftMeta.class, counter));
+			} catch (MetadataTypeException e) {
+				logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
+			}
+			sampleDraft.setSampleDraftMeta(sampleDraftMetaList);
+			
+			//we now have all attributes that need to be checked stored within sampleDraft, 
+			//so first check for a completely empty row - if completely empty, then ignore the entire row
+			if(sampleDraftRowIsCompletelyEmpty(sampleDraft,"adaptorset")){//currently checks sample name and all the metadata; but, ignore adaptorset, as it could be set even if rest of row is empty
+				continue;
+			}
+			
+			//since we know this row is NOT completely empty, check sample name and metaData for entry errors
+			
+			//first, deal with sample name errors
+			if(sampleDraft.getName().isEmpty()){
+				errorsForThisSample += errorsForThisSample.isEmpty()?"sample name cannot be empty":"; sample name cannot be empty";
+			}
+			else{				
+				//next check against sample names ALREADY in the database, for this draft job
+				DataBinder dataBinderForName = new DataBinder(sampleDraft, "sampleDraft");
+				BindingResult resultForName = dataBinderForName.getBindingResult();
+				if(sampleDraft.getId()==null){
+					validateSampleDraftNameUnique(sampleDraft.getName(), 0, jobDraft, resultForName);
+				}else{
+					validateSampleDraftNameUnique(sampleDraft.getName(), sampleDraft.getId(), jobDraft, resultForName);
+				}
+			
+				if(resultForName.hasErrors()){
+					errorsForThisSample += errorsForThisSample.isEmpty()?"sample name already used on this job submission":"; sample name already used on this job submission";
+				}				
+				//finally check against the sample names on this form (not yet in database)
+				if(sampleDraftNamesAsList.contains(sampleDraft.getName())){
+					errorsForThisSample += errorsForThisSample.isEmpty()?"sample name used at least twice on this form":"; sample name used at least twice on this form";
+				}				
+				
+				sampleDraftNamesAsList.add(sampleDraft.getName()); //add to this list only if sample name is NOT empty
+			}
+			
+			//second deal with sampleDraftMeta errors, which are currently stored in resultForMeta (a BindingResult object)
+			if(resultForMeta.hasErrors()){
+				List<FieldError> fieldErrors = resultForMeta.getFieldErrors();
+				for(FieldError fe : fieldErrors){
+					//System.out.println(fe.getCode());//this is something like chipseqDna.fragmentSize.error
+					String metaErrorForDisplay = fe.getCode().substring(fe.getCode().indexOf(".")+1);//something like fragmentSize.error
+					metaErrorForDisplay = metaErrorForDisplay.replace(".", " ");//something like fragmentSize error
+					errorsForThisSample += errorsForThisSample.isEmpty()?metaErrorForDisplay:"; " + metaErrorForDisplay;
+				}
+			}
+			
+			sampleDraftList.add(sampleDraft);
+			errorList.add(errorsForThisSample);
+			if(!errorsForThisSample.isEmpty()){
+				atLeastOneErrorExists = true;				
+			}
+			counter++;
+		}
+		
+		if(atLeastOneErrorExists==true){
+			
+			/* ********for testing only
+			System.out.println("------Print out the errors in errorList:");
+			for(String error : errorList){
+				System.out.println("------"+error);
+			}
+			 */
+			
+			//fill up map, get assorted other info, and return to web page
+			waspErrorMessage("sampleDetail.updated.error");
+			m.addAttribute("errorList", errorList);
+			m.addAttribute("edit", request.getParameter("edit"));//if this is an edit request, send this paramater back to web
+			m.addAttribute("jobDraft", jobDraft);
+			m.addAttribute("sampleDraftList", sampleDraftList);
+			m.addAttribute("sampleSubtype", sampleSubtype);
+			m.addAttribute("sampleType", sampleType);
+			m.addAttribute("organisms",  genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
+			m.addAttribute("heading", messageService.getMessage("jobDraft.sample_add_heading.label"));
+			m.addAttribute("deleteRowsList", deleteRowsList);//used only during editing of existing samples/libraries
+			
+			//this is not a very good way to do this, but we need to set 
+			//these (or at least one of them) in order to execute the next if statement (sampleService.isLibrary())
+			sampleDraftList.get(0).setSampleSubtypeId(sampleSubtypeId);
+			sampleDraftList.get(0).setSampleSubtype(sampleSubtype);
+			sampleDraftList.get(0).setSampleTypeId(sampleSubtype.getSampleType().getId());
+			sampleDraftList.get(0).setSampleType(sampleType);
+			if (sampleService.isLibrary(sampleDraftList.get(0))){
+				prepareAdaptorsetsAndAdaptors(jobDraft, sampleDraftList.get(0).getSampleDraftMeta(), m);
+				if(theSelectedAdaptorset!=null & theSelectedAdaptorset != ""){
+					m.addAttribute("theSelectedAdaptorset", new Integer(theSelectedAdaptorset));
+				}
+				else{
+					m.addAttribute("theSelectedAdaptorset", "");
+				}
+			}
+			return "jobsubmit/manysamples";
+		}
+		
+		//no errors, so iterate through sampleDraftList and save each new sampleDraft (excluding rows completely empty)
+		int counter2 = -1;
+		for(SampleDraft sampleDraftToBeSaved : sampleDraftList){
+			
+			counter2++;
+
+			//this method now also deals with deleting sampleDrafts (those sampleDrafts that already exist in the database),
+			//do if a sampleDraft is due to be deleted, then do execute that next.
+			if(!deleteRowsList.isEmpty() && "yes".equals(deleteRowsList.get(counter2).toLowerCase()) && sampleDraftToBeSaved.getId()!=null){
+				Map<String, Integer> query = new HashMap<String, Integer>();
+				query.put("sampleDraftId", sampleDraftToBeSaved.getId());
+				for (SampleDraftJobDraftCellSelection cellSelection : sampleDraftToBeSaved.getSampleDraftJobDraftCellSelection()){
+					sampleDraftJobDraftCellSelectionDao.remove(cellSelection);
+				}
+				for (SampleDraftMeta sdm : sampleDraftMetaDao.findByMap(query)){
+					sampleDraftMetaDao.remove(sdm);
+				}
+				sampleDraftDao.remove(sampleDraftToBeSaved);//obviously a misnomer, since we're deleting this sampleDraft
+			}
+			else{//else save; will save draft samples/libraries already in the database and new ones as well
+				
+				//must pull this sampleDraftMeta list out of the sampleDraft and put into a new list, prior to saving sampleDraftToBeSaved; if we did not do this, and the sampleDraft already had an Id, then the meta would be destroyed for some reason, during sampleDraft.save()
+				//the meta is subsequently saved, separately, after saving sampleDraftToBeSaved
+				List<SampleDraftMeta> sampleDraftMetaToBeSaved = new ArrayList<SampleDraftMeta>(sampleDraftToBeSaved.getSampleDraftMeta());
+				
+				sampleDraftToBeSaved.setSampleSubtype(sampleSubtype);
+				sampleDraftToBeSaved.setSampleType(sampleType);
+				sampleDraftToBeSaved.setLabId(jobDraft.getLabId());
+				sampleDraftToBeSaved.setUserId(jobDraft.getUserId());
+				sampleDraftToBeSaved.setJobDraftId(jobDraft.getId());
+				
+				SampleDraft sampleDraftSavedToDB = sampleDraftDao.save(sampleDraftToBeSaved);
+	
+				try {
+					sampleDraftMetaDao.setMeta(sampleDraftMetaToBeSaved, sampleDraftSavedToDB.getId());
+				} catch (MetadataException e) {
+					waspErrorMessage("sampleDetail.updated.error");
+					logger.warn("Failed to update metadata!!: " + e.getLocalizedMessage());
+					return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
+				}
+			}
+		}		
+		waspMessage("sampleDetail.updated_success.label");
+		return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
+	}
+	
+	private boolean sampleDraftRowIsCompletelyEmpty(SampleDraft sampleDraftRow, String excludeThisMetaFromConsideration){
+		
+		if(excludeThisMetaFromConsideration==null){
+			excludeThisMetaFromConsideration="";
+		}
+		
+		//checks only for sample name and all meta attributes
+		if(!sampleDraftRow.getName().trim().isEmpty()){
+			return false;
+		}
+		for(SampleDraftMeta sdm : sampleDraftRow.getSampleDraftMeta()){
+			if(sdm!=null && sdm.getV()!=null && sdm.getK()!=null && !sdm.getK().contains(excludeThisMetaFromConsideration)){//sometimes adaptor might be null
+				if(!sdm.getV().trim().isEmpty()){
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 	
 	@Transactional

@@ -50,7 +50,7 @@
 			autoOpen: false,
 			modal: true
 		});
-		
+		$("#wait_dialog-modal").css("visibility", "visible");
 		waspOnLoad();
 	}
 

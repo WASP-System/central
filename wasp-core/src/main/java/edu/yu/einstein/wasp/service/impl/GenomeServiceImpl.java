@@ -219,8 +219,10 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 								throw new RuntimeException(mess);
 							}
 						} else if (fields.length == 6) {
-							// this is a metadatasource
-							// TODO: implement
+							// this is build metadata, currently Map<String,String> in the form dbsnp.filename=filename.vcf.gz
+							String newKey = fields[4] + "." + fields[5];
+							b.addMetadata(newKey, localGenomesProperties.get(k).toString());
+							logger.debug("set build metatata on " + b.toString() + " : " + newKey + "=" + b.getMetadata(newKey));
 						} else {
 							String mess = "Don't know how to parse " + key;
 							logger.error(mess);

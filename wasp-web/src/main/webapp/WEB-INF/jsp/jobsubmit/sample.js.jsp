@@ -2,6 +2,62 @@
 <script type="text/javascript" src="/wasp/scripts/jquery/jquery.cookie.js"></script>
 
 <script type="text/javascript">
+
+$(document).ready(function(){
+	$( "#dialog-form" ).dialog({
+	    autoOpen: false,
+	    height: 270,
+	    width: 300,
+	    modal: true,
+	    buttons: {
+	      "Apply": function() {
+	    	 // var theSelectedAdaptorset = $("#theSelectedAdaptorset").val();
+	    	  //$("#validateTipForThisModalDialogForm").text("looks good");
+	    	 
+	    	  var theSelectedAdaptorset = $("#theSelectedAdaptorset").val();//this selected value is complete url
+	    	  //if(theSelectedAdaptorset==""){ 
+	    		  
+	    	  //} 
+	    	  //var regex = /^([0-9])+$/;
+	    	  //if(regex.test(theSelectedAdaptorset)){ 
+	    	 if(theSelectedAdaptorset!=""){
+	    		 	
+	    		 $(location).attr('href',theSelectedAdaptorset);
+	    		 $("#theSelectedAdaptorset").val("");
+	 	        $("#validateTipForThisModalDialogForm").text("");		        	
+	 	        $( this ).dialog( "close" );
+	    		 //$("#validateTipForThisModalDialogForm").text(theSelectedAdaptorset);
+	    		  //var jobDraftId = '<c:out value="${ jobDraft.getJobDraftId() }"/>';
+	    		  //var sampleSubtypeId = '<c:out value="${ sampleSubtype.getSampleSubtypeId() }"/>';
+	    		  //var href = "/wasp/jobsubmit/manysamples/edit/"+jobDraftId+"/"+sampleSubtypeId+".do?theSelectedAdaptorset="+theSelectedAdaptorset;
+	    		  
+	    		  
+	    		//$("#theSelectedAdaptorset").val("");
+	  	        //$("#validateTipForThisModalDialogForm").text("");
+	  	        
+	    	  	//$(".settableLibraryCost").val(costToApplyToAllSettableLibraries);
+	    	  	//$("#costToApplyToAllSettableLibraries").val("");
+	    	  	//$("#validateTipForThisModalDialogForm").text("");
+	    	  	//$( this ).dialog( "close" );
+	    	  }
+	    	  else{
+	    		  $("#validateTipForThisModalDialogForm").text("Select an adaptor set");
+	    	  } 
+	      },
+	      Cancel: function() {
+	    	$("#theSelectedAdaptorset").val("");
+	        $("#validateTipForThisModalDialogForm").text("");		        	
+	        $( this ).dialog( "close" );
+	      }
+	    },
+	    close: function() {
+	      	$("#theSelectedAdaptorset").val("");
+	    	$("#validateTipForThisModalDialogForm").text("");	 
+	    	$( this ).dialog( "close" );
+	    }
+	  });	
+});
+
 function verifyRemove(targetURL){
 	if (confirm('<fmt:message key="jobDraft.remove_confirm.label" />')){
 		window.location = targetURL;
