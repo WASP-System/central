@@ -14,10 +14,14 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import edu.yu.einstein.wasp.IndexingStrategy;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
+import edu.yu.einstein.wasp.dao.AdaptorsetDao;
+import edu.yu.einstein.wasp.dao.AdaptorsetMetaDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
+import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.Sample;
 
 /**
@@ -56,5 +60,19 @@ public interface AdaptorService extends WaspService {
 	public void setAdaptorDao(AdaptorDao adaptorDao);
 
 	public AdaptorDao getAdaptorDao();
+	
+	public AdaptorsetMetaDao getAdaptorsetMetaDao();
+	
+	public void setAdaptorsetMetaDao(AdaptorsetMetaDao adaptorsetMetaDao);
+	
+	public void setIndexingStrategy(Adaptorset adaptorset, IndexingStrategy indexingStrategy) throws MetadataException;
+	
+	public IndexingStrategy getIndexingStrategy(Adaptorset adaptorset);
+	
+	public IndexingStrategy getIndexingStrategy(Integer adaptorsetId);
+	
+	public AdaptorsetDao getAdaptorsetDao();
+	
+	public void setAdaptorsetDao(AdaptorsetDao adaptorsetDao);
 
 }
