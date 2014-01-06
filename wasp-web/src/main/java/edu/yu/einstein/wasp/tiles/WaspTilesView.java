@@ -11,7 +11,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class WaspTilesView extends org.springframework.web.servlet.view.tiles2.TilesView {
+public class WaspTilesView extends org.springframework.web.servlet.view.tiles3.TilesView {
 	
 	@Override
 	protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
