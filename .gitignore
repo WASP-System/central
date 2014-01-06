@@ -12,6 +12,7 @@ target
 test-output
 installAll.sh
 bin
+.springWebflow
 
 # /db/
 /db/t
