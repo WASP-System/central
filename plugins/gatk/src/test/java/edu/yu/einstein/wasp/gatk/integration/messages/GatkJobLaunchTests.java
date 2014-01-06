@@ -8,11 +8,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.yu.einstein.wasp.gatk.plugin.GatkPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
-import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,10 +26,9 @@ import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
-import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
+import edu.yu.einstein.wasp.gatk.plugin.GatkPlugin;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
@@ -56,12 +54,8 @@ public class GatkJobLaunchTests extends AbstractTestNGSpringContextTests impleme
 	@Autowired
 	private JobLauncher jobLauncher;
 	
-	private JobExplorerWasp jobExplorer;
-	
 	@Autowired
-	void setJobExplorer(JobExplorer jobExplorer){
-		this.jobExplorer = (JobExplorerWasp) jobExplorer;
-	}
+	private JobExplorerWasp jobExplorer;
 	
 	// Wire up message channel for sending messages to remote message handling daemon
 	@Autowired
