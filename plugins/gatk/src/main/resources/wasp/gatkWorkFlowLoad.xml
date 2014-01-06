@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.1.xsd"
+    default-autowire="byName">
+    
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="gatkUiFieldWrapper">
+    <property name="baseLocale" value="en_US" />
+    <property name="baseArea" ref="gatkPluginArea" />
+  </bean>
+
+
+  <bean id="gatkWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoaderAndFactory" >
+    <property name="area" ref="gatkPluginArea" />
+    <property name="name" value="GATK" />
+    <property name="pageFlowOrder">
+      <list>
+		<value>/jobsubmit/modifymeta/{n}</value>
+		<value>/jobsubmit/resource/#{mpsResourceType.getIName()}/{n}</value>
+		<value>/jobsubmit/samples/{n}</value>
+		<value>/jobsubmit/genomes/{n}</value>
+		<value>/jobsubmit/cells/{n}</value>
+		<value>/jobsubmit/software/#{referenceBasedAlignerResourceType.getIName()}/{n}</value>
+		<value>/jobsubmit/software/#{gatkPipelineResourceType.getIName()}/{n}</value>
+		<value>/jobsubmit/gatk/target/{n}</value>
+		<value>/jobsubmit/comment/{n}</value>
+		<value>/jobsubmit/verify/{n}</value>
+		<value>/jobsubmit/submit/{n}</value>
+		<value>/jobsubmit/ok</value>
+      </list>
+    </property>
+    
+    <property name="jobFlowBatchJob" value="default.waspJob.jobflow.v1"  />
+
+    <property name="dependencies">
+      <list>
+      	<ref bean="mpsResourceType" />
+        <ref bean="referenceBasedAlignerResourceType" />
+        <ref bean="gatkPipelineResourceType" />
+        <ref bean="libraryStrategyResourceType" />
+      </list>
+    </property>
+
+    <property name="sampleSubtypes">
+      <list>
+        <ref bean="gatkLibrarySampleSubtype" />
+      </list>
+    </property>
+    
+    <property name="uiFieldsFromWrapper">
+      <list>
+      	<bean parent="gatkUiFieldWrapper">
+          <property name="baseName" value="workflow" />
+          <property name="label" value="gatk.wf.title" />
+        </bean>
+        <bean parent="gatkUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/modifymeta" />
+          <property name="label" value="gatk.modifyMeta.title" />
+        </bean>
+        <bean parent="gatkUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/resource/mps" />
+          <property name="label" value="gatk.mps.title" />
+        </bean>
+        <bean parent="gatkUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/samples" />
+          <property name="label" value="gatk.samples.title" />
+        </bean>
+		<bean parent="gatkUiFieldWrapper">
+			<property name="baseName" value="jobsubmit/genomes" />
+			<property name="label" value="gatk.genomes.title" />
+		</bean>
+        <bean parent="gatkUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/cells" />
+          <property name="label" value="gatk.cells.title" />
+        </bean>
+        <bean parent="gatkUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/software/referenceBasedAligner" />
+          <property name="label" value="gatk.aligner.title" />
+        </bean>
+        <bean parent="gatkUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/software/gatkPipeline" />
+          <property name="label" value="gatk.pipeline.title" />
+        </bean>
+         <bean parent="gatkUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/comment" />
+          <property name="label" value="gatk.comments.title" />
+        </bean>
+        <bean parent="gatkUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/verify" />
+          <property name="label" value="gatk.verify.title" />
+        </bean>
+         <bean parent="gatkUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/submit" />
+          <property name="label" value="gatk.submit.title" />
+        </bean>
+     </list>
+ 
+    </property>
+  </bean>
+
+</beans>
