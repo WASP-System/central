@@ -11,7 +11,7 @@
 	    <task:scheduled ref="batchJobHibernationManager" method="runTimedTasks" fixed-rate="${wasp.hibernation.heartbeat:5000}"/>
 	</task:scheduled-tasks>
 	
-	<task:scheduler id="taskScheduler" pool-size="10"/>
+	<task:scheduler id="taskScheduler" pool-size="50"/>
 
 	
 	<!-- create beans for classes containing constants -->

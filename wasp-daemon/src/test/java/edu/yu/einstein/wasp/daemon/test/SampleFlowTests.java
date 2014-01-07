@@ -112,6 +112,7 @@ public class SampleFlowTests extends BatchDatabaseIntegrationTest implements Mes
 	}
 	
 	private void testSamplesReceived(int numSamples, int startId) throws Exception{
+		messages = new ArrayList<>();
 		Job job = jobRegistry.getJob("wasp.sample.jobflow.v1") ; // get the 'wasp.default.sample.mainFlow.v1' job from the context
 		Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
 		parameterMap.put( JOB_ID_KEY, new JobParameter(JOB_ID.toString()) );
@@ -333,6 +334,7 @@ public class SampleFlowTests extends BatchDatabaseIntegrationTest implements Mes
 	 */
 	@Test (groups = "unit-tests-batch-integration")
 	public void testSampleFailedQC() throws Exception{
+		messages = new ArrayList<>();
 		// set a sampleType of 'library' for the sample hardwired into the stub SampleDao
 		SampleType sampleType = new SampleType();
 		sampleType.setId(1);
@@ -389,7 +391,6 @@ public class SampleFlowTests extends BatchDatabaseIntegrationTest implements Mes
 		while ((messages.size() == 0 || 
 				(! SampleStatusMessageTemplate.actUponMessage(messages.get(0), SAMPLE_ID3, WaspJobTask.NOTIFY_STATUS)) || 
 				!messages.get(0).getPayload().equals(WaspStatus.ABANDONED)) && repeat < 10){
-			messages = new ArrayList<>();
 			try{
 				Thread.sleep(500);
 			} catch (InterruptedException e){};
@@ -418,6 +419,7 @@ public class SampleFlowTests extends BatchDatabaseIntegrationTest implements Mes
 	 */
 	@Test (groups = "unit-tests-batch-integration")
 	public void testJobAbandoned() throws Exception{
+		messages = new ArrayList<>();
 		SampleType sampleType = new SampleType();
 		sampleType.setId(1);
 		sampleType.setIName("dna");
