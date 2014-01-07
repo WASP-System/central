@@ -210,7 +210,7 @@ public class BatchJobHibernationManager {
 						}
 					}
 					if (se == null){
-						logger.warn("Attempted to get latest StepExecution for step " + se.getStepName() + " but it is null");
+						logger.warn("Attempted to get latest StepExecution for step " + seStored.getStepName() + " but it is null");
 						pushMessageBackIntoQueueRequests++;
 						continue;
 					}
