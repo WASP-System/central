@@ -476,7 +476,7 @@ public class BatchJobHibernationManager {
 	/**
 	 * Removes all handled StepExecutions and messages from the provided map of message/StepExecution associations if they are associated with the given
 	 * JobExecution
-	 * @param se
+	 * @param je
 	 * @param m
 	 */
 	private void removeStepExecutionFromMessageMap(JobExecution je, Map<WaspStatusMessageTemplate, Set<StepExecution>> m){
@@ -731,6 +731,12 @@ public class BatchJobHibernationManager {
 		return templates;
 	}
 	
+	/**
+	 * Lock a JobExecution by type.
+	 * @param jobExecution
+	 * @param type
+	 * @return
+	 */
 	public synchronized static boolean lockJobExecution(JobExecution jobExecution, LockType type){
 		if (jobExecution == null)
 			return false;
@@ -744,6 +750,12 @@ public class BatchJobHibernationManager {
 		return true;
 	}
 	
+	/**
+	 * Verify if a JobExecution is locked by a specified type
+	 * @param jobExecution
+	 * @param type
+	 * @return
+	 */
 	public synchronized static boolean isLockedJobExecution(JobExecution jobExecution, LockType type){
 		if ( lockedJobExecutions.containsKey(jobExecution.getId()))
 			if (type.equals(LockType.ANY))
@@ -753,6 +765,12 @@ public class BatchJobHibernationManager {
 		return false;
 	}
 	
+	/**
+	 * Unlock a JobExecution if locked by the specified type
+	 * @param jobExecution
+	 * @param type
+	 * @return
+	 */
 	public synchronized static boolean unlockJobExecution(JobExecution jobExecution, LockType type){
 		if ( lockedJobExecutions.containsKey(jobExecution.getId())){
 			if (type.equals(LockType.ANY)){
