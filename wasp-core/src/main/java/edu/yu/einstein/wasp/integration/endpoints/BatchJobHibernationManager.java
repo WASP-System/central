@@ -52,8 +52,6 @@ import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemp
  */
 public class BatchJobHibernationManager {
 
-	
-	
 	public static final String ABANDON_ON_MESSAGE = "abandonedOnMessage";
 	public static final String WOKEN_ON_MESSAGE_STATUS = "wokenOnMessageStatus";
 	public static final String WOKEN_ON_TIMEOUT = "wokenOnTimeout";
@@ -201,7 +199,7 @@ public class BatchJobHibernationManager {
 	 * @param messageTemplate
 	 * @return number of steps handled
 	 */
-	//@Transactional
+	@Transactional
 	public synchronized Set<Long> handleStepExecutionAbandonmentOnMessage(WaspStatusMessageTemplate messageTemplate) throws WaspBatchJobExecutionReadinessException{
 		Set<Long> abandondedJobExecutionIds = new HashSet<>();
 		int pushMessageBackIntoQueueRequests = 0;
@@ -260,7 +258,7 @@ public class BatchJobHibernationManager {
 	 * @return number of steps handled
 	 * @throws WaspBatchJobExecutionReadinessException 
 	 */
-	//@Transactional
+	@Transactional
 	public synchronized Set<Long> handleStepExecutionWakingOnMessage(WaspStatusMessageTemplate messageTemplate) throws WaspBatchJobExecutionReadinessException{
 		Set<Long> awakeningJobExecutionIds = new HashSet<>();
 		int pushMessageBackIntoQueueRequests = 0;
