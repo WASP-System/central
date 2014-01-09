@@ -35,6 +35,7 @@ import org.springframework.integration.MessageHeaders;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionException;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionReadinessException;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
@@ -99,6 +100,16 @@ public class BatchJobHibernationManager {
 		this.jobOperator = (JobOperatorWasp) jobOperator;
 	}
 	
+	public synchronized Map<WaspStatusMessageTemplate, Set<StepExecution>> getMessageTemplatesWakingStepExecutions() {
+		return messageTemplatesWakingStepExecutions;
+	}
+
+
+	public synchronized Map<WaspStatusMessageTemplate, Set<StepExecution>> getMessageTemplatesAbandoningStepExecutions() {
+		return messageTemplatesAbandoningStepExecutions;
+	}
+
+
 	/**
 	 * TaskScheduler executed method: executed periodically at a rate defined in configuration (wasp.hibernation.heartbeat)
 	 */
@@ -190,7 +201,8 @@ public class BatchJobHibernationManager {
 	 * @param messageTemplate
 	 * @return number of steps handled
 	 */
-	private synchronized Set<Long> handleStepExecutionAbandonmentOnMessage(WaspStatusMessageTemplate messageTemplate) throws WaspBatchJobExecutionReadinessException{
+	//@Transactional
+	public synchronized Set<Long> handleStepExecutionAbandonmentOnMessage(WaspStatusMessageTemplate messageTemplate) throws WaspBatchJobExecutionReadinessException{
 		Set<Long> abandondedJobExecutionIds = new HashSet<>();
 		int pushMessageBackIntoQueueRequests = 0;
 		if (messageTemplatesAbandoningStepExecutions.keySet().contains(messageTemplate)){
@@ -248,7 +260,8 @@ public class BatchJobHibernationManager {
 	 * @return number of steps handled
 	 * @throws WaspBatchJobExecutionReadinessException 
 	 */
-	private synchronized Set<Long> handleStepExecutionWakingOnMessage(WaspStatusMessageTemplate messageTemplate) throws WaspBatchJobExecutionReadinessException{
+	//@Transactional
+	public synchronized Set<Long> handleStepExecutionWakingOnMessage(WaspStatusMessageTemplate messageTemplate) throws WaspBatchJobExecutionReadinessException{
 		Set<Long> awakeningJobExecutionIds = new HashSet<>();
 		int pushMessageBackIntoQueueRequests = 0;
 		if (messageTemplatesWakingStepExecutions.keySet().contains(messageTemplate)){
@@ -436,19 +449,19 @@ public class BatchJobHibernationManager {
 		addMessageTemplatesForActioningJobStep(jobExecutionId, stepExecutionId, messageTemplates, messageTemplatesAbandoningStepExecutions);
 	}
 	
-	public void removeStepExecutionFromWakeMessageMap(StepExecution se){
+	public synchronized void removeStepExecutionFromWakeMessageMap(StepExecution se){
 		removeStepExecutionFromMessageMap(se, messageTemplatesWakingStepExecutions);
 	}
 	
-	public void removeStepExecutionFromAbandonMessageMap(StepExecution se){
+	public synchronized void removeStepExecutionFromAbandonMessageMap(StepExecution se){
 		removeStepExecutionFromMessageMap(se, messageTemplatesAbandoningStepExecutions);
 	}
 	
-	public void removeStepExecutionFromWakeMessageMap(JobExecution je){
+	public synchronized void removeStepExecutionFromWakeMessageMap(JobExecution je){
 		removeStepExecutionFromMessageMap(je, messageTemplatesWakingStepExecutions);
 	}
 	
-	public void removeStepExecutionFromAbandonMessageMap(JobExecution je){
+	public synchronized void removeStepExecutionFromAbandonMessageMap(JobExecution je){
 		removeStepExecutionFromMessageMap(je, messageTemplatesAbandoningStepExecutions);
 	}
 	
@@ -458,6 +471,8 @@ public class BatchJobHibernationManager {
 	 * @param m
 	 */
 	private void removeStepExecutionFromMessageMap(StepExecution se, Map<WaspStatusMessageTemplate, Set<StepExecution>> m){
+		Assert.assertParameterNotNull(se, "StepExecution se cannot be null");
+		Assert.assertParameterNotNull(m, "Set<StepExecution>> m cannot be null");
 		Set<StatusMessageTemplate> templates = new HashSet<StatusMessageTemplate>(m.keySet());
 		for (StatusMessageTemplate template :templates){
 			if (m.get(template).contains(se)){
@@ -479,7 +494,7 @@ public class BatchJobHibernationManager {
 	 * @param je
 	 * @param m
 	 */
-	private void removeStepExecutionFromMessageMap(JobExecution je, Map<WaspStatusMessageTemplate, Set<StepExecution>> m){
+	private synchronized void removeStepExecutionFromMessageMap(JobExecution je, Map<WaspStatusMessageTemplate, Set<StepExecution>> m){
 		Set<StatusMessageTemplate> templates = new HashSet<StatusMessageTemplate>(m.keySet());
 		for (StatusMessageTemplate template :templates){
 			Set<StepExecution> ses = new HashSet<>(m.get(template));
@@ -545,7 +560,7 @@ public class BatchJobHibernationManager {
 	 * @throws WaspBatchJobExecutionException
 	 */
 	@Transactional
-	private void abandonJobExecution(StepExecution stepExecution) throws WaspBatchJobExecutionException{
+	public void abandonJobExecution(StepExecution stepExecution) throws WaspBatchJobExecutionException{
 		JobExecution je = jobExplorer.getJobExecution(stepExecution.getJobExecutionId());
 		if (je.getStatus().isRunning()){
 			logger.debug("Going to stop JobExecution (id=" + je.getId() + ") because job is running");

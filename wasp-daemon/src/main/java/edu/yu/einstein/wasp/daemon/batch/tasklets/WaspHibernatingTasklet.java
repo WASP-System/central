@@ -312,7 +312,11 @@ public abstract class WaspHibernatingTasklet implements NameAwareTasklet, BeanNa
 	}
 	
 	protected boolean wasWokenOnMessage(ChunkContext context){
-		ExecutionContext executionContext = context.getStepContext().getStepExecution().getExecutionContext();
+		return wasWokenOnMessage(context.getStepContext().getStepExecution());
+	}
+	
+	protected boolean wasWokenOnMessage(StepExecution stepExecution){
+		ExecutionContext executionContext = stepExecution.getExecutionContext();
 		return (executionContext.containsKey(BatchJobHibernationManager.WOKEN_ON_MESSAGE_STATUS));
 	}
 	
@@ -326,11 +330,15 @@ public abstract class WaspHibernatingTasklet implements NameAwareTasklet, BeanNa
 	}
 	
 	protected boolean wasWokenOnTimeout(ChunkContext context){
-		ExecutionContext executionContext = context.getStepContext().getStepExecution().getExecutionContext();
+		return wasWokenOnTimeout(context.getStepContext().getStepExecution());
+	}
+	
+	protected boolean wasWokenOnTimeout(StepExecution stepExecution){
+		ExecutionContext executionContext = stepExecution.getExecutionContext();
 		boolean woken = false;
 		if (executionContext.containsKey(BatchJobHibernationManager.WOKEN_ON_TIMEOUT))
 			woken = (boolean) executionContext.get(BatchJobHibernationManager.WOKEN_ON_TIMEOUT);
-		logger.debug("StepExecutionId=" + context.getStepContext().getStepExecution().getId() + " wasWokenByTimeout=" + woken);
+		logger.debug("StepExecutionId=" + stepExecution.getId() + " wasWokenByTimeout=" + woken);
 		return woken;	
 	}
 	

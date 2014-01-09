@@ -109,7 +109,10 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 		Long stepExecutionId =stepExecution.getId();
 		Long jobExecutionId = context.getStepContext().getStepExecution().getJobExecutionId();
 		logger.trace(name + "execute() invoked");
-		if ((!messageQueue.isEmpty() || !abandonMessageQueue.isEmpty()) && 
+		Set<Message<?>> allMessages = new HashSet<>();
+		allMessages.addAll(messageQueue);
+		allMessages.addAll(abandonMessageQueue);
+		if ((!allMessages.isEmpty()) && 
 				context.getStepContext().getStepExecution().getJobExecution().getStatus().isRunning()){
 			if (wasHibernationRequested){
 				setHibernationRequestedForStep(stepExecution, false);
@@ -118,6 +121,8 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 			}
 			logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + ") received an expected message so finishing step.");
 			setStepStatusInJobExecutionContext(stepExecution, BatchStatus.COMPLETED);
+			// make sure all messages get replies
+			//sendSuccessReplyToAllMessagesInQueue(allMessages);
 			return RepeatStatus.FINISHED;
 		}
 		if (wasWokenOnMessage(context)){
@@ -163,22 +168,21 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 		ExitStatus exitStatus = super.afterStep(stepExecution);
 		exitStatus = exitStatus.and(getExitStatus(stepExecution, getWokenOnMessageStatus(stepExecution)));
 		// set exit status to equal the most severe outcome of all received messages
-		if (!messageQueue.isEmpty()){
+		Set<Message<?>> allMessages = new HashSet<>();
+		allMessages.addAll(messageQueue);
+		allMessages.addAll(abandonMessageQueue);
+		if (!allMessages.isEmpty()){
 			for (Message<?> message: messageQueue)
 				exitStatus = exitStatus.and(getExitStatus(stepExecution, (WaspStatus) message.getPayload()));
-		} else if (!abandonMessageQueue.isEmpty()){
-			for (Message<?> message: abandonMessageQueue)
-				exitStatus = exitStatus.and(getExitStatus(stepExecution, (WaspStatus) message.getPayload()));
-		}
-		// make sure all messages get replies
-		sendSuccessReplyToAllMessagesInQueue(messageQueue);
-		sendSuccessReplyToAllMessagesInQueue(abandonMessageQueue);
+		} 
+		sendSuccessReplyToAllMessagesInQueue(allMessages);
 		this.messageQueue.clear(); // clean up in case of restart
+		this.abandonMessageQueue.clear(); // clean up in case of restart
 		logger.debug("Going to exit step with ExitStatus=" + exitStatus);
 		return exitStatus;
 	}
 	
-	protected void sendSuccessReplyToAllMessagesInQueue(List<Message<?>> queue){
+	private void sendSuccessReplyToAllMessagesInQueue(Collection<Message<?>> queue){
 		MessagingTemplate messagingTemplate = new MessagingTemplate();
 		logger.debug("Going to send " + messageQueue.size()  + " reply message(s)...");
 		for (Message<?> message: queue){

@@ -16,6 +16,9 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
@@ -32,6 +35,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
+import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager.LockType;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspLibraryTask;
@@ -49,6 +54,9 @@ public class SampleFlowTests extends BatchDatabaseIntegrationTest implements Mes
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
 	
+	@Autowired
+	BatchJobHibernationManager batchJobHibernationManager;
+	
 	private final String OUTBOUND_MESSAGE_CHANNEL = "wasp.channel.remoting.outbound";
 	
 	@Mock private SampleDao mockSampleDao;
@@ -63,7 +71,7 @@ public class SampleFlowTests extends BatchDatabaseIntegrationTest implements Mes
 	
 	private SubscribableChannel libraryListeningChannel;
 	
-	private List<Message<?>> messages = new ArrayList<>();
+	private volatile List<Message<?>> messages = new ArrayList<>();
 	
 	private final String JOB_ID_KEY = "jobId";
 	
@@ -189,9 +197,26 @@ public class SampleFlowTests extends BatchDatabaseIntegrationTest implements Mes
 			} catch (InterruptedException e){};
 			repeat++;
 		}
-		if (messages.size() < expectedMessages)
+		if (messages.size() < expectedMessages){
+			for (JobExecution je: jes){
+				JobExecution freshJe = jobRepository.getLastJobExecution(je.getJobInstance().getJobName(), je.getJobParameters());
+				logger.debug("JobExecution id=" + 
+						freshJe.getId() + 
+						", name=" + freshJe.getJobInstance().getJobName() + 
+						", status=" + freshJe.getStatus() + 
+						", exitStatus=" + freshJe.getExitStatus());
+				for (StepExecution se : je.getStepExecutions()){
+					StepExecution freshSe = jobExplorer.getStepExecution(freshJe.getId(), se.getId());
+					logger.debug("-> StepExecution id=" + 
+							se.getId() + 
+							", name=" + se.getStepName() + 
+							", status=" + se.getStatus() + 
+							", exitStatus=" + se.getExitStatus());
+				}
+			}
 			Assert.fail("testSamplesReceived(): Timeout waiting to receive messages on 'wasp.channel.notification.sample', Got " + messages.size() + 
 					" messages but expected " + expectedMessages);
+		}
 		Set<Message<?>> testMessages = new HashSet<>(messages);
 		for (Message<?> message : testMessages){
 			for (int i=0; i < numSamples; i++){ 
@@ -223,6 +248,16 @@ public class SampleFlowTests extends BatchDatabaseIntegrationTest implements Mes
 			stopRunningJobExecutions();
 			Assert.fail("Not all jobs completed with ExistStatus.COMPLETED within suitable time interval");
 		}
+		if (!batchJobHibernationManager.getMessageTemplatesWakingStepExecutions().isEmpty())
+			Assert.fail("MessageTemplatesWakingStepExecutions is not empty: " + batchJobHibernationManager.getMessageTemplatesWakingStepExecutions());
+		
+		if (!batchJobHibernationManager.getMessageTemplatesAbandoningStepExecutions().isEmpty())
+			Assert.fail("MessageTemplatesAbandoningStepExecutions is not empty: " + batchJobHibernationManager.getMessageTemplatesAbandoningStepExecutions());
+
+		for (JobExecution je: jes)
+			if (BatchJobHibernationManager.isLockedJobExecution(je, LockType.ANY))
+				Assert.fail("A lock is still present for JobExecution id=" + je.getId());
+		
 		for (JobExecution je: jes){
 			freshJe = jobRepository.getLastJobExecution(je.getJobInstance().getJobName(), je.getJobParameters());
 			logger.debug("JobExecution at end: " + freshJe.toString());
