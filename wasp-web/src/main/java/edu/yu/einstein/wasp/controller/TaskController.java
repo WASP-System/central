@@ -78,6 +78,8 @@ public class TaskController extends WaspController {
    * Delay to allow batch transitions to complete
    */
   private void transitionDelay(){
+	  //TODO:: this is a horrible thing to do. Need to figure out transaction between web and batch 
+	  // (taking into account concurrency of batch). fun fun fun!
 	  try{
 		  Thread.sleep(500);
 	  } catch(InterruptedException e){}
