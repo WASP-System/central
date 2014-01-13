@@ -88,7 +88,7 @@
 		<int:poller max-messages-per-poll="1" fixed-rate="10" /> 
 	</int:bridge>
 	
-	<int:delayer id="wasp.channel.delayer.resend.waspStatusMessages" input-channel="wasp.channel.resend.waspStatusMessages" default-delay="50" output-channel="wasp.channel.priority.waspStatusMessages"/>
+	<int:delayer id="wasp.channel.delayer.resend.waspStatusMessages" input-channel="wasp.channel.resend.waspStatusMessages" default-delay="500" output-channel="wasp.channel.priority.waspStatusMessages"/>
 	
 	<!-- need to pass to a queue channel in case of backlog. wasp.channel.priority.waspStatusMessages will pick off messages from wasp.channel.notification.batch -->
 	<int:bridge id="wasp.channel.bridge.notify" input-channel="wasp.channel.notification.batch" output-channel="wasp.channel.priority.waspStatusMessages" />
