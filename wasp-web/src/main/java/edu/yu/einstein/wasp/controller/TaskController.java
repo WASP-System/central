@@ -78,9 +78,9 @@ public class TaskController extends WaspController {
    * Delay to allow batch transitions to complete
    */
   private void transitionDelay(){
-	  //try{
-	//	  Thread.sleep(500);
-	 // } catch(InterruptedException e){}
+	  try{
+		  Thread.sleep(500);
+	  } catch(InterruptedException e){}
   }
   
 
