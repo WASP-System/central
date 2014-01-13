@@ -291,7 +291,7 @@ public class BatchJobHibernationManager {
 					} catch (WaspBatchJobExecutionException e){
 						pushMessageBackIntoQueueRequests++;
 						unlockJobExecution(je, LockType.WAKE);
-						logger.warn("Problem reawakening job execution and cleaning up 'messageTemplatesWakingStepExecutions': " + e.getLocalizedMessage());
+						logger.debug("Problem reawakening job execution and cleaning up 'messageTemplatesWakingStepExecutions': " + e.getLocalizedMessage());
 					} 
 				} 
 			}

@@ -171,7 +171,7 @@ public class SampleFlowTests extends BatchDatabaseIntegrationTest implements Mes
 			Assert.fail("testSamplesReceived(): Failed to receive reply message");
 		
 		try{
-			Thread.sleep(500);
+			Thread.sleep(Math.max(500, 50 * numSamples));
 		} catch (InterruptedException e){}; // delay to allow processing of messages
 		messages = new ArrayList<>();
 		// send COMPLETED message (simulating job approval tasks completed by wasp job flow)

@@ -109,6 +109,13 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 		Long stepExecutionId =stepExecution.getId();
 		Long jobExecutionId = context.getStepContext().getStepExecution().getJobExecutionId();
 		logger.trace(name + "execute() invoked");
+		if (wasWokenOnMessage(context)){
+			logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + 
+					") was woken up from hibernation for a message. Skipping to next step...");
+			setStepStatusInJobExecutionContext(stepExecution, BatchStatus.COMPLETED);
+			BatchJobHibernationManager.unlockJobExecution(stepExecution.getJobExecution(), LockType.WAKE);
+			return RepeatStatus.FINISHED;
+		}
 		Set<Message<?>> allMessages = new HashSet<>();
 		allMessages.addAll(messageQueue);
 		allMessages.addAll(abandonMessageQueue);
@@ -122,14 +129,7 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 			logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + ") received an expected message so finishing step.");
 			setStepStatusInJobExecutionContext(stepExecution, BatchStatus.COMPLETED);
 			// make sure all messages get replies
-			//sendSuccessReplyToAllMessagesInQueue(allMessages);
-			return RepeatStatus.FINISHED;
-		}
-		if (wasWokenOnMessage(context)){
-			logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + 
-					") was woken up from hibernation for a message. Skipping to next step...");
-			setStepStatusInJobExecutionContext(stepExecution, BatchStatus.COMPLETED);
-			BatchJobHibernationManager.unlockJobExecution(stepExecution.getJobExecution(), LockType.WAKE);
+			sendSuccessReplyToAllMessagesInQueue(allMessages);
 			return RepeatStatus.FINISHED;
 		}
 		if (isHibernationRequestedForJob(context.getStepContext().getStepExecution().getJobExecution())){
@@ -168,14 +168,6 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 		ExitStatus exitStatus = super.afterStep(stepExecution);
 		exitStatus = exitStatus.and(getExitStatus(stepExecution, getWokenOnMessageStatus(stepExecution)));
 		// set exit status to equal the most severe outcome of all received messages
-		Set<Message<?>> allMessages = new HashSet<>();
-		allMessages.addAll(messageQueue);
-		allMessages.addAll(abandonMessageQueue);
-		if (!allMessages.isEmpty()){
-			for (Message<?> message: messageQueue)
-				exitStatus = exitStatus.and(getExitStatus(stepExecution, (WaspStatus) message.getPayload()));
-		} 
-		sendSuccessReplyToAllMessagesInQueue(allMessages);
 		this.messageQueue.clear(); // clean up in case of restart
 		this.abandonMessageQueue.clear(); // clean up in case of restart
 		logger.debug("Going to exit step with ExitStatus=" + exitStatus);
