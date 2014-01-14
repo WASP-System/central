@@ -20,6 +20,11 @@
     <property name="area" value="referenceBasedAligner" />
   </bean>
   
+  <bean id="variantCallingResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
+    <property name="name" value="Variant Caller" />
+    <property name="area" value="variantcaller" />
+  </bean>
+  
   <bean id="peakcallerResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
     <property name="name" value="Peak Caller" />
     <property name="area" value="peakcaller" />
