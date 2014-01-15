@@ -19,7 +19,7 @@
 	<!-- channel for communications with this plugin. -->
 	<int:channel id="wasp.channel.plugin.helptag" />
 
-	<!-- <int:service-activator input-channel="wasp.channel.plugin.helptag" ref="helptagPlugin" method="process" /> -->
+	<int:service-activator input-channel="wasp.channel.plugin.helptag" ref="helptagPlugin" method="process" />
 
 	<bean id="helptagPlugin" class="edu.yu.einstein.wasp.helptag.plugin.HelptagPlugin">
 		<constructor-arg name="iName" ref="helptagPluginArea" />

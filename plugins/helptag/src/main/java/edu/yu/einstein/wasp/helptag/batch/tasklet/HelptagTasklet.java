@@ -3,7 +3,6 @@
  */
 package edu.yu.einstein.wasp.helptag.batch.tasklet;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,7 +23,6 @@ import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.helptag.service.HelptagService;
 import edu.yu.einstein.wasp.helptag.software.Helptag;
-import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
@@ -57,7 +55,7 @@ public class HelptagTasklet extends WaspTasklet  implements StepExecutionListene
 	private FileType fastqFileType;
 
 	private StepExecution stepExecution;
-	private Integer cellLibraryId;
+	private Integer libraryCellId;
 	
 	/**
 	 * 
@@ -66,10 +64,9 @@ public class HelptagTasklet extends WaspTasklet  implements StepExecutionListene
 		// proxy
 	}
 
-	public HelptagTasklet(String cellLibraryIds) {
-		List<Integer> cids = WaspSoftwareJobParameters.getLibraryCellIdList(cellLibraryIds);
-		Assert.assertTrue(cids.size() == 1);
-		this.cellLibraryId = cids.get(0);
+	public HelptagTasklet(String libraryCellId) {
+		Assert.assertParameterNotNull(libraryCellId);
+		this.libraryCellId = Integer.valueOf(libraryCellId);
 	}
 
 	/**
@@ -88,7 +85,8 @@ public class HelptagTasklet extends WaspTasklet  implements StepExecutionListene
 			return RepeatStatus.FINISHED;
 		}
 		
-		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
+/*
+		SampleSource cellLib = sampleService.getSampleSourceDao().findById(libraryCellId);
 		
 		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
 		stepContext.put("cellLibId", cellLib.getId()); //place in the step context
@@ -112,7 +110,11 @@ public class HelptagTasklet extends WaspTasklet  implements StepExecutionListene
 		}
 		
 		WorkUnit w = helptag.getHelptag(cellLib, fg);
-		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
+*/
+		// get work unit
+		WorkUnit w = helptag.getHelptag(libraryCellId);
+
+//		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
    
 		GridResult result = gridHostResolver.execute(w);
 		
@@ -121,8 +123,9 @@ public class HelptagTasklet extends WaspTasklet  implements StepExecutionListene
 		
 		// place scratch directory in step execution context, to be promoted
 		// to the job context at run time.
-        stepContext.put("scrDir", result.getWorkingDirectory());
-        stepContext.put("createHcountName", result.getId());
+/*		stepContext.put("scrDir", result.getWorkingDirectory());
+		stepContext.put("createHcountName", result.getId());
+*/
 
 		return RepeatStatus.CONTINUABLE;
 	}
