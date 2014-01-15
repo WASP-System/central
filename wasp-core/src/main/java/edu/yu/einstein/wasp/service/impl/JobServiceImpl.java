@@ -867,6 +867,12 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 				  break;
 			  }
 		  }
+		  for(JobMeta jobMeta : job.getJobMeta()){
+			String str = area+".runType";
+			if(str.toLowerCase().equals(jobMeta.getK().toLowerCase().trim())){
+				extraJobDetailsMap.put("jobdetail_for_import.Run_Type.label", jobMeta.getV());
+			}
+		  }
 		  try {
 			  SequenceReadProperties readProperties = SequenceReadProperties.getSequenceReadProperties(job, area, JobMeta.class);
 			  extraJobDetailsMap.put("jobdetail_for_import.Read_Length.label", readProperties.getReadLength().toString());
