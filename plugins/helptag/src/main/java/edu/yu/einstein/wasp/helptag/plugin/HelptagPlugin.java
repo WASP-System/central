@@ -4,6 +4,7 @@
  */
 package edu.yu.einstein.wasp.helptag.plugin;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -24,6 +25,7 @@ import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
+import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask; 
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -110,9 +112,12 @@ public class HelptagPlugin extends WaspPlugin
 			
 			Map<String, String> jobParameters = new HashMap<String, String>();
 			logger.info("Sending launch message with flow " + PREP_FLOW_NAME + " and id: " + id);
-			jobParameters.put(WaspJobParameters.FILE_GROUP_ID, id.toString());
+			jobParameters.put(WaspSoftwareJobParameters.LIBRARY_CELL_ID_LIST, id.toString());
+			jobParameters.put(WaspSoftwareJobParameters.GENOME, "10090::GRCm38::70");
+			jobParameters.put("test", new Date().toString());
+			
 			waspMessageHandlingService.launchBatchJob(PREP_FLOW_NAME, jobParameters);
-			return (Message<String>) MessageBuilder.withPayload("Initiating test flow on id " + id).build();
+			return (Message<String>) MessageBuilder.withPayload("Initiating helptag test flow on id " + id).build();
 		} catch (WaspMessageBuildingException e1) {
 			logger.warn("unable to build message to launch batch job " + PREP_FLOW_NAME);
 			return MessageBuilder.withPayload("Unable to launch batch job " + PREP_FLOW_NAME).build();

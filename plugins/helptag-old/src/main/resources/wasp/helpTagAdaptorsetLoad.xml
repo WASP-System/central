@@ -15,7 +15,7 @@
   	<constructor-arg><value>helptagLibrary</value></constructor-arg>
   </bean>
     
-   
+<!--    
   <bean id="helptagLibraryAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoaderAndFactory">
   	<property name="area" ref="helptagLibraryArea" />
   	<property name="name" value="HELP-tag Library" />
@@ -38,5 +38,5 @@
    		</list>
   	</property>
   </bean> 
-
+ -->
 </beans>
