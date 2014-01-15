@@ -97,7 +97,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<powermock.version>1.5.2</powermock.version>
 		<excluded.groups>db-tests,a,ssh,schema</excluded.groups>
 		<json.version>20131018</json.version>
-		<bouncycastle.version>1.50</bouncycastle.version>
+		<bouncycastle.version>1.48</bouncycastle.version>
 		<tomcat.version>7.0.39</tomcat.version>
 	</properties>
 

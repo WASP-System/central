@@ -29,7 +29,7 @@
 		<tr class="FormData">
 			<c:choose>
 				<c:when test="${currentJobId !=  job.getJobId()}">
-					<td style='text-align:center;'><a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.getJobId()}.do" />">J<c:out value="${job.getJobId()}" /></a></td>          
+					<td style='text-align:center;'><a style="color: #801A00;" href="<c:url value="/job/${job.getJobId()}/homepage.do" />">J<c:out value="${job.getJobId()}" /></a></td>          
 					<td style='text-align:center'><c:out value="${job.getName()}" /></td>
 					<td style='text-align:center'><c:out value="${job.getUser().getFirstName()}" /> <c:out value="${job.getUser().getLastName()}" /></td>
 				</c:when>
