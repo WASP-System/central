@@ -140,6 +140,25 @@ public class Helptag extends SoftwarePackage{
 		return w;
 	}
 
+	/**
+	 * Set the helptag command. 
+	 * 
+	 * @param fileGroup
+	 * @return String
+	 */
+	private String getCommand(Set<FileGroup> fileGroupSet) {
+		
+		String command = "";
+
+		String optStr = "--base 27 --sort ";
+		
+		command += "mkdir " + OUTPUT_FOLDER + "\n";
+		logger.info("WorkUnit.INPUT_FILE: " + WorkUnit.INPUT_FILE);
+		//command += "/home/epigenscripts/bin/helptag_script.pl ${" + WorkUnit.INPUT_FILE + "[@]} " + optStr + " --outdir " + OUTPUT_FOLDER + "\n";
+		return command;
+	}
+
+	
 	
 	private WorkUnit prepareWorkUnit(FileGroup fg) {
 		WorkUnit w = new WorkUnit();
@@ -160,25 +179,6 @@ public class Helptag extends SoftwarePackage{
 	
 		return w;
 	}
-	
-	/**
-	 * Set the helptag command. 
-	 * 
-	 * @param fileGroup
-	 * @return String
-	 */
-	private String getCommand(Set<FileGroup> fileGroupSet) {
-		
-		String command = "";
-
-		String optStr = "--base 27 --sort ";
-		
-		command += "mkdir " + OUTPUT_FOLDER + "\n";
-		logger.info("WorkUnit.INPUT_FILE: " + WorkUnit.INPUT_FILE);
-		//command += "/home/epigenscripts/bin/helptag_script.pl ${" + WorkUnit.INPUT_FILE + "[@]} " + optStr + " --outdir " + OUTPUT_FOLDER + "\n";
-		return command;
-	}
-
 	
 	private Build getGenomeBuild(SampleSource cellLibrary) {
 		Build build = null;
