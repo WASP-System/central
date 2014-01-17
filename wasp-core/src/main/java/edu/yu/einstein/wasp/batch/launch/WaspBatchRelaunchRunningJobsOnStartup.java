@@ -15,6 +15,7 @@ import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.explore.wasp.WaspJobExplorer;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 
@@ -34,12 +35,16 @@ public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunni
 	private JobRepository jobRepository;
 	
 	private BatchJobHibernationManager hibernationManager;
+	
+	private Long initialExponentialInterval;
 
-	public WaspBatchRelaunchRunningJobsOnStartup(JobRepository jobRepository, JobExplorer jobExplorer, JobOperator jobOperator, BatchJobHibernationManager hibernationManager) {
+	public WaspBatchRelaunchRunningJobsOnStartup(JobRepository jobRepository, JobExplorer jobExplorer, JobOperator jobOperator, 
+			BatchJobHibernationManager hibernationManager, Long initialExponentialInterval) {
 		this.jobRepository = jobRepository;
 		this.jobExplorer = (WaspJobExplorer) jobExplorer;
 		this.jobOperator = jobOperator;
 		this.hibernationManager = hibernationManager;
+		this.initialExponentialInterval = initialExponentialInterval;
 	}
 
 	public JobRepository getJobRepository() {
@@ -79,6 +84,7 @@ public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunni
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional
 	public void doLaunchAllRunningJobs(){
 		long oneSecondAgo = System.currentTimeMillis() - 1000; // set date one second in the past to avoid possible last execution job conflict
 		
@@ -87,6 +93,10 @@ public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunni
 		for (StepExecution se : jobExplorer.getStepExecutions(ExitStatus.HIBERNATING)){
 			hibernationManager.addMessageTemplatesForWakingJobStep(se.getJobExecutionId(), se.getId());
 			hibernationManager.addMessageTemplatesForAbandoningJobStep(se.getJobExecutionId(), se.getId());
+			if (hibernationManager.getWakeTimeInterval(se.getJobExecutionId(), se.getId()) != null){
+				hibernationManager.setWakeTimeInterval(se.getJobExecutionId(), se.getId(), initialExponentialInterval);
+				hibernationManager.addTimeIntervalForJobStep(se.getJobExecutionId(), se.getId(), initialExponentialInterval);
+			}
 		}
 		// First clean up all existing step executions in ExitStatus UNKNOWN or EXECUTING. We should set these to FAILED
 		Set<StepExecution> stepExecutionsToRestart = new HashSet<StepExecution>();

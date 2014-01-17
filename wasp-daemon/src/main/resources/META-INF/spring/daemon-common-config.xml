@@ -167,7 +167,10 @@
 		<constructor-arg name="jobOperator" ref="jobOperator" />
 		<constructor-arg name="jobExplorer" ref="jobExplorer" />
 		<constructor-arg name="hibernationManager" ref="batchJobHibernationManager" />
+		<constructor-arg name="initialExponentialInterval" value="${wasp.hibernation.retry.exponential.initialInterval:5000}" />
 	</bean>
+	
+	
 	
 	<bean id="batchJobTasks" class="edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask" />
 	

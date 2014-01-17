@@ -138,7 +138,10 @@ public class BatchJobHibernationManager {
 					} catch (WaspBatchJobExecutionException e){
 						logger.warn("Problem reawakening job execution : " + e.getLocalizedMessage());
 						unlockJobExecution(je, LockType.WAKE);
-					} 
+					} catch (Exception e1){
+						logger.warn("Problem reawakening job execution. Caught " + e1.getClass().getName() + " exception.: " + e1.getLocalizedMessage());
+						unlockJobExecution(je, LockType.WAKE);
+					}
 				}
 			}
 		}
@@ -238,7 +241,11 @@ public class BatchJobHibernationManager {
 					} catch (WaspBatchJobExecutionException e2){
 						logger.debug("Problem aborting job execution and cleaning up 'messageTemplatesAbandoningStepExecutions': " + e2.getLocalizedMessage());
 						unlockJobExecution(je, LockType.ABANDON);
-					} 
+					} catch (Exception e1){
+						logger.warn("Problem aborting job execution and cleaning up 'messageTemplatesAbandoningStepExecutions'. Caught " + 
+								e1.getClass().getName() + " exception.: " + e1.getLocalizedMessage());
+						unlockJobExecution(je, LockType.ABANDON);
+					}
 				}
 			}
 			if (pushMessageBackIntoQueueRequests > 0){
@@ -292,7 +299,11 @@ public class BatchJobHibernationManager {
 						pushMessageBackIntoQueueRequests++;
 						unlockJobExecution(je, LockType.WAKE);
 						logger.debug("Problem reawakening job execution and cleaning up 'messageTemplatesWakingStepExecutions': " + e.getLocalizedMessage());
-					} 
+					} catch (Exception e1){
+						logger.warn("Problem reawakening job execution and cleaning up 'messageTemplatesAbandoningStepExecutions'. Caught " + 
+								e1.getClass().getName() + " exception.: " + e1.getLocalizedMessage());
+						unlockJobExecution(je, LockType.WAKE);
+					}
 				} 
 			}
 			if (pushMessageBackIntoQueueRequests > 0){
@@ -635,10 +646,23 @@ public class BatchJobHibernationManager {
 		} 
 	}
 	
-
+	/**
+	 * Record in the StepExecutionContext the time interval after which JobExecution running specified StepExecution should be re-awoken
+	 * @param jobExecutionId
+	 * @param stepExecutionId
+	 * @param timeInterval
+	 */
+	public void setWakeTimeInterval(Long jobExecutionId, Long stepExecutionId, Long timeInterval){
+		StepExecution stepExecution = jobExplorer.getStepExecution(jobExecutionId, stepExecutionId);
+		logger.debug("Setting wake-time interval=" + timeInterval);
+		ExecutionContext executionContext = stepExecution.getExecutionContext();
+		executionContext.put(TIME_TO_WAKE, timeInterval);
+		jobRepository.updateExecutionContext(stepExecution);
+	}
 	
 	/**
 	 * Record in the StepExecutionContext the time interval after which JobExecution running specified StepExecution should be re-awoken
+	 * This method does not update the jobRepository. Intended to be called from within a tasklet.
 	 * @param stepExecution
 	 * @param timeInterval
 	 */
@@ -646,7 +670,16 @@ public class BatchJobHibernationManager {
 		logger.debug("Setting wake-time interval=" + timeInterval);
 		ExecutionContext executionContext = stepExecution.getExecutionContext();
 		executionContext.put(TIME_TO_WAKE, timeInterval);
-		
+	}
+	
+	/**
+	 * Retrieve from the StepExecutionContext the time interval after which JobExecution running specified StepExecution should be re-awoken
+	 * @param jobExecutionId
+	 * @param stepExecutionId
+	 * @return
+	 */
+	public Long getWakeTimeInterval(Long jobExecutionId, Long stepExecutionId){
+		return getWakeTimeInterval(jobExplorer.getStepExecution(jobExecutionId, stepExecutionId));
 	}
 	
 	/**
@@ -705,7 +738,8 @@ public class BatchJobHibernationManager {
 	}
 	
 	/**
-	 * Record in the StepExecutionContext the messages which should trigger waking of the JobExecution 
+	 * Record in the StepExecutionContext the messages which should trigger waking of the JobExecution. 
+	 * This method does not update the jobRepository. Intended to be called from within a tasklet.
 	 * @param stepExecution
 	 * @param templates
 	 * @throws JSONException
