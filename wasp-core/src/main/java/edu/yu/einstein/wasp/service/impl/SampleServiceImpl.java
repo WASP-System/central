@@ -2968,14 +2968,29 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			Assert.assertParameterNotNull(sample, "sample cannot be null");
 			Assert.assertParameterNotNull(defaultValue, "defaultValue cannot be null");
 			String organismName = defaultValue; // default
-			try{	
-				Integer genomeId = Integer.parseInt(MetaHelper.getMetaValue(ORGANISM_META_AREA, ORGANISM_META_KEY, sample.getSampleMeta()));
-				organismName = genomeService.getOrganismMap().get(genomeId).getName();
+			Integer genomeId = null;
+			Sample tempSample = sample;
+			while(true){
+				try{	////System.out.println("-------at A where testSampleName (id) =" + tempSample.getName() + "(id is " + tempSample.getId() + ")");
+					genomeId = Integer.parseInt(MetaHelper.getMetaValue(ORGANISM_META_AREA, ORGANISM_META_KEY, tempSample.getSampleMeta()));
+					////System.out.println("-------at B where genomeId = " + genomeId);
+					organismName = genomeService.getOrganismMap().get(genomeId).getName();
+					////System.out.println("-------at C where organismName = " + organismName);
+					return organismName;
+				}
+				catch(Exception me){
+					///System.out.println("-------at D");
+					if(tempSample.getParentId()!=null){
+						////System.out.println("-------at E");
+						tempSample = tempSample.getParent();
+						continue;
+					}
+					////System.out.println("-------at F");
+					logger.debug("Unable to identify organism for sampleId " + sample.getId() + " assuming it is of type 'Other'");
+					organismName="Other";
+					return organismName;
+				}
 			}
-			catch(Exception me){
-				logger.debug("Unable to identify organism for sampleId " + sample.getId() + " assuming it is of type 'Other'");
-			}
-			return organismName;
 		}
 
 		@Override
