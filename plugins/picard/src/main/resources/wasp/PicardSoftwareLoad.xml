@@ -14,24 +14,24 @@
   </bean>
 
   <bean id="picard" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
-  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.picard.software.Picard</value></property>
+    <property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.picard.software.Picard</value></property>
     <property name="name" value="Picard" />
     <property name="description" value="A tool for working with NGS data in BAM format" />
     <property name="area" ref="picardPluginArea" />
     <property name="resourceType" ref="genericPluginResourceType" /> <!-- TODO: choose a more appropriate resource type -->
+
+    <property name="metaFromWrapper">
+    <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
+    <property name="area" ref="picardAlignerArea" />
+    <property name="metaList">
+    <list>
+    <value>#{waspSoftware['currentVersion']}=1.104</value>
+    <value>#{waspSoftware['priorVersions']}=</value>
+    </list>
+    </property>
+    </bean>
+    </property>
 	
-	<property name="metaFromWrapper">
-       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" ref="picardPluginArea" />
-         <!-- Load any software metadata 
-         <property name="metaList">
-         	<list>
-         		<value>picard.myMetaValue=foo</value>
-         	</list>
-       	 </property>
-       	 -->
-       </bean>
-    </property> 
   </bean> 
 
 </beans>
