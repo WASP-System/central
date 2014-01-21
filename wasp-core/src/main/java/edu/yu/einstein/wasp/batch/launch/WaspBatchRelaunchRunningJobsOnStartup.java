@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.batch.launch;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -84,24 +85,16 @@ public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunni
 	 * {@inheritDoc}
 	 */
 	@Override
-	@Transactional
+	// don't use @Transactional here as otherwise prevents restarts
 	public void doLaunchAllRunningJobs(){
 		long oneSecondAgo = System.currentTimeMillis() - 1000; // set date one second in the past to avoid possible last execution job conflict
+		List<StepExecution> hibernatingStepExecutions = jobExplorer.getStepExecutions(ExitStatus.HIBERNATING); 
 		
-		// re-populate hibernation manager with all persisted messages to wake steps
-		logger.debug("Re-populate hibernation manager...");
-		for (StepExecution se : jobExplorer.getStepExecutions(ExitStatus.HIBERNATING)){
-			hibernationManager.addMessageTemplatesForWakingJobStep(se.getJobExecutionId(), se.getId());
-			hibernationManager.addMessageTemplatesForAbandoningJobStep(se.getJobExecutionId(), se.getId());
-			if (hibernationManager.getWakeTimeInterval(se.getJobExecutionId(), se.getId()) != null){
-				hibernationManager.setWakeTimeInterval(se.getJobExecutionId(), se.getId(), initialExponentialInterval);
-				hibernationManager.addTimeIntervalForJobStep(se.getJobExecutionId(), se.getId(), initialExponentialInterval);
-			}
-		}
-		// First clean up all existing step executions in ExitStatus UNKNOWN or EXECUTING. We should set these to FAILED
 		Set<StepExecution> stepExecutionsToRestart = new HashSet<StepExecution>();
 		stepExecutionsToRestart.addAll(jobExplorer.getStepExecutions(ExitStatus.UNKNOWN));
 		stepExecutionsToRestart.addAll(jobExplorer.getStepExecutions(ExitStatus.EXECUTING));
+		
+		// First clean up all existing step executions in ExitStatus UNKNOWN or EXECUTING. We should set these to FAILED
 		for (StepExecution stepExecution: stepExecutionsToRestart){
 			stepExecution.setStatus(BatchStatus.FAILED);
         	stepExecution.setExitStatus(new ExitStatus("FAILED", "Failed because wasp-daemon was shutdown inproperly (was found in an active state on startup)"));
@@ -129,6 +122,17 @@ public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunni
 				jobOperator.restart(jobExecution.getId());
 			} catch(Exception e){
 				logger.warn("Failed to restart job '" + jobName + "' [" + jobExecution + "] : " + e.getMessage());
+			}
+		}
+		
+		// re-populate hibernation manager with all persisted messages to wake steps
+		logger.debug("Re-populate hibernation manager...");
+		for (StepExecution se : hibernatingStepExecutions){
+			hibernationManager.addMessageTemplatesForWakingJobStep(se.getJobExecutionId(), se.getId());
+			hibernationManager.addMessageTemplatesForAbandoningJobStep(se.getJobExecutionId(), se.getId());
+			if (hibernationManager.getWakeTimeInterval(se.getJobExecutionId(), se.getId()) != null){
+				hibernationManager.setWakeTimeInterval(se.getJobExecutionId(), se.getId(), initialExponentialInterval);
+				hibernationManager.addTimeIntervalForJobStep(se.getJobExecutionId(), se.getId(), initialExponentialInterval);
 			}
 		}
 	}
