@@ -141,9 +141,8 @@ public class CreatTargetTasklet extends WaspTasklet implements StepExecutionList
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ExitStatus afterStep(StepExecution arg0) {
-		// TODO Auto-generated method stub
-		return null;
+	public ExitStatus afterStep(StepExecution stepExecution) {
+		return super.afterStep(stepExecution);
 	}
 
 	/** 

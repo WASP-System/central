@@ -349,8 +349,11 @@ public abstract class WaspHibernatingTasklet implements NameAwareTasklet, BeanNa
 	
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution){
-		if (stepExecution.getExitStatus().isHibernating())
+		logger.debug("In after step for StepExecutionId=" + stepExecution.getId());
+		if (stepExecution.getExitStatus().isHibernating()){
+			logger.debug("StepExecutionId=" + stepExecution.getId() + " is now Hibernating so may be unlocked");
 			BatchJobHibernationManager.unlockJobExecution(stepExecution.getJobExecution(), LockType.HIBERNATE);
+		}
 		if (!stepExecution.getExitStatus().isRunning()){
 			// make sure all messages from this step are removed from the hibernation manager to avoid a memory leak
 			hibernationManager.removeStepExecutionFromWakeMessageMap(stepExecution);

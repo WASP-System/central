@@ -122,9 +122,8 @@ public class LocalAlignTasklet extends WaspTasklet implements StepExecutionListe
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ExitStatus afterStep(StepExecution arg0) {
-		// TODO Auto-generated method stub
-		return null;
+	public ExitStatus afterStep(StepExecution stepExecution) {
+		return super.afterStep(stepExecution);
 	}
 
 	/**
