@@ -108,6 +108,7 @@
 							</ul>
 						</li>
 						<li><a href='<c:url value="/run/list.do"/>'><fmt:message key="menu.sequenceRuns.label" /></a></li>
+						<li><a href='<c:url value="/batchJobStatusViewer/list.do"/>'><fmt:message key="menu.batchJobStatusViewer.label" /></a></li>
 					</ul>
 				</li>
 			</sec:authorize>
