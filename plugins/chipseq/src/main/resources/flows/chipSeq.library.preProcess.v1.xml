@@ -5,14 +5,10 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
 		
-	<!-- for dispatching job, call with parameters 'jobId' and 'libraryId' -->
-	<batch:flow id="chipSeq.library.preProcess.flow.v1" >
-		<batch:step id="genericDnaSeq.library.preProcess.flow.v1" />
-	</batch:flow>
-	
-	<batch:flow id="chipSeq.library.preProcess.exitCondition">
-		<!-- will receive message of COMPLETED if the 'chipSeq.library.preProcess.flow.v1' flow is finished -->
-		<!-- or if the job is aborted with an ABANDONED /FAILED message at time e.g. via a message from the web layer -->
+
+	<!-- will receive message of COMPLETED if the 'chipSeq.library.preProcess.flow.v1' flow is finished -->
+	<!-- or if the job is aborted with an ABANDONED /FAILED message at time e.g. via a message from the web layer -->
+	<batch:flow id="chipSeq.library.preProcess.exitCondition">		
 		<batch:step id="chipSeq.library.preProcess.step.listenForExitCondition">
 			<batch:tasklet>
 						<batch:transaction-attributes propagation="NEVER"/>
@@ -36,14 +32,14 @@
 					<property name="name" value="waspJobExitCondition" />
 				</bean>	
 			</batch:tasklet>
-		</batch:step>
+		</batch:step>		
 	</batch:flow>
 	
-	<!-- for dispatching job, call with parameters 'jobId' and 'libraryId' -->
+	<!-- for dispatching job, call with parameters 'jobId' and 'libraryId' -->	 
 	<batch:job id="chipSeq.library.preProcess.jobflow.v1" restartable="true" >
 		<batch:split id="default.waspJob.jobFlow.split" task-executor="taskExecutor">
-			<batch:flow parent="chipSeq.library.preProcess.flow.v1" />
-			<batch:flow parent="chipSeq.library.preProcess.exitCondition" />
+			<batch:flow parent="genericDnaSeq.library.preProcess.flow.v1" /> <!-- this is externally defined in genericDnaSeq -->
+			<batch:flow parent="chipSeq.library.preProcess.exitCondition" /> <!-- this is defined above, in this file -->
 		</batch:split>
 	</batch:job>
 
