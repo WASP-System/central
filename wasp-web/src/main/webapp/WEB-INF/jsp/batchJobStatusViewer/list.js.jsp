@@ -1,179 +1,301 @@
 <script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/ext-all-dev.js"></script>
 <script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/packages/ext-theme-neptune/build/ext-theme-neptune.js"></script>
 <link rel="stylesheet" type="text/css" href="/wasp/css/ext-theme-neptune-all-wasp.css" />
-<%-- link rel="stylesheet" type="text/css" href="/wasp/css/portal.css" /--%>
-<%-- link rel="stylesheet" type="text/css" href="/wasp/css/RowActions.css" /--%>
+
+<style type="text/css">
+    .task {
+        background-image: url(/wasp/css/ext/images/icons/fam/cog.gif) !important;
+    }
+    .task-folder {
+        background-image: url(/wasp/css/ext/images/icons/fam/folder_go.gif) !important;
+    }
+</style>
 
 
 <script type="text/javascript">
 
 Ext.require([
-             'Ext.grid.*',
-             'Ext.data.*',
-             'Ext.form.field.Number',
-             'Ext.form.field.Date',
-             'Ext.tip.QuickTipManager'
-         ]);
+    'Ext.data.*',
+    'Ext.grid.*',
+    'Ext.tree.*',
+    'Ext.tip.*'
+]);
 
-         Ext.define('Task', {
-             extend: 'Ext.data.Model',
-             idProperty: 'taskId',
-             fields: [
-                 {name: 'projectId', type: 'int'},
-                 {name: 'project', type: 'string'},
-                 {name: 'taskId', type: 'int'},
-                 {name: 'description', type: 'string'},
-                 {name: 'estimate', type: 'float'},
-                 {name: 'rate', type: 'float'},
-                 {name: 'cost', type: 'float'},
-                 {name: 'due', type: 'date', dateFormat:'m/d/Y'}
-             ]
-         });
+//we want to setup a model and store instead of using dataUrl
+Ext.define('Task', {
+    extend: 'Ext.data.TreeModel',
+    fields: [
+        {name: 'task',     type: 'string'},
+        {name: 'user',     type: 'string'},
+        {name: 'duration', type: 'string'},
+        {name: 'done',     type: 'boolean'}
+    ]
+});
 
-         var data = [
-             {projectId: 100, project: 'Ext Forms: Field Anchoring', taskId: 112, description: 'Integrate 2.0 Forms with 2.0 Layouts', estimate: 6, rate: 150, due:'06/24/2007'},
-             {projectId: 100, project: 'Ext Forms: Field Anchoring', taskId: 113, description: 'Implement AnchorLayout', estimate: 4, rate: 150, due:'06/25/2007'},
-             {projectId: 100, project: 'Ext Forms: Field Anchoring', taskId: 114, description: 'Add support for multiple types of anchors', estimate: 4, rate: 150, due:'06/27/2007'},
-             {projectId: 100, project: 'Ext Forms: Field Anchoring', taskId: 115, description: 'Testing and debugging', estimate: 8, rate: 0, due:'06/29/2007'},
-             {projectId: 101, project: 'Ext Grid: Single-level Grouping', taskId: 101, description: 'Add required rendering "hooks" to GridView', estimate: 6, rate: 100, due:'07/01/2007'},
-             {projectId: 101, project: 'Ext Grid: Single-level Grouping', taskId: 102, description: 'Extend GridView and override rendering functions', estimate: 6, rate: 100, due:'07/03/2007'},
-             {projectId: 101, project: 'Ext Grid: Single-level Grouping', taskId: 103, description: 'Extend Store with grouping functionality', estimate: 4, rate: 100, due:'07/04/2007'},
-             {projectId: 101, project: 'Ext Grid: Single-level Grouping', taskId: 121, description: 'Default CSS Styling', estimate: 2, rate: 100, due:'07/05/2007'},
-             {projectId: 101, project: 'Ext Grid: Single-level Grouping', taskId: 104, description: 'Testing and debugging', estimate: 6, rate: 100, due:'07/06/2007'},
-             {projectId: 102, project: 'Ext Grid: Summary Rows', taskId: 105, description: 'Ext Grid plugin integration', estimate: 4, rate: 125, due:'07/01/2007'},
-             {projectId: 102, project: 'Ext Grid: Summary Rows', taskId: 106, description: 'Summary creation during rendering phase', estimate: 4, rate: 125, due:'07/02/2007'},
-             {projectId: 102, project: 'Ext Grid: Summary Rows', taskId: 107, description: 'Dynamic summary updates in editor grids', estimate: 6, rate: 125, due:'07/05/2007'},
-             {projectId: 102, project: 'Ext Grid: Summary Rows', taskId: 108, description: 'Remote summary integration', estimate: 4, rate: 125, due:'07/05/2007'},
-             {projectId: 102, project: 'Ext Grid: Summary Rows', taskId: 109, description: 'Summary renderers and calculators', estimate: 4, rate: 125, due:'07/06/2007'},
-             {projectId: 102, project: 'Ext Grid: Summary Rows', taskId: 110, description: 'Integrate summaries with GroupingView', estimate: 10, rate: 125, due:'07/11/2007'},
-             {projectId: 102, project: 'Ext Grid: Summary Rows', taskId: 111, description: 'Testing and debugging', estimate: 8, rate: 125, due:'07/15/2007'}
-         ];
+Ext.onReady(function() {
+    Ext.tip.QuickTipManager.init();
 
-         Ext.onReady(function(){
-             
-             Ext.tip.QuickTipManager.init();
-             
-             var store = Ext.create('Ext.data.Store', {
-                 model: 'Task',
-                 data: data,
-                 sorters: {property: 'due', direction: 'ASC'},
-                 groupField: 'project'
-             });
+    var store = Ext.create('Ext.data.TreeStore', {
+        model: 'Task',
+        proxy: {
+            type: 'ajax',
+            //the store will get the content from the .json file
+            url: 'getDetailsJson.do'
+        },
+        root: {
+        	nodeType: 'async',
+        	text: '.',
+        	id:'node-root'
+        },
+        folderSort: true
+    });
 
-             var cellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
-                 clicksToEdit: 1
-             });
-             var showSummary = true;
-             var grid = Ext.create('Ext.grid.Panel', {
-            	 width: $('#content').width(),
-                 height: $('#content').height(),
-                 frame: true,
-                 title: 'Sponsored Projects',
-                 iconCls: 'icon-grid',
-                 renderTo: 'batchJobStatusViewer',
-                 store: store,
-                 plugins: [cellEditing],
-                 dockedItems: [{
-                     dock: 'top',
-                     xtype: 'toolbar',
-                     items: [{
-                         tooltip: 'Toggle the visibility of the summary row',
-                         text: 'Toggle Summary',
-                         enableToggle: true,
-                         pressed: true,
-                         handler: function(){
-                             var view = grid.getView();
-                             showSummary = !showSummary;
-                             view.getFeature('group').toggleSummaryRow(showSummary);
-                             view.refresh();
-                         }
-                     }]
-                 }],
-                 features: [{
-                     id: 'group',
-                     ftype: 'groupingsummary',
-                     groupHeaderTpl: '{name}',
-                     hideGroupedHeader: true,
-                     enableGroupingMenu: false
-                 }],
-                 columns: [{
-                     text: 'Task',
-                     flex: 1,
-                     tdCls: 'task',
-                     sortable: true,
-                     dataIndex: 'description',
-                     hideable: false,
-                     summaryType: 'count',
-                     summaryRenderer: function(value, summaryData, dataIndex) {
-                         return ((value === 0 || value > 1) ? '(' + value + ' Tasks)' : '(1 Task)');
-                     }
-                 }, {
-                     header: 'Project',
-                     width: 180,
-                     sortable: true,
-                     dataIndex: 'project'
-                 }, {
-                     header: 'Due Date',
-                     width: 80,
-                     sortable: true,
-                     dataIndex: 'due',
-                     summaryType: 'max',
-                     renderer: Ext.util.Format.dateRenderer('m/d/Y'),
-                     summaryRenderer: Ext.util.Format.dateRenderer('m/d/Y'),
-                     field: {
-                         xtype: 'datefield'
-                     }
-                 }, {
-                     header: 'Estimate',
-                     width: 75,
-                     sortable: true,
-                     dataIndex: 'estimate',
-                     summaryType: 'sum',
-                     renderer: function(value, metaData, record, rowIdx, colIdx, store, view){
-                         return value + ' hours';
-                     },
-                     summaryRenderer: function(value, summaryData, dataIndex) {
-                         return value + ' hours';
-                     },
-                     field: {
-                         xtype: 'numberfield'
-                     }
-                 }, {
-                     header: 'Rate',
-                     width: 75,
-                     sortable: true,
-                     renderer: Ext.util.Format.usMoney,
-                     summaryRenderer: Ext.util.Format.usMoney,
-                     dataIndex: 'rate',
-                     summaryType: 'average',
-                     field: {
-                         xtype: 'numberfield'
-                     }
-                 }, {
-                     id: 'cost',
-                     header: 'Cost',
-                     width: 75,
-                     sortable: false,
-                     groupable: false,
-                     renderer: function(value, metaData, record, rowIdx, colIdx, store, view) {
-                         return Ext.util.Format.usMoney(record.get('estimate') * record.get('rate'));
-                     },
-                     dataIndex: 'cost',
-                     summaryType: function(records){
-                         var i = 0,
-                             length = records.length,
-                             total = 0,
-                             record;
+    //Ext.ux.tree.TreeGrid is no longer a Ux. You can simply use a tree.TreePanel
+    var tree = Ext.create('Ext.tree.Panel', {
+        title: 'Core Team Projects',
+        width: $('#content').width(),
+        height: $('#content').height(),
+        renderTo: 'batchJobStatusViewer',
+        collapsible: true,
+        useArrows: true,
+        rootVisible: false,
+        store: store,
+        multiSelect: true,
+        columns: [{
+            xtype: 'treecolumn', //this is so we know which column will show the tree
+            text: 'Task',
+            width: 200,
+            sortable: true,
+            dataIndex: 'task',
+            locked: true
+        }, {
+            //we must use the templateheader component so we can use a custom tpl
+            xtype: 'templatecolumn',
+            text: 'Duration',
+            width: 150,
+            sortable: true,
+            dataIndex: 'duration',
+            align: 'center',
+            //add in the custom tpl for the rows
+            tpl: Ext.create('Ext.XTemplate', '{duration:this.formatHours}', {
+                formatHours: function(v) {
+                    if (v < 1) {
+                        return Math.round(v * 60) + ' mins';
+                    } else if (Math.floor(v) !== v) {
+                        var min = v - Math.floor(v);
+                        return Math.floor(v) + 'h ' + Math.round(min * 60) + 'm';
+                    } else {
+                        return v + ' hour' + (v === 1 ? '' : 's');
+                    }
+                }
+            })
+        }, {
+            text: 'Assigned To',
+            width: 150,
+            dataIndex: 'user',
+            sortable: true
+        }]
+    });
+    jQuery(window).bind('resize', function () {
+   	 tree.setWidth($('#content').width());
+   	 tree.setHeight($('#content').height());
+	}).trigger('resize');
+});
 
-                         for (; i < length; ++i) {
-                             record = records[i];
-                             total += record.get('estimate') * record.get('rate');
-                         }
-                         return total;
-                     },
-                     summaryRenderer: Ext.util.Format.usMoney
-                 }]
-             });
-         });
+
+<%--
+json response is:
+
+ {
+    "text": ".",
+    "children": [
+        {
+            "task": "Project: Shopping",
+            "duration": 13.25,
+            "user": "Tommy Maintz",
+            "iconCls": "task-folder",
+            "expanded": true,
+            "children": [
+                {
+                    "task": "Housewares",
+                    "duration": 1.25,
+                    "user": "Tommy Maintz",
+                    "iconCls": "task-folder",
+                    "children": [
+                        {
+                            "task": "Kitchen supplies",
+                            "duration": 0.25,
+                            "user": "Tommy Maintz",
+                            "leaf": true,
+                            "iconCls": "task"
+                        }, {
+                            "task": "Groceries",
+                            "duration": .4,
+                            "user": "Tommy Maintz",
+                            "leaf": true,
+                            "iconCls": "task",
+                            "done": true
+                        }, {
+                            "task": "Cleaning supplies",
+                            "duration": .4,
+                            "user": "Tommy Maintz",
+                            "leaf": true,
+                            "iconCls": "task"
+                        }, {
+                            "task": "Office supplies",
+                            "duration": .2,
+                            "user": "Tommy Maintz",
+                            "leaf": true,
+                            "iconCls": "task"
+                        }
+                    ]
+                }, {
+                    "task": "Remodeling",
+                    "duration": 12,
+                    "user": "Tommy Maintz",
+                    "iconCls": "task-folder",
+                    "expanded": true,
+                    "children": [
+                        {
+                            "task": "Retile kitchen",
+                            "duration": 6.5,
+                            "user": "Tommy Maintz",
+                            "leaf": true,
+                            "iconCls": "task"
+                        }, {
+                            "task": "Paint bedroom",
+                            "duration": 2.75,
+                            "user": "Tommy Maintz",
+                            "iconCls": "task-folder",
+                            "children": [
+                                {
+                                    "task": "Ceiling",
+                                    "duration": 1.25,
+                                    "user": "Tommy Maintz",
+                                    "iconCls": "task",
+                                    "leaf": true
+                                }, {
+                                    "task": "Walls",
+                                    "duration": 1.5,
+                                    "user": "Tommy Maintz",
+                                    "iconCls": "task",
+                                    "leaf": true
+                                }
+                            ]
+                        }, {
+                            "task": "Decorate living room",
+                            "duration": 2.75,
+                            "user": "Tommy Maintz",
+                            "leaf": true,
+                            "iconCls": "task",
+                            "done": true
+                        }, {
+                            "task": "Fix lights",
+                            "duration": .75,
+                            "user": "Tommy Maintz",
+                            "leaf": true,
+                            "iconCls": "task",
+                            "done": true
+                        }, {
+                            "task": "Reattach screen door",
+                            "duration": 2,
+                            "user": "Tommy Maintz",
+                            "leaf": true,
+                            "iconCls": "task"
+                        }
+                    ]
+                }
+            ]
+        }, {
+            "task": "Project: Testing",
+            "duration": 2,
+            "user": "Core Team",
+            "iconCls": "task-folder",
+            "children": [
+                {
+                    "task": "Mac OSX",
+                    "duration": 0.75,
+                    "user": "Tommy Maintz",
+                    "iconCls": "task-folder",
+                    "children": [
+                        {
+                            "task": "FireFox",
+                            "duration": 0.25,
+                            "user": "Tommy Maintz",
+                            "iconCls": "task",
+                            "leaf": true
+                        }, {
+                            "task": "Safari",
+                            "duration": 0.25,
+                            "user": "Tommy Maintz",
+                            "iconCls": "task",
+                            "leaf": true
+                        }, {
+                            "task": "Chrome",
+                            "duration": 0.25,
+                            "user": "Tommy Maintz",
+                            "iconCls": "task",
+                            "leaf": true
+                        }
+                    ]
+                }, {
+                    "task": "Windows",
+                    "duration": 3.75,
+                    "user": "Darrell Meyer",
+                    "iconCls": "task-folder",
+                    "children": [
+                        {
+                            "task": "FireFox",
+                            "duration": 0.25,
+                            "user": "Darrell Meyer",
+                            "iconCls": "task",
+                            "leaf": true
+                        }, {
+                            "task": "Safari",
+                            "duration": 0.25,
+                            "user": "Darrell Meyer",
+                            "iconCls": "task",
+                            "leaf": true
+                        }, {
+                            "task": "Chrome",
+                            "duration": 0.25,
+                            "user": "Darrell Meyer",
+                            "iconCls": "task",
+                            "leaf": true
+                        }, {
+                            "task": "Internet Explorer",
+                            "duration": 3,
+                            "user": "Darrell Meyer",
+                            "iconCls": "task",
+                            "leaf": true
+                        }
+                    ]
+                }, {
+                    "task": "Linux",
+                    "duration": 0.5,
+                    "user": "Aaron Conran",
+                    "iconCls": "task-folder",
+                    "children": [
+                        {
+                            "task": "FireFox",
+                            "duration": 0.25,
+                            "user": "Aaron Conran",
+                            "iconCls": "task",
+                            "leaf": true
+                        }, {
+                            "task": "Chrome",
+                            "duration": 0.25,
+                            "user": "Aaron Conran",
+                            "iconCls": "task",
+                            "leaf": true
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
+
+--%>
 
 </script>
