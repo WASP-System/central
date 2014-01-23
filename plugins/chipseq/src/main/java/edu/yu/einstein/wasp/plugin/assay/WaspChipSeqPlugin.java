@@ -3,8 +3,12 @@
  */
 package edu.yu.einstein.wasp.plugin.assay;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +19,10 @@ import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.Hyperlink;
 import edu.yu.einstein.wasp.exception.PanelException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
+import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -74,19 +80,77 @@ public class WaspChipSeqPlugin extends WaspPlugin implements
 	 * @return
 	 */
 	public Message<String> helloWorld(Message<String> m) {
-		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
+		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help")){
 			return helloWorldHelp();
-
+		}
+		
 		logger.info("******************************public method: Hello World from WaspChipSeqPlugin!");
 			
 		return (Message<String>) MessageBuilder.withPayload("sent a Hello World message from the wasp_chip_seq_plugin").build();
 	}
 	
 	private Message<String> helloWorldHelp() {
-		String mstr = "\n********************the message string set in chipseq helloWorldHelp: hello world, HELP!\n" +
+		String mstr = "\nthe message string set in chipseq helloWorldHelp: hello world, HELP!\n" +
 				"wasp -T chipseq -t helloWorld\n";
 		return MessageBuilder.withPayload(mstr).build();
 	}
+	
+	public Message<String> launchTestFlow(Message<String> m) {
+		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
+			return launchTestFlowHelp();
+		
+		logger.info("************************public method: test flow within WaspChipSeqPlugin!");
+		m = MessageBuilder.withPayload("{\"id\":\"1\"}").build();
+		//////try {
+			Integer id = getIDFromMessage(m);
+			if (id == null){
+				return MessageBuilder.withPayload("Unable to determine id from message: " + m.getPayload().toString()).build();
+			}
+			
+			Map<String, String> jobParameters = new HashMap<String, String>();
+			//////logger.info("Sending launch message with flow " + PREP_FLOW_NAME + " and id: " + id);
+//			jobParameters.put(WaspSoftwareJobParameters.LIBRARY_CELL_ID_LIST, id.toString());
+//			jobParameters.put(WaspSoftwareJobParameters.GENOME, "10090::GRCm38::70");
+//			jobParameters.put("test", new Date().toString());
+			
+			jobParameters.put(WaspJobParameters.LIBRARY_CELL_ID, id.toString());
+			//////waspMessageHandlingService.launchBatchJob(PREP_FLOW_NAME, jobParameters);
+			return (Message<String>) MessageBuilder.withPayload("Initiating chipseq test flow on id " + id).build();
+		//////} ///////catch (WaspMessageBuildingException e1) {
+			//////logger.warn("unable to build message to launch batch job " + PREP_FLOW_NAME);
+			//////return MessageBuilder.withPayload("Unable to launch batch job " + PREP_FLOW_NAME).build();
+			//////return MessageBuilder.withPayload("Unable to launch batch job " /*+ PREP_FLOW_NAME*/ ).build();
+		//////}
+		
+	}
+	
+	private Message<String> launchTestFlowHelp() {
+		String mstr = "\ninside launchTestFlowHelp within the WaspChipSeqPlugin: launch the test flow.\n" +
+				"wasp -T chipseq -t launchTestFlow -m \'{id:\"1\"}\'\n";
+		return MessageBuilder.withPayload(mstr).build();
+	}
+	
+	/**
+	 * 
+	 * @param m
+	 * @return 
+	 */
+	public Integer getIDFromMessage(Message<String> m) {
+		Integer id = null;
+		
+		JSONObject jo;
+		try {
+			jo = new JSONObject(m.getPayload().toString());
+			if (jo.has("id")) {
+				id = new Integer(jo.get("id").toString());
+			} 
+		} catch (JSONException e) {
+			logger.warn("*************unable to parse JSON");
+		}
+		return id;
+	}
+	
+	
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
