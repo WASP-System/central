@@ -60,6 +60,15 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 	@Autowired
 	private String truseqIndexedDnaArea;
 	
+	public static final String SINGLE_INDEX_SAMPLE_SHEET_NAME = "waspSingleSampleSheet.csv";
+	public static final String DUAL_INDEX_SAMPLE_SHEET_NAME = "waspDualSampleSheet.csv";
+	
+	public static final String SINGLE_INDEX_OUTPUT_FOLDER_NAME = "waspSingleUnaligned";
+	public static final String DUAL_INDEX_OUTPUT_FOLDER_NAME = "waspDualUnaligned";
+	
+	public static final String SINGLE_INDEX_SEMAPHORE = "wasp_single_begin.txt";
+	public static final String DUAL_INDEX_SEMAPHORE = "wasp_dual_begin.txt";
+	
 	public IlluminaHiseqSequenceRunProcessor(){
 		setSoftwareVersion("1.8.2"); // this default may be overridden in wasp.site.properties
 	}
@@ -111,9 +120,9 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 		
 		String sampleSheetName;
 		if (method == IndexType.SINGLE) {
-		    sampleSheetName = "SampleSheet.csv";
+		    sampleSheetName = IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_SAMPLE_SHEET_NAME;
 		} else {
-		    sampleSheetName = "DualSampleSheet.csv";
+		    sampleSheetName = IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_SAMPLE_SHEET_NAME;
 		}
 		
 		try {

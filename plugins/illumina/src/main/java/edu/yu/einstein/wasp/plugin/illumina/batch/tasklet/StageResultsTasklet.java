@@ -92,21 +92,31 @@ public class StageResultsTasklet extends WaspTasklet {
 		w.setCommand("mkdir -p ${WASP_RESULT_DIR}/Project_WASP");
 		
 		// copy files from single barcode truseq run
-		w.addCommand("if [ -e Unaligned ]; then");
-		w.addCommand("mkdir ${WASP_RESULT_DIR}/Unaligned");
-		w.addCommand("cp -f Unaligned/*.xml ${WASP_RESULT_DIR}/Unaligned/");
-		w.addCommand("cp -f Unaligned/*.txt ${WASP_RESULT_DIR}/Unaligned/");
-		w.addCommand("cp -fR Unaligned/Project_WASP/* ${WASP_RESULT_DIR}/Project_WASP/");
-		w.addCommand("cp -fR Unaligned/Undetermined_indices ${WASP_RESULT_DIR}/Unaligned/");
+		w.addCommand("if [ -e " + IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + " ]; then");
+		w.addCommand("mkdir ${WASP_RESULT_DIR}/" + IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME);
+		w.addCommand("cp -f " + IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/*.xml ${WASP_RESULT_DIR}/" + 
+		        IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/");
+		w.addCommand("cp -f " + IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/*.txt ${WASP_RESULT_DIR}/" + 
+		        IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/");
+		w.addCommand("cp -fR " + IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/Project_WASP/* ${WASP_RESULT_DIR}/Project_WASP/");
+		w.addCommand("if [ -e " + IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/Undetermined_indices ]; then\n" +
+		        "  cp -fR " + IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/Undetermined_indices ${WASP_RESULT_DIR}/" + 
+		            IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/\n" +
+		        "fi");
 		w.addCommand("fi");
 		
 		// copy files from dual barcode truseq run
-		w.addCommand("if [ -e DualUnaligned ]; then");
-		w.addCommand("mkdir ${WASP_RESULT_DIR}/DualUnaligned");
-		w.addCommand("cp -f DualUnaligned/*.xml ${WASP_RESULT_DIR}/DualUnaligned/");
-		w.addCommand("cp -f DualUnaligned/*.txt ${WASP_RESULT_DIR}/DualUnaligned/");
-		w.addCommand("cp -fR DualUnaligned/Project_WASP/* ${WASP_RESULT_DIR}/Project_WASP/");
-		w.addCommand("cp -fR DualUnaligned/Undetermined_indices ${WASP_RESULT_DIR}/DualUnaligned/");
+		w.addCommand("if [ -e " + IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + " ]; then");
+		w.addCommand("mkdir ${WASP_RESULT_DIR}/" + IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME);
+		w.addCommand("cp -f " + IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/*.xml ${WASP_RESULT_DIR}/" + 
+		        IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/");
+		w.addCommand("cp -f " + IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/*.txt ${WASP_RESULT_DIR}/" + 
+		        IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/");
+		w.addCommand("cp -fR " + IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/Project_WASP/* ${WASP_RESULT_DIR}/Project_WASP/");
+		w.addCommand("if [ -e " + IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/Undetermined_indices ]; then\n" +
+		        "  cp -fR " + IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/Undetermined_indices ${WASP_RESULT_DIR}/" + 
+		            IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/\n" +
+		        "fi");
 		w.addCommand("fi");
 		
 		// copy run-specific files
