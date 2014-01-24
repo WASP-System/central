@@ -3,6 +3,7 @@
  */
 package edu.yu.einstein.wasp.plugin.assay;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -100,8 +101,8 @@ public class WaspChipSeqPlugin extends WaspPlugin implements
 			return launchTestFlowHelp();
 		
 		logger.info("************************public method: test flow within WaspChipSeqPlugin!");
-		m = MessageBuilder.withPayload("{\"id\":\"1\"}").build();
-		//////try {
+		m = MessageBuilder.withPayload("{\"id\":\"14\"}").build();
+		try {
 			Integer id = getIDFromMessage(m);
 			if (id == null){
 				return MessageBuilder.withPayload("Unable to determine id from message: " + m.getPayload().toString()).build();
@@ -111,16 +112,19 @@ public class WaspChipSeqPlugin extends WaspPlugin implements
 			//////logger.info("Sending launch message with flow " + PREP_FLOW_NAME + " and id: " + id);
 //			jobParameters.put(WaspSoftwareJobParameters.LIBRARY_CELL_ID_LIST, id.toString());
 //			jobParameters.put(WaspSoftwareJobParameters.GENOME, "10090::GRCm38::70");
-//			jobParameters.put("test", new Date().toString());
+			jobParameters.put("test", new Date().toString());
 			
 			jobParameters.put(WaspJobParameters.LIBRARY_CELL_ID, id.toString());
-			//////waspMessageHandlingService.launchBatchJob(PREP_FLOW_NAME, jobParameters);
-			return (Message<String>) MessageBuilder.withPayload("Initiating chipseq test flow on id " + id).build();
-		//////} ///////catch (WaspMessageBuildingException e1) {
-			//////logger.warn("unable to build message to launch batch job " + PREP_FLOW_NAME);
-			//////return MessageBuilder.withPayload("Unable to launch batch job " + PREP_FLOW_NAME).build();
-			//////return MessageBuilder.withPayload("Unable to launch batch job " /*+ PREP_FLOW_NAME*/ ).build();
-		//////}
+			waspMessageHandlingService.launchBatchJob(AGGREGATE_ANALYSIS_JOB, jobParameters);
+			logger.info("***************Initiating chipseq test flow in WaspChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB + " on id " + id);
+			return (Message<String>) MessageBuilder.withPayload("Initiating chipseq test flow: "+AGGREGATE_ANALYSIS_JOB + " on id " + id).build();
+		} catch (WaspMessageBuildingException e1) {
+			logger.warn("***************Unable to build launch batch job from WaspChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB);
+			return MessageBuilder.withPayload("Unable to launch batch job from WaspChipSeqPlugin:" + AGGREGATE_ANALYSIS_JOB).build();
+		}catch (Exception e1) {
+			logger.warn("***************Exception: Unable to build launch batch job from WaspChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB);
+			return MessageBuilder.withPayload("Exception: Unable to launch batch job from WaspChipSeqPlugin:" + AGGREGATE_ANALYSIS_JOB).build();
+		}
 		
 	}
 	

@@ -59,17 +59,32 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 	
 	private StepExecution stepExecution;
 	
-	@Autowired
+//	@Autowired
 //	private GATKSoftwareComponent gatk;
 
 	public PeakCallerTasklet() {
 		// proxy
 	}
 
-	public PeakCallerTasklet(String cellLibraryIds) {
-		List<Integer> cids = WaspSoftwareJobParameters.getLibraryCellIdList(cellLibraryIds);
+	public PeakCallerTasklet(String libraryCellId) {
+		
+		logger.warn("***************0. parameter libraryCellId: " + libraryCellId);
+
+		logger.warn("***************1. inside constructor of PeakCallerTasklet.");
+
+		List<Integer> cids = WaspSoftwareJobParameters.getLibraryCellIdList(libraryCellId);
+		
+		logger.warn("***************2. inside constructor of PeakCallerTasklet.");
+
 		Assert.assertTrue(cids.size() == 1);
+		
+		logger.warn("***************3. inside constructor of PeakCallerTasklet.");
+
 		this.cellLibraryId = cids.get(0);
+		
+		logger.warn("***************4. inside constructor of PeakCallerTasklet.");
+		logger.warn("***************5. integer libraryCellId = " + libraryCellId.toString());
+
 	}
 
 	/*
@@ -82,6 +97,8 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 	@Override
 	@RetryOnExceptionExponential
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
+		logger.warn("***************inside PeakCallerTasklet: execute. Currently should expect an exception.");
+		if(1==1){return RepeatStatus.FINISHED;}
 		// if the work has already been started, then check to see if it is finished
 		// if not, throw an exception that is caught by the repeat policy.
 		RepeatStatus repeatStatus = super.execute(contrib, context);

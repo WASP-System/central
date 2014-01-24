@@ -31,8 +31,9 @@
 					<constructor-arg name="libraryCellId" value="#{jobParameters[waspJobParameters.LIBRARY_CELL_ID]}"/>
 					<!--  <constructor-arg name="softwareResourceType" ref="peakcallerResourceType" />
 					<constructor-arg name="task" value="#{batchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}" />
-					-->
+					
 					<property name="name" value="chipSeq.library.aggregate.step.callPeaks" />
+					-->
 				</bean>
 			</batch:tasklet>
 		</batch:step>
@@ -50,7 +51,7 @@
 							<property name="status" value="COMPLETED" />
 						</bean>
 					</constructor-arg>
-					<property name="name" value="genericDnaSeq.library.preProcess.step.listenForAlignComplete" />
+					<property name="name" value="chipseq.library.preProcess.step.listenForAlignComplete" />
 				</bean>
 			</batch:tasklet>
 			<batch:next on="FAILED" to="chipSeq.library.aggregate.step.notifyFailed" />
