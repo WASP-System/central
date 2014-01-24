@@ -6,19 +6,19 @@ public class BatchJobTreeModel extends ExtTreeModel {
 	
 	private static final long serialVersionUID = 1483666735851913153L;
 
-	private String jobName = "";
+	private String name = "";
 	
-	private Long jobExecutionId = 0L;
+	private Long executionId = 0L;
 	
 	private Date startTime = null;
 	
 	private Date endTime = null;
 	
-	private String Status = "";
+	private String status = "";
 	
-	private String ExitCode = "";
+	private String exitCode = "";
 	
-	private String ExitMessage = "";
+	private String exitMessage = "";
 
 	public BatchJobTreeModel() {
 	}
@@ -27,32 +27,32 @@ public class BatchJobTreeModel extends ExtTreeModel {
 		super(id, iconCls, isExpanded, isLeaf);
 	}
 
-	public BatchJobTreeModel(String id, ExtIcon iconCls, boolean isExpanded, boolean isLeaf, String jobName, Long jobExecutionId, Date startTime, Date endTime,
+	public BatchJobTreeModel(String id, ExtIcon iconCls, boolean isExpanded, boolean isLeaf, String name, Long executionId, Date startTime, Date endTime,
 			String status, String exitCode, String exitMessage) {
 		super(id, iconCls, isExpanded, isLeaf);
-		this.jobName = jobName;
-		this.jobExecutionId = jobExecutionId;
+		this.name = name;
+		this.executionId = executionId;
 		this.startTime = startTime;
 		this.endTime = endTime;
-		Status = status;
-		ExitCode = exitCode;
-		ExitMessage = exitMessage;
+		status = status;
+		exitCode = exitCode;
+		exitMessage = exitMessage;
 	}
 
-	public String getJobName() {
-		return jobName;
+	public String getName() {
+		return name;
 	}
 
-	public void setJobName(String jobName) {
-		this.jobName = jobName;
+	public void setName(String name) {
+		this.name = name;
 	}
 
-	public Long getJobExecutionId() {
-		return jobExecutionId;
+	public Long getExecutionId() {
+		return executionId;
 	}
 
-	public void setJobExecutionId(Long jobExecutionId) {
-		this.jobExecutionId = jobExecutionId;
+	public void setExecutionId(Long executionId) {
+		this.executionId = executionId;
 	}
 
 	public Date getStartTime() {
@@ -72,27 +72,27 @@ public class BatchJobTreeModel extends ExtTreeModel {
 	}
 
 	public String getStatus() {
-		return Status;
+		return status;
 	}
 
 	public void setStatus(String status) {
-		Status = status;
+		this.status = status;
 	}
 
 	public String getExitCode() {
-		return ExitCode;
+		return exitCode;
 	}
 
 	public void setExitCode(String exitCode) {
-		ExitCode = exitCode;
+		this.exitCode = exitCode;
 	}
 
 	public String getExitMessage() {
-		return ExitMessage;
+		return exitMessage;
 	}
 
 	public void setExitMessage(String exitMessage) {
-		ExitMessage = exitMessage;
+		this.exitMessage = exitMessage;
 	}
 
 }

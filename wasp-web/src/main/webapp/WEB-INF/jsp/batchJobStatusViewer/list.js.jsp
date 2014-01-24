@@ -25,10 +25,13 @@ Ext.require([
 Ext.define('Task', {
     extend: 'Ext.data.TreeModel',
     fields: [
-        {name: 'task',     type: 'string'},
-        {name: 'user',     type: 'string'},
-        {name: 'duration', type: 'string'},
-        {name: 'done',     type: 'boolean'}
+        {name: 'name',     type: 'string'},
+        {name: 'executionId',     type: 'number'},
+        {name: 'startTime', type: 'date'},
+        {name: 'endTime',     type: 'date'},
+        {name: 'status',     type: 'string'},
+        {name: 'exitCode', type: 'string'},
+        {name: 'exitMessage',     type: 'string'}
     ]
 });
 
@@ -62,38 +65,47 @@ Ext.onReady(function() {
         store: store,
         multiSelect: true,
         columns: [{
-            xtype: 'treecolumn', //this is so we know which column will show the tree
-            text: 'Task',
+            text: 'Name',
             width: 200,
             sortable: true,
-            dataIndex: 'task',
+            dataIndex: 'name',
+            locked: true
+        },{
+            text: 'Id',
+            width: 20,
+            sortable: true,
+            dataIndex: 'id',
             locked: true
         }, {
-            //we must use the templateheader component so we can use a custom tpl
-            xtype: 'templatecolumn',
-            text: 'Duration',
-            width: 150,
+            text: 'Started',
+            width: 50,
             sortable: true,
-            dataIndex: 'duration',
-            align: 'center',
-            //add in the custom tpl for the rows
-            tpl: Ext.create('Ext.XTemplate', '{duration:this.formatHours}', {
-                formatHours: function(v) {
-                    if (v < 1) {
-                        return Math.round(v * 60) + ' mins';
-                    } else if (Math.floor(v) !== v) {
-                        var min = v - Math.floor(v);
-                        return Math.floor(v) + 'h ' + Math.round(min * 60) + 'm';
-                    } else {
-                        return v + ' hour' + (v === 1 ? '' : 's');
-                    }
-                }
-            })
+            dataIndex: 'startTime',
+            locked: true
         }, {
-            text: 'Assigned To',
-            width: 150,
-            dataIndex: 'user',
-            sortable: true
+        	text: 'Ended',
+            width: 50,
+            sortable: true,
+            dataIndex: 'endTime',
+            locked: true
+        }, {
+        	text: 'Status',
+            width: 50,
+            sortable: true,
+            dataIndex: 'status',
+            locked: true
+        }, {
+        	text: 'Exit Code',
+            width: 50,
+            sortable: true,
+            dataIndex: 'exitCode',
+            locked: true
+        }, {
+        	text: 'Exit Message',
+            width: 200,
+            sortable: false,
+            dataIndex: 'exitMessage',
+            locked: true
         }]
     });
     jQuery(window).bind('resize', function () {
