@@ -44,13 +44,13 @@ import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemp
 @Transactional
 public class ListenForStatusTasklet extends WaspTasklet implements MessageHandler {
 	
-	private static final Logger logger = LoggerFactory.getLogger(ListenForStatusTasklet.class);
+	protected static final Logger logger = LoggerFactory.getLogger(ListenForStatusTasklet.class);
 	
-	private Set<WaspStatusMessageTemplate> messageTemplates = new HashSet<>();
+	protected Set<WaspStatusMessageTemplate> messageTemplates = new HashSet<>();
 	
-	private List<Message<?>> messageQueue = new ArrayList<>();
+	protected List<Message<?>> messageQueue = new ArrayList<>();
 	
-	private List<Message<?>> abandonMessageQueue = new ArrayList<>();
+	protected List<Message<?>> abandonMessageQueue = new ArrayList<>();
 	
 	@Autowired
 	@Qualifier("wasp.channel.reply")
