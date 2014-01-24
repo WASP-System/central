@@ -8,11 +8,13 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
+import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
+import org.springframework.batch.core.repository.dao.wasp.BatchDaoDataRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
@@ -20,14 +22,11 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
-import edu.yu.einstein.wasp.exception.BatchDaoDataRetrievalException;
-import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 
 @ContextConfiguration(locations={"classpath:batch/batch-test-context.xml"})
 
-public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
+public class SpringBatchCoreExtensionTests extends AbstractTestNGSpringContextTests {
 	
 	private JobExplorerWasp jobExplorer;
 	
@@ -36,7 +35,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 		this.jobExplorer = (JobExplorerWasp) jobExplorer;
 	}
 	
-	private final Logger logger = LoggerFactory.getLogger(BatchAPIExtensionTests.class);
+	private final Logger logger = LoggerFactory.getLogger(SpringBatchCoreExtensionTests.class);
 	
 	private final String JOB_ID_KEY = "jobId";
 	
@@ -80,7 +79,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 			Assert.fail("Unable to get status");
 		}
 		Assert.assertNotNull(stepExecution);
-		Assert.assertEquals(stepExecution.getStatus(), BatchStatus.COMPLETED);
+		Assert.assertTrue(stepExecution.getExitStatus().isCompleted());
 	}
 	
 	/**
@@ -107,7 +106,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	
 	/**
 	 * API extension testing. Testing access of state information via API extension.The test Batch db tables should contain two steps called 
-	 * 'wasp.sample.step.listenForJobApproved' one with a BatchStatus of COMPLETED (sample 2) and one with BatchStatus of STARTED (sample 1).
+	 * 'wasp.sample.step.listenForJobApproved' one with a ExitStatus of COMPLETED (sample 2) and one with ExitStatus of RUNNING (sample 1).
 	 */
 	@Test(groups = "unit-tests")
 	public void testGettingStepExecutionNormalTest3(){
@@ -117,14 +116,14 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 		sampleIdStringSet.add(SAMPLE_ID_1.toString());
 		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
 		
-		List<StepExecution> stepExecutions = jobExplorer.getStepExecutions("listenForJobApproved", parameterMap, false, BatchStatus.STARTED);
+		List<StepExecution> stepExecutions = jobExplorer.getStepExecutions("listenForJobApproved", parameterMap, false, ExitStatus.RUNNING);
 		Assert.assertNotNull(stepExecutions);
 		Assert.assertEquals(stepExecutions.size(), 1); // expect to be STARTED
 	}
 	
 	/**
 	 * API extension testing. Testing access of state information via API extension.The test Batch db tables should contain two steps called 
-	 * 'wasp.sample.step.listenForJobApproved' one with a BatchStatus of COMPLETED (sample 2) and one with BatchStatus of STARTED (sample 1).
+	 * 'wasp.sample.step.listenForJobApproved' one with a ExitStatus of COMPLETED (sample 2) and one with ExitStatus of RUNNING (sample 1).
 	 */
 	@Test(groups = "unit-tests")
 	public void testGettingStepExecutionNormalTest4(){
@@ -134,7 +133,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 		sampleIdStringSet.add(SAMPLE_ID_2.toString());
 		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
 		
-		List<StepExecution> stepExecutions = jobExplorer.getStepExecutions("listenForJobApproved", parameterMap, false, BatchStatus.STARTED);
+		List<StepExecution> stepExecutions = jobExplorer.getStepExecutions("listenForJobApproved", parameterMap, false, ExitStatus.RUNNING);
 		Assert.assertNotNull(stepExecutions);
 		Assert.assertTrue(stepExecutions.isEmpty()); //expect to be COMPLETE
 	}
@@ -331,23 +330,13 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	}
 	
 	/**
-	 * API extension testing. Testing getting all JobExecutions with BatchStatus=COMPLETED. Should be 1
+	 * API extension testing. Testing getting all JobExecutions with ExitStatus=COMPLETED. Should be 1
 	 */
 	@Test(groups = "unit-tests")
 	public void testGettingJobExecutionNormalTest2(){
-		List<JobExecution> jobExecutions = jobExplorer.getJobExecutions(BatchStatus.COMPLETED);
+		List<JobExecution> jobExecutions = jobExplorer.getJobExecutions(ExitStatus.COMPLETED);
 		Assert.assertNotNull(jobExecutions);
 		Assert.assertEquals(jobExecutions.size(), 1); 
-	}
-	
-	/**
-	 * API extension testing. Testing getting all JobExecutions with BatchStatus=COMPLETED and ExitStatus=EXECUTION. Should be impossible
-	 */
-	@Test(groups = "unit-tests")
-	public void testGettingJobExecutionNormalTest3(){
-		List<JobExecution> jobExecutions = jobExplorer.getJobExecutions(BatchStatus.COMPLETED, ExitStatus.EXECUTING);
-		Assert.assertNotNull(jobExecutions);
-		Assert.assertTrue(jobExecutions.isEmpty()); 
 	}
 	
 	/**

@@ -67,6 +67,13 @@ public class GenericStatusMessageTemplate extends WaspStatusMessageTemplate {
 		return message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) &&  
 				message.getHeaders().get(WaspMessageType.HEADER_KEY).equals(WaspMessageType.GENERIC);
 	}
+	
+	@Override
+	public GenericStatusMessageTemplate getNewInstance(WaspStatusMessageTemplate messageTemplate){
+		GenericStatusMessageTemplate newTemplate = new GenericStatusMessageTemplate();
+		copyCommonProperties(messageTemplate, newTemplate);
+		return newTemplate;
+	}
 
 }
 

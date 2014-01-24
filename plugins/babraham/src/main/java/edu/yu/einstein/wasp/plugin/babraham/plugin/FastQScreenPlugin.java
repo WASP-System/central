@@ -12,9 +12,10 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.Message;
@@ -22,7 +23,6 @@ import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.Hyperlink;
-import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
@@ -116,13 +116,12 @@ public class FastQScreenPlugin extends BabrahamPluginBase{
 		JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer.getJobExecutions(FLOW_NAME, parameterMap, true));
 		if (je == null)
 			return Status.UNKNOWN;
-		else if (je.getStatus().equals(BatchStatus.STARTED))
+		ExitStatus jobExitStatus = je.getExitStatus();
+		if (jobExitStatus.isRunning())
 			return Status.STARTED;
-		else if (je.getStatus().equals(BatchStatus.STOPPED) || je.getStatus().equals(BatchStatus.FAILED) || je.getStatus().equals(BatchStatus.ABANDONED))
-			return Status.FAILED;
-		else if (je.getStatus().equals(BatchStatus.COMPLETED) )
+		if (jobExitStatus.isCompleted())
 			return Status.COMPLETED;
-		return Status.UNKNOWN;
+		return Status.FAILED;
 	}
 
 

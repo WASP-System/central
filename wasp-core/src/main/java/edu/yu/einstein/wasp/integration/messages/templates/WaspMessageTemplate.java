@@ -34,7 +34,12 @@ public abstract class WaspMessageTemplate implements MessageTemplate{
 	
 	public static final String COMMENT_KEY = "comment";
 	
-	private Map<String, Object> headers = new HashMap<>();
+	public static final String DESTINATION = "destination";
+	
+	public static final String RESEND = "resend";
+	
+	
+	protected Map<String, Object> headers = new HashMap<>();
 	
 	
 	/**
@@ -136,6 +141,9 @@ public abstract class WaspMessageTemplate implements MessageTemplate{
 		headers.put(key, value);
 	}
 	
+	public void removeHeader(String key){
+		headers.remove(key);
+	}
 	
 
 }

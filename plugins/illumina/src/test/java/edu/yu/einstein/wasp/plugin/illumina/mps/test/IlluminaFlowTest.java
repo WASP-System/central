@@ -11,7 +11,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -174,9 +174,9 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 		Thread.sleep(1000);
 		
 		StepExecution se = (StepExecution) je.getStepExecutions().toArray()[0];
-		
+		ExitStatus stepExitStatus = se.getExitStatus();
 		//file exists, step completes
-		Assert.assertEquals(se.getStatus(), BatchStatus.COMPLETED);
+		Assert.assertTrue(stepExitStatus.isCompleted());
 	}
 
 	// @Test
@@ -194,9 +194,9 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 		Thread.sleep(1000);
 		
 		StepExecution se = (StepExecution) je.getStepExecutions().toArray()[0];
-		
+		ExitStatus stepExitStatus = se.getExitStatus();
 		//file does not exist, step repeats.
-		Assert.assertEquals(se.getStatus(), BatchStatus.STARTED);
+		Assert.assertTrue(stepExitStatus.isRunning());
 	}
 	
 	// @Test
@@ -213,9 +213,9 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 		Thread.sleep(1000);
 		
 		StepExecution se = (StepExecution) je.getStepExecutions().toArray()[0];
-		
+		ExitStatus stepExitStatus = se.getExitStatus();
 		//file exists, step completes
-		Assert.assertEquals(se.getStatus(), BatchStatus.COMPLETED);
+		Assert.assertTrue(stepExitStatus.isCompleted());
 		
 	}
 	

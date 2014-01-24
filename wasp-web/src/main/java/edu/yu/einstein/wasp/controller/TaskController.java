@@ -9,7 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-//import java.util.concurrent.Callable;
+import java.util.concurrent.Callable;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +73,17 @@ public class TaskController extends WaspController {
   
   @Autowired
   private GenomeService genomeService;
+  
+  /**
+   * Delay to allow batch transitions to complete
+   */
+  private void transitionDelay(){
+	  //TODO:: this is a horrible thing to do. Need to figure out transaction between web and batch 
+	  // (taking into account concurrency of batch). fun fun fun!
+	  try{
+		  Thread.sleep(500);
+	  } catch(InterruptedException e){}
+  }
   
 
   @RequestMapping(value = "/assignLibraries/lists", method = RequestMethod.GET)
@@ -152,12 +163,12 @@ public class TaskController extends WaspController {
 
   @RequestMapping(value = "/samplereceive/receive", method = RequestMethod.POST)
   @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
-  public /*Callable<String>*/ String recordSampleReceive(@RequestParam("sampleId") final List<Integer> sampleIdList, final ModelMap m) {
+  public Callable<String> recordSampleReceive(@RequestParam("sampleId") final List<Integer> sampleIdList, final ModelMap m) {
 	  
-	  //return new Callable<String>() {
+	  return new Callable<String>() {
 
-	//	@Override
-	//	public String call() throws Exception {
+		@Override
+		public String call() throws Exception {
 			List<String> receivedStatusList = new ArrayList<String>(); //Arrays.asList(receivedStatusArray);
 			  for(Integer id : sampleIdList){
 					String val = request.getParameter("receivedStatus" + id.toString());
@@ -196,10 +207,12 @@ public class TaskController extends WaspController {
 						  if(receivedStatusList.get(i).equals("RECEIVED")){	
 							  logger.debug("Received Sample = " + sample.getName());
 							  sampleService.updateSampleReceiveStatus(sample, WaspStatus.CREATED);
+							  transitionDelay();
 						  }
 						  else if(receivedStatusList.get(i).equals("WITHDRAWN")){
 							  logger.debug("Withdrawn Sample = " + sample.getName());
 							  sampleService.updateSampleReceiveStatus(sample, WaspStatus.ABANDONED);
+							  transitionDelay();
 						  }
 						  else{logger.debug("neither received nor withdrawn. very unexpected");}
 					  }catch (WaspMessageBuildingException e){
@@ -214,10 +227,9 @@ public class TaskController extends WaspController {
 			  }
 			  waspMessage("task.samplereceive_update_success.label");
 			  return "redirect:/task/samplereceive/list.do";
-		//}
-	//};
+		}
+	};
   }
-
   
   @RequestMapping(value = "/updatesamplereceive/{jobId}", method = RequestMethod.GET)
   @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
@@ -264,15 +276,15 @@ public class TaskController extends WaspController {
 
   @RequestMapping(value = "/updatesamplereceive", method = RequestMethod.POST)
   @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
-  public /*Callable<String>*/ String updateSampleReceive(@RequestParam("jobId") final Integer jobId, 
+  public Callable<String> updateSampleReceive(@RequestParam("jobId") final Integer jobId, 
 		  @RequestParam("sampleId") final List<Integer> sampleIdList,
 	      @RequestParam("receivedStatus") final List<String> receivedStatusList,
 	      final ModelMap m) {
 	  
-	  //return new Callable<String>(){
+	  return new Callable<String>(){
 
-		//@Override
-		//public String call() throws Exception {
+		@Override
+		public String call() throws Exception {
 			 Job job = jobService.getJobDao().getJobByJobId(jobId);
 			  if(job.getId()==0){
 				  //message can't find job by id
@@ -294,10 +306,11 @@ public class TaskController extends WaspController {
 					  }
 				  }
 			  }
+			  transitionDelay();
 			  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
-		//}
+		}
 		  
-	  //};
+	  };
 	  
   }
   
@@ -329,16 +342,16 @@ public class TaskController extends WaspController {
 
   @RequestMapping(value = "/sampleqc/qc", method = RequestMethod.POST)
   @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
-  public /*Callable<String>*/ String updateSampleQC(
+  public Callable<String> updateSampleQC(
       @RequestParam("sampleId") final Integer sampleId,
       @RequestParam("qcStatus") final String qcStatus,
       @RequestParam("comment") final String comment,
       final ModelMap m) {	
 	  
-	  //return new Callable<String>() {
+	  return new Callable<String>() {
 
-		//@Override
-		//public String call() throws Exception {
+		@Override
+		public String call() throws Exception {
 			Sample sample = sampleService.getSampleDao().getSampleBySampleId(sampleId);
 			  if(sample.getId()==null){
 				  waspErrorMessage("task.sampleqc_invalid_sample.error");
@@ -360,9 +373,11 @@ public class TaskController extends WaspController {
 			  try{
 				  if(qcStatus.equals(SampleService.STATUS_PASSED)){
 					  sampleService.updateQCStatus(sample, WaspStatus.COMPLETED);
+					  transitionDelay();
 				  }
 				  else if(qcStatus.equals(SampleService.STATUS_FAILED)){
 					  sampleService.updateQCStatus(sample, WaspStatus.FAILED);
+					  transitionDelay();
 				  }
 				  else{
 					  waspErrorMessage("task.sampleqc_status_invalid.error");
@@ -387,8 +402,8 @@ public class TaskController extends WaspController {
 			  
 			  waspMessage("task.sampleqc_update_success.label");	
 			  return "redirect:/task/sampleqc/list.do";
-		//}
-//	};
+		}
+	};
   }
   
   @RequestMapping(value = "/libraryqc/list", method = RequestMethod.GET)
@@ -419,16 +434,16 @@ public class TaskController extends WaspController {
 
   @RequestMapping(value = "/libraryqc/qc", method = RequestMethod.POST)
   @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
-  public /*Callable<String>*/ String updateLibraryQC(
+  public Callable<String> updateLibraryQC(
       @RequestParam("sampleId") final Integer sampleId,
       @RequestParam("qcStatus") final String qcStatus,
       @RequestParam("comment") final String comment,
       final ModelMap m) {
 	  
-	  //return new Callable<String>() {
+	  return new Callable<String>() {
 
-		//@Override
-		//public String call() throws Exception {
+		@Override
+		public String call() throws Exception {
 			 Sample sample = sampleService.getSampleDao().getSampleBySampleId(sampleId);
 			  if(sample.getId()==null){
 				  waspErrorMessage("task.libraryqc_invalid_sample.error");
@@ -450,9 +465,11 @@ public class TaskController extends WaspController {
 			  try{
 				  if(qcStatus.equals(SampleService.STATUS_PASSED)){
 					  sampleService.updateQCStatus(sample, WaspStatus.COMPLETED);
+					  transitionDelay();
 				  }
 				  else if(qcStatus.equals(SampleService.STATUS_FAILED)){
 					  sampleService.updateQCStatus(sample, WaspStatus.FAILED);
+					  transitionDelay();
 				  }
 				  else{
 					  waspErrorMessage("task.libraryqc_status_invalid.error");
@@ -477,8 +494,8 @@ public class TaskController extends WaspController {
 			  
 			  waspMessage("task.libraryqc_update_success.label");	
 			  return "redirect:/task/libraryqc/list.do";
-	//	}
-//	};
+		}
+	};
  
   }
  
@@ -617,6 +634,7 @@ public class TaskController extends WaspController {
 	  
 	  try {
 		  jobService.setJobApprovalStatusAndComment(jobApproveCode, job, status, comment.trim());
+		  transitionDelay();
 	  } catch (Exception e) {
 		  waspErrorMessage("jobapprovetask.updateFailed.error"); 
 		  logger.warn("Update unexpectedly failed");
@@ -642,40 +660,40 @@ public class TaskController extends WaspController {
   
   @RequestMapping(value = "/piJobApprove/{labId}.do", method = RequestMethod.POST)
   @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm') or hasRole('ft') or hasRole('lm-' + #labId) or hasRole('pi-' + #labId)")
-	public /*Callable<String> */ String piJobApprove(
+	public Callable<String> piJobApprove(
 			@PathVariable("labId") final Integer labId, 
 			@RequestParam("jobId") final Integer jobId, 
 			@RequestParam("action") final String action, 
 			@RequestParam("comment") final String comment, 
 			final ModelMap m) {
 	  
-	  //return new Callable<String>(){
-		//	@Override
-		//	public String call() throws Exception {
+	  return new Callable<String>(){
+			@Override
+			public String call() throws Exception {
 			  jobApprove("piApprove", jobId, action, comment);
 			  String referer = request.getHeader("Referer");
 			  return "redirect:"+ referer;
-		//	}
-	  //};
+			}
+	  };
 	}
   
   @RequestMapping(value = "/daJobApprove/{deptId}.do", method = RequestMethod.POST)
   @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm') or hasRole('ft') or hasRole('da-' + #deptId)")
-	public /*Callable<String>*/ String daJobApprove(
+	public Callable<String> daJobApprove(
 			@PathVariable("deptId") final Integer deptId, 
 			@RequestParam("jobId") final Integer jobId, 
 			@RequestParam("action") final String action, 
 			@RequestParam("comment") final String comment, 
 			final ModelMap m) {
 						
-			//return new Callable<String>(){
-			//	@Override
-			//	public String call() throws Exception {
+			return new Callable<String>(){
+				@Override
+				public String call() throws Exception {
 					  jobApprove("daApprove", jobId, action, comment);
 					  String referer = request.getHeader("Referer");
 					  return "redirect:"+ referer;	
-			//	}
-			//};
+				}
+			};
 	}  
 
 	/**
@@ -854,8 +872,8 @@ public class TaskController extends WaspController {
 		  boolean atLeastOneCellLibraryAwaitingQC = false;
 		  Map<SampleSource, ExitStatus> jobCellLibrariesWithPreprocessingStatus = sampleService.getCellLibrariesWithPreprocessingStatus(job);//a preprocessed library is one that is sequenced and aligned
 		  for (SampleSource cellLibrary: jobCellLibrariesWithPreprocessingStatus.keySet()){
-			  String exitStatusCode = jobCellLibrariesWithPreprocessingStatus.get(cellLibrary).getExitCode();
-			  if (!exitStatusCode.equals(ExitStatus.COMPLETED.getExitCode()))
+			  ExitStatus exitStatus = jobCellLibrariesWithPreprocessingStatus.get(cellLibrary);
+			  if (!exitStatus.isCompleted())
 				  continue;
 			  preprocessedCellLibraries.add(cellLibrary);
 			  if (sampleService.isCellLibraryAwaitingQC(cellLibrary))
@@ -1033,15 +1051,15 @@ public class TaskController extends WaspController {
   
   @RequestMapping(value = "/aggregationAnalysis/list", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('su') or hasRole('fm-*')")
-	public /*Callable<String>*/ String aggregationAnalysisPost(
+	public Callable<String> aggregationAnalysisPost(
 			@RequestParam("jobId") final Integer jobId,
 			@RequestParam("startAnalysis") final String startAnalysis,
 		    final ModelMap m) {
 	  
-	  //return new Callable<String>() {
+	  return new Callable<String>() {
 
-		//@Override
-		//public String call() throws Exception {
+		@Override
+		public String call() throws Exception {
 			//1. check the most basic parameters
 			  if(jobId==null){
 				  waspErrorMessage("task.aggregateAnalysis_invalid_jobId.error");
@@ -1103,8 +1121,8 @@ public class TaskController extends WaspController {
 			  }
 			  //waspMessage("task.aggregateAnalysis_update_success.label");	
 			  return "redirect:/task/myTaskList.do";
-	//	}
-	//};
+		}
+	};
 	  
   }
 }

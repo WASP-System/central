@@ -2,27 +2,96 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:batch="http://www.springframework.org/schema/batch"
+	xmlns:util="http://www.springframework.org/schema/util"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
 		
+	<bean id="abstractLibraryListeningTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" abstract="true">
+		<property name="abandonMessages">
+			<set>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate">
+					<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}"/>
+					<property name="status" value="ABANDONED" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate">
+					<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}"/>
+					<property name="status" value="FAILED" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
+					<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+					<property name="status" value="COMPLETED" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
+					<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+					<property name="status" value="ABANDONED" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
+					<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+					<property name="status" value="FAILED" />
+				</bean>
+			</set>
+		</property>	
+	</bean>
+	
+	<bean id="wasp.library.tasklet.listenForJobApproved" parent="abstractLibraryListeningTasklet" scope="step">
+		<property name="messageToListenFor">
+			<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate" >
+				<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}" />
+				<property name="status" value="ACCEPTED" />
+			</bean>
+		</property>
+		<property name="parallelSiblingFlowSteps">
+			<set>
+				<ref bean="wasp.library.tasklet.listenForLibraryReceived" />
+			</set>
+		</property>
+	</bean>
+	
+	<bean id="wasp.library.tasklet.listenForLibraryReceived" parent="abstractLibraryListeningTasklet" scope="step">
+		<property name="messagesToListenFor">
+			<set>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate" >
+					<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}" />
+					<property name="status" value="CREATED" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate" >
+					<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}" />
+					<property name="status" value="FAILED" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate" >
+					<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}" />
+					<property name="status" value="ABANDONED" />
+				</bean>
+			</set>
+		</property>
+		<property name="parallelSiblingFlowSteps">
+			<set>
+				<ref bean="wasp.library.tasklet.listenForJobApproved" />
+			</set>
+		</property>
+	</bean>
 		
 	<!-- define library main flow -->
 	<batch:flow id="wasp.default.library.mainFlow.v1">
 		<batch:step id="wasp.library.step.libraryQC">
 			<!-- Wait for QC result to be notified. If failed abandon this library flow otherwise library ready -->
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
-					<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.library" />
-					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort"/>
-					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate">
-							<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}" />
-							<property name="task" value="#{libraryTasks.QC}" />
-							<property name="status" value="COMPLETED" />
-						</bean>
-					</constructor-arg>
-					<property name="name" value="wasp.library.step.libraryQC" />
+				<bean parent="abstractLibraryListeningTasklet" scope="step">
+					<property name="messagesToListenFor">
+						<set>
+							<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate">
+								<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}" />
+								<property name="task" value="#{libraryTasks.QC}" />
+								<property name="status" value="COMPLETED" />
+							</bean>
+							<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate">
+								<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}" />
+								<property name="task" value="#{libraryTasks.QC}" />
+								<property name="status" value="FAILED" />
+							</bean>
+						</set>
+					</property>
 				</bean>
 			</batch:tasklet>
 			<batch:next on="FAILED" to="wasp.library.step.notifyLibraryAbandoned" />
@@ -32,7 +101,6 @@
 		<batch:step id="wasp.library.step.notifyLibraryAccepted" >
 			<!-- publish that library is ready for further processing -->
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
@@ -47,7 +115,6 @@
 		<batch:step id="wasp.library.step.notifyLibraryAbandoned">
 			<!-- publish that library had been abandoned  -->
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
@@ -67,42 +134,17 @@
 			<batch:flow>
 				<batch:step id="wasp.library.step.listenForLibraryReceived">
 					<!-- Listen for library CREATED message: tells us library is physically received -->
-					<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
-						<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
-							<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.library" />
-							<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort"/>
-							<constructor-arg name="messageTemplate">
-								<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate" >
-									<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}" />
-									<property name="status" value="CREATED" />
-								</bean>
-							</constructor-arg>
-							<property name="name" value="wasp.library.step.listenForLibraryReceived" />
-						</bean>
-					</batch:tasklet>
+					<batch:tasklet ref = "wasp.library.tasklet.listenForLibraryReceived" />
 				</batch:step>
 			</batch:flow>
 			<batch:flow>
 				<batch:step id="wasp.library.step.listenForJobApproved">
 					<!-- Listen for job ACCEPTED message: tells us job is approved -->
-					<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
-						<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
-							<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
-							<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort"/>
-							<constructor-arg name="messageTemplate">
-								<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate" >
-									<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}" />
-									<property name="status" value="ACCEPTED" />
-								</bean>
-							</constructor-arg>
-							<property name="name" value="wasp.library.step.listenForJobApproved" />
-						</bean>
-					</batch:tasklet>
+					<batch:tasklet ref="wasp.library.tasklet.listenForJobApproved" />
 				</batch:step>
 			</batch:flow>
 			<batch:next on="FAILED" to="wasp.userLibrary.step.notifyLibraryAbandoned" />
+			<batch:next on="TERMINATED" to="wasp.userLibrary.step.notifyLibraryAbandoned" />
 			<batch:next on="COMPLETED" to="wasp.default.library.mainFlow.step" />
 			<batch:fail on="*" /> <!-- unexpected message -->
 		</batch:split>
@@ -112,7 +154,6 @@
 		<batch:step id="wasp.userLibrary.step.notifyLibraryAbandoned">
 			<!-- publish that library had been abandoned  -->
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
@@ -125,57 +166,16 @@
 			</batch:tasklet>
 		</batch:step>
 	</batch:flow>
-	
-	<batch:flow id="wasp.default.library.mainFlow.exitCondition">
-		<!-- Will listen for indicators that the flow should terminate such as the wasp job flow has been aborted or -->
-		<!-- if the wasp.default.library.mainFlow flow completes (broadcasting an ACCEPTED status message) or is aborted -->
-		<!-- e.g. via a message from the web layer -->
-		<batch:step id="wasp.library.step.listenForExitCondition">
-			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForExitConditionTasklet" scope="step">
-					<constructor-arg name="inputSubscribableChannels">
-						<set>
-							<ref bean="wasp.channel.notification.library" />
-							<ref bean="wasp.channel.notification.job" />
-						</set>
-					</constructor-arg>
-					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
-					<constructor-arg name="messageTemplates">
-						<set>
-							<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate">
-								<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}"/>
-								<property name="status" value="ACCEPTED" />
-							</bean>
-							<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
-								<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
-								<property name="status" value="COMPLETED" />
-							</bean>
-						</set>
-					</constructor-arg>
-					<property name="name" value="waspLibraryExitCondition" />
-				</bean>	
-			</batch:tasklet>
-		</batch:step>
-	</batch:flow>
-	
-	
-	
+
 	
 	<!-- for dispatching job, call with parameter 'libraryId' and 'jobId' -->
 	<batch:job id="wasp.userLibrary.jobflow.v1" restartable="true">
-		<batch:split id="wasp.userLibrary.jobFlow.split" task-executor="taskExecutor">
-			<batch:flow parent="wasp.default.userLibrary.mainFlow.v1" />
-			<batch:flow parent="wasp.default.library.mainFlow.exitCondition" />
-		</batch:split>
+			<batch:flow parent="wasp.default.userLibrary.mainFlow.v1" id="wasp.userLibrary.jobflow.mainFlow" />
 	</batch:job>
 	
 	<!-- for dispatching job, call with parameter 'libraryId' and 'jobId' -->
 	<batch:job id="wasp.facilityLibrary.jobflow.v1" restartable="true">
-		<batch:split id="wasp.facilityLibrary.jobFlow.split" task-executor="taskExecutor">
-			<batch:flow parent="wasp.default.library.mainFlow.v1" />
-			<batch:flow parent="wasp.default.library.mainFlow.exitCondition" />
-		</batch:split>
+			<batch:flow parent="wasp.default.library.mainFlow.v1" id="wasp.default.library.mainFlow" />
 	</batch:job>
 	
 </beans>

@@ -9,9 +9,12 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
 
-	<batch:job-repository id="jobRepository" data-source="batchDataSource"/>
+	<bean id="jobRepository" class="org.springframework.batch.core.repository.wasp.WaspJobRepositoryFactoryBean">
+		<property name="dataSource" ref="batchDataSource"/>
+		<property name="transactionManager" ref= "transactionManager"/>
+	</bean>
 	
-	<bean id="jobLauncher" class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+	<bean id="jobLauncher" class="org.springframework.batch.core.launch.wasp.WaspJobLauncher">
 		<property name="jobRepository" ref="jobRepository" />
 		<property name="taskExecutor" ref="taskExecutor" />
 	</bean>
@@ -27,12 +30,12 @@
     </bean>
     
     <!-- Entry point for browsing executions of running or historical jobs and steps.  -->
-    <bean id="jobExplorer" class="edu.yu.einstein.wasp.batch.core.extension.WaspJobExplorerFactoryBean">
+    <bean id="jobExplorer" class="org.springframework.batch.core.explore.wasp.WaspJobExplorerFactoryBean">
     	<property name="dataSource" ref="batchDataSource" />
     </bean>
     
     
-    <bean id="jobOperator" class="org.springframework.batch.core.launch.support.SimpleJobOperator">
+    <bean id="jobOperator" class="org.springframework.batch.core.launch.wasp.WaspJobOperator">
     	<property name="jobExplorer" ref="jobExplorer" />
     	<property name="jobLauncher" ref="jobLauncher" />
     	<property name="jobRegistry" ref="jobRegistry" />
@@ -124,14 +127,6 @@
 		</property>
 	</bean>
 	
-	<bean id="batchRelaunchRunningJobsOnStartup" class="edu.yu.einstein.wasp.batch.launch.WaspBatchRelaunchRunningJobsOnStartup">
-		<constructor-arg name="jobRepository" ref="jobRepository" />
-		<constructor-arg name="jobOperator" ref="jobOperator" />
-		<constructor-arg name="jobExplorer" ref="jobExplorer" />
-	</bean>
 	
-	<bean id="batchJobTasks" class="edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask" />
-	
-	<bean id="sequencingBatchJobTasks" class="edu.yu.einstein.wasp.integration.messages.tasks.SequencingBatchJobTask" />
     
 </beans>

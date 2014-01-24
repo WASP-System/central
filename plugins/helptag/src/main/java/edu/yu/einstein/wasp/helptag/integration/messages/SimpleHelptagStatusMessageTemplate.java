@@ -73,5 +73,12 @@ public class SimpleHelptagStatusMessageTemplate extends WaspStatusMessageTemplat
 		return message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) &&  
 				message.getHeaders().get(WaspMessageType.HEADER_KEY).equals(HelptagMessageType.HELPTAG);
 	}
+	
+	@Override
+	public SimpleHelptagStatusMessageTemplate getNewInstance(WaspStatusMessageTemplate messageTemplate){
+		SimpleHelptagStatusMessageTemplate newTemplate = new SimpleHelptagStatusMessageTemplate();
+		copyCommonProperties(messageTemplate, newTemplate);
+		return newTemplate;
+	}
 
 }

@@ -73,5 +73,12 @@ public class SimpleBamqcStatusMessageTemplate extends WaspStatusMessageTemplate 
 		return message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) &&  
 				message.getHeaders().get(WaspMessageType.HEADER_KEY).equals(BamqcMessageType.Bamqc);
 	}
+	
+	@Override
+	public SimpleBamqcStatusMessageTemplate getNewInstance(WaspStatusMessageTemplate messageTemplate){
+		SimpleBamqcStatusMessageTemplate newTemplate = new SimpleBamqcStatusMessageTemplate();
+		copyCommonProperties(messageTemplate, newTemplate);
+		return newTemplate;
+	}
 
 }

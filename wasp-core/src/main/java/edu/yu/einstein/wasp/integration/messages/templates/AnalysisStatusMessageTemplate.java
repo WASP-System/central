@@ -194,5 +194,13 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 				((String) message.getHeaders().get(WaspMessageType.HEADER_KEY)).equals(WaspMessageType.ANALYSIS);
 	}
 	
+	@Override
+	public AnalysisStatusMessageTemplate getNewInstance(WaspStatusMessageTemplate messageTemplate){
+		AnalysisStatusMessageTemplate newTemplate = new AnalysisStatusMessageTemplate(((AnalysisStatusMessageTemplate) messageTemplate).getJobId(),
+				((AnalysisStatusMessageTemplate) messageTemplate).getLibraryId());
+		copyCommonProperties(messageTemplate, newTemplate);
+		return newTemplate;
+	}
+	
 }
 	
