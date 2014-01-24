@@ -72,6 +72,9 @@ public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionLis
 	@Autowired
 	private GridHostResolver gridHostResolver;
 	
+	@Autowired
+	private SoftwarePackage picard;
+	
 	public BWAMergeSortTasklet() {
 		// proxy
 	}
@@ -124,6 +127,7 @@ public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionLis
 		w.setRequiredFiles(fhlist);
 		
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
+		sd.add(picard);
 		w.setSoftwareDependencies(sd);
 		w.setSecureResults(true);
 		
@@ -166,7 +170,7 @@ public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionLis
 		
 		w.setCommand("shopt -s nullglob\n");
 		w.addCommand("for x in sam.*.out; do ln -s ${x} ${x/*:/}.sam ; done\n");
-		w.addCommand("java -Xmx4g -jar $PICARD_HOME/MergeSamFiles.jar $(printf 'I=%s ' *.out.sam) O=${" + WorkUnit.OUTPUT_FILE + "[0]} " +
+		w.addCommand("java -Xmx4g -jar $PICARD_ROOT/MergeSamFiles.jar $(printf 'I=%s ' *.out.sam) O=${" + WorkUnit.OUTPUT_FILE + "[0]} " +
 				"SO=coordinate TMP_DIR=. CREATE_INDEX=true VALIDATION_STRINGENCY=SILENT");
 		w.addCommand("cp ${" + WorkUnit.OUTPUT_FILE + "[0]}.bai ${" + WorkUnit.OUTPUT_FILE + "[1]}");
 			
