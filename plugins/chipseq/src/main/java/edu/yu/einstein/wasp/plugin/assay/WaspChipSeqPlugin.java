@@ -119,7 +119,7 @@ public class WaspChipSeqPlugin extends WaspPlugin implements
 			logger.info("***************Initiating chipseq test flow in WaspChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB + " on id " + id);
 			return (Message<String>) MessageBuilder.withPayload("Initiating chipseq test flow: "+AGGREGATE_ANALYSIS_JOB + " on id " + id).build();
 		} catch (WaspMessageBuildingException e1) {
-			logger.warn("***************Unable to build launch batch job from WaspChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB);
+			logger.warn("***************WaspMessageBuildingException Unable to build launch batch job from WaspChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB);
 			return MessageBuilder.withPayload("Unable to launch batch job from WaspChipSeqPlugin:" + AGGREGATE_ANALYSIS_JOB).build();
 		}catch (Exception e1) {
 			logger.warn("***************Exception: Unable to build launch batch job from WaspChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB);
@@ -130,7 +130,7 @@ public class WaspChipSeqPlugin extends WaspPlugin implements
 	
 	private Message<String> launchTestFlowHelp() {
 		String mstr = "\ninside launchTestFlowHelp within the WaspChipSeqPlugin: launch the test flow.\n" +
-				"wasp -T chipseq -t launchTestFlow -m \'{id:\"1\"}\'\n";
+				"wasp -T chipseq -t launchTestFlow -m \'{id:\"14\"}\'\n";
 		return MessageBuilder.withPayload(mstr).build();
 	}
 	

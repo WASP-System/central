@@ -28,7 +28,7 @@
 			<batch:tasklet>
 				<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.chipseq.batch.tasklet.PeakCallerTasklet" scope="step">
-					<constructor-arg name="libraryCellId" value="#{jobParameters[waspJobParameters.LIBRARY_CELL_ID]}"/>
+					<constructor-arg name="cellLibraryId" value="#{jobParameters[waspJobParameters.LIBRARY_CELL_ID]}"/>
 					<!--  <constructor-arg name="softwareResourceType" ref="peakcallerResourceType" />
 					<constructor-arg name="task" value="#{batchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}" />
 					
