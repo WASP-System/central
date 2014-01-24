@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.service;
 
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.integration.Message;
 
@@ -10,6 +11,6 @@ public interface WaspMessageHandlingService extends WaspService {
 	
 	public void sendOutboundMessage(final Message<?> message, boolean isReplyExpected);
 	
-	public void launchBatchJob(String flow, Map<String, String> jobParameters) throws WaspMessageBuildingException;
+	public UUID launchBatchJob(String flow, Map<String, String> jobParameters) throws WaspMessageBuildingException;
 
 }

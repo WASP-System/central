@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.service.impl;
 
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -74,9 +75,11 @@ public class WaspMessageHandlingServiceImpl extends WaspServiceImpl implements W
 	}
 	
 	@Override
-	public void launchBatchJob(String flow, Map<String,String> jobParameters) throws WaspMessageBuildingException {
+	public UUID launchBatchJob(String flow, Map<String,String> jobParameters) throws WaspMessageBuildingException {
 		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate(new BatchJobLaunchContext(flow, jobParameters));
-		sendOutboundMessage(batchJobLaunchMessageTemplate.build(), true);
+		Message<BatchJobLaunchContext> message = batchJobLaunchMessageTemplate.build();
+		sendOutboundMessage(message, true);
+		return message.getHeaders().getId();
 	}
 
 }

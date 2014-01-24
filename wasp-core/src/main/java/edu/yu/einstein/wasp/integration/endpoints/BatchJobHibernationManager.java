@@ -60,6 +60,14 @@ public class BatchJobHibernationManager {
 	public static final String TIME_TO_WAKE = "w_time";
 	public static final int RESEND_MESSAGE_MAX_TIMES = 10;
 	
+	/**
+	 * prefix for job context key used to store parent job ids to wait for completion messages in ListenForManyStatusMessagesTasklet.
+	 */
+	public static final String PARENT_JOB_ID_LIST_KEY_PREFIX = "PID:";
+	
+	public static final String PARENT_JOB_MESSAGE_ID_KEY = "waspParentID";
+	public static final String PARENT_JON_ID_LIST_DELIMITER = "|";
+	
 	private static final Logger logger = LoggerFactory.getLogger(BatchJobHibernationManager.class);
 	
 	private JobOperatorWasp jobOperator;
