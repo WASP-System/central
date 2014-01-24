@@ -41,7 +41,6 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 		return readSegmentNumber;
 	}
 
-	@Override
 	public void setFastqReadSegmentNumber(FileHandle file, Integer number) throws InvalidFileTypeException, MetadataException {
 		setMeta(file, FILE_AREA, FASTQ_READ_SEGMENT_NUMBER, number.toString());
 	}
@@ -52,7 +51,6 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 		return nor;
 	}
 	
-	@Override
 	public void setFastqNumberOfReads(FileHandle file, Integer number) throws InvalidFileTypeException, MetadataException {
 		setMeta(file, FILE_AREA, FASTQ_NUMBER_OF_READS, number.toString());
 	}
@@ -63,22 +61,30 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 		return nopfr;
 	}
 	
-	@Override
 	public void setFastqNumberOfPassFilterReads(FileHandle file, Integer number) throws MetadataException {
 		setMeta(file, FILE_AREA, FASTQ_NUMBER_OF_PASS_FILTER_READS, number.toString());
 	}
 
 	@Override
-	public boolean getContainsFailed(FileHandle file)  {
+	public boolean containsFailed(FileHandle file)  {
 		String fails = getMeta(file, FILE_AREA, FASTQ_CONTAINS_FAILED_READS);
 		Boolean b = new Boolean(fails);
 		return b.booleanValue();
 	}
 	
-	@Override
 	public void setContainsFailed(FileHandle file, boolean fail) throws MetadataException {
 		Boolean b = new Boolean(fail);
 		setMeta(file, FILE_AREA, FASTQ_CONTAINS_FAILED_READS, b.toString());
+	}
+
+	@Override
+	public Integer getFastqFileNumber(FileHandle file) {
+		Integer fileNumber = new Integer(getMeta(file, FILETYPE_AREA, FileTypeService.FILETYPE_FILE_NUMBER_META_KEY));
+		return fileNumber;
+	}
+	
+	public void setFastqFileNumber(FileHandle file, Integer number) throws InvalidFileTypeException, MetadataException {
+		setMeta(file, FILETYPE_AREA, FileTypeService.FILETYPE_FILE_NUMBER_META_KEY, number.toString());
 	}
 
 	@Override
@@ -87,7 +93,6 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 		return uuid;
 	}
 	
-	@Override
 	public void setLibraryUUID(FileHandle file, Sample library) throws MetadataException {
 		Assert.assertTrue(sampleService.isLibrary(library), "sample must be of type library");
 		Assert.assertParameterNotNull(library.getUUID(), "library must be persisted");
@@ -111,7 +116,6 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 		return numberOfSegments;
 	}
 	
-	@Override
 	public void setNumberOfReadSegments(FileGroup filegroup, Integer number) throws MetadataException {
 		Assert.assertParameterNotNull(filegroup);
 		Assert.assertParameterNotNull(number);
@@ -126,18 +130,17 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 		FileType fq = fileTypeDao.findById(fastqFileType.getId());
 		return fq;
 	}
+	
+	@Override
+	public void copyFastqFileGroupMetadata(FileGroup origin, FileGroup target) throws MetadataException {
+	    this.copyMetaByArea(origin, target, FILE_AREA);
+	}
 
-    @Override
-    public void copyFastqFileHandleMetadata(FileGroup origin, FileGroup target) throws MetadataException {
-        this.copyMetaByArea(origin, target, FILE_AREA);
-        
-    }
+	@Override
+	public void copyFastqFileHandleMetadata(FileHandle origin, FileHandle target) throws MetadataException {
+	    this.copyMetaByArea(origin, target, FILE_AREA);	    
+	}
 
-    @Override
-    public void copyFastqFileHandleMetadata(FileHandle origin, FileHandle target) throws MetadataException {
-        this.copyMetaByArea(origin, target, FILE_AREA);
-        
-    }
 	
 	
 

@@ -130,7 +130,9 @@ public class TrimTasklet extends WaspTasklet {
 	        delete.setWorkingDirectory(stageDir + "/" + run.getName() + "/wasp/sequence" );
 	        delete.setCommand("shopt -u nullglob");
 	        delete.addCommand("rm -f *trimm*");
-	        GridResult r = transportConnection.sendExecToRemote(delete);
+	        
+	        //send command, bypassing scheduler
+	        transportConnection.sendExecToRemote(delete);
 	        
 	        for (SampleSource cellLibrary : cellLibraries) {
 	            Set<FileGroup> fgs = fileService.getFilesForCellLibraryByType(cellLibrary, fastqService.getFastqFileType());
@@ -155,6 +157,7 @@ public class TrimTasklet extends WaspTasklet {
 	                    w.addCommand("TASKS[" + tasks++ + "]=\"trim_galore --gzip ${" + WorkUnit.INPUT_FILE + "[" + fnum++ + "]\"");
 	                } else if (rs == 2) {
 	                    w.addCommand("TASKS[" + tasks++ + "]=\"trim_galore --paired --gzip ${" + WorkUnit.INPUT_FILE + "[" + fnum++ + "]${" + WorkUnit.INPUT_FILE + "[" + fnum++ + "]\"");
+	                    w.addRequiredFile(fhi.next());
 	                }
 	            }
 	            
@@ -166,10 +169,10 @@ public class TrimTasklet extends WaspTasklet {
 
 		GridResult result = workService.execute(w);
 		
-		logger.debug("started trimming of illumina output: " + result.getUuid());
+		logger.debug("submitted trimming of illumina output: " + result.getUuid());
 		
 		//place the grid result in the step context
-		WaspTasklet.storeStartedResult(context, result);
+		storeStartedResult(context, result);
 		
 		return RepeatStatus.CONTINUABLE;
 

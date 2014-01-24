@@ -132,19 +132,17 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="waspIlluminaHiSeq.mainFlow.moveAndRegisterTrimmed" next="waspIlluminaHiSeq.mainFlow.listenForQCCompletion">
+		<batch:step id="waspIlluminaHiSeq.mainFlow.moveAndRegisterTrimmed" next="waspIlluminaHiSeq.mainFlow.demultiplex">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.RegisterTrimTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<!-- 
 		<batch:step id="waspIlluminaHiSeq.mainFlow.demultiplex" next="waspIlluminaHiSeq.mainFlow.listenForQCCompletion">
-			!-- task to perform 5' demultiplexing, currently skipping --
+			 <!--  task to perform 5' demultiplexing, currently skipping --> 
 			<batch:tasklet ref="waspIlluminaHiSeq.mainFlow.skipTasklet" />
 		</batch:step>
-		 -->
 		<batch:step id="waspIlluminaHiSeq.mainFlow.listenForQCCompletion" next="waspIlluminaHiSeq.mainFlow.notifyRunComplete">
 			<batch:tasklet>
 						<batch:transaction-attributes propagation="NEVER"/>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
+		
+	
+	<!-- for job, call with parameter 'fileGroupId' -->
+	<batch:job id="edu.yu.einstein.wasp.plugin.babraham.trim_galore.mainFlow">
+		<batch:step id="edu.yu.einstein.wasp.plugin.babraham.fastqscreen.mainFlow.notifyTrimGaloreStart" next="edu.yu.einstein.wasp.plugin.babrahamQC.mainFlow.trimGalore">
+			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.plugin.babraham.integration.messages.BabrahamStatusMessageTemplate">
+							<constructor-arg name="runName" value="#{jobParameters[waspJobParameters.RUN_NAME]}" />
+							<constructor-arg name="fileGroupId" value="#{jobParameters[waspJobParameters.FILE_GROUP_ID]}" />
+							<constructor-arg name="fileNumber" value="#{jobParameters[fileTypeService.FILETYPE_FILE_NUMBER_META_KEY]}" />
+							<constructor-arg name="readSegments" value="#{jobParameters[fastqService.FASTQ_GROUP_NUMBER_OF_READ_SEGMENTS]}" />
+							<property name="status" value="STARTED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="edu.yu.einstein.wasp.plugin.babrahamQC.mainFlow.trimGalore" next="edu.yu.einstein.wasp.plugin.babraham.fastqscreen.mainFlow.notifyTrimGaloreComplete">
+			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
+				<bean class="edu.yu.einstein.wasp.plugin.babraham.batch.tasklet.TrimGaloreTasklet" scope="step">
+					<constructor-arg name="fileGroupId" value="#{jobParameters[waspJobParameters.FILE_GROUP_ID]}" />
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+
+		<batch:step id="edu.yu.einstein.wasp.plugin.babraham.fastqscreen.mainFlow.notifyTrimGaloreComplete">
+			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.plugin.babraham.integration.messages.TrimGaloreStatusMessageTemplate">
+							<constructor-arg name="runName" value="#{jobParameters[waspJobParameters.RUN_NAME]}" />
+							<constructor-arg name="fileGroupId" value="#{jobParameters[waspJobParameters.FILE_GROUP_ID]}" />
+							<constructor-arg name="fileNumber" value="#{jobParameters[fileTypeService.FILETYPE_FILE_NUMBER_META_KEY]}" />
+							<constructor-arg name="readSegments" value="#{jobParameters[fastqService.FASTQ_GROUP_NUMBER_OF_READ_SEGMENTS]}" />
+							<property name="status" value="COMPLETED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+
+</beans>
+

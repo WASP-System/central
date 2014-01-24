@@ -99,11 +99,11 @@ public class PipelineTasklet extends WaspTasklet {
 		String sampleSheetName;
 		
 		if (method == IndexType.SINGLE) {
-		    outputFolder = "Unaligned";
-		    sampleSheetName = "SampleSheet.csv";
+		    outputFolder = IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME;
+		    sampleSheetName = IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_SAMPLE_SHEET_NAME;
 		} else {
-		    outputFolder = "DualUnaligned";
-		    sampleSheetName = "DualSampleSheet.csv";
+		    outputFolder = IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME;
+		    sampleSheetName = IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_SAMPLE_SHEET_NAME;
 		}
 		
 		// TODO: handle single and dual situations.
@@ -127,7 +127,7 @@ public class PipelineTasklet extends WaspTasklet {
 		w.setWorkingDirectory(dataDir + "/" + run.getName() 
 				+ "/Data/Intensities/BaseCalls/" );
 		
-		w.setResultsDirectory(dataDir + "/" + run.getName() + "/Unaligned");
+		w.setResultsDirectory(dataDir + "/" + run.getName() + "/" + outputFolder);
 		
 		w.setCommand(getConfigureBclToFastqString(sm, procs, sampleSheetName, outputFolder));
 
@@ -149,7 +149,8 @@ public class PipelineTasklet extends WaspTasklet {
 		String missingControl = sm.getConfiguredSetting("casava.ignore-missing-control");
 		String fastqNclusters = sm.getConfiguredSetting("casava.fastq-cluster-count");
 		
-		String semaphore = sampleSheetName.equals("SampleSheet.csv") ? "wasp_begin.txt" : "dual_wasp_begin.txt";
+		String semaphore = sampleSheetName.equals(IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_SAMPLE_SHEET_NAME) ? 
+		        IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_SEMAPHORE : IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_SEMAPHORE;
 		
 		String retval = "if [ ! -e " + semaphore + " ]; then\n";
 		
