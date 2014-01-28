@@ -37,7 +37,7 @@ public class BatchJobStatusViewerController extends WaspController {
 		}
 		if (node.equals(BatchJobStatusViewerService.ROOT_NODE_ID))
 			model.addChildren(statusViewerService.getJobListAll());
-		return model.getAsJSON().toString();
+		return model.getChildrenAsJSON();
 	}
 
 }

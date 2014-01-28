@@ -1,7 +1,6 @@
 package edu.yu.einstein.wasp.controller.util;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
 public class BatchJobTreeModel extends ExtTreeModel {
@@ -62,6 +61,8 @@ public class BatchJobTreeModel extends ExtTreeModel {
 	}
 	
 	private String getFormattedDateString(Date date){
+		if (date == null)
+			return "";
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
 		return dateFormat.format(date);
 	}

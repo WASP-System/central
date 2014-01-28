@@ -2,7 +2,6 @@ package edu.yu.einstein.wasp.controller.util;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
@@ -64,6 +63,8 @@ public class ExtTreeModel implements Serializable{
 	}
 	
 	public List<ExtTreeModel> getChildren(){
+		if (this.children.isEmpty())
+			return null; // otherwise tree does not show arrows to expand
 		return this.children;
 	}
 	
@@ -104,11 +105,20 @@ public class ExtTreeModel implements Serializable{
 	}
 
 	@JsonIgnore
-	public JSONObject getAsJSON() throws JSONException {
+	public String getAsJSON() throws JSONException {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			// use jackson object mapper to create json as text then wrap in JSONObject (Jackson understands @JsonIgnore)
-			return new JSONObject(mapper.writeValueAsString(this));
+			return mapper.writeValueAsString(this);
+		} catch (Exception e) {
+			throw new JSONException("Cannot convert object to JSON. Caught exception of type " + e.getClass().getName() + " : " +e.getLocalizedMessage());
+		}
+	}
+	
+	@JsonIgnore
+	public String getChildrenAsJSON() throws JSONException {
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			return mapper.writeValueAsString(this.children);
 		} catch (Exception e) {
 			throw new JSONException("Cannot convert object to JSON. Caught exception of type " + e.getClass().getName() + " : " +e.getLocalizedMessage());
 		}
