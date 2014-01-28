@@ -109,7 +109,7 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 	@Override
 	public ExtTreeModel getModel(String nodeId){
 		if (nodeId.equals(ROOT_NODE_ID)){
-			return new BatchJobTreeModel("node_root", ExtIcon.TASK_FOLDER, true, false);
+			return new BatchJobTreeModel(ROOT_NODE_ID, ExtIcon.TASK_FOLDER, true, false);
 		}
 		if (nodeId.contains(STEP_EXECUTION_ID_PREFIX)){
 			String jobExecutionIdString = nodeId.replace(STEP_EXECUTION_ID_PREFIX + "[0-9]+", "");

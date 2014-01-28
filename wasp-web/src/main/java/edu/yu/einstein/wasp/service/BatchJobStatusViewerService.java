@@ -9,7 +9,7 @@ import edu.yu.einstein.wasp.controller.util.ExtTreeModel;
 
 public interface BatchJobStatusViewerService {
 	
-	public static final String ROOT_NODE_ID = "root_node";
+	public static final String ROOT_NODE_ID = "node-root";
 	public static final String JOB_EXECUTION_ID_PREFIX = "JE_";
 	public static final String STEP_EXECUTION_ID_PREFIX = "SE_";
 	

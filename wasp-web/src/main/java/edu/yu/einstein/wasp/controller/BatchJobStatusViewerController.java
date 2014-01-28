@@ -12,11 +12,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import edu.yu.einstein.wasp.controller.util.BatchJobTreeModel;
+import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.service.BatchJobStatusViewerService;
 
 @RequestMapping("/batchJobStatusViewer")
 @Controller
-public class BatchJobStatusViewer extends WaspController {
+public class BatchJobStatusViewerController extends WaspController {
 	
 	@Autowired
 	BatchJobStatusViewerService statusViewerService;
@@ -28,9 +29,13 @@ public class BatchJobStatusViewer extends WaspController {
 	}
 	
 	@RequestMapping(value="/getDetailsJson", method = RequestMethod.GET)
-	public @ResponseBody String getNodeJson(@RequestParam("node") String node, HttpServletResponse response) {
+	public @ResponseBody String getNodeJson(@RequestParam("node") String node, HttpServletResponse response) throws WaspException {
+		logger.debug("Getting model data for node=" + node);
 		BatchJobTreeModel model = (BatchJobTreeModel) statusViewerService.getModel(node);
-		if (node.equals("node_root"))
+		if (model == null){
+			throw new WaspException("Unable to retrieve a model object for node=" + node);
+		}
+		if (node.equals(BatchJobStatusViewerService.ROOT_NODE_ID))
 			model.addChildren(statusViewerService.getJobListAll());
 		return model.getAsJSON().toString();
 	}

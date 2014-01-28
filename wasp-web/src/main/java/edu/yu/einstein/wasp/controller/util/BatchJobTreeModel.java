@@ -1,5 +1,7 @@
 package edu.yu.einstein.wasp.controller.util;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 public class BatchJobTreeModel extends ExtTreeModel {
@@ -10,9 +12,9 @@ public class BatchJobTreeModel extends ExtTreeModel {
 	
 	private Long executionId = 0L;
 	
-	private Date startTime = null;
+	private String startTime = null;
 	
-	private Date endTime = null;
+	private String endTime = null;
 	
 	private String status = "";
 	
@@ -32,11 +34,11 @@ public class BatchJobTreeModel extends ExtTreeModel {
 		super(id, iconCls, isExpanded, isLeaf);
 		this.name = name;
 		this.executionId = executionId;
-		this.startTime = startTime;
-		this.endTime = endTime;
-		status = status;
-		exitCode = exitCode;
-		exitMessage = exitMessage;
+		setStartTime(startTime);
+		setEndTime(endTime);
+		this.status = status;
+		this.exitCode = exitCode;
+		this.exitMessage = exitMessage;
 	}
 
 	public String getName() {
@@ -55,20 +57,25 @@ public class BatchJobTreeModel extends ExtTreeModel {
 		this.executionId = executionId;
 	}
 
-	public Date getStartTime() {
+	public String getStartTime() {
 		return startTime;
+	}
+	
+	private String getFormattedDateString(Date date){
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
+		return dateFormat.format(date);
 	}
 
 	public void setStartTime(Date startTime) {
-		this.startTime = startTime;
+		this.startTime = getFormattedDateString(startTime);
 	}
 
-	public Date getEndTime() {
+	public String getEndTime() {
 		return endTime;
 	}
 
 	public void setEndTime(Date endTime) {
-		this.endTime = endTime;
+		this.endTime = getFormattedDateString(endTime);
 	}
 
 	public String getStatus() {

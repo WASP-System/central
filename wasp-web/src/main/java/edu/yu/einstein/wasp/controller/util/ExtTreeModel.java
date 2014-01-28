@@ -36,7 +36,7 @@ public class ExtTreeModel implements Serializable{
 	
 	private String id = "";
 	
-	private ExtIcon iconCls = ExtIcon.TASK_FOLDER; // default
+	private String iconCls = ExtIcon.TASK_FOLDER.toString(); // default
 	
 	private boolean isLeaf = false;
 	
@@ -48,7 +48,7 @@ public class ExtTreeModel implements Serializable{
 	
 	public ExtTreeModel(String id, ExtIcon iconCls, boolean isExpanded, boolean isLeaf){
 		this.id = id;
-		this.iconCls = iconCls;
+		this.iconCls = iconCls.toString();
 		this.isExpanded = isExpanded;
 		this.isLeaf = isLeaf;
 	}
@@ -79,12 +79,12 @@ public class ExtTreeModel implements Serializable{
 		this.id = id;
 	}
 
-	public ExtIcon getIconCls() {
+	public String getIconCls() {
 		return iconCls;
 	}
 
 	public void setIconCls(ExtIcon iconCls) {
-		this.iconCls = iconCls;
+		this.iconCls = iconCls.toString();
 	}
 
 	public boolean isLeaf() {

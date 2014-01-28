@@ -26,14 +26,15 @@ Ext.define('Task', {
     extend: 'Ext.data.TreeModel',
     fields: [
         {name: 'name',     type: 'string'},
-        {name: 'executionId',     type: 'number'},
-        {name: 'startTime', type: 'date'},
-        {name: 'endTime',     type: 'date'},
+        {name: 'executionId',     type: 'long'},
+        {name: 'startTime', type: 'string'},
+        {name: 'endTime',     type: 'string'},
         {name: 'status',     type: 'string'},
         {name: 'exitCode', type: 'string'},
         {name: 'exitMessage',     type: 'string'}
     ]
 });
+
 
 Ext.onReady(function() {
     Ext.tip.QuickTipManager.init();
@@ -49,8 +50,9 @@ Ext.onReady(function() {
         	nodeType: 'async',
         	text: '.',
         	id:'node-root'
-        },
-        folderSort: true
+        }, 
+        sortOnLoad: true, 
+        sorters: { property: 'executionId', direction : 'DESC' }
     });
 
     //Ext.ux.tree.TreeGrid is no longer a Ux. You can simply use a tree.TreePanel
@@ -65,47 +67,37 @@ Ext.onReady(function() {
         store: store,
         multiSelect: true,
         columns: [{
+        	xtype: 'treecolumn', //this is so we know which column will show the tree
             text: 'Name',
-            width: 200,
+            width: 300,
             sortable: true,
-            dataIndex: 'name',
-            locked: true
+            dataIndex: 'name'
         },{
             text: 'Id',
-            width: 20,
+            width: 75,
             sortable: true,
-            dataIndex: 'id',
-            locked: true
+            dataIndex: 'executionId',
+            folderSort: true
         }, {
             text: 'Started',
-            width: 50,
+            width: 150,
             sortable: true,
-            dataIndex: 'startTime',
-            locked: true
+            dataIndex: 'startTime'
         }, {
         	text: 'Ended',
-            width: 50,
+            width: 150,
             sortable: true,
-            dataIndex: 'endTime',
-            locked: true
+            dataIndex: 'endTime'
         }, {
         	text: 'Status',
-            width: 50,
+            width: 140,
             sortable: true,
-            dataIndex: 'status',
-            locked: true
+            dataIndex: 'exitCode'
         }, {
-        	text: 'Exit Code',
-            width: 50,
-            sortable: true,
-            dataIndex: 'exitCode',
-            locked: true
-        }, {
-        	text: 'Exit Message',
-            width: 200,
+        	text: 'Status Message',
             sortable: false,
-            dataIndex: 'exitMessage',
-            locked: true
+            width: 500,
+            dataIndex: 'exitMessage'
         }]
     });
     jQuery(window).bind('resize', function () {
