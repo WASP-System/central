@@ -38,8 +38,8 @@ public class testExtTreeModel {
 	
 	@Test (groups = "unit-tests")
 	public void testJsonEncode() {
-		String output = testTreeModel.getAsJSON().toString();
-		logger.debug(output.toString());
+		String output = testTreeModel.getAsJSON();
+		logger.debug(output);
 		Assert.assertNotNull(output);
 	}
 

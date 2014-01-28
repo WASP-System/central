@@ -37,13 +37,12 @@ Ext.define('Task', {
 Ext.onReady(function() {
     
 
-    //Ext.ux.tree.TreeGrid is no longer a Ux. You can simply use a tree.TreePanel
     var tree = Ext.create('Ext.tree.Panel', {
         title: 'Job Status Viewer',
         width: $('#content').width(),
         height: $('#content').height(),
         renderTo: 'batchJobStatusViewer',
-        collapsible: true,
+        collapsible: false,
         useArrows: true,
         rootVisible: false,
         store: Ext.create('Ext.data.TreeStore', {
@@ -92,7 +91,7 @@ Ext.onReady(function() {
         }, {
         	text: 'Status Message',
             sortable: false,
-            width: 450,
+            width: 400,
             dataIndex: 'exitMessage'
         }]
     });
