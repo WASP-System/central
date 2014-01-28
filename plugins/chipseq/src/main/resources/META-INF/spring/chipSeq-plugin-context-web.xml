@@ -10,5 +10,5 @@
 
 	
 	<!-- common definitions -->
-	<import resource="wasp-chipseq-plugin-context-common.xml" />
+	<import resource="chipSeq-plugin-context-common.xml" />
 </beans>

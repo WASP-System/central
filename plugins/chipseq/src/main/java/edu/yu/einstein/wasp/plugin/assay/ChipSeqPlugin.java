@@ -40,7 +40,7 @@ import edu.yu.einstein.wasp.viewpanel.PanelTab;
  * @author asmclellan
  * 
  */
-public class WaspChipSeqPlugin extends WaspPlugin implements 
+public class ChipSeqPlugin extends WaspPlugin implements 
 	BatchJobProviding,
 	WebInterfacing,
 	FileDataTabViewing,
@@ -67,7 +67,7 @@ public class WaspChipSeqPlugin extends WaspPlugin implements
 	
 	public static final String AGGREGATE_ANALYSIS_JOB = "chipSeq.library.aggregate.jobflow.v1";
 	
-	public WaspChipSeqPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
+	public ChipSeqPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
 		super(iName, waspSiteProperties, channel);
 	}
 
@@ -86,7 +86,7 @@ public class WaspChipSeqPlugin extends WaspPlugin implements
 			return helloWorldHelp();
 		}
 		
-		logger.info("******************************public method: Hello World from WaspChipSeqPlugin!");
+		logger.info("******************************public method: Hello World from ChipSeqPlugin!");
 			
 		return (Message<String>) MessageBuilder.withPayload("sent a Hello World message from the wasp_chip_seq_plugin").build();
 	}
@@ -101,7 +101,7 @@ public class WaspChipSeqPlugin extends WaspPlugin implements
 		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
 			return launchTestFlowHelp();
 		
-		logger.info("************************public method: test flow within WaspChipSeqPlugin!");
+		logger.info("************************public method: test flow within ChipSeqPlugin!");
 		//m = MessageBuilder.withPayload("{\"id\":\"14\"}").build();
 		try {
 			//Integer id = getIDFromMessage(m);
@@ -116,23 +116,23 @@ public class WaspChipSeqPlugin extends WaspPlugin implements
 			jobParameters.put("test", new Date().toString());
 			
 			//jobParameters.put(WaspJobParameters.LIBRARY_CELL_ID, id.toString());
-			String cellLibraryIdListAsString = "12,13,14,15";//comma delimited list is how they will appear
+			String cellLibraryIdListAsString = "37,38,39,40";//comma delimited list is how they will appear
 			jobParameters.put(WaspSoftwareJobParameters.LIBRARY_CELL_ID_LIST, cellLibraryIdListAsString);
 			waspMessageHandlingService.launchBatchJob(AGGREGATE_ANALYSIS_JOB, jobParameters);
-			logger.info("***************Initiating chipseq test flow in WaspChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB + " on cellLibraryIds " + cellLibraryIdListAsString);
+			logger.info("***************Initiating chipseq test flow in ChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB + " on cellLibraryIds " + cellLibraryIdListAsString);
 			return (Message<String>) MessageBuilder.withPayload("Initiating chipseq test flow: "+AGGREGATE_ANALYSIS_JOB + " on cellLibraryIds " + cellLibraryIdListAsString).build();
 		} catch (WaspMessageBuildingException e1) {
-			logger.warn("***************WaspMessageBuildingException Unable to build launch batch job from WaspChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB);
-			return MessageBuilder.withPayload("Unable to launch batch job from WaspChipSeqPlugin:" + AGGREGATE_ANALYSIS_JOB).build();
+			logger.warn("***************WaspMessageBuildingException Unable to build launch batch job from ChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB);
+			return MessageBuilder.withPayload("Unable to launch batch job from ChipSeqPlugin:" + AGGREGATE_ANALYSIS_JOB).build();
 		}catch (Exception e1) {
-			logger.warn("***************Exception: Unable to build launch batch job from WaspChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB);
-			return MessageBuilder.withPayload("Exception: Unable to launch batch job from WaspChipSeqPlugin:" + AGGREGATE_ANALYSIS_JOB).build();
+			logger.warn("***************Exception: Unable to build launch batch job from ChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB);
+			return MessageBuilder.withPayload("Exception: Unable to launch batch job from ChipSeqPlugin:" + AGGREGATE_ANALYSIS_JOB).build();
 		}
 		
 	}
 	
 	private Message<String> launchTestFlowHelp() {
-		String mstr = "\ninside launchTestFlowHelp within the WaspChipSeqPlugin: launch the test flow.\n" +
+		String mstr = "\ninside launchTestFlowHelp within the ChipSeqPlugin: launch the test flow.\n" +
 				"wasp -T chipseq -t launchTestFlow -m \'{id:\"14\"}\'\n";
 		return MessageBuilder.withPayload(mstr).build();
 	}
@@ -173,7 +173,7 @@ public class WaspChipSeqPlugin extends WaspPlugin implements
 
 	@Override
 	public Hyperlink getDescriptionPageHyperlink(){
-		return new Hyperlink("waspChipSeq.hyperlink.label", "/wasp-chipseq/description.do");
+		return new Hyperlink("chipSeq.hyperlink.label", "/chipSeq/description.do");
 	}
 
 	@Override

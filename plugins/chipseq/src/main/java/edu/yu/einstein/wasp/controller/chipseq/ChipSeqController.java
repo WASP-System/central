@@ -8,12 +8,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import edu.yu.einstein.wasp.controller.WaspController;
 
 @Controller
-@RequestMapping("/wasp-chipseq")
-public class WaspChipSeqController extends WaspController {
+@RequestMapping("/chipSeq")
+public class ChipSeqController extends WaspController {
 
 	@RequestMapping(value="/description", method=RequestMethod.GET)
 	public String displayDescription(ModelMap m){
-		return "waspchipseq/description";
+		return "chipseq/description";
 	}
 	
 

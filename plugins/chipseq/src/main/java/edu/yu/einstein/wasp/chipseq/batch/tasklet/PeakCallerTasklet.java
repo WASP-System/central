@@ -43,7 +43,7 @@ import edu.yu.einstein.wasp.service.SampleService;
 
 public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListener {
 
-	private List<Integer> cellLibraryIdList;
+	private List<Integer> approvedCellLibraryIdList;
 	
 	@Autowired
 	private FileService fileService;
@@ -78,7 +78,7 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 		//List<Integer> cids = WaspSoftwareJobParameters.getLibraryCellIdList(cellLibraryIdList);
 		//Assert.assertTrue(cids.size() == 1);
 		//this.cellLibraryIdList = cids.get(0);
-		this.cellLibraryIdList = WaspSoftwareJobParameters.getLibraryCellIdList(cellLibraryIdListAsString);
+		this.approvedCellLibraryIdList = WaspSoftwareJobParameters.getLibraryCellIdList(cellLibraryIdListAsString);
 		this.softwareResourceType = softwareResourceType;
 	}
 
@@ -92,97 +92,130 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 	@Override
 	@RetryOnExceptionExponential
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
-		logger.debug("***************in PeakCallerTasklet.execute(): softwareResourceType for peakcaller is " + this.softwareResourceType.getName());
-		logger.debug("***************in PeakCallerTasklet.execute(): cellLibraryIdList.size() is " + this.cellLibraryIdList.size());
-		List<SampleSource> cellLibraryList = new ArrayList<SampleSource>();
-		for(Integer cellLibraryId : cellLibraryIdList){
-			logger.debug("**********************in PeakCallerTasklet.execute(): cellLibraryId: " + cellLibraryId);
-			SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);
-			cellLibraryList.add(cellLibrary);
-		}
-		logger.debug("***************in PeakCallerTasklet.execute(): cellLibraryList.size() is " + cellLibraryList.size());
-		Set<Sample> setOfSamples = new HashSet<Sample>();
-		Map<Sample, List<SampleSource>> sampleCellLibraryListMap = new HashMap<Sample, List<SampleSource>>();
-		Map<Sample, List<Set<FileGroup>>> sampleFileGroupSetListMap = new HashMap<Sample, List<Set<FileGroup>>>();
-		Job job = null;
 		
-		for(SampleSource cellLibrary : cellLibraryList){
+		logger.debug("***************in PeakCallerTasklet.execute(): softwareResourceType for peakcaller is " + this.softwareResourceType.getName());
+		logger.debug("***************in PeakCallerTasklet.execute(): approvedCellLibraryIdList.size() is " + this.approvedCellLibraryIdList.size());
+		
+		List<SampleSource> approvedCellLibraryList = new ArrayList<SampleSource>();
+		Job job = null;
+		for(Integer approvedCellLibraryId : approvedCellLibraryIdList){
 			
+			logger.debug("**********************in PeakCallerTasklet.execute(): approvedCellLibraryId: " + approvedCellLibraryId);
+			
+			//get the approvedCellLibrary for each approvedCellLibraryId
+			SampleSource approvedCellLibrary = sampleService.getCellLibraryBySampleSourceId(approvedCellLibraryId);
+			
+			//get the job for this list of approvedCellLibraries and confirm all from the same job
 			if(job==null){
-				job = sampleService.getJobOfLibraryOnCell(cellLibrary);
+				job = sampleService.getJobOfLibraryOnCell(approvedCellLibrary);
 			}
-			else{
-				if(job.getId().intValue()!=sampleService.getJobOfLibraryOnCell(cellLibrary).getId().intValue()){
-					logger.debug("*************************MORE THAN ONE JOB INVOLVED! NOT A GOOD THING HERE!");
-					throw new Exception("major problems related to job in PeakCallerTasklet.execute()");
+			else if(job.getId()!=null){
+				if(job.getId().intValue()!=sampleService.getJobOfLibraryOnCell(approvedCellLibrary).getId().intValue()){
+					logger.debug("*************************NOT ALL ApprovdCellLibraries ARE FROM THE SAME JOB! Do not proceed!");
+					throw new Exception("Not all approvedCellLibraries are from the same job");
 				}
 			}
+			
+			//confirm that all the approvedCellLibraries are actually associated with bamFiles 
+			Set<FileGroup> fileGroupSet = fileService.getFilesForCellLibraryByType(approvedCellLibrary, bamFileType);				
+			/*
+			TODO: restore this next if condition: (It's commented out for testing purposes only, since for testing, they might not actually have bam files!)
+			if(fileGroupSet.isEmpty()){
+				logger.debug("*************************NOT ALL ApprovedCellLibraries are associated with bamFiles. Do NOT proceed!");
+				throw new Exception("NOT ALL ApprovedCellLibraries are associated with bamFiles. Do NOT proceed!");
+			}	
+			*/
+			
+			approvedCellLibraryList.add(approvedCellLibrary);
+		}
+		logger.debug("***************in PeakCallerTasklet.execute(): approvedCellLibraryList.size() is " + approvedCellLibraryList.size());
+		logger.debug("*************************the jobID is: " + job.getId().toString());
+
+		Set<Sample> setOfApprovedSamples = new HashSet<Sample>();//for a specific job
+		Map<Sample, List<SampleSource>> approvedSampleApprovedCellLibraryListMap = new HashMap<Sample, List<SampleSource>>();
+		
+		//get the uppermost sample associated with these cellLibraries
+		for(SampleSource cellLibrary : approvedCellLibraryList){
+			
 			Sample parentSample = sampleService.getLibrary(cellLibrary);
 			
 			while(parentSample.getParentId()!=null){
 				parentSample = parentSample.getParent();
 			}
 			
-			setOfSamples.add(parentSample);
+			setOfApprovedSamples.add(parentSample);//it is these parent samples that will be included on the samplePairs information
 			
-			if(sampleCellLibraryListMap.containsKey(parentSample)){
-				sampleCellLibraryListMap.get(parentSample).add(cellLibrary);
+			if(approvedSampleApprovedCellLibraryListMap.containsKey(parentSample)){
+				approvedSampleApprovedCellLibraryListMap.get(parentSample).add(cellLibrary);
 			}
 			else{
-				List<SampleSource> cellLibraryListForASample = new ArrayList<SampleSource>();
-				cellLibraryListForASample.add(cellLibrary);
-				sampleCellLibraryListMap.put(parentSample, cellLibraryListForASample);
+				List<SampleSource> approvedCellLibraryListForASample = new ArrayList<SampleSource>();//this list references sets of bam files to be merged!
+				approvedCellLibraryListForASample.add(cellLibrary);
+				approvedSampleApprovedCellLibraryListMap.put(parentSample, approvedCellLibraryListForASample);
 			}
-			
-			if(sampleFileGroupSetListMap.containsKey(parentSample)){
-				Set<FileGroup> fileGroupSet = fileService.getFilesForCellLibraryByType(cellLibrary, bamFileType);
-				sampleFileGroupSetListMap.get(parentSample).add(fileGroupSet);
-			}
-			else{
-				List<Set<FileGroup>> fileGroupSetListForASample = new ArrayList<Set<FileGroup>>();
-				Set<FileGroup> fileGroupSet = fileService.getFilesForCellLibraryByType(cellLibrary, bamFileType);				
-				fileGroupSetListForASample.add(fileGroupSet);
-				sampleFileGroupSetListMap.put(parentSample, fileGroupSetListForASample);
-			}
-			
-		}
-		
-		logger.debug("*************************the jobID is: " + job.getId().toString());
-		
-		for(Sample sample : setOfSamples){
-			logger.debug("*************************Sample: " + sample.getName());
-			logger.debug("***************************BamFiles:");
-			for(Set<FileGroup> fileGroupSet : sampleFileGroupSetListMap.get(sample)){
-				for(FileGroup fileGroup : fileGroupSet){
-					for(FileHandle fileHandle : fileGroup.getFileHandles()){
-						logger.debug("***************************File: " + fileHandle.getFileName());
-					}						
-				}
-			}			
 		}
 		
 		Set<SampleSource> sampleSourceSet = sampleService.getSamplePairsByJob(job);
-		Map<Sample, List<Sample>> ipInputListMap = new HashMap<Sample, List<Sample>>();
+		Map<Sample, List<Sample>> testControlListMap = new HashMap<Sample, List<Sample>>();
 		
-		for(Sample sample : setOfSamples){
-			List<Sample> inputList = new ArrayList<Sample>();
-			for(SampleSource ss : sampleSourceSet){
-				Sample test = ss.getSample();//IP
-				Sample control = ss.getSourceSample();//input
+		//do not forget that a sample destined for a paired analysis (chipseq or helptag) 
+		//MAY NOT be on the samplePair list (but still needs to be dealt with).
+		//For chipseq, since the grid of pairs can be skipped, we may not know
+		//which are IP and which are inputs. However, for helptag it is be different, 
+		//since, regardless of the gird of pairs, we DO STILL KNOW which are MspI and which are HpaII
+		for(Sample approvedSample : setOfApprovedSamples){
+			List<Sample> approvedControlList = new ArrayList<Sample>();
+			for(SampleSource ss : sampleSourceSet){//for each recorded samplePair
+				Sample test = ss.getSample();//IP (or HpaII)
+				Sample control = ss.getSourceSample();//input (or MspI)
 				//System.out.println("----control = " + control.getName() + " AND test = " + test.getName());
-				if(sample == test){
-					inputList.add(control);
+				if(approvedSample.getId().intValue() == test.getId().intValue()){
+					if(setOfApprovedSamples.contains(control)){//no sense adding to controlList if the control is not also approved
+						approvedControlList.add(control);
+					}
 				}
 			}
-			if(!inputList.isEmpty()){
-				ipInputListMap.put(sample, inputList);
-				
-			}
+			testControlListMap.put(approvedSample, approvedControlList);//execute this line even if approvedControlList is empty; approvedSample could be an IP without any input paired with it (and approvedSample could also be an input)				
 		}
 		 
-		
-		
-		
+		//output for testing purposes only:
+		//first, print out recorded samplePairs, if any
+		logger.debug("*************************");
+		logger.debug("*************************");
+		logger.debug("Recorded samplePairs, from the job submission:");		
+		for(SampleSource ss : sampleSourceSet){//for each recorded samplePair
+			Sample test = ss.getSample();//IP (or HpaII)
+			Sample control = ss.getSourceSample();//input (or MspI)
+			logger.debug("test - "+test.getName() + " : " + " control - " + control.getName());
+		}
+		//next, go through each entry of testControlListMap
+		//to make it easy, use setOfApprovedSamples as the keys
+		logger.debug("*************************");
+		logger.debug("*************************");
+		logger.debug("*************************Captured data:");		
+		for(Sample approvedSample : setOfApprovedSamples){
+			
+			Sample testSample = approvedSample;
+			logger.debug("testSample - "+testSample.getName());
+			logger.debug("testSample's cells (if more than one, merge):");
+			for(SampleSource cellLibrary : approvedSampleApprovedCellLibraryListMap.get(testSample)){
+				logger.debug("--testSample's cellLibrary: " + sampleService.getCell(cellLibrary).getName());
+			}
+			List<Sample> approvedControlSampleList = testControlListMap.get(testSample);
+			if(approvedControlSampleList.isEmpty()){
+				logger.debug("--No paired control, so generate peaks without any control");
+			}
+			else{
+				logger.debug("Control(s):");
+				for(Sample control : approvedControlSampleList){
+					logger.debug("Control: " + control.getName());
+					logger.debug("controlSample's cells (if more than one, merge):");
+					for(SampleSource cellLibrary : approvedSampleApprovedCellLibraryListMap.get(testSample)){
+						logger.debug("--controlSample's cells: " + sampleService.getCell(cellLibrary).getName());
+					}
+				}
+			}			
+		}
 		
 		
 		

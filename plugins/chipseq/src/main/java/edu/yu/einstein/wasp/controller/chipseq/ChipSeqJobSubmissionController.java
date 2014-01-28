@@ -29,7 +29,7 @@ import edu.yu.einstein.wasp.dao.SampleDraftDao;
 @Controller
 @Transactional
 @RequestMapping("/jobsubmit/chipSeq")
-public class WaspChipSeqJobSubmissionController extends JobSubmissionController {
+public class ChipSeqJobSubmissionController extends JobSubmissionController {
 
 	@Autowired
 	protected JobDraftDao jobDraftDao;
