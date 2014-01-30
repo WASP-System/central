@@ -20,16 +20,25 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.integration.Message;
+import org.springframework.integration.MessagingException;
+import org.springframework.integration.core.MessagingTemplate;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
+import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.chipseq.software.ChipSeqSoftwareComponent;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.SoftwareConfigurationException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 //import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
+import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
+import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
@@ -37,9 +46,12 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.util.SoftwareConfiguration;
+import edu.yu.einstein.wasp.util.WaspJobContext;
 
 
 public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListener {
@@ -81,6 +93,7 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 		//Assert.assertTrue(cids.size() == 1);
 		//this.cellLibraryIdList = cids.get(0);
 		this.approvedCellLibraryIdList = WaspSoftwareJobParameters.getLibraryCellIdList(cellLibraryIdListAsString);
+		Assert.assertTrue( ! this.approvedCellLibraryIdList.isEmpty() );
 		this.softwareResourceType = softwareResourceType;
 	}
 
@@ -97,95 +110,28 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 		
 		logger.debug("***************in PeakCallerTasklet.execute(): softwareResourceType for peakcaller is " + this.softwareResourceType.getName());
 		logger.debug("***************in PeakCallerTasklet.execute(): approvedCellLibraryIdList.size() is " + this.approvedCellLibraryIdList.size());
-		
-		List<SampleSource> approvedCellLibraryList = new ArrayList<SampleSource>();
-		Job job = null;
-		for(Integer approvedCellLibraryId : approvedCellLibraryIdList){
-			
-			logger.debug("**********************in PeakCallerTasklet.execute(): approvedCellLibraryId: " + approvedCellLibraryId);
-			
-			//get the approvedCellLibrary for each approvedCellLibraryId
-			SampleSource approvedCellLibrary = sampleService.getCellLibraryBySampleSourceId(approvedCellLibraryId);
-			
-			//get the job for this list of approvedCellLibraries and confirm all from the same job
-			if(job==null){
-				job = sampleService.getJobOfLibraryOnCell(approvedCellLibrary);
-			}
-			else if(job.getId()!=null){
-				if(job.getId().intValue()!=sampleService.getJobOfLibraryOnCell(approvedCellLibrary).getId().intValue()){
-					logger.debug("*************************NOT ALL ApprovdCellLibraries ARE FROM THE SAME JOB! Do not proceed!");
-					throw new Exception("Not all approvedCellLibraries are from the same job");
-				}
-			}
-			
-			//confirm that all the approvedCellLibraries are actually associated with bamFiles 
-			Set<FileGroup> fileGroupSet = fileService.getFilesForCellLibraryByType(approvedCellLibrary, bamFileType);				
-			/*
-			TODO: restore this next if condition: (It's commented out for testing purposes only, since for testing, they might not actually have bam files!)
-			if(fileGroupSet.isEmpty()){
-				logger.debug("*************************NOT ALL ApprovedCellLibraries are associated with bamFiles. Do NOT proceed!");
-				throw new Exception("NOT ALL ApprovedCellLibraries are associated with bamFiles. Do NOT proceed!");
-			}	
-			*/
-			
-			approvedCellLibraryList.add(approvedCellLibrary);
-		}
+		List<SampleSource> approvedCellLibraryList = getApprovedCellLibraries(this.approvedCellLibraryIdList);
 		logger.debug("***************in PeakCallerTasklet.execute(): approvedCellLibraryList.size() is " + approvedCellLibraryList.size());
-		logger.debug("*************************the jobID is: " + job.getId().toString());
-
+		confirmCellLibrariesAssociatedWithBamFiles(approvedCellLibraryList);//throws exception if no
+		Job job = confirmCellLibrariesFromSingleJob(approvedCellLibraryList);//throws exception if no; need job this since samplePairs are by job 
+		Assert.assertTrue(job!=null&&job.getId()!=null);
+		Map<Sample, List<SampleSource>> approvedSampleApprovedCellLibraryListMap = associateSampleWithCellLibraries(approvedCellLibraryList);//new HashMap<Sample, List<SampleSource>>();
 		Set<Sample> setOfApprovedSamples = new HashSet<Sample>();//for a specific job
-		Map<Sample, List<SampleSource>> approvedSampleApprovedCellLibraryListMap = new HashMap<Sample, List<SampleSource>>();
+		for (Map.Entry<Sample, List<SampleSource>> entry : approvedSampleApprovedCellLibraryListMap.entrySet()) {
+			Sample approvedSample = (Sample) entry.getKey();
+			setOfApprovedSamples.add(approvedSample);			
+		}	
 		
-		//get the uppermost sample associated with these cellLibraries
-		for(SampleSource cellLibrary : approvedCellLibraryList){
-			
-			Sample parentSample = sampleService.getLibrary(cellLibrary);
-			
-			while(parentSample.getParentId()!=null){
-				parentSample = parentSample.getParent();
-			}
-			
-			setOfApprovedSamples.add(parentSample);//it is these parent samples that will be included on the samplePairs information
-			
-			if(approvedSampleApprovedCellLibraryListMap.containsKey(parentSample)){
-				approvedSampleApprovedCellLibraryListMap.get(parentSample).add(cellLibrary);
-			}
-			else{
-				List<SampleSource> approvedCellLibraryListForASample = new ArrayList<SampleSource>();//this list references sets of bam files to be merged!
-				approvedCellLibraryListForASample.add(cellLibrary);
-				approvedSampleApprovedCellLibraryListMap.put(parentSample, approvedCellLibraryListForASample);
-			}
-		}
+		Set<SampleSource> samplePairsAsSampleSourceSet = sampleService.getSamplePairsByJob(job);
+		Map<Sample, List<Sample>> testSampleControlSampleListMap = associateTestWithControls(setOfApprovedSamples, samplePairsAsSampleSourceSet);
 		
-		Set<SampleSource> sampleSourceSet = sampleService.getSamplePairsByJob(job);
-		Map<Sample, List<Sample>> testSampleControlSampleListMap = new HashMap<Sample, List<Sample>>();
-		
-		//do not forget that a sample destined for a paired analysis (chipseq or helptag) 
-		//MAY NOT be on the samplePair list (but still needs to be dealt with).
-		//For chipseq, since the grid of pairs (on the submission forms) can be skipped, we may not know
-		//which are IP and which are inputs. However, for helptag it is be different, 
-		//since, regardless of the gird of pairs, we DO STILL KNOW which are MspI and which are HpaII
-		for(Sample approvedSample : setOfApprovedSamples){
-			List<Sample> approvedControlList = new ArrayList<Sample>();
-			for(SampleSource ss : sampleSourceSet){//for each recorded samplePair
-				Sample test = ss.getSample();//IP (or HpaII)
-				Sample control = ss.getSourceSample();//input (or MspI)
-				//System.out.println("----control = " + control.getName() + " AND test = " + test.getName());
-				if(approvedSample.getId().intValue() == test.getId().intValue()){
-					if(setOfApprovedSamples.contains(control)){//no sense adding to controlList if the control is not also approved
-						approvedControlList.add(control);
-					}
-				}
-			}
-			testSampleControlSampleListMap.put(approvedSample, approvedControlList);//execute this line even if approvedControlList is empty; approvedSample could be an IP without any input paired with it (and approvedSample could also be an input)				
-		}
-		 
+		/*  
 		//output for testing purposes only:
 		//first, print out recorded samplePairs, if any
 		logger.debug("*************************");
 		logger.debug("*************************");
 		logger.debug("Recorded samplePairs, from the job submission:");		
-		for(SampleSource ss : sampleSourceSet){//for each recorded samplePair
+		for(SampleSource ss : samplePairsAsSampleSourceSet){//for each recorded samplePair
 			Sample test = ss.getSample();//IP (or HpaII)
 			Sample control = ss.getSourceSample();//input (or MspI)
 			logger.debug("test - "+test.getName() + " : " + " control - " + control.getName());
@@ -217,65 +163,25 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 					}
 				}
 			}			
+		} 	
+		 */
+		for(Sample testSample : setOfApprovedSamples){
+			//prepare message for peakcaller plugin (here, MACS2)
+			List<SampleSource> cellLibraryListForTest = approvedSampleApprovedCellLibraryListMap.get(testSample);
+			Assert.assertTrue( ! cellLibraryListForTest.isEmpty() );
+			List<Sample> controlSampleList = testSampleControlSampleListMap.get(testSample);
+			if(controlSampleList.isEmpty()){//no control (input sample)
+				launchMessage(job.getId(), cellLibraryListForTest, new ArrayList<SampleSource>());
+			}
+			else{
+				for(Sample controlSample : controlSampleList){
+					List<SampleSource> cellLibraryListForControl = approvedSampleApprovedCellLibraryListMap.get(controlSample);
+					Assert.assertTrue( ! cellLibraryListForControl.isEmpty() );
+					launchMessage(job.getId(), cellLibraryListForTest, cellLibraryListForControl);
+				}
+			}
 		}
-		//approvedCellLibraryList (from the passed in approvedCellLibraryIdList)
-		//setOfApprovedSamples
-		//approvedSampleApprovedCellLibraryListMap
-		//testSampleControlSampleListMap
-		//
-		chipseq = new ChipSeqSoftwareComponent();
-//		WorkUnit w = chipseq.getChipSeqPeaks(approvedCellLibraryList.get(0), fileService.getFilesForCellLibraryByType(approvedCellLibraryList.get(0), bamFileType), approvedCellLibraryList.get(1), fileService.getFilesForCellLibraryByType(approvedCellLibraryList.get(1), bamFileType));
-		
-		
-		
-		if(1==1){return RepeatStatus.FINISHED;}
-		// if the work has already been started, then check to see if it is finished
-		// if not, throw an exception that is caught by the repeat policy.
-		RepeatStatus repeatStatus = super.execute(contrib, context);
-		if (repeatStatus.equals(RepeatStatus.FINISHED))
-			return RepeatStatus.FINISHED;
-		/*
-		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
-		
-		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
-		stepContext.put("cellLibId", cellLib.getId()); //place in the step context
-		
-		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
-		
-		logger.debug("Beginning GATK creat re-alignment target step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
-		
-		Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLib, fastqFileType); // TODO: change to bamFileType later
-		
-		logger.debug("ffileGroups.size()="+fileGroups.size());
-		Assert.assertTrue(fileGroups.size() == 1);
-		FileGroup fg = fileGroups.iterator().next();
-		
-		logger.debug("file group: " + fg.getId() + ":" + fg.getDescription());
-		
-		Map<String,Object> jobParameters = context.getStepContext().getJobParameters();
-		
-		for (String key : jobParameters.keySet()) {
-			logger.debug("Key: " + key + " Value: " + jobParameters.get(key).toString());
-		}
-		
-		// TODO: temporary, fix me
-		//WorkUnit w = new WorkUnit();
-//		WorkUnit w = gatk.getCreatTarget(cellLib, fg);
-		
-//		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
-   
-//		GridResult result = gridHostResolver.execute(w);
-		
-		//place the grid result in the step context
-//		storeStartedResult(context, result);
-		
-		// place scratch directory in step execution context, to be promoted
-		// to the job context at run time.
-//        stepContext.put("scrDir", result.getWorkingDirectory());
-//        stepContext.put("creatTargetName", result.getId());
-    */    
-
-		return RepeatStatus.CONTINUABLE;
+		return RepeatStatus.FINISHED;
 	}
 	
 	public static void doWork(int cellLibraryId) {
@@ -302,4 +208,105 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 		
 	}
 
+	private List<SampleSource> getApprovedCellLibraries(List<Integer> approvedCellLibraryIdList) throws SampleTypeException{
+		List<SampleSource> approvedCellLibraryList = new ArrayList<SampleSource>();
+		for(Integer approvedCellLibraryId : approvedCellLibraryIdList){
+			SampleSource approvedCellLibrary = sampleService.getCellLibraryBySampleSourceId(approvedCellLibraryId);
+			approvedCellLibraryList.add(approvedCellLibrary);
+		}
+		return approvedCellLibraryList;
+	}
+	private Job confirmCellLibrariesFromSingleJob(List<SampleSource> cellLibraryList) throws Exception{
+		Job job = null;
+		for(SampleSource cellLibrary : cellLibraryList){
+			if(job==null){
+				job = sampleService.getJobOfLibraryOnCell(cellLibrary);
+			}
+			else{
+				if(job.getId().intValue()!=sampleService.getJobOfLibraryOnCell(cellLibrary).getId().intValue()){
+					logger.debug("NOT ALL cellLibraries ARE FROM THE SAME JOB! Do not proceed!");
+					throw new Exception("Not all cellLibraries are from the same job");
+				}
+			}
+		}
+		return job;
+	}
+	private void confirmCellLibrariesAssociatedWithBamFiles(List<SampleSource> cellLibraryList) throws Exception{
+		for(SampleSource cellLibrary : cellLibraryList){
+			Set<FileGroup> fileGroupSetFromCellLibrary = fileService.getFilesForCellLibraryByType(cellLibrary, bamFileType);
+			if(fileGroupSetFromCellLibrary.isEmpty()){//very unexpected
+				logger.debug("no Bam files associated with cellLibrary"); 
+				throw new Exception("no Bam files associated with cellLibrary");
+			}
+		}
+	}
+	
+	private Map<Sample, List<SampleSource>> associateSampleWithCellLibraries(List<SampleSource> cellLibraryList){
+		Map<Sample, List<SampleSource>> sampleCellLibraryListMap = new HashMap<Sample, List<SampleSource>>();
+		for(SampleSource cellLibrary : cellLibraryList){
+			
+			Sample parentSample = sampleService.getLibrary(cellLibrary);
+			
+			while(parentSample.getParentId()!=null){
+				parentSample = parentSample.getParent();//get the uppermost sample associated with these cellLibraries
+			}
+			if(sampleCellLibraryListMap.containsKey(parentSample)){
+				sampleCellLibraryListMap.get(parentSample).add(cellLibrary);
+			}
+			else{
+				List<SampleSource> cellLibraryListForASample = new ArrayList<SampleSource>();
+				cellLibraryListForASample.add(cellLibrary);
+				sampleCellLibraryListMap.put(parentSample, cellLibraryListForASample);
+			}
+		}
+		return sampleCellLibraryListMap;
+	}
+	private Map<Sample, List<Sample>> associateTestWithControls(Set<Sample> sampleSet, Set<SampleSource> samplePairsAsSampleSourceSet){
+		Map<Sample, List<Sample>> testSampleControlSampleListMap = new HashMap<Sample, List<Sample>>();
+		
+		//do not forget that a sample destined for a paired analysis (chipseq or helptag) 
+		//MAY NOT be on the samplePair list (but still needs to be dealt with).
+		//For chipseq, since the grid of pairs (on the submission forms) can be skipped, we may not know
+		//which are IP and which are inputs. However, for helptag it is be different, 
+		//since, regardless of the gird of pairs, we DO STILL KNOW which are MspI and which are HpaII
+		for(Sample sample : sampleSet){
+			List<Sample> controlList = new ArrayList<Sample>();
+			for(SampleSource ss : samplePairsAsSampleSourceSet){//for each recorded samplePair
+				Sample test = ss.getSample();//IP (or HpaII)
+				Sample control = ss.getSourceSample();//input (or MspI)
+				//System.out.println("----control = " + control.getName() + " AND test = " + test.getName());
+				if(sample.getId().intValue() == test.getId().intValue()){
+					if(sampleSet.contains(control)){//no sense adding to controlList if the control is not also within sampleSet
+						controlList.add(control);
+					}
+				}
+			}
+			testSampleControlSampleListMap.put(sample, controlList);//execute this line even if controlList is empty; approvedSample could be an IP without any input paired with it (and approvedSample could also be an input)				
+		}
+		return testSampleControlSampleListMap;
+	}
+	private void launchMessage(Integer jobId, List<SampleSource> testCellLibraryList, List<SampleSource> controlCellLibraryList){
+		WaspJobContext waspJobContext = new WaspJobContext(jobId, jobService);
+		SoftwareConfiguration softwareConfig = waspJobContext.getConfiguredSoftware(this.softwareResourceType);
+		if (softwareConfig == null){
+			throw new SoftwareConfigurationException("No software could be configured for jobId=" + jobId + " with resourceType iname=" + softwareResourceType.getIName());
+		}
+		Map<String, String> jobParameters = softwareConfig.getParameters();
+		jobParameters.put(WaspSoftwareJobParameters.LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(libraryCellIds));
+		MessagingTemplate messagingTemplate = new MessagingTemplate();
+		messagingTemplate.setReceiveTimeout(messageTimeoutInMillis);
+		BatchJobProviding softwarePlugin = waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), BatchJobProviding.class);
+		String flowName = softwarePlugin.getBatchJobName(this.task);
+		if (flowName == null)
+			logger.warn("No generic flow found for plugin so cannot launch software : " + softwareConfig.getSoftware().getIName());
+		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
+				new BatchJobLaunchContext(flowName, jobParameters) );
+		try {
+			Message<BatchJobLaunchContext> launchMessage = batchJobLaunchMessageTemplate.build();
+			logger.debug("Sending the following launch message via channel " + MessageChannelRegistry.LAUNCH_MESSAGE_CHANNEL + " : " + launchMessage);
+			messagingTemplate.sendAndReceive(launchChannel, launchMessage);
+		} catch (WaspMessageBuildingException e) {
+			throw new MessagingException(e.getLocalizedMessage(), e);
+		}
+	}
 }
