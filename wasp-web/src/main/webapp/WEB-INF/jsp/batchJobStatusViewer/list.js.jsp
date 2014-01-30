@@ -175,12 +175,12 @@ Ext.define("TREEGRIDS.store.TreeGridStore", {    extend : "Ext.data.TreeStore",
     },
 });
 
+var itemsPerPage = 10;
+
 var store = Ext.create('TREEGRIDS.store.TreeGridStore', {
     model: 'Task',
     remoteSort: true,
-    pageSize: 10,
-    autoLoad: false,
-    sortOnLoad: true,
+    pageSize: itemsPerPage,
     proxy: {
         type: 'ajax',
         enablePaging: true,
@@ -190,12 +190,7 @@ var store = Ext.create('TREEGRIDS.store.TreeGridStore', {
             root: 'modelList',
             totalProperty: 'totalCount'
         },
-        extraParams: {
-        	// defaults. Individual requests with params of the same name will override these params when they are in conflict.
-        	page: 1,
-        	limit: 10,
-        	start: 0
-        }
+        noCache: true
     },
     root: {
     	text: '.',
@@ -255,7 +250,7 @@ Ext.onReady(function() {
         bbar: {
             xtype: 'pagingtoolbar',
             emptyMsg: "No Batch Job Executions to display",
-            pageSize: 10,
+            pageSize: itemsPerPage,
             store: store,
             displayInfo: true
         }
@@ -264,6 +259,12 @@ Ext.onReady(function() {
    	 tree.setWidth($('#content').width());
    	 tree.setHeight($('#content').height());
 	}).trigger('resize');
+    
+    store.loadPage(1);
+    
+    tree.on('sortchange', function() {
+        tree.getStore().loadPage(1);
+    });
 });
 
 </script>
