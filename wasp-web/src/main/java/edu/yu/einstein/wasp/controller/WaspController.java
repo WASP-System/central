@@ -29,6 +29,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 
+import edu.yu.einstein.wasp.controller.util.ExtTreeGridResponse;
 import edu.yu.einstein.wasp.dao.DepartmentDao;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.model.Department;
@@ -162,6 +163,7 @@ public class WaspController {
 		 
 		return null;		
 }
+  
 
   public Map<String, String> getLocales(){
 	  Map<String, String> locales = new TreeMap<String,String>();//tree map as it sorts naturally on the key

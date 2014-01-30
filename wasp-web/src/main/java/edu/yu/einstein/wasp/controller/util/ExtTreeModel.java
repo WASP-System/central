@@ -5,9 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class ExtTreeModel implements Serializable{
 	
@@ -41,7 +38,7 @@ public class ExtTreeModel implements Serializable{
 	
 	private boolean isExpanded = false;
 	
-	private List<ExtTreeModel> children = new ArrayList<>();
+	private List<ExtTreeModel> children = null; // return null if no children rather than empty list otherwise Ext JS tree does not show arrows to expand node
 	
 	public ExtTreeModel(){}
 	
@@ -54,17 +51,19 @@ public class ExtTreeModel implements Serializable{
 	
 	@JsonIgnore
 	public void addChild(ExtTreeModel model){
+		if (this.children == null)
+			this.children = new ArrayList<>();
 		this.children.add(model);
 	}
 	
 	@JsonIgnore
 	public void addChildren(List<ExtTreeModel> children){
+		if (this.children == null)
+			this.children = new ArrayList<>();
 		this.children.addAll(children);
 	}
 	
 	public List<ExtTreeModel> getChildren(){
-		if (this.children.isEmpty())
-			return null; // otherwise tree does not show arrows to expand
 		return this.children;
 	}
 	
@@ -102,26 +101,6 @@ public class ExtTreeModel implements Serializable{
 
 	public void setExpanded(boolean isExpanded) {
 		this.isExpanded = isExpanded;
-	}
-
-	@JsonIgnore
-	public String getAsJSON() throws JSONException {
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-			return mapper.writeValueAsString(this);
-		} catch (Exception e) {
-			throw new JSONException("Cannot convert object to JSON. Caught exception of type " + e.getClass().getName() + " : " +e.getLocalizedMessage());
-		}
-	}
-	
-	@JsonIgnore
-	public String getChildrenAsJSON() throws JSONException {
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-			return mapper.writeValueAsString(this.children);
-		} catch (Exception e) {
-			throw new JSONException("Cannot convert object to JSON. Caught exception of type " + e.getClass().getName() + " : " +e.getLocalizedMessage());
-		}
 	}
 
 	

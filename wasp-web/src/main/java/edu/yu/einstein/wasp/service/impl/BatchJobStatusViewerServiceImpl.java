@@ -8,11 +8,14 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
+import org.springframework.batch.core.repository.dao.wasp.BatchJobSortAttribute;
+import org.springframework.batch.core.repository.dao.wasp.BatchJobSortAttribute.SortDirection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.controller.util.BatchJobTreeModel;
+import edu.yu.einstein.wasp.controller.util.ExtTreeGridResponse;
 import edu.yu.einstein.wasp.controller.util.ExtTreeModel;
 import edu.yu.einstein.wasp.controller.util.ExtTreeModel.ExtIcon;
 import edu.yu.einstein.wasp.service.BatchJobStatusViewerService;
@@ -67,9 +70,9 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 	}
 
 	@Override
-	public List<ExtTreeModel> getJobListAll(){
+	public List<ExtTreeModel> getJobListAll(String property, String direction, Long limit, Long start){
 		List<ExtTreeModel> modelList = new ArrayList<>();
-		for (JobExecution je : jobExplorer.getJobExecutions())
+		for (JobExecution je : jobExplorer.getJobExecutions(getSortProperty(property), getSortDirection(direction), start, limit))
 			modelList.add(getTreeModel(je));
 		return modelList;
 	}
@@ -106,35 +109,7 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 		return modelList;
 	}
 	
-	@Override
-	public ExtTreeModel getModel(String nodeId){
-		if (nodeId.equals(ROOT_NODE_ID)){
-			return new BatchJobTreeModel(ROOT_NODE_ID, ExtIcon.TASK_FOLDER, true, false);
-		}
-		if (nodeId.contains(STEP_EXECUTION_ID_PREFIX)){
-			String jobExecutionIdString = nodeId.replace(STEP_EXECUTION_ID_PREFIX + "[0-9]+", "");
-			String stepExecutionIdString = nodeId.replace(JOB_EXECUTION_ID_PREFIX + "[0-9]+", "");
-			Long jobExecutionId = Long.valueOf(jobExecutionIdString.replace(JOB_EXECUTION_ID_PREFIX, ""));
-			Long stepExecutionId = Long.valueOf(stepExecutionIdString.replace(STEP_EXECUTION_ID_PREFIX, ""));
-			StepExecution se = jobExplorer.getStepExecution(jobExecutionId, stepExecutionId);
-			return getTreeModel(se);
-		} 
-		if (nodeId.startsWith(JOB_EXECUTION_ID_PREFIX)){
-			// create jobModel and populate with steps as children
-			Long jobExecutionId = Long.valueOf(nodeId.replace(JOB_EXECUTION_ID_PREFIX, ""));
-			JobExecution je = jobExplorer.getJobExecution(jobExecutionId);
-			ExtTreeModel jobModel = getTreeModel(je);
-			for (StepExecution se : jobExplorer.getJobExecution(jobExecutionId).getStepExecutions()){
-				StepExecution seInflated = jobExplorer.getStepExecution(jobExecutionId, se.getId());
-				jobModel.addChild(getTreeModel(seInflated));
-			}
-			return jobModel;
-		}
-		return null;
-	}
-	
-	@Override
-	public List<ExtTreeModel> getSteps(String nodeId){
+	private List<ExtTreeModel> getSteps(String nodeId){
 		List<ExtTreeModel> modelList = new ArrayList<>();
 		if (nodeId.startsWith(JOB_EXECUTION_ID_PREFIX)){
 			Long jobExecutionId = Long.valueOf(nodeId.replace(JOB_EXECUTION_ID_PREFIX, ""));
@@ -144,6 +119,63 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 			}
 		}
 		return modelList;
+	}
+	
+	@Override
+	public ExtTreeGridResponse getPagedModelList(String nodeId, Long limit, Long start){
+		return getPagedModelList(nodeId, null, null, limit, start);
+	}
+	
+	@Override
+	public ExtTreeGridResponse getPagedModelList(String nodeId, String property, String direction, Long limit, Long start){
+		if (nodeId.equals(ROOT_NODE_ID)){
+			Long totalCount = jobExplorer.getJobExecutionCount();
+			if (limit == null || start == null)
+				return new ExtTreeGridResponse(new ArrayList<ExtTreeModel>(), totalCount);
+			return new ExtTreeGridResponse(getJobListAll(property, direction, limit, start), totalCount);
+		}
+		if (nodeId.contains(STEP_EXECUTION_ID_PREFIX)){
+		/*	String jobExecutionIdString = nodeId.replace(STEP_EXECUTION_ID_PREFIX + "[0-9]+", "");
+			String stepExecutionIdString = nodeId.replace(JOB_EXECUTION_ID_PREFIX + "[0-9]+", "");
+			Long jobExecutionId = Long.valueOf(jobExecutionIdString.replace(JOB_EXECUTION_ID_PREFIX, ""));
+			Long stepExecutionId = Long.valueOf(stepExecutionIdString.replace(STEP_EXECUTION_ID_PREFIX, ""));
+			StepExecution se = jobExplorer.getStepExecution(jobExecutionId, stepExecutionId);
+			return getTreeModel(se);*/
+			return new ExtTreeGridResponse(null, null);
+		} 
+		if (nodeId.startsWith(JOB_EXECUTION_ID_PREFIX)){
+			Long totalCount = jobExplorer.getJobExecutionCount();
+			return new ExtTreeGridResponse(getSteps(nodeId), totalCount);
+		}
+		return null;
+	}
+	
+	private BatchJobSortAttribute getSortProperty(String property){
+		if (property == null)
+			return null;
+		if (property.equals("name"))
+			return BatchJobSortAttribute.JOB_NAME;
+		if (property.equals("executionId"))
+			return BatchJobSortAttribute.JOB_EXECUTION_ID;
+		if (property.equals("startTime"))
+			return BatchJobSortAttribute.START_TIME;
+		if (property.equals("endTime"))
+			return BatchJobSortAttribute.END_TIME;
+		if (property.equals("status"))
+			return BatchJobSortAttribute.STATUS;
+		if (property.equals("exitCode"))
+			return BatchJobSortAttribute.EXIT_CODE;
+		return null;
+	}
+	
+	private SortDirection getSortDirection(String direction){
+		if (direction == null)
+			return null;
+		if (direction.equals("ASC"))
+			return SortDirection.ASC;
+		if (direction.equals("DESC"))
+			return SortDirection.DESC;
+		return null;
 	}
 
 }
