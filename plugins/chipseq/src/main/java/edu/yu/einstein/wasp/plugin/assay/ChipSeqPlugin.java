@@ -116,7 +116,8 @@ public class ChipSeqPlugin extends WaspPlugin implements
 			jobParameters.put("test", new Date().toString());
 			
 			//jobParameters.put(WaspJobParameters.LIBRARY_CELL_ID, id.toString());
-			String cellLibraryIdListAsString = "37,38,39,40";//comma delimited list is how they will appear
+			//String cellLibraryIdListAsString = "37,38,39,40";//comma delimited list is how they will appear
+			String cellLibraryIdListAsString = "14";//comma delimited list is how they will appear
 			jobParameters.put(WaspSoftwareJobParameters.LIBRARY_CELL_ID_LIST, cellLibraryIdListAsString);
 			waspMessageHandlingService.launchBatchJob(AGGREGATE_ANALYSIS_JOB, jobParameters);
 			logger.info("***************Initiating chipseq test flow in ChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB + " on cellLibraryIds " + cellLibraryIdListAsString);

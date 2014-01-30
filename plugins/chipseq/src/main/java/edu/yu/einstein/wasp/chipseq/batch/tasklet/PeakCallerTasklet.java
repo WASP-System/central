@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
+import edu.yu.einstein.wasp.chipseq.software.ChipSeqSoftwareComponent;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
 //import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -66,6 +67,7 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 	
 	private ResourceType softwareResourceType;
 
+	private ChipSeqSoftwareComponent chipseq;
 //	@Autowired
 //	private GATKSoftwareComponent gatk;
 
@@ -156,11 +158,11 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 		}
 		
 		Set<SampleSource> sampleSourceSet = sampleService.getSamplePairsByJob(job);
-		Map<Sample, List<Sample>> testControlListMap = new HashMap<Sample, List<Sample>>();
+		Map<Sample, List<Sample>> testSampleControlSampleListMap = new HashMap<Sample, List<Sample>>();
 		
 		//do not forget that a sample destined for a paired analysis (chipseq or helptag) 
 		//MAY NOT be on the samplePair list (but still needs to be dealt with).
-		//For chipseq, since the grid of pairs can be skipped, we may not know
+		//For chipseq, since the grid of pairs (on the submission forms) can be skipped, we may not know
 		//which are IP and which are inputs. However, for helptag it is be different, 
 		//since, regardless of the gird of pairs, we DO STILL KNOW which are MspI and which are HpaII
 		for(Sample approvedSample : setOfApprovedSamples){
@@ -175,7 +177,7 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 					}
 				}
 			}
-			testControlListMap.put(approvedSample, approvedControlList);//execute this line even if approvedControlList is empty; approvedSample could be an IP without any input paired with it (and approvedSample could also be an input)				
+			testSampleControlSampleListMap.put(approvedSample, approvedControlList);//execute this line even if approvedControlList is empty; approvedSample could be an IP without any input paired with it (and approvedSample could also be an input)				
 		}
 		 
 		//output for testing purposes only:
@@ -201,7 +203,7 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 			for(SampleSource cellLibrary : approvedSampleApprovedCellLibraryListMap.get(testSample)){
 				logger.debug("--testSample's cellLibrary: " + sampleService.getCell(cellLibrary).getName());
 			}
-			List<Sample> approvedControlSampleList = testControlListMap.get(testSample);
+			List<Sample> approvedControlSampleList = testSampleControlSampleListMap.get(testSample);
 			if(approvedControlSampleList.isEmpty()){
 				logger.debug("--No paired control, so generate peaks without any control");
 			}
@@ -216,9 +218,13 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 				}
 			}			
 		}
-		
-		
-		
+		//approvedCellLibraryList (from the passed in approvedCellLibraryIdList)
+		//setOfApprovedSamples
+		//approvedSampleApprovedCellLibraryListMap
+		//testSampleControlSampleListMap
+		//
+		chipseq = new ChipSeqSoftwareComponent();
+//		WorkUnit w = chipseq.getChipSeqPeaks(approvedCellLibraryList.get(0), fileService.getFilesForCellLibraryByType(approvedCellLibraryList.get(0), bamFileType), approvedCellLibraryList.get(1), fileService.getFilesForCellLibraryByType(approvedCellLibraryList.get(1), bamFileType));
 		
 		
 		

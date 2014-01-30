@@ -265,6 +265,22 @@ public interface FileService extends WaspService {
 
 	public FileGroup getFileGroup(UUID uuid) throws FileNotFoundException;
 
+	/**
+	 * Returns a list of files (actually a Set<FileGroup) of specified fileType for the given dna macromolecule sample, rna sample, or library sample, or an empty list if none.
+	 * @param fileType
+	 * @param sample of type library, dna, rna
+	 * @return
+	 * @throws SampleTypeException
+	 */	
+	public Set<FileGroup> getFilesForMacromoleculeOrLibraryByType(Sample sample, FileType fileType) throws SampleTypeException;
+	
+	/**
+	 * Returns a Map of files (actually a Map of a Set<FileGroup) for a given macromolecule or library associated by FileType
+	 * @param sample of type library, dna, rna 
+	 * @return
+	 * @throws SampleTypeException
+	 */
+	public Map<FileType, Set<FileGroup>> getFilesForMacromoleculeOrLibraryMappedToFileType(Sample sample) throws SampleTypeException;
 
 
 }
