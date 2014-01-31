@@ -51,9 +51,6 @@ public class HelptagTasklet extends WaspTasklet  implements StepExecutionListene
 	@Autowired
 	private GridHostResolver gridHostResolver;
 
-	@Autowired
-	private FileType fastqFileType;
-
 	private StepExecution stepExecution;
 	private Integer libraryCellId;
 	

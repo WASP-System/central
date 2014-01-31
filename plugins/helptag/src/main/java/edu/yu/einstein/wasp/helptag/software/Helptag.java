@@ -20,6 +20,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
@@ -53,6 +54,15 @@ public class Helptag extends SoftwarePackage{
 	@Autowired
 	private GenomeService genomeService;	
 	
+	@Autowired
+	private FileType samFileType;
+	
+	@Autowired
+	private FileType fastqFileType;
+
+//	@Autowired
+//	private SoftwarePackage samtools;
+
 	/**
 	 * 
 	 */
@@ -74,11 +84,12 @@ public class Helptag extends SoftwarePackage{
 		
 		// require fastqc
 		List<SoftwarePackage> software = new ArrayList<SoftwarePackage>();
-		software.add(this);
+		//software.add(this);
+		//software.add(samtools);
 		w.setSoftwareDependencies(software);
 		
-		// require 1GB memory
-		w.setMemoryRequirements(1);
+		// require 4GB memory
+		w.setMemoryRequirements(4);
 		
 		// require a single thread, execution mode PROCESS
 		// indicates this is a vanilla exectuion.
@@ -112,53 +123,42 @@ public class Helptag extends SoftwarePackage{
 		//we'll just use the forward reads for fastq_screen
 //		FileGroup fg = fileService.getFileGroupById(filegroupId);
 		
-		FileType ft = fileService.getFileType("fastq");
+		//FileType ft = fileService.getFileType("bam");
 		Set<FileGroup> fgSet = new HashSet<FileGroup>();
 		SampleSource cl;
 		try {
 			cl = sampleService.getCellLibraryBySampleSourceId(libraryCellId);
-			fgSet.addAll(fileService.getFilesForCellLibraryByType(cl, ft));
+			fgSet.addAll(fileService.getFilesForCellLibraryByType(cl, fastqFileType));
+
+			Job job = sampleService.getJobOfLibraryOnCell(cl);
+			w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId() + "/" + libraryCellId);
+		
+			List<FileHandle> files = new ArrayList<FileHandle>();
+			for(FileGroup fg : fgSet) {
+				files.addAll(fg.getFileHandles());
+			}
+			logger.info("Helptag pipeline # of input files: "+files.size());
+			for (FileHandle fh : files) {
+				logger.info("Helptag pipeline input files: "+fh.getFileURI().toString());
+			}
+			//Collections.sort(files, new FastqComparator(fastqService));
+			w.setRequiredFiles(files);
+			
+			// set the command
+			String cmd = "module load samtools/gnu/0.1.18; " +
+					"/rio1/AJ/HelptagScripts/bam2hcount.pl " +
+					"-i ${" + WorkUnit.INPUT_FILE + "} " +
+					"-o ${" + WorkUnit.INPUT_FILE + "}.hcount " +
+					"-g " + getGenomeBuild(cl).getGenome().getAlias();
+			w.setCommand(cmd);
 		} catch (SampleTypeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		List<FileHandle> files = new ArrayList<FileHandle>();
-		for(FileGroup fg : fgSet) {
-			files.addAll(fg.getFileHandles());
-		}
-//		for (FileHandle fh : files) {
-//			logger.info(fh.getFileURI().toString());
-//		}
-		//Collections.sort(files, new FastqComparator(fastqService));
-		w.setRequiredFiles(files);
-		
-		// set the command
-		String cmd = getCommand(fgSet);
-		w.setCommand(cmd);
-		
 		return w;
 	}
 
-	/**
-	 * Set the helptag command. 
-	 * 
-	 * @param fileGroup
-	 * @return String
-	 */
-	private String getCommand(Set<FileGroup> fileGroupSet) {
-		
-		String command = "";
-
-		String optStr = "--base 27 --sort ";
-		
-		command += "mkdir " + OUTPUT_FOLDER + "\n";
-		logger.info("WorkUnit.INPUT_FILE: " + WorkUnit.INPUT_FILE);
-		//command += "/home/epigenscripts/bin/helptag_script.pl ${" + WorkUnit.INPUT_FILE + "[@]} " + optStr + " --outdir " + OUTPUT_FOLDER + "\n";
-		return command;
-	}
-
-	
 	
 	private WorkUnit prepareWorkUnit(FileGroup fg) {
 		WorkUnit w = new WorkUnit();
