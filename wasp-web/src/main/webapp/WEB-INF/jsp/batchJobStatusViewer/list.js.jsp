@@ -117,6 +117,12 @@ Ext.onReady(function() {
             pageSize: itemsPerPage,
             store: store,
             displayInfo: true
+        },
+        listeners: {
+        	sortchange: function(ct, column, direction, eOpts) {
+        		// after sorting be sure to load the first page again
+            	store.loadPage(1);
+            }
         }
     });
     jQuery(window).bind('resize', function () {
@@ -125,10 +131,6 @@ Ext.onReady(function() {
 	}).trigger('resize');
     
     store.loadPage(1);
-    
-    tree.on('sortchange', function() {
-        tree.getStore().loadPage(1);
-    });
 });
 
 </script>
