@@ -12,7 +12,7 @@
 
 
   <bean id="helptagTrueSeqIndexedLibraryArea" class="java.lang.String">
-  	<constructor-arg><value>helptagTrueSeqIndexedLibraryArea</value></constructor-arg>
+  	<constructor-arg><value>helptagTrueSeqIndexedLibrary</value></constructor-arg>
   </bean>
     
    
