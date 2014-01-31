@@ -1,3 +1,4 @@
+<%@ include file="/WEB-INF/jsp/include.jsp"%>
 <script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/ext-all-dev.js"></script>
 <script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/packages/ext-theme-neptune/build/ext-theme-neptune.js"></script>
 <link rel="stylesheet" type="text/css" href="/wasp/css/ext-theme-neptune-all-wasp.css" />
@@ -21,8 +22,9 @@ Ext.require([
     'Ext.toolbar.Paging'
 ]);
 
-//we want to setup a model and store instead of using dataUrl
-Ext.define('Task', {
+// we want to setup a data model and store instead of using dataUrl this is mirrored in BatchJobTreeModel.java
+// such that when a list of BatchJobTreeModel data is returned as Json, it maps directly to the BatchTreeModel model class defined below
+Ext.define('BatchTreeModel', {
     extend: 'Ext.data.TreeModel',
     fields: [
         {name: 'name',     type: 'string'},
@@ -35,6 +37,8 @@ Ext.define('Task', {
     ]
 });
 
+// TreeStore is not directly designed for paging yet but this implementation of a TreeGridStore works nicely
+// http://www.sencha.com/forum/showthread.php?205428-Extjs-tree-grid-paging-toolbar-with-remote-store&p=888643&viewfull=1#post888643
 Ext.define("TREEGRIDS.store.TreeGridStore", {    extend : "Ext.data.TreeStore",
     getTotalCount : function() {
         if(!this.proxy.reader.rawData) return 0;
@@ -175,10 +179,10 @@ Ext.define("TREEGRIDS.store.TreeGridStore", {    extend : "Ext.data.TreeStore",
     },
 });
 
-var itemsPerPage = 10;
+var itemsPerPage = 15;
 
 var store = Ext.create('TREEGRIDS.store.TreeGridStore', {
-    model: 'Task',
+    model: 'BatchTreeModel',
     remoteSort: true,
     pageSize: itemsPerPage,
     proxy: {
@@ -188,17 +192,19 @@ var store = Ext.create('TREEGRIDS.store.TreeGridStore', {
        	reader: {
            	type:'json',
             root: 'modelList',
-            totalProperty: 'totalCount'
+            totalProperty: 'totalCount',
+            model: 'BatchTreeModel',
+            listeners: {
+                exception: function(store, response, op) {
+                	window.location = window.location.pathname;
+                }
+            }
         },
-        noCache: true
     },
     root: {
-    	text: '.',
     	id:'node-root',
     	expanded: true
-    }
-    //sortOnLoad: true, 
-    //sorters: { property: 'executionId', direction : 'DESC' }
+    },
 });
 
 
@@ -247,7 +253,7 @@ Ext.onReady(function() {
             width: 400,
             dataIndex: 'exitMessage'
         }],
-        bbar: {
+        bbar: { // bottom tool bar for paging
             xtype: 'pagingtoolbar',
             emptyMsg: "No Batch Job Executions to display",
             pageSize: itemsPerPage,

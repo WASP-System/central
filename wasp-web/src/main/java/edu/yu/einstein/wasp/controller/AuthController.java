@@ -92,8 +92,8 @@ public class AuthController extends WaspController {
 					  request.getSession().setAttribute(TARGET_URL_KEY, targetURL); 
 				  }
 				  return "auth/loginReferralPage";
-			  } else if (targetURL.contains("JSON.do")){
-				  targetURL = targetURL.replace("JSON", "").replace("\\?.*", "");
+			  } else if (targetURL.toLowerCase().contains("json.do")){
+				  //targetURL = targetURL.replace("JSON", "").replace("\\?.*", "");
 				  request.getSession().setAttribute(LOGIN_EXPIRED_WARNING_KEY, "auth.redirectDataNotSaved.label");
 				  logger.debug("target URL is provided so setting session variable for target = " + targetURL);
 				  request.getSession().setAttribute(TARGET_URL_KEY, targetURL); 
