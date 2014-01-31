@@ -20,6 +20,7 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
 import org.springframework.integration.core.MessagingTemplate;
@@ -56,6 +57,16 @@ import edu.yu.einstein.wasp.util.WaspJobContext;
 
 public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListener {
 
+	private int messageTimeoutInMillis;
+	
+	/**
+	 * Set the timeout when waiting for reply (in millis).  Default 5000 (5s).
+	 */
+	@Value(value="${wasp.message.timeout:5000}")
+	public void setMessageTimeoutInMillis(int messageTimeout) {
+		this.messageTimeoutInMillis = messageTimeout;
+	}
+	
 	private List<Integer> approvedCellLibraryIdList;
 	
 	@Autowired
@@ -124,7 +135,7 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 		
 		Set<SampleSource> samplePairsAsSampleSourceSet = sampleService.getSamplePairsByJob(job);
 		Map<Sample, List<Sample>> testSampleControlSampleListMap = associateTestWithControls(setOfApprovedSamples, samplePairsAsSampleSourceSet);
-		
+		confirmSamplePairsAreOfSameSpecies(testSampleControlSampleListMap);//throws exception if no
 		/*  
 		//output for testing purposes only:
 		//first, print out recorded samplePairs, if any
@@ -171,13 +182,13 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 			Assert.assertTrue( ! cellLibraryListForTest.isEmpty() );
 			List<Sample> controlSampleList = testSampleControlSampleListMap.get(testSample);
 			if(controlSampleList.isEmpty()){//no control (input sample)
-				launchMessage(job.getId(), cellLibraryListForTest, new ArrayList<SampleSource>());
+				launchMessage(job.getId(), convertCellLibraryListToIdList(cellLibraryListForTest), new ArrayList<Integer>());
 			}
 			else{
 				for(Sample controlSample : controlSampleList){
 					List<SampleSource> cellLibraryListForControl = approvedSampleApprovedCellLibraryListMap.get(controlSample);
 					Assert.assertTrue( ! cellLibraryListForControl.isEmpty() );
-					launchMessage(job.getId(), cellLibraryListForTest, cellLibraryListForControl);
+					launchMessage(job.getId(), convertCellLibraryListToIdList(cellLibraryListForTest), convertCellLibraryListToIdList(cellLibraryListForControl));
 				}
 			}
 		}
@@ -285,22 +296,48 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 		}
 		return testSampleControlSampleListMap;
 	}
-	private void launchMessage(Integer jobId, List<SampleSource> testCellLibraryList, List<SampleSource> controlCellLibraryList){
+	private void confirmSamplePairsAreOfSameSpecies(Map<Sample, List<Sample>> testSampleControlSampleListMap) throws Exception{
+		for (Map.Entry<Sample, List<Sample>> entry : testSampleControlSampleListMap.entrySet()) {
+			Sample testSample = (Sample) entry.getKey();
+			Integer testSampleOrganismId = sampleService.getIdOfOrganism(testSample);
+			List<Sample> controlSampleList = testSampleControlSampleListMap.get(testSample);
+			if(controlSampleList.isEmpty()){
+				continue;
+			}
+			for(Sample controlSample : controlSampleList){
+				if(testSampleOrganismId.intValue()!=sampleService.getIdOfOrganism(controlSample)){
+					logger.debug("samplePairs must be of same organism"); 
+					throw new Exception("samplePairs must be of same organism");
+				}
+			}
+		}
+	}
+	private List<Integer> convertCellLibraryListToIdList(List<SampleSource> cellLibraryList){
+		List<Integer> list = new ArrayList<Integer>();
+		for(SampleSource ss : cellLibraryList){
+			list.add(ss.getId());
+		}
+		return list;
+	}
+	
+	private void launchMessage(Integer jobId, List<Integer> testCellLibraryIdList, List<Integer> controlCellLibraryIdList){
+		/*
 		WaspJobContext waspJobContext = new WaspJobContext(jobId, jobService);
 		SoftwareConfiguration softwareConfig = waspJobContext.getConfiguredSoftware(this.softwareResourceType);
 		if (softwareConfig == null){
 			throw new SoftwareConfigurationException("No software could be configured for jobId=" + jobId + " with resourceType iname=" + softwareResourceType.getIName());
 		}
 		Map<String, String> jobParameters = softwareConfig.getParameters();
-		jobParameters.put(WaspSoftwareJobParameters.LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(libraryCellIds));
+		jobParameters.put(WaspSoftwareJobParameters.TEST_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(testCellLibraryIdList));
+		jobParameters.put(WaspSoftwareJobParameters.CONTROL_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(controlCellLibraryIdList));
 		MessagingTemplate messagingTemplate = new MessagingTemplate();
 		messagingTemplate.setReceiveTimeout(messageTimeoutInMillis);
 		BatchJobProviding softwarePlugin = waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), BatchJobProviding.class);
 		String flowName = softwarePlugin.getBatchJobName(this.task);
 		if (flowName == null)
 			logger.warn("No generic flow found for plugin so cannot launch software : " + softwareConfig.getSoftware().getIName());
-		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
-				new BatchJobLaunchContext(flowName, jobParameters) );
+		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = 
+				new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(flowName, jobParameters) );
 		try {
 			Message<BatchJobLaunchContext> launchMessage = batchJobLaunchMessageTemplate.build();
 			logger.debug("Sending the following launch message via channel " + MessageChannelRegistry.LAUNCH_MESSAGE_CHANNEL + " : " + launchMessage);
@@ -308,5 +345,6 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 		} catch (WaspMessageBuildingException e) {
 			throw new MessagingException(e.getLocalizedMessage(), e);
 		}
+		*/
 	}
 }

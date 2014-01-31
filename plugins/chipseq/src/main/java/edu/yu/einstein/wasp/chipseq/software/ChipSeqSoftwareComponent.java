@@ -65,7 +65,7 @@ public class ChipSeqSoftwareComponent extends SoftwarePackage {
 		for (Map.Entry entry : approvedSampleApprovedCellLibraryListMap.entrySet()) {
 		    Sample sample = (Sample)entry.getKey();
 		    List<SampleSource> approvedCellLibraryList = (List<SampleSource>) entry.getValue();
-		    if(fileService.)
+		    //////if(fileService.)
 		    //if(sample.getS)
 		}
 		return w;
