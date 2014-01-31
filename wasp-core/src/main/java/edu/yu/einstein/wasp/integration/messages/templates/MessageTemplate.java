@@ -20,14 +20,14 @@ public interface MessageTemplate {
 	public Message<?> build() throws WaspMessageBuildingException;
 	
 	/**
-	 * Takes a message and checks its headers against to see if the message should be acted upon or not
+	 * Takes a message and checks the message type and task (if present) to see if it should be acted upon or not.
 	 * @param message
 	 * @return
 	 */
 	public boolean actUponMessage(Message<?> message);
 	
 	/**
-	 * Takes a message and checks its headers against to see if the message should be acted upon or not
+	 * Takes a message and checks message type to see if it should be acted upon or not. The task (if set) is ignored.
 	 * whilst ignoring task header
 	 * @param message
 	 * @return
@@ -35,5 +35,7 @@ public interface MessageTemplate {
 	public boolean actUponMessageIgnoringTask(Message<?> message);
 	
 	public String getTask();
+	
+	public Object getPayload();
 
 }

@@ -8,7 +8,6 @@
 	<batch:job id="skipTaskletJob">
 		<batch:step id="skipTaskletStep" >
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" />
 			</batch:tasklet>
 		</batch:step>
@@ -20,7 +19,6 @@
 		</batch:step>
 		<batch:step id="test.step.notifyComplete">
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
@@ -29,7 +27,6 @@
 							<property name="status" value="COMPLETED" />
 						</bean>
 					</constructor-arg>
-					<property name="name" value="test.step.notifyComplete" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
@@ -38,8 +35,15 @@
 	<batch:job id="test.doAlign">
 		<batch:step id="test.step.doAlign" >
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" />
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+	
+	<batch:job id="test.exponentialRepeatJob">
+		<batch:step id="test.repeatedStep" >
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.test.tasklet.TestExponentialTimedTasklet" />
 			</batch:tasklet>
 		</batch:step>
 	</batch:job>
@@ -47,7 +51,6 @@
 	<bean id="waspJobSoftwareLaunchTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.analysis.WaspJobSoftwareLaunchTaskletImpl"  >
 		<constructor-arg name="libraryCellId" value="1"/>
 		<constructor-arg name="softwareResourceType" ref="softwareResourceType" />
-		<property name="name" value="test.align" />
 		<property name="jobId" value="1" />
 	</bean>
 	
@@ -55,5 +58,6 @@
 		<property name="IName" value="testAligner"/>
 		<property name="resourceTypeId" value="1" />
 	</bean>
+	
 
 </beans>

@@ -105,5 +105,12 @@ public class LibraryStatusMessageTemplate extends  WaspStatusMessageTemplate{
 				message.getHeaders().get(WaspMessageType.HEADER_KEY).equals(WaspMessageType.LIBRARY);
 	}
 	
+	@Override
+	public LibraryStatusMessageTemplate getNewInstance(WaspStatusMessageTemplate messageTemplate){
+		LibraryStatusMessageTemplate newTemplate = new LibraryStatusMessageTemplate(((LibraryStatusMessageTemplate) messageTemplate).getLibraryId());
+		copyCommonProperties(messageTemplate, newTemplate);
+		return newTemplate;
+	}
+	
 }
 	

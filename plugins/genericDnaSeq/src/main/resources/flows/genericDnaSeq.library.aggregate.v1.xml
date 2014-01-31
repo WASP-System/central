@@ -9,7 +9,6 @@
 	<batch:job id="genericDnaSeq.library.aggregate.jobflow.v1" restartable="true" >
 		<batch:step id="genericDnaSeq.library.aggregate.step.notifyStarted" next="genericDnaSeq.library.aggregate.step.notifyComplete">
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
@@ -19,14 +18,12 @@
 							<property name="status" value="CREATED" />
 						</bean>
 					</constructor-arg>
-					<property name="name" value="genericDnaSeq.library.aggregate.notifyStarted" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
 		
 		<batch:step id="genericDnaSeq.library.aggregate.step.notifyComplete" >
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
@@ -36,7 +33,6 @@
 							<property name="status" value="COMPLETED" />
 						</bean>
 					</constructor-arg>
-					<property name="name" value="genericDnaSeq.library.aggregate.step.notifyComplete" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>

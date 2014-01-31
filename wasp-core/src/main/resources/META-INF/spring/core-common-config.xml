@@ -16,7 +16,7 @@
   <context:component-scan base-package="edu.yu.einstein.wasp.messaging" />
   <context:component-scan base-package="edu.yu.einstein.wasp.load.service.impl" />
   <context:component-scan base-package="edu.yu.einstein.wasp.filetype.service.impl" />
-   <context:component-scan base-package="edu.yu.einstein.wasp.plugin.**.service.impl" />
+  <context:component-scan base-package="edu.yu.einstein.wasp.plugin.**.service.impl" />
   
   <context:annotation-config/>
   
@@ -25,7 +25,8 @@
  		queue-capacity="${wasp.taskexecutor.queueCapacity:0}" 
  		pool-size="${wasp.taskexecutor.corePoolSize:5}-${wasp.taskexecutor.maxPoolSize:10000}" 
  		rejection-policy="CALLER_RUNS" />
-  
+ 		
+   
   <!-- mail configuration -->
   <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
     <property name="host" value="${email.host}"/>

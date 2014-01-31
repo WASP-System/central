@@ -27,8 +27,8 @@
     <int-rmi:inbound-gateway id="internalRmiGateway"
     	request-channel="wasp.channel.remoting.inbound" 
     	expect-reply="true"
-    	reply-timeout="5000"
-		request-timeout="5000"
+    	reply-timeout="30000"
+		request-timeout="30000"
     	registry-port="23533" 
 
  	/>
@@ -46,8 +46,8 @@
     <int-rmi:inbound-gateway id="externalSecureRmiGateway"
     	request-channel="wasp.channel.remoting.secure.inbound" 
     	expect-reply="true"
-    	reply-timeout="5000"
-		request-timeout="5000"
+    	reply-timeout="30000"
+		request-timeout="30000"
     	registry-port="23532" />
     
     

@@ -9,10 +9,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.exception.NullResourceException;
-import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;

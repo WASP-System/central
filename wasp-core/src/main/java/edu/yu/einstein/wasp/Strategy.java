@@ -8,6 +8,8 @@ import edu.yu.einstein.wasp.model.WaspModel;
 
 public class Strategy extends WaspModel {
 
+	private static final long serialVersionUID = -4413474836491771971L;
+
 	public static final String SEPARATOR = "::";	
 	
 	private String type;

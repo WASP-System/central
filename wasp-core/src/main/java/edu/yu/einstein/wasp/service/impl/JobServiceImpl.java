@@ -29,11 +29,12 @@ import java.util.Set;
 
 import org.json.JSONException;
 import org.slf4j.Logger;
-import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
+import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.integration.MessagingException;
@@ -44,7 +45,6 @@ import org.springframework.web.multipart.MultipartFile;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.Strategy;
-import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.dao.AcctQuoteDao;
 import edu.yu.einstein.wasp.dao.AcctQuoteMetaDao;
@@ -78,7 +78,6 @@ import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.JobContextInitializationException;
 import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
 import edu.yu.einstein.wasp.exception.MetadataException;
-import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.exception.QuoteException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
@@ -390,18 +389,19 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	@Override
 	public List<Sample> getSubmittedSamplesNotYetReceived(Job job){
 		Assert.assertParameterNotNull(job, "No Job provided");
-		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
 		
 		List<Sample> submittedSamplesNotYetReceivedList = new ArrayList<Sample>();
 		
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		Set<String> jobIdStringSet = new HashSet<String>();
-		jobIdStringSet.add(job.getJobId().toString());
+		jobIdStringSet.add(job.getId().toString());
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false, BatchStatus.STARTED);
-		stepExecutions.addAll(batchJobExplorer.getStepExecutions("wasp.library.step.listenForLibraryReceived", parameterMap, false, BatchStatus.STARTED));
+		List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false, ExitStatus.RUNNING);
+		stepExecutions.addAll(batchJobExplorer.getStepExecutions("wasp.library.step.listenForLibraryReceived", parameterMap, false, ExitStatus.RUNNING));
 		for (StepExecution stepExecution: stepExecutions){
-			if (!stepExecution.getJobExecution().isRunning())
+			ExitStatus exitStatus = stepExecution.getJobExecution().getExitStatus();
+			if (!exitStatus.isRunning())
 				continue;
 			Integer sampleId = null;
 			try{
@@ -426,16 +426,17 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	@Override
 	public List<Sample> getSubmittedSamplesNotYetQC(Job job){
 		Assert.assertParameterNotNull(job, "No Job provided");
-		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
 		
 		List<Sample> submittedSamplesNotYetQCList = new ArrayList<Sample>();
 		
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		Set<String> jobIdStringSet = new HashSet<String>();
-		jobIdStringSet.add(job.getJobId().toString());
+		jobIdStringSet.add(job.getId().toString());
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		for (StepExecution stepExecution: batchJobExplorer.getStepExecutions("wasp.sample.step.sampleQC", parameterMap, false, BatchStatus.STARTED)){
-			if (!stepExecution.getJobExecution().isRunning())
+		for (StepExecution stepExecution: batchJobExplorer.getStepExecutions("wasp.sample.step.sampleQC", parameterMap, false, ExitStatus.RUNNING)){
+			ExitStatus exitStatus = stepExecution.getJobExecution().getExitStatus();
+			if (!exitStatus.isRunning())
 				continue;
 			Integer sampleId = null;
 			try{
@@ -460,16 +461,17 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	@Override
 	public List<Sample> getLibrariesNotYetQC(Job job){
 		Assert.assertParameterNotNull(job, "No Job provided");
-		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
 		
 		List<Sample> submittedLibrariesNotYetQCList = new ArrayList<Sample>();
 		
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		Set<String> jobIdStringSet = new HashSet<String>();
-		jobIdStringSet.add(job.getJobId().toString());
+		jobIdStringSet.add(job.getId().toString());
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		for (StepExecution stepExecution: batchJobExplorer.getStepExecutions("wasp.library.step.libraryQC", parameterMap, false, BatchStatus.STARTED)){
-			if (!stepExecution.getJobExecution().isRunning())
+		for (StepExecution stepExecution: batchJobExplorer.getStepExecutions("wasp.library.step.libraryQC", parameterMap, false, ExitStatus.RUNNING)){
+			ExitStatus exitStatus = stepExecution.getJobExecution().getExitStatus();
+			if (!exitStatus.isRunning())
 				continue;
 			Integer libraryId = null;
 			try{
@@ -497,12 +499,12 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		
 		List<Job> activeJobList = new ArrayList<Job>();
 		// get all job executions from the Batch database which only have one parameter which is job_id but we want all
-		// jobIds (so use '*'). Also only get those with a BatchStatus of STARTED. Then get the value of the job ids from the parameter
+		// jobIds (so use '*'). Also only get those with ExitStatus.RUNNING. Then get the value of the job ids from the parameter
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		Set<String> jobIdStringSet = new HashSet<String>();
 		jobIdStringSet.add("*");
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions("default.waspJob.jobflow", parameterMap, true, BatchStatus.STARTED);
+		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions("default.waspJob.jobflow", parameterMap, true, ExitStatus.RUNNING);
 		logger.debug("getJobExecutions() returned " + jobExecutions.size() + " result(s)");
 		for (JobExecution jobExecution: jobExecutions){
 			try{
@@ -536,7 +538,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		Set<String> jobIdStringSet = new HashSet<String>();
 		jobIdStringSet.add(job.getId().toString());
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions("default.waspJob.jobflow", parameterMap, true, BatchStatus.STARTED);
+		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions("default.waspJob.jobflow", parameterMap, true, ExitStatus.RUNNING);
 		if (!jobExecutions.isEmpty())
 			return true;
 		return false;
@@ -655,7 +657,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		List<Job> jobsAwaitingQCOfSamples = new ArrayList<Job>();
 		
 		for (Job job: getActiveJobs()){
-			logger.debug("examining sample QC status of job with id='" + job.getJobId() + "'");
+			logger.debug("examining sample QC status of job with id='" + job.getId() + "'");
 			if (this.isJobAwaitingSampleQC(job)) // some samples not yet QCd
 				jobsAwaitingQCOfSamples.add(job);
 		}
@@ -724,7 +726,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	@Override
 	public boolean isJobAwaitingLibraryQC(Job job){
 		Assert.assertParameterNotNull(job, "job cannot be null");
-		Assert.assertParameterNotNull(job.getJobId(), "job Id cannot be null");
+		Assert.assertParameterNotNull(job.getId(), "job Id cannot be null");
 		if (!this.getLibrariesNotYetQC(job).isEmpty())
 			return true;
 		return false;
@@ -739,7 +741,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		  class JobIdComparator implements Comparator<Job> {
 			    @Override
 			    public int compare(Job arg0, Job arg1) {
-			        return arg0.getJobId().compareTo(arg1.getJobId());
+			        return arg0.getId().compareTo(arg1.getId());
 			    }
 		  }
 		  Collections.sort(jobs, new JobIdComparator());//sort by job ID 
@@ -751,12 +753,12 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		@Override
 		public boolean isJobAwaitingPiApproval(Job job){
 			Assert.assertParameterNotNull(job, "No Job provided");
-			Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+			Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
 			Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 			Set<String> jobIdStringSet = new HashSet<String>();
-			jobIdStringSet.add(job.getJobId().toString());
+			jobIdStringSet.add(job.getId().toString());
 			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-			if (!batchJobExplorer.getStepExecutions("step.piApprove", parameterMap, true, BatchStatus.STARTED).isEmpty())
+			if (!batchJobExplorer.getStepExecutions("step.piApprove", parameterMap, true, ExitStatus.RUNNING).isEmpty())
 				return true;
 			return false;
 		}
@@ -768,12 +770,12 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		@Override
 		public boolean isJobAwaitingDaApproval(Job job){
 			Assert.assertParameterNotNull(job, "No Job provided");
-			Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+			Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
 			Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 			Set<String> jobIdStringSet = new HashSet<String>();
-			jobIdStringSet.add(job.getJobId().toString());
+			jobIdStringSet.add(job.getId().toString());
 			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-			if (!batchJobExplorer.getStepExecutions("step.daApprove", parameterMap, true, BatchStatus.STARTED).isEmpty())
+			if (!batchJobExplorer.getStepExecutions("step.daApprove", parameterMap, true, ExitStatus.RUNNING).isEmpty())
 				return true;
 			return false;
 		}
@@ -784,12 +786,12 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		@Override
 		public boolean isJobAwaitingFmApproval(Job job){
 			Assert.assertParameterNotNull(job, "No Job provided");
-			Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+			Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
 			Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 			Set<String> jobIdStringSet = new HashSet<String>();
-			jobIdStringSet.add(job.getJobId().toString());
+			jobIdStringSet.add(job.getId().toString());
 			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-			if (!batchJobExplorer.getStepExecutions("step.fmApprove", parameterMap, true, BatchStatus.STARTED).isEmpty())
+			if (!batchJobExplorer.getStepExecutions("step.fmApprove", parameterMap, true, ExitStatus.RUNNING).isEmpty())
 				return true;
 			return false;
 		}
@@ -816,12 +818,12 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		@Override
 		public boolean isJobAwaitingQuote(Job job){
 			Assert.assertParameterNotNull(job, "No Job provided");
-			Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+			Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
 			Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 			Set<String> jobIdStringSet = new HashSet<String>();
-			jobIdStringSet.add(job.getJobId().toString());
+			jobIdStringSet.add(job.getId().toString());
 			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-			if (!batchJobExplorer.getStepExecutions("step.quote", parameterMap, true, BatchStatus.STARTED).isEmpty())
+			if (!batchJobExplorer.getStepExecutions("step.quote", parameterMap, true, ExitStatus.RUNNING).isEmpty())
 				return true;
 			return false;
 		}
@@ -932,19 +934,19 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			  }
 			  else {
 				  ExitStatus adminApprovalStatus = stepExecution.getExitStatus();
-				  if(adminApprovalStatus.getExitCode().equals(ExitStatus.EXECUTING.getExitCode())){
+				  if( adminApprovalStatus.isRunning()){
 					  approveStatus = new String("awaitingResponse");
 					  //jobApprovalsMap.put(piStatusLabel, "status.awaitingResponse.label");
 				  }
-				  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())){
+				  else if( adminApprovalStatus.isCompleted()){
 					  approveStatus = new String("approved");
 					  //jobApprovalsMap.put(piStatusLabel, "status.approved.label");
 				  }
-				  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.FAILED.getExitCode())){
+				  else if( adminApprovalStatus.isFailed()){
 					  approveStatus = new String("rejected");
 					  //jobApprovalsMap.put(piStatusLabel, "status.rejected.label");
 				  }
-				  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.STOPPED.getExitCode())){
+				  else if(adminApprovalStatus.isTerminated()){
 					  approveStatus = new String("abandoned");
 					  //jobApprovalsMap.put(piStatusLabel, "status.abandoned.label");
 				  }
@@ -981,18 +983,17 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			job.setName(jobDraft.getName());
 			job.setWorkflowId(jobDraft.getWorkflowId());
 			job.setIsActive(1);
-			job.setCreatets(new Date());
 			
 			job.setViewablebylab(0); // TODO: get from lab? Not being used yet
 			
 			Job jobDb = jobDao.save(job); 
 			
 			// Saves the metadata
-			String sampleDraftPairsKey = null;
+			//String sampleDraftPairsKey = null;
 			String sampleDraftPairs = null;
 			for (JobDraftMeta jdm: jobDraft.getJobDraftMeta()) {
 				if(jdm.getK().indexOf(SAMPLE_PAIR_META_KEY)>-1){//we need to deal with this piece of metadata separately; it must occur following the save of all the job's samples
-					sampleDraftPairsKey = jdm.getK();
+					//sampleDraftPairsKey = jdm.getK();
 					sampleDraftPairs = jdm.getV();
 					continue; 
 				}
@@ -1141,14 +1142,14 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			
 			// update the jobdraft
 			jobDraft.setStatus("SUBMITTED");
-			jobDraft.setSubmittedjobId(jobDb.getJobId());
+			jobDraft.setSubmittedjobId(jobDb.getId());
 			jobDraftDao.save(jobDraft); 
 			
 			// initiate batch jobs in wasp-daemon
-			logger.debug("calling initiateBatchJobForJobSubmission() for job with id='" + jobDb.getJobId() + "'");
+			logger.debug("calling initiateBatchJobForJobSubmission() for job with id='" + jobDb.getId() + "'");
 			initiateBatchJobForJobSubmission(jobDb);
 			for (Sample sample: samples){
-				logger.debug("calling initiateBatchJobForSample() for sample with id='" + sample.getSampleId() + "'");
+				logger.debug("calling initiateBatchJobForSample() for sample with id='" + sample.getId() + "'");
 				if (sampleTypeDao.getSampleTypeBySampleTypeId(sample.getSampleTypeId()).getIName().equals("library")){
 					sampleService.initiateBatchJobForSample(jobDb, sample, "wasp.userLibrary.jobflow.v1");
 				} else {
@@ -1165,10 +1166,10 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	  @Override
 	  public void initiateBatchJobForJobSubmission(Job job){
 		Assert.assertParameterNotNull(job, "No Job provided");
-		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
 		// send message to initiate job processing
 		Map<String, String> jobParameters = new HashMap<String, String>();
-		jobParameters.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+		jobParameters.put(WaspJobParameters.JOB_ID, job.getId().toString());
 		String batchJobName = workflowService.getJobFlowBatchJobName(workflowDao.getWorkflowByWorkflowId(job.getWorkflowId()));
 		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(batchJobName, jobParameters) );
 		try {
@@ -1201,7 +1202,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	@Override
 	public boolean isJobAwaitingLibraryCreation(Job job){
 		Assert.assertParameterNotNull(job, "No Job provided");
-		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
 		for (Sample sample: job.getSample()){
 			if (sampleService.isSampleAwaitingLibraryCreation(sample))
 				return true;
@@ -1216,8 +1217,8 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	public List<Job> getJobsWithLibrariesToGoOnPlatformUnit(ResourceCategory resourceCategory){
 		List<Job> jobsFilteredByResourceCategory = new ArrayList<Job>();
 		for (Job currentJob: getJobsWithLibrariesToGoOnPlatformUnit()){
-			JobResourcecategory jrc = jobResourcecategoryDao.getJobResourcecategoryByResourcecategoryIdJobId(resourceCategory.getResourceCategoryId(), currentJob.getJobId());
-			if(jrc!=null && jrc.getJobResourcecategoryId()!=null && jrc.getJobResourcecategoryId().intValue() != 0)
+			JobResourcecategory jrc = jobResourcecategoryDao.getJobResourcecategoryByResourcecategoryIdJobId(resourceCategory.getId(), currentJob.getId());
+			if(jrc!=null && jrc.getId()!=null && jrc.getId().intValue() != 0)
 				jobsFilteredByResourceCategory.add(currentJob);
 		}
 		return jobsFilteredByResourceCategory;
@@ -1242,7 +1243,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	@Override
 	public boolean isJobWithLibrariesToGoOnPlatformUnit(Job job){
 		Assert.assertParameterNotNull(job, "No Job provided");
-		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
 		for (Sample sample: job.getSample()){
 			if (sampleService.isLibrary(sample)){
 				try {
@@ -1322,13 +1323,13 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	@Override
 	public boolean isJobAwaitingLibraryCreation(Job job, Sample sample){
 		Assert.assertParameterNotNull(sample, "No Sample provided");
-		Integer sampleId = sample.getSampleId();
+		Integer sampleId = sample.getId();
 		Assert.assertParameterNotNullNotZero(sampleId, "Invalid Sample Provided");
 		Assert.assertParameterNotNull(job, "No Job provided");
-		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
 		boolean sampleIsInJob = false;
 		for (Sample s: job.getSample()){
-			if (s.getSampleId().equals(sampleId)){
+			if (s.getId().equals(sampleId)){
 				sampleIsInJob = true;
 				break;
 			}
@@ -1398,14 +1399,14 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	private void updateJobStatus(Job job, WaspStatus status, String task, String comment, boolean checkForJobActive) throws WaspMessageBuildingException{
 		// TODO: Write test!!
 		Assert.assertParameterNotNull(job, "No Job provided");
-		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
 		Assert.assertParameterNotNull(status, "No Status provided");
 		if (status != WaspStatus.COMPLETED && status != WaspStatus.ABANDONED)
 			throw new InvalidParameterException("WaspStatus is null, or not COMPLETED or ABANDONED");
 		Assert.assertParameterNotNull(task, "No Task provided");
 		if (checkForJobActive && !this.isJobActive(job))
-			throw new WaspMessageBuildingException("Not going to build message because job " + job.getJobId() + " is not active");
-		JobStatusMessageTemplate messageTemplate = new JobStatusMessageTemplate(job.getJobId());
+			throw new WaspMessageBuildingException("Not going to build message because job " + job.getId() + " is not active");
+		JobStatusMessageTemplate messageTemplate = new JobStatusMessageTemplate(job.getId());
 		messageTemplate.setUserCreatingMessageFromSession(userService);
 		messageTemplate.setComment(comment);
 		messageTemplate.setTask(task);
@@ -1428,20 +1429,20 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		  }		
 		  	  		
 		  Job job = jobDao.getJobByJobId(jobId.intValue());
-		  if(job.getJobId()==null || job.getJobId().intValue() <= 0){
+		  if(job.getId()==null || job.getId().intValue() <= 0){
 			throw new Exception("listJobSamples.jobNotFound.label");			  
 		  }
 		  
 		  User userPerformingThisAction = authenticationService.getAuthenticatedUser();
-		  if(userPerformingThisAction.getUserId()==null || userPerformingThisAction.getUserId().intValue()<=0){
+		  if(userPerformingThisAction.getId()==null || userPerformingThisAction.getId().intValue()<=0){
 			  throw new Exception("listJobSamples.illegalOperation.label");
 		  }
 		  
 		  Boolean userPerformingThisActionIsPermittedToAddJobViewers = false;
 		  //does the webviewer have the authority to perform this function?
 		  if(authenticationService.isSuperUser() //webviewer (person performing the action) is superuser so OK
-				  ||  userPerformingThisAction.getUserId().intValue() == job.getUserId().intValue() //webViewer is the job submitter, so OK
-				  || userPerformingThisAction.getUserId().intValue() == job.getLab().getPrimaryUserId().intValue()//webViewer is the job PI, so OK
+				  ||  userPerformingThisAction.getId().intValue() == job.getUserId().intValue() //webViewer is the job submitter, so OK
+				  || userPerformingThisAction.getId().intValue() == job.getLab().getPrimaryUserId().intValue()//webViewer is the job PI, so OK
 			)
 		  {
 			  userPerformingThisActionIsPermittedToAddJobViewers = true; //superuser, job's submitter, job's PI
@@ -1458,15 +1459,15 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			  throw new Exception("listJobSamples.invalidFormatEmailAddress.label");
 		  }
 		  User newViewerToBeAddedToJob = userDao.getUserByEmail(newViewerEmailAddress.trim());
-		  if(newViewerToBeAddedToJob.getUserId()==null || newViewerToBeAddedToJob.getUserId().intValue()<= 0){
+		  if(newViewerToBeAddedToJob.getId()==null || newViewerToBeAddedToJob.getId().intValue()<= 0){
 			  throw new Exception("listJobSamples.userNotFoundByEmailAddress.label");	
 		  }
-		  JobUser jobUser = jobUserDao.getJobUserByJobIdUserId(jobId.intValue(), newViewerToBeAddedToJob.getUserId().intValue());
-		  if(jobUser.getJobUserId()!=null && jobUser.getJobUserId().intValue() > 0){//viewer to be added is already a viewer for this job.
+		  JobUser jobUser = jobUserDao.getJobUserByJobIdUserId(jobId.intValue(), newViewerToBeAddedToJob.getId().intValue());
+		  if(jobUser.getId()!=null && jobUser.getId().intValue() > 0){//viewer to be added is already a viewer for this job.
 			  throw new Exception("listJobSamples.alreadyIsViewerOfThisJob.label");
 		  }
 		  Role role = roleDao.getRoleByRoleName("jv");
-		  if(role.getRoleId()==null || role.getRoleId().intValue()<=0){
+		  if(role.getId()==null || role.getId().intValue()<=0){
 			  throw new Exception("listJobSamples.roleNotFound.label");
 		  }
 		  JobUser newJobUser = new JobUser();
@@ -1487,26 +1488,26 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		  }
 		  
 		  Job job = jobDao.getJobByJobId(jobId.intValue());
-		  if(job.getJobId()==null || job.getJobId().intValue() <= 0 ){
+		  if(job.getId()==null || job.getId().intValue() <= 0 ){
 			  throw new Exception("listJobSamples.jobNotFound.label");			  
 		  }
 		  User userToBeRemoved = userDao.getUserByUserId(userId.intValue());
-		  if(userToBeRemoved.getUserId()==null || userToBeRemoved.getUserId().intValue() <= 0 ){//userToBeRemoved not found in the user table; odd.
+		  if(userToBeRemoved.getId()==null || userToBeRemoved.getId().intValue() <= 0 ){//userToBeRemoved not found in the user table; odd.
 			  throw new Exception("listJobSamples.userNotFound.label");			  
 		  }
 
 		  
 		  User userPerformingThisAction = authenticationService.getAuthenticatedUser();
-		  if(userPerformingThisAction.getUserId()==null || userPerformingThisAction.getUserId().intValue()<=0){
+		  if(userPerformingThisAction.getId()==null || userPerformingThisAction.getId().intValue()<=0){
 			  throw new Exception("listJobSamples.illegalOperation.label");
 		  }
 		  
 		  Boolean userPerformingThisActionIsPermittedToRemoveJobViewers = false;
 		  //does the webviewer have the authority to perform this function?
 		  if(authenticationService.isSuperUser() //webviewer (person performing the action) is superuser so OK
-				  ||  userPerformingThisAction.getUserId().intValue() == job.getUserId().intValue() //webViewer is the job submitter, so OK
-				  || userPerformingThisAction.getUserId().intValue() == job.getLab().getPrimaryUserId().intValue()//webViewer is the job PI, so OK
-				  || userPerformingThisAction.getUserId().intValue() == userToBeRemoved.getUserId().intValue()//webViewer is attempting to remove him/her self from list, which is allowed (so long as the webviewer is neither the job submitter or the job's PI).
+				  ||  userPerformingThisAction.getId().intValue() == job.getUserId().intValue() //webViewer is the job submitter, so OK
+				  || userPerformingThisAction.getId().intValue() == job.getLab().getPrimaryUserId().intValue()//webViewer is the job PI, so OK
+				  || userPerformingThisAction.getId().intValue() == userToBeRemoved.getId().intValue()//webViewer is attempting to remove him/her self from list, which is allowed (so long as the webviewer is neither the job submitter or the job's PI).
 			)
 		  {
 			  userPerformingThisActionIsPermittedToRemoveJobViewers = true; //superuser, job's submitter, job's PI
@@ -1516,15 +1517,15 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		  }
 		  
 		  //we checked that webviewer is authorized to do this. Now make certain that the webviewer is not trying to remove the job submitter or job PI. 
-		  if(userToBeRemoved.getUserId().intValue() == job.getUserId().intValue()){//trying to remove job's submitter as viewer; not allowed
+		  if(userToBeRemoved.getId().intValue() == job.getUserId().intValue()){//trying to remove job's submitter as viewer; not allowed
 			  throw new Exception("listJobSamples.submitterRemovalIllegal.label");			  
 		  }
-		  if(userToBeRemoved.getUserId().intValue() == job.getLab().getPrimaryUserId().intValue()){//trying to remove job pi as viewer; not allowed
+		  if(userToBeRemoved.getId().intValue() == job.getLab().getPrimaryUserId().intValue()){//trying to remove job pi as viewer; not allowed
 			  throw new Exception("listJobSamples.piRemovalIllegal.label");			  
 		  }
 		  
-		  JobUser jobUser = jobUserDao.getJobUserByJobIdUserId(job.getJobId().intValue(), userToBeRemoved.getUserId().intValue());
-		  if(jobUser.getJobUserId().intValue() <= 0){//jobuser not found for this job and this user in the jobuser table.
+		  JobUser jobUser = jobUserDao.getJobUserByJobIdUserId(job.getId().intValue(), userToBeRemoved.getId().intValue());
+		  if(jobUser.getId().intValue() <= 0){//jobuser not found for this job and this user in the jobuser table.
 			  throw new Exception("listJobSamples.userNotViewerOfThisJob.label");
 		  }
 		  else{
@@ -1582,7 +1583,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				boolean found = false;
 				for(JobCellSelection jobCellSelection : job.getJobCellSelection()){
 					for(SampleJobCellSelection sampleJobCellSelection : jobCellSelection.getSampleJobCellSelection()){
-						if(sampleJobCellSelection.getSampleId().intValue() == sample.getSampleId().intValue()){
+						if(sampleJobCellSelection.getSampleId().intValue() == sample.getId().intValue()){
 							if(jobCellSelection.getCellIndex().intValue() == i){
 								stringBuffer.append("1");
 								found = true;
@@ -1608,7 +1609,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	@Override
 	public WaspJobContext getWaspJobContext(Job job) throws JobContextInitializationException{
 		Assert.assertParameterNotNull(job, "No Job provided");
-		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
 		return new WaspJobContext(job);
 	}
 
@@ -1652,7 +1653,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	public Map<String, Object> getTreeViewBranch(Integer id, Integer pid, String type, Integer jid) throws SampleTypeException, SampleParentChildException{
 		
 		Map <String, Object> curNode = new HashMap<String, Object>();
-		List<Map> children = new ArrayList<Map>();
+		List<Map<String, Object>> children = new ArrayList<Map<String, Object>>();
 		
 		if (type.equalsIgnoreCase("job")) {
 			Job job = getJobByJobId(id);
@@ -1664,7 +1665,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			if (jid==null || jid<1) {  // jid==null/<1 means this is a analysis view
 				List<Sample> sampleList = getSubmittedSamples(job);
 				for (Sample sample : sampleList) {
-					Map childNode = new HashMap();
+					Map<String,Object> childNode = new HashMap<>();
 
 					if(!sampleService.isLibrary(sample)) {
 						// if it's non-library sample
@@ -1689,7 +1690,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				
 				// get the list of all successful runs for the job
 				List<Sample> puList = this.getPlatformUnitWithLibrariesOnForJob(job);
-				Map<Integer, Run> runMap = new HashMap();
+				Map<Integer, Run> runMap = new HashMap<>();
 				for (Sample pu : puList) {
 					List<Run> runList = runService.getSuccessfullyCompletedRunsForPlatformUnit(pu);
 					for (Run run : runList) {
@@ -1698,7 +1699,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				}
 				
 				for (Run run : runMap.values()) {
-					Map childNode = new HashMap();
+					Map<String,Object> childNode = new HashMap<>();
 
 					childNode.put("name", "Run: "+run.getName());
 					childNode.put("myid", run.getId());
@@ -1710,7 +1711,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				}
 				
 				if (children.isEmpty()) {
-					Map childNode = new HashMap();
+					Map<String,Object> childNode = new HashMap<>();
 					childNode.put("name", "No completed run yet");
 					childNode.put("myid", -1);
 					childNode.put("type", "dummy");
@@ -1728,7 +1729,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			// If the sample has parent facility-made library
 			List<Sample> faclibList = sampleService.getFacilityGeneratedLibraries(sample);
 			for (Sample faclib : faclibList) {
-				Map childNode = new HashMap();
+				Map<String,Object> childNode = new HashMap<>();
 				
 				childNode.put("name", "Facility-made Library: "+faclib.getName());
 				childNode.put("myid", faclib.getId());
@@ -1750,7 +1751,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			//get all cells associated with the library
 			List<Sample> cellList = sampleService.getCellsForLibrary(library);
 			if (!cellList.isEmpty()) {
-				Map childNode = new HashMap();
+				Map<String,Object> childNode = new HashMap<>();
 				Sample cell = cellList.get(0);	//only one possible cell for one library
 				childNode.put("name", "Cell: "+cell.getName());
 				childNode.put("myid", cell.getId());
@@ -1782,7 +1783,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				Set<SampleSource> libcellList = runService.getCellLibrariesOnSuccessfulRunCells(run);
 				for (SampleSource libcell : libcellList) {
 					Sample cell = sampleService.getCell(libcell);
-					Map childNode = new HashMap();
+					Map<String,Object> childNode = new HashMap<>();
 					
 					childNode.put("name", "Cell: "+cell.getName());
 					childNode.put("myid", cell.getId());
@@ -1796,7 +1797,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			} else {
 				List<Sample> cellList = runService.getCellsOnSuccessfulRunCellsWithoutControlsForJob(run, this.getJobByJobId(jid));
 				for (Sample cell : cellList) {
-					Map childNode = new HashMap();
+					Map<String,Object> childNode = new HashMap<>();
 					
 					childNode.put("name", "Cell: "+cell.getName());
 					childNode.put("myid", cell.getId());
@@ -1814,8 +1815,8 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		return curNode;
 	}
 
-	private List<Map> getFileNodesByLibrary(Sample library, Sample cell) throws SampleTypeException {
-		List<Map> fileTypeNodes = new ArrayList<Map>();
+	private List<Map<String,Object>> getFileNodesByLibrary(Sample library, Sample cell) throws SampleTypeException {
+		List<Map<String,Object>> fileTypeNodes = new ArrayList<Map<String,Object>>();
 		Set<FileGroup> fgSet;
 		if (cell == null) {
 			fgSet = library.getFileGroups();
@@ -1834,7 +1835,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		}
 		
 		for (FileType ft : ftMap.keySet()) {
-			Map ftNode = new HashMap();
+			Map<String,Object> ftNode = new HashMap<>();
 
 			ftNode.put("name", "File Type: " + ft.getName());
 			ftNode.put("myid", ft.getId());
@@ -1843,10 +1844,10 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			if (cell!=null)
 				ftNode.put("cellid", cell.getId());
 			
-			List<Map> children = new ArrayList<Map>();
+			List<Map<String,Object>> children = new ArrayList<Map<String,Object>>();
 			Set<FileGroup> fgByTypeSet = ftMap.get(ft);
 			for (FileGroup fg : fgByTypeSet) {
-				Map fgNode = new HashMap();
+				Map<String,Object> fgNode = new HashMap<>();
 
 				fgNode.put("name", "File Group: " + fg.getDescription());
 				fgNode.put("myid", fg.getId());
@@ -1863,8 +1864,9 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		return fileTypeNodes;
 	}
 
-	private List<Map> getFileNodesByCellLibrary(Sample cell, Sample library) throws SampleTypeException {
-		List<Map> fileTypeNodes = new ArrayList<Map>();
+	@SuppressWarnings("unused")
+	private List<Map<String,Object>> getFileNodesByCellLibrary(Sample cell, Sample library) throws SampleTypeException {
+		List<Map<String,Object>> fileTypeNodes = new ArrayList<Map<String,Object>>();
 		Set<FileGroup> fgSet = sampleService.getCellLibrary(cell, library).getFileGroups();
 		Map<Integer, FileType> ftMap = new HashMap<Integer, FileType>();
 		for (FileGroup fg : fgSet) {
@@ -1872,7 +1874,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		}
 		
 		for (FileType ft : ftMap.values()) {
-			Map ftNode = new HashMap();
+			Map<String,Object> ftNode = new HashMap<>();
 
 			ftNode.put("name", "File Type: " + ft.getName());
 			ftNode.put("myid", ft.getId());
@@ -1895,7 +1897,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		LinkedHashMap<String, Object> jsDetails = new LinkedHashMap<String, Object>();
 		
 		Job job = getJobByJobId(jobId);
-		if(job==null || job.getJobId()==null){
+		if(job==null || job.getId()==null){
 			  throw new Exception("listJobSamples.jobNotFound.label");
 		}
 		
@@ -1903,7 +1905,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		jsDetails.putAll(getExtraJobDetails(job));
 	
 		List<JobMeta> metaList = job.getJobMeta();
-		Map <String, Map<String, String>> metaListMap = new HashMap();
+		Map <String, Map<String, String>> metaListMap = new HashMap<>();
 		for (JobMeta mt : metaList) {
 			String key = mt.getK();
 			//logger.debug(Arrays.deepToString(metaNameSplit));
@@ -1920,7 +1922,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				} else if (metaKeySplit.length == 2) {
 					Map <String, String> subKeyMap = metaListMap.get(metaKeySplit[0]);
 					if(subKeyMap == null) {
-						subKeyMap = new HashMap();
+						subKeyMap = new HashMap<>();
 						metaListMap.put(metaKeySplit[0], subKeyMap);
 					}
 					subKeyMap.put(metaKeySplit[1], mt.getV());
@@ -1937,14 +1939,14 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 */
 	@Override
 	public String getJobStatusComment(Job job){
-		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0)
+		if(job==null || job.getId()==null || job.getId().intValue()<=0)
 			return null;
 		LinkedHashMap<String,String> jobApprovalsMap = this.getJobApprovals(job);
 		for(String jobApproveCode : jobApprovalsMap.keySet()){
 			//if any single jobStatus is rejected, the rest are set to abandoned, so this job is withdrawn, so break
 			if(! "rejected".equalsIgnoreCase(jobApprovalsMap.get(jobApproveCode)))
 				continue;
-			List<MetaMessage> jobApprovalCommentsList = this.getJobApprovalComments(jobApproveCode, job.getJobId());		
+			List<MetaMessage> jobApprovalCommentsList = this.getJobApprovalComments(jobApproveCode, job.getId());		
 			if(jobApprovalCommentsList.size()>0){
 				
 				MetaMessage mm = jobApprovalCommentsList.get(jobApprovalCommentsList.size()-1);
@@ -2028,11 +2030,11 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				List <Sample> tempSubmittedSamplesList = new ArrayList<Sample>(submittedSamplesList);//identical copy of submittedSamplesList (with identical order) 
 				for(Sample tSample : tempSubmittedSamplesList){				
 					String matchFound = "f";//false
-					if(cSample.getSampleId()==tSample.getSampleId()){
+					if(cSample.getId()==tSample.getId()){
 						stringList.add("d");//disallowed
 						continue;
 					}
-					String possiblePair = tSample.getSampleId().toString() + ":" + cSample.getSampleId().toString();
+					String possiblePair = tSample.getId().toString() + ":" + cSample.getId().toString();
 					for(String realPair : samplePairs.split(";")){
 						if(realPair.equals(possiblePair)){
 							matchFound = "t";//true
@@ -2067,10 +2069,10 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 							C = Integer.valueOf(stringArray[1]);
 						}catch(Exception e){C = null;}					
 						
-						if(C == null && T != null && sample.getSampleId().intValue()==T.intValue()){
+						if(C == null && T != null && sample.getId().intValue()==T.intValue()){
 							matchFoundForControlIsReference = "t";
 						}
-						else if(T == null && C != null && sample.getSampleId().intValue()==C.intValue()){
+						else if(T == null && C != null && sample.getId().intValue()==C.intValue()){
 							matchFoundForTestIsReference = "t";
 						}
 					}
@@ -2113,8 +2115,8 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 					cellLibraryPreprocessFailedOrPassedQc = cellLibrary;
 				} catch (MetaAttributeNotFoundException e){
 					// no QC recorded against cell library so see if it failed pre-processing
-					String preProcessingStatus = sampleService.getCellLibraryPreprocessingStatus(cellLibrary).getExitCode();
-					if (preProcessingStatus.equals(ExitStatus.FAILED.getExitCode()) || preProcessingStatus.equals(ExitStatus.STOPPED.getExitCode()))
+					ExitStatus preProcessingStatus = sampleService.getCellLibraryPreprocessingStatus(cellLibrary);
+					if (preProcessingStatus.isFailed() || preProcessingStatus.isTerminated())
 						cellLibraryPreprocessFailedOrPassedQc = cellLibrary;
 				}
 				if (cellLibraryPreprocessFailedOrPassedQc != null){
@@ -2165,10 +2167,8 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				}
 				try{
 					if (sampleService.isCellSequencedSuccessfully(sampleService.getCell(cellLibrary))){
-						String preProcessingStatus = sampleService.getCellLibraryPreprocessingStatus(cellLibrary).getExitCode();
-						if (!preProcessingStatus.equals(ExitStatus.COMPLETED.getExitCode()) &&
-								!preProcessingStatus.equals(ExitStatus.FAILED.getExitCode()) &&
-								!preProcessingStatus.equals(ExitStatus.STOPPED.getExitCode())){
+						ExitStatus preProcessingStatus = sampleService.getCellLibraryPreprocessingStatus(cellLibrary);
+						if (!preProcessingStatus.isCompleted() && !preProcessingStatus.isFailed() && !preProcessingStatus.isTerminated()){
 							logger.debug("job " + job.getId() + ": the library has been run and it's cell has passed QC but has not completed pre-processing yet - returning true");
 							return true; // the library has been run and passed QC but has not been pre-processed yet
 						} else if (sampleService.isCellLibraryAwaitingQC(cellLibrary)){
@@ -2261,11 +2261,11 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 
 	public boolean isAggregationAnalysisBatchJob(Job job){
 		Assert.assertParameterNotNull(job, "job cannot be null");
-		Assert.assertParameterNotNull(job.getJobId(), "job must be valid");
+		Assert.assertParameterNotNull(job.getId(), "job must be valid");
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		Set<String> jobIdStringSet = new HashSet<String>();
 		Set<String> taskSet = new HashSet<String>();
-		jobIdStringSet.add(job.getJobId().toString());
+		jobIdStringSet.add(job.getId().toString());
 		taskSet.add(BatchJobTask.ANALYSIS_AGGREGATE);
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 		parameterMap.put(WaspJobParameters.BATCH_JOB_TASK, taskSet);
@@ -2280,12 +2280,12 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	@Override
 	public boolean isTerminated(Job job){
 		Assert.assertParameterNotNull(job, "job cannot be null");
-		Assert.assertParameterNotNull(job.getJobId(), "job Id cannot be null");
+		Assert.assertParameterNotNull(job.getId(), "job Id cannot be null");
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		Set<String> jobIdStringSet = new HashSet<String>();
-		jobIdStringSet.add(job.getJobId().toString());
+		jobIdStringSet.add(job.getId().toString());
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		if (batchJobExplorer.getJobExecutions("default.waspJob.jobflow", parameterMap, true, BatchStatus.STOPPED).size() > 0)
+		if (batchJobExplorer.getJobExecutions("default.waspJob.jobflow", parameterMap, true, ExitStatus.STOPPED).size() > 0)
 			return true;
 		return false;
 	}
@@ -2296,10 +2296,10 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	@Override
 	public boolean isFinishedSuccessfully(Job job){
 		Assert.assertParameterNotNull(job, "job cannot be null");
-		Assert.assertParameterNotNull(job.getJobId(), "job Id cannot be null");
+		Assert.assertParameterNotNull(job.getId(), "job Id cannot be null");
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		Set<String> jobIdStringSet = new HashSet<String>();
-		jobIdStringSet.add(job.getJobId().toString());
+		jobIdStringSet.add(job.getId().toString());
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 		if (batchJobExplorer.getJobExecutions("default.waspJob.jobflow", parameterMap, true, ExitStatus.COMPLETED).size() > 0)
 			return true;

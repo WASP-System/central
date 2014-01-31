@@ -17,7 +17,7 @@
   	<property name="area" ref="truseqIndexedDnaArea" />
   	<property name="name" value="TruSEQ INDEXED DNA" />
   	<property name="sampleType" ref="dnaSampleType" />
-	<property name="indexingStrategy" value="TRUSEQ" />
+	<property name="indexingStrategy" value="#{ T(edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy).TRUSEQ }" />
 
   	<property name="compatibleResources">
   		<list>

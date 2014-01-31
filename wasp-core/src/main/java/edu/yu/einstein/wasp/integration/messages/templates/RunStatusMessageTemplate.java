@@ -107,5 +107,12 @@ public class RunStatusMessageTemplate extends WaspStatusMessageTemplate {
 		return message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) &&  
 				message.getHeaders().get(WaspMessageType.HEADER_KEY).equals(WaspMessageType.RUN);
 	}
+	
+	@Override
+	public RunStatusMessageTemplate getNewInstance(WaspStatusMessageTemplate messageTemplate){
+		RunStatusMessageTemplate newTemplate = new RunStatusMessageTemplate(((RunStatusMessageTemplate) messageTemplate).getRunId());
+		copyCommonProperties(messageTemplate, newTemplate);
+		return newTemplate;
+	}
 
 }

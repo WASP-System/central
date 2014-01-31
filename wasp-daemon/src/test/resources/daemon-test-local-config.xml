@@ -2,12 +2,15 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:mockito="http://www.mockito.org/spring/mockito" default-autowire="byName"
-	xsi:schemaLocation="http://www.mockito.org/spring/mockito https://bitbucket.org/kubek2k/springockito/raw/tip/springockito/src/main/resources/spring/mockito.xsd
+	xmlns:mockito="http://www.mockito.org/spring/mockito"
+	default-autowire="byName"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+		http://www.mockito.org/spring/mockito https://bitbucket.org/kubek2k/springockito/raw/tip/springockito/src/main/resources/spring/mockito.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-	<context:property-placeholder location="classpath:test_hsqldb.properties, classpath:integration.properties" ignore-unresolvable="true"/>
+	<context:property-placeholder location="classpath:test_hsqldb.properties,classpath:integration.properties,classpath:test.properties" ignore-unresolvable="false"/>
 	
 	<!-- use Mockito to mock dependencies. In tests DO NOT autowire these in otherwise Spring tries to resolve dependencies which are not required.  -->
 	<!-- e.g. Entitymanager for DAOs. Set up fresh mocks in tests instead.  -->
@@ -32,8 +35,11 @@
 	<import resource="daemon-test-persistence-config.xml" />
 	
 		
-	<bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />
-	
+	<task:executor id="taskExecutor" 
+ 		keep-alive="${wasp.taskexecutor.keepAliveSeconds:60}" 
+ 		queue-capacity="${wasp.taskexecutor.queueCapacity:0}" 
+ 		pool-size="${wasp.taskexecutor.corePoolSize:5}-${wasp.taskexecutor.maxPoolSize:1000000}" 
+ 		rejection-policy="CALLER_RUNS" />
 	
 	
 	
