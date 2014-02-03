@@ -148,14 +148,12 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 		if(controlSample!=null){
 			stepContext.put("controlSampleId", controlSample.getId()); //place in the step context			
 		}
-		WorkUnit w = macs2.getPeaks(testFileHandleList, controlFileHandleList, jobParameters);
+		WorkUnit w = macs2.getPeaks(testFileHandleList, controlFileHandleList, jobParameters);//configure
 		
-		//must work on additional paramenters in getPeaks
+		if(1==1)
+			throw new Exception("throwing exception to test");
 		
 		
-		
-		
-		//configure
 		
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + this.job.getId());
    

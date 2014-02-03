@@ -71,24 +71,57 @@ public class Macstwo extends SoftwarePackage{
 				continue;
 			String key = opt.replace("macsPeakcaller.", "");
 			if(key.equalsIgnoreCase("pValueCutoff")){
-				key = "-p";
-			}
-			if(key.equalsIgnoreCase("bandwidth")){//should really be sonication size
-				key = "--bw";
-			}
-			if(key.equalsIgnoreCase("genomeSize")){
-				key = "-g";
-			}
-			if(key.equalsIgnoreCase("keepDup") && jobParameters.get(opt).toString().equalsIgnoreCase("no")){
-				continue;//take default value,: The default is to keep one tag at the same location. Default: 1
-			}
-			else if(key.equalsIgnoreCase("keepDup") ){
-				key = "--keep-dup";	
+				key = "--pvalue";
 				try{
 					Integer i = Integer.parseInt(jobParameters.get(opt).toString());
 				}
 				catch(Exception e){
-					tempCommand.append(" " + key + " ");
+					continue;//not a number so accept default and get out
+				}
+			}
+			if(key.equalsIgnoreCase("bandwidth")){//should really be sonication size
+				key = "--bw";
+				try{
+					Integer i = Integer.parseInt(jobParameters.get(opt).toString());
+				}
+				catch(Exception e){//not a number so accept default and get out
+					continue;
+				}
+			}
+			if(key.equalsIgnoreCase("genomeSize")){
+				key = "--gsize";
+				try{
+					Integer i = Integer.parseInt(jobParameters.get(opt).toString());
+				}
+				catch(Exception e){//not a number so accept default (1e9) and get out
+					continue;
+				}
+			}
+			if(key.equalsIgnoreCase("keepDup") ){
+				key = "--keep-dup";	
+				if(jobParameters.get(opt).toString().equalsIgnoreCase("no")){
+					tempCommand.append(" " + key + " 1");
+					continue;
+				}
+				else if(jobParameters.get(opt).toString().equalsIgnoreCase("yes") 
+						|| 
+						jobParameters.get(opt).toString().equalsIgnoreCase("all")){
+					tempCommand.append(" " + key + " all");
+					continue;
+				}
+				else if(jobParameters.get(opt).toString().equalsIgnoreCase("auto")){
+					tempCommand.append(" " + key + " auto");
+					continue;
+				}
+				else{
+					try{
+						Integer i = Integer.parseInt(jobParameters.get(opt).toString());
+						tempCommand.append(" " + key + " " + jobParameters.get(opt).toString());
+						continue;
+					}
+					catch(Exception e){//not a number, so accept default
+						continue;
+					}
 				}
 			}
 			tempCommand.append(" " + key + " " + jobParameters.get(opt).toString());
@@ -101,8 +134,9 @@ public class Macstwo extends SoftwarePackage{
 		//
 		
 		String command = new String(tempCommand);
-		logger.debug("Will execute macs2 for peakcalling with command: " + command);
-
+		logger.debug("---- Will execute macs2 for peakcalling with command: ");
+		logger.debug("---- "+command);
+		
 		w.setCommand(command);
 		
 		return w;
