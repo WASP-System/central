@@ -48,7 +48,9 @@ import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;
+import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.SoftwareConfiguration;
@@ -77,6 +79,10 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 	
 	@Autowired
 	private JobService jobService;
+	
+	@Autowired
+	private GenomeService genomeService;
+
 	
 	@Autowired
 	private GridHostResolver gridHostResolver;
@@ -179,6 +185,7 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 		for(Sample testSample : setOfApprovedSamples){
 			//prepare message for peakcaller plugin (here, MACS2)
 			List<SampleSource> cellLibraryListForTest = approvedSampleApprovedCellLibraryListMap.get(testSample);
+			Build build = genomeService.getBuild(testSample);//we already confirmed (above) that testSample and controlSample have same genome	(BUT WE NEVER DID THIS FOR THE BAM FILES THAT WILL BE USED)		
 			Assert.assertTrue( ! cellLibraryListForTest.isEmpty() );
 			List<Sample> controlSampleList = testSampleControlSampleListMap.get(testSample);
 			if(controlSampleList.isEmpty()){//no control (input sample)
