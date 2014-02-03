@@ -74,6 +74,10 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 	}
 
 	public MacstwoTasklet(String testCellLibraryIdListAsString, String controlCellLibraryIdListAsString) throws Exception {
+		logger.debug("*************************");
+		logger.debug("*************************");
+		logger.debug("*************************Starting MacstwoTasklet");
+		
 		this.testCellLibraryIdList = WaspSoftwareJobParameters.getLibraryCellIdList(testCellLibraryIdListAsString);//should be all from same job
 		Assert.assertTrue(!this.testCellLibraryIdList.isEmpty());
 		Sample testParent = sampleService.getLibrary(sampleService.getCellLibraryBySampleSourceId(testCellLibraryIdList.get(0)));//all these cellLibraries are from the same library or macromoleucle

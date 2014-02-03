@@ -4,6 +4,7 @@
  */
 package edu.yu.einstein.wasp.macstwo.plugin;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -24,6 +25,7 @@ import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
+import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask; 
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -103,15 +105,19 @@ public class MacstwoPlugin extends WaspPlugin
 		logger.info("launching test flow");
 		
 		try {
-			Integer id = getIDFromMessage(m);
-			if (id == null)
-				return MessageBuilder.withPayload("Unable to determine id from message: " + m.getPayload().toString()).build();
+			//Integer id = getIDFromMessage(m);
+			//if (id == null)
+			//	return MessageBuilder.withPayload("Unable to determine id from message: " + m.getPayload().toString()).build();
 			
 			Map<String, String> jobParameters = new HashMap<String, String>();
-			logger.info("Sending launch message with flow " + FLOW_NAME + " and id: " + id);
-			jobParameters.put(WaspJobParameters.TEST_ID, id.toString());
+			jobParameters.put("test", new Date().toString());
+			jobParameters.put(WaspSoftwareJobParameters.TEST_LIBRARY_CELL_ID_LIST, "39");
+			jobParameters.put(WaspSoftwareJobParameters.CONTROL_LIBRARY_CELL_ID_LIST, "37");
+			//logger.info("Sending launch message with flow " + FLOW_NAME + " and id: " + id);
+			//jobParameters.put(WaspJobParameters.TEST_ID, id.toString());
 			waspMessageHandlingService.launchBatchJob(FLOW_NAME, jobParameters);
-			return (Message<String>) MessageBuilder.withPayload("Initiating test flow on id " + id).build();
+			//return (Message<String>) MessageBuilder.withPayload("Initiating test flow on id " + id).build();
+			return (Message<String>) MessageBuilder.withPayload("Initiating test macstwo flow ").build();
 		} catch (WaspMessageBuildingException e1) {
 			logger.warn("unable to build message to launch batch job " + FLOW_NAME);
 			return MessageBuilder.withPayload("Unable to launch batch job " + FLOW_NAME).build();

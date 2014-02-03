@@ -21,7 +21,7 @@
 			<!-- <batch:tasklet ref="edu.yu.einstein.wasp.macstwo.mainFlow.skipTasklet" /> -->
 			<batch:tasklet>
 				<batch:transaction-attributes propagation="NEVER"/>
-				<bean class="edu.yu.einstein.wasp.plugin.bwa.batch.tasklet.BWAalnTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.macstwo.batch.tasklet.MacstwoTasklet" scope="step">
 					<constructor-arg name="testCellLibraryIdListAsString" value="#{jobParameters[waspSoftwareJobParameters.TEST_LIBRARY_CELL_ID_LIST]}" />
 					<constructor-arg name="controlCellLibraryIdListAsString" value="#{jobParameters[waspSoftwareJobParameters.CONTROL_LIBRARY_CELL_ID_LIST]}" />
 				</bean>
