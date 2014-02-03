@@ -32,6 +32,7 @@ public interface MessageTemplate {
 	 * @param message
 	 * @return
 	 */
+	@Deprecated
 	public boolean actUponMessageIgnoringTask(Message<?> message);
 	
 	public String getTask();

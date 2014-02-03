@@ -13,4 +13,6 @@ public class BabrahamBatchJobTask extends BatchJobTask {
 	
 	public static final String FASTQ_SCREEN = "fastqscreen";
 	
+	public static final String TRIM_GALORE = "trim_galore";
+	
 }

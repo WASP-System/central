@@ -155,7 +155,7 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 		return RepeatStatus.CONTINUABLE;	
 	}
 	
-	private ExitStatus getExitStatus(StepExecution stepExecution, WaspStatus waspStatus){
+	protected ExitStatus getExitStatus(StepExecution stepExecution, WaspStatus waspStatus){
 		if (waspStatus.equals(WaspStatus.FAILED))
 			return ExitStatus.FAILED;
 		if (waspStatus.equals(WaspStatus.ABANDONED) && stepExecution.getStatus().equals(BatchStatus.COMPLETED))
@@ -174,7 +174,7 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 		return exitStatus;
 	}
 	
-	private void sendSuccessReplyToAllMessagesInQueue(Collection<Message<?>> queue){
+	protected void sendSuccessReplyToAllMessagesInQueue(Collection<Message<?>> queue){
 		MessagingTemplate messagingTemplate = new MessagingTemplate();
 		logger.debug("Going to send " + messageQueue.size()  + " reply message(s)...");
 		for (Message<?> message: queue){
