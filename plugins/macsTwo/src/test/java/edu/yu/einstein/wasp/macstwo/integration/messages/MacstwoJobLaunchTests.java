@@ -116,7 +116,7 @@ public class MacstwoJobLaunchTests extends AbstractTestNGSpringContextTests impl
 	 * in the correct order. 
 	 * Finally we check that the job execution exited with a success status of COMPLETED.
 	 */
-	@Test (groups = "macstwo-tests")
+	//@Test (groups = "macstwo-tests")
 	public void testSuccessfulMacstwoJobLaunch() throws Exception{
 		try{
 			Map<String, String> jobParameters = new HashMap<String, String>();
