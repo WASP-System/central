@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.testng.Assert;
+import edu.yu.einstein.wasp.Assert;
 
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
@@ -83,7 +83,13 @@ public class Macstwo extends SoftwarePackage{
 				continue;//take default value,: The default is to keep one tag at the same location. Default: 1
 			}
 			else if(key.equalsIgnoreCase("keepDup") ){
-				key = "--keep-dup";				
+				key = "--keep-dup";	
+				try{
+					Integer i = Integer.parseInt(jobParameters.get(opt).toString());
+				}
+				catch(Exception e){
+					tempCommand.append(" " + key + " ");
+				}
 			}
 			tempCommand.append(" " + key + " " + jobParameters.get(opt).toString());
 		}

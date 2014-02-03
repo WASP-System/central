@@ -18,7 +18,7 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.testng.Assert;
+import edu.yu.einstein.wasp.Assert;
 
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
