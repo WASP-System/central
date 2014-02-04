@@ -18,7 +18,7 @@ public interface BatchJobStatusViewerService {
 	
 	public ExtTreeModel getTreeModel(StepExecution se);
 	
-	public List<ExtTreeModel> getJobListAll(String property, String direction, Long limit, Long start);
+	public List<ExtTreeModel> getJobListAll(String property, String direction, Long start, Long limit);
 	
 	public List<ExtTreeModel> getJobListActive();
 	
@@ -28,8 +28,8 @@ public interface BatchJobStatusViewerService {
 	
 	public List<ExtTreeModel> getJobListFailed();
 	
-	public ExtTreeGridResponse getPagedModelList(String nodeId, Long limit, Long start);
+	public ExtTreeGridResponse getPagedModelList(String nodeId, Long start, Long limit);
 	
-	public ExtTreeGridResponse getPagedModelList(String nodeId, String property, String direction, Long limit, Long start);
+	public ExtTreeGridResponse getPagedModelList(String nodeId, String property, String direction, Long start, Long limit);
 
 }

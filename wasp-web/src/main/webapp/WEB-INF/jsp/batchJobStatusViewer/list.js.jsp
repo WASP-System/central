@@ -2,15 +2,7 @@
 <script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/packages/ext-theme-neptune/build/ext-theme-neptune.js"></script>
 <script type="text/javascript"	src="/wasp/scripts/extjs/wasp/WaspNamespaceDefinition.js"></script>
 <link rel="stylesheet" type="text/css" href="/wasp/css/ext-theme-neptune-all-wasp.css" />
-
-<style type="text/css">
-    .task {
-        background-image: url(/wasp/css/ext/images/icons/fam/cog.gif) !important;
-    }
-    .task-folder {
-        background-image: url(/wasp/css/ext/images/icons/fam/folder_go.gif) !important;
-    }
-</style>
+<link rel="stylesheet" type="text/css" href="/wasp/css/treeGrid.css" />
 
 
 <script type="text/javascript">

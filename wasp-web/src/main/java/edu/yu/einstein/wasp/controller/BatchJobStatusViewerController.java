@@ -41,9 +41,9 @@ public class BatchJobStatusViewerController extends WaspController {
 			HttpServletResponse response) throws WaspException, JsonMappingException, IOException {
 		logger.debug("Getting model data for node=" + node + ", limit=" + limit + ", page=" + page + ", start=" + start + ", sort=" + sort);
 		if (sort == null)
-			return outputJSON(statusViewerService.getPagedModelList(node, limit, start), response);
+			return outputJSON(statusViewerService.getPagedModelList(node, start, limit), response);
 		JSONObject sortInfo = new JSONObject(sort.replace("[", "").replace("]", ""));
-		return outputJSON(statusViewerService.getPagedModelList(node, sortInfo.getString("property"), sortInfo.getString("direction"), limit, start), response);
+		return outputJSON(statusViewerService.getPagedModelList(node, sortInfo.getString("property"), sortInfo.getString("direction"), start, limit), response);
 	}
 	
 	private  String outputJSON(ExtTreeGridResponse extTreeGridResponse, HttpServletResponse response) throws JsonMappingException, IOException {
