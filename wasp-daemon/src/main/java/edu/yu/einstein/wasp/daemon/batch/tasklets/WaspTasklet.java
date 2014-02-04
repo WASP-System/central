@@ -66,6 +66,7 @@ public class WaspTasklet extends WaspHibernatingTasklet {
 			GridWorkService gws = hostResolver.getGridWorkService(result);
 			try {
 				if (gws.isFinished(result)){
+					logger.debug("Workunit is finished. Returning RepeatStatus.FINISHED");
 					return RepeatStatus.FINISHED;
 				}
 			} catch (GridException e) {
