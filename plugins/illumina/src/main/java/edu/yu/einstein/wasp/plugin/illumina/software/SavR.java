@@ -6,8 +6,6 @@ package edu.yu.einstein.wasp.plugin.illumina.software;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.yu.einstein.wasp.plugin.mps.software.sequencer.SequenceRunProcessor;
-
 /**
  * @author calder
  * 

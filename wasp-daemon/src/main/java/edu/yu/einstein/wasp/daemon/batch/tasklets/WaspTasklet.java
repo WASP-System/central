@@ -50,7 +50,6 @@ public class WaspTasklet extends WaspHibernatingTasklet {
 	 * Default implementation checks to see if a stored result is running 
 	 */
 	@Override
-	//@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		Long stepExecutionId = context.getStepContext().getStepExecution().getId();
 		if (wasWokenOnTimeout(context)){
@@ -74,7 +73,7 @@ public class WaspTasklet extends WaspHibernatingTasklet {
 				removeStartedResult(context);
 				throw e;
 			}
-			logger.debug("StepExecution id=" + stepExecutionId + " is going to request hibernation as " + result.getUuid() + " not complete");
+			logger.debug("StepExecution id=" + stepExecutionId + " is going to request hibernation as " + result.getUuid() + " started but not complete");
 		}
 		logger.debug("Tasklet not yet configured with a result (StepExecution id=" + stepExecutionId + ")");
 		if (!wasHibernationRequested){

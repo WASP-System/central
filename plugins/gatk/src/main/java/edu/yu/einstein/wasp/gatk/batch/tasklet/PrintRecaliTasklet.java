@@ -75,7 +75,6 @@ public class PrintRecaliTasklet extends WaspTasklet implements StepExecutionList
 	 * {@inheritDoc}
 	 */
 	@Override
-	@RetryOnExceptionExponential
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		// if the work has already been started, then check to see if it is
 		// finished
