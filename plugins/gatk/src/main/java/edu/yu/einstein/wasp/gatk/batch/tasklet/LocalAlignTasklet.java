@@ -72,7 +72,6 @@ public class LocalAlignTasklet extends WaspTasklet implements StepExecutionListe
 	 * {@inheritDoc}
 	 */
 	@Override
-	@RetryOnExceptionExponential
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		// if the work has already been started, then check to see if it is
 		// finished
