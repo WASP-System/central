@@ -20,8 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
+import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
@@ -42,7 +41,7 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  * @author calder
  *
  */
-public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionListener {
+public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 	
 	private String scratchDirectory;
 	private Integer cellLibId;
@@ -78,28 +77,8 @@ public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionLis
 	public BWAMergeSortTasklet() {
 		// proxy
 	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Transactional("entityManager")
-	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
-		
-		// if the work has already been started, then check to see if it is
-		// finished
-		// if not, throw an exception that is caught by the repeat policy.
-		RepeatStatus repeatStatus = super.execute(contrib, context);
-		if (repeatStatus.equals(RepeatStatus.FINISHED)){
-			// register .bam and .bai file groups with cellLib so as to make available to views
-			SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);
-			if (bamGId != null && cellLib.getId() != 0)
-				fileService.setSampleSourceFile(fileService.getFileGroupById(bamGId), cellLib);
-			if (baiGId != null && cellLib.getId() != 0)
-				fileService.setSampleSourceFile(fileService.getFileGroupById(baiGId), cellLib);
-			return RepeatStatus.FINISHED;
-		}
-
+	
+	public void doExecute(ChunkContext context) throws Exception {
 		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);
 
 		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
@@ -181,7 +160,27 @@ public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionLis
 
 		// place the grid result in the step context
 		storeStartedResult(context, result);
+	}
 
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional("entityManager")
+	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
+		
+		// if the work has already been started, then check to see if it is
+		// finished
+		// if not, throw an exception that is caught by the repeat policy.
+		if (!super.execute(contrib, context).isContinuable()){
+			// register .bam and .bai file groups with cellLib so as to make available to views
+			SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);
+			if (bamGId != null && cellLib.getId() != 0)
+				fileService.setSampleSourceFile(fileService.getFileGroupById(bamGId), cellLib);
+			if (baiGId != null && cellLib.getId() != 0)
+				fileService.setSampleSourceFile(fileService.getFileGroupById(baiGId), cellLib);
+			return RepeatStatus.FINISHED;
+		}
 		return RepeatStatus.CONTINUABLE;
 	}
 	

@@ -8,14 +8,11 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
+import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
@@ -38,7 +35,7 @@ import edu.yu.einstein.wasp.util.PropertyHelper;
  *
  */
 @Component
-public class ProcessSAVTasklet extends WaspTasklet {
+public class ProcessSAVTasklet extends WaspRemotingTasklet {
 	
 	private RunService runService;
 
@@ -67,20 +64,8 @@ public class ProcessSAVTasklet extends WaspTasklet {
 		this.runId = runId;
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet#execute(org.springframework.batch.core.StepContribution, org.springframework.batch.core.scope.context.ChunkContext)
-	 */
 	@Override
-	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
-		
-		// if the work has already been started, then check to see if it is finished
-		// if not, throw an exception that is caught by the repeat policy.
-		RepeatStatus repeatStatus = super.execute(contrib, context);
-		if (repeatStatus.equals(RepeatStatus.FINISHED))
-			return RepeatStatus.FINISHED;
-		
-		// this is our first try
-		// TODO: check to see if the Makefile exists already (already configured and re-run because of grid exception).
+	public void doExecute(ChunkContext context) throws Exception {
 		
 		run = runService.getRunById(runId);
 		
@@ -113,8 +98,6 @@ public class ProcessSAVTasklet extends WaspTasklet {
 		
 		//place the grid result in the step context
 		storeStartedResult(context, result);
-		
-		return RepeatStatus.CONTINUABLE;
 	}
 
 

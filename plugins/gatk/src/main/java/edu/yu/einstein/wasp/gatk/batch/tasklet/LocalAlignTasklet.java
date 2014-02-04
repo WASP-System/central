@@ -7,22 +7,18 @@ package edu.yu.einstein.wasp.gatk.batch.tasklet;
  * 
  */
 
-import java.util.Map;
 import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.Assert;
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
+import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
@@ -39,7 +35,7 @@ import edu.yu.einstein.wasp.service.SampleService;
  * 
  */
 
-public class LocalAlignTasklet extends WaspTasklet implements StepExecutionListener {
+public class LocalAlignTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
 	private String scratchDirectory;
 	private String creatTargetJobName;
@@ -72,14 +68,7 @@ public class LocalAlignTasklet extends WaspTasklet implements StepExecutionListe
 	 * {@inheritDoc}
 	 */
 	@Override
-	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
-		// if the work has already been started, then check to see if it is
-		// finished
-		// if not, throw an exception that is caught by the repeat policy.
-		RepeatStatus repeatStatus = super.execute(contrib, context);
-		if (repeatStatus.equals(RepeatStatus.FINISHED))
-			return RepeatStatus.FINISHED;
-
+	public void doExecute(ChunkContext context) throws Exception {
 		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);
 
 		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
@@ -113,8 +102,6 @@ public class LocalAlignTasklet extends WaspTasklet implements StepExecutionListe
 
 		stepContext.put("scrDir", result.getWorkingDirectory());
 		stepContext.put("localAlignName", result.getId());
-
-		return RepeatStatus.CONTINUABLE;
 	}
 
 	/**

@@ -10,7 +10,8 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
+import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
+import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
@@ -21,7 +22,7 @@ import edu.yu.einstein.wasp.service.JobService;
  * @author 
  * 
  */
-public class ___PluginIName___Tasklet extends WaspTasklet {
+public class ___PluginIName___Tasklet extends WaspRemotingTasklet {
 	
 	@Autowired
 	private JobService jobService;
@@ -39,22 +40,14 @@ public class ___PluginIName___Tasklet extends WaspTasklet {
 	public ___PluginIName___Tasklet(String jobId) {
 		this.job = jobService.getJobByJobId(Integer.parseInt(jobId));
 	}
-
+	
 	/**
-	 * 
-	 * @param contrib
+	 * Setup work to be run remotely
 	 * @param context
-	 * @return
 	 * @throws Exception
 	 */
 	@Override
-	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
-		// if the work has already been started, then check to see if it is finished
-		// if not, throw an exception that is caught by the repeat policy.
-		RepeatStatus repeatStatus = super.execute(contrib, context);
-		if (repeatStatus.equals(RepeatStatus.FINISHED))
-			return RepeatStatus.FINISHED;
-		
+	public void doExecute(ChunkContext context) throws Exception {
 		WorkUnit w = new WorkUnit();
 		
 		//configure
@@ -65,8 +58,19 @@ public class ___PluginIName___Tasklet extends WaspTasklet {
 		
 		//place the grid result in the step context
 		storeStartedResult(context, result);
-
-		return RepeatStatus.CONTINUABLE;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
+		RepeatStatus repeatStatus = super.execute(contrib, context);
+		if (!repeatStatus.isContinuable()) {
+			// the work unit is complete, a result is available if required
+			GridResult result = getStartedResult(context);
+		}
+		return repeatStatus;
 	}
 	
 }

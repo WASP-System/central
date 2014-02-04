@@ -42,7 +42,7 @@ import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemp
  * @author asmclellan
  */
 @Transactional
-public class ListenForStatusTasklet extends WaspTasklet implements MessageHandler {
+public class ListenForStatusTasklet extends WaspHibernatingTasklet implements MessageHandler {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ListenForStatusTasklet.class);
 	

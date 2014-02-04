@@ -1,8 +1,6 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,31 +18,24 @@ import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager.LockType;
-import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 
-public class WaspTasklet extends WaspHibernatingTasklet {
+public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 	
 	@Autowired
 	private GridHostResolver hostResolver;
 	
-	protected Set<WaspStatusMessageTemplate> abandonTemplates = new HashSet<>();
-	
 	/**
 	 * protected constructor to prevent instantiation of this class directly
 	 */
-	protected WaspTasklet() {}
+	protected WaspRemotingTasklet() {}
 	
-	public void setAbandonMessages(final Set<WaspStatusMessageTemplate> abandonTemplates){
-		this.abandonTemplates.clear();
-		this.abandonTemplates.addAll(abandonTemplates);
-	}
 	
-	public void setAbandonMessage(final WaspStatusMessageTemplate abandonTemplate){
-		Set<WaspStatusMessageTemplate> templates = new HashSet<>();
-		templates.add(abandonTemplate);
-		setAbandonMessages(templates);
-	}
+	/**
+	 * Remote work defined by implementing tasklets
+	 * @param context
+	 */
+	public abstract void doExecute(ChunkContext context) throws Exception;
 	
 	/**
 	 * Default implementation checks to see if a stored result is running 
@@ -66,7 +57,7 @@ public class WaspTasklet extends WaspHibernatingTasklet {
 			GridWorkService gws = hostResolver.getGridWorkService(result);
 			try {
 				if (gws.isFinished(result)){
-					logger.debug("Workunit is finished. Returning RepeatStatus.FINISHED");
+					logger.debug("Workunit is finished. Step complete.");
 					return RepeatStatus.FINISHED;
 				}
 			} catch (GridException e) {
@@ -75,8 +66,10 @@ public class WaspTasklet extends WaspHibernatingTasklet {
 				throw e;
 			}
 			logger.debug("StepExecution id=" + stepExecutionId + " is going to request hibernation as " + result.getUuid() + " started but not complete");
+		} else if (!wasHibernationRequested){
+			logger.debug("Tasklet not yet configured with a result (StepExecution id=" + stepExecutionId + ")");
+			doExecute(context);
 		}
-		logger.debug("Tasklet not yet configured with a result (StepExecution id=" + stepExecutionId + ")");
 		if (!wasHibernationRequested){
 			Long timeoutInterval = exponentiallyIncreaseTimeoutIntervalInContext(context);
 			logger.debug("Going to request hibernation for " + timeoutInterval + " ms");
@@ -89,7 +82,7 @@ public class WaspTasklet extends WaspHibernatingTasklet {
 		return RepeatStatus.CONTINUABLE;
 	}
 
-	protected final static Logger logger = LoggerFactory.getLogger(WaspTasklet.class);
+	protected final static Logger logger = LoggerFactory.getLogger(WaspRemotingTasklet.class);
 	
 
 	

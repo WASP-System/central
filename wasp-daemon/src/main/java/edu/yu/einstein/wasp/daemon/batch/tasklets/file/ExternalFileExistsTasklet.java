@@ -14,14 +14,14 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
-import edu.yu.einstein.wasp.exception.TaskletRetryException;
+import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspHibernatingTasklet;
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
+import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager.LockType;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 import edu.yu.einstein.wasp.util.PropertyHelper;
 
@@ -33,7 +33,7 @@ import edu.yu.einstein.wasp.util.PropertyHelper;
  *
  */
 @Component
-public class ExternalFileExistsTasklet extends WaspTasklet {
+public class ExternalFileExistsTasklet extends WaspHibernatingTasklet {
 	
 	public ExternalFileExistsTasklet() {
 		// required for AOP/CGLIB/Batch/Annotations
@@ -92,31 +92,49 @@ public class ExternalFileExistsTasklet extends WaspTasklet {
 
 	
 	@Override
-	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
-		
-		WorkUnit w = new WorkUnit();
-		List<SoftwarePackage> software = new ArrayList<SoftwarePackage>();
-		software.add(softwarePackage);
-		w.setSoftwareDependencies(software);
-		GridWorkService gws = gridHostResolver.getGridWorkService(w);
-		GridFileService gfs = gws.getGridFileService();
-		
-		String directory = gws.getTransportConnection().getConfiguredSetting(rootDirectory);
-		if (!PropertyHelper.isSet(directory)) {
-			throw new GridAccessException("Unable to determine remote root directory");
+	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
+		Long stepExecutionId = context.getStepContext().getStepExecution().getId();
+		if (wasWokenOnTimeout(context)){
+			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation after a timeout.");
+			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
+			wasHibernationRequested = false;
+		} else if (wasWokenOnMessage(context)){
+			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation for a message.");
+			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
+			wasHibernationRequested = false;
 		}
-		
-		String fn = directory + getSubDirectory() + filename;
-		String host = gridHostResolver.getHostname(w);
-		
-		if (gfs.exists(fn)) {
-			logger.info("Tasklet found file: " + host + ":" + fn);
-			return RepeatStatus.FINISHED;
+		if (!wasHibernationRequested){
+			WorkUnit w = new WorkUnit();
+			List<SoftwarePackage> software = new ArrayList<SoftwarePackage>();
+			software.add(softwarePackage);
+			w.setSoftwareDependencies(software);
+			GridWorkService gws = gridHostResolver.getGridWorkService(w);
+			GridFileService gfs = gws.getGridFileService();
+			
+			String directory = gws.getTransportConnection().getConfiguredSetting(rootDirectory);
+			if (!PropertyHelper.isSet(directory)) {
+				throw new GridAccessException("Unable to determine remote root directory");
+			}
+			
+			String fn = directory + getSubDirectory() + filename;
+			String host = gridHostResolver.getHostname(w);
+			
+			if (gfs.exists(fn)) {
+				logger.info("Tasklet found file: " + host + ":" + fn);
+				return RepeatStatus.FINISHED;
+			}
+			
+			String e = "Tasklet did not find file: " + fn + " on host " + host;
+			logger.debug(e);
+			Long timeoutInterval = exponentiallyIncreaseTimeoutIntervalInContext(context);
+			logger.debug("Going to request hibernation for " + timeoutInterval + " ms");
+			addStatusMessagesToAbandonStepToContext(context, abandonTemplates);
+		} else {
+			logger.debug("Previous hibernation request made by this StepExecution (id=" + stepExecutionId + 
+					") but we were still waiting for all steps to be ready. Going to retry request.");
 		}
-		String e = "Tasklet did not find file: " + fn + " on host " + host;
-		logger.debug(e);
-		
-		throw new TaskletRetryException(e);
+		requestHibernation(context);
+		return RepeatStatus.CONTINUABLE;
 	}
 
 }

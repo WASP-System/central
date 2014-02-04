@@ -1,7 +1,6 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets.analysis;
 
 import java.util.ArrayList;
-
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
 import edu.yu.einstein.wasp.exception.SoftwareConfigurationException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
@@ -39,7 +37,7 @@ import edu.yu.einstein.wasp.util.SoftwareConfiguration;
 import edu.yu.einstein.wasp.util.WaspJobContext;
 
 
-public class WaspJobSoftwareLaunchTaskletImpl extends WaspTasklet implements WaspJobSoftwareLaunchTasklet {
+public class WaspJobSoftwareLaunchTaskletImpl implements WaspJobSoftwareLaunchTasklet {
 	
 	private static Logger logger = LoggerFactory.getLogger("WaspJobSoftwareLaunchTaskletImpl");
 	

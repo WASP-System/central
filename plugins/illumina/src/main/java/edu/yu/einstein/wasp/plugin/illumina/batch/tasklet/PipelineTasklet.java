@@ -14,7 +14,7 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
+import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
@@ -36,7 +36,7 @@ import edu.yu.einstein.wasp.util.PropertyHelper;
  *
  */
 @Component
-public class PipelineTasklet extends WaspTasklet {
+public class PipelineTasklet extends WaspRemotingTasklet {
 	
 	private RunService runService;
 
@@ -62,19 +62,10 @@ public class PipelineTasklet extends WaspTasklet {
 		this.runId = runId;
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet#execute(org.springframework.batch.core.StepContribution, org.springframework.batch.core.scope.context.ChunkContext)
-	 */
+	
 	@Override
-	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
+	public void doExecute(ChunkContext context) throws Exception {
 		
-		// if the work has already been started, then check to see if it is finished
-		// if not, throw an exception that is caught by the repeat policy.
-		RepeatStatus repeatStatus = super.execute(contrib, context);
-		if (repeatStatus.equals(RepeatStatus.FINISHED))
-			return RepeatStatus.FINISHED;
-		
-		// this is our first try
 		// TODO: check to see if the Makefile exists already (already configured and re-run because of grid exception).
 		
 		run = runService.getRunById(runId);
@@ -112,8 +103,6 @@ public class PipelineTasklet extends WaspTasklet {
 		
 		//place the grid result in the step context
 		storeStartedResult(context, result);
-		
-		return RepeatStatus.CONTINUABLE;
 	}
 	
 	private String getConfigureBclToFastqString(SoftwareManager sm, int proc) {

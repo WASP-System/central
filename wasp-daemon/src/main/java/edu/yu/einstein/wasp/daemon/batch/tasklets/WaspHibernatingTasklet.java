@@ -47,6 +47,8 @@ public abstract class WaspHibernatingTasklet implements NameAwareTasklet, BeanNa
 	
 	protected boolean wasHibernationRequestGranted = false;
 	
+	protected Set<WaspStatusMessageTemplate> abandonTemplates = new HashSet<>();
+	
 	private Set<? extends NameAwareTasklet> parallelSiblingFlowSteps = new HashSet<>();
 
 	
@@ -72,6 +74,17 @@ public abstract class WaspHibernatingTasklet implements NameAwareTasklet, BeanNa
 	public void setBeanName(String name) {
 		this.name = name;
 		
+	}
+	
+	public void setAbandonMessages(final Set<WaspStatusMessageTemplate> abandonTemplates){
+		this.abandonTemplates.clear();
+		this.abandonTemplates.addAll(abandonTemplates);
+	}
+	
+	public void setAbandonMessage(final WaspStatusMessageTemplate abandonTemplate){
+		Set<WaspStatusMessageTemplate> templates = new HashSet<>();
+		templates.add(abandonTemplate);
+		setAbandonMessages(templates);
 	}
 	
 	public Set<String> getParallelSiblingFlowStepNames() {
