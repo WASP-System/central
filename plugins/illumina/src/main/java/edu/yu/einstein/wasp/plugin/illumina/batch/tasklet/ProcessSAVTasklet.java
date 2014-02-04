@@ -96,11 +96,7 @@ public class ProcessSAVTasklet extends WaspTasklet {
 		w.setSoftwareDependencies(sd);
 		GridWorkService gws = hostResolver.getGridWorkService(w);
 		SoftwareManager sm = gws.getTransportConnection().getSoftwareManager();
-		String p = sm.getConfiguredSetting("casava.env.processors");
 		Integer procs = 1;
-		if (PropertyHelper.isSet(p)) {
-			procs = new Integer(p);
-		}
 		w.setProcessorRequirements(procs);
 		String dataDir = gws.getTransportConnection().getConfiguredSetting("illumina.data.dir");
 		if (!PropertyHelper.isSet(dataDir))
