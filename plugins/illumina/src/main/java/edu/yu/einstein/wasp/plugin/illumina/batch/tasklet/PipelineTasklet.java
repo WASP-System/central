@@ -14,10 +14,8 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
 import edu.yu.einstein.wasp.exception.GridException;
-import edu.yu.einstein.wasp.exception.TaskletRetryException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;

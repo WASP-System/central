@@ -90,6 +90,7 @@ public abstract class WaspHibernatingTasklet implements NameAwareTasklet, BeanNa
 	 * @param context
 	 */
 	protected void requestHibernation(ChunkContext context){
+		logger.debug("Request to hibernate about to be processed ...");
 		StepContext stepContext = context.getStepContext();
 		StepExecution stepExecution = context.getStepContext().getStepExecution();
 		JobExecution jobExecution = stepExecution.getJobExecution();
