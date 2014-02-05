@@ -17,6 +17,7 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
@@ -72,6 +73,7 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 	private GridHostResolver gridHostResolver;
 	
 	@Autowired
+	@Qualifier("picard")
 	private SoftwarePackage picard;
 	
 	public BWAMergeSortTasklet() {
