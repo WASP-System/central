@@ -114,11 +114,19 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
         stepContext.put("alnStr", w.getCommand());
 	}
 	
-	@BeforeStep
-    public void saveStepExecution(StepExecution stepExecution) {
+	public void saveStepExecution(StepExecution stepExecution) {
 		logger.debug("BeforeStep saving StepExecution");
         this.stepExecution = stepExecution;
     }
+	
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void beforeStep(StepExecution stepExecution){
+		super.beforeStep(stepExecution);
+		saveStepExecution(stepExecution);
+	}
 
 	/** 
 	 * {@inheritDoc}
@@ -126,16 +134,6 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution) {
 		return super.afterStep(stepExecution);
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void beforeStep(StepExecution stepExecution) {
-		logger.debug("StepExecutionListener beforeStep saving StepExecution");
-		this.stepExecution = stepExecution;
-		
 	}
 
 }

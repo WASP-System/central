@@ -120,7 +120,4 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 	}
 
 	
-
-	
-	
 }

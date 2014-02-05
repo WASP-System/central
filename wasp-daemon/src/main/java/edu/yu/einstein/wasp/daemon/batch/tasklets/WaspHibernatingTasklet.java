@@ -13,12 +13,10 @@ import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.job.AbstractJob;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.scope.context.StepContext;
 import org.springframework.batch.item.ExecutionContext;
-import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +28,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 @Transactional
-public abstract class WaspHibernatingTasklet implements NameAwareTasklet, BeanNameAware, StepExecutionListener {
+public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 	
 	// In the split-step scenario: 
 	// The last WaspHibernatingTasklet in the split-step of this job to call requestHibernation() gets control by 
@@ -47,8 +45,6 @@ public abstract class WaspHibernatingTasklet implements NameAwareTasklet, BeanNa
 	
 	protected boolean wasHibernationRequestGranted = false;
 	
-	protected Set<WaspStatusMessageTemplate> abandonTemplates = new HashSet<>();
-	
 	private Set<? extends NameAwareTasklet> parallelSiblingFlowSteps = new HashSet<>();
 
 	
@@ -62,30 +58,6 @@ public abstract class WaspHibernatingTasklet implements NameAwareTasklet, BeanNa
 	
 	@Autowired
 	protected BatchJobHibernationManager hibernationManager;
-	
-	protected String name = "";
-	
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setBeanName(String name) {
-		this.name = name;
-		
-	}
-	
-	public void setAbandonMessages(final Set<WaspStatusMessageTemplate> abandonTemplates){
-		this.abandonTemplates.clear();
-		this.abandonTemplates.addAll(abandonTemplates);
-	}
-	
-	public void setAbandonMessage(final WaspStatusMessageTemplate abandonTemplate){
-		Set<WaspStatusMessageTemplate> templates = new HashSet<>();
-		templates.add(abandonTemplate);
-		setAbandonMessages(templates);
-	}
 	
 	public Set<String> getParallelSiblingFlowStepNames() {
 		Set<String> parallelStepNames = new HashSet<>();
@@ -358,7 +330,7 @@ public abstract class WaspHibernatingTasklet implements NameAwareTasklet, BeanNa
 	
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
-		// Do Nothing here
+		super.beforeStep(stepExecution);
 	}
 	
 	@Override
@@ -373,8 +345,7 @@ public abstract class WaspHibernatingTasklet implements NameAwareTasklet, BeanNa
 			hibernationManager.removeStepExecutionFromWakeMessageMap(stepExecution);
 			hibernationManager.removeStepExecutionFromAbandonMessageMap(stepExecution);
 		}
-		return stepExecution.getExitStatus();
+		return super.afterStep(stepExecution);
 	}
-	
 	
 }

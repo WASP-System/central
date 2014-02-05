@@ -117,6 +117,7 @@ public class LocalAlignTasklet extends WaspRemotingTasklet implements StepExecut
 	 */
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
+		super.beforeStep(stepExecution);
 		logger.debug("StepExecutionListener beforeStep saving StepExecution");
 		this.stepExecution = stepExecution;
 		JobExecution jobExecution = stepExecution.getJobExecution();

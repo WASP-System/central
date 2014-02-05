@@ -200,6 +200,7 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 	 */
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
+		super.beforeStep(stepExecution);
 		logger.debug("BeforeStep saving StepExecution");
         this.stepExecution = stepExecution;
 		JobExecution jobExecution = stepExecution.getJobExecution();
@@ -208,7 +209,6 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 		this.cellLibId = (Integer) jobContext.get("cellLibId");
 		this.bamGId = (Integer) stepExecution.getExecutionContext().get("bamGID");
 		this.baiGId = (Integer) stepExecution.getExecutionContext().get("baiGID");
-		
 	}
 
 }

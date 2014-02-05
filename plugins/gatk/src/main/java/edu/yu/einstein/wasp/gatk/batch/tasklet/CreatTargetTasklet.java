@@ -139,6 +139,7 @@ public class CreatTargetTasklet extends WaspRemotingTasklet implements StepExecu
 	 */
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
+		super.beforeStep(stepExecution);
 		logger.debug("StepExecutionListener beforeStep saving StepExecution");
 		this.stepExecution = stepExecution;
 		

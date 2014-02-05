@@ -4,6 +4,7 @@
  */
 package ___package___.batch.tasklet;
 
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
@@ -42,7 +43,9 @@ public class ___PluginIName___Tasklet extends WaspRemotingTasklet {
 	}
 	
 	/**
-	 * Setup work to be run remotely
+	 * Setup work to be run remotely. This method is called during execution of the super.execute(contrib, context) method. 
+	 * You must either call the super.execute method from the locally overridden method (as is the default below) or remove the local method 
+	 * below to use the method in the parent class.
 	 * @param context
 	 * @throws Exception
 	 */
@@ -71,6 +74,27 @@ public class ___PluginIName___Tasklet extends WaspRemotingTasklet {
 			GridResult result = getStartedResult(context);
 		}
 		return repeatStatus;
+	}
+	
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void beforeStep(StepExecution stepExecution){
+		super.beforeStep(stepExecution);
+		// any pre-step logic goes here
+	}
+
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ExitStatus afterStep(StepExecution stepExecution) {
+		ExitStatus exitStatus = super.afterStep(stepExecution);
+		exitStatus = exitStatus.and(stepExecution.getExitStatus());
+		// any post-step logic goes here
+	
+		return exitStatus;
 	}
 	
 }

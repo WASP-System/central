@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,16 +16,9 @@ import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.Message;
-import org.springframework.integration.MessageChannel;
-import org.springframework.integration.MessageHeaders;
 import org.springframework.integration.MessagingException;
-import org.springframework.integration.channel.PublishSubscribeChannel;
 import org.springframework.integration.core.MessageHandler;
-import org.springframework.integration.core.MessagingTemplate;
-import org.springframework.integration.support.MessageBuilder;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
@@ -50,15 +42,6 @@ public class ListenForStatusTasklet extends WaspHibernatingTasklet implements Me
 	
 	private List<Message<?>> messageQueue = new ArrayList<>();
 	
-	private List<Message<?>> abandonMessageQueue = new ArrayList<>();
-	
-	@Autowired
-	@Qualifier("wasp.channel.reply")
-	PublishSubscribeChannel replyChannel;
-	
-	@Autowired
-	@Qualifier("wasp.channel.notification.batch")
-	PublishSubscribeChannel subscribeChannel;
 	
 	public ListenForStatusTasklet() {
 		// proxy
@@ -83,23 +66,12 @@ public class ListenForStatusTasklet extends WaspHibernatingTasklet implements Me
 		this.messageTemplates.addAll(messageTemplates);
 	}
 	
-
+	@Override
 	@PostConstruct
 	protected void init() throws MessagingException{
 		if (messageTemplates == null)
 			throw new MessagingException("No message templates defined to check against");
-		// subscribe to injected message channel
-		logger.debug("subscribing to injected message channel");
-		subscribeChannel.subscribe(this);
-	}
-	
-	@PreDestroy
-	protected void destroy() throws Throwable{
-		// unregister from message channel only if this object gets garbage collected
-		if (subscribeChannel != null){
-			subscribeChannel.unsubscribe(this); 
-			subscribeChannel = null;
-		}
+		super.init();
 	}
 	
 	@Override
@@ -116,22 +88,8 @@ public class ListenForStatusTasklet extends WaspHibernatingTasklet implements Me
 			BatchJobHibernationManager.unlockJobExecution(stepExecution.getJobExecution(), LockType.WAKE);
 			return RepeatStatus.FINISHED;
 		}
-		Set<Message<?>> allMessages = new HashSet<>();
-		allMessages.addAll(messageQueue);
-		allMessages.addAll(abandonMessageQueue);
-		if ((!allMessages.isEmpty()) && 
-				context.getStepContext().getStepExecution().getJobExecution().getStatus().isRunning()){
-			if (wasHibernationRequested){
-				setHibernationRequestedForStep(stepExecution, false);
-				hibernationManager.removeStepExecutionFromWakeMessageMap(stepExecution);
-				hibernationManager.removeStepExecutionFromAbandonMessageMap(stepExecution);
-			}
-			logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + ") received an expected message so finishing step.");
-			setStepStatusInJobExecutionContext(stepExecution, BatchStatus.COMPLETED);
-			// make sure all messages get replies
-			sendSuccessReplyToAllMessagesInQueue(allMessages);
+		if (isExpectedMessageReceived(context))
 			return RepeatStatus.FINISHED;
-		}
 		if (isHibernationRequestedForJob(context.getStepContext().getStepExecution().getJobExecution())){
 			logger.trace("This JobExecution (id=" + jobExecutionId + ") is already undergoing hibernation. Awaiting hibernation...");
 		} else if (!wasHibernationRequested){
@@ -155,6 +113,29 @@ public class ListenForStatusTasklet extends WaspHibernatingTasklet implements Me
 		return RepeatStatus.CONTINUABLE;	
 	}
 	
+	@Override
+	protected boolean isExpectedMessageReceived(ChunkContext context){
+		StepExecution stepExecution =  context.getStepContext().getStepExecution();
+		Long stepExecutionId =stepExecution.getId();
+		Long jobExecutionId = context.getStepContext().getStepExecution().getJobExecutionId();
+		Set<Message<?>> allMessages = new HashSet<>();
+		allMessages.addAll(messageQueue);
+		allMessages.addAll(abandonMessageQueue);
+		if ((!allMessages.isEmpty()) && context.getStepContext().getStepExecution().getJobExecution().getStatus().isRunning()){
+			if (wasHibernationRequested){
+				setHibernationRequestedForStep(stepExecution, false);
+				hibernationManager.removeStepExecutionFromWakeMessageMap(stepExecution);
+				hibernationManager.removeStepExecutionFromAbandonMessageMap(stepExecution);
+			}
+			logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + ") received an expected message so finishing step.");
+			setStepStatusInJobExecutionContext(stepExecution, BatchStatus.COMPLETED);
+			// make sure all messages get replies
+			sendSuccessReplyToAllMessagesInQueue(allMessages);
+			return true;
+		}
+		return false;
+	}
+	
 	private ExitStatus getExitStatus(StepExecution stepExecution, WaspStatus waspStatus){
 		if (waspStatus.equals(WaspStatus.FAILED))
 			return ExitStatus.FAILED;
@@ -169,54 +150,15 @@ public class ListenForStatusTasklet extends WaspHibernatingTasklet implements Me
 		exitStatus = exitStatus.and(getExitStatus(stepExecution, getWokenOnMessageStatus(stepExecution)));
 		// set exit status to equal the most severe outcome of all received messages
 		this.messageQueue.clear(); // clean up in case of restart
-		this.abandonMessageQueue.clear(); // clean up in case of restart
 		logger.debug("Going to exit step with ExitStatus=" + exitStatus);
 		return exitStatus;
-	}
-	
-	private void sendSuccessReplyToAllMessagesInQueue(Collection<Message<?>> queue){
-		MessagingTemplate messagingTemplate = new MessagingTemplate();
-		logger.debug("Going to send " + messageQueue.size()  + " reply message(s)...");
-		for (Message<?> message: queue){
-			try{
-				logger.debug("sending reply to message: " + message.toString());
-				// this is a little complex. What we do here is attach the temporary point-to-point reply channel generated by the gateway
-				// and attached to the source message to the reply message and send it on the 'wasp.channel.reply' channel. 
-				// The Gateway will create a bridge from it to the temporary, anonymous reply channel that is stored in the header.
-				// Of course if there is no reply channel specified then no reply will be sent.
-				if ( message.getHeaders().containsKey(MessageHeaders.REPLY_CHANNEL)){
-					Message<WaspStatus> replyMessage = MessageBuilder
-							.withPayload(WaspStatus.COMPLETED)
-							.setReplyChannel((MessageChannel) message.getHeaders().get(MessageHeaders.REPLY_CHANNEL))
-							.build();
-					logger.debug("sending reply message: " + replyMessage.toString());
-					messagingTemplate.send(replyChannel, replyMessage);
-				} else
-					logger.debug("No reply message sent because no reply channel was specified in the original message");
-			} catch (Exception e){
-				logger.warn("Failure to send reply message (reason: " + e.getLocalizedMessage() + ") to reply channel specified in source message : " +
-						message.toString() + ". Original exception stack: ");
-				e.printStackTrace();
-			}
-		}
 	}
 
 	@Override
 	public void handleMessage(Message<?> message) throws MessagingException {
-		logger.debug(name + "handleMessage() invoked. Received message: " + message.toString());
-		if (! WaspStatus.class.isInstance(message.getPayload()))
-			return;
+		super.handleMessage(message);
 		WaspStatus statusFromMessage = (WaspStatus) message.getPayload();
-		
-		// first check if any abort / failure messages have been delivered from a monitored message template
-		for (StatusMessageTemplate messageTemplate: abandonTemplates){
-			if (messageTemplate.actUponMessage(message)){
-				this.abandonMessageQueue.add(message);
-				logger.debug(name + "handleMessage() found ABANDONED message for abort-monitored template " + 
-						messageTemplate.getClass().getName() + ". Going to fail step.");
-			}
-		}
-		
+
 		// then check the messages and status against the status we are interested in for a reportable match
 		for (StatusMessageTemplate messageTemplate: messageTemplates){
 			if (messageTemplate.actUponMessage(message) && statusFromMessage.equals(messageTemplate.getStatus()) ){
