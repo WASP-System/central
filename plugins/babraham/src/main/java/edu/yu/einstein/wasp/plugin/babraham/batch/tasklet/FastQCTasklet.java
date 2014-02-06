@@ -9,6 +9,7 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.Assert;
+import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
@@ -65,6 +66,7 @@ public class FastQCTasklet extends WaspRemotingTasklet {
 	/**
 	 * {@inheritDoc}
 	 */
+	@RetryOnExceptionFixed
 	@Override
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		// if the work has already been started, then check to see if it is finished
