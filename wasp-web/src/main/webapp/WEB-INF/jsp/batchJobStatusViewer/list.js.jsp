@@ -50,11 +50,14 @@ var store = Ext.create('Wasp.store.TreeGridStore', {
                 }
             }
         },
+        extraParams: {
+        	displayParam: "All"
+        }
     },
     root: {
     	id:'node-root',
     	expanded: true
-    },
+    }
 });
 
 
@@ -80,8 +83,7 @@ Ext.onReady(function() {
             text: 'Id',
             width: 70,
             sortable: true,
-            dataIndex: 'executionId',
-            folderSort: true
+            dataIndex: 'executionId'
         }, {
             text: 'Started',
             width: 150,
@@ -102,6 +104,42 @@ Ext.onReady(function() {
             sortable: false,
             width: 400,
             dataIndex: 'exitMessage'
+        }],
+        tbar: [{
+            text: 'Show All',
+            scope: this,
+            handler: function (){
+            	store.getProxy().extraParams.displayParam = "All";
+            	store.loadPage(1);
+            }
+        }, {
+            text: 'Show Active',
+            scope: this,
+            handler: function (){
+            	store.getProxy().extraParams.displayParam = "Active";
+            	store.loadPage(1);
+            }
+        }, {
+            text: 'Show Completed',
+            scope: this,
+            handler: function (){
+            	store.getProxy().extraParams.displayParam = "Completed";
+            	store.loadPage(1);
+            }
+        }, {
+            text: 'Show Terminated',
+            scope: this,
+            handler: function (){
+            	store.getProxy().extraParams.displayParam = "Terminated";
+            	store.loadPage(1);
+            }
+        }, {
+            text: 'Show Failed',
+            scope: this,
+            handler: function (){
+            	store.getProxy().extraParams.displayParam = "Failed";
+            	store.loadPage(1);
+            }
         }],
         bbar: { // bottom tool bar for paging
             xtype: 'pagingtoolbar',

@@ -35,6 +35,7 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 		
 	}
 	
+	
 	@Override
 	public ExtTreeModel getTreeModel(JobExecution je){
 		BatchJobTreeModel model = new BatchJobTreeModel();
@@ -72,7 +73,7 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 	}
 
 	@Override
-	public List<ExtTreeModel> getJobListAll(String property, String direction, Long start, Long limit){
+	public List<ExtTreeModel> getJobList(String property, String direction, Long start, Long limit){
 		List<ExtTreeModel> modelList = new ArrayList<>();
 		for (JobExecution je : jobExplorer.getJobExecutions(getJobSortProperty(property), getSortDirection(direction), start, limit))
 			modelList.add(getTreeModel(je));
@@ -80,33 +81,9 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 	}
 
 	@Override
-	public List<ExtTreeModel> getJobListActive(){
+	public List<ExtTreeModel> getJobList(ExitStatus exitStatus, String property, String direction, Long start, Long limit){
 		List<ExtTreeModel> modelList = new ArrayList<>();
-		for (JobExecution je : jobExplorer.getJobExecutions(ExitStatus.RUNNING))
-			modelList.add(getTreeModel(je));
-		return modelList;
-	}
-
-	@Override
-	public List<ExtTreeModel> getJobListCompleted(){
-		List<ExtTreeModel> modelList = new ArrayList<>();
-		for (JobExecution je : jobExplorer.getJobExecutions(ExitStatus.COMPLETED))
-			modelList.add(getTreeModel(je));
-		return modelList;
-	}
-
-	@Override
-	public List<ExtTreeModel> getJobListTerminated(){
-		List<ExtTreeModel> modelList = new ArrayList<>();
-		for (JobExecution je : jobExplorer.getJobExecutions(ExitStatus.TERMINATED))
-			modelList.add(getTreeModel(je));
-		return modelList;
-	}
-
-	@Override
-	public List<ExtTreeModel> getJobListFailed(){
-		List<ExtTreeModel> modelList = new ArrayList<>();
-		for (JobExecution je : jobExplorer.getJobExecutions(ExitStatus.FAILED))
+		for (JobExecution je : jobExplorer.getJobExecutions(exitStatus, getJobSortProperty(property), getSortDirection(direction), start, limit))
 			modelList.add(getTreeModel(je));
 		return modelList;
 	}
@@ -124,27 +101,28 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 	}
 	
 	@Override
-	public ExtTreeGridResponse getPagedModelList(String nodeId, Long start, Long limit){
-		return getPagedModelList(nodeId, null, null, start, limit);
+	public ExtTreeGridResponse getPagedModelList(String nodeId, String displayParam, Long start, Long limit){
+		return getPagedModelList(nodeId, displayParam, null, null, start, limit);
 	}
 	
 	@Override
-	public ExtTreeGridResponse getPagedModelList(String nodeId, String property, String direction, Long start, Long limit){
+	public ExtTreeGridResponse getPagedModelList(String nodeId, String displayParam, String property, String direction, Long start, Long limit){
 		if (nodeId.equals(ROOT_NODE_ID)){
-			Long totalCount = jobExplorer.getJobExecutionCount();
 			if (limit == null || start == null)
-				return new ExtTreeGridResponse(new ArrayList<ExtTreeModel>(), totalCount);
-			return new ExtTreeGridResponse(getJobListAll(property, direction, start, limit), totalCount);
+				return new ExtTreeGridResponse(new ArrayList<ExtTreeModel>(), jobExplorer.getJobExecutionCount());
+			if (displayParam.equals(SHOW_ALL))
+				return new ExtTreeGridResponse(getJobList(property, direction, start, limit), jobExplorer.getJobExecutionCount());
+			if (displayParam.equals(SHOW_ACTIVE))
+				return new ExtTreeGridResponse(getJobList(ExitStatus.RUNNING, property, direction, start, limit), 
+						jobExplorer.getJobExecutionCount(ExitStatus.EXECUTING) + jobExplorer.getJobExecutionCount(ExitStatus.HIBERNATING));
+			if (displayParam.equals(SHOW_COMPLETED))
+				return new ExtTreeGridResponse(getJobList(ExitStatus.COMPLETED, property, direction, start, limit), jobExplorer.getJobExecutionCount(ExitStatus.COMPLETED));
+			if (displayParam.equals(SHOW_FAILED))
+				return new ExtTreeGridResponse(getJobList(ExitStatus.FAILED, property, direction, start, limit), jobExplorer.getJobExecutionCount(ExitStatus.FAILED));
+			if (displayParam.equals(SHOW_TERMINATED))
+				return new ExtTreeGridResponse(getJobList(ExitStatus.TERMINATED, property, direction, start, limit), jobExplorer.getJobExecutionCount(ExitStatus.TERMINATED));
+			
 		}
-		if (nodeId.contains(STEP_EXECUTION_ID_PREFIX)){
-		/*	String jobExecutionIdString = nodeId.replace(STEP_EXECUTION_ID_PREFIX + "[0-9]+", "");
-			String stepExecutionIdString = nodeId.replace(JOB_EXECUTION_ID_PREFIX + "[0-9]+", "");
-			Long jobExecutionId = Long.valueOf(jobExecutionIdString.replace(JOB_EXECUTION_ID_PREFIX, ""));
-			Long stepExecutionId = Long.valueOf(stepExecutionIdString.replace(STEP_EXECUTION_ID_PREFIX, ""));
-			StepExecution se = jobExplorer.getStepExecution(jobExecutionId, stepExecutionId);
-			return getTreeModel(se);*/
-			return new ExtTreeGridResponse(null, null);
-		} 
 		if (nodeId.startsWith(JOB_EXECUTION_ID_PREFIX)){
 			Long totalCount = jobExplorer.getJobExecutionCount();
 			return new ExtTreeGridResponse(getSteps(nodeId, property, direction, start, limit), totalCount);
