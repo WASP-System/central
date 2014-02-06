@@ -94,26 +94,28 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 	 * @return
 	 */
 	public static boolean isGridWorkUnitStarted(ChunkContext context) {
-		 Map<String, Object> stepContext = context.getStepContext().getStepExecutionContext();
-		 if (stepContext.containsKey(GridResult.GRID_RESULT_KEY))
-			 return true;
-		 return false;
-		 
+		StepExecution stepExecution = context.getStepContext().getStepExecution();
+		boolean isStarted = false;
+		if (stepExecution.getExecutionContext().containsKey(GridResult.GRID_RESULT_KEY))
+			isStarted = true;
+		logger.debug("Grid work unit for StepExecutionId=" + stepExecution.getId() + " is started=" + isStarted);
+		return isStarted;
 	}
 	protected static void storeStartedResult(ChunkContext context, GridResult result) {
-		ExecutionContext executionContext = context.getStepContext().getStepExecution().getExecutionContext();
+		StepExecution stepExecution = context.getStepContext().getStepExecution();
 		logger.debug(result.toString());
-		executionContext.put(GridResult.GRID_RESULT_KEY, result);
+		stepExecution.getExecutionContext().put(GridResult.GRID_RESULT_KEY, result);
 	}
 	
 	private void removeStartedResult(ChunkContext context) {
-		ExecutionContext executionContext = context.getStepContext().getStepExecution().getExecutionContext();
+		StepExecution stepExecution = context.getStepContext().getStepExecution();
 		logger.debug("removing result from step context due to GridException");
-		executionContext.remove(GridResult.GRID_RESULT_KEY);
+		stepExecution.getExecutionContext().remove(GridResult.GRID_RESULT_KEY);
 	}
 	
 	public static GridResult getStartedResult(ChunkContext context) {
-		return (GridResult) context.getStepContext().getStepExecution().getExecutionContext().get(GridResult.GRID_RESULT_KEY);
+		StepExecution stepExecution = context.getStepContext().getStepExecution();
+		return (GridResult) stepExecution.getExecutionContext().get(GridResult.GRID_RESULT_KEY);
 	}
 	
 	@Override
