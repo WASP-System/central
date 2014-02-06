@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
+import edu.yu.einstein.wasp.daemon.batch.tasklets.AbandonMessageHandlingTasklet;
 import edu.yu.einstein.wasp.exception.SoftwareConfigurationException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
@@ -37,7 +38,7 @@ import edu.yu.einstein.wasp.util.SoftwareConfiguration;
 import edu.yu.einstein.wasp.util.WaspJobContext;
 
 
-public class WaspJobSoftwareLaunchTaskletImpl implements WaspJobSoftwareLaunchTasklet {
+public class WaspJobSoftwareLaunchTaskletImpl extends AbandonMessageHandlingTasklet implements WaspJobSoftwareLaunchTasklet {
 	
 	private static Logger logger = LoggerFactory.getLogger("WaspJobSoftwareLaunchTaskletImpl");
 	
@@ -174,6 +175,7 @@ public class WaspJobSoftwareLaunchTaskletImpl implements WaspJobSoftwareLaunchTa
 	
 	@PostConstruct
 	public void init(){
+		super.init();
 		// if jobId is not set, get it from the first libraryCell in the list and check it is unique across all in the list
 		// in this scenario (otherwise we have no idea which is supposed to be used)
 		if (this.jobId == null){
