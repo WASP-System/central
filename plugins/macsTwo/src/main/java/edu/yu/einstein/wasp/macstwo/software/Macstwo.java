@@ -15,6 +15,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 // Un-comment the following if using the plugin service
 // import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,7 @@ public class Macstwo extends SoftwarePackage{
 	}
 
 	//note: test is same as treated, in macs2-speak (from the immunoprecipitated sample)
-	public WorkUnit getPeaks(List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList, Map<String,Object> jobParameters){
+	public WorkUnit getPeaks(List<JobMeta> jobMetaList, List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList, Map<String,Object> jobParameters){
 		
 		Assert.assertTrue(!testFileHandleList.isEmpty());
 		
@@ -48,6 +49,7 @@ public class Macstwo extends SoftwarePackage{
 		String method = " callpeak";//TODO: needs to be a parameter as some point
 		tempCommand.append(method);
 		
+		//macs2 can handle merging multiple test and/or multiple control files
 		int indexSoFar = 0;
 		for(int i = 0; i < testFileHandleList.size(); i++){
 			if(i==0){
@@ -64,16 +66,20 @@ public class Macstwo extends SoftwarePackage{
 			indexSoFar++;
 		}
 		
-		tempCommand.append("-f BAM ");
+		//tempCommand.append("-f BAM ");//this could actually be figured out by macs2
 		
-		for (String opt : jobParameters.keySet()) {
-			if (!opt.startsWith("macsPeakcaller"))
+		//for (String opt : jobParameters.keySet()) {
+		for(JobMeta jobMeta : jobMetaList){
+			String opt = jobMeta.getK();
+		
+			if (!opt.startsWith("macsPeakcaller")){
 				continue;
+			}
 			String key = opt.replace("macsPeakcaller.", "");
 			if(key.equalsIgnoreCase("pValueCutoff")){
 				key = "--pvalue";
 				try{
-					Integer i = Integer.parseInt(jobParameters.get(opt).toString());
+					Double i = Double.parseDouble(jobMeta.getV());
 				}
 				catch(Exception e){
 					continue;//not a number so accept default and get out
@@ -82,7 +88,7 @@ public class Macstwo extends SoftwarePackage{
 			if(key.equalsIgnoreCase("bandwidth")){//should really be sonication size
 				key = "--bw";
 				try{
-					Integer i = Integer.parseInt(jobParameters.get(opt).toString());
+					Integer i = Integer.parseInt(jobMeta.getV());//Integer.parseInt(jobParameters.get(opt).toString());
 				}
 				catch(Exception e){//not a number so accept default and get out
 					continue;
@@ -91,48 +97,44 @@ public class Macstwo extends SoftwarePackage{
 			if(key.equalsIgnoreCase("genomeSize")){
 				key = "--gsize";
 				try{
-					Integer i = Integer.parseInt(jobParameters.get(opt).toString());
+					Double i = Double.parseDouble(jobMeta.getV());//use double since this will be in scientific notation
 				}
-				catch(Exception e){//not a number so accept default (1e9) and get out
+				catch(Exception e){//not a number so accept default (size of human genome) and get out
 					continue;
 				}
 			}
 			if(key.equalsIgnoreCase("keepDup") ){
 				key = "--keep-dup";	
-				if(jobParameters.get(opt).toString().equalsIgnoreCase("no")){
+				if(jobMeta.getV().equalsIgnoreCase("no")){   //jobParameters.get(opt).toString().equalsIgnoreCase("no")){
 					tempCommand.append(" " + key + " 1");
 					continue;
 				}
-				else if(jobParameters.get(opt).toString().equalsIgnoreCase("yes") 
+				else if(jobMeta.getV().equalsIgnoreCase("yes")   //jobParameters.get(opt).toString().equalsIgnoreCase("yes") 
 						|| 
-						jobParameters.get(opt).toString().equalsIgnoreCase("all")){
+						//jobParameters.get(opt).toString().equalsIgnoreCase("all")){
+						jobMeta.getV().equalsIgnoreCase("all")){
 					tempCommand.append(" " + key + " all");
 					continue;
 				}
-				else if(jobParameters.get(opt).toString().equalsIgnoreCase("auto")){
+				else if(jobMeta.getV().equalsIgnoreCase("auto")){//jobParameters.get(opt).toString().equalsIgnoreCase("auto")){
 					tempCommand.append(" " + key + " auto");
 					continue;
 				}
 				else{
 					try{
-						Integer i = Integer.parseInt(jobParameters.get(opt).toString());
-						tempCommand.append(" " + key + " " + jobParameters.get(opt).toString());
-						continue;
+						Integer i = Integer.parseInt(jobMeta.getV());//Integer.parseInt(jobParameters.get(opt).toString());
 					}
 					catch(Exception e){//not a number, so accept default
 						continue;
 					}
 				}
 			}
-			tempCommand.append(" " + key + " " + jobParameters.get(opt).toString());
+			tempCommand.append(" " + key + " " + jobMeta.getV());
 		}
+		
+		//String command = "java -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt 4 -I ${" + WorkUnit.INPUT_FILE + "} -R " + getGenomeIndexPath(getGenomeBuild(libraryCell)) + "genome.fasta -T RealignerTargetCreator -o gatk.${" + WorkUnit.JOB_NAME + "}.realign.intervals -known /cork/jcai/GATK_bundle_2.2/1000G_phase1.indels.hg19.vcf -known /cork/jcai/GATK_bundle_2.2/Mills_and_1000G_gold_standard.indels.hg19.vcf";
+		//String command = "java -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt 4 -I ${" + WorkUnit.INPUT_FILE + "} -R " + getGenomeIndexPath(getGenomeBuild(libraryCell)) + "genome.fasta -T RealignerTargetCreator -o gatk.${" + WorkUnit.JOB_NAME + "}.realign.intervals -known /cork/jcai/GATK_bundle_2.2/1000G_phase1.indels.hg19.vcf -known /cork/jcai/GATK_bundle_2.2/Mills_and_1000G_gold_standard.indels.hg19.vcf";
 
-		//
-		//String command = "java -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt 4 -I ${" + WorkUnit.INPUT_FILE + "} -R " + getGenomeIndexPath(getGenomeBuild(libraryCell)) + "genome.fasta -T RealignerTargetCreator -o gatk.${" + WorkUnit.JOB_NAME + "}.realign.intervals -known /cork/jcai/GATK_bundle_2.2/1000G_phase1.indels.hg19.vcf -known /cork/jcai/GATK_bundle_2.2/Mills_and_1000G_gold_standard.indels.hg19.vcf";
-		
-		//String command = "java -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt 4 -I ${" + WorkUnit.INPUT_FILE + "} -R " + getGenomeIndexPath(getGenomeBuild(libraryCell)) + "genome.fasta -T RealignerTargetCreator -o gatk.${" + WorkUnit.JOB_NAME + "}.realign.intervals -known /cork/jcai/GATK_bundle_2.2/1000G_phase1.indels.hg19.vcf -known /cork/jcai/GATK_bundle_2.2/Mills_and_1000G_gold_standard.indels.hg19.vcf";
-		//
-		
 		String command = new String(tempCommand);
 		logger.debug("---- Will execute macs2 for peakcalling with command: ");
 		logger.debug("---- "+command);

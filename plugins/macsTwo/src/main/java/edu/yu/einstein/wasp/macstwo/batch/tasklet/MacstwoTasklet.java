@@ -31,6 +31,7 @@ import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Genome;
@@ -47,10 +48,8 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 	@Autowired
 	private JobService jobService;
 	
-	private Job job;
-	private List<Integer> testCellLibraryIdList;//treated, such as IP 
-	private Sample testSample = null;
-	private Sample controlSample = null;
+	
+	private List<Integer> testCellLibraryIdList;//treated, such as IP
 	private List<Integer> controlCellLibraryIdList;//contol, such as input 
 	private StepExecution stepExecution;
 		
@@ -74,26 +73,13 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 	}
 
 	public MacstwoTasklet(String testCellLibraryIdListAsString, String controlCellLibraryIdListAsString) throws Exception {
-		logger.debug("*************************");
-		logger.debug("*************************");
-		logger.debug("*************************Starting MacstwoTasklet");
-		
+		logger.debug("*************************Starting MacstwoTasklet constructor");
+		logger.debug("*************************testCellLibraryIdListAsString: " + testCellLibraryIdListAsString);
+		logger.debug("*************************controlCellLibraryIdListAsString: " + controlCellLibraryIdListAsString);
 		this.testCellLibraryIdList = WaspSoftwareJobParameters.getLibraryCellIdList(testCellLibraryIdListAsString);//should be all from same job
 		Assert.assertTrue(!this.testCellLibraryIdList.isEmpty());
-		Sample testParent = sampleService.getLibrary(sampleService.getCellLibraryBySampleSourceId(testCellLibraryIdList.get(0)));//all these cellLibraries are from the same library or macromoleucle
-		while(testParent.getParent()!=null){
-			testParent = testParent.getParent();
-		}
-		this.testSample = testParent;
 		this.controlCellLibraryIdList = WaspSoftwareJobParameters.getLibraryCellIdList(controlCellLibraryIdListAsString);//may be empty
-		if(!controlCellLibraryIdList.isEmpty()){
-			Sample controlParent = sampleService.getLibrary(sampleService.getCellLibraryBySampleSourceId(controlCellLibraryIdList.get(0)));//all these cellLibraries are from the same library or macromoleucle
-			while(controlParent.getParent()!=null){
-				controlParent = controlParent.getParent();
-			}
-			controlSample = controlParent;
-		}
-		this.job = jobService.getJobByJobId(testCellLibraryIdList.get(0));//should all be from same job
+		logger.debug("*************************Ending MacstwoTasklet constructor");
 	}
 
 	/**
@@ -108,43 +94,72 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		// if the work has already been started, then check to see if it is finished
 		// if not, throw an exception that is caught by the repeat policy.
+		
+		logger.debug("*************************Starting MacstwoTasklet execute");		
+		
 		RepeatStatus repeatStatus = super.execute(contrib, context);
 		if (repeatStatus.equals(RepeatStatus.FINISHED))
 			return RepeatStatus.FINISHED;
-		
+			
 		Map<String,Object> jobParameters = context.getStepContext().getJobParameters();		
 		for (String key : jobParameters.keySet()) {
 			logger.debug("Key: " + key + " Value: " + jobParameters.get(key).toString());
 		}
-	
-		List<SampleSource> testCellLibraryList = new ArrayList<SampleSource>();//is this list really needed?
-		List<FileHandle> testFileHandleList = new ArrayList<FileHandle>();
+
+		SampleSource firstTestCellLibrary = sampleService.getCellLibraryBySampleSourceId(this.testCellLibraryIdList.get(0));
+		Job job = sampleService.getJobOfLibraryOnCell(firstTestCellLibrary);//should all be from same job
+		logger.debug("*************************job name : id = " + job.getName() + " : " + job.getId());
+		List<JobMeta> jobMetaList = jobService.getJobMeta(job.getId());
+		logger.debug("*************************Size of jobMeta = " + jobMetaList.size());
+		Sample testSample = sampleService.getLibrary(firstTestCellLibrary);//all these cellLibraries are from the same library or macromoleucle
+		while(testSample.getParent()!=null){
+			testSample = testSample.getParent();
+		}
+		logger.debug("*************************  testSample.name = " + testSample.getName());		
 		
+		List<FileHandle> testFileHandleList = new ArrayList<FileHandle>();		
 		for(Integer id : this.testCellLibraryIdList){
 			SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(id);
-			testCellLibraryList.add(sampleService.getCellLibraryBySampleSourceId(id));
 			Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLibrary, bamFileType);
+			logger.debug("************************* test fileGroups size = " + fileGroups.size());
 			for(FileGroup fileGroup : fileGroups){
 				for(FileHandle fileHandle : fileGroup.getFileHandles()){
 					testFileHandleList.add(fileHandle);
-				}
+					logger.debug("************************* test fileHandle = " + fileHandle.getFileName());
+				}				
 			}
 		}
-		Assert.assertTrue(!testCellLibraryList.isEmpty());
 		Assert.assertTrue(!testFileHandleList.isEmpty());
+		logger.debug("************************* test bam files size = " + testFileHandleList.size());
+
+		Sample controlSample = null;
+		if(!controlCellLibraryIdList.isEmpty()){
+			controlSample = sampleService.getLibrary(sampleService.getCellLibraryBySampleSourceId(controlCellLibraryIdList.get(0)));//all these cellLibraries are from the same library or macromoleucle
+			while(controlSample.getParent()!=null){
+				controlSample = controlSample.getParent();
+			}
+		}
+		if(controlSample==null){
+			logger.debug("************************* controlSample IS NULL");
+		}
+		else{
+			logger.debug("************************* controlSample.name = " + controlSample.getName());
+		}
 		
-		List<SampleSource> controlCellLibraryList = new ArrayList<SampleSource>();//is this list really needed?
+		
 		List<FileHandle> controlFileHandleList = new ArrayList<FileHandle>();
 		for(Integer id : this.controlCellLibraryIdList){
 			SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(id);
-			controlCellLibraryList.add(sampleService.getCellLibraryBySampleSourceId(id));
 			Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLibrary, bamFileType);
+			logger.debug("************************* control fileGroups size = " + fileGroups.size());
 			for(FileGroup fileGroup : fileGroups){
 				for(FileHandle fileHandle : fileGroup.getFileHandles()){
 					controlFileHandleList.add(fileHandle);//can be empty
+					logger.debug("************************* control fileHandle = " + fileHandle.getFileName());
 				}
 			}
 		}
+		logger.debug("************************* controlFileHandleList.size = " + controlFileHandleList.size());
 			
 		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
 		//TODO: need way to tell that this is using testSample and (perhpas) controlSample
@@ -152,14 +167,14 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 		if(controlSample!=null){
 			stepContext.put("controlSampleId", controlSample.getId()); //place in the step context			
 		}
-		WorkUnit w = macs2.getPeaks(testFileHandleList, controlFileHandleList, jobParameters);//configure
+		WorkUnit w = macs2.getPeaks(jobMetaList, testFileHandleList, controlFileHandleList, jobParameters);//configure
 		
 		if(1==1)
-			throw new Exception("throwing exception to test");
+			throw new Exception("**************throwing exception to test");
 		
 		
 		
-		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + this.job.getId());
+		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
    
 		GridResult result = gridHostResolver.execute(w);
 		
@@ -190,7 +205,6 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
 		logger.debug("StepExecutionListener beforeStep saving StepExecution");
-		this.stepExecution = stepExecution;
-		
+		this.stepExecution = stepExecution;		
 	}
 }

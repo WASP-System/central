@@ -858,9 +858,10 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	public Set<FileGroup> getFilesForCellLibraryByType(SampleSource cellLibrary, FileType fileType) {
 		TypedQuery<FileGroup> fgq = fileGroupDao.getEntityManager()
 				.createQuery("SELECT DISTINCT fg from FileGroup fg " +
-						"JOIN fg.sampleSources cl " +
+						"JOIN FETCH fg.sampleSources cl " +
 						"JOIN FETCH fg.fileHandles fh " + 
-						"JOIN FETCH fh.fileType " +
+						//"JOIN FETCH fh.fileType " +  
+						"JOIN FETCH fg.fileType " +
 						"WHERE cl = :cellLibrary AND fg.fileType = :fileType", FileGroup.class)
 				.setParameter("cellLibrary", cellLibrary)
 				.setParameter("fileType", fileType);

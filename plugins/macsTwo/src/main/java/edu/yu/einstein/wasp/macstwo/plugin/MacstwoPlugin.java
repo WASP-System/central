@@ -112,6 +112,7 @@ public class MacstwoPlugin extends WaspPlugin
 			Map<String, String> jobParameters = new HashMap<String, String>();
 			jobParameters.put("test", new Date().toString());
 			jobParameters.put(WaspSoftwareJobParameters.TEST_LIBRARY_CELL_ID_LIST, "39");
+			//wrong job jobParameters.put(WaspSoftwareJobParameters.TEST_LIBRARY_CELL_ID_LIST, "22");
 			jobParameters.put(WaspSoftwareJobParameters.CONTROL_LIBRARY_CELL_ID_LIST, "37");
 			//logger.info("Sending launch message with flow " + FLOW_NAME + " and id: " + id);
 			//jobParameters.put(WaspJobParameters.TEST_ID, id.toString());
