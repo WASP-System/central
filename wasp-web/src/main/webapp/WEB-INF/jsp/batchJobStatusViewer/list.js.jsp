@@ -96,7 +96,7 @@ Ext.onReady(function() {
             dataIndex: 'endTime'
         }, {
         	text: 'Status',
-            width: 145,
+            width: 70,
             sortable: true,
             dataIndex: 'exitCode'
         }, {
@@ -113,28 +113,28 @@ Ext.onReady(function() {
             	store.loadPage(1);
             }
         }, {
-            text: 'Show Active',
+            text: "Show Active <img src='/wasp/images/gears_green_30x30.png' height='12' />",
             scope: this,
             handler: function (){
             	store.getProxy().extraParams.displayParam = "Active";
             	store.loadPage(1);
             }
         }, {
-            text: 'Show Completed',
+            text: "Show Completed <img src='/wasp/images/pass.png' height='12' />",
             scope: this,
             handler: function (){
             	store.getProxy().extraParams.displayParam = "Completed";
             	store.loadPage(1);
             }
         }, {
-            text: 'Show Terminated',
+            text: "Show Terminated <img src='/wasp/images/stop_yellow_25x25.png' height='12' />",
             scope: this,
             handler: function (){
             	store.getProxy().extraParams.displayParam = "Terminated";
             	store.loadPage(1);
             }
         }, {
-            text: 'Show Failed',
+            text: "Show Failed <img src='/wasp/images/fail.png' height='12' />",
             scope: this,
             handler: function (){
             	store.getProxy().extraParams.displayParam = "Failed";

@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONObject;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -15,7 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import edu.yu.einstein.wasp.controller.util.BatchJobTreeModel;
 import edu.yu.einstein.wasp.controller.util.ExtTreeGridResponse;
+import edu.yu.einstein.wasp.controller.util.ExtTreeModel;
 import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.service.BatchJobStatusViewerService;
 
@@ -41,10 +44,34 @@ public class BatchJobStatusViewerController extends WaspController {
 			@RequestParam(value="sort", required=false) String sort,
 			HttpServletResponse response) throws WaspException, JsonMappingException, IOException {
 		logger.debug("Getting model data for node=" + node + ", limit=" + limit + ", page=" + page + ", start=" + start + ", sort=" + sort);
+		ExtTreeGridResponse extTreeGridResponse;
 		if (sort == null)
-			return outputJSON(statusViewerService.getPagedModelList(node, displayParam, start, limit), response);
-		JSONObject sortInfo = new JSONObject(sort.replace("[", "").replace("]", ""));
-		return outputJSON(statusViewerService.getPagedModelList(node, displayParam, sortInfo.getString("property"), sortInfo.getString("direction"), start, limit), response);
+			extTreeGridResponse = statusViewerService.getPagedModelList(node, displayParam, start, limit);
+		else {
+			JSONObject sortInfo = new JSONObject(sort.replace("[", "").replace("]", ""));
+			extTreeGridResponse = statusViewerService.getPagedModelList(node, displayParam, sortInfo.getString("property"), sortInfo.getString("direction"), start, limit);
+		}
+		return outputJSON(replaceExitCodesWithIcons(extTreeGridResponse), response);
+	}
+	
+	private ExtTreeGridResponse replaceExitCodesWithIcons(ExtTreeGridResponse extTreeGridResponse){
+		for (ExtTreeModel treeModel: extTreeGridResponse.getModelList()){
+			BatchJobTreeModel batchJobTreeModel = (BatchJobTreeModel) treeModel;
+			String exitCode = batchJobTreeModel.getExitCode();
+			if (exitCode.equals(ExitStatus.EXECUTING.getExitCode()))
+				batchJobTreeModel.setExitCode("<img src='/wasp/images/gears_green_30x30.png' height='15'/>");
+			else if (exitCode.equals(ExitStatus.UNKNOWN.getExitCode()))
+				batchJobTreeModel.setExitCode("<img src='/wasp/images/gears_orange_30x30.png' height='15' />");
+			else if (exitCode.equals(ExitStatus.HIBERNATING.getExitCode()))
+				batchJobTreeModel.setExitCode("<img src='/wasp/images/gears_green_30x30.png' height='15' />");
+			else if (exitCode.equals(ExitStatus.COMPLETED.getExitCode()))
+				batchJobTreeModel.setExitCode("<img src='/wasp/images/pass.png' height='15' />");
+			else if (exitCode.equals(ExitStatus.TERMINATED.getExitCode()))
+				batchJobTreeModel.setExitCode("<img src='/wasp/images/stop_yellow_25x25.png' height='15' />");
+			else if (exitCode.equals(ExitStatus.FAILED.getExitCode()))
+				batchJobTreeModel.setExitCode("<img src='/wasp/images/fail.png' height='15' />");
+		}
+		return extTreeGridResponse;
 	}
 	
 	private  String outputJSON(ExtTreeGridResponse extTreeGridResponse, HttpServletResponse response) throws JsonMappingException, IOException {
