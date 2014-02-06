@@ -1,3 +1,4 @@
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/ext-all-dev.js"></script>
 <script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/packages/ext-theme-neptune/build/ext-theme-neptune.js"></script>
 <script type="text/javascript"	src="/wasp/scripts/extjs/wasp/WaspNamespaceDefinition.js"></script>
@@ -29,7 +30,7 @@ Ext.define('BatchTreeModel', {
 });
 
 
-var itemsPerPage = 15;
+var itemsPerPage = 14;
 
 var store = Ext.create('Wasp.store.TreeGridStore', {
     model: 'BatchTreeModel',
@@ -64,7 +65,7 @@ var store = Ext.create('Wasp.store.TreeGridStore', {
 Ext.onReady(function() {
 
     var tree = Ext.create('Ext.tree.Panel', {
-        title: 'Job Status Viewer',
+        title: '<fmt:message key="batchViewer.panel.label"/>',
         width: $('#content').width(),
         height: $('#content').height(),
         renderTo: 'batchJobStatusViewer',
@@ -75,66 +76,66 @@ Ext.onReady(function() {
         multiSelect: false,
         columns: [{
         	xtype: 'treecolumn', //this is so we know which column will show the tree
-            text: 'Name',
+            text: '<fmt:message key="batchViewer.nameCol.label"/>',
             width: 400,
             sortable: true,
             dataIndex: 'name'
         },{
-            text: 'Id',
+            text: '<fmt:message key="batchViewer.idCol.label"/>',
             width: 70,
             sortable: true,
             dataIndex: 'executionId'
         }, {
-            text: 'Started',
+            text: '<fmt:message key="batchViewer.startedCol.label"/>',
             width: 150,
             sortable: true,
             dataIndex: 'startTime'
         }, {
-        	text: 'Ended',
+        	text: '<fmt:message key="batchViewer.endedCol.label"/>',
             width: 150,
             sortable: true,
             dataIndex: 'endTime'
         }, {
-        	text: 'Status',
+        	text: '<fmt:message key="batchViewer.statusCol.label"/>',
             width: 70,
             sortable: true,
             dataIndex: 'exitCode'
         }, {
-        	text: 'Status Message',
+        	text: '<fmt:message key="batchViewer.statusMessageCol.label"/>',
             sortable: false,
             width: 400,
             dataIndex: 'exitMessage'
         }],
         tbar: [{
-            text: 'Show All',
+            text: '<fmt:message key="batchViewer.showAllButton.label"/>',
             scope: this,
             handler: function (){
             	store.getProxy().extraParams.displayParam = "All";
             	store.loadPage(1);
             }
         }, {
-            text: "Show Active <img src='/wasp/images/gears_green_30x30.png' height='12' />",
+            text: "<fmt:message key='batchViewer.showActiveButton.label'/> <img src='/wasp/images/gears_green_30x30.png' height='12' />",
             scope: this,
             handler: function (){
             	store.getProxy().extraParams.displayParam = "Active";
             	store.loadPage(1);
             }
         }, {
-            text: "Show Completed <img src='/wasp/images/pass.png' height='12' />",
+            text: "<fmt:message key='batchViewer.showCompletedButton.label'/> <img src='/wasp/images/pass.png' height='12' />",
             scope: this,
             handler: function (){
             	store.getProxy().extraParams.displayParam = "Completed";
             	store.loadPage(1);
             }
         }, {
-            text: "Show Terminated <img src='/wasp/images/stop_yellow_25x25.png' height='12' />",
+            text: "<fmt:message key='batchViewer.showTerminatedButton.label'/> <img src='/wasp/images/stop_yellow_25x25.png' height='12' />",
             scope: this,
             handler: function (){
             	store.getProxy().extraParams.displayParam = "Terminated";
             	store.loadPage(1);
             }
         }, {
-            text: "Show Failed <img src='/wasp/images/fail.png' height='12' />",
+            text: "<fmt:message key='batchViewer.showFailedButton.label'/> <img src='/wasp/images/fail.png' height='12' />",
             scope: this,
             handler: function (){
             	store.getProxy().extraParams.displayParam = "Failed";
@@ -143,7 +144,7 @@ Ext.onReady(function() {
         }],
         bbar: { // bottom tool bar for paging
             xtype: 'pagingtoolbar',
-            emptyMsg: "No Batch Job Executions to display",
+            emptyMsg: "<fmt:message key='batchViewer.pagingEmptyMsg.label'/>",
             pageSize: itemsPerPage,
             store: store,
             displayInfo: true

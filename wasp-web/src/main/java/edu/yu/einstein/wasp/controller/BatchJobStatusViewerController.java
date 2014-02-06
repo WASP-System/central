@@ -37,7 +37,7 @@ public class BatchJobStatusViewerController extends WaspController {
 	
 	@RequestMapping(value="/getDetailsJson", method = RequestMethod.GET)
 	public String getNodeJson(@RequestParam(value="node", required=true) String node, 
-			@RequestParam(value="displayParam", required=false) String displayParam,
+			@RequestParam(value="displayParam", required=true) String displayParam,
 			@RequestParam(value="limit", required=false) Long limit,
 			@RequestParam(value="page", required=false) Long page,
 			@RequestParam(value="start", required=false) Long start,
