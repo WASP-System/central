@@ -145,8 +145,8 @@ public class Helptag extends SoftwarePackage{
 			w.setRequiredFiles(files);
 			
 			// set the command
-			String cmd = "module load samtools/gnu/0.1.18; " +
-					"/rio1/AJ/HelptagScripts/bam2hcount.pl " +
+			String cmd = "module load helptag/0.1.0;" + 
+					"bam2hcount.pl " +
 					"-i ${" + WorkUnit.INPUT_FILE + "} " +
 					"-o ${" + WorkUnit.INPUT_FILE + "}.hcount " +
 					"-g " + getGenomeBuild(cl).getGenome().getAlias();

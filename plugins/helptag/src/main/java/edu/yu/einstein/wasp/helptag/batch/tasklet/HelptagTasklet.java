@@ -3,15 +3,11 @@
  */
 package edu.yu.einstein.wasp.helptag.batch.tasklet;
 
-import java.util.Map;
-import java.util.Set;
-
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -23,10 +19,6 @@ import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.helptag.service.HelptagService;
 import edu.yu.einstein.wasp.helptag.software.Helptag;
-import edu.yu.einstein.wasp.model.FileGroup;
-import edu.yu.einstein.wasp.model.FileType;
-import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
 
@@ -52,6 +44,7 @@ public class HelptagTasklet extends WaspTasklet  implements StepExecutionListene
 	private GridHostResolver gridHostResolver;
 
 	private StepExecution stepExecution;
+	
 	private Integer libraryCellId;
 	
 	/**
