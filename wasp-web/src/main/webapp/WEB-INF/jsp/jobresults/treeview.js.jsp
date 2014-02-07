@@ -554,7 +554,7 @@ function click(d) {
 		}
 	});
 
-	if (!d.children || d.children=='') {
+	if (!d.children && !d._children) {
 		$.ajax({
 			url: '/wasp/jobresults/getTreeJson.do?node=' + dstr,
 			type: 'GET',
