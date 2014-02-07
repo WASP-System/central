@@ -1,14 +1,11 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets;
 
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -39,6 +36,15 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 	public abstract void doExecute(ChunkContext context) throws Exception;
 	
 	/**
+	 * tasks to perform before finishing step execution
+	 * @param context
+	 * @throws Exception
+	 */
+	public void doPreFinish(ChunkContext context) throws Exception {
+		// override as necessary in child classes
+	}
+	
+	/**
 	 * Default implementation checks to see if a stored result is running 
 	 */
 	@Override
@@ -59,6 +65,7 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 			GridWorkService gws = hostResolver.getGridWorkService(result);
 			try {
 				if (gws.isFinished(result)){
+					doPreFinish(context);
 					logger.debug("Workunit is finished. Step complete.");
 					return RepeatStatus.FINISHED;
 				}

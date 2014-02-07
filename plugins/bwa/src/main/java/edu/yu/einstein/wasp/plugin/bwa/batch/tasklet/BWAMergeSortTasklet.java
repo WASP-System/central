@@ -10,18 +10,14 @@ import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
@@ -81,6 +77,10 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 		// proxy
 	}
 	
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void doExecute(ChunkContext context) throws Exception {
 		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);
 
@@ -164,28 +164,18 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 		// place the grid result in the step context
 		storeStartedResult(context, result);
 	}
-
+	
 	/** 
 	 * {@inheritDoc}
 	 */
-	@RetryOnExceptionFixed
 	@Override
-	@Transactional("entityManager")
-	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
-		
-		// if the work has already been started, then check to see if it is
-		// finished
-		// if not, throw an exception that is caught by the repeat policy.
-		if (!super.execute(contrib, context).isContinuable()){
-			// register .bam and .bai file groups with cellLib so as to make available to views
-			SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);
-			if (bamGId != null && cellLib.getId() != 0)
-				fileService.setSampleSourceFile(fileService.getFileGroupById(bamGId), cellLib);
-			if (baiGId != null && cellLib.getId() != 0)
-				fileService.setSampleSourceFile(fileService.getFileGroupById(baiGId), cellLib);
-			return RepeatStatus.FINISHED;
-		}
-		return RepeatStatus.CONTINUABLE;
+	public void doPreFinish(ChunkContext context) throws Exception {
+		// register .bam and .bai file groups with cellLib so as to make available to views
+		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);
+		if (bamGId != null && cellLib.getId() != 0)
+			fileService.setSampleSourceFile(fileService.getFileGroupById(bamGId), cellLib);
+		if (baiGId != null && cellLib.getId() != 0)
+			fileService.setSampleSourceFile(fileService.getFileGroupById(baiGId), cellLib);	
 	}
 	
 

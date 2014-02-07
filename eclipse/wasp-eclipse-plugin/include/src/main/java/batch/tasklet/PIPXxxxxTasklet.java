@@ -7,11 +7,8 @@ package ___package___.batch.tasklet;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
@@ -64,17 +61,14 @@ public class ___PluginIName___Tasklet extends WaspRemotingTasklet {
 	}
 	
 	/**
-	 * {@inheritDoc}
+	 * After remote task is finished you may need to execute some further business logic. Such work is specified here.
 	 */
 	@Override
-	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
-		RepeatStatus repeatStatus = super.execute(contrib, context);
-		if (!repeatStatus.isContinuable()) {
-			// the work unit is complete, a result is available if required
-			GridResult result = getStartedResult(context);
-		}
-		return repeatStatus;
+	public void doPreFinish(ChunkContext context) throws Exception {
+		// do work post completion of remote task. 
+		// e.g. get stored result to access output of task (GridResult result = getStartedResult(context);)
 	}
+	
 	
 	/** 
 	 * {@inheritDoc}
