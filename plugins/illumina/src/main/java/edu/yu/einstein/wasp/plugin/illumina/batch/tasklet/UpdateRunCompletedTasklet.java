@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
+import edu.yu.einstein.wasp.daemon.batch.tasklets.AbandonMessageHandlingTasklet;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
@@ -27,7 +27,7 @@ import edu.yu.einstein.wasp.service.RunService;
  */
 @Transactional("entityManager")
 @Component
-public class UpdateRunCompletedTasklet extends WaspTasklet {
+public class UpdateRunCompletedTasklet extends AbandonMessageHandlingTasklet {
 	
 	@Autowired
 	private RunService runService;
@@ -51,9 +51,6 @@ public class UpdateRunCompletedTasklet extends WaspTasklet {
 		this.runId = runId;
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet#execute(org.springframework.batch.core.StepContribution, org.springframework.batch.core.scope.context.ChunkContext)
-	 */
 	@Override
 	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws GridException {

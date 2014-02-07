@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
+import edu.yu.einstein.wasp.daemon.batch.tasklets.AbandonMessageHandlingTasklet;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
@@ -23,7 +23,7 @@ import edu.yu.einstein.wasp.service.RunService;
  *
  */
 @Component
-public class SampleSheetTasklet extends WaspTasklet {
+public class SampleSheetTasklet extends AbandonMessageHandlingTasklet {
 	
 	private RunService runService;
 	
@@ -46,9 +46,6 @@ public class SampleSheetTasklet extends WaspTasklet {
 		// proxy
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet#execute(org.springframework.batch.core.StepContribution, org.springframework.batch.core.scope.context.ChunkContext)
-	 */
 	@Override
 	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws GridException {

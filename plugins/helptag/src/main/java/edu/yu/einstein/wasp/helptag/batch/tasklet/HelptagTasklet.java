@@ -4,16 +4,13 @@
 package edu.yu.einstein.wasp.helptag.batch.tasklet;
 
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.Assert;
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
+import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
@@ -26,7 +23,7 @@ import edu.yu.einstein.wasp.service.SampleService;
  * @author AJ
  *
  */
-public class HelptagTasklet extends WaspTasklet  implements StepExecutionListener {
+public class HelptagTasklet extends WaspRemotingTasklet  implements StepExecutionListener {
 
 	@Autowired
 	private FileService fileService;
@@ -63,17 +60,7 @@ public class HelptagTasklet extends WaspTasklet  implements StepExecutionListene
 	 * {@inheritDoc}
 	 */
 	@Override
-	@RetryOnExceptionExponential
-	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
-		// if the work has already been started, then check to see if it is finished
-		// if not, throw an exception that is caught by the repeat policy.
-		RepeatStatus repeatStatus = super.execute(contrib, context);
-		if (repeatStatus.equals(RepeatStatus.FINISHED)) {
-			// the work unit is complete, parse output
-			GridResult result = getStartedResult(context);
-			// parse and save output
-			return RepeatStatus.FINISHED;
-		}
+	public void doExecute(ChunkContext context) throws Exception {
 		
 /*
 		SampleSource cellLib = sampleService.getSampleSourceDao().findById(libraryCellId);
@@ -117,7 +104,6 @@ public class HelptagTasklet extends WaspTasklet  implements StepExecutionListene
 		stepContext.put("createHcountName", result.getId());
 */
 
-		return RepeatStatus.CONTINUABLE;
 	}
 	
 	public static void doWork(int cellLibraryId) {
@@ -138,6 +124,7 @@ public class HelptagTasklet extends WaspTasklet  implements StepExecutionListene
 	 */
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
+		super.beforeStep(stepExecution);
 		logger.debug("StepExecutionListener beforeStep saving StepExecution");
 		this.stepExecution = stepExecution;
 		

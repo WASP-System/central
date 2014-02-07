@@ -5,20 +5,15 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
+import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.exception.GridException;
-import edu.yu.einstein.wasp.exception.TaskletRetryException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
-import edu.yu.einstein.wasp.grid.work.SoftwareManager;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.Run;
@@ -34,7 +29,7 @@ import edu.yu.einstein.wasp.util.PropertyHelper;
  * 
  */
 @Component
-public class StageResultsTasklet extends WaspTasklet {
+public class StageResultsTasklet extends WaspRemotingTasklet {
 
 	private RunService runService;
 
@@ -58,15 +53,8 @@ public class StageResultsTasklet extends WaspTasklet {
 	}
 
 	@Override
-	@RetryOnExceptionExponential
-	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
+	public void doExecute(ChunkContext context) throws Exception {
 
-		// if the work has already been started, then check to see if it is finished
-		// if not, throw an exception that is caught by the repeat policy.
-		RepeatStatus repeatStatus = super.execute(contrib, context);
-		if (repeatStatus.equals(RepeatStatus.FINISHED))
-			return RepeatStatus.FINISHED;
-		
 		run = runService.getRunById(runId);
 
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
@@ -110,9 +98,7 @@ public class StageResultsTasklet extends WaspTasklet {
 		logger.debug("started staging of illumina output: " + result.getUuid());
 		
 		//place the grid result in the step context
-		WaspTasklet.storeStartedResult(context, result);
-		
-		return RepeatStatus.CONTINUABLE;
+		storeStartedResult(context, result);
 
 	}
 

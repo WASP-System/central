@@ -108,6 +108,9 @@ public class EmailServiceImpl implements EmailService{
 	@Value("${wasp.host.baseurl}")
 	private String baseUrl;
 	
+	@Value("${wasp.customimage.logo}")
+	private String customLogoResource;
+	
 	@Value("${email.sending.enabled:true}")
 	private Boolean isSendingEmailEnabled;
 	
@@ -436,6 +439,7 @@ public class EmailServiceImpl implements EmailService{
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void generateMessage(final User user, final String template, final Map model, MimeMessage mimeMessage) throws MailPreparationException {
 		model.put("baseUrl", baseUrl);
+		model.put("customLogoResource", customLogoResource);
 		String lang=user.getLocale().substring(0, 2);
 		
 		String headerVm = "emails/header_"+lang+".vm";

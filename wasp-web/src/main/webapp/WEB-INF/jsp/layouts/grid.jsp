@@ -1,6 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
  <%--  Template for pages containing JQGrid table  --%> 
-<%@ page import="edu.yu.einstein.wasp.resourcebundle.DBResourceBundle" %>
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <!DOCTYPE html>
 <html lang="en">
