@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import edu.yu.einstein.wasp.Assert;
 
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
@@ -16,6 +18,8 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.JobMeta;
+import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 // Un-comment the following if using the plugin service
 // import org.springframework.beans.factory.annotation.Autowired;
@@ -32,13 +36,16 @@ public class Macstwo extends SoftwarePackage{
 	// Un-comment the following if using the plugin service
 	//@Autowired
 	//MacstwoService  macstwoService;
+
+	@Autowired
+	private FileService fileService;
 	
 	public Macstwo() {
 		setSoftwareVersion("2.0.10"); // TODO: Set this value. This default may also be overridden in wasp.site.properties
 	}
 
 	//note: test is same as treated, in macs2-speak (from the immunoprecipitated sample)
-	public WorkUnit getPeaks(List<JobMeta> jobMetaList, List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList, Map<String,Object> jobParameters){
+	public WorkUnit getPeaks(Sample testSample, Sample controlSample, List<JobMeta> jobMetaList, List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList, Map<String,Object> jobParameters){
 		
 		Assert.assertTrue(!testFileHandleList.isEmpty());
 		
@@ -132,6 +139,17 @@ public class Macstwo extends SoftwarePackage{
 			tempCommand.append(" " + key + " " + jobMeta.getV());
 		}
 		
+		String name = "TEST_" + testSample.getName().replaceAll("\\s+", "_") + "_CONTROL_";
+		if(controlSample == null){
+			name = name + "none";
+		}
+		else{
+			name = name + controlSample.getName().replaceAll("\\s+", "_");
+		}
+		tempCommand.append(" --name " + name);//The name string of the experiment. MACS will use this string NAME to create output files like 'NAME_peaks.xls', etc.
+		
+		tempCommand.append(" --bdg");//generates two bedGraph files
+		
 		//String command = "java -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt 4 -I ${" + WorkUnit.INPUT_FILE + "} -R " + getGenomeIndexPath(getGenomeBuild(libraryCell)) + "genome.fasta -T RealignerTargetCreator -o gatk.${" + WorkUnit.JOB_NAME + "}.realign.intervals -known /cork/jcai/GATK_bundle_2.2/1000G_phase1.indels.hg19.vcf -known /cork/jcai/GATK_bundle_2.2/Mills_and_1000G_gold_standard.indels.hg19.vcf";
 		//String command = "java -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt 4 -I ${" + WorkUnit.INPUT_FILE + "} -R " + getGenomeIndexPath(getGenomeBuild(libraryCell)) + "genome.fasta -T RealignerTargetCreator -o gatk.${" + WorkUnit.JOB_NAME + "}.realign.intervals -known /cork/jcai/GATK_bundle_2.2/1000G_phase1.indels.hg19.vcf -known /cork/jcai/GATK_bundle_2.2/Mills_and_1000G_gold_standard.indels.hg19.vcf";
 
@@ -140,7 +158,7 @@ public class Macstwo extends SoftwarePackage{
 		logger.debug("---- "+command);
 		
 		w.setCommand(command);
-		
+				
 		return w;
 	}
 	private WorkUnit prepareWorkUnit(List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList) {
@@ -149,7 +167,7 @@ public class Macstwo extends SoftwarePackage{
 		w.setMode(ExecutionMode.PROCESS);		
 		w.setProcessMode(ProcessMode.MAX);		
 		w.setMemoryRequirements(8);
-		w.setNumberOfTasks(1);//?????
+		//w.setNumberOfTasks(1);//?????only important when ExecutionMode.Task_Array
 		
 		List<FileHandle> tempFileHandleList = new ArrayList<FileHandle>();
 		tempFileHandleList.addAll(testFileHandleList);//THIS LIST MUST BE ADDED FIRST
@@ -161,7 +179,8 @@ public class Macstwo extends SoftwarePackage{
 		//sd.add(picard);
 		//sd.add(samtools);
 		w.setSoftwareDependencies(sd);
-		w.setSecureResults(false);
+		//w.setResultFiles(resultFiles);
+		w.setSecureResults(true);
 		
 		w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		
