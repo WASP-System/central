@@ -6,16 +6,7 @@
 <!-- bxSlider CSS file -->
 <link href="/wasp/scripts/bxslider/jquery.bxslider.css" rel="stylesheet" />
 <link rel="stylesheet" type="text/css" href="/wasp/css/ext-theme-neptune-all-wasp.css" />
-<script type="text/javascript" src="/wasp/scripts/jquery/jquery.cookie.js"></script>
 <script>
-	//var slider;
-
-	$(function() {
-		$( "#tabs" ).tabs({
-			cookie: {}
-		});
-	});
-	
 	Ext.require(['Ext.layout.container.Border']);
 	
 	Ext.onReady(function() {
@@ -67,6 +58,7 @@
 				xtype: 'panel',
 				itemId: 'centerregion',
 				region: 'center',
+				autoScroll: true,
 				title: 'Wasp System News & Events ',
 				html: '<div><h2>Software Demo Session at The 15th Annual AGBT Meeting, Marco Island, Florida, February 13 5:15 p.m. - 7:15 p.m.</h2>\
 <table style="margin-top: 5px"><tr><th style="text-align: right">Title:</th><td>THE WASP SYSTEM: AN OPEN SOURCE SOFTWARE ECOSYSTEM</td></tr>\
