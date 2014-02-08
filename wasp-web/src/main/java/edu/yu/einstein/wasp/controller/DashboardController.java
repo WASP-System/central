@@ -24,9 +24,10 @@ public class DashboardController extends WaspController {
 	@RequestMapping("/dashboard")
 	public String list(ModelMap m) {
 		m.addAttribute("me", authenticationService.getAuthenticatedUser());
-		
+		/* TODO: For now don't do this check. Re-implement later after task evaluation sped up
 		boolean isTasks = false;
 		for (String name: taskMappingRegistry.getNames()){
+			logger.debug("Examining task name=" + name);
 			WaspTaskMapping taskMapping = taskMappingRegistry.getTaskMapping(name);
 			if (taskMapping == null){
 				logger.warn("Unable to retrieve a taskmapping with name '" + name + "' from the TaskMappingRegistry");
@@ -39,7 +40,7 @@ public class DashboardController extends WaspController {
 		}
 		
 		m.addAttribute("isTasks", isTasks);
-			
+		*/	
 		return "dashboard";
 	}
 }
