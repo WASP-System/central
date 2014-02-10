@@ -5,6 +5,7 @@ package edu.yu.einstein.wasp.plugin.babraham.batch.tasklet;
 
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
@@ -53,6 +54,7 @@ public class FastQScreenTasklet extends WaspRemotingTasklet {
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
 		// get work unit
 		WorkUnit w = fastqscreen.getFastQScreen(fileGroupId);
@@ -68,6 +70,7 @@ public class FastQScreenTasklet extends WaspRemotingTasklet {
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional("entityManager")
 	public void doPreFinish(ChunkContext context) throws Exception {
 		// the work unit is complete, parse output
 		GridResult result = getStartedResult(context);

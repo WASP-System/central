@@ -16,6 +16,7 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
@@ -81,6 +82,7 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
 		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);
 
@@ -169,6 +171,7 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional("entityManager")
 	public void doPreFinish(ChunkContext context) throws Exception {
 		// register .bam and .bai file groups with cellLib so as to make available to views
 		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);

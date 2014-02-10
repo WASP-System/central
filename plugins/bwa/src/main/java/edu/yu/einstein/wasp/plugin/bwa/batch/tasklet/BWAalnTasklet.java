@@ -14,6 +14,7 @@ import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
@@ -73,6 +74,7 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
 	}
 
 	@Override
+	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
 		// if the work has already been started, then check to see if it is finished
 		// if not, throw an exception that is caught by the repeat policy.

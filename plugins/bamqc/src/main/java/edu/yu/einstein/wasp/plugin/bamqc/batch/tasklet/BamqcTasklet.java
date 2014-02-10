@@ -6,6 +6,7 @@ package edu.yu.einstein.wasp.plugin.bamqc.batch.tasklet;
 
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -45,6 +46,7 @@ public class BamqcTasklet extends WaspRemotingTasklet {
 	 * @throws Exception
 	 */
 	@Override
+	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
 		WorkUnit w = new WorkUnit();
 		
