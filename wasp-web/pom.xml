@@ -12,7 +12,7 @@
 	<artifactId>wasp-web</artifactId>
 	<packaging>war</packaging>
 	<name>WASP Web Application</name>
-
+	
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
@@ -510,6 +510,18 @@
 				</resource>
 				</webResources>
 				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>test-testng</id>
+						<phase>test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 		<pluginManagement>

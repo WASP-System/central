@@ -146,7 +146,8 @@ public class WaspChart {
 		try{
 			return mapper.readValue(json.toString(), clazz);
 		} catch(Exception e){
-			throw new JSONException("Cannot create object of type " + clazz.getName() + " from json: " + e.getLocalizedMessage());
+			throw new JSONException("Cannot create object of type " + clazz.getName() + " from JSON. Caught exception of type " + 
+					e.getClass().getName() + " : " + e.getLocalizedMessage());
 		}
 	}
 	
@@ -157,7 +158,7 @@ public class WaspChart {
 			// use jackson object mapper to create json as text then wrap in JSONObject (Jackson understands @JsonIgnore)
 			return new JSONObject(mapper.writeValueAsString(this));
 		} catch (Exception e) {
-			throw new JSONException("Cannot convert object to JSON");
+			throw new JSONException("Cannot convert object to JSON. Caught exception of type " + e.getClass().getName() + " : " +e.getLocalizedMessage());
 		}
 	}
 

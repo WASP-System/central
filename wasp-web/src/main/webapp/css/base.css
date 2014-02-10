@@ -60,16 +60,6 @@
 	margin-left: auto;   margin-right: auto;
 }
 
-
-
-.header_nav {
-	float:right;
-	text-align:right;
-	padding-top:5px;
-	padding-right:5px;
-	font-size: 14px;
-}
-
 .center{
 	margin-left: auto;
 	margin-right: auto;
@@ -580,4 +570,19 @@ TABLE.data TD.value-centered-small {
 
 #wait_dialog-modal td{
 	vertical-align: middle;
+}
+
+.header_panel_right {
+	position:relative;
+	float: right;
+}
+
+.waspIcon {
+}
+
+.header_nav {
+	text-align:right;
+	padding-top:20px;
+	padding-right:5px;
+	font-size: 14px;
 }

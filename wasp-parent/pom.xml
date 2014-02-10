@@ -90,7 +90,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<site.basedir>${project.basedir}</site.basedir>
 		<spring.framework.version>4.0.0.RELEASE</spring.framework.version>
 		<springsec.version>3.2.0.RELEASE</springsec.version>
-		<spring.batch.version>2.2.3.RELEASE</spring.batch.version>
+		<spring.batch.version>2.2.4.RELEASE</spring.batch.version>
 		<spring.integration.version>3.0.0.RELEASE</spring.integration.version>
 		<logback.version>1.0.13</logback.version>
 		<slf4j.version>1.7.5</slf4j.version>
@@ -379,7 +379,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-compress</artifactId>
-				<version>1.6</version>
+				<version>1.7</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-beanutils</groupId>

@@ -12,18 +12,14 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
-import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.Assert;
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
+import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
@@ -38,7 +34,7 @@ import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 
 
-public class CallVariantTasklet extends WaspTasklet implements StepExecutionListener {
+public class CallVariantTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
 	private List<Integer> cellLibraryIds;
 	private List<FileGroup> fileGroups = new ArrayList<>();
@@ -85,14 +81,10 @@ public class CallVariantTasklet extends WaspTasklet implements StepExecutionList
 	 * org.springframework.batch.core.scope.context.ChunkContext)
 	 */
 	@Override
-	@RetryOnExceptionExponential
-	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
+	@Transactional("entityManager")
+	public void doExecute(ChunkContext context) throws Exception {
 		// if the work has already been started, then check to see if it is finished
 		// if not, throw an exception that is caught by the repeat policy.
-		RepeatStatus repeatStatus = super.execute(contrib, context);
-		if (repeatStatus.equals(RepeatStatus.FINISHED))
-			return RepeatStatus.FINISHED;
-		
 		Integer cellLibId0=cellLibraryIds.get(0);
 		SampleSource sampleSource0=sampleService.getSampleSourceDao().findById(cellLibId0);
 		Job job = sampleService.getJobOfLibraryOnCell(sampleSource0);
@@ -142,8 +134,6 @@ public class CallVariantTasklet extends WaspTasklet implements StepExecutionList
         stepContext.put("callVariantName", result.getId());
         stepContext.put("jobId", job.getId());
         stepContext.put("cellLibId", cellLibId0);
-
-		return RepeatStatus.CONTINUABLE;
 	}
 	
 
@@ -162,6 +152,7 @@ public class CallVariantTasklet extends WaspTasklet implements StepExecutionList
 	 */
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
+		super.beforeStep(stepExecution);
 		logger.debug("StepExecutionListener beforeStep saving StepExecution");
 		this.stepExecution = stepExecution;
 		

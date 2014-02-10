@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
+import edu.yu.einstein.wasp.daemon.batch.tasklets.AbandonMessageHandlingTasklet;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.InvalidFileTypeException;
 import edu.yu.einstein.wasp.exception.MetadataException;
@@ -55,7 +55,7 @@ import edu.yu.einstein.wasp.util.PropertyHelper;
  * @author calder
  * 
  */
-public class RegisterFilesTasklet extends WaspTasklet {
+public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
 
 	@Autowired
 	private RunService runService;

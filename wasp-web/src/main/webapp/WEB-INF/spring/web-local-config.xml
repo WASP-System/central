@@ -3,7 +3,9 @@
 	xmlns="http://www.springframework.org/schema/beans"
 	default-autowire="byName"
 	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<!-- component scan -->
@@ -45,6 +47,8 @@
 		</property>  
 		<property name="ignoreUnresolvablePlaceholders" value="true" />
 	</bean>  
+	
+	<util:properties id = "siteProperties" location="classpath:wasp.site.properties" />
   
 	<import resource="web-persistence-config.xml" />
 

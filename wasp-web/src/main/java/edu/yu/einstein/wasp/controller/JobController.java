@@ -609,7 +609,7 @@ public class JobController extends WaspController {
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							//"J" + job.getJobId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>details</a>)",
 							// this is the link to the old job homepage "<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getId()+".do>J"+job.getId().intValue()+"</a>",
-							"<a href=/wasp/job/"+job.getId()+"/homepage.do>J"+job.getId().intValue()+"</a>"  + " <a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getId()+".do>(Old Link)</a>",
+							"<a href=/wasp/job/"+job.getId()+"/homepage.do>J"+job.getId().intValue()+"</a>",
 							job.getName(),
 							user.getNameFstLst(),
 							//job.getLab().getName() + " (" + pi.getNameLstCmFst() + ")",

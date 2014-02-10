@@ -1,56 +1,54 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager.LockType;
-import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 
-public class WaspTasklet extends WaspHibernatingTasklet {
+public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 	
 	@Autowired
 	private GridHostResolver hostResolver;
 	
-	protected Set<WaspStatusMessageTemplate> abandonTemplates = new HashSet<>();
-	
 	/**
 	 * protected constructor to prevent instantiation of this class directly
 	 */
-	protected WaspTasklet() {}
+	protected WaspRemotingTasklet() {}
 	
-	public void setAbandonMessages(final Set<WaspStatusMessageTemplate> abandonTemplates){
-		this.abandonTemplates.clear();
-		this.abandonTemplates.addAll(abandonTemplates);
-	}
 	
-	public void setAbandonMessage(final WaspStatusMessageTemplate abandonTemplate){
-		Set<WaspStatusMessageTemplate> templates = new HashSet<>();
-		templates.add(abandonTemplate);
-		setAbandonMessages(templates);
+	/**
+	 * Remote work defined by implementing tasklets
+	 * @param context
+	 */
+	public abstract void doExecute(ChunkContext context) throws Exception;
+	
+	/**
+	 * tasks to perform before finishing step execution
+	 * @param context
+	 * @throws Exception
+	 */
+	public void doPreFinish(ChunkContext context) throws Exception {
+		// override as necessary in child classes
 	}
 	
 	/**
 	 * Default implementation checks to see if a stored result is running 
 	 */
 	@Override
-	//@RetryOnExceptionFixed
+	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		Long stepExecutionId = context.getStepContext().getStepExecution().getId();
 		if (wasWokenOnTimeout(context)){
@@ -67,6 +65,8 @@ public class WaspTasklet extends WaspHibernatingTasklet {
 			GridWorkService gws = hostResolver.getGridWorkService(result);
 			try {
 				if (gws.isFinished(result)){
+					doPreFinish(context);
+					logger.debug("Workunit is finished. Step complete.");
 					return RepeatStatus.FINISHED;
 				}
 			} catch (GridException e) {
@@ -74,9 +74,11 @@ public class WaspTasklet extends WaspHibernatingTasklet {
 				removeStartedResult(context);
 				throw e;
 			}
-			logger.debug("StepExecution id=" + stepExecutionId + " is going to request hibernation as " + result.getUuid() + " not complete");
+			logger.debug("StepExecution id=" + stepExecutionId + " is going to request hibernation as " + result.getUuid() + " started but not complete");
+		} else if (!wasHibernationRequested){
+			logger.debug("Tasklet not yet configured with a result (StepExecution id=" + stepExecutionId + ")");
+			doExecute(context);
 		}
-		logger.debug("Tasklet not yet configured with a result (StepExecution id=" + stepExecutionId + ")");
 		if (!wasHibernationRequested){
 			Long timeoutInterval = exponentiallyIncreaseTimeoutIntervalInContext(context);
 			logger.debug("Going to request hibernation for " + timeoutInterval + " ms");
@@ -89,7 +91,7 @@ public class WaspTasklet extends WaspHibernatingTasklet {
 		return RepeatStatus.CONTINUABLE;
 	}
 
-	protected final static Logger logger = LoggerFactory.getLogger(WaspTasklet.class);
+	protected final static Logger logger = LoggerFactory.getLogger(WaspRemotingTasklet.class);
 	
 
 	
@@ -99,26 +101,28 @@ public class WaspTasklet extends WaspHibernatingTasklet {
 	 * @return
 	 */
 	public static boolean isGridWorkUnitStarted(ChunkContext context) {
-		 Map<String, Object> stepContext = context.getStepContext().getStepExecutionContext();
-		 if (stepContext.containsKey(GridResult.GRID_RESULT_KEY))
-			 return true;
-		 return false;
-		 
+		StepExecution stepExecution = context.getStepContext().getStepExecution();
+		boolean isStarted = false;
+		if (stepExecution.getExecutionContext().containsKey(GridResult.GRID_RESULT_KEY))
+			isStarted = true;
+		logger.debug("Grid work unit for StepExecutionId=" + stepExecution.getId() + " is started=" + isStarted);
+		return isStarted;
 	}
 	protected static void storeStartedResult(ChunkContext context, GridResult result) {
-		ExecutionContext executionContext = context.getStepContext().getStepExecution().getExecutionContext();
+		StepExecution stepExecution = context.getStepContext().getStepExecution();
 		logger.debug(result.toString());
-		executionContext.put(GridResult.GRID_RESULT_KEY, result);
+		stepExecution.getExecutionContext().put(GridResult.GRID_RESULT_KEY, result);
 	}
 	
 	private void removeStartedResult(ChunkContext context) {
-		ExecutionContext executionContext = context.getStepContext().getStepExecution().getExecutionContext();
+		StepExecution stepExecution = context.getStepContext().getStepExecution();
 		logger.debug("removing result from step context due to GridException");
-		executionContext.remove(GridResult.GRID_RESULT_KEY);
+		stepExecution.getExecutionContext().remove(GridResult.GRID_RESULT_KEY);
 	}
 	
 	public static GridResult getStartedResult(ChunkContext context) {
-		return (GridResult) context.getStepContext().getStepExecution().getExecutionContext().get(GridResult.GRID_RESULT_KEY);
+		StepExecution stepExecution = context.getStepContext().getStepExecution();
+		return (GridResult) stepExecution.getExecutionContext().get(GridResult.GRID_RESULT_KEY);
 	}
 	
 	@Override
@@ -126,8 +130,5 @@ public class WaspTasklet extends WaspHibernatingTasklet {
 		return super.afterStep(stepExecution);
 	}
 
-	
-
-	
 	
 }

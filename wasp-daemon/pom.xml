@@ -12,10 +12,10 @@
 
 	<artifactId>wasp-daemon</artifactId>
 	<packaging>jar</packaging>
-	<name>WASP System Daemon</name>
+	<name>Wasp System Daemon</name>
 	<description>
 		<![CDATA[
-      This component of the WASP System handles task flows and analysis for all submitted Wasp jobs  
+      This component of the Wasp System handles task flows and analysis for all submitted Wasp jobs  
     ]]>
 	</description>
 	<properties>

@@ -1,28 +1,13 @@
 <script type="text/javascript"	src="/wasp/scripts/jquery/jquery.cookie.js"></script>
-
 <script type="text/javascript"	src="https://github.com/rgrove/lazyload/raw/master/lazyload.js"></script>
-
 <script type="text/javascript"	src="https://raw.github.com/johnculviner/jquery.fileDownload/master/src/Scripts/jquery.fileDownload.js"></script>
-
 <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
-
-<!--script type="text/javascript" src="http://cdn.sencha.io/ext-4.0.7-gpl/ext-all.js"></script-->
 <script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/ext-all-dev.js"></script>
-<!--script type="text/javascript" src="/wasp/scripts/extjs/ext-all.js"></script-->
-
 <script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/packages/ext-theme-neptune/build/ext-theme-neptune.js"></script>
-<!--script type="text/javascript" src="/wasp/scripts/extjs/ext-theme-neptune-wasp.js"></script-->
-
-<!--script type="text/javascript" src="/wasp/scripts/extjs/examples/shared/include-ext.js"></script-->
-<!--script type="text/javascript" src="/wasp/scripts/extjs/packages/ext-theme-neptune/build/ext-theme-neptune-wasp.js"></script-->
-
-
-<!--link rel="stylesheet" type="text/css" href="http://cdn.sencha.io/ext/gpl/4.2.0/resources/css/ext-all-neptune.css" /-->
+<script type="text/javascript"	src="/wasp/scripts/extjs/wasp/WaspNamespaceDefinition.js"></script>
 <link rel="stylesheet" type="text/css" href="/wasp/css/ext-theme-neptune-all-wasp.css" />
 <link rel="stylesheet" type="text/css" href="/wasp/css/portal.css" />
 <link rel="stylesheet" type="text/css" href="/wasp/css/RowActions.css" />
-
-<!--link rel="stylesheet" type="text/css" href="/wasp/scripts/extjs/resources/ext-theme-neptune/ext-theme-neptune-all-wasp.css" /-->
 
 
 <script type="text/javascript">
@@ -92,13 +77,6 @@ var activeNode = {
 	myid: null,
 	type: null
 };
-
-Ext.Loader.setConfig({
-	enabled: true,
-	paths: {
-		'Wasp': '/wasp/scripts/extjs/wasp'
-	}
-});
 
 Ext.require([
 	'Ext.layout.container.*',
@@ -576,7 +554,7 @@ function click(d) {
 		}
 	});
 
-	if (!d.children || d.children=='') {
+	if (!d.children && !d._children) {
 		$.ajax({
 			url: '/wasp/jobresults/getTreeJson.do?node=' + dstr,
 			type: 'GET',

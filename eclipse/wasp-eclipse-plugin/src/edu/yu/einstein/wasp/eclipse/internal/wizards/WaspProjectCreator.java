@@ -50,7 +50,7 @@ import org.osgi.framework.Bundle;
 import edu.yu.einstein.wasp.eclipse.internal.Messages;
 
 /**
- * Eclipse Plugin Creator to generate a template WASP System plugin with working example
+ * Eclipse Plugin Creator to generate a template Wasp System plugin with working example
  * defaults.  Java, Spring and Maven project natures are configured by default.
  * Template files are stored in the "include" folder at the root of this
  * project.  Files that contain the strings "Xxxxx" or "xxxxx" will have the string

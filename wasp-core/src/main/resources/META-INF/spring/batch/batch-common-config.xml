@@ -79,6 +79,7 @@
                     	<constructor-arg name="maxAttempts" value="${wasp.batch.retry.fixed.maxattempts:10}" />
                     	<constructor-arg name="retryableExceptions">
 							<map>
+								<entry key="edu.yu.einstein.wasp.grid.GridAccessException" value="true" />
 								<entry key="edu.yu.einstein.wasp.exception.TaskletRetryException" value="true" />
 								<entry key="org.springframework.dao.DeadlockLoserDataAccessException" value="true"/>
 							</map>

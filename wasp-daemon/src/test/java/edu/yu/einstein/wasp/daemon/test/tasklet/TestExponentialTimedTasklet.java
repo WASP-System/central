@@ -5,15 +5,20 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
+import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager.LockType;
 
-public class TestExponentialTimedTasklet extends WaspTasklet {
+public class TestExponentialTimedTasklet extends WaspRemotingTasklet {
 
 	public TestExponentialTimedTasklet() {}
 	
 	private static final int MAX_REPEATS = 3;
+	
+	@Override
+	public void doExecute(ChunkContext context) throws Exception {
+		
+	}
 	
 	@Override
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception{
