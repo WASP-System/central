@@ -17,6 +17,7 @@ import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
@@ -67,6 +68,7 @@ public class PrintRecaliTasklet extends WaspRemotingTasklet implements StepExecu
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
 		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);
 

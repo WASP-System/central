@@ -8,6 +8,7 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -47,6 +48,7 @@ public class ___PluginIName___Tasklet extends WaspRemotingTasklet {
 	 * @throws Exception
 	 */
 	@Override
+	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
 		WorkUnit w = new WorkUnit();
 		
@@ -64,6 +66,7 @@ public class ___PluginIName___Tasklet extends WaspRemotingTasklet {
 	 * After remote task is finished you may need to execute some further business logic. Such work is specified here.
 	 */
 	@Override
+	@Transactional("entityManager")
 	public void doPreFinish(ChunkContext context) throws Exception {
 		// do work post completion of remote task. 
 		// e.g. get stored result to access output of task (GridResult result = getStartedResult(context);)
