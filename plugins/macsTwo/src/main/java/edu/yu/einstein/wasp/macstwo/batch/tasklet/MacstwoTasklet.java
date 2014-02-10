@@ -27,6 +27,7 @@ import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
+
 import edu.yu.einstein.wasp.macstwo.software.Macstwo;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
@@ -58,6 +59,18 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 	
 	private StepExecution stepExecution;
 	
+	@Autowired
+	private FileType macs2ModelScriptFileType;
+	@Autowired
+	private FileType macs2PeaksXlsFileType;
+	@Autowired
+	private FileType macs2NarrowPeaksBedFileType;
+	@Autowired
+	private FileType macs2SummitsBedFileType;
+	@Autowired
+	private FileType macs2TreatPileupBedGraphFileType;
+	@Autowired
+	private FileType macs2ControlLambdaBedGraphFileType;
 	
 	@Autowired
 	private JobService jobService;
@@ -195,7 +208,7 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 		if(controlSample!=null){
 			stepContext.put("controlSampleId", controlSample.getId()); //place in the step context			
 		}
-		
+		//Macstwo macs2 = new Macstwo();
 		WorkUnit w = macs2.getPeaks(testSample, controlSample, jobMetaList, testFileHandleList, controlFileHandleList, jobParameters);//configure
 		
 		//set the output files
