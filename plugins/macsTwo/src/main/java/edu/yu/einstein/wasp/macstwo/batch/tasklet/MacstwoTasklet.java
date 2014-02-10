@@ -185,8 +185,7 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 		}
 		else{
 			logger.debug("controlSample.name = " + controlSample.getName());
-		}
-		
+		}		
 		
 		List<FileHandle> controlFileHandleList = new ArrayList<FileHandle>();
 		for(Integer id : this.controlCellLibraryIdList){
@@ -208,27 +207,21 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 		if(controlSample!=null){
 			stepContext.put("controlSampleId", controlSample.getId()); //place in the step context			
 		}
-		//Macstwo macs2 = new Macstwo();
-		WorkUnit w = macs2.getPeaks(testSample, controlSample, jobMetaList, testFileHandleList, controlFileHandleList, jobParameters);//configure
 		
-		//set the output files
-		/*
-		String bamOutput = fileService.generateUniqueBaseFileName(cellLib) + "bwa.bam";
-		FileGroup bamG = new FileGroup();
-		FileHandle bam = new FileHandle();
-		bam.setFileName(bamOutput);
-		bam = fileService.addFile(bam);
-		bamG.addFileHandle(bam);
-		bamG.setFileType(bamFileType);
-		bamG.setDescription(bamOutput);
-		bamG = fileService.addFileGroup(bamG);
-		bamGId = bamG.getId();
-		// save in step context in case of batch restart
-		stepExecution.getExecutionContext().put("bamGID", bamGId);
-	*/
+		String prefixForFileName = "TEST_" + testSample.getName().replaceAll("\\s+", "_") + "_CONTROL_";
+		if(controlSample == null){
+			prefixForFileName = prefixForFileName + "none";
+		}
+		else{
+			prefixForFileName = prefixForFileName + controlSample.getName().replaceAll("\\s+", "_");
+		}
+		logger.debug("prefixForFileName = " + prefixForFileName);
+
+		WorkUnit w = macs2.getPeaks(prefixForFileName, jobMetaList, testFileHandleList, controlFileHandleList, jobParameters);//configure
+/*		
 		FileGroup modelScriptG = new FileGroup();
 		FileHandle modelScript = new FileHandle();
-		modelScript.setFileName(name + "_model.r");//TODO need to run Rscript on this file to generate pdf - do not know how to do this
+		modelScript.setFileName(prefixForFileName + "_model.r");//TODO need to run Rscript on this file to generate pdf - do not know how to do this
 		modelScript = fileService.addFile(modelScript);
 		modelScriptG.addFileHandle(modelScript);
 		modelScriptG.setFileType(macs2ModelScriptFileType);//TODO: define
@@ -240,7 +233,7 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 		
 		FileGroup peaksXlsG = new FileGroup();
 		FileHandle peaksXls = new FileHandle();
-		peaksXls.setFileName(name + "_peaks.xls");
+		peaksXls.setFileName(prefixForFileName + "_peaks.xls");
 		peaksXls = fileService.addFile(peaksXls);
 		peaksXlsG.addFileHandle(peaksXls);
 		peaksXlsG.setFileType(macs2PeaksXlsFileType);//TODO: define
@@ -251,7 +244,7 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 		
 		FileGroup narrowPeaksBedG = new FileGroup();
 		FileHandle narrowPeaksBed = new FileHandle();
-		narrowPeaksBed.setFileName(name + "_peaks.narrowPeak");
+		narrowPeaksBed.setFileName(prefixForFileName + "_peaks.narrowPeak");
 		narrowPeaksBed = fileService.addFile(narrowPeaksBed);
 		narrowPeaksBedG.addFileHandle(narrowPeaksBed);
 		narrowPeaksBedG.setFileType(macs2NarrowPeaksBedFileType);//TODO: define
@@ -262,7 +255,7 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 	
 		FileGroup summitsBedG = new FileGroup();
 		FileHandle summitsBed = new FileHandle();
-		summitsBed.setFileName(name + "_summits.bed");
+		summitsBed.setFileName(prefixForFileName + "_summits.bed");
 		summitsBed = fileService.addFile(summitsBed);
 		summitsBedG.addFileHandle(summitsBed);
 		summitsBedG.setFileType(macs2SummitsBedFileType);//TODO: define
@@ -273,7 +266,7 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 		
 		FileGroup treatPileupBedGraphG = new FileGroup();
 		FileHandle treatPileupBedGraph = new FileHandle();
-		treatPileupBedGraph.setFileName(name + "_treat_pileup.bdg");
+		treatPileupBedGraph.setFileName(prefixForFileName + "_treat_pileup.bdg");
 		treatPileupBedGraph = fileService.addFile(treatPileupBedGraph);
 		treatPileupBedGraphG.addFileHandle(treatPileupBedGraph);
 		treatPileupBedGraphG.setFileType(macs2TreatPileupBedGraphFileType);//TODO: define
@@ -284,7 +277,7 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 	
 		FileGroup controlLambdaBedGraphG = new FileGroup();
 		FileHandle controlLambdaBedGraph = new FileHandle();
-		controlLambdaBedGraph.setFileName(name + "_control_lambda.bdg");
+		controlLambdaBedGraph.setFileName(prefixForFileName + "_control_lambda.bdg");
 		controlLambdaBedGraph = fileService.addFile(controlLambdaBedGraph);
 		controlLambdaBedGraphG.addFileHandle(controlLambdaBedGraph);
 		controlLambdaBedGraphG.setFileType(macs2ControlLambdaBedGraphFileType);//TODO: define
@@ -299,7 +292,7 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 		w.getResultFiles().add(summitsBedG);
 		w.getResultFiles().add(treatPileupBedGraphG);
 		w.getResultFiles().add(controlLambdaBedGraphG);
-		
+	*/	
 		if(1==1){
 			throw new Exception("throwing exception to test");
 		}

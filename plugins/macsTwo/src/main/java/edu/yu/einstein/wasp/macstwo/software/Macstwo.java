@@ -45,7 +45,7 @@ public class Macstwo extends SoftwarePackage{
 	}
 
 	//note: test is same as treated, in macs2-speak (from the immunoprecipitated sample)
-	public WorkUnit getPeaks(Sample testSample, Sample controlSample, List<JobMeta> jobMetaList, List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList, Map<String,Object> jobParameters){
+	public WorkUnit getPeaks(String prefixForFileName, List<JobMeta> jobMetaList, List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList, Map<String,Object> jobParameters){
 		
 		Assert.assertTrue(!testFileHandleList.isEmpty());
 		
@@ -139,14 +139,7 @@ public class Macstwo extends SoftwarePackage{
 			tempCommand.append(" " + key + " " + jobMeta.getV());
 		}
 		
-		String name = "TEST_" + testSample.getName().replaceAll("\\s+", "_") + "_CONTROL_";
-		if(controlSample == null){
-			name = name + "none";
-		}
-		else{
-			name = name + controlSample.getName().replaceAll("\\s+", "_");
-		}
-		tempCommand.append(" --name " + name);//The name string of the experiment. MACS will use this string NAME to create output files like 'NAME_peaks.xls', etc.
+		tempCommand.append(" --name " + prefixForFileName);//The name string of the experiment. MACS will use this string NAME to create output files like 'NAME_peaks.xls', etc.
 		
 		tempCommand.append(" --bdg");//generates two bedGraph files
 		
