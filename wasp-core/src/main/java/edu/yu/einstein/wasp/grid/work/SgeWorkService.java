@@ -39,6 +39,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -713,18 +714,19 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		protected String mailRecipient = "";
 		protected String mailCircumstances = "";
 		
-		/**
-		 * Default no-arg constructor is unused.
-		 */
-		@Deprecated
+		
 		protected SgeSubmissionScript() {
-			super();
+			// proxy
 		}
 
 		protected SgeSubmissionScript(WorkUnit w) throws GridException, MisconfiguredWorkUnitException {
 			this.w = w;
 			this.name = w.getId();
-			
+			doProcessSubmissionScript();
+		}
+		
+		@Transactional("entityManager")
+		private void doProcessSubmissionScript() throws GridException, MisconfiguredWorkUnitException{
 			header = "#!/bin/bash\n#\n" +
 					getFlag() + " -N " + jobNamePrefix + name + "\n" +
 					getFlag() + " -S /bin/bash\n" +
@@ -770,7 +772,6 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			}
 			fi = 0;
 			for (FileGroup fg : w.getResultFiles()) {
-				fg = getFileService().getFileGroupById(fg.getId()); // do this as fg may no longer be a managed entity
 				for (FileHandle f : fg.getFileHandles()) {
 					preamble += WorkUnit.OUTPUT_FILE + "[" + fi + "]=" + WorkUnit.OUTPUT_FILE_PREFIX + "_" + fg.getId() +"."+ f.getId() + "\n";
 					fi++;
