@@ -163,12 +163,12 @@ public class TaskController extends WaspController {
 
   @RequestMapping(value = "/samplereceive/receive", method = RequestMethod.POST)
   @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
-  public Callable<String> recordSampleReceive(@RequestParam("sampleId") final List<Integer> sampleIdList, final ModelMap m) {
+  public /*Callable<String>*/ String recordSampleReceive(@RequestParam("sampleId") final List<Integer> sampleIdList, final ModelMap m) {
 	  
-	  return new Callable<String>() {
+	 /* return new Callable<String>() {
 
 		@Override
-		public String call() throws Exception {
+		public String call() throws Exception {*/
 			List<String> receivedStatusList = new ArrayList<String>(); //Arrays.asList(receivedStatusArray);
 			  for(Integer id : sampleIdList){
 					String val = request.getParameter("receivedStatus" + id.toString());
@@ -227,8 +227,8 @@ public class TaskController extends WaspController {
 			  }
 			  waspMessage("task.samplereceive_update_success.label");
 			  return "redirect:/task/samplereceive/list.do";
-		}
-	};
+	//	}
+	//};
   }
   
   @RequestMapping(value = "/updatesamplereceive/{jobId}", method = RequestMethod.GET)
@@ -276,15 +276,15 @@ public class TaskController extends WaspController {
 
   @RequestMapping(value = "/updatesamplereceive", method = RequestMethod.POST)
   @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
-  public Callable<String> updateSampleReceive(@RequestParam("jobId") final Integer jobId, 
+  public /*Callable<String>*/ String updateSampleReceive(@RequestParam("jobId") final Integer jobId, 
 		  @RequestParam("sampleId") final List<Integer> sampleIdList,
 	      @RequestParam("receivedStatus") final List<String> receivedStatusList,
 	      final ModelMap m) {
 	  
-	  return new Callable<String>(){
+	  /*return new Callable<String>(){
 
 		@Override
-		public String call() throws Exception {
+		public String call() throws Exception {*/
 			 Job job = jobService.getJobDao().getJobByJobId(jobId);
 			  if(job.getId()==0){
 				  //message can't find job by id
@@ -308,9 +308,9 @@ public class TaskController extends WaspController {
 			  }
 			  transitionDelay();
 			  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
-		}
+	//	}
 		  
-	  };
+	//  };
 	  
   }
   
@@ -342,16 +342,16 @@ public class TaskController extends WaspController {
 
   @RequestMapping(value = "/sampleqc/qc", method = RequestMethod.POST)
   @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
-  public Callable<String> updateSampleQC(
+  public /*Callable<String>*/ String updateSampleQC(
       @RequestParam("sampleId") final Integer sampleId,
       @RequestParam("qcStatus") final String qcStatus,
       @RequestParam("comment") final String comment,
       final ModelMap m) {	
 	  
-	  return new Callable<String>() {
+	  /*return new Callable<String>() {
 
 		@Override
-		public String call() throws Exception {
+		public String call() throws Exception {*/
 			Sample sample = sampleService.getSampleDao().getSampleBySampleId(sampleId);
 			  if(sample.getId()==null){
 				  waspErrorMessage("task.sampleqc_invalid_sample.error");
@@ -402,8 +402,8 @@ public class TaskController extends WaspController {
 			  
 			  waspMessage("task.sampleqc_update_success.label");	
 			  return "redirect:/task/sampleqc/list.do";
-		}
-	};
+//		}
+//	};
   }
   
   @RequestMapping(value = "/libraryqc/list", method = RequestMethod.GET)
@@ -434,16 +434,16 @@ public class TaskController extends WaspController {
 
   @RequestMapping(value = "/libraryqc/qc", method = RequestMethod.POST)
   @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
-  public Callable<String> updateLibraryQC(
+  public /*Callable<String>*/ String updateLibraryQC(
       @RequestParam("sampleId") final Integer sampleId,
       @RequestParam("qcStatus") final String qcStatus,
       @RequestParam("comment") final String comment,
       final ModelMap m) {
 	  
-	  return new Callable<String>() {
+	  /*return new Callable<String>() {
 
 		@Override
-		public String call() throws Exception {
+		public String call() throws Exception {*/
 			 Sample sample = sampleService.getSampleDao().getSampleBySampleId(sampleId);
 			  if(sample.getId()==null){
 				  waspErrorMessage("task.libraryqc_invalid_sample.error");
@@ -494,8 +494,8 @@ public class TaskController extends WaspController {
 			  
 			  waspMessage("task.libraryqc_update_success.label");	
 			  return "redirect:/task/libraryqc/list.do";
-		}
-	};
+	//	}
+	//};
  
   }
  
@@ -660,40 +660,40 @@ public class TaskController extends WaspController {
   
   @RequestMapping(value = "/piJobApprove/{labId}.do", method = RequestMethod.POST)
   @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm') or hasRole('ft') or hasRole('lm-' + #labId) or hasRole('pi-' + #labId)")
-	public Callable<String> piJobApprove(
+	public /*Callable<String>*/ String piJobApprove(
 			@PathVariable("labId") final Integer labId, 
 			@RequestParam("jobId") final Integer jobId, 
 			@RequestParam("action") final String action, 
 			@RequestParam("comment") final String comment, 
 			final ModelMap m) {
 	  
-	  return new Callable<String>(){
+	  /*return new Callable<String>(){
 			@Override
-			public String call() throws Exception {
+			public String call() throws Exception {*/
 			  jobApprove("piApprove", jobId, action, comment);
 			  String referer = request.getHeader("Referer");
 			  return "redirect:"+ referer;
 			}
-	  };
-	}
+//	  };
+//	}
   
   @RequestMapping(value = "/daJobApprove/{deptId}.do", method = RequestMethod.POST)
   @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm') or hasRole('ft') or hasRole('da-' + #deptId)")
-	public Callable<String> daJobApprove(
+	public /*Callable<String>*/ String daJobApprove(
 			@PathVariable("deptId") final Integer deptId, 
 			@RequestParam("jobId") final Integer jobId, 
 			@RequestParam("action") final String action, 
 			@RequestParam("comment") final String comment, 
 			final ModelMap m) {
 						
-			return new Callable<String>(){
+			/*return new Callable<String>(){
 				@Override
-				public String call() throws Exception {
+				public String call() throws Exception {*/
 					  jobApprove("daApprove", jobId, action, comment);
 					  String referer = request.getHeader("Referer");
 					  return "redirect:"+ referer;	
-				}
-			};
+		//		}
+		//	};
 	}  
 
 	/**
@@ -1051,15 +1051,15 @@ public class TaskController extends WaspController {
   
   @RequestMapping(value = "/aggregationAnalysis/list", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('su') or hasRole('fm-*')")
-	public Callable<String> aggregationAnalysisPost(
+	public /*Callable<String>*/ String aggregationAnalysisPost(
 			@RequestParam("jobId") final Integer jobId,
 			@RequestParam("startAnalysis") final String startAnalysis,
 		    final ModelMap m) {
 	  
-	  return new Callable<String>() {
+	  /*return new Callable<String>() {
 
 		@Override
-		public String call() throws Exception {
+		public String call() throws Exception {*/
 			//1. check the most basic parameters
 			  if(jobId==null){
 				  waspErrorMessage("task.aggregateAnalysis_invalid_jobId.error");
@@ -1122,8 +1122,8 @@ public class TaskController extends WaspController {
 			  //waspMessage("task.aggregateAnalysis_update_success.label");	
 			  return "redirect:/task/myTaskList.do";
 		}
-	};
+//	};
 	  
-  }
+//  }
 }
 

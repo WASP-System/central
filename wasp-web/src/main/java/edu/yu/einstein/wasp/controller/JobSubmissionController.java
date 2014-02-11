@@ -1382,17 +1382,17 @@ public class JobSubmissionController extends WaspController {
 	
 	@RequestMapping(value="/samples/{jobDraftId}", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
-	public Callable<String> submitSampleDraftList(
+	public /*Callable<String>*/ String submitSampleDraftList(
 			@PathVariable("jobDraftId") final Integer jobDraftId, 
 			@RequestParam("file_description") final List<String> fileDescriptions,
 			@RequestParam("file_upload") final List<MultipartFile> mpFiles) {
 		final JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		
 		final User me = authenticationService.getAuthenticatedUser(); // need to do this here as no access to SecurityContextHolder off the main thread
-		return new Callable<String>() {
+		/*return new Callable<String>() {
 
 			@Override
-			public String call() throws Exception {
+			public String call() throws Exception {*/
 				if (! isJobDraftEditable(jobDraft, me))
 					return "redirect:/dashboard.do";
 				
@@ -1418,8 +1418,8 @@ public class JobSubmissionController extends WaspController {
 					return "redirect:/jobsubmit/samples/"+jobDraftId+".do"; 
 				}
 				return nextPage(jobDraft);
-			}
-		};
+	//		}
+	//	};
 		
 	}
 	
@@ -2440,7 +2440,7 @@ public class JobSubmissionController extends WaspController {
 
 	@RequestMapping(value="/submit/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
-	public Callable<String> submitJob(@PathVariable("jobDraftId") final Integer jobDraftId, final ModelMap m) {
+	public /*Callable<String>*/ String submitJob(@PathVariable("jobDraftId") final Integer jobDraftId, final ModelMap m) {
 		final User me = authenticationService.getAuthenticatedUser(); // need to do this here as no access to SecurityContextHolder off the main thread
 		
 		// Use asynchronous request processing to handle the business logic here as job submission process make take a few secs due to daemon delays
@@ -2448,10 +2448,10 @@ public class JobSubmissionController extends WaspController {
 		// NOTE 1: As for all anonymous inner classes, the variables passed in MUST be final to prohibit object re-assignment.
 		// NOTE 2: As we use the security context when writing pages, we must use 'redirect' when returning the destination page. 
 		
-		return new Callable<String>() {
+		/*return new Callable<String>() {
 
 			@Override
-			public String call() throws Exception {
+			public String call() throws Exception {*/
 				
 				JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 				boolean error = false;
@@ -2486,8 +2486,8 @@ public class JobSubmissionController extends WaspController {
 					return "redirect:/jobsubmit/failed/" + jobDraftId + ".do";
 				}
 				return nextPage(jobDraft); // no Security Context problem as evaluates to a redirected link e.g 'redirect:/submitjob/ok.do'
-			}
-		};
+	//		}
+	//	};
 		
 	}
 	
