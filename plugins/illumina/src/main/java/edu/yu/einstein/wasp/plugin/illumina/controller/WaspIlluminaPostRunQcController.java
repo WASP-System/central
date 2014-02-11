@@ -330,7 +330,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 	
 	@RequestMapping(value="/run/{runId}/updateQualityReport", method=RequestMethod.GET)
 	public String updateQualityReport(@PathVariable("runId") Integer runId, ModelMap m){
-		Map<String, Map<Integer, IlluminaQcContext>> qcDataMap = new HashMap<String, Map<Integer,IlluminaQcContext>>();
+		Map<String, Map<Integer, IlluminaQcContext>> qcDataMap = new LinkedHashMap<String, Map<Integer,IlluminaQcContext>>();
 		Run run = runService.getRunById(runId);
 		if (run.getId() == null){
 			logger.warn("No run found with id of " + runId + " in model");
@@ -354,7 +354,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 		try{
 			Map<Integer, Sample> cells = sampleService.getIndexedCellsOnPlatformUnit(pu);
 			for(String metaKey: qcHeadingsByMetaKey.keySet()){
-				Map<Integer, IlluminaQcContext> cellQcResults = new HashMap<Integer, IlluminaQcContext>();
+				Map<Integer, IlluminaQcContext> cellQcResults = new LinkedHashMap<Integer, IlluminaQcContext>();
 				for(Integer cellIndex : cells.keySet()){
 					IlluminaQcContext qcContext = illuminaQcService.getQc(cells.get(cellIndex), metaKey);
 					if (qcContext == null)

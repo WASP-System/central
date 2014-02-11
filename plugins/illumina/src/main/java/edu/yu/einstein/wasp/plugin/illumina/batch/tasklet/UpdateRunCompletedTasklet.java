@@ -25,7 +25,6 @@ import edu.yu.einstein.wasp.service.RunService;
  * @author calder
  *
  */
-@Transactional("entityManager")
 @Component
 public class UpdateRunCompletedTasklet extends AbandonMessageHandlingTasklet {
 	
@@ -53,6 +52,7 @@ public class UpdateRunCompletedTasklet extends AbandonMessageHandlingTasklet {
 
 	@Override
 	@RetryOnExceptionFixed
+	@Transactional("entityManager")
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws GridException {
 		run = runService.getRunById(runId);
 		logger.debug("Marking run " + run.getName() + ":" + run.getPlatformUnit().getName() + " as completed.");

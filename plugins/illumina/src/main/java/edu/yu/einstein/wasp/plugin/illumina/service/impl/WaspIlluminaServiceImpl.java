@@ -55,14 +55,14 @@ public class WaspIlluminaServiceImpl extends WaspServiceImpl implements WaspIllu
 					if (IlluminaRunFolderNameParser.isProperlyFormed(line)){
 						logger.debug("Adding Illumina Run Folder " + line + " to working set");
 						folderNames.add(line);
+						IlluminaRunFolderNameParser parser = new IlluminaRunFolderNameParser(line);
+						logger.debug(parser.toString());
 					}
-					IlluminaRunFolderNameParser parser = new IlluminaRunFolderNameParser(line);
-					logger.debug(parser.toString());
 				}
 			}
 			br.close();
 		} catch (Exception e) {
-			throw new GridException("Caught " + e.getClass().getSimpleName() + " when trying to read Illumina run folder (illumina.data.stage): " + e.getLocalizedMessage());
+			throw new GridException("Caught " + e.getClass().getSimpleName() + " when trying to read Illumina run folder (illumina.data.dir): " + e.getLocalizedMessage());
 		}
 		return folderNames;
 	}

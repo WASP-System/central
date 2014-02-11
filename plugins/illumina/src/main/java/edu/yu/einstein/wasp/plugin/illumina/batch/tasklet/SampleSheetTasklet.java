@@ -10,6 +10,7 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.AbandonMessageHandlingTasklet;
@@ -48,6 +49,7 @@ public class SampleSheetTasklet extends AbandonMessageHandlingTasklet {
 
 	@Override
 	@RetryOnExceptionFixed
+	@Transactional("entityManager")
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws GridException {
 		run = runService.getRunById(runId);
 		logger.debug("preparing sample sheet for " + run.getName() + ":" + run.getPlatformUnit().getName());
