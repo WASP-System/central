@@ -586,7 +586,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		}
 	}
 
-
+	
 	protected GridResult startJob(WorkUnit w) throws MisconfiguredWorkUnitException, GridException {
 		
 		if (isJobExists(w)) {
@@ -770,6 +770,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			}
 			fi = 0;
 			for (FileGroup fg : w.getResultFiles()) {
+				fg = fileService.getFileGroupById(fg.getId()); // do this as fg may no longer be a managed entity
 				for (FileHandle f : fg.getFileHandles()) {
 					preamble += WorkUnit.OUTPUT_FILE + "[" + fi + "]=" + WorkUnit.OUTPUT_FILE_PREFIX + "_" + fg.getId() +"."+ f.getId() + "\n";
 					fi++;
