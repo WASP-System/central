@@ -586,3 +586,7 @@ TABLE.data TD.value-centered-small {
 	padding-right:5px;
 	font-size: 14px;
 }
+
+.ext_treeGrid td {
+	padding: 0px;
+}

@@ -73,11 +73,12 @@ Ext.onReady(function() {
         useArrows: true,
         rootVisible: false,
         store: store,
+        forceFit: true,
         multiSelect: false,
         columns: [{
         	xtype: 'treecolumn', //this is so we know which column will show the tree
             text: '<fmt:message key="batchViewer.nameCol.label"/>',
-            width: 400,
+            width: 420,
             sortable: true,
             dataIndex: 'name'
         },{
@@ -103,7 +104,7 @@ Ext.onReady(function() {
         }, {
         	text: '<fmt:message key="batchViewer.statusMessageCol.label"/>',
             sortable: false,
-            width: 400,
+            flex: 1,
             dataIndex: 'exitMessage'
         }],
         tbar: [{
