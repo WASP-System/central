@@ -100,7 +100,30 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 		logger.debug("*************************controlCellLibraryIdListAsString: " + controlCellLibraryIdListAsString);
 		this.testCellLibraryIdList = WaspSoftwareJobParameters.getLibraryCellIdList(testCellLibraryIdListAsString);//should be all from same job
 		Assert.assertTrue(!this.testCellLibraryIdList.isEmpty());
+		//oddly enough (and not expected from the code), WaspSoftwareJobParameters.getLibraryCellIdList(controlCellLibraryIdListAsString)
+		//throws an exception if controlCellLibraryIdListAsString is an empty string, thus the need for the if-else statement
+		if(controlCellLibraryIdListAsString==null || controlCellLibraryIdListAsString.isEmpty()){
+			this.controlCellLibraryIdList = new ArrayList<Integer>();
+		}
+		else{
+			this.controlCellLibraryIdList = WaspSoftwareJobParameters.getLibraryCellIdList(controlCellLibraryIdListAsString);//may be empty
+		}
+		/*
+		if(controlCellLibraryIdListAsString==null){
+			logger.debug("*************************controlCellLibraryIdListAsString IS NULL");
+		}
+		if(controlCellLibraryIdListAsString.isEmpty()){
+			logger.debug("*************************controlCellLibraryIdListAsString IS EMPTY");
+		}
+		try{
 		this.controlCellLibraryIdList = WaspSoftwareJobParameters.getLibraryCellIdList(controlCellLibraryIdListAsString);//may be empty
+		}
+		catch(Exception e){
+			logger.debug("*************************yes, the empty string causes the excception");
+			logger.debug("*************************message:" +e.getMessage());
+			throw new Exception(e.getMessage());
+		}
+		*/
 		logger.debug("*************************Ending MacstwoTasklet constructor");
 	}
 
@@ -139,14 +162,17 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 
 			return RepeatStatus.FINISHED;
 		}
-		
+		logger.debug("at A");
 		Map<String,Object> jobParameters = context.getStepContext().getJobParameters();		
+		logger.debug("at B");
 		for (String key : jobParameters.keySet()) {
 			logger.debug("Key: " + key + " Value: " + jobParameters.get(key).toString());
 		}
-
+		logger.debug("at C");
 		SampleSource firstTestCellLibrary = sampleService.getCellLibraryBySampleSourceId(this.testCellLibraryIdList.get(0));
+		logger.debug("at D");
 		Job job = sampleService.getJobOfLibraryOnCell(firstTestCellLibrary);//should all be from same job
+		logger.debug("at E");
 		logger.debug("job name : id = " + job.getName() + " : " + job.getId());
 		List<JobMeta> jobMetaList = jobService.getJobMeta(job.getId());
 		logger.debug("Size of jobMeta = " + jobMetaList.size());
@@ -155,8 +181,8 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 			testSample = testSample.getParent();
 		}
 		logger.debug("testSample.name = " + testSample.getName());		
-		this.testSampleId = testSample.getId();
-		stepExecution.getExecutionContext().put("testSampleId", testSampleId);
+		//////this.testSampleId = testSample.getId();
+		//////stepExecution.getExecutionContext().put("testSampleId", testSampleId);
 
 		List<FileHandle> testFileHandleList = new ArrayList<FileHandle>();		
 		for(Integer id : this.testCellLibraryIdList){
@@ -203,7 +229,7 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 			
 		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
 		//TODO: need way to tell that this is using testSample and (perhpas) controlSample
-		stepContext.put("testSampleId", testSample.getId()); //place in the step context
+		stepContext.put("testSampleId", this.testSampleId); //place in the step context
 		if(controlSample!=null){
 			stepContext.put("controlSampleId", controlSample.getId()); //place in the step context			
 		}
@@ -216,9 +242,11 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 			prefixForFileName = prefixForFileName + controlSample.getName().replaceAll("\\s+", "_");
 		}
 		logger.debug("prefixForFileName = " + prefixForFileName);
-
+		logger.debug("preparing to generate workunit");
 		WorkUnit w = macs2.getPeaks(prefixForFileName, jobMetaList, testFileHandleList, controlFileHandleList, jobParameters);//configure
-/*		
+		logger.debug("OK, workunit has been generated");
+
+		/*		
 		FileGroup modelScriptG = new FileGroup();
 		FileHandle modelScript = new FileHandle();
 		modelScript.setFileName(prefixForFileName + "_model.r");//TODO need to run Rscript on this file to generate pdf - do not know how to do this
@@ -293,17 +321,19 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 		w.getResultFiles().add(treatPileupBedGraphG);
 		w.getResultFiles().add(controlLambdaBedGraphG);
 	*/	
+		logger.debug("getting ready to thow rob-generated exception");
 		if(1==1){
-			throw new Exception("throwing exception to test");
+			throw new Exception("throwing Rob-generated exception in MacstwoTasklet.execute()");
 		}
+		logger.debug("just threw rob-generated exception");
 		
 		
-		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
+		//w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
    
-		GridResult result = gridHostResolver.execute(w);
+		//GridResult result = gridHostResolver.execute(w);
 		
 		//place the grid result in the step context
-		storeStartedResult(context, result);
+		//storeStartedResult(context, result);
 
 		return RepeatStatus.CONTINUABLE;
 	}

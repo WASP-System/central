@@ -151,7 +151,8 @@ public class Macstwo extends SoftwarePackage{
 		logger.debug("---- "+command);
 		
 		w.setCommand(command);
-				
+		
+		logger.debug("----command has been set to workunit");		
 		return w;
 	}
 	private WorkUnit prepareWorkUnit(List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList) {

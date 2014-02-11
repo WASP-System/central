@@ -20,10 +20,12 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
 import org.springframework.integration.core.MessagingTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
@@ -46,6 +48,7 @@ import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
@@ -53,10 +56,11 @@ import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 import edu.yu.einstein.wasp.util.SoftwareConfiguration;
 import edu.yu.einstein.wasp.util.WaspJobContext;
 
-
+@Transactional("entityManager")
 public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListener {
 
 	private int messageTimeoutInMillis;
@@ -68,6 +72,11 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 	public void setMessageTimeoutInMillis(int messageTimeout) {
 		this.messageTimeoutInMillis = messageTimeout;
 	}
+	
+	@Autowired
+	@Qualifier("waspMessageHandlingServiceImpl") // more than one class of type WaspMessageHandlingService so must specify
+	private WaspMessageHandlingService waspMessageHandlingService;
+
 	
 	private List<Integer> approvedCellLibraryIdList;
 	
@@ -142,7 +151,9 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 		Set<SampleSource> samplePairsAsSampleSourceSet = sampleService.getSamplePairsByJob(job);
 		Map<Sample, List<Sample>> testSampleControlSampleListMap = associateTestWithControls(setOfApprovedSamples, samplePairsAsSampleSourceSet);
 		confirmSamplePairsAreOfSameSpecies(testSampleControlSampleListMap);//throws exception if no
-		/*  
+		logger.debug("***************in PeakCallerTasklet.execute(): confirmed Sample Pairs are of same species");
+		
+		/*
 		//output for testing purposes only:
 		//first, print out recorded samplePairs, if any
 		logger.debug("*************************");
@@ -161,7 +172,10 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 		for(Sample approvedSample : setOfApprovedSamples){
 			
 			Sample testSample = approvedSample;
-			logger.debug("testSample - "+testSample.getName());
+			logger.debug("testSample - "+testSample.getName() + " with sampleId of " + testSample.getId() + " and with   organismId = " + sampleService.getIdOfOrganism(testSample));
+			for(SampleMeta sm : sampleService.getSampleMetaDao().getSamplesMetaBySampleId(testSample.getId()) ){
+				logger.debug("meta: key:value = " + sm.getK() +":"+ sm.getV());
+			}
 			logger.debug("testSample's cells (if more than one, merge):");
 			for(SampleSource cellLibrary : approvedSampleApprovedCellLibraryListMap.get(testSample)){
 				logger.debug("--testSample's cellLibrary: " + sampleService.getCell(cellLibrary).getName());
@@ -181,18 +195,21 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 				}
 			}			
 		} 	
-		 */
+		*/
 		for(Sample testSample : setOfApprovedSamples){
-			//prepare message for peakcaller plugin (here, MACS2)
+			logger.debug("***************in PeakCallerTasklet.execute(): preparing to launchMessage to Macs2 for testSample: " + testSample.getName());
 			List<SampleSource> cellLibraryListForTest = approvedSampleApprovedCellLibraryListMap.get(testSample);
 			Build build = genomeService.getBuild(testSample);//we already confirmed (above) that testSample and controlSample have same genome	(BUT WE NEVER DID THIS FOR THE BAM FILES THAT WILL BE USED)		
 			Assert.assertTrue( ! cellLibraryListForTest.isEmpty() );
 			List<Sample> controlSampleList = testSampleControlSampleListMap.get(testSample);
+			logger.debug("***************in PeakCallerTasklet.execute(): immediately prior to if statment");
 			if(controlSampleList.isEmpty()){//no control (input sample)
+				logger.debug("***************in PeakCallerTasklet.execute(): just prior to  launchMessage call where controlSample is empty");
 				launchMessage(job.getId(), convertCellLibraryListToIdList(cellLibraryListForTest), new ArrayList<Integer>());
 			}
 			else{
 				for(Sample controlSample : controlSampleList){
+					logger.debug("***************in PeakCallerTasklet.execute(): just prior to  launchMessage call where controlSample is NOT EMPTY");
 					List<SampleSource> cellLibraryListForControl = approvedSampleApprovedCellLibraryListMap.get(controlSample);
 					Assert.assertTrue( ! cellLibraryListForControl.isEmpty() );
 					launchMessage(job.getId(), convertCellLibraryListToIdList(cellLibraryListForTest), convertCellLibraryListToIdList(cellLibraryListForControl));
@@ -306,12 +323,15 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 	private void confirmSamplePairsAreOfSameSpecies(Map<Sample, List<Sample>> testSampleControlSampleListMap) throws Exception{
 		for (Map.Entry<Sample, List<Sample>> entry : testSampleControlSampleListMap.entrySet()) {
 			Sample testSample = (Sample) entry.getKey();
+			//need to get the meta ourselves and load it up, since lazy loading doesn't appear to be working properly
+			testSample.setSampleMeta(sampleService.getSampleMetaDao().getSamplesMetaBySampleId(testSample.getId()));
 			Integer testSampleOrganismId = sampleService.getIdOfOrganism(testSample);
 			List<Sample> controlSampleList = testSampleControlSampleListMap.get(testSample);
 			if(controlSampleList.isEmpty()){
 				continue;
 			}
 			for(Sample controlSample : controlSampleList){
+				controlSample.setSampleMeta(sampleService.getSampleMetaDao().getSamplesMetaBySampleId(controlSample.getId()));
 				if(testSampleOrganismId.intValue()!=sampleService.getIdOfOrganism(controlSample)){
 					logger.debug("samplePairs must be of same organism"); 
 					throw new Exception("samplePairs must be of same organism");
@@ -327,16 +347,33 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 		return list;
 	}
 	
+	
 	private void launchMessage(Integer jobId, List<Integer> testCellLibraryIdList, List<Integer> controlCellLibraryIdList){
-		/*
+		try{
+		logger.warn("*************entered launchMessage method");
 		WaspJobContext waspJobContext = new WaspJobContext(jobId, jobService);
+		logger.warn("*************at A");
 		SoftwareConfiguration softwareConfig = waspJobContext.getConfiguredSoftware(this.softwareResourceType);
+		logger.warn("*************at B");
 		if (softwareConfig == null){
 			throw new SoftwareConfigurationException("No software could be configured for jobId=" + jobId + " with resourceType iname=" + softwareResourceType.getIName());
 		}
+		logger.warn("*************at C");
 		Map<String, String> jobParameters = softwareConfig.getParameters();
+		logger.warn("*************at D");
 		jobParameters.put(WaspSoftwareJobParameters.TEST_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(testCellLibraryIdList));
+		logger.warn("*************at E");
 		jobParameters.put(WaspSoftwareJobParameters.CONTROL_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(controlCellLibraryIdList));
+		logger.warn("*************at F");
+		String FlowName = "edu.yu.einstein.wasp.macstwo.mainFlow";
+		waspMessageHandlingService.launchBatchJob(FlowName, jobParameters);
+		logger.warn("*************launching message from peakcaller");
+		}		
+		catch(Exception e){
+			logger.warn("*************threw exception in peakcallerTasklet.launchMessage()*************");
+			logger.warn("*************e.message()   =   " + e.getMessage());
+		}
+		/*
 		MessagingTemplate messagingTemplate = new MessagingTemplate();
 		messagingTemplate.setReceiveTimeout(messageTimeoutInMillis);
 		BatchJobProviding softwarePlugin = waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), BatchJobProviding.class);
