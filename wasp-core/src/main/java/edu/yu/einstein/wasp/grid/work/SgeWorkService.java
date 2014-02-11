@@ -16,6 +16,7 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -33,6 +34,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.util.StringUtils;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -726,7 +728,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		}
 		
 		@Transactional("entityManager")
-		private void doProcessSubmissionScript() throws GridException, MisconfiguredWorkUnitException{
+		public void doProcessSubmissionScript() throws GridException, MisconfiguredWorkUnitException{
 			header = "#!/bin/bash\n#\n" +
 					getFlag() + " -N " + jobNamePrefix + name + "\n" +
 					getFlag() + " -S /bin/bash\n" +
@@ -772,9 +774,17 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			}
 			fi = 0;
 			for (FileGroup fg : w.getResultFiles()) {
-				for (FileHandle f : fg.getFileHandles()) {
-					preamble += WorkUnit.OUTPUT_FILE + "[" + fi + "]=" + WorkUnit.OUTPUT_FILE_PREFIX + "_" + fg.getId() +"."+ f.getId() + "\n";
-					fi++;
+				logger.debug("Processing filehandles in filegroup=" + fg.getId());
+				Set<FileHandle> fhs = getFileService().getFileGroupById(fg.getId()).getFileHandles();
+				if (fhs == null)
+					logger.debug("File handle Set from filegroup=" + fg.getId() + " is null");
+				else if (fhs.size() == 0)
+					logger.debug("File handle Set from filegroup=" + fg.getId() + " is empty");
+				else{
+					for (FileHandle f : fhs) {
+						preamble += WorkUnit.OUTPUT_FILE + "[" + fi + "]=" + WorkUnit.OUTPUT_FILE_PREFIX + "_" + fg.getId() +"."+ f.getId() + "\n";
+						fi++;
+					}
 				}
 			}
 			
