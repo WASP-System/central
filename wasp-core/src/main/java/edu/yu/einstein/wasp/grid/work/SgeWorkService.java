@@ -716,7 +716,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		protected String mailRecipient = "";
 		protected String mailCircumstances = "";
 		
-		
+		@Deprecated
 		protected SgeSubmissionScript() {
 			// proxy
 		}
@@ -727,7 +727,6 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			doProcessSubmissionScript();
 		}
 		
-		@Transactional("entityManager")
 		public void doProcessSubmissionScript() throws GridException, MisconfiguredWorkUnitException{
 			header = "#!/bin/bash\n#\n" +
 					getFlag() + " -N " + jobNamePrefix + name + "\n" +
@@ -774,17 +773,9 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			}
 			fi = 0;
 			for (FileGroup fg : w.getResultFiles()) {
-				logger.debug("Processing filehandles in filegroup=" + fg.getId());
-				Set<FileHandle> fhs = getFileService().getFileGroupById(fg.getId()).getFileHandles();
-				if (fhs == null)
-					logger.debug("File handle Set from filegroup=" + fg.getId() + " is null");
-				else if (fhs.size() == 0)
-					logger.debug("File handle Set from filegroup=" + fg.getId() + " is empty");
-				else{
-					for (FileHandle f : fhs) {
-						preamble += WorkUnit.OUTPUT_FILE + "[" + fi + "]=" + WorkUnit.OUTPUT_FILE_PREFIX + "_" + fg.getId() +"."+ f.getId() + "\n";
-						fi++;
-					}
+				for (FileHandle f : getFileService().getFileHandlesByFileGroupId(fg.getId())) {
+					preamble += WorkUnit.OUTPUT_FILE + "[" + fi + "]=" + WorkUnit.OUTPUT_FILE_PREFIX + "_" + fg.getId() +"."+ f.getId() + "\n";
+					fi++;
 				}
 			}
 			
