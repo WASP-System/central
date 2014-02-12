@@ -519,8 +519,13 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		w.setCommand("touch " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME);
 		int files = 0;
 		for (Integer id : g.getFileGroupIds()) {
+			// TODO: below need to use getFileService().getFileHandlesByFileGroupId() service method as fg.getFileHandles() causes 
+			// an org.hibernate.LazyInitializationException.
+			// This happens because we are in a non-spring managed POJO instance. We need to consider allowing eager fetching as a better solution in
+			// these situations!!
 			FileGroup fg = getFileService().getFileGroupById(id);
-			for (FileHandle f : fg.getFileHandles()) {
+			Set<FileHandle> fhs = getFileService().getFileHandlesByFileGroupId(id);
+			for (FileHandle f : fhs) { 
 				w.addCommand("COPY[" + files + "]=\""+ WorkUnit.OUTPUT_FILE_PREFIX + "_" + fg.getId() + "." + f.getId() + 
 						" " + f.getFileName() + "\"");
 				files++;
