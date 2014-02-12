@@ -184,7 +184,18 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 */
 	@Override
 	public Set<FileHandle> getFileHandlesByFileGroupId(final int fileGroupId){
-		return this.getFileGroupById(fileGroupId).getFileHandles();
+		Set<FileHandle> fhs = new HashSet<>();
+		for (FileHandle fh : this.getFileGroupById(fileGroupId).getFileHandles())
+			fhs.add(this.getFileHandleById(fh.getId()));
+		return fhs;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Set<FileHandle> getFileHandlesByFileGroup(final FileGroup fileGroup){
+		return getFileHandlesByFileGroupId(fileGroup.getId());
 	}
 
 	/**

@@ -777,7 +777,8 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 				// an org.hibernate.LazyInitializationException.
 				// This happens because we are in a non-spring managed POJO instance. We need to consider allowing eager fetching as a better solution in
 				// these situations!!
-				for (FileHandle f : getFileService().getFileHandlesByFileGroupId(fg.getId())) { 
+				Set<FileHandle> fhs = getFileService().getFileHandlesByFileGroup(fg);
+				for (FileHandle f : fhs) { 
 					preamble += WorkUnit.OUTPUT_FILE + "[" + fi + "]=" + WorkUnit.OUTPUT_FILE_PREFIX + "_" + fg.getId() +"."+ f.getId() + "\n";
 					fi++;
 				}
