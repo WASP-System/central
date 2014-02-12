@@ -14,6 +14,7 @@
    if these pages are displayed in a div of a wasp page, the next 7 link and script lines are not needed, 
    but if displayed in an iframe, they are needed 
 --%>
+  <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/reset.css" />
   <link rel="stylesheet" type="text/css" href="/wasp/css/jquery/jquery-ui.css"/>
   <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/base.css" />
   <link rel="stylesheet" type="text/css" href="/wasp/css/tree-interactive.css" />
