@@ -75,20 +75,6 @@ public interface FileService extends WaspService {
      * @return
      */
     public FileGroup getFileGroupById (final int id);
-    
-    /**
-     * Return a list of filehandles
-     * @param fileGroupId
-     * @return
-     */
-    public Set<FileHandle> getFileHandlesByFileGroupId(final int fileGroupId);
-    
-    /**
-     * Return a list of filehandles
-     * @param fileGroup
-     * @return
-     */
-    public Set<FileHandle> getFileHandlesByFileGroup(final FileGroup fileGroup);
 
 	/**
 	 * 
