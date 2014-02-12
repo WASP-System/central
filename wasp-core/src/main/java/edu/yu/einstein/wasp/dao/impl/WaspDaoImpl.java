@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityExistsException;
 import javax.persistence.Query;
 
 import org.apache.commons.lang.WordUtils;
@@ -61,12 +62,12 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 
 		setEditorId(entity);
 		logEntityFieldDetailsOnCRUD(entity, "saving");
-		if (entityManager.contains(entity)) {
-			entity = entityManager.merge(entity);
-		} else {
+		try{
 			entityManager.persist(entity);
+		} catch (Exception e){
+			// try merge instead.
+			entity = entityManager.merge(entity);
 		}
-
 		entityManager.flush();
 		entityManager.refresh(entity);
 		return entity;
