@@ -30,7 +30,7 @@ public class WaspMessageHandlingServiceImpl extends WaspServiceImpl implements W
 	/**
 	 * Set the timeout when waiting for reply (in millis).  Default 5000 (5s).
 	 */
-	@Value(value="${wasp.message.timeout:30000}")
+	@Value(value="${wasp.message.timeout:5000}")
 	public void setMessageTimeoutInMillis(int messageTimeout) {
 		this.messageTimeoutInMillis = messageTimeout;
 	}
