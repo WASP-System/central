@@ -170,18 +170,18 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 		}
 		logger.debug("at C");
 		SampleSource firstTestCellLibrary = sampleService.getCellLibraryBySampleSourceId(this.testCellLibraryIdList.get(0));
-		logger.debug("at D");
-		Job job = sampleService.getJobOfLibraryOnCell(firstTestCellLibrary);//should all be from same job
-		logger.debug("at E");
-		logger.debug("job name : id = " + job.getName() + " : " + job.getId());
-		List<JobMeta> jobMetaList = jobService.getJobMeta(job.getId());
-		logger.debug("Size of jobMeta = " + jobMetaList.size());
+		logger.debug("at D/E");
+		////////Job job = sampleService.getJobOfLibraryOnCell(firstTestCellLibrary);//should all be from same job
+		//logger.debug("at E");
+		//////logger.debug("job name : id = " + job.getName() + " : " + job.getId());
+		//////List<JobMeta> jobMetaList = jobService.getJobMeta(job.getId());
+		//////logger.debug("Size of jobMeta = " + jobMetaList.size());
 		Sample testSample = sampleService.getLibrary(firstTestCellLibrary);//all these cellLibraries are from the same library or macromoleucle
 		while(testSample.getParent()!=null){
-			testSample = testSample.getParent();
+			testSample = sampleService.getSampleById(testSample.getParentId());
 		}
 		logger.debug("testSample.name = " + testSample.getName());		
-		//////this.testSampleId = testSample.getId();
+		this.testSampleId = testSample.getId();
 		//////stepExecution.getExecutionContext().put("testSampleId", testSampleId);
 
 		List<FileHandle> testFileHandleList = new ArrayList<FileHandle>();		
@@ -243,7 +243,7 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 		}
 		logger.debug("prefixForFileName = " + prefixForFileName);
 		logger.debug("preparing to generate workunit");
-		WorkUnit w = macs2.getPeaks(prefixForFileName, jobMetaList, testFileHandleList, controlFileHandleList, jobParameters);//configure
+		WorkUnit w = macs2.getPeaks(prefixForFileName, testFileHandleList, controlFileHandleList, jobParameters);//configure
 		logger.debug("OK, workunit has been generated");
 
 		/*		

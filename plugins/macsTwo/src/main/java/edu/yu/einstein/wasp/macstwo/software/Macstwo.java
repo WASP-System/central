@@ -45,7 +45,7 @@ public class Macstwo extends SoftwarePackage{
 	}
 
 	//note: test is same as treated, in macs2-speak (from the immunoprecipitated sample)
-	public WorkUnit getPeaks(String prefixForFileName, List<JobMeta> jobMetaList, List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList, Map<String,Object> jobParameters){
+	public WorkUnit getPeaks(String prefixForFileName, List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList, Map<String,Object> jobParameters){
 		
 		Assert.assertTrue(!testFileHandleList.isEmpty());
 		
@@ -75,68 +75,71 @@ public class Macstwo extends SoftwarePackage{
 		
 		//tempCommand.append("-f BAM ");//this could actually be figured out by macs2
 		
-		//for (String opt : jobParameters.keySet()) {
-		for(JobMeta jobMeta : jobMetaList){
-			String opt = jobMeta.getK();
+		for (String key : jobParameters.keySet()) {
+		//for(JobMeta jobMeta : jobMetaList){//could use the jobPar
+			//String opt = jobMeta.getK();
 		
-			if (!opt.startsWith("macsPeakcaller")){
-				continue;
-			}
-			String key = opt.replace("macsPeakcaller.", "");
+			//if (!opt.startsWith("macsPeakcaller")){
+			//	continue;
+			//}
+			//String key = opt.replace("macsPeakcaller.", "");
+			String opt = "";
 			if(key.equalsIgnoreCase("pValueCutoff")){
-				key = "--pvalue";
+				opt = "--pvalue";
 				try{
-					Double i = Double.parseDouble(jobMeta.getV());
+					Double i = Double.parseDouble(jobParameters.get(key).toString());
 				}
 				catch(Exception e){
 					continue;//not a number so accept default and get out
 				}
 			}
 			if(key.equalsIgnoreCase("bandwidth")){//should really be sonication size
-				key = "--bw";
+				opt = "--bw";
 				try{
-					Integer i = Integer.parseInt(jobMeta.getV());//Integer.parseInt(jobParameters.get(opt).toString());
+					Integer i = Integer.parseInt(jobParameters.get(key).toString());//Integer.parseInt(jobParameters.get(opt).toString());
 				}
 				catch(Exception e){//not a number so accept default and get out
 					continue;
 				}
 			}
 			if(key.equalsIgnoreCase("genomeSize")){
-				key = "--gsize";
+				opt = "--gsize";
 				try{
-					Double i = Double.parseDouble(jobMeta.getV());//use double since this will be in scientific notation
+					Double i = Double.parseDouble(jobParameters.get(key).toString());//use double since this will be in scientific notation
 				}
 				catch(Exception e){//not a number so accept default (size of human genome) and get out
 					continue;
 				}
 			}
 			if(key.equalsIgnoreCase("keepDup") ){
-				key = "--keep-dup";	
-				if(jobMeta.getV().equalsIgnoreCase("no")){   //jobParameters.get(opt).toString().equalsIgnoreCase("no")){
+				opt = "--keep-dup";	
+				if(jobParameters.get(key).toString().equalsIgnoreCase("no")){   //jobParameters.get(opt).toString().equalsIgnoreCase("no")){
 					tempCommand.append(" " + key + " 1");
 					continue;
 				}
-				else if(jobMeta.getV().equalsIgnoreCase("yes")   //jobParameters.get(opt).toString().equalsIgnoreCase("yes") 
+				else if(jobParameters.get(key).toString().equalsIgnoreCase("yes")   //jobParameters.get(opt).toString().equalsIgnoreCase("yes") 
 						|| 
 						//jobParameters.get(opt).toString().equalsIgnoreCase("all")){
-						jobMeta.getV().equalsIgnoreCase("all")){
+						jobParameters.get(key).toString().equalsIgnoreCase("all")){
 					tempCommand.append(" " + key + " all");
 					continue;
 				}
-				else if(jobMeta.getV().equalsIgnoreCase("auto")){//jobParameters.get(opt).toString().equalsIgnoreCase("auto")){
+				else if(jobParameters.get(key).toString().equalsIgnoreCase("auto")){//jobParameters.get(opt).toString().equalsIgnoreCase("auto")){
 					tempCommand.append(" " + key + " auto");
 					continue;
 				}
 				else{
 					try{
-						Integer i = Integer.parseInt(jobMeta.getV());//Integer.parseInt(jobParameters.get(opt).toString());
+						Integer i = Integer.parseInt(jobParameters.get(key).toString());//Integer.parseInt(jobParameters.get(opt).toString());
 					}
 					catch(Exception e){//not a number, so accept default
 						continue;
 					}
 				}
 			}
-			tempCommand.append(" " + key + " " + jobMeta.getV());
+			if(!opt.isEmpty()){
+				tempCommand.append(" " + opt + " " + jobParameters.get(key).toString());
+			}
 		}
 		
 		tempCommand.append(" --name " + prefixForFileName);//The name string of the experiment. MACS will use this string NAME to create output files like 'NAME_peaks.xls', etc.
