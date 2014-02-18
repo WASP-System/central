@@ -68,6 +68,7 @@ import edu.yu.einstein.wasp.exception.FileDownloadException;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.exception.PluginException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
@@ -91,10 +92,13 @@ import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.FileTypeViewProviding;
+import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
+import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing.Status;
+import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 
 @Service
@@ -177,14 +181,6 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	@Override
 	public FileHandle getFileHandleById(final int id) {
 		return this.getFileHandleDao().getFileHandleById(id);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Set<FileHandle> getFileHandlesByFileGroupId(final int fileGroupId){
-		return this.getFileGroupById(fileGroupId).getFileHandles();
 	}
 
 	/**

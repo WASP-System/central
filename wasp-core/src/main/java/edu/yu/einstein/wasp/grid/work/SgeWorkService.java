@@ -16,7 +16,6 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -34,14 +33,12 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.util.StringUtils;
-import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -589,7 +586,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		}
 	}
 
-	
+
 	protected GridResult startJob(WorkUnit w) throws MisconfiguredWorkUnitException, GridException {
 		
 		if (isJobExists(w)) {
@@ -716,18 +713,18 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		protected String mailRecipient = "";
 		protected String mailCircumstances = "";
 		
+		/**
+		 * Default no-arg constructor is unused.
+		 */
 		@Deprecated
 		protected SgeSubmissionScript() {
-			// proxy
+			super();
 		}
 
 		protected SgeSubmissionScript(WorkUnit w) throws GridException, MisconfiguredWorkUnitException {
 			this.w = w;
 			this.name = w.getId();
-			doProcessSubmissionScript();
-		}
-		
-		public void doProcessSubmissionScript() throws GridException, MisconfiguredWorkUnitException{
+			
 			header = "#!/bin/bash\n#\n" +
 					getFlag() + " -N " + jobNamePrefix + name + "\n" +
 					getFlag() + " -S /bin/bash\n" +
@@ -773,11 +770,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			}
 			fi = 0;
 			for (FileGroup fg : w.getResultFiles()) {
-				// TODO: below need to use getFileService().getFileHandlesByFileGroupId() service method as fg.getFileHandles() causes 
-				// an org.hibernate.LazyInitializationException.
-				// This happens because we are in a non-spring managed POJO instance. We need to consider allowing eager fetching as a better solution in
-				// these situations!!
-				for (FileHandle f : getFileService().getFileHandlesByFileGroupId(fg.getId())) { 
+				for (FileHandle f : fg.getFileHandles()) {
 					preamble += WorkUnit.OUTPUT_FILE + "[" + fi + "]=" + WorkUnit.OUTPUT_FILE_PREFIX + "_" + fg.getId() +"."+ f.getId() + "\n";
 					fi++;
 				}
