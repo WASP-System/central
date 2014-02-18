@@ -178,7 +178,7 @@ function update(source) {
 			d3tree_height = n.x ;
 	});
 
-	$("svg").height(d3tree_height + barheight);
+	$("svg").height(d3tree_height + 2*barHeight);
 
 	// Update the nodes
 	var node = vis.selectAll("g.node")
