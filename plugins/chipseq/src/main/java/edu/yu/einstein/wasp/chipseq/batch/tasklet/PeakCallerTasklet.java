@@ -40,6 +40,7 @@ import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
+import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -52,6 +53,7 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;
+import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
@@ -92,8 +94,10 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 	
 	@Autowired
 	private GenomeService genomeService;
-
 	
+	@Autowired
+	private WaspPluginRegistry waspPluginRegistry;
+
 	@Autowired
 	private GridHostResolver gridHostResolver;
 	
@@ -361,24 +365,21 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 		try{
 		logger.warn("*************entered launchMessage method");
 		WaspJobContext waspJobContext = new WaspJobContext(jobId, jobService);
-		logger.warn("*************at A");
 		SoftwareConfiguration softwareConfig = waspJobContext.getConfiguredSoftware(this.softwareResourceType);
-		logger.warn("*************at B");
 		if (softwareConfig == null){
 			throw new SoftwareConfigurationException("No software could be configured for jobId=" + jobId + " with resourceType iname=" + softwareResourceType.getIName());
 		}
-		Software software = softwareConfig.getSoftware();		
-		String flowName = "edu.yu.einstein.wasp."+software.getIName()+".mainFlow";//edu.yu.einstein.wasp.macstwo.mainFlow
-		logger.warn("*************Flowname : " + flowName);
-		logger.warn("*************at C");
+		BatchJobProviding softwarePlugin = waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), BatchJobProviding.class);
+		String flowName = softwarePlugin.getBatchJobName(BatchJobTask.GENERIC);
+		if (flowName == null){
+			logger.warn("No generic flow found for plugin so cannot launch software : " + softwareConfig.getSoftware().getIName());
+		}
+		logger.warn("Flowname : " + flowName);
 		Map<String, String> jobParameters = softwareConfig.getParameters();
-		logger.warn("*************at D");
 		jobParameters.put(WaspSoftwareJobParameters.TEST_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(testCellLibraryIdList));
-		logger.warn("*************at E");
 		jobParameters.put(WaspSoftwareJobParameters.CONTROL_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(controlCellLibraryIdList));
-		logger.warn("*************at F");
 		waspMessageHandlingService.launchBatchJob(flowName, jobParameters);
-		logger.warn("*************launching message from peakcaller");
+		logger.warn("*************launched message from peakcaller");
 		}		
 		catch(Exception e){
 			logger.warn("*************threw exception in peakcallerTasklet.launchMessage()*************");

@@ -108,22 +108,6 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 		else{
 			this.controlCellLibraryIdList = WaspSoftwareJobParameters.getLibraryCellIdList(controlCellLibraryIdListAsString);//may be empty
 		}
-		/*
-		if(controlCellLibraryIdListAsString==null){
-			logger.debug("*************************controlCellLibraryIdListAsString IS NULL");
-		}
-		if(controlCellLibraryIdListAsString.isEmpty()){
-			logger.debug("*************************controlCellLibraryIdListAsString IS EMPTY");
-		}
-		try{
-		this.controlCellLibraryIdList = WaspSoftwareJobParameters.getLibraryCellIdList(controlCellLibraryIdListAsString);//may be empty
-		}
-		catch(Exception e){
-			logger.debug("*************************yes, the empty string causes the excception");
-			logger.debug("*************************message:" +e.getMessage());
-			throw new Exception(e.getMessage());
-		}
-		*/
 		logger.debug("*************************Ending MacstwoTasklet constructor");
 	}
 
