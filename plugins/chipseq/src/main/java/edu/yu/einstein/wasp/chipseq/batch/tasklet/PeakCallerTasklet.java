@@ -128,10 +128,6 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 	}
 
 	public PeakCallerTasklet(String cellLibraryIdListAsString, ResourceType softwareResourceType) {
-		
-		//List<Integer> cids = WaspSoftwareJobParameters.getLibraryCellIdList(cellLibraryIdList);
-		//Assert.assertTrue(cids.size() == 1);
-		//this.cellLibraryIdList = cids.get(0);
 		this.approvedCellLibraryIdList = WaspSoftwareJobParameters.getLibraryCellIdList(cellLibraryIdListAsString);
 		Assert.assertTrue( ! this.approvedCellLibraryIdList.isEmpty() );
 		this.softwareResourceType = softwareResourceType;
@@ -157,12 +153,6 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 		Assert.assertTrue(job!=null&&job.getId()!=null);
 		Map<Sample, List<SampleSource>> approvedSampleApprovedCellLibraryListMap = associateSampleWithCellLibraries(approvedCellLibraryList);//new HashMap<Sample, List<SampleSource>>();
 		Set<Sample> setOfApprovedSamples = new HashSet<Sample>();//for a specific job (note: this really could have been a list)
-		/*   02-18-14
-		for (Map.Entry<Sample, List<SampleSource>> entry : approvedSampleApprovedCellLibraryListMap.entrySet()) {
-			Sample approvedSample = (Sample) entry.getKey();
-			setOfApprovedSamples.add(approvedSample);			
-		}
-		*/	
 		for (Sample approvedSample : approvedSampleApprovedCellLibraryListMap.keySet()) {
 			setOfApprovedSamples.add(approvedSample);
 		}
@@ -171,11 +161,10 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 		confirmSamplePairsAreOfSameSpecies(testSampleControlSampleListMap);//throws exception if no
 		logger.debug("***************in PeakCallerTasklet.execute(): confirmed Sample Pairs are of same species");
 		
-		///*
+		/*
 		//output for testing purposes only:
 		//first, print out recorded samplePairs, if any
-		logger.debug("*************************");
-		logger.debug("*************************");
+		logger.debug("*************************SamplePairs");
 		logger.debug("Recorded samplePairs, from the job submission:");		
 		for(SampleSource ss : samplePairsAsSampleSourceSet){//for each recorded samplePair
 			Sample test = ss.getSample();//IP (or HpaII)
@@ -184,21 +173,11 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 		}
 		//next, go through each entry of testControlListMap
 		//to make it easy, use setOfApprovedSamples as the keys
-		logger.debug("*************************");
-		logger.debug("*************************");
 		logger.debug("*************************Captured data:");		
 		for(Sample approvedSample : setOfApprovedSamples){
 			
 			Sample testSample = approvedSample;
 			logger.debug("testSample - "+testSample.getName() + " with sampleId of " + testSample.getId());
-			//logger.debug("testSample - "+testSample.getName() + " with sampleId of " + testSample.getId() + " and with   organismId = " + sampleService.getIdOfOrganism(testSample));
-			//for(SampleMeta sm : sampleService.getSampleMetaDao().getSamplesMetaBySampleId(testSample.getId()) ){
-			//	logger.debug("meta: key:value = " + sm.getK() +":"+ sm.getV());
-			//}
-			//logger.debug("testSample's cells (if more than one, merge):");
-			//for(SampleSource cellLibrary : approvedSampleApprovedCellLibraryListMap.get(testSample)){
-			//	logger.debug("--testSample's cellLibrary: " + sampleService.getCell(cellLibrary).getName());
-			//}
 			List<Sample> approvedControlSampleList = testSampleControlSampleListMap.get(testSample);
 			if(approvedControlSampleList.isEmpty()){
 				logger.debug("--No paired control, so generate peaks without any control");
@@ -207,18 +186,13 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 				logger.debug("Control(s):");
 				for(Sample control : approvedControlSampleList){
 					logger.debug("Control: " + control.getName());
-					//logger.debug("controlSample's cells (if more than one, merge):");
-					//for(SampleSource cellLibrary : approvedSampleApprovedCellLibraryListMap.get(testSample)){
-					//	logger.debug("--controlSample's cells: " + sampleService.getCell(cellLibrary).getName());
-					//}
 				}
 			}			
 		} 
-		//*/
+		*/
 		for(Sample testSample : setOfApprovedSamples){
 			logger.debug("***************in PeakCallerTasklet.execute(): preparing to launchMessage to Macs2 for testSample: " + testSample.getName());
 			List<SampleSource> cellLibraryListForTest = approvedSampleApprovedCellLibraryListMap.get(testSample);
-			//apparently not needed 02-18-14 Build build = genomeService.getBuild(testSample);//we already confirmed (above) that testSample and controlSample have same genome	(BUT WE NEVER DID THIS FOR THE BAM FILES THAT WILL BE USED)		
 			Assert.assertTrue( ! cellLibraryListForTest.isEmpty() );
 			List<Sample> controlSampleList = testSampleControlSampleListMap.get(testSample);
 			logger.debug("***************in PeakCallerTasklet.execute(): immediately prior to if statment");
@@ -406,6 +380,7 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 		catch(Exception e){
 			logger.warn("*************threw exception in peakcallerTasklet.launchMessage()*************");
 			logger.warn("*************e.message()   =   " + e.getMessage());
+			throw new MessagingException(e.getLocalizedMessage(), e);
 		}
 		
 
