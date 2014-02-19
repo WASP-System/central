@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
+import org.springframework.integration.channel.QueueChannel;
 import org.springframework.integration.core.MessagingTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,6 +75,14 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 	@Value(value="${wasp.message.timeout:5000}")
 	public void setMessageTimeoutInMillis(int messageTimeout) {
 		this.messageTimeoutInMillis = messageTimeout;
+	}
+	
+	private QueueChannel launchChannel; // channel to send messages out of system
+	
+	@Autowired
+	@Qualifier(MessageChannelRegistry.LAUNCH_MESSAGE_CHANNEL)
+	public void setLaunchChannel(QueueChannel launchChannel) {
+		this.launchChannel = launchChannel;
 	}
 	
 	@Autowired
@@ -363,44 +372,43 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 	
 	private void launchMessage(Integer jobId, List<Integer> testCellLibraryIdList, List<Integer> controlCellLibraryIdList){
 		try{
-		logger.warn("*************entered launchMessage method");
-		WaspJobContext waspJobContext = new WaspJobContext(jobId, jobService);
-		SoftwareConfiguration softwareConfig = waspJobContext.getConfiguredSoftware(this.softwareResourceType);
-		if (softwareConfig == null){
-			throw new SoftwareConfigurationException("No software could be configured for jobId=" + jobId + " with resourceType iname=" + softwareResourceType.getIName());
+			logger.warn("*************entered launchMessage method");
+			WaspJobContext waspJobContext = new WaspJobContext(jobId, jobService);
+			SoftwareConfiguration softwareConfig = waspJobContext.getConfiguredSoftware(this.softwareResourceType);
+			if (softwareConfig == null){
+				throw new SoftwareConfigurationException("No software could be configured for jobId=" + jobId + " with resourceType iname=" + softwareResourceType.getIName());
+			}
+			BatchJobProviding softwarePlugin = waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), BatchJobProviding.class);
+			String flowName = softwarePlugin.getBatchJobName(BatchJobTask.GENERIC);
+			if (flowName == null){
+				logger.warn("No generic flow found for plugin so cannot launch software : " + softwareConfig.getSoftware().getIName());
+			}
+			logger.warn("Flowname : " + flowName);
+			Map<String, String> jobParameters = softwareConfig.getParameters();
+			jobParameters.put(WaspSoftwareJobParameters.TEST_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(testCellLibraryIdList));
+			jobParameters.put(WaspSoftwareJobParameters.CONTROL_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(controlCellLibraryIdList));
+			
+			//this next line works, but was replaced with the subsequent 7 lines, and the WaspMessageBuildingException exception
+			//waspMessageHandlingService.launchBatchJob(flowName, jobParameters);
+			
+			MessagingTemplate messagingTemplate = new MessagingTemplate();
+			messagingTemplate.setReceiveTimeout(messageTimeoutInMillis);
+			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(flowName, jobParameters) );	
+			Message<BatchJobLaunchContext> launchMessage = batchJobLaunchMessageTemplate.build();
+			logger.warn("*************launched message from peakcaller");
+			logger.debug("Sending the following launch message via channel " + MessageChannelRegistry.LAUNCH_MESSAGE_CHANNEL + " : " + launchMessage);
+			messagingTemplate.sendAndReceive(launchChannel, launchMessage);
 		}
-		BatchJobProviding softwarePlugin = waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), BatchJobProviding.class);
-		String flowName = softwarePlugin.getBatchJobName(BatchJobTask.GENERIC);
-		if (flowName == null){
-			logger.warn("No generic flow found for plugin so cannot launch software : " + softwareConfig.getSoftware().getIName());
-		}
-		logger.warn("Flowname : " + flowName);
-		Map<String, String> jobParameters = softwareConfig.getParameters();
-		jobParameters.put(WaspSoftwareJobParameters.TEST_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(testCellLibraryIdList));
-		jobParameters.put(WaspSoftwareJobParameters.CONTROL_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(controlCellLibraryIdList));
-		waspMessageHandlingService.launchBatchJob(flowName, jobParameters);
-		logger.warn("*************launched message from peakcaller");
-		}		
+		 catch (WaspMessageBuildingException e) {
+			 logger.warn("*************threw WaspMessageBuildingException exception in peakcallerTasklet.launchMessage()*************");
+			throw new MessagingException(e.getLocalizedMessage(), e);
+		}	
 		catch(Exception e){
 			logger.warn("*************threw exception in peakcallerTasklet.launchMessage()*************");
 			logger.warn("*************e.message()   =   " + e.getMessage());
 		}
-		/*
-		MessagingTemplate messagingTemplate = new MessagingTemplate();
-		messagingTemplate.setReceiveTimeout(messageTimeoutInMillis);
-		BatchJobProviding softwarePlugin = waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), BatchJobProviding.class);
-		String flowName = softwarePlugin.getBatchJobName(this.task);
-		if (flowName == null)
-			logger.warn("No generic flow found for plugin so cannot launch software : " + softwareConfig.getSoftware().getIName());
-		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = 
-				new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(flowName, jobParameters) );
-		try {
-			Message<BatchJobLaunchContext> launchMessage = batchJobLaunchMessageTemplate.build();
-			logger.debug("Sending the following launch message via channel " + MessageChannelRegistry.LAUNCH_MESSAGE_CHANNEL + " : " + launchMessage);
-			messagingTemplate.sendAndReceive(launchChannel, launchMessage);
-		} catch (WaspMessageBuildingException e) {
-			throw new MessagingException(e.getLocalizedMessage(), e);
-		}
-		*/
+		
+
+		
 	}
 }
