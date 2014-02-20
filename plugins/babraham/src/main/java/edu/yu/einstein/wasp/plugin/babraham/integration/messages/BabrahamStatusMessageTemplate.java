@@ -6,6 +6,7 @@ import edu.yu.einstein.wasp.exception.WaspMessageInitializationException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
+import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 /**
  * Handling Babraham Status messages.
@@ -96,6 +97,13 @@ public class BabrahamStatusMessageTemplate extends SimpleBabrahamStatusMessageTe
 		if (message.getHeaders().containsKey(WaspJobTask.HEADER_KEY) &&	message.getHeaders().get(WaspJobTask.HEADER_KEY).equals(task))
 			return true;
 		return false;
+	}
+	
+	@Override
+	public BabrahamStatusMessageTemplate getNewInstance(WaspStatusMessageTemplate messageTemplate){
+		BabrahamStatusMessageTemplate newTemplate = new BabrahamStatusMessageTemplate(((BabrahamStatusMessageTemplate) messageTemplate).getFileGroupId());
+		copyCommonProperties(messageTemplate, newTemplate);
+		return newTemplate;
 	}
 
 }

@@ -148,4 +148,11 @@ public class FileStatusMessageTemplate extends WaspStatusMessageTemplate {
 				message.getHeaders().get(WaspMessageType.HEADER_KEY).equals(WaspMessageType.FILE);
 	}
 	
+	@Override
+	public FileStatusMessageTemplate getNewInstance(WaspStatusMessageTemplate messageTemplate){
+		FileStatusMessageTemplate newTemplate = new FileStatusMessageTemplate(((FileStatusMessageTemplate) messageTemplate).getFileGroupId());
+		copyCommonProperties(messageTemplate, newTemplate);
+		return newTemplate;
+	}
+	
 }

@@ -105,5 +105,12 @@ public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate{
 				message.getHeaders().get(WaspMessageType.HEADER_KEY).equals(WaspMessageType.SAMPLE);
 	}
 	
+	@Override
+	public SampleStatusMessageTemplate getNewInstance(WaspStatusMessageTemplate messageTemplate){
+		SampleStatusMessageTemplate newTemplate = new SampleStatusMessageTemplate(((SampleStatusMessageTemplate) messageTemplate).getSampleId());
+		copyCommonProperties(messageTemplate, newTemplate);
+		return newTemplate;
+	}
+	
 }
 	

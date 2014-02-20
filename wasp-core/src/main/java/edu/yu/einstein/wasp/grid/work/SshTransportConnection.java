@@ -4,7 +4,6 @@
 package edu.yu.einstein.wasp.grid.work;
 
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -43,7 +42,7 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 	
 	private static final Logger logger = LoggerFactory.getLogger(SshTransportConnection.class);
 
-	final SSHClient client = new SSHClient();
+	private SSHClient client = new SSHClient();
 	
 	private Session session;
 	
@@ -72,6 +71,18 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 	
 
 	public SshTransportConnection() {
+		loadKnownHosts();
+	} 
+	
+	private void resetClientAndStartNewSession() throws GridAccessException, ConnectionException, TransportException{
+		doDisconnect();
+		client = new SSHClient();
+		loadKnownHosts();
+		initClient();
+		session = client.startSession();
+	}
+	
+	private void loadKnownHosts() {
 		try {
 			client.loadKnownHosts();
 		} catch (IOException e) {
@@ -79,7 +90,7 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 			e.printStackTrace();
 			throw new RuntimeException("sshj unable to load known hosts file");
 		}
-	} 
+	}
 
 	private void initClient() throws GridAccessException {
 		try {
@@ -127,8 +138,13 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 			session = client.startSession();
 		} catch (ConnectionException e) {
 			logger.warn("session apparently timed out, attempting to recover: " + e.toString());
-			initClient();
-			session = client.startSession();
+			try{
+				initClient();
+				session = client.startSession();
+			} catch (Exception e1){
+				logger.warn("Unable to recover session so going to reset client and start a new session: " + e1.toString());
+				resetClientAndStartNewSession();
+			}
 		}
 	}
 	

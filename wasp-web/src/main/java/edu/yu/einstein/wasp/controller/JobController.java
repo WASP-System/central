@@ -22,7 +22,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-//import java.util.concurrent.Callable;
+import java.util.concurrent.Callable;
 
 
 import javax.servlet.http.HttpServletRequest;
@@ -609,7 +609,7 @@ public class JobController extends WaspController {
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							//"J" + job.getJobId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>details</a>)",
 							// this is the link to the old job homepage "<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getId()+".do>J"+job.getId().intValue()+"</a>",
-							"<a href=/wasp/job/"+job.getId()+"/homepage.do>J"+job.getId().intValue()+"</a>"  + " <a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getId()+".do>(Old Link)</a>",
+							"<a href=/wasp/job/"+job.getId()+"/homepage.do>J"+job.getId().intValue()+"</a>",
 							job.getName(),
 							user.getNameFstLst(),
 							//job.getLab().getName() + " (" + pi.getNameLstCmFst() + ")",
@@ -620,7 +620,7 @@ public class JobController extends WaspController {
 							currentStatus,
 							//"<a href=/wasp/"+job.getWorkflow().getIName()+"/viewfiles/"+job.getJobId()+".do>View files</a>"
 							//"<a href=/wasp/jobresults/treeview.do?id="+job.getJobId()+"&type=job>View Results</a>"
-							"<a href=/wasp/jobresults/treeview/job/"+job.getId()+".do>View Results</a>"
+							"<a href=/wasp/jobresults/treeview/job/"+job.getId()+".do>Browse Data</a>"
 				}));
 				 
 				for (JobMeta meta:jobMeta) {
@@ -1067,16 +1067,16 @@ public class JobController extends WaspController {
 	//Note: we use MultipartHttpServletRequest to be able to upload files using Ajax. See http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/
 	@RequestMapping(value="/{jobId}/uploadQuoteOrInvoice", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
-	  public /*Callable<String>*/ String jobFileUploadQuoteOrInvoicePostPage(@PathVariable("jobId") final Integer jobId,
+	  public /*Callable<String> */String jobFileUploadQuoteOrInvoicePostPage(@PathVariable("jobId") final Integer jobId,
 			  final MultipartHttpServletRequest request, 
 			  final HttpServletResponse response,
 			  //since this is now an ajax call, we no longer need/use @RequestParam("file_description") String fileDescription, @RequestParam("file_upload") MultipartFile mpFile,
 			  final ModelMap m) throws SampleTypeException {
 		
-			//return new Callable<String>() {
+			/*return new Callable<String>() {
 
-			//		@Override
-			//		public String call() throws Exception {						
+					@Override
+					public String call() throws Exception {				*/		
 
 						Job job = jobService.getJobByJobId(jobId);
 						if(job.getId()==null){
@@ -1156,8 +1156,8 @@ public class JobController extends WaspController {
 						}
 						populateCostPage(job, m);
 						return "job/home/costManager";
-				//	}
-			 // };
+			//		}
+			//  };
 	}
 	
 	@Transactional
@@ -1960,10 +1960,10 @@ public class JobController extends WaspController {
 			  //since this is now an ajax call, we no longer need/use @RequestParam("file_description") String fileDescription, @RequestParam("file_upload") MultipartFile mpFile,
 			  final ModelMap m) throws SampleTypeException {
 	
-			  //return new Callable<String>() {
+			 /* return new Callable<String>() {
 
-			//		@Override
-				//	public String call() throws Exception {
+					@Override
+					public String call() throws Exception {*/
 						Job job = jobService.getJobByJobId(jobId);
 						if(job.getId()==null){
 						   	logger.warn("Job unexpectedly not found");
@@ -2010,8 +2010,8 @@ public class JobController extends WaspController {
 						}
 						populateFileUploadPage(job, m);
 						return "job/home/fileUploadManager";
-				//	}
-			  //};
+		//			}
+		//	  };
 	}
 	
 	  @Transactional

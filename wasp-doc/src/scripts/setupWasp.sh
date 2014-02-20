@@ -67,7 +67,7 @@ git pull origin master
 cd ../
 done
 
-echo "Updating and re-deploying WASP System..."
+echo "Updating and re-deploying Wasp System..."
 echo "Attempting to clean, package and deploy WASP Swarm"
 cd $PROJECT_HOME
 mvn -Dcatalina.home=$CATALINA_HOME -DskipTests=false clean install

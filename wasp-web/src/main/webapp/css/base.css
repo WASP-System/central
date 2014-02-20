@@ -60,16 +60,6 @@
 	margin-left: auto;   margin-right: auto;
 }
 
-
-
-.header_nav {
-	float:right;
-	text-align:right;
-	padding-top:5px;
-	padding-right:5px;
-	font-size: 14px;
-}
-
 .center{
 	margin-left: auto;
 	margin-right: auto;
@@ -359,7 +349,9 @@ div.waspMessage {
 
 div.waspMessage ul, div.waspErrorMessage ul{
 	list-style-type: circle;
-	margin-left: 20px;
+	margin: 0px 0px 0px 20px;
+	padding: 0;
+	border: 0;
 }
 
 div.waspErrorMessage {
@@ -580,4 +572,23 @@ TABLE.data TD.value-centered-small {
 
 #wait_dialog-modal td{
 	vertical-align: middle;
+}
+
+.header_panel_right {
+	position:relative;
+	float: right;
+}
+
+.waspIcon {
+}
+
+.header_nav {
+	text-align:right;
+	padding-top:20px;
+	padding-right:5px;
+	font-size: 14px;
+}
+
+.ext_treeGrid td {
+	padding: 0px;
 }

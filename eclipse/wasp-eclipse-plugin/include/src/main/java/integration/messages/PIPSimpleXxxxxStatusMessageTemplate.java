@@ -7,6 +7,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
+import edu.yu.einstein.wasp.integration.messages.templates.SampleStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 /**
@@ -72,6 +73,13 @@ public class Simple___PluginIName___StatusMessageTemplate extends WaspStatusMess
 	public static boolean isMessageOfCorrectType(Message<?> message) {
 		return message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) &&  
 				message.getHeaders().get(WaspMessageType.HEADER_KEY).equals(___PluginIName___MessageType.___PluginIName___);
+	}
+	
+	@Override
+	public Simple___PluginIName___StatusMessageTemplate getNewInstance(WaspStatusMessageTemplate messageTemplate){
+		Simple___PluginIName___StatusMessageTemplate newTemplate = new Simple___PluginIName___StatusMessageTemplate();
+		copyCommonProperties(messageTemplate, newTemplate);
+		return newTemplate;
 	}
 
 }

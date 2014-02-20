@@ -27,8 +27,8 @@
 		
 		<%-- 
 		<li><a id="dataByRunsAnchor"  href="javascript:void(0);" onclick='loadIFrameAnotherWay(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/runs.do" />");' >Data By Runs</a></li>
-		--%>
 		<li><a id="mpsResultsBySample"  href="<c:url value="/job/${job.getId()}/mpsResultsListedBySample.do" />" >Data By Samples</a></li>
 		<li><a id="aggregateAnalysisAnchor"  href="javascript:void(0);" onclick='alert("not yet implemented"); return false;' >Analysis</a></li>
+		--%>
 	</ul>
 </div>

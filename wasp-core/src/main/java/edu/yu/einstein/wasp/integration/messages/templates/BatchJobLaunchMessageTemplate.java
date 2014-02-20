@@ -129,4 +129,9 @@ public class BatchJobLaunchMessageTemplate extends WaspMessageTemplate{
 	}
 	
 	
+	@Override
+	public Object getPayload(){
+		return getBatchJobLaunchContext();
+	}
+	
 }

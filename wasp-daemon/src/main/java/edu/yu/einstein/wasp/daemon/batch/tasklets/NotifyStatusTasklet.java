@@ -11,7 +11,7 @@ import org.springframework.integration.MessageChannel;
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
 
-public class NotifyStatusTasklet extends WaspTasklet {
+public class NotifyStatusTasklet extends AbandonMessageHandlingTasklet {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

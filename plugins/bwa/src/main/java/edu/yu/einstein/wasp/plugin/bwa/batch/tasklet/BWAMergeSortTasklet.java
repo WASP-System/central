@@ -10,18 +10,16 @@ import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
+import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
@@ -42,7 +40,7 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  * @author calder
  *
  */
-public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionListener {
+public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 	
 	private String scratchDirectory;
 	private Integer cellLibId;
@@ -72,32 +70,20 @@ public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionLis
 	@Autowired
 	private GridHostResolver gridHostResolver;
 	
+	@Autowired
+	@Qualifier("picard")
+	private SoftwarePackage picard;
+	
 	public BWAMergeSortTasklet() {
 		// proxy
 	}
-
+	
 	/** 
 	 * {@inheritDoc}
 	 */
 	@Override
 	@Transactional("entityManager")
-	@RetryOnExceptionExponential
-	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
-		
-		// if the work has already been started, then check to see if it is
-		// finished
-		// if not, throw an exception that is caught by the repeat policy.
-		RepeatStatus repeatStatus = super.execute(contrib, context);
-		if (repeatStatus.equals(RepeatStatus.FINISHED)){
-			// register .bam and .bai file groups with cellLib so as to make available to views
-			SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);
-			if (bamGId != null && cellLib.getId() != 0)
-				fileService.setSampleSourceFile(fileService.getFileGroupById(bamGId), cellLib);
-			if (baiGId != null && cellLib.getId() != 0)
-				fileService.setSampleSourceFile(fileService.getFileGroupById(baiGId), cellLib);
-			return RepeatStatus.FINISHED;
-		}
-
+	public void doExecute(ChunkContext context) throws Exception {
 		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);
 
 		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
@@ -124,6 +110,7 @@ public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionLis
 		w.setRequiredFiles(fhlist);
 		
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
+		sd.add(picard);
 		w.setSoftwareDependencies(sd);
 		w.setSecureResults(true);
 		
@@ -166,7 +153,7 @@ public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionLis
 		
 		w.setCommand("shopt -s nullglob\n");
 		w.addCommand("for x in sam.*.out; do ln -s ${x} ${x/*:/}.sam ; done\n");
-		w.addCommand("java -Xmx4g -jar $PICARD_HOME/MergeSamFiles.jar $(printf 'I=%s ' *.out.sam) O=${" + WorkUnit.OUTPUT_FILE + "[0]} " +
+		w.addCommand("java -Xmx4g -jar $PICARD_ROOT/MergeSamFiles.jar $(printf 'I=%s ' *.out.sam) O=${" + WorkUnit.OUTPUT_FILE + "[0]} " +
 				"SO=coordinate TMP_DIR=. CREATE_INDEX=true VALIDATION_STRINGENCY=SILENT");
 		w.addCommand("cp ${" + WorkUnit.OUTPUT_FILE + "[0]}.bai ${" + WorkUnit.OUTPUT_FILE + "[1]}");
 			
@@ -178,8 +165,20 @@ public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionLis
 
 		// place the grid result in the step context
 		storeStartedResult(context, result);
-
-		return RepeatStatus.CONTINUABLE;
+	}
+	
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional("entityManager")
+	public void doPreFinish(ChunkContext context) throws Exception {
+		// register .bam and .bai file groups with cellLib so as to make available to views
+		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);
+		if (bamGId != null && cellLib.getId() != 0)
+			fileService.setSampleSourceFile(fileService.getFileGroupById(bamGId), cellLib);
+		if (baiGId != null && cellLib.getId() != 0)
+			fileService.setSampleSourceFile(fileService.getFileGroupById(baiGId), cellLib);	
 	}
 	
 
@@ -187,9 +186,8 @@ public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionLis
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ExitStatus afterStep(StepExecution arg0) {
-		// TODO Auto-generated method stub
-		return null;
+	public ExitStatus afterStep(StepExecution stepExecution) {
+		return super.afterStep(stepExecution);
 	}
 
 	/** 
@@ -197,6 +195,7 @@ public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionLis
 	 */
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
+		super.beforeStep(stepExecution);
 		logger.debug("BeforeStep saving StepExecution");
         this.stepExecution = stepExecution;
 		JobExecution jobExecution = stepExecution.getJobExecution();
@@ -205,7 +204,6 @@ public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionLis
 		this.cellLibId = (Integer) jobContext.get("cellLibId");
 		this.bamGId = (Integer) stepExecution.getExecutionContext().get("bamGID");
 		this.baiGId = (Integer) stepExecution.getExecutionContext().get("baiGID");
-		
 	}
 
 }

@@ -10,10 +10,12 @@ import java.util.Map;
 
 import edu.yu.einstein.wasp.helptag.integration.messages.SimpleHelptagStatusMessageTemplate;
 import edu.yu.einstein.wasp.helptag.plugin.HelptagPlugin;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -30,7 +32,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
@@ -153,8 +154,8 @@ public class HelptagJobLaunchTests extends AbstractTestNGSpringContextTests impl
 			
 			// get the JobExecution for the job we just executed and verify that it completed successfully.
 			// We can use the jobExplorer to get this.
-			BatchStatus jobExecutionStatus = jobExplorer.getMostRecentlyStartedJobExecutionInList(jobExplorer.getJobExecutions(HelptagPlugin.PREP_FLOW_NAME)).getStatus();
-			Assert.assertEquals(jobExecutionStatus, BatchStatus.COMPLETED);
+			ExitStatus jobExecutionStatus = jobExplorer.getMostRecentlyStartedJobExecutionInList(jobExplorer.getJobExecutions(HelptagPlugin.PREP_FLOW_NAME)).getExitStatus();
+			Assert.assertTrue(jobExecutionStatus.isCompleted());
 		} catch (Exception e){
 			logger.error("Caught unexpected exception: " + e.getLocalizedMessage());
 			throw e; // re-throw the exception

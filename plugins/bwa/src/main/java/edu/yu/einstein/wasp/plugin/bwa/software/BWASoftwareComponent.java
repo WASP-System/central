@@ -8,11 +8,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.exception.NullResourceException;
-import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
@@ -86,6 +86,10 @@ public class BWASoftwareComponent extends ReferenceBasedAligner {
 				}
 			alnOpts += " " + key + " " + jobParameters.get(opt).toString();
 		}
+
+		String checkIndex = "if [ ! -e " + getGenomeIndexPath(getGenomeBuild(libraryCell)) + ".bwt ]; then\n  exit 101;\nfi";
+
+		w.setCommand(checkIndex);
 		
 		String command = "bwa aln " + alnOpts + " -t ${" + WorkUnit.NUMBER_OF_THREADS + "} " + 
 				getGenomeIndexPath(getGenomeBuild(libraryCell)) + " " +
@@ -94,7 +98,7 @@ public class BWASoftwareComponent extends ReferenceBasedAligner {
 		
 		logger.debug("Will conduct bwa aln with string: " + command);
 		
-		w.setCommand(command);
+		w.addCommand(command);
 		
 		return w;
 	}

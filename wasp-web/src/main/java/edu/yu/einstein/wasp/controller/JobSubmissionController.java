@@ -4,10 +4,7 @@ package edu.yu.einstein.wasp.controller;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -17,14 +14,14 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
-//import java.util.concurrent.Callable;
-
+import java.util.concurrent.Callable;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.MessagingException;
@@ -85,7 +82,6 @@ import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.MetadataTypeException;
-import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
@@ -1393,10 +1389,10 @@ public class JobSubmissionController extends WaspController {
 		final JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		
 		final User me = authenticationService.getAuthenticatedUser(); // need to do this here as no access to SecurityContextHolder off the main thread
-		//return new Callable<String>() {
+		/*return new Callable<String>() {
 
-		//	@Override
-		//	public String call() throws Exception {
+			@Override
+			public String call() throws Exception {*/
 				if (! isJobDraftEditable(jobDraft, me))
 					return "redirect:/dashboard.do";
 				
@@ -1422,8 +1418,8 @@ public class JobSubmissionController extends WaspController {
 					return "redirect:/jobsubmit/samples/"+jobDraftId+".do"; 
 				}
 				return nextPage(jobDraft);
-		//	}
-		//};
+	//		}
+	//	};
 		
 	}
 	
@@ -2444,7 +2440,7 @@ public class JobSubmissionController extends WaspController {
 
 	@RequestMapping(value="/submit/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
-	public/* Callable<String>*/ String submitJob(@PathVariable("jobDraftId") final Integer jobDraftId, final ModelMap m) {
+	public /*Callable<String>*/ String submitJob(@PathVariable("jobDraftId") final Integer jobDraftId, final ModelMap m) {
 		final User me = authenticationService.getAuthenticatedUser(); // need to do this here as no access to SecurityContextHolder off the main thread
 		
 		// Use asynchronous request processing to handle the business logic here as job submission process make take a few secs due to daemon delays
@@ -2452,10 +2448,10 @@ public class JobSubmissionController extends WaspController {
 		// NOTE 1: As for all anonymous inner classes, the variables passed in MUST be final to prohibit object re-assignment.
 		// NOTE 2: As we use the security context when writing pages, we must use 'redirect' when returning the destination page. 
 		
-		//return new Callable<String>() {
+		/*return new Callable<String>() {
 
-		//	@Override
-		//	public String call() throws Exception {
+			@Override
+			public String call() throws Exception {*/
 				
 				JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 				boolean error = false;
@@ -2490,8 +2486,8 @@ public class JobSubmissionController extends WaspController {
 					return "redirect:/jobsubmit/failed/" + jobDraftId + ".do";
 				}
 				return nextPage(jobDraft); // no Security Context problem as evaluates to a redirected link e.g 'redirect:/submitjob/ok.do'
-		//	}
-		//};
+	//		}
+	//	};
 		
 	}
 	
