@@ -13,8 +13,6 @@ import org.apache.commons.lang.StringUtils;
 public class WaspSoftwareJobParameters extends WaspJobParameters {
 
 	public static final String LIBRARY_CELL_ID_LIST = "libraryCellIdList"; // Sample Source reference
-	public static final String TEST_LIBRARY_CELL_ID_LIST = "testLibraryCellIdList"; // Sample Source reference
-	public static final String CONTROL_LIBRARY_CELL_ID_LIST = "controlLibraryCellIdList"; // Sample Source reference
 	
 	
 	/**

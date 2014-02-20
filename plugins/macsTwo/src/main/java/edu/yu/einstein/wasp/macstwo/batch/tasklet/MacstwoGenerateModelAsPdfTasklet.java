@@ -28,6 +28,7 @@ import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 
+import edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters;
 import edu.yu.einstein.wasp.macstwo.software.Macstwo;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
@@ -89,24 +90,18 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspTasklet implements Ste
 	public MacstwoGenerateModelAsPdfTasklet() {
 		// proxy
 	}
-/*
-	public MacstwoGenerateModelAsPdfTasklet(String testCellLibraryIdListAsString, String controlCellLibraryIdListAsString) throws Exception {
-		logger.debug("Starting MacstwoTasklet constructor");
-		logger.debug("testCellLibraryIdListAsString: " + testCellLibraryIdListAsString);
-		logger.debug("controlCellLibraryIdListAsString: " + controlCellLibraryIdListAsString);
-		this.testCellLibraryIdList = WaspSoftwareJobParameters.getLibraryCellIdList(testCellLibraryIdListAsString);//should be all from same job
-		Assert.assertTrue(!this.testCellLibraryIdList.isEmpty());
-		//oddly enough (and not expected from the code), WaspSoftwareJobParameters.getLibraryCellIdList(controlCellLibraryIdListAsString)
-		//throws an exception if controlCellLibraryIdListAsString is an empty string, thus the need for the if-else statement
-		if(controlCellLibraryIdListAsString==null || controlCellLibraryIdListAsString.isEmpty()){
-			this.controlCellLibraryIdList = new ArrayList<Integer>();
-		}
-		else{
-			this.controlCellLibraryIdList = WaspSoftwareJobParameters.getLibraryCellIdList(controlCellLibraryIdListAsString);//may be empty
-		}
-		logger.debug("Ending MacstwoTasklet constructor");
+
+	//this constructor not currently used; could NOT make it obtain parameter
+	public MacstwoGenerateModelAsPdfTasklet(String modelScriptGIdAsString) throws Exception {
+		logger.debug("***Starting MacstwoGenerateModelAsPdfTasklet constructor");
+		logger.debug("modelScriptGIdAsString: " + modelScriptGIdAsString);
+		this.modelScriptGId = new Integer(modelScriptGIdAsString);
+		Assert.assertTrue(this.modelScriptGId != null);
+		Assert.assertTrue(this.modelScriptGId.intValue() > 0);
+		logger.debug("value in constructor: this.modelScriptGId (integer): " + this.modelScriptGId.toString());
+		logger.debug("Ending MacstwoGenerateModelAsPdfTasklet constructor");
 	}
-*/
+
 	/**
 	 * 
 	 * @param contrib
@@ -205,8 +200,29 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspTasklet implements Ste
 
 		Map<String,Object> jobExecutionContextMap = context.getStepContext().getJobExecutionContext();		
 		for (String key : jobExecutionContextMap.keySet()) {
+			if(key.equalsIgnoreCase(MacstwoSoftwareJobParameters.MODEL_SCRIPT_FILEGROUP_ID)){
+				this.modelScriptGId = new Integer(jobExecutionContextMap.get(key).toString());
+			}
 			logger.debug("*****      MacstwoGenerateModelAsPdfTasklet Key: " + key + " Value: " + jobExecutionContextMap.get(key).toString());
 		}
+		Assert.assertTrue(this.modelScriptGId != null);
+		Assert.assertTrue(this.modelScriptGId.intValue() > 0);
+		logger.debug("this.modelScriptGId (integer): " + this.modelScriptGId.toString());
+		
+		FileGroup modelScriptFileGroup = fileService.getFileGroupById(this.modelScriptGId);
+		logger.debug("modelScriptFileGroup.description: " + modelScriptFileGroup.getDescription());
+		Set<FileHandle> fileHandleSet = modelScriptFileGroup.getFileHandles();
+		logger.debug("fileHandleSet.size: " + fileHandleSet.size());
+		Assert.assertTrue(fileHandleSet.size()==1);
+		for(FileHandle fh : fileHandleSet){
+			logger.debug("filehandle.name = " + fh.getFileName());
+		}
+		FileHandle modelScriptFileHandle = new ArrayList<FileHandle>(fileHandleSet).get(0);
+		logger.debug("*****modelScriptFileHandle.name = " + modelScriptFileHandle.getFileName());
+		//Assert.assertTrue(modelScriptFileHandle.getFileType().getIName().equalsIgnoreCase(macs2ModelScriptFileType.getIName()));
+		String pdfFileName = modelScriptFileHandle.getFileName().replaceAll(".r$", ".pdf");
+		logger.debug("*****pdfFileName = " + pdfFileName);
+
 /*		
 		SampleSource firstTestCellLibrary = sampleService.getCellLibraryBySampleSourceId(this.testCellLibraryIdList.get(0));
 		Sample testSample = sampleService.getLibrary(firstTestCellLibrary);//all these cellLibraries are from the same library or macromoleucle

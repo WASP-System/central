@@ -28,6 +28,7 @@ import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 
+import edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters;
 import edu.yu.einstein.wasp.macstwo.software.Macstwo;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
@@ -377,11 +378,11 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 		
 
 		//return RepeatStatus.CONTINUABLE;
-		logger.debug("**********************************************************************");
+		logger.debug("****    ******************************************************************");
 		logger.debug("just about to declare FINISHED in the macstwoTasklet, to see if we move forward to the generateModel tasklet");
-		logger.debug("**********************************************************************");
-		stepExecution.getExecutionContext().put("modelScriptGIdAsString", "1234");//needed for the next (RScript) task
-
+		logger.debug("******    ****************************************************************");
+		//stepExecution.getExecutionContext().put("modelScriptGId", "1234");//needed for the next (RScript) task
+		stepExecution.getExecutionContext().put(MacstwoSoftwareJobParameters.MODEL_SCRIPT_FILEGROUP_ID, "38");
 		return RepeatStatus.FINISHED;
 	}
 	

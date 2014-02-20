@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
+import edu.yu.einstein.wasp.chipseq.integration.messages.ChipSeqSoftwareJobParameters;
 import edu.yu.einstein.wasp.chipseq.software.ChipSeqSoftwareComponent;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
@@ -360,8 +361,8 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 			}
 			logger.warn("Flowname : " + flowName);
 			Map<String, String> jobParameters = softwareConfig.getParameters();
-			jobParameters.put(WaspSoftwareJobParameters.TEST_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(testCellLibraryIdList));
-			jobParameters.put(WaspSoftwareJobParameters.CONTROL_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(controlCellLibraryIdList));
+			jobParameters.put(ChipSeqSoftwareJobParameters.TEST_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(testCellLibraryIdList));
+			jobParameters.put(ChipSeqSoftwareJobParameters.CONTROL_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(controlCellLibraryIdList));
 			jobParameters.put("test", new Date().toString());//TODO: remove for production
 			
 			//this next line works, but was replaced with the subsequent 7 lines, and the WaspMessageBuildingException exception

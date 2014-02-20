@@ -28,6 +28,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask; 
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
+import edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Software; 
 import edu.yu.einstein.wasp.plugin.BatchJobProviding; 
@@ -111,9 +112,9 @@ public class MacstwoPlugin extends WaspPlugin
 			
 			Map<String, String> jobParameters = new HashMap<String, String>();
 			jobParameters.put("test", new Date().toString());
-			jobParameters.put(WaspSoftwareJobParameters.TEST_LIBRARY_CELL_ID_LIST, "39");
+			//jobParameters.put(ChipSeqSoftwareJobParameters.TEST_LIBRARY_CELL_ID_LIST, "39");
 			//wrong job jobParameters.put(WaspSoftwareJobParameters.TEST_LIBRARY_CELL_ID_LIST, "22");
-			jobParameters.put(WaspSoftwareJobParameters.CONTROL_LIBRARY_CELL_ID_LIST, "37");
+			//jobParameters.put(ChipSeqSoftwareJobParameters.CONTROL_LIBRARY_CELL_ID_LIST, "37");
 			//logger.info("Sending launch message with flow " + FLOW_NAME + " and id: " + id);
 			//jobParameters.put(WaspJobParameters.TEST_ID, id.toString());
 			waspMessageHandlingService.launchBatchJob(FLOW_NAME, jobParameters);
