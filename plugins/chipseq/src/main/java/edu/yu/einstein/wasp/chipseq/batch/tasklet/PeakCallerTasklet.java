@@ -5,6 +5,7 @@ package edu.yu.einstein.wasp.chipseq.batch.tasklet;
  */
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -361,6 +362,7 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 			Map<String, String> jobParameters = softwareConfig.getParameters();
 			jobParameters.put(WaspSoftwareJobParameters.TEST_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(testCellLibraryIdList));
 			jobParameters.put(WaspSoftwareJobParameters.CONTROL_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(controlCellLibraryIdList));
+			jobParameters.put("test", new Date().toString());//TODO: remove for production
 			
 			//this next line works, but was replaced with the subsequent 7 lines, and the WaspMessageBuildingException exception
 			//waspMessageHandlingService.launchBatchJob(flowName, jobParameters);

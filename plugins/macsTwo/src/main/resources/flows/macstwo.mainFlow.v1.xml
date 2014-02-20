@@ -16,7 +16,7 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="edu.yu.einstein.wasp.macstwo.mainFlow.performAction" next="edu.yu.einstein.wasp.macstwo.mainFlow.notifyComplete">
+		<batch:step id="edu.yu.einstein.wasp.macstwo.mainFlow.performAction" next="edu.yu.einstein.wasp.macstwo.generateModelAsPdf.performAction">
 			<!-- next line is an example of a do-nothing tasklet -->
 			<!-- <batch:tasklet ref="edu.yu.einstein.wasp.macstwo.mainFlow.skipTasklet" /> -->
 			<batch:tasklet>
@@ -26,6 +26,19 @@
 					<constructor-arg name="controlCellLibraryIdListAsString" value="#{jobParameters[waspSoftwareJobParameters.CONTROL_LIBRARY_CELL_ID_LIST]}" />
 				</bean>
 			</batch:tasklet>
+			<batch:listeners>
+				<batch:listener ref="macstwoPromotionListener" />
+			</batch:listeners>
+		</batch:step>
+		<batch:step id="edu.yu.einstein.wasp.macstwo.generateModelAsPdf.performAction" next="edu.yu.einstein.wasp.macstwo.mainFlow.notifyComplete">
+			<!-- next line is an example of a do-nothing tasklet -->
+			<!-- <batch:tasklet ref="edu.yu.einstein.wasp.macstwo.mainFlow.skipTasklet" /> -->
+			<batch:tasklet>
+				<batch:transaction-attributes propagation="NEVER"/>
+				<bean class="edu.yu.einstein.wasp.macstwo.batch.tasklet.MacstwoGenerateModelAsPdfTasklet" scope="step">
+				</bean>
+			</batch:tasklet>
+			
 		</batch:step>
 		<batch:step id="edu.yu.einstein.wasp.macstwo.mainFlow.notifyComplete">
 			<batch:tasklet>
@@ -42,7 +55,12 @@
 	</batch:job>
 
 	<bean id="edu.yu.einstein.wasp.macstwo.mainFlow.skipTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" scope="step" />
-
+	
+	<bean id="macstwoPromotionListener" class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
+		<property name="keys" value="modelScriptGIdAsString"  />
+		<property name="statuses" value="COMPLETED,FAILED" />
+	</bean>
+	
 </beans>
 
 <!-- NOTE 1: public static members of a bean can easily be accessed using SpEL e.g.:  -->

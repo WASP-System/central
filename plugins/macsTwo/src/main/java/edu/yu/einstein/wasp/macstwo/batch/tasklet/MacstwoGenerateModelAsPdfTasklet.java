@@ -46,33 +46,27 @@ import edu.yu.einstein.wasp.service.SampleService;
  * @author 
  * 
  */
-public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener {
+public class MacstwoGenerateModelAsPdfTasklet extends WaspTasklet implements StepExecutionListener {
 
+	private Integer modelScriptGId;
+	/*
 	private List<Integer> testCellLibraryIdList;//treated, such as IP
 	private List<Integer> controlCellLibraryIdList;//contol, such as input 
-	private Integer modelScriptGId;
-	private Integer peaksXlsGId;
-	private Integer narrowPeaksBedGId;
-	private Integer summitsBedGId;
-	private Integer treatPileupBedGraphGId;
-	private Integer controlLambdaBedGraphGId;
-	private Integer testSampleId;
-	private Integer controlSampleId;
 	
+	Integer peaksXlsGId;
+	Integer narrowPeaksBedGId;
+	Integer summitsBedGId;
+	Integer treatPileupBedGraphGId;
+	Integer controlLambdaBedGraphGId;
+	Integer testSampleId;
+	Integer controlSampleId;
+	*/
 	private StepExecution stepExecution;
 	
 	@Autowired
+	private FileType macs2ModelPdfFileType;
+	@Autowired
 	private FileType macs2ModelScriptFileType;
-	@Autowired
-	private FileType macs2PeaksXlsFileType;
-	@Autowired
-	private FileType macs2NarrowPeaksBedFileType;
-	@Autowired
-	private FileType macs2SummitsBedFileType;
-	@Autowired
-	private FileType macs2TreatPileupBedGraphFileType;
-	@Autowired
-	private FileType macs2ControlLambdaBedGraphFileType;
 	
 	@Autowired
 	private JobService jobService;
@@ -92,11 +86,11 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 	private Macstwo macs2;//TODO: how????
 	
 
-	public MacstwoTasklet() {
+	public MacstwoGenerateModelAsPdfTasklet() {
 		// proxy
 	}
-
-	public MacstwoTasklet(String testCellLibraryIdListAsString, String controlCellLibraryIdListAsString) throws Exception {
+/*
+	public MacstwoGenerateModelAsPdfTasklet(String testCellLibraryIdListAsString, String controlCellLibraryIdListAsString) throws Exception {
 		logger.debug("Starting MacstwoTasklet constructor");
 		logger.debug("testCellLibraryIdListAsString: " + testCellLibraryIdListAsString);
 		logger.debug("controlCellLibraryIdListAsString: " + controlCellLibraryIdListAsString);
@@ -112,7 +106,7 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 		}
 		logger.debug("Ending MacstwoTasklet constructor");
 	}
-
+*/
 	/**
 	 * 
 	 * @param contrib
@@ -123,18 +117,19 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 	@Override
 	@RetryOnExceptionExponential
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
-		
-		logger.debug("Starting MacstwoTasklet execute");
+		logger.debug("*************************************");
+		logger.debug("Starting MacstwoGenerateModelAsPdfTasklet execute");
 		
 		RepeatStatus repeatStatus = super.execute(contrib, context);
 		if (repeatStatus.equals(RepeatStatus.FINISHED)){
 			// register .bam and .bai file groups with cellLib so as to make available to views
+			/*
 			Sample testSample = sampleService.getSampleById(testSampleId);
 			
-			if (this.modelScriptGId != null && testSample.getId() != 0){
+			if (modelScriptGId != null && testSample.getId() != 0){
 				////fileService.setSampleFile(fileService.getFileGroupById(modelScriptGId), testSample);
 				stepExecution.getExecutionContext().put("modelScriptGIdAsString", this.modelScriptGId.toString());//needed for the next (RScript) task
-				FileGroup fg = fileService.getFileGroupById(this.modelScriptGId);
+				FileGroup fg = fileService.getFileGroupById(modelScriptGId);
 				fileService.setSampleFile(fg, testSample);
 				FileGroupMeta fgm = new FileGroupMeta();
 				fgm.setK("chipseq.controlId");
@@ -144,9 +139,9 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 				fgmList.add(fgm);
 				fileService.saveFileGroupMeta(fgmList, fg);
 			}
-			if (this.peaksXlsGId != null && testSample.getId() != 0){
+			if (peaksXlsGId != null && testSample.getId() != 0){
 				////fileService.setSampleFile(fileService.getFileGroupById(peaksXlsGId), testSample);
-				FileGroup fg = fileService.getFileGroupById(this.peaksXlsGId);
+				FileGroup fg = fileService.getFileGroupById(peaksXlsGId);
 				fileService.setSampleFile(fg, testSample);
 				FileGroupMeta fgm = new FileGroupMeta();
 				fgm.setK("chipseq.controlId");
@@ -156,9 +151,9 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 				fgmList.add(fgm);
 				fileService.saveFileGroupMeta(fgmList, fg);
 			}
-			if (this.narrowPeaksBedGId != null && testSample.getId() != 0){
+			if (narrowPeaksBedGId != null && testSample.getId() != 0){
 				////fileService.setSampleFile(fileService.getFileGroupById(narrowPeaksBedGId), testSample);
-				FileGroup fg = fileService.getFileGroupById(this.narrowPeaksBedGId);
+				FileGroup fg = fileService.getFileGroupById(narrowPeaksBedGId);
 				fileService.setSampleFile(fg, testSample);
 				FileGroupMeta fgm = new FileGroupMeta();
 				fgm.setK("chipseq.controlId");
@@ -168,9 +163,9 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 				fgmList.add(fgm);
 				fileService.saveFileGroupMeta(fgmList, fg);
 			}
-			if (this.summitsBedGId != null && testSample.getId() != 0){
+			if (summitsBedGId != null && testSample.getId() != 0){
 				///fileService.setSampleFile(fileService.getFileGroupById(summitsBedGId), testSample);
-				FileGroup fg = fileService.getFileGroupById(this.summitsBedGId);
+				FileGroup fg = fileService.getFileGroupById(summitsBedGId);
 				fileService.setSampleFile(fg, testSample);
 				FileGroupMeta fgm = new FileGroupMeta();
 				fgm.setK("chipseq.controlId");
@@ -180,9 +175,9 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 				fgmList.add(fgm);
 				fileService.saveFileGroupMeta(fgmList, fg);
 			}
-			if (this.treatPileupBedGraphGId != null && testSample.getId() != 0){
+			if (treatPileupBedGraphGId != null && testSample.getId() != 0){
 				///fileService.setSampleFile(fileService.getFileGroupById(treatPileupBedGraphGId), testSample);
-				FileGroup fg = fileService.getFileGroupById(this.treatPileupBedGraphGId);
+				FileGroup fg = fileService.getFileGroupById(treatPileupBedGraphGId);
 				fileService.setSampleFile(fg, testSample);
 				FileGroupMeta fgm = new FileGroupMeta();
 				fgm.setK("chipseq.controlId");
@@ -192,9 +187,9 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 				fgmList.add(fgm);
 				fileService.saveFileGroupMeta(fgmList, fg);
 			}
-			if (this.controlLambdaBedGraphGId != null && testSample.getId() != 0){
+			if (controlLambdaBedGraphGId != null && testSample.getId() != 0){
 				///fileService.setSampleFile(fileService.getFileGroupById(controlLambdaBedGraphGId), testSample);
-				FileGroup fg = fileService.getFileGroupById(this.controlLambdaBedGraphGId);
+				FileGroup fg = fileService.getFileGroupById(controlLambdaBedGraphGId);
 				fileService.setSampleFile(fg, testSample);
 				FileGroupMeta fgm = new FileGroupMeta();
 				fgm.setK("chipseq.controlId");
@@ -204,18 +199,15 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 				fgmList.add(fgm);
 				fileService.saveFileGroupMeta(fgmList, fg);
 			}
+			*/
 			return RepeatStatus.FINISHED;
 		}		
 
-		Map<String,Object> jobParameters = context.getStepContext().getJobParameters();		
-		for (String key : jobParameters.keySet()) {
-			logger.debug("jobParameters Key: " + key + " Value: " + jobParameters.get(key).toString());
-		}
 		Map<String,Object> jobExecutionContextMap = context.getStepContext().getJobExecutionContext();		
 		for (String key : jobExecutionContextMap.keySet()) {
-			logger.debug("jobExecutionContextMap Key: " + key + " Value: " + jobExecutionContextMap.get(key).toString());
+			logger.debug("*****      MacstwoGenerateModelAsPdfTasklet Key: " + key + " Value: " + jobExecutionContextMap.get(key).toString());
 		}
-		
+/*		
 		SampleSource firstTestCellLibrary = sampleService.getCellLibraryBySampleSourceId(this.testCellLibraryIdList.get(0));
 		Sample testSample = sampleService.getLibrary(firstTestCellLibrary);//all these cellLibraries are from the same library or macromoleucle
 		while(testSample.getParent()!=null){
@@ -284,7 +276,7 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 		logger.debug("preparing to generate workunit");
 		WorkUnit w = macs2.getPeaks(prefixForFileName, testFileHandleList, controlFileHandleList, jobParameters);//configure
 		logger.debug("OK, workunit has been generated");
-
+*/
 		/*		
 		FileGroup modelScriptG = new FileGroup();
 		FileHandle modelScript = new FileHandle();
@@ -359,6 +351,13 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 		w.getResultFiles().add(summitsBedG);
 		w.getResultFiles().add(treatPileupBedGraphG);
 		w.getResultFiles().add(controlLambdaBedGraphG);
+	*/	
+		logger.debug("getting ready to thow rob-generated exception");
+		if(1==1){
+			throw new Exception("throwing Rob-generated exception in MacstwoGenerateModelAsPdfTasklet.execute()");
+		}
+		logger.debug("throwing Rob-generated exception in MacstwoGenerateModelAsPdfTasklet.execute()");
+		
 		
 		//w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
    
@@ -367,22 +366,7 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 		//place the grid result in the step context
 		//storeStartedResult(context, result);
 
-	*/	
-		//logger.debug("getting ready to thow rob-generated exception");
-		//if(1==1){
-		//	throw new Exception("throwing Rob-generated exception in MacstwoTasklet.execute()");
-		//}
-		//logger.debug("just threw rob-generated exception");
-		
-		
-
-		//return RepeatStatus.CONTINUABLE;
-		logger.debug("**********************************************************************");
-		logger.debug("just about to declare FINISHED in the macstwoTasklet, to see if we move forward to the generateModel tasklet");
-		logger.debug("**********************************************************************");
-		stepExecution.getExecutionContext().put("modelScriptGIdAsString", "1234");//needed for the next (RScript) task
-
-		return RepeatStatus.FINISHED;
+		return RepeatStatus.CONTINUABLE;
 	}
 	
 
@@ -406,12 +390,13 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 		//this.scratchDirectory = jobContext.get("scrDir").toString();
 		//this.cellLibId = (Integer) jobContext.get("cellLibId");
 		this.modelScriptGId = (Integer) stepExecution.getExecutionContext().get("modelScriptGId");
-		this.peaksXlsGId = (Integer) stepExecution.getExecutionContext().get("peaksXlsGId");
-		this.narrowPeaksBedGId = (Integer) stepExecution.getExecutionContext().get("narrowPeaksBedGId");
-		this.summitsBedGId = (Integer) stepExecution.getExecutionContext().get("summitsBedGId");
-		this.treatPileupBedGraphGId = (Integer) stepExecution.getExecutionContext().get("treatPileupBedGraphGId");
-		this.controlLambdaBedGraphGId = (Integer) stepExecution.getExecutionContext().get("controlLambdaBedGraphGId");
-		this.testSampleId = (Integer) stepExecution.getExecutionContext().get("testSampleId");
-		this.controlSampleId = (Integer) stepExecution.getExecutionContext().get("controlSampleId");		
+		//this.peaksXlsGId = (Integer) stepExecution.getExecutionContext().get("peaksXlsGId");
+		//this.narrowPeaksBedGId = (Integer) stepExecution.getExecutionContext().get("narrowPeaksBedGId");
+		//this.summitsBedGId = (Integer) stepExecution.getExecutionContext().get("summitsBedGId");
+		//this.treatPileupBedGraphGId = (Integer) stepExecution.getExecutionContext().get("treatPileupBedGraphGId");
+		//this.controlLambdaBedGraphGId = (Integer) stepExecution.getExecutionContext().get("controlLambdaBedGraphGId");
+		///this.testSampleId = (Integer) stepExecution.getExecutionContext().get("testSampleId");
+		//this.controlSampleId = (Integer) stepExecution.getExecutionContext().get("controlSampleId");		
 	}
 }
+
