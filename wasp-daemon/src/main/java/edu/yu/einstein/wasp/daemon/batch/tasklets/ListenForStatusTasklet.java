@@ -77,6 +77,8 @@ public class ListenForStatusTasklet extends WaspHibernatingTasklet implements Me
 	
 	public Set<WaspStatus> getFailOnStatuses(){
 		Set<WaspStatus> failOnStatusSet = new HashSet<>();
+		if (failOnStatuses.isEmpty())
+			return failOnStatusSet;
 		for (String status : failOnStatuses.split(","))
 			failOnStatusSet.add(WaspStatus.valueOf(status.trim()));
 		return failOnStatusSet;
@@ -154,10 +156,12 @@ public class ListenForStatusTasklet extends WaspHibernatingTasklet implements Me
 	
 	private ExitStatus getExitStatus(StepExecution stepExecution, WaspStatus waspStatus){
 		ExitStatus status = stepExecution.getExitStatus();
+		logger.debug("exit status entering: " + status);
 		if (getFailOnStatuses().contains(waspStatus))
-			status.and(ExitStatus.FAILED);
+			status = status.and(ExitStatus.FAILED);
 		if (waspStatus.equals(WaspStatus.ABANDONED) && stepExecution.getStatus().equals(BatchStatus.COMPLETED))
-			status.and(ExitStatus.TERMINATED);
+			status = status.and(ExitStatus.TERMINATED);
+		logger.debug("exit status exiting: " + status);
 		return status;
 	}
 	
