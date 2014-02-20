@@ -203,7 +203,7 @@
 		   				
 		   				<td class="DataTD" style="text-align:center; white-space:nowrap;">
 		   					<c:if test='${qcStatusMap.get(library) == "PASSED"}'>			 				
-				 				<c:set value="${libraryCellListMap.get(library)}" var="cellList"/>	
+				 				<c:set value="${cellLibraryListMap.get(library)}" var="cellList"/>	
 			   					<c:choose>
 			   					<c:when test="${fn:length(cellList)==0}">
 			   						<br />

@@ -33,7 +33,7 @@ import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 
 
-public class CreatTargetTasklet extends WaspRemotingTasklet implements StepExecutionListener {
+public class CreateTargetTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
 	private Integer cellLibraryId;
 	
@@ -60,12 +60,12 @@ public class CreatTargetTasklet extends WaspRemotingTasklet implements StepExecu
 	@Autowired
 	private GATKSoftwareComponent gatk;
 
-	public CreatTargetTasklet() {
+	public CreateTargetTasklet() {
 		// proxy
 	}
 
-	public CreatTargetTasklet(String cellLibraryIds) {
-		List<Integer> cids = WaspSoftwareJobParameters.getLibraryCellIdList(cellLibraryIds);
+	public CreateTargetTasklet(String cellLibraryIds) {
+		List<Integer> cids = WaspSoftwareJobParameters.getCellLibraryIdList(cellLibraryIds);
 		Assert.assertTrue(cids.size() == 1);
 		this.cellLibraryId = cids.get(0);
 	}
@@ -89,11 +89,11 @@ public class CreatTargetTasklet extends WaspRemotingTasklet implements StepExecu
 		
 		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
 		
-		logger.debug("Beginning GATK creat re-alignment target step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
+		logger.debug("Beginning GATK create re-alignment target step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
 		
 		Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLib, fastqFileType); // TODO: change to bamFileType later
 		
-		logger.debug("ffileGroups.size()="+fileGroups.size());
+		logger.debug("fileGroups.size()="+fileGroups.size());
 		Assert.assertTrue(fileGroups.size() == 1);
 		FileGroup fg = fileGroups.iterator().next();
 		
@@ -107,7 +107,7 @@ public class CreatTargetTasklet extends WaspRemotingTasklet implements StepExecu
 		
 		// TODO: temporary, fix me
 		//WorkUnit w = new WorkUnit();
-		WorkUnit w = gatk.getCreatTarget(cellLib, fg);
+		WorkUnit w = gatk.getCreateTarget(cellLib, fg);
 		
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
    
@@ -119,7 +119,7 @@ public class CreatTargetTasklet extends WaspRemotingTasklet implements StepExecu
 		// place scratch directory in step execution context, to be promoted
 		// to the job context at run time.
         stepContext.put("scrDir", result.getWorkingDirectory());
-        stepContext.put("creatTargetName", result.getId());
+        stepContext.put("createTargetName", result.getId());
         
 	}
 	

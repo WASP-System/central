@@ -68,7 +68,7 @@ public class CallVariantTasklet extends WaspRemotingTasklet implements StepExecu
 	}
 
 	public CallVariantTasklet(String cellLibraryIds) {
-		this.cellLibraryIds = WaspSoftwareJobParameters.getLibraryCellIdList(cellLibraryIds);
+		this.cellLibraryIds = WaspSoftwareJobParameters.getCellLibraryIdList(cellLibraryIds);
 		//Assert.assertTrue(cids.size() == 1);
 		//this.cellLibraryId = cids.get(0);
 	}

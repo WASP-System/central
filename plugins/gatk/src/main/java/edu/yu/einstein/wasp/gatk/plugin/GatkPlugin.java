@@ -5,7 +5,7 @@
 package edu.yu.einstein.wasp.gatk.plugin;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -121,9 +121,9 @@ public class GatkPlugin extends WaspPlugin
 			
 			Map<String, String> jobParameters = new HashMap<String, String>();
 			logger.info("Sending launch message with flow " + FLOW_NAME + " and id: " + id);
-			jobParameters.put(WaspSoftwareJobParameters.LIBRARY_CELL_ID_LIST, id.toString());
+			jobParameters.put(WaspSoftwareJobParameters.CELL_LIBRARY_ID_LIST, id.toString());
 			jobParameters.put(WaspSoftwareJobParameters.GENOME, "10090::GRCm38::70");
-			jobParameters.put("test", new Date().toGMTString());
+			jobParameters.put("test", Long.toString(Calendar.getInstance().getTimeInMillis()));
 
 			waspMessageHandlingService.launchBatchJob(FLOW_NAME, jobParameters);
 			return (Message<String>) MessageBuilder.withPayload("Initiating test flow on id " + id).build();
@@ -155,9 +155,9 @@ public class GatkPlugin extends WaspPlugin
 			
 			Map<String, String> jobParameters = new HashMap<String, String>();
 			logger.info("Sending launch message with flow " + CALL_FLOW_NAME + " and ids: " + ids);
-			jobParameters.put(WaspSoftwareJobParameters.LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(ids));
+			jobParameters.put(WaspSoftwareJobParameters.CELL_LIBRARY_ID_LIST, WaspSoftwareJobParameters.getCellLibraryListAsParameterValue(ids));
 			jobParameters.put(WaspSoftwareJobParameters.GENOME, "10090::GRCm38::70");
-			jobParameters.put("test", new Date().toGMTString());
+			jobParameters.put("test", Long.toString(Calendar.getInstance().getTimeInMillis()));
 			jobParameters.put("gatk-stand_call_conf", "30");
 			jobParameters.put("gatk--max_alternate_alleles", "6");
 			jobParameters.put("gatk-dcov", "250");

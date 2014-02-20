@@ -71,9 +71,9 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	}
 	
 	public void setCellLibraryId(Integer cellLibraryId){
-		SampleSource libraryCell = sampleService.getSampleSourceDao().getSampleSourceBySampleSourceId(cellLibraryId);
-		setLibraryId(sampleService.getLibrary(libraryCell).getId());
-		setJobId(sampleService.getJobOfLibraryOnCell(libraryCell).getId());
+		SampleSource cellLibrary = sampleService.getSampleSourceDao().getSampleSourceBySampleSourceId(cellLibraryId);
+		setLibraryId(sampleService.getLibrary(cellLibrary).getId());
+		setJobId(sampleService.getJobOfLibraryOnCell(cellLibrary).getId());
 	}
 	
 

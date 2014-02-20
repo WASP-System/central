@@ -67,7 +67,7 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
 	}
 
 	public BWAalnTasklet(String cellLibraryIds) {
-		List<Integer> cids = WaspSoftwareJobParameters.getLibraryCellIdList(cellLibraryIds);
+		List<Integer> cids = WaspSoftwareJobParameters.getCellLibraryIdList(cellLibraryIds);
 		Assert.assertTrue(cids.size() == 1);
 		this.cellLibraryId = cids.get(0);
 	}

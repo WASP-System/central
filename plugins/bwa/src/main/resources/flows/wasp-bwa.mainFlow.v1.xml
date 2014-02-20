@@ -9,7 +9,7 @@
 		<batch:step id="wasp-bwa.alignmentFlow.BWAaln">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.plugin.bwa.batch.tasklet.BWAalnTasklet" scope="step">
-					<constructor-arg name="cellLibraryIds" value="#{jobParameters[waspSoftwareJobParameters.LIBRARY_CELL_ID_LIST]}" />
+					<constructor-arg name="cellLibraryIds" value="#{jobParameters[waspSoftwareJobParameters.CELL_LIBRARY_ID_LIST]}" />
 				</bean>
 			</batch:tasklet>
 			<batch:next on="FAILED" to="wasp-bwa.alignmentFlow.notifyBWAFailed" />

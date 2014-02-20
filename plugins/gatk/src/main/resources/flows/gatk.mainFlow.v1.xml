@@ -5,8 +5,8 @@
 
 	<batch:job id="edu.yu.einstein.wasp.gatk.mainFlow">
 	
-	<!-- 
-		<batch:step id="edu.yu.einstein.wasp.gatk.mainFlow.notifyGatkStart" next="edu.yu.einstein.wasp.gatk.mainFlow.creatTarget">
+	
+		<batch:step id="edu.yu.einstein.wasp.gatk.mainFlow.notifyGatkStart" next="edu.yu.einstein.wasp.gatk.mainFlow.createTarget">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
@@ -19,12 +19,10 @@
 			</batch:tasklet>
 		</batch:step>
 		
-		 -->
-		
-		<batch:step id="edu.yu.einstein.wasp.gatk.mainFlow.creatTarget" next="edu.yu.einstein.wasp.gatk.mainFlow.localAlign">
+		<batch:step id="edu.yu.einstein.wasp.gatk.mainFlow.createTarget" next="edu.yu.einstein.wasp.gatk.mainFlow.localAlign">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.CreatTargetTasklet" scope="step">
-					<constructor-arg name="cellLibraryIds" value="#{jobParameters[waspSoftwareJobParameters.LIBRARY_CELL_ID_LIST]}" />
+				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.CreateTargetTasklet" scope="step">
+					<constructor-arg name="cellLibraryIds" value="#{jobParameters[waspSoftwareJobParameters.CELL_LIBRARY_ID_LIST]}" />
 				</bean>
 			</batch:tasklet>
 			<batch:listeners>
@@ -75,7 +73,7 @@
 
 
 	<bean id="gatkPromotionListener" class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
-		<property name="keys" value="scrDir,creatTargetName,localAlignName,recaliTableName,printRecaliName,cellLibId"  />
+		<property name="keys" value="scrDir,createTargetName,localAlignName,recaliTableName,printRecaliName,cellLibId"  />
 		<property name="statuses" value="COMPLETED,FAILED" />
 	</bean>
 	

@@ -79,7 +79,7 @@ public class Helptag extends SoftwarePackage{
 		setSoftwareVersion("0.0.1"); // TODO: Set this value. This default may also be overridden in wasp.site.properties
 	}
 
-	public WorkUnit getHelptag(Integer libraryCellId) {
+	public WorkUnit getHelptag(Integer cellLibraryId) {
 		WorkUnit w = new WorkUnit();
 		
 		// require fastqc
@@ -107,8 +107,8 @@ public class Helptag extends SoftwarePackage{
 		
 		
 		// set the command
-		//String cmd = "java -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt 4 -I ${" + WorkUnit.INPUT_FILE + "} -R " + getGenomeIndexPath(getGenomeBuild(libraryCell)) + "genome.fasta -T RealignerTargetCreator -o ${" + WorkUnit.JOB_NAME + "}.realign.intervals -known /cork/jcai/GATK_bundle_2.2/1000G_phase1.indels.hg19.vcf -known /cork/jcai/GATK_bundle_2.2/Mills_and_1000G_gold_standard.indels.hg19.vcf";
-//		String cmd = "/home/epigenscripts/bin/htg_aln2hcount.sh ${" + WorkUnit.INPUT_FILE + "} out.${" + WorkUnit.INPUT_FILE + "} " + getGenomeIndexPath(getGenomeBuild(libraryCell));
+		//String cmd = "java -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt 4 -I ${" + WorkUnit.INPUT_FILE + "} -R " + getGenomeIndexPath(getGenomeBuild(cellLibrary)) + "genome.fasta -T RealignerTargetCreator -o ${" + WorkUnit.JOB_NAME + "}.realign.intervals -known /cork/jcai/GATK_bundle_2.2/1000G_phase1.indels.hg19.vcf -known /cork/jcai/GATK_bundle_2.2/Mills_and_1000G_gold_standard.indels.hg19.vcf";
+//		String cmd = "/home/epigenscripts/bin/htg_aln2hcount.sh ${" + WorkUnit.INPUT_FILE + "} out.${" + WorkUnit.INPUT_FILE + "} " + getGenomeIndexPath(getGenomeBuild(cellLibrary));
 //		logger.debug("Will conduct helptag hcount generation with command: " + cmd);
 		
 		// add the files to the work unit
@@ -127,11 +127,11 @@ public class Helptag extends SoftwarePackage{
 		Set<FileGroup> fgSet = new HashSet<FileGroup>();
 		SampleSource cl;
 		try {
-			cl = sampleService.getCellLibraryBySampleSourceId(libraryCellId);
+			cl = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);
 			fgSet.addAll(fileService.getFilesForCellLibraryByType(cl, fastqFileType));
 
 			Job job = sampleService.getJobOfLibraryOnCell(cl);
-			w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId() + "/" + libraryCellId);
+			w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId() + "/" + cellLibraryId);
 		
 			List<FileHandle> files = new ArrayList<FileHandle>();
 			for(FileGroup fg : fgSet) {

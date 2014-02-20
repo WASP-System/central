@@ -55,15 +55,15 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		setSoftwareVersion("2.7-4"); // this default may be overridden in wasp.site.properties
 	}
 	
-	public WorkUnit getCreatTarget(SampleSource libraryCell, FileGroup fg) {
+	public WorkUnit getCreateTarget(SampleSource cellLibrary, FileGroup fg) {
 		WorkUnit w = prepareWorkUnit(fg);
 		w.setProcessMode(ProcessMode.MAX);
 
 		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		//
-		String command = "java -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt 4 -I ${" + WorkUnit.INPUT_FILE + "} -R " + getGenomeIndexPath(getGenomeBuild(libraryCell)) + "genome.fasta -T RealignerTargetCreator -o gatk.${" + WorkUnit.JOB_NAME + "}.realign.intervals -known /cork/jcai/GATK_bundle_2.2/1000G_phase1.indels.hg19.vcf -known /cork/jcai/GATK_bundle_2.2/Mills_and_1000G_gold_standard.indels.hg19.vcf";
+		String command = "java -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt 4 -I ${" + WorkUnit.INPUT_FILE + "} -R " + getGenomeIndexPath(getGenomeBuild(cellLibrary)) + "genome.fasta -T RealignerTargetCreator -o gatk.${" + WorkUnit.JOB_NAME + "}.realign.intervals -known /cork/jcai/GATK_bundle_2.2/1000G_phase1.indels.hg19.vcf -known /cork/jcai/GATK_bundle_2.2/Mills_and_1000G_gold_standard.indels.hg19.vcf";
 		//
-		logger.debug("Will conduct gatk creat target for re-alignment with string: " + command);
+		logger.debug("Will conduct gatk create target for re-alignment with string: " + command);
 		
 		w.setCommand(command);
 		
@@ -72,12 +72,12 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	
 	
 	
-	public WorkUnit getLocalAlign(SampleSource libraryCell, String scratchDirectory, String namePrefix, FileGroup fg) {
+	public WorkUnit getLocalAlign(SampleSource cellLibrary, String scratchDirectory, String namePrefix, FileGroup fg) {
 		WorkUnit w = prepareWorkUnit(fg);
 		w.setProcessMode(ProcessMode.SINGLE);
 		w.setWorkingDirectory(scratchDirectory);
 
-		String command = "java -jar $GATK_ROOT/GenomeAnalysisTK.jar -I ${" + WorkUnit.INPUT_FILE + "} -R " + getGenomeIndexPath(getGenomeBuild(libraryCell)) + "genome.fasta -T  IndelRealigner -targetIntervals gatk." + namePrefix + ".realign.intervals -o gatk.${" + WorkUnit.JOB_NAME + "}.realign.bam -known /cork/jcai/GATK_bundle_2.2/1000G_phase1.indels.hg19.vcf -known /cork/jcai/GATK_bundle_2.2/Mills_and_1000G_gold_standard.indels.hg19.vcf";
+		String command = "java -jar $GATK_ROOT/GenomeAnalysisTK.jar -I ${" + WorkUnit.INPUT_FILE + "} -R " + getGenomeIndexPath(getGenomeBuild(cellLibrary)) + "genome.fasta -T  IndelRealigner -targetIntervals gatk." + namePrefix + ".realign.intervals -o gatk.${" + WorkUnit.JOB_NAME + "}.realign.bam -known /cork/jcai/GATK_bundle_2.2/1000G_phase1.indels.hg19.vcf -known /cork/jcai/GATK_bundle_2.2/Mills_and_1000G_gold_standard.indels.hg19.vcf";
 		//
 		logger.debug("Will conduct gatk local re-alignment with string: " + command);
 		
@@ -85,7 +85,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return w;
 	}
 	
-	public WorkUnit getRecaliTable(SampleSource libraryCell, String scratchDirectory, String namePrefix) {
+	public WorkUnit getRecaliTable(SampleSource cellLibrary, String scratchDirectory, String namePrefix) {
 		WorkUnit w = new WorkUnit();
 		
 		w.setMode(ExecutionMode.PROCESS);
@@ -99,16 +99,16 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		
 		w.setWorkingDirectory(scratchDirectory);
 
-		String command = "java -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + getGenomeIndexPath(getGenomeBuild(libraryCell)) + "genome.fasta -knownSites /cork/jcai/GATK_bundle_2.2/dbsnp_137.hg19.vcf -I gatk." + namePrefix + ".realign.bam -T BaseRecalibrator -o gatk.${" + WorkUnit.JOB_NAME + "}.recali.grp";
+		String command = "java -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + getGenomeIndexPath(getGenomeBuild(cellLibrary)) + "genome.fasta -knownSites /cork/jcai/GATK_bundle_2.2/dbsnp_137.hg19.vcf -I gatk." + namePrefix + ".realign.bam -T BaseRecalibrator -o gatk.${" + WorkUnit.JOB_NAME + "}.recali.grp";
 
-		logger.debug("Will conduct gatk generating recalibrate table with string: " + command);
+		logger.debug("Will conduct gatk generating recalibrate table with command: " + command);
 		
 		w.setCommand(command);
 		return w;
 	}
 	
 	
-	public WorkUnit getPrintRecali(SampleSource libraryCell, String scratchDirectory, String namePrefix, String namePrefix2) {
+	public WorkUnit getPrintRecali(SampleSource cellLibrary, String scratchDirectory, String namePrefix, String namePrefix2) {
 		WorkUnit w = new WorkUnit();
 		
 		w.setMode(ExecutionMode.PROCESS);
@@ -122,8 +122,8 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		
 		w.setWorkingDirectory(scratchDirectory);
 
-		String command = "java -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + getGenomeIndexPath(getGenomeBuild(libraryCell)) + "genome.fasta -I gatk." + namePrefix + ".realign.bam -T PrintReads -o ${" + WorkUnit.JOB_NAME + "}.recali.bam  -BQSR gatk." + namePrefix2 + ".recali.grp -baq RECALCULATE";
-		logger.debug("Will conduct gatk recalibrate sequences with string: " + command);
+		String command = "java -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + getGenomeIndexPath(getGenomeBuild(cellLibrary)) + "genome.fasta -I gatk." + namePrefix + ".realign.bam -T PrintReads -o ${" + WorkUnit.JOB_NAME + "}.recali.bam  -BQSR gatk." + namePrefix2 + ".recali.grp -baq RECALCULATE";
+		logger.debug("Will conduct gatk recalibrate sequences with command: " + command);
 		
 		w.setCommand(command);
 		return w;
