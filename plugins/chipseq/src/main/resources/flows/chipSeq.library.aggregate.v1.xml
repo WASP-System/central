@@ -19,7 +19,7 @@
 							<property name="status" value="CREATED" />
 						</bean>
 					</constructor-arg>
-					<property name="name" value="chipSeq.library.aggregate.notifyStarted" />
+					
 				</bean>
 			</batch:tasklet>
 		</batch:step>
@@ -51,7 +51,7 @@
 							<property name="status" value="COMPLETED" />
 						</bean>
 					</constructor-arg>
-					<property name="name" value="chipseq.library.preProcess.step.listenForAlignComplete" />
+					
 				</bean>
 			</batch:tasklet>
 			<batch:next on="FAILED" to="chipSeq.library.aggregate.step.notifyFailed" />
@@ -70,7 +70,7 @@
 							<property name="status" value="COMPLETED" />
 						</bean>
 					</constructor-arg>
-					<property name="name" value="chipSeq.library.aggregate.step.notifyCompleted" />
+					
 				</bean>
 			</batch:tasklet>
 		</batch:step>
@@ -86,7 +86,7 @@
 							<property name="status" value="FAILED" />
 						</bean>
 					</constructor-arg>
-					<property name="name" value="chipSeq.library.aggregate.step.notifyFailed" />
+					
 				</bean>
 			</batch:tasklet>
 		</batch:step>

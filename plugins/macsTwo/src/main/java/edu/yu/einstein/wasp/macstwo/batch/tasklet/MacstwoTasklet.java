@@ -10,35 +10,28 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
-import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
-import edu.yu.einstein.wasp.Assert;
+import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
+import edu.yu.einstein.wasp.Assert;
+import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
-import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
-
 import edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters;
 import edu.yu.einstein.wasp.macstwo.software.Macstwo;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
-import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.plugin.supplemental.organism.Genome;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -47,7 +40,7 @@ import edu.yu.einstein.wasp.service.SampleService;
  * @author 
  * 
  */
-public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener {
+public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
 	private List<Integer> testCellLibraryIdList;//treated, such as IP
 	private List<Integer> controlCellLibraryIdList;//contol, such as input 
@@ -113,6 +106,14 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 		}
 		logger.debug("Ending MacstwoTasklet constructor");
 	}
+	
+	//TODO: remove this next method
+	@Override
+	@Transactional("entityManager")
+	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
+		this.doExecute(context);
+		return RepeatStatus.FINISHED;
+	}
 
 	/**
 	 * 
@@ -121,92 +122,11 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 	 * @return
 	 * @throws Exception
 	 */
+	@Transactional("entityManager")
 	@Override
-	@RetryOnExceptionExponential
-	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
+	public void doExecute(ChunkContext context) throws Exception {
 		
-		logger.debug("Starting MacstwoTasklet execute");
-		
-		RepeatStatus repeatStatus = super.execute(contrib, context);
-		if (repeatStatus.equals(RepeatStatus.FINISHED)){
-			// register .bam and .bai file groups with cellLib so as to make available to views
-			Sample testSample = sampleService.getSampleById(testSampleId);
-			
-			if (this.modelScriptGId != null && testSample.getId() != 0){
-				////fileService.setSampleFile(fileService.getFileGroupById(modelScriptGId), testSample);
-				stepExecution.getExecutionContext().put("modelScriptGIdAsString", this.modelScriptGId.toString());//needed for the next (RScript) task
-				FileGroup fg = fileService.getFileGroupById(this.modelScriptGId);
-				fileService.setSampleFile(fg, testSample);
-				FileGroupMeta fgm = new FileGroupMeta();
-				fgm.setK("chipseq.controlId");
-				fgm.setV(this.controlSampleId.toString());
-				fgm.setFileGroupId(fg.getId());
-				List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
-				fgmList.add(fgm);
-				fileService.saveFileGroupMeta(fgmList, fg);
-			}
-			if (this.peaksXlsGId != null && testSample.getId() != 0){
-				////fileService.setSampleFile(fileService.getFileGroupById(peaksXlsGId), testSample);
-				FileGroup fg = fileService.getFileGroupById(this.peaksXlsGId);
-				fileService.setSampleFile(fg, testSample);
-				FileGroupMeta fgm = new FileGroupMeta();
-				fgm.setK("chipseq.controlId");
-				fgm.setV(this.controlSampleId.toString());
-				fgm.setFileGroupId(fg.getId());
-				List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
-				fgmList.add(fgm);
-				fileService.saveFileGroupMeta(fgmList, fg);
-			}
-			if (this.narrowPeaksBedGId != null && testSample.getId() != 0){
-				////fileService.setSampleFile(fileService.getFileGroupById(narrowPeaksBedGId), testSample);
-				FileGroup fg = fileService.getFileGroupById(this.narrowPeaksBedGId);
-				fileService.setSampleFile(fg, testSample);
-				FileGroupMeta fgm = new FileGroupMeta();
-				fgm.setK("chipseq.controlId");
-				fgm.setV(this.controlSampleId.toString());
-				fgm.setFileGroupId(fg.getId());
-				List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
-				fgmList.add(fgm);
-				fileService.saveFileGroupMeta(fgmList, fg);
-			}
-			if (this.summitsBedGId != null && testSample.getId() != 0){
-				///fileService.setSampleFile(fileService.getFileGroupById(summitsBedGId), testSample);
-				FileGroup fg = fileService.getFileGroupById(this.summitsBedGId);
-				fileService.setSampleFile(fg, testSample);
-				FileGroupMeta fgm = new FileGroupMeta();
-				fgm.setK("chipseq.controlId");
-				fgm.setV(this.controlSampleId.toString());
-				fgm.setFileGroupId(fg.getId());
-				List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
-				fgmList.add(fgm);
-				fileService.saveFileGroupMeta(fgmList, fg);
-			}
-			if (this.treatPileupBedGraphGId != null && testSample.getId() != 0){
-				///fileService.setSampleFile(fileService.getFileGroupById(treatPileupBedGraphGId), testSample);
-				FileGroup fg = fileService.getFileGroupById(this.treatPileupBedGraphGId);
-				fileService.setSampleFile(fg, testSample);
-				FileGroupMeta fgm = new FileGroupMeta();
-				fgm.setK("chipseq.controlId");
-				fgm.setV(this.controlSampleId.toString());
-				fgm.setFileGroupId(fg.getId());
-				List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
-				fgmList.add(fgm);
-				fileService.saveFileGroupMeta(fgmList, fg);
-			}
-			if (this.controlLambdaBedGraphGId != null && testSample.getId() != 0){
-				///fileService.setSampleFile(fileService.getFileGroupById(controlLambdaBedGraphGId), testSample);
-				FileGroup fg = fileService.getFileGroupById(this.controlLambdaBedGraphGId);
-				fileService.setSampleFile(fg, testSample);
-				FileGroupMeta fgm = new FileGroupMeta();
-				fgm.setK("chipseq.controlId");
-				fgm.setV(this.controlSampleId.toString());
-				fgm.setFileGroupId(fg.getId());
-				List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
-				fgmList.add(fgm);
-				fileService.saveFileGroupMeta(fgmList, fg);
-			}
-			return RepeatStatus.FINISHED;
-		}		
+		logger.debug("Starting MacstwoTasklet execute");		
 
 		Map<String,Object> jobParameters = context.getStepContext().getJobParameters();		
 		for (String key : jobParameters.keySet()) {
@@ -383,7 +303,7 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 		logger.debug("******    ****************************************************************");
 		//stepExecution.getExecutionContext().put("modelScriptGId", "1234");//needed for the next (RScript) task
 		stepExecution.getExecutionContext().put(MacstwoSoftwareJobParameters.MODEL_SCRIPT_FILEGROUP_ID, "38");
-		return RepeatStatus.FINISHED;
+		
 	}
 	
 
@@ -414,5 +334,88 @@ public class MacstwoTasklet extends WaspTasklet implements StepExecutionListener
 		this.controlLambdaBedGraphGId = (Integer) stepExecution.getExecutionContext().get("controlLambdaBedGraphGId");
 		this.testSampleId = (Integer) stepExecution.getExecutionContext().get("testSampleId");
 		this.controlSampleId = (Integer) stepExecution.getExecutionContext().get("controlSampleId");		
+	}
+	
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional("entityManager")
+	public void doPreFinish(ChunkContext context) throws Exception {
+		Sample testSample = sampleService.getSampleById(testSampleId);
+		
+		if (this.modelScriptGId != null && testSample.getId() != 0){
+			////fileService.setSampleFile(fileService.getFileGroupById(modelScriptGId), testSample);
+			stepExecution.getExecutionContext().put("modelScriptGIdAsString", this.modelScriptGId.toString());//needed for the next (RScript) task
+			FileGroup fg = fileService.getFileGroupById(this.modelScriptGId);
+			fileService.setSampleFile(fg, testSample);
+			FileGroupMeta fgm = new FileGroupMeta();
+			fgm.setK("chipseq.controlId");
+			fgm.setV(this.controlSampleId.toString());
+			fgm.setFileGroupId(fg.getId());
+			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
+			fgmList.add(fgm);
+			fileService.saveFileGroupMeta(fgmList, fg);
+		}
+		if (this.peaksXlsGId != null && testSample.getId() != 0){
+			////fileService.setSampleFile(fileService.getFileGroupById(peaksXlsGId), testSample);
+			FileGroup fg = fileService.getFileGroupById(this.peaksXlsGId);
+			fileService.setSampleFile(fg, testSample);
+			FileGroupMeta fgm = new FileGroupMeta();
+			fgm.setK("chipseq.controlId");
+			fgm.setV(this.controlSampleId.toString());
+			fgm.setFileGroupId(fg.getId());
+			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
+			fgmList.add(fgm);
+			fileService.saveFileGroupMeta(fgmList, fg);
+		}
+		if (this.narrowPeaksBedGId != null && testSample.getId() != 0){
+			////fileService.setSampleFile(fileService.getFileGroupById(narrowPeaksBedGId), testSample);
+			FileGroup fg = fileService.getFileGroupById(this.narrowPeaksBedGId);
+			fileService.setSampleFile(fg, testSample);
+			FileGroupMeta fgm = new FileGroupMeta();
+			fgm.setK("chipseq.controlId");
+			fgm.setV(this.controlSampleId.toString());
+			fgm.setFileGroupId(fg.getId());
+			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
+			fgmList.add(fgm);
+			fileService.saveFileGroupMeta(fgmList, fg);
+		}
+		if (this.summitsBedGId != null && testSample.getId() != 0){
+			///fileService.setSampleFile(fileService.getFileGroupById(summitsBedGId), testSample);
+			FileGroup fg = fileService.getFileGroupById(this.summitsBedGId);
+			fileService.setSampleFile(fg, testSample);
+			FileGroupMeta fgm = new FileGroupMeta();
+			fgm.setK("chipseq.controlId");
+			fgm.setV(this.controlSampleId.toString());
+			fgm.setFileGroupId(fg.getId());
+			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
+			fgmList.add(fgm);
+			fileService.saveFileGroupMeta(fgmList, fg);
+		}
+		if (this.treatPileupBedGraphGId != null && testSample.getId() != 0){
+			///fileService.setSampleFile(fileService.getFileGroupById(treatPileupBedGraphGId), testSample);
+			FileGroup fg = fileService.getFileGroupById(this.treatPileupBedGraphGId);
+			fileService.setSampleFile(fg, testSample);
+			FileGroupMeta fgm = new FileGroupMeta();
+			fgm.setK("chipseq.controlId");
+			fgm.setV(this.controlSampleId.toString());
+			fgm.setFileGroupId(fg.getId());
+			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
+			fgmList.add(fgm);
+			fileService.saveFileGroupMeta(fgmList, fg);
+		}
+		if (this.controlLambdaBedGraphGId != null && testSample.getId() != 0){
+			///fileService.setSampleFile(fileService.getFileGroupById(controlLambdaBedGraphGId), testSample);
+			FileGroup fg = fileService.getFileGroupById(this.controlLambdaBedGraphGId);
+			fileService.setSampleFile(fg, testSample);
+			FileGroupMeta fgm = new FileGroupMeta();
+			fgm.setK("chipseq.controlId");
+			fgm.setV(this.controlSampleId.toString());
+			fgm.setFileGroupId(fg.getId());
+			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
+			fgmList.add(fgm);
+			fileService.saveFileGroupMeta(fgmList, fg);
+		}
 	}
 }

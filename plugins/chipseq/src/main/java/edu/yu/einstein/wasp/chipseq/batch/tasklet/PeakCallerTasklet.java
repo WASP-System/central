@@ -16,9 +16,7 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
-import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -30,34 +28,26 @@ import org.springframework.integration.core.MessagingTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.chipseq.integration.messages.ChipSeqSoftwareJobParameters;
 import edu.yu.einstein.wasp.chipseq.software.ChipSeqSoftwareComponent;
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
+import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.SoftwareConfigurationException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
-//import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
-import edu.yu.einstein.wasp.grid.work.GridResult;
-import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.FileGroup;
-import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
-import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
@@ -65,9 +55,10 @@ import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 import edu.yu.einstein.wasp.util.SoftwareConfiguration;
 import edu.yu.einstein.wasp.util.WaspJobContext;
+//import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 
 @Transactional("entityManager")
-public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListener {
+public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
 	private int messageTimeoutInMillis;
 	
@@ -135,6 +126,13 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 		this.softwareResourceType = softwareResourceType;
 	}
 
+	//TODO: remove this next method
+	@Override
+	@Transactional("entityManager")
+	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
+		this.doExecute(context);
+		return RepeatStatus.FINISHED;
+	}
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -143,8 +141,8 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 	 * org.springframework.batch.core.scope.context.ChunkContext)
 	 */
 	@Override
-	@RetryOnExceptionExponential
-	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
+	@Transactional("entityManager")
+	public void doExecute(ChunkContext context) throws Exception {
 		
 		logger.debug("***************in PeakCallerTasklet.execute(): softwareResourceType for peakcaller is " + this.softwareResourceType.getName());
 		logger.debug("***************in PeakCallerTasklet.execute(): approvedCellLibraryIdList.size() is " + this.approvedCellLibraryIdList.size());
@@ -211,7 +209,6 @@ public class PeakCallerTasklet extends WaspTasklet implements StepExecutionListe
 				}
 			}
 		}
-		return RepeatStatus.FINISHED;
 	}
 	
 	public static void doWork(int cellLibraryId) {
