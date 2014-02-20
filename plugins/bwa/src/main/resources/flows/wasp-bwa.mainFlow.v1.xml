@@ -63,6 +63,7 @@
 					</constructor-arg>
 				</bean>
 			</batch:tasklet>
+			<batch:fail on="*" />
 		</batch:step>
 
 	</batch:flow>

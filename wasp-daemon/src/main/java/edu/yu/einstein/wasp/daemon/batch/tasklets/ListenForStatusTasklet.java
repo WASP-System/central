@@ -40,8 +40,9 @@ public class ListenForStatusTasklet extends WaspHibernatingTasklet implements Me
 	
 	private Set<WaspStatusMessageTemplate> messageTemplates = new HashSet<>();
 	
-	private List<Message<?>> messageQueue = new ArrayList<>();
+	private String failOnStatuses = "";
 	
+	private List<Message<?>> messageQueue = new ArrayList<>();
 	
 	public ListenForStatusTasklet() {
 		// proxy
@@ -64,6 +65,21 @@ public class ListenForStatusTasklet extends WaspHibernatingTasklet implements Me
 	public void setMessagesToListenFor(Collection<WaspStatusMessageTemplate> messageTemplates) {
 		this.messageTemplates.clear();
 		this.messageTemplates.addAll(messageTemplates);
+	}
+	
+	/**
+	 * Will exit step with an exit code of FAILED instead of COMPLETED if any of the provided WaspStatus' are set.
+	 * @param status
+	 */
+	public void setFailOnStatuses(String statuses) {
+		this.failOnStatuses = statuses;
+	}
+	
+	public Set<WaspStatus> getFailOnStatuses(){
+		Set<WaspStatus> failOnStatusSet = new HashSet<>();
+		for (String status : failOnStatuses.split(","))
+			failOnStatusSet.add(WaspStatus.valueOf(status.trim()));
+		return failOnStatusSet;
 	}
 	
 	@Override
@@ -137,17 +153,25 @@ public class ListenForStatusTasklet extends WaspHibernatingTasklet implements Me
 	}
 	
 	private ExitStatus getExitStatus(StepExecution stepExecution, WaspStatus waspStatus){
-		if (waspStatus.equals(WaspStatus.FAILED))
-			return ExitStatus.FAILED;
+		ExitStatus status = stepExecution.getExitStatus();
+		if (getFailOnStatuses().contains(waspStatus))
+			status.and(ExitStatus.FAILED);
 		if (waspStatus.equals(WaspStatus.ABANDONED) && stepExecution.getStatus().equals(BatchStatus.COMPLETED))
-			return ExitStatus.TERMINATED;
-		return stepExecution.getExitStatus();
+			status.and(ExitStatus.TERMINATED);
+		return status;
 	}
 	
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution) {
 		ExitStatus exitStatus = super.afterStep(stepExecution);
-		exitStatus = exitStatus.and(getExitStatus(stepExecution, getWokenOnMessageStatus(stepExecution)));
+		if (wasWokenOnMessage(stepExecution))
+			exitStatus = exitStatus.and(getExitStatus(stepExecution, getWokenOnMessageStatus(stepExecution)));
+		else {
+			for (Message<?> message : messageQueue){
+				WaspStatusMessageTemplate messageTemplate = new WaspStatusMessageTemplate((Message<WaspStatus>) message);
+				exitStatus = exitStatus.and(getExitStatus(stepExecution, messageTemplate.getStatus()));
+			}
+		}
 		// set exit status to equal the most severe outcome of all received messages
 		this.messageQueue.clear(); // clean up in case of restart
 		logger.debug("Going to exit step with ExitStatus=" + exitStatus);

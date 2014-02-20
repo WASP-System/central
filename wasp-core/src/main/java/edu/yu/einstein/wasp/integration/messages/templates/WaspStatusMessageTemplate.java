@@ -40,6 +40,11 @@ public class WaspStatusMessageTemplate extends WaspMessageTemplate implements St
 		status = message.getPayload();
 	}
 	
+	public WaspStatusMessageTemplate(WaspStatusMessageTemplate template){
+		headers.putAll(template.getHeaders());
+		setStatus(template.getStatus());
+	}
+	
 	public WaspStatusMessageTemplate(JSONObject json) throws JSONException{
 		logger.debug("creating new WaspStatusMessageTemplate object from JSON string: " + json.toString());
 		JSONObject jsonForHeaders = json.getJSONObject(JSON_HEADERS_KEY);

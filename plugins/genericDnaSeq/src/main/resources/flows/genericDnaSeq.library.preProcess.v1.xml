@@ -25,6 +25,16 @@
 					<property name="task" value="#{batchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}"/>
 					<property name="status" value="ABANDONED" />
 				</bean>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+					<property name="cellLibraryId" value="#{jobExecutionContext['cellLibId']}"/>
+					<property name="task" value="#{sequencingBatchJobTasks.ALIGNMENT}" />
+					<property name="status" value="FAILED" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+					<property name="cellLibraryId" value="#{jobExecutionContext['cellLibId']}"/>
+					<property name="task" value="#{sequencingBatchJobTasks.ALIGNMENT}" />
+					<property name="status" value="ABANDONED" />
+				</bean>
 			</set>
 		</property>	
 	</bean>
@@ -60,13 +70,21 @@
 		<batch:step id="genericDnaSeq.library.preProcess.step.listenForAlignComplete" >
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" parent="baseGenericDnaSeqTasklet" scope="step">
-					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-							<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.LIBRARY_CELL_ID]}"/>
-							<property name="task" value="#{sequencingBatchJobTasks.ALIGNMENT}" />
-							<property name="status" value="COMPLETED" />
-						</bean>
+					<constructor-arg name="messageTemplates">
+						<set>
+							<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+								<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.LIBRARY_CELL_ID]}"/>
+								<property name="task" value="#{sequencingBatchJobTasks.ALIGNMENT}" />
+								<property name="status" value="COMPLETED" />
+							</bean>
+							<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+								<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.LIBRARY_CELL_ID]}"/>
+								<property name="task" value="#{sequencingBatchJobTasks.ALIGNMENT}" />
+								<property name="status" value="FAILED" />
+							</bean>
+						</set>
 					</constructor-arg>
+					<property name="failOnStatuses" value="FAILED" />
 				</bean>
 			</batch:tasklet>
 			<batch:next on="FAILED" to="genericDnaSeq.library.preProcess.step.notifyFailed" />
@@ -104,6 +122,7 @@
 					</constructor-arg>
 				</bean>
 			</batch:tasklet>
+			<batch:fail on="*" />
 		</batch:step>
 	</batch:flow>
 	
