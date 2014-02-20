@@ -208,7 +208,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspTasklet implements Ste
 		Assert.assertTrue(this.modelScriptGId != null);
 		Assert.assertTrue(this.modelScriptGId.intValue() > 0);
 		logger.debug("this.modelScriptGId (integer): " + this.modelScriptGId.toString());
-		
+/*		
 		FileGroup modelScriptFileGroup = fileService.getFileGroupById(this.modelScriptGId);
 		logger.debug("modelScriptFileGroup.description: " + modelScriptFileGroup.getDescription());
 		Set<FileHandle> fileHandleSet = modelScriptFileGroup.getFileHandles();
@@ -222,7 +222,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspTasklet implements Ste
 		//Assert.assertTrue(modelScriptFileHandle.getFileType().getIName().equalsIgnoreCase(macs2ModelScriptFileType.getIName()));
 		String pdfFileName = modelScriptFileHandle.getFileName().replaceAll(".r$", ".pdf");
 		logger.debug("*****pdfFileName = " + pdfFileName);
-
+*/
 /*		
 		SampleSource firstTestCellLibrary = sampleService.getCellLibraryBySampleSourceId(this.testCellLibraryIdList.get(0));
 		Sample testSample = sampleService.getLibrary(firstTestCellLibrary);//all these cellLibraries are from the same library or macromoleucle
