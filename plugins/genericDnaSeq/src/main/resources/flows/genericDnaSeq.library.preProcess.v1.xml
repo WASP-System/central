@@ -25,16 +25,6 @@
 					<property name="task" value="#{batchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}"/>
 					<property name="status" value="ABANDONED" />
 				</bean>
-				<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-					<property name="cellLibraryId" value="#{jobExecutionContext['cellLibId']}"/>
-					<property name="task" value="#{sequencingBatchJobTasks.ALIGNMENT}" />
-					<property name="status" value="FAILED" />
-				</bean>
-				<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-					<property name="cellLibraryId" value="#{jobExecutionContext['cellLibId']}"/>
-					<property name="task" value="#{sequencingBatchJobTasks.ALIGNMENT}" />
-					<property name="status" value="ABANDONED" />
-				</bean>
 			</set>
 		</property>	
 	</bean>
