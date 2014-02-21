@@ -80,12 +80,10 @@ public class CreateTargetTasklet extends WaspRemotingTasklet implements StepExec
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
-		// if the work has already been started, then check to see if it is finished
-		// if not, throw an exception that is caught by the repeat policy.
 		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
 		
 		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
-		stepContext.put("cellLibId", cellLib.getId()); //place in the step context
+		stepContext.put("cellLibId", cellLib.getId()); // place in the step context
 		
 		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
 		
