@@ -45,11 +45,16 @@ public class Macstwo extends SoftwarePackage{
 	}
 
 	//note: test is same as treated, in macs2-speak (from the immunoprecipitated sample)
-	public WorkUnit getPeaks(String prefixForFileName, List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList, Map<String,Object> jobParameters){
+	public WorkUnit getPeaks(String prefixForFileName, List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList, Map<String,Object> jobParametersMap){
 		
 		Assert.assertTrue(!testFileHandleList.isEmpty());
 		
-		WorkUnit w = prepareWorkUnit(testFileHandleList, controlFileHandleList);
+		WorkUnit w = prepareWorkUnit();
+		
+		List<FileHandle> tempFileHandleList = new ArrayList<FileHandle>();
+		tempFileHandleList.addAll(testFileHandleList);//THIS LIST MUST BE ADDED FIRST
+		tempFileHandleList.addAll(controlFileHandleList);		
+		w.setRequiredFiles(tempFileHandleList);
 		
 		StringBuilder tempCommand = new StringBuilder();
 		tempCommand.append("macs2");
@@ -75,19 +80,13 @@ public class Macstwo extends SoftwarePackage{
 		
 		//tempCommand.append("-f BAM ");//this could actually be figured out by macs2
 		
-		for (String key : jobParameters.keySet()) {
-		//for(JobMeta jobMeta : jobMetaList){//could use the jobPar
-			//String opt = jobMeta.getK();
-		
-			//if (!opt.startsWith("macsPeakcaller")){
-			//	continue;
-			//}
-			//String key = opt.replace("macsPeakcaller.", "");
+		for (String key : jobParametersMap.keySet()) {
+	
 			String opt = "";
 			if(key.equalsIgnoreCase("pValueCutoff")){
 				opt = "--pvalue";
 				try{
-					Double i = Double.parseDouble(jobParameters.get(key).toString());
+					Double i = Double.parseDouble(jobParametersMap.get(key).toString());
 				}
 				catch(Exception e){
 					continue;//not a number so accept default and get out
@@ -96,7 +95,7 @@ public class Macstwo extends SoftwarePackage{
 			if(key.equalsIgnoreCase("bandwidth")){//should really be sonication size
 				opt = "--bw";
 				try{
-					Integer i = Integer.parseInt(jobParameters.get(key).toString());//Integer.parseInt(jobParameters.get(opt).toString());
+					Integer i = Integer.parseInt(jobParametersMap.get(key).toString());//Integer.parseInt(jobParameters.get(opt).toString());
 				}
 				catch(Exception e){//not a number so accept default and get out
 					continue;
@@ -105,7 +104,7 @@ public class Macstwo extends SoftwarePackage{
 			if(key.equalsIgnoreCase("genomeSize")){
 				opt = "--gsize";
 				try{
-					Double i = Double.parseDouble(jobParameters.get(key).toString());//use double since this will be in scientific notation
+					Double i = Double.parseDouble(jobParametersMap.get(key).toString());//use double since this will be in scientific notation
 				}
 				catch(Exception e){//not a number so accept default (size of human genome) and get out
 					continue;
@@ -113,24 +112,23 @@ public class Macstwo extends SoftwarePackage{
 			}
 			if(key.equalsIgnoreCase("keepDup") ){
 				opt = "--keep-dup";	
-				if(jobParameters.get(key).toString().equalsIgnoreCase("no")){   //jobParameters.get(opt).toString().equalsIgnoreCase("no")){
+				if(jobParametersMap.get(key).toString().equalsIgnoreCase("no")){   //jobParameters.get(opt).toString().equalsIgnoreCase("no")){
 					tempCommand.append(" " + key + " 1");
 					continue;
 				}
-				else if(jobParameters.get(key).toString().equalsIgnoreCase("yes")   //jobParameters.get(opt).toString().equalsIgnoreCase("yes") 
+				else if(jobParametersMap.get(key).toString().equalsIgnoreCase("yes")   //jobParameters.get(opt).toString().equalsIgnoreCase("yes") 
 						|| 
-						//jobParameters.get(opt).toString().equalsIgnoreCase("all")){
-						jobParameters.get(key).toString().equalsIgnoreCase("all")){
+						jobParametersMap.get(key).toString().equalsIgnoreCase("all")){
 					tempCommand.append(" " + key + " all");
 					continue;
 				}
-				else if(jobParameters.get(key).toString().equalsIgnoreCase("auto")){//jobParameters.get(opt).toString().equalsIgnoreCase("auto")){
+				else if(jobParametersMap.get(key).toString().equalsIgnoreCase("auto")){//jobParameters.get(opt).toString().equalsIgnoreCase("auto")){
 					tempCommand.append(" " + key + " auto");
 					continue;
 				}
 				else{
 					try{
-						Integer i = Integer.parseInt(jobParameters.get(key).toString());//Integer.parseInt(jobParameters.get(opt).toString());
+						Integer i = Integer.parseInt(jobParametersMap.get(key).toString());//Integer.parseInt(jobParameters.get(opt).toString());
 					}
 					catch(Exception e){//not a number, so accept default
 						continue;
@@ -138,7 +136,7 @@ public class Macstwo extends SoftwarePackage{
 				}
 			}
 			if(!opt.isEmpty()){
-				tempCommand.append(" " + opt + " " + jobParameters.get(key).toString());
+				tempCommand.append(" " + opt + " " + jobParametersMap.get(key).toString());
 			}
 		}
 		
@@ -155,28 +153,42 @@ public class Macstwo extends SoftwarePackage{
 		
 		w.setCommand(command);
 		
-		logger.debug("----command has been set to workunit");		
+		logger.debug("----command has been set to workunit in getPeaks()");		
 		return w;
 	}
-	private WorkUnit prepareWorkUnit(List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList) {
+	public WorkUnit getModelPdf(FileHandle modelScriptFileHandle){
+		
+		Assert.assertTrue(modelScriptFileHandle != null);
+		
+		WorkUnit w = prepareWorkUnit();
+		
+		List<FileHandle> tempFileHandleList = new ArrayList<FileHandle>();
+		tempFileHandleList.add(modelScriptFileHandle);		
+		w.setRequiredFiles(tempFileHandleList);
+		
+		String command = "Rscript ${" + WorkUnit.INPUT_FILE + "[0]}";
+		logger.debug("---- Will execute RScript to convert model.r to model.pdf using command: ");
+		logger.debug("---- "+command);
+		
+		w.setCommand(command);
+		
+		logger.debug("----command has been set to workunit in getModelPdf");		
+		return w;
+	}
+	private WorkUnit prepareWorkUnit() {
 		WorkUnit w = new WorkUnit();
 		
 		w.setMode(ExecutionMode.PROCESS);		
 		w.setProcessMode(ProcessMode.MAX);		
 		w.setMemoryRequirements(8);
 		//w.setNumberOfTasks(1);//?????only important when ExecutionMode.Task_Array
-		
-		List<FileHandle> tempFileHandleList = new ArrayList<FileHandle>();
-		tempFileHandleList.addAll(testFileHandleList);//THIS LIST MUST BE ADDED FIRST
-		tempFileHandleList.addAll(controlFileHandleList);		
-		w.setRequiredFiles(tempFileHandleList);
-		
+				
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(this);
-		//sd.add(picard);
+		//sd.add(r);
 		//sd.add(samtools);
 		w.setSoftwareDependencies(sd);
-		//w.setResultFiles(resultFiles);
+		//w.setResultFiles(resultFiles);//may not be needed
 		w.setSecureResults(true);
 		
 		w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);

@@ -22,6 +22,7 @@
 			<batch:tasklet>
 				<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.macstwo.batch.tasklet.MacstwoTasklet" scope="step">
+					<constructor-arg name="jobIdAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.chipseq.integration.messages.ChipSeqSoftwareJobParameters).JOB_ID]}" />
 					<constructor-arg name="testCellLibraryIdListAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.chipseq.integration.messages.ChipSeqSoftwareJobParameters).TEST_LIBRARY_CELL_ID_LIST]}" />
 					<constructor-arg name="controlCellLibraryIdListAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.chipseq.integration.messages.ChipSeqSoftwareJobParameters).CONTROL_LIBRARY_CELL_ID_LIST]}" />
 				</bean>
@@ -59,7 +60,7 @@
 	<bean id="edu.yu.einstein.wasp.macstwo.mainFlow.skipTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" scope="step" />
 	
 	<bean id="macstwoPromotionListener" class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
-		<property name="keys" value="#{T(edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters).MODEL_SCRIPT_FILEGROUP_ID}"  />
+		<property name="keys" value="#{T(edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters).MODEL_SCRIPT_FILEGROUP_ID}, #{T(edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters).TEST_SAMPLE_ID}, #{T(edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters).CONTROL_SAMPLE_ID}"  />
 		<property name="statuses" value="COMPLETED,FAILED" />
 	</bean>
 	

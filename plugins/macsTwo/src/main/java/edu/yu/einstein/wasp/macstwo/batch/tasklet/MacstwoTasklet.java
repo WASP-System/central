@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
+import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters;
@@ -42,6 +43,7 @@ import edu.yu.einstein.wasp.service.SampleService;
  */
 public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
+	private Integer jobId;
 	private List<Integer> testCellLibraryIdList;//treated, such as IP
 	private List<Integer> controlCellLibraryIdList;//contol, such as input 
 	private Integer modelScriptGId;
@@ -90,10 +92,14 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		// proxy
 	}
 
-	public MacstwoTasklet(String testCellLibraryIdListAsString, String controlCellLibraryIdListAsString) throws Exception {
+	public MacstwoTasklet(String jobIdAsString, String testCellLibraryIdListAsString, String controlCellLibraryIdListAsString) throws Exception {
 		logger.debug("Starting MacstwoTasklet constructor");
+		logger.debug("jobIdAsString: " + jobIdAsString);
 		logger.debug("testCellLibraryIdListAsString: " + testCellLibraryIdListAsString);
 		logger.debug("controlCellLibraryIdListAsString: " + controlCellLibraryIdListAsString);
+		this.jobId = new Integer(jobIdAsString);		
+		Assert.assertTrue(this.jobId != null);
+		Assert.assertTrue(this.jobId > 0);
 		this.testCellLibraryIdList = WaspSoftwareJobParameters.getLibraryCellIdList(testCellLibraryIdListAsString);//should be all from same job
 		Assert.assertTrue(!this.testCellLibraryIdList.isEmpty());
 		//oddly enough (and not expected from the code), WaspSoftwareJobParameters.getLibraryCellIdList(controlCellLibraryIdListAsString)
@@ -128,9 +134,9 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		logger.debug("Starting MacstwoTasklet execute");		
 
-		Map<String,Object> jobParameters = context.getStepContext().getJobParameters();		
-		for (String key : jobParameters.keySet()) {
-			logger.debug("jobParameters Key: " + key + " Value: " + jobParameters.get(key).toString());
+		Map<String,Object> jobParametersMap = context.getStepContext().getJobParameters();		
+		for (String key : jobParametersMap.keySet()) {
+			logger.debug("jobParameters Key: " + key + " Value: " + jobParametersMap.get(key).toString());
 		}
 		Map<String,Object> jobExecutionContextMap = context.getStepContext().getJobExecutionContext();		
 		for (String key : jobExecutionContextMap.keySet()) {
@@ -203,76 +209,78 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		}
 		logger.debug("prefixForFileName = " + prefixForFileName);
 		logger.debug("preparing to generate workunit");
-		WorkUnit w = macs2.getPeaks(prefixForFileName, testFileHandleList, controlFileHandleList, jobParameters);//configure
+		WorkUnit w = macs2.getPeaks(prefixForFileName, testFileHandleList, controlFileHandleList, jobParametersMap);//configure
 		logger.debug("OK, workunit has been generated");
 
 		/*		
+		  
+		stepExecution.getExecutionContext().put("jobId", this.jobId);//in case of crash
+		 
 		FileGroup modelScriptG = new FileGroup();
 		FileHandle modelScript = new FileHandle();
-		modelScript.setFileName(prefixForFileName + "_model.r");//TODO need to run Rscript on this file to generate pdf - do not know how to do this
+		modelScript.setFileName(prefixForFileName + "_model.r");//will eventually run Rscript on this file to generate pdf
 		modelScript = fileService.addFile(modelScript);
 		modelScriptG.addFileHandle(modelScript);
-		modelScriptG.setFileType(macs2ModelScriptFileType);//TODO: define
+		modelScriptG.setFileType(macs2ModelScriptFileType);
 		modelScriptG.setDescription(modelScript.getFileName());
 		modelScriptG = fileService.addFileGroup(modelScriptG);
-		modelScriptGId = modelScriptG.getId();
-		stepExecution.getExecutionContext().put("modelScriptGId", modelScriptGId);
-		//TODO may need to save this to job context, since this file will need to be run by RScript to convert it into model.pdf
+		this.modelScriptGId = modelScriptG.getId();
+		stepExecution.getExecutionContext().put("modelScriptGId", modelScriptGId);//in case of crash
 		
 		FileGroup peaksXlsG = new FileGroup();
 		FileHandle peaksXls = new FileHandle();
 		peaksXls.setFileName(prefixForFileName + "_peaks.xls");
 		peaksXls = fileService.addFile(peaksXls);
 		peaksXlsG.addFileHandle(peaksXls);
-		peaksXlsG.setFileType(macs2PeaksXlsFileType);//TODO: define
+		peaksXlsG.setFileType(macs2PeaksXlsFileType);
 		peaksXlsG.setDescription(peaksXls.getFileName());
 		peaksXlsG = fileService.addFileGroup(peaksXlsG);
-		peaksXlsGId = peaksXlsG.getId();
-		stepExecution.getExecutionContext().put("peaksXlsGId", peaksXlsGId);		
+		this.peaksXlsGId = peaksXlsG.getId();
+		stepExecution.getExecutionContext().put("peaksXlsGId", peaksXlsGId);//in case of crash		
 		
 		FileGroup narrowPeaksBedG = new FileGroup();
 		FileHandle narrowPeaksBed = new FileHandle();
 		narrowPeaksBed.setFileName(prefixForFileName + "_peaks.narrowPeak");
 		narrowPeaksBed = fileService.addFile(narrowPeaksBed);
 		narrowPeaksBedG.addFileHandle(narrowPeaksBed);
-		narrowPeaksBedG.setFileType(macs2NarrowPeaksBedFileType);//TODO: define
+		narrowPeaksBedG.setFileType(macs2NarrowPeaksBedFileType);
 		narrowPeaksBedG.setDescription(narrowPeaksBed.getFileName());
 		narrowPeaksBedG = fileService.addFileGroup(narrowPeaksBedG);
-		narrowPeaksBedGId = narrowPeaksBedG.getId();
-		stepExecution.getExecutionContext().put("narrowPeaksBedGId", narrowPeaksBedGId);
+		this.narrowPeaksBedGId = narrowPeaksBedG.getId();
+		stepExecution.getExecutionContext().put("narrowPeaksBedGId", narrowPeaksBedGId);//in case of crash
 	
 		FileGroup summitsBedG = new FileGroup();
 		FileHandle summitsBed = new FileHandle();
 		summitsBed.setFileName(prefixForFileName + "_summits.bed");
 		summitsBed = fileService.addFile(summitsBed);
 		summitsBedG.addFileHandle(summitsBed);
-		summitsBedG.setFileType(macs2SummitsBedFileType);//TODO: define
+		summitsBedG.setFileType(macs2SummitsBedFileType);
 		summitsBedG.setDescription(summitsBed.getFileName());
 		summitsBedG = fileService.addFileGroup(summitsBedG);
-		summitsBedGId = summitsBedG.getId();		
-		stepExecution.getExecutionContext().put("summitsBedGId", summitsBedGId);
+		this.summitsBedGId = summitsBedG.getId();		
+		stepExecution.getExecutionContext().put("summitsBedGId", summitsBedGId);//in case of crash
 		
 		FileGroup treatPileupBedGraphG = new FileGroup();
 		FileHandle treatPileupBedGraph = new FileHandle();
 		treatPileupBedGraph.setFileName(prefixForFileName + "_treat_pileup.bdg");
 		treatPileupBedGraph = fileService.addFile(treatPileupBedGraph);
 		treatPileupBedGraphG.addFileHandle(treatPileupBedGraph);
-		treatPileupBedGraphG.setFileType(macs2TreatPileupBedGraphFileType);//TODO: define
+		treatPileupBedGraphG.setFileType(macs2TreatPileupBedGraphFileType);
 		treatPileupBedGraphG.setDescription(treatPileupBedGraph.getFileName());
 		treatPileupBedGraphG = fileService.addFileGroup(treatPileupBedGraphG);
-		treatPileupBedGraphGId = treatPileupBedGraphG.getId();
-		stepExecution.getExecutionContext().put("treatPileupBedGraphGId", treatPileupBedGraphGId);
+		this.treatPileupBedGraphGId = treatPileupBedGraphG.getId();
+		stepExecution.getExecutionContext().put("treatPileupBedGraphGId", treatPileupBedGraphGId);//in case of crash
 	
 		FileGroup controlLambdaBedGraphG = new FileGroup();
 		FileHandle controlLambdaBedGraph = new FileHandle();
 		controlLambdaBedGraph.setFileName(prefixForFileName + "_control_lambda.bdg");
 		controlLambdaBedGraph = fileService.addFile(controlLambdaBedGraph);
 		controlLambdaBedGraphG.addFileHandle(controlLambdaBedGraph);
-		controlLambdaBedGraphG.setFileType(macs2ControlLambdaBedGraphFileType);//TODO: define
+		controlLambdaBedGraphG.setFileType(macs2ControlLambdaBedGraphFileType);
 		controlLambdaBedGraphG.setDescription(controlLambdaBedGraph.getFileName());
 		controlLambdaBedGraphG = fileService.addFileGroup(controlLambdaBedGraphG);
-		controlLambdaBedGraphGId = controlLambdaBedGraphG.getId();
-		stepExecution.getExecutionContext().put("controlLambdaBedGraphGId", controlLambdaBedGraphGId);
+		this.controlLambdaBedGraphGId = controlLambdaBedGraphG.getId();
+		stepExecution.getExecutionContext().put("controlLambdaBedGraphGId", controlLambdaBedGraphGId);//in case of crash
 
 		w.getResultFiles().add(modelScriptG);
 		w.getResultFiles().add(peaksXlsG);
@@ -281,12 +289,12 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		w.getResultFiles().add(treatPileupBedGraphG);
 		w.getResultFiles().add(controlLambdaBedGraphG);
 		
-		//w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
+		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + this.jobId.toString());
    
-		//GridResult result = gridHostResolver.execute(w);
+		GridResult result = gridHostResolver.execute(w);
 		
 		//place the grid result in the step context
-		//storeStartedResult(context, result);
+		storeStartedResult(context, result);
 
 	*/	
 		//logger.debug("getting ready to thow rob-generated exception");
@@ -295,15 +303,18 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		//}
 		//logger.debug("just threw rob-generated exception");
 		
-		
-
-		//return RepeatStatus.CONTINUABLE;
 		logger.debug("****    ******************************************************************");
 		logger.debug("just about to declare FINISHED in the macstwoTasklet, to see if we move forward to the generateModel tasklet");
 		logger.debug("******    ****************************************************************");
-		//stepExecution.getExecutionContext().put("modelScriptGId", "1234");//needed for the next (RScript) task
-		stepExecution.getExecutionContext().put(MacstwoSoftwareJobParameters.MODEL_SCRIPT_FILEGROUP_ID, "38");
 		
+		stepExecution.getExecutionContext().put(MacstwoSoftwareJobParameters.MODEL_SCRIPT_FILEGROUP_ID, "38");//TODO remove this line
+		//TODO: comment out line immediately above and uncomment next three lines for production
+		//Assert.assertTrue(this.modelScriptGId != null);
+		//Assert.assertTrue(this.modelScriptGId > 0);
+		//stepExecution.getExecutionContext().put(MacstwoSoftwareJobParameters.MODEL_SCRIPT_FILEGROUP_ID, this.modelScriptGId.toString());//needed for the next (Rscript) task
+		stepExecution.getExecutionContext().put(MacstwoSoftwareJobParameters.TEST_SAMPLE_ID, testSampleId.toString());
+		stepExecution.getExecutionContext().put(MacstwoSoftwareJobParameters.CONTROL_SAMPLE_ID, controlSampleId.toString());
+
 	}
 	
 
@@ -321,11 +332,15 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
 		logger.debug("StepExecutionListener beforeStep saving StepExecution");
-		this.stepExecution = stepExecution;			
+		this.stepExecution = stepExecution;		
+		
 		//JobExecution jobExecution = stepExecution.getJobExecution();
 		//ExecutionContext jobContext = jobExecution.getExecutionContext();
 		//this.scratchDirectory = jobContext.get("scrDir").toString();
 		//this.cellLibId = (Integer) jobContext.get("cellLibId");
+		
+		//in case of crash
+		this.jobId = (Integer) stepExecution.getExecutionContext().get("jobId");
 		this.modelScriptGId = (Integer) stepExecution.getExecutionContext().get("modelScriptGId");
 		this.peaksXlsGId = (Integer) stepExecution.getExecutionContext().get("peaksXlsGId");
 		this.narrowPeaksBedGId = (Integer) stepExecution.getExecutionContext().get("narrowPeaksBedGId");
@@ -346,7 +361,6 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		if (this.modelScriptGId != null && testSample.getId() != 0){
 			////fileService.setSampleFile(fileService.getFileGroupById(modelScriptGId), testSample);
-			stepExecution.getExecutionContext().put("modelScriptGIdAsString", this.modelScriptGId.toString());//needed for the next (RScript) task
 			FileGroup fg = fileService.getFileGroupById(this.modelScriptGId);
 			fileService.setSampleFile(fg, testSample);
 			FileGroupMeta fgm = new FileGroupMeta();

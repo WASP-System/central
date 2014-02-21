@@ -161,9 +161,10 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 		confirmSamplePairsAreOfSameSpecies(testSampleControlSampleListMap);//throws exception if no
 		logger.debug("***************in PeakCallerTasklet.execute(): confirmed Sample Pairs are of same species");
 		
-		/*
+		//*
 		//output for testing purposes only:
-		//first, print out recorded samplePairs, if any
+		//first, print out recorded jobId and samplePairs, if any
+		logger.debug("*************************JobId : " + job.getId());
 		logger.debug("*************************SamplePairs");
 		logger.debug("Recorded samplePairs, from the job submission:");		
 		for(SampleSource ss : samplePairsAsSampleSourceSet){//for each recorded samplePair
@@ -189,7 +190,7 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 				}
 			}			
 		} 
-		*/
+		//*/
 		for(Sample testSample : setOfApprovedSamples){
 			logger.debug("***************in PeakCallerTasklet.execute(): preparing to launchMessage to Macs2 for testSample: " + testSample.getName());
 			List<SampleSource> cellLibraryListForTest = approvedSampleApprovedCellLibraryListMap.get(testSample);
@@ -356,10 +357,11 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 			if (flowName == null){
 				logger.warn("No generic flow found for plugin so cannot launch software : " + softwareConfig.getSoftware().getIName());
 			}
-			logger.warn("Flowname : " + flowName);
+			logger.warn("Flowname : " + flowName);//for macstwo, flowname will be: edu.yu.einstein.wasp.macstwo.mainFlow
 			Map<String, String> jobParameters = softwareConfig.getParameters();
 			jobParameters.put(ChipSeqSoftwareJobParameters.TEST_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(testCellLibraryIdList));
 			jobParameters.put(ChipSeqSoftwareJobParameters.CONTROL_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(controlCellLibraryIdList));
+			jobParameters.put(ChipSeqSoftwareJobParameters.JOB_ID, jobId.toString());
 			jobParameters.put("test", new Date().toString());//TODO: remove for production
 			
 			//this next line works, but was replaced with the subsequent 7 lines, and the WaspMessageBuildingException exception
