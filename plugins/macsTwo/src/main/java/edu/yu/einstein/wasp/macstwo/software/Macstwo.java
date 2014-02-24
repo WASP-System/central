@@ -83,6 +83,20 @@ public class Macstwo extends SoftwarePackage{
 		for (String key : jobParametersMap.keySet()) {
 	
 			String opt = "";
+			
+			if(key.equalsIgnoreCase("broad") || key.equalsIgnoreCase("broadBand")){//TODO: not yet an option on the forms
+				opt = "--broad";
+				if(jobParametersMap.get(key).toString().equalsIgnoreCase("yes") 
+					||
+					jobParametersMap.get(key).toString().equalsIgnoreCase("true")	
+					||
+					jobParametersMap.get(key).toString().equals("1"))
+				{   
+					tempCommand.append(" " + opt);
+					continue;
+				}
+				
+			}
 			if(key.equalsIgnoreCase("pValueCutoff")){
 				opt = "--pvalue";
 				try{
@@ -113,17 +127,17 @@ public class Macstwo extends SoftwarePackage{
 			if(key.equalsIgnoreCase("keepDup") ){
 				opt = "--keep-dup";	
 				if(jobParametersMap.get(key).toString().equalsIgnoreCase("no")){   //jobParameters.get(opt).toString().equalsIgnoreCase("no")){
-					tempCommand.append(" " + key + " 1");
+					tempCommand.append(" " + opt + " 1");
 					continue;
 				}
 				else if(jobParametersMap.get(key).toString().equalsIgnoreCase("yes")   //jobParameters.get(opt).toString().equalsIgnoreCase("yes") 
 						|| 
 						jobParametersMap.get(key).toString().equalsIgnoreCase("all")){
-					tempCommand.append(" " + key + " all");
+					tempCommand.append(" " + opt + " all");
 					continue;
 				}
 				else if(jobParametersMap.get(key).toString().equalsIgnoreCase("auto")){//jobParameters.get(opt).toString().equalsIgnoreCase("auto")){
-					tempCommand.append(" " + key + " auto");
+					tempCommand.append(" " + opt + " auto");
 					continue;
 				}
 				else{
