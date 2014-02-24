@@ -69,9 +69,9 @@ public class GatkPlugin extends WaspPlugin
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
 
-	public static final String FLOW_NAME = "edu.yu.einstein.wasp.gatk.mainFlow";
+	public static final String PREPROCESSING_FLOW = "edu.yu.einstein.wasp.gatk.dataPreprocessingFlow";
 	
-	public static final String CALL_FLOW_NAME = "edu.yu.einstein.wasp.gatk.mainCallFlow";
+	public static final String VARIANT_DISCOVERY_FLOW = "edu.yu.einstein.wasp.gatk.variantDiscoveryFlow";
 
 	public GatkPlugin(String pluginName, Properties waspSiteProperties, MessageChannel channel) {
 		super(pluginName, waspSiteProperties, channel);
@@ -120,16 +120,16 @@ public class GatkPlugin extends WaspPlugin
 				return MessageBuilder.withPayload("Unable to determine id from message: " + m.getPayload().toString()).build();
 			
 			Map<String, String> jobParameters = new HashMap<String, String>();
-			logger.info("Sending launch message with flow " + FLOW_NAME + " and id: " + id);
+			logger.info("Sending launch message with flow " + PREPROCESSING_FLOW + " and id: " + id);
 			jobParameters.put(WaspSoftwareJobParameters.CELL_LIBRARY_ID_LIST, id.toString());
 			jobParameters.put(WaspSoftwareJobParameters.GENOME, "10090::GRCm38::70");
 			jobParameters.put("test", Long.toString(Calendar.getInstance().getTimeInMillis()));
 
-			waspMessageHandlingService.launchBatchJob(FLOW_NAME, jobParameters);
+			waspMessageHandlingService.launchBatchJob(PREPROCESSING_FLOW, jobParameters);
 			return (Message<String>) MessageBuilder.withPayload("Initiating test flow on id " + id).build();
 		} catch (WaspMessageBuildingException e1) {
-			logger.warn("unable to build message to launch batch job " + FLOW_NAME);
-			return MessageBuilder.withPayload("Unable to launch batch job " + FLOW_NAME).build();
+			logger.warn("unable to build message to launch batch job " + PREPROCESSING_FLOW);
+			return MessageBuilder.withPayload("Unable to launch batch job " + PREPROCESSING_FLOW).build();
 		}
 		
 	}
@@ -154,7 +154,7 @@ public class GatkPlugin extends WaspPlugin
 				return MessageBuilder.withPayload("Unable to determine ids from message: " + m.getPayload().toString()).build();
 			
 			Map<String, String> jobParameters = new HashMap<String, String>();
-			logger.info("Sending launch message with flow " + CALL_FLOW_NAME + " and ids: " + ids);
+			logger.info("Sending launch message with flow " + VARIANT_DISCOVERY_FLOW + " and ids: " + ids);
 			jobParameters.put(WaspSoftwareJobParameters.CELL_LIBRARY_ID_LIST, WaspSoftwareJobParameters.getCellLibraryListAsParameterValue(ids));
 			jobParameters.put(WaspSoftwareJobParameters.GENOME, "10090::GRCm38::70");
 			jobParameters.put("test", Long.toString(Calendar.getInstance().getTimeInMillis()));
@@ -163,11 +163,11 @@ public class GatkPlugin extends WaspPlugin
 			jobParameters.put("gatk-dcov", "250");
 			jobParameters.put("gatk-L", "WGS");
 
-			waspMessageHandlingService.launchBatchJob(CALL_FLOW_NAME, jobParameters);
+			waspMessageHandlingService.launchBatchJob(VARIANT_DISCOVERY_FLOW, jobParameters);
 			return (Message<String>) MessageBuilder.withPayload("Initiating call flow on ids " + ids).build();
 		} catch (WaspMessageBuildingException e1) {
-			logger.warn("unable to build message to launch batch job " + CALL_FLOW_NAME);
-			return MessageBuilder.withPayload("Unable to launch batch job " + CALL_FLOW_NAME).build();
+			logger.warn("unable to build message to launch batch job " + VARIANT_DISCOVERY_FLOW);
+			return MessageBuilder.withPayload("Unable to launch batch job " + VARIANT_DISCOVERY_FLOW).build();
 		}
 		
 	}
@@ -221,15 +221,15 @@ public class GatkPlugin extends WaspPlugin
 	@Override
 	/*public String getBatchJobName(String batchJobType) {
 		if (batchJobType.equals(BatchJobTask.GENERIC)) 
-			return FLOW_NAME;
+			return PREPROCESSING_FLOW;
 		return null;
 	}
 	*/
 	public String getBatchJobName(String BatchJobType) {
 		if (BatchJobTask.ANALYSIS_LIBRARY_PREPROCESS.equals(BatchJobType))
-			return FLOW_NAME;
+			return PREPROCESSING_FLOW;
 		else if (BatchJobTask.ANALYSIS_AGGREGATE.equals(BatchJobType))
-			return CALL_FLOW_NAME;
+			return VARIANT_DISCOVERY_FLOW;
 		return null;
 	}
 	
