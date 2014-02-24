@@ -7,7 +7,6 @@ import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
-import edu.yu.einstein.wasp.integration.messages.templates.SampleStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 /**
@@ -19,7 +18,7 @@ public class Simple___PluginIName___StatusMessageTemplate extends WaspStatusMess
 
 	public Simple___PluginIName___StatusMessageTemplate() {
 		super();
-		addHeader(WaspMessageType.HEADER_KEY, ___PluginIName___MessageType.___PluginIName___);
+		addHeader(WaspMessageType.HEADER_KEY, ___PluginIName___MessageType.___PLUGININAME___);
 	}
 	
 	public Simple___PluginIName___StatusMessageTemplate(Message<WaspStatus> message){
@@ -56,7 +55,7 @@ public class Simple___PluginIName___StatusMessageTemplate extends WaspStatusMess
 	 */
 	public static boolean actUponMessage(Message<?> message, String task ){
 		if (!message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) ||
-				!((String) message.getHeaders().get(WaspMessageType.HEADER_KEY)).equals(___PluginIName___MessageType.___PluginIName___))
+				!((String) message.getHeaders().get(WaspMessageType.HEADER_KEY)).equals(___PluginIName___MessageType.___PLUGININAME___))
 				return false;
 		if (task == null)
 			return true;
@@ -72,7 +71,7 @@ public class Simple___PluginIName___StatusMessageTemplate extends WaspStatusMess
 	 */
 	public static boolean isMessageOfCorrectType(Message<?> message) {
 		return message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) &&  
-				message.getHeaders().get(WaspMessageType.HEADER_KEY).equals(___PluginIName___MessageType.___PluginIName___);
+				message.getHeaders().get(WaspMessageType.HEADER_KEY).equals(___PluginIName___MessageType.___PLUGININAME___);
 	}
 	
 	@Override

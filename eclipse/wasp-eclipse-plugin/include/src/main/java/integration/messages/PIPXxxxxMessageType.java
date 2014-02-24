@@ -12,6 +12,6 @@ import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
  */
 public class ___PluginIName___MessageType extends WaspMessageType{
 	
-	public static final String ___PluginIName___ = "___package___";
+	public static final String ___PLUGININAME___ = "___package___";
 
 }

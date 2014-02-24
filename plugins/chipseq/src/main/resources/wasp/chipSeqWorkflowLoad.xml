@@ -8,12 +8,12 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
     
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="chipSeqUiFieldWrapper">
-    <property name="baseArea" ref="waspChipSeqPluginArea" />
+    <property name="baseArea" ref="chipSeqPluginArea" />
   </bean>
 
 
   <bean id="chipSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoaderAndFactory">
-    <property name="area" ref="waspChipSeqPluginArea" />
+    <property name="area" ref="chipSeqPluginArea" />
     <property name="name" value="ChIP Seq" />
     <property name="pageFlowOrder">
       <list>

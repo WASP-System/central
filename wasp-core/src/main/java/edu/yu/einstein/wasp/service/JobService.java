@@ -51,6 +51,7 @@ import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
+import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobSoftware;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Sample;
@@ -661,4 +662,12 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @throws Exception
 	 */
 	public Strategy getStrategy(String strategyType, Job job)throws Exception;
+	
+	/**
+	 * Get List<JobMeta> for a job via it's jobId
+	 * @param Integer jobId
+	 * @param String strategyType
+	 * @return List<JobMeta>
+	 */
+	public List<JobMeta> getJobMeta(Integer jobId);
 }

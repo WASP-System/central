@@ -2477,4 +2477,15 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		Assert.assertParameterNotNullNotZero(job.getId(), "job with id="+job.getId()+" not found in database");
 		return strategyService.getThisJobsStrategy(strategyType, job);
 	}
+	
+	/*
+	 * 
+	 * 
+	 */
+	@Override
+	public List<JobMeta> getJobMeta(Integer jobId){
+		Map<String, Integer> m = new HashMap<String, Integer>();
+		m.put("jobId", jobId);
+		return jobMetaDao.findByMap(m);
+	}
 }

@@ -5,7 +5,7 @@
 package ___package___.batch.tasklet;
 
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.StepContribution;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;

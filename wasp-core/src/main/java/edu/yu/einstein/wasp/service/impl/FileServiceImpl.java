@@ -858,9 +858,10 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	public Set<FileGroup> getFilesForCellLibraryByType(SampleSource cellLibrary, FileType fileType) {
 		TypedQuery<FileGroup> fgq = fileGroupDao.getEntityManager()
 				.createQuery("SELECT DISTINCT fg from FileGroup fg " +
-						"JOIN fg.sampleSources cl " +
+						"JOIN FETCH fg.sampleSources cl " +
 						"JOIN FETCH fg.fileHandles fh " + 
-						"JOIN FETCH fh.fileType " +
+						//"JOIN FETCH fh.fileType " +  
+						"JOIN FETCH fg.fileType " +
 						"WHERE cl = :cellLibrary AND fg.fileType = :fileType", FileGroup.class)
 				.setParameter("cellLibrary", cellLibrary)
 				.setParameter("fileType", fileType);
@@ -1585,5 +1586,49 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		return fileGroupMetaDao.setMeta(metaList, filegroup.getId());
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @throws SampleTypeException
+	 */
+	@Override
+	public Set<FileGroup> getFilesForMacromoleculeOrLibraryByType(Sample sample, FileType fileType) throws SampleTypeException {
+		Assert.assertParameterNotNull(sample, "must provide a library");
+		Assert.assertParameterNotNull(fileType, "must provide a fileType");
+		Assert.assertParameterNotNull(fileType.getId(), "fileType has no valid fileTypeId");
+		Map<FileType, Set<FileGroup>> filesByType = getFilesForMacromoleculeOrLibraryMappedToFileType(sample);
+		if (!filesByType.containsKey(fileType))
+			return new HashSet<FileGroup>();
+		return filesByType.get(fileType);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @throws SampleTypeException
+	 */
+	@Override
+	public Map<FileType, Set<FileGroup>> getFilesForMacromoleculeOrLibraryMappedToFileType(Sample sample) throws SampleTypeException {
+		
+		String sampleTypeIName = sample.getSampleType().getIName();
+		
+		Map<FileType, Set<FileGroup>> filesByType = new HashMap<FileType, Set<FileGroup>>();
+		
+		if (sampleTypeIName.equals("library") || sampleTypeIName.equals("dna") || sampleTypeIName.equals("rna")){
+			Sample s = sampleDao.findById(sample.getId());
+			for (FileGroup fg : s.getFileGroups()) {
+				FileType ft = fg.getFileType();
+				if (!filesByType.containsKey(ft)){
+					filesByType.put(ft, new HashSet<FileGroup>());
+				}
+				filesByType.get(ft).add(fg);
+			}		
+		}
+		else{ 
+			throw new SampleTypeException("sample is neither macromolecule nor library");
+		}
+		return filesByType;
+		
+	}
 
 }
