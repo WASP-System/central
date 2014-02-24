@@ -100,7 +100,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		this.jobId = new Integer(jobIdAsString);		
 		Assert.assertTrue(this.jobId != null);
 		Assert.assertTrue(this.jobId > 0);
-		this.testCellLibraryIdList = WaspSoftwareJobParameters.getLibraryCellIdList(testCellLibraryIdListAsString);//should be all from same job
+		this.testCellLibraryIdList = WaspSoftwareJobParameters.getCellLibraryIdList(testCellLibraryIdListAsString);//should be all from same job
 		Assert.assertTrue(!this.testCellLibraryIdList.isEmpty());
 		//oddly enough (and not expected from the code), WaspSoftwareJobParameters.getLibraryCellIdList(controlCellLibraryIdListAsString)
 		//throws an exception if controlCellLibraryIdListAsString is an empty string, thus the need for the if-else statement
@@ -108,7 +108,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 			this.controlCellLibraryIdList = new ArrayList<Integer>();
 		}
 		else{
-			this.controlCellLibraryIdList = WaspSoftwareJobParameters.getLibraryCellIdList(controlCellLibraryIdListAsString);//may be empty
+			this.controlCellLibraryIdList = WaspSoftwareJobParameters.getCellLibraryIdList(controlCellLibraryIdListAsString);//may be empty
 		}
 		logger.debug("Ending MacstwoTasklet constructor");
 	}
