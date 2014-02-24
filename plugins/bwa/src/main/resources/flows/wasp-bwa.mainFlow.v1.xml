@@ -5,6 +5,21 @@
 
 	<!-- for job, call with parameter 'runID' -->
 	<batch:flow id="wasp-bwa.alignmentFlow">
+	
+		<batch:step id="wasp-bwa.alignmentFlow.notifyBWAStart" next="wasp-bwa.alignmentFlow.BWAaln">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+							<property name="cellLibraryId" value="#{jobParameters[waspSoftwareJobParameters.CELL_LIBRARY_ID_LIST]}"/> <!-- should only be one value which will cast to Integer ok -->
+							<property name="task" value="#{sequencingBatchJobTasks.ALIGNMENT}" />
+							<property name="status" value=STARTED />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
 
 		<batch:step id="wasp-bwa.alignmentFlow.BWAaln">
 			<batch:tasklet>

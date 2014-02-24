@@ -89,7 +89,7 @@ public class CallVariantTasklet extends WaspRemotingTasklet implements StepExecu
 		SampleSource sampleSource0=sampleService.getSampleSourceDao().findById(cellLibId0);
 		Job job = sampleService.getJobOfLibraryOnCell(sampleSource0);
 		
-		logger.debug("Beginning GATK GATK variant detection for job " + job.getId());
+		logger.debug("Beginning GATK variant detection for job " + job.getId());
 		
 		
 		for (Integer currentId : cellLibraryIds) {

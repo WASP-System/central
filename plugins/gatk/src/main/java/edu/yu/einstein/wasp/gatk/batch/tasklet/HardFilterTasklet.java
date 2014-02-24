@@ -81,13 +81,6 @@ public class HardFilterTasklet extends WaspRemotingTasklet implements StepExecut
 		// place the grid result in the step context
 		storeStartedResult(context, result);
 
-		// place scratch directory in execution context, to be promoted
-		// to the job context at run time.
-		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
-
-		stepContext.put("scrDir", result.getWorkingDirectory());
-		stepContext.put("hardFilterName", result.getId());
-
 	}
 
 	/**

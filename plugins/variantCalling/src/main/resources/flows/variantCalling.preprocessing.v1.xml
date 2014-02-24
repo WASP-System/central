@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
+		
+	
+	<!-- for dispatching job, call with parameters 'jobId' and 'libraryId' -->
+	<batch:flow id="variantCalling.preProcess.flow.v1" >
+	
+		<batch:step id="variantCalling.preProcess.step.notifyStarted" next="variantCalling.preProcess.step.align">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+							<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.CELL_LIBRARY_ID]}"/>
+							<property name="task" value="#{batchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}"/>
+							<property name="status" value="STARTED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="variantCalling.preProcess.step.align" next="variantCalling.preProcess.step.listenForAlignComplete">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.analysis.WaspJobSoftwareLaunchTaskletImpl" scope="step">
+					<constructor-arg name="cellLibraryId" value="#{jobParameters[waspSoftwareJobParameters.CELL_LIBRARY_ID]}"/>
+					<constructor-arg name="softwareResourceType" ref="referenceBasedAlignerResourceType" />
+					<constructor-arg name="task" value="#{batchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}" />
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="variantCalling.preProcess.step.listenForAlignComplete" >
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
+					<constructor-arg name="messageTemplates">
+						<set>
+							<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+								<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.CELL_LIBRARY_ID]}"/>
+								<property name="task" value="#{sequencingBatchJobTasks.ALIGNMENT}" />
+								<property name="status" value="COMPLETED" />
+							</bean>
+							<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+								<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.CELL_LIBRARY_ID]}"/>
+								<property name="task" value="#{sequencingBatchJobTasks.ALIGNMENT}" />
+								<property name="status" value="FAILED" />
+							</bean>
+						</set>
+					</constructor-arg>
+					<property name="failOnStatuses" value="FAILED" />
+				</bean>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="variantCalling.preProcess.step.notifyFailed" />
+			<batch:next on="*" to="variantCalling.preProcess.step.dataPreprocess" />
+		</batch:step>
+		
+		<batch:step id="variantCalling.preProcess.step.dataPreprocess" next="variantCalling.preProcess.step.listenForDataPreprocessComplete">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.analysis.WaspJobSoftwareLaunchTaskletImpl" scope="step">
+					<constructor-arg name="cellLibraryId" value="#{jobParameters[waspSoftwareJobParameters.CELL_LIBRARY_ID]}"/>
+					<constructor-arg name="softwareResourceType" ref="variantCallingResourceType" />
+					<constructor-arg name="task" value="#{batchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}" />
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="variantCalling.preProcess.step.listenForDataPreprocessComplete" >
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
+					<constructor-arg name="messageTemplates">
+						<set>
+							<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+								<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.CELL_LIBRARY_ID]}"/>
+								<property name="task" value="#{sequencingBatchJobTasks.VARIANT_DATA_PREPROCESS}" />
+								<property name="status" value="COMPLETED" />
+							</bean>
+							<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+								<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.CELL_LIBRARY_ID]}"/>
+								<property name="task" value="#{sequencingBatchJobTasks.VARIANT_DATA_PREPROCESS}" />
+								<property name="status" value="FAILED" />
+							</bean>
+						</set>
+					</constructor-arg>
+					<property name="failOnStatuses" value="FAILED" />
+				</bean>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="variantCalling.preProcess.step.notifyFailed" />
+			<batch:next on="*" to="variantCalling.preProcess.step.notifyCompleted" />
+		</batch:step>
+		
+		<batch:step id="variantCalling.preProcess.step.notifyCompleted" >
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+							<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.CELL_LIBRARY_ID]}"/>
+							<property name="task" value="#{batchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}"/>
+							<property name="status" value="COMPLETED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="variantCalling.preProcess.step.notifyFailed" >
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+							<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.CELL_LIBRARY_ID]}"/>
+							<property name="task" value="#{batchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}"/>
+							<property name="status" value="FAILED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+			<batch:fail on="*" />
+		</batch:step>
+		
+	</batch:flow>
+	
+	
+	<!-- for dispatching job, call with parameters 'jobId' and 'libraryId' -->
+	<batch:job id="variantCalling.preProcess.jobflow.v1" restartable="true" >
+		<batch:flow id= "variantCalling.preProcess.flowjob" parent="variantCalling.preProcess.flow.v1" />
+	</batch:job>
+
+</beans>

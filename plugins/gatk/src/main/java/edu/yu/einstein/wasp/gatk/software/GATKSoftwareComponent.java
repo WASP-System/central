@@ -267,7 +267,6 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 
 		w.setWorkingDirectory(scratchDirectory);
 		
-		//logger.debug("Will conduct gatk hard filter with string: " + command);
 		
 		
 		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar --variant gatk." + namePrefix + ".raw.vcf -R " + 

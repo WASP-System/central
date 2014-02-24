@@ -10,7 +10,9 @@
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.gatk.integration.messages.SimpleGatkStatusMessageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+							<property name="cellLibraryId" value="#{jobParameters[waspSoftwareJobParameters.CELL_LIBRARY_ID_LIST]}"/> <!-- should only be one value which will cast to Integer ok -->
+							<property name="task" value="#{sequencingBatchJobTasks.VARIANT_DATA_PREPROCESS}"/>
 							<property name="status" value="STARTED" />
 						</bean>
 					</constructor-arg>
@@ -18,40 +20,63 @@
 			</batch:tasklet>
 		</batch:step>
 		
-		<batch:step id="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.createTarget" next="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.localAlign">
+		<batch:step id="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.createTarget">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.CreateTargetTasklet" scope="step">
 					<constructor-arg name="cellLibraryIds" value="#{jobParameters[waspSoftwareJobParameters.CELL_LIBRARY_ID_LIST]}" />
 				</bean>
 			</batch:tasklet>
+			<batch:next on="FAILED" to="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.notifyGATKFailed" />
+			<batch:next on="*" to="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.localAlign" />
 			<batch:listeners>
-				<batch:listener ref="gatkPromotionListener" />
+				<batch:listener>
+					<bean class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
+						<property name="keys" value="scrDir,createTargetName,cellLibId"  />
+						<property name="statuses" value="COMPLETED,FAILED" />
+					</bean>
+				</batch:listener>
 			</batch:listeners>
 		</batch:step>
 		
-		<batch:step id="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.localAlign" next="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.recaliTable">
+		<batch:step id="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.localAlign">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.LocalAlignTasklet" scope="step" />
 			</batch:tasklet>
+			<batch:next on="FAILED" to="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.notifyGATKFailed" />
+			<batch:next on="*" to="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.recaliTable" />
 			<batch:listeners>
-				<batch:listener ref="gatkPromotionListener" />
+				<batch:listener>
+					<bean class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
+						<property name="keys" value="localAlignName"  />
+						<property name="statuses" value="COMPLETED,FAILED" />
+					</bean>
+				</batch:listener>
 			</batch:listeners>
 		</batch:step>
 		
 		
-		<batch:step id="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.recaliTable" next="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.printRecali">
+		<batch:step id="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.recaliTable">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.RecaliTableTasklet" scope="step" />
 			</batch:tasklet>
+			<batch:next on="FAILED" to="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.notifyGATKFailed" />
+			<batch:next on="*" to="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.printRecali" />
 			<batch:listeners>
-				<batch:listener ref="gatkPromotionListener" />
+				<batch:listener>
+					<bean class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
+						<property name="keys" value="recaliTableName"  />
+						<property name="statuses" value="COMPLETED,FAILED" />
+					</bean>
+				</batch:listener>
 			</batch:listeners>
 		</batch:step>
 		
-		<batch:step id="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.printRecali" next="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.notifyComplete">
+		<batch:step id="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.printRecali">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.PrintRecaliTasklet" scope="step" />
 			</batch:tasklet>
+			<batch:next on="FAILED" to="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.notifyGATKFailed" />
+			<batch:next on="*" to="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.notifyComplete" />
 		</batch:step>
 		
 		
@@ -60,12 +85,30 @@
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.gatk.integration.messages.SimpleGatkStatusMessageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+							<property name="cellLibraryId" value="#{jobExecutionContext['cellLibId']}"/>
+							<property name="task" value="#{sequencingBatchJobTasks.VARIANT_DATA_PREPROCESS}"/>
 							<property name="status" value="COMPLETED" />
 						</bean>
 					</constructor-arg>
 				</bean>
 			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.notifyGATKFailed">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+							<property name="cellLibraryId" value="#{jobExecutionContext['cellLibId']}"/>
+							<property name="task" value="#{sequencingBatchJobTasks.VARIANT_DATA_PREPROCESS}" />
+							<property name="status" value="FAILED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+			<batch:fail on="*" />
 		</batch:step>
 		
 	</batch:job>

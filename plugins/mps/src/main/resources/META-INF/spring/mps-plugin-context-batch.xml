@@ -18,4 +18,6 @@
 		<bean class="edu.yu.einstein.wasp.plugin.mps.integration.endpoints.RunSuccessFastqcSplitter" />
 	</int:splitter>
 	
+	<bean id="sequencingBatchJobTasks" class="edu.yu.einstein.wasp.plugin.mps.integration.messages.tasks.SequencingBatchJobTask" />
+	
 </beans>

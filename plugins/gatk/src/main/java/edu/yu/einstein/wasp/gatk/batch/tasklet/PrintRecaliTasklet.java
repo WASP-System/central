@@ -1,9 +1,4 @@
-
-
-
 package edu.yu.einstein.wasp.gatk.batch.tasklet;
-
-
 
 
 /**
@@ -42,8 +37,6 @@ public class PrintRecaliTasklet extends WaspRemotingTasklet implements StepExecu
 	private String localAlignJobName;
 
 	private Integer cellLibId;
-
-	private StepExecution stepExecution;
 
 	@Autowired
 	private SampleService sampleService;
@@ -94,12 +87,6 @@ public class PrintRecaliTasklet extends WaspRemotingTasklet implements StepExecu
 
 		// place the grid result in the step context
 		storeStartedResult(context, result);
-
-		// place scratch directory in execution context, to be promoted
-		// to the job context at run time.
-		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
-		stepContext.put("scrDir", result.getWorkingDirectory());
-		stepContext.put("printRecaliName", result.getId());
 	}
 
 	/**
@@ -117,7 +104,6 @@ public class PrintRecaliTasklet extends WaspRemotingTasklet implements StepExecu
 	public void beforeStep(StepExecution stepExecution) {
 		super.beforeStep(stepExecution);
 		logger.debug("StepExecutionListener beforeStep saving StepExecution");
-		this.stepExecution = stepExecution;
 		JobExecution jobExecution = stepExecution.getJobExecution();
 		ExecutionContext jobContext = jobExecution.getExecutionContext();
 		this.scratchDirectory = jobContext.get("scrDir").toString();

@@ -89,7 +89,7 @@ public class CreateTargetTasklet extends WaspRemotingTasklet implements StepExec
 		
 		logger.debug("Beginning GATK create re-alignment target step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
 		
-		Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLib, fastqFileType); // TODO: change to bamFileType later
+		Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLib, bamFileType); 
 		
 		logger.debug("fileGroups.size()="+fileGroups.size());
 		Assert.assertTrue(fileGroups.size() == 1);
@@ -103,8 +103,6 @@ public class CreateTargetTasklet extends WaspRemotingTasklet implements StepExec
 			logger.debug("Key: " + key + " Value: " + jobParameters.get(key).toString());
 		}
 		
-		// TODO: temporary, fix me
-		//WorkUnit w = new WorkUnit();
 		WorkUnit w = gatk.getCreateTarget(cellLib, fg);
 		
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());

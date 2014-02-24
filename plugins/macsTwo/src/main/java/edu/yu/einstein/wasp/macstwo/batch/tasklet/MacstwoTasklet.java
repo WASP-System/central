@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
-import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters;

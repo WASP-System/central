@@ -97,12 +97,9 @@ public class LocalAlignTasklet extends WaspRemotingTasklet implements StepExecut
 		// place the grid result in the step context
 		storeStartedResult(context, result);
 
-		// place scratch directory in execution context, to be promoted
+		// place localAlignName in execution context, to be promoted
 		// to the job context at run time.
 		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
-		stepContext.put("cellLibId", cellLib.getId()); //place in the step context
-
-		stepContext.put("scrDir", result.getWorkingDirectory());
 		stepContext.put("localAlignName", result.getId());
 	}
 

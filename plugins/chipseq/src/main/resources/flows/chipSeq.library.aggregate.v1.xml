@@ -19,7 +19,6 @@
 							<property name="status" value="CREATED" />
 						</bean>
 					</constructor-arg>
-					
 				</bean>
 			</batch:tasklet>
 		</batch:step>
