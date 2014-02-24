@@ -93,6 +93,10 @@
 	<!-- need to pass to a queue channel in case of backlog. wasp.channel.priority.waspStatusMessages will pick off messages from wasp.channel.notification.batch -->
 	<int:bridge id="wasp.channel.bridge.notify" input-channel="wasp.channel.notification.batch" output-channel="wasp.channel.priority.waspStatusMessages" />
 	
+	<int:bridge id="wasp.channel.bridge.default" input-channel="wasp.channel.priority.default" output-channel="wasp.channel.notification.default" >
+		<int:poller max-messages-per-poll="1" fixed-rate="10" />
+	</int:bridge>
+	
 	<int:bridge id="wasp.channel.bridge.job" input-channel="wasp.channel.priority.job" output-channel="wasp.channel.notification.job" >
 		<int:poller max-messages-per-poll="1" fixed-rate="10" />
 	</int:bridge>
