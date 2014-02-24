@@ -84,13 +84,9 @@ public class Macstwo extends SoftwarePackage{
 	
 			String opt = "";
 			
-			if(key.equalsIgnoreCase("broad") || key.equalsIgnoreCase("broadBand")){//TODO: not yet an option on the forms
+			if(key.equalsIgnoreCase("broadPeakExpected")){//TODO: not yet an option on the forms
 				opt = "--broad";
-				if(jobParametersMap.get(key).toString().equalsIgnoreCase("yes") 
-					||
-					jobParametersMap.get(key).toString().equalsIgnoreCase("true")	
-					||
-					jobParametersMap.get(key).toString().equals("1"))
+				if(jobParametersMap.get(key).toString().equalsIgnoreCase("yes"))
 				{   
 					tempCommand.append(" " + opt);
 					continue;
@@ -124,7 +120,7 @@ public class Macstwo extends SoftwarePackage{
 					continue;
 				}
 			}
-			if(key.equalsIgnoreCase("keepDup") ){
+			if(key.equalsIgnoreCase("keepDup") ){//only yes or no are currently permitted on the forms
 				opt = "--keep-dup";	
 				if(jobParametersMap.get(key).toString().equalsIgnoreCase("no")){   //jobParameters.get(opt).toString().equalsIgnoreCase("no")){
 					tempCommand.append(" " + opt + " 1");
