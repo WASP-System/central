@@ -379,14 +379,16 @@ public class WaspProjectCreator {
 		plugin2.setArtifactId("maven-enforcer-plugin");
 		build.addPlugin(plugin2);
 
-		// resources
-		if (web || resource || viz) {
+		// web
+		if (web || viz) {
 			Resource res = new Resource();
 			res.setTargetPath("WEB-INF");
 			res.setFiltering(true);
 			res.setDirectory("src/main/webapp/WEB-INF");
 			build.addResource(res);
 		}
+		
+		// resources
 		Resource res = new Resource();
 		res.setTargetPath(".");
 		res.setFiltering(true);
