@@ -16,7 +16,7 @@
 
 
   <bean id="variantCallingWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoaderAndFactory" >
-    <property name="area" ref="waspGenericDnaSeqPluginArea" />
+    <property name="area" ref="variantcallingPluginArea" />
     <property name="name" value="Variant Calling" />
     <property name="pageFlowOrder">
       <list>
