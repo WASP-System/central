@@ -17,15 +17,13 @@
 
 <form method="POST" class="chipseqPairingform">
 <table class="data">
-	<c:set var="sampleNumber" value="${fn:length(ipSamples)}" />
 	<tr class="row">
 		<td class="label">&nbsp;</td>
-		<td colspan="${sampleNumber + 1 }" align="center" class="label"><fmt:message key="${workflowIName}.test.label"/></td>
+		<td colspan="${fn:length(ipSamples) + 1 }" align="center" class="label"><fmt:message key="${workflowIName}.test.label"/></td>
 		<td class="noBorder" rowspan="2">&nbsp;</td>
 	</tr>
-	<c:set var="sampleNumber" value="${fn:length(inputSamples)}" />
 	<tr class="row">
-		<td rowspan="${sampleNumber + 1 }" valign="middle" class="label"><fmt:message key="${workflowIName}.control.label"/></td>
+		<td rowspan="${fn:length(inputSamples) + 1 }" valign="middle" class="label"><fmt:message key="${workflowIName}.control.label"/></td>
 		<td class="label">&nbsp;</td>
 		<c:forEach var="s" items="${ipSamples}">
 			<td class="label"><c:out value="${s.name}" /></td>
@@ -36,18 +34,26 @@
 			<td class="label"><c:out value="${sControl.name}" /></td>
 			<c:forEach var="sTest" items="${ipSamples}" varStatus="statusTest">
 				<c:choose>
-					<c:when test="${sControl.id == sTest.id }" ><!-- backward compatibility only; generally no longer used -->
+					<c:when test="${sControl.id == sTest.id }" ><!-- should no longer ever be true; this is for backward compatibility only; generally no longer used -->
 						<td class="input-centered" >&nbsp;</td>
 					</c:when>
 					<c:otherwise>
-						<td name="rowcolumn_${statusControl.count}_${statusTest.count}" class="input-centered" >
-					      <c:set var="key" value="testVsControl_${sTest.sampleDraftId}_${sControl.sampleDraftId}" />
-					      <c:set var="checked" value="" />
-					      <c:if test="${fn:contains(selectedSamplePairs, key)}">
-					        <c:set var="checked" value="CHECKED" />
-					      </c:if>
-					      <input type="checkbox" value="1" ${checked} name="${key}" id="rowcolumn_${statusControl.count}_${statusTest.count}">
-					    </td>
+						<c:choose>
+							<c:when test="${sampleOrganismMap.get(sControl) == sampleOrganismMap.get(sTest)}"><!-- confirm sample pairs are from same organism -->
+								<td name="rowcolumn_${statusControl.count}_${statusTest.count}" class="input-centered" >
+					      			<c:set var="key" value="testVsControl_${sTest.sampleDraftId}_${sControl.sampleDraftId}" />
+					      			<c:set var="checked" value="" />
+					      			<c:if test="${fn:contains(selectedSamplePairs, key)}">
+					        			<c:set var="checked" value="CHECKED" />
+					      			</c:if>
+					     			<input type="checkbox" value="1" ${checked} name="${key}" id="rowcolumn_${statusControl.count}_${statusTest.count}">
+					     		</td>
+							</c:when>
+							<c:otherwise>
+								<td class="input-centered" >&nbsp;</td>
+							</c:otherwise>
+						</c:choose>
+						
 					</c:otherwise>
 				</c:choose>
 			</c:forEach>
