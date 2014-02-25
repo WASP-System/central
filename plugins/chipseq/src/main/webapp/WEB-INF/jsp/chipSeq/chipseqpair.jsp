@@ -77,7 +77,7 @@
 </form>
 
 
-<!--  
+<!--  OLD; this pairs all samples with all samples (except self pairing); at least with chipseq we now pair (see above) using input vs IP and also constrain by species
 <div class="instructions">
    <fmt:message key="${workflowIName}.pairing_instructions.label"/>
 </div>
