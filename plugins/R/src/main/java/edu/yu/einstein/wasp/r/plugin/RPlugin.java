@@ -50,7 +50,7 @@ public class RPlugin extends WaspPlugin
 	private MessageChannelRegistry messageChannelRegistry;
 	
 	@Autowired
-	@Qualifier("r")
+	@Qualifier("rPackage")
 	private Software r;
 	
 

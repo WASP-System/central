@@ -42,9 +42,9 @@ public class Macstwo extends SoftwarePackage{
 	@Autowired
 	private FileService fileService;
 	
-	//@Autowired
-	//@Qualifier("rPackage")
-	//private SoftwarePackage rSoftware;
+	@Autowired
+	@Qualifier("rPackage")
+	private SoftwarePackage rSoftware;
 
 	public Macstwo() {
 		setSoftwareVersion("2.0.10"); // TODO: Set this value. This default may also be overridden in wasp.site.properties
@@ -201,7 +201,7 @@ public class Macstwo extends SoftwarePackage{
 				
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(this);
-		//sd.add(rSoftware);//used for generating model as pdf
+		sd.add(rSoftware);//used for generating model as pdf
 		
 		w.setSoftwareDependencies(sd);
 		//w.setResultFiles(resultFiles);//may not be needed
