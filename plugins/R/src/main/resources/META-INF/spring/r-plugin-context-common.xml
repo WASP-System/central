@@ -12,7 +12,7 @@
 
 	<bean id="rPluginArea" class="java.lang.String">
 		<constructor-arg>
-			<value>r</value>
+			<value>rPackage</value>
 		</constructor-arg>
 	</bean>
 	
@@ -29,7 +29,7 @@
 		<property name="description" value="The R Project for Statistical Computing" />
 		<property name="provides" >
 			<set>
-				<ref bean="r" /> 
+				<ref bean="rPackage" /> 
 			</set>
 		</property>
 		<property name="handles" >
