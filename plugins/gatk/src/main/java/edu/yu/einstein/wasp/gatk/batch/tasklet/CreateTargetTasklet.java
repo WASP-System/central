@@ -1,10 +1,6 @@
 package edu.yu.einstein.wasp.gatk.batch.tasklet;
 
 
-/**
- * 
- */
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +28,10 @@ import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 
-
+/**
+ * @author jcai
+ * @author asmclellan
+ */
 public class CreateTargetTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
 	private Integer cellLibraryId;

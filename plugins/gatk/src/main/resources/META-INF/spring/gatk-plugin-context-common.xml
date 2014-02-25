@@ -28,7 +28,7 @@
 		<property name="description" value="genome analysis tool kit broad institute" />
 		<property name="provides" >
 			<set>
-				<ref bean="gatkPipeline" /> 
+				<ref bean="gatk" /> 
 			</set>
 		</property>
 		<property name="handles" >

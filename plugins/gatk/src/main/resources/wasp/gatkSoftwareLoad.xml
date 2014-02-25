@@ -9,39 +9,33 @@
         http://www.springframework.org/schema/context/spring-context.xsd"
     default-autowire="byName">
     
-  <bean id="gatkPipelineArea" class="java.lang.String">
-  	<constructor-arg><value>gatkPipeline</value></constructor-arg>
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="gatkUiFieldWrapper">
+    <!--  <property name="baseLocale" value="en_US" /> -->
+    <property name="baseArea" ref="gatkPluginArea" />
   </bean>
 
-  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="gatkPipelineUiFieldWrapper">
-    <property name="baseLocale" value="en_US" />
-    <property name="baseArea" ref="gatkPipelineArea" />
-  </bean>
-  
-  <bean id="gatkPipelineResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
-    <property name="name" value="GATK Pipeline" />
-    <property name="area" ref="gatkPipelineArea" />
-  </bean>
-
-  <bean id="gatkPipelineSoftware" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
-    <property name="name" value="GATK Pipeline" />
-    <property name="resourceType" ref="gatkPipelineResourceType"/>
-	<property name="area" ref="gatkPipelineArea" />
+  <bean id="gatk" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
+  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent</value></property>
+    <property name="name" value="gatk" />
+    <property name="description" value="Genome analysis tool kit from the Broad Institute" />
+    <property name="area" ref="gatkPluginArea" />
+    <property name="resourceType" ref="variantCallingResourceType" />
+	
 	<property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" ref="gatkPipelineArea" />
-          <property name="metaList">
+         <property name="area" ref="gatkPluginArea" />
+         <!-- Load any software metadata 
+         <property name="metaList">
          	<list>
-         		<value>#{waspSoftware['currentVersion']}=1.0</value>
-         		<value>#{waspSoftware['priorVersions']}=</value>
+         		<value>gatk.myMetaValue=foo</value>
          	</list>
        	 </property>
+       	 -->
        </bean>
     </property> 
-
     <property name="uiFieldsFromWrapper">
       <list>
-        <bean parent="gatkPipelineUiFieldWrapper">
+        <bean parent="gatkUiFieldWrapper">
           <property name="baseName" value="gatk-stand_call_conf" />
           <property name="metaposition" value="10" />
           <property name="label" value="gatk.pipeline.stand_call_conf.label" />
@@ -53,7 +47,7 @@
           <property name="tooltip" value="gatk.pipeline.stand_call_conf.tt" />
         </bean>
         
-        <bean parent="gatkPipelineUiFieldWrapper">
+        <bean parent="gatkUiFieldWrapper">
           <property name="baseName" value="gatk--max_alternate_alleles" />
           <property name="metaposition" value="20" />
           <property name="label" value="gatk.pipeline.max_alternate_alleles.label" />
@@ -65,7 +59,7 @@
           <property name="tooltip" value="gatk.pipeline.max_alternate_alleles.tt" />
         </bean>
         
-        <bean parent="gatkPipelineUiFieldWrapper">
+        <bean parent="gatkUiFieldWrapper">
           <property name="baseName" value="gatk-dcov" />
           <property name="metaposition" value="30" />
           <property name="label" value="gatk.pipeline.dcov.label" />
@@ -77,18 +71,17 @@
           <property name="tooltip" value="gatk.pipeline.dcov.tt" />
         </bean>
  
- 		<bean parent="gatkPipelineUiFieldWrapper">
-              <property name="baseName" value="gatk-L" />
-	          <property name="label" value="gatk.capture.label" />
-	          <property name="metaposition" value="40" />
-	          <property name="control" value="gatk.capture.control" /> 
-	          <property name="constraint" value="NotEmpty" />
-	          <property name="error" value="gatk.capture.error" />
+ 		<bean parent="gatkUiFieldWrapper">
+          <property name="baseName" value="gatk-L" />
+          <property name="label" value="gatk.capture.label" />
+          <property name="metaposition" value="40" />
+          <property name="control" value="gatk.capture.control" /> 
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="gatk.capture.error" />
         </bean>
         
       </list>
     </property>
-
   </bean> 
 
 </beans>

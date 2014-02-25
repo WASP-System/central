@@ -33,9 +33,9 @@ import edu.yu.einstein.wasp.service.SampleService;
 
 
 /**
- * 
+ * @author jcai
+ * @author asmclellan
  */
-
 public class LocalAlignTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
 	private String scratchDirectory;

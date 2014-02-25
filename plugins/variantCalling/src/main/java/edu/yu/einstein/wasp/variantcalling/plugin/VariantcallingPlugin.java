@@ -4,6 +4,7 @@
  */
 package edu.yu.einstein.wasp.variantcalling.plugin;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -46,6 +47,11 @@ public class VariantcallingPlugin extends WaspPlugin
 			FileDataTabViewing,
 			ClientMessageI {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -550560543210195722L;
+
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	@Autowired
@@ -61,11 +67,11 @@ public class VariantcallingPlugin extends WaspPlugin
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
 	
-	@Autowired
-	@Qualifier("variantcalling")
-	private Software variantcalling;
-	
 	public static final String FLOW_NAME = "edu.yu.einstein.wasp.variantcalling.mainFlow";
+	
+	public static final String VARIANT_PREPROCESSING_FLOW = "variantCalling.preprocessing.v1.xml";
+	
+	public static final String VARIANT_DISCOVERY_FLOW = "variantCalling.variantDiscovery.v1.xml";
 
 	public VariantcallingPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
 		super(iName, waspSiteProperties, channel);
@@ -95,7 +101,7 @@ public class VariantcallingPlugin extends WaspPlugin
 				"wasp -T variantcalling -t helloWorld\n";
 		return MessageBuilder.withPayload(mstr).build();
 	}
-
+	
 	public Message<String> launchTestFlow(Message<String> m) {
 		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
 			return launchTestFlowHelp();
@@ -110,6 +116,7 @@ public class VariantcallingPlugin extends WaspPlugin
 			Map<String, String> jobParameters = new HashMap<String, String>();
 			logger.info("Sending launch message with flow " + FLOW_NAME + " and id: " + id);
 			jobParameters.put(WaspJobParameters.TEST_ID, id.toString());
+			jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
 			waspMessageHandlingService.launchBatchJob(FLOW_NAME, jobParameters);
 			return (Message<String>) MessageBuilder.withPayload("Initiating test flow on id " + id).build();
 		} catch (WaspMessageBuildingException e1) {
@@ -122,6 +129,66 @@ public class VariantcallingPlugin extends WaspPlugin
 	private Message<String> launchTestFlowHelp() {
 		String mstr = "\nVariantcalling plugin: launch the test flow.\n" +
 				"wasp -T variantcalling -t launchTestFlow -m \'{id:\"1\"}\'\n";
+		return MessageBuilder.withPayload(mstr).build();
+	}
+
+	public Message<String> launchPreprocessingFlow(Message<String> m) {
+		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
+			return launchPreprocessingFlowHelp();
+		
+		logger.info("launching variant caller preprocessing flow");
+		
+		try {
+			Integer id = getIDFromMessage(m);
+			if (id == null)
+				return MessageBuilder.withPayload("Unable to determine cellLibrary id from message: " + m.getPayload().toString()).build();
+			
+			Map<String, String> jobParameters = new HashMap<String, String>();
+			logger.info("Sending launch message with flow " + VARIANT_PREPROCESSING_FLOW + " and cellLibrary id: " + id);
+			jobParameters.put(WaspJobParameters.CELL_LIBRARY_ID, id.toString());
+			jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
+			waspMessageHandlingService.launchBatchJob(VARIANT_PREPROCESSING_FLOW, jobParameters);
+			return (Message<String>) MessageBuilder.withPayload("Initiating variant caller preprocessing flow on cellLibrary id " + id).build();
+		} catch (WaspMessageBuildingException e1) {
+			logger.warn("unable to build message to launch batch job " + VARIANT_PREPROCESSING_FLOW);
+			return MessageBuilder.withPayload("Unable to launch batch job " + VARIANT_PREPROCESSING_FLOW).build();
+		}
+		
+	}
+	
+	private Message<String> launchPreprocessingFlowHelp() {
+		String mstr = "\nVariantcalling plugin: launch the variant caller preprocessing flow with provided cellLibrary id.\n" +
+				"wasp -T variantcalling -t launchPreprocessingFlow -m \'{id:\"1\"}\'\n";
+		return MessageBuilder.withPayload(mstr).build();
+	}
+	
+	public Message<String> launchDiscoveryFlow(Message<String> m) {
+		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
+			return launchDiscoveryFlowHelp();
+		
+		logger.info("launching variant caller discovery flow");
+		
+		try {
+			Integer id = getIDFromMessage(m);
+			if (id == null)
+				return MessageBuilder.withPayload("Unable to determine job id from message: " + m.getPayload().toString()).build();
+			
+			Map<String, String> jobParameters = new HashMap<String, String>();
+			logger.info("Sending launch message with flow " + VARIANT_DISCOVERY_FLOW + " and job id: " + id);
+			jobParameters.put(WaspJobParameters.JOB_ID, id.toString());
+			jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
+			waspMessageHandlingService.launchBatchJob(VARIANT_DISCOVERY_FLOW, jobParameters);
+			return (Message<String>) MessageBuilder.withPayload("Initiating variant caller discovery flow on job id " + id).build();
+		} catch (WaspMessageBuildingException e1) {
+			logger.warn("unable to build message to launch batch job " + VARIANT_DISCOVERY_FLOW);
+			return MessageBuilder.withPayload("Unable to launch batch job " + VARIANT_DISCOVERY_FLOW).build();
+		}
+		
+	}
+	
+	private Message<String> launchDiscoveryFlowHelp() {
+		String mstr = "\nVariantcalling plugin: launch the variant caller discovery flow with provided job id.\n" +
+				"wasp -T variantcalling -t launchDiscoveryFlow -m \'{id:\"1\"}\'\n";
 		return MessageBuilder.withPayload(mstr).build();
 	}
 	
@@ -151,8 +218,10 @@ public class VariantcallingPlugin extends WaspPlugin
 	 */
 	@Override
 	public String getBatchJobName(String batchJobType) {
-		if (batchJobType.equals(BatchJobTask.GENERIC)) 
-			return FLOW_NAME;
+		if (BatchJobTask.ANALYSIS_LIBRARY_PREPROCESS.equals(batchJobType))
+			return VARIANT_PREPROCESSING_FLOW;
+		else if (BatchJobTask.ANALYSIS_AGGREGATE.equals(batchJobType))
+			return VARIANT_DISCOVERY_FLOW;
 		return null;
 	}
 	

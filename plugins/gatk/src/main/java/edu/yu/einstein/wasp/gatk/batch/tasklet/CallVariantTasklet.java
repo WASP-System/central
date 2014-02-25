@@ -1,10 +1,5 @@
 package edu.yu.einstein.wasp.gatk.batch.tasklet;
 
-
-/**
- * 
- */
-
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +28,10 @@ import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 
-
+/**
+ * @author jcai
+ * @author asmclellan
+ */
 public class CallVariantTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
 	private List<Integer> cellLibraryIds;

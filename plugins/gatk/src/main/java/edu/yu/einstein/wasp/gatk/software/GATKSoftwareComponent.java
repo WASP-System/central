@@ -1,7 +1,5 @@
 package edu.yu.einstein.wasp.gatk.software;
 
-
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,8 +22,8 @@ import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
- * @author calder
- *
+ * @author jcai
+ * @author asmclellan
  */
 public class GATKSoftwareComponent extends SoftwarePackage {
 	
@@ -40,19 +38,10 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	private RunService runService;
 	
 	
-	// @Autowired
-	// private SoftwarePackage picard;
-	
-	//@Autowired
-	//private SoftwarePackage samtools;
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -6631761128215948999L;
 	
 	public GATKSoftwareComponent() {
-		setSoftwareVersion("2.7-4"); // this default may be overridden in wasp.site.properties
+		setSoftwareVersion("2.8-1"); // this default may be overridden in wasp.site.properties
 	}
 	
 	public WorkUnit getCreateTarget(SampleSource cellLibrary, FileGroup fg) {

@@ -27,11 +27,6 @@
 		<constructor-arg name="channel" ref="wasp.channel.plugin.variantcalling" />
 		<property name="name" value="Variant Calling" />
 		<property name="description" value="Variant Calling Analysis" />
-		<property name="provides" >
-			<set>
-				<ref bean="variantcalling" /> 
-			</set>
-		</property>
 		<property name="handles" >
 			<set>
 				<ref bean="variantcallingPluginArea" />

@@ -53,12 +53,6 @@ public class BWASoftwareComponent extends ReferenceBasedAligner {
 	@Autowired
 	private AdaptorService adaptorService;
 	
-	// @Autowired
-	// private SoftwarePackage picard;
-	
-	//@Autowired
-	//private SoftwarePackage samtools;
-
 	/**
 	 * 
 	 */

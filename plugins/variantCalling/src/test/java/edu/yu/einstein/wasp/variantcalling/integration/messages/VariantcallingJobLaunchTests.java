@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.yu.einstein.wasp.variantcalling.plugin.VariantcallingPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
@@ -35,12 +34,13 @@ import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
+import edu.yu.einstein.wasp.variantcalling.plugin.VariantcallingPlugin;
 
 // The test context is created using the configuration files provided in the @ContextConfiguration locations list
 @ContextConfiguration(locations={"/variantcalling-test-launch-context.xml","/flows/variantcalling.mainFlow.v1.xml"})
 
 /**
- * TestNG Test of Launching and successful completion of the VariantcallingPlugin.FLOW_NAME batch job flow (defined in /flows/variantcalling.mainFlow.v1.xml)
+ * TestNG Test of Launching and successful completion of the variantcallingPlugin.FLOW_NAME batch job flow (defined in /flows/variantcalling.mainFlow.v1.xml)
  * @author 
  * 
  */
@@ -111,7 +111,7 @@ public class VariantcallingJobLaunchTests extends AbstractTestNGSpringContextTes
 
 		
 	/**
-	 * This test involves sending a message to the remote wasp-daemon to initiate the VariantcallingPlugin.FLOW_NAME job flow. 
+	 * This test involves sending a message to the remote wasp-daemon to initiate the variantcallingPlugin.FLOW_NAME job flow. 
 	 * We check (from the response)	that this was successful, then verify that we recieve the two messages sent by the first and third steps of the job-flow 
 	 * in the correct order. 
 	 * Finally we check that the job execution exited with a success status of COMPLETED.
@@ -138,13 +138,13 @@ public class VariantcallingJobLaunchTests extends AbstractTestNGSpringContextTes
 			Assert.assertEquals(replyMessage.getPayload(), WaspStatus.COMPLETED);
 			
 			// verify that batch flow ran and completed normally. 
-			// The VariantcallingPlugin.FLOW_NAME job flow sends two messages which we will catch and verify
+			// The variantcallingPlugin.FLOW_NAME job flow sends two messages which we will catch and verify
 			int repeats = 0;
 			final int EXPECTED_MESSAGE_COUNT = 2; 
 			while (receivedMessages.size() < EXPECTED_MESSAGE_COUNT && repeats++ < (MESSAGE_TIMEOUT / MESSAGE_WAIT_INTERVAL) )
 				Thread.sleep(MESSAGE_WAIT_INTERVAL); // allow time for spring batch job execution and message sending
 			
-			// Check the receivedMessages list for receiving of the two messages sent by the VariantcallingPlugin.FLOW_NAME job flow.
+			// Check the receivedMessages list for receiving of the two messages sent by the variantcallingPlugin.FLOW_NAME job flow.
 			Assert.assertEquals(receivedMessages.size(), EXPECTED_MESSAGE_COUNT);
 			Assert.assertEquals(receivedMessages.get(0).getPayload(), WaspStatus.STARTED);
 			Assert.assertEquals(receivedMessages.get(1).getPayload(), WaspStatus.COMPLETED);

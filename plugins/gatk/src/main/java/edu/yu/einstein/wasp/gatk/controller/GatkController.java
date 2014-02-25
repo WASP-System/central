@@ -14,7 +14,10 @@ import edu.yu.einstein.wasp.controller.WaspController;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 
-
+/**
+ * @author jcai
+ * @author asmclellan
+ */
 @Controller
 @RequestMapping("/gatk")
 public class GatkController extends WaspController {

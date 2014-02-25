@@ -23,9 +23,9 @@ import edu.yu.einstein.wasp.service.SampleService;
 
 
 /**
- * 
+ * @author jcai
+ * @author asmclellan
  */
-
 public class RecaliTableTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
 	private String scratchDirectory;
