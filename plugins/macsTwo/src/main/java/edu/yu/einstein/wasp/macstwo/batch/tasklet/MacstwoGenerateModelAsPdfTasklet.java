@@ -157,7 +157,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		}
 		FileHandle modelScriptFileHandle = new ArrayList<FileHandle>(fileHandleSet).get(0);
 		logger.debug("*****modelScriptFileHandle.name = " + modelScriptFileHandle.getFileName());
-		//TODO: uncomment this line: Assert.assertTrue(modelScriptFileHandle.getFileType().getIName().equalsIgnoreCase(macs2ModelScriptFileType.getIName()));
+		/* //TODO: uncomment this line: */ Assert.assertTrue(modelScriptFileHandle.getFileType().getIName().equalsIgnoreCase(macs2ModelScriptFileType.getIName()));
 		String pdfFileName = modelScriptFileHandle.getFileName().replaceAll(".r$", ".pdf");//abc_model.r will be used to generate abc_model.pdf
 		logger.debug("*****pdfFileName = " + pdfFileName);
 		logger.debug("preparing to generate workunit");
@@ -165,7 +165,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		logger.debug("OK, workunit has been generated");
 		
 
-	/*				 
+	///*				 
 		FileGroup modelPdfG = new FileGroup();
 		FileHandle modelPdf = new FileHandle();
 		modelPdf.setFileName(pdfFileName);
@@ -183,12 +183,14 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		GridResult result = gridHostResolver.execute(w);		
 		//place the grid result in the step context
 		storeStartedResult(context, result);
-	*/	
+	//*/	
+		/*testing only
 		logger.debug("   getting ready to thow rob-generated exception");
 		if(1==1){
 			throw new Exception("   throwing Rob-generated exception in MacstwoGenerateModelAsPdfTasklet.execute()");
 		}
-		logger.debug("   throwing Rob-generated exception in MacstwoGenerateModelAsPdfTasklet.execute()");		
+		logger.debug("   throwing Rob-generated exception in MacstwoGenerateModelAsPdfTasklet.execute()");	
+		*/	
 	}
 	
 

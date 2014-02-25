@@ -362,7 +362,11 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 			jobParameters.put(ChipSeqSoftwareJobParameters.TEST_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(testCellLibraryIdList));
 			jobParameters.put(ChipSeqSoftwareJobParameters.CONTROL_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(controlCellLibraryIdList));
 			jobParameters.put(ChipSeqSoftwareJobParameters.JOB_ID, jobId.toString());
+			
+			//for testing only!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			/*
 			jobParameters.put("test", new Date().toString());//TODO: remove for production
+			*/
 			
 			//this next line works, but was replaced with the subsequent 7 lines, and the WaspMessageBuildingException exception
 			//waspMessageHandlingService.launchBatchJob(flowName, jobParameters);

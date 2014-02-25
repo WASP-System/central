@@ -212,7 +212,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		WorkUnit w = macs2.getPeaks(prefixForFileName, testFileHandleList, controlFileHandleList, jobParametersMap);//configure
 		logger.debug("OK, workunit has been generated");
 
-		/*		
+		///*		
 		  
 		stepExecution.getExecutionContext().put("jobId", this.jobId);//in case of crash
 		 
@@ -295,14 +295,16 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		//place the grid result in the step context
 		storeStartedResult(context, result);
-
-	*/	
+		
+		//*/
+		
 		//logger.debug("getting ready to thow rob-generated exception");
 		//if(1==1){
 		//	throw new Exception("throwing Rob-generated exception in MacstwoTasklet.execute()");
 		//}
 		//logger.debug("just threw rob-generated exception");
 		
+		/*THIS IS FOR TESTING ONLY !!!!!!!!!!!!!
 		logger.debug("****    ******************************************************************");
 		logger.debug("just about to declare FINISHED in the macstwoTasklet, to see if we move forward to the generateModel tasklet");
 		logger.debug("******    ****************************************************************");
@@ -314,7 +316,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		//stepExecution.getExecutionContext().put(MacstwoSoftwareJobParameters.MODEL_SCRIPT_FILEGROUP_ID, this.modelScriptGId.toString());//needed for the next (Rscript) task
 		stepExecution.getExecutionContext().put(MacstwoSoftwareJobParameters.TEST_SAMPLE_ID, testSampleId.toString());
 		stepExecution.getExecutionContext().put(MacstwoSoftwareJobParameters.CONTROL_SAMPLE_ID, controlSampleId.toString());
-
+		*/
 	}
 	
 
