@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.controller.chipseq;
 
 import edu.yu.einstein.wasp.controller.JobSubmissionController; 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.SampleDraft;
+import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.dao.JobDraftMetaDao;
 import edu.yu.einstein.wasp.dao.JobDraftDao;
 import edu.yu.einstein.wasp.dao.SampleDraftDao;
@@ -54,6 +56,37 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 			return nextPage(jobDraft);
 		}
 
+		List<SampleDraft> inputSampleDrafts = new ArrayList<SampleDraft>();
+		List<SampleDraft> ipSampleDrafts = new ArrayList<SampleDraft>();
+		Map<SampleDraft, Integer> sampleDraftOrganismMap = new HashMap<SampleDraft, Integer>();
+		
+		for(SampleDraft sampleDraft : sampleDrafts){
+			boolean foundInputOrIP = false;
+			for(SampleDraftMeta sampleDraftMeta : sampleDraft.getSampleDraftMeta()){
+				if(sampleDraftMeta.getK().endsWith("organism")){
+					sampleDraftOrganismMap.put(sampleDraft, new Integer(sampleDraftMeta.getV()));
+				}
+				if(sampleDraftMeta.getK().endsWith("inputOrIP")){
+					if(sampleDraftMeta.getV().equals("input")){
+						inputSampleDrafts.add(sampleDraft);
+						foundInputOrIP = true;
+					}
+					else if(sampleDraftMeta.getV().equals("ip")){
+						ipSampleDrafts.add(sampleDraft);
+						foundInputOrIP = true;
+					}
+				}
+			}
+			if(foundInputOrIP = false){//unexpected, but....., then put on both lists (for consistency with previous method of pairing all to all)
+				inputSampleDrafts.add(sampleDraft);
+				ipSampleDrafts.add(sampleDraft);
+			}
+		}
+		if (ipSampleDrafts.isEmpty() || inputSampleDrafts.isEmpty()){//no pairing is possible
+			return nextPage(jobDraft);
+		}
+
+		
 		Set<String> selectedSampleDraftPairStringSet = new HashSet<String>();
 		Set<Map<SampleDraft, SampleDraft>> sampleDraftPairSet = jobDraftService.getSampleDraftPairsByJobDraft(jobDraft);
 		if (!sampleDraftPairSet.isEmpty()){
@@ -65,6 +98,8 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 
 		m.put("jobDraft", jobDraft);
 		m.put("samples", sampleDrafts);
+		m.put("inputSamples", inputSampleDrafts);
+		m.put("ipSamples", ipSampleDrafts);
 		m.put("selectedSamplePairs", selectedSampleDraftPairStringSet);
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
 		return "jobsubmit/chipseqform";
