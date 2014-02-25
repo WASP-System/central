@@ -214,7 +214,7 @@ public class WaspProjectCreator {
 				
 				line = line.replaceAll("___pluginIName___", iname);
 				line = line.replaceAll("___PluginIName___", cName);
-				line = line.replaceAll("___PluginIName___", cAllName);
+				line = line.replaceAll("___PLUGININAME___", cAllName);
 				line = line.replaceAll("___package___", pkg + "." + iname.toLowerCase());
 				line = line.replaceAll("___name___", name);
 				line = line.replaceAll("___description___", description);
@@ -379,14 +379,16 @@ public class WaspProjectCreator {
 		plugin2.setArtifactId("maven-enforcer-plugin");
 		build.addPlugin(plugin2);
 
-		// resources
-		if (web || resource || viz) {
+		// web
+		if (web || viz) {
 			Resource res = new Resource();
 			res.setTargetPath("WEB-INF");
 			res.setFiltering(true);
 			res.setDirectory("src/main/webapp/WEB-INF");
 			build.addResource(res);
 		}
+		
+		// resources
 		Resource res = new Resource();
 		res.setTargetPath(".");
 		res.setFiltering(true);

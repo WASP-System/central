@@ -2,17 +2,17 @@
  * Created by Wasp System Eclipse Plugin
  * @author 
  */
-package ___package___.service.impl;
+package edu.yu.einstein.wasp.r.service.impl;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ___package___.service.___PluginIName___Service;
+import edu.yu.einstein.wasp.r.service.RService;
 
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 
 @Service
 @Transactional("entityManager")
-public class ___PluginIName___ServiceImpl extends WaspServiceImpl implements ___PluginIName___Service {
+public class RServiceImpl extends WaspServiceImpl implements RService {
 	
 	/**
 	 * {@inheritDoc}
