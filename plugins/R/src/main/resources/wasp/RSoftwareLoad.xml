@@ -13,7 +13,7 @@
     <property name="baseArea" ref="rPluginArea" />
   </bean>
 
-  <bean id="r" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
+  <bean id="rPackage" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
   	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.r.software.R</value></property>
     <property name="name" value="R" />
     <property name="description" value="The R Project for Statistical Computing" />
