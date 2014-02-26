@@ -48,11 +48,23 @@
         </bean>
         
         <bean parent="gatkUiFieldWrapper">
+          <property name="baseName" value="gatk-stand_emit_conf" />
+          <property name="metaposition" value="10" />
+          <property name="label" value="gatk.pipeline.stand_emit_conf.label" />
+          <property name="type" value="NUMBER" />
+          <property name="range" value="10:100" />
+          <property name="default" value="10" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="gatk.pipeline.stand_emit_conf.error" />
+          <property name="tooltip" value="gatk.pipeline.stand_emit_conf.tt" />
+        </bean>
+        
+        <bean parent="gatkUiFieldWrapper">
           <property name="baseName" value="gatk--max_alternate_alleles" />
           <property name="metaposition" value="20" />
           <property name="label" value="gatk.pipeline.max_alternate_alleles.label" />
           <property name="type" value="INTEGER" />
-          <property name="range" value="3:100" />
+          <property name="range" value="3:1000" />
           <property name="default" value="6" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="gatk.pipeline.max_alternate_alleles.error" />

@@ -270,7 +270,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		
 		String command3 = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar --variant gatk.${" + WorkUnit.JOB_NAME + "}.raw_indel.vcf -R " + 
 		getGenomeIndexPath(getGenomeBuild(sampleSource)) + "genome.fasta -T VariantFiltration -o gatk.${" + 
-		WorkUnit.JOB_NAME + "}.hfilter_indel.vcf --filterName \"GATK_v4_snp_hfilter\" --filterExpression \"QD < 2.0 || MQ < 40.0 || FS > 60.0 || HaplotypeScore > 13.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0\"";
+		WorkUnit.JOB_NAME + "}.hfilter_indel.vcf --filterName \"GATK_v4_indel_hfilter\" --filterExpression \"QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0\"";
 		w.addCommand(command3);
 					
 		
