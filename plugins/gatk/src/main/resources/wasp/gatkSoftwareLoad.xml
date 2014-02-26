@@ -71,14 +71,7 @@
           <property name="tooltip" value="gatk.pipeline.dcov.tt" />
         </bean>
  
- 		<bean parent="gatkUiFieldWrapper">
-          <property name="baseName" value="gatk-L" />
-          <property name="label" value="gatk.capture.label" />
-          <property name="metaposition" value="40" />
-          <property name="control" value="gatk.capture.control" /> 
-          <property name="constraint" value="NotEmpty" />
-          <property name="error" value="gatk.capture.error" />
-        </bean>
+
         
       </list>
     </property>

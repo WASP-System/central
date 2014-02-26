@@ -9,9 +9,9 @@
         http://www.springframework.org/schema/context/spring-context.xsd"
     default-autowire="byName">
     
-  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="gatkUiFieldWrapper">
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="variantcallingUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
-    <property name="baseArea" ref="gatkPluginArea" />
+    <property name="baseArea" ref="variantcallingPluginArea" />
   </bean>
 
 
@@ -56,47 +56,47 @@
     
     <property name="uiFieldsFromWrapper">
       <list>
-      	<bean parent="gatkUiFieldWrapper">
+      	<bean parent="variantcallingUiFieldWrapper">
           <property name="baseName" value="workflow" />
           <property name="label" value="variantcalling.wf.title" />
         </bean>
-        <bean parent="gatkUiFieldWrapper">
+        <bean parent="variantcallingUiFieldWrapper">
           <property name="baseName" value="jobsubmit/modifymeta" />
           <property name="label" value="variantcalling.modifyMeta.title" />
         </bean>
-        <bean parent="gatkUiFieldWrapper">
+        <bean parent="variantcallingUiFieldWrapper">
           <property name="baseName" value="jobsubmit/resource/mps" />
           <property name="label" value="variantcalling.mps.title" />
         </bean>
-        <bean parent="gatkUiFieldWrapper">
+        <bean parent="variantcallingUiFieldWrapper">
           <property name="baseName" value="jobsubmit/samples" />
           <property name="label" value="variantcalling.samples.title" />
         </bean>
-		<bean parent="gatkUiFieldWrapper">
+		<bean parent="variantcallingUiFieldWrapper">
 			<property name="baseName" value="jobsubmit/genomes" />
 			<property name="label" value="variantcalling.genomes.title" />
 		</bean>
-        <bean parent="gatkUiFieldWrapper">
+        <bean parent="variantcallingUiFieldWrapper">
           <property name="baseName" value="jobsubmit/cells" />
           <property name="label" value="variantcalling.cells.title" />
         </bean>
-        <bean parent="gatkUiFieldWrapper">
+        <bean parent="variantcallingUiFieldWrapper">
           <property name="baseName" value="jobsubmit/software/referenceBasedAligner" />
           <property name="label" value="variantcalling.aligner.title" />
         </bean>
-        <bean parent="gatkUiFieldWrapper">
+        <bean parent="variantcallingUiFieldWrapper">
           <property name="baseName" value="jobsubmit/software/variantCallingResourceType" />
           <property name="label" value="variantcalling.variantCaller.title" />
         </bean>
-         <bean parent="gatkUiFieldWrapper">
+         <bean parent="variantcallingUiFieldWrapper">
           <property name="baseName" value="jobsubmit/comment" />
           <property name="label" value="variantcalling.comments.title" />
         </bean>
-        <bean parent="gatkUiFieldWrapper">
+        <bean parent="variantcallingUiFieldWrapper">
           <property name="baseName" value="jobsubmit/verify" />
           <property name="label" value="variantcalling.verify.title" />
         </bean>
-         <bean parent="gatkUiFieldWrapper">
+         <bean parent="variantcallingUiFieldWrapper">
           <property name="baseName" value="jobsubmit/submit" />
           <property name="label" value="variantcalling.submit.title" />
         </bean>
