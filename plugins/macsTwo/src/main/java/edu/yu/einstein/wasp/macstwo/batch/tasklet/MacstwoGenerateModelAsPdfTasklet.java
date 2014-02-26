@@ -230,7 +230,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 			FileGroup fg = fileService.getFileGroupById(this.modelPdfGId);
 			fileService.setSampleFile(fg, testSample);
 			FileGroupMeta fgm = new FileGroupMeta();
-			fgm.setK("chipseq.controlId");
+			fgm.setK("chipseqAnalysis.controlId");
 			fgm.setV(this.controlSampleId.toString());//could be zero
 			fgm.setFileGroupId(fg.getId());
 			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();

@@ -148,9 +148,34 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 		logger.debug("***************in PeakCallerTasklet.execute(): approvedCellLibraryIdList.size() is " + this.approvedCellLibraryIdList.size());
 		List<SampleSource> approvedCellLibraryList = getApprovedCellLibraries(this.approvedCellLibraryIdList);
 		logger.debug("***************in PeakCallerTasklet.execute(): approvedCellLibraryList.size() is " + approvedCellLibraryList.size());
-		confirmCellLibrariesAssociatedWithBamFiles(approvedCellLibraryList);//throws exception if no
+		Map<String,Object> jobParametersMap = context.getStepContext().getJobParameters();		
+		for (String key : jobParametersMap.keySet()) {
+			logger.debug("***************in PeakCallerTasklet.execute(): jobParametersMap Key: " + key + " Value: " + jobParametersMap.get(key).toString());
+		}
+		Integer jobIdFromJobParameter = null;
+		/* 
+		if(jobParametersMap.containsKey(("waspJobParameters.JOB_ID"))){//hope this line produces a result
+			try{
+				jobIdFromJobParameter = (Integer) jobParametersMap.get("waspJobParameters.JOB_ID");
+				logger.debug("***************in PeakCallerTasklet.execute(): jobIdFromJobParameter is " + jobIdFromJobParameter.toString());
+			}catch(Exception e){
+				logger.debug("***************in PeakCallerTasklet.execute(): jobIdFromJobParameter is NULL");
+			}
+		}
+		*/
+		if(1==1){
+			throw new Exception("***************in PeakCallerTasklet.execute(): THREW Exception to terminate");
+		}
+//TODO: uncomment next line for production   !!!!!!!!!!!!!!!!!!!!!!!!   
+		//confirmCellLibrariesAssociatedWithBamFiles(approvedCellLibraryList);//throws exception if no
+
 		Job job = confirmCellLibrariesFromSingleJob(approvedCellLibraryList);//throws exception if no; need job this since samplePairs are by job 
 		Assert.assertTrue(job!=null&&job.getId()!=null);
+		if(jobIdFromJobParameter!=null){
+			Assert.assertTrue(job.getId().intValue()==jobIdFromJobParameter.intValue());
+		}
+		logger.debug("***************in PeakCallerTasklet.execute(): jobId returned from confirmCellLibrariesFromSingleJob is  " + job.getId().toString());
+
 		Map<Sample, List<SampleSource>> approvedSampleApprovedCellLibraryListMap = associateSampleWithCellLibraries(approvedCellLibraryList);//new HashMap<Sample, List<SampleSource>>();
 		Set<Sample> setOfApprovedSamples = new HashSet<Sample>();//for a specific job (note: this really could have been a list)
 		for (Sample approvedSample : approvedSampleApprovedCellLibraryListMap.keySet()) {
