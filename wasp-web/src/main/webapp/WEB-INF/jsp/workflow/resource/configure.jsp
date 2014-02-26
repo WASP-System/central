@@ -107,7 +107,7 @@
 				</span><br /><br />
 				 <table class="data" style="margin: 0px 0px">
 			  		<tr class="FormData">
-			  			<td class="label-centered" style="background-color:#FAF2D6">Common-Name Strategy</td><td  class="label-centered" style="background-color:#FAF2D6">SRA Strategy</td><td  class="label-centered" style="background-color:#FAF2D6">SRA Definition</td>
+			  			<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="strategy.commonName.label"/></td><td  class="label-centered" style="background-color:#FAF2D6"><fmt:message key="strategy.strategy.label"/></td><td  class="label-centered" style="background-color:#FAF2D6"><fmt:message key="strategy.definition.label" /></td>
 			  		</tr>
 			  		<c:forEach items="${strategies}" var="strategy">
 				  		<tr>
