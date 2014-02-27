@@ -162,7 +162,6 @@ public class GatkPlugin extends WaspPlugin
 			jobParameters.put("gatk-stand_call_conf", "30");
 			jobParameters.put("gatk-stand_emit_conf", "10");
 			jobParameters.put("gatk--max_alternate_alleles", "6");
-			jobParameters.put("gatk-L", "WGS"); // TODO:: gatk-L is not captured anymore. Get this from strategy instead
 
 			waspMessageHandlingService.launchBatchJob(VARIANT_DISCOVERY_FLOW, jobParameters);
 			return (Message<String>) MessageBuilder.withPayload("Initiating gatk variant discovery flow on cellLibrary ids " + ids).build();

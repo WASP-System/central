@@ -27,7 +27,6 @@
 		<value>/jobsubmit/cells/{n}</value>
 		<value>/jobsubmit/software/#{referenceBasedAlignerResourceType.getIName()}/{n}</value>
 		<value>/jobsubmit/software/#{variantCallingResourceType.getIName()}/{n}</value>
-		<value>/jobsubmit/gatk/target/{n}</value>
 		<value>/jobsubmit/comment/{n}</value>
 		<value>/jobsubmit/verify/{n}</value>
 		<value>/jobsubmit/submit/{n}</value>
@@ -81,11 +80,11 @@
           <property name="label" value="variantcalling.cells.title" />
         </bean>
         <bean parent="variantcallingUiFieldWrapper">
-          <property name="baseName" value="jobsubmit/software/referenceBasedAligner" />
+          <property name="baseName" value="jobsubmit/software/#{referenceBasedAlignerResourceType.getIName()}" />
           <property name="label" value="variantcalling.aligner.title" />
         </bean>
         <bean parent="variantcallingUiFieldWrapper">
-          <property name="baseName" value="jobsubmit/software/variantCallingResourceType" />
+          <property name="baseName" value="jobsubmit/software/#{variantCallingResourceType.getIName()}" />
           <property name="label" value="variantcalling.variantCaller.title" />
         </bean>
          <bean parent="variantcallingUiFieldWrapper">
