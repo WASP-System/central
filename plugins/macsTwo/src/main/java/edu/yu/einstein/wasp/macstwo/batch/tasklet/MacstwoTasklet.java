@@ -57,6 +57,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	private Integer controlLambdaBedGraphGId;
 	private Integer testSampleId;
 	private Integer controlSampleId;
+	private String commandLineCall;
 	
 	private StepExecution stepExecution;
 	
@@ -125,7 +126,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		logger.debug("Ending MacstwoTasklet constructor");
 	}
 	
-//TODO: comment out next METHOD for production !!!!!!!!!!
+//TODO: ROBERT A DUBIN (1 of 3) comment out next METHOD for production !!!!!!!!!!
 	@Override
 	@Transactional("entityManager")
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
@@ -220,6 +221,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		logger.debug("preparing to generate workunit");
 		WorkUnit w = macs2.getPeaks(prefixForFileName, testFileHandleList, controlFileHandleList, jobParametersMap);//configure
 		logger.debug("OK, workunit has been generated");
+		this.commandLineCall = w.getCommand();
 
 		FileGroup modelScriptG = new FileGroup();
 		FileHandle modelScript = new FileHandle();
@@ -296,6 +298,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		stepContext.put("summitsBedGId", this.summitsBedGId);
 		stepContext.put("treatPileupBedGraphGId", this.treatPileupBedGraphGId);
 		stepContext.put("controlLambdaBedGraphGId", this.controlLambdaBedGraphGId);
+		stepContext.put("commandLineCall", this.commandLineCall);
 		logger.debug("saved variables in stepContext in case of crash");
 
 		w.getResultFiles().add(modelScriptG);
@@ -308,14 +311,14 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + this.jobId.toString());
 
-//TODO: uncomment next 3 lines for production  !!!!!!!!!!
+//TODO: ROBERT A DUBIN (2 of 3) uncomment next 3 lines for production  !!!!!!!!!!
 		/*
 		GridResult result = gridHostResolver.execute(w);
-		logger.debug("****Executed gridHostResolver.execute(w)");
+		logger.debug("****Executed gridHostResolver.execute(w) in MactwoTasklet.doExecute()");
 		storeStartedResult(context, result);//place the grid result in the step context
 		*/
 		
-//TODO: comment out next line for production  !!!!!!!!!!
+//TODO: ROBERT A DUBIN (3 of 3) comment out next line for production  !!!!!!!!!!
 		this.doPreFinish(context);
 		
 	}
@@ -334,14 +337,13 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	 */
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
-		logger.debug("StepExecutionListener beforeStep saving StepExecution");
-		this.stepExecution = stepExecution;		
 		
+		logger.debug("StepExecutionListener beforeStep saving StepExecution");
+		this.stepExecution = stepExecution;				
 		//JobExecution jobExecution = stepExecution.getJobExecution();
 		//ExecutionContext jobContext = jobExecution.getExecutionContext();
 		//this.scratchDirectory = jobContext.get("scrDir").toString();
-		//this.cellLibId = (Integer) jobContext.get("cellLibId");
-		
+	
 		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
 		//in case of crash
 		this.jobId = (Integer) stepContext.get("jobId");
@@ -354,7 +356,8 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		this.treatPileupBedGraphGId = (Integer) stepContext.get("treatPileupBedGraphGId");
 		this.controlLambdaBedGraphGId = (Integer) stepContext.get("controlLambdaBedGraphGId");
 		this.testSampleId = (Integer) stepContext.get("testSampleId");
-		this.controlSampleId = (Integer) stepContext.get("controlSampleId");		
+		this.controlSampleId = (Integer) stepContext.get("controlSampleId");	
+		this.commandLineCall = (String) stepContext.get("commandLineCall");	
 	}
 	
 	/** 
@@ -363,16 +366,25 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	@Override
 	@Transactional("entityManager")
 	public void doPreFinish(ChunkContext context) throws Exception {
-		Sample testSample = sampleService.getSampleById(testSampleId);
+		
+		Sample testSample = sampleService.getSampleById(testSampleId);		
 		List<SampleMeta> testSampleMetaList = testSample.getSampleMeta();
 		SampleMeta sm1 = new SampleMeta();
-		sm1.setK("chipSeqAnalysis.testCellLibraryIdList");
+		sm1.setK("chipseqAnalysis.testCellLibraryIdList");
 		sm1.setV(this.testCellLibraryIdListAsString);
 		testSampleMetaList.add(sm1);
 		SampleMeta sm2 = new SampleMeta();
-		sm2.setK("chipSeqAnalysis.controlCellLibraryIdList");
+		sm2.setK("chipseqAnalysis.controlCellLibraryIdList");
 		sm2.setV(this.controlCellLibraryIdListAsString);
-		testSampleMetaList.add(sm2);
+		testSampleMetaList.add(sm2);		
+		SampleMeta sm3 = new SampleMeta();
+		sm3.setK("chipseqAnalysis.commandLineCall");
+		sm3.setV(this.commandLineCall);
+		testSampleMetaList.add(sm3);
+		SampleMeta sm4 = new SampleMeta();
+		sm4.setK("chipseqAnalysis.controlId");
+		sm4.setV(this.controlSampleId.toString());
+		testSampleMetaList.add(sm4);		
 		sampleService.saveSampleWithAssociatedMeta(testSample);
 		
 		if (this.modelScriptGId != null && testSample.getId() != 0){

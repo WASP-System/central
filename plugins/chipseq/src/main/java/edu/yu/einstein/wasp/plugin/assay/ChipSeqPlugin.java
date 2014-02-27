@@ -28,10 +28,13 @@ import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WebInterfacing;
 import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
@@ -59,6 +62,9 @@ public class ChipSeqPlugin extends WaspPlugin implements
 
 	@Autowired
 	private GridFileService waspGridFileService;
+	
+	@Autowired
+	private SampleService sampleService;
 
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
@@ -110,15 +116,17 @@ public class ChipSeqPlugin extends WaspPlugin implements
 			//}
 			
 			Map<String, String> jobParameters = new HashMap<String, String>();
-			//////logger.info("Sending launch message with flow " + PREP_FLOW_NAME + " and id: " + id);
-//			jobParameters.put(WaspSoftwareJobParameters.LIBRARY_CELL_ID_LIST, id.toString());
-//			jobParameters.put(WaspSoftwareJobParameters.GENOME, "10090::GRCm38::70");
-			jobParameters.put("test", new Date().toString());
 			
-			//jobParameters.put(WaspJobParameters.LIBRARY_CELL_ID, id.toString());
-			//String cellLibraryIdListAsString = "37,38,39,40";//comma delimited list is how they will appear
-			String cellLibraryIdListAsString = "37,38,39,40";//comma delimited list is how they will appear
+			//////jobParameters.put("test", new Date().toString());//used for testing only
+			
+			String cellLibraryIdListAsString = "37,38,39,40";//comma delimited list is how they will appear	
 			jobParameters.put(WaspSoftwareJobParameters.LIBRARY_CELL_ID_LIST, cellLibraryIdListAsString);
+
+			Integer firstCellLibraryId = WaspSoftwareJobParameters.getLibraryCellIdList(cellLibraryIdListAsString).get(0);
+			SampleSource firstCellLibrary = sampleService.getCellLibraryBySampleSourceId(firstCellLibraryId);
+			Job job = sampleService.getJobOfLibraryOnCell(firstCellLibrary);
+			jobParameters.put(WaspJobParameters.JOB_ID, job.getId().toString());
+			
 			waspMessageHandlingService.launchBatchJob(AGGREGATE_ANALYSIS_JOB, jobParameters);
 			logger.debug("**Initiating aggregate_analysis_job ChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB + " on cellLibraryIds " + cellLibraryIdListAsString);
 			return (Message<String>) MessageBuilder.withPayload("Initiating chipseq test flow: "+AGGREGATE_ANALYSIS_JOB + " on cellLibraryIds " + cellLibraryIdListAsString).build();

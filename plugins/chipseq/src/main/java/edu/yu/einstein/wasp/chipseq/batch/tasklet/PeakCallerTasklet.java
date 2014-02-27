@@ -36,6 +36,7 @@ import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.SoftwareConfigurationException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
+import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
@@ -149,32 +150,22 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 		List<SampleSource> approvedCellLibraryList = getApprovedCellLibraries(this.approvedCellLibraryIdList);
 		logger.debug("***************in PeakCallerTasklet.execute(): approvedCellLibraryList.size() is " + approvedCellLibraryList.size());
 		Map<String,Object> jobParametersMap = context.getStepContext().getJobParameters();		
+		Integer jobIdFromJobParameter = null;
 		for (String key : jobParametersMap.keySet()) {
 			logger.debug("***************in PeakCallerTasklet.execute(): jobParametersMap Key: " + key + " Value: " + jobParametersMap.get(key).toString());
-		}
-		Integer jobIdFromJobParameter = null;
-		/* 
-		if(jobParametersMap.containsKey(("waspJobParameters.JOB_ID"))){//hope this line produces a result
-			try{
-				jobIdFromJobParameter = (Integer) jobParametersMap.get("waspJobParameters.JOB_ID");
-				logger.debug("***************in PeakCallerTasklet.execute(): jobIdFromJobParameter is " + jobIdFromJobParameter.toString());
-			}catch(Exception e){
-				logger.debug("***************in PeakCallerTasklet.execute(): jobIdFromJobParameter is NULL");
+			if(key.equalsIgnoreCase(WaspJobParameters.JOB_ID)){
+				jobIdFromJobParameter = new Integer((String)jobParametersMap.get(key));
 			}
 		}
-		*/
-		if(1==1){
-			throw new Exception("***************in PeakCallerTasklet.execute(): THREW Exception to terminate");
-		}
-//TODO: uncomment next line for production   !!!!!!!!!!!!!!!!!!!!!!!!   
+		
+//TODO: ROBERT A DUBIN (1 of 1) uncomment next line for production   !!!!!!!!!!!!!!!!!!!!!!!!   
 		//confirmCellLibrariesAssociatedWithBamFiles(approvedCellLibraryList);//throws exception if no
 
 		Job job = confirmCellLibrariesFromSingleJob(approvedCellLibraryList);//throws exception if no; need job this since samplePairs are by job 
-		Assert.assertTrue(job!=null&&job.getId()!=null);
-		if(jobIdFromJobParameter!=null){
-			Assert.assertTrue(job.getId().intValue()==jobIdFromJobParameter.intValue());
-		}
-		logger.debug("***************in PeakCallerTasklet.execute(): jobId returned from confirmCellLibrariesFromSingleJob is  " + job.getId().toString());
+		logger.debug("***************in PeakCallerTasklet.execute(): job.getId() using job returned from confirmCellLibrariesFromSingleJob is  " + job.getId().toString());
+		logger.debug("***************in PeakCallerTasklet.execute(): jobIdFromJobParameter is " + jobIdFromJobParameter.toString());
+		Assert.assertTrue(job.getId()>0);
+		Assert.assertTrue(job.getId().intValue()==jobIdFromJobParameter.intValue());
 
 		Map<Sample, List<SampleSource>> approvedSampleApprovedCellLibraryListMap = associateSampleWithCellLibraries(approvedCellLibraryList);//new HashMap<Sample, List<SampleSource>>();
 		Set<Sample> setOfApprovedSamples = new HashSet<Sample>();//for a specific job (note: this really could have been a list)
@@ -322,7 +313,8 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 		//do not forget that a sample destined for a paired analysis (chipseq or helptag) 
 		//MAY NOT be on the samplePair list (but still needs to be dealt with).
 		//For chipseq, since the grid of pairs (on the submission forms) can be skipped, we may not know
-		//which are IP and which are inputs. However, for helptag it is be different, 
+		//which are IP and which are inputs. (as of 2-24-14, we actually know which are inputs and which are IP samples)
+		//However, for helptag it is be different, 
 		//since, regardless of the gird of pairs, we DO STILL KNOW which are MspI and which are HpaII
 		for(Sample sample : sampleSet){
 			List<Sample> controlList = new ArrayList<Sample>();
