@@ -8,7 +8,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
   <bean id="WGA_Strategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory" >
-  	<property name="type" value="libraryStrategy" />
+  	<property name="type" value="#{T(edu.yu.einstein.wasp.Strategy$StrategyType).LIBRARY_STRATEGY}" />
     <property name="strategy" value="WGA" />
     <property name="displayStrategy" value="WholeGenome(non-PCR Amplified)-Seq" />
     <property name="description" value="Random sequencing of the whole genome following non-pcr amplification" />
@@ -17,7 +17,7 @@
   </bean>
    
   <bean id="WGS_Strategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory" >
-    <property name="type" value="libraryStrategy" />
+    <property name="type" value="#{T(edu.yu.einstein.wasp.Strategy$StrategyType).LIBRARY_STRATEGY}" />
     <property name="strategy" value="WGS" />
     <property name="displayStrategy" value="WholeGenome-Seq" />
     <property name="description" value="Random sequencing of the whole genome" />
@@ -26,7 +26,7 @@
   </bean>
   
   <bean id="WXS_Strategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
-    <property name="type" value="libraryStrategy" />
+    <property name="type" value="#{T(edu.yu.einstein.wasp.Strategy$StrategyType).LIBRARY_STRATEGY}" />
     <property name="strategy" value="WXS" />
     <property name="displayStrategy" value="Exon-Seq (Sequence Capture)" />
     <property name="description" value="Random sequencing of exonic regions selected from the genome" />
@@ -35,7 +35,7 @@
   </bean>
 
   <bean id="RNA-Seq_Strategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
-    <property name="type" value="libraryStrategy" />
+    <property name="type" value="#{T(edu.yu.einstein.wasp.Strategy$StrategyType).LIBRARY_STRATEGY}" />
     <property name="strategy" value="RNA-Seq" />
     <property name="displayStrategy" value="RNA-Seq" />
     <property name="description" value="Random sequencing of whole transcriptome" />
@@ -44,7 +44,7 @@
   </bean>
   
   <bean id="miRNA-Seq_Strategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
-    <property name="type" value="libraryStrategy" />
+    <property name="type" value="#{T(edu.yu.einstein.wasp.Strategy$StrategyType).LIBRARY_STRATEGY}" />
     <property name="strategy" value="miRNA-Seq" />
     <property name="displayStrategy" value="microRNA-Seq" />
     <property name="description" value="Random sequencing of small miRNAs" />
@@ -53,7 +53,7 @@
   </bean>
  
    <bean id="WCS_Strategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
-    <property name="type" value="libraryStrategy" />
+    <property name="type" value="#{T(edu.yu.einstein.wasp.Strategy$StrategyType).LIBRARY_STRATEGY}" />
      <property name="strategy" value="WCS" />
      <property name="displayStrategy" value="Chromosome/Replicon-Seq" />
      <property name="description" value="Random sequencing of a whole chromosome or other replicon isolated from a genome" />
@@ -62,7 +62,7 @@
   </bean>
 
    <bean id="CLONE_Strategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
-    <property name="type" value="libraryStrategy" />
+    <property name="type" value="#{T(edu.yu.einstein.wasp.Strategy$StrategyType).LIBRARY_STRATEGY}" />
      <property name="strategy" value="CLONE" />
      <property name="displayStrategy" value="Hierarchical-Seq" />
      <property name="description" value="Genomic clone based (hierarchical) sequencing" />
@@ -71,7 +71,7 @@
   </bean>
   
    <bean id="POOLCLONE_Strategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
-    <property name="type" value="libraryStrategy" />
+    <property name="type" value="#{T(edu.yu.einstein.wasp.Strategy$StrategyType).LIBRARY_STRATEGY}" />
      <property name="strategy" value="POOLCLONE" />
      <property name="displayStrategy" value="PoolClone-Seq" />
      <property name="description" value="Shotgun of pooled clones (usually BACs and Fosmids)" />
@@ -80,7 +80,7 @@
    </bean>
    
    <bean id="AMPLICON_Strategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
-    <property name="type" value="libraryStrategy" />
+    <property name="type" value="#{T(edu.yu.einstein.wasp.Strategy$StrategyType).LIBRARY_STRATEGY}" />
      <property name="strategy" value="AMPLICON" />
      <property name="displayStrategy" value="Amplicon-Seq" />
      <property name="description" value="Sequencing of overlapping or distinct PCR or RT-PCR products" />
@@ -89,7 +89,7 @@
   </bean>
   
    <bean id="CLONEEND_Strategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
-    <property name="type" value="libraryStrategy" />
+    <property name="type" value="#{T(edu.yu.einstein.wasp.Strategy$StrategyType).LIBRARY_STRATEGY}" />
      <property name="strategy" value="CLONEEND" />
      <property name="displayStrategy" value="CloneEnd-Seq" />
      <property name="description" value="Clone end (5', 3', or both) sequencing" />
@@ -98,7 +98,7 @@
    </bean>
   
    <bean id="FINISHING_Strategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
-    <property name="type" value="libraryStrategy" />
+    <property name="type" value="#{T(edu.yu.einstein.wasp.Strategy$StrategyType).LIBRARY_STRATEGY}" />
      <property name="strategy" value="FINISHING" />
      <property name="displayStrategy" value="CloseGaps-Seq" />
      <property name="description" value="Sequencing intended to finish (close) gaps in existing coverage" />
@@ -107,7 +107,7 @@
    </bean>
     
    <bean id="ChIP-Seq_Strategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
-    <property name="type" value="libraryStrategy" />
+    <property name="type" value="#{T(edu.yu.einstein.wasp.Strategy$StrategyType).LIBRARY_STRATEGY}" />
      <property name="strategy" value="ChIP-Seq" />
      <property name="displayStrategy" value="ChIP-Seq" />
      <property name="description" value="Direct sequencing of chromatin immunoprecipitates" />
@@ -116,7 +116,7 @@
    </bean>
     
    <bean id="MNase-Seq_Strategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
-    <property name="type" value="libraryStrategy" />
+    <property name="type" value="#{T(edu.yu.einstein.wasp.Strategy$StrategyType).LIBRARY_STRATEGY}" />
      <property name="strategy" value="MNase-Seq" />
      <property name="displayStrategy" value="MNase-Seq" />
      <property name="description" value="Direct sequencing following MNase digestion" />
@@ -125,7 +125,7 @@
    </bean>
     
    <bean id="DNase-Hypersensitivity_Strategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
-    <property name="type" value="libraryStrategy" />
+    <property name="type" value="#{T(edu.yu.einstein.wasp.Strategy$StrategyType).LIBRARY_STRATEGY}" />
      <property name="strategy" value="DNase-Hypersensitivity" />
      <property name="displayStrategy" value="DNase-Hypersensitivity-Seq" />
      <property name="description" value="Sequencing of hypersensitive sites, or segments of open chromatin that are more readily cleaved by DNaseI" />
@@ -134,7 +134,7 @@
   </bean>
     
    <bean id="Bisulfite-Seq_Strategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
-    <property name="type" value="libraryStrategy" />
+    <property name="type" value="#{T(edu.yu.einstein.wasp.Strategy$StrategyType).LIBRARY_STRATEGY}" />
      <property name="strategy" value="Bisulfite-Seq" />
      <property name="displayStrategy" value="Bisulfite-Seq" />
      <property name="description" value="Sequencing following treatment of DNA with bisulfite to convert cytosine residues to uracil depending on methylation status" />
@@ -143,7 +143,7 @@
   </bean>
   
    <bean id="Tn-Seq_Strategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
-    <property name="type" value="libraryStrategy" />
+    <property name="type" value="#{T(edu.yu.einstein.wasp.Strategy$StrategyType).LIBRARY_STRATEGY}" />
      <property name="strategy" value="Tn-Seq" />
      <property name="displayStrategy" value="Transposon-Seq" />
      <property name="description" value="Sequencing from transposon insertion sites" />
@@ -152,7 +152,7 @@
   </bean>
    
    <bean id="EST_Strategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
-    <property name="type" value="libraryStrategy" />
+    <property name="type" value="#{T(edu.yu.einstein.wasp.Strategy$StrategyType).LIBRARY_STRATEGY}" />
      <property name="strategy" value="EST" />
      <property name="displayStrategy" value="EST" />
      <property name="description" value="Single pass sequencing of cDNA templates" />
@@ -161,7 +161,7 @@
  </bean>
     
    <bean id="FL-cDNA_Strategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
-    <property name="type" value="libraryStrategy" />
+    <property name="type" value="#{T(edu.yu.einstein.wasp.Strategy$StrategyType).LIBRARY_STRATEGY}" />
      <property name="strategy" value="FL-cDNA" />
      <property name="displayStrategy" value="FL-cDNA" />
      <property name="description" value="Full-length sequencing of cDNA templates" />
@@ -170,7 +170,7 @@
   </bean>
   
    <bean id="cts_Strategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
-    <property name="type" value="libraryStrategy" />
+    <property name="type" value="#{T(edu.yu.einstein.wasp.Strategy$StrategyType).LIBRARY_STRATEGY}" />
      <property name="strategy" value="CTS" />
      <property name="displayStrategy" value="ConcatenatedTag-Seq" />
      <property name="description" value="Concatenated Tag Sequencing" />
@@ -179,7 +179,7 @@
   </bean>
     
    <bean id="MRE-Seq_Strategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
-    <property name="type" value="libraryStrategy" />
+    <property name="type" value="#{T(edu.yu.einstein.wasp.Strategy$StrategyType).LIBRARY_STRATEGY}" />
      <property name="strategy" value="MRE-Seq" />
      <property name="displayStrategy" value="MethylationSensitiveRestrictionEnzyme-Seq" />
      <property name="description" value="Methylation-Sensitive Restriction Enzyme Sequencing strategy" />
@@ -188,7 +188,7 @@
   </bean>
   
    <bean id="MeDIP-Seq_Strategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
-    <property name="type" value="libraryStrategy" />
+    <property name="type" value="#{T(edu.yu.einstein.wasp.Strategy$StrategyType).LIBRARY_STRATEGY}" />
      <property name="strategy" value="MeDIP-Seq" />
      <property name="displayStrategy" value="MeDIP-Seq" />
      <property name="description" value="Methylated DNA Immunoprecipitation Sequencing strategy" />
@@ -197,7 +197,7 @@
   </bean>
   
     <bean id="MBD-Seq_Strategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
-    <property name="type" value="libraryStrategy" />
+    <property name="type" value="#{T(edu.yu.einstein.wasp.Strategy$StrategyType).LIBRARY_STRATEGY}" />
      <property name="strategy" value="MBD-Seq" />
      <property name="displayStrategy" value="MBD-Seq" />
      <property name="description" value="Direct sequencing of methylated fractions sequencing strategy (enriched by binding to, for example, Methyl-CpG binding domain protein)" />
@@ -206,7 +206,7 @@
   </bean>
    
    <bean id="OTHER_Strategy" class="edu.yu.einstein.wasp.load.StrategyLoaderAndFactory">
-    <property name="type" value="libraryStrategy" />
+    <property name="type" value="#{T(edu.yu.einstein.wasp.Strategy$StrategyType).LIBRARY_STRATEGY}" />
      <property name="strategy" value="OTHER" />
      <property name="displayStrategy" value="Other" />
      <property name="description" value="Library strategy not listed" />

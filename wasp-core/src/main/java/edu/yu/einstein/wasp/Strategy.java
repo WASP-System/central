@@ -7,6 +7,10 @@ import edu.yu.einstein.wasp.model.WaspModel;
 //dubin; 10-1-13
 
 public class Strategy extends WaspModel {
+	
+	public static class StrategyType{
+		public static final String LIBRARY_STRATEGY = "libraryStrategy";
+	}
 
 	private static final long serialVersionUID = -4413474836491771971L;
 

@@ -71,7 +71,7 @@
           <property name="tooltip" value="gatk.pipeline.max_alternate_alleles.tt" />
         </bean>
         
-        <bean parent="gatkUiFieldWrapper">
+        <!-- bean parent="gatkUiFieldWrapper">
           <property name="baseName" value="gatk-dcov" />
           <property name="metaposition" value="30" />
           <property name="label" value="gatk.pipeline.dcov.label" />
@@ -81,7 +81,7 @@
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="gatk.pipeline.dcov.error" />
           <property name="tooltip" value="gatk.pipeline.dcov.tt" />
-        </bean>
+        </bean -->
  
 
         

@@ -24,7 +24,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -52,6 +51,7 @@ import com.itextpdf.text.DocumentException;
 
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.Strategy;
+import edu.yu.einstein.wasp.Strategy.StrategyType;
 import edu.yu.einstein.wasp.controller.util.JsonHelperWebapp;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.controller.util.SampleWrapperWebapp;
@@ -207,8 +207,6 @@ public class JobController extends WaspController {
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp(JobMeta.class, request.getSession());
 	}
-	
-	final public String LIBRARY_STRATEGY = "libraryStrategy";
 	
 	@Transactional
 	@RequestMapping(value = "/analysisParameters/{jobId}", method = RequestMethod.GET)
@@ -952,7 +950,7 @@ public class JobController extends WaspController {
 		m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
 	
 		try{
-			Strategy strategy = jobService.getStrategy(LIBRARY_STRATEGY, job);
+			Strategy strategy = jobService.getStrategy(StrategyType.LIBRARY_STRATEGY, job);
 			m.addAttribute("strategy", strategy);	 
 		}catch(Exception e){ logger.warn("Job Strategy unexpectedly not found"); }
 		

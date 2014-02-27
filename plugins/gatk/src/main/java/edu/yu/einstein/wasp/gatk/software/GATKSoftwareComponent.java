@@ -7,6 +7,8 @@ import java.util.Map;
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import edu.yu.einstein.wasp.Strategy;
+import edu.yu.einstein.wasp.Strategy.StrategyType;
 import edu.yu.einstein.wasp.exception.NullResourceException;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
@@ -19,6 +21,7 @@ import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.StrategyService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
@@ -36,6 +39,9 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	
 	@Autowired
 	private RunService runService;
+	
+	@Autowired
+	private StrategyService strategyService;
 	
 	
 	private static final long serialVersionUID = -6631761128215948999L;
@@ -180,7 +186,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return index;
 	}
 
-	public WorkUnit getCallVariant(SampleSource sampleSource, List<FileGroup> fileGroups, Map<String,Object> jobParameters) {
+	public WorkUnit getCallVariant(SampleSource cellLibrary, List<FileGroup> fileGroups, Map<String,Object> jobParameters) {
 		final int NUM_THREADS = 4;
 		final int MEMORY_REQUIRED = 8; // in Gb
 		WorkUnit w = new WorkUnit();
@@ -211,20 +217,14 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 			if (!opt.startsWith("gatk"))
 				continue;
 			String key = opt.replace("gatk", "");
-			if (key.equals("-L"))
-				if (jobParameters.get(opt).toString().equals("WES")) {
-					gatkOpts += " " + key + " " + getGenomeIndexPath(getGenomeBuild(sampleSource)) + "wes.interval_list";
-					continue;
-				} else {
-					continue;
-				}
 			gatkOpts += " " + key + " " + jobParameters.get(opt).toString();
 		}
-		
-		
+		Strategy strategy = strategyService.getThisJobsStrategy(StrategyType.LIBRARY_STRATEGY, sampleService.getJobOfLibraryOnCell(cellLibrary));
+		if (strategy.getStrategy().equals("WXS")) // whole exome seq
+			gatkOpts += " -L " + getGenomeIndexPath(getGenomeBuild(cellLibrary)) + "wes.interval_list";
 		String command = "java -Xmx" + MEMORY_REQUIRED + "g -Djava.io.tmpdir=/oxford/jcai/tmp -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt " + NUM_THREADS +
 		" `printf -- '%s\n' ${" + WorkUnit.INPUT_FILE + "[@]} | sed 's/^/-I /g' | tr '\n' ' '` -R " + 
-		getGenomeIndexPath(getGenomeBuild(sampleSource)) + "genome.fasta -T UnifiedGenotyper -o gatk.${" + 
+		getGenomeIndexPath(getGenomeBuild(cellLibrary)) + "genome.fasta -T UnifiedGenotyper -o gatk.${" + 
 		WorkUnit.JOB_NAME + "}.raw.vcf --dbsnp /cork/jcai/GATK_bundle_2.2/dbsnp_137.hg19.vcf" +
 		" -l INFO -stand_emit_conf 10.0 -baq CALCULATE_AS_NECESSARY" + gatkOpts +
 		" -dt BY_SAMPLE -G Standard -rf BadCigar -A Coverage -A MappingQualityRankSumTest" +
