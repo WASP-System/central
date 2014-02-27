@@ -852,6 +852,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			// with a memory allocation error if memory used exceeds this value
 			return getFlag() + " -l mem_free=" + w.getMemoryRequirements().toString() + "G\n" +
 					getFlag() + " -l h_vmem=" + w.getMemoryRequirements().toString() + "G\n" +
+					getFlag() + " -l h_stack=" + w.getMemoryRequirements().toString() + "G\n" +
 					WorkUnit.REQUESTED_GB_MEMORY + "=" + w.getMemoryRequirements().toString() + "\n";
 		}
 		
