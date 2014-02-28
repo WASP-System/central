@@ -414,7 +414,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		// register commandLineCall, testCellLibraryIdList, controlCellLibraryIdList and  controlId with sampleMeta 
 		// and associate sample with the new file groups		
 		Sample testSample = sampleService.getSampleById(testSampleId);		
-		List<SampleMeta> testSampleMetaList = testSample.getSampleMeta();
+/*		List<SampleMeta> testSampleMetaList = testSample.getSampleMeta();
 		SampleMeta sm1 = new SampleMeta();
 		sm1.setK("chipseqAnalysis.testCellLibraryIdList");
 		sm1.setV(this.testCellLibraryIdListAsString);
@@ -432,7 +432,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		sm4.setV(this.controlSampleId.toString());
 		testSampleMetaList.add(sm4);		
 		sampleService.saveSampleWithAssociatedMeta(testSample);
-		
+	*/	
 		logger.debug("in middle of doPreFinish() in MacstwoTasklet");
 
 		if (this.modelScriptGId != null && testSample.getId() != 0){

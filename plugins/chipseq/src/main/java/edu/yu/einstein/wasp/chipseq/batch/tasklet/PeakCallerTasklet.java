@@ -208,7 +208,7 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 		} 
 		//*/
 		for(Sample testSample : setOfApprovedSamples){
-			int counter = 0;
+	
 			logger.debug("***************in PeakCallerTasklet.execute(): preparing to launchMessage to Macs2 for testSample: " + testSample.getName());
 			List<SampleSource> cellLibraryListForTest = approvedSampleApprovedCellLibraryListMap.get(testSample);
 			Assert.assertTrue( ! cellLibraryListForTest.isEmpty() );
@@ -216,22 +216,14 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 			logger.debug("***************in PeakCallerTasklet.execute(): immediately prior to if statment");
 			if(controlSampleList.isEmpty()){//no control (input sample)
 				logger.debug("***************in PeakCallerTasklet.execute(): just prior to  launchMessage call where controlSample is empty");
-				if(counter==100){
-					launchMessage(job.getId(), convertCellLibraryListToIdList(cellLibraryListForTest), new ArrayList<Integer>());
-				}
+				launchMessage(job.getId(), convertCellLibraryListToIdList(cellLibraryListForTest), new ArrayList<Integer>());
 			}
 			else{
 				for(Sample controlSample : controlSampleList){					
 					logger.debug("***************in PeakCallerTasklet.execute(): just prior to  launchMessage call where controlSample is NOT EMPTY");
 					List<SampleSource> cellLibraryListForControl = approvedSampleApprovedCellLibraryListMap.get(controlSample);
 					Assert.assertTrue( ! cellLibraryListForControl.isEmpty() );
-					if(counter==0){
-						launchMessage(job.getId(), convertCellLibraryListToIdList(cellLibraryListForTest), convertCellLibraryListToIdList(cellLibraryListForControl));
-						logger.debug("***************in PeakCallerTasklet.execute() launched where counter = " + counter + " and testSample = " + testSample.getName());
-					}
-					counter++;
-					logger.debug("**************" +
-							" = " + counter + " and testSample = " + testSample.getName());
+					launchMessage(job.getId(), convertCellLibraryListToIdList(cellLibraryListForTest), convertCellLibraryListToIdList(cellLibraryListForControl));
 				}
 			}
 		}
@@ -390,9 +382,9 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 			jobParameters.put(ChipSeqSoftwareJobParameters.JOB_ID, jobId.toString());
 			
 			//for testing only!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			//DO NOT use this in production
 			/*
-			jobParameters.put("test", new Date().toString());//TODO: remove for production
-			
+			jobParameters.put("test", new Date().toString());			
 			*/
 			
 			//this next line works, but was replaced with the subsequent 7 lines, and the WaspMessageBuildingException exception

@@ -257,7 +257,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		
 		// register commandLineCall with sampleMeta and associate sample with file group 		
 		Sample testSample = sampleService.getSampleById(this.testSampleId);
-		List<SampleMeta> testSampleMetaList = testSample.getSampleMeta();
+/*		List<SampleMeta> testSampleMetaList = testSample.getSampleMeta();
 		SampleMeta sm = null;
 		for(SampleMeta tempSM : testSampleMetaList){
 			if(tempSM.getK().equals("chipseqAnalysis.commandLineCall")){
@@ -275,7 +275,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 			sm.setV(sm.getV() + "::" + this.commandLineCall);
 		}
 		sampleService.saveSampleWithAssociatedMeta(testSample);
-		
+*/		
 		if (this.modelPdfGId != null && testSample.getId() != 0){
 			////fileService.setSampleFile(fileService.getFileGroupById(modelPdfGId), testSample);
 			FileGroup fg = fileService.getFileGroupById(this.modelPdfGId);
