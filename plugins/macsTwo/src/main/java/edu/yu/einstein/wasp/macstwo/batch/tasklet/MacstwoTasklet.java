@@ -89,7 +89,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	private GridHostResolver gridHostResolver;
 	
 	@Autowired
-	private Macstwo macs2;//TODO: how????
+	private Macstwo macs2;
 	
 
 	public MacstwoTasklet() {
@@ -123,6 +123,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 			this.controlCellLibraryIdList = WaspSoftwareJobParameters.getLibraryCellIdList(controlCellLibraryIdListAsString);//may be empty
 			Assert.assertTrue(!this.controlCellLibraryIdList.isEmpty());
 		}
+		
 		logger.debug("in constructor this.jobId: " + this.jobId);
 		logger.debug("in constructor testCellLibraryIdList.size(): " + testCellLibraryIdList.size());
 		logger.debug("in constructor controlCellLibraryIdList.size(): " + controlCellLibraryIdList.size());
@@ -237,6 +238,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		modelScriptG.addFileHandle(modelScript);
 		modelScriptG.setFileType(macs2ModelScriptFileType);
 		modelScriptG.setDescription(modelScript.getFileName());
+		modelScriptG.setSoftwareGeneratedBy(macs2);
 		modelScriptG = fileService.addFileGroup(modelScriptG);
 		this.modelScriptGId = modelScriptG.getId();
 		
@@ -248,6 +250,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		peaksXlsG.addFileHandle(peaksXls);
 		peaksXlsG.setFileType(macs2PeaksXlsFileType);
 		peaksXlsG.setDescription(peaksXls.getFileName());
+		peaksXlsG.setSoftwareGeneratedBy(macs2);
 		peaksXlsG = fileService.addFileGroup(peaksXlsG);
 		this.peaksXlsGId = peaksXlsG.getId();
 		
@@ -259,6 +262,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		narrowPeaksBedG.addFileHandle(narrowPeaksBed);
 		narrowPeaksBedG.setFileType(macs2NarrowPeaksBedFileType);
 		narrowPeaksBedG.setDescription(narrowPeaksBed.getFileName());
+		narrowPeaksBedG.setSoftwareGeneratedBy(macs2);
 		narrowPeaksBedG = fileService.addFileGroup(narrowPeaksBedG);
 		this.narrowPeaksBedGId = narrowPeaksBedG.getId();
 	
@@ -270,6 +274,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		summitsBedG.addFileHandle(summitsBed);
 		summitsBedG.setFileType(macs2SummitsBedFileType);
 		summitsBedG.setDescription(summitsBed.getFileName());
+		summitsBedG.setSoftwareGeneratedBy(macs2);
 		summitsBedG = fileService.addFileGroup(summitsBedG);
 		this.summitsBedGId = summitsBedG.getId();		
 		
@@ -281,6 +286,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		treatPileupBedGraphG.addFileHandle(treatPileupBedGraph);
 		treatPileupBedGraphG.setFileType(macs2TreatPileupBedGraphFileType);
 		treatPileupBedGraphG.setDescription(treatPileupBedGraph.getFileName());
+		treatPileupBedGraphG.setSoftwareGeneratedBy(macs2);
 		treatPileupBedGraphG = fileService.addFileGroup(treatPileupBedGraphG);
 		this.treatPileupBedGraphGId = treatPileupBedGraphG.getId();
 	
@@ -292,6 +298,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		controlLambdaBedGraphG.addFileHandle(controlLambdaBedGraph);
 		controlLambdaBedGraphG.setFileType(macs2ControlLambdaBedGraphFileType);
 		controlLambdaBedGraphG.setDescription(controlLambdaBedGraph.getFileName());
+		controlLambdaBedGraphG.setSoftwareGeneratedBy(macs2);
 		controlLambdaBedGraphG = fileService.addFileGroup(controlLambdaBedGraphG);
 		this.controlLambdaBedGraphGId = controlLambdaBedGraphG.getId();
 
@@ -299,8 +306,9 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		//place in the step context in case of crash
 		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
+		stepContext.put("jobId", this.jobId); 
 		stepContext.put("testCellLibraryIdListAsString", this.testCellLibraryIdListAsString); 
-		stepContext.put("controlCellLibraryIdListAsString", this.controlCellLibraryIdListAsString); 
+		stepContext.put("controlCellLibraryIdListAsString", this.controlCellLibraryIdListAsString); 		
 		stepContext.put("testSampleId", this.testSampleId); 
 		stepContext.put("controlSampleId", this.controlSampleId); 	 
 		stepContext.put("modelScriptGId", this.modelScriptGId);
@@ -359,8 +367,15 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	
 		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
 		//in case of crash
-		this.testCellLibraryIdListAsString = (String) stepContext.get("testCellLibraryIdListAsString");
-		this.controlCellLibraryIdListAsString = (String) stepContext.get("controlCellLibraryIdListAsString");
+		if(this.jobId==null){//set initially in constructor
+			this.jobId = (Integer) stepContext.get("jobId");
+		}
+		if(this.testCellLibraryIdListAsString==null){//set initially in constructor
+			this.testCellLibraryIdListAsString = (String) stepContext.get("testCellLibraryIdListAsString");
+		}
+		if(this.controlCellLibraryIdListAsString==null){//set initially in constructor
+			this.controlCellLibraryIdListAsString = (String) stepContext.get("controlCellLibraryIdListAsString");
+		}
 		this.modelScriptGId = (Integer) stepContext.get("modelScriptGId");
 		this.peaksXlsGId = (Integer) stepContext.get("peaksXlsGId");
 		this.narrowPeaksBedGId = (Integer) stepContext.get("narrowPeaksBedGId");
@@ -383,6 +398,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		//at Andy's suggestion, do this here too:
 		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
+		this.jobId = (Integer) stepContext.get("jobId");//currently, not really needed here
 		this.testCellLibraryIdListAsString = (String) stepContext.get("testCellLibraryIdListAsString");
 		this.controlCellLibraryIdListAsString = (String) stepContext.get("controlCellLibraryIdListAsString");
 		this.modelScriptGId = (Integer) stepContext.get("modelScriptGId");
@@ -395,6 +411,8 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		this.controlSampleId = (Integer) stepContext.get("controlSampleId");	
 		this.commandLineCall = (String) stepContext.get("commandLineCall");	
 		
+		// register commandLineCall, testCellLibraryIdList, controlCellLibraryIdList and  controlId with sampleMeta 
+		// and associate sample with the new file groups		
 		Sample testSample = sampleService.getSampleById(testSampleId);		
 		List<SampleMeta> testSampleMetaList = testSample.getSampleMeta();
 		SampleMeta sm1 = new SampleMeta();

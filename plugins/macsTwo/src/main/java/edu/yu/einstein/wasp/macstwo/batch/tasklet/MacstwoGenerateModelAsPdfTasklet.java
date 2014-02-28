@@ -17,6 +17,7 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
@@ -31,9 +32,11 @@ import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
  * @author 
@@ -46,7 +49,8 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 	private Integer testSampleId;//passed in
 	private Integer controlSampleId;//passed in (could be zero - which indicates no control was used)
 	private Integer modelPdfGId;//generated in doExecute()
-
+	private String commandLineCall;
+	
 	private StepExecution stepExecution;
 	
 	@Autowired
@@ -71,13 +75,20 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 	@Autowired
 	private Macstwo macs2;
 	
+	@Autowired
+	@Qualifier("rPackage")
+	private SoftwarePackage rSoftware;
+
 
 	public MacstwoGenerateModelAsPdfTasklet() {
 		// proxy
 	}
 
-	//this constructor not currently used; could NOT make it obtain parameter
+	/*
+	//this constructor not currently used; could NOT make it obtain parameters from the xml macstwo.mainFlow.v1.xml
 	public MacstwoGenerateModelAsPdfTasklet(String modelScriptGIdAsString) throws Exception {
+		//METHOD IS NOT PICKING UP INFORMATION FROM THE XML FILE
+		//METHOD IS NOT WORKING-can probably be removed
 		logger.debug("***Starting MacstwoGenerateModelAsPdfTasklet constructor");
 		logger.debug("modelScriptGIdAsString: " + modelScriptGIdAsString);
 		this.modelScriptGId = new Integer(modelScriptGIdAsString);
@@ -86,6 +97,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		logger.debug("value in constructor: this.modelScriptGId (integer): " + this.modelScriptGId.toString());
 		logger.debug("Ending MacstwoGenerateModelAsPdfTasklet constructor");
 	}
+	*/
 	
 //TODO: ROBERT A DUBIN (1 of 3) comment out this next method for production
 	@Override
@@ -154,10 +166,14 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		Assert.assertTrue(modelScriptFileHandle.getFileType().getIName().equalsIgnoreCase(macs2ModelScriptFileType.getIName()));
 		String pdfFileName = modelScriptFileHandle.getFileName().replaceAll(".r$", ".pdf");//abc_model.r will be used to generate abc_model.pdf
 		logger.debug("*****pdfFileName = " + pdfFileName);
+		
 		logger.debug("preparing to generate workunit in MacstwoGenerateModelAsPdfTasklet.doExecute()");
 		WorkUnit w = macs2.getModelPdf(modelScriptFileHandle);//configure
 		logger.debug("OK, workunit has been generated in MacstwoGenerateModelAsPdfTasklet.doExecute()");
-					 
+		this.commandLineCall = w.getCommand();
+		Assert.assertTrue(!this.commandLineCall.isEmpty());
+		logger.debug("commandLineCall in MacstwoGenerateModelAsPdfTasklet.doExecute() is : " + commandLineCall);
+			 
 		FileGroup modelPdfG = new FileGroup();
 		FileHandle modelPdf = new FileHandle();
 		modelPdf.setFileName(pdfFileName);
@@ -166,6 +182,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		modelPdfG.addFileHandle(modelPdf);
 		modelPdfG.setFileType(macs2ModelPdfFileType);
 		modelPdfG.setDescription(modelPdf.getFileName());
+		modelPdfG.setSoftwareGeneratedBy(rSoftware);
 		modelPdfG = fileService.addFileGroup(modelPdfG);
 		this.modelPdfGId = modelPdfG.getId();
 		logger.debug("recorded fileGroup and fileHandle for rscript in MacstwoGenerateModelAsPdfTasklet.doExecute()");
@@ -174,6 +191,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		//in case of crash
 		stepContext.put("testSampleId", this.testSampleId);
 		stepContext.put("controlSampleId", this.controlSampleId);
+		stepContext.put("commandLineCall", this.commandLineCall);
 		stepContext.put("modelPdfGId", this.modelPdfGId);
 		logger.debug("saved three variables in stepContext within MacstwoGenerateModelAsPdfTasklet.doExecute()");
 		
@@ -220,6 +238,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		//in case of crash
 		this.testSampleId = (Integer) stepContext.get("testSampleId");
 		this.controlSampleId = (Integer) stepContext.get("controlSampleId");
+		this.commandLineCall = (String) stepContext.get("commandLineCall");
 		this.modelPdfGId = (Integer) stepContext.get("modelPdfGId");
 	}
 	
@@ -232,11 +251,30 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		//at Andy's suggestion, do this here as well
 		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
 		this.testSampleId = (Integer) stepContext.get("testSampleId");
-		this.controlSampleId = (Integer) stepContext.get("controlSampleId");
+		this.controlSampleId = (Integer) stepContext.get("controlSampleId");		
+		this.commandLineCall = (String) stepContext.get("commandLineCall");
 		this.modelPdfGId = (Integer) stepContext.get("modelPdfGId");
 		
-		// register file groups 		
+		// register commandLineCall with sampleMeta and associate sample with file group 		
 		Sample testSample = sampleService.getSampleById(this.testSampleId);
+		List<SampleMeta> testSampleMetaList = testSample.getSampleMeta();
+		SampleMeta sm = null;
+		for(SampleMeta tempSM : testSampleMetaList){
+			if(tempSM.getK().equals("chipseqAnalysis.commandLineCall")){
+				sm = tempSM;
+				break;
+			}
+		}
+		if(sm==null){//should not happen here
+			sm = new SampleMeta();
+			sm.setK("chipseqAnalysis.commandLineCall");
+			sm.setV(this.commandLineCall);
+			testSampleMetaList.add(sm);
+		}
+		else{
+			sm.setV(sm.getV() + "::" + this.commandLineCall);
+		}
+		sampleService.saveSampleWithAssociatedMeta(testSample);
 		
 		if (this.modelPdfGId != null && testSample.getId() != 0){
 			////fileService.setSampleFile(fileService.getFileGroupById(modelPdfGId), testSample);
@@ -250,7 +288,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 			fgmList.add(fgm);
 			fileService.saveFileGroupMeta(fgmList, fg);
 		}
-		logger.debug("ending doPreFinish  in MacstwoGenerate<ModelAsPdfTasklet");
+		logger.debug("ending doPreFinish() in MacstwoGenerate<ModelAsPdfTasklet");
 
 	}
 }
