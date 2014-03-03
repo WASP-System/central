@@ -57,8 +57,6 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
 	@Autowired
 	private FileType fastqFileType;
 	
-	private StepExecution stepExecution;
-	
 	@Autowired
 	private BWASoftwareComponent bwa;
 
@@ -79,9 +77,8 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
 		// if not, throw an exception that is caught by the repeat policy.
 		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
 		
-		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
-		stepContext.put("cellLibId", cellLib.getId()); //place in the step context
-		
+		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
+				
 		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
 		
 		logger.debug("Beginning BWA aln step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
@@ -108,17 +105,13 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
 		//place the grid result in the step context
 		storeStartedResult(context, result);
 		
-		// place scratch directory in step execution context, to be promoted
+		// place properties for use in later steps into the step execution context, to be promoted
 		// to the job context at run time.
-        stepContext.put("scrDir", result.getWorkingDirectory());
-        stepContext.put("alnName", result.getId());
-        stepContext.put("alnStr", w.getCommand());
+		stepExecutionContext.put("cellLibId", cellLib.getId()); 
+		stepExecutionContext.put("scrDir", result.getWorkingDirectory());
+		stepExecutionContext.put("alnName", result.getId());
+		stepExecutionContext.put("alnStr", w.getCommand());
 	}
-	
-	public void saveStepExecution(StepExecution stepExecution) {
-		logger.debug("BeforeStep saving StepExecution");
-        this.stepExecution = stepExecution;
-    }
 	
 	/** 
 	 * {@inheritDoc}
@@ -126,7 +119,6 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
 	@Override
 	public void beforeStep(StepExecution stepExecution){
 		super.beforeStep(stepExecution);
-		saveStepExecution(stepExecution);
 	}
 
 	/** 
