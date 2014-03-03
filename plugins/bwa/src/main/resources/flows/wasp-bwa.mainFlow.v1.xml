@@ -15,7 +15,12 @@
 			<batch:next on="FAILED" to="wasp-bwa.alignmentFlow.notifyBWAFailed" />
 			<batch:next on="*" to="wasp-bwa.alignmentFlow.BWAsam" />
 			<batch:listeners>
-				<batch:listener ref="bwaPromotionListener" />
+				<batch:listener>
+					<bean class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
+						<property name="keys" value="scrDir,alnName,alnStr,cellLibId"  />
+						<property name="statuses" value="COMPLETED,FAILED" />
+					</bean>
+				</batch:listener>
 			</batch:listeners>
 		</batch:step>
 
@@ -67,11 +72,6 @@
 		</batch:step>
 
 	</batch:flow>
-
-	<bean id="bwaPromotionListener" class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
-		<property name="keys" value="scrDir,alnName,alnStr,cellLibId"  />
-		<property name="statuses" value="COMPLETED,FAILED" />
-	</bean>
 	
 	<batch:job id="wasp-bwa.alignment">
 		<batch:flow id="wasp-bwa.align" parent="wasp-bwa.alignmentFlow"/>

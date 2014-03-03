@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
@@ -42,12 +41,6 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  */
 public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 	
-	private String scratchDirectory;
-	private Integer cellLibId;
-	private Integer bamGId;
-	private Integer baiGId;
-	
-	private StepExecution stepExecution;
 	
 	@Autowired
 	private SampleService sampleService;
@@ -84,6 +77,14 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
+		StepExecution stepExecution = context.getStepContext().getStepExecution();
+		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
+		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
+		
+		// retrieve attributes persisted in jobExecutionContext
+		String scratchDirectory = jobExecutionContext.get("scrDir").toString();
+		Integer cellLibId = jobExecutionContext.getInt("cellLibId");
+		
 		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);
 
 		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
@@ -125,9 +126,9 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 		bamG.setFileType(bamFileType);
 		bamG.setDescription(bamOutput);
 		bamG = fileService.addFileGroup(bamG);
-		bamGId = bamG.getId();
-		// save in step context in case of batch restart
-		stepExecution.getExecutionContext().put("bamGID", bamGId);
+		Integer bamGId = bamG.getId();
+		// save in step context  for use later
+		stepExecutionContext.put("bamGID", bamGId);
 		
 		
 		FileGroup baiG = new FileGroup();
@@ -138,9 +139,9 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 		baiG.setFileType(baiFileType);
 		baiG.setDescription(baiOutput);
 		baiG = fileService.addFileGroup(baiG);
-		baiGId = baiG.getId();
-		// save in step context in case of batch restart
-		stepExecution.getExecutionContext().put("baiGId", baiGId);
+		Integer baiGId = baiG.getId();
+		// save in step context for use later
+		stepExecutionContext.put("baiGId", baiGId);
 		
 //		baiG.getDerivedFrom().add(bamG);
 //		bamG.getBegat().add(baiG);
@@ -173,6 +174,12 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 	@Override
 	@Transactional("entityManager")
 	public void doPreFinish(ChunkContext context) throws Exception {
+		StepExecution stepExecution = context.getStepContext().getStepExecution();
+		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
+		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
+		Integer bamGId = stepExecutionContext.getInt("bamGID");
+		Integer baiGId = stepExecutionContext.getInt("baiGID");
+		Integer cellLibId = jobExecutionContext.getInt("cellLibId");
 		// register .bam and .bai file groups with cellLib so as to make available to views
 		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);
 		if (bamGId != null && cellLib.getId() != 0)
@@ -196,14 +203,6 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
 		super.beforeStep(stepExecution);
-		logger.debug("BeforeStep saving StepExecution");
-        this.stepExecution = stepExecution;
-		JobExecution jobExecution = stepExecution.getJobExecution();
-		ExecutionContext jobContext = jobExecution.getExecutionContext();
-		this.scratchDirectory = jobContext.get("scrDir").toString();
-		this.cellLibId = (Integer) jobContext.get("cellLibId");
-		this.bamGId = (Integer) stepExecution.getExecutionContext().get("bamGID");
-		this.baiGId = (Integer) stepExecution.getExecutionContext().get("baiGID");
 	}
 
 }
