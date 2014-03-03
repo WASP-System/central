@@ -851,8 +851,6 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			// 'h_vmem' specifies maximum memory a scheduled job (or task) may use. Will kill job / task 
 			// with a memory allocation error if memory used exceeds this value
 			return getFlag() + " -l mem_free=" + w.getMemoryRequirements().toString() + "G\n" +
-					getFlag() + " -l h_vmem=" + w.getMemoryRequirements().toString() + "G\n" +
-					getFlag() + " -l h_stack=" + w.getMemoryRequirements().toString() + "G\n" +
 					WorkUnit.REQUESTED_GB_MEMORY + "=" + w.getMemoryRequirements().toString() + "\n";
 		}
 		
