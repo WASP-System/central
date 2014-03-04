@@ -11,6 +11,8 @@ import org.springframework.integration.rmi.RmiOutboundGateway;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.remoting.RemoteLookupFailureException;
 
+import edu.yu.einstein.wasp.plugin.cli.CliMessagingTask;
+
 /**
  * @author calder
  *
@@ -39,8 +41,32 @@ public class Main {
 			gw.afterPropertiesSet();
 			Message<String> message;
 			if (cl.hasOption("l")) {
-				message = (Message<String>) MessageBuilder.withPayload("list")
-						.setHeader("target", "pluginRegistry")
+				message = (Message<String>) MessageBuilder.withPayload(CliMessagingTask.LIST_PLUGINS)
+						.setHeader("target", "cli")
+						.setHeader("user", parser.getUser())
+						.setHeader("password", parser.getPassword())
+						.build();
+			} else if (cl.hasOption("g")){
+				message = (Message<String>) MessageBuilder.withPayload(CliMessagingTask.LIST_GENOME_BUILDS)
+						.setHeader("target", "cli")
+						.setHeader("user", parser.getUser())
+						.setHeader("password", parser.getPassword())
+						.build();
+			} else if (cl.hasOption("s")){
+				message = (Message<String>) MessageBuilder.withPayload(CliMessagingTask.LIST_SAMPLE_SUBTYPES)
+						.setHeader("target", "cli")
+						.setHeader("user", parser.getUser())
+						.setHeader("password", parser.getPassword())
+						.build();
+			} else if (cl.hasOption("r")){
+				message = (Message<String>) MessageBuilder.withPayload(CliMessagingTask.LIST_GENOME_BUILDS)
+						.setHeader("target", "cli")
+						.setHeader("user", parser.getUser())
+						.setHeader("password", parser.getPassword())
+						.build();
+				System.out.println(sendMessageAndParseReply(message, gw));
+				message = (Message<String>) MessageBuilder.withPayload(CliMessagingTask.LIST_SAMPLE_SUBTYPES)
+						.setHeader("target", "cli")
 						.setHeader("user", parser.getUser())
 						.setHeader("password", parser.getPassword())
 						.build();
@@ -58,18 +84,9 @@ public class Main {
 				message = m.build();
 			}
 			
-			Message<String> reply = (Message<String>) gw.handleRequestMessage(message);
+			System.out.println(sendMessageAndParseReply(message, gw));
 			
-			if (reply.getHeaders().containsKey("authenticated") && reply.getHeaders().get("authenticated").equals("false")) {
-				System.err.println("Failed authentication.");
-				System.exit(1);
-			}
-			if (reply.getHeaders().containsKey("unknown-target") && reply.getHeaders().get("unknown-target").equals("true")) {
-				System.err.println("Unknown message target.");
-				System.exit(1);
-			}
 			
-			System.out.println(reply.getPayload());
 		} catch (RemoteLookupFailureException e) {
 			System.err.println("ERROR: Unable to connect to server at " + host + ":" + port);
 			System.exit(2);
@@ -77,10 +94,21 @@ public class Main {
 			System.err.println("ERROR: Error executing on remote host. " + e.getCause().toString());
 			System.exit(2);
 		} 
-		
-//		Message m = new Message();
-//		m.sendMessage(parser);
 
+
+	}
+	
+	private static String sendMessageAndParseReply(Message<?> m, RmiOutboundGateway gw){
+		Message<String> reply = (Message<String>) gw.handleRequestMessage(m);
+		if (reply.getHeaders().containsKey("authenticated") && reply.getHeaders().get("authenticated").equals("false")) {
+			System.err.println("Failed authentication.");
+			System.exit(1);
+		}
+		if (reply.getHeaders().containsKey("unknown-target") && reply.getHeaders().get("unknown-target").equals("true")) {
+			System.err.println("Unknown message target.");
+			System.exit(1);
+		}
+		return reply.getPayload();
 	}
 
 }
