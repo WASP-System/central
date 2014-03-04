@@ -141,7 +141,7 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 		baiG = fileService.addFileGroup(baiG);
 		Integer baiGId = baiG.getId();
 		// save in step context for use later
-		stepExecutionContext.put("baiGId", baiGId);
+		stepExecutionContext.put("baiGID", baiGId);
 		
 //		baiG.getDerivedFrom().add(bamG);
 //		bamG.getBegat().add(baiG);
