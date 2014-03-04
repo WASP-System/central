@@ -104,7 +104,7 @@ public class PrintRecaliTasklet extends WaspRemotingTasklet implements StepExecu
 		baiG.setSoftwareGeneratedBy(gatk);
 		Integer baiGId = baiG.getId();
 		// save in step context for use later
-		stepExecutionContext.put("baiGId", baiGId);
+		stepExecutionContext.put("baiGID", baiGId);
 		
 		WorkUnit w = gatk.getPrintRecali(cellLib, scratchDirectory, localAlignJobName, recaliTableJobName);
 		
