@@ -29,6 +29,7 @@ import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.bwa.software.BWASoftwareComponent;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqComparator;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.service.FileService;
@@ -62,6 +63,9 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 	
 	@Autowired
 	private GridHostResolver gridHostResolver;
+	
+	@Autowired
+	private BWASoftwareComponent bwa;
 	
 	@Autowired
 	@Qualifier("picard")
@@ -126,6 +130,7 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 		bamG.setFileType(bamFileType);
 		bamG.setDescription(bamOutput);
 		bamG = fileService.addFileGroup(bamG);
+		bamG.setSoftwareGeneratedBy(bwa);
 		Integer bamGId = bamG.getId();
 		// save in step context  for use later
 		stepExecutionContext.put("bamGID", bamGId);
@@ -139,6 +144,7 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 		baiG.setFileType(baiFileType);
 		baiG.setDescription(baiOutput);
 		baiG = fileService.addFileGroup(baiG);
+		baiG.setSoftwareGeneratedBy(bwa);
 		Integer baiGId = baiG.getId();
 		// save in step context for use later
 		stepExecutionContext.put("baiGID", baiGId);

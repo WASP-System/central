@@ -76,9 +76,9 @@ public class PrintRecaliTasklet extends WaspRemotingTasklet implements StepExecu
 		logger.debug("Beginning GATK print recalibrated sequence step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
 		logger.debug("Starting from previously recali-table'd scratch directory " + scratchDirectory);
 		
-		String baiOutput = fileService.generateUniqueBaseFileName(cellLib) + "gatk.dedup.realn.recal.bai";
+		String baiOutput = fileService.generateUniqueBaseFileName(cellLib) + "gatk_dedup_realn_recal.bai";
 		
-		String bamOutput = fileService.generateUniqueBaseFileName(cellLib) + "gatk.dedup.realn.recal.bam";
+		String bamOutput = fileService.generateUniqueBaseFileName(cellLib) + "gatk_dedup_realn_recal.bam";
 		FileGroup bamG = new FileGroup();
 		FileHandle bam = new FileHandle();
 		bam.setFileName(bamOutput);
@@ -86,6 +86,7 @@ public class PrintRecaliTasklet extends WaspRemotingTasklet implements StepExecu
 		bamG.addFileHandle(bam);
 		bamG.setFileType(bamDedupRealnRecalFileType);
 		bamG.setDescription(bamOutput);
+		bamG.setSoftwareGeneratedBy(gatk);
 		bamG = fileService.addFileGroup(bamG);
 		Integer bamGId = bamG.getId();
 		// save in step context  for use later
@@ -100,6 +101,7 @@ public class PrintRecaliTasklet extends WaspRemotingTasklet implements StepExecu
 		baiG.setFileType(baiFileType);
 		baiG.setDescription(baiOutput);
 		baiG = fileService.addFileGroup(baiG);
+		baiG.setSoftwareGeneratedBy(gatk);
 		Integer baiGId = baiG.getId();
 		// save in step context for use later
 		stepExecutionContext.put("baiGId", baiGId);
