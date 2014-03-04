@@ -6,7 +6,6 @@ package edu.yu.einstein.wasp.gatk.batch.tasklet;
  */
 
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
@@ -19,6 +18,8 @@ import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
@@ -32,12 +33,6 @@ import edu.yu.einstein.wasp.service.SampleService;
  */
 public class PrintRecaliTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
-	private String scratchDirectory;
-	private String recaliTableJobName;
-	private String localAlignJobName;
-
-	private Integer cellLibId;
-
 	@Autowired
 	private SampleService sampleService;
 
@@ -48,7 +43,10 @@ public class PrintRecaliTasklet extends WaspRemotingTasklet implements StepExecu
 	private GridHostResolver gridHostResolver;
 
 	@Autowired
-	private FileType bamFileType;
+	private FileType bamDedupRealnRecalFileType;
+	
+	@Autowired
+	private FileType baiFileType;
 
 	@Autowired
 	private GATKSoftwareComponent gatk;
@@ -63,30 +61,79 @@ public class PrintRecaliTasklet extends WaspRemotingTasklet implements StepExecu
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
-		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);
+		// retrieve stored properties
+		StepExecution stepExecution = context.getStepContext().getStepExecution();
+		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
+		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
+		String scratchDirectory = jobExecutionContext.getString("scrDir");
+		String localAlignJobName = jobExecutionContext.getString("localAlignJobName");
+		String recaliTableJobName = jobExecutionContext.getString("recaliTableJobName");
+		
+		SampleSource cellLib = sampleService.getSampleSourceDao().findById(jobExecutionContext.getInt("cellLibId"));
 
 		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
 
 		logger.debug("Beginning GATK print recalibrated sequence step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
 		logger.debug("Starting from previously recali-table'd scratch directory " + scratchDirectory);
-
-		//Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLib, bamFileType);
-
-		//Assert.assertTrue(fileGroups.size() == 1);
-		//FileGroup fg = fileGroups.iterator().next();
-
-		//logger.debug("file group: " + fg.getId() + ":" + fg.getDescription());
-
-		//Map<String, Object> jobParameters = context.getStepContext().getJobParameters();
-
-		//WorkUnit w = new WorkUnit();
+		
+		String baiOutput = fileService.generateUniqueBaseFileName(cellLib) + "gatk.dedup.realn.recal.bai";
+		
+		String bamOutput = fileService.generateUniqueBaseFileName(cellLib) + "gatk.dedup.realn.recal.bam";
+		FileGroup bamG = new FileGroup();
+		FileHandle bam = new FileHandle();
+		bam.setFileName(bamOutput);
+		bam = fileService.addFile(bam);
+		bamG.addFileHandle(bam);
+		bamG.setFileType(bamDedupRealnRecalFileType);
+		bamG.setDescription(bamOutput);
+		bamG = fileService.addFileGroup(bamG);
+		Integer bamGId = bamG.getId();
+		// save in step context  for use later
+		stepExecutionContext.put("bamGID", bamGId);
+		
+		
+		FileGroup baiG = new FileGroup();
+		FileHandle bai = new FileHandle();
+		bai.setFileName(baiOutput);
+		bai = fileService.addFile(bai);
+		baiG.addFileHandle(bai);
+		baiG.setFileType(baiFileType);
+		baiG.setDescription(baiOutput);
+		baiG = fileService.addFileGroup(baiG);
+		Integer baiGId = baiG.getId();
+		// save in step context for use later
+		stepExecutionContext.put("baiGId", baiGId);
+		
 		WorkUnit w = gatk.getPrintRecali(cellLib, scratchDirectory, localAlignJobName, recaliTableJobName);
+		
+		w.getResultFiles().add(bamG);
+		w.getResultFiles().add(baiG);
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
-
+		
 		GridResult result = gridHostResolver.execute(w);
 
 		// place the grid result in the step context
 		storeStartedResult(context, result);
+	}
+	
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional("entityManager")
+	public void doPreFinish(ChunkContext context) throws Exception {
+		StepExecution stepExecution = context.getStepContext().getStepExecution();
+		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
+		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
+		Integer bamGId = stepExecutionContext.getInt("bamGID");
+		Integer baiGId = stepExecutionContext.getInt("baiGID");
+		
+		// register .bam and .bai file groups with cellLib so as to make available to views
+		SampleSource cellLib = sampleService.getSampleSourceDao().findById(jobExecutionContext.getInt("cellLibId"));
+		if (bamGId != null && cellLib.getId() != 0)
+			fileService.setSampleSourceFile(fileService.getFileGroupById(bamGId), cellLib);
+		if (baiGId != null && cellLib.getId() != 0)
+			fileService.setSampleSourceFile(fileService.getFileGroupById(baiGId), cellLib);	
 	}
 
 	/**
@@ -103,13 +150,6 @@ public class PrintRecaliTasklet extends WaspRemotingTasklet implements StepExecu
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
 		super.beforeStep(stepExecution);
-		logger.debug("StepExecutionListener beforeStep saving StepExecution");
-		JobExecution jobExecution = stepExecution.getJobExecution();
-		ExecutionContext jobContext = jobExecution.getExecutionContext();
-		this.scratchDirectory = jobContext.get("scrDir").toString();
-		this.localAlignJobName = jobContext.get("localAlignName").toString();
-		this.recaliTableJobName = jobContext.get("recaliTableName").toString();
-		this.cellLibId = (Integer) jobContext.get("cellLibId");
 	}
 }
 

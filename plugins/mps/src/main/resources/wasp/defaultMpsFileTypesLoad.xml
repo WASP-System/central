@@ -9,7 +9,7 @@
     <property name="name" value="FASTA" />
     <property name="area" value="fasta" />
     <property name="description" value="A human-readable text based file format for storing DNA sequences" />
-    <property name="extension" value="fa" />
+    <property name="extension" value="fa,fasta" />
   </bean>
    
   <bean id="fastqFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
@@ -93,7 +93,7 @@
     <property name="name" value="Gene Transfer Format" />
     <property name="area" value="gtf" />
     <property name="description" value="GTF (Gene Transfer Format) is a refinement to GFF that tightens the specification." />
-    <property name="extension" value="gff" />
+    <property name="extension" value="gtf" />
   </bean>
   
   <bean id="mafFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >

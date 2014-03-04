@@ -141,7 +141,7 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 		baiG = fileService.addFileGroup(baiG);
 		Integer baiGId = baiG.getId();
 		// save in step context for use later
-		stepExecutionContext.put("baiGId", baiGId);
+		stepExecutionContext.put("baiGID", baiGId);
 		
 //		baiG.getDerivedFrom().add(bamG);
 //		bamG.getBegat().add(baiG);
@@ -179,9 +179,9 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
 		Integer bamGId = stepExecutionContext.getInt("bamGID");
 		Integer baiGId = stepExecutionContext.getInt("baiGID");
-		Integer cellLibId = jobExecutionContext.getInt("cellLibId");
+		
 		// register .bam and .bai file groups with cellLib so as to make available to views
-		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);
+		SampleSource cellLib = sampleService.getSampleSourceDao().findById(jobExecutionContext.getInt("cellLibId"));
 		if (bamGId != null && cellLib.getId() != 0)
 			fileService.setSampleSourceFile(fileService.getFileGroupById(bamGId), cellLib);
 		if (baiGId != null && cellLib.getId() != 0)
