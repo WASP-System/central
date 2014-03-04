@@ -9,105 +9,105 @@
     <property name="name" value="FASTA" />
     <property name="area" value="fasta" />
     <property name="description" value="A human-readable text based file format for storing DNA sequences" />
-    <property name="extension" value="fa,fasta" />
+    <property name="extensions" value="fasta,fa" /> <!-- fasta placed first as intended to be default -->
   </bean>
    
   <bean id="fastqFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
     <property name="name" value="FASTQ" />
     <property name="area" value="fastq" />
     <property name="description" value="A human-readable text based file format for storing DNA sequences with quality scores" />
-    <property name="extension" value="fastq" />
+    <property name="extensions" value="fastq,fq" /> <!-- fastq placed first as intended to be default -->
   </bean>
   
    <bean id="bamFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
     <property name="name" value="BAM" />
     <property name="area" value="bam" />
     <property name="description" value="A BAM file (.bam) is the binary version of a SAM file.  A SAM file (.sam) is a tab-delimited text file that contains sequence alignment data. These formats are described on the SAM Tools web site: http://samtools.sourceforge.net." />
-	<property name="extension" value="bam" />
+	<property name="extensions" value="bam" />
   </bean>
   
   <bean id="samFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
     <property name="name" value="SAM" />
     <property name="area" value="sam" />
     <property name="description" value="A SAM file (.sam) is a tab-delimited text file that contains sequence alignment data. These formats are described on the SAM Tools web site: http://samtools.sourceforge.net." />
-	<property name="extension" value="sam" />
+	<property name="extensions" value="sam" />
   </bean>
   
   <bean id="baiFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
     <property name="name" value="BAI" />
     <property name="area" value="bai" />
     <property name="description" value="An index corresponding to a .bam file of the same name" />
-    <property name="extension" value="bai" />
+    <property name="extensions" value="bai" />
   </bean>
   
   <bean id="wigFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
     <property name="name" value="WIG" />
     <property name="area" value="wig" />
     <property name="description" value="The wiggle (WIG) format is for display of dense, continuous data such as GC percent, probability scores, and transcriptome data." />
-    <property name="extension" value="wig" />
+    <property name="extensions" value="wig" />
   </bean>
   
   <bean id="bigWigFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
     <property name="name" value="bigWig" />
     <property name="area" value="bigwig" />
     <property name="description" value="The wiggle (WIG) data is compressed and stored internally in 128 unique bins for speed and efficiency." />
-    <property name="extension" value="bw" />
+    <property name="extensions" value="bw" />
   </bean>
   
   <bean id="bedFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
     <property name="name" value="BED" />
     <property name="area" value="bed" />
     <property name="description" value="BED format provides a flexible way to define the data lines that are displayed in an annotation track." />
-    <property name="extension" value="bed" />
+    <property name="extensions" value="bed" />
   </bean>
   
   <bean id="bedGraphFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
     <property name="name" value="Bed Graph" />
     <property name="area" value="bedgraph" />
     <property name="description" value="The bedGraph format allows display of continuous-valued data in track format. This display type is useful for probability scores and transcriptome data." />
-    <property name="extension" value="bg" />
+    <property name="extensions" value="bg" />
   </bean>
   
    <bean id="bigBedFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
     <property name="name" value="Big Bed" />
     <property name="area" value="bigbed" />
     <property name="description" value="The bedGraph in an indexed binary format." />
-    <property name="extension" value="bb" />
+    <property name="extensions" value="bb" />
   </bean>
   
   <bean id="csvFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
     <property name="name" value="Comma Seperated Values" />
     <property name="area" value="csv" />
     <property name="description" value="Comma delimited data format." />
-    <property name="extension" value="csv" />
+    <property name="extensions" value="csv" />
   </bean>
   
   <bean id="gffFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
     <property name="name" value="General Feature Format" />
     <property name="area" value="gff" />
     <property name="description" value="GFF (General Feature Format) lines are based on the Sanger GFF2 specification." />
-    <property name="extension" value="gff" />
+    <property name="extensions" value="gff" />
   </bean>
   
   <bean id="gtfFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
     <property name="name" value="Gene Transfer Format" />
     <property name="area" value="gtf" />
     <property name="description" value="GTF (Gene Transfer Format) is a refinement to GFF that tightens the specification." />
-    <property name="extension" value="gtf" />
+    <property name="extensions" value="gtf" />
   </bean>
   
   <bean id="mafFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
     <property name="name" value="Multiple Alignment Format" />
     <property name="area" value="maf" />
     <property name="description" value="The multiple alignment format stores a series of multiple alignments in a format that is easy to parse and relatively easy to read." />
-    <property name="extension" value="maf" />
+    <property name="extensions" value="maf" />
   </bean>
   
   <bean id="vcfFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
     <property name="name" value="Variant Call Format" />
     <property name="area" value="vcf" />
     <property name="description" value="Variant Call Format (VCF) is a flexible and extendable format for variation data such as single nucleotide variants, insertions/deletions, copy number variants and structural variants." />
-    <property name="extension" value="vcf" />
+    <property name="extensions" value="vcf" />
   </bean>
 
 </beans>
