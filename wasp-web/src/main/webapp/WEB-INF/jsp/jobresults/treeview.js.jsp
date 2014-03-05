@@ -136,7 +136,14 @@ Ext.onReady(function () {
 		activeNode.myid = root.myid;
 		activeNode.type = root.type;
 	});
-
+	
+	d3.select('#toggle_button').on('click', function() {
+		if ( root.children && root.children!="" ) {
+			root.children.forEach(expandAll);
+			update(root);
+		} else if ( root._children && root._children!="" ) {
+		}        
+	});
 });
 
 function zoom() {
@@ -149,6 +156,58 @@ function collapse(d) {
 		d._children.forEach(collapse);
 		d.children = null;
 	}
+}
+
+// Collapse/Expand/Toggle all descendents
+function collapseAll(d) {
+	if (d.children && d.children!="") {
+		d._children = d.children;
+		d.children = null;
+	}
+	if (d._children && d._children!="")
+		d._children.forEach(collapseAll);
+}
+function expandAll(d) {
+	if (!d.children && !d._children) {
+		if (d.jid == undefined) {
+			d.jid = -1;
+		}
+		var seen = [];
+		var dstr = JSON.stringify(d, function (key, val) {
+			if (key == "parent" || key == "children") { //don't stringify the parent/children nodes
+				return undefined;
+			} else if (typeof val == "object") {
+				if (seen.indexOf(val) >= 0)
+					return undefined;
+				seen.push(val);
+			}
+			return val;
+		});
+		$.ajax({
+			url: '/wasp/jobresults/getTreeJson.do?node=' + dstr,
+			type: 'GET',
+			dataType: 'json',
+			success: function (result) {
+				if (result.children != '') {
+					d.children = result.children;
+				}
+			}
+		});
+	}
+	if (d._children && d._children!="") {
+		d.children = d._children;
+		d._children = null;
+	}
+	if (d.children && d.children!="")
+		d.children.forEach(expandAll);
+}
+function toggleAll(d) {
+	if (d.children && d.children!="") {
+		collapseAll(d);
+	} else if (d._children && d._children!="") {
+		expandAll(d);
+	}
+	update(d);
 }
 
 
@@ -326,7 +385,6 @@ function printSelectedNodes() {
 }
 
 //Toggle children
-
 function toggle(d) {
 	if (d.children && d.children!="") {
 		d._children = d.children;
