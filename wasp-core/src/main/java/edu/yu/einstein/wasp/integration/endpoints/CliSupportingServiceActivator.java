@@ -2,9 +2,11 @@ package edu.yu.einstein.wasp.integration.endpoints;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
@@ -41,7 +43,7 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 	 * ServiceActivator called method
 	 */
 	@Override
-	public Message<String> process(Message<?> m) throws RemoteException {
+	public Message<?> process(Message<?> m) throws RemoteException {
 		if (m.getPayload().toString().equals(CliMessagingTask.LIST_PLUGINS)) {
 			return listPlugins();
 		} else if (m.getPayload().toString().equals(CliMessagingTask.LIST_GENOME_BUILDS)) {
@@ -57,39 +59,32 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 	@Transactional("entityManager")
 	@Override
 	public Message<String> listPlugins() {
-		String reply = "\nRegistered Wasp System plugins:\n"
-				+ "-------------------------------\n\n";
-		int index = 1;
+		Map<String, String> plugins = new HashMap<>();
 		List<WaspPlugin> pluginList = new ArrayList<WaspPlugin>(pluginRegistry.getPlugins().values());
-		Collections.sort(pluginList);
-		for (WaspPlugin plugin : pluginList) {
-			reply += index++ + ") " + plugin.getIName();
-			if (plugin.getDescription() != null && !plugin.getDescription().isEmpty()) 
-				reply += " -> " + plugin.getDescription();
-			reply += "\n";
-		}
-		return MessageBuilder.withPayload(reply).build();
+		for (WaspPlugin plugin : pluginList) 
+			plugins.put(plugin.getIName(), plugin.getDescription());
+		return MessageBuilder.withPayload(new JSONObject(plugins).toString()).build();
 	}
 
 	@Transactional("entityManager")
 	@Override
 	public Message<String> listGenomeBuilds(){
-		String list = "\nList of possible genome builds:\n";
+		Map<String, String> builds = new HashMap<>();
 		for (Organism o : genomeService.getOrganisms())
 			for (Genome g : o.getGenomes().values())
 				for (Build b : g.getBuilds().values())
-					list += "    " + genomeService.getDelimitedParameterString(b) + " (" + b.getDescription() + ")\n";
-		 return MessageBuilder.withPayload(list).build();
+					builds.put(genomeService.getDelimitedParameterString(b), b.getDescription());
+		return MessageBuilder.withPayload(new JSONObject(builds).toString()).build();
 	}
 	
 	@Transactional("entityManager")
 	@Override
 	public Message<String> listSampleSubtypes(){
-		String list = "\nList of Sample Subtypes:\n";
+		Map<String, String> sampleSubtypes = new HashMap<>();
 		for (SampleSubtype sst : sampleService.getSampleSubtypeDao().findAll())
 			if (sst.getIsActive() == 1)
-				list += "    " + sst.getId() + " (" + sst.getName() + ")\n";
-		return MessageBuilder.withPayload(list).build();
+				sampleSubtypes.put(sst.getId().toString(), sst.getName());
+		return MessageBuilder.withPayload(new JSONObject(sampleSubtypes).toString()).build();
 	}
 	
 }

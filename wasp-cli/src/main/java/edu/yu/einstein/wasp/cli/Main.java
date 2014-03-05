@@ -3,7 +3,12 @@
  */
 package edu.yu.einstein.wasp.cli;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.commons.cli.CommandLine;
+import org.json.JSONObject;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageHandlingException;
 import org.springframework.integration.channel.QueueChannel;
@@ -46,30 +51,34 @@ public class Main {
 						.setHeader("user", parser.getUser())
 						.setHeader("password", parser.getPassword())
 						.build();
+				listPlugins(new JSONObject(sendMessageAndParseReply(message, gw)));
 			} else if (cl.hasOption("g")){
 				message = (Message<String>) MessageBuilder.withPayload(CliMessagingTask.LIST_GENOME_BUILDS)
 						.setHeader("target", "cli")
 						.setHeader("user", parser.getUser())
 						.setHeader("password", parser.getPassword())
 						.build();
+				listGenomeBuilds(new JSONObject(sendMessageAndParseReply(message, gw)));
 			} else if (cl.hasOption("s")){
 				message = (Message<String>) MessageBuilder.withPayload(CliMessagingTask.LIST_SAMPLE_SUBTYPES)
 						.setHeader("target", "cli")
 						.setHeader("user", parser.getUser())
 						.setHeader("password", parser.getPassword())
 						.build();
+				listSampleSubtypes(new JSONObject(sendMessageAndParseReply(message, gw)));
 			} else if (cl.hasOption("r")){
 				message = (Message<String>) MessageBuilder.withPayload(CliMessagingTask.LIST_GENOME_BUILDS)
 						.setHeader("target", "cli")
 						.setHeader("user", parser.getUser())
 						.setHeader("password", parser.getPassword())
 						.build();
-				System.out.println(sendMessageAndParseReply(message, gw));
+				listGenomeBuilds(new JSONObject(sendMessageAndParseReply(message, gw)));
 				message = (Message<String>) MessageBuilder.withPayload(CliMessagingTask.LIST_SAMPLE_SUBTYPES)
 						.setHeader("target", "cli")
 						.setHeader("user", parser.getUser())
 						.setHeader("password", parser.getPassword())
 						.build();
+				listSampleSubtypes(new JSONObject(sendMessageAndParseReply(message, gw)));
 			} else {
 				String mp = "";
 				if (cl.hasOption("m")) mp = cl.getOptionValue("m");
@@ -82,9 +91,8 @@ public class Main {
 				if(cl.hasOption("h")) m.setHeader("help", "true");
 				
 				message = m.build();
+				System.out.println(sendMessageAndParseReply(message, gw));
 			}
-			
-			System.out.println(sendMessageAndParseReply(message, gw));
 			
 			
 		} catch (RemoteLookupFailureException e) {
@@ -109,6 +117,50 @@ public class Main {
 			System.exit(1);
 		}
 		return reply.getPayload();
+	}
+	
+	public static void listPlugins(JSONObject json) {
+		String output = "\nRegistered Wasp System plugins:\n"
+				+ "-------------------------------\n\n";
+		int index = 1;
+		List<String> names = new ArrayList<>();
+		for (Object key : json.keySet())
+			names.add((String) key);
+		Collections.sort(names);
+		for (String name : names) {
+			String description = json.getString(name);
+			output += index++ + ") " + name.toString();
+			if (description != null && !description.isEmpty()) 
+				output += " -> " + description;
+			output += "\n";
+		}
+		System.out.println(output);
+	}
+
+	public static void listGenomeBuilds(JSONObject json){
+		String output = "\nList of possible genome builds:\n";
+		List<String> names = new ArrayList<>();
+		for (Object key : json.keySet()) 
+			names.add((String) key);
+		Collections.sort(names);
+		for (String name : names) {
+			String description = json.getString(name);
+			output += "    " + name + " (" + description + ")\n";
+		}
+		System.out.println(output);
+	}
+	
+	public static void listSampleSubtypes(JSONObject json){
+		String output = "\nList of Sample Subtypes:\n";
+		List<Integer> ids = new ArrayList<>();
+		for (Object key : json.keySet()) 
+			ids.add(Integer.parseInt((String) key));
+		Collections.sort(ids);
+		for (Integer id : ids) {
+			String name = json.getString(id.toString());
+			output += "    " + id.toString() + " (" + name + ")\n";
+		}
+		System.out.println(output);
 	}
 
 }
