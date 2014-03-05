@@ -128,7 +128,7 @@ public class Main {
 	}
 
 	public static void listGenomeBuilds(JSONObject json){
-		String output = "\n* List of possible genome builds:\n";
+		String output = "\n* List of possible genome builds represented : encoded build -> build description\n";
 		List<String> names = new ArrayList<>();
 		for (Object key : json.keySet()) 
 			names.add((String) key);
@@ -141,7 +141,7 @@ public class Main {
 	}
 	
 	public static void listSampleSubtypes(JSONObject json){
-		String output = "\n* List of Sample Subtypes:\n";
+		String output = "\n* List of Sample Subtypes represented: id -> Subtype Name\n";
 		List<Integer> ids = new ArrayList<>();
 		for (Object key : json.keySet()) 
 			ids.add(Integer.parseInt((String) key));
@@ -154,7 +154,7 @@ public class Main {
 	}
 	
 	public static void listCellLibraries(JSONObject json){
-		String output = "\n* List of Libraries (with platform unit / cell if known):\n";
+		String output = "\n* List of Libraries represented: cellLibrary Id -> library name (platform unit name / cell index) :\n";
 		List<Integer> ids = new ArrayList<>();
 		for (Object key : json.keySet()) 
 			ids.add(Integer.parseInt((String) key));
