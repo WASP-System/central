@@ -45,23 +45,28 @@ public class Main {
 			gw.setReplyChannel(replychannel);
 			gw.afterPropertiesSet();
 			Message<String> message;
-			if (cl.hasOption("l") || cl.hasOption("g") || cl.hasOption("s") || cl.hasOption("c")  || cl.hasOption("r")) {
-				if (cl.hasOption("l")) {
+			if (cl.hasOption("l")) {
+				String listOption = cl.getOptionValue("l", "plugins");
+				if (listOption.equals("plugins")) {
 					message = getMessage(parser, "cli", CliMessagingTask.LIST_PLUGINS);
 					listPlugins(new JSONObject(sendMessageAndParseReply(message, gw)));
 				} 
-				if (cl.hasOption("g")){
+				else if (listOption.equals("builds")){
 					message = getMessage(parser, "cli", CliMessagingTask.LIST_GENOME_BUILDS);
 					listGenomeBuilds(new JSONObject(sendMessageAndParseReply(message, gw)));
 				} 
-				if (cl.hasOption("s")){
+				else if (listOption.equals("subtypes")){
 					message = getMessage(parser, "cli", CliMessagingTask.LIST_SAMPLE_SUBTYPES); 
 					listSampleSubtypes(new JSONObject(sendMessageAndParseReply(message, gw)));
 				} 
-				if (cl.hasOption("c")){
+				else if (listOption.equals("cellLibraries")){
 					message = getMessage(parser, "cli", CliMessagingTask.LIST_CELL_LIBRARIES); 
 					listCellLibraries(new JSONObject(sendMessageAndParseReply(message, gw)));
-				} 
+				} else {
+					System.err.println("ERROR: unknown list option value '" + listOption + "'");
+					parser.formatHelp();
+					System.exit(2);
+				}
 			} else {
 				String mp = "";
 				if (cl.hasOption("m")) mp = cl.getOptionValue("m");

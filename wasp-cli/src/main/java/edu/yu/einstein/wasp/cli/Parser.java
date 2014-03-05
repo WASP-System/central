@@ -28,14 +28,11 @@ public class Parser {
 		options.addOption(new Option("T", "target", true, "message target"));
 		options.addOption(new Option("t", "task", true, "task to run"));
 		options.addOption(new Option("H", "host", true, "host (default localhost)"));
-		options.addOption(new Option("l", "list", false, "list available targets"));
+		options.addOption(new Option("l", "list", true, "list available targets [plugins|builds|subtypes|cellLibraries]"));
 		options.addOption(new Option("m", "message", true, "message to send"));
 		options.addOption(new Option("P", "port", true, "remote port (default 23532)"));
 		options.addOption(new Option("p", "password", true, "password"));
 		options.addOption(new Option("r", "register-file", false, "register a file"));
-		options.addOption(new Option("g", "listGenomeBuilds", false, "list genome builds"));
-		options.addOption(new Option("s", "listSampleSubtypes", false, "list SampleSubtypes"));
-		options.addOption(new Option("c", "listCellLibraries", false, "list libraries with their platform unit / cell"));
 		parseCommandline(args);
 		help();
 		validate();
@@ -52,7 +49,7 @@ public class Parser {
 		}
 	}
 
-	private void formatHelp() {
+	public void formatHelp() {
 		HelpFormatter formatter = new HelpFormatter();
 		String header = "-------------------------------------------------";
 		String footer = "-------------------------------------------------\n" +
