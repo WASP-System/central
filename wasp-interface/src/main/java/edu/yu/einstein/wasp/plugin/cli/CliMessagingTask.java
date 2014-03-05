@@ -7,5 +7,7 @@ public class CliMessagingTask {
 	public static final String LIST_GENOME_BUILDS = "listGenomeBuilds";
 	
 	public static final String LIST_SAMPLE_SUBTYPES = "listSampleSubtypes";
+	
+	public static final String LIST_CELL_LIBRARIES = "listCellLibraries";
 
 }

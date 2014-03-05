@@ -35,6 +35,7 @@ public class Parser {
 		options.addOption(new Option("r", "register-file", false, "register a file"));
 		options.addOption(new Option("g", "listGenomeBuilds", false, "list genome builds"));
 		options.addOption(new Option("s", "listSampleSubtypes", false, "list SampleSubtypes"));
+		options.addOption(new Option("c", "listCellLibraries", false, "list libraries with their platform unit / cell"));
 		parseCommandline(args);
 		help();
 		validate();

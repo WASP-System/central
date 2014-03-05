@@ -306,7 +306,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	}
 
 	@Override
-	public List<Sample> findAllPlatformUnits() {
+	public List<Sample> getPlatformUnits() {
 		Map<String, String> queryMap = new HashMap<String, String>();
 		queryMap.put("sampleType.iName", "platformunit");
 		return sampleDao.findByMap(queryMap);
@@ -845,7 +845,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  // TODO: Write test!!
 		  
 		  List<Sample> availablePlatformUnits = new ArrayList<Sample>();
-		  List<Sample> allPlatformUnits = findAllPlatformUnits(); 
+		  List<Sample> allPlatformUnits = getPlatformUnits(); 
 		  if (allPlatformUnits == null || allPlatformUnits.isEmpty())
 			  return availablePlatformUnits;
 		
@@ -1277,7 +1277,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  Map<String,Integer> q = new HashMap<String,Integer>();
 		  q.put("sourceSampleId", library.getId());
 		  for (SampleSource ss : getSampleSourceDao().findByMap(q)){
-			  if (isCell(ss.getSample()))
+			  if (ss.getSample() == null || isCell(ss.getSample())) // may be null if library added from external source e.g. via CLI
 				  cells.add(ss.getSample());
 		  }
 		  return cells;
@@ -2116,7 +2116,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Override
 	public List<Sample> getPlatformUnitsNotYetRun(){
 		List<Sample> platformUnitsNotYetRun = new ArrayList<Sample>();
-		for (Sample pu : findAllPlatformUnits()){
+		for (Sample pu : getPlatformUnits()){
 			try {
 				if (getCurrentRunForPlatformUnit(pu) == null)
 					platformUnitsNotYetRun.add(pu);
@@ -2927,9 +2927,30 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  }
 
 		@Override
-		public List<SampleSource> getCellLibraries(Sample cell) {
+		public List<SampleSource> getCellLibrariesForCell(Sample cell) {
 			Assert.assertTrue(this.isCell(cell));
-			return sampleSourceDao.getCellLibraries(cell);
+			return sampleSourceDao.getCellLibrariesForCell(cell);
+		}
+		
+		@Override
+		public List<SampleSource> getCellLibrariesForLibrary(Sample library) {
+			Assert.assertTrue(this.isLibrary(library));
+			return sampleSourceDao.getCellLibrariesForLibrary(library);
+		}
+		
+		@Override
+		public List<SampleSource> getCellLibraries() {
+			List<SampleSource> cellLibraries = new ArrayList<>();
+			for (Sample library : getLibraries())
+				cellLibraries.addAll(getCellLibrariesForLibrary(library));
+			return cellLibraries;
+		}
+		
+		@Override
+		public List<Sample> getLibraries() {
+			Map<String, String> queryMap = new HashMap<String, String>();
+			queryMap.put("sampleType.iName", "library");
+			return sampleDao.findByMap(queryMap);
 		}
 		
 		@Override

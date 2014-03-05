@@ -9,5 +9,7 @@ public interface CliSupporting {
 	public Message<String> listGenomeBuilds();
 	
 	public Message<String> listSampleSubtypes();
+	
+	public Message<String> listCellLibraries();
 
 }

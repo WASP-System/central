@@ -45,40 +45,23 @@ public class Main {
 			gw.setReplyChannel(replychannel);
 			gw.afterPropertiesSet();
 			Message<String> message;
-			if (cl.hasOption("l")) {
-				message = (Message<String>) MessageBuilder.withPayload(CliMessagingTask.LIST_PLUGINS)
-						.setHeader("target", "cli")
-						.setHeader("user", parser.getUser())
-						.setHeader("password", parser.getPassword())
-						.build();
-				listPlugins(new JSONObject(sendMessageAndParseReply(message, gw)));
-			} else if (cl.hasOption("g")){
-				message = (Message<String>) MessageBuilder.withPayload(CliMessagingTask.LIST_GENOME_BUILDS)
-						.setHeader("target", "cli")
-						.setHeader("user", parser.getUser())
-						.setHeader("password", parser.getPassword())
-						.build();
-				listGenomeBuilds(new JSONObject(sendMessageAndParseReply(message, gw)));
-			} else if (cl.hasOption("s")){
-				message = (Message<String>) MessageBuilder.withPayload(CliMessagingTask.LIST_SAMPLE_SUBTYPES)
-						.setHeader("target", "cli")
-						.setHeader("user", parser.getUser())
-						.setHeader("password", parser.getPassword())
-						.build();
-				listSampleSubtypes(new JSONObject(sendMessageAndParseReply(message, gw)));
-			} else if (cl.hasOption("r")){
-				message = (Message<String>) MessageBuilder.withPayload(CliMessagingTask.LIST_GENOME_BUILDS)
-						.setHeader("target", "cli")
-						.setHeader("user", parser.getUser())
-						.setHeader("password", parser.getPassword())
-						.build();
-				listGenomeBuilds(new JSONObject(sendMessageAndParseReply(message, gw)));
-				message = (Message<String>) MessageBuilder.withPayload(CliMessagingTask.LIST_SAMPLE_SUBTYPES)
-						.setHeader("target", "cli")
-						.setHeader("user", parser.getUser())
-						.setHeader("password", parser.getPassword())
-						.build();
-				listSampleSubtypes(new JSONObject(sendMessageAndParseReply(message, gw)));
+			if (cl.hasOption("l") || cl.hasOption("g") || cl.hasOption("s") || cl.hasOption("c")  || cl.hasOption("r")) {
+				if (cl.hasOption("l")) {
+					message = getMessage(parser, "cli", CliMessagingTask.LIST_PLUGINS);
+					listPlugins(new JSONObject(sendMessageAndParseReply(message, gw)));
+				} 
+				if (cl.hasOption("g")){
+					message = getMessage(parser, "cli", CliMessagingTask.LIST_GENOME_BUILDS);
+					listGenomeBuilds(new JSONObject(sendMessageAndParseReply(message, gw)));
+				} 
+				if (cl.hasOption("s")){
+					message = getMessage(parser, "cli", CliMessagingTask.LIST_SAMPLE_SUBTYPES); 
+					listSampleSubtypes(new JSONObject(sendMessageAndParseReply(message, gw)));
+				} 
+				if (cl.hasOption("c")){
+					message = getMessage(parser, "cli", CliMessagingTask.LIST_CELL_LIBRARIES); 
+					listCellLibraries(new JSONObject(sendMessageAndParseReply(message, gw)));
+				} 
 			} else {
 				String mp = "";
 				if (cl.hasOption("m")) mp = cl.getOptionValue("m");
@@ -99,11 +82,19 @@ public class Main {
 			System.err.println("ERROR: Unable to connect to server at " + host + ":" + port);
 			System.exit(2);
 		} catch (MessageHandlingException e) {
-			System.err.println("ERROR: Error executing on remote host. " + e.getCause().toString());
+			System.err.println("ERROR: Error executing on remote host. Make sure remote host is running. " + e.getCause().toString());
 			System.exit(2);
 		} 
 
 
+	}
+	
+	private static Message<String> getMessage(Parser parser, String target, String payload){
+		return (Message<String>) MessageBuilder.withPayload(payload)
+				.setHeader("target", target)
+				.setHeader("user", parser.getUser())
+				.setHeader("password", parser.getPassword())
+				.build();
 	}
 	
 	private static String sendMessageAndParseReply(Message<?> m, RmiOutboundGateway gw){
@@ -120,8 +111,7 @@ public class Main {
 	}
 	
 	public static void listPlugins(JSONObject json) {
-		String output = "\nRegistered Wasp System plugins:\n"
-				+ "-------------------------------\n\n";
+		String output = "\n* Registered Wasp System plugins:\n";
 		int index = 1;
 		List<String> names = new ArrayList<>();
 		for (Object key : json.keySet())
@@ -129,7 +119,7 @@ public class Main {
 		Collections.sort(names);
 		for (String name : names) {
 			String description = json.getString(name);
-			output += index++ + ") " + name.toString();
+			output += "    " + index++ + " " + name.toString();
 			if (description != null && !description.isEmpty()) 
 				output += " -> " + description;
 			output += "\n";
@@ -138,27 +128,40 @@ public class Main {
 	}
 
 	public static void listGenomeBuilds(JSONObject json){
-		String output = "\nList of possible genome builds:\n";
+		String output = "\n* List of possible genome builds:\n";
 		List<String> names = new ArrayList<>();
 		for (Object key : json.keySet()) 
 			names.add((String) key);
 		Collections.sort(names);
 		for (String name : names) {
 			String description = json.getString(name);
-			output += "    " + name + " (" + description + ")\n";
+			output += "    " + name + " -> " + description + "\n";
 		}
 		System.out.println(output);
 	}
 	
 	public static void listSampleSubtypes(JSONObject json){
-		String output = "\nList of Sample Subtypes:\n";
+		String output = "\n* List of Sample Subtypes:\n";
 		List<Integer> ids = new ArrayList<>();
 		for (Object key : json.keySet()) 
 			ids.add(Integer.parseInt((String) key));
 		Collections.sort(ids);
 		for (Integer id : ids) {
 			String name = json.getString(id.toString());
-			output += "    " + id.toString() + " (" + name + ")\n";
+			output += "    " + id.toString() + " -> " + name + "\n";
+		}
+		System.out.println(output);
+	}
+	
+	public static void listCellLibraries(JSONObject json){
+		String output = "\n* List of Libraries (with platform unit / cell if known):\n";
+		List<Integer> ids = new ArrayList<>();
+		for (Object key : json.keySet()) 
+			ids.add(Integer.parseInt((String) key));
+		Collections.sort(ids);
+		for (Integer id : ids) {
+			String name = json.getString(id.toString());
+			output += "    " + id.toString() + " -> " + name + "\n";
 		}
 		System.out.println(output);
 	}

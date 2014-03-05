@@ -12,6 +12,10 @@ import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.exception.SampleParentChildException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
@@ -50,6 +54,8 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 			return listGenomeBuilds();
 		} else if (m.getPayload().toString().equals(CliMessagingTask.LIST_SAMPLE_SUBTYPES)) {
 			return listSampleSubtypes();
+		} else if (m.getPayload().toString().equals(CliMessagingTask.LIST_CELL_LIBRARIES)) {
+			return listCellLibraries();
 		} else {
 			String mstr = "Unknown command: " + m.toString() + "'\n";
 			return MessageBuilder.withPayload(mstr).build();
@@ -85,6 +91,28 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 			if (sst.getIsActive() == 1)
 				sampleSubtypes.put(sst.getId().toString(), sst.getName());
 		return MessageBuilder.withPayload(new JSONObject(sampleSubtypes).toString()).build();
+	}
+
+	@Transactional("entityManager")
+	@Override
+	public Message<String> listCellLibraries() {
+		Map<String, String> cellLibraries = new HashMap<>();
+		for (SampleSource cellLibrary : sampleService.getCellLibraries()){
+			Sample library = sampleService.getLibrary(cellLibrary);
+			String libraryName = library.getName();
+			Sample cell = sampleService.getCell(cellLibrary);
+			if (cell != null){
+				if (!sampleService.isCell(cell))
+					continue;
+				try {
+					libraryName += " (" + sampleService.getPlatformUnitForCell(cell).getName() + " / " + sampleService.getCellIndex(cell) + ")";
+				} catch (SampleTypeException | SampleParentChildException e) {
+					// just leave as default empty string
+				}
+			}
+			cellLibraries.put(cellLibrary.getId().toString(), libraryName);
+		}
+		return MessageBuilder.withPayload(new JSONObject(cellLibraries).toString()).build();
 	}
 	
 }
