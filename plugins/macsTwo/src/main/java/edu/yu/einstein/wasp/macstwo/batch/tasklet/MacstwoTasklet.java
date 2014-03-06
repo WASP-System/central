@@ -394,12 +394,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	@Override
 	@Transactional("entityManager")
 	public void doPreFinish(ChunkContext context) throws Exception {
-		Random rand = new Random();
-
-		int  n = rand.nextInt(500000) + 1;
-		for(int i=0; i < n; i++){
-			;
-		}
+		
 		logger.debug("starting doPreFinish() in MacstwoTasklet");
 		
 		//at Andy's suggestion, do this here too:
@@ -420,105 +415,31 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		// register commandLineCall, testCellLibraryIdList, controlCellLibraryIdList and  controlId with sampleMeta 
 		// and associate sample with the new file groups		
 		Sample testSample = sampleService.getSampleById(testSampleId);		
-		/*List<SampleMeta> testSampleMetaList = testSample.getSampleMeta();
-		
+		//List<SampleMeta> testSampleMetaList = sampleService.getSampleMetaDao().getSamplesMetaBySampleId(testSample.getId().intValue());//testSample.getSampleMeta();
+		List<SampleMeta> testSampleMetaList = testSample.getSampleMeta();
 		
 		SampleMeta sm1 = new SampleMeta();
-		sm1.setK("chipseqAnalysis.testCellLibraryIdList");
+		sm1.setK("chipseqAnalysis.testCellLibraryIdList" + "::" + this.controlSampleId.toString());
 		sm1.setV(this.testCellLibraryIdListAsString);
 		testSampleMetaList.add(sm1);
-		*/		
-		/*
+		
 		SampleMeta sm2 = new SampleMeta();
-		sm2.setK("chipseqAnalysis.controlCellLibraryIdList");
+		sm2.setK("chipseqAnalysis.controlCellLibraryIdList" + "::" + this.controlSampleId.toString());
 		sm2.setV(this.controlCellLibraryIdListAsString);
 		testSampleMetaList.add(sm2);
-		*/
-		/*
+		
 		SampleMeta sm3 = new SampleMeta();
-		sm3.setK("chipseqAnalysis.commandLineCall");
+		sm3.setK("chipseqAnalysis.commandLineCall" + "::" + this.controlSampleId.toString());
 		sm3.setV(this.commandLineCall);
 		testSampleMetaList.add(sm3);
-		*/
-		/*
+		
 		SampleMeta sm4 = new SampleMeta();
-		sm4.setK("chipseqAnalysis.controlId");
+		sm4.setK("chipseqAnalysis.controlId" + "::" + this.controlSampleId.toString());
 		sm4.setV(this.controlSampleId.toString());
 		testSampleMetaList.add(sm4);	
-		*/
-		/*
-		SampleMeta sm1 = null;
-		for(SampleMeta tempSM : testSampleMetaList){
-			if(tempSM.getK().equals("chipseqAnalysis.testCellLibraryIdList")){
-				sm1 = tempSM;
-				break;
-			}
-		}
-		if(sm1==null){
-			sm1 = new SampleMeta();
-			sm1.setK("chipseqAnalysis.testCellLibraryIdList");
-			sm1.setV(this.controlSampleId.toString() + "!" + this.testCellLibraryIdListAsString);
-			testSampleMetaList.add(sm1);
-		}
-		else{
-			sm1.setV(sm1.getV() + "::" + this.controlSampleId.toString() + "!" + this.testCellLibraryIdListAsString);
-		}
-		
-		SampleMeta sm2 = null;
-		for(SampleMeta tempSM : testSampleMetaList){
-			if(tempSM.getK().equals("chipseqAnalysis.controlCellLibraryIdList")){
-				sm2 = tempSM;
-				break;
-			}
-		}
-		if(sm2==null){
-			sm2 = new SampleMeta();
-			sm2.setK("chipseqAnalysis.controlCellLibraryIdList");
-			sm2.setV(this.controlSampleId.toString() + "!" + this.controlCellLibraryIdList);
-			testSampleMetaList.add(sm2);
-		}
-		else{
-			sm2.setV(sm2.getV() + "::" + this.controlSampleId.toString() + "!" + this.controlCellLibraryIdList);
-		}
-		
-		
-		SampleMeta sm3 = null;
-		for(SampleMeta tempSM : testSampleMetaList){
-			if(tempSM.getK().equals("chipseqAnalysis.commandLineCall")){
-				sm3 = tempSM;
-				break;
-			}
-		}
-		if(sm3==null){
-			sm3 = new SampleMeta();
-			sm3.setK("chipseqAnalysis.commandLineCall");
-			sm3.setV(this.controlSampleId.toString() + "!" + this.commandLineCall);
-			testSampleMetaList.add(sm3);
-		}
-		else{
-			sm3.setV(sm3.getV() + "::" + this.controlSampleId.toString() + "!" + this.commandLineCall);
-		}
-		
-		
-		SampleMeta sm4 = null;
-		for(SampleMeta tempSM : testSampleMetaList){
-			if(tempSM.getK().equals("chipseqAnalysis.controlId")){
-				sm4 = tempSM;
-				break;
-			}
-		}
-		if(sm4==null){//should not happen here
-			sm4 = new SampleMeta();
-			sm4.setK("chipseqAnalysis.controlId");
-			sm4.setV(this.controlSampleId.toString());
-			testSampleMetaList.add(sm4);
-		}
-		else{
-			sm4.setV(sm4.getV() + "::" + this.controlSampleId.toString());
-		}
 		
 		sampleService.saveSampleWithAssociatedMeta(testSample);
-		*/
+		
 		logger.debug("in middle of doPreFinish() in MacstwoTasklet");
 
 		if (this.modelScriptGId != null && testSample.getId() != 0){

@@ -208,7 +208,9 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 		} 
 		//*/
 		for(Sample testSample : setOfApprovedSamples){
-	
+			
+			Thread.sleep(10000);//this is here for testing only, but certainly will not hurt, as it's merely a 10 second delay
+			
 			logger.debug("***************in PeakCallerTasklet.execute(): preparing to launchMessage to Macs2 for testSample: " + testSample.getName());
 			List<SampleSource> cellLibraryListForTest = approvedSampleApprovedCellLibraryListMap.get(testSample);
 			Assert.assertTrue( ! cellLibraryListForTest.isEmpty() );
