@@ -159,7 +159,7 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 		}
 		
 //TODO: ROBERT A DUBIN (1 of 1) uncomment next line for production   !!!!!!!!!!!!!!!!!!!!!!!!   
-		confirmCellLibrariesAssociatedWithBamFiles(approvedCellLibraryList);//throws exception if no
+		//confirmCellLibrariesAssociatedWithBamFiles(approvedCellLibraryList);//throws exception if no
 
 		Job job = confirmCellLibrariesFromSingleJob(approvedCellLibraryList);//throws exception if no; need job this since samplePairs are by job 
 		logger.debug("***************in PeakCallerTasklet.execute(): job.getId() using job returned from confirmCellLibrariesFromSingleJob is  " + job.getId().toString());
