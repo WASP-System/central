@@ -3,6 +3,7 @@
  */
 package edu.yu.einstein.wasp.cli;
 
+import java.io.Console;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,27 +47,35 @@ public class Main {
 			gw.afterPropertiesSet();
 			Message<String> message;
 			if (cl.hasOption("l")) {
+				boolean match = false;
 				String listOption = cl.getOptionValue("l", "plugins");
-				if (listOption.equals("plugins")) {
+				if (listOption.contains("plugins")) {
 					message = getMessage(parser, "cli", CliMessagingTask.LIST_PLUGINS);
 					listPlugins(new JSONObject(sendMessageAndParseReply(message, gw)));
+					match = true;
 				} 
-				else if (listOption.equals("builds")){
+				if (listOption.contains("builds")){
 					message = getMessage(parser, "cli", CliMessagingTask.LIST_GENOME_BUILDS);
 					listGenomeBuilds(new JSONObject(sendMessageAndParseReply(message, gw)));
+					match = true;
 				} 
-				else if (listOption.equals("subtypes")){
+				if (listOption.contains("sampleSubtypes")){
 					message = getMessage(parser, "cli", CliMessagingTask.LIST_SAMPLE_SUBTYPES); 
 					listSampleSubtypes(new JSONObject(sendMessageAndParseReply(message, gw)));
+					match = true;
 				} 
-				else if (listOption.equals("cellLibraries")){
+				if (listOption.contains("cellLibraries")){
 					message = getMessage(parser, "cli", CliMessagingTask.LIST_CELL_LIBRARIES); 
 					listCellLibraries(new JSONObject(sendMessageAndParseReply(message, gw)));
-				} else {
+					match = true;
+				}
+				if (!match) {
 					System.err.println("ERROR: unknown list option value '" + listOption + "'");
 					parser.formatHelp();
 					System.exit(2);
 				}
+			} else if (cl.hasOption("r")){
+				registerFile(parser, gw);
 			} else {
 				String mp = "";
 				if (cl.hasOption("m")) mp = cl.getOptionValue("m");
@@ -169,6 +178,35 @@ public class Main {
 			output += "    " + id.toString() + " -> " + name + "\n";
 		}
 		System.out.println(output);
+	}
+	
+	public static void registerFile(Parser parser, RmiOutboundGateway gw){
+		Console co = System.console();
+		String cellLibId;
+		do{
+			System.out.print("Enter a cell library id to associate with the file group (or none to add one now or 'l' to list) : ");
+			cellLibId = co.readLine();
+			if (cellLibId.isEmpty())
+				cellLibId = createNewCellLibrary().toString();
+			else if (cellLibId.equals("l")){
+				Message<String> message = getMessage(parser, "cli", CliMessagingTask.LIST_CELL_LIBRARIES); 
+				listCellLibraries(new JSONObject(sendMessageAndParseReply(message, gw)));
+			}
+				
+		} while (!isPareseableToInteger(cellLibId));
+	}
+	
+	public static Integer createNewCellLibrary(){
+		return null;
+	}
+	
+	public static boolean isPareseableToInteger(String s){
+		try{
+			Integer.parseInt(s);
+			return true;
+		} catch (NumberFormatException e){
+			return false;
+		}
 	}
 
 }
