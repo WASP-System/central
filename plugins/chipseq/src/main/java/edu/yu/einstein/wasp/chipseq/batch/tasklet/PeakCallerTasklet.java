@@ -158,7 +158,7 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 		Assert.assertTrue( ! approvedCellLibraryList.isEmpty() );
 		
 //TODO: ROBERT A DUBIN (1 of 1) uncomment next line for production   !!!!!!!!!!!!!!!!!!!!!!!!   
-		//confirmCellLibrariesAssociatedWithBamFiles(approvedCellLibraryList);//throws exception if no
+		confirmCellLibrariesAssociatedWithBamFiles(approvedCellLibraryList);//throws exception if no
 
 		Map<Sample, List<SampleSource>> approvedSampleApprovedCellLibraryListMap = associateSampleWithCellLibraries(approvedCellLibraryList);//new HashMap<Sample, List<SampleSource>>();
 		Set<Sample> setOfApprovedSamples = new HashSet<Sample>();//for a specific job (note: this really could have been a list)
