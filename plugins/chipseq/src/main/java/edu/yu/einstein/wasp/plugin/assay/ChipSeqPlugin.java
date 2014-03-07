@@ -119,23 +119,17 @@ public class ChipSeqPlugin extends WaspPlugin implements
 			
 			//////jobParameters.put("test", new Date().toString());//used for testing only
 			
-			String cellLibraryIdListAsString = "37,38,39,40";//comma delimited list is how they will appear	
-			jobParameters.put(WaspSoftwareJobParameters.LIBRARY_CELL_ID_LIST, cellLibraryIdListAsString);
-
-			Integer firstCellLibraryId = WaspSoftwareJobParameters.getLibraryCellIdList(cellLibraryIdListAsString).get(0);
-			SampleSource firstCellLibrary = sampleService.getCellLibraryBySampleSourceId(firstCellLibraryId);
-			Job job = sampleService.getJobOfLibraryOnCell(firstCellLibrary);
-			jobParameters.put(WaspJobParameters.JOB_ID, job.getId().toString());
+			jobParameters.put(WaspJobParameters.JOB_ID, "4");
 			
 			waspMessageHandlingService.launchBatchJob(AGGREGATE_ANALYSIS_JOB, jobParameters);
-			logger.debug("**Initiating aggregate_analysis_job ChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB + " on cellLibraryIds " + cellLibraryIdListAsString);
-			return (Message<String>) MessageBuilder.withPayload("Initiating chipseq test flow: "+AGGREGATE_ANALYSIS_JOB + " on cellLibraryIds " + cellLibraryIdListAsString).build();
+			logger.debug("**Initiating aggregate_analysis_job ChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB + " on job 4");
+			return (Message<String>) MessageBuilder.withPayload("Initiating chipseq test flow: "+AGGREGATE_ANALYSIS_JOB + " for job 4").build();
 		} catch (WaspMessageBuildingException e1) {
-			logger.warn("WaspMessageBuildingException Unable to build launch batch job from ChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB);
-			return MessageBuilder.withPayload("Unable to launch batch job from ChipSeqPlugin:" + AGGREGATE_ANALYSIS_JOB).build();
+			logger.warn("WaspMessageBuildingException Unable to build launch batch job 4 from ChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB);
+			return MessageBuilder.withPayload("Unable to launch batch job  4 from ChipSeqPlugin:" + AGGREGATE_ANALYSIS_JOB).build();
 		}catch (Exception e1) {
-			logger.warn("Exception: Unable to build launch batch job from ChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB);
-			return MessageBuilder.withPayload("Exception: Unable to launch batch job from ChipSeqPlugin:" + AGGREGATE_ANALYSIS_JOB).build();
+			logger.warn("Exception: Unable to build launch batch job 4 from ChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB);
+			return MessageBuilder.withPayload("Exception: Unable to launch batch job 4 from ChipSeqPlugin:" + AGGREGATE_ANALYSIS_JOB).build();
 		}
 		
 	}

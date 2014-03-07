@@ -83,9 +83,6 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 	@Qualifier("waspMessageHandlingServiceImpl") // more than one class of type WaspMessageHandlingService so must specify
 	private WaspMessageHandlingService waspMessageHandlingService;
 
-	
-	private List<Integer> approvedCellLibraryIdList;
-	
 	@Autowired
 	private FileService fileService;
 	
@@ -121,10 +118,9 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 		// proxy
 	}
 
-	public PeakCallerTasklet(String cellLibraryIdListAsString, ResourceType softwareResourceType) {
-		this.approvedCellLibraryIdList = WaspSoftwareJobParameters.getLibraryCellIdList(cellLibraryIdListAsString);
-		Assert.assertTrue( ! this.approvedCellLibraryIdList.isEmpty() );
+	public PeakCallerTasklet(ResourceType softwareResourceType) {
 		this.softwareResourceType = softwareResourceType;
+		logger.debug("***************in PeakCallerTasklet() constructor: softwareResourceType for peakcaller is " + this.softwareResourceType.getName());
 	}
 
 	//TODO: remove this next method
@@ -145,10 +141,6 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
 		
-		logger.debug("***************in PeakCallerTasklet.execute(): softwareResourceType for peakcaller is " + this.softwareResourceType.getName());
-		logger.debug("***************in PeakCallerTasklet.execute(): approvedCellLibraryIdList.size() is " + this.approvedCellLibraryIdList.size());
-		List<SampleSource> approvedCellLibraryList = getApprovedCellLibraries(this.approvedCellLibraryIdList);
-		logger.debug("***************in PeakCallerTasklet.execute(): approvedCellLibraryList.size() is " + approvedCellLibraryList.size());
 		Map<String,Object> jobParametersMap = context.getStepContext().getJobParameters();		
 		Integer jobIdFromJobParameter = null;
 		for (String key : jobParametersMap.keySet()) {
@@ -157,15 +149,16 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 				jobIdFromJobParameter = new Integer((String)jobParametersMap.get(key));
 			}
 		}
+		Assert.assertTrue(jobIdFromJobParameter>0);
+		Job job = jobService.getJobByJobId(jobIdFromJobParameter);
+		logger.debug("***************in PeakCallerTasklet.execute(): job.getId() = " + job.getId().toString());
+		Assert.assertTrue(job.getId()>0);
+		List<SampleSource> approvedCellLibraryList = sampleService.getCellLibrariesPassQCAndNoAggregateAnalysis(job);		
+		logger.debug("***************in PeakCallerTasklet.execute(): approvedCellLibraryList.size() is " + approvedCellLibraryList.size());
+		Assert.assertTrue( ! approvedCellLibraryList.isEmpty() );
 		
 //TODO: ROBERT A DUBIN (1 of 1) uncomment next line for production   !!!!!!!!!!!!!!!!!!!!!!!!   
 		//confirmCellLibrariesAssociatedWithBamFiles(approvedCellLibraryList);//throws exception if no
-
-		Job job = confirmCellLibrariesFromSingleJob(approvedCellLibraryList);//throws exception if no; need job this since samplePairs are by job 
-		logger.debug("***************in PeakCallerTasklet.execute(): job.getId() using job returned from confirmCellLibrariesFromSingleJob is  " + job.getId().toString());
-		logger.debug("***************in PeakCallerTasklet.execute(): jobIdFromJobParameter is " + jobIdFromJobParameter.toString());
-		Assert.assertTrue(job.getId()>0);
-		Assert.assertTrue(job.getId().intValue()==jobIdFromJobParameter.intValue());
 
 		Map<Sample, List<SampleSource>> approvedSampleApprovedCellLibraryListMap = associateSampleWithCellLibraries(approvedCellLibraryList);//new HashMap<Sample, List<SampleSource>>();
 		Set<Sample> setOfApprovedSamples = new HashSet<Sample>();//for a specific job (note: this really could have been a list)
@@ -253,30 +246,6 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 		logger.debug("StepExecutionListener beforeStep saving StepExecution");
 		this.stepExecution = stepExecution;
 		
-	}
-
-	private List<SampleSource> getApprovedCellLibraries(List<Integer> approvedCellLibraryIdList) throws SampleTypeException{
-		List<SampleSource> approvedCellLibraryList = new ArrayList<SampleSource>();
-		for(Integer approvedCellLibraryId : approvedCellLibraryIdList){
-			SampleSource approvedCellLibrary = sampleService.getCellLibraryBySampleSourceId(approvedCellLibraryId);
-			approvedCellLibraryList.add(approvedCellLibrary);
-		}
-		return approvedCellLibraryList;
-	}
-	private Job confirmCellLibrariesFromSingleJob(List<SampleSource> cellLibraryList) throws Exception{
-		Job job = null;
-		for(SampleSource cellLibrary : cellLibraryList){
-			if(job==null){
-				job = sampleService.getJobOfLibraryOnCell(cellLibrary);
-			}
-			else{
-				if(job.getId().intValue()!=sampleService.getJobOfLibraryOnCell(cellLibrary).getId().intValue()){
-					logger.debug("NOT ALL cellLibraries ARE FROM THE SAME JOB! Do not proceed!");
-					throw new Exception("Not all cellLibraries are from the same job");
-				}
-			}
-		}
-		return job;
 	}
 	private void confirmCellLibrariesAssociatedWithBamFiles(List<SampleSource> cellLibraryList) throws Exception{
 		for(SampleSource cellLibrary : cellLibraryList){
