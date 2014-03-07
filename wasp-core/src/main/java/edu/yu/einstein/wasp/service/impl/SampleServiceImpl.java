@@ -2368,8 +2368,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 */
 	@Override
 	public Job getJobOfLibraryOnCell(Sample cell, Sample library) throws SampleException{
-		SampleSource libraryCell = getCellLibrary(cell, library);
-		return getJobOfLibraryOnCell(libraryCell);
+		SampleSource cellLibrary = getCellLibrary(cell, library);
+		return getJobOfLibraryOnCell(cellLibrary);
 	}
 	
 	/**
@@ -2377,12 +2377,12 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 * @throws SampleException 
 	 */
 	@Override
-	public Job getJobOfLibraryOnCell(SampleSource libraryCell){
-		Assert.assertParameterNotNull(libraryCell, "libraryCell cannot be null");
-		Assert.assertParameterNotNull(libraryCell.getId(), "libraryCell must have a valid id");
+	public Job getJobOfLibraryOnCell(SampleSource cellLibrary){
+		Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
+		Assert.assertParameterNotNull(cellLibrary.getId(), "cellLibrary must have a valid id");
 		Job job = null;
-		List<SampleSourceMeta> ssMetaList = libraryCell.getSampleSourceMeta();
-		logger.debug("libraryCell: " + libraryCell.getId());
+		List<SampleSourceMeta> ssMetaList = cellLibrary.getSampleSourceMeta();
+		logger.debug("cellLibrary: " + cellLibrary.getId());
 		if (ssMetaList == null) {
 			logger.debug("sample source meta list is null");
 			return job;
@@ -2570,7 +2570,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			Map<String, Set<String>> jobParameters = new HashMap<String, Set<String>>();
 			Set<String> ssIdStringSet = new LinkedHashSet<String>();
 			ssIdStringSet.add(cellLibrary.getId().toString());
-			jobParameters.put(WaspJobParameters.LIBRARY_CELL_ID, ssIdStringSet);
+			jobParameters.put(WaspJobParameters.CELL_LIBRARY_ID, ssIdStringSet);
 			Set<String> jobTaskSet = new LinkedHashSet<String>();
 			jobTaskSet.add(BatchJobTask.ANALYSIS_LIBRARY_PREPROCESS);
 			jobParameters.put(WaspJobParameters.BATCH_JOB_TASK, jobTaskSet);

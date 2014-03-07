@@ -22,7 +22,7 @@
 			<batch:tasklet>
 						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.analysis.WaspJobSoftwareLaunchTaskletImpl" scope="step">
-					<constructor-arg name="libraryCellId" value="#{jobParameters[waspSoftwareJobParameters.LIBRARY_CELL_ID]}"/>
+					<constructor-arg name="cellLibraryId" value="#{jobParameters[waspSoftwareJobParameters.CELL_LIBRARY_ID]}"/>
 					<constructor-arg name="softwareResourceType" ref="referenceBasedAlignerResourceType" />
 					<constructor-arg name="task" value="#{batchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}" />
 					<property name="name" value="edu.yu.einstein.wasp.helptag.prepFlow.align" />
@@ -38,7 +38,7 @@
 					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-							<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.LIBRARY_CELL_ID]}"/>
+							<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.CELL_LIBRARY_ID]}"/>
 							<property name="task" value="#{sequencingBatchJobTasks.ALIGNMENT}" />
 							<property name="status" value="COMPLETED" />
 						</bean>
@@ -53,8 +53,8 @@
 		<batch:step id="edu.yu.einstein.wasp.helptag.prepFlow.countHpaii" next="edu.yu.einstein.wasp.helptag.prepFlow.listForHcountComplete">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.helptag.batch.tasklet.HelptagTasklet" scope="step">
-<!-- 				<constructor-arg name="cellLibraryIds" value="#{jobParameters[waspSoftwareJobParameters.LIBRARY_CELL_ID_LIST]}" />  -->
-					<constructor-arg name="libraryCellId" value="#{jobParameters[waspJobParameters.LIBRARY_CELL_ID]}" />
+<!-- 				<constructor-arg name="cellLibraryIds" value="#{jobParameters[waspSoftwareJobParameters.CELL_LIBRARY_ID_LIST]}" />  -->
+					<constructor-arg name="cellLibraryId" value="#{jobParameters[waspJobParameters.CELL_LIBRARY_ID]}" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
@@ -67,7 +67,7 @@
 					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-							<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.LIBRARY_CELL_ID]}"/>
+							<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.CELL_LIBRARY_ID]}"/>
 							<property name="task" value="HpaiiCounting" />
 							<property name="status" value="COMPLETED" />
 						</bean>
@@ -100,7 +100,7 @@
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-							<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.LIBRARY_CELL_ID]}"/>
+							<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.CELL_LIBRARY_ID]}"/>
 							<property name="task" value="#{batchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}"/>
 							<property name="status" value="FAILED" />
 						</bean>

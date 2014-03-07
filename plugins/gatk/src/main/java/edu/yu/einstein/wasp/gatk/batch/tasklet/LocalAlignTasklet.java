@@ -33,13 +33,13 @@ import edu.yu.einstein.wasp.service.SampleService;
 
 
 /**
- * 
+ * @author jcai
+ * @author asmclellan
  */
-
 public class LocalAlignTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
 	private String scratchDirectory;
-	private String creatTargetJobName;
+	private String createTargetJobName;
 	private Integer cellLibId;
 
 	private StepExecution stepExecution;
@@ -89,7 +89,7 @@ public class LocalAlignTasklet extends WaspRemotingTasklet implements StepExecut
 
 		// TODO: FIXME
 		//WorkUnit w = new WorkUnit();
-		WorkUnit w = gatk.getLocalAlign(cellLib, scratchDirectory, creatTargetJobName, fg);
+		WorkUnit w = gatk.getLocalAlign(cellLib, scratchDirectory, createTargetJobName, fg);
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
 
 		GridResult result = gridHostResolver.execute(w);
@@ -97,12 +97,9 @@ public class LocalAlignTasklet extends WaspRemotingTasklet implements StepExecut
 		// place the grid result in the step context
 		storeStartedResult(context, result);
 
-		// place scratch directory in execution context, to be promoted
+		// place localAlignName in execution context, to be promoted
 		// to the job context at run time.
 		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
-		stepContext.put("cellLibId", cellLib.getId()); //place in the step context
-
-		stepContext.put("scrDir", result.getWorkingDirectory());
 		stepContext.put("localAlignName", result.getId());
 	}
 
@@ -125,7 +122,7 @@ public class LocalAlignTasklet extends WaspRemotingTasklet implements StepExecut
 		JobExecution jobExecution = stepExecution.getJobExecution();
 		ExecutionContext jobContext = jobExecution.getExecutionContext();
 		this.scratchDirectory = jobContext.get("scrDir").toString();
-		this.creatTargetJobName = jobContext.get("creatTargetName").toString();
+		this.createTargetJobName = jobContext.get("createTargetName").toString();
 		this.cellLibId = (Integer) jobContext.get("cellLibId");
 	}
 }

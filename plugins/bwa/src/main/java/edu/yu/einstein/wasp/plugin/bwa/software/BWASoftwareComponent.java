@@ -53,12 +53,6 @@ public class BWASoftwareComponent extends ReferenceBasedAligner {
 	@Autowired
 	private AdaptorService adaptorService;
 	
-	// @Autowired
-	// private SoftwarePackage picard;
-	
-	//@Autowired
-	//private SoftwarePackage samtools;
-
 	/**
 	 * 
 	 */
@@ -68,7 +62,7 @@ public class BWASoftwareComponent extends ReferenceBasedAligner {
 		setSoftwareVersion("0.6.3"); // this default may be overridden in wasp.site.properties
 	}
 	
-	public WorkUnit getAln(SampleSource libraryCell, FileGroup fg, Map<String,Object> jobParameters) {
+	public WorkUnit getAln(SampleSource cellLibrary, FileGroup fg, Map<String,Object> jobParameters) {
 		WorkUnit w = prepareWorkUnit(fg);
 		
 		String alnOpts = "";
@@ -87,12 +81,12 @@ public class BWASoftwareComponent extends ReferenceBasedAligner {
 			alnOpts += " " + key + " " + jobParameters.get(opt).toString();
 		}
 
-		String checkIndex = "if [ ! -e " + getGenomeIndexPath(getGenomeBuild(libraryCell)) + ".bwt ]; then\n  exit 101;\nfi";
+		String checkIndex = "if [ ! -e " + getGenomeIndexPath(getGenomeBuild(cellLibrary)) + ".bwt ]; then\n  exit 101;\nfi";
 
 		w.setCommand(checkIndex);
 		
 		String command = "bwa aln " + alnOpts + " -t ${" + WorkUnit.NUMBER_OF_THREADS + "} " + 
-				getGenomeIndexPath(getGenomeBuild(libraryCell)) + " " +
+				getGenomeIndexPath(getGenomeBuild(cellLibrary)) + " " +
 				"${" + WorkUnit.INPUT_FILE + "[" + WorkUnit.TASK_ARRAY_ID + "]} " +
 				"> sai.${" + WorkUnit.TASK_OUTPUT_FILE + "}"; 
 		

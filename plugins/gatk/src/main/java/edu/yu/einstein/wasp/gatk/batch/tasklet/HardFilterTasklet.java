@@ -28,9 +28,9 @@ import edu.yu.einstein.wasp.service.SampleService;
 
 
 /**
- * 
+ * @author jcai
+ * @author asmclellan
  */
-
 public class HardFilterTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
 	private String scratchDirectory;
@@ -80,13 +80,6 @@ public class HardFilterTasklet extends WaspRemotingTasklet implements StepExecut
 
 		// place the grid result in the step context
 		storeStartedResult(context, result);
-
-		// place scratch directory in execution context, to be promoted
-		// to the job context at run time.
-		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
-
-		stepContext.put("scrDir", result.getWorkingDirectory());
-		stepContext.put("hardFilterName", result.getId());
 
 	}
 

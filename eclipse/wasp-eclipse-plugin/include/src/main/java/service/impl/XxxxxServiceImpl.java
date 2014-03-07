@@ -4,7 +4,6 @@
  */
 package ___package___.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ___package___.service.___PluginIName___Service;

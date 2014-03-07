@@ -24,7 +24,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -52,6 +51,7 @@ import com.itextpdf.text.DocumentException;
 
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.Strategy;
+import edu.yu.einstein.wasp.Strategy.StrategyType;
 import edu.yu.einstein.wasp.controller.util.JsonHelperWebapp;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.controller.util.SampleWrapperWebapp;
@@ -207,8 +207,6 @@ public class JobController extends WaspController {
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp(JobMeta.class, request.getSession());
 	}
-	
-	final public String LIBRARY_STRATEGY = "libraryStrategy";
 	
 	@Transactional
 	@RequestMapping(value = "/analysisParameters/{jobId}", method = RequestMethod.GET)
@@ -620,7 +618,7 @@ public class JobController extends WaspController {
 							currentStatus,
 							//"<a href=/wasp/"+job.getWorkflow().getIName()+"/viewfiles/"+job.getJobId()+".do>View files</a>"
 							//"<a href=/wasp/jobresults/treeview.do?id="+job.getJobId()+"&type=job>View Results</a>"
-							"<a href=/wasp/jobresults/treeview/job/"+job.getId()+".do>View Results</a>"
+							"<a href=/wasp/jobresults/treeview/job/"+job.getId()+".do>Browse Data</a>"
 				}));
 				 
 				for (JobMeta meta:jobMeta) {
@@ -952,7 +950,7 @@ public class JobController extends WaspController {
 		m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
 	
 		try{
-			Strategy strategy = jobService.getStrategy(LIBRARY_STRATEGY, job);
+			Strategy strategy = jobService.getStrategy(StrategyType.LIBRARY_STRATEGY, job);
 			m.addAttribute("strategy", strategy);	 
 		}catch(Exception e){ logger.warn("Job Strategy unexpectedly not found"); }
 		
@@ -1067,16 +1065,16 @@ public class JobController extends WaspController {
 	//Note: we use MultipartHttpServletRequest to be able to upload files using Ajax. See http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/
 	@RequestMapping(value="/{jobId}/uploadQuoteOrInvoice", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
-	  public Callable<String> jobFileUploadQuoteOrInvoicePostPage(@PathVariable("jobId") final Integer jobId,
+	  public /*Callable<String> */String jobFileUploadQuoteOrInvoicePostPage(@PathVariable("jobId") final Integer jobId,
 			  final MultipartHttpServletRequest request, 
 			  final HttpServletResponse response,
 			  //since this is now an ajax call, we no longer need/use @RequestParam("file_description") String fileDescription, @RequestParam("file_upload") MultipartFile mpFile,
 			  final ModelMap m) throws SampleTypeException {
 		
-			return new Callable<String>() {
+			/*return new Callable<String>() {
 
 					@Override
-					public String call() throws Exception {						
+					public String call() throws Exception {				*/		
 
 						Job job = jobService.getJobByJobId(jobId);
 						if(job.getId()==null){
@@ -1156,8 +1154,8 @@ public class JobController extends WaspController {
 						}
 						populateCostPage(job, m);
 						return "job/home/costManager";
-					}
-			  };
+			//		}
+			//  };
 	}
 	
 	@Transactional
@@ -1954,16 +1952,16 @@ public class JobController extends WaspController {
 	  @Transactional
 	  @RequestMapping(value="/{jobId}/fileUploadManager", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-	  public Callable<String> jobFileUploadPostPage(@PathVariable("jobId") final Integer jobId,
+	  public /*Callable<String>*/ String jobFileUploadPostPage(@PathVariable("jobId") final Integer jobId,
 			  final MultipartHttpServletRequest request, 
 			  final HttpServletResponse response,
 			  //since this is now an ajax call, we no longer need/use @RequestParam("file_description") String fileDescription, @RequestParam("file_upload") MultipartFile mpFile,
 			  final ModelMap m) throws SampleTypeException {
 	
-			  return new Callable<String>() {
+			 /* return new Callable<String>() {
 
 					@Override
-					public String call() throws Exception {
+					public String call() throws Exception {*/
 						Job job = jobService.getJobByJobId(jobId);
 						if(job.getId()==null){
 						   	logger.warn("Job unexpectedly not found");
@@ -2010,8 +2008,8 @@ public class JobController extends WaspController {
 						}
 						populateFileUploadPage(job, m);
 						return "job/home/fileUploadManager";
-					}
-			  };
+		//			}
+		//	  };
 	}
 	
 	  @Transactional
@@ -2509,7 +2507,7 @@ public class JobController extends WaspController {
 		  m.addAttribute("assignLibraryToPlatformUnitStatusMap", assignLibraryToPlatformUnitStatusMap);
 		  m.addAttribute("numberOfLibrariesAwaitingPlatformUnitPlacement", numberOfLibrariesAwaitingPlatformUnitPlacement);
 		 
-		  Map<Sample, List<Sample>> libraryCellListMap = new HashMap<Sample, List<Sample>>();
+		  Map<Sample, List<Sample>> cellLibraryListMap = new HashMap<Sample, List<Sample>>();
 		  Map<Sample, Integer> cellIndexMap = new HashMap<Sample, Integer>();
 		  Map<Sample, Sample> cellPUMap = new HashMap<Sample, Sample>();
 		  Map<Sample, Run> cellRunMap = new HashMap<Sample, Run>();	 
@@ -2521,7 +2519,7 @@ public class JobController extends WaspController {
 		  //for each job's library, get cell, platformUnit, and run info
 		  for(Sample library : allJobLibraries){
 			  List<Sample>  cellsForLibrary = sampleService.getCellsForLibrary(library, job);
-			  libraryCellListMap.put(library, cellsForLibrary);
+			  cellLibraryListMap.put(library, cellsForLibrary);
 			  for(Sample cell : cellsForLibrary){			  
 				  try{
 					  cellIndexMap.put(cell, sampleService.getCellIndex(cell));//cell's position on flowcell (ie.: lane 3)
@@ -2550,7 +2548,7 @@ public class JobController extends WaspController {
 				  }catch(Exception e){}
 			  }
 		  }
-		  m.addAttribute("libraryCellListMap", libraryCellListMap);
+		  m.addAttribute("cellLibraryListMap", cellLibraryListMap);
 		  m.addAttribute("cellIndexMap", cellIndexMap);
 		  m.addAttribute("cellPUMap", cellPUMap); 
 		  m.addAttribute("cellRunMap", cellRunMap);
@@ -2583,12 +2581,12 @@ public class JobController extends WaspController {
 			  //calculate numCells
 			  if(facilityLibraryList2!=null){
 				  for(Sample library : facilityLibraryList2){
-					  numCells += libraryCellListMap.get(library)==null?0:libraryCellListMap.get(library).size();
+					  numCells += cellLibraryListMap.get(library)==null?0:cellLibraryListMap.get(library).size();
 				  }
 			  }
 			  if(submittedLibraryList2!=null){
 				  for(Sample library : submittedLibraryList2){
-					  numCells += libraryCellListMap.get(library)==null?0:libraryCellListMap.get(library).size();
+					  numCells += cellLibraryListMap.get(library)==null?0:cellLibraryListMap.get(library).size();
 				  }
 			  }
 			  

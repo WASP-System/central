@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	default-autowire="byName"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="macstwoUiFieldWrapper">
+    <property name="baseArea" ref="macstwoPluginArea" />
+  </bean>
+
+  <bean id="macstwo" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
+  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.macstwo.software.Macstwo</value></property>
+    <property name="name" value="MACS2 Peakcaller" />
+    <property name="description" value="peakcaller plugin" />
+    <property name="area" ref="macstwoPluginArea" />
+    <property name="resourceType" ref="peakcallerResourceType" /> <!-- TODO: done 02/10/2014: choose a more appropriate resource type -->
+	
+	<property name="metaFromWrapper">
+       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
+         <property name="area" ref="macstwoPluginArea" />
+         <!-- Load any software metadata  -->
+         <property name="metaList">
+         	<list>
+         		<!-- <value>macstwo.myMetaValue=foo</value> -->
+         		<value>#{waspSoftware['currentVersion']}=2.0</value> <!-- at this time, 2.0.10 -->
+         		<value>#{waspSoftware['priorVersions']}=</value>
+         	</list>
+       	 </property>
+       	
+       </bean>
+    </property> 
+    <!-- If specifying form elements these may be done below (after uncommenting this section, remove the spaces in the comment terminators) - - >
+    <property name="uiFieldsFromWrapper">
+      <list>
+        <bean parent="macstwoUiFieldWrapper">
+          <property name="baseName" value="foo" /> <!- - required - ->
+           <property name="metaposition" value="1" /> <!- - required: specifies order of form elements on page - ->
+           <property name="label" value="foo.bar.lab" /> <!- - required: define 'foo.bar.lab' in i18n e.g. 'foo.bar.lab=Please Enter a Foo' - ->
+           <property name="type" value="NUMBER" /> <!- - optional: can be INTEGER, NUMBER, or STRING - ->
+           <property name="range" value="1:100" /> <!- - optional: e.g. '10' (max of 10, no minimum) or '1:100' (from 1 to 100 inclusive) - ->
+           <property name="default" value="10" /> <!- - optional - ->
+           <property name="constraint" value="NotEmpty" /> <!- - optional: can be: 'NotEmpty' or 'RegExp:<regular expression>' (e.g. RegExp:^[AB].+(5)$) - ->
+           <property name="error" value="foo.bar.err" /> <!- - define 'foo.bar.err' in i18n properties files e.g. 'foo.bar.err=You must supply a Foo' - ->
+           <property name="tooltip" value="foo.bar.tt" /> <!- - define 'foo.bar.tt' in i18n properties files e.g. 'foo.bar.tt=A Foo is a curious thing' - ->
+        </bean>
+      </list>
+    </property> 
+	<! - - -->
+	<property name="uiFieldsFromWrapper">
+      <list>
+        <bean parent="macstwoUiFieldWrapper">
+          <property name="baseName" value="pValueCutoff" />
+          <property name="metaposition" value="10" />
+          <property name="label" value="peakcaller.macstwo.cutoff.label" />
+          <property name="default" value="1e-5" />
+          <property name="type" value="NUMBER" />
+          <property name="tooltip" value="peakcaller.macstwo.cutoff.error" />
+        </bean>
+        
+        <bean parent="macstwoUiFieldWrapper">
+          <property name="baseName" value="bandwidth" />
+          <property name="metaposition" value="20" />
+          <property name="label" value="peakcaller.macstwo.bw.label" />
+          <property name="type" value="NUMBER" />
+          <property name="range" value="0:5000" />
+          <property name="default" value="300" />
+          <property name="tooltip" value="peakcaller.macstwo.bw.tooltip" />
+        </bean>
+        
+        <bean parent="macstwoUiFieldWrapper">
+          <property name="baseName" value="genomeSize" />
+          <property name="metaposition" value="30" />
+          <property name="label" value="peakcaller.macstwo.gsize.label" />
+          <property name="default" value="1e9" />
+          <property name="type" value="NUMBER" />
+        </bean>
+        
+        <bean parent="macstwoUiFieldWrapper">
+          <property name="baseName" value="keepDup" />
+          <property name="metaposition" value="40" />
+          <property name="label" value="peakcaller.macstwo.dup.label" />
+          <property name="control" value="peakcaller.macstwo.dup.control" />
+          <property name="default" value="no" />
+          <property name="tooltip" value="peakcaller.macstwo.dup.tooltip" />
+        </bean>
+      </list>
+    </property>
+  </bean> 
+
+</beans>

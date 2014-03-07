@@ -49,7 +49,7 @@
 	</batch:job>
 	
 	<bean id="waspJobSoftwareLaunchTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.analysis.WaspJobSoftwareLaunchTaskletImpl"  >
-		<constructor-arg name="libraryCellId" value="1"/>
+		<constructor-arg name="cellLibraryId" value="1"/>
 		<constructor-arg name="softwareResourceType" ref="softwareResourceType" />
 		<property name="jobId" value="1" />
 	</bean>

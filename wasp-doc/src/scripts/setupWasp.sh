@@ -49,9 +49,9 @@ if [ ! -d wasp-illumina ]
 then
 git clone git://github.com/WASP-System/wasp-illumina.git wasp-illumina
 fi
-if [ ! -d wasp-chipseq ]
+if [ ! -d chipSeq ]
 then
-git clone git://github.com/WASP-System/wasp-chipseq.git wasp-chipseq
+git clone git://github.com/WASP-System/chipSeq.git chipSeq
 fi
 if [ ! -d wasp-genericDnaSeq ]
 then

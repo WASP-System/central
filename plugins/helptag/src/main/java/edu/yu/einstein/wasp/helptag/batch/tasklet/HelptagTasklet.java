@@ -43,7 +43,7 @@ public class HelptagTasklet extends WaspRemotingTasklet  implements StepExecutio
 
 	private StepExecution stepExecution;
 	
-	private Integer libraryCellId;
+	private Integer cellLibraryId;
 	
 	/**
 	 * 
@@ -52,9 +52,9 @@ public class HelptagTasklet extends WaspRemotingTasklet  implements StepExecutio
 		// proxy
 	}
 
-	public HelptagTasklet(String libraryCellId) {
-		Assert.assertParameterNotNull(libraryCellId);
-		this.libraryCellId = Integer.valueOf(libraryCellId);
+	public HelptagTasklet(String cellLibraryId) {
+		Assert.assertParameterNotNull(cellLibraryId);
+		this.cellLibraryId = Integer.valueOf(cellLibraryId);
 	}
 
 	/**
@@ -65,7 +65,7 @@ public class HelptagTasklet extends WaspRemotingTasklet  implements StepExecutio
 	public void doExecute(ChunkContext context) throws Exception {
 		
 /*
-		SampleSource cellLib = sampleService.getSampleSourceDao().findById(libraryCellId);
+		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
 		
 		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
 		stepContext.put("cellLibId", cellLib.getId()); //place in the step context
@@ -91,7 +91,7 @@ public class HelptagTasklet extends WaspRemotingTasklet  implements StepExecutio
 		WorkUnit w = helptag.getHelptag(cellLib, fg);
 */
 		// get work unit
-		WorkUnit w = helptag.getHelptag(libraryCellId);
+		WorkUnit w = helptag.getHelptag(cellLibraryId);
 
 //		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
    

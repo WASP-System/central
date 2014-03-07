@@ -5,40 +5,17 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
 		
-	<bean id="baseGenericDnaSeqTasklet" abstract="true">
-		<!-- Sets indicators to listen for that instruct the flow should terminate such as if the wasp job flow has been aborted or -->
-		<!-- if the flow completes (broadcasting a COMPLETED status message) or is abandoned e.g. via a message from the web layer -->
-		<property name="abandonMessages">
-			<set>
-				<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-					<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.LIBRARY_CELL_ID]}"/>
-					<property name="task" value="#{batchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}"/>
-					<property name="status" value="COMPLETED" />
-				</bean>
-				<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-					<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.LIBRARY_CELL_ID]}"/>
-					<property name="task" value="#{batchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}"/>
-					<property name="status" value="FAILED" />
-				</bean>
-				<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-					<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.LIBRARY_CELL_ID]}"/>
-					<property name="task" value="#{batchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}"/>
-					<property name="status" value="ABANDONED" />
-				</bean>
-			</set>
-		</property>	
-	</bean>
 	
 		
 	<!-- for dispatching job, call with parameters 'jobId' and 'libraryId' -->
 	<batch:flow id="genericDnaSeq.library.preProcess.flow.v1" >
 		<batch:step id="genericDnaSeq.library.preProcess.step.notifyStarted" next="genericDnaSeq.library.preProcess.step.align">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" parent="baseGenericDnaSeqTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-							<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.LIBRARY_CELL_ID]}"/>
+							<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.CELL_LIBRARY_ID]}"/>
 							<property name="task" value="#{batchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}"/>
 							<property name="status" value="CREATED" />
 						</bean>
@@ -50,8 +27,8 @@
 		</batch:step>
 		<batch:step id="genericDnaSeq.library.preProcess.step.align" next="genericDnaSeq.library.preProcess.step.listenForAlignComplete">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.analysis.WaspJobSoftwareLaunchTaskletImpl" parent="baseGenericDnaSeqTasklet" scope="step">
-					<constructor-arg name="libraryCellId" value="#{jobParameters[waspSoftwareJobParameters.LIBRARY_CELL_ID]}"/>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.analysis.WaspJobSoftwareLaunchTaskletImpl" scope="step">
+					<constructor-arg name="cellLibraryId" value="#{jobParameters[waspSoftwareJobParameters.CELL_LIBRARY_ID]}"/>
 					<constructor-arg name="softwareResourceType" ref="referenceBasedAlignerResourceType" />
 					<constructor-arg name="task" value="#{batchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}" />
 				</bean>
@@ -59,14 +36,22 @@
 		</batch:step>
 		<batch:step id="genericDnaSeq.library.preProcess.step.listenForAlignComplete" >
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" parent="baseGenericDnaSeqTasklet" scope="step">
-					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-							<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.LIBRARY_CELL_ID]}"/>
-							<property name="task" value="#{sequencingBatchJobTasks.ALIGNMENT}" />
-							<property name="status" value="COMPLETED" />
-						</bean>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
+					<constructor-arg name="messageTemplates">
+						<set>
+							<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+								<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.CELL_LIBRARY_ID]}"/>
+								<property name="task" value="#{sequencingBatchJobTasks.ALIGNMENT}" />
+								<property name="status" value="COMPLETED" />
+							</bean>
+							<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+								<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.CELL_LIBRARY_ID]}"/>
+								<property name="task" value="#{sequencingBatchJobTasks.ALIGNMENT}" />
+								<property name="status" value="FAILED" />
+							</bean>
+						</set>
 					</constructor-arg>
+					<property name="failOnStatuses" value="FAILED" />
 				</bean>
 			</batch:tasklet>
 			<batch:next on="FAILED" to="genericDnaSeq.library.preProcess.step.notifyFailed" />
@@ -79,11 +64,11 @@
 		</batch:step>
 		<batch:step id="genericDnaSeq.library.preProcess.step.notifyCompleted" >
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" parent="baseGenericDnaSeqTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-							<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.LIBRARY_CELL_ID]}"/>
+							<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.CELL_LIBRARY_ID]}"/>
 							<property name="task" value="#{batchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}"/>
 							<property name="status" value="COMPLETED" />
 						</bean>
@@ -93,17 +78,18 @@
 		</batch:step>
 		<batch:step id="genericDnaSeq.library.preProcess.step.notifyFailed" >
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" parent="baseGenericDnaSeqTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-							<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.LIBRARY_CELL_ID]}"/>
+							<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.CELL_LIBRARY_ID]}"/>
 							<property name="task" value="#{batchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}"/>
 							<property name="status" value="FAILED" />
 						</bean>
 					</constructor-arg>
 				</bean>
 			</batch:tasklet>
+			<batch:fail on="*" />
 		</batch:step>
 	</batch:flow>
 	

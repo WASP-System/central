@@ -7,8 +7,8 @@ package edu.yu.einstein.wasp.gatk.integration.messages;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
 
 /**
- * @author 
- * 
+ * @author jcai
+ * @author asmclellan
  */
 public class GatkMessageType extends WaspMessageType{
 	

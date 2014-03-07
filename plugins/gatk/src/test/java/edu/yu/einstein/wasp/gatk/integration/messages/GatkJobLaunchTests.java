@@ -38,7 +38,7 @@ import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessage
 @ContextConfiguration(locations={"/gatk-test-launch-context.xml","/flows/gatk.mainFlow.v1.xml","/flows/gatk.mainCallFlow.v1.xml"})
 
 /**
- * TestNG Test of Launching and successful completion of the GatkPlugin.FLOW_NAME batch job flow (defined in /flows/gatk.mainFlow.v1.xml)
+ * TestNG Test of Launching and successful completion of the GatkPlugin.PREPROCESSING_FLOW batch job flow (defined in /flows/gatk.mainFlow.v1.xml)
  * @author 
  * 
  */
@@ -105,7 +105,7 @@ public class GatkJobLaunchTests extends AbstractTestNGSpringContextTests impleme
 
 		
 	/**
-	 * This test involves sending a message to the remote wasp-daemon to initiate the GatkPlugin.FLOW_NAME job flow. 
+	 * This test involves sending a message to the remote wasp-daemon to initiate the GatkPlugin.PREPROCESSING_FLOW job flow. 
 	 * We check (from the response)	that this was successful, then verify that we recieve the two messages sent by the first and third steps of the job-flow 
 	 * in the correct order. 
 	 * Finally we check that the job execution exited with a success status of COMPLETED.
@@ -119,7 +119,7 @@ public class GatkJobLaunchTests extends AbstractTestNGSpringContextTests impleme
 			// The gatk flow doesn't actually require any job parameters but we'll add one for demonstration purposes. 
 			// Any parameters supplied to a batch job are available from within steps
 			jobParameters.put(WaspJobParameters.TEST_ID, TEST_ID.toString());
-			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(GatkPlugin.FLOW_NAME, jobParameters) );
+			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(GatkPlugin.PREPROCESSING_FLOW, jobParameters) );
 			Message<BatchJobLaunchContext> messageToSend = batchJobLaunchMessageTemplate.build();
 			logger.debug("testSuccessfulJobLaunch(): Sending message : "+messageToSend.toString());
 			Message<?> replyMessage = messagingTemplate.sendAndReceive(outboundMessageChannel, messageToSend);
@@ -134,20 +134,20 @@ public class GatkJobLaunchTests extends AbstractTestNGSpringContextTests impleme
 			Assert.assertEquals(replyMessage.getPayload(), WaspStatus.COMPLETED);
 			
 			// verify that batch flow ran and completed normally. 
-			// The GatkPlugin.FLOW_NAME job flow sends two messages which we will catch and verify
+			// The GatkPlugin.PREPROCESSING_FLOW job flow sends two messages which we will catch and verify
 			int repeats = 0;
 			final int EXPECTED_MESSAGE_COUNT = 2; 
 			while (receivedMessages.size() < EXPECTED_MESSAGE_COUNT && repeats++ < (MESSAGE_TIMEOUT / MESSAGE_WAIT_INTERVAL) )
 				Thread.sleep(MESSAGE_WAIT_INTERVAL); // allow time for spring batch job execution and message sending
 			
-			// Check the receivedMessages list for receiving of the two messages sent by the GatkPlugin.FLOW_NAME job flow.
+			// Check the receivedMessages list for receiving of the two messages sent by the GatkPlugin.PREPROCESSING_FLOW job flow.
 			Assert.assertEquals(receivedMessages.size(), EXPECTED_MESSAGE_COUNT);
 			Assert.assertEquals(receivedMessages.get(0).getPayload(), WaspStatus.STARTED);
 			Assert.assertEquals(receivedMessages.get(1).getPayload(), WaspStatus.COMPLETED);
 			
 			// get the JobExecution for the job we just executed and verify that it completed successfully.
 			// We can use the jobExplorer to get this.
-			BatchStatus jobExecutionStatus = jobExplorer.getMostRecentlyStartedJobExecutionInList(jobExplorer.getJobExecutions(GatkPlugin.FLOW_NAME)).getStatus();
+			BatchStatus jobExecutionStatus = jobExplorer.getMostRecentlyStartedJobExecutionInList(jobExplorer.getJobExecutions(GatkPlugin.PREPROCESSING_FLOW)).getStatus();
 			Assert.assertEquals(jobExecutionStatus, BatchStatus.COMPLETED);
 		} catch (Exception e){
 			logger.error("Caught unexpected exception: " + e.getLocalizedMessage());

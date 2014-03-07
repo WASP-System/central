@@ -112,11 +112,11 @@ public class HelptagPlugin extends WaspPlugin
 			
 			Map<String, String> jobParameters = new HashMap<String, String>();
 			logger.info("Sending launch message with flow " + PREP_FLOW_NAME + " and id: " + id);
-//			jobParameters.put(WaspSoftwareJobParameters.LIBRARY_CELL_ID_LIST, id.toString());
+//			jobParameters.put(WaspSoftwareJobParameters.CELL_LIBRARY_ID_LIST, id.toString());
 //			jobParameters.put(WaspSoftwareJobParameters.GENOME, "10090::GRCm38::70");
 			jobParameters.put("test", new Date().toString());
 			
-			jobParameters.put(WaspJobParameters.LIBRARY_CELL_ID, id.toString());
+			jobParameters.put(WaspJobParameters.CELL_LIBRARY_ID, id.toString());
 			waspMessageHandlingService.launchBatchJob(PREP_FLOW_NAME, jobParameters);
 			return (Message<String>) MessageBuilder.withPayload("Initiating helptag test flow on id " + id).build();
 		} catch (WaspMessageBuildingException e1) {

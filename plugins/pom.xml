@@ -26,6 +26,9 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<module>helptag</module>
 		<module>illumina</module>
 		<module>babraham</module>
+		<module>macsTwo</module>
+		<module>R</module>
+		<module>variantCalling</module>
 	</modules>
 
 	<build>

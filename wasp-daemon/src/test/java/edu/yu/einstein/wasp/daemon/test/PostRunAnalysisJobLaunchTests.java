@@ -121,9 +121,9 @@ public class PostRunAnalysisJobLaunchTests extends BatchDatabaseIntegrationTest 
 	
 	private final String CELL_LIBRARY_ID = "1";
 	
-	private Set<SampleSource> libraryCells;
+	private Set<SampleSource> cellLibrarys;
 	
-	private SampleSource libraryCell;
+	private SampleSource cellLibrary;
 	
 	private Job job;
 	
@@ -174,13 +174,13 @@ public class PostRunAnalysisJobLaunchTests extends BatchDatabaseIntegrationTest 
 		Sample cell = new Sample();
 		cell.setId(2);
 		
-		libraryCell = new SampleSource();
-		libraryCell.setId(Integer.valueOf(CELL_LIBRARY_ID));
-		libraryCell.setSample(cell);
-		libraryCell.setSourceSample(library);
+		cellLibrary = new SampleSource();
+		cellLibrary.setId(Integer.valueOf(CELL_LIBRARY_ID));
+		cellLibrary.setSample(cell);
+		cellLibrary.setSourceSample(library);
 		
-		libraryCells = new HashSet<SampleSource>();
-		libraryCells.add(libraryCell);
+		cellLibrarys = new HashSet<SampleSource>();
+		cellLibrarys.add(cellLibrary);
 		
 		job = new Job();
 		job.setId(1);
@@ -215,8 +215,8 @@ public class PostRunAnalysisJobLaunchTests extends BatchDatabaseIntegrationTest 
 		
 		PowerMockito.when(mockRunService.getRunDao()).thenReturn(mockRunDao);
 		PowerMockito.when(mockRunDao.getRunByRunId(1)).thenReturn(run);
-		PowerMockito.when(mockRunService.getCellLibrariesOnSuccessfulRunCellsWithoutControls(Mockito.any(Run.class))).thenReturn(libraryCells);
-		PowerMockito.when(mockSampleService.getJobOfLibraryOnCell(libraryCell)).thenReturn(job);
+		PowerMockito.when(mockRunService.getCellLibrariesOnSuccessfulRunCellsWithoutControls(Mockito.any(Run.class))).thenReturn(cellLibrarys);
+		PowerMockito.when(mockSampleService.getJobOfLibraryOnCell(cellLibrary)).thenReturn(job);
 		
 		BatchJobProviding plugin = new BatchJobProviding() {
 			@Override public String getBatchJobName(String BatchJobType) {return "skipTaskletJob";}
@@ -289,7 +289,7 @@ public class PostRunAnalysisJobLaunchTests extends BatchDatabaseIntegrationTest 
 		PowerMockito.when(mockWaspPluginRegistry.getPlugin(Mockito.anyString(), Mockito.eq(BatchJobProviding.class))).thenReturn(testPlugin);
 		try {
 			Map<String, String> jobParameters = new HashMap<String, String>();
-			jobParameters.put(WaspJobParameters.LIBRARY_CELL_ID, CELL_LIBRARY_ID);
+			jobParameters.put(WaspJobParameters.CELL_LIBRARY_ID, CELL_LIBRARY_ID);
 			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
 				new BatchJobLaunchContext(LAUNCH_JOB_NAME, jobParameters) );
 		
@@ -319,7 +319,7 @@ public class PostRunAnalysisJobLaunchTests extends BatchDatabaseIntegrationTest 
 			Assert.assertTrue(status.isCompleted());
 			JobParameters params = je.getJobParameters();
 			Assert.assertEquals(params.getParameters().size(), 3);
-			Assert.assertNotNull(params.getString("libraryCellIdList"));
+			Assert.assertNotNull(params.getString("cellLibraryIdList"));
 			Assert.assertNotNull(params.getString("p1"));
 			Assert.assertNotNull(params.getString("p2"));
 				

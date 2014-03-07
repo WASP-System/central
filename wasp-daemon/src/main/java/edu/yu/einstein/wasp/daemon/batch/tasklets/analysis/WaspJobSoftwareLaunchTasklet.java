@@ -22,9 +22,9 @@ public interface WaspJobSoftwareLaunchTasklet extends Tasklet {
 	
 	public void setSampleService(SampleService sampleService);
 
-	public void setLibraryCellId(Integer libraryCellId);
+	public void setCellLibraryId(Integer cellLibraryId);
 
-	public void setLibraryCellIds(List<Integer> libraryCellIds);
+	public void setCellLibraryIds(List<Integer> cellLibraryIds);
 
 	public void setJobId(Integer jobId);
 

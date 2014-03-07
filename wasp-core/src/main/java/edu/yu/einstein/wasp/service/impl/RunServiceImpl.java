@@ -402,14 +402,14 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Assert.assertParameterNotNull(run, "a run must be provided");
 		Assert.assertParameterNotNullNotZero(run.getId(), "run provided is invalid or not in the database");
 		Assert.assertParameterNotNull(run.getId(), "a runId must be have a valid database entry");
-		Set<SampleSource> libraryCell = new LinkedHashSet<SampleSource>();
+		Set<SampleSource> cellLibrary = new LinkedHashSet<SampleSource>();
 		try {
 			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
 				try {
 					if (sampleService.isCellSequencedSuccessfully(cell)){
 						for (Sample library: sampleService.getLibrariesOnCellWithoutControls(cell)){
 							try{
-								libraryCell.add(sampleService.getCellLibrary(cell, library));
+								cellLibrary.add(sampleService.getCellLibrary(cell, library));
 							} catch (SampleException e){
 								logger.warn("Unexpected SampleException caught: " + e.getLocalizedMessage());
 							}
@@ -422,7 +422,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		} catch (SampleTypeException e) {
 			logger.warn("Unexpected SampleTypeException caught: " + e.getLocalizedMessage());
 		}
-		return libraryCell;
+		return cellLibrary;
 	}
 	
 	/**
@@ -434,8 +434,8 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Assert.assertParameterNotNullNotZero(run.getId(), "run provided is invalid or not in the database");
 		Assert.assertParameterNotNull(run.getId(), "a runId must be have a valid database entry");
 		List<Sample> cellList = new ArrayList<Sample>();
-		Set<SampleSource> libraryCellSet = this.getCellLibrariesOnSuccessfulRunCellsWithoutControls(run);
-		for (SampleSource lc : libraryCellSet) {
+		Set<SampleSource> cellLibrarySet = this.getCellLibrariesOnSuccessfulRunCellsWithoutControls(run);
+		for (SampleSource lc : cellLibrarySet) {
 			if (sampleService.getJobOfLibraryOnCell(lc).getId()==job.getId()) {
 				cellList.add(sampleService.getCell(lc));
 			}
@@ -451,14 +451,14 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Assert.assertParameterNotNull(run, "a run must be provided");
 		Assert.assertParameterNotNullNotZero(run.getId(), "run provided is invalid or not in the database");
 		Assert.assertParameterNotNull(run.getId(), "a runId must be have a valid database entry");
-		Set<SampleSource> libraryCell = new LinkedHashSet<SampleSource>();
+		Set<SampleSource> cellLibrary = new LinkedHashSet<SampleSource>();
 		try {
 			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
 				try {
 					if (sampleService.isCellSequencedSuccessfully(cell)){
 						for (Sample library: sampleService.getLibrariesOnCell(cell)){
 							try{
-								libraryCell.add(sampleService.getCellLibrary(cell, library));
+								cellLibrary.add(sampleService.getCellLibrary(cell, library));
 							} catch (SampleException e){
 								logger.warn("Unexpected SampleException caught: " + e.getLocalizedMessage());
 							}
@@ -471,7 +471,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		} catch (SampleTypeException e) {
 			logger.warn("Unexpected SampleTypeException caught: " + e.getLocalizedMessage());
 		}
-		return libraryCell;
+		return cellLibrary;
 	}
 	
 	/**

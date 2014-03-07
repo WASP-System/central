@@ -93,7 +93,7 @@ Ext.onReady(function () {
 	extPortal = Ext.create('Wasp.Portal', {
 		width: $('#content').width()
 	});
-	//	Ext.Msg.alert('Alert',$('#content').width());
+//	Ext.Msg.alert('Alert',$('#content').width());
 
 	jQuery(window).bind('resize', function () {
 		extPortal.setWidth($('#content').width());
@@ -101,8 +101,8 @@ Ext.onReady(function () {
 
 	treeviewWidth = $('#content').width() * 0.3 - margin.left - margin.right;
 	treeviewHeight = $('#content').height() - margin.top - margin.bottom + 500;
-	[]
-	barWidth = treeviewWidth * .5;
+
+	barWidth = treeviewWidth * .58;
 	barHeight = 20;
 
 	div = d3.select("body").append("div")
@@ -116,8 +116,8 @@ Ext.onReady(function () {
 			.attr("pointer-events", "all")
 			.append("svg:g")
 			.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-		//.call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom)).on("dblclick.zoom", null)
-		.append("svg:g");
+//			.call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom)).on("dblclick.zoom", null)
+			.append("svg:g");
 
 
 		vis.append("rect")
@@ -168,12 +168,17 @@ function update(source) {
 	// Compute the new tree layout.
 	var nodes = tree.nodes(root); //.reverse();
 
+	var d3tree_height = 0;
 	// Normalize for fixed-depth.
 	//	nodes.forEach(function(d) { d.y = d.depth * branch_length; });
 	//	Compute the "layout".
 	nodes.forEach(function (n, i) {
 		n.x = i * barHeight;
+		if (d3tree_height < n.x)
+			d3tree_height = n.x ;
 	});
+
+	$("svg").height(d3tree_height + 2*barHeight);
 
 	// Update the nodes
 	var node = vis.selectAll("g.node")
@@ -196,16 +201,16 @@ function update(source) {
 	nodeEnter.append("svg:rect")
 		.attr("y", -barHeight / 2)
 		.attr("height", barHeight)
-	//	  .attr("width", localBarWidth)
-	.attr("width", barWidth)
+//		.attr("width", localBarWidth)
+		.attr("width", barWidth)
 		.style("fill", color)
 		.on("dblclick", toggle);
 
 	nodeEnter.append("svg:text")
 		.attr("dy", 3.5)
 		.attr("dx", 13.5)
-	//	  .text(function(d) { return d.name; });
-	.text(getNodeName);
+//		.text(function(d) { return d.name; });
+		.text(getNodeName);
 
 	// Add checkbox
 	nodeEnter.append("svg:circle")
