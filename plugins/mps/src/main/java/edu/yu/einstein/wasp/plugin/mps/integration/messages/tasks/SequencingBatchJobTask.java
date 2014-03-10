@@ -1,4 +1,6 @@
-package edu.yu.einstein.wasp.integration.messages.tasks;
+package edu.yu.einstein.wasp.plugin.mps.integration.messages.tasks;
+
+import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 
 /**
  * 
@@ -18,5 +20,11 @@ public class SequencingBatchJobTask extends BatchJobTask {
 	public static final String SNP_CALLING = "SnpCalling";
 	
 	public static final String ADAPTER_TRIMMING = "AdapterTrimming";
+	
+	public static final String VARIANT_DATA_PREPROCESS = "VariantPreprocess";
+	
+	public static final String VARIANT_DISCOVERY = "VariantDiscovery";
+	
+	public static final String VARIANT_ANALYSIS = "VariantAnalysis";
 
 }

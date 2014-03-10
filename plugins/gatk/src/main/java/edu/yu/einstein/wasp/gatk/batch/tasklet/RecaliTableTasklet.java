@@ -1,14 +1,5 @@
-
-
-
 package edu.yu.einstein.wasp.gatk.batch.tasklet;
 
-
-
-
-/**
- * 
- */
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
@@ -32,9 +23,9 @@ import edu.yu.einstein.wasp.service.SampleService;
 
 
 /**
- * 
+ * @author jcai
+ * @author asmclellan
  */
-
 public class RecaliTableTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
 	private String scratchDirectory;
@@ -91,13 +82,9 @@ public class RecaliTableTasklet extends WaspRemotingTasklet implements StepExecu
 		// place the grid result in the step context
 		storeStartedResult(context, result);
 
-		// place scratch directory in execution context, to be promoted
+		// place recaliTableName in execution context, to be promoted
 		// to the job context at run time.
 		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
-		stepContext.put("cellLibId", cellLib.getId()); //place in the step context
-		stepContext.put("localAlignName", this.localAlignJobName);
-
-		stepContext.put("scrDir", result.getWorkingDirectory());
 		stepContext.put("recaliTableName", result.getId());
 
 	}
@@ -116,26 +103,13 @@ public class RecaliTableTasklet extends WaspRemotingTasklet implements StepExecu
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
 		super.beforeStep(stepExecution);
-		logger.debug("Lulu StepExecutionListener beforeStep saving StepExecution");
 		this.stepExecution = stepExecution;
 		JobExecution jobExecution = stepExecution.getJobExecution();
 		ExecutionContext jobContext = jobExecution.getExecutionContext();
-		
-		logger.debug("Lulu START StepExecutionListener beforeStep saving StepExecution");
-
 		this.scratchDirectory = jobContext.get("scrDir").toString();
-		
-		logger.debug("Lulu JOB StepExecutionListener beforeStep saving StepExecution");
-
 		this.localAlignJobName = jobContext.get("localAlignName").toString();
-		
-		logger.debug("Lulu ID StepExecutionListener beforeStep saving StepExecution");
-
 		this.cellLibId = (Integer) jobContext.get("cellLibId");
-		logger.debug("Lulu END StepExecutionListener beforeStep saving StepExecution");
 
-		
-		
 	}
 }
 

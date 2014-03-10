@@ -81,9 +81,9 @@ public class FileFormatMessageTests extends AbstractTestNGSpringContextTests imp
 	
 	private final String CELL_LIBRARY_ID = "1";
 	
-	private Set<SampleSource> libraryCells;
+	private Set<SampleSource> cellLibrarys;
 	
-	private SampleSource libraryCell;
+	private SampleSource cellLibrary;
 	
 	private Set<FileGroup> fileGroups = new HashSet<>();
 	
@@ -115,18 +115,18 @@ public class FileFormatMessageTests extends AbstractTestNGSpringContextTests imp
 		Sample cell = new Sample();
 		cell.setId(2);
 		
-		libraryCell = new SampleSource();
-		libraryCell.setId(Integer.valueOf(CELL_LIBRARY_ID));
+		cellLibrary = new SampleSource();
+		cellLibrary.setId(Integer.valueOf(CELL_LIBRARY_ID));
 		fastq = new FileType();
 		FileGroup fileGroup = new FileGroup();
 		fastq.doUpdate(); // ensure uuid set
 		fileGroup.setFileType(fastq);
 		fileGroup.setId(1);
 		fileGroups.add(fileGroup);
-		libraryCell.getFileGroups().add(fileGroup);
+		cellLibrary.getFileGroups().add(fileGroup);
 		
-		libraryCells = new HashSet<SampleSource>();
-		libraryCells.add(libraryCell);
+		cellLibrarys = new HashSet<SampleSource>();
+		cellLibrarys.add(cellLibrary);
 		
 		job = new Job();
 		job.setId(1);
@@ -163,7 +163,7 @@ public class FileFormatMessageTests extends AbstractTestNGSpringContextTests imp
 			
 			PowerMockito.when(mockRunService.getRunDao()).thenReturn(mockRunDao);
 			PowerMockito.when(mockRunDao.getRunByRunId(1)).thenReturn(run);
-			PowerMockito.when(mockRunService.getCellLibrariesOnSuccessfulRunCells(Mockito.any(Run.class))).thenReturn(libraryCells);
+			PowerMockito.when(mockRunService.getCellLibrariesOnSuccessfulRunCells(Mockito.any(Run.class))).thenReturn(cellLibrarys);
 			PowerMockito.when(mockFileService.getFilesForCellLibrary(Mockito.any(SampleSource.class))).thenReturn(fileGroups);
 			PowerMockito.when(mockFastqService.getFastqFileType()).thenReturn(fastq);
 			

@@ -24,7 +24,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -52,6 +51,7 @@ import com.itextpdf.text.DocumentException;
 
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.Strategy;
+import edu.yu.einstein.wasp.Strategy.StrategyType;
 import edu.yu.einstein.wasp.controller.util.JsonHelperWebapp;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.controller.util.SampleWrapperWebapp;
@@ -207,8 +207,6 @@ public class JobController extends WaspController {
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp(JobMeta.class, request.getSession());
 	}
-	
-	final public String LIBRARY_STRATEGY = "libraryStrategy";
 	
 	@Transactional
 	@RequestMapping(value = "/analysisParameters/{jobId}", method = RequestMethod.GET)
@@ -952,7 +950,7 @@ public class JobController extends WaspController {
 		m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
 	
 		try{
-			Strategy strategy = jobService.getStrategy(LIBRARY_STRATEGY, job);
+			Strategy strategy = jobService.getStrategy(StrategyType.LIBRARY_STRATEGY, job);
 			m.addAttribute("strategy", strategy);	 
 		}catch(Exception e){ logger.warn("Job Strategy unexpectedly not found"); }
 		
@@ -2509,7 +2507,7 @@ public class JobController extends WaspController {
 		  m.addAttribute("assignLibraryToPlatformUnitStatusMap", assignLibraryToPlatformUnitStatusMap);
 		  m.addAttribute("numberOfLibrariesAwaitingPlatformUnitPlacement", numberOfLibrariesAwaitingPlatformUnitPlacement);
 		 
-		  Map<Sample, List<Sample>> libraryCellListMap = new HashMap<Sample, List<Sample>>();
+		  Map<Sample, List<Sample>> cellLibraryListMap = new HashMap<Sample, List<Sample>>();
 		  Map<Sample, Integer> cellIndexMap = new HashMap<Sample, Integer>();
 		  Map<Sample, Sample> cellPUMap = new HashMap<Sample, Sample>();
 		  Map<Sample, Run> cellRunMap = new HashMap<Sample, Run>();	 
@@ -2521,7 +2519,7 @@ public class JobController extends WaspController {
 		  //for each job's library, get cell, platformUnit, and run info
 		  for(Sample library : allJobLibraries){
 			  List<Sample>  cellsForLibrary = sampleService.getCellsForLibrary(library, job);
-			  libraryCellListMap.put(library, cellsForLibrary);
+			  cellLibraryListMap.put(library, cellsForLibrary);
 			  for(Sample cell : cellsForLibrary){			  
 				  try{
 					  cellIndexMap.put(cell, sampleService.getCellIndex(cell));//cell's position on flowcell (ie.: lane 3)
@@ -2550,7 +2548,7 @@ public class JobController extends WaspController {
 				  }catch(Exception e){}
 			  }
 		  }
-		  m.addAttribute("libraryCellListMap", libraryCellListMap);
+		  m.addAttribute("cellLibraryListMap", cellLibraryListMap);
 		  m.addAttribute("cellIndexMap", cellIndexMap);
 		  m.addAttribute("cellPUMap", cellPUMap); 
 		  m.addAttribute("cellRunMap", cellRunMap);
@@ -2583,12 +2581,12 @@ public class JobController extends WaspController {
 			  //calculate numCells
 			  if(facilityLibraryList2!=null){
 				  for(Sample library : facilityLibraryList2){
-					  numCells += libraryCellListMap.get(library)==null?0:libraryCellListMap.get(library).size();
+					  numCells += cellLibraryListMap.get(library)==null?0:cellLibraryListMap.get(library).size();
 				  }
 			  }
 			  if(submittedLibraryList2!=null){
 				  for(Sample library : submittedLibraryList2){
-					  numCells += libraryCellListMap.get(library)==null?0:libraryCellListMap.get(library).size();
+					  numCells += cellLibraryListMap.get(library)==null?0:cellLibraryListMap.get(library).size();
 				  }
 			  }
 			  

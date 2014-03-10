@@ -818,10 +818,10 @@ public interface SampleService extends WaspMessageHandlingService {
 	  
 	  /**
 	   * get the job of the library on a cell
-	   * @param libraryCell
+	   * @param cellLibrary
 	   * @return
 	   */
-	  Job getJobOfLibraryOnCell(SampleSource libraryCell);
+	  Job getJobOfLibraryOnCell(SampleSource cellLibrary);
 
 	  
 	  /**

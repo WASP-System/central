@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.Callable;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -43,6 +42,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.Strategy;
+import edu.yu.einstein.wasp.Strategy.StrategyType;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.controller.util.SampleAndSampleDraftMetaHelper;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
@@ -275,7 +275,6 @@ public class JobSubmissionController extends WaspController {
 	
 	final public String[] defaultPageFlow = {"/jobsubmit/modifymeta/{n}","/jobsubmit/samples/{n}","/jobsubmit/cells/{n}","/jobsubmit/verify/{n}","/jobsubmit/submit/{n}","/jobsubmit/ok"};
 	
-	final public String LIBRARY_STRATEGY = "libraryStrategy";
 
 	@Transactional
 	public String nextPage(JobDraft jobDraft) {
@@ -505,7 +504,7 @@ public class JobSubmissionController extends WaspController {
 		m.put("jobDraft", jobDraft);
 		
 		Strategy strategy = new Strategy();
-		strategy.setType(LIBRARY_STRATEGY);//need a way to know strategy.Type from the type of jobdraft (which currently does not exist)
+		strategy.setType(StrategyType.LIBRARY_STRATEGY);//need a way to know strategy.Type from the type of jobdraft (which currently does not exist)
 		return generateCreateForm(strategy, m);
 	}
 	
@@ -572,7 +571,7 @@ public class JobSubmissionController extends WaspController {
 		if(!strategyParameter.isEmpty()){
 			if("-1".equals(strategyParameter)){//this is not expected, as the submit button is never displayed when this is true
 				strategyError = "Please select a strategy";//needs to be internationalized
-				strategy.setType(LIBRARY_STRATEGY);//for now, but we need to do better
+				strategy.setType(StrategyType.LIBRARY_STRATEGY);//for now, but we need to do better
 			}
 			else{
 				strategy = strategyService.getStrategyByKey(strategyParameter);
@@ -663,7 +662,7 @@ public class JobSubmissionController extends WaspController {
 
 		m.put("jobDraft", jobDraft);
 		//we really require some mechanism to be able to derive, from the type of job, the desired strategy: for example,  mps job wants a libraryStrategy
-		String strategyTypeForThisJob = LIBRARY_STRATEGY;
+		String strategyTypeForThisJob = StrategyType.LIBRARY_STRATEGY;
 		Strategy strategy = strategyService.getThisJobDraftsStrategy(strategyTypeForThisJob, jobDraft);
 		if(strategy.getId()==null){
 			strategy.setType(strategyTypeForThisJob);
@@ -719,7 +718,7 @@ public class JobSubmissionController extends WaspController {
 		if(!strategyParameter.isEmpty()){
 			if("-1".equals(strategyParameter)){//this is not expected to occur, as the submit button on this web page is not displayed when this value is -1
 				strategyError = "Please select a strategy";//needs to be internationalized
-				strategy.setType(LIBRARY_STRATEGY);//for now
+				strategy.setType(StrategyType.LIBRARY_STRATEGY);//for now
 			}
 			else{
 				strategy = strategyService.getStrategyByKey(strategyParameter);//searches table Meta

@@ -9,15 +9,15 @@
         http://www.springframework.org/schema/context/spring-context.xsd"
     default-autowire="byName">
     
-  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="gatkUiFieldWrapper">
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="variantcallingUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
-    <property name="baseArea" ref="gatkPluginArea" />
+    <property name="baseArea" ref="variantcallingPluginArea" />
   </bean>
 
 
-  <bean id="gatkWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoaderAndFactory" >
-    <property name="area" ref="gatkPluginArea" />
-    <property name="name" value="GATK" />
+  <bean id="variantCallingWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoaderAndFactory" >
+    <property name="area" ref="variantcallingPluginArea" />
+    <property name="name" value="Variant Calling" />
     <property name="pageFlowOrder">
       <list>
 		<value>/jobsubmit/modifymeta/{n}</value>
@@ -26,8 +26,7 @@
 		<value>/jobsubmit/genomes/{n}</value>
 		<value>/jobsubmit/cells/{n}</value>
 		<value>/jobsubmit/software/#{referenceBasedAlignerResourceType.getIName()}/{n}</value>
-		<value>/jobsubmit/software/#{gatkPipelineResourceType.getIName()}/{n}</value>
-		<value>/jobsubmit/gatk/target/{n}</value>
+		<value>/jobsubmit/software/#{variantCallingResourceType.getIName()}/{n}</value>
 		<value>/jobsubmit/comment/{n}</value>
 		<value>/jobsubmit/verify/{n}</value>
 		<value>/jobsubmit/submit/{n}</value>
@@ -41,62 +40,64 @@
       <list>
       	<ref bean="mpsResourceType" />
         <ref bean="referenceBasedAlignerResourceType" />
-        <ref bean="gatkPipelineResourceType" />
+        <ref bean="variantCallingResourceType" />
         <ref bean="libraryStrategyResourceType" />
       </list>
     </property>
 
     <property name="sampleSubtypes">
       <list>
-        <ref bean="gatkLibrarySampleSubtype" />
+        <ref bean="genericDnaSeqDnaSampleSubtype" />
+        <ref bean="genericDnaSeqLibrarySampleSubtype" />
+        <ref bean="genericDnaSeqFacilityLibrarySampleSubtype" />
       </list>
     </property>
     
     <property name="uiFieldsFromWrapper">
       <list>
-      	<bean parent="gatkUiFieldWrapper">
+      	<bean parent="variantcallingUiFieldWrapper">
           <property name="baseName" value="workflow" />
-          <property name="label" value="gatk.wf.title" />
+          <property name="label" value="variantcalling.wf.title" />
         </bean>
-        <bean parent="gatkUiFieldWrapper">
+        <bean parent="variantcallingUiFieldWrapper">
           <property name="baseName" value="jobsubmit/modifymeta" />
-          <property name="label" value="gatk.modifyMeta.title" />
+          <property name="label" value="variantcalling.modifyMeta.title" />
         </bean>
-        <bean parent="gatkUiFieldWrapper">
+        <bean parent="variantcallingUiFieldWrapper">
           <property name="baseName" value="jobsubmit/resource/mps" />
-          <property name="label" value="gatk.mps.title" />
+          <property name="label" value="variantcalling.mps.title" />
         </bean>
-        <bean parent="gatkUiFieldWrapper">
+        <bean parent="variantcallingUiFieldWrapper">
           <property name="baseName" value="jobsubmit/samples" />
-          <property name="label" value="gatk.samples.title" />
+          <property name="label" value="variantcalling.samples.title" />
         </bean>
-		<bean parent="gatkUiFieldWrapper">
+		<bean parent="variantcallingUiFieldWrapper">
 			<property name="baseName" value="jobsubmit/genomes" />
-			<property name="label" value="gatk.genomes.title" />
+			<property name="label" value="variantcalling.genomes.title" />
 		</bean>
-        <bean parent="gatkUiFieldWrapper">
+        <bean parent="variantcallingUiFieldWrapper">
           <property name="baseName" value="jobsubmit/cells" />
-          <property name="label" value="gatk.cells.title" />
+          <property name="label" value="variantcalling.cells.title" />
         </bean>
-        <bean parent="gatkUiFieldWrapper">
-          <property name="baseName" value="jobsubmit/software/referenceBasedAligner" />
-          <property name="label" value="gatk.aligner.title" />
+        <bean parent="variantcallingUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/software/#{referenceBasedAlignerResourceType.getIName()}" />
+          <property name="label" value="variantcalling.aligner.title" />
         </bean>
-        <bean parent="gatkUiFieldWrapper">
-          <property name="baseName" value="jobsubmit/software/gatkPipeline" />
-          <property name="label" value="gatk.pipeline.title" />
+        <bean parent="variantcallingUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/software/#{variantCallingResourceType.getIName()}" />
+          <property name="label" value="variantcalling.variantCaller.title" />
         </bean>
-         <bean parent="gatkUiFieldWrapper">
+         <bean parent="variantcallingUiFieldWrapper">
           <property name="baseName" value="jobsubmit/comment" />
-          <property name="label" value="gatk.comments.title" />
+          <property name="label" value="variantcalling.comments.title" />
         </bean>
-        <bean parent="gatkUiFieldWrapper">
+        <bean parent="variantcallingUiFieldWrapper">
           <property name="baseName" value="jobsubmit/verify" />
-          <property name="label" value="gatk.verify.title" />
+          <property name="label" value="variantcalling.verify.title" />
         </bean>
-         <bean parent="gatkUiFieldWrapper">
+         <bean parent="variantcallingUiFieldWrapper">
           <property name="baseName" value="jobsubmit/submit" />
-          <property name="label" value="gatk.submit.title" />
+          <property name="label" value="variantcalling.submit.title" />
         </bean>
      </list>
  

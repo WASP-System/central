@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
@@ -34,12 +33,6 @@ import edu.yu.einstein.wasp.service.SampleService;
  */
 public class BWAsamTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
-	private String scratchDirectory;
-	private String alnJobName;
-	private Integer cellLibId;
-
-	private StepExecution stepExecution;
-
 	@Autowired
 	private SampleService sampleService;
 
@@ -65,6 +58,14 @@ public class BWAsamTasklet extends WaspRemotingTasklet implements StepExecutionL
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
+		StepExecution stepExecution = context.getStepContext().getStepExecution();
+		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
+		
+		// retrieve attributes persisted in jobExecutionContext
+		String scratchDirectory = jobExecutionContext.getString("scrDir");
+		String alnJobName = jobExecutionContext.getString("alnName");
+		Integer cellLibId = jobExecutionContext.getInt("cellLibId");
+		
 		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);
 
 		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
@@ -88,13 +89,6 @@ public class BWAsamTasklet extends WaspRemotingTasklet implements StepExecutionL
 
 		// place the grid result in the step context
 		storeStartedResult(context, result);
-
-		// place scratch directory in execution context, to be promoted
-		// to the job context at run time.
-		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
-		stepContext.put("scrDir", result.getWorkingDirectory());
-		stepContext.put("samName", result.getId());
-		stepContext.put("samStr", w.getCommand());
 	}
 
 	/**
@@ -111,12 +105,5 @@ public class BWAsamTasklet extends WaspRemotingTasklet implements StepExecutionL
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
 		super.beforeStep(stepExecution);
-		logger.debug("StepExecutionListener beforeStep saving StepExecution");
-		this.stepExecution = stepExecution;
-		JobExecution jobExecution = stepExecution.getJobExecution();
-		ExecutionContext jobContext = jobExecution.getExecutionContext();
-		this.scratchDirectory = jobContext.get("scrDir").toString();
-		this.alnJobName = jobContext.get("alnName").toString();
-		this.cellLibId = (Integer) jobContext.get("cellLibId");
 	}
 }

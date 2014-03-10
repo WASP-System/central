@@ -4,6 +4,7 @@
  */
 package ___package___.plugin;
 
+import java.util.Calendar;
 import java.util.HashMap; ///// PIP
 import java.util.Map; ///// PIP
 import java.util.Properties;
@@ -113,6 +114,7 @@ public class ___PluginIName___Plugin extends WaspPlugin
 			Map<String, String> jobParameters = new HashMap<String, String>();
 			logger.info("Sending launch message with flow " + FLOW_NAME + " and id: " + id);
 			jobParameters.put(WaspJobParameters.TEST_ID, id.toString());
+			jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
 			waspMessageHandlingService.launchBatchJob(FLOW_NAME, jobParameters);
 			return (Message<String>) MessageBuilder.withPayload("Initiating test flow on id " + id).build();
 		} catch (WaspMessageBuildingException e1) {

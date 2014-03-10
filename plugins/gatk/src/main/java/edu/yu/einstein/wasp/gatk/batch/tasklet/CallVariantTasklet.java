@@ -1,10 +1,5 @@
 package edu.yu.einstein.wasp.gatk.batch.tasklet;
 
-
-/**
- * 
- */
-
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +28,10 @@ import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 
-
+/**
+ * @author jcai
+ * @author asmclellan
+ */
 public class CallVariantTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
 	private List<Integer> cellLibraryIds;
@@ -68,7 +66,7 @@ public class CallVariantTasklet extends WaspRemotingTasklet implements StepExecu
 	}
 
 	public CallVariantTasklet(String cellLibraryIds) {
-		this.cellLibraryIds = WaspSoftwareJobParameters.getLibraryCellIdList(cellLibraryIds);
+		this.cellLibraryIds = WaspSoftwareJobParameters.getCellLibraryIdList(cellLibraryIds);
 		//Assert.assertTrue(cids.size() == 1);
 		//this.cellLibraryId = cids.get(0);
 	}
@@ -89,7 +87,7 @@ public class CallVariantTasklet extends WaspRemotingTasklet implements StepExecu
 		SampleSource sampleSource0=sampleService.getSampleSourceDao().findById(cellLibId0);
 		Job job = sampleService.getJobOfLibraryOnCell(sampleSource0);
 		
-		logger.debug("Beginning GATK GATK variant detection for job " + job.getId());
+		logger.debug("Beginning GATK variant detection for job " + job.getId());
 		
 		
 		for (Integer currentId : cellLibraryIds) {

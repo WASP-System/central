@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
-import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters;
@@ -110,7 +109,8 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		this.testCellLibraryIdListAsString = testCellLibraryIdListAsString;
 		Assert.assertTrue(!testCellLibraryIdListAsString.isEmpty());
-		this.testCellLibraryIdList = WaspSoftwareJobParameters.getLibraryCellIdList(testCellLibraryIdListAsString);//should be all from same job
+		this.testCellLibraryIdList = WaspSoftwareJobParameters.getCellLibraryIdList(testCellLibraryIdListAsString);//should be all from same job
+
 		Assert.assertTrue(!this.testCellLibraryIdList.isEmpty());
 		
 		//oddly enough (and not expected from the code), WaspSoftwareJobParameters.getLibraryCellIdList(controlCellLibraryIdListAsString)
@@ -121,7 +121,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		}
 		else{
 			this.controlCellLibraryIdListAsString = controlCellLibraryIdListAsString;
-			this.controlCellLibraryIdList = WaspSoftwareJobParameters.getLibraryCellIdList(controlCellLibraryIdListAsString);//may be empty
+			this.controlCellLibraryIdList = WaspSoftwareJobParameters.getCellLibraryIdList(controlCellLibraryIdListAsString);//may be empty
 			Assert.assertTrue(!this.controlCellLibraryIdList.isEmpty());
 		}
 		

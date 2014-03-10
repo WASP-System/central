@@ -111,9 +111,9 @@ public class BWAPlugin extends WaspPlugin implements ClientMessageI, BatchJobPro
 					referenceBasedAlignerResourceType.getIName());
 		}
 		Map<String, String> jobParameters = softwareConfig.getParameters();
-		String clidl = WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(Arrays.asList(new Integer[]{cellLibraryId}));
+		String clidl = WaspSoftwareJobParameters.getCellLibraryListAsParameterValue(Arrays.asList(new Integer[]{cellLibraryId}));
 		logger.debug("cellLibraryId: " + cellLibraryId + " list: " + clidl);
-		jobParameters.put(WaspSoftwareJobParameters.LIBRARY_CELL_ID_LIST, clidl);
+		jobParameters.put(WaspSoftwareJobParameters.CELL_LIBRARY_ID_LIST, clidl);
 		jobParameters.put(WaspSoftwareJobParameters.GENOME, "10090::GRCm38::70");
 		jobParameters.put("test", new Date().toGMTString());
 		runService.launchBatchJob(JOB_NAME, jobParameters);

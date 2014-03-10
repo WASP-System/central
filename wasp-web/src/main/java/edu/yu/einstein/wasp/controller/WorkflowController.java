@@ -57,20 +57,28 @@ public class WorkflowController extends WaspController {
 
 	@Autowired
 	private ResourceCategoryDao resourceCategoryDao;
+	
 	@Autowired
 	private SoftwareMetaDao softwareMetaDao;
+	
 	@Autowired
 	private WorkflowresourcecategoryDao workflowResourceCategoryDao;
+	
 	@Autowired
 	private WorkflowresourcecategoryMetaDao workflowResourceCategoryMetaDao;
+	
 	@Autowired
 	private MessageServiceWebapp messageService;
+	
 	@Autowired
 	private SoftwareDao softwareDao;
+	
 	@Autowired
 	private WorkflowSoftwareDao workflowSoftwareDao;
+	
 	@Autowired
 	private WorkflowsoftwareMetaDao workflowSoftwareMetaDao;
+	
 	@Autowired
 	private StrategyService strategyService;
 
@@ -168,19 +176,21 @@ public class WorkflowController extends WaspController {
 			List<Workflow> workflowPage = workflowList.subList(frId, toId);
 
 			for (Workflow workflow: workflowPage) {
+				if (workflow.getIsActive().intValue() == 0)
+					continue;
 				Map<String, Object> cell = new HashMap<String, Object>();
-				cell.put("id", workflow.getWorkflowId());
+				cell.put("id", workflow.getId());
 
 				List<WorkflowMeta> workflowMeta = getMetaHelperWebapp()
 						.syncWithMaster(workflow.getWorkflowMeta());
 
 				List<String> cellList = new ArrayList<String>(
 						Arrays.asList(new String[] {
-								new Integer(workflow.getWorkflowId())
+								new Integer(workflow.getId())
 										.toString(), 
 								workflow.getName(),
-								workflow.getIsActive().intValue() == 1 ? "yes" : "no",
-										workflow.getIsActive().intValue() == 1 ? "configure" : ""}));
+								"yes",
+								workflow.getIsActive().intValue() == 1 ? "configure" : ""}));
 
 				for (WorkflowMeta meta : workflowMeta) {
 					cellList.add(meta.getV());
@@ -201,10 +211,6 @@ public class WorkflowController extends WaspController {
 		}
 
 	}
-
-
-
-
 
 
 	/**
@@ -246,19 +252,6 @@ public class WorkflowController extends WaspController {
 				}
 			}
 		}
-		// gets names and versions of all software 
-		Map<String, String> workflowSoftwareVersionedNameMap = new HashMap<String, String>();
-		for(WorkflowResourceType wtr : workflowResourceTypes){
-			for (Software s : wtr.getResourceType().getSoftware()){
-				if (s.getIsActive().intValue() == 0){
-					continue;
-				}
-				String area = s.getIName();
-				String version = softwareMetaDao.getSoftwareMetaByKSoftwareId(area+".currentVersion", s.getSoftwareId()).getV();
-				version = (version == null) ? "" : version; 
-				workflowSoftwareVersionedNameMap.put(area, s.getName() + " (version: " + version +")");
-			}
-		}
 		
 		// loads software mapping
 		List<WorkflowSoftware> workflowSoftwares = workflow.getWorkflowSoftware();
@@ -272,8 +265,6 @@ public class WorkflowController extends WaspController {
 				continue;
 			}
 			String area = ws.getSoftware().getIName();
-			String version = softwareMetaDao.getSoftwareMetaByKSoftwareId(area+".currentVersion", ws.getSoftware().getSoftwareId()).getV();
-			version = (version == null) ? "" : version; 
 			workflowSoftwareMap.put(area, ws);
 			for (WorkflowsoftwareMeta wsm: ws.getWorkflowsoftwareMeta()) {
 				if (wsm.getK().matches(".*\\.allowableUiField\\..*")) {
@@ -310,7 +301,6 @@ public class WorkflowController extends WaspController {
 
 		m.put("workflowSoftwareMap", workflowSoftwareMap);
 		m.put("workflowSoftwareOptions", workflowSoftwareOptions);
-		m.put("workflowSoftwareVersionedNameMap", workflowSoftwareVersionedNameMap);
 		
 		m.put("strategies", strategies);
 		m.put("thisWorkflowsStrategies", thisWorkflowsStrategies);
@@ -433,7 +423,7 @@ public class WorkflowController extends WaspController {
 		
 				Software software = softwareDao.getSoftwareByIName(softwareParams[i]);
 				workflowSoftware.setWorkflowId(workflowId);
-				workflowSoftware.setSoftwareId(software.getSoftwareId());
+				workflowSoftware.setSoftwareId(software.getId());
 				workflowSoftwareDao.save(workflowSoftware);
 				if (resourceTypeIds.contains(software.getResourceTypeId())){
 					resourceTypeIds.remove(software.getResourceTypeId());
@@ -444,7 +434,7 @@ public class WorkflowController extends WaspController {
 					for (String metaKey : sSmMap.get(software.getIName())) {
 						count++; 
 						WorkflowsoftwareMeta wsm = new WorkflowsoftwareMeta();
-						wsm.setWorkflowsoftwareId(workflowSoftware.getWorkflowSoftwareId());
+						wsm.setWorkflowsoftwareId(workflowSoftware.getId());
 						wsm.setK(metaKey);
 						wsm.setV(smOptionMap.get(metaKey));
 						wsm.setPosition(count); 
@@ -510,7 +500,7 @@ public class WorkflowController extends WaspController {
 				ResourceCategory rc = resourceCategoryDao.getResourceCategoryByIName(resourceCategoryParams[i]);
 			
 				workflowResourceCategory.setWorkflowId(workflowId);
-				workflowResourceCategory.setResourcecategoryId(rc.getResourceCategoryId());
+				workflowResourceCategory.setResourcecategoryId(rc.getId());
 				workflowResourceCategoryDao.save(workflowResourceCategory);
 				if (resourceTypeIds.contains(rc.getResourceTypeId())){
 					resourceTypeIds.remove(rc.getResourceTypeId());
@@ -521,7 +511,7 @@ public class WorkflowController extends WaspController {
 					for (String metaKey : rcRcmMap.get(rc.getIName())) {
 						count++; 
 						WorkflowresourcecategoryMeta wrcm = new WorkflowresourcecategoryMeta();
-						wrcm.setWorkflowresourcecategoryId(workflowResourceCategory.getWorkflowresourcecategoryId());
+						wrcm.setWorkflowresourcecategoryId(workflowResourceCategory.getId());
 						wrcm.setK(metaKey);
 						wrcm.setV(rcmOptionMap.get(metaKey));
 						wrcm.setPosition(count); 

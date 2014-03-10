@@ -1,10 +1,6 @@
 package edu.yu.einstein.wasp.gatk.batch.tasklet;
 
 
-/**
- * 
- */
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,8 +28,11 @@ import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 
-
-public class CreatTargetTasklet extends WaspRemotingTasklet implements StepExecutionListener {
+/**
+ * @author jcai
+ * @author asmclellan
+ */
+public class CreateTargetTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
 	private Integer cellLibraryId;
 	
@@ -60,12 +59,12 @@ public class CreatTargetTasklet extends WaspRemotingTasklet implements StepExecu
 	@Autowired
 	private GATKSoftwareComponent gatk;
 
-	public CreatTargetTasklet() {
+	public CreateTargetTasklet() {
 		// proxy
 	}
 
-	public CreatTargetTasklet(String cellLibraryIds) {
-		List<Integer> cids = WaspSoftwareJobParameters.getLibraryCellIdList(cellLibraryIds);
+	public CreateTargetTasklet(String cellLibraryIds) {
+		List<Integer> cids = WaspSoftwareJobParameters.getCellLibraryIdList(cellLibraryIds);
 		Assert.assertTrue(cids.size() == 1);
 		this.cellLibraryId = cids.get(0);
 	}
@@ -80,20 +79,18 @@ public class CreatTargetTasklet extends WaspRemotingTasklet implements StepExecu
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
-		// if the work has already been started, then check to see if it is finished
-		// if not, throw an exception that is caught by the repeat policy.
 		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
 		
 		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
-		stepContext.put("cellLibId", cellLib.getId()); //place in the step context
+		stepContext.put("cellLibId", cellLib.getId()); // place in the step context
 		
 		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
 		
-		logger.debug("Beginning GATK creat re-alignment target step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
+		logger.debug("Beginning GATK create re-alignment target step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
 		
-		Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLib, fastqFileType); // TODO: change to bamFileType later
+		Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLib, bamFileType); 
 		
-		logger.debug("ffileGroups.size()="+fileGroups.size());
+		logger.debug("fileGroups.size()="+fileGroups.size());
 		Assert.assertTrue(fileGroups.size() == 1);
 		FileGroup fg = fileGroups.iterator().next();
 		
@@ -105,9 +102,7 @@ public class CreatTargetTasklet extends WaspRemotingTasklet implements StepExecu
 			logger.debug("Key: " + key + " Value: " + jobParameters.get(key).toString());
 		}
 		
-		// TODO: temporary, fix me
-		//WorkUnit w = new WorkUnit();
-		WorkUnit w = gatk.getCreatTarget(cellLib, fg);
+		WorkUnit w = gatk.getCreateTarget(cellLib, fg);
 		
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
    
@@ -119,7 +114,7 @@ public class CreatTargetTasklet extends WaspRemotingTasklet implements StepExecu
 		// place scratch directory in step execution context, to be promoted
 		// to the job context at run time.
         stepContext.put("scrDir", result.getWorkingDirectory());
-        stepContext.put("creatTargetName", result.getId());
+        stepContext.put("createTargetName", result.getId());
         
 	}
 	
