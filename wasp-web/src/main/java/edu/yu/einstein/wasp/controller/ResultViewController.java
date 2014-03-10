@@ -44,8 +44,8 @@ import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.viewpanel.DataTabViewing.Status;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
-import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing.Status;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 @Controller
