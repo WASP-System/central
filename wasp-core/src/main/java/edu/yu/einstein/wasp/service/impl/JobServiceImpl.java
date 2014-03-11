@@ -136,6 +136,8 @@ import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.util.StringHelper;
 import edu.yu.einstein.wasp.util.WaspJobContext;
+import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
+import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 
 
 @Service
@@ -2249,7 +2251,16 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			}
 		}
 	}
-	
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public JobDataTabViewing getTabViewPluginByJob(Job job) {
+		String pluginName = job.getWorkflow().getIName();
+		return waspPluginRegistry.getPlugin(pluginName, JobDataTabViewing.class);
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
