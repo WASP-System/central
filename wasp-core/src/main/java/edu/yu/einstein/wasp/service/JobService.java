@@ -670,4 +670,6 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @return List<JobMeta>
 	 */
 	public List<JobMeta> getJobMeta(Integer jobId);
+
+	public JobMetaDao getJobMetaDao();
 }

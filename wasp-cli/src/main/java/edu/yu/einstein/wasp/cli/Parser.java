@@ -28,11 +28,13 @@ public class Parser {
 		options.addOption(new Option("T", "target", true, "message target"));
 		options.addOption(new Option("t", "task", true, "task to run"));
 		options.addOption(new Option("H", "host", true, "host (default localhost)"));
-		options.addOption(new Option("l", "list", true, "possible values: plugins, builds, sampleSubtypes, cellLibraries or a combination e.g. -l plugins,builds"));
+		options.addOption(new Option("l", "list", true, "possible values: plugins, builds, sampleSubtypes, workflows, fileTypes, cellLibraries or a combination e.g. -l plugins,builds"));
 		options.addOption(new Option("m", "message", true, "message to send"));
 		options.addOption(new Option("P", "port", true, "remote port (default 23532)"));
 		options.addOption(new Option("p", "password", true, "password"));
-		options.addOption(new Option("r", "register-file", false, "register a file"));
+		options.addOption(new Option("g", "template-cellLib", true, "<filePath> : generate template file to register files assuming cellLibraries exist in db"));
+		options.addOption(new Option("G", "template-no-cellLib", true, "<filePath> : generate template file to register files assuming cellLibraries do not exist in db"));
+		options.addOption(new Option("i", "template-import", true, "<filePath> : import template to register files"));
 		parseCommandline(args);
 		help();
 		validate();

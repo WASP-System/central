@@ -176,10 +176,16 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	@Autowired
 	private WaspPluginRegistry waspPluginRegistry;
 	
+	@Autowired
 	public void setJobMetaDao(JobMetaDao jobMetaDao) {
 		this.jobMetaDao = jobMetaDao;
 	}
 	
+	@Override
+	public JobMetaDao getJobMetaDao() {
+		return jobMetaDao;
+	}
+
 	public void setJobSoftwareDao(JobSoftwareDao jobSoftwareDao) {
 		this.jobSoftwareDao = jobSoftwareDao;
 	}

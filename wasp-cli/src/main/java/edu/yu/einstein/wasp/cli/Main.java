@@ -3,7 +3,10 @@
  */
 package edu.yu.einstein.wasp.cli;
 
-import java.io.Console;
+import java.io.IOException;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -41,42 +44,89 @@ public class Main {
 		String rmiUrl = "rmi://" + host + ":" + port + "/org.springframework.integration.rmiGateway.wasp.channel.remoting.secure.inbound";
 		RmiOutboundGateway gw = new RmiOutboundGateway(rmiUrl);
 		try {
-			
 			QueueChannel replychannel = new QueueChannel();
 			gw.setReplyChannel(replychannel);
 			gw.afterPropertiesSet();
 			Message<String> message;
-			if (cl.hasOption("l")) {
-				boolean match = false;
-				String listOption = cl.getOptionValue("l", "plugins");
-				if (listOption.contains("plugins")) {
-					message = getMessage(parser, "cli", CliMessagingTask.LIST_PLUGINS);
-					listPlugins(new JSONObject(sendMessageAndParseReply(message, gw)));
-					match = true;
+			if (cl.hasOption("l") || cl.hasOption("g") || cl.hasOption("G") || cl.hasOption("i")){
+				if (cl.hasOption("g")){
+					try{
+						Path path = Paths.get(cl.getOptionValue("g"));
+						TemplateFileHandler.createTemplateFile(path, true);
+					} catch (InvalidPathException e){
+						System.out.println("ERROR: not a valid path " + e.getMessage());
+						System.exit(2);
+					} catch (IOException e1){
+						System.out.println("ERROR: " + e1.getMessage());
+						System.exit(2);
+					}
+				} else if (cl.hasOption("G")){
+					try{
+						Path path = Paths.get(cl.getOptionValue("G"));
+						TemplateFileHandler.createTemplateFile(path, false);
+					} catch (InvalidPathException e){
+						System.out.println("ERROR: not a valid path " + e.getMessage());
+						System.exit(2);
+					} catch (IOException e1){
+						System.out.println("ERROR: " + e1.getMessage());
+						System.exit(2);
+					}
+				} else if (cl.hasOption("i")){
+					try{
+						Path path = Paths.get(cl.getOptionValue("i"));
+						List<List<String>> data = TemplateFileHandler.importTemplateFileData(path);
+						message = getMessage(parser, "cli", new JSONObject(data).toString());
+						String result = sendMessageAndParseReply(message, gw);
+						System.out.println(result);
+						
+					} catch (InvalidPathException e){
+						System.out.println("ERROR: not a valid path " + e.getMessage());
+						System.exit(2);
+					} catch (IOException e1){
+						System.out.println("ERROR: " + e1.getMessage());
+						System.exit(2);
+					}
 				} 
-				if (listOption.contains("builds")){
-					message = getMessage(parser, "cli", CliMessagingTask.LIST_GENOME_BUILDS);
-					listGenomeBuilds(new JSONObject(sendMessageAndParseReply(message, gw)));
-					match = true;
+				if (cl.hasOption("l")) {
+					boolean match = false;
+					String listOption = cl.getOptionValue("l", "plugins");
+					if (listOption.contains("plugins")) {
+						message = getMessage(parser, "cli", CliMessagingTask.LIST_PLUGINS);
+						listPlugins(new JSONObject(sendMessageAndParseReply(message, gw)));
+						match = true;
+					} 
+					if (listOption.contains("builds")){
+						message = getMessage(parser, "cli", CliMessagingTask.LIST_GENOME_BUILDS);
+						listGenomeBuilds(new JSONObject(sendMessageAndParseReply(message, gw)));
+						match = true;
+					} 
+					if (listOption.contains("sampleSubtypes")){
+						message = getMessage(parser, "cli", CliMessagingTask.LIST_SAMPLE_SUBTYPES); 
+						listSampleSubtypes(new JSONObject(sendMessageAndParseReply(message, gw)));
+						match = true;
+					} 
+					if (listOption.contains("cellLibraries")){
+						message = getMessage(parser, "cli", CliMessagingTask.LIST_CELL_LIBRARIES); 
+						listCellLibraries(new JSONObject(sendMessageAndParseReply(message, gw)));
+						match = true;
+					}
+					if (listOption.contains("fileTypes")){
+						message = getMessage(parser, "cli", CliMessagingTask.LIST_FILE_TYPES); 
+						listFileTypes(new JSONObject(sendMessageAndParseReply(message, gw)));
+						match = true;
+					}
+					if (listOption.contains("workflows")){
+						message = getMessage(parser, "cli", CliMessagingTask.LIST_ASSAY_WORKFLOWS); 
+						listWorkflows(new JSONObject(sendMessageAndParseReply(message, gw)));
+						match = true;
+					}
+					if (!match) {
+						System.err.println("ERROR: unknown list option value '" + listOption + "'");
+						parser.formatHelp();
+						System.exit(2);
+					}
 				} 
-				if (listOption.contains("sampleSubtypes")){
-					message = getMessage(parser, "cli", CliMessagingTask.LIST_SAMPLE_SUBTYPES); 
-					listSampleSubtypes(new JSONObject(sendMessageAndParseReply(message, gw)));
-					match = true;
-				} 
-				if (listOption.contains("cellLibraries")){
-					message = getMessage(parser, "cli", CliMessagingTask.LIST_CELL_LIBRARIES); 
-					listCellLibraries(new JSONObject(sendMessageAndParseReply(message, gw)));
-					match = true;
-				}
-				if (!match) {
-					System.err.println("ERROR: unknown list option value '" + listOption + "'");
-					parser.formatHelp();
-					System.exit(2);
-				}
-			} else if (cl.hasOption("r")){
-				registerFile(parser, gw);
-			} else {
+			}else {
 				String mp = "";
 				if (cl.hasOption("m")) mp = cl.getOptionValue("m");
 				MessageBuilder<String> m = MessageBuilder.withPayload(mp)
@@ -124,8 +174,8 @@ public class Main {
 		return reply.getPayload();
 	}
 	
-	public static void listPlugins(JSONObject json) {
-		String output = "\n* Registered Wasp System plugins:\n";
+	private static void listPlugins(JSONObject json) {
+		String output = "\n* Registered Wasp System plugins\n";
 		int index = 1;
 		List<String> names = new ArrayList<>();
 		for (Object key : json.keySet())
@@ -141,8 +191,8 @@ public class Main {
 		System.out.println(output);
 	}
 
-	public static void listGenomeBuilds(JSONObject json){
-		String output = "\n* List of possible genome builds represented : encoded build -> build description\n";
+	private static void listGenomeBuilds(JSONObject json){
+		String output = "\n* List of possible genome builds [represented : build string -> build description]\n";
 		List<String> names = new ArrayList<>();
 		for (Object key : json.keySet()) 
 			names.add((String) key);
@@ -154,8 +204,8 @@ public class Main {
 		System.out.println(output);
 	}
 	
-	public static void listSampleSubtypes(JSONObject json){
-		String output = "\n* List of Sample Subtypes represented: id -> Subtype Name\n";
+	private static void listSampleSubtypes(JSONObject json){
+		String output = "\n* List of sample subtypes [represented: sampleSubtype id -> Sample Subtype Name]\n";
 		List<Integer> ids = new ArrayList<>();
 		for (Object key : json.keySet()) 
 			ids.add(Integer.parseInt((String) key));
@@ -167,8 +217,8 @@ public class Main {
 		System.out.println(output);
 	}
 	
-	public static void listCellLibraries(JSONObject json){
-		String output = "\n* List of Libraries represented: cellLibrary Id -> library name (platform unit name / cell index) :\n";
+	private static void listCellLibraries(JSONObject json){
+		String output = "\n* List of libraries [represented: cellLibrary id -> library name (platform unit name / cell index) ]\n";
 		List<Integer> ids = new ArrayList<>();
 		for (Object key : json.keySet()) 
 			ids.add(Integer.parseInt((String) key));
@@ -180,24 +230,30 @@ public class Main {
 		System.out.println(output);
 	}
 	
-	public static void registerFile(Parser parser, RmiOutboundGateway gw){
-		Console co = System.console();
-		String cellLibId;
-		do{
-			System.out.print("Enter a cell library id to associate with the file group (or none to add one now or 'l' to list) : ");
-			cellLibId = co.readLine();
-			if (cellLibId.isEmpty())
-				cellLibId = createNewCellLibrary().toString();
-			else if (cellLibId.equals("l")){
-				Message<String> message = getMessage(parser, "cli", CliMessagingTask.LIST_CELL_LIBRARIES); 
-				listCellLibraries(new JSONObject(sendMessageAndParseReply(message, gw)));
-			}
-				
-		} while (!isPareseableToInteger(cellLibId));
+	private static void listFileTypes(JSONObject json){
+		String output = "\n* List of file types [represented: fileType id -> name]\n";
+		List<Integer> ids = new ArrayList<>();
+		for (Object key : json.keySet()) 
+			ids.add(Integer.parseInt((String) key));
+		Collections.sort(ids);
+		for (Integer id : ids) {
+			String name = json.getString(id.toString());
+			output += "    " + id.toString() + " -> " + name + "\n";
+		}
+		System.out.println(output);
 	}
 	
-	public static Integer createNewCellLibrary(){
-		return null;
+	private static void listWorkflows(JSONObject json){
+		String output = "\n* List of workflows [represented: workflow id -> name]\n";
+		List<Integer> ids = new ArrayList<>();
+		for (Object key : json.keySet()) 
+			ids.add(Integer.parseInt((String) key));
+		Collections.sort(ids);
+		for (Integer id : ids) {
+			String name = json.getString(id.toString());
+			output += "    " + id.toString() + " -> " + name + "\n";
+		}
+		System.out.println(output);
 	}
 	
 	public static boolean isPareseableToInteger(String s){
