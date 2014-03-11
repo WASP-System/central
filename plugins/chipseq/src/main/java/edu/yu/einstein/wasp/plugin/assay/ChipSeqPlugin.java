@@ -5,13 +5,19 @@ package edu.yu.einstein.wasp.plugin.assay;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.Message;
@@ -19,6 +25,7 @@ import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.Hyperlink;
+import edu.yu.einstein.wasp.chipseq.service.ChipSeqService;
 import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -34,10 +41,13 @@ import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WebInterfacing;
 import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
+import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
+import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
+import edu.yu.einstein.wasp.viewpanel.DataTabViewing.Status;
 
 /**
  * @author asmclellan
@@ -47,7 +57,8 @@ public class ChipSeqPlugin extends WaspPlugin implements
 	BatchJobProviding,
 	WebInterfacing,
 	FileDataTabViewing,
-	ClientMessageI {
+	ClientMessageI,
+	JobDataTabViewing {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -65,14 +76,26 @@ public class ChipSeqPlugin extends WaspPlugin implements
 	
 	@Autowired
 	private SampleService sampleService;
+	@Autowired
+	private JobService jobService;
 
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
 
+	protected JobExplorerWasp batchJobExplorer;
+	
+	@Autowired
+	void setJobExplorer(JobExplorer jobExplorer){
+		this.batchJobExplorer = (JobExplorerWasp) jobExplorer;
+	}
+
+	@Autowired 
+	private ChipSeqService chipSeqService;
+	
 	public static final String PREPROCESS_ANALYSIS_JOB = "chipSeq.library.preProcess.jobflow.v1";
 	
 	public static final String AGGREGATE_ANALYSIS_JOB = "chipSeq.library.aggregate.jobflow.v1";
-	
+
 	public ChipSeqPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
 		super(iName, waspSiteProperties, channel);
 	}
@@ -140,6 +163,14 @@ public class ChipSeqPlugin extends WaspPlugin implements
 		return MessageBuilder.withPayload(mstr).build();
 	}
 	
+	public Message<String> launchTestOutput(Message<String> m) throws Exception{
+		String mstr = "\ninside launchTestOutput within the ChipSeqPlugin: launch the test output for job 1.\n" +
+				"wasp -T chipseq -t launchTestOutput \n";
+		Job job = jobService.getJobByJobId(1);
+		try{this.getViewPanelTabs(job);}catch(Exception e){mstr = mstr + e.getMessage();}
+		return MessageBuilder.withPayload(mstr).build();
+	}
+	
 	/**
 	 * 
 	 * @param m
@@ -201,4 +232,27 @@ public class ChipSeqPlugin extends WaspPlugin implements
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public Status getStatus(Job job){//to make proper use of this call, we must incorporate Brent's new code to deal with the proper ending of this tasklet
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new LinkedHashSet<String>();
+		jobIdStringSet.add(job.getId().toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+		JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer.getJobExecutions(AGGREGATE_ANALYSIS_JOB, parameterMap, true));
+		if (je == null)
+			return Status.UNKNOWN;
+		ExitStatus jobExitStatus = je.getExitStatus();
+		if (jobExitStatus.isRunning())
+			return Status.STARTED;
+		if (jobExitStatus.isHibernating())//????
+			return Status.PENDING;
+		if (jobExitStatus.isCompleted())
+			return Status.COMPLETED;
+		return Status.FAILED;
+	}
+	
+	public Set<PanelTab> getViewPanelTabs(Job job) throws PanelException{
+		return chipSeqService.getChipSeqDataToDisplay(job.getId());
+	}
+
 }
