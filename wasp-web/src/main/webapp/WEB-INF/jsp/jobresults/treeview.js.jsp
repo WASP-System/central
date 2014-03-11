@@ -478,7 +478,7 @@ function click(d) {
 						//}]
 					}]
 				});
-			} else if (d.type == 'filegroup') {
+			} else if (d.type=='job' || d.type=='filegroup') {
 				//remove all existing tabs from tabpanel first
 				tabpanel.removeAll();
 
@@ -502,50 +502,53 @@ function click(d) {
 				});
 
 				var createPortal = function () {
-					var summaryPanel;
-					if (result.statuslist.length > 0) {
-						summaryPanel = Ext.create('Wasp.PluginSummaryGridPortlet', {
-							statusData: result.statuslist,
-							tabPanel: tabpanel
-						});
-					} else {
-						summaryPanel = {
-							html: '<div class="noPlugin">No registered plugins handle this data.</div>'
+					// if the node clicked is filegroup, create an extra summary tab in the portal
+					if (d.type=='filegroup') {
+						var summaryPanel;
+						if (result.statuslist.length > 0) {
+							summaryPanel = Ext.create('Wasp.PluginSummaryGridPortlet', {
+								statusData: result.statuslist,
+								tabPanel: tabpanel
+							});
+						} else {
+							summaryPanel = {
+								html: '<div class="noPlugin">No registered plugins handle this data.</div>'
+							}
 						}
-					}
-					var summarytab = tabpanel.add({
-						id: 'summary-tab',
-						xtype: 'panel',
-						title: 'Summary',
-						layout: 'card',
-						activeItem: 1,
-						items: [{
-							layout: 'fit'
-						}, {
-							xtype: 'portalpanel',
+						var summarytab = tabpanel.add({
+							id: 'summary-tab',
+							xtype: 'panel',
+							title: 'Summary',
+							layout: 'card',
+							activeItem: 1,
 							items: [{
-								//id: 'portlet-',
-								xtype: 'portlet',
-								title: 'Completion Status for Plugins Handling this Data',
-								//tools: extPortal.getTools(),
-								//frame: false,
-								closable: false,
-								collapsible: false,
-								draggable: false,
-								items: summaryPanel
+								layout: 'fit'
+							}, {
+								xtype: 'portalpanel',
+								items: [{
+									//id: 'portlet-',
+									xtype: 'portlet',
+									title: 'Completion Status for Plugins Handling this Data',
+									//tools: extPortal.getTools(),
+									//frame: false,
+									closable: false,
+									collapsible: false,
+									draggable: false,
+									items: summaryPanel
+								}]
 							}]
-						}]
-					});
+						});
+					}
 
 					$.each(result.paneltablist, function (index, item) {
 						var tabTitle;
 
-						if ((d.type.split('-'))[0] == "filetype") {
-							tabTitle = "Download " + (d.type.split('-'))[1].toUpperCase() + " files";
-							return;
-						} else {
+//						if ((d.type.split('-'))[0] == "filetype") {
+//							tabTitle = "Download " + (d.type.split('-'))[1].toUpperCase() + " files";
+//							return;
+//						} else {
 							tabTitle = item.name; //d.name+" Details";
-						}
+//						}
 
 
 						var tabid = index;
