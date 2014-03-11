@@ -59,6 +59,7 @@ import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.quote.MPSQuote;
 import edu.yu.einstein.wasp.util.WaspJobContext;
+import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 
 @Service
 public interface JobService extends WaspMessageHandlingService {
@@ -670,4 +671,6 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @return List<JobMeta>
 	 */
 	public List<JobMeta> getJobMeta(Integer jobId);
+
+	public JobDataTabViewing getTabViewPluginByJob(Job job);
 }

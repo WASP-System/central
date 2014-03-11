@@ -1,6 +1,6 @@
 <script type="text/javascript"	src="/wasp/scripts/jquery/jquery.cookie.js"></script>
-<script type="text/javascript"	src="https://github.com/rgrove/lazyload/raw/master/lazyload.js"></script>
-<script type="text/javascript"	src="https://raw.github.com/johnculviner/jquery.fileDownload/master/src/Scripts/jquery.fileDownload.js"></script>
+<script type="text/javascript"	src="https://rawgithub.com/rgrove/lazyload/master/lazyload.js"></script>
+<script type="text/javascript"	src="https://rawgithub.com/johnculviner/jquery.fileDownload/master/src/Scripts/jquery.fileDownload.js"></script>
 <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
 <script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/ext-all-dev.js"></script>
 <script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/packages/ext-theme-neptune/build/ext-theme-neptune.js"></script>
@@ -136,7 +136,14 @@ Ext.onReady(function () {
 		activeNode.myid = root.myid;
 		activeNode.type = root.type;
 	});
-
+	
+	d3.select('#toggle_button').on('click', function() {
+		if ( root.children && root.children!="" ) {
+			root.children.forEach(expandAll);
+			update(root);
+		} else if ( root._children && root._children!="" ) {
+		}        
+	});
 });
 
 function zoom() {
@@ -149,6 +156,58 @@ function collapse(d) {
 		d._children.forEach(collapse);
 		d.children = null;
 	}
+}
+
+// Collapse/Expand/Toggle all descendents
+function collapseAll(d) {
+	if (d.children && d.children!="") {
+		d._children = d.children;
+		d.children = null;
+	}
+	if (d._children && d._children!="")
+		d._children.forEach(collapseAll);
+}
+function expandAll(d) {
+	if (!d.children && !d._children) {
+		if (d.jid == undefined) {
+			d.jid = -1;
+		}
+		var seen = [];
+		var dstr = JSON.stringify(d, function (key, val) {
+			if (key == "parent" || key == "children") { //don't stringify the parent/children nodes
+				return undefined;
+			} else if (typeof val == "object") {
+				if (seen.indexOf(val) >= 0)
+					return undefined;
+				seen.push(val);
+			}
+			return val;
+		});
+		$.ajax({
+			url: '/wasp/jobresults/getTreeJson.do?node=' + dstr,
+			type: 'GET',
+			dataType: 'json',
+			success: function (result) {
+				if (result.children != '') {
+					d.children = result.children;
+				}
+			}
+		});
+	}
+	if (d._children && d._children!="") {
+		d.children = d._children;
+		d._children = null;
+	}
+	if (d.children && d.children!="")
+		d.children.forEach(expandAll);
+}
+function toggleAll(d) {
+	if (d.children && d.children!="") {
+		collapseAll(d);
+	} else if (d._children && d._children!="") {
+		expandAll(d);
+	}
+	update(d);
 }
 
 
@@ -326,7 +385,6 @@ function printSelectedNodes() {
 }
 
 //Toggle children
-
 function toggle(d) {
 	if (d.children && d.children!="") {
 		d._children = d.children;
@@ -420,7 +478,7 @@ function click(d) {
 						//}]
 					}]
 				});
-			} else if (d.type == 'filegroup') {
+			} else if (d.type=='job' || d.type=='filegroup') {
 				//remove all existing tabs from tabpanel first
 				tabpanel.removeAll();
 
@@ -444,50 +502,53 @@ function click(d) {
 				});
 
 				var createPortal = function () {
-					var summaryPanel;
-					if (result.statuslist.length > 0) {
-						summaryPanel = Ext.create('Wasp.PluginSummaryGridPortlet', {
-							statusData: result.statuslist,
-							tabPanel: tabpanel
-						});
-					} else {
-						summaryPanel = {
-							html: '<div class="noPlugin">No registered plugins handle this data.</div>'
+					// if the node clicked is filegroup, create an extra summary tab in the portal
+					if (d.type=='filegroup') {
+						var summaryPanel;
+						if (result.statuslist.length > 0) {
+							summaryPanel = Ext.create('Wasp.PluginSummaryGridPortlet', {
+								statusData: result.statuslist,
+								tabPanel: tabpanel
+							});
+						} else {
+							summaryPanel = {
+								html: '<div class="noPlugin">No registered plugins handle this data.</div>'
+							}
 						}
-					}
-					var summarytab = tabpanel.add({
-						id: 'summary-tab',
-						xtype: 'panel',
-						title: 'Summary',
-						layout: 'card',
-						activeItem: 1,
-						items: [{
-							layout: 'fit'
-						}, {
-							xtype: 'portalpanel',
+						var summarytab = tabpanel.add({
+							id: 'summary-tab',
+							xtype: 'panel',
+							title: 'Summary',
+							layout: 'card',
+							activeItem: 1,
 							items: [{
-								//id: 'portlet-',
-								xtype: 'portlet',
-								title: 'Completion Status for Plugins Handling this Data',
-								//tools: extPortal.getTools(),
-								//frame: false,
-								closable: false,
-								collapsible: false,
-								draggable: false,
-								items: summaryPanel
+								layout: 'fit'
+							}, {
+								xtype: 'portalpanel',
+								items: [{
+									//id: 'portlet-',
+									xtype: 'portlet',
+									title: 'Completion Status for Plugins Handling this Data',
+									//tools: extPortal.getTools(),
+									//frame: false,
+									closable: false,
+									collapsible: false,
+									draggable: false,
+									items: summaryPanel
+								}]
 							}]
-						}]
-					});
+						});
+					}
 
 					$.each(result.paneltablist, function (index, item) {
 						var tabTitle;
 
-						if ((d.type.split('-'))[0] == "filetype") {
-							tabTitle = "Download " + (d.type.split('-'))[1].toUpperCase() + " files";
-							return;
-						} else {
+//						if ((d.type.split('-'))[0] == "filetype") {
+//							tabTitle = "Download " + (d.type.split('-'))[1].toUpperCase() + " files";
+//							return;
+//						} else {
 							tabTitle = item.name; //d.name+" Details";
-						}
+//						}
 
 
 						var tabid = index;
