@@ -222,13 +222,16 @@ public class ResultViewController extends WaspController {
 				}
 				
 				JobDataTabViewing plugin = jobService.getTabViewPluginByJob(job);
-				
-				if (plugin!=null) {
+				logger.debug("***at Q");
+				if (plugin!=null) {logger.debug("***R");
 					Map<String, PanelTab> pluginPanelTabs = new LinkedHashMap<>();
 					Set<PanelTab> panelTabSet = plugin.getViewPanelTabs(job);
+					logger.debug("***size of panelTabSet = " + panelTabSet.size());
 					Integer tabCount = 0;
 					for (PanelTab ptab : panelTabSet) {
 				    	if (!ptab.getPanels().isEmpty()){
+				    		logger.debug("***at S");
+							
 					    	String tabId = "tab-" + (tabCount++).toString();
 					    	pluginPanelTabs.put(tabId, ptab);
 				    	}
