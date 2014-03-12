@@ -34,8 +34,9 @@ public class TemplateFileHandler {
 			lines.add("# to view available assay workflows use the CLI: 'wasp -u <user> -p <pass> -list workflows'");
 			lines.add("# to view available sample subtypes use the CLI: 'wasp -u <user> -p <pass> -list sampleSubtypes'");
 			lines.add("# to view available genome builds use the CLI: 'wasp -u <user> -p <pass> -list builds'");
-			lines.add("# or combined in one command: 'wasp -u <user> -p <pass> -list workflows,sampleSubtypes,builds'");
-			lines.add("Job.name,Job.workflowId,Sample.name,Sample.sampleSubtypeId,SampleMeta.genome.genomeString,FileGroup.description,FileGroup.fileTypeId,FileHandle.fileName,FileHandle.fileURI,FileHandle.md5hash");
+			lines.add("# to view available users use the CLI: 'wasp -u <user> -p <pass> -list users'");
+			lines.add("# or combined in one command: 'wasp -u <user> -p <pass> -list workflows,sampleSubtypes,builds,users'");
+			lines.add("Job.name,Job.userId,Job.workflowId,Sample.name,Sample.sampleSubtypeId,SampleMeta.genome.genomeString,FileGroup.description,FileGroup.fileTypeId,FileHandle.fileName,FileHandle.fileURI,FileHandle.md5hash");
 		}
 
 		try {
@@ -63,6 +64,8 @@ public class TemplateFileHandler {
 				continue;
 			data.add(new ArrayList<String>());
 			int elementCount = 0;
+			if (line.trim().isEmpty())
+				continue;
 			for (String element : line.split(",")){
 				if (element.isEmpty()){
 					if (lineCount <= 1)

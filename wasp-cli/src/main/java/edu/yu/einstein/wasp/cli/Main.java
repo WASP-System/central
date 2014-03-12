@@ -120,6 +120,11 @@ public class Main {
 						listWorkflows(new JSONObject(sendMessageAndParseReply(message, gw)));
 						match = true;
 					}
+					if (listOption.contains("users")){
+						message = getMessage(parser, "cli", CliMessagingTask.LIST_USERS); 
+						listUsers(new JSONObject(sendMessageAndParseReply(message, gw)));
+						match = true;
+					}
 					if (!match) {
 						System.err.println("ERROR: unknown list option value '" + listOption + "'");
 						parser.formatHelp();
@@ -252,6 +257,19 @@ public class Main {
 		for (Integer id : ids) {
 			String name = json.getString(id.toString());
 			output += "    " + id.toString() + " -> " + name + "\n";
+		}
+		System.out.println(output);
+	}
+	
+	private static void listUsers(JSONObject json){
+		String output = "\n* List users [represented: user id -> user name (lab)]\n";
+		List<Integer> ids = new ArrayList<>();
+		for (Object key : json.keySet()) 
+			ids.add(Integer.parseInt((String) key));
+		Collections.sort(ids);
+		for (Integer id : ids) {
+			String details = json.getString(id.toString());
+			output += "    " + id.toString() + " -> " + details + "\n";
 		}
 		System.out.println(output);
 	}

@@ -58,6 +58,7 @@ import edu.yu.einstein.wasp.Hyperlink;
 import edu.yu.einstein.wasp.dao.FileGroupDao;
 import edu.yu.einstein.wasp.dao.FileGroupMetaDao;
 import edu.yu.einstein.wasp.dao.FileHandleDao;
+import edu.yu.einstein.wasp.dao.FileHandleMetaDao;
 import edu.yu.einstein.wasp.dao.FileTypeDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobDraftDao;
@@ -83,6 +84,7 @@ import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.FileHandleMeta;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
@@ -127,6 +129,9 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	
 	@Autowired
 	private FileGroupMetaDao fileGroupMetaDao;
+	
+	@Autowired
+	private FileHandleMetaDao fileHandleMetaDao;
 
 	@Autowired
 	private GridHostResolver hostResolver;
@@ -1580,6 +1585,14 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		Assert.assertParameterNotNull(filegroup, "a filegroup is required");
 		Assert.assertParameterNotNull(filegroup.getId(), "filegroup must have an id");
 		return fileGroupMetaDao.setMeta(metaList, filegroup.getId());
+	}
+	
+	@Override
+	public List<FileHandleMeta> saveFileHandleMeta(List<FileHandleMeta> metaList, FileHandle filehandle) throws MetadataException{
+		Assert.assertParameterNotNull(metaList, "a list of metadata is required");
+		Assert.assertParameterNotNull(filehandle, "a filehandle is required");
+		Assert.assertParameterNotNull(filehandle.getId(), "filehandle must have an id");
+		return fileHandleMetaDao.setMeta(metaList, filehandle.getId());
 	}
 	
 	/**

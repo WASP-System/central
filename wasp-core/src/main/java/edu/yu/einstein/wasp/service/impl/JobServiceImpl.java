@@ -136,7 +136,6 @@ import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.util.StringHelper;
 import edu.yu.einstein.wasp.util.WaspJobContext;
-import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 
 
@@ -197,6 +196,11 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	
 	public void setJobSampleDao(JobSampleDao jobSampleDao) {
 		this.jobSampleDao = jobSampleDao;
+	}
+	
+	@Override
+	public JobSampleDao getJobSampleDao(){
+		return this.jobSampleDao;
 	}
 
 	public void setSampleDao(SampleDao sampleDao) {

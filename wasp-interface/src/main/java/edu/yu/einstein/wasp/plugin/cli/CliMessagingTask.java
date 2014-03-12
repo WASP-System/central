@@ -13,5 +13,7 @@ public class CliMessagingTask {
 	public static final String LIST_ASSAY_WORKFLOWS = "listAssayWorkflows";
 	
 	public static final String LIST_FILE_TYPES = "listFileTypes";
+	
+	public static final String LIST_USERS = "listUsers";
 
 }
