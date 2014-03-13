@@ -41,11 +41,8 @@ public class WebPanel extends Panel{
 
 	/**
 	 * Returns code that is to be executed when a panel is resized. This might be a jQuery function for example. 
-	 * If not set but 'execOnRender' code is set, this code will be called on resize, otherwise returns an empty string.
 	 */
 	public String getExecOnResizeCode() {
-		if (execOnResizeCode == null || execOnResizeCode.isEmpty())
-			return execOnRenderCode;
 		return execOnResizeCode;
 	}
 
@@ -55,11 +52,8 @@ public class WebPanel extends Panel{
 
 	/**
 	 * Returns code that is to be executed when a panel is expanded. This might be a jQuery function for example. 
-	 * If not set but 'execOnRender' code is set, this code will be called on expanding, otherwise returns an empty string.
 	 */
 	public String getExecOnExpandCode() {
-		if (execOnExpandCode == null || execOnExpandCode.isEmpty())
-			return execOnRenderCode;
 		return execOnExpandCode;
 	}
 
