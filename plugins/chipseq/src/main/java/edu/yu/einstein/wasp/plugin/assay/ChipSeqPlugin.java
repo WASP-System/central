@@ -235,8 +235,6 @@ public class ChipSeqPlugin extends WaspPlugin implements
 	
 	public Status getStatus(Job job){//to make proper use of this call, we must incorporate Brent's new code to deal with the proper ending of this tasklet
 		
-		if(1==1){return Status.COMPLETED;}
-		
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		Set<String> jobIdStringSet = new LinkedHashSet<String>();
 		jobIdStringSet.add(job.getId().toString());
@@ -255,7 +253,7 @@ public class ChipSeqPlugin extends WaspPlugin implements
 	}
 	
 	public Set<PanelTab> getViewPanelTabs(Job job) throws PanelException{
-		return chipSeqService.getChipSeqDataToDisplay(job.getId());
+		return chipSeqService.getChipSeqDataToDisplay(job.getId(), this.getStatus(job));
 	}
 
 }

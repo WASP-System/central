@@ -233,9 +233,12 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		logger.debug("OK, workunit has been generated");
 		this.commandLineCall = w.getCommand();
 
+		List<String> listOfFileHandleNames = new ArrayList<String>();
+		
 		FileGroup modelScriptG = new FileGroup();
 		FileHandle modelScript = new FileHandle();
 		modelScript.setFileName(prefixForFileName + "_model.r");//will eventually run Rscript on this file to generate pdf
+		listOfFileHandleNames.add(prefixForFileName + "_model.r");
 		modelScript.setFileType(macs2ModelScriptFileType);
 		modelScript = fileService.addFile(modelScript);
 		modelScriptG.addFileHandle(modelScript);
@@ -248,6 +251,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		FileGroup peaksXlsG = new FileGroup();
 		FileHandle peaksXls = new FileHandle();
 		peaksXls.setFileName(prefixForFileName + "_peaks.xls");
+		listOfFileHandleNames.add(prefixForFileName + "_peaks.xls");
 		peaksXls.setFileType(macs2PeaksXlsFileType);
 		peaksXls = fileService.addFile(peaksXls);
 		peaksXlsG.addFileHandle(peaksXls);
@@ -260,6 +264,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		FileGroup narrowPeaksBedG = new FileGroup();
 		FileHandle narrowPeaksBed = new FileHandle();
 		narrowPeaksBed.setFileName(prefixForFileName + "_peaks.narrowPeak");
+		listOfFileHandleNames.add(prefixForFileName + "_peaks.narrowPeak");
 		narrowPeaksBed.setFileType(macs2NarrowPeaksBedFileType);
 		narrowPeaksBed = fileService.addFile(narrowPeaksBed);
 		narrowPeaksBedG.addFileHandle(narrowPeaksBed);
@@ -272,6 +277,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		FileGroup summitsBedG = new FileGroup();
 		FileHandle summitsBed = new FileHandle();
 		summitsBed.setFileName(prefixForFileName + "_summits.bed");
+		listOfFileHandleNames.add(prefixForFileName + "_summits.bed");
 		summitsBed.setFileType(macs2SummitsBedFileType);
 		summitsBed = fileService.addFile(summitsBed);
 		summitsBedG.addFileHandle(summitsBed);
@@ -284,6 +290,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		FileGroup treatPileupBedGraphG = new FileGroup();
 		FileHandle treatPileupBedGraph = new FileHandle();
 		treatPileupBedGraph.setFileName(prefixForFileName + "_treat_pileup.bdg");
+		listOfFileHandleNames.add(prefixForFileName + "_treat_pileup.bdg");
 		treatPileupBedGraph.setFileType(macs2TreatPileupBedGraphFileType);
 		treatPileupBedGraph = fileService.addFile(treatPileupBedGraph);
 		treatPileupBedGraphG.addFileHandle(treatPileupBedGraph);
@@ -296,6 +303,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		FileGroup controlLambdaBedGraphG = new FileGroup();
 		FileHandle controlLambdaBedGraph = new FileHandle();
 		controlLambdaBedGraph.setFileName(prefixForFileName + "_control_lambda.bdg");
+		listOfFileHandleNames.add(prefixForFileName + "_control_lambda.bdg");
 		controlLambdaBedGraph.setFileType(macs2ControlLambdaBedGraphFileType);
 		controlLambdaBedGraph = fileService.addFile(controlLambdaBedGraph);
 		controlLambdaBedGraphG.addFileHandle(controlLambdaBedGraph);
@@ -331,7 +339,15 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		w.getResultFiles().add(controlLambdaBedGraphG);
 		logger.debug("executed w.getResultFiles().add(x) for 6 FileGroups");
 		
-		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + this.jobId.toString());		
+		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + this.jobId.toString());	
+		
+		int counter = 0;
+		for(String fileName : listOfFileHandleNames){//need to make these symbolic links in order to properly copy files
+			w.addCommand("ln -s " + fileName + " ${" + WorkUnit.OUTPUT_FILE+"["+counter+"]}");
+			logger.debug("add command: " + "ln -s " + fileName + " ${" + WorkUnit.OUTPUT_FILE+"["+counter+"]}");
+			counter++;
+		}
+		
 		logger.debug("executed w.setResultsDirectory(a/jobId) in MacstwoTasklet.doExecute()");
 
 //TODO: ROBERT A DUBIN (2 of 3) uncomment next 3 lines for production  !!!!!!!!!!
