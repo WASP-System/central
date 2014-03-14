@@ -39,6 +39,7 @@ public class BabrahamPanelRenderer {
 			webPanel.setOrder(order);
 			content.addCssDependency(new URI(BABRAHAM_CHARTS_CSS_PATH));
 			webPanel.setExecOnRenderCode(content.getScriptCode());
+			webPanel.setExecOnResizeCode(content.getScriptCode());
 			webPanel.setContent(content);
 			return webPanel;
 		} catch (Exception e){
