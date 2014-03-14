@@ -88,13 +88,15 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 	@Transactional("entityManager")
 	@Override
 	public Set<PanelTab> getChipSeqDataToDisplay(Integer jobId, Status jobStatus) throws PanelException{
+		
 		logger.debug("***************starting chipseqService.getChipSeqDataToDisplay(job)");
 		logger.debug("***************a");
+		
 		Job job = jobService.getJobByJobId(jobId);
 		
 		try{
-			Strategy strategy = jobService.getStrategy(Strategy.StrategyType.LIBRARY_STRATEGY, job);
-			
+			//for the SummaryTab (job, jobStatus, strategy, softwareName)
+			Strategy strategy = jobService.getStrategy(Strategy.StrategyType.LIBRARY_STRATEGY, job);			
 			WaspJobContext waspJobContext = new WaspJobContext(jobId, jobService);
 			SoftwareConfiguration softwareConfig = waspJobContext.getConfiguredSoftware(peakcallerResourceType);
 			if (softwareConfig == null){
@@ -104,8 +106,7 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 			//String softwareName = softwarePlugin.getName();//macsTwo; softwarePlugin.getIName() is macstwo
 			String softwareName = softwareDao.getSoftwareByIName(softwarePlugin.getIName()).getName();//should get "MACS2 Peakcaller"
 			
-			
-			
+			//samplePairs used in the analysis			
 			Sample noControlSample = new Sample();
 			noControlSample.setId(0);
 			noControlSample.setName("None");
@@ -137,6 +138,21 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 					}
 				}
 			}
+			logger.debug("***************e");
+			List<Sample> testSampleList = new ArrayList<Sample>(testSampleSet);
+			class SampleNameComparator implements Comparator<Sample> {
+			    @Override
+			    public int compare(Sample arg0, Sample arg1) {
+			        return arg0.getName().compareToIgnoreCase(arg1.getName());
+			    }
+			}
+			Collections.sort(testSampleList, new SampleNameComparator());
+			logger.debug("***************f");
+			for(Sample sample : testSampleList){
+				Collections.sort(testSampleControlSampleListMap.get(sample), new SampleNameComparator());
+			}
+			logger.debug("***************g");
+			
 			logger.debug("***************A*****");
 			Map<Sample, List<String>> sampleRunInfoMap = new HashMap<Sample, List<String>>();
 			Map<String, String> sampleIdControlIdCommandLine = new HashMap<String, String>();
@@ -260,11 +276,14 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 			Set<PanelTab> panelTabSet = new LinkedHashSet<PanelTab>();logger.debug("***************1");
 
 
-			PanelTab panelTab = ChipSeqWebPanels.getSummaryPanelTab(jobStatus, job, strategy, softwareName);
-			panelTabSet.add(panelTab);logger.debug("***************11");
+			PanelTab summaryPanelTab = ChipSeqWebPanels.getSummaryPanelTab(jobStatus, job, strategy, softwareName);
+			panelTabSet.add(summaryPanelTab);logger.debug("***************11");
+			if(jobStatus.toString().equals(Status.COMPLETED.toString())){
+				logger.debug("***************jobStatus is COMPLETED, so we enter this loop");
+				//do the other panels //
+				PanelTab samplePairsPanelTab = ChipSeqWebPanels.getSamplePairsPanelTab(testSampleList, testSampleControlSampleListMap);
+				panelTabSet.add(samplePairsPanelTab);
 
-			if(jobStatus.name().equals(Status.COMPLETED)){
-				//do the other panels
 			}
 			logger.debug("***************ending chipseqService.getChipSeqDataToDisplay(job)");
 

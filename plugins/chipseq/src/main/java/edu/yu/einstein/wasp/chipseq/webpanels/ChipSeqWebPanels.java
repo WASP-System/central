@@ -3,6 +3,7 @@ package edu.yu.einstein.wasp.chipseq.webpanels;
 import java.net.URI;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.json.JSONException;
@@ -15,6 +16,7 @@ import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.exception.ChartException;
 import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.viewpanel.Panel;
@@ -29,51 +31,72 @@ public class ChipSeqWebPanels {
 	
 	public static PanelTab getSummaryPanelTab(Status jobStatus, Job job, Strategy strategy,	String softwareName) {
 		
-		PanelTab panelTab = new PanelTab();logger.debug("***************2");
+		PanelTab panelTab = new PanelTab();
 
-		panelTab.setName("Summary");logger.debug("***************3");
-		panelTab.setDescription("testDescription");logger.debug("***************4");
-		WebPanel panel = new WebPanel();logger.debug("***************5");
-		panel.setTitle("Summary");logger.debug("***************6");
-		panel.setDescription("Summary");logger.debug("***************7");
+		panelTab.setName("Summary");
+		//panelTab.setDescription("testDescription");
+		WebPanel panel = new WebPanel();
+		panel.setTitle("Summary");
+		panel.setDescription("Summary");
 		panel.setResizable(true);
 		panel.setMaximizable(true);	
 
 		panel.setOrder(1);
-		WebContent content = new WebContent();logger.debug("***************8");
-		content.setHtmlCode("<div id=\"summary-grid\"></div>");logger.debug("***************9");
-		panel.setContent(content);logger.debug("***************10");
-
-		
-		//String script = "Ext.get('myLeslieButton').on('click', function(){alert('This is the Leslie Button'); });";
-		//String script = "Ext.create('Ext.grid.Panel', {columns: [ {text: \"Name\", width:120, dataIndex: 'Name'}, {text: \"dob\", width: 380, dataIndex: 'dob'} ], renderTo:'example-grid', width: 500, height: 280 });";
-		//String script = "Ext.define('Person',{ extend: 'Ext.data.Model', fields: [ 'Name', 'dob' ] }); var store = Ext.create('Ext.data.Store', { model: 'Person', data : [{Name: 'Ed', dob: 'Spencer'}, {Name: 'Tommy', dob: 'Maintz'}, {Name: 'Aaron', dob: 'Conran'}, {Name: 'Jamie', dob: 'Avins'}] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"Name\", width:120, dataIndex: 'Name'}, {text: \"dob\", width: 300, dataIndex: 'dob'} ], renderTo:'example-grid', width: 500, height: 280 });";
+		WebContent content = new WebContent();
+		content.setHtmlCode("<div id=\"summary-grid\"></div>");
+		panel.setContent(content);
 		String script = "Ext.define('Summary',{ extend: 'Ext.data.Model', fields: [ 'Strategy', 'Description', 'Workflow', 'Software', 'Status' ] }); var store = Ext.create('Ext.data.Store', { model: 'Summary', data : [{Strategy: '"+strategy.getDisplayStrategy()+"', Description: '"+strategy.getDescription()+"', Workflow: '"+job.getWorkflow().getName()+"', Software: '" + softwareName+"', Status: '"+jobStatus.toString()+"'}] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"Strategy\", width:150, dataIndex: 'Strategy'}, {text: \"Description\", flex: 1, dataIndex: 'Description'}, {text: \"Workflow\", width: 150, dataIndex: 'Workflow'}, {text: \"Main Software\", width: 200, dataIndex: 'Software'}, {text: \"Status\", width: 150, dataIndex: 'Status'} ], renderTo:'summary-grid', height: 300 });";
-
 		panel.setExecOnRenderCode(script);
 		panel.setExecOnExpandCode(" ");
 		panel.setExecOnResizeCode(" ");
 		// does nothing: content.setScriptCode(script);
-
-		
-		////////////////////////content.setScriptCode("Ext.get('myAJButton').on('click', function(){alert('You clicked me, AJ'); return false;});");
-		////////content.setScriptCode("Ext.define('Person',{ extend: 'Ext.data.Model', fields: [ 'Name', 'dob' ] }); var store = Ext.create('Ext.data.Store', { model: 'Person', autoLoad: true, proxy: { type: 'memory', data: createFakeData(10), reader: {type: 'array'} } }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"Name\", width:120, dataIndex: 'Name'}, {text: \"dob\", width: 380, dataIndex: 'dob'} ], renderTo:'example-grid', width: 500, height: 280 });");
-		//////content.setScriptCode("Ext.require([    'Ext.data.*',    'Ext.grid.*']);function getRandomDate() {    var from = new Date(1900, 0, 1).getTime();    var to = new Date().getTime();    return new Date(from + Math.random() * (to - from));}function createFakeData(count) {        var firstNames   = ['Ed', 'Tommy', 'Aaron', 'Abe'];        var lastNames    = ['Spencer', 'Maintz', 'Conran', 'Elias'];                    var data = [];        for (var i = 0; i < count ; i++) {            var dob = getRandomDate();                       var firstNameId = Math.floor(Math.random() * firstNames.length);            var lastNameId  = Math.floor(Math.random() * lastNames.length);            var name        = Ext.String.format(\"{0} {1}\", firstNames[firstNameId], lastNames[lastNameId]);            data.push([name, dob]);        }        return data;    }    Ext.define('Person',{        extend: 'Ext.data.Model',        fields: [            'Name', 'dob'        ]    });    // create the Data Store    var store = Ext.create('Ext.data.Store', {        model: 'Person',        autoLoad: true,        proxy: {            type: 'memory',                data: createFakeData(10),                reader: {                    type: 'array'                }        }    });    // create the grid    Ext.create('Ext.grid.Panel', {        store: store,        columns: [            {text: \"Name\", width:120, dataIndex: 'Name'},            {text: \"dob\", width: 380, dataIndex: 'dob'}        ],        renderTo:'example-grid',        width: 500,        height: 280    });");
-		////////////////////panel.setExecOnRenderCode(content.getScriptCode());
-		//
-
-
-
-		
-		//Set<URI> dependencies =  new LinkedHashSet<URI>(); // load order is important
-		//dependencies.add(new URI("http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/ext-all-dev.js"));
-		//dependencies.add(new URI("http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/packages/ext-theme-neptune/build/ext-theme-neptune.js"));
-		//content.setScriptDependencies(dependencies);
 		panelTab.addPanel(panel);
 		panelTab.setNumberOfColumns(1);
-
 
 		return panelTab;
 	}
 
+	public static PanelTab getSamplePairsPanelTab(List<Sample> testSampleList, Map<Sample, List<Sample>> testSampleControlSampleListMap){
+		
+		PanelTab panelTab = new PanelTab();
+		
+		panelTab.setName("Sample Pairs");
+		//panelTab.setDescription("testDescription");
+		WebPanel panel = new WebPanel();
+		panel.setTitle("Sample Pairs");
+		panel.setDescription("Sample Pairs");
+		panel.setResizable(true);
+		panel.setMaximizable(true);	
+
+		panel.setOrder(1);
+		WebContent content = new WebContent();
+		content.setHtmlCode("<div id=\"samplePairs-grid\"></div>");
+		panel.setContent(content);
+		/* for testing only
+		String string1 = "the_test_sample";
+		String string2 = "control_SAMPLE";
+		String script = "Ext.define('SamplePairs',{ extend: 'Ext.data.Model', fields: [ 'TestSample', 'ControlSample' ] }); var store = Ext.create('Ext.data.Store', { model: 'SamplePairs', data : [{TestSample: '"+string1+"', ControlSample: '"+string2+"'}, {TestSample: '"+string1+"', ControlSample: '"+string2+"'}] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"Test Sample\",  width:300, dataIndex: 'TestSample'}, {text: \"Control Sample\",  flex: 1, dataIndex: 'ControlSample'} ], renderTo:'samplePairs-grid', height: 300 });";
+		*/
+		StringBuffer stringBuffer = new StringBuffer();
+		for(Sample testSample : testSampleList){
+			List<Sample> controlSampleList = testSampleControlSampleListMap.get(testSample);
+			for(Sample controlSample : controlSampleList){
+				if(stringBuffer.length()>0){
+					stringBuffer.append(", ");
+				}
+				stringBuffer.append("{TestSample: '"+testSample.getName()+"', ControlSample: '"+controlSample.getName()+"'}");
+			}
+		}
+		String theData = new String(stringBuffer);
+		String script = "Ext.define('SamplePairs',{ extend: 'Ext.data.Model', fields: [ 'TestSample', 'ControlSample' ] }); var store = Ext.create('Ext.data.Store', { model: 'SamplePairs', data : ["+theData+"] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"Test Sample\",  width:300, dataIndex: 'TestSample'}, {text: \"Control Sample\",  flex: 1, dataIndex: 'ControlSample'} ], renderTo:'samplePairs-grid', height: 300 });";
+		
+		panel.setExecOnRenderCode(script);
+		panel.setExecOnExpandCode(" ");
+		panel.setExecOnResizeCode(" ");
+		// does nothing: content.setScriptCode(script);
+		panelTab.addPanel(panel);
+		panelTab.setNumberOfColumns(1);
+
+		return panelTab;
+	}
 }
