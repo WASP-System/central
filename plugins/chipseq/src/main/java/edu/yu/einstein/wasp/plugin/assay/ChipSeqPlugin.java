@@ -139,11 +139,13 @@ public class ChipSeqPlugin extends WaspPlugin implements
 			//}
 			
 			Map<String, String> jobParameters = new HashMap<String, String>();
+
 			
 			//////jobParameters.put("test", new Date().toString());//used for testing only
 			
 			jobParameters.put(WaspJobParameters.JOB_ID, "4");
 			
+
 			waspMessageHandlingService.launchBatchJob(AGGREGATE_ANALYSIS_JOB, jobParameters);
 			logger.debug("**Initiating aggregate_analysis_job ChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB + " on job 4");
 			return (Message<String>) MessageBuilder.withPayload("Initiating chipseq test flow: "+AGGREGATE_ANALYSIS_JOB + " for job 4").build();
