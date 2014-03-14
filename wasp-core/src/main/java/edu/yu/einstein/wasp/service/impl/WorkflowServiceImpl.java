@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.Assert;
+import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.dao.WorkflowMetaDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.Workflow;
@@ -30,9 +31,36 @@ public class WorkflowServiceImpl extends WaspServiceImpl implements WorkflowServ
 	
 	private WorkflowMetaDao workflowMetaDao;
 	
+	private WorkflowDao workflowDao;
+
+	@Override
 	@Autowired
 	public void setWorkflowMetaDao(WorkflowMetaDao workflowMetaDao) {
 		this.workflowMetaDao = workflowMetaDao;
+	}
+	
+	@Override
+	public WorkflowMetaDao getWorkflowMetaDao() {
+		return workflowMetaDao;
+	}
+	
+	@Override
+	@Autowired
+	public void setWorkflowDao(WorkflowDao workflowDao) {
+		this.workflowDao = workflowDao;
+	}
+	
+	@Override
+	public WorkflowDao getWorkflowDao() {
+		return workflowDao;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Workflow> getWorkflows(){
+		return workflowDao.findAll();
 	}
 
 	/**

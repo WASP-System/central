@@ -44,8 +44,9 @@ import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.viewpanel.DataTabViewing.Status;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
-import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing.Status;
+import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 @Controller
@@ -220,76 +221,52 @@ public class ResultViewController extends WaspController {
 					  return null;
 				}
 				
-				jsDetails.put(getMessage("job.name.label"), job.getName());
+				JobDataTabViewing plugin = jobService.getTabViewPluginByJob(job);
 				
-				// add job extra detail info
-				HashMap<String, String> extraJobDetails = jobService.getExtraJobDetails(job);
-				for (String lblEJD : extraJobDetails.keySet()) {
-					try {
-						String msg = getMessage(lblEJD);
-						if (!msg.equals(lblEJD))
-							jsDetails.put(msg, extraJobDetails.get(lblEJD));
+				if (plugin!=null) {
+					Map<String, PanelTab> pluginPanelTabs = new LinkedHashMap<>();
+					Set<PanelTab> panelTabSet = plugin.getViewPanelTabs(job);
+					Integer tabCount = 0;
+					for (PanelTab ptab : panelTabSet) {
+				    	if (!ptab.getPanels().isEmpty()){
+					    	String tabId = "tab-" + (tabCount++).toString();
+					    	pluginPanelTabs.put(tabId, ptab);
+				    	}
 					}
-					catch (NoSuchMessageException e) {
-						;
-					}
+	
+					//jsDetailsTabs.put("statuslist", statusArray);
+					jsDetailsTabs.put("paneltablist",pluginPanelTabs);
 				}
-			
-				// add job meta info
-				List<JobMeta> metaList = job.getJobMeta();
-				for (JobMeta mt : metaList) {
-					String mKey = mt.getK();
-					try {
-						String msg = getMessage(mKey+".label");
-						if (!msg.equals(mKey+".label"))
-							jsDetails.put(msg, mt.getV());
-					}
-					catch (NoSuchMessageException e) {
-						;
-					}
-				}
-				
-				// add job status message info
-				List<MetaMessage> msgList = jobService.getUserSubmittedJobComment(jobId);
-				for (MetaMessage msg : msgList) {
-					jsDetails.put(msg.getName(), msg.getValue());
-				}
-				msgList = jobService.getAllFacilityJobComments(jobId);
-				for (MetaMessage msg : msgList) {
-					jsDetails.put(msg.getName(), msg.getValue());
-				}
-				
-				//jsDetailsTabs.put("job details", jsDetails);
 
 			} else if(type.startsWith("sample") || type.startsWith("library") || type.startsWith("cell") || type.startsWith("pu")) {
-				Integer sampleId = id;
-				Sample sample = this.sampleService.getSampleById(sampleId);
-				if(sample==null || sample.getId()==null){
-					  waspErrorMessage("sampleDetail.sampleNotFound.error");
-					  return null;
-				}
-				
-				jsDetails.put(getMessage("sample.name.label"), sample.getName());
-				
-				// add sample meta info
-				List<SampleMeta> metaList = sample.getSampleMeta();
-				for (SampleMeta mt : metaList) {
-					String mKey = mt.getK();
-					try {
-						String msg = getMessage(mKey+".label");
-						if (!msg.equals(mKey+".label"))
-							jsDetails.put(msg, mt.getV());
-					}
-					catch (NoSuchMessageException e) {
-						;
-					}
-				}
-				
-				// add sample status message info
-				List<MetaMessage> msgList = sampleService.getSampleQCComments(sampleId);
-				for (MetaMessage msg : msgList) {
-					jsDetails.put(msg.getName(), msg.getValue());
-				}
+//				Integer sampleId = id;
+//				Sample sample = this.sampleService.getSampleById(sampleId);
+//				if(sample==null || sample.getId()==null){
+//					  waspErrorMessage("sampleDetail.sampleNotFound.error");
+//					  return null;
+//				}
+//				
+//				jsDetails.put(getMessage("sample.name.label"), sample.getName());
+//				
+//				// add sample meta info
+//				List<SampleMeta> metaList = sample.getSampleMeta();
+//				for (SampleMeta mt : metaList) {
+//					String mKey = mt.getK();
+//					try {
+//						String msg = getMessage(mKey+".label");
+//						if (!msg.equals(mKey+".label"))
+//							jsDetails.put(msg, mt.getV());
+//					}
+//					catch (NoSuchMessageException e) {
+//						;
+//					}
+//				}
+//				
+//				// add sample status message info
+//				List<MetaMessage> msgList = sampleService.getSampleQCComments(sampleId);
+//				for (MetaMessage msg : msgList) {
+//					jsDetails.put(msg.getName(), msg.getValue());
+//				}
 
 			} else if(type.startsWith("filetype-")) {
 				FileType ft = fileService.getFileType(id);
@@ -309,38 +286,7 @@ public class ResultViewController extends WaspController {
 					fgList += "," + fg.getId().toString();
 				}
 				
-/*				Set<FileHandle> fhSet = new HashSet<FileHandle>();
-				Set<Map<String,String>> fgMapSet = new HashSet<Map<String,String>>();
-				Map<Integer, Map<String,String>> fileMapMap = new HashMap<Integer, Map<String,String>>();
-				try {
-					for (FileGroup fg : fgSet) {
-						Hyperlink hl;
-	
-						Map<String,String> fgMap = new HashMap<String,String>();
-						fgMap.put("id", fg.getId().toString());
-						fgMap.put("name", fg.getDescription());
-						hl = new Hyperlink("Download", fileUrlResolver.getURL(fg).toString());
-						fgMap.put("link", hl.getTargetLink());
-						fgMapSet.add(fgMap);
-						
-						fhSet = fg.getFileHandles();
-						Map<String,String> fileMap = new HashMap<String,String>();
-						for (FileHandle fh : fhSet) {
-							hl = new Hyperlink("Download", fileUrlResolver.getURL(fh).toString());
-							fileMap.put("name", fh.getFileName());
-							fileMap.put("md5", fh.getMd5hash());
-							fileMap.put("size", fh.getSizek() != null ? fh.getSizek().toString() : "0kb");
-							fileMap.put("link", hl.getTargetLink());
-						}
-						fileMapMap.put(fg.getId(), fileMap);
-					}
-				} catch (GridUnresolvableHostException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-*/
 				jsDetailsTabs.put("fgliststr", fgList.substring(1));
-				//jsDetailsTabs.put("filelistmap", fileMapMap);
 			} else if(type.startsWith("filegroup")) {
 				FileGroup fg = fileService.getFileGroupById(id);
 				List<FileDataTabViewing> plugins = fileService.getTabViewProvidingPluginsByFileGroup(fg);
@@ -370,8 +316,6 @@ public class ResultViewController extends WaspController {
 				jsDetailsTabs.put("statuslist", statusArray);
 				jsDetailsTabs.put("paneltablist",pluginPanelTabs);
 			}
-				
-			//jsDetailsTabs = testTabPanelMockup(jsDetailsTabs, jsDetails);
 			
 			return outputJSON(jsDetailsTabs, response);
 		} 

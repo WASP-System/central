@@ -135,5 +135,10 @@ public class LabServiceImpl extends WaspServiceImpl implements LabService {
 		  }
 		  return false;
 	  }
+	  
+	  @Override
+	  public List<LabUser> getAllLabUsers(){
+		  return labUserDao.findAll();
+	  }
 }
 

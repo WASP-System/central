@@ -111,11 +111,11 @@ public class ChipSeqPlugin extends WaspPlugin implements
 			
 			Map<String, String> jobParameters = new HashMap<String, String>();
 			//////logger.info("Sending launch message with flow " + PREP_FLOW_NAME + " and id: " + id);
-//			jobParameters.put(WaspSoftwareJobParameters.LIBRARY_CELL_ID_LIST, id.toString());
+//			jobParameters.put(WaspSoftwareJobParameters.CELL_LIBRARY_ID_LIST, id.toString());
 //			jobParameters.put(WaspSoftwareJobParameters.GENOME, "10090::GRCm38::70");
 			jobParameters.put("test", new Date().toString());
 			
-			//jobParameters.put(WaspJobParameters.LIBRARY_CELL_ID, id.toString());
+			//jobParameters.put(WaspJobParameters.CELL_LIBRARY_ID, id.toString());
 			//String cellLibraryIdListAsString = "37,38,39,40";//comma delimited list is how they will appear
 			String cellLibraryIdListAsString = "37,38,39,40";//comma delimited list is how they will appear
 			jobParameters.put(WaspSoftwareJobParameters.CELL_LIBRARY_ID_LIST, cellLibraryIdListAsString);
