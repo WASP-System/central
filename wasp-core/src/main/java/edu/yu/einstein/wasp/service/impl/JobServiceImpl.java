@@ -2254,7 +2254,10 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		String workflowIname = job.getWorkflow().getIName();
 		List<JobDataTabViewing> plugins = waspPluginRegistry.getPluginsHandlingArea(workflowIname, JobDataTabViewing.class);
 		Assert.assertTrue(plugins.size()==1 || plugins.size()==0);
-		return plugins.get(0);
+		if (plugins.size()==1)
+			return plugins.get(0);
+		else
+			return null;
 	}
 
 	/**
