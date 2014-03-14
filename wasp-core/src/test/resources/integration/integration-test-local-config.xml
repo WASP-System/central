@@ -27,6 +27,25 @@
 	
 	<mockito:mock id="jobOperator" class="org.springframework.batch.core.launch.wasp.WaspJobOperator" />
 	
+	<mockito:mock id="jobOperator" class="org.springframework.batch.core.launch.wasp.WaspJobOperator" />
+	
+	<mockito:mock id="genomeService" class="edu.yu.einstein.wasp.service.impl.GenomeServiceImpl" />
+	
+	<mockito:mock id="fileService" class="edu.yu.einstein.wasp.service.impl.FileServiceImpl" />
+	
+	<mockito:mock id="jobService" class="edu.yu.einstein.wasp.service.impl.JobServiceImpl" />
+	
+	<mockito:mock id="workflowService" class="edu.yu.einstein.wasp.service.impl.WorkflowServiceImpl" />
+	
+	<mockito:mock id="userService" class="edu.yu.einstein.wasp.service.impl.UserServiceImpl" />
+	
+	<mockito:mock id="labService" class="edu.yu.einstein.wasp.service.impl.LabServiceImpl" />
+	
+	
+	
+	
+	
+	
 	<int:poller id="defaultPoller" default="true" max-messages-per-poll="1" fixed-rate="10" receive-timeout="30000"/>
 
 </beans>
