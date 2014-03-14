@@ -2251,11 +2251,12 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 */
 	@Override
 	public JobDataTabViewing getTabViewPluginByJob(Job job) {
-		String pluginName = job.getWorkflow().getIName();
-		logger.debug("****we are in getTabViewPluginByJob with pluginname = " + pluginName);
-		logger.debug("****we are at next line");
-		
-		return waspPluginRegistry.getPlugin(pluginName, JobDataTabViewing.class);
+
+		String workflowIname = job.getWorkflow().getIName();
+		List<JobDataTabViewing> plugins = waspPluginRegistry.getPluginsHandlingArea(workflowIname, JobDataTabViewing.class);
+		Assert.assertTrue(plugins.size()==1 || plugins.size()==0);
+		return plugins.get(0);
+
 	}
 
 	/**
