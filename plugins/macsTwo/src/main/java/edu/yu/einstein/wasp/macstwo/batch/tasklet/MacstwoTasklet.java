@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
+import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters;
@@ -132,14 +133,14 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	}
 	
 //TODO: ROBERT A DUBIN (1 of 3) comment out next METHOD for production !!!!!!!!!!
-///*
+/*
 	@Override
 	@Transactional("entityManager")
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		this.doExecute(context);
 		return RepeatStatus.FINISHED;
 	}
-//*/
+*/
 	
 	/**
 	 * 
@@ -351,17 +352,17 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		logger.debug("executed w.setResultsDirectory(a/jobId) in MacstwoTasklet.doExecute()");
 
 //TODO: ROBERT A DUBIN (2 of 3) uncomment next 3 lines for production  !!!!!!!!!!
-/*
+///*
 		GridResult result = gridHostResolver.execute(w);
 		logger.debug("****Executed gridHostResolver.execute(w) in MactwoTasklet.doExecute()");
 		storeStartedResult(context, result);//place the grid result in the step context
-*/
+//*/
 		
 //TODO: ROBERT A DUBIN (3 of 3) comment out next two (yes, TWO) lines for production  !!!!!!!!!!
-///*
+/*
 		logger.debug("getting ready to call doPreFinish() in MacstwoTasklet.doExecute()");
 		this.doPreFinish(context);
-//*/		
+*/		
 	}
 	
 
