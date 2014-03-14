@@ -153,7 +153,7 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 		Job job = jobService.getJobByJobId(jobIdFromJobParameter);
 		logger.debug("***************in PeakCallerTasklet.execute(): job.getId() = " + job.getId().toString());
 		Assert.assertTrue(job.getId()>0);
-		List<SampleSource> approvedCellLibraryList = sampleService.getCellLibrariesPassQCAndNoAggregateAnalysis(job);		
+		List<SampleSource> approvedCellLibraryList = new ArrayList<SampleSource>(sampleService.getCellLibrariesForJob(job));//sampleService.getCellLibrariesPassQCAndNoAggregateAnalysis(job);		
 		logger.debug("***************in PeakCallerTasklet.execute(): approvedCellLibraryList.size() is " + approvedCellLibraryList.size());
 		Assert.assertTrue( ! approvedCellLibraryList.isEmpty() );
 		

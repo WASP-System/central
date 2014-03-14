@@ -64,8 +64,8 @@ import edu.yu.einstein.wasp.viewpanel.Content;
 import edu.yu.einstein.wasp.viewpanel.DataTabViewing.Status;
 import edu.yu.einstein.wasp.viewpanel.Panel;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
-import edu.yu.einstein.wasp.viewpanel.WebContent;
-import edu.yu.einstein.wasp.viewpanel.WebPanel;
+//import edu.yu.einstein.wasp.viewpanel.WebContent;
+//import edu.yu.einstein.wasp.viewpanel.WebPanel;
 
 @Service
 @Transactional("entityManager")
@@ -258,7 +258,7 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 			logger.debug("***************G");
 			Set<PanelTab> panelTabSet = new LinkedHashSet<PanelTab>();logger.debug("***************1");
 			PanelTab panelTab = new PanelTab();logger.debug("***************2");
-			
+/*			
 			panelTab.setName("Summary");logger.debug("***************3");
 			panelTab.setDescription("testDescription");logger.debug("***************4");
 			WebPanel panel = new WebPanel();logger.debug("***************5");
@@ -305,7 +305,7 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 				//do the other panels
 			}
 			logger.debug("***************ending chipseqService.getChipSeqDataToDisplay(job)");
-
+*/
 			return panelTabSet;
 		}catch(Exception e){logger.debug("***************EXCEPTION IN chipseqService.getChipSeqDataToDisplay(job): "+ e.getStackTrace());throw new PanelException(e.getMessage());}
 	}
