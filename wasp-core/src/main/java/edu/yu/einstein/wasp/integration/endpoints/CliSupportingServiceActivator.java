@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.integration.endpoints;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,6 +10,8 @@ import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
@@ -16,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
@@ -42,12 +46,15 @@ import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 
-@Transactional("entityManager")
+
 public class CliSupportingServiceActivator implements ClientMessageI, CliSupporting{
+	
+	protected  Logger logger = LoggerFactory.getLogger(CliSupportingServiceActivator.class);
 	
 	
 	@Autowired
@@ -71,6 +78,9 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 	@Autowired
 	private UserService userService;
 	
+	@Autowired
+	private LabService labService;
+	
 	public CliSupportingServiceActivator() {
 	}
 
@@ -78,6 +88,7 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 	 * ServiceActivator called method
 	 */
 	@Override
+	@Transactional("entityManager")
 	public Message<?> process(Message<?> m) throws RemoteException {
 		String payloadStr = m.getPayload().toString();
 		if (payloadStr.startsWith("{") && payloadStr.endsWith("}")){ // looks like JSON to me
@@ -103,6 +114,7 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 	}
 
 	@Override
+	@Transactional("entityManager")
 	public Message<String> listPlugins() {
 		Map<String, String> plugins = new HashMap<>();
 		List<WaspPlugin> pluginList = new ArrayList<WaspPlugin>(pluginRegistry.getPlugins().values());
@@ -112,6 +124,7 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 	}
 
 	@Override
+	@Transactional("entityManager")
 	public Message<String> listGenomeBuilds(){
 		Map<String, String> builds = new HashMap<>();
 		for (Organism o : genomeService.getOrganisms())
@@ -122,6 +135,7 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 	}
 	
 	@Override
+	@Transactional("entityManager")
 	public Message<String> listSampleSubtypes(){
 		Map<String, String> sampleSubtypes = new HashMap<>();
 		for (SampleSubtype sst : sampleService.getSampleSubtypeDao().findAll())
@@ -131,6 +145,7 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 	}
 
 	@Override
+	@Transactional("entityManager")
 	public Message<String> listCellLibraries() {
 		Map<String, String> cellLibraries = new HashMap<>();
 		for (SampleSource cellLibrary : sampleService.getCellLibraries()){
@@ -152,6 +167,7 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 	}
 	
 	@Override
+	@Transactional("entityManager")
 	public Message<String> listFileTypes(){
 		Map<String, String> fileTypes = new HashMap<>();
 		for (FileType ft : fileService.getFileTypes())
@@ -160,6 +176,7 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 	}
 	
 	@Override
+	@Transactional("entityManager")
 	public Message<String> listAssayWorkflows(){
 		Map<String, String> workflows = new HashMap<>();
 		for (Workflow w : workflowService.getWorkflows())
@@ -168,29 +185,30 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 	}
 	
 	@Override
+	@Transactional("entityManager")
 	public Message<String> listUsers(){
 		Map<String, String> users = new HashMap<>();
-		for (User u : userService.getUserDao().getActiveUsers()){
-			// TODO: only selects first lab below (u.getLab().get(0)) but may be in more than one lab
-			String labName = "";
-			if (u.getLab().size() > 0)
-				labName = u.getLab().get(0).getName();
-			users.put(u.getId().toString(), u.getLastName() + ", " + u.getFirstName() + " (" + labName + ")");
+		for (LabUser lu : labService.getAllLabUsers()){
+			String labName = lu.getLab().getName();
+			User u = lu.getUser();
+			if (!users.containsKey(u.getId().toString())) // TODO: only selects first lab below but user may be in more than one lab
+				users.put(u.getId().toString(), u.getLastName() + ", " + u.getFirstName() + " (" + labName + ")");
 		}
 		return MessageBuilder.withPayload(new JSONObject(users).toString()).build();
 	}
 	
+	@Transactional("entityManager")
 	@Override
 	public Message<String> processImportedFileRegistrationData(JSONObject data){
-		JSONArray lineArray = data.toJSONArray(new JSONArray());
+		logger.debug("Handling json: " + data.toString());
 		List<String> headerList = new ArrayList<>();
 		SampleSource currentCellLibrary = null;
 		Job currentJob = null;
 		Sample currentSample = null;
 		FileGroup currentFileGroup = null;
 		FileHandle currentFileHandle = null;
-		for (int i=0; i < lineArray.length(); i++){
-			JSONArray lineElementList = lineArray.getJSONArray(i);
+		for (int i=0; i < data.length(); i++){
+			JSONArray lineElementList = data.getJSONArray(Integer.toString(i));
 			for (int j = 0; j < lineElementList.length(); j++){
 				String element = lineElementList.getString(j);
 				if (element.isEmpty())
@@ -200,22 +218,27 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 					continue;
 				}	
 				String heading = headerList.get(j);
-				String model = heading.substring(0, heading.indexOf("."));
-				String attributeName = heading.substring(heading.indexOf(".") + 1);
-				try{
-					handleDataEntry(model, attributeName, element, currentCellLibrary, currentJob, currentSample, currentFileGroup, currentFileHandle);
-				} catch (Exception e){
-					return MessageBuilder.withPayload("ERROR: unable to parse data: "+ e.getMessage() + "\n").build();
+				String model = heading;
+				String attributeName = "";
+				int periodPos = heading.indexOf(".");
+				if (periodPos != -1){
+					model = heading.substring(0, periodPos);
+					attributeName = heading.substring(periodPos + 1);
 				}
+				handleDataEntry(model, attributeName, element, currentCellLibrary, currentJob, currentSample, currentFileGroup, currentFileHandle);
 			}
 		}
 		return MessageBuilder.withPayload("Update successful\n").build();
 	}
 	
+	@Transactional("entityManager")
 	public void handleDataEntry(String model, String attributeName, String attributeVal, SampleSource currentCellLibrary,
 			Job currentJob, Sample currentSample, FileGroup currentFileGroup, FileHandle currentFileHandle){
 		// do all the work in this transactional method and throw runtime exception if anything goes wrong
 		// to ensure everything is rolled back
+		logger.debug("model=" + model);
+		logger.debug("attributeName=" + attributeName);
+		logger.debug("attributeVal=" + attributeVal);
 		try {
 			if (model.equals("cellLibraryId")){
 				Integer id = Integer.parseInt(attributeVal);
@@ -236,7 +259,7 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 						throw new WaspRuntimeException("Unable to get user with id=" + attributeVal);
 					if (currentJob != null && !u.getId().equals(currentJob.getUserId()) ){
 						currentJob.setUser(u);
-						currentJob.setLab(u.getLab().get(0)); // TODO:: user may be in more than one lab
+						currentJob.setLab(userService.getLabsForUser(u).get(0)); // TODO:: user may be in more than one lab
 						currentJob.setIsActive(1);
 					}
 				} else if (attributeName.equals("workflowId")){
@@ -294,6 +317,8 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 						currentFileGroup.setIsActive(1);
 						currentFileGroup.setIsArchived(0);
 						currentFileGroup = fileService.addFileGroup(currentFileGroup);
+						logger.debug("currentFileGroup Id=" + currentFileGroup.getId());
+						logger.debug("currentCellLibrary Id=" + currentCellLibrary.getId());
 						fileService.setSampleSourceFile(currentFileGroup, currentCellLibrary);
 					}
 				} else if (attributeName.equals("fileTypeId")){
@@ -336,8 +361,9 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 				fileService.saveFileHandleMeta(metaList, currentFileHandle);
 			}
 			
-		} catch (Exception e) {
-			throw new WaspRuntimeException("Unable to parse or persist data value for element=" + attributeVal + ": " + e.getCause().toString());
+		} catch (WaspException | URISyntaxException e) {
+			e.printStackTrace();
+			throw new WaspRuntimeException("Unable to parse or persist data value for element=" + attributeVal);
 		} 
 	}
 	

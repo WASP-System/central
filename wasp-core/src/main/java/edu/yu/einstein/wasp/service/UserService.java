@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.dao.UserMetaDao;
+import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 
@@ -68,6 +69,8 @@ public interface UserService extends WaspService {
 	 * @return List<User>
 	 */
   public List<User> getFacilityManagers();
+	
+  public List<Lab> getLabsForUser(User user);
 
 }
 

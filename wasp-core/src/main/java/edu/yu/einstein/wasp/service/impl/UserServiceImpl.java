@@ -12,9 +12,11 @@
 package edu.yu.einstein.wasp.service.impl;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -23,10 +25,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
+import edu.yu.einstein.wasp.dao.LabUserDao;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.dao.UserMetaDao;
 import edu.yu.einstein.wasp.dao.UserroleDao;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
+import edu.yu.einstein.wasp.model.Lab;
+import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.Userrole;
@@ -60,6 +65,9 @@ public UserDao getUserDao() {
   
   @Autowired
   private UserMetaDao userMetaDao;
+  
+  @Autowired
+  private LabUserDao labUserDao;
 
 
   
@@ -204,5 +212,16 @@ public String getUniqueLoginName(final User user){
 	public UserMetaDao getUserMetaDao() {
 		return this.userMetaDao;
 	}
+	
+	@Override
+	public List<Lab> getLabsForUser(User user){
+		Map<String, Integer> m = new HashMap<>();
+		m.put("userid", user.getId());
+		List<Lab> labs = new ArrayList<>();
+		for (LabUser lu : labUserDao.findByMap(m))
+			labs.add(lu.getLab());
+		return labs;
+	}
+
 }
 

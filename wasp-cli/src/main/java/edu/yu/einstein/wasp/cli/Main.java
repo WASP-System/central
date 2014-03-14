@@ -10,6 +10,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.cli.CommandLine;
 import org.json.JSONObject;
@@ -75,7 +77,14 @@ public class Main {
 					try{
 						Path path = Paths.get(cl.getOptionValue("i"));
 						List<List<String>> data = TemplateFileHandler.importTemplateFileData(path);
-						message = getMessage(parser, "cli", new JSONObject(data).toString());
+						JSONObject jsonObj = new JSONObject();
+						
+						// cannot simply add nested list to JSONObject constructor. Fails to work so follwing code required:
+						Integer count = 0;
+						for (List<String> list : data)
+							jsonObj.put((count++).toString(), list);
+						
+						message = getMessage(parser, "cli", jsonObj.toString());
 						String result = sendMessageAndParseReply(message, gw);
 						System.out.println(result);
 						
@@ -262,14 +271,12 @@ public class Main {
 	}
 	
 	private static void listUsers(JSONObject json){
-		String output = "\n* List users [represented: user id -> user name (lab)]\n";
-		List<Integer> ids = new ArrayList<>();
+		String output = "\n* List users [represented: user id -> user name (lab)] (ordered by user name)\n";
+		Map<String, String> usersTreeMap = new TreeMap<>();
 		for (Object key : json.keySet()) 
-			ids.add(Integer.parseInt((String) key));
-		Collections.sort(ids);
-		for (Integer id : ids) {
-			String details = json.getString(id.toString());
-			output += "    " + id.toString() + " -> " + details + "\n";
+			usersTreeMap.put(json.getString(key.toString()), key.toString());
+		for (String details : usersTreeMap.keySet()) {
+			output += "    " + usersTreeMap.get(details) + " -> " + details + "\n";
 		}
 		System.out.println(output);
 	}
