@@ -66,7 +66,6 @@ public class TemplateFileHandler {
 			int elementCount = 0;
 			if (line.isEmpty() || line.replaceAll(",","").isEmpty())
 				continue;
-			System.out.println(line);
 			data.add(new ArrayList<String>());
 			for (String element : line.split(",")){ // note: Trailing empty strings are not included in the resulting array.
 				if (element.isEmpty()){
@@ -77,7 +76,6 @@ public class TemplateFileHandler {
 				else if (element.equalsIgnoreCase("N/A"))
 					element = "";
 				data.get(lineCount).add(element);
-				System.out.println("line=" + lineCount + ", element=" + elementCount + ": " + element);
 				elementCount++;
 			}
 			lineCount++;

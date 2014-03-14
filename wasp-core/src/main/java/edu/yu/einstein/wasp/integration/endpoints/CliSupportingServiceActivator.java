@@ -227,7 +227,6 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 				}
 				try {
 					if (model.equals("cellLibraryId")){
-						logger.debug("getting cellLibrary: " + attributeVal);
 						Integer id = Integer.parseInt(attributeVal);
 						if (currentCellLibrary == null || !currentCellLibrary.getId().equals(id))
 							try{
@@ -237,7 +236,6 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 							}
 						if (currentCellLibrary == null || currentCellLibrary.getId() == null)
 							throw new WaspRuntimeException("Unable to get cellLibrary with id=" + attributeVal);
-						logger.debug("cellLibraryId Id=" + currentCellLibrary.getId());
 					} else if (model.equals("Job")){
 						if (attributeName.equals("name")){
 							if (currentJob == null || !currentJob.getName().equals(attributeVal)){
@@ -246,6 +244,8 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 								currentJob = jobService.getJobDao().save(currentJob);
 							}
 						} else if (attributeName.equals("userId")){
+							if (currentJob == null || currentJob.getId() == null)
+								throw new WaspRuntimeException("Cannot update " + model + "." + attributeName + "because current " + model + " object is not defined");
 							User u = userService.getUserDao().findById(Integer.parseInt(attributeVal));
 							if (u == null || u.getId() == null)
 								throw new WaspRuntimeException("Unable to get user with id=" + attributeVal);
@@ -255,6 +255,8 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 								currentJob.setIsActive(1);
 							}
 						} else if (attributeName.equals("workflowId")){
+							if (currentJob == null || currentJob.getId() == null)
+								throw new WaspRuntimeException("Cannot update " + model + "." + attributeName + "because current " + model + " object is not defined");
 							Workflow wf = workflowService.getWorkflowDao().findById(Integer.parseInt(attributeVal));
 							if (wf == null || wf.getId() == null)
 								throw new WaspRuntimeException("Unable to get workflow with id=" + attributeVal);
@@ -262,6 +264,8 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 								currentJob.setWorkflow(wf);
 						}
 					} else if (model.equals("JobMeta")){
+						if (currentJob == null || currentJob.getId() == null)
+							throw new WaspRuntimeException("Cannot update " + model + "." + attributeName + " because model object with which to associate meta is not defined");
 						JobMeta meta = new JobMeta();
 						meta.setK(attributeName);
 						meta.setV(attributeVal);
@@ -269,6 +273,8 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 						jobService.getJobMetaDao().setMeta(meta);
 					} else if (model.equals("Sample")){
 						if (attributeName.equals("name")){
+							if (currentJob == null || currentJob.getId() == null)
+								throw new WaspRuntimeException("Cannot update " + model + "." + attributeName + "because current Job object is not defined");
 							if (currentSample == null || !currentSample.getName().equals(attributeVal)){
 								currentSample = new Sample();
 								currentSample.setName(attributeVal);
@@ -287,6 +293,8 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 								jobSample = jobService.getJobSampleDao().save(jobSample);
 							}
 						} else if (attributeName.equals("sampleSubtypeId")){
+							if (currentSample == null || currentSample.getId() == null)
+								throw new WaspRuntimeException("Cannot update " + model + "." + attributeName + "because current " + model + " object is not defined");
 							SampleSubtype ss = sampleService.getSampleSubtypeById(Integer.parseInt(attributeVal));
 							if (ss == null || ss.getId() == null)
 								throw new WaspRuntimeException("Unable to get sampleSubtype with id=" + attributeVal);
@@ -296,6 +304,8 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 							}
 						}
 					} else if (model.equals("SampleMeta")){
+						if (currentSample == null || currentSample.getId() == null)
+							throw new WaspRuntimeException("Cannot update " + model + "." + attributeName + "because model object with which to associate meta is not defined");
 						SampleMeta meta = new SampleMeta();
 						meta.setK(attributeName);
 						meta.setV(attributeVal);
@@ -303,17 +313,19 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 						sampleService.getSampleMetaDao().setMeta(meta);
 					} else if (model.equals("FileGroup")){
 						if (attributeName.equals("description")){
+							if (currentCellLibrary == null || currentCellLibrary.getId() == null)
+								throw new WaspRuntimeException("Cannot update " + model + "." + attributeName + "because current cellLibrary object is not defined");
 							if (currentFileGroup == null || !currentFileGroup.getDescription().equals(attributeVal)){
 								currentFileGroup = new FileGroup();
 								currentFileGroup.setDescription(attributeVal);
 								currentFileGroup.setIsActive(1);
 								currentFileGroup.setIsArchived(0);
 								currentFileGroup = fileService.addFileGroup(currentFileGroup);
-								logger.debug("currentFileGroup Id=" + currentFileGroup.getId());
-								logger.debug("currentCellLibrary Id=" + currentCellLibrary.getId());
 								fileService.setSampleSourceFile(currentFileGroup, currentCellLibrary);
 							}
 						} else if (attributeName.equals("fileTypeId")){
+							if (currentFileGroup == null || currentFileGroup.getId() == null)
+								throw new WaspRuntimeException("Cannot update " + model + "." + attributeName + "because current " + model + " object is not defined");
 							FileType ft = fileService.getFileType(Integer.parseInt(attributeVal));
 							if (ft == null || ft.getId() == null)
 								throw new WaspRuntimeException("Unable to get fileTypeSubtype with id=" + attributeVal);
@@ -322,6 +334,8 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 						}
 					}
 					else if (model.equals("FileGroupMeta")){
+						if (currentFileGroup == null || currentFileGroup.getId() == null)
+							throw new WaspRuntimeException("Cannot update " + model + "." + attributeName + "because model object with which to associate meta is not defined");
 						FileGroupMeta meta = new FileGroupMeta();
 						meta.setK(attributeName);
 						meta.setV(attributeVal);
@@ -330,7 +344,9 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 						metaList.add(meta);
 						fileService.saveFileGroupMeta(metaList, currentFileGroup);
 					} else if (model.equals("FileHandle")){
-						if (attributeName.equals("name")){
+						if (attributeName.equals("fileName")){
+							if (currentFileGroup == null || currentFileGroup.getId() == null)
+								throw new WaspRuntimeException("Cannot update " + model + "." + attributeName + "because currentFileGroup is not defined");
 							if (currentFileHandle == null || !currentFileHandle.getFileName().equals(attributeVal)){
 								currentFileHandle = new FileHandle();
 								currentFileHandle.setFileName(attributeVal);
@@ -339,11 +355,17 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 								currentFileGroup.addFileHandle(currentFileHandle);
 							}
 						} else if (attributeName.equals("fileURI")){
+							if (currentFileHandle == null || currentFileHandle.getId() == null)
+								throw new WaspRuntimeException("Cannot update " + model + "." + attributeName + "because current " + model + " object is not defined");
 							currentFileHandle.setFileURI(new URI(attributeVal));
 						} else if (attributeName.equals("md5hash")){
+							if (currentFileHandle == null || currentFileHandle.getId() == null)
+								throw new WaspRuntimeException("Cannot update " + model + "." + attributeName + "because current " + model + " object is not defined");
 							currentFileHandle.setMd5hash(attributeVal);
 						}
 					} else if (model.equals("FileHandleMeta")){
+						if (currentFileHandle == null || currentFileHandle.getId() == null)
+							throw new WaspRuntimeException("Cannot update " + model + "." + attributeName + "because model object with which to associate meta is not defined");
 						FileHandleMeta meta = new FileHandleMeta();
 						meta.setK(attributeName);
 						meta.setV(attributeVal);

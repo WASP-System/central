@@ -216,7 +216,7 @@ public String getUniqueLoginName(final User user){
 	@Override
 	public List<Lab> getLabsForUser(User user){
 		Map<String, Integer> m = new HashMap<>();
-		m.put("userid", user.getId());
+		m.put("userId", user.getId());
 		List<Lab> labs = new ArrayList<>();
 		for (LabUser lu : labUserDao.findByMap(m))
 			labs.add(lu.getLab());
