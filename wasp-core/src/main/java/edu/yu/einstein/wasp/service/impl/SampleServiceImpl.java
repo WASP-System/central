@@ -927,9 +927,14 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  Assert.assertParameterNotNull(job, "No Job provided");
 		  List<Sample> availablePlatformUnits = getAvailablePlatformUnits();
 		  List<Sample> availableAndCompatibleFlowCells = new ArrayList<Sample>();
+		  List<JobResourcecategory> jrcList = job.getJobResourcecategory();
+		  if (jrcList == null || jrcList.isEmpty()){
+			  logger.debug("No resource categories defined for job with id=" + job.getId());
+			  return availableAndCompatibleFlowCells;
+		  }
 		  for(Sample pu : availablePlatformUnits){
 			  for(SampleSubtypeResourceCategory ssrc : pu.getSampleSubtype().getSampleSubtypeResourceCategory()){
-				  for(JobResourcecategory jrc : job.getJobResourcecategory()){
+				  for(JobResourcecategory jrc : jrcList){
 					  if(ssrc.getResourcecategoryId().intValue() == jrc.getResourcecategoryId().intValue()){
 						  availableAndCompatibleFlowCells.add(pu);
 					  }
@@ -1277,7 +1282,12 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  Map<String,Integer> q = new HashMap<String,Integer>();
 		  q.put("sourceSampleId", library.getId());
 		  for (SampleSource ss : getSampleSourceDao().findByMap(q)){
-			  if (ss.getSample() == null || isCell(ss.getSample())) // may be null if library added from external source e.g. via CLI
+			  if (ss.getSample() == null){
+				  // may be null if library added from external source e.g. via CLI
+				  logger.debug("cellLibrary with id=" + ss.getId() + " has no associated cells");
+				  continue;
+			  }
+			  if (isCell(ss.getSample())) 
 				  cells.add(ss.getSample());
 		  }
 		  return cells;
@@ -3025,6 +3035,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			  List<Sample> cellsForLibraryAndJob = new ArrayList<Sample>();		  
 			  Set<SampleSource> sampleSourceList = this.getCellLibrariesForJob(job);
 			  for(SampleSource ss : sampleSourceList){
+				  if (ss.getSample() == null){
+					  // may be null if library added from external source e.g. via CLI
+					  logger.debug("cellLibrary with id=" + ss.getId() + " has no associated cells");
+					  continue;
+				  }
 				  if(ss.getSourceSample()==library){//here, sourcesample is library; sample is cell
 					  cellsForLibraryAndJob.add(ss.getSample());//add cell to list
 				  }

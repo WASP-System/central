@@ -887,13 +887,19 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 				extraJobDetailsMap.put("jobdetail_for_import.Run_Type.label", jobMeta.getV());
 			}
 		  }
+		  String readLength = "?";
+		  String readType = "?";
 		  try {
 			  SequenceReadProperties readProperties = SequenceReadProperties.getSequenceReadProperties(job, area, JobMeta.class);
-			  extraJobDetailsMap.put("jobdetail_for_import.Read_Length.label", readProperties.getReadLength().toString());
-			  extraJobDetailsMap.put("jobdetail_for_import.Read_Type.label", readProperties.getReadType().toUpperCase());
+			  if (readProperties != null){
+				  readLength = readProperties.getReadLength().toString();
+				  readType = readProperties.getReadType().toUpperCase();
+			  }
 		  } catch (MetadataException e) {
 			  logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
 		  }
+		  extraJobDetailsMap.put("jobdetail_for_import.Read_Length.label", readLength);
+		  extraJobDetailsMap.put("jobdetail_for_import.Read_Type.label", readType);
 		 
 		  /* replaced with code below
 		  try{

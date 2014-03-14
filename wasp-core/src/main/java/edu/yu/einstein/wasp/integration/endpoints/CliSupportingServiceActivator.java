@@ -12,6 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
@@ -311,6 +312,18 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 						meta.setV(attributeVal);
 						meta.setSample(currentSample);
 						sampleService.getSampleMetaDao().setMeta(meta);
+						if (attributeName.equals(genomeService.GENOME_AREA + "." + genomeService.GENOME_STRING_META_KEY)){
+							// also save organism data
+							SampleMeta metaO = new SampleMeta();
+							metaO.setK("genericBiomolecule.organism");
+							try {
+								metaO.setV(genomeService.getBuild(attributeVal).getGenome().getOrganism().getNcbiID().toString());
+							} catch (ParameterValueRetrievalException e) {
+								throw new WaspRuntimeException("Cannot update " + model + ".genericBiomolecule.organism : " + e.getMessage());
+							}
+							metaO.setSample(currentSample);
+							sampleService.getSampleMetaDao().setMeta(metaO);
+						}
 					} else if (model.equals("FileGroup")){
 						if (attributeName.equals("description")){
 							if (currentCellLibrary == null || currentCellLibrary.getId() == null)
