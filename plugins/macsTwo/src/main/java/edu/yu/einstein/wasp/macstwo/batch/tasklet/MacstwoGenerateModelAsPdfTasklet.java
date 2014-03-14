@@ -174,10 +174,13 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		this.commandLineCall = w.getCommand();
 		Assert.assertTrue(!this.commandLineCall.isEmpty());
 		logger.debug("commandLineCall in MacstwoGenerateModelAsPdfTasklet.doExecute() is : " + commandLineCall);
-			 
+			
+		List<String> listOfFileHandleNames = new ArrayList<String>();
+
 		FileGroup modelPdfG = new FileGroup();
 		FileHandle modelPdf = new FileHandle();
 		modelPdf.setFileName(pdfFileName);
+		listOfFileHandleNames.add(pdfFileName);
 		modelPdf.setFileType(macs2ModelPdfFileType);
 		modelPdf = fileService.addFile(modelPdf);
 		modelPdfG.addFileHandle(modelPdf);
@@ -199,7 +202,15 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		w.getResultFiles().add(modelPdfG);
 		logger.debug("executed w.getResultFiles().add(modelPdfG) within MacstwoGenerateModelAsPdfTasklet.doExecute()");
 	
-		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + this.jobId.toString());   
+		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + this.jobId.toString()); 
+		
+		int counter = 0;
+		for(String fileName : listOfFileHandleNames){//need to make this symbolic link in order to properly copy files
+			w.addCommand("ln -s " + fileName + " ${" + WorkUnit.OUTPUT_FILE+"["+counter+"]}");
+			logger.debug("add command: " + "ln -s " + fileName + " ${" + WorkUnit.OUTPUT_FILE+"["+counter+"]}");
+			counter++;
+		}
+		
 		logger.debug("executed w.setResultsDirectory(Workunit.....) within MacstwoGenerateModelAsPdfTasklet.doExecute()");
 		
 //TODO: ROBERT A DUBIN (2 of 3) uncomment next 3 lines for production  !!!!!!!!!!

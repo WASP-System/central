@@ -301,6 +301,9 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 			panelTab.setNumberOfColumns(1);
 			panelTabSet.add(panelTab);logger.debug("***************11");
 
+			if(jobStatus.name().equals(Status.COMPLETED)){
+				//do the other panels
+			}
 			logger.debug("***************ending chipseqService.getChipSeqDataToDisplay(job)");
 
 			return panelTabSet;
