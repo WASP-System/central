@@ -210,11 +210,11 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 		for (int i=0; i < data.length(); i++){
 			JSONArray lineElementList = data.getJSONArray(Integer.toString(i));
 			for (int j = 0; j < lineElementList.length(); j++){
-				String element = lineElementList.getString(j);
-				if (element.isEmpty())
+				String attributeVal = lineElementList.getString(j);
+				if (attributeVal.isEmpty())
 					continue;
 				if (i == 0){ // first line
-					headerList.add(element);
+					headerList.add(attributeVal);
 					continue;
 				}	
 				String heading = headerList.get(j);
@@ -225,147 +225,143 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 					model = heading.substring(0, periodPos);
 					attributeName = heading.substring(periodPos + 1);
 				}
-				handleDataEntry(model, attributeName, element, currentCellLibrary, currentJob, currentSample, currentFileGroup, currentFileHandle);
+				try {
+					if (model.equals("cellLibraryId")){
+						logger.debug("getting cellLibrary: " + attributeVal);
+						Integer id = Integer.parseInt(attributeVal);
+						if (currentCellLibrary == null || !currentCellLibrary.getId().equals(id))
+							try{
+								currentCellLibrary = sampleService.getCellLibraryBySampleSourceId(id);
+							} catch (SampleTypeException e){
+								throw new WaspRuntimeException("Unable to get cellLibrary with id=" + attributeVal + ": " + e.getMessage());
+							}
+						if (currentCellLibrary == null || currentCellLibrary.getId() == null)
+							throw new WaspRuntimeException("Unable to get cellLibrary with id=" + attributeVal);
+						logger.debug("cellLibraryId Id=" + currentCellLibrary.getId());
+					} else if (model.equals("Job")){
+						if (attributeName.equals("name")){
+							if (currentJob == null || !currentJob.getName().equals(attributeVal)){
+								currentJob = new Job();
+								currentJob.setName(attributeVal);
+								currentJob = jobService.getJobDao().save(currentJob);
+							}
+						} else if (attributeName.equals("userId")){
+							User u = userService.getUserDao().findById(Integer.parseInt(attributeVal));
+							if (u == null || u.getId() == null)
+								throw new WaspRuntimeException("Unable to get user with id=" + attributeVal);
+							if (currentJob != null && !u.getId().equals(currentJob.getUserId()) ){
+								currentJob.setUser(u);
+								currentJob.setLab(userService.getLabsForUser(u).get(0)); // TODO:: user may be in more than one lab
+								currentJob.setIsActive(1);
+							}
+						} else if (attributeName.equals("workflowId")){
+							Workflow wf = workflowService.getWorkflowDao().findById(Integer.parseInt(attributeVal));
+							if (wf == null || wf.getId() == null)
+								throw new WaspRuntimeException("Unable to get workflow with id=" + attributeVal);
+							if (currentJob != null && !wf.getId().equals(currentJob.getWorkflowId()) )
+								currentJob.setWorkflow(wf);
+						}
+					} else if (model.equals("JobMeta")){
+						JobMeta meta = new JobMeta();
+						meta.setK(attributeName);
+						meta.setV(attributeVal);
+						meta.setJob(currentJob);
+						jobService.getJobMetaDao().setMeta(meta);
+					} else if (model.equals("Sample")){
+						if (attributeName.equals("name")){
+							if (currentSample == null || !currentSample.getName().equals(attributeVal)){
+								currentSample = new Sample();
+								currentSample.setName(attributeVal);
+								currentSample.setSubmitterUserId(currentJob.getUserId());
+								currentSample.setSubmitterLabId(currentJob.getLabId());
+								currentSample.setSubmitterJobId(currentJob.getId());
+								currentSample.setIsActive(1);
+								currentSample = sampleService.getSampleDao().save(currentSample);
+								currentCellLibrary = new SampleSource();
+								currentCellLibrary.setSourceSample(currentSample);
+								currentCellLibrary = sampleService.getSampleSourceDao().save(currentCellLibrary);
+								sampleService.setJobForLibraryOnCell(currentCellLibrary, currentJob);
+								JobSample jobSample = new JobSample();
+								jobSample.setJob(currentJob);
+								jobSample.setSample(currentSample);
+								jobSample = jobService.getJobSampleDao().save(jobSample);
+							}
+						} else if (attributeName.equals("sampleSubtypeId")){
+							SampleSubtype ss = sampleService.getSampleSubtypeById(Integer.parseInt(attributeVal));
+							if (ss == null || ss.getId() == null)
+								throw new WaspRuntimeException("Unable to get sampleSubtype with id=" + attributeVal);
+							if (currentSample != null && !ss.getId().equals(currentSample.getSampleSubtypeId()) ){
+								currentSample.setSampleSubtype(ss);
+								currentSample.setSampleTypeId(ss.getSampleTypeId());
+							}
+						}
+					} else if (model.equals("SampleMeta")){
+						SampleMeta meta = new SampleMeta();
+						meta.setK(attributeName);
+						meta.setV(attributeVal);
+						meta.setSample(currentSample);
+						sampleService.getSampleMetaDao().setMeta(meta);
+					} else if (model.equals("FileGroup")){
+						if (attributeName.equals("description")){
+							if (currentFileGroup == null || !currentFileGroup.getDescription().equals(attributeVal)){
+								currentFileGroup = new FileGroup();
+								currentFileGroup.setDescription(attributeVal);
+								currentFileGroup.setIsActive(1);
+								currentFileGroup.setIsArchived(0);
+								currentFileGroup = fileService.addFileGroup(currentFileGroup);
+								logger.debug("currentFileGroup Id=" + currentFileGroup.getId());
+								logger.debug("currentCellLibrary Id=" + currentCellLibrary.getId());
+								fileService.setSampleSourceFile(currentFileGroup, currentCellLibrary);
+							}
+						} else if (attributeName.equals("fileTypeId")){
+							FileType ft = fileService.getFileType(Integer.parseInt(attributeVal));
+							if (ft == null || ft.getId() == null)
+								throw new WaspRuntimeException("Unable to get fileTypeSubtype with id=" + attributeVal);
+							if (currentFileGroup != null && !ft.getId().equals(currentFileGroup.getId()) )
+								currentFileGroup.setFileType(ft);
+						}
+					}
+					else if (model.equals("FileGroupMeta")){
+						FileGroupMeta meta = new FileGroupMeta();
+						meta.setK(attributeName);
+						meta.setV(attributeVal);
+						meta.setFileGroup(currentFileGroup);
+						List<FileGroupMeta> metaList = new ArrayList<>();
+						metaList.add(meta);
+						fileService.saveFileGroupMeta(metaList, currentFileGroup);
+					} else if (model.equals("FileHandle")){
+						if (attributeName.equals("name")){
+							if (currentFileHandle == null || !currentFileHandle.getFileName().equals(attributeVal)){
+								currentFileHandle = new FileHandle();
+								currentFileHandle.setFileName(attributeVal);
+								currentFileHandle.setFileType(currentFileGroup.getFileType());
+								currentFileHandle = fileService.addFile(currentFileHandle);
+								currentFileGroup.addFileHandle(currentFileHandle);
+							}
+						} else if (attributeName.equals("fileURI")){
+							currentFileHandle.setFileURI(new URI(attributeVal));
+						} else if (attributeName.equals("md5hash")){
+							currentFileHandle.setMd5hash(attributeVal);
+						}
+					} else if (model.equals("FileHandleMeta")){
+						FileHandleMeta meta = new FileHandleMeta();
+						meta.setK(attributeName);
+						meta.setV(attributeVal);
+						meta.setFile(currentFileHandle);
+						List<FileHandleMeta> metaList = new ArrayList<>();
+						metaList.add(meta);
+						fileService.saveFileHandleMeta(metaList, currentFileHandle);
+					}
+					
+				} catch (WaspException | URISyntaxException e) {
+					e.printStackTrace();
+					throw new WaspRuntimeException("Unable to parse or persist data value for element=" + attributeVal);
+				} 
 			}
 		}
 		return MessageBuilder.withPayload("Update successful\n").build();
 	}
 	
-	@Transactional("entityManager")
-	public void handleDataEntry(String model, String attributeName, String attributeVal, SampleSource currentCellLibrary,
-			Job currentJob, Sample currentSample, FileGroup currentFileGroup, FileHandle currentFileHandle){
-		// do all the work in this transactional method and throw runtime exception if anything goes wrong
-		// to ensure everything is rolled back
-		logger.debug("model=" + model);
-		logger.debug("attributeName=" + attributeName);
-		logger.debug("attributeVal=" + attributeVal);
-		try {
-			if (model.equals("cellLibraryId")){
-				Integer id = Integer.parseInt(attributeVal);
-				if (currentCellLibrary == null || !currentCellLibrary.getId().equals(id))
-					currentCellLibrary = sampleService.getCellLibraryBySampleSourceId(id);
-				if (currentCellLibrary == null || currentCellLibrary.getId() == null)
-					throw new WaspRuntimeException("Unable to get cellLibrary with id=" + attributeVal);
-			} else if (model.equals("Job")){
-				if (attributeName.equals("name")){
-					if (currentJob == null || !currentJob.getName().equals(attributeVal)){
-						currentJob = new Job();
-						currentJob.setName(attributeVal);
-						currentJob = jobService.getJobDao().save(currentJob);
-					}
-				} else if (attributeName.equals("userId")){
-					User u = userService.getUserDao().findById(Integer.parseInt(attributeVal));
-					if (u == null || u.getId() == null)
-						throw new WaspRuntimeException("Unable to get user with id=" + attributeVal);
-					if (currentJob != null && !u.getId().equals(currentJob.getUserId()) ){
-						currentJob.setUser(u);
-						currentJob.setLab(userService.getLabsForUser(u).get(0)); // TODO:: user may be in more than one lab
-						currentJob.setIsActive(1);
-					}
-				} else if (attributeName.equals("workflowId")){
-					Workflow wf = workflowService.getWorkflowDao().findById(Integer.parseInt(attributeVal));
-					if (wf == null || wf.getId() == null)
-						throw new WaspRuntimeException("Unable to get workflow with id=" + attributeVal);
-					if (currentJob != null && !wf.getId().equals(currentJob.getWorkflowId()) )
-						currentJob.setWorkflow(wf);
-				}
-			} else if (model.equals("JobMeta")){
-				JobMeta meta = new JobMeta();
-				meta.setK(attributeName);
-				meta.setV(attributeVal);
-				meta.setJob(currentJob);
-				jobService.getJobMetaDao().setMeta(meta);
-			} else if (model.equals("Sample")){
-				if (attributeName.equals("name")){
-					if (currentSample == null || !currentSample.getName().equals(attributeVal)){
-						currentSample = new Sample();
-						currentSample.setName(attributeVal);
-						currentSample.setSubmitterUserId(currentJob.getUserId());
-						currentSample.setSubmitterLabId(currentJob.getLabId());
-						currentSample.setSubmitterJobId(currentJob.getId());
-						currentSample.setIsActive(1);
-						currentSample = sampleService.getSampleDao().save(currentSample);
-						currentCellLibrary = new SampleSource();
-						currentCellLibrary.setSourceSample(currentSample);
-						currentCellLibrary = sampleService.getSampleSourceDao().save(currentCellLibrary);
-						sampleService.setJobForLibraryOnCell(currentCellLibrary, currentJob);
-						JobSample jobSample = new JobSample();
-						jobSample.setJob(currentJob);
-						jobSample.setSample(currentSample);
-						jobSample = jobService.getJobSampleDao().save(jobSample);
-					}
-				} else if (attributeName.equals("sampleSubtypeId")){
-					SampleSubtype ss = sampleService.getSampleSubtypeById(Integer.parseInt(attributeVal));
-					if (ss == null || ss.getId() == null)
-						throw new WaspRuntimeException("Unable to get sampleSubtype with id=" + attributeVal);
-					if (currentSample != null && !ss.getId().equals(currentSample.getSampleSubtypeId()) ){
-						currentSample.setSampleSubtype(ss);
-						currentSample.setSampleTypeId(ss.getSampleTypeId());
-					}
-				}
-			} else if (model.equals("SampleMeta")){
-				SampleMeta meta = new SampleMeta();
-				meta.setK(attributeName);
-				meta.setV(attributeVal);
-				meta.setSample(currentSample);
-				sampleService.getSampleMetaDao().setMeta(meta);
-			} else if (model.equals("FileGroup")){
-				if (attributeName.equals("description")){
-					if (currentFileGroup == null || !currentFileGroup.getDescription().equals(attributeVal)){
-						currentFileGroup = new FileGroup();
-						currentFileGroup.setDescription(attributeVal);
-						currentFileGroup.setIsActive(1);
-						currentFileGroup.setIsArchived(0);
-						currentFileGroup = fileService.addFileGroup(currentFileGroup);
-						logger.debug("currentFileGroup Id=" + currentFileGroup.getId());
-						logger.debug("currentCellLibrary Id=" + currentCellLibrary.getId());
-						fileService.setSampleSourceFile(currentFileGroup, currentCellLibrary);
-					}
-				} else if (attributeName.equals("fileTypeId")){
-					FileType ft = fileService.getFileType(Integer.parseInt(attributeVal));
-					if (ft == null || ft.getId() == null)
-						throw new WaspRuntimeException("Unable to get fileTypeSubtype with id=" + attributeVal);
-					if (currentFileGroup != null && !ft.getId().equals(currentFileGroup.getId()) )
-						currentFileGroup.setFileType(ft);
-				}
-			}
-			else if (model.equals("FileGroupMeta")){
-				FileGroupMeta meta = new FileGroupMeta();
-				meta.setK(attributeName);
-				meta.setV(attributeVal);
-				meta.setFileGroup(currentFileGroup);
-				List<FileGroupMeta> metaList = new ArrayList<>();
-				metaList.add(meta);
-				fileService.saveFileGroupMeta(metaList, currentFileGroup);
-			} else if (model.equals("FileHandle")){
-				if (attributeName.equals("name")){
-					if (currentFileHandle == null || !currentFileHandle.getFileName().equals(attributeVal)){
-						currentFileHandle = new FileHandle();
-						currentFileHandle.setFileName(attributeVal);
-						currentFileHandle.setFileType(currentFileGroup.getFileType());
-						currentFileHandle = fileService.addFile(currentFileHandle);
-						currentFileGroup.addFileHandle(currentFileHandle);
-					}
-				} else if (attributeName.equals("fileURI")){
-					currentFileHandle.setFileURI(new URI(attributeVal));
-				} else if (attributeName.equals("md5hash")){
-					currentFileHandle.setMd5hash(attributeVal);
-				}
-			} else if (model.equals("FileHandleMeta")){
-				FileHandleMeta meta = new FileHandleMeta();
-				meta.setK(attributeName);
-				meta.setV(attributeVal);
-				meta.setFile(currentFileHandle);
-				List<FileHandleMeta> metaList = new ArrayList<>();
-				metaList.add(meta);
-				fileService.saveFileHandleMeta(metaList, currentFileHandle);
-			}
-			
-		} catch (WaspException | URISyntaxException e) {
-			e.printStackTrace();
-			throw new WaspRuntimeException("Unable to parse or persist data value for element=" + attributeVal);
-		} 
-	}
 	
 	
 }
