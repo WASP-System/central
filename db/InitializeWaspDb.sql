@@ -1,15 +1,5 @@
--- Recreate Database 
-GRANT USAGE ON *.* TO 'wasp'@'localhost';
--- DROP USER 'wasp'@'localhost';
 DROP DATABASE IF EXISTS wasp;
-
 create database wasp CHARACTER SET utf8 COLLATE utf8_general_ci;
--- create user 'wasp'@'localhost' IDENTIFIED BY 'waspV2';
-
-grant all on wasp.* to 'wasp'@'localhost';
-
-flush privileges;
-
 use wasp;
 
 # ************************************************************
