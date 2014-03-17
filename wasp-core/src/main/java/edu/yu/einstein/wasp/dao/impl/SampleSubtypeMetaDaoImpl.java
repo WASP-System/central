@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.SampleSubtypeMeta;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class SampleSubtypeMetaDaoImpl extends WaspMetaDaoImpl<SampleSubtypeMeta> implements edu.yu.einstein.wasp.dao.SampleSubtypeMetaDao {
 
@@ -44,7 +44,7 @@ public class SampleSubtypeMetaDaoImpl extends WaspMetaDaoImpl<SampleSubtypeMeta>
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public SampleSubtypeMeta getSampleSubtypeMetaBySampleSubtypeMetaId (final int sampleSubtypeMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", sampleSubtypeMetaId);
@@ -69,7 +69,7 @@ public class SampleSubtypeMetaDaoImpl extends WaspMetaDaoImpl<SampleSubtypeMeta>
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public SampleSubtypeMeta getSampleSubtypeMetaByKSampleSubtypeId (final String k, final int sampleSubtypeId) {
     		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);

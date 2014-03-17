@@ -2,45 +2,56 @@
  * Created by Wasp System Eclipse Plugin
  * @author 
  */
-package ___package___.___pluginname___.plugin;
+package ___package___.plugin;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Calendar;
+import java.util.HashMap; ///// PIP
+import java.util.Map; ///// PIP
 import java.util.Properties;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.JSONException; ///// PIP
+import org.json.JSONObject; ///// PIP
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 
-import edu.yu.einstein.wasp.Hyperlink;
-import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.Hyperlink;  ///// FORMVIZ
+import edu.yu.einstein.wasp.exception.PanelException; ///// VIZ
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException; ///// PIP 
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
-import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
-import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
+import edu.yu.einstein.wasp.integration.messages.WaspJobParameters; ///// PIP
+import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;  ///// PIP
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
-import edu.yu.einstein.wasp.model.Run;
-import edu.yu.einstein.wasp.plugin.BatchJobProviding;
-import edu.yu.einstein.wasp.plugin.SequencingViewProviding;
+import edu.yu.einstein.wasp.model.FileGroup; ///// VIZ
+import edu.yu.einstein.wasp.model.Software;  ///// RES
+import edu.yu.einstein.wasp.plugin.BatchJobProviding;  ///// PIP 
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
-import edu.yu.einstein.wasp.plugin.WebInterfacing;
+import edu.yu.einstein.wasp.plugin.WebInterfacing; ///// FORM
+import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing; ///// VIZ
 import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
-import edu.yu.einstein.wasp.service.RunService;
+import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
+import edu.yu.einstein.wasp.viewpanel.PanelTab; ///// VIZ
 
 /**
- * 
+ * @author 
  */
-public class ___Pluginname___Plugin extends WaspPlugin 
+public class ___PluginIName___Plugin extends WaspPlugin 
 		implements 
 			BatchJobProviding,	///// PIP
+			WebInterfacing, ///// FORM
+			FileDataTabViewing, ///// VIZ
 			ClientMessageI {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
+	
+	@Autowired
+	@Qualifier("waspMessageHandlingServiceImpl") // more than one class of type WaspMessageHandlingService so must specify
+	private WaspMessageHandlingService waspMessageHandlingService;
 
 	@Autowired
 	private GridHostResolver waspGridHostResolver;
@@ -49,15 +60,18 @@ public class ___Pluginname___Plugin extends WaspPlugin
 	private GridFileService waspGridFileService;
 
 	@Autowired
-	private RunService runService;
-	
-	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
+	
+	////> RES
+	@Autowired
+	@Qualifier("___pluginIName___")
+	private Software ___pluginIName___;
+	
+	////<
+	public static final String FLOW_NAME = "___package___.mainFlow"; ///// PIP
 
-	public static final String FLOW_NAME = "___package___.___pluginname___.mainFlow";
-
-	public ___Pluginname___Plugin(String pluginName, Properties waspSiteProperties, MessageChannel channel) {
-		super(pluginName, waspSiteProperties, channel);
+	public ___PluginIName___Plugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
+		super(iName, waspSiteProperties, channel);
 	}
 
 	/**
@@ -78,12 +92,17 @@ public class ___Pluginname___Plugin extends WaspPlugin
 			
 		return (Message<String>) MessageBuilder.withPayload("sent a Hello World").build();
 	}
-		
+	
+	private Message<String> helloWorldHelp() {
+		String mstr = "\n___PluginIName___ plugin: hello world!\n" +
+				"wasp -T ___pluginIName___ -t helloWorld\n";
+		return MessageBuilder.withPayload(mstr).build();
+	}
+
+////> PIP
 	public Message<String> launchTestFlow(Message<String> m) {
 		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
 			return launchTestFlowHelp();
-		
-		Map<String, String> jobParameters = new HashMap<String, String>();
 		
 		logger.info("launching test flow");
 		
@@ -92,17 +111,23 @@ public class ___Pluginname___Plugin extends WaspPlugin
 			if (id == null)
 				return MessageBuilder.withPayload("Unable to determine id from message: " + m.getPayload().toString()).build();
 			
-			jobParameters.put(WaspJobParameters.RUN_ID, id.toString());
-			
-			logger.info("Sending launch message to flow " + FLOW_NAME + " on with id: " + id);
-			runService.launchBatchJob(FLOW_NAME, jobParameters);
-			
+			Map<String, String> jobParameters = new HashMap<String, String>();
+			logger.info("Sending launch message with flow " + FLOW_NAME + " and id: " + id);
+			jobParameters.put(WaspJobParameters.TEST_ID, id.toString());
+			jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
+			waspMessageHandlingService.launchBatchJob(FLOW_NAME, jobParameters);
 			return (Message<String>) MessageBuilder.withPayload("Initiating test flow on id " + id).build();
 		} catch (WaspMessageBuildingException e1) {
-			logger.warn("unable to build message around jobParameters: " + jobParameters.toString());
-			return MessageBuilder.withPayload("Unable to launch bcl2qseq").build();
+			logger.warn("unable to build message to launch batch job " + FLOW_NAME);
+			return MessageBuilder.withPayload("Unable to launch batch job " + FLOW_NAME).build();
 		}
 		
+	}
+	
+	private Message<String> launchTestFlowHelp() {
+		String mstr = "\n___PluginIName___ plugin: launch the test flow.\n" +
+				"wasp -T ___pluginIName___ -t launchTestFlow -m \'{id:\"1\"}\'\n";
+		return MessageBuilder.withPayload(mstr).build();
 	}
 	
 	/**
@@ -124,7 +149,48 @@ public class ___Pluginname___Plugin extends WaspPlugin
 		}
 		return id;
 	}
+	
 
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getBatchJobName(String batchJobType) {
+		if (batchJobType.equals(BatchJobTask.GENERIC)) 
+			return FLOW_NAME;
+		return null;
+	}
+	
+////<
+////> VIZ FORM
+	/** 
+	 * {@inheritDoc} 
+	 */
+	@Override
+	public Hyperlink getDescriptionPageHyperlink() {
+		return new Hyperlink("___pluginIName___.hyperlink.label", "/___pluginIName___/displayDescription.do");
+	}
+	
+////<
+////> VIZ	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Status getStatus(FileGroup fileGroup) {
+		return Status.UNKNOWN;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public PanelTab getViewPanelTab(FileGroup fileGroup) throws PanelException {
+		return null;
+	}
+	
+////<
+	
 	/**
 	 * Wasp plugins implement InitializingBean to give authors an opportunity to initialize at runtime.
 	 */
@@ -142,30 +208,4 @@ public class ___Pluginname___Plugin extends WaspPlugin
 		// TODO Auto-generated method stub
 
 	}
-
-	private Message<String> helloWorldHelp() {
-		String mstr = "\n___Pluginname___ plugin: hello world!\n" +
-				"wasp -T ___pluginname___ -t helloWorld\n";
-		return MessageBuilder.withPayload(mstr).build();
-	}
-	
-	private Message<String> launchTestFlowHelp() {
-		String mstr = "\n___Pluginname___ plugin: launch the test flow.\n" +
-				"wasp -T ___pluginname___ -t launchTestFlow -m \'{id:\"1\"}\'\n";
-		return MessageBuilder.withPayload(mstr).build();
-	}
-	
-	@Override
-	public String getBatchJobNameByArea(String batchJobType, String area){
-		if (batchJobType.equals(BatchJobTask.GENERIC))
-			return FLOW_NAME;
-		return null;
-	}
-	
-	@Override
-	public String getBatchJobName(String batchJobType) {
-		return getBatchJobNameByArea(batchJobType, null);
-	}
-
-
 }

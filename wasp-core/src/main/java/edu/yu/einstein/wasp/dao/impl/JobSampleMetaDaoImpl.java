@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.JobSampleMeta;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class JobSampleMetaDaoImpl extends WaspMetaDaoImpl<JobSampleMeta> implements edu.yu.einstein.wasp.dao.JobSampleMetaDao {
 
@@ -44,7 +44,7 @@ public class JobSampleMetaDaoImpl extends WaspMetaDaoImpl<JobSampleMeta> impleme
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public JobSampleMeta getJobSampleMetaByJobSampleMetaId (final int jobSampleMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", jobSampleMetaId);
@@ -69,7 +69,7 @@ public class JobSampleMetaDaoImpl extends WaspMetaDaoImpl<JobSampleMeta> impleme
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public JobSampleMeta getJobSampleMetaByKJobsampleId (final String k, final int jobsampleId) {
     		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);

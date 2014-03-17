@@ -6,12 +6,12 @@ import java.sql.Statement;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.Reporter;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
-import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.util.SeleniumHelper;
@@ -31,6 +31,8 @@ public class SelAddNewUser extends SelBaseTest {
 	 */
 	
 	private WebElement submitLogin;
+	private static final Logger LOGGER = LoggerFactory.getLogger(SelAddNewUser.class);
+
 	
 	
     /**
@@ -42,7 +44,7 @@ public class SelAddNewUser extends SelBaseTest {
     * @param locale
     * @param primaryuserid
     * @param title
-    * @param building_room
+    * @param bldgRoom
     * @param address
     * @param phone
     * @param fax
@@ -51,10 +53,10 @@ public class SelAddNewUser extends SelBaseTest {
     * @param confEmailOkUrl
     * @throws Exception
     */
-  	@Test (groups = "integration-tests", dataProvider = "DP2")
+  	@Test (groups = {"integration-tests", "add-new-user"}, dataProvider = "DP2")
 	public void navigateNewUserForm(String sLogin, String fName, String lName, String email, 
 										String password, String locale, String primaryuserid, String title, 
-										String building_room, String address, String phone, String fax, 
+										String bldgRoom, String address, String phone, String fax, 
 										String captcha, String sNewUserUrlCreated, String confEmailOkUrl ) throws Exception {  
     	
   	    driver.get("http://"+baseUrl+"/wasp");
@@ -75,7 +77,7 @@ public class SelAddNewUser extends SelBaseTest {
 		driver.findElement(By.name("locale")).sendKeys(locale);
 		driver.findElement(By.id("primaryuserid")).sendKeys(primaryuserid);
 		driver.findElement(By.id("title")).sendKeys(title);
-		driver.findElement(By.id("building_room")).sendKeys(building_room);
+		driver.findElement(By.id("bldgRoom")).sendKeys(bldgRoom);
 		driver.findElement(By.id("address")).sendKeys(address);
 		driver.findElement(By.id("phone")).sendKeys(address);
 		driver.findElement(By.id("fax")).sendKeys(fax);
@@ -101,7 +103,6 @@ public class SelAddNewUser extends SelBaseTest {
     	Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+"/wasp/auth/newuser/created.do");
     }
   	
-  	 @Override
 	@AfterClass
      public void tearDown(){
          //driver.close();
@@ -118,7 +119,7 @@ public class SelAddNewUser extends SelBaseTest {
         Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
                 "Test_001", "addNewUser");
        
-        return(retObjArr);
+        return retObjArr;
     }
   	
   	
@@ -126,7 +127,7 @@ public class SelAddNewUser extends SelBaseTest {
      * 
      * @throws SQLException
      */
-    @Test (groups="integration-tests")
+    @Test (groups={"integration-tests", "add-new-user"})
   	public void confirmEmailAuth() throws SQLException {
   		Statement s = connection.createStatement();
   		s.executeQuery("Select cea.authcode, up.email from confirmemailauth cea, userpending up where up.id=cea.userpendingid");
@@ -153,7 +154,7 @@ public class SelAddNewUser extends SelBaseTest {
         }
         catch(InterruptedException ex)
         {
-          System.out.println(ex.getMessage());
+        	LOGGER.debug(ex.getMessage());
         }
       }
   	

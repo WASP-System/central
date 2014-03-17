@@ -111,7 +111,7 @@
 			alert("<fmt:message key="task.cellLibraryqc_noLibRunSelectedAlert.label" />");
 			return false;
 		} 
-		
+		openWaitDialog();
 		return true; 
 	}
 	

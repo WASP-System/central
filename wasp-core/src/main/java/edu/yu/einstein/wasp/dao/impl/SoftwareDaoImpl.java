@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.Software;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class SoftwareDaoImpl extends WaspDaoImpl<Software> implements edu.yu.einstein.wasp.dao.SoftwareDao {
 
@@ -45,7 +45,7 @@ public class SoftwareDaoImpl extends WaspDaoImpl<Software> implements edu.yu.ein
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public Software getSoftwareBySoftwareId (final Integer softwareId) {
     	HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", softwareId);
@@ -70,7 +70,7 @@ public class SoftwareDaoImpl extends WaspDaoImpl<Software> implements edu.yu.ein
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public Software getSoftwareByIName (final String iName) {
     	HashMap<String, String> m = new HashMap<String, String>();
 		m.put("iName", iName);
@@ -95,7 +95,7 @@ public class SoftwareDaoImpl extends WaspDaoImpl<Software> implements edu.yu.ein
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public Software getSoftwareByName (final String name) {
     		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("name", name);

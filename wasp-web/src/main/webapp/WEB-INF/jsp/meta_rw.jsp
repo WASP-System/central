@@ -7,11 +7,11 @@
 		<c:if test="${_metaArea != null}">		
 			<c:set var="_myCtxArea">${_metaArea}.</c:set>
 		</c:if>
-		<c:set var="labelKey" value="${fn:replace(_meta.k, _myArea, _myCtxArea)}.label" />
+		<c:set var="labelKey" value="${_meta.property.label}" />
 		<c:set var="id" value="${fn:substringAfter(_meta.k,'.')}" />
 
 		<tr class="FormData" id="row_${id}">
-			<td class="CaptionTD"><fmt:message key="${labelKey}"/>:</td>
+			<td class="CaptionTD">${labelKey}:</td>
 			<td class="DataTD">
 			<c:choose>
 				<c:when test="${not empty _meta.property.control}">
@@ -33,7 +33,7 @@
 					</c:if>
 					<c:forEach var="option" items="${selectItems}">
 						<c:if test="${fn:length(selectItems) == 1 || option[itemValue] == _meta.v || _meta.property.formVisibility != 'immutable' }">
-							<option value="${option[itemValue]}"<c:if test="${fn:length(selectItems) == 1 || option[itemValue] == _meta.v || (useDefault==1 && option[itemValue] == _meta.property.defaultVal)}"> selected</c:if>>
+							<option value="${option[itemValue]}"<c:if test="${fn:length(selectItems) == 1 || (not empty _meta.v && option[itemValue] == _meta.v) || (useDefault==1 && option[itemValue] == _meta.property.defaultVal)}"> selected</c:if>>
 							<c:out value="${option[itemLabel]}"/></option>
 						</c:if>
 					</c:forEach>																									

@@ -3,16 +3,12 @@
  */
 package edu.yu.einstein.wasp.daemon.batch.partition;
 
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.batch.core.partition.support.Partitioner;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import edu.yu.einstein.wasp.exception.SampleTypeException;
-import edu.yu.einstein.wasp.filetype.service.FastqService;
-import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
 
@@ -33,7 +29,7 @@ public class MultipartFilePartitioner implements Partitioner {
 	private FileService fileService;
 	
 	@Autowired
-	private FastqService fastqService;
+	//private FastqService fastqService;
 	
 	/**
 	 * 

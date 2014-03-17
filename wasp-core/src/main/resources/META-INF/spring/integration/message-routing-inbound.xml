@@ -19,14 +19,16 @@
     
     
     	    	
-    <!-- channel for messages to enter from within components of the WASP System -->
+    <!-- channel for messages to enter from within components of the Wasp System -->
     <int:channel id="wasp.channel.remoting.inbound" />
     
         	
-    <!-- defines a route to inject messages into the system from within the WASP System-->
+    <!-- defines a route to inject messages into the system from within the Wasp System-->
     <int-rmi:inbound-gateway id="internalRmiGateway"
     	request-channel="wasp.channel.remoting.inbound" 
-    	reply-channel="wasp.channel.reply"
+    	expect-reply="true"
+    	reply-timeout="30000"
+		request-timeout="30000"
     	registry-port="23533" 
 
  	/>
@@ -40,10 +42,12 @@
     
   
         
-    <!-- defines a secure route to inject messages into the system from outside the WASP System-->
+    <!-- defines a secure route to inject messages into the system from outside the Wasp System-->
     <int-rmi:inbound-gateway id="externalSecureRmiGateway"
     	request-channel="wasp.channel.remoting.secure.inbound" 
-    	reply-channel="wasp.channel.reply"
+    	expect-reply="true"
+    	reply-timeout="30000"
+		request-timeout="30000"
     	registry-port="23532" />
     
     

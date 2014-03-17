@@ -3,25 +3,20 @@ package edu.yu.einstein.wasp.integration.selenium;
 import java.util.List;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.Mouse;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.internal.Locatable;
-import org.openqa.selenium.HasInputDevices;
 import org.openqa.selenium.support.ui.Select;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.DataProvider;
-import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.util.SeleniumHelper;
 
 public class SelSubmitNewJob extends SelBaseTest{
 	
-	private static final Logger logger = LoggerFactory.getLogger(SelSubmitNewJob.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SelSubmitNewJob.class);
 
 	/**
      * 
@@ -31,16 +26,16 @@ public class SelSubmitNewJob extends SelBaseTest{
     @DataProvider(name = "DP1")
     public Object[][] createData1() throws Exception{
         Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
-                "Test_001", "submitNewJob");
-        return(retObjArr);
+                "loadTestNewJobs", "submitNewJob");
+        return retObjArr;
     }
     /**
      * 
      * @param sUserName
      * @param sUserPass
      */
-  	@Test (groups = "integration-tests",  dataProvider = "DP1")
-	public void submitNewJob(String sUserName, String sUserPass, String sJobNum, String sDnaName, String sLibName, String labName, String sExpectedUrl) throws Exception {   
+  	@Test (groups = {"integration-tests", "submit-new-job"}, dataProvider = "DP1")
+	public void submitNewJob(String sUserName, String sUserPass, String sJobNum, String sDnaName, String sLibName, String labName, String sExpectedUrl, String strategy) throws Exception {   
     	
   		SeleniumHelper.login(sUserName, sUserPass);
   		
@@ -62,9 +57,10 @@ public class SelSubmitNewJob extends SelBaseTest{
 		Select select = new Select(driver.findElement(By.name("labId")));
 		select.selectByVisibleText(labName);
 		
-    	Assert.assertTrue(driver.findElements(By.name("workflowId")).size() != 0, "Cannot locate 'Assay Workflow' radio button");
-    	driver.findElement(By.xpath("//input[@type='radio' and @value='2']")).click();
-		
+		select = new Select(driver.findElement(By.id("strategy")));
+		select.selectByVisibleText(strategy);
+		select = new Select(driver.findElement(By.id("workflowId")));
+    	select.selectByValue("1");
     	driver.findElement(By.xpath("//input[@type='submit']")).click();
     	
     	select = new Select(driver.findElement(By.name("changeResource")));
@@ -104,9 +100,9 @@ public class SelSubmitNewJob extends SelBaseTest{
     	select = new Select(driver.findElement(By.id("buffer")));
     	select.selectByValue("Water");    	
     	select = new Select(driver.findElement(By.id("adaptorset")));
-    	select.selectByValue("1");  	
+    	select.selectByVisibleText("TruSEQ INDEXED DNA");  	
     	select = new Select(driver.findElement(By.id("adaptor")));
-    	select.selectByValue("1");  	
+    	select.selectByVisibleText("TruSeq Adapter, Index 1 (ATCACG)");  	
     	driver.findElement(By.id("size")).sendKeys("100");
     	driver.findElement(By.id("sizeSd")).sendKeys("10");
 
@@ -160,7 +156,7 @@ public class SelSubmitNewJob extends SelBaseTest{
       }
       catch(InterruptedException ex)
       {
-        System.out.println(ex.getMessage());
+        LOGGER.debug(ex.getMessage());
       }
     }
     

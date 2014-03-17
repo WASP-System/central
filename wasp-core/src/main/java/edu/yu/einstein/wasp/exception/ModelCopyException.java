@@ -5,7 +5,7 @@ package edu.yu.einstein.wasp.exception;
  * @author asmclellan
  *
  */
-public class ModelCopyException extends Exception{
+public class ModelCopyException extends WaspException {
 	
 	/**
 	 * 

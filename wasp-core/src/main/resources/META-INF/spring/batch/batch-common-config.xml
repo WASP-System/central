@@ -9,18 +9,12 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
 
-	<batch:job-repository id="jobRepository" data-source="batchDataSource"/>
-	
-	<!--<bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />-->
-
-	<bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="${wasp.batch.corePoolSize:5}" />
-		<property name="maxPoolSize" value="${wasp.batch.maxPoolSize:10000}" />
-		<property name="keepAliveSeconds" value="${wasp.batch.keepAliveSeconds:60}" />
-		<property name="queueCapacity" value="${wasp.batch.queueCapacity:0}" />
+	<bean id="jobRepository" class="org.springframework.batch.core.repository.wasp.WaspJobRepositoryFactoryBean">
+		<property name="dataSource" ref="batchDataSource"/>
+		<property name="transactionManager" ref= "transactionManager"/>
 	</bean>
 	
-	<bean id="jobLauncher" class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+	<bean id="jobLauncher" class="org.springframework.batch.core.launch.wasp.WaspJobLauncher">
 		<property name="jobRepository" ref="jobRepository" />
 		<property name="taskExecutor" ref="taskExecutor" />
 	</bean>
@@ -36,12 +30,12 @@
     </bean>
     
     <!-- Entry point for browsing executions of running or historical jobs and steps.  -->
-    <bean id="jobExplorer" class="edu.yu.einstein.wasp.batch.core.extension.WaspJobExplorerFactoryBean">
+    <bean id="jobExplorer" class="org.springframework.batch.core.explore.wasp.WaspJobExplorerFactoryBean">
     	<property name="dataSource" ref="batchDataSource" />
     </bean>
     
     
-    <bean id="jobOperator" class="org.springframework.batch.core.launch.support.SimpleJobOperator">
+    <bean id="jobOperator" class="org.springframework.batch.core.launch.wasp.WaspJobOperator">
     	<property name="jobExplorer" ref="jobExplorer" />
     	<property name="jobLauncher" ref="jobLauncher" />
     	<property name="jobRegistry" ref="jobRegistry" />
@@ -54,16 +48,16 @@
         <aop:advisor pointcut-ref="batchJobRetry" advice-ref="retryAdvice" />
     </aop:config>
 
-    <bean id="retryAdvice"  class="org.springframework.batch.retry.interceptor.RetryOperationsInterceptor">
+    <bean id="retryAdvice"  class="org.springframework.retry.interceptor.RetryOperationsInterceptor">
         <property name="retryOperations">
-            <bean class="org.springframework.batch.retry.support.RetryTemplate">
+            <bean class="org.springframework.retry.support.RetryTemplate">
                 <property name="retryPolicy">
-                    <bean class="org.springframework.batch.retry.policy.SimpleRetryPolicy">
+                    <bean class="org.springframework.retry.policy.SimpleRetryPolicy">
                     	<property name="maxAttempts" value="3" />
                     </bean>
                 </property>
                 <property name="backOffPolicy">
-                    <bean class="org.springframework.batch.retry.backoff.FixedBackOffPolicy">
+                    <bean class="org.springframework.retry.backoff.FixedBackOffPolicy">
                         <property name="backOffPeriod" value="5000"/>
                     </bean>
                 </property>
@@ -74,26 +68,26 @@
     <!-- AOP advice to restart methods with @RetryOnExceptionFixed annotation-->
     <aop:config>
         <aop:pointcut id="taskletRetryFixedPointcut" expression="execution(@edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed * *(..))"/>
-        <aop:advisor pointcut-ref="taskletRetryFixedPointcut" advice-ref="fixedBackoffTaskletRetryAdvice" order="-1" />
+        <aop:advisor pointcut-ref="taskletRetryFixedPointcut" advice-ref="fixedBackoffTaskletRetryAdvice" />
     </aop:config>
 
-    <bean id="fixedBackoffTaskletRetryAdvice"  class="org.springframework.batch.retry.interceptor.RetryOperationsInterceptor">
+    <bean id="fixedBackoffTaskletRetryAdvice"  class="org.springframework.retry.interceptor.RetryOperationsInterceptor">
         <property name="retryOperations">
-            <bean class="org.springframework.batch.retry.support.RetryTemplate">
+            <bean class="org.springframework.retry.support.RetryTemplate">
                 <property name="retryPolicy">
-                    <bean class="org.springframework.batch.retry.policy.SimpleRetryPolicy">
-                    	<property name="maxAttempts" value="${wasp.batch.retry.fixed.maxattempts:10}" />
-                    	<property name="retryableExceptions">
+                    <bean class="org.springframework.retry.policy.SimpleRetryPolicy">
+                    	<constructor-arg name="maxAttempts" value="${wasp.batch.retry.fixed.maxattempts:10}" />
+                    	<constructor-arg name="retryableExceptions">
 							<map>
+								<entry key="edu.yu.einstein.wasp.grid.GridAccessException" value="true" />
 								<entry key="edu.yu.einstein.wasp.exception.TaskletRetryException" value="true" />
 								<entry key="org.springframework.dao.DeadlockLoserDataAccessException" value="true"/>
-								<entry key="java.sql.SQLException" value="true"/>
 							</map>
-						</property>
+						</constructor-arg>
                     </bean>
                 </property>
                 <property name="backOffPolicy">
-                    <bean class="org.springframework.batch.retry.backoff.FixedBackOffPolicy">
+                    <bean class="org.springframework.retry.backoff.FixedBackOffPolicy">
                     	<property name="backOffPeriod" value="${wasp.batch.retry.fixed.interval:1000}" />
                     </bean>
                 </property>
@@ -109,23 +103,22 @@
 		<aop:advisor pointcut-ref="taskletRetryExponentialPointcut" advice-ref="exponentialBackoffTaskletRetryAdvice" />
 	</aop:config>
 
-	<bean id="exponentialBackoffTaskletRetryAdvice" class="org.springframework.batch.retry.interceptor.RetryOperationsInterceptor">
+	<bean id="exponentialBackoffTaskletRetryAdvice" class="org.springframework.retry.interceptor.RetryOperationsInterceptor">
 		<property name="retryOperations">
-			<bean class="org.springframework.batch.retry.support.RetryTemplate">
+			<bean class="org.springframework.retry.support.RetryTemplate">
 				<property name="retryPolicy">
-					<bean class="org.springframework.batch.retry.policy.SimpleRetryPolicy">
-						<property name="maxAttempts" value="${wasp.batch.retry.exponential.maxattempts:1000000000}" />
-						<property name="retryableExceptions">
+					<bean class="org.springframework.retry.policy.SimpleRetryPolicy">
+						<constructor-arg name="maxAttempts" value="${wasp.batch.retry.exponential.maxattempts:1000000000}" />
+						<constructor-arg name="retryableExceptions">
 							<map>
 								<entry key="edu.yu.einstein.wasp.exception.TaskletRetryException" value="true" />
 								<entry key="org.springframework.dao.DeadlockLoserDataAccessException" value="true"/>
-								<entry key="java.sql.SQLException" value="true"/>
 							</map>
-						</property>
+						</constructor-arg>
 					</bean>
 				</property>
 				<property name="backOffPolicy">
-					<bean class="org.springframework.batch.retry.backoff.ExponentialBackOffPolicy">
+					<bean class="org.springframework.retry.backoff.ExponentialBackOffPolicy">
 						<property name="initialInterval" value="${wasp.batch.retry.exponential.initialInterval:5000}" />
 						<property name="maxInterval" value="${wasp.batch.retry.exponential.maxInterval:3600000}" />
 						<property name="multiplier" value="${wasp.batch.retry.exponential.multiplier:2}" />
@@ -135,14 +128,6 @@
 		</property>
 	</bean>
 	
-	<bean id="batchRelaunchRunningJobsOnStartup" class="edu.yu.einstein.wasp.batch.launch.WaspBatchRelaunchRunningJobsOnStartup">
-		<constructor-arg name="jobRepository" ref="jobRepository" />
-		<constructor-arg name="jobOperator" ref="jobOperator" />
-		<constructor-arg name="jobExplorer" ref="jobExplorer" />
-	</bean>
 	
-	<bean id="batchJobTasks" class="edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask" />
-	
-	<bean id="sequencingBatchJobTasks" class="edu.yu.einstein.wasp.integration.messages.tasks.SequencingBatchJobTask" />
     
 </beans>

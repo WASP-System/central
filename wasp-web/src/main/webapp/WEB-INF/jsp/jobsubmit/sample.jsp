@@ -25,7 +25,17 @@
 			<tr><td class="DataTD value-centered td-even-number" colspan="6"><fmt:message key="jobDraft.no_draft_samples.label" /></td></tr>
 		</c:when>
 		<c:otherwise>
-			<c:forEach items="${sampleDraftList}" var="sampleDraft" varStatus="status">
+			<c:set var="samplesExist" value="no" scope="request" />
+			<c:set var="librariesExist" value="no" scope="request" />
+			<c:forEach items="${sampleDraftList}" var="sampleDraft" varStatus="status">			
+			<c:choose>
+				<c:when test="${sampleDraft.getSampleType().getIName()=='library'}">
+					<c:set var="librariesExist" value="yes" scope="request"/>
+				</c:when>
+				<c:otherwise>
+					<c:set var="samplesExist" value="yes" scope="request"/>
+				</c:otherwise>
+			</c:choose>
 			<c:set var="isExistingSample" value="0" />
 			<c:if test="${not empty sampleDraft.getSourceSampleId()}"><c:set var="isExistingSample" value="1" /></c:if>
 				<tr>
@@ -77,6 +87,56 @@
 				</c:choose>
 				</a>
 			</c:forEach>
+			<c:forEach items="${ sampleSubtypeList }" var="sampleSubtype">
+				<%-- <a class="button" href="/wasp/jobsubmit/samples/add/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleSubtype.getSampleSubtypeId() }"/>.do">+ <c:out value="${ sampleSubtype.getName() }"/></a>--%>
+				<a class="button" href="/wasp/jobsubmit/manysamples/add/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleSubtype.getSampleSubtypeId() }"/>.do">
+				<c:choose>
+					<c:when test="${sampleSubtype.getSampleType().getIName()=='library'}">
+						New Libraries
+					</c:when>
+					<c:otherwise>
+						New Samples
+					</c:otherwise>
+				</c:choose>
+				</a>
+			</c:forEach>
+			
+			<c:forEach items="${ sampleSubtypeList }" var="sampleSubtype">
+				<%-- <a class="button" href="/wasp/jobsubmit/samples/add/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleSubtype.getSampleSubtypeId() }"/>.do">+ <c:out value="${ sampleSubtype.getName() }"/></a>--%>
+				<c:choose>
+					<c:when test="${sampleSubtype.getSampleType().getIName() =='library' && librariesExist =='yes'}">
+						<c:if test="${fn:length(adaptorSetsUsedOnThisJobDraft)==1}">
+							<a class="button" href="/wasp/jobsubmit/manysamples/edit/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleSubtype.getSampleSubtypeId() }"/>.do?theSelectedAdaptorset=<c:out value="${ adaptorSetsUsedOnThisJobDraft.get(0).getId()}"/>">Edit Libraries</a>
+						</c:if>
+						<c:if test="${fn:length(adaptorSetsUsedOnThisJobDraft)>1}">
+							<div id="dialog-form" title="Select library set to edit">
+								<p></p>
+								<p style="font-weight:bold;color:red" id="validateTipForThisModalDialogForm"></p>  
+				  				<fieldset>
+				  					You submitted libraries for this job containing more than one type of adaptor.
+				  					Please select the libraries you wish to edit by their adaptor type:<br />
+				  					<select name="theSelectedAdaptorset" id="theSelectedAdaptorset">
+				  						<option value=''><fmt:message key="wasp.default_select.label"/></option>
+										<c:forEach items="${ adaptorSetsUsedOnThisJobDraft }" var="adaptorSetUsedOnThisJobDraft">
+											<%-- <option value="${adaptorSetUsedOnThisJobDraft.getId()}"><c:out value="${ adaptorSetUsedOnThisJobDraft.getName() }"/></option>
+											--%>
+											<option value="/wasp/jobsubmit/manysamples/edit/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleSubtype.getSampleSubtypeId() }"/>.do?theSelectedAdaptorset=<c:out value="${adaptorSetUsedOnThisJobDraft.getId()}"/>">
+												<c:out value="${ adaptorSetUsedOnThisJobDraft.getName() }"/>
+											</option>
+										</c:forEach>
+				  					</select>
+				 				</fieldset>  
+							</div>
+							<a class="button" href="javascript:void(0);" onclick='$( "#dialog-form" ).dialog( "open" );' >Edit Libraries</a>
+						
+							<%-- <a class="button" href="/wasp/jobsubmit/manysamples/edit/selectAdaptor.do?">Edit Libraries</a>--%>
+						</c:if>
+					</c:when>
+					<c:when test="${sampleSubtype.getSampleType().getIName() !='library' && samplesExist == 'yes'}">					
+						<a class="button" href="/wasp/jobsubmit/manysamples/edit/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleSubtype.getSampleSubtypeId() }"/>.do">Edit Samples</a>
+					</c:when>
+				</c:choose>				
+			</c:forEach>			
 			<!-- TODO: re-implement line below when functionality added
 			<a class="button" href="/wasp/jobsubmit/samples/addExisting/<c:out value="${ jobDraft.getJobDraftId() }"/>.do">+ <fmt:message key="jobDraft.sample_add_existing.label"/></a>  
 			-->	

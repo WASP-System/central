@@ -5,7 +5,7 @@
 	xmlns:tx="http://www.springframework.org/schema/tx"
 	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
 	<!-- for defaults and other C3P0 DB connection pooling and statement pooling properties see http://www.mchange.com/projects/c3p0 -->
 	<bean id="batchDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
@@ -23,6 +23,10 @@
 		<property name="idleConnectionTestPeriod"><value>${batchdb.jdbc.idleConnectionTestPeriod}</value></property>
 		<property name="numHelperThreads"><value>${batchdb.jdbc.numHelperThreads}</value></property>
 		<property name="checkoutTimeout"><value>${batchdb.jdbc.checkoutTimeout}</value></property>
+		<property name="maxStatements"><value>${batchdb.jdbc.maxStatements}</value></property>
+		<property name="unreturnedConnectionTimeout"><value>${batchdb.jdbc.unreturnedConnectionTimeout}</value></property>
+		<property name="debugUnreturnedConnectionStackTraces"><value>${batchdb.jdbc.debugUnreturnedConnectionStackTraces}</value></property>
+		<property name="autoCommitOnClose"><value>${batchdb.jdbc.autoCommitOnClose}</value></property>
 	</bean>
 
 	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
@@ -40,6 +44,7 @@
 		<property name="idleConnectionTestPeriod"><value>${db.jdbc.idleConnectionTestPeriod}</value></property>
 		<property name="numHelperThreads"><value>${db.jdbc.numHelperThreads}</value></property>
 		<property name="checkoutTimeout"><value>${db.jdbc.checkoutTimeout}</value></property>
+		<property name="maxStatements"><value>${db.jdbc.maxStatements}</value></property>
 	</bean>
 
 	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
@@ -62,7 +67,8 @@
 	</bean>
 	
 	<!-- default (batch database transactions) -->
-	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	<!-- <bean id="transactionManager" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager" />  -->
+	 <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="batchDataSource" />
 	</bean>
 	

@@ -99,6 +99,12 @@ public interface AuthenticationService {
 	 * @return boolean
 	 */
 	public boolean isAuthenticated();
+	
+	/**
+	 * Is authenticated WASP user
+	 * @return boolean
+	 */
+	public boolean isAuthenticatedWaspUser();
 
 	/**
 	 * Check if user authenticates but DO NOT set authentication context

@@ -2,10 +2,31 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
-
+		
+	<bean id="baseIlluminaTasklet" abstract="true">
+		<!-- Sets indicators to listen for that instruct the flow should terminate such as if the wasp job flow has been aborted or -->
+		<!-- if the flow completes (broadcasting an COMPLETED status message) or is aborted e.g. via a message from the web layer -->
+		<property name="abandonMessages">
+			<set>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate">
+					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+					<property name="status" value="COMPLETED" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate">
+					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+					<property name="status" value="ABANDONED" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate">
+					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+					<property name="status" value="FAILED" />
+				</bean>
+			</set>
+		</property>	
+	</bean>
+	
 	<!-- for job, call with parameter 'runID' -->
-	<batch:flow id="wasp-illumina.mainFlow">
-		<batch:step id="wasp-illumina.mainFlow.notifyIlluminaStart" next="wasp-illumina.mainFlow.listenForRunStart">
+	<batch:job id="waspIlluminaHiSeq.jobFlow">
+		<batch:step id="waspIlluminaHiSeq.mainFlow.notifyIlluminaStart" next="waspIlluminaHiSeq.mainFlow.listenForRunStart">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
@@ -18,73 +39,81 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="wasp-illumina.mainFlow.listenForRunStart" next="wasp-illumina.mainFlow.listenForRunCompletion">
+		<batch:step id="waspIlluminaHiSeq.mainFlow.listenForRunStart" next="waspIlluminaHiSeq.mainFlow.listenForRunCompletion">
 			<!-- look for evidence of a started illumina run. One of the first steps is to write the runParameters.xml file -->
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.file.ExternalFileExistsTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.file.ExternalFileExistsTasklet" parent="baseIlluminaTasklet" scope="step">
 					<constructor-arg name="softwarePackage" ref="casava" />
 					<constructor-arg name="directoryId" value="illumina.data.dir" />
 					<constructor-arg name="filename" value="#{jobParameters[waspJobParameters.RUN_NAME]}/runParameters.xml" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="wasp-illumina.mainFlow.listenForRunCompletion" next="wasp-illumina.mainFlow.updateRunCompleted">
+		<batch:step id="waspIlluminaHiSeq.mainFlow.listenForRunCompletion" next="waspIlluminaHiSeq.mainFlow.updateRunCompleted">
 			<!-- look for evidence of a completed illumina run. At the moment, we look for "RTAComplete.txt" (not present in MiSeq) -->
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.file.ExternalFileExistsTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.file.ExternalFileExistsTasklet" parent="baseIlluminaTasklet" scope="step">
 					<constructor-arg name="softwarePackage" ref="casava" />
 					<constructor-arg name="directoryId" value="illumina.data.dir" />
 					<constructor-arg name="filename" value="#{jobParameters[waspJobParameters.RUN_NAME]}/RTAComplete.txt" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="wasp-illumina.mainFlow.updateRunCompleted" next="wasp-illumina.mainFlow.createSampleSheet">
+		<batch:step id="waspIlluminaHiSeq.mainFlow.updateRunCompleted" next="waspIlluminaHiSeq.mainFlow.createSampleSheet">
 			<!-- task to create a sample sheet. Should do some rudimentary checking on samples. -->
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.illumina.UpdateRunCompletedTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.UpdateRunCompletedTasklet" parent="baseIlluminaTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="wasp-illumina.mainFlow.createSampleSheet" next="wasp-illumina.mainFlow.startIlluminaPipeline">
+		<batch:step id="waspIlluminaHiSeq.mainFlow.createSampleSheet" next="waspIlluminaHiSeq.mainFlow.startIlluminaPipeline">
 			<!-- task to create a sample sheet. Should do some rudimentary checking on samples. -->
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.illumina.SampleSheetTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.SampleSheetTasklet" parent="baseIlluminaTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="wasp-illumina.mainFlow.startIlluminaPipeline" next="wasp-illumina.mainFlow.stageResults">
+		<batch:step id="waspIlluminaHiSeq.mainFlow.startIlluminaPipeline" next="waspIlluminaHiSeq.mainFlow.processSAV">
 			<!-- initiate the illumina pipeline -->
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.illumina.PipelineTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.PipelineTasklet" parent="baseIlluminaTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="wasp-illumina.mainFlow.stageResults" next="wasp-illumina.mainFlow.demultiplex">
+		<batch:step id="waspIlluminaHiSeq.mainFlow.processSAV" next="waspIlluminaHiSeq.mainFlow.stageResults">
+			<!-- generate QC metrics pictures a la Illumina reports -->
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.illumina.StageResultsTasklet" scope="step">
+				<batch:transaction-attributes propagation="NEVER"/>
+				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.ProcessSAVTasklet" parent="baseIlluminaTasklet" scope="step">
+					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+				</bean>
+			</batch:tasklet>
+		
+		</batch:step>
+		<batch:step id="waspIlluminaHiSeq.mainFlow.stageResults" next="waspIlluminaHiSeq.mainFlow.demultiplex">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.StageResultsTasklet" parent="baseIlluminaTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="wasp-illumina.mainFlow.demultiplex" next="wasp-illumina.mainFlow.registerFiles">
+		<batch:step id="waspIlluminaHiSeq.mainFlow.demultiplex" next="waspIlluminaHiSeq.mainFlow.registerFiles">
 			<!-- task to perform 5' demultiplexing, currently skipping -->
-			<batch:tasklet ref="wasp-illumina.mainFlow.skipTasklet" />
+			<batch:tasklet ref="waspIlluminaHiSeq.mainFlow.skipTasklet" />
 		</batch:step>
-		<batch:step id="wasp-illumina.mainFlow.registerFiles" next="wasp-illumina.mainFlow.listenForQCCompletion">
+		<batch:step id="waspIlluminaHiSeq.mainFlow.registerFiles" next="waspIlluminaHiSeq.mainFlow.listenForQCCompletion">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.illumina.RegisterFilesTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.RegisterFilesTasklet" parent="baseIlluminaTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="wasp-illumina.mainFlow.listenForQCCompletion" next="wasp-illumina.mainFlow.notifyRunComplete">
+		<batch:step id="waspIlluminaHiSeq.mainFlow.listenForQCCompletion" next="waspIlluminaHiSeq.mainFlow.notifyRunComplete">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
-					<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.run" />
-					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort"/>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" parent="baseIlluminaTasklet" scope="step">
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate">
 							<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
@@ -95,7 +124,7 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="wasp-illumina.mainFlow.notifyRunComplete">
+		<batch:step id="waspIlluminaHiSeq.mainFlow.notifyRunComplete">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
@@ -108,46 +137,10 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-	</batch:flow>
-
-	<bean id="wasp-illumina.mainFlow.skipTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" scope="step" />
-
-	<batch:flow id="wasp-illumina.exitCondition">
-		<!-- Will listen for indicators that the flow should terminate such as the wasp job flow has been aborted or -->
-		<!-- if the wasp.default.sample.mainFlow flow completes (broadcasting an ACCEPTED status message) or is aborted -->
-		<!-- e.g. via a message from the web layer -->
-		<batch:step id="wasp-illumina.step.listenForExitCondition">
-			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForExitConditionTasklet" scope="step">
-					<constructor-arg name="inputSubscribableChannels">
-						<set>
-							<ref bean="wasp.channel.notification.run" />
-						</set>
-					</constructor-arg>
-					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
-					<constructor-arg name="messageTemplates">
-						<set>
-							<!-- listen for COMPLETED message from the other flow as a signal to terminate cleanly -->
-							<bean class="edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate">
-								<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
-								<property name="status" value="COMPLETED" />
-							</bean>
-						</set>
-					</constructor-arg>
-					<property name="name" value="waspIlluminaExitCondition" />
-				</bean>
-			</batch:tasklet>
-		</batch:step>
-	</batch:flow>
-
-
-	<batch:job id="wasp-illumina.jobFlow">
-		<batch:split id="wasp-illumina.jobFlow.split" task-executor="taskExecutor">
-			<!-- this is the Illumina work flow -->
-			<batch:flow parent="wasp-illumina.mainFlow" />
-			<!-- this is a concurrent flow that monitors for messages -->
-			<batch:flow parent="wasp-illumina.exitCondition" />
-		</batch:split>
 	</batch:job>
+
+	<bean id="waspIlluminaHiSeq.mainFlow.skipTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" scope="step" />
+
+
 
 </beans>

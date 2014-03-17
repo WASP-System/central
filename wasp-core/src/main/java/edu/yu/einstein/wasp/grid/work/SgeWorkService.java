@@ -72,6 +72,9 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	@Value("${wasp.temporary.dir}")
 	protected String localTempDir;
 	
+	@Value("${wasp.nfs.timeout:0}")
+	protected Integer nfsTimeout;
+	
 	protected ApplicationContext applicationContext;
 	
 	protected FileService fileService;
@@ -112,7 +115,6 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	
 	protected GridFileService gridFileService;
 	
-	@SuppressWarnings("unused")
 	protected String name;
 	
 	protected List<String> parallelEnvironments;
@@ -267,27 +269,10 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			
 			boolean unknown = isUnknown(stdout);
 			
-			if (unknown) {
-				logger.debug(jobname + " is unknown");
-			} 
-			
 			if (!unknown) {
 				died = isInError(stdout);
 			} else { 
-				if (!ended) {
-					// TODO: Improve this logic.  This is to handle the case when the scheduler reports 
-					// the job as unknown (not running) and the end file is not present because
-					// of NFS delays.
-					logger.debug("Job unknown and finished semaphore is not present, checking again.");
-					stdout = getQstat(g, jobname);
-					if (!isUnknown(stdout))
-						return isInError(stdout);
-					if (g.getMode().equals(ExecutionMode.TASK_ARRAY)) {
-						ended = isTaskArrayEnded(g);
-					} else { 
-						ended = isJobEnded(g);
-					}
-				}
+				logger.debug(jobname + " is unknown");
 				if (!ended && started) {
 					died = true;
 				}
@@ -313,23 +298,54 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		logger.debug("testing for completion of " + jobname);
 		
 		boolean ended = false;
-		
-		if (!g.getMode().equals(ExecutionMode.TASK_ARRAY)) {
+		boolean started = false;
+		boolean died = false;
+		started = isJobStarted(g);
+		if (!g.getMode().equals(ExecutionMode.TASK_ARRAY)) 
 			ended = isJobEnded(g);
-		} else {
+		else
 			ended = isTaskArrayEnded(g);
-		}
-		boolean started = isJobStarted(g);
 		logger.debug("Job status semaphores (started, ended): " + started + ", " + ended);
-		
-		boolean died;
-		try {
-			died = didDie(g, jobname, started, ended);
-		} catch (SAXException e) {
-			// TODO: improve this logic
-			logger.warn("caught SAXException, skipping as if job has not died");
-			e.printStackTrace();
-			died = false;
+		if (started && !ended){
+			final int INCREMENT_FACTOR = 2;
+			final int NEVER_TIME_OUT = -1;
+			final int ZERO_TIME_OUT = 0;
+			Integer waitMs = 1000;
+			int totalWaitedMs = 0;
+			boolean timedOut = false;
+			do {
+				try {
+					died = didDie(g, jobname, started, ended);
+				} catch (SAXException e) {
+					// TODO: improve this logic
+					logger.warn("caught SAXException, skipping as if job has not died");
+					e.printStackTrace();
+					died = false;
+				}
+				if (died) { 
+					// maybe end file not there yet due to nfs problem so hasn't actually died. 
+					if (nfsTimeout == ZERO_TIME_OUT){
+						logger.debug("job unknown and 'end' semaphore missing. Assuming job failed.");
+						timedOut = true;
+					}
+					else {
+						logger.debug("job unknown and 'end' semaphore missing. Waiting " + waitMs + " ms then checking status again");
+						try {
+							Thread.sleep(waitMs); // wait a bit and see if file appears on nfs
+						} catch (InterruptedException e) {
+							logger.warn(e.getLocalizedMessage());
+						}
+						if ( totalWaitedMs >= nfsTimeout && nfsTimeout != NEVER_TIME_OUT){
+							logger.debug("job unknown and 'end' semaphore missing. Wait timeout of " + nfsTimeout + " ms exceeded so job failure assumed");
+							timedOut = true;
+						}
+						totalWaitedMs += waitMs;
+						waitMs *= INCREMENT_FACTOR;
+						if (totalWaitedMs + waitMs > nfsTimeout && nfsTimeout != NEVER_TIME_OUT)
+							waitMs = nfsTimeout - totalWaitedMs;
+					}
+				}
+			} while (died && !timedOut);
 		}
 		
 		logger.debug("Job Status (ended, died): " + ended + ", " + died);
@@ -382,7 +398,6 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		return isJobExists(w.getWorkingDirectory(), w.getId());
 	}
 
-	@SuppressWarnings("unused")
 	protected boolean isJobExists(GridResult g) throws GridAccessException {
 		return isJobExists(g.getWorkingDirectory(), g.getUuid().toString());
 	}
@@ -671,7 +686,6 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	 * @author calder
 	 * 
 	 */
-	@SuppressWarnings("unused")
 	protected class SgeSubmissionScript implements SubmissionScript {
 		
 		public static final int HELD = 16;
@@ -833,6 +847,9 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		 */
 		@Override
 		public String getMemory() {
+			// 'mem_free' specifies how much memory should be free on a node before scheduling a job (or task) there 
+			// 'h_vmem' specifies maximum memory a scheduled job (or task) may use. Will kill job / task 
+			// with a memory allocation error if memory used exceeds this value
 			return getFlag() + " -l mem_free=" + w.getMemoryRequirements().toString() + "G\n" +
 					WorkUnit.REQUESTED_GB_MEMORY + "=" + w.getMemoryRequirements().toString() + "\n";
 		}

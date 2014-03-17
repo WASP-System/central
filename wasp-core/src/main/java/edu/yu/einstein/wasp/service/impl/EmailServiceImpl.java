@@ -4,7 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -40,14 +39,16 @@ import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.DepartmentUser;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobMeta;
+import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
-import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
+import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.UserService;
@@ -104,13 +105,21 @@ public class EmailServiceImpl implements EmailService{
 	@Autowired
 	private ConfirmEmailAuthDao confirmEmailAuthDao;
 	
+	@Autowired
+	private AuthenticationService authenticationService;
+	
 	@Value("${wasp.host.baseurl}")
 	private String baseUrl;
 	
-
 	@Autowired
 	private DemoEmail demoEmail;
 
+	@Value("${wasp.customimage.logo}")
+	private String customLogoResource;
+	
+	@Value("${email.sending.enabled:true}")
+	private Boolean isSendingEmailEnabled;
+	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
@@ -283,12 +292,12 @@ public class EmailServiceImpl implements EmailService{
 		// send email to PI and all lab managers in the requested lab
 		Map labManagerQueryMap = new HashMap();
 		for (Lab lab : primaryUser.getLab()){
-			if (lab.getPrimaryUserId().intValue() == primaryUser.getUserId().intValue()){
-				labManagerQueryMap.put("labId", lab.getLabId());
+			if (lab.getPrimaryUserId().intValue() == primaryUser.getId().intValue()){
+				labManagerQueryMap.put("labId", lab.getId());
 				model.put("lab", lab);
 				break;
 			}
-			throw new MailPreparationException("Cannot email principal user with id '" + Integer.toString(primaryUser.getUserId()) + "' because this user is not the principal of any labs"); 
+			throw new MailPreparationException("Cannot email principal user with id '" + Integer.toString(primaryUser.getId()) + "' because this user is not the principal of any labs"); 
 		}
 		
 		// send email to PI
@@ -296,7 +305,7 @@ public class EmailServiceImpl implements EmailService{
 		prepareAndSend(primaryUser, "emails/pending_labuser_request_confirm", model);
 		
 		// send email to lab managers
-		labManagerQueryMap.put("roleId", roleDao.getRoleByRoleName("lm").getRoleId());
+		labManagerQueryMap.put("roleId", roleDao.getRoleByRoleName("lm").getId());
 		for (LabUser labUserLM : labUserDao.findByMap(labManagerQueryMap)){
 			User labManager = labUserLM.getUser();
 			model.put("primaryuser", labManager);
@@ -325,7 +334,7 @@ public class EmailServiceImpl implements EmailService{
 		// send email to lab managers
 		Map labManagerQueryMap = new HashMap();
 		labManagerQueryMap.put("labId", labUser.getLabId());
-		labManagerQueryMap.put("roleId", roleDao.getRoleByRoleName("lm").getRoleId());
+		labManagerQueryMap.put("roleId", roleDao.getRoleByRoleName("lm").getId());
 		for (LabUser labUserLM : labUserDao.findByMap(labManagerQueryMap)){
 			User labManager = labUserLM.getUser();
 			model.put("primaryuser", labManager);
@@ -392,7 +401,10 @@ public class EmailServiceImpl implements EmailService{
 	 */
 	@Override
 	public void informUserAccountCreatedByAdmin(final User user, final String authcode) {
-		sendEmailConfirm(user, authcode, "emails/user_created_by_admin");
+		if (authenticationService.isAuthenticationSetExternal())
+			sendEmailConfirm(user, authcode, "emails/user_created_by_admin_ext");
+		else
+			sendEmailConfirm(user, authcode, "emails/user_created_by_admin_int");
 	}
 	
 	/**
@@ -405,13 +417,19 @@ public class EmailServiceImpl implements EmailService{
 	 */
 	@SuppressWarnings("rawtypes")
 	protected void prepareAndSend(final User user, final String template, final Map model){
+		if (!isSendingEmailEnabled){
+			logger.info("Not sending email to user " + user.getLastName() + ", " + user.getFirstName() + 
+					" with template '" + template  + "' and parameters: " + model.toString() + " because mail-sending is not enabled in configuration");
+			return;
+		}
 		MimeMessagePreparator preparator = new MimeMessagePreparator() {
 			@Override
 			public void prepare(MimeMessage mimeMessage) throws MailPreparationException {
 				generateMessage(user, template, model, mimeMessage); 
 			}
 		};
-		logger.debug("Sending email with template '" + template  + "' and parameters: " + model.toString());
+		logger.debug("Sending email to user " + user.getLastName() + ", " + user.getFirstName() + 
+					" with template '" + template  + "' and parameters: " + model.toString());
 		this.mailSender.send(preparator);
 	}
 	
@@ -428,6 +446,7 @@ public class EmailServiceImpl implements EmailService{
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void generateMessage(final User user, final String template, final Map model, MimeMessage mimeMessage) throws MailPreparationException {
 		model.put("baseUrl", baseUrl);
+		model.put("customLogoResource", customLogoResource);
 		String lang=user.getLocale().substring(0, 2);
 		
 		String headerVm = "emails/header_"+lang+".vm";
@@ -500,9 +519,9 @@ public class EmailServiceImpl implements EmailService{
 	@Override
 	public String getNewAuthcodeForUser(User user) {
 		String authcode = AuthCode.create(20);
-		ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByUserId(user.getUserId());
+		ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByUserId(user.getId());
 		confirmEmailAuth.setAuthcode(authcode);
-		confirmEmailAuth.setUserId(user.getUserId());
+		confirmEmailAuth.setUserId(user.getId());
 		confirmEmailAuthDao.save(confirmEmailAuth);
 		return authcode;
 	}
@@ -510,9 +529,9 @@ public class EmailServiceImpl implements EmailService{
 	@Override
 	public String getNewAuthcodeForUserPending(UserPending userpending) {
 		String authcode = AuthCode.create(20);
-		ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByUserpendingId(userpending.getUserPendingId());
+		ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByUserpendingId(userpending.getId());
 		confirmEmailAuth.setAuthcode(authcode);
-		confirmEmailAuth.setUserpendingId(userpending.getUserPendingId());
+		confirmEmailAuth.setUserpendingId(userpending.getId());
 		confirmEmailAuthDao.save(confirmEmailAuth);
 		return authcode;
 	}
@@ -612,7 +631,8 @@ public class EmailServiceImpl implements EmailService{
 		String machine = null;
 		String readType = null;
 		String readLength = null;
-		
+		/*
+		 Do NOT go through using the key for extraJobDetailsMap, as it is the value of things like "jobdetail_for_import.Read_Length.label" which can easily change
 		LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
 		for(String key : extraJobDetailsMap.keySet()){
 			if(key.contains("machine")){
@@ -623,6 +643,25 @@ public class EmailServiceImpl implements EmailService{
 			}
 			else if(key.contains("readLength")){
 				readLength = new String(extraJobDetailsMap.get(key));
+			}
+		}
+		*/
+		List<JobResourcecategory> jobResourceCategoryList = job.getJobResourcecategory();
+		for(JobResourcecategory jrc : jobResourceCategoryList){
+			if(jrc.getResourceCategory().getResourceType().getIName().equals("mps")){
+				  machine = jrc.getResourceCategory().getName();
+				  break;
+			}
+		}
+		for(JobMeta jm : job.getJobMeta()){
+			if(jm.getK().toLowerCase().contains("readlength")){
+				readLength = new String(jm.getV());
+			}
+			if(jm.getK().toLowerCase().contains("readtype")){
+				readType = new String(jm.getV());
+			}
+			if(readType!=null && readLength!=null){
+				break;
 			}
 		}
 		if(machine==null){machine = new String("");}

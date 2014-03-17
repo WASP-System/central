@@ -156,7 +156,8 @@ public class UserPendingController extends WaspController {
 					errors.rejectValue("login", userPendingMetaHelperWebapp.getParentArea()+".external_authentication.error", userPendingMetaHelperWebapp.getParentArea()+".external_authentication.error (no message has been defined for this property)");
 					result.addAllErrors(errors);
 				} else {
-					// user is now authenticated with single role 'ag' (authenticated guest)
+					// user is now authenticated with single role 'ag' (authenticated guest) log them out again
+					authenticationService.logoutUser();
 				}
 			}
 			else {
@@ -388,7 +389,8 @@ public class UserPendingController extends WaspController {
 					errors.rejectValue("login", metaHelperWebapp.getParentArea()+".external_authentication.error", metaHelperWebapp.getParentArea()+".external_authentication.error (no message has been defined for this property)");
 					result.addAllErrors(errors);
 				} else {
-					// user is now authenticated with single role 'ag' (authenticated guest)
+					// user is now authenticated with single role 'ag' (authenticated guest) log them out again
+					authenticationService.logoutUser();
 				}
 			}
 			else {

@@ -7,6 +7,7 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import edu.yu.einstein.wasp.IndexingStrategy;
 import edu.yu.einstein.wasp.load.service.AdaptorsetLoadService;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
@@ -28,6 +29,8 @@ public class AdaptorsetLoaderAndFactory extends WaspLoader implements FactoryBea
 	private SampleType sampleType;
 	
 	private Adaptorset adaptorset;
+	
+	private IndexingStrategy indexingStrategy = IndexingStrategy.UNKNOWN;
 
 	public void setSampleType(SampleType sampleType) {
 		this.sampleType = sampleType;
@@ -65,10 +68,21 @@ public class AdaptorsetLoaderAndFactory extends WaspLoader implements FactoryBea
 		this.isActive = isActive;
 	}
 	
+	public IndexingStrategy getIndexingStrategy() {
+		return indexingStrategy;
+	}
+
+	public void setIndexingStrategy(IndexingStrategy indexingStrategy) {
+		this.indexingStrategy = indexingStrategy;
+	}
+	
+	public void setIndexingStrategy(String indexingStrategy) {
+		this.indexingStrategy = new IndexingStrategy(indexingStrategy);
+	}
+
 	@PostConstruct
 	public void init(){
-		adaptorsetLoadService.updateUiFields(this.uiFields);
-		adaptorset = adaptorsetLoadService.update(meta, adaptorList, sampleType, iname, name, isActive, compatibleResources);
+		adaptorset = adaptorsetLoadService.update(meta, adaptorList, sampleType, iname, name, indexingStrategy, isActive, compatibleResources);
 	}
 
 	@Override

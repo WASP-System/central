@@ -5,7 +5,7 @@ package edu.yu.einstein.wasp.exception;
  * @author asmclellan
  *
  */
-public class ModelDetachException extends Exception{
+public class ModelDetachException extends WaspException {
 	
 	/**
 	 * 

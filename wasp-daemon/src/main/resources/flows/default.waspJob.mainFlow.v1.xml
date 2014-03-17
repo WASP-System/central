@@ -7,8 +7,9 @@
 		
 	<!-- common tasklets defined in config-common-context.xml -->
 	
+		
 	<!-- Define main job approval flow -->
-	<batch:flow id="default.waspJob.flow.approvals.v1" >
+	<batch:job id="default.waspJob.jobflow.v1" restartable="true">
 	    <batch:step id="default.waspJob.step.started" next="default.waspJob.postSubmitApprovalTasks">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
@@ -23,28 +24,64 @@
 			</batch:tasklet>
 		</batch:step>
 		<batch:split id="default.waspJob.postSubmitApprovalTasks" task-executor="taskExecutor" >
+		
 			<batch:flow>
 				<batch:step id="default.waspJob.step.quote">
 					<batch:tasklet ref="listenForJobQuotedTasklet"/>
 				</batch:step>
 			</batch:flow>
+			
 			<batch:flow>
 				<batch:step id="default.waspJob.step.piApprove">
 					<batch:tasklet ref="listenForJobPiApproveTasklet" />
+					<batch:next on="TERMINATED" to="default.waspJob.step.rejectedByPi" />
+					<!-- The following is only required because of a quirk in batch: if you specify 'next' for an exit status you MUST -->
+					<!-- also specify a 'next' for every other outcome. In this case we don't need to go anywhere but we have to because of this constraint -->
+					<batch:next on="*" to="default.waspJob.step.approvedByPi" />
+				</batch:step>
+				<batch:step id="default.waspJob.step.rejectedByPi">
+					<batch:tasklet>
+						<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+							<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+							<constructor-arg name="messageTemplate">
+								<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
+									<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+									<property name="status" value="ABANDONED" />
+								</bean>
+							</constructor-arg>
+						</bean>
+					</batch:tasklet>
+				</batch:step>
+				
+				<batch:step id="default.waspJob.step.approvedByPi">
+					<batch:tasklet>
+						<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" />
+					</batch:tasklet>
 				</batch:step>
 			</batch:flow>
+			
 			<batch:flow>
 				<batch:step id="default.waspJob.step.daApprove">
 					<batch:tasklet ref="listenForJobDaApproveTasklet" />
+					<batch:next on="TERMINATED" to="default.waspJob.step.rejectedByDa" />
+					<batch:next on="*" to="default.waspJob.step.approvedByDa" />
 				</batch:step>
+				<batch:step id="default.waspJob.step.rejectedByDa" parent="default.waspJob.step.rejectedByPi" />
+				<batch:step id="default.waspJob.step.approvedByDa" parent="default.waspJob.step.approvedByPi" />
 			</batch:flow>
+			
 			<batch:flow>
 				<batch:step id="default.waspJob.step.fmApprove">
 					<batch:tasklet ref="listenForJobFmApproveTasklet" />
+					<batch:next on="TERMINATED" to="default.waspJob.step.rejectedByFm" />
+					<batch:next on="*" to="default.waspJob.step.approvedByFm" />
 				</batch:step>
+				<batch:step id="default.waspJob.step.rejectedByFm" parent="default.waspJob.step.rejectedByPi" />
+				<batch:step id="default.waspJob.step.approvedByFm" parent="default.waspJob.step.approvedByPi" />
 			</batch:flow>
+			
 			<batch:next on="COMPLETED" to="default.waspJob.step.approved" />
-			<batch:next on="FAILED" to="default.waspJob.step.rejected" />
+			<batch:next on="TERMINATED" to="default.waspJob.step.rejected" />
 			<batch:fail on="*"/> <!-- catch all -->
 		</batch:split>
 		<batch:step id="default.waspJob.step.approved" next="default.waspJob.step.listenForAnalysisComplete">
@@ -76,8 +113,6 @@
 		<batch:step id="default.waspJob.step.listenForAnalysisComplete" next="default.waspJob.step.notifyJobComplete">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
-					<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.analysis" />
-					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
 							<property name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
@@ -85,7 +120,12 @@
 							<property name="status" value="COMPLETED" />
 						</bean>
 					</constructor-arg>
-					<property name="name" value="default.waspJob.step.listenForAnalysisComplete" />
+					<property name="abandonMessage">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
+							<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+							<property name="status" value="ABANDONED" />
+						</bean>
+					</property>	
 				</bean>
 			</batch:tasklet>
 		</batch:step>
@@ -102,35 +142,6 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-	</batch:flow>
-	
-	
-	<batch:flow id="default.waspJob.flow.exitCondition">
-		<!-- will receive message of COMPLETED if the 'default.waspJob.flow.approvals.v1' flow is finished -->
-		<!-- or if the job is aborted with an ABANDONED message at time e.g. via a message from the web layer -->
-		<batch:step id="default.waspJob.step.listenForExitCondition">
-			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForExitConditionTasklet" scope="step">
-					<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
-					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
-					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
-							<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
-							<property name="status" value="COMPLETED" />
-						</bean>
-					</constructor-arg>
-					<property name="name" value="waspJobExitCondition" />
-				</bean>	
-			</batch:tasklet>
-		</batch:step>
-	</batch:flow>
-	
-	<!-- for dispatching job, call with parameter 'jobId' -->
-	<batch:job id="default.waspJob.jobflow.v1" restartable="true">
-		<batch:split id="default.waspJob.jobFlow.split" task-executor="taskExecutor">
-			<batch:flow parent="default.waspJob.flow.approvals.v1" />
-			<batch:flow parent="default.waspJob.flow.exitCondition" />
-		</batch:split>
 	</batch:job>
 
 </beans>

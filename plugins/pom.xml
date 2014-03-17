@@ -19,11 +19,16 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 	<modules>
 		<module>mps</module>
 		<module>bwa</module>
+		<module>gatk</module>
 		<module>chipseq</module>
 		<module>genericDnaSeq</module>
+		<module>picard</module>
 		<module>helptag</module>
 		<module>illumina</module>
-<!--		<module>babraham</module> -->
+		<module>babraham</module>
+		<module>macsTwo</module>
+		<module>R</module>
+		<module>variantCalling</module>
 	</modules>
 
 	<build>

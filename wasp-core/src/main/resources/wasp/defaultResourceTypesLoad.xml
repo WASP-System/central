@@ -4,40 +4,10 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	default-autowire="byName"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-   
-  <bean id="mpsResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
-    <property name="name" value="Massively Parallel DNA Sequencer" />
-    <property name="area" value="mps" />
-  </bean>
-  
-  <bean id="ampliconResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
-    <property name="name" value="DNA Amplicon" />
-    <property name="area" value="amplicon" />
-  </bean>
-  
-  <bean id="referenceBasedAlignerResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
-    <property name="name" value="Reference-based Aligner" />
-    <property name="area" value="referenceBasedAligner" />
-  </bean>
-  
-  <bean id="peakcallerResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
-    <property name="name" value="Peak Caller" />
-    <property name="area" value="peakcaller" />
-  </bean>
-  
-  <bean id="sequenceRunProcessorResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
-    <property name="name" value="Sequence Run Processor" />
-    <property name="area" value="sequenceRunProcessor" />
-  </bean>
-  
-  <bean id="bamProcessorResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
-  	<property name="name" value="BAM Processor" />
-  	<property name="area" value="bamProcessor" />
-  </bean>
-  
-  <bean id="fastqProcessorResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
-  	<property name="name" value="FASTQ Processor" />
-  	<property name="area" value="fastqProcessor" />
+	
+  <bean id="genericPluginResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
+    <property name="name" value="Generic Plugin" />
+    <property name="area" value="genericPlugin" />
   </bean>
  
 </beans>

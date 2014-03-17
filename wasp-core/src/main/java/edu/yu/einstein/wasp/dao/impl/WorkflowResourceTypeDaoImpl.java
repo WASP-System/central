@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.WorkflowResourceType;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class WorkflowResourceTypeDaoImpl extends WaspDaoImpl<WorkflowResourceType> implements edu.yu.einstein.wasp.dao.WorkflowResourceTypeDao {
 
@@ -44,7 +44,7 @@ public class WorkflowResourceTypeDaoImpl extends WaspDaoImpl<WorkflowResourceTyp
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public WorkflowResourceType getWorkflowResourceTypeByWorkflowresourcetypeId (final Integer workflowresourcetypeId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", workflowresourcetypeId);
@@ -69,7 +69,7 @@ public class WorkflowResourceTypeDaoImpl extends WaspDaoImpl<WorkflowResourceTyp
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public WorkflowResourceType getWorkflowResourceTypeByWorkflowIdResourceTypeId (final Integer workflowId, final Integer resourceTypeId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("workflowId", workflowId);

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans"
+	default-autowire="byName"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="chipSeqPluginDomain" class="java.lang.String">
+		<constructor-arg>
+			<value>edu.yu.einstein.wasp.chipseq</value>
+		</constructor-arg>
+	</bean>
+
+	<bean id="chipSeqPluginArea" class="java.lang.String">
+		<constructor-arg>
+			<value>chipseq</value>
+		</constructor-arg>
+	</bean>
+	
+	<!-- channel for communications with this plugin. -->
+	<int:channel id="wasp.channel.plugin.chipseq" />
+	
+	<int:service-activator input-channel="wasp.channel.plugin.chipseq" ref="chipSeq.WaspPluginBean" method="process" />
+	
+	
+	<bean id="chipSeq.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.assay.ChipSeqPlugin">
+		<constructor-arg name="iName" ref="chipSeqPluginArea" />
+		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.chipseq" />
+		<property name="name" value="ChIP-seq" />
+		<property name="description" value="Peak Calling Workflow" />
+		<property name="handles">
+			<set>
+				<ref bean="chipSeqPluginArea" />
+			</set>
+		</property>
+	</bean>
+
+</beans>

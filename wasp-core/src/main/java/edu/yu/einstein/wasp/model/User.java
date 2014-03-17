@@ -314,11 +314,11 @@ public class User extends WaspModel {
 				+ sample + ", acctQuote=" + acctQuote + ", acctQuoteUser=" + acctQuoteUser + ", locale=" + locale + "]";
 		return message;
 	}
-
+	@JsonIgnore
 	public String getNameFstLst() {
 		return this.firstName + " " + this.lastName;
 	}
-
+	@JsonIgnore
 	public String getNameLstCmFst() {
 		return this.lastName + ", " + this.firstName;
 	}

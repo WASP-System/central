@@ -14,7 +14,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.GenericTypeResolver;
@@ -75,7 +74,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 	
 	@Autowired
-	@Qualifier("messageServiceImpl")
 	private MessageService messageService;
 
 	@Autowired
@@ -103,7 +101,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 	@Override
 	public boolean isAuthenticated(){
-		return (getAuthenticatedUser().getUserId() != null);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication.getAuthorities().size() == 1){
+			Object[] authorities = authentication.getAuthorities().toArray();
+			if (authentication.isAuthenticated() && ( (GrantedAuthority) authorities[0] ).getAuthority().equals("ROLE_ANONYMOUS")){
+				logger.debug("An anonymous user is authenticated but we don't recognise anonymous users so consider NOT authenticated for wasp system purposes");
+				return false;
+			}
+		}
+		return authentication.isAuthenticated();
+	}
+	
+	@Override
+	public boolean isAuthenticatedWaspUser(){
+		return (getAuthenticatedUser().getId() != null);
 	}
 	
 	@Override
@@ -120,7 +131,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	public String[] getRoles() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-	    List<GrantedAuthority>  col = (List<GrantedAuthority>) authentication.getAuthorities();
+	    List<GrantedAuthority> col = (List<GrantedAuthority>) authentication.getAuthorities();
 	    String[] roles = new String[col.size()];
 	    int i = 0;
 	    for (GrantedAuthority role : col) {
@@ -284,7 +295,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 		// NV 12132011
 		//if (userService.getUserByLogin(login).getUserId() != null){
-		if (userDao.getUserByLogin(login).getUserId() != null){
+		if (userDao.getUserByLogin(login).getId() != null){
 			return true;
 		} else {
 			Map<String, String> loginQueryMap = new HashMap<String, String>();
@@ -477,7 +488,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		public boolean isThisExistingUserPIPending(){
 			User me = this.getAuthenticatedUser();
 			Map<String, Object> m = new HashMap<String, Object>();
-			m.put("primaryUserId", me.getUserId());
+			m.put("primaryUserId", me.getId());
 			m.put("status", "PENDING");
 			List<LabPending> lpList = labPendingDao.findByMap(m);
 			if(lpList.isEmpty()){return false;}

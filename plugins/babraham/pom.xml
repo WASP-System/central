@@ -13,6 +13,10 @@
     <wasp.version>${project.parent.version}</wasp.version>
   </properties>
   <dependencies>
+  	<dependency>
+		<groupId>edu.yu.einstein.wasp</groupId>
+		<artifactId>mps</artifactId>
+	</dependency>
     <dependency>
       <groupId>edu.yu.einstein.wasp</groupId>
       <artifactId>wasp-web</artifactId>

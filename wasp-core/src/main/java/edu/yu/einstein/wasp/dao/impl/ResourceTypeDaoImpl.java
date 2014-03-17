@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.ResourceType;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class ResourceTypeDaoImpl extends WaspDaoImpl<ResourceType> implements edu.yu.einstein.wasp.dao.ResourceTypeDao {
 
@@ -44,7 +44,7 @@ public class ResourceTypeDaoImpl extends WaspDaoImpl<ResourceType> implements ed
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public ResourceType getResourceTypeByResourceTypeId (final Integer resourceTypeId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", resourceTypeId);
@@ -69,7 +69,7 @@ public class ResourceTypeDaoImpl extends WaspDaoImpl<ResourceType> implements ed
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public ResourceType getResourceTypeByIName (final String iName) {
     		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("iName", iName);
@@ -94,7 +94,7 @@ public class ResourceTypeDaoImpl extends WaspDaoImpl<ResourceType> implements ed
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public ResourceType getResourceTypeByName (final String name) {
     		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("name", name);

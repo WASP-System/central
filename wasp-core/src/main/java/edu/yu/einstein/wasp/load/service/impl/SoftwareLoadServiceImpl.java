@@ -40,10 +40,11 @@ public class SoftwareLoadServiceImpl extends WaspLoadServiceImpl implements	Soft
 	@Autowired
 	private ResourceTypeDao resourceTypeDao;
 	
-	private Software addOrUpdateSoftware(ResourceType resourceType, String iname, String name, int isActive){
+	private Software addOrUpdateSoftware(ResourceType resourceType, String iname, String name, String description, int isActive){
 		Assert.assertParameterNotNull(resourceType, "ResourceType cannot be null");
-		Assert.assertParameterNotNull(iname, "iname Cannot be null");
-		Assert.assertParameterNotNull(name, "name Cannot be null");
+		Assert.assertParameterNotNull(iname, "iname cannot be null");
+		Assert.assertParameterNotNull(name, "name cannot be null");
+		Assert.assertParameterNotNull(description, "description cannot be null");
 		if (resourceType == null || resourceType.getIName() == null || resourceType.getIName().isEmpty()){
 	    	throw new NullResourceTypeException();
 	    }
@@ -51,24 +52,24 @@ public class SoftwareLoadServiceImpl extends WaspLoadServiceImpl implements	Soft
 	    Software software = softwareDao.getSoftwareByIName(iname);
 	    	    
 	    // inserts or update workflow
-	    if (software.getSoftwareId() == null) { 
+	    if (software.getId() == null) { 
 	    	software = new Software();
 
 	    	software.setIName(iname);
 	    	software.setName(name);
+	    	software.setDescription(description);
 	    	software.setIsActive(isActive);
-	    	software.setResourceTypeId(resourceType.getResourceTypeId());
+	    	software.setResourceTypeId(resourceType.getId());
 	    	software = softwareDao.save(software);
 	    } else {
-	      if (!software.getName().equals(name)){
+	      if (software.getName() == null || !software.getName().equals(name))
 	    	  software.setName(name);
-	      }
-	      if (software.getResourceTypeId() != resourceType.getResourceTypeId()){
-	    	  software.setResourceTypeId(resourceType.getResourceTypeId());
-	      }
-	      if (software.getIsActive().intValue() != isActive){
+	      if (software.getDescription() == null || !software.getDescription().equals(description))
+	    	  software.setDescription(description);
+	      if (software.getResourceTypeId() != resourceType.getId())
+	    	  software.setResourceTypeId(resourceType.getId());
+	      if (software.getIsActive() == null || software.getIsActive().intValue() != isActive)
 	    	  software.setIsActive(isActive);
-	      }
 	    }
 	    
 	    return software;
@@ -108,49 +109,54 @@ public class SoftwareLoadServiceImpl extends WaspLoadServiceImpl implements	Soft
 	        continue; 
 	      }
 
-	      softwareMeta.setSoftwareId(software.getSoftwareId()); 
+	      softwareMeta.setSoftwareId(software.getId()); 
 	      softwareMetaDao.save(softwareMeta); 
 	    }
 
 	    // delete the left overs
+        // The next block was commented out by Dubin; 10-07-2013 as it removes meta 
+	    //that is added any time after the initial data upload
+	    /*
 	    for (String softwareMetaKey : oldSoftwareMetas.keySet()) {
 	      SoftwareMeta softwareMeta = oldSoftwareMetas.get(softwareMetaKey); 
 	      softwareMetaDao.remove(softwareMeta); 
 	      softwareMetaDao.flush(softwareMeta); 
 	    }
+	    */
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends Software> T update(ResourceType resourceType, List<SoftwareMeta> meta, String iname, String name, int isActive, Class<T> clazz){
-		Software software = addOrUpdateSoftware(resourceType, iname, name, isActive);
+	public <T extends Software> T update(ResourceType resourceType, List<SoftwareMeta> meta, String iname, String name, String description, int isActive, Class<T> clazz){
+		Software software = addOrUpdateSoftware(resourceType, iname, name, description, isActive);
 		syncMetas(software, meta);
 		if (clazz.getName().equals(software.getClass().getName()))
 	    	return (T) software;
-	    T softwareSpecial;
+	    T softwareClone;
 		try {
-			softwareSpecial = clazz.newInstance();
-			softwareSpecial.setSoftwareId(software.getSoftwareId());
-			softwareSpecial.setIName(software.getIName());
-			softwareSpecial.setName(software.getName());
-			softwareSpecial.setIsActive(software.getIsActive());
-			softwareSpecial.setResourceType(software.getResourceType());
-			softwareSpecial.setJobDraftSoftware(software.getJobDraftSoftware());
-			softwareSpecial.setJobSoftware(software.getJobSoftware());
-			softwareSpecial.setSoftwareMeta(software.getSoftwareMeta());
-			softwareSpecial.setWorkflowSoftware(software.getWorkflowSoftware());
+			softwareClone = clazz.newInstance();
+			softwareClone.setId(software.getId());
+			softwareClone.setIName(software.getIName());
+			softwareClone.setName(software.getName());
+			softwareClone.setDescription(software.getDescription());
+			softwareClone.setIsActive(software.getIsActive());
+			softwareClone.setResourceType(software.getResourceType());
+			softwareClone.setJobDraftSoftware(software.getJobDraftSoftware());
+			softwareClone.setJobSoftware(software.getJobSoftware());
+			softwareClone.setSoftwareMeta(software.getSoftwareMeta());
+			softwareClone.setWorkflowSoftware(software.getWorkflowSoftware());
 		} catch (Exception e) {
 			logger.warn("Cannot create instance of " + clazz.getName() + ". Going to return as a Software object");
 			return (T) software;
 		}
-		return softwareSpecial;
+		return softwareClone;
 	    
 	}
 	
 	@Override
 	public ResourceType getSoftwareTypeByIName(String iname){
 		ResourceType softwareType = resourceTypeDao.getResourceTypeByIName(iname); 
-		if (softwareType.getResourceTypeId() == null){
+		if (softwareType.getId() == null){
 			throw new NullResourceTypeException();
 		}
 		return softwareType;

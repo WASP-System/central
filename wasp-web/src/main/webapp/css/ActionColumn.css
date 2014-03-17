@@ -1,0 +1,31 @@
+/* styles for rows */  
+.ux-action-col-cell .x-grid3-cell-inner {  
+    padding:1px 0 0 0;  
+}  
+.ux-action-col-item {  
+    float:left;  
+    min-width:16px;  
+    height:16px;  
+    background-repeat:no-repeat;  
+    margin: 0 3px 0 2px;  
+/*  margin: 1px 5px 0 2px; */  
+    cursor:pointer;  
+    overflow:hidden;  
+}  
+.ext-ie .ux-action-col-item {  
+    width:16px;  
+}  
+.ext-ie .ux-action-col-text {  
+    width:auto;  
+}  
+.ux-action-col-item span {  
+    vertical-align:middle;  
+    /** modify by wukq at 2012-03-28 **/  
+    padding:0 0 0 18px;  
+    /**padding:0 0 0 20px;**/  
+    line-height:18px;  
+}  
+.ext-ie .ux-action-col-item span {  
+    width:auto;  
+}  
+

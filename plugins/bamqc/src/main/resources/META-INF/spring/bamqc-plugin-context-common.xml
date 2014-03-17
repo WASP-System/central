@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans"
+	default-autowire="byName"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+		
+	<context:component-scan base-package="edu.yu.einstein.wasp.plugin.bamqc.service.impl" />
+
+	<bean id="bamqcPluginArea" class="java.lang.String">
+		<constructor-arg>
+			<value>bamqc</value>
+		</constructor-arg>
+	</bean>
+	
+	<!-- channel for communications with this plugin. -->
+	<int:channel id="wasp.channel.plugin.bamqc" />
+
+	<int:service-activator input-channel="wasp.channel.plugin.bamqc" ref="bamqcPlugin" method="process" />
+	
+	<bean id="bamqcPlugin" class="edu.yu.einstein.wasp.plugin.bamqc.plugin.BamqcPlugin">
+		<constructor-arg name="iName" ref="bamqcPluginArea" />
+		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.bamqc" />
+		<property name="name" value="BAM QC" />
+		<property name="description" value="A BAM file QC tool" />
+		<property name="provides" >
+			<set>
+				<ref bean="bamqc" /> 
+			</set>
+		</property>
+		<property name="handles" >
+			<set>
+				<ref bean="bamqcPluginArea" />
+			</set>
+		</property>
+	</bean>
+
+</beans>

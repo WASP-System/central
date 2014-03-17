@@ -14,8 +14,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.dao.SampleDao;
@@ -29,7 +29,6 @@ import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.ResourceException;
-import edu.yu.einstein.wasp.exception.RunException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleIndexException;
 import edu.yu.einstein.wasp.exception.SampleMultiplexException;
@@ -43,7 +42,6 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Run;
-import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleMeta;
@@ -79,7 +77,7 @@ public interface SampleService extends WaspMessageHandlingService {
 
 	public Sample getSampleByName(final String name);
 
-	List<Sample> findAllPlatformUnits();
+	List<Sample> getPlatformUnits();
 
 	  /**
 	   * Gets a list of {@link SampleSubtype} objects associated with given workflow which are specified as viewable
@@ -820,10 +818,10 @@ public interface SampleService extends WaspMessageHandlingService {
 	  
 	  /**
 	   * get the job of the library on a cell
-	   * @param libraryCell
+	   * @param cellLibrary
 	   * @return
 	   */
-	  Job getJobOfLibraryOnCell(SampleSource libraryCell);
+	  Job getJobOfLibraryOnCell(SampleSource cellLibrary);
 
 	  
 	  /**
@@ -940,7 +938,7 @@ public interface SampleService extends WaspMessageHandlingService {
 
 	public List<Sample> getControlSamplesByTestSample(Sample testSample);
 
-	public void createTestControlSamplePairsByIds(Integer testSampleId, Integer controlSampleId) throws SampleTypeException, SampleException;
+	public void createTestControlSamplePairsByIds(Integer testSampleId, Integer controlSampleId, Job job) throws SampleTypeException, SampleException, MetadataException;
 
 	/**
 	 * Returns a map containing all cell-libraries associated with a job and current pre-processing status
@@ -998,7 +996,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	 * @param cell (of type Sample)
 	 * @return List of Cell-libraries
 	 */
-	public List<SampleSource> getCellLibraries(Sample cell);
+	public List<SampleSource> getCellLibrariesForCell(Sample cell);
 
 	public void setSampleMetaDao(SampleMetaDao sampleMetaDao); 
 	
@@ -1040,4 +1038,40 @@ public interface SampleService extends WaspMessageHandlingService {
 	public boolean isCellLibraryAwaitingQC(SampleSource cellLibrary) throws SampleTypeException;
 
 
+	  /**
+	   * Adds a given library to the given cell
+	   * @param cell
+	   * @param library
+	   * @param libConcInCellPicoM
+	   * @param job
+	   * @throws SampleTypeException
+	   * @throws SampleException
+	   * @throws SampleMultiplexException
+	   * @throws MetadataException
+	   */
+	  public void addLibraryToCell(Sample cell, Sample library,	Float libConcInCellPicoM, Job job) throws SampleTypeException, SampleException, SampleMultiplexException, MetadataException;
+
+	  public void setJobForLibraryOnCell(SampleSource cellLibrary, Job job) throws MetadataException;
+	  
+	  public void enumerateSamplesForMPS(List<Sample> allSamples, List<Sample> submittedMacromolecules, List<Sample> submittedLibraries, List<Sample> facilityLibraries);
+	  
+	  /**
+	   * See if Sample name has changed between sample objects and if so check if the new name is unique within the job.
+	   * @param formSample
+	   * @param originalSample
+	   * @param job
+	   * @param result
+	   */
+	  public void validateSampleNameUniqueWithinJob(String sampleName, Integer sampleId, Job job, BindingResult result);
+	
+	  public String getNameOfOrganismForAlignmentRequest(Sample sample, String defaultValue);
+	  public String getNameOfGenomeForAlignmentRequest(Sample sample, String defaultValue);
+	  public String getNameOfGenomeBuildForAlignmentRequest(Sample sample, String defaultValue);
+
+	  public List<SampleSource> getCellLibrariesForLibrary(Sample library);
+
+	  public List<SampleSource> getCellLibraries();
+
+	  public List<Sample> getLibraries();
+	  
 }

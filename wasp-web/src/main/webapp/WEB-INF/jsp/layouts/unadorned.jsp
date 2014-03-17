@@ -2,7 +2,6 @@
 
 <%-- template for pages that do NOT have a JQGrid table --%>
 
-<%@ page import="edu.yu.einstein.wasp.resourcebundle.DBResourceBundle" %> 
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html lang="en">
@@ -19,6 +18,10 @@
   <script type="text/javascript" src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script> 
   --%>
   <script type="text/javascript">
+  
+  function openWaitDialog(){
+	  $("#wait_dialog-modal").dialog("open");
+  }
   
   function waspTooltip(){
 		$( ".tooltip" ).tooltip({
@@ -37,30 +40,21 @@
 	  	    });
 	}
 
-	$( document ).ready( function(){
+    function readyFn(){
 		waspTooltip();
-  		waspFade("waspErrorMessage");
-  		waspFade("waspMessage");
-  		waspOnLoad();
-  	});
-  
-  	function waspFade(el, msg) {
-		if (msg != null && msg != ""){
-			$('#'+el).html(msg);
-		}
-		if ($('#'+el).html() == ''){
-			$('#'+el).hide();
-		} else {
-			$('#'+el).show();
-			setTimeout(function() {
-				$('#'+el).fadeOut('slow',
-					function() {
-						// after fadeout do the following
-						$('#'+el).html('');
-					});
-			},7500);
-		}
+		
+		$( "#wait_dialog-modal" ).dialog({
+			dialogClass: "no-close",
+			height: 170,
+			autoOpen: false,
+			modal: true
+		});
+		$("#wait_dialog-modal").css("visibility", "visible");
+		waspOnLoad();
 	}
+
+	$( document ).ready( readyFn );
+  
   
     var waspOnLoad=function() {
       // re-define the waspOnLoad var 

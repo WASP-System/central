@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+
+
+	<definition name="helptag/description" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/helptag/description.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/helptag/description.jsp" />
+	</definition>
+	
+	<definition name="jobsubmit/helptagform" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/helptag/helptagpair.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/helptag/helptagpair.jsp" />
+	</definition>
+
+</tiles-definitions>
+

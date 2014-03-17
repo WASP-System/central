@@ -1,9 +1,7 @@
 package edu.yu.einstein.wasp.integration.messages.templates;
 
 import org.springframework.integration.Message;
-import org.springframework.integration.support.MessageBuilder;
 
-import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.exception.WaspMessageInitializationException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
@@ -17,19 +15,10 @@ import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
  */
 public class JobStatusMessageTemplate extends WaspStatusMessageTemplate {
 	
-	private Integer jobId;
-	
-	public Integer getJobId() {
-		return jobId;
-	}
-
-	public void setJobId(Integer jobId) {
-		this.jobId = jobId;
-	}
-	
 	public JobStatusMessageTemplate(Integer jobId){
 		super();
-		this.jobId = jobId;
+		addHeader(WaspMessageType.HEADER_KEY, WaspMessageType.JOB);
+		setJobId(jobId);
 	}
 	
 	public JobStatusMessageTemplate(Message<WaspStatus> message){
@@ -37,45 +26,27 @@ public class JobStatusMessageTemplate extends WaspStatusMessageTemplate {
 		if (!isMessageOfCorrectType(message))
 			throw new WaspMessageInitializationException("message is not of the correct type");
 		if (message.getHeaders().containsKey(WaspJobParameters.JOB_ID))
-			jobId = (Integer) message.getHeaders().get(WaspJobParameters.JOB_ID);
+			setJobId((Integer) message.getHeaders().get(WaspJobParameters.JOB_ID));
 	}
 	
-		
-	/**
-	 * Build a Spring Integration Message using the jobId header, task header if not null, and the WaspStatus as payload .
-	 * @return
-	 * @throws WaspMessageBuildingException
-	 */
-	@Override
-	public Message<WaspStatus> build() throws WaspMessageBuildingException{
-		if (this.status == null)
-			throw new WaspMessageBuildingException("no status message defined");
-		Message<WaspStatus> message = null;
-		try {
-				message = MessageBuilder.withPayload(status)
-						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.JOB)
-						.setHeader(TARGET_KEY, target)
-						.setHeader(USER_KEY, userCreatingMessage)
-						.setHeader(COMMENT_KEY, comment)
-						.setHeader(EXIT_DESCRIPTION_HEADER, exitDescription)
-						.setHeader(WaspJobParameters.JOB_ID, jobId)
-						.setHeader(WaspJobTask.HEADER_KEY, task)
-						.setPriority(status.getPriority())
-						.build();
-		} catch(Exception e){
-			throw new WaspMessageBuildingException("build() failed to build message: "+e.getMessage());
-		}
-		return message;
+	public Integer getJobId() {
+		return (Integer) getHeader(WaspJobParameters.JOB_ID);
 	}
+
+	public void setJobId(Integer jobId) {
+		addHeader(WaspJobParameters.JOB_ID, jobId);
+	}
+	
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean actUponMessage(Message<?> message){
-		if (this.task == null)
-			return actUponMessage(message, this.jobId);
-		return actUponMessage(message, this.jobId, this.task);
+		String task = (String) getHeader(WaspJobTask.HEADER_KEY);
+		if (task == null)
+			return actUponMessage(message, getJobId());
+		return actUponMessage(message, getJobId(), task);
 	}
 	
 	/**
@@ -83,9 +54,10 @@ public class JobStatusMessageTemplate extends WaspStatusMessageTemplate {
 	 */
 	@Override
 	public boolean actUponMessageIgnoringTask(Message<?> message){
-		if (this.task == null)
-			return actUponMessage(message, this.jobId);
-		return actUponMessage(message, this.jobId, null);
+		String task = (String) getHeader(WaspJobTask.HEADER_KEY);
+		if (task == null)
+			return actUponMessage(message, getJobId());
+		return actUponMessage(message, getJobId(), null);
 	}
 	
 	
@@ -133,6 +105,13 @@ public class JobStatusMessageTemplate extends WaspStatusMessageTemplate {
 	public static boolean isMessageOfCorrectType(Message<?> message) {
 		return message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) &&  
 				message.getHeaders().get(WaspMessageType.HEADER_KEY).equals(WaspMessageType.JOB);
+	}
+	
+	@Override
+	public JobStatusMessageTemplate getNewInstance(WaspStatusMessageTemplate messageTemplate){
+		JobStatusMessageTemplate newTemplate = new JobStatusMessageTemplate(((JobStatusMessageTemplate) messageTemplate).getJobId());
+		copyCommonProperties(messageTemplate, newTemplate);
+		return newTemplate;
 	}
 	
 }

@@ -12,7 +12,7 @@
 	<artifactId>wasp-web</artifactId>
 	<packaging>war</packaging>
 	<name>WASP Web Application</name>
-
+	
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
@@ -59,7 +59,7 @@
 			<artifactId>commons-pool</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>antlr</groupId>
+			<groupId>org.antlr</groupId>
 			<artifactId>antlr</artifactId>
 		</dependency>
 		<dependency>
@@ -330,7 +330,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.batch</groupId>
-			<artifactId>spring-batch-core</artifactId>
+			<artifactId>wasp-spring-batch-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.batch</groupId>
@@ -510,6 +510,18 @@
 				</resource>
 				</webResources>
 				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>test-testng</id>
+						<phase>test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 		<pluginManagement>

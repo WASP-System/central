@@ -34,27 +34,24 @@ public class SampleTypeLoadServiceImpl extends WaspLoadServiceImpl implements Sa
 		  Assert.assertParameterNotNull(iname, "iname Cannot be null");
 		  Assert.assertParameterNotNull(name, "name Cannot be null");
 		  Assert.assertParameterNotNull(sampleTypeCategory, "sampleTypeCategory Cannot be null");
-		  if (sampleTypeCategory.getSampleTypeCategoryId() == null)
+		  if (sampleTypeCategory.getId() == null)
 			  throw new NullSampleSubtypeException("SampleTypeCategoryId is null for '" + sampleTypeCategory.getIName() + "'");
 
 		  	SampleType sampleType = sampleTypeDao.getSampleTypeByIName(iname); 
 		    // inserts or update sampleSubtype
-		    if (sampleType.getSampleTypeId() == null) {
+		    if (sampleType.getId() == null) {
 		    	sampleType.setIName(iname);
 		    	sampleType.setName(name);
 		    	sampleType.setIsActive(isActive);
 		    	sampleType.setSampleTypeCategory(sampleTypeCategory);
 		    	sampleType = sampleTypeDao.save(sampleType);
 		    } else {
-		      if (!sampleType.getName().equals(name)){
+		      if (sampleType.getName() == null || !sampleType.getName().equals(name))
 		    	  sampleType.setName(name);
-		      }
-		      if (sampleType.getSampleTypeCategoryId().intValue() != sampleTypeCategory.getSampleTypeCategoryId().intValue()){
-		    	  sampleType.setSampleTypeCategoryId(sampleTypeCategory.getSampleTypeCategoryId());
-		      }
-		      if (sampleType.getIsActive().intValue() != isActive){
+		      if (sampleType.getSampleTypeCategoryId() == null || sampleType.getSampleTypeCategoryId().intValue() != sampleTypeCategory.getId().intValue())
+		    	  sampleType.setSampleTypeCategoryId(sampleTypeCategory.getId());
+		      if (sampleType.getIsActive().intValue() != isActive)
 		    	  sampleType.setIsActive(isActive);
-		      }
 		}
 		    return sampleType;
 	}

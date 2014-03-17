@@ -3,12 +3,15 @@ package edu.yu.einstein.wasp.charts;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import edu.yu.einstein.wasp.service.MessageService;
 
 /**
  * Base class to generalize all charts
@@ -32,14 +35,16 @@ public class WaspChart {
 		description = "";
 	}
 	
-	/**
-	 * Set up object from JSON representation
-	 * @param JSON
-	 * @return
-	 * @throws JSONException
-	 */
 	public String getTitle() {
 		return title;
+	}
+	
+	public String getLocalizedTitle(MessageService messageService) {
+		return messageService.getMessage(title);
+	}
+	
+	public String getLocalizedTitle(MessageService messageService, Locale locale) {
+		return messageService.getMessage(title, locale);
 	}
 
 	public void setTitle(String title) {
@@ -48,6 +53,14 @@ public class WaspChart {
 	
 	public String getDescription() {
 		return description;
+	}
+	
+	public String getLocalizedDescription(MessageService messageService) {
+		return messageService.getMessage(description);
+	}
+	
+	public String getLocalizedDescription(MessageService messageService, Locale locale) {
+		return messageService.getMessage(description, locale);
 	}
 
 	public void setDescription(String description) {
@@ -133,7 +146,8 @@ public class WaspChart {
 		try{
 			return mapper.readValue(json.toString(), clazz);
 		} catch(Exception e){
-			throw new JSONException("Cannot create object of type " + clazz.getName() + " from json: " + e.getLocalizedMessage());
+			throw new JSONException("Cannot create object of type " + clazz.getName() + " from JSON. Caught exception of type " + 
+					e.getClass().getName() + " : " + e.getLocalizedMessage());
 		}
 	}
 	
@@ -144,7 +158,7 @@ public class WaspChart {
 			// use jackson object mapper to create json as text then wrap in JSONObject (Jackson understands @JsonIgnore)
 			return new JSONObject(mapper.writeValueAsString(this));
 		} catch (Exception e) {
-			throw new JSONException("Cannot convert object to JSON");
+			throw new JSONException("Cannot convert object to JSON. Caught exception of type " + e.getClass().getName() + " : " +e.getLocalizedMessage());
 		}
 	}
 

@@ -5,6 +5,8 @@
 	default-autowire="byName"
 	xmlns:aop="http://www.springframework.org/schema/aop"
 	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
@@ -16,11 +18,17 @@
   <context:component-scan base-package="edu.yu.einstein.wasp.messaging" />
   <context:component-scan base-package="edu.yu.einstein.wasp.load.service.impl" />
   <context:component-scan base-package="edu.yu.einstein.wasp.filetype.service.impl" />
+  <context:component-scan base-package="edu.yu.einstein.wasp.plugin.**.service.impl" />
   
   <context:annotation-config/>
   
+  <task:executor id="taskExecutor" 
+ 		keep-alive="${wasp.taskexecutor.keepAliveSeconds:60}" 
+ 		queue-capacity="${wasp.taskexecutor.queueCapacity:0}" 
+ 		pool-size="${wasp.taskexecutor.corePoolSize:5}-${wasp.taskexecutor.maxPoolSize:10000}" 
+ 		rejection-policy="CALLER_RUNS" />
+ 		
    
-  
   <!-- mail configuration -->
   <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
     <property name="host" value="${email.host}"/>
@@ -57,14 +65,7 @@
 	 <constructor-arg value="US"/>
   </bean>
 
-  <!-- load constant string value definitions -->
-  <import resource="classpath*:wasp/static-values-definition.xml" /> 
-
-  <!-- loads load scripts to update database -->
-  <import resource="classpath*:wasp/**/*Load.xml" />
-
-  <!-- load all other plugins -->
-  <import resource="classpath*:wasp/*waspPlugin.xml" /> 
+  <import resource="classpath*:wasp/**/*.xml" />
 
   <!-- load site specific properties -->
   <bean id="waspSiteProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
@@ -93,9 +94,6 @@
   <!-- load local configuration context -->
   <import resource="classpath*:/wasp-site-context.xml" />
   
-  <!-- load universal file type service beans -->
-  <bean id="fastqService" class="edu.yu.einstein.wasp.filetype.service.impl.FastqServiceImpl" />
-
-
+  
 
 </beans>

@@ -12,7 +12,7 @@ import org.apache.commons.lang.StringUtils;
  */
 public class WaspSoftwareJobParameters extends WaspJobParameters {
 
-	public static final String LIBRARY_CELL_ID_LIST = "libraryCellIdList"; // Sample Source reference
+	public static final String CELL_LIBRARY_ID_LIST = "cellLibraryIdList"; // Sample Source reference
 	
 	
 	/**
@@ -22,26 +22,26 @@ public class WaspSoftwareJobParameters extends WaspJobParameters {
 	public static final String GENOME = "genome";  
 	
 	/**
-	 * Returns a set of libraryCell (SourceSample) ids from a comma delimited list provided (typically a batch job parameter associated with key
-	 * LIBRARY_CELL_ID)
+	 * Returns a set of cellLibrary (SourceSample) ids from a comma delimited list provided (typically a batch job parameter associated with key
+	 * CELL_LIBRARY_ID)
 	 * @param parameterValue
 	 * @return
 	 */
-	public static List<Integer> getLibraryCellIdList(String parameterValue){
-		List<Integer> libraryCellIds = new ArrayList<Integer>();
+	public static List<Integer> getCellLibraryIdList(String parameterValue){
+		List<Integer> cellLibraryIds = new ArrayList<Integer>();
 		for (String id: parameterValue.split(","))
-			libraryCellIds.add(Integer.valueOf(id));
-		return libraryCellIds;
+			cellLibraryIds.add(Integer.valueOf(id));
+		return cellLibraryIds;
 	}
 	
 	/**
-	 * Returns comma delimited string of libraryCell (SourceSample) ids from the given Set. Use this as a parameter value when using key LIBRARY_CELL_ID.
-	 * @param libraryCellIds
+	 * Returns comma delimited string of cellLibrary (SourceSample) ids from the given Set. Use this as a parameter value when using key CELL_LIBRARY_ID.
+	 * @param cellLibraryIds
 	 * @return
 	 */
-	public static String getLibraryCellListAsParameterValue(List<Integer> libraryCellIds){
+	public static String getCellLibraryListAsParameterValue(List<Integer> cellLibraryIds){
 		String value = "";
-		for (Integer id: libraryCellIds){
+		for (Integer id: cellLibraryIds){
 			value += id.toString() + ",";
 		}
 		value = StringUtils.removeEnd(value, ",");

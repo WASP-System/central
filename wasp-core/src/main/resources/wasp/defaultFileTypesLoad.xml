@@ -4,18 +4,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	default-autowire="byName"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-   
-  <bean id="bamFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
-    <property name="name" value="BAM" />
-    <property name="area" value="bam" />
-    <property name="description" value="Binary version of a Sequence Alignment/MAP (SAM) file. A generic format for storing large nucleotide sequence alignnments" />
-  </bean>
-  
-  <bean id="baiFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
-    <property name="name" value="BAM index" />
-    <property name="area" value="bai" />
-    <property name="description" value="BAM index file" />
-  </bean>
+
 
 </beans>
 

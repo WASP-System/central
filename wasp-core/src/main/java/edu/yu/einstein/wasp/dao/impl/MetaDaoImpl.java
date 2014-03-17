@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.Meta;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class MetaDaoImpl extends WaspDaoImpl<Meta> implements edu.yu.einstein.wasp.dao.MetaDao {
 
@@ -44,7 +44,7 @@ public class MetaDaoImpl extends WaspDaoImpl<Meta> implements edu.yu.einstein.wa
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public Meta getMetaByMetaId (final int metaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", metaId);
@@ -61,18 +61,18 @@ public class MetaDaoImpl extends WaspDaoImpl<Meta> implements edu.yu.einstein.wa
 
 
 	/**
-	 * getMetaByPropertyK(final String property, final String k)
+	 * getMetaByK(final String k)
 	 *
-	 * @param final String property, final String k
+	 * @param final String k
 	 *
 	 * @return meta
 	 */
 
 	@Override
-	@Transactional
-	public Meta getMetaByPropertyK (final String property, final String k) {
-    		HashMap<String, String> m = new HashMap<String, String>();
-		m.put("property", property);
+	@Transactional("entityManager")
+	public Meta getMetaByK (final String k) {
+    		
+		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("k", k);
 
 		List<Meta> results = this.findByMap(m);
@@ -84,33 +84,35 @@ public class MetaDaoImpl extends WaspDaoImpl<Meta> implements edu.yu.einstein.wa
 		return results.get(0);
 	}
 
-
-
 	/**
-	 * getMetaByPropertyV(final String property, final String v)
-	 *
-	 * @param final String property, final String v
+	 * setMeta(final String k, final String v)
+	 * creates and returns a new Meta object in memory only
+	 * @param final String k, final String v
 	 *
 	 * @return meta
 	 */
 
 	@Override
-	@Transactional
-	public Meta getMetaByPropertyV (final String property, final String v) {
-    		HashMap<String, String> m = new HashMap<String, String>();
-		m.put("property", property);
-		m.put("v", v);
-
-		List<Meta> results = this.findByMap(m);
-
-		if (results.size() == 0) {
-			Meta rt = new Meta();
-			return rt;
-		}
-		return results.get(0);
+	@Transactional("entityManager")
+	 public Meta setMeta(final String k, final String v){
+		Meta meta = new Meta();
+		meta.setK(k);
+		meta.setV(v);
+		return meta;
 	}
 
+	/**
+	 * saveMeta(Meta)
+	 *
+	 * @param Meta meta
+	 *
+	 * @return meta
+	 */
 
-
+	@Override
+	@Transactional("entityManager")
+	public Meta saveMeta(Meta meta){
+		return this.save(meta);
+	}
 }
 

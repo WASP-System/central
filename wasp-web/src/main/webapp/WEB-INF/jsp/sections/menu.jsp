@@ -33,7 +33,7 @@
 				<li class="main_menu-root">
 					<a href="#"><fmt:message key="menu.jobs.label" /></a>
 					<ul>
-						<sec:authorize access="hasRole('su')">
+						<sec:authorize access="hasRole('su') or hasRole('fm')">
 							<li><a href='<c:url value="/job/list.do"/>'><fmt:message key="menu.allJobs.label" /></a></li>
 						</sec:authorize>
 						<sec:authorize access="not hasRole('su') and hasRole('jv-*')">
@@ -108,6 +108,7 @@
 							</ul>
 						</li>
 						<li><a href='<c:url value="/run/list.do"/>'><fmt:message key="menu.sequenceRuns.label" /></a></li>
+						<li><a href='<c:url value="/batchJobStatusViewer/list.do"/>'><fmt:message key="menu.batchJobStatusViewer.label" /></a></li>
 					</ul>
 				</li>
 			</sec:authorize>
@@ -118,7 +119,7 @@
 				</li>
 			</sec:authorize>
 			
-			<li class="main_menu-root">
-				<a href='<c:url value="/task/myTaskList.do"/>'><fmt:message key="menu.tasks.label" /></a>
+			<li class="main_menu-root" onclick='javascript:openWaitDialog();'>
+				<a href='<c:url value="/task/myTaskList.do"/>'><fmt:message key="menu.tasks.label"  /></a>
 			</li>
 		</ul>

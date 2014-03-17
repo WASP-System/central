@@ -6,8 +6,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import edu.yu.einstein.wasp.exception.MetadataRuntimeException;
 import edu.yu.einstein.wasp.model.MetaAttribute.Control;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 
@@ -19,6 +22,8 @@ import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
  *
  */
 public final class MetaUtil {
+	
+		protected final static Logger logger = LoggerFactory.getLogger(MetaUtil.class);
 	
 		/**
 		 * 1. populates "control" and "position" property of each object in the list
@@ -79,9 +84,9 @@ public final class MetaUtil {
 		if (! DBResourceBundle.MESSAGE_SOURCE.contains(key, locale) ){
 			return null;
 		}
-		
+		logger.debug("getting controlStr for key=" + key);
 		String controlStr=getMessage(key, locale);
-		
+		logger.debug("got controlStr=" + controlStr);
 		return getControl(controlStr);
 		
 	}
@@ -98,7 +103,12 @@ public final class MetaUtil {
 		
 		if (controlStr==null) return null;
 		
-		String typeStr=controlStr.substring(0,controlStr.indexOf(":"));
+		String typeStr="";
+		try{
+			typeStr = controlStr.substring(0,controlStr.indexOf(":"));
+		} catch(StringIndexOutOfBoundsException e){
+			throw new MetadataRuntimeException("Unable to render form control element", e);
+		}
 		
 		MetaAttribute.Control.Type type=MetaAttribute.Control.Type.valueOf(typeStr);
 		
@@ -172,8 +182,7 @@ public final class MetaUtil {
 	 * @return
 	 */
 	private static String getMessage(String key, Locale locale) {
-			
-			return DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null, locale);
+		return DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null, locale);  // possibly nested internationalized values
 	}
 		 
 	@SuppressWarnings("rawtypes")

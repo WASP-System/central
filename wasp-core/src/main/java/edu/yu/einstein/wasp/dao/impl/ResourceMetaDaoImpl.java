@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.ResourceMeta;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class ResourceMetaDaoImpl extends WaspMetaDaoImpl<ResourceMeta> implements edu.yu.einstein.wasp.dao.ResourceMetaDao {
 
@@ -44,7 +44,7 @@ public class ResourceMetaDaoImpl extends WaspMetaDaoImpl<ResourceMeta> implement
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public ResourceMeta getResourceMetaByResourceMetaId (final Integer resourceMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", resourceMetaId);
@@ -69,7 +69,7 @@ public class ResourceMetaDaoImpl extends WaspMetaDaoImpl<ResourceMeta> implement
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public ResourceMeta getResourceMetaByKResourceId (final String k, final Integer resourceId) {
     		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);

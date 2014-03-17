@@ -2,7 +2,6 @@
 
 <%-- template for pages that do NOT have a JQGrid table --%>
 
-<%@ page import="edu.yu.einstein.wasp.resourcebundle.DBResourceBundle" %> 
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html lang="en">
@@ -21,6 +20,10 @@
   
   <script type="text/javascript">
   
+  function openWaitDialog(){
+	  $("#wait_dialog-modal").dialog("open");
+  }
+  
   function waspTooltip(){
 		$( ".tooltip" ).tooltip({
 	  	      position: {
@@ -37,11 +40,18 @@
 	  	      }
 	  	    });
 	}
-
-	$( document ).ready( function(){
+  
+  	$( document ).ready( function(){
 		waspTooltip();
   		waspFade("waspErrorMessage");
   		waspFade("waspMessage");
+  		$( "#wait_dialog-modal" ).dialog({
+  			dialogClass: "no-close",
+			height: 170,
+			autoOpen: false,
+			modal: true
+		});
+  		$("#wait_dialog-modal").css("visibility", "visible");
   		waspOnLoad();
   	});
   
@@ -85,7 +95,15 @@
 			</div>
 		</sec:authorize>
   		<div id="content"> 
-  			<wasp:breadcrumbs />
+  			<!-- <wasp:breadcrumbs /> -->
+  			<div id="wait_dialog-modal" title="<fmt:message key="wasp.wait_title.label" />"  >
+				<table border="0" cellpadding="5">
+				<tr>
+				<td><img src="/wasp/images/spinner.gif" align="left" border="0" ></td>
+				<td><fmt:message key="wasp.wait_message.label" /></td>
+				</tr>
+				</table>
+			</div>
   			<wasp:errorMessage />
   			<wasp:message />
 			<tiles:insertAttribute name="body-content" />

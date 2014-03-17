@@ -283,3 +283,6 @@ epub_copyright = u'2013, Albert Einstein College of Medicine'
 
 # Allow duplicate toc entries.
 #epub_tocdup = True
+
+# -- Options for Numfig  ------------------------------------------------
+number_figures = True

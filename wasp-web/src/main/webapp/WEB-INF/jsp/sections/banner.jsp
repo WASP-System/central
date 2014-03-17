@@ -5,22 +5,21 @@
   <sec:authorize access="isAuthenticated()">
     <header id="pageHeaderLoggedIn">
       <nav>
-      	<div class="header_nav">
-      		<%-- <a href="/wasp/dashboard.do" ><fmt:message key="sections.banner_dashboard.label" /></a> | --%>
-      		<a href="http://waspsystem.org/documentation" >Documentation</a> | 
-        	<a href="/wasp/j_spring_security_logout" ><fmt:message key="sections.banner_logout.label" /></a>
+      	<div class="header_panel_right">
+      		<div class="waspIcon"><a href="http://waspsystem.org"><img src="/wasp/images/waspSystemLogoLong_200x60.png" alt="Wasp System Website" height="40" /></a></div>
+        	<div class="header_nav"><a href="/wasp/j_spring_security_logout" ><fmt:message key="sections.banner_logout.label" /></a></div>
         </div>
-        <a href="/wasp/dashboard.do"><img src="/wasp/images/waspSystemLogo_108x80.png" alt="WASP System" /></a>
+        <a href="/wasp/dashboard.do"><img src='/wasp<spring:eval expression="@siteProperties.getProperty('wasp.customimage.logo')" />' alt="Home Page" height="80"/></a>
       </nav>
     </header>
   </sec:authorize>
   <sec:authorize access="! isAuthenticated()">
     <header id="pageHeaderNotLoggedIn">
       <nav>
-      	<div class="header_nav">
-      		<a href="http://waspsystem.org/documentation" >Documentation</a>
+      	<div class="header_panel_right">
+      		<div class="waspIcon"><a href="http://waspsystem.org"><img src="/wasp/images/waspSystemLogoLong_200x60.png" alt="Wasp System Website" height="40" /></a></div>
         </div>
-        <a href="/wasp/"><img src="/wasp/images/waspSystemLogo_108x80.png" alt="WASP System" /></a>
+         <a href="/wasp/dashboard.do"><img src='/wasp<spring:eval expression="@siteProperties.getProperty('wasp.customimage.logo')" />' alt="Home Page" height="80"/></a>
       </nav>
     </header>
   </sec:authorize>

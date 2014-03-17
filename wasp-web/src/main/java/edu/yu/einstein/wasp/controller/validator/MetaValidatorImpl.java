@@ -3,11 +3,13 @@ package edu.yu.einstein.wasp.controller.validator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
@@ -15,6 +17,7 @@ import org.springframework.validation.Errors;
 import edu.yu.einstein.wasp.exception.MetaRangeException;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
+import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 
 
 /**
@@ -47,6 +50,7 @@ public class MetaValidatorImpl implements MetaValidator {
 			
 			String errorFieldName = area+"Meta["+i+"].k";
 			String errorMessageKey = meta.getK() + ".error";
+			logger.debug("errorMessageKey="+errorMessageKey);
 			String defaultMessage = errorMessageKey+" (no message has been defined for this property)";
 			if (constraint != null){
 				if (! allowableConstraints.contains(Constraint.valueOf(constraint)) ){

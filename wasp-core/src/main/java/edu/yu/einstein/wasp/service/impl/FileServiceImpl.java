@@ -36,6 +36,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.persistence.TypedQuery;
 
@@ -46,6 +48,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -55,6 +58,7 @@ import edu.yu.einstein.wasp.Hyperlink;
 import edu.yu.einstein.wasp.dao.FileGroupDao;
 import edu.yu.einstein.wasp.dao.FileGroupMetaDao;
 import edu.yu.einstein.wasp.dao.FileHandleDao;
+import edu.yu.einstein.wasp.dao.FileHandleMetaDao;
 import edu.yu.einstein.wasp.dao.FileTypeDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobDraftDao;
@@ -80,6 +84,7 @@ import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.FileHandleMeta;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
@@ -91,10 +96,7 @@ import edu.yu.einstein.wasp.plugin.FileTypeViewProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
-
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.zip.ZipOutputStream;
+import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 
 
 @Service
@@ -127,6 +129,9 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	
 	@Autowired
 	private FileGroupMetaDao fileGroupMetaDao;
+	
+	@Autowired
+	private FileHandleMetaDao fileHandleMetaDao;
 
 	@Autowired
 	private GridHostResolver hostResolver;
@@ -187,6 +192,17 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		return fileGroupDao.getFileGroupById(id);
 	}
 
+	@Override
+	public FileGroup getFileGroup(UUID uuid) throws FileNotFoundException {
+		TypedQuery<FileGroup> fgq = fileGroupDao.getEntityManager()
+				.createQuery("select f from FileGroup f where f.uuid = :uuid", FileGroup.class)
+				.setParameter("uuid", uuid);
+		FileGroup fg = fgq.getSingleResult();
+		if (fg == null)
+			throw new FileNotFoundException("File group represented by " + uuid.toString() + " was not found.");
+		return fg;
+	}
+	
 	/**
 	 * this has actually been replaced by this.uploadJobDraftFile();
 	 * Upload submitted file to a temporary location on the remote host.
@@ -832,14 +848,21 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			throw new PluginException("More than one plugin found for area=" + area + " with class=SequencingViewProviding");
 		return plugins.get(0).getFileDetails(filegroup.getId());
 	}
+	
+	@Override
+	public List<FileDataTabViewing> getTabViewProvidingPluginsByFileGroup(FileGroup fileGroup) {
+		String area = fileGroup.getFileType().getIName();
+		return pluginRegistry.getPluginsHandlingArea(area, FileDataTabViewing.class);
+	}
 
 	@Override
 	public Set<FileGroup> getFilesForCellLibraryByType(SampleSource cellLibrary, FileType fileType) {
 		TypedQuery<FileGroup> fgq = fileGroupDao.getEntityManager()
 				.createQuery("SELECT DISTINCT fg from FileGroup fg " +
-						"JOIN fg.sampleSources cl " +
+						"JOIN FETCH fg.sampleSources cl " +
 						"JOIN FETCH fg.fileHandles fh " + 
-						"JOIN FETCH fh.fileType " +
+						//"JOIN FETCH fh.fileType " +  
+						"JOIN FETCH fg.fileType " +
 						"WHERE cl = :cellLibrary AND fg.fileType = :fileType", FileGroup.class)
 				.setParameter("cellLibrary", cellLibrary)
 				.setParameter("fileType", fileType);
@@ -880,7 +903,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		}
 		
 		for(JobDraftFile jdf : jobDraft.getJobDraftFile()){
-			if(jdf.getFileGroup().getId() == fileGroupId){
+			if(jdf.getFileGroup().getId().intValue() == fileGroupId.intValue()){
 				jobDraftFile = jdf;
 				break;
 			}
@@ -929,7 +952,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	@Transactional
 	public void uploadJobDraftFile(MultipartFile mpFile, JobDraft jobDraft, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
 		try{
-			FileGroup fileGroup = this.uploadFile(mpFile, jobDraft.getId(), fileDescription, randomNumberGenerator, "draft.dir", "");
+			FileGroup fileGroup = this.uploadFile(mpFile.getOriginalFilename(), mpFile.getInputStream(), jobDraft.getId(), fileDescription, randomNumberGenerator, "draft.dir", "");
 			this.linkFileGroupWithJobDraft(fileGroup, jobDraft);
 		}catch(Exception e){
 			throw new FileUploadException(e.getMessage());
@@ -940,52 +963,26 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	@Transactional
 	public void uploadJobFile(MultipartFile mpFile, Job job, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
 		try{
-			FileGroup fileGroup = this.uploadFile(mpFile, job.getId(), fileDescription, randomNumberGenerator, "results.dir", "submitted");
-			this.linkFileGroupWithJob(fileGroup, job);
+			FileGroup fileGroup = this.uploadFile(mpFile.getOriginalFilename(), mpFile.getInputStream(), job.getId(), fileDescription, randomNumberGenerator, "results.dir", "submitted");
+			this.linkFileGroupWithJob(fileGroup, job);//this should really be in the job service, not fileservice
 		}catch(Exception e){
 			throw new FileUploadException(e.getMessage());
 		}
 	}
 
-	private FileGroup uploadFile(MultipartFile mpFile, Integer id, String fileDescription, Random randomNumberGenerator, String targetDir, String additionalSubJobDir) throws FileUploadException{
-		
-		int randomNumber = randomNumberGenerator.nextInt(1000000000) + 100;
-		String noSpacesFileName = mpFile.getOriginalFilename().replaceAll("\\s+", "_");
-		String taggedNoSpacesFileName = randomNumber + "_" + noSpacesFileName;
+	@Override
+	@Transactional
+	public FileGroup uploadFileAndReturnFileGroup(MultipartFile mpFile, Job job, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
+		try{
+			FileGroup fileGroup = this.uploadFile(mpFile.getOriginalFilename(), mpFile.getInputStream(), job.getId(), fileDescription, randomNumberGenerator, "results.dir", "submitted");
+			return fileGroup;
+		}catch(Exception e){
+			throw new FileUploadException(e.getMessage());
+		}
+	}
 
-		if(tempDir == null){
-			String mess = "Temporary directory on local host has not been configured!  Please set \"wasp.temporary.dir\" in wasp-config.";
-			logger.warn(mess);
-			throw new FileUploadException(mess);
-		}
-		if (fileHost == null) {
-			String mess = "Primary file host has not been configured!  Please set \"wasp.primaryfilehost\" in wasp-config.";
-			logger.warn(mess);
-			throw new FileUploadException(mess);
-		}
+	private FileGroup uploadFile(String originalFileName, InputStream inputStream, Integer id, String fileDescription, Random randomNumberGenerator, String targetDir, String additionalSubJobDir) throws FileUploadException{
 		
-		File temporaryDirectory = new File(tempDir);
-
-		if (!temporaryDirectory.exists()) {
-			try {
-				temporaryDirectory.mkdir();
-			} catch (Exception e) {
-				String mess = "FileHandle upload failure trying to create '" + tempDir + "': " + e.getMessage();
-				logger.warn(mess);
-				throw new FileUploadException(mess);
-			}
-		}
-		
-		File localFile;
-		try {
-			localFile = File.createTempFile("wasp.", ".tmp", temporaryDirectory);
-		} catch (IOException e) {
-			String mess = "Unable to create local temporary file: " + e.getLocalizedMessage();
-			logger.warn(mess);
-			e.printStackTrace();
-			throw new FileUploadException(mess);
-		}
-
 		GridWorkService gws;
 		GridFileService gfs;
 		try {
@@ -1027,6 +1024,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			throw new FileUploadException(mess);
 		}
 
+		File localFile = this.createTempFile();
 
 		try {
 			OutputStream tmpFile = new FileOutputStream(localFile);
@@ -1034,12 +1032,11 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			int read = 0;
 			byte[] bytes = new byte[1024];
 
-			InputStream mpFileInputStream = mpFile.getInputStream();
-			while ((read = mpFileInputStream.read(bytes)) != -1) {
+			while ((read = inputStream.read(bytes)) != -1) {
 				tmpFile.write(bytes, 0, read);
 			}
 
-			mpFile.getInputStream().close();
+			inputStream.close();
 			tmpFile.flush();
 			tmpFile.close();
 		} catch (IOException e) {
@@ -1050,6 +1047,11 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			throw new FileUploadException(mess);
 		}
 		
+		int randomNumber = randomNumberGenerator.nextInt(1000000000) + 100;
+		//String noSpacesFileName = mpFile.getOriginalFilename().replaceAll("\\s+", "_");
+		String noSpacesFileName = originalFileName.replaceAll("\\s+", "_");
+		String taggedNoSpacesFileName = randomNumber + "_" + noSpacesFileName;
+
 		String remoteFile = remoteDir + "/" + taggedNoSpacesFileName;
 
 		FileHandle file = new FileHandle();
@@ -1096,7 +1098,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	}
 
 	@Override
-	public void copyFileHandleToOutputStream(FileHandle fileHandle, OutputStream os) throws FileDownloadException, FileNotFoundException, GridException{
+	public void copyFileHandleToOutputStream(FileHandle fileHandle, OutputStream os) throws FileUploadException, FileDownloadException, FileNotFoundException, GridException{
 		
 		if(tempDir == null){
 			String mess = "Temporary directory on local host has not been configured!  Please set \"wasp.temporary.dir\" in wasp-config.";
@@ -1180,7 +1182,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	}
 	
 	@Override
-	public void copyFileHandlesInFileGroupToOutputStream(FileGroup fileGroup, OutputStream os) throws FileDownloadException, FileNotFoundException, GridException{
+	public void copyFileHandlesInFileGroupToOutputStream(FileGroup fileGroup, OutputStream os) throws FileDownloadException, FileNotFoundException, GridException, FileUploadException{
 		
 		if(tempDir == null){
 			String mess = "Temporary directory on local host has not been configured!  Please set \"wasp.temporary.dir\" in wasp-config.";
@@ -1391,59 +1393,9 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 	@Override
 	public String getMimeType(String fileName){
-		
-		//TODO FYI java7: heads up that in Java 7 you can now just use Files.probeContentType(path).
-		//list at http://www.freeformatter.com/mime-types-list.html	
-		String mimeType = "";
-		String fileExtension = fileName.substring(fileName.lastIndexOf('.') + 1);
-		
-		if(fileExtension.equalsIgnoreCase("pdf")){
-			mimeType = "application/pdf";
-		}
-		else if(fileExtension.equalsIgnoreCase("htm") || fileExtension.equalsIgnoreCase("html")){
-			mimeType = "text/html";
-		}
-		else if(fileExtension.equalsIgnoreCase("txt") || fileExtension.equalsIgnoreCase("text")){
-			mimeType = "text/plain";
-		}
-		else if(fileExtension.equalsIgnoreCase("bmp")){
-			mimeType = "image/bmp";
-		}
-		else if(fileExtension.equalsIgnoreCase("csv")){
-			mimeType = "text/csv";
-		}
-		else if(fileExtension.equalsIgnoreCase("gif")){
-			mimeType = "image/gif";
-		}
-		else if(fileExtension.equalsIgnoreCase("jpg") || fileExtension.equalsIgnoreCase("jpeg")){
-			mimeType = "image/jpeg";
-		}
-		else if(fileExtension.equalsIgnoreCase("png")){
-			mimeType = "image/png";
-		}
-		else if(fileExtension.equalsIgnoreCase("tif")){
-			mimeType = "image/tiff";
-		}
-		/* these types of files download instead of being visible - do not use these here
-		else if(fileExtension.equalsIgnoreCase("docx")){
-			mimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-		}
-		else if(fileExtension.equalsIgnoreCase("doc")){
-			mimeType = "application/msword";
-		}
-		else if(fileExtension.equalsIgnoreCase("ppt")){
-			mimeType = "application/vnd.ms-powerpoint";
-		}
-		else if(fileExtension.equalsIgnoreCase("pptx")){
-			mimeType = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-		}
-		else if(fileExtension.equalsIgnoreCase("xls")){
-			mimeType = "application/vnd.ms-excel";
-		}
-		else if(fileExtension.equalsIgnoreCase("xlsx")){
-			mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-		}
-		*/
+		ConfigurableMimeFileTypeMap mimeMap = new ConfigurableMimeFileTypeMap();
+		String mimeType = mimeMap.getContentType(fileName);
+		logger.debug("ContentType of file is: " + mimeType);
 		return mimeType;
 	}
 
@@ -1478,6 +1430,154 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		}
 
 	}
+	
+	/*
+	 * create and return a temporary file
+	 * @see edu.yu.einstein.wasp.service.FileService#createTempFile()
+	 */
+	@Override
+	public File createTempFile() throws FileUploadException{
+		
+		if(tempDir == null){
+			String mess = "Temporary directory on local host has not been configured!  Please set \"wasp.temporary.dir\" in wasp-config.";
+			logger.warn(mess);
+			throw new FileUploadException(mess);
+		}
+		
+		File temporaryDirectory = new File(tempDir);
+
+
+		if (!temporaryDirectory.exists()) {
+			try {
+				temporaryDirectory.mkdir();
+			} catch (Exception e) {
+				String mess = "FileHandle upload failure trying to create '" + tempDir + "': " + e.getMessage();
+				logger.warn(mess);
+				throw new FileUploadException(mess);
+			}
+		}
+		
+		File localFile;
+		try {
+			localFile = File.createTempFile("wasp.", ".tmp", temporaryDirectory);
+		} catch (IOException e) {
+			String mess = "Unable to create local temporary file: " + e.getLocalizedMessage();
+			logger.warn(mess);
+			e.printStackTrace();
+			throw new FileUploadException(mess);
+		}
+		return localFile;
+	}
+
+	@Override
+	@Transactional
+	public FileGroup saveLocalJobFile(Job job, File localFile, String fileName, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
+		try{
+			FileGroup fileGroup = this.saveLocalFile(job.getId(), localFile, fileName, fileDescription, randomNumberGenerator, "results.dir", "submitted");
+			this.linkFileGroupWithJob(fileGroup, job);
+			return fileGroup;
+		}catch(Exception e){
+			throw new FileUploadException(e.getMessage());
+		}
+	}
+	
+	public FileGroup saveLocalQuoteOrInvoiceFile(Job job, File localFile, String fileName, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
+		try{
+			FileGroup fileGroup = this.saveLocalFile(job.getId(), localFile, fileName, fileDescription, randomNumberGenerator, "results.dir", "submitted");
+			//DO NOT USE NEXT LINE HERE: the quote or invoice is linked via job's acctQuote or job's acctInvoice   
+			//////////this.linkFileGroupWithJob(fileGroup, job);
+			return fileGroup;
+		}catch(Exception e){
+			throw new FileUploadException(e.getMessage());
+		}
+	}
+
+	private FileGroup saveLocalFile(Integer id, File localFile, String fileName, String fileDescription, Random randomNumberGenerator, String targetDir, String additionalSubJobDir) throws FileUploadException{
+
+		GridWorkService gws;
+		GridFileService gfs;
+		try {
+			gws = hostResolver.getGridWorkService(fileHost);
+			gfs = gws.getGridFileService();
+		} catch (GridUnresolvableHostException e) {
+			String mess = "Unable to resolve remote host ";
+			logger.warn(mess);
+			e.printStackTrace();
+			throw new FileUploadException(mess);
+		}
+
+		//////////String draftDir = gws.getTransportConnection().getConfiguredSetting("draft.dir");
+		String partialDir = gws.getTransportConnection().getConfiguredSetting(targetDir);
+		
+		if (partialDir == null) {
+			String mess = "Attempted to configure for file copy to " + fileHost + ", but hostname.settings." + targetDir + " has not been set.";
+			logger.warn(mess);
+			throw new FileUploadException(mess);
+		}
+
+		//String remoteDir = partialDir + "/" + id + "/";
+		String remoteDir;
+		if(additionalSubJobDir==null || additionalSubJobDir.isEmpty()){
+			remoteDir = partialDir + "/" + id + "/"; 
+		}
+		else{
+			remoteDir = partialDir + "/" + id + "/" + additionalSubJobDir + "/";
+		}
+
+		try {
+			if(!gfs.exists(remoteDir)){
+				gfs.mkdir(remoteDir);
+			}
+		} catch (IOException e) {
+			String mess = "Problem creating resources (remote directory:"+remoteDir+") on remote host " + gws.getTransportConnection().getHostName();
+			logger.warn(mess);
+			e.printStackTrace();
+			throw new FileUploadException(mess);
+		}
+				
+		int randomNumber = randomNumberGenerator.nextInt(1000000000) + 100;
+		//String noSpacesFileName = mpFile.getOriginalFilename().replaceAll("\\s+", "_");
+		String noSpacesFileName = fileName.replaceAll("\\s+", "_");
+		String taggedNoSpacesFileName = randomNumber + "_" + noSpacesFileName;
+
+		String remoteFile = remoteDir + "/" + taggedNoSpacesFileName;
+
+		FileHandle file = new FileHandle();
+		file.setFileName(taggedNoSpacesFileName);
+		file.setFileURI(gfs.remoteFileRepresentationToLocalURI(remoteFile));
+		file = fileHandleDao.save(file);
+		FileGroup retGroup = new FileGroup();
+		retGroup.addFileHandle(file);
+		retGroup.setDescription(fileDescription);
+		retGroup = fileGroupDao.save(retGroup);	
+
+		// TODO: Determine file type and set on the group.
+		// probably not.  Figure out where to put or whether to
+		// automatically determine mime type.
+
+		try {
+			gfs.put(localFile, remoteFile);			
+			registerWithoutMD5(retGroup);
+		} catch (GridException e) {
+			String mess = "Problem accessing remote resources " + e.getLocalizedMessage();
+			logger.warn(mess);
+			e.printStackTrace();
+			throw new FileUploadException(mess);
+		} catch (IOException e) {
+			String mess = "Problem putting remote file " + e.getLocalizedMessage();
+			logger.warn(mess);
+			e.printStackTrace();
+			throw new FileUploadException(mess);
+		} finally {
+			localFile.delete();
+		}
+
+		fileHandleDao.save(file);
+		fileGroupDao.save(retGroup);
+		
+		return retGroup;
+		
+	}
 
 	@Override
 	public List<FileGroupMeta> saveFileGroupMeta(List<FileGroupMeta> metaList, FileGroup filegroup) throws MetadataException{
@@ -1487,4 +1587,57 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		return fileGroupMetaDao.setMeta(metaList, filegroup.getId());
 	}
 	
+	@Override
+	public List<FileHandleMeta> saveFileHandleMeta(List<FileHandleMeta> metaList, FileHandle filehandle) throws MetadataException{
+		Assert.assertParameterNotNull(metaList, "a list of metadata is required");
+		Assert.assertParameterNotNull(filehandle, "a filehandle is required");
+		Assert.assertParameterNotNull(filehandle.getId(), "filehandle must have an id");
+		return fileHandleMetaDao.setMeta(metaList, filehandle.getId());
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @throws SampleTypeException
+	 */
+	@Override
+	public Set<FileGroup> getFilesForMacromoleculeOrLibraryByType(Sample sample, FileType fileType) throws SampleTypeException {
+		Assert.assertParameterNotNull(sample, "must provide a library");
+		Assert.assertParameterNotNull(fileType, "must provide a fileType");
+		Assert.assertParameterNotNull(fileType.getId(), "fileType has no valid fileTypeId");
+		Map<FileType, Set<FileGroup>> filesByType = getFilesForMacromoleculeOrLibraryMappedToFileType(sample);
+		if (!filesByType.containsKey(fileType))
+			return new HashSet<FileGroup>();
+		return filesByType.get(fileType);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @throws SampleTypeException
+	 */
+	@Override
+	public Map<FileType, Set<FileGroup>> getFilesForMacromoleculeOrLibraryMappedToFileType(Sample sample) throws SampleTypeException {
+		
+		String sampleTypeIName = sample.getSampleType().getIName();
+		
+		Map<FileType, Set<FileGroup>> filesByType = new HashMap<FileType, Set<FileGroup>>();
+		
+		if (sampleTypeIName.equals("library") || sampleTypeIName.equals("dna") || sampleTypeIName.equals("rna")){
+			Sample s = sampleDao.findById(sample.getId());
+			for (FileGroup fg : s.getFileGroups()) {
+				FileType ft = fg.getFileType();
+				if (!filesByType.containsKey(ft)){
+					filesByType.put(ft, new HashSet<FileGroup>());
+				}
+				filesByType.get(ft).add(fg);
+			}		
+		}
+		else{ 
+			throw new SampleTypeException("sample is neither macromolecule nor library");
+		}
+		return filesByType;
+		
+	}
+
 }

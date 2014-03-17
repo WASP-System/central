@@ -18,10 +18,10 @@ public interface MetaDao extends WaspDao<Meta> {
 
   public Meta getMetaByMetaId (final int metaId);
 
-  public Meta getMetaByPropertyK (final String property, final String k);
+  public Meta getMetaByK (final String k);
 
-  public Meta getMetaByPropertyV (final String property, final String v);
-
-
+  public Meta setMeta(final String k, final String v);
+  
+  public Meta saveMeta(Meta meta);
 }
 

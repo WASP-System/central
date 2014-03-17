@@ -36,9 +36,9 @@ public class PluginTest {
 	
 	private class TestPlugin extends WaspPlugin {
 
-		public TestPlugin(String pluginName, Properties waspSiteProperties,
+		public TestPlugin(String iName, Properties waspSiteProperties,
 				MessageChannel channel) {
-			super(pluginName, waspSiteProperties, channel);
+			super(iName, waspSiteProperties, channel);
 			// TODO Auto-generated constructor stub
 		}
 		

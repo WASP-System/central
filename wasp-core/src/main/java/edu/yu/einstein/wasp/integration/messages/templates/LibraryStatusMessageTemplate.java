@@ -1,9 +1,7 @@
 package edu.yu.einstein.wasp.integration.messages.templates;
 
 import org.springframework.integration.Message;
-import org.springframework.integration.support.MessageBuilder;
 
-import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.exception.WaspMessageInitializationException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
@@ -17,19 +15,10 @@ import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
  */
 public class LibraryStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	
-	protected Integer libraryId; // id of library
-	
-	public Integer getlibraryId() {
-		return libraryId;
-	}
-
-	public void setlibraryId(Integer libraryId) {
-		this.libraryId = libraryId;
-	}
-	
 	public LibraryStatusMessageTemplate(Integer libraryId){
 		super();
-		this.libraryId = libraryId;
+		addHeader(WaspMessageType.HEADER_KEY, WaspMessageType.LIBRARY);
+		setLibraryId(libraryId);
 	}
 	
 	public LibraryStatusMessageTemplate(Message<WaspStatus> message){
@@ -37,45 +26,27 @@ public class LibraryStatusMessageTemplate extends  WaspStatusMessageTemplate{
 		if (!isMessageOfCorrectType(message))
 			throw new WaspMessageInitializationException("message is not of the correct type");
 		if (message.getHeaders().containsKey(WaspJobParameters.LIBRARY_ID))
-			libraryId = (Integer) message.getHeaders().get(WaspJobParameters.LIBRARY_ID);
+			setLibraryId((Integer) message.getHeaders().get(WaspJobParameters.LIBRARY_ID));
 	}
 	
-	
-	/**
-	 * Build a Spring Integration Message using the LIBRARY header, task header if not null, and the WaspStatus as payload .
-	 * @return
-	 * @throws WaspMessageBuildingException
-	 */
-	@Override
-	public Message<WaspStatus> build() throws WaspMessageBuildingException{
-		if (this.status == null)
-			throw new WaspMessageBuildingException("no status message defined");
-		Message<WaspStatus> message = null;
-		try {
-			message = MessageBuilder.withPayload(status)
-						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.LIBRARY)
-						.setHeader(TARGET_KEY, target)
-						.setHeader(USER_KEY, userCreatingMessage)
-						.setHeader(COMMENT_KEY, comment)
-						.setHeader(EXIT_DESCRIPTION_HEADER, exitDescription)
-						.setHeader(WaspJobParameters.LIBRARY_ID, libraryId)
-						.setHeader(WaspJobTask.HEADER_KEY, task)
-						.setPriority(status.getPriority())
-						.build();
-		} catch(Exception e){
-			throw new WaspMessageBuildingException("build() failed to build message: "+e.getMessage());
-		}
-		return message;
+	public Integer getLibraryId() {
+		return (Integer) getHeader(WaspJobParameters.LIBRARY_ID);
 	}
+
+	public void setLibraryId(Integer libraryId) {
+		addHeader(WaspJobParameters.LIBRARY_ID, libraryId);
+	}
+	
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean actUponMessage(Message<?> message){
-		if (this.task == null)
-			return actUponMessage(message, this.libraryId);
-		return actUponMessage(message, this.libraryId, this.task);
+		String task = (String) getHeader(WaspJobTask.HEADER_KEY);
+		if (task == null)
+			return actUponMessage(message, getLibraryId());
+		return actUponMessage(message, getLibraryId(), task);
 	}
 	
 	/**
@@ -83,9 +54,10 @@ public class LibraryStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	 */
 	@Override
 	public boolean actUponMessageIgnoringTask(Message<?> message){
-		if (this.task == null)
-			return actUponMessage(message, this.libraryId);
-		return actUponMessage(message, this.libraryId, null);
+		String task = (String) getHeader(WaspJobTask.HEADER_KEY);
+		if (task == null)
+			return actUponMessage(message, getLibraryId());
+		return actUponMessage(message, getLibraryId(), null);
 	}
 	
 	// Statics.........
@@ -131,6 +103,13 @@ public class LibraryStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	public static boolean isMessageOfCorrectType(Message<?> message) {
 		return message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) &&  
 				message.getHeaders().get(WaspMessageType.HEADER_KEY).equals(WaspMessageType.LIBRARY);
+	}
+	
+	@Override
+	public LibraryStatusMessageTemplate getNewInstance(WaspStatusMessageTemplate messageTemplate){
+		LibraryStatusMessageTemplate newTemplate = new LibraryStatusMessageTemplate(((LibraryStatusMessageTemplate) messageTemplate).getLibraryId());
+		copyCommonProperties(messageTemplate, newTemplate);
+		return newTemplate;
 	}
 	
 }

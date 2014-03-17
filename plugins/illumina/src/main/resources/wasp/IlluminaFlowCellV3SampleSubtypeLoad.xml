@@ -3,14 +3,14 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
+        http://www.springframework.org/schema/beans/spring-beans.xsd"
     default-autowire="byName">
    
   <bean id="illuminaFlowcellV3UiFieldArea" class="java.lang.String">
   	<constructor-arg><value>illuminaFlowcellV3</value></constructor-arg>
   </bean>
    
-  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="illuminaFlowcellV3UiFieldWrapper">
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="illuminaFlowcellV3UiFieldWrapper">
     <property name="baseLocale" value="en_US" />
     <property name="baseArea" ref="illuminaFlowcellV3UiFieldArea" />
   </bean>
@@ -24,6 +24,7 @@
     <property name="compatibleResources">
   		<list>
   			<ref bean="illuminaHiSeq2000" />
+  			<ref bean="illuminaHiSeq2500" />
   		</list>
   	</property>
   	
@@ -31,11 +32,11 @@
   		<list>
 	  		<bean parent="illuminaFlowcellV3UiFieldWrapper">
 	          <property name="baseName" value="#{waspPlatformUnit['cellName']}" />
-	          <property name="label" value="Lane" />
+	          <property name="label" value="illumina.cell.label" />
 	        </bean>
 	        <bean parent="illuminaFlowcellV3UiFieldWrapper">
 	          <property name="baseName" value="#{waspPlatformUnit['platformUnitName']}" />
-	          <property name="label" value="Flow Cell" />
+	          <property name="label" value="illumina.pu.label" />
 	        </bean>
         </list>
   	</property>

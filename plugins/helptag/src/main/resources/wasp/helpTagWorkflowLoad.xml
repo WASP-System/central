@@ -4,19 +4,19 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:context="http://www.springframework.org/schema/context"
         xsi:schemaLocation="http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+        http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context-3.1.xsd"
+        http://www.springframework.org/schema/context/spring-context.xsd"
     default-autowire="byName">
     
-  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="helpTagUiFieldWrapper">
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="helptagUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
-    <property name="baseArea" ref="waspHelpTagPluginArea" />
+    <property name="baseArea" ref="helptagPluginArea" />
   </bean>
 
 
-  <bean id="helpTagWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoaderAndFactory" >
-    <property name="area" ref="waspHelpTagPluginArea" />
+  <bean id="helptagWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoaderAndFactory" >
+    <property name="area" ref="helptagPluginArea" />
     <property name="name" value="HELP Tagging" />
     <property name="pageFlowOrder">
       <list>
@@ -25,7 +25,7 @@
 		<value>/jobsubmit/samples/{n}</value>
 		<value>/jobsubmit/genomes/{n}</value>
 		<value>/jobsubmit/cells/{n}</value>
-		<value>/jobsubmit/helpTag/pair/{n}</value> 
+		<value>/jobsubmit/helptag/pair/{n}</value> 
 		<value>/jobsubmit/software/#{referenceBasedAlignerResourceType.getIName()}/{n}</value>
 		<value>/jobsubmit/software/#{helptagPipelineResourceType.getIName()}/{n}</value>
 		<value>/jobsubmit/comment/{n}</value>
@@ -42,72 +42,77 @@
       	<ref bean="mpsResourceType" />
         <ref bean="referenceBasedAlignerResourceType" />
         <ref bean="helptagPipelineResourceType" />
+        <ref bean="libraryStrategyResourceType" />
       </list>
     </property>
 
     <property name="sampleSubtypes">
       <list>
-        <ref bean="helpTagLibrarySampleSubtype" />
+        <ref bean="helptagLibrarySampleSubtype" />
       </list>
     </property>
     
     <property name="uiFieldsFromWrapper">
       <list>
-        <bean parent="helpTagUiFieldWrapper">
+      	<bean parent="helptagUiFieldWrapper">
           <property name="baseName" value="workflow" />
-          <property name="label" value="HELP Tagging" />
+          <property name="label" value="helptag.wf.title" />
         </bean>
-        <bean parent="helpTagUiFieldWrapper">
+        <bean parent="helptagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/modifymeta" />
-          <property name="label" value="Modify HelpTag Metadata" />
+          <property name="label" value="helptag.modifyMeta.title" />
         </bean>
-        <bean parent="helpTagUiFieldWrapper">
+        <bean parent="helptagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/resource/mps" />
-          <property name="label" value="MPS Sequencer Options" />
+          <property name="label" value="helptag.mps.title" />
         </bean>
-        <bean parent="helpTagUiFieldWrapper">
+        <bean parent="helptagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/samples" />
-          <property name="label" value="Samples" />
+          <property name="label" value="helptag.samples.title" />
         </bean>
-		<bean parent="helpTagUiFieldWrapper">
+		<bean parent="helptagUiFieldWrapper">
 			<property name="baseName" value="jobsubmit/genomes" />
-			<property name="label" value="Select Genomes" />
+			<property name="label" value="helptag.genomes.title" />
 		</bean>
-        <bean parent="helpTagUiFieldWrapper">
+        <bean parent="helptagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/cells" />
-          <property name="label" value="DNA Sequencer Cells" />
+          <property name="label" value="helptag.cells.title" />
         </bean>
-        <bean parent="helpTagUiFieldWrapper">
-          <property name="baseName" value="jobsubmit/helpTag/pair" />
-          <property name="label" value="HpaII vs MspI Pairings" />
+        <bean parent="helptagUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/helptag/pair" />
+          <property name="label" value="helptag.pair.title" />
         </bean>
-        <bean parent="helpTagUiFieldWrapper">
+        <bean parent="helptagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/software/referenceBasedAligner" />
-          <property name="label" value="Aligner Selection" />
+          <property name="label" value="helptag.aligner.title" />
         </bean>
-        <bean parent="helpTagUiFieldWrapper">
+        <bean parent="helptagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/software/helptagPipeline" />
-          <property name="label" value="HELP-tag Pipeline Selection" />
+          <property name="label" value="helptag.pipeline.title" />
         </bean>
-        <bean parent="helpTagUiFieldWrapper">
+         <bean parent="helptagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/comment" />
-          <property name="label" value="Comments" />
+          <property name="label" value="helptag.comments.title" />
         </bean>
-        <bean parent="helpTagUiFieldWrapper">
+        <bean parent="helptagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/verify" />
-          <property name="label" value="Verify Submission" />
+          <property name="label" value="helptag.verify.title" />
         </bean>
-        <bean parent="helpTagUiFieldWrapper">
+         <bean parent="helptagUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/submit" />
+          <property name="label" value="helptag.submit.title" />
+        </bean>
+        <bean parent="helptagUiFieldWrapper">
           <property name="baseName" value="pairing_instructions" />
-          <property name="label" value="Please select HpaII vs MspI for all samples to be analyzed in pairs after sequencing." />
-        </bean>
-        <bean parent="helpTagUiFieldWrapper">
+          <property name="label" value="helptag.pair.instructions" />
+        </bean>  
+        <bean parent="helptagUiFieldWrapper">
           <property name="baseName" value="test" />
-          <property name="label" value="HpaII" />
+          <property name="label" value="helptag.hapii.label" />
         </bean>
-        <bean parent="helpTagUiFieldWrapper">
+        <bean parent="helptagUiFieldWrapper">
           <property name="baseName" value="control" />
-          <property name="label" value="MspI" />
+          <property name="label" value="helptag.mspi.label" />
         </bean>
      </list>
  

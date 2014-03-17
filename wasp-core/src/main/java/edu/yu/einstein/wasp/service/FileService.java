@@ -11,6 +11,7 @@
 
 package edu.yu.einstein.wasp.service;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -34,12 +35,14 @@ import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.FileHandleMeta;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 
 @Service
 public interface FileService extends WaspService {
@@ -194,18 +197,17 @@ public interface FileService extends WaspService {
 	
 	public FileHandle getFileHandle(UUID uuid) throws FileNotFoundException;
 
-
 	public void removeUploadedFileFromJobDraft(Integer jobDraftId, Integer fileGroupId, Integer fileHandleId) throws FileNotFoundException;
 
 	public Map<String, Hyperlink> getFileDetailsByFileType(FileGroup filegroup);
+	
+	List<FileDataTabViewing> getTabViewProvidingPluginsByFileGroup(FileGroup fileGroup);
 
 	public FileType getFileType(Integer id);
 
-	public Map<FileType, Set<FileGroup>> getFilesForCellLibraryMappedToFileType(
-			Sample cell, Sample library) throws SampleTypeException;
+	public Map<FileType, Set<FileGroup>> getFilesForCellLibraryMappedToFileType(Sample cell, Sample library) throws SampleTypeException;
 
-	public Set<FileGroup> getFilesForCellLibraryByType(Sample cell, Sample library,
-			FileType fileType) throws SampleTypeException;
+	public Set<FileGroup> getFilesForCellLibraryByType(Sample cell, Sample library, FileType fileType) throws SampleTypeException;
 
 	/**
 	 * @param group
@@ -219,6 +221,11 @@ public interface FileService extends WaspService {
 	 * 
 	 */
 	public void uploadJobFile(MultipartFile mpFile, Job job, String fileDescription, Random randomNumberGenerator) throws FileUploadException;
+	
+	/**
+	 * just uploads the file, saves it in remote loaction, and returns file group. DOES NOT add entry to jobfile table; job is only used to set the directory, using jobId.
+	 */
+	public FileGroup uploadFileAndReturnFileGroup(MultipartFile mpFile, Job job, String fileDescription, Random randomNumberGenerator) throws FileUploadException;
 
 	/**
 	 * 
@@ -227,18 +234,19 @@ public interface FileService extends WaspService {
 
 
 	/**
+	 * @throws FileUploadException 
 	 * 
 	 */
-	public void copyFileHandleToOutputStream(FileHandle fileHandle, OutputStream os) throws FileDownloadException, FileNotFoundException, GridException;
+	public void copyFileHandleToOutputStream(FileHandle fileHandle, OutputStream os) throws FileDownloadException, FileNotFoundException, GridException, FileUploadException;
 	
 	/**
+	 * @throws FileUploadException 
 	 * 
 	 */
-	public void copyFileHandlesInFileGroupToOutputStream(FileGroup fileGroup, OutputStream os) throws FileDownloadException, FileNotFoundException, GridException;
+	public void copyFileHandlesInFileGroupToOutputStream(FileGroup fileGroup, OutputStream os) throws FileDownloadException, FileNotFoundException, GridException, FileUploadException;
 
 
 	/**
-	 * in Java7 this will be a lot easier, but for now, fake it
 	 * @param String fileName
 	 * @return String mimeType (if not known, return empty string)
 	 */
@@ -247,7 +255,35 @@ public interface FileService extends WaspService {
 
 	public String generateUniqueBaseFileName(SampleSource cellLibrary);
 
+
+	public File createTempFile() throws FileUploadException;
+	
+	public FileGroup saveLocalJobFile(Job job, File localFile, String fileName, String fileDescription, Random randomNumberGenerator) throws FileUploadException;
+
+	public FileGroup saveLocalQuoteOrInvoiceFile(Job job, File localFile, String fileName, String fileDescription, Random randomNumberGenerator) throws FileUploadException;
+
 	public List<FileGroupMeta> saveFileGroupMeta(List<FileGroupMeta> metaList, FileGroup filegroup) throws MetadataException;
+
+	public FileGroup getFileGroup(UUID uuid) throws FileNotFoundException;
+
+	/**
+	 * Returns a list of files (actually a Set<FileGroup) of specified fileType for the given dna macromolecule sample, rna sample, or library sample, or an empty list if none.
+	 * @param fileType
+	 * @param sample of type library, dna, rna
+	 * @return
+	 * @throws SampleTypeException
+	 */	
+	public Set<FileGroup> getFilesForMacromoleculeOrLibraryByType(Sample sample, FileType fileType) throws SampleTypeException;
+	
+	/**
+	 * Returns a Map of files (actually a Map of a Set<FileGroup) for a given macromolecule or library associated by FileType
+	 * @param sample of type library, dna, rna 
+	 * @return
+	 * @throws SampleTypeException
+	 */
+	public Map<FileType, Set<FileGroup>> getFilesForMacromoleculeOrLibraryMappedToFileType(Sample sample) throws SampleTypeException;
+
+	public List<FileHandleMeta> saveFileHandleMeta(List<FileHandleMeta> metaList, FileHandle filehandle) throws MetadataException;
 
 
 }

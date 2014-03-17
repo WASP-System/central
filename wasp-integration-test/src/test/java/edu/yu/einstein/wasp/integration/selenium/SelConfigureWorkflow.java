@@ -4,10 +4,8 @@ import java.util.List;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -16,7 +14,7 @@ import edu.yu.einstein.wasp.util.SeleniumHelper;
 public class SelConfigureWorkflow extends SelBaseTest{
  
 	
-	private static final Logger logger = LoggerFactory.getLogger(SelSubmitNewJob.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SelSubmitNewJob.class);
 
 	/**
      * 
@@ -27,14 +25,14 @@ public class SelConfigureWorkflow extends SelBaseTest{
     public Object[][] createData1() throws Exception{
         Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
                 "Test_001", "configureWorkflow");
-        return(retObjArr);
+        return retObjArr;
     }
     /**
      * 
      * @param sUserName
      * @param sUserPass
      */
-  	@Test (groups = "integration-tests",  dataProvider = "DP1")
+  	@Test (groups = {"integration-tests", "config-workflow"},  dataProvider = "DP1")
 	public void configureWorkflow(String sUserName, String sUserPass, String id) throws Exception {   
     	
   		SeleniumHelper.login(sUserName, sUserPass);
@@ -60,7 +58,7 @@ public class SelConfigureWorkflow extends SelBaseTest{
    	    driver.findElement(By.xpath("//input[@id='bowtieAligner']")).click();
    	    driver.findElement(By.xpath("//input[@id='bwa']")).click();
    	    driver.findElement(By.xpath("//input[@id='macsPeakcaller']")).click();
-
+   	    driver.findElement(By.xpath("//input[@id='strategyKeyChIP-Seq']")).click();
    	    driver.findElement(By.xpath("//input[@value='Save Choices']")).click();
    	    
 		driver.findElement(By.linkText("Logout")).click();

@@ -13,11 +13,10 @@ import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.explore.JobExplorer;
-import org.springframework.batch.core.step.tasklet.Tasklet;
+import org.springframework.batch.core.explore.wasp.WaspJobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.Message;
@@ -29,26 +28,24 @@ import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.MessagingTemplate;
 import org.springframework.integration.core.SubscribableChannel;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.analysis.WaspJobSoftwareLaunchTasklet;
-import edu.yu.einstein.wasp.daemon.service.BatchJobService;
 import edu.yu.einstein.wasp.dao.RunDao;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.integration.endpoints.RunSuccessSplitter;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
-import edu.yu.einstein.wasp.integration.splitters.RunSuccessSplitter;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobSoftware;
@@ -65,8 +62,7 @@ import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 
 @ContextConfiguration(locations={"/daemon-test-launch-context.xml","/daemon-test-wiretap.xml","/daemon-test-batchJob.xml"})
-
-public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTests implements MessageHandler {
+public class PostRunAnalysisJobLaunchTests extends BatchDatabaseIntegrationTest implements MessageHandler {
 	
 	// mockRunService and mockRunDao are mocked in context to keep Spring happy when resolving dependencies on bean creation
 	// but MUST be re-mocked here (not @Autowired in) otherwise there is autowiring issues with dependencies such as Entitymanager etc.
@@ -89,13 +85,6 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 	
 	@Autowired
 	private ResourceType softwareResourceType;
-	
-	private JobExplorerWasp jobExplorer;
-	
-	@Autowired
-	void setJobExplorer(JobExplorer jobExplorer){
-		this.jobExplorer = (JobExplorerWasp) jobExplorer;
-	}
 	
 	@Autowired
 	@Qualifier("wasp.channel.priority.run")
@@ -132,15 +121,27 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 	
 	private final String CELL_LIBRARY_ID = "1";
 	
-	private Set<SampleSource> libraryCells;
+	private Set<SampleSource> cellLibrarys;
 	
-	private SampleSource libraryCell;
+	private SampleSource cellLibrary;
 	
 	private Job job;
 	
+	@BeforeMethod
+	protected void beforeMethodSetup() throws Exception{
+		super.cleanDB();
+		messages = new ArrayList<Message<?>>();
+	}
+	
+	@AfterMethod
+	protected boolean afterMethodTeardown(){
+		return super.stopRunningJobExecutions();
+	}
 	
 	@BeforeClass
-	public void beforeClass(){
+	@Override
+	public void setup(){
+		super.setup();
 		MockitoAnnotations.initMocks(this);
 		Assert.assertNotNull(mockRunDao);
 		Assert.assertNotNull(mockRunService);
@@ -150,7 +151,6 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 		Assert.assertNotNull(runSuccessSplitter);
 		Assert.assertNotNull(waspJobSoftwareLaunchTasklet);
 		Assert.assertNotNull(softwareResourceType);
-		Assert.assertNotNull(jobExplorer);
 		Assert.assertNotNull(outboundMessageChannelRun);
 		Assert.assertNotNull(outboundMessageChannelAnalysis);
 		Assert.assertNotNull(outboundMessageChannelLaunch);
@@ -174,13 +174,13 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 		Sample cell = new Sample();
 		cell.setId(2);
 		
-		libraryCell = new SampleSource();
-		libraryCell.setId(Integer.valueOf(CELL_LIBRARY_ID));
-		libraryCell.setSample(cell);
-		libraryCell.setSourceSample(library);
+		cellLibrary = new SampleSource();
+		cellLibrary.setId(Integer.valueOf(CELL_LIBRARY_ID));
+		cellLibrary.setSample(cell);
+		cellLibrary.setSourceSample(library);
 		
-		libraryCells = new HashSet<SampleSource>();
-		libraryCells.add(libraryCell);
+		cellLibrarys = new HashSet<SampleSource>();
+		cellLibrarys.add(cellLibrary);
 		
 		job = new Job();
 		job.setId(1);
@@ -205,65 +205,57 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 		analysisChannel.unsubscribe(this);
 	}
 	
-	@BeforeMethod
-	public void beforeMethod() {
-		messages = new ArrayList<Message<?>>();
-	}
-
-
-	
 	@Test (groups = "unit-tests-batch-integration")
 	public void runSuccessTest() throws Exception{
 		// send run complete messages
-		try {
-			// add mocks to runSuccessSplitter (replacing Autowired versions)
-			// could also use ReflectionTestUtils.setField(runSuccessSplitter, "runService", mockRunService) - essential if no setters
-			Run run = new Run();
-			run.setId(1);
-			
-			PowerMockito.when(mockRunService.getRunDao()).thenReturn(mockRunDao);
-			PowerMockito.when(mockRunDao.getRunByRunId(1)).thenReturn(run);
-			PowerMockito.when(mockRunService.getCellLibrariesOnSuccessfulRunCellsWithoutControls(Mockito.any(Run.class))).thenReturn(libraryCells);
-			PowerMockito.when(mockSampleService.getJobOfLibraryOnCell(libraryCell)).thenReturn(job);
-			
-			BatchJobProviding plugin = new BatchJobProviding() {
-				@Override public String getBatchJobNameByArea(String BatchJobType, String area) {return null;}
-				@Override public String getBatchJobName(String BatchJobType) {return "skipTaskletJob";}
-				@Override public Set<?> getProvides() { return null;	}
-				@Override public Set<?> getHandles() { return null;	}
-				@Override public String getPluginName() { return null; }
-			};
-			
-			List<BatchJobProviding> plugins = new ArrayList<BatchJobProviding>();
-			plugins.add(plugin);
-			PowerMockito.when(mockWaspPluginRegistry.getPluginsHandlingArea("test_workflow", BatchJobProviding.class)).thenReturn(plugins);
-			RunStatusMessageTemplate template = new RunStatusMessageTemplate(RUN_ID);
-			template.setStatus(WaspStatus.COMPLETED);
-			Message<WaspStatus> runCompletedMessage = template.build();
-			logger.info("runSuccessTest(): Sending message via 'outbound rmi gateway': "+runCompletedMessage.toString());
-			Message<?> replyMessage = messagingTemplate.sendAndReceive(outboundMessageChannelRun, runCompletedMessage);
-			if (replyMessage != null)
-				logger.debug("testJobApproved(): Got reply message: "+ replyMessage.toString());
-			Thread.sleep(500); // wait for message receiving and job completion events
-			Assert.assertEquals(messages.size(), 1);
-			Assert.assertTrue(BatchJobLaunchMessageTemplate.isMessageOfCorrectType(messages.get(0)));
-		} catch (Exception e){
-			// caught an unexpected exception
-			Assert.fail("Caught Exception: "+e.getMessage());
-		}
+		// add mocks to runSuccessSplitter (replacing Autowired versions)
+		// could also use ReflectionTestUtils.setField(runSuccessSplitter, "runService", mockRunService) - essential if no setters
+		Run run = new Run();
+		run.setId(1);
+		
+		PowerMockito.when(mockRunService.getRunDao()).thenReturn(mockRunDao);
+		PowerMockito.when(mockRunDao.getRunByRunId(1)).thenReturn(run);
+		PowerMockito.when(mockRunService.getCellLibrariesOnSuccessfulRunCellsWithoutControls(Mockito.any(Run.class))).thenReturn(cellLibrarys);
+		PowerMockito.when(mockSampleService.getJobOfLibraryOnCell(cellLibrary)).thenReturn(job);
+		
+		BatchJobProviding plugin = new BatchJobProviding() {
+			@Override public String getBatchJobName(String BatchJobType) {return "skipTaskletJob";}
+			@Override public Set<?> getProvides() { return null;	}
+			@Override public Set<?> getHandles() { return null;	}
+			@Override public String getIName() { return null; }
+			@Override public String getName() { return null; }
+			@Override public String getDescription() { return null; }
+		};
+		
+		List<BatchJobProviding> plugins = new ArrayList<BatchJobProviding>();
+		plugins.add(plugin);
+		PowerMockito.when(mockWaspPluginRegistry.getPluginsHandlingArea("test_workflow", BatchJobProviding.class)).thenReturn(plugins);
+		RunStatusMessageTemplate template = new RunStatusMessageTemplate(RUN_ID);
+		template.setStatus(WaspStatus.COMPLETED);
+		Message<WaspStatus> runCompletedMessage = template.build();
+		logger.info("runSuccessTest(): Sending message via 'outbound rmi gateway': "+runCompletedMessage.toString());
+		Message<?> replyMessage = messagingTemplate.sendAndReceive(outboundMessageChannelRun, runCompletedMessage);
+		if (replyMessage != null)
+			logger.debug("testJobApproved(): Got reply message: "+ replyMessage.toString());
+		try{
+			Thread.sleep(500);
+		} catch (InterruptedException e){}; // wait for message receiving and job completion events
+		Assert.assertEquals(messages.size(), 1);
+		Assert.assertTrue(BatchJobLaunchMessageTemplate.isMessageOfCorrectType(messages.get(0)));
 					
 	}
-	
+
 	@Test (groups = "unit-tests-batch-integration")
-	public void softwareLaunch() {
+	public void softwareLaunch() throws WaspMessageBuildingException {
 		final String LAUNCH_JOB_NAME = "test.launchSoftwareJob";
 		final String ALIGN_JOB_NAME = "test.doAlign";
 		BatchJobProviding testPlugin = new BatchJobProviding() {
-			@Override public String getBatchJobNameByArea(String BatchJobType, String area) {return null;}
 			@Override public String getBatchJobName(String BatchJobType) {return ALIGN_JOB_NAME;}
 			@Override public Set<?> getProvides() { return null;	}
 			@Override public Set<?> getHandles() { return null;	}
-			@Override public String getPluginName() { return null; }
+			@Override public String getIName() { return null; }
+			@Override public String getName() { return null; }
+			@Override public String getDescription() { return null; }
 		};
 		
 		List<JobMeta> jobMetaList = new ArrayList<JobMeta>();
@@ -297,15 +289,15 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 		PowerMockito.when(mockWaspPluginRegistry.getPlugin(Mockito.anyString(), Mockito.eq(BatchJobProviding.class))).thenReturn(testPlugin);
 		try {
 			Map<String, String> jobParameters = new HashMap<String, String>();
-			jobParameters.put(WaspJobParameters.LIBRARY_CELL_ID, CELL_LIBRARY_ID);
+			jobParameters.put(WaspJobParameters.CELL_LIBRARY_ID, CELL_LIBRARY_ID);
 			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
 				new BatchJobLaunchContext(LAUNCH_JOB_NAME, jobParameters) );
 		
 			Message<BatchJobLaunchContext> launchMessage = batchJobLaunchMessageTemplate.build();
 			logger.debug("Sending the following launch message via channel " + MessageChannelRegistry.OUTBOUND_MESSAGE_CHANNEL + " : " + launchMessage);
 			Message<?> replyMessage = messagingTemplate.sendAndReceive(outboundMessageChannelLaunch, launchMessage);
-			if (replyMessage != null)
-				logger.debug("testJobApproved(): Got reply message: "+ replyMessage.toString());
+			if (replyMessage == null)
+				logger.debug("testJobApproved(): Failed to receive reply message");
 
 			int repeat = 0;
 			boolean done = false;
@@ -314,29 +306,33 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 					if (AnalysisStatusMessageTemplate.actUponMessage(m, 1))
 						done = true;
 				}
-				Thread.sleep(500);
+				try{
+					Thread.sleep(500);
+				} catch (InterruptedException e){};
 				repeat++;
 				if (repeat == 40)
 					Assert.fail("Timeout waiting to receive messages");
 			}
 			// validate proper completion of alignment step and that it was called with expected parameters
-			JobExecution je = jobExplorer.getMostRecentlyStartedJobExecutionInList(jobExplorer.getJobExecutions(ALIGN_JOB_NAME));
-			Assert.assertEquals(je.getStatus(), BatchStatus.COMPLETED);
-			JobParameters params = je.getJobInstance().getJobParameters();
+			JobExecution je = ((WaspJobExplorer) jobExplorer).getMostRecentlyStartedJobExecutionInList(((WaspJobExplorer) jobExplorer).getJobExecutions(ALIGN_JOB_NAME));
+			ExitStatus status = je.getExitStatus();
+			Assert.assertTrue(status.isCompleted());
+			JobParameters params = je.getJobParameters();
 			Assert.assertEquals(params.getParameters().size(), 3);
-			Assert.assertNotNull(params.getString("libraryCellIdList"));
+			Assert.assertNotNull(params.getString("cellLibraryIdList"));
 			Assert.assertNotNull(params.getString("p1"));
 			Assert.assertNotNull(params.getString("p2"));
 				
 		} catch (Exception e){
 			// caught an unexpected exception
-			Assert.fail("Caught Exception: "+e.getMessage());
+			 Assert.fail("Caught Exception of type "+ e.getClass().getName() + ": " + e.getMessage());
+			 e.printStackTrace();
 		}
 	}
 
 	@Override
 	public void handleMessage(Message<?> message) throws MessagingException {
-		logger.debug("Message recieved by handleMessage(): "+message.toString());
+		logger.debug("Message received by handleMessage(): "+message.toString());
 		messages.add(message);
 	}
 

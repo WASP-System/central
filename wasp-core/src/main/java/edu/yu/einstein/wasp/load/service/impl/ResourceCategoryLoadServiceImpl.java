@@ -37,26 +37,21 @@ public class ResourceCategoryLoadServiceImpl extends WaspLoadServiceImpl impleme
 	
 	private ResourceCategory addOrUpdateResourceCategory(ResourceType resourceType, String iname, String name, int isActive){
 		ResourceCategory resourceCat = resourceCategoryDao.getResourceCategoryByIName(iname);
-		if (resourceCat.getResourceCategoryId() == null) { 
+		if (resourceCat.getId() == null) { 
 	      resourceCat = new ResourceCategory();
 
 	      resourceCat.setIName(iname);
 	      resourceCat.setName(name);
 	      resourceCat.setIsActive(isActive);
-	      resourceCat.setResourceTypeId(resourceType.getResourceTypeId());
+	      resourceCat.setResourceTypeId(resourceType.getId());
 	      resourceCat = resourceCategoryDao.save(resourceCat); 
 	    } else {
-	      boolean changed = false;	
-	      if (!resourceCat.getName().equals(name)){
+	     if (resourceCat.getName() == null || !resourceCat.getName().equals(name)){
 	    	  resourceCat.setName(name);
-	    	  changed = true;
 	      }
 	      if (resourceCat.getIsActive().intValue() != isActive){
 	    	  resourceCat.setIsActive(isActive);
-	    	  changed = true;
 	      }
-	      if (changed)
-	    	  resourceCategoryDao.save(resourceCat); 
 	    }
 		return resourceCat;
 	}
@@ -79,32 +74,28 @@ public class ResourceCategoryLoadServiceImpl extends WaspLoadServiceImpl impleme
 
 	      if (oldResourceCatMetas.containsKey(resourceCatMeta.getK())) {
 	        ResourceCategoryMeta old = oldResourceCatMetas.get(resourceCatMeta.getK());
-	        boolean changed = false;
-	        if (!old.getV().equals(resourceCatMeta.getV())){
+	       if (old.getV() == null || !old.getV().equals(resourceCatMeta.getV()))
 	        	old.setV(resourceCatMeta.getV());
-	        	changed = true;
-	        }
-	        if (old.getPosition().intValue() != resourceCatMeta.getPosition()){
+	        if (old.getPosition().intValue() != resourceCatMeta.getPosition())
 	        	old.setPosition(resourceCatMeta.getPosition());
-	        	changed = true;
-	        }
-	        if (changed)
-	        	resourceCategoryMetaDao.save(old);
-
 	        oldResourceCatMetas.remove(old.getK()); // remove the meta from the old meta list as we're done with it
 	        continue; 
 	      }
 
-	      resourceCatMeta.setResourcecategoryId(resourceCat.getResourceCategoryId()); 
+	      resourceCatMeta.setResourcecategoryId(resourceCat.getId()); 
 	      resourceCategoryMetaDao.save(resourceCatMeta); 
 	    }
 
 	    // delete the left overs
+	    // The next block was commented out by Dubin; 10-07-2013 as it removes meta 
+		//that is added any time after the initial data upload
+		/*
 	    for (String resourceMetaKey : oldResourceCatMetas.keySet()) {
 	      ResourceCategoryMeta resourceCatMeta = oldResourceCatMetas.get(resourceMetaKey); 
 	      resourceCategoryMetaDao.remove(resourceCatMeta); 
 	      resourceCategoryMetaDao.flush(resourceCatMeta); 
 	    }
+	    */
 	}
 	
 

@@ -25,6 +25,8 @@ import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
+import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -35,7 +37,6 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.unitils.easymock.EasyMockUnitils;
 
-import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobDraftDao;
@@ -68,7 +69,6 @@ import edu.yu.einstein.wasp.dao.impl.SampleTypeDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.WorkflowDaoImpl;
 import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
-import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
@@ -257,16 +257,16 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  //jobParameter = new JobParameter("Param1");
 	  jobParameters = new JobParameters();
 	  
-	  jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  jobExecution = new JobExecution(jobInstance, new Long(12345));
+	  jobInstance = new JobInstance(new Long(12345), "Job Name1");
+	  jobExecution = new JobExecution(jobInstance, new Long(12345), jobParameters);
 	  stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
 	  
 	  List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
 	  stepExecutions.add(stepExecution);
 	  
 	  //stepExecution.setId(new Long(123));
-	  expect(mockJobExplorerWasp.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false, BatchStatus.STARTED)).andReturn(stepExecutions);
-	  expect(mockJobExplorerWasp.getStepExecutions("wasp.library.step.listenForLibraryReceived", parameterMap, false, BatchStatus.STARTED)).andReturn(new ArrayList<StepExecution>());
+	  expect(mockJobExplorerWasp.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false, ExitStatus.RUNNING)).andReturn(stepExecutions);
+	  expect(mockJobExplorerWasp.getStepExecutions("wasp.library.step.listenForLibraryReceived", parameterMap, false, ExitStatus.RUNNING)).andReturn(new ArrayList<StepExecution>());
 	  
 	  try {
 		expect(mockJobExplorerWasp.getJobParameterValueByKey(stepExecution, WaspJobParameters.SAMPLE_ID)).andReturn("123");
@@ -332,16 +332,16 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  //jobParameter = new JobParameter("Param1");
 	  jobParameters = new JobParameters();
 	  
-	  jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  jobExecution = new JobExecution(jobInstance, new Long(12345));
+	  jobInstance = new JobInstance(new Long(12345), "Job Name1");
+	  jobExecution = new JobExecution(jobInstance, new Long(12345), jobParameters);
 	  stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
 	  
 	  List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
 	  stepExecutions.add(stepExecution);
 	  
 	  //stepExecution.setId(new Long(123));
-	  expect(mockJobExplorerWasp.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false, BatchStatus.STARTED)).andReturn(stepExecutions);
-	  expect(mockJobExplorerWasp.getStepExecutions("wasp.library.step.listenForLibraryReceived", parameterMap, false, BatchStatus.STARTED)).andReturn(new ArrayList<StepExecution>());
+	  expect(mockJobExplorerWasp.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false, ExitStatus.RUNNING)).andReturn(stepExecutions);
+	  expect(mockJobExplorerWasp.getStepExecutions("wasp.library.step.listenForLibraryReceived", parameterMap, false,  ExitStatus.RUNNING)).andReturn(new ArrayList<StepExecution>());
 	  
 	  try {
 		expect(mockJobExplorerWasp.getJobParameterValueByKey(stepExecution, WaspJobParameters.SAMPLE_ID)).andReturn("123");
@@ -393,23 +393,23 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  //jobParameter = new JobParameter("Param1");
 	  jobParameters = new JobParameters();
 	  
-	  jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  jobExecution = new JobExecution(jobInstance, new Long(12345));
+	  jobInstance = new JobInstance(new Long(12345), "Job Name1");
+	  jobExecution = new JobExecution(jobInstance, new Long(12345), jobParameters);
 	  stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
 	  
 	  List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
 	  stepExecutions.add(stepExecution);
 	  
 	  JobParameters jobParameters2 = new JobParameters();
-	  JobInstance jobInstance2 = new JobInstance(new Long(12345), jobParameters2, "Job Name1");
-	  JobExecution jobExecution2= new JobExecution(jobInstance2, new Long(12345));
+	  JobInstance jobInstance2 = new JobInstance(new Long(12345), "Job Name1");
+	  JobExecution jobExecution2= new JobExecution(jobInstance2, new Long(12345), jobParameters2);
 	  StepExecution stepExecution2= new StepExecution("Step Name1", jobExecution2, new Long(12345));
 	  stepExecutions.add(stepExecution2);
 
 	  jobServiceImpl.setJobExplorer(mockJobExplorerWasp);
 
-	  expect(mockJobExplorerWasp.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false, BatchStatus.STARTED)).andReturn(stepExecutions);
-	  expect(mockJobExplorerWasp.getStepExecutions("wasp.library.step.listenForLibraryReceived", parameterMap, false, BatchStatus.STARTED)).andReturn(new ArrayList<StepExecution>());
+	  expect(mockJobExplorerWasp.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false, ExitStatus.RUNNING)).andReturn(stepExecutions);
+	  expect(mockJobExplorerWasp.getStepExecutions("wasp.library.step.listenForLibraryReceived", parameterMap, false, ExitStatus.RUNNING)).andReturn(new ArrayList<StepExecution>());
 	  
 	  try {
 		expect(mockJobExplorerWasp.getJobParameterValueByKey(stepExecution, WaspJobParameters.SAMPLE_ID)).andReturn("123");
@@ -457,18 +457,18 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 
 	  JobParameters jobParameters = new JobParameters();
-	  JobInstance jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  JobExecution jobExecution = new JobExecution(jobInstance, new Long(12345));
+	  JobInstance jobInstance = new JobInstance(new Long(12345), "Job Name1");
+	  JobExecution jobExecution = new JobExecution(jobInstance, new Long(12345), jobParameters);
 	  
 	  JobParameters jobParameters2 = new JobParameters();
-	  JobInstance jobInstance2 = new JobInstance(new Long(12345), jobParameters2, "Job Name2");
-	  JobExecution jobExecution2 = new JobExecution(jobInstance2, new Long(2345));
+	  JobInstance jobInstance2 = new JobInstance(new Long(12345), "Job Name2");
+	  JobExecution jobExecution2 = new JobExecution(jobInstance2, new Long(2345), jobParameters2);
 	  
 	  List<JobExecution> jobExecutions = new ArrayList<JobExecution>();
 	  jobExecutions.add(jobExecution);
 	  jobExecutions.add(jobExecution2);
 	  	  
-	  expect(mockJobExplorerWasp.getJobExecutions("default.waspJob.jobflow", parameterMap, true, BatchStatus.STARTED)).andReturn(jobExecutions);
+	  expect(mockJobExplorerWasp.getJobExecutions("default.waspJob.jobflow", parameterMap, true, ExitStatus.RUNNING)).andReturn(jobExecutions);
 	    
 	  try {
 		expect(mockJobExplorerWasp.getJobParameterValueByKey(jobExecution, WaspJobParameters.JOB_ID)).andReturn("123");
@@ -507,8 +507,8 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	    JobInstance jobInstance;
 		JobParameters jobParameters;
 		jobParameters = new JobParameters();
-		jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-		jobExecution = new JobExecution(jobInstance, new Long(12345));
+		jobInstance = new JobInstance(new Long(12345), "Job Name1");
+		jobExecution = new JobExecution(jobInstance, new Long(12345), jobParameters);
 		stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
 		stepExecution.setExitStatus(ExitStatus.EXECUTING);
 		stepExecution.setStatus(BatchStatus.STARTED);
@@ -516,7 +516,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 		List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
 		stepExecutions.add(stepExecution);
 		
-		expect(mockJobExplorerWasp.getStepExecutions("step.piApprove", parameterMap, true, BatchStatus.STARTED)).andReturn(stepExecutions);
+		expect(mockJobExplorerWasp.getStepExecutions("step.piApprove", parameterMap, true, ExitStatus.RUNNING)).andReturn(stepExecutions);
 		
 		replay(mockJobExplorerWasp);
 		
@@ -542,8 +542,8 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	    JobInstance jobInstance;
 		JobParameters jobParameters;
 		jobParameters = new JobParameters();
-		jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-		jobExecution = new JobExecution(jobInstance, new Long(12345));
+		jobInstance = new JobInstance(new Long(12345), "Job Name1");
+		jobExecution = new JobExecution(jobInstance, new Long(12345), jobParameters);
 		stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
 		stepExecution.setExitStatus(ExitStatus.EXECUTING);
 		stepExecution.setStatus(BatchStatus.STARTED);
@@ -551,7 +551,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 		List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
 		stepExecutions.add(stepExecution);
 			
-		expect(mockJobExplorerWasp.getStepExecutions("step.daApprove", parameterMap, true, BatchStatus.STARTED)).andReturn(stepExecutions);
+		expect(mockJobExplorerWasp.getStepExecutions("step.daApprove", parameterMap, true, ExitStatus.RUNNING)).andReturn(stepExecutions);
 		
 		replay(mockJobExplorerWasp);
 		
@@ -572,8 +572,8 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 	  
 	  JobParameters jobParameters = new JobParameters();
-	  JobInstance jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  JobExecution jobExecution = new JobExecution(jobInstance, new Long(12345));
+	  JobInstance jobInstance = new JobInstance(new Long(12345), "Job Name1");
+	  JobExecution jobExecution = new JobExecution(jobInstance, new Long(12345), jobParameters);
 	  StepExecution stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
       stepExecution.setExitStatus(ExitStatus.EXECUTING);
       stepExecution.setStatus(BatchStatus.STARTED);
@@ -584,10 +584,10 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  List<StepExecution> stepExecutions2 = new ArrayList<StepExecution>();
 	  
 	  //Test case 1: Returns TRUE if stepExecution != null and ExitStatus.EXECUTING
-	  expect(mockJobExplorerWasp.getStepExecutions("step.quote", parameterMap, true, BatchStatus.STARTED)).andReturn(stepExecutions);
+	  expect(mockJobExplorerWasp.getStepExecutions("step.quote", parameterMap, true, ExitStatus.RUNNING)).andReturn(stepExecutions);
 	  
 	  //Test case 2: Returns FALSE if stepExecution != null and ExitStatus != EXECUTING
-	  expect(mockJobExplorerWasp.getStepExecutions("step.quote", parameterMap, true, BatchStatus.STARTED)).andReturn(stepExecutions2);
+	  expect(mockJobExplorerWasp.getStepExecutions("step.quote", parameterMap, true, ExitStatus.RUNNING)).andReturn(stepExecutions2);
 	  
 	  replay(mockJobExplorerWasp);
 	
@@ -1579,7 +1579,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  
 	  WaspMessageHandlingServiceImpl mockWaspMsgHdlSrvImpl = EasyMock.createStrictMock(WaspMessageHandlingServiceImpl.class);
       try {
-    	  mockWaspMsgHdlSrvImpl.sendOutboundMessage(messageTemplate.build(), false);
+    	  mockWaspMsgHdlSrvImpl.sendOutboundMessage(messageTemplate.build(), true);
 	  } catch (WaspMessageBuildingException e) {
 		  // TODO Auto-generated catch block
 		  e.printStackTrace();

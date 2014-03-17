@@ -1,34 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:context="http://www.springframework.org/schema/context"
-        xsi:schemaLocation="http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-        http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context-3.1.xsd"
-    default-autowire="byName">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	default-autowire="byName"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
     
   <bean id="fastQScreenArea" class="java.lang.String">
 		<constructor-arg>
-			<value>fastQScreen</value>
+			<value>fastqscreen</value>
 		</constructor-arg>
   </bean>
 
-  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="fastQUiFieldWrapper">
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="fastQUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
-    <property name="baseArea" value="#{fastQScreenArea}" />
+    <property name="baseArea" ref="fastQScreenArea" />
   </bean>
 
-  <bean id="fastqc" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
-  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.babraham.software.FastQScreen</value></property>
+  <bean id="fastqscreen" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
+  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.babraham.software.FastQScreen</value></property>
     <property name="name" value="FastQ Screen" />
-    <property name="area" value="#{fastQScreenArea}" />
+    <property name="description" value="FastQ Screen allows you to screen a library of sequences in FastQ format against a set of sequence databases so you can see if the composition of the library matches with what you expect." />
+    <property name="area" ref="fastQScreenArea" />
     <property name="resourceType" ref="fastqProcessorResourceType" />
 	
 	<property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" value="#{fastQScreenArea}" />
+         <property name="area" ref="fastQScreenArea" />
          <property name="metaList">
          	<list>
          		<value>#{waspSoftware['currentVersion']}=0.4</value>

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
+import edu.yu.einstein.wasp.IndexingStrategy;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.AdaptorMetaDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetDao;
@@ -16,7 +17,9 @@ import edu.yu.einstein.wasp.dao.AdaptorsetMetaDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.NullResourceCategoryException;
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.load.service.AdaptorsetLoadService;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.AdaptorMeta;
@@ -25,6 +28,7 @@ import edu.yu.einstein.wasp.model.AdaptorsetMeta;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.SampleType;
+import edu.yu.einstein.wasp.service.AdaptorService;
 
 /**
  * 
@@ -47,6 +51,10 @@ public class AdaptorsetLoadServiceImpl extends WaspLoadServiceImpl implements Ad
 	@Autowired
 	private AdaptorsetMetaDao adaptorsetMetaDao;
 	
+
+	@Autowired
+	private AdaptorService adaptorService;
+	
 	@Autowired
 	private AdaptorsetResourceCategoryDao adaptorsetResourceCategoryDao;
 	  
@@ -56,35 +64,29 @@ public class AdaptorsetLoadServiceImpl extends WaspLoadServiceImpl implements Ad
 	@Autowired
 	private SampleTypeDao sampleTypeDao;
 	
-	private Adaptorset addOrUpdateAdaptorset(SampleType sampleType, String iname, String name, Integer isActive){
+	private Adaptorset addOrUpdateAdaptorset(SampleType sampleType, String iname, String name, IndexingStrategy indexingStrategy, Integer isActive){
 		Adaptorset adaptorset = adaptorsetDao.getAdaptorsetByIName(iname);
 		// inserts or update adaptorset
-	    if (adaptorset.getAdaptorsetId() == null) { 
+	    if (adaptorset.getId() == null) { 
 	    	// new
 	    	adaptorset.setIName(iname);
 	    	adaptorset.setName(name);
 	    	adaptorset.setSampleType(sampleType);
 	    	adaptorset.setIsActive(isActive.intValue());
-
 	    	adaptorset = adaptorsetDao.save(adaptorset);
 	    } else {
-	      boolean changed = false;	
-	      if (!adaptorset.getName().equals(name)){
+	      if (adaptorset.getName() == null || !adaptorset.getName().equals(name))
 	    	  adaptorset.setName(name);
-	    	  changed = true;
-	      }
-	      if (!adaptorset.getSampleType().equals(sampleType)){
+	      if (adaptorset.getSampleType() == null || !adaptorset.getSampleType().equals(sampleType))
 	    	  adaptorset.setSampleType(sampleType);
-	    	  changed = true;
-	      }
-	      if (adaptorset.getIsActive().intValue() != isActive.intValue()){
+	      if (adaptorset.getIsActive().intValue() != isActive.intValue())
 	    	  adaptorset.setIsActive(isActive.intValue());
-	    	  changed = true;
-	      }
-	      
-	      if (changed)
-	    	  adaptorsetDao.save(adaptorset);
 	    }
+	    try {
+			adaptorService.setIndexingStrategy(adaptorset, indexingStrategy);
+		} catch (MetadataException e) {
+			throw new WaspRuntimeException("Unable to set indexing strategy for adaptor. Rolling back changes.");
+		}
 	    return adaptorset;
 	}
 	
@@ -122,15 +124,19 @@ public class AdaptorsetLoadServiceImpl extends WaspLoadServiceImpl implements Ad
 	        continue;
 	      }
 
-	      adaptorsetMeta.setAdaptorsetId(adaptorset.getAdaptorsetId()); 
+	      adaptorsetMeta.setAdaptorsetId(adaptorset.getId()); 
 	      adaptorsetMetaDao.save(adaptorsetMeta); 
 	    }
 
+	    // The next block was commented out by Dubin; 10-07-2013 as it removes meta 
+	    //that is added any time after the initial data upload
+	    /*
 	   for (String adaptorsetMetaKey : oldAdaptorsetMetas.keySet()) {
 	      AdaptorsetMeta adaptorsetMeta = oldAdaptorsetMetas.get(adaptorsetMetaKey); 
 	      adaptorsetMetaDao.remove(adaptorsetMeta); 
 	      adaptorsetMetaDao.flush(adaptorsetMeta); 
 	    }
+	    */
 	}
 	
 	private void syncAdaptorsetResources(Adaptorset adaptorset, List<ResourceCategory> compatibleResources){
@@ -144,10 +150,10 @@ public class AdaptorsetLoadServiceImpl extends WaspLoadServiceImpl implements Ad
 	    		oldAdaptorsetResourceCats.remove(resourceCat.getIName());
 	    		continue;
 	    	}
-	    	if (resourceCat.getResourceCategoryId() != null){
+	    	if (resourceCat.getId() != null){
 	    		AdaptorsetResourceCategory adaptorsetresource = new AdaptorsetResourceCategory();
-	    		adaptorsetresource.setResourcecategoryId(resourceCat.getResourceCategoryId());
-	    		adaptorsetresource.setAdaptorsetId(adaptorset.getAdaptorsetId());
+	    		adaptorsetresource.setResourcecategoryId(resourceCat.getId());
+	    		adaptorsetresource.setAdaptorsetId(adaptorset.getId());
 	    		adaptorsetResourceCategoryDao.save(adaptorsetresource);
 	    		oldAdaptorsetResourceCats.remove(resourceCat.getIName());
 	    	} else {
@@ -165,7 +171,7 @@ public class AdaptorsetLoadServiceImpl extends WaspLoadServiceImpl implements Ad
 	
 	private void addOrUpdateAdaptors(Adaptorset adaptorset, List<AdaptorsetMeta>  adaptorsetmeta, List<Adaptor> adaptorList, Integer isActive, String iname){
 		Map<String, Integer> adaptorSearchMap = new HashMap<String, Integer>();
-	    adaptorSearchMap.put("adaptorsetId", adaptorset.getAdaptorsetId());
+	    adaptorSearchMap.put("adaptorsetId", adaptorset.getId());
 	    List<Adaptor> adaptorsInAdaptorset = adaptorDao.findByMap(adaptorSearchMap);
 	    Map<String, Adaptor> oldAdaptors = new HashMap<String, Adaptor>();
 	    for (Adaptor adaptor : adaptorsInAdaptorset){
@@ -178,7 +184,7 @@ public class AdaptorsetLoadServiceImpl extends WaspLoadServiceImpl implements Ad
 	    	// as it is possible the adaptor set may have changed (i.e. don't use the oldAdaptors objects 
 	    	// obtained using the current adaptorset ID.
 	    	Adaptor adaptor = adaptorDao.getAdaptorByIName(adaptorKey);
-	    	if (adaptor.getAdaptorId() != null){
+	    	if (adaptor.getId() != null){
 	    		// adaptor exists
 	    		boolean changed = false;
 	    		if (!adaptor.getName().equals(adaptorIn.getName())){
@@ -197,8 +203,8 @@ public class AdaptorsetLoadServiceImpl extends WaspLoadServiceImpl implements Ad
 	    			adaptor.setBarcodenumber(adaptorIn.getBarcodenumber());
 	    			changed = true;
 	    		}
-	    		if (adaptor.getAdaptorsetId().intValue() != adaptorset.getAdaptorsetId().intValue()){
-	    			adaptor.setAdaptorsetId(adaptorset.getAdaptorsetId());
+	    		if (adaptor.getAdaptorsetId().intValue() != adaptorset.getId().intValue()){
+	    			adaptor.setAdaptorsetId(adaptorset.getId());
 	    			changed = true;
 	    		}
 	    		if (adaptor.getIsActive().intValue() != isActive.intValue()){
@@ -245,26 +251,30 @@ public class AdaptorsetLoadServiceImpl extends WaspLoadServiceImpl implements Ad
 		    	        continue; 
 		    	    }
 		    	    // is new metadata
-		    	    adaptorMeta.setAdaptorId(adaptor.getAdaptorId()); 
+		    	    adaptorMeta.setAdaptorId(adaptor.getId()); 
 		    	    adaptorMetaDao.save(adaptorMeta); 
 	    	    }
 
 	    	    // delete the left overs
+	    	    // The next block was commented out by Dubin; 10-07-2013 as it removes meta 
+	    	    //that is added any time after the initial data upload
+	    	    /*
 	    	    for (String adaptorMetaKey : oldAdaptorMetas.keySet()) {
 	    	    	AdaptorMeta adaptorMeta = oldAdaptorMetas.get(adaptorMetaKey); 
 	    	    	adaptorMetaDao.remove(adaptorMeta); 
 	    	    	adaptorMetaDao.flush(adaptorMeta); 
 	    	    }
+	    	    */
 	    	} else {
 	    		// new adaptor
 	    		adaptor = adaptorIn;
-	    		adaptor.setAdaptorsetId(adaptorset.getAdaptorsetId());
+	    		adaptor.setAdaptorsetId(adaptorset.getId());
 	    		adaptor.setIsActive(isActive);
 	    		adaptor.setIName(adaptorIn.getIName());
 	    		adaptor.setName(adaptorIn.getName());
 	    		adaptor = adaptorDao.save(adaptor);
 	    		for (AdaptorMeta adaptorMeta: safeList(adaptor.getAdaptorMeta()) ) {
-	    			adaptorMeta.setAdaptorId(adaptor.getAdaptorId()); 
+	    			adaptorMeta.setAdaptorId(adaptor.getId()); 
 		    	    adaptorMetaDao.save(adaptorMeta);
 	    		}
 	    	}
@@ -280,11 +290,11 @@ public class AdaptorsetLoadServiceImpl extends WaspLoadServiceImpl implements Ad
 	
 	@Transactional("entityManager")
 	@Override 
-	public Adaptorset update(List<AdaptorsetMeta>  adaptorsetmeta, List<Adaptor> adaptorList, SampleType sampleType, String iname, String name, int isActive, List<ResourceCategory> compatibleResources){
+	public Adaptorset update(List<AdaptorsetMeta>  adaptorsetmeta, List<Adaptor> adaptorList, SampleType sampleType, String iname, String name, IndexingStrategy indexingStrategy, int isActive, List<ResourceCategory> compatibleResources){
 		Assert.assertParameterNotNull(iname, "iname Cannot be null");
 		Assert.assertParameterNotNull(name, "name Cannot be null");
 		Assert.assertParameterNotNull(sampleType, "sampleType Cannot be null");
-	    Adaptorset adaptorset = addOrUpdateAdaptorset(sampleType, iname, name, isActive);
+	    Adaptorset adaptorset = addOrUpdateAdaptorset(sampleType, iname, name, indexingStrategy, isActive);
 
 	    syncAdaptorsetMeta(adaptorset,adaptorsetmeta);
 

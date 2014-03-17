@@ -10,16 +10,20 @@
 
 package edu.yu.einstein.wasp.service;
 
-import java.util.LinkedHashMap;
+import java.io.File;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import edu.yu.einstein.wasp.MetaMessage;
+import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobDraftDao;
@@ -35,7 +39,9 @@ import edu.yu.einstein.wasp.dao.SampleJobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
+import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.JobContextInitializationException;
+import edu.yu.einstein.wasp.exception.QuoteException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
@@ -44,12 +50,14 @@ import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
-import edu.yu.einstein.wasp.model.JobSoftware;
+import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.quote.MPSQuote;
 import edu.yu.einstein.wasp.util.WaspJobContext;
+import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 
 @Service
 public interface JobService extends WaspMessageHandlingService {
@@ -624,4 +632,48 @@ public interface JobService extends WaspMessageHandlingService {
 	 */
 	public List<Sample> getLibraries(Job job);
 	 
+	/**
+	 * Create new acctQuote for a job and save it's associated file (to the remote location)
+	 * @param Job job
+	 * @param File localFile (this is wasp's newly created quote.pdf, currently locally stored)
+	 * @param Float totalFinalCost
+	 * @param boolean saveQuoteAsJSON
+	 * @return void
+	 */
+	public void createNewQuoteAndSaveQuoteFile(MPSQuote mpsQuote, File file, Float totalFinalCost, boolean saveQuoteAsJSON) throws FileUploadException, JSONException, QuoteException;
+
+	/**
+	 * Create new acctQuote for a job and save the UPLOADED file (to the remote location)
+	 * @param Job job
+	 * @param MultipartFile mpFile (the uploaded file; uploaded from the web)
+	 * @param String fileDescription (invoice or quote only)
+	 * @param Float totalCost
+	 * @return void
+	 */
+	public void createNewQuoteOrInvoiceAndUploadFile(Job job, MultipartFile mpFile, String fileDescription, Float totalCost) throws FileUploadException, QuoteException, WaspMessageBuildingException;
+	
+	
+	/**
+	 * Get Strategy for a job (in this case, it's a library strategy)
+	 * @param Job
+	 * @param String strategyType
+	 * @return Strategy
+	 * @throws Exception
+	 */
+	public Strategy getStrategy(String strategyType, Job job)throws Exception;
+	
+	/**
+	 * Get List<JobMeta> for a job via it's jobId
+	 * @param Integer jobId
+	 * @param String strategyType
+	 * @return List<JobMeta>
+	 */
+	public List<JobMeta> getJobMeta(Integer jobId);
+
+	public JobMetaDao getJobMetaDao();
+
+	public JobDataTabViewing getTabViewPluginByJob(Job job);
+
+	public JobSampleDao getJobSampleDao();
+
 }

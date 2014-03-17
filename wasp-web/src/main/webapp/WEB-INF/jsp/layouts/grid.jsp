@@ -1,6 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
  <%--  Template for pages containing JQGrid table  --%> 
-<%@ page import="edu.yu.einstein.wasp.resourcebundle.DBResourceBundle" %>
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <!DOCTYPE html>
 <html lang="en">
@@ -9,7 +8,6 @@
 	<title> 	 	
 	    <wasp:pageTitle/> 
 	</title>
-	<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/reset.css" />
 	<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/base.css" />
 	<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/menu.css" />
 	<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/jquery-ui.css" />
@@ -23,15 +21,9 @@
 	<script src="/wasp/scripts/jqgrid/grid.locale-<%= ((HttpServletRequest)pageContext.getRequest()).getSession().getAttribute("jqLang") %>.js" type="text/javascript"></script>
 	<script src="/wasp/scripts/jqgrid/jquery.jqGrid.min.js" type="text/javascript"></script>
 	
+	
 	<script type="text/javascript">
-	
 		
-	
-		$( document ).ready( function(){
-			waspFade("waspErrorMessage");
-	  		waspFade("waspMessage");
-	  	});
-	
 		/* define custom formatter to format/unformat hyperlinks */
 		jQuery.extend($.fn.fmatter , {
 			linkFormatter : function(cellvalue, options, rowObject) {
@@ -606,6 +598,7 @@
 					},
 					
 					gridComplete : function(){
+						
 						$( ".tooltip" ).tooltip({
 					  	      position: {
 					  	        my: "center bottom-20",
@@ -620,6 +613,7 @@
 					  	        }
 					  	      }
 					  	    });
+						
 					},
 		 
 					ondblClickRow: function(rowid) {//enable "edit" on dblClick			
@@ -654,6 +648,26 @@
 		createGrid();
 	
 	</script>
+	<script type="text/javascript">
+	
+		function openWaitDialog(){
+		  $("#wait_dialog-modal").dialog("open");
+	  	}
+		
+		$( document ).ready( function(){
+			waspFade("waspErrorMessage");
+			
+	  		waspFade("waspMessage");
+	  		
+	  		$( "#wait_dialog-modal" ).dialog({
+	  			dialogClass: "no-close",
+				height: 170,
+				autoOpen: false,
+				modal: true
+			});
+	  		$("#wait_dialog-modal").css("visibility", "visible");
+	  	});
+	</script>
 	<tiles:insertAttribute name="head-js" />
 	<tiles:insertAttribute name="head-style" />
 </head>
@@ -671,7 +685,15 @@
 			</div>
 		</sec:authorize>
   		<div id="content">
-  			<wasp:breadcrumbs />
+  			<!-- <wasp:breadcrumbs /> -->
+  			<div id="wait_dialog-modal" title="<fmt:message key="wasp.wait_title.label" />"  >
+				<table border="0" cellpadding="5">
+				<tr>
+				<td><img src="/wasp/images/spinner.gif" align="left" border="0" ></td>
+				<td><fmt:message key="wasp.wait_message.label" /></td>
+				</tr>
+				</table>
+			</div>
   			<wasp:errorMessage />
   			<wasp:message />
 			<tiles:insertAttribute name="body-content" />

@@ -13,7 +13,7 @@ import edu.yu.einstein.wasp.model.SoftwareMeta;
  */
 public interface SoftwareLoadService extends WaspLoadService {
 	
-	public <T extends Software> T update(ResourceType resourceType, List<SoftwareMeta> meta, String iname, String name, int isActive, Class<T> clazz);
+	public <T extends Software> T update(ResourceType resourceType, List<SoftwareMeta> meta, String iname, String name, String description, int isActive, Class<T> clazz);
 	
 	public ResourceType getSoftwareTypeByIName(String iname);
 

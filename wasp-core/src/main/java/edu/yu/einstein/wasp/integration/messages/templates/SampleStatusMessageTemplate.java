@@ -1,9 +1,7 @@
 package edu.yu.einstein.wasp.integration.messages.templates;
 
 import org.springframework.integration.Message;
-import org.springframework.integration.support.MessageBuilder;
 
-import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.exception.WaspMessageInitializationException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
@@ -17,20 +15,10 @@ import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
  */
 public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate{
 	
-	protected Integer sampleId;
-	
-
-	public Integer getsampleId() {
-		return sampleId;
-	}
-
-	public void setsampleId(Integer sampleId) {
-		this.sampleId = sampleId;
-	}
-	
 	public SampleStatusMessageTemplate(Integer sampleId){
 		super();
-		this.sampleId = sampleId;
+		addHeader(WaspMessageType.HEADER_KEY, WaspMessageType.SAMPLE);
+		setSampleId(sampleId);
 	}
 	
 	public SampleStatusMessageTemplate(Message<WaspStatus> message){
@@ -38,44 +26,27 @@ public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate{
 		if (!isMessageOfCorrectType(message))
 			throw new WaspMessageInitializationException("message is not of the correct type");
 		if (message.getHeaders().containsKey(WaspJobParameters.SAMPLE_ID))
-			sampleId = (Integer) message.getHeaders().get(WaspJobParameters.SAMPLE_ID);
+			setSampleId((Integer) message.getHeaders().get(WaspJobParameters.SAMPLE_ID));
 	}
 	
-	/**
-	 * Build a Spring Integration Message using the sampleId header, task header if not null, and the WaspStatus as payload .
-	 * @return
-	 * @throws WaspMessageBuildingException
-	 */
-	@Override
-	public Message<WaspStatus> build() throws WaspMessageBuildingException{
-		if (this.status == null)
-			throw new WaspMessageBuildingException("no status message defined");
-		Message<WaspStatus> message = null;
-		try {
-			message = MessageBuilder.withPayload(status)
-						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.SAMPLE)
-						.setHeader(TARGET_KEY, target)
-						.setHeader(USER_KEY, userCreatingMessage)
-						.setHeader(COMMENT_KEY, comment)
-						.setHeader(EXIT_DESCRIPTION_HEADER, exitDescription)
-						.setHeader(WaspJobParameters.SAMPLE_ID, sampleId)
-						.setHeader(WaspJobTask.HEADER_KEY, task)
-						.setPriority(status.getPriority())
-						.build();
-		} catch(Exception e){
-			throw new WaspMessageBuildingException("build() failed to build message: "+e.getMessage());
-		}
-		return message;
+	public Integer getSampleId() {
+		return (Integer) getHeader(WaspJobParameters.SAMPLE_ID);
 	}
+
+	public void setSampleId(Integer sampleId) {
+		addHeader(WaspJobParameters.SAMPLE_ID, sampleId);
+	}
+	
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean actUponMessage(Message<?> message){
-		if (this.task == null)
-			return actUponMessage(message, this.sampleId);
-		return actUponMessage(message, this.sampleId, this.task);
+		String task = (String) getHeader(WaspJobTask.HEADER_KEY);
+		if (task == null)
+			return actUponMessage(message, getSampleId());
+		return actUponMessage(message, getSampleId(), task);
 	}
 	
 	/**
@@ -83,9 +54,10 @@ public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate{
 	 */
 	@Override
 	public boolean actUponMessageIgnoringTask(Message<?> message){
-		if (this.task == null)
-			return actUponMessage(message, this.sampleId);
-		return actUponMessage(message, this.sampleId, null);
+		String task = (String) getHeader(WaspJobTask.HEADER_KEY);
+		if (task == null)
+			return actUponMessage(message, getSampleId());
+		return actUponMessage(message, getSampleId(), null);
 	}
 	
 	// Statics.........
@@ -131,6 +103,13 @@ public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate{
 	public static boolean isMessageOfCorrectType(Message<?> message) {
 		return message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) &&  
 				message.getHeaders().get(WaspMessageType.HEADER_KEY).equals(WaspMessageType.SAMPLE);
+	}
+	
+	@Override
+	public SampleStatusMessageTemplate getNewInstance(WaspStatusMessageTemplate messageTemplate){
+		SampleStatusMessageTemplate newTemplate = new SampleStatusMessageTemplate(((SampleStatusMessageTemplate) messageTemplate).getSampleId());
+		copyCommonProperties(messageTemplate, newTemplate);
+		return newTemplate;
 	}
 	
 }

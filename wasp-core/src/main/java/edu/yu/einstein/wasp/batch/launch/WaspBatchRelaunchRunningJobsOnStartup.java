@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.batch.launch;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -12,10 +13,12 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.explore.wasp.WaspJobExplorer;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.batch.core.extension.WaspBatchJobExplorer;
+import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 
 /**
  * Re-launches all batch jobs in state STARTED or STARTING 
@@ -26,16 +29,23 @@ public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunni
 	
 	private static Logger logger = LoggerFactory.getLogger(WaspBatchRelaunchRunningJobsOnStartup.class);
 	
-	private WaspBatchJobExplorer jobExplorer;
+	private WaspJobExplorer jobExplorer;
 	
 	private JobOperator jobOperator;
 	
 	private JobRepository jobRepository;
+	
+	private BatchJobHibernationManager hibernationManager;
+	
+	private Long initialExponentialInterval;
 
-	public WaspBatchRelaunchRunningJobsOnStartup(JobRepository jobRepository, JobExplorer jobExplorer, JobOperator jobOperator) {
+	public WaspBatchRelaunchRunningJobsOnStartup(JobRepository jobRepository, JobExplorer jobExplorer, JobOperator jobOperator, 
+			BatchJobHibernationManager hibernationManager, Long initialExponentialInterval) {
 		this.jobRepository = jobRepository;
-		this.jobExplorer = (WaspBatchJobExplorer) jobExplorer;
+		this.jobExplorer = (WaspJobExplorer) jobExplorer;
 		this.jobOperator = jobOperator;
+		this.hibernationManager = hibernationManager;
+		this.initialExponentialInterval = initialExponentialInterval;
 	}
 
 	public JobRepository getJobRepository() {
@@ -51,7 +61,7 @@ public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunni
 	}
 
 	public void setJobExplorer(JobExplorer jobExplorer) {
-		this.jobExplorer = (WaspBatchJobExplorer) jobExplorer;
+		this.jobExplorer = (WaspJobExplorer) jobExplorer;
 	}
 
 	public JobOperator getJobOperator() {
@@ -63,17 +73,28 @@ public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunni
 	}
 
 	
+	public BatchJobHibernationManager getHibernationManager() {
+		return hibernationManager;
+	}
+
+	public void setHibernationManager(BatchJobHibernationManager hibernationManager) {
+		this.hibernationManager = hibernationManager;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
+	// don't use @Transactional here as otherwise prevents restarts
 	public void doLaunchAllRunningJobs(){
 		long oneSecondAgo = System.currentTimeMillis() - 1000; // set date one second in the past to avoid possible last execution job conflict
+		List<StepExecution> hibernatingStepExecutions = jobExplorer.getStepExecutions(ExitStatus.HIBERNATING); 
 		
-		// First clean up all existing step executions in states STARTING and STARTED. We should set these to FAILED
 		Set<StepExecution> stepExecutionsToRestart = new HashSet<StepExecution>();
-		stepExecutionsToRestart.addAll(jobExplorer.getStepExecutions(BatchStatus.STARTING));
-		stepExecutionsToRestart.addAll(jobExplorer.getStepExecutions(BatchStatus.STARTED));
+		stepExecutionsToRestart.addAll(jobExplorer.getStepExecutions(ExitStatus.UNKNOWN));
+		stepExecutionsToRestart.addAll(jobExplorer.getStepExecutions(ExitStatus.EXECUTING));
+		
+		// First clean up all existing step executions in ExitStatus UNKNOWN or EXECUTING. We should set these to FAILED
 		for (StepExecution stepExecution: stepExecutionsToRestart){
 			stepExecution.setStatus(BatchStatus.FAILED);
         	stepExecution.setExitStatus(new ExitStatus("FAILED", "Failed because wasp-daemon was shutdown inproperly (was found in an active state on startup)"));
@@ -81,14 +102,14 @@ public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunni
         	jobRepository.update(stepExecution);
 		}
 		
-		// Now we can clean up all existing job executions in states STARTING and STARTED. We should set these to FAILED
+		// Now we can clean up all existing job executions in ExitStatus UNKNOWN or EXECUTING. We should set these to FAILED
 		// then restart them.
 		Set<JobExecution> jobExecutionsToRestart = new HashSet<JobExecution>();
-		jobExecutionsToRestart.addAll(jobExplorer.getJobExecutions(BatchStatus.STARTING));
-		jobExecutionsToRestart.addAll(jobExplorer.getJobExecutions(BatchStatus.STARTED));
+		jobExecutionsToRestart.addAll(jobExplorer.getJobExecutions(ExitStatus.UNKNOWN));
+		jobExecutionsToRestart.addAll(jobExplorer.getJobExecutions(ExitStatus.EXECUTING));
 		for (JobExecution jobExecution: jobExecutionsToRestart){
 			String jobName = jobExecution.getJobInstance().getJobName();
-			JobParameters jobParameters = jobExecution.getJobInstance().getJobParameters();
+			JobParameters jobParameters = jobExecution.getJobParameters();
 			logger.info("Restarting running job '" + jobName + "' with parameters: " + jobParameters);
 			try{
 				// set jobExecution status to stopped to allow restart
@@ -101,6 +122,17 @@ public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunni
 				jobOperator.restart(jobExecution.getId());
 			} catch(Exception e){
 				logger.warn("Failed to restart job '" + jobName + "' [" + jobExecution + "] : " + e.getMessage());
+			}
+		}
+		
+		// re-populate hibernation manager with all persisted messages to wake steps
+		logger.debug("Re-populate hibernation manager...");
+		for (StepExecution se : hibernatingStepExecutions){
+			hibernationManager.addMessageTemplatesForWakingJobStep(se.getJobExecutionId(), se.getId());
+			hibernationManager.addMessageTemplatesForAbandoningJobStep(se.getJobExecutionId(), se.getId());
+			if (hibernationManager.getWakeTimeInterval(se.getJobExecutionId(), se.getId()) != null){
+				hibernationManager.setWakeTimeInterval(se.getJobExecutionId(), se.getId(), initialExponentialInterval);
+				hibernationManager.addTimeIntervalForJobStep(se.getJobExecutionId(), se.getId(), initialExponentialInterval);
 			}
 		}
 	}

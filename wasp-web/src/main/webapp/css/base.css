@@ -61,7 +61,6 @@
 }
 
 
-
 .header_nav {
 	float:right;
 	text-align:right;
@@ -373,7 +372,9 @@ div.waspMessage {
 
 div.waspMessage ul, div.waspErrorMessage ul{
 	list-style-type: circle;
-	margin-left: 20px;
+	margin: 0px 0px 0px 20px;
+	padding: 0;
+	border: 0;
 }
 
 div.waspErrorMessage {
@@ -581,3 +582,37 @@ TABLE.data TD.value-centered-small {
     bottom: -20px;
     top: auto;
   }
+ 
+.no-close .ui-dialog-titlebar-close {
+  display: none;
+}
+
+#wait_dialog-modal{
+	visibility:hidden;
+	padding:15px;
+	font-size: 14px;
+	z-index:10000;
+}
+
+#wait_dialog-modal td{
+	vertical-align: middle;
+}
+
+.header_panel_right {
+	position:relative;
+	float: right;
+}
+
+.waspIcon {
+}
+
+.header_nav {
+	text-align:right;
+	padding-top:20px;
+	padding-right:5px;
+	font-size: 14px;
+}
+
+.ext_treeGrid td {
+	padding: 0px;
+}

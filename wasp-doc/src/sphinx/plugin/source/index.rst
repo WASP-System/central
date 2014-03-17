@@ -4,9 +4,10 @@
    contain the root `toctree` directive.
 
 Plugin Development Guide
-===================================
+########################
 
 .. toctree::
    :maxdepth: 2
+   :numbered:
    
    eclipse

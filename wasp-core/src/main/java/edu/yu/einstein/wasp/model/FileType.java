@@ -11,15 +11,15 @@
 
 package edu.yu.einstein.wasp.model;
 
-import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -146,6 +146,60 @@ public class FileType extends WaspModel {
 	public String getDescription () {
 		return this.description;
 	}
+	
+	/** 
+	 * extension
+	 *
+	 */
+	@Column(name="extension")
+	protected String extension;
+
+	/**
+	 * setExtension(String extension)
+	 *
+	 * @param extension
+	 *
+	 */
+	
+	/**
+	 * set a single extension or a comma delimited list if more than one (put the default extension first)
+	 * @param extensions
+	 */
+	public void setExtensions(String extension) {
+		this.extension = extension;
+	}
+	
+	/**
+	 * get a single extension or comma delimited list if more than one
+	 * @param extensions
+	 */
+	public String getExtensions() {
+		return this.extension;
+	}
+	
+	/**
+	 * get the first extension of a comma delimited list.
+	 * @param extensions
+	 */
+	@JsonIgnore
+	public String getDefaultExtension() {
+		for (String extension : getExtensionSet())
+			return extension; // return first
+		return null;
+	}
+	
+	
+	/**
+	 * Get the set of extensions (returned in the order provided in the original comma delimited list)
+	 * @return
+	 */
+	@JsonIgnore
+	public Set<String> getExtensionSet() {
+		Set<String> extensions = new LinkedHashSet<>();
+		for (String extension: this.extension.split(","))
+			extensions.add(extension);
+		return extensions;
+	}
 
 
 
@@ -240,6 +294,114 @@ public class FileType extends WaspModel {
 	 */
 	public void setFiletypMeta (List<FileTypeMeta> fileTypeMeta) {
 		this.fileTypeMeta = fileTypeMeta;
+	}
+	
+	/**
+	 * parent
+	 *
+	 */
+	@NotAudited
+	@ManyToOne(fetch=FetchType.EAGER)
+	@JoinColumn(name="parentid", insertable=false, updatable=false)
+	protected FileType parent;
+
+	/**
+	 * setParent (Sample parent)
+	 *
+	 * @param parent
+	 *
+	 */
+	public void setParent (FileType parent) {
+		this.parent = parent;
+		this.parentId = parent.getId();
+	}
+	
+	/** 
+	 * children
+	 *
+	 */
+	@NotAudited
+	@OneToMany(mappedBy = "parentId")
+	protected List<FileType> children;
+
+
+	/** 
+	 * getChildren()
+	 *
+	 * @return children
+	 *
+	 */
+	@JsonIgnore
+	public List<FileType> getChildren() {
+		return this.children;
+	}
+
+
+	/** 
+	 * setChildren
+	 *
+	 * @param children
+	 *
+	 */
+	public void setChildren (List<FileType> children) {
+		this.children = children;
+	}
+	
+
+	/**
+	 * getParent()
+	 * 
+	 *
+	 * @return FileType
+	 *
+	 */
+	
+	public FileType getParent() {
+		return this.parent;
+	}
+	
+	/** 
+	 * parentId
+	 *
+	 */
+	@Column(name="parentid")
+	protected Integer parentId;
+
+	/**
+	 * setParentId(Integer parentId)
+	 *
+	 * @param parentId
+	 *
+	 */
+	
+	public void setParentId (Integer parentId) {
+		this.parentId = parentId;
+	}
+
+	/**
+	 * getParentId()
+	 *
+	 * @return parentId
+	 *
+	 */
+	public Integer getParentId () {
+		return this.parentId;
+	}
+	
+	/**
+	 * Returns true if this object is or is derived from the provided type.
+	 * @param type
+	 * @return
+	 */
+	@JsonIgnore
+	public boolean isOfFileType(FileType type){
+		FileType currentFT = this;
+		while (currentFT != null){
+			if (type.iName.equals(currentFT.iName))
+				return true;
+			currentFT = currentFT.getParent();
+		}
+		return false;
 	}
 
 }

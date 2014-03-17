@@ -12,9 +12,7 @@
 package edu.yu.einstein.wasp.dao.impl;
 
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.TypedQuery;
 
@@ -25,7 +23,7 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements edu.yu.einstein.wasp.dao.SampleSourceDao {
 
@@ -49,7 +47,7 @@ public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements ed
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public SampleSource getSampleSourceBySampleSourceId (final int sampleSourceId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", sampleSourceId);
@@ -74,7 +72,7 @@ public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements ed
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public SampleSource getSampleSourceBySampleIdMultiplexindex (final int sampleId, final int multiplexindex) {
     	HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sampleId", sampleId);
@@ -91,9 +89,16 @@ public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements ed
 
 
 	@Override
-	public List<SampleSource> getCellLibraries(Sample cell) {
+	public List<SampleSource> getCellLibrariesForCell(Sample cell) {
 		TypedQuery<SampleSource> query = this.entityManager.createQuery("select s from SampleSource s where s.sample = :cell order by s.id", SampleSource.class);
 		query.setParameter("cell", cell);
+		return query.getResultList();
+	}
+	
+	@Override
+	public List<SampleSource> getCellLibrariesForLibrary(Sample library) {
+		TypedQuery<SampleSource> query = this.entityManager.createQuery("select s from SampleSource s where s.sourceSample = :library order by s.id", SampleSource.class);
+		query.setParameter("library", library);
 		return query.getResultList();
 	}
 

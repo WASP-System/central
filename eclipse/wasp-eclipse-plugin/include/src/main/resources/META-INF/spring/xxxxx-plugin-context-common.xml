@@ -7,36 +7,38 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+		
+	<context:component-scan base-package="___package___.service.impl" />
 
-	<bean id="___pluginname___PluginArea" class="java.lang.String">
+	<bean id="___pluginIName___PluginArea" class="java.lang.String">
 		<constructor-arg>
-			<value>___pluginname___</value>
+			<value>___pluginIName___</value>
 		</constructor-arg>
 	</bean>
 	
 	<!-- channel for communications with this plugin. -->
-	<int:channel id="wasp.channel.plugin.___pluginname___" />
+	<int:channel id="wasp.channel.plugin.___pluginIName___" />
 
-	<int:service-activator input-channel="wasp.channel.plugin.___pluginname___" ref="___pluginname___.WaspPluginBean" method="process" />
+	<int:service-activator input-channel="wasp.channel.plugin.___pluginIName___" ref="___pluginIName___Plugin" method="process" />
 	
-	<bean id="___pluginname___.WaspPluginBean" class="___package___.plugin.___pluginname___.___Pluginname___Plugin">
-		<constructor-arg name="pluginName" ref="___pluginname___PluginArea" />
+	<bean id="___pluginIName___Plugin" class="___package___.plugin.___PluginIName___Plugin">
+		<constructor-arg name="iName" ref="___pluginIName___PluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
-		<constructor-arg name="channel" ref="wasp.channel.plugin.___pluginname___" />
-		<!-- 
+		<constructor-arg name="channel" ref="wasp.channel.plugin.___pluginIName___" />
+		<property name="name" value="___name___" />
+		<property name="description" value="___description___" />
+////> RES
 		<property name="provides" >
 			<set>
-				<ref bean="___pluginname___" />
+				<ref bean="___pluginIName___" /> 
 			</set>
 		</property>
-		 -->
-		<!-- 
+////<
 		<property name="handles" >
 			<set>
-				<ref bean="___pluginname___PluginArea" />
+				<ref bean="___pluginIName___PluginArea" />
 			</set>
 		</property>
-		 -->
 	</bean>
 
 </beans>
