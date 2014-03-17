@@ -89,7 +89,7 @@ public class ChipSeqWebPanels {
 					command = " ";
 				}
 				else{
-					command = command.replaceAll("\\n", " ");//the workunit may put a newline at the end, which is incompatible with Extjs grids
+					command = command.replaceAll("\\n", "");//the workunit may put a newline at the end, which is incompatible with Extjs grids
 				}
 				stringBuffer.append("{TestSample: '"+testSample.getName()+"', ControlSample: '"+controlSample.getName()+"', Command: '"+command+"'}");
 			}

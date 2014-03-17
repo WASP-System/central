@@ -233,6 +233,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		WorkUnit w = macs2.getPeaks(prefixForFileName, testFileHandleList, controlFileHandleList, jobParametersMap);//configure
 		logger.debug("OK, workunit has been generated");
 		this.commandLineCall = w.getCommand();
+		this.commandLineCall = this.commandLineCall.replaceAll("\\n", "");//the workunit tagged on a newline at the end of the command; so remove it for db storage
 
 		List<String> listOfFileHandleNames = new ArrayList<String>();
 		
