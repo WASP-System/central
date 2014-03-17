@@ -154,13 +154,13 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 			logger.debug("***************g");
 			
 			logger.debug("***************A*****");
-			Map<Sample, List<String>> sampleRunInfoMap = new HashMap<Sample, List<String>>();
-			Map<String, String> sampleIdControlIdCommandLine = new HashMap<String, String>();
+			Map<Sample, List<String>> sampleRunInfoListMap = new HashMap<Sample, List<String>>();
+			Map<String, String> sampleIdControlIdCommandLineMap = new HashMap<String, String>();
 			for(Sample sample : testSampleSet){
 				logger.debug("***************A1***");
 				for(SampleMeta sm : sample.getSampleMeta()){logger.debug("***************A2***");
 					if(sm.getK().startsWith("chipseqAnalysis.testCellLibraryIdList::")){logger.debug("***************A3");
-						if(sampleRunInfoMap.containsKey(sample)){logger.debug("***************A4");
+						if(sampleRunInfoListMap.containsKey(sample)){logger.debug("***************A4");
 							continue;
 						}
 						String cellLibraryIdListAsString = sm.getV();logger.debug("***************A5");
@@ -180,7 +180,7 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 								runInfo.add(library.getName() + " [" + run.getName() + " " + lane + "]");logger.debug("***************A14");
 							}
 						}
-						sampleRunInfoMap.put(sample, runInfo);logger.debug("***************A15");
+						sampleRunInfoListMap.put(sample, runInfo);logger.debug("***************A15");
 					}
 					if(sm.getK().startsWith("chipseqAnalysis.controlCellLibraryIdList::")){logger.debug("***************A4");
 						String[] splitK = sm.getK().split("::");
@@ -190,7 +190,7 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 						}
 						Integer controlId = Integer.parseInt(splitK[1]);
 						Sample controlSample = sampleService.getSampleById(controlId);
-						if(sampleRunInfoMap.containsKey(controlSample)){
+						if(sampleRunInfoListMap.containsKey(controlSample)){
 							continue;
 						}
 						String cellLibraryIdListAsString = sm.getV();
@@ -210,13 +210,13 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 								runInfo.add(library.getName() + " [" + run.getName() + " " + lane + "]");logger.debug("***************A14");
 							}
 						}
-						sampleRunInfoMap.put(controlSample, runInfo);				
+						sampleRunInfoListMap.put(controlSample, runInfo);				
 					}
 					
 					if(sm.getK().startsWith("chipseqAnalysis.commandLineCall::")){logger.debug("***************A5");
 						String[] splitK = sm.getK().split("::");
 						String controlIdAsString = splitK[1];
-						sampleIdControlIdCommandLine.put(sample.getId().toString() + "::" + controlIdAsString, sm.getV());
+						sampleIdControlIdCommandLineMap.put(sample.getId().toString() + "::" + controlIdAsString, sm.getV());
 					}				
 				}
 			}
@@ -281,9 +281,9 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 			if(jobStatus.toString().equals(Status.COMPLETED.toString())){
 				logger.debug("***************jobStatus is COMPLETED, so we enter this loop");
 				//do the other panels //
-				PanelTab samplePairsPanelTab = ChipSeqWebPanels.getSamplePairsPanelTab(testSampleList, testSampleControlSampleListMap);
+				PanelTab samplePairsPanelTab = ChipSeqWebPanels.getSamplePairsPanelTab(testSampleList, testSampleControlSampleListMap, sampleIdControlIdCommandLineMap);
 				if(samplePairsPanelTab!=null){panelTabSet.add(samplePairsPanelTab);}
-				PanelTab sampleRunsPanelTab = ChipSeqWebPanels.getSampleRunsPanelTab(testSampleList, sampleRunInfoMap);
+				PanelTab sampleRunsPanelTab = ChipSeqWebPanels.getSampleRunsPanelTab(testSampleList, sampleRunInfoListMap);
 				if(sampleRunsPanelTab!=null){panelTabSet.add(sampleRunsPanelTab);}
 
 			}

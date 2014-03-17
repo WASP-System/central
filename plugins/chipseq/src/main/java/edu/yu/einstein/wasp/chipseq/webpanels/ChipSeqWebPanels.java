@@ -56,7 +56,7 @@ public class ChipSeqWebPanels {
 		return panelTab;
 	}
 
-	public static PanelTab getSamplePairsPanelTab(List<Sample> testSampleList, Map<Sample, List<Sample>> testSampleControlSampleListMap){
+	public static PanelTab getSamplePairsPanelTab(List<Sample> testSampleList, Map<Sample, List<Sample>> testSampleControlSampleListMap, Map<String,String> sampleIdControlIdCommandLineMap){
 		
 		PanelTab panelTab = new PanelTab();
 		
@@ -84,12 +84,18 @@ public class ChipSeqWebPanels {
 				if(stringBuffer.length()>0){
 					stringBuffer.append(", ");
 				}
-				stringBuffer.append("{TestSample: '"+testSample.getName()+"', ControlSample: '"+controlSample.getName()+"'}");
+				String command = sampleIdControlIdCommandLineMap.get(testSample.getId().toString()+"::"+controlSample.getId().toString());
+				if(command==null || command.isEmpty()){
+					command = " ";
+				}
+				else{
+					command = command.replaceAll("\\n", " ");//the workunit may put a newline at the end, which is incompatible with Extjs grids
+				}
+				stringBuffer.append("{TestSample: '"+testSample.getName()+"', ControlSample: '"+controlSample.getName()+"', Command: '"+command+"'}");
 			}
 		}
 		String theData = new String(stringBuffer);
-		String script = "Ext.define('SamplePairs',{ extend: 'Ext.data.Model', fields: [ 'TestSample', 'ControlSample' ] }); var store = Ext.create('Ext.data.Store', { model: 'SamplePairs', data : ["+theData+"] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"Test Sample\",  width:300, dataIndex: 'TestSample'}, {text: \"Control Sample\",  flex: 1, dataIndex: 'ControlSample'} ], renderTo:'samplePairs-grid', height: 300 });";
-		
+		String script = "Ext.define('SamplePairs',{ extend: 'Ext.data.Model', fields: [ 'TestSample', 'ControlSample', 'Command' ] }); var store = Ext.create('Ext.data.Store', { model: 'SamplePairs', data : ["+theData+"] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"Test Sample\",  width:250, dataIndex: 'TestSample'}, {text: \"Control Sample\",  width:250, dataIndex: 'ControlSample'}, {text: \"Command\",  flex: 1, dataIndex: 'Command'} ], renderTo:'samplePairs-grid', height: 300 });";
 		panel.setExecOnRenderCode(script);
 		panel.setExecOnExpandCode(" ");
 		panel.setExecOnResizeCode(" ");
@@ -100,7 +106,7 @@ public class ChipSeqWebPanels {
 		return panelTab;
 	}
 	
-	public static PanelTab getSampleRunsPanelTab(List<Sample> testSampleList, Map<Sample, List<String>> sampleRunInfoMap){
+	public static PanelTab getSampleRunsPanelTab(List<Sample> testSampleList, Map<Sample, List<String>> sampleRunInfoListMap){
 		
 		PanelTab panelTab = new PanelTab();
 		
@@ -126,7 +132,7 @@ public class ChipSeqWebPanels {
 			if(stringBuffer.length()>0){
 				stringBuffer.append(", ");
 			}
-			List<String> runInfoList = sampleRunInfoMap.get(testSample);
+			List<String> runInfoList = sampleRunInfoListMap.get(testSample);
 			StringBuffer completeRunInfoAsStringBuffer = new StringBuffer();
 			for(String runInfo: runInfoList){
 				if(completeRunInfoAsStringBuffer.length() > 0){
