@@ -156,6 +156,7 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 			logger.debug("***************A*****");
 			Map<Sample, List<String>> sampleRunInfoListMap = new HashMap<Sample, List<String>>();
 			Map<String, String> sampleIdControlIdCommandLineMap = new HashMap<String, String>();
+			Map<Sample,List<Sample>> sampleLibraryListMap = new HashMap<Sample, List<Sample>>();//not used
 			for(Sample sample : testSampleSet){
 				logger.debug("***************A1***");
 				for(SampleMeta sm : sample.getSampleMeta()){logger.debug("***************A2***");
@@ -170,18 +171,19 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 							SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);logger.debug("***************A8");
 							Sample library = sampleService.getLibrary(cellLibrary);logger.debug("***************A9");
 							Sample cell = sampleService.getCell(cellLibrary);logger.debug("***************A10");
-							String lane = "(lane " + sampleService.getCellIndex(cell).toString() + ")";logger.debug("***************A11");
+							String lane = sampleService.getCellIndex(cell).toString(); logger.debug("***************A11");
 							Sample platformUnit = sampleService.getPlatformUnitForCell(cell);logger.debug("***************A12");
 							Run run = sampleService.getCurrentRunForPlatformUnit(platformUnit);logger.debug("***************A13");
 							if(run==null || run.getId()==null){//fix other places too (below) if you make a change here
-								runInfo.add(library.getName() + " [" + platformUnit.getName() + " " + lane + "]"); logger.debug("***************A14");
+								runInfo.add("<b>LIBRARY:</b>&nbsp;&nbsp;" + library.getName() + "&nbsp;&nbsp;<b>RUN:</b>&nbsp;&nbsp;" + platformUnit.getName() + "&nbsp;&nbsp;<b>LANE:</b>&nbsp;&nbsp;" + lane ); logger.debug("***************A14");
 							}
 							else{
-								runInfo.add(library.getName() + " [" + run.getName() + " " + lane + "]");logger.debug("***************A14");
+								runInfo.add("<b>LIBRARY:</b>&nbsp;&nbsp;" + library.getName() + "&nbsp;&nbsp;<b>RUN:</b>&nbsp;&nbsp;" + run.getName() + "&nbsp;&nbsp;<b>LANE:</b>&nbsp;&nbsp;" + lane ); logger.debug("***************A14");
 							}
 						}
 						sampleRunInfoListMap.put(sample, runInfo);logger.debug("***************A15");
 					}
+					//I think this next if can be omitted, but have not tested this.
 					if(sm.getK().startsWith("chipseqAnalysis.controlCellLibraryIdList::")){logger.debug("***************A4");
 						String[] splitK = sm.getK().split("::");
 						String controlIdAsString = splitK[1];
@@ -200,14 +202,14 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 							SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);
 							Sample library = sampleService.getLibrary(cellLibrary);
 							Sample cell = sampleService.getCell(cellLibrary);
-							String lane = "(lane " + sampleService.getCellIndex(cell).toString() + ")";
+							String lane = sampleService.getCellIndex(cell).toString();
 							Sample platformUnit = sampleService.getPlatformUnitForCell(cell);
 							Run run = sampleService.getCurrentRunForPlatformUnit(platformUnit);
-							if(run==null || run.getId()==null){//fix other places (above) too if you make a change here
-								runInfo.add(library.getName() + " [" + platformUnit.getName() + " " + lane + "]");logger.debug("***************A14");
+							if(run==null || run.getId()==null){//fix other places too (below) if you make a change here
+								runInfo.add("<b>LIBRARY:</b>&nbsp;&nbsp;" + library.getName() + "&nbsp;&nbsp;<b>RUN:</b>&nbsp;&nbsp;" + platformUnit.getName() + "&nbsp;&nbsp;<b>LANE:</b>&nbsp;&nbsp;" + lane ); logger.debug("***************A14");
 							}
 							else{
-								runInfo.add(library.getName() + " [" + run.getName() + " " + lane + "]");logger.debug("***************A14");
+								runInfo.add("<b>LIBRARY:</b>&nbsp;&nbsp;" + library.getName() + "&nbsp;&nbsp;<b>RUN:</b>&nbsp;&nbsp;" + run.getName() + "&nbsp;&nbsp;<b>LANE:</b>&nbsp;&nbsp;" + lane ); logger.debug("***************A14");
 							}
 						}
 						sampleRunInfoListMap.put(controlSample, runInfo);				
