@@ -282,7 +282,9 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 				logger.debug("***************jobStatus is COMPLETED, so we enter this loop");
 				//do the other panels //
 				PanelTab samplePairsPanelTab = ChipSeqWebPanels.getSamplePairsPanelTab(testSampleList, testSampleControlSampleListMap);
-				panelTabSet.add(samplePairsPanelTab);
+				if(samplePairsPanelTab!=null){panelTabSet.add(samplePairsPanelTab);}
+				PanelTab sampleRunsPanelTab = ChipSeqWebPanels.getSampleRunsPanelTab(testSampleList, sampleRunInfoMap);
+				if(sampleRunsPanelTab!=null){panelTabSet.add(sampleRunsPanelTab);}
 
 			}
 			logger.debug("***************ending chipseqService.getChipSeqDataToDisplay(job)");
