@@ -1005,10 +1005,21 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<url>http://maven.springframework.org/release</url>
 		</repository>
 		<repository>
-			<id>springframework-milestone</id>
-			<name>Spring Maven MILESTONE Repository</name>
-			<url>http://maven.springframework.org/milestone</url>
-		</repository>
+	        <id>spring-milestones</id>
+	        <name>Spring Milestones</name>
+	        <url>http://repo.spring.io/milestone</url>
+	        <snapshots>
+	            <enabled>false</enabled>
+	        </snapshots>
+	    </repository>
+	    <repository>
+	        <id>spring-snapshots</id>
+	        <name>Spring Snapshots</name>
+	        <url>http://repo.spring.io/snapshot</url>
+	        <snapshots>
+	            <enabled>true</enabled>
+	        </snapshots>
+	    </repository>
 		<repository>
 			<id>springsource-milestone</id>
 			<name>SpringSource MILESTONE Repository</name>
