@@ -155,5 +155,58 @@ public class ChipSeqWebPanels {
 
 		return panelTab;
 	}
+	
+	public static PanelTab getSampleLibraryRunsPanelTab(List<Sample> testSampleList, Map<Sample, List<Sample>> sampleLibraryListMap, Map<Sample, List<String>> libraryRunInfoListMap){
+		
+		PanelTab panelTab = new PanelTab();
+		
+		panelTab.setName("Runs2");
+		//panelTab.setDescription("testDescription");
+		WebPanel panel = new WebPanel();
+		panel.setTitle("Runs2");
+		panel.setDescription("Runs2");
+		panel.setResizable(true);
+		panel.setMaximizable(true);	
+
+		panel.setOrder(1);
+		WebContent content = new WebContent();
+		content.setHtmlCode("<div id=\"sampleLibraryRuns-grid\"></div>");
+		panel.setContent(content);
+		/* for testing only
+		String string1 = "the_test_sample";
+		String string2 = "the run info";
+		String script = "Ext.define('SampleRuns',{ extend: 'Ext.data.Model', fields: [ 'Sample', 'Run' ] }); var store = Ext.create('Ext.data.Store', { model: 'SampleRuns', data : [{Sample: '"+string1+"', Run: '"+string2+"'}, {Sample: '"+string1+"', Run: '"+string2+"'}] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"Sample\",  width:300, dataIndex: 'Sample'}, {text: \"Run\",  flex: 1, dataIndex: 'Run'} ], renderTo:'sampleRuns-grid', height: 300 });";
+		*/
+		StringBuffer stringBuffer = new StringBuffer();
+		for(Sample testSample : testSampleList){
+			List<Sample> libraryList = sampleLibraryListMap.get(testSample);
+			for(Sample library : libraryList){
+				if(stringBuffer.length()>0){
+					stringBuffer.append(", ");
+				}
+				List<String> runInfoList = libraryRunInfoListMap.get(library);
+				StringBuffer completeRunInfoAsStringBuffer = new StringBuffer();
+				for(String runInfo: runInfoList){
+					if(completeRunInfoAsStringBuffer.length() > 0){
+						completeRunInfoAsStringBuffer.append("<br />");
+					}
+					completeRunInfoAsStringBuffer.append(runInfo);
+				}
+				String completeRunInfoAsString = new String(completeRunInfoAsStringBuffer);
+				stringBuffer.append("{Sample: '"+testSample.getName()+"', Library: '"+library.getName()+"', Runs: '"+completeRunInfoAsString+"'}");			
+			}
+		}
+		String theData = new String(stringBuffer);
+		String script = "Ext.define('SampleLibraryRuns',{ extend: 'Ext.data.Model', fields: [ 'Sample', 'Library', 'Runs' ] }); var store = Ext.create('Ext.data.Store', { model: 'SampleLibraryRuns', data : ["+theData+"] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"Sample\",  width:250, dataIndex: 'Sample'}, {text: \"Library\",  width:250, dataIndex: 'Library'}, {text: \"Runs\",  flex: 1, dataIndex: 'Runs'} ], renderTo:'sampleLibraryRuns-grid', height: 300 });";
+		
+		panel.setExecOnRenderCode(script);
+		panel.setExecOnExpandCode(" ");
+		panel.setExecOnResizeCode(" ");
+		// does nothing: content.setScriptCode(script);
+		panelTab.addPanel(panel);
+		panelTab.setNumberOfColumns(1);
+
+		return panelTab;
+	}
 
 }

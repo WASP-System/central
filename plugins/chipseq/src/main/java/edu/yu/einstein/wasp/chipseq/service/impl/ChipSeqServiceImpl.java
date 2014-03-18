@@ -156,7 +156,8 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 			logger.debug("***************A*****");
 			Map<Sample, List<String>> sampleRunInfoListMap = new HashMap<Sample, List<String>>();
 			Map<String, String> sampleIdControlIdCommandLineMap = new HashMap<String, String>();
-			Map<Sample,List<Sample>> sampleLibraryListMap = new HashMap<Sample, List<Sample>>();//not used
+			Map<Sample,List<Sample>> sampleLibraryListMap = new HashMap<Sample, List<Sample>>();
+			Map<Sample, List<String>> libraryRunInfoListMap = new HashMap<Sample, List<String>>();
 			for(Sample sample : testSampleSet){
 				logger.debug("***************A1***");
 				for(SampleMeta sm : sample.getSampleMeta()){logger.debug("***************A2***");
@@ -164,26 +165,48 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 						if(sampleRunInfoListMap.containsKey(sample)){logger.debug("***************A4");
 							continue;
 						}
+						if(sampleLibraryListMap.containsKey(sample)){//we've done this sample
+							continue;
+						}
 						String cellLibraryIdListAsString = sm.getV();logger.debug("***************A5");
 						List<Integer> cellLibraryIdList = WaspSoftwareJobParameters.getCellLibraryIdList(cellLibraryIdListAsString);logger.debug("***************A6");
-						List<String> runInfo = new ArrayList<String>();
+												
+						sampleRunInfoListMap.put(sample, new ArrayList<String>());						
+						sampleLibraryListMap.put(sample, new ArrayList<Sample>());
+						
 						for(Integer cellLibraryId : cellLibraryIdList){logger.debug("***************A7");
 							SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);logger.debug("***************A8");
 							Sample library = sampleService.getLibrary(cellLibrary);logger.debug("***************A9");
+							
+							if(!sampleLibraryListMap.get(sample).contains(library)){
+								sampleLibraryListMap.get(sample).add(library);
+							}
+							
+							if(!libraryRunInfoListMap.containsKey(library)){
+								libraryRunInfoListMap.put(library, new ArrayList<String>());
+							}
+							
+							
+
 							Sample cell = sampleService.getCell(cellLibrary);logger.debug("***************A10");
 							String lane = sampleService.getCellIndex(cell).toString(); logger.debug("***************A11");
 							Sample platformUnit = sampleService.getPlatformUnitForCell(cell);logger.debug("***************A12");
 							Run run = sampleService.getCurrentRunForPlatformUnit(platformUnit);logger.debug("***************A13");
 							if(run==null || run.getId()==null){//fix other places too (below) if you make a change here
-								runInfo.add("<b>LIBRARY:</b>&nbsp;&nbsp;" + library.getName() + "&nbsp;&nbsp;<b>RUN:</b>&nbsp;&nbsp;" + platformUnit.getName() + "&nbsp;&nbsp;<b>LANE:</b>&nbsp;&nbsp;" + lane ); logger.debug("***************A14");
+								//runInfo.add("<b>LIBRARY:</b>&nbsp;&nbsp;" + library.getName() + "&nbsp;&nbsp;<b>RUN:</b>&nbsp;&nbsp;" + platformUnit.getName() + "&nbsp;&nbsp;<b>LANE:</b>&nbsp;&nbsp;" + lane ); logger.debug("***************A14");
+								sampleRunInfoListMap.get(sample).add("<b>LIBRARY:</b>&nbsp;&nbsp;" + library.getName() + "&nbsp;&nbsp;<b>RUN:</b>&nbsp;&nbsp;" + platformUnit.getName() + "&nbsp;&nbsp;<b>LANE:</b>&nbsp;&nbsp;" + lane ); logger.debug("***************A14");
+								libraryRunInfoListMap.get(library).add("Lane " + lane + ": " + platformUnit.getName()); logger.debug("***************A14.5");
 							}
 							else{
-								runInfo.add("<b>LIBRARY:</b>&nbsp;&nbsp;" + library.getName() + "&nbsp;&nbsp;<b>RUN:</b>&nbsp;&nbsp;" + run.getName() + "&nbsp;&nbsp;<b>LANE:</b>&nbsp;&nbsp;" + lane ); logger.debug("***************A14");
+								//runInfo.add("<b>LIBRARY:</b>&nbsp;&nbsp;" + library.getName() + "&nbsp;&nbsp;<b>RUN:</b>&nbsp;&nbsp;" + run.getName() + "&nbsp;&nbsp;<b>LANE:</b>&nbsp;&nbsp;" + lane ); logger.debug("***************A14");
+								sampleRunInfoListMap.get(sample).add("<b>LIBRARY:</b>&nbsp;&nbsp;" + library.getName() + "&nbsp;&nbsp;<b>RUN:</b>&nbsp;&nbsp;" + run.getName() + "&nbsp;&nbsp;<b>LANE:</b>&nbsp;&nbsp;" + lane ); logger.debug("***************A14");
+								libraryRunInfoListMap.get(library).add("Lane " + lane + ": " + run.getName()); logger.debug("***************A14.5");
 							}
 						}
-						sampleRunInfoListMap.put(sample, runInfo);logger.debug("***************A15");
+						logger.debug("***************A15");
 					}
-					//I think this next if can be omitted, but have not tested this.
+					//I think this next if can be omitted
+					/*
 					if(sm.getK().startsWith("chipseqAnalysis.controlCellLibraryIdList::")){logger.debug("***************A4");
 						String[] splitK = sm.getK().split("::");
 						String controlIdAsString = splitK[1];
@@ -214,7 +237,7 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 						}
 						sampleRunInfoListMap.put(controlSample, runInfo);				
 					}
-					
+					*/
 					if(sm.getK().startsWith("chipseqAnalysis.commandLineCall::")){logger.debug("***************A5");
 						String[] splitK = sm.getK().split("::");
 						String controlIdAsString = splitK[1];
@@ -287,6 +310,8 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 				if(samplePairsPanelTab!=null){panelTabSet.add(samplePairsPanelTab);}
 				PanelTab sampleRunsPanelTab = ChipSeqWebPanels.getSampleRunsPanelTab(testSampleList, sampleRunInfoListMap);
 				if(sampleRunsPanelTab!=null){panelTabSet.add(sampleRunsPanelTab);}
+				PanelTab sampleLibraryRunsPanelTab = ChipSeqWebPanels.getSampleLibraryRunsPanelTab(testSampleList, sampleLibraryListMap, libraryRunInfoListMap);
+				if(sampleLibraryRunsPanelTab!=null){panelTabSet.add(sampleLibraryRunsPanelTab);}
 
 			}
 			logger.debug("***************ending chipseqService.getChipSeqDataToDisplay(job)");
