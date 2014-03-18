@@ -1066,14 +1066,14 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<url>http://mvnrepository.com/artifact/com.agilejava.docbkx/docbkx-maven-plugin</url>
 		</repository>
 		<repository>
-			<id>jboss-thirdparty-releases</id>
-			<name>JBoss Thirdparty Releases</name>
-			<url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases</url>
-		</repository>
-		<repository>
 			<id>version99</id>
 		        <!-- highly available repository serving empty artifacts -->
 			<url>http://version99.qos.ch/</url>
+		</repository>
+		<repository>
+			<id>jboss-thirdparty-releases</id>
+			<name>JBoss Thirdparty Releases</name>
+			<url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases</url>
 		</repository>
 		<repository>
 		        <id>sonatype</id>
