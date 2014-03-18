@@ -14,7 +14,7 @@
 
   <!-- component scan -->
   <context:component-scan base-package="edu.yu.einstein.wasp.dao.impl" />
-  <context:component-scan base-package="edu.yu.einstein.wasp.service.impl" scoped-proxy="interfaces"/> 
+  <context:component-scan base-package="edu.yu.einstein.wasp.service.impl"/> 
   <context:component-scan base-package="edu.yu.einstein.wasp.messaging" />
   <context:component-scan base-package="edu.yu.einstein.wasp.load.service.impl" />
   <context:component-scan base-package="edu.yu.einstein.wasp.filetype.service.impl" />
