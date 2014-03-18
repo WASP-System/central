@@ -86,7 +86,7 @@
   </bean>
   
   <!-- an HTTP Session-scoped bean exposed as a proxy -->
-   	<bean class="edu.yu.einstein.wasp.util.DemoEmail" scope="session">
+   	<bean id="demoEmail" class="edu.yu.einstein.wasp.util.DemoEmailImpl" scope="session">
       <!-- this next element effects the proxying of the surrounding bean -->
       <aop:scoped-proxy/>
    	</bean>
