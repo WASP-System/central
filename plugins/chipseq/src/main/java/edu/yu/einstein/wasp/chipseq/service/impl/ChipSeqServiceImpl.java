@@ -33,6 +33,7 @@ import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.exception.SoftwareConfigurationException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
+import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
@@ -82,6 +83,8 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 	private WaspPluginRegistry waspPluginRegistry;
 	@Autowired
 	private SoftwareDao softwareDao;
+	@Autowired
+	private FileUrlResolver fileUrlResolver;
 	/**
 	 * {@inheritDoc}
 	 */
@@ -151,6 +154,7 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 			logger.debug("***************g");
 			
 			logger.debug("***************A*****");
+			//sample library runs (for the runs tab) and commandLine (for the pairs tab)
 			Map<String, String> sampleIdControlIdCommandLineMap = new HashMap<String, String>();//used for Pairs
 			Map<Sample,List<Sample>> sampleLibraryListMap = new HashMap<Sample, List<Sample>>();//used for Runs
 			Map<Sample, List<String>> libraryRunInfoListMap = new HashMap<Sample, List<String>>();//used for Runs
@@ -204,7 +208,11 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 
 			logger.debug("***************B");
 			//get the fileGroups for each testSample
-			Map<String, List<FileGroup>> sampleIdControlIdFileGroupListMap = new HashMap<String, List<FileGroup>>();
+			//Map<String, List<FileGroup>> sampleIdControlIdFileGroupListMap = new HashMap<String, List<FileGroup>>();
+			Map<String, FileGroup> sampleIdControlIdFileTypeIdFileGroupMap = new HashMap<String, FileGroup>();
+			Map<String, FileHandle> sampleIdControlIdFileTypeIdFileHandleMap = new HashMap<String, FileHandle>();
+			Map<FileHandle, String> fileHandleResolvedURLMap = new HashMap<FileHandle, String>();
+
 			Set<FileType> fileTypeSet = new HashSet<FileType>();
 			List<FileType> fileTypeList = new ArrayList<FileType>();
 			logger.debug("***************C");
@@ -212,16 +220,27 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 				for(FileGroup fg : testSample.getFileGroups()){
 					for(FileGroupMeta fgm : fg.getFileGroupMeta()){
 						if(fgm.getK().equalsIgnoreCase("chipseqAnalysis.controlId")){
-							if(sampleIdControlIdFileGroupListMap.containsKey(testSample.getId()+"::"+fgm.getV())){
-								sampleIdControlIdFileGroupListMap.get(testSample.getId().toString()+"::"+fgm.getV()).add(fg);
-							}
-							else{
-								List<FileGroup> fileGroupList = new ArrayList<FileGroup>();
-								fileGroupList.add(fg);
-								sampleIdControlIdFileGroupListMap.put(testSample.getId().toString()+"::"+fgm.getV(), fileGroupList);
-							}
-							FileHandle fileHandle = new ArrayList<FileHandle>(fg.getFileHandles()).get(0);
+							String controlId = fgm.getV();
 							fileTypeSet.add(fg.getFileType());
+							String fileTypeId = fg.getFileType().getId().toString();
+							String sampleIdControlIdFileTypeIdKey = testSample.getId().toString()+"::"+controlId+"::"+fileTypeId;
+							
+							//if(!sampleIdControlIdFileGroupListMap.containsKey(testSample.getId()+"::"+controlId)){
+							//	sampleIdControlIdFileGroupListMap.put(testSample.getId().toString()+"::"+controlId, new ArrayList<FileGroup>());
+							//}							
+							//sampleIdControlIdFileGroupListMap.get(testSample.getId().toString()+"::"+controlId).add(fg);
+							FileHandle fileHandle = new ArrayList<FileHandle>(fg.getFileHandles()).get(0);
+							String resolvedURL = null;
+							try{
+								resolvedURL = fileUrlResolver.getURL(fileHandle).toString();
+							}catch(Exception e){logger.debug("***************UNABLE TO RESOLVE URL for file: " + fileHandle.getFileName());}
+							
+							logger.debug("***************resolvedURL: " + resolvedURL + " for fileHandle " + fileHandle.getFileName());
+							
+							fileHandleResolvedURLMap.put(fileHandle, resolvedURL);
+							sampleIdControlIdFileTypeIdFileGroupMap.put(sampleIdControlIdFileTypeIdKey, fg);
+							sampleIdControlIdFileTypeIdFileHandleMap.put(sampleIdControlIdFileTypeIdKey, fileHandle);
+							
 							break;//from filegroupmeta for loop
 						}
 					}
@@ -249,8 +268,8 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 			for(Sample sample : testSampleControlSampleListMap.keySet()){
 				List<Sample> controlSampleList = testSampleControlSampleListMap.get(sample);
 				for(Sample controlSample : controlSampleList){
-					Assert.assertTrue(sampleIdControlIdFileGroupListMap.containsKey(sample.getId().toString()+"::"+controlSample.getId().toString()));
-					Collections.sort(sampleIdControlIdFileGroupListMap.get(sample.getId().toString()+"::"+controlSample.getId().toString()), new FileGroupComparator());
+					//Assert.assertTrue(sampleIdControlIdFileGroupListMap.containsKey(sample.getId().toString()+"::"+controlSample.getId().toString()));
+					//Collections.sort(sampleIdControlIdFileGroupListMap.get(sample.getId().toString()+"::"+controlSample.getId().toString()), new FileGroupComparator());
 				}
 			}
 			
@@ -267,7 +286,20 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 				if(samplePairsPanelTab!=null){panelTabSet.add(samplePairsPanelTab);}
 				PanelTab sampleLibraryRunsPanelTab = ChipSeqWebPanels.getSampleLibraryRunsPanelTab(testSampleList, sampleLibraryListMap, libraryRunInfoListMap);
 				if(sampleLibraryRunsPanelTab!=null){panelTabSet.add(sampleLibraryRunsPanelTab);}
-
+				if(!fileTypeList.isEmpty()){
+					
+					PanelTab fileTypeDefinitionsPanelTab = ChipSeqWebPanels.getFileTypeDefinitionsPanelTab(fileTypeList);
+					if(fileTypeDefinitionsPanelTab!=null){panelTabSet.add(fileTypeDefinitionsPanelTab);}
+					
+					//int counter = 0;
+					for(FileType fileType : fileTypeList){
+						//if(counter==0){
+						PanelTab filePanelTab = ChipSeqWebPanels.getFilePanelTab(testSampleList, testSampleControlSampleListMap, fileType, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
+						if(filePanelTab!=null){panelTabSet.add(filePanelTab);}
+						//}
+						//counter++;
+					}
+				}
 			}
 			logger.debug("***************ending chipseqService.getChipSeqDataToDisplay(job)");
 
