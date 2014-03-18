@@ -4,7 +4,7 @@
 	xmlns:s="http://www.springframework.org/schema/security"
 	xmlns:mockito="http://www.mockito.org/spring/mockito"
 	default-autowire="byName"
-	xsi:schemaLocation="http://www.mockito.org/spring/mockito https://bitbucket.org/kubek2k/springockito/raw/tip/springockito/src/main/resources/spring/mockito.xsd
+	xsi:schemaLocation="http://www.mockito.org/spring/mockito http://www.mockito.org/spring/mockito.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 		
 	<!-- load site specific properties -->
