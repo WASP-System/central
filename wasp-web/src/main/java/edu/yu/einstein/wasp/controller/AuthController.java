@@ -150,7 +150,9 @@ public class AuthController extends WaspController {
 		  return "redirect:/auth/login.do";
 	  }
 	  m.addAttribute("isAuthenticationExternal", authenticationService.isAuthenticationSetExternal());
-	  return "redirect:/auth/getEmailForDemo.do";
+	  if (demoEmail == null || demoEmail.getDemoEmail().isEmpty())
+		  return "redirect:/auth/getEmailForDemo.do";
+	  return "auth/loginPage";
   }
   
   @RequestMapping(value="/getEmailForDemo", method=RequestMethod.GET)
