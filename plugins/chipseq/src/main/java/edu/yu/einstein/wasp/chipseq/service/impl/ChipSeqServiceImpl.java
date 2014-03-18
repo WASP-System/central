@@ -106,16 +106,22 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 			//String softwareName = softwarePlugin.getName();//macsTwo; softwarePlugin.getIName() is macstwo
 			String softwareName = softwareDao.getSoftwareByIName(softwarePlugin.getIName()).getName();//should get "MACS2 Peakcaller"
 			
-			//samplePairs used in the analysis			
+			//samplePairs 			
 			Sample noControlSample = new Sample();
 			noControlSample.setId(0);
 			noControlSample.setName("None");
-			Set<Sample> testSampleSet = new HashSet<Sample>();
+			
 			Map<Sample, List<Sample>> testSampleControlSampleListMap = new HashMap<Sample, List<Sample>>();
+			List<Sample> testSampleList = new ArrayList<Sample>();//will basically function as a set, with each sample in this list being unique
+			
 			logger.debug("***************b");
 			for(Sample sample : job.getSample()){logger.debug("***************c");
 				for(SampleMeta sm : sample.getSampleMeta()){logger.debug("***************d");
-					if(sm.getK().startsWith("chipseqAnalysis.controlId::")){//could me zero, one, many
+					if(sm.getK().startsWith("chipseqAnalysis.controlId::")){//there exists at least one chipseq analysis for this sample, but could be more than one
+						if(!testSampleControlSampleListMap.containsKey(sample)){
+							testSampleControlSampleListMap.put(sample, new ArrayList<Sample>());
+							testSampleList.add(sample);
+						}
 						Sample controlSample = null;
 						Integer controlId = Integer.parseInt(sm.getV());
 						if(controlId.intValue()==0){
@@ -124,22 +130,12 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 						else{
 							controlSample = sampleService.getSampleById(controlId);
 						}
-						if(testSampleControlSampleListMap.get(sample)==null){
-							List<Sample> controlSampleList = new ArrayList<Sample>();
-							controlSampleList.add(controlSample);
-							testSampleControlSampleListMap.put(sample, controlSampleList);
-							testSampleSet.add(sample);
-						}
-						else{
-							List<Sample> controlSampleList = testSampleControlSampleListMap.get(sample);
-							controlSampleList.add(controlSample);
-							//testSampleControlSampleListMap.put(sample, controlSampleList);//I doubt this is needed here
-						}
+						testSampleControlSampleListMap.get(sample).add(controlSample);
 					}
 				}
 			}
 			logger.debug("***************e");
-			List<Sample> testSampleList = new ArrayList<Sample>(testSampleSet);
+			
 			class SampleNameComparator implements Comparator<Sample> {
 			    @Override
 			    public int compare(Sample arg0, Sample arg1) {
@@ -147,6 +143,7 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 			    }
 			}
 			Collections.sort(testSampleList, new SampleNameComparator());
+			
 			logger.debug("***************f");
 			for(Sample sample : testSampleList){
 				Collections.sort(testSampleControlSampleListMap.get(sample), new SampleNameComparator());
@@ -158,7 +155,7 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 			Map<String, String> sampleIdControlIdCommandLineMap = new HashMap<String, String>();
 			Map<Sample,List<Sample>> sampleLibraryListMap = new HashMap<Sample, List<Sample>>();
 			Map<Sample, List<String>> libraryRunInfoListMap = new HashMap<Sample, List<String>>();
-			for(Sample sample : testSampleSet){
+			for(Sample sample : testSampleList){
 				logger.debug("***************A1***");
 				for(SampleMeta sm : sample.getSampleMeta()){logger.debug("***************A2***");
 					if(sm.getK().startsWith("chipseqAnalysis.testCellLibraryIdList::")){logger.debug("***************A3");
@@ -251,7 +248,7 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 			Set<FileType> fileTypeSet = new HashSet<FileType>();
 			List<FileType> fileTypeList = new ArrayList<FileType>();
 			logger.debug("***************C");
-			for(Sample sample : testSampleSet){
+			for(Sample sample : testSampleList){
 				for(FileGroup fg : sample.getFileGroups()){
 					for(FileGroupMeta fgm : fg.getFileGroupMeta()){
 						if(fgm.getK().equalsIgnoreCase("chipseqAnalysis.controlId")){
