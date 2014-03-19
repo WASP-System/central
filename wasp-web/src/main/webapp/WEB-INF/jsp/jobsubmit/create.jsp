@@ -55,8 +55,7 @@ $(document).ready(function() {
 <h1><fmt:message key="jobDraft.create.label" /></h1>
 
 <div class="instructions">
-<p><fmt:message key="jobDraft.create_instructions.label"/></p>
-For demonstration purposes only the Chip Seq workflow is currently enabled
+<fmt:message key="jobDraft.create_instructions.label"/>
 </div>
 
 <div style="float:left"> 
