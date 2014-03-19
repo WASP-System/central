@@ -233,7 +233,12 @@ public class ChipSeqWebPanels {
 				}
 				FileHandle fileHandle = sampleIdControlIdFileTypeIdFileHandleMap.get(testSample.getId().toString() + "::" + controlSample.getId().toString() + "::" + fileType.getId().toString());
 				String resolvedURL = fileHandleResolvedURLMap.get(fileHandle);
-				stringBuffer.append("{TestSample: '"+testSample.getName()+"', ControlSample: '"+controlSample.getName()+"', File: '"+fileHandle.getFileName()+"', MD5: '"+fileHandle.getMd5hash()+"', Download: '"+"<a href=\""+resolvedURL+"\">download</a>"+"'}");
+				if(fileHandle==null){
+					stringBuffer.append("{TestSample: '"+testSample.getName()+"', ControlSample: '"+controlSample.getName()+"', File: 'no file', MD5: ' ', Download: ' '}");
+				}
+				else{
+					stringBuffer.append("{TestSample: '"+testSample.getName()+"', ControlSample: '"+controlSample.getName()+"', File: '"+fileHandle.getFileName()+"', MD5: '"+fileHandle.getMd5hash()+"', Download: '"+"<a href=\""+resolvedURL+"\">download</a>"+"'}");
+				}
 			}
 		}
 		String theData = new String(stringBuffer);
