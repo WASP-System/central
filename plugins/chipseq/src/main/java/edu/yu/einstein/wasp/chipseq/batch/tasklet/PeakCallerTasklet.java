@@ -153,12 +153,16 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 		Job job = jobService.getJobByJobId(jobIdFromJobParameter);
 		logger.debug("***************in PeakCallerTasklet.execute(): job.getId() = " + job.getId().toString());
 		Assert.assertTrue(job.getId()>0);
+
+//TODO: ROBERT A DUBIN (another) uncomment next line and comment out the one immediately after for production   !!!!!!!!!!!!!!!!!!!!!!!!  
 		List<SampleSource> approvedCellLibraryList = sampleService.getCellLibrariesPassQCAndNoAggregateAnalysis(job);		
+		//List<SampleSource> approvedCellLibraryList = new ArrayList<SampleSource>(sampleService.getCellLibrariesForJob(job));//sampleService.getCellLibrariesPassQCAndNoAggregateAnalysis(job);		
+
 		logger.debug("***************in PeakCallerTasklet.execute(): approvedCellLibraryList.size() is " + approvedCellLibraryList.size());
 		Assert.assertTrue( ! approvedCellLibraryList.isEmpty() );
 		
 //TODO: ROBERT A DUBIN (1 of 1) uncomment next line for production   !!!!!!!!!!!!!!!!!!!!!!!!   
-		//confirmCellLibrariesAssociatedWithBamFiles(approvedCellLibraryList);//throws exception if no
+		confirmCellLibrariesAssociatedWithBamFiles(approvedCellLibraryList);//throws exception if no
 
 		Map<Sample, List<SampleSource>> approvedSampleApprovedCellLibraryListMap = associateSampleWithCellLibraries(approvedCellLibraryList);//new HashMap<Sample, List<SampleSource>>();
 		Set<Sample> setOfApprovedSamples = new HashSet<Sample>();//for a specific job (note: this really could have been a list)

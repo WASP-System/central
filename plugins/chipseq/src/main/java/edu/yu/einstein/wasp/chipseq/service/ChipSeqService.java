@@ -14,11 +14,12 @@ import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.service.WaspService;
+import edu.yu.einstein.wasp.viewpanel.DataTabViewing.Status;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 @Service
 public interface ChipSeqService extends WaspService {
 
-	public Set<PanelTab> getChipSeqDataToDisplay(Integer jobId)throws PanelException;
+	public Set<PanelTab> getChipSeqDataToDisplay(Integer jobId, Status jobStatus)throws PanelException;
 	
 }
