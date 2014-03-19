@@ -2252,13 +2252,14 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				continue;
 			}
 			logger.debug("Launching batch job '" + flowName + "' with parameters " + jobParameters.toString());
-			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
+			/*BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
 					new BatchJobLaunchContext(flowName, jobParameters) );
 			try {
 				sendOutboundMessage(batchJobLaunchMessageTemplate.build(), true);
 			} catch (WaspMessageBuildingException e) {
 				throw new MessagingException(e.getLocalizedMessage(), e);
-			}
+			}*/
+			throw new MessagingException("Cannot perform this function in demo mode");
 		}
 	}
 

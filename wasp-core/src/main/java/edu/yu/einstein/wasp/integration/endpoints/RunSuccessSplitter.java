@@ -65,7 +65,8 @@ public class RunSuccessSplitter extends AbstractMessageSplitter{
 	@Override
 	protected List<Message<BatchJobLaunchContext>> splitMessage(Message<?> message) {
 		List<Message<BatchJobLaunchContext>> outputMessages = new ArrayList<Message<BatchJobLaunchContext>>();
-		if (!RunStatusMessageTemplate.isMessageOfCorrectType(message)){
+		logger.warn("Does not start any jobs when in demo mode");
+		/*if (!RunStatusMessageTemplate.isMessageOfCorrectType(message)){
 			logger.warn("Message is not of the correct type (a Run message). Check filter and imput channel are correct");
 			return outputMessages; // empty list
 		}
@@ -99,7 +100,7 @@ public class RunSuccessSplitter extends AbstractMessageSplitter{
 					throw new MessagingException(e.getLocalizedMessage(), e);
 				}
 			}
-		}
+		}*/
 		return outputMessages;
 	}
 
