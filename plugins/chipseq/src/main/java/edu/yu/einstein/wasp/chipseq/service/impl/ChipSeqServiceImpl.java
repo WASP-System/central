@@ -57,6 +57,7 @@ import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -85,6 +86,9 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 	private SoftwareDao softwareDao;
 	@Autowired
 	private FileUrlResolver fileUrlResolver;
+	@Autowired
+	private RunService runService;
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -195,12 +199,12 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 							Sample cell = sampleService.getCell(cellLibrary);logger.debug("***************A10");
 							String lane = sampleService.getCellIndex(cell).toString(); logger.debug("***************A11");
 							Sample platformUnit = sampleService.getPlatformUnitForCell(cell);logger.debug("***************A12");
-							Run run = sampleService.getCurrentRunForPlatformUnit(platformUnit);logger.debug("***************A13");
-							if(run==null || run.getId()==null){//fix other places too (below) if you make a change here
+							List<Run> runList = runService.getSuccessfullyCompletedRunsForPlatformUnit(platformUnit);//WHY IS THIS A LIST rather than a singleton?
+							if(runList.isEmpty()){//fix other places too (below) if you make a change here
 								libraryRunInfoListMap.get(library).add("Lane " + lane + ": " + platformUnit.getName()); logger.debug("***************A14.5");
 							}
 							else{
-								libraryRunInfoListMap.get(library).add("Lane " + lane + ": " + run.getName()); logger.debug("***************A14.5");
+								libraryRunInfoListMap.get(library).add("Lane " + lane + ": " + runList.get(0).getName()); logger.debug("***************A14.5");
 							}
 						}
 						logger.debug("***************A15");
