@@ -15,12 +15,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import edu.yu.einstein.wasp.dao.UserDao;
+import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.model.UserPending;
-import edu.yu.einstein.wasp.model.Lab;
 
 @Service
 public interface LabService extends WaspService {
@@ -66,5 +64,7 @@ public interface LabService extends WaspService {
 	 * @return boolean
 	 */
 	public boolean isExistingUserPIPending(User user);
+
+	public List<LabUser> getAllLabUsers();
 }
 

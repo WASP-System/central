@@ -65,7 +65,7 @@ public class SequenceReadProperties {
 	}
 	
 	/**
-	 * Get SequenceReadProperties from metadata of supplied modelInstance. If 
+	 * Get SequenceReadProperties from metadata of supplied modelInstance. If neither length or type is specified returns null
 	 * @param modelInstance
 	 * @param metaClass
 	 * @return
