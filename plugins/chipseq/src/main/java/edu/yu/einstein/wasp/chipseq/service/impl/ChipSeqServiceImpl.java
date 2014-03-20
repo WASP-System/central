@@ -101,6 +101,14 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 			//for the SummaryTab (job, jobStatus, strategy, softwareName)
 			Strategy strategy = jobService.getStrategy(Strategy.StrategyType.LIBRARY_STRATEGY, job);			
 			WaspJobContext waspJobContext = new WaspJobContext(jobId, jobService);
+			logger.debug("***************just after a");
+			if(peakcallerResourceType==null){
+				logger.debug("***************autowired peakcallerResourceType is null");
+			}
+			else{
+				logger.debug("***************autowired peakcallerResourceType: name = " + peakcallerResourceType.getName());
+				logger.debug("***************autowired peakcallerResourceType: Iname = " + peakcallerResourceType.getIName());
+			}
 			SoftwareConfiguration softwareConfig = waspJobContext.getConfiguredSoftware(peakcallerResourceType);
 			if (softwareConfig == null){
 				throw new SoftwareConfigurationException("No software could be configured for jobId=" + jobId + " with resourceType iname=" + peakcallerResourceType.getIName());
@@ -279,7 +287,8 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 
 			PanelTab summaryPanelTab = ChipSeqWebPanels.getSummaryPanelTab(jobStatus, job, strategy, softwareName);
 			panelTabSet.add(summaryPanelTab);logger.debug("***************11");
-			if(jobStatus.toString().equals(Status.COMPLETED.toString())){
+			
+			//if(jobStatus.toString().equals(Status.COMPLETED.toString())){
 				logger.debug("***************jobStatus is COMPLETED, so we enter this loop");
 				//do the other panels //
 				PanelTab samplePairsPanelTab = ChipSeqWebPanels.getSamplePairsPanelTab(testSampleList, testSampleControlSampleListMap, sampleIdControlIdCommandLineMap);
@@ -300,7 +309,8 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 						//counter++;
 					}
 				}
-			}
+			//}
+			
 			logger.debug("***************ending chipseqService.getChipSeqDataToDisplay(job)");
 
 			

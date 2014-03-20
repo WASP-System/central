@@ -30,6 +30,8 @@ import edu.yu.einstein.wasp.viewpanel.DataTabViewing.Status;
 
 public class ChipSeqWebPanels {
 	
+	//see this webpage for model grid http://docs.sencha.com/extjs/4.2.1/#!/guide/grid
+	
 	static protected  Logger logger = LoggerFactory.getLogger(WaspServiceImpl.class);
 	
 	public static PanelTab getSummaryPanelTab(Status jobStatus, Job job, Strategy strategy,	String softwareName) {
@@ -237,12 +239,22 @@ public class ChipSeqWebPanels {
 					stringBuffer.append("{TestSample: '"+testSample.getName()+"', ControlSample: '"+controlSample.getName()+"', File: 'no file', MD5: ' ', Download: ' '}");
 				}
 				else{
-					stringBuffer.append("{TestSample: '"+testSample.getName()+"', ControlSample: '"+controlSample.getName()+"', File: '"+fileHandle.getFileName()+"', MD5: '"+fileHandle.getMd5hash()+"', Download: '"+"<a href=\""+resolvedURL+"\">download</a>"+"'}");
+					//stringBuffer.append("{TestSample: '"+testSample.getName()+"', ControlSample: '"+controlSample.getName()+"', File: '"+fileHandle.getFileName()+"', MD5: '"+fileHandle.getMd5hash()+"', Download: '"+"<a href=\""+resolvedURL+"\"><img src=\"ext/images/icons/fam/disk.png\" /></a>"+"'}");
+					stringBuffer.append("{TestSample: '"+testSample.getName()+"', ControlSample: '"+controlSample.getName()+"', File: '"+fileHandle.getFileName()+"', MD5: '"+fileHandle.getMd5hash()+"', Download: '"+resolvedURL+"'}");
 				}
 			}
 		}
 		String theData = new String(stringBuffer);
-		String script = "Ext.define('SampleControlFile',{ extend: 'Ext.data.Model', fields: [ 'TestSample', 'ControlSample', 'File', 'MD5', 'Download' ] }); var store = Ext.create('Ext.data.Store', { model: 'SampleControlFile', data : ["+theData+"] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"Test Sample\",  width:110, dataIndex: 'TestSample'}, {text: \"Control Sample\",  width:110, dataIndex: 'ControlSample'}, {text: \"File\",  flex: 1, dataIndex: 'File'}, {text: \"MD5\",  width:100, dataIndex: 'MD5'}, {text: \"Download\",  width:100, dataIndex: 'Download'}, ], renderTo:'"+fileType.getIName()+"-grid', height: 300 });";
+		
+		String script = "Ext.require(['Ext.grid.*','Ext.data.*','Ext.form.field.Number','Ext.form.field.Date','Ext.tip.QuickTipManager','Ext.selection.CheckboxModel','Wasp.RowActions']); Ext.tip.QuickTipManager.init(); Ext.define('SampleControlFile',{ extend: 'Ext.data.Model', fields: [ 'TestSample', 'ControlSample', 'File', 'MD5', 'Download' ] }); var store = Ext.create('Ext.data.Store', { model: 'SampleControlFile', data : ["+theData+"] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"Test Sample\",  width:110, dataIndex: 'TestSample'}, {text: \"Control Sample\",  width:110, dataIndex: 'ControlSample'}, {text: \"File\",  flex: 1, dataIndex: 'File'}, {text: \"MD5\",  width:100, dataIndex: 'MD5', renderer: function(val, meta, record){var tip = record.get('MD5'); meta.tdAttr = 'data-qtip=\"' + tip + '\"'; return val; } }, {header:\"Download\", width: 500, xtype: 'rowactions', actions: [{iconCls: 'icon-clear-group', qtip: 'Download', callback: function(grip, record, action, idx, col, e, target){window.location=record.get('Download');}}], keepSelection: true     }, ], renderTo:'"+fileType.getIName()+"-grid', height: 300 });";
+		
+		
+		//String script = "Ext.require(['Ext.grid.*','Ext.data.*','Ext.form.field.Number','Ext.form.field.Date','Ext.tip.QuickTipManager','Ext.selection.CheckboxModel','Wasp.RowActions']); Ext.define('SampleControlFile',{ extend: 'Ext.data.Model', fields: [ 'TestSample', 'ControlSample', 'File', 'MD5', 'Download' ] }); var store = Ext.create('Ext.data.Store', { model: 'SampleControlFile', data : ["+theData+"] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"Test Sample\",  width:110, dataIndex: 'TestSample'}, {text: \"Control Sample\",  width:110, dataIndex: 'ControlSample'}, {text: \"File\",  flex: 1, dataIndex: 'File'}, {text: \"MD5\",  width:100, dataIndex: 'MD5'}, {text: \"Download\",  width:100, dataIndex: 'Download'}, ], renderTo:'"+fileType.getIName()+"-grid', height: 300 });";
+		
+		//String script = "Ext.define('SampleControlFile',{ extend: 'Ext.data.Model', fields: [ 'TestSample', 'ControlSample', 'File', 'MD5', 'Download' ] }); var store = Ext.create('Ext.data.Store', { model: 'SampleControlFile', data : ["+theData+"] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"Test Sample\",  width:110, dataIndex: 'TestSample'}, {text: \"Control Sample\",  width:110, dataIndex: 'ControlSample'}, {text: \"File\",  flex: 1, dataIndex: 'File'}, {text: \"MD5\",  width:100, dataIndex: 'MD5'}, {text: \"Download\",  width:100, dataIndex: 'Download',  renderer: function(val, meta, record){return '<a href=\"'+val+'\">robert dubin</a>';} }, ], renderTo:'"+fileType.getIName()+"-grid', height: 300 });";
+		
+		//String script = "Ext.define('SampleControlFile',{ extend: 'Ext.data.Model', fields: [ 'TestSample', 'ControlSample', 'File', 'MD5', 'Download' ] }); var store = Ext.create('Ext.data.Store', { model: 'SampleControlFile', data : ["+theData+"] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"Test Sample\",  width:110, dataIndex: 'TestSample'}, {text: \"Control Sample\",  width:110, dataIndex: 'ControlSample'}, {text: \"File\",  flex: 1, dataIndex: 'File'}, {text: \"MD5\",  width:100, dataIndex: 'MD5'}, {text: \"Download\",  width:100, dataIndex: 'Download', renderer: function(val, meta, record){meta.tdCls = 'icon-clear-group'} }, ], renderTo:'"+fileType.getIName()+"-grid', height: 300 });";
+		//String script = "Ext.define('SampleControlFile',{ extend: 'Ext.data.Model', fields: [ 'TestSample', 'ControlSample', 'File', 'MD5', 'Download' ] }); var store = Ext.create('Ext.data.Store', { model: 'SampleControlFile', data : ["+theData+"] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"Test Sample\",  width:110, dataIndex: 'TestSample'}, {text: \"Control Sample\",  width:110, dataIndex: 'ControlSample'}, {text: \"File\",  flex: 1, dataIndex: 'File'}, {text: \"MD5\",  width:100, dataIndex: 'MD5'}, {text: \"Download\",  width:100, dataIndex: 'Download', renderer: function(value){return Ext.String.format('<a href=\"{0}\">lesliedownload</a>', value);} }, ], renderTo:'"+fileType.getIName()+"-grid', height: 300 });";
 		
 		panel.setExecOnRenderCode(script);
 		panel.setExecOnExpandCode(" ");
