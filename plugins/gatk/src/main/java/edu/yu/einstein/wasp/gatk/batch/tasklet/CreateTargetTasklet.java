@@ -51,10 +51,9 @@ public class CreateTargetTasklet extends WaspRemotingTasklet implements StepExec
 	
 	@Autowired
 	private FileType bamFileType;
+	
 	@Autowired
 	private FileType fastqFileType;
-	
-	private StepExecution stepExecution;
 	
 	@Autowired
 	private GATKSoftwareComponent gatk;
@@ -80,9 +79,8 @@ public class CreateTargetTasklet extends WaspRemotingTasklet implements StepExec
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
 		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
-		
-		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
-		stepContext.put("cellLibId", cellLib.getId()); // place in the step context
+		StepExecution stepExecution = context.getStepContext().getStepExecution();
+		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
 		
 		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
 		
@@ -111,17 +109,13 @@ public class CreateTargetTasklet extends WaspRemotingTasklet implements StepExec
 		//place the grid result in the step context
 		storeStartedResult(context, result);
 		
-		// place scratch directory in step execution context, to be promoted
+		// place properties for use in later steps into the step execution context, to be promoted
 		// to the job context at run time.
-        stepContext.put("scrDir", result.getWorkingDirectory());
-        stepContext.put("createTargetName", result.getId());
+		stepExecutionContext.put("cellLibId", cellLib.getId()); // place in the step context
+		stepExecutionContext.put("scrDir", result.getWorkingDirectory());
+		stepExecutionContext.put("createTargetName", result.getId());
         
 	}
-	
-	public static void doWork(int cellLibraryId) {
-		
-	}
-	
 	
 	/** 
 	 * {@inheritDoc}
@@ -137,9 +131,6 @@ public class CreateTargetTasklet extends WaspRemotingTasklet implements StepExec
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
 		super.beforeStep(stepExecution);
-		logger.debug("StepExecutionListener beforeStep saving StepExecution");
-		this.stepExecution = stepExecution;
-		
 	}
 
 }

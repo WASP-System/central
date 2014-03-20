@@ -150,6 +150,15 @@
 	
 	<bean id="batchJobHibernationManager" class="edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager" />
 	
+	<!--  Wasp plugin registry and message channel -->
+	<int:channel id="wasp.channel.cli" >
+		<int:queue/>
+	</int:channel>
+	
+	<int:service-activator input-channel="wasp.channel.cli" ref="cliSupportingServiceActivator" method="process" />
+	
+	<bean id="cliSupportingServiceActivator" class="edu.yu.einstein.wasp.integration.endpoints.CliSupportingServiceActivator" />
+	
 	<int:service-activator input-channel="wasp.channel.priority.waspStatusMessages" 
 		output-channel="wasp.channel.reply.unfiltered" ref="batchJobHibernationManager" method="handleStatusMessage"
 		requires-reply="false" />
