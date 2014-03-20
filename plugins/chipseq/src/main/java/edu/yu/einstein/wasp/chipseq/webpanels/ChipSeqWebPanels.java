@@ -43,17 +43,18 @@ public class ChipSeqWebPanels {
 		WebPanel panel = new WebPanel();
 		panel.setTitle("Summary");
 		panel.setDescription("Summary");
-		panel.setResizable(true);
-		panel.setMaximizable(true);	
+		panel.setResizable(false);
+		panel.setMaximizable(false);	
 
 		panel.setOrder(1);
 		WebContent content = new WebContent();
 		content.setHtmlCode("<div id=\"summary-grid\"></div>");
 		panel.setContent(content);
-		String script = "Ext.define('Summary',{ extend: 'Ext.data.Model', fields: [ 'Strategy', 'Description', 'Workflow', 'Software', 'Status' ] }); var store = Ext.create('Ext.data.Store', { model: 'Summary', data : [{Strategy: '"+strategy.getDisplayStrategy()+"', Description: '"+strategy.getDescription()+"', Workflow: '"+job.getWorkflow().getName()+"', Software: '" + softwareName+"', Status: '"+jobStatus.toString()+"'}] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"Strategy\", width:150, dataIndex: 'Strategy'}, {text: \"Description\", flex: 1, dataIndex: 'Description'}, {text: \"Workflow\", width: 150, dataIndex: 'Workflow'}, {text: \"Main Software\", width: 200, dataIndex: 'Software'}, {text: \"Status\", width: 150, dataIndex: 'Status'} ], renderTo:'summary-grid', height: 300 });";
+		String script = "Ext.define('Summary',{ extend: 'Ext.data.Model', fields: [ 'Strategy', 'Description', 'Workflow', 'Software', 'Status' ] }); var store = Ext.create('Ext.data.Store', { model: 'Summary', data : [{Strategy: '"+strategy.getDisplayStrategy()+"', Description: '"+strategy.getDescription()+"', Workflow: '"+job.getWorkflow().getName()+"', Software: '" + softwareName+"', Status: '"+jobStatus.toString()+"'}] }); Ext.create('Ext.grid.Panel', { id:'summary-panel', store: store,  columns: [ {text: \"Strategy\", width:150, dataIndex: 'Strategy'}, {text: \"Description\", flex:1, dataIndex: 'Description'}, {text: \"Workflow\", width: 150, dataIndex: 'Workflow'}, {text: \"Main Software\", width: 200, dataIndex: 'Software'}, {text: \"Status\", width: 150, dataIndex: 'Status'} ], renderTo:'summary-grid', height:500 }); ";
 		panel.setExecOnRenderCode(script);
-		panel.setExecOnExpandCode(" ");
-		panel.setExecOnResizeCode(" ");
+		panel.setExecOnExpandCode("var theDiv = $('summary-grid'); Ext.getCmp('summary-panel').setSize(theDiv.offsetWidth, undefined);");
+		//panel.setExecOnResizeCode("Ext.getCmp('summary-panel').setSize(this.width, undefined);");
+		panel.setExecOnResizeCode("var theDiv = $('summary-grid'); Ext.getCmp('summary-panel').setSize(theDiv.offsetWidth, undefined);");
 		// does nothing: content.setScriptCode(script);
 		panelTab.addPanel(panel);
 		panelTab.setNumberOfColumns(1);
