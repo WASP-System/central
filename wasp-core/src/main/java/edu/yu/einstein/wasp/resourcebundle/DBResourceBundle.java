@@ -76,7 +76,6 @@ public class DBResourceBundle implements ApplicationContextAware{
 	}
 
 	@PostConstruct
-	@Transactional("entityManager")
 	public void init() throws Exception {
 		if (runSQL && sqlInitFile != null)
 			executeSqlFromFile();
