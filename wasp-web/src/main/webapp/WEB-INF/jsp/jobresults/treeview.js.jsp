@@ -578,8 +578,9 @@ function click(d) {
 						$.each(item.panels, function (index1, item1) {
 							ptlcolArray[colid++].add({
 								title: item1.title,
-								tools: extPortal.getTools(),
-								closable: false,
+								tools: extPortal.getTools(item1.isMaximizable),
+								closable: item1.isCloseable,
+								collapsible: item1.isResizable,
 								html: item1.content.htmlCode,
 								listeners: {
 									'render': Ext.bind(new Function("portlet", item1.execOnRenderCode), extPortal),

@@ -13,31 +13,33 @@ Ext.define('Wasp.Portal', {
     height: 800,
     headerheight: 20,
 
-    getTools: function(){
-        return [{
-        	xtype: 'tool',
-        	type: 'maximize',
-        	handler: function(e, target, header, tool){
-                var portlet = header.ownerCt;
-                var portal = portlet.up('portalpanel');
-                if(portal===undefined) { // if the portlet is in the max panel
-                	var pmax = portlet.ownerCt;
-                	pmax.removeAll();
-                	var tabpanel = pmax.ownerCt;
-                	portal = tabpanel.items.last();
-	                tabpanel.getLayout().setActiveItem(portal);
-                } else {  // if the portlet is in the normal portal panel
-	                var tabpanel = portal.ownerCt;
-	                var pmax = tabpanel.items.first();
-	                var portletClone = portlet.cloneConfig();
-	                portletClone.closable = false;
-	                portletClone.collapsible = false;
-	                pmax.add(portletClone);
-	                pmax.doLayout();
-	                tabpanel.getLayout().setActiveItem(pmax);
-                }
-            }
-        }];
+    getTools: function(isMaximizable){
+    	if (isMaximizable) {
+	        return [{
+	        	xtype: 'tool',
+	        	type: 'maximize',
+	        	handler: function(e, target, header, tool){
+	                var portlet = header.ownerCt;
+	                var portal = portlet.up('portalpanel');
+	                if(portal===undefined) { // if the portlet is in the max panel
+	                	var pmax = portlet.ownerCt;
+	                	pmax.removeAll();
+	                	var tabpanel = pmax.ownerCt;
+	                	portal = tabpanel.items.last();
+		                tabpanel.getLayout().setActiveItem(portal);
+	                } else {  // if the portlet is in the normal portal panel
+		                var tabpanel = portal.ownerCt;
+		                var pmax = tabpanel.items.first();
+		                var portletClone = portlet.cloneConfig();
+		                portletClone.closable = false;
+		                portletClone.collapsible = false;
+		                pmax.add(portletClone);
+		                pmax.doLayout();
+		                tabpanel.getLayout().setActiveItem(pmax);
+	                }
+	            }
+	        }];
+    	}
     },
 
     initComponent: function(){
