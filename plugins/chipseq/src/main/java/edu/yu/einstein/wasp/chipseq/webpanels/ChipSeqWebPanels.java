@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.chipseq.webpanels;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -41,17 +42,18 @@ public class ChipSeqWebPanels {
 		WebPanel panel = new WebPanel();
 		panel.setTitle("Summary");
 		panel.setDescription("Summary");
-		panel.setResizable(true);
-		panel.setMaximizable(true);	
+		panel.setResizable(false);
+		panel.setMaximizable(false);	
 
 		panel.setOrder(1);
 		WebContent content = new WebContent();
 		content.setHtmlCode("<div id=\"summary-grid\"></div>");
 		panel.setContent(content);
-		String script = "Ext.define('Summary',{ extend: 'Ext.data.Model', fields: [ 'Strategy', 'Description', 'Workflow', 'Software', 'Status' ] }); var store = Ext.create('Ext.data.Store', { model: 'Summary', data : [{Strategy: '"+strategy.getDisplayStrategy()+"', Description: '"+strategy.getDescription()+"', Workflow: '"+job.getWorkflow().getName()+"', Software: '" + softwareName+"', Status: '"+jobStatus.toString()+"'}] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"Strategy\", width:150, dataIndex: 'Strategy'}, {text: \"Description\", flex: 1, dataIndex: 'Description'}, {text: \"Workflow\", width: 150, dataIndex: 'Workflow'}, {text: \"Main Software\", width: 200, dataIndex: 'Software'}, {text: \"Status\", width: 150, dataIndex: 'Status'} ], renderTo:'summary-grid', height: 300 });";
+		String script = "Ext.define('Summary',{ extend: 'Ext.data.Model', fields: [ 'Strategy', 'Description', 'Workflow', 'Software', 'Status' ] }); var store = Ext.create('Ext.data.Store', { model: 'Summary', data : [{Strategy: '"+strategy.getDisplayStrategy()+"', Description: '"+strategy.getDescription()+"', Workflow: '"+job.getWorkflow().getName()+"', Software: '" + softwareName+"', Status: '"+jobStatus.toString()+"'}] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"Strategy\", width:150, dataIndex: 'Strategy'}, {text: \"Description\", flex: 1, dataIndex: 'Description'}, {text: \"Workflow\", width: 300, dataIndex: 'Workflow'}, {text: \"Main Software\", width: 200, dataIndex: 'Software'}, {text: \"Status\", width: 150, dataIndex: 'Status'} ], renderTo:'summary-grid', height: 300 });";
 		panel.setExecOnRenderCode(script);
 		panel.setExecOnExpandCode(" ");
-		panel.setExecOnResizeCode(" ");
+		//panel.setExecOnResizeCode("console.log(this);");
+		panel.setExecOnResizeCode("var sumdiv=document.getElementById('summary-grid');console.log('sumdiv.firstChild.setSize(sumdiv.offsetWidth,undefined);called show');");
 		// does nothing: content.setScriptCode(script);
 		panelTab.addPanel(panel);
 		panelTab.setNumberOfColumns(1);
@@ -176,6 +178,12 @@ public class ChipSeqWebPanels {
 		panel.setOrder(1);
 		WebContent content = new WebContent();
 		content.setHtmlCode("<div id=\"fileTypeDescription-grid\"></div>");
+		try {
+			content.addScriptDependency(new URI("/wasp/scripts/extjs/wasp/FileTypeDefinitionsGridPortlet.js"));
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		panel.setContent(content);
 		/* for testing only
 		String string1 = "the_test_sample_filepage";
@@ -191,7 +199,8 @@ public class ChipSeqWebPanels {
 			stringBuffer.append("{FileType: '"+fileType.getName()+"', Description: '"+fileType.getDescription()+"'}");
 		}
 		String theData = new String(stringBuffer);
-		String script = "Ext.define('FileTypeDescriptions',{ extend: 'Ext.data.Model', fields: [ 'FileType', 'Description', ] }); var store = Ext.create('Ext.data.Store', { model: 'FileTypeDescriptions', data : ["+theData+"] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"File Type\",  width:200, dataIndex: 'FileType'}, {text: \"Description\",  width:2000, dataIndex: 'Description'} ], renderTo:'fileTypeDescription-grid', height: 300 });";
+		//String script = "Ext.define('FileTypeDescriptions',{ extend: 'Ext.data.Model', fields: [ 'FileType', 'Description', ] }); var store = Ext.create('Ext.data.Store', { model: 'FileTypeDescriptions', data : ["+theData+"] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"File Type\",  width:200, dataIndex: 'FileType'}, {text: \"Description\",  width:2000, dataIndex: 'Description'} ], renderTo:'fileTypeDescription-grid', height: 300 });";
+		String script = "Ext.require('Wasp.FileTypeDefinitionsGridPortlet');Ext.create('Wasp.FileTypeDefinitionsGridPortlet', { myData: { records: ["+theData+"]  }});";
 		
 		panel.setExecOnRenderCode(script);
 		panel.setExecOnExpandCode(" ");
