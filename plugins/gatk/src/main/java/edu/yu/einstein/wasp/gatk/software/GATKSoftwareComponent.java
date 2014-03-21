@@ -128,12 +128,12 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(this);
 		w.setSoftwareDependencies(sd);
-		w.setSecureResults(false);
+		w.setSecureResults(true);
 		
 		w.setWorkingDirectory(scratchDirectory);
 
 		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + getGenomeIndexPath(getGenomeBuild(cellLibrary)) + 
-				"genome.fasta -I gatk." + namePrefix + ".realign.bam -T PrintReads -o ${" + WorkUnit.JOB_NAME + "}.recali.bam  -BQSR gatk." + namePrefix2 + 
+				"genome.fasta -I gatk." + namePrefix + ".realign.bam -T PrintReads -o ${" + WorkUnit.OUTPUT_FILE + "[0]}  -BQSR gatk." + namePrefix2 + 
 				".recali.grp -baq RECALCULATE";
 		logger.debug("Will conduct gatk recalibrate sequences with command: " + command);
 		

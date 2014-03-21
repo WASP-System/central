@@ -162,7 +162,7 @@ public class RunController extends WaspController {
 
 		m.addAttribute("machines", this.resourceService.getResourceDao().findAll());
 		
-		m.addAttribute("flowcells", this.sampleDao.findAllPlatformUnits());
+		m.addAttribute("flowcells", this.sampleDao.getPlatformUnits());
 		
 		List <User> allUsers = this.userDao.getActiveUsers();
 		Map <Integer, String> facUsers = new HashMap<Integer, String> ();
@@ -192,7 +192,7 @@ public class RunController extends WaspController {
 		
 		if (resourceId.intValue() == -1) {
 			
-			for (Sample sample:sampleDao.findAllPlatformUnits()) {
+			for (Sample sample:sampleDao.getPlatformUnits()) {
 				resultsMap.put(sample.getId(), sample.getName());
 			}
 			
@@ -210,7 +210,7 @@ public class RunController extends WaspController {
 			}
 			
 			//last filter all platform units by the list of sampleSubtypeId
-			for(Sample sample:sampleDao.findAllPlatformUnits()) {
+			for(Sample sample:sampleDao.getPlatformUnits()) {
 				if (idList.contains(sample.getSampleSubtypeId()))
 					resultsMap.put(sample.getId(), sample.getName());
 			}

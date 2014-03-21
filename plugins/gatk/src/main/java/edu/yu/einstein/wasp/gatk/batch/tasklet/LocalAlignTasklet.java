@@ -10,7 +10,6 @@ package edu.yu.einstein.wasp.gatk.batch.tasklet;
 import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
@@ -38,12 +37,7 @@ import edu.yu.einstein.wasp.service.SampleService;
  */
 public class LocalAlignTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
-	private String scratchDirectory;
-	private String createTargetJobName;
-	private Integer cellLibId;
-
-	private StepExecution stepExecution;
-
+	
 	@Autowired
 	private SampleService sampleService;
 
@@ -55,6 +49,7 @@ public class LocalAlignTasklet extends WaspRemotingTasklet implements StepExecut
 
 	@Autowired
 	private FileType bamFileType;
+	
 	@Autowired
 	private FileType fastqFileType;
 
@@ -71,7 +66,14 @@ public class LocalAlignTasklet extends WaspRemotingTasklet implements StepExecut
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
-		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);
+		
+		// retrieve stored properties
+		StepExecution stepExecution = context.getStepContext().getStepExecution();
+		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
+		String scratchDirectory = jobExecutionContext.getString("scrDir");
+		String createTargetJobName = jobExecutionContext.getString("createTargetName");
+		
+		SampleSource cellLib = sampleService.getSampleSourceDao().findById(jobExecutionContext.getInt("cellLibId"));
 
 		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
 
@@ -85,10 +87,6 @@ public class LocalAlignTasklet extends WaspRemotingTasklet implements StepExecut
 
 		logger.debug("file group: " + fg.getId() + ":" + fg.getDescription());
 
-		//Map<String, Object> jobParameters = context.getStepContext().getJobParameters();
-
-		// TODO: FIXME
-		//WorkUnit w = new WorkUnit();
 		WorkUnit w = gatk.getLocalAlign(cellLib, scratchDirectory, createTargetJobName, fg);
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
 
@@ -99,8 +97,7 @@ public class LocalAlignTasklet extends WaspRemotingTasklet implements StepExecut
 
 		// place localAlignName in execution context, to be promoted
 		// to the job context at run time.
-		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
-		stepContext.put("localAlignName", result.getId());
+		stepExecution.getExecutionContext().put("localAlignName", result.getId());
 	}
 
 	/**
@@ -117,13 +114,6 @@ public class LocalAlignTasklet extends WaspRemotingTasklet implements StepExecut
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
 		super.beforeStep(stepExecution);
-		logger.debug("StepExecutionListener beforeStep saving StepExecution");
-		this.stepExecution = stepExecution;
-		JobExecution jobExecution = stepExecution.getJobExecution();
-		ExecutionContext jobContext = jobExecution.getExecutionContext();
-		this.scratchDirectory = jobContext.get("scrDir").toString();
-		this.createTargetJobName = jobContext.get("createTargetName").toString();
-		this.cellLibId = (Integer) jobContext.get("cellLibId");
 	}
 }
 

@@ -586,7 +586,7 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getPlatformUnitBarcodesForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getAllPlatformUnitBarcodes(@RequestParam String str) {
 		  
-		  List<Sample> sampleList = sampleDao.findAllPlatformUnits();
+		  List<Sample> sampleList = sampleDao.getPlatformUnits();
 		  List<String> platformUnitBarcodeList = new ArrayList<String>();
 		  for(Sample s : sampleList){
 			  List<SampleBarcode> sbList = s.getSampleBarcode();
