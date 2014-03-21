@@ -9,6 +9,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
 import org.springframework.integration.splitter.AbstractMessageSplitter;
@@ -56,6 +57,9 @@ public class RunSuccessSplitter extends AbstractMessageSplitter{
 	public void setSampleService(SampleService sampleService) {
 		this.sampleService = sampleService;
 	}
+	
+	@Value("${wasp.mode.isDemo:false}")
+	private boolean isInDemoMode;
 
 
 	private static final Logger logger = LoggerFactory.getLogger(RunSuccessSplitter.class);
@@ -65,8 +69,11 @@ public class RunSuccessSplitter extends AbstractMessageSplitter{
 	@Override
 	protected List<Message<BatchJobLaunchContext>> splitMessage(Message<?> message) {
 		List<Message<BatchJobLaunchContext>> outputMessages = new ArrayList<Message<BatchJobLaunchContext>>();
-		logger.warn("Does not start any jobs when in demo mode");
-		/*if (!RunStatusMessageTemplate.isMessageOfCorrectType(message)){
+		if (isInDemoMode){
+			logger.warn("Jobs are not started when in demo mode");
+			return outputMessages;
+		}
+		if (!RunStatusMessageTemplate.isMessageOfCorrectType(message)){
 			logger.warn("Message is not of the correct type (a Run message). Check filter and imput channel are correct");
 			return outputMessages; // empty list
 		}
@@ -100,7 +107,7 @@ public class RunSuccessSplitter extends AbstractMessageSplitter{
 					throw new MessagingException(e.getLocalizedMessage(), e);
 				}
 			}
-		}*/
+		}
 		return outputMessages;
 	}
 

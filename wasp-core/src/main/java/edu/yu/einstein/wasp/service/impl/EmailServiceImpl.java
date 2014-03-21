@@ -65,7 +65,7 @@ import edu.yu.einstein.wasp.util.MetaHelper;
  */
 @Service
 @Transactional("entityManager")
-public class EmailServiceImpl implements EmailService{
+public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 
 	
 	static {
@@ -460,19 +460,18 @@ public class EmailServiceImpl implements EmailService{
 		String subject = extractSubject(mainText);
 		String body = extractBody(mainText);
 		String completeEmailTextHtml = headerText + body + footerText;
-		String defaultEmail = demoEmail.getDemoEmail();
+		Properties props = ((JavaMailSenderImpl) mailSender).getJavaMailProperties();
+		String sendToEmail = props.getProperty("mail.smtp.from");  //TODO: remove this line and un-comment line below in production code
+		// String sendToEmail = user.getEmail();
+		if (isInDemoMode)
+			sendToEmail = demoEmail.getDemoEmail();
 		try{
-			
-			if (defaultEmail.isEmpty() || !Pattern.matches("([\\w+|\\.?]+)\\w+@([\\w+|\\.?]+)\\.(\\w{2,8}\\w?)", defaultEmail)){
+			if (sendToEmail.isEmpty() || !Pattern.matches("([\\w+|\\.?]+)\\w+@([\\w+|\\.?]+)\\.(\\w{2,8}\\w?)", sendToEmail)){
 				throw new MailPreparationException("Email address is not of a suitable format or is not set in the cookie");
 			}
 			MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-			Properties props = ((JavaMailSenderImpl)mailSender).getJavaMailProperties();
-		
-			message.setFrom(props.getProperty("mail.smtp.from")); //TODO: remove this line and un-comment line below in production code
-			// message.setTo(user.getEmail());
-			
-			message.setTo(defaultEmail);
+			message.setFrom(props.getProperty("mail.smtp.from")); 
+			message.setTo(sendToEmail);
 			message.setSubject(subject);
 			String plainText = completeEmailTextHtml.replaceAll("\\<.*?>","");
 			message.setText(plainText, completeEmailTextHtml);

@@ -82,6 +82,7 @@ import edu.yu.einstein.wasp.exception.QuoteException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
@@ -2239,6 +2240,8 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	public void initiateAggregationAnalysisBatchJob(Job job){
 		Assert.assertParameterNotNull(job, "job cannot be null");
 		Assert.assertParameterNotNull(job.getId(), "job must be valid");
+		if (!isInDemoMode)
+			throw new WaspRuntimeException("Cannot launch batch job for aggregation analysis in demo mode");
 		Map<String, String> jobParameters = new HashMap<String, String>();
 		jobParameters.put(WaspJobParameters.JOB_ID, job.getId().toString());
 		jobParameters.put(WaspJobParameters.BATCH_JOB_TASK, BatchJobTask.ANALYSIS_AGGREGATE);
@@ -2252,14 +2255,13 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				continue;
 			}
 			logger.debug("Launching batch job '" + flowName + "' with parameters " + jobParameters.toString());
-			/*BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
+			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
 					new BatchJobLaunchContext(flowName, jobParameters) );
 			try {
 				sendOutboundMessage(batchJobLaunchMessageTemplate.build(), true);
 			} catch (WaspMessageBuildingException e) {
 				throw new MessagingException(e.getLocalizedMessage(), e);
-			}*/
-			throw new MessagingException("Cannot perform this function in demo mode");
+			}
 		}
 	}
 

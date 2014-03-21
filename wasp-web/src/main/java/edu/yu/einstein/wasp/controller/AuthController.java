@@ -2,11 +2,14 @@ package edu.yu.einstein.wasp.controller;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
-import java.util.regex.Matcher;
+
 import nl.captcha.Captcha;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -48,7 +51,6 @@ public class AuthController extends WaspController {
   @Autowired
   private DemoEmail demoEmail;
 
-  
   @Autowired
   private UserDao userDao;
   
@@ -111,6 +113,9 @@ public class AuthController extends WaspController {
   
   @RequestMapping(value="/login", method=RequestMethod.GET)
   public String login(ModelMap m){
+	  // store mode as a session variable
+	  request.getSession().setAttribute("isInDemoMode", new Boolean(isInDemoMode));
+	  logger.info("Setting 'isInDemoMode' session attribute to: " + Boolean.toString(isInDemoMode));
 	  if (authenticationService.isAuthenticatedWaspUser()){
 		  User authUser = authenticationService.getAuthenticatedUser();
 		  ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByUserId(authUser.getId());
@@ -119,6 +124,8 @@ public class AuthController extends WaspController {
 			  authenticationService.logoutUser();
 			  return "redirect:/auth/confirmemail/emailchanged.do";
 		  } else {
+			  // login ok so proceed.
+			  
 			  String loginExpiredWarningLabel = (String) request.getSession().getAttribute(LOGIN_EXPIRED_WARNING_KEY);
 			  if (loginExpiredWarningLabel != null && !loginExpiredWarningLabel.isEmpty())
 			  	  waspErrorMessage(loginExpiredWarningLabel);
@@ -150,7 +157,7 @@ public class AuthController extends WaspController {
 		  return "redirect:/auth/login.do";
 	  }
 	  m.addAttribute("isAuthenticationExternal", authenticationService.isAuthenticationSetExternal());
-	  if (demoEmail == null || demoEmail.getDemoEmail().isEmpty())
+	  if (isInDemoMode && (demoEmail == null || demoEmail.getDemoEmail().isEmpty()) )
 		  return "redirect:/auth/getEmailForDemo.do";
 	  return "auth/loginPage";
   }

@@ -1,6 +1,8 @@
 package edu.yu.einstein.wasp.util;
 
-public interface DemoEmail {
+import java.io.Serializable;
+
+public interface DemoEmail extends Serializable{
 
 	public String getDemoEmail();
 

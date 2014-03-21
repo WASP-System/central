@@ -16,8 +16,8 @@
       <level>DEBUG</level>
     </filter>
   </appender>
-  <appender name="logfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <!-- See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender -->
+  <!--appender name="logfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!- - See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender - ->
     <File>/usr/local/tomcat/tomcat/current/logs/wasp-daemon.log</File>
     <encoder>
       <pattern>>%d %p [%c{15}#%M] - %m%n</pattern>
@@ -33,7 +33,7 @@
     <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
       <MaxFileSize>64MB</MaxFileSize>
     </triggeringPolicy>
-  </appender>
+  </appender -->
   
   <logger name="org.apache.velocity.app.VelocityEngine" level="WARN"/>
   <logger name="org.hibernate" level="WARN"/>

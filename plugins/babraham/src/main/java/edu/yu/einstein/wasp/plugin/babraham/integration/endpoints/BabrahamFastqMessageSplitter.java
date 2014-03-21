@@ -8,6 +8,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
 import org.springframework.integration.splitter.AbstractMessageSplitter;
@@ -39,6 +40,9 @@ public class BabrahamFastqMessageSplitter extends AbstractMessageSplitter{
 	private FileService fileService;
 	
 	private static final Logger logger = LoggerFactory.getLogger(RunSuccessSplitter.class);
+	
+	@Value("${wasp.mode.isDemo:false}")
+	private boolean isInDemoMode;
 
 
 	@SuppressWarnings("unchecked")
@@ -46,7 +50,7 @@ public class BabrahamFastqMessageSplitter extends AbstractMessageSplitter{
 	protected List<Message<BatchJobLaunchContext>> splitMessage(Message<?> message) {
 		List<Message<BatchJobLaunchContext>> outputMessages = new ArrayList<Message<BatchJobLaunchContext>>();
 		if (!FileStatusMessageTemplate.isMessageOfCorrectType(message)){
-			logger.warn("Message is not of the correct type (a File notification message). Check filter and imput channel are correct. Returning no messages");
+			logger.warn("Message is not of the correct type (a File notification message). Check filter and input channel are correct. Returning no messages");
 			return outputMessages; // empty list
 		}
 		if (!FileStatusMessageTemplate.actUponMessage(message, fastqService.getFastqFileType(), fileService)){
@@ -57,6 +61,10 @@ public class BabrahamFastqMessageSplitter extends AbstractMessageSplitter{
 		if (!fileStatusMessageTemplate.getStatus().equals(WaspStatus.CREATED) || !fileStatusMessageTemplate.getTask().equals(WaspTask.NOTIFY_STATUS)){
 			logger.warn("Message has the wrong status or payload value. Check filter and input channel are correct. Returning no messages");
 			return outputMessages; // empty list
+		}
+		if (isInDemoMode){
+			logger.warn("Jobs are not started when in demo mode");
+			return outputMessages;
 		}
 		Map<String, String> jobParameters = new HashMap<String, String>();
 		Integer fileGroupId = message.getHeaders().get(WaspJobParameters.FILE_GROUP_ID, Integer.class);
