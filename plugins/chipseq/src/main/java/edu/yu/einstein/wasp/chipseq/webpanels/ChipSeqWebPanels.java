@@ -1,6 +1,10 @@
 package edu.yu.einstein.wasp.chipseq.webpanels;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +39,47 @@ public class ChipSeqWebPanels {
 	static protected  Logger logger = LoggerFactory.getLogger(WaspServiceImpl.class);
 	
 	public static PanelTab getSummaryPanelTab(Status jobStatus, Job job, Strategy strategy,	String softwareName) {
+
+		String name = "Summary";
+		Map<String,Map<String,String>> fieldMap = new LinkedHashMap<String, Map<String,String>>();//iteration order maintains the order in which keys were inserted into the map
+		Map<String,String> strategyMap = new HashMap<String,String>();
+		strategyMap.put("data", strategy.getDisplayStrategy());
+		strategyMap.put("width", "150");
+		fieldMap.put("Strategy", strategyMap);		
+		Map<String,String> descriptionMap = new HashMap<String,String>();
+		descriptionMap.put("data", strategy.getDescription());
+		descriptionMap.put("flex", "1");
+		fieldMap.put("Description", descriptionMap);		
+		Map<String,String> workflowMap = new HashMap<String,String>();
+		workflowMap.put("data", job.getWorkflow().getName());
+		workflowMap.put("width", "150");
+		fieldMap.put("Workflow", workflowMap);
+		Map<String,String> softwareMap = new HashMap<String,String>();
+		softwareMap.put("data", softwareName);
+		softwareMap.put("width", "200");
+		fieldMap.put("Software", softwareMap);
+		Map<String,String> statusMap = new HashMap<String,String>();
+		statusMap.put("data", jobStatus.toString());//status of the aggregateAnalysis	
+		statusMap.put("width", "150");
+		fieldMap.put("Status", statusMap);
+
+		
+		Map<String,String> fieldDataMap = new LinkedHashMap<String,String>();//iteration order is the order in which keys were inserted into the map
+		fieldDataMap.put("Strategy", strategy.getDisplayStrategy());
+		fieldDataMap.put("Description", strategy.getDescription());
+		fieldDataMap.put("Workflow", job.getWorkflow().getName());
+		fieldDataMap.put("Software", softwareName);
+		fieldDataMap.put("Status", jobStatus.toString());//status of the aggregateAnalysis	
+		String dataModel = defineDataModel(name, fieldDataMap, fieldMap); 
+		if(dataModel==null||dataModel.isEmpty()){
+			return null;//do this with all
+		}
+		logger.debug("***********getSummaryPanelTab dataModel: "+dataModel);
+		String dataStore = createDataStore(name,  fieldDataMap, fieldMap);
+		logger.debug("***********getSummaryPanelTab dataStore: "+dataStore);
+		//String gridPanel = createGridPanel(name, fieldDataMap);
+		//logger.debug("***********getSummaryPanelTab gridPanel: "+gridPanel.toString());
+		
 		
 		PanelTab panelTab = new PanelTab();
 
@@ -50,7 +95,10 @@ public class ChipSeqWebPanels {
 		WebContent content = new WebContent();
 		content.setHtmlCode("<div id=\"summary-grid\"></div>");
 		panel.setContent(content);
-		String script = "Ext.define('Summary',{ extend: 'Ext.data.Model', fields: [ 'Strategy', 'Description', 'Workflow', 'Software', 'Status' ] }); var store = Ext.create('Ext.data.Store', { model: 'Summary', data : [{Strategy: '"+strategy.getDisplayStrategy()+"', Description: '"+strategy.getDescription()+"', Workflow: '"+job.getWorkflow().getName()+"', Software: '" + softwareName+"', Status: '"+jobStatus.toString()+"'}] }); Ext.create('Ext.grid.Panel', { id:'summary-panel', store: store,  columns: [ {text: \"Strategy\", width:150, dataIndex: 'Strategy'}, {text: \"Description\", flex:1, dataIndex: 'Description'}, {text: \"Workflow\", width: 150, dataIndex: 'Workflow'}, {text: \"Main Software\", width: 200, dataIndex: 'Software'}, {text: \"Status\", width: 150, dataIndex: 'Status'} ], renderTo:'summary-grid', height:500 }); ";
+		//String script = "Ext.define('Summary',{ extend: 'Ext.data.Model', fields: [ 'Strategy', 'Description', 'Workflow', 'Software', 'Status' ] }); var store = Ext.create('Ext.data.Store', { model: 'Summary', data : [{Strategy: '"+strategy.getDisplayStrategy()+"', Description: '"+strategy.getDescription()+"', Workflow: '"+job.getWorkflow().getName()+"', Software: '" + softwareName+"', Status: '"+jobStatus.toString()+"'}] }); Ext.create('Ext.grid.Panel', { id:'summary-panel', store: store,  columns: [ {text: \"Strategyee\", width:150, dataIndex: 'Strategy'}, {text: \"Description\", flex:1, dataIndex: 'Description'}, {text: \"Workflow\", width: 150, dataIndex: 'Workflow'}, {text: \"Main Software\", width: 200, dataIndex: 'Software'}, {text: \"Status\", width: 150, dataIndex: 'Status'} ], renderTo:'summary-grid', height:500 }); ";
+		//String script = dataModel + " var store = Ext.create('Ext.data.Store', { model: 'Summary', data : [{Strategy: '"+strategy.getDisplayStrategy()+"', Description: '"+strategy.getDescription()+"', Workflow: '"+job.getWorkflow().getName()+"', Software: '" + softwareName+"', Status: '"+jobStatus.toString()+"'}] }); Ext.create('Ext.grid.Panel', { id:'summary-panel', store: store,  columns: [ {text: \"Strategy\", width:150, dataIndex: 'Strategy'}, {text: \"Description\", flex:1, dataIndex: 'Description'}, {text: \"Workflow\", width: 150, dataIndex: 'Workflow'}, {text: \"Main Software\", width: 200, dataIndex: 'Software'}, {text: \"Status\", width: 150, dataIndex: 'Status'} ], renderTo:'summary-grid', height:500 }); ";
+		String script = dataModel+" "+dataStore+" "+"Ext.create('Ext.grid.Panel', { id:'summary-panel', store: store,  columns: [ {text: \"Strategy\", width:150, dataIndex: 'Strategy'}, {text: \"Description\", flex:1, dataIndex: 'Description'}, {text: \"Workflow\", width: 150, dataIndex: 'Workflow'}, {text: \"Main Software\", width: 200, dataIndex: 'Software'}, {text: \"Status\", width: 150, dataIndex: 'Status'} ], renderTo:'summary-grid', height:500 }); ";
+		logger.debug("***********getSummaryPanelTab script: "+script);
 		panel.setExecOnRenderCode(script);
 		panel.setExecOnExpandCode("var theDiv = $('summary-grid'); Ext.getCmp('summary-panel').setSize(theDiv.offsetWidth, undefined);");
 		//panel.setExecOnResizeCode("Ext.getCmp('summary-panel').setSize(this.width, undefined);");
@@ -61,7 +109,74 @@ public class ChipSeqWebPanels {
 
 		return panelTab;
 	}
-
+	private static String createGridPanel(String name, Map<String,String> fieldDataMap, Map<String,Map<String,String>> fieldMap){
+		if(name==null || name.isEmpty() || fieldDataMap==null || fieldDataMap.isEmpty()){
+			return null;
+		}
+		
+		StringBuffer stringBuffer = new StringBuffer();
+		//Ext.create('Ext.grid.Panel', { id:'summary-panel', store: store,  columns: [ {text: \"Strategy\", width:150, dataIndex: 'Strategy'}, {text: \"Description\", flex:1, dataIndex: 'Description'}, {text: \"Workflow\", width: 150, dataIndex: 'Workflow'}, {text: \"Main Software\", width: 200, dataIndex: 'Software'}, {text: \"Status\", width: 150, dataIndex: 'Status'} ], renderTo:'summary-grid', height:500 }); ";		
+		stringBuffer.append("Ext.create('Ext.grid.Panel', { id:'summary-panel', store: store,  columns: [ ");
+		int counter = 0;
+		for(String key : fieldMap.keySet()){//insert order guaranteed as this is a LinkedHashMap
+			if(counter++ > 0){stringBuffer.append(",");}
+			Map<String, String> internalMap = fieldMap.get(key);
+			if(internalMap==null||internalMap.isEmpty()){
+				return null;
+			}
+			
+			stringBuffer.append(" " +key+": '"+internalMap.get("data")+"'");
+		}
+		stringBuffer.append(" }]});");
+		logger.debug("***********createGridPanel: "+stringBuffer.toString());		
+		
+		return new String(stringBuffer);
+	}
+	
+	private static String createDataStore(String name, Map<String,String> fieldDataMap, Map<String,Map<String,String>> fieldMap){
+		if(name==null || name.isEmpty() || fieldDataMap==null || fieldDataMap.isEmpty()){
+			return null;
+		}
+		
+		StringBuffer stringBuffer = new StringBuffer();
+		// var store = Ext.create('Ext.data.Store', { model: 'Summary', data : [{Strategy: '"+strategy.getDisplayStrategy()+"', Description: '"+strategy.getDescription()+"', Workflow: '"+job.getWorkflow().getName()+"', Software: '" + softwareName+"', Status: '"+jobStatus.toString()+"'}] });
+		stringBuffer.append("var store = Ext.create('Ext.data.Store', { model: '"+name+"', data : [{ ");
+		int counter = 0;
+		//for(String key : fieldDataMap.keySet()){//insert order guaranteed as this is a LinkedHashMap
+		//	if(counter++ > 0){stringBuffer.append(",");}
+		//	stringBuffer.append(" " +key+": '"+fieldDataMap.get(key)+"'");
+		//}
+		for(String key : fieldMap.keySet()){//insert order guaranteed as this is a LinkedHashMap
+			if(counter++ > 0){stringBuffer.append(",");}
+			Map<String, String> internalMap = fieldMap.get(key);
+			if(internalMap==null||internalMap.isEmpty()||!internalMap.containsKey("data")){
+				return null;
+			}
+			stringBuffer.append(" " +key+": '"+internalMap.get("data")+"'");
+		}
+		stringBuffer.append(" }]});");
+		logger.debug("***********createStore via fieldMap: "+stringBuffer.toString());		
+		
+		return new String(stringBuffer);
+	}
+	private static String defineDataModel(String name, Map<String,String> fieldDataMap, Map<String,Map<String,String>> fieldMap){
+		if(name==null || name.isEmpty() || fieldDataMap==null || fieldDataMap.isEmpty()){
+			return null;
+		}
+		StringBuffer stringBuffer = new StringBuffer();
+		//"Ext.define('Summary',{ extend: 'Ext.data.Model', fields: [ 'Strategy', 'Description', 'Workflow', 'Software', 'Status' ] });"
+		stringBuffer.append("Ext.define('"+name+"', {extend: 'Ext.data.Model', fields: [ ");
+		int counter = 0;
+		//for(String key : fieldDataMap.keySet()){//insert order guaranteed as this is a LinkedHashMap
+		for(String key : fieldMap.keySet()){//insert order guaranteed as this is a LinkedHashMap
+			if(counter++ > 0){stringBuffer.append(",");}
+			stringBuffer.append("'"+key+"'");
+		}
+		stringBuffer.append(" ]});");
+		logger.debug("***********createModel via fieldMap: "+stringBuffer.toString());
+		return new String(stringBuffer);
+	}
+	
 	public static PanelTab getSamplePairsPanelTab(List<Sample> testSampleList, Map<Sample, List<Sample>> testSampleControlSampleListMap, Map<String,String> sampleIdControlIdCommandLineMap){
 		
 		PanelTab panelTab = new PanelTab();
@@ -101,7 +216,7 @@ public class ChipSeqWebPanels {
 			}
 		}
 		String theData = new String(stringBuffer);
-		String script = "Ext.define('SamplePairs',{ extend: 'Ext.data.Model', fields: [ 'TestSample', 'ControlSample', 'Command' ] }); var store = Ext.create('Ext.data.Store', { model: 'SamplePairs', data : ["+theData+"] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"Test Sample\",  width:250, dataIndex: 'TestSample'}, {text: \"Control Sample\",  width:250, dataIndex: 'ControlSample'}, {text: \"Command\",  width: 2000, dataIndex: 'Command'} ], renderTo:'samplePairs-grid', height: 300 });";
+		String script = "Ext.define('SamplePairs',{ extend: 'Ext.data.Model', fields: [ 'TestSample', 'ControlSample', 'Command' ] }); var store = Ext.create('Ext.data.Store', { model: 'SamplePairs', data : ["+theData+"] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"Test Sample\",  width:250, dataIndex: 'TestSample'}, {text: \"Control Sample\",  width:250, dataIndex: 'ControlSample'}, {text: \"Command Line\",  width: 2000, dataIndex: 'Command'} ], renderTo:'samplePairs-grid', height: 300 });";
 		panel.setExecOnRenderCode(script);
 		panel.setExecOnExpandCode(" ");
 		panel.setExecOnResizeCode(" ");

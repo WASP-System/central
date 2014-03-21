@@ -1766,7 +1766,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			}
 
 			// add file type nodes to library
-			children.addAll(getFileNodesByLibrary(library, null));
+			//dubin 3-21-14 WE DO NOT WANT THIS! (confirmed with AJ)     children.addAll(getFileNodesByLibrary(library, null));
 
 			curNode.put("children", children);
 		} else if (type.equalsIgnoreCase("cell")) {
