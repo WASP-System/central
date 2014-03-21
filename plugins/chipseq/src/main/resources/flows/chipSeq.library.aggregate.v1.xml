@@ -27,12 +27,11 @@
 			<batch:tasklet>
 				<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.chipseq.batch.tasklet.PeakCallerTasklet" scope="step">
+<<<<<<< HEAD
 					<constructor-arg name="cellLibraryIdListAsString" value="#{jobParameters[waspSoftwareJobParameters.CELL_LIBRARY_ID_LIST]}"/>
+=======
+>>>>>>> 2e8f9d88774acb01c7d07fada3a5d97552ef4ef2
 					<constructor-arg name="softwareResourceType" ref="peakcallerResourceType" />
-					<!-- <constructor-arg name="task" value="#{batchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}" />
-					
-					<property name="name" value="chipSeq.library.aggregate.step.callPeaks" />
-					-->
 				</bean>
 			</batch:tasklet>
 		</batch:step>

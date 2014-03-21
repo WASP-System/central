@@ -14,8 +14,10 @@ import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
@@ -30,9 +32,11 @@ import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
  * @author 
@@ -45,7 +49,8 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 	private Integer testSampleId;//passed in
 	private Integer controlSampleId;//passed in (could be zero - which indicates no control was used)
 	private Integer modelPdfGId;//generated in doExecute()
-
+	private String commandLineCall;
+	
 	private StepExecution stepExecution;
 	
 	@Autowired
@@ -70,13 +75,20 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 	@Autowired
 	private Macstwo macs2;
 	
+	@Autowired
+	@Qualifier("rPackage")
+	private SoftwarePackage rSoftware;
+
 
 	public MacstwoGenerateModelAsPdfTasklet() {
 		// proxy
 	}
 
-	//this constructor not currently used; could NOT make it obtain parameter
+	/*
+	//this constructor not currently used; could NOT make it obtain parameters from the xml macstwo.mainFlow.v1.xml
 	public MacstwoGenerateModelAsPdfTasklet(String modelScriptGIdAsString) throws Exception {
+		//METHOD IS NOT PICKING UP INFORMATION FROM THE XML FILE
+		//METHOD IS NOT WORKING-can probably be removed
 		logger.debug("***Starting MacstwoGenerateModelAsPdfTasklet constructor");
 		logger.debug("modelScriptGIdAsString: " + modelScriptGIdAsString);
 		this.modelScriptGId = new Integer(modelScriptGIdAsString);
@@ -85,15 +97,17 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		logger.debug("value in constructor: this.modelScriptGId (integer): " + this.modelScriptGId.toString());
 		logger.debug("Ending MacstwoGenerateModelAsPdfTasklet constructor");
 	}
+	*/
 	
-//TODO: remove this next method
+//TODO: ROBERT A DUBIN (1 of 3) comment out this next method for production
+///*
 	@Override
 	@Transactional("entityManager")
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		this.doExecute(context);
 		return RepeatStatus.FINISHED;
 	}
-
+//*/
 	/**
 	 * 
 	 * @param contrib
@@ -110,41 +124,31 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		Map<String,Object> jobParametersMap = context.getStepContext().getJobParameters();		
 		for (String key : jobParametersMap.keySet()) {
 			if(key.equalsIgnoreCase(MacstwoSoftwareJobParameters.JOB_ID)){
-				this.jobId = new Integer(jobParametersMap.get(key).toString());
+				this.jobId = Integer.parseInt(jobParametersMap.get(key).toString());
 			}
 			logger.debug("jobParametersMap Key: " + key + " Value: " + jobParametersMap.get(key).toString());
 		}
-		Assert.assertTrue(this.jobId != null);
 		Assert.assertTrue(this.jobId.intValue() > 0);
-		stepExecution.getExecutionContext().put("jobId", this.jobId);//in case of crash
-		logger.debug("this.jobId (integer): " + this.jobId.toString());
+		logger.debug("in doExecute of MacstwoGenerateModelAsPdfTasklet: this.jobId (integer): " + this.jobId.toString());
 				
 		Map<String,Object> jobExecutionContextMap = context.getStepContext().getJobExecutionContext();		
 		for (String key : jobExecutionContextMap.keySet()) {
 			if(key.equalsIgnoreCase(MacstwoSoftwareJobParameters.MODEL_SCRIPT_FILEGROUP_ID)){
-				this.modelScriptGId = new Integer(jobExecutionContextMap.get(key).toString());
+				this.modelScriptGId = Integer.parseInt(jobExecutionContextMap.get(key).toString());
 			}
 			else if(key.equalsIgnoreCase(MacstwoSoftwareJobParameters.TEST_SAMPLE_ID)){
-				this.testSampleId = new Integer(jobExecutionContextMap.get(key).toString());
+				this.testSampleId = Integer.parseInt(jobExecutionContextMap.get(key).toString());
 			}
 			else if(key.equalsIgnoreCase(MacstwoSoftwareJobParameters.CONTROL_SAMPLE_ID)){
-				this.controlSampleId = new Integer(jobExecutionContextMap.get(key).toString());
+				this.controlSampleId = Integer.parseInt(jobExecutionContextMap.get(key).toString());//could be zero
 			}
-			logger.debug("*****      jobExecutionContextMap Key: " + key + " Value: " + jobExecutionContextMap.get(key).toString());
+			logger.debug("jobExecutionContextMap Key: " + key + " Value: " + jobExecutionContextMap.get(key).toString());
 		}
-		Assert.assertTrue(this.modelScriptGId != null);
 		Assert.assertTrue(this.modelScriptGId.intValue() > 0);
-		stepExecution.getExecutionContext().put("modelScriptGId", this.modelScriptGId);//in case of crash
 		logger.debug("this.modelScriptGId (integer): " + this.modelScriptGId.toString());		
-		
-		Assert.assertTrue(this.testSampleId != null);
 		Assert.assertTrue(this.testSampleId.intValue() > 0);
-		stepExecution.getExecutionContext().put("testSampleId", this.testSampleId);//in case of crash
-		logger.debug("this.testSampleId (integer): " + this.testSampleId.toString());		
-		
-		Assert.assertTrue(this.controlSampleId != null);
-		//controlSampleId can be zero
-		stepExecution.getExecutionContext().put("controlSampleId", this.controlSampleId);//in case of crash
+		logger.debug("this.testSampleId (integer): " + this.testSampleId.toString());			
+		Assert.assertTrue(this.controlSampleId >= 0);//controlSampleId can be zero (basically indicating there was no control)
 		logger.debug("this.controlSampleId (integer): " + this.controlSampleId.toString());
 		
 		FileGroup modelScriptFileGroup = fileService.getFileGroupById(this.modelScriptGId);
@@ -156,39 +160,60 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 			logger.debug("filehandle.name = " + fh.getFileName());
 		}
 		FileHandle modelScriptFileHandle = new ArrayList<FileHandle>(fileHandleSet).get(0);
-		logger.debug("*****modelScriptFileHandle.name = " + modelScriptFileHandle.getFileName());
-		//TODO: uncomment this line: Assert.assertTrue(modelScriptFileHandle.getFileType().getIName().equalsIgnoreCase(macs2ModelScriptFileType.getIName()));
+		logger.debug("*****modelScriptFileHandle.name = " + modelScriptFileHandle.getFileName());		
+		logger.debug("*****modelScriptFileHandle.getFileType().getName() = " + modelScriptFileHandle.getFileType().getName());
+		logger.debug("*****macs2ModelScriptFileType.getName() = " + macs2ModelScriptFileType.getName());
+		logger.debug("*****macs2ModelScriptFileType.getIName() = " + macs2ModelScriptFileType.getIName());		
+		Assert.assertTrue(modelScriptFileHandle.getFileType().getIName().equalsIgnoreCase(macs2ModelScriptFileType.getIName()));
 		String pdfFileName = modelScriptFileHandle.getFileName().replaceAll(".r$", ".pdf");//abc_model.r will be used to generate abc_model.pdf
 		logger.debug("*****pdfFileName = " + pdfFileName);
-		logger.debug("preparing to generate workunit");
-		WorkUnit w = macs2.getModelPdf(modelScriptFileHandle);//configure
-		logger.debug("OK, workunit has been generated");
 		
-
-	/*				 
+		logger.debug("preparing to generate workunit in MacstwoGenerateModelAsPdfTasklet.doExecute()");
+		WorkUnit w = macs2.getModelPdf(modelScriptFileHandle);//configure
+		logger.debug("OK, workunit has been generated in MacstwoGenerateModelAsPdfTasklet.doExecute()");
+		this.commandLineCall = w.getCommand();
+		Assert.assertTrue(!this.commandLineCall.isEmpty());
+		logger.debug("commandLineCall in MacstwoGenerateModelAsPdfTasklet.doExecute() is : " + commandLineCall);
+			 
 		FileGroup modelPdfG = new FileGroup();
 		FileHandle modelPdf = new FileHandle();
 		modelPdf.setFileName(pdfFileName);
+		modelPdf.setFileType(macs2ModelPdfFileType);
 		modelPdf = fileService.addFile(modelPdf);
 		modelPdfG.addFileHandle(modelPdf);
 		modelPdfG.setFileType(macs2ModelPdfFileType);
 		modelPdfG.setDescription(modelPdf.getFileName());
+		modelPdfG.setSoftwareGeneratedBy(rSoftware);
 		modelPdfG = fileService.addFileGroup(modelPdfG);
 		this.modelPdfGId = modelPdfG.getId();
-		stepExecution.getExecutionContext().put("modelPdfGId", this.modelPdfGId);//in case of crash		
+		logger.debug("recorded fileGroup and fileHandle for rscript in MacstwoGenerateModelAsPdfTasklet.doExecute()");
+		
+		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
+		//in case of crash
+		stepContext.put("testSampleId", this.testSampleId);
+		stepContext.put("controlSampleId", this.controlSampleId);
+		stepContext.put("commandLineCall", this.commandLineCall);
+		stepContext.put("modelPdfGId", this.modelPdfGId);
+		logger.debug("saved three variables in stepContext within MacstwoGenerateModelAsPdfTasklet.doExecute()");
 		
 		w.getResultFiles().add(modelPdfG);
-		
+		logger.debug("executed w.getResultFiles().add(modelPdfG) within MacstwoGenerateModelAsPdfTasklet.doExecute()");
+	
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + this.jobId.toString());   
-		GridResult result = gridHostResolver.execute(w);		
-		//place the grid result in the step context
-		storeStartedResult(context, result);
-	*/	
-		logger.debug("   getting ready to thow rob-generated exception");
-		if(1==1){
-			throw new Exception("   throwing Rob-generated exception in MacstwoGenerateModelAsPdfTasklet.execute()");
-		}
-		logger.debug("   throwing Rob-generated exception in MacstwoGenerateModelAsPdfTasklet.execute()");		
+		logger.debug("executed w.setResultsDirectory(Workunit.....) within MacstwoGenerateModelAsPdfTasklet.doExecute()");
+		
+//TODO: ROBERT A DUBIN (2 of 3) uncomment next 3 lines for production  !!!!!!!!!!
+/*		
+		 GridResult result = gridHostResolver.execute(w);
+		logger.debug("****Executed gridHostResolver.execute(w) in MacstwoGenerateModelAsPdfTasklet.doExecute()");		
+		storeStartedResult(context, result);//place the grid result in the step context
+*/
+		
+//TODO: ROBERT A DUBIN (3 of 3) comment out TWO (yes TWO) next line for production  !!!!!!!!!!
+///*
+		logger.debug("getting ready to call doPreFinish() in MacstwoGenerateModelAsPdfTasklet from doExecute()");
+		this.doPreFinish(context);
+//*/
 	}
 	
 
@@ -205,36 +230,49 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 	 */
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
-		logger.debug("StepExecutionListener beforeStep saving StepExecution");
-		this.stepExecution = stepExecution;		
+		
+		logger.debug("StepExecutionListener beforeStep saving StepExecution in MacstwoGenerateModelAsPdfTasklet");
+		this.stepExecution = stepExecution;				
+		//JobExecution jobExecution = stepExecution.getJobExecution();
+		//ExecutionContext jobContext = jobExecution.getExecutionContext();
+		//this.scratchDirectory = jobContext.get("scrDir").toString();
+		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
 		//in case of crash
-		this.jobId = (Integer) stepExecution.getExecutionContext().get("jobId");
-		this.testSampleId = (Integer) stepExecution.getExecutionContext().get("testSampleId");
-		this.controlSampleId = (Integer) stepExecution.getExecutionContext().get("controlSampleId");
-
-		this.modelScriptGId = (Integer) stepExecution.getExecutionContext().get("modelScriptGId");
-		this.modelPdfGId = (Integer) stepExecution.getExecutionContext().get("modelPdfGId");
+		this.testSampleId = (Integer) stepContext.get("testSampleId");
+		this.controlSampleId = (Integer) stepContext.get("controlSampleId");
+		this.commandLineCall = (String) stepContext.get("commandLineCall");
+		this.modelPdfGId = (Integer) stepContext.get("modelPdfGId");
 	}
+	
 	@Override
 	@Transactional("entityManager")
 	public void doPreFinish(ChunkContext context) throws Exception {
 		
-		// register file groups 
+		logger.debug("starting doPreFinish  in MacstwoGenerate<ModelAsPdfTasklet");
 		
+		//at Andy's suggestion, do this here as well
+		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
+		this.testSampleId = (Integer) stepContext.get("testSampleId");
+		this.controlSampleId = (Integer) stepContext.get("controlSampleId");		
+		this.commandLineCall = (String) stepContext.get("commandLineCall");
+		this.modelPdfGId = (Integer) stepContext.get("modelPdfGId");
+
 		Sample testSample = sampleService.getSampleById(this.testSampleId);
-		
+				
 		if (this.modelPdfGId != null && testSample.getId() != 0){
 			////fileService.setSampleFile(fileService.getFileGroupById(modelPdfGId), testSample);
 			FileGroup fg = fileService.getFileGroupById(this.modelPdfGId);
 			fileService.setSampleFile(fg, testSample);
 			FileGroupMeta fgm = new FileGroupMeta();
-			fgm.setK("chipseq.controlId");
+			fgm.setK("chipseqAnalysis.controlId");
 			fgm.setV(this.controlSampleId.toString());//could be zero
 			fgm.setFileGroupId(fg.getId());
 			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
 			fgmList.add(fgm);
 			fileService.saveFileGroupMeta(fgmList, fg);
-		}				
+		}
+		logger.debug("ending doPreFinish() in MacstwoGenerate<ModelAsPdfTasklet");
+
 	}
 }
 

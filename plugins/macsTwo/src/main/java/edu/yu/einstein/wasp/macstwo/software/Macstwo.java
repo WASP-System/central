@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import edu.yu.einstein.wasp.Assert;
 
@@ -19,6 +20,7 @@ import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 // Un-comment the following if using the plugin service
@@ -40,6 +42,10 @@ public class Macstwo extends SoftwarePackage{
 	@Autowired
 	private FileService fileService;
 	
+	@Autowired
+	@Qualifier("rPackage")
+	private SoftwarePackage rSoftware;
+
 	public Macstwo() {
 		setSoftwareVersion("2.0.10"); // TODO: Set this value. This default may also be overridden in wasp.site.properties
 	}
@@ -83,6 +89,16 @@ public class Macstwo extends SoftwarePackage{
 		for (String key : jobParametersMap.keySet()) {
 	
 			String opt = "";
+			
+			if(key.equalsIgnoreCase("broadPeakExpected")){//TODO: not yet an option on the forms
+				opt = "--broad";
+				if(jobParametersMap.get(key).toString().equalsIgnoreCase("yes"))
+				{   
+					tempCommand.append(" " + opt);
+					continue;
+				}
+				
+			}
 			if(key.equalsIgnoreCase("pValueCutoff")){
 				opt = "--pvalue";
 				try{
@@ -110,20 +126,20 @@ public class Macstwo extends SoftwarePackage{
 					continue;
 				}
 			}
-			if(key.equalsIgnoreCase("keepDup") ){
+			if(key.equalsIgnoreCase("keepDup") ){//only yes or no are currently permitted on the forms
 				opt = "--keep-dup";	
 				if(jobParametersMap.get(key).toString().equalsIgnoreCase("no")){   //jobParameters.get(opt).toString().equalsIgnoreCase("no")){
-					tempCommand.append(" " + key + " 1");
+					tempCommand.append(" " + opt + " 1");
 					continue;
 				}
 				else if(jobParametersMap.get(key).toString().equalsIgnoreCase("yes")   //jobParameters.get(opt).toString().equalsIgnoreCase("yes") 
 						|| 
 						jobParametersMap.get(key).toString().equalsIgnoreCase("all")){
-					tempCommand.append(" " + key + " all");
+					tempCommand.append(" " + opt + " all");
 					continue;
 				}
 				else if(jobParametersMap.get(key).toString().equalsIgnoreCase("auto")){//jobParameters.get(opt).toString().equalsIgnoreCase("auto")){
-					tempCommand.append(" " + key + " auto");
+					tempCommand.append(" " + opt + " auto");
 					continue;
 				}
 				else{
@@ -185,8 +201,8 @@ public class Macstwo extends SoftwarePackage{
 				
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(this);
-		//sd.add(r);
-		//sd.add(samtools);
+		sd.add(rSoftware);//used for generating model as pdf
+		
 		w.setSoftwareDependencies(sd);
 		//w.setResultFiles(resultFiles);//may not be needed
 		w.setSecureResults(true);

@@ -86,6 +86,16 @@
           <property name="default" value="no" />
           <property name="tooltip" value="peakcaller.macstwo.dup.tooltip" />
         </bean>
+        
+         <bean parent="macstwoUiFieldWrapper">
+          <property name="baseName" value="broadPeakExpected" />
+          <property name="metaposition" value="50" />
+          <property name="label" value="peakcaller.macstwo.broad.label" />
+          <property name="control" value="peakcaller.macstwo.broad.control" />
+          <property name="default" value="no" />
+          <property name="tooltip" value="peakcaller.macstwo.broad.tooltip" />
+        </bean>
+        
       </list>
     </property>
   </bean> 

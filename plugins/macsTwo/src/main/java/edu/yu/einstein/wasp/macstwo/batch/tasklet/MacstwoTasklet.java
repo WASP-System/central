@@ -7,6 +7,7 @@ package edu.yu.einstein.wasp.macstwo.batch.tasklet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
@@ -31,6 +32,7 @@ import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
@@ -43,6 +45,8 @@ import edu.yu.einstein.wasp.service.SampleService;
 public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
 	private Integer jobId;
+	private String testCellLibraryIdListAsString;
+	private String controlCellLibraryIdListAsString;
 	private List<Integer> testCellLibraryIdList;//treated, such as IP
 	private List<Integer> controlCellLibraryIdList;//contol, such as input 
 	private Integer modelScriptGId;
@@ -53,6 +57,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	private Integer controlLambdaBedGraphGId;
 	private Integer testSampleId;
 	private Integer controlSampleId;
+	private String commandLineCall;
 	
 	private StepExecution stepExecution;
 	
@@ -84,7 +89,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	private GridHostResolver gridHostResolver;
 	
 	@Autowired
-	private Macstwo macs2;//TODO: how????
+	private Macstwo macs2;
 	
 
 	public MacstwoTasklet() {
@@ -92,34 +97,50 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	}
 
 	public MacstwoTasklet(String jobIdAsString, String testCellLibraryIdListAsString, String controlCellLibraryIdListAsString) throws Exception {
+		
 		logger.debug("Starting MacstwoTasklet constructor");
 		logger.debug("jobIdAsString: " + jobIdAsString);
 		logger.debug("testCellLibraryIdListAsString: " + testCellLibraryIdListAsString);
 		logger.debug("controlCellLibraryIdListAsString: " + controlCellLibraryIdListAsString);
-		this.jobId = new Integer(jobIdAsString);		
-		Assert.assertTrue(this.jobId != null);
+		
+		Assert.assertTrue(!jobIdAsString.isEmpty());
+		this.jobId = Integer.parseInt(jobIdAsString);		
 		Assert.assertTrue(this.jobId > 0);
+		
+		this.testCellLibraryIdListAsString = testCellLibraryIdListAsString;
+		Assert.assertTrue(!testCellLibraryIdListAsString.isEmpty());
 		this.testCellLibraryIdList = WaspSoftwareJobParameters.getCellLibraryIdList(testCellLibraryIdListAsString);//should be all from same job
+
 		Assert.assertTrue(!this.testCellLibraryIdList.isEmpty());
+		
 		//oddly enough (and not expected from the code), WaspSoftwareJobParameters.getLibraryCellIdList(controlCellLibraryIdListAsString)
 		//throws an exception if controlCellLibraryIdListAsString is an empty string, thus the need for the if-else statement
-		if(controlCellLibraryIdListAsString==null || controlCellLibraryIdListAsString.isEmpty()){
+		if(controlCellLibraryIdListAsString==null || controlCellLibraryIdListAsString.isEmpty()){//could be empty!!
+			this.controlCellLibraryIdListAsString = "";
 			this.controlCellLibraryIdList = new ArrayList<Integer>();
 		}
 		else{
+			this.controlCellLibraryIdListAsString = controlCellLibraryIdListAsString;
 			this.controlCellLibraryIdList = WaspSoftwareJobParameters.getCellLibraryIdList(controlCellLibraryIdListAsString);//may be empty
+			Assert.assertTrue(!this.controlCellLibraryIdList.isEmpty());
 		}
+		
+		logger.debug("in constructor this.jobId: " + this.jobId);
+		logger.debug("in constructor testCellLibraryIdList.size(): " + testCellLibraryIdList.size());
+		logger.debug("in constructor controlCellLibraryIdList.size(): " + controlCellLibraryIdList.size());
 		logger.debug("Ending MacstwoTasklet constructor");
 	}
 	
-	//TODO: remove this next method
+//TODO: ROBERT A DUBIN (1 of 3) comment out next METHOD for production !!!!!!!!!!
+///*
 	@Override
 	@Transactional("entityManager")
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		this.doExecute(context);
 		return RepeatStatus.FINISHED;
 	}
-
+//*/
+	
 	/**
 	 * 
 	 * @param contrib
@@ -132,6 +153,9 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	public void doExecute(ChunkContext context) throws Exception {
 		
 		logger.debug("Starting MacstwoTasklet execute");		
+		logger.debug("in doExecute this.jobId: " + this.jobId);
+		logger.debug("in doExecute testCellLibraryIdList.size(): " + testCellLibraryIdList.size());
+		logger.debug("in doExecute controlCellLibraryIdList.size(): " + controlCellLibraryIdList.size());
 
 		Map<String,Object> jobParametersMap = context.getStepContext().getJobParameters();		
 		for (String key : jobParametersMap.keySet()) {
@@ -144,7 +168,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		SampleSource firstTestCellLibrary = sampleService.getCellLibraryBySampleSourceId(this.testCellLibraryIdList.get(0));
 		Sample testSample = sampleService.getLibrary(firstTestCellLibrary);//all these cellLibraries are from the same library or macromoleucle
-		while(testSample.getParent()!=null){
+		while(testSample.getParentId()!=null){
 			testSample = sampleService.getSampleById(testSample.getParentId());
 		}
 		logger.debug("testSample.name = " + testSample.getName());		
@@ -168,8 +192,8 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		Sample controlSample = null;
 		if(!controlCellLibraryIdList.isEmpty()){
 			controlSample = sampleService.getLibrary(sampleService.getCellLibraryBySampleSourceId(controlCellLibraryIdList.get(0)));//all these cellLibraries are from the same library or macromoleucle
-			while(controlSample.getParent()!=null){
-				controlSample = controlSample.getParent();
+			while(controlSample.getParentId()!=null){
+				controlSample = sampleService.getSampleById(controlSample.getParentId());//controlSample.getParent();
 			}
 		}
 		if(controlSample==null){
@@ -195,9 +219,6 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		}
 		logger.debug("controlFileHandleList.size = " + controlFileHandleList.size());
 			
-		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
-		stepContext.put("testSampleId", this.testSampleId); //place in the step context
-		stepContext.put("controlSampleId", this.controlSampleId); //place in the step context	
 		
 		String prefixForFileName = "TEST_" + testSample.getName().replaceAll("\\s+", "_") + "_CONTROL_";
 		if(controlSample == null){
@@ -210,76 +231,97 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		logger.debug("preparing to generate workunit");
 		WorkUnit w = macs2.getPeaks(prefixForFileName, testFileHandleList, controlFileHandleList, jobParametersMap);//configure
 		logger.debug("OK, workunit has been generated");
+		this.commandLineCall = w.getCommand();
 
-		/*		
-		  
-		stepExecution.getExecutionContext().put("jobId", this.jobId);//in case of crash
-		 
 		FileGroup modelScriptG = new FileGroup();
 		FileHandle modelScript = new FileHandle();
 		modelScript.setFileName(prefixForFileName + "_model.r");//will eventually run Rscript on this file to generate pdf
+		modelScript.setFileType(macs2ModelScriptFileType);
 		modelScript = fileService.addFile(modelScript);
 		modelScriptG.addFileHandle(modelScript);
 		modelScriptG.setFileType(macs2ModelScriptFileType);
 		modelScriptG.setDescription(modelScript.getFileName());
+		modelScriptG.setSoftwareGeneratedBy(macs2);
 		modelScriptG = fileService.addFileGroup(modelScriptG);
 		this.modelScriptGId = modelScriptG.getId();
-		stepExecution.getExecutionContext().put("modelScriptGId", modelScriptGId);//in case of crash
 		
 		FileGroup peaksXlsG = new FileGroup();
 		FileHandle peaksXls = new FileHandle();
 		peaksXls.setFileName(prefixForFileName + "_peaks.xls");
+		peaksXls.setFileType(macs2PeaksXlsFileType);
 		peaksXls = fileService.addFile(peaksXls);
 		peaksXlsG.addFileHandle(peaksXls);
 		peaksXlsG.setFileType(macs2PeaksXlsFileType);
 		peaksXlsG.setDescription(peaksXls.getFileName());
+		peaksXlsG.setSoftwareGeneratedBy(macs2);
 		peaksXlsG = fileService.addFileGroup(peaksXlsG);
 		this.peaksXlsGId = peaksXlsG.getId();
-		stepExecution.getExecutionContext().put("peaksXlsGId", peaksXlsGId);//in case of crash		
 		
 		FileGroup narrowPeaksBedG = new FileGroup();
 		FileHandle narrowPeaksBed = new FileHandle();
 		narrowPeaksBed.setFileName(prefixForFileName + "_peaks.narrowPeak");
+		narrowPeaksBed.setFileType(macs2NarrowPeaksBedFileType);
 		narrowPeaksBed = fileService.addFile(narrowPeaksBed);
 		narrowPeaksBedG.addFileHandle(narrowPeaksBed);
 		narrowPeaksBedG.setFileType(macs2NarrowPeaksBedFileType);
 		narrowPeaksBedG.setDescription(narrowPeaksBed.getFileName());
+		narrowPeaksBedG.setSoftwareGeneratedBy(macs2);
 		narrowPeaksBedG = fileService.addFileGroup(narrowPeaksBedG);
 		this.narrowPeaksBedGId = narrowPeaksBedG.getId();
-		stepExecution.getExecutionContext().put("narrowPeaksBedGId", narrowPeaksBedGId);//in case of crash
 	
 		FileGroup summitsBedG = new FileGroup();
 		FileHandle summitsBed = new FileHandle();
 		summitsBed.setFileName(prefixForFileName + "_summits.bed");
+		summitsBed.setFileType(macs2SummitsBedFileType);
 		summitsBed = fileService.addFile(summitsBed);
 		summitsBedG.addFileHandle(summitsBed);
 		summitsBedG.setFileType(macs2SummitsBedFileType);
 		summitsBedG.setDescription(summitsBed.getFileName());
+		summitsBedG.setSoftwareGeneratedBy(macs2);
 		summitsBedG = fileService.addFileGroup(summitsBedG);
 		this.summitsBedGId = summitsBedG.getId();		
-		stepExecution.getExecutionContext().put("summitsBedGId", summitsBedGId);//in case of crash
 		
 		FileGroup treatPileupBedGraphG = new FileGroup();
 		FileHandle treatPileupBedGraph = new FileHandle();
 		treatPileupBedGraph.setFileName(prefixForFileName + "_treat_pileup.bdg");
+		treatPileupBedGraph.setFileType(macs2TreatPileupBedGraphFileType);
 		treatPileupBedGraph = fileService.addFile(treatPileupBedGraph);
 		treatPileupBedGraphG.addFileHandle(treatPileupBedGraph);
 		treatPileupBedGraphG.setFileType(macs2TreatPileupBedGraphFileType);
 		treatPileupBedGraphG.setDescription(treatPileupBedGraph.getFileName());
+		treatPileupBedGraphG.setSoftwareGeneratedBy(macs2);
 		treatPileupBedGraphG = fileService.addFileGroup(treatPileupBedGraphG);
 		this.treatPileupBedGraphGId = treatPileupBedGraphG.getId();
-		stepExecution.getExecutionContext().put("treatPileupBedGraphGId", treatPileupBedGraphGId);//in case of crash
 	
 		FileGroup controlLambdaBedGraphG = new FileGroup();
 		FileHandle controlLambdaBedGraph = new FileHandle();
 		controlLambdaBedGraph.setFileName(prefixForFileName + "_control_lambda.bdg");
+		controlLambdaBedGraph.setFileType(macs2ControlLambdaBedGraphFileType);
 		controlLambdaBedGraph = fileService.addFile(controlLambdaBedGraph);
 		controlLambdaBedGraphG.addFileHandle(controlLambdaBedGraph);
 		controlLambdaBedGraphG.setFileType(macs2ControlLambdaBedGraphFileType);
 		controlLambdaBedGraphG.setDescription(controlLambdaBedGraph.getFileName());
+		controlLambdaBedGraphG.setSoftwareGeneratedBy(macs2);
 		controlLambdaBedGraphG = fileService.addFileGroup(controlLambdaBedGraphG);
 		this.controlLambdaBedGraphGId = controlLambdaBedGraphG.getId();
-		stepExecution.getExecutionContext().put("controlLambdaBedGraphGId", controlLambdaBedGraphGId);//in case of crash
+
+		logger.debug("recorded fileGroups and fileHandles for macs2 files in MacstwoTasklet.doExecute()");
+		
+		//place in the step context in case of crash
+		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
+		stepContext.put("jobId", this.jobId); 
+		stepContext.put("testCellLibraryIdListAsString", this.testCellLibraryIdListAsString); 
+		stepContext.put("controlCellLibraryIdListAsString", this.controlCellLibraryIdListAsString); 		
+		stepContext.put("testSampleId", this.testSampleId); 
+		stepContext.put("controlSampleId", this.controlSampleId); 	 
+		stepContext.put("modelScriptGId", this.modelScriptGId);
+		stepContext.put("peaksXlsGId", this.peaksXlsGId);
+		stepContext.put("narrowPeaksBedGId", this.narrowPeaksBedGId);
+		stepContext.put("summitsBedGId", this.summitsBedGId);
+		stepContext.put("treatPileupBedGraphGId", this.treatPileupBedGraphGId);
+		stepContext.put("controlLambdaBedGraphGId", this.controlLambdaBedGraphGId);
+		stepContext.put("commandLineCall", this.commandLineCall);
+		logger.debug("saved variables in stepContext in case of crash in MacstwoTasklet.doExecute()");
 
 		w.getResultFiles().add(modelScriptG);
 		w.getResultFiles().add(peaksXlsG);
@@ -287,33 +329,23 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		w.getResultFiles().add(summitsBedG);
 		w.getResultFiles().add(treatPileupBedGraphG);
 		w.getResultFiles().add(controlLambdaBedGraphG);
+		logger.debug("executed w.getResultFiles().add(x) for 6 FileGroups");
 		
-		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + this.jobId.toString());
-   
+		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + this.jobId.toString());		
+		logger.debug("executed w.setResultsDirectory(a/jobId) in MacstwoTasklet.doExecute()");
+
+//TODO: ROBERT A DUBIN (2 of 3) uncomment next 3 lines for production  !!!!!!!!!!
+/*
 		GridResult result = gridHostResolver.execute(w);
+		logger.debug("****Executed gridHostResolver.execute(w) in MactwoTasklet.doExecute()");
+		storeStartedResult(context, result);//place the grid result in the step context
+*/
 		
-		//place the grid result in the step context
-		storeStartedResult(context, result);
-
-	*/	
-		//logger.debug("getting ready to thow rob-generated exception");
-		//if(1==1){
-		//	throw new Exception("throwing Rob-generated exception in MacstwoTasklet.execute()");
-		//}
-		//logger.debug("just threw rob-generated exception");
-		
-		logger.debug("****    ******************************************************************");
-		logger.debug("just about to declare FINISHED in the macstwoTasklet, to see if we move forward to the generateModel tasklet");
-		logger.debug("******    ****************************************************************");
-		
-		stepExecution.getExecutionContext().put(MacstwoSoftwareJobParameters.MODEL_SCRIPT_FILEGROUP_ID, "38");//TODO remove this line
-		//TODO: comment out line immediately above and uncomment next three lines for production
-		//Assert.assertTrue(this.modelScriptGId != null);
-		//Assert.assertTrue(this.modelScriptGId > 0);
-		//stepExecution.getExecutionContext().put(MacstwoSoftwareJobParameters.MODEL_SCRIPT_FILEGROUP_ID, this.modelScriptGId.toString());//needed for the next (Rscript) task
-		stepExecution.getExecutionContext().put(MacstwoSoftwareJobParameters.TEST_SAMPLE_ID, testSampleId.toString());
-		stepExecution.getExecutionContext().put(MacstwoSoftwareJobParameters.CONTROL_SAMPLE_ID, controlSampleId.toString());
-
+//TODO: ROBERT A DUBIN (3 of 3) comment out next two (yes, TWO) lines for production  !!!!!!!!!!
+///*
+		logger.debug("getting ready to call doPreFinish() in MacstwoTasklet.doExecute()");
+		this.doPreFinish(context);
+//*/		
 	}
 	
 
@@ -330,24 +362,33 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	 */
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
-		logger.debug("StepExecutionListener beforeStep saving StepExecution");
-		this.stepExecution = stepExecution;		
 		
+		logger.debug("*****  StepExecutionListener beforeStep saving StepExecution in MacstwoTasklet.beforeStep");
+		this.stepExecution = stepExecution;				
 		//JobExecution jobExecution = stepExecution.getJobExecution();
 		//ExecutionContext jobContext = jobExecution.getExecutionContext();
 		//this.scratchDirectory = jobContext.get("scrDir").toString();
-		//this.cellLibId = (Integer) jobContext.get("cellLibId");
-		
+	
+		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
 		//in case of crash
-		this.jobId = (Integer) stepExecution.getExecutionContext().get("jobId");
-		this.modelScriptGId = (Integer) stepExecution.getExecutionContext().get("modelScriptGId");
-		this.peaksXlsGId = (Integer) stepExecution.getExecutionContext().get("peaksXlsGId");
-		this.narrowPeaksBedGId = (Integer) stepExecution.getExecutionContext().get("narrowPeaksBedGId");
-		this.summitsBedGId = (Integer) stepExecution.getExecutionContext().get("summitsBedGId");
-		this.treatPileupBedGraphGId = (Integer) stepExecution.getExecutionContext().get("treatPileupBedGraphGId");
-		this.controlLambdaBedGraphGId = (Integer) stepExecution.getExecutionContext().get("controlLambdaBedGraphGId");
-		this.testSampleId = (Integer) stepExecution.getExecutionContext().get("testSampleId");
-		this.controlSampleId = (Integer) stepExecution.getExecutionContext().get("controlSampleId");		
+		if(this.jobId==null){//set initially in constructor
+			this.jobId = (Integer) stepContext.get("jobId");
+		}
+		if(this.testCellLibraryIdListAsString==null){//set initially in constructor
+			this.testCellLibraryIdListAsString = (String) stepContext.get("testCellLibraryIdListAsString");
+		}
+		if(this.controlCellLibraryIdListAsString==null){//set initially in constructor
+			this.controlCellLibraryIdListAsString = (String) stepContext.get("controlCellLibraryIdListAsString");
+		}
+		this.modelScriptGId = (Integer) stepContext.get("modelScriptGId");
+		this.peaksXlsGId = (Integer) stepContext.get("peaksXlsGId");
+		this.narrowPeaksBedGId = (Integer) stepContext.get("narrowPeaksBedGId");
+		this.summitsBedGId = (Integer) stepContext.get("summitsBedGId");
+		this.treatPileupBedGraphGId = (Integer) stepContext.get("treatPileupBedGraphGId");
+		this.controlLambdaBedGraphGId = (Integer) stepContext.get("controlLambdaBedGraphGId");
+		this.testSampleId = (Integer) stepContext.get("testSampleId");
+		this.controlSampleId = (Integer) stepContext.get("controlSampleId");	
+		this.commandLineCall = (String) stepContext.get("commandLineCall");	
 	}
 	
 	/** 
@@ -356,14 +397,60 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	@Override
 	@Transactional("entityManager")
 	public void doPreFinish(ChunkContext context) throws Exception {
-		Sample testSample = sampleService.getSampleById(testSampleId);
 		
+		logger.debug("starting doPreFinish() in MacstwoTasklet");
+		
+		//at Andy's suggestion, do this here too:
+		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
+		this.jobId = (Integer) stepContext.get("jobId");//currently, not really needed here
+		this.testCellLibraryIdListAsString = (String) stepContext.get("testCellLibraryIdListAsString");
+		this.controlCellLibraryIdListAsString = (String) stepContext.get("controlCellLibraryIdListAsString");
+		this.modelScriptGId = (Integer) stepContext.get("modelScriptGId");
+		this.peaksXlsGId = (Integer) stepContext.get("peaksXlsGId");
+		this.narrowPeaksBedGId = (Integer) stepContext.get("narrowPeaksBedGId");
+		this.summitsBedGId = (Integer) stepContext.get("summitsBedGId");
+		this.treatPileupBedGraphGId = (Integer) stepContext.get("treatPileupBedGraphGId");
+		this.controlLambdaBedGraphGId = (Integer) stepContext.get("controlLambdaBedGraphGId");
+		this.testSampleId = (Integer) stepContext.get("testSampleId");
+		this.controlSampleId = (Integer) stepContext.get("controlSampleId");	
+		this.commandLineCall = (String) stepContext.get("commandLineCall");	
+		
+		// register commandLineCall, testCellLibraryIdList, controlCellLibraryIdList and  controlId with sampleMeta 
+		// and associate sample with the new file groups		
+		Sample testSample = sampleService.getSampleById(testSampleId);		
+		//List<SampleMeta> testSampleMetaList = sampleService.getSampleMetaDao().getSamplesMetaBySampleId(testSample.getId().intValue());//testSample.getSampleMeta();
+		List<SampleMeta> testSampleMetaList = testSample.getSampleMeta();
+		
+		SampleMeta sm1 = new SampleMeta();
+		sm1.setK("chipseqAnalysis.testCellLibraryIdList" + "::" + this.controlSampleId.toString());
+		sm1.setV(this.testCellLibraryIdListAsString);
+		testSampleMetaList.add(sm1);
+		
+		SampleMeta sm2 = new SampleMeta();
+		sm2.setK("chipseqAnalysis.controlCellLibraryIdList" + "::" + this.controlSampleId.toString());
+		sm2.setV(this.controlCellLibraryIdListAsString);
+		testSampleMetaList.add(sm2);
+		
+		SampleMeta sm3 = new SampleMeta();
+		sm3.setK("chipseqAnalysis.commandLineCall" + "::" + this.controlSampleId.toString());
+		sm3.setV(this.commandLineCall);
+		testSampleMetaList.add(sm3);
+		
+		SampleMeta sm4 = new SampleMeta();
+		sm4.setK("chipseqAnalysis.controlId" + "::" + this.controlSampleId.toString());
+		sm4.setV(this.controlSampleId.toString());
+		testSampleMetaList.add(sm4);	
+		
+		sampleService.saveSampleWithAssociatedMeta(testSample);
+		
+		logger.debug("in middle of doPreFinish() in MacstwoTasklet");
+
 		if (this.modelScriptGId != null && testSample.getId() != 0){
 			////fileService.setSampleFile(fileService.getFileGroupById(modelScriptGId), testSample);
 			FileGroup fg = fileService.getFileGroupById(this.modelScriptGId);
 			fileService.setSampleFile(fg, testSample);
 			FileGroupMeta fgm = new FileGroupMeta();
-			fgm.setK("chipseq.controlId");
+			fgm.setK("chipseqAnalysis.controlId");
 			fgm.setV(this.controlSampleId.toString());
 			fgm.setFileGroupId(fg.getId());
 			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
@@ -375,7 +462,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 			FileGroup fg = fileService.getFileGroupById(this.peaksXlsGId);
 			fileService.setSampleFile(fg, testSample);
 			FileGroupMeta fgm = new FileGroupMeta();
-			fgm.setK("chipseq.controlId");
+			fgm.setK("chipseqAnalysis.controlId");
 			fgm.setV(this.controlSampleId.toString());
 			fgm.setFileGroupId(fg.getId());
 			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
@@ -387,7 +474,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 			FileGroup fg = fileService.getFileGroupById(this.narrowPeaksBedGId);
 			fileService.setSampleFile(fg, testSample);
 			FileGroupMeta fgm = new FileGroupMeta();
-			fgm.setK("chipseq.controlId");
+			fgm.setK("chipseqAnalysis.controlId");
 			fgm.setV(this.controlSampleId.toString());
 			fgm.setFileGroupId(fg.getId());
 			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
@@ -399,7 +486,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 			FileGroup fg = fileService.getFileGroupById(this.summitsBedGId);
 			fileService.setSampleFile(fg, testSample);
 			FileGroupMeta fgm = new FileGroupMeta();
-			fgm.setK("chipseq.controlId");
+			fgm.setK("chipseqAnalysis.controlId");
 			fgm.setV(this.controlSampleId.toString());
 			fgm.setFileGroupId(fg.getId());
 			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
@@ -411,7 +498,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 			FileGroup fg = fileService.getFileGroupById(this.treatPileupBedGraphGId);
 			fileService.setSampleFile(fg, testSample);
 			FileGroupMeta fgm = new FileGroupMeta();
-			fgm.setK("chipseq.controlId");
+			fgm.setK("chipseqAnalysis.controlId");
 			fgm.setV(this.controlSampleId.toString());
 			fgm.setFileGroupId(fg.getId());
 			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
@@ -423,12 +510,14 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 			FileGroup fg = fileService.getFileGroupById(this.controlLambdaBedGraphGId);
 			fileService.setSampleFile(fg, testSample);
 			FileGroupMeta fgm = new FileGroupMeta();
-			fgm.setK("chipseq.controlId");
+			fgm.setK("chipseqAnalysis.controlId");
 			fgm.setV(this.controlSampleId.toString());
 			fgm.setFileGroupId(fg.getId());
 			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
 			fgmList.add(fgm);
 			fileService.saveFileGroupMeta(fgmList, fg);
 		}
+		logger.debug("ending doPreFinish() in MacstwoTasklet");
+
 	}
 }
