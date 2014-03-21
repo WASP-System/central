@@ -306,7 +306,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	}
 
 	@Override
-	public List<Sample> findAllPlatformUnits() {
+	public List<Sample> getPlatformUnits() {
 		Map<String, String> queryMap = new HashMap<String, String>();
 		queryMap.put("sampleType.iName", "platformunit");
 		return sampleDao.findByMap(queryMap);
@@ -845,7 +845,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  // TODO: Write test!!
 		  
 		  List<Sample> availablePlatformUnits = new ArrayList<Sample>();
-		  List<Sample> allPlatformUnits = findAllPlatformUnits(); 
+		  List<Sample> allPlatformUnits = getPlatformUnits(); 
 		  if (allPlatformUnits == null || allPlatformUnits.isEmpty())
 			  return availablePlatformUnits;
 		
@@ -927,9 +927,14 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  Assert.assertParameterNotNull(job, "No Job provided");
 		  List<Sample> availablePlatformUnits = getAvailablePlatformUnits();
 		  List<Sample> availableAndCompatibleFlowCells = new ArrayList<Sample>();
+		  List<JobResourcecategory> jrcList = job.getJobResourcecategory();
+		  if (jrcList == null || jrcList.isEmpty()){
+			  logger.debug("No resource categories defined for job with id=" + job.getId());
+			  return availableAndCompatibleFlowCells;
+		  }
 		  for(Sample pu : availablePlatformUnits){
 			  for(SampleSubtypeResourceCategory ssrc : pu.getSampleSubtype().getSampleSubtypeResourceCategory()){
-				  for(JobResourcecategory jrc : job.getJobResourcecategory()){
+				  for(JobResourcecategory jrc : jrcList){
 					  if(ssrc.getResourcecategoryId().intValue() == jrc.getResourcecategoryId().intValue()){
 						  availableAndCompatibleFlowCells.add(pu);
 					  }
@@ -1277,7 +1282,12 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  Map<String,Integer> q = new HashMap<String,Integer>();
 		  q.put("sourceSampleId", library.getId());
 		  for (SampleSource ss : getSampleSourceDao().findByMap(q)){
-			  if (isCell(ss.getSample()))
+			  if (ss.getSample() == null){
+				  // may be null if library added from external source e.g. via CLI
+				  logger.debug("cellLibrary with id=" + ss.getId() + " has no associated cells");
+				  continue;
+			  }
+			  if (isCell(ss.getSample())) 
 				  cells.add(ss.getSample());
 		  }
 		  return cells;
@@ -2116,7 +2126,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Override
 	public List<Sample> getPlatformUnitsNotYetRun(){
 		List<Sample> platformUnitsNotYetRun = new ArrayList<Sample>();
-		for (Sample pu : findAllPlatformUnits()){
+		for (Sample pu : getPlatformUnits()){
 			try {
 				if (getCurrentRunForPlatformUnit(pu) == null)
 					platformUnitsNotYetRun.add(pu);
@@ -2927,9 +2937,30 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  }
 
 		@Override
-		public List<SampleSource> getCellLibraries(Sample cell) {
+		public List<SampleSource> getCellLibrariesForCell(Sample cell) {
 			Assert.assertTrue(this.isCell(cell));
-			return sampleSourceDao.getCellLibraries(cell);
+			return sampleSourceDao.getCellLibrariesForCell(cell);
+		}
+		
+		@Override
+		public List<SampleSource> getCellLibrariesForLibrary(Sample library) {
+			Assert.assertTrue(this.isLibrary(library));
+			return sampleSourceDao.getCellLibrariesForLibrary(library);
+		}
+		
+		@Override
+		public List<SampleSource> getCellLibraries() {
+			List<SampleSource> cellLibraries = new ArrayList<>();
+			for (Sample library : getLibraries())
+				cellLibraries.addAll(getCellLibrariesForLibrary(library));
+			return cellLibraries;
+		}
+		
+		@Override
+		public List<Sample> getLibraries() {
+			Map<String, String> queryMap = new HashMap<String, String>();
+			queryMap.put("sampleType.iName", "library");
+			return sampleDao.findByMap(queryMap);
 		}
 		
 		@Override
@@ -3004,6 +3035,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			  List<Sample> cellsForLibraryAndJob = new ArrayList<Sample>();		  
 			  Set<SampleSource> sampleSourceList = this.getCellLibrariesForJob(job);
 			  for(SampleSource ss : sampleSourceList){
+				  if (ss.getSample() == null){
+					  // may be null if library added from external source e.g. via CLI
+					  logger.debug("cellLibrary with id=" + ss.getId() + " has no associated cells");
+					  continue;
+				  }
 				  if(ss.getSourceSample()==library){//here, sourcesample is library; sample is cell
 					  cellsForLibraryAndJob.add(ss.getSample());//add cell to list
 				  }

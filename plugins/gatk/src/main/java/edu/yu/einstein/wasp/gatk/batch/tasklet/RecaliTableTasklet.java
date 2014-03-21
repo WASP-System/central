@@ -2,7 +2,6 @@ package edu.yu.einstein.wasp.gatk.batch.tasklet;
 
 
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
@@ -27,12 +26,6 @@ import edu.yu.einstein.wasp.service.SampleService;
  * @author asmclellan
  */
 public class RecaliTableTasklet extends WaspRemotingTasklet implements StepExecutionListener {
-
-	private String scratchDirectory;
-	private String localAlignJobName;
-	private Integer cellLibId;
-
-	private StepExecution stepExecution;
 
 	@Autowired
 	private SampleService sampleService;
@@ -59,21 +52,19 @@ public class RecaliTableTasklet extends WaspRemotingTasklet implements StepExecu
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
-		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);
+		// retrieve stored properties
+		StepExecution stepExecution = context.getStepContext().getStepExecution();
+		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
+		String scratchDirectory = jobExecutionContext.getString("scrDir");
+		String localAlignJobName = jobExecutionContext.getString("localAlignJobName");
+		
+		SampleSource cellLib = sampleService.getSampleSourceDao().findById(jobExecutionContext.getInt("cellLibId"));
 
 		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
 
 		logger.debug("Beginning GATK calculate recalibration table step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
 		logger.debug("Starting from previously local re-align'd scratch directory " + scratchDirectory);
 
-		//Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLib, bamFileType);
-
-		//Assert.assertTrue(fileGroups.size() == 1);
-		//FileGroup fg = fileGroups.iterator().next();
-
-		//logger.debug("file group: " + fg.getId() + ":" + fg.getDescription());
-
-		//Map<String, Object> jobParameters = context.getStepContext().getJobParameters();
 		WorkUnit w = gatk.getRecaliTable(cellLib, scratchDirectory, localAlignJobName);
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
 
@@ -84,8 +75,7 @@ public class RecaliTableTasklet extends WaspRemotingTasklet implements StepExecu
 
 		// place recaliTableName in execution context, to be promoted
 		// to the job context at run time.
-		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
-		stepContext.put("recaliTableName", result.getId());
+		stepExecution.getExecutionContext().put("recaliTableName", result.getId());
 
 	}
 
@@ -103,13 +93,6 @@ public class RecaliTableTasklet extends WaspRemotingTasklet implements StepExecu
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
 		super.beforeStep(stepExecution);
-		this.stepExecution = stepExecution;
-		JobExecution jobExecution = stepExecution.getJobExecution();
-		ExecutionContext jobContext = jobExecution.getExecutionContext();
-		this.scratchDirectory = jobContext.get("scrDir").toString();
-		this.localAlignJobName = jobContext.get("localAlignName").toString();
-		this.cellLibId = (Integer) jobContext.get("cellLibId");
-
 	}
 }
 

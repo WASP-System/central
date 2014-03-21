@@ -77,7 +77,7 @@ public interface SampleService extends WaspMessageHandlingService {
 
 	public Sample getSampleByName(final String name);
 
-	List<Sample> findAllPlatformUnits();
+	List<Sample> getPlatformUnits();
 
 	  /**
 	   * Gets a list of {@link SampleSubtype} objects associated with given workflow which are specified as viewable
@@ -996,7 +996,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	 * @param cell (of type Sample)
 	 * @return List of Cell-libraries
 	 */
-	public List<SampleSource> getCellLibraries(Sample cell);
+	public List<SampleSource> getCellLibrariesForCell(Sample cell);
 
 	public void setSampleMetaDao(SampleMetaDao sampleMetaDao); 
 	
@@ -1067,5 +1067,11 @@ public interface SampleService extends WaspMessageHandlingService {
 	  public String getNameOfOrganismForAlignmentRequest(Sample sample, String defaultValue);
 	  public String getNameOfGenomeForAlignmentRequest(Sample sample, String defaultValue);
 	  public String getNameOfGenomeBuildForAlignmentRequest(Sample sample, String defaultValue);
+
+	  public List<SampleSource> getCellLibrariesForLibrary(Sample library);
+
+	  public List<SampleSource> getCellLibraries();
+
+	  public List<Sample> getLibraries();
 	  
 }

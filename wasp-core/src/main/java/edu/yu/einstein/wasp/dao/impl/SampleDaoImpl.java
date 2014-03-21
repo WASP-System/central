@@ -106,7 +106,7 @@ public class SampleDaoImpl extends WaspDaoImpl<Sample> implements edu.yu.einstei
 	}
 	
 	@Override
-	public List<Sample> findAllPlatformUnits() {
+	public List<Sample> getPlatformUnits() {
 		Map<String, String> queryMap = new HashMap<String, String>();
 		queryMap.put("sampleType.iName", "platformunit");
 //		queryMap.put("sampleType.sampleTypeId", 5);
@@ -114,7 +114,7 @@ public class SampleDaoImpl extends WaspDaoImpl<Sample> implements edu.yu.einstei
 	}
 	
 	@Override
-	public List<Sample> findAllPlatformUnitsOrderByDescending() {
+	public List<Sample> getPlatformUnitsOrderByDescending() {
 		Map<String, String> queryMap = new HashMap<String, String>();
 		queryMap.put("sampleType.iName", "platformunit");
 		List<String> orderByColumnNames = new ArrayList<String>();

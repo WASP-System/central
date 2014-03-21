@@ -30,8 +30,14 @@
   </bean>
   
   <bean id="facilityLibrary" class="edu.yu.einstein.wasp.load.SampleTypeLoaderAndFactory">
-    <property name="name" value="Facilitylibrary" />
+    <property name="name" value="Facility library" />
     <property name="area" value="facilityLibrary" />
+    <property name="sampleTypeCategory" ref="biomaterialSampleTypeCategory" />
+  </bean>
+  
+  <bean id="virtualLibrary" class="edu.yu.einstein.wasp.load.SampleTypeLoaderAndFactory">
+    <property name="name" value="virtual library" />
+    <property name="area" value="virtualLibrary" />
     <property name="sampleTypeCategory" ref="biomaterialSampleTypeCategory" />
   </bean>
  
