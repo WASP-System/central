@@ -54,25 +54,26 @@
 	<a href="/wasp/auth/newpi/institute.do"><fmt:message key="auth.login_anchor_newpi.label" /></a> <%--  |
 	<a href="/wasp/static/about.do"><fmt:message key="auth.login_anchor_about.label" /></a> --%>
 </nav>
-<br />
-<div class="instructions">
-<p>For demonstration processed you may sign is as any of the users listed below. The functionality is role-based so you might wish to try different users. You can also 
-use the links above to create new PIs and lab users. The database is reset to it's default state every night at midnight and so any changes you make will be lost.</p>
-
-<h2>Pre-loaded demo users:</h2>
-
-<table>
-<tr style="text-align:left"><th>Name</th><th>Role</th><th>Login</th><th>Password</th></tr>
-<tr><td>Super User</td><td>Super User</td><td>super</td><td>user</td></tr>
-<tr><td>John Smith</td><td>Facility Manager</td><td>jsmith</td><td>user</td></tr>
-<tr><td>Peter Walters</td><td>Facility Tech.</td><td>pwalters</td><td>user</td></tr>
-<tr><td>Robin Lister</td><td>General Admin</td><td>robin</td><td>user</td></tr>
-<tr><td>Grainne O'Donovan</td><td>Departmental Admin (External users)</td><td>gdon</td><td>user</td></tr>
-<tr><td>Joe Doe</td><td>Department Admin (Genetics Dept)</td><td>jdoe</td><td>user</td></tr>
-<tr><td>Sally Smythe</td><td>Lab PI (Smythe Lab)</td><td>ssmythe</td><td>user</td></tr>
-<tr><td>Percy Liu</td><td>Lab Member (Smythe Lab)</td><td>pliu</td><td>user</td></tr>
-</table>
-
-</div>
-
+<wasp:displayInDemo>
+	<br />
+	<div class="instructions">
+	<p>For demonstration processed you may sign is as any of the users listed below. The functionality is role-based so you might wish to try different users. You can also 
+	use the links above to create new PIs and lab users. The database is reset to it's default state every night at midnight and so any changes you make will be lost.</p>
+	
+	<h2>Pre-loaded demo users:</h2>
+	
+	<table>
+	<tr style="text-align:left"><th>Name</th><th>Role</th><th>Login</th><th>Password</th></tr>
+	<tr><td>Super User</td><td>Super User</td><td>super</td><td>user</td></tr>
+	<tr><td>John Smith</td><td>Facility Manager</td><td>jsmith</td><td>user</td></tr>
+	<tr><td>Peter Walters</td><td>Facility Tech.</td><td>pwalters</td><td>user</td></tr>
+	<tr><td>Robin Lister</td><td>General Admin</td><td>robin</td><td>user</td></tr>
+	<tr><td>Grainne O'Donovan</td><td>Departmental Admin (External users)</td><td>gdon</td><td>user</td></tr>
+	<tr><td>Joe Doe</td><td>Department Admin (Genetics Dept)</td><td>jdoe</td><td>user</td></tr>
+	<tr><td>Sally Smythe</td><td>Lab PI (Smythe Lab)</td><td>ssmythe</td><td>user</td></tr>
+	<tr><td>Percy Liu</td><td>Lab Member (Smythe Lab)</td><td>pliu</td><td>user</td></tr>
+	</table>
+	
+	</div>
+</wasp:displayInDemo>
 
