@@ -8,14 +8,13 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
-import org.springframework.integration.splitter.AbstractMessageSplitter;
 
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.endpoints.RunSuccessSplitter;
+import edu.yu.einstein.wasp.integration.endpoints.WaspAbstractMessageSplitter;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
@@ -31,7 +30,7 @@ import edu.yu.einstein.wasp.service.FileService;
  * @author asmclellan
  *
  */
-public class BabrahamFastqMessageSplitter extends AbstractMessageSplitter{
+public class BabrahamFastqMessageSplitter extends WaspAbstractMessageSplitter{
 	
 	@Autowired
 	private FastqService fastqService;
@@ -41,10 +40,6 @@ public class BabrahamFastqMessageSplitter extends AbstractMessageSplitter{
 	
 	private static final Logger logger = LoggerFactory.getLogger(RunSuccessSplitter.class);
 	
-	@Value("${wasp.mode.isDemo:false}")
-	private boolean isInDemoMode;
-
-
 	@SuppressWarnings("unchecked")
 	@Override
 	protected List<Message<BatchJobLaunchContext>> splitMessage(Message<?> message) {

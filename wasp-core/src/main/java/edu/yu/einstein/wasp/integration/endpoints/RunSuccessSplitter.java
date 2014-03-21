@@ -9,10 +9,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
-import org.springframework.integration.splitter.AbstractMessageSplitter;
 
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
@@ -35,7 +33,7 @@ import edu.yu.einstein.wasp.service.SampleService;
  * @author asmclellan
  *
  */
-public class RunSuccessSplitter extends AbstractMessageSplitter{
+public class RunSuccessSplitter extends WaspAbstractMessageSplitter{
 	
 	private WaspPluginRegistry waspPluginRegistry;
 	
@@ -57,9 +55,6 @@ public class RunSuccessSplitter extends AbstractMessageSplitter{
 	public void setSampleService(SampleService sampleService) {
 		this.sampleService = sampleService;
 	}
-	
-	@Value("${wasp.mode.isDemo:false}")
-	private boolean isInDemoMode;
 
 
 	private static final Logger logger = LoggerFactory.getLogger(RunSuccessSplitter.class);
