@@ -1783,7 +1783,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			}
 
 			// add file type nodes to library
-			children.addAll(getFileNodesByLibrary(library, null));
+			//dubin 3-21-14 WE DO NOT WANT THIS! (confirmed with AJ)     children.addAll(getFileNodesByLibrary(library, null));
 
 			curNode.put("children", children);
 		} else if (type.equalsIgnoreCase("cell")) {
@@ -2273,10 +2273,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		String workflowIname = job.getWorkflow().getIName();
 		List<JobDataTabViewing> plugins = waspPluginRegistry.getPluginsHandlingArea(workflowIname, JobDataTabViewing.class);
 		Assert.assertTrue(plugins.size()==1 || plugins.size()==0);
-		if (plugins.size()==1)
-			return plugins.get(0);
-		else
-			return null;
+		return plugins.get(0);
 	}
 
 	/**

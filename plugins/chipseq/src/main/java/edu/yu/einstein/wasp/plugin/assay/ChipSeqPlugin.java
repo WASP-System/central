@@ -139,10 +139,13 @@ public class ChipSeqPlugin extends WaspPlugin implements
 			//}
 			
 			Map<String, String> jobParameters = new HashMap<String, String>();
+
+			
 			//////jobParameters.put("test", new Date().toString());//used for testing only
 			
 			jobParameters.put(WaspJobParameters.JOB_ID, "4");
 			
+
 			waspMessageHandlingService.launchBatchJob(AGGREGATE_ANALYSIS_JOB, jobParameters);
 			logger.debug("**Initiating aggregate_analysis_job ChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB + " on job 4");
 			return (Message<String>) MessageBuilder.withPayload("Initiating chipseq test flow: "+AGGREGATE_ANALYSIS_JOB + " for job 4").build();
@@ -234,8 +237,6 @@ public class ChipSeqPlugin extends WaspPlugin implements
 	
 	public Status getStatus(Job job){//to make proper use of this call, we must incorporate Brent's new code to deal with the proper ending of this tasklet
 		
-		if(1==1){return Status.COMPLETED;}
-		
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		Set<String> jobIdStringSet = new LinkedHashSet<String>();
 		jobIdStringSet.add(job.getId().toString());
@@ -254,7 +255,7 @@ public class ChipSeqPlugin extends WaspPlugin implements
 	}
 	
 	public Set<PanelTab> getViewPanelTabs(Job job) throws PanelException{
-		return chipSeqService.getChipSeqDataToDisplay(job.getId());
+		return chipSeqService.getChipSeqDataToDisplay(job.getId(), this.getStatus(job));
 	}
 
 }
