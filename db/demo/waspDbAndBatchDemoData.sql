@@ -10,6 +10,12 @@
 # Generation Time: 2014-03-20 21:55:17 +0000
 # ************************************************************
 
+DROP DATABASE IF EXISTS wasp;
+
+create database wasp CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+use wasp;
+
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
