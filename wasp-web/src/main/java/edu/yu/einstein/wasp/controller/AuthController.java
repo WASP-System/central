@@ -116,6 +116,8 @@ public class AuthController extends WaspController {
 	  // store mode as a session variable
 	  request.getSession().setAttribute("isInDemoMode", new Boolean(isInDemoMode));
 	  logger.info("Setting 'isInDemoMode' session attribute to: " + Boolean.toString(isInDemoMode));
+	  if (isInDemoMode && (demoEmail == null || demoEmail.getDemoEmail().isEmpty()) )
+		  return "redirect:/auth/getEmailForDemo.do";
 	  if (authenticationService.isAuthenticatedWaspUser()){
 		  User authUser = authenticationService.getAuthenticatedUser();
 		  ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByUserId(authUser.getId());
@@ -157,8 +159,6 @@ public class AuthController extends WaspController {
 		  return "redirect:/auth/login.do";
 	  }
 	  m.addAttribute("isAuthenticationExternal", authenticationService.isAuthenticationSetExternal());
-	  if (isInDemoMode && (demoEmail == null || demoEmail.getDemoEmail().isEmpty()) )
-		  return "redirect:/auth/getEmailForDemo.do";
 	  return "auth/loginPage";
   }
   

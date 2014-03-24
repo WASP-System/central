@@ -466,8 +466,14 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 		if (isInDemoMode)
 			sendToEmail = demoEmail.getDemoEmail();
 		try{
-			if (sendToEmail.isEmpty() || !Pattern.matches("([\\w+|\\.?]+)\\w+@([\\w+|\\.?]+)\\.(\\w{2,8}\\w?)", sendToEmail)){
-				throw new MailPreparationException("Email address is not of a suitable format or is not set in the cookie");
+			if (sendToEmail.isEmpty()){
+				if (isInDemoMode)
+					throw new MailPreparationException("Email address is not set in the cookie");
+				else
+					throw new MailPreparationException("Email address is empty");
+			}
+			if (!Pattern.matches("([\\w+|\\.?]+)\\w+@([\\w+|\\.?]+)\\.(\\w{2,8}\\w?)", sendToEmail)){
+				throw new MailPreparationException("Email address is not of a suitable format");
 			}
 			MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 			message.setFrom(props.getProperty("mail.smtp.from")); 
