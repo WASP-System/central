@@ -54,6 +54,9 @@ public class JobEmailServiceActivator {
 	
 	@Value("${email.sending.enabled:true}")
 	private Boolean isSendingEmailEnabled;
+	
+	@Value("${wasp.mode.isDemo:false}")
+	private Boolean isDemoMode;
 
 	private static final Logger logger = LoggerFactory.getLogger(JobEmailServiceActivator.class);
 	
@@ -70,6 +73,11 @@ public class JobEmailServiceActivator {
 	public void handleJobStatusMessage(Message<WaspStatus> jobStatusMessage) {
 		if (!isSendingEmailEnabled){
 			logger.info("Email sending is disabled so not going to send email");
+			return;
+		}
+		if (!isDemoMode){
+			// TODO: fix us so can access demo email 
+			logger.info("In Demo mode so not going to send email (email to send to exists only in web session)");
 			return;
 		}
 		if (!JobStatusMessageTemplate.isMessageOfCorrectType(jobStatusMessage)){
