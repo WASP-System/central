@@ -75,7 +75,7 @@ public class JobEmailServiceActivator {
 			logger.info("Email sending is disabled so not going to send email");
 			return;
 		}
-		if (!isDemoMode){
+		if (isDemoMode){
 			// TODO: fix us so can access demo email 
 			logger.info("In Demo mode so not going to send email (email to send to exists only in web session)");
 			return;
