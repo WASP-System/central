@@ -68,8 +68,10 @@ public class JobEmailServiceActivator {
 	
 	@ServiceActivator
 	public void handleJobStatusMessage(Message<WaspStatus> jobStatusMessage) {
-		if (!isSendingEmailEnabled)
+		if (!isSendingEmailEnabled){
+			logger.info("Email sending is disabled so not going to send email");
 			return;
+		}
 		if (!JobStatusMessageTemplate.isMessageOfCorrectType(jobStatusMessage)){
 			logger.warn("Message is not of the correct type (a Job message). Check service activator and input channel are correct");
 			return;
