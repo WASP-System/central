@@ -451,14 +451,39 @@ public class ChipSeqWebPanels {
 			List<Sample> controlSampleList = testSampleControlSampleListMap.get(testSample);
 			for(Sample controlSample : controlSampleList){
 				WebPanel panel = new WebPanel();
-				panel.setTitle("IP: " + testSample.getName() + "; Control: " + controlSample.getName());
+				panel.setTitle("Test Sample: " + testSample.getName() + "; Control: " + controlSample.getName());
 				///panel.setDescription("Files By Sample");
 				panel.setResizable(true);
 				panel.setMaximizable(true);	
-				panel.setOrder(order);
+				panel.setOrder(order++);
 				WebContent content = new WebContent();
-				content.setHtmlCode("IP: " + testSample.getName() + "; Control: " + controlSample.getName());
+				String divId = "allFilesBySample_" + testSample.getId() + "_" + controlSample.getId() + "-grid";				
+				content.setHtmlCode("<div id=\""+divId+"\"></div>");
 				panel.setContent(content);
+				
+				StringBuffer stringBuffer = new StringBuffer();
+				for(FileType fileType : fileTypeList){
+					if(stringBuffer.length()>0){
+						stringBuffer.append(", ");
+					}
+					FileHandle fileHandle = sampleIdControlIdFileTypeIdFileHandleMap.get(testSample.getId().toString() + "::" + controlSample.getId().toString() + "::" + fileType.getId().toString());
+					String resolvedURL = fileHandleResolvedURLMap.get(fileHandle);
+					if(fileHandle==null){
+						stringBuffer.append("{FileType: '"+fileType.getName()+"', File: 'no file', MD5: ' ', Download: ' '}");
+					}
+					else{
+						//stringBuffer.append("{TestSample: '"+testSample.getName()+"', ControlSample: '"+controlSample.getName()+"', File: '"+fileHandle.getFileName()+"', MD5: '"+fileHandle.getMd5hash()+"', Download: '"+"<a href=\""+resolvedURL+"\"><img src=\"ext/images/icons/fam/disk.png\" /></a>"+"'}");
+						stringBuffer.append("{FileType: '"+fileType.getName()+"', File: '"+fileHandle.getFileName()+"', MD5: '"+fileHandle.getMd5hash()+"', Download: '"+resolvedURL+"'}");
+					}
+				}
+				
+				String theData = new String(stringBuffer);
+				
+				String script = "Ext.require(['Ext.grid.*','Ext.data.*','Ext.form.field.Number','Ext.form.field.Date','Ext.tip.QuickTipManager','Ext.selection.CheckboxModel','Wasp.RowActions']); Ext.tip.QuickTipManager.init(); Ext.define('SampleControlFile',{ extend: 'Ext.data.Model', fields: [ 'FileType', 'File', 'MD5', 'Download' ] }); var store = Ext.create('Ext.data.Store', { model: 'SampleControlFile', data : ["+theData+"] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"FileType\",  width:150, dataIndex: 'FileType'}, {text: \"File\",  flex: 1, dataIndex: 'File'}, {text: \"MD5\",  width:270, dataIndex: 'MD5', renderer: function(val, meta, record){var tip = record.get('MD5'); meta.tdAttr = 'data-qtip=\"' + tip + '\"'; return val; } }, {header:\" \", width: 100, xtype: 'rowactions', actions: [{iconCls: 'icon-clear-group', qtip: 'Download', callback: function(grip, record, action, idx, col, e, target){window.location=record.get('Download');}}], keepSelection: true     }, ], renderTo:'"+divId+"', height: 300 });";
+				panel.setExecOnRenderCode(script);
+				panel.setExecOnExpandCode(" ");
+				panel.setExecOnResizeCode(" ");
+				// does nothing: content.setScriptCode(script);
 				panelTab.addPanel(panel);
 			}
 		}
@@ -467,8 +492,71 @@ public class ChipSeqWebPanels {
 	}
 	
 	
+	public static PanelTab getAllFilesDisplayedByFileTypePanelTab(List<Sample> testSampleList, Map<Sample, List<Sample>> testSampleControlSampleListMap, List<FileType> fileTypeList, Map<String, FileHandle>  sampleIdControlIdFileTypeIdFileHandleMap, Map<FileHandle, String> fileHandleResolvedURLMap, Map<String, FileGroup> sampleIdControlIdFileTypeIdFileGroupMap){
+
+		PanelTab panelTab = new PanelTab();
+		
+		panelTab.setName("Files By FileType");
+		panelTab.setNumberOfColumns(1);
+		//panelTab.setDescription("testDescription");
+		/*
+		WebPanel panel = new WebPanel();
+		panel.setTitle("Files By Sample");
+		panel.setDescription("Files By Sample");
+		panel.setResizable(true);
+		panel.setMaximizable(true);	
+		panel.setOrder(1);
+		WebContent content = new WebContent();
+		content.setHtmlCode("This is test webpanel of Files By Sample");
+		panel.setContent(content);
+		panelTab.addPanel(panel);
+		*/
+		int order = 1;
+		for(FileType fileType : fileTypeList){
+			
+			WebPanel panel = new WebPanel();
+			panel.setTitle("FileType: " + fileType.getName());
+			///panel.setDescription("Files By Sample");
+			panel.setResizable(true);
+			panel.setMaximizable(true);	
+			panel.setOrder(order++);
+			WebContent content = new WebContent();
+			String divId = "allFilesByFileType_" + fileType.getIName() + "-grid";				
+			content.setHtmlCode("<div id=\""+divId+"\"></div>");
+			panel.setContent(content);
+			
+			StringBuffer stringBuffer = new StringBuffer();
+			
+			for(Sample testSample : testSampleList){
+				List<Sample> controlSampleList = testSampleControlSampleListMap.get(testSample);
+				for(Sample controlSample : controlSampleList){
+					if(stringBuffer.length()>0){
+						stringBuffer.append(", ");
+					}
+					FileHandle fileHandle = sampleIdControlIdFileTypeIdFileHandleMap.get(testSample.getId().toString() + "::" + controlSample.getId().toString() + "::" + fileType.getId().toString());
+					String resolvedURL = fileHandleResolvedURLMap.get(fileHandle);
+					if(fileHandle==null){
+						stringBuffer.append("{TestSample: '"+testSample.getName()+"', ControlSample: '"+controlSample.getName()+"', File: 'no file', MD5: ' ', Download: ' '}");
+					}
+					else{
+						//stringBuffer.append("{TestSample: '"+testSample.getName()+"', ControlSample: '"+controlSample.getName()+"', File: '"+fileHandle.getFileName()+"', MD5: '"+fileHandle.getMd5hash()+"', Download: '"+"<a href=\""+resolvedURL+"\"><img src=\"ext/images/icons/fam/disk.png\" /></a>"+"'}");
+						stringBuffer.append("{TestSample: '"+testSample.getName()+"', ControlSample: '"+controlSample.getName()+"', File: '"+fileHandle.getFileName()+"', MD5: '"+fileHandle.getMd5hash()+"', Download: '"+resolvedURL+"'}");
+					}
+				}
+			}
+			
+			String theData = new String(stringBuffer);
+			
+			String script = "Ext.require(['Ext.grid.*','Ext.data.*','Ext.form.field.Number','Ext.form.field.Date','Ext.tip.QuickTipManager','Ext.selection.CheckboxModel','Wasp.RowActions']); Ext.tip.QuickTipManager.init(); Ext.define('SampleControlFile',{ extend: 'Ext.data.Model', fields: [ 'TestSample', 'ControlSample', 'File', 'MD5', 'Download' ] }); var store = Ext.create('Ext.data.Store', { model: 'SampleControlFile', data : ["+theData+"] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"Test Sample\",  width:150, dataIndex: 'TestSample'}, {text: \"Control Sample\",  width:150, dataIndex: 'ControlSample'}, {text: \"File\",  flex: 1, dataIndex: 'File'}, {text: \"MD5\",  width:150, dataIndex: 'MD5', renderer: function(val, meta, record){var tip = record.get('MD5'); meta.tdAttr = 'data-qtip=\"' + tip + '\"'; return val; } }, {header:\" \", width: 500, xtype: 'rowactions', actions: [{iconCls: 'icon-clear-group', qtip: 'Download', callback: function(grip, record, action, idx, col, e, target){window.location=record.get('Download');}}], keepSelection: true     }, ], renderTo:'"+divId+"', height: 300 });";
+			panel.setExecOnRenderCode(script);
+			panel.setExecOnExpandCode(" ");
+			panel.setExecOnResizeCode(" ");
+			// does nothing: content.setScriptCode(script);
+			panelTab.addPanel(panel);
+		}
 	
-	
+		return panelTab;
+	}
 	
 	
 	

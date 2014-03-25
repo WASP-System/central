@@ -291,23 +291,31 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 
 			PanelTab summaryPanelTab = ChipSeqWebPanels.getSummaryPanelTab(jobStatus, job, strategy, softwareName);
 			panelTabSet.add(summaryPanelTab);logger.debug("***************11");
-			
+			/*
 			PanelTab testPanelTabWithIFrames = ChipSeqWebPanels.getTestPanelTab();
 			if(testPanelTabWithIFrames!=null){panelTabSet.add(testPanelTabWithIFrames);}
+*/
 
-			PanelTab allFilesDisplayedBySamplePanelTab = ChipSeqWebPanels.getAllFilesDisplayedBySamplePanelTab(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
-			if(allFilesDisplayedBySamplePanelTab!=null){panelTabSet.add(allFilesDisplayedBySamplePanelTab);}
-
-			//PanelTab allFilesDisplayedByFileTypePanelTab = ChipSeqWebPanels.getAllFilesDisplayedByFileTypePanelTab(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
-			//if(allFilesDisplayedByFileTypePanelTab!=null){panelTabSet.add(allFilesDisplayedByFileTypePanelTab);}
-
-			//if(jobStatus.toString().equals(Status.COMPLETED.toString())){
+			//TODO: uncomment if(jobStatus.toString().equals(Status.COMPLETED.toString())){
 				logger.debug("***************jobStatus is COMPLETED, so we enter this loop");
 				//do the other panels //
 				PanelTab samplePairsPanelTab = ChipSeqWebPanels.getSamplePairsPanelTab(testSampleList, testSampleControlSampleListMap, sampleIdControlIdCommandLineMap);
 				if(samplePairsPanelTab!=null){panelTabSet.add(samplePairsPanelTab);}
 				PanelTab sampleLibraryRunsPanelTab = ChipSeqWebPanels.getSampleLibraryRunsPanelTab(testSampleList, sampleLibraryListMap, libraryRunInfoListMap);
 				if(sampleLibraryRunsPanelTab!=null){panelTabSet.add(sampleLibraryRunsPanelTab);}
+				
+				PanelTab fileTypeDefinitionsPanelTab = ChipSeqWebPanels.getFileTypeDefinitionsPanelTab(fileTypeList);
+				if(fileTypeDefinitionsPanelTab!=null){panelTabSet.add(fileTypeDefinitionsPanelTab);}
+				
+				PanelTab allFilesDisplayedBySamplePanelTab = ChipSeqWebPanels.getAllFilesDisplayedBySamplePanelTab(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
+				if(allFilesDisplayedBySamplePanelTab!=null){panelTabSet.add(allFilesDisplayedBySamplePanelTab);}
+
+				PanelTab allFilesDisplayedByFileTypePanelTab = ChipSeqWebPanels.getAllFilesDisplayedByFileTypePanelTab(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
+				if(allFilesDisplayedByFileTypePanelTab!=null){panelTabSet.add(allFilesDisplayedByFileTypePanelTab);}
+
+				
+				
+				/*
 				if(!fileTypeList.isEmpty()){
 					
 					PanelTab fileTypeDefinitionsPanelTab = ChipSeqWebPanels.getFileTypeDefinitionsPanelTab(fileTypeList);
@@ -322,6 +330,7 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 						//counter++;
 					}
 				}
+				*/
 			//}
 			
 			logger.debug("***************ending chipseqService.getChipSeqDataToDisplay(job)");
