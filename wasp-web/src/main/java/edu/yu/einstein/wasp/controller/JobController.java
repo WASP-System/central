@@ -22,7 +22,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.Callable;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -684,8 +683,9 @@ public class JobController extends WaspController {
 				List<String> cellList = new ArrayList<String>(
 						Arrays.asList(
 								new String[] {
-										"<a href=/wasp/sample/list.do?selId=" + sample.getSampleId().intValue() + ">" + 
-											sample.getName() + "</a>",
+										"<a href=/wasp/sample/list.do?selId=" 
+										+ sample.getSampleId().intValue() + ">" + 
+										sample.getName() + "</a>",
 										sample.getSampleType().getName(),
 										sample.getSampleSubtype().getName(), 
 										sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(sample))
@@ -899,8 +899,7 @@ public class JobController extends WaspController {
 		return "job/jobsAwaitingLibraryCreation/jobsAwaitingLibraryCreationList";	  
 	}
   
-    @Transactional
-	@RequestMapping(value="/{jobId}/homepage", method=RequestMethod.GET)
+    @RequestMapping(value="/{jobId}/homepage", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobHomePage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
 		
@@ -914,8 +913,7 @@ public class JobController extends WaspController {
 		return "job/home/homepage";
 	}
   
-    @Transactional
-	@RequestMapping(value="/{jobId}/basic", method=RequestMethod.GET)
+    @RequestMapping(value="/{jobId}/basic", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobBasicPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
 		
@@ -2401,13 +2399,11 @@ public class JobController extends WaspController {
 		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
 			return "job/home/message";
 		}
-		
 		getSampleLibraryRunData(job, m);
 		
 		return "job/home/samples";
 	}
 
-	@Transactional
 	private void getSampleLibraryRunData(Job job, ModelMap m) throws SampleTypeException {
 		
 		  m.addAttribute("job", job);
@@ -2520,32 +2516,37 @@ public class JobController extends WaspController {
 		  for(Sample library : allJobLibraries){
 			  List<Sample>  cellsForLibrary = sampleService.getCellsForLibrary(library, job);
 			  cellLibraryListMap.put(library, cellsForLibrary);
-			  for(Sample cell : cellsForLibrary){			  
+			  for(Sample cell : cellsForLibrary){	
+				  Sample platformUnit = null;
+				  Float pMLoaded = null;
 				  try{
 					  cellIndexMap.put(cell, sampleService.getCellIndex(cell));//cell's position on flowcell (ie.: lane 3)
-					  Sample platformUnit = sampleService.getPlatformUnitForCell(cell);
+					  platformUnit = sampleService.getPlatformUnitForCell(cell);
 					  cellPUMap.put(cell, platformUnit);
 					  
-					  Float pMLoaded = sampleService.getConcentrationOfLibraryAddedToCell(cell, library);
-					  if(cellLibraryPMLoadedMap.containsKey(cell)){
-						  cellLibraryPMLoadedMap.get(cell).put(library, pMLoaded);
-					  }
-					  else{
-						  Map<Sample, Float> libraryPMLoadedMap = new HashMap<Sample, Float>();
-						  libraryPMLoadedMap.put(library, pMLoaded);
-						  cellLibraryPMLoadedMap.put(cell, libraryPMLoadedMap);
-					  }
-					  
-					  showPlatformunitViewMap.put(platformUnit, sampleService.getPlatformunitViewLink(platformUnit));//for displaying web anchor link to platformunit
-					  
-					  //List<Run> runList = runService.getSuccessfullyCompletedRunsForPlatformUnit(platformUnit);//WHY IS THIS A LIST rather than a singleton?
-					  //For testing only:  
-					  List<Run> runList = runService.getRunsForPlatformUnit(platformUnit);
-					  if(!runList.isEmpty()){
-						  Run run = runList.get(0);
-						  cellRunMap.put(cell, run);						  
-					  }
-				  }catch(Exception e){}
+					  pMLoaded = sampleService.getConcentrationOfLibraryAddedToCell(cell, library);
+				  } catch (SampleException e){
+					  logger.warn("Caught SampleException (" + e.getMessage() + "). Going to ignore cell id=" + cell.getId());
+					  continue;
+				  }
+				  if(cellLibraryPMLoadedMap.containsKey(cell)){
+					  cellLibraryPMLoadedMap.get(cell).put(library, pMLoaded);
+				  }
+				  else{
+					  Map<Sample, Float> libraryPMLoadedMap = new HashMap<Sample, Float>();
+					  libraryPMLoadedMap.put(library, pMLoaded);
+					  cellLibraryPMLoadedMap.put(cell, libraryPMLoadedMap);
+				  }
+				  
+				  showPlatformunitViewMap.put(platformUnit, sampleService.getPlatformunitViewLink(platformUnit));//for displaying web anchor link to platformunit
+				  
+				  //List<Run> runList = runService.getSuccessfullyCompletedRunsForPlatformUnit(platformUnit);//WHY IS THIS A LIST rather than a singleton?
+				  //For testing only:  
+				  List<Run> runList = runService.getRunsForPlatformUnit(platformUnit);
+				  if(!runList.isEmpty()){
+					  Run run = runList.get(0);
+					  cellRunMap.put(cell, run);						  
+				  }  
 			  }
 		  }
 		  m.addAttribute("cellLibraryListMap", cellLibraryListMap);

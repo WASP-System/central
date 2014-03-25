@@ -400,7 +400,10 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 			runService.updateRunQcStatusSetComplete(run);
 		} catch (WaspMessageBuildingException e) {
 			logger.warn(e.getLocalizedMessage());
-			waspErrorMessage("waspIlluminaPlugin.updateQcfailed.label");
+			if (!isInDemoMode)
+				waspErrorMessage("waspIlluminaPlugin.updateQcfailed.label");
+			else
+				waspErrorMessage("waspIlluminaPlugin.warnNoRunStart.label");
 			return "redirect:/dashboard.do";
 		}
 		waspMessage("waspIlluminaPlugin.updateQcsuccess.label");

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -52,6 +53,7 @@ import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.util.AuthCode;
+import edu.yu.einstein.wasp.util.DemoEmail;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
 
@@ -63,7 +65,8 @@ import edu.yu.einstein.wasp.util.MetaHelper;
  */
 @Service
 @Transactional("entityManager")
-public class EmailServiceImpl implements EmailService{
+public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
+
 	
 	static {
 		System.setProperty("mail.mime.charset", "utf8");
@@ -108,6 +111,9 @@ public class EmailServiceImpl implements EmailService{
 	@Value("${wasp.host.baseurl}")
 	private String baseUrl;
 	
+	@Autowired
+	private DemoEmail demoEmail;
+
 	@Value("${wasp.customimage.logo}")
 	private String customLogoResource;
 	
@@ -115,6 +121,7 @@ public class EmailServiceImpl implements EmailService{
 	private Boolean isSendingEmailEnabled;
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
+
 
 	/**
 	 * {@inheritDoc} 
@@ -453,14 +460,24 @@ public class EmailServiceImpl implements EmailService{
 		String subject = extractSubject(mainText);
 		String body = extractBody(mainText);
 		String completeEmailTextHtml = headerText + body + footerText;
+		Properties props = ((JavaMailSenderImpl) mailSender).getJavaMailProperties();
+		String sendToEmail = props.getProperty("mail.smtp.from");  //TODO: remove this line and un-comment line below in production code
+		// String sendToEmail = user.getEmail();
+		if (isInDemoMode)
+			sendToEmail = demoEmail.getDemoEmail();
 		try{
+			if (sendToEmail.isEmpty()){
+				if (isInDemoMode)
+					throw new MailPreparationException("Email address is not set in the cookie");
+				else
+					throw new MailPreparationException("Email address is empty");
+			}
+			if (!Pattern.matches("([\\w+|\\.?]+)\\w+@([\\w+|\\.?]+)\\.(\\w{2,8}\\w?)", sendToEmail)){
+				throw new MailPreparationException("Email address is not of a suitable format");
+			}
 			MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-			Properties props = ((JavaMailSenderImpl)mailSender).getJavaMailProperties();
-		
-			message.setFrom(props.getProperty("mail.smtp.from")); //TODO: remove this line and un-comment line below in production code
-			// message.setTo(user.getEmail());
-			
-			message.setTo(props.getProperty("mail.smtp.from"));
+			message.setFrom(props.getProperty("mail.smtp.from")); 
+			message.setTo(sendToEmail);
 			message.setSubject(subject);
 			String plainText = completeEmailTextHtml.replaceAll("\\<.*?>","");
 			message.setText(plainText, completeEmailTextHtml);

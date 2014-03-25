@@ -82,6 +82,7 @@ import edu.yu.einstein.wasp.exception.QuoteException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
@@ -136,6 +137,7 @@ import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.util.StringHelper;
 import edu.yu.einstein.wasp.util.WaspJobContext;
+import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 
 
 @Service
@@ -176,10 +178,16 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	@Autowired
 	private WaspPluginRegistry waspPluginRegistry;
 	
+	@Autowired
 	public void setJobMetaDao(JobMetaDao jobMetaDao) {
 		this.jobMetaDao = jobMetaDao;
 	}
 	
+	@Override
+	public JobMetaDao getJobMetaDao() {
+		return jobMetaDao;
+	}
+
 	public void setJobSoftwareDao(JobSoftwareDao jobSoftwareDao) {
 		this.jobSoftwareDao = jobSoftwareDao;
 	}
@@ -189,6 +197,11 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	
 	public void setJobSampleDao(JobSampleDao jobSampleDao) {
 		this.jobSampleDao = jobSampleDao;
+	}
+	
+	@Override
+	public JobSampleDao getJobSampleDao(){
+		return this.jobSampleDao;
 	}
 
 	public void setSampleDao(SampleDao sampleDao) {
@@ -875,13 +888,19 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 				extraJobDetailsMap.put("jobdetail_for_import.Run_Type.label", jobMeta.getV());
 			}
 		  }
+		  String readLength = "?";
+		  String readType = "?";
 		  try {
 			  SequenceReadProperties readProperties = SequenceReadProperties.getSequenceReadProperties(job, area, JobMeta.class);
-			  extraJobDetailsMap.put("jobdetail_for_import.Read_Length.label", readProperties.getReadLength().toString());
-			  extraJobDetailsMap.put("jobdetail_for_import.Read_Type.label", readProperties.getReadType().toUpperCase());
+			  if (readProperties != null){
+				  readLength = readProperties.getReadLength().toString();
+				  readType = readProperties.getReadType().toUpperCase();
+			  }
 		  } catch (MetadataException e) {
 			  logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
 		  }
+		  extraJobDetailsMap.put("jobdetail_for_import.Read_Length.label", readLength);
+		  extraJobDetailsMap.put("jobdetail_for_import.Read_Type.label", readType);
 		 
 		  /* replaced with code below
 		  try{
@@ -1764,7 +1783,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			}
 
 			// add file type nodes to library
-			children.addAll(getFileNodesByLibrary(library, null));
+			//dubin 3-21-14 WE DO NOT WANT THIS! (confirmed with AJ)     children.addAll(getFileNodesByLibrary(library, null));
 
 			curNode.put("children", children);
 		} else if (type.equalsIgnoreCase("cell")) {
@@ -2221,6 +2240,8 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	public void initiateAggregationAnalysisBatchJob(Job job){
 		Assert.assertParameterNotNull(job, "job cannot be null");
 		Assert.assertParameterNotNull(job.getId(), "job must be valid");
+		if (!isInDemoMode)
+			throw new WaspRuntimeException("Cannot launch batch job for aggregation analysis in demo mode");
 		Map<String, String> jobParameters = new HashMap<String, String>();
 		jobParameters.put(WaspJobParameters.JOB_ID, job.getId().toString());
 		jobParameters.put(WaspJobParameters.BATCH_JOB_TASK, BatchJobTask.ANALYSIS_AGGREGATE);
@@ -2243,7 +2264,18 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			}
 		}
 	}
-	
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public JobDataTabViewing getTabViewPluginByJob(Job job) {
+		String workflowIname = job.getWorkflow().getIName();
+		List<JobDataTabViewing> plugins = waspPluginRegistry.getPluginsHandlingArea(workflowIname, JobDataTabViewing.class);
+		Assert.assertTrue(plugins.size()==1 || plugins.size()==0);
+		return plugins.get(0);
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

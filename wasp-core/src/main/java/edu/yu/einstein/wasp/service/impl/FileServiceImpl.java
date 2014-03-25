@@ -58,6 +58,7 @@ import edu.yu.einstein.wasp.Hyperlink;
 import edu.yu.einstein.wasp.dao.FileGroupDao;
 import edu.yu.einstein.wasp.dao.FileGroupMetaDao;
 import edu.yu.einstein.wasp.dao.FileHandleDao;
+import edu.yu.einstein.wasp.dao.FileHandleMetaDao;
 import edu.yu.einstein.wasp.dao.FileTypeDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobDraftDao;
@@ -68,7 +69,6 @@ import edu.yu.einstein.wasp.exception.FileDownloadException;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.MetadataException;
-import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.exception.PluginException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
@@ -84,6 +84,7 @@ import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.FileHandleMeta;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
@@ -92,13 +93,10 @@ import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.FileTypeViewProviding;
-import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
-import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing.Status;
-import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 
 @Service
@@ -131,6 +129,9 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	
 	@Autowired
 	private FileGroupMetaDao fileGroupMetaDao;
+	
+	@Autowired
+	private FileHandleMetaDao fileHandleMetaDao;
 
 	@Autowired
 	private GridHostResolver hostResolver;
@@ -209,7 +210,8 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 */
 	@Override
 	public FileGroup processUploadedFile(MultipartFile mpFile, JobDraft jobDraft, String description, Random randomNumberGenerator) throws FileUploadException{
-
+		if (isInDemoMode)
+			throw new FileUploadException("Cannot perform this action in demo mode");
 		int randomNumber = randomNumberGenerator.nextInt(1000000000) + 100;
 
 		String noSpacesFileName = mpFile.getOriginalFilename().replaceAll("\\s+", "_");
@@ -339,8 +341,6 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		fileGroupDao.save(retGroup);
 		
 		return retGroup;
-		
-	
 		
 	}
 
@@ -950,6 +950,8 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	@Override
 	@Transactional
 	public void uploadJobDraftFile(MultipartFile mpFile, JobDraft jobDraft, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
+		if (isInDemoMode)
+			throw new FileUploadException("Cannot perform this action in demo mode");
 		try{
 			FileGroup fileGroup = this.uploadFile(mpFile.getOriginalFilename(), mpFile.getInputStream(), jobDraft.getId(), fileDescription, randomNumberGenerator, "draft.dir", "");
 			this.linkFileGroupWithJobDraft(fileGroup, jobDraft);
@@ -961,17 +963,21 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	@Override
 	@Transactional
 	public void uploadJobFile(MultipartFile mpFile, Job job, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
+		if (isInDemoMode)
+			throw new FileUploadException("Cannot perform this action in demo mode");
 		try{
 			FileGroup fileGroup = this.uploadFile(mpFile.getOriginalFilename(), mpFile.getInputStream(), job.getId(), fileDescription, randomNumberGenerator, "results.dir", "submitted");
 			this.linkFileGroupWithJob(fileGroup, job);//this should really be in the job service, not fileservice
 		}catch(Exception e){
 			throw new FileUploadException(e.getMessage());
-		}
+		} 
 	}
 
 	@Override
 	@Transactional
 	public FileGroup uploadFileAndReturnFileGroup(MultipartFile mpFile, Job job, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
+		if (isInDemoMode)
+			throw new FileUploadException("Cannot perform this action in demo mode");
 		try{
 			FileGroup fileGroup = this.uploadFile(mpFile.getOriginalFilename(), mpFile.getInputStream(), job.getId(), fileDescription, randomNumberGenerator, "results.dir", "submitted");
 			return fileGroup;
@@ -1584,6 +1590,14 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		Assert.assertParameterNotNull(filegroup, "a filegroup is required");
 		Assert.assertParameterNotNull(filegroup.getId(), "filegroup must have an id");
 		return fileGroupMetaDao.setMeta(metaList, filegroup.getId());
+	}
+	
+	@Override
+	public List<FileHandleMeta> saveFileHandleMeta(List<FileHandleMeta> metaList, FileHandle filehandle) throws MetadataException{
+		Assert.assertParameterNotNull(metaList, "a list of metadata is required");
+		Assert.assertParameterNotNull(filehandle, "a filehandle is required");
+		Assert.assertParameterNotNull(filehandle.getId(), "filehandle must have an id");
+		return fileHandleMetaDao.setMeta(metaList, filehandle.getId());
 	}
 	
 	/**

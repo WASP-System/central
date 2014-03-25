@@ -180,6 +180,8 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	public void initiateRun(Run run) {
 		Assert.assertParameterNotNull(run, "run cannot be null");
 		Assert.assertParameterNotNull(run.getId(), "run is not valid");
+		if (isInDemoMode)
+			throw new MessagingException("Cannot start a run in demo mode");
 		// send message to initiate job processing
 		RunStatusMessageTemplate messageTemplate = new RunStatusMessageTemplate(run.getId());
 		messageTemplate.setUserCreatingMessageFromSession(userService);
@@ -191,7 +193,6 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		} catch (WaspMessageBuildingException e){
 			throw new MessagingException(e.getLocalizedMessage());
 		}
-		
 	}
 	
 	

@@ -21,7 +21,7 @@
 
 	<int:service-activator input-channel="wasp.channel.plugin.macstwo" ref="macstwoPlugin" method="process" />
 	
-	<bean id="macstwoPlugin" class="edu.yu.einstein.wasp.macstwo.plugin.MacstwoPlugin">
+	<bean id="macstwoPlugin" class="edu.yu.einstein.wasp.macstwo.plugin.MacstwoPlugin" depends-on="rPackage">
 		<constructor-arg name="iName" ref="macstwoPluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.macstwo" />
@@ -29,7 +29,7 @@
 		<property name="description" value="peakcaller plugin" />
 		<property name="provides" >
 			<set>
-				<ref bean="macstwo" /> 
+				<ref bean="macstwo" /> 			
 			</set>
 		</property>
 		<property name="handles" >

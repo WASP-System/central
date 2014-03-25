@@ -95,7 +95,7 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 	}
 	
 	@Override
-	public Message process(Message m) throws RemoteException {
+	public Message<?> process(Message<?> m) throws RemoteException {
 		if (!m.getHeaders().containsKey("help") && !m.getHeaders().containsKey("task")) return getStandardHelp();
 		if (m.getHeaders().containsKey("help") && !m.getHeaders().containsKey("task")) return getStandardHelp();
 		

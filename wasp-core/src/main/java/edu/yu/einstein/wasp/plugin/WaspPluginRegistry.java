@@ -1,8 +1,6 @@
 package edu.yu.einstein.wasp.plugin;
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -13,8 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.integration.Message;
-import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
 
@@ -28,7 +24,7 @@ import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
  * @author asmclellan and brent
  * 
  */
-public class WaspPluginRegistry implements ClientMessageI, BeanPostProcessor {
+public class WaspPluginRegistry implements BeanPostProcessor {
 
 	private Map<String, WaspPlugin> plugins;
 
@@ -39,6 +35,10 @@ public class WaspPluginRegistry implements ClientMessageI, BeanPostProcessor {
 	 */
 	public WaspPluginRegistry() {
 		plugins = new HashMap<String, WaspPlugin>();
+	}
+	
+	public Map<String, WaspPlugin> getPlugins() {
+		return plugins;
 	}
 
 	/**
@@ -90,30 +90,7 @@ public class WaspPluginRegistry implements ClientMessageI, BeanPostProcessor {
 		return plugins.keySet();
 	}
 
-	@Override
-	public Message process(Message m) throws RemoteException {
-		if (m.getPayload().toString().equals("list")) {
-			return list();
-		} else {
-			String mstr = "Unknown command: " + m.toString() + "'\n";
-			return MessageBuilder.withPayload(mstr).build();
-		}
-	}
-
-	private Message<String> list() {
-		String reply = "\nRegistered Wasp System plugins:\n"
-				+ "-------------------------------\n\n";
-		int index = 1;
-		List<WaspPlugin> pluginList = new ArrayList<WaspPlugin>(plugins.values());
-		Collections.sort(pluginList);
-		for (WaspPlugin plugin : pluginList) {
-			reply += index++ + ") " + plugin.getIName();
-			if (plugin.getDescription() != null && !plugin.getDescription().isEmpty()) 
-				reply += " -> " + plugin.getDescription();
-			reply += "\n";
-		}
-		return MessageBuilder.withPayload(reply).build();
-	}
+	
 
 	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName)

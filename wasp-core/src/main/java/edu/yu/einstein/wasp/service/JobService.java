@@ -11,11 +11,10 @@
 package edu.yu.einstein.wasp.service;
 
 import java.io.File;
-import java.util.LinkedHashMap;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import org.json.JSONException;
@@ -52,13 +51,13 @@ import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobMeta;
-import edu.yu.einstein.wasp.model.JobSoftware;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.quote.MPSQuote;
 import edu.yu.einstein.wasp.util.WaspJobContext;
+import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 
 @Service
 public interface JobService extends WaspMessageHandlingService {
@@ -670,4 +669,11 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @return List<JobMeta>
 	 */
 	public List<JobMeta> getJobMeta(Integer jobId);
+
+	public JobMetaDao getJobMetaDao();
+
+	public JobDataTabViewing getTabViewPluginByJob(Job job);
+
+	public JobSampleDao getJobSampleDao();
+
 }

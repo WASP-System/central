@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.EntityExistsException;
 import javax.persistence.Query;
 
 import org.apache.commons.lang.WordUtils;
@@ -33,6 +32,7 @@ import org.springframework.stereotype.Repository;
 import edu.yu.einstein.wasp.exception.ModelDetachException;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.UserService;
+
 
 @SuppressWarnings("unchecked")
 @Repository

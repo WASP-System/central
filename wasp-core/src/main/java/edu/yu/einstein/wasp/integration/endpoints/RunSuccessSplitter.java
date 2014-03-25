@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
-import org.springframework.integration.splitter.AbstractMessageSplitter;
 
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
@@ -34,7 +33,7 @@ import edu.yu.einstein.wasp.service.SampleService;
  * @author asmclellan
  *
  */
-public class RunSuccessSplitter extends AbstractMessageSplitter{
+public class RunSuccessSplitter extends WaspAbstractMessageSplitter{
 	
 	private WaspPluginRegistry waspPluginRegistry;
 	
@@ -65,6 +64,10 @@ public class RunSuccessSplitter extends AbstractMessageSplitter{
 	@Override
 	protected List<Message<BatchJobLaunchContext>> splitMessage(Message<?> message) {
 		List<Message<BatchJobLaunchContext>> outputMessages = new ArrayList<Message<BatchJobLaunchContext>>();
+		if (isInDemoMode){
+			logger.warn("Jobs are not started when in demo mode");
+			return outputMessages;
+		}
 		if (!RunStatusMessageTemplate.isMessageOfCorrectType(message)){
 			logger.warn("Message is not of the correct type (a Run message). Check filter and imput channel are correct");
 			return outputMessages; // empty list
