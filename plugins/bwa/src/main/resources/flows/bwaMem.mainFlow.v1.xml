@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
+
+	<!-- for job, call with parameter 'runID' -->
+	<batch:flow id="bwa-mem.alignmentFlow">
+	
+		<batch:step id="bwa-mem.alignmentFlow.notifyBWAStart" next="bwa-mem.alignmentFlow.BWAaln">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+							<property name="cellLibraryId" value="#{jobParameters[waspSoftwareJobParameters.CELL_LIBRARY_ID_LIST]}"/> <!-- should only be one value which will cast to Integer ok -->
+							<property name="task" value="#{sequencingBatchJobTasks.ALIGNMENT}" />
+							<property name="status" value="STARTED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+
+		<batch:step id="bwa-mem.alignmentFlow.BWAmem">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.plugin.bwa.batch.tasklet.BWAmemTasklet" scope="step">
+					<constructor-arg name="cellLibraryIds" value="#{jobParameters[waspSoftwareJobParameters.CELL_LIBRARY_ID_LIST]}" />
+				</bean>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="bwa-mem.alignmentFlow.notifyBWAFailed" />
+			<batch:next on="*" to="bwa-mem.alignmentFlow.mergeBAM" />
+			<batch:listeners>
+				<batch:listener>
+					<bean class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
+						<property name="keys" value="scrDir,cellLibId"  />
+						<property name="statuses" value="COMPLETED,FAILED" />
+					</bean>
+				</batch:listener>
+			</batch:listeners>
+		</batch:step>
+
+		<batch:step id="bwa-mem.alignmentFlow.mergeBAM" >
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.plugin.bwa.batch.tasklet.BWAMergeSortTasklet" scope="step" />
+			</batch:tasklet>
+			<batch:next on="FAILED" to="bwa-mem.alignmentFlow.notifyBWAFailed" />
+			<batch:next on="*" to="bwa-mem.alignmentFlow.notifyBWAComplete" />
+		</batch:step>
+
+		<batch:step id="bwa-mem.alignmentFlow.notifyBWAComplete">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+							<property name="cellLibraryId" value="#{jobParameters[waspSoftwareJobParameters.CELL_LIBRARY_ID_LIST]}"/> <!-- should only be one value which will cast to Integer ok -->
+							<property name="task" value="#{sequencingBatchJobTasks.ALIGNMENT}" />
+							<property name="status" value="COMPLETED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="bwa-mem.alignmentFlow.notifyBWAFailed">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+							<property name="cellLibraryId" value="#{jobParameters[waspSoftwareJobParameters.CELL_LIBRARY_ID_LIST]}"/> <!-- should only be one value which will cast to Integer ok -->
+							<property name="task" value="#{sequencingBatchJobTasks.ALIGNMENT}" />
+							<property name="status" value="FAILED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+			<batch:fail on="*" />
+		</batch:step>
+
+	</batch:flow>
+	
+	<batch:job id="bwa-mem.alignment">
+		<batch:flow id="bwa-mem.align" parent="bwa-mem.alignmentFlow"/>
+	</batch:job>
+	
+</beans>

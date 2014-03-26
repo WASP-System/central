@@ -11,6 +11,6 @@
 	-->
 	
 	<!-- common definitions -->
-	<import resource="wasp-bwa-plugin-context-common.xml" />
+	<import resource="bwa-backtrace-plugin-context-common.xml" />
 	
 </beans>

@@ -29,7 +29,7 @@ import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.plugin.bwa.software.BWASoftwareComponent;
+import edu.yu.einstein.wasp.plugin.bwa.software.BWABacktraceSoftwareComponent;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqComparator;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.service.FileService;
@@ -65,7 +65,7 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 	private GridHostResolver gridHostResolver;
 	
 	@Autowired
-	private BWASoftwareComponent bwa;
+	private BWABacktraceSoftwareComponent bwa;
 	
 	@Autowired
 	@Qualifier("picard")

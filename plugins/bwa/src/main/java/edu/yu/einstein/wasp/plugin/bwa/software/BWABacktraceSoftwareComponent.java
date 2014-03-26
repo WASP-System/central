@@ -15,32 +15,18 @@ import edu.yu.einstein.wasp.model.SampleSource;
  * @author calder
  *
  */
-public class BWASampeAlnSoftwareComponent extends AbstractBWASoftwareComponent{
+public class BWABacktraceSoftwareComponent extends AbstractBWASoftwareComponent{
 
 	private static final long serialVersionUID = -6631761128215948999L;
 	
-	public BWASampeAlnSoftwareComponent() {
+	public BWABacktraceSoftwareComponent() {
 		super();
 	}
 	
 	public WorkUnit getAln(SampleSource cellLibrary, FileGroup fg, Map<String,Object> jobParameters) {
 		WorkUnit w = prepareWorkUnit(fg);
 		
-		String alnOpts = "";
-		
-		for (String opt : jobParameters.keySet()) {
-			if (!opt.startsWith("aln"))
-				continue;
-			String key = opt.replace("aln", "");
-			if (key.equals("-N"))
-				if (jobParameters.get(opt).toString().equals("yes")) {
-					alnOpts += " " + key;
-					continue;
-				} else {
-					continue;
-				}
-			alnOpts += " " + key + " " + jobParameters.get(opt).toString();
-		}
+		String alnOpts = getOptString("aln", jobParameters);
 
 		String checkIndex = "if [ ! -e " + getGenomeIndexPath(getGenomeBuild(cellLibrary)) + ".bwt ]; then\n  exit 101;\nfi";
 
@@ -58,7 +44,6 @@ public class BWASampeAlnSoftwareComponent extends AbstractBWASoftwareComponent{
 		return w;
 	}
 	
-	@Override
 	public WorkUnit getSam(SampleSource cellLibrary, String scratchDirectory, String namePrefix, FileGroup fg, Map<String,Object> jobParameters) {
 		WorkUnit w = prepareWorkUnit(fg);
 		w.setProcessMode(ProcessMode.SINGLE);
@@ -78,7 +63,7 @@ public class BWASampeAlnSoftwareComponent extends AbstractBWASoftwareComponent{
 			if (!opt.startsWith("sampe"))
 				continue;
 			String key = opt.replace("sampe", "");
-			if (!key.equals("-n") && !method.equals("sampe"))
+			if (!key.equals("-n") && method.equals("samse"))
 				continue;
 			alnOpts += " " + key + " " + jobParameters.get(opt).toString();
 		}
