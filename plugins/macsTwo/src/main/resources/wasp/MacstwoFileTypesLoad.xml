@@ -19,6 +19,13 @@
     <property name="extensions" value="_model.pdf" />
   </bean>
   
+   <bean id="macs2ModelPngFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
+    <property name="name" value="ModelPng" />
+    <property name="area" value="macs2modelpng" />
+    <property name="description" value="Simple filetype conversion of xxx_model.pdf to xxx_model.png using ImageMagick"/>
+    <property name="extensions" value="_model.png" />
+  </bean>
+  
   <bean id="macs2PeaksXlsFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
     <property name="name" value="Peaks" />
     <property name="area" value="macs2peaksxls" />
