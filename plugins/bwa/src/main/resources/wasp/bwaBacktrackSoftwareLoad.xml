@@ -7,7 +7,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="bwaAlignerUiFieldWrapper">
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="bwaBackTrackUiFieldWrapper">
   	<property name="baseArea" ref="bwaBacktrackArea" />
   </bean>
 
@@ -32,7 +32,7 @@
     
     <property name="uiFieldsFromWrapper">
       <list>
-        <bean parent="bwaAlignerUiFieldWrapper">
+        <bean parent="bwaBackTrackUiFieldWrapper">
           <property name="baseName" value="aln-n" />
            <property name="metaposition" value="10" />
            <property name="label" value="aligner.bwa.aln_n.label" />
@@ -44,7 +44,7 @@
            <property name="tooltip" value="aligner.bwa.aln_n.tt" />
         </bean>
         
-        <bean parent="bwaAlignerUiFieldWrapper">
+        <bean parent="bwaBackTrackUiFieldWrapper">
           <property name="baseName" value="aln-o" />
           <property name="metaposition" value="20" />
           <property name="label" value="aligner.bwa.aln_o.label" />
@@ -56,7 +56,7 @@
           <property name="tooltip" value="aligner.bwa.aln_o.tt" />
         </bean>
         
-        <bean parent="bwaAlignerUiFieldWrapper">
+        <bean parent="bwaBackTrackUiFieldWrapper">
           <property name="baseName" value="aln-e" />
           <property name="metaposition" value="30" />
           <property name="label" value="aligner.bwa.aln_e.label" />
@@ -68,7 +68,7 @@
           <property name="tooltip" value="aligner.bwa.aln_e.tt" />
         </bean>
         
-        <bean parent="bwaAlignerUiFieldWrapper">
+        <bean parent="bwaBackTrackUiFieldWrapper">
           <property name="baseName" value="aln-d" />
           <property name="metaposition" value="40" />
           <property name="label" value="aligner.bwa.aln_d.label" />
@@ -80,7 +80,7 @@
           <property name="tooltip" value="aligner.bwa.aln_d.tt" />
         </bean>
         
-        <bean parent="bwaAlignerUiFieldWrapper">
+        <bean parent="bwaBackTrackUiFieldWrapper">
           <property name="baseName" value="aln-i" />
           <property name="metaposition" value="50" />
           <property name="label" value="aligner.bwa.aln_i.label" />
@@ -92,7 +92,7 @@
           <property name="tooltip" value="aligner.bwa.aln_i.tt" />
         </bean>
         
-        <bean parent="bwaAlignerUiFieldWrapper">
+        <bean parent="bwaBackTrackUiFieldWrapper">
           <property name="baseName" value="aln-l" />
           <property name="metaposition" value="60" />
           <property name="label" value="aligner.bwa.aln_l.label" />
@@ -104,7 +104,7 @@
           <property name="tooltip" value="aligner.bwa.aln_l.tt" />
         </bean>
         
-        <bean parent="bwaAlignerUiFieldWrapper">
+        <bean parent="bwaBackTrackUiFieldWrapper">
           <property name="baseName" value="aln-k" />
           <property name="metaposition" value="70" />
           <property name="label" value="aligner.bwa.aln_k.label" />
@@ -116,7 +116,7 @@
           <property name="tooltip" value="aligner.bwa.aln_k.tt" />
         </bean>
         
-        <bean parent="bwaAlignerUiFieldWrapper">
+        <bean parent="bwaBackTrackUiFieldWrapper">
           <property name="baseName" value="aln-M" />
           <property name="metaposition" value="80" />
           <property name="label" value="aligner.bwa.aln_M.label" />
@@ -128,7 +128,7 @@
           <property name="tooltip" value="aligner.bwa.aln_M.tt" />
         </bean>
         
-        <bean parent="bwaAlignerUiFieldWrapper">
+        <bean parent="bwaBackTrackUiFieldWrapper">
           <property name="baseName" value="aln-O" />
           <property name="metaposition" value="90" />
           <property name="label" value="aligner.bwa.aln_O.label" />
@@ -140,7 +140,7 @@
           <property name="tooltip" value="aligner.bwa.aln_O.tt" />
         </bean>
         
-        <bean parent="bwaAlignerUiFieldWrapper">
+        <bean parent="bwaBackTrackUiFieldWrapper">
           <property name="baseName" value="aln-E" />
           <property name="metaposition" value="100" />
           <property name="label" value="aligner.bwa.aln_E.label" />
@@ -152,7 +152,7 @@
           <property name="tooltip" value="aligner.bwa.aln_E.tt" />
         </bean>
         
-        <bean parent="bwaAlignerUiFieldWrapper">
+        <bean parent="bwaBackTrackUiFieldWrapper">
           <property name="baseName" value="aln-R" />
           <property name="metaposition" value="110" />
           <property name="label" value="aligner.bwa.aln_R.label" />
@@ -164,7 +164,7 @@
           <property name="tooltip" value="aligner.bwa.aln_R.tt" />
         </bean>
         
-        <bean parent="bwaAlignerUiFieldWrapper">
+        <bean parent="bwaBackTrackUiFieldWrapper">
           <property name="baseName" value="aln-N" />
           <property name="metaposition" value="120" />
           <property name="label" value="aligner.bwa.aln_N.label" />
@@ -175,7 +175,7 @@
           <property name="tooltip" value="aligner.bwa.aln_N.tt" />
         </bean>     
         
-        <bean parent="bwaAlignerUiFieldWrapper">
+        <bean parent="bwaBackTrackUiFieldWrapper">
           <property name="baseName" value="aln-q" />
           <property name="metaposition" value="130" />
           <property name="label" value="aligner.bwa.aln_q.label" />
@@ -187,7 +187,7 @@
           <property name="tooltip" value="aligner.bwa.aln_q.tt" />
         </bean> 
         
-        <bean parent="bwaAlignerUiFieldWrapper">
+        <bean parent="bwaBackTrackUiFieldWrapper">
           <property name="baseName" value="sampe-a" />
           <property name="metaposition" value="140" />
           <property name="label" value="aligner.bwa.sampe_a.label" />
@@ -195,11 +195,11 @@
           <property name="range" value="0:100000" />
           <property name="default" value="500" />
           <property name="constraint" value="NotEmpty" />
-          <property name="error" value="aligner.bwa.bwa.sampe_a.error" />
-          <property name="tooltip" value="aligner.bwa.bwa.sampe_a.tt" />
+          <property name="error" value="aligner.bwa.sampe_a.error" />
+          <property name="tooltip" value="aligner.bwa.sampe_a.tt" />
         </bean> 
         
-        <bean parent="bwaAlignerUiFieldWrapper">
+        <bean parent="bwaBackTrackUiFieldWrapper">
           <property name="baseName" value="sampe-o" />
           <property name="metaposition" value="150" />
           <property name="label" value="aligner.bwa.sampe_o.label" />
@@ -211,7 +211,7 @@
           <property name="tooltip" value="aligner.bwa.sampe_o.tt" />
         </bean> 
         
-        <bean parent="bwaAlignerUiFieldWrapper">
+        <bean parent="bwaBackTrackUiFieldWrapper">
           <property name="baseName" value="sampe-n" />
           <property name="metaposition" value="160" />
           <property name="label" value="aligner.bwa.sampe_n.label" />
@@ -223,7 +223,7 @@
           <property name="tooltip" value="aligner.bwa.sampe_n.tt" />
         </bean> 
         
-        <bean parent="bwaAlignerUiFieldWrapper">
+        <bean parent="bwaBackTrackUiFieldWrapper">
           <property name="baseName" value="sampe-N" />
           <property name="metaposition" value="170" />
           <property name="label" value="aligner.bwa.sampe_N.label" />
