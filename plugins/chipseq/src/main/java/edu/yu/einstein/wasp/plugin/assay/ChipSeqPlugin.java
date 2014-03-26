@@ -253,7 +253,7 @@ public class ChipSeqPlugin extends WaspPlugin implements
 			return Status.COMPLETED;
 		return Status.FAILED;
 	}
-	
+	@Override
 	public Set<PanelTab> getViewPanelTabs(Job job) throws PanelException{
 		return chipSeqService.getChipSeqDataToDisplay(job.getId(), this.getStatus(job));
 	}

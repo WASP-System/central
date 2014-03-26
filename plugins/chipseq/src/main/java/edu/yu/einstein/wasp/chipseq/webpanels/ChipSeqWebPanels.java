@@ -762,6 +762,30 @@ public class ChipSeqWebPanels {
 		panel4.setContent(content4);
 		panelTab.addPanel(panel4);
 
+		WebPanel panel5 = new WebPanel();
+		panel5.setTitle("TestPanel5");
+		panel5.setDescription("TestPanel5");
+		panel5.setResizable(true);
+		panel5.setMaximizable(true);	
+		panel5.setOrder(5);
+		WebContent content5 = new WebContent();
+		content5.setHtmlCode("<img  height=\"200\" width=\"200\" src=\"http://localhost:8080/wasp/images/dubinModel.pdf\" />");
+		
+		panel5.setContent(content5);
+		panelTab.addPanel(panel5);		
+/*would need ajax, then convert to image base 64 and put into the <img id
+		WebPanel panel6 = new WebPanel();
+		panel6.setTitle("TestPanel6");
+		panel6.setDescription("TestPanel6");
+		panel6.setResizable(true);
+		panel6.setMaximizable(true);	
+		panel6.setOrder(6);
+		WebContent content6 = new WebContent();
+		content5.setHtmlCode("<img  height=\"200\" width=\"200\" src=\"/wasp/file/fileHandle/1159/view.do\" />");
+		
+		panel6.setContent(content6);
+		panelTab.addPanel(panel6);		
+*/
 		return panelTab;
 	}
 }
