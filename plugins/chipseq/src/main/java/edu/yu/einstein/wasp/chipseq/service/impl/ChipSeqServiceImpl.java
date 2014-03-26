@@ -291,10 +291,10 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 
 			PanelTab summaryPanelTab = ChipSeqWebPanels.getSummaryPanelTab(jobStatus, job, strategy, softwareName);
 			panelTabSet.add(summaryPanelTab);logger.debug("***************11");
-			/*
+			
 			PanelTab testPanelTabWithIFrames = ChipSeqWebPanels.getTestPanelTab();
 			if(testPanelTabWithIFrames!=null){panelTabSet.add(testPanelTabWithIFrames);}
-*/
+
 
 			//TODO: uncomment if(jobStatus.toString().equals(Status.COMPLETED.toString())){
 				logger.debug("***************jobStatus is COMPLETED, so we enter this loop");
@@ -309,9 +309,16 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 				
 				PanelTab allFilesDisplayedBySamplePanelTab = ChipSeqWebPanels.getAllFilesDisplayedBySamplePanelTab(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
 				if(allFilesDisplayedBySamplePanelTab!=null){panelTabSet.add(allFilesDisplayedBySamplePanelTab);}
-
 				PanelTab allFilesDisplayedByFileTypePanelTab = ChipSeqWebPanels.getAllFilesDisplayedByFileTypePanelTab(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
 				if(allFilesDisplayedByFileTypePanelTab!=null){panelTabSet.add(allFilesDisplayedByFileTypePanelTab);}
+				
+				PanelTab allFilesDisplayedBySampleUsingGroupingGridPanelTab = ChipSeqWebPanels.getAllFilesDisplayedBySampleUsingGroupingGridPanelTab(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
+				if(allFilesDisplayedBySampleUsingGroupingGridPanelTab!=null){panelTabSet.add(allFilesDisplayedBySampleUsingGroupingGridPanelTab);}
+				PanelTab allFilesDisplayedByFileTypeUsingGroupingGridPanelTab = ChipSeqWebPanels.getAllFilesDisplayedByFileTypeUsingGroupingGridPanelTab(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
+				if(allFilesDisplayedByFileTypeUsingGroupingGridPanelTab!=null){panelTabSet.add(allFilesDisplayedByFileTypeUsingGroupingGridPanelTab);}
+
+				
+				
 
 				
 				

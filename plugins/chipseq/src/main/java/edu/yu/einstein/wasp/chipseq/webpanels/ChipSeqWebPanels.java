@@ -422,9 +422,139 @@ public class ChipSeqWebPanels {
 		return panelTab;
 	}
 	
+	public static PanelTab getAllFilesDisplayedBySampleUsingGroupingGridPanelTab(List<Sample> testSampleList, Map<Sample, List<Sample>> testSampleControlSampleListMap, List<FileType> fileTypeList, Map<String, FileHandle>  sampleIdControlIdFileTypeIdFileHandleMap, Map<FileHandle, String> fileHandleResolvedURLMap, Map<String, FileGroup> sampleIdControlIdFileTypeIdFileGroupMap){
+
+		PanelTab panelTab = new PanelTab();
+		
+		panelTab.setName("Files By Sample Pairs");
+		panelTab.setNumberOfColumns(1);
+		//panelTab.setDescription("testDescription");
+		
+		WebPanel panel = new WebPanel();
+		panel.setTitle("Files By Sample Pairs");
+		///panel.setDescription("Files By Sample");
+		panel.setResizable(true);
+		panel.setMaximizable(true);	
+		panel.setOrder(1);
+		WebContent content = new WebContent();
+		String divId = "filesGroupedBySamplePairs-grid";				
+		content.setHtmlCode("<div id=\""+divId+"\"></div>");
+		panel.setContent(content);
+		
+		StringBuffer stringBuffer = new StringBuffer();
+		for(Sample testSample : testSampleList){
+			List<Sample> controlSampleList = testSampleControlSampleListMap.get(testSample);
+			for(Sample controlSample : controlSampleList){
+				
+				String samplePairs = "Test Sample: " + testSample.getName() + "; Control: " + controlSample.getName();
+
+				
+				for(FileType fileType : fileTypeList){
+					if(stringBuffer.length()>0){
+						stringBuffer.append(", ");
+					}
+					FileHandle fileHandle = sampleIdControlIdFileTypeIdFileHandleMap.get(testSample.getId().toString() + "::" + controlSample.getId().toString() + "::" + fileType.getId().toString());
+					String resolvedURL = fileHandleResolvedURLMap.get(fileHandle);
+					//if(fileHandle==null){
+					//	stringBuffer.append("{FileType: '"+fileType.getName()+"', File: 'no file', MD5: ' ', Download: ' '}");
+					//}
+					//else{
+						//stringBuffer.append("{TestSample: '"+testSample.getName()+"', ControlSample: '"+controlSample.getName()+"', File: '"+fileHandle.getFileName()+"', MD5: '"+fileHandle.getMd5hash()+"', Download: '"+"<a href=\""+resolvedURL+"\"><img src=\"ext/images/icons/fam/disk.png\" /></a>"+"'}");
+						stringBuffer.append("{SamplePairs: '"+samplePairs+"', FileType: '"+fileType.getName()+"', File: '"+fileHandle.getFileName()+"', MD5: '"+fileHandle.getMd5hash()+"', Download: '"+resolvedURL+"'}");
+					//}
+				}
+				
+				
+			}
+		}
+		String theData = new String(stringBuffer);
+		
+		//normal grid
+		//String script = "Ext.require(['Ext.grid.*','Ext.data.*','Ext.form.field.Number','Ext.form.field.Date','Ext.tip.QuickTipManager','Ext.selection.CheckboxModel','Wasp.RowActions']); Ext.tip.QuickTipManager.init(); Ext.define('SampleControlFile',{ extend: 'Ext.data.Model', fields: [ 'SamplePairs', 'FileType', 'File', 'MD5', 'Download' ] }); var store = Ext.create('Ext.data.Store', { model: 'SampleControlFile', data : ["+theData+"] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"Sample Pairs\",  width:150, dataIndex: 'SamplePairs'},{text: \"FileType\",  width:150, dataIndex: 'FileType'}, {text: \"File\",  flex: 1, dataIndex: 'File'}, {text: \"MD5\",  width:270, dataIndex: 'MD5', renderer: function(val, meta, record){var tip = record.get('MD5'); meta.tdAttr = 'data-qtip=\"' + tip + '\"'; return val; } }, {header:\" \", width: 100, xtype: 'rowactions', actions: [{iconCls: 'icon-clear-group', qtip: 'Download', callback: function(grip, record, action, idx, col, e, target){window.location=record.get('Download');}}], keepSelection: true     }, ], renderTo:'"+divId+"', height: 300 });";
+		
+		//grouping grid test with all fields
+		//String script = "Ext.require(['Ext.grid.*','Ext.data.*','Ext.form.field.Number','Ext.form.field.Date','Ext.tip.QuickTipManager','Ext.selection.CheckboxModel','Wasp.RowActions']); Ext.tip.QuickTipManager.init(); Ext.define('SampleControlFile',{ extend: 'Ext.data.Model', fields: [ 'SamplePairs', 'FileType', 'File', 'MD5', 'Download' ] }); var store = Ext.create('Ext.data.Store', { model: 'SampleControlFile',  groupField: 'SamplePairs', data : ["+theData+"] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"Sample Pairs\",  width:150, dataIndex: 'SamplePairs'},{text: \"FileType\",  width:150, dataIndex: 'FileType'}, {text: \"File\",  flex: 1, dataIndex: 'File'}, {text: \"MD5\",  width:270, dataIndex: 'MD5', renderer: function(val, meta, record){var tip = record.get('MD5'); meta.tdAttr = 'data-qtip=\"' + tip + '\"'; return val; } }, {header:\" \", width: 100, xtype: 'rowactions', actions: [{iconCls: 'icon-clear-group', qtip: 'Download', callback: function(grip, record, action, idx, col, e, target){window.location=record.get('Download');}}], keepSelection: true     }, ],  features: [{ftype: 'grouping' }], renderTo:'"+divId+"', height: 300 });";
+		
+		//group grid with the goupedField not displayed on every row
+		String script = "Ext.require(['Ext.grid.*','Ext.data.*','Ext.form.field.Number','Ext.form.field.Date','Ext.tip.QuickTipManager','Ext.selection.CheckboxModel','Wasp.RowActions']); Ext.tip.QuickTipManager.init(); Ext.define('SampleControlFile',{ extend: 'Ext.data.Model', fields: [ 'SamplePairs', 'FileType', 'File', 'MD5', 'Download' ] }); var store = Ext.create('Ext.data.Store', { model: 'SampleControlFile',  groupField: 'SamplePairs', data : ["+theData+"] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"File Type\",  width:150, dataIndex: 'FileType'}, {text: \"File\",  flex: 1, dataIndex: 'File'}, {text: \"MD5\",  width:270, dataIndex: 'MD5', renderer: function(val, meta, record){var tip = record.get('MD5'); meta.tdAttr = 'data-qtip=\"' + tip + '\"'; return val; } }, {header:\" \", width: 100, xtype: 'rowactions', actions: [{iconCls: 'icon-clear-group', qtip: 'Download', callback: function(grip, record, action, idx, col, e, target){window.location=record.get('Download');}}], keepSelection: true     }, ],  features: [{ftype: 'grouping', groupHeaderTpl: 'File Type: {name}' }], renderTo:'"+divId+"', height: 300 });";
+		
+		//example from web; it works fine
+		//String script = "var store = Ext.create('Ext.data.Store', {        storeId: 'employeeStore',        fields: ['name', 'seniority', 'department'],        groupField: 'department',        data: {            'employees': [{                \"name\": \"Michael Scott\",                \"seniority\": 7,                \"department\": \"Management\"            }, {                \"name\": \"Dwight Schrute\",                \"seniority\": 2,               \"department\": \"Sales\"            }, {                \"name\": \"Jim Halpert\",               \"seniority\": 3,                \"department\": \"Sales\"            }, {                \"name\": \"Kevin Malone\",                \"seniority\": 4,                \"department\": \"Accounting\"            }, {                \"name\": \"Angela Martin\",                \"seniority\": 5,                \"department\": \"Accounting\"            }]        },        proxy: {            type: 'memory',            reader: {                type: 'json',                root: 'employees'            }        }    });    Ext.create('Ext.grid.Panel', {        title: 'Employees',        store: Ext.data.StoreManager.lookup('employeeStore'),        columns: [{            text: 'Name',            dataIndex: 'name'        }, {            text: 'Seniority',            dataIndex: 'seniority'        }],        features: [{            ftype: 'grouping'        }],        width: 200,        height: 275,        renderTo:'"+divId+"'    });";
+		
+		panel.setExecOnRenderCode(script);
+		panel.setExecOnExpandCode(" ");
+		panel.setExecOnResizeCode(" ");
+		// does nothing: content.setScriptCode(script);
+		panelTab.addPanel(panel);
+		return panelTab;
+	}
 	
-	
-	
+	public static PanelTab getAllFilesDisplayedByFileTypeUsingGroupingGridPanelTab(List<Sample> testSampleList, Map<Sample, List<Sample>> testSampleControlSampleListMap, List<FileType> fileTypeList, Map<String, FileHandle>  sampleIdControlIdFileTypeIdFileHandleMap, Map<FileHandle, String> fileHandleResolvedURLMap, Map<String, FileGroup> sampleIdControlIdFileTypeIdFileGroupMap){
+
+		PanelTab panelTab = new PanelTab();
+		
+		panelTab.setName("Files By File Type");
+		panelTab.setNumberOfColumns(1);
+		//panelTab.setDescription("testDescription");
+		
+		WebPanel panel = new WebPanel();
+		panel.setTitle("Files By File Type");
+		///panel.setDescription("Files By Sample");
+		panel.setResizable(true);
+		panel.setMaximizable(true);	
+		panel.setOrder(1);
+		WebContent content = new WebContent();
+		String divId = "filesGroupedByFileType-grid";				
+		content.setHtmlCode("<div id=\""+divId+"\"></div>");
+		panel.setContent(content);
+		
+		StringBuffer stringBuffer = new StringBuffer();
+		for(Sample testSample : testSampleList){
+			List<Sample> controlSampleList = testSampleControlSampleListMap.get(testSample);
+			for(Sample controlSample : controlSampleList){
+				
+				String samplePairs = "Test Sample: " + testSample.getName() + "; Control: " + controlSample.getName();
+
+				
+				for(FileType fileType : fileTypeList){
+					if(stringBuffer.length()>0){
+						stringBuffer.append(", ");
+					}
+					FileHandle fileHandle = sampleIdControlIdFileTypeIdFileHandleMap.get(testSample.getId().toString() + "::" + controlSample.getId().toString() + "::" + fileType.getId().toString());
+					String resolvedURL = fileHandleResolvedURLMap.get(fileHandle);
+					//if(fileHandle==null){
+					//	stringBuffer.append("{FileType: '"+fileType.getName()+"', File: 'no file', MD5: ' ', Download: ' '}");
+					//}
+					//else{
+						//stringBuffer.append("{TestSample: '"+testSample.getName()+"', ControlSample: '"+controlSample.getName()+"', File: '"+fileHandle.getFileName()+"', MD5: '"+fileHandle.getMd5hash()+"', Download: '"+"<a href=\""+resolvedURL+"\"><img src=\"ext/images/icons/fam/disk.png\" /></a>"+"'}");
+						stringBuffer.append("{SamplePairs: '"+samplePairs+"', FileType: '"+fileType.getName()+"', File: '"+fileHandle.getFileName()+"', MD5: '"+fileHandle.getMd5hash()+"', Download: '"+resolvedURL+"'}");
+					//}
+				}
+				
+				
+			}
+		}
+		String theData = new String(stringBuffer);
+		
+		//normal grid
+		//String script = "Ext.require(['Ext.grid.*','Ext.data.*','Ext.form.field.Number','Ext.form.field.Date','Ext.tip.QuickTipManager','Ext.selection.CheckboxModel','Wasp.RowActions']); Ext.tip.QuickTipManager.init(); Ext.define('SampleControlFile',{ extend: 'Ext.data.Model', fields: [ 'SamplePairs', 'FileType', 'File', 'MD5', 'Download' ] }); var store = Ext.create('Ext.data.Store', { model: 'SampleControlFile', data : ["+theData+"] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"Sample Pairs\",  width:150, dataIndex: 'SamplePairs'},{text: \"FileType\",  width:150, dataIndex: 'FileType'}, {text: \"File\",  flex: 1, dataIndex: 'File'}, {text: \"MD5\",  width:270, dataIndex: 'MD5', renderer: function(val, meta, record){var tip = record.get('MD5'); meta.tdAttr = 'data-qtip=\"' + tip + '\"'; return val; } }, {header:\" \", width: 100, xtype: 'rowactions', actions: [{iconCls: 'icon-clear-group', qtip: 'Download', callback: function(grip, record, action, idx, col, e, target){window.location=record.get('Download');}}], keepSelection: true     }, ], renderTo:'"+divId+"', height: 300 });";
+		
+		//grouping grid test with all fields
+		//String script = "Ext.require(['Ext.grid.*','Ext.data.*','Ext.form.field.Number','Ext.form.field.Date','Ext.tip.QuickTipManager','Ext.selection.CheckboxModel','Wasp.RowActions']); Ext.tip.QuickTipManager.init(); Ext.define('SampleControlFile',{ extend: 'Ext.data.Model', fields: [ 'SamplePairs', 'FileType', 'File', 'MD5', 'Download' ] }); var store = Ext.create('Ext.data.Store', { model: 'SampleControlFile',  groupField: 'SamplePairs', data : ["+theData+"] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"Sample Pairs\",  width:150, dataIndex: 'SamplePairs'},{text: \"FileType\",  width:150, dataIndex: 'FileType'}, {text: \"File\",  flex: 1, dataIndex: 'File'}, {text: \"MD5\",  width:270, dataIndex: 'MD5', renderer: function(val, meta, record){var tip = record.get('MD5'); meta.tdAttr = 'data-qtip=\"' + tip + '\"'; return val; } }, {header:\" \", width: 100, xtype: 'rowactions', actions: [{iconCls: 'icon-clear-group', qtip: 'Download', callback: function(grip, record, action, idx, col, e, target){window.location=record.get('Download');}}], keepSelection: true     }, ],  features: [{ftype: 'grouping' }], renderTo:'"+divId+"', height: 300 });";
+		
+		//group grid with the goupedField not displayed on every row
+		String script = "Ext.require(['Ext.grid.*','Ext.data.*','Ext.form.field.Number','Ext.form.field.Date','Ext.tip.QuickTipManager','Ext.selection.CheckboxModel','Wasp.RowActions']); Ext.tip.QuickTipManager.init(); Ext.define('SampleControlFile',{ extend: 'Ext.data.Model', fields: [ 'SamplePairs', 'FileType', 'File', 'MD5', 'Download' ] }); var store = Ext.create('Ext.data.Store', { model: 'SampleControlFile',  groupField: 'FileType', data : ["+theData+"] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"Sample Pairs\",  width:150, dataIndex: 'SamplePairs'}, {text: \"File\",  flex: 1, dataIndex: 'File'}, {text: \"MD5\",  width:270, dataIndex: 'MD5', renderer: function(val, meta, record){var tip = record.get('MD5'); meta.tdAttr = 'data-qtip=\"' + tip + '\"'; return val; } }, {header:\" \", width: 100, xtype: 'rowactions', actions: [{iconCls: 'icon-clear-group', qtip: 'Download', callback: function(grip, record, action, idx, col, e, target){window.location=record.get('Download');}}], keepSelection: true     }, ],  features: [{ftype: 'grouping', groupHeaderTpl: 'File Type: {name}' }], renderTo:'"+divId+"', height: 300 });";
+		
+		//example from web; it works fine
+		//String script = "var store = Ext.create('Ext.data.Store', {        storeId: 'employeeStore',        fields: ['name', 'seniority', 'department'],        groupField: 'department',        data: {            'employees': [{                \"name\": \"Michael Scott\",                \"seniority\": 7,                \"department\": \"Management\"            }, {                \"name\": \"Dwight Schrute\",                \"seniority\": 2,               \"department\": \"Sales\"            }, {                \"name\": \"Jim Halpert\",               \"seniority\": 3,                \"department\": \"Sales\"            }, {                \"name\": \"Kevin Malone\",                \"seniority\": 4,                \"department\": \"Accounting\"            }, {                \"name\": \"Angela Martin\",                \"seniority\": 5,                \"department\": \"Accounting\"            }]        },        proxy: {            type: 'memory',            reader: {                type: 'json',                root: 'employees'            }        }    });    Ext.create('Ext.grid.Panel', {        title: 'Employees',        store: Ext.data.StoreManager.lookup('employeeStore'),        columns: [{            text: 'Name',            dataIndex: 'name'        }, {            text: 'Seniority',            dataIndex: 'seniority'        }],        features: [{            ftype: 'grouping'        }],        width: 200,        height: 275,        renderTo:'"+divId+"'    });";
+		
+		panel.setExecOnRenderCode(script);
+		panel.setExecOnExpandCode(" ");
+		panel.setExecOnResizeCode(" ");
+		// does nothing: content.setScriptCode(script);
+		panelTab.addPanel(panel);
+		return panelTab;
+	}
 	
 	
 	public static PanelTab getAllFilesDisplayedBySamplePanelTab(List<Sample> testSampleList, Map<Sample, List<Sample>> testSampleControlSampleListMap, List<FileType> fileTypeList, Map<String, FileHandle>  sampleIdControlIdFileTypeIdFileHandleMap, Map<FileHandle, String> fileHandleResolvedURLMap, Map<String, FileGroup> sampleIdControlIdFileTypeIdFileGroupMap){
@@ -606,6 +736,26 @@ public class ChipSeqWebPanels {
 		
 		panel3.setContent(content3);
 		panelTab.addPanel(panel3);		
+
+		WebPanel panel4 = new WebPanel();
+		panel4.setTitle("P4 - file coming from C4!!");
+		panel4.setDescription("file coming from C4");
+		panel4.setResizable(true);
+		panel4.setMaximizable(true);	
+		panel4.setOrder(4);//doesn't appear to do anything:  panel3.setHeight(10000);
+		WebContent content4 = new WebContent();
+		//content3.setHtmlCode("<iframe  width=\"100%\" src=\"http://www.einstein.yu.edu\"></iframe>");
+		//content3.setHtmlCode("<iframe height=\"100%\" width=\"100%\" src=\"http://localhost:8080/wasp/images/dubinModel.pdf\"></iframe>");
+		//content3.setHtmlCode("<iframe  height=\"100%\" width=\"100%\" src=\"/wasp/images/dubinModel.pdf\"></iframe>");
+		content4.setHtmlCode("<table border=\"1\">" +
+				"<tr><th>this is a header</th></tr>" +
+				"<tr><td>this is a row</td></tr>" +
+				"<tr><td>this is another row</td></tr>" +
+				"<tr><td>this is and yet a third row</td></tr>" +
+				"</table>");
+		
+		panel4.setContent(content4);
+		panelTab.addPanel(panel4);
 
 		return panelTab;
 	}
