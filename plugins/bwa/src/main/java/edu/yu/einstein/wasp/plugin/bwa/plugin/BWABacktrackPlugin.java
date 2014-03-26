@@ -27,15 +27,15 @@ import edu.yu.einstein.wasp.util.WaspJobContext;
  * @author calder
  * 
  */
-public class BWABacktracePlugin extends AbstractBWAPlugin {
+public class BWABacktrackPlugin extends AbstractBWAPlugin {
 
 	private static final long serialVersionUID = 8181556629848527079L;
 
-	public static final String JOB_NAME = "bwa-backtrace.alignment";
+	public static final String JOB_NAME = "bwa-backtrack.alignment";
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	public BWABacktracePlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
+	public BWABacktrackPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
 		super(iName, waspSiteProperties, channel);
 	}
 
@@ -81,7 +81,7 @@ public class BWABacktracePlugin extends AbstractBWAPlugin {
 
 	public Message<String> alignHelp() {
 		String mstr = "BWA plugin: align registered fastq files:\n" +
-				"wasp -T bwa-backtrace -t align -m \'{cellLibrary:\"101\"}\'\n";
+				"wasp -T bwa-backtrack -t align -m \'{cellLibrary:\"101\"}\'\n";
 		return MessageBuilder.withPayload(mstr).build();
 	}
 

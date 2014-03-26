@@ -9,20 +9,20 @@
         http://www.springframework.org/schema/context/spring-context.xsd"
     default-autowire="byName">
     
-  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="imageMagickUiFieldWrapper">
-    <property name="baseArea" ref="imageMagickPluginArea" />
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="imagemagickUiFieldWrapper">
+    <property name="baseArea" ref="imagemagickPluginArea" />
   </bean>
 
-  <bean id="imageMagick" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
-  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.mps.grid.software.ImageMagick</value></property>
-    <property name="name" value="ImageMagick" />
+  <bean id="imagemagick" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
+  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.mps.grid.software.Imagemagick</value></property>
+    <property name="name" value="Imagemagick" />
     <property name="description" value="Image processing software" />
-    <property name="area" ref="imageMagickPluginArea" />
+    <property name="area" ref="imagemagickPluginArea" />
     <property name="resourceType" ref="genericPluginResourceType" /> <!-- TODO: choose a more appropriate resource type -->
 	
 	<property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" ref="imageMagickPluginArea" />
+         <property name="area" ref="imagemagickPluginArea" />
          <!-- Load any software metadata 
          <property name="metaList">
          	<list>

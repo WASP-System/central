@@ -31,7 +31,7 @@ public class BWAMemPlugin extends AbstractBWAPlugin {
 
 	private static final long serialVersionUID = 8181556629848527079L;
 
-	public static final String JOB_NAME = "bwa-backtrace.alignment";
+	public static final String JOB_NAME = "bwa-mem.alignment";
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -81,7 +81,7 @@ public class BWAMemPlugin extends AbstractBWAPlugin {
 
 	public Message<String> alignHelp() {
 		String mstr = "BWA plugin: align registered fastq files:\n" +
-				"wasp -T bwa-backtrace -t align -m \'{cellLibrary:\"101\"}\'\n";
+				"wasp -T bwa-backtrack -t align -m \'{cellLibrary:\"101\"}\'\n";
 		return MessageBuilder.withPayload(mstr).build();
 	}
 

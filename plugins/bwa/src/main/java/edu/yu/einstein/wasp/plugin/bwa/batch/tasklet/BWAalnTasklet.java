@@ -25,7 +25,7 @@ import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.plugin.bwa.software.BWABacktraceSoftwareComponent;
+import edu.yu.einstein.wasp.plugin.bwa.software.BWABacktrackSoftwareComponent;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
@@ -58,7 +58,7 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
 	private FileType fastqFileType;
 	
 	@Autowired
-	private BWABacktraceSoftwareComponent bwa;
+	private BWABacktrackSoftwareComponent bwa;
 
 	public BWAalnTasklet() {
 		// proxy

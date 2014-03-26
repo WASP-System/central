@@ -29,7 +29,7 @@
 		<property name="description" value="Image processing tools" />
 		<property name="provides" >
 			<set>
-				<ref bean="Imagemagick" /> 
+				<ref bean="imagemagick" /> 
 			</set>
 		</property>
 		<property name="handles" >

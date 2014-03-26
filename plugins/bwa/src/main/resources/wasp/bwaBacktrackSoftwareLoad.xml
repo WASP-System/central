@@ -8,19 +8,19 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="bwaAlignerUiFieldWrapper">
-  	<property name="baseArea" ref="bwaBacktraceArea" />
+  	<property name="baseArea" ref="bwaBacktrackArea" />
   </bean>
 
-  <bean id="bwaBacktrace" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
-  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.bwa.software.BWABacktraceSoftwareComponent</value></property>
-    <property name="name" value="BWA-backtrace" />
+  <bean id="bwaBacktrack" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
+  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.bwa.software.BWABacktrackSoftwareComponent</value></property>
+    <property name="name" value="BWA-backtrack" />
     <property name="description" value="BWA-backtrack (aln/sampe/samse commands) is designed for Illumina sequence reads up to 100bp." />
-    <property name="area" ref="bwaBacktraceArea" />
+    <property name="area" ref="bwaBacktrackArea" />
     <property name="resourceType" ref="referenceBasedAlignerResourceType" />
 	
 	<property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" ref="bwaBacktraceArea" />
+         <property name="area" ref="bwaBacktrackArea" />
          <property name="metaList">
          	<list>
          		<value>#{waspSoftware['currentVersion']}=0.7.6a</value>

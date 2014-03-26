@@ -4,9 +4,9 @@
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
 
 	<!-- for job, call with parameter 'runID' -->
-	<batch:flow id="bwa-backtrace.alignmentFlow">
+	<batch:flow id="bwa-backtrack.alignmentFlow">
 	
-		<batch:step id="bwa-backtrace.alignmentFlow.notifyBWAStart" next="bwa-backtrace.alignmentFlow.BWAaln">
+		<batch:step id="bwa-backtrack.alignmentFlow.notifyBWAStart" next="bwa-backtrack.alignmentFlow.BWAaln">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
@@ -21,14 +21,14 @@
 			</batch:tasklet>
 		</batch:step>
 
-		<batch:step id="bwa-backtrace.alignmentFlow.BWAaln">
+		<batch:step id="bwa-backtrack.alignmentFlow.BWAaln">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.plugin.bwa.batch.tasklet.BWAalnTasklet" scope="step">
 					<constructor-arg name="cellLibraryIds" value="#{jobParameters[waspSoftwareJobParameters.CELL_LIBRARY_ID_LIST]}" />
 				</bean>
 			</batch:tasklet>
-			<batch:next on="FAILED" to="bwa-backtrace.alignmentFlow.notifyBWAFailed" />
-			<batch:next on="*" to="bwa-backtrace.alignmentFlow.BWAsam" />
+			<batch:next on="FAILED" to="bwa-backtrack.alignmentFlow.notifyBWAFailed" />
+			<batch:next on="*" to="bwa-backtrack.alignmentFlow.BWAsam" />
 			<batch:listeners>
 				<batch:listener>
 					<bean class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
@@ -39,23 +39,23 @@
 			</batch:listeners>
 		</batch:step>
 
-		<batch:step id="bwa-backtrace.alignmentFlow.BWAsam">
+		<batch:step id="bwa-backtrack.alignmentFlow.BWAsam">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.plugin.bwa.batch.tasklet.BWAsamTasklet" scope="step" />
 			</batch:tasklet>
-			<batch:next on="FAILED" to="bwa-backtrace.alignmentFlow.notifyBWAFailed" />
-			<batch:next on="*" to="bwa-backtrace.alignmentFlow.mergeBAM" />
+			<batch:next on="FAILED" to="bwa-backtrack.alignmentFlow.notifyBWAFailed" />
+			<batch:next on="*" to="bwa-backtrack.alignmentFlow.mergeBAM" />
 		</batch:step>
 
-		<batch:step id="bwa-backtrace.alignmentFlow.mergeBAM" >
+		<batch:step id="bwa-backtrack.alignmentFlow.mergeBAM" >
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.plugin.bwa.batch.tasklet.BWAMergeSortTasklet" scope="step" />
 			</batch:tasklet>
-			<batch:next on="FAILED" to="bwa-backtrace.alignmentFlow.notifyBWAFailed" />
-			<batch:next on="*" to="bwa-backtrace.alignmentFlow.notifyBWAComplete" />
+			<batch:next on="FAILED" to="bwa-backtrack.alignmentFlow.notifyBWAFailed" />
+			<batch:next on="*" to="bwa-backtrack.alignmentFlow.notifyBWAComplete" />
 		</batch:step>
 
-		<batch:step id="bwa-backtrace.alignmentFlow.notifyBWAComplete">
+		<batch:step id="bwa-backtrack.alignmentFlow.notifyBWAComplete">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
@@ -70,7 +70,7 @@
 			</batch:tasklet>
 		</batch:step>
 		
-		<batch:step id="bwa-backtrace.alignmentFlow.notifyBWAFailed">
+		<batch:step id="bwa-backtrack.alignmentFlow.notifyBWAFailed">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
@@ -88,8 +88,8 @@
 
 	</batch:flow>
 	
-	<batch:job id="bwa-backtrace.alignment">
-		<batch:flow id="bwa-backtrace.align" parent="bwa-backtrace.alignmentFlow"/>
+	<batch:job id="bwa-backtrack.alignment">
+		<batch:flow id="bwa-backtrack.align" parent="bwa-backtrack.alignmentFlow"/>
 	</batch:job>
 	
 </beans>

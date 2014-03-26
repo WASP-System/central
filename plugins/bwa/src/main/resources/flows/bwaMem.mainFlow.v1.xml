@@ -6,7 +6,7 @@
 	<!-- for job, call with parameter 'runID' -->
 	<batch:flow id="bwa-mem.alignmentFlow">
 	
-		<batch:step id="bwa-mem.alignmentFlow.notifyBWAStart" next="bwa-mem.alignmentFlow.BWAaln">
+		<batch:step id="bwa-mem.alignmentFlow.notifyBWAStart" next="bwa-mem.alignmentFlow.BWAmem">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />

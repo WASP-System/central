@@ -15,11 +15,11 @@ import edu.yu.einstein.wasp.model.SampleSource;
  * @author calder
  *
  */
-public class BWABacktraceSoftwareComponent extends AbstractBWASoftwareComponent{
+public class BWABacktrackSoftwareComponent extends AbstractBWASoftwareComponent{
 
 	private static final long serialVersionUID = -6631761128215948999L;
 	
-	public BWABacktraceSoftwareComponent() {
+	public BWABacktrackSoftwareComponent() {
 		super();
 	}
 	
