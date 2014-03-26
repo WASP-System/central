@@ -22,7 +22,7 @@ import org.springframework.integration.rmi.RmiOutboundGateway;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.remoting.RemoteLookupFailureException;
 
-import edu.yu.einstein.wasp.plugin.cli.CliMessagingTask;
+import edu.yu.einstein.interfacing.wasp.interfacing.plugin.cli.CliMessagingTask;
 
 /**
  * @author calder

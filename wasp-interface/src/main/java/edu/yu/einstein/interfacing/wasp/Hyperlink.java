@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp;
+package edu.yu.einstein.interfacing.wasp;
 
 /**
  * A target link and associated label

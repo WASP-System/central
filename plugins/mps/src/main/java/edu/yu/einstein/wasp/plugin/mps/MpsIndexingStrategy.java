@@ -1,6 +1,6 @@
 package edu.yu.einstein.wasp.plugin.mps;
 
-import edu.yu.einstein.wasp.IndexingStrategy;
+import edu.yu.einstein.interfacing.wasp.IndexingStrategy;
 
 public class MpsIndexingStrategy extends IndexingStrategy {
 	
