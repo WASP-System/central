@@ -10,31 +10,31 @@
 		
 	<context:component-scan base-package="edu.yu.einstein.wasp.r.service.impl" />
 
-	<bean id="rPluginArea" class="java.lang.String">
+	<bean id="imagemagickPluginArea" class="java.lang.String">
 		<constructor-arg>
-			<value>rPackage</value>
+			<value>imagemagick</value>
 		</constructor-arg>
 	</bean>
 	
 	<!-- channel for communications with this plugin. -->
-	<int:channel id="wasp.channel.plugin.r" />
+	<int:channel id="wasp.channel.plugin.imagemagick" />
 
-	<int:service-activator input-channel="wasp.channel.plugin.r" ref="rPlugin" method="process" />
+	<int:service-activator input-channel="wasp.channel.plugin.imagemagick" ref="imagemagickPlugin" method="process" />
 	
-	<bean id="rPlugin" class="edu.yu.einstein.wasp.r.plugin.RPlugin">
-		<constructor-arg name="iName" ref="rPluginArea" />
+	<bean id="imagemagickPlugin" class="edu.yu.einstein.wasp.plugin.mps.grid.plugin.ImagemagickPlugin">
+		<constructor-arg name="iName" ref="imagemagickPluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
-		<constructor-arg name="channel" ref="wasp.channel.plugin.r" />
-		<property name="name" value="R" />
-		<property name="description" value="The R Project for Statistical Computing" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.imagemagick" />
+		<property name="name" value="Imagemagick" />
+		<property name="description" value="Image processing tools" />
 		<property name="provides" >
 			<set>
-				<ref bean="rPackage" /> 
+				<ref bean="Imagemagick" /> 
 			</set>
 		</property>
 		<property name="handles" >
 			<set>
-				<ref bean="rPluginArea" />
+				<ref bean="imagemagickPluginArea" />
 			</set>
 		</property>
 	</bean>

@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	default-autowire="byName"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="bwaAlignerUiFieldWrapper">
+  	<property name="baseArea" ref="bwaMemArea" />
+  </bean>
+
+  <bean id="bwaMem" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
+  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.bwa.software.BWAMemSoftwareComponent</value></property>
+    <property name="name" value="BWA-MEM" />
+    <property name="area" ref="bwaMemArea" />
+    <property name="description" value="BWA-MEM (mem command) is designed for long sequences ranged from 70bp to 1Mbp and has better performance and accuracy than BWA-backtrack for 70-100bp Illumina reads." />
+    <property name="resourceType" ref="referenceBasedAlignerResourceType" />
+	
+	<property name="metaFromWrapper">
+       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
+         <property name="area" ref="bwaMemArea" />
+         <property name="metaList">
+         	<list>
+         		<value>#{waspSoftware['currentVersion']}=0.7.6a</value>
+         		<value>#{waspSoftware['priorVersions']}=</value>
+         	</list>
+       	 </property>
+       </bean>
+    </property> 
+    
+    <property name="uiFieldsFromWrapper">
+      <list>
+        <bean parent="bwaAlignerUiFieldWrapper">
+          <property name="baseName" value="mem-w" />
+           <property name="metaposition" value="10" />
+           <property name="label" value="aligner.bwa.mem_w.label" />
+           <property name="type" value="NUMBER" />
+           <property name="range" value="0:10000" />
+           <property name="default" value="100" />
+           <property name="constraint" value="NotEmpty" />
+           <property name="error" value="aligner.bwa.mem_w.error" />
+           <property name="tooltip" value="aligner.bwa.mem_w.tt" />
+        </bean>
+        
+        <bean parent="bwaAlignerUiFieldWrapper">
+          <property name="baseName" value="mem-k" />
+          <property name="metaposition" value="20" />
+          <property name="label" value="aligner.bwa.mem_k.label" />
+          <property name="type" value="INTEGER" />
+          <property name="range" value="0:100" />
+          <property name="default" value="19" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="aligner.bwa.mem_k.error" />
+          <property name="tooltip" value="aligner.bwa.mem_k.tt" />
+        </bean>
+        
+         <bean parent="bwaAlignerUiFieldWrapper">
+          <property name="baseName" value="mem-d" />
+          <property name="metaposition" value="30" />
+          <property name="label" value="aligner.bwa.mem_d.label" />
+          <property name="type" value="INTEGER" />
+          <property name="range" value="0:1000" />
+          <property name="default" value="100" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="aligner.bwa.mem_d.error" />
+          <property name="tooltip" value="aligner.bwa.mem_d.tt" />
+        </bean>
+        
+        <bean parent="bwaAlignerUiFieldWrapper">
+          <property name="baseName" value="mem-r" />
+          <property name="metaposition" value="40" />
+          <property name="label" value="aligner.bwa.mem_r.label" />
+          <property name="type" value="NUMBER" />
+          <property name="range" value="1:100" />
+          <property name="default" value="1.5" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="aligner.bwa.mem_r.error" />
+          <property name="tooltip" value="aligner.bwa.mem_r.tt" />
+        </bean>
+        
+        <bean parent="bwaAlignerUiFieldWrapper">
+          <property name="baseName" value="mem-c" />
+          <property name="metaposition" value="50" />
+          <property name="label" value="aligner.bwa.mem_c.label" />
+          <property name="type" value="INTEGER" />
+          <property name="range" value="1:100000" />
+          <property name="default" value="10000" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="aligner.bwa.mem_c.error" />
+          <property name="tooltip" value="aligner.bwa.mem_c.tt" />
+        </bean>
+        
+        <bean parent="bwaAlignerUiFieldWrapper">
+          <property name="baseName" value="mem-P" />
+          <property name="metaposition" value="60" />
+          <property name="label" value="aligner.bwa.mem_P.label" />
+          <property name="control" value="aligner.bwa.mem_P.control" />
+          <property name="default" value="no" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="aligner.bwa.mem_P.error" />
+          <property name="tooltip" value="aligner.bwa.mem_P.tt" />
+        </bean>   
+        
+        <bean parent="bwaAlignerUiFieldWrapper">
+          <property name="baseName" value="sampe-A" />
+          <property name="metaposition" value="70" />
+          <property name="label" value="aligner.bwa.sampe_A.label" />
+          <property name="type" value="INTEGER" />
+          <property name="range" value="0:10" />
+          <property name="default" value="1" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="aligner.bwa.bwa.sampe_A.error" />
+          <property name="tooltip" value="aligner.bwa.bwa.sampe_A.tt" />
+        </bean> 
+        
+        <bean parent="bwaAlignerUiFieldWrapper">
+          <property name="baseName" value="sampe-B" />
+          <property name="metaposition" value="80" />
+          <property name="label" value="aligner.bwa.sampe_B.label" />
+          <property name="type" value="INTEGER" />
+          <property name="range" value="0:20" />
+          <property name="default" value="4" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="aligner.bwa.bwa.sampe_B.error" />
+          <property name="tooltip" value="aligner.bwa.bwa.sampe_B.tt" />
+        </bean> 
+        
+         <bean parent="bwaAlignerUiFieldWrapper">
+          <property name="baseName" value="mem-O" />
+          <property name="metaposition" value="90" />
+          <property name="label" value="aligner.bwa.mem_O.label" />
+          <property name="type" value="INTEGER" />
+          <property name="range" value="0:100" />
+          <property name="default" value="6" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="aligner.bwa.mem_O.error" />
+          <property name="tooltip" value="aligner.bwa.mem_O.tt" />
+        </bean>
+        
+        <bean parent="bwaAlignerUiFieldWrapper">
+          <property name="baseName" value="mem-E" />
+          <property name="metaposition" value="100" />
+          <property name="label" value="aligner.bwa.mem_E.label" />
+          <property name="type" value="INTEGER" />
+          <property name="range" value="0:100" />
+          <property name="default" value="1" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="aligner.bwa.mem_E.error" />
+          <property name="tooltip" value="aligner.bwa.mem_E.tt" />
+        </bean>
+        
+        <bean parent="bwaAlignerUiFieldWrapper">
+          <property name="baseName" value="mem-L" />
+          <property name="metaposition" value="100" />
+          <property name="label" value="aligner.bwa.mem-L.label" />
+          <property name="type" value="INTEGER" />
+          <property name="range" value="0:100" />
+          <property name="default" value="5" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="aligner.bwa.mem-L.error" />
+          <property name="tooltip" value="aligner.bwa.mem-L.tt" />
+        </bean>
+        
+        <bean parent="bwaAlignerUiFieldWrapper">
+          <property name="baseName" value="mem-U" />
+          <property name="metaposition" value="110" />
+          <property name="label" value="aligner.bwa.mem-U.label" />
+          <property name="type" value="INTEGER" />
+          <property name="range" value="0:100" />
+          <property name="default" value="9" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="aligner.bwa.mem-U.error" />
+          <property name="tooltip" value="aligner.bwa.mem-U.tt" />
+        </bean>
+        
+        <bean parent="bwaAlignerUiFieldWrapper">
+          <property name="baseName" value="mem-p" />
+          <property name="metaposition" value="120" />
+          <property name="label" value="aligner.bwa.mem_p.label" />
+          <property name="control" value="aligner.bwa.mem_p.control" />
+          <property name="default" value="no" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="aligner.bwa.mem_p.error" />
+          <property name="tooltip" value="aligner.bwa.mem_p.tt" />
+        </bean>   
+        
+        <bean parent="bwaAlignerUiFieldWrapper">
+          <property name="baseName" value="mem-R" />
+          <property name="metaposition" value="130" />
+          <property name="label" value="aligner.bwa.mem_R.label" />
+          <property name="type" value="STRING" />
+          <property name="default" value="null" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="aligner.bwa.mem_R.error" />
+          <property name="tooltip" value="aligner.bwa.mem_R.tt" />
+        </bean>
+        
+        <bean parent="bwaAlignerUiFieldWrapper">
+          <property name="baseName" value="mem-T" />
+          <property name="metaposition" value="140" />
+          <property name="label" value="aligner.bwa.mem-T.label" />
+          <property name="type" value="INTEGER" />
+          <property name="range" value="0:100" />
+          <property name="default" value="30" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="aligner.bwa.mem-T.error" />
+          <property name="tooltip" value="aligner.bwa.mem-T.tt" />
+        </bean>
+        
+        <bean parent="bwaAlignerUiFieldWrapper">
+          <property name="baseName" value="mem-a" />
+          <property name="metaposition" value="150" />
+          <property name="label" value="aligner.bwa.mem_a.label" />
+          <property name="control" value="aligner.bwa.mem_a.control" />
+          <property name="default" value="no" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="aligner.bwa.mem_a.error" />
+          <property name="tooltip" value="aligner.bwa.mem_a.tt" />
+        </bean>   
+        
+        <bean parent="bwaAlignerUiFieldWrapper">
+          <property name="baseName" value="mem-C" />
+          <property name="metaposition" value="160" />
+          <property name="label" value="aligner.bwa.mem_C.label" />
+          <property name="control" value="aligner.bwa.mem_C.control" />
+          <property name="default" value="no" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="aligner.bwa.mem_C.error" />
+          <property name="tooltip" value="aligner.bwa.mem_C.tt" />
+        </bean>   
+        
+        <bean parent="bwaAlignerUiFieldWrapper">
+          <property name="baseName" value="mem-H" />
+          <property name="metaposition" value="170" />
+          <property name="label" value="aligner.bwa.mem_H.label" />
+          <property name="control" value="aligner.bwa.mem_H.control" />
+          <property name="default" value="no" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="aligner.bwa.mem_H.error" />
+          <property name="tooltip" value="aligner.bwa.mem_H.tt" />
+        </bean>   
+        
+        <bean parent="bwaAlignerUiFieldWrapper">
+          <property name="baseName" value="mem-M" />
+          <property name="metaposition" value="180" />
+          <property name="label" value="aligner.bwa.mem_M.label" />
+          <property name="control" value="aligner.bwa.mem_M.control" />
+          <property name="default" value="yes" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="aligner.bwa.mem_M.error" />
+          <property name="tooltip" value="aligner.bwa.mem_M.tt" />
+        </bean>   
+        
+        <bean parent="bwaAlignerUiFieldWrapper">
+          <property name="baseName" value="mem-v" />
+          <property name="metaposition" value="190" />
+          <property name="label" value="aligner.bwa.mem-v.label" />
+          <property name="type" value="INTEGER" />
+          <property name="range" value="0:100" />
+          <property name="default" value="3" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="aligner.bwa.mem-v.error" />
+          <property name="tooltip" value="aligner.bwa.mem-v.tt" />
+        </bean>
+        
+      </list>
+    </property> 
+
+  </bean> 
+
+</beans>

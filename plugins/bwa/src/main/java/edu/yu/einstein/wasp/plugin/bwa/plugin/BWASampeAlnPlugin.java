@@ -4,32 +4,22 @@
 package edu.yu.einstein.wasp.plugin.bwa.plugin;
 
 import java.util.Arrays;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.Map;
 import java.util.Properties;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.SoftwareConfigurationException;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.plugin.BatchJobProviding;
-import edu.yu.einstein.wasp.plugin.WaspPlugin;
-import edu.yu.einstein.wasp.plugin.bwa.software.BWASoftwareComponent;
-import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
-import edu.yu.einstein.wasp.service.JobService;
-import edu.yu.einstein.wasp.service.RunService;
-import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.SoftwareConfiguration;
 import edu.yu.einstein.wasp.util.WaspJobContext;
 
@@ -37,51 +27,19 @@ import edu.yu.einstein.wasp.util.WaspJobContext;
  * @author calder
  * 
  */
-public class BWAPlugin extends WaspPlugin implements ClientMessageI, BatchJobProviding {
+public class BWASampeAlnPlugin extends AbstractBWAPlugin {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 8181556629848527079L;
 
 	public static final String JOB_NAME = "wasp-bwa.alignment";
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	private ResourceType referenceBasedAlignerResourceType;
-
-	@Autowired
-	private SampleService sampleService;
-
-	@Autowired
-	private JobService jobService;
-
-	@Autowired
-	private RunService runService;
-
-	private BWASoftwareComponent bwa;
-
-	/**
-	 * @return the bwa
-	 */
-	public BWASoftwareComponent getBwa() {
-		return bwa;
-	}
-
-	/**
-	 * @param bwa
-	 *            the bwa to set
-	 */
-	public void setBwa(BWASoftwareComponent bwa) {
-		this.bwa = bwa;
-	}
-
-	public BWAPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
+	public BWASampeAlnPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
 		super(iName, waspSiteProperties, channel);
 	}
 
-	//@Transactional
+	@Transactional("entityManager")
 	public Message<String> align(Message<String> m) throws Exception {
 		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
 			return alignHelp();
@@ -115,7 +73,7 @@ public class BWAPlugin extends WaspPlugin implements ClientMessageI, BatchJobPro
 		logger.debug("cellLibraryId: " + cellLibraryId + " list: " + clidl);
 		jobParameters.put(WaspSoftwareJobParameters.CELL_LIBRARY_ID_LIST, clidl);
 		jobParameters.put(WaspSoftwareJobParameters.GENOME, "10090::GRCm38::70");
-		jobParameters.put("test", new Date().toGMTString());
+		jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
 		runService.launchBatchJob(JOB_NAME, jobParameters);
 
 		return MessageBuilder.withPayload("Signalled begin of BWA alignment").build();
@@ -127,51 +85,10 @@ public class BWAPlugin extends WaspPlugin implements ClientMessageI, BatchJobPro
 		return MessageBuilder.withPayload(mstr).build();
 	}
 
-	public SampleSource getCellLibraryFromMessage(Message<String> m) {
-		SampleSource cl = null;
-
-		JSONObject jo;
-		try {
-			jo = new JSONObject(m.getPayload().toString());
-			String value = "";
-			if (jo.has("cellLibrary")) {
-				value = (String) jo.get("cellLibrary");
-				cl = sampleService.getSampleSourceDao().findById(new Integer(value));
-			}
-		} catch (JSONException e) {
-			logger.warn("unable to parse JSON");
-		}
-
-		return cl;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
-	 */
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.springframework.beans.factory.DisposableBean#destroy()
-	 */
-	@Override
-	public void destroy() throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-
 	@Override
 	public String getBatchJobName(String BatchJobType) {
 		if (BatchJobType.equals(BatchJobTask.ANALYSIS_LIBRARY_PREPROCESS))
-			return this.JOB_NAME;
+			return JOB_NAME;
 		return null;
 	}
 

@@ -2,7 +2,7 @@
  * Created by Wasp System Eclipse Plugin
  * @author 
  */
-package edu.yu.einstein.wasp.r.plugin;
+package edu.yu.einstein.wasp.plugin.mps.grid.plugin;
 
 import java.util.Properties;
 
@@ -23,7 +23,7 @@ import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 
 /**
- * @author 
+ * @author asmclellan
  */
 public class RPlugin extends WaspPlugin 
 		implements 
