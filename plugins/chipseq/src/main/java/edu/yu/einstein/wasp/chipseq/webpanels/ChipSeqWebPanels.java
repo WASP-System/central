@@ -317,8 +317,13 @@ public class ChipSeqWebPanels {
 			stringBuffer.append("{FileType: '"+fileType.getName()+"', Description: '"+fileType.getDescription()+"'}");
 		}
 		String theData = new String(stringBuffer);
-		String script = "Ext.define('FileTypeDescriptions',{ extend: 'Ext.data.Model', fields: [ 'FileType', 'Description', ] }); var store = Ext.create('Ext.data.Store', { model: 'FileTypeDescriptions', data : ["+theData+"] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"File Type\",  width:200, dataIndex: 'FileType'}, {text: \"Description\",  flex:1, dataIndex: 'Description', renderer: function(value, metaData, record, rowIndex, colIndex, store) { metaData.css = 'multilineColumn'; return value;}     } ], renderTo:'fileTypeDescription-grid', height: 300 });";
 		
+		//shows the entire line only when mouse rollover
+		//String script = "Ext.define('FileTypeDescriptions',{ extend: 'Ext.data.Model', fields: [ 'FileType', 'Description', ] }); var store = Ext.create('Ext.data.Store', { model: 'FileTypeDescriptions', data : ["+theData+"] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"File Type\",  width:200, dataIndex: 'FileType'}, {text: \"Description\",  flex:1, dataIndex: 'Description', renderer: function(value, metaData, record, rowIndex, colIndex, store) { metaData.css = 'multilineColumn'; return value;}     } ], renderTo:'fileTypeDescription-grid', height: 300 });";
+		
+		//shows the entire line at all times
+		String script = "Ext.define('FileTypeDescriptions',{ extend: 'Ext.data.Model', fields: [ 'FileType', 'Description', ] }); var store = Ext.create('Ext.data.Store', { model: 'FileTypeDescriptions', data : ["+theData+"] }); Ext.create('Ext.grid.Panel', { store: store, columns: [ {text: \"File Type\",  width:200, dataIndex: 'FileType'}, {text: \"Description\",  flex:1, dataIndex: 'Description' } ], renderTo:'fileTypeDescription-grid', height: 300 });";
+
 		panel.setExecOnRenderCode(script);
 		panel.setExecOnExpandCode(" ");
 		panel.setExecOnResizeCode(" ");
