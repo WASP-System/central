@@ -7,7 +7,13 @@
 Ext.define('Wasp.Portal', {
 
     extend: 'Ext.container.Container',
-    requires: ['Wasp.PortalPanel', 'Wasp.PortalColumn', 'Wasp.PluginSummaryGridPortlet', 'Wasp.FileDownloadGridPortlet', 'Wasp.ChartPortlet'],
+    
+    requires: [	'Wasp.PortalPanel', 
+    			'Wasp.PortalColumn', 
+    			'Wasp.PluginSummaryGridPortlet', 
+    			'Wasp.FileDownloadGridPortlet', 
+    			'Wasp.ChartPortlet',
+    			'Wasp.GridPortlet'],
     
     width: 1500,
     height: 800,
