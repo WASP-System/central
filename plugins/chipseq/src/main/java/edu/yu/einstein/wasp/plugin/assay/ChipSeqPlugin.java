@@ -5,6 +5,7 @@ package edu.yu.einstein.wasp.plugin.assay;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
@@ -25,8 +26,10 @@ import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.Hyperlink;
+import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.chipseq.service.ChipSeqService;
 import edu.yu.einstein.wasp.exception.PanelException;
+import edu.yu.einstein.wasp.exception.SoftwareConfigurationException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
@@ -44,6 +47,8 @@ import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
+import edu.yu.einstein.wasp.util.SoftwareConfiguration;
+import edu.yu.einstein.wasp.util.WaspJobContext;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
@@ -255,7 +260,25 @@ public class ChipSeqPlugin extends WaspPlugin implements
 	}
 	@Override
 	public Set<PanelTab> getViewPanelTabs(Job job) throws PanelException{
-		return chipSeqService.getChipSeqDataToDisplay(job.getId(), this.getStatus(job));
+		
+		/* ************************************
+		if(!this.getStatus(job).toString().equals(Status.COMPLETED.toString())){
+			return new HashSet<PanelTab>();
+		}
+		*/
+		logger.debug("****just before new call");
+		try{
+			JobDataTabViewing peakcallerPlugin = chipSeqService.getPeakcallerPlugin(job);
+			Set<PanelTab> panelSet = peakcallerPlugin.getViewPanelTabs(job);//at the moment, this would be in macstwo
+			logger.debug("****just after new call");
+			if(panelSet != null && !panelSet.isEmpty()){
+				return panelSet;
+			}
+			return chipSeqService.getChipSeqDataToDisplay(job.getId(), this.getStatus(job));
+		}catch(Exception e){
+			logger.debug("****just before throwing a panel exception: " + e.getMessage());
+			throw new PanelException(e.getMessage());
+		}			
 	}
 
 }

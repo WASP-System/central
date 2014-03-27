@@ -65,6 +65,7 @@ import edu.yu.einstein.wasp.util.SoftwareConfiguration;
 import edu.yu.einstein.wasp.util.WaspJobContext;
 import edu.yu.einstein.wasp.viewpanel.Content;
 import edu.yu.einstein.wasp.viewpanel.DataTabViewing.Status;
+import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.Panel;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 import edu.yu.einstein.wasp.viewpanel.WebContent;
@@ -94,6 +95,25 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 	 */
 	@Transactional("entityManager")
 	@Override
+	public JobDataTabViewing getPeakcallerPlugin(Job job) throws SoftwareConfigurationException{
+			WaspJobContext waspJobContext;
+			try{
+				waspJobContext = new WaspJobContext(job.getId(), jobService);
+			}catch(Exception e){ 
+				throw new SoftwareConfigurationException(e.getMessage());
+			}
+			SoftwareConfiguration softwareConfig = waspJobContext.getConfiguredSoftware(peakcallerResourceType);
+			if (softwareConfig == null){
+				throw new SoftwareConfigurationException("No software could be configured for jobId=" + job.getId() + " with resourceType iname=" + peakcallerResourceType.getIName());
+			}
+			return waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), JobDataTabViewing.class);				
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Transactional("entityManager")
+	@Override
 	public Set<PanelTab> getChipSeqDataToDisplay(Integer jobId, Status jobStatus) throws PanelException{
 		
 		logger.debug("***************starting chipseqService.getChipSeqDataToDisplay(job)");
@@ -117,9 +137,10 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 			if (softwareConfig == null){
 				throw new SoftwareConfigurationException("No software could be configured for jobId=" + jobId + " with resourceType iname=" + peakcallerResourceType.getIName());
 			}
-			BatchJobProviding softwarePlugin = waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), BatchJobProviding.class);
+			BatchJobProviding softwarePlugin_batchJobProviding = waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), BatchJobProviding.class);
+			JobDataTabViewing softwarePlugin_JobDataTabViewing = waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), JobDataTabViewing.class);
 			//String softwareName = softwarePlugin.getName();//macsTwo; softwarePlugin.getIName() is macstwo
-			String softwareName = softwareDao.getSoftwareByIName(softwarePlugin.getIName()).getName();//should get "MACS2 Peakcaller"
+			String softwareName = softwareDao.getSoftwareByIName(softwarePlugin_batchJobProviding.getIName()).getName();//should get "MACS2 Peakcaller"
 			
 			//samplePairs 			
 			Sample noControlSample = new Sample();
@@ -286,6 +307,7 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 			}
 			
 			logger.debug("***************G");
+			softwarePlugin_JobDataTabViewing.getViewPanelTabs(job);
 			Set<PanelTab> panelTabSet = new LinkedHashSet<PanelTab>();logger.debug("***************1");
 
 
