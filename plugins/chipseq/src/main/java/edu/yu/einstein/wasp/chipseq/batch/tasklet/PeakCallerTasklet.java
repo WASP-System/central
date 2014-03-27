@@ -36,6 +36,7 @@ import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.SoftwareConfigurationException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
+import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
@@ -82,9 +83,6 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 	@Qualifier("waspMessageHandlingServiceImpl") // more than one class of type WaspMessageHandlingService so must specify
 	private WaspMessageHandlingService waspMessageHandlingService;
 
-	
-	private List<Integer> approvedCellLibraryIdList;
-	
 	@Autowired
 	private FileService fileService;
 	
@@ -120,10 +118,9 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 		// proxy
 	}
 
-	public PeakCallerTasklet(String cellLibraryIdListAsString, ResourceType softwareResourceType) {
-		this.approvedCellLibraryIdList = WaspSoftwareJobParameters.getCellLibraryIdList(cellLibraryIdListAsString);
-		Assert.assertTrue( ! this.approvedCellLibraryIdList.isEmpty() );
+	public PeakCallerTasklet(ResourceType softwareResourceType) {
 		this.softwareResourceType = softwareResourceType;
+		logger.debug("***************in PeakCallerTasklet() constructor: softwareResourceType for peakcaller is " + this.softwareResourceType.getName());
 	}
 
 	//TODO: remove this next method
@@ -144,13 +141,29 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
 		
-		logger.debug("***************in PeakCallerTasklet.execute(): softwareResourceType for peakcaller is " + this.softwareResourceType.getName());
-		logger.debug("***************in PeakCallerTasklet.execute(): approvedCellLibraryIdList.size() is " + this.approvedCellLibraryIdList.size());
-		List<SampleSource> approvedCellLibraryList = getApprovedCellLibraries(this.approvedCellLibraryIdList);
+		Map<String,Object> jobParametersMap = context.getStepContext().getJobParameters();		
+		Integer jobIdFromJobParameter = null;
+		for (String key : jobParametersMap.keySet()) {
+			logger.debug("***************in PeakCallerTasklet.execute(): jobParametersMap Key: " + key + " Value: " + jobParametersMap.get(key).toString());
+			if(key.equalsIgnoreCase(WaspJobParameters.JOB_ID)){
+				jobIdFromJobParameter = new Integer((String)jobParametersMap.get(key));
+			}
+		}
+		Assert.assertTrue(jobIdFromJobParameter>0);
+		Job job = jobService.getJobByJobId(jobIdFromJobParameter);
+		logger.debug("***************in PeakCallerTasklet.execute(): job.getId() = " + job.getId().toString());
+		Assert.assertTrue(job.getId()>0);
+
+//TODO: ROBERT A DUBIN (another) uncomment next line and comment out the one immediately after for production   !!!!!!!!!!!!!!!!!!!!!!!!  
+		List<SampleSource> approvedCellLibraryList = sampleService.getCellLibrariesPassQCAndNoAggregateAnalysis(job);		
+		//List<SampleSource> approvedCellLibraryList = new ArrayList<SampleSource>(sampleService.getCellLibrariesForJob(job));//sampleService.getCellLibrariesPassQCAndNoAggregateAnalysis(job);		
+
 		logger.debug("***************in PeakCallerTasklet.execute(): approvedCellLibraryList.size() is " + approvedCellLibraryList.size());
+		Assert.assertTrue( ! approvedCellLibraryList.isEmpty() );
+		
+//TODO: ROBERT A DUBIN (1 of 1) uncomment next line for production   !!!!!!!!!!!!!!!!!!!!!!!!   
 		confirmCellLibrariesAssociatedWithBamFiles(approvedCellLibraryList);//throws exception if no
-		Job job = confirmCellLibrariesFromSingleJob(approvedCellLibraryList);//throws exception if no; need job this since samplePairs are by job 
-		Assert.assertTrue(job!=null&&job.getId()!=null);
+
 		Map<Sample, List<SampleSource>> approvedSampleApprovedCellLibraryListMap = associateSampleWithCellLibraries(approvedCellLibraryList);//new HashMap<Sample, List<SampleSource>>();
 		Set<Sample> setOfApprovedSamples = new HashSet<Sample>();//for a specific job (note: this really could have been a list)
 		for (Sample approvedSample : approvedSampleApprovedCellLibraryListMap.keySet()) {
@@ -192,6 +205,9 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 		} 
 		//*/
 		for(Sample testSample : setOfApprovedSamples){
+			
+			Thread.sleep(10000);//this is here for testing only, but certainly will not hurt, as it's merely a 10 second delay
+			
 			logger.debug("***************in PeakCallerTasklet.execute(): preparing to launchMessage to Macs2 for testSample: " + testSample.getName());
 			List<SampleSource> cellLibraryListForTest = approvedSampleApprovedCellLibraryListMap.get(testSample);
 			Assert.assertTrue( ! cellLibraryListForTest.isEmpty() );
@@ -202,7 +218,7 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 				launchMessage(job.getId(), convertCellLibraryListToIdList(cellLibraryListForTest), new ArrayList<Integer>());
 			}
 			else{
-				for(Sample controlSample : controlSampleList){
+				for(Sample controlSample : controlSampleList){					
 					logger.debug("***************in PeakCallerTasklet.execute(): just prior to  launchMessage call where controlSample is NOT EMPTY");
 					List<SampleSource> cellLibraryListForControl = approvedSampleApprovedCellLibraryListMap.get(controlSample);
 					Assert.assertTrue( ! cellLibraryListForControl.isEmpty() );
@@ -234,30 +250,6 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 		logger.debug("StepExecutionListener beforeStep saving StepExecution");
 		this.stepExecution = stepExecution;
 		
-	}
-
-	private List<SampleSource> getApprovedCellLibraries(List<Integer> approvedCellLibraryIdList) throws SampleTypeException{
-		List<SampleSource> approvedCellLibraryList = new ArrayList<SampleSource>();
-		for(Integer approvedCellLibraryId : approvedCellLibraryIdList){
-			SampleSource approvedCellLibrary = sampleService.getCellLibraryBySampleSourceId(approvedCellLibraryId);
-			approvedCellLibraryList.add(approvedCellLibrary);
-		}
-		return approvedCellLibraryList;
-	}
-	private Job confirmCellLibrariesFromSingleJob(List<SampleSource> cellLibraryList) throws Exception{
-		Job job = null;
-		for(SampleSource cellLibrary : cellLibraryList){
-			if(job==null){
-				job = sampleService.getJobOfLibraryOnCell(cellLibrary);
-			}
-			else{
-				if(job.getId().intValue()!=sampleService.getJobOfLibraryOnCell(cellLibrary).getId().intValue()){
-					logger.debug("NOT ALL cellLibraries ARE FROM THE SAME JOB! Do not proceed!");
-					throw new Exception("Not all cellLibraries are from the same job");
-				}
-			}
-		}
-		return job;
 	}
 	private void confirmCellLibrariesAssociatedWithBamFiles(List<SampleSource> cellLibraryList) throws Exception{
 		for(SampleSource cellLibrary : cellLibraryList){
@@ -297,7 +289,8 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 		//do not forget that a sample destined for a paired analysis (chipseq or helptag) 
 		//MAY NOT be on the samplePair list (but still needs to be dealt with).
 		//For chipseq, since the grid of pairs (on the submission forms) can be skipped, we may not know
-		//which are IP and which are inputs. However, for helptag it is be different, 
+		//which are IP and which are inputs. (as of 2-24-14, we actually know which are inputs and which are IP samples)
+		//However, for helptag it is be different, 
 		//since, regardless of the gird of pairs, we DO STILL KNOW which are MspI and which are HpaII
 		for(Sample sample : sampleSet){
 			List<Sample> controlList = new ArrayList<Sample>();
@@ -362,7 +355,12 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 			jobParameters.put(ChipSeqSoftwareJobParameters.TEST_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getCellLibraryListAsParameterValue(testCellLibraryIdList));
 			jobParameters.put(ChipSeqSoftwareJobParameters.CONTROL_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getCellLibraryListAsParameterValue(controlCellLibraryIdList));
 			jobParameters.put(ChipSeqSoftwareJobParameters.JOB_ID, jobId.toString());
-			jobParameters.put("test", new Date().toString());//TODO: remove for production
+			
+			//for testing only!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			//DO NOT use this in production
+			/*
+			jobParameters.put("test", new Date().toString());			
+			*/
 			
 			//this next line works, but was replaced with the subsequent 7 lines, and the WaspMessageBuildingException exception
 			//waspMessageHandlingService.launchBatchJob(flowName, jobParameters);

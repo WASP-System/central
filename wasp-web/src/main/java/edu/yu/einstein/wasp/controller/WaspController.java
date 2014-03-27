@@ -2,8 +2,6 @@ package edu.yu.einstein.wasp.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -18,6 +16,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -29,7 +28,6 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 
-import edu.yu.einstein.wasp.controller.util.ExtTreeGridResponse;
 import edu.yu.einstein.wasp.dao.DepartmentDao;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.model.Department;
@@ -52,6 +50,9 @@ public class WaspController {
 	  }
   }
 */
+  
+  @Value("${wasp.mode.isDemo:false}")
+  protected boolean isInDemoMode;
 
   @Autowired
   private DepartmentDao departmentDao;
@@ -60,7 +61,7 @@ public class WaspController {
 	return departmentDao;
   }
   
-@Autowired
+ @Autowired
   private UserDetailsService userDetailsService;
 
   @Autowired

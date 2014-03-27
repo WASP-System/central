@@ -87,7 +87,7 @@ public class PropertiesLoadServiceImpl implements ApplicationContextAware, Prope
 			
 			try {
 				InputStream is = messageFile.getInputStream();
-				BufferedReader br = new BufferedReader(new InputStreamReader(is));
+				BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF8"));
 
 				String line = "";
 				while ((line = br.readLine()) != null) {

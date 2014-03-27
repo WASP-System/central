@@ -3,8 +3,13 @@
 	xmlns="http://www.springframework.org/schema/beans"
 	default-autowire="byName"
 	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:context="http://www.springframework.org/schema/context"
 	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
-		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+		
+	
+	<context:component-scan base-package="edu.yu.einstein.wasp.chipseq.service.impl" />
 
 	<bean id="chipSeqPluginDomain" class="java.lang.String">
 		<constructor-arg>
@@ -21,7 +26,6 @@
 	<!-- channel for communications with this plugin. -->
 	<int:channel id="wasp.channel.plugin.chipseq" />
 	
-	<int:service-activator input-channel="wasp.channel.plugin.chipseq" ref="chipSeq.WaspPluginBean" method="process" />
 	
 	
 	<bean id="chipSeq.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.assay.ChipSeqPlugin">
@@ -36,5 +40,7 @@
 			</set>
 		</property>
 	</bean>
+
+	<int:service-activator input-channel="wasp.channel.plugin.chipseq" ref="chipSeq.WaspPluginBean" method="process" />
 
 </beans>

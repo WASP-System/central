@@ -683,8 +683,9 @@ public class JobController extends WaspController {
 				List<String> cellList = new ArrayList<String>(
 						Arrays.asList(
 								new String[] {
-										"<a href=/wasp/sample/list.do?selId=" + sample.getSampleId().intValue() + ">" + 
-											sample.getName() + "</a>",
+										"<a href=/wasp/sample/list.do?selId=" 
+										+ sample.getSampleId().intValue() + ">" + 
+										sample.getName() + "</a>",
 										sample.getSampleType().getName(),
 										sample.getSampleSubtype().getName(), 
 										sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(sample))

@@ -75,7 +75,7 @@
 					<property name="label" value="genDNASeq.cells.title" />
 				</bean>
 				<bean parent="genericDnaSeqUiFieldWrapper">
-					<property name="baseName" value="jobsubmit/software/aligner" />
+					<property name="baseName" value="jobsubmit/software/referenceBasedAligner" />
 					<property name="label" value="genDNASeq.aligner.title" />
 				</bean>
 				<bean parent="genericDnaSeqUiFieldWrapper">

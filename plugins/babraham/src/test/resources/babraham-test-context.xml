@@ -13,6 +13,8 @@
 	<mockito:mock id="fastqService" class="edu.yu.einstein.wasp.plugin.fileformat.service.impl.FastqServiceImpl" />
 	<mockito:mock id="fileService" class="edu.yu.einstein.wasp.service.impl.FileServiceImpl" />
 	<mockito:mock id="waspSqlService" class="edu.yu.einstein.wasp.service.impl.WaspSqlServiceImpl" />
+	
+	<context:property-placeholder location="classpath:test.properties" ignore-unresolvable="false" />
 
 	
 	<bean id="messageService" class="edu.yu.einstein.wasp.service.impl.MessageServiceImpl" />
