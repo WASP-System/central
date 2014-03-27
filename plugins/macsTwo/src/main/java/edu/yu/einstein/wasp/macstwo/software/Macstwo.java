@@ -45,6 +45,9 @@ public class Macstwo extends SoftwarePackage{
 	@Autowired
 	@Qualifier("rPackage")
 	private SoftwarePackage rSoftware;
+	@Autowired
+	@Qualifier("imagemagickPackage")
+	private SoftwarePackage imageMagickSoftware;
 
 	public Macstwo() {
 		setSoftwareVersion("2.0.10"); // TODO: Set this value. This default may also be overridden in wasp.site.properties
@@ -169,10 +172,14 @@ public class Macstwo extends SoftwarePackage{
 		
 		w.setCommand(command);
 		
+		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
+		sd.add(this);
+		w.setSoftwareDependencies(sd);
+
 		logger.debug("----command has been set to workunit in getPeaks()");		
 		return w;
 	}
-	public WorkUnit getModelPdf(FileHandle modelScriptFileHandle){
+	public WorkUnit getModelPdf(FileHandle modelScriptFileHandle, String pngFileName){//as of 33-25-14, also will generate a .png from the resulting .pdf
 		
 		Assert.assertTrue(modelScriptFileHandle != null);
 		
@@ -188,6 +195,17 @@ public class Macstwo extends SoftwarePackage{
 		
 		w.setCommand(command);
 		
+		String command2 = "convert ${" + WorkUnit.OUTPUT_FILE + "[0]} -append " + pngFileName;
+		logger.debug("---- And Will subsequently execute ImageMagick.convert to convert model.pdf to model.png using command: ");
+		logger.debug("---- "+command2);
+		
+		w.addCommand(command2);
+		
+		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
+		sd.add(rSoftware);//used for generating model as pdf
+		sd.add(imageMagickSoftware);
+		w.setSoftwareDependencies(sd);
+		
 		logger.debug("----command has been set to workunit in getModelPdf");		
 		return w;
 	}
@@ -199,11 +217,6 @@ public class Macstwo extends SoftwarePackage{
 		w.setMemoryRequirements(8);
 		//w.setNumberOfTasks(1);//?????only important when ExecutionMode.Task_Array
 				
-		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
-		sd.add(this);
-		sd.add(rSoftware);//used for generating model as pdf
-		
-		w.setSoftwareDependencies(sd);
 		//w.setResultFiles(resultFiles);//may not be needed
 		w.setSecureResults(true);
 		
