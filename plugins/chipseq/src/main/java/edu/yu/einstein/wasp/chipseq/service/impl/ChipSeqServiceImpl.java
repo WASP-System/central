@@ -307,13 +307,13 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 			}
 			
 			logger.debug("***************G");
-			softwarePlugin_JobDataTabViewing.getViewPanelTabs(job);
+			/////////softwarePlugin_JobDataTabViewing.getViewPanelTabs(job);
 			Set<PanelTab> panelTabSet = new LinkedHashSet<PanelTab>();logger.debug("***************1");
 
 
-			PanelTab summaryPanelTab = ChipSeqWebPanels.getSummaryPanelTab(jobStatus, job, strategy, softwareName);
+			PanelTab summaryPanelTab = ChipSeqWebPanels.getSummaryPanelTab2222(jobStatus, job, strategy, softwareName);
 			panelTabSet.add(summaryPanelTab);logger.debug("***************11");
-			
+/*			
 			PanelTab testPanelTabWithIFrames = ChipSeqWebPanels.getTestPanelTab();
 			if(testPanelTabWithIFrames!=null){panelTabSet.add(testPanelTabWithIFrames);}
 
@@ -338,7 +338,7 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 				if(allFilesDisplayedBySampleUsingGroupingGridPanelTab!=null){panelTabSet.add(allFilesDisplayedBySampleUsingGroupingGridPanelTab);}
 				PanelTab allFilesDisplayedByFileTypeUsingGroupingGridPanelTab = ChipSeqWebPanels.getAllFilesDisplayedByFileTypeUsingGroupingGridPanelTab(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
 				if(allFilesDisplayedByFileTypeUsingGroupingGridPanelTab!=null){panelTabSet.add(allFilesDisplayedByFileTypeUsingGroupingGridPanelTab);}
-
+*/
 				
 				
 

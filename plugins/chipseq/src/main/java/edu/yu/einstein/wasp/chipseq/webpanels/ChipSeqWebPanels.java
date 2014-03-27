@@ -26,6 +26,10 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
+import edu.yu.einstein.wasp.viewpanel.GridColumn;
+import edu.yu.einstein.wasp.viewpanel.GridContent;
+import edu.yu.einstein.wasp.viewpanel.GridDataField;
+import edu.yu.einstein.wasp.viewpanel.GridPanel;
 import edu.yu.einstein.wasp.viewpanel.Panel;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 import edu.yu.einstein.wasp.viewpanel.WebContent;
@@ -37,6 +41,123 @@ public class ChipSeqWebPanels {
 	//see this webpage for model grid http://docs.sencha.com/extjs/4.2.1/#!/guide/grid
 	
 	static protected  Logger logger = LoggerFactory.getLogger(WaspServiceImpl.class);
+	
+	
+	
+	
+	public static PanelTab getSummaryPanelTab2222(Status jobStatus, Job job, Strategy strategy,	String softwareName) {
+
+		String name = "Summary";
+		Map<String,Map<String,String>> fieldMap = new LinkedHashMap<String, Map<String,String>>();//iteration order maintains the order in which keys were inserted into the map
+		Map<String,String> strategyMap = new HashMap<String,String>();
+		strategyMap.put("data", strategy.getDisplayStrategy());
+		strategyMap.put("width", "150");
+		fieldMap.put("Strategy", strategyMap);		
+		Map<String,String> descriptionMap = new HashMap<String,String>();
+		descriptionMap.put("data", strategy.getDescription());
+		descriptionMap.put("flex", "1");
+		fieldMap.put("Description", descriptionMap);		
+		Map<String,String> workflowMap = new HashMap<String,String>();
+		workflowMap.put("data", job.getWorkflow().getName());
+		workflowMap.put("width", "150");
+		fieldMap.put("Workflow", workflowMap);
+		Map<String,String> softwareMap = new HashMap<String,String>();
+		softwareMap.put("data", softwareName);
+		softwareMap.put("width", "200");
+		fieldMap.put("Software", softwareMap);
+		Map<String,String> statusMap = new HashMap<String,String>();
+		statusMap.put("data", jobStatus.toString());//status of the aggregateAnalysis	
+		statusMap.put("width", "150");
+		fieldMap.put("Status", statusMap);
+
+		
+		Map<String,String> fieldDataMap = new LinkedHashMap<String,String>();//iteration order is the order in which keys were inserted into the map
+		fieldDataMap.put("Strategy", strategy.getDisplayStrategy());
+		fieldDataMap.put("Description", strategy.getDescription());
+		fieldDataMap.put("Workflow", job.getWorkflow().getName());
+		fieldDataMap.put("Software", softwareName);
+		fieldDataMap.put("Status", jobStatus.toString());//status of the aggregateAnalysis	
+		String dataModel = defineDataModel(name, fieldDataMap, fieldMap); 
+		if(dataModel==null||dataModel.isEmpty()){
+			return null;//do this with all
+		}
+		logger.debug("***********getSummaryPanelTab dataModel: "+dataModel);
+		String dataStore = createDataStore(name,  fieldDataMap, fieldMap);
+		logger.debug("***********getSummaryPanelTab dataStore: "+dataStore);
+		//String gridPanel = createGridPanel(name, fieldDataMap);
+		//logger.debug("***********getSummaryPanelTab gridPanel: "+gridPanel.toString());
+		
+		
+		PanelTab panelTab = new PanelTab();
+
+		panelTab.setName("Summary");
+		//panelTab.setDescription("testDescription");
+		GridPanel panel = new GridPanel();
+		panel.setTitle("Summary");
+		panel.setDescription("Summary");
+		panel.setResizable(false);
+		panel.setMaximizable(false);	
+
+		panel.setOrder(1);
+		GridContent content = new GridContent();
+		content.addDataFields(new GridDataField("Strategy", "String"));
+		content.addColumn(new GridColumn("Strategy", "Strategy"));//header,dataIndex
+		
+		content.addDataFields(new GridDataField("Description", "String"));
+		content.addColumn(new GridColumn("Description", "Description"));//header,dataIndex
+		
+		content.addDataFields(new GridDataField("Workflow", "String"));
+		content.addColumn(new GridColumn("Workflow", "Workflow"));//header,dataIndex
+		
+		content.addDataFields(new GridDataField("Software", "String"));
+		content.addColumn(new GridColumn("Main Softwareeeeeeeeeee", "Software"));//header,dataIndex
+		
+		content.addDataFields(new GridDataField("Status", "String"));
+		content.addColumn(new GridColumn("Status", "Status"));//header,dataIndex
+		
+		List<String> row = new ArrayList<String>();
+		row.add("chipy1");
+		row.add("chipy2");
+		row.add("chipy3");
+		row.add("chipy4");
+		row.add("chipy5");
+		content.addDataRow(row);
+		
+		panel.setContent(content);
+		panelTab.addPanel(panel);
+		panelTab.setNumberOfColumns(1);
+		return panelTab;
+		/*
+		content.setHtmlCode("<div id=\"summary-grid\"></div>");
+		//////content.setHtmlCode("<iframe id=\"reportframe\" width=\"100%\" src=\"http://www.einstein.yu.edu\"></iframe>");
+		panel.setContent(content);
+		String script = "Ext.define('Summary',{ extend: 'Ext.data.Model', fields: [ 'Strategy', 'Description', 'Workflow', 'Software', 'Status' ] }); var store = Ext.create('Ext.data.Store', { model: 'Summary', data : [{Strategy: '"+strategy.getDisplayStrategy()+"', Description: '"+strategy.getDescription()+"', Workflow: '"+job.getWorkflow().getName()+"', Software: '" + softwareName+"', Status: '"+jobStatus.toString()+"'}] }); Ext.create('Ext.grid.Panel', { id:'summary-panel', store: store,  columns: [ {text: \"Strategyee\", width:150, dataIndex: 'Strategy'}, {text: \"Description\", flex:1, dataIndex: 'Description'}, {text: \"Workflow\", width: 150, dataIndex: 'Workflow'}, {text: \"Main Software\", width: 200, dataIndex: 'Software'}, {text: \"Status\", width: 150, dataIndex: 'Status'} ], renderTo:'summary-grid', height:500 }); ";
+		//String script = dataModel + " var store = Ext.create('Ext.data.Store', { model: 'Summary', data : [{Strategy: '"+strategy.getDisplayStrategy()+"', Description: '"+strategy.getDescription()+"', Workflow: '"+job.getWorkflow().getName()+"', Software: '" + softwareName+"', Status: '"+jobStatus.toString()+"'}] }); Ext.create('Ext.grid.Panel', { id:'summary-panel', store: store,  columns: [ {text: \"Strategy\", width:150, dataIndex: 'Strategy'}, {text: \"Description\", flex:1, dataIndex: 'Description'}, {text: \"Workflow\", width: 150, dataIndex: 'Workflow'}, {text: \"Main Software\", width: 200, dataIndex: 'Software'}, {text: \"Status\", width: 150, dataIndex: 'Status'} ], renderTo:'summary-grid', height:500 }); ";
+		//String script = dataModel+" "+dataStore+" "+"Ext.create('Ext.grid.Panel', { id:'summary-panel', store: store,  columns: [ {text: \"Strategy\", width:150, dataIndex: 'Strategy'}, {text: \"Description\", flex:1, dataIndex: 'Description'}, {text: \"Workflow\", width: 150, dataIndex: 'Workflow'}, {text: \"Main Software\", width: 200, dataIndex: 'Software'}, {text: \"Status\", width: 150, dataIndex: 'Status'} ], renderTo:'summary-grid', height:500 }); ";
+				
+		//both these work (but throw firebug exception)
+		//String script = "var panel = Ext.create('Ext.form.Panel', { renderTo: 'summary-grid', title: 'I am a Panel', html: 'This is not an anchor<br /> but this is: <a href=\"http://www.einstein.yu.edu\" >This is the einstein anchor</a><br /><br /> and the next line should be an iframe:<br /><iframe id=\"reportframe\" width=\"100%\" src=\"http://www.einstein.yu.edu\"></iframe><br />do you see the iframe?'}); "; 
+		//String script = "var panel = Ext.create('Ext.panel.Panel', { renderTo: 'summary-grid', title: 'I am a Panel.Panel', html: 'This is not an anchor<br /> but this is: <a href=\"http://www.einstein.yu.edu\" >This is the einstein anchor to view the medical school home page</a><br /><br /> and the next line should be an iframe:<br /><iframe id=\"reportframe\" width=\"100%\" src=\"http://www.einstein.yu.edu\"></iframe><br />do you see the iframe?'}); "; 
+		
+		logger.debug("***********getSummaryPanelTab script: "+script);
+		panel.setExecOnRenderCode(script);
+		panel.setExecOnExpandCode("var theDiv = $('summary-grid'); Ext.getCmp('summary-panel').setSize(theDiv.offsetWidth, undefined);");
+		//panel.setExecOnResizeCode("Ext.getCmp('summary-panel').setSize(this.width, undefined);");
+		panel.setExecOnResizeCode("var theDiv = $('summary-grid'); Ext.getCmp('summary-panel').setSize(theDiv.offsetWidth, undefined);");
+		// does nothing: content.setScriptCode(script);
+		panelTab.addPanel(panel);
+		panelTab.setNumberOfColumns(1);
+
+		return panelTab;
+		*/
+	}
+	
+	
+	
+	
+	
+	
+	
 	
 	public static PanelTab getSummaryPanelTab(Status jobStatus, Job job, Strategy strategy,	String softwareName) {
 
