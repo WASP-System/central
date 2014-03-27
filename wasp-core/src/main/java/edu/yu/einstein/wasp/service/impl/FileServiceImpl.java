@@ -210,7 +210,8 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 */
 	@Override
 	public FileGroup processUploadedFile(MultipartFile mpFile, JobDraft jobDraft, String description, Random randomNumberGenerator) throws FileUploadException{
-
+		if (isInDemoMode)
+			throw new FileUploadException("Cannot perform this action in demo mode");
 		int randomNumber = randomNumberGenerator.nextInt(1000000000) + 100;
 
 		String noSpacesFileName = mpFile.getOriginalFilename().replaceAll("\\s+", "_");
@@ -340,8 +341,6 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		fileGroupDao.save(retGroup);
 		
 		return retGroup;
-		
-	
 		
 	}
 
@@ -951,6 +950,8 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	@Override
 	@Transactional
 	public void uploadJobDraftFile(MultipartFile mpFile, JobDraft jobDraft, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
+		if (isInDemoMode)
+			throw new FileUploadException("Cannot perform this action in demo mode");
 		try{
 			FileGroup fileGroup = this.uploadFile(mpFile.getOriginalFilename(), mpFile.getInputStream(), jobDraft.getId(), fileDescription, randomNumberGenerator, "draft.dir", "");
 			this.linkFileGroupWithJobDraft(fileGroup, jobDraft);
@@ -962,17 +963,21 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	@Override
 	@Transactional
 	public void uploadJobFile(MultipartFile mpFile, Job job, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
+		if (isInDemoMode)
+			throw new FileUploadException("Cannot perform this action in demo mode");
 		try{
 			FileGroup fileGroup = this.uploadFile(mpFile.getOriginalFilename(), mpFile.getInputStream(), job.getId(), fileDescription, randomNumberGenerator, "results.dir", "submitted");
 			this.linkFileGroupWithJob(fileGroup, job);//this should really be in the job service, not fileservice
 		}catch(Exception e){
 			throw new FileUploadException(e.getMessage());
-		}
+		} 
 	}
 
 	@Override
 	@Transactional
 	public FileGroup uploadFileAndReturnFileGroup(MultipartFile mpFile, Job job, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
+		if (isInDemoMode)
+			throw new FileUploadException("Cannot perform this action in demo mode");
 		try{
 			FileGroup fileGroup = this.uploadFile(mpFile.getOriginalFilename(), mpFile.getInputStream(), job.getId(), fileDescription, randomNumberGenerator, "results.dir", "submitted");
 			return fileGroup;

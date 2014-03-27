@@ -60,10 +60,33 @@
 	margin-left: auto;   margin-right: auto;
 }
 
+
+.header_nav {
+	float:right;
+	text-align:right;
+	padding-top:5px;
+	padding-right:5px;
+	font-size: 14px;
+}
+
+
+.demo_warning {
+	position:relative;
+	bottom:0;
+    right:0;
+	text-align:right;
+	padding-right:5px;
+	font-size: 14px;
+	color:red;
+	z-index:1;
+}
+
+
 .center{
 	margin-left: auto;
 	margin-right: auto;
 }
+
 
 
 .fixed-width_scrollable {
@@ -512,6 +535,7 @@ TABLE.data TD.value-centered-small {
 	font-size: 10px;
 	white-space: nowrap;
 	}	
+
  
 .ui-tooltip, .arrow:after {
     background: #fbf1d6;

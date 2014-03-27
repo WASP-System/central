@@ -82,6 +82,7 @@ import edu.yu.einstein.wasp.exception.QuoteException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
@@ -2239,6 +2240,8 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	public void initiateAggregationAnalysisBatchJob(Job job){
 		Assert.assertParameterNotNull(job, "job cannot be null");
 		Assert.assertParameterNotNull(job.getId(), "job must be valid");
+		if (!isInDemoMode)
+			throw new WaspRuntimeException("Cannot launch batch job for aggregation analysis in demo mode");
 		Map<String, String> jobParameters = new HashMap<String, String>();
 		jobParameters.put(WaspJobParameters.JOB_ID, job.getId().toString());
 		jobParameters.put(WaspJobParameters.BATCH_JOB_TASK, BatchJobTask.ANALYSIS_AGGREGATE);
@@ -2267,12 +2270,10 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 */
 	@Override
 	public JobDataTabViewing getTabViewPluginByJob(Job job) {
-
 		String workflowIname = job.getWorkflow().getIName();
 		List<JobDataTabViewing> plugins = waspPluginRegistry.getPluginsHandlingArea(workflowIname, JobDataTabViewing.class);
 		Assert.assertTrue(plugins.size()==1 || plugins.size()==0);
 		return plugins.get(0);
-
 	}
 
 	/**

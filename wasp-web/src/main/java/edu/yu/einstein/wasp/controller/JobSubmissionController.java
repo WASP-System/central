@@ -1408,7 +1408,10 @@ public class JobSubmissionController extends WaspController {
 						} catch(Exception e){
 							logger.warn(e.getMessage());
 							e.printStackTrace();
-							waspErrorMessage("jobDraft.upload_file.error");
+							if (isInDemoMode)
+								waspErrorMessage("jobDraft.upload_file_demo.error");
+							else
+								waspErrorMessage("jobDraft.upload_file.error");
 						}
 					}
 				}
