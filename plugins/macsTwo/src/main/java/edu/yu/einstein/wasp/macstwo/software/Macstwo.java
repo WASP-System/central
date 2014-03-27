@@ -46,7 +46,7 @@ public class Macstwo extends SoftwarePackage{
 	@Qualifier("rPackage")
 	private SoftwarePackage rSoftware;
 	@Autowired
-	@Qualifier("imagemagickPackage")
+	@Qualifier("imagemagick")
 	private SoftwarePackage imageMagickSoftware;
 
 	public Macstwo() {
@@ -92,7 +92,7 @@ public class Macstwo extends SoftwarePackage{
 		for (String key : jobParametersMap.keySet()) {
 	
 			String opt = "";
-			
+			/*
 			if(key.equalsIgnoreCase("broadPeakExpected")){//TODO: not yet an option on the forms
 				opt = "--broad";
 				if(jobParametersMap.get(key).toString().equalsIgnoreCase("yes"))
@@ -102,6 +102,7 @@ public class Macstwo extends SoftwarePackage{
 				}
 				
 			}
+			*/
 			if(key.equalsIgnoreCase("pValueCutoff")){
 				opt = "--pvalue";
 				try{

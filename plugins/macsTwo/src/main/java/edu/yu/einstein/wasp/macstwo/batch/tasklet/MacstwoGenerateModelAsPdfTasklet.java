@@ -83,7 +83,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 	private SoftwarePackage rSoftware;
 
 	@Autowired
-	@Qualifier("imagemagickPackage")
+	@Qualifier("imagemagick")
 	private SoftwarePackage imageMagickSoftware;
 
 
