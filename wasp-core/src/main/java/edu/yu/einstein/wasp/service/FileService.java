@@ -24,7 +24,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import edu.yu.einstein.wasp.Hyperlink;
+import edu.yu.einstein.interfacing.wasp.Hyperlink;
 import edu.yu.einstein.wasp.dao.FileHandleDao;
 import edu.yu.einstein.wasp.exception.FileDownloadException;
 import edu.yu.einstein.wasp.exception.FileUploadException;

@@ -18,6 +18,8 @@ import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.interfacing.wasp.interfacing.plugin.cli.CliMessagingTask;
+import edu.yu.einstein.interfacing.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspException;
@@ -39,8 +41,6 @@ import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
-import edu.yu.einstein.wasp.plugin.cli.CliMessagingTask;
-import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Genome;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;

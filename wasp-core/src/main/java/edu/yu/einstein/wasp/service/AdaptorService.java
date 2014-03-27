@@ -14,7 +14,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import edu.yu.einstein.wasp.IndexingStrategy;
+import edu.yu.einstein.interfacing.wasp.IndexingStrategy;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetMetaDao;

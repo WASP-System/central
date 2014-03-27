@@ -23,6 +23,7 @@ import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 
+import edu.yu.einstein.interfacing.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -31,7 +32,6 @@ import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
-import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.service.FileService;
 
 public class FilePlugin extends WaspPlugin implements InitializingBean, DisposableBean, ClientMessageI {

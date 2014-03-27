@@ -141,7 +141,7 @@ public class AbandonMessageHandlingTasklet implements MessageHandler, NameAwareT
 		// set exit status to equal the most severe outcome of all received messages
 		ExitStatus exitStatus = stepExecution.getExitStatus();
 		this.abandonMessageQueue.clear(); // clean up in case of restart
-		logger.debug("Going to exit step with ExitStatus=" + exitStatus);
+		logger.debug(stepExecution.getStepName() + " (afterStep) going to exit step with ExitStatus=" + exitStatus);
 		return exitStatus;
 	}
 	

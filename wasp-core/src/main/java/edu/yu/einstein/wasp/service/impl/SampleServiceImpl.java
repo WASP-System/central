@@ -34,6 +34,7 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 
+import edu.yu.einstein.interfacing.wasp.interfacing.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
@@ -100,7 +101,6 @@ import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
-import edu.yu.einstein.wasp.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
 import edu.yu.einstein.wasp.service.AuthenticationService;

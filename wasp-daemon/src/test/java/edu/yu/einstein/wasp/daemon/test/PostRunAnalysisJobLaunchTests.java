@@ -35,6 +35,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import edu.yu.einstein.interfacing.wasp.interfacing.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.analysis.WaspJobSoftwareLaunchTasklet;
 import edu.yu.einstein.wasp.dao.RunDao;
@@ -55,7 +56,6 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.Workflow;
-import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.RunService;

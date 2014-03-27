@@ -10,14 +10,24 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-	<context:property-placeholder location="classpath:test_hsqldb.properties,classpath:integration.properties,classpath:test.properties" ignore-unresolvable="false"/>
+	<context:property-placeholder location="classpath:test_jdbcdb.properties,classpath:integration.properties,classpath:test.properties" ignore-unresolvable="false"/>
 	
 	<!-- use Mockito to mock dependencies. In tests DO NOT autowire these in otherwise Spring tries to resolve dependencies which are not required.  -->
 	<!-- e.g. Entitymanager for DAOs. Set up fresh mocks in tests instead.  -->
 	
 	<mockito:mock id="runDao" class="edu.yu.einstein.wasp.dao.impl.RunDaoImpl" />
+	
+	<mockito:mock id="sampleMetaDao" class="edu.yu.einstein.wasp.dao.impl.SampleMetaDaoImpl" />
+	
+	<mockito:mock id="runMetaDao" class="edu.yu.einstein.wasp.dao.impl.RunMetaDaoImpl" />
+	
+	<mockito:mock id="runCellDao" class="edu.yu.einstein.wasp.dao.impl.RunCellDaoImpl" />
+	
+	<mockito:mock id="workflowService" class="edu.yu.einstein.wasp.service.impl.WorkflowServiceImpl" />
+	
+	<mockito:mock id="userService" class="edu.yu.einstein.wasp.service.impl.UserServiceImpl" />
 		
-	<mockito:mock id="runService" class="edu.yu.einstein.wasp.service.impl.RunServiceImpl" />
+	<bean id="runService" class="edu.yu.einstein.wasp.service.impl.RunServiceImpl" />
 	
 	<mockito:mock id="authenticationService" class="edu.yu.einstein.wasp.service.impl.AuthenticationServiceImpl" />
 	

@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.interfacing.wasp.IndexingStrategy;
 import edu.yu.einstein.wasp.Assert;
-import edu.yu.einstein.wasp.IndexingStrategy;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.AdaptorMetaDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetDao;
