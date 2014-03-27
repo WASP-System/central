@@ -52,7 +52,7 @@ public abstract class AbstractBWASoftwareComponent extends ReferenceBasedAligner
 		setSoftwareVersion("0.7.6a"); // this default may be overridden in wasp.site.properties
 	}
 
-	protected Build getGenomeBuild(SampleSource cellLibrary) {
+	protected  Build getGenomeBuild(SampleSource cellLibrary) {
 		Build build = null;
 		try {
 			Sample library = sampleService.getLibrary(cellLibrary);
@@ -63,7 +63,7 @@ public abstract class AbstractBWASoftwareComponent extends ReferenceBasedAligner
 				logger.error(mess);
 				throw new NullResourceException(mess);
 			}
-			logger.debug("genome build: " + build.getGenome().getName() + "::" + build.getName());
+			logger.debug("genome build: " + genomeService.getDelimitedParameterString(build));
 		} catch (ParameterValueRetrievalException e) {
 			logger.error(e.toString());
 			e.printStackTrace();

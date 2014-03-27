@@ -10,6 +10,7 @@ import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
@@ -20,6 +21,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.bwa.software.BWAMemSoftwareComponent;
 import edu.yu.einstein.wasp.util.SoftwareConfiguration;
 import edu.yu.einstein.wasp.util.WaspJobContext;
 
@@ -34,7 +36,7 @@ public class BWAMemPlugin extends AbstractBWAPlugin {
 	public static final String JOB_NAME = "bwa-mem.alignment";
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
-
+	
 	public BWAMemPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
 		super(iName, waspSiteProperties, channel);
 	}
@@ -72,7 +74,7 @@ public class BWAMemPlugin extends AbstractBWAPlugin {
 		String clidl = WaspSoftwareJobParameters.getCellLibraryListAsParameterValue(Arrays.asList(new Integer[]{cellLibraryId}));
 		logger.debug("cellLibraryId: " + cellLibraryId + " list: " + clidl);
 		jobParameters.put(WaspSoftwareJobParameters.CELL_LIBRARY_ID_LIST, clidl);
-		jobParameters.put(WaspSoftwareJobParameters.GENOME, "10090::GRCm38::70");
+		jobParameters.put(WaspSoftwareJobParameters.GENOME, getGenomeBuildString(Integer.parseInt(clidl)));
 		jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
 		runService.launchBatchJob(JOB_NAME, jobParameters);
 

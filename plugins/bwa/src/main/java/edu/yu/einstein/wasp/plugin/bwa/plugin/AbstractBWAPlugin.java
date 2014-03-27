@@ -9,15 +9,19 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.ResourceType;
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
+import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -37,6 +41,9 @@ public abstract class AbstractBWAPlugin extends WaspPlugin implements ClientMess
 
 	@Autowired
 	protected SampleService sampleService;
+	
+	@Autowired
+	protected GenomeService genomeService;
 
 	@Autowired
 	protected JobService jobService;
@@ -68,6 +75,16 @@ public abstract class AbstractBWAPlugin extends WaspPlugin implements ClientMess
 		}
 
 		return cl;
+	}
+	
+	protected String getGenomeBuildString(Integer cellLibraryId){
+		try {
+			Sample library = sampleService.getLibrary(sampleService.getCellLibraryBySampleSourceId(cellLibraryId));
+			return genomeService.getDelimitedParameterString(genomeService.getBuild(library));
+		} catch (SampleTypeException | ParameterValueRetrievalException e) {
+			logger.warn(e.getMessage());
+			return null;
+		}	
 	}
 
 	@Override
