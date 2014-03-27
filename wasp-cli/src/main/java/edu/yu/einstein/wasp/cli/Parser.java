@@ -28,7 +28,7 @@ public class Parser {
 		options.addOption(new Option("T", "target", true, "message target"));
 		options.addOption(new Option("t", "task", true, "task to run"));
 		options.addOption(new Option("H", "host", true, "host (default localhost)"));
-		options.addOption(new Option("l", "list", true, "possible values: plugins, builds, sampleST, workflows, fileTypes, cellLibraries, users or a combination e.g. -l plugins,builds"));
+		options.addOption(new Option("l", "list", true, "possible values: plugins, builds, sampleSubtypes, workflows, fileTypes, cellLibraries, users or a combination e.g. -l plugins,builds"));
 		options.addOption(new Option("m", "message", true, "message to send"));
 		options.addOption(new Option("P", "port", true, "remote port (default 23532)"));
 		options.addOption(new Option("p", "password", true, "password"));
