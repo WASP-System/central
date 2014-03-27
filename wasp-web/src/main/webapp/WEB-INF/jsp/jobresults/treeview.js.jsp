@@ -444,9 +444,26 @@ function click(d) {
 				//remove all existing tabs from tabpanel first
 				tabpanel.removeAll();
 
-				var filePanel = Ext.create('Wasp.FileDownloadGridPortlet', {
-					fgListStr: result.fgliststr
-				});
+//				var filePanel = Ext.create('Wasp.FileDownloadGridPortlet', {
+//					fgListStr: result.fgliststr
+//				});
+				var fp = result.filepanel;
+				var filePanel = Ext.create('Wasp.GridPortlet', {
+								fields: fp.content.dataFields,
+								data: fp.content.data,
+								columns: fp.content.columns,
+								grouping: fp.grouping,
+								groupfield: fp.groupFieldName,
+								dlcol: fp.hasDownload,
+								dlcoltip: fp.downloadTooltip,
+								dllinkfld: fp.downloadLinkFieldName,
+								dlselect: fp.allowSelectDownload,
+								dlbtntxt: fp.selectDownloadText,
+								dlbtnalign: fp.selectDownloadAlign,
+								grpdl: fp.allowGroupDownload,
+								grpdltip: fp.groupDownloadTooltip,
+								grpdlalign: fp.groupDownloadAlign
+							});
 
 				//test
 				//$.fileDownload('http://phoenix.einstein.yu.edu:8080/wasp-file/get/file/c7d5237e-ab84-4837-a618-6ec17ac6add3');
@@ -467,11 +484,12 @@ function click(d) {
 						items: [{
 							//id: 'portlet-',
 							xtype: 'portlet',
-							title: 'File Download Panel',
+							title: fp.title,
 							//tools: extPortal.getTools(),
 							//frame: false,
-							closable: false,
-							collapsible: false,
+							closable: fp.closable,
+							collapsible: fp.resizable,
+							maximizable: fp.maximizable,
 							draggable: false,
 							items: filePanel
 						}]
@@ -506,9 +524,26 @@ function click(d) {
 					if (d.type=='filegroup') {
 						var summaryPanel;
 						if (result.statuslist.length > 0) {
-							summaryPanel = Ext.create('Wasp.PluginSummaryGridPortlet', {
-								statusData: result.statuslist,
-								tabPanel: tabpanel
+//							summaryPanel = Ext.create('Wasp.PluginSummaryGridPortlet', {
+//								statusData: result.statuslist,
+//								tabPanel: tabpanel
+//							});
+							var clmstr = '[{"text":"Price", "width":200, "dataIndex":"price"}]';
+							var fldstr = '[{"name":"company", "type":"string"}, {"name":"price", "type":"float"}, "link", "glink"]';
+							var datastr = '[["3m Co", 71.72, "http://google.com", "http://yahoo.com"], ["3m Co", 29.01, "http://nba.com", "http://yahoo.com"]]';
+							summaryPanel = Ext.create('Wasp.GridPortlet', {
+								fields: jQuery.parseJSON(fldstr),
+								data: jQuery.parseJSON(datastr),
+								columns: jQuery.parseJSON(clmstr),
+								dlselect: true,
+								grouping: true,
+								groupfield: 'company',
+								dlcol: true,
+								dlcoltip: "website",
+								dllinkfld: 'link',
+								grpdl: true,
+								grpdltip: "grpweb",
+								grpdlalign: 'right'
 							});
 						} else {
 							summaryPanel = {
@@ -578,8 +613,9 @@ function click(d) {
 						$.each(item.panels, function (index1, item1) {
 							ptlcolArray[colid++].add({
 								title: item1.title,
-								tools: extPortal.getTools(),
-								closable: false,
+								tools: extPortal.getTools(item1.isMaximizable),
+								closable: item1.isCloseable,
+								collapsible: item1.isResizable,
 								html: item1.content.htmlCode,
 								listeners: {
 									'render': Ext.bind(new Function("portlet", item1.execOnRenderCode), extPortal),
