@@ -1,40 +1,29 @@
 package edu.yu.einstein.wasp.chipseq.webpanels;
 
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.Strategy;
-import edu.yu.einstein.wasp.exception.ChartException;
-import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
+import edu.yu.einstein.wasp.viewpanel.DataTabViewing.Status;
 import edu.yu.einstein.wasp.viewpanel.GridColumn;
 import edu.yu.einstein.wasp.viewpanel.GridContent;
 import edu.yu.einstein.wasp.viewpanel.GridDataField;
 import edu.yu.einstein.wasp.viewpanel.GridPanel;
-import edu.yu.einstein.wasp.viewpanel.Panel;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 import edu.yu.einstein.wasp.viewpanel.WebContent;
 import edu.yu.einstein.wasp.viewpanel.WebPanel;
-import edu.yu.einstein.wasp.viewpanel.DataTabViewing.Status;
 
 public class ChipSeqWebPanels {
 	

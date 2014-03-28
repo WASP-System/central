@@ -8,6 +8,8 @@ package edu.yu.einstein.wasp.viewpanel;
  */
 public class GridPanel extends Panel{
 	
+	private String type = "GridPanel";
+	
 	private boolean grouping = false;
 	
 	private String groupFieldName;
@@ -44,6 +46,13 @@ public class GridPanel extends Panel{
 
 	public GridPanel(String title, String description, Integer width, Integer height, Content content) {
 		super(title, description, width, height, content);
+	}
+
+	/**
+	 * @return the type
+	 */
+	public String getType() {
+		return type;
 	}
 
 	/**
