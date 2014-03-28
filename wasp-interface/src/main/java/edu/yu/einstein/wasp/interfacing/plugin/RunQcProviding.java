@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.plugin;
+package edu.yu.einstein.wasp.interfacing.plugin;
 
 public interface RunQcProviding extends BatchJobProviding {
 	

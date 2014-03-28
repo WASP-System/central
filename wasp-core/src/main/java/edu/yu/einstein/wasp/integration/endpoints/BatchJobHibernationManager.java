@@ -1,13 +1,18 @@
 package edu.yu.einstein.wasp.integration.endpoints;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.UUID;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,6 +25,7 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.explore.wasp.WaspJobExplorer;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.launch.NoSuchJobException;
 import org.springframework.batch.core.launch.NoSuchJobExecutionException;
@@ -27,6 +33,7 @@ import org.springframework.batch.core.launch.wasp.JobOperatorWasp;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.JobRestartException;
+import org.springframework.batch.core.scope.context.StepContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
@@ -34,6 +41,7 @@ import org.springframework.integration.MessageChannel;
 import org.springframework.integration.MessageHeaders;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionException;
@@ -43,6 +51,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
+import edu.yu.einstein.wasp.interfacing.batch.ManyJobRecipient;
 
 
 /**
@@ -59,6 +68,23 @@ public class BatchJobHibernationManager {
 	public static final String MESSAGES_TO_ABANDON = "a_msgs";
 	public static final String TIME_TO_WAKE = "w_time";
 	public static final int RESEND_MESSAGE_MAX_TIMES = 10;
+	
+	
+	/**
+	 * Keys for management of parent child relationship in LaunchManyJobsTasklet. 
+	 */
+	
+	public static final String PARENT_JOB_ID_KEY = "parentJobId";
+	public static final String PARENT_JOB_CHILD_LIST_KEY = "childJobIds";
+	public static final String PARENT_JOB_CHILD_LIST_DELIMITER = "|";
+	
+	public static final String COMPLETED_CHILD_IDS = "completedChildren";
+	public static final String ABANDONED_CHILD_IDS = "abandonedChildren";
+	
+	/**
+	 * Delimited list of failed jobs to be stored in the StepExecutionContext of the LintenForManyStatusMessagesTasklet.
+	 */
+	public static final String FAILED_CHILD_JOBS_LIST_KEY = "failedchildjobs";
 	
 	private static final Logger logger = LoggerFactory.getLogger(BatchJobHibernationManager.class);
 	
@@ -78,6 +104,12 @@ public class BatchJobHibernationManager {
 	public enum LockType{ HIBERNATE, WAKE, ABANDON, ANY }
 	
 	private volatile static Map<Long, LockType> lockedJobExecutions = new HashMap<>();
+	
+	private volatile Map<UUID, ManyJobRecipient> waitingManyJobs = new HashMap<UUID, ManyJobRecipient>(); 
+	
+	private volatile Map<UUID, List<String>> completedManyJobs = new HashMap<UUID, List<String>>();
+	
+	private volatile Map<UUID, List<String>> abandonedManyJobs = new HashMap<UUID, List<String>>();
 	
 	public BatchJobHibernationManager() {}
 	
@@ -153,6 +185,7 @@ public class BatchJobHibernationManager {
 	 * @return
 	 */
 	public Message<WaspStatus> handleStatusMessage(Message<WaspStatus> message){
+	        logger.trace("handleStatusMessage");
 		int resendCount = 0;
 		boolean resendMessage = false;
 		if (message.getHeaders().containsKey(WaspMessageTemplate.RESEND))
@@ -162,6 +195,23 @@ public class BatchJobHibernationManager {
 		sanitizeHeaders(incomingStatusMessageTemplate);
 		logger.info("Handling message: " + incomingStatusMessageTemplate.toString());
 		Set<Long> handledJobExecutionIds = new HashSet<Long>();
+		if (incomingStatusMessageTemplate.getHeader(WaspMessageType.HEADER_KEY).equals(WaspMessageType.MANY) &&
+		        isListenerRegistered(incomingStatusMessageTemplate) == false) {
+		    
+		    if (!message.getHeaders().containsKey(WaspMessageTemplate.RESEND))
+		            resendCount = 0;
+		    else
+		        resendCount++;
+		    
+		    Message<WaspStatus> newMessage = getMessageToResend(message, resendCount);
+		    
+		    logger.trace("RESEND " + resendCount +":"+ waitingManyJobs.containsKey(incomingStatusMessageTemplate.getHeader(WaspMessageTemplate.PARENT_ID)));
+		    
+		    logger.debug("Result message from " + incomingStatusMessageTemplate.getHeader(WaspMessageTemplate.PARENT_ID) + 
+                            " has not been registered yet, resending " + resendCount);
+                    logger.info("Returning MANY message to queue for retry " + resendCount + " / " + RESEND_MESSAGE_MAX_TIMES + " :" + newMessage);
+                    return newMessage;
+		}
 		try {
 			handledJobExecutionIds.addAll(handleStepExecutionWakingOnMessage(incomingStatusMessageTemplate));
 		} catch (WaspBatchJobExecutionReadinessException e) {
@@ -185,6 +235,15 @@ public class BatchJobHibernationManager {
 		return replyMessage;
 	}
 	
+	private void processManyMessage(WaspStatusMessageTemplate m) {
+	    // without the MANY message type or PARENT_ID header, this is a bad or just a normal message, skip.
+	    if (m.getHeader(WaspMessageType.HEADER_KEY).equals(WaspMessageType.MANY) && !m.getHeaders().containsKey(WaspStatusMessageTemplate.PARENT_ID)) {
+	        logger.warn("received message proporting to be a MANY message, but it does not contain a PARENT_ID!.  Skipping!");
+	        return;
+	    }
+	    
+	}
+	
 	Message<WaspStatus> getMessageToResend(Message<WaspStatus> originalMessage, int resendCount){
 		// make new message of high priority
 		Message<WaspStatus> newMessage = MessageBuilder
@@ -204,6 +263,7 @@ public class BatchJobHibernationManager {
 	 */
 	@Transactional
 	public synchronized Set<Long> handleStepExecutionAbandonmentOnMessage(WaspStatusMessageTemplate messageTemplate) throws WaspBatchJobExecutionReadinessException{
+	        logger.trace("handleStepExecutionAbandonmentOnMessage");
 		Set<Long> abandondedJobExecutionIds = new HashSet<>();
 		int pushMessageBackIntoQueueRequests = 0;
 		if (messageTemplatesAbandoningStepExecutions.keySet().contains(messageTemplate)){
@@ -230,7 +290,12 @@ public class BatchJobHibernationManager {
 					logger.info("Abandoning job with JobExecution id=" + je.getId() + " for step " + se.getId() + 
 							" on receiving message " + messageTemplate.getPayload().toString());
 					try{
-						abandonJobExecution(se);
+					        // MANY messages have a different storage mechanism, here we're going to mark the message
+                                                // as abandoned.  The ListenForManyStatusMessagesTasklet is responsible for counting
+                                                // all messages.  Here we eschew abandonment to allow the listener to scoop up all
+					        // remaining messages.
+
+                                                abandonJobExecution(se);                                                
 						// remove all step executions being monitored for this abandoned JobExecution
 						removeStepExecutionFromMessageMap(je, messageTemplatesWakingStepExecutions);
 						removeStepExecutionFromMessageMap(je, messageTemplatesAbandoningStepExecutions);
@@ -267,6 +332,7 @@ public class BatchJobHibernationManager {
 	 */
 	@Transactional
 	public synchronized Set<Long> handleStepExecutionWakingOnMessage(WaspStatusMessageTemplate messageTemplate) throws WaspBatchJobExecutionReadinessException{
+	        logger.trace("handleStepExecutionWakingOnMessage");
 		Set<Long> awakeningJobExecutionIds = new HashSet<>();
 		int pushMessageBackIntoQueueRequests = 0;
 		if (messageTemplatesWakingStepExecutions.keySet().contains(messageTemplate)){
@@ -310,11 +376,71 @@ public class BatchJobHibernationManager {
 				throw new WaspBatchJobExecutionReadinessException("Need to push message back into queue as " + pushMessageBackIntoQueueRequests + 
 						" requests made");
 			}
-		}	
-		else
-			logger.debug("messageTemplatesWakingStepExecutions.keySet() does not contain message");
+		} else if (messageTemplate.getHeader(WaspMessageType.HEADER_KEY).equals(WaspMessageType.MANY)) {
+		    // MANY messages have a different storage mechanism, if this is a MANY return message we're going 
+		    // to mark the message as received and then check to see if all messages are in.  If so, we will wake
+		    // the ListenForManyStatusMessagesTasklet to deal with moving on.
+		    if (!messageTemplate.getHeaders().containsKey(WaspMessageTemplate.PARENT_ID)) {
+		        logger.warn("got message " + messageTemplate.toString() + " which claims to be of type MANY, but does not contain a PARENT_ID");
+		    } else {
+                        UUID parentId = UUID.fromString((String) messageTemplate.getHeader(WaspMessageTemplate.PARENT_ID));
+                        Integer childId = Integer.decode(messageTemplate.getHeader(WaspMessageTemplate.CHILD_MESSAGE_ID).toString());
+                        WaspStatus status = messageTemplate.getStatus();
+                        if (status == WaspStatus.COMPLETED) {
+                            logger.debug("Marking " + parentId.toString() + " child " + childId + " as COMPLETED");
+                            markManyJobAsCompleted(waitingManyJobs.get(parentId), childId);
+                        } else {
+                            // anything other than completed will be treated as abandoned...
+                            logger.debug("Marking " + parentId.toString() + " child " + childId + " as ABANDONED");
+                            markManyJobAsAbandoned(waitingManyJobs.get(parentId), childId);
+                        }
+                        int comp = 0;
+                        int aban = 0;
+                        if (completedManyJobs.get(parentId) != null)
+                            comp = completedManyJobs.get(parentId).size();
+                        if (abandonedManyJobs.get(parentId) != null)
+                            aban = abandonedManyJobs.get(parentId).size();
+                        
+                        int completed = comp + aban;
+                        int waiting = waitingManyJobs.get(parentId).getChildIDs().size();
+                        
+                        if (completed < waiting) {
+                            logger.trace("Received " + completed + " out of " + waiting + " completion messages for MANY job with parent ID " + parentId);
+                        } else {
+                            logger.debug("Received all " + completed + " out of " + waiting + " completion messages for MANY job with parent ID " + parentId + ", proceeding to wake step.");
+                            doHandleManyComplete(parentId);
+                        }
+		    }
+		} else {
+                    logger.debug("messageTemplatesWakingStepExecutions.keySet() does not contain message");
+                }
 		return awakeningJobExecutionIds;
 	}
+	
+    /**
+     * Wake up a many job after all messages are accounted for.
+     * @param parentId
+     */
+    private void doHandleManyComplete(UUID parentId) {
+        logger.trace("doHandleManyAbandonmentMessage");
+        ManyJobRecipient recip = waitingManyJobs.get(parentId);
+        JobExecution je = jobExplorer.getJobExecution(recip.getJobExecutionId());
+        StepExecution se = jobRepository.getLastStepExecution(je.getJobInstance(), recip.getStepName()); // must get fresh as may have new Id
+        try {
+            reawakenJobExecution(se, WOKEN_ON_MESSAGE_STATUS, WaspStatus.COMPLETED);
+            removeStepExecutionFromMessageMap(se, messageTemplatesWakingStepExecutions);
+            removeStepExecutionFromMessageMap(se, messageTemplatesAbandoningStepExecutions);
+            unlockJobExecution(je, LockType.ANY);
+        } catch (WaspBatchJobExecutionException e) {
+            unlockJobExecution(se.getJobExecution(), LockType.WAKE);
+            logger.debug("Problem reawakening job execution and cleaning up 'messageTemplatesWakingStepExecutions': " + e.getLocalizedMessage());
+        } catch (Exception e1) {
+            logger.warn("Problem reawakening job execution and cleaning up 'messageTemplatesAbandoningStepExecutions'. Caught " + e1.getClass().getName()
+                    + " exception.: " + e1.getLocalizedMessage());
+            unlockJobExecution(se.getJobExecution(), LockType.WAKE);
+        }
+
+    }
 	
 	/**
 	 * If message specifies a reply channel, send a reply to notify completion of handling
@@ -793,6 +919,7 @@ public class BatchJobHibernationManager {
 		if ( isLockedJobExecution(jobExecution, LockType.ANY) )
 			return false;
 		logger.info("Locking JobExecution id=" + jobExecution.getId() + " for " + type);
+		logger.info("Locked JobExecutions = {" + StringUtils.collectionToCommaDelimitedString(lockedJobExecutions.keySet()) + "}");
 		lockedJobExecutions.put(id, type);
 		return true;
 	}
@@ -804,7 +931,10 @@ public class BatchJobHibernationManager {
 	 * @return
 	 */
 	public synchronized static boolean isLockedJobExecution(JobExecution jobExecution, LockType type){
+	    logger.trace("Locked JobExecutions = {" + StringUtils.collectionToCommaDelimitedString(lockedJobExecutions.keySet()) + "}");
+	    logger.trace("LOCK: " + lockedJobExecutions.get(jobExecution.getId()));
 		if ( lockedJobExecutions.containsKey(jobExecution.getId()))
+		    
 			if (type.equals(LockType.ANY))
 				return true;
 			else if (lockedJobExecutions.get(jobExecution.getId()).equals(type))
@@ -859,5 +989,63 @@ public class BatchJobHibernationManager {
 		template.removeHeader(WaspStatusMessageTemplate.DESTINATION);
 		template.removeHeader(WaspStatusMessageTemplate.RESEND);
 	}
+	
+    public synchronized void markManyJobAsCompleted(ManyJobRecipient recip, Integer childId) {
+        logger.trace("getting job execution " + recip.getJobExecutionId());
+        JobExecution je = jobExplorer.getJobExecution(recip.getJobExecutionId());
+        StepExecution se = jobRepository.getLastStepExecution(je.getJobInstance(), recip.getStepName()); // must get fresh as may have new Id
+        ExecutionContext stepContext = se.getExecutionContext();
+        
+        List<String> completed = new ArrayList<String>();
+        
+        if (stepContext.containsKey(COMPLETED_CHILD_IDS)) {
+            String cids = stepContext.getString(COMPLETED_CHILD_IDS);
+            completed.addAll(Arrays.asList(StringUtils.delimitedListToStringArray(cids, PARENT_JOB_CHILD_LIST_DELIMITER)));
+        }
+        completed.add(childId.toString());
+        
+        completedManyJobs.put(recip.getParentID(), completed);
+        
+        stepContext.putString(COMPLETED_CHILD_IDS, StringUtils.collectionToDelimitedString(completed, PARENT_JOB_CHILD_LIST_DELIMITER));
+        logger.debug("persisting completed: " + StringUtils.collectionToDelimitedString(completed, PARENT_JOB_CHILD_LIST_DELIMITER));
+        jobRepository.updateExecutionContext(se);
+    }
 
+    public synchronized void markManyJobAsAbandoned(ManyJobRecipient recip, Integer childId) {
+        logger.trace("getting job execution " + recip.getJobExecutionId());
+        JobExecution je = jobExplorer.getJobExecution(recip.getJobExecutionId());
+        StepExecution se = jobRepository.getLastStepExecution(je.getJobInstance(), recip.getStepName()); // must get fresh as may have new Id
+        ExecutionContext stepContext = se.getExecutionContext();
+        
+        List<String> abandoned = new ArrayList<String>();
+        
+        if (stepContext.containsKey(ABANDONED_CHILD_IDS)) {
+            String acids = stepContext.getString(ABANDONED_CHILD_IDS);
+            abandoned.addAll(Arrays.asList(StringUtils.delimitedListToStringArray(acids, PARENT_JOB_CHILD_LIST_DELIMITER)));
+        }
+        abandoned.add(childId.toString());
+        
+        abandonedManyJobs.put(recip.getParentID(), abandoned);
+        
+        stepContext.putString(ABANDONED_CHILD_IDS, StringUtils.collectionToDelimitedString(abandoned, PARENT_JOB_CHILD_LIST_DELIMITER));
+        logger.debug("persisting abandoned: " + StringUtils.collectionToDelimitedString(abandoned, PARENT_JOB_CHILD_LIST_DELIMITER));
+        jobRepository.updateExecutionContext(se);
+    }
+    
+    public synchronized void registerManyStepCompletionListener(ManyJobRecipient jobRecipient) {
+        logger.debug("registering step with parent id " + jobRecipient.getParentID());
+        waitingManyJobs.put(jobRecipient.getParentID(), jobRecipient);
+    }
+    
+    public synchronized void unregisterManyStepCompletionListener(ManyJobRecipient jobRecipient) {
+        logger.debug("unregistering step with parent id " + jobRecipient.getParentID());
+        waitingManyJobs.remove(jobRecipient.getParentID());
+        completedManyJobs.remove(jobRecipient.getParentID());
+        abandonedManyJobs.remove(jobRecipient.getParentID());
+    }
+    
+    public synchronized boolean isListenerRegistered(WaspStatusMessageTemplate template) {
+        return waitingManyJobs.containsKey(UUID.fromString((String)template.getHeader(WaspMessageTemplate.PARENT_ID)));
+    }
+    
 }

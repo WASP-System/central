@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.batch.launch;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * 
@@ -36,7 +37,5 @@ public class BatchJobLaunchContext implements Serializable{
 	public void setJobParameters(Map<String, String> jobParameters) {
 		this.jobParameters = jobParameters;
 	}
-
-	
 	
 }
