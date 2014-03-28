@@ -2,6 +2,8 @@ package edu.yu.einstein.wasp.service;
 
 import java.util.List;
 
+import edu.yu.einstein.wasp.dao.WorkflowDao;
+import edu.yu.einstein.wasp.dao.WorkflowMetaDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.Workflow;
 
@@ -37,6 +39,20 @@ public interface WorkflowService extends WaspService {
 	 * @throws MetadataException 
 	 */
 	public void setPageFlowOrder(Workflow workflow, List<String> pageList) throws MetadataException;
+
+	/**
+	 * retrun list of workflows
+	 * @return
+	 */
+	public List<Workflow> getWorkflows();
+
+	public void setWorkflowMetaDao(WorkflowMetaDao workflowMetaDao);
+
+	public WorkflowMetaDao getWorkflowMetaDao();
+
+	public void setWorkflowDao(WorkflowDao workflowDao);
+
+	public WorkflowDao getWorkflowDao();
 	
 	
 

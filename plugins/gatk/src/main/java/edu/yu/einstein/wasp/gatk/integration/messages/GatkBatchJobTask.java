@@ -7,7 +7,8 @@ package edu.yu.einstein.wasp.gatk.integration.messages;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 
 /**
- * @author 
+ * @author jcai
+ * @author asmclellan
  */
 public class GatkBatchJobTask extends BatchJobTask {
 

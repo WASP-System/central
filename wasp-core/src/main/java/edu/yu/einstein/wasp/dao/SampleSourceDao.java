@@ -12,7 +12,6 @@
 package edu.yu.einstein.wasp.dao;
 
 import java.util.List;
-import java.util.Set;
 
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
@@ -24,7 +23,9 @@ public interface SampleSourceDao extends WaspDao<SampleSource> {
 
   public SampleSource getSampleSourceBySampleIdMultiplexindex (final int sampleId, final int multiplexindex);
   
-  public List<SampleSource> getCellLibraries(Sample cell);
+  public List<SampleSource> getCellLibrariesForCell(Sample cell);
+
+  public List<SampleSource> getCellLibrariesForLibrary(Sample library);
 
 }
 

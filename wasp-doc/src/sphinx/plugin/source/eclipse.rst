@@ -267,7 +267,7 @@ With a basic introduction to the concepts of Spring required to generate WPPs, w
          public static final String SAMPLE_NAME = "sampleName";
          public static final String LIBRARY_ID = "sampleId";
          public static final String LIBRARY_NAME = "libraryName";
-         public static final String LIBRARY_CELL_ID = "libraryCellId";
+         public static final String CELL_LIBRARY_ID = "cellLibraryId";
          public static final String RUN_ID = "runId";
          public static final String RUN_NAME = "runName";
          public static final String RUN_RESOURCE_CATEGORY_INAME = "runResourceCatIname";

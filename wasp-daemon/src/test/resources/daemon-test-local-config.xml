@@ -6,7 +6,7 @@
 	default-autowire="byName"
 	xmlns:task="http://www.springframework.org/schema/task"
 	xsi:schemaLocation="http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
-		http://www.mockito.org/spring/mockito https://bitbucket.org/kubek2k/springockito/raw/tip/springockito/src/main/resources/spring/mockito.xsd
+		http://www.mockito.org/spring/mockito http://www.mockito.org/spring/mockito.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
@@ -16,14 +16,34 @@
 	<!-- e.g. Entitymanager for DAOs. Set up fresh mocks in tests instead.  -->
 	
 	<mockito:mock id="runDao" class="edu.yu.einstein.wasp.dao.impl.RunDaoImpl" />
+	
+	<mockito:mock id="sampleMetaDao" class="edu.yu.einstein.wasp.dao.impl.SampleMetaDaoImpl" />
+	
+	<mockito:mock id="runMetaDao" class="edu.yu.einstein.wasp.dao.impl.RunMetaDaoImpl" />
+	
+	<mockito:mock id="runCellDao" class="edu.yu.einstein.wasp.dao.impl.RunCellDaoImpl" />
+	
+	<mockito:mock id="workflowService" class="edu.yu.einstein.wasp.service.impl.WorkflowServiceImpl" />
+	
+	<mockito:mock id="userService" class="edu.yu.einstein.wasp.service.impl.UserServiceImpl" />
 		
-	<mockito:mock id="runService" class="edu.yu.einstein.wasp.service.impl.RunServiceImpl" />
+	<bean id="runService" class="edu.yu.einstein.wasp.service.impl.RunServiceImpl" />
 	
 	<mockito:mock id="authenticationService" class="edu.yu.einstein.wasp.service.impl.AuthenticationServiceImpl" />
 	
 	<mockito:mock id="sampleService" class="edu.yu.einstein.wasp.service.impl.SampleServiceImpl" />
 	
 	<mockito:mock id="jobService" class="edu.yu.einstein.wasp.service.impl.JobServiceImpl" />
+	
+	<mockito:mock id="genomeService" class="edu.yu.einstein.wasp.service.impl.GenomeServiceImpl" />
+	
+	<mockito:mock id="fileService" class="edu.yu.einstein.wasp.service.impl.FileServiceImpl" />
+	
+	<mockito:mock id="workflowService" class="edu.yu.einstein.wasp.service.impl.WorkflowServiceImpl" />
+	
+	<mockito:mock id="userService" class="edu.yu.einstein.wasp.service.impl.UserServiceImpl" />
+	
+	<mockito:mock id="labService" class="edu.yu.einstein.wasp.service.impl.LabServiceImpl" />
 	
 	<mockito:mock id="gridHostResolver" class="edu.yu.einstein.wasp.grid.GridHostResolver" />
 	

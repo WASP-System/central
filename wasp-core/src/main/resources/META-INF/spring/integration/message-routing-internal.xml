@@ -93,6 +93,10 @@
 	<!-- need to pass to a queue channel in case of backlog. wasp.channel.priority.waspStatusMessages will pick off messages from wasp.channel.notification.batch -->
 	<int:bridge id="wasp.channel.bridge.notify" input-channel="wasp.channel.notification.batch" output-channel="wasp.channel.priority.waspStatusMessages" />
 	
+	<int:bridge id="wasp.channel.bridge.default" input-channel="wasp.channel.priority.default" output-channel="wasp.channel.notification.default" >
+		<int:poller max-messages-per-poll="1" fixed-rate="10" />
+	</int:bridge>
+	
 	<int:bridge id="wasp.channel.bridge.job" input-channel="wasp.channel.priority.job" output-channel="wasp.channel.notification.job" >
 		<int:poller max-messages-per-poll="1" fixed-rate="10" />
 	</int:bridge>
@@ -145,6 +149,15 @@
 	</int:splitter>
 	
 	<bean id="batchJobHibernationManager" class="edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager" />
+	
+	<!--  Wasp plugin registry and message channel -->
+	<int:channel id="wasp.channel.cli" >
+		<int:queue/>
+	</int:channel>
+	
+	<int:service-activator input-channel="wasp.channel.cli" ref="cliSupportingServiceActivator" method="process" />
+	
+	<bean id="cliSupportingServiceActivator" class="edu.yu.einstein.wasp.integration.endpoints.CliSupportingServiceActivator" />
 	
 	<int:service-activator input-channel="wasp.channel.priority.waspStatusMessages" 
 		output-channel="wasp.channel.reply.unfiltered" ref="batchJobHibernationManager" method="handleStatusMessage"

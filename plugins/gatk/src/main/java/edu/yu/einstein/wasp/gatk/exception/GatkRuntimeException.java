@@ -8,6 +8,8 @@ import edu.yu.einstein.wasp.exception.WaspRuntimeException;
  */
 public class GatkRuntimeException extends WaspRuntimeException {
 
+	private static final long serialVersionUID = -6538719694121478163L;
+
 	public GatkRuntimeException() {
 		// TODO Auto-generated constructor stub
 	}

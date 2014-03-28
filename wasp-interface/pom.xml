@@ -12,11 +12,11 @@
 
 	<artifactId>wasp-interface</artifactId>
 	<packaging>jar</packaging>
-	<name>WASP System Interfaces</name>
+	<name>Wasp System Interfaces</name>
 	<url>http://waspsystem.org/</url>
 	<description>
 		<![CDATA[
-      This component of the WASP System provides interfaces for interaction.  
+      This component of the Wasp System provides interfaces for interaction.  
     ]]>
 	</description>
 

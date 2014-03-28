@@ -77,6 +77,7 @@ import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessage
 import edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.SampleStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
+import edu.yu.einstein.wasp.interfacing.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
@@ -100,7 +101,6 @@ import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
-import edu.yu.einstein.wasp.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
 import edu.yu.einstein.wasp.service.AuthenticationService;
@@ -306,7 +306,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	}
 
 	@Override
-	public List<Sample> findAllPlatformUnits() {
+	public List<Sample> getPlatformUnits() {
 		Map<String, String> queryMap = new HashMap<String, String>();
 		queryMap.put("sampleType.iName", "platformunit");
 		return sampleDao.findByMap(queryMap);
@@ -845,7 +845,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  // TODO: Write test!!
 		  
 		  List<Sample> availablePlatformUnits = new ArrayList<Sample>();
-		  List<Sample> allPlatformUnits = findAllPlatformUnits(); 
+		  List<Sample> allPlatformUnits = getPlatformUnits(); 
 		  if (allPlatformUnits == null || allPlatformUnits.isEmpty())
 			  return availablePlatformUnits;
 		
@@ -927,9 +927,14 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  Assert.assertParameterNotNull(job, "No Job provided");
 		  List<Sample> availablePlatformUnits = getAvailablePlatformUnits();
 		  List<Sample> availableAndCompatibleFlowCells = new ArrayList<Sample>();
+		  List<JobResourcecategory> jrcList = job.getJobResourcecategory();
+		  if (jrcList == null || jrcList.isEmpty()){
+			  logger.debug("No resource categories defined for job with id=" + job.getId());
+			  return availableAndCompatibleFlowCells;
+		  }
 		  for(Sample pu : availablePlatformUnits){
 			  for(SampleSubtypeResourceCategory ssrc : pu.getSampleSubtype().getSampleSubtypeResourceCategory()){
-				  for(JobResourcecategory jrc : job.getJobResourcecategory()){
+				  for(JobResourcecategory jrc : jrcList){
 					  if(ssrc.getResourcecategoryId().intValue() == jrc.getResourcecategoryId().intValue()){
 						  availableAndCompatibleFlowCells.add(pu);
 					  }
@@ -1277,7 +1282,12 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  Map<String,Integer> q = new HashMap<String,Integer>();
 		  q.put("sourceSampleId", library.getId());
 		  for (SampleSource ss : getSampleSourceDao().findByMap(q)){
-			  if (isCell(ss.getSample()))
+			  if (ss.getSample() == null){
+				  // may be null if library added from external source e.g. via CLI
+				  logger.debug("cellLibrary with id=" + ss.getId() + " has no associated cells");
+				  continue;
+			  }
+			  if (isCell(ss.getSample())) 
 				  cells.add(ss.getSample());
 		  }
 		  return cells;
@@ -2116,7 +2126,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Override
 	public List<Sample> getPlatformUnitsNotYetRun(){
 		List<Sample> platformUnitsNotYetRun = new ArrayList<Sample>();
-		for (Sample pu : findAllPlatformUnits()){
+		for (Sample pu : getPlatformUnits()){
 			try {
 				if (getCurrentRunForPlatformUnit(pu) == null)
 					platformUnitsNotYetRun.add(pu);
@@ -2368,8 +2378,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 */
 	@Override
 	public Job getJobOfLibraryOnCell(Sample cell, Sample library) throws SampleException{
-		SampleSource libraryCell = getCellLibrary(cell, library);
-		return getJobOfLibraryOnCell(libraryCell);
+		SampleSource cellLibrary = getCellLibrary(cell, library);
+		return getJobOfLibraryOnCell(cellLibrary);
 	}
 	
 	/**
@@ -2377,12 +2387,12 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 * @throws SampleException 
 	 */
 	@Override
-	public Job getJobOfLibraryOnCell(SampleSource libraryCell){
-		Assert.assertParameterNotNull(libraryCell, "libraryCell cannot be null");
-		Assert.assertParameterNotNull(libraryCell.getId(), "libraryCell must have a valid id");
+	public Job getJobOfLibraryOnCell(SampleSource cellLibrary){
+		Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
+		Assert.assertParameterNotNull(cellLibrary.getId(), "cellLibrary must have a valid id");
 		Job job = null;
-		List<SampleSourceMeta> ssMetaList = libraryCell.getSampleSourceMeta();
-		logger.debug("libraryCell: " + libraryCell.getId());
+		List<SampleSourceMeta> ssMetaList = cellLibrary.getSampleSourceMeta();
+		logger.debug("cellLibrary: " + cellLibrary.getId());
 		if (ssMetaList == null) {
 			logger.debug("sample source meta list is null");
 			return job;
@@ -2427,13 +2437,14 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 */
 	@Override
 	public SampleSource getCellLibrary(Sample cell, Sample library) throws SampleTypeException{
-		if (!isCell(cell))
+		if (cell != null && !isCell(cell))
 			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 		if (!isLibrary(library))
 			throw new SampleTypeException("Expected 'library' but got Sample of type '" + library.getSampleType().getIName() + "' instead.");
 		Map<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sourceSampleId", library.getId());
-		m.put("sampleId", cell.getId());
+		if (cell != null)
+			m.put("sampleId", cell.getId());
 		List<SampleSource> ss = sampleSourceDao.findByMap(m);
 		if (ss.isEmpty())
 			return null;
@@ -2462,6 +2473,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	public Sample getCell(SampleSource cellLibrary){
 		Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be empty");
 		Assert.assertParameterNotNull(cellLibrary.getId(), "cellLibrary must have a valid id");
+		if (cellLibrary.getSampleId() == null)
+			return null;
 		return sampleDao.getSampleBySampleId(cellLibrary.getSampleId()); // get from Dao in case cellLibrary not entity managed
 	}
 	
@@ -2570,7 +2583,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			Map<String, Set<String>> jobParameters = new HashMap<String, Set<String>>();
 			Set<String> ssIdStringSet = new LinkedHashSet<String>();
 			ssIdStringSet.add(cellLibrary.getId().toString());
-			jobParameters.put(WaspJobParameters.LIBRARY_CELL_ID, ssIdStringSet);
+			jobParameters.put(WaspJobParameters.CELL_LIBRARY_ID, ssIdStringSet);
 			Set<String> jobTaskSet = new LinkedHashSet<String>();
 			jobTaskSet.add(BatchJobTask.ANALYSIS_LIBRARY_PREPROCESS);
 			jobParameters.put(WaspJobParameters.BATCH_JOB_TASK, jobTaskSet);
@@ -2927,9 +2940,30 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  }
 
 		@Override
-		public List<SampleSource> getCellLibraries(Sample cell) {
+		public List<SampleSource> getCellLibrariesForCell(Sample cell) {
 			Assert.assertTrue(this.isCell(cell));
-			return sampleSourceDao.getCellLibraries(cell);
+			return sampleSourceDao.getCellLibrariesForCell(cell);
+		}
+		
+		@Override
+		public List<SampleSource> getCellLibrariesForLibrary(Sample library) {
+			Assert.assertTrue(this.isLibrary(library));
+			return sampleSourceDao.getCellLibrariesForLibrary(library);
+		}
+		
+		@Override
+		public List<SampleSource> getCellLibraries() {
+			List<SampleSource> cellLibraries = new ArrayList<>();
+			for (Sample library : getLibraries())
+				cellLibraries.addAll(getCellLibrariesForLibrary(library));
+			return cellLibraries;
+		}
+		
+		@Override
+		public List<Sample> getLibraries() {
+			Map<String, String> queryMap = new HashMap<String, String>();
+			queryMap.put("sampleType.iName", "library");
+			return sampleDao.findByMap(queryMap);
 		}
 		
 		@Override
@@ -3004,6 +3038,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			  List<Sample> cellsForLibraryAndJob = new ArrayList<Sample>();		  
 			  Set<SampleSource> sampleSourceList = this.getCellLibrariesForJob(job);
 			  for(SampleSource ss : sampleSourceList){
+				  if (ss.getSample() == null){
+					  // may be null if library added from external source e.g. via CLI
+					  logger.debug("cellLibrary with id=" + ss.getId() + " has no associated cells");
+					  continue;
+				  }
 				  if(ss.getSourceSample()==library){//here, sourcesample is library; sample is cell
 					  cellsForLibraryAndJob.add(ss.getSample());//add cell to list
 				  }

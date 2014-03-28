@@ -49,9 +49,9 @@ if [ ! -d wasp-illumina ]
 then
 git clone git://github.com/WASP-System/wasp-illumina.git wasp-illumina
 fi
-if [ ! -d wasp-chipseq ]
+if [ ! -d chipSeq ]
 then
-git clone git://github.com/WASP-System/wasp-chipseq.git wasp-chipseq
+git clone git://github.com/WASP-System/chipSeq.git chipSeq
 fi
 if [ ! -d wasp-genericDnaSeq ]
 then
@@ -67,7 +67,7 @@ git pull origin master
 cd ../
 done
 
-echo "Updating and re-deploying WASP System..."
+echo "Updating and re-deploying Wasp System..."
 echo "Attempting to clean, package and deploy WASP Swarm"
 cd $PROJECT_HOME
 mvn -Dcatalina.home=$CATALINA_HOME -DskipTests=false clean install

@@ -37,12 +37,12 @@ import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspRunTask;
 import edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate;
+import edu.yu.einstein.wasp.interfacing.plugin.RunQcProviding;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.plugin.RunQcProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -180,6 +180,8 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	public void initiateRun(Run run) {
 		Assert.assertParameterNotNull(run, "run cannot be null");
 		Assert.assertParameterNotNull(run.getId(), "run is not valid");
+		if (isInDemoMode)
+			throw new MessagingException("Cannot start a run in demo mode");
 		// send message to initiate job processing
 		RunStatusMessageTemplate messageTemplate = new RunStatusMessageTemplate(run.getId());
 		messageTemplate.setUserCreatingMessageFromSession(userService);
@@ -191,7 +193,6 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		} catch (WaspMessageBuildingException e){
 			throw new MessagingException(e.getLocalizedMessage());
 		}
-		
 	}
 	
 	
@@ -402,14 +403,14 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Assert.assertParameterNotNull(run, "a run must be provided");
 		Assert.assertParameterNotNullNotZero(run.getId(), "run provided is invalid or not in the database");
 		Assert.assertParameterNotNull(run.getId(), "a runId must be have a valid database entry");
-		Set<SampleSource> libraryCell = new LinkedHashSet<SampleSource>();
+		Set<SampleSource> cellLibrary = new LinkedHashSet<SampleSource>();
 		try {
 			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
 				try {
 					if (sampleService.isCellSequencedSuccessfully(cell)){
 						for (Sample library: sampleService.getLibrariesOnCellWithoutControls(cell)){
 							try{
-								libraryCell.add(sampleService.getCellLibrary(cell, library));
+								cellLibrary.add(sampleService.getCellLibrary(cell, library));
 							} catch (SampleException e){
 								logger.warn("Unexpected SampleException caught: " + e.getLocalizedMessage());
 							}
@@ -422,7 +423,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		} catch (SampleTypeException e) {
 			logger.warn("Unexpected SampleTypeException caught: " + e.getLocalizedMessage());
 		}
-		return libraryCell;
+		return cellLibrary;
 	}
 	
 	/**
@@ -434,8 +435,8 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Assert.assertParameterNotNullNotZero(run.getId(), "run provided is invalid or not in the database");
 		Assert.assertParameterNotNull(run.getId(), "a runId must be have a valid database entry");
 		List<Sample> cellList = new ArrayList<Sample>();
-		Set<SampleSource> libraryCellSet = this.getCellLibrariesOnSuccessfulRunCellsWithoutControls(run);
-		for (SampleSource lc : libraryCellSet) {
+		Set<SampleSource> cellLibrarySet = this.getCellLibrariesOnSuccessfulRunCellsWithoutControls(run);
+		for (SampleSource lc : cellLibrarySet) {
 			if (sampleService.getJobOfLibraryOnCell(lc).getId()==job.getId()) {
 				cellList.add(sampleService.getCell(lc));
 			}
@@ -451,14 +452,14 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Assert.assertParameterNotNull(run, "a run must be provided");
 		Assert.assertParameterNotNullNotZero(run.getId(), "run provided is invalid or not in the database");
 		Assert.assertParameterNotNull(run.getId(), "a runId must be have a valid database entry");
-		Set<SampleSource> libraryCell = new LinkedHashSet<SampleSource>();
+		Set<SampleSource> cellLibrary = new LinkedHashSet<SampleSource>();
 		try {
 			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
 				try {
 					if (sampleService.isCellSequencedSuccessfully(cell)){
 						for (Sample library: sampleService.getLibrariesOnCell(cell)){
 							try{
-								libraryCell.add(sampleService.getCellLibrary(cell, library));
+								cellLibrary.add(sampleService.getCellLibrary(cell, library));
 							} catch (SampleException e){
 								logger.warn("Unexpected SampleException caught: " + e.getLocalizedMessage());
 							}
@@ -471,7 +472,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		} catch (SampleTypeException e) {
 			logger.warn("Unexpected SampleTypeException caught: " + e.getLocalizedMessage());
 		}
-		return libraryCell;
+		return cellLibrary;
 	}
 	
 	/**

@@ -19,7 +19,6 @@ import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 
-import edu.yu.einstein.wasp.Hyperlink; 
 import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -28,12 +27,13 @@ import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask; 
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
+import edu.yu.einstein.wasp.interfacing.Hyperlink;
+import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
+import edu.yu.einstein.wasp.interfacing.plugin.WebInterfacing;
+import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.FileGroup;
-import edu.yu.einstein.wasp.plugin.BatchJobProviding; 
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
-import edu.yu.einstein.wasp.plugin.WebInterfacing;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
-import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
@@ -112,11 +112,11 @@ public class HelptagPlugin extends WaspPlugin
 			
 			Map<String, String> jobParameters = new HashMap<String, String>();
 			logger.info("Sending launch message with flow " + PREP_FLOW_NAME + " and id: " + id);
-//			jobParameters.put(WaspSoftwareJobParameters.LIBRARY_CELL_ID_LIST, id.toString());
+//			jobParameters.put(WaspSoftwareJobParameters.CELL_LIBRARY_ID_LIST, id.toString());
 //			jobParameters.put(WaspSoftwareJobParameters.GENOME, "10090::GRCm38::70");
-//			jobParameters.put("test", new Date().toString());
+			jobParameters.put("test", new Date().toString());
 			
-			jobParameters.put(WaspJobParameters.LIBRARY_CELL_ID, id.toString());
+			jobParameters.put(WaspJobParameters.CELL_LIBRARY_ID, id.toString());
 			waspMessageHandlingService.launchBatchJob(PREP_FLOW_NAME, jobParameters);
 			return (Message<String>) MessageBuilder.withPayload("Initiating helptag test flow on id " + id).build();
 		} catch (WaspMessageBuildingException e1) {

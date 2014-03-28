@@ -186,7 +186,7 @@
  	 					</sec:authorize>	
 						</td>
 						
-						<c:set value="${libraryCellListMap.get(library)}" var="cellList"/>		   				
+						<c:set value="${cellLibraryListMap.get(library)}" var="cellList"/>		   				
 		   				
 		   				<td class="DataTD" style="text-align:center; white-space:nowrap;">
 		   				    <c:choose>

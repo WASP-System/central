@@ -10,8 +10,8 @@ import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 /**
- * @author 
- * 
+ * @author jcai
+ * @author asmclellan
  */
 public class SimpleGatkStatusMessageTemplate extends WaspStatusMessageTemplate {
 

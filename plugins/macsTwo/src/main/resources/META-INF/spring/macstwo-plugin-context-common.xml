@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans"
+	default-autowire="byName"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+		
+	<context:component-scan base-package="edu.yu.einstein.wasp.macstwo.service.impl" />
+
+	<bean id="macstwoPluginArea" class="java.lang.String">
+		<constructor-arg>
+			<value>macstwo</value>
+		</constructor-arg>
+	</bean>
+	
+	<!-- channel for communications with this plugin. -->
+	<int:channel id="wasp.channel.plugin.macstwo" />
+
+	<int:service-activator input-channel="wasp.channel.plugin.macstwo" ref="macstwoPlugin" method="process" />
+	
+	<bean id="macstwoPlugin" class="edu.yu.einstein.wasp.macstwo.plugin.MacstwoPlugin" depends-on="rPackage">
+		<constructor-arg name="iName" ref="macstwoPluginArea" />
+		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.macstwo" />
+		<property name="name" value="macsTwo" />
+		<property name="description" value="peakcaller plugin" />
+		<property name="provides" >
+			<set>
+				<ref bean="macstwo" /> 			
+			</set>
+		</property>
+		<property name="handles" >
+			<set>
+				<ref bean="macstwoPluginArea" />
+			</set>
+		</property>
+	</bean>
+
+</beans>

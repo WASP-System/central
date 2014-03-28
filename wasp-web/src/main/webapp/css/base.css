@@ -61,7 +61,6 @@
 }
 
 
-
 .header_nav {
 	float:right;
 	text-align:right;
@@ -70,10 +69,24 @@
 	font-size: 14px;
 }
 
+
+.demo_warning {
+	position:relative;
+	bottom:0;
+    right:0;
+	text-align:right;
+	padding-right:5px;
+	font-size: 14px;
+	color:red;
+	z-index:1;
+}
+
+
 .center{
 	margin-left: auto;
 	margin-right: auto;
 }
+
 
 
 .fixed-width_scrollable {
@@ -359,7 +372,9 @@ div.waspMessage {
 
 div.waspMessage ul, div.waspErrorMessage ul{
 	list-style-type: circle;
-	margin-left: 20px;
+	margin: 0px 0px 0px 20px;
+	padding: 0;
+	border: 0;
 }
 
 div.waspErrorMessage {
@@ -520,6 +535,7 @@ TABLE.data TD.value-centered-small {
 	font-size: 10px;
 	white-space: nowrap;
 	}	
+
  
 .ui-tooltip, .arrow:after {
     background: #fbf1d6;
@@ -580,4 +596,23 @@ TABLE.data TD.value-centered-small {
 
 #wait_dialog-modal td{
 	vertical-align: middle;
+}
+
+.header_panel_right {
+	position:relative;
+	float: right;
+}
+
+.waspIcon {
+}
+
+.header_nav {
+	text-align:right;
+	padding-top:20px;
+	padding-right:5px;
+	font-size: 14px;
+}
+
+.ext_treeGrid td {
+	padding: 0px;
 }

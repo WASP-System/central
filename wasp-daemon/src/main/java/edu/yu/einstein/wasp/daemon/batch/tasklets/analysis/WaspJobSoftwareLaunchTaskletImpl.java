@@ -1,7 +1,6 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets.analysis;
 
 import java.util.ArrayList;
-
 import java.util.List;
 import java.util.Map;
 
@@ -23,15 +22,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
+import edu.yu.einstein.wasp.daemon.batch.tasklets.AbandonMessageHandlingTasklet;
 import edu.yu.einstein.wasp.exception.SoftwareConfigurationException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
+import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.model.ResourceType;
-import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -39,7 +38,7 @@ import edu.yu.einstein.wasp.util.SoftwareConfiguration;
 import edu.yu.einstein.wasp.util.WaspJobContext;
 
 
-public class WaspJobSoftwareLaunchTaskletImpl extends WaspTasklet implements WaspJobSoftwareLaunchTasklet {
+public class WaspJobSoftwareLaunchTaskletImpl extends AbandonMessageHandlingTasklet implements WaspJobSoftwareLaunchTasklet {
 	
 	private static Logger logger = LoggerFactory.getLogger("WaspJobSoftwareLaunchTaskletImpl");
 	
@@ -67,12 +66,12 @@ public class WaspJobSoftwareLaunchTaskletImpl extends WaspTasklet implements Was
 	
 	private WaspPluginRegistry waspPluginRegistry;
 	
-	private List<Integer> libraryCellIds;
+	private List<Integer> cellLibraryIds;
 	
 	private String task;
 	
-	// jobId may be set via setter in which case it overrides any values associated with the libraryCells.
-	// If not set, at initialization step an attempt is made to obtain a unique jobId across the supplied libraryCells.
+	// jobId may be set via setter in which case it overrides any values associated with the cellLibrarys.
+	// If not set, at initialization step an attempt is made to obtain a unique jobId across the supplied cellLibrarys.
 	private Integer jobId;
 	
 	private ResourceType softwareResourceType;
@@ -97,25 +96,25 @@ public class WaspJobSoftwareLaunchTaskletImpl extends WaspTasklet implements Was
 	
 	public WaspJobSoftwareLaunchTaskletImpl() {}
 	
-	public WaspJobSoftwareLaunchTaskletImpl(List<Integer> libraryCellIds, ResourceType softwareResourceType) {
-		this.libraryCellIds = libraryCellIds;
+	public WaspJobSoftwareLaunchTaskletImpl(List<Integer> cellLibraryIds, ResourceType softwareResourceType) {
+		this.cellLibraryIds = cellLibraryIds;
 		this.softwareResourceType = softwareResourceType;
 		this.task = BatchJobTask.GENERIC; // default
 	}
 	
-	public WaspJobSoftwareLaunchTaskletImpl(List<Integer> libraryCellIds, ResourceType softwareResourceType, String task) {
-		this.libraryCellIds = libraryCellIds;
+	public WaspJobSoftwareLaunchTaskletImpl(List<Integer> cellLibraryIds, ResourceType softwareResourceType, String task) {
+		this.cellLibraryIds = cellLibraryIds;
 		this.softwareResourceType = softwareResourceType;
 		this.task = task;
 	}
 	
-	public WaspJobSoftwareLaunchTaskletImpl(Integer libraryCellId, ResourceType softwareResourceType) {
-		setLibraryCellId(libraryCellId);
+	public WaspJobSoftwareLaunchTaskletImpl(Integer cellLibraryId, ResourceType softwareResourceType) {
+		setCellLibraryId(cellLibraryId);
 		this.softwareResourceType = softwareResourceType;
 	}
 	
-	public WaspJobSoftwareLaunchTaskletImpl(Integer libraryCellId, ResourceType softwareResourceType, String task) {
-		setLibraryCellId(libraryCellId);
+	public WaspJobSoftwareLaunchTaskletImpl(Integer cellLibraryId, ResourceType softwareResourceType, String task) {
+		setCellLibraryId(cellLibraryId);
 		this.softwareResourceType = softwareResourceType;
 		this.task = task;
 	}
@@ -130,7 +129,7 @@ public class WaspJobSoftwareLaunchTaskletImpl extends WaspTasklet implements Was
 			throw new SoftwareConfigurationException("No software could be configured for jobId=" + jobId + " with resourceType iname=" + softwareResourceType.getIName());
 		}
 		Map<String, String> jobParameters = softwareConfig.getParameters();
-		jobParameters.put(WaspSoftwareJobParameters.LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(libraryCellIds));
+		jobParameters.put(WaspSoftwareJobParameters.CELL_LIBRARY_ID_LIST, WaspSoftwareJobParameters.getCellLibraryListAsParameterValue(cellLibraryIds));
 		MessagingTemplate messagingTemplate = new MessagingTemplate();
 		messagingTemplate.setReceiveTimeout(messageTimeoutInMillis);
 		BatchJobProviding softwarePlugin = waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), BatchJobProviding.class);
@@ -151,15 +150,15 @@ public class WaspJobSoftwareLaunchTaskletImpl extends WaspTasklet implements Was
 
 
 	@Override
-	public void setLibraryCellId(Integer libraryCellId) {
-		this.libraryCellIds = new ArrayList<Integer>();
-		this.libraryCellIds.add(libraryCellId);
+	public void setCellLibraryId(Integer cellLibraryId) {
+		this.cellLibraryIds = new ArrayList<Integer>();
+		this.cellLibraryIds.add(cellLibraryId);
 	}
 	
 
 	@Override
-	public void setLibraryCellIds(List<Integer> libraryCellIds) {
-		this.libraryCellIds = libraryCellIds;
+	public void setCellLibraryIds(List<Integer> cellLibraryIds) {
+		this.cellLibraryIds = cellLibraryIds;
 	}
 	
 
@@ -176,18 +175,19 @@ public class WaspJobSoftwareLaunchTaskletImpl extends WaspTasklet implements Was
 	
 	@PostConstruct
 	public void init(){
-		// if jobId is not set, get it from the first libraryCell in the list and check it is unique across all in the list
+		super.init();
+		// if jobId is not set, get it from the first cellLibrary in the list and check it is unique across all in the list
 		// in this scenario (otherwise we have no idea which is supposed to be used)
 		if (this.jobId == null){
-			for (Integer libraryCellId: libraryCellIds){
+			for (Integer cellLibraryId: cellLibraryIds){
 				if (this.jobId == null){
 					this.jobId = sampleService.getJobOfLibraryOnCell(
-							sampleService.getSampleSourceDao().getSampleSourceBySampleSourceId(libraryCellId) ).getId();
+							sampleService.getSampleSourceDao().getSampleSourceBySampleSourceId(cellLibraryId) ).getId();
 					continue;
 				}
-				if (!sampleService.getJobOfLibraryOnCell(sampleService.getSampleSourceDao().getSampleSourceBySampleSourceId(libraryCellId)).getId()
+				if (!sampleService.getJobOfLibraryOnCell(sampleService.getSampleSourceDao().getSampleSourceBySampleSourceId(cellLibraryId)).getId()
 						.equals(jobId))
-					throw new RuntimeException("No master Wasp jobId was provided and the libraryCells do not all reference the same job so no master can be determined");
+					throw new RuntimeException("No master Wasp jobId was provided and the cellLibrarys do not all reference the same job so no master can be determined");
 			}
 		}
 			

@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.helptag.controller;
 
 import edu.yu.einstein.wasp.controller.JobSubmissionController; 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,11 +20,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import edu.yu.einstein.wasp.model.JobDraft;
-import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.SampleDraft;
+import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.dao.JobDraftMetaDao;
 import edu.yu.einstein.wasp.dao.JobDraftDao;
 import edu.yu.einstein.wasp.dao.SampleDraftDao;
+import edu.yu.einstein.wasp.helptag.service.HelptagService;
 
 @Controller
 @Transactional
@@ -38,6 +40,11 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 	
 	@Autowired
 	protected JobDraftMetaDao jobDraftMetaDao;
+	
+	@Autowired
+	protected HelptagService helptagService;
+
+	protected final String SAMPLE_PAIR_STR_PREFIX = "testVsControl";
 
 	@RequestMapping(value="/pair/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
@@ -51,20 +58,27 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 		if (sampleDrafts.size() < 2){
 			return nextPage(jobDraft);
 		}
+		
 
 		Set<String> selectedSampleDraftPairStringSet = new HashSet<String>();
 		Set<Map<SampleDraft, SampleDraft>> sampleDraftPairSet = jobDraftService.getSampleDraftPairsByJobDraft(jobDraft);
 		if (!sampleDraftPairSet.isEmpty()){
 			for(Map<SampleDraft, SampleDraft> pair: sampleDraftPairSet){
 				Entry<SampleDraft, SampleDraft> e = pair.entrySet().iterator().next();
-				selectedSampleDraftPairStringSet.add("testVsControl_"+e.getKey().getId()+"_"+e.getValue().getId());
+				selectedSampleDraftPairStringSet.add(SAMPLE_PAIR_STR_PREFIX + "_" + e.getKey().getId() + "_" + e.getValue().getId());
 			}
 		}
 
-		m.put("jobDraft", jobDraft);
-		m.put("samples", sampleDrafts);
+		// helptag specific parameters needed on the JSP form
+		m.put("m_samples", helptagService.getAllMspISampleDraftsFromJobDraftId(jobDraftId));
+		m.put("h_samples", helptagService.getAllHpaIISampleDraftsFromJobDraftId(jobDraftId));
+		m.put("samplePairStrPrefix", SAMPLE_PAIR_STR_PREFIX);
 		m.put("selectedSamplePairs", selectedSampleDraftPairStringSet);
+
+		// generic parameters needed on the JSP form
+		m.put("jobDraft", jobDraft);
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
+		
 		return "jobsubmit/helptagform";
 	}
 
@@ -89,7 +103,7 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 	    			continue;
 	    		String checkValue = "";
 	    		try {
-	    			checkValue = ((String[])params.get("testVsControl_" + sd1Id + "_" + sd2Id))[0];
+	    			checkValue = ((String[])params.get(SAMPLE_PAIR_STR_PREFIX + "_" + sd1Id + "_" + sd2Id))[0];
 	    		} catch (Exception e) {
 	    		}
 		

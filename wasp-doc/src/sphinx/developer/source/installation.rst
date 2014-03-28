@@ -3,15 +3,15 @@ Installation
 
 What you need to get WASP installed.
 
-Getting the WASP System Source Code from GitHub
+Getting the Wasp System Source Code from GitHub
 ***********************************************
 
-Make sure you have Git on your server (obtain from http://git-scm.com) and obtain the latest WASP System code from https://github.com/WASP-System. Please make
+Make sure you have Git on your server (obtain from http://git-scm.com) and obtain the latest Wasp System code from https://github.com/WASP-System. Please make
 sure you understand the importance of line endings in Git and adjust your setting accordingly: http://help.github.com/articles/dealing-with-line-endings We
 provide a script to help clone and install the main components to speed up the installation process (see :ref:`installing`).
 
 
-After cloning the WASP System source code, you’ll notice the project contains many folders. Most of these represent modules of the system, wrapped up into
+After cloning the Wasp System source code, you’ll notice the project contains many folders. Most of these represent modules of the system, wrapped up into
 individual Maven projects:
 
 
@@ -21,11 +21,11 @@ individual Maven projects:
   :header: "Subfolder", "Description" :widths: 15, 65
 
   "db", "Contains database initialization files" "wasp-parent", "Hosts a parent.pom that defines common dependencies and versions required by other
-  components. Maven Project." "wasp-web", "The WASP System webapp. Maven/Spring project. Builds a war file for Tomcat7 deployment." "wasp-file", "File download
+  components. Maven Project." "wasp-web", "The Wasp System webapp. Maven/Spring project. Builds a war file for Tomcat7 deployment." "wasp-file", "File download
   webapp for delivering files to users.  Maven/Spring project. Builds a war file for Tomcat7 deployment." "wasp-core", "Spring component containing core code.
   Maven/Spring project. Builds a jar." "wasp-cli", "Used to run wasp analysis jobs from the command line. Maven/Spring project. Builds a jar and wrapper
   script." "wasp-config", "local configuration e.g. database and email sever details etc. Maven/Spring project. Builds a jar." "wasp-daemon", "Spring component
-  that runs WASP System task management flows and pipeline flows." "wasp-exec", "Builds a jar to execute the wasp-daemon component. Maven/Spring project. "
+  that runs Wasp System task management flows and pipeline flows." "wasp-exec", "Builds a jar to execute the wasp-daemon component. Maven/Spring project. "
   "wasp-plugin", "Contains a .pom file that serves as a parent for .pom files in all plugin projects. Maven project." "wasp-interface", "location for
   interfaces used across projects. Maven/Spring project. Builds a jar" "wasp-tomcat-classloader", "Extends WebappClassLoader to allow loading of classes from
   the waspPlugins folder in the Tomcat base folder. Maven project. Builds a jar." "wasp-doc", "Wasp System documentation"
@@ -78,7 +78,7 @@ Tomcat 7 setup
          username="tomcat-script" password="myScriptPass" roles="manager-script"/>
       </tomcat-users>
 
-   The manager-script account is used to deploy The WASP System using Maven. The managergui account can be used to manage your tomcat installation at
+   The manager-script account is used to deploy The Wasp System using Maven. The managergui account can be used to manage your tomcat installation at
    http://localhost:8080/manager. To deploy wasp using Maven, the following complementary information about the server needs to be added to your local maven
    configuration as follows:
 

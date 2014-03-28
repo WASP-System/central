@@ -203,7 +203,7 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 
 			// throws SampleTypeException
 
-			List<SampleSource> all = sampleService.getCellLibraries(cell);
+			List<SampleSource> all = sampleService.getCellLibrariesForCell(cell);
 			
 			List<Sample> libraries = sampleService.getLibrariesOnCellWithoutControls(cell);
 

@@ -54,10 +54,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import edu.yu.einstein.wasp.Assert;
-import edu.yu.einstein.wasp.Hyperlink;
 import edu.yu.einstein.wasp.dao.FileGroupDao;
 import edu.yu.einstein.wasp.dao.FileGroupMetaDao;
 import edu.yu.einstein.wasp.dao.FileHandleDao;
+import edu.yu.einstein.wasp.dao.FileHandleMetaDao;
 import edu.yu.einstein.wasp.dao.FileTypeDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobDraftDao;
@@ -68,7 +68,6 @@ import edu.yu.einstein.wasp.exception.FileDownloadException;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.MetadataException;
-import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.exception.PluginException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
@@ -80,10 +79,13 @@ import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
+import edu.yu.einstein.wasp.interfacing.Hyperlink;
+import edu.yu.einstein.wasp.interfacing.plugin.FileTypeViewProviding;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.FileHandleMeta;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
@@ -91,14 +93,10 @@ import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.plugin.FileTypeViewProviding;
-import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
-import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing.Status;
-import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 
 @Service
@@ -131,6 +129,9 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	
 	@Autowired
 	private FileGroupMetaDao fileGroupMetaDao;
+	
+	@Autowired
+	private FileHandleMetaDao fileHandleMetaDao;
 
 	@Autowired
 	private GridHostResolver hostResolver;
@@ -209,7 +210,8 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 */
 	@Override
 	public FileGroup processUploadedFile(MultipartFile mpFile, JobDraft jobDraft, String description, Random randomNumberGenerator) throws FileUploadException{
-
+		if (isInDemoMode)
+			throw new FileUploadException("Cannot perform this action in demo mode");
 		int randomNumber = randomNumberGenerator.nextInt(1000000000) + 100;
 
 		String noSpacesFileName = mpFile.getOriginalFilename().replaceAll("\\s+", "_");
@@ -339,8 +341,6 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		fileGroupDao.save(retGroup);
 		
 		return retGroup;
-		
-	
 		
 	}
 
@@ -858,9 +858,10 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	public Set<FileGroup> getFilesForCellLibraryByType(SampleSource cellLibrary, FileType fileType) {
 		TypedQuery<FileGroup> fgq = fileGroupDao.getEntityManager()
 				.createQuery("SELECT DISTINCT fg from FileGroup fg " +
-						"JOIN fg.sampleSources cl " +
+						"JOIN FETCH fg.sampleSources cl " +
 						"JOIN FETCH fg.fileHandles fh " + 
-						"JOIN FETCH fh.fileType " +
+						//"JOIN FETCH fh.fileType " +  
+						"JOIN FETCH fg.fileType " +
 						"WHERE cl = :cellLibrary AND fg.fileType = :fileType", FileGroup.class)
 				.setParameter("cellLibrary", cellLibrary)
 				.setParameter("fileType", fileType);
@@ -949,6 +950,8 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	@Override
 	@Transactional
 	public void uploadJobDraftFile(MultipartFile mpFile, JobDraft jobDraft, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
+		if (isInDemoMode)
+			throw new FileUploadException("Cannot perform this action in demo mode");
 		try{
 			FileGroup fileGroup = this.uploadFile(mpFile.getOriginalFilename(), mpFile.getInputStream(), jobDraft.getId(), fileDescription, randomNumberGenerator, "draft.dir", "");
 			this.linkFileGroupWithJobDraft(fileGroup, jobDraft);
@@ -960,17 +963,21 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	@Override
 	@Transactional
 	public void uploadJobFile(MultipartFile mpFile, Job job, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
+		if (isInDemoMode)
+			throw new FileUploadException("Cannot perform this action in demo mode");
 		try{
 			FileGroup fileGroup = this.uploadFile(mpFile.getOriginalFilename(), mpFile.getInputStream(), job.getId(), fileDescription, randomNumberGenerator, "results.dir", "submitted");
 			this.linkFileGroupWithJob(fileGroup, job);//this should really be in the job service, not fileservice
 		}catch(Exception e){
 			throw new FileUploadException(e.getMessage());
-		}
+		} 
 	}
 
 	@Override
 	@Transactional
 	public FileGroup uploadFileAndReturnFileGroup(MultipartFile mpFile, Job job, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
+		if (isInDemoMode)
+			throw new FileUploadException("Cannot perform this action in demo mode");
 		try{
 			FileGroup fileGroup = this.uploadFile(mpFile.getOriginalFilename(), mpFile.getInputStream(), job.getId(), fileDescription, randomNumberGenerator, "results.dir", "submitted");
 			return fileGroup;
@@ -1585,5 +1592,57 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		return fileGroupMetaDao.setMeta(metaList, filegroup.getId());
 	}
 	
+	@Override
+	public List<FileHandleMeta> saveFileHandleMeta(List<FileHandleMeta> metaList, FileHandle filehandle) throws MetadataException{
+		Assert.assertParameterNotNull(metaList, "a list of metadata is required");
+		Assert.assertParameterNotNull(filehandle, "a filehandle is required");
+		Assert.assertParameterNotNull(filehandle.getId(), "filehandle must have an id");
+		return fileHandleMetaDao.setMeta(metaList, filehandle.getId());
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @throws SampleTypeException
+	 */
+	@Override
+	public Set<FileGroup> getFilesForMacromoleculeOrLibraryByType(Sample sample, FileType fileType) throws SampleTypeException {
+		Assert.assertParameterNotNull(sample, "must provide a library");
+		Assert.assertParameterNotNull(fileType, "must provide a fileType");
+		Assert.assertParameterNotNull(fileType.getId(), "fileType has no valid fileTypeId");
+		Map<FileType, Set<FileGroup>> filesByType = getFilesForMacromoleculeOrLibraryMappedToFileType(sample);
+		if (!filesByType.containsKey(fileType))
+			return new HashSet<FileGroup>();
+		return filesByType.get(fileType);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @throws SampleTypeException
+	 */
+	@Override
+	public Map<FileType, Set<FileGroup>> getFilesForMacromoleculeOrLibraryMappedToFileType(Sample sample) throws SampleTypeException {
+		
+		String sampleTypeIName = sample.getSampleType().getIName();
+		
+		Map<FileType, Set<FileGroup>> filesByType = new HashMap<FileType, Set<FileGroup>>();
+		
+		if (sampleTypeIName.equals("library") || sampleTypeIName.equals("dna") || sampleTypeIName.equals("rna")){
+			Sample s = sampleDao.findById(sample.getId());
+			for (FileGroup fg : s.getFileGroups()) {
+				FileType ft = fg.getFileType();
+				if (!filesByType.containsKey(ft)){
+					filesByType.put(ft, new HashSet<FileGroup>());
+				}
+				filesByType.get(ft).add(fg);
+			}		
+		}
+		else{ 
+			throw new SampleTypeException("sample is neither macromolecule nor library");
+		}
+		return filesByType;
+		
+	}
 
 }

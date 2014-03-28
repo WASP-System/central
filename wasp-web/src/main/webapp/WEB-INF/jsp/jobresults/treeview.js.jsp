@@ -1,28 +1,13 @@
 <script type="text/javascript"	src="/wasp/scripts/jquery/jquery.cookie.js"></script>
-
-<script type="text/javascript"	src="https://github.com/rgrove/lazyload/raw/master/lazyload.js"></script>
-
-<script type="text/javascript"	src="https://raw.github.com/johnculviner/jquery.fileDownload/master/src/Scripts/jquery.fileDownload.js"></script>
-
+<script type="text/javascript"	src="https://rawgithub.com/rgrove/lazyload/master/lazyload.js"></script>
+<script type="text/javascript"	src="https://rawgithub.com/johnculviner/jquery.fileDownload/master/src/Scripts/jquery.fileDownload.js"></script>
 <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
-
-<!--script type="text/javascript" src="http://cdn.sencha.io/ext-4.0.7-gpl/ext-all.js"></script-->
 <script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/ext-all-dev.js"></script>
-<!--script type="text/javascript" src="/wasp/scripts/extjs/ext-all.js"></script-->
-
 <script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/packages/ext-theme-neptune/build/ext-theme-neptune.js"></script>
-<!--script type="text/javascript" src="/wasp/scripts/extjs/ext-theme-neptune-wasp.js"></script-->
-
-<!--script type="text/javascript" src="/wasp/scripts/extjs/examples/shared/include-ext.js"></script-->
-<!--script type="text/javascript" src="/wasp/scripts/extjs/packages/ext-theme-neptune/build/ext-theme-neptune-wasp.js"></script-->
-
-
-<!--link rel="stylesheet" type="text/css" href="http://cdn.sencha.io/ext/gpl/4.2.0/resources/css/ext-all-neptune.css" /-->
+<script type="text/javascript"	src="/wasp/scripts/extjs/wasp/WaspNamespaceDefinition.js"></script>
 <link rel="stylesheet" type="text/css" href="/wasp/css/ext-theme-neptune-all-wasp.css" />
 <link rel="stylesheet" type="text/css" href="/wasp/css/portal.css" />
 <link rel="stylesheet" type="text/css" href="/wasp/css/RowActions.css" />
-
-<!--link rel="stylesheet" type="text/css" href="/wasp/scripts/extjs/resources/ext-theme-neptune/ext-theme-neptune-all-wasp.css" /-->
 
 
 <script type="text/javascript">
@@ -93,13 +78,6 @@ var activeNode = {
 	type: null
 };
 
-Ext.Loader.setConfig({
-	enabled: true,
-	paths: {
-		'Wasp': '/wasp/scripts/extjs/wasp'
-	}
-});
-
 Ext.require([
 	'Ext.layout.container.*',
 	'Ext.resizer.Splitter',
@@ -115,7 +93,7 @@ Ext.onReady(function () {
 	extPortal = Ext.create('Wasp.Portal', {
 		width: $('#content').width()
 	});
-	//	Ext.Msg.alert('Alert',$('#content').width());
+//	Ext.Msg.alert('Alert',$('#content').width());
 
 	jQuery(window).bind('resize', function () {
 		extPortal.setWidth($('#content').width());
@@ -123,8 +101,8 @@ Ext.onReady(function () {
 
 	treeviewWidth = $('#content').width() * 0.3 - margin.left - margin.right;
 	treeviewHeight = $('#content').height() - margin.top - margin.bottom + 500;
-	[]
-	barWidth = treeviewWidth * .5;
+
+	barWidth = treeviewWidth * .58;
 	barHeight = 20;
 
 	div = d3.select("body").append("div")
@@ -138,8 +116,8 @@ Ext.onReady(function () {
 			.attr("pointer-events", "all")
 			.append("svg:g")
 			.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-		//.call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom)).on("dblclick.zoom", null)
-		.append("svg:g");
+//			.call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom)).on("dblclick.zoom", null)
+			.append("svg:g");
 
 
 		vis.append("rect")
@@ -158,7 +136,14 @@ Ext.onReady(function () {
 		activeNode.myid = root.myid;
 		activeNode.type = root.type;
 	});
-
+	
+	d3.select('#toggle_button').on('click', function() {
+		if ( root.children && root.children!="" ) {
+			root.children.forEach(expandAll);
+			update(root);
+		} else if ( root._children && root._children!="" ) {
+		}        
+	});
 });
 
 function zoom() {
@@ -171,6 +156,58 @@ function collapse(d) {
 		d._children.forEach(collapse);
 		d.children = null;
 	}
+}
+
+// Collapse/Expand/Toggle all descendents
+function collapseAll(d) {
+	if (d.children && d.children!="") {
+		d._children = d.children;
+		d.children = null;
+	}
+	if (d._children && d._children!="")
+		d._children.forEach(collapseAll);
+}
+function expandAll(d) {
+	if (!d.children && !d._children) {
+		if (d.jid == undefined) {
+			d.jid = -1;
+		}
+		var seen = [];
+		var dstr = JSON.stringify(d, function (key, val) {
+			if (key == "parent" || key == "children") { //don't stringify the parent/children nodes
+				return undefined;
+			} else if (typeof val == "object") {
+				if (seen.indexOf(val) >= 0)
+					return undefined;
+				seen.push(val);
+			}
+			return val;
+		});
+		$.ajax({
+			url: '/wasp/jobresults/getTreeJson.do?node=' + dstr,
+			type: 'GET',
+			dataType: 'json',
+			success: function (result) {
+				if (result.children != '') {
+					d.children = result.children;
+				}
+			}
+		});
+	}
+	if (d._children && d._children!="") {
+		d.children = d._children;
+		d._children = null;
+	}
+	if (d.children && d.children!="")
+		d.children.forEach(expandAll);
+}
+function toggleAll(d) {
+	if (d.children && d.children!="") {
+		collapseAll(d);
+	} else if (d._children && d._children!="") {
+		expandAll(d);
+	}
+	update(d);
 }
 
 
@@ -190,12 +227,17 @@ function update(source) {
 	// Compute the new tree layout.
 	var nodes = tree.nodes(root); //.reverse();
 
+	var d3tree_height = 0;
 	// Normalize for fixed-depth.
 	//	nodes.forEach(function(d) { d.y = d.depth * branch_length; });
 	//	Compute the "layout".
 	nodes.forEach(function (n, i) {
 		n.x = i * barHeight;
+		if (d3tree_height < n.x)
+			d3tree_height = n.x ;
 	});
+
+	$("svg").height(d3tree_height + 2*barHeight);
 
 	// Update the nodes
 	var node = vis.selectAll("g.node")
@@ -218,16 +260,16 @@ function update(source) {
 	nodeEnter.append("svg:rect")
 		.attr("y", -barHeight / 2)
 		.attr("height", barHeight)
-	//	  .attr("width", localBarWidth)
-	.attr("width", barWidth)
+//		.attr("width", localBarWidth)
+		.attr("width", barWidth)
 		.style("fill", color)
 		.on("dblclick", toggle);
 
 	nodeEnter.append("svg:text")
 		.attr("dy", 3.5)
 		.attr("dx", 13.5)
-	//	  .text(function(d) { return d.name; });
-	.text(getNodeName);
+//		.text(function(d) { return d.name; });
+		.text(getNodeName);
 
 	// Add checkbox
 	nodeEnter.append("svg:circle")
@@ -343,7 +385,6 @@ function printSelectedNodes() {
 }
 
 //Toggle children
-
 function toggle(d) {
 	if (d.children && d.children!="") {
 		d._children = d.children;
@@ -437,7 +478,7 @@ function click(d) {
 						//}]
 					}]
 				});
-			} else if (d.type == 'filegroup') {
+			} else if (d.type=='job' || d.type=='filegroup') {
 				//remove all existing tabs from tabpanel first
 				tabpanel.removeAll();
 
@@ -461,50 +502,53 @@ function click(d) {
 				});
 
 				var createPortal = function () {
-					var summaryPanel;
-					if (result.statuslist.length > 0) {
-						summaryPanel = Ext.create('Wasp.PluginSummaryGridPortlet', {
-							statusData: result.statuslist,
-							tabPanel: tabpanel
-						});
-					} else {
-						summaryPanel = {
-							html: '<div class="noPlugin">No registered plugins handle this data.</div>'
+					// if the node clicked is filegroup, create an extra summary tab in the portal
+					if (d.type=='filegroup') {
+						var summaryPanel;
+						if (result.statuslist.length > 0) {
+							summaryPanel = Ext.create('Wasp.PluginSummaryGridPortlet', {
+								statusData: result.statuslist,
+								tabPanel: tabpanel
+							});
+						} else {
+							summaryPanel = {
+								html: '<div class="noPlugin">No registered plugins handle this data.</div>'
+							}
 						}
-					}
-					var summarytab = tabpanel.add({
-						id: 'summary-tab',
-						xtype: 'panel',
-						title: 'Summary',
-						layout: 'card',
-						activeItem: 1,
-						items: [{
-							layout: 'fit'
-						}, {
-							xtype: 'portalpanel',
+						var summarytab = tabpanel.add({
+							id: 'summary-tab',
+							xtype: 'panel',
+							title: 'Summary',
+							layout: 'card',
+							activeItem: 1,
 							items: [{
-								//id: 'portlet-',
-								xtype: 'portlet',
-								title: 'Completion Status for Plugins Handling this Data',
-								//tools: extPortal.getTools(),
-								//frame: false,
-								closable: false,
-								collapsible: false,
-								draggable: false,
-								items: summaryPanel
+								layout: 'fit'
+							}, {
+								xtype: 'portalpanel',
+								items: [{
+									//id: 'portlet-',
+									xtype: 'portlet',
+									title: 'Completion Status for Plugins Handling this Data',
+									//tools: extPortal.getTools(),
+									//frame: false,
+									closable: false,
+									collapsible: false,
+									draggable: false,
+									items: summaryPanel
+								}]
 							}]
-						}]
-					});
+						});
+					}
 
 					$.each(result.paneltablist, function (index, item) {
 						var tabTitle;
 
-						if ((d.type.split('-'))[0] == "filetype") {
-							tabTitle = "Download " + (d.type.split('-'))[1].toUpperCase() + " files";
-							return;
-						} else {
+//						if ((d.type.split('-'))[0] == "filetype") {
+//							tabTitle = "Download " + (d.type.split('-'))[1].toUpperCase() + " files";
+//							return;
+//						} else {
 							tabTitle = item.name; //d.name+" Details";
-						}
+//						}
 
 
 						var tabid = index;
@@ -576,7 +620,7 @@ function click(d) {
 		}
 	});
 
-	if (!d.children || d.children=='') {
+	if (!d.children && !d._children) {
 		$.ajax({
 			url: '/wasp/jobresults/getTreeJson.do?node=' + dstr,
 			type: 'GET',

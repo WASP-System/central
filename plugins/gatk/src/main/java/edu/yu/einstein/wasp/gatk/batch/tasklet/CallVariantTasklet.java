@@ -1,10 +1,5 @@
 package edu.yu.einstein.wasp.gatk.batch.tasklet;
 
-
-/**
- * 
- */
-
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,18 +7,14 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
-import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.Assert;
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
+import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
@@ -37,10 +28,14 @@ import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 
-
-public class CallVariantTasklet extends WaspTasklet implements StepExecutionListener {
+/**
+ * @author jcai
+ * @author asmclellan
+ */
+public class CallVariantTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
 	private List<Integer> cellLibraryIds;
+	
 	private List<FileGroup> fileGroups = new ArrayList<>();
 	
 	@Autowired
@@ -57,9 +52,7 @@ public class CallVariantTasklet extends WaspTasklet implements StepExecutionList
 	private GridHostResolver gridHostResolver;
 	
 	@Autowired
-	private FileType bamFileType;
-	@Autowired
-	private FileType fastqFileType;
+	private FileType bamDedupRealnRecalFileType;
 	
 	private StepExecution stepExecution;
 	
@@ -72,9 +65,7 @@ public class CallVariantTasklet extends WaspTasklet implements StepExecutionList
 	}
 
 	public CallVariantTasklet(String cellLibraryIds) {
-		this.cellLibraryIds = WaspSoftwareJobParameters.getLibraryCellIdList(cellLibraryIds);
-		//Assert.assertTrue(cids.size() == 1);
-		//this.cellLibraryId = cids.get(0);
+		this.cellLibraryIds = WaspSoftwareJobParameters.getCellLibraryIdList(cellLibraryIds);
 	}
 
 	/*
@@ -85,23 +76,16 @@ public class CallVariantTasklet extends WaspTasklet implements StepExecutionList
 	 * org.springframework.batch.core.scope.context.ChunkContext)
 	 */
 	@Override
-	@RetryOnExceptionExponential
-	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
-		// if the work has already been started, then check to see if it is finished
-		// if not, throw an exception that is caught by the repeat policy.
-		RepeatStatus repeatStatus = super.execute(contrib, context);
-		if (repeatStatus.equals(RepeatStatus.FINISHED))
-			return RepeatStatus.FINISHED;
+	@Transactional("entityManager")
+	public void doExecute(ChunkContext context) throws Exception {
+		SampleSource cellLibrary1 = sampleService.getCellLibraryBySampleSourceId(cellLibraryIds.get(0));
+		Job job = sampleService.getJobOfLibraryOnCell(cellLibrary1);
 		
-		Integer cellLibId0=cellLibraryIds.get(0);
-		SampleSource sampleSource0=sampleService.getSampleSourceDao().findById(cellLibId0);
-		Job job = sampleService.getJobOfLibraryOnCell(sampleSource0);
-		
-		logger.debug("Beginning GATK GATK variant detection for job " + job.getId());
+		logger.debug("Beginning GATK variant detection for job " + job.getId());
 		
 		
 		for (Integer currentId : cellLibraryIds) {
-			Set<FileGroup> tmpFileGroups = fileService.getFilesForCellLibraryByType(sampleService.getSampleSourceDao().findById(currentId), fastqFileType); // TODO: change to bamFileType later
+			Set<FileGroup> tmpFileGroups = fileService.getFilesForCellLibraryByType(sampleService.getSampleSourceDao().findById(currentId), bamDedupRealnRecalFileType); 
 			logger.debug("get file group");
 			//Assert.assertTrue(tmpFileGroups.size() == 1);
 			FileGroup currentFg = null;
@@ -126,7 +110,7 @@ public class CallVariantTasklet extends WaspTasklet implements StepExecutionList
 		
 		// TODO: temporary, fix me
 		//WorkUnit w = new WorkUnit();
-		WorkUnit w = gatk.getCallVariant(sampleSource0, fileGroups, jobParameters);
+		WorkUnit w = gatk.getCallVariant(cellLibrary1, fileGroups, jobParameters);
 		
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
    
@@ -141,9 +125,7 @@ public class CallVariantTasklet extends WaspTasklet implements StepExecutionList
         stepContext.put("scrDir", result.getWorkingDirectory());
         stepContext.put("callVariantName", result.getId());
         stepContext.put("jobId", job.getId());
-        stepContext.put("cellLibId", cellLibId0);
-
-		return RepeatStatus.CONTINUABLE;
+        stepContext.put("cellLibId", cellLibrary1.getId());
 	}
 	
 
@@ -162,6 +144,7 @@ public class CallVariantTasklet extends WaspTasklet implements StepExecutionList
 	 */
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
+		super.beforeStep(stepExecution);
 		logger.debug("StepExecutionListener beforeStep saving StepExecution");
 		this.stepExecution = stepExecution;
 		

@@ -38,6 +38,17 @@ public abstract class WaspMessageTemplate implements MessageTemplate{
 	
 	public static final String RESEND = "resend";
 	
+	/**
+	 * Identifier (UUID) of the tasklet that launched this job
+	 */
+	public static final String PARENT_ID = "parenttaskletid";
+	
+	/**
+	 * The identifier of this child job in the set of jobs launched by the 
+	 * parent launch tasklet.
+	 */
+	public static final String CHILD_MESSAGE_ID = "childmessageid";
+	
 	
 	protected Map<String, Object> headers = new HashMap<>();
 	

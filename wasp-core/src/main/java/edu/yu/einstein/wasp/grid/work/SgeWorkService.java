@@ -850,6 +850,9 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		 */
 		@Override
 		public String getMemory() {
+			// 'mem_free' specifies how much memory should be free on a node before scheduling a job (or task) there 
+			// 'h_vmem' specifies maximum memory a scheduled job (or task) may use. Will kill job / task 
+			// with a memory allocation error if memory used exceeds this value
 			return getFlag() + " -l mem_free=" + w.getMemoryRequirements().toString() + "G\n" +
 					WorkUnit.REQUESTED_GB_MEMORY + "=" + w.getMemoryRequirements().toString() + "\n";
 		}

@@ -5,6 +5,7 @@ import java.net.URLDecoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 import nl.captcha.Captcha;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -31,6 +33,7 @@ import edu.yu.einstein.wasp.model.Userpasswordauth;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.util.AuthCode;
+import edu.yu.einstein.wasp.util.DemoEmail;
 import edu.yu.einstein.wasp.util.StringHelper;
 
 
@@ -44,8 +47,10 @@ public class AuthController extends WaspController {
 
   @Autowired
   private EmailService emailService;
-
   
+  @Autowired
+  private DemoEmail demoEmail;
+
   @Autowired
   private UserDao userDao;
   
@@ -92,8 +97,8 @@ public class AuthController extends WaspController {
 					  request.getSession().setAttribute(TARGET_URL_KEY, targetURL); 
 				  }
 				  return "auth/loginReferralPage";
-			  } else if (targetURL.contains("JSON.do")){
-				  targetURL = targetURL.replace("JSON", "").replace("\\?.*", "");
+			  } else if (targetURL.toLowerCase().contains("json.do")){
+				  //targetURL = targetURL.replace("JSON", "").replace("\\?.*", "");
 				  request.getSession().setAttribute(LOGIN_EXPIRED_WARNING_KEY, "auth.redirectDataNotSaved.label");
 				  logger.debug("target URL is provided so setting session variable for target = " + targetURL);
 				  request.getSession().setAttribute(TARGET_URL_KEY, targetURL); 
@@ -108,6 +113,11 @@ public class AuthController extends WaspController {
   
   @RequestMapping(value="/login", method=RequestMethod.GET)
   public String login(ModelMap m){
+	  // store mode as a session variable
+	  request.getSession().setAttribute("isInDemoMode", new Boolean(isInDemoMode));
+	  logger.info("Setting 'isInDemoMode' session attribute to: " + Boolean.toString(isInDemoMode));
+	  if (isInDemoMode && (demoEmail == null || demoEmail.getDemoEmail().isEmpty()) )
+		  return "redirect:/auth/getEmailForDemo.do";
 	  if (authenticationService.isAuthenticatedWaspUser()){
 		  User authUser = authenticationService.getAuthenticatedUser();
 		  ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByUserId(authUser.getId());
@@ -116,6 +126,8 @@ public class AuthController extends WaspController {
 			  authenticationService.logoutUser();
 			  return "redirect:/auth/confirmemail/emailchanged.do";
 		  } else {
+			  // login ok so proceed.
+			  
 			  String loginExpiredWarningLabel = (String) request.getSession().getAttribute(LOGIN_EXPIRED_WARNING_KEY);
 			  if (loginExpiredWarningLabel != null && !loginExpiredWarningLabel.isEmpty())
 			  	  waspErrorMessage(loginExpiredWarningLabel);
@@ -148,6 +160,28 @@ public class AuthController extends WaspController {
 	  }
 	  m.addAttribute("isAuthenticationExternal", authenticationService.isAuthenticationSetExternal());
 	  return "auth/loginPage";
+  }
+  
+  @RequestMapping(value="/getEmailForDemo", method=RequestMethod.GET)
+  public String getEmailForDemoGet(@CookieValue(value="waspDemoEmail", defaultValue="", required=false) String email, ModelMap m){
+	  if (!email.isEmpty()){
+		  demoEmail.setDemoEmail(email);
+		  return "redirect:/auth/login.do";
+	  }
+	  return "auth/getEmailForDemoForm";
+  }
+  
+  @RequestMapping(value="/getEmailForDemo", method=RequestMethod.POST)
+  public String getEmailForDemoPost(@RequestParam(value="email") String email, ModelMap m, HttpServletResponse response){
+	  if (email.isEmpty() || !Pattern.matches("([\\w+|\\.?]+)\\w+@([\\w+|\\.?]+)\\.(\\w{2,8}\\w?)", email)){
+		  waspErrorMessage("auth.demo_email.error");
+		  return "auth/getEmailForDemoForm";
+	  }
+	  Cookie waspDemoCookie = new Cookie("waspDemoEmail", email);
+	  waspDemoCookie.setMaxAge(60*60*24);
+	  response.addCookie(waspDemoCookie);
+	  demoEmail.setDemoEmail(email);
+	  return "redirect:/auth/login.do";
   }
   
   @RequestMapping(value="/confirmemail/requestEmailChange", method=RequestMethod.GET)

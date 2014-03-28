@@ -10,9 +10,10 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
+import edu.yu.einstein.wasp.daemon.batch.tasklets.AbandonMessageHandlingTasklet;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.model.Run;
@@ -25,7 +26,7 @@ import edu.yu.einstein.wasp.service.RunService;
  *
  */
 @Component
-public class SampleSheetTasklet extends WaspTasklet {
+public class SampleSheetTasklet extends AbandonMessageHandlingTasklet {
 	
 	private RunService runService;
 	
@@ -55,11 +56,9 @@ public class SampleSheetTasklet extends WaspTasklet {
 		// proxy
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet#execute(org.springframework.batch.core.StepContribution, org.springframework.batch.core.scope.context.ChunkContext)
-	 */
 	@Override
 	@RetryOnExceptionFixed
+	@Transactional("entityManager")
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws GridException {
 		run = runService.getRunById(runId);
 		logger.debug("preparing sample sheet for " + run.getName() + ":" + run.getPlatformUnit().getName());

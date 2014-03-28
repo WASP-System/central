@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import edu.yu.einstein.wasp.Hyperlink;
 import edu.yu.einstein.wasp.controller.WaspController;
 import edu.yu.einstein.wasp.exception.FormParameterException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.interfacing.Hyperlink;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Run;
@@ -330,7 +330,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 	
 	@RequestMapping(value="/run/{runId}/updateQualityReport", method=RequestMethod.GET)
 	public String updateQualityReport(@PathVariable("runId") Integer runId, ModelMap m){
-		Map<String, Map<Integer, IlluminaQcContext>> qcDataMap = new HashMap<String, Map<Integer,IlluminaQcContext>>();
+		Map<String, Map<Integer, IlluminaQcContext>> qcDataMap = new LinkedHashMap<String, Map<Integer,IlluminaQcContext>>();
 		Run run = runService.getRunById(runId);
 		if (run.getId() == null){
 			logger.warn("No run found with id of " + runId + " in model");
@@ -354,7 +354,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 		try{
 			Map<Integer, Sample> cells = sampleService.getIndexedCellsOnPlatformUnit(pu);
 			for(String metaKey: qcHeadingsByMetaKey.keySet()){
-				Map<Integer, IlluminaQcContext> cellQcResults = new HashMap<Integer, IlluminaQcContext>();
+				Map<Integer, IlluminaQcContext> cellQcResults = new LinkedHashMap<Integer, IlluminaQcContext>();
 				for(Integer cellIndex : cells.keySet()){
 					IlluminaQcContext qcContext = illuminaQcService.getQc(cells.get(cellIndex), metaKey);
 					if (qcContext == null)
@@ -400,7 +400,10 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 			runService.updateRunQcStatusSetComplete(run);
 		} catch (WaspMessageBuildingException e) {
 			logger.warn(e.getLocalizedMessage());
-			waspErrorMessage("waspIlluminaPlugin.updateQcfailed.label");
+			if (!isInDemoMode)
+				waspErrorMessage("waspIlluminaPlugin.updateQcfailed.label");
+			else
+				waspErrorMessage("waspIlluminaPlugin.warnNoRunStart.label");
 			return "redirect:/dashboard.do";
 		}
 		waspMessage("waspIlluminaPlugin.updateQcsuccess.label");

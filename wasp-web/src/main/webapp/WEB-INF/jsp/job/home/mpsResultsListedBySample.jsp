@@ -65,7 +65,7 @@
 		</c:when>
 		<c:otherwise>
 		    <c:forEach items="${libraryList}" var="library" varStatus="statusLibrary">	
-		   		<c:set value="${libraryCellListMap.get(library)}" var="cellList"/>
+		   		<c:set value="${cellLibraryListMap.get(library)}" var="cellList"/>
 		   		
 				<c:set value="${submittedObjectCellRowspan.get(submittedObject)}" var="cellRowspan"/>
 	

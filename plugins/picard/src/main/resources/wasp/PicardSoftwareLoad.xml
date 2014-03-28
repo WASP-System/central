@@ -22,7 +22,7 @@
 
     <property name="metaFromWrapper">
     <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-    <property name="area" ref="picardAlignerArea" />
+    <property name="area" ref="picardPluginArea" />
     <property name="metaList">
     <list>
     <value>#{waspSoftware['currentVersion']}=1.104</value>
