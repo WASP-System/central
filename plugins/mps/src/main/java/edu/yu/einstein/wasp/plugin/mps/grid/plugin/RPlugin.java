@@ -19,7 +19,7 @@ import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.Software; 
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
-import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
+import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 
 /**
