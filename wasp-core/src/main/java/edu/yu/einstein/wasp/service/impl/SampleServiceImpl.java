@@ -2437,13 +2437,14 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 */
 	@Override
 	public SampleSource getCellLibrary(Sample cell, Sample library) throws SampleTypeException{
-		if (!isCell(cell))
+		if (cell != null && !isCell(cell))
 			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 		if (!isLibrary(library))
 			throw new SampleTypeException("Expected 'library' but got Sample of type '" + library.getSampleType().getIName() + "' instead.");
 		Map<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sourceSampleId", library.getId());
-		m.put("sampleId", cell.getId());
+		if (cell != null)
+			m.put("sampleId", cell.getId());
 		List<SampleSource> ss = sampleSourceDao.findByMap(m);
 		if (ss.isEmpty())
 			return null;
@@ -2472,6 +2473,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	public Sample getCell(SampleSource cellLibrary){
 		Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be empty");
 		Assert.assertParameterNotNull(cellLibrary.getId(), "cellLibrary must have a valid id");
+		if (cellLibrary.getSampleId() == null)
+			return null;
 		return sampleDao.getSampleBySampleId(cellLibrary.getSampleId()); // get from Dao in case cellLibrary not entity managed
 	}
 	

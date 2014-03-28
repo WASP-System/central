@@ -15,5 +15,8 @@
 			<value>mps-tools</value>
 		</constructor-arg>
 	</bean>
+	
+	<import resource="r-plugin-context.xml"/>
+	<import resource="imagemagick-plugin-context.xml"/>
 
 </beans>
