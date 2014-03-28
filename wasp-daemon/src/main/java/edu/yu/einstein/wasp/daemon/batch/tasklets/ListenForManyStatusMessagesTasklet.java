@@ -2,9 +2,7 @@ package edu.yu.einstein.wasp.daemon.batch.tasklets;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
@@ -26,19 +24,15 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
 import org.springframework.integration.channel.PublishSubscribeChannel;
-import org.springframework.integration.core.MessageHandler;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import edu.yu.einstein.interfacing.wasp.interfacing.batch.ManyJobRecipient;
+import edu.yu.einstein.interfacing.wasp.batch.ManyJobRecipient;
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionReadinessException;
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager.LockType;
-import edu.yu.einstein.wasp.integration.messages.WaspStatus;
-import edu.yu.einstein.wasp.integration.messages.templates.ManyJobStatusMessageTemplate;
-import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
-import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 /**
  * Listens on the provided subscribable channel for a message with a task and
@@ -52,7 +46,7 @@ import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemp
  * 
  */
 @Transactional
-public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet {
+public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet implements ManyJobRecipient {
 
     private static final Logger logger = LoggerFactory.getLogger(ListenForManyStatusMessagesTasklet.class);
 
@@ -88,7 +82,6 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet {
     @Override
     @PreDestroy
     protected void destroy() {
-        jobExecution.getExecutionContext().remove(BatchJobHibernationManager.PARENT_JOB_ID_KEY);
         super.destroy();
     }
 
@@ -110,25 +103,25 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet {
         // that all of the messages have been received.  
         if (wasWokenOnMessage(context)) {
             logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId
-                    + ") was woken up from hibernation on completion. Testing for for abandoned or failed children...");
+                    + ") was woken up from hibernation on completion.");
 
-            List<String> completed = Arrays.asList(StringUtils.delimitedListToStringArray(
-                    stepExecution.getExecutionContext().getString(BatchJobHibernationManager.COMPLETED_CHILD_IDS),
-                    BatchJobHibernationManager.PARENT_JOB_CHILD_LIST_DELIMITER));
-
-            List<String> abandoned = Arrays.asList(StringUtils.delimitedListToStringArray(
-                    stepExecution.getExecutionContext().getString(BatchJobHibernationManager.COMPLETED_CHILD_IDS),
-                    BatchJobHibernationManager.PARENT_JOB_CHILD_LIST_DELIMITER));
-
-            if (children.size() != (completed.size() + abandoned.size())) {
-                requestHibernation(context);
-                return RepeatStatus.CONTINUABLE;
+            if (!stepExecution.getExecutionContext().containsKey(BatchJobHibernationManager.ABANDONED_CHILD_IDS)) {
+                logger.debug(stepExecution.getStepName() + ":" + stepExecutionId + "appears to be complete, returning FINISHED");
+            
+                // does not currently deal with abandonment issues.
+                setStepStatusInJobExecutionContext(stepExecution, BatchStatus.COMPLETED);
+                BatchJobHibernationManager.unlockJobExecution(stepExecution.getJobExecution(), LockType.WAKE);
+                return RepeatStatus.FINISHED;
+            } else {
+                List<String> abandoned = Arrays.asList(StringUtils.delimitedListToStringArray(
+                        stepExecution.getExecutionContext().get(BatchJobHibernationManager.ABANDONED_CHILD_IDS).toString(), 
+                        BatchJobHibernationManager.PARENT_JOB_CHILD_LIST_DELIMITER));
+                
+                String message = "Found " + abandoned.size() + " abandoned child jobs for parent step " + parentId.toString() + 
+                        " {" + StringUtils.collectionToCommaDelimitedString(abandoned) + "}";
+                logger.warn(message);
+                throw new WaspRuntimeException(message);
             }
-
-            // does not currently deal with abandonment issues.
-            setStepStatusInJobExecutionContext(stepExecution, BatchStatus.COMPLETED);
-            BatchJobHibernationManager.unlockJobExecution(stepExecution.getJobExecution(), LockType.WAKE);
-            return RepeatStatus.FINISHED;
         }
         
         // handle hibernation.  If the tasklet was not woken, then it should simply
@@ -150,9 +143,6 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet {
             logger.debug("Hibernate request was granted to this StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId
                     + "). Awaiting hibernation...");
         }
-        
-
-        
 
         logger.trace(stepExecution.getStepName() + ":" + stepExecutionId + " returning CONTINUABLE");
         return RepeatStatus.CONTINUABLE;
@@ -181,7 +171,7 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet {
 
         children = Arrays.asList(child);
         
-        //batchJobHibernationManager.registerManyStepCompletionListener(this);
+        batchJobHibernationManager.registerManyStepCompletionListener(this);
 
         super.beforeStep(stepExecution);
     }
@@ -199,7 +189,8 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet {
             this.messageQueue.clear(); // clean up in case of restart
             this.abandonMessageQueue.clear(); // clean up in case of restart
             logger.debug(stepExecution.getStepName() + " going to exit step with ExitStatus=" + exitStatus);
-            //batchJobHibernationManager.unregisterManyStepCompletionListener(this);
+            batchJobHibernationManager.unregisterManyStepCompletionListener(this);
+            jobExecution.getExecutionContext().remove(BatchJobHibernationManager.PARENT_JOB_ID_KEY);
             return super.afterStep(stepExecution);
         }
         ExitStatus exitStatus = super.afterStep(stepExecution);
@@ -231,6 +222,26 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet {
     // @Override
     public List<String> getChildren() {
         return children;
+    }
+    
+    @Override
+    public UUID getParentID() {
+        return parentId;
+    }
+
+    @Override
+    public List<String> getChildIDs() {
+        return children;
+    }
+
+    @Override
+    public Long getJobExecutionId() {
+        return jobExecution.getId();
+    }
+
+    @Override
+    public String getStepName() {
+        return this.getStepExecution().getStepName();
     }
 
 }

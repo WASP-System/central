@@ -16,17 +16,30 @@ import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 public class TestLaunchManyJobsTasklet extends LaunchManyJobsTasklet {
     
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    
+    private String method;
+    
+    public TestLaunchManyJobsTasklet(String testMethod) {
+        method = testMethod;
+        logger.debug("TestLaunchManyJobsTasklet configured to run in mode " + method);
+    }
 
     @Override
     public void doExecute() {
         
         try {
-            for (int i = 0; i < 1; i++) {
+            for (int i = 0; i < 5; i++) {
                 Map<String,String> jobParameters = new HashMap<String,String>();
                 jobParameters.put("timestamp", String.valueOf(System.currentTimeMillis()));
                 jobParameters.put("i", String.valueOf(i));
-                logger.debug("requesting launch of test.manySleepSteps for " + i);
-                requestLaunch("test.manySleepSteps", jobParameters);
+                logger.debug("requesting launch of test.manySleepSteps for " + i +":"+ method);
+                if (method.equals("sleep") || i > 0) {
+                    logger.debug("method sleep");
+                    requestLaunch("test.manySleepSteps", jobParameters);
+                } else {
+                    logger.debug("method abandon");
+                    requestLaunch("test.manyAbandonSteps", jobParameters);
+                }
             }
             
         } catch (Exception e) {
