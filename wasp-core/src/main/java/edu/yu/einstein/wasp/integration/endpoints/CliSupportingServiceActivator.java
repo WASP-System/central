@@ -18,12 +18,12 @@ import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.interfacing.wasp.interfacing.plugin.cli.CliMessagingTask;
-import edu.yu.einstein.interfacing.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
+import edu.yu.einstein.wasp.interfacing.plugin.cli.CliMessagingTask;
+import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;

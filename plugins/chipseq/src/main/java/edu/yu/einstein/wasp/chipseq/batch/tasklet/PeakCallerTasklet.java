@@ -27,7 +27,6 @@ import org.springframework.integration.channel.QueueChannel;
 import org.springframework.integration.core.MessagingTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.interfacing.wasp.interfacing.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.chipseq.integration.messages.ChipSeqSoftwareJobParameters;
@@ -42,6 +41,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
+import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;

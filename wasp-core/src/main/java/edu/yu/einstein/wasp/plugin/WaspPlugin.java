@@ -19,9 +19,9 @@ import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 
-import edu.yu.einstein.interfacing.wasp.interfacing.plugin.WaspPluginI;
-import edu.yu.einstein.interfacing.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.Assert;
+import edu.yu.einstein.wasp.interfacing.plugin.WaspPluginI;
+import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**

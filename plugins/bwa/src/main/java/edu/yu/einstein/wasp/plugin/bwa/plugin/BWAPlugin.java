@@ -17,11 +17,11 @@ import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 
-import edu.yu.einstein.interfacing.wasp.interfacing.plugin.BatchJobProviding;
-import edu.yu.einstein.interfacing.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.exception.SoftwareConfigurationException;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
+import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
+import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.SampleSource;

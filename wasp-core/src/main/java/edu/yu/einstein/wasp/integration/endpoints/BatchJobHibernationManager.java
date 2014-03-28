@@ -43,7 +43,6 @@ import org.springframework.integration.support.MessageBuilder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import edu.yu.einstein.interfacing.wasp.batch.ManyJobRecipient;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionException;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionReadinessException;
@@ -52,6 +51,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
+import edu.yu.einstein.wasp.interfacing.batch.ManyJobRecipient;
 
 
 /**

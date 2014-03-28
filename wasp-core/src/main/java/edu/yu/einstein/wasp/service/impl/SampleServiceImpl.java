@@ -34,7 +34,6 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 
-import edu.yu.einstein.interfacing.wasp.interfacing.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
@@ -78,6 +77,7 @@ import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessage
 import edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.SampleStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
+import edu.yu.einstein.wasp.interfacing.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;

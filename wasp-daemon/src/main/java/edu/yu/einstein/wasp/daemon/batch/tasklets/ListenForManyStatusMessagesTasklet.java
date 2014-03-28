@@ -27,12 +27,12 @@ import org.springframework.integration.channel.PublishSubscribeChannel;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import edu.yu.einstein.interfacing.wasp.batch.ManyJobRecipient;
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionReadinessException;
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager.LockType;
+import edu.yu.einstein.wasp.interfacing.batch.ManyJobRecipient;
 
 /**
  * Listens on the provided subscribable channel for a message with a task and

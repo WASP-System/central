@@ -22,7 +22,6 @@ import org.springframework.integration.MessagingException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.interfacing.wasp.interfacing.plugin.RunQcProviding;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.dao.RunCellDao;
 import edu.yu.einstein.wasp.dao.RunDao;
@@ -38,6 +37,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspRunTask;
 import edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate;
+import edu.yu.einstein.wasp.interfacing.plugin.RunQcProviding;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.RunMeta;

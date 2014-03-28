@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
 
-import edu.yu.einstein.interfacing.wasp.interfacing.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
@@ -21,6 +20,7 @@ import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate;
+import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.SampleSource;

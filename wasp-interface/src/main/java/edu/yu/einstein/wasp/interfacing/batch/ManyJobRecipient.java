@@ -1,7 +1,7 @@
 /**
  * 
  */
-package edu.yu.einstein.interfacing.wasp.batch;
+package edu.yu.einstein.wasp.interfacing.batch;
 
 import java.util.List;
 import java.util.UUID;

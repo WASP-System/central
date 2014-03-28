@@ -1,8 +1,8 @@
-package edu.yu.einstein.interfacing.wasp.interfacing.plugin;
+package edu.yu.einstein.wasp.interfacing.plugin;
 
 import java.util.Map;
 
-import edu.yu.einstein.interfacing.wasp.Hyperlink;
+import edu.yu.einstein.wasp.interfacing.Hyperlink;
 
 
 public interface FileTypeViewProviding {

@@ -1,4 +1,4 @@
-package edu.yu.einstein.interfacing.wasp;
+package edu.yu.einstein.wasp.interfacing;
 
 public class IndexingStrategy {
 	

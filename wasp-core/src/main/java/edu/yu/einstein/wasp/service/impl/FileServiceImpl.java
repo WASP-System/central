@@ -53,8 +53,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import edu.yu.einstein.interfacing.wasp.Hyperlink;
-import edu.yu.einstein.interfacing.wasp.interfacing.plugin.FileTypeViewProviding;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.dao.FileGroupDao;
 import edu.yu.einstein.wasp.dao.FileGroupMetaDao;
@@ -81,6 +79,8 @@ import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
+import edu.yu.einstein.wasp.interfacing.Hyperlink;
+import edu.yu.einstein.wasp.interfacing.plugin.FileTypeViewProviding;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
