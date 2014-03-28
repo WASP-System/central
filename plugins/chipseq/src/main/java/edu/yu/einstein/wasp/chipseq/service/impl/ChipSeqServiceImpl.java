@@ -313,7 +313,25 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 
 			PanelTab summaryPanelTab = ChipSeqWebPanels.getSummaryPanelTab2222(jobStatus, job, strategy, softwareName);
 			panelTabSet.add(summaryPanelTab);logger.debug("***************11");
+			//TODO: uncomment if(jobStatus.toString().equals(Status.COMPLETED.toString())){
+			//do the other panels //
+				PanelTab samplePairsPanelTab = ChipSeqWebPanels.getSamplePairsPanelTab2222(testSampleList, testSampleControlSampleListMap, sampleIdControlIdCommandLineMap);
+				if(samplePairsPanelTab!=null){panelTabSet.add(samplePairsPanelTab);}
+				PanelTab sampleLibraryRunsPanelTab = ChipSeqWebPanels.getSampleLibraryRunsPanelTab2222(testSampleList, sampleLibraryListMap, libraryRunInfoListMap);
+				if(sampleLibraryRunsPanelTab!=null){panelTabSet.add(sampleLibraryRunsPanelTab);}
+				PanelTab fileTypeDefinitionsPanelTab = ChipSeqWebPanels.getFileTypeDefinitionsPanelTab2222(fileTypeList);
+				if(fileTypeDefinitionsPanelTab!=null){panelTabSet.add(fileTypeDefinitionsPanelTab);}
+				PanelTab allFilesDisplayedBySampleUsingGroupingGridPanelTab = ChipSeqWebPanels.getAllFilesDisplayedBySampleUsingGroupingGridPanelTab2222(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
+				if(allFilesDisplayedBySampleUsingGroupingGridPanelTab!=null){panelTabSet.add(allFilesDisplayedBySampleUsingGroupingGridPanelTab);}
+				PanelTab allFilesDisplayedByFileTypeUsingGroupingGridPanelTab = ChipSeqWebPanels.getAllFilesDisplayedByFileTypeUsingGroupingGridPanelTab2222(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
+				if(allFilesDisplayedByFileTypeUsingGroupingGridPanelTab!=null){panelTabSet.add(allFilesDisplayedByFileTypeUsingGroupingGridPanelTab);}
+				PanelTab allModelPNGFilesDisplayedInPanelsTab = ChipSeqWebPanels.getAllModelPNGFilesDisplayedInPanelsTab2222(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
+				if(allModelPNGFilesDisplayedInPanelsTab!=null){panelTabSet.add(allModelPNGFilesDisplayedInPanelsTab);}
+
 /*			
+  			PanelTab summaryPanelTab = ChipSeqWebPanels.getSummaryPanelTab(jobStatus, job, strategy, softwareName);
+			panelTabSet.add(summaryPanelTab);logger.debug("***************11");
+
 			PanelTab testPanelTabWithIFrames = ChipSeqWebPanels.getTestPanelTab();
 			if(testPanelTabWithIFrames!=null){panelTabSet.add(testPanelTabWithIFrames);}
 
