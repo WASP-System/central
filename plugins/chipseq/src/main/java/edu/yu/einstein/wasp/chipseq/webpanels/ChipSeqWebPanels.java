@@ -424,8 +424,8 @@ public class ChipSeqWebPanels {
 		///////don't want this to display: content.addColumn(new GridColumn("SamplePairs", "SamplePairs"));//header,dataIndex		
 		content.addColumn(new GridColumn("File Type", "FileType", 150, 0));//header,dataIndex	width=150; flex=0	
 		content.addColumn(new GridColumn("File", "File", 1));//header,dataIndex					flex=1
-		content.addColumn(new GridColumn("MD5", "MD5", 270));//header,dataIndex					width=270; flex=0
-		content.addColumn(new GridColumn(" ", "Download", 100, 0));//header is single space string,dataIndex	width=100; flex=0
+		content.addColumn(new GridColumn("MD5", "MD5", 270, 0));//header,dataIndex					width=270; flex=0
+		////content.addColumn(new GridColumn(" ", "Download", 100, 0));//header is single space string,dataIndex	width=100; flex=0
 		
 		//create rows with  information
 		for(Sample testSample : testSampleList){
@@ -566,7 +566,7 @@ public class ChipSeqWebPanels {
 		content.addColumn(new GridColumn("Control Sample", "ControlSample", 150, 0));//header,dataIndex		
 		content.addColumn(new GridColumn("File", "File", 1));//header,dataIndex		
 		content.addColumn(new GridColumn("MD5", "MD5", 270, 0));//header,dataIndex		
-		content.addColumn(new GridColumn(" ", "Download", 100, 0));//header is single space string,dataIndex		
+		///content.addColumn(new GridColumn(" ", "Download", 100, 0));//header is single space string,dataIndex		
 		
 		//create rows with  information
 		for(Sample testSample : testSampleList){
@@ -577,7 +577,7 @@ public class ChipSeqWebPanels {
 				
 				for(FileType fileType : fileTypeList){
 					
-					if(fileType.getIName().endsWith("_model.png")){//macstwo specific
+					if(fileType.getExtensions().endsWith("_model.png")){//macstwo specific
 						continue;
 					}
 					
@@ -609,12 +609,12 @@ public class ChipSeqWebPanels {
 	//macstwo specific
 	public static PanelTab getAllModelPNGFilesDisplayedInPanelsTab2222(List<Sample> testSampleList, Map<Sample, List<Sample>> testSampleControlSampleListMap, List<FileType> fileTypeList, Map<String, FileHandle>  sampleIdControlIdFileTypeIdFileHandleMap, Map<FileHandle, String> fileHandleResolvedURLMap, Map<String, FileGroup> sampleIdControlIdFileTypeIdFileGroupMap){
 		
-		logger.debug("********inside getAllModelPNGFilesDisplayedInPanelsTab2222()");
+		logger.debug("********inside getAllModelPNGFilesDisplayedInPanelsTab2222() at 1");
 
 		//create the panelTab to house the panel
 		PanelTab panelTab = new PanelTab();
 		panelTab.setName("Model View");
-		panelTab.setNumberOfColumns(2);
+		panelTab.setNumberOfColumns(1);
 		
 		int counter = 1;
 		for(Sample testSample : testSampleList){
@@ -624,31 +624,40 @@ public class ChipSeqWebPanels {
 				String samplePairs = "Test Sample: " + testSample.getName() + "; Control: " + controlSample.getName();
 				
 				for(FileType fileType : fileTypeList){
-					
-					if(fileType.getIName().endsWith("_model.png")){//macstwo specific
-						
+					//******************Robert A Dubin TODO ToDo change to model.png!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+					if(fileType.getExtensions().endsWith("_model.pdf")){//macstwo specific
+						logger.debug("********inside getAllModelPNGFilesDisplayedInPanelsTab2222() at 2");
 						FileHandle fileHandle = sampleIdControlIdFileTypeIdFileHandleMap.get(testSample.getId().toString() + "::" + controlSample.getId().toString() + "::" + fileType.getId().toString());
 						String resolvedURL = fileHandleResolvedURLMap.get(fileHandle);
 						if(fileHandle==null || resolvedURL==null || resolvedURL.isEmpty()){//unexpected
 							continue;
 						}
-						
+						logger.debug("********inside getAllModelPNGFilesDisplayedInPanelsTab2222() at 3");
 						//create the panel
 						WebPanel panel = new WebPanel();
 						panel.setTitle(samplePairs);
 						panel.setDescription(samplePairs);
+						panel.setHeight(900);
 						panel.setResizable(true);
 						panel.setMaximizable(true);	
 						panel.setOrder(counter++);
 						
 						WebContent content = new WebContent();
-						content.setHtmlCode("<img width=\"200\" height=\"200\" src=\"http://www.einstein.yu.edu\" />");
+						//content.setHtmlCode("<img width=\"200\" height=\"200\" src=\"http://localhost:8080/wasp/images/fail.png\" />");
+						//content.setHtmlCode("<iframe width=\"200\" height=\"200\" src=\"http://www.einstein.yu.edu\" ></iframe>");
+						//content.setHtmlCode("<iframe width=\"470\" height=\"900\" src=\"http://localhost:8080/wasp/file/fileHandle/1160/view.do\" ></iframe>");//works nicely!
+						content.setHtmlCode("<iframe width=\"470\" height=\"900\" src=\"http://localhost:8080/wasp/file/fileHandle/"+fileHandle.getId()+"/view.do\" ></iframe>");
+						
+						///file/fileHandle/${fileHandle.getId()}/view.do"
+						
 						panel.setContent(content);
-						panelTab.addPanel(panel);//add panel to panelTab						
+						panelTab.addPanel(panel);//add panel to panelTab	
+						logger.debug("********inside getAllModelPNGFilesDisplayedInPanelsTab2222() at 4 with counter = " + counter);
 					}					
 				}			
 			}
 		}	
+		logger.debug("********inside getAllModelPNGFilesDisplayedInPanelsTab2222() at END");
 		return panelTab;
 	}
 

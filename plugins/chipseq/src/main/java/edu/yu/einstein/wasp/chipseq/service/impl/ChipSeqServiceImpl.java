@@ -325,6 +325,10 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 				if(allFilesDisplayedBySampleUsingGroupingGridPanelTab!=null){panelTabSet.add(allFilesDisplayedBySampleUsingGroupingGridPanelTab);}
 				PanelTab allFilesDisplayedByFileTypeUsingGroupingGridPanelTab = ChipSeqWebPanels.getAllFilesDisplayedByFileTypeUsingGroupingGridPanelTab2222(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
 				if(allFilesDisplayedByFileTypeUsingGroupingGridPanelTab!=null){panelTabSet.add(allFilesDisplayedByFileTypeUsingGroupingGridPanelTab);}
+				
+				//PanelTab summaryPanelTab123 = ChipSeqWebPanels.getSummaryPanelTab(jobStatus, job, strategy, softwareName);
+				//panelTabSet.add(summaryPanelTab123);
+				
 				PanelTab allModelPNGFilesDisplayedInPanelsTab = ChipSeqWebPanels.getAllModelPNGFilesDisplayedInPanelsTab2222(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
 				if(allModelPNGFilesDisplayedInPanelsTab!=null){panelTabSet.add(allModelPNGFilesDisplayedInPanelsTab);}
 
