@@ -88,3 +88,12 @@ div.tooltip {
 	border-radius: 5px;
 	pointer-events: none;
 }
+
+.multilineColumn .x-grid-cell-inner {
+	white-space: normal;
+}
+
+.x-grid-row-over .x-grid-cell-inner {
+	font-weight: bold;
+	white-space: normal;
+}
