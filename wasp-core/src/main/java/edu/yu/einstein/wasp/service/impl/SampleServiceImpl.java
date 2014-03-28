@@ -2458,7 +2458,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	public SampleSource getCellLibraryBySampleSourceId(Integer ssid) throws SampleTypeException{
 		SampleSource cellLibrary = sampleSourceDao.getById(ssid);
 		Sample cell = this.getCell(cellLibrary);
-		if (!isCell(cell))
+		if (cell != null && !isCell(cell))
 			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 		Sample library = this.getLibrary(cellLibrary);
 		if (!isLibrary(library))

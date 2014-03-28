@@ -24,6 +24,7 @@ import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Genome;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.GenomeService;
+import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
@@ -38,6 +39,9 @@ public abstract class AbstractBWASoftwareComponent extends ReferenceBasedAligner
 
 	@Autowired
 	protected SampleService sampleService;
+	
+	@Autowired
+	protected JobService jobService;
 	
 	@Autowired
 	protected GenomeService genomeService;

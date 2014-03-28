@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +10,9 @@ import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.exception.JobContextInitializationException;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobSoftware;
+import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Software;
@@ -40,7 +43,7 @@ public class WaspJobContext {
 		setContext();
 	}
 	
-	private void setContext() throws JobContextInitializationException{
+	public void setContext() throws JobContextInitializationException{
 		try{
 			configuredSoftwareByType = new HashMap<ResourceType, SoftwareConfiguration>();
 			List<JobSoftware> swl = this.job.getJobSoftware();
@@ -48,7 +51,22 @@ public class WaspJobContext {
 			for (JobSoftware js: swl){
 				Software software = js.getSoftware();
 				ResourceType softwareType = software.getResourceType();
-				Map<String, String> parameters = MetaHelper.getMap(software.getIName(), job.getJobMeta());
+				List<JobMeta> jobMeta = job.getJobMeta();
+				Map<String, String> parameters = null;
+				if (jobMeta != null)
+					parameters = MetaHelper.getKeyValueMap(software.getIName(), jobMeta);
+				if (parameters == null || parameters.isEmpty()){
+					logger.info("no parameters configured for software=" + software.getName() + " so going to use defaults");
+					MetaHelper metaHelper = new MetaHelper(software.getIName(), MetaBase.class);  
+					List<MetaBase> defaultMetaList = new ArrayList<>();
+					for (MetaBase meta : metaHelper.getMasterList(MetaBase.class)){
+						if (meta.getK().endsWith(".default")){
+							meta.setK(meta.getK().replace(".default", ""));
+							defaultMetaList.add(meta);
+						}
+					}
+					parameters = MetaHelper.getKeyValueMap(software.getIName(), defaultMetaList);
+				}
 				configuredSoftwareByType.put(softwareType, new SoftwareConfiguration(software, parameters));
 			}
 		} catch(Exception e){
