@@ -49,12 +49,15 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 	private Integer testSampleId;//passed in
 	private Integer controlSampleId;//passed in (could be zero - which indicates no control was used)
 	private Integer modelPdfGId;//generated in doExecute()
+	private Integer modelPngGId;//generated in doExecute()
 	private String commandLineCall;
 	
 	private StepExecution stepExecution;
 	
 	@Autowired
 	private FileType macs2ModelPdfFileType;
+	@Autowired
+	private FileType macs2ModelPngFileType;
 	@Autowired
 	private FileType macs2ModelScriptFileType;
 	
@@ -78,6 +81,10 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 	@Autowired
 	@Qualifier("rPackage")
 	private SoftwarePackage rSoftware;
+
+	@Autowired
+	@Qualifier("imagemagick")
+	private SoftwarePackage imageMagickSoftware;
 
 
 	public MacstwoGenerateModelAsPdfTasklet() {
@@ -166,17 +173,21 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		logger.debug("*****macs2ModelScriptFileType.getIName() = " + macs2ModelScriptFileType.getIName());		
 		Assert.assertTrue(modelScriptFileHandle.getFileType().getIName().equalsIgnoreCase(macs2ModelScriptFileType.getIName()));
 		String pdfFileName = modelScriptFileHandle.getFileName().replaceAll(".r$", ".pdf");//abc_model.r will be used to generate abc_model.pdf
+		String pngFileName = modelScriptFileHandle.getFileName().replaceAll(".r$", ".png");//abc_model.pdf will be used to generate abc_model.png
+
 		logger.debug("*****pdfFileName = " + pdfFileName);
+		logger.debug("*****pngFileName = " + pngFileName);
 		
 		logger.debug("preparing to generate workunit in MacstwoGenerateModelAsPdfTasklet.doExecute()");
-		WorkUnit w = macs2.getModelPdf(modelScriptFileHandle);//configure
+		WorkUnit w = macs2.getModelPdf(modelScriptFileHandle, pngFileName);//configure
 		logger.debug("OK, workunit has been generated in MacstwoGenerateModelAsPdfTasklet.doExecute()");
-		this.commandLineCall = w.getCommand();
+		this.commandLineCall = w.getCommand();//not actually being used here
 		Assert.assertTrue(!this.commandLineCall.isEmpty());
 		logger.debug("commandLineCall in MacstwoGenerateModelAsPdfTasklet.doExecute() is : " + commandLineCall);
 			
 		List<String> listOfFileHandleNames = new ArrayList<String>();
 
+		//the pdf (generated from running Rscript on xx_model.r file)
 		FileGroup modelPdfG = new FileGroup();
 		FileHandle modelPdf = new FileHandle();
 		modelPdf.setFileName(pdfFileName);
@@ -189,7 +200,24 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		modelPdfG.setSoftwareGeneratedBy(rSoftware);
 		modelPdfG = fileService.addFileGroup(modelPdfG);
 		this.modelPdfGId = modelPdfG.getId();
-		logger.debug("recorded fileGroup and fileHandle for rscript in MacstwoGenerateModelAsPdfTasklet.doExecute()");
+		logger.debug("recorded fileGroup and fileHandle for rscript to create pdf in MacstwoGenerateModelAsPdfTasklet.doExecute()");
+
+		//the png (converted from the pdf using ImageMagick)
+		FileGroup modelPngG = new FileGroup();
+		FileHandle modelPng = new FileHandle();
+		modelPng.setFileName(pngFileName);
+		listOfFileHandleNames.add(pngFileName);
+		modelPng.setFileType(macs2ModelPngFileType);
+		modelPng = fileService.addFile(modelPng);
+		modelPngG.addFileHandle(modelPng);
+		modelPngG.setFileType(macs2ModelPngFileType);
+		modelPngG.setDescription(modelPng.getFileName());
+		modelPngG.setSoftwareGeneratedBy(imageMagickSoftware);
+		modelPngG = fileService.addFileGroup(modelPngG);
+		this.modelPngGId = modelPngG.getId();
+		logger.debug("recorded fileGroup and fileHandle for ImageMagick to create png in MacstwoGenerateModelAsPdfTasklet.doExecute()");
+
+		
 		
 		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
 		//in case of crash
@@ -197,11 +225,14 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		stepContext.put("controlSampleId", this.controlSampleId);
 		stepContext.put("commandLineCall", this.commandLineCall);
 		stepContext.put("modelPdfGId", this.modelPdfGId);
-		logger.debug("saved three variables in stepContext within MacstwoGenerateModelAsPdfTasklet.doExecute()");
+		stepContext.put("modelPngGId", this.modelPngGId);
+		logger.debug("saved 5 variables in stepContext within MacstwoGenerateModelAsPdfTasklet.doExecute()");
 		
 		w.getResultFiles().add(modelPdfG);
+		w.getResultFiles().add(modelPngG);
 		logger.debug("executed w.getResultFiles().add(modelPdfG) within MacstwoGenerateModelAsPdfTasklet.doExecute()");
-	
+		logger.debug("executed w.getResultFiles().add(modelPngG) within MacstwoGenerateModelAsPdfTasklet.doExecute()");
+		
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + this.jobId.toString()); 
 		
 		int counter = 0;
@@ -253,6 +284,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		this.controlSampleId = (Integer) stepContext.get("controlSampleId");
 		this.commandLineCall = (String) stepContext.get("commandLineCall");
 		this.modelPdfGId = (Integer) stepContext.get("modelPdfGId");
+		this.modelPngGId = (Integer) stepContext.get("modelPngGId");
 	}
 	
 	@Override
@@ -267,6 +299,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		this.controlSampleId = (Integer) stepContext.get("controlSampleId");		
 		this.commandLineCall = (String) stepContext.get("commandLineCall");
 		this.modelPdfGId = (Integer) stepContext.get("modelPdfGId");
+		this.modelPngGId = (Integer) stepContext.get("modelPngGId");
 
 		Sample testSample = sampleService.getSampleById(this.testSampleId);
 				
@@ -282,6 +315,20 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 			fgmList.add(fgm);
 			fileService.saveFileGroupMeta(fgmList, fg);
 		}
+		
+		if (this.modelPngGId != null && testSample.getId() != 0){
+			////fileService.setSampleFile(fileService.getFileGroupById(modelPdfGId), testSample);
+			FileGroup fg = fileService.getFileGroupById(this.modelPngGId);
+			fileService.setSampleFile(fg, testSample);
+			FileGroupMeta fgm = new FileGroupMeta();
+			fgm.setK("chipseqAnalysis.controlId");
+			fgm.setV(this.controlSampleId.toString());//could be zero
+			fgm.setFileGroupId(fg.getId());
+			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
+			fgmList.add(fgm);
+			fileService.saveFileGroupMeta(fgmList, fg);
+		}
+		
 		logger.debug("ending doPreFinish() in MacstwoGenerate<ModelAsPdfTasklet");
 
 	}

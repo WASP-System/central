@@ -54,6 +54,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	private Integer peaksXlsGId;
 	private Integer narrowPeaksBedGId;
 	private Integer summitsBedGId;
+	private Integer summitsModifiedBedGId;
 	private Integer treatPileupBedGraphGId;
 	private Integer controlLambdaBedGraphGId;
 	private Integer testSampleId;
@@ -70,6 +71,8 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	private FileType macs2NarrowPeaksBedFileType;
 	@Autowired
 	private FileType macs2SummitsBedFileType;
+	@Autowired
+	private FileType macs2SummitsModifiedBedFileType;
 	@Autowired
 	private FileType macs2TreatPileupBedGraphFileType;
 	@Autowired
@@ -289,6 +292,19 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		summitsBedG = fileService.addFileGroup(summitsBedG);
 		this.summitsBedGId = summitsBedG.getId();		
 		
+		FileGroup summitsModifiedBedG = new FileGroup();
+		FileHandle summitsModifiedBed = new FileHandle();
+		summitsModifiedBed.setFileName(prefixForFileName + "_summits.modified.bed");
+		listOfFileHandleNames.add(prefixForFileName + "_summits.modified.bed");
+		summitsModifiedBed.setFileType(macs2SummitsModifiedBedFileType);
+		summitsModifiedBed = fileService.addFile(summitsModifiedBed);
+		summitsModifiedBedG.addFileHandle(summitsModifiedBed);
+		summitsModifiedBedG.setFileType(macs2SummitsModifiedBedFileType);
+		summitsModifiedBedG.setDescription(summitsModifiedBed.getFileName());
+		summitsModifiedBedG.setSoftwareGeneratedBy(macs2);
+		summitsModifiedBedG = fileService.addFileGroup(summitsModifiedBedG);
+		this.summitsModifiedBedGId = summitsModifiedBedG.getId();		
+
 		FileGroup treatPileupBedGraphG = new FileGroup();
 		FileHandle treatPileupBedGraph = new FileHandle();
 		treatPileupBedGraph.setFileName(prefixForFileName + "_treat_pileup.bdg");
@@ -328,6 +344,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		stepContext.put("peaksXlsGId", this.peaksXlsGId);
 		stepContext.put("narrowPeaksBedGId", this.narrowPeaksBedGId);
 		stepContext.put("summitsBedGId", this.summitsBedGId);
+		stepContext.put("summitsModifiedBedGId", this.summitsModifiedBedGId);
 		stepContext.put("treatPileupBedGraphGId", this.treatPileupBedGraphGId);
 		stepContext.put("controlLambdaBedGraphGId", this.controlLambdaBedGraphGId);
 		stepContext.put("commandLineCall", this.commandLineCall);
@@ -337,9 +354,10 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		w.getResultFiles().add(peaksXlsG);
 		w.getResultFiles().add(narrowPeaksBedG);
 		w.getResultFiles().add(summitsBedG);
+		w.getResultFiles().add(summitsModifiedBedG);
 		w.getResultFiles().add(treatPileupBedGraphG);
 		w.getResultFiles().add(controlLambdaBedGraphG);
-		logger.debug("executed w.getResultFiles().add(x) for 6 FileGroups");
+		logger.debug("executed w.getResultFiles().add(x) for 7 FileGroups");
 		
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + this.jobId.toString());	
 		
@@ -402,6 +420,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		this.peaksXlsGId = (Integer) stepContext.get("peaksXlsGId");
 		this.narrowPeaksBedGId = (Integer) stepContext.get("narrowPeaksBedGId");
 		this.summitsBedGId = (Integer) stepContext.get("summitsBedGId");
+		this.summitsModifiedBedGId = (Integer) stepContext.get("summitsModifiedBedGId");
 		this.treatPileupBedGraphGId = (Integer) stepContext.get("treatPileupBedGraphGId");
 		this.controlLambdaBedGraphGId = (Integer) stepContext.get("controlLambdaBedGraphGId");
 		this.testSampleId = (Integer) stepContext.get("testSampleId");
@@ -427,6 +446,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		this.peaksXlsGId = (Integer) stepContext.get("peaksXlsGId");
 		this.narrowPeaksBedGId = (Integer) stepContext.get("narrowPeaksBedGId");
 		this.summitsBedGId = (Integer) stepContext.get("summitsBedGId");
+		this.summitsModifiedBedGId = (Integer) stepContext.get("summitsModifiedBedGId");
 		this.treatPileupBedGraphGId = (Integer) stepContext.get("treatPileupBedGraphGId");
 		this.controlLambdaBedGraphGId = (Integer) stepContext.get("controlLambdaBedGraphGId");
 		this.testSampleId = (Integer) stepContext.get("testSampleId");
@@ -502,6 +522,18 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		if (this.summitsBedGId != null && testSample.getId() != 0){
 			///fileService.setSampleFile(fileService.getFileGroupById(summitsBedGId), testSample);
 			FileGroup fg = fileService.getFileGroupById(this.summitsBedGId);
+			fileService.setSampleFile(fg, testSample);
+			FileGroupMeta fgm = new FileGroupMeta();
+			fgm.setK("chipseqAnalysis.controlId");
+			fgm.setV(this.controlSampleId.toString());
+			fgm.setFileGroupId(fg.getId());
+			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
+			fgmList.add(fgm);
+			fileService.saveFileGroupMeta(fgmList, fg);
+		}
+		if (this.summitsModifiedBedGId != null && testSample.getId() != 0){
+			///fileService.setSampleFile(fileService.getFileGroupById(summitsBedGId), testSample);
+			FileGroup fg = fileService.getFileGroupById(this.summitsModifiedBedGId);
 			fileService.setSampleFile(fg, testSample);
 			FileGroupMeta fgm = new FileGroupMeta();
 			fgm.setK("chipseqAnalysis.controlId");

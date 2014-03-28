@@ -184,8 +184,9 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 				return true;
 		}
 		for (Job job : jobService.getActiveJobs()){
-			boolean jobIsAwaitingDaApproval = jobService.isJobAwaitingDaApproval(job);
-			if (jobIsAwaitingDaApproval && (authenticationService.isSuperUser() || authenticationService.hasRole("ga")))
+			if (!jobService.isJobAwaitingDaApproval(job))
+				continue;
+			if (authenticationService.isSuperUser() || authenticationService.hasRole("ga"))
 				return true;
 			for (int departmentId : departmentIdList) {
 				if (job.getLab().getDepartmentId().intValue() == departmentId)

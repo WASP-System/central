@@ -57,6 +57,7 @@ import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -64,6 +65,7 @@ import edu.yu.einstein.wasp.util.SoftwareConfiguration;
 import edu.yu.einstein.wasp.util.WaspJobContext;
 import edu.yu.einstein.wasp.viewpanel.Content;
 import edu.yu.einstein.wasp.viewpanel.DataTabViewing.Status;
+import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.Panel;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 import edu.yu.einstein.wasp.viewpanel.WebContent;
@@ -85,6 +87,28 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 	private SoftwareDao softwareDao;
 	@Autowired
 	private FileUrlResolver fileUrlResolver;
+	@Autowired
+	private RunService runService;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Transactional("entityManager")
+	@Override
+	public JobDataTabViewing getPeakcallerPlugin(Job job) throws SoftwareConfigurationException{
+			WaspJobContext waspJobContext;
+			try{
+				waspJobContext = new WaspJobContext(job.getId(), jobService);
+			}catch(Exception e){ 
+				throw new SoftwareConfigurationException(e.getMessage());
+			}
+			SoftwareConfiguration softwareConfig = waspJobContext.getConfiguredSoftware(peakcallerResourceType);
+			if (softwareConfig == null){
+				throw new SoftwareConfigurationException("No software could be configured for jobId=" + job.getId() + " with resourceType iname=" + peakcallerResourceType.getIName());
+			}
+			return waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), JobDataTabViewing.class);				
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -101,13 +125,22 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 			//for the SummaryTab (job, jobStatus, strategy, softwareName)
 			Strategy strategy = jobService.getStrategy(Strategy.StrategyType.LIBRARY_STRATEGY, job);			
 			WaspJobContext waspJobContext = new WaspJobContext(jobId, jobService);
+			logger.debug("***************just after a");
+			if(peakcallerResourceType==null){
+				logger.debug("***************autowired peakcallerResourceType is null");
+			}
+			else{
+				logger.debug("***************autowired peakcallerResourceType: name = " + peakcallerResourceType.getName());
+				logger.debug("***************autowired peakcallerResourceType: Iname = " + peakcallerResourceType.getIName());
+			}
 			SoftwareConfiguration softwareConfig = waspJobContext.getConfiguredSoftware(peakcallerResourceType);
 			if (softwareConfig == null){
 				throw new SoftwareConfigurationException("No software could be configured for jobId=" + jobId + " with resourceType iname=" + peakcallerResourceType.getIName());
 			}
-			BatchJobProviding softwarePlugin = waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), BatchJobProviding.class);
+			BatchJobProviding softwarePlugin_batchJobProviding = waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), BatchJobProviding.class);
+			JobDataTabViewing softwarePlugin_JobDataTabViewing = waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), JobDataTabViewing.class);
 			//String softwareName = softwarePlugin.getName();//macsTwo; softwarePlugin.getIName() is macstwo
-			String softwareName = softwareDao.getSoftwareByIName(softwarePlugin.getIName()).getName();//should get "MACS2 Peakcaller"
+			String softwareName = softwareDao.getSoftwareByIName(softwarePlugin_batchJobProviding.getIName()).getName();//should get "MACS2 Peakcaller"
 			
 			//samplePairs 			
 			Sample noControlSample = new Sample();
@@ -187,12 +220,12 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 							Sample cell = sampleService.getCell(cellLibrary);logger.debug("***************A10");
 							String lane = sampleService.getCellIndex(cell).toString(); logger.debug("***************A11");
 							Sample platformUnit = sampleService.getPlatformUnitForCell(cell);logger.debug("***************A12");
-							Run run = sampleService.getCurrentRunForPlatformUnit(platformUnit);logger.debug("***************A13");
-							if(run==null || run.getId()==null){//fix other places too (below) if you make a change here
+							List<Run> runList = runService.getSuccessfullyCompletedRunsForPlatformUnit(platformUnit);//WHY IS THIS A LIST rather than a singleton?
+							if(runList.isEmpty()){//fix other places too (below) if you make a change here
 								libraryRunInfoListMap.get(library).add("Lane " + lane + ": " + platformUnit.getName()); logger.debug("***************A14.5");
 							}
 							else{
-								libraryRunInfoListMap.get(library).add("Lane " + lane + ": " + run.getName()); logger.debug("***************A14.5");
+								libraryRunInfoListMap.get(library).add("Lane " + lane + ": " + runList.get(0).getName()); logger.debug("***************A14.5");
 							}
 						}
 						logger.debug("***************A15");
@@ -274,18 +307,44 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 			}
 			
 			logger.debug("***************G");
+			/////////softwarePlugin_JobDataTabViewing.getViewPanelTabs(job);
 			Set<PanelTab> panelTabSet = new LinkedHashSet<PanelTab>();logger.debug("***************1");
 
 
-			PanelTab summaryPanelTab = ChipSeqWebPanels.getSummaryPanelTab(jobStatus, job, strategy, softwareName);
+			PanelTab summaryPanelTab = ChipSeqWebPanels.getSummaryPanelTab2222(jobStatus, job, strategy, softwareName);
 			panelTabSet.add(summaryPanelTab);logger.debug("***************11");
-			if(jobStatus.toString().equals(Status.COMPLETED.toString())){
+/*			
+			PanelTab testPanelTabWithIFrames = ChipSeqWebPanels.getTestPanelTab();
+			if(testPanelTabWithIFrames!=null){panelTabSet.add(testPanelTabWithIFrames);}
+
+
+			//TODO: uncomment if(jobStatus.toString().equals(Status.COMPLETED.toString())){
 				logger.debug("***************jobStatus is COMPLETED, so we enter this loop");
 				//do the other panels //
 				PanelTab samplePairsPanelTab = ChipSeqWebPanels.getSamplePairsPanelTab(testSampleList, testSampleControlSampleListMap, sampleIdControlIdCommandLineMap);
 				if(samplePairsPanelTab!=null){panelTabSet.add(samplePairsPanelTab);}
 				PanelTab sampleLibraryRunsPanelTab = ChipSeqWebPanels.getSampleLibraryRunsPanelTab(testSampleList, sampleLibraryListMap, libraryRunInfoListMap);
 				if(sampleLibraryRunsPanelTab!=null){panelTabSet.add(sampleLibraryRunsPanelTab);}
+				
+				PanelTab fileTypeDefinitionsPanelTab = ChipSeqWebPanels.getFileTypeDefinitionsPanelTab(fileTypeList);
+				if(fileTypeDefinitionsPanelTab!=null){panelTabSet.add(fileTypeDefinitionsPanelTab);}
+				
+				PanelTab allFilesDisplayedBySamplePanelTab = ChipSeqWebPanels.getAllFilesDisplayedBySamplePanelTab(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
+				if(allFilesDisplayedBySamplePanelTab!=null){panelTabSet.add(allFilesDisplayedBySamplePanelTab);}
+				PanelTab allFilesDisplayedByFileTypePanelTab = ChipSeqWebPanels.getAllFilesDisplayedByFileTypePanelTab(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
+				if(allFilesDisplayedByFileTypePanelTab!=null){panelTabSet.add(allFilesDisplayedByFileTypePanelTab);}
+				
+				PanelTab allFilesDisplayedBySampleUsingGroupingGridPanelTab = ChipSeqWebPanels.getAllFilesDisplayedBySampleUsingGroupingGridPanelTab(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
+				if(allFilesDisplayedBySampleUsingGroupingGridPanelTab!=null){panelTabSet.add(allFilesDisplayedBySampleUsingGroupingGridPanelTab);}
+				PanelTab allFilesDisplayedByFileTypeUsingGroupingGridPanelTab = ChipSeqWebPanels.getAllFilesDisplayedByFileTypeUsingGroupingGridPanelTab(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
+				if(allFilesDisplayedByFileTypeUsingGroupingGridPanelTab!=null){panelTabSet.add(allFilesDisplayedByFileTypeUsingGroupingGridPanelTab);}
+*/
+				
+				
+
+				
+				
+				/*
 				if(!fileTypeList.isEmpty()){
 					
 					PanelTab fileTypeDefinitionsPanelTab = ChipSeqWebPanels.getFileTypeDefinitionsPanelTab(fileTypeList);
@@ -300,7 +359,9 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 						//counter++;
 					}
 				}
-			}
+				*/
+			//}
+			
 			logger.debug("***************ending chipseqService.getChipSeqDataToDisplay(job)");
 
 			

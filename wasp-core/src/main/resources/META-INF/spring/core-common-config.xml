@@ -3,8 +3,10 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:context="http://www.springframework.org/schema/context"
 	default-autowire="byName"
+	xmlns:aop="http://www.springframework.org/schema/aop"
 	xmlns:task="http://www.springframework.org/schema/task"
 	xsi:schemaLocation="http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
@@ -12,7 +14,7 @@
 
   <!-- component scan -->
   <context:component-scan base-package="edu.yu.einstein.wasp.dao.impl" />
-  <context:component-scan base-package="edu.yu.einstein.wasp.service.impl" /> 
+  <context:component-scan base-package="edu.yu.einstein.wasp.service.impl"/> 
   <context:component-scan base-package="edu.yu.einstein.wasp.messaging" />
   <context:component-scan base-package="edu.yu.einstein.wasp.load.service.impl" />
   <context:component-scan base-package="edu.yu.einstein.wasp.filetype.service.impl" />
@@ -82,6 +84,12 @@
       </list>
     </property>
   </bean>
+  
+  <!-- an HTTP Session-scoped bean exposed as a proxy -->
+   	<bean id="demoEmail" class="edu.yu.einstein.wasp.util.DemoEmailImpl" scope="session">
+      <!-- this next element effects the proxying of the surrounding bean -->
+      <aop:scoped-proxy proxy-target-class="false" />
+   	</bean>
 
   <!-- load local configuration context -->
   <import resource="classpath*:/wasp-site-context.xml" />
