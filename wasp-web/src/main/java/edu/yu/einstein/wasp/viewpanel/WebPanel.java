@@ -7,6 +7,8 @@ package edu.yu.einstein.wasp.viewpanel;
  *
  */
 public class WebPanel extends Panel{
+	
+	private String type = "WebPanel";
 
 	private String execOnRenderCode = "";
 	
@@ -26,6 +28,13 @@ public class WebPanel extends Panel{
 
 	public WebPanel(String title, String description, Integer width, Integer height, Content content) {
 		super(title, description, width, height, content);
+	}
+
+	/**
+	 * @return the type
+	 */
+	public String getType() {
+		return type;
 	}
 	
 	/**
