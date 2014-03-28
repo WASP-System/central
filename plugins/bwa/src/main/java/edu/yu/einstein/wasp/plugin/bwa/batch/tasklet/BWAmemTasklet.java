@@ -25,7 +25,7 @@ import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.plugin.bwa.software.BWABacktrackSoftwareComponent;
+import edu.yu.einstein.wasp.plugin.bwa.software.BWAMemSoftwareComponent;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
@@ -35,7 +35,7 @@ import edu.yu.einstein.wasp.service.SampleService;
  * @author calder
  * 
  */
-public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionListener {
+public class BWAmemTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
 	private Integer cellLibraryId;
 	
@@ -58,13 +58,13 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
 	private FileType fastqFileType;
 	
 	@Autowired
-	private BWABacktrackSoftwareComponent bwa;
+	private BWAMemSoftwareComponent bwa;
 
-	public BWAalnTasklet() {
+	public BWAmemTasklet() {
 		// proxy
 	}
 
-	public BWAalnTasklet(String cellLibraryIds) {
+	public BWAmemTasklet(String cellLibraryIds) {
 		List<Integer> cids = WaspSoftwareJobParameters.getCellLibraryIdList(cellLibraryIds);
 		Assert.assertTrue(cids.size() == 1);
 		this.cellLibraryId = cids.get(0);
@@ -81,7 +81,7 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
 				
 		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
 		
-		logger.debug("Beginning BWA aln step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
+		logger.debug("Beginning BWA mem step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
 		
 		Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLib, fastqFileType);
 		
@@ -96,7 +96,7 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
 			logger.debug("Key: " + key + " Value: " + jobParameters.get(key).toString());
 		}
 		
-		WorkUnit w = bwa.getAln(cellLib, fg, jobParameters);
+		WorkUnit w = bwa.getMem(cellLib, fg, jobParameters);
 		
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
    
@@ -109,8 +109,6 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
 		// to the job context at run time.
 		stepExecutionContext.put("cellLibId", cellLib.getId()); 
 		stepExecutionContext.put("scrDir", result.getWorkingDirectory());
-		stepExecutionContext.put("alnName", result.getId());
-		stepExecutionContext.put("alnStr", w.getCommand());
 	}
 	
 	/** 
