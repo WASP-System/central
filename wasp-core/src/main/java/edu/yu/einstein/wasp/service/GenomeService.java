@@ -13,11 +13,11 @@ package edu.yu.einstein.wasp.service;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.MetadataException;
-import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
@@ -26,7 +26,6 @@ import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
 
 
 @Service
-@Transactional("entityManager")
 public interface GenomeService extends WaspService {
 	
 	public static final String GENOME_AREA="genome";
@@ -64,6 +63,13 @@ public interface GenomeService extends WaspService {
 	 * @return
 	 */
 	public String getDelimitedParameterString(Build build);
+	
+	/**
+	 * Creates a string containing genome build information which can be later used to re-create a Build object with {@link getBuild}
+	 * @param build
+	 * @return
+	 */
+	public String getDelimitedParameterString(Integer cellLibraryId) throws ParameterValueRetrievalException, SampleTypeException;
 	
 	public void setBuild(Sample sample, Build build) throws MetadataException;
 	

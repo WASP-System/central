@@ -1,6 +1,5 @@
 package edu.yu.einstein.wasp.util;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,15 +55,12 @@ public class WaspJobContext {
 				if (jobMeta != null)
 					parameters = MetaHelper.getKeyValueMap(software.getIName(), jobMeta);
 				if (parameters == null || parameters.isEmpty()){
-					logger.info("no parameters configured for software=" + software.getName() + " so going to use defaults");
+					logger.info("no parameters configured for software=" + software.getName() + 
+							" so going to use defaults from master list derived from Uifields");
 					MetaHelper metaHelper = new MetaHelper(software.getIName(), MetaBase.class);  
-					List<MetaBase> defaultMetaList = new ArrayList<>();
-					for (MetaBase meta : metaHelper.getMasterList(MetaBase.class)){
-						if (meta.getK().endsWith(".default")){
-							meta.setK(meta.getK().replace(".default", ""));
-							defaultMetaList.add(meta);
-						}
-					}
+					List<MetaBase> defaultMetaList = metaHelper.getMasterList(MetaBase.class);
+					for (MetaBase meta : defaultMetaList)
+						meta.setV(meta.getProperty().getDefaultVal()); // set meta value to the default value found in the property attribute
 					parameters = MetaHelper.getKeyValueMap(software.getIName(), defaultMetaList);
 				}
 				configuredSoftwareByType.put(softwareType, new SoftwareConfiguration(software, parameters));

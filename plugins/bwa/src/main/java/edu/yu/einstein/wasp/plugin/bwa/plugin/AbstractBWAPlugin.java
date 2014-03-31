@@ -23,7 +23,6 @@ import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobSoftware;
 import edu.yu.einstein.wasp.model.ResourceType;
-import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
@@ -105,8 +104,7 @@ public abstract class AbstractBWAPlugin extends WaspPlugin implements ClientMess
 	
 	protected String getGenomeBuildString(Integer cellLibraryId){
 		try {
-			Sample library = sampleService.getLibrary(sampleService.getCellLibraryBySampleSourceId(cellLibraryId));
-			return genomeService.getDelimitedParameterString(genomeService.getBuild(library));
+			return genomeService.getDelimitedParameterString(cellLibraryId);
 		} catch (SampleTypeException | ParameterValueRetrievalException e) {
 			logger.warn(e.getMessage());
 			return null;

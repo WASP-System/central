@@ -13,18 +13,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
-import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
-import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
-import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.plugin.WaspPlugin;
-import edu.yu.einstein.wasp.service.JobService;
-import edu.yu.einstein.wasp.service.RunService;
-import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.SoftwareConfiguration;
 import edu.yu.einstein.wasp.util.WaspJobContext;
 
@@ -44,7 +37,7 @@ public class BWABacktrackPlugin extends AbstractBWAPlugin {
 		super(iName, waspSiteProperties, channel);
 	}
 
-	@Transactional("entityManager")
+	//@Transactional("entityManager")
 	@Override
 	public Message<String> align(Message<String> m) throws Exception {
 		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
