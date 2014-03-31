@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.chipseq.webpanels;
+package edu.yu.einstein.wasp.macstwo.webpanels;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,15 +25,13 @@ import edu.yu.einstein.wasp.viewpanel.PanelTab;
 import edu.yu.einstein.wasp.viewpanel.WebContent;
 import edu.yu.einstein.wasp.viewpanel.WebPanel;
 
-public class ChipSeqWebPanels {
-	
-	//see this webpage for model grid http://docs.sencha.com/extjs/4.2.1/#!/guide/grid
-	
-	static protected  Logger logger = LoggerFactory.getLogger(WaspServiceImpl.class);	
-	
-	public static PanelTab getSummaryPanelTab(Status jobStatus, Job job, Strategy strategy,	String softwareName) {
+public class MacstwoWebPanels {
 
-		logger.debug("********inside getSummaryPanelTab()");
+	static protected  Logger logger = LoggerFactory.getLogger(WaspServiceImpl.class);	
+/* SUMMARY is performed in chipSeq plugin or in core */	
+	public static PanelTab getSummaryPanelTab2222123456789012345678901234567890(Status jobStatus, Job job, Strategy strategy,	String softwareName) {
+
+		logger.debug("********inside getSummaryPanelTab2222()");
 
 		//create the panelTab to house the panel
 		PanelTab panelTab = new PanelTab();
@@ -42,8 +40,8 @@ public class ChipSeqWebPanels {
 
 		//create the panel
 		GridPanel panel = new GridPanel();
-		panel.setTitle("Analysis Summary");
-		panel.setDescription("Analysis Summary");
+		panel.setTitle("Summary");
+		panel.setDescription("Summary");
 		panel.setResizable(true);
 		panel.setMaximizable(true);	
 		panel.setOrder(1);
@@ -61,8 +59,8 @@ public class ChipSeqWebPanels {
 		content.addColumn(new GridColumn("Strategy", "Strategy", 150, 0));//header,dataIndex	set width=150, flex=0	
 		content.addColumn(new GridColumn("Description", "Description", 1));//header,dataIndex	set flex=1	
 		content.addColumn(new GridColumn("Workflow", "Workflow", 150, 0));//header,dataIndex		
-		content.addColumn(new GridColumn("Main Analysis Software", "Software", 200, 0));//header,dataIndex		
-		content.addColumn(new GridColumn("Analysis Status", "Status", 150, 0));//header,dataIndex
+		content.addColumn(new GridColumn("Main Software", "Software", 200, 0));//header,dataIndex		
+		content.addColumn(new GridColumn("Status", "Status", 150, 0));//header,dataIndex
 		
 		//create rows with  information
 		List<String> row = new ArrayList<String>();
@@ -101,7 +99,7 @@ public class ChipSeqWebPanels {
 		*/
 	}
 	
-	public static PanelTab getSamplePairsPanelTab12345678(List<Sample> testSampleList, Map<Sample, List<Sample>> testSampleControlSampleListMap, Map<String,String> sampleIdControlIdCommandLineMap){
+	public static PanelTab getSamplePairs(List<Sample> testSampleList, Map<Sample, List<Sample>> testSampleControlSampleListMap, Map<String,String> sampleIdControlIdCommandLineMap){
 		
 		logger.debug("********inside getSamplePairsPanelTab()");
 
@@ -202,7 +200,7 @@ public class ChipSeqWebPanels {
 		*/
 	}
 	
-	public static PanelTab getSampleLibraryRunsPanelTab12345678(List<Sample> testSampleList, Map<Sample, List<Sample>> sampleLibraryListMap, Map<Sample, List<String>> libraryRunInfoListMap){
+	public static PanelTab getSampleLibraryRuns(List<Sample> testSampleList, Map<Sample, List<Sample>> sampleLibraryListMap, Map<Sample, List<String>> libraryRunInfoListMap){
 		
 		logger.debug("********inside getSampleLibraryRunsPanelTab()");
 
@@ -307,7 +305,7 @@ public class ChipSeqWebPanels {
 		return panelTab;
 		*/
 	}
-	public static PanelTab getFileTypeDefinitionsPanelTab12345678(List<FileType> fileTypeList){
+	public static PanelTab getFileTypeDefinitions(List<FileType> fileTypeList){
 		
 		logger.debug("********inside getFileTypeDefinitionsPanelTab()");
 
@@ -390,9 +388,9 @@ public class ChipSeqWebPanels {
 		return panelTab;
 		*/
 	}
-	public static PanelTab getAllFilesDisplayedBySampleUsingGroupingGridPanelTab12345678(List<Sample> testSampleList, Map<Sample, List<Sample>> testSampleControlSampleListMap, List<FileType> fileTypeList, Map<String, FileHandle>  sampleIdControlIdFileTypeIdFileHandleMap, Map<FileHandle, String> fileHandleResolvedURLMap, Map<String, FileGroup> sampleIdControlIdFileTypeIdFileGroupMap){
+	public static PanelTab getFilesBySample(List<Sample> testSampleList, Map<Sample, List<Sample>> testSampleControlSampleListMap, List<FileType> fileTypeList, Map<String, FileHandle>  sampleIdControlIdFileTypeIdFileHandleMap, Map<FileHandle, String> fileHandleResolvedURLMap, Map<String, FileGroup> sampleIdControlIdFileTypeIdFileGroupMap){
 
-		logger.debug("********inside getAllFilesDisplayedBySampleUsingGroupingGridPanelTab()");
+		logger.debug("********inside getFilesDisplayedBySamplePanelTab()");
 
 		//create the panelTab to house the panel
 		PanelTab panelTab = new PanelTab();
@@ -530,9 +528,9 @@ public class ChipSeqWebPanels {
 		*/
 	}
 	
-	public static PanelTab getAllFilesDisplayedByFileTypeUsingGroupingGridPanelTab12345678(List<Sample> testSampleList, Map<Sample, List<Sample>> testSampleControlSampleListMap, List<FileType> fileTypeList, Map<String, FileHandle>  sampleIdControlIdFileTypeIdFileHandleMap, Map<FileHandle, String> fileHandleResolvedURLMap, Map<String, FileGroup> sampleIdControlIdFileTypeIdFileGroupMap){
+	public static PanelTab getFilesByFileType(List<Sample> testSampleList, Map<Sample, List<Sample>> testSampleControlSampleListMap, List<FileType> fileTypeList, Map<String, FileHandle>  sampleIdControlIdFileTypeIdFileHandleMap, Map<FileHandle, String> fileHandleResolvedURLMap, Map<String, FileGroup> sampleIdControlIdFileTypeIdFileGroupMap){
 	
-		logger.debug("********inside getAllFilesDisplayedByFileTypeUsingGroupingGridPanelTab()");
+		logger.debug("********inside getFilesDisplayedByFileTypePanelTab()");
 
 		//create the panelTab to house the panel
 		PanelTab panelTab = new PanelTab();
@@ -607,7 +605,7 @@ public class ChipSeqWebPanels {
 	}
 
 	//macstwo specific
-	public static PanelTab getAllModelPNGFilesDisplayedInPanelsTab12345678(List<Sample> testSampleList, Map<Sample, List<Sample>> testSampleControlSampleListMap, List<FileType> fileTypeList, Map<String, FileHandle>  sampleIdControlIdFileTypeIdFileHandleMap, Map<FileHandle, String> fileHandleResolvedURLMap, Map<String, FileGroup> sampleIdControlIdFileTypeIdFileGroupMap){
+	public static PanelTab getModelImages(List<Sample> testSampleList, Map<Sample, List<Sample>> testSampleControlSampleListMap, List<FileType> fileTypeList, Map<String, FileHandle>  sampleIdControlIdFileTypeIdFileHandleMap, Map<FileHandle, String> fileHandleResolvedURLMap, Map<String, FileGroup> sampleIdControlIdFileTypeIdFileGroupMap){
 		
 		logger.debug("********inside getAllModelPNGFilesDisplayedInPanelsTab() at 1");
 
@@ -626,13 +624,13 @@ public class ChipSeqWebPanels {
 				for(FileType fileType : fileTypeList){
 					//******************Robert A Dubin TODO ToDo change to model.png!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 					if(fileType.getExtensions().endsWith("_model.pdf")){//macstwo specific
-						logger.debug("********inside getAllModelPNGFilesDisplayedInPanelsTab() at 2");
+						logger.debug("********inside getAllModelPNGFilesDisplayedInPanelsTab2222() at 2");
 						FileHandle fileHandle = sampleIdControlIdFileTypeIdFileHandleMap.get(testSample.getId().toString() + "::" + controlSample.getId().toString() + "::" + fileType.getId().toString());
 						String resolvedURL = fileHandleResolvedURLMap.get(fileHandle);
 						if(fileHandle==null || resolvedURL==null || resolvedURL.isEmpty()){//unexpected
 							continue;
 						}
-						logger.debug("********inside getAllModelPNGFilesDisplayedInPanelsTab() at 3");
+						logger.debug("********inside getAllModelPNGFilesDisplayedInPanelsTab2222() at 3");
 						//create the panel
 						WebPanel panel = new WebPanel();
 						panel.setTitle(samplePairs);
@@ -652,12 +650,12 @@ public class ChipSeqWebPanels {
 						
 						panel.setContent(content);
 						panelTab.addPanel(panel);//add panel to panelTab	
-						logger.debug("********inside getAllModelPNGFilesDisplayedInPanelsTab() at 4 with counter = " + counter);
+						logger.debug("********inside getAllModelPNGFilesDisplayedInPanelsTab2222() at 4 with counter = " + counter);
 					}					
 				}			
 			}
 		}	
-		logger.debug("********inside getAllModelPNGFilesDisplayedInPanelsTab() at END");
+		logger.debug("********inside getAllModelPNGFilesDisplayedInPanelsTab2222() at END");
 		return panelTab;
 	}
 

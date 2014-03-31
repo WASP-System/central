@@ -21,6 +21,7 @@ import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.Hyperlink; 
+//////////import edu.yu.einstein.wasp.chipseq.service.ChipSeqService;
 import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -30,6 +31,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask; 
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters;
+import edu.yu.einstein.wasp.macstwo.service.MacstwoService;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Software; 
@@ -76,6 +78,10 @@ public class MacstwoPlugin extends WaspPlugin
 	@Autowired
 	@Qualifier("macstwo")
 	private Software macstwo;
+	
+	@Autowired 
+	private MacstwoService macstwoService;
+
 	
 	public static final String FLOW_NAME = "edu.yu.einstein.wasp.macstwo.mainFlow";
 
@@ -218,7 +224,8 @@ public class MacstwoPlugin extends WaspPlugin
 	@Override
 	public Set<PanelTab> getViewPanelTabs(Job job) throws PanelException{
 		logger.debug("*************INSIDE THE macs2 class at MacstwoPlugin.getViewPanelTabs");
-		return null;
+		return macstwoService.getMacstwoDataToDisplay(job);
+		//return null;
 	}
 
 	@Override

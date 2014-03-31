@@ -260,25 +260,42 @@ public class ChipSeqPlugin extends WaspPlugin implements
 	}
 	@Override
 	public Set<PanelTab> getViewPanelTabs(Job job) throws PanelException{
+		try{
+			Set<PanelTab> panelTabSet = new LinkedHashSet<PanelTab>();logger.debug("***************in chipSeqPlugin.getViewPanelTabs()");
+			//get the summarypage regardless of jobStatus
+			PanelTab summaryPanelTab = chipSeqService.getChipSeqSummaryPanelTab(job, this.getStatus(job));
+			panelTabSet.add(summaryPanelTab);
+			
+			//TODO: uncomment this     if(this.getStatus(job).toString().equals(Status.COMPLETED.toString())){
+				JobDataTabViewing peakcallerPlugin = chipSeqService.getPeakcallerPlugin(job);//at this time, only option is macstwo
+				Set<PanelTab> downstreamPanelTabSet = peakcallerPlugin.getViewPanelTabs(job);//all the macstwo specific info
+				if(downstreamPanelTabSet != null && !downstreamPanelTabSet.isEmpty()){
+					panelTabSet.addAll(downstreamPanelTabSet);
+				}
+			//}
+			return panelTabSet;
+		}catch(Exception e){throw new PanelException(e.getMessage());}
 		
 		/* ************************************
-		if(!this.getStatus(job).toString().equals(Status.COMPLETED.toString())){
+		if(!this.getStatus(job).toString().equals(Status.COMPLETED.toString())){//how do this status and the one immediately above match up?
 			return new HashSet<PanelTab>();
 		}
-		*/
+		
 		logger.debug("****just before new call");
 		try{
 			JobDataTabViewing peakcallerPlugin = chipSeqService.getPeakcallerPlugin(job);
 			Set<PanelTab> panelSet = peakcallerPlugin.getViewPanelTabs(job);//at the moment, this would be in macstwo
 			logger.debug("****just after new call");
 			if(panelSet != null && !panelSet.isEmpty()){
+				logger.debug("****we are returning data for display coming from macs2 plugin and no longer from chipseq plugin");
 				return panelSet;
 			}
 			return chipSeqService.getChipSeqDataToDisplay(job.getId(), this.getStatus(job));
 		}catch(Exception e){
 			logger.debug("****just before throwing a panel exception: " + e.getMessage());
 			throw new PanelException(e.getMessage());
-		}			
+		}
+		*/			
 	}
 
 }
