@@ -21,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.Strategy;
 //import edu.yu.einstein.wasp.chipseq.webpanels.ChipSeqWebPanels;
 import edu.yu.einstein.wasp.exception.PanelException;
+import edu.yu.einstein.wasp.exception.SampleParentChildException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.SoftwareConfigurationException;
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
@@ -73,43 +75,14 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 	public Set<PanelTab> getMacstwoDataToDisplay(Job job)throws PanelException{
 		 
 		 try{
-			 //First, Assemble The Data (second, get the panelTabs)
-			 
-					
-			Sample noControlSample = new Sample();
-			noControlSample.setId(0);
-			noControlSample.setName("None");
-			
-			Map<Sample, List<Sample>> testSampleControlSampleListMap = new HashMap<Sample, List<Sample>>();
-			//samplePairs 	
-			//Map<Sample, List<Sample>> testSampleControlSampleListMap = getTestSampleControlSampleListMap(job);
-			
-			logger.debug("***************b");
-			for(Sample sample : job.getSample()){logger.debug("***************c");
-				for(SampleMeta sm : sample.getSampleMeta()){logger.debug("***************d");
-					if(sm.getK().startsWith("chipseqAnalysis.controlId::")){//there exists at least one chipseq analysis for this sample, but could be more than one
-						if(!testSampleControlSampleListMap.containsKey(sample)){
-							testSampleControlSampleListMap.put(sample, new ArrayList<Sample>());
-						}
-						Sample controlSample = null;
-						Integer controlId = Integer.parseInt(sm.getV());
-						if(controlId.intValue()==0){
-							controlSample = noControlSample;
-						}
-						else{
-							controlSample = sampleService.getSampleById(controlId);
-						}
-						testSampleControlSampleListMap.get(sample).add(controlSample);
-					}
-				}
-			}
-			
-			logger.debug("***************e");
-			
+			 //First, Assemble The Data (second, get the panelTabs)			
+			//samplePairs (for the samplePairsTab)
+			Map<Sample, List<Sample>> testSampleControlSampleListMap = getTestSampleControlSampleListMap(job);			
 			List<Sample> testSampleList = new ArrayList<Sample>();//will basically function as a set, with each sample in this list being unique
 			for(Sample sample : testSampleControlSampleListMap.keySet()){
 				testSampleList.add(sample);
-			}			
+			}
+			
 			class SampleNameComparator implements Comparator<Sample> {
 			    @Override
 			    public int compare(Sample arg0, Sample arg1) {
@@ -118,26 +91,30 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 			}
 			Collections.sort(testSampleList, new SampleNameComparator());
 			
-			logger.debug("***************f");
 			for(Sample testSample : testSampleList){//sort each ControlSampleList
 				Collections.sort(testSampleControlSampleListMap.get(testSample), new SampleNameComparator());
 			}
-			logger.debug("***************g");
 			
-			logger.debug("***************A*****");
-			//sample library runs (for the runs tab) and commandLine (for the pairs tab)
-			Map<String, String> sampleIdControlIdCommandLineMap = new HashMap<String, String>();//used for Pairs
+			//commandLine (for the samplePairsTab)
+			Map<String, String> sampleIdControlIdCommandLineMap = getSampleIdControlIdCommandLineMap(testSampleList);
+			
+			//sample library runs (for the runs tab)
+			Map<Sample, List<SampleSource>> sampleCellLibraryListMap = getSampleCellLibraryListMap(testSampleList);
+			Map<Sample,List<Sample>> sampleLibraryListMap = getSampleLibraryListMap(sampleCellLibraryListMap);
+			for(Sample testSample : testSampleList){
+				if(sampleLibraryListMap.containsKey(testSample)){//sort each LibraryList
+					Collections.sort(sampleLibraryListMap.get(testSample), new SampleNameComparator());
+				}
+			}
+			//Map<Sample, List<String>> libraryRunInfoListMap = new HashMap<Sample, List<String>>();//used for Runs
+			Map<Sample, List<String>> libraryRunInfoListMap = getLibraryRunInfoListMap(sampleCellLibraryListMap);
+			/*
 			Map<Sample,List<Sample>> sampleLibraryListMap = new HashMap<Sample, List<Sample>>();//used for Runs
 			Map<Sample, List<String>> libraryRunInfoListMap = new HashMap<Sample, List<String>>();//used for Runs
 
 			for(Sample testSample : testSampleList){
 				logger.debug("***************A1***");
 				for(SampleMeta sm : testSample.getSampleMeta()){logger.debug("***************A2***");
-					if(sm.getK().startsWith("chipseqAnalysis.commandLineCall::")){//capture for each distinct chipseq analysis
-						String[] splitK = sm.getK().split("::");
-						String controlIdAsString = splitK[1];
-						sampleIdControlIdCommandLineMap.put(testSample.getId().toString() + "::" + controlIdAsString, sm.getV());
-					}				
 					if(sm.getK().startsWith("chipseqAnalysis.testCellLibraryIdList::")){//only need to capture once for each test sample
 						if(sampleLibraryListMap.containsKey(testSample)){//we already obtained this info; no need to repeat, as the info will be the same
 							continue;
@@ -171,11 +148,10 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 	
 				}
 			}
-			for(Sample testSample : testSampleList){
-				if(sampleLibraryListMap.containsKey(testSample)){//sort each LibraryList
-					Collections.sort(sampleLibraryListMap.get(testSample), new SampleNameComparator());
-				}
-			}
+			*/
+			
+			
+			
 
 			logger.debug("***************B");
 			//get the fileGroups for each testSample
@@ -280,8 +256,108 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 	}
 
 	private Map<Sample, List<Sample>> getTestSampleControlSampleListMap(Job job){
+		
 		Map<Sample, List<Sample>> testSampleControlSampleListMap = new HashMap<Sample, List<Sample>>();
+		
+		Sample noControlSample = new Sample();
+		noControlSample.setId(0);
+		noControlSample.setName("None");
+		
+		for(Sample sample : job.getSample()){
+			for(SampleMeta sm : sample.getSampleMeta()){
+				if(sm.getK().startsWith("chipseqAnalysis.controlId::")){//there exists at least one chipseq analysis for this sample, but could be more than one
+					if(!testSampleControlSampleListMap.containsKey(sample)){
+						testSampleControlSampleListMap.put(sample, new ArrayList<Sample>());
+					}
+					Sample controlSample = null;
+					Integer controlId = Integer.parseInt(sm.getV());
+					if(controlId.intValue()==0){
+						controlSample = noControlSample;
+					}
+					else{
+						controlSample = sampleService.getSampleById(controlId);
+					}
+					testSampleControlSampleListMap.get(sample).add(controlSample);
+				}
+			}
+		}
 		return testSampleControlSampleListMap;
 	}
 	
+	private Map<String, String> getSampleIdControlIdCommandLineMap(List<Sample> testSampleList){
+
+		Map<String, String> sampleIdControlIdCommandLineMap = new HashMap<String, String>();		
+		for(Sample testSample : testSampleList){			
+			for(SampleMeta sm : testSample.getSampleMeta()){
+				if(sm.getK().startsWith("chipseqAnalysis.commandLineCall::")){//capture for each distinct chipseq analysis
+					String[] splitK = sm.getK().split("::");
+					String controlIdAsString = splitK[1];
+					sampleIdControlIdCommandLineMap.put(testSample.getId().toString() + "::" + controlIdAsString, sm.getV());
+				}
+			}
+		}
+		return sampleIdControlIdCommandLineMap;
+	}
+	
+	private Map<Sample, List<SampleSource>> getSampleCellLibraryListMap(List<Sample> testSampleList)throws SampleTypeException{
+		
+		Map<Sample, List<SampleSource>> sampleCellLibraryListMap = new HashMap<Sample, List<SampleSource>>();
+		for(Sample testSample : testSampleList){
+			for(SampleMeta sm : testSample.getSampleMeta()){
+				if(sm.getK().startsWith("chipseqAnalysis.testCellLibraryIdList::")){//only need to capture once for each test sample
+					if(sampleCellLibraryListMap.containsKey(testSample)){//we already obtained this info; no need to repeat, as the info will be the same
+						continue;
+					}
+					String cellLibraryIdListAsString = sm.getV();
+					List<Integer> cellLibraryIdList = WaspSoftwareJobParameters.getCellLibraryIdList(cellLibraryIdListAsString);
+					sampleCellLibraryListMap.put(testSample, new ArrayList<SampleSource>());
+					for(Integer cellLibraryId : cellLibraryIdList){
+						SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);
+						sampleCellLibraryListMap.get(testSample).add(cellLibrary);						
+					}
+				}
+			}
+		}	
+		return sampleCellLibraryListMap;
+	}
+	
+	private Map<Sample,List<Sample>>  getSampleLibraryListMap(Map<Sample, List<SampleSource>> sampleCellLibraryListMap){
+		Map<Sample,List<Sample>> sampleLibraryListMap = new HashMap<Sample,List<Sample>>();
+		for(Sample sample : sampleCellLibraryListMap.keySet()){
+			List<SampleSource> cellLibraryList = sampleCellLibraryListMap.get(sample);
+			sampleLibraryListMap.put(sample, new ArrayList<Sample>());
+			
+			for(SampleSource cellLibrary : cellLibraryList){
+				Sample library = sampleService.getLibrary(cellLibrary);				
+				if(!sampleLibraryListMap.get(sample).contains(library)){//the LibraryList is acting as a set
+					sampleLibraryListMap.get(sample).add(library);
+				}
+			}
+		}
+		return sampleLibraryListMap;
+	}
+	
+	private Map<Sample, List<String>> getLibraryRunInfoListMap(Map<Sample, List<SampleSource>> sampleCellLibraryListMap)throws SampleTypeException, SampleParentChildException{
+		Map<Sample, List<String>> libraryRunInfoListMap = new HashMap<Sample, List<String>>();
+		for(Sample sample : sampleCellLibraryListMap.keySet()){
+			List<SampleSource> cellLibraryList = sampleCellLibraryListMap.get(sample);
+			for(SampleSource cellLibrary : cellLibraryList){
+				Sample library = sampleService.getLibrary(cellLibrary);
+				if(!libraryRunInfoListMap.containsKey(library)){
+					libraryRunInfoListMap.put(library, new ArrayList<String>());
+				}
+				Sample cell = sampleService.getCell(cellLibrary);
+				String lane = sampleService.getCellIndex(cell).toString(); 
+				Sample platformUnit = sampleService.getPlatformUnitForCell(cell);
+				List<Run> runList = runService.getSuccessfullyCompletedRunsForPlatformUnit(platformUnit);//WHY IS THIS A LIST rather than a singleton?
+				if(runList.isEmpty()){//fix other places too (below) if you make a change here
+					libraryRunInfoListMap.get(library).add("Lane " + lane + ": " + platformUnit.getName()); 
+				}
+				else{
+					libraryRunInfoListMap.get(library).add("Lane " + lane + ": " + runList.get(0).getName()); 
+				}				
+			}
+		}
+		return libraryRunInfoListMap;
+	}
 }
