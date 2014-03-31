@@ -6,6 +6,7 @@ package edu.yu.einstein.wasp.plugin.bwa.batch.tasklet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
@@ -40,7 +41,7 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  * @author calder
  *
  */
-public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExecutionListener {
+public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 	
 	
 	@Autowired
@@ -62,6 +63,9 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 	private FileType baiFileType;
 	
 	@Autowired
+	private FileType textFileType;
+	
+	@Autowired
 	private GridHostResolver gridHostResolver;
 	
 	@Autowired
@@ -71,7 +75,7 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 	@Qualifier("picard")
 	private SoftwarePackage picard;
 	
-	public BWAMergeSortTasklet() {
+	public BWAMergeSortDedupTasklet() {
 		// proxy
 	}
 	
@@ -103,6 +107,11 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 
 		logger.debug("file group: " + fg.getId() + ":" + fg.getDescription());
 		
+		Map<String,Object> jobParameters = context.getStepContext().getJobParameters();
+		boolean markDuplicates = false;
+		if (jobParameters.containsKey("markDuplicates") && jobParameters.get("markDuplicates").equals("yes"))
+			markDuplicates = true;
+		
 		WorkUnit w = new WorkUnit();
 		w.setMode(ExecutionMode.PROCESS);
 		w.setProcessMode(ProcessMode.FIXED);
@@ -119,12 +128,11 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 		w.setSoftwareDependencies(sd);
 		w.setSecureResults(true);
 		
-		String baiOutput = fileService.generateUniqueBaseFileName(cellLib) + "bwa.bai";
-		
 		String bamOutput = fileService.generateUniqueBaseFileName(cellLib) + "bwa.bam";
 		FileGroup bamG = new FileGroup();
 		FileHandle bam = new FileHandle();
 		bam.setFileName(bamOutput);
+		bam.setFileType(bamFileType);
 		bam = fileService.addFile(bam);
 		bamG.addFileHandle(bam);
 		bamG.setFileType(bamFileType);
@@ -135,10 +143,11 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 		// save in step context  for use later
 		stepExecutionContext.put("bamGID", bamGId);
 		
-		
+		String baiOutput = fileService.generateUniqueBaseFileName(cellLib) + "bwa.bai";
 		FileGroup baiG = new FileGroup();
 		FileHandle bai = new FileHandle();
 		bai.setFileName(baiOutput);
+		bai.setFileType(baiFileType);
 		bai = fileService.addFile(bai);
 		baiG.addFileHandle(bai);
 		baiG.setFileType(baiFileType);
@@ -149,20 +158,38 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 		// save in step context for use later
 		stepExecutionContext.put("baiGID", baiGId);
 		
-//		baiG.getDerivedFrom().add(bamG);
-//		bamG.getBegat().add(baiG);
-//		
-//		bamG = fileService.addFileGroup(bamG);
-//		baiG = fileService.addFileGroup(baiG);
-		
 		w.getResultFiles().add(bamG);
 		w.getResultFiles().add(baiG);
-		
+	
 		w.setCommand("shopt -s nullglob\n");
 		w.addCommand("for x in sam.*.out; do ln -s ${x} ${x/*:/}.sam ; done\n");
-		w.addCommand("java -Xmx4g -jar $PICARD_ROOT/MergeSamFiles.jar $(printf 'I=%s ' *.out.sam) O=${" + WorkUnit.OUTPUT_FILE + "[0]} " +
-				"SO=coordinate TMP_DIR=. CREATE_INDEX=true VALIDATION_STRINGENCY=SILENT");
-		w.addCommand("cp ${" + WorkUnit.OUTPUT_FILE + "[0]}.bai ${" + WorkUnit.OUTPUT_FILE + "[1]}");
+		if (markDuplicates){
+			String metricsOutput = fileService.generateUniqueBaseFileName(cellLib) + "dedupMetrics.txt";
+			FileGroup metricsG = new FileGroup();
+			FileHandle metrics = new FileHandle();
+			metrics.setFileName(metricsOutput);
+			metrics.setFileType(textFileType);
+			metrics = fileService.addFile(metrics);
+			metricsG.addFileHandle(metrics);
+			metricsG.setFileType(textFileType);
+			metricsG.setDescription(metricsOutput);
+			metricsG = fileService.addFileGroup(metricsG);
+			metricsG.setSoftwareGeneratedBy(bwa);
+			Integer metricsGId = metricsG.getId();
+			// save in step context for use later
+			stepExecutionContext.put("metricsGID", metricsGId);
+			w.getResultFiles().add(metricsG);
+			
+			w.addCommand("java -Xmx4g -jar $PICARD_ROOT/MergeSamFiles.jar $(printf 'I=%s ' *.out.sam) O=merged.${" + WorkUnit.OUTPUT_FILE + "[0]} " +
+					"SO=coordinate TMP_DIR=. CREATE_INDEX=false VALIDATION_STRINGENCY=SILENT");
+			w.addCommand("java -Xmx4g -jar $PICARD_ROOT/MarkDuplicates.jar I=merged.${" + WorkUnit.OUTPUT_FILE + "[0]} " +
+					"O=${" + WorkUnit.OUTPUT_FILE + "[0]} REMOVE_DUPLICATES=false METRICS_FILE=${" + 
+					WorkUnit.OUTPUT_FILE + "[2]} TMP_DIR=. CREATE_INDEX=true VALIDATION_STRINGENCY=SILENT");
+		} else {
+			w.addCommand("java -Xmx4g -jar $PICARD_ROOT/MergeSamFiles.jar $(printf 'I=%s ' *.out.sam) O=${" + WorkUnit.OUTPUT_FILE + "[0]} " +
+					"SO=coordinate TMP_DIR=. CREATE_INDEX=true VALIDATION_STRINGENCY=SILENT");
+		}
+		w.addCommand("mv ${" + WorkUnit.OUTPUT_FILE + "[0]}.bai ${" + WorkUnit.OUTPUT_FILE + "[1]}");
 			
 		w.setWorkingDirectory(scratchDirectory);
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
@@ -185,6 +212,7 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
 		Integer bamGId = stepExecutionContext.getInt("bamGID");
 		Integer baiGId = stepExecutionContext.getInt("baiGID");
+		Integer metricsGID = stepExecutionContext.getInt("metricsGID");
 		
 		// register .bam and .bai file groups with cellLib so as to make available to views
 		SampleSource cellLib = sampleService.getSampleSourceDao().findById(jobExecutionContext.getInt("cellLibId"));
@@ -192,6 +220,8 @@ public class BWAMergeSortTasklet extends WaspRemotingTasklet implements StepExec
 			fileService.setSampleSourceFile(fileService.getFileGroupById(bamGId), cellLib);
 		if (baiGId != null && cellLib.getId() != 0)
 			fileService.setSampleSourceFile(fileService.getFileGroupById(baiGId), cellLib);	
+		if (metricsGID != null && cellLib.getId() != 0)
+			fileService.setSampleSourceFile(fileService.getFileGroupById(metricsGID), cellLib);	
 	}
 	
 

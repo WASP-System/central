@@ -242,6 +242,17 @@
           <property name="tooltip" value="aligner.bwa.mem_M.tt" />
         </bean>   
         
+        <bean parent="bwaMemUiFieldWrapper">
+          <property name="baseName" value="markDuplicates" />
+          <property name="metaposition" value="190" />
+          <property name="label" value="aligner.bwa.markDuplicates.label" />
+          <property name="control" value="aligner.bwa.markDuplicates.control" />
+          <property name="default" value="yes" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="aligner.bwa.markDuplicates.error" />
+          <property name="tooltip" value="aligner.bwa.markDuplicates.tt" />
+        </bean> 
+        
       </list>
     </property> 
 
