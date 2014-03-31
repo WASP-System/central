@@ -9,14 +9,14 @@ Ext.require([
 ]);
 
 function mergeLinks(records, linkfield) {
-	
+
 	var links = records[0].get(linkfield);
-	
+
 	for (var i = 1; i < records.length; i++) {
 		var uuid = records[i].get(linkfield);
 		links += "," + uuid.substring(uuid.lastIndexOf('/') + 1);
 	}
-	
+
 	return links;
 }
 
@@ -37,14 +37,33 @@ Ext.define('Wasp.GridPortlet', {
 	dllinkfld: '',
 	dlcol: false,
 	dlcoltip: "Download",
-	
+
 	dlselect: false,
 	dlbtntxt: "Download selected",
 	dlbtnalign: 'center',
-	
+
 	grpdl: false,
 	grpdltip: "Download all",
 	grpdlalign: 'left',
+
+	statusfld: null,
+
+	/**
+	 * Custom function used for column renderer
+	 * @param {Object} val
+	 */
+	status: function (val) {
+		if (val.match(/complete/i) != null) {
+			return '<span style="color:green;">' + val + '</span>';
+		} else if (val.match(/start/i) != null) {
+			return '<span style="color:green;">' + val + '</span>';
+		} else if (val.match(/unknown/i) != null) {
+			return '<span style="color:orange;">' + val + '</span>';
+		} else if (val.match(/fail/i) != null) {
+			return '<span style="color:red;">' + val + '</span>';
+		}
+		return val;
+	},
 
 	initComponent: function () {
 		var grid = this;
@@ -95,6 +114,16 @@ Ext.define('Wasp.GridPortlet', {
 			}
 
 			this.columns.push(actioncol);
+		}
+
+		if (this.statusfld != null) {
+			this.columns.forEach(function (element, index, array) {
+				if (element.dataIndex == grid.statusfld) {
+					Ext.apply(element, {
+						renderer: grid.status
+					});
+				}
+			});
 		}
 
 		Ext.apply(this, {

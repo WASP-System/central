@@ -632,16 +632,17 @@ function click(d) {
 									data: item1.content.data,
 									columns: item1.content.columns,
 									grouping: item1.grouping,
-									groupfield: item1.groupFieldName,
+									groupfield: item1.groupField,
 									dlcol: item1.hasDownload,
 									dlcoltip: item1.downloadTooltip,
-									dllinkfld: item1.downloadLinkFieldName,
+									dllinkfld: item1.downloadLinkField,
 									dlselect: item1.allowSelectDownload,
 									dlbtntxt: item1.selectDownloadText,
 									dlbtnalign: item1.selectDownloadAlign,
 									grpdl: item1.allowGroupDownload,
 									grpdltip: item1.groupDownloadTooltip,
-									grpdlalign: item1.groupDownloadAlign
+									grpdlalign: item1.groupDownloadAlign,
+									statusfld: item1.statusField
 								});
 								
 								ptlcolArray[colid++].add({

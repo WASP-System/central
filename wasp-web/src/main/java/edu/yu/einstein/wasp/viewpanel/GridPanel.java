@@ -12,13 +12,13 @@ public class GridPanel extends Panel{
 	
 	private boolean grouping = false;
 	
-	private String groupFieldName;
+	private String groupField;
 	
 	private String groupHeader = "{name}";
 	
 	private boolean hasDownload = false;
 	
-	private String downloadLinkFieldName;
+	private String downloadLinkField;
 	
 	private String downloadTooltip = "";
 	
@@ -33,6 +33,8 @@ public class GridPanel extends Panel{
 	private String groupDownloadTooltip = "";
 	
 	private String groupDownloadAlign = "right";
+	
+	private String statusField;
 
 	public GridPanel() {}
 	
@@ -72,15 +74,15 @@ public class GridPanel extends Panel{
 	/**
 	 * @return the groupField
 	 */
-	public String getGroupFieldName() {
-		return groupFieldName;
+	public String getGroupField() {
+		return groupField;
 	}
 
 	/**
 	 * @param groupField the groupField to set
 	 */
-	public void setGroupFieldName(String groupFieldName) {
-		this.groupFieldName = groupFieldName;
+	public void setGroupField(String groupField) {
+		this.groupField = groupField;
 	}
 
 	/**
@@ -114,15 +116,15 @@ public class GridPanel extends Panel{
 	/**
 	 * @return the downloadLinkField
 	 */
-	public String getDownloadLinkFieldName() {
-		return downloadLinkFieldName;
+	public String getDownloadLinkField() {
+		return downloadLinkField;
 	}
 
 	/**
 	 * @param downloadLinkField the downloadLinkField to set
 	 */
-	public void setDownloadLinkFieldName(String downloadLinkFieldName) {
-		this.downloadLinkFieldName = downloadLinkFieldName;
+	public void setDownloadLinkField(String downloadLinkField) {
+		this.downloadLinkField = downloadLinkField;
 	}
 
 	/**
@@ -221,6 +223,20 @@ public class GridPanel extends Panel{
 	 */
 	public void setGroupDownloadAlign(String groupDownloadAlign) {
 		this.groupDownloadAlign = groupDownloadAlign;
+	}
+
+	/**
+	 * @return the statusField
+	 */
+	public String getStatusField() {
+		return statusField;
+	}
+
+	/**
+	 * @param statusField the statusField to set
+	 */
+	public void setStatusField(String statusField) {
+		this.statusField = statusField;
 	}
 	
 	

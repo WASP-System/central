@@ -38,11 +38,12 @@ public class ChipSeqWebPanels {
 
 		//create the panel
 		GridPanel panel = new GridPanel();
-		panel.setTitle("Analysis Summary");
-		panel.setDescription("Analysis Summary");
+		panel.setTitle("Summary");
+		panel.setDescription("Summary");
 		panel.setResizable(true);
 		panel.setMaximizable(true);	
 		panel.setOrder(1);
+		panel.setStatusField("Status");
 		
 		//create content (think of it as the table)
 		GridContent content = new GridContent();
@@ -57,7 +58,7 @@ public class ChipSeqWebPanels {
 		content.addColumn(new GridColumn("Strategy", "Strategy", 150, 0));//header,dataIndex	set width=150, flex=0	
 		content.addColumn(new GridColumn("Description", "Description", 1));//header,dataIndex	set flex=1	
 		content.addColumn(new GridColumn("Workflow", "Workflow", 150, 0));//header,dataIndex		
-		content.addColumn(new GridColumn("Main Analysis Software", "Software", 200, 0));//header,dataIndex		
+		content.addColumn(new GridColumn("Main Software", "Software", 200, 0));//header,dataIndex		
 		content.addColumn(new GridColumn("Analysis Status", "Status", 150, 0));//header,dataIndex
 		
 		//create rows with  information
