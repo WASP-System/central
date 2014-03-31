@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:batch="http://www.springframework.org/schema/batch"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+	<batch:step id="sleepingSkipTaskletStep" abstract="true">
+		<batch:tasklet>
+			<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet">
+				<property name="sleepInMillis" value="5000" />
+			</bean>
+		</batch:tasklet>
+	</batch:step>
+
+	<batch:step id="dyingSkipTaskletStep">
+		<batch:tasklet>
+			<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet">
+				<property name="dieHorribleDeath" value="true" />
+			</bean>
+		</batch:tasklet>
+	</batch:step>
+
+
+	<batch:job id="test.launchManyJob">
+		<batch:step id="test.step.launchMany" next="test.step.listenMany" parent="manyJobLaunchParentStep">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.test.tasklet.TestLaunchManyJobsTasklet" scope="step">
+					<constructor-arg name="testMethod" value="#{jobParameters['testMethod']}" />
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="test.step.listenMany">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForManyStatusMessagesTasklet" scope="step" />
+			</batch:tasklet>
+			<batch:next on="FAILED" to="test.step.notifyListenFailed" />
+			<batch:next on="*" to="test.step.notifyManyComplete" />
+		</batch:step>
+		
+		<batch:step id="test.step.notifyManyComplete">
+			<batch:tasklet>
+				<bean
+					class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet"
+					scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean
+							class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+							<property name="jobId" value="1" />
+							<property name="status" value="COMPLETED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="test.step.notifyListenFailed">
+			<batch:tasklet>
+				<bean
+					class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet"
+					scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean
+							class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+							<property name="jobId" value="1" />
+							<property name="status" value="FAILED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+	
+	<batch:job id="test.manySleepSteps">
+		<batch:step id="test.sleep" parent="sleepingSkipTaskletStep">
+			<batch:next on="FAILED" to="test.notifyFailedSleeping" />
+			<batch:next on="*" to="test.notifyDoneSleeping" />
+		</batch:step>
+		<batch:step id="test.notifyDoneSleeping">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.ManyJobStatusMessageTemplate">
+							<constructor-arg name="parentId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).PARENT_ID]}" />
+							<constructor-arg name="childId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).CHILD_MESSAGE_ID]}" />
+							<property name="status" value="COMPLETED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		<batch:step id="test.notifyFailedSleeping">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.priority.waspStatusMessages" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.ManyJobStatusMessageTemplate">
+							<constructor-arg name="parentId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).PARENT_ID]}" />
+							<constructor-arg name="childId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).CHILD_MESSAGE_ID]}" />
+							<property name="status" value="FAILED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+	
+	<batch:job id="test.manyAbandonSteps">
+		<batch:step id="test.abandon" parent="dyingSkipTaskletStep">
+			<batch:next on="FAILED" to="test.notifyFailedAndAbandon" />
+			<batch:next on="*" to="test.notifyDoneAbandoning" />
+		</batch:step>
+		<batch:step id="test.notifyDoneAbandoning">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.ManyJobStatusMessageTemplate">
+							<constructor-arg name="parentId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).PARENT_ID]}" />
+							<constructor-arg name="childId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).CHILD_MESSAGE_ID]}" />
+							<property name="status" value="COMPLETED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		<batch:step id="test.notifyFailedAndAbandon">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.priority.waspStatusMessages" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.ManyJobStatusMessageTemplate">
+							<constructor-arg name="parentId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).PARENT_ID]}" />
+							<constructor-arg name="childId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).CHILD_MESSAGE_ID]}" />
+							<property name="status" value="FAILED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+
+</beans>

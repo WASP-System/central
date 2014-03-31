@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
-import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
+import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 
 /**
  * Registry for storing and retrieving plugin bean references.  {@link WaspPlugin}

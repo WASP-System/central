@@ -9,12 +9,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.integration.MessageChannel;
 
-import edu.yu.einstein.wasp.Hyperlink;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
-import edu.yu.einstein.wasp.plugin.BatchJobProviding;
+import edu.yu.einstein.wasp.interfacing.Hyperlink;
+import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
+import edu.yu.einstein.wasp.interfacing.plugin.WebInterfacing;
+import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
-import edu.yu.einstein.wasp.plugin.WebInterfacing;
-import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
 
 /**
  * @author asmclellan
