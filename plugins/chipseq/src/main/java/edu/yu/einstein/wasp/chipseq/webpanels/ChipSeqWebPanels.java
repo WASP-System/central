@@ -47,6 +47,7 @@ public class ChipSeqWebPanels {
 		panel.setResizable(true);
 		panel.setMaximizable(true);	
 		panel.setOrder(1);
+		panel.setStatusField("Status");
 		
 		//create content (think of it as the table)
 		GridContent content = new GridContent();
@@ -407,9 +408,9 @@ public class ChipSeqWebPanels {
 		panel.setMaximizable(true);	
 		panel.setOrder(1);
 		panel.setGrouping(true);
-		panel.setGroupFieldName("SamplePairs");
+		panel.setGroupField("SamplePairs");
 		panel.setHasDownload(true);
-		panel.setDownloadLinkFieldName("Download");
+		panel.setDownloadLinkField("Download");
 		
 		//create content (think of it as the table)
 		GridContent content = new GridContent();
@@ -547,9 +548,9 @@ public class ChipSeqWebPanels {
 		panel.setMaximizable(true);	
 		panel.setOrder(1);
 		panel.setGrouping(true);
-		panel.setGroupFieldName("FileType");
+		panel.setGroupField("FileType");
 		panel.setHasDownload(true);
-		panel.setDownloadLinkFieldName("Download");
+		panel.setDownloadLinkField("Download");
 		
 		//create content (think of it as the table)
 		GridContent content = new GridContent();

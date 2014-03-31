@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.NoSuchMessageException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -98,6 +99,7 @@ public class ResultViewController extends WaspController {
 
 
 	@RequestMapping(value = "/treeview/{type}/{id}", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('lu-*') or hasRole('su') or hasRole('ft-*') or hasRole('fm-*')")
 	public String treeView(@PathVariable("type") String type, @PathVariable("id") Integer id, ModelMap m) {
 		
 		if(type.equalsIgnoreCase("job")) {
@@ -114,6 +116,7 @@ public class ResultViewController extends WaspController {
 
 	// get the JSON data of the given filegroup id list
 	@RequestMapping(value="/getFileGroupsDetailJson", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('lu-*') or hasRole('su') or hasRole('ft-*') or hasRole('fm-*')")
 	public @ResponseBody String getFileGroupListJson(@RequestParam("fglist") String fgListStr, HttpServletResponse response) {
 		try {
 //			List<Map<String, String>> fgMapList = new ArrayList<Map<String,String>>();
@@ -180,6 +183,7 @@ public class ResultViewController extends WaspController {
 
 	// get the JSON data to construct the tree 
 	@RequestMapping(value="/getTreeJson", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('lu-*') or hasRole('su') or hasRole('ft-*') or hasRole('fm-*')")
 	public @ResponseBody String getTreeJson(@RequestParam("node") String nodeJSON, HttpServletResponse response) {
 		
 		try {
@@ -204,6 +208,7 @@ public class ResultViewController extends WaspController {
 	}
 
 	@RequestMapping(value="/getDetailsJson", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('lu-*') or hasRole('su') or hasRole('ft-*') or hasRole('fm-*')")
 	public @ResponseBody String getDetailsJson(@RequestParam("node") String nodeJSON, HttpServletResponse response) {
 		
 		HashMap<String, Object> jsDetailsTabs = new HashMap<String, Object>();
@@ -330,10 +335,10 @@ public class ResultViewController extends WaspController {
 				filePanel.setContent(fileGridContent);
 				
 				filePanel.setGrouping(true);
-				filePanel.setGroupFieldName("fgname");
+				filePanel.setGroupField("fgname");
 				
 				filePanel.setHasDownload(true);
-				filePanel.setDownloadLinkFieldName("link");
+				filePanel.setDownloadLinkField("link");
 				filePanel.setDownloadTooltip("Download");
 				
 				filePanel.setAllowSelectDownload(true);
