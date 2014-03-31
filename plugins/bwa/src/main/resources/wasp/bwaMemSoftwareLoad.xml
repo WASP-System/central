@@ -187,17 +187,6 @@
         </bean>   
         
         <bean parent="bwaMemUiFieldWrapper">
-          <property name="baseName" value="mem-R" />
-          <property name="metaposition" value="130" />
-          <property name="label" value="aligner.bwa.mem_R.label" />
-          <property name="type" value="STRING" />
-          <property name="default" value="null" />
-          <property name="constraint" value="NotEmpty" />
-          <property name="error" value="aligner.bwa.mem_R.error" />
-          <property name="tooltip" value="aligner.bwa.mem_R.tt" />
-        </bean>
-        
-        <bean parent="bwaMemUiFieldWrapper">
           <property name="baseName" value="mem-T" />
           <property name="metaposition" value="140" />
           <property name="label" value="aligner.bwa.mem_T.label" />
