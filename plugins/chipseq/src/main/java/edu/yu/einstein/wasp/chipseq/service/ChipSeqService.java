@@ -25,8 +25,6 @@ public interface ChipSeqService extends WaspService {
 
 	public JobDataTabViewing getPeakcallerPlugin(Job job) throws JobContextInitializationException, SoftwareConfigurationException;
 
-	public Set<PanelTab> getChipSeqDataToDisplay(Integer jobId, Status jobStatus)throws PanelException;
-	
 	public PanelTab getChipSeqSummaryPanelTab(Job job, Status jobStatus)throws PanelException;
 	
 }

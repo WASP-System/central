@@ -223,9 +223,7 @@ public class MacstwoPlugin extends WaspPlugin
 	}
 	@Override
 	public Set<PanelTab> getViewPanelTabs(Job job) throws PanelException{
-		logger.debug("*************INSIDE THE macs2 class at MacstwoPlugin.getViewPanelTabs");
 		return macstwoService.getMacstwoDataToDisplay(job);
-		//return null;
 	}
 
 	@Override

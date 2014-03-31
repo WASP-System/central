@@ -71,20 +71,18 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 	@Transactional("entityManager")
 	@Override
 	public Set<PanelTab> getMacstwoDataToDisplay(Job job)throws PanelException{
-		
-		logger.debug("***************in macstwoServiceImpl.getMacstwoDataToDisplay(job)");
-		
 		 
 		 try{
-			 //First, Assemble The Data
+			 //First, Assemble The Data (second, get the panelTabs)
 			 
-			//samplePairs 			
+					
 			Sample noControlSample = new Sample();
 			noControlSample.setId(0);
 			noControlSample.setName("None");
 			
 			Map<Sample, List<Sample>> testSampleControlSampleListMap = new HashMap<Sample, List<Sample>>();
-			List<Sample> testSampleList = new ArrayList<Sample>();//will basically function as a set, with each sample in this list being unique
+			//samplePairs 	
+			//Map<Sample, List<Sample>> testSampleControlSampleListMap = getTestSampleControlSampleListMap(job);
 			
 			logger.debug("***************b");
 			for(Sample sample : job.getSample()){logger.debug("***************c");
@@ -92,7 +90,6 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 					if(sm.getK().startsWith("chipseqAnalysis.controlId::")){//there exists at least one chipseq analysis for this sample, but could be more than one
 						if(!testSampleControlSampleListMap.containsKey(sample)){
 							testSampleControlSampleListMap.put(sample, new ArrayList<Sample>());
-							testSampleList.add(sample);
 						}
 						Sample controlSample = null;
 						Integer controlId = Integer.parseInt(sm.getV());
@@ -106,8 +103,13 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 					}
 				}
 			}
+			
 			logger.debug("***************e");
 			
+			List<Sample> testSampleList = new ArrayList<Sample>();//will basically function as a set, with each sample in this list being unique
+			for(Sample sample : testSampleControlSampleListMap.keySet()){
+				testSampleList.add(sample);
+			}			
 			class SampleNameComparator implements Comparator<Sample> {
 			    @Override
 			    public int compare(Sample arg0, Sample arg1) {
@@ -268,45 +270,18 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 				PanelTab allModelPNGFilesDisplayedInPanelsTab = MacstwoWebPanels.getModelImages(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
 				if(allModelPNGFilesDisplayedInPanelsTab!=null){panelTabSet.add(allModelPNGFilesDisplayedInPanelsTab);}
 
-
-				
-				
-
-				
-				
-				/*
-				if(!fileTypeList.isEmpty()){
-					
-					PanelTab fileTypeDefinitionsPanelTab = ChipSeqWebPanels.getFileTypeDefinitionsPanelTab(fileTypeList);
-					if(fileTypeDefinitionsPanelTab!=null){panelTabSet.add(fileTypeDefinitionsPanelTab);}
-					
-					//int counter = 0;
-					for(FileType fileType : fileTypeList){
-						//if(counter==0){
-						PanelTab filePanelTab = ChipSeqWebPanels.getFilePanelTab(testSampleList, testSampleControlSampleListMap, fileType, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
-						if(filePanelTab!=null){panelTabSet.add(filePanelTab);}
-						//}
-						//counter++;
-					}
-				}
-				*/
-			//}
-			
-//			logger.debug("***************ending chipseqService.getChipSeqDataToDisplay(job)");
-
 			
 			return panelTabSet;
 			
-		}catch(Exception e){logger.debug("***************EXCEPTION IN chipseqService.getChipSeqDataToDisplay(job): "+ e.getStackTrace());throw new PanelException(e.getMessage());}
-
-		 
-		 
-		 
-		 
-		 
-//		 */
-		
-		
+		}catch(Exception e){
+			logger.debug("exception in macstwoService.getChipSeqDataToDisplay(job): "+ e.getStackTrace());
+			throw new PanelException(e.getMessage());
+		}		
 	}
 
+	private Map<Sample, List<Sample>> getTestSampleControlSampleListMap(Job job){
+		Map<Sample, List<Sample>> testSampleControlSampleListMap = new HashMap<Sample, List<Sample>>();
+		return testSampleControlSampleListMap;
+	}
+	
 }
