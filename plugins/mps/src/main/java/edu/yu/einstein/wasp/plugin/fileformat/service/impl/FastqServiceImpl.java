@@ -112,7 +112,12 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 	@Override
 	public Integer getNumberOfReadSegments(FileGroup filegroup) {
 		Assert.assertParameterNotNull(filegroup);
-		Integer numberOfSegments = new Integer(getMeta(filegroup, FILE_AREA, FASTQ_GROUP_NUMBER_OF_READ_SEGMENTS));
+		Integer numberOfSegments = 1;
+		try{
+			numberOfSegments = new Integer(getMeta(filegroup, FILE_AREA, FASTQ_GROUP_NUMBER_OF_READ_SEGMENTS));
+		} catch (NumberFormatException e){
+			logger.warn("Unable to obtain number of read segments from meta so defaulting to 1");
+		}
 		return numberOfSegments;
 	}
 	

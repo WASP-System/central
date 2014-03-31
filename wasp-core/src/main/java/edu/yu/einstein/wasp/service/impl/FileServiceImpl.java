@@ -1417,16 +1417,22 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 		try {
 			Sample cell = sampleService.getCell(cellLibrary);
-			Sample platformUnit = sampleService.getPlatformUnitForCell(cell);
-			Sample library = sampleService.getLibrary(cellLibrary);
-			Adaptor adaptor = sampleService.getLibraryAdaptor(library);
+			String platformUnitName = "unknown";
+			String cellIndex = "0";
+			String barcode = "none";
+			String libraryName = sampleService.getLibrary(cellLibrary).getName();
+			if (cell != null){ // may be null if imported from external run of unknown origin
+				platformUnitName = sampleService.getPlatformUnitForCell(cell).getName();
+				barcode = sampleService.getLibraryAdaptor(sampleService.getLibrary(cellLibrary)).getBarcodesequence();
+				cellIndex = sampleService.getCellIndex(cell).toString();
+			}
 
 			return new StringBuilder()
-					.append(library.getName()).append(DELIM)
-					.append(platformUnit.getName()).append(DELIM)
-					.append("C" + sampleService.getCellIndex(cell)).append(SEP)
+					.append(libraryName).append(DELIM)
+					.append(platformUnitName).append(DELIM)
+					.append("C" + cellIndex).append(SEP)
 					.append("S" + "A").append(SEP)
-					.append("I" + adaptor.getBarcodesequence()).append(DELIM)
+					.append("I" + barcode).append(DELIM)
 					.toString();
 		} catch (Exception e) {
 			String mess = "problem creating unique file base name";
