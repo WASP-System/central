@@ -21,7 +21,7 @@
 
 	<int:service-activator input-channel="wasp.channel.plugin.helptag" ref="helptagPlugin" method="process" />
 
-	<bean id="helptagPlugin" class="edu.yu.einstein.wasp.helptag.plugin.HelptagPlugin">
+	<bean id="helptagPlugin" class="edu.yu.einstein.wasp.helptag.plugin.HelptagPlugin"  depends-on="mps-tools">
 		<constructor-arg name="iName" ref="helptagPluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.helptag" />

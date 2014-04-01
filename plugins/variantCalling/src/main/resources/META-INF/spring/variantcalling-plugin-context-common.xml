@@ -21,7 +21,7 @@
 
 	<int:service-activator input-channel="wasp.channel.plugin.variantcalling" ref="variantcallingPlugin" method="process" />
 	
-	<bean id="variantcallingPlugin" class="edu.yu.einstein.wasp.variantcalling.plugin.VariantcallingPlugin">
+	<bean id="variantcallingPlugin" class="edu.yu.einstein.wasp.variantcalling.plugin.VariantcallingPlugin" depends-on="mps-tools">
 		<constructor-arg name="iName" ref="variantcallingPluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.variantcalling" />

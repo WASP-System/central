@@ -30,7 +30,7 @@ public class BWAMemSoftwareComponent extends AbstractBWASoftwareComponent{
 
 		w.setCommand(checkIndex);
 		
-		String command = "bwa mem " + alnOpts + " -t ${" + WorkUnit.NUMBER_OF_THREADS + "} " + 
+		String command = "bwa mem " + alnOpts  + " -R " + this.getReadGroupString(cellLibrary) + " -t ${" + WorkUnit.NUMBER_OF_THREADS + "} " + 
 				getGenomeIndexPath(getGenomeBuild(cellLibrary)) + " " +
 				"${" + WorkUnit.INPUT_FILE + "[" + WorkUnit.TASK_ARRAY_ID + "]} " +
 				"> sam.${" + WorkUnit.TASK_OUTPUT_FILE + "}"; 

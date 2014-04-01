@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.integration.messages.templates;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import org.json.JSONException;
@@ -235,7 +236,6 @@ public class WaspStatusMessageTemplate extends WaspMessageTemplate implements St
 		if (source.getUserCreatingMessage() != null)
 			target.setUserCreatingMessage(source.getUserCreatingMessage());
 	}
-	
 
 }
 	

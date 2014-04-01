@@ -10,8 +10,8 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import edu.yu.einstein.wasp.interfacing.plugin.WebInterfacing;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
-import edu.yu.einstein.wasp.plugin.WebInterfacing;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.web.WebHyperlink;
 

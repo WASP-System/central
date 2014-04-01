@@ -26,7 +26,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
+
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
+
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
@@ -46,6 +49,7 @@ import edu.yu.einstein.wasp.util.MetaHelper;
  * 
  */
 @Service
+@Transactional("entityManager")
 public class GenomeServiceImpl implements GenomeService, InitializingBean {
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -283,6 +287,16 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 	public String getDelimitedParameterString(Build build) {
 		Assert.assertParameterNotNull(build, "build cannot be null");
 		return build.getGenome().getOrganism().getNcbiID().toString() + DELIMITER +  build.getGenome().getName() + DELIMITER + build.getName();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @throws ParameterValueRetrievalException 
+	 * @throws SampleTypeException 
+	 */
+	@Override
+	public String getDelimitedParameterString(Integer cellLibraryId) throws ParameterValueRetrievalException, SampleTypeException {
+		return getDelimitedParameterString(getBuild(sampleService.getLibrary(sampleService.getCellLibraryBySampleSourceId(cellLibraryId))));
 	}
 	
 	/**

@@ -29,12 +29,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-import edu.yu.einstein.wasp.Hyperlink;
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
+import edu.yu.einstein.wasp.interfacing.Hyperlink;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
@@ -43,6 +43,7 @@ import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobSoftware;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
@@ -218,7 +219,7 @@ public class ResultViewController extends WaspController {
 		HashMap<String, Object> jsDetailsTabs = new HashMap<String, Object>();
 
 		LinkedHashMap<String, Object> jsDetails = new LinkedHashMap<String, Object>();
-		
+		logger.trace("nodeJSON=" + nodeJSON);
 		try {
 			JSONObject node = new JSONObject(nodeJSON);
 			Integer id = node.getInt("myid");
@@ -288,9 +289,15 @@ public class ResultViewController extends WaspController {
 				Set<FileGroup> fgSet = new HashSet<FileGroup>();
 				if (node.has("libid")) {
 					Sample library = sampleService.getSampleById(node.getInt("libid"));
-					if (node.has("cellid")) {
-						Sample cell = sampleService.getSampleById(node.getInt("cellid"));
-						fgSet.addAll(fileService.getFilesForCellLibraryByType(cell, library, ft));
+					if (node.has("cellid")) { 
+						int cellId = node.getInt("cellid");
+						if (cellId == 0){ // will be 0 if a library is imported 
+							for (SampleSource cellLibrary : sampleService.getCellLibrariesForLibrary(library))
+								fgSet.addAll(fileService.getFilesForCellLibraryByType(cellLibrary, ft));
+						} else {
+							Sample cell = sampleService.getSampleById(cellId);
+							fgSet.addAll(fileService.getFilesForCellLibraryByType(cell, library, ft));
+						}
 					} else {
 						fgSet.addAll(fileService.getFilesForLibraryByType(library, ft));
 					}

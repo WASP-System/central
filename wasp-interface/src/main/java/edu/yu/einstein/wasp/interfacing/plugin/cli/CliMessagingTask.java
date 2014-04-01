@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.plugin.cli;
+package edu.yu.einstein.wasp.interfacing.plugin.cli;
 
 public class CliMessagingTask {
 

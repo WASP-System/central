@@ -25,6 +25,7 @@ import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
+import edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate;
 
 /**
  * BatchJobLaunchServiceImpl. Launch Spring Batch jobs
@@ -86,6 +87,12 @@ public class BatchJobLaunchServiceImpl implements BatchJobLaunchService{
 		} catch (InvalidParameterException e){
 			throw new WaspBatchJobExecutionException("Method parameters incomplete: " + e.getMessage(), e);
 		}
+		
+		if (batchJobLaunchContext.getJobParameters().containsKey(WaspMessageTemplate.PARENT_ID)) 
+		    logger.debug("launching job " + batchJobLaunchContext.getJobName() + " with child id " +
+		            batchJobLaunchContext.getJobParameters().get(WaspMessageTemplate.CHILD_MESSAGE_ID) +
+		            " of many spawned by parent " + batchJobLaunchContext.getJobParameters().get(WaspMessageTemplate.PARENT_ID));
+		
 		String jobName = batchJobLaunchContext.getJobName();
 		Job job = null;
 		try{

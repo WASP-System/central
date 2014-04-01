@@ -128,6 +128,17 @@
 		</property>
 	</bean>
 	
+	<bean id="manyPromotionListener" class="org.springframework.batch.core.listener.ExecutionContextPromotionListener" scope="step">
+		<property name="keys" value="tttesttt,#{T(edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager).PARENT_JOB_ID_KEY},#{T(edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager).PARENT_JOB_CHILD_LIST_KEY}" />
+	</bean>
 	
+	<!-- Abstract step with promotion listener wired in. This step is for use 
+		with the LaunchManyJobsTasklet. -->
+	<batch:step id="manyJobLaunchParentStep" abstract="true">
+		<batch:listeners>
+			<batch:listener ref="manyPromotionListener" />
+		</batch:listeners>
+	</batch:step>
+		
     
 </beans>

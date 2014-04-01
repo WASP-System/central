@@ -1,6 +1,6 @@
 package edu.yu.einstein.wasp.web;
 
-import edu.yu.einstein.wasp.Hyperlink;
+import edu.yu.einstein.wasp.interfacing.Hyperlink;
 import edu.yu.einstein.wasp.service.MessageService;
 
 /**

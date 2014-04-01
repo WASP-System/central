@@ -2,7 +2,7 @@ package edu.yu.einstein.wasp.load.service;
 
 import java.util.List;
 
-import edu.yu.einstein.wasp.IndexingStrategy;
+import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.AdaptorsetMeta;

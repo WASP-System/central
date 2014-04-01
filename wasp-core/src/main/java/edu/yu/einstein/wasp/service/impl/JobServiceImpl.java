@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -89,6 +90,7 @@ import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate;
+import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -120,7 +122,6 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.quote.MPSQuote;
 import edu.yu.einstein.wasp.sequence.SequenceReadProperties;
@@ -1768,10 +1769,12 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			//curNode.put("type", "library");
 			
 			//get all cells associated with the library
-			List<Sample> cellList = sampleService.getCellsForLibrary(library);
-			if (!cellList.isEmpty()) {
+			List<SampleSource> cellLibraryList = sampleService.getCellLibrariesForLibrary(library);
+			if (!cellLibraryList.isEmpty()) {
 				Map<String,Object> childNode = new HashMap<>();
-				Sample cell = cellList.get(0);	//only one possible cell for one library
+				Sample cell = sampleService.getCell(cellLibraryList.get(0));	//only one possible cell for one library
+				if (cell == null) // this can happen if a library is imported 
+					cell = getGenericCell();
 				childNode.put("name", "Cell: "+cell.getName());
 				childNode.put("myid", cell.getId());
 				childNode.put("type", "cell");
@@ -1788,7 +1791,9 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			curNode.put("children", children);
 		} else if (type.equalsIgnoreCase("cell")) {
 			// if the sample is a cell
-			Sample cell = sampleService.getSampleById(id);
+			Sample cell = getGenericCell();
+			if (id != 0) // will be 0 if a library is imported 
+				cell = sampleService.getSampleById(id);
 			Sample library = sampleService.getSampleById(pid);
 
 			//children.addAll(getFileNodesByCellLibrary(cell, library));
@@ -1833,6 +1838,13 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		
 		return curNode;
 	}
+	
+	private Sample getGenericCell(){
+		Sample cell = new Sample();
+		cell.setName("undefined cell");
+		cell.setId(0);
+		return cell;
+	}
 
 	private List<Map<String,Object>> getFileNodesByLibrary(Sample library, Sample cell) throws SampleTypeException {
 		List<Map<String,Object>> fileTypeNodes = new ArrayList<Map<String,Object>>();
@@ -1840,7 +1852,13 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		if (cell == null) {
 			fgSet = library.getFileGroups();
 		} else {
-			fgSet = sampleService.getCellLibrary(cell, library).getFileGroups();
+			SampleSource cellLibrary;
+			if (cell.getId() == 0)
+				cellLibrary = sampleService.getCellLibrary(null, library); // cell is null if a library is imported 
+			else
+				cellLibrary = sampleService.getCellLibrary(cell, library);  
+			fgSet = cellLibrary.getFileGroups();
+			logger.debug("fgSet size=" + fgSet.size());
 		}
 		Map<FileType, Set<FileGroup>> ftMap = new HashMap<FileType, Set<FileGroup>>();
 		for (FileGroup fg : fgSet) {
@@ -1886,7 +1904,12 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	@SuppressWarnings("unused")
 	private List<Map<String,Object>> getFileNodesByCellLibrary(Sample cell, Sample library) throws SampleTypeException {
 		List<Map<String,Object>> fileTypeNodes = new ArrayList<Map<String,Object>>();
-		Set<FileGroup> fgSet = sampleService.getCellLibrary(cell, library).getFileGroups();
+		Set<FileGroup> fgSet = new LinkedHashSet<>();
+		if (cell.getId() == 0){
+			for (SampleSource cellLibrary : sampleService.getCellLibrariesForLibrary(library))
+				fgSet.addAll(cellLibrary.getFileGroups());
+		} else
+			fgSet.addAll(sampleService.getCellLibrary(cell, library).getFileGroups());
 		Map<Integer, FileType> ftMap = new HashMap<Integer, FileType>();
 		for (FileGroup fg : fgSet) {
 			ftMap.put(fg.getFileTypeId(), fg.getFileType());

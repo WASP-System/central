@@ -461,7 +461,7 @@ public class MetaHelper {
 	 * @param list
 	 * @return
 	 */
-	public static <T extends MetaBase> Map<String, String> getMap(String area, List<T> list){
+	public static <T extends MetaBase> Map<String, String> getKeyValueMap(String area, List<T> list){
 		Map<String, String> metaMap = new HashMap<String, String>();
 		for (T meta : getMetaSubsetByArea(area, list)){
 			metaMap.put(meta.getK().substring(area.length()+1), meta.getV());
