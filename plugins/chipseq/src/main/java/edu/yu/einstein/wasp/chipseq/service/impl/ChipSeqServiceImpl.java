@@ -46,6 +46,7 @@ import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobSoftware;
 import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
@@ -103,27 +104,5 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 				throw new SoftwareConfigurationException("No software could be configured for jobId=" + job.getId() + " with resourceType iname=" + peakcallerResourceType.getIName());
 			}
 			return waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), JobDataTabViewing.class);				
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Transactional("entityManager")
-	@Override
-	public PanelTab getChipSeqSummaryPanelTab(Job job, Status jobStatus)throws PanelException{//THIS COULD PERHAPS BE MOVED TO AJ SPOT
-		try{
-			Strategy strategy = jobService.getStrategy(Strategy.StrategyType.LIBRARY_STRATEGY, job);			
-			WaspJobContext waspJobContext = new WaspJobContext(job.getId(), jobService);
-			SoftwareConfiguration softwareConfig = waspJobContext.getConfiguredSoftware(peakcallerResourceType);
-			if (softwareConfig == null){
-				throw new SoftwareConfigurationException("No software could be configured for jobId=" + job.getId() + " with resourceType iname=" + peakcallerResourceType.getIName());
-			}
-			BatchJobProviding softwarePlugin_batchJobProviding = waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), BatchJobProviding.class);
-			String softwareName = softwareDao.getSoftwareByIName(softwarePlugin_batchJobProviding.getIName()).getName();//should get "MACS2 Peakcaller"
-			PanelTab summaryPanelTab = ChipSeqWebPanels.getSummaryPanelTab(jobStatus, job, strategy, softwareName);
-			return summaryPanelTab;			
-		}catch(Exception e){logger.debug("exception in chipseqService.getChipSeqSummaryPanelTab(job): "+ e.getStackTrace());
-			throw new PanelException(e.getMessage());
-		}
 	}
 }

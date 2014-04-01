@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -30,6 +31,8 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.Hyperlink;
 import edu.yu.einstein.wasp.MetaMessage;
+import edu.yu.einstein.wasp.Strategy;
+import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -37,6 +40,7 @@ import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobMeta;
+import edu.yu.einstein.wasp.model.JobSoftware;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
@@ -233,9 +237,11 @@ public class ResultViewController extends WaspController {
 				JobDataTabViewing plugin = jobService.getTabViewPluginByJob(job);
 				if (plugin!=null) {
 					Map<String, PanelTab> pluginPanelTabs = new LinkedHashMap<>();
-					Set<PanelTab> panelTabSet = plugin.getViewPanelTabs(job);
-					logger.debug("***size of panelTabSet = " + panelTabSet.size());
-					Integer tabCount = 0;
+					PanelTab summaryPanelTab = this.getSummaryPanelTab(job, plugin.getStatus(job));
+					pluginPanelTabs.put("tab-0", summaryPanelTab);
+					Set<PanelTab> panelTabSet = plugin.getViewPanelTabs(job);//additional, plugin-specific ordered, panelTabs
+					logger.debug("***size of plugin-specific panelTabSet = " + panelTabSet.size());
+					Integer tabCount = 1;
 					for (PanelTab ptab : panelTabSet) {
 				    	if (!ptab.getPanels().isEmpty()){
 					    	String tabId = "tab-" + (tabCount++).toString();
@@ -385,6 +391,73 @@ public class ResultViewController extends WaspController {
 			e.printStackTrace();
 			throw new IllegalStateException("Can't marshall to JSON for " + nodeJSON, e);
 		}	
+	}
+	
+	private PanelTab getSummaryPanelTab(Job job, Status jobStatus)throws PanelException{
+		try{
+			Strategy strategy = jobService.getStrategy(Strategy.StrategyType.LIBRARY_STRATEGY, job);
+			List<String> softwareNameList = new ArrayList<String>();
+			for(JobSoftware js : job.getJobSoftware()){
+				softwareNameList.add(js.getSoftware().getName());
+			}
+			Collections.sort(softwareNameList);
+			PanelTab summaryPanelTab = constructSummaryPanelTab(jobStatus, job, strategy, softwareNameList);
+			return summaryPanelTab;			
+		}catch(Exception e){logger.debug("exception in chipseqService.getChipSeqSummaryPanelTab(job): "+ e.getStackTrace());
+			throw new PanelException(e.getMessage());
+		}
+	}
+	private PanelTab constructSummaryPanelTab(Status jobStatus, Job job, Strategy strategy,	List<String> softwareNameList) {
+
+		//create the panelTab to house the panel
+		PanelTab panelTab = new PanelTab();
+		panelTab.setName("Summary");
+		panelTab.setNumberOfColumns(1);
+
+		//create the panel
+		GridPanel panel = new GridPanel();
+		panel.setTitle("Summary");
+		panel.setDescription("Summary");
+		panel.setResizable(true);
+		panel.setMaximizable(true);	
+		panel.setOrder(1);
+		panel.setStatusField("Status");
+		
+		//create content (think of it as the table)
+		GridContent content = new GridContent();
+		//create the data model 
+		content.addDataFields(new GridDataField("Strategy", "String"));//dataIndex, datatype
+		content.addDataFields(new GridDataField("Description", "String"));//dataIndex, datatype
+		content.addDataFields(new GridDataField("Workflow", "String"));//dataIndex, datatype
+		content.addDataFields(new GridDataField("Software", "String"));//dataIndex, datatype
+		content.addDataFields(new GridDataField("Status", "String"));//dataIndex, datatype
+
+		//create columns and associate each column with its displayed header and a data model attribute (dataIndex)
+		content.addColumn(new GridColumn("Strategy", "Strategy", 150, 0));//header,dataIndex	set width=150, flex=0	
+		content.addColumn(new GridColumn("Description", "Description", 1));//header,dataIndex	set flex=1	
+		content.addColumn(new GridColumn("Workflow", "Workflow", 150, 0));//header,dataIndex		
+		content.addColumn(new GridColumn("Main Software", "Software", 200, 0));//header,dataIndex		
+		content.addColumn(new GridColumn("Analysis Status", "Status", 150, 0));//header,dataIndex
+		
+		//create rows with  information
+		List<String> row = new ArrayList<String>();
+		row.add(strategy.getDisplayStrategy());
+		row.add(strategy.getDescription());
+		row.add(job.getWorkflow().getName());
+		String softwareNames = "";
+		for(String name : softwareNameList){
+			if(!softwareNames.isEmpty()){
+				softwareNames += "<br />";
+			}
+			softwareNames += name;
+		}
+		row.add(softwareNames);
+		row.add(jobStatus.toString());
+		content.addDataRow(row);//add row to content
+		
+		panel.setContent(content);//add content to panel
+		panelTab.addPanel(panel);//add panel to panelTab
+		return panelTab;
 	}
 }
 
