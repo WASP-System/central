@@ -75,23 +75,10 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 	public Set<PanelTab> getMacstwoDataToDisplay(Job job)throws PanelException{
 		 
 		 try{
-			 //First, Assemble The Data; Second, deal with panelTabs			
+			 //First, assemble the data			
 			//samplePairs (for the samplePairsTab)
 			Map<Sample, List<Sample>> testSampleControlSampleListMap = getTestSampleControlSampleListMap(job);//reviewed and OK		
-			//List<Sample> testSampleList = new ArrayList<Sample>();//basically will end up being an ordered set of the testSamples
-			List<Sample> testSampleList = getTestSampleList(testSampleControlSampleListMap);//basically will end up being an ordered set of the testSamples
-			
-			//THIS FUNCTIONALITY WAS MOVED INTO getTestSampleList(testSampleControlSampleListMap)
-			//for(Sample sample : testSampleControlSampleListMap.keySet()){
-			//	testSampleList.add(sample);
-			//}			
-			//Collections.sort(testSampleList, new SampleNameComparator());
-			
-			
-			//THIS FUNCTIONALITY WAS MOVED INTO getTestSampleControlSampleListMap(job)
-			//for(Sample testSample : testSampleList){//sort each ControlSampleList
-			//	Collections.sort(testSampleControlSampleListMap.get(testSample), new SampleNameComparator());
-			//}
+			List<Sample> testSampleList = getTestSampleList(testSampleControlSampleListMap);//reviewed and OK	//basically will end up being an ordered set of the testSamples
 			
 			//commandLine (for the samplePairsTab)
 			Map<String, String> sampleIdControlIdCommandLineMap = getSampleIdControlIdCommandLineMap(testSampleList);//reviewed and OK
@@ -99,157 +86,30 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 			//sample library runs (for the runs tab)
 			Map<Sample, List<SampleSource>> sampleCellLibraryListMap = getSampleCellLibraryListMap(testSampleList);//reviewed and OK
 			Map<Sample,List<Sample>> sampleLibraryListMap = getSampleLibraryListMap(sampleCellLibraryListMap);//reviewed and OK
-			
-			
-			//THIS FUNCTIONALITY WAS MOVED INTO getSampleLibraryListMap
-			//for(Sample testSample : testSampleList){
-			//	if(sampleLibraryListMap.containsKey(testSample)){//sort each LibraryList
-			//		Collections.sort(sampleLibraryListMap.get(testSample), new SampleNameComparator());
-			//	}
-			//}
-			
-			
-			
-			//Map<Sample, List<String>> libraryRunInfoListMap = new HashMap<Sample, List<String>>();//used for Runs
 			Map<Sample, List<String>> libraryRunInfoListMap = getLibraryRunInfoListMap(sampleCellLibraryListMap);//reviewed and OK
-			/*
-			Map<Sample,List<Sample>> sampleLibraryListMap = new HashMap<Sample, List<Sample>>();//used for Runs
-			Map<Sample, List<String>> libraryRunInfoListMap = new HashMap<Sample, List<String>>();//used for Runs
-
-			for(Sample testSample : testSampleList){
-				logger.debug("***************A1***");
-				for(SampleMeta sm : testSample.getSampleMeta()){logger.debug("***************A2***");
-					if(sm.getK().startsWith("chipseqAnalysis.testCellLibraryIdList::")){//only need to capture once for each test sample
-						if(sampleLibraryListMap.containsKey(testSample)){//we already obtained this info; no need to repeat, as the info will be the same
-							continue;
-						}
-						String cellLibraryIdListAsString = sm.getV();logger.debug("***************A5");
-						List<Integer> cellLibraryIdList = WaspSoftwareJobParameters.getCellLibraryIdList(cellLibraryIdListAsString);logger.debug("***************A6");
-												
-						sampleLibraryListMap.put(testSample, new ArrayList<Sample>());
-						
-						for(Integer cellLibraryId : cellLibraryIdList){logger.debug("***************A7");
-							SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);logger.debug("***************A8");
-							Sample library = sampleService.getLibrary(cellLibrary);logger.debug("***************A9");
-							
-							if(!sampleLibraryListMap.get(testSample).contains(library)){//the LibraryList is acting as a set
-								sampleLibraryListMap.get(testSample).add(library);
-								libraryRunInfoListMap.put(library, new ArrayList<String>());
-							}
-							Sample cell = sampleService.getCell(cellLibrary);logger.debug("***************A10");
-							String lane = sampleService.getCellIndex(cell).toString(); logger.debug("***************A11");
-							Sample platformUnit = sampleService.getPlatformUnitForCell(cell);logger.debug("***************A12");
-							List<Run> runList = runService.getSuccessfullyCompletedRunsForPlatformUnit(platformUnit);//WHY IS THIS A LIST rather than a singleton?
-							if(runList.isEmpty()){//fix other places too (below) if you make a change here
-								libraryRunInfoListMap.get(library).add("Lane " + lane + ": " + platformUnit.getName()); logger.debug("***************A14.5");
-							}
-							else{
-								libraryRunInfoListMap.get(library).add("Lane " + lane + ": " + runList.get(0).getName()); logger.debug("***************A14.5");
-							}
-						}
-						logger.debug("***************A15");
-					}
 	
-				}
-			}
-			*/
+			//get the fileGroups, fileHandles, resolvedURLs and fileTypeList 
+			Map<String, FileGroup> sampleIdControlIdFileTypeIdFileGroupMap = getCodedFileGroupMap(testSampleList);//new HashMap<String, FileGroup>();
+			Map<String, FileHandle> sampleIdControlIdFileTypeIdFileHandleMap = getCodedFileHandleMap(sampleIdControlIdFileTypeIdFileGroupMap);//new HashMap<String, FileHandle>();
+			Map<FileHandle, String> fileHandleResolvedURLMap = getFileHandleResolvedURLMap(sampleIdControlIdFileTypeIdFileHandleMap);//new HashMap<FileHandle, String>();
+			List<FileType> fileTypeList = getOrderedFileTypeList(sampleIdControlIdFileTypeIdFileGroupMap);//actually, ordered set
 			
+			//SECOND, present the data within an ordered set of panel tabs (recall that the summary panel has already been taken care of)
+			Set<PanelTab> panelTabSet = new LinkedHashSet<PanelTab>();
+
+			PanelTab samplePairsPanelTab = MacstwoWebPanels.getSamplePairs(testSampleList, testSampleControlSampleListMap, sampleIdControlIdCommandLineMap);
+			if(samplePairsPanelTab!=null){panelTabSet.add(samplePairsPanelTab);}
+			PanelTab sampleLibraryRunsPanelTab = MacstwoWebPanels.getSampleLibraryRuns(testSampleList, sampleLibraryListMap, libraryRunInfoListMap);
+			if(sampleLibraryRunsPanelTab!=null){panelTabSet.add(sampleLibraryRunsPanelTab);}
+			PanelTab fileTypeDefinitionsPanelTab = MacstwoWebPanels.getFileTypeDefinitions(fileTypeList);
+			if(fileTypeDefinitionsPanelTab!=null){panelTabSet.add(fileTypeDefinitionsPanelTab);}
+			PanelTab allFilesDisplayedBySampleUsingGroupingGridPanelTab = MacstwoWebPanels.getFilesBySample(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
+			if(allFilesDisplayedBySampleUsingGroupingGridPanelTab!=null){panelTabSet.add(allFilesDisplayedBySampleUsingGroupingGridPanelTab);}
+			PanelTab allFilesDisplayedByFileTypeUsingGroupingGridPanelTab = MacstwoWebPanels.getFilesByFileType(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
+			if(allFilesDisplayedByFileTypeUsingGroupingGridPanelTab!=null){panelTabSet.add(allFilesDisplayedByFileTypeUsingGroupingGridPanelTab);}
 			
-			
-
-			logger.debug("***************B");
-			//get the fileGroups for each testSample
-			//Map<String, List<FileGroup>> sampleIdControlIdFileGroupListMap = new HashMap<String, List<FileGroup>>();
-			Map<String, FileGroup> sampleIdControlIdFileTypeIdFileGroupMap = new HashMap<String, FileGroup>();
-			Map<String, FileHandle> sampleIdControlIdFileTypeIdFileHandleMap = new HashMap<String, FileHandle>();
-			Map<FileHandle, String> fileHandleResolvedURLMap = new HashMap<FileHandle, String>();
-
-			Set<FileType> fileTypeSet = new HashSet<FileType>();
-			List<FileType> fileTypeList = new ArrayList<FileType>();
-			logger.debug("***************C");
-			for(Sample testSample : testSampleList){
-				for(FileGroup fg : testSample.getFileGroups()){
-					for(FileGroupMeta fgm : fg.getFileGroupMeta()){
-						if(fgm.getK().equalsIgnoreCase("chipseqAnalysis.controlId")){
-							String controlId = fgm.getV();
-							fileTypeSet.add(fg.getFileType());
-							String fileTypeId = fg.getFileType().getId().toString();
-							String sampleIdControlIdFileTypeIdKey = testSample.getId().toString()+"::"+controlId+"::"+fileTypeId;
-							
-							//if(!sampleIdControlIdFileGroupListMap.containsKey(testSample.getId()+"::"+controlId)){
-							//	sampleIdControlIdFileGroupListMap.put(testSample.getId().toString()+"::"+controlId, new ArrayList<FileGroup>());
-							//}							
-							//sampleIdControlIdFileGroupListMap.get(testSample.getId().toString()+"::"+controlId).add(fg);
-							FileHandle fileHandle = new ArrayList<FileHandle>(fg.getFileHandles()).get(0);
-							String resolvedURL = null;
-							try{
-								resolvedURL = fileUrlResolver.getURL(fileHandle).toString();
-							}catch(Exception e){logger.debug("***************UNABLE TO RESOLVE URL for file: " + fileHandle.getFileName());}
-							
-							logger.debug("***************resolvedURL: " + resolvedURL + " for fileHandle " + fileHandle.getFileName());
-							
-							fileHandleResolvedURLMap.put(fileHandle, resolvedURL);
-							sampleIdControlIdFileTypeIdFileGroupMap.put(sampleIdControlIdFileTypeIdKey, fg);
-							sampleIdControlIdFileTypeIdFileHandleMap.put(sampleIdControlIdFileTypeIdKey, fileHandle);
-							
-							break;//from filegroupmeta for loop
-						}
-					}
-				}
-			}
-			logger.debug("***************D");
-			fileTypeList.addAll(fileTypeSet);
-			class FileTypeComparator implements Comparator<FileType> {
-			    @Override
-			    public int compare(FileType arg0, FileType arg1) {
-			        return arg0.getIName().compareToIgnoreCase(arg1.getIName());
-			    }
-			}
-			Collections.sort(fileTypeList, new FileTypeComparator());
-
-			logger.debug("***************E");
-			class FileGroupComparator implements Comparator<FileGroup> {
-			    @Override
-			    public int compare(FileGroup arg0, FileGroup arg1) {
-			        return arg0.getFileType().getIName().compareToIgnoreCase(arg1.getFileType().getIName());
-			    }
-			}
-			logger.debug("***************F");
-			//check AND order the filegroups by filetype.iname
-			for(Sample sample : testSampleControlSampleListMap.keySet()){
-				List<Sample> controlSampleList = testSampleControlSampleListMap.get(sample);
-				for(Sample controlSample : controlSampleList){
-					//Assert.assertTrue(sampleIdControlIdFileGroupListMap.containsKey(sample.getId().toString()+"::"+controlSample.getId().toString()));
-					//Collections.sort(sampleIdControlIdFileGroupListMap.get(sample.getId().toString()+"::"+controlSample.getId().toString()), new FileGroupComparator());
-				}
-			}
-			
-			logger.debug("***************G");
-			/////////softwarePlugin_JobDataTabViewing.getViewPanelTabs(job);
-			
-			//Second, assemble the data within ordered set of panel tabs
-			Set<PanelTab> panelTabSet = new LinkedHashSet<PanelTab>();logger.debug("***************1");
-
-
-			/////////////summary already done by chipseq or core: PanelTab summaryPanelTab = ChipSeqWebPanels.getSummaryPanelTab2222(jobStatus, job, strategy, softwareName);
-			///////////////panelTabSet.add(summaryPanelTab);logger.debug("***************11");
-			//TODO: uncomment if(jobStatus.toString().equals(Status.COMPLETED.toString())){
-			//do the other panels //
-				PanelTab samplePairsPanelTab = MacstwoWebPanels.getSamplePairs(testSampleList, testSampleControlSampleListMap, sampleIdControlIdCommandLineMap);
-				if(samplePairsPanelTab!=null){panelTabSet.add(samplePairsPanelTab);}
-				PanelTab sampleLibraryRunsPanelTab = MacstwoWebPanels.getSampleLibraryRuns(testSampleList, sampleLibraryListMap, libraryRunInfoListMap);
-				if(sampleLibraryRunsPanelTab!=null){panelTabSet.add(sampleLibraryRunsPanelTab);}
-				PanelTab fileTypeDefinitionsPanelTab = MacstwoWebPanels.getFileTypeDefinitions(fileTypeList);
-				if(fileTypeDefinitionsPanelTab!=null){panelTabSet.add(fileTypeDefinitionsPanelTab);}
-				PanelTab allFilesDisplayedBySampleUsingGroupingGridPanelTab = MacstwoWebPanels.getFilesBySample(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
-				if(allFilesDisplayedBySampleUsingGroupingGridPanelTab!=null){panelTabSet.add(allFilesDisplayedBySampleUsingGroupingGridPanelTab);}
-				PanelTab allFilesDisplayedByFileTypeUsingGroupingGridPanelTab = MacstwoWebPanels.getFilesByFileType(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
-				if(allFilesDisplayedByFileTypeUsingGroupingGridPanelTab!=null){panelTabSet.add(allFilesDisplayedByFileTypeUsingGroupingGridPanelTab);}
-				
-				
-				PanelTab allModelPNGFilesDisplayedInPanelsTab = MacstwoWebPanels.getModelImages(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
-				if(allModelPNGFilesDisplayedInPanelsTab!=null){panelTabSet.add(allModelPNGFilesDisplayedInPanelsTab);}
-
+			PanelTab allModelPNGFilesDisplayedInPanelsTab = MacstwoWebPanels.getModelImages(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
+			if(allModelPNGFilesDisplayedInPanelsTab!=null){panelTabSet.add(allModelPNGFilesDisplayedInPanelsTab);}
 			
 			return panelTabSet;
 			
@@ -380,6 +240,63 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 			}
 		}		
 		return libraryRunInfoListMap;
+	}
+	private Map<String, FileGroup> getCodedFileGroupMap(List<Sample> testSampleList){
+		Map<String, FileGroup> sampleIdControlIdFileTypeIdFileGroupMap = new HashMap<String, FileGroup>();
+		for(Sample testSample : testSampleList){
+			for(FileGroup fg : testSample.getFileGroups()){
+				for(FileGroupMeta fgm : fg.getFileGroupMeta()){
+					if(fgm.getK().equalsIgnoreCase("chipseqAnalysis.controlId")){
+						String controlId = fgm.getV();						
+						String fileTypeId = fg.getFileType().getId().toString();
+						String sampleIdControlIdFileTypeIdKey = testSample.getId().toString()+"::"+controlId+"::"+fileTypeId;
+						sampleIdControlIdFileTypeIdFileGroupMap.put(sampleIdControlIdFileTypeIdKey, fg);
+						break;//from filegroupmeta for loop
+					}
+				}
+			}
+		}
+		return sampleIdControlIdFileTypeIdFileGroupMap;
+	}
+	private Map<String, FileHandle> getCodedFileHandleMap(Map<String, FileGroup> sampleIdControlIdFileTypeIdFileGroupMap){
+		Map<String, FileHandle> sampleIdControlIdFileTypeIdFileHandleMap = new HashMap<String, FileHandle>();
+		for(String key : sampleIdControlIdFileTypeIdFileGroupMap.keySet()){
+			FileGroup fg = sampleIdControlIdFileTypeIdFileGroupMap.get(key);
+			FileHandle fileHandle = new ArrayList<FileHandle>(fg.getFileHandles()).get(0);
+			sampleIdControlIdFileTypeIdFileHandleMap.put(key, fileHandle);
+		}
+		return sampleIdControlIdFileTypeIdFileHandleMap;				
+	}
+	private Map<FileHandle, String>  getFileHandleResolvedURLMap(Map<String, FileHandle> sampleIdControlIdFileTypeIdFileHandleMap){
+		Map<FileHandle, String> fileHandleResolvedURLMap = new HashMap<FileHandle,String>();
+		for(String key : sampleIdControlIdFileTypeIdFileHandleMap.keySet()){
+			FileHandle fh = sampleIdControlIdFileTypeIdFileHandleMap.get(key);
+			String resolvedURL = null;
+			try{
+				resolvedURL = fileUrlResolver.getURL(fh).toString();
+			}catch(Exception e){logger.debug("***************UNABLE TO RESOLVE URL for file: " + fh.getFileName());}
+			
+			fileHandleResolvedURLMap.put(fh, resolvedURL);
+		}
+		return fileHandleResolvedURLMap;
+	}
+	private List<FileType> getOrderedFileTypeList(Map<String, FileGroup> sampleIdControlIdFileTypeIdFileGroupMap){
+		Set<FileType> fileTypeSet = new HashSet<FileType>();
+		List<FileType> orderedFileTypeList = new ArrayList<FileType>();
+		for(String key : sampleIdControlIdFileTypeIdFileGroupMap.keySet()){
+			FileGroup fg = sampleIdControlIdFileTypeIdFileGroupMap.get(key);
+			fileTypeSet.add(fg.getFileType());
+		}
+		orderedFileTypeList.addAll(fileTypeSet);//next, sort the list
+		class FileTypeComparator implements Comparator<FileType> {
+		    @Override
+		    public int compare(FileType arg0, FileType arg1) {
+		        return arg0.getIName().compareToIgnoreCase(arg1.getIName());
+		    }
+		}
+		Collections.sort(orderedFileTypeList, new FileTypeComparator());
+		
+		return orderedFileTypeList;		
 	}
 }
 
