@@ -75,39 +75,43 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 	public Set<PanelTab> getMacstwoDataToDisplay(Job job)throws PanelException{
 		 
 		 try{
-			 //First, Assemble The Data (second, get the panelTabs)			
+			 //First, Assemble The Data; Second, deal with panelTabs			
 			//samplePairs (for the samplePairsTab)
-			Map<Sample, List<Sample>> testSampleControlSampleListMap = getTestSampleControlSampleListMap(job);			
-			List<Sample> testSampleList = new ArrayList<Sample>();//will basically function as a set, with each sample in this list being unique
-			for(Sample sample : testSampleControlSampleListMap.keySet()){
-				testSampleList.add(sample);
-			}
+			Map<Sample, List<Sample>> testSampleControlSampleListMap = getTestSampleControlSampleListMap(job);//reviewed and OK		
+			//List<Sample> testSampleList = new ArrayList<Sample>();//basically will end up being an ordered set of the testSamples
+			List<Sample> testSampleList = getTestSampleList(testSampleControlSampleListMap);//basically will end up being an ordered set of the testSamples
 			
-			class SampleNameComparator implements Comparator<Sample> {
-			    @Override
-			    public int compare(Sample arg0, Sample arg1) {
-			        return arg0.getName().compareToIgnoreCase(arg1.getName());
-			    }
-			}
-			Collections.sort(testSampleList, new SampleNameComparator());
+			//THIS FUNCTIONALITY WAS MOVED INTO getTestSampleList(testSampleControlSampleListMap)
+			//for(Sample sample : testSampleControlSampleListMap.keySet()){
+			//	testSampleList.add(sample);
+			//}			
+			//Collections.sort(testSampleList, new SampleNameComparator());
 			
-			for(Sample testSample : testSampleList){//sort each ControlSampleList
-				Collections.sort(testSampleControlSampleListMap.get(testSample), new SampleNameComparator());
-			}
+			
+			//THIS FUNCTIONALITY WAS MOVED INTO getTestSampleControlSampleListMap(job)
+			//for(Sample testSample : testSampleList){//sort each ControlSampleList
+			//	Collections.sort(testSampleControlSampleListMap.get(testSample), new SampleNameComparator());
+			//}
 			
 			//commandLine (for the samplePairsTab)
-			Map<String, String> sampleIdControlIdCommandLineMap = getSampleIdControlIdCommandLineMap(testSampleList);
+			Map<String, String> sampleIdControlIdCommandLineMap = getSampleIdControlIdCommandLineMap(testSampleList);//reviewed and OK
 			
 			//sample library runs (for the runs tab)
-			Map<Sample, List<SampleSource>> sampleCellLibraryListMap = getSampleCellLibraryListMap(testSampleList);
-			Map<Sample,List<Sample>> sampleLibraryListMap = getSampleLibraryListMap(sampleCellLibraryListMap);
-			for(Sample testSample : testSampleList){
-				if(sampleLibraryListMap.containsKey(testSample)){//sort each LibraryList
-					Collections.sort(sampleLibraryListMap.get(testSample), new SampleNameComparator());
-				}
-			}
+			Map<Sample, List<SampleSource>> sampleCellLibraryListMap = getSampleCellLibraryListMap(testSampleList);//reviewed and OK
+			Map<Sample,List<Sample>> sampleLibraryListMap = getSampleLibraryListMap(sampleCellLibraryListMap);//reviewed and OK
+			
+			
+			//THIS FUNCTIONALITY WAS MOVED INTO getSampleLibraryListMap
+			//for(Sample testSample : testSampleList){
+			//	if(sampleLibraryListMap.containsKey(testSample)){//sort each LibraryList
+			//		Collections.sort(sampleLibraryListMap.get(testSample), new SampleNameComparator());
+			//	}
+			//}
+			
+			
+			
 			//Map<Sample, List<String>> libraryRunInfoListMap = new HashMap<Sample, List<String>>();//used for Runs
-			Map<Sample, List<String>> libraryRunInfoListMap = getLibraryRunInfoListMap(sampleCellLibraryListMap);
+			Map<Sample, List<String>> libraryRunInfoListMap = getLibraryRunInfoListMap(sampleCellLibraryListMap);//reviewed and OK
 			/*
 			Map<Sample,List<Sample>> sampleLibraryListMap = new HashMap<Sample, List<Sample>>();//used for Runs
 			Map<Sample, List<String>> libraryRunInfoListMap = new HashMap<Sample, List<String>>();//used for Runs
@@ -255,7 +259,7 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 		}		
 	}
 
-	private Map<Sample, List<Sample>> getTestSampleControlSampleListMap(Job job){
+	private Map<Sample, List<Sample>> getTestSampleControlSampleListMap(Job job){//reviewed and OK
 		
 		Map<Sample, List<Sample>> testSampleControlSampleListMap = new HashMap<Sample, List<Sample>>();
 		
@@ -265,7 +269,7 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 		
 		for(Sample sample : job.getSample()){
 			for(SampleMeta sm : sample.getSampleMeta()){
-				if(sm.getK().startsWith("chipseqAnalysis.controlId::")){//there exists at least one chipseq analysis for this sample, but could be more than one
+				if(sm.getK().startsWith("chipseqAnalysis.controlId::")){//there exists at least one chipseq analysis for this sample, but could be more than one (so do not put a break; at end of this meta for loop)
 					if(!testSampleControlSampleListMap.containsKey(sample)){
 						testSampleControlSampleListMap.put(sample, new ArrayList<Sample>());
 					}
@@ -281,15 +285,29 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 				}
 			}
 		}
+		
+		//finally, order the controlSampleLists by controlSample.getName()
+		for(Sample testSample : testSampleControlSampleListMap.keySet()){
+			Collections.sort(testSampleControlSampleListMap.get(testSample), new SampleNameComparator());
+		}
 		return testSampleControlSampleListMap;
 	}
 	
-	private Map<String, String> getSampleIdControlIdCommandLineMap(List<Sample> testSampleList){
+	private List<Sample> getTestSampleList(Map<Sample, List<Sample>> testSampleControlSampleListMap){
+		List<Sample> testSampleList = new ArrayList<Sample>();
+		for(Sample sample : testSampleControlSampleListMap.keySet()){
+			testSampleList.add(sample);
+		}			
+		Collections.sort(testSampleList, new SampleNameComparator());	//order list by sample name	
+		return testSampleList;		
+	}
+	
+	private Map<String, String> getSampleIdControlIdCommandLineMap(List<Sample> testSampleList){//reviewed and OK
 
 		Map<String, String> sampleIdControlIdCommandLineMap = new HashMap<String, String>();		
 		for(Sample testSample : testSampleList){			
 			for(SampleMeta sm : testSample.getSampleMeta()){
-				if(sm.getK().startsWith("chipseqAnalysis.commandLineCall::")){//capture for each distinct chipseq analysis
+				if(sm.getK().startsWith("chipseqAnalysis.commandLineCall::")){//capture for each distinct chipseq analysis (following the :: is controlId)
 					String[] splitK = sm.getK().split("::");
 					String controlIdAsString = splitK[1];
 					sampleIdControlIdCommandLineMap.put(testSample.getId().toString() + "::" + controlIdAsString, sm.getV());
@@ -299,15 +317,12 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 		return sampleIdControlIdCommandLineMap;
 	}
 	
-	private Map<Sample, List<SampleSource>> getSampleCellLibraryListMap(List<Sample> testSampleList)throws SampleTypeException{
+	private Map<Sample, List<SampleSource>> getSampleCellLibraryListMap(List<Sample> testSampleList)throws SampleTypeException{//reviewed and OK
 		
 		Map<Sample, List<SampleSource>> sampleCellLibraryListMap = new HashMap<Sample, List<SampleSource>>();
 		for(Sample testSample : testSampleList){
 			for(SampleMeta sm : testSample.getSampleMeta()){
-				if(sm.getK().startsWith("chipseqAnalysis.testCellLibraryIdList::")){//only need to capture once for each test sample
-					if(sampleCellLibraryListMap.containsKey(testSample)){//we already obtained this info; no need to repeat, as the info will be the same
-						continue;
-					}
+				if(sm.getK().startsWith("chipseqAnalysis.testCellLibraryIdList::")){//while there could be more than one entry for a single sample, we only need to capture this meta once for each test sample (as it is the same for each entry: thus the break; command) (note: following the :: is controlId)
 					String cellLibraryIdListAsString = sm.getV();
 					List<Integer> cellLibraryIdList = WaspSoftwareJobParameters.getCellLibraryIdList(cellLibraryIdListAsString);
 					sampleCellLibraryListMap.put(testSample, new ArrayList<SampleSource>());
@@ -315,13 +330,14 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 						SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);
 						sampleCellLibraryListMap.get(testSample).add(cellLibrary);						
 					}
+					break;//break out of meta loop and move on to next testSample (since we only need to get this repeated info once)
 				}
 			}
 		}	
 		return sampleCellLibraryListMap;
 	}
 	
-	private Map<Sample,List<Sample>>  getSampleLibraryListMap(Map<Sample, List<SampleSource>> sampleCellLibraryListMap){
+	private Map<Sample,List<Sample>>  getSampleLibraryListMap(Map<Sample, List<SampleSource>> sampleCellLibraryListMap){//reviewed and OK
 		Map<Sample,List<Sample>> sampleLibraryListMap = new HashMap<Sample,List<Sample>>();
 		for(Sample sample : sampleCellLibraryListMap.keySet()){
 			List<SampleSource> cellLibraryList = sampleCellLibraryListMap.get(sample);
@@ -329,15 +345,20 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 			
 			for(SampleSource cellLibrary : cellLibraryList){
 				Sample library = sampleService.getLibrary(cellLibrary);				
-				if(!sampleLibraryListMap.get(sample).contains(library)){//the LibraryList is acting as a set
+				if(!sampleLibraryListMap.get(sample).contains(library)){//the LibraryList is acting as a set (since a library could be run more than once)
 					sampleLibraryListMap.get(sample).add(library);
 				}
 			}
 		}
+		
+		//finally, order each LibraryList by library name
+		for(Sample testSample : sampleLibraryListMap.keySet()){
+			Collections.sort(sampleLibraryListMap.get(testSample), new SampleNameComparator());	//order each list by sample name				
+		}
 		return sampleLibraryListMap;
 	}
 	
-	private Map<Sample, List<String>> getLibraryRunInfoListMap(Map<Sample, List<SampleSource>> sampleCellLibraryListMap)throws SampleTypeException, SampleParentChildException{
+	private Map<Sample, List<String>> getLibraryRunInfoListMap(Map<Sample, List<SampleSource>> sampleCellLibraryListMap)throws SampleTypeException, SampleParentChildException{//reviewed and OK
 		Map<Sample, List<String>> libraryRunInfoListMap = new HashMap<Sample, List<String>>();
 		for(Sample sample : sampleCellLibraryListMap.keySet()){
 			List<SampleSource> cellLibraryList = sampleCellLibraryListMap.get(sample);
@@ -350,14 +371,21 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 				String lane = sampleService.getCellIndex(cell).toString(); 
 				Sample platformUnit = sampleService.getPlatformUnitForCell(cell);
 				List<Run> runList = runService.getSuccessfullyCompletedRunsForPlatformUnit(platformUnit);//WHY IS THIS A LIST rather than a singleton?
-				if(runList.isEmpty()){//fix other places too (below) if you make a change here
+				if(runList.isEmpty()){
 					libraryRunInfoListMap.get(library).add("Lane " + lane + ": " + platformUnit.getName()); 
 				}
 				else{
 					libraryRunInfoListMap.get(library).add("Lane " + lane + ": " + runList.get(0).getName()); 
 				}				
 			}
-		}
+		}		
 		return libraryRunInfoListMap;
 	}
+}
+
+class SampleNameComparator implements Comparator<Sample> {
+    @Override
+    public int compare(Sample arg0, Sample arg1) {
+        return arg0.getName().compareToIgnoreCase(arg1.getName());
+    }
 }

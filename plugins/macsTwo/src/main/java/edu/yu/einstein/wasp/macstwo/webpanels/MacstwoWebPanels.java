@@ -193,9 +193,9 @@ public class MacstwoWebPanels {
 		panel.setMaximizable(true);	
 		panel.setOrder(1);
 		panel.setGrouping(true);
-		panel.setGroupFieldName("SamplePairs");
+		panel.setGroupField("SamplePairs");
 		panel.setHasDownload(true);
-		panel.setDownloadLinkFieldName("Download");
+		panel.setDownloadLinkField("Download");
 		
 		//create content (think of it as the table)
 		GridContent content = new GridContent();
@@ -265,9 +265,9 @@ public class MacstwoWebPanels {
 		panel.setMaximizable(true);	
 		panel.setOrder(1);
 		panel.setGrouping(true);
-		panel.setGroupFieldName("FileType");
+		panel.setGroupField("FileType");
 		panel.setHasDownload(true);
-		panel.setDownloadLinkFieldName("Download");
+		panel.setDownloadLinkField("Download");
 		
 		//create content (think of it as the table)
 		GridContent content = new GridContent();
