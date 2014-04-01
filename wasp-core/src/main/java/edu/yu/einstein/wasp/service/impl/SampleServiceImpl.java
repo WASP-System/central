@@ -2437,14 +2437,13 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 */
 	@Override
 	public SampleSource getCellLibrary(Sample cell, Sample library) throws SampleTypeException{
-		if (cell != null && !isCell(cell))
+		if (!isCell(cell))
 			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 		if (!isLibrary(library))
 			throw new SampleTypeException("Expected 'library' but got Sample of type '" + library.getSampleType().getIName() + "' instead.");
 		Map<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sourceSampleId", library.getId());
-		if (cell != null)
-			m.put("sampleId", cell.getId());
+		m.put("sampleId", cell.getId());
 		List<SampleSource> ss = sampleSourceDao.findByMap(m);
 		if (ss.isEmpty())
 			return null;

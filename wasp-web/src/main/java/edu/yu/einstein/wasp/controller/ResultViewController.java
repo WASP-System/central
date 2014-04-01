@@ -16,7 +16,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.NoSuchMessageException;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -27,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 import edu.yu.einstein.wasp.interfacing.Hyperlink;
@@ -35,9 +33,7 @@ import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.AuthenticationService;
@@ -279,9 +275,9 @@ public class ResultViewController extends WaspController {
 					Sample library = sampleService.getSampleById(node.getInt("libid"));
 					if (node.has("cellid")) { 
 						int cellId = node.getInt("cellid");
-						if (cellId == 0){ // will be 0 if a library is imported 
-							for (SampleSource cellLibrary : sampleService.getCellLibrariesForLibrary(library))
-								fgSet.addAll(fileService.getFilesForCellLibraryByType(cellLibrary, ft));
+						if (cellId < 0){ // will be < 0 if a library is imported 
+							SampleSource cellLibrary = sampleService.getCellLibrariesForLibrary(library).get((cellId * -1) - 1);
+							fgSet.addAll(fileService.getFilesForCellLibraryByType(cellLibrary, ft));
 						} else {
 							Sample cell = sampleService.getSampleById(cellId);
 							fgSet.addAll(fileService.getFilesForCellLibraryByType(cell, library, ft));
