@@ -276,7 +276,15 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 						if (attributeName.equals("name")){
 							if (currentJob == null || currentJob.getId() == null)
 								throw new WaspRuntimeException("Cannot update " + model + "." + attributeName + "because current Job object is not defined");
+							boolean createNewCellLibrary = false;
+							if (attributeVal.contains("*")){ // may be on its own (proper use case) or beside a name (permissible use case)
+								attributeVal = attributeVal.replace("*", "");
+								if (attributeVal.isEmpty())
+									attributeVal = currentSample.getName();
+								createNewCellLibrary = true;
+							}
 							if (currentSample == null || !currentSample.getName().equals(attributeVal)){
+								createNewCellLibrary = true;
 								currentSample = new Sample();
 								currentSample.setName(attributeVal);
 								currentSample.setSubmitterUserId(currentJob.getUserId());
@@ -284,14 +292,16 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 								currentSample.setSubmitterJobId(currentJob.getId());
 								currentSample.setIsActive(1);
 								currentSample = sampleService.getSampleDao().save(currentSample);
-								currentCellLibrary = new SampleSource();
-								currentCellLibrary.setSourceSample(currentSample);
-								currentCellLibrary = sampleService.getSampleSourceDao().save(currentCellLibrary);
-								sampleService.setJobForLibraryOnCell(currentCellLibrary, currentJob);
 								JobSample jobSample = new JobSample();
 								jobSample.setJob(currentJob);
 								jobSample.setSample(currentSample);
 								jobSample = jobService.getJobSampleDao().save(jobSample);
+							}
+							if (createNewCellLibrary) {
+								currentCellLibrary = new SampleSource();
+								currentCellLibrary.setSourceSample(currentSample);
+								currentCellLibrary = sampleService.getSampleSourceDao().save(currentCellLibrary);
+								sampleService.setJobForLibraryOnCell(currentCellLibrary, currentJob);
 							}
 						} else if (attributeName.equals("sampleSubtypeId")){
 							if (currentSample == null || currentSample.getId() == null)

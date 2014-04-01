@@ -24,7 +24,7 @@
 	<int:service-activator input-channel="wasp.channel.plugin.bwa-mem" ref="bwaMemPlugin" method="process" />
 	<int:service-activator input-channel="wasp.channel.plugin.bwa-backtrack" ref="bwaBacktrackPlugin" method="process" />
 
-	<bean id="bwaBacktrackPlugin" class="edu.yu.einstein.wasp.plugin.bwa.plugin.BWABacktrackPlugin" depends-on="mps-tools">
+	<bean id="bwaBacktrackPlugin" class="edu.yu.einstein.wasp.plugin.bwa.plugin.BWABacktrackPlugin" depends-on="mps-tools,bwaBacktrack">
 		<constructor-arg name="iName" ref="bwaBacktrackArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.bwa-backtrack" />
@@ -45,7 +45,7 @@
 		 -->
 	</bean>
 	
-	<bean id="bwaMemPlugin" class="edu.yu.einstein.wasp.plugin.bwa.plugin.BWAMemPlugin" depends-on="mps-tools">
+	<bean id="bwaMemPlugin" class="edu.yu.einstein.wasp.plugin.bwa.plugin.BWAMemPlugin" depends-on="mps-tools,bwaMem">
 		<constructor-arg name="iName" ref="bwaMemArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.bwa-mem" />
