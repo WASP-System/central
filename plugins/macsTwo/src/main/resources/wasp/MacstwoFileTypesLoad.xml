@@ -87,7 +87,7 @@
     <property name="name" value="ControlLambda" />
     <property name="area" value="macs2controllambdabed" />
     <property name="description" value="A macs2-generated bedGraph file (xxx_control_lambda.bdg) that describes the read distrubution along the entire genome (for local lambda values from control) and can be imported to UCSC genome browser or converted into even smaller bigWig file" />
-    <property name="extensions" value="_treat_pileup.bdg" />
+    <property name="extensions" value="_control_lambda.bdg" />
   </bean>
   
 </beans>
