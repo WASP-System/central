@@ -196,6 +196,9 @@ public class MacstwoWebPanels {
 		panel.setGroupField("SamplePairs");
 		panel.setHasDownload(true);
 		panel.setDownloadLinkField("Download");
+		panel.setAllowSelectDownload(true);
+		panel.setAllowGroupDownload(true);
+		panel.setSelectDownloadText("Download Selected");
 		
 		//create content (think of it as the table)
 		GridContent content = new GridContent();
@@ -268,6 +271,9 @@ public class MacstwoWebPanels {
 		panel.setGroupField("FileType");
 		panel.setHasDownload(true);
 		panel.setDownloadLinkField("Download");
+		panel.setAllowSelectDownload(true);
+		panel.setAllowGroupDownload(true);
+		panel.setSelectDownloadText("Download Selected");
 		
 		//create content (think of it as the table)
 		GridContent content = new GridContent();
