@@ -225,7 +225,7 @@ public class MacstwoWebPanels {
 				
 				for(FileType fileType : fileTypeList){
 					
-					if(fileType.getIName().endsWith("_model.png")){//macstwo specific
+					if(fileType.getExtensions().endsWith("_model.png")){//macstwo specific
 						continue;
 					}
 					
@@ -343,8 +343,7 @@ public class MacstwoWebPanels {
 				String samplePairs = "Test Sample: " + testSample.getName() + "; Control: " + controlSample.getName();
 				
 				for(FileType fileType : fileTypeList){
-					//******************ROBERT A DUBIN TODO ToDo change to model.png!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-					if(fileType.getExtensions().endsWith("_model.pdf")){//macstwo specific
+					if(fileType.getExtensions().endsWith("_model.png")){//macstwo specific
 						FileHandle fileHandle = sampleIdControlIdFileTypeIdFileHandleMap.get(testSample.getId().toString() + "::" + controlSample.getId().toString() + "::" + fileType.getId().toString());
 						String resolvedURL = fileHandleResolvedURLMap.get(fileHandle);
 						if(fileHandle==null || resolvedURL==null || resolvedURL.isEmpty()){//unexpected

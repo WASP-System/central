@@ -263,7 +263,9 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 		Map<FileHandle, String> fileHandleResolvedURLMap = new HashMap<FileHandle,String>();
 		for(String key : sampleIdControlIdFileTypeIdFileHandleMap.keySet()){
 			FileHandle fh = sampleIdControlIdFileTypeIdFileHandleMap.get(key);
-			String resolvedURL = null;
+			//******************ROBERT A DUBIN comment-out next line and uncomment the line following it for production!!!!!!!!
+			String resolvedURL = "file://c3.einstein.yu.edu/wasp/results/3/submitted/215882339_Job3_Quote_2014_04_02.pdf";
+			//String resolvedURL = "";
 			try{
 				resolvedURL = fileUrlResolver.getURL(fh).toString();
 			}catch(Exception e){logger.debug("***************UNABLE TO RESOLVE URL for file: " + fh.getFileName());}
