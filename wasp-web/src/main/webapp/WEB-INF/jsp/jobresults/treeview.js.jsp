@@ -1,3 +1,4 @@
+<%@ include file="/WEB-INF/jsp/taglib.jsp"%>
 <script type="text/javascript"	src="/wasp/scripts/jquery/jquery.cookie.js"></script>
 <script type="text/javascript"	src="https://rawgithub.com/rgrove/lazyload/master/lazyload.js"></script>
 <script type="text/javascript"	src="https://rawgithub.com/johnculviner/jquery.fileDownload/master/src/Scripts/jquery.fileDownload.js"></script>
