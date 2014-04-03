@@ -17,8 +17,6 @@
 			</batch:tasklet>
 		</batch:step>
 		<batch:step id="edu.yu.einstein.wasp.macstwo.mainFlow.performAction" next="edu.yu.einstein.wasp.macstwo.generateModelAsPdf.performAction">
-			<!-- next line is an example of a do-nothing tasklet -->
-			<!-- <batch:tasklet ref="edu.yu.einstein.wasp.macstwo.mainFlow.skipTasklet" /> -->
 			<batch:tasklet>
 				<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.macstwo.batch.tasklet.MacstwoTasklet" scope="step">
@@ -31,30 +29,49 @@
 				<batch:listener ref="macstwoPromotionListener" />
 			</batch:listeners>
 		</batch:step>
-		<batch:step id="edu.yu.einstein.wasp.macstwo.generateModelAsPdf.performAction" next="edu.yu.einstein.wasp.macstwo.mainFlow.notifyComplete">
-			<!-- next line is an example of a do-nothing tasklet -->
-			<!-- <batch:tasklet ref="edu.yu.einstein.wasp.macstwo.mainFlow.skipTasklet" /> -->
+		
+		<batch:step id="edu.yu.einstein.wasp.macstwo.generateModelAsPdf.performAction" >
 			<batch:tasklet>
 				<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.macstwo.batch.tasklet.MacstwoGenerateModelAsPdfTasklet" scope="step">
-				<!--	<constructor-arg name="modelScriptGIdAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters).MODEL_SCRIPT_FILEGROUP_ID]}" />
+				<!--	never was able to make this work via the constructor
+					<constructor-arg name="modelScriptGIdAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters).MODEL_SCRIPT_FILEGROUP_ID]}" />
 				-->
-				</bean>
+				</bean>				
 			</batch:tasklet>
-			
+			<batch:next on="FAILED" to="edu.yu.einstein.wasp.macstwo.mainFlow.notifyFail" />
+			<batch:next on="*" to="edu.yu.einstein.wasp.macstwo.mainFlow.notifyComplete" />
 		</batch:step>
+		
 		<batch:step id="edu.yu.einstein.wasp.macstwo.mainFlow.notifyComplete">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.macstwo.integration.messages.SimpleMacstwoStatusMessageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.ManyJobStatusMessageTemplate">
+							<constructor-arg name="parentId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).PARENT_ID]}" />
+							<constructor-arg name="childId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).CHILD_MESSAGE_ID]}" />
 							<property name="status" value="COMPLETED" />
 						</bean>
 					</constructor-arg>
 				</bean>
 			</batch:tasklet>
 		</batch:step>
+		<batch:step id="edu.yu.einstein.wasp.macstwo.mainFlow.notifyFail">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.priority.waspStatusMessages" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.ManyJobStatusMessageTemplate">
+							<constructor-arg name="parentId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).PARENT_ID]}" />
+							<constructor-arg name="childId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).CHILD_MESSAGE_ID]}" />
+							<property name="status" value="FAILED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>		
+		
 	</batch:job>
 
 	<bean id="edu.yu.einstein.wasp.macstwo.mainFlow.skipTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" scope="step" />
