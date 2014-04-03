@@ -167,7 +167,9 @@ public class MacstwoWebPanels {
 		
 		//create rows with  information
 		for(FileType fileType : fileTypeList){
-			
+			if(fileType.getExtensions().endsWith("_model.png")){//macstwo specific
+				continue;
+			}
 			List<String> row = new ArrayList<String>();			
 			row.add(fileType.getName());
 			row.add(fileType.getDescription());			

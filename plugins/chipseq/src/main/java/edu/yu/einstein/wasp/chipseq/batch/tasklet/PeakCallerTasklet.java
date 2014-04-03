@@ -5,17 +5,18 @@ package edu.yu.einstein.wasp.chipseq.batch.tasklet;
  */
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +31,11 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.chipseq.integration.messages.ChipSeqSoftwareJobParameters;
-import edu.yu.einstein.wasp.chipseq.software.ChipSeqSoftwareComponent;
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
-import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.daemon.batch.tasklets.LaunchManyJobsTasklet;
 import edu.yu.einstein.wasp.exception.SoftwareConfigurationException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
+import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
@@ -56,11 +56,10 @@ import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 import edu.yu.einstein.wasp.util.SoftwareConfiguration;
 import edu.yu.einstein.wasp.util.WaspJobContext;
-//import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 
 @Transactional("entityManager")
-public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecutionListener {
-
+//public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecutionListener {
+public class PeakCallerTasklet extends LaunchManyJobsTasklet {
 	private int messageTimeoutInMillis;
 	
 	/**
@@ -110,9 +109,10 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 	
 	private ResourceType softwareResourceType;
 
-	private ChipSeqSoftwareComponent chipseq;
-//	@Autowired
-//	private GATKSoftwareComponent gatk;
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	   
+	private ChunkContext context; 
+//	private ChipSeqSoftwareComponent chipseq;
 
 	public PeakCallerTasklet() {
 		// proxy
@@ -123,13 +123,7 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 		logger.debug("***************in PeakCallerTasklet() constructor: softwareResourceType for peakcaller is " + this.softwareResourceType.getName());
 	}
 
-	//TODO: remove this next method
-	@Override
-	@Transactional("entityManager")
-	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
-		this.doExecute(context);
-		return RepeatStatus.FINISHED;
-	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -137,6 +131,7 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 	 * springframework.batch.core.StepContribution,
 	 * org.springframework.batch.core.scope.context.ChunkContext)
 	 */
+	/*
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
@@ -174,7 +169,7 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 		confirmSamplePairsAreOfSameSpecies(testSampleControlSampleListMap);//throws exception if no
 		logger.debug("***************in PeakCallerTasklet.execute(): confirmed Sample Pairs are of same species");
 		
-		//*
+		// *
 		//output for testing purposes only:
 		//first, print out recorded jobId and samplePairs, if any
 		logger.debug("*************************JobId : " + job.getId());
@@ -203,7 +198,7 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 				}
 			}			
 		} 
-		//*/
+		// * /
 		for(Sample testSample : setOfApprovedSamples){
 			
 			Thread.sleep(10000);//this is here for testing only, but certainly will not hurt, as it's merely a 10 second delay
@@ -227,38 +222,22 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 			}
 		}
 	}
-	
-	public static void doWork(int cellLibraryId) {
-		
-	}
+	*/
 	
 	
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ExitStatus afterStep(StepExecution arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
+	
 
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void beforeStep(StepExecution stepExecution) {
-		logger.debug("StepExecutionListener beforeStep saving StepExecution");
-		this.stepExecution = stepExecution;
-		
-	}
-	private void confirmCellLibrariesAssociatedWithBamFiles(List<SampleSource> cellLibraryList) throws Exception{
+	
+	private boolean confirmCellLibrariesAssociatedWithBamFiles(List<SampleSource> cellLibraryList) {
 		for(SampleSource cellLibrary : cellLibraryList){
 			Set<FileGroup> fileGroupSetFromCellLibrary = fileService.getFilesForCellLibraryByType(cellLibrary, bamFileType);
 			if(fileGroupSetFromCellLibrary.isEmpty()){//very unexpected
 				logger.debug("no Bam files associated with cellLibrary"); 
-				throw new Exception("no Bam files associated with cellLibrary");
+				return false;
 			}
 		}
+		return true;
 	}
 	
 	private Map<Sample, List<SampleSource>> associateSampleWithCellLibraries(List<SampleSource> cellLibraryList){
@@ -308,7 +287,7 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 		}
 		return testSampleControlSampleListMap;
 	}
-	private void confirmSamplePairsAreOfSameSpecies(Map<Sample, List<Sample>> testSampleControlSampleListMap) throws Exception{
+	private boolean confirmSamplePairsAreOfSameSpecies(Map<Sample, List<Sample>> testSampleControlSampleListMap) {
 		//for (Map.Entry<Sample, List<Sample>> entry : testSampleControlSampleListMap.entrySet()) { //02-18-14
 		for (Sample testSample : testSampleControlSampleListMap.keySet()) {
 			//Sample testSample = (Sample) entry.getKey();
@@ -323,10 +302,11 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 				controlSample.setSampleMeta(sampleService.getSampleMetaDao().getSamplesMetaBySampleId(controlSample.getId()));
 				if(testSampleOrganismId.intValue()!=sampleService.getIdOfOrganism(controlSample)){
 					logger.debug("samplePairs must be of same organism"); 
-					throw new Exception("samplePairs must be of same organism");
+					return false;
 				}
 			}
 		}
+		return true;
 	}
 	private List<Integer> convertCellLibraryListToIdList(List<SampleSource> cellLibraryList){
 		List<Integer> list = new ArrayList<Integer>();
@@ -337,17 +317,22 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 	}
 	
 	
-	private void launchMessage(Integer jobId, List<Integer> testCellLibraryIdList, List<Integer> controlCellLibraryIdList){
+	private void launchMessage(Integer jobId, Job job, List<Integer> testCellLibraryIdList, List<Integer> controlCellLibraryIdList){
 		try{
 			logger.warn("*************entered launchMessage method");
-			WaspJobContext waspJobContext = new WaspJobContext(jobId, jobService);
-			SoftwareConfiguration softwareConfig = waspJobContext.getConfiguredSoftware(this.softwareResourceType);
-			if (softwareConfig == null){
+			logger.warn("*************at 12345");
+			//this used to work in next line, but no more: lazy load problem new WaspJobContext(jobId, jobService)
+			WaspJobContext waspJobContext = new WaspJobContext(jobService.getJobAndSoftware(job));logger.warn("*************at AA");
+			SoftwareConfiguration softwareConfig = waspJobContext.getConfiguredSoftware(this.softwareResourceType);logger.warn("*************at BB");
+			if (softwareConfig == null){logger.warn("*************at CC");
 				throw new SoftwareConfigurationException("No software could be configured for jobId=" + jobId + " with resourceType iname=" + softwareResourceType.getIName());
 			}
+			logger.warn("*************at DD");
 			BatchJobProviding softwarePlugin = waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), BatchJobProviding.class);
-			String flowName = softwarePlugin.getBatchJobName(BatchJobTask.GENERIC);
+			logger.warn("*************at EE");
+			String flowName = softwarePlugin.getBatchJobName(BatchJobTask.GENERIC);logger.warn("*************at FF");
 			if (flowName == null){
+				logger.warn("*************at GG");
 				logger.warn("No generic flow found for plugin so cannot launch software : " + softwareConfig.getSoftware().getIName());
 			}
 			logger.warn("Flowname : " + flowName);//for macstwo, flowname will be: edu.yu.einstein.wasp.macstwo.mainFlow
@@ -365,6 +350,7 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 			//this next line works, but was replaced with the subsequent 7 lines, and the WaspMessageBuildingException exception
 			//waspMessageHandlingService.launchBatchJob(flowName, jobParameters);
 			
+			/*no longer used; replaced by brent's code for sending many messages
 			MessagingTemplate messagingTemplate = new MessagingTemplate();
 			messagingTemplate.setReceiveTimeout(messageTimeoutInMillis);
 			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(flowName, jobParameters) );	
@@ -372,11 +358,13 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 			logger.warn("*************launched message from peakcaller");
 			logger.debug("Sending the following launch message via channel " + MessageChannelRegistry.LAUNCH_MESSAGE_CHANNEL + " : " + launchMessage);
 			messagingTemplate.sendAndReceive(launchChannel, launchMessage);
+			*/
+			requestLaunch(flowName, jobParameters);
 		}
-		 catch (WaspMessageBuildingException e) {
-			 logger.warn("*************threw WaspMessageBuildingException exception in peakcallerTasklet.launchMessage()*************");
-			throw new MessagingException(e.getLocalizedMessage(), e);
-		}	
+		 //catch (WaspMessageBuildingException e) {
+		//	 logger.warn("*************threw WaspMessageBuildingException exception in peakcallerTasklet.launchMessage()*************");
+		//	throw new MessagingException(e.getLocalizedMessage(), e);
+		//}	
 		catch(Exception e){
 			logger.warn("*************threw exception in peakcallerTasklet.launchMessage()*************");
 			logger.warn("*************e.message()   =   " + e.getMessage());
@@ -384,6 +372,124 @@ public class PeakCallerTasklet extends WaspRemotingTasklet implements StepExecut
 		}
 		
 
+		
+	}
+
+	@Override
+	@Transactional("entityManager")
+	public void doExecute() {
+		/*
+		logger.debug("*************************just entered doExecute()");
+		if(getStepExecution()==null){
+			logger.debug("*************************stepExecution is null");
+		}else{logger.debug("*************************stepExecution is NOT null");}
+		if(getStepExecution().getJobParameters()==null){
+			logger.debug("*************************getStepExecution().getJobParameters() is null");
+		}else{logger.debug("*************************getStepExecution().getJobParameters() is NOT null");}
+		if(getStepExecution().getJobParameters().isEmpty()){
+			logger.debug("*************************getStepExecution().getJobParameters() is empty");
+		}else{logger.debug("*************************getStepExecution().getJobParameters() is NOT enpty");}
+		*/
+		Map<String,JobParameter> jobParametersMap = getStepExecution().getJobParameters().getParameters();	
+		Integer jobIdFromJobParameter = null;
+		for (String key : getStepExecution().getJobParameters().getParameters().keySet()) {
+			logger.debug("***************in PeakCallerTasklet.execute(): KEY: " + key);
+			if(key.equalsIgnoreCase(WaspJobParameters.JOB_ID)){
+				JobParameter jp = jobParametersMap.get(key);
+				logger.debug("***************in PeakCallerTasklet.execute(): jp.toString() = " + jp.toString());
+				jobIdFromJobParameter = new Integer(jp.toString());
+				logger.debug("***************in PeakCallerTasklet.execute(): jobId = " + jobIdFromJobParameter);
+			}
+		}
+		logger.debug("*************************just after the for loop");
+		logger.debug("*************************jobId = " + jobIdFromJobParameter);
+		
+		
+		
+		Assert.assertTrue(jobIdFromJobParameter>0);
+		Job job = jobService.getJobByJobId(jobIdFromJobParameter);
+		logger.debug("***************in PeakCallerTasklet.execute(): job.getId() = " + job.getId().toString());
+		Assert.assertTrue(job.getId()>0);
+		
+		/* try{
+		WaspJobContext waspJobContext = new WaspJobContext(job.getId(), jobService);logger.warn("*************at AA");
+		}
+		catch(Exception e){logger.debug("***************threw waspjobcontext excption");}
+		*/
+		
+//TODO: ROBERT A DUBIN (another) uncomment next line and comment out the one immediately after for production   !!!!!!!!!!!!!!!!!!!!!!!!  
+		//List<SampleSource> approvedCellLibraryList = sampleService.getCellLibrariesPassQCAndNoAggregateAnalysis(job);		
+		List<SampleSource> approvedCellLibraryList = new ArrayList<SampleSource>(sampleService.getCellLibrariesForJob(job));//sampleService.getCellLibrariesPassQCAndNoAggregateAnalysis(job);		
+
+		logger.debug("***************in PeakCallerTasklet.execute(): approvedCellLibraryList.size() is " + approvedCellLibraryList.size());
+		Assert.assertTrue( ! approvedCellLibraryList.isEmpty() );
+		
+//TODO: ROBERT A DUBIN (1 of 1) uncomment next line for production   !!!!!!!!!!!!!!!!!!!!!!!!   
+		Assert.assertTrue(confirmCellLibrariesAssociatedWithBamFiles(approvedCellLibraryList));
+
+		Map<Sample, List<SampleSource>> approvedSampleApprovedCellLibraryListMap = associateSampleWithCellLibraries(approvedCellLibraryList);//new HashMap<Sample, List<SampleSource>>();
+		Set<Sample> setOfApprovedSamples = new HashSet<Sample>();//for a specific job (note: this really could have been a list)
+		for (Sample approvedSample : approvedSampleApprovedCellLibraryListMap.keySet()) {
+			setOfApprovedSamples.add(approvedSample);
+		}
+		Set<SampleSource> samplePairsAsSampleSourceSet = sampleService.getSamplePairsByJob(job);//each SampleSource represents a pair of samples
+		Map<Sample, List<Sample>> testSampleControlSampleListMap = associateTestWithControls(setOfApprovedSamples, samplePairsAsSampleSourceSet);
+		Assert.assertTrue(confirmSamplePairsAreOfSameSpecies(testSampleControlSampleListMap));
+		logger.debug("***************in PeakCallerTasklet.execute(): confirmed Sample Pairs are of same species");
+		
+		// *
+		//output for testing purposes only:
+		//first, print out recorded jobId and samplePairs, if any
+		logger.debug("*************************JobId : " + job.getId());
+		logger.debug("*************************SamplePairs");
+		logger.debug("Recorded samplePairs, from the job submission:");		
+		for(SampleSource ss : samplePairsAsSampleSourceSet){//for each recorded samplePair
+			Sample test = ss.getSample();//IP (or HpaII)
+			Sample control = ss.getSourceSample();//input (or MspI)
+			logger.debug("test - "+test.getName() + " : " + " control - " + control.getName());
+		}
+		//next, go through each entry of testControlListMap
+		//to make it easy, use setOfApprovedSamples as the keys
+		logger.debug("*************************Captured data:");		
+		for(Sample approvedSample : setOfApprovedSamples){
+			
+			Sample testSample = approvedSample;
+			logger.debug("testSample - "+testSample.getName() + " with sampleId of " + testSample.getId());
+			List<Sample> approvedControlSampleList = testSampleControlSampleListMap.get(testSample);
+			if(approvedControlSampleList.isEmpty()){
+				logger.debug("--No paired control, so generate peaks without any control");
+			}
+			else{
+				logger.debug("Control(s):");
+				for(Sample control : approvedControlSampleList){
+					logger.debug("Control: " + control.getName());
+				}
+			}			
+		} 
+		// * /
+		for(Sample testSample : setOfApprovedSamples){
+			
+			//Thread.sleep(10000);//this is here for testing only, but certainly will not hurt, as it's merely a 10 second delay
+			
+			logger.debug("***************in PeakCallerTasklet.execute(): preparing to launchMessage to Macs2 for testSample: " + testSample.getName());
+			List<SampleSource> cellLibraryListForTest = approvedSampleApprovedCellLibraryListMap.get(testSample);
+			Assert.assertTrue( ! cellLibraryListForTest.isEmpty() );
+			List<Sample> controlSampleList = testSampleControlSampleListMap.get(testSample);
+			logger.debug("***************in PeakCallerTasklet.execute(): immediately prior to if statment");
+			if(controlSampleList.isEmpty()){//no control (input sample)
+				logger.debug("***************in PeakCallerTasklet.execute(): just prior to  launchMessage call where controlSample is empty");
+				launchMessage(job.getId(), job, convertCellLibraryListToIdList(cellLibraryListForTest), new ArrayList<Integer>());
+			}
+			else{
+				for(Sample controlSample : controlSampleList){					
+					logger.debug("***************in PeakCallerTasklet.execute(): just prior to  launchMessage call where controlSample is NOT EMPTY");
+					List<SampleSource> cellLibraryListForControl = approvedSampleApprovedCellLibraryListMap.get(controlSample);
+					Assert.assertTrue( ! cellLibraryListForControl.isEmpty() );
+					launchMessage(job.getId(), job, convertCellLibraryListToIdList(cellLibraryListForTest), convertCellLibraryListToIdList(cellLibraryListForControl));
+				}
+			}
+		}
+		
 		
 	}
 }
