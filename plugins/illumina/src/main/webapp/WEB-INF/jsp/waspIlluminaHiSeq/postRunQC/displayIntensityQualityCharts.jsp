@@ -8,7 +8,7 @@
 <div id="loading_dialog-modal" title="<fmt:message key="waspIlluminaPlugin.displayQc_loadingTitle.label" />"  >
 	<table border="0" cellpadding="5">
 	<tr>
-	<td><img src="<c:url value='images/spinner.gif' />" align="left" border="0" ></td>
+	<td><img src="<wasp:relativeUrl value='images/spinner.gif' />" align="left" border="0" ></td>
 	<td><fmt:message key="waspIlluminaPlugin.displayQc_message.label" /></td>
 	</tr>
 	</table>

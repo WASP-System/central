@@ -46,15 +46,15 @@ $(document).ready(function() {
 	 		  <tr class="FormData">
 	 			<td class="DataTD" style="text-align:center"><c:out value="${up.lastName}, ${up.firstName}" /></td>
 	 			<td class="DataTD" style="text-align:center"><c:out value="${up.email}" /></td>
-	 			<td colspan="${colSpan - 2}" class="DataTD" style="text-align:center"><div class="submit" ><a href="<c:url value="/lab/userpending/approve/${labId}/${up.userPendingId}.do"/>"><fmt:message key="lmpendingtask.approve.label" /></a> <a href="<c:url value="/lab/userpending/reject/${labId}/${up.userPendingId}.do"/>"><fmt:message key="lmpendingtask.reject.label" /></a></div></td>    
+	 			<td colspan="${colSpan - 2}" class="DataTD" style="text-align:center"><div class="submit" ><a href="<wasp:relativeUrl value="/lab/userpending/approve/${labId}/${up.userPendingId}.do"/>"><fmt:message key="lmpendingtask.approve.label" /></a> <a href="<wasp:relativeUrl value="/lab/userpending/reject/${labId}/${up.userPendingId}.do"/>"><fmt:message key="lmpendingtask.reject.label" /></a></div></td>    
 	 		  </tr>
 	 		</c:forEach>
 	 		<c:forEach items="${existinguserspendinglist}" var="lu">
 	 		  <tr class="FormData">
-	 			<td class="DataTD" style="text-align:center"><a href="<c:url value='user/detail_ro/${lu.user.userId}.do' />">${lu.user.lastName}, ${lu.user.firstName}</a>
+	 			<td class="DataTD" style="text-align:center"><a href="<wasp:relativeUrl value='user/detail_ro/${lu.user.userId}.do' />">${lu.user.lastName}, ${lu.user.firstName}</a>
 	 			</td>
 	 			<td class="DataTD" style="text-align:center"><c:out value="${lu.user.email}" /></td>
-	 			<td colspan="${colSpan - 2}" class="DataTD" style="text-align:center"><div class="submit" ><a href="<c:url value="/lab/labuserpending/approve/${labId}/${lu.labUserId}.do"/>"><fmt:message key="lmpendingtask.approve.label" /></a> <a href="<c:url value="/lab/labuserpending/reject/${labId}/${lu.labUserId}.do"/>"><fmt:message key="lmpendingtask.reject.label" /></a></div></td>    
+	 			<td colspan="${colSpan - 2}" class="DataTD" style="text-align:center"><div class="submit" ><a href="<wasp:relativeUrl value="/lab/labuserpending/approve/${labId}/${lu.labUserId}.do"/>"><fmt:message key="lmpendingtask.approve.label" /></a> <a href="<wasp:relativeUrl value="/lab/labuserpending/reject/${labId}/${lu.labUserId}.do"/>"><fmt:message key="lmpendingtask.reject.label" /></a></div></td>    
 	 		  </tr>
 	 		</c:forEach>
 	 		  <tr class="FormData">
@@ -86,14 +86,14 @@ $(document).ready(function() {
 	      
 	      	<tr class="FormData">
 	      		<td class="DataTD" style="text-align:center">
-	      			<a href="<c:url value='user/detail_ro/${ul.user.userId}.do' />">${ul.user.lastName}, ${ul.user.firstName}</a>
+	      			<a href="<wasp:relativeUrl value='user/detail_ro/${ul.user.userId}.do' />">${ul.user.lastName}, ${ul.user.firstName}</a>
 		      	</td>
 	      		<td class="DataTD" style="text-align:center"><c:out value="${ul.user.email}" /></td>
 	      		<td class="DataTD" style="text-align:center"><c:out value="${ul.role.name}" /></td>
 	      		
 	      		<c:if test="${ableToChangeStatus=='true'}" >	      		
 			  		<td class="DataTD" style="text-align:center">
-		      			<form method="POST" action="<c:url value="/lab/user_manager/update.do" />">
+		      			<form method="POST" action="<wasp:relativeUrl value="/lab/user_manager/update.do" />">
 		      			    <input type="hidden" name="labId" value="${ul.lab.labId}" />
 		      			     <input type="hidden" name="userId" value="${ul.user.userId}" />
 		       				<c:if test="${ul.role.roleName == 'lx'}">

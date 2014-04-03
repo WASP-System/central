@@ -246,7 +246,7 @@ function robtest_autocomplete(obj) {
 }
 //Next call is No Longer Used: I previously used this to load up something on page load 
 //window.onload = function (){ 
-	//loadNewPageWithAjax('<c:url value="/job/${job.getId()}/basic.do" />'); 
+	//loadNewPageWithAjax('<wasp:relativeUrl value="/job/${job.getId()}/basic.do" />'); 
 	//to avoid hardcoding, use below code (from http://stackoverflow.com/questions/906486/how-can-i-programmatically-invoke-an-onclick-event-from-a-anchor-tag-while-kee)
 //	var firstTabAnchor = document.getElementById('first_tab').getElementsByTagName('a')[0];
 //	if (typeof firstTabAnchor.onclick == "function") {

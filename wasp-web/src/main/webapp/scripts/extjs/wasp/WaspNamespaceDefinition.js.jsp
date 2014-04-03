@@ -2,6 +2,6 @@
 Ext.Loader.setConfig({
 	enabled: true,
 	paths: {
-		'Wasp': '<c:url value="scripts/extjs/wasp" />'
+		'Wasp': '<wasp:relativeUrl value="scripts/extjs/wasp" />'
 	}
 });

@@ -6,7 +6,7 @@
       
      function getInstituteNames(){        
      	if( $("#instituteOther").val().length == 1){
-	        	$.getJSON("<c:url value='autocomplete/getInstitutesForDisplay.do' />", { instituteNameFragment: $("#instituteOther").val() }, function(data) { $("input#instituteOther").autocomplete(data);} );
+	        	$.getJSON("<wasp:relativeUrl value='autocomplete/getInstitutesForDisplay.do' />", { instituteNameFragment: $("#instituteOther").val() }, function(data) { $("input#instituteOther").autocomplete(data);} );
      	}
 	 }
  </script>

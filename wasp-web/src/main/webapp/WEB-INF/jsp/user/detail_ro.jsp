@@ -45,12 +45,12 @@
 		<c:set var="_metaList" value = "${user.userMeta}" scope="request" />		
         <c:import url="/WEB-INF/jsp/meta_ro.jsp"/>
 	  <sec:authorize access="hasRole('su') and ! hasRole('u-${user.userId}')">      		   		
-          <tr class="FormData"><td class="submitBottom"><div class="submit"><a href="<c:url value='user/detail_rw/${user.userId}.do' />"><fmt:message key="userDetail.edit_as_other.label" /></a></div>
+          <tr class="FormData"><td class="submitBottom"><div class="submit"><a href="<wasp:relativeUrl value='user/detail_rw/${user.userId}.do' />"><fmt:message key="userDetail.edit_as_other.label" /></a></div>
           </sec:authorize>	
 	  <sec:authorize access="hasRole('u-${user.userId}')">
-	  	  <tr class="FormData"><td colspan="2" align=left class="submitBottom submit"><a href="<c:url value='user/me_rw.do' />"><fmt:message key="userDetail.edit.label" /></a>
+	  	  <tr class="FormData"><td colspan="2" align=left class="submitBottom submit"><a href="<wasp:relativeUrl value='user/me_rw.do' />"><fmt:message key="userDetail.edit.label" /></a>
 		  <sec:authorize access="not hasRole('ldap')">      		   		
-	          &nbsp;&nbsp;<a href="<c:url value="/user/mypassword.do"/>"><fmt:message key="userDetail.change_password.label" /></a>
+	          &nbsp;&nbsp;<a href="<wasp:relativeUrl value="/user/mypassword.do"/>"><fmt:message key="userDetail.change_password.label" /></a>
 	      </sec:authorize>	
 	     </td></tr>
 	   </sec:authorize>

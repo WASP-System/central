@@ -3,7 +3,7 @@
 <title><fmt:message key="pageTitle.task/samplereceive/list.label"/></title>
 <h1><fmt:message key="task.samplereceive_title.label" /></h1>
 <table class="EditTable ui-widget ui-widget-content">
-<tr class="FormData"><td class="CaptionTD">Job ID:</td><td class="DataTD"><a href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do" />">J<c:out value="${job.jobId}" /></a></td></tr>
+<tr class="FormData"><td class="CaptionTD">Job ID:</td><td class="DataTD"><a href="<wasp:relativeUrl value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do" />">J<c:out value="${job.jobId}" /></a></td></tr>
 <tr class="FormData"><td class="CaptionTD">Job Name:</td><td class="DataTD"><c:out value="${job.name}" /></td></tr>
 <tr class="FormData"><td class="CaptionTD">Submitter:</td><td class="DataTD"><c:out value="${job.user.firstName}" /> <c:out value="${job.user.lastName}" /></td></tr>
 <tr class="FormData"><td class="CaptionTD">PI:</td><td class="DataTD"><c:out value="${job.lab.user.firstName}" /> <c:out value="${job.lab.user.lastName}" /></td></tr>
@@ -22,7 +22,7 @@
 
 <c:otherwise>
 <c:set var="atLeastOneSampleCanBeUpdated" value="" scope="page" />
-<form action="<c:url value="/task/updatesamplereceive.do"/>" method="POST">
+<form action="<wasp:relativeUrl value="/task/updatesamplereceive.do"/>" method="POST">
 <input type="hidden" name="jobId" value="${job.getJobId()}"> 		
 <table class="EditTable ui-widget ui-widget-content">
 <tr class="FormData"><td class="CaptionTD" style='text-align:center'>Sample Name</td><td class="CaptionTD" style='text-align:center'>Molecule</td><td class="CaptionTD" style='text-align:center'>Status</td></tr>
@@ -54,7 +54,7 @@
 </tr>
 </c:forEach>
 <c:if test="${atLeastOneSampleCanBeUpdated == '1'}">
-	<tr><td colspan='3' style='text-align:center'><input type='submit' value='Submit' class="ui-widget ui-widget-content fm-button" /><input class=" ui-widget ui-widget-content fm-button" type='reset' value='Reset'/><input class="ui-widget ui-widget-content fm-button" type="button" value="Cancel" onclick='location.href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do" />"' /></td></tr>
+	<tr><td colspan='3' style='text-align:center'><input type='submit' value='Submit' class="ui-widget ui-widget-content fm-button" /><input class=" ui-widget ui-widget-content fm-button" type='reset' value='Reset'/><input class="ui-widget ui-widget-content fm-button" type="button" value="Cancel" onclick='location.href="<wasp:relativeUrl value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do" />"' /></td></tr>
 </c:if>
 </table>
 </form>

@@ -23,7 +23,7 @@
 	 		
 		<%--<input  class="button" type="button" id="jobFiles_show_hide_button" value="<fmt:message key="listJobSamples.showJobFiles.label" />"  />
   		<div id="jobFiles" style="display:none">--%>	
-		<form action="<c:url value="/sampleDnaToLibrary/uploadJobFile/${job.getId()}.do" />" method="POST"  enctype="multipart/form-data" onsubmit="return validateFileUploadForm(this);">
+		<form action="<wasp:relativeUrl value="/sampleDnaToLibrary/uploadJobFile/${job.getId()}.do" />" method="POST"  enctype="multipart/form-data" onsubmit="return validateFileUploadForm(this);">
 		<table class="data" style="margin: 0px 0px">
 			<tr class="FormData">
 				<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_name.label"/></td>
@@ -39,9 +39,9 @@
 			 		  			<td class="DataTD value-centered"><c:out value="${fileHandle.getFileName()}" /></td>
 			 		  			<td class="DataTD value-centered"><c:out value="${fileGroup.getDescription()}" /></td>
 			 		  			<!--  <a href="<wasp:url fileAccessor="${fileHandle}" />" > -->
-			 		  			<td class="DataTD value-centered"><a href="<c:url value="/file/fileHandle/${fileHandle.getId()}/download.do" />" ><fmt:message key="listJobSamples.file_download.label"/></a> 
+			 		  			<td class="DataTD value-centered"><a href="<wasp:relativeUrl value="/file/fileHandle/${fileHandle.getId()}/download.do" />" ><fmt:message key="listJobSamples.file_download.label"/></a> 
 			 		  				<c:if test="${fileHandlesThatCanBeViewedList.contains(fileHandle)}">
-		 		  					| <a href="javascript:void(0);" onclick='showModalessDialog("<c:url value="/file/fileHandle/${fileHandle.getId()}/view.do" />");' >View</a>
+		 		  					| <a href="javascript:void(0);" onclick='showModalessDialog("<wasp:relativeUrl value="/file/fileHandle/${fileHandle.getId()}/view.do" />");' >View</a>
 		 		  				</c:if>
 			 		  			</td>
 			 		  		</tr>
@@ -51,7 +51,7 @@
 			 			<tr>
 			 		  		<td class="DataTD value-centered"><c:out value="${fn:length(fileHandles)}" /> <fmt:message key="listJobSamples.file_download_grouped_files.label"/></td>
 			 		  		<td class="DataTD value-centered"><c:out value="${fileGroup.getDescription()}" /></td>			 		  			
-			 		  		<td class="DataTD value-centered"><a href="<c:url value="/file/fileGroup/${fileGroup.getId()}/download.do" />" ><fmt:message key="listJobSamples.file_download.label"/></a></td>
+			 		  		<td class="DataTD value-centered"><a href="<wasp:relativeUrl value="/file/fileGroup/${fileGroup.getId()}/download.do" />" ><fmt:message key="listJobSamples.file_download.label"/></a></td>
 			 		  	</tr>
 			 		</c:otherwise>			 		
 			 	</c:choose>
@@ -64,7 +64,7 @@
 		<%--  </div>	--%> 
 		
 		<br />
-		<form  method='post' name='addJobViewer' action="<c:url value="/sampleDnaToLibrary/addJobViewer.do" />" onsubmit="return validate_email();">
+		<form  method='post' name='addJobViewer' action="<wasp:relativeUrl value="/sampleDnaToLibrary/addJobViewer.do" />" onsubmit="return validate_email();">
 			<table class="data" style="margin: 0px 0px">
 			<tr  ><th colspan="2" class="label" nowrap><fmt:message key="listJobSamples.jobViewers.label" /></th></tr>
 			<tr ><td ><c:out value="${job.user.firstName}" /> <c:out value="${job.user.lastName}" /></td><td><fmt:message key="jobdetail_for_import.jobSubmitter.label" /></td></tr>
@@ -74,7 +74,7 @@
 				<tr><td ><c:out value="${additionalJobViewer.getFirstName()} ${additionalJobViewer.getLastName()}"/></td>
 					<td>
 						<c:if test='${currentWebViewerIsSuperuserSubmitterOrPI==true || currentWebViewer.getUserId() == additionalJobViewer.getUserId()}'>
-							<a  href='javascript:void(0)' onclick = 'if(confirm("Do you really want to remove this viewer?")){location.href="<c:url value="/sampleDnaToLibrary/removeViewerFromJob/${job.jobId}/${additionalJobViewer.getUserId()}.do" />";}'><fmt:message key="listJobSamples.remove.label" /></a>
+							<a  href='javascript:void(0)' onclick = 'if(confirm("Do you really want to remove this viewer?")){location.href="<wasp:relativeUrl value="/sampleDnaToLibrary/removeViewerFromJob/${job.jobId}/${additionalJobViewer.getUserId()}.do" />";}'><fmt:message key="listJobSamples.remove.label" /></a>
 						</c:if>
 					</td>
 				</tr>
@@ -138,16 +138,16 @@
 		</c:if>
 		<tr>
 			<td rowspan="${rowSpan}">
-				<fmt:message key="listJobSamples.name.label" />: <a href="<c:url value="/sampleDnaToLibrary/sampledetail_ro/${job.jobId}/${userSubmittedMacromolecule.getSampleId()}.do" />"><c:out value="${userSubmittedMacromolecule.getName()}"/></a><br />
+				<fmt:message key="listJobSamples.name.label" />: <a href="<wasp:relativeUrl value="/sampleDnaToLibrary/sampledetail_ro/${job.jobId}/${userSubmittedMacromolecule.getSampleId()}.do" />"><c:out value="${userSubmittedMacromolecule.getName()}"/></a><br />
 				<fmt:message key="listJobSamples.type.label" />: <c:out value="${userSubmittedMacromolecule.getSampleType().getName()}"/><br />
 				<fmt:message key="listJobSamples.organism.label" />: <c:out value="${organismMap.get(userSubmittedMacromolecule)}"/><br />
 				<fmt:message key="listJobSamples.arrivalStatus.label" />: <c:out value="${receivedStatusMap.get(userSubmittedMacromolecule)}"/>
 				<sec:authorize access="hasRole('su') or hasRole('ft')">
 				&nbsp;
-				<%--  please leave, may be useful later <a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a>--%>
+				<%--  please leave, may be useful later <a href="<wasp:relativeUrl value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a>--%>
 				<%-- 
 				<c:if test='${receiveSampleStatusMap.get(userSubmittedMacromolecule) == true}'>
-					<a href="<c:url value="/task/samplereceive/list.do" />">[<fmt:message key="listJobSamples.logSample.label" />]</a>
+					<a href="<wasp:relativeUrl value="/task/samplereceive/list.do" />">[<fmt:message key="listJobSamples.logSample.label" />]</a>
 				</c:if>
 				--%>
 				</sec:authorize>
@@ -167,7 +167,7 @@
 				<sec:authorize access="hasRole('su') or hasRole('ft')">
 				<c:if test='${receivedStatusMap.get(userSubmittedMacromolecule)=="RECEIVED"}'>
 					<c:if test='${not empty createLibraryStatusMap.get(userSubmittedMacromolecule) and createLibraryStatusMap.get(userSubmittedMacromolecule) == true}'>
-						<input class="fm-button" type="button" value="<fmt:message key="listJobSamples.createLibrary.label" />"  onClick="window.location='<c:url value="/sampleDnaToLibrary/createLibraryFromMacro/${job.jobId}/${userSubmittedMacromolecule.sampleId}.do"/>'" />
+						<input class="fm-button" type="button" value="<fmt:message key="listJobSamples.createLibrary.label" />"  onClick="window.location='<wasp:relativeUrl value="/sampleDnaToLibrary/createLibraryFromMacro/${job.jobId}/${userSubmittedMacromolecule.sampleId}.do"/>'" />
 			 	 	</c:if>
 		 	 	</c:if>
 				</sec:authorize>				
@@ -184,7 +184,7 @@
 					  		<tr>
 					 </c:if>	
 					<td>
-							<fmt:message key="listJobSamples.name.label" />: <a href="<c:url value="/sampleDnaToLibrary/librarydetail_ro/${job.jobId}/${facilityLibraryForThisMacromolecule.getSampleId()}.do" />"><c:out value="${facilityLibraryForThisMacromolecule.getName()}"/></a><br />
+							<fmt:message key="listJobSamples.name.label" />: <a href="<wasp:relativeUrl value="/sampleDnaToLibrary/librarydetail_ro/${job.jobId}/${facilityLibraryForThisMacromolecule.getSampleId()}.do" />"><c:out value="${facilityLibraryForThisMacromolecule.getName()}"/></a><br />
 							<fmt:message key="listJobSamples.type.label" />: <c:out value="${facilityLibraryForThisMacromolecule.getSampleType().getName()}"/><br />
 							<c:set var="adaptor" value="${libraryAdaptorMap.get(facilityLibraryForThisMacromolecule)}" scope="page" />
 							<fmt:message key="listJobSamples.adaptor.label" />: <c:out value="${adaptor.getAdaptorset().getName()}"/><br />
@@ -215,7 +215,7 @@
 							<table class='data'>
 								<tr class="FormData"><td class="label-centered"><fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" /></td></tr>
 							<tr><td>
-							<form  method='post' name='addLibToPU' action="<c:url value="/facility/platformunit/assignAdd2.do" />" onsubmit="return validate_submit(this);">
+							<form  method='post' name='addLibToPU' action="<wasp:relativeUrl value="/facility/platformunit/assignAdd2.do" />" onsubmit="return validate_submit(this);">
 								<input type='hidden' name='jobid' value='<c:out value="${job.jobId}" />'/>
 				 				<input type='hidden' name='librarysampleid' value='<c:out value="${facilityLibraryForThisMacromolecule.getSampleId()}" />'/>
 								<br />
@@ -271,7 +271,7 @@
 								<c:if test="${runList.size() > 0}">
 									<br />&nbsp;&nbsp;&nbsp;---&gt; <c:out value="${runList.get(0).getName()}"/>
 								</c:if>
-								<sec:authorize access="hasRole('su') or hasRole('ft')"><a href="<c:url value="/${showPlatformunitViewMap.get(platformUnit)}" />"> [<fmt:message key="listJobSamples.view.label" />]</a></sec:authorize>
+								<sec:authorize access="hasRole('su') or hasRole('ft')"><a href="<wasp:relativeUrl value="/${showPlatformunitViewMap.get(platformUnit)}" />"> [<fmt:message key="listJobSamples.view.label" />]</a></sec:authorize>
 								<br />
 							</c:forEach>			
 						</c:when>
@@ -296,14 +296,14 @@
 	<c:forEach items="${librarySubmittedSamplesList}" var="userSubmittedLibrary">
 	<tr>
 		<td colspan="2">
-			<fmt:message key="listJobSamples.name.label" />: <a href="<c:url value="/sampleDnaToLibrary/librarydetail_ro/${job.jobId}/${userSubmittedLibrary.getSampleId()}.do" />"><c:out value="${userSubmittedLibrary.getName()}"/></a><br />
+			<fmt:message key="listJobSamples.name.label" />: <a href="<wasp:relativeUrl value="/sampleDnaToLibrary/librarydetail_ro/${job.jobId}/${userSubmittedLibrary.getSampleId()}.do" />"><c:out value="${userSubmittedLibrary.getName()}"/></a><br />
 			<fmt:message key="listJobSamples.type.label" />: <c:out value="${userSubmittedLibrary.getSampleType().getName()}"/><br />
 			<fmt:message key="listJobSamples.organism.label" />: <c:out value="${organismMap.get(userSubmittedLibrary)}"/><br />
 			<c:set var="adaptor" value="${libraryAdaptorMap.get(userSubmittedLibrary)}" scope="page" />
 			<fmt:message key="listJobSamples.adaptor.label" />: <c:out value="${adaptor.getAdaptorset().getName()}"/><br />
 			<fmt:message key="listJobSamples.index.label" /> <c:out value="${adaptor.getBarcodenumber()}"/> [<c:out value="${adaptor.getBarcodesequence()}"/>]<br />
 			<fmt:message key="listJobSamples.arrivalStatus.label" />: <c:out value="${receivedStatusMap.get(userSubmittedLibrary)}"/>
-			<sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;<%--<a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a>--%><%-- <c:if test='${receiveSampleStatusMap.get(userSubmittedLibrary) == true}'><a href="<c:url value="/task/samplereceive/list.do" />">[<fmt:message key="listJobSamples.logSample.label" />]</a></c:if>--%></sec:authorize><br />
+			<sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;<%--<a href="<wasp:relativeUrl value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a>--%><%-- <c:if test='${receiveSampleStatusMap.get(userSubmittedLibrary) == true}'><a href="<wasp:relativeUrl value="/task/samplereceive/list.do" />">[<fmt:message key="listJobSamples.logSample.label" />]</a></c:if>--%></sec:authorize><br />
 			<c:if test='${qcStatusMap.get(userSubmittedLibrary) != "NONEXISTENT" && receivedStatusMap.get(userSubmittedLibrary)=="RECEIVED"}'>
 			  <div>
 				<fmt:message key="listJobSamples.qcStatus.label" />: <c:out value="${qcStatusMap.get(userSubmittedLibrary)}"/>
@@ -331,7 +331,7 @@
 				<table class='data'>
 					<tr class="FormData"><td class="label-centered"><fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" /></td></tr>
 					<tr><td>
-					<form  method='post' name='addLibToPU' action="<c:url value="/facility/platformunit/assignAdd2.do" />" onsubmit="return validate_submit(this);">
+					<form  method='post' name='addLibToPU' action="<wasp:relativeUrl value="/facility/platformunit/assignAdd2.do" />" onsubmit="return validate_submit(this);">
 						<input type='hidden' name='jobid' value='<c:out value="${job.jobId}" />'/>
 				 		<input type='hidden' name='librarysampleid' value='<c:out value="${userSubmittedLibrary.getSampleId()}" />'/>
 						<br />
@@ -386,7 +386,7 @@
 					<c:if test="${runList.size() > 0}">
 						<br />&nbsp;&nbsp;&nbsp;---&gt; <c:out value="${runList.get(0).getName()}"/>
 					</c:if>
-					<sec:authorize access="hasRole('su') or hasRole('ft')"><a href="<c:url value="/${showPlatformunitViewMap.get(platformUnit)}" />"> [<fmt:message key="listJobSamples.view.label" />]</a></sec:authorize>
+					<sec:authorize access="hasRole('su') or hasRole('ft')"><a href="<wasp:relativeUrl value="/${showPlatformunitViewMap.get(platformUnit)}" />"> [<fmt:message key="listJobSamples.view.label" />]</a></sec:authorize>
 					<br />
 				</c:forEach>			
 			</c:when>

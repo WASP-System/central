@@ -9,7 +9,7 @@
 <wasp:field name="receivedStatus"  type="text" sortable="false" searchable="false" editable="false" columnWidth="70"/>
 <wasp:field name="runs"  type="text" sortable="false" searchable="false" editable="false" columnWidth="70"/>
 
- _url='<c:url value="sample/listJSON.do?selId=${param.selId}" />';
+ _url='<wasp:relativeUrl value="sample/listJSON.do?selId=${param.selId}" />';
 
 _navAttr=
 	{edit:false,view:false,add:false,del:false,search:false,refresh:true,beforeRefresh: 

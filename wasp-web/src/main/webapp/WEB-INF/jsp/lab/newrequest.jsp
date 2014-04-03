@@ -5,7 +5,7 @@
 
 <h1><fmt:message key="pageTitle.lab/newrequest.label" /></h1>
   <div class="instructions"><fmt:message key="labuser.labUserNote.label" /></div>
-  <form name="f" action="<c:url value='/lab/request.do'/>" method="POST">
+  <form name="f" action="<wasp:relativeUrl value='/lab/request.do'/>" method="POST">
   <table class="EditTable ui-widget ui-widget-content"><tr class="FormData">
     <td class="CaptionTD"><fmt:message key="labuser.request_primaryuser.label" />: </td>
     <td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" type='text' name='primaryUserLogin' value=''/><span class="requiredField">*</span></td>

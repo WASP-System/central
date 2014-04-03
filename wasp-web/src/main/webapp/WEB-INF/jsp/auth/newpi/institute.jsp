@@ -5,7 +5,7 @@
 <div class="instructions"><fmt:message key="piPending.select_institute_message.label" /></div>
 
 <div>
-	<form name="f" method="POST" action='<c:url value="/auth/newpi/institute.do"/>'>
+	<form name="f" method="POST" action='<wasp:relativeUrl value="/auth/newpi/institute.do"/>'>
 		<table class="EditTable ui-widget ui-widget-content">
 			<tr class="FormData">
 				<td class="CaptionTD"><fmt:message	key='piPending.select_institute.label' />:</td>

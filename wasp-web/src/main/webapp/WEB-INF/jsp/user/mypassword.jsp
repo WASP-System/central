@@ -9,7 +9,7 @@
     <fmt:message key="user.mypassword_instructions.label" />
 </div>
 
-<form name="f" action="<c:url value='/user/mypassword.do'/>" method="POST" onsubmit='return validate();'>
+<form name="f" action="<wasp:relativeUrl value='/user/mypassword.do'/>" method="POST" onsubmit='return validate();'>
       <table class="EditTable ui-widget ui-widget-content">
         <tr class="FormData"><td class="CaptionTD"><fmt:message key="user.mypassword_oldpassword.label" />:</td><td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" type='password' name='oldpassword' value=''/></td></tr>
         <tr class="FormData"><td class="CaptionTD"><fmt:message key="user.mypassword_newpassword1.label" />:</td><td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" type='password' name='newpassword1' value=''/></td></tr>

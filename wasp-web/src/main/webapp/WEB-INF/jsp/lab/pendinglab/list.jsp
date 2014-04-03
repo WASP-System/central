@@ -9,7 +9,7 @@
    "-->
 		<tr class="FormData">
 			<td class="DataTD">
-				<a href="<c:url value='lab/detail/${l.labId}.do' />">
+				<a href="<wasp:relativeUrl value='lab/detail/${l.labId}.do' />">
 				<c:out value="${l.name}" />
 			</a></td>
 		</tr>

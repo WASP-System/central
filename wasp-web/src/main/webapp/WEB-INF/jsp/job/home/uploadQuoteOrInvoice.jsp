@@ -6,10 +6,10 @@
 <br />
 
 <span style="padding:3px; border: 1px solid black;">
-	<a <%-- class="button" --%> href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/costManager.do" />");' >Return To Costs Page</a>
+	<a <%-- class="button" --%> href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="/job/${job.getId()}/costManager.do" />");' >Return To Costs Page</a>
 </span>
 <br /><br />
-<form id="quoteOrInvoiceUploadFormId" action="<c:url value="/job/${job.getId()}/uploadQuoteOrInvoice.do" />" method="POST"  enctype="multipart/form-data" onsubmit='return false;' >
+<form id="quoteOrInvoiceUploadFormId" action="<wasp:relativeUrl value="/job/${job.getId()}/uploadQuoteOrInvoice.do" />" method="POST"  enctype="multipart/form-data" onsubmit='return false;' >
 	<table class="data" style="margin: 0px 0px">
 		<tr class="FormData">
 			<td colspan="4" class="label-centered" style="background-color:#FAF2D6">Upload A Quote Or Invoice</td>
@@ -33,7 +33,7 @@
 				<input type="reset" name="reset" value="<fmt:message key="listJobSamples.file_reset.label" />" />
 				<%--I don't know why, but having uploadJqueryForm("fileUploadFormId") wired through onsubmit via a regular submit button makes for Major problems!!!! use the button below --%>
 				<a class="button" href="javascript:void(0);"  onclick='uploadJqueryForm("quoteOrInvoiceUploadFormId")' ><fmt:message key="listJobSamples.file_upload.label" /></a>
-				<a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/costManager.do" />");' ><fmt:message key="sampledetail_rw.cancel.label" /></a>
+				<a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<wasp:relativeUrl value="/job/${job.getId()}/costManager.do" />");' ><fmt:message key="sampledetail_rw.cancel.label" /></a>
 			</td>
 		</tr>
 		<c:if test="${fn:length(errorMessage)>0}">

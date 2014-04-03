@@ -16,7 +16,7 @@
   
 <wasp:field name="viewfiles"  type="text"  sortable="false" searchable="false"/>
 
- _url='<c:url value="job/listJSON.do?selId=${param.selId}&userId=${param.userId}&labId=${param.labId}" />';
+ _url='<wasp:relativeUrl value="job/listJSON.do?selId=${param.selId}&userId=${param.userId}&labId=${param.labId}" />';
 
 _navAttr=
 	{edit:false,view:false,add:false,del:false,search:false,refresh:true,beforeRefresh: 

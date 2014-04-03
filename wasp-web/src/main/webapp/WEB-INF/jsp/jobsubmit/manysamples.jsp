@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-<script type="text/javascript" src="<c:url value='scripts/jquery/jquery.table.addrow.js' />"></script>
+<script type="text/javascript" src="<wasp:relativeUrl value='scripts/jquery/jquery.table.addrow.js' />"></script>
 <script type="text/javascript">
 	(function($){ 
 		$(document).ready(function(){
@@ -41,7 +41,7 @@
 				$('select#adaptorset').change(function() {      
 						var selectedAdaptorSet=$('select#adaptorset option:selected').val();
 						var options = '';
-						var url = "<c:url value='jobsubmit/adaptorsByAdaptorsetId.do?adaptorsetId=' />" + selectedAdaptorSet;
+						var url = "<wasp:relativeUrl value='jobsubmit/adaptorsByAdaptorsetId.do?adaptorsetId=' />" + selectedAdaptorSet;
 						var adaptorCount = 0;
 						if (!selectedAdaptorSet) {
 							$('tr#row_adaptor').hide();
@@ -90,7 +90,7 @@
 	
 	<c:set var="colspan" value = '0' scope="request"/>
 	
-	<form action="<c:url value="/jobsubmit/manysamples/add/${jobDraft.getId()}/${sampleSubtype.getId()}.do" />" method="POST" >
+	<form action="<wasp:relativeUrl value="/jobsubmit/manysamples/add/${jobDraft.getId()}/${sampleSubtype.getId()}.do" />" method="POST" >
 	
 		<span style="font-size:x-small">Click first &rarr; others to populate all rows with value found in a column's first row</span>
 		
@@ -323,7 +323,7 @@
 			
 			</table>
 		</div>
-		<input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<c:url value="/dashboard.do"/>'" /> 
+		<input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<wasp:relativeUrl value="/dashboard.do"/>'" /> 
 		<input type="submit" name="submit" value="<fmt:message key="jobDraft.cancel.label"/>" />
 		<input type="submit" name="submit" id="submit" value="<fmt:message key="jobDraft.save.label"/>" />
 	</form>

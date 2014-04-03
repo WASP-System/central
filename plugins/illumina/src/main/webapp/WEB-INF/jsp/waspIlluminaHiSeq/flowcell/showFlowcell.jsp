@@ -16,11 +16,11 @@
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="waspIlluminaPlugin.showPlatformUnit_cellcount.label"/>:</td><td class="DataTD"><c:out value="${numberOfCellsOnThisPlatformUnit}" /></td></tr>
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.comment.label"/>:</td><td class="DataTD"><textarea style='font-size:9px' DISABLED cols='30' rows='4' wrap='virtual'><c:out value="${comment}" /></textarea></td></tr>
 <tr><td colspan='2' style='text-align:center; padding:10px' >
-<a href='<c:url value="/facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=${platformUnitSampleSubtypeId}&sampleId=${platformUnitSampleId}" />'><fmt:message key="platformunitShow.edit.label"/></a> 
+<a href='<wasp:relativeUrl value="/facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=${platformUnitSampleSubtypeId}&sampleId=${platformUnitSampleId}" />'><fmt:message key="platformunitShow.edit.label"/></a> 
 <%--permit platformUnit to be deleted only if it has no runs --%>
 <c:if test="${sequenceRuns.size()==0}">
-| <a href='javascript:void(0)' onclick = 'if(confirm("<fmt:message key="platformunitShow.wantToDeletePU.label"/>")){location.href="<c:url value="/facility/platformunit/deletePlatformUnit.do?sampleId=${platformUnitSampleId}" />";}'><fmt:message key="platformunitShow.delete.label"/></a> 
-| <a href='<c:url value="/waspIlluminaHiSeq/flowcell/${platformUnitSampleId}/run/create.do"/>'><fmt:message key="platformunitShow.addToRun.label"/></a>
+| <a href='javascript:void(0)' onclick = 'if(confirm("<fmt:message key="platformunitShow.wantToDeletePU.label"/>")){location.href="<wasp:relativeUrl value="/facility/platformunit/deletePlatformUnit.do?sampleId=${platformUnitSampleId}" />";}'><fmt:message key="platformunitShow.delete.label"/></a> 
+| <a href='<wasp:relativeUrl value="/waspIlluminaHiSeq/flowcell/${platformUnitSampleId}/run/create.do"/>'><fmt:message key="platformunitShow.addToRun.label"/></a>
 </c:if>
 </td></tr>
 </table>
@@ -55,7 +55,7 @@
 <td class="value-centered-small"><c:out value='${detailMap["dateRunEnded"]}' /></td>
 <td class="value-centered-small"><c:out value='${detailMap["runStatus"]}' /></td>
 <c:if test="${runLocked == false}">
-<td class="value-centered-small"><a href='<c:url value="/waspIlluminaHiSeq/run/${sequenceRun.runId}/update.do" />'><fmt:message key="platformunitShow.editSmall.label"/></a> | <a href='javascript:void(0)' onclick = 'if(confirm("<fmt:message key="platformunitShow.wantToDeleteRun.label"/>")){location.href="<c:url value="/run/${sequenceRun.runId}/delete.do" />";}'><fmt:message key="platformunitShow.deleteSmall.label"/></a></td>
+<td class="value-centered-small"><a href='<wasp:relativeUrl value="/waspIlluminaHiSeq/run/${sequenceRun.runId}/update.do" />'><fmt:message key="platformunitShow.editSmall.label"/></a> | <a href='javascript:void(0)' onclick = 'if(confirm("<fmt:message key="platformunitShow.wantToDeleteRun.label"/>")){location.href="<wasp:relativeUrl value="/run/${sequenceRun.runId}/delete.do" />";}'><fmt:message key="platformunitShow.deleteSmall.label"/></a></td>
 </c:if>
 </tr>
 </c:forEach>
@@ -97,7 +97,7 @@
             					<c:if test="${fn:indexOf(cellLibraryMetaItem.k,'libConcInCellPicoM') > -1 }"><br /><fmt:message key="waspIlluminaPlugin.showPlatformUnit_concOnCell.label"/>: <c:out value="${cellLibraryMetaItem.v}"/> <fmt:message key="showPlatformUnit.pM.label"/> </c:if>					
             				</c:forEach>
             				<c:if test="${runLocked == false}">
-	            				<form  name='removeLib' method='post' action="<c:url value="/facility/platformunit/assignRemove.do" />" onsubmit='return confirm("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_removeControlFromThisCell.label"/>");'>
+	            				<form  name='removeLib' method='post' action="<wasp:relativeUrl value="/facility/platformunit/assignRemove.do" />" onsubmit='return confirm("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_removeControlFromThisCell.label"/>");'>
 								<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
 								<input type='hidden' name='cellLibraryId' value='<c:out value="${cellLibrary.getId()}" />'/>
 								<input type='submit' value='<fmt:message key="showPlatformUnit.removeControl.label"/>'/>
@@ -118,7 +118,7 @@
 						<a href="javascript:void(0)" id="newControlAnchor_<c:out value="${idNewControlCounter}" />" onclick="toggleDisplayAddNewControlForm('show_form',<c:out value="${idNewControlCounter}" />)"><fmt:message key="showPlatformUnit.addControl.label"/></a>
 					</c:if>
 					<div id="idNewControlFormDiv_<c:out value="${idNewControlCounter}" />" style="display:none">
-						<form id="addNewControlToLaneForm_<c:out value="${idNewControlCounter}" />"  method='post' action="<c:url value="/waspIlluminaHiSeq/flowcell/addNewControlToLane.do" />" >
+						<form id="addNewControlToLaneForm_<c:out value="${idNewControlCounter}" />"  method='post' action="<wasp:relativeUrl value="/waspIlluminaHiSeq/flowcell/addNewControlToLane.do" />" >
 							<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
 							<input type='hidden' name='cellId' value='<c:out value="${cell.sampleId}" />'/>
 							<table class="data">
@@ -163,7 +163,7 @@
 					<c:out value="${library.name}" />
 					<c:set var="cellLibraryMeta" value="${cellLibrary.sampleSourceMeta}" scope="page" />
 					<c:forEach items="${cellLibraryMeta}" var="cellLibraryMetaItem">
-						<c:if test="${fn:indexOf(cellLibraryMetaItem.k,'jobId') > -1}"><a href="<c:url value="/sampleDnaToLibrary/listJobSamples/${cellLibraryMetaItem.v}.do" />"> (<fmt:message key="showPlatformUnit.jobJ.label"/><c:out value="${cellLibraryMetaItem.v}"/>)</a></c:if>
+						<c:if test="${fn:indexOf(cellLibraryMetaItem.k,'jobId') > -1}"><a href="<wasp:relativeUrl value="/sampleDnaToLibrary/listJobSamples/${cellLibraryMetaItem.v}.do" />"> (<fmt:message key="showPlatformUnit.jobJ.label"/><c:out value="${cellLibraryMetaItem.v}"/>)</a></c:if>
 					</c:forEach>
 					<br />				
 					<c:set var="libraryMeta" value="${library.sampleMeta}" scope="page" />
@@ -182,7 +182,7 @@
 						</div>	
 						
 						<div id="updatePicoFormDiv_<c:out value="${idCounter}" />" style="display:none">
-						<form id="updatePicoForm_<c:out value="${idCounter}" />"  method='post' action="<c:url value="/waspIlluminaHiSeq/flowcell/updateConcInLane.do" />" >
+						<form id="updatePicoForm_<c:out value="${idCounter}" />"  method='post' action="<wasp:relativeUrl value="/waspIlluminaHiSeq/flowcell/updateConcInLane.do" />" >
 							<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
 							<input type='hidden' name='cellLibraryId' value='<c:out value="${cellLibrary.getId()}" />'/>
 							<table class="data">
@@ -197,7 +197,7 @@
 					
 					</c:forEach>
 					<c:if test="${runLocked == false}">
-						<form  name='removeLib' method='post' action="<c:url value="/facility/platformunit/assignRemove.do" />" onsubmit='return confirm("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_removeLibFromCell_alert.label"/>");'>
+						<form  name='removeLib' method='post' action="<wasp:relativeUrl value="/facility/platformunit/assignRemove.do" />" onsubmit='return confirm("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_removeLibFromCell_alert.label"/>");'>
 							<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
 							<input type='hidden' name='cellLibraryId' value='<c:out value="${cellLibrary.getId()}" />'/>
 							<input type='submit' value='<fmt:message key="showPlatformUnit.removeLibrary.label"/>'/>

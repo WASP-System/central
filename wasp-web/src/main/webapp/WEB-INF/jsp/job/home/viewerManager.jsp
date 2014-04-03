@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %> 
 <c:import url="/WEB-INF/jsp/job/home/fadingMessage.jsp" />
 <br />
-<form  method='post' id='addJobViewerFormId' onsubmit='postFormWithAjax("addJobViewerFormId","<c:url value="/job/${job.getId()}/viewerManager.do" />"); return false;'>
+<form  method='post' id='addJobViewerFormId' onsubmit='postFormWithAjax("addJobViewerFormId","<wasp:relativeUrl value="/job/${job.getId()}/viewerManager.do" />"); return false;'>
 	<table class="data" style="margin: 0px 0px">
 	
 		<c:if test='${currentWebViewerIsSuperuserOrJobSubmitterOrJobPI==true}'>
@@ -29,7 +29,7 @@
 						<td ><c:out value="${jobViewer.lastName}" />, <c:out value="${jobViewer.firstName}" /></td>
 						<td class="DataTD" style="text-align:center">
 							<c:if test='${currentWebViewerIsSuperuserOrJobSubmitterOrJobPI==true || currentWebViewer.getUserId() == jobViewer.getUserId()}'>
-								<a  href='javascript:void(0)' onclick = 'if(confirm("<fmt:message key="listJobSamples.removeJobViewer.label" />")){doGetWithAjax("<c:url value="/job/${job.getId()}/user/${jobViewer.getUserId()}/removeJobViewer.do" />"); return false; }'><fmt:message key="listJobSamples.remove.label" /></a>
+								<a  href='javascript:void(0)' onclick = 'if(confirm("<fmt:message key="listJobSamples.removeJobViewer.label" />")){doGetWithAjax("<wasp:relativeUrl value="/job/${job.getId()}/user/${jobViewer.getUserId()}/removeJobViewer.do" />"); return false; }'><fmt:message key="listJobSamples.remove.label" /></a>
 							</c:if>
 						</td>
 					</tr>

@@ -8,7 +8,7 @@
 </div>
 <div class="pageContainer">
 	<div id="selectionLeft" class="selectionLeft">	  
-		<label>Job Name: <c:out value="${job.getName()}" /></label>	[<a style="color:red; font-weight:bold; background-color:Aqua;" id="jobDetailsAnchor"  href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />");' >DETAILS</a><c:if test="${fn:length(platformUnitSet) > 1}"> | <a id="openAllRunsAnchor"  href="javascript:void(0);" onclick='openAllRuns();' >open all runs</a> | <a id="closeAllRunsAnchor" href="javascript:void(0);"  onclick='closeAllRuns();' >close all runs</a></c:if>]
+		<label>Job Name: <c:out value="${job.getName()}" /></label>	[<a style="color:red; font-weight:bold; background-color:Aqua;" id="jobDetailsAnchor"  href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleAnchors(this); loadNewPage(this, "<wasp:relativeUrl value="/datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />");' >DETAILS</a><c:if test="${fn:length(platformUnitSet) > 1}"> | <a id="openAllRunsAnchor"  href="javascript:void(0);" onclick='openAllRuns();' >open all runs</a> | <a id="closeAllRunsAnchor" href="javascript:void(0);"  onclick='closeAllRuns();' >close all runs</a></c:if>]
 		<c:if test="${fn:length(platformUnitSet) > 0}">
 		<div>
 			<label>Aggregate Analysis</label> [<a id="aggregateAnalysis" href="javascript:void(0);" onclick='<%--toggleAnchors(this);--%> alert("Not yet implemented");'>details</a>] 
@@ -18,7 +18,7 @@
 			<c:set value="${platformUnitRunMap.get(platformUnit)}" var="run"/>
 			<div id="runDivToHighlight_${run.getId()}">
 			<label>Sequence Run:</label> <c:out value="${run.getName()}" /> <%-- (<label>FlowCell:</label> <c:out value="${platformUnit.getName()}" />)--%> 
-				[<a id="runDetailsAnchor_${run.getId()}" href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/runs/${run.getId()}/rundetails.do" />");' >details</a> 
+				[<a id="runDetailsAnchor_${run.getId()}" href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleAnchors(this); loadNewPage(this, "<wasp:relativeUrl value="/datadisplay/mps/jobs/${job.getId()}/runs/${run.getId()}/rundetails.do" />");' >details</a> 
 				| <a id="runExpandAnchor_${run.getId()}" href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleExpandHide(this);' >expand</a>] 
 				<div id="runDivToToggle_${run.getId()}" style="display:none;">					
 					<c:set value="${platformUnitOrderedCellListMap.get(platformUnit)}" var="cellList"/>
@@ -34,9 +34,9 @@
 									<c:out value="${cell.getName()}" /> 
 								</c:otherwise>
 							</c:choose>	
-						</label> [<a id="cellDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/runs/${run.getId()}/cells/${cell.getId()}/celldetails.do" />");' >details</a>
-						| <a id="cellSequencesDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/runs/${run.getId()}/cells/${cell.getId()}/sequencedetails.do" />");' >sequences</a>
-						| <a id="cellAlignmentsDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/runs/${run.getId()}/cells/${cell.getId()}/alignmentdetails.do" />");' >alignments</a> 
+						</label> [<a id="cellDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleAnchors(this); loadNewPage(this, "<wasp:relativeUrl value="/datadisplay/mps/jobs/${job.getId()}/runs/${run.getId()}/cells/${cell.getId()}/celldetails.do" />");' >details</a>
+						| <a id="cellSequencesDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleAnchors(this); loadNewPage(this, "<wasp:relativeUrl value="/datadisplay/mps/jobs/${job.getId()}/runs/${run.getId()}/cells/${cell.getId()}/sequencedetails.do" />");' >sequences</a>
+						| <a id="cellAlignmentsDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleAnchors(this); loadNewPage(this, "<wasp:relativeUrl value="/datadisplay/mps/jobs/${job.getId()}/runs/${run.getId()}/cells/${cell.getId()}/alignmentdetails.do" />");' >alignments</a> 
 						| <a id="fastQCDetailsAnchor_${run.getId()}" href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >fqc</a>
 						| <a id="statsDetailsAnchor_${run.getId()}" href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >stats</a>]
 						<c:set value="${cellLibraryListMap.get(cell)}" var="libraryList"/>
@@ -118,10 +118,10 @@
 										</c:choose>
 										<td class="DataTD" style="text-align:center; white-space:nowrap;">
 										
-											<a id="libraryDetailsAnchor_${cell.getId()}${library.getId()}"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/libraries/${library.getId()}/librarydetails.do" />");' >details</a>
+											<a id="libraryDetailsAnchor_${cell.getId()}${library.getId()}"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<wasp:relativeUrl value="/datadisplay/mps/jobs/${job.getId()}/libraries/${library.getId()}/librarydetails.do" />");' >details</a>
 											| <a id="fastQCDetailsAnchor_${run.getId()}" href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >fqc</a>
 											| <a id="statsDetailsAnchor_${run.getId()}"href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >stats</a>
-											<%-- | <a id="cellSequencesDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/sampleDnaToLibrary/cellSequencesDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >sequences</a> | <a id="cellAlignmentsDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/sampleDnaToLibrary/cellAlignmentsDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >alignments</a>] --%>
+											<%-- | <a id="cellSequencesDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<wasp:relativeUrl value="/sampleDnaToLibrary/cellSequencesDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >sequences</a> | <a id="cellAlignmentsDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<wasp:relativeUrl value="/sampleDnaToLibrary/cellAlignmentsDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >alignments</a>] --%>
 						
 										</td>
 									</tr>
@@ -185,10 +185,10 @@
 										</td>
 										<td class="DataTD" style="text-align:center; white-space:nowrap;">
 										
-											[<a id="libraryDetailsAnchor_${cell.getId()}${library.getId()}"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/libraries/${library.getId()}/librarydetails.do" />");' >details</a>
+											[<a id="libraryDetailsAnchor_${cell.getId()}${library.getId()}"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<wasp:relativeUrl value="/datadisplay/mps/jobs/${job.getId()}/libraries/${library.getId()}/librarydetails.do" />");' >details</a>
 											| <a id="fastQCDetailsAnchor_${run.getId()}" href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >fastqc</a>
 											| <a id="statsDetailsAnchor_${run.getId()}"href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >stats</a>] 
-											<%-- | <a id="cellSequencesDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/sampleDnaToLibrary/cellSequencesDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >sequences</a> | <a id="cellAlignmentsDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/sampleDnaToLibrary/cellAlignmentsDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >alignments</a>] --%>
+											<%-- | <a id="cellSequencesDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<wasp:relativeUrl value="/sampleDnaToLibrary/cellSequencesDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >sequences</a> | <a id="cellAlignmentsDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<wasp:relativeUrl value="/sampleDnaToLibrary/cellAlignmentsDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >alignments</a>] --%>
 						
 										</td>
 									</tr>
@@ -240,10 +240,10 @@
 											</c:otherwise>
 										</c:choose>
 										<label>)</label>										
-										[<a id="libraryDetailsAnchor_${cell.getId()}${library.getId()}"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/libraries/${library.getId()}/librarydetails.do" />");' >details</a>
+										[<a id="libraryDetailsAnchor_${cell.getId()}${library.getId()}"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<wasp:relativeUrl value="/datadisplay/mps/jobs/${job.getId()}/libraries/${library.getId()}/librarydetails.do" />");' >details</a>
 										| <a id="fastQCDetailsAnchor_${run.getId()}" href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >fastqc</a>
 										| <a id="statsDetailsAnchor_${run.getId()}"href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >stats</a>] 
-										<%-- | <a id="cellSequencesDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/sampleDnaToLibrary/cellSequencesDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >sequences</a> | <a id="cellAlignmentsDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/sampleDnaToLibrary/cellAlignmentsDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >alignments</a>] --%>
+										<%-- | <a id="cellSequencesDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<wasp:relativeUrl value="/sampleDnaToLibrary/cellSequencesDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >sequences</a> | <a id="cellAlignmentsDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<wasp:relativeUrl value="/sampleDnaToLibrary/cellAlignmentsDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >alignments</a>] --%>
 									</div>		
 								</c:forEach>							
 							
@@ -261,7 +261,7 @@
 	<div class="viewerRight">
 		<div id="viewerFrame" style="display:block;">
   			<%--  <iframe id="myIframe" name="myIframe" src="http://webdesign.about.com/#lp-main" style="overflow-x: scroll; overflow-y: scroll" height="500px" width="500px" ><p>iframes not supported</p></iframe> --%>
-  			<%-- <iframe id="myIframe" name="myIframe" src="<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />" style="overflow-x: scroll; overflow-y: scroll" height="800px" width="600px" ><p>iframes not supported</p></iframe>--%>
+  			<%-- <iframe id="myIframe" name="myIframe" src="<wasp:relativeUrl value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />" style="overflow-x: scroll; overflow-y: scroll" height="800px" width="600px" ><p>iframes not supported</p></iframe>--%>
    		</div>
 	</div>	
 	<div style="clear:both;"></div>	
@@ -274,33 +274,33 @@
 		<br />
 		<a href="http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html" target="myIframe">Right Frame: View Fastqc report from /results/production_wiki</a>
 		<br />
-		<a href="<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />" target="myIframe">Right Frame: Wasp job 87's home page</a>
+		<a href="<wasp:relativeUrl value="/sampleDnaToLibrary/listJobSamples/87.do" />" target="myIframe">Right Frame: Wasp job 87's home page</a>
 		<br />
-		<a href="<c:url value="/datadisplay/showplay.do" />" target="myIframe">Right Frame: view a FILE stored on Chiam</a>
+		<a href="<wasp:relativeUrl value="/datadisplay/showplay.do" />" target="myIframe">Right Frame: view a FILE stored on Chiam</a>
 		<br />	
 		<a href="javascript:void(0);" title="popup"  onclick="showPopupWindow('http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html');">Aligned Popup WINDOW: fastqc</a>
 		<br />	
-		<a href="javascript:void(0);" title="popup"  onclick="showPopupWindow('<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />');">Aligned Popup WINDOW: Wasp job 87's home page</a>
+		<a href="javascript:void(0);" title="popup"  onclick="showPopupWindow('<wasp:relativeUrl value="/sampleDnaToLibrary/listJobSamples/87.do" />');">Aligned Popup WINDOW: Wasp job 87's home page</a>
 		<br />	
-		<a href="javascript:void(0);" title="popup"  onclick="window.open('<c:url value="/datadisplay/showplay.do" />', 'Child Window','width=1200,height=800,left=0,top=0,scrollbars=1,status=0,');">Popup WINDOW (left): view a FILE stored on Chiam</a>
+		<a href="javascript:void(0);" title="popup"  onclick="window.open('<wasp:relativeUrl value="/datadisplay/showplay.do" />', 'Child Window','width=1200,height=800,left=0,top=0,scrollbars=1,status=0,');">Popup WINDOW (left): view a FILE stored on Chiam</a>
 		<br />	
-		<a href="javascript:void(0);" title="popup"  onclick="showPopupWindow('<c:url value="/datadisplay/showplay.do" />');">Aligned Popup WINDOW: File on Chiam</a>
+		<a href="javascript:void(0);" title="popup"  onclick="showPopupWindow('<wasp:relativeUrl value="/datadisplay/showplay.do" />');">Aligned Popup WINDOW: File on Chiam</a>
 		<br />
 		<a href="javascript:void(0);" onclick='showModalDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >Modal Dialog: fastqc</a>
 		<br />
-		<a href="javascript:void(0);" onclick='showModalDialog("<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />");' >Modal Dialog: Wasp job 87's home page</a>
+		<a href="javascript:void(0);" onclick='showModalDialog("<wasp:relativeUrl value="/sampleDnaToLibrary/listJobSamples/87.do" />");' >Modal Dialog: Wasp job 87's home page</a>
 		<br />
-		<a href="javascript:void(0);" onclick='showModalDialog("<c:url value="/datadispaly/showplay.do" />");' >Modal Dialog: view a FILE stored on Chiam</a>
+		<a href="javascript:void(0);" onclick='showModalDialog("<wasp:relativeUrl value="/datadispaly/showplay.do" />");' >Modal Dialog: view a FILE stored on Chiam</a>
 		<br />
 		<a href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >Modaless Dialog: fastqc</a>
 		<br />
-		<a href="javascript:void(0);" onclick='showModalessDialog("<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />");' >Modaless Dialog: Wasp job 87's home page</a>
+		<a href="javascript:void(0);" onclick='showModalessDialog("<wasp:relativeUrl value="/sampleDnaToLibrary/listJobSamples/87.do" />");' >Modaless Dialog: Wasp job 87's home page</a>
 		<br />
-		<a href="javascript:void(0);" onclick='showModalessDialog("<c:url value="/datadispaly/showplay.do" />");' >Modaless Dialog: view a FILE stored on Chiam</a>
+		<a href="javascript:void(0);" onclick='showModalessDialog("<wasp:relativeUrl value="/datadispaly/showplay.do" />");' >Modaless Dialog: view a FILE stored on Chiam</a>
 		<br /><br />
-		<a style="color:green; font-weight:bold; background-color:white;" id="jobDetailsAnchorzzzzzzzz"  href="javascript:void(0);"  onclick='loadNewPage(this, "<c:url value="/datadispaly/showplay.do" />");' >use SHOWPLAY INTO div on right</a>
+		<a style="color:green; font-weight:bold; background-color:white;" id="jobDetailsAnchorzzzzzzzz"  href="javascript:void(0);"  onclick='loadNewPage(this, "<wasp:relativeUrl value="/datadispaly/showplay.do" />");' >use SHOWPLAY INTO div on right</a>
 		<br /><br />
-		<a style="color:green; font-weight:bold; background-color:white;" id="jobDetailsAnchorzzzzzzzz"  href="javascript:void(0);" target="myIframe" onclick='loadNewPage(this, "<c:url value="/datadisplay/showplay.do" />");' >use SHOWPLAY INTO div on right</a>
+		<a style="color:green; font-weight:bold; background-color:white;" id="jobDetailsAnchorzzzzzzzz"  href="javascript:void(0);" target="myIframe" onclick='loadNewPage(this, "<wasp:relativeUrl value="/datadisplay/showplay.do" />");' >use SHOWPLAY INTO div on right</a>
 --%>
 <%--NO INNER TABLES, just 
 job
@@ -316,7 +316,7 @@ job
 	
 <div class="pageContainer">
 	<div id="selectionLeft" class="selectionLeft">	  
-		<label>Job Name: <c:out value="${job.getName()}" /></label>	[<a style="color:red; font-weight:bold; background-color:white;" id="jobDetailsAnchor"  href="javascript:void(0);"  onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />");' >DETAILS</a><c:if test="${fn:length(platformUnitSet) > 1}"> | <a id="openAllRunsAnchor"  href="javascript:void(0);" onclick='openAllRuns();' >open all runs</a> | <a id="closeAllRunsAnchor" href="javascript:void(0);"  onclick='closeAllRuns();' >close all runs</a></c:if>]
+		<label>Job Name: <c:out value="${job.getName()}" /></label>	[<a style="color:red; font-weight:bold; background-color:white;" id="jobDetailsAnchor"  href="javascript:void(0);"  onclick='toggleAnchors(this); loadNewPage(this, "<wasp:relativeUrl value="/datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />");' >DETAILS</a><c:if test="${fn:length(platformUnitSet) > 1}"> | <a id="openAllRunsAnchor"  href="javascript:void(0);" onclick='openAllRuns();' >open all runs</a> | <a id="closeAllRunsAnchor" href="javascript:void(0);"  onclick='closeAllRuns();' >close all runs</a></c:if>]
 		<c:if test="${fn:length(platformUnitSet) > 0}">
 		<div>
 			<label>Aggregate Analysis</label> [<a id="aggregateAnalysis" href="javascript:void(0);" onclick='alert("Not yet implemented");'>details</a>] 
@@ -326,7 +326,7 @@ job
 			<c:set value="${platformUnitRunMap.get(platformUnit)}" var="run"/>
 			<div id="runDivToHighlight_${run.getId()}">
 			<label>Sequence Run:</label> <c:out value="${run.getName()}" />  
-			[<a id="runDetailsAnchor_${run.getId()}" href="javascript:void(0);"  onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/runs/${run.getId()}/rundetails.do" />");' >details</a> 
+			[<a id="runDetailsAnchor_${run.getId()}" href="javascript:void(0);"  onclick='toggleAnchors(this); loadNewPage(this, "<wasp:relativeUrl value="/datadisplay/mps/jobs/${job.getId()}/runs/${run.getId()}/rundetails.do" />");' >details</a> 
 			| <a id="runExpandAnchor_${run.getId()}" href="javascript:void(0);"  onclick='toggleExpandHide(this);' >expand</a>] 
 					<div id="runDivToToggle_${run.getId()}" style="display:none;">					
 					<c:set value="${platformUnitOrderedCellListMap.get(platformUnit)}" var="cellList"/>
@@ -335,10 +335,10 @@ job
 							<c:set value="${cellIndexMap.get(cell)}" var="index"/>
 							<c:choose>
 								<c:when test="${not empty index }">							
-									<label>Lane: <c:out value="${index}" /></label> [<a id="cellDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/runs/${run.getId()}/cells/${cell.getId()}/celldetails.do" />");' >details</a> | <a id="fastQCDetailsAnchor_${run.getId()}" href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >fastqc</a> | <a id="statsDetailsAnchor_${run.getId()}"href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >graphical Stats</a> | <a id="cellSequencesDetailsAnchor_${cell.getId()}"  href="javascript:void(0);"  onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/sampleDnaToLibrary/cellSequencesDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >sequences</a> | <a id="cellAlignmentsDetailsAnchor_${cell.getId()}"  href="javascript:void(0);"  onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/sampleDnaToLibrary/cellAlignmentsDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >alignments</a>] 
+									<label>Lane: <c:out value="${index}" /></label> [<a id="cellDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<wasp:relativeUrl value="/datadisplay/mps/jobs/${job.getId()}/runs/${run.getId()}/cells/${cell.getId()}/celldetails.do" />");' >details</a> | <a id="fastQCDetailsAnchor_${run.getId()}" href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >fastqc</a> | <a id="statsDetailsAnchor_${run.getId()}"href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >graphical Stats</a> | <a id="cellSequencesDetailsAnchor_${cell.getId()}"  href="javascript:void(0);"  onclick='toggleAnchors(this); loadNewPage(this, "<wasp:relativeUrl value="/sampleDnaToLibrary/cellSequencesDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >sequences</a> | <a id="cellAlignmentsDetailsAnchor_${cell.getId()}"  href="javascript:void(0);"  onclick='toggleAnchors(this); loadNewPage(this, "<wasp:relativeUrl value="/sampleDnaToLibrary/cellAlignmentsDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >alignments</a>] 
 								</c:when>
 								<c:otherwise>
-									<label>Lane: <c:out value="${cell.getName()}" /></label> [<a id="cellDetailsAnchor_${cell.getId()}"  href="javascript:void(0);"  onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/runs/${run.getId()}/cells/${cell.getId()}/celldetails.do" />");' >details</a>] 
+									<label>Lane: <c:out value="${cell.getName()}" /></label> [<a id="cellDetailsAnchor_${cell.getId()}"  href="javascript:void(0);"  onclick='toggleAnchors(this); loadNewPage(this, "<wasp:relativeUrl value="/datadisplay/mps/jobs/${job.getId()}/runs/${run.getId()}/cells/${cell.getId()}/celldetails.do" />");' >details</a>] 
 								</c:otherwise>
 							</c:choose>													
 							<c:set value="${cellControlLibraryListMap.get(cell)}" var="controlLibraryList"/>
@@ -389,31 +389,31 @@ job
 		<br />
 		<a href="http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html" target="myIframe">Right Frame: View Fastqc report from /results/production_wiki</a>
 		<br />
-		<a href="<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />" target="myIframe">Right Frame: Wasp job 87's home page</a>
+		<a href="<wasp:relativeUrl value="/sampleDnaToLibrary/listJobSamples/87.do" />" target="myIframe">Right Frame: Wasp job 87's home page</a>
 		<br />
-		<a href="<c:url value="/datadisplay/showplay.do" />" target="myIframe">Right Frame: view a FILE stored on Chiam</a>
+		<a href="<wasp:relativeUrl value="/datadisplay/showplay.do" />" target="myIframe">Right Frame: view a FILE stored on Chiam</a>
 		<br />	
 		<a href="javascript:void(0);" title="popup"  onclick="showPopupWindow('http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html');">Aligned Popup WINDOW: fastqc</a>
 		<br />	
-		<a href="javascript:void(0);" title="popup"  onclick="showPopupWindow('<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />');">Aligned Popup WINDOW: Wasp job 87's home page</a>
+		<a href="javascript:void(0);" title="popup"  onclick="showPopupWindow('<wasp:relativeUrl value="/sampleDnaToLibrary/listJobSamples/87.do" />');">Aligned Popup WINDOW: Wasp job 87's home page</a>
 		<br />	
-		<a href="javascript:void(0);" title="popup"  onclick="window.open('<c:url value="/datadisplay/showplay.do" />', 'Child Window','width=1200,height=800,left=0,top=0,scrollbars=1,status=0,');">Popup WINDOW (left): view a FILE stored on Chiam</a>
+		<a href="javascript:void(0);" title="popup"  onclick="window.open('<wasp:relativeUrl value="/datadisplay/showplay.do" />', 'Child Window','width=1200,height=800,left=0,top=0,scrollbars=1,status=0,');">Popup WINDOW (left): view a FILE stored on Chiam</a>
 		<br />	
-		<a href="javascript:void(0);" title="popup"  onclick="showPopupWindow('<c:url value="/datadisplay/showplay.do" />');">Aligned Popup WINDOW: File on Chiam</a>
+		<a href="javascript:void(0);" title="popup"  onclick="showPopupWindow('<wasp:relativeUrl value="/datadisplay/showplay.do" />');">Aligned Popup WINDOW: File on Chiam</a>
 		<br />
 		<a href="javascript:void(0);" onclick='showModalDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >Modal Dialog: fastqc</a>
 		<br />
-		<a href="javascript:void(0);" onclick='showModalDialog("<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />");' >Modal Dialog: Wasp job 87's home page</a>
+		<a href="javascript:void(0);" onclick='showModalDialog("<wasp:relativeUrl value="/sampleDnaToLibrary/listJobSamples/87.do" />");' >Modal Dialog: Wasp job 87's home page</a>
 		<br />
-		<a href="javascript:void(0);" onclick='showModalDialog("<c:url value="/datadisplay/showplay.do" />");' >Modal Dialog: view a FILE stored on Chiam</a>
+		<a href="javascript:void(0);" onclick='showModalDialog("<wasp:relativeUrl value="/datadisplay/showplay.do" />");' >Modal Dialog: view a FILE stored on Chiam</a>
 		<br />
 		<a href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >Modaless Dialog: fastqc</a>
 		<br />
-		<a href="javascript:void(0);" onclick='showModalessDialog("<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />");' >Modaless Dialog: Wasp job 87's home page</a>
+		<a href="javascript:void(0);" onclick='showModalessDialog("<wasp:relativeUrl value="/sampleDnaToLibrary/listJobSamples/87.do" />");' >Modaless Dialog: Wasp job 87's home page</a>
 		<br />
-		<a href="javascript:void(0);" onclick='showModalessDialog("<c:url value="/datadisplay/showplay.do" />");' >Modaless Dialog: view a FILE stored on Chiam</a>
+		<a href="javascript:void(0);" onclick='showModalessDialog("<wasp:relativeUrl value="/datadisplay/showplay.do" />");' >Modaless Dialog: view a FILE stored on Chiam</a>
 		<br /><br />
-		<a style="color:green; font-weight:bold; background-color:white;" id="jobDetailsAnchorzzzzzzzz"  href="javascript:void(0);"  onclick='loadNewPage(this, "<c:url value="/datadisplay/showplay.do" />");' >use SHOWPLAY INTO div on right</a>
+		<a style="color:green; font-weight:bold; background-color:white;" id="jobDetailsAnchorzzzzzzzz"  href="javascript:void(0);"  onclick='loadNewPage(this, "<wasp:relativeUrl value="/datadisplay/showplay.do" />");' >use SHOWPLAY INTO div on right</a>
  	</div>
 	<div class="viewerRight">
 		<div id="viewerFrame" style="display:block;">

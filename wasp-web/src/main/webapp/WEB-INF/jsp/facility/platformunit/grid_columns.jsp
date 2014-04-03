@@ -8,7 +8,7 @@
 <wasp:field name="readLength"  type="text" sortable="true" searchable="false" editable="false" columnWidth="90"/>
 <wasp:field name="cellcount"  type="text" sortable="true" searchable="false" editable="false" columnWidth="65"/>
 
- _url='<c:url value="facility/platformunit/listJSON_platformUnitGrid.do?selId=${param.selId}" />';
+ _url='<wasp:relativeUrl value="facility/platformunit/listJSON_platformUnitGrid.do?selId=${param.selId}" />';
 
 _navAttr=
 	{edit:false,view:false,add:false,del:false,search:false,refresh:true,beforeRefresh: 

@@ -38,7 +38,7 @@ if(url_string.indexOf("selId") == -1){ //url does NOT contain the string userId,
 			dataInit: function(elem) {	
 				setTimeout(
 					function(){ 
-						$.getJSON("<c:url value='autocomplete/getAllUserLoginsForDisplay.do' />", 
+						$.getJSON("<wasp:relativeUrl value='autocomplete/getAllUserLoginsForDisplay.do' />", 
 						{ str: "" }, 
 						function(data) { 
 							jQuery(elem).autocomplete(data);
@@ -57,8 +57,8 @@ if(url_string.indexOf("selId") == -1){ //url does NOT contain the string userId,
 			dataInit: function(elem) {	
 				setTimeout(
 					function(){ 
-						$.getJSON("<c:url value='autocomplete/getDistinctUserFirstNamesForDisplay.do' />",
-						//Not used $.getJSON("<c:url value='autocomplete/getPiForAutocomplete.do' />", 
+						$.getJSON("<wasp:relativeUrl value='autocomplete/getDistinctUserFirstNamesForDisplay.do' />",
+						//Not used $.getJSON("<wasp:relativeUrl value='autocomplete/getPiForAutocomplete.do' />", 
 						{ str: "" }, 
 						function(data) { 
 							jQuery(elem).autocomplete(data);
@@ -77,7 +77,7 @@ jQuery("#grid_id").jqGrid('setColProp', 'lastName',
 		dataInit: function(elem) {	
 			setTimeout(
 				function(){ 
-					$.getJSON("<c:url value='autocomplete/getDistinctUserLastNamesForDisplay.do' />", 
+					$.getJSON("<wasp:relativeUrl value='autocomplete/getDistinctUserLastNamesForDisplay.do' />", 
 					{ str: "" }, 
 					function(data) { 
 						jQuery(elem).autocomplete(data);
@@ -95,7 +95,7 @@ jQuery("#grid_id").jqGrid('setColProp', 'email',
 				dataInit: function(elem) {	
 					setTimeout(
 						function(){ 
-							$.getJSON("<c:url value='autocomplete/getAllUserEmailsForDisplay.do' />", 
+							$.getJSON("<wasp:relativeUrl value='autocomplete/getAllUserEmailsForDisplay.do' />", 
 							{ str: "" }, 
 							function(data) { 
 								jQuery(elem).autocomplete(data);

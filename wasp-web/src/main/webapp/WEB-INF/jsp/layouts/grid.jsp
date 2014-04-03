@@ -8,18 +8,18 @@
 	<title> 	 	
 	    <wasp:pageTitle/> 
 	</title>
-	<link rel="stylesheet" type="text/css" media="screen" href="<c:url value='css/base.css' />" />
-	<link rel="stylesheet" type="text/css" media="screen" href="<c:url value='css/menu.css' />" />
-	<link rel="stylesheet" type="text/css" media="screen" href="<c:url value='css/jquery/jquery-ui.css' />" />
-	<link rel="stylesheet" type="text/css" media="screen" href="<c:url value='css/jquery/ui.jqgrid.css' />" />
+	<link rel="stylesheet" type="text/css" media="screen" href="<wasp:relativeUrl value='css/base.css' />" />
+	<link rel="stylesheet" type="text/css" media="screen" href="<wasp:relativeUrl value='css/menu.css' />" />
+	<link rel="stylesheet" type="text/css" media="screen" href="<wasp:relativeUrl value='css/jquery/jquery-ui.css' />" />
+	<link rel="stylesheet" type="text/css" media="screen" href="<wasp:relativeUrl value='css/jquery/ui.jqgrid.css' />" />
 	
 	<script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.js"></script>
 	<script type="text/javascript" src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script> 
-	<script type="text/javascript" src="<c:url value='scripts/jquery/ajaxfileupload.js' />"></script>
+	<script type="text/javascript" src="<wasp:relativeUrl value='scripts/jquery/ajaxfileupload.js' />"></script>
 
 	<%--  include locale-specific jqgrid file.  jqLang is set in UserLocaleInterceptor class --%> 
-	<script src="<c:url value='scripts/jqgrid/grid.locale-<%= ((HttpServletRequest)pageContext.getRequest()).getSession().getAttribute(' />"jqLang") %>.js" type="text/javascript"></script>
-	<script src="<c:url value='scripts/jqgrid/jquery.jqGrid.min.js' />" type="text/javascript"></script>
+	<script src="<wasp:relativeUrl value='scripts/jqgrid/grid.locale-<%= ((HttpServletRequest)pageContext.getRequest()).getSession().getAttribute(' />"jqLang") %>.js" type="text/javascript"></script>
+	<script src="<wasp:relativeUrl value='scripts/jqgrid/jquery.jqGrid.min.js' />" type="text/javascript"></script>
 	
 	
 	<script type="text/javascript">
@@ -119,10 +119,10 @@
 		var _area="<tiles:insertAttribute name="area" />";
 		
 		<%-- URL to fetch JSON-formatted data from server --%>
-		var _url='<c:url value="' + _area + " />'/listJSON.do?selId=${param.selId}';
+		var _url='<wasp:relativeUrl value="' + _area + " />'/listJSON.do?selId=${param.selId}';
 		
 		<%-- URL to submit CUD requests to the server --%>
-		var _editurl='<c:url value="' + _area + " />'/detail_rw/updateJSON.do';
+		var _editurl='<wasp:relativeUrl value="' + _area + " />'/detail_rw/updateJSON.do';
 		
 		<%--  structure to define L&F of "edit row" functionality --%> 
 		var _editAttr={
@@ -248,7 +248,7 @@
 						dataInit: function(elm){
 							setTimeout(
 								function(){ 
-									$.getJSON("<c:url value='autocomplete/getInstitutesForDisplay.do' />", 
+									$.getJSON("<wasp:relativeUrl value='autocomplete/getInstitutesForDisplay.do' />", 
 											{ instituteNameFragment: "" }, 
 											function(data) { 
 												jQuery(elm).autocomplete(data);
@@ -689,7 +689,7 @@
   			<div id="wait_dialog-modal" title="<fmt:message key="wasp.wait_title.label" />"  >
 				<table border="0" cellpadding="5">
 				<tr>
-				<td><img src="<c:url value='images/spinner.gif' />" align="left" border="0" ></td>
+				<td><img src="<wasp:relativeUrl value='images/spinner.gif' />" align="left" border="0" ></td>
 				<td><fmt:message key="wasp.wait_message.label" /></td>
 				</tr>
 				</table>

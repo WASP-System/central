@@ -7,7 +7,7 @@
 
 
   <%-- [TODO ADD PERM]--%>
-  <a href="<c:url value="/sampleDnaToLibrary/detail/${sample.sampleId}.do"/>"><fmt:message key="sample.detail_facManSampleToLib.label" /></a>
+  <a href="<wasp:relativeUrl value="/sampleDnaToLibrary/detail/${sample.sampleId}.do"/>"><fmt:message key="sample.detail_facManSampleToLib.label" /></a>
   <%--[/TODO ADD PERM]--%>
 
   <c:forEach items="${samplemeta}" var="meta">
@@ -21,14 +21,14 @@
     <h2><fmt:message key="sample.detail_relations.label" /></h2>
     <h3><fmt:message key="sample.detail_parents.label" /></h3>
     <c:forEach items="${parentsample}" var="s">
-      <a href="<c:url value='sample/detail/${s.sampleId}.do' />">
+      <a href="<wasp:relativeUrl value='sample/detail/${s.sampleId}.do' />">
         <c:out value="${s.sample.name}"/>
       </a>
       <div><c:out value="${s.sample.sampleType.name}"/></div>
     </c:forEach>
     <h3><fmt:message key="sample.detail_children.label" /></h3>
     <c:forEach items="${childsample}" var="s">
-      <a href="<c:url value='sample/detail/${s.sampleId}.do' />">
+      <a href="<wasp:relativeUrl value='sample/detail/${s.sampleId}.do' />">
         <c:out value="${s.sample.name}"/>
       </a>
       <div><c:out value="${s.sample.sampleType.name}"/></div>
@@ -38,7 +38,7 @@
     <c:forEach items="${jobsample}" var="j">
       <p>
       <c:out value="${s.sample.sampleType.name}"/>
-      <a href="<c:url value='job/detail/${j.jobId}.do' />">
+      <a href="<wasp:relativeUrl value='job/detail/${j.jobId}.do' />">
         <c:out value="${j.job.name}"/>
       </a>
       </p>
@@ -48,7 +48,7 @@
     <c:forEach items="${samplefile}" var="f">
       <p>
       <c:out value="${f.file.filelocation}"/>
-      <a href="<c:url value='sample/file/${f.sampleId}/${f.fileId}.do' />">
+      <a href="<wasp:relativeUrl value='sample/file/${f.sampleId}/${f.fileId}.do' />">
         <c:out value="${f.name}"/>
       </a>
       </p>

@@ -3,7 +3,7 @@
 <%-- What was used was: from http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/ --%>
 <%--Apparently need onsubmit='return false' to suppress hitting the event when the ENTER key is pressed with the cursor in the description input box --%>
 <br />
-<form id="fileUploadFormId" action="<c:url value="/job/${job.getId()}/fileUploadManager.do" />" method="POST"  enctype="multipart/form-data" onsubmit='return false;' >
+<form id="fileUploadFormId" action="<wasp:relativeUrl value="/job/${job.getId()}/fileUploadManager.do" />" method="POST"  enctype="multipart/form-data" onsubmit='return false;' >
 	<table class="data" style="margin: 0px 0px">
 		<tr class="FormData">
 			<td colspan="3" class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.fileUploadUploadNewFile.label"/></td>
@@ -41,9 +41,9 @@
 		 		  			<td class="DataTD value-centered"><c:out value="${fileHandle.getFileName()}" /></td>
 		 		  			<td class="DataTD value-centered"><c:out value="${fileGroup.getDescription()}" /></td>
 		 		  			<!--  <a href="<wasp:url fileAccessor="${fileHandle}" />" > -->
-		 		  			<td class="DataTD value-centered"><a href="<c:url value="/file/fileHandle/${fileHandle.getId()}/download.do" />" ><fmt:message key="listJobSamples.file_download.label"/></a> 
+		 		  			<td class="DataTD value-centered"><a href="<wasp:relativeUrl value="/file/fileHandle/${fileHandle.getId()}/download.do" />" ><fmt:message key="listJobSamples.file_download.label"/></a> 
 		 		  				<c:if test="${fileHandlesThatCanBeViewedList.contains(fileHandle)}">
-	 		  					| <a href="javascript:void(0);" onclick='parent.showModalessDialog("<c:url value="/file/fileHandle/${fileHandle.getId()}/view.do" />");' ><fmt:message key="listJobSamples.file_view.label"/></a>
+	 		  					| <a href="javascript:void(0);" onclick='parent.showModalessDialog("<wasp:relativeUrl value="/file/fileHandle/${fileHandle.getId()}/view.do" />");' ><fmt:message key="listJobSamples.file_view.label"/></a>
 	 		  				</c:if>
 		 		  			</td>
 		 		  		</tr>
@@ -53,7 +53,7 @@
 		 			<tr>
 		 		  		<td class="DataTD value-centered"><c:out value="${fn:length(fileHandles)}" /> <fmt:message key="listJobSamples.file_download_grouped_files.label"/></td>
 		 		  		<td class="DataTD value-centered"><c:out value="${fileGroup.getDescription()}" /></td>			 		  			
-		 		  		<td class="DataTD value-centered"><a href="<c:url value="/file/fileGroup/${fileGroup.getId()}/download.do" />" ><fmt:message key="listJobSamples.file_download.label"/></a></td>
+		 		  		<td class="DataTD value-centered"><a href="<wasp:relativeUrl value="/file/fileGroup/${fileGroup.getId()}/download.do" />" ><fmt:message key="listJobSamples.file_download.label"/></a></td>
 		 		  	</tr>
 		 		</c:otherwise>			 		
 		 	</c:choose>

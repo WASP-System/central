@@ -18,7 +18,7 @@
 	</c:if>
 </div>
 
-<form name="f" action="<c:url value='/j_spring_security_check'/>"
+<form name="f" action="<wasp:relativeUrl value='/j_spring_security_check'/>"
 	method="POST" onsubmit='return validate();'>
 	<table class="EditTable ui-widget ui-widget-content">
 		<tr class="FormData">
@@ -48,11 +48,11 @@
 
 <nav id="loginNav">
 	<c:if test="${isAuthenticationExternal == false }">
-		<a href="<c:url value='auth/resetpassword/request.do' />"><fmt:message	key="auth.login_anchor_forgotpass.label" /></a> | 
+		<a href="<wasp:relativeUrl value='auth/resetpassword/request.do' />"><fmt:message	key="auth.login_anchor_forgotpass.label" /></a> | 
 	</c:if>
-	<a href="<c:url value='auth/newuser.do' />"><fmt:message key="auth.login_anchor_newuser.label" /></a> | 
-	<a href="<c:url value='auth/newpi/institute.do' />"><fmt:message key="auth.login_anchor_newpi.label" /></a> <%--  |
-	<a href="<c:url value='static/about.do' />"><fmt:message key="auth.login_anchor_about.label" /></a> --%>
+	<a href="<wasp:relativeUrl value='auth/newuser.do' />"><fmt:message key="auth.login_anchor_newuser.label" /></a> | 
+	<a href="<wasp:relativeUrl value='auth/newpi/institute.do' />"><fmt:message key="auth.login_anchor_newpi.label" /></a> <%--  |
+	<a href="<wasp:relativeUrl value='static/about.do' />"><fmt:message key="auth.login_anchor_about.label" /></a> --%>
 </nav>
 <wasp:displayInDemo>
 	<br />

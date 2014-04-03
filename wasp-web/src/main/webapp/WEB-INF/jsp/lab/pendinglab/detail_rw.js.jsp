@@ -9,7 +9,7 @@
 
 	function getInstituteNames() {
 		if ($("#billing_institution").val().length == 1) {
-			$.getJSON("<c:url value='autocomplete/getInstitutesForDisplay.do' />", {
+			$.getJSON("<wasp:relativeUrl value='autocomplete/getInstitutesForDisplay.do' />", {
 				instituteNameFragment : $("#billing_institution").val()
 			}, function(data) {
 				$("input#billing_institution").autocomplete(data);

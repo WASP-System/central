@@ -4,7 +4,7 @@
       <c:out value="${run.name}"/>
     </h1>
     <div>
-      <fmt:message key="run.detailResource.label"/>: <a href="<c:url value='resource/list.do?selId=${run.resourceId}' />">${run.resource.name}</a>
+      <fmt:message key="run.detailResource.label"/>: <a href="<wasp:relativeUrl value='resource/list.do?selId=${run.resourceId}' />">${run.resource.name}</a>
     </div>
 
 <table class="EditTable ui-widget ui-widget-content">
@@ -15,7 +15,7 @@
 
     <p>
       <fmt:message key="run.detailSample.label"/>
-      <a href="<c:url value='sample/detail/${run.sampleId}.do' />">
+      <a href="<wasp:relativeUrl value='sample/detail/${run.sampleId}.do' />">
         <c:out value="${run.sample.name}"/>
       </a>
     </p>
@@ -29,7 +29,7 @@
         <c:out value="${rl.sample.name}"/>
       </a>
       -- <fmt:message key="run.detailResourceCells.label"/>:
-      (<a href="<c:url value='run/cell/detail/${rl.runId}/${rl.runCellId}.do' />">
+      (<a href="<wasp:relativeUrl value='run/cell/detail/${rl.runId}/${rl.runCellId}.do' />">
         <c:out value="${rl.resourceCell.name}"/>
       </a>)
       </div>
@@ -40,7 +40,7 @@
     <c:forEach items="${runfile}" var="f">
       <p>
       <c:out value="${f.file.filelocation}"/>
-      <a href="<c:url value='run/file/${f.runId}/${f.fileId}.do' />">
+      <a href="<wasp:relativeUrl value='run/file/${f.runId}/${f.fileId}.do' />">
         <c:out value="${f.name}"/>
       </a>
       </p>

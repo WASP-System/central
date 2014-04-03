@@ -19,9 +19,9 @@
 
    <sec:authorize access="hasRole('da-*') or hasRole('su') or hasRole('ga-*')">
     </br>
-    <a href="<c:url value='job/pendingdaapproval/approve/${job.lab.department.departmentId}/${job.jobId}.do' />"><fmt:message key="pendingJob.detailRO_approve.label" /></a>
+    <a href="<wasp:relativeUrl value='job/pendingdaapproval/approve/${job.lab.department.departmentId}/${job.jobId}.do' />"><fmt:message key="pendingJob.detailRO_approve.label" /></a>
 	| 
-	<a href="<c:url value='job/pendingdaapproval/reject/${job.lab.department.departmentId}/${job.jobId}.do' />"><fmt:message key="pendingJob.detailRO_reject.label" /></a>
+	<a href="<wasp:relativeUrl value='job/pendingdaapproval/reject/${job.lab.department.departmentId}/${job.jobId}.do' />"><fmt:message key="pendingJob.detailRO_reject.label" /></a>
 	
 	</sec:authorize>
  
