@@ -123,7 +123,71 @@ public class PeakCallerTasklet extends LaunchManyJobsTasklet {
 		logger.debug("***************in PeakCallerTasklet() constructor: softwareResourceType for peakcaller is " + this.softwareResourceType.getName());
 	}
 
+	@Override
+	@Transactional("entityManager")
+	public void doExecute() {
+		
+		Map<String,JobParameter> jobParametersMap = getStepExecution().getJobParameters().getParameters();	
+		Integer jobIdFromJobParameter = null;
+		for (String key : getStepExecution().getJobParameters().getParameters().keySet()) {
+			logger.debug("***************in PeakCallerTasklet.execute(): KEY: " + key);
+			if(key.equalsIgnoreCase(WaspJobParameters.JOB_ID)){
+				JobParameter jp = jobParametersMap.get(key);
+				logger.debug("***************in PeakCallerTasklet.execute(): jp.toString() = " + jp.toString());
+				jobIdFromJobParameter = new Integer(jp.toString());
+				logger.debug("***************in PeakCallerTasklet.execute(): jobId = " + jobIdFromJobParameter);
+			}
+		}
+		logger.debug("*************************just after the for loop");
+		logger.debug("*************************jobId = " + jobIdFromJobParameter);		
+		
+		Assert.assertTrue(jobIdFromJobParameter>0);
+		Job job = jobService.getJobByJobId(jobIdFromJobParameter);
+		logger.debug("***************in PeakCallerTasklet.execute(): job.getId() = " + job.getId().toString());
+		Assert.assertTrue(job.getId()>0);
+		
+//TODO: ROBERT A DUBIN (another) uncomment next line and comment out the one immediately after for production   !!!!!!!!!!!!!!!!!!!!!!!!  
+		//List<SampleSource> approvedCellLibraryList = sampleService.getCellLibrariesPassQCAndNoAggregateAnalysis(job);		
+		List<SampleSource> approvedCellLibraryList = new ArrayList<SampleSource>(sampleService.getCellLibrariesForJob(job));//sampleService.getCellLibrariesPassQCAndNoAggregateAnalysis(job);		
 
+		logger.debug("***************in PeakCallerTasklet.execute(): approvedCellLibraryList.size() is " + approvedCellLibraryList.size());
+		Assert.assertTrue( ! approvedCellLibraryList.isEmpty() );
+		
+//TODO: ROBERT A DUBIN (1 of 1) uncomment next line for production   !!!!!!!!!!!!!!!!!!!!!!!!   
+		Assert.assertTrue(confirmCellLibrariesAssociatedWithBamFiles(approvedCellLibraryList));
+
+		Map<Sample, List<SampleSource>> approvedSampleApprovedCellLibraryListMap = associateSampleWithCellLibraries(approvedCellLibraryList);//new HashMap<Sample, List<SampleSource>>();
+		Set<Sample> setOfApprovedSamples = new HashSet<Sample>();//for a specific job (note: this really could have been a list)
+		for (Sample approvedSample : approvedSampleApprovedCellLibraryListMap.keySet()) {
+			setOfApprovedSamples.add(approvedSample);
+		}
+		Set<SampleSource> samplePairsAsSampleSourceSet = sampleService.getSamplePairsByJob(job);//each SampleSource represents a pair of samples
+		Map<Sample, List<Sample>> testSampleControlSampleListMap = associateTestWithControls(setOfApprovedSamples, samplePairsAsSampleSourceSet);
+		Assert.assertTrue(confirmSamplePairsAreOfSameSpecies(testSampleControlSampleListMap));
+		logger.debug("***************in PeakCallerTasklet.execute(): confirmed Sample Pairs are of same species");
+
+		for(Sample testSample : setOfApprovedSamples){
+			
+			logger.debug("***************in PeakCallerTasklet.execute(): preparing to launchMessage to Macs2 for testSample: " + testSample.getName());
+			List<SampleSource> cellLibraryListForTest = approvedSampleApprovedCellLibraryListMap.get(testSample);
+			Assert.assertTrue( ! cellLibraryListForTest.isEmpty() );
+			List<Sample> controlSampleList = testSampleControlSampleListMap.get(testSample);
+			logger.debug("***************in PeakCallerTasklet.execute(): immediately prior to if statment");
+			if(controlSampleList.isEmpty()){//no control (input sample)
+				logger.debug("***************in PeakCallerTasklet.execute(): just prior to  launchMessage call where controlSample is empty");
+				prepareAndLaunchMessage(job, convertCellLibraryListToIdList(cellLibraryListForTest), new ArrayList<Integer>());
+			}
+			else{
+				for(Sample controlSample : controlSampleList){					
+					logger.debug("***************in PeakCallerTasklet.execute(): just prior to  launchMessage call where controlSample is NOT EMPTY");
+					List<SampleSource> cellLibraryListForControl = approvedSampleApprovedCellLibraryListMap.get(controlSample);
+					Assert.assertTrue( ! cellLibraryListForControl.isEmpty() );
+					prepareAndLaunchMessage(job, convertCellLibraryListToIdList(cellLibraryListForTest), convertCellLibraryListToIdList(cellLibraryListForControl));
+				}
+			}
+		}		
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -317,7 +381,7 @@ public class PeakCallerTasklet extends LaunchManyJobsTasklet {
 	}
 	
 	
-	private void launchMessage(Integer jobId, Job job, List<Integer> testCellLibraryIdList, List<Integer> controlCellLibraryIdList){
+	private void prepareAndLaunchMessage(Job job, List<Integer> testCellLibraryIdList, List<Integer> controlCellLibraryIdList){
 		try{
 			logger.warn("*************entered launchMessage method");
 			logger.warn("*************at 12345");
@@ -325,7 +389,7 @@ public class PeakCallerTasklet extends LaunchManyJobsTasklet {
 			WaspJobContext waspJobContext = new WaspJobContext(jobService.getJobAndSoftware(job));logger.warn("*************at AA");
 			SoftwareConfiguration softwareConfig = waspJobContext.getConfiguredSoftware(this.softwareResourceType);logger.warn("*************at BB");
 			if (softwareConfig == null){logger.warn("*************at CC");
-				throw new SoftwareConfigurationException("No software could be configured for jobId=" + jobId + " with resourceType iname=" + softwareResourceType.getIName());
+				throw new SoftwareConfigurationException("No software could be configured for jobId=" + job.getId() + " with resourceType iname=" + softwareResourceType.getIName());
 			}
 			logger.warn("*************at DD");
 			BatchJobProviding softwarePlugin = waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), BatchJobProviding.class);
@@ -339,16 +403,8 @@ public class PeakCallerTasklet extends LaunchManyJobsTasklet {
 			Map<String, String> jobParameters = softwareConfig.getParameters();
 			jobParameters.put(ChipSeqSoftwareJobParameters.TEST_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getCellLibraryListAsParameterValue(testCellLibraryIdList));
 			jobParameters.put(ChipSeqSoftwareJobParameters.CONTROL_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getCellLibraryListAsParameterValue(controlCellLibraryIdList));
-			jobParameters.put(ChipSeqSoftwareJobParameters.JOB_ID, jobId.toString());
+			jobParameters.put(ChipSeqSoftwareJobParameters.JOB_ID, job.getId().toString());
 			
-			//for testing only!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			//DO NOT use this in production
-			/*
-			jobParameters.put("test", new Date().toString());			
-			*/
-			
-			//this next line works, but was replaced with the subsequent 7 lines, and the WaspMessageBuildingException exception
-			//waspMessageHandlingService.launchBatchJob(flowName, jobParameters);
 			
 			/*no longer used; replaced by brent's code for sending many messages
 			MessagingTemplate messagingTemplate = new MessagingTemplate();
@@ -370,126 +426,7 @@ public class PeakCallerTasklet extends LaunchManyJobsTasklet {
 			logger.warn("*************e.message()   =   " + e.getMessage());
 			throw new MessagingException(e.getLocalizedMessage(), e);
 		}
-		
-
-		
 	}
 
-	@Override
-	@Transactional("entityManager")
-	public void doExecute() {
-		/*
-		logger.debug("*************************just entered doExecute()");
-		if(getStepExecution()==null){
-			logger.debug("*************************stepExecution is null");
-		}else{logger.debug("*************************stepExecution is NOT null");}
-		if(getStepExecution().getJobParameters()==null){
-			logger.debug("*************************getStepExecution().getJobParameters() is null");
-		}else{logger.debug("*************************getStepExecution().getJobParameters() is NOT null");}
-		if(getStepExecution().getJobParameters().isEmpty()){
-			logger.debug("*************************getStepExecution().getJobParameters() is empty");
-		}else{logger.debug("*************************getStepExecution().getJobParameters() is NOT enpty");}
-		*/
-		Map<String,JobParameter> jobParametersMap = getStepExecution().getJobParameters().getParameters();	
-		Integer jobIdFromJobParameter = null;
-		for (String key : getStepExecution().getJobParameters().getParameters().keySet()) {
-			logger.debug("***************in PeakCallerTasklet.execute(): KEY: " + key);
-			if(key.equalsIgnoreCase(WaspJobParameters.JOB_ID)){
-				JobParameter jp = jobParametersMap.get(key);
-				logger.debug("***************in PeakCallerTasklet.execute(): jp.toString() = " + jp.toString());
-				jobIdFromJobParameter = new Integer(jp.toString());
-				logger.debug("***************in PeakCallerTasklet.execute(): jobId = " + jobIdFromJobParameter);
-			}
-		}
-		logger.debug("*************************just after the for loop");
-		logger.debug("*************************jobId = " + jobIdFromJobParameter);
-		
-		
-		
-		Assert.assertTrue(jobIdFromJobParameter>0);
-		Job job = jobService.getJobByJobId(jobIdFromJobParameter);
-		logger.debug("***************in PeakCallerTasklet.execute(): job.getId() = " + job.getId().toString());
-		Assert.assertTrue(job.getId()>0);
-		
-		/* try{
-		WaspJobContext waspJobContext = new WaspJobContext(job.getId(), jobService);logger.warn("*************at AA");
-		}
-		catch(Exception e){logger.debug("***************threw waspjobcontext excption");}
-		*/
-		
-//TODO: ROBERT A DUBIN (another) uncomment next line and comment out the one immediately after for production   !!!!!!!!!!!!!!!!!!!!!!!!  
-		//List<SampleSource> approvedCellLibraryList = sampleService.getCellLibrariesPassQCAndNoAggregateAnalysis(job);		
-		List<SampleSource> approvedCellLibraryList = new ArrayList<SampleSource>(sampleService.getCellLibrariesForJob(job));//sampleService.getCellLibrariesPassQCAndNoAggregateAnalysis(job);		
 
-		logger.debug("***************in PeakCallerTasklet.execute(): approvedCellLibraryList.size() is " + approvedCellLibraryList.size());
-		Assert.assertTrue( ! approvedCellLibraryList.isEmpty() );
-		
-//TODO: ROBERT A DUBIN (1 of 1) uncomment next line for production   !!!!!!!!!!!!!!!!!!!!!!!!   
-		Assert.assertTrue(confirmCellLibrariesAssociatedWithBamFiles(approvedCellLibraryList));
-
-		Map<Sample, List<SampleSource>> approvedSampleApprovedCellLibraryListMap = associateSampleWithCellLibraries(approvedCellLibraryList);//new HashMap<Sample, List<SampleSource>>();
-		Set<Sample> setOfApprovedSamples = new HashSet<Sample>();//for a specific job (note: this really could have been a list)
-		for (Sample approvedSample : approvedSampleApprovedCellLibraryListMap.keySet()) {
-			setOfApprovedSamples.add(approvedSample);
-		}
-		Set<SampleSource> samplePairsAsSampleSourceSet = sampleService.getSamplePairsByJob(job);//each SampleSource represents a pair of samples
-		Map<Sample, List<Sample>> testSampleControlSampleListMap = associateTestWithControls(setOfApprovedSamples, samplePairsAsSampleSourceSet);
-		Assert.assertTrue(confirmSamplePairsAreOfSameSpecies(testSampleControlSampleListMap));
-		logger.debug("***************in PeakCallerTasklet.execute(): confirmed Sample Pairs are of same species");
-		
-		// *
-		//output for testing purposes only:
-		//first, print out recorded jobId and samplePairs, if any
-		logger.debug("*************************JobId : " + job.getId());
-		logger.debug("*************************SamplePairs");
-		logger.debug("Recorded samplePairs, from the job submission:");		
-		for(SampleSource ss : samplePairsAsSampleSourceSet){//for each recorded samplePair
-			Sample test = ss.getSample();//IP (or HpaII)
-			Sample control = ss.getSourceSample();//input (or MspI)
-			logger.debug("test - "+test.getName() + " : " + " control - " + control.getName());
-		}
-		//next, go through each entry of testControlListMap
-		//to make it easy, use setOfApprovedSamples as the keys
-		logger.debug("*************************Captured data:");		
-		for(Sample approvedSample : setOfApprovedSamples){
-			
-			Sample testSample = approvedSample;
-			logger.debug("testSample - "+testSample.getName() + " with sampleId of " + testSample.getId());
-			List<Sample> approvedControlSampleList = testSampleControlSampleListMap.get(testSample);
-			if(approvedControlSampleList.isEmpty()){
-				logger.debug("--No paired control, so generate peaks without any control");
-			}
-			else{
-				logger.debug("Control(s):");
-				for(Sample control : approvedControlSampleList){
-					logger.debug("Control: " + control.getName());
-				}
-			}			
-		} 
-		// * /
-		for(Sample testSample : setOfApprovedSamples){
-			
-			//Thread.sleep(10000);//this is here for testing only, but certainly will not hurt, as it's merely a 10 second delay
-			
-			logger.debug("***************in PeakCallerTasklet.execute(): preparing to launchMessage to Macs2 for testSample: " + testSample.getName());
-			List<SampleSource> cellLibraryListForTest = approvedSampleApprovedCellLibraryListMap.get(testSample);
-			Assert.assertTrue( ! cellLibraryListForTest.isEmpty() );
-			List<Sample> controlSampleList = testSampleControlSampleListMap.get(testSample);
-			logger.debug("***************in PeakCallerTasklet.execute(): immediately prior to if statment");
-			if(controlSampleList.isEmpty()){//no control (input sample)
-				logger.debug("***************in PeakCallerTasklet.execute(): just prior to  launchMessage call where controlSample is empty");
-				launchMessage(job.getId(), job, convertCellLibraryListToIdList(cellLibraryListForTest), new ArrayList<Integer>());
-			}
-			else{
-				for(Sample controlSample : controlSampleList){					
-					logger.debug("***************in PeakCallerTasklet.execute(): just prior to  launchMessage call where controlSample is NOT EMPTY");
-					List<SampleSource> cellLibraryListForControl = approvedSampleApprovedCellLibraryListMap.get(controlSample);
-					Assert.assertTrue( ! cellLibraryListForControl.isEmpty() );
-					launchMessage(job.getId(), job, convertCellLibraryListToIdList(cellLibraryListForTest), convertCellLibraryListToIdList(cellLibraryListForControl));
-				}
-			}
-		}
-		
-		
-	}
 }
