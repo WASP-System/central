@@ -27,8 +27,6 @@ import edu.yu.einstein.wasp.service.MessageService;
  */
 public class BabrahamQCParseModule {
 
-	public static final String BABRAHAM_CHARTS_CSS_PATH = "/wasp/css/babraham.css";
-	
 	private static List<String> getQCResultsDataRow(final FastQCDataModule module, String comment){
 		List<String> row = new ArrayList<>();
 		row.add(module.getName());
@@ -553,6 +551,7 @@ public class BabrahamQCParseModule {
 		
 		stdev = Math.sqrt(stdev);
 		
+		@SuppressWarnings("unused")
 		double deviationPercent = 0;
 		
 		for (int i=0; i < gcDistribution.size(); i++) {
