@@ -12,7 +12,7 @@
         		<a href="<c:url value='j_spring_security_logout' />" ><fmt:message key="sections.banner_logout.label" /></a>
         	</div>
         </div>
-        <a href="<c:url value='dashboard.do' />"><img src='/wasp<spring:eval expression="@siteProperties.getProperty('wasp.customimage.logo')" />' alt="Home Page" height="80"/></a>
+        <a href="<c:url value='dashboard.do' />"><img src='<spring:eval expression="@siteProperties.getProperty('wasp.customimage.logo')" />' alt="Home Page" height="80"/></a>
       </nav>
     </header>
   </sec:authorize>
@@ -25,7 +25,7 @@
       			<wasp:displayInDemo><a href="http://waspsystem.org/documentation" >Documentation</a></wasp:displayInDemo>
         	</div>
         </div>
-        <a href="<c:url value='dashboard.do' />"><img src='/wasp<spring:eval expression="@siteProperties.getProperty('wasp.customimage.logo')" />' alt="Home Page" height="80"/></a>
+        <a href="<c:url value='dashboard.do' />"><img src='<spring:eval expression="@siteProperties.getProperty('wasp.customimage.logo')" />' alt="Home Page" height="80"/></a>
       </nav>
     </header>
   </sec:authorize>
