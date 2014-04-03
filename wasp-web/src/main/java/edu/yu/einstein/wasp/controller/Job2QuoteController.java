@@ -327,13 +327,13 @@ public class Job2QuoteController extends WaspController {
 			String currentStatus = jobService.getJobStatus(item);
 			String jobStatusComment = jobService.getJobStatusComment(item);//this is really ONLY a comment if the job was rejected by fm, pi, or da
 			if (jobStatusComment != null)
-				currentStatus += Tooltip.getCommentHtmlString(jobStatusComment);
+				currentStatus += Tooltip.getCommentHtmlString(jobStatusComment, servletName);
 			
 			List<String> cellList = new ArrayList<String>(
 				Arrays.asList(new String[] { 
-					//"J"+item.getId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+item.getId()+".do>details</a>) " + "<span style='color:red;font-size:11px;font-weight:bold;'>"+ noteAboutNeedingQuote+"</span>",
-					//"J"+item.getId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+item.getId()+".do>details</a>)",
-					"<a href=/wasp/job/"+item.getId()+"/homepage.do#ui-tabs-2>J"+item.getId().intValue()+"</a>",
+					//"J"+item.getId().intValue() + " (<a href=/" + servletName + "/sampleDnaToLibrary/listJobSamples/"+item.getId()+".do>details</a>) " + "<span style='color:red;font-size:11px;font-weight:bold;'>"+ noteAboutNeedingQuote+"</span>",
+					//"J"+item.getId().intValue() + " (<a href=/" + servletName + "/sampleDnaToLibrary/listJobSamples/"+item.getId()+".do>details</a>)",
+					"<a href=/" + servletName + "/job/"+item.getId()+"/homepage.do#ui-tabs-2>J"+item.getId().intValue()+"</a>",
 					currentStatus,
 					item.getName(),
 					//String.format("%.2f", amount),

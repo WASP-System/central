@@ -53,6 +53,9 @@ public class WaspController {
   
   @Value("${wasp.mode.isDemo:false}")
   protected boolean isInDemoMode;
+  
+  @Value("${wasp.host.servletname:wasp}")
+  protected String servletName;
 
   @Autowired
   private DepartmentDao departmentDao;

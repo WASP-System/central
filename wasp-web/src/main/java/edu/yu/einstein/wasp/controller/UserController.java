@@ -133,7 +133,7 @@ public class UserController extends WaspController {
 				List<String> cellList = new ArrayList<String>(
 						Arrays.asList(
 								new String[] {
-										"<a href=/wasp/job/list.do?labId=" 
+										"<a href=/" + servletName + "/job/list.do?labId=" 
 										+ uLab.getLabId().intValue() 
 										+ "&UserId=" + userId + ">" + 
 											//uLab.getLab().getName() + 
@@ -276,7 +276,7 @@ public class UserController extends WaspController {
 				}
 				String rolesAsString;				
 				if(stringBuffer.length()==0){
-					rolesAsString = new String("<a href=/wasp/sysrole/list.do>Add Role</a><br><a href=/wasp/department/list.do>Confer Dept Admin</a>");
+					rolesAsString = new String("<a href=/" + servletName + "/sysrole/list.do>Add Role</a><br><a href=/" + servletName + "/department/list.do>Confer Dept Admin</a>");
 				}
 				else{
 					rolesAsString = new String(stringBuffer);

@@ -55,7 +55,7 @@ public class BabrahamPanelRenderer {
 	public  Panel getQCResultsSummaryPanel(JSONObject chartJson, MessageService messageService) throws PanelException{
 		try {
 			WaspChart chart = WaspChart.getChart(chartJson, WaspChart.class);
-			return getViewPanel(chart.getLocalizedTitle(messageService), 1, BabrahamHighChartsJs.getQCSummaryTableRepresentation(chart, messageService));
+			return getViewPanel(chart.getLocalizedTitle(messageService), 1, BabrahamHighChartsJs.getQCSummaryTableRepresentation(chart, messageService, servletName));
 		} catch (ChartException | JSONException  e) {
 			throw new PanelException("Caught unexpected exception generating WebPanel", e);
 		}

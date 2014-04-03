@@ -520,8 +520,8 @@ public class RunController extends WaspController {
 				Map<String, Object> cell = new HashMap<String, Object>();
 				cell.put("id", run.getId());	//used??			 
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
-						"<a href=/wasp/" + sampleService.getPlatformunitViewLink(platformUnit) + ">"+run.getName()+"</a>",
-						"<a href=/wasp/" + sampleService.getPlatformunitViewLink(platformUnit) + ">"+platformUnitBarcode+"</a>",
+						"<a href=/" + servletName + "/" + sampleService.getPlatformunitViewLink(platformUnit) + ">"+run.getName()+"</a>",
+						"<a href=/" + servletName + "/" + sampleService.getPlatformunitViewLink(platformUnit) + ">"+platformUnitBarcode+"</a>",
 						run.getResource().getName() + " - " + run.getResource().getResourceCategory().getName(),
 						readProperties.getReadLength().toString(),
 						readProperties.getReadType(),

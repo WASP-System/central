@@ -59,17 +59,17 @@ public class BatchJobStatusViewerController extends WaspController {
 			BatchJobTreeModel batchJobTreeModel = (BatchJobTreeModel) treeModel;
 			String exitCode = batchJobTreeModel.getExitCode();
 			if (exitCode.equals(ExitStatus.EXECUTING.getExitCode()))
-				batchJobTreeModel.setExitCode("<img src='/wasp/images/gears_green_30x30.png' height='15'/>");
+				batchJobTreeModel.setExitCode("<img src='/" + servletName + "/images/gears_green_30x30.png' height='15'/>");
 			else if (exitCode.equals(ExitStatus.UNKNOWN.getExitCode()))
-				batchJobTreeModel.setExitCode("<img src='/wasp/images/gears_orange_30x30.png' height='15' />");
+				batchJobTreeModel.setExitCode("<img src='/" + servletName + "/images/gears_orange_30x30.png' height='15' />");
 			else if (exitCode.equals(ExitStatus.HIBERNATING.getExitCode()))
-				batchJobTreeModel.setExitCode("<img src='/wasp/images/gears_green_30x30.png' height='15' />");
+				batchJobTreeModel.setExitCode("<img src='/" + servletName + "/images/gears_green_30x30.png' height='15' />");
 			else if (exitCode.equals(ExitStatus.COMPLETED.getExitCode()))
-				batchJobTreeModel.setExitCode("<img src='/wasp/images/pass.png' height='15' />");
+				batchJobTreeModel.setExitCode("<img src='/" + servletName + "/images/pass.png' height='15' />");
 			else if (exitCode.equals(ExitStatus.TERMINATED.getExitCode()))
-				batchJobTreeModel.setExitCode("<img src='/wasp/images/stop_yellow_25x25.png' height='15' />");
+				batchJobTreeModel.setExitCode("<img src='/" + servletName + "/images/stop_yellow_25x25.png' height='15' />");
 			else if (exitCode.equals(ExitStatus.FAILED.getExitCode()))
-				batchJobTreeModel.setExitCode("<img src='/wasp/images/fail.png' height='15' />");
+				batchJobTreeModel.setExitCode("<img src='/" + servletName + "/images/fail.png' height='15' />");
 		}
 		return extTreeGridResponse;
 	}
