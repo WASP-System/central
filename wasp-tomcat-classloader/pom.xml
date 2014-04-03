@@ -59,7 +59,7 @@
 						<type>jar</type>
 						<outputDirectory>${catalina.home}/lib</outputDirectory> 
 					</artifactItem>
-					<artifactItem>
+					<!-- artifactItem>
 						<groupId>org.apache.tomcat.extras</groupId>
 						<artifactId>tomcat-extras-juli</artifactId>
 						<version>${tomcat.version}</version>
@@ -86,7 +86,7 @@
 						<version>${slf4j.version}</version>
 						<type>jar</type>
 						<outputDirectory>${catalina.home}/lib</outputDirectory>
-					</artifactItem>
+					</artifactItem -->
 					<artifactItem>
 						<groupId>org.bouncycastle</groupId>
 						<artifactId>bcprov-jdk15on</artifactId>
