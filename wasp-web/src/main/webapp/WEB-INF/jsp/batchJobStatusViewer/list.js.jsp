@@ -1,7 +1,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/ext-all-dev.js"></script>
 <script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/packages/ext-theme-neptune/build/ext-theme-neptune.js"></script>
-<script type="text/javascript"	src="<c:url value='scripts/extjs/wasp/WaspNamespaceDefinition.js' />"></script>
+<script type="text/javascript"	src="<c:url value='scripts/extjs/wasp/WaspNamespaceDefinition.js.jsp' />"></script>
 <link rel="stylesheet" type="text/css" href="<c:url value='css/ext-theme-neptune-all-wasp.css' />" />
 <link rel="stylesheet" type="text/css" href="<c:url value='css/treeGrid.css' />" />
 
