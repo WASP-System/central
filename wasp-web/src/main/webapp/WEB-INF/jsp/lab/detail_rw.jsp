@@ -58,7 +58,7 @@
     <table class="EditTable ui-widget ui-widget-content">            	      
     <c:forEach items="${labuser}" var="ul">
       <tr class="FormData"><td class="action">
-      <a href="/wasp/user/detail/<c:out value="${ul.user.userId}" />.do"><c:out value="${ul.user.login}" /></a></td>
+      <a href="<c:url value='user/detail/${ul.user.userId}.do' />">${ul.user.login}</a></td>
 	<td class="DataTD">
         <c:out value="${ul.user.firstName}" />
         <c:out value="${ul.user.lastName}" />
@@ -75,7 +75,7 @@
     <table class="EditTable ui-widget ui-widget-content">            	      
     <c:forEach items="${job}" var="j">
       <tr class="FormData"><td class="action"><td class="DataTD">
-          <a href="/wasp/job/detail/<c:out value="${j.jobId}" />.do">
+          <a href="<c:url value='job/detail/${j.jobId}.do' />">
           <c:out value="${j.name}" />
           </a>
       </td>

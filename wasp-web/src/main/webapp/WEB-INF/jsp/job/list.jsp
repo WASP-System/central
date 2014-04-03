@@ -36,7 +36,7 @@ if(url_string.indexOf("userId") == -1){ //url does NOT contain the string userId
 			dataInit: function(elem) {	
 				setTimeout(
 					function(){ 
-						$.getJSON("/wasp/autocomplete/getAllUserNamesAndLoginForDisplay.do", 
+						$.getJSON("<c:url value='autocomplete/getAllUserNamesAndLoginForDisplay.do' />", 
 						{ adminNameFragment: "" }, 
 						function(data) { 
 							jQuery(elem).autocomplete(data);
@@ -55,7 +55,7 @@ if(url_string.indexOf("userId") == -1){ //url does NOT contain the string userId
 			dataInit: function(elem) {	
 				setTimeout(
 					function(){ 
-						$.getJSON("/wasp/autocomplete/getPiNamesAndLoginForDisplay.do",
+						$.getJSON("<c:url value='autocomplete/getPiNamesAndLoginForDisplay.do' />",
 						{ piNameFragment: "" }, 
 						function(data) { 
 							jQuery(elem).autocomplete(data);
@@ -74,7 +74,7 @@ jQuery("#grid_id").jqGrid('setColProp', 'name',
 		dataInit: function(elem) {	
 			setTimeout(
 				function(){ 
-					$.getJSON("/wasp/autocomplete/getJobNamesForDisplay.do", 
+					$.getJSON("<c:url value='autocomplete/getJobNamesForDisplay.do' />", 
 					{ jobName: "" }, 
 					function(data) { 
 						jQuery(elem).autocomplete(data);

@@ -57,7 +57,7 @@
 	<sec:authorize access="hasRole('su')">
 	 <c:if test="${departmentuser.size() > 1}"> <!-- cannot delete the department admin if there is only a single department admin -->
 		<td class="submit">			
-			<a href="/wasp/department/user/roleRemove/<c:out value="${department.departmentId}" />/<c:out value="${u.user.userId}" />.do">
+			<a href="<c:url value='department/user/roleRemove/${department.departmentId}/${u.user.userId}.do' />">
 				<fmt:message key="department.detail_remove.label" />
 			</a>
 		</td>

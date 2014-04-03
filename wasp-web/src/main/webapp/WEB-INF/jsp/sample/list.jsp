@@ -35,7 +35,7 @@ $(document).ready(function() {
 			dataInit: function(elem) {	
 				setTimeout(
 					function(){ 
-						$.getJSON("/wasp/autocomplete/getSampleNamesFromJobsForDisplay.do", 
+						$.getJSON("<c:url value='autocomplete/getSampleNamesFromJobsForDisplay.do' />", 
 						{ str: "" }, 
 						function(data) { 
 							jQuery(elem).autocomplete(data);
@@ -55,7 +55,7 @@ $(document).ready(function() {
 			dataInit: function(elem) {	
 				setTimeout(
 					function(){ 
-						$.getJSON("/wasp/autocomplete/getSampleTypesThatAreBiomaterialsForDisplay.do", 
+						$.getJSON("<c:url value='autocomplete/getSampleTypesThatAreBiomaterialsForDisplay.do' />", 
 						{ str: "" }, 
 						function(data) { 
 							jQuery(elem).autocomplete(data);
@@ -74,7 +74,7 @@ $(document).ready(function() {
 					dataInit: function(elem) {	
 						setTimeout(
 							function(){ 
-								$.getJSON("/wasp/autocomplete/getSequenceRunNamesForDisplay.do", 
+								$.getJSON("<c:url value='autocomplete/getSequenceRunNamesForDisplay.do' />", 
 								{ str: "" }, 
 								function(data) { 
 									jQuery(elem).autocomplete(data);
@@ -99,7 +99,7 @@ $(document).ready(function() {
 					dataInit: function(elem) {	
 						setTimeout(
 							function(){ 
-								$.getJSON("/wasp/autocomplete/getAllUserNamesAndLoginForDisplay.do", 
+								$.getJSON("<c:url value='autocomplete/getAllUserNamesAndLoginForDisplay.do' />", 
 								{ adminNameFragment: "" }, 
 								function(data) { 
 									jQuery(elem).autocomplete(data);
@@ -118,7 +118,7 @@ $(document).ready(function() {
 					dataInit: function(elem) {	
 						setTimeout(
 							function(){ 
-								$.getJSON("/wasp/autocomplete/getPiNamesAndLoginForDisplay.do",  
+								$.getJSON("<c:url value='autocomplete/getPiNamesAndLoginForDisplay.do' />",  
 								{ piNameFragment: "" }, 
 								function(data) { 
 									jQuery(elem).autocomplete(data);
@@ -205,7 +205,7 @@ jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"",title:"<fmt:me
 
 //add a new run - we cannot have Add New Run Button on this grid, since new runs are dependent on platformUnit 
 //this next line is simply example code located on the platformUnit grid: to navigate to page to add a platform unit 
-///jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"", position: "first", title:"New", buttonicon :'ui-icon-plus', onClickButton:function(){ location.href="/wasp/facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=0&sampleId=0"; } }); 
+///jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"", position: "first", title:"New", buttonicon :'ui-icon-plus', onClickButton:function(){ location.href="<c:url value='facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=0&sampleId=0' />"; } }); 
 
 
 

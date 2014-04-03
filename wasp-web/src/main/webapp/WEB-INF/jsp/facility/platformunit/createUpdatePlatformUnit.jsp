@@ -33,7 +33,7 @@
 	<td>&nbsp;</td>
 </tr>
 <c:if test='${sampleSubtypeId > "0"}'>
-  	<form:form  cssClass="FormGrid" commandName="sample" action="/wasp/facility/platformunit/createUpdatePlatformUnit.do">
+  	<form:form  cssClass="FormGrid" commandName="sample" action="<c:url value='facility/platformunit/createUpdatePlatformUnit.do' />">
   	
   	<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="sampleId" id="sampleId" value="<c:out value="${sampleId}" />" />
   	<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="sampleSubtypeId" id="sampleSubtypeId" value="<c:out value="${sampleSubtypeId}" />" />
@@ -86,7 +86,7 @@
     				&nbsp;<input class="fm-button" type="button" onClick="location.href='${referer}';" value="<fmt:message key='platformunitInstance.cancel.label'/>" /> 
     			</c:when>
     			<c:otherwise>
- 	   				&nbsp;<input class="fm-button" type="button" onClick="location.href='/wasp/dashboard.do';" value="<fmt:message key='platformunitInstance.cancel.label'/>" /> 
+ 	   				&nbsp;<input class="fm-button" type="button" onClick="location.href='<c:url value="dashboard.do" />';" value="<fmt:message key='platformunitInstance.cancel.label'/>" /> 
      			</c:otherwise>
     		</c:choose>
     	</div>

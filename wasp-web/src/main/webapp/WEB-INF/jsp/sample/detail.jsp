@@ -21,14 +21,14 @@
     <h2><fmt:message key="sample.detail_relations.label" /></h2>
     <h3><fmt:message key="sample.detail_parents.label" /></h3>
     <c:forEach items="${parentsample}" var="s">
-      <a href="/wasp/sample/detail/<c:out value="${s.sampleId}"/>.do">
+      <a href="<c:url value='sample/detail/${s.sampleId}.do' />">
         <c:out value="${s.sample.name}"/>
       </a>
       <div><c:out value="${s.sample.sampleType.name}"/></div>
     </c:forEach>
     <h3><fmt:message key="sample.detail_children.label" /></h3>
     <c:forEach items="${childsample}" var="s">
-      <a href="/wasp/sample/detail/<c:out value="${s.sampleId}"/>.do">
+      <a href="<c:url value='sample/detail/${s.sampleId}.do' />">
         <c:out value="${s.sample.name}"/>
       </a>
       <div><c:out value="${s.sample.sampleType.name}"/></div>
@@ -38,7 +38,7 @@
     <c:forEach items="${jobsample}" var="j">
       <p>
       <c:out value="${s.sample.sampleType.name}"/>
-      <a href="/wasp/job/detail/<c:out value="${j.jobId}"/>.do">
+      <a href="<c:url value='job/detail/${j.jobId}.do' />">
         <c:out value="${j.job.name}"/>
       </a>
       </p>
@@ -48,7 +48,7 @@
     <c:forEach items="${samplefile}" var="f">
       <p>
       <c:out value="${f.file.filelocation}"/>
-      <a href="/wasp/sample/file/<c:out value="${f.sampleId}"/>/<c:out value="${f.fileId}"/>.do">
+      <a href="<c:url value='sample/file/${f.sampleId}/${f.fileId}.do' />">
         <c:out value="${f.name}"/>
       </a>
       </p>

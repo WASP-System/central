@@ -4,7 +4,7 @@
 <wasp:field name="name"  type="text" sortable="true"/>
 <wasp:field name="submitter"  type="text" editable="false"/>
 
-_url='/wasp/facility/platformunit/selid/listJSON.do';
+_url='<c:url value="facility/platformunit/selid/listJSON.do" />';
 
 _navAttr={edit:false,view:true,add:false,del:false};
 

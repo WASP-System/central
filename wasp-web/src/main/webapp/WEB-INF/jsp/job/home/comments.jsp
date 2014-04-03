@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <c:import url="/WEB-INF/jsp/job/home/fadingMessage.jsp" />
 <%-- 
-<script type="text/javascript" src="/wasp/scripts/js/robtest.js"></script>
+<script type="text/javascript" src="<c:url value='scripts/js/robtest.js' />"></script>
 <br />
 <a class="button" href="javascript:void(0);"  onclick='alert("first of 2"); robdisplayalert();' >activate robDisplayAlert()</a>
 <br /><br />

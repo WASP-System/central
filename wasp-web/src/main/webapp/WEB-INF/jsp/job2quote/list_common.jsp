@@ -33,7 +33,7 @@ $(document).ready(function() {
 			dataInit: function(elem) {	
 				setTimeout(
 					function(){ 
-						$.getJSON("/wasp/autocomplete/getAllUserNamesAndLoginForDisplay.do", 
+						$.getJSON("<c:url value='autocomplete/getAllUserNamesAndLoginForDisplay.do' />", 
 						{ adminNameFragment: "" }, 
 						function(data) { 
 							jQuery(elem).autocomplete(data);
@@ -52,8 +52,8 @@ $(document).ready(function() {
 			dataInit: function(elem) {	
 				setTimeout(
 					function(){ 
-						$.getJSON("/wasp/autocomplete/getPiNamesAndLoginForDisplay.do",
-						//Not used $.getJSON("/wasp/autocomplete/getPiForAutocomplete.do", 
+						$.getJSON("<c:url value='autocomplete/getPiNamesAndLoginForDisplay.do' />",
+						//Not used $.getJSON("<c:url value='autocomplete/getPiForAutocomplete.do' />", 
 						{ piNameFragment: "" }, 
 						function(data) { 
 							jQuery(elem).autocomplete(data);

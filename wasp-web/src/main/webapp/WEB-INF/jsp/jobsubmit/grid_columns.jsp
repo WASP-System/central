@@ -10,6 +10,6 @@
 
 <wasp:field name="last_modify_date"  type="text" />
   
-_url='/wasp/jobsubmit/listJSON.do?selId=${param.selId}&userId=${param.userId}&labId=${param.labId}';
+_url='<c:url value="jobsubmit/listJSON.do?selId=${param.selId}&userId=${param.userId}&labId=${param.labId}" />';
 
 _navAttr={search:false,edit:false,view:false,add:false,del:false,refresh:false};

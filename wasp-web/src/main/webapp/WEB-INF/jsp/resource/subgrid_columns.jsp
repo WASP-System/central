@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 subGrid: true,
-subGridUrl:'/wasp/resource/subgridJSON.do',
+subGridUrl:'<c:url value="resource/subgridJSON.do" />',
 subGridModel: [ 
                 {
                 name  : ['<fmt:message key="run.run_list.label"/>'],

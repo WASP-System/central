@@ -45,7 +45,7 @@
 	<%-- 
      <c:forEach items="${labuser}" var="ul">
       <p>
-      <a href="/wasp/user/detail/<c:out value="${ul.user.userId}" />.do"><c:out value="${ul.user.login}" /></a>
+      <a href="<c:url value='user/detail/${ul.user.userId}.do' />">${ul.user.login}</a>
         <c:out value="${ul.user.firstName}" />
         <c:out value="${ul.user.lastName}" />
       <span><c:out value="${ul.role.name}" /></span>
@@ -56,7 +56,7 @@
       <h2>Jobs</h2>
       <c:forEach items="${job}" var="j">
         <div>
-          <a href="/wasp/job/detail/<c:out value="${j.jobId}" />.do">
+          <a href="<c:url value='job/detail/${j.jobId}.do' />">
           <c:out value="${j.name}" />
           </a>
         </div>
@@ -64,7 +64,7 @@
     </c:if>
 
     <div>
-      <a href="/wasp/job/create/form.do?labid=<c:out value="${lab.labId}" />">create job</a>
+      <a href="<c:url value='job/create/form.do?labid=${lab.labId}' />">create job</a>
     </div>
  --%>
 

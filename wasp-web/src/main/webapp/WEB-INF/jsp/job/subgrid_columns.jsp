@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 subGrid: true,
-subGridUrl:'/wasp/job/subgridJSON.do',
+subGridUrl:'<c:url value="job/subgridJSON.do" />',
 subGridModel: [ 
     {
 	    name  : [

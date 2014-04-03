@@ -7,7 +7,7 @@
       
      function getAuthNames(){        
      	if( $("#login").val().length == 1){
-	        	$.getJSON("/wasp/autocomplete/getUserNamesAndLoginForDisplay.do", { adminNameFragment: $("#login").val() }, function(data) { $("input#login").autocomplete(data);} );
+	        	$.getJSON("<c:url value='autocomplete/getUserNamesAndLoginForDisplay.do' />", { adminNameFragment: $("#login").val() }, function(data) { $("input#login").autocomplete(data);} );
      	}
 	    }
  </script>

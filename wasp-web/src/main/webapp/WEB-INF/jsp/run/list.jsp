@@ -35,7 +35,7 @@ $(document).ready(function() {
 			dataInit: function(elem) {	
 				setTimeout(
 					function(){ 
-						$.getJSON("/wasp/autocomplete/getSequenceRunNamesForDisplay.do", 
+						$.getJSON("<c:url value='autocomplete/getSequenceRunNamesForDisplay.do' />", 
 						{ str: "" }, 
 						function(data) { 
 							jQuery(elem).autocomplete(data);
@@ -55,7 +55,7 @@ $(document).ready(function() {
 			dataInit: function(elem) {	
 				setTimeout(
 					function(){ 
-						$.getJSON("/wasp/autocomplete/getPlatformUnitBarcodesForDisplay.do", 
+						$.getJSON("<c:url value='autocomplete/getPlatformUnitBarcodesForDisplay.do' />", 
 						{ str: "" }, 
 						function(data) { 
 							jQuery(elem).autocomplete(data);
@@ -74,7 +74,7 @@ $(document).ready(function() {
 					dataInit: function(elem) {	
 						setTimeout(
 							function(){ 
-								$.getJSON("/wasp/autocomplete/getReadTypesForDisplay.do", 
+								$.getJSON("<c:url value='autocomplete/getReadTypesForDisplay.do' />", 
 								{ str: "" }, 
 								function(data) { 
 									jQuery(elem).autocomplete(data);
@@ -93,7 +93,7 @@ $(document).ready(function() {
 					dataInit: function(elem) {	
 						setTimeout(
 							function(){ 
-								$.getJSON("/wasp/autocomplete/getMpsResourceNamesAndCategoryForDisplay.do", 
+								$.getJSON("<c:url value='autocomplete/getMpsResourceNamesAndCategoryForDisplay.do' />", 
 								{ str: "" }, 
 								function(data) { 
 									jQuery(elem).autocomplete(data);
@@ -188,7 +188,7 @@ jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"",title:"<fmt:me
 
 //add a new run - we cannot have Add New Run Button on this grid, since new runs are dependent on platformUnit 
 //this next line is simply example code located on the platformUnit grid: to navigate to page to add a platform unit 
-///jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"", position: "first", title:"New", buttonicon :'ui-icon-plus', onClickButton:function(){ location.href="/wasp/facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=0&sampleId=0"; } }); 
+///jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"", position: "first", title:"New", buttonicon :'ui-icon-plus', onClickButton:function(){ location.href="<c:url value='facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=0&sampleId=0' />"; } }); 
 
 
 

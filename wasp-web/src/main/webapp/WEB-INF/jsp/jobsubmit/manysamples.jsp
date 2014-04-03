@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-<script type="text/javascript" src="/wasp/scripts/jquery/jquery.table.addrow.js"></script>
+<script type="text/javascript" src="<c:url value='scripts/jquery/jquery.table.addrow.js' />"></script>
 <script type="text/javascript">
 	(function($){ 
 		$(document).ready(function(){
@@ -41,7 +41,7 @@
 				$('select#adaptorset').change(function() {      
 						var selectedAdaptorSet=$('select#adaptorset option:selected').val();
 						var options = '';
-						var url = "/wasp/jobsubmit/adaptorsByAdaptorsetId.do?adaptorsetId=" + selectedAdaptorSet;
+						var url = "<c:url value='jobsubmit/adaptorsByAdaptorsetId.do?adaptorsetId=' />" + selectedAdaptorSet;
 						var adaptorCount = 0;
 						if (!selectedAdaptorSet) {
 							$('tr#row_adaptor').hide();

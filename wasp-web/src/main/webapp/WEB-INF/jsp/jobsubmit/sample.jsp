@@ -52,7 +52,7 @@
 					<%-- TODO: re-implement lines below when functionality added
 		  			<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> td-even-number</c:if>">
 					<c:if test="${ not empty sampleDraft.getFile()}">
-						<a href="/wasp/file/downloadFile.do?id=<c:out value="${sampleDraft.getFile().getFileId()}" />">${sampleDraft.getFile().getFileName()}</a>
+						<a href="<c:url value='file/downloadFile.do?id=${sampleDraft.getFile().getFileId()}' />">${sampleDraft.getFile().getFileName()}</a>
 					</c:if>
 					<c:if test="${ empty sampleDraft.getFile()}">
 						<fmt:message key="jobDraft.no_file.label"/>
@@ -60,12 +60,12 @@
 					&nbsp;</td>
 					--%>
 					<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> td-even-number</c:if>">
-						<a  href="/wasp/jobsubmit/samples/clone/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleDraft.getSampleDraftId() }"/>.do"><fmt:message key="jobDraft.sample_clone.label"/></a>
-						<a  href="/wasp/jobsubmit/samples/view/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleDraft.getSampleDraftId() }"/>.do"> | <fmt:message key="jobDraft.sample_view.label"/></a>
-						<a  href="javascript:verifyRemove('/wasp/jobsubmit/samples/remove/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleDraft.getSampleDraftId() }"/>.do')"> | <fmt:message key="jobDraft.sample_remove.label"/></a>
+						<a  href="<c:url value='jobsubmit/samples/clone/${ jobDraft.getJobDraftId() }/${ sampleDraft.getSampleDraftId() }.do' />"><fmt:message key="jobDraft.sample_clone.label"/></a>
+						<a  href="<c:url value='jobsubmit/samples/view/${ jobDraft.getJobDraftId() }/${ sampleDraft.getSampleDraftId() }.do' />"> | <fmt:message key="jobDraft.sample_view.label"/></a>
+						<a  href="javascript:verifyRemove('<c:url value="jobsubmit/samples/remove/${ jobDraft.getJobDraftId() }/${ sampleDraft.getSampleDraftId() }.do" />')"> | <fmt:message key="jobDraft.sample_remove.label"/></a>
 						<c:if test="${isExistingSample == 0}">
 							<%-- Only edit new samples --%>
-							<a href="/wasp/jobsubmit/samples/edit/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleDraft.getSampleDraftId() }"/>.do"> | <fmt:message key="jobDraft.sample_edit.label"/></a>
+							<a href="<c:url value='jobsubmit/samples/edit/${ jobDraft.getJobDraftId() }/${ sampleDraft.getSampleDraftId() }.do' />"> | <fmt:message key="jobDraft.sample_edit.label"/></a>
 						</c:if>
 					</td>
 				</tr>
@@ -75,8 +75,8 @@
 	<tr>
 		<td colspan="6" class="value-centered button-padding">
 			<c:forEach items="${ sampleSubtypeList }" var="sampleSubtype">
-				<%-- <a class="button" href="/wasp/jobsubmit/samples/add/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleSubtype.getSampleSubtypeId() }"/>.do">+ <c:out value="${ sampleSubtype.getName() }"/></a>--%>
-				<a class="button" href="/wasp/jobsubmit/samples/add/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleSubtype.getSampleSubtypeId() }"/>.do">
+				<%-- <a class="button" href="<c:url value='jobsubmit/samples/add/${ jobDraft.getJobDraftId() }/${ sampleSubtype.getSampleSubtypeId() }.do' />">+ ${ sampleSubtype.getName() }</a>--%>
+				<a class="button" href="<c:url value='jobsubmit/samples/add/${ jobDraft.getJobDraftId() }/${ sampleSubtype.getSampleSubtypeId() }.do' />">
 				<c:choose>
 					<c:when test="${sampleSubtype.getSampleType().getIName()=='library'}">
 						<fmt:message key="jobDraft.newLibrary.label"/>
@@ -88,8 +88,8 @@
 				</a>
 			</c:forEach>
 			<c:forEach items="${ sampleSubtypeList }" var="sampleSubtype">
-				<%-- <a class="button" href="/wasp/jobsubmit/samples/add/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleSubtype.getSampleSubtypeId() }"/>.do">+ <c:out value="${ sampleSubtype.getName() }"/></a>--%>
-				<a class="button" href="/wasp/jobsubmit/manysamples/add/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleSubtype.getSampleSubtypeId() }"/>.do">
+				<%-- <a class="button" href="<c:url value='jobsubmit/samples/add/${ jobDraft.getJobDraftId() }/${ sampleSubtype.getSampleSubtypeId() }.do' />">+ ${ sampleSubtype.getName() }</a>--%>
+				<a class="button" href="<c:url value='jobsubmit/manysamples/add/${ jobDraft.getJobDraftId() }/${ sampleSubtype.getSampleSubtypeId() }.do' />">
 				<c:choose>
 					<c:when test="${sampleSubtype.getSampleType().getIName()=='library'}">
 						New Libraries
@@ -102,11 +102,11 @@
 			</c:forEach>
 			
 			<c:forEach items="${ sampleSubtypeList }" var="sampleSubtype">
-				<%-- <a class="button" href="/wasp/jobsubmit/samples/add/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleSubtype.getSampleSubtypeId() }"/>.do">+ <c:out value="${ sampleSubtype.getName() }"/></a>--%>
+				<%-- <a class="button" href="<c:url value='jobsubmit/samples/add/${ jobDraft.getJobDraftId() }/${ sampleSubtype.getSampleSubtypeId() }.do' />">+ ${ sampleSubtype.getName() }</a>--%>
 				<c:choose>
 					<c:when test="${sampleSubtype.getSampleType().getIName() =='library' && librariesExist =='yes'}">
 						<c:if test="${fn:length(adaptorSetsUsedOnThisJobDraft)==1}">
-							<a class="button" href="/wasp/jobsubmit/manysamples/edit/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleSubtype.getSampleSubtypeId() }"/>.do?theSelectedAdaptorset=<c:out value="${ adaptorSetsUsedOnThisJobDraft.get(0).getId()}"/>">Edit Libraries</a>
+							<a class="button" href="<c:url value='jobsubmit/manysamples/edit/${ jobDraft.getJobDraftId() }/${ sampleSubtype.getSampleSubtypeId() }.do?theSelectedAdaptorset=${ adaptorSetsUsedOnThisJobDraft.get(0).getId()}' />">Edit Libraries</a>
 						</c:if>
 						<c:if test="${fn:length(adaptorSetsUsedOnThisJobDraft)>1}">
 							<div id="dialog-form" title="Select library set to edit">
@@ -120,7 +120,7 @@
 										<c:forEach items="${ adaptorSetsUsedOnThisJobDraft }" var="adaptorSetUsedOnThisJobDraft">
 											<%-- <option value="${adaptorSetUsedOnThisJobDraft.getId()}"><c:out value="${ adaptorSetUsedOnThisJobDraft.getName() }"/></option>
 											--%>
-											<option value="/wasp/jobsubmit/manysamples/edit/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleSubtype.getSampleSubtypeId() }"/>.do?theSelectedAdaptorset=<c:out value="${adaptorSetUsedOnThisJobDraft.getId()}"/>">
+											<option value="<c:url value='jobsubmit/manysamples/edit/${ jobDraft.getJobDraftId() }/${ sampleSubtype.getSampleSubtypeId() }.do?theSelectedAdaptorset=${adaptorSetUsedOnThisJobDraft.getId()}' />">
 												<c:out value="${ adaptorSetUsedOnThisJobDraft.getName() }"/>
 											</option>
 										</c:forEach>
@@ -129,16 +129,16 @@
 							</div>
 							<a class="button" href="javascript:void(0);" onclick='$( "#dialog-form" ).dialog( "open" );' >Edit Libraries</a>
 						
-							<%-- <a class="button" href="/wasp/jobsubmit/manysamples/edit/selectAdaptor.do?">Edit Libraries</a>--%>
+							<%-- <a class="button" href="<c:url value='jobsubmit/manysamples/edit/selectAdaptor.do?' />">Edit Libraries</a>--%>
 						</c:if>
 					</c:when>
 					<c:when test="${sampleSubtype.getSampleType().getIName() !='library' && samplesExist == 'yes'}">					
-						<a class="button" href="/wasp/jobsubmit/manysamples/edit/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleSubtype.getSampleSubtypeId() }"/>.do">Edit Samples</a>
+						<a class="button" href="<c:url value='jobsubmit/manysamples/edit/${ jobDraft.getJobDraftId() }/${ sampleSubtype.getSampleSubtypeId() }.do' />">Edit Samples</a>
 					</c:when>
 				</c:choose>				
 			</c:forEach>			
 			<!-- TODO: re-implement line below when functionality added
-			<a class="button" href="/wasp/jobsubmit/samples/addExisting/<c:out value="${ jobDraft.getJobDraftId() }"/>.do">+ <fmt:message key="jobDraft.sample_add_existing.label"/></a>  
+			<a class="button" href="<c:url value='jobsubmit/samples/addExisting/${ jobDraft.getJobDraftId() }.do' />">+ <fmt:message key="jobDraft.sample_add_existing.label"/></a>  
 			-->	
 		</td>
 	</tr>
@@ -160,7 +160,7 @@
 			<tr>
 				<td class="DataTD value-centered"><!--<wasp:url	fileAccessor="${fileHandle}" ></wasp:url>--><c:out value="${fileHandle.getFileName()}" /></td>
 				<td class="DataTD value-centered"><c:out value="${fileGroup.getDescription()}" /> </td>
-				<td class="DataTD value-centered"><a  href="/wasp/jobsubmit/file/<c:out value="${ jobDraft.getId() }"/>/<c:out value="${ fileGroup.getId() }"/>/<c:out value="${ fileHandle.getId() }"/>/delete.do"><fmt:message key="jobDraft.file_remove.label"/></a> | <a href="<c:url value="/file/fileHandle/${fileHandle.getId()}/download.do" />" ><fmt:message key="jobDraft.file_download.label"/></a></td>
+				<td class="DataTD value-centered"><a  href="<c:url value='jobsubmit/file/${ jobDraft.getId() }' />"/>/${ fileGroup.getId() }/${ fileHandle.getId() }/delete.do"><fmt:message key="jobDraft.file_remove.label"/></a> | <a href="<c:url value="/file/fileHandle/${fileHandle.getId()}/download.do" ><fmt:message key="jobDraft.file_download.label"/></a></td>
 			</tr>
 		</c:forEach>
 	</c:forEach>

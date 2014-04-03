@@ -12,7 +12,7 @@
 		$('select#adaptorset').change(function() {      
 				var selectedAdaptorSet=$('select#adaptorset option:selected').val();
 				var options = '';
-				var url = "/wasp/jobsubmit/adaptorsByAdaptorsetId.do?adaptorsetId=" + selectedAdaptorSet;
+				var url = "<c:url value='jobsubmit/adaptorsByAdaptorsetId.do?adaptorsetId=' />" + selectedAdaptorSet;
 				var adaptorCount = 0;
 				if (!selectedAdaptorSet) {
 					$('tr#row_adaptor').hide();

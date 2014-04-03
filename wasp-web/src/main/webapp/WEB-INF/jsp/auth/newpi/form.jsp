@@ -14,7 +14,7 @@
 	 </c:if>
   </div>
 
-  <form:form  cssClass="FormGrid" commandName="userPending" action="/wasp/auth/newpi/form.do">
+  <form:form  cssClass="FormGrid" commandName="userPending" action="<c:url value='auth/newpi/form.do' />">
     <table class="EditTable ui-widget ui-widget-content">
       <tr class="FormData">
         <td class="CaptionTD">

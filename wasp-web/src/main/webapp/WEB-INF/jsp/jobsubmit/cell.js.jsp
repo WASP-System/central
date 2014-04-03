@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <script src="/wasp/scripts/jquery/jquery.tablednd_0_5.js" type="text/javascript"></script>
+  <script src="<c:url value='scripts/jquery/jquery.tablednd_0_5.js' />" type="text/javascript"></script>
   <script>
   $(document).ready(function(){
     $("#cells").tableDnD();

@@ -15,7 +15,7 @@
   }
   </style>
 
-<script type="text/javascript" src="/wasp/scripts/jquery/jquery.table.addrow.js"></script>
+<script type="text/javascript" src="<c:url value='scripts/jquery/jquery.table.addrow.js' />"></script>
 <script type="text/javascript">
 	(function($){ 
 		$(document).ready(function(){

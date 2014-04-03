@@ -23,7 +23,7 @@
 <wasp:field name="attrValue"  type="text"/>
 
 <%--   url to delete single field --%>
-<wasp:delete url="/wasp/${_area}/delete.do" />
+<wasp:delete url="<c:url value='${_area}/delete.do' />" />
 
 
 <%-- disable regular search --%>

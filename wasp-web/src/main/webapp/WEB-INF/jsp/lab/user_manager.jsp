@@ -51,7 +51,7 @@ $(document).ready(function() {
 	 		</c:forEach>
 	 		<c:forEach items="${existinguserspendinglist}" var="lu">
 	 		  <tr class="FormData">
-	 			<td class="DataTD" style="text-align:center"><a href="/wasp/user/detail_ro/<c:out value="${lu.user.userId}" />.do"><c:out value="${lu.user.lastName}, ${lu.user.firstName}" /></a>
+	 			<td class="DataTD" style="text-align:center"><a href="<c:url value='user/detail_ro/${lu.user.userId}.do' />">${lu.user.lastName}, ${lu.user.firstName}</a>
 	 			</td>
 	 			<td class="DataTD" style="text-align:center"><c:out value="${lu.user.email}" /></td>
 	 			<td colspan="${colSpan - 2}" class="DataTD" style="text-align:center"><div class="submit" ><a href="<c:url value="/lab/labuserpending/approve/${labId}/${lu.labUserId}.do"/>"><fmt:message key="lmpendingtask.approve.label" /></a> <a href="<c:url value="/lab/labuserpending/reject/${labId}/${lu.labUserId}.do"/>"><fmt:message key="lmpendingtask.reject.label" /></a></div></td>    
@@ -86,7 +86,7 @@ $(document).ready(function() {
 	      
 	      	<tr class="FormData">
 	      		<td class="DataTD" style="text-align:center">
-	      			<a href="/wasp/user/detail_ro/<c:out value="${ul.user.userId}" />.do"><c:out value="${ul.user.lastName}" />, <c:out value="${ul.user.firstName}" /></a>
+	      			<a href="<c:url value='user/detail_ro/${ul.user.userId}.do' />">${ul.user.lastName}, ${ul.user.firstName}</a>
 		      	</td>
 	      		<td class="DataTD" style="text-align:center"><c:out value="${ul.user.email}" /></td>
 	      		<td class="DataTD" style="text-align:center"><c:out value="${ul.role.name}" /></td>
