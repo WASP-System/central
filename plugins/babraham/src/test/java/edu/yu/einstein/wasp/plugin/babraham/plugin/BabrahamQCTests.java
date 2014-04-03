@@ -42,6 +42,9 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 	@Autowired
 	private MessageService messageService;
 	
+	@Autowired
+	private BabrahamPanelRenderer babrahamPanelRenderer;
+	
 	@Mock BabrahamServiceImpl mockBabrahamServiceImpl;
 	
 	@BeforeClass
@@ -195,7 +198,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Assert.assertNotNull(moduleList);
 		JSONObject jsonObject = getJSONForFastQCModule(moduleList, FastQC.PlotType.QC_RESULT_SUMMARY);
 		Assert.assertNotNull(jsonObject);
-		Panel panel = BabrahamPanelRenderer.getQCResultsSummaryPanel(jsonObject, messageService);
+		Panel panel = babrahamPanelRenderer.getQCResultsSummaryPanel(jsonObject, messageService);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -208,7 +211,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Assert.assertNotNull(moduleList);
 		JSONObject jsonObject = getJSONForFastQCModule(moduleList, FastQC.PlotType.PER_BASE_QUALITY);
 		Assert.assertNotNull(jsonObject);
-		Panel panel = BabrahamPanelRenderer.getPerBaseSeqQualityPanel(jsonObject, messageService);
+		Panel panel = babrahamPanelRenderer.getPerBaseSeqQualityPanel(jsonObject, messageService);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -221,7 +224,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Assert.assertNotNull(moduleList);
 		JSONObject jsonObject = getJSONForFastQCModule(moduleList, FastQC.PlotType.DUPLICATION_LEVELS);
 		Assert.assertNotNull(jsonObject);
-		Panel panel = BabrahamPanelRenderer.getSeqDuplicationPanel(jsonObject, messageService);
+		Panel panel = babrahamPanelRenderer.getSeqDuplicationPanel(jsonObject, messageService);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -234,7 +237,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Assert.assertNotNull(moduleList);
 		JSONObject jsonObject = getJSONForFastQCModule(moduleList, FastQC.PlotType.BASIC_STATISTICS);
 		Assert.assertNotNull(jsonObject);
-		Panel panel = BabrahamPanelRenderer.getBasicStatsPanel(jsonObject, messageService);
+		Panel panel = babrahamPanelRenderer.getBasicStatsPanel(jsonObject, messageService);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -247,7 +250,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Assert.assertNotNull(moduleList);
 		JSONObject jsonObject = getJSONForFastQCModule(moduleList, FastQC.PlotType.OVERREPRESENTED_SEQUENCES);
 		Assert.assertNotNull(jsonObject);
-		Panel panel = BabrahamPanelRenderer.getOverrepresentedSeqPanel(jsonObject, messageService);
+		Panel panel = babrahamPanelRenderer.getOverrepresentedSeqPanel(jsonObject, messageService);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -260,7 +263,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Assert.assertNotNull(moduleList);
 		JSONObject jsonObject = getJSONForFastQCModule(moduleList, FastQC.PlotType.PER_SEQUENCE_QUALITY);
 		Assert.assertNotNull(jsonObject);
-		Panel panel = BabrahamPanelRenderer.getPerSeqQualityPanel(jsonObject, messageService);
+		Panel panel = babrahamPanelRenderer.getPerSeqQualityPanel(jsonObject, messageService);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -273,7 +276,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Assert.assertNotNull(moduleList);
 		JSONObject jsonObject = getJSONForFastQCModule(moduleList, FastQC.PlotType.PER_BASE_SEQUENCE_CONTENT);
 		Assert.assertNotNull(jsonObject);
-		Panel panel = BabrahamPanelRenderer.getGetPerBaseSeqContentPanel(jsonObject, messageService);
+		Panel panel = babrahamPanelRenderer.getGetPerBaseSeqContentPanel(jsonObject, messageService);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -286,7 +289,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Assert.assertNotNull(moduleList);
 		JSONObject jsonObject = getJSONForFastQCModule(moduleList, FastQC.PlotType.PER_BASE_GC_CONTENT);
 		Assert.assertNotNull(jsonObject);
-		Panel panel = BabrahamPanelRenderer.getPerBaseGcContentPanel(jsonObject, messageService);
+		Panel panel = babrahamPanelRenderer.getPerBaseGcContentPanel(jsonObject, messageService);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -299,7 +302,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Assert.assertNotNull(moduleList);
 		JSONObject jsonObject = getJSONForFastQCModule(moduleList, FastQC.PlotType.PER_SEQUENCE_GC_CONTENT);
 		Assert.assertNotNull(jsonObject);
-		Panel panel = BabrahamPanelRenderer.getPerSeqGcContentPanel(jsonObject, messageService);
+		Panel panel = babrahamPanelRenderer.getPerSeqGcContentPanel(jsonObject, messageService);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -312,7 +315,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Assert.assertNotNull(moduleList);
 		JSONObject jsonObject = getJSONForFastQCModule(moduleList, FastQC.PlotType.PER_BASE_N_CONTENT);
 		Assert.assertNotNull(jsonObject);
-		Panel panel = BabrahamPanelRenderer.getPerBaseNContentPanel(jsonObject, messageService);
+		Panel panel = babrahamPanelRenderer.getPerBaseNContentPanel(jsonObject, messageService);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		Assert.assertTrue(html.contains("title: { text: 'N content across all bases' },"));
@@ -324,7 +327,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Assert.assertNotNull(moduleList);
 		JSONObject jsonObject = getJSONForFastQCModule(moduleList, FastQC.PlotType.KMER_PROFILES);
 		Assert.assertNotNull(jsonObject);
-		Panel panel = BabrahamPanelRenderer.getKmerProfilesPanel(jsonObject, messageService);
+		Panel panel = babrahamPanelRenderer.getKmerProfilesPanel(jsonObject, messageService);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -337,7 +340,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Assert.assertNotNull(moduleList);
 		JSONObject jsonObject = getJSONForFastQCModule(moduleList, FastQC.PlotType.SEQUENCE_LENGTH_DISTRIBUTION);
 		Assert.assertNotNull(jsonObject);
-		Panel panel = BabrahamPanelRenderer.getSeqLengthDistributionPanel(jsonObject, messageService);
+		Panel panel = babrahamPanelRenderer.getSeqLengthDistributionPanel(jsonObject, messageService);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -350,7 +353,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Assert.assertNotNull(module);
 		JSONObject jsonObject = getJSONForFastQScreenModule(module);
 		Assert.assertNotNull(jsonObject);
-		Panel panel = BabrahamPanelRenderer.getFastQScreenPanel(jsonObject, messageService);
+		Panel panel = babrahamPanelRenderer.getFastQScreenPanel(jsonObject, messageService);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);

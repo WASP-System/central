@@ -62,6 +62,9 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	private FileService fileService;
 	
 	@Autowired
+	private BabrahamPanelRenderer babrahamPanelRenderer;
+	
+	@Autowired
 	@Qualifier("fastqc")
 	private Software fastqc;
 	
@@ -336,51 +339,51 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 		
 		JSONObject json = getJsonForParsedSoftwareOutputByKey(PlotType.QC_RESULT_SUMMARY, fastqc, fileGroupId);
 		if (json != null)
-			panelTab.addPanel(BabrahamPanelRenderer.getQCResultsSummaryPanel(json, messageService));
+			panelTab.addPanel(babrahamPanelRenderer.getQCResultsSummaryPanel(json, messageService));
 		
 		json = getJsonForParsedSoftwareOutputByKey(PlotType.BASIC_STATISTICS, fastqc, fileGroupId);
 		if (json != null)
-			panelTab.addPanel(BabrahamPanelRenderer.getBasicStatsPanel(json, messageService));
+			panelTab.addPanel(babrahamPanelRenderer.getBasicStatsPanel(json, messageService));
 		
 		json = getJsonForParsedSoftwareOutputByKey(PlotType.PER_SEQUENCE_QUALITY, fastqc, fileGroupId);
 		if (json != null)
-			panelTab.addPanel(BabrahamPanelRenderer.getPerSeqQualityPanel(json, messageService));
+			panelTab.addPanel(babrahamPanelRenderer.getPerSeqQualityPanel(json, messageService));
 		
 		json = getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_N_CONTENT, fastqc, fileGroupId);
 		if (json != null)
-			panelTab.addPanel(BabrahamPanelRenderer.getPerBaseNContentPanel(json, messageService));
+			panelTab.addPanel(babrahamPanelRenderer.getPerBaseNContentPanel(json, messageService));
 		
 		json = getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_GC_CONTENT, fastqc, fileGroupId);
 		if (json != null)
-			panelTab.addPanel(BabrahamPanelRenderer.getPerBaseGcContentPanel(json, messageService));
+			panelTab.addPanel(babrahamPanelRenderer.getPerBaseGcContentPanel(json, messageService));
 		
 		json = getJsonForParsedSoftwareOutputByKey(PlotType.PER_SEQUENCE_GC_CONTENT, fastqc, fileGroupId);
 		if (json != null)
-			panelTab.addPanel(BabrahamPanelRenderer.getPerSeqGcContentPanel(json, messageService));
+			panelTab.addPanel(babrahamPanelRenderer.getPerSeqGcContentPanel(json, messageService));
 		
 		json = getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_SEQUENCE_CONTENT, fastqc, fileGroupId);
 		if (json != null)	
-			panelTab.addPanel(BabrahamPanelRenderer.getGetPerBaseSeqContentPanel(json, messageService));
+			panelTab.addPanel(babrahamPanelRenderer.getGetPerBaseSeqContentPanel(json, messageService));
 		
 		json = getJsonForParsedSoftwareOutputByKey(PlotType.DUPLICATION_LEVELS, fastqc, fileGroupId);
 		if (json != null)
-			panelTab.addPanel(BabrahamPanelRenderer.getSeqDuplicationPanel(json, messageService));
+			panelTab.addPanel(babrahamPanelRenderer.getSeqDuplicationPanel(json, messageService));
 		
 		json = getJsonForParsedSoftwareOutputByKey(PlotType.KMER_PROFILES, fastqc, fileGroupId);
 		if (json != null)	
-			panelTab.addPanel(BabrahamPanelRenderer.getKmerProfilesPanel(json, messageService));
+			panelTab.addPanel(babrahamPanelRenderer.getKmerProfilesPanel(json, messageService));
 		
 		json = getJsonForParsedSoftwareOutputByKey(PlotType.OVERREPRESENTED_SEQUENCES, fastqc, fileGroupId);
 		if (json != null)	
-			panelTab.addPanel(BabrahamPanelRenderer.getOverrepresentedSeqPanel(json, messageService));
+			panelTab.addPanel(babrahamPanelRenderer.getOverrepresentedSeqPanel(json, messageService));
 		
 		json = getJsonForParsedSoftwareOutputByKey(PlotType.SEQUENCE_LENGTH_DISTRIBUTION, fastqc, fileGroupId);
 		if (json != null)	
-			panelTab.addPanel(BabrahamPanelRenderer.getSeqLengthDistributionPanel(json, messageService));
+			panelTab.addPanel(babrahamPanelRenderer.getSeqLengthDistributionPanel(json, messageService));
 		
 		json = getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_QUALITY, fastqc, fileGroupId);
 		if (json != null)	
-			panelTab.addPanel(BabrahamPanelRenderer.getPerBaseSeqQualityPanel(json, messageService));
+			panelTab.addPanel(babrahamPanelRenderer.getPerBaseSeqQualityPanel(json, messageService));
 		return panelTab;
 	}
 	
@@ -395,7 +398,7 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 		panelTab.setDescription(fastqscreen.getDescription());
 		JSONObject json = getJsonForParsedSoftwareOutputByKey(FastQScreenTasklet.FASTQSCREEN_PLOT_META_KEY, fastqscreen, fileGroupId);
 		if (json != null)
-			panelTab.addPanel(BabrahamPanelRenderer.getFastQScreenPanel(json, messageService));
+			panelTab.addPanel(babrahamPanelRenderer.getFastQScreenPanel(json, messageService));
 		return panelTab;
 	}
 

@@ -8,6 +8,7 @@
 
 	<!-- component scan -->
   	<context:component-scan base-package="edu.yu.einstein.wasp.plugin.babraham.controller" />
+  	<context:component-scan base-package="edu.yu.einstein.wasp.plugin.babraham.charts" />
 
 	<!-- common definitions -->
 	<import resource="babraham-plugin-context-common.xml" />
