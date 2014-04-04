@@ -12,7 +12,7 @@ import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
+import edu.yu.einstein.wasp.plugin.babraham.batch.service.BabrahamBatchService;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQScreen;
 import edu.yu.einstein.wasp.service.FileService;
 
@@ -26,7 +26,7 @@ public class FastQScreenTasklet extends WaspRemotingTasklet {
 	private FileService fileService;
 	
 	@Autowired
-	private BabrahamService babrahamService;
+	private BabrahamBatchService babrahamService;
 	
 	@Autowired
 	private FastQScreen fastqscreen;
