@@ -61,3 +61,11 @@
 	</table>
 </form>
 <br />
+<!--  need to incorporate this at some point
+<c:forEach items="${fileHandles}" var="fileHandle" >
+<c:if test="${fileHandle.id==1180}">
+Robert <c:out value="${fileHandle.id}" /> Dubin<br />
+	<img src='<wasp:url fileAccessor='${fileHandle.getId().toString()}' />'height='400' width='400'><br />
+</c:if>
+</c:forEach>
+--> 

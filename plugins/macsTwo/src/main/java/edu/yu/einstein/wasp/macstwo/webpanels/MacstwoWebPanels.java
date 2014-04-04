@@ -335,7 +335,7 @@ public class MacstwoWebPanels {
 		//create the panelTab to house the panel
 		PanelTab panelTab = new PanelTab();
 		panelTab.setName("Model View");
-		panelTab.setNumberOfColumns(1);
+		panelTab.setNumberOfColumns(2);
 		
 		int counter = 1;
 		for(Sample testSample : testSampleList){
@@ -361,12 +361,17 @@ public class MacstwoWebPanels {
 						panel.setOrder(counter++);
 						
 						WebContent content = new WebContent();
-						//content.setHtmlCode("<img width=\"200\" height=\"200\" src=\"http://localhost:8080/wasp/images/fail.png\" />");
-						//content.setHtmlCode("<iframe width=\"200\" height=\"200\" src=\"http://www.einstein.yu.edu\" ></iframe>");
-						//content.setHtmlCode("<iframe width=\"470\" height=\"900\" src=\"http://localhost:8080/wasp/file/fileHandle/1160/view.do\" ></iframe>");//works nicely!
-						content.setHtmlCode("<iframe width=\"470\" height=\"900\" src=\"http://localhost:8080/wasp/file/fileHandle/"+fileHandle.getId()+"/view.do\" ></iframe>");
+						//works nicely:
+						content.setHtmlCode("<img src= '"+resolvedURL+"' height='800' width='400'>");
 						
-						///file/fileHandle/${fileHandle.getId()}/view.do"
+						//this works, but uses iframe which we do not want:
+						//content.setHtmlCode("<iframe width=\"470\" height=\"900\" src=\"http://localhost:8080/wasp/file/fileHandle/"+fileHandle.getId()+"/view.do\" ></iframe>");
+						
+						//apparently works fine:
+						//content.setHtmlCode("<img width=\"200\" height=\"200\" src=\"http://localhost:8080/wasp/images/fail.png\" />");
+						
+						//doesn't work
+						//content.setHtmlCode("<img src= '<wasp:url fileAccessor= '${"+fileHandle.getId().toString()+"}' />' height='800' width='400'>");
 						
 						panel.setContent(content);
 						panelTab.addPanel(panel);//add panel to panelTab	
