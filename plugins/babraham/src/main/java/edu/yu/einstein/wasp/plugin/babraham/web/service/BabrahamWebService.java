@@ -5,13 +5,13 @@
 package edu.yu.einstein.wasp.plugin.babraham.web.service;
 
 import edu.yu.einstein.wasp.exception.PanelException;
-import edu.yu.einstein.wasp.plugin.babraham.batch.service.BabrahamBatchService;
+import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 /**
  * 
  */
-public interface BabrahamWebService extends BabrahamBatchService {
+public interface BabrahamWebService extends BabrahamService {
 
 		/**
 		 * Get a Set of WebPanel objects for the given fileGroup

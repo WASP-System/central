@@ -14,9 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
-import edu.yu.einstein.wasp.plugin.babraham.batch.service.impl.BabrahamBatchServiceImpl;
 import edu.yu.einstein.wasp.plugin.babraham.batch.tasklet.FastQScreenTasklet;
 import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamPanelRenderer;
+import edu.yu.einstein.wasp.plugin.babraham.service.impl.BabrahamServiceImpl;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQC.PlotType;
 import edu.yu.einstein.wasp.plugin.babraham.web.service.BabrahamWebService;
 import edu.yu.einstein.wasp.service.MessageService;
@@ -24,7 +24,7 @@ import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 @Service
 @Transactional("entityManager")
-public class BabrahamWebServiceImpl extends BabrahamBatchServiceImpl implements BabrahamWebService {
+public class BabrahamWebServiceImpl extends BabrahamServiceImpl implements BabrahamWebService {
 	
 	@Value("${wasp.host.servletname:wasp}")
 	private String servletName;

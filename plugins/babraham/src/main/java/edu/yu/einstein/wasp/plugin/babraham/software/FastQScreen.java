@@ -21,6 +21,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Software;
+import edu.yu.einstein.wasp.plugin.babraham.batch.service.impl.BabrahamBatchServiceImpl;
 import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamQCParseModule;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
@@ -193,6 +194,6 @@ public class FastQScreen extends SoftwarePackage {
 	 * @throws JSONException 
 	 */
 	public JSONObject parseOutput(String resultsDir) throws GridException, BabrahamDataParseException, JSONException {
-		return BabrahamQCParseModule.getParsedFastqScreenStatistics(babrahamService.parseFastQScreenOutput(resultsDir), messageService);
+		return BabrahamQCParseModule.getParsedFastqScreenStatistics(((BabrahamBatchServiceImpl) babrahamService).parseFastQScreenOutput(resultsDir), messageService);
 	}
 }
