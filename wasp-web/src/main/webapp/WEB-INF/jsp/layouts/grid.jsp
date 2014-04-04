@@ -16,9 +16,9 @@
 	<script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.js"></script>
 	<script type="text/javascript" src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script> 
 	<script type="text/javascript" src="<wasp:relativeUrl value='scripts/jquery/ajaxfileupload.js' />"></script>
-
 	<%--  include locale-specific jqgrid file.  jqLang is set in UserLocaleInterceptor class --%> 
-	<script src="<wasp:relativeUrl value='scripts/jqgrid/grid.locale-<%= ((HttpServletRequest)pageContext.getRequest()).getSession().getAttribute(' />"jqLang") %>.js" type="text/javascript"></script>
+	<% String locale = ((HttpServletRequest) pageContext.getRequest()).getSession().getAttribute("jqLang").toString(); %>
+	<script src="<wasp:relativeUrl><jsp:attribute name='value'>scripts/jqgrid/grid.locale-<%= locale %>.js</jsp:attribute></wasp:relativeUrl>" type="text/javascript"></script>
 	<script src="<wasp:relativeUrl value='scripts/jqgrid/jquery.jqGrid.min.js' />" type="text/javascript"></script>
 	
 	

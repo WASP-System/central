@@ -18,7 +18,7 @@
 	</c:if>
 </div>
 
-<form name="f" action="<wasp:relativeUrl value='/j_spring_security_check'/>"
+<form name="f" action="<c:url value='/j_spring_security_check'/>"
 	method="POST" onsubmit='return validate();'>
 	<table class="EditTable ui-widget ui-widget-content">
 		<tr class="FormData">
