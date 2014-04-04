@@ -9,7 +9,7 @@
 	<!-- component scan -->
   	<context:component-scan base-package="edu.yu.einstein.wasp.plugin.babraham.controller" />
   	
-  	<bean class="edu.yu.einstein.wasp.plugin.babraham.batch.service.impl.BabrahamWebServiceImpl" />
+  	<bean class="edu.yu.einstein.wasp.plugin.babraham.web.service.impl.BabrahamWebServiceImpl" />
 
 	<!-- common definitions -->
 	<import resource="babraham-plugin-context-common.xml" />
