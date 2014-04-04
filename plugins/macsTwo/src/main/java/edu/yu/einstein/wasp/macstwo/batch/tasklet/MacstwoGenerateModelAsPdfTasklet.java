@@ -107,14 +107,14 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 	*/
 	
 //TODO: ROBERT A DUBIN (1 of 3) comment out this next method for production
-///*
+/*
 	@Override
 	@Transactional("entityManager")
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		this.doExecute(context);
 		return RepeatStatus.FINISHED;
 	}
-//*/
+*/
 	/**
 	 * 
 	 * @param contrib
@@ -245,17 +245,17 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		logger.debug("executed w.setResultsDirectory(Workunit.....) within MacstwoGenerateModelAsPdfTasklet.doExecute()");
 		
 //TODO: ROBERT A DUBIN (2 of 3) uncomment next 3 lines for production  !!!!!!!!!!
-/*		
+///*		
 		 GridResult result = gridHostResolver.execute(w);
 		logger.debug("****Executed gridHostResolver.execute(w) in MacstwoGenerateModelAsPdfTasklet.doExecute()");		
 		storeStartedResult(context, result);//place the grid result in the step context
-*/
+//*/
 		
 //TODO: ROBERT A DUBIN (3 of 3) comment out TWO (yes TWO) next line for production  !!!!!!!!!!
-///*
+/*
 		logger.debug("getting ready to call doPreFinish() in MacstwoGenerateModelAsPdfTasklet from doExecute()");
 		this.doPreFinish(context);
-//*/
+*/
 	}
 	
 

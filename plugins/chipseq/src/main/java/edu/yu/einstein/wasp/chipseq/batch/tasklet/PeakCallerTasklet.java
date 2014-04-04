@@ -95,10 +95,13 @@ public class PeakCallerTasklet extends LaunchManyJobsTasklet {
 		Job job = jobService.getJobByJobId(jobIdFromJobParameter);
 		Assert.assertTrue(job.getId()>0);
 		
-//TODO: ROBERT A DUBIN (1 of 1) uncomment next line and comment out the one immediately after for production   !!!!!!!!!!!!!!!!!!!!!!!!  
-		//List<SampleSource> approvedCellLibraryList = sampleService.getCellLibrariesPassQCAndNoAggregateAnalysis(job);		
-		List<SampleSource> approvedCellLibraryList = new ArrayList<SampleSource>(sampleService.getCellLibrariesForJob(job));//sampleService.getCellLibrariesPassQCAndNoAggregateAnalysis(job);		
-		Assert.assertTrue( ! approvedCellLibraryList.isEmpty() );
+//TODO: ROBERT A DUBIN (1 of 1) comment out next line and uncomment out the next set immediately after for production   !!!!!!!!!!!!!!!!!!!!!!!!  
+		//List<SampleSource> approvedCellLibraryList = new ArrayList<SampleSource>(sampleService.getCellLibrariesForJob(job));//sampleService.getCellLibrariesPassQCAndNoAggregateAnalysis(job);		
+		List<SampleSource> approvedCellLibraryList = null;
+		try{
+			approvedCellLibraryList = sampleService.getCellLibrariesPassQCAndNoAggregateAnalysis(job);	
+		}catch(Exception e){logger.debug("unable to obtain approvedCellLibraryList in PeakCallerTasklet; message = " + e.getMessage());}
+		Assert.assertTrue( approvedCellLibraryList!=null && ! approvedCellLibraryList.isEmpty() );
 		
 		Assert.assertTrue(confirmCellLibrariesAssociatedWithBamFiles(approvedCellLibraryList));
 

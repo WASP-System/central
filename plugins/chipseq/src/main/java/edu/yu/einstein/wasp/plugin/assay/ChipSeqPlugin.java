@@ -255,7 +255,7 @@ public class ChipSeqPlugin extends WaspPlugin implements
 			//recall that the summary panelTab is now provided directly from within the web: ResultViewController()			
 			
 			Set<PanelTab> panelTabSet = new LinkedHashSet<PanelTab>();
-			//TODO: ROBERT A DUBIN uncomment this     if(this.getStatus(job).toString().equals(Status.COMPLETED.toString())){
+			 //TODO: ROBERT A DUBIN uncomment this for production    if(this.getStatus(job).toString().equals(Status.COMPLETED.toString())){
 				JobDataTabViewing peakcallerPlugin = chipSeqService.getPeakcallerPlugin(job);//at this time, only option is macstwo
 				Set<PanelTab> downstreamPanelTabSet = peakcallerPlugin.getViewPanelTabs(job);//all the macstwo specific info
 				if(downstreamPanelTabSet != null && !downstreamPanelTabSet.isEmpty()){
