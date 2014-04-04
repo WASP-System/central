@@ -10,10 +10,10 @@
 		</li>
 		<sec:authorize access="hasRole('lu-${lu.lab.labId}' )">
 			<li>
-				<a href='<wasp:relativeUrl value="/lab/detail_ro/${lu.lab.departmentId}/${lu.lab.labId}.do"/>'><fmt:message key="dashboard.labDetails.label" /></a>
+				<a href='<wasp:relativeUrl value="lab/detail_ro/${lu.lab.departmentId}/${lu.lab.labId}.do"/>'><fmt:message key="dashboard.labDetails.label" /></a>
 			</li>						
 			<li>
-				<a href='<wasp:relativeUrl value="/lab/user_manager/${lu.lab.labId}.do"/>'><fmt:message key="dashboard.userManager.label" /></a>
+				<a href='<wasp:relativeUrl value="lab/user_manager/${lu.lab.labId}.do"/>'><fmt:message key="dashboard.userManager.label" /></a>
 			</li>							
 		</sec:authorize>
 	</c:forEach>

@@ -33,11 +33,11 @@
 			access="hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('da-*')">
 			<tr class="FormData">
 				<td><a
-					href="<wasp:relativeUrl value="/lab/pending/detail_rw/${labPending.departmentId}/${labPending.labPendingId}.do" />"><fmt:message key="labPending.edit.label" /></a>
+					href="<wasp:relativeUrl value="lab/pending/detail_rw/${labPending.departmentId}/${labPending.labPendingId}.do" />"><fmt:message key="labPending.edit.label" /></a>
 					| <a
-					href="<wasp:relativeUrl value="/lab/pending/approve/${labPending.departmentId}/${labPending.labPendingId}.do" />"><fmt:message key="labPending.approve.label" /></a>
+					href="<wasp:relativeUrl value="lab/pending/approve/${labPending.departmentId}/${labPending.labPendingId}.do" />"><fmt:message key="labPending.approve.label" /></a>
 					| <a
-					href="<wasp:relativeUrl value="/lab/pending/reject/${labPending.departmentId}/${labPending.labPendingId}.do" />"><fmt:message key="labPending.reject.label" /></a>
+					href="<wasp:relativeUrl value="lab/pending/reject/${labPending.departmentId}/${labPending.labPendingId}.do" />"><fmt:message key="labPending.reject.label" /></a>
 				</td>
 			</tr>
 		</sec:authorize>

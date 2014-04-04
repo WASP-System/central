@@ -25,7 +25,7 @@
 	<br />
 	<sec:authorize access="hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('da-${lab.departmentId}') or hasRole('pi-${lab.labId}')">
     <div class="submit">
-      <a href="<wasp:relativeUrl value="/lab/detail_rw/${lab.departmentId}/${lab.labId}.do" />">Edit</a>
+      <a href="<wasp:relativeUrl value="lab/detail_rw/${lab.departmentId}/${lab.labId}.do" />">Edit</a>
      </div>
 	</sec:authorize>
 

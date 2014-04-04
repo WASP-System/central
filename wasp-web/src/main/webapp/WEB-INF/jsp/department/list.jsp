@@ -34,7 +34,7 @@
 			No Pending Department Administrator Tasks
 	 	</c:when>
 	 	<c:otherwise>
-		 	<a style="color:red" href="<wasp:relativeUrl value="/department/dapendingtasklist.do"/>"><c:out value="${departmentAdminPendingTasks}" /> Pending Department Administrator Task<c:if test='${departmentAdminPendingTasks != 1}'>s</c:if></a>
+		 	<a style="color:red" href="<wasp:relativeUrl value="department/dapendingtasklist.do"/>"><c:out value="${departmentAdminPendingTasks}" /> Pending Department Administrator Task<c:if test='${departmentAdminPendingTasks != 1}'>s</c:if></a>
 		</c:otherwise>
 	</c:choose>
 </div>

@@ -11,7 +11,7 @@
 
 $(document).ready(function() {
 	
-	//////$("#viewerFrame").load('<wasp:relativeUrl value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />');
+	//////$("#viewerFrame").load('<wasp:relativeUrl value="sampleDnaToLibrary/jobDetails/${job.getId()}.do" />');
 	
 	//http://api.jqueryui.com/dialog/
 	$("#modalDialog").dialog({
@@ -246,7 +246,7 @@ function closeAllRuns(){
 	}	
 }
 
-window.onload = function (){loadNewPage('fakeAnchor', '<wasp:relativeUrl value="/datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />'); }
+window.onload = function (){loadNewPage('fakeAnchor', '<wasp:relativeUrl value="datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />'); }
 
 </script>
  

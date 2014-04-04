@@ -20,14 +20,14 @@
 	<c:set var="librariesList" value="${jobAndSamplesMap.get(job)}" scope="page" />
 	<c:forEach items="${librariesList}" var="library">
 		<tr class="FormData">
-		<td style='text-align:center'><a href="<wasp:relativeUrl value="/libraryDnaToLibrary/listJobSamples/${job.getJobId()}.do" />">J<c:out value="${job.getJobId()}" /></a></td>          
+		<td style='text-align:center'><a href="<wasp:relativeUrl value="libraryDnaToLibrary/listJobSamples/${job.getJobId()}.do" />">J<c:out value="${job.getJobId()}" /></a></td>          
 		<td style='text-align:center'><c:out value="${job.getName()}" /></td>
 		<td style='text-align:center'><c:out value="${job.getUser().getFirstName()}" /> <c:out value="${job.getUser().getLastName()}" /></td>
 		<td style='text-align:center'><c:out value="${library.getName()}" /></td>
 		<td style='text-align:center'><c:out value="${library.getSampleType().getName()}" /></td>
 		<td style='text-align:center'>
 			
-		<form action="<wasp:relativeUrl value="/task/libraryqc/qc.do"/>" method="POST" onsubmit="return validate(this)">
+		<form action="<wasp:relativeUrl value="task/libraryqc/qc.do"/>" method="POST" onsubmit="return validate(this)">
  		<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="sampleId" value="${library.getSampleId()}"> 
  		<input class="FormElement ui-widget-content ui-corner-all" type="radio" id = "qcStatus" name = "qcStatus" value = "PASSED"><fmt:message key="task.libraryqc_passed.label" /> &nbsp;<input class="FormElement ui-widget-content ui-corner-all" type="radio" id = "qcStatus" name = "qcStatus" value = "FAILED"><fmt:message key="task.libraryqc_failed.label" /> &nbsp;<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="task.libraryqc_submit.label" />">
 		</form>
@@ -70,7 +70,7 @@
 		<tr class="FormData">
 			<c:choose>
 				<c:when test="${currentJobId !=  job.getJobId()}">
-					<td style='text-align:center;'><a style="color: #801A00;" href="<wasp:relativeUrl value="/sampleDnaToLibrary/listJobSamples/${job.getJobId()}.do" />">J<c:out value="${job.getJobId()}" /></a></td>          
+					<td style='text-align:center;'><a style="color: #801A00;" href="<wasp:relativeUrl value="sampleDnaToLibrary/listJobSamples/${job.getJobId()}.do" />">J<c:out value="${job.getJobId()}" /></a></td>          
 					<td style='text-align:center'><c:out value="${job.getName()}" /></td>
 					<td style='text-align:center'><c:out value="${job.getUser().getFirstName()}" /> <c:out value="${job.getUser().getLastName()}" /></td>
 				</c:when>
@@ -84,7 +84,7 @@
 			<td style='text-align:center'><c:out value="${sample.getName()}" /> </td>
 			<td style='text-align:center'>
 			
-				<form action="<wasp:relativeUrl value="/task/libraryqc/qc.do"/>" id="theForm<c:out value="${sample.getSampleId()}" />" method="POST" onsubmit="return validate(this);">
+				<form action="<wasp:relativeUrl value="task/libraryqc/qc.do"/>" id="theForm<c:out value="${sample.getSampleId()}" />" method="POST" onsubmit="return validate(this);">
  				<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="sampleId" value="${sample.getSampleId()}"> 
  				<input class="FormElement ui-widget-content ui-corner-all" type="radio" id = "qcStatus" name = "qcStatus" value = "PASSED"><fmt:message key="task.libraryqc_passed.label" /> &nbsp;
  				<input class="FormElement ui-widget-content ui-corner-all" onclick='selectedFail("theForm<c:out value="${sample.getSampleId()}" />");' type="radio" id = "qcStatus" name = "qcStatus" value = "FAILED"><fmt:message key="task.libraryqc_failed.label" /><br />

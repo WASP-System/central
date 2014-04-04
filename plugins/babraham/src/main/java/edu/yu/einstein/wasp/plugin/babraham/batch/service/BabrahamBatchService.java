@@ -2,7 +2,7 @@
  * Created by Wasp System Eclipse Plugin
  * @author 
  */
-package edu.yu.einstein.wasp.plugin.babraham.service;
+package edu.yu.einstein.wasp.plugin.babraham.batch.service;
 
 import java.io.InputStream;
 import java.util.Map;
@@ -12,24 +12,16 @@ import org.json.JSONObject;
 
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.MetadataException;
-import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.software.BabrahamDataModule;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQCDataModule;
 import edu.yu.einstein.wasp.service.WaspService;
-import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 /**
  * 
  */
-public interface BabrahamService extends WaspService {
-
-		/**
-		 * Perform Service
-		 * @return String
-		 */
-		public String performAction();
+public interface BabrahamBatchService extends WaspService {
 
 		/**
 		 * Returns a map of FastQCDataModule objects. Output data to parse obtained from a GridResult.
@@ -94,24 +86,7 @@ public interface BabrahamService extends WaspService {
 		 * @throws MetadataException
 		 */
 		public JSONObject getJsonForParsedSoftwareOutputByKey(String key, Software software, Integer fileGroupId) throws JSONException, MetadataException;
-
-		/**
-		 * Get a Set of WebPanel objects for the given fileGroup
-		 * @param fileGroupId
-		 * @return
-		 * @throws PanelException 
-		 */
-		public PanelTab getFastQCDataToDisplay(Integer fileGroupId) throws PanelException;
-
-		/**
-		 * Get a Set of WebPanel objects for the given fileGroup
-		 * @param fileGroupId
-		 * @return
-		 * @throws PanelException
-		 */
-		public PanelTab getFastQScreenDataToDisplay(Integer fileGroupId) throws PanelException;
-
-		
+	
 
 
 

@@ -23,7 +23,7 @@
 		    	<td class="DataTD value-centered"><fmt:message key="sysrole.list_unchangeable.label" /></td>
 		    </c:when>
 		    <c:otherwise>
-		    	<td class="submit value-centered"><a href="<wasp:relativeUrl value="/sysrole/remove/${r.userId}/${r.role.roleName}.do" />"><fmt:message key="sysrole.list_remove.label" /></a></td>
+		    	<td class="submit value-centered"><a href="<wasp:relativeUrl value="sysrole/remove/${r.userId}/${r.role.roleName}.do" />"><fmt:message key="sysrole.list_remove.label" /></a></td>
 		    </c:otherwise>
 		    </c:choose>
 	    </tr>
@@ -38,7 +38,7 @@
   <fmt:message key="sysrole.list_add_role.label" />
 </div>
 
-  <form method="POST" action="<wasp:relativeUrl value="/sysrole/add.do"/>" onsubmit='return validate();'>
+  <form method="POST" action="<wasp:relativeUrl value="sysrole/add.do"/>" onsubmit='return validate();'>
   <table class="EditTable ui-widget ui-widget-content">
     <tr class="FormData">
     	<td class="CaptionTD"><fmt:message key="sysrole.list_sysuser_role.label" />: </td>

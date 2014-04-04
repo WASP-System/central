@@ -30,7 +30,7 @@
 			<tr class="FormData">
 				<c:choose>
 					<c:when test="${currentJobId !=  job.getJobId()}">
-						<td style='text-align:center;vertical-align:middle;'><a style="color: #801A00;" href="<wasp:relativeUrl value="/sampleDnaToLibrary/listJobSamples/${job.getJobId()}.do" />">J<c:out value="${job.getJobId()}" /></a></td>          
+						<td style='text-align:center;vertical-align:middle;'><a style="color: #801A00;" href="<wasp:relativeUrl value="sampleDnaToLibrary/listJobSamples/${job.getJobId()}.do" />">J<c:out value="${job.getJobId()}" /></a></td>          
 						<td style='text-align:center;vertical-align:middle;'><c:out value="${job.getName()}" /></td>
 						<td style='text-align:center;vertical-align:middle;'><c:out value="${job.getUser().getFirstName()}" /> <c:out value="${job.getUser().getLastName()}" /></td>
 					</c:when>

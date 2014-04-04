@@ -26,7 +26,7 @@
 					    	onchange='			    	
 					    		var selectedAdaptorSet = this.options[this.selectedIndex].value;			    	
 						    	var options = "";
-						    	var url = "<wasp:relativeUrl value="/jobsubmit/adaptorsByAdaptorsetId.do?adaptorsetId="/>"+selectedAdaptorSet;
+						    	var url = "<wasp:relativeUrl value="jobsubmit/adaptorsByAdaptorsetId.do?adaptorsetId="/>"+selectedAdaptorSet;
 								var adaptorCount = 0;
 								if (!selectedAdaptorSet) {
 									$("tr#row_adaptor").hide();

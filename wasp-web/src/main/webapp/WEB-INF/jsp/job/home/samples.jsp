@@ -1,10 +1,10 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <br />
-<a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="/job/${job.getId()}/basic.do" />");' >View Basic Request</a>
-<a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="/job/${job.getId()}/requests.do?onlyDisplayCellsRequested=true" />");' >View Lane Request</a>
+<a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${job.getId()}/basic.do" />");' >View Basic Request</a>
+<a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${job.getId()}/requests.do?onlyDisplayCellsRequested=true" />");' >View Lane Request</a>
 <sec:authorize access="hasRole('su') or hasRole('ft')">
 	<%--<c:if test="${numberOfLibrariesAwaitingPlatformUnitPlacement>1}"> --%>
-		<a class="button" href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="/job/${job.getId()}/addLibrariesToCell.do" />");' >Assign Multiple Libraries</a><br />
+		<a class="button" href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/addLibrariesToCell.do" />");' >Assign Multiple Libraries</a><br />
 	<%--</c:if> --%>
 </sec:authorize>
 <br /><br />					
@@ -39,7 +39,7 @@
 			<td class="DataTD"  style="text-align:center; white-space:nowrap;" rowspan="${sizeOfLibraryList==0?1:sizeOfLibraryList}"  style="text-align:center; white-space:nowrap;">
 			<c:choose>
 				<c:when test="${submittedMacromoleculeList.contains(submittedObject)}">					
-					<label>Name:</label> <a href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="/job/${job.getId()}/sample/${submittedObject.getId()}/sampledetail_ro.do" />");' ><c:out value="${submittedObject.getName()}" /></a><br />
+					<label>Name:</label> <a href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/sample/${submittedObject.getId()}/sampledetail_ro.do" />");' ><c:out value="${submittedObject.getName()}" /></a><br />
 					<label>Type:</label> <c:out value="${submittedObject.getSampleType().getName()}"/><br />
 					<label>Species:</label> <c:out value="${submittedObjectOrganismMap.get(submittedObject)}" /><br />
 					<label>Arrival Status:</label> <c:out value="${receivedStatusMap.get(submittedObject)}" /><br />
@@ -56,7 +56,7 @@
 						<c:if test='${receivedStatusMap.get(submittedObject)=="RECEIVED" && qcStatusMap.get(submittedObject)=="PASSED"}'>
 							<c:if test='${not empty createLibraryStatusMap.get(submittedObject) and createLibraryStatusMap.get(submittedObject) == true}'>
  	 							<br />
- 	 							<a class="button" href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="/job/${job.getId()}/macromolecule/${submittedObject.getId()}/createLibrary.do" />");' ><fmt:message key="listJobSamples.createLibrary.label" /></a>
+ 	 							<a class="button" href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/macromolecule/${submittedObject.getId()}/createLibrary.do" />");' ><fmt:message key="listJobSamples.createLibrary.label" /></a>
  	 							<br /><br /> 	 							
  	 						</c:if>
 	 					</c:if>
@@ -76,7 +76,7 @@
 				<c:forEach items="${libraryList}" var="library" varStatus="statusLibrary">
 					<c:if test="${!statusLibrary.first}"><tr></c:if>	
 						<td class="DataTD" style="text-align:center; white-space:nowrap;" rowspan="1">
-							<label>Name:</label> <a id="librarydetail_roAnchor"  href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="/job/${job.getId()}/library/${library.getId()}/librarydetail_ro.do" />");' ><c:out value="${library.getName()}" /></a><br />
+							<label>Name:</label> <a id="librarydetail_roAnchor"  href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/library/${library.getId()}/librarydetail_ro.do" />");' ><c:out value="${library.getName()}" /></a><br />
 							<label>Type:</label> <c:out value="${library.getSampleType().getName()}" /><br />
 							<c:if test="${submittedLibraryList.contains(library)}">
 								<label>Species:</label> <c:out value="${submittedObjectOrganismMap.get(library)}" /><br />
@@ -138,7 +138,7 @@
     												}
  	 												
  	 												
- 	 												postFormWithAjax("addLibToCell_${library.getId()}","<wasp:relativeUrl value="/job/${job.getId()}/library/${library.getId()}/addToCell.do" />"); 
+ 	 												postFormWithAjax("addLibToCell_${library.getId()}","<wasp:relativeUrl value="job/${job.getId()}/library/${library.getId()}/addToCell.do" />"); 
  	 												return false;' >
 										<table class='data' style="margin: 0 auto;">
 											<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" /></td></tr>
@@ -225,7 +225,7 @@
 									<c:choose>
 										<c:when test="${empty cellRunMap.get(cell)}">
 											<sec:authorize access="hasRole('su') or hasRole('ft')">
-												<a href="<wasp:relativeUrl value="/${showPlatformunitViewMap.get(pu)}" />"><c:out value="${pu.getName()}" /></a>
+												<a href="<wasp:relativeUrl value="${showPlatformunitViewMap.get(pu)}" />"><c:out value="${pu.getName()}" /></a>
 											</sec:authorize>
 											<sec:authorize access="not hasRole('su') and not hasRole('ft')">
 												<c:out value="${pu.getName()}" />
@@ -233,7 +233,7 @@
 										</c:when>
 										<c:otherwise>
 											<sec:authorize access="hasRole('su') or hasRole('ft')">
-												<a href="<wasp:relativeUrl value="/${showPlatformunitViewMap.get(pu)}" />"><c:out value="${run.getName()}" /></a>
+												<a href="<wasp:relativeUrl value="${showPlatformunitViewMap.get(pu)}" />"><c:out value="${run.getName()}" /></a>
 											</sec:authorize>
 											<sec:authorize access="not hasRole('su') and not hasRole('ft')">
 												<c:out value="${run.getName()}" />
@@ -244,7 +244,7 @@
 									(<c:out value="${pMLoaded}" /> pM; Lane <c:out value="${laneIndex}" />)
 									
 									<sec:authorize access="hasRole('su') or hasRole('ft')">									
-									[<c:if test="${empty cellRunMap.get(cell)}"><a href="javascript:void(0);" onclick='if(confirm("Permanently remove library from this lane?")){loadNewPageWithAjax("<wasp:relativeUrl value="/job/${job.getId()}/cell/${cell.getId()}/library/${library.getId()}/removeLibrary.do" />");}'>remove</a> | </c:if><a href="javascript:void(0);" onclick='var obj = document.getElementById("updatePM_DIV_${cell.getId()}_${library.getId()}"); obj.style.display="inline";'>update</a>] 
+									[<c:if test="${empty cellRunMap.get(cell)}"><a href="javascript:void(0);" onclick='if(confirm("Permanently remove library from this lane?")){loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/cell/${cell.getId()}/library/${library.getId()}/removeLibrary.do" />");}'>remove</a> | </c:if><a href="javascript:void(0);" onclick='var obj = document.getElementById("updatePM_DIV_${cell.getId()}_${library.getId()}"); obj.style.display="inline";'>update</a>] 
 									 
 									 	<div  id="updatePM_DIV_${cell.getId()}_${library.getId()}" style="display:none;">
 									 	<form  style="display:inline;" method='post'  id="updatePM_${cell.getId()}_${library.getId()}" action="" 
@@ -263,8 +263,8 @@
 													newConcentrationInPM.focus();
 													return false;
 	    										}	    												
-	 	 										postFormWithAjax("updatePM_${cell.getId()}_${library.getId()}","<wasp:relativeUrl value="/job/${job.getId()}/cell/${cell.getId()}/library/${library.getId()}/updateConcentration.do" />"); 
-	 												return false;' ><input type='text' name='newConcentrationInPM' id="newConcentrationInPM_${cell.getId()}_${library.getId()}"  size='3' maxlength='5'  /> pM <input type='submit' value='Update'/><input class="button" type="button" value="Cancel" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="/job/${job.getId()}/samples.do" />");' />
+	 	 										postFormWithAjax("updatePM_${cell.getId()}_${library.getId()}","<wasp:relativeUrl value="job/${job.getId()}/cell/${cell.getId()}/library/${library.getId()}/updateConcentration.do" />"); 
+	 												return false;' ><input type='text' name='newConcentrationInPM' id="newConcentrationInPM_${cell.getId()}_${library.getId()}"  size='3' maxlength='5'  /> pM <input type='submit' value='Update'/><input class="button" type="button" value="Cancel" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/samples.do" />");' />
 	 	 								</form>
 	 	 								</div>	
 									

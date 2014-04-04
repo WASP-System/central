@@ -13,7 +13,7 @@
 <tr class="FormData">
 	<td class="CaptionTD"><fmt:message key="platformunitInstance.platUnitType.label"/>:</td>
 	<td class="DataTD">
-	<form method="GET" action="<wasp:relativeUrl value="/facility/platformunit/createUpdatePlatformUnit.do" />">
+	<form method="GET" action="<wasp:relativeUrl value="facility/platformunit/createUpdatePlatformUnit.do" />">
 		<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="sampleId" value="<c:out value="${sampleId}" />" />
 		<select class="FormElement ui-widget-content ui-corner-all" name="sampleSubtypeId" size="1" onchange="this.parentNode.submit()">
 			<c:if test='${sampleSubtypeId <= 0}'>

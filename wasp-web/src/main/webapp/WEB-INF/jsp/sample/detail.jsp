@@ -7,7 +7,7 @@
 
 
   <%-- [TODO ADD PERM]--%>
-  <a href="<wasp:relativeUrl value="/sampleDnaToLibrary/detail/${sample.sampleId}.do"/>"><fmt:message key="sample.detail_facManSampleToLib.label" /></a>
+  <a href="<wasp:relativeUrl value="sampleDnaToLibrary/detail/${sample.sampleId}.do"/>"><fmt:message key="sample.detail_facManSampleToLib.label" /></a>
   <%--[/TODO ADD PERM]--%>
 
   <c:forEach items="${samplemeta}" var="meta">

@@ -90,7 +90,7 @@
 	
 	<c:set var="colspan" value = '0' scope="request"/>
 	
-	<form action="<wasp:relativeUrl value="/jobsubmit/manysamples/add/${jobDraft.getId()}/${sampleSubtype.getId()}.do" />" method="POST" >
+	<form action="<wasp:relativeUrl value="jobsubmit/manysamples/add/${jobDraft.getId()}/${sampleSubtype.getId()}.do" />" method="POST" >
 	
 		<span style="font-size:x-small">Click first &rarr; others to populate all rows with value found in a column's first row</span>
 		
@@ -323,7 +323,7 @@
 			
 			</table>
 		</div>
-		<input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<wasp:relativeUrl value="/dashboard.do"/>'" /> 
+		<input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<wasp:relativeUrl value="dashboard.do"/>'" /> 
 		<input type="submit" name="submit" value="<fmt:message key="jobDraft.cancel.label"/>" />
 		<input type="submit" name="submit" id="submit" value="<fmt:message key="jobDraft.save.label"/>" />
 	</form>

@@ -50,7 +50,7 @@
 	  <sec:authorize access="hasRole('u-${user.userId}')">
 	  	  <tr class="FormData"><td colspan="2" align=left class="submitBottom submit"><a href="<wasp:relativeUrl value='user/me_rw.do' />"><fmt:message key="userDetail.edit.label" /></a>
 		  <sec:authorize access="not hasRole('ldap')">      		   		
-	          &nbsp;&nbsp;<a href="<wasp:relativeUrl value="/user/mypassword.do"/>"><fmt:message key="userDetail.change_password.label" /></a>
+	          &nbsp;&nbsp;<a href="<wasp:relativeUrl value="user/mypassword.do"/>"><fmt:message key="userDetail.change_password.label" /></a>
 	      </sec:authorize>	
 	     </td></tr>
 	   </sec:authorize>

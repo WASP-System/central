@@ -17,6 +17,6 @@
 
 <%-- 
 <br /><br />
-<a href='<wasp:relativeUrl value="/task/cellLibraryQC/list.do"/>'>FOR TESTING - cellLibraryQC</a>		
+<a href='<wasp:relativeUrl value="task/cellLibraryQC/list.do"/>'>FOR TESTING - cellLibraryQC</a>		
 --%>		
 	

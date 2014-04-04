@@ -7,14 +7,14 @@
 
     <p>
       <fmt:message key="job.detail_lab.label" />
-      <a href="<wasp:relativeUrl value="/lab/detail_ro/${job.lab.departmentId}/${job.lab.labId}.do"/>">
+      <a href="<wasp:relativeUrl value="lab/detail_ro/${job.lab.departmentId}/${job.lab.labId}.do"/>">
         <c:out value="${job.lab.name}"/>
       </a>
     </p>
 
     <p>
       <fmt:message key="job.detail_submittingUser.label" />
-      <a href="<wasp:relativeUrl value="/user/detail_ro/${job.user.userId}.do"/>">
+      <a href="<wasp:relativeUrl value="user/detail_ro/${job.user.userId}.do"/>">
         <c:out value="${job.user.login}"/>
       </a>
       <c:out value="${job.user.firstName}"/>

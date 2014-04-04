@@ -7,7 +7,7 @@
 <br /><br />
 --%>
 <br />
-<form  method='post' name='commentForm' id='commentFormId' onsubmit='postFormWithAjax("commentFormId","<wasp:relativeUrl value="/job/${job.getId()}/comments.do" />"); return false;'>
+<form  method='post' name='commentForm' id='commentFormId' onsubmit='postFormWithAjax("commentFormId","<wasp:relativeUrl value="job/${job.getId()}/comments.do" />"); return false;'>
 	<table class="data" style="margin: 0px 0; width:600px" >
 		<c:if test='${permissionToAddEditComment==true}'>
 			<tr ><th class="label" nowrap colspan="3"><fmt:message key="jobComment.addNewJobComment.label" /></th></tr>
