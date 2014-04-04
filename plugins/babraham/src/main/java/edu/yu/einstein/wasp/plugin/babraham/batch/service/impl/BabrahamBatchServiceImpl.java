@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.GridException;
@@ -31,7 +30,6 @@ import edu.yu.einstein.wasp.plugin.babraham.software.FastQScreen;
 import edu.yu.einstein.wasp.service.FileService;
 
 
-@Service
 @Transactional("entityManager")
 public class BabrahamBatchServiceImpl extends BabrahamServiceImpl implements BabrahamBatchService{
 	

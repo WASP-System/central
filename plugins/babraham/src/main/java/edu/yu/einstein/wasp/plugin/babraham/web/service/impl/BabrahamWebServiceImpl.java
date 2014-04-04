@@ -8,7 +8,6 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.PanelException;
@@ -22,7 +21,6 @@ import edu.yu.einstein.wasp.plugin.babraham.web.service.BabrahamWebService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
-@Service
 @Transactional("entityManager")
 public class BabrahamWebServiceImpl extends BabrahamServiceImpl implements BabrahamWebService {
 	
