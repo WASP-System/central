@@ -23,7 +23,7 @@
 			</batch:tasklet>
 		</batch:step>
 		
-		<batch:step id="chipSeq.library.aggregate.step.callPeaks" next="chipSeq.library.aggregate.step.notifyCompleted">
+		<batch:step id="chipSeq.library.aggregate.step.callPeaks" next="chipSeq.library.aggregate.step.listenMany">
 			<batch:tasklet>
 				<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.chipseq.batch.tasklet.PeakCallerTasklet" scope="step">
@@ -31,61 +31,50 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<!-- 
-		<batch:step id="chipSeq.library.aggregate.step.listenForPeakCallerComplete" >
+		
+		<batch:step id="chipSeq.library.aggregate.step.listenMany">
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
-					<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.analysis" />
-					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForManyStatusMessagesTasklet" scope="step" />
+			</batch:tasklet>
+			<batch:next on="FAILED" to="chipSeq.library.aggregate.step.notifyListenFailed" />
+			<batch:next on="*" to="chipSeq.library.aggregate.step.notifyManyComplete" />
+		</batch:step>
+		
+		<batch:step id="chipSeq.library.aggregate.step.notifyManyComplete">
+			<batch:tasklet>
+				<bean
+					class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet"
+					scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-							<property name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
-							<property name="task" value="#{batchJobTasks.ANALYSIS_AGGREGATE}"/>
+						<bean
+							class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+							<property name="jobId" value="1" />
 							<property name="status" value="COMPLETED" />
 						</bean>
 					</constructor-arg>
-					
-				</bean>
-			</batch:tasklet>
-			<batch:next on="FAILED" to="chipSeq.library.aggregate.step.notifyFailed" />
-			<batch:next on="COMPLETED" to="chipSeq.library.aggregate.step.notifyCompleted" />
-		</batch:step>
-		 -->
-		<batch:step id="chipSeq.library.aggregate.step.notifyCompleted" >
-			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
-					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
-					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-							<property name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
-							<property name="task" value="#{batchJobTasks.ANALYSIS_AGGREGATE}"/>
-							<property name="status" value="COMPLETED" />
-						</bean>
-					</constructor-arg>
-					
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<!--  
-		<batch:step id="chipSeq.library.aggregate.step.notifyFailed" >
+		
+		<batch:step id="chipSeq.library.aggregate.step.notifyListenFailed">
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+				<bean
+					class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet"
+					scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-							<property name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
-							<property name="task" value="#{batchJobTasks.ANALYSIS_AGGREGATE}"/>
+						<bean
+							class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+							<property name="jobId" value="1" />
 							<property name="status" value="FAILED" />
 						</bean>
 					</constructor-arg>
-					
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		-->
+		
+		
 	</batch:job>
 
 </beans>

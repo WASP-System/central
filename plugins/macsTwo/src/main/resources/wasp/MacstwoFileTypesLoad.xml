@@ -19,6 +19,13 @@
     <property name="extensions" value="_model.pdf" />
   </bean>
   
+   <bean id="macs2ModelPngFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
+    <property name="name" value="ModelPng" />
+    <property name="area" value="macs2modelpng" />
+    <property name="description" value="Simple filetype conversion of xxx_model.pdf to xxx_model.png using ImageMagick"/>
+    <property name="extensions" value="_model.png" />
+  </bean>
+  
   <bean id="macs2PeaksXlsFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
     <property name="name" value="Peaks" />
     <property name="area" value="macs2peaksxls" />
@@ -33,12 +40,26 @@
     <property name="extensions" value="_peaks.narrowPeak" />
   </bean>
 
-<!-- this next file is not currently generated in WASP execution of macs2 ; it is for broad peaks, such as the histone modification H3K36me3 -->
+<!-- this next file (never seen as output) is not currently generated in WASP execution of macs2 ; it is for broad peaks, such as the histone modification H3K36me3 -->
   <bean id="macs2BroadPeaksBedFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
-    <property name="name" value="BroadPeaks" />
+    <property name="name" value="BroadPeaksBed" />
     <property name="area" value="macs2broadpeaksbed" />
     <property name="description" value="A macs2-generated BED12 format file (xxx_broad_peaks.bed) which contains both the broad region and narrow peaks that can be load into UCSC genome browser" />
     <property name="extensions" value="_broad_peaks.bed" />
+  </bean>
+
+ <bean id="macs2BroadPeaksFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
+    <property name="name" value="BroadPeaks" />
+    <property name="area" value="macs2broadpeaks" />
+    <property name="description" value="A macs2-generated file (xxx_peaks.broadPeak) generated for broad peaks" />
+    <property name="extensions" value="_peaks.broadPeak" />
+  </bean>
+
+ <bean id="macs2GappedPeaksBedFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
+    <property name="name" value="GappedPeaks" />
+    <property name="area" value="macs2gappedpeaks" />
+    <property name="description" value="A macs2-generated file (xxx_peaks.gappedPeaks) generated for broad peaks" />
+    <property name="extensions" value="_peaks.gappedPeak" />
   </bean>
 
   <bean id="macs2SummitsBedFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
@@ -46,6 +67,13 @@
     <property name="area" value="macs2summitsbed" />
     <property name="description" value="A macs2-generated BED file (xxx_summits.bed) which contains the peak summits locations for every peak and can be loaded into the UCSC genome browser" />
     <property name="extensions" value="_summits.bed" />
+  </bean>
+
+  <bean id="macs2SummitsModifiedBedFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
+    <property name="name" value="SummitsModified" />
+    <property name="area" value="macs2summitsmodifiedbed" />
+    <property name="description" value="A macs2-generated BED file (xxx_summits.modified.bed) which contains the modified peak summits locations for every peak and can be loaded into the UCSC genome browser" />
+    <property name="extensions" value="_summits.modified.bed" />
   </bean>
 
  <bean id="macs2TreatPileupBedGraphFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
@@ -59,7 +87,7 @@
     <property name="name" value="ControlLambda" />
     <property name="area" value="macs2controllambdabed" />
     <property name="description" value="A macs2-generated bedGraph file (xxx_control_lambda.bdg) that describes the read distrubution along the entire genome (for local lambda values from control) and can be imported to UCSC genome browser or converted into even smaller bigWig file" />
-    <property name="extensions" value="_treat_pileup.bdg" />
+    <property name="extensions" value="_control_lambda.bdg" />
   </bean>
   
 </beans>

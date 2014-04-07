@@ -47,6 +47,7 @@ public class GridColumn {
 	 */
 	public void setWidth(Integer width) {
 		this.width = width;
+		this.flex = 0;
 	}
 
 	/**
@@ -75,6 +76,9 @@ public class GridColumn {
 	 */
 	public void setFlex(Integer flex) {
 		this.flex = flex;
+		if (flex > 0) {
+			this.width = null;
+		}
 	}
 
 	/**
