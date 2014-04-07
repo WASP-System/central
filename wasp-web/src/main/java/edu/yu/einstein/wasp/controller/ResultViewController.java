@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -16,6 +17,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -26,6 +28,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
+import edu.yu.einstein.wasp.Strategy;
+import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 import edu.yu.einstein.wasp.interfacing.Hyperlink;
@@ -33,6 +37,7 @@ import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobSoftware;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
@@ -43,6 +48,10 @@ import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.viewpanel.DataTabViewing.Status;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
+import edu.yu.einstein.wasp.viewpanel.GridColumn;
+import edu.yu.einstein.wasp.viewpanel.GridContent;
+import edu.yu.einstein.wasp.viewpanel.GridDataField;
+import edu.yu.einstein.wasp.viewpanel.GridPanel;
 import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
@@ -91,6 +100,7 @@ public class ResultViewController extends WaspController {
 
 
 	@RequestMapping(value = "/treeview/{type}/{id}", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('lu-*') or hasRole('su') or hasRole('ft-*') or hasRole('fm-*')")
 	public String treeView(@PathVariable("type") String type, @PathVariable("id") Integer id, ModelMap m) {
 		
 		if(type.equalsIgnoreCase("job")) {
@@ -107,6 +117,7 @@ public class ResultViewController extends WaspController {
 
 	// get the JSON data of the given filegroup id list
 	@RequestMapping(value="/getFileGroupsDetailJson", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('lu-*') or hasRole('su') or hasRole('ft-*') or hasRole('fm-*')")
 	public @ResponseBody String getFileGroupListJson(@RequestParam("fglist") String fgListStr, HttpServletResponse response) {
 		try {
 //			List<Map<String, String>> fgMapList = new ArrayList<Map<String,String>>();
@@ -173,6 +184,7 @@ public class ResultViewController extends WaspController {
 
 	// get the JSON data to construct the tree 
 	@RequestMapping(value="/getTreeJson", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('lu-*') or hasRole('su') or hasRole('ft-*') or hasRole('fm-*')")
 	public @ResponseBody String getTreeJson(@RequestParam("node") String nodeJSON, HttpServletResponse response) {
 		
 		try {
@@ -197,6 +209,7 @@ public class ResultViewController extends WaspController {
 	}
 
 	@RequestMapping(value="/getDetailsJson", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('lu-*') or hasRole('su') or hasRole('ft-*') or hasRole('fm-*')")
 	public @ResponseBody String getDetailsJson(@RequestParam("node") String nodeJSON, HttpServletResponse response) {
 		
 		HashMap<String, Object> jsDetailsTabs = new HashMap<String, Object>();
@@ -219,16 +232,15 @@ public class ResultViewController extends WaspController {
 				}
 				
 				JobDataTabViewing plugin = jobService.getTabViewPluginByJob(job);
-				logger.debug("***at Q");
-				if (plugin!=null) {logger.debug("***R");
+				if (plugin!=null) {
 					Map<String, PanelTab> pluginPanelTabs = new LinkedHashMap<>();
-					Set<PanelTab> panelTabSet = plugin.getViewPanelTabs(job);
-					logger.debug("***size of panelTabSet = " + panelTabSet.size());
-					Integer tabCount = 0;
+					PanelTab summaryPanelTab = this.getSummaryPanelTab(job, plugin.getStatus(job));
+					pluginPanelTabs.put("tab-0", summaryPanelTab);
+					Set<PanelTab> panelTabSet = plugin.getViewPanelTabs(job);//additional, plugin-specific ordered, panelTabs
+					logger.debug("***size of plugin-specific panelTabSet = " + panelTabSet.size());
+					Integer tabCount = 1;
 					for (PanelTab ptab : panelTabSet) {
 				    	if (!ptab.getPanels().isEmpty()){
-				    		logger.debug("***at S");
-							
 					    	String tabId = "tab-" + (tabCount++).toString();
 					    	pluginPanelTabs.put(tabId, ptab);
 				    	}
@@ -287,12 +299,65 @@ public class ResultViewController extends WaspController {
 					}
 				}
 				
-				String fgList = "";
-				for (FileGroup fg : fgSet) {
-					fgList += "," + fg.getId().toString();
+				Set<FileHandle> fhSet = new HashSet<FileHandle>();
+				Hyperlink hl;
+
+				GridPanel filePanel = new GridPanel();
+				filePanel.setTitle("File Download Panel");
+				GridContent fileGridContent = new GridContent();
+				fileGridContent.addColumn(new GridColumn("File Name", "fname", 1));
+				fileGridContent.addColumn(new GridColumn("MD5 Checksum", "md5", 700, 0));
+				fileGridContent.addColumn(new GridColumn("Size", "size", 100, 0, true, false));
+				
+				fileGridContent.addDataFields(new GridDataField("fgname", "string"));
+				fileGridContent.addDataFields(new GridDataField("fid", "string"));
+				fileGridContent.addDataFields(new GridDataField("fname", "string"));
+				fileGridContent.addDataFields(new GridDataField("md5", "string"));
+				fileGridContent.addDataFields(new GridDataField("size", "string"));
+				fileGridContent.addDataFields(new GridDataField("link", "string"));
+				
+				try {
+					for (FileGroup fg : fgSet) {
+
+						String fgName = fg.getDescription();
+						fhSet = fg.getFileHandles();
+						for (FileHandle fh : fhSet) {
+							
+							List<String> filerow = new ArrayList<String>();
+							filerow.add(fgName);
+							filerow.add(fh.getId().toString());
+							filerow.add(fh.getFileName());
+							filerow.add(fh.getMd5hash());
+							filerow.add(fh.getSizek() != null ? fh.getSizek().toString() : "0");
+							hl = new Hyperlink("Download", fileUrlResolver.getURL(fh).toString());
+							filerow.add(hl.getTargetLink());
+//							filerowList.add(filerow);
+							
+							fileGridContent.addDataRow(filerow);
+						}
+					}
+				} catch (GridUnresolvableHostException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 				
-				jsDetailsTabs.put("fgliststr", fgList.substring(1));
+				filePanel.setContent(fileGridContent);
+				
+				filePanel.setGrouping(true);
+				filePanel.setGroupField("fgname");
+				
+				filePanel.setHasDownload(true);
+				filePanel.setDownloadLinkField("link");
+				filePanel.setDownloadTooltip("Download");
+				
+				filePanel.setAllowSelectDownload(true);
+				filePanel.setSelectDownloadText("Download selected");
+				
+				filePanel.setAllowGroupDownload(true);
+				filePanel.setGroupDownloadTooltip("Download all");
+				
+				jsDetailsTabs.put("filepanel", filePanel);
+				
 			} else if(type.startsWith("filegroup")) {
 				FileGroup fg = fileService.getFileGroupById(id);
 				List<FileDataTabViewing> plugins = fileService.getTabViewProvidingPluginsByFileGroup(fg);
@@ -329,6 +394,73 @@ public class ResultViewController extends WaspController {
 			e.printStackTrace();
 			throw new IllegalStateException("Can't marshall to JSON for " + nodeJSON, e);
 		}	
+	}
+	
+	private PanelTab getSummaryPanelTab(Job job, Status jobStatus)throws PanelException{
+		try{
+			Strategy strategy = jobService.getStrategy(Strategy.StrategyType.LIBRARY_STRATEGY, job);
+			List<String> softwareNameList = new ArrayList<String>();
+			for(JobSoftware js : job.getJobSoftware()){
+				softwareNameList.add(js.getSoftware().getName());
+			}
+			Collections.sort(softwareNameList);
+			PanelTab summaryPanelTab = constructSummaryPanelTab(jobStatus, job, strategy, softwareNameList);
+			return summaryPanelTab;			
+		}catch(Exception e){logger.debug("exception in chipseqService.getChipSeqSummaryPanelTab(job): "+ e.getStackTrace());
+			throw new PanelException(e.getMessage());
+		}
+	}
+	private PanelTab constructSummaryPanelTab(Status jobStatus, Job job, Strategy strategy,	List<String> softwareNameList) {
+
+		//create the panelTab to house the panel
+		PanelTab panelTab = new PanelTab();
+		panelTab.setName("Summary");
+		panelTab.setNumberOfColumns(1);
+
+		//create the panel
+		GridPanel panel = new GridPanel();
+		panel.setTitle("Summary");
+		panel.setDescription("Summary");
+		panel.setResizable(true);
+		panel.setMaximizable(true);	
+		panel.setOrder(1);
+		panel.setStatusField("Status");
+		
+		//create content (think of it as the table)
+		GridContent content = new GridContent();
+		//create the data model 
+		content.addDataFields(new GridDataField("Strategy", "String"));//dataIndex, datatype
+		content.addDataFields(new GridDataField("Description", "String"));//dataIndex, datatype
+		content.addDataFields(new GridDataField("Workflow", "String"));//dataIndex, datatype
+		content.addDataFields(new GridDataField("Software", "String"));//dataIndex, datatype
+		content.addDataFields(new GridDataField("Status", "String"));//dataIndex, datatype
+
+		//create columns and associate each column with its displayed header and a data model attribute (dataIndex)
+		content.addColumn(new GridColumn("Strategy", "Strategy", 150, 0));//header,dataIndex	set width=150, flex=0	
+		content.addColumn(new GridColumn("Description", "Description", 1));//header,dataIndex	set flex=1	
+		content.addColumn(new GridColumn("Workflow", "Workflow", 150, 0));//header,dataIndex		
+		content.addColumn(new GridColumn("Main Software", "Software", 200, 0));//header,dataIndex		
+		content.addColumn(new GridColumn("Analysis Status", "Status", 150, 0));//header,dataIndex
+		
+		//create rows with  information
+		List<String> row = new ArrayList<String>();
+		row.add(strategy.getDisplayStrategy());
+		row.add(strategy.getDescription());
+		row.add(job.getWorkflow().getName());
+		String softwareNames = "";
+		for(String name : softwareNameList){
+			if(!softwareNames.isEmpty()){
+				softwareNames += "<br />";
+			}
+			softwareNames += name;
+		}
+		row.add(softwareNames);
+		row.add(jobStatus.toString());
+		content.addDataRow(row);//add row to content
+		
+		panel.setContent(content);//add content to panel
+		panelTab.addPanel(panel);//add panel to panelTab
+		return panelTab;
 	}
 }
 
