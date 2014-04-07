@@ -43,6 +43,10 @@ import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.viewpanel.DataTabViewing.Status;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
+import edu.yu.einstein.wasp.viewpanel.GridColumn;
+import edu.yu.einstein.wasp.viewpanel.GridContent;
+import edu.yu.einstein.wasp.viewpanel.GridDataField;
+import edu.yu.einstein.wasp.viewpanel.GridPanel;
 import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
@@ -219,16 +223,13 @@ public class ResultViewController extends WaspController {
 				}
 				
 				JobDataTabViewing plugin = jobService.getTabViewPluginByJob(job);
-				logger.debug("***at Q");
-				if (plugin!=null) {logger.debug("***R");
+				if (plugin!=null) {
 					Map<String, PanelTab> pluginPanelTabs = new LinkedHashMap<>();
 					Set<PanelTab> panelTabSet = plugin.getViewPanelTabs(job);
 					logger.debug("***size of panelTabSet = " + panelTabSet.size());
 					Integer tabCount = 0;
 					for (PanelTab ptab : panelTabSet) {
 				    	if (!ptab.getPanels().isEmpty()){
-				    		logger.debug("***at S");
-							
 					    	String tabId = "tab-" + (tabCount++).toString();
 					    	pluginPanelTabs.put(tabId, ptab);
 				    	}
@@ -287,12 +288,65 @@ public class ResultViewController extends WaspController {
 					}
 				}
 				
-				String fgList = "";
-				for (FileGroup fg : fgSet) {
-					fgList += "," + fg.getId().toString();
+				Set<FileHandle> fhSet = new HashSet<FileHandle>();
+				Hyperlink hl;
+
+				GridPanel filePanel = new GridPanel();
+				filePanel.setTitle("File Download Panel");
+				GridContent fileGridContent = new GridContent();
+				fileGridContent.addColumn(new GridColumn("File Name", "fname", 1));
+				fileGridContent.addColumn(new GridColumn("MD5 Checksum", "md5", 700, 0));
+				fileGridContent.addColumn(new GridColumn("Size", "size", 100, 0, true, false));
+				
+				fileGridContent.addDataFields(new GridDataField("fgname", "string"));
+				fileGridContent.addDataFields(new GridDataField("fid", "string"));
+				fileGridContent.addDataFields(new GridDataField("fname", "string"));
+				fileGridContent.addDataFields(new GridDataField("md5", "string"));
+				fileGridContent.addDataFields(new GridDataField("size", "string"));
+				fileGridContent.addDataFields(new GridDataField("link", "string"));
+				
+				try {
+					for (FileGroup fg : fgSet) {
+
+						String fgName = fg.getDescription();
+						fhSet = fg.getFileHandles();
+						for (FileHandle fh : fhSet) {
+							
+							List<String> filerow = new ArrayList<String>();
+							filerow.add(fgName);
+							filerow.add(fh.getId().toString());
+							filerow.add(fh.getFileName());
+							filerow.add(fh.getMd5hash());
+							filerow.add(fh.getSizek() != null ? fh.getSizek().toString() : "0");
+							hl = new Hyperlink("Download", fileUrlResolver.getURL(fh).toString());
+							filerow.add(hl.getTargetLink());
+//							filerowList.add(filerow);
+							
+							fileGridContent.addDataRow(filerow);
+						}
+					}
+				} catch (GridUnresolvableHostException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 				
-				jsDetailsTabs.put("fgliststr", fgList.substring(1));
+				filePanel.setContent(fileGridContent);
+				
+				filePanel.setGrouping(true);
+				filePanel.setGroupFieldName("fgname");
+				
+				filePanel.setHasDownload(true);
+				filePanel.setDownloadLinkFieldName("link");
+				filePanel.setDownloadTooltip("Download");
+				
+				filePanel.setAllowSelectDownload(true);
+				filePanel.setSelectDownloadText("Download selected");
+				
+				filePanel.setAllowGroupDownload(true);
+				filePanel.setGroupDownloadTooltip("Download all");
+				
+				jsDetailsTabs.put("filepanel", filePanel);
+				
 			} else if(type.startsWith("filegroup")) {
 				FileGroup fg = fileService.getFileGroupById(id);
 				List<FileDataTabViewing> plugins = fileService.getTabViewProvidingPluginsByFileGroup(fg);
