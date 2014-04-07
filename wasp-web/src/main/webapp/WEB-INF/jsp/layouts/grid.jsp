@@ -384,11 +384,23 @@
 			<%-- displays AJAX protocol errors --%>
 			error: function(XMLHttpRequest, textStatus, errorThrown) {
 				//alert(textStatus+'|'+errorThrown);
+				checkForPageRedirect(XMLHttpRequest.responseText);
 				console.log(textStatus+'|'+errorThrown);
 			},
 			async:false 
 			} 
 		);
+		
+		function checkForPageRedirect(responseText){
+			// if timeout of login a json request will fail and an html page containing the redirection location will be provided
+			// redirect current page to the provided url if so.
+			var re = new RegExp("window\.location=['\"](.+?)['\"]");
+		  	var match = re.exec(responseText);
+		  	if (match == null)
+		  		return false;
+		  	window.location=match[1];
+		  	return true; // should never get here
+		}
 	
 		<%--  returns [true,""] array. usefull in various JQGrid callbacks --%>
 		function _noop(value, colname) {

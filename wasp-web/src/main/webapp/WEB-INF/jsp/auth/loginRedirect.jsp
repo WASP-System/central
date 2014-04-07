@@ -3,7 +3,5 @@
 <%-- requires us to refresh the whole window not just place the login page within the contents of the div --%>
 
 <script type="text/JavaScript">
-	waspOnLoad = function() {
-		
-	}
+	window.location='<wasp:relativeUrl value="auth/login.do" />';
 </script>
