@@ -101,10 +101,8 @@ public class AuthController extends WaspController {
 				  return "auth/loginReferralPage";
 			  } else if (targetURL.toLowerCase().contains("json.do")){
 				  // to messy to decide where to go so default to dashboard
-				  targetURL = "/" + servletName + "/dashboard.do";
 				  request.getSession().setAttribute(LOGIN_EXPIRED_WARNING_KEY, "auth.redirectDataNotSaved.label");
-				  logger.debug("target URL is not suitable for redirection so defaulting to target = " + targetURL);
-				  request.getSession().setAttribute(TARGET_URL_KEY, targetURL);
+				  logger.debug("target URL is not suitable for redirection");
 				  initializeSessionAttributes();
 				  return "auth/loginReferralPage";
 			  }

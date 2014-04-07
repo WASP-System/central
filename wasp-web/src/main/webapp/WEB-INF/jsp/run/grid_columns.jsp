@@ -40,10 +40,10 @@ _viewAttr={width:600};
  
 <wasp:field name="name" type="text"/>
 
-<wasp:field name="resourceName" type="text" sortable="true" showLink="true" baseLinkURL="<wasp:relativeUrl value='resource/list.do' />" idCol="2"/>
+<wasp:field name="resourceName" type="text" sortable="true" showLink="true" baseLinkURL="resource/list.do" idCol="2"/>
 <wasp:field name="machineId" type="hidden" />
 
-<wasp:field name="flow_cell_name" type="text" showLink="true" baseLinkURL="<wasp:relativeUrl value='facility/platformunit/selid/list.do' />" idCol="4" />
+<wasp:field name="flow_cell_name" type="text" showLink="true" baseLinkURL="facility/platformunit/selid/list.do" idCol="4" />
 <wasp:field name="flowcellId" type="hidden" />
 
 <wasp:field name="start_esf_staff" type="select" items="${techs}" itemValue="key" itemLabel="value" />

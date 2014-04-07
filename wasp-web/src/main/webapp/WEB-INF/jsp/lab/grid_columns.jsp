@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 <wasp:field name="name" type="text" sortable="true" searchable="false" columnWidth="200"/> 
-<wasp:field name="primaryUser" type="text" sortable="true" searchable="false" showLink="true" baseLinkURL="<wasp:relativeUrl value='user/list.do' />" idCol="2" columnWidth="200"/>
+<wasp:field name="primaryUser" type="text" sortable="true" searchable="false" showLink="true" baseLinkURL="user/list.do" idCol="2" columnWidth="200"/>
 <wasp:field name="primaryUserId" type="hidden" />
 <wasp:field name="departmentId"  sortable="true" searchable="false" type="select" items="${departments}" itemValue="departmentId" itemLabel="name" columnWidth="200"/>
 <wasp:field name="isActive"  sortable="false" searchable="false" type="checkbox" columnWidth="70"/>
