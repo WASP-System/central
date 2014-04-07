@@ -46,22 +46,22 @@ public class AuthController extends WaspController {
   private UserpasswordauthDao userpasswordauthDao;
 
   @Autowired
-  private EmailService emailService;
+  protected EmailService emailService;
   
   @Autowired
   private DemoEmail demoEmail;
 
   @Autowired
-  private UserDao userDao;
+  protected UserDao userDao;
   
   @Autowired
   private BeanValidator validator;
   
   @Autowired
-  private AuthenticationService authenticationService;
+  protected AuthenticationService authenticationService;
   
   @Autowired
-  private ConfirmEmailAuthDao confirmEmailAuthDao;
+  protected ConfirmEmailAuthDao confirmEmailAuthDao;
   
   private static final String TARGET_URL_KEY = "targetURL";
   
@@ -113,7 +113,7 @@ public class AuthController extends WaspController {
 	  return "redirect:/auth/login.do";
   }
   
-  private void initializeSessionAttributes(){
+  protected void initializeSessionAttributes(){
 	  request.getSession().setAttribute("isInDemoMode", new Boolean(isInDemoMode));
 	  request.getSession().setAttribute("servletName", servletName);
   }
@@ -478,7 +478,7 @@ public class AuthController extends WaspController {
   @RequestMapping("/reauth")
   public String reauth(ModelMap m) {
     doReauth();
-
+    initializeSessionAttributes();
     return "redirect:/dashboard.do";
   }
   
