@@ -90,6 +90,17 @@ Ext.require([
 
 var extPortal;
 
+function checkForPageRedirect(responseText){
+	// if timeout of login a json request will fail and an html page containing the redirection location will be provided
+	// redirect current page to the provided url if so.
+	var re = new RegExp("window\.location=['\"](.+?)['\"]");
+  	var match = re.exec(responseText);
+  	if (match == null)
+  		return false;
+  	window.location=match[1];
+  	return true; // should never get here
+}
+
 Ext.onReady(function () {
 	extPortal = Ext.create('Wasp.Portal', {
 		width: $('#content').width()
@@ -187,12 +198,15 @@ function expandAll(d) {
 		$.ajax({
 			url: '<wasp:relativeUrl value="jobresults/getTreeJson.do?node=" />' + dstr,
 			type: 'GET',
-			dataType: 'json',
-			success: function (result) {
-				if (result.children != '') {
-					d.children = result.children;
-				}
+			dataType: 'json'
+		})
+		.done(function (result) {
+			if (result.children != '') {
+				d.children = result.children;
 			}
+		})
+		.fail(function(jqXHR){
+			checkForPageRedirect(jqXHR.responseText);
 		});
 	}
 	if (d._children && d._children!="") {
@@ -431,8 +445,9 @@ function click(d) {
 	$.ajax({
 		url: '<wasp:relativeUrl value="jobresults/getDetailsJson.do?node=" />' + dstr,
 		type: 'GET',
-		dataType: 'json',
-		success: function (result) {
+		dataType: 'json'
+		})
+		.done(function (result) {
 
 			var tabpanel = Ext.getCmp('wasp-tabpanel');
 			if (tabpanel === undefined) {
@@ -618,21 +633,26 @@ function click(d) {
 			} else {
 				return;
 			}
-		}
-	});
+		})
+		.fail(function(jqXHR){
+			checkForPageRedirect(jqXHR.responseText);
+		});
 
 	if (!d.children && !d._children) {
 		$.ajax({
 			url: '<wasp:relativeUrl value="jobresults/getTreeJson.do?node=" />' + dstr,
 			type: 'GET',
-			dataType: 'json',
-			success: function (result) {
+			dataType: 'json'
+			})
+			.done(function (result) {
 				if (result.children != '') {
 					d.children = result.children;
 					update(d);
 				}
-			}
-		});
+			})
+			.fail(function(jqXHR){
+				checkForPageRedirect(jqXHR.responseText);
+			});
 	}
 
 	toggle(d);

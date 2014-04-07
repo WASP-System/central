@@ -84,6 +84,7 @@ public class AuthController extends WaspController {
 	  SavedRequest savedRequest =  new HttpSessionRequestCache().getRequest(request, response);
 	  if (savedRequest != null){
 		  targetURL = savedRequest.getRedirectUrl(); // get the target url from which we were redirected to login (if set)
+		  logger.debug("Raw target URL = " + targetURL);
 		  if (!targetURL.isEmpty()){
 			  // HACK ALERT: Ideally we'd have an easy URL design that makes it easy to distinguish calls to pages and ajax calls for data
 			  // but we don't so need to put in some catches for handling known corner cases
@@ -96,12 +97,15 @@ public class AuthController extends WaspController {
 					  logger.debug("target URL is provided so setting session variable for target = " + targetURL);
 					  request.getSession().setAttribute(TARGET_URL_KEY, targetURL); 
 				  }
+				  initializeSessionAttributes();
 				  return "auth/loginReferralPage";
 			  } else if (targetURL.toLowerCase().contains("json.do")){
-				  //targetURL = targetURL.replace("JSON", "").replace("\\?.*", "");
+				  // to messy to decide where to go so default to dashboard
+				  targetURL = "/" + servletName + "/dashboard.do";
 				  request.getSession().setAttribute(LOGIN_EXPIRED_WARNING_KEY, "auth.redirectDataNotSaved.label");
-				  logger.debug("target URL is provided so setting session variable for target = " + targetURL);
-				  request.getSession().setAttribute(TARGET_URL_KEY, targetURL); 
+				  logger.debug("target URL is not suitable for redirection so defaulting to target = " + targetURL);
+				  request.getSession().setAttribute(TARGET_URL_KEY, targetURL);
+				  initializeSessionAttributes();
 				  return "auth/loginReferralPage";
 			  }
 			  logger.debug("target URL is provided so setting session variable for target = " + targetURL);

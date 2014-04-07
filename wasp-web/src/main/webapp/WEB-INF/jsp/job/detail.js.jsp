@@ -11,7 +11,7 @@
      	}
 	    }
  </script>
- <script language="JavaScript">
+ <script type="text/javascript">
 		<!--
 		function validate(){
 			var error = false;			

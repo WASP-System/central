@@ -160,7 +160,7 @@
 			<tr>
 				<td class="DataTD value-centered"><!--<wasp:url	fileAccessor="${fileHandle}" ></wasp:url>--><c:out value="${fileHandle.getFileName()}" /></td>
 				<td class="DataTD value-centered"><c:out value="${fileGroup.getDescription()}" /> </td>
-				<td class="DataTD value-centered"><a  href="<wasp:relativeUrl value='jobsubmit/file/${ jobDraft.getId() }' />"/>/${ fileGroup.getId() }/${ fileHandle.getId() }/delete.do"><fmt:message key="jobDraft.file_remove.label"/></a> | <a href="<wasp:relativeUrl value="file/fileHandle/${fileHandle.getId()}/download.do" ><fmt:message key="jobDraft.file_download.label"/></a></td>
+				<td class="DataTD value-centered"><a  href="<wasp:relativeUrl value='jobsubmit/file/${ jobDraft.getId() }/${ fileGroup.getId() }/${ fileHandle.getId() }/delete.do'/>"><fmt:message key="jobDraft.file_remove.label"/></a> | <a href="<wasp:relativeUrl value='file/fileHandle/${fileHandle.getId()}/download.do'/>"><fmt:message key="jobDraft.file_download.label"/></a></td>
 			</tr>
 		</c:forEach>
 	</c:forEach>
