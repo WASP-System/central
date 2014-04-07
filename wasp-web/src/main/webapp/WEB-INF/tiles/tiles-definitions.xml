@@ -337,9 +337,6 @@
         <put-attribute name="grid-customAttributes" value="/WEB-INF/jsp/run/grid_customAttributes.jsp" />
         <put-attribute name="body-content" value="/WEB-INF/jsp/run/list.jsp" />
 	</definition>
-	<definition name="run/detail" extends="template-base">
-		<put-attribute name="body-content" value="/WEB-INF/jsp/run/detail.jsp" />
-	</definition>
 	<definition name="task/assignLibraries/lists" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/assignLibraries/lists.jsp" />
 	</definition>

@@ -546,34 +546,6 @@ public class RunController extends WaspController {
 	}
 
 	
-
-	@RequestMapping(value = "/detail/{strId}", method = RequestMethod.GET)
-	public String detail(@PathVariable("strId") String strId, ModelMap m) {
-		String now = (new Date()).toString();
-
-		Integer i;
-		try {
-			i = new Integer(strId);
-		} catch (Exception e) {
-			return "default";
-		}
-
-		Run run = this.getRunDao().getById(i.intValue());
-
-		List<RunMeta> runMetaList = run.getRunMeta();
-		runMetaList.size();
-
-		List<RunCell> runCellList = run.getRunCell();
-		runCellList.size();
-
-		m.addAttribute("now", now);
-		m.addAttribute("run", run);
-		m.addAttribute("runmeta", runMetaList);
-		m.addAttribute("runcell", runCellList);
-
-		return "run/detail";
-	}
-
 	@RequestMapping(value = "/cell/detail/{strRunId}/{strId}", method = RequestMethod.GET)
 	public String cellDetail(@PathVariable("strRunId") String strRunId, @PathVariable("strId") String strId, ModelMap m) {
 		String now = (new Date()).toString();
