@@ -113,11 +113,6 @@ public class AuthController extends WaspController {
 	  return "redirect:/auth/login.do";
   }
   
-  protected void initializeSessionAttributes(){
-	  request.getSession().setAttribute("isInDemoMode", new Boolean(isInDemoMode));
-	  request.getSession().setAttribute("servletName", servletName);
-  }
-  
   @RequestMapping(value="/login", method=RequestMethod.GET)
   public String login(ModelMap m){
 	  // this is our entry point when starting up so save some session attributes here

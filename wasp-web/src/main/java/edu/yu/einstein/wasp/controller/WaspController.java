@@ -83,6 +83,11 @@ public class WaspController {
   protected void initBinder(WebDataBinder binder) {
     binder.setValidator(validator);
   }
+  
+  protected void initializeSessionAttributes(){
+	  request.getSession().setAttribute("isInDemoMode", new Boolean(isInDemoMode));
+	  request.getSession().setAttribute("servletName", servletName);
+  }
 
 
   protected void prepareSelectListData(ModelMap m) {

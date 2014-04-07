@@ -27,6 +27,7 @@ import org.springframework.web.bind.support.SessionStatus;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.controller.validator.PasswordValidator;
 import edu.yu.einstein.wasp.controller.validator.UserPendingMetaValidatorImpl;
+import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
 import edu.yu.einstein.wasp.dao.DepartmentDao;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.LabPendingDao;
@@ -44,6 +45,8 @@ import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
+import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.util.StringHelper;
@@ -56,7 +59,7 @@ import edu.yu.einstein.wasp.util.StringHelper;
 @Controller
 @Transactional
 @RequestMapping("/auth")
-public class UserPendingController extends AuthController {
+public class UserPendingController extends WaspController {
 
 	@Autowired
 	private UserPendingDao userPendingDao;
@@ -64,6 +67,9 @@ public class UserPendingController extends AuthController {
 	@Autowired
 	private UserPendingMetaDao userPendingMetaDao;
 
+	@Autowired
+	private ConfirmEmailAuthDao confirmEmailAuthDao;
+	
 	@Autowired
 	private LabDao labDao;
 
@@ -77,6 +83,9 @@ public class UserPendingController extends AuthController {
 	private DepartmentDao departmentDao;
 
 	@Autowired
+	private EmailService emailService;
+	
+	@Autowired
 	private UserService userService;
 
 	@Autowired
@@ -85,6 +94,8 @@ public class UserPendingController extends AuthController {
 	@Autowired
 	private MessageServiceWebapp messageService;
 	
+	@Autowired
+	private AuthenticationService authenticationService;
 	
 		
 	/**
