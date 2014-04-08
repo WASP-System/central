@@ -1,5 +1,7 @@
 package edu.yu.einstein.wasp.integration.messages.templates;
 
+import java.util.Map;
+
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 
 
@@ -12,5 +14,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 public interface StatusMessageTemplate extends MessageTemplate{
 
 	public WaspStatus getStatus();
+	
+	public Map<String, Object> getHeaders();
 	
 }

@@ -21,7 +21,7 @@
 
 	<int:service-activator input-channel="wasp.channel.plugin.picard" ref="picardPlugin" method="process" />
 	
-	<bean id="picardPlugin" class="edu.yu.einstein.wasp.plugin.picard.plugin.PicardPlugin">
+	<bean id="picardPlugin" class="edu.yu.einstein.wasp.plugin.picard.plugin.PicardPlugin" depends-on="mps-tools">
 		<constructor-arg name="iName" ref="picardPluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.picard" />

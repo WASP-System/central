@@ -178,7 +178,7 @@ public class ListenForStatusTasklet extends WaspHibernatingTasklet implements Me
 		}
 		// set exit status to equal the most severe outcome of all received messages
 		this.messageQueue.clear(); // clean up in case of restart
-		logger.debug("Going to exit step with ExitStatus=" + exitStatus);
+		logger.debug(stepExecution.getStepName() + " going to exit step with ExitStatus=" + exitStatus);
 		return exitStatus;
 	}
 

@@ -15,16 +15,16 @@ import org.springframework.integration.MessageChannel;
 import org.springframework.integration.MessagingException;
 import org.springframework.integration.support.MessageBuilder;
 
-import edu.yu.einstein.wasp.Hyperlink;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
+import edu.yu.einstein.wasp.interfacing.Hyperlink;
+import edu.yu.einstein.wasp.interfacing.plugin.RunQcProviding;
+import edu.yu.einstein.wasp.interfacing.plugin.SequencingViewProviding;
+import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.Run;
-import edu.yu.einstein.wasp.plugin.RunQcProviding;
-import edu.yu.einstein.wasp.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
-import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
 import edu.yu.einstein.wasp.service.RunService;
 

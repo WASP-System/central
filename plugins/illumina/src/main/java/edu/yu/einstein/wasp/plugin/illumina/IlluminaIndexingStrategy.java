@@ -1,6 +1,6 @@
 package edu.yu.einstein.wasp.plugin.illumina;
 
-import edu.yu.einstein.wasp.IndexingStrategy;
+import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
 
 public class IlluminaIndexingStrategy extends IndexingStrategy {
 	

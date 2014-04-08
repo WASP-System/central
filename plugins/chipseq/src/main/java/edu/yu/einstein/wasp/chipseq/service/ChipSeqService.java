@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.exception.GridException;
+import edu.yu.einstein.wasp.exception.JobContextInitializationException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.exception.SoftwareConfigurationException;
@@ -22,8 +23,6 @@ import edu.yu.einstein.wasp.viewpanel.PanelTab;
 @Service
 public interface ChipSeqService extends WaspService {
 
-	public JobDataTabViewing getPeakcallerPlugin(Job job) throws SoftwareConfigurationException;
+	public JobDataTabViewing getPeakcallerPlugin(Job job) throws JobContextInitializationException, SoftwareConfigurationException;
 
-	public Set<PanelTab> getChipSeqDataToDisplay(Integer jobId, Status jobStatus)throws PanelException;
-	
 }

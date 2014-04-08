@@ -77,6 +77,7 @@ import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessage
 import edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.SampleStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
+import edu.yu.einstein.wasp.interfacing.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
@@ -100,7 +101,6 @@ import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
-import edu.yu.einstein.wasp.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
 import edu.yu.einstein.wasp.service.AuthenticationService;
@@ -2457,7 +2457,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	public SampleSource getCellLibraryBySampleSourceId(Integer ssid) throws SampleTypeException{
 		SampleSource cellLibrary = sampleSourceDao.getById(ssid);
 		Sample cell = this.getCell(cellLibrary);
-		if (!isCell(cell))
+		if (cell != null && !isCell(cell))
 			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 		Sample library = this.getLibrary(cellLibrary);
 		if (!isLibrary(library))
@@ -2472,6 +2472,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	public Sample getCell(SampleSource cellLibrary){
 		Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be empty");
 		Assert.assertParameterNotNull(cellLibrary.getId(), "cellLibrary must have a valid id");
+		if (cellLibrary.getSampleId() == null)
+			return null;
 		return sampleDao.getSampleBySampleId(cellLibrary.getSampleId()); // get from Dao in case cellLibrary not entity managed
 	}
 	

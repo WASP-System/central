@@ -5,9 +5,9 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
 		
-	<!-- Define chipSeq analysis aggregate flow -->
-	<batch:job id="chipSeq.library.aggregate.jobflow.v1" restartable="true" >
-		<batch:step id="chipSeq.library.aggregate.step.notifyStarted" next="chipSeq.library.aggregate.step.callPeaks">
+	<!-- Define variantCalling analysis aggregate flow 
+	<batch:job id="variantCalling.library.aggregate.jobflow.v1" restartable="true" >
+		<batch:step id="variantCalling.library.aggregate.step.notifyStarted" next="variantCalling.library.aggregate.step.callPeaks">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
@@ -23,20 +23,18 @@
 			</batch:tasklet>
 		</batch:step>
 		
-		<batch:step id="chipSeq.library.aggregate.step.callPeaks" next="chipSeq.library.aggregate.step.notifyCompleted">
+		<batch:step id="variantCalling.library.aggregate.step.callPeaks" next="variantCalling.library.aggregate.step.notifyCompleted">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.chipseq.batch.tasklet.PeakCallerTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.variantCalling.batch.tasklet.PeakCallerTasklet" scope="step">
 					<constructor-arg name="cellLibraryIdListAsString" value="#{jobParameters[waspSoftwareJobParameters.CELL_LIBRARY_ID_LIST]}"/>
 					<constructor-arg name="softwareResourceType" ref="peakcallerResourceType" />
-					<!-- <constructor-arg name="task" value="#{batchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}" />
 					
-					<property name="name" value="chipSeq.library.aggregate.step.callPeaks" />
-					-->
 				</bean>
 			</batch:tasklet>
 		</batch:step>
+		-->
 		<!-- 
-		<batch:step id="chipSeq.library.aggregate.step.listenForPeakCallerComplete" >
+		<batch:step id="variantCalling.library.aggregate.step.listenForPeakCallerComplete" >
 			<batch:tasklet>
 						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
@@ -52,11 +50,12 @@
 					
 				</bean>
 			</batch:tasklet>
-			<batch:next on="FAILED" to="chipSeq.library.aggregate.step.notifyFailed" />
-			<batch:next on="COMPLETED" to="chipSeq.library.aggregate.step.notifyCompleted" />
+			<batch:next on="FAILED" to="variantCalling.library.aggregate.step.notifyFailed" />
+			<batch:next on="COMPLETED" to="variantCalling.library.aggregate.step.notifyCompleted" />
 		</batch:step>
 		 -->
-		<batch:step id="chipSeq.library.aggregate.step.notifyCompleted" >
+		 <!--
+		<batch:step id="variantCalling.library.aggregate.step.notifyCompleted" >
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
@@ -71,8 +70,9 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
+		-->
 		<!--  
-		<batch:step id="chipSeq.library.aggregate.step.notifyFailed" >
+		<batch:step id="variantCalling.library.aggregate.step.notifyFailed" >
 			<batch:tasklet>
 						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
@@ -88,7 +88,7 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		-->
+		
 	</batch:job>
-
+-->
 </beans>

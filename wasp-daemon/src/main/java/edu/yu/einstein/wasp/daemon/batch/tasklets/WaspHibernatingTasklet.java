@@ -132,7 +132,7 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 		return returnVal;
 	}
 	
-	private void doHibernate(StepExecution stepExecution) throws WaspBatchJobExecutionReadinessException{
+	protected void doHibernate(StepExecution stepExecution) throws WaspBatchJobExecutionReadinessException{
 		Long requestingStepExecutionId = stepExecution.getId();
 		JobExecution jobExecution = stepExecution.getJobExecution();
 		setHibernationRequestedForJob(stepExecution.getJobExecution(), true);

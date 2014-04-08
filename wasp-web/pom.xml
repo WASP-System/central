@@ -569,19 +569,26 @@
 			</properties>
 		</profile>
 		<profile>
-			<id>tomcat-wellington</id>
+			<id>tomcat-glasgow</id>
 			<properties>
-				<tomcat-server>wellington</tomcat-server>
-				<tomcat-url>http://wellington.einstein.yu.edu:8080/manager/text</tomcat-url>
+				<maven.tomcat.server>glasgow</maven.tomcat.server>
+				<maven.tomcat.url>http://waspsystem.org/manager/text</maven.tomcat.url>
 			</properties>
 		</profile>
 		<profile>
-            <id>tomcat-barcelona</id>
-            <properties>
-                    <maven.tomcat.server>barcelona</maven.tomcat.server>
-                    <maven.tomcat.url>http://barcelona.einstein.yu.edu:8080/manager/text</maven.tomcat.url>
-            </properties>
-        </profile>
+			<id>tomcat-wellington</id>
+			<properties>
+				<maven.tomcat.server>wellington</maven.tomcat.server>
+				<maven.tomcat.url>http://wellington.einstein.yu.edu:8080/manager/text</maven.tomcat.url>
+			</properties>
+		</profile>
+		<profile>
+            		<id>tomcat-barcelona</id>
+            		<properties>
+                    		<maven.tomcat.server>barcelona</maven.tomcat.server>
+                    		<maven.tomcat.url>http://barcelona.einstein.yu.edu:8080/manager/text</maven.tomcat.url>
+            		</properties>
+        	</profile>
 
 		<profile>
 		<id>deploy</id>

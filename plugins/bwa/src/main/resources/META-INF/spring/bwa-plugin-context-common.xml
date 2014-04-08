@@ -24,12 +24,13 @@
 	<int:service-activator input-channel="wasp.channel.plugin.bwa-mem" ref="bwaMemPlugin" method="process" />
 	<int:service-activator input-channel="wasp.channel.plugin.bwa-backtrack" ref="bwaBacktrackPlugin" method="process" />
 
-	<bean id="bwaBacktrackPlugin" class="edu.yu.einstein.wasp.plugin.bwa.plugin.BWABacktrackPlugin" depends-on="mps-tools">
+	<bean id="bwaBacktrackPlugin" class="edu.yu.einstein.wasp.plugin.bwa.plugin.BWABacktrackPlugin" depends-on="mps-tools,bwaBacktrack">
 		<constructor-arg name="iName" ref="bwaBacktrackArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.bwa-backtrack" />
 		<property name="name" value="BWA-backtrack" />
 		<property name="description" value="BWA-backtrack (aln/sampe/samse commands) is designed for Illumina sequence reads up to 100bp." />
+		<property name="software" ref="bwaBacktrack" />
 		<property name="provides">
 			<set>
 				<ref bean="bwaBacktrack" />
@@ -44,12 +45,13 @@
 		 -->
 	</bean>
 	
-	<bean id="bwaMemPlugin" class="edu.yu.einstein.wasp.plugin.bwa.plugin.BWAMemPlugin" depends-on="mps-tools">
+	<bean id="bwaMemPlugin" class="edu.yu.einstein.wasp.plugin.bwa.plugin.BWAMemPlugin" depends-on="mps-tools,bwaMem">
 		<constructor-arg name="iName" ref="bwaMemArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.bwa-mem" />
 		<property name="name" value="BWA-MEM" />
 		<property name="description" value="BWA-MEM (mem command) is designed for long sequences ranged from 70bp to 1Mbp and has better performance and accuracy than BWA-backtrack for 70-100bp Illumina reads." />
+		<property name="software" ref="bwaMem" />
 		<property name="provides">
 			<set>
 				<ref bean="bwaMem" />

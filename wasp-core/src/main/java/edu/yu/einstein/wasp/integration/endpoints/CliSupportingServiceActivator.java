@@ -22,6 +22,8 @@ import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
+import edu.yu.einstein.wasp.interfacing.plugin.cli.CliMessagingTask;
+import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
@@ -39,8 +41,6 @@ import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
-import edu.yu.einstein.wasp.plugin.cli.CliMessagingTask;
-import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Genome;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
@@ -276,7 +276,15 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 						if (attributeName.equals("name")){
 							if (currentJob == null || currentJob.getId() == null)
 								throw new WaspRuntimeException("Cannot update " + model + "." + attributeName + "because current Job object is not defined");
+							boolean createNewCellLibrary = false;
+							if (attributeVal.contains("*")){ // may be on its own (proper use case) or beside a name (permissible use case)
+								attributeVal = attributeVal.replace("*", "");
+								if (attributeVal.isEmpty())
+									attributeVal = currentSample.getName();
+								createNewCellLibrary = true;
+							}
 							if (currentSample == null || !currentSample.getName().equals(attributeVal)){
+								createNewCellLibrary = true;
 								currentSample = new Sample();
 								currentSample.setName(attributeVal);
 								currentSample.setSubmitterUserId(currentJob.getUserId());
@@ -284,14 +292,16 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 								currentSample.setSubmitterJobId(currentJob.getId());
 								currentSample.setIsActive(1);
 								currentSample = sampleService.getSampleDao().save(currentSample);
-								currentCellLibrary = new SampleSource();
-								currentCellLibrary.setSourceSample(currentSample);
-								currentCellLibrary = sampleService.getSampleSourceDao().save(currentCellLibrary);
-								sampleService.setJobForLibraryOnCell(currentCellLibrary, currentJob);
 								JobSample jobSample = new JobSample();
 								jobSample.setJob(currentJob);
 								jobSample.setSample(currentSample);
 								jobSample = jobService.getJobSampleDao().save(jobSample);
+							}
+							if (createNewCellLibrary) {
+								currentCellLibrary = new SampleSource();
+								currentCellLibrary.setSourceSample(currentSample);
+								currentCellLibrary = sampleService.getSampleSourceDao().save(currentCellLibrary);
+								sampleService.setJobForLibraryOnCell(currentCellLibrary, currentJob);
 							}
 						} else if (attributeName.equals("sampleSubtypeId")){
 							if (currentSample == null || currentSample.getId() == null)

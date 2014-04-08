@@ -8,7 +8,9 @@ import java.util.Map;
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.NullResourceException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
@@ -24,6 +26,7 @@ import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Genome;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.GenomeService;
+import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
@@ -40,6 +43,9 @@ public abstract class AbstractBWASoftwareComponent extends ReferenceBasedAligner
 	protected SampleService sampleService;
 	
 	@Autowired
+	protected JobService jobService;
+	
+	@Autowired
 	protected GenomeService genomeService;
 	
 	@Autowired
@@ -52,7 +58,7 @@ public abstract class AbstractBWASoftwareComponent extends ReferenceBasedAligner
 		setSoftwareVersion("0.7.6a"); // this default may be overridden in wasp.site.properties
 	}
 
-	protected Build getGenomeBuild(SampleSource cellLibrary) {
+	protected  Build getGenomeBuild(SampleSource cellLibrary) {
 		Build build = null;
 		try {
 			Sample library = sampleService.getLibrary(cellLibrary);
@@ -63,7 +69,7 @@ public abstract class AbstractBWASoftwareComponent extends ReferenceBasedAligner
 				logger.error(mess);
 				throw new NullResourceException(mess);
 			}
-			logger.debug("genome build: " + build.getGenome().getName() + "::" + build.getName());
+			logger.debug("genome build: " + genomeService.getDelimitedParameterString(build));
 		} catch (ParameterValueRetrievalException e) {
 			logger.error(e.toString());
 			e.printStackTrace();
@@ -88,10 +94,11 @@ public abstract class AbstractBWASoftwareComponent extends ReferenceBasedAligner
 //		PU Platform unit (e.g. flowcell-barcode.lane for Illumina or slide for SOLiD). Unique identifier.
 //		SM Sample. Use pool name where a pool is being sequenced.
 		
-		Sample cell = sampleService.getCell(cellLibrary);
-		Sample platformUnit;
+		Sample platformUnit = null;
 		try {
-			platformUnit = sampleService.getPlatformUnitForCell(cell);
+			Sample cell = sampleService.getCell(cellLibrary);
+			if (cell != null) // cell may be null if importing external data
+				platformUnit = sampleService.getPlatformUnitForCell(sampleService.getCell(cellLibrary));
 		} catch (Exception e) {
 			logger.error(e.toString());
 			throw new RuntimeException(e.toString());
@@ -99,33 +106,42 @@ public abstract class AbstractBWASoftwareComponent extends ReferenceBasedAligner
 		Sample library = sampleService.getLibrary(cellLibrary);
 		// Sample sample = sampleService.get
 
-		String id;
-		String ks;
-		String lb;
-		String pl;
-		String pu;
-		String sm;
+		String id = "";
+		String ks = "";
+		String lb = "";
+		String pl = "";
+		String pu = "";
+		String sm = "";
 		try {
 			id = cellLibrary.getUUID().toString();
-			ks = adaptorService.getAdaptor(library).getBarcodesequence();
+			try {
+				ks = adaptorService.getAdaptor(library).getBarcodesequence();
+			} catch (MetadataException | SampleTypeException e){
+				logger.info("Not adding adaptor barcode information to readgroup as not available");
+			}
 			lb = library.getName();
 			pl = "ILLUMINA"; // TODO: fix
-			pu = platformUnit.getName();
+			if (platformUnit != null)
+				pu = platformUnit.getName();
+			else
+				logger.info("Not adding platform unit information to readgroup as not available");
 			sm = library.getName(); // TODO: get the real sample name
 		} catch (Exception e) {
 			logger.error(e.toString());
 			throw new RuntimeException(e.toString());
 		}
-		return new StringBuilder()
-				.append("\'@RG\\t")
-				.append("ID:" + id + "\\t")
-				.append("KS:" + ks + "\\t")
-				.append("LB:" + lb + "\\t")
-				.append("PL:" + pl + "\\t")
-				.append("PU:" + pu + "\\t")
-				.append("SM:" + sm)
-				.append("\'")
-				.toString();
+		StringBuilder sb = new StringBuilder();
+		sb.append("\'@RG\\t");
+		sb.append("ID:" + id + "\\t");
+		if (!ks.isEmpty())
+			sb.append("KS:" + ks + "\\t");
+		sb.append("LB:" + lb + "\\t");
+		sb.append("PL:" + pl + "\\t");
+		if (!pu.isEmpty())
+			sb.append("PU:" + pu + "\\t");
+		sb.append("SM:" + sm);
+		sb.append("\'");
+		return sb.toString();
 
 	}
 	
@@ -166,7 +182,7 @@ public abstract class AbstractBWASoftwareComponent extends ReferenceBasedAligner
 				optString += " " + key;
 				continue;
 			}
-			if (jobParameters.get(opt).toString().equals("no"))
+			if (jobParameters.get(opt).toString().equals("no") || jobParameters.get(opt).toString().equals("null"))
 				continue;
 			optString += " " + key + " " + jobParameters.get(opt).toString();
 		}

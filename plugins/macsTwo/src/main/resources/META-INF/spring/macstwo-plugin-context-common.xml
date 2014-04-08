@@ -21,7 +21,9 @@
 
 	<int:service-activator input-channel="wasp.channel.plugin.macstwo" ref="macstwoPlugin" method="process" />
 	
-	<bean id="macstwoPlugin" class="edu.yu.einstein.wasp.macstwo.plugin.MacstwoPlugin" depends-on="rPackage,imagemagick">
+
+	<bean id="macstwoPlugin" class="edu.yu.einstein.wasp.macstwo.plugin.MacstwoPlugin" depends-on="mps-tools,rPackage,imagemagick">
+
 		<constructor-arg name="iName" ref="macstwoPluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.macstwo" />

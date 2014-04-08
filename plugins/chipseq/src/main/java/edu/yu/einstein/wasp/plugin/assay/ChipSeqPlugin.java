@@ -3,9 +3,7 @@
  */
 package edu.yu.einstein.wasp.plugin.assay;
 
-import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
@@ -25,34 +23,27 @@ import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 
-import edu.yu.einstein.wasp.Hyperlink;
-import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.chipseq.service.ChipSeqService;
 import edu.yu.einstein.wasp.exception.PanelException;
-import edu.yu.einstein.wasp.exception.SoftwareConfigurationException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
-import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
+import edu.yu.einstein.wasp.interfacing.Hyperlink;
+import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
+import edu.yu.einstein.wasp.interfacing.plugin.WebInterfacing;
+import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
-import edu.yu.einstein.wasp.plugin.WebInterfacing;
-import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
-import edu.yu.einstein.wasp.util.SoftwareConfiguration;
-import edu.yu.einstein.wasp.util.WaspJobContext;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
-import edu.yu.einstein.wasp.viewpanel.DataTabViewing.Status;
 
 /**
  * @author asmclellan
@@ -135,7 +126,7 @@ public class ChipSeqPlugin extends WaspPlugin implements
 		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
 			return launchTestFlowHelp();
 		
-		logger.debug("******starting launchTestFlow in ChipSeqPlugin!");
+		logger.debug("******starting launchTestFlow in ChipSeqPlugin for job 3!");
 		//m = MessageBuilder.withPayload("{\"id\":\"14\"}").build();
 		try {
 			//Integer id = getIDFromMessage(m);
@@ -148,18 +139,18 @@ public class ChipSeqPlugin extends WaspPlugin implements
 			
 			//////jobParameters.put("test", new Date().toString());//used for testing only
 			
-			jobParameters.put(WaspJobParameters.JOB_ID, "4");
+			jobParameters.put(WaspJobParameters.JOB_ID, "3");
 			
 
 			waspMessageHandlingService.launchBatchJob(AGGREGATE_ANALYSIS_JOB, jobParameters);
-			logger.debug("**Initiating aggregate_analysis_job ChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB + " on job 4");
-			return (Message<String>) MessageBuilder.withPayload("Initiating chipseq test flow: "+AGGREGATE_ANALYSIS_JOB + " for job 4").build();
+			logger.debug("**Initiating aggregate_analysis_job ChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB + " on job 3");
+			return (Message<String>) MessageBuilder.withPayload("Initiating chipseq test flow: "+AGGREGATE_ANALYSIS_JOB + " for job 3").build();
 		} catch (WaspMessageBuildingException e1) {
-			logger.warn("WaspMessageBuildingException Unable to build launch batch job 4 from ChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB);
-			return MessageBuilder.withPayload("Unable to launch batch job  4 from ChipSeqPlugin:" + AGGREGATE_ANALYSIS_JOB).build();
+			logger.warn("WaspMessageBuildingException Unable to build launch batch job 3 from ChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB);
+			return MessageBuilder.withPayload("Unable to launch batch job  3 from ChipSeqPlugin:" + AGGREGATE_ANALYSIS_JOB).build();
 		}catch (Exception e1) {
-			logger.warn("Exception: Unable to build launch batch job 4 from ChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB);
-			return MessageBuilder.withPayload("Exception: Unable to launch batch job 4 from ChipSeqPlugin:" + AGGREGATE_ANALYSIS_JOB).build();
+			logger.warn("Exception: Unable to build launch batch job 3 from ChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB);
+			return MessageBuilder.withPayload("Exception: Unable to launch batch job 3 from ChipSeqPlugin:" + AGGREGATE_ANALYSIS_JOB).build();
 		}
 		
 	}
@@ -260,25 +251,20 @@ public class ChipSeqPlugin extends WaspPlugin implements
 	}
 	@Override
 	public Set<PanelTab> getViewPanelTabs(Job job) throws PanelException{
-		
-		/* ************************************
-		if(!this.getStatus(job).toString().equals(Status.COMPLETED.toString())){
-			return new HashSet<PanelTab>();
-		}
-		*/
-		logger.debug("****just before new call");
 		try{
-			JobDataTabViewing peakcallerPlugin = chipSeqService.getPeakcallerPlugin(job);
-			Set<PanelTab> panelSet = peakcallerPlugin.getViewPanelTabs(job);//at the moment, this would be in macstwo
-			logger.debug("****just after new call");
-			if(panelSet != null && !panelSet.isEmpty()){
-				return panelSet;
-			}
-			return chipSeqService.getChipSeqDataToDisplay(job.getId(), this.getStatus(job));
+			//recall that the summary panelTab is now provided directly from within the web: ResultViewController()			
+			
+			Set<PanelTab> panelTabSet = new LinkedHashSet<PanelTab>();
+			 //TODO: ROBERT A DUBIN uncomment this for production    if(this.getStatus(job).toString().equals(Status.COMPLETED.toString())){
+				JobDataTabViewing peakcallerPlugin = chipSeqService.getPeakcallerPlugin(job);//at this time, only option is macstwo
+				Set<PanelTab> downstreamPanelTabSet = peakcallerPlugin.getViewPanelTabs(job);//all the macstwo specific info
+				if(downstreamPanelTabSet != null && !downstreamPanelTabSet.isEmpty()){
+					panelTabSet.addAll(downstreamPanelTabSet);
+				}
+			//}
+			return panelTabSet;
 		}catch(Exception e){
-			logger.debug("****just before throwing a panel exception: " + e.getMessage());
 			throw new PanelException(e.getMessage());
-		}			
+		}				
 	}
-
 }
