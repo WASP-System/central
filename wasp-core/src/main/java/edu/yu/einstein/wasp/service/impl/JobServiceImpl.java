@@ -2269,7 +2269,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	public void initiateAggregationAnalysisBatchJob(Job job){
 		Assert.assertParameterNotNull(job, "job cannot be null");
 		Assert.assertParameterNotNull(job.getId(), "job must be valid");
-		if (!isInDemoMode)
+		if (isInDemoMode)
 			throw new WaspRuntimeException("Cannot launch batch job for aggregation analysis in demo mode");
 		Map<String, String> jobParameters = new HashMap<String, String>();
 		jobParameters.put(WaspJobParameters.JOB_ID, job.getId().toString());
