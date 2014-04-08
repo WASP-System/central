@@ -261,42 +261,6 @@ public class TestAuthenticationServiceImpl {
 	  verify(mockUserDao);
   }
   
-  @Test
-  public void testHasPermissionNormal1(){
-	  try {
-		Assert.assertFalse(authServiceImpl.hasPermission("hasRole('su') or hasRole('fm') or hasRole('jv-3')"));
-	} catch (IOException e) {
-		Assert.fail("Caught IOException", e);
-	}
-  }
-  
-  @Test
-  public void testHasPermissionNormal2(){
-	  Map<String, Integer> parameterMap = new HashMap<String, Integer>();
-	  parameterMap.put("jobId", 4);
-	  parameterMap.put("sampleId", 22);
-	  try {
-		Assert.assertFalse(authServiceImpl.hasPermission("hasRole('su') or hasRole('fm') or hasRole('jv-#jobId') or hasRole('s-#sampleId')", parameterMap));
-	} catch (IOException e) {
-		Assert.fail("Caught IOException", e);
-	}
-  }
-  
-  @Test
-  public void testHasPermissionFail1(){
-	  Map<String, Integer> parameterMap = new HashMap<String, Integer>();
-	  parameterMap.put("jobId", 4);
-	  parameterMap.put("sampleId", 22);
-	  String exception = "";
-	  try {
-		Assert.assertFalse(authServiceImpl.hasPermission("hasRole('su') or hasRole('fm-#unexpected') or hasRole('jv-#jobId') or hasRole('s-#sampleId')", parameterMap));
-	  } catch (IOException e) {
-		logger.debug("Caught IOException as expected: " + e.getMessage());
-		exception = e.getMessage();
-	  }
-	  Assert.assertEquals(exception, "not all placeholders in permission string have been resolved from parameter map");
-  }
-  
   @BeforeTest
   public void beforeTest() {
 	  

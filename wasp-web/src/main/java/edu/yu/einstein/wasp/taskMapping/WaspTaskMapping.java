@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.WebAuthenticationService;
 import edu.yu.einstein.wasp.web.WebHyperlink;
 
 /**
@@ -24,7 +25,7 @@ public abstract class WaspTaskMapping extends WebHyperlink{
 	
 	private Integer dashboardSortOrder;
 	
-	private AuthenticationService authenticationService;
+	private WebAuthenticationService webAuthenticationService;
 
 	public WaspTaskMapping(String localizedLabelKey, String targetLink, String permission) {
 		super(localizedLabelKey, targetLink);
@@ -38,8 +39,8 @@ public abstract class WaspTaskMapping extends WebHyperlink{
 	}
 	
 	@Autowired
-	public void setAuthenticationService(AuthenticationService authenticationService) {
-		this.authenticationService = authenticationService;
+	public void setAuthenticationService(WebAuthenticationService authenticationService) {
+		this.webAuthenticationService = authenticationService;
 	}
 	
 	public String getPermission() {
@@ -65,7 +66,7 @@ public abstract class WaspTaskMapping extends WebHyperlink{
 	 */
 	public boolean isUserAuthorizedToViewLink(){
 		try {
-			return authenticationService.hasPermission(permission);
+			return webAuthenticationService.hasPermission(permission);
 		} catch (IOException e) {
 			logger.warn("Recieved unexpected exception attempting to authorize logged in user against a permission string: " + e.getLocalizedMessage());
 			return false;

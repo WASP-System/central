@@ -18,6 +18,8 @@
     
     <!-- import internationalized messaging -->
  	<bean id="messageService" class="edu.yu.einstein.wasp.service.impl.MessageServiceImpl" />
+ 	
+ 	<bean class="edu.yu.einstein.wasp.service.impl.WebAuthenticationServiceImpl" />
 
 	<!-- core has a dependency on messaging -->
 	<import resource="classpath*:META-INF/spring/batch-integration-common-config.xml" />

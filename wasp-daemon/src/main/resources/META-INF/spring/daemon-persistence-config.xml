@@ -8,7 +8,7 @@
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
 	<!-- for defaults and other C3P0 DB connection pooling and statement pooling properties see http://www.mchange.com/projects/c3p0 -->
-	<bean id="batchDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+	<bean id="batchDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
 		<property name="driverClass"><value>${batchdb.jdbc.driver}</value></property>
 		<property name="jdbcUrl"><value>${batchdb.jdbc.url}</value></property>
 		<property name="user"><value>${batchdb.jdbc.username}</value></property>
@@ -29,7 +29,7 @@
 		<property name="autoCommitOnClose"><value>${batchdb.jdbc.autoCommitOnClose}</value></property>
 	</bean>
 
-	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
 		<property name="driverClass"><value>${db.jdbc.driver}</value></property>
 		<property name="jdbcUrl"><value>${db.jdbc.url}</value></property>
 		<property name="user"><value>${db.jdbc.username}</value></property>
