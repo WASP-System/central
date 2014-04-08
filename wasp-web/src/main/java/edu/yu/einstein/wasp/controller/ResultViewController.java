@@ -297,7 +297,7 @@ public class ResultViewController extends WaspController {
 				filePanel.setTitle("File Download Panel");
 				GridContent fileGridContent = new GridContent();
 				fileGridContent.addColumn(new GridColumn("File Name", "fname", 1));
-				fileGridContent.addColumn(new GridColumn("MD5 Checksum", "md5", 700, 0));
+				fileGridContent.addColumn(new GridColumn("MD5 Checksum", "md5", 300, 0));
 				fileGridContent.addColumn(new GridColumn("Size", "size", 100, 0, true, false));
 				
 				fileGridContent.addDataFields(new GridDataField("fgname", "string"));
@@ -306,6 +306,7 @@ public class ResultViewController extends WaspController {
 				fileGridContent.addDataFields(new GridDataField("md5", "string"));
 				fileGridContent.addDataFields(new GridDataField("size", "string"));
 				fileGridContent.addDataFields(new GridDataField("link", "string"));
+				fileGridContent.addDataFields(new GridDataField("gblink", "string"));
 				
 				try {
 					for (FileGroup fg : fgSet) {
@@ -319,10 +320,10 @@ public class ResultViewController extends WaspController {
 							filerow.add(fh.getId().toString());
 							filerow.add(fh.getFileName());
 							filerow.add(fh.getMd5hash());
-							filerow.add(fh.getSizek() != null ? fh.getSizek().toString() : "0");
+							filerow.add(fh.getSizek() != null ? fh.getSizek().toString() : "");
 							hl = new Hyperlink("Download", fileUrlResolver.getURL(fh).toString());
 							filerow.add(hl.getTargetLink());
-//							filerowList.add(filerow);
+							filerow.add(hl.getTargetLink());
 							
 							fileGridContent.addDataRow(filerow);
 						}
@@ -346,6 +347,11 @@ public class ResultViewController extends WaspController {
 				
 				filePanel.setAllowGroupDownload(true);
 				filePanel.setGroupDownloadTooltip("Download all");
+				filePanel.setGroupDownloadAlign("left");
+				
+				filePanel.setHasGbUcscLink(true);
+				filePanel.setGbUcscLinkField("gblink");
+				filePanel.setGbUcscTooltip("View in UCSC Genome Browser");
 				
 				jsDetailsTabs.put("filepanel", filePanel);
 				
