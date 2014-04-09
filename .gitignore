@@ -11,8 +11,8 @@ target
 .localized
 test-output
 installAll.sh
-bin
 .springWebflow
+wasp-integration-test
 
 # /db/
 /db/t
