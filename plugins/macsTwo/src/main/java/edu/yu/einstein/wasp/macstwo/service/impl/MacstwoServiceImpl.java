@@ -39,6 +39,13 @@ import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
+class SampleNameComparator implements Comparator<Sample> {
+    @Override
+    public int compare(Sample arg0, Sample arg1) {
+        return arg0.getName().compareToIgnoreCase(arg1.getName());
+    }
+}
+
 @Service
 @Transactional("entityManager")
 public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoService {
@@ -294,9 +301,3 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 	}
 }
 
-class SampleNameComparator implements Comparator<Sample> {
-    @Override
-    public int compare(Sample arg0, Sample arg1) {
-        return arg0.getName().compareToIgnoreCase(arg1.getName());
-    }
-}
