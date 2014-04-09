@@ -1,4 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <br />
 
 <h1><fmt:message key="jobDraft.create.label"/> -- <fmt:message key="pageTitle.jobsubmit/sample.label"/></h1>
@@ -8,6 +11,8 @@
 <div class="instructions">
    <fmt:message key="jobDraft.sample_instructions.label"/>
 </div>
+
+<%--  TODO: Internationalize this!!!! --%>
 
 <table class="EditTable ui-widget ui-widget-content">
 	<tr>

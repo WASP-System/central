@@ -1,5 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <%--serves no purpose here<title><fmt:message key="pageTitle.task/samplereceive/list.label"/></title>--%>
 <h1><fmt:message key="pageTitle.task/samplereceive/list.label"/></h1>
 

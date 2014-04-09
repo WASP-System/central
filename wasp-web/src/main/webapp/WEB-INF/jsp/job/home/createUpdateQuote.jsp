@@ -1,5 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
+  <%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>	
   <style>
   .ui-autocomplete {
     max-height: 100px;
@@ -14,6 +15,8 @@
     height: 100px;
   }
   </style>
+  
+  <%--  TODO: Internationalize this!!!! --%>
 
 <script type="text/javascript" src="<wasp:relativeUrl value='scripts/jquery/jquery.table.addrow.js' />"></script>
 <script type="text/javascript">
@@ -126,6 +129,8 @@
 				 	</fieldset>  
 				</div>
 							
+				<%--  TODO: Internationalize this!!!! --%>
+				
 				<table class="data" style="margin: 0px 0px">
 					<tr class="FormData">
 						<td colspan="4" class="label-centered" style="background-color:#FAF2D6">

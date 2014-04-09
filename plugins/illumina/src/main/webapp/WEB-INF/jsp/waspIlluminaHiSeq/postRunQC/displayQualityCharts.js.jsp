@@ -125,6 +125,7 @@
 			height: 170,
 			modal: true
 			});
+		$("#loading_dialog-modal").css("visibility", "visible");
 
 		$( "#error_dialog-modal" ).dialog({
 			modal: true,

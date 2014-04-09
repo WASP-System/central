@@ -205,6 +205,7 @@
 	</c:if>
 	
 	#loading_dialog-modal{
+		visibility:hidden;
 		padding:15px;
 		font-size: 14px;
 	}

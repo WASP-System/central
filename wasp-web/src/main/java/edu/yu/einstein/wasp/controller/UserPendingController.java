@@ -45,10 +45,10 @@ import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
-import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.UserService;
+import edu.yu.einstein.wasp.service.WebAuthenticationService;
 import edu.yu.einstein.wasp.util.StringHelper;
 
 /**
@@ -95,7 +95,7 @@ public class UserPendingController extends WaspController {
 	private MessageServiceWebapp messageService;
 	
 	@Autowired
-	private AuthenticationService authenticationService;
+	private WebAuthenticationService webAuthenticationService;
 	
 		
 	/**
@@ -120,7 +120,7 @@ public class UserPendingController extends WaspController {
 		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();	
 		
 		userPending.setUserPendingMeta(metaHelperWebapp.getMasterList(UserPendingMeta.class));
-		m.put("isAuthenticationExternal", authenticationService.isAuthenticationSetExternal());
+		m.put("isAuthenticationExternal", webAuthenticationService.isAuthenticationSetExternal());
 		m.addAttribute(metaHelperWebapp.getParentArea(), userPending);
 		prepareSelectListData(m);
 
@@ -150,20 +150,20 @@ public class UserPendingController extends WaspController {
 		userPendingMetaHelperWebapp.getFromRequest(request, UserPendingMeta.class);
 		userPendingMetaHelperWebapp.validate(new UserPendingMetaValidatorImpl(userDao, labDao), result);
 		if (! result.hasFieldErrors("login")){
-			if (authenticationService.isAuthenticationSetExternal()){
-				if (! authenticationService.authenticate(userPendingForm.getLogin(), userPendingForm.getPassword())){
+			if (webAuthenticationService.isAuthenticationSetExternal()){
+				if (! webAuthenticationService.authenticate(userPendingForm.getLogin(), userPendingForm.getPassword())){
 					Errors errors=new BindException(result.getTarget(), userPendingMetaHelperWebapp.getParentArea());
 					errors.rejectValue("login", userPendingMetaHelperWebapp.getParentArea()+".external_authentication.error", userPendingMetaHelperWebapp.getParentArea()+".external_authentication.error (no message has been defined for this property)");
 					result.addAllErrors(errors);
 				} else {
 					// user is now authenticated with single role 'ag' (authenticated guest) log them out again
-					authenticationService.logoutUser();
+					webAuthenticationService.logoutUser();
 					initializeSessionAttributes();
 				}
 			}
 			else {
 				// using internal authentication
-				if (! authenticationService.isLoginNameWellFormed(userPendingForm.getLogin())){
+				if (! webAuthenticationService.isLoginNameWellFormed(userPendingForm.getLogin())){
 					Errors errors=new BindException(result.getTarget(), userPendingMetaHelperWebapp.getParentArea());
 					errors.rejectValue("login", userPendingMetaHelperWebapp.getParentArea()+".login_malformed.error", userPendingMetaHelperWebapp.getParentArea()+".login_malformed.error (no message has been defined for this property)");
 					result.addAllErrors(errors);
@@ -171,7 +171,7 @@ public class UserPendingController extends WaspController {
 				else{
 					// login name correctly formed
 					try {
-						if (authenticationService.isLoginAlreadyInUse(userPendingForm.getLogin(), userPendingForm.getEmail())){
+						if (webAuthenticationService.isLoginAlreadyInUse(userPendingForm.getLogin(), userPendingForm.getEmail())){
 							Errors errors=new BindException(result.getTarget(), userPendingMetaHelperWebapp.getParentArea());
 							errors.rejectValue("login", userPendingMetaHelperWebapp.getParentArea()+".login_exists.error", userPendingMetaHelperWebapp.getParentArea()+".login_exists.error (no message has been defined for this property)");
 							result.addAllErrors(errors);
@@ -184,7 +184,7 @@ public class UserPendingController extends WaspController {
 				}
 			}
 		}
-		if (!authenticationService.isAuthenticationSetExternal()){
+		if (!webAuthenticationService.isAuthenticationSetExternal()){
 			passwordValidator.validate(result, userPendingForm.getPassword(), request.getParameter("password2"), userPendingMetaHelperWebapp.getParentArea(), "password");
 		}
 		if (! result.hasFieldErrors("email")){
@@ -211,7 +211,7 @@ public class UserPendingController extends WaspController {
 		if (result.hasErrors() || m.containsKey("captchaError")) {
 			userPendingForm.setUserPendingMeta((List<UserPendingMeta>) userPendingMetaHelperWebapp.getMetaList());
 			prepareSelectListData(m);
-			m.put("isAuthenticationExternal", authenticationService.isAuthenticationSetExternal());
+			m.put("isAuthenticationExternal", webAuthenticationService.isAuthenticationSetExternal());
 			waspErrorMessage("user.created.error");
 			return "auth/newuser/form";
 		}
@@ -233,7 +233,7 @@ public class UserPendingController extends WaspController {
 		userPendingForm.setLabId(lab.getLabId());
 		userPendingForm.setStatus("WAIT_EMAIL"); // set to WAIT_EMAIL even if isEmailApproved == true or sendPendingUserConfRequestEmail() won't work properly
 				
-		userPendingForm.setPassword( authenticationService.encodePassword(userPendingForm.getPassword()) ); 
+		userPendingForm.setPassword( webAuthenticationService.encodePassword(userPendingForm.getPassword()) ); 
 				
 		List<UserPendingMeta> userPendingMetaList = (List<UserPendingMeta>) userPendingMetaHelperWebapp.getMetaList();
 		userPendingForm.setUserPendingMeta(userPendingMetaList);
@@ -353,7 +353,7 @@ public class UserPendingController extends WaspController {
 		// save visibility map to session in order to use it later
 		request.getSession().setAttribute("visibilityElementMap", visibilityElementMap);
 		prepareSelectListData(m, metaHelperWebapp);
-		m.put("isAuthenticationExternal", authenticationService.isAuthenticationSetExternal());
+		m.put("isAuthenticationExternal", webAuthenticationService.isAuthenticationSetExternal());
 		return "auth/newpi/form";
 
 	}
@@ -385,20 +385,20 @@ public class UserPendingController extends WaspController {
 		metaHelperWebapp.validate(result);
 		
 		if (! result.hasFieldErrors("login")){
-			if (authenticationService.isAuthenticationSetExternal()){
-				if (! authenticationService.authenticate(userPendingForm.getLogin(), userPendingForm.getPassword())){
+			if (webAuthenticationService.isAuthenticationSetExternal()){
+				if (! webAuthenticationService.authenticate(userPendingForm.getLogin(), userPendingForm.getPassword())){
 					Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
 					errors.rejectValue("login", metaHelperWebapp.getParentArea()+".external_authentication.error", metaHelperWebapp.getParentArea()+".external_authentication.error (no message has been defined for this property)");
 					result.addAllErrors(errors);
 				} else {
 					// user is now authenticated with single role 'ag' (authenticated guest) log them out again
-					authenticationService.logoutUser();
+					webAuthenticationService.logoutUser();
 					initializeSessionAttributes();
 				}
 			}
 			else {
 				// using internal authentication
-				if (! authenticationService.isLoginNameWellFormed(userPendingForm.getLogin())){
+				if (! webAuthenticationService.isLoginNameWellFormed(userPendingForm.getLogin())){
 					Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
 					errors.rejectValue("login", metaHelperWebapp.getParentArea()+".login_malformed.error", metaHelperWebapp.getParentArea()+".login_malformed.error (no message has been defined for this property)");
 					result.addAllErrors(errors);
@@ -406,7 +406,7 @@ public class UserPendingController extends WaspController {
 				else{
 					// login name correctly formed
 					try {
-						if (authenticationService.isLoginAlreadyInUse(userPendingForm.getLogin(), userPendingForm.getEmail())){
+						if (webAuthenticationService.isLoginAlreadyInUse(userPendingForm.getLogin(), userPendingForm.getEmail())){
 							Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
 							errors.rejectValue("login", metaHelperWebapp.getParentArea()+".login_exists.error", metaHelperWebapp.getParentArea()+".login_exists.error (no message has been defined for this property)");
 							result.addAllErrors(errors);
@@ -419,7 +419,7 @@ public class UserPendingController extends WaspController {
 				}
 			}
 		}
-		if (!authenticationService.isAuthenticationSetExternal()){
+		if (!webAuthenticationService.isAuthenticationSetExternal()){
 			passwordValidator.validate(result, userPendingForm.getPassword(), request.getParameter("password2"), metaHelperWebapp.getParentArea(), "password");
 		}
 		
@@ -447,7 +447,7 @@ public class UserPendingController extends WaspController {
 		if (result.hasErrors() || m.containsKey("captchaError")) {
 			userPendingForm.setUserPendingMeta((List<UserPendingMeta>) metaHelperWebapp.getMetaList());
 			prepareSelectListData(m, metaHelperWebapp);
-			m.put("isAuthenticationExternal", authenticationService.isAuthenticationSetExternal());
+			m.put("isAuthenticationExternal", webAuthenticationService.isAuthenticationSetExternal());
 			waspErrorMessage("user.created.error");
 			
 			return "auth/newpi/form";
@@ -456,7 +456,7 @@ public class UserPendingController extends WaspController {
 			request.getSession().setAttribute("demoEmail", userPendingForm.getEmail());
 		userPendingForm.setStatus("WAIT_EMAIL");
 
-		userPendingForm.setPassword( authenticationService.encodePassword(userPendingForm.getPassword()) ); 
+		userPendingForm.setPassword( webAuthenticationService.encodePassword(userPendingForm.getPassword()) ); 
 		userPendingForm.setFirstName(StringHelper.removeExtraSpacesAndCapFirstLetter(userPendingForm.getFirstName()));
 		userPendingForm.setLastName(StringHelper.removeExtraSpacesAndCapFirstLetter(userPendingForm.getLastName()));
 		UserPending userPendingDb = userPendingDao.save(userPendingForm);
@@ -631,7 +631,7 @@ public class UserPendingController extends WaspController {
 			  @RequestParam(value="authcode", required=false) String authCode,
 			  @RequestParam(value="email", required=false) String urlEncodedEmail,
 		      ModelMap m) throws MetadataException {
-		
+		initializeSessionAttributes();
 		if ( (authCode == null || authCode.isEmpty()) && (urlEncodedEmail == null || urlEncodedEmail.isEmpty()) ){
 			// get the authcodeform view
 			return "auth/confirmemail/authcodeform";
@@ -671,7 +671,7 @@ public class UserPendingController extends WaspController {
 			@RequestParam(value="email") String email,
 	        @RequestParam(value="captcha_text") String captchaText,
 	        ModelMap m) throws MetadataException {
-		 
+		  initializeSessionAttributes();
 		  Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 		  /* NV commented for testing
 		  if (captcha == null || (! captcha.isCorrect(captchaText)) ){
@@ -709,6 +709,7 @@ public class UserPendingController extends WaspController {
 			  @RequestParam(value="authcode", required=false) String authCode,
 			  @RequestParam(value="email", required=false) String urlEncodedEmail,
 		      ModelMap m) throws MetadataException {
+		 initializeSessionAttributes();
 		 if ( (authCode == null || authCode.isEmpty()) && (urlEncodedEmail == null || urlEncodedEmail.isEmpty()) ){
 			// get the authcodeform view
 			return "auth/confirmemail/authcodeform";
@@ -747,6 +748,7 @@ public class UserPendingController extends WaspController {
 			@RequestParam(value="email") String email,
 			@RequestParam(value="captcha_text") String captchaText,
 			ModelMap m) throws MetadataException {
+		initializeSessionAttributes();
 		Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 		
 		/* NV commented for testing

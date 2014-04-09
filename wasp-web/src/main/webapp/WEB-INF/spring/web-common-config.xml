@@ -10,6 +10,15 @@
 	<mvc:annotation-driven /> 
 
 	<!-- locale -->
+	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver" >  
+		<property name="defaultLocale" ref="usLocale"/>
+	</bean>
+	  
+	<bean id="usLocale" class="java.util.Locale" >  
+		<constructor-arg value="en"/>
+		<constructor-arg value="US"/>
+	</bean>
+	
 	<mvc:interceptors>
 	<bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
      	<property name="paramName"><value>setUserLocale</value></property>

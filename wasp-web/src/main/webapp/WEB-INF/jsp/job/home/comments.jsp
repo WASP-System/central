@@ -1,4 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <c:import url="/WEB-INF/jsp/job/home/fadingMessage.jsp" />
 <%-- 
 <script type="text/javascript" src="<wasp:relativeUrl value='scripts/js/robtest.js' />"></script>

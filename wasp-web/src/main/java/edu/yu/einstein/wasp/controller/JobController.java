@@ -106,7 +106,6 @@ import edu.yu.einstein.wasp.quote.LibraryCost;
 import edu.yu.einstein.wasp.quote.MPSQuote;
 import edu.yu.einstein.wasp.quote.SequencingCost;
 import edu.yu.einstein.wasp.service.AdaptorService;
-import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.GenomeService;
@@ -117,6 +116,7 @@ import edu.yu.einstein.wasp.service.ResourceService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.UserService;
+import edu.yu.einstein.wasp.service.WebAuthenticationService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.SampleWrapper;
@@ -184,7 +184,7 @@ public class JobController extends WaspController {
 	@Autowired
 	private UserService UserService;
 	@Autowired
-	private AuthenticationService authenticationService;
+	private WebAuthenticationService webAuthenticationService;
 	@Autowired
 	private AdaptorService adaptorService;
 	@Autowired
@@ -284,7 +284,7 @@ public class JobController extends WaspController {
 		
 		boolean permissionToAddEditComment = false;
 		try{
-			permissionToAddEditComment = authenticationService.hasPermission("hasRole('su') or hasRole('fm') or hasRole('ft')");
+			permissionToAddEditComment = webAuthenticationService.hasPermission("hasRole('su') or hasRole('fm') or hasRole('ft')");
 		}catch(Exception e){
 			waspErrorMessage("jobComment.jobCommentAuth.error");
 			return "redirect:/dashboard.do";
@@ -336,7 +336,7 @@ public class JobController extends WaspController {
 		prepareSelectListData(m);
 		
 		m.addAttribute("viewerIsFacilityMember", "false");
-		if(authenticationService.isFacilityMember()){
+		if(webAuthenticationService.isFacilityMember()){
 			m.addAttribute("viewerIsFacilityMember", "true");//send to jsp; this way don't have to perform multiple sec:authorize access= tests!!
 		}
 		return "job/list";
@@ -516,8 +516,8 @@ public class JobController extends WaspController {
 			
 		tempJobList = this.jobDao.findByMapsIncludesDatesDistinctOrderBy(m, dateMap, null, orderByColumnAndDirection);
 
-		if(authenticationService.isFacilityMember()){//true if viewer has role of su, fm, ft, sa, ga, da
-			if(authenticationService.isOnlyDepartmentAdministrator()){//turns out that the DA doesn't appear to have access to this page
+		if(webAuthenticationService.isFacilityMember()){//true if viewer has role of su, fm, ft, sa, ga, da
+			if(webAuthenticationService.isOnlyDepartmentAdministrator()){//turns out that the DA doesn't appear to have access to this page
 				//perform ONLY if the viewer is A DA but is NOT any other type of facility member
 				//in order to remove jobs not in the DA's department
 				List<Job> jobsToKeep = filterService.filterJobListForDA(tempJobList);//this returned list is jobs in the DA's departments
@@ -530,7 +530,7 @@ public class JobController extends WaspController {
 			//instead, simply show all jobs that the person may view (note, if PI, (s)he see's all jobs in that lab)
 			//this should be changed in future
 
-			User viewer = authenticationService.getAuthenticatedUser();//the web viewer that is logged on that wants to see his/her submitted or viewable jobs
+			User viewer = webAuthenticationService.getAuthenticatedUser();//the web viewer that is logged on that wants to see his/her submitted or viewable jobs
 			List<Job> jobsToKeep = jobService.getJobsSubmittedOrViewableByUser(viewer);//default order is by jobId/desc
 			tempJobList.retainAll(jobsToKeep);
 		}
@@ -975,7 +975,7 @@ public class JobController extends WaspController {
 	private void populateCostPage(Job job, ModelMap m){
 		
 		//need this (viewerIsFacilityStaff) since might be coming from callable (and security context lost)
-		if(authenticationService.hasRole("su") || authenticationService.hasRole("ft") || authenticationService.hasRole("da-*")){
+		if(webAuthenticationService.hasRole("su") || webAuthenticationService.hasRole("ft") || webAuthenticationService.hasRole("da-*")){
 			m.addAttribute("viewerIsFacilityStaff", true);
 		}
 		else{
@@ -1730,10 +1730,10 @@ public class JobController extends WaspController {
 		Collections.sort(jobViewers, new LastNameFirstNameComparator());
 		m.addAttribute("jobViewers", jobViewers);
 		
-		User currentWebViewer = authenticationService.getAuthenticatedUser();
+		User currentWebViewer = webAuthenticationService.getAuthenticatedUser();
 		m.addAttribute("currentWebViewer", currentWebViewer);
 		
-		m.addAttribute("currentWebViewerIsSuperuserOrJobSubmitterOrJobPI", authenticationService.isSuperUser() || currentWebViewer.getId().intValue() == job.getUserId().intValue() || currentWebViewer.getId().intValue() == job.getLab().getPrimaryUserId().intValue());
+		m.addAttribute("currentWebViewerIsSuperuserOrJobSubmitterOrJobPI", webAuthenticationService.isSuperUser() || currentWebViewer.getId().intValue() == job.getUserId().intValue() || currentWebViewer.getId().intValue() == job.getLab().getPrimaryUserId().intValue());
 	}
 	
 	@Transactional
@@ -1849,11 +1849,11 @@ public class JobController extends WaspController {
 		//permit job's submitter and job's PI to add a comment, as well as superuser, ftech, da:
 		boolean permissionToAddEditComment = false;//currently, no mechanism to edit exists on these comments on the webpage
 		try{
-			permissionToAddEditComment = authenticationService.hasPermission("hasRole('su') or hasRole('fm') or hasRole('ft') or hasRole('da-*') ");
+			permissionToAddEditComment = webAuthenticationService.hasPermission("hasRole('su') or hasRole('fm') or hasRole('ft') or hasRole('da-*') ");
 		}catch(Exception e){
 			logger.warn(e.getMessage());
 		}
-		User me = authenticationService.getAuthenticatedUser();
+		User me = webAuthenticationService.getAuthenticatedUser();
 		if((permissionToAddEditComment==false) && me.getId().intValue() == job.getUserId().intValue() || me.getId().intValue() == job.getLab().getPrimaryUserId().intValue()){
 			permissionToAddEditComment=true;
 		}
@@ -1881,7 +1881,7 @@ public class JobController extends WaspController {
 		}
 		else{
 			try{
-				if(authenticationService.hasPermission("hasRole('su') or hasRole('fm') or hasRole('ft') or hasRole('da-*')")){
+				if(webAuthenticationService.hasPermission("hasRole('su') or hasRole('fm') or hasRole('ft') or hasRole('da-*')")){
 					jobService.setFacilityJobComment(jobId, comment);
 				}
 				else{

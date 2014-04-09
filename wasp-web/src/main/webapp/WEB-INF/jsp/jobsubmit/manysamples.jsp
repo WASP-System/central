@@ -79,6 +79,9 @@
 
 <%@ include file="/WEB-INF/jsp/jobsubmit/jobsubmitinfo.jsp" %>
 
+<%--  TODO: Internationalize this!!!! --%>
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <div id="container_div_for_adding_rows" >
 	<h2>Sample Type: <c:out value="${sampleType.name}" /></h2>
 	<h2>Sample Subtype: <c:out value="${sampleSubtype.name}" /></h2>
@@ -109,6 +112,8 @@
 					</td>
 				</tr>
 			</c:if>
+			
+			<%--  TODO: Internationalize this!!!! --%>
 			
 			<c:forEach items="${sampleDraftList}" var="sampleDraft" varStatus="sampleDraftStatus">
 				<c:if test="${sampleDraftStatus.first}">

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -12,27 +11,21 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 
 import org.apache.commons.lang.StringUtils;
-import org.hibernate.annotations.common.util.StringHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.support.SessionStatus;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.dao.BarcodeDao;
 import edu.yu.einstein.wasp.dao.ResourceBarcodeDao;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
-import edu.yu.einstein.wasp.dao.ResourceDao;
 import edu.yu.einstein.wasp.dao.ResourceMetaDao;
 import edu.yu.einstein.wasp.dao.ResourceTypeDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
@@ -41,11 +34,12 @@ import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.ResourceBarcode;
 import edu.yu.einstein.wasp.model.ResourceCategory;
-import edu.yu.einstein.wasp.model.ResourceCell;
 import edu.yu.einstein.wasp.model.ResourceMeta;
 import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
+import edu.yu.einstein.wasp.service.ResourceService;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 
 @Controller
@@ -54,7 +48,10 @@ import edu.yu.einstein.wasp.taglib.JQFieldTag;
 public class ResourceController extends WaspController {
 
 	@Autowired
-	private ResourceDao resourceDao;
+	private ResourceService resourceService; 
+	
+	@Autowired
+	private SampleService sampleService;
 
 	@Autowired
 	private ResourceMetaDao resourceMetaDao;
@@ -129,20 +126,20 @@ public class ResourceController extends WaspController {
 
 		if (request.getParameter("_search") == null
 				|| StringUtils.isEmpty(request.getParameter("searchString"))) {
-			resourceList = sidx.isEmpty() ? this.resourceDao.findAll() : this.resourceDao.findAllOrderBy(sidx, sord);
+			resourceList = sidx.isEmpty() ? resourceService.getResourceDao().findAll() : resourceService.getResourceDao().findAllOrderBy(sidx, sord);
 
-			//resourceList = resourceDao.findAll();
+			//resourceList = resourceService.getResourceDao().findAll();
 		} else {
 			Map<String, String> m = new HashMap<String, String>();
 
 			m.put(request.getParameter("searchField"),
 					request.getParameter("searchString"));
 
-			resourceList = resourceDao.findByMap(m);
+			resourceList = resourceService.getResourceDao().findByMap(m);
 
 			if ("ne".equals(request.getParameter("searchOper"))) {
-				//List<Resource> allResources = new ArrayList<Resource>(resourceDao.findAll());
-				List<Resource> allResources = new ArrayList<Resource>(sidx.isEmpty() ? this.resourceDao.findAll() : this.resourceDao.findAllOrderBy(sidx, sord));
+				//List<Resource> allResources = new ArrayList<Resource>(resourceService.getResourceDao().findAll());
+				List<Resource> allResources = new ArrayList<Resource>(sidx.isEmpty() ? resourceService.getResourceDao().findAll() : resourceService.getResourceDao().findAllOrderBy(sidx, sord));
 
 				for (Iterator<Resource> it = resourceList.iterator(); it
 						.hasNext();) {
@@ -213,7 +210,7 @@ public class ResourceController extends WaspController {
 			if(!StringUtils.isEmpty(request.getParameter("selId")))
 			{
 				int selId = Integer.parseInt(request.getParameter("selId"));
-				int selIndex = resourceList.indexOf(resourceDao.findById(selId));
+				int selIndex = resourceList.indexOf(resourceService.getResourceDao().findById(selId));
 				frId = selIndex;
 				toId = frId + 1;
 
@@ -279,7 +276,7 @@ public class ResourceController extends WaspController {
 		if (resourceId == null || resourceId.intValue() == 0) {
 			
 			//check if Resource Name already exists in db; if 'true', do not allow to proceed.
-			if(this.resourceDao.getResourceByName(resourceForm.getName()).getName() != null) {
+			if(resourceService.getResourceDao().getResourceByName(resourceForm.getName()).getName() != null) {
 				logger.debug("obtained null or 0 resource from form and found not null resource by name");
 				try{
 					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -330,7 +327,7 @@ public class ResourceController extends WaspController {
 			
 			logger.debug("resource form id: " + resourceForm.getId());
 
-			Resource resourceDb = this.resourceDao.save(resourceForm);
+			Resource resourceDb = resourceService.getResourceDao().save(resourceForm);
 			
 			resourceBarcode.setResource(resourceDb);
 			this.resourceBarcodeDao.save(resourceBarcode);
@@ -339,7 +336,7 @@ public class ResourceController extends WaspController {
 			
 		} else {
 			
-			Resource resourceDb = this.resourceDao.getById(resourceId);
+			Resource resourceDb = resourceService.getResourceDao().getById(resourceId);
 			ResourceBarcode resourceBarcodeDB = this.resourceBarcodeDao.getResourceBarcodeByResourceId(resourceId);
 			
 			if(request.getParameter("resource.decommission_date") == null || request.getParameter("resource.decommission_date").length() == 0){
@@ -372,7 +369,7 @@ public class ResourceController extends WaspController {
 				this.resourceBarcodeDao.merge(resourceBarcodeDB);
 			}
 			
-			this.resourceDao.merge(resourceDb);
+			resourceService.getResourceDao().merge(resourceDb);
 		}
 		try {
 			try{
@@ -400,7 +397,7 @@ public class ResourceController extends WaspController {
 
 		Map<String, Object> jqgrid = new HashMap<String, Object>();
 
-		Resource resourceDb = resourceDao.getById(resourceId);
+		Resource resourceDb = resourceService.getResourceDao().getById(resourceId);
 
 		List<Run> runs = resourceDb.getRun();
 
@@ -435,9 +432,8 @@ public class ResourceController extends WaspController {
 
 			int j = 0;
 			for (Run run : runs) {
-
 				text = run.getId() == null ? "No Runs"
-						: "<a href=/" + servletName + "/waspIlluminaHiSeq/flowcell/" + run.getId() + "/show.do>"
+						: "<a href=/" + servletName + "/" + sampleService.getPlatformunitViewLink(run.getPlatformUnit()) + ">"
 								+ run.getName() + "</a>";
 				mtrx[j] = text;
 

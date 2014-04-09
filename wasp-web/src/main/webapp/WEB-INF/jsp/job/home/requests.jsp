@@ -1,5 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <div id="user_requested_coverage_data" >
 	<c:choose>
 		<c:when test="${totalNumberCellsRequested==0}"><%--   value will be >=0    --%>
@@ -74,6 +76,8 @@
 			</c:otherwise>
 		</c:choose>
 	</div>
+	
+	<%--  TODO: Internationalize this!!!! --%>
 	
 	<div>
 		<h2 style="font-weight:bold">Alignments Requested:</h2>

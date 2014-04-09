@@ -15,6 +15,8 @@
 	</c:otherwise>
 </c:choose> 
 
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <div id="containerForTables" style="width:100%;overflow:hidden" >
 
 <div id="left" style="float:left; margin-right:10px">

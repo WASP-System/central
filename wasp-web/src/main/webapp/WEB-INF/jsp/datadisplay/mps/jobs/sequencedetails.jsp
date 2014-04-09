@@ -1,6 +1,10 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <c:import url="/WEB-INF/jsp/datadisplay/mps/jobs/rundetails.jsp" />
 <br />
+
+<%--  TODO: Internationalize this!!!! --%>
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <table style="border:1px solid black;">
 <tr><td class="CaptionTD" style="text-decoration:underline; text-align:center" colspan="2">Lane ${cellIndex} </td></tr>
 <tr><td class="CaptionTD">Raw Reads (RR): </td><td class="DataTD"><c:out value="100000" /></td></tr>
