@@ -81,7 +81,7 @@ public class TaskController extends WaspController {
 	  //TODO:: this is a horrible thing to do. Need to figure out transaction between web and batch 
 	  // (taking into account concurrency of batch). fun fun fun!
 	  try{
-		  Thread.sleep(500);
+		  Thread.sleep(2000);
 	  } catch(InterruptedException e){}
   }
   
