@@ -120,6 +120,9 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 	@Value("${email.sending.enabled:true}")
 	private Boolean isSendingEmailEnabled;
 	
+	@Value("${email.sending.testmode.enabled:false}")
+	private Boolean isSendingEmailInTestModeEnabled;
+	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
@@ -461,8 +464,9 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 		String body = extractBody(mainText);
 		String completeEmailTextHtml = headerText + body + footerText;
 		Properties props = ((JavaMailSenderImpl) mailSender).getJavaMailProperties();
-		String sendToEmail = props.getProperty("mail.smtp.from");  //TODO: remove this line and un-comment line below in production code
-		// String sendToEmail = user.getEmail();
+		String sendToEmail = user.getEmail();
+		if (isSendingEmailInTestModeEnabled)
+			sendToEmail = props.getProperty("mail.smtp.from");
 		if (isInDemoMode)
 			sendToEmail = demoEmail.getDemoEmail();
 		try{

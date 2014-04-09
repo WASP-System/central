@@ -10,7 +10,7 @@ $(document).ready(function() {
 			  $("#continueButtonDivId").css("display", "none"); 
 		  }
 		  else{			  
-			  $.getJSON("<c:url value="/jobsubmit/getWorkflowsForAStrategy.do" />", { strategy: $( this ).val() }, function( data ) {
+			  $.getJSON("<wasp:relativeUrl value="jobsubmit/getWorkflowsForAStrategy.do" />", { strategy: $( this ).val() }, function( data ) {
 					 var numberOfEntries = 0;
 					 //unable to find a way to get this number directly. $.parseJSON(data) seems to screw up the data 
 					 $.each( data, function( key, val ) {
@@ -134,7 +134,7 @@ $(document).ready(function() {
 	
 	  <div class="submit">
 	    <c:if test="${jobDraft != null && jobDraft.jobDraftId != null }">
-	      <input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<c:url value="/dashboard.do"/>'" /> 
+	      <input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<wasp:relativeUrl value="dashboard.do"/>'" /> 
 	    </c:if>
 	    <div id="continueButtonDivId"   <c:choose><c:when test="${empty assayWorkflows}">style="display:none"</c:when><c:otherwise>style="display:inline"</c:otherwise></c:choose> >
 	     <input  class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="jobDraft.continue.label"/>">

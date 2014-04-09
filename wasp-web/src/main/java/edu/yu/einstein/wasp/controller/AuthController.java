@@ -46,22 +46,22 @@ public class AuthController extends WaspController {
   private UserpasswordauthDao userpasswordauthDao;
 
   @Autowired
-  private EmailService emailService;
+  protected EmailService emailService;
   
   @Autowired
   private DemoEmail demoEmail;
 
   @Autowired
-  private UserDao userDao;
+  protected UserDao userDao;
   
   @Autowired
   private BeanValidator validator;
   
   @Autowired
-  private AuthenticationService authenticationService;
+  protected AuthenticationService authenticationService;
   
   @Autowired
-  private ConfirmEmailAuthDao confirmEmailAuthDao;
+  protected ConfirmEmailAuthDao confirmEmailAuthDao;
   
   private static final String TARGET_URL_KEY = "targetURL";
   
@@ -84,6 +84,7 @@ public class AuthController extends WaspController {
 	  SavedRequest savedRequest =  new HttpSessionRequestCache().getRequest(request, response);
 	  if (savedRequest != null){
 		  targetURL = savedRequest.getRedirectUrl(); // get the target url from which we were redirected to login (if set)
+		  logger.debug("Raw target URL = " + targetURL);
 		  if (!targetURL.isEmpty()){
 			  // HACK ALERT: Ideally we'd have an easy URL design that makes it easy to distinguish calls to pages and ajax calls for data
 			  // but we don't so need to put in some catches for handling known corner cases
@@ -96,12 +97,13 @@ public class AuthController extends WaspController {
 					  logger.debug("target URL is provided so setting session variable for target = " + targetURL);
 					  request.getSession().setAttribute(TARGET_URL_KEY, targetURL); 
 				  }
+				  initializeSessionAttributes();
 				  return "auth/loginReferralPage";
 			  } else if (targetURL.toLowerCase().contains("json.do")){
-				  //targetURL = targetURL.replace("JSON", "").replace("\\?.*", "");
+				  // to messy to decide where to go so default to dashboard
 				  request.getSession().setAttribute(LOGIN_EXPIRED_WARNING_KEY, "auth.redirectDataNotSaved.label");
-				  logger.debug("target URL is provided so setting session variable for target = " + targetURL);
-				  request.getSession().setAttribute(TARGET_URL_KEY, targetURL); 
+				  logger.debug("target URL is not suitable for redirection");
+				  initializeSessionAttributes();
 				  return "auth/loginReferralPage";
 			  }
 			  logger.debug("target URL is provided so setting session variable for target = " + targetURL);
@@ -113,8 +115,8 @@ public class AuthController extends WaspController {
   
   @RequestMapping(value="/login", method=RequestMethod.GET)
   public String login(ModelMap m){
-	  // store mode as a session variable
-	  request.getSession().setAttribute("isInDemoMode", new Boolean(isInDemoMode));
+	  // this is our entry point when starting up so save some session attributes here
+	  initializeSessionAttributes();
 	  logger.info("Setting 'isInDemoMode' session attribute to: " + Boolean.toString(isInDemoMode));
 	  if (isInDemoMode && (demoEmail == null || demoEmail.getDemoEmail().isEmpty()) )
 		  return "redirect:/auth/getEmailForDemo.do";
@@ -471,7 +473,7 @@ public class AuthController extends WaspController {
   @RequestMapping("/reauth")
   public String reauth(ModelMap m) {
     doReauth();
-
+    initializeSessionAttributes();
     return "redirect:/dashboard.do";
   }
   

@@ -8,18 +8,18 @@
 	<title> 	 	
 	    <wasp:pageTitle/> 
 	</title>
-	<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/base.css" />
-	<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/menu.css" />
-	<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/jquery-ui.css" />
-	<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/ui.jqgrid.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="<wasp:relativeUrl value='css/base.css' />" />
+	<link rel="stylesheet" type="text/css" media="screen" href="<wasp:relativeUrl value='css/menu.css' />" />
+	<link rel="stylesheet" type="text/css" media="screen" href="<wasp:relativeUrl value='css/jquery/jquery-ui.css' />" />
+	<link rel="stylesheet" type="text/css" media="screen" href="<wasp:relativeUrl value='css/jquery/ui.jqgrid.css' />" />
 	
 	<script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.js"></script>
 	<script type="text/javascript" src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script> 
-	<script type="text/javascript" src="/wasp/scripts/jquery/ajaxfileupload.js"></script>
-
+	<script type="text/javascript" src="<wasp:relativeUrl value='scripts/jquery/ajaxfileupload.js' />"></script>
 	<%--  include locale-specific jqgrid file.  jqLang is set in UserLocaleInterceptor class --%> 
-	<script src="/wasp/scripts/jqgrid/grid.locale-<%= ((HttpServletRequest)pageContext.getRequest()).getSession().getAttribute("jqLang") %>.js" type="text/javascript"></script>
-	<script src="/wasp/scripts/jqgrid/jquery.jqGrid.min.js" type="text/javascript"></script>
+	<% String locale = ((HttpServletRequest) pageContext.getRequest()).getSession().getAttribute("jqLang").toString(); %>
+	<script src="<wasp:relativeUrl><jsp:attribute name='value'>scripts/jqgrid/grid.locale-<%= locale %>.js</jsp:attribute></wasp:relativeUrl>" type="text/javascript"></script>
+	<script src="<wasp:relativeUrl value='scripts/jqgrid/jquery.jqGrid.min.js' />" type="text/javascript"></script>
 	
 	
 	<script type="text/javascript">
@@ -119,10 +119,10 @@
 		var _area="<tiles:insertAttribute name="area" />";
 		
 		<%-- URL to fetch JSON-formatted data from server --%>
-		var _url='/wasp/' + _area + '/listJSON.do?selId=${param.selId}';
+		var _url='<wasp:relativeUrl value="' + _area + " />'/listJSON.do?selId=${param.selId}';
 		
 		<%-- URL to submit CUD requests to the server --%>
-		var _editurl='/wasp/' + _area + '/detail_rw/updateJSON.do';
+		var _editurl='<wasp:relativeUrl value="' + _area + " />'/detail_rw/updateJSON.do';
 		
 		<%--  structure to define L&F of "edit row" functionality --%> 
 		var _editAttr={
@@ -248,7 +248,7 @@
 						dataInit: function(elm){
 							setTimeout(
 								function(){ 
-									$.getJSON("/wasp/autocomplete/getInstitutesForDisplay.do", 
+									$.getJSON("<wasp:relativeUrl value='autocomplete/getInstitutesForDisplay.do' />", 
 											{ instituteNameFragment: "" }, 
 											function(data) { 
 												jQuery(elm).autocomplete(data);
@@ -384,11 +384,23 @@
 			<%-- displays AJAX protocol errors --%>
 			error: function(XMLHttpRequest, textStatus, errorThrown) {
 				//alert(textStatus+'|'+errorThrown);
+				checkForPageRedirect(XMLHttpRequest.responseText);
 				console.log(textStatus+'|'+errorThrown);
 			},
 			async:false 
 			} 
 		);
+		
+		function checkForPageRedirect(responseText){
+			// if timeout of login a json request will fail and an html page containing the redirection location will be provided
+			// redirect current page to the provided url if so.
+			var re = new RegExp("window\.location=['\"](.+?)['\"]");
+		  	var match = re.exec(responseText);
+		  	if (match == null)
+		  		return false;
+		  	window.location=match[1];
+		  	return true; // should never get here
+		}
 	
 		<%--  returns [true,""] array. usefull in various JQGrid callbacks --%>
 		function _noop(value, colname) {
@@ -689,7 +701,7 @@
   			<div id="wait_dialog-modal" title="<fmt:message key="wasp.wait_title.label" />"  >
 				<table border="0" cellpadding="5">
 				<tr>
-				<td><img src="/wasp/images/spinner.gif" align="left" border="0" ></td>
+				<td><img src="<wasp:relativeUrl value='images/spinner.gif' />" align="left" border="0" ></td>
 				<td><fmt:message key="wasp.wait_message.label" /></td>
 				</tr>
 				</table>

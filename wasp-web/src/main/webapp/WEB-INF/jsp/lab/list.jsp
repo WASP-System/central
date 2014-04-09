@@ -38,7 +38,7 @@ if(url_string.indexOf("selId") == -1){ //url does NOT contain the string selId, 
 			dataInit: function(elem) {	
 				setTimeout(
 					function(){ 
-						$.getJSON("/wasp/autocomplete/getPiNamesAndLoginForDisplay.do", 
+						$.getJSON("<wasp:relativeUrl value='autocomplete/getPiNamesAndLoginForDisplay.do' />", 
 						{ piNameFragment: "" }, 
 						function(data) { 
 							jQuery(elem).autocomplete(data);
@@ -57,7 +57,7 @@ if(url_string.indexOf("selId") == -1){ //url does NOT contain the string selId, 
 					dataInit: function(elem) {	
 						setTimeout(
 							function(){ 
-								$.getJSON("/wasp/autocomplete/getDepartmentNamesForDisplay.do", 
+								$.getJSON("<wasp:relativeUrl value='autocomplete/getDepartmentNamesForDisplay.do' />", 
 								{ str: "" }, 
 								function(data) { 
 									jQuery(elem).autocomplete(data);

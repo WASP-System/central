@@ -66,7 +66,7 @@ Ext.define('Wasp.FileDownloadGridPortlet', {
 			groupField: 'fgname',
 			proxy: {
 				type: 'ajax',
-				url : '/wasp/jobresults/getFileGroupsDetailJson.do?fglist='+this.fgListStr,
+				url : '../../getFileGroupsDetailJson.do?fglist='+this.fgListStr,
 				reader: {
 					type: 'json'
 				},

@@ -11,9 +11,9 @@
     <wasp:pageTitle/> 
   </title>
  <%--   if these pages are displayed in a div of a wasp page, the next 5 lines are not needed, but if displayed in an iframe, they are needed 
-  <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/reset.css" />
-  <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/base.css" />
-  <link rel="stylesheet" type="text/css" href="/wasp/css/jquery/jquery-ui.css"/>
+  <link rel="stylesheet" type="text/css" media="screen" href="<wasp:relativeUrl value='css/reset.css' />" />
+  <link rel="stylesheet" type="text/css" media="screen" href="<wasp:relativeUrl value='css/base.css' />" />
+  <link rel="stylesheet" type="text/css" href="<wasp:relativeUrl value='css/jquery/jquery-ui.css' />"/>
   <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.js"></script>
   <script type="text/javascript" src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script> 
   --%>

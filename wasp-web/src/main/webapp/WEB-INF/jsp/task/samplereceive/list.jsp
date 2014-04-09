@@ -24,12 +24,12 @@
 		<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.samplereceive_action.label" /></th>
 	</tr>
 	<c:set var="samplesList" value="${jobAndSamplesMap.get(job)}" scope="page" />
-	<form action="<c:url value="/task/samplereceive/receive.do"/>" name="theForm<c:out value="${job.getJobId()}" />" id="theForm<c:out value="${job.getJobId()}" />" method="POST" onsubmit="return validate(this);">
+	<form action="<wasp:relativeUrl value="task/samplereceive/receive.do"/>" name="theForm<c:out value="${job.getJobId()}" />" id="theForm<c:out value="${job.getJobId()}" />" method="POST" onsubmit="return validate(this);">
 	<c:forEach items="${samplesList}" var="sample" varStatus="status">	
 		<tr class="FormData">
 			<c:choose>
 				<c:when test="${currentJobId !=  job.getJobId()}">
-					<td style='text-align:center;'><a style="color: #801A00;" href="<c:url value="/job/${job.getJobId()}/homepage.do" />">J<c:out value="${job.getJobId()}" /></a></td>          
+					<td style='text-align:center;'><a style="color: #801A00;" href="<wasp:relativeUrl value="job/${job.getJobId()}/homepage.do" />">J<c:out value="${job.getJobId()}" /></a></td>          
 					<td style='text-align:center'><c:out value="${job.getName()}" /></td>
 					<td style='text-align:center'><c:out value="${job.getUser().getFirstName()}" /> <c:out value="${job.getUser().getLastName()}" /></td>
 				</c:when>

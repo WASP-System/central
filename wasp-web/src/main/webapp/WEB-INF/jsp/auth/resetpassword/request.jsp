@@ -10,7 +10,7 @@
 	<fmt:message key="auth.resetpassword_start_instructions.label" />
 </div>
 
-<form name="f" action="<c:url value='/auth/resetpassword/request.do'/>"
+<form name="f" action="<wasp:relativeUrl value='/auth/resetpassword/request.do'/>"
 	method="POST">
 	<table class="EditTable ui-widget ui-widget-content">
 		<tr class="FormData">
@@ -19,7 +19,7 @@
 		</tr>
 		<tr class="FormData">
 			<td class="CaptionTD"><fmt:message	key="auth.resetpasswordRequest_captcha.label" />:</td>
-			<td class="DataTD"><img src="<c:url value='/stickyCaptchaImg.png'/>" alt="Captchca Image" /><br />
+			<td class="DataTD"><img src="<wasp:relativeUrl value='/stickyCaptchaImg.png'/>" alt="Captchca Image" /><br />
 			<input class="FormElement ui-widget-content ui-corner-all" type='text' name='captcha_text' value='' /><span	class="requiredField">*</span></td>
 		</tr>
 	</table>

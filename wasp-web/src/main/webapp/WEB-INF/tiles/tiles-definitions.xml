@@ -49,6 +49,7 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/wasp403.jsp" />
 	</definition>
 	<definition name="auth/loginReferralPage" extends="template-simple">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/auth/loginRedirect.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/loginRedirect.jsp" />
 	</definition>
 	<definition name="auth/loginPage" extends="template-base">
@@ -335,9 +336,6 @@
 		<!-- <put-attribute name="subgrid-columns" value="/WEB-INF/jsp/run/subgrid_columns.jsp" /> -->
         <put-attribute name="grid-customAttributes" value="/WEB-INF/jsp/run/grid_customAttributes.jsp" />
         <put-attribute name="body-content" value="/WEB-INF/jsp/run/list.jsp" />
-	</definition>
-	<definition name="run/detail" extends="template-base">
-		<put-attribute name="body-content" value="/WEB-INF/jsp/run/detail.jsp" />
 	</definition>
 	<definition name="task/assignLibraries/lists" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/assignLibraries/lists.jsp" />

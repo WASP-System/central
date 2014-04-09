@@ -1,15 +1,14 @@
-<script type="text/javascript" src="/wasp/scripts/jquery/jquery.cookie.js"></script>
-<script type="text/javascript" src="https://rawgithub.com/rgrove/lazyload/master/lazyload.js"></script>
-<script type="text/javascript" src="https://rawgithub.com/johnculviner/jquery.fileDownload/master/src/Scripts/jquery.fileDownload.js"></script>
+<%@ include file="/WEB-INF/jsp/taglib.jsp"%>
+<script type="text/javascript"	src="<wasp:relativeUrl value='scripts/jquery/jquery.cookie.js' />"></script>
+<script type="text/javascript"	src="https://rawgithub.com/rgrove/lazyload/master/lazyload.js"></script>
+<script type="text/javascript"	src="https://rawgithub.com/johnculviner/jquery.fileDownload/master/src/Scripts/jquery.fileDownload.js"></script>
 <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
 <script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/ext-all-dev.js"></script>
 <script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/packages/ext-theme-neptune/build/ext-theme-neptune.js"></script>
-<script type="text/javascript" src="/wasp/scripts/extjs/wasp/WaspNamespaceDefinition.js"></script>
-
-
-<link rel="stylesheet" type="text/css" href="/wasp/css/ext-theme-neptune-all-wasp.css" />
-<link rel="stylesheet" type="text/css" href="/wasp/css/portal.css" />
-<link rel="stylesheet" type="text/css" href="/wasp/css/RowActions.css" />
+<script type="text/javascript"	src="<wasp:relativeUrl value='scripts/extjs/wasp/WaspNamespaceDefinition.js.jsp' />"></script>
+<link rel="stylesheet" type="text/css" href="<wasp:relativeUrl value='css/ext-theme-neptune-all-wasp.css' />" />
+<link rel="stylesheet" type="text/css" href="<wasp:relativeUrl value='css/portal.css' />" />
+<link rel="stylesheet" type="text/css" href="<wasp:relativeUrl value='css/RowActions.css' />" />
 
 
 <script type="text/javascript">
@@ -93,6 +92,17 @@ Ext.override(Ext.grid.View, { enableTextSelection: true });
 
 var extPortal;
 
+function checkForPageRedirect(responseText){
+	// if timeout of login a json request will fail and an html page containing the redirection location will be provided
+	// redirect current page to the provided url if so.
+	var re = new RegExp("window\.location=['\"](.+?)['\"]");
+  	var match = re.exec(responseText);
+  	if (match == null)
+  		return false;
+  	window.location=match[1];
+  	return true; // should never get here
+}
+
 Ext.onReady(function () {
 	extPortal = Ext.create('Wasp.Portal', {
 		width: $('#content').width()
@@ -113,7 +123,7 @@ Ext.onReady(function () {
 		.attr("class", "tooltip")
 		.style("opacity", 0);
 
-	d3.json("/wasp/jobresults/getTreeJson.do?node=" + rootstr, function (json) {
+	d3.json("<wasp:relativeUrl value='jobresults/getTreeJson.do?node=' />" + rootstr, function (json) {
 		vis = d3.select("#treeview").append("svg:svg")
 			.attr("width", treeviewWidth)
 			.attr("height", treeviewHeight)
@@ -188,14 +198,17 @@ function expandAll(d) {
 			return val;
 		});
 		$.ajax({
-			url: '/wasp/jobresults/getTreeJson.do?node=' + dstr,
+			url: '<wasp:relativeUrl value="jobresults/getTreeJson.do?node=" />' + dstr,
 			type: 'GET',
-			dataType: 'json',
-			success: function (result) {
-				if (result.children != '') {
-					d.children = result.children;
-				}
+			dataType: 'json'
+		})
+		.done(function (result) {
+			if (result.children != '') {
+				d.children = result.children;
 			}
+		})
+		.fail(function(jqXHR){
+			checkForPageRedirect(jqXHR.responseText);
 		});
 	}
 	if (d._children && d._children!="") {
@@ -432,10 +445,11 @@ function click(d) {
 	//var tabs = $('#mytabs').tabs({closable: true});
 
 	$.ajax({
-		url: '/wasp/jobresults/getDetailsJson.do?node=' + dstr,
+		url: '<wasp:relativeUrl value="jobresults/getDetailsJson.do?node=" />' + dstr,
 		type: 'GET',
-		dataType: 'json',
-		success: function (result) {
+		dataType: 'json'
+		})
+		.done(function (result) {
 
 			var tabpanel = Ext.getCmp('wasp-tabpanel');
 			if (tabpanel === undefined) {
@@ -707,21 +721,26 @@ function click(d) {
 			} else {
 				return;
 			}
-		}
-	});
+		})
+		.fail(function(jqXHR){
+			checkForPageRedirect(jqXHR.responseText);
+		});
 
 	if (!d.children && !d._children) {
 		$.ajax({
-			url: '/wasp/jobresults/getTreeJson.do?node=' + dstr,
+			url: '<wasp:relativeUrl value="jobresults/getTreeJson.do?node=" />' + dstr,
 			type: 'GET',
-			dataType: 'json',
-			success: function (result) {
+			dataType: 'json'
+			})
+			.done(function (result) {
 				if (result.children != '') {
 					d.children = result.children;
 					update(d);
 				}
-			}
-		});
+			})
+			.fail(function(jqXHR){
+				checkForPageRedirect(jqXHR.responseText);
+			});
 	}
 
 	toggle(d);

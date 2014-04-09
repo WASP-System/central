@@ -1,4 +1,4 @@
-
+<%@ include file="/WEB-INF/jsp/taglib.jsp"%>
  <script type="text/javascript">
      $(document).ready(function() {            
 	       $("#instituteOther").keyup(function(){getInstituteNames();});
@@ -6,7 +6,7 @@
       
      function getInstituteNames(){        
      	if( $("#instituteOther").val().length == 1){
-	        	$.getJSON("/wasp/autocomplete/getInstitutesForDisplay.do", { instituteNameFragment: $("#instituteOther").val() }, function(data) { $("input#instituteOther").autocomplete(data);} );
+	        	$.getJSON("<wasp:relativeUrl value='autocomplete/getInstitutesForDisplay.do' />", { instituteNameFragment: $("#instituteOther").val() }, function(data) { $("input#instituteOther").autocomplete(data);} );
      	}
 	 }
  </script>

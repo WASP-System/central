@@ -33,11 +33,11 @@
 			access="hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('da-*')">
 			<tr class="FormData">
 				<td><a
-					href="<c:url value="/lab/pending/detail_rw/${labPending.departmentId}/${labPending.labPendingId}.do" />"><fmt:message key="labPending.edit.label" /></a>
+					href="<wasp:relativeUrl value="lab/pending/detail_rw/${labPending.departmentId}/${labPending.labPendingId}.do" />"><fmt:message key="labPending.edit.label" /></a>
 					| <a
-					href="<c:url value="/lab/pending/approve/${labPending.departmentId}/${labPending.labPendingId}.do" />"><fmt:message key="labPending.approve.label" /></a>
+					href="<wasp:relativeUrl value="lab/pending/approve/${labPending.departmentId}/${labPending.labPendingId}.do" />"><fmt:message key="labPending.approve.label" /></a>
 					| <a
-					href="<c:url value="/lab/pending/reject/${labPending.departmentId}/${labPending.labPendingId}.do" />"><fmt:message key="labPending.reject.label" /></a>
+					href="<wasp:relativeUrl value="lab/pending/reject/${labPending.departmentId}/${labPending.labPendingId}.do" />"><fmt:message key="labPending.reject.label" /></a>
 				</td>
 			</tr>
 		</sec:authorize>
@@ -45,7 +45,7 @@
 	<%-- 
      <c:forEach items="${labuser}" var="ul">
       <p>
-      <a href="/wasp/user/detail/<c:out value="${ul.user.userId}" />.do"><c:out value="${ul.user.login}" /></a>
+      <a href="<wasp:relativeUrl value='user/detail/${ul.user.userId}.do' />">${ul.user.login}</a>
         <c:out value="${ul.user.firstName}" />
         <c:out value="${ul.user.lastName}" />
       <span><c:out value="${ul.role.name}" /></span>
@@ -56,7 +56,7 @@
       <h2>Jobs</h2>
       <c:forEach items="${job}" var="j">
         <div>
-          <a href="/wasp/job/detail/<c:out value="${j.jobId}" />.do">
+          <a href="<wasp:relativeUrl value='job/detail/${j.jobId}.do' />">
           <c:out value="${j.name}" />
           </a>
         </div>
@@ -64,7 +64,7 @@
     </c:if>
 
     <div>
-      <a href="/wasp/job/create/form.do?labid=<c:out value="${lab.labId}" />">create job</a>
+      <a href="<wasp:relativeUrl value='job/create/form.do?labid=${lab.labId}' />">create job</a>
     </div>
  --%>
 

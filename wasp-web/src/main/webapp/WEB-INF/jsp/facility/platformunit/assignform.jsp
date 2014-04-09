@@ -96,7 +96,7 @@ function hideCoverage(e) {
 							<a href="javascript:{}" onclick="showAssignForm(this)"><fmt:message key="platformunit_assign.addToCell.label" /></a> 							
 							<a style="display:none" href="javascript:{}" onclick="hideAssignForm(this)"><fmt:message key="platformunit_assign.close.label" /></a>			  				
 			  				<div style="display:none">
-								<form method="POST" action="<c:url value="/facility/platformunit/assignAdd1.do" />">
+								<form method="POST" action="<wasp:relativeUrl value="facility/platformunit/assignAdd1.do" />">
 			  						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="librarysampleid" value="${sample.sampleId}">
 			  						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobid" value="${j.jobId}">
 			  						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="resourceCategoryId" value="${resourceCategoryId}">
@@ -127,7 +127,7 @@ function hideCoverage(e) {
 									<a href="javascript:{}" onclick="showAssignForm(this)"><fmt:message key="platformunit_assign.addToCell.label" /></a>
 									<a style="display:none" href="javascript:{}" onclick="hideAssignForm(this)"><fmt:message key="platformunit_assign.close.label" /></a>	
 									<div style="display:none">
-										<form method="POST" action="<c:url value="/facility/platformunit/assignAdd1.do" />">
+										<form method="POST" action="<wasp:relativeUrl value="facility/platformunit/assignAdd1.do" />">
 			  								<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="librarysampleid" value="${schild.sampleId}">
 			  								<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobid" value="${j.jobId}"> 
 			  								<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="resourceCategoryId" value="${resourceCategoryId}"> 
@@ -180,7 +180,7 @@ function hideCoverage(e) {
 			                    <div><label><fmt:message key="platformunit_assign.adaptor.label"/></label>: <c:out value="${adaptors[sm.v]}"/></div>
 			                    </c:if> 
 			                  </c:forEach> 
-			                 <div><a href="<c:url value="/facility/platformunit/assignRemove.do?cellLibraryId=${lib.sampleSourceId}&resourceCategoryId=${resourceCategoryId}&jobsToWorkWith=${jobsToWorkWith}"/>"><fmt:message key="platformunit_assign.removeFromCell.label"/></a></div>
+			                 <div><a href="<wasp:relativeUrl value="facility/platformunit/assignRemove.do?cellLibraryId=${lib.sampleSourceId}&resourceCategoryId=${resourceCategoryId}&jobsToWorkWith=${jobsToWorkWith}"/>"><fmt:message key="platformunit_assign.removeFromCell.label"/></a></div>
 			              </c:if>
 			             </div>
 			           </c:forEach>

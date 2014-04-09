@@ -4,7 +4,7 @@
 <tr class="FormData">
 	<td class="CaptionTD"><fmt:message key="puLimitPriorToAssign.chooseMachine.label"/>:</td>
 	<td  class="DataTD">
-		<form method="GET" action="<c:url value="/facility/platformunit/limitPriorToAssign.do" />">
+		<form method="GET" action="<wasp:relativeUrl value="facility/platformunit/limitPriorToAssign.do" />">
 			<select class="FormElement ui-widget-content ui-corner-all" name="resourceCategoryId" size="1" onchange="this.parentNode.submit()">
 			<option value="0">--<fmt:message key="puLimitPriorToAssign.selectMachine.label"/>--
 			<c:forEach items="${resourceCategories}" var="rc">
@@ -23,7 +23,7 @@
 <tr class="FormData">
 	<td class="CaptionTD"><fmt:message key="puLimitPriorToAssign.chooseJob.label"/>:</td>
 	<td class="DataTD">
-	<form method="GET" action="<c:url value="/facility/platformunit/assign.do" />">
+	<form method="GET" action="<wasp:relativeUrl value="facility/platformunit/assign.do" />">
 		<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="resourceCategoryId" value="<c:out value="${resourceCategoryId}" />" />
 		<select class="FormElement ui-widget-content ui-corner-all" name="jobsToWorkWith" size="1">
 			<option value="0">--<fmt:message key="puLimitPriorToAssign.selectJob.label"/>--

@@ -71,7 +71,7 @@
 	
 				<c:if test="${!statusLibrary.first}"><tr></c:if>
 				<td rowspan="${cellRowspan}"  class="DataTD" style="text-align:center; white-space:nowrap;">
-					<a href="javascript:void(0);" onclick='showModalessDialog("<c:url value="/datadisplay/mps/jobs/${job.getId()}/libraries/${library.getId()}/librarydetails.do" />");' >	
+					<a href="javascript:void(0);" onclick='showModalessDialog("<wasp:relativeUrl value="datadisplay/mps/jobs/${job.getId()}/libraries/${library.getId()}/librarydetails.do" />");' >	
 					<c:out value="${library.getName()}" />
 					</a>
 				</td>
@@ -113,12 +113,12 @@
 							</c:when>						
 							<c:otherwise>
 								<td class="DataTD" style="text-align:center; white-space:nowrap;">
-									<a href="javascript:void(0);" onclick='showModalessDialog("<c:url value="/datadisplay/mps/jobs/${job.getId()}/runs/${run.getId()}/rundetails.do" />");' >
+									<a href="javascript:void(0);" onclick='showModalessDialog("<wasp:relativeUrl value="datadisplay/mps/jobs/${job.getId()}/runs/${run.getId()}/rundetails.do" />");' >
 									<c:out value="${run.getName()}" />
 									</a>
 								</td>
 								<td class="DataTD" style="text-align:center; white-space:nowrap;">
-									<a href="javascript:void(0);" onclick='showModalessDialog("<c:url value="/datadisplay/mps/jobs/${job.getId()}/runs/${run.getId()}/cells/${cell.getId()}/celldetails.do" />");' >
+									<a href="javascript:void(0);" onclick='showModalessDialog("<wasp:relativeUrl value="datadisplay/mps/jobs/${job.getId()}/runs/${run.getId()}/cells/${cell.getId()}/celldetails.do" />");' >
 									<c:out value="${laneIndex}" />
 									</a>
 								</td>

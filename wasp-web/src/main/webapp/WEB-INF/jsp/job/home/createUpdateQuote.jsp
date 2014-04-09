@@ -15,7 +15,7 @@
   }
   </style>
 
-<script type="text/javascript" src="/wasp/scripts/jquery/jquery.table.addrow.js"></script>
+<script type="text/javascript" src="<wasp:relativeUrl value='scripts/jquery/jquery.table.addrow.js' />"></script>
 <script type="text/javascript">
 	(function($){ 
 		$(document).ready(function(){
@@ -105,11 +105,11 @@
 				<input type='hidden' name="numberOfLanesRequested" value="${numberOfLanesRequested}"/>
 							
 				<span style="padding:3px; border: 1px solid black;">
-				<a <%-- class="button" --%> href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${mpsQuote.getJobId()}/costManager.do" />");' >Return To Costs Page</a>
-				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='showSmallModalessDialog("<c:url value="/job/${mpsQuote.getJobId()}/basic.do" />");' >View Basic Request</a>
-				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='showSmallModalessDialog("<c:url value="/job/${mpsQuote.getJobId()}/requests.do?onlyDisplayCellsRequested=true" />");' >View Lane Request</a>
-				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<c:url value="/job/${mpsQuote.getJobId()}/previewQuote.do" />");' >Preview Quote</a>
-				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<c:url value="/job/${mpsQuote.getJobId()}/saveQuote.do" />");' >Save Quote</a>
+				<a <%-- class="button" --%> href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/costManager.do" />");' >Return To Costs Page</a>
+				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/basic.do" />");' >View Basic Request</a>
+				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/requests.do?onlyDisplayCellsRequested=true" />");' >View Lane Request</a>
+				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/previewQuote.do" />");' >Preview Quote</a>
+				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/saveQuote.do" />");' >Save Quote</a>
 				</span>
 				<br /><br /><br />
 				
@@ -365,8 +365,8 @@
 				
 				<span style="padding:3px; border: 1px solid black;">
 				<a href="javascript:void(0);" onclick='$("html, body").animate({ scrollTop: 0 }, "fast");' >Return To Top Of Page</a>
-				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<c:url value="/job/${mpsQuote.getJobId()}/previewQuote.do" />");' >Preview Quote</a>
-				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<c:url value="/job/${mpsQuote.getJobId()}/saveQuote.do" />");' >Save Quote</a>
+				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/previewQuote.do" />");' >Preview Quote</a>
+				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/saveQuote.do" />");' >Save Quote</a>
 				</span>
 				<br /><br />
 			</div>

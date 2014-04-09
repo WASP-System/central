@@ -5,7 +5,7 @@
 <sec:authorize access="hasRole('su')">
   <div>
 		<div class="instructions"><fmt:message key="department.detail_update_instructions.label" /></div>
-  <form name="update_form" action = "<c:url value='/department/updateDepartment.do'/>" method="POST" onsubmit="return validate('updateDept');">
+  <form name="update_form" action = "<wasp:relativeUrl value='/department/updateDepartment.do'/>" method="POST" onsubmit="return validate('updateDept');">
 		<input type='hidden' name='departmentId' value='<c:out value="${department.departmentId}" />'/>
 
 		<table class="EditTable ui-widget ui-widget-content">
@@ -28,7 +28,7 @@
 		<h1><fmt:message key="department.detail_administrators.label" /></h1>
 		<div class="instructions"><fmt:message key="department.detail_update_admin.label" /></div>
 		
-		<form name="f" action="<c:url value='/department/user/roleAdd.do'/>" method="POST" onsubmit="return validate('createAdmin');">
+		<form name="f" action="<wasp:relativeUrl value='/department/user/roleAdd.do'/>" method="POST" onsubmit="return validate('createAdmin');">
 		<input type='hidden' name='departmentId' value='<c:out value="${department.departmentId}" />'/>
 			
 		<table class="EditTable ui-widget ui-widget-content"> 
@@ -57,7 +57,7 @@
 	<sec:authorize access="hasRole('su')">
 	 <c:if test="${departmentuser.size() > 1}"> <!-- cannot delete the department admin if there is only a single department admin -->
 		<td class="submit">			
-			<a href="/wasp/department/user/roleRemove/<c:out value="${department.departmentId}" />/<c:out value="${u.user.userId}" />.do">
+			<a href="<wasp:relativeUrl value='department/user/roleRemove/${department.departmentId}/${u.user.userId}.do' />">
 				<fmt:message key="department.detail_remove.label" />
 			</a>
 		</td>

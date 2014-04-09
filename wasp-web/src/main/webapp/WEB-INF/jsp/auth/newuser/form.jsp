@@ -91,7 +91,7 @@
           <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>
         <tr class="FormData">
           	<td class="CaptionTD"><fmt:message key="userPending.captcha.label"/>:</td>
-          	<td class="DataTD"><img src="<c:url value='/stickyCaptchaImg.png'/>" alt='Captcha Image'/><br /><input class="FormElement ui-widget-content ui-corner-all" type="text" name="captcha" /><span class="requiredField">*</span></td>
+          	<td class="DataTD"><img src="<wasp:relativeUrl value='/stickyCaptchaImg.png'/>" alt='Captcha Image'/><br /><input class="FormElement ui-widget-content ui-corner-all" type="text" name="captcha" /><span class="requiredField">*</span></td>
           	<td class="CaptionTD error">${captchaError}</td>
       </tr>
 

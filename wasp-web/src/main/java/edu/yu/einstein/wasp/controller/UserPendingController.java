@@ -158,6 +158,7 @@ public class UserPendingController extends WaspController {
 				} else {
 					// user is now authenticated with single role 'ag' (authenticated guest) log them out again
 					authenticationService.logoutUser();
+					initializeSessionAttributes();
 				}
 			}
 			else {
@@ -392,6 +393,7 @@ public class UserPendingController extends WaspController {
 				} else {
 					// user is now authenticated with single role 'ag' (authenticated guest) log them out again
 					authenticationService.logoutUser();
+					initializeSessionAttributes();
 				}
 			}
 			else {

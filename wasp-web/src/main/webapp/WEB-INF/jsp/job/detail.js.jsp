@@ -7,11 +7,11 @@
       
      function getAuthNames(){        
      	if( $("#login").val().length == 1){
-	        	$.getJSON("/wasp/autocomplete/getUserNamesAndLoginForDisplay.do", { adminNameFragment: $("#login").val() }, function(data) { $("input#login").autocomplete(data);} );
+	        	$.getJSON("<wasp:relativeUrl value='autocomplete/getUserNamesAndLoginForDisplay.do' />", { adminNameFragment: $("#login").val() }, function(data) { $("input#login").autocomplete(data);} );
      	}
 	    }
  </script>
- <script language="JavaScript">
+ <script type="text/javascript">
 		<!--
 		function validate(){
 			var error = false;			

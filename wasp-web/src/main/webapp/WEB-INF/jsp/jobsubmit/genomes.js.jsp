@@ -17,7 +17,7 @@
 		function updateGenomeSelect(id){
 			var selectedGenomePathStr=$('select#genomeSelect_' + id + ' option:selected').val();
 			var options = '';
-			var url = "/wasp/jobsubmit/" + selectedGenomePathStr + "/getBuilds.do";
+			var url = "<wasp:relativeUrl value='jobsubmit/' />" + selectedGenomePathStr + "/getBuilds.do";
 			var genomeName = selectedGenomePathStr.substring( selectedGenomePathStr.lastIndexOf("/") + 1 );
 			var itemCount = 0;
 			var currentlySelectedBuild= "";

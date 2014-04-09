@@ -53,6 +53,9 @@ public class WaspController {
   
   @Value("${wasp.mode.isDemo:false}")
   protected boolean isInDemoMode;
+  
+  @Value("${wasp.host.servletname:wasp}")
+  protected String servletName;
 
   @Autowired
   private DepartmentDao departmentDao;
@@ -79,6 +82,11 @@ public class WaspController {
   @InitBinder
   protected void initBinder(WebDataBinder binder) {
     binder.setValidator(validator);
+  }
+  
+  protected void initializeSessionAttributes(){
+	  request.getSession().setAttribute("isInDemoMode", new Boolean(isInDemoMode));
+	  request.getSession().setAttribute("servletName", servletName);
   }
 
 

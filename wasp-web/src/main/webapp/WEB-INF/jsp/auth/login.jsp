@@ -48,11 +48,11 @@
 
 <nav id="loginNav">
 	<c:if test="${isAuthenticationExternal == false }">
-		<a href="/wasp/auth/resetpassword/request.do"><fmt:message	key="auth.login_anchor_forgotpass.label" /></a> | 
+		<a href="<wasp:relativeUrl value='auth/resetpassword/request.do' />"><fmt:message	key="auth.login_anchor_forgotpass.label" /></a> | 
 	</c:if>
-	<a href="/wasp/auth/newuser.do"><fmt:message key="auth.login_anchor_newuser.label" /></a> | 
-	<a href="/wasp/auth/newpi/institute.do"><fmt:message key="auth.login_anchor_newpi.label" /></a> <%--  |
-	<a href="/wasp/static/about.do"><fmt:message key="auth.login_anchor_about.label" /></a> --%>
+	<a href="<wasp:relativeUrl value='auth/newuser.do' />"><fmt:message key="auth.login_anchor_newuser.label" /></a> | 
+	<a href="<wasp:relativeUrl value='auth/newpi/institute.do' />"><fmt:message key="auth.login_anchor_newpi.label" /></a> <%--  |
+	<a href="<wasp:relativeUrl value='static/about.do' />"><fmt:message key="auth.login_anchor_about.label" /></a> --%>
 </nav>
 <wasp:displayInDemo>
 	<br />

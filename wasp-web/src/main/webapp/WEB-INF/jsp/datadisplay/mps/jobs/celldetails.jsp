@@ -136,12 +136,12 @@
 			<c:choose>
 				<c:when test="${fn:length(sequenceFileList)==1}">
 					<c:forEach items="${sequenceFileList}" var="fileHandle" >
-						<a href="<c:url value="/file/fileHandle/${fileHandle.getId()}/download.do" />" >Download</a>
+						<a href="<wasp:relativeUrl value="file/fileHandle/${fileHandle.getId()}/download.do" />" >Download</a>
 					</c:forEach>
 				</c:when>
 				<c:when test="${fn:length(sequenceFileList)>1}">
 					<c:forEach items="${sequenceFileList}" var="fileHandle" varStatus="counter">
-						<c:if test="${counter.count > 1}"><br /></c:if>Pair ${counter.count}: <a href="<c:url value="/file/fileHandle/${fileHandle.getId()}/download.do" />" >Download</a>
+						<c:if test="${counter.count > 1}"><br /></c:if>Pair ${counter.count}: <a href="<wasp:relativeUrl value="file/fileHandle/${fileHandle.getId()}/download.do" />" >Download</a>
 					</c:forEach>
 				</c:when>
 			</c:choose>					

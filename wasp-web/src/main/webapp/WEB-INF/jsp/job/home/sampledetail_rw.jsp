@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <br />
-<a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/samples.do" />");' >Back To: Samples, Libraries &amp; Runs</a>
+<a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/samples.do" />");' >Back To: Samples, Libraries &amp; Runs</a>
 <br /><br /><br />
 <form:form cssClass="FormGrid" commandName="sample" method='post' name='editMacromoleculeForm' id='editMacromoleculeFormId' action="" >
 	<form:hidden path='sampleSubtypeId' />
@@ -18,9 +18,9 @@
 	     <sec:authorize access="hasRole('su') or hasRole('ft')">	     
 		    <tr class="FormData">
 		        <td colspan="3" align="left" class="submitBottom">	
-		        	<a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/sample/${sample.getId()}/sampledetail_ro.do" />");' ><fmt:message key="sampledetail_rw.cancel.label" /></a>
-		        	<a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/sample/${sample.getId()}/sampledetail_rw.do" />");' >Reset</a>
-					<a class="button" href="javascript:void(0);"  onclick='postFormWithAjaxJson("editMacromoleculeFormId","<c:url value="/job/${job.getId()}/sample/${sample.getId()}/sampledetail_rw.do" />"); return false;' ><fmt:message key="sampledetail_rw.save.label" /></a>
+		        	<a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/sample/${sample.getId()}/sampledetail_ro.do" />");' ><fmt:message key="sampledetail_rw.cancel.label" /></a>
+		        	<a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/sample/${sample.getId()}/sampledetail_rw.do" />");' >Reset</a>
+					<a class="button" href="javascript:void(0);"  onclick='postFormWithAjaxJson("editMacromoleculeFormId","<wasp:relativeUrl value="job/${job.getId()}/sample/${sample.getId()}/sampledetail_rw.do" />"); return false;' ><fmt:message key="sampledetail_rw.save.label" /></a>
 		        </td>
 		    </tr>
 	    </sec:authorize>

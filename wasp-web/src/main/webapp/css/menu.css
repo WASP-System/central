@@ -53,7 +53,7 @@
     float: left;
 }
 .main_menu li.has-children > a {
-    background: url("/wasp/images/menu/arrow.png") no-repeat scroll #eccb7c;
+    background: url("../images/menu/arrow.png") no-repeat scroll #eccb7c;
 	background-position: 130px center;
     background-color: #eccb7c;
 }

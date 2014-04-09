@@ -7,7 +7,7 @@
 
 
 
-<form name="f" action="<c:url value='/auth/resetpassword/form.do'/>" method="GET">
+<form name="f" action="<wasp:relativeUrl value='/auth/resetpassword/form.do'/>" method="GET">
 	<table class="EditTable ui-widget ui-widget-content">
 		<tr class="FormData">
 			<td class="label"><fmt:message key="auth.resetpassword_authcode.label" />:</td>

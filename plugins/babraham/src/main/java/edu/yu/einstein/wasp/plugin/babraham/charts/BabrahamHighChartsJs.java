@@ -121,7 +121,7 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 		}
 	}
 	
-	public static WebContent getQCSummaryTableRepresentation(final WaspChart basicStats, MessageService messageService) throws ChartException {
+	public static WebContent getQCSummaryTableRepresentation(final WaspChart basicStats, MessageService messageService, String servletName) throws ChartException {
 		try{
 			List<List<Object>> data = basicStats.getDataSeries().get(0).getData();
 			WebContent content = new WebContent();
@@ -138,11 +138,11 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 				String result = (String) row.get(1);
 				String comment = messageService.getMessage((String)  row.get(2));
 				if (result.equals(FastQC.QC_ANALYSIS_RESULT_PASS))
-					result = Tooltip.getSuccessHtmlString(comment);
+					result = Tooltip.getSuccessHtmlString(comment, servletName);
 				else if (result.equals(FastQC.QC_ANALYSIS_RESULT_WARN))
-					result = Tooltip.getWarningHtmlString(comment);
+					result = Tooltip.getWarningHtmlString(comment, servletName);
 				else if (result.equals(FastQC.QC_ANALYSIS_RESULT_FAIL))
-					result = Tooltip.getFailureHtmlString(comment);
+					result = Tooltip.getFailureHtmlString(comment, servletName);
 				sb.append("<td class='center'>" + result + "</td>\n");
 				sb.append("<td>" + moduleName + "</td>\n");
 				sb.append("</tr>\n");

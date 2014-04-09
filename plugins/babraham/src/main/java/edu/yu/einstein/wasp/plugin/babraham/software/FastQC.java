@@ -23,6 +23,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Software;
+import edu.yu.einstein.wasp.plugin.babraham.batch.service.impl.BabrahamBatchServiceImpl;
 import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamQCParseModule;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
@@ -212,7 +213,7 @@ public class FastQC extends SoftwarePackage{
 	 */
 	public Map<String,JSONObject> parseOutput(String resultsDir) throws GridException, BabrahamDataParseException, JSONException {
 		Map<String,JSONObject> output = new LinkedHashMap<String, JSONObject>();
-		Map<String, FastQCDataModule> mMap = babrahamService.parseFastQCOutput(resultsDir);
+		Map<String, FastQCDataModule> mMap = ((BabrahamBatchServiceImpl) babrahamService).parseFastQCOutput(resultsDir);
 		output.put(PlotType.QC_RESULT_SUMMARY, BabrahamQCParseModule.getParsedQCResults(mMap, messageService));
 		output.put(PlotType.BASIC_STATISTICS, BabrahamQCParseModule.getParsedBasicStatistics(mMap, messageService));
 		output.put(PlotType.PER_BASE_QUALITY, BabrahamQCParseModule.getParsedPerBaseQualityData(mMap, messageService));

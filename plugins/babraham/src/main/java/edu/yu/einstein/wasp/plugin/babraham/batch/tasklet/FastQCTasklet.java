@@ -15,8 +15,8 @@ import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.plugin.babraham.batch.service.BabrahamBatchService;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
-import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQC;
 import edu.yu.einstein.wasp.service.FileService;
 
@@ -30,7 +30,7 @@ public class FastQCTasklet extends WaspRemotingTasklet {
 	private FileService fileService;
 	
 	@Autowired
-	private BabrahamService babrahamService;
+	private BabrahamBatchService babrahamService;
 	
 	@Autowired
 	private FastQC fastqc;

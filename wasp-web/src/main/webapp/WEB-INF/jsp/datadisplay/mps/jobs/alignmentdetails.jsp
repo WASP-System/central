@@ -9,7 +9,7 @@
 <tr><td class="CaptionTD">PF Reads (Unexpected Indexes): </td><td class="DataTD"><c:out value="1000" /> (2% of PF)</td></tr>
 <tr>
 	<td class="CaptionTD">All PF Reads For Lane ${cellIndex}: </td><td class="DataTD">
-		<a href="<c:url value="/file/fileHandle/${fileHandle.getId()}/download.do" />" >Download All</a>
+		<a href="<wasp:relativeUrl value="file/fileHandle/${fileHandle.getId()}/download.do" />" >Download All</a>
 	</td>
 </tr>
 </table>

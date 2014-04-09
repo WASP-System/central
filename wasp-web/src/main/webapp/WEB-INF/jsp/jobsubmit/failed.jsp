@@ -8,8 +8,8 @@
 
 
   <div class="submit">
-    <input class="fm-button" type="button" onClick="location.href='/wasp/jobsubmit/verify/${jobDraft.jobDraftId}.do';" value="<fmt:message key='jobDraft.submit_retry_button.label'/>" /> 
-    &nbsp;&nbsp;<input class="fm-button" type="button" onClick="location.href='/wasp/dashboard.do';" value="<fmt:message key='jobDraft.submit_later_button.label'/>" />    
+    <input class="fm-button" type="button" onClick="location.href='<wasp:relativeUrl value="jobsubmit/verify/${jobDraft.jobDraftId}.do" />';" value="<fmt:message key='jobDraft.submit_retry_button.label'/>" /> 
+    &nbsp;&nbsp;<input class="fm-button" type="button" onClick="location.href='<wasp:relativeUrl value="dashboard.do" />';" value="<fmt:message key='jobDraft.submit_later_button.label'/>" />    
   </div>
 
 <div class="bottomtxt"></div>

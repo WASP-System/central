@@ -13,7 +13,7 @@
 </div>
 <div style="float:right">
 <div style="float:left">
-	<img src="/wasp/images/tasks.png" />
+	<img src="<wasp:relativeUrl value='images/tasks.png' />" />
 </div>
 <div >
 	<c:if test="${isTasks == true}">

@@ -14,7 +14,7 @@
 		<div class="instructions"><fmt:message key="task.instructions2.label" /></div>
 		<c:forEach items="${taskHyperlinks}" var="hyperlink">
 			<li>
-				<a href='<c:url value="${hyperlink.getTargetLink()}"/>'>${hyperlink.getLabel()}</a>
+				<a href='<wasp:relativeUrl value="${hyperlink.getTargetLink()}"/>'>${hyperlink.getLabel()}</a>
 			</li>	
 		</c:forEach>
 	</c:if>
