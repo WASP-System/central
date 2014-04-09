@@ -14,8 +14,8 @@
 	  	<div id="passwordInstructions"><fmt:message key="piPending.password_instructions.label" /></div>
 	 </c:if>
   </div>
-
-  <form:form  cssClass="FormGrid" commandName="userPending" action="<wasp:relativeUrl value='auth/newpi/form.do' />">
+  <c:set var="actionUrl"><wasp:relativeUrl value='auth/newpi/form.do' /></c:set>
+  <form:form  cssClass="FormGrid" commandName="userPending" action="${actionUrl}">
     <table class="EditTable ui-widget ui-widget-content">
       <tr class="FormData">
         <td class="CaptionTD">
