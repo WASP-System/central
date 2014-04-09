@@ -22,7 +22,7 @@ function hideCoverage(e) {
   e.parentNode.getElementsByTagName("DIV")[0].style.display = "none"; 
 }
 </script>
-
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
 <style>
 .assignmentContent {width:850px;}
 .assignmentContent div {margin:3px 0px 3px 10px; }

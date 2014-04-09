@@ -1,5 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
 
 <%-- <h1><a  href="<wasp:relativeUrl value="job/${job.jobId}/homepage.do" />">JobID J<c:out value="${job.jobId}" /></a>: <c:out value="${job.getName()}" /></h1>	--%>
 <h1>JobID J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" /></h1>
@@ -13,6 +14,8 @@
 <div id="smallModalessDialog">
 	<iframe id="smallModalessIframeId" name="smallModalessIframeId"  style="overflow-x: scroll; overflow-y: scroll" height="800" width="99%"><p>iframes not supported</p></iframe>
 </div>
+
+<%--  TODO: Internationalize this!!!! --%>
 
 <div id="tabs">	
   <ul>

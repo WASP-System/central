@@ -1,5 +1,9 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <br />
+
+<%--  TODO: Internationalize this!!!! --%>
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <table class="data">
 <c:forEach items="${submittedObjectList}" var="submittedObject" varStatus="statusSubmittedObject">
 	<c:if test="${statusSubmittedObject.index>0}">

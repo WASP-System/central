@@ -1,5 +1,9 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
  <br />
+ 
+ <%--  TODO: Internationalize this!!!! --%>
+ <%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+ 
 <title><fmt:message key="pageTitle.sampleDnaToLibrary/librarydetail_rw.label"/></title>
 <h1><fmt:message key="pageTitle.sampleDnaToLibrary/librarydetail_rw.label"/></h1>
 <div style="width=100%; overflow:hidden">

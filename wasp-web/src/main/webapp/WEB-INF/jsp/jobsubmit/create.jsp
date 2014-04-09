@@ -1,6 +1,8 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 <script type="text/javascript">
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+<%--  TODO: Internationalize this!!!! --%>
 
 $(document).ready(function() {
 	

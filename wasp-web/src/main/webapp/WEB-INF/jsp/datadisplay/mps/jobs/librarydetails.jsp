@@ -1,8 +1,12 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <c:choose>
 
 <c:when test="${libraryBelongsToJob == false}">
 <div>
+<%--  TODO: Internationalize this!!!! --%>
 Unexpectedly unable to locate requested record
 </div>
 </c:when>
@@ -11,6 +15,8 @@ Unexpectedly unable to locate requested record
 <div>
 <table style="border:1px solid black;">
 <c:if test="${parentMacromolecule!=null}">
+
+<%--  TODO: Internationalize this!!!! --%>
 
 <tr><td class="CaptionTD" style="text-align:center; background-color:#FAF2D6" colspan="2">Macromolecule</td></tr>
 <tr><td class="CaptionTD">Sample Name: </td><td class="DataTD"><c:out value="${parentMacromolecule.getName()}" /></td></tr>

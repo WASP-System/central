@@ -1,4 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <div >
 <table>
 <tr><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobId.label" />:</td><td class="DataTD">J<c:out value="${job.jobId}" /></td></tr>

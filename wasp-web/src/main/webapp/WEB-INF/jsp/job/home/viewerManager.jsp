@@ -1,4 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %> 
+
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <c:import url="/WEB-INF/jsp/job/home/fadingMessage.jsp" />
 <br />
 <form  method='post' id='addJobViewerFormId' onsubmit='postFormWithAjax("addJobViewerFormId","<wasp:relativeUrl value="job/${job.getId()}/viewerManager.do" />"); return false;'>

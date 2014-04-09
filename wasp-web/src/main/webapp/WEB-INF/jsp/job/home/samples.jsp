@@ -1,5 +1,9 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <br />
+
+<%--  TODO: Internationalize this!!!! --%>
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${job.getId()}/basic.do" />");' >View Basic Request</a>
 <a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${job.getId()}/requests.do?onlyDisplayCellsRequested=true" />");' >View Lane Request</a>
 <sec:authorize access="hasRole('su') or hasRole('ft')">

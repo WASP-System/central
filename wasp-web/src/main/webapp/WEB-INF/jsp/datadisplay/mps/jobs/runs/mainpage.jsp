@@ -1,5 +1,8 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <%--these 2 dialog areas are not displayed until called; don't know where is best to put them, but they have to be somewhere or it doesn't work --%> 
+
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <div id="modalDialog">
 	<iframe id="modalIframeId" name="modalIframeId"  style="overflow-x: scroll; overflow-y: scroll" height="800" width="99%"><p>iframes not supported</p></iframe>
 </div>
@@ -8,6 +11,7 @@
 </div>
 <div class="pageContainer">
 	<div id="selectionLeft" class="selectionLeft">	  
+		<%--  TODO: Internationalize this!!!! --%>
 		<label>Job Name: <c:out value="${job.getName()}" /></label>	[<a style="color:red; font-weight:bold; background-color:Aqua;" id="jobDetailsAnchor"  href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleAnchors(this); loadNewPage(this, "<wasp:relativeUrl value="datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />");' >DETAILS</a><c:if test="${fn:length(platformUnitSet) > 1}"> | <a id="openAllRunsAnchor"  href="javascript:void(0);" onclick='openAllRuns();' >open all runs</a> | <a id="closeAllRunsAnchor" href="javascript:void(0);"  onclick='closeAllRuns();' >close all runs</a></c:if>]
 		<c:if test="${fn:length(platformUnitSet) > 0}">
 		<div>
@@ -129,7 +133,7 @@
 							</table>
 							
 							
-							
+			<%--  TODO: Internationalize this!!!! --%>				
 							
 							
 							<table class="data">

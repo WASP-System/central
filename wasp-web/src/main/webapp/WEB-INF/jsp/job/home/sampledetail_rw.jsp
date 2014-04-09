@@ -1,5 +1,8 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <br />
+
+<%--  TODO: Internationalize this!!!! --%>
+
 <a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/samples.do" />");' >Back To: Samples, Libraries &amp; Runs</a>
 <br /><br /><br />
 <form:form cssClass="FormGrid" commandName="sample" method='post' name='editMacromoleculeForm' id='editMacromoleculeFormId' action="" >

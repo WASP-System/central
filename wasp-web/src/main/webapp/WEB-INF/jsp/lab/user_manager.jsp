@@ -1,5 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <p></p>
 <h1><fmt:message key="pageTitle.lab/user_manager.label"/></h1>
 <h2><fmt:message key="labuser.userManager_principalInvestigator.label" />: <c:out value="${piName}" /></h2>
