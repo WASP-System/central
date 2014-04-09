@@ -39,6 +39,7 @@ import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
+
 @Service
 @Transactional("entityManager")
 public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoService {
@@ -139,6 +140,12 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 		}
 		
 		//finally, order the controlSampleLists by controlSample.getName()
+		class SampleNameComparator implements Comparator<Sample> {
+		    @Override
+		    public int compare(Sample arg0, Sample arg1) {
+		        return arg0.getName().compareToIgnoreCase(arg1.getName());
+		    }
+		}
 		for(Sample testSample : testSampleControlSampleListMap.keySet()){
 			Collections.sort(testSampleControlSampleListMap.get(testSample), new SampleNameComparator());
 		}
@@ -149,7 +156,13 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 		List<Sample> testSampleList = new ArrayList<Sample>();
 		for(Sample sample : testSampleControlSampleListMap.keySet()){
 			testSampleList.add(sample);
-		}			
+		}		
+		class SampleNameComparator implements Comparator<Sample> {
+		    @Override
+		    public int compare(Sample arg0, Sample arg1) {
+		        return arg0.getName().compareToIgnoreCase(arg1.getName());
+		    }
+		}
 		Collections.sort(testSampleList, new SampleNameComparator());	//order list by sample name	
 		return testSampleList;		
 	}
@@ -204,6 +217,12 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 		}
 		
 		//finally, order each LibraryList by library name
+		class SampleNameComparator implements Comparator<Sample> {
+		    @Override
+		    public int compare(Sample arg0, Sample arg1) {
+		        return arg0.getName().compareToIgnoreCase(arg1.getName());
+		    }
+		}
 		for(Sample testSample : sampleLibraryListMap.keySet()){
 			Collections.sort(sampleLibraryListMap.get(testSample), new SampleNameComparator());	//order each list by sample name				
 		}
@@ -294,9 +313,3 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 	}
 }
 
-class SampleNameComparator implements Comparator<Sample> {
-    @Override
-    public int compare(Sample arg0, Sample arg1) {
-        return arg0.getName().compareToIgnoreCase(arg1.getName());
-    }
-}
