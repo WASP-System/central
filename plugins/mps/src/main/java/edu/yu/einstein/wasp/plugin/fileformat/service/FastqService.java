@@ -3,6 +3,7 @@ package edu.yu.einstein.wasp.plugin.fileformat.service;
 import java.util.UUID;
 
 import edu.yu.einstein.wasp.exception.InvalidFileTypeException;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
@@ -23,6 +24,8 @@ public interface FastqService extends WaspService {
 	public static final String FASTQ_GROUP_NUMBER_OF_READ_SEGMENTS = "numberOfReadSegments";
 	
 	public static final String FASTQ_INAME = "fastq";
+	
+	public static final String FASTQ_ATTRIBUTE_TRIMMED = "trimmed";
 	
 	/**
 	 * Get FASTQ read number from a FASTQ file.  For Illumina, 1=F 2=R. 
@@ -78,5 +81,22 @@ public interface FastqService extends WaspService {
 	public Integer getNumberOfReadSegments(FileGroup filegroup);
 	
 	public FileType getFastqFileType();
+	
+	public void setFastqReadSegmentNumber(FileHandle file, Integer number) throws InvalidFileTypeException, MetadataException;
+
+	public void setFastqNumberOfReads(FileHandle file, Integer number) throws InvalidFileTypeException, MetadataException;
+
+	public void setFastqNumberOfPassFilterReads(FileHandle file, Integer number) throws MetadataException;
+
+	public void setContainsFailed(FileHandle file, boolean fail) throws MetadataException;
+
+	public void setLibraryUUID(FileHandle file, Sample library) throws MetadataException;
+
+	public void setNumberOfReadSegments(FileGroup filegroup, Integer number) throws MetadataException;
+
+	public void copyFastqFileGroupMetadata(FileGroup origin, FileGroup target) throws MetadataException;
+
+	public void copyFastqFileHandleMetadata(FileHandle origin, FileHandle target) throws MetadataException;
+
 
 }
