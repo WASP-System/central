@@ -3,12 +3,7 @@
 <%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
 
 <c:import url="/WEB-INF/jsp/job/home/fadingMessage.jsp" />
-<%-- 
-<script type="text/javascript" src="<wasp:relativeUrl value='scripts/js/robtest.js' />"></script>
-<br />
-<a class="button" href="javascript:void(0);"  onclick='alert("first of 2"); robdisplayalert();' >activate robDisplayAlert()</a>
-<br /><br />
---%>
+
 <br />
 <form  method='post' name='commentForm' id='commentFormId' onsubmit='postFormWithAjax("commentFormId","<wasp:relativeUrl value="job/${job.getId()}/comments.do" />"); return false;'>
 	<table class="data" style="margin: 0px 0; width:600px" >

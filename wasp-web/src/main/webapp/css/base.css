@@ -616,3 +616,10 @@ TABLE.data TD.value-centered-small {
 .ext_treeGrid td {
 	padding: 0px;
 }
+
+.iframeOnJobHomepage {
+	overflow-x:scroll; 
+	overflow-y:scroll;
+	 height:800px;
+	 width:99%;
+}
