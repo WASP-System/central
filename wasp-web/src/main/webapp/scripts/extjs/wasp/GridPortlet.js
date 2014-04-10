@@ -20,6 +20,9 @@ function mergeLinks(records, linkfield) {
 	return links;
 }
 
+var rowHeight = 30, gridHeaderHeight = 30;
+var minGridHeight = 200, maxGridHeight = 650;
+
 Ext.define('Wasp.GridPortlet', {
 	extend: 'Ext.grid.Panel',
 	alias: 'widget.gridportlet',
@@ -28,7 +31,7 @@ Ext.define('Wasp.GridPortlet', {
 	data: [],
 	columns: [],
 
-	height: 300,
+	height: minGridHeight,
 
 	grouping: false,
 	groupfield: '',
@@ -44,7 +47,7 @@ Ext.define('Wasp.GridPortlet', {
 
 	grpdl: false,
 	grpdltip: "Download all",
-	grpdlalign: 'left',
+	grpdlalign: 'right',
 
 	statusfld: null,
 
@@ -91,6 +94,8 @@ Ext.define('Wasp.GridPortlet', {
 			autoLoad: true,
 			data: this.data
 		});
+		
+		var rowCnt = myStore.getTotalCount();
 
 		if (this.grouping) {
 			myStore.groupField = this.groupfield;
@@ -102,11 +107,14 @@ Ext.define('Wasp.GridPortlet', {
 			Ext.apply(this, {
 				features: groupingFeature
 			});
+			
+			rowCnt += myStore.getGroups().length;
 		}
 
 		var actioncol = {
 			xtype: 'rowactions',
 			header: 'Actions',
+			minWidth: 80,
 			actions: [],
 			keepSelection: true
 		};
@@ -157,10 +165,13 @@ Ext.define('Wasp.GridPortlet', {
 			});
 		}
 
+		var gridHeight = rowCnt * rowHeight + gridHeaderHeight;
+		gridHeight = (gridHeight<minGridHeight) ? minGridHeight : gridHeight;
+		gridHeight = (gridHeight>maxGridHeight) ? maxGridHeight : gridHeight;
 		Ext.apply(this, {
 			store: myStore,
 			columns: this.columns,
-			height: this.height
+			height: gridHeight //this.height
 		});
 
 		if (this.dlselect && this.dllinkfld != '') {

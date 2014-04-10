@@ -102,7 +102,8 @@ Ext.define('Wasp.RowActions',{
 		if(me.autoWidth) {
 			// Width as defined by either our size or the minimum size as defined by the header resizer
 			me.width = me.minWidth = Math.max(me.widthSlope * me.actions.length + me.widthIntercept,
-					Ext.grid.plugin.HeaderResizer.prototype.minColWidth);
+					//Ext.grid.plugin.HeaderResizer.prototype.minColWidth);
+					70); // AJ: make sure the header text "Actions" could be shown
 			me.fixed = true;
 			//Ext.Msg.alert('minColWidth : ' + Ext.grid.plugin.HeaderResizer.prototype.minColWidth);
 		}
