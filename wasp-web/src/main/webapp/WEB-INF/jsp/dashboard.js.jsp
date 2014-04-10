@@ -1,11 +1,15 @@
+<%@ include file="/WEB-INF/jsp/taglib.jsp"%>
+
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/ext-all-dev.js"></script>
 <script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/packages/ext-theme-neptune/build/ext-theme-neptune.js"></script>
-<script type="text/javascript"	src="/wasp/scripts/extjs/wasp/WaspNamespaceDefinition.js"></script>
+<script type="text/javascript"	src="<wasp:relativeUrl value='scripts/extjs/wasp/WaspNamespaceDefinition.js.jsp' />"></script>
 <!-- bxSlider Javascript file -->
-<script src="/wasp/scripts/bxslider/jquery.bxslider.min.js"></script>
+<script src="<wasp:relativeUrl value='scripts/bxslider/jquery.bxslider.min.js' />"></script>
 <!-- bxSlider CSS file -->
-<link href="/wasp/scripts/bxslider/jquery.bxslider.css" rel="stylesheet" />
-<link rel="stylesheet" type="text/css" href="/wasp/css/ext-theme-neptune-all-wasp.css" />
+<link href="<wasp:relativeUrl value='scripts/bxslider/jquery.bxslider.css' />" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="<wasp:relativeUrl value='css/ext-theme-neptune-all-wasp.css' />" />
 <script>
 	Ext.require(['Ext.layout.container.Border']);
 	
@@ -27,10 +31,10 @@
 		    			randomStart: true,
 		    			collapsible: false,
 		    		});
-		    		$('.bxslider').append('<li><img src="/wasp/images/carousel/desktop1-1030x330-blurred.jpg" title="The Wasp System for the Computational Genomics Researcher: The only complete metadata capture system from sample submission through LIMS and analytical pipelines." /></li>');
-		    		$('.bxslider').append('<li><img src="/wasp/images/carousel/DSC_0111-resized.jpg" title="The Wasp System for the Systems Administrator: Open source, enterprise programming, with intelligent job provisioning to cloud or grid resources." /></li>');
-		    		$('.bxslider').append('<li><img src="/wasp/images/carousel/illumina2.png" title="The Wasp for the Sequencing Core Facility Director: A complete LIMS, developed for Illumina but adaptable to other platforms, includes quality metrics and real time communication tools." /></li>');
-		    		$('.bxslider').append('<li><img src="/wasp/images/carousel/photo-5-resized-blurred-1030x330.jpg" title="The Wasp System for the Clinician or Biologist: Automates the analytical process to allow a focus on the question being asked." /></li>');
+		    		$('.bxslider').append('<li><img src="<wasp:relativeUrl value='images/carousel/desktop1-1030x330-blurred.jpg' />" title="The Wasp System for the Computational Genomics Researcher: The only complete metadata capture system from sample submission through LIMS and analytical pipelines." /></li>');
+		    		$('.bxslider').append('<li><img src="<wasp:relativeUrl value='images/carousel/DSC_0111-resized.jpg' />" title="The Wasp System for the Systems Administrator: Open source, enterprise programming, with intelligent job provisioning to cloud or grid resources." /></li>');
+		    		$('.bxslider').append('<li><img src="<wasp:relativeUrl value='images/carousel/illumina2.png' />" title="The Wasp for the Sequencing Core Facility Director: A complete LIMS, developed for Illumina but adaptable to other platforms, includes quality metrics and real time communication tools." /></li>');
+		    		$('.bxslider').append('<li><img src="<wasp:relativeUrl value='images/carousel/photo-5-resized-blurred-1030x330.jpg' />" title="The Wasp System for the Clinician or Biologist: Automates the analytical process to allow a focus on the question being asked." /></li>');
 		    		slider.reloadSlider();
 		    	}
 		    },

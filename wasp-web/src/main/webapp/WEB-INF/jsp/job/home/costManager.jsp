@@ -1,12 +1,14 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <c:import url="/WEB-INF/jsp/job/home/fadingMessage.jsp" />
 
 <c:if test="${viewerIsFacilityStaff==true}"><%--must use this if statement; we cannot use sec:authorize for this page since sometimes we arrive at this page via a callable() <sec:authorize access="hasRole('su') or hasRole('ft') or hasRole('da')">--%>
 	<br />
 	<span style="padding:3px; border: 1px solid black;">
-		<a <%--class="button"--%> href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/acctQuote/0/createUpdateQuote.do" />");' >Create A Quote</a>
-		| <a <%--class="button"--%> href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/uploadQuoteOrInvoice.do" />");' >Upload A Quote</a>
+		<a <%--class="button"--%> href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/acctQuote/0/createUpdateQuote.do" />");' >Create A Quote</a>
+		| <a <%--class="button"--%> href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/uploadQuoteOrInvoice.do" />");' >Upload A Quote</a>
 	</span>
 	<br />
 </c:if>
@@ -49,12 +51,12 @@
 			 		  			<td class="DataTD value-centered"><c:out value="${fileGroup.getDescription()}" /></td>
 			 		  			<td class="DataTD value-centered"><fmt:formatDate pattern="yyyy-MM-dd" value="${acctQuote.getCreated()}" /></td>  			
 			 		  			<td class="DataTD value-centered">
-			 		  				<a href="<c:url value="/file/fileHandle/${fileHandle.getId()}/download.do" />" ><fmt:message key="listJobSamples.file_download.label"/></a> 
+			 		  				<a href="<wasp:relativeUrl value="file/fileHandle/${fileHandle.getId()}/download.do" />" ><fmt:message key="listJobSamples.file_download.label"/></a> 
 			 		  				<c:if test="${fileHandlesThatCanBeViewedList.contains(fileHandle)}">
-		 		  						| <a href="javascript:void(0);" onclick='parent.showModalessDialog("<c:url value="/file/fileHandle/${fileHandle.getId()}/view.do" />");' ><fmt:message key="listJobSamples.file_view.label"/></a>
+		 		  						| <a href="javascript:void(0);" onclick='parent.showModalessDialog("<wasp:relativeUrl value="file/fileHandle/${fileHandle.getId()}/view.do" />");' ><fmt:message key="listJobSamples.file_view.label"/></a>
 		 		  					</c:if>
 		 		  					<c:if test="${viewerIsFacilityStaff==true && acctQuotesWithJsonEntry.contains(acctQuote)}">
-		 		  						| <a href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/acctQuote/${acctQuote.getId()}/createUpdateQuote.do" />");' >Update With Care</a> 
+		 		  						| <a href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/acctQuote/${acctQuote.getId()}/createUpdateQuote.do" />");' >Update With Care</a> 
 		 		  					</c:if>
 			 		  			</td>
 			 		  		</tr>
@@ -64,7 +66,7 @@
 			 			<tr>
 			 		  		<td class="DataTD value-centered"><c:out value="${fn:length(fileHandles)}" /> <fmt:message key="listJobSamples.file_download_grouped_files.label"/></td>
 			 		  		<td class="DataTD value-centered"><c:out value="${fileGroup.getDescription()}" /></td>			 		  			
-			 		  		<td class="DataTD value-centered"><a href="<c:url value="/file/fileGroup/${fileGroup.getId()}/download.do" />" ><fmt:message key="listJobSamples.file_download.label"/></a></td>
+			 		  		<td class="DataTD value-centered"><a href="<wasp:relativeUrl value="file/fileGroup/${fileGroup.getId()}/download.do" />" ><fmt:message key="listJobSamples.file_download.label"/></a></td>
 			 		  	</tr>
 			 		</c:otherwise>			 		
 			 	</c:choose>				

@@ -9,7 +9,7 @@
 <wasp:field name="dateRunEnded"  type="text" sortable="true" searchable="false" editable="false" columnWidth="70"/>
 <wasp:field name="statusForRun"  type="text" sortable="true" searchable="false" editable="false" columnWidth="90"/>
 
- _url='/wasp/run/listJSON.do?selId=${param.selId}';
+ _url='<wasp:relativeUrl value="run/listJSON.do?selId=${param.selId}" />';
 
 _navAttr=
 	{edit:false,view:false,add:false,del:false,search:false,refresh:true,beforeRefresh: 
@@ -40,10 +40,10 @@ _viewAttr={width:600};
  
 <wasp:field name="name" type="text"/>
 
-<wasp:field name="resourceName" type="text" sortable="true" showLink="true" baseLinkURL="/wasp/resource/list.do" idCol="2"/>
+<wasp:field name="resourceName" type="text" sortable="true" showLink="true" baseLinkURL="resource/list.do" idCol="2"/>
 <wasp:field name="machineId" type="hidden" />
 
-<wasp:field name="flow_cell_name" type="text" showLink="true" baseLinkURL="/wasp/facility/platformunit/selid/list.do" idCol="4" />
+<wasp:field name="flow_cell_name" type="text" showLink="true" baseLinkURL="facility/platformunit/selid/list.do" idCol="4" />
 <wasp:field name="flowcellId" type="hidden" />
 
 <wasp:field name="start_esf_staff" type="select" items="${techs}" itemValue="key" itemLabel="value" />
@@ -76,7 +76,7 @@ _addAttr['beforeShowForm'] = function(formId) {
 			return;
 		} else if (_val2==-1) {
 			var options = '<option value="-1"><fmt:message key="wasp.default_select.label" /></option>';
-			$.getJSON("/wasp/run/samplesByResourceId.do",{resourceId: _val, ajax: 'true'}, function(data, textStatus, jqXHR){
+			$.getJSON("<wasp:relativeUrl value='run/samplesByResourceId.do' />",{resourceId: _val, ajax: 'true'}, function(data, textStatus, jqXHR){
 				$.each(data, function (index, name) {                				    
 					options += '<option value="' + index + '">' + name + '</option>';
 				});
@@ -94,7 +94,7 @@ _addAttr['beforeShowForm'] = function(formId) {
 			return;
 		} else if (_val2==-1) {
 			var options = '<option value="-1"><fmt:message key="wasp.default_select.label" /></option>';
-			$.getJSON("/wasp/run/resourcesBySampleId.do",{sampleId: _val, ajax: 'true'}, function(data, textStatus, jqXHR){
+			$.getJSON("<wasp:relativeUrl value='run/resourcesBySampleId.do' />",{sampleId: _val, ajax: 'true'}, function(data, textStatus, jqXHR){
 				$.each(data, function (index, name) {                				    
 					options += '<option value="' + index + '">' + name + '</option>';
 				});

@@ -1,5 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <sec:authorize access="hasRole('da-*') or hasRole('su') or hasRole('ga-*') or hasRole('ft-*') or hasRole('fm-*')">
 <h1><fmt:message key="pageTitle.task/daapprove/list.label"/></h1>
 
@@ -39,10 +41,10 @@
  							<c:set var="optionName" value="${meta.k}.label" /><fmt:message key="${optionName}" />:&nbsp;<c:out value="${meta.v}" /><br />
         	 			</c:if>
       				</c:forEach>  
-      				<%-- <br /><div class="submit"><a href="<c:url value="/lab/pending/approve/${labPending.getDepartmentId()}/${labPending.getLabPendingId()}.do"/>"><fmt:message key="dapendingtask.approve.label"/></a> <a href="<c:url value="/lab/pending/reject/${labPending.getDepartmentId()}/${labPending.getLabPendingId()}.do"/>"><fmt:message key="dapendingtask.reject.label"/></a></div>--%>    
+      				<%-- <br /><div class="submit"><a href="<wasp:relativeUrl value="lab/pending/approve/${labPending.getDepartmentId()}/${labPending.getLabPendingId()}.do"/>"><fmt:message key="dapendingtask.approve.label"/></a> <a href="<wasp:relativeUrl value="lab/pending/reject/${labPending.getDepartmentId()}/${labPending.getLabPendingId()}.do"/>"><fmt:message key="dapendingtask.reject.label"/></a></div>--%>    
       				
       				<br />
-      				<form action="<c:url value="/lab/pending/${labPending.getDepartmentId()}/${labPending.getLabPendingId()}.do"/>" method="POST" onsubmit="return validateLabPending(this);">
+      				<form action="<wasp:relativeUrl value="lab/pending/${labPending.getDepartmentId()}/${labPending.getLabPendingId()}.do"/>" method="POST" onsubmit="return validateLabPending(this);">
  					<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="labPendingId" value="${labPending.getLabPendingId()}"> 
  					<div style="color:red;font-size:11px;font-weight:bold;">
  						<fmt:message key="dapendingtask.reasonForReject.label" /><br />
@@ -96,10 +98,10 @@
       			<c:choose>
       				<c:when test='${quotemap.get(job)=="true"}'>
       					<h2 style="color:red">*****<fmt:message key="jobapprovetask.jobneedsquote.label" />*****</h2>
-      					<a href="<c:url value="/job2quote/list.do" />"><fmt:message key="jobapprovetask.gotoquotes.label" /></a>
+      					<a href="<wasp:relativeUrl value="job2quote/list.do" />"><fmt:message key="jobapprovetask.gotoquotes.label" /></a>
       				</c:when>
       				<c:otherwise>
-		    			<form action="<c:url value="/task/daJobApprove/${job.lab.departmentId}.do"/>" id="theForm<c:out value="${job.jobId}" />" method="POST" onsubmit="return validate(this);">
+		    			<form action="<wasp:relativeUrl value="task/daJobApprove/${job.lab.departmentId}.do"/>" id="theForm<c:out value="${job.jobId}" />" method="POST" onsubmit="return validate(this);">
 						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobId" value="${job.jobId}"> 
 						<div style="color:red;font-size:11px;font-weight:bold;">
  							<fmt:message key="dapendingtask.reasonForReject.label" /><br />

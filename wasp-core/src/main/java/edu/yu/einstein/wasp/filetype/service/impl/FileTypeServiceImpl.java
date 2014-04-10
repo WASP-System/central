@@ -117,7 +117,7 @@ public abstract class FileTypeServiceImpl extends WaspServiceImpl implements Fil
             List<FileHandleMeta> fileMetaList = f.getFileHandleMeta();
             if (fileMetaList == null)
                 fileMetaList = new ArrayList<FileHandleMeta>();
-            Map<String,String> result = MetaHelper.getMap(area, fileMetaList);
+            Map<String,String> result = MetaHelper.getKeyValueMap(area, fileMetaList);
             return result;
 	}
 	
@@ -128,7 +128,7 @@ public abstract class FileTypeServiceImpl extends WaspServiceImpl implements Fil
             List<FileGroupMeta> fileMetaList = f.getFileGroupMeta();
             if (fileMetaList == null)
                 fileMetaList = new ArrayList<FileGroupMeta>();
-            Map<String,String> result = MetaHelper.getMap(area, fileMetaList);
+            Map<String,String> result = MetaHelper.getKeyValueMap(area, fileMetaList);
             return result;
         }
 

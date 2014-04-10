@@ -1,5 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
 <style>
 	.pageContainer {width:100%; overflow:hidden; }
 	.selectionLeft {float:left; width:44%; margin-right:0.2cm; overflow:auto;}
@@ -11,7 +11,7 @@
 
 $(document).ready(function() {
 	
-	//////$("#viewerFrame").load('<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />');
+	//////$("#viewerFrame").load('<wasp:relativeUrl value="sampleDnaToLibrary/jobDetails/${job.getId()}.do" />');
 	
 	//http://api.jqueryui.com/dialog/
 	$("#modalDialog").dialog({
@@ -246,7 +246,7 @@ function closeAllRuns(){
 	}	
 }
 
-window.onload = function (){loadNewPage('fakeAnchor', '<c:url value="/datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />'); }
+window.onload = function (){loadNewPage('fakeAnchor', '<wasp:relativeUrl value="datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />'); }
 
 </script>
  

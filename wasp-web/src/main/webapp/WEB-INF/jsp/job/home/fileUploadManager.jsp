@@ -2,8 +2,11 @@
 <c:import url="/WEB-INF/jsp/job/home/fadingMessage.jsp" />
 <%-- What was used was: from http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/ --%>
 <%--Apparently need onsubmit='return false' to suppress hitting the event when the ENTER key is pressed with the cursor in the description input box --%>
+
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <br />
-<form id="fileUploadFormId" action="<c:url value="/job/${job.getId()}/fileUploadManager.do" />" method="POST"  enctype="multipart/form-data" onsubmit='return false;' >
+<form id="fileUploadFormId" action="<wasp:relativeUrl value="job/${job.getId()}/fileUploadManager.do" />" method="POST"  enctype="multipart/form-data" onsubmit='return false;' >
 	<table class="data" style="margin: 0px 0px">
 		<tr class="FormData">
 			<td colspan="3" class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.fileUploadUploadNewFile.label"/></td>
@@ -41,9 +44,9 @@
 		 		  			<td class="DataTD value-centered"><c:out value="${fileHandle.getFileName()}" /></td>
 		 		  			<td class="DataTD value-centered"><c:out value="${fileGroup.getDescription()}" /></td>
 		 		  			<!--  <a href="<wasp:url fileAccessor="${fileHandle}" />" > -->
-		 		  			<td class="DataTD value-centered"><a href="<c:url value="/file/fileHandle/${fileHandle.getId()}/download.do" />" ><fmt:message key="listJobSamples.file_download.label"/></a> 
+		 		  			<td class="DataTD value-centered"><a href="<wasp:relativeUrl value="file/fileHandle/${fileHandle.getId()}/download.do" />" ><fmt:message key="listJobSamples.file_download.label"/></a> 
 		 		  				<c:if test="${fileHandlesThatCanBeViewedList.contains(fileHandle)}">
-	 		  					| <a href="javascript:void(0);" onclick='parent.showModalessDialog("<c:url value="/file/fileHandle/${fileHandle.getId()}/view.do" />");' ><fmt:message key="listJobSamples.file_view.label"/></a>
+	 		  					| <a href="javascript:void(0);" onclick='parent.showModalessDialog("<wasp:relativeUrl value="file/fileHandle/${fileHandle.getId()}/view.do" />");' ><fmt:message key="listJobSamples.file_view.label"/></a>
 	 		  				</c:if>
 		 		  			</td>
 		 		  		</tr>
@@ -53,7 +56,7 @@
 		 			<tr>
 		 		  		<td class="DataTD value-centered"><c:out value="${fn:length(fileHandles)}" /> <fmt:message key="listJobSamples.file_download_grouped_files.label"/></td>
 		 		  		<td class="DataTD value-centered"><c:out value="${fileGroup.getDescription()}" /></td>			 		  			
-		 		  		<td class="DataTD value-centered"><a href="<c:url value="/file/fileGroup/${fileGroup.getId()}/download.do" />" ><fmt:message key="listJobSamples.file_download.label"/></a></td>
+		 		  		<td class="DataTD value-centered"><a href="<wasp:relativeUrl value="file/fileGroup/${fileGroup.getId()}/download.do" />" ><fmt:message key="listJobSamples.file_download.label"/></a></td>
 		 		  	</tr>
 		 		</c:otherwise>			 		
 		 	</c:choose>
@@ -61,3 +64,11 @@
 	</table>
 </form>
 <br />
+<!--  need to incorporate this at some point
+<c:forEach items="${fileHandles}" var="fileHandle" >
+<c:if test="${fileHandle.id==1180}">
+Robert <c:out value="${fileHandle.id}" /> Dubin<br />
+	<img src='<wasp:url fileAccessor='${fileHandle.getId().toString()}' />'height='400' width='400'><br />
+</c:if>
+</c:forEach>
+--> 

@@ -1,11 +1,14 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <br />
 <title><fmt:message key="pageTitle.job/comments.label"/></title>
 <h1><fmt:message key="pageTitle.job/comments.label"/> - J<c:out value="${job.jobId}" /></h1>
 <table class="data" style="margin: 0px 0">
 	<c:if test='${permissionToAddEditComment==true}'>
 		<tr ><th class="label" nowrap colspan="2"><fmt:message key="jobComment.addNewJobComment.label" /></th></tr>
-		<tr><td align="center" colspan="2"><form  method='post' name='commentForm' action="<c:url value="/job/comments/${job.jobId}.do" />" onsubmit="return validate();">
+		<tr><td align="center" colspan="2"><form  method='post' name='commentForm' action="<wasp:relativeUrl value="job/comments/${job.jobId}.do" />" onsubmit="return validate();">
 		<textarea id="comment" name="comment" cols="70" rows="4" maxlength="250"></textarea><br />
 		<input type='submit' value='<fmt:message key="jobComment.submitNewComment.label" />'/></form></td></tr>
 	</c:if>

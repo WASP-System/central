@@ -49,7 +49,7 @@
 
 		<batch:step id="bwa-backtrack.alignmentFlow.mergeBAM" >
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.plugin.bwa.batch.tasklet.BWAMergeSortTasklet" scope="step" />
+				<bean class="edu.yu.einstein.wasp.plugin.bwa.batch.tasklet.BWAMergeSortDedupTasklet" scope="step" />
 			</batch:tasklet>
 			<batch:next on="FAILED" to="bwa-backtrack.alignmentFlow.notifyBWAFailed" />
 			<batch:next on="*" to="bwa-backtrack.alignmentFlow.notifyBWAComplete" />

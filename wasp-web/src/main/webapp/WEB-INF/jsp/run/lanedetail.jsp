@@ -15,7 +15,7 @@
 
     <p>
       <fmt:message key="run.celldetailSample.label"/> 
-      <a href="/wasp/sample/detail/<c:out value="${runcell.sampleId}"/>.do">
+      <a href="<wasp:relativeUrl value='sample/detail/${runcell.sampleId}.do' />">
         <c:out value="${runcell.sample.name}"/>
       </a>
     </p>
@@ -24,7 +24,7 @@
     <c:forEach items="${runcellfile}" var="f">
       <p>
       <c:out value="${f.file.filelocation}"/>
-      <a href="/wasp/run/cell/file/<c:out value="${runcell.runId}"/>/<c:out value="${runcell.runCellId}"/>/<c:out value="${f.fileId}"/>.do">
+      <a href="<wasp:relativeUrl value='run/cell/file/${runcell.runId}/${runcell.runCellId}/${f.fileId}.do' />">
         <c:out value="${f.name}"/>
       </a>
       </p>

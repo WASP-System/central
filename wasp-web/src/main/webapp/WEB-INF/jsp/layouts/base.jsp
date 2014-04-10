@@ -10,11 +10,11 @@
   <title> 	 	
     <wasp:pageTitle/> 
   </title>
-  <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/reset.css" />
-  <link rel="stylesheet" type="text/css" href="/wasp/css/jquery/jquery-ui.css"/>
-  <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/base.css" />
-  <link rel="stylesheet" type="text/css" href="/wasp/css/tree-interactive.css" />
-  <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/menu.css" />
+  <link rel="stylesheet" type="text/css" media="screen" href="<wasp:relativeUrl value='css/reset.css' />" />
+  <link rel="stylesheet" type="text/css" href="<wasp:relativeUrl value='css/jquery/jquery-ui.css' />"/>
+  <link rel="stylesheet" type="text/css" media="screen" href="<wasp:relativeUrl value='css/base.css' />" />
+  <link rel="stylesheet" type="text/css" href="<wasp:relativeUrl value='css/tree-interactive.css' />" />
+  <link rel="stylesheet" type="text/css" media="screen" href="<wasp:relativeUrl value='css/menu.css' />" />
   <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.js"></script>
   <script type="text/javascript" src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script> 
   
@@ -99,7 +99,7 @@
   			<div id="wait_dialog-modal" title="<fmt:message key="wasp.wait_title.label" />"  >
 				<table border="0" cellpadding="5">
 				<tr>
-				<td><img src="/wasp/images/spinner.gif" align="left" border="0" ></td>
+				<td><img src="<wasp:relativeUrl value='images/spinner.gif' />" align="left" border="0" ></td>
 				<td><fmt:message key="wasp.wait_message.label" /></td>
 				</tr>
 				</table>

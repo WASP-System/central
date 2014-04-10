@@ -2,7 +2,7 @@
 <br />
 <c:choose>
  <c:when test='${fn:length(resourceCategories) > "0"}'>
-<form method="GET" action="<c:url value="/facility/platformunit/list.do" />">
+<form method="GET" action="<wasp:relativeUrl value="facility/platformunit/list.do" />">
 <select class="FormElement ui-widget-content ui-corner-all" name="resourceCategoryId" size="1">
 <option value="0">--<fmt:message key="puLimitPriorToPUList.selectMachine.label"/>--
 <c:forEach items="${resourceCategories}" var="rc">

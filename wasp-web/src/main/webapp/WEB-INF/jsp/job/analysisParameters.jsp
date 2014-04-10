@@ -1,7 +1,10 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <br />
 <title><fmt:message key="pageTitle.job/analysisParameters.label"/></title>
-<h1><fmt:message key="pageTitle.job/analysisParameters.label"/> - <a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do" />">J<c:out value="${job.jobId}" /></a></h1>
+<h1><fmt:message key="pageTitle.job/analysisParameters.label"/> - <a style="color: #801A00;" href="<wasp:relativeUrl value="sampleDnaToLibrary/listJobSamples/${job.jobId}.do" />">J<c:out value="${job.jobId}" /></a></h1>
 <br/>
 <div>
 	<c:choose>

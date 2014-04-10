@@ -34,7 +34,10 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
 		</dependency>
-		
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
@@ -97,28 +100,35 @@
 
 	<profiles>
 		<profile>
-			<id>tomcat-localhost</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<properties>
-				<maven.tomcat.server>tomcat-localhost</maven.tomcat.server>
-				<maven.tomcat.url>http://localhost:8080/manager/text</maven.tomcat.url>
-			</properties>
-		</profile>
-		<profile>
-			<id>tomcat-wellington</id>
-			<properties>
-				<tomcat-server>wellington</tomcat-server>
-				<tomcat-url>http://wellington.einstein.yu.edu:8080/manager/text</tomcat-url>
-			</properties>
-		</profile>
-		<profile>
-            <id>tomcat-barcelona</id>
-            <properties>
-                    <maven.tomcat.server>barcelona</maven.tomcat.server>
-                    <maven.tomcat.url>http://barcelona.einstein.yu.edu:8080/manager/text</maven.tomcat.url>
-            </properties>
+                <id>tomcat-localhost</id>
+                <activation>
+                        <activeByDefault>true</activeByDefault>
+                </activation>
+                <properties>
+                        <maven.tomcat.server>tomcat-localhost</maven.tomcat.server>
+                        <maven.tomcat.url>http://localhost:8080/manager/text</maven.tomcat.url>
+                </properties>
+        </profile>
+        <profile>
+                <id>tomcat-glasgow</id>
+                <properties>
+                        <maven.tomcat.server>glasgow</maven.tomcat.server>
+                        <maven.tomcat.url>http://waspsystem.org/manager/text</maven.tomcat.url>
+                </properties>
+        </profile>
+        <profile>
+                <id>tomcat-wellington</id>
+                <properties>
+                        <maven.tomcat.server>wellington</maven.tomcat.server>
+                        <maven.tomcat.url>http://wellington.einstein.yu.edu:8080/manager/text</maven.tomcat.url>
+                </properties>
+        </profile>
+        <profile>
+                <id>tomcat-barcelona</id>
+                <properties>
+                        <maven.tomcat.server>barcelona</maven.tomcat.server>
+                        <maven.tomcat.url>http://barcelona.einstein.yu.edu:8080/manager/text</maven.tomcat.url>
+                </properties>
         </profile>
 
 		

@@ -1,5 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
    
+   <%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
    
   <h1><fmt:message key="piPending.form_header.label" /></h1>
   
@@ -13,8 +14,8 @@
 	  	<div id="passwordInstructions"><fmt:message key="piPending.password_instructions.label" /></div>
 	 </c:if>
   </div>
-
-  <form:form  cssClass="FormGrid" commandName="userPending" action="/wasp/auth/newpi/form.do">
+  <c:set var="actionUrl"><wasp:relativeUrl value='auth/newpi/form.do' /></c:set>
+  <form:form  cssClass="FormGrid" commandName="userPending" action="${actionUrl}">
     <table class="EditTable ui-widget ui-widget-content">
       <tr class="FormData">
         <td class="CaptionTD">
@@ -92,7 +93,7 @@
      <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>
      <tr class="FormData">
           	<td class="CaptionTD"><fmt:message key="piPending.captcha.label"/>:</td>
-          	<td class="DataTD"><img src="<c:url value='/stickyCaptchaImg.png'/>" alt='Captcha Image'/><br /><input class="FormElement ui-widget-content ui-corner-all" type="text" name="captcha" /><span class="requiredField">*</span></td>
+          	<td class="DataTD"><img src="<wasp:relativeUrl value='/stickyCaptchaImg.png'/>" alt='Captcha Image'/><br /><input class="FormElement ui-widget-content ui-corner-all" type="text" name="captcha" /><span class="requiredField">*</span></td>
           	<td class="CaptionTD error">${captchaError}</td>
       </tr>
     </table>

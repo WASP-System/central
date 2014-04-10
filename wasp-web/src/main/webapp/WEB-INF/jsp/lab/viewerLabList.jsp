@@ -1,4 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <br />
 <h1><fmt:message key="pageTitle.lab/viewerLabList.label"/></h1>
 <ul class="navTabs">
@@ -10,10 +13,10 @@
 		</li>
 		<sec:authorize access="hasRole('lu-${lu.lab.labId}' )">
 			<li>
-				<a href='<c:url value="/lab/detail_ro/${lu.lab.departmentId}/${lu.lab.labId}.do"/>'><fmt:message key="dashboard.labDetails.label" /></a>
+				<a href='<wasp:relativeUrl value="lab/detail_ro/${lu.lab.departmentId}/${lu.lab.labId}.do"/>'><fmt:message key="dashboard.labDetails.label" /></a>
 			</li>						
 			<li>
-				<a href='<c:url value="/lab/user_manager/${lu.lab.labId}.do"/>'><fmt:message key="dashboard.userManager.label" /></a>
+				<a href='<wasp:relativeUrl value="lab/user_manager/${lu.lab.labId}.do"/>'><fmt:message key="dashboard.userManager.label" /></a>
 			</li>							
 		</sec:authorize>
 	</c:forEach>

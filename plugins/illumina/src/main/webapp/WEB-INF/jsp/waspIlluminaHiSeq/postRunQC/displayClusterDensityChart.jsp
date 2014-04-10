@@ -5,6 +5,8 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="wasp" uri="http://einstein.yu.edu/wasp" %>
 
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <div id="selectionWindow">
 	<div class="ui-overlay" >
 		<div class="ui-widget-shadow ui-corner-all selection_dialog_shadow" ></div>

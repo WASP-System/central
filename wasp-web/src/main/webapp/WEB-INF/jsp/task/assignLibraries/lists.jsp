@@ -1,4 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <br />
 
 <title><fmt:message key="pageTitle.task/assignLibraries/lists.label"/></title>
@@ -16,7 +19,7 @@
 <c:otherwise>
 <c:forEach items="${jobList}" var="job">	
 		<tr class="FormData">
-		<td style='text-align:center'>J<c:out value="${job.getJobId()}" /> [<a href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.getJobId()}.do" />"><fmt:message key="jobListAssignLibrary.view.label" /></a>]</td>          
+		<td style='text-align:center'>J<c:out value="${job.getJobId()}" /> [<a href="<wasp:relativeUrl value="sampleDnaToLibrary/listJobSamples/${job.getJobId()}.do" />"><fmt:message key="jobListAssignLibrary.view.label" /></a>]</td>          
 		<td style='text-align:center'><c:out value="${job.getName()}" /></td>
 		<td style='text-align:center'><c:out value="${job.getUser().getFirstName()}" /> <c:out value="${job.getUser().getLastName()}" /></td>
 		<td style='text-align:center'><c:out value="${job.getLab().getUser().getFirstName()}" /> <c:out value="${job.getLab().getUser().getLastName()}" /></td>
@@ -38,7 +41,7 @@
 <c:otherwise>
 <c:forEach items="${activePlatformUnitsWithViewLinks.keySet()}" var="platformUnit" varStatus="status">	
 		<tr class="FormData">
-		<td style='text-align:center'><c:out value="${platformUnit.getName()}" /> [<a href="<c:url value="/${activePlatformUnitsWithViewLinks.get(platformUnit)}" />"><fmt:message key="jobListAssignLibrary.view.label" /></a>]</td>          
+		<td style='text-align:center'><c:out value="${platformUnit.getName()}" /> [<a href="<wasp:relativeUrl value="${activePlatformUnitsWithViewLinks.get(platformUnit)}" />"><fmt:message key="jobListAssignLibrary.view.label" /></a>]</td>          
 		<td style='text-align:center'><c:out value="${barcodes[status.index]}" /></td>
 		<td style='text-align:center'><c:out value="${platformUnit.getSampleSubtype().getName()}" /> </td>
 		<td style='text-align:center'><c:out value="${cells[status.index]}" /></td>

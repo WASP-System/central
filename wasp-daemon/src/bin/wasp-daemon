@@ -1,0 +1,4 @@
+#!/bin/bash
+java -Xms128m -Xmx512m -XX:PermSize=128m -XX:MaxPermSize=256m -cp \
+	"TARGETFOLDER/wasp-daemon-CURRENTWASPVERSION-release/wasp-daemon-CURRENTWASPVERSION/wasp-daemon-CURRENTWASPVERSION.jar:CATALINA_HOME/waspPlugins/*" \
+	edu.yu.einstein.wasp.daemon.StartDaemon

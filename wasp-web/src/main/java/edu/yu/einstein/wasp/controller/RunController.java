@@ -19,7 +19,6 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -520,8 +519,8 @@ public class RunController extends WaspController {
 				Map<String, Object> cell = new HashMap<String, Object>();
 				cell.put("id", run.getId());	//used??			 
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
-						"<a href=/wasp/" + sampleService.getPlatformunitViewLink(platformUnit) + ">"+run.getName()+"</a>",
-						"<a href=/wasp/" + sampleService.getPlatformunitViewLink(platformUnit) + ">"+platformUnitBarcode+"</a>",
+						"<a href=/" + servletName + "/" + sampleService.getPlatformunitViewLink(platformUnit) + ">"+run.getName()+"</a>",
+						"<a href=/" + servletName + "/" + sampleService.getPlatformunitViewLink(platformUnit) + ">"+platformUnitBarcode+"</a>",
 						run.getResource().getName() + " - " + run.getResource().getResourceCategory().getName(),
 						readProperties.getReadLength().toString(),
 						readProperties.getReadType(),
@@ -546,34 +545,6 @@ public class RunController extends WaspController {
 	}
 
 	
-
-	@RequestMapping(value = "/detail/{strId}", method = RequestMethod.GET)
-	public String detail(@PathVariable("strId") String strId, ModelMap m) {
-		String now = (new Date()).toString();
-
-		Integer i;
-		try {
-			i = new Integer(strId);
-		} catch (Exception e) {
-			return "default";
-		}
-
-		Run run = this.getRunDao().getById(i.intValue());
-
-		List<RunMeta> runMetaList = run.getRunMeta();
-		runMetaList.size();
-
-		List<RunCell> runCellList = run.getRunCell();
-		runCellList.size();
-
-		m.addAttribute("now", now);
-		m.addAttribute("run", run);
-		m.addAttribute("runmeta", runMetaList);
-		m.addAttribute("runcell", runCellList);
-
-		return "run/detail";
-	}
-
 	@RequestMapping(value = "/cell/detail/{strRunId}/{strId}", method = RequestMethod.GET)
 	public String cellDetail(@PathVariable("strRunId") String strRunId, @PathVariable("strId") String strId, ModelMap m) {
 		String now = (new Date()).toString();

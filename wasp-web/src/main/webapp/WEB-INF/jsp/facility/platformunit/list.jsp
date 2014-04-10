@@ -1,6 +1,8 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <!-- style adds vertical scrollbar to the autocomplete; code taken from  http://jqueryui.com/demos/autocomplete/#maxheight  -->
 <!-- overflow-x: auto; was previously set to hidden -->
+
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
 <style>
 	.ui-autocomplete {
 		max-height: 400px;
@@ -35,7 +37,7 @@ $(document).ready(function() {
 			dataInit: function(elem) {	
 				setTimeout(
 					function(){ 
-						$.getJSON("/wasp/autocomplete/getPlatformUnitNamesForDisplay.do", 
+						$.getJSON("<wasp:relativeUrl value='autocomplete/getPlatformUnitNamesForDisplay.do' />", 
 						{ str: "" }, 
 						function(data) { 
 							jQuery(elem).autocomplete(data);
@@ -55,7 +57,7 @@ $(document).ready(function() {
 			dataInit: function(elem) {	
 				setTimeout(
 					function(){ 
-						$.getJSON("/wasp/autocomplete/getPlatformUnitBarcodesForDisplay.do", 
+						$.getJSON("<wasp:relativeUrl value='autocomplete/getPlatformUnitBarcodesForDisplay.do' />", 
 						{ str: "" }, 
 						function(data) { 
 							jQuery(elem).autocomplete(data);
@@ -74,7 +76,7 @@ $(document).ready(function() {
 					dataInit: function(elem) {	
 						setTimeout(
 							function(){ 
-								$.getJSON("/wasp/autocomplete/getPlatformUnitSubtypesForDisplay.do", 
+								$.getJSON("<wasp:relativeUrl value='autocomplete/getPlatformUnitSubtypesForDisplay.do' />", 
 								{ str: "" }, 
 								function(data) { 
 									jQuery(elem).autocomplete(data);
@@ -93,7 +95,7 @@ $(document).ready(function() {
 					dataInit: function(elem) {	
 						setTimeout(
 							function(){ 
-								$.getJSON("/wasp/autocomplete/getReadTypesForDisplay.do", 
+								$.getJSON("<wasp:relativeUrl value='autocomplete/getReadTypesForDisplay.do' />", 
 								{ str: "" }, 
 								function(data) { 
 									jQuery(elem).autocomplete(data);
@@ -112,7 +114,7 @@ $(document).ready(function() {
 					dataInit: function(elem) {	
 						setTimeout(
 							function(){ 
-								$.getJSON("/wasp/autocomplete/getMpsResourceCategoryNamesForDisplay.do", 
+								$.getJSON("<wasp:relativeUrl value='autocomplete/getMpsResourceCategoryNamesForDisplay.do' />", 
 								{ str: "" }, 
 								function(data) { 
 									jQuery(elem).autocomplete(data);
@@ -190,7 +192,7 @@ jQuery("#grid_id").jqGrid('filterToolbar', {stringResult:false, searchOnEnter:tr
 jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"",title:"<fmt:message key="grid.icon_search.label" />", buttonicon :'ui-icon-search', onClickButton:function(){ $("#grid_id")[0].triggerToolbar(); } }); 
 
 //navigate to page to add a new platform unit 
-jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"", position: "first", title:"<fmt:message key="grid.icon_new.label" />", buttonicon :'ui-icon-plus', onClickButton:function(){ location.href="/wasp/facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=0&sampleId=0"; } }); 
+jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"", position: "first", title:"<fmt:message key="grid.icon_new.label" />", buttonicon :'ui-icon-plus', onClickButton:function(){ location.href="<wasp:relativeUrl value='facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=0&sampleId=0' />"; } }); 
 
 
 

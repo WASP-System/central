@@ -5,8 +5,8 @@
 	default-autowire="byName"
 	xmlns:aop="http://www.springframework.org/schema/aop"
 	xmlns:task="http://www.springframework.org/schema/task"
-	xsi:schemaLocation="http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd
-		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
@@ -54,15 +54,6 @@
         class.resource.loader.class=org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
       </value>
     </property>
-  </bean>
-  
-  <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver" >  
-    <property name="defaultLocale" ref="usLocale"/>
-  </bean>
-  
-  <bean id="usLocale" class="java.util.Locale" >  
-     <constructor-arg value="en"/>
-	 <constructor-arg value="US"/>
   </bean>
 
   <import resource="classpath*:wasp/**/*.xml" />

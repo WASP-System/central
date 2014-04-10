@@ -1,4 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <h1><fmt:message key="pageTitle.task/cellLibraryQC/list.label" /></h1>
 <c:choose>
 <c:when test="${jobs.size()==0}">
@@ -30,7 +33,7 @@
 			<tr class="FormData">
 				<c:choose>
 					<c:when test="${currentJobId !=  job.getJobId()}">
-						<td style='text-align:center;vertical-align:middle;'><a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.getJobId()}.do" />">J<c:out value="${job.getJobId()}" /></a></td>          
+						<td style='text-align:center;vertical-align:middle;'><a style="color: #801A00;" href="<wasp:relativeUrl value="sampleDnaToLibrary/listJobSamples/${job.getJobId()}.do" />">J<c:out value="${job.getJobId()}" /></a></td>          
 						<td style='text-align:center;vertical-align:middle;'><c:out value="${job.getName()}" /></td>
 						<td style='text-align:center;vertical-align:middle;'><c:out value="${job.getUser().getFirstName()}" /> <c:out value="${job.getUser().getLastName()}" /></td>
 					</c:when>

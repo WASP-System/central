@@ -235,6 +235,17 @@
           <property name="tooltip" value="aligner.bwa.sampe_N.tt" />
         </bean> 
         
+        <bean parent="bwaBackTrackUiFieldWrapper">
+          <property name="baseName" value="markDuplicates" />
+          <property name="metaposition" value="180" />
+          <property name="label" value="aligner.bwa.markDuplicates.label" />
+          <property name="control" value="aligner.bwa.markDuplicates.control" />
+          <property name="default" value="yes" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="aligner.bwa.markDuplicates.error" />
+          <property name="tooltip" value="aligner.bwa.markDuplicates.tt" />
+        </bean> 
+        
       </list>
     </property> 
 

@@ -21,13 +21,14 @@ import edu.yu.einstein.wasp.charts.WaspChart;
 import edu.yu.einstein.wasp.charts.WaspChart2D;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridResultImpl;
+import edu.yu.einstein.wasp.plugin.babraham.batch.service.impl.BabrahamBatchServiceImpl;
 import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamPanelRenderer;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
-import edu.yu.einstein.wasp.plugin.babraham.service.impl.BabrahamServiceImpl;
 import edu.yu.einstein.wasp.plugin.babraham.software.BabrahamDataModule;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQC;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQCDataModule;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQScreen;
+import edu.yu.einstein.wasp.plugin.babraham.web.service.impl.BabrahamWebServiceImpl;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.viewpanel.Panel;
 import edu.yu.einstein.wasp.viewpanel.WebContent;
@@ -38,22 +39,26 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
+	private String servletName = "wasp";
 	
 	@Autowired
 	private MessageService messageService;
 	
-	@Mock BabrahamServiceImpl mockBabrahamServiceImpl;
+	@Mock BabrahamBatchServiceImpl mockBabrahamBatchServiceImpl;
+	
+	@Mock BabrahamWebServiceImpl mockBabrahamWebServiceImpl;
 	
 	@BeforeClass
 	public void beforeClass(){
 		MockitoAnnotations.initMocks(this);
-		Assert.assertNotNull(mockBabrahamServiceImpl);
+		Assert.assertNotNull(mockBabrahamBatchServiceImpl);
+		Assert.assertNotNull(mockBabrahamWebServiceImpl);
 		Assert.assertNotNull(messageService);
 
 	}
 	
 	private Map<String, FastQCDataModule> getFastQcModuleList(){
-		BabrahamServiceImpl babrahamServiceImpl = new BabrahamServiceImpl();
+		BabrahamBatchServiceImpl babrahamServiceImpl = new BabrahamBatchServiceImpl();
 		InputStream in = this.getClass().getResourceAsStream("/fastqc_data.txt");
 		try {
 			return babrahamServiceImpl.processFastQCOutput(in);
@@ -64,7 +69,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 	}
 	
 	private BabrahamDataModule getFastQScreenModule(){
-		BabrahamServiceImpl babrahamServiceImpl = new BabrahamServiceImpl();
+		BabrahamBatchServiceImpl babrahamServiceImpl = new BabrahamBatchServiceImpl();
 		InputStream in = this.getClass().getResourceAsStream("/fastq_screen.txt");
 		try {
 			return babrahamServiceImpl.processFastQScreenOutput(in);
@@ -78,14 +83,14 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		GridResult result = new GridResultImpl();
 		
 		try {
-			PowerMockito.when(mockBabrahamServiceImpl.parseFastQScreenOutput(result.getResultsDirectory())).thenReturn(module);
+			PowerMockito.when(mockBabrahamBatchServiceImpl.parseFastQScreenOutput(result.getResultsDirectory())).thenReturn(module);
 		} catch (BabrahamDataParseException e) {
 			logger.warn(e.getLocalizedMessage());
 			return null;
 		}
 		
 		FastQScreen fastQScreen = new FastQScreen();
-		ReflectionTestUtils.setField(fastQScreen, "babrahamService", mockBabrahamServiceImpl);
+		ReflectionTestUtils.setField(fastQScreen, "babrahamService", mockBabrahamBatchServiceImpl);
 		JSONObject output = null;
 		output = fastQScreen.parseOutput(result.getResultsDirectory());
 		return output;
@@ -95,14 +100,14 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		GridResult result = new GridResultImpl();
 		
 		try {
-			PowerMockito.when(mockBabrahamServiceImpl.parseFastQCOutput(result.getResultsDirectory())).thenReturn(moduleList);
+			PowerMockito.when(mockBabrahamBatchServiceImpl.parseFastQCOutput(result.getResultsDirectory())).thenReturn(moduleList);
 		} catch (BabrahamDataParseException e) {
 			logger.warn(e.getLocalizedMessage());
 			return null;
 		}
 		
 		FastQC fastQC = new FastQC();
-		ReflectionTestUtils.setField(fastQC, "babrahamService", mockBabrahamServiceImpl);
+		ReflectionTestUtils.setField(fastQC, "babrahamService", mockBabrahamBatchServiceImpl);
 		ReflectionTestUtils.setField(fastQC, "messageService",messageService);
 		Map<String, JSONObject> output = null;
 		output = fastQC.parseOutput(result.getResultsDirectory());
@@ -195,7 +200,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Assert.assertNotNull(moduleList);
 		JSONObject jsonObject = getJSONForFastQCModule(moduleList, FastQC.PlotType.QC_RESULT_SUMMARY);
 		Assert.assertNotNull(jsonObject);
-		Panel panel = BabrahamPanelRenderer.getQCResultsSummaryPanel(jsonObject, messageService);
+		Panel panel = BabrahamPanelRenderer.getQCResultsSummaryPanel(jsonObject, messageService, servletName);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -208,7 +213,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Assert.assertNotNull(moduleList);
 		JSONObject jsonObject = getJSONForFastQCModule(moduleList, FastQC.PlotType.PER_BASE_QUALITY);
 		Assert.assertNotNull(jsonObject);
-		Panel panel = BabrahamPanelRenderer.getPerBaseSeqQualityPanel(jsonObject, messageService);
+		Panel panel = BabrahamPanelRenderer.getPerBaseSeqQualityPanel(jsonObject, messageService, servletName);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -221,7 +226,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Assert.assertNotNull(moduleList);
 		JSONObject jsonObject = getJSONForFastQCModule(moduleList, FastQC.PlotType.DUPLICATION_LEVELS);
 		Assert.assertNotNull(jsonObject);
-		Panel panel = BabrahamPanelRenderer.getSeqDuplicationPanel(jsonObject, messageService);
+		Panel panel = BabrahamPanelRenderer.getSeqDuplicationPanel(jsonObject, messageService, servletName);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -234,7 +239,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Assert.assertNotNull(moduleList);
 		JSONObject jsonObject = getJSONForFastQCModule(moduleList, FastQC.PlotType.BASIC_STATISTICS);
 		Assert.assertNotNull(jsonObject);
-		Panel panel = BabrahamPanelRenderer.getBasicStatsPanel(jsonObject, messageService);
+		Panel panel = BabrahamPanelRenderer.getBasicStatsPanel(jsonObject, messageService, servletName);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -247,7 +252,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Assert.assertNotNull(moduleList);
 		JSONObject jsonObject = getJSONForFastQCModule(moduleList, FastQC.PlotType.OVERREPRESENTED_SEQUENCES);
 		Assert.assertNotNull(jsonObject);
-		Panel panel = BabrahamPanelRenderer.getOverrepresentedSeqPanel(jsonObject, messageService);
+		Panel panel = BabrahamPanelRenderer.getOverrepresentedSeqPanel(jsonObject, messageService, servletName);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -260,7 +265,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Assert.assertNotNull(moduleList);
 		JSONObject jsonObject = getJSONForFastQCModule(moduleList, FastQC.PlotType.PER_SEQUENCE_QUALITY);
 		Assert.assertNotNull(jsonObject);
-		Panel panel = BabrahamPanelRenderer.getPerSeqQualityPanel(jsonObject, messageService);
+		Panel panel = BabrahamPanelRenderer.getPerSeqQualityPanel(jsonObject, messageService, servletName);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -273,7 +278,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Assert.assertNotNull(moduleList);
 		JSONObject jsonObject = getJSONForFastQCModule(moduleList, FastQC.PlotType.PER_BASE_SEQUENCE_CONTENT);
 		Assert.assertNotNull(jsonObject);
-		Panel panel = BabrahamPanelRenderer.getGetPerBaseSeqContentPanel(jsonObject, messageService);
+		Panel panel = BabrahamPanelRenderer.getGetPerBaseSeqContentPanel(jsonObject, messageService, servletName);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -286,7 +291,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Assert.assertNotNull(moduleList);
 		JSONObject jsonObject = getJSONForFastQCModule(moduleList, FastQC.PlotType.PER_BASE_GC_CONTENT);
 		Assert.assertNotNull(jsonObject);
-		Panel panel = BabrahamPanelRenderer.getPerBaseGcContentPanel(jsonObject, messageService);
+		Panel panel = BabrahamPanelRenderer.getPerBaseGcContentPanel(jsonObject, messageService, servletName);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -299,7 +304,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Assert.assertNotNull(moduleList);
 		JSONObject jsonObject = getJSONForFastQCModule(moduleList, FastQC.PlotType.PER_SEQUENCE_GC_CONTENT);
 		Assert.assertNotNull(jsonObject);
-		Panel panel = BabrahamPanelRenderer.getPerSeqGcContentPanel(jsonObject, messageService);
+		Panel panel = BabrahamPanelRenderer.getPerSeqGcContentPanel(jsonObject, messageService, servletName);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -312,7 +317,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Assert.assertNotNull(moduleList);
 		JSONObject jsonObject = getJSONForFastQCModule(moduleList, FastQC.PlotType.PER_BASE_N_CONTENT);
 		Assert.assertNotNull(jsonObject);
-		Panel panel = BabrahamPanelRenderer.getPerBaseNContentPanel(jsonObject, messageService);
+		Panel panel = BabrahamPanelRenderer.getPerBaseNContentPanel(jsonObject, messageService, servletName);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		Assert.assertTrue(html.contains("title: { text: 'N content across all bases' },"));
@@ -324,7 +329,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Assert.assertNotNull(moduleList);
 		JSONObject jsonObject = getJSONForFastQCModule(moduleList, FastQC.PlotType.KMER_PROFILES);
 		Assert.assertNotNull(jsonObject);
-		Panel panel = BabrahamPanelRenderer.getKmerProfilesPanel(jsonObject, messageService);
+		Panel panel = BabrahamPanelRenderer.getKmerProfilesPanel(jsonObject, messageService, servletName);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -337,7 +342,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Assert.assertNotNull(moduleList);
 		JSONObject jsonObject = getJSONForFastQCModule(moduleList, FastQC.PlotType.SEQUENCE_LENGTH_DISTRIBUTION);
 		Assert.assertNotNull(jsonObject);
-		Panel panel = BabrahamPanelRenderer.getSeqLengthDistributionPanel(jsonObject, messageService);
+		Panel panel = BabrahamPanelRenderer.getSeqLengthDistributionPanel(jsonObject, messageService, servletName);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -350,7 +355,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Assert.assertNotNull(module);
 		JSONObject jsonObject = getJSONForFastQScreenModule(module);
 		Assert.assertNotNull(jsonObject);
-		Panel panel = BabrahamPanelRenderer.getFastQScreenPanel(jsonObject, messageService);
+		Panel panel = BabrahamPanelRenderer.getFastQScreenPanel(jsonObject, messageService, servletName);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);

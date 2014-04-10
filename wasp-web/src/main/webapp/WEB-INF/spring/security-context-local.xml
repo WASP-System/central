@@ -15,7 +15,6 @@
         <intercept-url pattern="/auth/**" access="permitAll" />
         <intercept-url pattern="/scripts/**" access="permitAll" />
         <intercept-url pattern="/autocomplete/**" access="permitAll" />
-        <intercept-url pattern="/jobresults/**" access="permitAll" />
         <intercept-url pattern="/css/**" access="permitAll" />
         <intercept-url pattern="/images/**" access="permitAll" />
         <intercept-url pattern="/stickyCaptchaImg.png" access="permitAll" />

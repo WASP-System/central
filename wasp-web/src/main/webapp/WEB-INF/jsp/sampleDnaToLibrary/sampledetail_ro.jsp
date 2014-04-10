@@ -1,4 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
   <br />
 <title><fmt:message key="pageTitle.sampleDnaToLibrary/sampledetail_ro.label"/></title>
 <h1><fmt:message key="pageTitle.sampleDnaToLibrary/sampledetail_ro.label"/></h1>
@@ -13,9 +16,9 @@
 		     <c:set var="_area" value = "sample" scope="request"/>
 			 <c:set var="_metaList" value = "${normalizedSampleMeta}" scope="request" />		
 		     <c:import url="/WEB-INF/jsp/meta_ro.jsp"/>
-		    <tr class="FormData"><td colspan="2" class="submitBottom"><a class="button" href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do"/>"><fmt:message key="sampledetail_ro.cancel.label" /></a>&nbsp;
+		    <tr class="FormData"><td colspan="2" class="submitBottom"><a class="button" href="<wasp:relativeUrl value="sampleDnaToLibrary/listJobSamples/${job.jobId}.do"/>"><fmt:message key="sampledetail_ro.cancel.label" /></a>&nbsp;
 			<sec:authorize access="hasRole('su') or hasRole('ft')"> 
-			  <a class="button" href="<c:url value="/sampleDnaToLibrary/sampledetail_rw/${job.jobId}/${sample.sampleId}.do" />"><fmt:message key="sampledetail_ro.edit.label" /></a>
+			  <a class="button" href="<wasp:relativeUrl value="sampleDnaToLibrary/sampledetail_rw/${job.jobId}/${sample.sampleId}.do" />"><fmt:message key="sampledetail_ro.edit.label" /></a>
 			 </sec:authorize>	
 			 </td></tr>
 		</table>

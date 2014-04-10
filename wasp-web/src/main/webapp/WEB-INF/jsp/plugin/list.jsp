@@ -12,7 +12,7 @@
 		<ul class="navTabs">
 		<c:forEach items="${descriptionHyperlinks}" var="hyperlink">
 			<li>
-				<a href='<c:url value="${hyperlink.getTargetLink()}"/>'>${hyperlink.getLabel()}</a>
+				<a href='<wasp:relativeUrl value="${hyperlink.getTargetLink()}"/>'>${hyperlink.getLabel()}</a>
 			</li>
 		</c:forEach>
 		</ul>

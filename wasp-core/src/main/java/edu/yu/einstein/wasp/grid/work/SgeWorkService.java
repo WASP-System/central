@@ -285,6 +285,13 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		return died;
 		
 	}
+	
+	private boolean isJobOrTaskArrayEnded(GridResult g) throws GridException{
+		if (!g.getMode().equals(ExecutionMode.TASK_ARRAY)) 
+			return isJobEnded(g);
+		else
+			return isTaskArrayEnded(g);
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -297,14 +304,9 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		
 		logger.debug("testing for completion of " + jobname);
 		
-		boolean ended = false;
-		boolean started = false;
 		boolean died = false;
-		started = isJobStarted(g);
-		if (!g.getMode().equals(ExecutionMode.TASK_ARRAY)) 
-			ended = isJobEnded(g);
-		else
-			ended = isTaskArrayEnded(g);
+		boolean started = isJobStarted(g);
+		boolean ended = isJobOrTaskArrayEnded(g);
 		logger.debug("Job status semaphores (started, ended): " + started + ", " + ended);
 		if (started && !ended){
 			final int INCREMENT_FACTOR = 2;
@@ -343,6 +345,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 						waitMs *= INCREMENT_FACTOR;
 						if (totalWaitedMs + waitMs > nfsTimeout && nfsTimeout != NEVER_TIME_OUT)
 							waitMs = nfsTimeout - totalWaitedMs;
+						ended = isJobOrTaskArrayEnded(g);
 					}
 				}
 			} while (died && !timedOut);

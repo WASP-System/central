@@ -1,5 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<script type="text/javascript" src="/wasp/scripts/jquery/jquery.cookie.js"></script>
+<script type="text/javascript" src="<wasp:relativeUrl value='scripts/jquery/jquery.cookie.js' />"></script>
 
 <script type="text/javascript">
 
@@ -29,7 +29,7 @@ $(document).ready(function(){
 	    		 //$("#validateTipForThisModalDialogForm").text(theSelectedAdaptorset);
 	    		  //var jobDraftId = '<c:out value="${ jobDraft.getJobDraftId() }"/>';
 	    		  //var sampleSubtypeId = '<c:out value="${ sampleSubtype.getSampleSubtypeId() }"/>';
-	    		  //var href = "/wasp/jobsubmit/manysamples/edit/"+jobDraftId+"/"+sampleSubtypeId+".do?theSelectedAdaptorset="+theSelectedAdaptorset;
+	    		  //var href = "<wasp:relativeUrl value='jobsubmit/manysamples/edit/' />"+jobDraftId+"/"+sampleSubtypeId+".do?theSelectedAdaptorset="+theSelectedAdaptorset;
 	    		  
 	    		  
 	    		//$("#theSelectedAdaptorset").val("");

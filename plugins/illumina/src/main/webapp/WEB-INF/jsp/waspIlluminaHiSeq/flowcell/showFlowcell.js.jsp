@@ -5,12 +5,12 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="wasp" uri="http://einstein.yu.edu/wasp" %>
 
-<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/reset.css" />
-<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/base.css" />
-<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/jquery-ui.css" />
-<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/ui.jqgrid.css" />
+<link rel="stylesheet" type="text/css" media="screen" href="<wasp:relativeUrl value='css/reset.css' />" />
+<link rel="stylesheet" type="text/css" media="screen" href="<wasp:relativeUrl value='css/base.css' />" />
+<link rel="stylesheet" type="text/css" media="screen" href="<wasp:relativeUrl value='css/jquery/jquery-ui.css' />" />
+<link rel="stylesheet" type="text/css" media="screen" href="<wasp:relativeUrl value='css/jquery/ui.jqgrid.css' />" />
 	
-<script type="text/javascript" src="/wasp/scripts/js/date_validate_modified.js"></script> 
+<script type="text/javascript" src="<wasp:relativeUrl value='scripts/js/date_validate_modified.js' />"></script> 
 <script>
 
 //think this section enclosed in  document.ready(function()  
@@ -25,7 +25,7 @@ $(document).ready(function(){
 		if(id != ''){
 			$.ajax({
 				type: "POST",
-				url: "/wasp/waspIlluminaHiSeq/flowcell/ajaxReadType.do",
+				url: "<wasp:relativeUrl value='waspIlluminaHiSeq/flowcell/ajaxReadType.do' />",
 				data: "resourceId=" + id,
 				cache: false,
 				success: function(response){

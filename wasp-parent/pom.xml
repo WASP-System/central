@@ -734,6 +734,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<groupId>javax.servlet</groupId>
 				<artifactId>javax.servlet-api</artifactId>
 				<version>3.0.1</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.gatein.captcha</groupId>
@@ -1103,16 +1104,6 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<snapshots>             
 			<enabled>false</enabled>
 			</snapshots>            
-		</pluginRepository>
-		<pluginRepository>
-			<id>com.goldin.plugins</id>
-			<name>maven-copy-plugins</name>
-			<url>http://evgenyg.artifactoryonline.com/evgenyg/plugins-releases</url>
-		</pluginRepository>
-		<pluginRepository>
-			<id>com.goldin</id>
-			<name>goldin.libs</name>
-			<url>http://evgenyg.artifactoryonline.com/evgenyg/libs-releases</url>
 		</pluginRepository>
 	</pluginRepositories>
 

@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,11 +30,14 @@ import edu.yu.einstein.wasp.interfacing.Hyperlink;
 import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.interfacing.plugin.WebInterfacing;
 import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
+import edu.yu.einstein.wasp.macstwo.service.MacstwoService;
 import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
+import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 /**
@@ -44,7 +48,13 @@ public class MacstwoPlugin extends WaspPlugin
 			BatchJobProviding,
 			WebInterfacing,
 			FileDataTabViewing,
-			ClientMessageI {
+			ClientMessageI,
+			JobDataTabViewing{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1910399102604365552L;
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
@@ -64,6 +74,10 @@ public class MacstwoPlugin extends WaspPlugin
 	@Autowired
 	@Qualifier("macstwo")
 	private Software macstwo;
+	
+	@Autowired 
+	private MacstwoService macstwoService;
+
 	
 	public static final String FLOW_NAME = "edu.yu.einstein.wasp.macstwo.mainFlow";
 
@@ -202,5 +216,15 @@ public class MacstwoPlugin extends WaspPlugin
 	public void destroy() throws Exception {
 		// TODO Auto-generated method stub
 
+	}
+	@Override
+	public Set<PanelTab> getViewPanelTabs(Job job) throws PanelException{
+		return macstwoService.getMacstwoDataToDisplay(job);
+	}
+
+	@Override
+	public Status getStatus(Job job) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

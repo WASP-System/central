@@ -51,7 +51,8 @@ public class CommentTag extends BodyTagSupport {
 			return Tag.SKIP_PAGE;
 		
 		StringBuffer buf=new StringBuffer("");
-		buf.append(Tooltip.getCommentHtmlString(commentText));
+		String servletName = (String) pageContext.getSession().getAttribute("servletName");
+		buf.append(Tooltip.getCommentHtmlString(commentText, servletName));
 		
 		try {
 			this.pageContext.getOut().print(buf.toString());

@@ -3,30 +3,41 @@
  */
 package edu.yu.einstein.wasp.plugin.bwa.plugin;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 
+import edu.yu.einstein.wasp.exception.JobContextInitializationException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
+import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
+import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobSoftware;
 import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
+import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
-import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
+import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.util.SoftwareConfiguration;
+import edu.yu.einstein.wasp.util.WaspJobContext;
 
 /**
  * @author calder / asmclellan
  * 
  */
-public abstract class AbstractBWAPlugin extends WaspPlugin implements ClientMessageI, BatchJobProviding {
+public abstract class AbstractBWAPlugin extends WaspPlugin implements ClientMessageI, BWAPluginCli, BatchJobProviding {
 
 	private static final long serialVersionUID = 8181556629848527079L;
 
@@ -37,20 +48,29 @@ public abstract class AbstractBWAPlugin extends WaspPlugin implements ClientMess
 
 	@Autowired
 	protected SampleService sampleService;
+	
+	@Autowired
+	protected GenomeService genomeService;
 
 	@Autowired
 	protected JobService jobService;
 
 	@Autowired
 	protected RunService runService;
-
+	
+	protected Software software;
+	
 	public AbstractBWAPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
 		super(iName, waspSiteProperties, channel);
 	}
 
-	public abstract Message<String> align(Message<String> m) throws Exception;
+	public Software getSoftware() {
+		return software;
+	}
 
-	public abstract Message<String> alignHelp();
+	public void setSoftware(Software software) {
+		this.software = software;
+	}
 
 	protected SampleSource getCellLibraryFromMessage(Message<String> m) {
 		SampleSource cl = null;
@@ -68,6 +88,27 @@ public abstract class AbstractBWAPlugin extends WaspPlugin implements ClientMess
 		}
 
 		return cl;
+	}
+	
+	protected SoftwareConfiguration getDefaultBWASoftwareConfig() throws JobContextInitializationException{
+		List<JobSoftware> jobSoftware = new ArrayList<>();
+		JobSoftware js = new JobSoftware();
+		Job job = new Job();
+		js.setJob(job);
+		js.setSoftware(software);
+		jobSoftware.add(js);
+		job.setJobSoftware(jobSoftware);
+		WaspJobContext waspJobContext = new WaspJobContext(job);
+		return waspJobContext.getConfiguredSoftware(referenceBasedAlignerResourceType);
+	}
+	
+	protected String getGenomeBuildString(Integer cellLibraryId){
+		try {
+			return genomeService.getDelimitedParameterString(cellLibraryId);
+		} catch (SampleTypeException | ParameterValueRetrievalException e) {
+			logger.warn(e.getMessage());
+			return null;
+		}	
 	}
 
 	@Override

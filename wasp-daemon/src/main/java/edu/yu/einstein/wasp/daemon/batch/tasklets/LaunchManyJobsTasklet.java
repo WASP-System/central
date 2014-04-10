@@ -143,6 +143,22 @@ public abstract class LaunchManyJobsTasklet implements Tasklet, StepExecutionLis
                 StringUtils.collectionToDelimitedString(number, BatchJobHibernationManager.PARENT_JOB_CHILD_LIST_DELIMITER));
         return null;
     }
+
+    public StepExecution getStepExecution() {
+        return stepExecution;
+    }
+
+    public void setStepExecution(StepExecution stepExecution) {
+        this.stepExecution = stepExecution;
+    }
+
+    public ExecutionContext getStepContext() {
+        return stepContext;
+    }
+
+    public void setStepContext(ExecutionContext stepContext) {
+        this.stepContext = stepContext;
+    }
     
 
 

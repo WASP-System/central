@@ -28,6 +28,7 @@ import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.interfacing.Hyperlink;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Software;
+import edu.yu.einstein.wasp.plugin.babraham.web.service.impl.BabrahamWebServiceImpl;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 /**
@@ -127,7 +128,7 @@ public class FastQScreenPlugin extends BabrahamPluginBase{
 
 	@Override
 	public PanelTab getViewPanelTab(FileGroup fileGroup) throws PanelException {
-		return babrahamService.getFastQScreenDataToDisplay(fileGroup.getId());
+		return ((BabrahamWebServiceImpl) babrahamService).getFastQScreenDataToDisplay(fileGroup.getId());
 	}
 
 }

@@ -15,6 +15,8 @@
 	</c:otherwise>
 </c:choose> 
 
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <div id="containerForTables" style="width:100%;overflow:hidden" >
 
 <div id="left" style="float:left; margin-right:10px">
@@ -123,12 +125,12 @@
    	    		<input class="fm-button" type="button" onClick="submit();" value="<fmt:message key='runInstance.submit.label'/>" /> 
    	    	</c:if>
    	    	<c:if test="${not empty(resourceNameError)}" >
-   	    		<input class="fm-button" type="button" onClick="location.href='<c:url value="/resource/list.do" />';" value="<fmt:message key='resource.resource_list.label'/>" /> 
+   	    		<input class="fm-button" type="button" onClick="location.href='<wasp:relativeUrl value="resource/list.do" />';" value="<fmt:message key='resource.resource_list.label'/>" /> 
 			</c:if>
     		<c:if test="${run.getId() > 0}">
-    			&nbsp;<input class="fm-button" type="button" onClick="location.href='<c:url value="/waspIlluminaHiSeq/run/${run.getId()}/update.do" />';" value="<fmt:message key='runInstance.reset.label'/>" /> 
+    			&nbsp;<input class="fm-button" type="button" onClick="location.href='<wasp:relativeUrl value="waspIlluminaHiSeq/run/${run.getId()}/update.do" />';" value="<fmt:message key='runInstance.reset.label'/>" /> 
     		</c:if>
-    		&nbsp;<input class="fm-button" type="button" onClick="location.href='<c:url value="/waspIlluminaHiSeq/flowcell/${run.getPlatformUnit().getId()}/show.do" />';" value="<fmt:message key='runInstance.cancel.label'/>" /> 
+    		&nbsp;<input class="fm-button" type="button" onClick="location.href='<wasp:relativeUrl value="waspIlluminaHiSeq/flowcell/${run.getPlatformUnit().getId()}/show.do" />';" value="<fmt:message key='runInstance.cancel.label'/>" /> 
     	</div>
     </td></tr>
 

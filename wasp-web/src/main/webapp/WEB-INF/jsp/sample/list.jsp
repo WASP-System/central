@@ -1,6 +1,8 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <!-- style adds vertical scrollbar to the autocomplete; code taken from  http://jqueryui.com/demos/autocomplete/#maxheight  -->
 <!-- overflow-x: auto; was previously set to hidden -->
+
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
 <style>
 	.ui-autocomplete {
 		max-height: 400px;
@@ -35,7 +37,7 @@ $(document).ready(function() {
 			dataInit: function(elem) {	
 				setTimeout(
 					function(){ 
-						$.getJSON("/wasp/autocomplete/getSampleNamesFromJobsForDisplay.do", 
+						$.getJSON("<wasp:relativeUrl value='autocomplete/getSampleNamesFromJobsForDisplay.do' />", 
 						{ str: "" }, 
 						function(data) { 
 							jQuery(elem).autocomplete(data);
@@ -55,7 +57,7 @@ $(document).ready(function() {
 			dataInit: function(elem) {	
 				setTimeout(
 					function(){ 
-						$.getJSON("/wasp/autocomplete/getSampleTypesThatAreBiomaterialsForDisplay.do", 
+						$.getJSON("<wasp:relativeUrl value='autocomplete/getSampleTypesThatAreBiomaterialsForDisplay.do' />", 
 						{ str: "" }, 
 						function(data) { 
 							jQuery(elem).autocomplete(data);
@@ -74,7 +76,7 @@ $(document).ready(function() {
 					dataInit: function(elem) {	
 						setTimeout(
 							function(){ 
-								$.getJSON("/wasp/autocomplete/getSequenceRunNamesForDisplay.do", 
+								$.getJSON("<wasp:relativeUrl value='autocomplete/getSequenceRunNamesForDisplay.do' />", 
 								{ str: "" }, 
 								function(data) { 
 									jQuery(elem).autocomplete(data);
@@ -99,7 +101,7 @@ $(document).ready(function() {
 					dataInit: function(elem) {	
 						setTimeout(
 							function(){ 
-								$.getJSON("/wasp/autocomplete/getAllUserNamesAndLoginForDisplay.do", 
+								$.getJSON("<wasp:relativeUrl value='autocomplete/getAllUserNamesAndLoginForDisplay.do' />", 
 								{ adminNameFragment: "" }, 
 								function(data) { 
 									jQuery(elem).autocomplete(data);
@@ -118,7 +120,7 @@ $(document).ready(function() {
 					dataInit: function(elem) {	
 						setTimeout(
 							function(){ 
-								$.getJSON("/wasp/autocomplete/getPiNamesAndLoginForDisplay.do",  
+								$.getJSON("<wasp:relativeUrl value='autocomplete/getPiNamesAndLoginForDisplay.do' />",  
 								{ piNameFragment: "" }, 
 								function(data) { 
 									jQuery(elem).autocomplete(data);
@@ -205,7 +207,7 @@ jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"",title:"<fmt:me
 
 //add a new run - we cannot have Add New Run Button on this grid, since new runs are dependent on platformUnit 
 //this next line is simply example code located on the platformUnit grid: to navigate to page to add a platform unit 
-///jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"", position: "first", title:"New", buttonicon :'ui-icon-plus', onClickButton:function(){ location.href="/wasp/facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=0&sampleId=0"; } }); 
+///jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"", position: "first", title:"New", buttonicon :'ui-icon-plus', onClickButton:function(){ location.href="<wasp:relativeUrl value='facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=0&sampleId=0' />"; } }); 
 
 
 

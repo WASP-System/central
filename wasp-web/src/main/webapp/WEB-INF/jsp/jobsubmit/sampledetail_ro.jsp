@@ -14,8 +14,8 @@
     <c:import url="/WEB-INF/jsp/meta_ro.jsp"/>
     <tr class="FormData">
     	<td colspan="2" class="submitBottom">
-    		<a class="FormElement button" href="<c:url value="/jobsubmit/samples/${jobDraft.jobDraftId}.do"/>"><fmt:message key="jobDraft.cancel.label"/></a>&nbsp;
-			<a class="FormElement button" href="<c:url value="/jobsubmit/samples/edit/${jobDraft.jobDraftId}/${sampleDraft.sampleDraftId}.do" />"><fmt:message key="jobDraft.edit.label"/></a>
+    		<a class="FormElement button" href="<wasp:relativeUrl value="jobsubmit/samples/${jobDraft.jobDraftId}.do"/>"><fmt:message key="jobDraft.cancel.label"/></a>&nbsp;
+			<a class="FormElement button" href="<wasp:relativeUrl value="jobsubmit/samples/edit/${jobDraft.jobDraftId}/${sampleDraft.sampleDraftId}.do" />"><fmt:message key="jobDraft.edit.label"/></a>
 		</td>
 	</tr>
 </table>

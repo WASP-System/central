@@ -21,7 +21,7 @@
  							<c:set var="optionName" value="${meta.k}.label" /><fmt:message key="${optionName}" />:&nbsp;<c:out value="${meta.v}" /><br />
         	 			</c:if>
       				</c:forEach>  
-      				<br /><div class="submit"><a href="<c:url value="/lab/userpending/approve/${up.lab.labId}/${up.userPendingId}.do"/>"><fmt:message key="lmpendingtask.approve.label" /></a> <a href="<c:url value="/lab/userpending/reject/${up.lab.labId}/${up.userPendingId}.do"/>"><fmt:message key="lmpendingtask.reject.label" /></a></div>    
+      				<br /><div class="submit"><a href="<wasp:relativeUrl value="lab/userpending/approve/${up.lab.labId}/${up.userPendingId}.do"/>"><fmt:message key="lmpendingtask.approve.label" /></a> <a href="<wasp:relativeUrl value="lab/userpending/reject/${up.lab.labId}/${up.userPendingId}.do"/>"><fmt:message key="lmpendingtask.reject.label" /></a></div>    
       			</div>       
      		</c:forEach>
      		<c:forEach items="${existinguserspendinglist}" var="lu">
@@ -34,7 +34,7 @@
           			      <c:set var="optionName" value="${meta.k}.label" /><fmt:message key="${optionName}" />:&nbsp;<c:out value="${meta.v}" /><br />
             		   </c:if>
             		</c:forEach>
-      				<br />  <div class="submit"><a href="<c:url value="/lab/labuserpending/approve/${lu.lab.labId}/${lu.labUserId}.do"/>"><fmt:message key="lmpendingtask.approve.label" /></a> <a href="<c:url value="/lab/labuserpending/reject/${lu.lab.labId}/${lu.labUserId}.do"/>"><fmt:message key="lmpendingtask.reject.label" /></a></div>
+      				<br />  <div class="submit"><a href="<wasp:relativeUrl value="lab/labuserpending/approve/${lu.lab.labId}/${lu.labUserId}.do"/>"><fmt:message key="lmpendingtask.approve.label" /></a> <a href="<wasp:relativeUrl value="lab/labuserpending/reject/${lu.lab.labId}/${lu.labUserId}.do"/>"><fmt:message key="lmpendingtask.reject.label" /></a></div>
       			</div>      
     		</c:forEach> 
     	</div>   
@@ -71,7 +71,7 @@
       			</c:forEach>
       			
       			<br />
-      			<form action="<c:url value="/task/piJobApprove/${job.lab.labId}.do"/>" id="theForm<c:out value="${job.jobId}" />" method="POST" onsubmit="return validate(this);">
+      			<form action="<wasp:relativeUrl value="task/piJobApprove/${job.lab.labId}.do"/>" id="theForm<c:out value="${job.jobId}" />" method="POST" onsubmit="return validate(this);">
  				<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobId" value="${job.jobId}"> 
  				<input class="FormElement ui-widget-content ui-corner-all" type="radio" id = "action" name = "action" value = "APPROVED"><fmt:message key="jobapprovetask.approve.label" /> &nbsp;
  				<input class="FormElement ui-widget-content ui-corner-all" onclick='selectedFail("theForm<c:out value="${job.jobId}" />");' type="radio" id = "action" name = "action" value = "REJECTED"><fmt:message key="jobapprovetask.reject.label" /><br />

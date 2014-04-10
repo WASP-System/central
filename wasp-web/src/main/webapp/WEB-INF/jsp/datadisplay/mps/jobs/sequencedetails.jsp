@@ -1,6 +1,10 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <c:import url="/WEB-INF/jsp/datadisplay/mps/jobs/rundetails.jsp" />
 <br />
+
+<%--  TODO: Internationalize this!!!! --%>
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <table style="border:1px solid black;">
 <tr><td class="CaptionTD" style="text-decoration:underline; text-align:center" colspan="2">Lane ${cellIndex} </td></tr>
 <tr><td class="CaptionTD">Raw Reads (RR): </td><td class="DataTD"><c:out value="100000" /></td></tr>
@@ -9,7 +13,7 @@
 <tr><td class="CaptionTD">PF Reads (Unexpected Indexes): </td><td class="DataTD"><c:out value="1000" /> (2% of PF)</td></tr>
 <tr>
 	<td class="CaptionTD">All PF Reads For Lane ${cellIndex}: </td><td class="DataTD">
-		<a href="<c:url value="/file/fileHandle/${fileHandle.getId()}/download.do" />" >Download All</a>
+		<a href="<wasp:relativeUrl value="file/fileHandle/${fileHandle.getId()}/download.do" />" >Download All</a>
 	</td>
 </tr>
 </table>
@@ -104,12 +108,12 @@
 			<c:choose>
 				<c:when test="${fn:length(sequenceFileList)==1}">
 					<c:forEach items="${sequenceFileList}" var="fileHandle" >
-						<a href="<c:url value="/file/fileHandle/${fileHandle.getId()}/download.do" />" >Download</a>
+						<a href="<wasp:relativeUrl value="file/fileHandle/${fileHandle.getId()}/download.do" />" >Download</a>
 					</c:forEach>
 				</c:when>
 				<c:when test="${fn:length(sequenceFileList)>1}">
 					<c:forEach items="${sequenceFileList}" var="fileHandle" varStatus="counter">
-						<c:if test="${counter.count > 1}"><br /></c:if>P${counter.count}: <a href="<c:url value="/file/fileHandle/${fileHandle.getId()}/download.do" />" >Download</a>
+						<c:if test="${counter.count > 1}"><br /></c:if>P${counter.count}: <a href="<wasp:relativeUrl value="file/fileHandle/${fileHandle.getId()}/download.do" />" >Download</a>
 					</c:forEach>
 				</c:when>
 			</c:choose>					

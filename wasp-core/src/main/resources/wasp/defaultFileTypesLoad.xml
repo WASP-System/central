@@ -4,6 +4,20 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	default-autowire="byName"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<bean id="csvFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
+	    <property name="name" value="Comma Seperated Values" />
+	    <property name="area" value="csv" />
+	    <property name="description" value="Comma delimited data format." />
+	    <property name="extensions" value="csv" />
+  	</bean>
+  	
+  	<bean id="textFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
+	    <property name="name" value="text" />
+	    <property name="area" value="txt" />
+	    <property name="description" value="Text format." />
+	    <property name="extensions" value="txt" />
+  	</bean>
 
 
 </beans>

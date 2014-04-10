@@ -16,7 +16,7 @@
 
 <wasp:field name="isActive"  type="checkbox" hidden="false" editHidden="true" sortable="false" searchable="false" columnWidth="70"/>
 
-_url='/wasp/user/listJSON.do?selId=${param.selId}';
+_url='<wasp:relativeUrl value="user/listJSON.do?selId=${param.selId}" />';
 
 _navAttr={edit:true,view:false,add:true,del:false,search:false,refresh:true,beforeRefresh: 
 	function () { 

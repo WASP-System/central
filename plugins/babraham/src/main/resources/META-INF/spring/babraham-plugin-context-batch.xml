@@ -11,6 +11,7 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	
+	<bean class="edu.yu.einstein.wasp.plugin.babraham.batch.service.impl.BabrahamBatchServiceImpl" />
 		
 	<!-- common definitions -->
 	<import resource="babraham-plugin-context-common.xml" />

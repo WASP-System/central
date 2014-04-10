@@ -1,6 +1,8 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <!-- style adds vertical scrollbar to the autocomplete; code taken from  http://jqueryui.com/demos/autocomplete/#maxheight  -->
 <!-- overflow-x: auto; was previously set to hidden -->
+
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
 <style>
 	.ui-autocomplete {
 		max-height: 400px;
@@ -38,7 +40,7 @@ if(url_string.indexOf("selId") == -1){ //url does NOT contain the string userId,
 			dataInit: function(elem) {	
 				setTimeout(
 					function(){ 
-						$.getJSON("/wasp/autocomplete/getAllUserLoginsForDisplay.do", 
+						$.getJSON("<wasp:relativeUrl value='autocomplete/getAllUserLoginsForDisplay.do' />", 
 						{ str: "" }, 
 						function(data) { 
 							jQuery(elem).autocomplete(data);
@@ -57,8 +59,8 @@ if(url_string.indexOf("selId") == -1){ //url does NOT contain the string userId,
 			dataInit: function(elem) {	
 				setTimeout(
 					function(){ 
-						$.getJSON("/wasp/autocomplete/getDistinctUserFirstNamesForDisplay.do",
-						//Not used $.getJSON("/wasp/autocomplete/getPiForAutocomplete.do", 
+						$.getJSON("<wasp:relativeUrl value='autocomplete/getDistinctUserFirstNamesForDisplay.do' />",
+						//Not used $.getJSON("<wasp:relativeUrl value='autocomplete/getPiForAutocomplete.do' />", 
 						{ str: "" }, 
 						function(data) { 
 							jQuery(elem).autocomplete(data);
@@ -77,7 +79,7 @@ jQuery("#grid_id").jqGrid('setColProp', 'lastName',
 		dataInit: function(elem) {	
 			setTimeout(
 				function(){ 
-					$.getJSON("/wasp/autocomplete/getDistinctUserLastNamesForDisplay.do", 
+					$.getJSON("<wasp:relativeUrl value='autocomplete/getDistinctUserLastNamesForDisplay.do' />", 
 					{ str: "" }, 
 					function(data) { 
 						jQuery(elem).autocomplete(data);
@@ -95,7 +97,7 @@ jQuery("#grid_id").jqGrid('setColProp', 'email',
 				dataInit: function(elem) {	
 					setTimeout(
 						function(){ 
-							$.getJSON("/wasp/autocomplete/getAllUserEmailsForDisplay.do", 
+							$.getJSON("<wasp:relativeUrl value='autocomplete/getAllUserEmailsForDisplay.do' />", 
 							{ str: "" }, 
 							function(data) { 
 								jQuery(elem).autocomplete(data);

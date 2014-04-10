@@ -1,5 +1,8 @@
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <!-- style adds vertical scrollbar to the autocomplete; code taken from  http://jqueryui.com/demos/autocomplete/#maxheight  -->
 <!-- overflow-x: auto; was previously set to hidden -->
+
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
 <style>
 	.ui-autocomplete {
 		max-height: 400px;
@@ -33,7 +36,7 @@ $(document).ready(function() {
 			dataInit: function(elem) {	
 				setTimeout(
 					function(){ 
-						$.getJSON("/wasp/autocomplete/getAllUserNamesAndLoginForDisplay.do", 
+						$.getJSON("<wasp:relativeUrl value='autocomplete/getAllUserNamesAndLoginForDisplay.do' />", 
 						{ adminNameFragment: "" }, 
 						function(data) { 
 							jQuery(elem).autocomplete(data);
@@ -52,8 +55,8 @@ $(document).ready(function() {
 			dataInit: function(elem) {	
 				setTimeout(
 					function(){ 
-						$.getJSON("/wasp/autocomplete/getPiNamesAndLoginForDisplay.do",
-						//Not used $.getJSON("/wasp/autocomplete/getPiForAutocomplete.do", 
+						$.getJSON("<wasp:relativeUrl value='autocomplete/getPiNamesAndLoginForDisplay.do' />",
+						//Not used $.getJSON("<wasp:relativeUrl value='autocomplete/getPiForAutocomplete.do' />", 
 						{ piNameFragment: "" }, 
 						function(data) { 
 							jQuery(elem).autocomplete(data);

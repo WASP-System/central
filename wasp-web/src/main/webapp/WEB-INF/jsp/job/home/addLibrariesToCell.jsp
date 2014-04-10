@@ -1,8 +1,12 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <sec:authorize access="hasRole('su') or hasRole('ft')">
 <br />
-<a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<c:url value="/job/${job.getId()}/requests.do?onlyDisplayCellsRequested=true" />");' >View Lane Request</a>
-<a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/samples.do" />");' >Back To: Samples, Libraries &amp; Runs</a><br />
+<%--  TODO: Internationalize this!!!! --%>
+<a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${job.getId()}/requests.do?onlyDisplayCellsRequested=true" />");' >View Lane Request</a>
+<a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/samples.do" />");' >Back To: Samples, Libraries &amp; Runs</a><br />
 <br /><br />
 <form  method='post' name='addLibrariesToCell' id="addLibrariesToCellId" action="" 
 	onsubmit='	 
@@ -49,7 +53,7 @@
 					return false;
 				}	
 				 										
-				postFormWithAjax("addLibrariesToCellId", "<c:url value="/job/${job.getId()}/addLibrariesToCell.do" />"); 
+				postFormWithAjax("addLibrariesToCellId", "<wasp:relativeUrl value="job/${job.getId()}/addLibrariesToCell.do" />"); 
 				return false;' >
 
 <table class="data" style="margin: 0px 0px">
@@ -223,7 +227,7 @@
 										<c:choose>
 											<c:when test="${empty cellRunMap.get(cell)}">
 												<sec:authorize access="hasRole('su') or hasRole('ft')">
-													<a href="<c:url value="/${showPlatformunitViewMap.get(pu)}" />"><c:out value="${pu.getName()}" /></a>
+													<a href="<wasp:relativeUrl value="${showPlatformunitViewMap.get(pu)}" />"><c:out value="${pu.getName()}" /></a>
 												</sec:authorize>
 												<sec:authorize access="not hasRole('su') and not hasRole('ft')">
 													<c:out value="${pu.getName()}" />
@@ -231,7 +235,7 @@
 											</c:when>
 											<c:otherwise>
 												<sec:authorize access="hasRole('su') or hasRole('ft')">
-													<a href="<c:url value="/${showPlatformunitViewMap.get(pu)}" />"><c:out value="${run.getName()}" /></a>
+													<a href="<wasp:relativeUrl value="${showPlatformunitViewMap.get(pu)}" />"><c:out value="${run.getName()}" /></a>
 												</sec:authorize>
 												<sec:authorize access="not hasRole('su') and not hasRole('ft')">
 													<c:out value="${run.getName()}" />

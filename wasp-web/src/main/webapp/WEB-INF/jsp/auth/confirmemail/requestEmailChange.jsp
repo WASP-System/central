@@ -22,7 +22,7 @@
 		</tr>
 		<tr class="FormData">
 			<td class="CaptionTD"><fmt:message key="auth.confirmemail_captcha.label" />:</td>
-			<td class="DataTD"><img src="<c:url value='/stickyCaptchaImg.png'/>" alt="Captcha Image" /><br /><input class="FormElement ui-widget-content ui-corner-all" type='text' name='captcha_text'	value='<c:out value="${captcha_text}" default="" />' /><span class="requiredField">*</span></td>
+			<td class="DataTD"><img src="<wasp:relativeUrl value='/stickyCaptchaImg.png'/>" alt="Captcha Image" /><br /><input class="FormElement ui-widget-content ui-corner-all" type='text' name='captcha_text'	value='<c:out value="${captcha_text}" default="" />' /><span class="requiredField">*</span></td>
 		</tr>
 		<tr class="FormData">
 			<td colspan='2'  class="submitBottom"><input class="FormElement ui-widget-content ui-corner-all" name="submit" type="submit"	value='<fmt:message key="auth.requestEmailChange_submit.label" />' /></td>

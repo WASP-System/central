@@ -1,13 +1,14 @@
-<script type="text/javascript"	src="/wasp/scripts/jquery/jquery.cookie.js"></script>
+<%@ include file="/WEB-INF/jsp/taglib.jsp"%>
+<script type="text/javascript"	src="<wasp:relativeUrl value='scripts/jquery/jquery.cookie.js' />"></script>
 <script type="text/javascript"	src="https://rawgithub.com/rgrove/lazyload/master/lazyload.js"></script>
 <script type="text/javascript"	src="https://rawgithub.com/johnculviner/jquery.fileDownload/master/src/Scripts/jquery.fileDownload.js"></script>
 <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
 <script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/ext-all-dev.js"></script>
 <script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/packages/ext-theme-neptune/build/ext-theme-neptune.js"></script>
-<script type="text/javascript"	src="/wasp/scripts/extjs/wasp/WaspNamespaceDefinition.js"></script>
-<link rel="stylesheet" type="text/css" href="/wasp/css/ext-theme-neptune-all-wasp.css" />
-<link rel="stylesheet" type="text/css" href="/wasp/css/portal.css" />
-<link rel="stylesheet" type="text/css" href="/wasp/css/RowActions.css" />
+<script type="text/javascript"	src="<wasp:relativeUrl value='scripts/extjs/wasp/WaspNamespaceDefinition.js.jsp' />"></script>
+<link rel="stylesheet" type="text/css" href="<wasp:relativeUrl value='css/ext-theme-neptune-all-wasp.css' />" />
+<link rel="stylesheet" type="text/css" href="<wasp:relativeUrl value='css/portal.css' />" />
+<link rel="stylesheet" type="text/css" href="<wasp:relativeUrl value='css/RowActions.css' />" />
 
 
 <script type="text/javascript">
@@ -89,6 +90,17 @@ Ext.require([
 
 var extPortal;
 
+function checkForPageRedirect(responseText){
+	// if timeout of login a json request will fail and an html page containing the redirection location will be provided
+	// redirect current page to the provided url if so.
+	var re = new RegExp("window\.location=['\"](.+?)['\"]");
+  	var match = re.exec(responseText);
+  	if (match == null)
+  		return false;
+  	window.location=match[1];
+  	return true; // should never get here
+}
+
 Ext.onReady(function () {
 	extPortal = Ext.create('Wasp.Portal', {
 		width: $('#content').width()
@@ -109,7 +121,7 @@ Ext.onReady(function () {
 		.attr("class", "tooltip")
 		.style("opacity", 0);
 
-	d3.json("/wasp/jobresults/getTreeJson.do?node=" + rootstr, function (json) {
+	d3.json("<wasp:relativeUrl value='jobresults/getTreeJson.do?node=' />" + rootstr, function (json) {
 		vis = d3.select("#treeview").append("svg:svg")
 			.attr("width", treeviewWidth)
 			.attr("height", treeviewHeight)
@@ -184,14 +196,17 @@ function expandAll(d) {
 			return val;
 		});
 		$.ajax({
-			url: '/wasp/jobresults/getTreeJson.do?node=' + dstr,
+			url: '<wasp:relativeUrl value="jobresults/getTreeJson.do?node=" />' + dstr,
 			type: 'GET',
-			dataType: 'json',
-			success: function (result) {
-				if (result.children != '') {
-					d.children = result.children;
-				}
+			dataType: 'json'
+		})
+		.done(function (result) {
+			if (result.children != '') {
+				d.children = result.children;
 			}
+		})
+		.fail(function(jqXHR){
+			checkForPageRedirect(jqXHR.responseText);
 		});
 	}
 	if (d._children && d._children!="") {
@@ -428,10 +443,11 @@ function click(d) {
 	//var tabs = $('#mytabs').tabs({closable: true});
 
 	$.ajax({
-		url: '/wasp/jobresults/getDetailsJson.do?node=' + dstr,
+		url: '<wasp:relativeUrl value="jobresults/getDetailsJson.do?node=" />' + dstr,
 		type: 'GET',
-		dataType: 'json',
-		success: function (result) {
+		dataType: 'json'
+		})
+		.done(function (result) {
 
 			var tabpanel = Ext.getCmp('wasp-tabpanel');
 			if (tabpanel === undefined) {
@@ -444,9 +460,26 @@ function click(d) {
 				//remove all existing tabs from tabpanel first
 				tabpanel.removeAll();
 
-				var filePanel = Ext.create('Wasp.FileDownloadGridPortlet', {
-					fgListStr: result.fgliststr
-				});
+//				var filePanel = Ext.create('Wasp.FileDownloadGridPortlet', {
+//					fgListStr: result.fgliststr
+//				});
+				var fp = result.filepanel;
+				var filePanel = Ext.create('Wasp.GridPortlet', {
+								fields: fp.content.dataFields,
+								data: fp.content.data,
+								columns: fp.content.columns,
+								grouping: fp.grouping,
+								groupfield: fp.groupFieldName,
+								dlcol: fp.hasDownload,
+								dlcoltip: fp.downloadTooltip,
+								dllinkfld: fp.downloadLinkFieldName,
+								dlselect: fp.allowSelectDownload,
+								dlbtntxt: fp.selectDownloadText,
+								dlbtnalign: fp.selectDownloadAlign,
+								grpdl: fp.allowGroupDownload,
+								grpdltip: fp.groupDownloadTooltip,
+								grpdlalign: fp.groupDownloadAlign
+							});
 
 				//test
 				//$.fileDownload('http://phoenix.einstein.yu.edu:8080/wasp-file/get/file/c7d5237e-ab84-4837-a618-6ec17ac6add3');
@@ -467,11 +500,12 @@ function click(d) {
 						items: [{
 							//id: 'portlet-',
 							xtype: 'portlet',
-							title: 'File Download Panel',
+							title: fp.title,
 							//tools: extPortal.getTools(),
 							//frame: false,
-							closable: false,
-							collapsible: false,
+							closable: fp.isClosable,
+							collapsible: fp.isResizable,
+							maximizable: fp.isMaximizable,
 							draggable: false,
 							items: filePanel
 						}]
@@ -486,16 +520,18 @@ function click(d) {
 					cssList = new Array();
 				$.each(result.paneltablist, function (index, item) {
 					$.each(item.panels, function (index1, item1) {
-						for (var i = 0, len = item1.content.scriptDependencies.length; i < len; i++) {
-							if (jscssfilesadded.indexOf("[" + item1.content.scriptDependencies[i] + "]") == -1) { //if the file not been loaded before
-								jsList.push(item1.content.scriptDependencies[i]);
-								jscssfilesadded += "[" + item1.content.scriptDependencies[i] + "]";
+						if (item1.type=="WebPanel") {
+							for (var i = 0, len = item1.content.scriptDependencies.length; i < len; i++) {
+								if (jscssfilesadded.indexOf("[" + item1.content.scriptDependencies[i] + "]") == -1) { //if the file not been loaded before
+									jsList.push(item1.content.scriptDependencies[i]);
+									jscssfilesadded += "[" + item1.content.scriptDependencies[i] + "]";
+								}
 							}
-						}
-						for (var i = 0, len = item1.content.cssDependencies.length; i < len; i++) {
-							if (jscssfilesadded.indexOf("[" + item1.content.cssDependencies[i] + "]") == -1) { //if the file not been loaded before
-								cssList.push(item1.content.cssDependencies[i]);
-								jscssfilesadded += "[" + item1.content.cssDependencies[i] + "]";
+							for (var i = 0, len = item1.content.cssDependencies.length; i < len; i++) {
+								if (jscssfilesadded.indexOf("[" + item1.content.cssDependencies[i] + "]") == -1) { //if the file not been loaded before
+									cssList.push(item1.content.cssDependencies[i]);
+									jscssfilesadded += "[" + item1.content.cssDependencies[i] + "]";
+								}
 							}
 						}
 					});
@@ -510,6 +546,23 @@ function click(d) {
 								statusData: result.statuslist,
 								tabPanel: tabpanel
 							});
+//							var clmstr = '[{"text":"Price", "width":200, "dataIndex":"price"}]';
+//							var fldstr = '[{"name":"company", "type":"string"}, {"name":"price", "type":"float"}, "link", "glink"]';
+//							var datastr = '[["3m Co", 71.72, "http://google.com", "http://yahoo.com"], ["3m Co", 29.01, "http://nba.com", "http://yahoo.com"]]';
+//							summaryPanel = Ext.create('Wasp.GridPortlet', {
+//								fields: jQuery.parseJSON(fldstr),
+//								data: jQuery.parseJSON(datastr),
+//								columns: jQuery.parseJSON(clmstr),
+//								dlselect: true,
+//								grouping: true,
+//								groupfield: 'company',
+//								dlcol: true,
+//								dlcoltip: "website",
+//								dllinkfld: 'link',
+//								grpdl: true,
+//								grpdltip: "grpweb",
+//								grpdlalign: 'right'
+//							});
 						} else {
 							summaryPanel = {
 								html: '<div class="noPlugin">No registered plugins handle this data.</div>'
@@ -576,17 +629,47 @@ function click(d) {
 
 						var colid = 0;
 						$.each(item.panels, function (index1, item1) {
-							ptlcolArray[colid++].add({
-								title: item1.title,
-								tools: extPortal.getTools(),
-								closable: false,
-								html: item1.content.htmlCode,
-								listeners: {
-									'render': Ext.bind(new Function("portlet", item1.execOnRenderCode), extPortal),
-									'resize': Ext.bind(new Function("portlet", item1.execOnResizeCode), extPortal),
-									'expand': Ext.bind(new Function("portlet", item1.execOnExpandCode), extPortal)
-								}
-							});
+							if (item1.type=="WebPanel") {
+								ptlcolArray[colid++].add({
+									title: item1.title,
+									tools: extPortal.getTools(item1.isMaximizable),
+									closable: item1.isCloseable,
+									collapsible: item1.isResizable,
+									html: item1.content.htmlCode,
+									listeners: {
+										'render': Ext.bind(new Function("portlet", item1.execOnRenderCode), extPortal),
+										'resize': Ext.bind(new Function("portlet", item1.execOnResizeCode), extPortal),
+										'expand': Ext.bind(new Function("portlet", item1.execOnExpandCode), extPortal)
+									}
+								});
+							} else if (item1.type=="GridPanel") {
+								var gridPanel = Ext.create('Wasp.GridPortlet', {
+									fields: item1.content.dataFields,
+									data: item1.content.data,
+									columns: item1.content.columns,
+									grouping: item1.grouping,
+									groupfield: item1.groupField,
+									dlcol: item1.hasDownload,
+									dlcoltip: item1.downloadTooltip,
+									dllinkfld: item1.downloadLinkField,
+									dlselect: item1.allowSelectDownload,
+									dlbtntxt: item1.selectDownloadText,
+									dlbtnalign: item1.selectDownloadAlign,
+									grpdl: item1.allowGroupDownload,
+									grpdltip: item1.groupDownloadTooltip,
+									grpdlalign: item1.groupDownloadAlign,
+									statusfld: item1.statusField
+								});
+								
+								ptlcolArray[colid++].add({
+									title: item1.title,
+									tools: extPortal.getTools(item1.isMaximizable),
+									closable: item1.isCloseable,
+									collapsible: item1.isResizable,
+									
+									items: gridPanel
+								});
+							}
 							colid %= numcol;
 						});
 					});
@@ -617,21 +700,26 @@ function click(d) {
 			} else {
 				return;
 			}
-		}
-	});
+		})
+		.fail(function(jqXHR){
+			checkForPageRedirect(jqXHR.responseText);
+		});
 
 	if (!d.children && !d._children) {
 		$.ajax({
-			url: '/wasp/jobresults/getTreeJson.do?node=' + dstr,
+			url: '<wasp:relativeUrl value="jobresults/getTreeJson.do?node=" />' + dstr,
 			type: 'GET',
-			dataType: 'json',
-			success: function (result) {
+			dataType: 'json'
+			})
+			.done(function (result) {
 				if (result.children != '') {
 					d.children = result.children;
 					update(d);
 				}
-			}
-		});
+			})
+			.fail(function(jqXHR){
+				checkForPageRedirect(jqXHR.responseText);
+			});
 	}
 
 	toggle(d);

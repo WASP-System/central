@@ -1769,12 +1769,12 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			//curNode.put("type", "library");
 			
 			//get all cells associated with the library
-			List<SampleSource> cellLibraryList = sampleService.getCellLibrariesForLibrary(library);
-			if (!cellLibraryList.isEmpty()) {
+			int virtualCellIndex = -1; // these are virtual indexes so use negative integers to represent them
+			for (SampleSource cl : sampleService.getCellLibrariesForLibrary(library)){
 				Map<String,Object> childNode = new HashMap<>();
-				Sample cell = sampleService.getCell(cellLibraryList.get(0));	//only one possible cell for one library
+				Sample cell = sampleService.getCell(cl);
 				if (cell == null) // this can happen if a library is imported 
-					cell = getGenericCell();
+					cell = getVirtualCell(virtualCellIndex--);
 				childNode.put("name", "Cell: "+cell.getName());
 				childNode.put("myid", cell.getId());
 				childNode.put("type", "cell");
@@ -1785,14 +1785,15 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				children.add(childNode);
 			}
 
+
 			// add file type nodes to library
 			//dubin 3-21-14 WE DO NOT WANT THIS! (confirmed with AJ)     children.addAll(getFileNodesByLibrary(library, null));
 
 			curNode.put("children", children);
 		} else if (type.equalsIgnoreCase("cell")) {
 			// if the sample is a cell
-			Sample cell = getGenericCell();
-			if (id != 0) // will be 0 if a library is imported 
+			Sample cell = getVirtualCell(id);
+			if (id > 0) // will be < 0 if a library is imported (virtual cell used)
 				cell = sampleService.getSampleById(id);
 			Sample library = sampleService.getSampleById(pid);
 
@@ -1839,25 +1840,30 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		return curNode;
 	}
 	
-	private Sample getGenericCell(){
+	/**
+	 * indexes of virtual cell are negative integers to distinguish them from regular cell indexes
+	 * @param index
+	 * @return
+	 */
+	private Sample getVirtualCell(int index){
 		Sample cell = new Sample();
-		cell.setName("undefined cell");
-		cell.setId(0);
+		cell.setName("undefined cell " + index * -1);
+		cell.setId(index);
 		return cell;
 	}
 
 	private List<Map<String,Object>> getFileNodesByLibrary(Sample library, Sample cell) throws SampleTypeException {
 		List<Map<String,Object>> fileTypeNodes = new ArrayList<Map<String,Object>>();
-		Set<FileGroup> fgSet;
+		Set<FileGroup> fgSet = new LinkedHashSet<>();
 		if (cell == null) {
-			fgSet = library.getFileGroups();
+			fgSet.addAll(library.getFileGroups());
 		} else {
 			SampleSource cellLibrary;
-			if (cell.getId() == 0)
-				cellLibrary = sampleService.getCellLibrary(null, library); // cell is null if a library is imported 
+			if (cell.getId() < 0)
+				cellLibrary = sampleService.getCellLibrariesForLibrary(library).get((cell.getId() * -1) - 1); 
 			else
 				cellLibrary = sampleService.getCellLibrary(cell, library);  
-			fgSet = cellLibrary.getFileGroups();
+			fgSet.addAll(cellLibrary.getFileGroups());
 			logger.debug("fgSet size=" + fgSet.size());
 		}
 		Map<FileType, Set<FileGroup>> ftMap = new HashMap<FileType, Set<FileGroup>>();
@@ -2263,7 +2269,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	public void initiateAggregationAnalysisBatchJob(Job job){
 		Assert.assertParameterNotNull(job, "job cannot be null");
 		Assert.assertParameterNotNull(job.getId(), "job must be valid");
-		if (!isInDemoMode)
+		if (isInDemoMode)
 			throw new WaspRuntimeException("Cannot launch batch job for aggregation analysis in demo mode");
 		Map<String, String> jobParameters = new HashMap<String, String>();
 		jobParameters.put(WaspJobParameters.JOB_ID, job.getId().toString());
@@ -2296,6 +2302,8 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		String workflowIname = job.getWorkflow().getIName();
 		List<JobDataTabViewing> plugins = waspPluginRegistry.getPluginsHandlingArea(workflowIname, JobDataTabViewing.class);
 		Assert.assertTrue(plugins.size()==1 || plugins.size()==0);
+		if (plugins.isEmpty())
+			return null;
 		return plugins.get(0);
 	}
 
