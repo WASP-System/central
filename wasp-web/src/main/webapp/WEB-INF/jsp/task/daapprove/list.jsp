@@ -1,5 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <sec:authorize access="hasRole('da-*') or hasRole('su') or hasRole('ga-*') or hasRole('ft-*') or hasRole('fm-*')">
 <h1><fmt:message key="pageTitle.task/daapprove/list.label"/></h1>
 

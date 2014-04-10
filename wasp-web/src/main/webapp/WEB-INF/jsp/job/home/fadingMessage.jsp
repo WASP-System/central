@@ -1,5 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <c:if test="${ fn:length(successMessage)>0}"> <%-- not used now     fn:length(errorMessage)>0 || --%>
 	
 	<div id="fadingmessagediv" >

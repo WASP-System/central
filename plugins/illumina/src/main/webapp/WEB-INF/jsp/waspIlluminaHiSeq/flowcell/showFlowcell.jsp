@@ -8,6 +8,9 @@
 <h1><fmt:message key="pageTitle.waspIlluminaHiSeq/flowcell/showflowcell.label"/></h1>
  <c:out value="${runLocked}" />
 <div>
+
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <table class="EditTable ui-widget ui-widget-content">
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.typeOfPlatformUnit.label"/>:</td><td class="DataTD"><c:out value="${typeOfPlatformUnit}" /></td></tr>
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.barcodeName.label"/>:</td><td class="DataTD"><c:out value="${barcodeName}" /></td></tr>

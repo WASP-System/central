@@ -1,4 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <br />
 <title><fmt:message key="pageTitle.sampleDnaToLibrary/listJobSamples.label"/></title>
 <h1><fmt:message key="pageTitle.sampleDnaToLibrary/listJobSamples.label"/></h1>

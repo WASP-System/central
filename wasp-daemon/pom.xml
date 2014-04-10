@@ -185,6 +185,83 @@
 				</executions>
 			</plugin>
 			<plugin>
+			        <artifactId>maven-resources-plugin</artifactId>
+			        <executions>
+			          <execution>
+			            <id>copy-resources</id>
+			            <phase>prepare-package</phase>
+			            <goals>
+			              <goal>copy-resources</goal>
+			            </goals>
+			            <configuration>
+			              <outputDirectory>${project.build.directory}</outputDirectory>
+			              <resources>          
+			                <resource>
+			                  <directory>${basedir}/src/bin/</directory>
+			                  <filtering>true</filtering>
+			                  <includes>
+								<include>wasp-daemon</include>
+							  </includes>
+			                </resource>
+			              </resources>              
+			            </configuration>            
+			          </execution>
+			        </executions>
+			      </plugin>
+
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>exec-maven-plugin</artifactId>
+					<version>1.2.1</version>
+					<executions>
+					<execution>
+					<id>chmod</id>
+					<phase>package</phase>
+					<goals>
+						<goal>exec</goal>
+					</goals>
+					</execution>
+					</executions>
+					<configuration>
+						<executable>chmod</executable>
+						<arguments>
+							<argument>755</argument>
+							<argument>target/wasp-daemon</argument>
+						</arguments>
+					</configuration>
+				</plugin>
+
+			<plugin>
+				<groupId>com.google.code.maven-replacer-plugin</groupId>
+				<artifactId>replacer</artifactId>
+				<version>1.5.1</version>
+				<executions>
+					<execution>
+					<phase>package</phase>
+					<goals>
+						<goal>replace</goal>
+					</goals>                   
+					</execution>
+				</executions>
+				<configuration>
+					<file>target/wasp-daemon</file>
+					<replacements>
+						<replacement>
+							<token>CURRENTWASPVERSION</token>
+							<value>${project.version}</value>
+						</replacement> 
+						<replacement>
+							<token>TARGETFOLDER</token>
+							<value>${project.build.directory}</value>
+						</replacement>  
+						<replacement>
+							<token>CATALINA_HOME</token>
+							<value>${catalina.home}</value>
+						</replacement>         
+					</replacements>
+				</configuration>
+			</plugin>
+			<plugin>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<executions>
 					<execution>

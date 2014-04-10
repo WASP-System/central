@@ -14,6 +14,9 @@
    if these pages are displayed in a div of a wasp page, the next 7 link and script lines are not needed, 
    but if displayed in an iframe, they are needed 
 --%>
+
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
   <link rel="stylesheet" type="text/css" media="screen" href="<wasp:relativeUrl value='css/reset.css' />" />
   <link rel="stylesheet" type="text/css" href="<wasp:relativeUrl value='css/jquery/jquery-ui.css' />"/>
   <link rel="stylesheet" type="text/css" media="screen" href="<wasp:relativeUrl value='css/base.css' />" />

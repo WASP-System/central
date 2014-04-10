@@ -1,5 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
 <style>
 	.pageContainer {width:100%; overflow:hidden; }
 	.selectionLeft {float:left; width:44%; margin-right:0.2cm; overflow:auto;}

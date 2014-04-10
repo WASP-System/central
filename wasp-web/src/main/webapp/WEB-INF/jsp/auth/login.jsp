@@ -1,5 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp"%>
 
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <c:if test="${not empty param.error}">
 <script type="text/JavaScript">waspFade("waspErrorMessage", "<fmt:message key="auth.login_failed.error" />");</script>
 	

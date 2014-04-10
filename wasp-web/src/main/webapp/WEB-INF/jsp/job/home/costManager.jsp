@@ -1,5 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <c:import url="/WEB-INF/jsp/job/home/fadingMessage.jsp" />
 
 <c:if test="${viewerIsFacilityStaff==true}"><%--must use this if statement; we cannot use sec:authorize for this page since sometimes we arrive at this page via a callable() <sec:authorize access="hasRole('su') or hasRole('ft') or hasRole('da')">--%>

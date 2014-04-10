@@ -1,5 +1,8 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
+<%--  TODO: Internationalize this!!!! --%>
+<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+
 <title><fmt:message key="pageTitle.task/samplereceive/list.label"/></title>
 <h1><fmt:message key="task.samplereceive_title.label" /></h1>
 <table class="EditTable ui-widget ui-widget-content">
