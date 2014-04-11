@@ -4,7 +4,7 @@
 <%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
 <%--  TODO: Internationalize this!!!! --%>
 
-<a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/samples.do" />");' >Back To: Samples, Libraries &amp; Runs</a>
+<a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/samples.do" />");' ><fmt:message key="jobHomeLibraryDetailRW.backTo.label" /></a>
 <br /><br /><br />
 <form:form   cssClass="FormGrid" commandName="sample" method='post' name='editLibraryForm' id='editLibraryFormId' action="" >
 	<table class="EditTable ui-widget ui-widget-content">
@@ -24,7 +24,7 @@
 	    	<tr class="FormData">
 			    <td colspan="3" align="left" class="submitBottom">
 		        	<a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/library/${sample.getId()}/librarydetail_ro.do" />");' ><fmt:message key="sampledetail_rw.cancel.label" /></a>
-		        	<a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/library/${sample.getId()}/librarydetail_rw.do" />");' >Reset</a>
+		        	<a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/library/${sample.getId()}/librarydetail_rw.do" />");' ><fmt:message key="jobHomeLibraryDetailRW.reset.label" /></a>
 					<a class="button" href="javascript:void(0);"  onclick='postFormWithAjaxJson("editLibraryFormId","<wasp:relativeUrl value="job/${job.getId()}/library/${sample.getId()}/librarydetail.do" />"); return false;' ><fmt:message key="sampledetail_rw.save.label" /></a>	
 			    </td>
 			</tr>	    

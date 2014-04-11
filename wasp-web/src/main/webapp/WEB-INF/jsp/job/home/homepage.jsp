@@ -26,10 +26,6 @@
 	    <li><a id="samplesAnchor"  href="<wasp:relativeUrl value="job/${job.getId()}/samples.do" />" ><fmt:message key="jobHomeHomepage.samplesLibrariesRunsTab.label" /></a></li>
 		<li><a id="dataByTreeViewAnchor"  href="javascript:void(0);" onclick='window.location.href="<wasp:relativeUrl value="jobresults/treeview/job/${job.getId()}.do" />"; return false;' ><fmt:message key="jobHomeHomepage.dataTreeViewTab.label" /></a></li>
 		
-		<%-- will likely never be used
-		<li><a id="dataByRunsAnchor"  href="javascript:void(0);" onclick='loadIFrameAnotherWay(this, "<wasp:relativeUrl value="datadisplay/mps/jobs/${job.getId()}/runs.do" />");' >Data By Runs</a></li>
-		<li><a id="mpsResultsBySample"  href="<wasp:relativeUrl value="job/${job.getId()}/mpsResultsListedBySample.do" />" >Data By Samples</a></li>
-		<li><a id="aggregateAnalysisAnchor"  href="javascript:void(0);" onclick='alert("not yet implemented"); return false;' >Analysis</a></li>
-		--%>
+
 	</ul>
 </div>

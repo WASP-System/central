@@ -2370,24 +2370,6 @@ public class JobController extends WaspController {
 	}
 	
 	@Transactional
-	@RequestMapping(value="/{jobId}/mpsResultsListedBySample", method=RequestMethod.GET)
-	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-	  public String jobMpsResultsListedBySamplePage(@PathVariable("jobId") Integer jobId, 
-			  ModelMap m) throws SampleTypeException {
-			
-		Job job = jobService.getJobByJobId(jobId);
-		if(job.getId()==null){
-		   	logger.warn("Job unexpectedly not found");
-		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
-			return "job/home/message";
-		}
-		
-		getSampleLibraryRunData(job, m);
-		
-		return "job/home/mpsResultsListedBySample";
-	}
-	
-	@Transactional
 	@RequestMapping(value="/{jobId}/samples", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobSamplesPage(@PathVariable("jobId") Integer jobId, 
@@ -2557,6 +2539,7 @@ public class JobController extends WaspController {
 		  m.addAttribute("showPlatformunitViewMap", showPlatformunitViewMap); //for displaying web anchor link to platformunit
 		 
 		  //Next calculations ONLY NEEDED FOR mpsResultsListedBySample.jsp; do NOT remove this part please; needed for proper table display
+		  //HOWEVER, on 4-11-14, mpsResultsListedBySample.jsp was permanently removed
 		  //submittedObjectCellRowspan and submittedObjectCellRowspan
 		  //calculate the rowspans needed for the web, as the table display is rather complex, and determining these numbers is very hard to do at the web, as there are multiple dependencies. It is easier to perform here.
 		  Map<Sample, Integer> submittedObjectLibraryRowspan = new HashMap<Sample, Integer>();//number of libraries for each submitted Object (be it a submitted macromolecule or a submitted library)
