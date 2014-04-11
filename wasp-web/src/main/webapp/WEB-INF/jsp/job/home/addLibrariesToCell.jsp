@@ -5,15 +5,15 @@
 <sec:authorize access="hasRole('su') or hasRole('ft')">
 <br />
 <%--  TODO: Internationalize this!!!! --%>
-<a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${job.getId()}/requests.do?onlyDisplayCellsRequested=true" />");' >View Lane Request</a>
-<a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/samples.do" />");' >Back To: Samples, Libraries &amp; Runs</a><br />
+<a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${job.getId()}/requests.do?onlyDisplayCellsRequested=true" />");' ><fmt:message key="jobHomeAddLibrariesToCell.viewLaneRequest.label" /></a>
+<a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/samples.do" />");' ><fmt:message key="jobHomeAddLibrariesToCell.backTo.label" /></a><br />
 <br /><br />
 <form  method='post' name='addLibrariesToCell' id="addLibrariesToCellId" action="" 
 	onsubmit='	 
 				var s = document.getElementById("cellId"); 
 				var sVal = s.options[s.selectedIndex].value; 
 				if(sVal=="0" || sVal==""){
-					alert("Please select a cell"); s.focus(); return false; 
+					alert("<fmt:message key="jobHomeAddLibrariesToCell.pleaseSelectACell.label" />"); s.focus(); return false; 
 				} 
 				
 				var libConcInCellPicoMArray = [];				
@@ -28,28 +28,23 @@
 				for(var i = 0; i < libConcInCellPicoMArray.length; i++){
 					//alert("the value I typed in is " + libConcInCellPicoMArray[i].value);
 					if(libConcInCellPicoMArray[i].value != ""){
-						//alert("the value I typed in which is not blank is " + libConcInCellPicoMArray[i].value);
-						
-					 	if(libConcInCellPicoMArray[i].value.replace(/^\s+|\s+$/g, "") ==""){
-							//alert("the value I typed in which is not blank is but needs help is" + libConcInCellPicoMArray[i].value);
-						
+						if(libConcInCellPicoMArray[i].value.replace(/^\s+|\s+$/g, "") ==""){
 							libConcInCellPicoMArray[i].value = "";
 							continue;	 	 															
 						}
 						else{
 							var regExpr = new RegExp("^[0-9]+\.?[0-9]*$");//modified from http://stackoverflow.com/questions/469357/html-text-input-allow-only-numeric-input (modified example 14)
 								if (!regExpr.test(libConcInCellPicoMArray[i].value)) {
-									alert("Please provide a numeric value in the indicated textbox containing " + libConcInCellPicoMArray[i].value);
-						//libConcInCellPicoMArray[i].value = "";
-						libConcInCellPicoMArray[i].focus();
-						return false;
+									alert("<fmt:message key="jobHomeAddLibrariesToCell.pleaseProvideANumericValueInThe.label" />" + " " + libConcInCellPicoMArray[i].value);
+									libConcInCellPicoMArray[i].focus();
+									return false;
 								}
 							}
 							atLeastOneTextboxWithValidValue=true;	    														
 					}	 	 														
 				}
 				if(atLeastOneTextboxWithValidValue==false){
-					alert("You must provide a concentration for at least one library");
+					alert("<fmt:message key="jobHomeAddLibrariesToCell.youMustProvideAConcentration.label" />");
 					return false;
 				}	
 				 										
@@ -66,7 +61,7 @@
 	
 	<c:if test="${statusSubmittedObject.first}">
 	
-		<tr class="FormData"><td class="label-centered" colspan="3" style="background-color:#FAF2D6; white-space:nowrap;">Select A Cell &amp; Provide Concentration For One or More Libraries</td></tr>
+		<tr class="FormData"><td class="label-centered" colspan="3" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="jobHomeAddLibrariesToCell.selectCellAndProvideConcentration.label" /></td></tr>
 		<tr >
 			<td colspan="3" style="text-align:center; white-space:nowrap;" >
 			<br />
@@ -106,9 +101,9 @@
 			</td>
 		</tr>
 		<tr class="FormData">
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Macromolecule</td>
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Library</td>
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Runs</td>			
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="jobHomeAddLibrariesToCell.macromolecule.label" /></td>
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="jobHomeAddLibrariesToCell.library.label" /></td>
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="jobHomeAddLibrariesToCell.runs.label" /></td>			
 		</tr>	
 	</c:if>
 	
@@ -123,17 +118,15 @@
 	<c:set value="${fn:length(libraryList)}" var="sizeOfLibraryList"/>
 	
 	<tr>
-	<%-- 
-		<td class="DataTD"  style="text-align:center; white-space:nowrap;" rowspan="${submittedObjectLibraryRowspan.get(submittedObject)}"  style="text-align:center; white-space:nowrap;">
-	--%>
+	
 		<td class="DataTD"  style="text-align:center; white-space:nowrap;" rowspan="${sizeOfLibraryList==0?1:sizeOfLibraryList}"  style="text-align:center; white-space:nowrap;">
 			<c:choose>
 				<c:when test="${submittedMacromoleculeList.contains(submittedObject)}">
 					
-					<label>Name:</label> <c:out value="${submittedObject.getName()}" /><br />
-					<label>Type:</label> <c:out value="${submittedObject.getSampleType().getName()}"/><br />
-					<label>Species:</label> <c:out value="${submittedObjectOrganismMap.get(submittedObject)}" /><br />
-					<label>Arrival Status:</label> <c:out value="${receivedStatusMap.get(submittedObject)}" /><br />
+					<label><fmt:message key="jobHomeAddLibrariesToCell.name.label" />:</label> <c:out value="${submittedObject.getName()}" /><br />
+					<label><fmt:message key="jobHomeAddLibrariesToCell.type.label" />:</label> <c:out value="${submittedObject.getSampleType().getName()}"/><br />
+					<label><fmt:message key="jobHomeAddLibrariesToCell.species.label" />:</label> <c:out value="${submittedObjectOrganismMap.get(submittedObject)}" /><br />
+					<label><fmt:message key="jobHomeAddLibrariesToCell.arrivalStatus.label" />:</label> <c:out value="${receivedStatusMap.get(submittedObject)}" /><br />
 					<c:if test='${qcStatusMap.get(submittedObject) != "NONEXISTENT" && receivedStatusMap.get(submittedObject) == "RECEIVED"}'>
 						<label><fmt:message key="listJobSamples.qcStatus.label" /></label>: <c:out value="${qcStatusMap.get(submittedObject)}"/>
 						<c:set value="${qcStatusCommentsMap.get(submittedObject)}" var="metaMessageList" />
@@ -145,30 +138,30 @@
 					</c:if>					
 				</c:when>
 				<c:otherwise>
-					N/A
+					<fmt:message key="jobHomeAddLibrariesToCell.notApplicable.label" />
 				</c:otherwise>
 			</c:choose>
 		</td>
 		<c:choose>
 			<c:when test="${fn:length(libraryList)==0}">
-				<td class="DataTD" style="text-align:center; white-space:nowrap;">No libraries</td>
+				<td class="DataTD" style="text-align:center; white-space:nowrap;"><fmt:message key="jobHomeAddLibrariesToCell.noLibraries.label" /></td>
 				<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td>
 			</c:when>
 			<c:otherwise>
 				<c:forEach items="${libraryList}" var="library" varStatus="statusLibrary">
 					<c:if test="${!statusLibrary.first}"><tr></c:if>	
 						<td class="DataTD" style="text-align:center; white-space:nowrap;" rowspan="1">
-							<label>Name:</label> <c:out value="${library.getName()}" /><br />
-							<label>Type:</label> <c:out value="${library.getSampleType().getName()}" /><br />
+							<label><fmt:message key="jobHomeAddLibrariesToCell.name.label" />:</label> <c:out value="${library.getName()}" /><br />
+							<label><fmt:message key="jobHomeAddLibrariesToCell.type.label" />:</label> <c:out value="${library.getSampleType().getName()}" /><br />
 							<c:if test="${submittedLibraryList.contains(library)}">
-								<label>Species:</label> <c:out value="${submittedObjectOrganismMap.get(library)}" /><br />
+								<label><fmt:message key="jobHomeAddLibrariesToCell.species.label" />:</label> <c:out value="${submittedObjectOrganismMap.get(library)}" /><br />
 							</c:if>
 							<c:set value="${libraryAdaptorsetMap.get(library)}" var="adaptorSet"/>
-							<label>Adaptor:</label> <c:out value="${adaptorSet.getName()}" /> <br />
+							<label><fmt:message key="jobHomeAddLibrariesToCell.adaptor.label" />:</label> <c:out value="${adaptorSet.getName()}" /> <br />
 							 <c:set value="${libraryAdaptorMap.get(library)}" var="adaptor"/>
-							<label>Index:</label> <c:out value="${adaptor.getBarcodenumber()}" /> [<c:out value="${adaptor.getBarcodesequence()}" />]<br />
+							<label><fmt:message key="jobHomeAddLibrariesToCell.index.label" />:</label> <c:out value="${adaptor.getBarcodenumber()}" /> [<c:out value="${adaptor.getBarcodesequence()}" />]<br />
 							<c:if test="${not empty receivedStatusMap.get(library)}">
-								<label>Arrival Status:</label> <c:out value="${receivedStatusMap.get(library)}" /><br />
+								<label><fmt:message key="jobHomeAddLibrariesToCell.arrivalStatus.label" />:</label> <c:out value="${receivedStatusMap.get(library)}" /><br />
 							</c:if>
 							<c:if test='${submittedLibraryList.contains(library) && qcStatusMap.get(library) != "NONEXISTENT" && receivedStatusMap.get(library) == "RECEIVED"}'>
 								<label><fmt:message key="listJobSamples.qcStatus.label" /></label>: <c:out value="${qcStatusMap.get(library)}"/>
@@ -211,7 +204,7 @@
 			   					<c:choose>
 			   					<c:when test="${fn:length(cellList)==0}">
 			   						<br />
-			   						No Runs
+			   						<fmt:message key="jobHomeAddLibrariesToCell.noRuns.label" />
 			   					</c:when>
 			   					<c:otherwise>
 			   						<br />	
@@ -242,7 +235,7 @@
 												</sec:authorize>
 											</c:otherwise>
 										</c:choose>																				
-										(<c:out value="${pMLoaded}" /> pM; Lane <c:out value="${laneIndex}" />)											
+										(<c:out value="${pMLoaded}" /> <fmt:message key="jobHomeAddLibrariesToCell.picoMolar.label" />; <fmt:message key="jobHomeAddLibrariesToCell.lane.label" /> <c:out value="${laneIndex}" />)											
 										<br />
 			   						</c:forEach>
 			   					</c:otherwise>

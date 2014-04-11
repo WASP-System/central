@@ -179,7 +179,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		logger.debug("*****pngFileName = " + pngFileName);
 		
 		logger.debug("preparing to generate workunit in MacstwoGenerateModelAsPdfTasklet.doExecute()");
-		WorkUnit w = macs2.getModelPdf(modelScriptFileHandle, pngFileName);//configure
+		WorkUnit w = macs2.getModelPdf(modelScriptFileHandle, pdfFileName, pngFileName);//configure
 		logger.debug("OK, workunit has been generated in MacstwoGenerateModelAsPdfTasklet.doExecute()");
 		this.commandLineCall = w.getCommand();//not actually being used here
 		Assert.assertTrue(!this.commandLineCall.isEmpty());

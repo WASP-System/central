@@ -51,6 +51,20 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 	@Autowired
 	private RunService runService;
 	
+	public class SampleNameComparator implements Comparator<Sample> {
+	    @Override
+	    public int compare(Sample arg0, Sample arg1) {
+	        return arg0.getName().compareToIgnoreCase(arg1.getName());
+	    }
+	}
+	
+	public class FileTypeComparator implements Comparator<FileType> {
+	    @Override
+	    public int compare(FileType arg0, FileType arg1) {
+	        return arg0.getIName().compareToIgnoreCase(arg1.getIName());
+	    }
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -140,14 +154,16 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 		}
 		
 		//finally, order the controlSampleLists by controlSample.getName()
-		class SampleNameComparator1 implements Comparator<Sample> {
+		/* 
+		 class SampleNameComparator implements Comparator<Sample> {
 		    @Override
 		    public int compare(Sample arg0, Sample arg1) {
 		        return arg0.getName().compareToIgnoreCase(arg1.getName());
 		    }
 		}
+		*/
 		for(Sample testSample : testSampleControlSampleListMap.keySet()){
-		//	Collections.sort(testSampleControlSampleListMap.get(testSample), new SampleNameComparator1());
+			Collections.sort(testSampleControlSampleListMap.get(testSample), new SampleNameComparator());
 		}
 		return testSampleControlSampleListMap;
 	}
@@ -156,14 +172,16 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 		List<Sample> testSampleList = new ArrayList<Sample>();
 		for(Sample sample : testSampleControlSampleListMap.keySet()){
 			testSampleList.add(sample);
-		}		
-		class SampleNameComparator2 implements Comparator<Sample> {
+		}	
+		/*
+		class SampleNameComparator implements Comparator<Sample> {
 		    @Override
 		    public int compare(Sample arg0, Sample arg1) {
 		        return arg0.getName().compareToIgnoreCase(arg1.getName());
 		    }
 		}
-		//Collections.sort(testSampleList, new SampleNameComparator2());	//order list by sample name	
+		*/
+		Collections.sort(testSampleList, new SampleNameComparator());	//order list by sample name	
 		return testSampleList;		
 	}
 	
@@ -217,14 +235,16 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 		}
 		
 		//finally, order each LibraryList by library name
-		class SampleNameComparator3 implements Comparator<Sample> {
+		/*
+		class SampleNameComparator implements Comparator<Sample> {
 		    @Override
 		    public int compare(Sample arg0, Sample arg1) {
 		        return arg0.getName().compareToIgnoreCase(arg1.getName());
 		    }
 		}
+		*/
 		for(Sample testSample : sampleLibraryListMap.keySet()){
-		//	Collections.sort(sampleLibraryListMap.get(testSample), new SampleNameComparator3());	//order each list by sample name				
+			Collections.sort(sampleLibraryListMap.get(testSample), new SampleNameComparator());	//order each list by sample name				
 		}
 		return sampleLibraryListMap;
 	}
@@ -301,12 +321,14 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 			fileTypeSet.add(fg.getFileType());
 		}
 		orderedFileTypeList.addAll(fileTypeSet);//next, sort the list
+		/*
 		class FileTypeComparator implements Comparator<FileType> {
 		    @Override
 		    public int compare(FileType arg0, FileType arg1) {
 		        return arg0.getIName().compareToIgnoreCase(arg1.getIName());
 		    }
 		}
+		*/
 		Collections.sort(orderedFileTypeList, new FileTypeComparator());
 		
 		return orderedFileTypeList;		

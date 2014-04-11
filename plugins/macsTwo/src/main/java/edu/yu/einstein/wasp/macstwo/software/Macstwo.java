@@ -180,7 +180,7 @@ public class Macstwo extends SoftwarePackage{
 		logger.debug("----command has been set to workunit in getPeaks()");		
 		return w;
 	}
-	public WorkUnit getModelPdf(FileHandle modelScriptFileHandle, String pngFileName){//as of 33-25-14, also will generate a .png from the resulting .pdf
+	public WorkUnit getModelPdf(FileHandle modelScriptFileHandle, String pdfFileName, String pngFileName){//as of 33-25-14, also will generate a .png from the resulting .pdf
 		
 		Assert.assertTrue(modelScriptFileHandle != null);
 		
@@ -196,7 +196,8 @@ public class Macstwo extends SoftwarePackage{
 		
 		w.setCommand(command);
 		
-		String command2 = "convert ${" + WorkUnit.OUTPUT_FILE + "[0]} -append " + pngFileName;
+		//String command2 = "convert ${" + WorkUnit.OUTPUT_FILE + "[0]} -append " + pngFileName; //this fails; convert needs to see .pdf, we think
+		String command2 = "convert " +  pdfFileName + " -append " + pngFileName; //this may work; will test it now
 		logger.debug("---- And Will subsequently execute ImageMagick.convert to convert model.pdf to model.png using command: ");
 		logger.debug("---- "+command2);
 		
