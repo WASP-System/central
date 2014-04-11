@@ -4,8 +4,14 @@
 package edu.yu.einstein.wasp.filetype.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +48,8 @@ public abstract class FileTypeServiceImpl extends WaspServiceImpl implements Fil
 	private FileGroupDao fileGroupDao;
 	
 	private FileHandleMetaDao fileMetaDao;
+	
+	private static final String FILEGROUP_ATTRIBUTE_DELIMITER = "::";
 	
 	@Autowired
 	public void setFileMetaDao(FileHandleMetaDao fileMetaDao) {
@@ -101,6 +109,28 @@ public abstract class FileTypeServiceImpl extends WaspServiceImpl implements Fil
 		}
 		return v;
 	}
+	
+	protected Map<String,String> getAllMetaByArea(FileHandle f, String area) {
+	    Assert.assertParameterNotNull(f, "file cannot be null");
+	    Assert.assertParameterNotNull(area, "area cannot be null");
+            f = fileHandleDao.merge(f);
+            List<FileHandleMeta> fileMetaList = f.getFileHandleMeta();
+            if (fileMetaList == null)
+                fileMetaList = new ArrayList<FileHandleMeta>();
+            Map<String,String> result = MetaHelper.getKeyValueMap(area, fileMetaList);
+            return result;
+	}
+	
+	protected Map<String,String> getAllMetaByArea(FileGroup f, String area) {
+            Assert.assertParameterNotNull(f, "file group cannot be null");
+            Assert.assertParameterNotNull(area, "area cannot be null");
+            f = fileGroupDao.merge(f);
+            List<FileGroupMeta> fileMetaList = f.getFileGroupMeta();
+            if (fileMetaList == null)
+                fileMetaList = new ArrayList<FileGroupMeta>();
+            Map<String,String> result = MetaHelper.getKeyValueMap(area, fileMetaList);
+            return result;
+        }
 
 	protected void setMeta(FileHandle file, String area, String metaKey, String metaValue) throws MetadataException{
 		Assert.assertParameterNotNull(file, "file cannot be null");
@@ -125,5 +155,102 @@ public abstract class FileTypeServiceImpl extends WaspServiceImpl implements Fil
 		fileMeta.setV(metaValue);
 		fileGroupMetaDao.setMeta(fileMeta);
 	}
+	
+	private String setToString(Set<String> s) {
+	    String result = "";
+	    if (s.size() > 0) {
+		result = StringUtils.join(s, FILEGROUP_ATTRIBUTE_DELIMITER);
+	    }
+	    return result;
+	}
+	
+	private Set<String> stringToSet(String s) {
+	    Set<String> attributes = new HashSet<String>();
+	    if (s != null) {
+		attributes.addAll( new HashSet<String>(Arrays.asList(s.split(FILEGROUP_ATTRIBUTE_DELIMITER))));
+	    }
+	    return attributes;
+	}
+
+	@Override
+	public void addAttribute(FileGroup fg, String attribute) {
+	    String atts = getMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY);
+	    Set<String> attributes = stringToSet(atts);
+	    if (!attributes.contains(attribute)) {
+		attributes.add(attribute);
+		try {
+		    setMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY, setToString(attributes));
+		} catch (MetadataException e) {
+		    logger.error("unable to set metadata: " + e.getMessage());
+		}
+	    }
+	}
+
+	@Override
+	public void removeAttribute(FileGroup fg, String attribute) {
+	    String atts = getMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY);
+	    Set<String> attributes = stringToSet(atts);
+	    if (attributes.contains(attribute)) {
+		attributes.remove(attribute);
+		try {
+		    setMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY, setToString(attributes));
+		} catch (MetadataException e) {
+		    logger.error("unable to set metadata: " + e.getMessage());
+		}
+	    }
+	}
+
+	@Override
+	public void setAttributes(FileGroup fg, Set<String> attributes) {
+	    try {
+		setMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY, setToString(attributes));
+	    } catch (MetadataException e) {
+		logger.error("unable to set metadata: " + e.getMessage());
+	    }
+	    
+	}
+
+	@Override
+	public Set<String> getAttributes(FileGroup fg) {
+	    String atts = getMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY);
+	    Set<String> attributes = stringToSet(atts);
+	    return attributes;
+	}
+
+	@Override
+	public boolean hasAttributes(FileGroup fg, Set<String> attributes) {
+	    String atts = getMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY);
+	    Set<String> fgatts = stringToSet(atts);
+	    if (fgatts.containsAll(attributes)) return true;
+	    return false;
+	}
+
+	@Override
+	public boolean hasOnlyAttributes(FileGroup fg, Set<String> attributes) {
+	    String atts = getMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY);
+	    Set<String> fgatts = stringToSet(atts);
+	    if (fgatts.containsAll(attributes) && fgatts.size() == attributes.size()) return true;
+	    return false;
+	}
+
+    @Override
+    public void copyMetaByArea(FileGroup origin, FileGroup target, String area) throws MetadataException {
+        Map<String,String> meta = getAllMetaByArea(origin, area);
+        for (String k : meta.keySet()) {
+            setMeta(target, area, k, meta.get(k));
+        }
+        
+    }
+
+    @Override
+    public void copyMetaByArea(FileHandle origin, FileHandle target, String area) throws MetadataException {
+        Map<String,String> meta = getAllMetaByArea(origin, area);
+        for (String k : meta.keySet()) {
+            setMeta(target, area, k, meta.get(k));
+        }
+        
+    }
+	
+	
 	
 }
