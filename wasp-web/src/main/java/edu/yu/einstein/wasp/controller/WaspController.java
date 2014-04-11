@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -54,9 +55,6 @@ public class WaspController {
   @Value("${wasp.mode.isDemo:false}")
   protected boolean isInDemoMode;
   
-  @Value("${wasp.host.servletname:wasp}")
-  protected String servletName;
-
   @Autowired
   private DepartmentDao departmentDao;
     
@@ -84,12 +82,10 @@ public class WaspController {
     binder.setValidator(validator);
   }
   
-  protected void initializeSessionAttributes(){
-	  request.getSession().setAttribute("isInDemoMode", new Boolean(isInDemoMode));
-	  request.getSession().setAttribute("servletName", servletName);
+  protected String getServletPath(){
+	  return request.getContextPath();
   }
-
-
+  
   protected void prepareSelectListData(ModelMap m) {
     m.addAttribute("countries", Country.getList());
     m.addAttribute("states", State.getList());
