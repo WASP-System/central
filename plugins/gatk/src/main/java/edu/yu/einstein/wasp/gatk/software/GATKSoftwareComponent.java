@@ -59,11 +59,12 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		w.setProcessorRequirements(NUM_THREADS);
 
 		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
+		Build build = getGenomeBuild(cellLibrary);
 		
 		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt " + NUM_THREADS + 
-				" -I ${" + WorkUnit.INPUT_FILE + "} -R " + getGenomeIndexPath(getGenomeBuild(cellLibrary)) + 
-				"genome.fasta -T RealignerTargetCreator -o gatk.${" + WorkUnit.JOB_NAME + 
-				"}.realign.intervals -known /cork/jcai/GATK_bundle_2.2/1000G_phase1.indels.hg19.vcf -known /cork/jcai/GATK_bundle_2.2/Mills_and_1000G_gold_standard.indels.hg19.vcf";
+				" -I ${" + WorkUnit.INPUT_FILE + "} -R " + getReferenceGenomeFastaFile(build) + 
+				" -T RealignerTargetCreator -o gatk.${" + WorkUnit.JOB_NAME + 
+				"}.realign.intervals -known " + getReferenceIndelsVcfFile(build);
 		
 		logger.debug("Will conduct gatk create target for re-alignment with string: " + command);
 		
@@ -80,10 +81,11 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		w.setProcessMode(ProcessMode.SINGLE);
 		w.setMemoryRequirements(MEMORY_REQUIRED);
 		w.setWorkingDirectory(scratchDirectory);
+		Build build = getGenomeBuild(cellLibrary);
 
 		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -I ${" + WorkUnit.INPUT_FILE + "} -R " + 
-		getGenomeIndexPath(getGenomeBuild(cellLibrary)) + "genome.fasta -T  IndelRealigner -targetIntervals gatk." + namePrefix + 
-		".realign.intervals -o gatk.${" + WorkUnit.JOB_NAME + "}.realign.bam -known /cork/jcai/GATK_bundle_2.2/1000G_phase1.indels.hg19.vcf -known /cork/jcai/GATK_bundle_2.2/Mills_and_1000G_gold_standard.indels.hg19.vcf";
+				getReferenceGenomeFastaFile(build) + " -T  IndelRealigner -targetIntervals gatk." + namePrefix + 
+		".realign.intervals -o gatk.${" + WorkUnit.JOB_NAME + "}.realign.bam -known " + getReferenceIndelsVcfFile(build);
 		
 		logger.debug("Will conduct gatk local re-alignment with string: " + command);
 		
@@ -105,9 +107,10 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		w.setSecureResults(false);
 		
 		w.setWorkingDirectory(scratchDirectory);
+		Build build = getGenomeBuild(cellLibrary);
 
-		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + getGenomeIndexPath(getGenomeBuild(cellLibrary)) + 
-				"genome.fasta -knownSites /cork/jcai/GATK_bundle_2.2/dbsnp_137.hg19.vcf -I gatk." + namePrefix + 
+		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + getReferenceGenomeFastaFile(build) + 
+				"genome.fasta -knownSites " + getReferenceSnpsVcfFile(build) + " -I gatk." + namePrefix + 
 				".realign.bam -T BaseRecalibrator -o gatk.${" + WorkUnit.JOB_NAME + "}.recali.grp";
 
 		logger.debug("Will conduct gatk generating recalibrate table with command: " + command);
@@ -131,8 +134,9 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		w.setSecureResults(true);
 		
 		w.setWorkingDirectory(scratchDirectory);
+		Build build = getGenomeBuild(cellLibrary);
 
-		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + getGenomeIndexPath(getGenomeBuild(cellLibrary)) + 
+		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + getReferenceGenomeFastaFile(build) + 
 				"genome.fasta -I gatk." + namePrefix + ".realign.bam -T PrintReads -o ${" + WorkUnit.OUTPUT_FILE + "[0]}  -BQSR gatk." + namePrefix2 + 
 				".recali.grp -baq RECALCULATE";
 		logger.debug("Will conduct gatk recalibrate sequences with command: " + command);
@@ -181,8 +185,18 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return build;
 	}
 	
-	private String getGenomeIndexPath(Build build) {
-		String index = genomeService.getRemoteBuildPath(build) + "gatk/";
+	private String getReferenceGenomeFastaFile(Build build) {
+		String index = genomeService.getRemoteBuildPath(build) + "/" + build.getMetadata("fasta.folder") + "/" + build.getMetadata("fasta.fileName");
+		return index;
+	}
+	
+	private String getReferenceSnpsVcfFile(Build build) {
+		String index = genomeService.getRemoteBuildPath(build) + "/" + build.getMetadata("vcf.folder") + "/" + build.getMetadata("vcf.snps.fleName");
+		return index;
+	}
+	
+	private String getReferenceIndelsVcfFile(Build build) {
+		String index = genomeService.getRemoteBuildPath(build) + "/" + build.getMetadata("vcf.folder") + "/" + build.getMetadata("vcf.indels.fleName");
 		return index;
 	}
 
@@ -219,13 +233,14 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 			String key = opt.replace("gatk", "");
 			gatkOpts += " " + key + " " + jobParameters.get(opt).toString();
 		}
+		Build build = getGenomeBuild(cellLibrary);
 		Strategy strategy = strategyService.getThisJobsStrategy(StrategyType.LIBRARY_STRATEGY, sampleService.getJobOfLibraryOnCell(cellLibrary));
 		if (strategy.getStrategy().equals("WXS")) // whole exome seq
-			gatkOpts += " -L " + getGenomeIndexPath(getGenomeBuild(cellLibrary)) + "wes.interval_list";
-		String command = "java -Xmx" + MEMORY_REQUIRED + "g -Djava.io.tmpdir=/oxford/jcai/tmp -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt " + NUM_THREADS +
+			gatkOpts += " -L " + getReferenceGenomeFastaFile(build) + "wes.interval_list"; // TODO: where is this stored????
+		String command = "java -Xmx" + MEMORY_REQUIRED + "g -Djava.io.tmpdir=${" + WorkUnit.WORKING_DIRECTORY + "} -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt " + NUM_THREADS +
 		" `printf -- '%s\n' ${" + WorkUnit.INPUT_FILE + "[@]} | sed 's/^/-I /g' | tr '\n' ' '` -R " + 
-		getGenomeIndexPath(getGenomeBuild(cellLibrary)) + "genome.fasta -T UnifiedGenotyper -o gatk.${" + 
-		WorkUnit.JOB_NAME + "}.raw.vcf --dbsnp /cork/jcai/GATK_bundle_2.2/dbsnp_137.hg19.vcf" +
+		getReferenceGenomeFastaFile(build) + "genome.fasta -T UnifiedGenotyper -o gatk.${" + 
+		WorkUnit.JOB_NAME + "}.raw.vcf --dbsnp " + getReferenceSnpsVcfFile(build) + 
 		" -l INFO -stand_emit_conf 10.0 -baq CALCULATE_AS_NECESSARY" + gatkOpts +
 		" -dt BY_SAMPLE -G Standard -rf BadCigar -A Coverage -A MappingQualityRankSumTest" +
 		" -A FisherStrand -A InbreedingCoeff -A ReadPosRankSumTest -A QualByDepth -A HaplotypeScore -A RMSMappingQuality -glm BOTH";
@@ -238,7 +253,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return w;
 	}
 
-	public WorkUnit getHardFilter(SampleSource sampleSource, String scratchDirectory, String namePrefix) {
+	public WorkUnit getHardFilter(SampleSource cellLibrary, String scratchDirectory, String namePrefix) {
 		final int MEMORY_REQUIRED = 2; // in Gb
 		WorkUnit w = new WorkUnit();
 		
@@ -256,26 +271,26 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 
 		w.setWorkingDirectory(scratchDirectory);
 		
-		
-		
+		Build build = getGenomeBuild(cellLibrary);
+
 		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar --variant gatk." + namePrefix + ".raw.vcf -R " + 
-		getGenomeIndexPath(getGenomeBuild(sampleSource)) + "genome.fasta -T SelectVariants -o gatk.${" + 
+		getReferenceGenomeFastaFile(build) + "genome.fasta -T SelectVariants -o gatk.${" + 
 		WorkUnit.JOB_NAME + "}.raw_indel.vcf -selectType INDEL";
 		w.setCommand(command);
 
 		String command2 = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar --variant gatk." + namePrefix + ".raw.vcf -R " + 
-		getGenomeIndexPath(getGenomeBuild(sampleSource)) + "genome.fasta -T SelectVariants -o gatk.${" + 
+		getReferenceGenomeFastaFile(build) + "genome.fasta -T SelectVariants -o gatk.${" + 
 		WorkUnit.JOB_NAME + "}.raw_snp.vcf -selectType SNP";
 		w.addCommand(command2);
 		
 		String command3 = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar --variant gatk.${" + WorkUnit.JOB_NAME + "}.raw_indel.vcf -R " + 
-		getGenomeIndexPath(getGenomeBuild(sampleSource)) + "genome.fasta -T VariantFiltration -o gatk.${" + 
+		getReferenceGenomeFastaFile(build) + "genome.fasta -T VariantFiltration -o gatk.${" + 
 		WorkUnit.JOB_NAME + "}.hfilter_indel.vcf --filterName \"GATK_v4_indel_hfilter\" --filterExpression \"QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0\"";
 		w.addCommand(command3);
 					
 		
 		String command4 = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar --variant gatk.${" + WorkUnit.JOB_NAME + "}.raw_snp.vcf -R " + 
-		getGenomeIndexPath(getGenomeBuild(sampleSource)) + "genome.fasta -T VariantFiltration -o gatk.${" + 
+		getReferenceGenomeFastaFile(build) + "genome.fasta -T VariantFiltration -o gatk.${" + 
 		WorkUnit.JOB_NAME + "}.hfilter_snp.vcf --filterName \"GATK_v4_snp_hfilter\" --filterExpression \"QD < 2.0 || MQ < 40.0 || FS > 60.0 || HaplotypeScore > 13.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0\"";
 		w.addCommand(command4);
 							   
