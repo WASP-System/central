@@ -140,14 +140,14 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 		}
 		
 		//finally, order the controlSampleLists by controlSample.getName()
-		class SampleNameComparator1 implements Comparator<Sample> {
+		class SampleNameComparator implements Comparator<Sample> {
 		    @Override
 		    public int compare(Sample arg0, Sample arg1) {
 		        return arg0.getName().compareToIgnoreCase(arg1.getName());
 		    }
 		}
 		for(Sample testSample : testSampleControlSampleListMap.keySet()){
-			Collections.sort(testSampleControlSampleListMap.get(testSample), new SampleNameComparator1());
+			Collections.sort(testSampleControlSampleListMap.get(testSample), new SampleNameComparator());
 		}
 		return testSampleControlSampleListMap;
 	}
@@ -312,4 +312,5 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 		return orderedFileTypeList;		
 	}
 }
+
 
