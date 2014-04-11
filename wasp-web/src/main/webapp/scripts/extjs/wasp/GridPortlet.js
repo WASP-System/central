@@ -20,6 +20,9 @@ function mergeLinks(records, linkfield) {
 	return links;
 }
 
+var rowHeight = 30, gridHeaderHeight = 30;
+var minGridHeight = 200, maxGridHeight = 650;
+
 Ext.define('Wasp.GridPortlet', {
 	extend: 'Ext.grid.Panel',
 	alias: 'widget.gridportlet',
@@ -28,14 +31,14 @@ Ext.define('Wasp.GridPortlet', {
 	data: [],
 	columns: [],
 
-	height: 300,
+	height: minGridHeight,
 
 	grouping: false,
 	groupfield: '',
 	groupheader: '{name}',
 
-	dllinkfld: '',
 	dlcol: false,
+	dllinkfld: '',
 	dlcoltip: "Download",
 
 	dlselect: false,
@@ -44,9 +47,13 @@ Ext.define('Wasp.GridPortlet', {
 
 	grpdl: false,
 	grpdltip: "Download all",
-	grpdlalign: 'left',
+	grpdlalign: 'right',
 
 	statusfld: null,
+
+	gbucsccol: false,
+	gbucscfld: '',
+	gbucsctip: 'View in UCSC Genome Browser',
 
 	/**
 	 * Custom function used for column renderer
@@ -56,13 +63,25 @@ Ext.define('Wasp.GridPortlet', {
 		if (val.match(/complete/i) != null) {
 			return '<span style="color:green;">' + val + '</span>';
 		} else if (val.match(/start/i) != null) {
-			return '<span style="color:green;">' + val + '</span>';
+			return '<span style="color:blue;">' + val + '</span>';
+		} else if (val.match(/pending/i) != null) {
+			return '<span style="color:pink;">' + val + '</span>';
 		} else if (val.match(/unknown/i) != null) {
 			return '<span style="color:orange;">' + val + '</span>';
 		} else if (val.match(/fail/i) != null) {
 			return '<span style="color:red;">' + val + '</span>';
+		} else {
+			return '<span style="color:gold;">' + val + '</span>';
 		}
-		return val;
+	},
+
+	listeners: {
+		cellclick: function (view, td, cellIndex, record, tr, rowIndex, e, eOpts) {
+			//Ext.Msg.alert('Selected Record', 'td : ' + td + ' tr: ' + tr);
+		},
+		celldblclick: function (view, td, cellIndex, record, tr, rowIndex, e, eOpts) {
+			//Ext.Msg.alert('Selected Record', 'td : ' + td + ' tr: ' + tr);
+		}
 	},
 
 	initComponent: function () {
@@ -75,6 +94,8 @@ Ext.define('Wasp.GridPortlet', {
 			autoLoad: true,
 			data: this.data
 		});
+		
+		var rowCnt = myStore.getTotalCount();
 
 		if (this.grouping) {
 			myStore.groupField = this.groupfield;
@@ -86,20 +107,26 @@ Ext.define('Wasp.GridPortlet', {
 			Ext.apply(this, {
 				features: groupingFeature
 			});
+			
+			rowCnt += myStore.getGroups().length;
 		}
 
+		var actioncol = {
+			xtype: 'rowactions',
+			header: 'Actions',
+			minWidth: 80,
+			actions: [],
+			keepSelection: true
+		};
+		
 		if (this.dlcol && this.dllinkfld != '') {
-			var actioncol = {
-				xtype: 'rowactions',
-				actions: [{
-					iconCls: 'icon-clear-group',
-					qtip: this.dlcoltip,
-					callback: function (grid, record, action, idx, col, e, target) {
-						window.location = record.get(grid.dllinkfld);
-					}
-				}],
-				keepSelection: true
-			};
+			actioncol.actions.push({
+				iconCls: 'icon-clear-group',
+				qtip: this.dlcoltip,
+				callback: function (grid, record, action, idx, col, e, target) {
+					window.location = record.get(grid.dllinkfld);
+				}
+			});
 
 			if (this.grpdl) {
 				actioncol.groupActions = [{
@@ -113,8 +140,20 @@ Ext.define('Wasp.GridPortlet', {
 				}];
 			}
 
-			this.columns.push(actioncol);
 		}
+
+		if (this.gbucsccol && this.gbucscfld != '') {
+			actioncol.actions.push({
+				iconCls: 'icon-gb-ucsc',
+				qtip: this.gbucsctip,
+				callback: function (grid, record, action, idx, col, e, target) {
+					window.location = record.get(grid.gbucscfld);
+				}
+			});
+		}
+
+		if (actioncol.actions.length > 0)
+			this.columns.push(actioncol);
 
 		if (this.statusfld != null) {
 			this.columns.forEach(function (element, index, array) {
@@ -126,10 +165,13 @@ Ext.define('Wasp.GridPortlet', {
 			});
 		}
 
+		var gridHeight = rowCnt * rowHeight + gridHeaderHeight;
+		gridHeight = (gridHeight<minGridHeight) ? minGridHeight : gridHeight;
+		gridHeight = (gridHeight>maxGridHeight) ? maxGridHeight : gridHeight;
 		Ext.apply(this, {
 			store: myStore,
 			columns: this.columns,
-			height: this.height
+			height: gridHeight //this.height
 		});
 
 		if (this.dlselect && this.dllinkfld != '') {

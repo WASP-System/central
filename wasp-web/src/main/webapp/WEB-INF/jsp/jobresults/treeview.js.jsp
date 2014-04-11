@@ -88,6 +88,8 @@ Ext.require([
 	'Wasp.Portal'
 ]);
 
+Ext.override(Ext.grid.View, { enableTextSelection: true });
+
 var extPortal;
 
 function checkForPageRedirect(responseText){
@@ -468,17 +470,27 @@ function click(d) {
 								fields: fp.content.dataFields,
 								data: fp.content.data,
 								columns: fp.content.columns,
+								
 								grouping: fp.grouping,
-								groupfield: fp.groupFieldName,
+								groupfield: fp.groupField,
+								
 								dlcol: fp.hasDownload,
+								dllinkfld: fp.downloadLinkField,
 								dlcoltip: fp.downloadTooltip,
-								dllinkfld: fp.downloadLinkFieldName,
+								
 								dlselect: fp.allowSelectDownload,
 								dlbtntxt: fp.selectDownloadText,
 								dlbtnalign: fp.selectDownloadAlign,
+								
 								grpdl: fp.allowGroupDownload,
 								grpdltip: fp.groupDownloadTooltip,
-								grpdlalign: fp.groupDownloadAlign
+								grpdlalign: fp.groupDownloadAlign,
+								
+								statusfld: fp.statusField,
+
+								gbucsccol: fp.hasGbUcscLink,
+								gbucscfld: fp.gbUcscLinkField,
+								gbucsctip: fp.gbUcscTooltip
 							});
 
 				//test
@@ -647,18 +659,27 @@ function click(d) {
 									fields: item1.content.dataFields,
 									data: item1.content.data,
 									columns: item1.content.columns,
+
 									grouping: item1.grouping,
 									groupfield: item1.groupField,
+									
 									dlcol: item1.hasDownload,
-									dlcoltip: item1.downloadTooltip,
 									dllinkfld: item1.downloadLinkField,
+									dlcoltip: item1.downloadTooltip,
+									
 									dlselect: item1.allowSelectDownload,
 									dlbtntxt: item1.selectDownloadText,
 									dlbtnalign: item1.selectDownloadAlign,
+									
 									grpdl: item1.allowGroupDownload,
 									grpdltip: item1.groupDownloadTooltip,
 									grpdlalign: item1.groupDownloadAlign,
-									statusfld: item1.statusField
+									
+									statusfld: item1.statusField,
+
+									gbucsccol: item1.hasGbUcscLink,
+									gbucscfld: item1.gbUcscLinkField,
+									gbucsctip: item1.gbUcscTooltip
 								});
 								
 								ptlcolArray[colid++].add({
