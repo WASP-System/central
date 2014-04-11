@@ -140,14 +140,14 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 		}
 		
 		//finally, order the controlSampleLists by controlSample.getName()
-		class SampleNameComparator implements Comparator<Sample> {
+		class SampleNameComparator1 implements Comparator<Sample> {
 		    @Override
 		    public int compare(Sample arg0, Sample arg1) {
 		        return arg0.getName().compareToIgnoreCase(arg1.getName());
 		    }
 		}
 		for(Sample testSample : testSampleControlSampleListMap.keySet()){
-			//Collections.sort(testSampleControlSampleListMap.get(testSample), new SampleNameComparator());
+			Collections.sort(testSampleControlSampleListMap.get(testSample), new SampleNameComparator1());
 		}
 		return testSampleControlSampleListMap;
 	}
@@ -157,13 +157,13 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 		for(Sample sample : testSampleControlSampleListMap.keySet()){
 			testSampleList.add(sample);
 		}		
-		class SampleNameComparator implements Comparator<Sample> {
+		class SampleNameComparator2 implements Comparator<Sample> {
 		    @Override
 		    public int compare(Sample arg0, Sample arg1) {
 		        return arg0.getName().compareToIgnoreCase(arg1.getName());
 		    }
 		}
-		//Collections.sort(testSampleList, new SampleNameComparator());	//order list by sample name	
+		Collections.sort(testSampleList, new SampleNameComparator2());	//order list by sample name	
 		return testSampleList;		
 	}
 	
@@ -217,14 +217,14 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 		}
 		
 		//finally, order each LibraryList by library name
-		class SampleNameComparator implements Comparator<Sample> {
+		class SampleNameComparator3 implements Comparator<Sample> {
 		    @Override
 		    public int compare(Sample arg0, Sample arg1) {
 		        return arg0.getName().compareToIgnoreCase(arg1.getName());
 		    }
 		}
 		for(Sample testSample : sampleLibraryListMap.keySet()){
-			//Collections.sort(sampleLibraryListMap.get(testSample), new SampleNameComparator());	//order each list by sample name				
+			Collections.sort(sampleLibraryListMap.get(testSample), new SampleNameComparator3());	//order each list by sample name				
 		}
 		return sampleLibraryListMap;
 	}
