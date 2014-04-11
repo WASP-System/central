@@ -264,7 +264,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 	 */
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution) {
-		return stepExecution.getExitStatus();
+		return super.afterStep(stepExecution);
 	}
 
 	/** 
@@ -272,7 +272,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 	 */
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
-		
+		super.beforeStep(stepExecution);
 		logger.debug("StepExecutionListener beforeStep saving StepExecution in MacstwoGenerateModelAsPdfTasklet");
 		this.stepExecution = stepExecution;				
 		//JobExecution jobExecution = stepExecution.getJobExecution();
