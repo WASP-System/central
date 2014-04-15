@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections.map.HashedMap;
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.MetadataRuntimeException;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.SampleDraft;
@@ -27,7 +27,6 @@ import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobDraftService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
-import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.variantcalling.service.VariantcallingService;
 
 @Service
@@ -43,6 +42,10 @@ public class VariantcallingServiceImpl extends WaspServiceImpl implements Varian
 	@Autowired
 	@Qualifier("variantcallingPluginArea")
 	protected String variantcallingPluginArea;
+	
+	private String getIntervalFileMetaKey(){
+		return variantcallingPluginArea + "." + "wxsIntervalFiles";
+	}
 		
 	/**
 	 * {@inheritDoc}
@@ -88,14 +91,16 @@ public class VariantcallingServiceImpl extends WaspServiceImpl implements Varian
 	@Override
 	public Map<String, String> getSavedWxsIntervalFilesByBuild(JobDraft jobDraft){
 		Map<String, String> intervalFilesByBuild = new HashMap<>();
-		try {
-			String intervalFileString = MetaHelper.getMetaValue(variantcallingPluginArea, "wxsIntervalFiles", jobDraft.getJobDraftMeta());
-			for (String s : intervalFileString.split(";")){
-				String[] elements = s.split("=");
-				intervalFilesByBuild.put(elements[0], elements[1]);
-			}
-		} catch (MetadataException e) {
-			logger.debug(e.getMessage());
+		JobDraftMeta intervalFileMeta = jobDraftService.getJobDraftMetaDao().getJobDraftMetaByKJobDraftId(getIntervalFileMetaKey(), jobDraft.getId());
+		if (intervalFileMeta == null || intervalFileMeta.getId() == null){
+			logger.debug("Cannot find an existing intervalFile JobDraft metadata entry");
+			return intervalFilesByBuild;
+		}
+		logger.debug("Found intervalFileString=" + intervalFileMeta.getV());
+		for (String s : intervalFileMeta.getV().split(";")){
+			String[] elements = s.split("=");
+			logger.debug("intervalFilesByBuild: " + elements[0] + "->" + elements[1]);
+			intervalFilesByBuild.put(elements[0], elements[1]);
 		}
 		return intervalFilesByBuild;
 	}
@@ -110,8 +115,11 @@ public class VariantcallingServiceImpl extends WaspServiceImpl implements Varian
 	public void saveWxsIntervalFile(JobDraft jobDraft, Build build, String filePath){
 		String buildString = genomeService.getDelimitedParameterString(build);
 		Map<String, String> intervalFilesByBuild = getSavedWxsIntervalFilesByBuild(jobDraft);
-		if (intervalFilesByBuild.containsKey(buildString) && intervalFilesByBuild.get(buildString).equals(filePath))
+		if (intervalFilesByBuild.containsKey(buildString) && intervalFilesByBuild.get(buildString).equals(filePath)){
+			logger.debug("Not going to save as intervalFilesByBuild contains: " + buildString + "->" + filePath);
 			return;
+		}
+		logger.debug("adding to intervalFilesByBuild: " + buildString + "->" + filePath);
 		intervalFilesByBuild.put(buildString, filePath);
 		String storeString = "";
 		for (String key : intervalFilesByBuild.keySet())
@@ -119,9 +127,13 @@ public class VariantcallingServiceImpl extends WaspServiceImpl implements Varian
 		storeString = StringUtils.trimTrailingCharacter(storeString, ';');
 		JobDraftMeta jdm = new JobDraftMeta();
 		jdm.setJobDraft(jobDraft);
-		jdm.setK(variantcallingPluginArea + "." + "wxsIntervalFiles");
+		jdm.setK(getIntervalFileMetaKey());
 		jdm.setV(storeString);
-		jobDraftService.getJobDraftMetaDao().save(jdm);
+		try {
+			jobDraftService.getJobDraftMetaDao().setMeta(jdm);
+		} catch (MetadataException e) {
+			throw new MetadataRuntimeException(e);
+		}
 	}
 
 

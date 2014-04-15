@@ -10,7 +10,6 @@ import java.util.TreeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +25,6 @@ import edu.yu.einstein.wasp.service.StrategyService;
 import edu.yu.einstein.wasp.variantcalling.service.VariantcallingService;
 
 @Controller
-@Transactional
 @RequestMapping("/jobsubmit/variantcalling")
 public class VariantcallingJobSubmissionController extends JobSubmissionController {
 
@@ -83,17 +81,16 @@ public class VariantcallingJobSubmissionController extends JobSubmissionControll
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 		
-		if (!strategyService.getThisJobDraftsStrategy(StrategyType.LIBRARY_STRATEGY, jobDraft).equals(strategyService.getStrategyByKey("WXS")))
-			return nextPage(jobDraft);
-		
 		Map<String, String> formErrors = new HashMap<>();
 		for (Build b : variantcallingService.getBuildsForJobDraft(jobDraft)){
 			String buildString = genomeService.getDelimitedParameterString(b);
 			String filePath = request.getParameter(buildString);
+			logger.debug("processing filePath '" + filePath + "' for buildstring '" + buildString + "'");
 			if (filePath == null || filePath.isEmpty()){
 				formErrors.put(buildString, "variantcalling.intervalSelectionForm.error");
 				continue;
 			}
+			logger.debug("saving filePath '" + filePath + "' for buildstring '" + buildString + "'");
 			variantcallingService.saveWxsIntervalFile(jobDraft, b, filePath);
 		} 
 	    if (!formErrors.isEmpty()){

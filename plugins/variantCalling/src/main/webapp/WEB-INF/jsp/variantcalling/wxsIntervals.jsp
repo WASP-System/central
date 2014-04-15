@@ -13,8 +13,8 @@
 </div>
 
 
-<form method="POST" >
-<table class="data">
+<form method="POST" class="FormGrid">
+<table class="EditTable ui-widget ui-widget-content">
 	 <tr>
 	 	<th><fmt:message key="variantcalling.buildTitle.label" /></th><th><fmt:message key="variantcalling.intervalFileSelection.label" /></th><c:if test="${not empty formErrors}" ><th></th></c:if>
 	 </tr>
@@ -24,7 +24,7 @@
 		<tr class="FormData">
 			<td class="CaptionTD"><c:out value="${buildHeadings.get(buildString)}" /></td>
 			<td class="DataTD">
-	    		<select class="FormElement ui-widget-content ui-corner-all" name="<c:out value="${buildHeadings.get(buildString)}" />" id="<c:out value="${buildHeadings.get(buildString)}" />" class="FormElement ui-widget-content ui-corner-all">
+	    		<select class="FormElement ui-widget-content ui-corner-all" name="<c:out value="${buildString}" />" id="<c:out value="${buildString}" />" >
 					<c:if test= "${fn:length(intervalFiles) > 1}">
 						<option value=''><fmt:message key="wasp.default_select.label"/></option>
 					</c:if>
@@ -42,6 +42,7 @@
 		</tr>	
 	</c:forEach> 
 </table>
+
 
 <div class="submit">
     <input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<wasp:relativeUrl value="dashboard.do"/>'" /> 

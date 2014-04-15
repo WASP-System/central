@@ -18,7 +18,7 @@
 				
 			    <%-- this tag will define selectItems/itemValue/itemLabel request attributes --%>
 			    <wasp:metaSelect control="${_meta.property.control}"/>
-       			<select class="FormElement ui-widget-content ui-corner-all" name="${_area}Meta_${_meta.k}" id="${id}" class="FormElement ui-widget-content ui-corner-all">
+       			<select class="FormElement ui-widget-content ui-corner-all" name="${_area}Meta_${_meta.k}" id="${id}">
 					<c:if test= "${fn:length(selectItems) > 1 && _meta.property.formVisibility != 'immutable'}">
 						<option value=''><fmt:message key="wasp.default_select.label"/></option>
 					</c:if>
