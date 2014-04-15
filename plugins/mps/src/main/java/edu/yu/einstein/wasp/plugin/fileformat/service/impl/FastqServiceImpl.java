@@ -136,6 +136,17 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 		return fq;
 	}
 	
+	@Override
+	public void copyFastqFileGroupMetadata(FileGroup origin, FileGroup target) throws MetadataException {
+	    this.copyMetaByArea(origin, target, FILE_AREA);
+	}
+
+	@Override
+	public void copyFastqFileHandleMetadata(FileHandle origin, FileHandle target) throws MetadataException {
+	    this.copyMetaByArea(origin, target, FILE_AREA);	    
+	}
+
+	
 	
 
 }

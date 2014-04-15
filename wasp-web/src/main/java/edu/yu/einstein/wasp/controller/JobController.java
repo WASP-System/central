@@ -601,12 +601,12 @@ public class JobController extends WaspController {
 				String currentStatus = jobService.getJobStatus(job);
 				String jobStatusComment = jobService.getJobStatusComment(job);
 				if (jobStatusComment != null)
-					currentStatus += Tooltip.getCommentHtmlString(jobStatusComment, servletName);
+					currentStatus += Tooltip.getCommentHtmlString(jobStatusComment, getServletPath());
 				
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
-							//"J" + job.getJobId().intValue() + " (<a href=/" + servletName + "/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>details</a>)",
-							// this is the link to the old job homepage "<a href=/" + servletName + "/sampleDnaToLibrary/listJobSamples/"+job.getId()+".do>J"+job.getId().intValue()+"</a>",
-							"<a href=/" + servletName + "/job/"+job.getId()+"/homepage.do>J"+job.getId().intValue()+"</a>",
+							//"J" + job.getJobId().intValue() + " (<a href=" + getServletPath() + "/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>details</a>)",
+							// this is the link to the old job homepage "<a href=" + getServletPath() + "/sampleDnaToLibrary/listJobSamples/"+job.getId()+".do>J"+job.getId().intValue()+"</a>",
+							"<a href=" + getServletPath() + "/job/"+job.getId()+"/homepage.do>J"+job.getId().intValue()+"</a>",
 							job.getName(),
 							user.getNameFstLst(),
 							//job.getLab().getName() + " (" + pi.getNameLstCmFst() + ")",
@@ -615,9 +615,9 @@ public class JobController extends WaspController {
 							//String.format("%.2f", amount),
 							quoteAsString,
 							currentStatus,
-							//"<a href=/" + servletName + "/"+job.getWorkflow().getIName()+"/viewfiles/"+job.getJobId()+".do>View files</a>"
-							//"<a href=/" + servletName + "/jobresults/treeview.do?id="+job.getJobId()+"&type=job>View Results</a>"
-							"<a href=/" + servletName + "/jobresults/treeview/job/"+job.getId()+".do>Browse Data</a>"
+							//"<a href=" + getServletPath() + "/"+job.getWorkflow().getIName()+"/viewfiles/"+job.getJobId()+".do>View files</a>"
+							//"<a href=" + getServletPath() + "/jobresults/treeview.do?id="+job.getJobId()+"&type=job>View Results</a>"
+							"<a href=" + getServletPath() + "/jobresults/treeview/job/"+job.getId()+".do>Browse Data</a>"
 				}));
 				 
 				for (JobMeta meta:jobMeta) {
@@ -683,7 +683,7 @@ public class JobController extends WaspController {
 				List<String> cellList = new ArrayList<String>(
 						Arrays.asList(
 								new String[] {
-										"<a href=/" + servletName + "/sample/list.do?selId=" 
+										"<a href=" + getServletPath() + "/sample/list.do?selId=" 
 										+ sample.getSampleId().intValue() + ">" + 
 										sample.getName() + "</a>",
 										sample.getSampleType().getName(),

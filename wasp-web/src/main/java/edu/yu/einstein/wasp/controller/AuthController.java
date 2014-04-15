@@ -97,13 +97,11 @@ public class AuthController extends WaspController {
 					  logger.debug("target URL is provided so setting session variable for target = " + targetURL);
 					  request.getSession().setAttribute(TARGET_URL_KEY, targetURL); 
 				  }
-				  initializeSessionAttributes();
 				  return "auth/loginReferralPage";
 			  } else if (targetURL.toLowerCase().contains("json.do")){
 				  // to messy to decide where to go so default to dashboard
 				  request.getSession().setAttribute(LOGIN_EXPIRED_WARNING_KEY, "auth.redirectDataNotSaved.label");
 				  logger.debug("target URL is not suitable for redirection");
-				  initializeSessionAttributes();
 				  return "auth/loginReferralPage";
 			  }
 			  logger.debug("target URL is provided so setting session variable for target = " + targetURL);
@@ -116,7 +114,6 @@ public class AuthController extends WaspController {
   @RequestMapping(value="/login", method=RequestMethod.GET)
   public String login(ModelMap m){
 	  // this is our entry point when starting up so save some session attributes here
-	  initializeSessionAttributes();
 	  logger.info("Setting 'isInDemoMode' session attribute to: " + Boolean.toString(isInDemoMode));
 	  if (isInDemoMode && (demoEmail == null || demoEmail.getDemoEmail().isEmpty()) )
 		  return "redirect:/auth/getEmailForDemo.do";
@@ -473,7 +470,6 @@ public class AuthController extends WaspController {
   @RequestMapping("/reauth")
   public String reauth(ModelMap m) {
     doReauth();
-    initializeSessionAttributes();
     return "redirect:/dashboard.do";
   }
   

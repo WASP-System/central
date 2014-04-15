@@ -433,7 +433,7 @@ public class ResourceController extends WaspController {
 			int j = 0;
 			for (Run run : runs) {
 				text = run.getId() == null ? "No Runs"
-						: "<a href=/" + servletName + "/" + sampleService.getPlatformunitViewLink(run.getPlatformUnit()) + ">"
+						: "<a href=" + getServletPath() + "/" + sampleService.getPlatformunitViewLink(run.getPlatformUnit()) + ">"
 								+ run.getName() + "</a>";
 				mtrx[j] = text;
 

@@ -407,11 +407,11 @@ public class JQFieldTag extends BodyTagSupport {
 	
 			if ("true".equals(this.showLink)) {
 				// Set baseLinkURL and idName as default if they are not presented
-				String servletName = (String) pageContext.getSession().getAttribute("servletName");
+				String servletPath = pageContext.getServletContext().getContextPath();
 				if (this.baseLinkURL==null || this.baseLinkURL.isEmpty())
-					this.baseLinkURL = "/" + servletName + "/" + area + "/list.do";
+					this.baseLinkURL = servletPath + "/" + area + "/list.do";
 				else 
-					this.baseLinkURL = "/" + servletName + "/" + baseLinkURL;
+					this.baseLinkURL = servletPath + "/" + baseLinkURL;
 				if (this.idName==null || this.idName.isEmpty())
 					this.idName = "selId";
 				if (this.idCol==null || this.idCol.isEmpty())
