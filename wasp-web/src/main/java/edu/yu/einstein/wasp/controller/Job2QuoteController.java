@@ -28,9 +28,6 @@ import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.dao.AcctQuoteDao;
 import edu.yu.einstein.wasp.dao.AcctQuoteMetaDao;
 import edu.yu.einstein.wasp.dao.LabDao;
-import edu.yu.einstein.wasp.exception.MetadataException;
-import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
-import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.Job;
@@ -327,13 +324,13 @@ public class Job2QuoteController extends WaspController {
 			String currentStatus = jobService.getJobStatus(item);
 			String jobStatusComment = jobService.getJobStatusComment(item);//this is really ONLY a comment if the job was rejected by fm, pi, or da
 			if (jobStatusComment != null)
-				currentStatus += Tooltip.getCommentHtmlString(jobStatusComment, servletName);
+				currentStatus += Tooltip.getCommentHtmlString(jobStatusComment, getServletPath());
 			
 			List<String> cellList = new ArrayList<String>(
 				Arrays.asList(new String[] { 
-					//"J"+item.getId().intValue() + " (<a href=/" + servletName + "/sampleDnaToLibrary/listJobSamples/"+item.getId()+".do>details</a>) " + "<span style='color:red;font-size:11px;font-weight:bold;'>"+ noteAboutNeedingQuote+"</span>",
-					//"J"+item.getId().intValue() + " (<a href=/" + servletName + "/sampleDnaToLibrary/listJobSamples/"+item.getId()+".do>details</a>)",
-					"<a href=/" + servletName + "/job/"+item.getId()+"/homepage.do#ui-tabs-2>J"+item.getId().intValue()+"</a>",
+					//"J"+item.getId().intValue() + " (<a href=" + getServletPath() + "/sampleDnaToLibrary/listJobSamples/"+item.getId()+".do>details</a>) " + "<span style='color:red;font-size:11px;font-weight:bold;'>"+ noteAboutNeedingQuote+"</span>",
+					//"J"+item.getId().intValue() + " (<a href=" + getServletPath() + "/sampleDnaToLibrary/listJobSamples/"+item.getId()+".do>details</a>)",
+					"<a href=" + getServletPath() + "/job/"+item.getId()+"/homepage.do#ui-tabs-2>J"+item.getId().intValue()+"</a>",
 					currentStatus,
 					item.getName(),
 					//String.format("%.2f", amount),

@@ -390,7 +390,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	 */
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution) {
-		return stepExecution.getExitStatus();
+		return super.afterStep(stepExecution);
 	}
 
 	/** 
@@ -398,7 +398,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	 */
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
-		
+		super.beforeStep(stepExecution);
 		logger.debug("*****  StepExecutionListener beforeStep saving StepExecution in MacstwoTasklet.beforeStep");
 		this.stepExecution = stepExecution;				
 		//JobExecution jobExecution = stepExecution.getJobExecution();

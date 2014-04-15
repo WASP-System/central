@@ -356,7 +356,7 @@ public class SampleController extends WaspController {
 						jobSample.getSample().getName(),
 						jobSample.getSample().getSampleType().getName(),
 						jobSample.getSample().getSampleSubtype().getName(),
-						"<a href=/" + servletName + "/sampleDnaToLibrary/listJobSamples/"+jobSample.getJobId()+".do>J"+jobSample.getJobId().intValue() +"</a>",
+						"<a href=" + getServletPath() + "/sampleDnaToLibrary/listJobSamples/"+jobSample.getJobId()+".do>J"+jobSample.getJobId().intValue() +"</a>",
 						jobSample.getJob().getUser().getFirstName() + " " + jobSample.getJob().getUser().getLastName(),
 						jobSample.getJob().getLab().getUser().getFirstName() + " " + jobSample.getJob().getLab().getUser().getLastName(),
 						" ",

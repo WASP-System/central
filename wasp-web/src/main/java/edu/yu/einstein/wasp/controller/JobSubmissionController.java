@@ -422,7 +422,7 @@ public class JobSubmissionController extends WaspController {
 				User user = userDao.getById(item.getUserId());
 				 					
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
-							"<a href='/" + servletName + "/jobsubmit/modify/"+item.getId()+".do'>"+item.getName()+"</a>",
+							"<a href='" + getServletPath() + "/jobsubmit/modify/"+item.getId()+".do'>"+item.getName()+"</a>",
 							user.getNameFstLst(),
 							item.getLab().getName(),
 							item.getLastUpdatedByUser().getNameFstLst(),

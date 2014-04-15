@@ -498,5 +498,10 @@
     			<artifactId>com.springsource.com.lowagie.text</artifactId>
     		<version>5.4.0</version>
 		</dependency>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-redis</artifactId>
+				<version>1.0.0.RELEASE</version>
+			</dependency>
 	</dependencies>
 </project>
