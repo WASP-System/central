@@ -286,7 +286,7 @@ public class LabController extends WaspController {
 								lab.getDepartment().getName(),
 
 								lab.getIsActive().intValue() == 1 ? "yes" : "no",
-								"<a href=/" + servletName + "/lab/user_manager/"+lab.getLabId()+".do>Manage</a>"
+								"<a href=" + getServletPath() + "/lab/user_manager/"+lab.getLabId()+".do>Manage</a>"
 								}));
 
 				for (LabMeta meta : labMeta) {
@@ -328,7 +328,7 @@ public class LabController extends WaspController {
 			for (LabUser user : users) {
 
 				text = user.getUserId() == null ? "No Users"
-						: "<a href=/" + servletName + "/user/list.do?selId="
+						: "<a href=" + getServletPath() + "/user/list.do?selId="
 								+ user.getUserId() + ">"
 								+ user.getUser().getFirstName() + " "
 								+ user.getUser().getLastName() + "</a>";

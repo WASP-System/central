@@ -35,6 +35,12 @@ public class GridPanel extends Panel{
 	private String groupDownloadAlign = "right";
 	
 	private String statusField;
+	
+	private boolean hasGbUcscLink = false;
+	
+	private String gbUcscLinkField;
+	
+	private String gbUcscTooltip = "";
 
 	public GridPanel() {}
 	
@@ -237,6 +243,48 @@ public class GridPanel extends Panel{
 	 */
 	public void setStatusField(String statusField) {
 		this.statusField = statusField;
+	}
+
+	/**
+	 * @return the hasGbUcsc
+	 */
+	public boolean isHasGbUcscLink() {
+		return hasGbUcscLink;
+	}
+
+	/**
+	 * @param hasGbUcsc the hasGbUcsc to set
+	 */
+	public void setHasGbUcscLink(boolean hasGbUcscLink) {
+		this.hasGbUcscLink = hasGbUcscLink;
+	}
+
+	/**
+	 * @return the gbUcscLinkField
+	 */
+	public String getGbUcscLinkField() {
+		return gbUcscLinkField;
+	}
+
+	/**
+	 * @param gbUcscLinkField the gbUcscLinkField to set
+	 */
+	public void setGbUcscLinkField(String gbUcscLinkField) {
+		this.gbUcscLinkField = gbUcscLinkField;
+	}
+
+	/**
+	 * @return the gbUcscTooltip
+	 */
+	public String getGbUcscTooltip() {
+		return gbUcscTooltip;
+	}
+
+	/**
+	 * @param gbUcscTooltip the gbUcscTooltip to set
+	 */
+	public void setGbUcscTooltip(String gbUcscTooltip) {
+		this.gbUcscTooltip = gbUcscTooltip;
 	}
 	
 	

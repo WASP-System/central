@@ -158,7 +158,6 @@ public class UserPendingController extends WaspController {
 				} else {
 					// user is now authenticated with single role 'ag' (authenticated guest) log them out again
 					webAuthenticationService.logoutUser();
-					initializeSessionAttributes();
 				}
 			}
 			else {
@@ -393,7 +392,6 @@ public class UserPendingController extends WaspController {
 				} else {
 					// user is now authenticated with single role 'ag' (authenticated guest) log them out again
 					webAuthenticationService.logoutUser();
-					initializeSessionAttributes();
 				}
 			}
 			else {
@@ -631,7 +629,6 @@ public class UserPendingController extends WaspController {
 			  @RequestParam(value="authcode", required=false) String authCode,
 			  @RequestParam(value="email", required=false) String urlEncodedEmail,
 		      ModelMap m) throws MetadataException {
-		initializeSessionAttributes();
 		if ( (authCode == null || authCode.isEmpty()) && (urlEncodedEmail == null || urlEncodedEmail.isEmpty()) ){
 			// get the authcodeform view
 			return "auth/confirmemail/authcodeform";
@@ -671,7 +668,6 @@ public class UserPendingController extends WaspController {
 			@RequestParam(value="email") String email,
 	        @RequestParam(value="captcha_text") String captchaText,
 	        ModelMap m) throws MetadataException {
-		  initializeSessionAttributes();
 		  Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 		  /* NV commented for testing
 		  if (captcha == null || (! captcha.isCorrect(captchaText)) ){
@@ -709,7 +705,6 @@ public class UserPendingController extends WaspController {
 			  @RequestParam(value="authcode", required=false) String authCode,
 			  @RequestParam(value="email", required=false) String urlEncodedEmail,
 		      ModelMap m) throws MetadataException {
-		 initializeSessionAttributes();
 		 if ( (authCode == null || authCode.isEmpty()) && (urlEncodedEmail == null || urlEncodedEmail.isEmpty()) ){
 			// get the authcodeform view
 			return "auth/confirmemail/authcodeform";
@@ -748,7 +743,6 @@ public class UserPendingController extends WaspController {
 			@RequestParam(value="email") String email,
 			@RequestParam(value="captcha_text") String captchaText,
 			ModelMap m) throws MetadataException {
-		initializeSessionAttributes();
 		Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 		
 		/* NV commented for testing
