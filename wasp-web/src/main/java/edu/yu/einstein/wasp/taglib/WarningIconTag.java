@@ -48,8 +48,8 @@ public class WarningIconTag extends BodyTagSupport {
 	@Override
 	public int doEndTag() throws javax.servlet.jsp.JspException {
 		StringBuffer buf=new StringBuffer("");
-		String servletName = (String) pageContext.getSession().getAttribute("servletName");
-		buf.append(Tooltip.getWarningHtmlString(commentText, servletName));
+		String servletPath = pageContext.getServletContext().getContextPath();
+		buf.append(Tooltip.getWarningHtmlString(commentText, servletPath));
 		
 		try {
 			this.pageContext.getOut().print(buf.toString());

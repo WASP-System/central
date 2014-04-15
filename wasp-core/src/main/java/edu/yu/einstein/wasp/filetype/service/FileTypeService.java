@@ -3,17 +3,23 @@
  */
 package edu.yu.einstein.wasp.filetype.service;
 
+import java.util.Set;
+
+import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.service.WaspService;
 
 /**
  * @author calder
  *
  */
-public interface FileTypeService {
+public interface FileTypeService extends WaspService {
 	
 	public static final String FILETYPE_IS_SINGLE_META_KEY = "isSingleton";
 	public static final String FILETYPE_FILE_NUMBER_META_KEY = "fileNumber";
 	public static final String FILETYPE_AREA = "filetype";
+	public static final String FILEGROUP_ATTRIBUTE_META_KEY = "fileGroupAttribute";
 	
 	/**
 	 * Is this a single file (or one of a series)?
@@ -34,5 +40,65 @@ public interface FileTypeService {
 	 * @return integer or null
 	 */
 	public Integer getFileNumber(FileHandle file);
+	
+	/**
+	 * add a file group attribute, typically managed as a public static variable in the specific file type service
+	 * implementation (eg FastqService).
+	 * @param fg
+	 * @param attribute
+	 */
+	public void addAttribute(FileGroup fg, String attribute);
+	
+	/**
+	 * remove a FileGroup attribute
+	 * @param fg
+	 * @param attribute
+	 */
+	public void removeAttribute(FileGroup fg, String attribute);
+	
+	/**
+	 * set FileGroup attributes at once
+	 * @param fg
+	 * @param attributes
+	 */
+	public void setAttributes(FileGroup fg, Set<String> attributes);
+	
+	/**
+	 * get all FileGroup attributes
+	 * @param fg
+	 * @return
+	 */
+	public Set<String> getAttributes(FileGroup fg);
+	
+	/**
+	 * Test whether or not the FileGroup has at least the set of attributes
+	 * @param fg
+	 * @param attributes
+	 * @return
+	 */
+	public boolean hasAttributes(FileGroup fg, Set<String> attributes);
+	
+	/**
+	 * Test whether or not the FileGroup has ONLY the set of attributes.
+	 * @param fg
+	 * @param attributes
+	 * @return
+	 */
+	public boolean hasOnlyAttributes(FileGroup fg, Set<String> attributes);
+	
+	/**
+	 * Copy all FileGroupMeta metadata from one FileGroup to another
+	 * @param fg
+	 * @param area
+	 * @throws MetadataException 
+	 */
+	public void copyMetaByArea(FileGroup origin, FileGroup target, String area) throws MetadataException;
+	
+	/**
+	 * Copy all FileHandleMeta metadata from one FileHandle to another
+	 * @param fh
+	 * @param area
+	 */
+	public void copyMetaByArea(FileHandle origin, FileHandle target, String area) throws MetadataException;
 
 }

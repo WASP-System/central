@@ -48,8 +48,8 @@ public class FailureIconTag extends BodyTagSupport {
 	@Override
 	public int doEndTag() throws javax.servlet.jsp.JspException {
 		StringBuffer buf=new StringBuffer("");
-		String servletName = (String) pageContext.getSession().getAttribute("servletName");
-		buf.append(Tooltip.getFailureHtmlString(commentText, servletName));
+		String servletPath = pageContext.getServletContext().getContextPath();
+		buf.append(Tooltip.getFailureHtmlString(commentText, servletPath));
 		
 		try {
 			this.pageContext.getOut().print(buf.toString());

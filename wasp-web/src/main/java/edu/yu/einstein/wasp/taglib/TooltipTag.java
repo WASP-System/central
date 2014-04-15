@@ -52,8 +52,9 @@ public class TooltipTag extends BodyTagSupport {
 			return Tag.SKIP_PAGE;
 		
 		StringBuffer buf=new StringBuffer("");
-		String servletName = (String) pageContext.getSession().getAttribute("servletName");
-		buf.append(Tooltip.getTooltipHtmlString(tooltipText, servletName));
+		String servletPath = pageContext.getServletContext().getContextPath();
+		log.debug("servletPath=" + servletPath);
+		buf.append(Tooltip.getTooltipHtmlString(tooltipText, servletPath));
 		
 		try {
 			this.pageContext.getOut().print(buf.toString());

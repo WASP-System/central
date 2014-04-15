@@ -446,7 +446,7 @@ public class PlatformUnitController extends WaspController {
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							formatter.format(platformUnit.getReceiveDts()),//use in this case as record created date
 							//resourceCategory.getName(),
-							"<a href=/" + servletName + "/" + sampleService.getPlatformunitViewLink(platformUnit) + ">" + platformUnit.getName()+ "</a>",
+							"<a href=" + getServletPath() + "/" + sampleService.getPlatformunitViewLink(platformUnit) + ">" + platformUnit.getName()+ "</a>",
 							barcode,
 							platformUnit.getSampleSubtype()==null?"": platformUnit.getSampleSubtype().getName(),
 							readProperties.getReadType(),

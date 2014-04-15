@@ -33,9 +33,8 @@ public class UrlTag extends BodyTagSupport {
 	@Override
 	public int doEndTag() throws javax.servlet.jsp.JspException {
 		StringBuffer buf=new StringBuffer("");
-		String servletName = (String) pageContext.getSession().getAttribute("servletName");
-		buf.append("/")
-			.append(servletName)
+		String servletPath = pageContext.getServletContext().getContextPath();
+		buf.append(servletPath)
 			.append("/")
 			.append(value);
 		
