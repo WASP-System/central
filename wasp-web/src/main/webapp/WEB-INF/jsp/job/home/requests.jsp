@@ -77,8 +77,6 @@
 		</c:choose>
 	</div>
 	
-	<%--  TODO: Internationalize this!!!! --%>
-	
 	<div>
 		<h2 style="font-weight:bold"><fmt:message key="jobHomeRequests.alignmentsRequested.label" />:</h2>
 		<table class="data">

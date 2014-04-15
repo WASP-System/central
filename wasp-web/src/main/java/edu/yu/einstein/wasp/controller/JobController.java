@@ -206,122 +206,7 @@ public class JobController extends WaspController {
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp(JobMeta.class, request.getSession());
 	}
-	
-	@Transactional
-	@RequestMapping(value = "/analysisParameters/{jobId}", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('jv-' + #jobId)")
-	public String jobAnalysisParameters(@PathVariable("jobId") Integer jobId, ModelMap m) {
-	
-		Job job = jobService.getJobByJobId(jobId);
-		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0){
-			waspErrorMessage("jobComment.job.error");
-			return "redirect:/dashboard.do";
-		}		
-		m.addAttribute("job", job);
-		m.addAttribute("parentArea", "job");
-		
-		//deal with software
-		List<Software> softwareList = jobService.getSoftwareForJob(job);
-		m.addAttribute("softwareList", softwareList);
-		Map<Software, List<JobMeta>> softwareAndSyncdMetaMap = new HashMap<Software, List<JobMeta>>();
-		MetaHelperWebapp mhwa = getMetaHelperWebapp();
-		List<JobMeta> jobMetaList = job.getJobMeta();
-		for(Software sw : softwareList){
-			mhwa.setArea(sw.getIName());
-			List<JobMeta> softwareMetaList = mhwa.syncWithMaster(jobMetaList);
-			softwareAndSyncdMetaMap.put(sw, softwareMetaList);
-		}	
-		m.addAttribute("softwareAndSyncdMetaMap", softwareAndSyncdMetaMap);
-		
-		//deal with samplePairs
-		String samplePairs = null;
-		for(JobMeta jm : jobMetaList){
-			if(jm.getK().indexOf("samplePairs")>-1){
-				samplePairs = jm.getV();
-				break;
-			}
-		}
-		
-		List <Sample> submittedSamplesList = jobService.getSubmittedSamples(job);
-		m.addAttribute("submittedSamplesList", submittedSamplesList);
-		
-		Map<Sample, List<String>> samplePairsMap = jobService.decodeSamplePairs(samplePairs, submittedSamplesList); 
-		List<String> controlIsReferenceList = new ArrayList<String>();
-		List<String> testIsReferenceList = new ArrayList<String>();
-		jobService.decodeSamplePairsWithReference(samplePairs, submittedSamplesList, controlIsReferenceList, testIsReferenceList);
-		m.addAttribute("samplePairsMap", samplePairsMap);
-		m.addAttribute("controlIsReferenceList", controlIsReferenceList);
-		m.addAttribute("testIsReferenceList", testIsReferenceList);
-		
-		return "job/analysisParameters";
-	}
-	
-	@Transactional
-	@RequestMapping(value = "/comments/{jobId}", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('jv-' + #jobId)")
-	public String jobComments(@PathVariable("jobId") Integer jobId, ModelMap m) {
-	
-		Job job = jobService.getJobByJobId(jobId);
-		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0){
-			waspErrorMessage("jobComment.job.error");
-			return "redirect:/dashboard.do";
-		}		
-		m.addAttribute("job", job);
-		
-		//get the user-submitted job comment (if any); should be zero or one
-		List<MetaMessage> userSubmittedJobCommentsList = jobService.getUserSubmittedJobComment(jobId);
-		for (MetaMessage metaMessage: userSubmittedJobCommentsList){
-			metaMessage.setValue(StringUtils.replace(metaMessage.getValue(), "\r\n" ,"<br />"));//carriage return was inserted at time of INSERT to deal with line-break. Change it to <br /> for proper html display (using c:out escapeXml=false). Note that other html was escpaped at INSERT stage (see line 180 below) 
-		}
-		m.addAttribute("userSubmittedJobCommentsList", userSubmittedJobCommentsList);
-		
-		//get the facility-generated job comments (if any)
-		List<MetaMessage> facilityJobCommentsList = jobService.getAllFacilityJobComments(jobId);
-		for (MetaMessage metaMessage: facilityJobCommentsList){
-			metaMessage.setValue(StringUtils.replace(metaMessage.getValue(), "\r\n" ,"<br />"));
-		}
-		m.addAttribute("facilityJobCommentsList", facilityJobCommentsList);
-		
-		boolean permissionToAddEditComment = false;
-		try{
-			permissionToAddEditComment = webAuthenticationService.hasPermission("hasRole('su') or hasRole('fm') or hasRole('ft')");
-		}catch(Exception e){
-			waspErrorMessage("jobComment.jobCommentAuth.error");
-			return "redirect:/dashboard.do";
-		}
-		m.addAttribute("permissionToAddEditComment", permissionToAddEditComment);
-		return "job/comments";
-	}
-	
-	@Transactional
-	@RequestMapping(value = "/comments/{jobId}", method = RequestMethod.POST)
-	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String jobCommentsPost(@PathVariable("jobId") Integer jobId,  @RequestParam("comment") String comment, ModelMap m) {
-	
-		Job job = jobService.getJobByJobId(jobId);
-		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0){
-			waspErrorMessage("jobComment.job.error");
-			return "redirect:/dashboard.do";
-		}
 
-		String trimmedComment = comment==null?null:StringEscapeUtils.escapeXml(comment.trim());//any standard html/xml [Supports only the five basic XML entities (gt, lt, quot, amp, apos)] will be converted to characters like &gt; //http://commons.apache.org/lang/api-3.1/org/apache/commons/lang3/StringEscapeUtils.html#escapeXml%28java.lang.String%29
-		if(trimmedComment==null||trimmedComment.length()==0){
-			waspErrorMessage("jobComment.jobCommentEmpty.error");
-			return "redirect:/job/comments/"+jobId+".do";
-		}
-		
-		try{
-			jobService.setFacilityJobComment(jobId, trimmedComment);
-		}catch(Exception e){
-			logger.warn(e.getMessage());
-			waspErrorMessage("jobComment.jobCommentCreate.error");
-			return "redirect:/job/comments/"+jobId+".do";
-		}
-		
-		waspMessage("jobComment.jobCommentAdded.label");
-		return "redirect:/job/comments/"+jobId+".do";
-	}
-	
 	@Transactional
 	@RequestMapping("/list")
 	public String list(ModelMap m) {
@@ -604,9 +489,9 @@ public class JobController extends WaspController {
 					currentStatus += Tooltip.getCommentHtmlString(jobStatusComment, getServletPath());
 				
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
-							//"J" + job.getJobId().intValue() + " (<a href=" + getServletPath() + "/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>details</a>)",
-							// this is the link to the old job homepage "<a href=" + getServletPath() + "/sampleDnaToLibrary/listJobSamples/"+job.getId()+".do>J"+job.getId().intValue()+"</a>",
-							"<a href=" + getServletPath() + "/job/"+job.getId()+"/homepage.do>J"+job.getId().intValue()+"</a>",
+
+							"<a href=/" + servletName + "/job/"+job.getId()+"/homepage.do>J"+job.getId().intValue()+"</a>",
+
 							job.getName(),
 							user.getNameFstLst(),
 							//job.getLab().getName() + " (" + pi.getNameLstCmFst() + ")",
@@ -615,9 +500,9 @@ public class JobController extends WaspController {
 							//String.format("%.2f", amount),
 							quoteAsString,
 							currentStatus,
-							//"<a href=" + getServletPath() + "/"+job.getWorkflow().getIName()+"/viewfiles/"+job.getJobId()+".do>View files</a>"
-							//"<a href=" + getServletPath() + "/jobresults/treeview.do?id="+job.getJobId()+"&type=job>View Results</a>"
-							"<a href=" + getServletPath() + "/jobresults/treeview/job/"+job.getId()+".do>Browse Data</a>"
+
+							"<a href=/" + servletName + "/jobresults/treeview/job/"+job.getId()+".do>Browse Data</a>"
+
 				}));
 				 
 				for (JobMeta meta:jobMeta) {
@@ -3273,7 +3158,6 @@ public class JobController extends WaspController {
 			if(librarySampleSubtypes.isEmpty()){
 				throw new MetadataException("Sample Subtype Not Found");
 				//waspErrorMessage("sampleDetail.sampleSubtypeNotFound.error");
-				//return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do"; // no workflowsubtype sample
 			}
 			Sample modelLibrary = new Sample();
 			modelLibrary.setSampleSubtype(librarySampleSubtypes.get(0)); // should be one

@@ -16,8 +16,6 @@
   }
   </style>
   
-  <%--  TODO: Internationalize this!!!! --%>
-
 <script type="text/javascript" src="<wasp:relativeUrl value='scripts/jquery/jquery.table.addrow.js' />"></script>
 <script type="text/javascript">
 	(function($){ 
@@ -129,8 +127,6 @@
 				 	</fieldset>  
 				</div>
 							
-				<%--  TODO: Internationalize this!!!! --%>
-				
 				<table class="data" style="margin: 0px 0px">
 					<tr class="FormData">
 						<td colspan="4" class="label-centered" style="background-color:#FAF2D6">

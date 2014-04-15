@@ -166,7 +166,7 @@
 					<c:out value="${library.name}" />
 					<c:set var="cellLibraryMeta" value="${cellLibrary.sampleSourceMeta}" scope="page" />
 					<c:forEach items="${cellLibraryMeta}" var="cellLibraryMetaItem">
-						<c:if test="${fn:indexOf(cellLibraryMetaItem.k,'jobId') > -1}"><a href="<wasp:relativeUrl value="sampleDnaToLibrary/listJobSamples/${cellLibraryMetaItem.v}.do" />"> (<fmt:message key="showPlatformUnit.jobJ.label"/><c:out value="${cellLibraryMetaItem.v}"/>)</a></c:if>
+						<c:if test="${fn:indexOf(cellLibraryMetaItem.k,'jobId') > -1}"><a href="<wasp:relativeUrl value="job/${cellLibraryMetaItem.v}/homepage.do" />"> (<fmt:message key="showPlatformUnit.jobJ.label"/><c:out value="${cellLibraryMetaItem.v}"/>)</a></c:if>
 					</c:forEach>
 					<br />				
 					<c:set var="libraryMeta" value="${library.sampleMeta}" scope="page" />

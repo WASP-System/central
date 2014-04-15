@@ -2,8 +2,6 @@
 <c:import url="/WEB-INF/jsp/job/home/fadingMessage.jsp" />
 <br />
 
-<%--  TODO: Internationalize this!!!! --%>
-
 <a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/samples.do" />");' ><fmt:message key="jobHomeSampleDetailRO.backTo.label" /></a>
 <br /><br /><br />
 <table class="EditTable ui-widget ui-widget-content">

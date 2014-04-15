@@ -42,30 +42,6 @@
 			</tr>
 		</sec:authorize>
 	</table>
-	<%-- 
-     <c:forEach items="${labuser}" var="ul">
-      <p>
-      <a href="<wasp:relativeUrl value='user/detail/${ul.user.userId}.do' />">${ul.user.login}</a>
-        <c:out value="${ul.user.firstName}" />
-        <c:out value="${ul.user.lastName}" />
-      <span><c:out value="${ul.role.name}" /></span>
-      </p>
-    </c:forEach>
-
-    <c:if test="${!  empty( job ) }">   
-      <h2>Jobs</h2>
-      <c:forEach items="${job}" var="j">
-        <div>
-          <a href="<wasp:relativeUrl value='job/detail/${j.jobId}.do' />">
-          <c:out value="${j.name}" />
-          </a>
-        </div>
-      </c:forEach>
-    </c:if>
-
-    <div>
-      <a href="<wasp:relativeUrl value='job/create/form.do?labid=${lab.labId}' />">create job</a>
-    </div>
- --%>
+	
 
 </form:form>

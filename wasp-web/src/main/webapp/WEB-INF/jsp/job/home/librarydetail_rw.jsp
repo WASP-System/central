@@ -2,7 +2,6 @@
 <br />
 
 <%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
-<%--  TODO: Internationalize this!!!! --%>
 
 <a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/samples.do" />");' ><fmt:message key="jobHomeLibraryDetailRW.backTo.label" /></a>
 <br /><br /><br />

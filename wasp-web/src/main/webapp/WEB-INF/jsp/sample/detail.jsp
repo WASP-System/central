@@ -5,11 +5,6 @@
   <h1><c:out value="${sample.name}"/></h1>
   <div><c:out value="${sample.sampleType.name}"/></div>
 
-
-  <%-- [TODO ADD PERM]--%>
-  <a href="<wasp:relativeUrl value="sampleDnaToLibrary/detail/${sample.sampleId}.do"/>"><fmt:message key="sample.detail_facManSampleToLib.label" /></a>
-  <%--[/TODO ADD PERM]--%>
-
   <c:forEach items="${samplemeta}" var="meta">
       <p>
       <span><c:out value="${meta.k}" /></span>

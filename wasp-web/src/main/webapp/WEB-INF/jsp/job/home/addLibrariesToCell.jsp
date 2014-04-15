@@ -4,7 +4,7 @@
 
 <sec:authorize access="hasRole('su') or hasRole('ft')">
 <br />
-<%--  TODO: Internationalize this!!!! --%>
+
 <a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${job.getId()}/requests.do?onlyDisplayCellsRequested=true" />");' ><fmt:message key="jobHomeAddLibrariesToCell.viewLaneRequest.label" /></a>
 <a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/samples.do" />");' ><fmt:message key="jobHomeAddLibrariesToCell.backTo.label" /></a><br />
 <br /><br />
