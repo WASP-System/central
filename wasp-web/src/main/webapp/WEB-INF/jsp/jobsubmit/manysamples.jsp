@@ -79,14 +79,13 @@
 
 <%@ include file="/WEB-INF/jsp/jobsubmit/jobsubmitinfo.jsp" %>
 
-<%--  TODO: Internationalize this!!!! --%>
 <%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
 
 <div id="container_div_for_adding_rows" >
-	<h2>Sample Type: <c:out value="${sampleType.name}" /></h2>
-	<h2>Sample Subtype: <c:out value="${sampleSubtype.name}" /></h2>
+	<h2><fmt:message key="jobsubmitManySamples.sampleType.label" />: <c:out value="${sampleType.name}" /></h2>
+	<h2><fmt:message key="jobsubmitManySamples.sampleSubType.label" />: <c:out value="${sampleSubtype.name}" /></h2>
 	<c:if test="${empty edit}">
-		<a style="font-weight:bold" href="javascript:void(0);"  id="addMoreRowsAnchor">Click</a> To Add <input type='text' style="text-align:right;" size='3' maxlength='3' name='addMoreRows' id='addMoreRows' > more row(s)
+		<a style="font-weight:bold" href="javascript:void(0);"  id="addMoreRowsAnchor"><fmt:message key="jobsubmitManySamples.click.label" /></a> <fmt:message key="jobsubmitManySamples.toAdd.label" /> <input type='text' style="text-align:right;" size='3' maxlength='3' name='addMoreRows' id='addMoreRows' > <fmt:message key="jobsubmitManySamples.moreRows.label" />
 		<br />
 	</c:if>
 	<br />
@@ -95,14 +94,14 @@
 	
 	<form action="<wasp:relativeUrl value="jobsubmit/manysamples/add/${jobDraft.getId()}/${sampleSubtype.getId()}.do" />" method="POST" >
 	
-		<span style="font-size:x-small">Click first &rarr; others to populate all rows with value found in a column's first row</span>
+		<span style="font-size:x-small"><fmt:message key="jobsubmitManySamples.clickFirst.label" /></span>
 		
 		<div class="fixed-width_scrollable">
 			<table class="data" style="margin: 0px 0px" >
 			
 			<c:if test="${not empty adaptorsets}">
 				<tr class="FormData">
-					<td id="singleCellInOptionalAdaptorsetTableRow" colspan="1" <%--this colspan will be dynamically changed; see javascript--%>align='center' style="background-color:#FAF2D6; font-weight:bold; padding:15px 15px 15px 15px;" nowrap>SELECT AN ADAPTOR SET 
+					<td id="singleCellInOptionalAdaptorsetTableRow" colspan="1" <%--this colspan will be dynamically changed; see javascript--%>align='center' style="background-color:#FAF2D6; font-weight:bold; padding:15px 15px 15px 15px;" nowrap><fmt:message key="jobsubmitManySamples.selectAnAdaptorSet.label" /> 
 						<select class="FormElement ui-widget-content ui-corner-all" name="theSelectedAdaptorset" id="adaptorset" class="FormElement ui-widget-content ui-corner-all">
 							<option value=''><fmt:message key="wasp.default_select.label"/></option>
 							<c:forEach items="${adaptorsets}" var="adaptorset">
@@ -113,16 +112,15 @@
 				</tr>
 			</c:if>
 			
-			<%--  TODO: Internationalize this!!!! --%>
 			
 			<c:forEach items="${sampleDraftList}" var="sampleDraft" varStatus="sampleDraftStatus">
 				<c:if test="${sampleDraftStatus.first}">
 					<tr class="FormData">
 						<c:if test="${fn:length(errorList)>0}">
-							<td align='center' style="background-color:#FAF2D6; font-weight:bold; color:red" nowrap>Errors</td>
+							<td align='center' style="background-color:#FAF2D6; font-weight:bold; color:red" nowrap><fmt:message key="jobsubmitManySamples.errors.label" /></td>
 							<c:set var="colspan" value = '${colspan + 1}' scope="request"/>
 						</c:if>
-						<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap>Sample Name<span style="color:red">*</span></td>
+						<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap><fmt:message key="jobsubmitManySamples.sampleName.label" /><span style="color:red">*</span></td>
 						<c:set var="colspan" value = '${colspan + 1}' scope="request"/>
 					    <c:set var="_area" value = "sampleDraft" scope="request"/>
 						<c:set var="_metaList" value = "${sampleDraft.getSampleDraftMeta()}" scope="request" />		
@@ -156,19 +154,19 @@
 											<wasp:tooltip value="${_meta.property.tooltip}" />
 										</c:if>	
 										<%-- <br /><a href="javascript:void(0);"  onclick='var foundFirstOne = false; var valueOfFirst = ""; var idRE = /^<c:out value="${id}" />/; var dates=[]; var els=document.getElementsByTagName("*"); for (var i=0; i < els.length; i++){ if ( idRE.test(els[i].id) ){ if(foundFirstOne==false){foundFirstOne=true; valueOfFirstOne = els[i].value;} els[i].value = valueOfFirstOne; } } ' >first &rarr; all</a>--%>		
-										<br /><a href="javascript:void(0);"  onclick='var foundFirstOne = false; var valueOfFirst = ""; var id = "<c:out value="${id}" />"; var dates=[]; var els=document.getElementsByTagName("*"); for (var i=0; i < els.length; i++){ if ( id==els[i].id ){ if(foundFirstOne==false){foundFirstOne=true; valueOfFirstOne = els[i].value;} els[i].value = valueOfFirstOne; } } ' >first &rarr; others</a>		
+										<br /><a href="javascript:void(0);"  onclick='var foundFirstOne = false; var valueOfFirst = ""; var id = "<c:out value="${id}" />"; var dates=[]; var els=document.getElementsByTagName("*"); for (var i=0; i < els.length; i++){ if ( id==els[i].id ){ if(foundFirstOne==false){foundFirstOne=true; valueOfFirstOne = els[i].value;} els[i].value = valueOfFirstOne; } } ' ><fmt:message key="jobsubmitManySamples.firstOthers.label" /></a>		
 									</td>
 								<c:set var="colspan" value = '${colspan + 1}' scope="request"/>
 								</c:if>
 							</c:if>
 						</c:forEach>
 						<c:if test="${empty edit}">
-							<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap>Action</td>
+							<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap><fmt:message key="jobsubmitManySamples.action.label" /></td>
 						</c:if>
 						<c:if test="${edit=='true'}">
 							<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap>
-								Delete Row
-								<br /><a href="javascript:void(0);"  onclick='var foundFirstOne = false; var valueOfFirst = ""; var id = "deleteRow"; var dates=[]; var els=document.getElementsByTagName("*"); for (var i=0; i < els.length; i++){ if ( id==els[i].id ){ if(foundFirstOne==false){foundFirstOne=true; valueOfFirstOne = els[i].value;} els[i].value = valueOfFirstOne; } } ' >first &rarr; others</a>			
+								<fmt:message key="jobsubmitManySamples.deleteRow.label" />
+								<br /><a href="javascript:void(0);"  onclick='var foundFirstOne = false; var valueOfFirst = ""; var id = "deleteRow"; var dates=[]; var els=document.getElementsByTagName("*"); for (var i=0; i < els.length; i++){ if ( id==els[i].id ){ if(foundFirstOne==false){foundFirstOne=true; valueOfFirstOne = els[i].value;} els[i].value = valueOfFirstOne; } } ' ><fmt:message key="jobsubmitManySamples.firstOthers.label" /></a>			
 							</td>
 						</c:if>
 						<c:set var="colspan" value = '${colspan + 1}' scope="request"/>
@@ -245,13 +243,13 @@
 					</c:forEach>
 					<td align='center'>
 						<c:if test="${empty edit}">
-							<input type="button" class="delRow" value="Delete Row"/><%--this button IS controlled by the javascript that removes a new row; it's used for new samples or new libraries --%>
+							<input type="button" class="delRow" value="<fmt:message key="jobsubmitManySamples.deleteRow.label" />"/><%--this button IS controlled by the javascript that removes a new row; it's used for new samples or new libraries --%>
 						</c:if>
 						<c:if test="${edit=='true'}">
 							<%-- <input type="button" class="delRow" value="Need To Do: Delete Row"/>--%><%--NOT controlled by that javascript that removes new rows --%>
 							<select name="deleteRow" id="deleteRow" class="FormElement ui-widget-content ui-corner-all">
-								<option value="no"  <c:if test="${deleteRowsList.get(sampleDraftStatus.index)=='no'}">selected</c:if>  >NO</option>
-								<option value="yes" <c:if test="${deleteRowsList.get(sampleDraftStatus.index)=='yes'}">selected</c:if>  >YES</option>
+								<option value="no"  <c:if test="${deleteRowsList.get(sampleDraftStatus.index)=='no'}">selected</c:if>  ><fmt:message key="jobsubmitManySamples.NO.label" /></option>
+								<option value="yes" <c:if test="${deleteRowsList.get(sampleDraftStatus.index)=='yes'}">selected</c:if>  ><fmt:message key="jobsubmitManySamples.YES.label" /></option>
 							</select>
 							<input type='hidden' name="edit" id="" value='${edit}'/><%--need this here if user hits save button and there are errors in the post; we need to inform that this is an edit --%>
 						</c:if>
@@ -259,7 +257,7 @@
 				</tr>
 			</c:forEach>
 			<%--do NOT remove this next line; it's colspan is needed to set colspan of first table row if there are libraries!! --%>
-			<tr ><td id="singleCellInVeryLastTableRow" colspan="${colspan}" align="center"><c:if test="${empty edit}"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></c:if></td></tr>
+			<tr ><td id="singleCellInVeryLastTableRow" colspan="${colspan}" align="center"><c:if test="${empty edit}"><input style="width:300" type="button" class="addRow" value="<fmt:message key="jobsubmitManySamples.addAdditionalRow.label" />"/></c:if></td></tr>
 			
 			
 			
@@ -268,9 +266,9 @@
 				<c:if test="${sampleDraftStatus.first}">
 					<tr class="FormData">
 						<c:if test="${fn:length(errorList)>0}">
-							<td align='center' style="background-color:#FAF2D6; font-weight:bold; color:red" nowrap>Errors</td>
+							<td align='center' style="background-color:#FAF2D6; font-weight:bold; color:red" nowrap><fmt:message key="jobsubmitManySamples.errors.label" /></td>
 						</c:if>
-						<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap>Sample Name<span style="color:red">*</span></td>
+						<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap><fmt:message key="jobsubmitManySamples.sampleName.label" /><span style="color:red">*</span></td>
 						<c:set var="colspan" value = '${colspan + 1}' scope="request"/>
 					    <c:set var="_area" value = "sampleDraft" scope="request"/>
 						<c:set var="_metaList" value = "${sampleDraft.getSampleDraftMeta()}" scope="request" />		
@@ -304,18 +302,18 @@
 											<wasp:tooltip value="${_meta.property.tooltip}" />
 										</c:if>	
 										<%-- <br /><a href="javascript:void(0);"  onclick='var foundFirstOne = false; var valueOfFirst = ""; var idRE = /^<c:out value="${id}" />/; var dates=[]; var els=document.getElementsByTagName("*"); for (var i=0; i < els.length; i++){ if ( idRE.test(els[i].id) ){ if(foundFirstOne==false){foundFirstOne=true; valueOfFirstOne = els[i].value;} els[i].value = valueOfFirstOne; } } ' >first &rarr; all</a>--%>		
-										<br /><a href="javascript:void(0);"  onclick='var foundFirstOne = false; var valueOfFirst = ""; var id = "<c:out value="${id}" />"; var dates=[]; var els=document.getElementsByTagName("*"); for (var i=0; i < els.length; i++){ if ( id==els[i].id ){ if(foundFirstOne==false){foundFirstOne=true; valueOfFirstOne = els[i].value;} els[i].value = valueOfFirstOne; } } ' >first &rarr; others</a>		
+										<br /><a href="javascript:void(0);"  onclick='var foundFirstOne = false; var valueOfFirst = ""; var id = "<c:out value="${id}" />"; var dates=[]; var els=document.getElementsByTagName("*"); for (var i=0; i < els.length; i++){ if ( id==els[i].id ){ if(foundFirstOne==false){foundFirstOne=true; valueOfFirstOne = els[i].value;} els[i].value = valueOfFirstOne; } } ' ><fmt:message key="jobsubmitManySamples.firstOthers.label" /></a>		
 									</td>
 								</c:if>
 							</c:if>
 						</c:forEach>
 						<c:if test="${empty edit}">
-							<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap>Action</td>
+							<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap><fmt:message key="jobsubmitManySamples.action.label" /></td>
 						</c:if>
 						<c:if test="${edit=='true'}">
 							<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap>
-								Delete Row
-								<br /><a href="javascript:void(0);"  onclick='var foundFirstOne = false; var valueOfFirst = ""; var id = "deleteRow"; var dates=[]; var els=document.getElementsByTagName("*"); for (var i=0; i < els.length; i++){ if ( id==els[i].id ){ if(foundFirstOne==false){foundFirstOne=true; valueOfFirstOne = els[i].value;} els[i].value = valueOfFirstOne; } } ' >first &rarr; others</a>			
+								<fmt:message key="jobsubmitManySamples.deleteRow.label" />
+								<br /><a href="javascript:void(0);"  onclick='var foundFirstOne = false; var valueOfFirst = ""; var id = "deleteRow"; var dates=[]; var els=document.getElementsByTagName("*"); for (var i=0; i < els.length; i++){ if ( id==els[i].id ){ if(foundFirstOne==false){foundFirstOne=true; valueOfFirstOne = els[i].value;} els[i].value = valueOfFirstOne; } } ' ><fmt:message key="jobsubmitManySamples.firstOthers.label" /></a>			
 							</td>
 						</c:if>
 						</tr>
