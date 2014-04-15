@@ -469,7 +469,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		if (markUnfinished) {
 			command += " && touch " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME;
 		} else {
-			command += " && rm -f " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME;
+		        command += " && rm -f " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME;
 		}
 		String prd = transportConnection.prefixRemoteFile(resultsDirectory);
 		if (!w.getWorkingDirectory().equals(prd)) {
@@ -532,7 +532,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		w.addCommand("THIS=${COPY[WASP_TASK_ID]}");
 		w.addCommand("read -ra FILE <<< \"$THIS\"");
 		w.addCommand("cp -f ${FILE[0]} ${" + WorkUnit.RESULTS_DIRECTORY + "}${FILE[1]}");
-		w.addCommand("rm -f " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME);
+		w.addCommand("if [ \"$TASK_ID\" -eq \"0\" ]; then rm -f " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
 		GridResult r = execute(w);
 		logger.debug("waiting for results file copy");
 		ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
@@ -728,12 +728,17 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			this.w = w;
 			this.name = w.getId();
 			
+			String tid = "";
+			
+			if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
+			    tid = "-$TASK_ID";
+			
 			header = "#!/bin/bash\n#\n" +
 					getFlag() + " -N " + jobNamePrefix + name + "\n" +
 					getFlag() + " -S /bin/bash\n" +
 					getFlag() + " -V\n" +
-					getFlag() + " -o " + w.remoteWorkingDirectory + jobNamePrefix + name + ".out\n" +
-					getFlag() + " -e " + w.remoteWorkingDirectory + jobNamePrefix + name + ".err\n";
+					getFlag() + " -o " + w.remoteWorkingDirectory + jobNamePrefix + name + tid + ".out\n" +
+					getFlag() + " -e " + w.remoteWorkingDirectory + jobNamePrefix + name + tid + ".err\n";
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY)) {
 				header += getFlag() + " -t 1-" + w.getNumberOfTasks() + "\n"; 
@@ -822,11 +827,15 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 				}
 			} 
 			command = w.getCommand();
+			
 			postscript = "echo \"##### begin ${" + WorkUnit.JOB_NAME + "}\" > " + w.remoteWorkingDirectory + "${" + WorkUnit.JOB_NAME + "}.command\n\n" +
 					"awk '/^##### preamble/,/^##### postscript|~$/' " + 
 						w.remoteWorkingDirectory + "${" + WorkUnit.JOB_NAME + "}.sh | sed 's/^##### .*$//g' | grep -v \"^$\" >> " +
 						w.remoteWorkingDirectory + "${" + WorkUnit.JOB_NAME + "}.command\n" +
 					"echo \"##### end ${" + WorkUnit.JOB_NAME + "}\" >> " + w.remoteWorkingDirectory + "${" + WorkUnit.JOB_NAME + "}.command\n";
+			
+			if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
+			    postscript = "if [ \"$TASK_ID\" -eq \"0\" ]; then\n" + postscript + "fi\n";
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY)) {
 				postscript += "touch ${" + WorkUnit.WORKING_DIRECTORY + "}/${" + WorkUnit.TASK_END_FILE + "}\n" +
