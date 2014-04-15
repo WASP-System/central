@@ -10,5 +10,9 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/variantcalling/description.jsp" />
 	</definition>
 	
+	<definition name="jobsubmit/variantcalling/intervals" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/variantcalling/wxsIntervals.jsp" />
+	</definition>
+	
 </tiles-definitions>
 

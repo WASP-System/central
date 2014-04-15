@@ -27,6 +27,7 @@
 		<value>/jobsubmit/cells/{n}</value>
 		<value>/jobsubmit/software/#{referenceBasedAlignerResourceType.getIName()}/{n}</value>
 		<value>/jobsubmit/software/#{variantCallingResourceType.getIName()}/{n}</value>
+		<value>/jobsubmit/variantcalling/intervals/{n}</value>
 		<value>/jobsubmit/comment/{n}</value>
 		<value>/jobsubmit/verify/{n}</value>
 		<value>/jobsubmit/submit/{n}</value>
@@ -86,6 +87,10 @@
         <bean parent="variantcallingUiFieldWrapper">
           <property name="baseName" value="jobsubmit/software/#{variantCallingResourceType.getIName()}" />
           <property name="label" value="variantcalling.variantCaller.title" />
+        </bean>
+         <bean parent="variantcallingUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/variantcalling/intervals" />
+          <property name="label" value="variantcalling.wxsIntervals.title" />
         </bean>
          <bean parent="variantcallingUiFieldWrapper">
           <property name="baseName" value="jobsubmit/comment" />
