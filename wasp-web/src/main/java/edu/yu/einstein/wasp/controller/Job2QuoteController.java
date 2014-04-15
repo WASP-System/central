@@ -329,7 +329,7 @@ public class Job2QuoteController extends WaspController {
 			List<String> cellList = new ArrayList<String>(
 				Arrays.asList(new String[] { 
 
-					"<a href=/" + servletName + "/job/"+item.getId()+"/homepage.do#ui-tabs-2>J"+item.getId().intValue()+"</a>",
+					"<a href=/" + getServletPath() + "/job/"+item.getId()+"/homepage.do#ui-tabs-2>J"+item.getId().intValue()+"</a>",
 
 					currentStatus,
 					item.getName(),

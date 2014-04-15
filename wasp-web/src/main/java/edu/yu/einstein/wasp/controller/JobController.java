@@ -490,7 +490,7 @@ public class JobController extends WaspController {
 				
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 
-							"<a href=/" + servletName + "/job/"+job.getId()+"/homepage.do>J"+job.getId().intValue()+"</a>",
+							"<a href=/" + getServletPath() + "/job/"+job.getId()+"/homepage.do>J"+job.getId().intValue()+"</a>",
 
 							job.getName(),
 							user.getNameFstLst(),
@@ -501,7 +501,7 @@ public class JobController extends WaspController {
 							quoteAsString,
 							currentStatus,
 
-							"<a href=/" + servletName + "/jobresults/treeview/job/"+job.getId()+".do>Browse Data</a>"
+							"<a href=/" + getServletPath() + "/jobresults/treeview/job/"+job.getId()+".do>Browse Data</a>"
 
 				}));
 				 
