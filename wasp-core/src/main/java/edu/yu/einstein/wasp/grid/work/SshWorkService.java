@@ -163,7 +163,7 @@ public class SshWorkService implements GridWorkService {
 	}
 
 	@Override
-	public LinkedHashMap<String, String> getMappedTaskOutput(GridResult r) throws IOException {
+	public LinkedHashMap<Integer, String> getMappedTaskOutput(GridResult r) throws IOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
