@@ -164,7 +164,7 @@ public abstract class FileTypeServiceImpl extends WaspServiceImpl implements Fil
 		fileGroupMetaDao.setMeta(fileMeta);
 	}
 	
-	private <T extends FileTypeAttribute> String setToString(Set<T> s) {
+	private String setToString(Set<? extends FileTypeAttribute> s) {
 	    String result = "";
 	    if (s.size() > 0) {
 		result = StringUtils.join(s, FILEGROUP_ATTRIBUTE_DELIMITER);
@@ -172,7 +172,7 @@ public abstract class FileTypeServiceImpl extends WaspServiceImpl implements Fil
 	    return result;
 	}
 	
-	private <T extends FileTypeAttribute> Set<FileTypeAttribute> stringToSet(String s) {
+	private Set<FileTypeAttribute> stringToSet(String s) {
 	    Set<FileTypeAttribute> attributes = new HashSet<>();
 	    if (s != null) {
 	    	for (String attrStr : s.split(FILEGROUP_ATTRIBUTE_DELIMITER))

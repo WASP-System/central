@@ -17,11 +17,6 @@ import edu.yu.einstein.wasp.service.WaspService;
  * @author asmclellan
  */
 public interface GatkService extends WaspService {
-
-		/**
-		 * Perform Service
-		 * @return String
-		 */
 		
 		public Set<BamFileTypeAttribute> getCompleteGatkBamFileAttributeSet();
 		
