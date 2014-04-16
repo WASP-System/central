@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
+import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
@@ -32,6 +33,7 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.bwa.software.BWABacktrackSoftwareComponent;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqComparator;
+import edu.yu.einstein.wasp.plugin.fileformat.service.BamService;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -49,6 +51,9 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 	
 	@Autowired
 	private FileService fileService;
+	
+	@Autowired
+	private FileTypeService fileTypeService;
 	
 	@Autowired
 	private FastqService fastqService;
@@ -139,6 +144,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		bamG.setDescription(bamOutput);
 		bamG = fileService.addFileGroup(bamG);
 		bamG.setSoftwareGeneratedBy(bwa);
+		fileTypeService.addAttribute(bamG, BamService.BAM_ATTRIBUTE_SORTED);
 		Integer bamGId = bamG.getId();
 		// save in step context  for use later
 		stepExecutionContext.put("bamGID", bamGId);
@@ -164,6 +170,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		w.setCommand("shopt -s nullglob\n");
 		w.addCommand("for x in sam.*.out; do ln -s ${x} ${x/*:/}.sam ; done\n");
 		if (markDuplicates){
+			fileTypeService.addAttribute(bamG, BamService.BAM_ATTRIBUTE_DEDUP);
 			String metricsOutput = fileService.generateUniqueBaseFileName(cellLib) + "dedupMetrics.txt";
 			FileGroup metricsG = new FileGroup();
 			FileHandle metrics = new FileHandle();

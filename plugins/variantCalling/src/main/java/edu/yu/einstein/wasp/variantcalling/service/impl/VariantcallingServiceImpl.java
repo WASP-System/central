@@ -20,12 +20,16 @@ import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.MetadataRuntimeException;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
+import edu.yu.einstein.wasp.model.JobMeta;
+import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobDraftService;
+import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.variantcalling.service.VariantcallingService;
 
@@ -35,6 +39,9 @@ public class VariantcallingServiceImpl extends WaspServiceImpl implements Varian
 	
 	@Autowired
 	protected JobDraftService jobDraftService;
+	
+	@Autowired
+	protected JobService jobService;
 	
 	@Autowired
 	protected GenomeService genomeService;
@@ -88,10 +95,8 @@ public class VariantcallingServiceImpl extends WaspServiceImpl implements Varian
 		return builds;
 	}
 	
-	@Override
-	public Map<String, String> getSavedWxsIntervalFilesByBuild(JobDraft jobDraft){
+	private Map<String, String> getSavedWxsIntervalFilesByBuild(MetaBase intervalFileMeta){
 		Map<String, String> intervalFilesByBuild = new HashMap<>();
-		JobDraftMeta intervalFileMeta = jobDraftService.getJobDraftMetaDao().getJobDraftMetaByKJobDraftId(getIntervalFileMetaKey(), jobDraft.getId());
 		if (intervalFileMeta == null || intervalFileMeta.getId() == null){
 			logger.debug("Cannot find an existing intervalFile JobDraft metadata entry");
 			return intervalFilesByBuild;
@@ -106,9 +111,29 @@ public class VariantcallingServiceImpl extends WaspServiceImpl implements Varian
 	}
 	
 	@Override
+	public Map<String, String> getSavedWxsIntervalFilesByBuild(JobDraft jobDraft){
+		Map<String, String> intervalFilesByBuild = new HashMap<>();
+		JobDraftMeta intervalFileMeta = jobDraftService.getJobDraftMetaDao().getJobDraftMetaByKJobDraftId(getIntervalFileMetaKey(), jobDraft.getId());
+		return getSavedWxsIntervalFilesByBuild(intervalFileMeta);
+	}
+	
+	@Override
+	public Map<String, String> getSavedWxsIntervalFilesByBuild(Job job){
+		Map<String, String> intervalFilesByBuild = new HashMap<>();
+		JobMeta intervalFileMeta = jobService.getJobMetaDao().getJobMetaByKJobId(getIntervalFileMetaKey(), job.getId());
+		return getSavedWxsIntervalFilesByBuild(intervalFileMeta);
+	}
+	
+	@Override
 	public String getSavedWxsIntervalFileForBuild(JobDraft jobDraft, Build build){
 		String buildString = genomeService.getDelimitedParameterString(build);
 		return getSavedWxsIntervalFilesByBuild(jobDraft).get(buildString);
+	}
+	
+	@Override
+	public String getSavedWxsIntervalFileForBuild(Job job, Build build){
+		String buildString = genomeService.getDelimitedParameterString(build);
+		return getSavedWxsIntervalFilesByBuild(job).get(buildString);
 	}
 	
 	@Override

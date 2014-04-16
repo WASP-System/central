@@ -61,7 +61,7 @@ public class VariantcallingJobSubmissionController extends JobSubmissionControll
 			String genomeString = genomeService.getDelimitedParameterString(b);
 			buildHeadings.put(genomeString, b.getGenome().getOrganism().getName() + " (" + genomeString + ")");
 			configuredIntervalFilesByBuild.put(genomeString, new ArrayList<String>());
-			(configuredIntervalFilesByBuild.get(genomeString)).add("None");
+			(configuredIntervalFilesByBuild.get(genomeString)).add(VariantcallingService.WXS_NONE_INTERVAL_FILENAME);
 			(configuredIntervalFilesByBuild.get(genomeString)).addAll(variantcallingService.getWxsIntervalFilenameFromConfiguration(b));
 		}
 

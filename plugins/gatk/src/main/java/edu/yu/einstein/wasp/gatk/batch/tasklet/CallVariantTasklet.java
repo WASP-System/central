@@ -2,6 +2,8 @@ package edu.yu.einstein.wasp.gatk.batch.tasklet;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
+import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
@@ -24,6 +27,7 @@ import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.fileformat.service.BamService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -41,7 +45,9 @@ public class CallVariantTasklet extends WaspRemotingTasklet implements StepExecu
 	@Autowired
 	private FileService fileService;
 	
-
+	@Autowired
+	private FileTypeService fileTypeService;
+	
 	@Autowired
 	private SampleService sampleService;
 	
@@ -49,10 +55,10 @@ public class CallVariantTasklet extends WaspRemotingTasklet implements StepExecu
 	private JobService jobService;
 	
 	@Autowired
-	private GridHostResolver gridHostResolver;
+	private FileType bamFileType;
 	
 	@Autowired
-	private FileType bamDedupRealnRecalFileType;
+	private GridHostResolver gridHostResolver;
 	
 	private StepExecution stepExecution;
 	
@@ -85,7 +91,13 @@ public class CallVariantTasklet extends WaspRemotingTasklet implements StepExecu
 		
 		
 		for (Integer currentId : cellLibraryIds) {
-			Set<FileGroup> tmpFileGroups = fileService.getFilesForCellLibraryByType(sampleService.getSampleSourceDao().findById(currentId), bamDedupRealnRecalFileType); 
+			Set<String> attributes = new HashSet<>();
+			attributes.add(BamService.BAM_ATTRIBUTE_SORTED);
+			attributes.add(BamService.BAM_ATTRIBUTE_DEDUP);
+			attributes.add(BamService.BAM_ATTRIBUTE_REALN_AROUND_INDELS);
+			attributes.add(BamService.BAM_ATTRIBUTE_RECAL_QC_SCORES);
+			Set<FileGroup> tmpFileGroups = fileService.getFilesForCellLibraryByType(sampleService.getSampleSourceDao().findById(currentId), bamFileType, attributes);
+			
 			logger.debug("get file group");
 			//Assert.assertTrue(tmpFileGroups.size() == 1);
 			FileGroup currentFg = null;

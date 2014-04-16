@@ -5,7 +5,6 @@ package edu.yu.einstein.wasp.filetype.service.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +20,7 @@ import edu.yu.einstein.wasp.dao.FileGroupDao;
 import edu.yu.einstein.wasp.dao.FileGroupMetaDao;
 import edu.yu.einstein.wasp.dao.FileHandleDao;
 import edu.yu.einstein.wasp.dao.FileHandleMetaDao;
+import edu.yu.einstein.wasp.dao.FileTypeDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -47,13 +47,21 @@ public abstract class FileTypeServiceImpl extends WaspServiceImpl implements Fil
 	@Autowired
 	private FileGroupDao fileGroupDao;
 	
+	@Autowired
+	private FileTypeDao fileTypeDao;
+	
 	private FileHandleMetaDao fileMetaDao;
 	
 	private static final String FILEGROUP_ATTRIBUTE_DELIMITER = "::";
-	
+
 	@Autowired
 	public void setFileMetaDao(FileHandleMetaDao fileMetaDao) {
 		this.fileMetaDao = fileMetaDao;
+	}
+	
+	@Override
+	public FileTypeDao getFileTypeDao() {
+		return fileTypeDao;
 	}
 
 	@Override
@@ -223,6 +231,16 @@ public abstract class FileTypeServiceImpl extends WaspServiceImpl implements Fil
 	    Set<String> fgatts = stringToSet(atts);
 	    if (fgatts.containsAll(attributes)) return true;
 	    return false;
+	}
+	
+	@Override
+	public boolean hasAttribute(FileGroup fg, String attribute) {
+	     return hasAttributes(fg, stringToSet(attribute));
+	}
+	
+	@Override
+	public boolean hasOnlyAttribute(FileGroup fg, String attribute) {
+		return hasOnlyAttributes(fg, stringToSet(attribute));
 	}
 
 	@Override

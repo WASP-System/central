@@ -4,24 +4,22 @@
  */
 package edu.yu.einstein.wasp.gatk.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.exception.MetadataRuntimeException;
 import edu.yu.einstein.wasp.exception.NullResourceException;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
+import edu.yu.einstein.wasp.variantcalling.service.VariantcallingService;
 
 /**
  * @author jcai
@@ -36,6 +34,9 @@ public class GatkServiceImpl extends WaspServiceImpl implements GatkService {
 	
 	@Autowired
 	private GenomeService genomeService;
+	
+	@Autowired
+	private VariantcallingService variantCallingService;
 	
 	/**
 	 * {@inheritDoc}
@@ -72,8 +73,7 @@ public class GatkServiceImpl extends WaspServiceImpl implements GatkService {
 		String filename = build.getMetadata("fasta.fileName");
 		if (folder == null || folder.isEmpty() || filename == null || filename.isEmpty())
 			throw new MetadataRuntimeException("failed to locate reference genome fasta file");
-		String index = genomeService.getRemoteBuildPath(build) + "/" + folder + "/" + filename;
-		return index;
+		return genomeService.getRemoteBuildPath(build) + "/" + folder + "/" + filename;
 	}
 	
 	@Override
@@ -82,8 +82,7 @@ public class GatkServiceImpl extends WaspServiceImpl implements GatkService {
 		String filename = build.getMetadata("vcf.snps.fileName");
 		if (folder == null || folder.isEmpty() || filename == null || filename.isEmpty())
 			throw new MetadataRuntimeException("failed to locate snps vcf file");
-		String index = genomeService.getRemoteBuildPath(build) + "/" + folder + "/" + filename;
-		return index;
+		return genomeService.getRemoteBuildPath(build) + "/" + folder + "/" + filename;
 	}
 	
 	@Override
@@ -92,9 +91,23 @@ public class GatkServiceImpl extends WaspServiceImpl implements GatkService {
 		String filename = build.getMetadata("vcf.indels.fileName");
 		if (folder == null || folder.isEmpty() || filename == null || filename.isEmpty())
 			throw new MetadataRuntimeException("failed to locate indels vcf file");
-		String index = genomeService.getRemoteBuildPath(build) + "/" + folder + "/" + filename;
-		return index;
+		return genomeService.getRemoteBuildPath(build) + "/" + folder + "/" + filename;
 	}
-
-
+	
+	/**
+	 * Returns the path to the WXS interval file selected by the user. If no file was selected, null is returned.
+	 * @param job
+	 * @param build
+	 * @return 
+	 */
+	@Override
+	public String getWxsIntervalFile(Job job, Build build) {
+		String folder = build.getMetadata("wxsIntervals.folder");
+		String filename = variantCallingService.getSavedWxsIntervalFileForBuild(job, build);
+		if (folder == null || folder.isEmpty() || filename == null || filename.isEmpty())
+			throw new MetadataRuntimeException("failed to locate WXS interval file");
+		if (filename.equals(VariantcallingService.WXS_NONE_INTERVAL_FILENAME))
+			return null;
+		return genomeService.getRemoteBuildPath(build) + "/" + folder + "/" + filename;
+	}
 }

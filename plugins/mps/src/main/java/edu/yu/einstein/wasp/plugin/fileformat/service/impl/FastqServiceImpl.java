@@ -132,8 +132,7 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 	 */
 	@Override
 	public FileType getFastqFileType() {
-		FileType fq = fileTypeDao.findById(fastqFileType.getId());
-		return fq;
+		return fastqFileType;
 	}
 	
 	@Override

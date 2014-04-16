@@ -15,6 +15,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -166,6 +167,9 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	
 	@Transactional("entityManager")
 	public WorkUnit getCallVariant(SampleSource cellLibrary, List<FileGroup> fileGroups, Map<String,Object> jobParameters) {
+		
+		Job job = sampleService.getJobOfLibraryOnCell(cellLibrary);
+		
 		final int NUM_THREADS = 4;
 		final int MEMORY_REQUIRED = 8; // in Gb
 		WorkUnit w = new WorkUnit();
@@ -200,8 +204,12 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		}
 		Build build = gatkService.getGenomeBuild(cellLibrary);
 		Strategy strategy = strategyService.getThisJobsStrategy(StrategyType.LIBRARY_STRATEGY, sampleService.getJobOfLibraryOnCell(cellLibrary));
-		if (strategy.getStrategy().equals("WXS")) // whole exome seq
-			gatkOpts += " -L " + gatkService.getReferenceGenomeFastaFile(build) + "wes.interval_list"; // TODO: where is this stored????
+		String wxsIntervalFile = null;
+		if (strategy.getStrategy().equals("WXS"))
+			wxsIntervalFile = gatkService.getWxsIntervalFile(job, build);
+		if (wxsIntervalFile != null) // not null if whole exome seq and an interval file is specified
+			gatkOpts += " -L " + wxsIntervalFile;
+		
 		String command = "java -Xmx" + MEMORY_REQUIRED + "g -Djava.io.tmpdir=${" + WorkUnit.WORKING_DIRECTORY + "} -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt " + NUM_THREADS +
 		" `printf -- '%s\n' ${" + WorkUnit.INPUT_FILE + "[@]} | sed 's/^/-I /g' | tr '\n' ' '` -R " + 
 		gatkService.getReferenceGenomeFastaFile(build) + "genome.fasta -T UnifiedGenotyper -o gatk.${" + 

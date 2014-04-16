@@ -5,6 +5,7 @@ package edu.yu.einstein.wasp.filetype.service;
 
 import java.util.Set;
 
+import edu.yu.einstein.wasp.dao.FileTypeDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
@@ -79,12 +80,28 @@ public interface FileTypeService extends WaspService {
 	public boolean hasAttributes(FileGroup fg, Set<String> attributes);
 	
 	/**
+	 * Test whether or not the FileGroup has at least the provided attribute
+	 * @param fg
+	 * @param attributes
+	 * @return
+	 */
+	public boolean hasAttribute(FileGroup fg, String attribute);
+	
+	/**
 	 * Test whether or not the FileGroup has ONLY the set of attributes.
 	 * @param fg
 	 * @param attributes
 	 * @return
 	 */
 	public boolean hasOnlyAttributes(FileGroup fg, Set<String> attributes);
+	
+	/**
+	 * Test whether or not the FileGroup has ONLY the provided attribute.
+	 * @param fg
+	 * @param attributes
+	 * @return
+	 */
+	public boolean hasOnlyAttribute(FileGroup fg, String attribute);
 	
 	/**
 	 * Copy all FileGroupMeta metadata from one FileGroup to another
@@ -100,5 +117,8 @@ public interface FileTypeService extends WaspService {
 	 * @param area
 	 */
 	public void copyMetaByArea(FileHandle origin, FileHandle target, String area) throws MetadataException;
+
+	public FileTypeDao getFileTypeDao();
+
 
 }
