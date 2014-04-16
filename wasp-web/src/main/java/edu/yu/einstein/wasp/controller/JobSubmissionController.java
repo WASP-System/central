@@ -1835,6 +1835,7 @@ public class JobSubmissionController extends WaspController {
 		SampleType sampleType = sampleSubtype.getSampleType();
 
 		String[] sampleIdsAsStringArray = request.getParameterValues("sampleId");
+		int numberOfIncomingRows = sampleIdsAsStringArray.length;
 
 		String[] sampleDraftNamesAsStringArray = request.getParameterValues("sampleName");
 		List<String> sampleDraftNamesAsList = new ArrayList<String>();
@@ -1845,16 +1846,21 @@ public class JobSubmissionController extends WaspController {
 		List<SampleDraft> sampleDraftList = new ArrayList<SampleDraft>();
 		
 		List<String> errorList = new ArrayList<String>();
-		boolean atLeastOneErrorExists = false;
+		boolean atLeastOneErrorExists = false;		
 		
-		int counter = 0;
+		int numberOfRowsWithValidSampleId = 0;//represents number of records already in system (updating rather than creating new samples)
+		int numberOfCompletelyEmptyRows = 0;
+		int counter = -1;
 		for(String sampleName : sampleDraftNamesAsStringArray){	
+			
+			counter++;
 			
 			String errorsForThisSample = "";
 			
 			SampleDraft sampleDraft = new SampleDraft();
 			String sampleIdAsString = sampleIdsAsStringArray[counter];
-			if( !sampleIdAsString.isEmpty() ){				
+			if( !sampleIdAsString.isEmpty() ){	
+				numberOfRowsWithValidSampleId++;
 				try{
 					Integer id = new Integer(sampleIdAsString);
 					sampleDraft = sampleDraftDao.getSampleDraftBySampleDraftId(id);
@@ -1883,14 +1889,16 @@ public class JobSubmissionController extends WaspController {
 			//we now have all attributes that need to be checked stored within sampleDraft, 
 			//so first check for a completely empty row - if completely empty, then ignore the entire row
 			if(sampleDraftRowIsCompletelyEmpty(sampleDraft,"adaptorset")){//currently checks sample name and all the metadata; but, ignore adaptorset, as it could be set even if rest of row is empty
+				numberOfCompletelyEmptyRows++;
 				continue;
 			}
 			
 			//since we know this row is NOT completely empty, check sample name and metaData for entry errors
 			
 			//first, deal with sample name errors
-			if(sampleDraft.getName().isEmpty()){
-				errorsForThisSample += errorsForThisSample.isEmpty()?"sample name cannot be empty":"; sample name cannot be empty";
+			if(sampleDraft.getName().isEmpty()){//waspErrorMessage("");
+				String sampleNameEmptyMessage = messageService.getMessage("jobsubmitManySamples.sampleNameCannotBeEmpty.error");
+				errorsForThisSample += errorsForThisSample.isEmpty()?sampleNameEmptyMessage : "; "+sampleNameEmptyMessage;
 			}
 			else{				
 				//next check against sample names ALREADY in the database, for this draft job
@@ -1903,11 +1911,13 @@ public class JobSubmissionController extends WaspController {
 				}
 			
 				if(resultForName.hasErrors()){
-					errorsForThisSample += errorsForThisSample.isEmpty()?"sample name already used on this job submission":"; sample name already used on this job submission";
+					String sampleNameAlreadyUsedOnThisSubmission = messageService.getMessage("jobsubmitManySamples.sampleNameAlreadyUsedOnThisSubmission.error");
+					errorsForThisSample += errorsForThisSample.isEmpty()?sampleNameAlreadyUsedOnThisSubmission : "; "+sampleNameAlreadyUsedOnThisSubmission;
 				}				
 				//finally check against the sample names on this form (not yet in database)
 				if(sampleDraftNamesAsList.contains(sampleDraft.getName())){
-					errorsForThisSample += errorsForThisSample.isEmpty()?"sample name used at least twice on this form":"; sample name used at least twice on this form";
+					String sampleNameAlreadyUsedOnThisForm = messageService.getMessage("jobsubmitManySamples.sampleNameAlreadyUsedOnThisForm.error");
+					errorsForThisSample += errorsForThisSample.isEmpty()? sampleNameAlreadyUsedOnThisForm :"; "+sampleNameAlreadyUsedOnThisForm;
 				}				
 				
 				sampleDraftNamesAsList.add(sampleDraft.getName()); //add to this list only if sample name is NOT empty
@@ -1929,9 +1939,13 @@ public class JobSubmissionController extends WaspController {
 			if(!errorsForThisSample.isEmpty()){
 				atLeastOneErrorExists = true;				
 			}
-			counter++;
+			
 		}
-		
+		if(numberOfIncomingRows == numberOfCompletelyEmptyRows){//no data at all was filled in
+			if(numberOfRowsWithValidSampleId==0){//all rows are new samples/libraries (none are existing samples for  update)
+				return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
+			}
+		}
 		if(atLeastOneErrorExists==true){
 			
 			/* ********for testing only
