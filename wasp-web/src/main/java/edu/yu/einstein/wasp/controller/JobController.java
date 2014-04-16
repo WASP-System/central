@@ -995,7 +995,7 @@ public class JobController extends WaspController {
 					    }
 					    
 					    if(!fileDescription.equalsIgnoreCase("quote") && !fileDescription.equalsIgnoreCase("invoice")){
-					    	String errorMessage = "Description must be Quote or Invoice";
+					    	String errorMessage = messageService.getMessage("jobHomeUploadQuoteOrInvoice.descriptionMustBeQuoteOrInvoice.error");//"Description must be Quote or Invoice";
 					    	logger.warn(errorMessage);
 					    	m.addAttribute("errorMessage", errorMessage);
 							return "job/home/uploadQuoteOrInvoice";
@@ -1005,7 +1005,7 @@ public class JobController extends WaspController {
 					    totalCostAsString = totalCostAsString==null?"":totalCostAsString.trim();
 					    
 					    if("".equals(totalCostAsString)){
-					    	String errorMessage = "Please provide a value for Total Cost";
+					    	String errorMessage = messageService.getMessage("jobHomeUploadQuoteOrInvoice.pleaseProvideTotalCost.error");//"Please provide a value for Total Cost";
 					    	logger.warn(errorMessage);
 					    	m.addAttribute("errorMessage", errorMessage);
 							return "job/home/uploadQuoteOrInvoice";
@@ -1015,7 +1015,7 @@ public class JobController extends WaspController {
 						try{
 							totalCost = new Integer(totalCostAsString);
 						}catch(Exception e){
-							String errorMessage = "Please provide a whole number for Total Cost";
+							String errorMessage = messageService.getMessage("jobHomeUploadQuoteOrInvoice.pleaseProvideWholeNumberTotalCost.error");//"Please provide a whole number for Total Cost";
 					    	logger.warn(errorMessage);
 					    	m.addAttribute("errorMessage", errorMessage);
 							return "job/home/uploadQuoteOrInvoice";
