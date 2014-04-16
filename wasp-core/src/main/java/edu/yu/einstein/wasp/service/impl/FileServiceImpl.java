@@ -677,19 +677,21 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		ex.shutdownNow();
 		logger.debug("registered, getting results");
 		
-		int numFile = 0;
-		
 		try {
-			Map<String, String> output = gws.getMappedTaskOutput(r);
-			Iterator<String> keys = output.keySet().iterator();
-			for (FileHandle f : fileH) {
+			Map<Integer, String> output = gws.getMappedTaskOutput(r);
 
-				String key = keys.next();
-				logger.debug("task data: " + key + " : " + numFile);
-				f.setMd5hash(StringUtils.chomp(output.get(key)));
-				fileHandleDao.save(f);
-				logger.debug("file registered with MD5: " + f.getMd5hash());
-				numFile++;
+			Iterator<FileHandle> fhi = fileH.iterator();
+			for (int rec=0; rec < fileH.size(); rec++) {
+			    FileHandle f = fhi.next();
+			    String md5 = StringUtils.chomp(output.get(rec));
+			    if (md5 == null) {
+			        logger.error("unable to find MD5 result for " + f.getFileName());
+			        continue;
+			    }
+			    logger.debug("MD5: " + rec + " : " + md5 + ":" + f.getFileName());
+			    f.setMd5hash(md5);
+			    fileHandleDao.save(f);
+			    logger.debug("file registered with MD5: " + f.getMd5hash());
 			}
 		} catch (IOException e) {
 			throw new GridException("unable to read output of task array", e);
@@ -1651,3 +1653,4 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	}
 
 }
+;
