@@ -77,7 +77,7 @@ public interface GridWorkService {
 	
 	public InputStream readTaskOutput(GridResult r, int taskId) throws IOException;
 
-	public LinkedHashMap<String,String> getMappedTaskOutput(GridResult r) throws IOException;
+	public LinkedHashMap<Integer,String> getMappedTaskOutput(GridResult r) throws IOException;
 	
 	//public void setGridFileMovers(List<GridFileMover> gridFileMovers);
 	

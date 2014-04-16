@@ -532,7 +532,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		w.addCommand("THIS=${COPY[WASP_TASK_ID]}");
 		w.addCommand("read -ra FILE <<< \"$THIS\"");
 		w.addCommand("cp -f ${FILE[0]} ${" + WorkUnit.RESULTS_DIRECTORY + "}${FILE[1]}");
-		w.addCommand("if [ \"$TASK_ID\" -eq \"0\" ]; then rm -f " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
+		w.addCommand("if [ \"" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"0\" ]; then rm -f " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
 		GridResult r = execute(w);
 		logger.debug("waiting for results file copy");
 		ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
@@ -835,7 +835,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 					"echo \"##### end ${" + WorkUnit.JOB_NAME + "}\" >> " + w.remoteWorkingDirectory + "${" + WorkUnit.JOB_NAME + "}.command\n";
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
-			    postscript = "if [ \"$TASK_ID\" -eq \"0\" ]; then\n" + postscript + "fi\n";
+			    postscript = "if [ \"" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"0\" ]; then\n" + postscript + "fi\n";
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY)) {
 				postscript += "touch ${" + WorkUnit.WORKING_DIRECTORY + "}/${" + WorkUnit.TASK_END_FILE + "}\n" +
@@ -1081,43 +1081,45 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		String suffix = ":" + taskId + ".out";
 		return readResultFile(r, suffix, true);
 	}
-	
-	@Override
-	public LinkedHashMap<String,String> getMappedTaskOutput(GridResult r) throws IOException {
-		LinkedHashMap<String,String> result = new LinkedHashMap<String,String>();
-		File f = File.createTempFile("wasp", "work");
-		String path = r.getArchivedResultOutputPath();
-		logger.debug("temporary tar file " + f.getAbsolutePath() + " for " + path);
-		gridFileService.get(path, f);
-		FileInputStream afis = new FileInputStream(f);
-		GZIPInputStream agz = new GZIPInputStream(afis);
-		TarArchiveInputStream a = new TarArchiveInputStream(agz);
-		logger.debug("tar " + a.toString());
-		TarArchiveEntry e;
-		while ((e = a.getNextTarEntry()) != null) {
-			logger.debug("saw tar file entry " + e.getName());
-			Matcher filem = Pattern.compile(":[0-9]+?.out").matcher(e.getName());
-			if (!filem.find())
-				continue;
-			byte[] content = new byte[(int) e.getSize()];
-			a.read(content, 0, content.length);
-			ByteArrayInputStream bais = new ByteArrayInputStream(content);
-			BufferedReader br = new BufferedReader(new InputStreamReader(bais));
- 
-			StringBuilder sb = new StringBuilder();
-			String line;
-	    	while ((line = br.readLine()) != null) {
-	    		sb.append(line);
-	    	}
-	    	result.put(e.getName(), sb.toString());
-	    	br.close();
-		}
-		a.close();
-	    agz.close();
-	    afis.close();
-	    f.delete();
-		return result;
-	}
+
+    @Override
+    public LinkedHashMap<Integer, String> getMappedTaskOutput(GridResult r) throws IOException {
+        LinkedHashMap<Integer, String> result = new LinkedHashMap<Integer, String>();
+        File f = File.createTempFile("wasp", "work");
+        String path = r.getArchivedResultOutputPath();
+        logger.debug("temporary tar file " + f.getAbsolutePath() + " for " + path);
+        gridFileService.get(path, f);
+        FileInputStream afis = new FileInputStream(f);
+        GZIPInputStream agz = new GZIPInputStream(afis);
+        TarArchiveInputStream a = new TarArchiveInputStream(agz);
+        logger.debug("tar " + a.toString());
+        TarArchiveEntry e;
+        while ((e = a.getNextTarEntry()) != null) {
+            logger.debug("saw tar file entry " + e.getName());
+            Matcher filem = Pattern.compile(":([0-9]+?).out").matcher(e.getName());
+            if (!filem.find())
+                continue;
+            Integer record = Integer.decode(filem.group(1));
+            logger.trace("record number " + record);
+            byte[] content = new byte[(int) e.getSize()];
+            a.read(content, 0, content.length);
+            ByteArrayInputStream bais = new ByteArrayInputStream(content);
+            BufferedReader br = new BufferedReader(new InputStreamReader(bais));
+
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+            result.put(record, sb.toString());
+            br.close();
+        }
+        a.close();
+        agz.close();
+        afis.close();
+        f.delete();
+        return result;
+    }
 	
 	protected InputStream readResultFile(GridResult r, String suffix, boolean keep) throws IOException {
 		String path = r.getArchivedResultOutputPath();
