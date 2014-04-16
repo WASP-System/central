@@ -71,6 +71,17 @@
           <property name="tooltip" value="gatk.pipeline.max_alternate_alleles.tt" />
         </bean>
         
+        <bean parent="gatkUiFieldWrapper">
+          <property name="baseName" value="variantCallingMethod" />
+          <property name="metaposition" value="30" />
+          <property name="label" value="gatk.pipeline.selectCaller.label" />
+          <property name="control" value="gatk.pipeline.selectCaller.control" />
+          <property name="default" value="hc" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="gatk.pipeline.selectCaller.error" />
+          <property name="tooltip" value="gatk.pipeline.selectCaller.tt" />
+        </bean> 
+        
         <!-- bean parent="gatkUiFieldWrapper">
           <property name="baseName" value="gatk-dcov" />
           <property name="metaposition" value="30" />

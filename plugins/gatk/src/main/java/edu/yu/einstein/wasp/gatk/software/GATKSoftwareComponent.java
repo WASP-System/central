@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -162,13 +163,27 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return w;
 	}
 	
-	
-	
-	
 	@Transactional("entityManager")
-	public WorkUnit getCallVariants(SampleSource cellLibrary, List<FileGroup> fileGroups, Map<String,Object> jobParameters) {
+	public WorkUnit getCallVariants(SampleSource cellLibrary, List<FileGroup> fileGroups, Map<String,Object> jobParameters) throws ParameterValueRetrievalException {
+		if (!jobParameters.containsKey("variantCallingMethod"))
+			throw new ParameterValueRetrievalException("Unable to determine variant calling method from job parameters");
 		
 		Job job = sampleService.getJobOfLibraryOnCell(cellLibrary);
+		Build build = gatkService.getGenomeBuild(cellLibrary);
+		
+		String gatkOpts = "";
+		for (String opt : jobParameters.keySet()) {
+			if (!opt.startsWith("gatk"))
+				continue;
+			String key = opt.replace("gatk", "");
+			gatkOpts += " " + key + " " + jobParameters.get(opt).toString();
+		}
+		Strategy strategy = strategyService.getThisJobsStrategy(StrategyType.LIBRARY_STRATEGY, sampleService.getJobOfLibraryOnCell(cellLibrary));
+		String wxsIntervalFile = null;
+		if (strategy.getStrategy().equals("WXS"))
+			wxsIntervalFile = gatkService.getWxsIntervalFile(job, build);
+		if (wxsIntervalFile != null) // not null if whole exome seq and an interval file is specified
+			gatkOpts += " -L " + wxsIntervalFile;
 		
 		final int NUM_THREADS = 4;
 		final int MEMORY_REQUIRED = 8; // in Gb
@@ -176,8 +191,6 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		
 		w.setMode(ExecutionMode.PROCESS);
 	
-		w.setMemoryRequirements(MEMORY_REQUIRED);
-		w.setProcessorRequirements(NUM_THREADS);
 		w.setProcessMode(ProcessMode.MAX);
 
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();
@@ -192,34 +205,55 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		w.setSecureResults(false);
 		
 		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
-		//${WASPFILE[@]}
 		
-		String gatkOpts = "";
+		String referenceGenomeFile = gatkService.getReferenceGenomeFastaFile(build);
+		String snpFile = gatkService.getReferenceSnpsVcfFile(build);
+	
+		String variantCallingMethod = (String) jobParameters.get("variantCallingMethod");
+		if (variantCallingMethod.equals("ug"))
+			return getCallVariantsByUnifiedGenotyper(w, referenceGenomeFile,  snpFile, gatkOpts);
+		if (variantCallingMethod.equals("hc"))
+			return getCallVariantsByHaplotypeCaller(w, referenceGenomeFile,  snpFile, gatkOpts);
+		throw new ParameterValueRetrievalException("Unable to determine variant calling method from job parameter with value=" + variantCallingMethod);
+	}
+	
+	@Transactional("entityManager")
+	private WorkUnit getCallVariantsByUnifiedGenotyper(WorkUnit w, String referenceGenomeFile, String snpFile, String gatkOpts) {
+		final int NUM_THREADS = 4;
+		final int MEMORY_REQUIRED = 8; // in Gb
+		w.setMemoryRequirements(MEMORY_REQUIRED);
+		w.setProcessorRequirements(NUM_THREADS);
 		
-		for (String opt : jobParameters.keySet()) {
-			if (!opt.startsWith("gatk"))
-				continue;
-			String key = opt.replace("gatk", "");
-			gatkOpts += " " + key + " " + jobParameters.get(opt).toString();
-		}
-		Build build = gatkService.getGenomeBuild(cellLibrary);
-		Strategy strategy = strategyService.getThisJobsStrategy(StrategyType.LIBRARY_STRATEGY, sampleService.getJobOfLibraryOnCell(cellLibrary));
-		String wxsIntervalFile = null;
-		if (strategy.getStrategy().equals("WXS"))
-			wxsIntervalFile = gatkService.getWxsIntervalFile(job, build);
-		if (wxsIntervalFile != null) // not null if whole exome seq and an interval file is specified
-			gatkOpts += " -L " + wxsIntervalFile;
-		
-		String command = "java -Xmx" + MEMORY_REQUIRED + "g -Djava.io.tmpdir=${" + WorkUnit.WORKING_DIRECTORY + "} -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt " + NUM_THREADS +
-		" `printf -- '%s\n' ${" + WorkUnit.INPUT_FILE + "[@]} | sed 's/^/-I /g' | tr '\n' ' '` -R " + 
-		gatkService.getReferenceGenomeFastaFile(build) + "genome.fasta -T UnifiedGenotyper -o gatk.${" + 
-		WorkUnit.JOB_NAME + "}.raw.vcf --dbsnp " + gatkService.getReferenceSnpsVcfFile(build) + 
-		" -l INFO -stand_emit_conf 10.0 -baq CALCULATE_AS_NECESSARY" + gatkOpts +
+		String command = "java -Xmx" + MEMORY_REQUIRED + "g" +
+		" -Djava.io.tmpdir=${" + WorkUnit.WORKING_DIRECTORY + "} -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt " + NUM_THREADS +
+		" `printf -- '%s\n' ${" + WorkUnit.INPUT_FILE + "[@]} | sed 's/^/-I /g' | tr '\n' ' '` -R " + referenceGenomeFile + "genome.fasta" +
+		" -T UnifiedGenotyper -o gatk.${" + WorkUnit.JOB_NAME + "}.raw.vcf --dbsnp " + snpFile + 
+		" -l INFO -baq CALCULATE_AS_NECESSARY" + gatkOpts +
 		" -dt BY_SAMPLE -G Standard -rf BadCigar -A Coverage -A MappingQualityRankSumTest" +
 		" -A FisherStrand -A InbreedingCoeff -A ReadPosRankSumTest -A QualByDepth -A HaplotypeScore -A RMSMappingQuality -glm BOTH";
 
 		//
-		logger.debug("Will conduct gatk call variant with string: " + command);
+		logger.debug("Will conduct gatk call variants with command string: " + command);
+		
+		w.setCommand(command);
+		
+		return w;
+	}
+	
+	@Transactional("entityManager")
+	private WorkUnit getCallVariantsByHaplotypeCaller(WorkUnit w, String referenceGenomeFile, String snpFile, String gatkOpts) {
+		
+		final int NUM_THREADS = 4;
+		final int MEMORY_REQUIRED = 8; // in Gb
+		w.setMemoryRequirements(MEMORY_REQUIRED);
+		w.setProcessorRequirements(NUM_THREADS);
+		
+		String command = "java -Xmx" + MEMORY_REQUIRED + "g" +
+		" -Djava.io.tmpdir=${" + WorkUnit.WORKING_DIRECTORY + "} -jar $GATK_ROOT/GenomeAnalysisTK.jar -nct " + NUM_THREADS +
+		" `printf -- '%s\n' ${" + WorkUnit.INPUT_FILE + "[@]} | sed 's/^/-I /g' | tr '\n' ' '` -R " + referenceGenomeFile + "genome.fasta" +
+		" -T HaplotypeCaller -o gatk.${" + WorkUnit.JOB_NAME + "}.raw.vcf --dbsnp " + snpFile + " --genotyping_mode DISCOVERY" + gatkOpts;
+
+		logger.debug("Will conduct gatk call variants with command string: " + command);
 		
 		w.setCommand(command);
 		
