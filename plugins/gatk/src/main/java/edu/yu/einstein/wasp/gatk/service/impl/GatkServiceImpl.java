@@ -4,6 +4,9 @@
  */
 package edu.yu.einstein.wasp.gatk.service.impl;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,10 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.MetadataRuntimeException;
 import edu.yu.einstein.wasp.exception.NullResourceException;
+import edu.yu.einstein.wasp.gatk.fileformat.GatkBamFileTypeAttribute;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.fileformat.plugin.BamFileTypeAttribute;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -45,6 +50,16 @@ public class GatkServiceImpl extends WaspServiceImpl implements GatkService {
 	public String performAction() {
 		// do something
 		return "done";
+	}
+	
+	@Override
+	public Set<BamFileTypeAttribute> getCompleteGatkBamFileAttributeSet(){
+		Set<BamFileTypeAttribute> attributes = new HashSet<>();
+		attributes.add(BamFileTypeAttribute.SORTED);
+		attributes.add(BamFileTypeAttribute.DEDUP);
+		attributes.add(GatkBamFileTypeAttribute.REALN_AROUND_INDELS);
+		attributes.add(GatkBamFileTypeAttribute.RECAL_QC_SCORES);
+		return attributes;
 	}
 	
 	@Override

@@ -166,7 +166,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	
 	
 	@Transactional("entityManager")
-	public WorkUnit getCallVariant(SampleSource cellLibrary, List<FileGroup> fileGroups, Map<String,Object> jobParameters) {
+	public WorkUnit getCallVariants(SampleSource cellLibrary, List<FileGroup> fileGroups, Map<String,Object> jobParameters) {
 		
 		Job job = sampleService.getJobOfLibraryOnCell(cellLibrary);
 		

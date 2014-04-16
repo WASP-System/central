@@ -5,6 +5,9 @@ package edu.yu.einstein.wasp.gatk.batch.tasklet;
  * 
  */
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
@@ -14,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
+import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
@@ -23,6 +27,7 @@ import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.fileformat.service.BamService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
 
@@ -38,12 +43,15 @@ public class PrintRecaliTasklet extends WaspRemotingTasklet implements StepExecu
 
 	@Autowired
 	private FileService fileService;
+	
+	@Autowired
+	private FileTypeService fileTypeService;
 
 	@Autowired
 	private GridHostResolver gridHostResolver;
 
 	@Autowired
-	private FileType bamDedupRealnRecalFileType;
+	private FileType bamFileType;
 	
 	@Autowired
 	private FileType baiFileType;
@@ -84,10 +92,15 @@ public class PrintRecaliTasklet extends WaspRemotingTasklet implements StepExecu
 		bam.setFileName(bamOutput);
 		bam = fileService.addFile(bam);
 		bamG.addFileHandle(bam);
-		bamG.setFileType(bamDedupRealnRecalFileType);
+		bamG.setFileType(bamFileType);
 		bamG.setDescription(bamOutput);
 		bamG.setSoftwareGeneratedBy(gatk);
 		bamG = fileService.addFileGroup(bamG);
+		Set<String> attributes = new HashSet<>();
+		attributes.add(BamService.BAM_ATTRIBUTE_REALN_AROUND_INDELS);
+		attributes.add(BamService.BAM_ATTRIBUTE_RECAL_QC_SCORES);
+		attributes.add(BamService.BAM_ATTRIBUTE_REALN_AROUND_INDELS);
+		fileTypeService.setAttributes(bamG, attributes);
 		Integer bamGId = bamG.getId();
 		// save in step context  for use later
 		stepExecutionContext.put("bamGID", bamGId);

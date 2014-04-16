@@ -69,6 +69,7 @@ import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.PluginException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.filetype.FileTypeAttribute;
 import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
@@ -377,7 +378,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Set<FileGroup> getFilesByType(FileType fileType, Set<String> attributes) {
+	public Set<FileGroup> getFilesByType(FileType fileType, Set<? extends FileTypeAttribute> attributes) {
 		Set<FileGroup> fgsWithAttributes = new LinkedHashSet<>();
 		for (FileGroup fg : getFilesByType(fileType))
 			if (fileTypeService.hasAttributes(fg, attributes))
@@ -405,7 +406,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * @throws SampleTypeException
 	 */
 	@Override
-	public Set<FileGroup> getFilesForLibraryByType(Sample library, FileType fileType, Set<String> attributes) throws SampleTypeException {
+	public Set<FileGroup> getFilesForLibraryByType(Sample library, FileType fileType, Set<? extends FileTypeAttribute> attributes) throws SampleTypeException {
 		Set<FileGroup> fgsWithAttributes = new LinkedHashSet<>();
 		for (FileGroup fg : getFilesForLibraryByType(library, fileType))
 			if (fileTypeService.hasAttributes(fg, attributes))
@@ -478,7 +479,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * @throws SampleTypeException
 	 */
 	@Override
-	public Set<FileGroup> getFilesForCellLibraryByType(SampleSource cellLibrary, FileType fileType, Set<String> attributes) {
+	public Set<FileGroup> getFilesForCellLibraryByType(SampleSource cellLibrary, FileType fileType, Set<? extends FileTypeAttribute> attributes) {
 		Set<FileGroup> fgsWithAttributes = new LinkedHashSet<>();
 		for (FileGroup fg : getFilesForCellLibraryByType(cellLibrary, fileType))
 			if (fileTypeService.hasAttributes(fg, attributes))
@@ -508,7 +509,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * @throws SampleTypeException
 	 */
 	@Override
-	public Set<FileGroup> getFilesForCellLibraryByType(Sample cell, Sample library, FileType fileType, Set<String> attributes) throws SampleTypeException {
+	public Set<FileGroup> getFilesForCellLibraryByType(Sample cell, Sample library, FileType fileType, Set<? extends FileTypeAttribute> attributes) throws SampleTypeException {
 		return getFilesForCellLibraryByType(sampleService.getCellLibrary(cell, library), fileType, attributes);
 	}
 	
@@ -574,7 +575,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * @throws SampleTypeException
 	 */
 	@Override
-	public Set<FileGroup> getFilesForPlatformUnitByType(Sample platformUnit, FileType fileType, Set<String> attributes) throws SampleTypeException {
+	public Set<FileGroup> getFilesForPlatformUnitByType(Sample platformUnit, FileType fileType, Set<? extends FileTypeAttribute> attributes) throws SampleTypeException {
 		Set<FileGroup> fgsWithAttributes = new LinkedHashSet<>();
 		for (FileGroup fg : getFilesForPlatformUnitByType(platformUnit, fileType))
 			if (fileTypeService.hasAttributes(fg, attributes))
@@ -1679,7 +1680,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * @throws SampleTypeException
 	 */
 	@Override
-	public Set<FileGroup> getFilesForMacromoleculeOrLibraryByType(Sample sample, FileType fileType, Set<String> attributes) throws SampleTypeException {
+	public Set<FileGroup> getFilesForMacromoleculeOrLibraryByType(Sample sample, FileType fileType, Set<? extends FileTypeAttribute> attributes) throws SampleTypeException {
 		Set<FileGroup> fgsWithAttributes = new LinkedHashSet<>();
 		for (FileGroup fg : getFilesForMacromoleculeOrLibraryByType(sample, fileType))
 			if (fileTypeService.hasAttributes(fg, attributes))

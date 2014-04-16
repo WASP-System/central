@@ -30,6 +30,7 @@ import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.filetype.FileTypeAttribute;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.interfacing.Hyperlink;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -112,7 +113,7 @@ public interface FileService extends WaspService {
 	 * @param fileType
 	 * @return
 	 */
-	public Set<FileGroup> getFilesByType(FileType fileType, Set<String> attributes);
+	public Set<FileGroup> getFilesByType(FileType fileType, Set<? extends FileTypeAttribute> attributes);
 
 	
 	/**
@@ -132,7 +133,7 @@ public interface FileService extends WaspService {
 	 * @return
 	 * @throws SampleTypeException
 	 */
-	Set<FileGroup> getFilesForLibraryByType(Sample library, FileType fileType, Set<String> attributes) throws SampleTypeException;
+	Set<FileGroup> getFilesForLibraryByType(Sample library, FileType fileType, Set<? extends FileTypeAttribute> attributes) throws SampleTypeException;
 	
 	/**
 	 * @param cellLibrary
@@ -180,7 +181,7 @@ public interface FileService extends WaspService {
 	 * @return
 	 * @throws SampleTypeException
 	 */
-	public Set<FileGroup> getFilesForPlatformUnitByType(Sample platformUnit, FileType fileType, Set<String> attributes) throws SampleTypeException;
+	public Set<FileGroup> getFilesForPlatformUnitByType(Sample platformUnit, FileType fileType, Set<? extends FileTypeAttribute> attributes) throws SampleTypeException;
 
 	/**
 	 * Returns a list of files for the given platformUnit or an empty list if none.
@@ -234,11 +235,11 @@ public interface FileService extends WaspService {
 
 	public Map<FileType, Set<FileGroup>> getFilesForCellLibraryMappedToFileType(Sample cell, Sample library) throws SampleTypeException;
 	
-	public Set<FileGroup> getFilesForCellLibraryByType(SampleSource cellLibrary, FileType fileType, Set<String> attributes);
+	public Set<FileGroup> getFilesForCellLibraryByType(SampleSource cellLibrary, FileType fileType, Set<? extends FileTypeAttribute> attributes);
 
 	public Set<FileGroup> getFilesForCellLibraryByType(Sample cell, Sample library, FileType fileType) throws SampleTypeException;
 	
-	public Set<FileGroup> getFilesForCellLibraryByType(Sample cell, Sample library, FileType fileType, Set<String> attributes) throws SampleTypeException;
+	public Set<FileGroup> getFilesForCellLibraryByType(Sample cell, Sample library, FileType fileType, Set<? extends FileTypeAttribute> attributes) throws SampleTypeException;
 
 	/**
 	 * @param group
@@ -315,7 +316,7 @@ public interface FileService extends WaspService {
 	 * @return
 	 * @throws SampleTypeException
 	 */	
-	public Set<FileGroup> getFilesForMacromoleculeOrLibraryByType(Sample sample, FileType fileType, Set<String> attributes) throws SampleTypeException;
+	public Set<FileGroup> getFilesForMacromoleculeOrLibraryByType(Sample sample, FileType fileType, Set<? extends FileTypeAttribute> attributes) throws SampleTypeException;
 	
 	/**
 	 * Returns a Map of files (actually a Map of a Set<FileGroup) for a given macromolecule or library associated by FileType

@@ -7,6 +7,7 @@ import java.util.Set;
 
 import edu.yu.einstein.wasp.dao.FileTypeDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.filetype.FileTypeAttribute;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.service.WaspService;
@@ -48,28 +49,28 @@ public interface FileTypeService extends WaspService {
 	 * @param fg
 	 * @param attribute
 	 */
-	public void addAttribute(FileGroup fg, String attribute);
+	public void addAttribute(FileGroup fg, FileTypeAttribute attribute);
 	
 	/**
 	 * remove a FileGroup attribute
 	 * @param fg
 	 * @param attribute
 	 */
-	public void removeAttribute(FileGroup fg, String attribute);
+	public void removeAttribute(FileGroup fg, FileTypeAttribute attribute);
 	
 	/**
 	 * set FileGroup attributes at once
 	 * @param fg
 	 * @param attributes
 	 */
-	public void setAttributes(FileGroup fg, Set<String> attributes);
+	public void setAttributes(FileGroup fg, Set<? extends FileTypeAttribute> attributes);
 	
 	/**
 	 * get all FileGroup attributes
 	 * @param fg
 	 * @return
 	 */
-	public Set<String> getAttributes(FileGroup fg);
+	public Set<? extends FileTypeAttribute> getAttributes(FileGroup fg);
 	
 	/**
 	 * Test whether or not the FileGroup has at least the set of attributes
@@ -77,7 +78,7 @@ public interface FileTypeService extends WaspService {
 	 * @param attributes
 	 * @return
 	 */
-	public boolean hasAttributes(FileGroup fg, Set<String> attributes);
+	public boolean hasAttributes(FileGroup fg, Set<? extends FileTypeAttribute> attributes);
 	
 	/**
 	 * Test whether or not the FileGroup has at least the provided attribute
@@ -85,7 +86,7 @@ public interface FileTypeService extends WaspService {
 	 * @param attributes
 	 * @return
 	 */
-	public boolean hasAttribute(FileGroup fg, String attribute);
+	public boolean hasAttribute(FileGroup fg, FileTypeAttribute attribute);
 	
 	/**
 	 * Test whether or not the FileGroup has ONLY the set of attributes.
@@ -93,7 +94,7 @@ public interface FileTypeService extends WaspService {
 	 * @param attributes
 	 * @return
 	 */
-	public boolean hasOnlyAttributes(FileGroup fg, Set<String> attributes);
+	public boolean hasOnlyAttributes(FileGroup fg, Set<? extends FileTypeAttribute> attributes);
 	
 	/**
 	 * Test whether or not the FileGroup has ONLY the provided attribute.
@@ -101,7 +102,7 @@ public interface FileTypeService extends WaspService {
 	 * @param attributes
 	 * @return
 	 */
-	public boolean hasOnlyAttribute(FileGroup fg, String attribute);
+	public boolean hasOnlyAttribute(FileGroup fg, FileTypeAttribute attribute);
 	
 	/**
 	 * Copy all FileGroupMeta metadata from one FileGroup to another
