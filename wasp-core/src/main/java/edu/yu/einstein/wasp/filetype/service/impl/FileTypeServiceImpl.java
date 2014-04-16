@@ -172,62 +172,62 @@ public abstract class FileTypeServiceImpl extends WaspServiceImpl implements Fil
 	    return result;
 	}
 	
-	private <T extends FileTypeAttribute> Set<T> stringToSet(String s) {
-	    Set<T> attributes = new HashSet<>();
+	private <T extends FileTypeAttribute> Set<FileTypeAttribute> stringToSet(String s) {
+	    Set<FileTypeAttribute> attributes = new HashSet<>();
 	    if (s != null) {
 	    	for (String attrStr : s.split(FILEGROUP_ATTRIBUTE_DELIMITER))
-	    		attributes.add((T) new FileTypeAttribute(attrStr));
+				attributes.add(new FileTypeAttribute(attrStr));
 	    }
 	    return attributes;
 	}
 
 	@Override
-	public <T extends FileTypeAttribute> void addAttribute(FileGroup fg, T attribute) {
+	public void addAttribute(FileGroup fg, FileTypeAttribute attribute) {
 	    String atts = getMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY);
-	    Set<T> attributes = stringToSet(atts);
+	    Set<FileTypeAttribute> attributes = stringToSet(atts);
 	    if (!attributes.contains(attribute)) {
-		attributes.add(attribute);
-		try {
-		    setMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY, setToString(attributes));
-		} catch (MetadataException e) {
-		    logger.error("unable to set metadata: " + e.getMessage());
-		}
+			attributes.add(attribute);
+			try {
+			    setMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY, setToString(attributes));
+			} catch (MetadataException e) {
+			    logger.error("unable to set metadata: " + e.getMessage());
+			}
 	    }
 	}
 
 	@Override
-	public <T extends FileTypeAttribute> void removeAttribute(FileGroup fg, T attribute) {
+	public void removeAttribute(FileGroup fg, FileTypeAttribute attribute) {
 	    String atts = getMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY);
-	    Set<T> attributes = stringToSet(atts);
+	    Set<FileTypeAttribute> attributes = stringToSet(atts);
 	    if (attributes.contains(attribute)) {
-		attributes.remove(attribute);
-		try {
-		    setMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY, setToString(attributes));
-		} catch (MetadataException e) {
-		    logger.error("unable to set metadata: " + e.getMessage());
-		}
+			attributes.remove(attribute);
+			try {
+			    setMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY, setToString(attributes));
+			} catch (MetadataException e) {
+			    logger.error("unable to set metadata: " + e.getMessage());
+			}
 	    }
 	}
 
 	@Override
-	public <T extends FileTypeAttribute> void setAttributes(FileGroup fg, Set<T> attributes) {
+	public void setAttributes(FileGroup fg, Set<? extends FileTypeAttribute> attributes) {
 	    try {
-		setMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY, setToString(attributes));
+	    	setMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY, setToString(attributes));
 	    } catch (MetadataException e) {
-		logger.error("unable to set metadata: " + e.getMessage());
+	    	logger.error("unable to set metadata: " + e.getMessage());
 	    }
 	    
 	}
 
 	@Override
-	public <T extends FileTypeAttribute> Set<T> getAttributes(FileGroup fg) {
+	public Set<FileTypeAttribute> getAttributes(FileGroup fg) {
 	    String atts = getMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY);
-	    Set<T> attributes = stringToSet(atts);
+	    Set<FileTypeAttribute> attributes = stringToSet(atts);
 	    return attributes;
 	}
 
 	@Override
-	public <T extends FileTypeAttribute> boolean hasAttributes(FileGroup fg, Set<T> attributes) {
+	public boolean hasAttributes(FileGroup fg, Set<? extends FileTypeAttribute> attributes) {
 	    String atts = getMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY);
 	    Set<? extends FileTypeAttribute> fgatts = stringToSet(atts);
 	    if (fgatts.containsAll(attributes)) return true;
@@ -235,23 +235,23 @@ public abstract class FileTypeServiceImpl extends WaspServiceImpl implements Fil
 	}
 	
 	@Override
-	public <T extends FileTypeAttribute> boolean hasAttribute(FileGroup fg, T attribute) {
-		Set<T> atts = new HashSet<>();
+	public boolean hasAttribute(FileGroup fg, FileTypeAttribute attribute) {
+		Set<FileTypeAttribute> atts = new HashSet<>();
 		atts.add(attribute);
 	    return hasAttributes(fg, atts);
 	}
 	
 	@Override
-	public <T extends FileTypeAttribute> boolean hasOnlyAttribute(FileGroup fg, T attribute) {
-		Set<T> atts = new HashSet<>();
+	public boolean hasOnlyAttribute(FileGroup fg, FileTypeAttribute attribute) {
+		Set<FileTypeAttribute> atts = new HashSet<>();
 		atts.add(attribute);
 		return hasOnlyAttributes(fg, atts);
 	}
 
 	@Override
-	public <T extends FileTypeAttribute> boolean hasOnlyAttributes(FileGroup fg, Set<T> attributes) {
+	public boolean hasOnlyAttributes(FileGroup fg, Set<? extends FileTypeAttribute> attributes) {
 	    String atts = getMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY);
-	    Set<T> fgatts = stringToSet(atts);
+	    Set<FileTypeAttribute> fgatts = stringToSet(atts);
 	    if (fgatts.containsAll(attributes) && fgatts.size() == attributes.size()) return true;
 	    return false;
 	}
