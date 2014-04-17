@@ -56,6 +56,12 @@ public class UiFieldFamilyWrapperAndLoader {
 	
 	private String tooltip;
 	
+	private String onClick;
+	
+	private String onChange;
+	
+	private String onRender;
+	
 	private List<UiField> uiFields;
 
 
@@ -218,6 +224,30 @@ public class UiFieldFamilyWrapperAndLoader {
 		this.uiFields = uiFields;
 	}
 	
+	public String getOnClick() {
+		return onClick;
+	}
+
+	public void setOnClick(String onClick) {
+		this.onClick = onClick;
+	}
+
+	public String getOnChange() {
+		return onChange;
+	}
+
+	public void setOnChange(String onChange) {
+		this.onChange = onChange;
+	}
+
+	public String getOnRender() {
+		return onRender;
+	}
+
+	public void setOnRender(String onRender) {
+		this.onRender = onRender;
+	}
+
 	private List<UiField> generateUiFields(){
 		List<UiField> uiFieldList = new ArrayList<UiField>();
 		if (this.baseLocale == null || this.baseArea == null || this.baseName == null){
@@ -342,6 +372,37 @@ public class UiFieldFamilyWrapperAndLoader {
 			uiField.setAttrValue(this.data);
 			uiFieldList.add(uiField);
 		}
+		
+		if (this.onClick != null){
+			UiField uiField = new UiField();
+			uiField.setLocale(this.baseLocale);
+			uiField.setArea(this.baseArea);
+			uiField.setName(this.baseName);
+			uiField.setAttrName("onclick");
+			uiField.setAttrValue(this.onClick);
+			uiFieldList.add(uiField);
+		}
+		
+		if (this.onChange != null){
+			UiField uiField = new UiField();
+			uiField.setLocale(this.baseLocale);
+			uiField.setArea(this.baseArea);
+			uiField.setName(this.baseName);
+			uiField.setAttrName("onchange");
+			uiField.setAttrValue(this.onChange);
+			uiFieldList.add(uiField);
+		}
+		
+		if (this.onRender != null){
+			UiField uiField = new UiField();
+			uiField.setLocale(this.baseLocale);
+			uiField.setArea(this.baseArea);
+			uiField.setName(this.baseName);
+			uiField.setAttrName("onrender");
+			uiField.setAttrValue(this.onRender);
+			uiFieldList.add(uiField);
+		}
+		
 		return uiFieldList;
 	}
 	

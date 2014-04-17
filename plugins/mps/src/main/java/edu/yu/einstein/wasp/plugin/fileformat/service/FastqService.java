@@ -8,7 +8,6 @@ import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.service.WaspService;
 
 public interface FastqService extends WaspService {
@@ -24,8 +23,6 @@ public interface FastqService extends WaspService {
 	public static final String FASTQ_GROUP_NUMBER_OF_READ_SEGMENTS = "numberOfReadSegments";
 	
 	public static final String FASTQ_INAME = "fastq";
-	
-	public static final String FASTQ_ATTRIBUTE_TRIMMED = "trimmed";
 	
 	/**
 	 * Get FASTQ read number from a FASTQ file.  For Illumina, 1=F 2=R. 

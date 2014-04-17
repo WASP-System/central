@@ -4,8 +4,6 @@
 package edu.yu.einstein.wasp.filetype.service.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +19,9 @@ import edu.yu.einstein.wasp.dao.FileGroupDao;
 import edu.yu.einstein.wasp.dao.FileGroupMetaDao;
 import edu.yu.einstein.wasp.dao.FileHandleDao;
 import edu.yu.einstein.wasp.dao.FileHandleMetaDao;
+import edu.yu.einstein.wasp.dao.FileTypeDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.filetype.FileTypeAttribute;
 import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
@@ -47,13 +47,21 @@ public abstract class FileTypeServiceImpl extends WaspServiceImpl implements Fil
 	@Autowired
 	private FileGroupDao fileGroupDao;
 	
+	@Autowired
+	private FileTypeDao fileTypeDao;
+	
 	private FileHandleMetaDao fileMetaDao;
 	
 	private static final String FILEGROUP_ATTRIBUTE_DELIMITER = "::";
-	
+
 	@Autowired
 	public void setFileMetaDao(FileHandleMetaDao fileMetaDao) {
 		this.fileMetaDao = fileMetaDao;
+	}
+	
+	@Override
+	public FileTypeDao getFileTypeDao() {
+		return fileTypeDao;
 	}
 
 	@Override
@@ -156,7 +164,7 @@ public abstract class FileTypeServiceImpl extends WaspServiceImpl implements Fil
 		fileGroupMetaDao.setMeta(fileMeta);
 	}
 	
-	private String setToString(Set<String> s) {
+	private String setToString(Set<? extends FileTypeAttribute> s) {
 	    String result = "";
 	    if (s.size() > 0) {
 		result = StringUtils.join(s, FILEGROUP_ATTRIBUTE_DELIMITER);
@@ -164,71 +172,86 @@ public abstract class FileTypeServiceImpl extends WaspServiceImpl implements Fil
 	    return result;
 	}
 	
-	private Set<String> stringToSet(String s) {
-	    Set<String> attributes = new HashSet<String>();
+	private Set<FileTypeAttribute> stringToSet(String s) {
+	    Set<FileTypeAttribute> attributes = new HashSet<>();
 	    if (s != null) {
-		attributes.addAll( new HashSet<String>(Arrays.asList(s.split(FILEGROUP_ATTRIBUTE_DELIMITER))));
+	    	for (String attrStr : s.split(FILEGROUP_ATTRIBUTE_DELIMITER))
+				attributes.add(new FileTypeAttribute(attrStr));
 	    }
 	    return attributes;
 	}
 
 	@Override
-	public void addAttribute(FileGroup fg, String attribute) {
+	public void addAttribute(FileGroup fg, FileTypeAttribute attribute) {
 	    String atts = getMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY);
-	    Set<String> attributes = stringToSet(atts);
+	    Set<FileTypeAttribute> attributes = stringToSet(atts);
 	    if (!attributes.contains(attribute)) {
-		attributes.add(attribute);
-		try {
-		    setMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY, setToString(attributes));
-		} catch (MetadataException e) {
-		    logger.error("unable to set metadata: " + e.getMessage());
-		}
+			attributes.add(attribute);
+			try {
+			    setMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY, setToString(attributes));
+			} catch (MetadataException e) {
+			    logger.error("unable to set metadata: " + e.getMessage());
+			}
 	    }
 	}
 
 	@Override
-	public void removeAttribute(FileGroup fg, String attribute) {
+	public void removeAttribute(FileGroup fg, FileTypeAttribute attribute) {
 	    String atts = getMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY);
-	    Set<String> attributes = stringToSet(atts);
+	    Set<FileTypeAttribute> attributes = stringToSet(atts);
 	    if (attributes.contains(attribute)) {
-		attributes.remove(attribute);
-		try {
-		    setMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY, setToString(attributes));
-		} catch (MetadataException e) {
-		    logger.error("unable to set metadata: " + e.getMessage());
-		}
+			attributes.remove(attribute);
+			try {
+			    setMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY, setToString(attributes));
+			} catch (MetadataException e) {
+			    logger.error("unable to set metadata: " + e.getMessage());
+			}
 	    }
 	}
 
 	@Override
-	public void setAttributes(FileGroup fg, Set<String> attributes) {
+	public void setAttributes(FileGroup fg, Set<? extends FileTypeAttribute> attributes) {
 	    try {
-		setMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY, setToString(attributes));
+	    	setMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY, setToString(attributes));
 	    } catch (MetadataException e) {
-		logger.error("unable to set metadata: " + e.getMessage());
+	    	logger.error("unable to set metadata: " + e.getMessage());
 	    }
 	    
 	}
 
 	@Override
-	public Set<String> getAttributes(FileGroup fg) {
+	public Set<FileTypeAttribute> getAttributes(FileGroup fg) {
 	    String atts = getMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY);
-	    Set<String> attributes = stringToSet(atts);
+	    Set<FileTypeAttribute> attributes = stringToSet(atts);
 	    return attributes;
 	}
 
 	@Override
-	public boolean hasAttributes(FileGroup fg, Set<String> attributes) {
+	public boolean hasAttributes(FileGroup fg, Set<? extends FileTypeAttribute> attributes) {
 	    String atts = getMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY);
-	    Set<String> fgatts = stringToSet(atts);
+	    Set<? extends FileTypeAttribute> fgatts = stringToSet(atts);
 	    if (fgatts.containsAll(attributes)) return true;
 	    return false;
 	}
+	
+	@Override
+	public boolean hasAttribute(FileGroup fg, FileTypeAttribute attribute) {
+		Set<FileTypeAttribute> atts = new HashSet<>();
+		atts.add(attribute);
+	    return hasAttributes(fg, atts);
+	}
+	
+	@Override
+	public boolean hasOnlyAttribute(FileGroup fg, FileTypeAttribute attribute) {
+		Set<FileTypeAttribute> atts = new HashSet<>();
+		atts.add(attribute);
+		return hasOnlyAttributes(fg, atts);
+	}
 
 	@Override
-	public boolean hasOnlyAttributes(FileGroup fg, Set<String> attributes) {
+	public boolean hasOnlyAttributes(FileGroup fg, Set<? extends FileTypeAttribute> attributes) {
 	    String atts = getMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY);
-	    Set<String> fgatts = stringToSet(atts);
+	    Set<FileTypeAttribute> fgatts = stringToSet(atts);
 	    if (fgatts.containsAll(attributes) && fgatts.size() == attributes.size()) return true;
 	    return false;
 	}

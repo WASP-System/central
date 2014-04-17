@@ -35,9 +35,22 @@
     </property> 
     <property name="uiFieldsFromWrapper">
       <list>
+      	<bean parent="gatkUiFieldWrapper">
+          <property name="baseName" value="ug--sample_ploidy" />
+          <property name="metaposition" value="10" />
+          <property name="label" value="gatk.pipeline.sample_ploidy.label" />
+          <property name="type" value="INTEGER" />
+          <property name="range" value="1:10000" />
+          <property name="default" value="2" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="onChange" value="if($('#ug--sample_ploidy').val() != 2){$('#variantCallingMethod option[value=ug]').prop('selected', true);$('#variantCallingMethod').prop('disabled', true);$('#row_ug-dcov').show()} else {$('#variantCallingMethod').prop('disabled', false);$('#variantCallingMethod option[value=hc]').prop('selected', true);$('#row_ug-dcov').hide()}" />
+          <property name="error" value="gatk.pipeline.sample_ploidy.error" />
+          <property name="tooltip" value="gatk.pipeline.sample_ploidy.tt" />
+        </bean>
+      
         <bean parent="gatkUiFieldWrapper">
           <property name="baseName" value="gatk-stand_call_conf" />
-          <property name="metaposition" value="10" />
+          <property name="metaposition" value="20" />
           <property name="label" value="gatk.pipeline.stand_call_conf.label" />
           <property name="type" value="NUMBER" />
           <property name="range" value="10:100" />
@@ -49,7 +62,7 @@
         
         <bean parent="gatkUiFieldWrapper">
           <property name="baseName" value="gatk-stand_emit_conf" />
-          <property name="metaposition" value="10" />
+          <property name="metaposition" value="30" />
           <property name="label" value="gatk.pipeline.stand_emit_conf.label" />
           <property name="type" value="NUMBER" />
           <property name="range" value="10:100" />
@@ -61,7 +74,7 @@
         
         <bean parent="gatkUiFieldWrapper">
           <property name="baseName" value="gatk--max_alternate_alleles" />
-          <property name="metaposition" value="20" />
+          <property name="metaposition" value="40" />
           <property name="label" value="gatk.pipeline.max_alternate_alleles.label" />
           <property name="type" value="INTEGER" />
           <property name="range" value="3:1000" />
@@ -71,17 +84,30 @@
           <property name="tooltip" value="gatk.pipeline.max_alternate_alleles.tt" />
         </bean>
         
-        <!-- bean parent="gatkUiFieldWrapper">
-          <property name="baseName" value="gatk-dcov" />
-          <property name="metaposition" value="30" />
+        <bean parent="gatkUiFieldWrapper">
+          <property name="baseName" value="variantCallingMethod" />
+          <property name="metaposition" value="50" />
+          <property name="label" value="gatk.pipeline.selectCaller.label" />
+          <property name="control" value="gatk.pipeline.selectCaller.control" />
+          <property name="default" value="hc" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="onChange" value="if($('#variantCallingMethod').val() == 'ug'){$('#row_ug-dcov').show()} else {$('#row_ug-dcov').hide()}" />
+          <property name="error" value="gatk.pipeline.selectCaller.error" />
+          <property name="tooltip" value="gatk.pipeline.selectCaller.tt" />
+        </bean> 
+        
+        <bean parent="gatkUiFieldWrapper">
+          <property name="baseName" value="ug-dcov" />
+          <property name="metaposition" value="60" />
           <property name="label" value="gatk.pipeline.dcov.label" />
           <property name="type" value="INTEGER" />
           <property name="range" value="10:2000" />
           <property name="default" value="250" />
           <property name="constraint" value="NotEmpty" />
+          <property name="onRender" value="if($('#variantCallingMethod').val() != 'ug'){$('#row_ug-dcov').hide()}" />
           <property name="error" value="gatk.pipeline.dcov.error" />
           <property name="tooltip" value="gatk.pipeline.dcov.tt" />
-        </bean -->
+        </bean>
  
 
         

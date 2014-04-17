@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
+import edu.yu.einstein.wasp.filetype.service.FileTypeService;
+import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
@@ -41,7 +43,9 @@ public class CallVariantTasklet extends WaspRemotingTasklet implements StepExecu
 	@Autowired
 	private FileService fileService;
 	
-
+	@Autowired
+	private FileTypeService fileTypeService;
+	
 	@Autowired
 	private SampleService sampleService;
 	
@@ -49,10 +53,13 @@ public class CallVariantTasklet extends WaspRemotingTasklet implements StepExecu
 	private JobService jobService;
 	
 	@Autowired
+	private FileType bamFileType;
+	
+	@Autowired
 	private GridHostResolver gridHostResolver;
 	
 	@Autowired
-	private FileType bamDedupRealnRecalFileType;
+	private GatkService gatkService;
 	
 	private StepExecution stepExecution;
 	
@@ -85,7 +92,9 @@ public class CallVariantTasklet extends WaspRemotingTasklet implements StepExecu
 		
 		
 		for (Integer currentId : cellLibraryIds) {
-			Set<FileGroup> tmpFileGroups = fileService.getFilesForCellLibraryByType(sampleService.getSampleSourceDao().findById(currentId), bamDedupRealnRecalFileType); 
+			SampleSource cellLibrary = sampleService.getSampleSourceDao().findById(currentId);
+			Set<FileGroup> tmpFileGroups = fileService.getFilesForCellLibraryByType(cellLibrary, bamFileType, gatkService.getCompleteGatkBamFileAttributeSet());
+			
 			logger.debug("get file group");
 			//Assert.assertTrue(tmpFileGroups.size() == 1);
 			FileGroup currentFg = null;
@@ -110,7 +119,7 @@ public class CallVariantTasklet extends WaspRemotingTasklet implements StepExecu
 		
 		// TODO: temporary, fix me
 		//WorkUnit w = new WorkUnit();
-		WorkUnit w = gatk.getCallVariant(cellLibrary1, fileGroups, jobParameters);
+		WorkUnit w = gatk.getCallVariants(cellLibrary1, fileGroups, jobParameters);
 		
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
    
