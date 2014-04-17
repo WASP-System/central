@@ -532,7 +532,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		w.addCommand("THIS=${COPY[WASP_TASK_ID]}");
 		w.addCommand("read -ra FILE <<< \"$THIS\"");
 		w.addCommand("cp -f ${FILE[0]} ${" + WorkUnit.RESULTS_DIRECTORY + "}${FILE[1]}");
-		w.addCommand("if [ \"" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"0\" ]; then rm -f " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
+		w.addCommand("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"0\" ]; then rm -f " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
 		GridResult r = execute(w);
 		logger.debug("waiting for results file copy");
 		ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
@@ -835,7 +835,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 					"echo \"##### end ${" + WorkUnit.JOB_NAME + "}\" >> " + w.remoteWorkingDirectory + "${" + WorkUnit.JOB_NAME + "}.command\n";
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
-			    postscript = "if [ \"" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"0\" ]; then\n" + postscript + "fi\n";
+			    postscript = "if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"0\" ]; then\n" + postscript + "fi\n";
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY)) {
 				postscript += "touch ${" + WorkUnit.WORKING_DIRECTORY + "}/${" + WorkUnit.TASK_END_FILE + "}\n" +
