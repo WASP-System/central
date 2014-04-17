@@ -72,8 +72,20 @@
         </bean>
         
         <bean parent="gatkUiFieldWrapper">
-          <property name="baseName" value="variantCallingMethod" />
+          <property name="baseName" value="ug--sample_ploidy" />
           <property name="metaposition" value="30" />
+          <property name="label" value="gatk.pipeline.sample_ploidy.label" />
+          <property name="type" value="INTEGER" />
+          <property name="range" value="1:10000" />
+          <property name="default" value="2" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="gatk.pipeline.sample_ploidy.error" />
+          <property name="tooltip" value="gatk.pipeline.sample_ploidy.tt" />
+        </bean>
+        
+        <bean parent="gatkUiFieldWrapper">
+          <property name="baseName" value="variantCallingMethod" />
+          <property name="metaposition" value="40" />
           <property name="label" value="gatk.pipeline.selectCaller.label" />
           <property name="control" value="gatk.pipeline.selectCaller.control" />
           <property name="default" value="hc" />

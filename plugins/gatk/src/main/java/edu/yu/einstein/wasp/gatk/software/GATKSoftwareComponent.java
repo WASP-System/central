@@ -226,7 +226,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		
 		String command = "java -Xmx" + MEMORY_REQUIRED + "g" +
 		" -Djava.io.tmpdir=${" + WorkUnit.WORKING_DIRECTORY + "} -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt " + NUM_THREADS +
-		" `printf -- '%s\n' ${" + WorkUnit.INPUT_FILE + "[@]} | sed 's/^/-I /g' | tr '\n' ' '` -R " + referenceGenomeFile + "genome.fasta" +
+		" `printf -- '%s\n' ${" + WorkUnit.INPUT_FILE + "[@]} | sed 's/^/-I /g' | tr '\n' ' '` -R " + referenceGenomeFile +
 		" -T UnifiedGenotyper -o gatk.${" + WorkUnit.JOB_NAME + "}.raw.vcf --dbsnp " + snpFile + 
 		" -l INFO -baq CALCULATE_AS_NECESSARY" + gatkOpts +
 		" -dt BY_SAMPLE -G Standard -rf BadCigar -A Coverage -A MappingQualityRankSumTest" +
@@ -250,7 +250,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		
 		String command = "java -Xmx" + MEMORY_REQUIRED + "g" +
 		" -Djava.io.tmpdir=${" + WorkUnit.WORKING_DIRECTORY + "} -jar $GATK_ROOT/GenomeAnalysisTK.jar -nct " + NUM_THREADS +
-		" `printf -- '%s\n' ${" + WorkUnit.INPUT_FILE + "[@]} | sed 's/^/-I /g' | tr '\n' ' '` -R " + referenceGenomeFile + "genome.fasta" +
+		" `printf -- '%s\n' ${" + WorkUnit.INPUT_FILE + "[@]} | sed 's/^/-I /g' | tr '\n' ' '` -R " + referenceGenomeFile +
 		" -T HaplotypeCaller -o gatk.${" + WorkUnit.JOB_NAME + "}.raw.vcf --dbsnp " + snpFile + " --genotyping_mode DISCOVERY" + gatkOpts;
 
 		logger.debug("Will conduct gatk call variants with command string: " + command);
