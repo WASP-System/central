@@ -44,6 +44,10 @@ public final class MetaAttribute implements Serializable {
 		
 		private String defaultVal;
 		
+		private String onClick;
+		
+		private String onChange;
+		
 		private MetaType metaType = MetaType.STRING;
 
 		private FormVisibility formVisibility;
@@ -152,6 +156,22 @@ public final class MetaAttribute implements Serializable {
 			this.suffix = suffix;
 		}
 		
+		public String getOnClick() {
+			return onClick;
+		}
+
+		public void setOnClick(String onClick) {
+			this.onClick = onClick;
+		}
+
+		public String getOnChange() {
+			return onChange;
+		}
+
+		public void setOnChange(String onChange) {
+			this.onChange = onChange;
+		}
+
 		/**
 		 * 
 		 * Represents a control element such as a select box. An object of this class will typically either use the options attribute OR
