@@ -48,6 +48,8 @@ public final class MetaAttribute implements Serializable {
 		
 		private String onChange;
 		
+		private String onRender;
+		
 		private MetaType metaType = MetaType.STRING;
 
 		private FormVisibility formVisibility;
@@ -170,6 +172,14 @@ public final class MetaAttribute implements Serializable {
 
 		public void setOnChange(String onChange) {
 			this.onChange = onChange;
+		}
+
+		public String getOnRender() {
+			return onRender;
+		}
+
+		public void setOnRender(String onRender) {
+			this.onRender = onRender;
 		}
 
 		/**

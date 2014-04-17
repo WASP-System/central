@@ -9,6 +9,7 @@
 		</c:if>
 		<c:set var="labelKey" value="${_meta.property.label}" />
 		<c:set var="id" value="${fn:substringAfter(_meta.k,'.')}" />
+		<c:set var="eventHandlers"><c:if test="${not empty _meta.property.onChange}"> onchange="<c:out value="${_meta.property.onChange}" escapeXml="false" />"</c:if><c:if test="${not empty _meta.property.onClick}"> onclick="<c:out value="${_meta.property.onClick}" escapeXml="false" />"</c:if></c:set>
 
 		<tr class="FormData" id="row_${id}">
 			<td class="CaptionTD">${labelKey}:</td>
@@ -18,7 +19,7 @@
 				
 			    <%-- this tag will define selectItems/itemValue/itemLabel request attributes --%>
 			    <wasp:metaSelect control="${_meta.property.control}"/>
-       			<select class="FormElement ui-widget-content ui-corner-all" name="${_area}Meta_${_meta.k}" id="${id}">
+       			<select class="FormElement ui-widget-content ui-corner-all" name="${_area}Meta_${_meta.k}" id="${id}"<c:out value="${eventHandlers}" escapeXml="false" />>
 					<c:if test= "${fn:length(selectItems) > 1 && _meta.property.formVisibility != 'immutable'}">
 						<option value=''><fmt:message key="wasp.default_select.label"/></option>
 					</c:if>
@@ -45,7 +46,7 @@
 					<c:if test="${(empty inputVal) &&  (not empty _meta.property.defaultVal)}">
 						<c:set var="inputVal" value="${_meta.property.defaultVal}" />
 					</c:if>
-					<input class="FormElement ui-widget-content ui-corner-all" name="${_area}Meta_${_meta.k}" id="${id}"  value="${inputVal}" <c:if test= "${_meta.property.formVisibility == 'immutable'}"> readonly="readonly"</c:if> />
+					<input class="FormElement ui-widget-content ui-corner-all" name="${_area}Meta_${_meta.k}" id="${id}"  value="${inputVal}" <c:if test= "${_meta.property.formVisibility == 'immutable'}"> readonly="readonly"</c:if><c:out value="${eventHandlers}" escapeXml="false" /> />
 				</c:otherwise>
 			</c:choose>
 			<c:if test="${not empty _meta.property.constraint}">
@@ -58,5 +59,6 @@
 		
 			<td class="CaptionTD error"><form:errors path="${_area}Meta[${status.index}].k" /> </td>					 
 		</tr>	
+		<c:if test="${not empty _meta.property.onRender}"><script><c:out value="${_meta.property.onRender}" escapeXml="false" /></script></c:if>
 	</c:if>			 
 </c:forEach>

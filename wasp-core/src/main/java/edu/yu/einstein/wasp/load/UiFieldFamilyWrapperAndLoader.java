@@ -60,6 +60,8 @@ public class UiFieldFamilyWrapperAndLoader {
 	
 	private String onChange;
 	
+	private String onRender;
+	
 	private List<UiField> uiFields;
 
 
@@ -238,6 +240,14 @@ public class UiFieldFamilyWrapperAndLoader {
 		this.onChange = onChange;
 	}
 
+	public String getOnRender() {
+		return onRender;
+	}
+
+	public void setOnRender(String onRender) {
+		this.onRender = onRender;
+	}
+
 	private List<UiField> generateUiFields(){
 		List<UiField> uiFieldList = new ArrayList<UiField>();
 		if (this.baseLocale == null || this.baseArea == null || this.baseName == null){
@@ -380,6 +390,16 @@ public class UiFieldFamilyWrapperAndLoader {
 			uiField.setName(this.baseName);
 			uiField.setAttrName("onchange");
 			uiField.setAttrValue(this.onChange);
+			uiFieldList.add(uiField);
+		}
+		
+		if (this.onRender != null){
+			UiField uiField = new UiField();
+			uiField.setLocale(this.baseLocale);
+			uiField.setArea(this.baseArea);
+			uiField.setName(this.baseName);
+			uiField.setAttrName("onrender");
+			uiField.setAttrValue(this.onRender);
 			uiFieldList.add(uiField);
 		}
 		
