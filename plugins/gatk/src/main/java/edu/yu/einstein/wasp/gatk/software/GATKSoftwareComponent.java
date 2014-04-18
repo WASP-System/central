@@ -24,8 +24,8 @@ import edu.yu.einstein.wasp.service.StrategyService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
- * @author jcai
  * @author asmclellan
+ * @author jcai
  */
 public class GATKSoftwareComponent extends SoftwarePackage {
 	
@@ -142,7 +142,8 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return w;
 	}	
 	
-	private WorkUnit prepareWorkUnit(FileGroup fg) {
+	@Transactional("entityManager")
+	public WorkUnit prepareWorkUnit(FileGroup fg) {
 		final int MEMORY_REQUIRED = 8; // in Gb
 		WorkUnit w = new WorkUnit();
 		
@@ -158,8 +159,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		sd.add(this);
 		w.setSoftwareDependencies(sd);
 		w.setSecureResults(false);
-		
-	
+
 		return w;
 	}
 	
@@ -170,12 +170,17 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		
 		Job job = sampleService.getJobOfLibraryOnCell(cellLibrary);
 		Build build = gatkService.getGenomeBuild(cellLibrary);
+		String variantCallingMethod = (String) jobParameters.get("variantCallingMethod");
 		
 		String gatkOpts = "";
 		for (String opt : jobParameters.keySet()) {
-			if (!opt.startsWith("gatk"))
+			String key;
+			if (opt.startsWith("gatk"))
+				key = opt.replace("gatk", "");
+			else if (variantCallingMethod.equals("ug") && opt.startsWith("ug"))
+				key = opt.replace("ug", "");
+			else 
 				continue;
-			String key = opt.replace("gatk", "");
 			gatkOpts += " " + key + " " + jobParameters.get(opt).toString();
 		}
 		Strategy strategy = strategyService.getThisJobsStrategy(StrategyType.LIBRARY_STRATEGY, sampleService.getJobOfLibraryOnCell(cellLibrary));
@@ -185,8 +190,6 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		if (wxsIntervalFile != null) // not null if whole exome seq and an interval file is specified
 			gatkOpts += " -L " + wxsIntervalFile;
 		
-		final int NUM_THREADS = 4;
-		final int MEMORY_REQUIRED = 8; // in Gb
 		WorkUnit w = new WorkUnit();
 		
 		w.setMode(ExecutionMode.PROCESS);
@@ -209,7 +212,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		String referenceGenomeFile = gatkService.getReferenceGenomeFastaFile(build);
 		String snpFile = gatkService.getReferenceSnpsVcfFile(build);
 	
-		String variantCallingMethod = (String) jobParameters.get("variantCallingMethod");
+		
 		if (variantCallingMethod.equals("ug"))
 			return getCallVariantsByUnifiedGenotyper(w, referenceGenomeFile,  snpFile, gatkOpts);
 		if (variantCallingMethod.equals("hc"))
@@ -217,7 +220,6 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		throw new ParameterValueRetrievalException("Unable to determine variant calling method from job parameter with value=" + variantCallingMethod);
 	}
 	
-	@Transactional("entityManager")
 	private WorkUnit getCallVariantsByUnifiedGenotyper(WorkUnit w, String referenceGenomeFile, String snpFile, String gatkOpts) {
 		final int NUM_THREADS = 4;
 		final int MEMORY_REQUIRED = 8; // in Gb
@@ -240,7 +242,6 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return w;
 	}
 	
-	@Transactional("entityManager")
 	private WorkUnit getCallVariantsByHaplotypeCaller(WorkUnit w, String referenceGenomeFile, String snpFile, String gatkOpts) {
 		
 		final int NUM_THREADS = 4;
