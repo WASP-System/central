@@ -24,7 +24,7 @@
 			    <td colspan="3" align="left" class="submitBottom">
 		        	<a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/library/${sample.getId()}/librarydetail_ro.do" />");' ><fmt:message key="sampledetail_rw.cancel.label" /></a>
 		        	<a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/library/${sample.getId()}/librarydetail_rw.do" />");' ><fmt:message key="jobHomeLibraryDetailRW.reset.label" /></a>
-					<a class="button" href="javascript:void(0);"  onclick='postFormWithAjaxJson("editLibraryFormId","<wasp:relativeUrl value="job/${job.getId()}/library/${sample.getId()}/librarydetail.do" />"); return false;' ><fmt:message key="sampledetail_rw.save.label" /></a>	
+					<a class="button" href="javascript:void(0);"  onclick='postFormWithAjaxJson("editLibraryFormId","<wasp:relativeUrl value="job/${job.getId()}/library/${sample.getId()}/librarydetail_rw.do" />"); return false;' ><fmt:message key="sampledetail_rw.save.label" /></a>	
 			    </td>
 			</tr>	    
 	     </sec:authorize>

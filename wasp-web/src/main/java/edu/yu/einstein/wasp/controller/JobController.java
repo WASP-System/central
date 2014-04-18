@@ -2733,7 +2733,8 @@ public class JobController extends WaspController {
 		}
 		if(macromoleculeSample==null){
 			logger.warn("Macromolecule sample unexpectedly not part of this job");
-		   	m.addAttribute("errorMessage", "Macromolecule sample unexpectedly not part of this job"); 
+		   	//m.addAttribute("errorMessage", "Macromolecule sample unexpectedly not part of this job");
+			m.addAttribute("errorMessage", messageService.getMessage("jobHomeCreateLibrary.macromoleculeNotPartOfJob.error"));
 			return "job/home/message";
 		}		
 		m.addAttribute("macromoleculeSample", macromoleculeSample);
@@ -2743,7 +2744,8 @@ public class JobController extends WaspController {
 		List<SampleSubtype> librarySampleSubtypes = sampleService.getSampleSubtypesForWorkflowByRole(job.getWorkflow().getId(), roles, "library");
 		if(librarySampleSubtypes.isEmpty()){
 			errorMessage="Unexpected Error: sampleSubtype Not Found";
-			m.addAttribute("errorMessage", errorMessage);
+			//m.addAttribute("errorMessage", errorMessage);
+			m.addAttribute("errorMessage", messageService.getMessage("jobHomeCreateLibrary.sampleSubtypeNotFound.error"));
 			return "job/home/message";
 		}
 		SampleSubtype librarySampleSubtype = librarySampleSubtypes.get(0); // should be one
@@ -2792,7 +2794,8 @@ public class JobController extends WaspController {
 			}
 			if(parentMacromolecule==null){
 				logger.warn("Macromolecule sample unexpectedly not part of this job");
-			   	m.addAttribute("errorMessage", "Macromolecule sample unexpectedly not part of this job"); 
+			   //m.addAttribute("errorMessage", "Macromolecule sample unexpectedly not part of this job"); 
+			   	m.addAttribute("errorMessage", messageService.getMessage("jobHomeCreateLibrary.macromoleculeNotPartOfJob.error"));
 				return "job/home/message";
 			}	
 		  
@@ -2837,12 +2840,12 @@ public class JobController extends WaspController {
 				SampleWrapper managedLibraryFromForm = new SampleWrapperWebapp(libraryForm);
 				managedLibraryFromForm.setParent(parentMacromolecule);
 				sampleService.createFacilityLibraryFromMacro(job, managedLibraryFromForm, metaFromForm);
-				String successMessage = "New Library Successfully Created";
+				String successMessage = messageService.getMessage("jobHomeCreateLibrary.newLibraryRecordCreated.label");//"New Library Record Successfully Created";
 				int newLibraryId = managedLibraryFromForm.getSampleObject().getId().intValue();
 				return "redirect:/job/"+jobId+"/library/"+newLibraryId+"/librarydetail_ro.do?successMessage="+successMessage;			  
 		  }
 		  catch(Exception e){
-				String errorMessage = "Creation Of New Library Record Failed: Unexpected Error";
+				String errorMessage = messageService.getMessage("jobHomeCreateLibrary.newLibraryRecordFailed.error");//"Creation Of New Library Record Unexpectedly Failed";
 				logger.warn(errorMessage);
 			   	m.addAttribute("errorMessage", errorMessage); 
 				return "job/home/message";
@@ -2875,7 +2878,7 @@ public class JobController extends WaspController {
 		}
 		if(theRequestedSample==null){
 			logger.warn("Sample unexpectedly not part of this job");
-		   	m.addAttribute("errorMessage", "Sample unexpectedly not part of this job"); 
+		   	m.addAttribute("errorMessage", messageService.getMessage("jobHomeSampleDetailRO.sampleNotPartOfJob.error"));//"Sample unexpectedly not part of this job"); 
 			return "job/home/message";
 		}
 				
@@ -2918,7 +2921,7 @@ public class JobController extends WaspController {
 		}
 		if(theRequestedSample==null){
 			logger.warn("Sample unexpectedly not part of this job");
-		   	m.addAttribute("errorMessage", "Sample unexpectedly not part of this job"); 
+		   	m.addAttribute("errorMessage", messageService.getMessage("jobHomeSampleDetailRW.sampleNotPartOfJob.error")); 
 			return "job/home/message";
 		}
 				
@@ -2959,7 +2962,7 @@ public class JobController extends WaspController {
 		}
 		if(!sampleIsPartOfJob){
 			logger.warn("Sample unexpectedly not part of this job");
-		   	m.addAttribute("errorMessage", "Sample unexpectedly not part of this job"); 
+		   	m.addAttribute("errorMessage", messageService.getMessage("jobHomeSampleDetailRW.sampleNotPartOfJob.error")); 
 			return "job/home/message";
 		}
 
@@ -2998,11 +3001,11 @@ public class JobController extends WaspController {
 			sample.setName(sampleForm.getName());
 			SampleWrapperWebapp managedSample = new SampleWrapperWebapp(sample);
 			sampleService.updateExistingSampleViaSampleWrapper(managedSample, metaFromForm);
-			String successMessage = "Update Successfully Completed";
+			String successMessage = messageService.getMessage("jobHomeSampleDetailRW.updateSuccessful.label");//"Update Successfully Completed";
 			return "redirect:/job/"+jobId+"/sample/"+sampleId+"/sampledetail_ro.do?successMessage="+successMessage;
 
 		}catch(Exception e){
-			String errorMessage = "Update Failed: Unexpected Error";
+			String errorMessage = messageService.getMessage("jobHomeSampleDetailRW.updateFailed.error");//"Update Unexpectedly Failed";
 			logger.warn(e.getMessage() + ": " + errorMessage);
 		   	m.addAttribute("errorMessage", errorMessage); 
 			return "job/home/message";
@@ -3034,7 +3037,7 @@ public class JobController extends WaspController {
 			}
 			if(!sampleIsPartOfJob){
 				logger.warn("Sample unexpectedly not part of this job");
-			   	m.addAttribute("errorMessage", "Sample unexpectedly not part of this job"); 
+			   	m.addAttribute("errorMessage", messageService.getMessage("jobHomeLibraryDetailRO.sampleNotPartOfJob.error"));//"Sample unexpectedly not part of this job"); 
 				return "job/home/message";
 			}
 			
@@ -3075,7 +3078,7 @@ public class JobController extends WaspController {
 			}
 			if(!sampleIsPartOfJob){
 				logger.warn("Sample unexpectedly not part of this job");
-			   	m.addAttribute("errorMessage", "Sample unexpectedly not part of this job"); 
+			   	m.addAttribute("errorMessage", messageService.getMessage("jobHomeLibraryDetailRW.sampleNotPartOfJob.error"));//"Sample unexpectedly not part of this job"); 
 				return "job/home/message";
 			}
 			
@@ -3090,7 +3093,7 @@ public class JobController extends WaspController {
 	}
 	  
 	@Transactional
-	@RequestMapping(value = "/{jobId}/library/{libraryId}/librarydetail", method = RequestMethod.POST)//sampleId represents a macromolecule (genomic DNA or RNA) , but that could change as this evolves
+	@RequestMapping(value = "/{jobId}/library/{libraryId}/librarydetail_rw", method = RequestMethod.POST)//sampleId represents a macromolecule (genomic DNA or RNA) , but that could change as this evolves
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String updateJobLibraryDetailRW(@PathVariable("jobId") Integer jobId, 
 		@PathVariable("libraryId") Integer libraryId,
@@ -3117,7 +3120,7 @@ public class JobController extends WaspController {
 			}
 			if(!sampleIsPartOfJob){
 				logger.warn("Sample unexpectedly not part of this job");
-			   	m.addAttribute("errorMessage", "Sample unexpectedly not part of this job"); 
+			   	m.addAttribute("errorMessage", messageService.getMessage("jobHomeLibraryDetailRW.sampleNotPartOfJob.error")); 
 				return "job/home/message";
 			}
 			
@@ -3162,11 +3165,11 @@ public class JobController extends WaspController {
 				library.setName(libraryForm.getName());
 				SampleWrapperWebapp managedLibrary = new SampleWrapperWebapp(library);
 				sampleService.updateExistingSampleViaSampleWrapper(managedLibrary, metaFromForm);
-				String successMessage = "Update Successfully Completed";
+				String successMessage = messageService.getMessage("jobHomeLibraryDetailRW.updateSuccessful.label");//"Update Successfully Completed";
 				return "redirect:/job/"+jobId+"/library/"+libraryId+"/librarydetail_ro.do?successMessage="+successMessage;
 
 			}catch(Exception e){
-				String errorMessage = "Update Failed: Unexpected Error";
+				String errorMessage = messageService.getMessage("jobHomeLibraryDetailRW.updateFailed.error");//"Update Failed: Unexpected Error";
 				logger.warn(e.getMessage() + ": " + errorMessage);
 			   	m.addAttribute("errorMessage", errorMessage); 
 				return "job/home/message";
@@ -3192,7 +3195,8 @@ public class JobController extends WaspController {
 			String[] roles = {"lu"};
 			List<SampleSubtype> librarySampleSubtypes = sampleService.getSampleSubtypesForWorkflowByRole(jobDao.getJobByJobId(jobId).getWorkflow().getWorkflowId(), roles, "library");
 			if(librarySampleSubtypes.isEmpty()){
-				throw new MetadataException("Sample Subtype Not Found");
+				//throw new MetadataException("Sample Subtype Not Found");
+				throw new MetadataException(messageService.getMessage("jobHomeCreateLibrary.sampleSubtypeNotFound.error"));
 				//waspErrorMessage("sampleDetail.sampleSubtypeNotFound.error");
 			}
 			Sample modelLibrary = new Sample();
