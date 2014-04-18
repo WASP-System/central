@@ -222,9 +222,11 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 								e.printStackTrace();
 								throw new RuntimeException(mess);
 							}
-						} else if (fields.length == 6) {
+						} else if (fields.length >= 6) {
 							// this is build metadata, currently Map<String,String> in the form dbsnp.filename=filename.vcf.gz
-							String newKey = fields[4] + "." + fields[5];
+							String newKey = fields[4];
+							for (int i=5; i < fields.length; i++)
+								newKey += "." + fields[i];
 							b.addMetadata(newKey, localGenomesProperties.get(k).toString());
 							logger.debug("set build metatata on " + b.toString() + " : " + newKey + "=" + b.getMetadata(newKey));
 						} else {

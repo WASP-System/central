@@ -16,6 +16,8 @@ import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
+import edu.yu.einstein.wasp.dao.JobDraftDao;
+import edu.yu.einstein.wasp.dao.JobDraftMetaDao;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.SampleDraft;
@@ -109,4 +111,8 @@ public interface JobDraftService extends WaspService {
 	 * @throws Exception
 	 */
 	public void setSampleDraftPairsByJobDraft(JobDraft jobDraft, Set<Map<SampleDraft, SampleDraft>> sampleDraftPairSet);
+
+	JobDraftDao getJobDraftDao();
+
+	JobDraftMetaDao getJobDraftMetaDao();
 }

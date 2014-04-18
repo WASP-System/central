@@ -14,8 +14,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -400,4 +400,15 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 			jobDraftMetaDao.save(jdm);
 		}
 	}
+
+	@Override
+	public JobDraftDao getJobDraftDao() {
+		return jobDraftDao;
+	}
+
+	@Override
+	public JobDraftMetaDao getJobDraftMetaDao() {
+		return jobDraftMetaDao;
+	}
+
 }

@@ -86,7 +86,7 @@ public class CreateTargetTasklet extends WaspRemotingTasklet implements StepExec
 		
 		logger.debug("Beginning GATK create re-alignment target step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
 		
-		Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLib, bamFileType); 
+		Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLib, bamFileType);
 		
 		logger.debug("fileGroups.size()="+fileGroups.size());
 		Assert.assertTrue(fileGroups.size() == 1);

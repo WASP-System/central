@@ -22,7 +22,6 @@ public class Strategy extends WaspModel {
 	private String description;	
 	private String available;
 	private String sraCompatible;
-	private Integer id;//id is stolen from meta.getId()
 	
 	public Strategy(){}
 	
@@ -34,7 +33,6 @@ public class Strategy extends WaspModel {
 		setDescription(description);
 		setAvailable(available);
 		setSraCompatible(sraCompatible);
-		
 		setId(id);
 	}
 
@@ -45,7 +43,6 @@ public class Strategy extends WaspModel {
 	public void setAvailable(String available){ this.available = available; }
 	public void setSraCompatible(String sraCompatible){ this.sraCompatible = sraCompatible; }
 	
-	public void setId(Integer id){ this.id = id; }
 	
 	public String getType(){ return this.type; }
 	public String getStrategy(){ return this.strategy; }
@@ -53,8 +50,6 @@ public class Strategy extends WaspModel {
 	public String getDescription(){ return this.description; }
 	public String getAvailable(){ return this.available; }
 	public String getSraCompatible(){ return this.sraCompatible; }
-	
-	public Integer getId(){ return this.id; }
 	
 	public boolean isAvailable(){ 
 		if(available.equalsIgnoreCase("true")) 
@@ -69,5 +64,34 @@ public class Strategy extends WaspModel {
 		else
 			return false; 
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == this) {
+            return true;
+        }
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
+        Strategy s = (Strategy) obj;
+        if (s.getStrategy() == this.strategy && 
+        		s.getType() == this.type &&
+        		(s.getId() == null && this.getId() == null) || ( (s.getId() != null && this.id != null) && s.getId().equals(this.id) ))
+        	return true;
+        return false;
+	}
+	
+	@Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((strategy == null) ? 0 : strategy.hashCode());
+        result = prime * result 
+        		+ ((type == null) ? 0 : type.hashCode());
+        result = prime * result
+                + ((this.getId() == null) ? 0 : id.hashCode());
+        return result;
+    }
 
 }
