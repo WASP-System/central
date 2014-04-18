@@ -5,12 +5,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.dao.FileTypeDao;
+import edu.yu.einstein.wasp.filetype.service.impl.FileTypeServiceImpl;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.plugin.fileformat.service.BamService;
 
 @Service
 @Transactional("entityManager")
-public class BamServiceImpl implements BamService {
+public class BamServiceImpl extends FileTypeServiceImpl implements BamService {
 	
 	@Autowired
 	private FileTypeDao fileTypeDao;
