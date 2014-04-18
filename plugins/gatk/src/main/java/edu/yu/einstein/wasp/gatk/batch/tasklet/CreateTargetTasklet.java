@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.gatk.batch.tasklet;
 
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,6 +25,7 @@ import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.fileformat.plugin.BamFileTypeAttribute;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -86,7 +88,10 @@ public class CreateTargetTasklet extends WaspRemotingTasklet implements StepExec
 		
 		logger.debug("Beginning GATK create re-alignment target step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
 		
-		Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLib, bamFileType);
+		Set<BamFileTypeAttribute> attributes = new HashSet<>();
+		attributes.add(BamFileTypeAttribute.SORTED);
+		attributes.add(BamFileTypeAttribute.DEDUP);
+		Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLib, bamFileType, attributes);
 		
 		logger.debug("fileGroups.size()="+fileGroups.size());
 		Assert.assertTrue(fileGroups.size() == 1);
