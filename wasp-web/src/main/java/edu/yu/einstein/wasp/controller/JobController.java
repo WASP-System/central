@@ -1511,7 +1511,8 @@ public class JobController extends WaspController {
 			else if( "".equals(additionalCostReasonArray[i].trim())	 ||
 					 "".equals(additionalCostUnitsArray[i].trim())	 ||
 					 "".equals(additionalCostPricePerUnitArray[i].trim()) ){
-						errors.add("Row "+(i+1) + " in Additional Costs section is missing information - Please review");
+						//errors.add("Row "+(i+1) + " in Additional Costs section is missing information - Please review");
+						errors.add(messageService.getMessage("jobConstructQuote.row.error")+" "+(i+1)+": "+messageService.getMessage("jobConstructQuote.additionalCostsMissingInfo.error"));			
 						continue;
 			}
 			Integer numberOfUnits = null;
@@ -1520,12 +1521,18 @@ public class JobController extends WaspController {
 				if(!"".equals(additionalCostUnitsArray[i].trim())){
 					numberOfUnits = new Integer(additionalCostUnitsArray[i].trim());
 				}
-			}catch(Exception e){errors.add("Row "+(i+1) + " in Additional Costs section is missing information - whole number required for units");}
+			}catch(Exception e){
+				//errors.add("Row "+(i+1) + " in Additional Costs section is missing information - whole number required for units");
+				errors.add(messageService.getMessage("jobConstructQuote.row.error")+" "+(i+1)+": "+messageService.getMessage("jobConstructQuote.additionalCostsWholeNumberForUnits.error"));			
+			}
 			try{
 				if(!"".equals(additionalCostPricePerUnitArray[i].trim())){
 					costPerUnit = new Integer(additionalCostPricePerUnitArray[i].trim());
 				}
-			}catch(Exception e){errors.add("Row "+(i+1) + " in Additional Costs section is missing information - whole number required for cost/unit; if no charge, enter zero");}
+			}catch(Exception e){
+				//errors.add("Row "+(i+1) + " in Additional Costs section is missing information - whole number required for cost/unit; if no charge, enter zero");
+				errors.add(messageService.getMessage("jobConstructQuote.row.error")+" "+(i+1)+": "+messageService.getMessage("jobConstructQuote.additionalCostsWholeNumberForCostPerUnit.error"));			
+			}
 			if(errors.isEmpty()){
 				additionalCosts.add(new AdditionalCost(additionalCostReasonArray[i].trim(), numberOfUnits, new Float(costPerUnit)));
 			}
@@ -1549,11 +1556,13 @@ public class JobController extends WaspController {
 			else if( "".equals(discountReasonArray[i].trim())	 ||
 					 "".equals(discountTypeArray[i].trim())	 ||
 					 "".equals(discountValueArray[i].trim()) ){
-						errors.add("Row "+(i+1) + " in Discount/Credit section is missing information - Please review");
+						//errors.add("Row "+(i+1) + " in Discount/Credit section is missing information - Please review");
+						errors.add(messageService.getMessage("jobConstructQuote.row.error")+" "+(i+1)+": "+messageService.getMessage("jobConstructQuote.discountCreditMissingInfo.error"));			
 			}
 			if(!"".equals(discountReasonArray[i].trim())){
 				if(discountReasonList.contains(discountReasonArray[i].trim())){
-					errors.add("Row "+(i+1) + " in Discount/Credit section: Any particular reason for a Discount/Credit may be used only once.");
+					//errors.add("Row "+(i+1) + " in Discount/Credit section: Any particular reason for a Discount/Credit may be used only once.");
+					errors.add(messageService.getMessage("jobConstructQuote.row.error")+" "+(i+1)+": "+messageService.getMessage("jobConstructQuote.discountCreditReasonCanBeUsedOnlyOnce.error"));			
 				}
 				else{
 					discountReasonList.add(discountReasonArray[i].trim());
@@ -1561,8 +1570,9 @@ public class JobController extends WaspController {
 			}
 			
 			if(!"".equals(discountTypeArray[i].trim())){
-					if( !currencyIcon.equals(discountTypeArray[i].trim()) && !"%".equals(discountTypeArray[i].trim())){
-						errors.add("Row "+(i+1) + " in Discount/Credit section is missing information - you must select either " + currencyIcon + " or %");
+				if( !currencyIcon.equals(discountTypeArray[i].trim()) && !"%".equals(discountTypeArray[i].trim())){
+					//errors.add("Row "+(i+1) + " in Discount/Credit section is missing information - you must select either " + currencyIcon + " or %");
+					errors.add(messageService.getMessage("jobConstructQuote.row.error")+" "+(i+1)+": "+messageService.getMessage("jobConstructQuote.discountCreditSelectDiscountType.error") + " " + currencyIcon + " or %");			
 				}
 			}
 			Integer discountValue=null;
@@ -1572,11 +1582,15 @@ public class JobController extends WaspController {
 					if("%".equals(discountTypeArray[i].trim())){
 						cumulativePercentDiscount += discountValue;
 						if(discountValue >100){
-							errors.add("Row "+(i+1) + " in Discount/Credit section cannot be greater than 100% - please modify or remove");
+							//errors.add("Row "+(i+1) + " in Discount/Credit section cannot be greater than 100% - please modify or remove");
+							errors.add(messageService.getMessage("jobConstructQuote.row.error")+" "+(i+1)+": "+messageService.getMessage("jobConstructQuote.discountCreditGreaterThan100Percent.error"));			
 						}
 					}										
 				}
-			}catch(Exception e){errors.add("Row "+(i+1) + " in Discount/Credit section is missing information - enter a whole number for discount; no fractions allowed (example: enter 25 for 25%)");}
+			}catch(Exception e){
+				//errors.add("Row "+(i+1) + " in Discount/Credit section is missing information - enter a whole number for discount; no fractions allowed (example: enter 25 for 25%)");
+				errors.add(messageService.getMessage("jobConstructQuote.row.error")+" "+(i+1)+": "+messageService.getMessage("jobConstructQuote.discountCreditWholeNumberForDiscount.error"));			
+			}
 			
 			if(errors.isEmpty()){
 				discounts.add(new Discount(discountReasonArray[i].trim(), discountTypeArray[i].trim(), new Float(discountValue)));
@@ -1584,7 +1598,8 @@ public class JobController extends WaspController {
 		}
  		
  		if(cumulativePercentDiscount>100){
-			errors.add("Cumulative Discount Percent may not exceed 100%");
+			//errors.add("Cumulative Discount Percent may not exceed 100%");
+			errors.add(messageService.getMessage("jobConstructQuote.discountCreditCumulativeDiscountCannotExceed100Percent.error"));			
 		}
  		
  		if(errors.isEmpty()){
