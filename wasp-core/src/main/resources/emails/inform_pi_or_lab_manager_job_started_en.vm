@@ -8,7 +8,7 @@ a brief summary of the request appears below.</p>
 <p>This email is being sent to ${pi.firstName} ${pi.lastName} (the Principal Investigator of the lab), 
 and to all designated Lab Managers for this lab, 
 to request that either the PI or Lab Manager approve or reject this new job submission. 
-To approve or reject the submission, <a href="${baseUrl}/auth/login.do">log into WASP</a>, select Tasks from the main menu, 
+To approve or reject the submission, <a href="${servletUrl}/auth/login.do">log into WASP</a>, select Tasks from the main menu, 
 click on the Lab Management Tasks link, select Job J${job.getJobId()}, choose Approved or Rejected, and then click the Submit button. 
 If you reject this job, please provide a reason in the space provided. 
 (Note that in addition, the Principal Investigator may review all details of this submission by 
@@ -21,7 +21,7 @@ selecting Job/My Submitted Jobs from the main menu, and clicking on the appropri
 4. Arrival of samples at the facility<br /></p>
 
 <p>Note: To assign a regular lab member the status of Lab Manager, to demote a Lab Manager to that of regular lab member, 
-or to change the status of an active lab member to that of inactive lab member, <a href="${baseUrl}/auth/login.do">log into WASP</a>, 
+or to change the status of an active lab member to that of inactive lab member, <a href="${servletUrl}/auth/login.do">log into WASP</a>, 
 select Labs from the main menu, click on the User Manager link for the lab, and follow the directions provided.</p>
 
 <p>Should you have any further questions, please contact us using the information below.</p>

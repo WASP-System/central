@@ -1,7 +1,7 @@
 WASP: Confirm New Email Address Request
 <p>Dear ${user.firstName} ${user.lastName},</p>
 
-<p><a href="${baseUrl}/auth/confirmNewUserEmail.do?authcode=${authcode}&email=${urlencodedemail}">Please click here</a> to confirm your new email address.</p>
+<p><a href="${servletUrl}/auth/confirmNewUserEmail.do?authcode=${authcode}&email=${urlencodedemail}">Please click here</a> to confirm your new email address.</p>
 
 <p>Regards,<br />The WASP Team</p>
 

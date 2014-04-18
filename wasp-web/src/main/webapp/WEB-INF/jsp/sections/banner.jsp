@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
   <!-- top -->
- 
+  <c:set var="customLogoImage"><spring:eval expression="@siteProperties.getProperty('wasp.customimage.logo')" /></c:set>
   <sec:authorize access="isAuthenticated()">
     <header id="pageHeaderLoggedIn">
       <nav>
@@ -12,7 +12,7 @@
         		<a href="<wasp:relativeUrl value='j_spring_security_logout' />" ><fmt:message key="sections.banner_logout.label" /></a>
         	</div>
         </div>
-        <a href="<wasp:relativeUrl value='dashboard.do' />"><img src='<spring:eval expression="@siteProperties.getProperty('wasp.customimage.logo')" />' alt="Home Page" height="80"/></a>
+        <a href="<wasp:relativeUrl value='dashboard.do' />"><img src='<wasp:relativeUrl value='${customLogoImage}' />' alt="Home Page" height="80"/></a>
       </nav>
     </header>
   </sec:authorize>
@@ -25,7 +25,7 @@
       			<wasp:displayInDemo><a href="http://waspsystem.org/documentation" >Documentation</a></wasp:displayInDemo>
         	</div>
         </div>
-        <a href="<wasp:relativeUrl value='dashboard.do' />"><img src='<spring:eval expression="@siteProperties.getProperty('wasp.customimage.logo')" />' alt="Home Page" height="80"/></a>
+        <a href="<wasp:relativeUrl value='dashboard.do' />"><img src='<wasp:relativeUrl value='${customLogoImage}' />' alt="Home Page" height="80"/></a>
       </nav>
     </header>
   </sec:authorize>

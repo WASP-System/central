@@ -6,7 +6,7 @@ a member of the lab headed by ${pi.firstName} ${pi.lastName}, has recently submi
 Genomics/Epigenomics Shared Facility. The reference number for this submission is J${job.getJobId()} 
 and a brief summary of the request appears below.</p>
 
-<p>It is requested that you review the submission and either approve or reject it. Please <a href="${baseUrl}/auth/login.do">log into WASP</a>, 
+<p>It is requested that you review the submission and either approve or reject it. Please <a href="${servletUrl}/auth/login.do">log into WASP</a>, 
 select Tasks from the main menu, click on the
 Facility Manager Tasks link, select job J${job.getJobId()}, indicate either Approved or Rejected, and submit. If you reject this job, 
 please indicate a reason in the space provided. Note: That reason will be displayed to the PI and to the job submitter!</p>
