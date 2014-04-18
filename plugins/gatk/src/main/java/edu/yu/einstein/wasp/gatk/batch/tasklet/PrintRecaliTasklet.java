@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
+import edu.yu.einstein.wasp.filetype.service.FileTypeService;
+import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
@@ -38,12 +40,18 @@ public class PrintRecaliTasklet extends WaspRemotingTasklet implements StepExecu
 
 	@Autowired
 	private FileService fileService;
+	
+	@Autowired
+	private FileTypeService fileTypeService;
+	
+	@Autowired
+	private GatkService gatkService;
 
 	@Autowired
 	private GridHostResolver gridHostResolver;
 
 	@Autowired
-	private FileType bamDedupRealnRecalFileType;
+	private FileType bamFileType;
 	
 	@Autowired
 	private FileType baiFileType;
@@ -84,10 +92,11 @@ public class PrintRecaliTasklet extends WaspRemotingTasklet implements StepExecu
 		bam.setFileName(bamOutput);
 		bam = fileService.addFile(bam);
 		bamG.addFileHandle(bam);
-		bamG.setFileType(bamDedupRealnRecalFileType);
+		bamG.setFileType(bamFileType);
 		bamG.setDescription(bamOutput);
 		bamG.setSoftwareGeneratedBy(gatk);
 		bamG = fileService.addFileGroup(bamG);
+		fileTypeService.setAttributes(bamG, gatkService.getCompleteGatkBamFileAttributeSet());
 		Integer bamGId = bamG.getId();
 		// save in step context  for use later
 		stepExecutionContext.put("bamGID", bamGId);

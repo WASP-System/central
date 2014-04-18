@@ -53,7 +53,6 @@ public class TooltipTag extends BodyTagSupport {
 		
 		StringBuffer buf=new StringBuffer("");
 		String servletPath = pageContext.getServletContext().getContextPath();
-		log.debug("servletPath=" + servletPath);
 		buf.append(Tooltip.getTooltipHtmlString(tooltipText, servletPath));
 		
 		try {

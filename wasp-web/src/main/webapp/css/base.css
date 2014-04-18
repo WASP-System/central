@@ -594,6 +594,10 @@ TABLE.data TD.value-centered-small {
 	z-index:10000;
 }
 
+.hidden {
+	visibility:hidden;
+}
+
 #wait_dialog-modal td{
 	vertical-align: middle;
 }

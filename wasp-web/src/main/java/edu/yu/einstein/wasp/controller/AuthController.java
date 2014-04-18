@@ -115,6 +115,7 @@ public class AuthController extends WaspController {
   public String login(ModelMap m){
 	  // this is our entry point when starting up so save some session attributes here
 	  logger.info("Setting 'isInDemoMode' session attribute to: " + Boolean.toString(isInDemoMode));
+	  request.getSession().setAttribute("isInDemoMode", new Boolean(isInDemoMode));
 	  if (isInDemoMode && (demoEmail == null || demoEmail.getDemoEmail().isEmpty()) )
 		  return "redirect:/auth/getEmailForDemo.do";
 	  if (webAuthenticationService.isAuthenticatedWaspUser()){

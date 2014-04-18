@@ -6,20 +6,19 @@ import java.util.Map;
 
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.Strategy.StrategyType;
-import edu.yu.einstein.wasp.exception.NullResourceException;
+import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
-import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
-import edu.yu.einstein.wasp.service.GenomeService;
-import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.StrategyService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
@@ -31,25 +30,22 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
 public class GATKSoftwareComponent extends SoftwarePackage {
 	
 	@Autowired
-	private SampleService sampleService;
-	
-	@Autowired
-	private GenomeService genomeService;
-	
-	
-	@Autowired
-	private RunService runService;
+	private GatkService gatkService;
 	
 	@Autowired
 	private StrategyService strategyService;
+	
+	@Autowired
+	private SampleService sampleService;
 	
 	
 	private static final long serialVersionUID = -6631761128215948999L;
 	
 	public GATKSoftwareComponent() {
-		setSoftwareVersion("2.8-1"); // this default may be overridden in wasp.site.properties
+		setSoftwareVersion("3.0-0"); // this default may be overridden in wasp.site.properties
 	}
 	
+	@Transactional("entityManager")
 	public WorkUnit getCreateTarget(SampleSource cellLibrary, FileGroup fg) {
 		final int NUM_THREADS = 4;
 		final int MEMORY_REQUIRED = 8; // in Gb
@@ -59,11 +55,12 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		w.setProcessorRequirements(NUM_THREADS);
 
 		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
+		Build build = gatkService.getGenomeBuild(cellLibrary);
 		
 		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt " + NUM_THREADS + 
-				" -I ${" + WorkUnit.INPUT_FILE + "} -R " + getGenomeIndexPath(getGenomeBuild(cellLibrary)) + 
-				"genome.fasta -T RealignerTargetCreator -o gatk.${" + WorkUnit.JOB_NAME + 
-				"}.realign.intervals -known /cork/jcai/GATK_bundle_2.2/1000G_phase1.indels.hg19.vcf -known /cork/jcai/GATK_bundle_2.2/Mills_and_1000G_gold_standard.indels.hg19.vcf";
+				" -I ${" + WorkUnit.INPUT_FILE + "} -R " + gatkService.getReferenceGenomeFastaFile(build) + 
+				" -T RealignerTargetCreator -o gatk.${" + WorkUnit.JOB_NAME + 
+				"}.realign.intervals -known " + gatkService.getReferenceIndelsVcfFile(build);
 		
 		logger.debug("Will conduct gatk create target for re-alignment with string: " + command);
 		
@@ -73,17 +70,18 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	}
 	
 	
-	
+	@Transactional("entityManager")
 	public WorkUnit getLocalAlign(SampleSource cellLibrary, String scratchDirectory, String namePrefix, FileGroup fg) {
 		final int MEMORY_REQUIRED = 8; // in Gb
 		WorkUnit w = prepareWorkUnit(fg);
 		w.setProcessMode(ProcessMode.SINGLE);
 		w.setMemoryRequirements(MEMORY_REQUIRED);
 		w.setWorkingDirectory(scratchDirectory);
+		Build build = gatkService.getGenomeBuild(cellLibrary);
 
 		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -I ${" + WorkUnit.INPUT_FILE + "} -R " + 
-		getGenomeIndexPath(getGenomeBuild(cellLibrary)) + "genome.fasta -T  IndelRealigner -targetIntervals gatk." + namePrefix + 
-		".realign.intervals -o gatk.${" + WorkUnit.JOB_NAME + "}.realign.bam -known /cork/jcai/GATK_bundle_2.2/1000G_phase1.indels.hg19.vcf -known /cork/jcai/GATK_bundle_2.2/Mills_and_1000G_gold_standard.indels.hg19.vcf";
+				gatkService.getReferenceGenomeFastaFile(build) + " -T  IndelRealigner -targetIntervals gatk." + namePrefix + 
+		".realign.intervals -o gatk.${" + WorkUnit.JOB_NAME + "}.realign.bam -known " + gatkService.getReferenceIndelsVcfFile(build);
 		
 		logger.debug("Will conduct gatk local re-alignment with string: " + command);
 		
@@ -91,6 +89,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return w;
 	}
 	
+	@Transactional("entityManager")
 	public WorkUnit getRecaliTable(SampleSource cellLibrary, String scratchDirectory, String namePrefix) {
 		final int MEMORY_REQUIRED = 8; // in Gb
 		WorkUnit w = new WorkUnit();
@@ -105,9 +104,10 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		w.setSecureResults(false);
 		
 		w.setWorkingDirectory(scratchDirectory);
+		Build build = gatkService.getGenomeBuild(cellLibrary);
 
-		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + getGenomeIndexPath(getGenomeBuild(cellLibrary)) + 
-				"genome.fasta -knownSites /cork/jcai/GATK_bundle_2.2/dbsnp_137.hg19.vcf -I gatk." + namePrefix + 
+		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + gatkService.getReferenceGenomeFastaFile(build) + 
+				"genome.fasta -knownSites " + gatkService.getReferenceSnpsVcfFile(build) + " -I gatk." + namePrefix + 
 				".realign.bam -T BaseRecalibrator -o gatk.${" + WorkUnit.JOB_NAME + "}.recali.grp";
 
 		logger.debug("Will conduct gatk generating recalibrate table with command: " + command);
@@ -116,7 +116,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return w;
 	}
 	
-	
+	@Transactional("entityManager")
 	public WorkUnit getPrintRecali(SampleSource cellLibrary, String scratchDirectory, String namePrefix, String namePrefix2) {
 		final int MEMORY_REQUIRED = 8; // in Gb
 		WorkUnit w = new WorkUnit();
@@ -131,8 +131,9 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		w.setSecureResults(true);
 		
 		w.setWorkingDirectory(scratchDirectory);
+		Build build = gatkService.getGenomeBuild(cellLibrary);
 
-		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + getGenomeIndexPath(getGenomeBuild(cellLibrary)) + 
+		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + gatkService.getReferenceGenomeFastaFile(build) + 
 				"genome.fasta -I gatk." + namePrefix + ".realign.bam -T PrintReads -o ${" + WorkUnit.OUTPUT_FILE + "[0]}  -BQSR gatk." + namePrefix2 + 
 				".recali.grp -baq RECALCULATE";
 		logger.debug("Will conduct gatk recalibrate sequences with command: " + command);
@@ -162,39 +163,34 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return w;
 	}
 	
-	private Build getGenomeBuild(SampleSource cellLibrary) {
-		Build build = null;
-		try {
-			Sample library = sampleService.getLibrary(cellLibrary);
-			logger.debug("looking for genome build associated with sample: " + library.getId());
-			build = genomeService.getBuild(library);
-			if (build == null) {
-				String mess = "cell library does not have associated genome build metadata annotation";
-				logger.error(mess);
-				throw new NullResourceException(mess);
-			}
-			logger.debug("genome build: " + build.getGenome().getName() + "::" + build.getName());
-		} catch (ParameterValueRetrievalException e) {
-			logger.error(e.toString());
-			e.printStackTrace();
+	@Transactional("entityManager")
+	public WorkUnit getCallVariants(SampleSource cellLibrary, List<FileGroup> fileGroups, Map<String,Object> jobParameters) throws ParameterValueRetrievalException {
+		if (!jobParameters.containsKey("variantCallingMethod"))
+			throw new ParameterValueRetrievalException("Unable to determine variant calling method from job parameters");
+		
+		Job job = sampleService.getJobOfLibraryOnCell(cellLibrary);
+		Build build = gatkService.getGenomeBuild(cellLibrary);
+		
+		String gatkOpts = "";
+		for (String opt : jobParameters.keySet()) {
+			if (!opt.startsWith("gatk"))
+				continue;
+			String key = opt.replace("gatk", "");
+			gatkOpts += " " + key + " " + jobParameters.get(opt).toString();
 		}
-		return build;
-	}
-	
-	private String getGenomeIndexPath(Build build) {
-		String index = genomeService.getRemoteBuildPath(build) + "gatk/";
-		return index;
-	}
-
-	public WorkUnit getCallVariant(SampleSource cellLibrary, List<FileGroup> fileGroups, Map<String,Object> jobParameters) {
+		Strategy strategy = strategyService.getThisJobsStrategy(StrategyType.LIBRARY_STRATEGY, sampleService.getJobOfLibraryOnCell(cellLibrary));
+		String wxsIntervalFile = null;
+		if (strategy.getStrategy().equals("WXS"))
+			wxsIntervalFile = gatkService.getWxsIntervalFile(job, build);
+		if (wxsIntervalFile != null) // not null if whole exome seq and an interval file is specified
+			gatkOpts += " -L " + wxsIntervalFile;
+		
 		final int NUM_THREADS = 4;
 		final int MEMORY_REQUIRED = 8; // in Gb
 		WorkUnit w = new WorkUnit();
 		
 		w.setMode(ExecutionMode.PROCESS);
 	
-		w.setMemoryRequirements(MEMORY_REQUIRED);
-		w.setProcessorRequirements(NUM_THREADS);
 		w.setProcessMode(ProcessMode.MAX);
 
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();
@@ -209,36 +205,63 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		w.setSecureResults(false);
 		
 		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
-		//${WASPFILE[@]}
 		
-		String gatkOpts = "";
+		String referenceGenomeFile = gatkService.getReferenceGenomeFastaFile(build);
+		String snpFile = gatkService.getReferenceSnpsVcfFile(build);
+	
+		String variantCallingMethod = (String) jobParameters.get("variantCallingMethod");
+		if (variantCallingMethod.equals("ug"))
+			return getCallVariantsByUnifiedGenotyper(w, referenceGenomeFile,  snpFile, gatkOpts);
+		if (variantCallingMethod.equals("hc"))
+			return getCallVariantsByHaplotypeCaller(w, referenceGenomeFile,  snpFile, gatkOpts);
+		throw new ParameterValueRetrievalException("Unable to determine variant calling method from job parameter with value=" + variantCallingMethod);
+	}
+	
+	@Transactional("entityManager")
+	private WorkUnit getCallVariantsByUnifiedGenotyper(WorkUnit w, String referenceGenomeFile, String snpFile, String gatkOpts) {
+		final int NUM_THREADS = 4;
+		final int MEMORY_REQUIRED = 8; // in Gb
+		w.setMemoryRequirements(MEMORY_REQUIRED);
+		w.setProcessorRequirements(NUM_THREADS);
 		
-		for (String opt : jobParameters.keySet()) {
-			if (!opt.startsWith("gatk"))
-				continue;
-			String key = opt.replace("gatk", "");
-			gatkOpts += " " + key + " " + jobParameters.get(opt).toString();
-		}
-		Strategy strategy = strategyService.getThisJobsStrategy(StrategyType.LIBRARY_STRATEGY, sampleService.getJobOfLibraryOnCell(cellLibrary));
-		if (strategy.getStrategy().equals("WXS")) // whole exome seq
-			gatkOpts += " -L " + getGenomeIndexPath(getGenomeBuild(cellLibrary)) + "wes.interval_list";
-		String command = "java -Xmx" + MEMORY_REQUIRED + "g -Djava.io.tmpdir=/oxford/jcai/tmp -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt " + NUM_THREADS +
-		" `printf -- '%s\n' ${" + WorkUnit.INPUT_FILE + "[@]} | sed 's/^/-I /g' | tr '\n' ' '` -R " + 
-		getGenomeIndexPath(getGenomeBuild(cellLibrary)) + "genome.fasta -T UnifiedGenotyper -o gatk.${" + 
-		WorkUnit.JOB_NAME + "}.raw.vcf --dbsnp /cork/jcai/GATK_bundle_2.2/dbsnp_137.hg19.vcf" +
-		" -l INFO -stand_emit_conf 10.0 -baq CALCULATE_AS_NECESSARY" + gatkOpts +
+		String command = "java -Xmx" + MEMORY_REQUIRED + "g" +
+		" -Djava.io.tmpdir=${" + WorkUnit.WORKING_DIRECTORY + "} -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt " + NUM_THREADS +
+		" `printf -- '%s\n' ${" + WorkUnit.INPUT_FILE + "[@]} | sed 's/^/-I /g' | tr '\n' ' '` -R " + referenceGenomeFile +
+		" -T UnifiedGenotyper -o gatk.${" + WorkUnit.JOB_NAME + "}.raw.vcf --dbsnp " + snpFile + 
+		" -l INFO -baq CALCULATE_AS_NECESSARY" + gatkOpts +
 		" -dt BY_SAMPLE -G Standard -rf BadCigar -A Coverage -A MappingQualityRankSumTest" +
 		" -A FisherStrand -A InbreedingCoeff -A ReadPosRankSumTest -A QualByDepth -A HaplotypeScore -A RMSMappingQuality -glm BOTH";
 
 		//
-		logger.debug("Will conduct gatk call variant with string: " + command);
+		logger.debug("Will conduct gatk call variants with command string: " + command);
+		
+		w.setCommand(command);
+		
+		return w;
+	}
+	
+	@Transactional("entityManager")
+	private WorkUnit getCallVariantsByHaplotypeCaller(WorkUnit w, String referenceGenomeFile, String snpFile, String gatkOpts) {
+		
+		final int NUM_THREADS = 4;
+		final int MEMORY_REQUIRED = 8; // in Gb
+		w.setMemoryRequirements(MEMORY_REQUIRED);
+		w.setProcessorRequirements(NUM_THREADS);
+		
+		String command = "java -Xmx" + MEMORY_REQUIRED + "g" +
+		" -Djava.io.tmpdir=${" + WorkUnit.WORKING_DIRECTORY + "} -jar $GATK_ROOT/GenomeAnalysisTK.jar -nct " + NUM_THREADS +
+		" `printf -- '%s\n' ${" + WorkUnit.INPUT_FILE + "[@]} | sed 's/^/-I /g' | tr '\n' ' '` -R " + referenceGenomeFile +
+		" -T HaplotypeCaller -o gatk.${" + WorkUnit.JOB_NAME + "}.raw.vcf --dbsnp " + snpFile + " --genotyping_mode DISCOVERY" + gatkOpts;
+
+		logger.debug("Will conduct gatk call variants with command string: " + command);
 		
 		w.setCommand(command);
 		
 		return w;
 	}
 
-	public WorkUnit getHardFilter(SampleSource sampleSource, String scratchDirectory, String namePrefix) {
+	@Transactional("entityManager")
+	public WorkUnit getHardFilter(SampleSource cellLibrary, String scratchDirectory, String namePrefix) {
 		final int MEMORY_REQUIRED = 2; // in Gb
 		WorkUnit w = new WorkUnit();
 		
@@ -256,27 +279,27 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 
 		w.setWorkingDirectory(scratchDirectory);
 		
-		
-		
+		Build build = gatkService.getGenomeBuild(cellLibrary);
+
 		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar --variant gatk." + namePrefix + ".raw.vcf -R " + 
-		getGenomeIndexPath(getGenomeBuild(sampleSource)) + "genome.fasta -T SelectVariants -o gatk.${" + 
-		WorkUnit.JOB_NAME + "}.raw_indel.vcf -selectType INDEL";
+				gatkService.getReferenceGenomeFastaFile(build) + "genome.fasta -T SelectVariants -o gatk.${" + 
+				WorkUnit.JOB_NAME + "}.raw_indel.vcf -selectType INDEL";
 		w.setCommand(command);
 
 		String command2 = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar --variant gatk." + namePrefix + ".raw.vcf -R " + 
-		getGenomeIndexPath(getGenomeBuild(sampleSource)) + "genome.fasta -T SelectVariants -o gatk.${" + 
-		WorkUnit.JOB_NAME + "}.raw_snp.vcf -selectType SNP";
+				gatkService.getReferenceGenomeFastaFile(build) + "genome.fasta -T SelectVariants -o gatk.${" + 
+				WorkUnit.JOB_NAME + "}.raw_snp.vcf -selectType SNP";
 		w.addCommand(command2);
 		
 		String command3 = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar --variant gatk.${" + WorkUnit.JOB_NAME + "}.raw_indel.vcf -R " + 
-		getGenomeIndexPath(getGenomeBuild(sampleSource)) + "genome.fasta -T VariantFiltration -o gatk.${" + 
-		WorkUnit.JOB_NAME + "}.hfilter_indel.vcf --filterName \"GATK_v4_indel_hfilter\" --filterExpression \"QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0\"";
+				gatkService.getReferenceGenomeFastaFile(build) + "genome.fasta -T VariantFiltration -o gatk.${" + 
+				WorkUnit.JOB_NAME + "}.hfilter_indel.vcf --filterName \"GATK_v4_indel_hfilter\" --filterExpression \"QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0\"";
 		w.addCommand(command3);
 					
 		
 		String command4 = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar --variant gatk.${" + WorkUnit.JOB_NAME + "}.raw_snp.vcf -R " + 
-		getGenomeIndexPath(getGenomeBuild(sampleSource)) + "genome.fasta -T VariantFiltration -o gatk.${" + 
-		WorkUnit.JOB_NAME + "}.hfilter_snp.vcf --filterName \"GATK_v4_snp_hfilter\" --filterExpression \"QD < 2.0 || MQ < 40.0 || FS > 60.0 || HaplotypeScore > 13.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0\"";
+				gatkService.getReferenceGenomeFastaFile(build) + "genome.fasta -T VariantFiltration -o gatk.${" + 
+				WorkUnit.JOB_NAME + "}.hfilter_snp.vcf --filterName \"GATK_v4_snp_hfilter\" --filterExpression \"QD < 2.0 || MQ < 40.0 || FS > 60.0 || HaplotypeScore > 13.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0\"";
 		w.addCommand(command4);
 							   
 

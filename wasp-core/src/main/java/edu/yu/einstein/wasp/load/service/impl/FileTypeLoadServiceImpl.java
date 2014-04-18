@@ -22,7 +22,7 @@ public class FileTypeLoadServiceImpl extends WaspLoadServiceImpl implements File
 	  private FileTypeDao fileTypeDao;
 	  
 	  @Override
-	  public FileType update(String iname, String name, String description, String extensions, int isActive, FileType parentFileType){
+	  public FileType update(String iname, String name, String description, String extensions, int isActive){
 		  Assert.assertParameterNotNull(iname, "iname cannot be null");
 		  Assert.assertParameterNotNull(name, "name cannot be null");
 		  Assert.assertParameterNotNull(description, "description cannot be null");
@@ -34,8 +34,6 @@ public class FileTypeLoadServiceImpl extends WaspLoadServiceImpl implements File
 			  fileType.setDescription(description);
 			  fileType.setExtensions(extensions);
 			  fileType.setIsActive(isActive);
-			  if (parentFileType != null)
-				  fileType.setParent(parentFileType);
 			  fileType = fileTypeDao.save(fileType);
 		  } else {
 			  if (fileType.getName() == null || !fileType.getName().equals(name))
@@ -46,8 +44,6 @@ public class FileTypeLoadServiceImpl extends WaspLoadServiceImpl implements File
 				  fileType.setExtensions(extensions);
 			  if (fileType.getIsActive().intValue() != isActive)
 				  fileType.setIsActive(isActive);
-			  if (parentFileType != null && (fileType.getParentId() == null || !fileType.getParentId().equals(parentFileType.getId())))
-				  fileType.setParent(parentFileType);
 		  }
 		  return fileType;
 	  }

@@ -29,8 +29,6 @@ public class FileTypeLoaderAndFactory extends WaspLoader implements FactoryBean<
 
 	private int isActive = 1;
 	
-	private FileType parentFileType;
-
 	public int getIsActive() {
 		return isActive;
 	}
@@ -55,17 +53,9 @@ public class FileTypeLoaderAndFactory extends WaspLoader implements FactoryBean<
 		this.extensions = extensions;
 	}
 
-	public FileType getParentFileType() {
-		return parentFileType;
-	}
-
-	public void setParentFileType(FileType parentFileType) {
-		this.parentFileType = parentFileType;
-	}
-
 	@PostConstruct
 	public void init(){
-		fileType =  fileTypeLoadService.update(iname, name, description, extensions, isActive, parentFileType);
+		fileType =  fileTypeLoadService.update(iname, name, description, extensions, isActive);
 	}
 
 	@Override
