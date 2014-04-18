@@ -592,6 +592,7 @@ public class JobController extends WaspController {
 	
 	}
 	
+	//Not sure this next method is ever used ROBERT A DUBIN 4-17-14
 	@Transactional
 	@RequestMapping(value = "/detail/{jobId}", method = RequestMethod.GET)
 	public String detail(@PathVariable("jobId") Integer jobId, ModelMap m) {
@@ -761,7 +762,8 @@ public class JobController extends WaspController {
 
 		return "job/metaform_rw";
 	}
-  
+    
+  //I Don't believe this next method is ever used ROBERT A DUBIN 4-17-14
     @Transactional
 	@RequestMapping(value = "/jobsAwaitingLibraryCreation/jobsAwaitingLibraryCreationList.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('fm') or hasRole('ft') or hasRole('ga')")
@@ -1030,7 +1032,7 @@ public class JobController extends WaspController {
 							m.addAttribute("errorMessage", errorMessage);
 							return "job/home/uploadQuoteOrInvoice";
 						} catch(Exception e){
-							String errorMessage = "Unexpected Exception";
+							String errorMessage = messageService.getMessage("jobHomeUploadQuoteOrInvoice.unexpectedError.error");//"Unexpected Error";
 							logger.warn(errorMessage);
 							m.addAttribute("errorMessage", errorMessage);
 							return "job/home/uploadQuoteOrInvoice";
@@ -1066,11 +1068,11 @@ public class JobController extends WaspController {
 
  		//list to populate dropdown
 		List<String> discountReasons = new ArrayList<String>();
-		discountReasons.add("Institutional Cost Share");
-		discountReasons.add("Departmental Cost Share");
-		discountReasons.add("Center Cost Share");
-		discountReasons.add("Facility Credit");
-		discountReasons.add("Facility Discount");
+		discountReasons.add(messageService.getMessage("jobHomeCreateUpdateQuote.InstitutionalCostShare.label"));//"Institutional Cost Share");
+		discountReasons.add(messageService.getMessage("jobHomeCreateUpdateQuote.DepartmentalCostShare.label"));//"Departmental Cost Share");
+		discountReasons.add(messageService.getMessage("jobHomeCreateUpdateQuote.CenterCostShare.label"));//"Center Cost Share");
+		discountReasons.add(messageService.getMessage("jobHomeCreateUpdateQuote.FacilityCredit.label"));//"Facility Credit");
+		discountReasons.add(messageService.getMessage("jobHomeCreateUpdateQuote.FacilityDiscount.label"));//"Facility Discount");
 		m.addAttribute("discountReasons", discountReasons);
 		
 		//list to populate dropdown
@@ -1094,7 +1096,7 @@ public class JobController extends WaspController {
 			}
 			if(acctQuote==null){
 				logger.warn("Requested quote unexpectedly not found");
-			   	m.addAttribute("errorMessage", "Requested quote unexpectedly not found"); 
+			   	m.addAttribute("errorMessage", messageService.getMessage("jobHomeCreateUpdateQuote.requestedQuoteNotFound.error"));//"Requested quote unexpectedly not found"); 
 				return "job/home/message";
 			}
 			else if(acctQuote!=null){
@@ -1122,10 +1124,10 @@ public class JobController extends WaspController {
 	 			String reasonForNoLibraryCost = "";
 	 			
 	 			if(sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(s)).equalsIgnoreCase("withdrawn")){
-	 				reasonForNoLibraryCost = "Withdrawn";
+	 				reasonForNoLibraryCost = messageService.getMessage("jobHomeCreateUpdateQuote.withdrawn.label");//"Withdrawn";
 	 			}
 	 			else if(s.getSampleType().getIName().toLowerCase().equals("library")){
-	 				reasonForNoLibraryCost = "N/A";
+	 				reasonForNoLibraryCost = messageService.getMessage("jobHomeCreateUpdateQuote.notApplicableAbbreviation.label");//"N/A";
 	 			}
 	 				 			
 	 			if(reasonForNoLibraryCost.isEmpty()){
@@ -1156,7 +1158,7 @@ public class JobController extends WaspController {
 	public void jobPreviewQuote(@PathVariable("jobId") Integer jobId,
 			  HttpServletRequest request, HttpServletResponse response) throws SampleTypeException {
 
-		String headerHtml = "<html><body><h2 style='color:red;font-weight:bold;'>Errors Detected</h2>";
+		String headerHtml = "<html><body><h2 style='color:red;font-weight:bold;'>"+messageService.getMessage("jobPreviewQuote.errorsDetected.error")+"</h2>";
 		String errorMessage = "";
 		String footerHtml = "<br /></body></html>";
 		
@@ -1189,7 +1191,7 @@ public class JobController extends WaspController {
  	    	return;
  	    	
 		}catch(Exception e){
-			errorMessage = "Major problems encountered while creating file";
+			errorMessage = messageService.getMessage("jobPreviewQuote.problemsEncounteredCreatingFile.error");//"Problems encountered while creating file";
 			logger.warn(errorMessage);
 			//e.printStackTrace();
 			try{
@@ -1205,7 +1207,7 @@ public class JobController extends WaspController {
 	public void jobSaveQuote(@PathVariable("jobId") Integer jobId,
 			   HttpServletRequest request, HttpServletResponse response) throws SampleTypeException {
 
-		String headerHtml = "<html><body><h2 style='color:red;font-weight:bold;'>Errors Detected</h2>";
+		String headerHtml = "<html><body><h2 style='color:red;font-weight:bold;'>"+messageService.getMessage("jobSaveQuote.errorsDetected.error")+"</h2>";
 		String errorMessage = "";
 		String footerHtml = "<br /></body></html>";
 		//deal with unexpected job error (ie.: not found in database)
@@ -1246,7 +1248,7 @@ public class JobController extends WaspController {
 	 		   
 	 	   	response.setContentType("text/html"); 
 	 	   	String headerHtml2 = "<html><body>";
-	 	   	String successMessage = "<h2 style='color:blue;font-weight:bold;'>Your New File Has Been Saved</h2>";
+	 	   	String successMessage = "<h2 style='color:blue;font-weight:bold;'>"+messageService.getMessage("jobSaveQuote.fileSaved.error")+"</h2>";
 	 	   	String footerHtml2 = "<br /></body></html>";
 	 	   	response.getOutputStream().print(headerHtml2+successMessage+footerHtml2);
 	 	   	return;
@@ -1284,7 +1286,7 @@ public class JobController extends WaspController {
 			mpsQuote.setLocalCurrencyIcon(request.getParameter("localCurrencyIcon"));
 			if(mpsQuote.getLocalCurrencyIcon().isEmpty()){throw new Exception();}
 		}catch(Exception e){
-			errors.add("Unexpected problem interpreting numberOfLanesRequested, numberOfLibrariesExpectedToBeConstructed, or currencyIcon problems");
+			errors.add(messageService.getMessage("jobConstructQuote.problemLanesLibrariesOrCurrency.error"));//"Problem interpreting numberOfLanesRequested, numberOfLibrariesExpectedToBeConstructed, or currencyIcon problems");
 		}
 		
 		//b. here deal with unexpected submitted sample errors (sample not in database; sample not in job, both very unexpected)
@@ -1300,11 +1302,11 @@ public class JobController extends WaspController {
 		String [] submittedSampleReasonForNoLibraryCostArray = request.getParameterValues(param);
 		
 		if( submittedSampleIdAsStringArray==null || submittedSampleCostAsStringArray==null || submittedSampleNameArray==null || submittedSampleMaterialArray==null || submittedSampleReasonForNoLibraryCostArray==null){
-			errors.add("Unexpected problem interpreting submitted sample information");
+			errors.add(messageService.getMessage("jobConstructQuote.problemSubmittedSampleInfo.error"));//"Problem with submitted sample information");
 		}
 		int numberOfSubmittedSampleRows = submittedSampleIdAsStringArray.length;
 		if(numberOfSubmittedSampleRows != submittedSampleCostAsStringArray.length && numberOfSubmittedSampleRows!= submittedSampleNameArray.length && numberOfSubmittedSampleRows != submittedSampleMaterialArray.length && numberOfSubmittedSampleRows != submittedSampleReasonForNoLibraryCostArray.length){
-			errors.add("Unexpected problem interpreting submitted sample information");
+			errors.add(messageService.getMessage("jobConstructQuote.problemSubmittedSampleInfo.error"));//"Problem with submitted sample information");
 		}
 		List<Sample>  allJobSamplesList = job.getSample();//all samples in this job (from the database)
 		
@@ -1314,15 +1316,18 @@ public class JobController extends WaspController {
 			try{
 				sampleId = new Integer(submittedSampleIdAsString);
 			}catch(Exception e){
-				errors.add("Unexpected Problem: Submitted sample (ID: " + submittedSampleIdAsString + ") unexpectedly not a number");
+				//errors.add("Unexpected Problem: Submitted sample (ID: " + submittedSampleIdAsString + ") unexpectedly not a number");
+				errors.add(messageService.getMessage("jobConstructQuote.submittedSampleIdNotNumber.error")+": " + submittedSampleIdAsString);
 				continue;
 			}			
 			Sample submittedSample = sampleService.getSampleById(sampleId);
 			if(submittedSample.getId()==null){
-				errors.add("Unexpected Problem: Submitted sample (ID: " + sampleId.intValue() + ") unexpectedly not found in database");
+				//errors.add("Unexpected Problem: Submitted sample (ID: " + sampleId.intValue() + ") unexpectedly not found in database");
+				errors.add(messageService.getMessage("jobConstructQuote.submittedSampleIdNotInDatabase.error")+": " + sampleId.intValue());
 			}
 			else if(!allJobSamplesList.contains(submittedSample)){
-				errors.add("Unexpected Problem: Submitted sample (ID: " + sampleId.intValue() + ") unexpectedly not part of this job");
+				//errors.add("Unexpected Problem: Submitted sample (ID: " + sampleId.intValue() + ") unexpectedly not part of this job");
+				errors.add(messageService.getMessage("jobConstructQuote.submittedSampleIdNotInJob.error")+": " + sampleId.intValue());
 			}			
 			submittedSampleList.add(submittedSample);		
 		}		
@@ -1340,12 +1345,12 @@ public class JobController extends WaspController {
 		String [] runCostPricePerLaneArray = request.getParameterValues(param);	
 		if(runCostResourceCategoryIdAsStringArray==null || runCostReadLengthArray==null || runCostReadTypeArray==null || 
 				runCostNumberLanesArray==null || runCostPricePerLaneArray==null){
-			errors.add("Unexpected problem interpreting sequence run information");
+			errors.add(messageService.getMessage("jobConstructQuote.problemSequenceRunInfo.error"));//"Unexpected problem interpreting sequence run information");
 		}			
 		int numberOfRunRows = runCostResourceCategoryIdAsStringArray.length;
 		if(runCostReadLengthArray.length != numberOfRunRows && runCostReadTypeArray.length != numberOfRunRows  &&
 				runCostNumberLanesArray.length != numberOfRunRows && runCostPricePerLaneArray.length != numberOfRunRows ){
-			errors.add("Unexpected problem interpreting sequence run information");
+			errors.add(messageService.getMessage("jobConstructQuote.problemSequenceRunInfo.error"));//"Unexpected problem interpreting sequence run information");
 		}
 		
 		//d. here get the additionalCost parameters and check for highly unexpected errors
@@ -1356,11 +1361,11 @@ public class JobController extends WaspController {
 		param = "additionalCostPricePerUnit";
 		String [] additionalCostPricePerUnitArray = request.getParameterValues(param);
 		if(additionalCostReasonArray==null || additionalCostUnitsArray==null || additionalCostPricePerUnitArray==null){
-			errors.add("Unexpected problem interpreting additional cost information");
+			errors.add(messageService.getMessage("jobConstructQuote.problemAdditionalCostInfo.error"));//"Unexpected problem interpreting additional cost information");
 		}			
 		int numberOfAdditionalCostRows = additionalCostReasonArray.length;
 		if(additionalCostUnitsArray.length != numberOfAdditionalCostRows && additionalCostPricePerUnitArray.length != numberOfAdditionalCostRows){
-			errors.add("Unexpected problem interpreting additional cost information");
+			errors.add(messageService.getMessage("jobConstructQuote.problemAdditionalCostInfo.error"));//"Unexpected problem interpreting additional cost information");
 		}
 		
 		//e. here get the discount/credit parameters and check for highly unexpected errors
@@ -1371,11 +1376,11 @@ public class JobController extends WaspController {
 		param = "discountValue";
 		String [] discountValueArray = request.getParameterValues(param);
 		if(discountReasonArray==null || discountTypeArray==null || discountValueArray==null){
-			errors.add("Unexpected problem interpreting discount/credit information");
+			errors.add(messageService.getMessage("jobConstructQuote.problemDiscountCreditInfo.error"));//"Unexpected problem interpreting discount/credit information");
 		}			
 		int numberOfDiscountRows = discountReasonArray.length;
 		if(discountTypeArray.length != numberOfDiscountRows && discountValueArray.length != numberOfDiscountRows){
-			errors.add("Unexpected problem interpreting discount/credit information");
+			errors.add(messageService.getMessage("jobConstructQuote.problemDiscountCreditInfo.error"));//"Unexpected problem interpreting discount/credit information");
 		}
 		
 		//f. get comments, if any
@@ -1410,10 +1415,12 @@ public class JobController extends WaspController {
 			else if(reasonForNoLibraryCost.isEmpty()){
 				submittedSampleCostAsString = submittedSampleCostAsString.trim();
 				if(submittedSampleCostAsString.isEmpty()){
-					errors.add("No library cost provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero");	
+					//errors.add("No library cost provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero");	
+					errors.add(messageService.getMessage("jobConstructQuote.noLibraryCostProvidedForSample.error") + " "  + submittedObject.getName() + "; " + messageService.getMessage("jobConstructQuote.wholeNumbersOnly.error")+"; "+messageService.getMessage("jobConstructQuote.ifNoChargeEnterZero.error"));	
 				}
 				else if(submittedSampleCostAsString.matches("\\D")){//any character in string that is not a digit 
-					errors.add("Invalid library cost ("+ submittedSampleCostAsString + ") provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero");
+					//errors.add("Invalid library cost ("+ submittedSampleCostAsString + ") provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero");
+					errors.add(messageService.getMessage("jobConstructQuote.invalidLibraryCost.error")+ " ("+ submittedSampleCostAsString + ") "+ messageService.getMessage("jobConstructQuote.forSample.error") + " " + submittedObject.getName() + "; " + messageService.getMessage("jobConstructQuote.wholeNumbersOnly.error")+"; "+messageService.getMessage("jobConstructQuote.ifNoChargeEnterZero.error"));	
 				}
 				else{				
 					try{	
@@ -1422,7 +1429,8 @@ public class JobController extends WaspController {
 							libraryCosts.add(new LibraryCost(submittedObject.getId(), submittedSampleNameArray[counter], submittedSampleMaterialArray[counter], reasonForNoLibraryCost, libCost  ));
 						}
 					}catch(Exception e){
-						errors.add("Invalid library cost ("+ submittedSampleCostAsString + ") provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero");
+						//errors.add("Invalid library cost ("+ submittedSampleCostAsString + ") provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero");
+						errors.add(messageService.getMessage("jobConstructQuote.invalidLibraryCost.error")+ " ("+ submittedSampleCostAsString + ") "+ messageService.getMessage("jobConstructQuote.forSample.error") + " " + submittedObject.getName() + "; " + messageService.getMessage("jobConstructQuote.wholeNumbersOnly.error")+"; "+messageService.getMessage("jobConstructQuote.ifNoChargeEnterZero.error"));	
 					}
 				}
 			}
@@ -1446,7 +1454,9 @@ public class JobController extends WaspController {
 				"".equals(runCostNumberLanesArray[i].trim()) ||
 				"".equals(runCostPricePerLaneArray[i].trim()) ){
 				
-				errors.add("Row " +(i+1)+ " in Sequence Run section is missing information - Please review");
+				//errors.add("Row " +(i+1)+ " in Sequence Run section is missing information - Please review");
+				errors.add(messageService.getMessage("jobConstructQuote.row.error")+" "+(i+1)+": "+messageService.getMessage("jobConstructQuote.sequenceRunMissingInfo.error"));
+				
 				continue;
 			}
 			ResourceCategory resourceCategory = null;
@@ -1454,11 +1464,13 @@ public class JobController extends WaspController {
 				try{
 					resourceCategory = resourceService.getResourceCategoryDao().findById(Integer.parseInt(runCostResourceCategoryIdAsStringArray[i].trim()));
 				}catch(Exception e){
-					errors.add("Row " +(i+1)+ " in Sequence Run section: unable to interpret correct sequencing machine - Please review");
+					//errors.add("Row " +(i+1)+ " in Sequence Run section: unable to interpret correct sequencing machine - Please review");
+					errors.add(messageService.getMessage("jobConstructQuote.row.error")+" "+(i+1)+": "+messageService.getMessage("jobConstructQuote.sequenceRunUnableToInterpretSequenceMachine.error"));
 				}
 			}
 			if(resourceCategory != null && resourceCategory.getId()==null){
-				errors.add("Row " +(i+1)+ " in Sequence Run section: sequencing machine unexpectedly not found in database.");
+				//errors.add("Row " +(i+1)+ " in Sequence Run section: sequencing machine unexpectedly not found in database.");
+				errors.add(messageService.getMessage("jobConstructQuote.row.error")+" "+(i+1)+": "+messageService.getMessage("jobConstructQuote.sequenceRunSequenceMachineNotInDatabase.error"));
 			}
 						
 			Integer readLength = null;
@@ -1466,13 +1478,22 @@ public class JobController extends WaspController {
 			Integer costPerLane=null;
 			try{
 				readLength = new Integer(runCostReadLengthArray[i].trim());
-			}catch(Exception e){errors.add("Row " +(i+1)+ " in Sequence Run section is missing information - whole number required for read length");}
+			}catch(Exception e){
+				//errors.add("Row " +(i+1)+ " in Sequence Run section is missing information - whole number required for read length");
+				errors.add(messageService.getMessage("jobConstructQuote.row.error")+" "+(i+1)+": "+messageService.getMessage("jobConstructQuote.sequenceRunWholeNumberForReadLength.error"));
+			}
 			try{
 				numberOfLanes = new Integer(runCostNumberLanesArray[i].trim());
-			}catch(Exception e){errors.add("Row " +(i+1)+ " in Sequence Run section is missing information - whole number required for no. lanes");}
+			}catch(Exception e){
+				//errors.add("Row " +(i+1)+ " in Sequence Run section is missing information - whole number required for no. lanes");
+				errors.add(messageService.getMessage("jobConstructQuote.row.error")+" "+(i+1)+": "+messageService.getMessage("jobConstructQuote.sequenceRunWholeNumberForNumberOfLanes.error"));
+			}
 			try{
 				costPerLane = new Integer(runCostPricePerLaneArray[i].trim());
-			}catch(Exception e){errors.add("Row " +(i+1)+ " in Sequence Run section is missing information - whole number required for cost/lane; if no charge, enter zero");}
+			}catch(Exception e){
+				//errors.add("Row " +(i+1)+ " in Sequence Run section is missing information - whole number required for cost/lane; if no charge, enter zero");
+				errors.add(messageService.getMessage("jobConstructQuote.row.error")+" "+(i+1)+": "+messageService.getMessage("jobConstructQuote.sequenceRunWholeNumberForCostPerLane.error"));
+			}
 			if(errors.isEmpty()){
 				sequencingCosts.add(new SequencingCost(resourceCategory, readLength, runCostReadTypeArray[i].trim(),numberOfLanes, new Float(costPerLane)));
 			}
