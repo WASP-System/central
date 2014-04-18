@@ -36,7 +36,7 @@ import edu.yu.einstein.wasp.util.MetaHelper;
  */
 @Service
 @Transactional("entityManager")
-public abstract class FileTypeServiceImpl extends WaspServiceImpl implements FileTypeService {
+public class FileTypeServiceImpl extends WaspServiceImpl implements FileTypeService {
 	
 	@Autowired
 	private FileGroupMetaDao fileGroupMetaDao;

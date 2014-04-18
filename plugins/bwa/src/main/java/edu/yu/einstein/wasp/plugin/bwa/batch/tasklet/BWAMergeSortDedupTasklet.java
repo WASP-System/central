@@ -53,7 +53,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 	private FileService fileService;
 	
 	@Autowired
-	private FileTypeService fileTypeService;
+	private FileTypeService bamServiceImpl;
 	
 	@Autowired
 	private FastqService fastqService;
@@ -144,7 +144,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		bamG.setDescription(bamOutput);
 		bamG.setSoftwareGeneratedBy(bwa);
 		bamG = fileService.addFileGroup(bamG);
-		fileTypeService.addAttribute(bamG, BamFileTypeAttribute.SORTED);
+		bamServiceImpl.addAttribute(bamG, BamFileTypeAttribute.SORTED);
 		Integer bamGId = bamG.getId();
 		// save in step context  for use later
 		stepExecutionContext.put("bamGID", bamGId);
@@ -170,7 +170,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		w.setCommand("shopt -s nullglob\n");
 		w.addCommand("for x in sam.*.out; do ln -s ${x} ${x/*:/}.sam ; done\n");
 		if (markDuplicates){
-			fileTypeService.addAttribute(bamG, BamFileTypeAttribute.DEDUP);
+			bamServiceImpl.addAttribute(bamG, BamFileTypeAttribute.DEDUP);
 			String metricsOutput = fileService.generateUniqueBaseFileName(cellLib) + "dedupMetrics.txt";
 			FileGroup metricsG = new FileGroup();
 			FileHandle metrics = new FileHandle();
