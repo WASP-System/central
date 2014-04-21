@@ -1,15 +1,10 @@
 package edu.yu.einstein.wasp.controller;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -31,8 +26,8 @@ import edu.yu.einstein.wasp.service.FileService;
 @RequestMapping("/file")
 public class FileController extends WaspController{
 	
-	@Value("${wasp.host.baseurl}")
-	protected String baseurl;
+	@Value("${wasp.host.fullServletPath}")
+	protected String fullServletPath;
 
 	@Autowired
 	protected FileHandleDao fileDao;
@@ -61,7 +56,7 @@ public class FileController extends WaspController{
 		if (file==null) {
 				waspErrorMessage("file.not_found.error");
 				String referrer = request.getHeader("Referer");
-				referrer = referrer.replace(baseurl, "");
+				referrer = referrer.replace(fullServletPath, "");
 				referrer.replaceAll("\\/$", "");
 				return "redirect:/"+referrer;
 		}

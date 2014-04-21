@@ -3,7 +3,7 @@ WASP: New Job Submission
 
 <p>Thank you for your recent job submission to the Genomics/Epigenomics Shared Facility. The reference number for this submission is J${job.getJobId()}. 
 A brief summary of the job details appears below. To review this submission in greater detail, to follow its progress, 
-and (when complete) to view or download your data files, <a href="${baseUrl}/auth/login.do">log into WASP</a>, 
+and (when complete) to view or download your data files, <a href="${servletUrl}/auth/login.do">log into WASP</a>, 
 select Job/My Submitted Jobs from the main menu, and click on the appropriate job number.</p> 
 
 <p>As Principal Investigator of this lab, it is requested that you (or a designated Lab Manager) approve or reject this new job submission. 

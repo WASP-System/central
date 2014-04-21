@@ -4,7 +4,7 @@ WASP: Job Submission Completed
 <p>This is to inform you that job submission J${job.getJobId()} has been completed. This job was submitted to the Genomics/Epigenomics 
 Shared Facility by ${jobSubmitter.firstName} ${jobSubmitter.lastName}, a member of the lab 
 headed by ${pi.firstName} ${pi.lastName}. To review the submission and to obtain your sequencing 
-files, <a href="${baseUrl}/auth/login.do">log into WASP</a>, select Job/My Submitted Jobs from the main menu, 
+files, <a href="${servletUrl}/auth/login.do">log into WASP</a>, select Job/My Submitted Jobs from the main menu, 
 and click on the appropriate job number or click on View Files.</p>
 
 <p>Should you have any further questions, please contact us using the information below.</p>

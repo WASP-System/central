@@ -108,8 +108,8 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 	@Autowired
 	private AuthenticationService authenticationService;
 	
-	@Value("${wasp.host.baseurl}")
-	private String baseUrl;
+	@Value("${wasp.host.fullServletPath}")
+	private String servletPath;
 	
 	@Autowired
 	private DemoEmail demoEmail;
@@ -448,7 +448,7 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void generateMessage(final User user, final String template, final Map model, MimeMessage mimeMessage) throws MailPreparationException {
-		model.put("baseUrl", baseUrl);
+		model.put("servletUrl", servletPath);
 		model.put("customLogoResource", customLogoResource);
 		String lang=user.getLocale().substring(0, 2);
 		

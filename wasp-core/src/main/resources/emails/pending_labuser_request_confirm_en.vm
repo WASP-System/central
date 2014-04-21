@@ -3,7 +3,7 @@ Please Login to WASP to accept or reject a pending lab user application
 
 <p>${pendinguser.firstName} ${pendinguser.lastName} has applied for a WASP account and has requested to join the laboratory headed by ${lab.user.firstName} ${lab.user.lastName}.</p>
 
-<p>To approve or reject this request, please <a href="${baseUrl}/auth/login.do">log in to WASP</a>, select Tasks from the menu bar, and click on the Lab Management Tasks link. 
+<p>To approve or reject this request, please <a href="${servletUrl}/auth/login.do">log in to WASP</a>, select Tasks from the menu bar, and click on the Lab Management Tasks link. 
 Note that this email has been sent to the lab PI and to all designated lab managers, any of whom may process this request.</p> 
 
 <p>Regards,<br />The WASP Team</p>
