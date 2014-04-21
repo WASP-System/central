@@ -2109,7 +2109,15 @@ public class JobController extends WaspController {
 		List<JobMeta> jobMetaList = job.getJobMeta();
 		for(Software sw : softwareList){
 			mhwa.setArea(sw.getIName());
-			List<JobMeta> softwareMetaList = mhwa.syncWithMaster(jobMetaList);
+			List<JobMeta> jobMetaListForSw = MetaHelper.getMetaSubsetByArea(sw.getIName(), jobMetaList);
+			if (jobMetaListForSw.isEmpty()){
+				logger.info("no parameters configured for software=" + sw.getName() + 
+						" so going to use defaults from master list derived from Uifields");
+				jobMetaListForSw = mhwa.getMasterList(JobMeta.class);
+				for (JobMeta meta : jobMetaListForSw)
+					meta.setV(meta.getProperty().getDefaultVal()); // set meta value to the default value found in the property attribute
+			}
+			List<JobMeta> softwareMetaList = mhwa.syncWithMaster(jobMetaListForSw);
 			softwareAndSyncdMetaMap.put(sw, softwareMetaList);
 		}	
 		m.addAttribute("softwareAndSyncdMetaMap", softwareAndSyncdMetaMap);
