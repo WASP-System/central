@@ -91,7 +91,7 @@ public class CreateTargetTasklet extends WaspRemotingTasklet implements StepExec
 		Set<BamFileTypeAttribute> attributes = new HashSet<>();
 		attributes.add(BamFileTypeAttribute.SORTED);
 		attributes.add(BamFileTypeAttribute.DEDUP);
-		Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLib, bamFileType, attributes);
+		Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLib, bamFileType, attributes, true);
 		
 		logger.debug("fileGroups.size()="+fileGroups.size());
 		Assert.assertTrue(fileGroups.size() == 1);

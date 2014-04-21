@@ -93,7 +93,7 @@ public class CallVariantTasklet extends WaspRemotingTasklet implements StepExecu
 		
 		for (Integer currentId : cellLibraryIds) {
 			SampleSource cellLibrary = sampleService.getSampleSourceDao().findById(currentId);
-			Set<FileGroup> tmpFileGroups = fileService.getFilesForCellLibraryByType(cellLibrary, bamFileType, gatkService.getCompleteGatkBamFileAttributeSet());
+			Set<FileGroup> tmpFileGroups = fileService.getFilesForCellLibraryByType(cellLibrary, bamFileType, gatkService.getCompleteGatkPreprocessBamFileAttributeSet(), true);
 			
 			logger.debug("get file group");
 			//Assert.assertTrue(tmpFileGroups.size() == 1);

@@ -96,7 +96,7 @@ public class PrintRecaliTasklet extends WaspRemotingTasklet implements StepExecu
 		bamG.setDescription(bamOutput);
 		bamG.setSoftwareGeneratedBy(gatk);
 		bamG = fileService.addFileGroup(bamG);
-		fileTypeService.setAttributes(bamG, gatkService.getCompleteGatkBamFileAttributeSet());
+		fileTypeService.setAttributes(bamG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
 		Integer bamGId = bamG.getId();
 		// save in step context  for use later
 		stepExecutionContext.put("bamGID", bamGId);
