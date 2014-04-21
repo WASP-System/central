@@ -34,7 +34,7 @@ import edu.yu.einstein.wasp.service.SampleService;
  * @author jcai
  * @author asmclellan
  */
-public class CallVariantTasklet extends WaspRemotingTasklet implements StepExecutionListener {
+public class CallVariantsWithHCTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
 	private List<Integer> cellLibraryIds;
 	
@@ -67,11 +67,11 @@ public class CallVariantTasklet extends WaspRemotingTasklet implements StepExecu
 	private GATKSoftwareComponent gatk;
 
 
-	public CallVariantTasklet() {
+	public CallVariantsWithHCTasklet() {
 		// proxy
 	}
 
-	public CallVariantTasklet(String cellLibraryIds) {
+	public CallVariantsWithHCTasklet(String cellLibraryIds) {
 		this.cellLibraryIds = WaspSoftwareJobParameters.getCellLibraryIdList(cellLibraryIds);
 	}
 
@@ -107,19 +107,14 @@ public class CallVariantTasklet extends WaspRemotingTasklet implements StepExecu
 			fileGroups.add(currentFg);
 			logger.debug("add file group: " + currentFg.getId() + ":" + currentFg.getDescription());
 		}
-			
-		
-		
-		
+
 		Map<String,Object> jobParameters = context.getStepContext().getJobParameters();
 		
 		for (String key : jobParameters.keySet()) {
 			logger.debug("Key: " + key + " Value: " + jobParameters.get(key).toString());
 		}
 		
-		// TODO: temporary, fix me
-		//WorkUnit w = new WorkUnit();
-		WorkUnit w = gatk.getCallVariants(cellLibrary1, fileGroups, jobParameters);
+		WorkUnit w = gatk.getCallVariantsByHaplotypeCaller(cellLibrary1, fileGroups, jobParameters);
 		
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
    

@@ -1516,7 +1516,13 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			logger.error(mess);
 			throw new RuntimeException(mess);
 		}
-
+	}
+	
+	@Override
+	public String generateUniqueBaseFileName(Sample library) {
+		Assert.assertTrue(sampleService.isLibrary(library), "sample must be a library");
+		final String DELIM = ".";
+		return library.getName() + DELIM + "id" + library.getId().toString() + DELIM;
 	}
 	
 	/*

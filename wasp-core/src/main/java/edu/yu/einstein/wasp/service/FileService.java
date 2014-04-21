@@ -291,6 +291,7 @@ public interface FileService extends WaspService {
 
 	public String generateUniqueBaseFileName(SampleSource cellLibrary);
 
+	public String generateUniqueBaseFileName(Sample library);
 
 	public File createTempFile() throws FileUploadException;
 	
