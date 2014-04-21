@@ -3,7 +3,7 @@ WASP: Confirm email address request
 
 <p>Thank you for applying for a new WASP Principal Investigator account. The initial step in your registration process 
 requires confirmation of your email address. To confirm your email address, 
-<a href="${baseUrl}/auth/confirmPIEmail.do?authcode=${authcode}&email=${urlencodedemail}">please click here</a>.</p>
+<a href="${servletUrl}/auth/confirmPIEmail.do?authcode=${authcode}&email=${urlencodedemail}">please click here</a>.</p>
 <p>Following confirmation of your email address, a WASP departmental administrator will be contacted and asked to approve your request. 
 Once that approval has been granted, you will be notified via email, your account will be fully activated, and you will be permitted to log in.</p>
 <p>Regards,<br />The WASP Team</p>

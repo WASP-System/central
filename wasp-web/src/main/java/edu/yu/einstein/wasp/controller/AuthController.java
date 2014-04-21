@@ -439,13 +439,13 @@ public class AuthController extends WaspController {
 		}
 		// authcode and email match 
 		confirmEmailAuthDao.remove(auth);
-		if (isAdminCreated == 0 || webAuthenticationService.isAuthenticationSetExternal()){
+		if (isAdminCreated == 0){
 			waspMessage("user.email_change_confirmed.label");
 			return "redirect:/auth/login.do"; 	
 		}
 		return "redirect:/auth/resetpassword/form.do?authcode="+getUserPasswordAuthcode(user);//sets the password authcode in database (see function above)
 	}
-	else if (isAdminCreated == 1 && !webAuthenticationService.isAuthenticationSetExternal()){
+	else if (isAdminCreated == 1){
 		// check if Userpasswordauth object exists for user who owns currently validated email and if so request change of password
 		User user = userDao.getUserByEmail(decodedEmail); //user.email is unique 
 		if(user == null){
