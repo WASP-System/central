@@ -328,7 +328,7 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 							metaO.setK("genericBiomolecule.organism");
 							try {
 								metaO.setV(genomeService.getBuild(attributeVal).getGenome().getOrganism().getNcbiID().toString());
-							} catch (ParameterValueRetrievalException e) {
+							} catch (Exception e) {
 								throw new WaspRuntimeException("Cannot update " + model + ".genericBiomolecule.organism : " + e.getMessage());
 							}
 							metaO.setSample(currentSample);
