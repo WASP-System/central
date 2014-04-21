@@ -102,13 +102,6 @@
     <property name="description" value="Variant Call Format (VCF) is a flexible and extendable format for variation data such as single nucleotide variants, insertions/deletions, copy number variants and structural variants." />
     <property name="extensions" value="vcf" />
   </bean>
-  
-  <bean id="gvcfFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
-    <property name="name" value="Genomic Variant Call Format" />
-    <property name="area" value="gvcf" />
-    <property name="description" value="Extension of VCF-format containing a record for every position in the genome (or interval of interest) regardless of whether a variant was detected at that site or not" />
-    <property name="extensions" value="gvcf" />
-  </bean>
 
 </beans>
 
