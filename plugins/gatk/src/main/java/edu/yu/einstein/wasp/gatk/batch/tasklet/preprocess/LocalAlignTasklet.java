@@ -7,6 +7,7 @@ package edu.yu.einstein.wasp.gatk.batch.tasklet.preprocess;
  * 
  */
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
@@ -27,6 +28,7 @@ import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.fileformat.plugin.BamFileTypeAttribute;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
 
@@ -80,9 +82,12 @@ public class LocalAlignTasklet extends WaspRemotingTasklet implements StepExecut
 		logger.debug("Beginning GATK local re-alignment step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
 		logger.debug("Starting from previously target creat'd scratch directory " + scratchDirectory);
 
-		Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLib, fastqFileType); // TODO: change to bamFileType later
+		Set<BamFileTypeAttribute> attributes = new HashSet<>();
+		attributes.add(BamFileTypeAttribute.SORTED);
+		attributes.add(BamFileTypeAttribute.DEDUP);
+		Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLib, bamFileType, attributes, true);
 
-		Assert.assertTrue(fileGroups.size() == 1);
+		Assert.assertTrue(fileGroups.size() == 1, "The number of filegroups (" + fileGroups.size() + ") is not equal to 1");
 		FileGroup fg = fileGroups.iterator().next();
 
 		logger.debug("file group: " + fg.getId() + ":" + fg.getDescription());

@@ -174,8 +174,8 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 			String key;
 			if (opt.startsWith("gatk"))
 				key = opt.replace("gatk", "");
-			else if (variantCallingMethod.equals("ug") && opt.startsWith("ug"))
-				key = opt.replace("ug", "");
+			else if (variantCallingMethod.equals(GatkService.UNIFIED_GENOTYPER_CODE) && opt.startsWith(GatkService.UNIFIED_GENOTYPER_CODE))
+				key = opt.replace(GatkService.UNIFIED_GENOTYPER_CODE, "");
 			else 
 				continue;
 			gatkOpts += " " + key + " " + jobParameters.get(opt).toString();

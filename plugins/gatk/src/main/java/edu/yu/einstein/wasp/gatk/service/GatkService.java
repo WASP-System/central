@@ -17,6 +17,10 @@ import edu.yu.einstein.wasp.service.WaspService;
  * @author asmclellan
  */
 public interface GatkService extends WaspService {
+	
+		public static final String UNIFIED_GENOTYPER_CODE="ug";
+		
+		public static final String HAPLOTYPE_CALLER_CODE="hc";
 		
 		public Set<BamFileTypeAttribute> getCompleteGatkPreprocessBamFileAttributeSet();
 		

@@ -94,7 +94,7 @@ public class CreateTargetTasklet extends WaspRemotingTasklet implements StepExec
 		Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLib, bamFileType, attributes, true);
 		
 		logger.debug("fileGroups.size()="+fileGroups.size());
-		Assert.assertTrue(fileGroups.size() == 1);
+		Assert.assertTrue(fileGroups.size() == 1, "The number of filegroups (" + fileGroups.size() + ") is not equal to 1");
 		FileGroup fg = fileGroups.iterator().next();
 		
 		logger.debug("file group: " + fg.getId() + ":" + fg.getDescription());
