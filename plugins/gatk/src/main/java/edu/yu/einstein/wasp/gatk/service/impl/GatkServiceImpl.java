@@ -85,7 +85,7 @@ public class GatkServiceImpl extends WaspServiceImpl implements GatkService {
 	@Override
 	public String getReferenceGenomeFastaFile(Build build) {
 		String folder = build.getMetadata("fasta.folder");
-		String filename = build.getMetadata("fasta.fileName");
+		String filename = build.getMetadata("fasta.filename");
 		if (folder == null || folder.isEmpty() || filename == null || filename.isEmpty())
 			throw new MetadataRuntimeException("failed to locate reference genome fasta file");
 		return genomeService.getRemoteBuildPath(build) + "/" + folder + "/" + filename;
@@ -94,7 +94,7 @@ public class GatkServiceImpl extends WaspServiceImpl implements GatkService {
 	@Override
 	public String getReferenceSnpsVcfFile(Build build) {
 		String folder = build.getMetadata("vcf.folder");
-		String filename = build.getMetadata("vcf.snps.fileName");
+		String filename = build.getMetadata("vcf.snps.filename");
 		if (folder == null || folder.isEmpty() || filename == null || filename.isEmpty())
 			throw new MetadataRuntimeException("failed to locate snps vcf file");
 		return genomeService.getRemoteBuildPath(build) + "/" + folder + "/" + filename;
@@ -103,7 +103,7 @@ public class GatkServiceImpl extends WaspServiceImpl implements GatkService {
 	@Override
 	public String getReferenceIndelsVcfFile(Build build) {
 		String folder = build.getMetadata("vcf.folder");
-		String filename = build.getMetadata("vcf.indels.fileName");
+		String filename = build.getMetadata("vcf.indels.filename");
 		if (folder == null || folder.isEmpty() || filename == null || filename.isEmpty())
 			throw new MetadataRuntimeException("failed to locate indels vcf file");
 		return genomeService.getRemoteBuildPath(build) + "/" + folder + "/" + filename;
