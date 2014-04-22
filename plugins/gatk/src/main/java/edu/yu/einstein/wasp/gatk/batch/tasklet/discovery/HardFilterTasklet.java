@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.gatk.batch.tasklet;
+package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 
 
 

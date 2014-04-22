@@ -45,7 +45,7 @@
 		
 		<batch:step id="edu.yu.einstein.wasp.gatk.hc.variantDiscoveryFlow.hardFilter" next="edu.yu.einstein.wasp.gatk.hc.variantDiscoveryFlow.notifyComplete">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.HardFilterTasklet" scope="step" />
+				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.HardFilterTasklet" scope="step" />
 			</batch:tasklet>
 		</batch:step>
 		

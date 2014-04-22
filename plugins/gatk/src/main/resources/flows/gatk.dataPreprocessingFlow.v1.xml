@@ -22,7 +22,7 @@
 		
 		<batch:step id="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.createTarget">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.CreateTargetTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.preprocess.CreateTargetTasklet" scope="step">
 					<constructor-arg name="cellLibraryIds" value="#{jobParameters[waspSoftwareJobParameters.CELL_LIBRARY_ID_LIST]}" />
 				</bean>
 			</batch:tasklet>
@@ -40,7 +40,7 @@
 		
 		<batch:step id="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.localAlign">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.LocalAlignTasklet" scope="step" />
+				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.preprocess.LocalAlignTasklet" scope="step" />
 			</batch:tasklet>
 			<batch:next on="FAILED" to="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.notifyGATKFailed" />
 			<batch:next on="*" to="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.recaliTable" />
@@ -57,7 +57,7 @@
 		
 		<batch:step id="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.recaliTable">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.RecaliTableTasklet" scope="step" />
+				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.preprocess.RecaliTableTasklet" scope="step" />
 			</batch:tasklet>
 			<batch:next on="FAILED" to="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.notifyGATKFailed" />
 			<batch:next on="*" to="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.printRecali" />
@@ -73,7 +73,7 @@
 		
 		<batch:step id="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.printRecali">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.PrintRecaliTasklet" scope="step" />
+				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.preprocess.PrintRecaliTasklet" scope="step" />
 			</batch:tasklet>
 			<batch:next on="FAILED" to="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.notifyGATKFailed" />
 			<batch:next on="*" to="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.notifyComplete" />

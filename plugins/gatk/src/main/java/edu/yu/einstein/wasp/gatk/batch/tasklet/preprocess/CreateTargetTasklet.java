@@ -1,7 +1,7 @@
-package edu.yu.einstein.wasp.gatk.batch.tasklet;
+package edu.yu.einstein.wasp.gatk.batch.tasklet.preprocess;
 
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
+
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,9 +14,8 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
-import edu.yu.einstein.wasp.filetype.service.FileTypeService;
-import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
@@ -26,6 +25,7 @@ import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.fileformat.plugin.BamFileTypeAttribute;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -34,18 +34,14 @@ import edu.yu.einstein.wasp.service.SampleService;
  * @author jcai
  * @author asmclellan
  */
-public class CallVariantsWithHCTasklet extends WaspRemotingTasklet implements StepExecutionListener {
+public class CreateTargetTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
-	private List<Integer> cellLibraryIds;
-	
-	private List<FileGroup> fileGroups = new ArrayList<>();
+	private Integer cellLibraryId;
 	
 	@Autowired
 	private FileService fileService;
 	
-	@Autowired
-	private FileTypeService fileTypeService;
-	
+
 	@Autowired
 	private SampleService sampleService;
 	
@@ -53,26 +49,25 @@ public class CallVariantsWithHCTasklet extends WaspRemotingTasklet implements St
 	private JobService jobService;
 	
 	@Autowired
-	private FileType bamFileType;
-	
-	@Autowired
 	private GridHostResolver gridHostResolver;
 	
 	@Autowired
-	private GatkService gatkService;
+	private FileType bamFileType;
 	
-	private StepExecution stepExecution;
+	@Autowired
+	private FileType fastqFileType;
 	
 	@Autowired
 	private GATKSoftwareComponent gatk;
 
-
-	public CallVariantsWithHCTasklet() {
+	public CreateTargetTasklet() {
 		// proxy
 	}
 
-	public CallVariantsWithHCTasklet(String cellLibraryIds) {
-		this.cellLibraryIds = WaspSoftwareJobParameters.getCellLibraryIdList(cellLibraryIds);
+	public CreateTargetTasklet(String cellLibraryIds) {
+		List<Integer> cids = WaspSoftwareJobParameters.getCellLibraryIdList(cellLibraryIds);
+		Assert.assertTrue(cids.size() == 1);
+		this.cellLibraryId = cids.get(0);
 	}
 
 	/*
@@ -85,36 +80,32 @@ public class CallVariantsWithHCTasklet extends WaspRemotingTasklet implements St
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
-		SampleSource cellLibrary1 = sampleService.getCellLibraryBySampleSourceId(cellLibraryIds.get(0));
-		Job job = sampleService.getJobOfLibraryOnCell(cellLibrary1);
+		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
+		StepExecution stepExecution = context.getStepContext().getStepExecution();
+		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
 		
-		logger.debug("Beginning GATK variant detection for job " + job.getId());
+		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
 		
+		logger.debug("Beginning GATK create re-alignment target step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
 		
-		for (Integer currentId : cellLibraryIds) {
-			SampleSource cellLibrary = sampleService.getSampleSourceDao().findById(currentId);
-			Set<FileGroup> tmpFileGroups = fileService.getFilesForCellLibraryByType(cellLibrary, bamFileType, gatkService.getCompleteGatkPreprocessBamFileAttributeSet(), true);
-			
-			logger.debug("get file group");
-			//Assert.assertTrue(tmpFileGroups.size() == 1);
-			FileGroup currentFg = null;
-			if (tmpFileGroups.iterator().hasNext())
-				currentFg = tmpFileGroups.iterator().next();
-			else{
-				logger.error("No FileGroup returned for CellLibrary with id=" + currentId);
-				throw new FileNotFoundException("No FileGroup returned for CellLibrary with id=" + currentId);
-			}
-			fileGroups.add(currentFg);
-			logger.debug("add file group: " + currentFg.getId() + ":" + currentFg.getDescription());
-		}
-
+		Set<BamFileTypeAttribute> attributes = new HashSet<>();
+		attributes.add(BamFileTypeAttribute.SORTED);
+		attributes.add(BamFileTypeAttribute.DEDUP);
+		Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLib, bamFileType, attributes, true);
+		
+		logger.debug("fileGroups.size()="+fileGroups.size());
+		Assert.assertTrue(fileGroups.size() == 1);
+		FileGroup fg = fileGroups.iterator().next();
+		
+		logger.debug("file group: " + fg.getId() + ":" + fg.getDescription());
+		
 		Map<String,Object> jobParameters = context.getStepContext().getJobParameters();
 		
 		for (String key : jobParameters.keySet()) {
 			logger.debug("Key: " + key + " Value: " + jobParameters.get(key).toString());
 		}
 		
-		WorkUnit w = gatk.getCallVariantsByHaplotypeCaller(cellLibrary1, fileGroups, jobParameters);
+		WorkUnit w = gatk.getCreateTarget(cellLib, fg);
 		
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
    
@@ -123,17 +114,13 @@ public class CallVariantsWithHCTasklet extends WaspRemotingTasklet implements St
 		//place the grid result in the step context
 		storeStartedResult(context, result);
 		
-		// place scratch directory in step execution context, to be promoted
+		// place properties for use in later steps into the step execution context, to be promoted
 		// to the job context at run time.
-		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
-        stepContext.put("scrDir", result.getWorkingDirectory());
-        stepContext.put("callVariantName", result.getId());
-        stepContext.put("jobId", job.getId());
-        stepContext.put("cellLibId", cellLibrary1.getId());
+		stepExecutionContext.put("cellLibId", cellLib.getId()); // place in the step context
+		stepExecutionContext.put("scrDir", result.getWorkingDirectory());
+		stepExecutionContext.put("createTargetName", result.getId());
+        
 	}
-	
-
-	
 	
 	/** 
 	 * {@inheritDoc}
@@ -149,9 +136,6 @@ public class CallVariantsWithHCTasklet extends WaspRemotingTasklet implements St
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
 		super.beforeStep(stepExecution);
-		logger.debug("StepExecutionListener beforeStep saving StepExecution");
-		this.stepExecution = stepExecution;
-		
 	}
 
 }

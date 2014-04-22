@@ -27,6 +27,7 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  * @author asmclellan
  * @author jcai
  */
+@Transactional("entityManager")
 public class GATKSoftwareComponent extends SoftwarePackage {
 	
 	@Autowired
@@ -45,7 +46,6 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		setSoftwareVersion("3.0-0"); // this default may be overridden in wasp.site.properties
 	}
 	
-	@Transactional("entityManager")
 	public WorkUnit getCreateTarget(SampleSource cellLibrary, FileGroup fg) {
 		final int NUM_THREADS = 4;
 		final int MEMORY_REQUIRED = 8; // in Gb
@@ -70,7 +70,6 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	}
 	
 	
-	@Transactional("entityManager")
 	public WorkUnit getLocalAlign(SampleSource cellLibrary, String scratchDirectory, String namePrefix, FileGroup fg) {
 		final int MEMORY_REQUIRED = 8; // in Gb
 		WorkUnit w = prepareWorkUnit(fg);
@@ -89,7 +88,6 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return w;
 	}
 	
-	@Transactional("entityManager")
 	public WorkUnit getRecaliTable(SampleSource cellLibrary, String scratchDirectory, String namePrefix) {
 		final int MEMORY_REQUIRED = 8; // in Gb
 		WorkUnit w = new WorkUnit();
@@ -116,7 +114,6 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return w;
 	}
 	
-	@Transactional("entityManager")
 	public WorkUnit getPrintRecali(SampleSource cellLibrary, String scratchDirectory, String namePrefix, String namePrefix2) {
 		final int MEMORY_REQUIRED = 8; // in Gb
 		WorkUnit w = new WorkUnit();
@@ -142,7 +139,6 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return w;
 	}	
 	
-	@Transactional("entityManager")
 	public WorkUnit prepareWorkUnit(FileGroup fg) {
 		final int MEMORY_REQUIRED = 8; // in Gb
 		WorkUnit w = new WorkUnit();
@@ -183,7 +179,6 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return gatkOpts;
 	}
 	
-	@Transactional("entityManager")
 	public WorkUnit getCallVariantsByUnifiedGenotyper(SampleSource cellLibrary, List<FileGroup> fileGroups, Map<String,Object> jobParameters) throws ParameterValueRetrievalException {
 		final int NUM_THREADS = 4;
 		final int MEMORY_REQUIRED = 8; // in Gb
@@ -235,7 +230,6 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return w;
 	}
 	
-	@Transactional("entityManager")
 	public WorkUnit getCallVariantsByHaplotypeCaller(SampleSource cellLibrary, List<FileGroup> fileGroups, Map<String,Object> jobParameters) throws ParameterValueRetrievalException {
 		final int NUM_THREADS = 4;
 		final int MEMORY_REQUIRED = 8; // in Gb
@@ -284,7 +278,6 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return w;
 	}
 	
-	@Transactional("entityManager")
 	public WorkUnit genotypeGVCFs(SampleSource cellLibrary, String scratchDirectory, List<FileGroup> fileGroups){
 		final int MEMORY_REQUIRED = 2; // in Gb
 		WorkUnit w = new WorkUnit();
@@ -313,7 +306,6 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return w;
 	}
 
-	@Transactional("entityManager")
 	public WorkUnit getHardFilter(SampleSource cellLibrary, String scratchDirectory, String namePrefix) {
 		final int MEMORY_REQUIRED = 2; // in Gb
 		WorkUnit w = new WorkUnit();

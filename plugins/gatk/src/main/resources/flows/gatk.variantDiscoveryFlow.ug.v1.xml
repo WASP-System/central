@@ -24,7 +24,7 @@
 		 
 		<batch:step id="edu.yu.einstein.wasp.gatk.ug.variantDiscoveryFlow.callVariant">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.CallVariantsWithUGTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.CallVariantsWithUGTasklet" scope="step">
 					<constructor-arg name="cellLibraryIds" value="#{jobParameters[waspSoftwareJobParameters.CELL_LIBRARY_ID_LIST]}" />
 				</bean>
 			</batch:tasklet>
@@ -45,7 +45,7 @@
 		
 		<batch:step id="edu.yu.einstein.wasp.gatk.ug.variantDiscoveryFlow.hardFilter" next="edu.yu.einstein.wasp.gatk.ug.variantDiscoveryFlow.notifyComplete">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.HardFilterTasklet" scope="step" />
+				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.HardFilterTasklet" scope="step" />
 			</batch:tasklet>
 		</batch:step>
 		
