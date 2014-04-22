@@ -49,7 +49,20 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	public WorkUnit getCreateTarget(SampleSource cellLibrary, FileGroup fg) {
 		final int NUM_THREADS = 4;
 		final int MEMORY_REQUIRED = 8; // in Gb
-		WorkUnit w = prepareWorkUnit(fg);
+		WorkUnit w = new WorkUnit();
+		
+		w.setMode(ExecutionMode.PROCESS);
+	
+		w.setMemoryRequirements(MEMORY_REQUIRED);
+
+		List<FileHandle> fhlist = new ArrayList<FileHandle>();
+		fhlist.addAll(fg.getFileHandles());
+		w.setRequiredFiles(fhlist);
+		
+		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
+		sd.add(this);
+		w.setSoftwareDependencies(sd);
+		w.setSecureResults(false);
 		w.setProcessMode(ProcessMode.MAX);
 		w.setMemoryRequirements(MEMORY_REQUIRED);
 		w.setProcessorRequirements(NUM_THREADS);
@@ -72,7 +85,20 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	
 	public WorkUnit getLocalAlign(SampleSource cellLibrary, String scratchDirectory, String namePrefix, FileGroup fg) {
 		final int MEMORY_REQUIRED = 8; // in Gb
-		WorkUnit w = prepareWorkUnit(fg);
+		WorkUnit w = new WorkUnit();
+		
+		w.setMode(ExecutionMode.PROCESS);
+	
+		w.setMemoryRequirements(MEMORY_REQUIRED);
+
+		List<FileHandle> fhlist = new ArrayList<FileHandle>();
+		fhlist.addAll(fg.getFileHandles());
+		w.setRequiredFiles(fhlist);
+		
+		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
+		sd.add(this);
+		w.setSoftwareDependencies(sd);
+		w.setSecureResults(false);
 		w.setProcessMode(ProcessMode.SINGLE);
 		w.setMemoryRequirements(MEMORY_REQUIRED);
 		w.setWorkingDirectory(scratchDirectory);
@@ -138,26 +164,6 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		w.setCommand(command);
 		return w;
 	}	
-	
-	public WorkUnit prepareWorkUnit(FileGroup fg) {
-		final int MEMORY_REQUIRED = 8; // in Gb
-		WorkUnit w = new WorkUnit();
-		
-		w.setMode(ExecutionMode.PROCESS);
-	
-		w.setMemoryRequirements(MEMORY_REQUIRED);
-
-		List<FileHandle> fhlist = new ArrayList<FileHandle>();
-		fhlist.addAll(fg.getFileHandles());
-		w.setRequiredFiles(fhlist);
-		
-		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
-		sd.add(this);
-		w.setSoftwareDependencies(sd);
-		w.setSecureResults(false);
-
-		return w;
-	}
 	
 	private String getCallVariantOpts(Map<String,Object> jobParameters, String wxsIntervalFile) throws ParameterValueRetrievalException{
 		if (!jobParameters.containsKey("variantCallingMethod"))
