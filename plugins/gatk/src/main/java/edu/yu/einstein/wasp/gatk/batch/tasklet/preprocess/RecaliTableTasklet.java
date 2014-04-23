@@ -73,9 +73,9 @@ public class RecaliTableTasklet extends WaspRemotingTasklet implements StepExecu
 		// place the grid result in the step context
 		storeStartedResult(context, result);
 
-		// place recaliTableName in execution context, to be promoted
+		// place recaliTableJobName in execution context, to be promoted
 		// to the job context at run time.
-		stepExecution.getExecutionContext().put("recaliTableName", result.getId());
+		stepExecution.getExecutionContext().put("recaliTableJobName", result.getId());
 
 	}
 

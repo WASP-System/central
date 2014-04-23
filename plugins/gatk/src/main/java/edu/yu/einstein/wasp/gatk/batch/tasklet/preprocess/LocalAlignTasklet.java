@@ -100,9 +100,9 @@ public class LocalAlignTasklet extends WaspRemotingTasklet implements StepExecut
 		// place the grid result in the step context
 		storeStartedResult(context, result);
 
-		// place localAlignName in execution context, to be promoted
+		// place localAlignJobName in execution context, to be promoted
 		// to the job context at run time.
-		stepExecution.getExecutionContext().put("localAlignName", result.getId());
+		stepExecution.getExecutionContext().put("localAlignJobName", result.getId());
 	}
 
 	/**
