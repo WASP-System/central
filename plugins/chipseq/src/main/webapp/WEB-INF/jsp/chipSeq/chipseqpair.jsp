@@ -15,7 +15,7 @@
 </div>
 
 
-<form method="POST" class="chipseqPairingform">
+<form method="POST">
 <table class="data">
 	<tr class="row">
 		<td class="label">&nbsp;</td>
