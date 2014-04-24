@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.load;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -12,8 +13,8 @@ import org.springframework.context.ApplicationContextAware;
 
 import edu.yu.einstein.wasp.load.service.SoftwareLoadService;
 import edu.yu.einstein.wasp.model.ResourceType;
-import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.SoftwareMeta;
+import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
  * update/inserts db copy of subtype sample from bean definition
@@ -22,10 +23,10 @@ import edu.yu.einstein.wasp.model.SoftwareMeta;
  * 
  */
 
-public class SoftwareLoaderAndFactory<T extends Software> extends WaspResourceLoader implements FactoryBean<T>, ApplicationContextAware {
+public class SoftwareLoaderAndFactory<T extends SoftwarePackage> extends WaspResourceLoader implements FactoryBean<T>, ApplicationContextAware {
 
 	@SuppressWarnings("unchecked")
-	private Class<T> clazz = (Class<T>) Software.class ; // default
+	private Class<T> clazz = (Class<T>) SoftwarePackage.class ; // default
 	
 	private ApplicationContext ctx;
 	
@@ -42,9 +43,13 @@ public class SoftwareLoaderAndFactory<T extends Software> extends WaspResourceLo
 	
 	private String description = "";
 	
-	private List<SoftwareMeta> meta;
+	private List<SoftwareMeta> meta = new ArrayList<>();
 
 	private int isActive = 1;
+	
+	private List<SoftwarePackage> softwareDependencies = new ArrayList<>();
+	
+	private String version;
 	
 	public void setResourceType(ResourceType resourceType) {
 		this.resourceType = resourceType;
@@ -74,9 +79,30 @@ public class SoftwareLoaderAndFactory<T extends Software> extends WaspResourceLo
 		this.description = description;
 	}
 	
+	public List<SoftwarePackage> getSoftwareDependencies() {
+		return softwareDependencies;
+	}
+	
+	public void setSoftwareDependency(SoftwarePackage softwareDependency) {
+		this.softwareDependencies.clear();
+		this.softwareDependencies.add(softwareDependency);
+	}
+
+	public void setSoftwareDependencies(List<SoftwarePackage> softwareDependencies) {
+		this.softwareDependencies = softwareDependencies;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
 	@PostConstruct
 	public void init(){
-		software = softwareLoadService.update(resourceType, meta, iname, name, description, isActive, clazz);
+		software = softwareLoadService.update(resourceType, meta, iname, name, description, version, softwareDependencies, isActive, clazz);
 	}
 
 	@Override

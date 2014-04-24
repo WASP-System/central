@@ -49,6 +49,11 @@
   	<property name="name" value="Library Strategy" />
   	<property name="area" value="libraryStrategy" />
   </bean>
+  
+  <bean id="statisticalSoftwareResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
+  	<property name="name" value="Statistical Software" />
+  	<property name="area" value="statisticalSoftware" />
+  </bean>
  
 </beans>
 

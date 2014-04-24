@@ -14,8 +14,9 @@
   </bean>
 
   <bean id="___pluginIName___" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
-  	<property name="type"><value type="java.lang.Class">___package___.software.___PluginIName___</value></property>
+  	<property name="type"><value type="java.lang.Class">___package___.software.___PluginIName___</value></property> <!-- must be derived from the SoftwarePackage class -->
     <property name="name" value="___PluginIName___" />
+    <property name="version" value="0.0.0" /> <!-- TODO: Set this value. This default may also be overridden in wasp.site.properties -->
     <property name="description" value="___description___" />
     <property name="area" ref="___pluginIName___PluginArea" />
     <property name="resourceType" ref="genericPluginResourceType" /> <!-- TODO: choose a more appropriate resource type -->

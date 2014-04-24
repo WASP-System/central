@@ -11,7 +11,6 @@ import java.util.Random;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.GridException;
@@ -20,7 +19,6 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
-import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.babraham.batch.service.impl.BabrahamBatchServiceImpl;
 import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamQCParseModule;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
@@ -40,13 +38,6 @@ public class FastQScreen extends SoftwarePackage {
 
 	@Autowired
 	private FastqService fastqService;
-	
-	// cannot autowire as IlluminaHiseqSequenceRunProcessor here which is all we really need. Beans referenced by base type so must
-	// as Software and use @Qualifier to specify the casava bean. 
-	// Seems to be an issue for batch but not Web which accepts IlluminaHiseqSequenceRunProcessor.
-	@Autowired
-	@Qualifier("casava")
-	private Software casava;
 	
 	@Autowired
 	BabrahamService babrahamService;
@@ -77,7 +68,6 @@ public class FastQScreen extends SoftwarePackage {
 	 * 
 	 */
 	public FastQScreen() {
-		setSoftwareVersion("0.4.1"); // this default may be overridden in wasp.site.properties
 	}
 
 

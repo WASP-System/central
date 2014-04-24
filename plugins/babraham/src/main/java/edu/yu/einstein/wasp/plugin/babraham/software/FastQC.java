@@ -13,16 +13,15 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.dao.SoftwareDao;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
-import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.babraham.batch.service.impl.BabrahamBatchServiceImpl;
 import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamQCParseModule;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
@@ -48,13 +47,6 @@ public class FastQC extends SoftwarePackage{
 	
 	@Autowired
 	private MessageService messageService;
-	
-	// cannot autowire as IlluminaHiseqSequenceRunProcessor here which is all we really need. Beans referenced by base type so must
-	// as Software and use @Qualifier to specify the casava bean. 
-	// Seems to be an issue for batch but not Web which accepts IlluminaHiseqSequenceRunProcessor.
-	@Autowired
-	@Qualifier("casava")
-	private Software casava;
 	
 	/**
 	 * 
@@ -101,11 +93,13 @@ public class FastQC extends SoftwarePackage{
 	@Autowired
 	FileService fileService;
 	
+	@Autowired
+	SoftwareDao softwareDao;
+	
 	/**
 	 * 
 	 */
 	public FastQC() {
-		setSoftwareVersion("0.10.1"); // this default may be overridden in wasp.site.properties
 	}
 
 	
@@ -191,7 +185,7 @@ public class FastQC extends SoftwarePackage{
 		}
 		
 		String opts = "--noextract --nogroup --quiet";
-		if (fileGroup.getSoftwareGeneratedBy().equals(casava))
+		if (fileGroup.getSoftwareGeneratedBy().equals(getSoftwareDependencyByIname("casava")))
 			opts += " --casava";
 		
 		command += "mkdir " + OUTPUT_FOLDER + "\n";

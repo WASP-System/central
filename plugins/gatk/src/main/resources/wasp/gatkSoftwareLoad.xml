@@ -17,22 +17,12 @@
   <bean id="gatk" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
   	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent</value></property>
     <property name="name" value="gatk" />
+    <property name="version" value="3.0-0" />
     <property name="description" value="Genome analysis tool kit from the Broad Institute" />
     <property name="area" ref="gatkPluginArea" />
     <property name="resourceType" ref="variantCallingResourceType" />
+	<property name="softwareDependency" ref="picard" />
 	
-	<property name="metaFromWrapper">
-       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" ref="gatkPluginArea" />
-         <!-- Load any software metadata 
-         <property name="metaList">
-         	<list>
-         		<value>gatk.myMetaValue=foo</value>
-         	</list>
-       	 </property>
-       	 -->
-       </bean>
-    </property> 
     <property name="uiFieldsFromWrapper">
       <list>
       	<bean parent="gatkUiFieldWrapper">

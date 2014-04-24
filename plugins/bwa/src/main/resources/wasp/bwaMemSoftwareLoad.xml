@@ -14,23 +14,12 @@
   <bean id="bwaMem" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
   	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.bwa.software.BWAMemSoftwareComponent</value></property>
     <property name="name" value="BWA-MEM" />
+    <property name="version" value="0.7.6a" />
     <property name="area" ref="bwaMemArea" />
     <property name="description" value="BWA-MEM (mem command) is designed for long sequences ranged from 70bp to 1Mbp and has better performance and accuracy than BWA-backtrack for 70-100bp Illumina reads." />
     <property name="resourceType" ref="referenceBasedAlignerResourceType" />
 	
-	<property name="metaFromWrapper">
-       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" ref="bwaMemArea" />
-         <property name="metaList">
-         	<list>
-         		<value>#{waspSoftware['currentVersion']}=0.7.6a</value>
-         		<value>#{waspSoftware['priorVersions']}=</value>
-         	</list>
-       	 </property>
-       </bean>
-    </property> 
-    
-    <property name="uiFieldsFromWrapper">
+	<property name="uiFieldsFromWrapper">
       <list>
         <bean parent="bwaMemUiFieldWrapper">
           <property name="baseName" value="mem-w" />

@@ -4,23 +4,16 @@
  */
 package edu.yu.einstein.wasp.macstwo.software;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import edu.yu.einstein.wasp.Assert;
-
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
-import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
-import edu.yu.einstein.wasp.model.JobMeta;
-import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 // Un-comment the following if using the plugin service
@@ -39,16 +32,11 @@ public class Macstwo extends SoftwarePackage{
 	//@Autowired
 	//MacstwoService  macstwoService;
 
+	private static final long serialVersionUID = 6657173203004836355L;
+
 	@Autowired
 	private FileService fileService;
 	
-	@Autowired
-	@Qualifier("rPackage")
-	private SoftwarePackage rSoftware;
-	@Autowired
-	@Qualifier("imagemagick")
-	private SoftwarePackage imageMagickSoftware;
-
 	public Macstwo() {
 		setSoftwareVersion("2.0.10"); // TODO: Set this value. This default may also be overridden in wasp.site.properties
 	}
@@ -202,10 +190,7 @@ public class Macstwo extends SoftwarePackage{
 		
 		w.addCommand(command2);
 		
-		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
-		sd.add(rSoftware);//used for generating model as pdf
-		sd.add(imageMagickSoftware);
-		w.setSoftwareDependencies(sd);
+		w.setSoftwareDependencies(getSoftwareDependencies());
 		
 		logger.debug("----command has been set to workunit in getModelPdf");		
 		return w;

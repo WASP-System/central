@@ -3,6 +3,12 @@
  */
 package edu.yu.einstein.wasp.software;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import edu.yu.einstein.wasp.grid.work.SoftwareManager;
 import edu.yu.einstein.wasp.model.Software;
 
@@ -10,11 +16,13 @@ import edu.yu.einstein.wasp.model.Software;
  * @author calder
  *
  */
-public abstract class SoftwarePackage extends Software {
+public class SoftwarePackage extends Software {
 	
 	private static final long serialVersionUID = 522863647514139874L;
 	
-	private String softwareVersion;
+	protected String softwareVersion;
+	
+	private Map<String, SoftwarePackage> softwareDependencies = new HashMap<>();
 
 	/**
 	 * A unique name for the software component. Can be overridden at the configuration level 
@@ -47,6 +55,23 @@ public abstract class SoftwarePackage extends Software {
 	
 	public void setSoftwareVersion(String softwareVersion){
 		this.softwareVersion = softwareVersion;
+	}
+	
+	public void setSoftwareDependencies(Collection<SoftwarePackage> softwareDependencies){
+		for (SoftwarePackage s: softwareDependencies)
+			this.softwareDependencies.put(s.getIName(), s);
+	}
+	
+	public List<SoftwarePackage> getSoftwareDependencies(){
+		List<SoftwarePackage> sds= new ArrayList<>();
+		sds.addAll(softwareDependencies.values());
+		return sds;
+	}
+	
+	public SoftwarePackage getSoftwareDependencyByIname(String iname){
+		if (!softwareDependencies.containsKey(iname))
+			return null;
+		return softwareDependencies.get(iname);
 	}
 	
 	

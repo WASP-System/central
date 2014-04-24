@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Strategy;
@@ -39,11 +40,9 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	@Autowired
 	private SampleService sampleService;
 	
-	
 	private static final long serialVersionUID = -6631761128215948999L;
 	
 	public GATKSoftwareComponent() {
-		setSoftwareVersion("3.0-0"); // this default may be overridden in wasp.site.properties
 	}
 	
 	public WorkUnit getCreateTarget(SampleSource cellLibrary, FileGroup fg) {
@@ -150,6 +149,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(this);
+		sd.add(getSoftwareDependencyByIname("picard"));
 		w.setSoftwareDependencies(sd);
 		w.setSecureResults(true);
 		
@@ -161,7 +161,9 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 				".recali.grp -baq RECALCULATE";
 		logger.debug("Will conduct gatk recalibrate sequences with command: " + command);
 		
-		w.setCommand(command);
+		w.addCommand(command);
+		w.addCommand("java -Xmx4g -jar $PICARD_ROOT/BuildBamIndex.jar I=${" + WorkUnit.OUTPUT_FILE + "[0]} O=${" + WorkUnit.OUTPUT_FILE + "[1]} " +
+				"TMP_DIR=. VALIDATION_STRINGENCY=SILENT");
 		return w;
 	}	
 	
