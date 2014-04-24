@@ -5,7 +5,7 @@
 
 	<batch:job id="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow">
 	
-		<batch:step id="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.notifyGatkStart" next="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.createTarget">
+		<batch:step id="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.notifyGatkStart" next="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.preprocess">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
@@ -20,60 +20,11 @@
 			</batch:tasklet>
 		</batch:step>
 		
-		<batch:step id="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.createTarget">
+		<batch:step id="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.preprocess">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.preprocess.CreateTargetTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.preprocess.BamPreProcessingTasklet" scope="step">
 					<constructor-arg name="cellLibraryIds" value="#{jobParameters[waspSoftwareJobParameters.CELL_LIBRARY_ID_LIST]}" />
 				</bean>
-			</batch:tasklet>
-			<batch:next on="FAILED" to="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.notifyGATKFailed" />
-			<batch:next on="*" to="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.localAlign" />
-			<batch:listeners>
-				<batch:listener>
-					<bean class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
-						<property name="keys" value="scrDir,createTargetName,cellLibId"  />
-						<property name="statuses" value="COMPLETED,FAILED" />
-					</bean>
-				</batch:listener>
-			</batch:listeners>
-		</batch:step>
-		
-		<batch:step id="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.localAlign">
-			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.preprocess.LocalAlignTasklet" scope="step" />
-			</batch:tasklet>
-			<batch:next on="FAILED" to="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.notifyGATKFailed" />
-			<batch:next on="*" to="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.recaliTable" />
-			<batch:listeners>
-				<batch:listener>
-					<bean class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
-						<property name="keys" value="localAlignJobName"  />
-						<property name="statuses" value="COMPLETED,FAILED" />
-					</bean>
-				</batch:listener>
-			</batch:listeners>
-		</batch:step>
-		
-		
-		<batch:step id="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.recaliTable">
-			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.preprocess.RecaliTableTasklet" scope="step" />
-			</batch:tasklet>
-			<batch:next on="FAILED" to="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.notifyGATKFailed" />
-			<batch:next on="*" to="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.printRecali" />
-			<batch:listeners>
-				<batch:listener>
-					<bean class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
-						<property name="keys" value="recaliTableJobName"  />
-						<property name="statuses" value="COMPLETED,FAILED" />
-					</bean>
-				</batch:listener>
-			</batch:listeners>
-		</batch:step>
-		
-		<batch:step id="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.printRecali">
-			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.preprocess.PrintRecaliTasklet" scope="step" />
 			</batch:tasklet>
 			<batch:next on="FAILED" to="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.notifyGATKFailed" />
 			<batch:next on="*" to="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.notifyComplete" />
@@ -112,11 +63,5 @@
 		</batch:step>
 		
 	</batch:job>
-
-
-	<bean id="gatkPromotionListener" class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
-		<property name="keys" value="scrDir,createTargetName,localAlignName,recaliTableName,printRecaliName,cellLibId"  />
-		<property name="statuses" value="COMPLETED,FAILED" />
-	</bean>
 	
 </beans>

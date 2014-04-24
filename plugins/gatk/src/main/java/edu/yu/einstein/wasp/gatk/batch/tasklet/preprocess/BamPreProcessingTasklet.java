@@ -1,9 +1,10 @@
 package edu.yu.einstein.wasp.gatk.batch.tasklet.preprocess;
 
 
-/**
- * 
- */
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
@@ -21,74 +23,106 @@ import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.fileformat.plugin.BamFileTypeAttribute;
+import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
-
+import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
  * @author jcai
  * @author asmclellan
  */
-public class PrintRecaliTasklet extends WaspRemotingTasklet implements StepExecutionListener {
+public class BamPreProcessingTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
-	@Autowired
-	private SampleService sampleService;
-
+	private Integer cellLibraryId;
+	
 	@Autowired
 	private FileService fileService;
 	
 	@Autowired
 	@Qualifier("bamServiceImpl")
 	private FileTypeService fileTypeService;
+
+	@Autowired
+	private SampleService sampleService;
 	
 	@Autowired
-	private GatkService gatkService;
-
+	private JobService jobService;
+	
 	@Autowired
 	private GridHostResolver gridHostResolver;
-
+	
 	@Autowired
 	private FileType bamFileType;
 	
 	@Autowired
 	private FileType baiFileType;
-
+	
+	@Autowired
+	private GatkService gatkService;
+	
 	@Autowired
 	private GATKSoftwareComponent gatk;
-	
-	public PrintRecaliTasklet() {
+
+	public BamPreProcessingTasklet() {
 		// proxy
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	public BamPreProcessingTasklet(String cellLibraryIds) {
+		List<Integer> cids = WaspSoftwareJobParameters.getCellLibraryIdList(cellLibraryIds);
+		Assert.assertTrue(cids.size() == 1);
+		this.cellLibraryId = cids.get(0);
+	}
+
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
-		// retrieve stored properties
+		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
+		Build build = gatkService.getGenomeBuild(cellLib);
 		StepExecution stepExecution = context.getStepContext().getStepExecution();
 		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
-		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
-		String scratchDirectory = jobExecutionContext.getString("scrDir");
-		String localAlignJobName = jobExecutionContext.getString("localAlignJobName");
-		String recaliTableJobName = jobExecutionContext.getString("recaliTableJobName");
 		
-		SampleSource cellLib = sampleService.getSampleSourceDao().findById(jobExecutionContext.getInt("cellLibId"));
-
 		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
-
-		logger.debug("Beginning GATK print recalibrated sequence step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
-		logger.debug("Starting from previously recali-table'd scratch directory " + scratchDirectory);
 		
-		String baiOutput = fileService.generateUniqueBaseFileName(cellLib) + "gatk_dedup_realn_recal.bai";
+		logger.debug("Beginning GATK preprocessing for cellLibrary " + cellLib.getId() + " from Wasp job " + job.getId());
 		
+		Set<BamFileTypeAttribute> attributes = new HashSet<>();
+		attributes.add(BamFileTypeAttribute.SORTED);
+		attributes.add(BamFileTypeAttribute.DEDUP);
+		Set<FileGroup> sourceBamFileGroups = fileService.getFilesForCellLibraryByType(cellLib, bamFileType, attributes, true);
+		
+		logger.debug("Number of source Bam FileGroups (sorted and dedup) = "+sourceBamFileGroups.size());
+		Assert.assertTrue(sourceBamFileGroups.size() == 1, "The number of filegroups (" + sourceBamFileGroups.size() + ") is not equal to 1");
+		FileGroup fg = sourceBamFileGroups.iterator().next();
+		List<FileHandle> fhlist = new ArrayList<FileHandle>();
+		fhlist.addAll(fg.getFileHandles());
+		
+		logger.debug("Bam File group: " + fg.getId() + ":" + fg.getDescription());
+		
+		WorkUnit w = new WorkUnit();
+		w.setMode(ExecutionMode.PROCESS);
+		w.setMemoryRequirements(GATKSoftwareComponent.MEMORY_REQUIRED);
+		w.setProcessMode(ProcessMode.MAX);
+		w.setMemoryRequirements(GATKSoftwareComponent.MEMORY_REQUIRED);
+		w.setProcessorRequirements(GATKSoftwareComponent.NUM_THREADS);
+		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
+		w.setRequiredFiles(fhlist);
+		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
+		sd.add(gatk);
+		w.setSoftwareDependencies(sd);
+		w.setSecureResults(true);
 		String bamOutput = fileService.generateUniqueBaseFileName(cellLib) + "gatk_dedup_realn_recal.bam";
+		String baiOutput = fileService.generateUniqueBaseFileName(cellLib) + "gatk_dedup_realn_recal.bai";
 		FileGroup bamG = new FileGroup();
 		FileHandle bam = new FileHandle();
 		bam.setFileName(bamOutput);
@@ -117,15 +151,26 @@ public class PrintRecaliTasklet extends WaspRemotingTasklet implements StepExecu
 		// save in step context for use later
 		stepExecutionContext.put("baiGID", baiGId);
 		
-		WorkUnit w = gatk.getPrintRecali(cellLib, scratchDirectory, localAlignJobName, recaliTableJobName);
-		
 		w.getResultFiles().add(bamG);
 		w.getResultFiles().add(baiG);
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
-		
-		GridResult result = gridHostResolver.execute(w);
 
-		// place the grid result in the step context
+		String inputBamFilename = "${" + WorkUnit.INPUT_FILE + "}";
+		String intervalFileName = "gatk.${" + WorkUnit.JOB_NAME + "}.realign.intervals";
+		String realignBamFilename = "gatk.${" + WorkUnit.JOB_NAME + "}.realign.bam";
+		String recaliGrpFilename = "gatk.${" + WorkUnit.JOB_NAME + "}.recali.grp";
+		String recaliBamFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
+		String recaliBaiFilename = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
+		
+		w.addCommand(gatk.getCreateTarget(build, inputBamFilename, intervalFileName));
+		w.addCommand(gatk.getLocalAlign(build, inputBamFilename, intervalFileName, realignBamFilename));
+		w.addCommand(gatk.getRecaliTable(build, realignBamFilename, recaliGrpFilename));
+		w.addCommand(gatk.getPrintRecali(build, realignBamFilename, recaliGrpFilename, recaliBamFilename));
+		w.addCommand(gatk.indexBam(recaliBamFilename, recaliBaiFilename));
+
+		GridResult result = gridHostResolver.execute(w);
+		
+		//place the grid result in the step context
 		storeStartedResult(context, result);
 	}
 	
@@ -148,8 +193,8 @@ public class PrintRecaliTasklet extends WaspRemotingTasklet implements StepExecu
 		if (baiGId != null && cellLib.getId() != 0)
 			fileService.setSampleSourceFile(fileService.getFileGroupById(baiGId), cellLib);	
 	}
-
-	/**
+	
+	/** 
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -157,12 +202,12 @@ public class PrintRecaliTasklet extends WaspRemotingTasklet implements StepExecu
 		return super.afterStep(stepExecution);
 	}
 
-	/**
+	/** 
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
 		super.beforeStep(stepExecution);
 	}
-}
 
+}

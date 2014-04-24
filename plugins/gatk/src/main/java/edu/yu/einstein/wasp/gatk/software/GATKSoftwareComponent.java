@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Strategy;
@@ -31,6 +30,12 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
 @Transactional("entityManager")
 public class GATKSoftwareComponent extends SoftwarePackage {
 	
+	private static final long serialVersionUID = -7585834500378105920L;
+
+	public final static int NUM_THREADS = 4;
+	
+	public final static int MEMORY_REQUIRED = 8; // in Gb
+	
 	@Autowired
 	private GatkService gatkService;
 	
@@ -40,131 +45,53 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	@Autowired
 	private SampleService sampleService;
 	
-	private static final long serialVersionUID = -6631761128215948999L;
 	
 	public GATKSoftwareComponent() {
 	}
 	
-	public WorkUnit getCreateTarget(SampleSource cellLibrary, FileGroup fg) {
-		final int NUM_THREADS = 4;
-		final int MEMORY_REQUIRED = 8; // in Gb
-		WorkUnit w = new WorkUnit();
-		
-		w.setMode(ExecutionMode.PROCESS);
-	
-		w.setMemoryRequirements(MEMORY_REQUIRED);
-
-		List<FileHandle> fhlist = new ArrayList<FileHandle>();
-		fhlist.addAll(fg.getFileHandles());
-		w.setRequiredFiles(fhlist);
-		
-		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
-		sd.add(this);
-		w.setSoftwareDependencies(sd);
-		w.setSecureResults(false);
-		w.setProcessMode(ProcessMode.MAX);
-		w.setMemoryRequirements(MEMORY_REQUIRED);
-		w.setProcessorRequirements(NUM_THREADS);
-
-		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
-		Build build = gatkService.getGenomeBuild(cellLibrary);
-		
+	public String getCreateTarget(Build build, String inputFilename, String intervalFilename) {
 		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt " + NUM_THREADS + 
-				" -I ${" + WorkUnit.INPUT_FILE + "} -R " + gatkService.getReferenceGenomeFastaFile(build) + 
-				" -T RealignerTargetCreator -o gatk.${" + WorkUnit.JOB_NAME + 
-				"}.realign.intervals -known " + gatkService.getReferenceIndelsVcfFile(build);
+				" -I " + inputFilename + " -R " + gatkService.getReferenceGenomeFastaFile(build) + 
+				" -T RealignerTargetCreator -o " + intervalFilename + " -known " + gatkService.getReferenceIndelsVcfFile(build);
 		
 		logger.debug("Will conduct gatk create target for re-alignment with string: " + command);
-		
-		w.setCommand(command);
-		
-		return w;
+		return command;
 	}
 	
 	
-	public WorkUnit getLocalAlign(SampleSource cellLibrary, String scratchDirectory, String namePrefix, FileGroup fg) {
-		final int MEMORY_REQUIRED = 8; // in Gb
-		WorkUnit w = new WorkUnit();
-		
-		w.setMode(ExecutionMode.PROCESS);
-	
-		w.setMemoryRequirements(MEMORY_REQUIRED);
-
-		List<FileHandle> fhlist = new ArrayList<FileHandle>();
-		fhlist.addAll(fg.getFileHandles());
-		w.setRequiredFiles(fhlist);
-		
-		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
-		sd.add(this);
-		w.setSoftwareDependencies(sd);
-		w.setSecureResults(false);
-		w.setProcessMode(ProcessMode.SINGLE);
-		w.setMemoryRequirements(MEMORY_REQUIRED);
-		w.setWorkingDirectory(scratchDirectory);
-		Build build = gatkService.getGenomeBuild(cellLibrary);
-
-		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -I ${" + WorkUnit.INPUT_FILE + "} -R " + 
-				gatkService.getReferenceGenomeFastaFile(build) + " -T  IndelRealigner -targetIntervals gatk." + namePrefix + 
-		".realign.intervals -o gatk.${" + WorkUnit.JOB_NAME + "}.realign.bam -known " + gatkService.getReferenceIndelsVcfFile(build);
+	public String getLocalAlign(Build build, String inputFilename, String intervalFilename, String realnBamFilename) {
+		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -I " + inputFilename + " -R " + 
+				gatkService.getReferenceGenomeFastaFile(build) + " -T  IndelRealigner" + 
+				" -targetIntervals " + intervalFilename + " -o " + realnBamFilename + " -known " + gatkService.getReferenceIndelsVcfFile(build);
 		
 		logger.debug("Will conduct gatk local re-alignment with string: " + command);
 		
-		w.setCommand(command);
-		return w;
+		return command;
 	}
 	
-	public WorkUnit getRecaliTable(SampleSource cellLibrary, String scratchDirectory, String namePrefix) {
-		final int MEMORY_REQUIRED = 8; // in Gb
-		WorkUnit w = new WorkUnit();
-		
-		w.setMode(ExecutionMode.PROCESS);
-		w.setProcessMode(ProcessMode.SINGLE);
-		w.setMemoryRequirements(MEMORY_REQUIRED);
-		
-		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
-		sd.add(this);
-		w.setSoftwareDependencies(sd);
-		w.setSecureResults(false);
-		
-		w.setWorkingDirectory(scratchDirectory);
-		Build build = gatkService.getGenomeBuild(cellLibrary);
-
+	public String getRecaliTable(Build build, String realnBamFilename, String recaliGrpFilename) {
 		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + gatkService.getReferenceGenomeFastaFile(build) + 
-				" -knownSites " + gatkService.getReferenceSnpsVcfFile(build) + " -I gatk." + namePrefix + 
-				".realign.bam -T BaseRecalibrator -o gatk.${" + WorkUnit.JOB_NAME + "}.recali.grp";
+				" -nct " + NUM_THREADS + " -knownSites " + gatkService.getReferenceSnpsVcfFile(build) + 
+				" -I " + realnBamFilename + " -T BaseRecalibrator -o " + recaliGrpFilename;
 
 		logger.debug("Will conduct gatk generating recalibrate table with command: " + command);
 		
-		w.setCommand(command);
-		return w;
+		return command;
 	}
 	
-	public WorkUnit getPrintRecali(SampleSource cellLibrary, String scratchDirectory, String namePrefix, String namePrefix2) {
-		final int MEMORY_REQUIRED = 8; // in Gb
-		WorkUnit w = new WorkUnit();
-		
-		w.setMode(ExecutionMode.PROCESS);
-		w.setProcessMode(ProcessMode.SINGLE);
-		w.setMemoryRequirements(MEMORY_REQUIRED);
-		
-		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
-		sd.add(this);
-		sd.add(getSoftwareDependencyByIname("picard"));
-		w.setSoftwareDependencies(sd);
-		w.setSecureResults(true);
-		
-		w.setWorkingDirectory(scratchDirectory);
-		Build build = gatkService.getGenomeBuild(cellLibrary);
-
+	public String getPrintRecali(Build build, String realnBamFilename, String recaliGrpFilename, String recaliBamFilename) {
 		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + gatkService.getReferenceGenomeFastaFile(build) + 
-				" -I gatk." + namePrefix + ".realign.bam -T PrintReads -o ${" + WorkUnit.OUTPUT_FILE + "[0]}  -BQSR gatk." + namePrefix2 + 
-				".recali.grp -baq RECALCULATE";
+				" -nct " + NUM_THREADS + " -I " + realnBamFilename + " -T PrintReads -o " + recaliBamFilename +
+				" -BQSR " + recaliGrpFilename + " -baq RECALCULATE";
 		logger.debug("Will conduct gatk recalibrate sequences with command: " + command);
-		
-		w.addCommand(command);
-		w.addCommand("java -Xmx4g -jar $PICARD_ROOT/BuildBamIndex.jar I=${" + WorkUnit.OUTPUT_FILE + "[0]} O=${" + WorkUnit.OUTPUT_FILE + "[1]} " +
-				"TMP_DIR=. VALIDATION_STRINGENCY=SILENT");
-		return w;
+		return command;
+	}
+	
+	public String indexBam(String bamFilename, String baiFilename){
+		String command = "java -Xmx4g -jar $PICARD_ROOT/BuildBamIndex.jar I=" + bamFilename + " O=" + baiFilename + 
+				"TMP_DIR=. VALIDATION_STRINGENCY=SILENT";
+		logger.debug("Will conduct picard indexing of recalibrated bam file with command: " + command);
+		return command;
 	}	
 	
 	private String getCallVariantOpts(Map<String,Object> jobParameters, String wxsIntervalFile) throws ParameterValueRetrievalException{
