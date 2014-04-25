@@ -15,7 +15,6 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.dao.SoftwareDao;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
@@ -31,6 +30,7 @@ import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqComparator;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.SoftwareService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 
@@ -93,9 +93,6 @@ public class FastQC extends SoftwarePackage{
 	
 	@Autowired
 	FileService fileService;
-	
-	@Autowired
-	SoftwareDao softwareDao;
 	
 	/**
 	 * 

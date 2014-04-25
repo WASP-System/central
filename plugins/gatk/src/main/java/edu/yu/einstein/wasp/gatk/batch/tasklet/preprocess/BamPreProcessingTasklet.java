@@ -100,8 +100,7 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		attributes.add(BamFileTypeAttribute.SORTED);
 		attributes.add(BamFileTypeAttribute.DEDUP);
 		Set<FileGroup> sourceBamFileGroups = fileService.getFilesForCellLibraryByType(cellLib, bamFileType, attributes, true);
-		
-		logger.debug("Number of source Bam FileGroups (sorted and dedup) = "+sourceBamFileGroups.size());
+		logger.debug("Number of source Bam FileGroups (sorted and dedup) for cell library id=" + cellLib.getId() + " is " +sourceBamFileGroups.size());
 		Assert.assertTrue(sourceBamFileGroups.size() == 1, "The number of filegroups (" + sourceBamFileGroups.size() + ") is not equal to 1");
 		FileGroup fg = sourceBamFileGroups.iterator().next();
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();
@@ -119,6 +118,7 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		w.setRequiredFiles(fhlist);
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(gatk);
+		sd.add(gatk.getSoftwareDependencyByIname("picard"));
 		w.setSoftwareDependencies(sd);
 		w.setSecureResults(true);
 		String bamOutput = fileService.generateUniqueBaseFileName(cellLib) + "gatk_dedup_realn_recal.bam";

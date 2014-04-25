@@ -134,6 +134,11 @@ public class Main {
 						listUsers(new JSONObject(sendMessageAndParseReply(message, gw)));
 						match = true;
 					}
+					if (listOption.contains("software")){
+						message = getMessage(parser, "cli", CliMessagingTask.LIST_SOFTWARE); 
+						listSoftware(new JSONObject(sendMessageAndParseReply(message, gw)));
+						match = true;
+					}
 					if (!match) {
 						System.err.println("ERROR: unknown list option value '" + listOption + "'");
 						parser.formatHelp();
@@ -259,6 +264,19 @@ public class Main {
 	
 	private static void listWorkflows(JSONObject json){
 		String output = "\n* List of workflows [represented: workflow id -> name]\n";
+		List<Integer> ids = new ArrayList<>();
+		for (Object key : json.keySet()) 
+			ids.add(Integer.parseInt((String) key));
+		Collections.sort(ids);
+		for (Integer id : ids) {
+			String name = json.getString(id.toString());
+			output += "    " + id.toString() + " -> " + name + "\n";
+		}
+		System.out.println(output);
+	}
+	
+	private static void listSoftware(JSONObject json){
+		String output = "\n* List of software [represented: software id -> name]\n";
 		List<Integer> ids = new ArrayList<>();
 		for (Object key : json.keySet()) 
 			ids.add(Integer.parseInt((String) key));
