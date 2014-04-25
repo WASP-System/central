@@ -37,7 +37,7 @@
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-							<property name="cellLibraryId" value="#{jobExecutionContext['cellLibId']}"/>
+							<property name="cellLibraryId" value="#{jobParameters[waspSoftwareJobParameters.CELL_LIBRARY_ID_LIST]}"/> <!-- should only be one value which will cast to Integer ok -->
 							<property name="task" value="#{sequencingBatchJobTasks.VARIANT_DATA_PREPROCESS}"/>
 							<property name="status" value="COMPLETED" />
 						</bean>
@@ -52,7 +52,7 @@
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-							<property name="cellLibraryId" value="#{jobExecutionContext['cellLibId']}"/>
+							<property name="cellLibraryId" value="#{jobParameters[waspSoftwareJobParameters.CELL_LIBRARY_ID_LIST]}"/> <!-- should only be one value which will cast to Integer ok -->
 							<property name="task" value="#{sequencingBatchJobTasks.VARIANT_DATA_PREPROCESS}" />
 							<property name="status" value="FAILED" />
 						</bean>
