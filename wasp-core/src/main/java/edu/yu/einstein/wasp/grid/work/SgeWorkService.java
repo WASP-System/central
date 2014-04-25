@@ -518,7 +518,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		w.setResultsDirectory(g.getResultsDirectory());
 		w.setRegistering(true);
 		w.setMode(ExecutionMode.TASK_ARRAY);
-		w.setCommand("touch " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME);
+		w.addCommand("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"0\" ]; then touch " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
 		int files = 0;
 		for (Integer id : g.getFileGroupIds()) {
 			FileGroup fg = getFileService().getFileGroupById(id);
