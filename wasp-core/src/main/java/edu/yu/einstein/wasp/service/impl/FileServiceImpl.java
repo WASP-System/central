@@ -1495,7 +1495,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		try {
 			Sample cell = sampleService.getCell(cellLibrary);
 			String platformUnitName = "unknown";
-			String cellIndex = "0";
+			String cellIndex = "L" + cellLibrary.getId(); // default to cell library (CL) id
 			String barcode = "none";
 			String libraryName = sampleService.getLibrary(cellLibrary).getName();
 			if (cell != null){ // may be null if imported from external run of unknown origin
