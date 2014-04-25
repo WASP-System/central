@@ -4,6 +4,7 @@
  */
 package edu.yu.einstein.wasp.plugin.babraham.plugin;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -79,9 +80,9 @@ public abstract class BabrahamPluginBase extends WaspPlugin implements BatchJobP
 		return (Message<String>) MessageBuilder.withPayload("sent a Hello World").build();
 	}
 		
-	public Message<String> launchTestFlow(Message<String> m) {
+	public Message<String> launchAnalysisFlow(Message<String> m) {
 		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
-			return launchTestFlowHelp();
+			return launchAnalysisFlowHelp();
 		
 		Map<String, String> jobParameters = new HashMap<String, String>();
 		
@@ -93,11 +94,11 @@ public abstract class BabrahamPluginBase extends WaspPlugin implements BatchJobP
 				return MessageBuilder.withPayload("Unable to determine id from message: " + m.getPayload().toString()).build();
 			
 			jobParameters.put(WaspJobParameters.FILE_GROUP_ID, id.toString());
-			
+			jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
 			logger.info("Sending launch message to flow " + getBatchJobName(BatchJobTask.GENERIC) + " on with id: " + id);
 			runService.launchBatchJob(getBatchJobName(BatchJobTask.GENERIC), jobParameters);
 			
-			return (Message<String>) MessageBuilder.withPayload("Initiating test flow on id " + id).build();
+			return (Message<String>) MessageBuilder.withPayload("Initiating analysis flow on id " + id).build();
 		} catch (WaspMessageBuildingException e1) {
 			logger.warn("unable to build message around jobParameters: " + jobParameters.toString());
 			return MessageBuilder.withPayload("Unable to launch FastQC").build();
@@ -128,7 +129,7 @@ public abstract class BabrahamPluginBase extends WaspPlugin implements BatchJobP
 
 	protected abstract Message<String> helloWorldHelp();
 	
-	protected abstract Message<String> launchTestFlowHelp();
+	protected abstract Message<String> launchAnalysisFlowHelp();
 
 
 

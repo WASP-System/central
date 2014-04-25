@@ -22,6 +22,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.babraham.batch.service.impl.BabrahamBatchServiceImpl;
 import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamQCParseModule;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
@@ -185,7 +186,8 @@ public class FastQC extends SoftwarePackage{
 		}
 		
 		String opts = "--noextract --nogroup --quiet";
-		if (fileGroup.getSoftwareGeneratedBy().equals(getSoftwareDependencyByIname("casava")))
+		Software sw = fileGroup.getSoftwareGeneratedBy();
+		if (sw != null && sw.equals(getSoftwareDependencyByIname("casava")))
 			opts += " --casava";
 		
 		command += "mkdir " + OUTPUT_FOLDER + "\n";
