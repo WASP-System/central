@@ -7,13 +7,13 @@
 <c:if test="${viewerIsFacilityStaff==true}"><%--must use this if statement; we cannot use sec:authorize for this page since sometimes we arrive at this page via a callable() <sec:authorize access="hasRole('su') or hasRole('ft') or hasRole('da')">--%>
 	<br />
 	<span style="padding:3px; border: 1px solid black;">
-		<a <%--class="button"--%> href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/acctQuote/0/createUpdateQuote.do" />");' >Create A Quote</a>
-		| <a <%--class="button"--%> href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/uploadQuoteOrInvoice.do" />");' >Upload A Quote</a>
+		<a <%--class="button"--%> href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/acctQuote/0/createUpdateQuote.do" />");' ><fmt:message key="jobHomeCostManager.createQuote.label" /></a>
+		| <a <%--class="button"--%> href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/uploadQuoteOrInvoice.do" />");' ><fmt:message key="jobHomeCostManager.uploadQuote.label" /></a>
 	</span>
 	<br />
 </c:if>
 <c:if test="${not empty mostRecentQuote }">
-	<br /><h2>Most Recent Quote: <c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentQuote}" /></h2>
+	<br /><h2><fmt:message key="jobHomeCostManager.mostRecentQuote.label" />: <c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentQuote}" /></h2>
 </c:if>
 <br />
 <table class="data" style="margin: 0px 0px">
@@ -21,12 +21,12 @@
 	<c:choose>
 		<c:when test="${empty fileGroups }">
 			<tr class="FormData">
-				<td class="label-centered" style="background-color:#FAF2D6">Job Quotes / Invoices</td>
+				<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCostManager.jobQuotesInvoices.label" /></td>
 				<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_description.label"/></td>
 				<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_action.label"/></td>
 			</tr>
 			<tr class="FormData">
-				<td colspan="3" class="DataTD value-centered">No Quotes Or Invoices Have Been Generated</td>
+				<td colspan="3" class="DataTD value-centered"><fmt:message key="jobHomeCostManager.noQuotesInvoices.label" /></td>
 			</tr>			
 		</c:when>
 		<c:otherwise>
@@ -35,9 +35,9 @@
 				<c:set value="${acctQuoteFileGroupMap.get(acctQuote)}" var="fileGroup"/>				
 				<c:if test="${headingNeedsDisplay==true}">
 					<tr class="FormData">
-						<td class="label-centered" style="background-color:#FAF2D6">Job Quotes / Invoices</td>
+						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCostManager.jobQuotesInvoices.label" /></td>
 						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_description.label"/></td>
-						<td class="label-centered" style="background-color:#FAF2D6">Record Created</td>
+						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCostManager.dateCreated.label" /></td>
 						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_action.label"/></td>
 					</tr>
 					<c:set value="${false}" var="headingNeedsDisplay"/>		
@@ -56,7 +56,7 @@
 		 		  						| <a href="javascript:void(0);" onclick='parent.showModalessDialog("<wasp:relativeUrl value="file/fileHandle/${fileHandle.getId()}/view.do" />");' ><fmt:message key="listJobSamples.file_view.label"/></a>
 		 		  					</c:if>
 		 		  					<c:if test="${viewerIsFacilityStaff==true && acctQuotesWithJsonEntry.contains(acctQuote)}">
-		 		  						| <a href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/acctQuote/${acctQuote.getId()}/createUpdateQuote.do" />");' >Update With Care</a> 
+		 		  						| <a href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/acctQuote/${acctQuote.getId()}/createUpdateQuote.do" />");' ><fmt:message key="jobHomeCostManager.updateWithCare.label" /></a> 
 		 		  					</c:if>
 			 		  			</td>
 			 		  		</tr>

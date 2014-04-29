@@ -3,7 +3,7 @@
 <%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
 
 <br />
-<a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/samples.do" />");' >Back To: Samples, Libraries &amp; Runs</a>
+<a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/samples.do" />");' ><fmt:message key="jobHomeCreateLibrary.backTo.label" /></a>
 <br /><br /><br />
 <form:form   cssClass="FormGrid" commandName="sample" method='post' name='createLibraryForm' id='createLibraryFormId' action="" >
 	<form:hidden path='sampleTypeId' />
@@ -29,7 +29,7 @@
 		    <tr class="FormData">
 			    <td colspan="3" align="left" class="submitBottom">
 		        	<a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/samples.do" />");' ><fmt:message key="sampledetail_rw.cancel.label" /></a>
-		        	<a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/macromolecule/${macromoleculeSample.getId()}/createLibrary.do" />");' >Reset</a>
+		        	<a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/macromolecule/${macromoleculeSample.getId()}/createLibrary.do" />");' ><fmt:message key="jobHomeCreateLibrary.reset.label" /></a>
 		        	<a class="button" href="javascript:void(0);"  onclick='postFormWithAjaxJson("createLibraryFormId","<wasp:relativeUrl value="job/${job.getId()}/macromolecule/${macromoleculeSample.getId()}/createLibrary.do" />"); return false;' ><fmt:message key="sampledetail_rw.save.label" /></a>	
 			    </td>
 			</tr>

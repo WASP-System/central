@@ -24,7 +24,7 @@
  	</c:if>
 --%>	
 		<tr class="FormData">
-		<td class="DataTD label-centered">J<c:out value="${job.getJobId()}" /> [<a href="<wasp:relativeUrl value="sampleDnaToLibrary/listJobSamples/${job.getJobId()}.do" />">view</a>]</td>          
+		<td class="DataTD label-centered">J<c:out value="${job.getJobId()}" /> [<a href="<wasp:relativeUrl value="job/${job.getJobId()}/homepage.do" />">view</a>]</td>          
 		<td class="DataTD label-centered"><c:out value="${job.getName()}" /></td>
 		<td class="DataTD label-centered"><c:out value="${job.getUser().getFirstName()}" /> <c:out value="${job.getUser().getLastName()}" /></td>
 		<td class="DataTD label-centered"><c:out value="${job.getLab().getUser().getFirstName()}" /> <c:out value="${job.getLab().getUser().getLastName()}" /></td>

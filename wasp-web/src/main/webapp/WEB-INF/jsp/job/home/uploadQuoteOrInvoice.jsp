@@ -8,25 +8,25 @@
 <br />
 
 <span style="padding:3px; border: 1px solid black;">
-	<a <%-- class="button" --%> href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/costManager.do" />");' >Return To Costs Page</a>
+	<a <%-- class="button" --%> href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/costManager.do" />");' ><fmt:message key="jobHomeUploadQuoteOrInvoice.returnToCostsPage.label" /></a>
 </span>
 <br /><br />
 <form id="quoteOrInvoiceUploadFormId" action="<wasp:relativeUrl value="job/${job.getId()}/uploadQuoteOrInvoice.do" />" method="POST"  enctype="multipart/form-data" onsubmit='return false;' >
 	<table class="data" style="margin: 0px 0px">
 		<tr class="FormData">
-			<td colspan="4" class="label-centered" style="background-color:#FAF2D6">Upload A Quote Or Invoice</td>
+			<td colspan="4" class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeUploadQuoteOrInvoice.uploadQuoteOrInvoice.label" /></td>
 		</tr>
 		<tr class="FormData">
 			<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.fileUploadSelectFileToUpload.label"/></td>
 			<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.fileUploadProvideBriefDescription.label"/></td>
-			<td class="label-centered" style="background-color:#FAF2D6">Total Cost<sup>*</sup></td>
+			<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeUploadQuoteOrInvoice.totalCost.label" /><sup>*</sup></td>
 			
 			<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_action.label"/></td>
 		</tr>
 		<tr>
 			<td class="DataTD value-centered"><input type="file" name="file_upload" /></td>
 			<td class="DataTD value-centered" >
-				<input type="radio" name="file_description" value="Quote" checked>Quote &nbsp;<input type="radio" name="file_description" value="Invoice" disabled>Invoice
+				<input type="radio" name="file_description" value="Quote" checked><fmt:message key="jobHomeUploadQuoteOrInvoice.quote.label" /> &nbsp;<input type="radio" name="file_description" value="Invoice" disabled><fmt:message key="jobHomeUploadQuoteOrInvoice.invoice.label" />
 			</td>
 			<td class="DataTD value-centered" >
 					<c:out value="${localCurrencyIcon}" /><input style="text-align:right;" name="totalCost"  type="text" maxlength="6" size="6" value="" />.00
@@ -43,7 +43,7 @@
 		</c:if>
 		
 	</table>
-	<sup>*</sup><span style="font-size:small;color:red">For Total Cost, whole numbers only</span>
+	<sup>*</sup><span style="font-size:small;color:red"><fmt:message key="jobHomeUploadQuoteOrInvoice.totalCostWholeNumbersOnly.label" /></span>
 	
 </form>
 <br />

@@ -1,15 +1,12 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <br />
 
-<%--  TODO: Internationalize this!!!! --%>
-<%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
-
-<a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${job.getId()}/basic.do" />");' >View Basic Request</a>
-<a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${job.getId()}/requests.do?onlyDisplayCellsRequested=true" />");' >View Lane Request</a>
+<a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${job.getId()}/basic.do" />");' ><fmt:message key="jobHomeSamples.viewBasicRequest.label" /></a>
+<a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${job.getId()}/requests.do?onlyDisplayCellsRequested=true" />");' ><fmt:message key="jobHomeSamples.viewLaneRequest.label" /></a>
 <sec:authorize access="hasRole('su') or hasRole('ft')">
-	<%--<c:if test="${numberOfLibrariesAwaitingPlatformUnitPlacement>1}"> --%>
-		<a class="button" href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/addLibrariesToCell.do" />");' >Assign Multiple Libraries</a><br />
-	<%--</c:if> --%>
+	<c:if test="${numberOfLibrariesAwaitingPlatformUnitPlacement>1}"> 
+		<a class="button" href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/addLibrariesToCell.do" />");' ><fmt:message key="jobHomeSamples.assignMultipleLibraries.label" /></a><br />
+	</c:if> 
 </sec:authorize>
 <br /><br />					
 <table class="data" style="margin: 0px 0px">
@@ -21,9 +18,9 @@
 	
 	<c:if test="${statusSubmittedObject.first}">
 		<tr class="FormData">
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Macromolecule</td>
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Library</td>
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Runs</td>			
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="jobHomeSamples.macromolecule.label" /></td>
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="jobHomeSamples.library.label" /></td>
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="jobHomeSamples.runs.label" /></td>			
 		</tr>	
 	</c:if>
 	
@@ -43,10 +40,10 @@
 			<td class="DataTD"  style="text-align:center; white-space:nowrap;" rowspan="${sizeOfLibraryList==0?1:sizeOfLibraryList}"  style="text-align:center; white-space:nowrap;">
 			<c:choose>
 				<c:when test="${submittedMacromoleculeList.contains(submittedObject)}">					
-					<label>Name:</label> <a href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/sample/${submittedObject.getId()}/sampledetail_ro.do" />");' ><c:out value="${submittedObject.getName()}" /></a><br />
-					<label>Type:</label> <c:out value="${submittedObject.getSampleType().getName()}"/><br />
-					<label>Species:</label> <c:out value="${submittedObjectOrganismMap.get(submittedObject)}" /><br />
-					<label>Arrival Status:</label> <c:out value="${receivedStatusMap.get(submittedObject)}" /><br />
+					<label><fmt:message key="jobHomeSamples.name.label" />:</label> <a href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/sample/${submittedObject.getId()}/sampledetail_ro.do" />");' ><c:out value="${submittedObject.getName()}" /></a><br />
+					<label><fmt:message key="jobHomeSamples.type.label" />:</label> <c:out value="${submittedObject.getSampleType().getName()}"/><br />
+					<label><fmt:message key="jobHomeSamples.species.label" />:</label> <c:out value="${submittedObjectOrganismMap.get(submittedObject)}" /><br />
+					<label><fmt:message key="jobHomeSamples.arrivalStatus.label" />:</label> <c:out value="${receivedStatusMap.get(submittedObject)}" /><br />
 					<c:if test='${qcStatusMap.get(submittedObject) != "NONEXISTENT" && receivedStatusMap.get(submittedObject) == "RECEIVED"}'>
 						<label><fmt:message key="listJobSamples.qcStatus.label" /></label>: <c:out value="${qcStatusMap.get(submittedObject)}"/>
 						<c:set value="${qcStatusCommentsMap.get(submittedObject)}" var="metaMessageList" />
@@ -67,30 +64,30 @@
 					</sec:authorize>
 				</c:when>
 				<c:otherwise>
-					N/A
+					<fmt:message key="jobHomeSamples.notApplicable.label" />
 				</c:otherwise>
 			</c:choose>
 		</td>
 		<c:choose>
 			<c:when test="${fn:length(libraryList)==0}">
-				<td class="DataTD" style="text-align:center; white-space:nowrap;">no libraries</td>
-				<td class="DataTD" style="text-align:center; white-space:nowrap;">no runs</td>
+				<td class="DataTD" style="text-align:center; white-space:nowrap;"><fmt:message key="jobHomeSamples.noLibraries.label" /></td>
+				<td class="DataTD" style="text-align:center; white-space:nowrap;"><fmt:message key="jobHomeSamples.noRuns.label" /></td>
 			</c:when>
 			<c:otherwise>
 				<c:forEach items="${libraryList}" var="library" varStatus="statusLibrary">
 					<c:if test="${!statusLibrary.first}"><tr></c:if>	
 						<td class="DataTD" style="text-align:center; white-space:nowrap;" rowspan="1">
-							<label>Name:</label> <a id="librarydetail_roAnchor"  href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/library/${library.getId()}/librarydetail_ro.do" />");' ><c:out value="${library.getName()}" /></a><br />
-							<label>Type:</label> <c:out value="${library.getSampleType().getName()}" /><br />
+							<label><fmt:message key="jobHomeSamples.name.label" />:</label> <a id="librarydetail_roAnchor"  href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/library/${library.getId()}/librarydetail_ro.do" />");' ><c:out value="${library.getName()}" /></a><br />
+							<label><fmt:message key="jobHomeSamples.type.label" />:</label> <c:out value="${library.getSampleType().getName()}" /><br />
 							<c:if test="${submittedLibraryList.contains(library)}">
-								<label>Species:</label> <c:out value="${submittedObjectOrganismMap.get(library)}" /><br />
+								<label><fmt:message key="jobHomeSamples.species.label" />:</label> <c:out value="${submittedObjectOrganismMap.get(library)}" /><br />
 							</c:if>
 							<c:set value="${libraryAdaptorsetMap.get(library)}" var="adaptorSet"/>
-							<label>Adaptor:</label> <c:out value="${adaptorSet.getName()}" /> <br />
+							<label><fmt:message key="jobHomeSamples.adaptor.label" />:</label> <c:out value="${adaptorSet.getName()}" /> <br />
 							 <c:set value="${libraryAdaptorMap.get(library)}" var="adaptor"/>
-							<label>Index:</label> <c:out value="${adaptor.getBarcodenumber()}" /> [<c:out value="${adaptor.getBarcodesequence()}" />]<br />
+							<label><fmt:message key="jobHomeSamples.index.label" />:</label> <c:out value="${adaptor.getBarcodenumber()}" /> [<c:out value="${adaptor.getBarcodesequence()}" />]<br />
 							<c:if test="${not empty receivedStatusMap.get(library)}">
-								<label>Arrival Status:</label> <c:out value="${receivedStatusMap.get(library)}" /><br />
+								<label><fmt:message key="jobHomeSamples.arrivalStatus.label" />:</label> <c:out value="${receivedStatusMap.get(library)}" /><br />
 							</c:if>
 							<c:if test='${submittedLibraryList.contains(library) && qcStatusMap.get(library) != "NONEXISTENT" && receivedStatusMap.get(library) == "RECEIVED"}'>
 								<label><fmt:message key="listJobSamples.qcStatus.label" /></label>: <c:out value="${qcStatusMap.get(library)}"/>
@@ -179,7 +176,7 @@
 													<c:if test="${fn:length(addLibraryToPlatformUnitErrorMessage)>0 && libraryIdAssociatedWithMessage == library.getId()}">
 														<br /><span style="color:red;font-weight:bold"><c:out value="${addLibraryToPlatformUnitErrorMessage}" /></span>
 													</c:if>
-													<br /><input type='submit' value='<fmt:message key="listJobSamples.submit.label" />'/>&nbsp;<input type='reset' value='Reset'/>
+													<br /><input type='submit' value='<fmt:message key="listJobSamples.submit.label" />'/>&nbsp;<input type='reset' value='<fmt:message key="jobHomeSamples.reset.label" />'/>
 																	
 											</td>
 										</tr>
@@ -245,7 +242,7 @@
 										</c:otherwise>
 									</c:choose>	
 																	
-									(<c:out value="${pMLoaded}" /> pM; Lane <c:out value="${laneIndex}" />)
+									(<c:out value="${pMLoaded}" /> <fmt:message key="jobHomeSamples.picoMolar.label" />; <fmt:message key="jobHomeSamples.lane.label" /> <c:out value="${laneIndex}" />)
 									
 									<sec:authorize access="hasRole('su') or hasRole('ft')">									
 									[<c:if test="${empty cellRunMap.get(cell)}"><a href="javascript:void(0);" onclick='if(confirm("Permanently remove library from this lane?")){loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/cell/${cell.getId()}/library/${library.getId()}/removeLibrary.do" />");}'>remove</a> | </c:if><a href="javascript:void(0);" onclick='var obj = document.getElementById("updatePM_DIV_${cell.getId()}_${library.getId()}"); obj.style.display="inline";'>update</a>] 
@@ -268,7 +265,7 @@
 													return false;
 	    										}	    												
 	 	 										postFormWithAjax("updatePM_${cell.getId()}_${library.getId()}","<wasp:relativeUrl value="job/${job.getId()}/cell/${cell.getId()}/library/${library.getId()}/updateConcentration.do" />"); 
-	 												return false;' ><input type='text' name='newConcentrationInPM' id="newConcentrationInPM_${cell.getId()}_${library.getId()}"  size='3' maxlength='5'  /> pM <input type='submit' value='Update'/><input class="button" type="button" value="Cancel" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/samples.do" />");' />
+	 												return false;' ><input type='text' name='newConcentrationInPM' id="newConcentrationInPM_${cell.getId()}_${library.getId()}"  size='3' maxlength='5'  /> <fmt:message key="jobHomeSamples.picoMolar.label" /> <input type='submit' value='<fmt:message key="jobHomeSamples.update.label" />'/><input class="button" type="button" value="<fmt:message key="jobHomeSamples.cancel.label" />" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/samples.do" />");' />
 	 	 								</form>
 	 	 								</div>	
 									

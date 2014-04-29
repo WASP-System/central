@@ -356,10 +356,12 @@ public class SampleController extends WaspController {
 						jobSample.getSample().getName(),
 						jobSample.getSample().getSampleType().getName(),
 						jobSample.getSample().getSampleSubtype().getName(),
-						"<a href=" + getServletPath() + "/sampleDnaToLibrary/listJobSamples/"+jobSample.getJobId()+".do>J"+jobSample.getJobId().intValue() +"</a>",
+
+						"<a href=" + getServletPath() + "/job/"+jobSample.getJobId().intValue()+"/homepage.do>J"+jobSample.getJobId().intValue() +"</a>",
+
 						jobSample.getJob().getUser().getFirstName() + " " + jobSample.getJob().getUser().getLastName(),
 						jobSample.getJob().getLab().getUser().getFirstName() + " " + jobSample.getJob().getLab().getUser().getLastName(),
-						" ",
+						sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(jobSample.getSample())),//is sample received
 						" "
 				}));
 				
