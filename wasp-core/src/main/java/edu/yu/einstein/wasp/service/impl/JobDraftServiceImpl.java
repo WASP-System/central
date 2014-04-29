@@ -381,20 +381,19 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 			jobDraftMetaDao.flush(samplePairsTvsC);
 		}
 		
-		List<SampleDraft> samples =  jobDraft.getSampleDraft();
-	    String pairMetaString = ""; 
+		String pairMetaString = ""; 
 		
 	    if (!sampleDraftPairSet.isEmpty()){
 			for(Map<SampleDraft, SampleDraft> pair: sampleDraftPairSet){
 				Entry<SampleDraft, SampleDraft> e = pair.entrySet().iterator().next();
-				pairMetaString += e.getKey().getSampleDraftId()+":"+e.getValue().getSampleDraftId()+";";
+				pairMetaString += e.getKey().getId()+":"+e.getValue().getId()+";";
 			}
 		}
 	    
 		if (!pairMetaString.isEmpty()){
 			// persist pair meta string
 			JobDraftMeta jdm = new JobDraftMeta(); 
-			jdm.setJobDraftId(jobDraft.getJobDraftId());
+			jdm.setJobDraftId(jobDraft.getId());
 			jdm.setK(samplePairsKey);
 			jdm.setV(pairMetaString); 
 			jobDraftMetaDao.save(jdm);

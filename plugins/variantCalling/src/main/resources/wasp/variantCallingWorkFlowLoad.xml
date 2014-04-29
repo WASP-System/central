@@ -25,7 +25,7 @@
 		<value>/jobsubmit/samples/{n}</value>
 		<value>/jobsubmit/genomes/{n}</value>
 		<value>/jobsubmit/cells/{n}</value>
-		<value>/jobsubmit/variantcalling/pair/{n}</value> 
+		<value>/jobsubmit/variantcalling/pairings/{n}</value> 
 		<value>/jobsubmit/software/#{referenceBasedAlignerResourceType.getIName()}/{n}</value>
 		<value>/jobsubmit/software/#{variantCallingResourceType.getIName()}/{n}</value>
 		<value>/jobsubmit/variantcalling/intervals/{n}</value>
@@ -82,7 +82,7 @@
           <property name="label" value="variantcalling.cells.title" />
         </bean>
         <bean parent="variantcallingUiFieldWrapper">
-          <property name="baseName" value="jobsubmit/variantcalling/pair" />
+          <property name="baseName" value="jobsubmit/variantcalling/pairings" />
           <property name="label" value="variantcalling.pair.title" />
         </bean>
         <bean parent="variantcallingUiFieldWrapper">

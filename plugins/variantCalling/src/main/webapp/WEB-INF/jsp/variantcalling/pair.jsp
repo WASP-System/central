@@ -19,20 +19,20 @@
 <table class="data">
 	<tr class="row">
 		<td class="label">&nbsp;</td>
-		<td colspan="${fn:length(testSamples) + 1 }" align="center" class="label"><fmt:message key="${workflowIName}.test.label"/></td>
+		<td colspan="${fn:length(samples) + 1 }" align="center" class="label"><fmt:message key="${workflowIName}.test.label"/></td>
 		<td class="noBorder" rowspan="2">&nbsp;</td>
 	</tr>
 	<tr class="row">
-		<td rowspan="${fn:length(inputSamples) + 1 }" valign="middle" class="label"><fmt:message key="${workflowIName}.control.label"/></td>
+		<td rowspan="${fn:length(samples) + 1 }" valign="middle" class="label"><fmt:message key="${workflowIName}.control.label"/></td>
 		<td class="label">&nbsp;</td>
-		<c:forEach var="s" items="${testSamples}">
+		<c:forEach var="s" items="${samples}">
 			<td class="label"><c:out value="${s.name}" /></td>
 		</c:forEach>
 	</tr>
-	<c:forEach var="sControl" items="${inputSamples}" varStatus="statusControl">
+	<c:forEach var="sControl" items="${samples}" varStatus="statusControl">
 		<tr class="row">
 			<td class="label"><c:out value="${sControl.name}" /></td>
-			<c:forEach var="sTest" items="${testSamples}" varStatus="statusTest">
+			<c:forEach var="sTest" items="${samples}" varStatus="statusTest">
 				<c:choose>
 					<c:when test="${sControl.id == sTest.id }" ><!-- should no longer ever be true; this is for backward compatibility only; generally no longer used -->
 						<td class="input-centered" >&nbsp;</td>
@@ -57,14 +57,14 @@
 					</c:otherwise>
 				</c:choose>
 			</c:forEach>
-			<td class="noBorder"><input id="row_${statusControl.count}_select_all" type="button" value="select all" onclick="toggleRow(${statusControl.count}, ${fn:length(testSamples)})"></td>
+			<td class="noBorder"><input id="row_${statusControl.count}_select_all" type="button" value="select all" onclick="toggleRow(${statusControl.count}, ${fn:length(samples)})"></td>
 		</tr>
 	</c:forEach>
 	<tr>
 		<td class="noBorder">&nbsp;</td>
 		<td class="noBorder">&nbsp;</td>
 		<c:forEach begin="1" end="${fn:length(testSamples)}" step="1" varStatus="status">
-			<td><input id="col_${status.count}_select_all" type="button" value="select all" onclick="toggleCol(${status.count}, ${fn:length(inputSamples)})"></td>
+			<td><input id="col_${status.count}_select_all" type="button" value="select all" onclick="toggleCol(${status.count}, ${fn:length(samples)})"></td>
 		</c:forEach>
 		<td class="noBorder">&nbsp;</td>
 	</tr>
