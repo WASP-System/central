@@ -214,6 +214,7 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 					logger.error("exec terminated with non-zero exit status: " + command);
 					throw new GridAccessException("exec terminated with non-zero exit status: " + exec.getExitStatus() + " : " + exec.getOutputStream().toString());
 				}
+				logger.debug("***" + exec.getExitErrorMessage());
 				session.close();	
 		} catch (Exception e) {
 			e.printStackTrace();

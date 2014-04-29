@@ -7,18 +7,18 @@ package edu.yu.einstein.wasp.plugin.babraham.plugin;
 import java.util.Properties;
 
 import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.explore.wasp.WaspJobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.MessageChannel;
 
-import edu.yu.einstein.wasp.Hyperlink;
-import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
+import edu.yu.einstein.wasp.interfacing.Hyperlink;
 import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
-import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
+import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
@@ -35,11 +35,11 @@ public class TrimGalorePlugin extends WaspPlugin implements ClientMessageI, File
     @Autowired
     BabrahamService babrahamService;
 
-    protected JobExplorerWasp batchJobExplorer;
+    protected WaspJobExplorer batchJobExplorer;
 
     @Autowired
     void setJobExplorer(JobExplorer jobExplorer) {
-	this.batchJobExplorer = (JobExplorerWasp) jobExplorer;
+	this.batchJobExplorer = (WaspJobExplorer) jobExplorer;
     }
 
     @Autowired
@@ -94,7 +94,7 @@ public class TrimGalorePlugin extends WaspPlugin implements ClientMessageI, File
      */
     @Override
     public PanelTab getViewPanelTab(FileGroup fileGroup) throws PanelException {
-	return babrahamService.getFastQCDataToDisplay(fileGroup.getId());
+	return null;
     }
 
 }

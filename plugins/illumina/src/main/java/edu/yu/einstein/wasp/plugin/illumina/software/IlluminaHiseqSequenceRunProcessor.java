@@ -69,6 +69,8 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 	public static final String SINGLE_INDEX_SEMAPHORE = "wasp_single_begin.txt";
 	public static final String DUAL_INDEX_SEMAPHORE = "wasp_dual_begin.txt";
 	
+	public static final String ILLUMINA_DATA_STAGE_NAME = "illumina.data.stage";
+	
 	public IlluminaHiseqSequenceRunProcessor(){
 		setSoftwareVersion("1.8.2"); // this default may be overridden in wasp.site.properties
 	}
@@ -335,5 +337,10 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 	private String getSampleSheetHeader() {
 		return "FCID,Lane,SampleID,SampleRef,Index,Description,Control,Recipe,Operator,SampleProject";
 	}
+
+    @Override
+    public String getStageDirectoryName() {
+        return ILLUMINA_DATA_STAGE_NAME;
+    }
 
 }

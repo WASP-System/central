@@ -138,41 +138,12 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="waspIlluminaHiSeq.mainFlow.demultiplex" next="waspIlluminaHiSeq.mainFlow.trim">
+		<batch:step id="waspIlluminaHiSeq.mainFlow.demultiplex" next="waspIlluminaHiSeq.mainFlow.listenForQCCompletion">
 			 <!--  task to perform 5' demultiplexing, currently skipping --> 
 			<batch:tasklet ref="waspIlluminaHiSeq.mainFlow.skipTasklet" />
 		</batch:step>
 		
-		<batch:step id="waspIlluminaHiSeq.mainFlow.trim" next="waspIlluminaHiSeq.mainFlow.waitForTrimCompletion">
-			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.TrimTasklet" scope="step">
-					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
-				</bean>
-			</batch:tasklet>
-		</batch:step>
-		
-		<batch:step id="waspIlluminaHiSeq.mainFlow.waitForTrimCompletion" next="waspIlluminaHiSeq.mainFlow.registerTrimmed">
-			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForMultipleStatusTasklet" parent="baseIlluminaTasklet" scope="step">
-					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.plugin.babraham.integration.messages.TrimGaloreStatusMessageTemplate">
-							<property name="task" value="#{babrahamBatchJobTask.TRIM_GALORE}" />
-							<property name="status" value="COMPLETED" />
-						</bean>
-					</constructor-arg>
-				</bean>
-			</batch:tasklet>
-		</batch:step>
-		
-		<batch:step id="waspIlluminaHiSeq.mainFlow.registerTrimmed" next="waspIlluminaHiSeq.mainFlow.listenForQCCompletion">
-			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.RegisterTrimTasklet" scope="step">
-					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
-				</bean>
-			</batch:tasklet>
-		</batch:step>
-		
-		<batch:step id="waspIlluminaHiSeq.mainFlow.listenForQCCompletion" next="waspIlluminaHiSeq.mainFlow.notifyRunComplete">
+		<batch:step id="waspIlluminaHiSeq.mainFlow.listenForQCCompletion" next="waspIlluminaHiSeq.mainFlow.trim">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" parent="baseIlluminaTasklet" scope="step">
 					<constructor-arg name="messageTemplate">
@@ -185,6 +156,43 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
+		
+		<batch:step id="waspIlluminaHiSeq.mainFlow.trim" next="waspIlluminaHiSeq.mainFlow.listenForTrimCompletion">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.analysis.SimpleFlowLaunchTasklet" scope="step">
+					<constructor-arg name="flowName" value="${trim_galore.FLOW_NAME}" />
+					<property name="jobParameters">
+						<map key-type="java.lang.String">
+							<entry key="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+						</map>
+					</property>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="waspIlluminaHiSeq.mainFlow.listenForTrimCompletion">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" parent="baseIlluminaTasklet" scope="step">
+					<constructor-arg name="messageTemplates">
+						<list>
+							<bean class="edu.yu.einstein.wasp.plugin.babraham.integration.messages.BabrahamStatusMessageTemplate">
+								<constructor-arg name="id" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+								<property name="task" value="#{babrahamBatchJobTask.TRIM_GALORE}" />
+								<property name="status" value="COMPLETED" />
+							</bean>
+							<bean class="edu.yu.einstein.wasp.plugin.babraham.integration.messages.BabrahamStatusMessageTemplate">
+								<constructor-arg name="id" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+								<property name="task" value="#{babrahamBatchJobTask.TRIM_GALORE}" />
+								<property name="status" value="FAILED" />
+							</bean>
+						</list>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+			<batch:fail on="FAILED" exit-code="TRIM_FAILED"/>
+			<batch:next on="*" to="waspIlluminaHiSeq.mainFlow.notifyRunComplete" />
+		</batch:step>
+		
 		<batch:step id="waspIlluminaHiSeq.mainFlow.notifyRunComplete">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
@@ -201,7 +209,5 @@
 	</batch:job>
 
 	<bean id="waspIlluminaHiSeq.mainFlow.skipTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" scope="step" />
-
-
 
 </beans>
