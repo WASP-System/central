@@ -79,17 +79,17 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return command;
 	}
 	
-	public String getPrintRecali(Build build, String realnBamFilename, String recaliGrpFilename, String recaliBamFilename) {
+	public String getPrintRecali(Build build, String realnBamFilename, String recaliGrpFilename, String recaliBamFilename, String recaliBaiFilename) {
 		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + gatkService.getReferenceGenomeFastaFile(build) + 
 				" -nct " + NUM_THREADS + " -I " + realnBamFilename + " -T PrintReads -o " + recaliBamFilename +
-				" -BQSR " + recaliGrpFilename + " -baq RECALCULATE";
+				" -BQSR " + recaliGrpFilename + " -baq RECALCULATE && mv " + recaliBamFilename + ".bai " + recaliBaiFilename;
 		logger.debug("Will conduct gatk recalibrate sequences with command: " + command);
 		return command;
 	}
 	
 	public String indexBam(String bamFilename, String baiFilename){
 		String command = "java -Xmx4g -jar $PICARD_ROOT/BuildBamIndex.jar I=" + bamFilename + " O=" + baiFilename + 
-				" TMP_DIR=. VALIDATION_STRINGENCY=SILENT && mv " + baiFilename + ".bai " + baiFilename;
+				" TMP_DIR=. VALIDATION_STRINGENCY=SILENT";
 		logger.debug("Will conduct picard indexing of recalibrated bam file with command: " + command);
 		return command;
 	}	

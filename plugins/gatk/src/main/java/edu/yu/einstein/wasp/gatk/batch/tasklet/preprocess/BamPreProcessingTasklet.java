@@ -165,8 +165,7 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		w.addCommand(gatk.getCreateTarget(build, inputBamFilename, intervalFileName));
 		w.addCommand(gatk.getLocalAlign(build, inputBamFilename, intervalFileName, realignBamFilename));
 		w.addCommand(gatk.getRecaliTable(build, realignBamFilename, recaliGrpFilename));
-		w.addCommand(gatk.getPrintRecali(build, realignBamFilename, recaliGrpFilename, recaliBamFilename));
-		w.addCommand(gatk.indexBam(recaliBamFilename, recaliBaiFilename));
+		w.addCommand(gatk.getPrintRecali(build, realignBamFilename, recaliGrpFilename, recaliBamFilename, recaliBaiFilename));
 
 		GridResult result = gridHostResolver.execute(w);
 		

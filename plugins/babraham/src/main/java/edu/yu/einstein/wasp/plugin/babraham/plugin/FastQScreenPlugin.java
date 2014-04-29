@@ -114,7 +114,7 @@ public class FastQScreenPlugin extends BabrahamPluginBase{
 		Set<String> fileGroupIdStringSet = new LinkedHashSet<String>();
 		fileGroupIdStringSet.add(fileGroup.getId().toString());
 		parameterMap.put(WaspJobParameters.FILE_GROUP_ID, fileGroupIdStringSet);
-		JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer.getJobExecutions(FLOW_NAME, parameterMap, true));
+		JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer.getJobExecutions(FLOW_NAME, parameterMap, false));
 		if (je == null)
 			return Status.UNKNOWN;
 		ExitStatus jobExitStatus = je.getExitStatus();
