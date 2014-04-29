@@ -306,7 +306,7 @@ public class PlatformUnitController extends WaspController {
 			
 			  
 			
-			if(readTypeFromGrid != null && readLengthFromGrid != null){
+			if(readTypeFromGrid != null /* this next condition appears to be a mistake && readLengthFromGrid != null*/){
 				for(Sample sample : tempPlatformUnitList){
 					 try {
 						  SequenceReadProperties readProperties = SequenceReadProperties.getSequenceReadProperties(sample, PLATFORM_UNIT_INSTANCE_AREA, SampleMeta.class);
