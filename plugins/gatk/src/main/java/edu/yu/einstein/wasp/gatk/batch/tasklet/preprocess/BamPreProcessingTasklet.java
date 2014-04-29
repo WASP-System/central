@@ -180,12 +180,11 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 	public void doPreFinish(ChunkContext context) throws Exception {
 		StepExecution stepExecution = context.getStepContext().getStepExecution();
 		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
-		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
 		Integer bamGId = stepExecutionContext.getInt("bamGID");
 		Integer baiGId = stepExecutionContext.getInt("baiGID");
 		
 		// register .bam and .bai file groups with cellLib so as to make available to views
-		SampleSource cellLib = sampleService.getSampleSourceDao().findById(jobExecutionContext.getInt("cellLibId"));
+		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
 		if (bamGId != null && cellLib.getId() != 0)
 			fileService.setSampleSourceFile(fileService.getFileGroupById(bamGId), cellLib);
 		if (baiGId != null && cellLib.getId() != 0)

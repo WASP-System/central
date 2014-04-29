@@ -170,7 +170,7 @@ public class BatchJobHibernationManager {
 					} catch (WaspBatchJobExecutionException e){
 						logger.warn("Problem reawakening job execution : " + e.getLocalizedMessage());
 						unlockJobExecution(je, LockType.WAKE);
-					} catch (Exception e1){
+					} catch (Throwable e1){
 						logger.warn("Problem reawakening job execution. Caught " + e1.getClass().getName() + " exception.: " + e1.getLocalizedMessage());
 						unlockJobExecution(je, LockType.WAKE);
 					}
@@ -306,7 +306,7 @@ public class BatchJobHibernationManager {
 					} catch (WaspBatchJobExecutionException e2){
 						logger.debug("Problem aborting job execution and cleaning up 'messageTemplatesAbandoningStepExecutions': " + e2.getLocalizedMessage());
 						unlockJobExecution(je, LockType.ABANDON);
-					} catch (Exception e1){
+					} catch (Throwable e1){
 						logger.warn("Problem aborting job execution and cleaning up 'messageTemplatesAbandoningStepExecutions'. Caught " + 
 								e1.getClass().getName() + " exception.: " + e1.getLocalizedMessage());
 						unlockJobExecution(je, LockType.ABANDON);
@@ -365,7 +365,7 @@ public class BatchJobHibernationManager {
 						pushMessageBackIntoQueueRequests++;
 						unlockJobExecution(je, LockType.WAKE);
 						logger.debug("Problem reawakening job execution and cleaning up 'messageTemplatesWakingStepExecutions': " + e.getLocalizedMessage());
-					} catch (Exception e1){
+					} catch (Throwable e1){
 						logger.warn("Problem reawakening job execution and cleaning up 'messageTemplatesAbandoningStepExecutions'. Caught " + 
 								e1.getClass().getName() + " exception.: " + e1.getLocalizedMessage());
 						unlockJobExecution(je, LockType.WAKE);
@@ -766,7 +766,8 @@ public class BatchJobHibernationManager {
 			throw new WaspBatchJobExecutionReadinessException("Unable to hibernate JobExecution (id=" + jobExecutionId + ") because job is not locked for hibernation");
 		try {
 			jobOperator.hibernate(jobExecutionId);
-		} catch (Exception e1) {
+		} catch (Throwable e1) {
+			unlockJobExecution(je, LockType.HIBERNATE);
 			throw new WaspBatchJobExecutionReadinessException("Unable to hibernate JobExecution (id=" + jobExecutionId + 
 					" (got " + e1.getClass().getName() + " Exception :" +  e1.getLocalizedMessage() + ")");
 		} 

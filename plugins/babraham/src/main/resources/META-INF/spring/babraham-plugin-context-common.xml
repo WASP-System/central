@@ -14,7 +14,7 @@
 	<int:channel id="wasp.channel.plugin.fastqcscreen" />
 	
 	<int:service-activator input-channel="wasp.channel.plugin.fastqc" ref="fastqcPlugin" method="process" />
-	<int:service-activator input-channel="wasp.channel.plugin.fastqcscreen" ref="fastqscreenPlugin" method="process" />
+	<int:service-activator input-channel="wasp.channel.plugin.fastqscreen" ref="fastqscreenPlugin" method="process" />
 
 	<bean id="fastqcPlugin" class="edu.yu.einstein.wasp.plugin.babraham.plugin.FastQCPlugin">
 		<constructor-arg name="iName" ref="fastQCArea" />
