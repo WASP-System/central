@@ -118,7 +118,6 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		w.setRequiredFiles(fhlist);
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(gatk);
-		sd.add(gatk.getSoftwareDependencyByIname("picard"));
 		w.setSoftwareDependencies(sd);
 		w.setSecureResults(true);
 		String bamOutput = fileService.generateUniqueBaseFileName(cellLib) + "gatk_dedup_realn_recal.bam";
