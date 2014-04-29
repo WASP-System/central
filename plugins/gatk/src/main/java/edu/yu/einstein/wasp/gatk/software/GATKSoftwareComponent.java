@@ -89,7 +89,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	
 	public String indexBam(String bamFilename, String baiFilename){
 		String command = "java -Xmx4g -jar $PICARD_ROOT/BuildBamIndex.jar I=" + bamFilename + " O=" + baiFilename + 
-				"TMP_DIR=. VALIDATION_STRINGENCY=SILENT";
+				" TMP_DIR=. VALIDATION_STRINGENCY=SILENT && mv " + baiFilename + ".bai " + baiFilename;
 		logger.debug("Will conduct picard indexing of recalibrated bam file with command: " + command);
 		return command;
 	}	

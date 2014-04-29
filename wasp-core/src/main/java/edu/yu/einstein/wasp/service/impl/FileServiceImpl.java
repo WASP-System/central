@@ -493,15 +493,24 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	@Override
 	public Set<FileGroup> getFilesForCellLibraryByType(SampleSource cellLibrary, FileType fileType, Set<? extends FileTypeAttribute> attributes, boolean hasOnlyAttributesSpecified) {
 		Set<FileGroup> fgsWithAttributes = new LinkedHashSet<>();
-		for (FileGroup fg : getFilesForCellLibraryByType(cellLibrary, fileType))
+		for (FileGroup fg : getFilesForCellLibraryByType(cellLibrary, fileType)){
+			logger.debug("FileGroup id= " + fg.getId() + " is associated with cell library id=" + cellLibrary.getId());
 			if (hasOnlyAttributesSpecified){
-				if (fileTypeService.hasOnlyAttributes(fg, attributes))
+				if (fileTypeService.hasOnlyAttributes(fg, attributes)){
+					logger.debug("FileGroup id= " + fg.getId() + " matches attribute requirements ");
 					fgsWithAttributes.add(fg);
+				} else {
+					logger.debug("FileGroup id= " + fg.getId() + " does not match attribute requirements ");
+				}
 			} else {
-				if (fileTypeService.hasAttributes(fg, attributes))
+				if (fileTypeService.hasAttributes(fg, attributes)){
+					logger.debug("FileGroup id= " + fg.getId() + " matches attribute requirements ");
 					fgsWithAttributes.add(fg);
+				} else {
+					logger.debug("FileGroup id= " + fg.getId() + " does not match attribute requirements ");
+				}
 			}
-					
+		}		
 		return fgsWithAttributes;
 	}
 

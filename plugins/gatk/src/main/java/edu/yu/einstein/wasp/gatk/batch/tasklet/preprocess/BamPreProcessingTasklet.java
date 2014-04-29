@@ -100,13 +100,13 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		attributes.add(BamFileTypeAttribute.SORTED);
 		attributes.add(BamFileTypeAttribute.DEDUP);
 		Set<FileGroup> sourceBamFileGroups = fileService.getFilesForCellLibraryByType(cellLib, bamFileType, attributes, true);
-		logger.debug("Number of source Bam FileGroups (sorted and dedup) for cell library id=" + cellLib.getId() + " is " +sourceBamFileGroups.size());
+		logger.debug("# bam FileGroups (sorted and dedup) for cell library id=" + cellLib.getId() + " is " +sourceBamFileGroups.size());
 		Assert.assertTrue(sourceBamFileGroups.size() == 1, "The number of filegroups (" + sourceBamFileGroups.size() + ") is not equal to 1");
 		FileGroup fg = sourceBamFileGroups.iterator().next();
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();
 		fhlist.addAll(fg.getFileHandles());
 		
-		logger.debug("Bam File group: " + fg.getId() + ":" + fg.getDescription());
+		logger.debug("Bam File group: " + fg.getId() + ": " + fg.getDescription());
 		
 		WorkUnit w = new WorkUnit();
 		w.setMode(ExecutionMode.PROCESS);
