@@ -104,7 +104,7 @@ function postFormWithAjax(formObjectId, theUrl){
         	selectedPanel.html(response);
         },
         error: function (response) {
-        	selectedPanel.html("Unexpected Failure");
+        	selectedPanel.html('<fmt:message key="jobHomeHomepage.unexpectedFailure.label" />');
         }
     });
 	return false; // avoid to execute the actual submit of the form 
@@ -139,7 +139,7 @@ function postFormWithAjaxJson(formObjectId, theUrl){
         	selectedPanel.html(response);
         },
 		error: function (response) {
-			selectedPanel.html("Unexpected Failure");
+			selectedPanel.html('<fmt:message key="jobHomeHomepage.unexpectedFailure.label" />');
     	}
     });
 	return false;
@@ -172,7 +172,7 @@ function doGetWithAjax(theUrl) {
         	selectedPanel.html(response);
         },
         error: function (response) {
-        	selectedPanel.html("Unexpected Failure");
+        	selectedPanel.html('<fmt:message key="jobHomeHomepage.unexpectedFailure.label" />');
         }
     });
 	return false; // avoid 
@@ -194,7 +194,7 @@ function loadNewScriptAjax(scriptLocation){  //no longer used
           	selectedPanel.html(response);
         },
         error: function (response) {
-           	selectedPanel.html("Unexpected Failure with loadNewScriptAjax()");
+           	selectedPanel.html('<fmt:message key="jobHomeHomepage.unexpectedFailure.label" />');
         }
      });
     return false;  
@@ -244,14 +244,5 @@ function robtest_autocomplete(obj) {
       source: availableTags
     });
 }
-//Next call is No Longer Used: I previously used this to load up something on page load 
-//window.onload = function (){ 
-	//loadNewPageWithAjax('<wasp:relativeUrl value="job/${job.getId()}/basic.do" />'); 
-	//to avoid hardcoding, use below code (from http://stackoverflow.com/questions/906486/how-can-i-programmatically-invoke-an-onclick-event-from-a-anchor-tag-while-kee)
-//	var firstTabAnchor = document.getElementById('first_tab').getElementsByTagName('a')[0];
-//	if (typeof firstTabAnchor.onclick == "function") {
-//		firstTabAnchor.onclick.apply(firstTabAnchor);
-//	} 
-//} 
-    
+
 </script>

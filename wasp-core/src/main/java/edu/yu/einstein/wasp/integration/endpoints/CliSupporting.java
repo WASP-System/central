@@ -19,6 +19,8 @@ public interface CliSupporting {
 	
 	public Message<String> listUsers();
 	
+	public Message<String> listSoftware();
+	
 	public Message<String> processImportedFileRegistrationData(JSONObject data);
 	
 	

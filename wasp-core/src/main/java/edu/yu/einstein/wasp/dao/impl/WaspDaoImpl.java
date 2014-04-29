@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.ModelDetachException;
 import edu.yu.einstein.wasp.model.User;
@@ -35,6 +36,7 @@ import edu.yu.einstein.wasp.service.UserService;
 
 
 @SuppressWarnings("unchecked")
+@Transactional("entityManager")
 @Repository
 public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenceDaoImpl implements edu.yu.einstein.wasp.dao.WaspDao<E> {
 	protected Class<E>	entityClass;

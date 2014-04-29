@@ -5,8 +5,10 @@
 package edu.yu.einstein.wasp.plugin.babraham.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,9 +16,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
+import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqComparator;
+import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -26,6 +32,9 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	
 	@Autowired
 	private FileService fileService;
+	
+	@Autowired
+	private FastqService fastqService;
 	
 	/**
 	 * {@inheritDoc}
@@ -79,5 +88,42 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 			return null;
 		}
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<FileHandle> getUpToFiveRandomForwardReadFiles(FileGroup fileGroup){
+		
+		List<FileHandle> allFastqFiles= new ArrayList<FileHandle>(fileGroup.getFileHandles());
+		
+		List<FileHandle> forwardReadFastqFiles = new ArrayList<FileHandle>();
+		for(FileHandle fh : allFastqFiles){
+			Integer fastqReadSegmentNumber = fastqService.getFastqReadSegmentNumber(fh);
+			if ( fastqReadSegmentNumber == null){
+				logger.info("Unable to get Fastq Read Segment Number. Going to assume it is 1");
+				forwardReadFastqFiles.add(fh);
+			} else if (fastqReadSegmentNumber == 1 ){ //forward read
+				forwardReadFastqFiles.add(fh);
+			}
+		}
+		if(forwardReadFastqFiles.size()<=5){
+			return forwardReadFastqFiles;			
+		}
+		
+		List<FileHandle> fiveRandomForwardReadFastqFiles = new ArrayList<FileHandle>();
+		Random randomNumberGenerator = new Random(System.currentTimeMillis());
+		while(fiveRandomForwardReadFastqFiles.size()<5){
+			int randomInt = randomNumberGenerator.nextInt(forwardReadFastqFiles.size());
+			if(fiveRandomForwardReadFastqFiles.contains(forwardReadFastqFiles.get(randomInt))){
+				continue;
+			}
+			else{
+				fiveRandomForwardReadFastqFiles.add(forwardReadFastqFiles.get(randomInt));
+			}
+		}		
+		Collections.sort(fiveRandomForwardReadFastqFiles, new FastqComparator(fastqService));//this comparator appears to order files like: a read (R1_001.fq), followed immediately by its mate (R2_001.fq),  if it was a paired end read. This is exactly what fastq_screen requires.
+		return fiveRandomForwardReadFastqFiles;		
+	}	
 
 }

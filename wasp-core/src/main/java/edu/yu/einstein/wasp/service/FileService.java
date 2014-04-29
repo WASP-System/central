@@ -30,6 +30,7 @@ import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.filetype.FileTypeAttribute;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.interfacing.Hyperlink;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -106,6 +107,15 @@ public interface FileService extends WaspService {
 	 * @return
 	 */
 	public Set<FileGroup> getFilesByType(FileType fileType);
+	
+	/**
+	 * Returns a list of files of specified fileType and attributes or an empty list if none
+	 * @param fileType
+	 * @param attributes
+	 * @param hasOnlyAttributesSpecified
+	 * @return
+	 */
+	public Set<FileGroup> getFilesByType(FileType fileType, Set<? extends FileTypeAttribute> attributes, boolean hasOnlyAttributesSpecified);
 
 	
 	/**
@@ -116,6 +126,17 @@ public interface FileService extends WaspService {
 	 * @throws SampleTypeException
 	 */
 	public Set<FileGroup> getFilesForLibraryByType(Sample library, FileType fileType) throws SampleTypeException;
+	
+	/**
+	 * Returns a list of files of specified fileType with the provided attributes for the given library or an empty list if none.
+	 * @param fileType
+	 * @param library
+	 * @param attributes
+	 * @param hasOnlyAttributesSpecified
+	 * @return
+	 * @throws SampleTypeException
+	 */
+	Set<FileGroup> getFilesForLibraryByType(Sample library, FileType fileType, Set<? extends FileTypeAttribute> attributes, boolean hasOnlyAttributesSpecified) throws SampleTypeException;
 	
 	/**
 	 * @param cellLibrary
@@ -154,6 +175,17 @@ public interface FileService extends WaspService {
 	 * @throws SampleTypeException
 	 */
 	public Set<FileGroup> getFilesForPlatformUnitByType(Sample platformUnit, FileType fileType) throws SampleTypeException;
+	
+	/**
+	 * Returns a list of files of specified fileType and attributes for the given platformUnit or an empty list if none.
+	 * @param fileType
+	 * @param platformUnit
+	 * @param attributes
+	 * @param hasOnlyAttributesSpecified
+	 * @return
+	 * @throws SampleTypeException
+	 */
+	public Set<FileGroup> getFilesForPlatformUnitByType(Sample platformUnit, FileType fileType, Set<? extends FileTypeAttribute> attributes, boolean hasOnlyAttributesSpecified) throws SampleTypeException;
 
 	/**
 	 * Returns a list of files for the given platformUnit or an empty list if none.
@@ -206,8 +238,12 @@ public interface FileService extends WaspService {
 	public FileType getFileType(Integer id);
 
 	public Map<FileType, Set<FileGroup>> getFilesForCellLibraryMappedToFileType(Sample cell, Sample library) throws SampleTypeException;
+	
+	public Set<FileGroup> getFilesForCellLibraryByType(SampleSource cellLibrary, FileType fileType, Set<? extends FileTypeAttribute> attributes, boolean hasOnlyAttributesSpecified);
 
 	public Set<FileGroup> getFilesForCellLibraryByType(Sample cell, Sample library, FileType fileType) throws SampleTypeException;
+	
+	public Set<FileGroup> getFilesForCellLibraryByType(Sample cell, Sample library, FileType fileType, Set<? extends FileTypeAttribute> attributes, boolean hasOnlyAttributesSpecified) throws SampleTypeException;
 
 	/**
 	 * @param group
@@ -255,6 +291,7 @@ public interface FileService extends WaspService {
 
 	public String generateUniqueBaseFileName(SampleSource cellLibrary);
 
+	public String generateUniqueBaseFileName(Sample library);
 
 	public File createTempFile() throws FileUploadException;
 	
@@ -276,6 +313,18 @@ public interface FileService extends WaspService {
 	public Set<FileGroup> getFilesForMacromoleculeOrLibraryByType(Sample sample, FileType fileType) throws SampleTypeException;
 	
 	/**
+	 * Returns a list of files (actually a Set<FileGroup) of specified fileType and attributes for the given dna macromolecule sample, rna sample, 
+	 * or library sample, or an empty list if none.
+	 * @param fileType
+	 * @param sample of type library, dna, rna
+	 * @param attributes
+	 * @param hasOnlyAttributesSpecified
+	 * @return
+	 * @throws SampleTypeException
+	 */	
+	public Set<FileGroup> getFilesForMacromoleculeOrLibraryByType(Sample sample, FileType fileType, Set<? extends FileTypeAttribute> attributes, boolean hasOnlyAttributesSpecified) throws SampleTypeException;
+	
+	/**
 	 * Returns a Map of files (actually a Map of a Set<FileGroup) for a given macromolecule or library associated by FileType
 	 * @param sample of type library, dna, rna 
 	 * @return
@@ -284,7 +333,6 @@ public interface FileService extends WaspService {
 	public Map<FileType, Set<FileGroup>> getFilesForMacromoleculeOrLibraryMappedToFileType(Sample sample) throws SampleTypeException;
 
 	public List<FileHandleMeta> saveFileHandleMeta(List<FileHandleMeta> metaList, FileHandle filehandle) throws MetadataException;
-
 
 }
 

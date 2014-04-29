@@ -16,18 +16,8 @@
   <bean id="bowtieAlignerSoftware" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
     <property name="name" value="Bowtie Aligner" />
     <property name="area" ref="bowtieAlignerArea" />
+    <property name="version" value="0.12.7" />
     <property name="resourceType" ref="referenceBasedAlignerResourceType" />
-	<property name="metaFromWrapper">
-       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" ref="bowtieAlignerArea" />
-         <property name="metaList">
-         	<list>
-         		<value>#{waspSoftware['currentVersion']}=0.12.7</value>
-         		<value>#{waspSoftware['priorVersions']}=</value>
-         	</list>
-       	 </property>
-       </bean>
-    </property> 
 
     <property name="uiFieldsFromWrapper">
       <list>

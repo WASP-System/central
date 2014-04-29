@@ -2,8 +2,6 @@
  
 <script>
 
-	<%--  TODO: Internationalize this!!!! --%>
-
 	var STATUS_PASSED = "PASSED";
 	var STATUS_FAILED = "FAILED";
 

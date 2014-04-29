@@ -21,7 +21,6 @@ public class ___PluginIName___ extends SoftwarePackage{
 	//___PluginIName___Service  ___pluginIName___Service;
 	
 	public ___PluginIName___() {
-		setSoftwareVersion("0.0.0"); // TODO: Set this value. This default may also be overridden in wasp.site.properties
 	}
 
 	

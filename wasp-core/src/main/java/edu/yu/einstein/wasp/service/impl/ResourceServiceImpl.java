@@ -1,33 +1,31 @@
 package edu.yu.einstein.wasp.service.impl;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import edu.yu.einstein.wasp.Assert;
-import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.JobResourcecategory;
-import edu.yu.einstein.wasp.model.ResourceCategory;
-import edu.yu.einstein.wasp.model.ResourceCategoryMeta;
-import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleSubtype;
-import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
-import edu.yu.einstein.wasp.model.MetaAttribute.Control.Option;
-import edu.yu.einstein.wasp.service.ResourceService;
-import edu.yu.einstein.wasp.service.SampleService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.dao.ResourceBarcodeDao;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.ResourceCellDao;
 import edu.yu.einstein.wasp.dao.ResourceDao;
 import edu.yu.einstein.wasp.dao.ResourceMetaDao;
 import edu.yu.einstein.wasp.dao.ResourceTypeDao;
+import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobResourcecategory;
+import edu.yu.einstein.wasp.model.MetaAttribute.Control.Option;
+import edu.yu.einstein.wasp.model.ResourceCategory;
+import edu.yu.einstein.wasp.model.ResourceCategoryMeta;
+import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleSubtype;
+import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
+import edu.yu.einstein.wasp.service.ResourceService;
+import edu.yu.einstein.wasp.service.SampleService;
 
 @Service
 @Transactional

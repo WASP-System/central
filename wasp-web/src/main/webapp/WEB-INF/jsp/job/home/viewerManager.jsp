@@ -8,7 +8,7 @@
 	<table class="data" style="margin: 0px 0px">
 	
 		<c:if test='${currentWebViewerIsSuperuserOrJobSubmitterOrJobPI==true}'>
-			<tr ><th colspan="2"  class="label" nowrap>Grant Other WASP Users Ability To View This Job</th></tr>
+			<tr ><th colspan="2"  class="label" nowrap><fmt:message key="jobHomeViewerManager.grantOtherUsers.label" /></th></tr>
 				<tr><td ><fmt:message key="listJobSamples.newViewerEmailAddress.label" />: </td><td ><input type='text' name='newViewerEmailAddress' id="newViewerEmailAddress" size='30' maxlength='50' value="<c:out value="${newViewerEmailAddress}" />"></td></tr>
 	
 			<c:if test="${fn:length(errorMessage)>0}">

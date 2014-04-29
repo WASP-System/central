@@ -3,7 +3,7 @@ WASP: Account Created
 
 <p>We are pleased to inform you that a WASP administrator has created a WASP account for you.</p>
 <p>Your username, which you will use to log in, is: ${user.login}</p>
-<p>Before you log in to WASP for the first time, <a href="${baseUrl}/auth/confirmNewUserEmail.do?authcode=${authcode}&email=${urlencodedemail}&isAdminCreated=1">please click here</a> to 
+<p>Before you log in to WASP for the first time, <a href="${servletUrl}/auth/confirmNewUserEmail.do?authcode=${authcode}&email=${urlencodedemail}&isAdminCreated=1">please click here</a> to 
 confirm your new email address and change your password.</p>
 
 <p>Regards,<br />The WASP Team<br /></p>

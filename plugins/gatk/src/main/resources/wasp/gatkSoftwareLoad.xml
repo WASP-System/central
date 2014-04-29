@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd"
+    default-autowire="byName">
+    
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="gatkUiFieldWrapper">
+    <!--  <property name="baseLocale" value="en_US" /> -->
+    <property name="baseArea" ref="gatkPluginArea" />
+  </bean>
+
+  <bean id="gatk" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
+  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent</value></property>
+    <property name="name" value="gatk" />
+    <property name="version" value="3.0-0" />
+    <property name="description" value="Genome analysis tool kit from the Broad Institute" />
+    <property name="area" ref="gatkPluginArea" />
+    <property name="resourceType" ref="variantCallingResourceType" />
+	<property name="softwareDependency" ref="picard" />
+	
+    <property name="uiFieldsFromWrapper">
+      <list>
+      	<bean parent="gatkUiFieldWrapper">
+          <property name="baseName" value="ug--sample_ploidy" />
+          <property name="metaposition" value="10" />
+          <property name="label" value="gatk.pipeline.sample_ploidy.label" />
+          <property name="type" value="INTEGER" />
+          <property name="range" value="1:10000" />
+          <property name="default" value="2" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="onChange" value="if($('#ug--sample_ploidy').val() != 2){$('#variantCallingMethod option[value=ug]').prop('selected', true);$('#variantCallingMethod').prop('disabled', true);$('#row_ug-dcov').show()} else {$('#variantCallingMethod').prop('disabled', false);$('#variantCallingMethod option[value=hc]').prop('selected', true);$('#row_ug-dcov').hide()}" />
+          <property name="error" value="gatk.pipeline.sample_ploidy.error" />
+          <property name="tooltip" value="gatk.pipeline.sample_ploidy.tt" />
+        </bean>
+      
+        <bean parent="gatkUiFieldWrapper">
+          <property name="baseName" value="gatk-stand_call_conf" />
+          <property name="metaposition" value="20" />
+          <property name="label" value="gatk.pipeline.stand_call_conf.label" />
+          <property name="type" value="NUMBER" />
+          <property name="range" value="10:100" />
+          <property name="default" value="30" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="gatk.pipeline.stand_call_conf.error" />
+          <property name="tooltip" value="gatk.pipeline.stand_call_conf.tt" />
+        </bean>
+        
+        <bean parent="gatkUiFieldWrapper">
+          <property name="baseName" value="gatk-stand_emit_conf" />
+          <property name="metaposition" value="30" />
+          <property name="label" value="gatk.pipeline.stand_emit_conf.label" />
+          <property name="type" value="NUMBER" />
+          <property name="range" value="10:100" />
+          <property name="default" value="10" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="gatk.pipeline.stand_emit_conf.error" />
+          <property name="tooltip" value="gatk.pipeline.stand_emit_conf.tt" />
+        </bean>
+        
+        <bean parent="gatkUiFieldWrapper">
+          <property name="baseName" value="gatk--max_alternate_alleles" />
+          <property name="metaposition" value="40" />
+          <property name="label" value="gatk.pipeline.max_alternate_alleles.label" />
+          <property name="type" value="INTEGER" />
+          <property name="range" value="3:1000" />
+          <property name="default" value="6" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="gatk.pipeline.max_alternate_alleles.error" />
+          <property name="tooltip" value="gatk.pipeline.max_alternate_alleles.tt" />
+        </bean>
+        
+        <bean parent="gatkUiFieldWrapper">
+          <property name="baseName" value="variantCallingMethod" />
+          <property name="metaposition" value="50" />
+          <property name="label" value="gatk.pipeline.selectCaller.label" />
+          <property name="control" value="gatk.pipeline.selectCaller.control" />
+          <property name="default" value="hc" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="onChange" value="if($('#variantCallingMethod').val() == 'ug'){$('#row_ug-dcov').show()} else {$('#row_ug-dcov').hide()}" />
+          <property name="error" value="gatk.pipeline.selectCaller.error" />
+          <property name="tooltip" value="gatk.pipeline.selectCaller.tt" />
+        </bean> 
+        
+        <bean parent="gatkUiFieldWrapper">
+          <property name="baseName" value="ug-dcov" />
+          <property name="metaposition" value="60" />
+          <property name="label" value="gatk.pipeline.dcov.label" />
+          <property name="type" value="INTEGER" />
+          <property name="range" value="10:2000" />
+          <property name="default" value="250" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="onRender" value="if($('#variantCallingMethod').val() != 'ug'){$('#row_ug-dcov').hide()}" />
+          <property name="error" value="gatk.pipeline.dcov.error" />
+          <property name="tooltip" value="gatk.pipeline.dcov.tt" />
+        </bean>
+ 
+
+        
+      </list>
+    </property>
+  </bean> 
+
+</beans>

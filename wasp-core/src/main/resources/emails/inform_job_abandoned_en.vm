@@ -7,7 +7,7 @@ WASP: Job Submission Terminated
 
 <p>This job was submitted to the Genomics/Epigenomics Shared Facility by ${jobSubmitter.firstName} ${jobSubmitter.lastName}, a member of the lab 
 headed by ${pi.firstName} ${pi.lastName}. While a brief summary of the submission appears below, you may review the entire 
-submission by <a href="${baseUrl}/auth/login.do">logging into WASP</a>, selecting Job/My Submitted Jobs from the main menu, 
+submission by <a href="${servletUrl}/auth/login.do">logging into WASP</a>, selecting Job/My Submitted Jobs from the main menu, 
 and clicking on the appropriate job number.</p>
 
 <p>Should you have any further questions, please contact us using the information below.</p>

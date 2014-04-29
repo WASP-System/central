@@ -20,21 +20,9 @@
   <bean id="casava" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
     <property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor</value></property>
     <property name="name" value="CASAVA" />
+    <property name="version" value="1.8.2"></property>
     <property name="area" ref="casavaArea" />
     <property name="resourceType" ref="sequenceRunProcessorResourceType" />
-	
-	<property name="metaFromWrapper">
-       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" ref="casavaArea" />
-         <property name="metaList">
-         	<list>
-         		<value>#{waspSoftware['currentVersion']}=1.8.2</value>
-         		<value>#{waspSoftware['priorVersions']}=</value>
-         	</list>
-       	 </property>
-       </bean>
-    </property> 
-	
   </bean> 
   
   <bean id="savRArea" class="java.lang.String">
@@ -48,17 +36,7 @@
   	<property name="name" value="savR" />
   	<property name="area" ref="savRArea" />
   	<property name="resourceType" ref="illuminaSequenceRunSubProcessorResourceType" />
-  	<property name="metaFromWrapper">
-       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" ref="savRArea" />
-         <property name="metaList">
-         	<list>
-         		<value>#{waspSoftware['currentVersion']}=0.2.0</value>
-         		<value>#{waspSoftware['priorVersions']}=</value>
-         	</list>
-       	 </property>
-       </bean>
-    </property> 
+  	<property name="version" value="0.2.0" />
   </bean>
 
 </beans>

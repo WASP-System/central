@@ -13,7 +13,6 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.GridException;
@@ -31,6 +30,7 @@ import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqComparator;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.SoftwareService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 
@@ -48,13 +48,6 @@ public class FastQC extends SoftwarePackage{
 	
 	@Autowired
 	private MessageService messageService;
-	
-	// cannot autowire as IlluminaHiseqSequenceRunProcessor here which is all we really need. Beans referenced by base type so must
-	// as Software and use @Qualifier to specify the casava bean. 
-	// Seems to be an issue for batch but not Web which accepts IlluminaHiseqSequenceRunProcessor.
-	@Autowired
-	@Qualifier("casava")
-	private Software casava;
 	
 	/**
 	 * 
@@ -105,7 +98,6 @@ public class FastQC extends SoftwarePackage{
 	 * 
 	 */
 	public FastQC() {
-		setSoftwareVersion("0.10.1"); // this default may be overridden in wasp.site.properties
 	}
 
 	
@@ -191,7 +183,8 @@ public class FastQC extends SoftwarePackage{
 		}
 		
 		String opts = "--noextract --nogroup --quiet";
-		if (fileGroup.getSoftwareGeneratedBy().equals(casava))
+		Software sw = fileGroup.getSoftwareGeneratedBy();
+		if (sw != null && sw.equals(getSoftwareDependencyByIname("casava")))
 			opts += " --casava";
 		
 		command += "mkdir " + OUTPUT_FOLDER + "\n";

@@ -14,7 +14,7 @@ $(document).ready(function(){
 	    	 // var theSelectedAdaptorset = $("#theSelectedAdaptorset").val();
 	    	  //$("#validateTipForThisModalDialogForm").text("looks good");
 	    	 
-	    	  var theSelectedAdaptorset = $("#theSelectedAdaptorset").val();//this selected value is complete url
+	    	  var theSelectedAdaptorset = $("#theSelectedAdaptorset").val();//this selected value is complete url 
 	    	  //if(theSelectedAdaptorset==""){ 
 	    		  
 	    	  //} 
@@ -41,7 +41,7 @@ $(document).ready(function(){
 	    	  	//$( this ).dialog( "close" );
 	    	  }
 	    	  else{
-	    		  $("#validateTipForThisModalDialogForm").text("Select an adaptor set");
+	    		  $("#validateTipForThisModalDialogForm").text("<fmt:message key="jobsubmitSample.SelectAnAdaptorSet.label" />");
 	    	  } 
 	      },
 	      Cancel: function() {

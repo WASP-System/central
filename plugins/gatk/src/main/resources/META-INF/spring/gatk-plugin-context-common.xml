@@ -21,7 +21,7 @@
 
 	<int:service-activator input-channel="wasp.channel.plugin.gatk" ref="gatkPlugin" method="process" />
 	
-	<bean id="gatkPlugin" class="edu.yu.einstein.wasp.gatk.plugin.GatkPlugin" depends-on="mps-tools" >
+	<bean id="gatkPlugin" class="edu.yu.einstein.wasp.gatk.plugin.GatkPlugin">
 		<constructor-arg name="pluginName" ref="gatkPluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.gatk" />

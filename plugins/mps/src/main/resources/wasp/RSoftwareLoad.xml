@@ -17,21 +17,9 @@
   	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.mps.grid.software.R</value></property>
     <property name="name" value="R" />
     <property name="description" value="The R Project for Statistical Computing" />
+    <property name="version" value="3.0.1" />
     <property name="area" ref="rPluginArea" />
-    <property name="resourceType" ref="genericPluginResourceType" /> <!-- TODO: choose a more appropriate resource type -->
-	
-	<property name="metaFromWrapper">
-       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" ref="rPluginArea" />
-         <!-- Load any software metadata 
-         <property name="metaList">
-         	<list>
-         		<value>r.myMetaValue=foo</value>
-         	</list>
-       	 </property>
-       	 -->
-       </bean>
-    </property> 
+    <property name="resourceType" ref="statisticalSoftwareResourceType" />
   </bean> 
 
 </beans>

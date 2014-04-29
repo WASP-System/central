@@ -237,14 +237,12 @@ public class ChipSeqPlugin extends WaspPlugin implements
 		Set<String> jobIdStringSet = new LinkedHashSet<String>();
 		jobIdStringSet.add(job.getId().toString());
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer.getJobExecutions(AGGREGATE_ANALYSIS_JOB, parameterMap, true));
+		JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer.getJobExecutions(AGGREGATE_ANALYSIS_JOB, parameterMap, false));
 		if (je == null)
 			return Status.UNKNOWN;
 		ExitStatus jobExitStatus = je.getExitStatus();
 		if (jobExitStatus.isRunning())
 			return Status.STARTED;
-		if (jobExitStatus.isHibernating())//????
-			return Status.PENDING;
 		if (jobExitStatus.isCompleted())
 			return Status.COMPLETED;
 		return Status.FAILED;

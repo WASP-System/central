@@ -60,9 +60,6 @@ public class Helptag extends SoftwarePackage{
 	@Autowired
 	private FileType fastqFileType;
 
-//	@Autowired
-//	private SoftwarePackage samtools;
-
 	/**
 	 * 
 	 */
@@ -76,7 +73,6 @@ public class Helptag extends SoftwarePackage{
 	 * 
 	 */
 	public Helptag() {
-		setSoftwareVersion("0.0.1"); // TODO: Set this value. This default may also be overridden in wasp.site.properties
 	}
 
 	public WorkUnit getHelptag(Integer cellLibraryId) {

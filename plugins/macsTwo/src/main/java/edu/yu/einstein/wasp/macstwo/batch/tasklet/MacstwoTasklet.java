@@ -291,7 +291,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		summitsBedG.setSoftwareGeneratedBy(macs2);
 		summitsBedG = fileService.addFileGroup(summitsBedG);
 		this.summitsBedGId = summitsBedG.getId();		
-		
+/*		
 		FileGroup summitsModifiedBedG = new FileGroup();
 		FileHandle summitsModifiedBed = new FileHandle();
 		summitsModifiedBed.setFileName(prefixForFileName + "_summits.modified.bed");
@@ -304,7 +304,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		summitsModifiedBedG.setSoftwareGeneratedBy(macs2);
 		summitsModifiedBedG = fileService.addFileGroup(summitsModifiedBedG);
 		this.summitsModifiedBedGId = summitsModifiedBedG.getId();		
-
+*/
 		FileGroup treatPileupBedGraphG = new FileGroup();
 		FileHandle treatPileupBedGraph = new FileHandle();
 		treatPileupBedGraph.setFileName(prefixForFileName + "_treat_pileup.bdg");
@@ -354,7 +354,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		w.getResultFiles().add(peaksXlsG);
 		w.getResultFiles().add(narrowPeaksBedG);
 		w.getResultFiles().add(summitsBedG);
-		w.getResultFiles().add(summitsModifiedBedG);
+		//w.getResultFiles().add(summitsModifiedBedG);
 		w.getResultFiles().add(treatPileupBedGraphG);
 		w.getResultFiles().add(controlLambdaBedGraphG);
 		logger.debug("executed w.getResultFiles().add(x) for 7 FileGroups");

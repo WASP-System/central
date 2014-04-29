@@ -2,7 +2,6 @@
 
 <script type="text/javascript">
 <%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
-<%--  TODO: Internationalize this!!!! --%>
 
 $(document).ready(function() {
 	
@@ -22,7 +21,7 @@ $(document).ready(function() {
 					  $("#workflowId").empty();
 					  
 					  if(numberOfEntries == 0){
-						  	$("#workflowId").append("<option value='-1'>No workflows found</option>"); 
+						  	$("#workflowId").append("<option value='-1'><fmt:message key="jobsubmitCreate.noWorkflowsFound.label" /></option>"); 
 					  }
 					  else if(numberOfEntries > 1){
 					  	$("#workflowId").append("<option value='-1'><fmt:message key="wasp.default_select.label"/></option>"); 
@@ -41,13 +40,13 @@ $(document).ready(function() {
 	});
 
 	$( "#viewDefinitionsAnchor" ).click(function() {
-		if($(this).text()=="View Help"){
+		if($(this).text()=="<fmt:message key="jobsubmitCreate.viewHelp.label" />"){
 			$("#strategySummary").css("display", "inline");
-			$(this).text("Hide Help");
+			$(this).text("<fmt:message key="jobsubmitCreate.hideHelp.label" />");
 		}
 		else{
 			$("#strategySummary").css("display", "none");
-			$(this).text("View Help");
+			$(this).text("<fmt:message key="jobsubmitCreate.viewHelp.label" />");
 		}
 	});
 });
@@ -78,7 +77,7 @@ $(document).ready(function() {
 	      <select class="FormElement ui-widget-content ui-corner-all" name="labId">
 	        <option value='-1'><fmt:message key="wasp.default_select.label"/></option>
 	        <c:forEach var="lab" items="${labs}">
-	          <option value="${lab.labId}" <c:if test="${lab.labId == jobDraft.labId}"> selected</c:if>><c:out value="${lab.getUser().getNameFstLst()}"/> Lab</option>
+	          <option value="${lab.labId}" <c:if test="${lab.labId == jobDraft.labId}"> selected</c:if>><c:out value="${lab.getUser().getNameFstLst()}"/> <fmt:message key="jobsubmitCreate.lab.label" /></option>
 	        </c:forEach>
 	      </select>
 	    </td>
@@ -87,7 +86,7 @@ $(document).ready(function() {
 	  
 	  <c:if test="${not empty strategies}">
 		  <tr class="FormData">
-		    <td class="CaptionTD">Library Strategy:</td>
+		    <td class="CaptionTD"><fmt:message key="jobsubmitCreate.libraryStrategy.label" />:</td>
 		    <td class="DataTD">
 		      <select class="FormElement ui-widget-content ui-corner-all" id="strategy" name="strategy">
 		        <option value='-1'><fmt:message key="wasp.default_select.label"/></option>
@@ -95,7 +94,7 @@ $(document).ready(function() {
 		          <option value="${strategy.getType()}.${strategy.getStrategy()}"  <c:if test="${strategy.getId() == thisJobDraftsStrategy.getId()}"> SELECTED</c:if>  ><c:out value="${strategy.getDisplayStrategy()}"/></option>
 		        </c:forEach>
 		      </select>
-		      <a id="viewDefinitionsAnchor" href="javascript:void(0);">View Help</a>
+		      <a id="viewDefinitionsAnchor" href="javascript:void(0);"><fmt:message key="jobsubmitCreate.viewHelp.label" /></a>
 		    </td>
 		    <td class="CaptionTD error"> <c:out value="${strategyError}"/> <%--this is not a real part of jobDraft object, so it's toxic here <form:errors path="strategy" />--%></td>
 		  </tr>

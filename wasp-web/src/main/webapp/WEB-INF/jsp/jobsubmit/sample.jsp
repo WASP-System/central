@@ -12,8 +12,6 @@
    <fmt:message key="jobDraft.sample_instructions.label"/>
 </div>
 
-<%--  TODO: Internationalize this!!!! --%>
-
 <table class="EditTable ui-widget ui-widget-content">
 	<tr>
 		<td class="CaptionTD top-heading"><fmt:message key="jobDraft.sample_number.label"/></td>
@@ -50,8 +48,8 @@
 					<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> td-even-number</c:if>">${sampleDraft.getSampleSubtype().getName()}</td>
 					<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> td-even-number</c:if>">
 						<c:choose>
-							<c:when test="${isExistingSample == 1}">Existing</c:when>
-							<c:otherwise>New</c:otherwise>
+							<c:when test="${isExistingSample == 1}"><fmt:message key="jobsubmitSample.Existing.label" /></c:when>
+							<c:otherwise><fmt:message key="jobsubmitSample.New.label" /></c:otherwise>
 						</c:choose>
 					</td>
 					<%-- TODO: re-implement lines below when functionality added
@@ -97,10 +95,10 @@
 				<a class="button" href="<wasp:relativeUrl value='jobsubmit/manysamples/add/${ jobDraft.getJobDraftId() }/${ sampleSubtype.getSampleSubtypeId() }.do' />">
 				<c:choose>
 					<c:when test="${sampleSubtype.getSampleType().getIName()=='library'}">
-						New Libraries
+						<fmt:message key="jobsubmitSample.NewLibraries.label" />
 					</c:when>
 					<c:otherwise>
-						New Samples
+						<fmt:message key="jobsubmitSample.NewSamples.label" />
 					</c:otherwise>
 				</c:choose>
 				</a>
@@ -111,15 +109,15 @@
 				<c:choose>
 					<c:when test="${sampleSubtype.getSampleType().getIName() =='library' && librariesExist =='yes'}">
 						<c:if test="${fn:length(adaptorSetsUsedOnThisJobDraft)==1}">
-							<a class="button" href="<wasp:relativeUrl value='jobsubmit/manysamples/edit/${ jobDraft.getJobDraftId() }/${ sampleSubtype.getSampleSubtypeId() }.do?theSelectedAdaptorset=${ adaptorSetsUsedOnThisJobDraft.get(0).getId()}' />">Edit Libraries</a>
+							<a class="button" href="<wasp:relativeUrl value='jobsubmit/manysamples/edit/${ jobDraft.getJobDraftId() }/${ sampleSubtype.getSampleSubtypeId() }.do?theSelectedAdaptorset=${ adaptorSetsUsedOnThisJobDraft.get(0).getId()}' />"><fmt:message key="jobsubmitSample.EditLibraries.label" /></a>
 						</c:if>
 						<c:if test="${fn:length(adaptorSetsUsedOnThisJobDraft)>1}">
 							<div id="dialog-form" title="Select library set to edit">
 								<p></p>
 								<p style="font-weight:bold;color:red" id="validateTipForThisModalDialogForm"></p>  
 				  				<fieldset>
-				  					You submitted libraries for this job containing more than one type of adaptor.
-				  					Please select the libraries you wish to edit by their adaptor type:<br />
+				  					<fmt:message key="jobsubmitSample.YouSubmittedLibraries.label" />
+				  					<fmt:message key="jobsubmitSample.PleaseSelectTheLibraries.label" />:<br />
 				  					<select name="theSelectedAdaptorset" id="theSelectedAdaptorset">
 				  						<option value=''><fmt:message key="wasp.default_select.label"/></option>
 										<c:forEach items="${ adaptorSetsUsedOnThisJobDraft }" var="adaptorSetUsedOnThisJobDraft">
@@ -132,13 +130,13 @@
 				  					</select>
 				 				</fieldset>  
 							</div>
-							<a class="button" href="javascript:void(0);" onclick='$( "#dialog-form" ).dialog( "open" );' >Edit Libraries</a>
+							<a class="button" href="javascript:void(0);" onclick='$( "#dialog-form" ).dialog( "open" );' ><fmt:message key="jobsubmitSample.EditLibraries.label" /></a>
 						
 							<%-- <a class="button" href="<wasp:relativeUrl value='jobsubmit/manysamples/edit/selectAdaptor.do?' />">Edit Libraries</a>--%>
 						</c:if>
 					</c:when>
 					<c:when test="${sampleSubtype.getSampleType().getIName() !='library' && samplesExist == 'yes'}">					
-						<a class="button" href="<wasp:relativeUrl value='jobsubmit/manysamples/edit/${ jobDraft.getJobDraftId() }/${ sampleSubtype.getSampleSubtypeId() }.do' />">Edit Samples</a>
+						<a class="button" href="<wasp:relativeUrl value='jobsubmit/manysamples/edit/${ jobDraft.getJobDraftId() }/${ sampleSubtype.getSampleSubtypeId() }.do' />"><fmt:message key="jobsubmitSample.EditSamples.label" /></a>
 					</c:when>
 				</c:choose>				
 			</c:forEach>			

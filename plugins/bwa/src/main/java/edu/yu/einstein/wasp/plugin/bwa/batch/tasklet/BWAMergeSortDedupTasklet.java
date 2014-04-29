@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
+import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
@@ -31,6 +32,7 @@ import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.bwa.software.BWABacktrackSoftwareComponent;
+import edu.yu.einstein.wasp.plugin.fileformat.plugin.BamFileTypeAttribute;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqComparator;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.service.FileService;
@@ -49,6 +51,9 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 	
 	@Autowired
 	private FileService fileService;
+	
+	@Autowired
+	private FileTypeService bamServiceImpl;
 	
 	@Autowired
 	private FastqService fastqService;
@@ -70,10 +75,6 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 	
 	@Autowired
 	private BWABacktrackSoftwareComponent bwa;
-	
-	@Autowired
-	@Qualifier("picard")
-	private SoftwarePackage picard;
 	
 	public BWAMergeSortDedupTasklet() {
 		// proxy
@@ -123,9 +124,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		Collections.sort(fhlist, new FastqComparator(fastqService));
 		w.setRequiredFiles(fhlist);
 		
-		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
-		sd.add(picard);
-		w.setSoftwareDependencies(sd);
+		w.setSoftwareDependencies(bwa.getSoftwareDependencies());
 		w.setSecureResults(true);
 		
 		String bamOutput = fileService.generateUniqueBaseFileName(cellLib) + "bwa.bam";
@@ -137,8 +136,9 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		bamG.addFileHandle(bam);
 		bamG.setFileType(bamFileType);
 		bamG.setDescription(bamOutput);
-		bamG = fileService.addFileGroup(bamG);
 		bamG.setSoftwareGeneratedBy(bwa);
+		bamG = fileService.addFileGroup(bamG);
+		bamServiceImpl.addAttribute(bamG, BamFileTypeAttribute.SORTED);
 		Integer bamGId = bamG.getId();
 		// save in step context  for use later
 		stepExecutionContext.put("bamGID", bamGId);
@@ -152,8 +152,8 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		baiG.addFileHandle(bai);
 		baiG.setFileType(baiFileType);
 		baiG.setDescription(baiOutput);
-		baiG = fileService.addFileGroup(baiG);
 		baiG.setSoftwareGeneratedBy(bwa);
+		baiG = fileService.addFileGroup(baiG);
 		Integer baiGId = baiG.getId();
 		// save in step context for use later
 		stepExecutionContext.put("baiGID", baiGId);
@@ -164,6 +164,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		w.setCommand("shopt -s nullglob\n");
 		w.addCommand("for x in sam.*.out; do ln -s ${x} ${x/*:/}.sam ; done\n");
 		if (markDuplicates){
+			bamServiceImpl.addAttribute(bamG, BamFileTypeAttribute.DEDUP);
 			String metricsOutput = fileService.generateUniqueBaseFileName(cellLib) + "dedupMetrics.txt";
 			FileGroup metricsG = new FileGroup();
 			FileHandle metrics = new FileHandle();
@@ -173,8 +174,8 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 			metricsG.addFileHandle(metrics);
 			metricsG.setFileType(textFileType);
 			metricsG.setDescription(metricsOutput);
-			metricsG = fileService.addFileGroup(metricsG);
 			metricsG.setSoftwareGeneratedBy(bwa);
+			metricsG = fileService.addFileGroup(metricsG);
 			Integer metricsGId = metricsG.getId();
 			// save in step context for use later
 			stepExecutionContext.put("metricsGID", metricsGId);

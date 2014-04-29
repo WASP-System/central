@@ -119,13 +119,16 @@ public abstract class AbstractBWASoftwareComponent extends ReferenceBasedAligner
 			} catch (MetadataException | SampleTypeException e){
 				logger.info("Not adding adaptor barcode information to readgroup as not available");
 			}
-			lb = library.getName();
-			pl = "ILLUMINA"; // TODO: fix
+			lb = library.getUUID().toString();
+			pl = "ILLUMINA"; // TODO: fix 
 			if (platformUnit != null)
 				pu = platformUnit.getName();
 			else
 				logger.info("Not adding platform unit information to readgroup as not available");
-			sm = library.getName(); // TODO: get the real sample name
+			sm = library.getUUID().toString();
+			Sample s = library.getParent();
+			if (s != null)
+				sm = s.getUUID().toString();
 		} catch (Exception e) {
 			logger.error(e.toString());
 			throw new RuntimeException(e.toString());

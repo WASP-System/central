@@ -16,7 +16,7 @@
 						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
 							<property name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
 							<property name="task" value="#{batchJobTasks.ANALYSIS_AGGREGATE}"/>
-							<property name="status" value="CREATED" />
+							<property name="status" value="STARTED" />
 						</bean>
 					</constructor-arg>
 				</bean>
@@ -49,7 +49,8 @@
 					<constructor-arg name="messageTemplate">
 						<bean
 							class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-							<property name="jobId" value="1" />
+							<property name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+							<property name="task" value="#{batchJobTasks.ANALYSIS_AGGREGATE}"/>
 							<property name="status" value="COMPLETED" />
 						</bean>
 					</constructor-arg>
@@ -66,7 +67,8 @@
 					<constructor-arg name="messageTemplate">
 						<bean
 							class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-							<property name="jobId" value="1" />
+							<property name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+							<property name="task" value="#{batchJobTasks.ANALYSIS_AGGREGATE}"/>
 							<property name="status" value="FAILED" />
 						</bean>
 					</constructor-arg>

@@ -274,7 +274,7 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 			newTimeInterval = maxExponentialInterval;
 		else
 			newTimeInterval = previousTimeInterval * MULTIPLICATION_FACTOR;
-		logger.debug(String.format("Previously set time interval (in StepExecutionContect) was %d ms, setting new time interval to be %d ms", 
+		logger.debug(String.format("Previously set time interval (in StepExecutionContext) was %d ms, setting new time interval to be %d ms", 
 				previousTimeInterval, newTimeInterval));
 		if (!newTimeInterval.equals(previousTimeInterval))
 			BatchJobHibernationManager.setWakeTimeInterval(stepExecution, newTimeInterval);

@@ -14,8 +14,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -381,23 +381,33 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 			jobDraftMetaDao.flush(samplePairsTvsC);
 		}
 		
-		List<SampleDraft> samples =  jobDraft.getSampleDraft();
-	    String pairMetaString = ""; 
+		String pairMetaString = ""; 
 		
 	    if (!sampleDraftPairSet.isEmpty()){
 			for(Map<SampleDraft, SampleDraft> pair: sampleDraftPairSet){
 				Entry<SampleDraft, SampleDraft> e = pair.entrySet().iterator().next();
-				pairMetaString += e.getKey().getSampleDraftId()+":"+e.getValue().getSampleDraftId()+";";
+				pairMetaString += e.getKey().getId()+":"+e.getValue().getId()+";";
 			}
 		}
 	    
 		if (!pairMetaString.isEmpty()){
 			// persist pair meta string
 			JobDraftMeta jdm = new JobDraftMeta(); 
-			jdm.setJobDraftId(jobDraft.getJobDraftId());
+			jdm.setJobDraftId(jobDraft.getId());
 			jdm.setK(samplePairsKey);
 			jdm.setV(pairMetaString); 
 			jobDraftMetaDao.save(jdm);
 		}
 	}
+
+	@Override
+	public JobDraftDao getJobDraftDao() {
+		return jobDraftDao;
+	}
+
+	@Override
+	public JobDraftMetaDao getJobDraftMetaDao() {
+		return jobDraftMetaDao;
+	}
+
 }

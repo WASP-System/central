@@ -13,7 +13,7 @@ A Department Administrator is required to perform two essential tasks in order t
 then approve this submission, otherwise reject it.<br />
 </p>
  
-<p>To execute these two tasks, <a href="${baseUrl}/auth/login.do">log into WASP</a> and select Tasks from the main menu. You should see  
+<p>To execute these two tasks, <a href="${servletUrl}/auth/login.do">log into WASP</a> and select Tasks from the main menu. You should see  
 a list of your tasks.<br /><br />
 To generate an estimated cost for this job, click on the Job Quote Tasks link, double click on J${job.getJobId()}, complete the pop-up form, 
 and hit the submit button. (If you need to re-quote a job, select Admin from the main menu, then select Quotes.)<br /><br />

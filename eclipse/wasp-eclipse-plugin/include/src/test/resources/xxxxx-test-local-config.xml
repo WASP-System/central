@@ -36,6 +36,8 @@
 	
 	<mockito:mock id="gridHostResolver" class="edu.yu.einstein.wasp.grid.GridHostResolver" />
 	
+	<mockito:mock id="softwareService" class="edu.yu.einstein.wasp.service.impl.SoftwareServiceImpl" />
+	
 	<import resource="classpath:META-INF/spring/integration/integration-common-config.xml" />
  	
  	<import resource="classpath:META-INF/spring/batch-integration-common-config.xml" />

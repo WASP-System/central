@@ -46,6 +46,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
@@ -58,7 +59,6 @@ import edu.yu.einstein.wasp.dao.FileGroupDao;
 import edu.yu.einstein.wasp.dao.FileGroupMetaDao;
 import edu.yu.einstein.wasp.dao.FileHandleDao;
 import edu.yu.einstein.wasp.dao.FileHandleMetaDao;
-import edu.yu.einstein.wasp.dao.FileTypeDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobDraftDao;
 import edu.yu.einstein.wasp.dao.JobDraftFileDao;
@@ -70,6 +70,8 @@ import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.PluginException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.filetype.FileTypeAttribute;
+import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -121,7 +123,8 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	private SampleDao sampleDao;
 
 	@Autowired
-	private FileTypeDao fileTypeDao;
+	@Qualifier("fileTypeServiceImpl")
+	private FileTypeService fileTypeService;
 
 	@Autowired
 	private FileGroupDao fileGroupDao;
@@ -356,7 +359,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 	@Override
 	public Set<FileType> getFileTypes() {
-		return fileTypeDao.getFileTypes();
+		return fileTypeService.getFileTypeDao().getFileTypes();
 	}
 
 	/**
@@ -372,6 +375,23 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		result.addAll(fileGroupDao.findByMap(m));
 		return result;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Set<FileGroup> getFilesByType(FileType fileType, Set<? extends FileTypeAttribute> attributes, boolean hasOnlyAttributesSpecified) {
+		Set<FileGroup> fgsWithAttributes = new LinkedHashSet<>();
+		for (FileGroup fg : getFilesByType(fileType))
+			if (hasOnlyAttributesSpecified){
+				if (fileTypeService.hasOnlyAttributes(fg, attributes))
+					fgsWithAttributes.add(fg);
+			} else {
+				if (fileTypeService.hasAttributes(fg, attributes))
+					fgsWithAttributes.add(fg);
+			}
+		return fgsWithAttributes;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -386,6 +406,25 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		Sample lib = sampleService.getSampleById(library.getId());
 		return lib.getFileGroups();
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @throws SampleTypeException
+	 */
+	@Override
+	public Set<FileGroup> getFilesForLibraryByType(Sample library, FileType fileType, Set<? extends FileTypeAttribute> attributes, boolean hasOnlyAttributesSpecified) throws SampleTypeException {
+		Set<FileGroup> fgsWithAttributes = new LinkedHashSet<>();
+		for (FileGroup fg : getFilesForLibraryByType(library, fileType))
+			if (hasOnlyAttributesSpecified){
+				if (fileTypeService.hasOnlyAttributes(fg, attributes))
+					fgsWithAttributes.add(fg);
+			} else {
+				if (fileTypeService.hasAttributes(fg, attributes))
+					fgsWithAttributes.add(fg);
+			}
+		return fgsWithAttributes;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -394,7 +433,6 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 */
 	@Override
 	public Set<FileGroup> getFilesForLibraryByType(Sample library, FileType fileType) throws SampleTypeException {
-		Assert.assertParameterNotNull(library, "must provide a library");
 		Assert.assertParameterNotNull(fileType, "must provide a fileType");
 		Assert.assertParameterNotNull(fileType.getId(), "fileType has no valid fileTypeId");
 		Map<FileType, Set<FileGroup>> filesByType = getFilesForLibraryMappedToFileType(library);
@@ -418,10 +456,62 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		for (FileGroup fg : s.getFileGroups()) {
 			FileType ft = fg.getFileType();
 			if (!filesByType.containsKey(ft))
-				filesByType.put(ft, new HashSet<FileGroup>());
+				filesByType.put(ft, new LinkedHashSet<FileGroup>());
 			filesByType.get(ft).add(fg);
 		}
 		return filesByType;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @throws SampleTypeException
+	 */
+	@Override
+	public Set<FileGroup> getFilesForCellLibrary(SampleSource cellLibrary) {
+		return fileGroupDao.getFilesForCellLibrary(cellLibrary);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @throws SampleTypeException
+	 */
+	@Override
+	public Set<FileGroup> getFilesForCellLibraryByType(SampleSource cellLibrary, FileType fileType) {
+		Assert.assertParameterNotNull(cellLibrary, "must provide a cellLibrary");
+		Assert.assertParameterNotNull(fileType, "must provide a fileType");
+		Assert.assertParameterNotNull(fileType.getId(), "fileType has no valid fileTypeId");
+		return fileGroupDao.getFilesForCellLibraryByType(cellLibrary, fileType);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @throws SampleTypeException
+	 */
+	@Override
+	public Set<FileGroup> getFilesForCellLibraryByType(SampleSource cellLibrary, FileType fileType, Set<? extends FileTypeAttribute> attributes, boolean hasOnlyAttributesSpecified) {
+		Set<FileGroup> fgsWithAttributes = new LinkedHashSet<>();
+		for (FileGroup fg : getFilesForCellLibraryByType(cellLibrary, fileType)){
+			logger.debug("FileGroup id= " + fg.getId() + " is associated with cell library id=" + cellLibrary.getId());
+			if (hasOnlyAttributesSpecified){
+				if (fileTypeService.hasOnlyAttributes(fg, attributes)){
+					logger.debug("FileGroup id= " + fg.getId() + " matches attribute requirements ");
+					fgsWithAttributes.add(fg);
+				} else {
+					logger.debug("FileGroup id= " + fg.getId() + " does not match attribute requirements ");
+				}
+			} else {
+				if (fileTypeService.hasAttributes(fg, attributes)){
+					logger.debug("FileGroup id= " + fg.getId() + " matches attribute requirements ");
+					fgsWithAttributes.add(fg);
+				} else {
+					logger.debug("FileGroup id= " + fg.getId() + " does not match attribute requirements ");
+				}
+			}
+		}		
+		return fgsWithAttributes;
 	}
 
 	/**
@@ -437,13 +527,17 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		Assert.assertParameterNotNull(library, "must provide a library");
 		if (!sampleService.isLibrary(library))
 			throw new SampleTypeException("sample is not of type library");
-		Assert.assertParameterNotNull(fileType, "must provide a fileType");
-		Assert.assertParameterNotNull(fileType.getId(), "fileType has no valid fileTypeId");
-		
-		Map<FileType, Set<FileGroup>> filesByType = getFilesForCellLibraryMappedToFileType(cell, library);
-		if (!filesByType.containsKey(fileType))
-			return new HashSet<FileGroup>();
-		return filesByType.get(fileType);
+		return fileGroupDao.getFilesForCellLibraryByType(sampleService.getCellLibrary(cell, library), fileType);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @throws SampleTypeException
+	 */
+	@Override
+	public Set<FileGroup> getFilesForCellLibraryByType(Sample cell, Sample library, FileType fileType, Set<? extends FileTypeAttribute> attributes, boolean hasOnlyAttributesProvided) throws SampleTypeException {
+		return getFilesForCellLibraryByType(sampleService.getCellLibrary(cell, library), fileType, attributes, hasOnlyAttributesProvided);
 	}
 	
 	/**
@@ -498,8 +592,27 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		Assert.assertParameterNotNull(fileType.getId(), "fileType has no valid fileTypeId");
 		Map<FileType, Set<FileGroup>> filesByType = getFilesForPlatformUnitMappedToFileType(platformUnit);
 		if (!filesByType.containsKey(fileType))
-			return new HashSet<FileGroup>();
+			return new LinkedHashSet<FileGroup>();
 		return filesByType.get(fileType);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @throws SampleTypeException
+	 */
+	@Override
+	public Set<FileGroup> getFilesForPlatformUnitByType(Sample platformUnit, FileType fileType, Set<? extends FileTypeAttribute> attributes, boolean hasOnlyAttributesSpecified) throws SampleTypeException {
+		Set<FileGroup> fgsWithAttributes = new LinkedHashSet<>();
+		for (FileGroup fg : getFilesForPlatformUnitByType(platformUnit, fileType))
+			if (hasOnlyAttributesSpecified){
+				if (fileTypeService.hasOnlyAttributes(fg, attributes))
+					fgsWithAttributes.add(fg);
+			} else {
+				if (fileTypeService.hasAttributes(fg, attributes))
+					fgsWithAttributes.add(fg);
+			}
+		return fgsWithAttributes;
 	}
 
 	/**
@@ -549,12 +662,12 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 	@Override
 	public FileType getFileType(String iname) {
-		return fileTypeDao.getFileTypeByIName(iname);
+		return fileTypeService.getFileTypeDao().getFileTypeByIName(iname);
 	}
 
 	@Override
 	public FileType getFileType(Integer id) {
-		return fileTypeDao.getById(id);
+		return fileTypeService.getFileTypeDao().getById(id);
 	}
 
 	/**
@@ -853,34 +966,6 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	public List<FileDataTabViewing> getTabViewProvidingPluginsByFileGroup(FileGroup fileGroup) {
 		String area = fileGroup.getFileType().getIName();
 		return pluginRegistry.getPluginsHandlingArea(area, FileDataTabViewing.class);
-	}
-
-	@Override
-	public Set<FileGroup> getFilesForCellLibraryByType(SampleSource cellLibrary, FileType fileType) {
-		TypedQuery<FileGroup> fgq = fileGroupDao.getEntityManager()
-				.createQuery("SELECT DISTINCT fg from FileGroup fg " +
-						"JOIN FETCH fg.sampleSources cl " +
-						"JOIN FETCH fg.fileHandles fh " + 
-						//"JOIN FETCH fh.fileType " +  
-						"JOIN FETCH fg.fileType " +
-						"WHERE cl = :cellLibrary AND fg.fileType = :fileType", FileGroup.class)
-				.setParameter("cellLibrary", cellLibrary)
-				.setParameter("fileType", fileType);
-		HashSet<FileGroup> result = new HashSet<FileGroup>();
-		result.addAll(fgq.getResultList());
-		return result;
-	}
-
-	@Override
-	public Set<FileGroup> getFilesForCellLibrary(SampleSource cellLibrary) {
-		TypedQuery<FileGroup> fgq = fileGroupDao.getEntityManager()
-				.createQuery("SELECT DISTINCT fg from FileGroup fg " +
-						"JOIN fg.sampleSources cl " +
-						"WHERE cl = :cellLibrary", FileGroup.class)
-				.setParameter("cellLibrary", cellLibrary);
-		HashSet<FileGroup> result = new HashSet<FileGroup>();
-		result.addAll(fgq.getResultList());
-		return result;
 	}
 
 	@Override
@@ -1419,7 +1504,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		try {
 			Sample cell = sampleService.getCell(cellLibrary);
 			String platformUnitName = "unknown";
-			String cellIndex = "0";
+			String cellIndex = "L" + cellLibrary.getId(); // default to cell library (CL) id
 			String barcode = "none";
 			String libraryName = sampleService.getLibrary(cellLibrary).getName();
 			if (cell != null){ // may be null if imported from external run of unknown origin
@@ -1440,7 +1525,13 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			logger.error(mess);
 			throw new RuntimeException(mess);
 		}
-
+	}
+	
+	@Override
+	public String generateUniqueBaseFileName(Sample library) {
+		Assert.assertTrue(sampleService.isLibrary(library), "sample must be a library");
+		final String DELIM = ".";
+		return library.getName() + DELIM + "id" + library.getId().toString() + DELIM;
 	}
 	
 	/*
@@ -1629,6 +1720,27 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * @throws SampleTypeException
 	 */
 	@Override
+	public Set<FileGroup> getFilesForMacromoleculeOrLibraryByType(Sample sample, FileType fileType, Set<? extends FileTypeAttribute> attributes, boolean hasOnlyAttributesSpecified) throws SampleTypeException {
+		Set<FileGroup> fgsWithAttributes = new LinkedHashSet<>();
+		for (FileGroup fg : getFilesForMacromoleculeOrLibraryByType(sample, fileType))
+			if (hasOnlyAttributesSpecified){
+				if (fileTypeService.hasOnlyAttributes(fg, attributes))
+					fgsWithAttributes.add(fg);
+			} else {
+				if (fileTypeService.hasAttributes(fg, attributes))
+					fgsWithAttributes.add(fg);
+			}
+		return fgsWithAttributes;
+	}
+	
+	
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @throws SampleTypeException
+	 */
+	@Override
 	public Map<FileType, Set<FileGroup>> getFilesForMacromoleculeOrLibraryMappedToFileType(Sample sample) throws SampleTypeException {
 		
 		String sampleTypeIName = sample.getSampleType().getIName();
@@ -1640,7 +1752,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			for (FileGroup fg : s.getFileGroups()) {
 				FileType ft = fg.getFileType();
 				if (!filesByType.containsKey(ft)){
-					filesByType.put(ft, new HashSet<FileGroup>());
+					filesByType.put(ft, new LinkedHashSet<FileGroup>());
 				}
 				filesByType.get(ft).add(fg);
 			}		

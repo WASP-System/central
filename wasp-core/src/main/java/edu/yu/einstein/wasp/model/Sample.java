@@ -12,16 +12,13 @@
 package edu.yu.einstein.wasp.model;
 
 import java.util.Date;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -30,7 +27,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.hibernate.FetchMode;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -972,7 +968,7 @@ public class Sample extends WaspModel {
 	 */
 	@ManyToMany
 	@JoinTable(name="samplefilegroup", joinColumns={@JoinColumn(name="sampleid")}, inverseJoinColumns={@JoinColumn(name="filegroupid")})
-	private Set<FileGroup> fileGroups = new HashSet<FileGroup>();
+	private Set<FileGroup> fileGroups = new LinkedHashSet<FileGroup>();
 
 	/**
 	 * @return the fileGroups

@@ -21,20 +21,11 @@
   <bean id="fastqscreen" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
   	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.babraham.software.FastQScreen</value></property>
     <property name="name" value="FastQ Screen" />
+    <property name="version" value="0.4.1" />
     <property name="description" value="FastQ Screen allows you to screen a library of sequences in FastQ format against a set of sequence databases so you can see if the composition of the library matches with what you expect." />
     <property name="area" ref="fastQScreenArea" />
     <property name="resourceType" ref="fastqProcessorResourceType" />
 	
-	<property name="metaFromWrapper">
-       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" ref="fastQScreenArea" />
-         <property name="metaList">
-         	<list>
-         		<value>#{waspSoftware['currentVersion']}=0.4</value>
-         	</list>
-       	 </property>
-       </bean>
-    </property> 
     <!-- 
     <property name="uiFieldsFromWrapper">
       <list>

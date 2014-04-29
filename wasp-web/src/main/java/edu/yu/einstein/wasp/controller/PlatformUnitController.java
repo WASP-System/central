@@ -851,18 +851,6 @@ public class PlatformUnitController extends WaspController {
 		return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue() + "&jobsToWorkWith=" + jobsToWorkWith.intValue();
 	}
 	
-	@RequestMapping(value="/assignAdd2.do", method=RequestMethod.POST)
-	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String assignmentAdd2(
-			@RequestParam("librarysampleid") Integer librarySampleId,
-			@RequestParam("cellsampleid") Integer cellSampleId,
-			@RequestParam("jobid") Integer jobId,
-			@RequestParam(value="libConcInCellPicoM", required=false) String libConcInCellPicoM,
-			ModelMap m) {
-	
-		assignmentAdd(librarySampleId, cellSampleId, jobId, libConcInCellPicoM);
-		return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
-	}
 	
   /**
    * assignmentAdd

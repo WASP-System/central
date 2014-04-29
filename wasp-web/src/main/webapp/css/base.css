@@ -594,6 +594,10 @@ TABLE.data TD.value-centered-small {
 	z-index:10000;
 }
 
+.hidden {
+	visibility:hidden;
+}
+
 #wait_dialog-modal td{
 	vertical-align: middle;
 }
@@ -615,4 +619,11 @@ TABLE.data TD.value-centered-small {
 
 .ext_treeGrid td {
 	padding: 0px;
+}
+
+.iframeOnJobHomepage {
+	overflow-x:scroll; 
+	overflow-y:scroll;
+	 height:800px;
+	 width:99%;
 }

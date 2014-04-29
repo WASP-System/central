@@ -1,11 +1,8 @@
 package edu.yu.einstein.wasp.controller.chipseq;
 
-import edu.yu.einstein.wasp.controller.JobSubmissionController; 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,13 +17,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import edu.yu.einstein.wasp.controller.JobSubmissionController;
+import edu.yu.einstein.wasp.dao.JobDraftDao;
+import edu.yu.einstein.wasp.dao.JobDraftMetaDao;
+import edu.yu.einstein.wasp.dao.SampleDraftDao;
 import edu.yu.einstein.wasp.model.JobDraft;
-import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
-import edu.yu.einstein.wasp.dao.JobDraftMetaDao;
-import edu.yu.einstein.wasp.dao.JobDraftDao;
-import edu.yu.einstein.wasp.dao.SampleDraftDao;
 
 @Controller
 @Transactional
@@ -77,7 +74,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 					}
 				}
 			}
-			if(foundInputOrIP = false){//unexpected, but....., then put on both lists (for consistency with previous method of pairing all to all)
+			if(foundInputOrIP == false){//unexpected, but....., then put on both lists (for consistency with previous method of pairing all to all)
 				inputSampleDrafts.add(sampleDraft);
 				ipSampleDrafts.add(sampleDraft);
 			}
@@ -92,7 +89,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		if (!sampleDraftPairSet.isEmpty()){
 			for(Map<SampleDraft, SampleDraft> pair: sampleDraftPairSet){
 				Entry<SampleDraft, SampleDraft> e = pair.entrySet().iterator().next();
-				selectedSampleDraftPairStringSet.add("testVsControl_"+e.getKey().getSampleDraftId()+"_"+e.getValue().getSampleDraftId());
+				selectedSampleDraftPairStringSet.add("testVsControl_"+e.getKey().getId()+"_"+e.getValue().getId());
 			}
 		}
 
@@ -120,9 +117,9 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 	
 	    Set<Map<SampleDraft, SampleDraft>> sampleDraftPairSet = new HashSet<Map<SampleDraft, SampleDraft>>();
 	    for (SampleDraft sd1: samples) {
-	    	String sd1Id = String.valueOf(sd1.getSampleDraftId().intValue());
+	    	String sd1Id = String.valueOf(sd1.getId().intValue());
 	    	for (SampleDraft sd2: samples) {
-	    		String sd2Id = String.valueOf(sd2.getSampleDraftId().intValue());
+	    		String sd2Id = String.valueOf(sd2.getId().intValue());
 	    		if (sd1Id.equals(sd2Id))
 	    			continue;
 	    		String checkValue = "";
