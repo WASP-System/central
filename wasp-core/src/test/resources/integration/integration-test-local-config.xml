@@ -38,6 +38,8 @@
 	<mockito:mock id="userService" class="edu.yu.einstein.wasp.service.impl.UserServiceImpl" />
 	
 	<mockito:mock id="labService" class="edu.yu.einstein.wasp.service.impl.LabServiceImpl" />
+	
+	<mockito:mock id="softwareService" class="edu.yu.einstein.wasp.service.impl.SoftwareServiceImpl" />
 
 
 	<int:poller id="defaultPoller" default="true" max-messages-per-poll="1" fixed-rate="10" receive-timeout="30000"/>
