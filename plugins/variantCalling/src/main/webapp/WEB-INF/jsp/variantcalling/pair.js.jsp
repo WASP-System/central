@@ -1,12 +1,12 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <script>
 
-function toggleRow(controlIndex, testCount){
-	var button = document.getElementById("row_"+controlIndex+"_select_all");
+function toggleCol(controlIndex, testCount){
+	var button = document.getElementById("col_"+controlIndex+"_select_all");
 	
 	for (var i=1; i<=testCount; i++){
-		var checkbox = document.getElementById("rowcolumn_"+controlIndex+"_"+i);
-		if (checkbox != undefined){
+		var checkbox = document.getElementById("rowcolumn_"+i+"_"+controlIndex);
+		if (checkbox != undefined && checkbox.disabled == false){
 			if (button.value == "<fmt:message key='variantcalling.selectAll.label' />"){	
 				checkbox.checked = true;
 			} else{
@@ -22,12 +22,12 @@ function toggleRow(controlIndex, testCount){
 	return true;
 }
 
-function toggleCol(testIndex, controlCount){
-	var button = document.getElementById("col_"+testIndex+"_select_all");
+function toggleRow(testIndex, controlCount){
+	var button = document.getElementById("row_"+testIndex+"_select_all");
 	
 	for (var i=1; i<=controlCount; i++){
-		var checkbox = document.getElementById("rowcolumn_"+i+"_"+testIndex);
-		if (checkbox != undefined){
+		var checkbox = document.getElementById("rowcolumn_"+testIndex+"_"+i);
+		if (checkbox != undefined && checkbox.disabled == false){
 			if (button.value == "<fmt:message key='variantcalling.selectAll.label' />"){	
 				checkbox.checked = true;
 			} else{

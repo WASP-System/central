@@ -135,11 +135,28 @@
           <property name="baseName" value="intervalFileSelection" />
           <property name="label" value="variantcalling.intervalFileSelection.lbl" />
         </bean>
-        
+        <bean parent="variantcallingUiFieldWrapper">
+          <property name="baseName" value="pairingInstructions" />
+          <property name="label" value="variantcalling.pairingInstructions.txt" />
+        </bean>
+        <bean parent="variantcallingUiFieldWrapper">
+          <property name="baseName" value="test" />
+          <property name="label" value="variantcalling.test.lbl" />
+        </bean>
+        <bean parent="variantcallingUiFieldWrapper">
+          <property name="baseName" value="control" />
+          <property name="label" value="variantcalling.control.lbl" />
+        </bean>
+        <bean parent="variantcallingUiFieldWrapper">
+          <property name="baseName" value="selectAll" />
+          <property name="label" value="variantcalling.selectAll.lbl" />
+        </bean>
+        <bean parent="variantcallingUiFieldWrapper">
+          <property name="baseName" value="deselectAll" />
+          <property name="label" value="variantcalling.deselectAll.lbl" />
+        </bean>
      </list>
-     
 
- 
     </property>
   </bean>
 
