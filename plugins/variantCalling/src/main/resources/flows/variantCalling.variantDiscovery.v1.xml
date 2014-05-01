@@ -7,9 +7,9 @@
 		
 	
 	<!-- for dispatching job, call with parameter 'jobId' -->
-	<batch:flow id="variantCalling.variantDiscovery.flow.v1" >
+	<batch:flow id="variantCalling.discovery.flow.v1" >
 	
-		<batch:step id="variantCalling.variantDiscovery.step.notifyStarted" next="variantCalling.variantDiscovery.step.callVariants">
+		<batch:step id="variantCalling.discovery.step.notifyStarted" next="variantCalling.discovery.step.callVariants">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
@@ -24,7 +24,7 @@
 			</batch:tasklet>
 		</batch:step>
 		
-		<batch:step id="variantCalling.variantDiscovery.step.callVariants" next="variantCalling.variantDiscovery.step.listenForCallVariantsComplete">
+		<batch:step id="variantCalling.discovery.step.callVariants" next="variantCalling.discovery.step.listenForCallVariantsComplete">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.analysis.WaspJobSoftwareLaunchTaskletImpl" scope="step">
 					<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
@@ -34,7 +34,7 @@
 			</batch:tasklet>
 		</batch:step>
 		
-		<batch:step id="variantCalling.variantDiscovery.step.listenForCallVariantsComplete" >
+		<batch:step id="variantCalling.discovery.step.listenForCallVariantsComplete" >
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
 					<constructor-arg name="messageTemplates">
@@ -54,11 +54,11 @@
 					<property name="failOnStatuses" value="FAILED" />
 				</bean>
 			</batch:tasklet>
-			<batch:next on="FAILED" to="variantCalling.variantDiscovery.step.notifyFailed" />
-			<batch:next on="*" to="variantCalling.variantDiscovery.step.notifyCompleted" />
+			<batch:next on="FAILED" to="variantCalling.discovery.step.notifyFailed" />
+			<batch:next on="*" to="variantCalling.discovery.step.notifyCompleted" />
 		</batch:step>
 		
-		<batch:step id="variantCalling.variantDiscovery.step.notifyCompleted" >
+		<batch:step id="variantCalling.discovery.step.notifyCompleted" >
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
@@ -73,7 +73,7 @@
 			</batch:tasklet>
 		</batch:step>
 		
-		<batch:step id="variantCalling.variantDiscovery.step.notifyFailed" >
+		<batch:step id="variantCalling.discovery.step.notifyFailed" >
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
@@ -93,8 +93,8 @@
 	
 	
 	<!-- for dispatching job, call with parameters 'jobId' and 'libraryId' -->
-	<batch:job id="variantCalling.variantDiscovery.jobflow.v1" restartable="true" >
-		<batch:flow id= "variantCalling.variantDiscovery.flowjob" parent="variantCalling.variantDiscovery.flow.v1" />
+	<batch:job id="variantCalling.discovery.jobflow.v1" restartable="true" >
+		<batch:flow id="variantCalling.discovery.flowjob" parent="variantCalling.discovery.flow.v1" />
 	</batch:job>
 
 </beans>

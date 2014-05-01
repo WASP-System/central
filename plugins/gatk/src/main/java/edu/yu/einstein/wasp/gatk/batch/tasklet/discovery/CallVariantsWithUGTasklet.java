@@ -34,7 +34,7 @@ import edu.yu.einstein.wasp.service.SampleService;
  * @author jcai
  * @author asmclellan
  */
-public class CallVariantsWithUGTasklet extends WaspRemotingTasklet implements StepExecutionListener {
+public class CallVariantsWithUGTasklet extends AbstractGatkTasklet implements StepExecutionListener {
 
 	private List<Integer> cellLibraryIds;
 	
@@ -66,13 +66,8 @@ public class CallVariantsWithUGTasklet extends WaspRemotingTasklet implements St
 	@Autowired
 	private GATKSoftwareComponent gatk;
 
-
-	public CallVariantsWithUGTasklet() {
-		// proxy
-	}
-
-	public CallVariantsWithUGTasklet(String cellLibraryIds) {
-		this.cellLibraryIds = WaspSoftwareJobParameters.getCellLibraryIdList(cellLibraryIds);
+	public CallVariantsWithUGTasklet(String inputFilegroupIds, String outputFilegroupIds) {
+		super(inputFilegroupIds, outputFilegroupIds);
 	}
 
 	/*

@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,6 +14,7 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.filetype.service.FileTypeService;
@@ -34,7 +36,7 @@ import edu.yu.einstein.wasp.service.SampleService;
  * @author jcai
  * @author asmclellan
  */
-public class CallVariantsWithHCTasklet extends WaspRemotingTasklet implements StepExecutionListener {
+public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements StepExecutionListener {
 
 	private List<Integer> cellLibraryIds;
 	
@@ -66,13 +68,8 @@ public class CallVariantsWithHCTasklet extends WaspRemotingTasklet implements St
 	@Autowired
 	private GATKSoftwareComponent gatk;
 
-
-	public CallVariantsWithHCTasklet() {
-		// proxy
-	}
-
-	public CallVariantsWithHCTasklet(String cellLibraryIds) {
-		this.cellLibraryIds = WaspSoftwareJobParameters.getCellLibraryIdList(cellLibraryIds);
+	public CallVariantsWithHCTasklet(String inputFilegroupIds, String outputFilegroupIds) {
+		super(inputFilegroupIds, outputFilegroupIds);
 	}
 
 	/*

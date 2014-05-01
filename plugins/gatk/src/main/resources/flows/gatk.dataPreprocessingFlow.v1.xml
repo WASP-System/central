@@ -3,9 +3,9 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
 
-	<batch:job id="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow">
+	<batch:job id="gatk.dataPreprocessing.jobFlow.v1" restartable="true">
 	
-		<batch:step id="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.notifyGatkStart" next="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.preprocess">
+		<batch:step id="gatk.dataPreprocessing.notifyGatkStart" next="gatk.dataPreprocessing.preprocess">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
@@ -20,18 +20,17 @@
 			</batch:tasklet>
 		</batch:step>
 		
-		<batch:step id="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.preprocess">
+		<batch:step id="gatk.dataPreprocessing.preprocess">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.preprocess.BamPreProcessingTasklet" scope="step">
 					<constructor-arg name="cellLibraryIds" value="#{jobParameters[waspSoftwareJobParameters.CELL_LIBRARY_ID_LIST]}" />
 				</bean>
 			</batch:tasklet>
-			<batch:next on="FAILED" to="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.notifyGATKFailed" />
-			<batch:next on="*" to="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.notifyComplete" />
+			<batch:next on="FAILED" to="gatk.dataPreprocessing.notifyGATKFailed" />
+			<batch:next on="*" to="gatk.dataPreprocessing.notifyComplete" />
 		</batch:step>
 		
-		
-		<batch:step id="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.notifyComplete">
+		<batch:step id="gatk.dataPreprocessing.notifyComplete">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
@@ -46,7 +45,7 @@
 			</batch:tasklet>
 		</batch:step>
 		
-		<batch:step id="edu.yu.einstein.wasp.gatk.dataPreprocessingFlow.notifyGATKFailed">
+		<batch:step id="gatk.dataPreprocessing.notifyGATKFailed">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
