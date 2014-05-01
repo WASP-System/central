@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RunningModeTag extends BodyTagSupport {
 
-	private static final long serialVersionUID = 7897505359306370856L;
+	private static final long serialVersionUID = -906485942409348166L;
 	
 	Logger log = LoggerFactory.getLogger(RunningModeTag.class);
 	

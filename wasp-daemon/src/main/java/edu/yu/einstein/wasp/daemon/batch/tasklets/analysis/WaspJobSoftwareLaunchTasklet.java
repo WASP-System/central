@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets.analysis;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.batch.core.step.tasklet.Tasklet;
 
@@ -29,5 +30,9 @@ public interface WaspJobSoftwareLaunchTasklet extends Tasklet {
 	public void setJobId(Integer jobId);
 
 	public void setTask(String task);
+
+	public Map<String, String> getAdditionalJobParameters();
+
+	public void setAdditionalJobParameters(Map<String, String> additionalJobParameters);
 
 }
