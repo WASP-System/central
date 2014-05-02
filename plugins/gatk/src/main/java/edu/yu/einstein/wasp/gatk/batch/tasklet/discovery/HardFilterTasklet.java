@@ -38,8 +38,6 @@ public class HardFilterTasklet extends WaspRemotingTasklet implements StepExecut
 	private String jobId;
 	private Integer cellLibId;
 
-	private StepExecution stepExecution;
-
 	@Autowired
 	private SampleService sampleService;
 
@@ -98,7 +96,6 @@ public class HardFilterTasklet extends WaspRemotingTasklet implements StepExecut
 	public void beforeStep(StepExecution stepExecution) {
 		super.beforeStep(stepExecution);
 		logger.debug("StepExecutionListener beforeStep saving StepExecution");
-		this.stepExecution = stepExecution;
 		JobExecution jobExecution = stepExecution.getJobExecution();
 		ExecutionContext jobContext = jobExecution.getExecutionContext();
 		this.scratchDirectory = jobContext.get("scrDir").toString();

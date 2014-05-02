@@ -2,7 +2,6 @@ package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,16 +13,13 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;

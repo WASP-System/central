@@ -21,6 +21,7 @@ import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
 
@@ -119,6 +120,20 @@ public interface GenomeService extends WaspService {
 	 * @return
 	 */
 	public Set<Organism> getOrganismsPlusOther();
+	
+	/**
+	 * Returns the genome build associated with a cell library
+	 * @param cellLibrary
+	 * @return
+	 */
+	public Build getGenomeBuild(SampleSource cellLibrary);
+
+	/**
+	 * Get remote host formatted representation of metadata directory housing the fasta file of this build
+	 * @param build
+	 * @return
+	 */
+	public String getReferenceGenomeFastaFile(Build build);
 
 	  
 }
