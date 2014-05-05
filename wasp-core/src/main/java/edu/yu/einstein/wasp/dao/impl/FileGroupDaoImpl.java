@@ -73,6 +73,20 @@ public class FileGroupDaoImpl extends WaspDaoImpl<FileGroup> implements edu.yu.e
 		result.addAll(fgq.getResultList());
 		return result;
 	}
+	
+	@Override
+	@Transactional("entityManager")
+	public Set<FileGroup> getActiveFilesForCellLibraryByType(SampleSource cellLibrary, FileType fileType) {
+		TypedQuery<FileGroup> fgq = getEntityManager()
+				.createQuery("SELECT DISTINCT fg from FileGroup as fg " +
+						"JOIN FETCH fg.sampleSources as cl " +
+						"WHERE cl = :cellLibrary AND fg.fileType = :fileType AND fg.isActive = 1", FileGroup.class)
+				.setParameter("cellLibrary", cellLibrary)
+				.setParameter("fileType", fileType);
+		HashSet<FileGroup> result = new HashSet<FileGroup>();
+		result.addAll(fgq.getResultList());
+		return result;
+	}
 
 	@Override
 	@Transactional("entityManager")

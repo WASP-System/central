@@ -11,7 +11,8 @@
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.MergeSampleBamFilesTasklet" scope="step">
 					<constructor-arg name="inputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.INPUT_FILEGROUP_ID_LIST]}" />
-					<constructor-arg name="outputFilegroupId" value="#{jobParameters[waspSoftwareJobParameters.OUTPUT_FILEGROUP_ID]}" />
+					<constructor-arg name="outputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.OUTPUT_FILEGROUP_ID_LIST]}" />
+					<constructor-arg name="jobId" value="#{jobParameters[waspSoftwareJobParameters.JOB_ID]}" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
@@ -23,6 +24,7 @@
 				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.RealignTestControlPairsTasklet" scope="step">
 					<constructor-arg name="inputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.INPUT_FILEGROUP_ID_LIST]}" />
 					<constructor-arg name="outputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.OUTPUT_FILEGROUP_ID_LIST]}" />
+					<constructor-arg name="jobId" value="#{jobParameters[waspSoftwareJobParameters.JOB_ID]}" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
@@ -34,6 +36,7 @@
 				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.CallVariantsWithHCTasklet" scope="step">
 					<constructor-arg name="inputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.INPUT_FILEGROUP_ID_LIST]}" />
 					<constructor-arg name="outputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.OUTPUT_FILEGROUP_ID_LIST]}" />
+					<constructor-arg name="jobId" value="#{jobParameters[waspSoftwareJobParameters.JOB_ID]}" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
@@ -54,7 +57,7 @@
 			<batch:listeners>
 				<batch:listener>
 					<bean class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
-						<property name="keys" value="scrDir,sampleFgMap"  />
+						<property name="keys" value="sampleFgMap"  />
 						<property name="statuses" value="COMPLETED,FAILED" />
 					</bean>
 				</batch:listener>

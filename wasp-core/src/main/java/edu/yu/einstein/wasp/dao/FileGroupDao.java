@@ -21,4 +21,6 @@ public interface FileGroupDao extends WaspDao<FileGroup> {
 
 	public Set<FileGroup> getFilesForCellLibrary(SampleSource cellLibrary);
 
+	public Set<FileGroup> getActiveFilesForCellLibraryByType(SampleSource cellLibrary, FileType fileType);
+
 }
