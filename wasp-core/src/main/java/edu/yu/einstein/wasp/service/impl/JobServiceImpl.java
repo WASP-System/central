@@ -1856,14 +1856,14 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		List<Map<String,Object>> fileTypeNodes = new ArrayList<Map<String,Object>>();
 		Set<FileGroup> fgSet = new LinkedHashSet<>();
 		if (cell == null) {
-			fgSet.addAll(library.getFileGroups());
+			fgSet.addAll(fileService.getActiveFilesForSample(library));
 		} else {
 			SampleSource cellLibrary;
 			if (cell.getId() < 0)
 				cellLibrary = sampleService.getCellLibrariesForLibrary(library).get((cell.getId() * -1) - 1); 
 			else
 				cellLibrary = sampleService.getCellLibrary(cell, library);  
-			fgSet.addAll(cellLibrary.getFileGroups());
+			fgSet.addAll(fileService.getActiveFilesForCellLibrary(cellLibrary));
 			logger.debug("fgSet size=" + fgSet.size());
 		}
 		Map<FileType, Set<FileGroup>> ftMap = new HashMap<FileType, Set<FileGroup>>();
@@ -1913,9 +1913,9 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		Set<FileGroup> fgSet = new LinkedHashSet<>();
 		if (cell.getId() == 0){
 			for (SampleSource cellLibrary : sampleService.getCellLibrariesForLibrary(library))
-				fgSet.addAll(cellLibrary.getFileGroups());
+				fgSet.addAll(fileService.getActiveFilesForCellLibrary(cellLibrary));
 		} else
-			fgSet.addAll(sampleService.getCellLibrary(cell, library).getFileGroups());
+			fgSet.addAll(fileService.getActiveFilesForCellLibrary(sampleService.getCellLibrary(cell, library)));
 		Map<Integer, FileType> ftMap = new HashMap<Integer, FileType>();
 		for (FileGroup fg : fgSet) {
 			ftMap.put(fg.getFileTypeId(), fg.getFileType());

@@ -465,11 +465,38 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	/**
 	 * {@inheritDoc}
 	 * 
-	 * @throws SampleTypeException
 	 */
 	@Override
 	public Set<FileGroup> getFilesForCellLibrary(SampleSource cellLibrary) {
 		return fileGroupDao.getFilesForCellLibrary(cellLibrary);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @throws SampleTypeException
+	 */
+	@Override
+	public Set<FileGroup> getActiveFilesForCellLibrary(SampleSource cellLibrary) {
+		return fileGroupDao.getActiveFilesForCellLibrary(cellLibrary);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 */
+	@Override
+	public Set<FileGroup> getFilesForSample(Sample sample) {
+		return fileGroupDao.getFilesForSample(sample);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	*/
+	@Override
+	public Set<FileGroup> getActiveFilesForSample(Sample sample) {
+		return fileGroupDao.getActiveFilesForSample(sample);
 	}
 	
 	/**
