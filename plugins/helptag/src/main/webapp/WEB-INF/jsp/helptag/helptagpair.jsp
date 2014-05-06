@@ -40,7 +40,7 @@
 		<c:set var="stdref_checked" value="CHECKED" />
 		<c:forEach var="sControl" items="${m_samples}" varStatus="statusControl">
 			<td name="rowcolumn_${statusTest.count}_${statusControl.count}" class="input-centered" >
-		      <c:set var="key" value="${samplePairStrPrefix}_${sControl.sampleDraftId}_${sTest.sampleDraftId}" />
+		      <c:set var="key" value="${samplePairStrPrefix}_${sTest.sampleDraftId}_${sControl.sampleDraftId}" />
 		      <c:set var="checked" value="" />																																																						
 		      <c:if test="${fn:contains(selectedSamplePairs, key)}">
 		        <c:set var="checked" value="CHECKED" />
