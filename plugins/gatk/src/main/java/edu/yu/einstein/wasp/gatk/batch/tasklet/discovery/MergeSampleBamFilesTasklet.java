@@ -47,6 +47,9 @@ public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
 		w.setProcessMode(ProcessMode.FIXED);
 		w.setProcessorRequirements(2);
 		w.setMemoryRequirements(4);
+		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
+		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + jobId);
+		w.setSecureResults(true);
 		
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();
 		for (Integer fgId : this.getInputFilegroupIds()){
@@ -64,20 +67,15 @@ public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
 		dependencies.add(gatk);
 		dependencies.add(gatk.getSoftwareDependencyByIname("picard"));
 		w.setSoftwareDependencies(dependencies);
-		w.setSecureResults(true);
-		String mergeCmd = "java -Xmx4g -jar $PICARD_ROOT/MergeSamFiles.jar ";
-		for (int i=0; i< fhlist.size(); i++)
-			mergeCmd += "I=${" + WorkUnit.INPUT_FILE + "[" + i + "]} ";
-		mergeCmd += "O=merged.${"+ WorkUnit.OUTPUT_FILE+ "[0]} SO=coordinate TMP_DIR=. CREATE_INDEX=false VALIDATION_STRINGENCY=SILENT";
-		w.setCommand(mergeCmd);
-		w.addCommand("java -Xmx4g -jar $PICARD_ROOT/MarkDuplicates.jar I=merged.${" + WorkUnit.OUTPUT_FILE + "[0]} " +
-				"O=${" + WorkUnit.OUTPUT_FILE + "[0]} REMOVE_DUPLICATES=false METRICS_FILE=${" + 
-				WorkUnit.OUTPUT_FILE + "[2]} TMP_DIR=. CREATE_INDEX=true VALIDATION_STRINGENCY=SILENT");
-		w.addCommand("mv ${" + WorkUnit.OUTPUT_FILE + "[0]}.bai ${" + WorkUnit.OUTPUT_FILE + "[1]}");
-		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
-		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + jobId);
-		w.setSecureResults(true);
-		
+		LinkedHashSet<String> inputBamFilenames = new LinkedHashSet<>();
+		for (int i=0; i < fhlist.size(); i++)
+			inputBamFilenames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");
+		String mergedBamFilename = "merged.${"+ WorkUnit.OUTPUT_FILE+ "[0]}";
+		String mergedDedupBamFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
+		String mergedDedupBaiFilename = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
+		String mergedDedupMetricsFilename = "${" + WorkUnit.OUTPUT_FILE + "[2]}";
+		w.addCommand(gatk.getPicardMergeBamCmd(inputBamFilenames, mergedBamFilename));
+		w.addCommand(gatk.getPicardMarkDuplicatesCmd(mergedBamFilename, mergedDedupBamFilename, mergedDedupBaiFilename, mergedDedupMetricsFilename));
 		GridResult result = gridHostResolver.execute(w);
 
 		// place the grid result in the step context

@@ -3,6 +3,7 @@ package edu.yu.einstein.wasp.gatk.software;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +54,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	public GATKSoftwareComponent() {
 	}
 	
-	public String getCreateTarget(Build build, String inputFilename, String intervalFilename) {
+	public String getCreateTargetCmd(Build build, String inputFilename, String intervalFilename) {
 		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt " + NUM_THREADS + 
 				" -I " + inputFilename + " -R " + genomeService.getReferenceGenomeFastaFile(build) + 
 				" -T RealignerTargetCreator -o " + intervalFilename + " -known " + gatkService.getReferenceIndelsVcfFile(build);
@@ -63,7 +64,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	}
 	
 	
-	public String getLocalAlign(Build build, String inputFilename, String intervalFilename, String realnBamFilename) {
+	public String getLocalAlignCmd(Build build, String inputFilename, String intervalFilename, String realnBamFilename) {
 		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -I " + inputFilename + " -R " + 
 				genomeService.getReferenceGenomeFastaFile(build) + " -T  IndelRealigner" + 
 				" -targetIntervals " + intervalFilename + " -o " + realnBamFilename + " -known " + gatkService.getReferenceIndelsVcfFile(build);
@@ -73,7 +74,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return command;
 	}
 	
-	public String getRecaliTable(Build build, String realnBamFilename, String recaliGrpFilename) {
+	public String getRecaliTableCmd(Build build, String realnBamFilename, String recaliGrpFilename) {
 		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + genomeService.getReferenceGenomeFastaFile(build) + 
 				" -nct " + NUM_THREADS + " -knownSites " + gatkService.getReferenceSnpsVcfFile(build) + 
 				" -I " + realnBamFilename + " -T BaseRecalibrator -o " + recaliGrpFilename;
@@ -83,7 +84,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return command;
 	}
 	
-	public String getPrintRecali(Build build, String realnBamFilename, String recaliGrpFilename, String recaliBamFilename, String recaliBaiFilename) {
+	public String getPrintRecaliCmd(Build build, String realnBamFilename, String recaliGrpFilename, String recaliBamFilename, String recaliBaiFilename) {
 		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + genomeService.getReferenceGenomeFastaFile(build) + 
 				" -nct " + NUM_THREADS + " -I " + realnBamFilename + " -T PrintReads -o " + recaliBamFilename +
 				" -BQSR " + recaliGrpFilename + " -baq RECALCULATE && mv " + recaliBamFilename + ".bai " + recaliBaiFilename;
@@ -91,7 +92,24 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return command;
 	}
 	
-	public String indexBam(String bamFilename, String baiFilename){
+	public String getPicardMergeBamCmd(Set<String> inputBamFilenames, String mergedBamFilename) {
+		String command = "java -Xmx4g -jar $PICARD_ROOT/MergeSamFiles.jar";
+		for (String fileName : inputBamFilenames)
+			command += " I=" + fileName;
+		command += " O=" + mergedBamFilename + " SO=coordinate TMP_DIR=. CREATE_INDEX=false VALIDATION_STRINGENCY=SILENT";
+		logger.debug("Will conduct picard MergeSamFiles with command: " + command);
+		return command;
+	}
+	
+	public String getPicardMarkDuplicatesCmd(String inputBamFilename, String dedupBamFilename, String dedupBaiFilename, String dedupMetricsFilename){
+		String command = "java -Xmx4g -jar $PICARD_ROOT/MarkDuplicates.jar I=" + inputBamFilename + " O=" + dedupBamFilename +
+				" REMOVE_DUPLICATES=false METRICS_FILE=" + dedupMetricsFilename + 
+				" TMP_DIR=. CREATE_INDEX=true VALIDATION_STRINGENCY=SILENT && mv " + dedupBamFilename + ".bai " + dedupBaiFilename;
+		logger.debug("Will conduct picard MarkDuplicates with command: " + command);
+		return command;
+	}
+	
+	public String getIndexBamCmd(String bamFilename, String baiFilename){
 		String command = "java -Xmx4g -jar $PICARD_ROOT/BuildBamIndex.jar I=" + bamFilename + " O=" + baiFilename + 
 				" TMP_DIR=. VALIDATION_STRINGENCY=SILENT";
 		logger.debug("Will conduct picard indexing of recalibrated bam file with command: " + command);
