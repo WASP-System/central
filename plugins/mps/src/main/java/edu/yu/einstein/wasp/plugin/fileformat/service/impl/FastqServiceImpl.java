@@ -36,9 +36,10 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 
 	@Override
 	public Integer getFastqReadSegmentNumber(FileHandle file) {
-				
-		Integer readSegmentNumber = new Integer(getMeta(file, FILE_AREA, FASTQ_READ_SEGMENT_NUMBER));
-		return readSegmentNumber;
+		String metaValue = getMeta(file, FILE_AREA, FASTQ_READ_SEGMENT_NUMBER);
+		if (metaValue == null)
+			return null;
+		return Integer.parseInt(metaValue);
 	}
 
 	public void setFastqReadSegmentNumber(FileHandle file, Integer number) throws InvalidFileTypeException, MetadataException {
@@ -47,8 +48,10 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 
 	@Override
 	public Integer getFastqNumberOfReads(FileHandle file) {
-		Integer nor = new Integer(getMeta(file, FILE_AREA, FASTQ_NUMBER_OF_READS));
-		return nor;
+		String metaValue = getMeta(file, FILE_AREA, FASTQ_NUMBER_OF_READS);
+		if (metaValue == null)
+			return null;
+		return Integer.parseInt(metaValue);
 	}
 	
 	public void setFastqNumberOfReads(FileHandle file, Integer number) throws InvalidFileTypeException, MetadataException {
@@ -57,8 +60,10 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 
 	@Override
 	public Integer getFastqNumberOfPassFilterReads(FileHandle file) {
-		Integer nopfr = new Integer(getMeta(file, FILE_AREA, FASTQ_NUMBER_OF_PASS_FILTER_READS));
-		return nopfr;
+		String metaValue = (getMeta(file, FILE_AREA, FASTQ_NUMBER_OF_PASS_FILTER_READS));
+		if (metaValue == null)
+			return null;
+		return Integer.parseInt(metaValue);
 	}
 	
 	public void setFastqNumberOfPassFilterReads(FileHandle file, Integer number) throws MetadataException {
@@ -67,9 +72,10 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 
 	@Override
 	public boolean containsFailed(FileHandle file)  {
-		String fails = getMeta(file, FILE_AREA, FASTQ_CONTAINS_FAILED_READS);
-		Boolean b = new Boolean(fails);
-		return b.booleanValue();
+		String metaValue = (getMeta(file, FILE_AREA, FASTQ_CONTAINS_FAILED_READS));
+		if (metaValue == null)
+			return false;
+		return Boolean.parseBoolean(metaValue);
 	}
 	
 	public void setContainsFailed(FileHandle file, boolean fail) throws MetadataException {

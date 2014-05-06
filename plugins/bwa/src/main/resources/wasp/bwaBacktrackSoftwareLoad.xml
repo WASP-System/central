@@ -14,23 +14,13 @@
   <bean id="bwaBacktrack" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
   	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.bwa.software.BWABacktrackSoftwareComponent</value></property>
     <property name="name" value="BWA-backtrack" />
+    <property name="version" value="0.7.6a" />
     <property name="description" value="BWA-backtrack (aln/sampe/samse commands) is designed for Illumina sequence reads up to 100bp." />
     <property name="area" ref="bwaBacktrackArea" />
+    <property name="softwareDependency" ref="picard" />
     <property name="resourceType" ref="referenceBasedAlignerResourceType" />
 	
-	<property name="metaFromWrapper">
-       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" ref="bwaBacktrackArea" />
-         <property name="metaList">
-         	<list>
-         		<value>#{waspSoftware['currentVersion']}=0.7.6a</value>
-         		<value>#{waspSoftware['priorVersions']}=</value>
-         	</list>
-       	 </property>
-       </bean>
-    </property> 
-    
-    <property name="uiFieldsFromWrapper">
+	<property name="uiFieldsFromWrapper">
       <list>
         <bean parent="bwaBackTrackUiFieldWrapper">
           <property name="baseName" value="aln-n" />

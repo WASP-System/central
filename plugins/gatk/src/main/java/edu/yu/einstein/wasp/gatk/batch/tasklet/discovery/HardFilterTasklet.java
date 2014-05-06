@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.gatk.batch.tasklet;
+package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 
 
 
@@ -7,9 +7,8 @@ package edu.yu.einstein.wasp.gatk.batch.tasklet;
  * 
  */
 
-import java.util.Set;
-
 import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
@@ -17,15 +16,12 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileType;
-import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -35,9 +31,13 @@ import edu.yu.einstein.wasp.service.SampleService;
  * @author jcai
  * @author asmclellan
  */
-public class LocalAlignTasklet extends WaspRemotingTasklet implements StepExecutionListener {
+public class HardFilterTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
-	
+	private String scratchDirectory;
+	private String callVariantJobName;
+	private String jobId;
+	private Integer cellLibId;
+
 	@Autowired
 	private SampleService sampleService;
 
@@ -49,14 +49,13 @@ public class LocalAlignTasklet extends WaspRemotingTasklet implements StepExecut
 
 	@Autowired
 	private FileType bamFileType;
-	
 	@Autowired
 	private FileType fastqFileType;
 
 	@Autowired
 	private GATKSoftwareComponent gatk;
 	
-	public LocalAlignTasklet() {
+	public HardFilterTasklet() {
 		// proxy
 	}
 
@@ -66,38 +65,20 @@ public class LocalAlignTasklet extends WaspRemotingTasklet implements StepExecut
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
+
 		
-		// retrieve stored properties
-		StepExecution stepExecution = context.getStepContext().getStepExecution();
-		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
-		String scratchDirectory = jobExecutionContext.getString("scrDir");
-		String createTargetJobName = jobExecutionContext.getString("createTargetName");
-		
-		SampleSource cellLib = sampleService.getSampleSourceDao().findById(jobExecutionContext.getInt("cellLibId"));
+		logger.debug("Beginning GATK hard filtering part based on the best practice ");
+		logger.debug("Starting from previously scratch directory " + scratchDirectory);
 
-		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
-
-		logger.debug("Beginning GATK local re-alignment step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
-		logger.debug("Starting from previously target creat'd scratch directory " + scratchDirectory);
-
-		Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLib, fastqFileType); // TODO: change to bamFileType later
-
-		Assert.assertTrue(fileGroups.size() == 1);
-		FileGroup fg = fileGroups.iterator().next();
-
-		logger.debug("file group: " + fg.getId() + ":" + fg.getDescription());
-
-		WorkUnit w = gatk.getLocalAlign(cellLib, scratchDirectory, createTargetJobName, fg);
-		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
+		SampleSource sampleSource=sampleService.getSampleSourceDao().findById(cellLibId);
+		WorkUnit w = gatk.getHardFilter(sampleSource, scratchDirectory, callVariantJobName);
+		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + jobId);
 
 		GridResult result = gridHostResolver.execute(w);
 
 		// place the grid result in the step context
 		storeStartedResult(context, result);
 
-		// place localAlignName in execution context, to be promoted
-		// to the job context at run time.
-		stepExecution.getExecutionContext().put("localAlignName", result.getId());
 	}
 
 	/**
@@ -114,6 +95,13 @@ public class LocalAlignTasklet extends WaspRemotingTasklet implements StepExecut
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
 		super.beforeStep(stepExecution);
+		logger.debug("StepExecutionListener beforeStep saving StepExecution");
+		JobExecution jobExecution = stepExecution.getJobExecution();
+		ExecutionContext jobContext = jobExecution.getExecutionContext();
+		this.scratchDirectory = jobContext.get("scrDir").toString();
+		this.callVariantJobName = jobContext.get("callVariantName").toString();
+		this.jobId = jobContext.get("jobId").toString();
+		this.cellLibId = (Integer) jobContext.get("cellLibId");
 	}
 }
 

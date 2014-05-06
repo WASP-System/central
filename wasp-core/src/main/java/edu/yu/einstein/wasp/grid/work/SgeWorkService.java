@@ -370,7 +370,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		logger.debug("checking for task array completion: " + g.getUuid().toString());
 		WorkUnit w = new WorkUnit();
 		w.setCommand("shopt -s nullglob");
-		w.addCommand("NOF=(*:*.end)");
+		w.addCommand("NOF=(" + g.getId() + ":*.end)");
 		w.addCommand("echo ${#NOF[@]}");
 		w.addCommand("shopt -u nullglob");
 		w.setWorkingDirectory(g.getWorkingDirectory());
@@ -391,8 +391,10 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			e.printStackTrace();
 			throw new GridAccessException("unable to determine status of task array", e);
 		}
-		Integer result = new Integer(StringUtils.chomp(writer.toString()));
-		if (result.equals(g.getNumberOfTasks()))
+		Integer numEndFiles = new Integer(StringUtils.chomp(writer.toString()));
+		int numTasks = g.getNumberOfTasks();
+		logger.debug("number of tasks=" + numTasks + " and number of '.end' files=" + numEndFiles);
+		if (numEndFiles.equals(numTasks))
 			return true;
 		return false;
 	}
@@ -516,7 +518,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		w.setResultsDirectory(g.getResultsDirectory());
 		w.setRegistering(true);
 		w.setMode(ExecutionMode.TASK_ARRAY);
-		w.setCommand("touch " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME);
+		w.addCommand("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"0\" ]; then touch " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
 		int files = 0;
 		for (Integer id : g.getFileGroupIds()) {
 			FileGroup fg = getFileService().getFileGroupById(id);

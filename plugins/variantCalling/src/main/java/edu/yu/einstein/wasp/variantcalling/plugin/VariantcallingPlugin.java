@@ -68,9 +68,9 @@ public class VariantcallingPlugin extends WaspPlugin
 	
 	public static final String FLOW_NAME = "edu.yu.einstein.wasp.variantcalling.mainFlow";
 	
-	public static final String VARIANT_PREPROCESSING_FLOW = "variantCalling.preprocessing.v1.xml";
+	public static final String VARIANT_PREPROCESSING_FLOW = "variantCalling.preProcess.jobflow.v1";
 	
-	public static final String VARIANT_DISCOVERY_FLOW = "variantCalling.variantDiscovery.v1.xml";
+	public static final String VARIANT_DISCOVERY_FLOW = "variantCalling.discovery.jobflow.v1";
 
 	public VariantcallingPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
 		super(iName, waspSiteProperties, channel);

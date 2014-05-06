@@ -5,18 +5,20 @@ import java.net.URISyntaxException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
@@ -32,11 +34,13 @@ import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobSample;
+import edu.yu.einstein.wasp.model.JobSoftware;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
+import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
@@ -49,6 +53,7 @@ import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.SoftwareService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 
@@ -66,6 +71,9 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 	
 	@Autowired
 	private SampleService sampleService;
+	
+	@Autowired
+	private SoftwareService softwareService;
 	
 	@Autowired
 	private FileService fileService;
@@ -108,6 +116,8 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 			return listAssayWorkflows();
 		} else if (payloadStr.equals(CliMessagingTask.LIST_USERS)) {
 			return listUsers();
+		} else if (payloadStr.equals(CliMessagingTask.LIST_SOFTWARE)) {
+			return listSoftware();
 		} else {
 			String mstr = "Unknown command: " + m.toString() + "'\n";
 			return MessageBuilder.withPayload(mstr).build();
@@ -198,6 +208,15 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 		return MessageBuilder.withPayload(new JSONObject(users).toString()).build();
 	}
 	
+	@Override
+	@Transactional("entityManager")
+	public Message<String> listSoftware(){
+		Map<String, String> software = new HashMap<>();
+		for (Software sw : softwareService.getAll())
+			software.put(sw.getId().toString(), sw.getIName() + " (" + sw.getName() + ")");
+		return MessageBuilder.withPayload(new JSONObject(software).toString()).build();
+	}
+	
 	@Transactional("entityManager")
 	@Override
 	public Message<String> processImportedFileRegistrationData(JSONObject data){
@@ -212,6 +231,7 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 			JSONArray lineElementList = data.getJSONArray(Integer.toString(i));
 			for (int j = 0; j < lineElementList.length(); j++){
 				String attributeVal = lineElementList.getString(j);
+				attributeVal = attributeVal.replaceAll("\"", "");
 				if (attributeVal.isEmpty())
 					continue;
 				if (i == 0){ // first line
@@ -226,6 +246,7 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 					model = heading.substring(0, periodPos);
 					attributeName = heading.substring(periodPos + 1);
 				}
+				logger.debug("Data: " + attributeName + "=" + attributeVal);
 				try {
 					if (model.equals("cellLibraryId")){
 						Integer id = Integer.parseInt(attributeVal);
@@ -246,7 +267,7 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 							}
 						} else if (attributeName.equals("userId")){
 							if (currentJob == null || currentJob.getId() == null)
-								throw new WaspRuntimeException("Cannot update " + model + "." + attributeName + "because current " + model + " object is not defined");
+								throw new WaspRuntimeException("Cannot update " + model + "." + attributeName + " because current " + model + " object is not defined");
 							User u = userService.getUserDao().findById(Integer.parseInt(attributeVal));
 							if (u == null || u.getId() == null)
 								throw new WaspRuntimeException("Unable to get user with id=" + attributeVal);
@@ -257,12 +278,28 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 							}
 						} else if (attributeName.equals("workflowId")){
 							if (currentJob == null || currentJob.getId() == null)
-								throw new WaspRuntimeException("Cannot update " + model + "." + attributeName + "because current " + model + " object is not defined");
+								throw new WaspRuntimeException("Cannot update " + model + "." + attributeName + " because current " + model + " object is not defined");
 							Workflow wf = workflowService.getWorkflowDao().findById(Integer.parseInt(attributeVal));
 							if (wf == null || wf.getId() == null)
 								throw new WaspRuntimeException("Unable to get workflow with id=" + attributeVal);
 							if (currentJob != null && !wf.getId().equals(currentJob.getWorkflowId()) )
 								currentJob.setWorkflow(wf);
+						} else if (attributeName.equals("jobSoftware")){
+							if (currentJob == null || currentJob.getId() == null)
+								throw new WaspRuntimeException("Cannot update " + model + "." + attributeName + " because current " + model + " object is not defined");
+							Set<Software> allJobSoftware = new HashSet<>(softwareService.getAllSoftwareForJob(currentJob));
+							for (String swIdStr : attributeVal.split(";")){
+								Integer swId = Integer.parseInt(StringUtils.trimAllWhitespace(swIdStr));
+								Software sw = softwareService.getById(swId);
+								if (sw == null || sw.getId() == null)
+									throw new WaspRuntimeException("Unable to get software with id=" + swId);
+								if (!allJobSoftware.contains(sw)){
+									JobSoftware js = new JobSoftware();
+									js.setJob(currentJob);
+									js.setSoftware(sw);
+									softwareService.saveJobSoftware(js);
+								}
+							}
 						}
 					} else if (model.equals("JobMeta")){
 						if (currentJob == null || currentJob.getId() == null)
@@ -328,7 +365,7 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 							metaO.setK("genericBiomolecule.organism");
 							try {
 								metaO.setV(genomeService.getBuild(attributeVal).getGenome().getOrganism().getNcbiID().toString());
-							} catch (ParameterValueRetrievalException e) {
+							} catch (Exception e) {
 								throw new WaspRuntimeException("Cannot update " + model + ".genericBiomolecule.organism : " + e.getMessage());
 							}
 							metaO.setSample(currentSample);
@@ -352,8 +389,16 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 							FileType ft = fileService.getFileType(Integer.parseInt(attributeVal));
 							if (ft == null || ft.getId() == null)
 								throw new WaspRuntimeException("Unable to get fileTypeSubtype with id=" + attributeVal);
-							if (currentFileGroup != null && !ft.getId().equals(currentFileGroup.getId()) )
+							if (currentFileGroup != null && !ft.getId().equals(currentFileGroup.getFileTypeId()) )
 								currentFileGroup.setFileType(ft);
+						} else if (attributeName.equals("softwareGeneratedById")){
+							if (currentFileGroup == null || currentFileGroup.getId() == null)
+								throw new WaspRuntimeException("Cannot update " + model + "." + attributeName + "because current " + model + " object is not defined");
+							Software sw = softwareService.getById(Integer.parseInt(attributeVal));
+							if (sw == null || sw.getId() == null)
+								throw new WaspRuntimeException("Unable to get software with id=" + attributeVal);
+							if (currentFileGroup != null && !sw.getId().equals(currentFileGroup.getSoftwareGeneratedById()) )
+								currentFileGroup.setSoftwareGeneratedBy(sw);
 						}
 					}
 					else if (model.equals("FileGroupMeta")){

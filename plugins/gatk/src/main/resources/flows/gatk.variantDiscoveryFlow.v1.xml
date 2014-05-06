@@ -3,9 +3,191 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
 
-	<batch:job id="edu.yu.einstein.wasp.gatk.variantDiscoveryFlow">
 	
-	<batch:step id="edu.yu.einstein.wasp.gatk.variantDiscoveryFlow.notifyGatkStart" next="edu.yu.einstein.wasp.gatk.variantDiscoveryFlow.callVariant">
+	<!-- child jobs which may be invoked 1..n times by LaunchManyJobs tasklets -->
+	
+	<batch:job id="gatk.variantDiscovery.hc.mergeSampleBamFiles.jobFlow">
+		<batch:step id="gatk.variantDiscovery.hc.mergeSampleBamFiles.step">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.MergeSampleBamFilesTasklet" scope="step">
+					<constructor-arg name="inputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.INPUT_FILEGROUP_ID_LIST]}" />
+					<constructor-arg name="outputFilegroupId" value="#{jobParameters[waspSoftwareJobParameters.OUTPUT_FILEGROUP_ID]}" />
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+	
+	<batch:job id="gatk.variantDiscovery.hc.realignTestControlPairs.jobFlow">
+		<batch:step id="gatk.variantDiscovery.hc.realignTestControlPairs.step">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.RealignTestControlPairsTasklet" scope="step">
+					<constructor-arg name="inputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.INPUT_FILEGROUP_ID_LIST]}" />
+					<constructor-arg name="outputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.OUTPUT_FILEGROUP_ID_LIST]}" />
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+	
+	<batch:job id="gatk.variantDiscovery.hc.callVariants.jobFlow">
+		<batch:step id="gatk.variantDiscovery.hc.callVariants.step">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.CallVariantsWithHCTasklet" scope="step">
+					<constructor-arg name="inputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.INPUT_FILEGROUP_ID_LIST]}" />
+					<constructor-arg name="outputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.OUTPUT_FILEGROUP_ID_LIST]}" />
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+	
+	
+	<!-- HC variant calling flow -->
+	<batch:flow id="gatk.variantDiscovery.hc.flow">
+	
+		<batch:step id="gatk.variantDiscovery.hc.mergeSampleBamFiles">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.MergeSampleBamFilesManyJobsTasklet" scope="step">
+					<constructor-arg name="jobId" value="#{jobParameters[waspSoftwareJobParameters.JOB_ID]}" />
+				</bean>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="gatk.variantDiscovery.hc.notifyFailed" />
+			<batch:next on="*" to="gatk.variantDiscovery.hc.mergeSampleBamFiles.WaitForCompletion" />
+			<batch:listeners>
+				<batch:listener>
+					<bean class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
+						<property name="keys" value="scrDir,sampleFgMap"  />
+						<property name="statuses" value="COMPLETED,FAILED" />
+					</bean>
+				</batch:listener>
+			</batch:listeners>
+		</batch:step>
+		
+		<batch:step id="gatk.variantDiscovery.hc.mergeSampleBamFiles.WaitForCompletion">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForManyStatusMessagesTasklet" scope="step" />
+			</batch:tasklet>
+			<batch:next on="FAILED" to="gatk.variantDiscovery.hc.notifyFailed" />
+			<batch:next on="*" to="gatk.variantDiscovery.hc.realignTestControlPairs" />
+		</batch:step>
+		
+		<batch:step id="gatk.variantDiscovery.hc.realignTestControlPairs">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.RealignTestControlPairsManyJobsTasklet" scope="step" />
+			</batch:tasklet>
+			<batch:next on="FAILED" to="gatk.variantDiscovery.hc.notifyFailed" />
+			<batch:next on="*" to="gatk.variantDiscovery.hc.realignTestControlPairs.WaitForCompletion" />
+			<batch:listeners>
+				<batch:listener>
+					<bean class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
+						<property name="keys" value="sampleFgMap"  /> <!-- may be updated by this step--> 
+						<property name="statuses" value="COMPLETED,FAILED" />
+					</bean>
+				</batch:listener>
+			</batch:listeners>
+		</batch:step>
+		
+		<batch:step id="gatk.variantDiscovery.hc.realignTestControlPairs.WaitForCompletion">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForManyStatusMessagesTasklet" scope="step" />
+			</batch:tasklet>
+			<batch:next on="FAILED" to="gatk.variantDiscovery.hc.notifyFailed" />
+			<batch:next on="*" to="gatk.variantDiscovery.hc.callVariants" />
+		</batch:step>
+		
+		<batch:step id="gatk.variantDiscovery.hc.callVariants">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.CallVariantsWithHCManyJobsTasklet" scope="step">
+					<constructor-arg name="jobId" value="#{jobParameters[waspSoftwareJobParameters.JOB_ID]}" />
+				</bean>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="gatk.variantDiscovery.hc.notifyFailed" />
+			<batch:next on="*" to="gatk.variantDiscovery.hc.callVariants.WaitForCompletion" />
+			<batch:listeners>
+				<batch:listener>
+					<bean class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
+						<property name="keys" value="sampleFgMap"  /> <!-- may be updated by this step--> 
+						<property name="statuses" value="COMPLETED,FAILED" />
+					</bean>
+				</batch:listener>
+			</batch:listeners>
+		</batch:step>
+		
+		<batch:step id="gatk.variantDiscovery.hc.callVariants.WaitForCompletion">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForManyStatusMessagesTasklet" scope="step" />
+			</batch:tasklet>
+			<batch:next on="FAILED" to="gatk.variantDiscovery.hc.notifyFailed" />
+			<batch:next on="*" to="gatk.variantDiscovery.hc.jointGenotyping" />
+		</batch:step>
+		
+		<batch:step id="gatk.variantDiscovery.hc.jointGenotyping">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.JointGenotypingTasklet" scope="step" />
+			</batch:tasklet>
+			<batch:next on="FAILED" to="gatk.variantDiscovery.hc.notifyFailed" />
+			<batch:next on="*" to="gatk.variantDiscoveryhc.flowFinished" />
+		</batch:step>
+		
+		<batch:step id="gatk.variantDiscoveryhc.flowFinished">
+			<batch:tasklet>
+				<!-- dummy step as we need to point previous step somewhere if not a failure case -->
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" />
+			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="gatk.variantDiscovery.hc.notifyFailed">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+							<property name="jobId" value="#{jobParameters[waspSoftwareJobParameters.JOB_ID]}"/> 
+							<property name="task" value="#{sequencingBatchJobTasks.VARIANT_DISCOVERY}" />
+							<property name="status" value="FAILED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+			<batch:fail on="*" />
+		</batch:step>
+		
+	</batch:flow>
+	
+	<!-- UG variant calling flow -->
+	<batch:flow id="gatk.variantDiscovery.ug.flow">
+		<batch:step id="gatk.variantDiscovery.ug.callVariants">
+			<batch:tasklet>
+				<!-- TODO: implement this properly (this is placeholder code until fully implemented.) -->
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" />
+			</batch:tasklet>
+			<batch:next on="FAILED" to="gatk.variantDiscovery.ug.notifyFailed" />
+			<batch:end on="*" />
+		</batch:step>
+		
+		<batch:step id="gatk.variantDiscovery.ug.notifyFailed">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+							<property name="jobId" value="#{jobParameters[waspSoftwareJobParameters.JOB_ID]}"/> 
+							<property name="task" value="#{sequencingBatchJobTasks.VARIANT_DISCOVERY}" />
+							<property name="status" value="FAILED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+			<batch:fail on="*" />
+		</batch:step>
+		
+	</batch:flow>
+	
+	<!-- decider bean -->
+	<bean id="gatk.variantDiscovery.variantCallerDecider" class="edu.yu.einstein.wasp.gatk.batch.decider.discovery.VariantCallerDecider" scope="step" />
+		
+
+	<!-- Batch job. Call with jobId in parameters -->
+	<batch:job id="gatk.variantDiscovery.jobFlow.v1" restartable="true">
+		<batch:step id="gatk.variantDiscovery.notifyGatkStart" next="gatk.variantDiscovery.chooseCaller">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
@@ -19,38 +201,29 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-	
 		
-		 
-		<batch:step id="edu.yu.einstein.wasp.gatk.variantDiscoveryFlow.callVariant">
-			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.CallVariantTasklet" scope="step">
-					<constructor-arg name="cellLibraryIds" value="#{jobParameters[waspSoftwareJobParameters.CELL_LIBRARY_ID_LIST]}" />
-				</bean>
-			</batch:tasklet>
-			<batch:next on="FAILED" to="edu.yu.einstein.wasp.gatk.variantDiscoveryFlow.notifyGATKFailed" />
-			<batch:next on="*" to="edu.yu.einstein.wasp.gatk.variantDiscoveryFlow.hardFilter" />
-			<batch:listeners>
-				<batch:listener>
-					<bean class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
-						<property name="keys" value="scrDir,callVariantName,jobId,cellLibId"  />
-						<property name="statuses" value="COMPLETED,FAILED" />
-					</bean>
-				</batch:listener>
-			</batch:listeners>
+		<batch:decision id="gatk.variantDiscovery.chooseCaller" decider="gatk.variantDiscovery.variantCallerDecider">
+				<batch:next on="HC" to="gatk.variantDiscovery.runHC"/>
+			<batch:next on="UG" to="gatk.variantDiscovery.runUG"/>
+			<batch:fail on="*" /> <!-- unexpected message -->
+		</batch:decision>
+		
+		<batch:step id="gatk.variantDiscovery.runHC" next="gatk.variantDiscovery.filter">
+			<batch:flow parent="gatk.variantDiscovery.hc.flow"/>
+		</batch:step>
+		
+		<batch:step id="gatk.variantDiscovery.runUG" next="gatk.variantDiscovery.filter">
+			<batch:flow parent="gatk.variantDiscovery.ug.flow"/>
 		</batch:step>
 		
 		
-	
-		
-		<batch:step id="edu.yu.einstein.wasp.gatk.variantDiscoveryFlow.hardFilter" next="edu.yu.einstein.wasp.gatk.variantDiscoveryFlow.notifyComplete">
+		<batch:step id="gatk.variantDiscovery.filter" next="gatk.variantDiscovery.notifyComplete">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.HardFilterTasklet" scope="step" />
+				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.HardFilterTasklet" scope="step" />
 			</batch:tasklet>
 		</batch:step>
 		
-		
-		<batch:step id="edu.yu.einstein.wasp.gatk.variantDiscoveryFlow.notifyComplete">
+		<batch:step id="gatk.variantDiscovery.notifyComplete">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
@@ -63,22 +236,6 @@
 					</constructor-arg>
 				</bean>
 			</batch:tasklet>
-		</batch:step>
-		
-		<batch:step id="edu.yu.einstein.wasp.gatk.variantDiscoveryFlow.notifyGATKFailed">
-			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
-					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
-					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-							<property name="cellLibraryId" value="#{jobExecutionContext['cellLibId']}"/>
-							<property name="task" value="#{sequencingBatchJobTasks.VARIANT_DISCOVERY}" />
-							<property name="status" value="FAILED" />
-						</bean>
-					</constructor-arg>
-				</bean>
-			</batch:tasklet>
-			<batch:fail on="*" />
 		</batch:step>
 		
 	</batch:job>

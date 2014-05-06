@@ -39,7 +39,7 @@ import edu.yu.einstein.wasp.util.WaspJobContext;
  */
 public abstract class AbstractBWAPlugin extends WaspPlugin implements ClientMessageI, BWAPluginCli, BatchJobProviding {
 
-	private static final long serialVersionUID = 8181556629848527079L;
+	private static final long serialVersionUID = 4158608859447480863L;
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 

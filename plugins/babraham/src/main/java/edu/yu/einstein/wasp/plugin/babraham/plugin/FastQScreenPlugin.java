@@ -85,9 +85,9 @@ public class FastQScreenPlugin extends BabrahamPluginBase{
 	}
 	
 	@Override
-	protected Message<String> launchTestFlowHelp() {
-		String mstr = "\nBabraham FastQ Screen plugin: launch the test flow.\n" +
-				"wasp -T fastqscreen -t launchTestFlow -m \'{id:\"1\"}\'\n";
+	protected Message<String> launchAnalysisFlowHelp() {
+		String mstr = "\nBabraham FastQ Screen plugin: launch the analysis flow with given FileGroup Id.\n" +
+				"wasp -T fastqscreen -t launchAnalysisFlowHelp -m \'{id:\"1\"}\'\n";
 		return MessageBuilder.withPayload(mstr).build();
 	}
 	
@@ -114,7 +114,7 @@ public class FastQScreenPlugin extends BabrahamPluginBase{
 		Set<String> fileGroupIdStringSet = new LinkedHashSet<String>();
 		fileGroupIdStringSet.add(fileGroup.getId().toString());
 		parameterMap.put(WaspJobParameters.FILE_GROUP_ID, fileGroupIdStringSet);
-		JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer.getJobExecutions(FLOW_NAME, parameterMap, true));
+		JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer.getJobExecutions(FLOW_NAME, parameterMap, false));
 		if (je == null)
 			return Status.UNKNOWN;
 		ExitStatus jobExitStatus = je.getExitStatus();

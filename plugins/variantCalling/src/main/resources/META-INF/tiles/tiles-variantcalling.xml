@@ -14,5 +14,10 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/variantcalling/wxsIntervals.jsp" />
 	</definition>
 	
+	<definition name="jobsubmit/variantcalling/pairings" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/variantcalling/pair.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/variantcalling/pair.jsp" />
+	</definition>
+	
 </tiles-definitions>
 

@@ -64,11 +64,8 @@ public class FileGroupDaoImpl extends WaspDaoImpl<FileGroup> implements edu.yu.e
 	@Transactional("entityManager")
 	public Set<FileGroup> getFilesForCellLibraryByType(SampleSource cellLibrary, FileType fileType) {
 		TypedQuery<FileGroup> fgq = getEntityManager()
-				.createQuery("SELECT DISTINCT fg from FileGroup fg " +
-						"JOIN FETCH fg.sampleSources cl " +
-						"JOIN FETCH fg.fileHandles fh " + 
-						//"JOIN FETCH fh.fileType " +  
-						"JOIN FETCH fg.fileType " +
+				.createQuery("SELECT DISTINCT fg from FileGroup as fg " +
+						"JOIN FETCH fg.sampleSources as cl " +
 						"WHERE cl = :cellLibrary AND fg.fileType = :fileType", FileGroup.class)
 				.setParameter("cellLibrary", cellLibrary)
 				.setParameter("fileType", fileType);
@@ -81,8 +78,8 @@ public class FileGroupDaoImpl extends WaspDaoImpl<FileGroup> implements edu.yu.e
 	@Transactional("entityManager")
 	public Set<FileGroup> getFilesForCellLibrary(SampleSource cellLibrary) {
 		TypedQuery<FileGroup> fgq = getEntityManager()
-				.createQuery("SELECT DISTINCT fg from FileGroup fg " +
-						"JOIN fg.sampleSources cl " +
+				.createQuery("SELECT DISTINCT fg from FileGroup as fg " +
+						"JOIN FETCH fg.sampleSources as cl " +
 						"WHERE cl = :cellLibrary", FileGroup.class)
 				.setParameter("cellLibrary", cellLibrary);
 		HashSet<FileGroup> result = new HashSet<FileGroup>();

@@ -7,7 +7,6 @@ package edu.yu.einstein.wasp.gatk.service;
 import java.util.Set;
 
 import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.BamFileTypeAttribute;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.WaspService;
@@ -17,15 +16,15 @@ import edu.yu.einstein.wasp.service.WaspService;
  * @author asmclellan
  */
 public interface GatkService extends WaspService {
+	
+		public static final String UNIFIED_GENOTYPER_CODE="ug";
 		
-		public Set<BamFileTypeAttribute> getCompleteGatkBamFileAttributeSet();
+		public static final String HAPLOTYPE_CALLER_CODE="hc";
+		
+		public Set<BamFileTypeAttribute> getCompleteGatkPreprocessBamFileAttributeSet();
 		
 		public String performAction();
 		
-		public Build getGenomeBuild(SampleSource cellLibrary);
-
-		public String getReferenceGenomeFastaFile(Build build);
-
 		public String getReferenceSnpsVcfFile(Build build);
 
 		public String getReferenceIndelsVcfFile(Build build);

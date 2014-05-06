@@ -11,7 +11,6 @@ import java.util.Random;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.GridException;
@@ -20,7 +19,6 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
-import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.babraham.batch.service.impl.BabrahamBatchServiceImpl;
 import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamQCParseModule;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
@@ -37,16 +35,6 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  */
 @Transactional("entityManager")
 public class FastQScreen extends SoftwarePackage {
-
-	@Autowired
-	private FastqService fastqService;
-	
-	// cannot autowire as IlluminaHiseqSequenceRunProcessor here which is all we really need. Beans referenced by base type so must
-	// as Software and use @Qualifier to specify the casava bean. 
-	// Seems to be an issue for batch but not Web which accepts IlluminaHiseqSequenceRunProcessor.
-	@Autowired
-	@Qualifier("casava")
-	private Software casava;
 	
 	@Autowired
 	BabrahamService babrahamService;
@@ -77,7 +65,6 @@ public class FastQScreen extends SoftwarePackage {
 	 * 
 	 */
 	public FastQScreen() {
-		setSoftwareVersion("0.4.1"); // this default may be overridden in wasp.site.properties
 	}
 
 
@@ -117,8 +104,7 @@ public class FastQScreen extends SoftwarePackage {
 		// s1.R2.002
 		//we'll just use the forward reads for fastq_screen
 		FileGroup fileGroup = fileService.getFileGroupById(fileGroupId);
-		List<FileHandle> files = getUpToFiveRandomForwardReadFiles(fileGroup); 
-		Collections.sort(files, new FastqComparator(fastqService));
+		List<FileHandle> files = babrahamService.getUpToFiveRandomForwardReadFiles(fileGroup); 
 		w.setRequiredFiles(files);
 		
 		// set the command
@@ -127,42 +113,7 @@ public class FastQScreen extends SoftwarePackage {
 		return w;
 	}
 	
-	/**
-	 * Get up to five, randomly selected, forward-read fastq files from the fastq files in fileGroup
-	 * (if file group contains < 5, return all files
-	 * 
-	 * @param fileGroup
-	 * @return List<FileHandle>
-	 * 
-	 */
-	private List<FileHandle> getUpToFiveRandomForwardReadFiles(FileGroup fileGroup){
-		
-		List<FileHandle> allFastqFiles= new ArrayList<FileHandle>(fileGroup.getFileHandles());
-		
-		List<FileHandle> forwardReadFastqFiles = new ArrayList<FileHandle>();
-		for(FileHandle fh : allFastqFiles){
-			if(fastqService.getFastqReadSegmentNumber(fh)==1){//forward read
-				forwardReadFastqFiles.add(fh);
-			}
-		}
-		if(forwardReadFastqFiles.size()<=5){
-			return forwardReadFastqFiles;			
-		}
-		
-		List<FileHandle> fiveRandomForwardReadFastqFiles = new ArrayList<FileHandle>();
-		Random randomNumberGenerator = new Random(System.currentTimeMillis());
-		while(fiveRandomForwardReadFastqFiles.size()<5){
-			int randomInt = randomNumberGenerator.nextInt(forwardReadFastqFiles.size());
-			if(fiveRandomForwardReadFastqFiles.contains(forwardReadFastqFiles.get(randomInt))){
-				continue;
-			}
-			else{
-				fiveRandomForwardReadFastqFiles.add(forwardReadFastqFiles.get(randomInt));
-			}
-		}		
-		Collections.sort(fiveRandomForwardReadFastqFiles, new FastqComparator(fastqService));//this comparator appears to order files like: a read (R1_001.fq), followed immediately by its mate (R2_001.fq),  if it was a paired end read. This is exactly what fastq_screen requires.
-		return fiveRandomForwardReadFastqFiles;		
-	}	
+	
 	
 	/**
 	 * Set the fastqscreen command. 

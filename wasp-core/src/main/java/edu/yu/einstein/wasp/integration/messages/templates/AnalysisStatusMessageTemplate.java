@@ -20,10 +20,10 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	
 	protected SampleService sampleService;
 	
-	public AnalysisStatusMessageTemplate(Integer jobId, Integer libraryId){
+	public AnalysisStatusMessageTemplate(Integer jobId, Integer cellLibraryId){
 		super();
 		addHeader(WaspMessageType.HEADER_KEY, WaspMessageType.ANALYSIS);
-		setLibraryId(libraryId);
+		setCellLibraryId(cellLibraryId);
 		setJobId(jobId);
 	}
 	
@@ -43,8 +43,8 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 		super(message);
 		if (!isMessageOfCorrectType(message))
 			throw new WaspMessageInitializationException("message is not of the correct type");
-		if (message.getHeaders().containsKey(WaspJobParameters.LIBRARY_ID))
-			setLibraryId((Integer) message.getHeaders().get(WaspJobParameters.LIBRARY_ID));
+		if (message.getHeaders().containsKey(WaspJobParameters.CELL_LIBRARY_ID))
+			setCellLibraryId((Integer) message.getHeaders().get(WaspJobParameters.CELL_LIBRARY_ID));
 		if (message.getHeaders().containsKey(WaspJobParameters.JOB_ID))
 			setJobId((Integer) message.getHeaders().get(WaspJobParameters.JOB_ID));
 	}
@@ -54,14 +54,10 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 		this.sampleService = sampleService;
 	}
 	
-	public Integer getLibraryId() {
-		return (Integer) getHeader(WaspJobParameters.LIBRARY_ID);
+	public Integer getCellLibraryId() {
+		return (Integer) getHeader(WaspJobParameters.CELL_LIBRARY_ID);
 	}
 
-	public void setLibraryId(Integer libraryId) {
-		addHeader(WaspJobParameters.LIBRARY_ID, libraryId);
-	}
-	
 	public Integer getJobId() {
 		return (Integer) getHeader(WaspJobParameters.JOB_ID);
 	}
@@ -72,7 +68,7 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	
 	public void setCellLibraryId(Integer cellLibraryId){
 		SampleSource cellLibrary = sampleService.getSampleSourceDao().getSampleSourceBySampleSourceId(cellLibraryId);
-		setLibraryId(sampleService.getLibrary(cellLibrary).getId());
+		addHeader(WaspJobParameters.CELL_LIBRARY_ID, cellLibraryId);
 		setJobId(sampleService.getJobOfLibraryOnCell(cellLibrary).getId());
 	}
 	
@@ -86,15 +82,15 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 		String task = (String) getHeader(WaspJobTask.HEADER_KEY);
 		
 		if (task == null){
-			if (getLibraryId() == null)
+			if (getCellLibraryId() == null)
 				return actUponMessage(message, getJobId());
 			else 
-				return actUponMessage(message, getJobId(), getLibraryId());
+				return actUponMessage(message, getJobId(), getCellLibraryId());
 		}
-		if (getLibraryId() == null)
+		if (getCellLibraryId() == null)
 			return actUponMessage(message, getJobId(), task);
 		else 
-			return actUponMessage(message, getJobId(), getLibraryId(), task);
+			return actUponMessage(message, getJobId(), getCellLibraryId(), task);
 	}
 	
 	/**
@@ -102,39 +98,39 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	 */
 	@Override
 	public boolean actUponMessageIgnoringTask(Message<?> message){
-		if (getLibraryId() == null)
+		if (getCellLibraryId() == null)
 			return actUponMessage(message, getJobId(), (String) null);
 		else 
-			return actUponMessage(message, getJobId(), getLibraryId(), null);
+			return actUponMessage(message, getJobId(), getCellLibraryId(), null);
 	}
 	
 	// Statics.........
 	
 	/**
-	 * Takes a message and checks its headers against the supplied JobId (and libraryId if not null) value to see if the message should be acted upon or not.
-	 * Ignores libraryId if null
+	 * Takes a message and checks its headers against the supplied JobId (and CellLibraryId if not null) value to see if the message should be acted upon or not.
+	 * Ignores CellLibraryId if null
 	 * @param message
 	 * @param jobId 
-	 * @param libraryId 
+	 * @param CellLibraryId 
 	 * @return
 	 */
-	public static boolean actUponMessage(Message<?> message, Integer jobId, Integer libraryId ){
+	public static boolean actUponMessage(Message<?> message, Integer jobId, Integer CellLibraryId ){
 		if ( !(message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) && 
 				((String) message.getHeaders().get(WaspMessageType.HEADER_KEY)).equals(WaspMessageType.ANALYSIS)) )
 			return false;
-		if ( libraryId != null && jobId != null &&
+		if ( CellLibraryId != null && jobId != null &&
 				message.getHeaders().containsKey(WaspJobParameters.LIBRARY_ID) && 
-				((Integer) message.getHeaders().get(WaspJobParameters.LIBRARY_ID)).equals(libraryId) &&
+				((Integer) message.getHeaders().get(WaspJobParameters.LIBRARY_ID)).equals(CellLibraryId) &&
 				message.getHeaders().containsKey(WaspJobParameters.JOB_ID) && 
 				((Integer) message.getHeaders().get(WaspJobParameters.JOB_ID)).equals(jobId) )
 			return true;
-		if ( jobId != null && libraryId == null &&
+		if ( jobId != null && CellLibraryId == null &&
 				message.getHeaders().containsKey(WaspJobParameters.JOB_ID) && 
 				((Integer) message.getHeaders().get(WaspJobParameters.JOB_ID)).equals(jobId) )
 			return true;
-		if ( jobId == null && libraryId != null &&
+		if ( jobId == null && CellLibraryId != null &&
 				message.getHeaders().containsKey(WaspJobParameters.LIBRARY_ID) && 
-				((Integer) message.getHeaders().get(WaspJobParameters.LIBRARY_ID)).equals(libraryId) )
+				((Integer) message.getHeaders().get(WaspJobParameters.LIBRARY_ID)).equals(CellLibraryId) )
 			return true;
 		return false;
 	}
@@ -150,15 +146,15 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	}
 	
 	/**
-	 * Takes a message and checks its headers against the supplied jobId and libraryId value and task to see if the message should be acted upon or not
+	 * Takes a message and checks its headers against the supplied jobId and CellLibraryId value and task to see if the message should be acted upon or not
 	 * @param message
 	 * @param jobId 
-	 * @param libraryId 
+	 * @param CellLibraryId 
 	 * @param task
 	 * @return
 	 */
-	public static boolean actUponMessage(Message<?> message, Integer jobId, Integer libraryId, String task ){
-		if (! actUponMessage(message, jobId, libraryId) )
+	public static boolean actUponMessage(Message<?> message, Integer jobId, Integer CellLibraryId, String task ){
+		if (! actUponMessage(message, jobId, CellLibraryId) )
 			return false;
 		if (task == null)
 			return true;
@@ -197,7 +193,7 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	@Override
 	public AnalysisStatusMessageTemplate getNewInstance(WaspStatusMessageTemplate messageTemplate){
 		AnalysisStatusMessageTemplate newTemplate = new AnalysisStatusMessageTemplate(((AnalysisStatusMessageTemplate) messageTemplate).getJobId(),
-				((AnalysisStatusMessageTemplate) messageTemplate).getLibraryId());
+				((AnalysisStatusMessageTemplate) messageTemplate).getCellLibraryId());
 		copyCommonProperties(messageTemplate, newTemplate);
 		return newTemplate;
 	}

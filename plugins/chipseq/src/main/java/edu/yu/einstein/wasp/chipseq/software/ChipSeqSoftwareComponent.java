@@ -40,12 +40,6 @@ public class ChipSeqSoftwareComponent extends SoftwarePackage {
 	@Autowired
 	private RunService runService;
 	
-	
-	// @Autowired
-	// private SoftwarePackage picard;
-	
-	//@Autowired
-	//private SoftwarePackage samtools;
 
 	/**
 	 * 
@@ -53,7 +47,6 @@ public class ChipSeqSoftwareComponent extends SoftwarePackage {
 	private static final long serialVersionUID = -6631761128215948999L;
 	
 	public ChipSeqSoftwareComponent() {
-		setSoftwareVersion("2.0.10"); //this is macs2     this default may be overridden in wasp.site.properties
 	}
 	public WorkUnit getMergedBam(Map<Sample, List<SampleSource>> approvedSampleApprovedCellLibraryListMap){
 		WorkUnit w = prepareWorkUnit(approvedSampleApprovedCellLibraryListMap);
@@ -64,8 +57,6 @@ public class ChipSeqSoftwareComponent extends SoftwarePackage {
 		for (Map.Entry entry : approvedSampleApprovedCellLibraryListMap.entrySet()) {
 		    Sample sample = (Sample)entry.getKey();
 		    List<SampleSource> approvedCellLibraryList = (List<SampleSource>) entry.getValue();
-		    //////if(fileService.)
-		    //if(sample.getS)
 		}
 		return w;
 		

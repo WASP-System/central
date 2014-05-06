@@ -21,20 +21,11 @@
   <bean id="fastqc" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
   	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.babraham.software.FastQC</value></property>
     <property name="name" value="FastQC" />
+    <property name="version" value= "0.10.1" />
     <property name="description" value="A quality control tool for high throughput sequence data." />
     <property name="area" ref="fastQCArea" />
     <property name="resourceType" ref="fastqProcessorResourceType" />
-	
-	<property name="metaFromWrapper">
-       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" ref="fastQCArea" />
-         <property name="metaList">
-         	<list>
-         		<value>#{waspSoftware['currentVersion']}=0.10.1</value>
-         	</list>
-       	 </property>
-       </bean>
-    </property> 
+	<property name="softwareDependency" ref="casava" />
     <!-- 
     <property name="uiFieldsFromWrapper">
       <list>

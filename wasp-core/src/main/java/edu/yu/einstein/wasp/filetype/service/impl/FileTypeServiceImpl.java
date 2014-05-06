@@ -88,33 +88,33 @@ public class FileTypeServiceImpl extends WaspServiceImpl implements FileTypeServ
 	
 	protected String getMeta(FileHandle f, String area, String k) {
 		Assert.assertParameterNotNull(f, "file cannot be null");
-		f = fileHandleDao.merge(f);
 		String v = null;
-		List<FileHandleMeta> fileMetaList = f.getFileHandleMeta();
+		List<FileHandleMeta> fileMetaList = fileMetaDao.getMeta(f.getId());
 		if (fileMetaList == null)
 			fileMetaList = new ArrayList<FileHandleMeta>();
 		fileMetaList.size();
 		try{
 			v = (String) MetaHelper.getMetaValue(area, k, fileMetaList);
 		} catch(MetadataException e) {
-			// value not found
+			logger.debug("unable to get a meta value with key=" + area + "." + k + " for FileHandle with id=" + f.getId());
 		}
+		logger.debug("returning meta value " + area + "." + k + "=" + v + " for FileHandle with id=" + f.getId());
 		return v;
 	}
 	
 	protected String getMeta(FileGroup f, String area, String k) {
 		Assert.assertParameterNotNull(f, "file group cannot be null");
-		f = fileGroupDao.merge(f);
 		String v = null;
-		List<FileGroupMeta> fileGroupMetaList = f.getFileGroupMeta();
+		List<FileGroupMeta> fileGroupMetaList = fileGroupMetaDao.getMeta(f.getId());
 		if (fileGroupMetaList == null)
 			fileGroupMetaList = new ArrayList<FileGroupMeta>();
 		fileGroupMetaList.size();
 		try{
 			v = (String) MetaHelper.getMetaValue(area, k, fileGroupMetaList);
 		} catch(MetadataException e) {
-			// value not found
+			logger.debug("unable to get a meta value with key=" + area + "." + k + " for FileGroup with id=" + f.getId());
 		}
+		logger.debug("returning meta value " + area + "." + k + "=" + v + " for FileGroup with id=" + f.getId());
 		return v;
 	}
 	
@@ -149,6 +149,7 @@ public class FileTypeServiceImpl extends WaspServiceImpl implements FileTypeServ
 		fileMeta.setFileHandleId(file.getId());
 		fileMeta.setK(area + "." + metaKey);
 		fileMeta.setV(metaValue);
+		logger.debug("setting meta  " + fileMeta + " for FileHandle with id=" + file.getId());
 		fileMetaDao.setMeta(fileMeta);
 	}
 	
@@ -161,6 +162,7 @@ public class FileTypeServiceImpl extends WaspServiceImpl implements FileTypeServ
 		fileMeta.setFileGroupId(fileGroup.getId());
 		fileMeta.setK(area + "." + metaKey);
 		fileMeta.setV(metaValue);
+		logger.debug("setting meta  " + fileMeta + " for FileGroup with id=" + fileGroup.getId());
 		fileGroupMetaDao.setMeta(fileMeta);
 	}
 	
@@ -183,16 +185,23 @@ public class FileTypeServiceImpl extends WaspServiceImpl implements FileTypeServ
 
 	@Override
 	public void addAttribute(FileGroup fg, FileTypeAttribute attribute) {
+		logger.debug("adding attribute=" + attribute + " to FileGroup id=" + fg.getId());
 	    String atts = getMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY);
+	    logger.debug("current attributes=" + atts);
 	    Set<FileTypeAttribute> attributes = stringToSet(atts);
 	    if (!attributes.contains(attribute)) {
+	    	logger.debug("current attributes (atts) does not contain " + attribute);
 			attributes.add(attribute);
 			try {
+				logger.debug("setting meta " + FILETYPE_AREA + "." + FILEGROUP_ATTRIBUTE_META_KEY + "=" + setToString(attributes));
 			    setMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY, setToString(attributes));
 			} catch (MetadataException e) {
 			    logger.error("unable to set metadata: " + e.getMessage());
 			}
+	    } else {
+	    	logger.debug("current attributes (atts) contains " + attribute);
 	    }
+	    
 	}
 
 	@Override
@@ -229,8 +238,10 @@ public class FileTypeServiceImpl extends WaspServiceImpl implements FileTypeServ
 	@Override
 	public boolean hasAttributes(FileGroup fg, Set<? extends FileTypeAttribute> attributes) {
 	    String atts = getMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY);
-	    Set<? extends FileTypeAttribute> fgatts = stringToSet(atts);
-	    if (fgatts.containsAll(attributes)) return true;
+	    boolean attributesMatch = stringToSet(atts).containsAll(attributes);
+	    logger.debug("hasAttributes=" + attributesMatch);
+	    if (attributesMatch) 
+	    	return true;
 	    return false;
 	}
 	
@@ -252,7 +263,12 @@ public class FileTypeServiceImpl extends WaspServiceImpl implements FileTypeServ
 	public boolean hasOnlyAttributes(FileGroup fg, Set<? extends FileTypeAttribute> attributes) {
 	    String atts = getMeta(fg, FILETYPE_AREA, FILEGROUP_ATTRIBUTE_META_KEY);
 	    Set<FileTypeAttribute> fgatts = stringToSet(atts);
-	    if (fgatts.containsAll(attributes) && fgatts.size() == attributes.size()) return true;
+	    boolean attributesMatchExactly = fgatts.containsAll(attributes);
+	    boolean collectionSizesMatchExactly = fgatts.size() == attributes.size();
+	    logger.debug("attributesMatchExactly=" + attributesMatchExactly);
+	    logger.debug("collectionSizesMatchExactly=" + collectionSizesMatchExactly);
+	    if (attributesMatchExactly && collectionSizesMatchExactly) 
+	    	return true;
 	    return false;
 	}
 

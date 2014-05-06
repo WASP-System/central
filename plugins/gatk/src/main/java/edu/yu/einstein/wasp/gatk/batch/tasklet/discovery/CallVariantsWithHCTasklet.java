@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.gatk.batch.tasklet;
+package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -14,14 +14,12 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
@@ -34,7 +32,7 @@ import edu.yu.einstein.wasp.service.SampleService;
  * @author jcai
  * @author asmclellan
  */
-public class CallVariantTasklet extends WaspRemotingTasklet implements StepExecutionListener {
+public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements StepExecutionListener {
 
 	private List<Integer> cellLibraryIds;
 	
@@ -66,13 +64,8 @@ public class CallVariantTasklet extends WaspRemotingTasklet implements StepExecu
 	@Autowired
 	private GATKSoftwareComponent gatk;
 
-
-	public CallVariantTasklet() {
-		// proxy
-	}
-
-	public CallVariantTasklet(String cellLibraryIds) {
-		this.cellLibraryIds = WaspSoftwareJobParameters.getCellLibraryIdList(cellLibraryIds);
+	public CallVariantsWithHCTasklet(String inputFilegroupIds, String outputFilegroupIds) {
+		super(inputFilegroupIds, outputFilegroupIds);
 	}
 
 	/*
@@ -93,7 +86,7 @@ public class CallVariantTasklet extends WaspRemotingTasklet implements StepExecu
 		
 		for (Integer currentId : cellLibraryIds) {
 			SampleSource cellLibrary = sampleService.getSampleSourceDao().findById(currentId);
-			Set<FileGroup> tmpFileGroups = fileService.getFilesForCellLibraryByType(cellLibrary, bamFileType, gatkService.getCompleteGatkBamFileAttributeSet());
+			Set<FileGroup> tmpFileGroups = fileService.getFilesForCellLibraryByType(cellLibrary, bamFileType, gatkService.getCompleteGatkPreprocessBamFileAttributeSet(), true);
 			
 			logger.debug("get file group");
 			//Assert.assertTrue(tmpFileGroups.size() == 1);
@@ -107,19 +100,14 @@ public class CallVariantTasklet extends WaspRemotingTasklet implements StepExecu
 			fileGroups.add(currentFg);
 			logger.debug("add file group: " + currentFg.getId() + ":" + currentFg.getDescription());
 		}
-			
-		
-		
-		
+
 		Map<String,Object> jobParameters = context.getStepContext().getJobParameters();
 		
 		for (String key : jobParameters.keySet()) {
 			logger.debug("Key: " + key + " Value: " + jobParameters.get(key).toString());
 		}
 		
-		// TODO: temporary, fix me
-		//WorkUnit w = new WorkUnit();
-		WorkUnit w = gatk.getCallVariants(cellLibrary1, fileGroups, jobParameters);
+		WorkUnit w = gatk.getCallVariantsByHaplotypeCaller(cellLibrary1, fileGroups, jobParameters);
 		
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
    

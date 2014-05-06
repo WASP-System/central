@@ -15,5 +15,7 @@ public class CliMessagingTask {
 	public static final String LIST_FILE_TYPES = "listFileTypes";
 	
 	public static final String LIST_USERS = "listUsers";
+	
+	public static final String LIST_SOFTWARE = "listSoftware";
 
 }

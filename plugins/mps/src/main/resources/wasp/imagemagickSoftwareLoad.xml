@@ -17,21 +17,9 @@
   	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.mps.grid.software.Imagemagick</value></property>
     <property name="name" value="Imagemagick" />
     <property name="description" value="Image processing software" />
+    <property name="version" value="6.5.4-10" />
     <property name="area" ref="imagemagickPluginArea" />
     <property name="resourceType" ref="genericPluginResourceType" /> <!-- TODO: choose a more appropriate resource type -->
-	
-	<property name="metaFromWrapper">
-       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" ref="imagemagickPluginArea" />
-         <!-- Load any software metadata 
-         <property name="metaList">
-         	<list>
-         		<value>r.myMetaValue=foo</value>
-         	</list>
-       	 </property>
-       	 -->
-       </bean>
-    </property> 
   </bean> 
 
 </beans>

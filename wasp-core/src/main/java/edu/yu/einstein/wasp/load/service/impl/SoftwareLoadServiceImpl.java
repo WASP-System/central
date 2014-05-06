@@ -15,10 +15,12 @@ import edu.yu.einstein.wasp.dao.ResourceTypeDao;
 import edu.yu.einstein.wasp.dao.SoftwareDao;
 import edu.yu.einstein.wasp.dao.SoftwareMetaDao;
 import edu.yu.einstein.wasp.exception.NullResourceTypeException;
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.load.service.SoftwareLoadService;
 import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.SoftwareMeta;
+import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
  * 
@@ -41,10 +43,6 @@ public class SoftwareLoadServiceImpl extends WaspLoadServiceImpl implements	Soft
 	private ResourceTypeDao resourceTypeDao;
 	
 	private Software addOrUpdateSoftware(ResourceType resourceType, String iname, String name, String description, int isActive){
-		Assert.assertParameterNotNull(resourceType, "ResourceType cannot be null");
-		Assert.assertParameterNotNull(iname, "iname cannot be null");
-		Assert.assertParameterNotNull(name, "name cannot be null");
-		Assert.assertParameterNotNull(description, "description cannot be null");
 		if (resourceType == null || resourceType.getIName() == null || resourceType.getIName().isEmpty()){
 	    	throw new NullResourceTypeException();
 	    }
@@ -81,7 +79,7 @@ public class SoftwareLoadServiceImpl extends WaspLoadServiceImpl implements	Soft
 	    for (SoftwareMeta softwareMeta: safeList(software.getSoftwareMeta())) {
 	    	oldSoftwareMetas.put(softwareMeta.getK(), softwareMeta);
 	    } 
-	    for (SoftwareMeta softwareMeta: safeList(meta) ) {
+	    for (SoftwareMeta softwareMeta: meta ) {
 
 	      // incremental position numbers. 
 	      if ( softwareMeta.getPosition() == 0 ||
@@ -125,31 +123,37 @@ public class SoftwareLoadServiceImpl extends WaspLoadServiceImpl implements	Soft
 	    */
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends Software> T update(ResourceType resourceType, List<SoftwareMeta> meta, String iname, String name, String description, int isActive, Class<T> clazz){
+	public <T extends SoftwarePackage> T update(ResourceType resourceType, List<SoftwareMeta> meta, String iname, String name, String description, String version, List<SoftwarePackage> softwareDependencies, int isActive, Class<T> clazz){
+		Assert.assertParameterNotNull(resourceType, "ResourceType cannot be null");
+		Assert.assertParameterNotNull(iname, "iname cannot be null");
+		Assert.assertParameterNotNull(name, "name cannot be null");
+		Assert.assertParameterNotNull(description, "description cannot be null");
+		Assert.assertParameterNotNull(clazz, "A class has not been specified");
 		Software software = addOrUpdateSoftware(resourceType, iname, name, description, isActive);
 		syncMetas(software, meta);
-		if (clazz.getName().equals(software.getClass().getName()))
-	    	return (T) software;
-	    T softwareClone;
+		T softwarePackage;
 		try {
-			softwareClone = clazz.newInstance();
-			softwareClone.setId(software.getId());
-			softwareClone.setIName(software.getIName());
-			softwareClone.setName(software.getName());
-			softwareClone.setDescription(software.getDescription());
-			softwareClone.setIsActive(software.getIsActive());
-			softwareClone.setResourceType(software.getResourceType());
-			softwareClone.setJobDraftSoftware(software.getJobDraftSoftware());
-			softwareClone.setJobSoftware(software.getJobSoftware());
-			softwareClone.setSoftwareMeta(software.getSoftwareMeta());
-			softwareClone.setWorkflowSoftware(software.getWorkflowSoftware());
+			logger.debug("instantiating new instance of type = " + clazz.getName());
+			softwarePackage = clazz.newInstance();
+			softwarePackage.setId(software.getId());
+			softwarePackage.setIName(software.getIName());
+			softwarePackage.setName(software.getName());
+			softwarePackage.setDescription(software.getDescription());
+			softwarePackage.setIsActive(software.getIsActive());
+			softwarePackage.setResourceType(software.getResourceType());
+			softwarePackage.setJobDraftSoftware(software.getJobDraftSoftware());
+			softwarePackage.setJobSoftware(software.getJobSoftware());
+			softwarePackage.setSoftwareMeta(software.getSoftwareMeta());
+			softwarePackage.setWorkflowSoftware(software.getWorkflowSoftware());
+			if (version != null)
+				softwarePackage.setSoftwareVersion(version);
+			softwarePackage.setSoftwareDependencies(softwareDependencies);
 		} catch (Exception e) {
-			logger.warn("Cannot create instance of " + clazz.getName() + ". Going to return as a Software object");
-			return (T) software;
+			logger.warn("Cannot create instance of " + clazz.getName());
+			throw new WaspRuntimeException(e);
 		}
-		return softwareClone;
+		return softwarePackage;
 	    
 	}
 	

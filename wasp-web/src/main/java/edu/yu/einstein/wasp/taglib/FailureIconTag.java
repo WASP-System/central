@@ -24,7 +24,7 @@ import edu.yu.einstein.wasp.web.Tooltip;
 public class FailureIconTag extends BodyTagSupport {
 	
 	
-	private static final long serialVersionUID = -7313415827087355691L;
+	private static final long serialVersionUID = 3567645224981384518L;
 
 	Logger log = LoggerFactory.getLogger(FailureIconTag.class);
 	

@@ -28,7 +28,8 @@ public class TemplateFileHandler {
 		if (isUsingExistingCellLibraries){
 			lines.add("\"# You can add additional metadata columns for any of SampleSourceMeta, SampleMeta, FileGroupMeta and FileHandleMeta\"");
 			lines.add("# to view available cell libraries use the CLI: 'wasp -u <user> -p <pass> -list cellLibraries'");
-			lines.add("cellLibraryId,FileGroup.description,FileGroup.fileTypeId,FileHandle.fileName,FileHandle.fileURI,FileHandle.md5hash");
+			lines.add("# to view available software use the CLI: 'wasp -u <user> -p <pass> -list software'");
+			lines.add("cellLibraryId,FileGroup.description,FileGroup.fileTypeId,FileGroup.softwareGeneratedById,FileHandle.fileName,FileHandle.fileURI,FileHandle.md5hash");
 		} else {
 			lines.add("# use a '*' in the sample name column to indicate that creation of a new cell library for the current library (as per the previous line) is required");
 			lines.add("\"# You can add additional metadata columns for any of JobMeta, SampleMeta, FileGroupMeta and FileHandleMeta\"");
@@ -37,7 +38,8 @@ public class TemplateFileHandler {
 			lines.add("# to view available genome builds use the CLI: 'wasp -u <user> -p <pass> -list builds'");
 			lines.add("# to view available users use the CLI: 'wasp -u <user> -p <pass> -list users'");
 			lines.add("\"# or combined in one command: 'wasp -u <user> -p <pass> -list workflows,sampleSubtypes,builds,users'\"");
-			lines.add("Job.name,Job.userId,Job.workflowId,Sample.name,Sample.sampleSubtypeId,SampleMeta.genome.genomeString,FileGroup.description,FileGroup.fileTypeId,FileHandle.fileName,FileHandle.fileURI,FileHandle.md5hash");
+			lines.add("# jobSoftware ids may be provided as a semicolon-delimited list instead of on seperate lines");
+			lines.add("Job.name,Job.userId,Job.workflowId,Job.jobSoftware,Sample.name,Sample.sampleSubtypeId,SampleMeta.genome.genomeString,FileGroup.description,FileGroup.fileTypeId,FileGroup.softwareGeneratedById,FileHandle.fileName,FileHandle.fileURI,FileHandle.md5hash");
 		}
 
 		try {

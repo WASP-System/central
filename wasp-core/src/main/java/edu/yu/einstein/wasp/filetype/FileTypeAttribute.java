@@ -17,10 +17,9 @@ public class FileTypeAttribute {
 	public boolean equals(Object obj){
 		if (this == obj) return true;
 		if (obj == null) return false;
-		if (!this.getClass().isInstance(obj) && !obj.getClass().isInstance(this.getClass())) 
+		if (!this.getClass().isInstance(obj) && !obj.getClass().isInstance(this)) 
 			return false; // allow comparison if one class is derived from the other
-		FileTypeAttribute attr = (FileTypeAttribute) obj;
-		return attrName.equals(attr);
+		return attrName.equals(obj.toString());
 	}
 	
 	@Override

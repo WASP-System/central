@@ -76,10 +76,6 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 	@Autowired
 	private BWABacktrackSoftwareComponent bwa;
 	
-	@Autowired
-	@Qualifier("picard")
-	private SoftwarePackage picard;
-	
 	public BWAMergeSortDedupTasklet() {
 		// proxy
 	}
@@ -128,9 +124,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		Collections.sort(fhlist, new FastqComparator(fastqService));
 		w.setRequiredFiles(fhlist);
 		
-		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
-		sd.add(picard);
-		w.setSoftwareDependencies(sd);
+		w.setSoftwareDependencies(bwa.getSoftwareDependencies());
 		w.setSecureResults(true);
 		
 		String bamOutput = fileService.generateUniqueBaseFileName(cellLib) + "bwa.bam";
