@@ -19,18 +19,7 @@
     <property name="description" value="A tool for working with NGS data in BAM format" />
     <property name="area" ref="picardPluginArea" />
     <property name="resourceType" ref="genericPluginResourceType" /> <!-- TODO: choose a more appropriate resource type -->
-
-    <property name="metaFromWrapper">
-    <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-    <property name="area" ref="picardPluginArea" />
-    <property name="metaList">
-    <list>
-    <value>#{waspSoftware['currentVersion']}=1.104</value>
-    <value>#{waspSoftware['priorVersions']}=</value>
-    </list>
-    </property>
-    </bean>
-    </property>
+    <property name="version" value="1.104" />
 	
   </bean> 
 
