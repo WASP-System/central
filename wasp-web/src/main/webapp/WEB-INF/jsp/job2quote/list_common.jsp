@@ -85,7 +85,8 @@ validate = function(){
 	if(typeof(jobId) !== 'undefined' && jobId != null && jobId.length>0){
 		var numberFormat=new RegExp("^[0-9]+$");
 		if(!numberFormat.test(jobId)){
-			alert("Required jobId format: all digits");
+			//alert("Required jobId format: all digits");
+			alert("<fmt:message key="job2quote.job2quote_jobIdAlert.label"/>");
 			return true;//do not perform search 
 		}
 	}
@@ -96,7 +97,8 @@ validate = function(){
 	if(typeof(submitter) !== 'undefined' && submitter != null && submitter.length>0){
 		//could have subsituted if(typeof(submitter) !== 'undefined' && submitter != null && submitter.length>0) with if(submitter && submitter.length>0)  
 		if(!properNameAndLoginFormat.test(submitter)){
-			alert("Required Submitter format: firstname lastname (login). It is best to select name from list.");
+			//alert("Required Submitter format: firstname lastname (login). It is best to select name from list.");
+			alert("<fmt:message key="job2quote.job2quote_submitterAlert.label"/>");
 			return true;//do not perform search 
 		}
 	}
@@ -105,7 +107,8 @@ validate = function(){
 	if(typeof(pi) !== 'undefined' && pi != null && pi.length>0){
 		//could have subsituted if(typeof(pi) !== 'undefined' && pi != null && pi.length>0) with if(pi && pi.length>0)  
 		if(!properNameAndLoginFormat.test(pi)){
-			alert("Required PI format: firstname lastname (login). It is best to select name from list.");
+			//alert("Required PI format: firstname lastname (login). It is best to select name from list.");
+			alert("<fmt:message key="job2quote.job2quote_pIAlert.label"/>");
 			return true;//do not perform search 
 		}
 	}
@@ -114,7 +117,8 @@ validate = function(){
 	if(typeof(submitted_on) !== 'undefined' && submitted_on != null && submitted_on.length>0){
 		var dateFormat=new RegExp("^[1-2][0-9][0-9][0-9]/[0-1][0-9]/[0-3][0-9]$");
 		if(!dateFormat.test(submitted_on)){
-			alert("Required date format: YYYY/MM/DD. It is best to use calendar to select date.");
+			//alert("Required date format: YYYY/MM/DD. It is best to use calendar to select date.");
+			alert("<fmt:message key="job2quote.job2quote_dateAlert.label"/>");
 			return true;//do not perform search 
 		}
 	}

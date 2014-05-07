@@ -35,7 +35,7 @@
 		</tr>
 		
 		<tr class="FormData">
-			<td class="CaptionTD">Remember me:</td>
+			<td class="CaptionTD"><fmt:message key="auth.login_rememberMe.label" />:</td>
 			<td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" type='checkbox' name='_spring_security_remember_me'/></td>
 		</tr>
 		
@@ -59,21 +59,20 @@
 <wasp:displayInDemo>
 	<br />
 	<div class="instructions">
-	<p>For demonstration processed you may sign is as any of the users listed below. The functionality is role-based so you might wish to try different users. You can also 
-	use the links above to create new PIs and lab users. The database is reset to it's default state every night at midnight and so any changes you make will be lost.</p>
+	<p><fmt:message key="auth.login_displayDemo_instructions.label" /></p>
 	
-	<h2>Pre-loaded demo users:</h2>
+	<h2><fmt:message key="auth.login_displayDemo_preLoadedDemoUsers.label" />:</h2>
 	
 	<table>
-	<tr style="text-align:left"><th>Name</th><th>Role</th><th>Login</th><th>Password</th></tr>
+	<tr style="text-align:left"><th><fmt:message key="auth.login_displayDemo_name.label" /></th><th><fmt:message key="auth.login_displayDemo_role.label" /></th><th><fmt:message key="auth.login_displayDemo_login.label" /></th><th><fmt:message key="auth.login_displayDemo_password.label" /></th></tr>
 	<tr><td>Super User</td><td>Super User</td><td>super</td><td>user</td></tr>
-	<tr><td>John Smith</td><td>Facility Manager</td><td>jsmith</td><td>user</td></tr>
-	<tr><td>Peter Walters</td><td>Facility Tech.</td><td>pwalters</td><td>user</td></tr>
-	<tr><td>Robin Lister</td><td>General Admin</td><td>robin</td><td>user</td></tr>
-	<tr><td>Grainne O'Donovan</td><td>Departmental Admin (External users)</td><td>gdon</td><td>user</td></tr>
-	<tr><td>Joe Doe</td><td>Department Admin (Genetics Dept)</td><td>jdoe</td><td>user</td></tr>
-	<tr><td>Sally Smythe</td><td>Lab PI (Smythe Lab)</td><td>ssmythe</td><td>user</td></tr>
-	<tr><td>Percy Liu</td><td>Lab Member (Smythe Lab)</td><td>pliu</td><td>user</td></tr>
+	<tr><td>John Smith</td><td><fmt:message key="auth.login_displayDemo_roleFM.label" /></td><td>jsmith</td><td>user</td></tr>
+	<tr><td>Peter Walters</td><td><fmt:message key="auth.login_displayDemo_roleFT.label" /></td><td>pwalters</td><td>user</td></tr>
+	<tr><td>Robin Lister</td><td><fmt:message key="auth.login_displayDemo_roleGA.label" /></td><td>robin</td><td>user</td></tr>
+	<tr><td>Grainne O'Donovan</td><td><fmt:message key="auth.login_displayDemo_roleDAEU.label" /></td><td>gdon</td><td>user</td></tr>
+	<tr><td>Joe Doe</td><td><fmt:message key="auth.login_displayDemo_roleDAGD.label" /></td><td>jdoe</td><td>user</td></tr>
+	<tr><td>Sally Smythe</td><td><fmt:message key="auth.login_displayDemo_roleLabPI.label" /> (Smythe Lab)</td><td>ssmythe</td><td>user</td></tr>
+	<tr><td>Percy Liu</td><td><fmt:message key="auth.login_displayDemo_roleLabMem.label" /> (Smythe Lab)</td><td>pliu</td><td>user</td></tr>
 	</table>
 	
 	</div>

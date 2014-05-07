@@ -67,7 +67,7 @@ $(document).ready(function() {
 			}
 		}
 	});
-
+/* do not use this anymore; see below for replacement using dropdown box
 	jQuery("#grid_id").jqGrid('setColProp', 'readType',
 			{
 				search:true,
@@ -86,7 +86,7 @@ $(document).ready(function() {
 					}
 				}
 			});
-	
+*/
 	jQuery("#grid_id").jqGrid('setColProp', 'machine',
 			{
 				search:true,
@@ -112,7 +112,14 @@ $(document).ready(function() {
 				sopt:['eq'],
 				//searchrules:{integer:true} //won't work in filterToolbar, just a search dialog box 
 			});
-
+	jQuery("#grid_id").jqGrid('setColProp', 'readType',
+			{
+				search:true,
+				sopt:['eq'],
+				//searchrules:{integer:true} //won't work in filterToolbar, just a search dialog box
+				editable: true, edittype: "select", stype: 'select',
+				searchoptions: { sopt: ['eq'], value: ':<fmt:message key="run.readTypeAll.label" />;single:<fmt:message key="run.readTypeSingle.label" />;paired:<fmt:message key="run.readTypePaired.label" />' }
+			});
 	
 	jQuery("#grid_id").jqGrid('setColProp', 'dateRunStarted',
 			{
@@ -143,6 +150,10 @@ $(document).ready(function() {
 				search:true,
 				sopt:['eq'],
 				//searchrules:{date:true}, //won't work in filterToolbar, just a search dialog box 
+				// searchoptions: {value: "Completed:Completed;In Progress:In Progress;Unknown:Unknown"} 
+				editable: true, edittype: "select", stype: 'select',
+   // editoptions: { value: "Completed:Completed;In Progress:In Progress;Unknown:Unknown", defaultValue: "--Select Status--" },
+    searchoptions: { sopt: ['eq'], value: ':<fmt:message key="run.statusAll.label" />;Completed:<fmt:message key="run.statusCompleted.label" />;In Progress:<fmt:message key="run.statusInProgress.label" />;Unknown:<fmt:message key="run.statusUnknown.label" />' }
 				
 			});
 	
