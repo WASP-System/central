@@ -3,18 +3,38 @@ package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.json.JSONObject;
+import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
+import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
+import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.SampleService;
 
 public abstract class AbstractGatkTasklet extends WaspRemotingTasklet {
+	
+	@Autowired
+	protected GenomeService genomeService;
+	
+	@Autowired
+	protected FileService fileService;
+	
+	@Autowired
+	protected GATKSoftwareComponent gatk;
+	
+	@Autowired
+	protected GridHostResolver gridHostResolver;
 
 	protected LinkedHashSet<Integer> inputFilegroupIds;
 	
@@ -27,6 +47,14 @@ public abstract class AbstractGatkTasklet extends WaspRemotingTasklet {
 	public AbstractGatkTasklet(String inputFilegroupIds, String outputFilegroupIds) {
 		this.inputFilegroupIds = getFileGroupIdsFromCommaDelimitedString(inputFilegroupIds);
 		this.outputFilegroupIds = getFileGroupIdsFromCommaDelimitedString(outputFilegroupIds);
+	}
+	
+	@Transactional("entityManager")
+	public Build getBuildForFg(FileGroup fileGroup){
+		Set<SampleSource> fgCl = fileGroup.getSampleSources();
+		if (fgCl == null || fgCl.isEmpty())
+			return null;
+		return genomeService.getGenomeBuild(fgCl.iterator().next());
 	}
 	
 	public String getScratchDirectory() {
@@ -100,6 +128,13 @@ public abstract class AbstractGatkTasklet extends WaspRemotingTasklet {
 			sampleFileGroups.put(sample, fileService.getFileGroupById(jsonObject.getInt(sampleIdObj.toString())));
 		}
 		return sampleFileGroups;
+	}
+	
+	@Transactional("entityManager")
+	@Override
+	public void doPreFinish(ChunkContext context) throws Exception {
+		for (Integer fgId : this.getOutputFilegroupIds())
+			fileService.getFileGroupById(fgId).setIsActive(1);
 	}
 
 }

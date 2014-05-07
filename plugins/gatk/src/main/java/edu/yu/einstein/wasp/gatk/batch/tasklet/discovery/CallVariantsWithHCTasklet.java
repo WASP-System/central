@@ -1,150 +1,101 @@
 package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.filetype.service.FileTypeService;
+import edu.yu.einstein.wasp.Strategy;
+import edu.yu.einstein.wasp.Strategy.StrategyType;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
-import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
-import edu.yu.einstein.wasp.model.FileType;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.JobService;
-import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.StrategyService;
+import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
- * @author jcai
- * @author asmclellan
+ *  @author asmclellan
+ *  @author jcai
  */
 public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements StepExecutionListener {
-
-	private List<Integer> cellLibraryIds;
-	
-	private List<FileGroup> fileGroups = new ArrayList<>();
-	
-	@Autowired
-	private FileService fileService;
-	
-	@Autowired
-	private FileTypeService fileTypeService;
-	
-	@Autowired
-	private SampleService sampleService;
 	
 	@Autowired
 	private JobService jobService;
 	
 	@Autowired
-	private FileType bamFileType;
-	
-	@Autowired
-	private GridHostResolver gridHostResolver;
-	
-	@Autowired
 	private GatkService gatkService;
 	
-	private StepExecution stepExecution;
-	
 	@Autowired
-	private GATKSoftwareComponent gatk;
-
+	private StrategyService strategyService;
+	
 	public CallVariantsWithHCTasklet(String inputFilegroupIds, String outputFilegroupIds) {
 		super(inputFilegroupIds, outputFilegroupIds);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet#execute(org.
-	 * springframework.batch.core.StepContribution,
-	 * org.springframework.batch.core.scope.context.ChunkContext)
-	 */
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
-		SampleSource cellLibrary1 = sampleService.getCellLibraryBySampleSourceId(cellLibraryIds.get(0));
-		Job job = sampleService.getJobOfLibraryOnCell(cellLibrary1);
-		
-		logger.debug("Beginning GATK variant detection for job " + job.getId());
-		
-		
-		for (Integer currentId : cellLibraryIds) {
-			SampleSource cellLibrary = sampleService.getSampleSourceDao().findById(currentId);
-			Set<FileGroup> tmpFileGroups = fileService.getFilesForCellLibraryByType(cellLibrary, bamFileType, gatkService.getCompleteGatkPreprocessBamFileAttributeSet(), true);
-			
-			logger.debug("get file group");
-			//Assert.assertTrue(tmpFileGroups.size() == 1);
-			FileGroup currentFg = null;
-			if (tmpFileGroups.iterator().hasNext())
-				currentFg = tmpFileGroups.iterator().next();
-			else{
-				logger.error("No FileGroup returned for CellLibrary with id=" + currentId);
-				throw new FileNotFoundException("No FileGroup returned for CellLibrary with id=" + currentId);
-			}
-			fileGroups.add(currentFg);
-			logger.debug("add file group: " + currentFg.getId() + ":" + currentFg.getDescription());
+		Build build = null;
+		WorkUnit w = new WorkUnit();
+		w.setMode(ExecutionMode.PROCESS);
+		w.setProcessMode(ProcessMode.MAX);
+		w.setMemoryRequirements(GATKSoftwareComponent.MEMORY_REQUIRED_8);
+		w.setProcessorRequirements(GATKSoftwareComponent.NUM_THREADS);
+		w.setSecureResults(true);
+		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
+		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + jobId);
+		LinkedHashSet<FileGroup> fglist = new LinkedHashSet<FileGroup>();
+		for (Integer fgId : this.getOutputFilegroupIds()){
+			fglist.add(fileService.getFileGroupById(fgId));
 		}
-
+		w.setResultFiles(fglist);
+		List<FileHandle> fhlist = new ArrayList<FileHandle>();
+		for (Integer fgId : this.getInputFilegroupIds()){
+			FileGroup fg = fileService.getFileGroupById(fgId);
+			if (fhlist.isEmpty()) // first entry not yet entered
+				build = getBuildForFg(fg);
+			fhlist.addAll(fg.getFileHandles());
+		}
+		w.setRequiredFiles(fhlist);
+		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
+		sd.add(gatk);
+		w.setSoftwareDependencies(sd);
+		
 		Map<String,Object> jobParameters = context.getStepContext().getJobParameters();
-		
 		for (String key : jobParameters.keySet()) {
-			logger.debug("Key: " + key + " Value: " + jobParameters.get(key).toString());
+			logger.trace("Key: " + key + " Value: " + jobParameters.get(key).toString());
 		}
-		
-		WorkUnit w = gatk.getCallVariantsByHaplotypeCaller(cellLibrary1, fileGroups, jobParameters);
-		
-		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
-   
+		Job job = jobService.getJobByJobId(jobId);
+		Strategy strategy = strategyService.getThisJobsStrategy(StrategyType.LIBRARY_STRATEGY, job);
+		String wxsIntervalFile = null;
+		if (strategy.getStrategy().equals("WXS"))
+			wxsIntervalFile = gatkService.getWxsIntervalFile(job, build);
+		String gatkOpts = gatk.getCallVariantOpts(jobParameters);
+		String outputGvcfFileName = "gatk.${" + WorkUnit.JOB_NAME + "}.gvcf.vcf";
+		String referenceGenomeFile = genomeService.getReferenceGenomeFastaFile(build);
+		String snpFile = gatkService.getReferenceSnpsVcfFile(build);
+		LinkedHashSet<String> inputBamFilenames = new LinkedHashSet<>();
+		for (int i=0; i < fhlist.size(); i++)
+			inputBamFilenames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");
+		w.setCommand(gatk.getCallVariantsByHaplotypeCaller(inputBamFilenames, outputGvcfFileName, referenceGenomeFile, snpFile, wxsIntervalFile, gatkOpts));
+		// w.addCommand(gatk.genotypeGVCFs(<params>)); TODO: implement this
 		GridResult result = gridHostResolver.execute(w);
 		
 		//place the grid result in the step context
 		storeStartedResult(context, result);
-		
-		// place scratch directory in step execution context, to be promoted
-		// to the job context at run time.
-		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
-        stepContext.put("scrDir", result.getWorkingDirectory());
-        stepContext.put("callVariantName", result.getId());
-        stepContext.put("jobId", job.getId());
-        stepContext.put("cellLibId", cellLibrary1.getId());
-	}
-	
-
-	
-	
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ExitStatus afterStep(StepExecution stepExecution) {
-		return super.afterStep(stepExecution);
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void beforeStep(StepExecution stepExecution) {
-		super.beforeStep(stepExecution);
-		logger.debug("StepExecutionListener beforeStep saving StepExecution");
-		this.stepExecution = stepExecution;
-		
 	}
 
 }

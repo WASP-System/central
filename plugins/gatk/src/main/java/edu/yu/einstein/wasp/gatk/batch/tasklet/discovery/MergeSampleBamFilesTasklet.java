@@ -5,11 +5,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
-import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
@@ -17,7 +15,6 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.plugin.picard.software.Picard;
-import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
@@ -26,15 +23,6 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  *
  */
 public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
-	
-	@Autowired
-	private FileService fileService;
-	
-	@Autowired
-	private GATKSoftwareComponent gatk;
-	
-	@Autowired
-	private GridHostResolver gridHostResolver;
 	
 	public MergeSampleBamFilesTasklet(String inputFilegroupIds, String outputFilegroupIds) {
 		super(inputFilegroupIds, outputFilegroupIds);
@@ -81,13 +69,5 @@ public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
 
 		// place the grid result in the step context
 		storeStartedResult(context, result);
-	}
-
-	
-	@Transactional("entityManager")
-	@Override
-	public void doPreFinish(ChunkContext context) throws Exception {
-		for (Integer fgId : this.getOutputFilegroupIds())
-			fileService.getFileGroupById(fgId).setIsActive(1);
 	}
 }
