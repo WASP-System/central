@@ -318,7 +318,7 @@ public class PostRunAnalysisJobLaunchTests extends BatchDatabaseIntegrationTest 
 			ExitStatus status = je.getExitStatus();
 			Assert.assertTrue(status.isCompleted());
 			JobParameters params = je.getJobParameters();
-			Assert.assertEquals(params.getParameters().size(), 3);
+			Assert.assertEquals(params.getParameters().size(), 4);
 			Assert.assertNotNull(params.getString("cellLibraryIdList"));
 			Assert.assertNotNull(params.getString("p1"));
 			Assert.assertNotNull(params.getString("p2"));

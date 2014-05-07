@@ -34,6 +34,7 @@ import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.BamFileTypeAttribute;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
@@ -69,6 +70,9 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 	private FileType baiFileType;
 	
 	@Autowired
+	private GenomeService genomeService;
+	
+	@Autowired
 	private GatkService gatkService;
 	
 	@Autowired
@@ -88,7 +92,7 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
 		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
-		Build build = gatkService.getGenomeBuild(cellLib);
+		Build build = genomeService.getGenomeBuild(cellLib);
 		StepExecution stepExecution = context.getStepContext().getStepExecution();
 		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
 		

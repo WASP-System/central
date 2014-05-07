@@ -2,7 +2,7 @@ package edu.yu.einstein.wasp.exception;
 
 public class ChartException extends WaspException {
 
-	private static final long serialVersionUID = -5284970694432317074L;
+	private static final long serialVersionUID = -280038064812817371L;
 
 	public ChartException() {
 		super();

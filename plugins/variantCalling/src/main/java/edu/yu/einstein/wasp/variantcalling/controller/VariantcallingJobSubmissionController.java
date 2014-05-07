@@ -118,12 +118,14 @@ public class VariantcallingJobSubmissionController extends JobSubmissionControll
 			return nextPage(jobDraft);
 		}
 
-		List<SampleDraft> testSampleDrafts = new ArrayList<SampleDraft>();
-		List<SampleDraft> controlSampleDrafts = new ArrayList<SampleDraft>();
 		Map<SampleDraft, Integer> sampleDraftOrganismMap = new HashMap<SampleDraft, Integer>();
-		for (Map<SampleDraft,SampleDraft> sampleDraftPair : jobDraftService.getSampleDraftPairsByJobDraft(jobDraft)){
-			testSampleDrafts.addAll(sampleDraftPair.keySet());
-			controlSampleDrafts.addAll(sampleDraftPair.keySet());
+		for(SampleDraft sampleDraft : sampleDrafts){
+			for(SampleDraftMeta sampleDraftMeta : sampleDraft.getSampleDraftMeta()){
+				if(sampleDraftMeta.getK().endsWith("organism")){
+					sampleDraftOrganismMap.put(sampleDraft, new Integer(sampleDraftMeta.getV()));
+					continue;
+				}
+			}
 		}
 		Set<String> selectedSampleDraftPairStringSet = new HashSet<String>();
 		Set<Map<SampleDraft, SampleDraft>> sampleDraftPairSet = jobDraftService.getSampleDraftPairsByJobDraft(jobDraft);
@@ -139,7 +141,7 @@ public class VariantcallingJobSubmissionController extends JobSubmissionControll
 		m.put("sampleOrganismMap", sampleDraftOrganismMap);
 		m.put("selectedSamplePairs", selectedSampleDraftPairStringSet);
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
-		return "jobsubmit/chipseqform";
+		return "jobsubmit/variantcalling/pairings";
 	}
 
 	@RequestMapping(value="/pairings/{jobDraftId}.do", method=RequestMethod.POST)

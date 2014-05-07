@@ -14,6 +14,14 @@ public class WaspSoftwareJobParameters extends WaspJobParameters {
 
 	public static final String CELL_LIBRARY_ID_LIST = "cellLibraryIdList"; // Sample Source reference
 	
+	public static final String FILEGROUP_ID_INPUT = "inputFgId";
+	
+	public static final String FILEGROUP_ID_LIST_INPUT = "inputFgIdList";
+	
+	public static final String FILEGROUP_ID_OUTPUT = "outputFgId";
+	
+	public static final String FILEGROUP_ID_LIST_OUTPUT = "outputFgIdList";
+	
 	
 	/**
 	 * ID for a string representation of a genome in the format: TaxonID:Genome Name:Build ID

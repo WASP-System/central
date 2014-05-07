@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets.analysis;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,6 +44,8 @@ public class WaspJobSoftwareLaunchTaskletImpl extends AbandonMessageHandlingTask
 	private static Logger logger = LoggerFactory.getLogger("WaspJobSoftwareLaunchTaskletImpl");
 	
 	private int messageTimeoutInMillis;
+	
+	private Map<String, String> additionalJobParameters = new HashMap<>();
 	
 	/**
 	 * Set the timeout when waiting for reply (in millis).  Default 5000 (5s).
@@ -118,6 +121,17 @@ public class WaspJobSoftwareLaunchTaskletImpl extends AbandonMessageHandlingTask
 		this.softwareResourceType = softwareResourceType;
 		this.task = task;
 	}
+	
+	public WaspJobSoftwareLaunchTaskletImpl(ResourceType softwareResourceType, Integer jobId) {
+		setJobId(jobId);
+		this.softwareResourceType = softwareResourceType;
+	}
+	
+	public WaspJobSoftwareLaunchTaskletImpl(ResourceType softwareResourceType, Integer jobId, String task) {
+		setJobId(jobId);
+		this.softwareResourceType = softwareResourceType;
+		this.task = task;
+	}
 
 	@Override
 	@Transactional("entityManager") // Omission of this results in: edu.yu.einstein.wasp.exception.JobContextInitializationException: could not initialize proxy - no Session
@@ -129,7 +143,10 @@ public class WaspJobSoftwareLaunchTaskletImpl extends AbandonMessageHandlingTask
 			throw new SoftwareConfigurationException("No software could be configured for jobId=" + jobId + " with resourceType iname=" + softwareResourceType.getIName());
 		}
 		Map<String, String> jobParameters = softwareConfig.getParameters();
-		jobParameters.put(WaspSoftwareJobParameters.CELL_LIBRARY_ID_LIST, WaspSoftwareJobParameters.getCellLibraryListAsParameterValue(cellLibraryIds));
+		jobParameters.putAll(additionalJobParameters);
+		if (cellLibraryIds != null)
+			jobParameters.put(WaspSoftwareJobParameters.CELL_LIBRARY_ID_LIST, WaspSoftwareJobParameters.getCellLibraryListAsParameterValue(cellLibraryIds));
+		jobParameters.put(WaspSoftwareJobParameters.JOB_ID, jobId.toString());
 		MessagingTemplate messagingTemplate = new MessagingTemplate();
 		messagingTemplate.setReceiveTimeout(messageTimeoutInMillis);
 		BatchJobProviding softwarePlugin = waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), BatchJobProviding.class);
@@ -173,6 +190,16 @@ public class WaspJobSoftwareLaunchTaskletImpl extends AbandonMessageHandlingTask
 		this.task = task;
 	}
 	
+	@Override
+	public Map<String, String> getAdditionalJobParameters() {
+		return additionalJobParameters;
+	}
+
+	@Override
+	public void setAdditionalJobParameters(Map<String, String> additionalJobParameters) {
+		this.additionalJobParameters = additionalJobParameters;
+	}
+
 	@PostConstruct
 	public void init(){
 		super.init();

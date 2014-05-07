@@ -26,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.MetadataRuntimeException;
+import edu.yu.einstein.wasp.exception.NullResourceException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
@@ -37,6 +39,7 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Genome;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
@@ -449,6 +452,41 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 		other.setAlias("Other");
 		organisms.add(other);
 		return organisms;
+	}
+	
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Build getGenomeBuild(SampleSource cellLibrary) {
+		Build build = null;
+		try {
+			Sample library = sampleService.getLibrary(cellLibrary);
+			logger.debug("looking for genome build associated with sample: " + library.getId());
+			build = getBuild(library);
+			if (build == null) {
+				String mess = "cell library does not have associated genome build metadata annotation";
+				logger.error(mess);
+				throw new NullResourceException(mess);
+			}
+			logger.debug("genome build: " + build.getGenome().getName() + "::" + build.getName());
+		} catch (ParameterValueRetrievalException e) {
+			logger.error(e.toString());
+			e.printStackTrace();
+		}
+		return build;
+	}
+	
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getReferenceGenomeFastaFile(Build build) {
+		String folder = build.getMetadata("fasta.folder");
+		String filename = build.getMetadata("fasta.filename");
+		if (folder == null || folder.isEmpty() || filename == null || filename.isEmpty())
+			throw new MetadataRuntimeException("failed to locate reference genome fasta file");
+		return getRemoteBuildPath(build) + "/" + folder + "/" + filename;
 	}
 
 }

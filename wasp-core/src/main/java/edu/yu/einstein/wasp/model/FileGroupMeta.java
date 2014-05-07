@@ -13,9 +13,6 @@ package edu.yu.einstein.wasp.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -28,11 +25,7 @@ import org.hibernate.envers.NotAudited;
 @Table(name="filegroupmeta")
 public class FileGroupMeta extends MetaBase {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 8558940671046911453L;
-	
+	private static final long serialVersionUID = -2138378098749256034L;
 
 	/**
 	 * setFileMetaId(Integer fileMetaId)

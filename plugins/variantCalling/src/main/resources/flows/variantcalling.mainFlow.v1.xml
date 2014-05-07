@@ -3,29 +3,29 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
 
-	<batch:job id="edu.yu.einstein.wasp.variantcalling.mainFlow">
-		<batch:step id="edu.yu.einstein.wasp.variantcalling.mainFlow.notifyVariantcallingStart" next="edu.yu.einstein.wasp.variantcalling.mainFlow.performAction">
+	<batch:job id="variantcalling.mainFlow">
+		<batch:step id="variantcalling.mainFlow.notifyVariantcallingStart" next="variantcalling.mainFlow.performAction">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.variantcalling.integration.messages.SimpleVariantcallingStatusMessageTemplate">
+						<bean class="variantcalling.integration.messages.SimpleVariantcallingStatusMessageTemplate">
 							<property name="status" value="STARTED" />
 						</bean>
 					</constructor-arg>
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="edu.yu.einstein.wasp.variantcalling.mainFlow.performAction" next="edu.yu.einstein.wasp.variantcalling.mainFlow.notifyComplete">
+		<batch:step id="variantcalling.mainFlow.performAction" next="variantcalling.mainFlow.notifyComplete">
 			<!-- example do-nothing tasklet -->
-			<batch:tasklet ref="edu.yu.einstein.wasp.variantcalling.mainFlow.skipTasklet" />
+			<batch:tasklet ref="variantcalling.mainFlow.skipTasklet" />
 		</batch:step>
-		<batch:step id="edu.yu.einstein.wasp.variantcalling.mainFlow.notifyComplete">
+		<batch:step id="variantcalling.mainFlow.notifyComplete">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.variantcalling.integration.messages.SimpleVariantcallingStatusMessageTemplate">
+						<bean class="variantcalling.integration.messages.SimpleVariantcallingStatusMessageTemplate">
 							<property name="status" value="COMPLETED" />
 						</bean>
 					</constructor-arg>
@@ -34,7 +34,7 @@
 		</batch:step>
 	</batch:job>
 
-	<bean id="edu.yu.einstein.wasp.variantcalling.mainFlow.skipTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" scope="step" />
+	<bean id="variantcalling.mainFlow.skipTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" scope="step" />
 
 </beans>
 

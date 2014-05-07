@@ -5,9 +5,11 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
 		
-	<!-- Define variantCalling analysis aggregate flow 
-	<batch:job id="variantCalling.library.aggregate.jobflow.v1" restartable="true" >
-		<batch:step id="variantCalling.library.aggregate.step.notifyStarted" next="variantCalling.library.aggregate.step.callPeaks">
+	
+	<!-- for dispatching job, call with parameter 'jobId' -->
+	<batch:flow id="variantCalling.discovery.flow.v1" >
+	
+		<batch:step id="variantCalling.discovery.step.notifyStarted" next="variantCalling.discovery.step.callVariants">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
@@ -15,47 +17,48 @@
 						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
 							<property name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
 							<property name="task" value="#{batchJobTasks.ANALYSIS_AGGREGATE}"/>
-							<property name="status" value="CREATED" />
+							<property name="status" value="STARTED" />
 						</bean>
 					</constructor-arg>
-					
 				</bean>
 			</batch:tasklet>
 		</batch:step>
 		
-		<batch:step id="variantCalling.library.aggregate.step.callPeaks" next="variantCalling.library.aggregate.step.notifyCompleted">
+		<batch:step id="variantCalling.discovery.step.callVariants" next="variantCalling.discovery.step.listenForCallVariantsComplete">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.variantCalling.batch.tasklet.PeakCallerTasklet" scope="step">
-					<constructor-arg name="cellLibraryIdListAsString" value="#{jobParameters[waspSoftwareJobParameters.CELL_LIBRARY_ID_LIST]}"/>
-					<constructor-arg name="softwareResourceType" ref="peakcallerResourceType" />
-					
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.analysis.WaspJobSoftwareLaunchTaskletImpl" scope="step">
+					<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+					<constructor-arg name="softwareResourceType" ref="variantCallingResourceType" />
+					<constructor-arg name="task" value="#{batchJobTasks.ANALYSIS_AGGREGATE}" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		-->
-		<!-- 
-		<batch:step id="variantCalling.library.aggregate.step.listenForPeakCallerComplete" >
+		
+		<batch:step id="variantCalling.discovery.step.listenForCallVariantsComplete" >
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
-					<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.analysis" />
-					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
-					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-							<property name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
-							<property name="task" value="#{batchJobTasks.ANALYSIS_AGGREGATE}"/>
-							<property name="status" value="COMPLETED" />
-						</bean>
+					<constructor-arg name="messageTemplates">
+						<set>
+							<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+								<property name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+								<property name="task" value="#{sequencingBatchJobTasks.VARIANT_DISCOVERY}" />
+								<property name="status" value="COMPLETED" /> 
+							</bean>
+							<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+								<property name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+								<property name="task" value="#{sequencingBatchJobTasks.VARIANT_DISCOVERY}" />
+								<property name="status" value="FAILED" />
+							</bean>
+						</set>
 					</constructor-arg>
-					
+					<property name="failOnStatuses" value="FAILED" />
 				</bean>
 			</batch:tasklet>
-			<batch:next on="FAILED" to="variantCalling.library.aggregate.step.notifyFailed" />
-			<batch:next on="COMPLETED" to="variantCalling.library.aggregate.step.notifyCompleted" />
+			<batch:next on="FAILED" to="variantCalling.discovery.step.notifyFailed" />
+			<batch:next on="*" to="variantCalling.discovery.step.notifyCompleted" />
 		</batch:step>
-		 -->
-		 <!--
-		<batch:step id="variantCalling.library.aggregate.step.notifyCompleted" >
+		
+		<batch:step id="variantCalling.discovery.step.notifyCompleted" >
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
@@ -66,15 +69,12 @@
 							<property name="status" value="COMPLETED" />
 						</bean>
 					</constructor-arg>
-					
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		-->
-		<!--  
-		<batch:step id="variantCalling.library.aggregate.step.notifyFailed" >
+		
+		<batch:step id="variantCalling.discovery.step.notifyFailed" >
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
@@ -84,11 +84,17 @@
 							<property name="status" value="FAILED" />
 						</bean>
 					</constructor-arg>
-					
 				</bean>
 			</batch:tasklet>
+			<batch:fail on="*" />
 		</batch:step>
 		
+	</batch:flow>
+	
+	
+	<!-- for dispatching job, call with parameters 'jobId' and 'libraryId' -->
+	<batch:job id="variantCalling.discovery.jobflow.v1" restartable="true" >
+		<batch:flow id="variantCalling.discovery.flowjob" parent="variantCalling.discovery.flow.v1" />
 	</batch:job>
--->
+
 </beans>

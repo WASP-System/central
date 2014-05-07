@@ -70,9 +70,9 @@ public class GatkPlugin extends WaspPlugin
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
 	
-	public static final String PREPROCESSING_FLOW = "edu.yu.einstein.wasp.gatk.dataPreprocessingFlow";
+	public static final String PREPROCESSING_FLOW = "gatk.dataPreprocessing.jobFlow.v1";
 	
-	public static final String VARIANT_DISCOVERY_FLOW = "edu.yu.einstein.wasp.gatk.variantDiscoveryFlow";
+	public static final String VARIANT_DISCOVERY_FLOW = "gatk.variantDiscovery.jobFlow.v1";
 
 	public GatkPlugin(String pluginName, Properties waspSiteProperties, MessageChannel channel) {
 		super(pluginName, waspSiteProperties, channel);

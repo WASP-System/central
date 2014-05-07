@@ -24,7 +24,7 @@ import edu.yu.einstein.wasp.web.Tooltip;
 public class CommentTag extends BodyTagSupport {
 	
 	
-	private static final long serialVersionUID = -7313415827087355691L;
+	private static final long serialVersionUID = 1660329387993913496L;
 
 	Logger log = LoggerFactory.getLogger(CommentTag.class);
 	

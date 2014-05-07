@@ -27,7 +27,7 @@ import edu.yu.einstein.wasp.util.WaspJobContext;
  */
 public class BWAMemPlugin extends AbstractBWAPlugin {
 
-	private static final long serialVersionUID = 8181556629848527079L;
+	private static final long serialVersionUID = 7953334889300450448L;
 
 	public static final String JOB_NAME = "bwa-mem.alignment";
 	

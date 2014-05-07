@@ -24,8 +24,7 @@ import edu.yu.einstein.wasp.web.Tooltip;
  */
 public class TooltipTag extends BodyTagSupport {
 	
-	
-	private static final long serialVersionUID = -7313415827087355691L;
+	private static final long serialVersionUID = 205331623020462535L;
 
 	Logger log = LoggerFactory.getLogger(TooltipTag.class);
 	
