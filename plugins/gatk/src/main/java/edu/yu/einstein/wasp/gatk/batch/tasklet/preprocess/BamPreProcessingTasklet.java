@@ -114,9 +114,9 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		
 		WorkUnit w = new WorkUnit();
 		w.setMode(ExecutionMode.PROCESS);
-		w.setMemoryRequirements(GATKSoftwareComponent.MEMORY_REQUIRED);
+		w.setMemoryRequirements(GATKSoftwareComponent.MEMORY_REQUIRED_8);
 		w.setProcessMode(ProcessMode.MAX);
-		w.setMemoryRequirements(GATKSoftwareComponent.MEMORY_REQUIRED);
+		w.setMemoryRequirements(GATKSoftwareComponent.MEMORY_REQUIRED_8);
 		w.setProcessorRequirements(GATKSoftwareComponent.NUM_THREADS);
 		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		w.setRequiredFiles(fhlist);
@@ -164,11 +164,12 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		String recaliGrpFilename = "gatk.${" + WorkUnit.JOB_NAME + "}.recali.grp";
 		String recaliBamFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
 		String recaliBaiFilename = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
-		
-		w.addCommand(gatk.getCreateTarget(build, inputBamFilename, intervalFileName));
-		w.addCommand(gatk.getLocalAlign(build, inputBamFilename, intervalFileName, realignBamFilename));
-		w.addCommand(gatk.getRecaliTable(build, realignBamFilename, recaliGrpFilename));
-		w.addCommand(gatk.getPrintRecali(build, realignBamFilename, recaliGrpFilename, recaliBamFilename, recaliBaiFilename));
+		Set<String> inputFilenames = new HashSet<>();
+		inputFilenames.add(inputBamFilename);
+		w.addCommand(gatk.getCreateTargetCmd(build, inputFilenames, intervalFileName));
+		w.addCommand(gatk.getLocalAlignCmd(build, inputFilenames, intervalFileName, realignBamFilename, null));
+		w.addCommand(gatk.getRecaliTableCmd(build, realignBamFilename, recaliGrpFilename));
+		w.addCommand(gatk.getPrintRecaliCmd(build, realignBamFilename, recaliGrpFilename, recaliBamFilename, recaliBaiFilename));
 
 		GridResult result = gridHostResolver.execute(w);
 		

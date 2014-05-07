@@ -465,7 +465,6 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	/**
 	 * {@inheritDoc}
 	 * 
-	 * @throws SampleTypeException
 	 */
 	@Override
 	public Set<FileGroup> getFilesForCellLibrary(SampleSource cellLibrary) {
@@ -478,11 +477,39 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * @throws SampleTypeException
 	 */
 	@Override
+	public Set<FileGroup> getActiveFilesForCellLibrary(SampleSource cellLibrary) {
+		return fileGroupDao.getActiveFilesForCellLibrary(cellLibrary);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 */
+	@Override
+	public Set<FileGroup> getFilesForSample(Sample sample) {
+		return fileGroupDao.getFilesForSample(sample);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	*/
+	@Override
+	public Set<FileGroup> getActiveFilesForSample(Sample sample) {
+		return fileGroupDao.getActiveFilesForSample(sample);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @throws SampleTypeException
+	 */
+	@Override
 	public Set<FileGroup> getFilesForCellLibraryByType(SampleSource cellLibrary, FileType fileType) {
 		Assert.assertParameterNotNull(cellLibrary, "must provide a cellLibrary");
 		Assert.assertParameterNotNull(fileType, "must provide a fileType");
 		Assert.assertParameterNotNull(fileType.getId(), "fileType has no valid fileTypeId");
-		return fileGroupDao.getFilesForCellLibraryByType(cellLibrary, fileType);
+		return fileGroupDao.getActiveFilesForCellLibraryByType(cellLibrary, fileType);
 	}
 	
 	/**
@@ -527,7 +554,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		Assert.assertParameterNotNull(library, "must provide a library");
 		if (!sampleService.isLibrary(library))
 			throw new SampleTypeException("sample is not of type library");
-		return fileGroupDao.getFilesForCellLibraryByType(sampleService.getCellLibrary(cell, library), fileType);
+		return fileGroupDao.getActiveFilesForCellLibraryByType(sampleService.getCellLibrary(cell, library), fileType);
 	}
 	
 	/**
