@@ -46,7 +46,7 @@ public class Macstwo extends SoftwarePackage{
 		
 		Assert.assertTrue(!testFileHandleList.isEmpty());
 		
-		WorkUnit w = prepareWorkUnit();
+		WorkUnit w = prepareWorkUnit();	
 		
 		List<FileHandle> tempFileHandleList = new ArrayList<FileHandle>();
 		tempFileHandleList.addAll(testFileHandleList);//THIS LIST MUST BE ADDED FIRST
@@ -54,12 +54,26 @@ public class Macstwo extends SoftwarePackage{
 		w.setRequiredFiles(tempFileHandleList);
 		
 		StringBuilder tempCommand = new StringBuilder();
+		tempCommand.append("samtools merge mergedTESTBamFile.bam ");//mergedTESTBamFile.bam is the output of the merge
+		int indexSoFar = 0;
+		for(int i = 0; i < testFileHandleList.size(); i++){
+			
+			tempCommand.append("${" + WorkUnit.INPUT_FILE + "["+indexSoFar+"]} ");
+			indexSoFar++;
+		}
+		String command = new String(tempCommand);
+		logger.debug("---- Will execute samtools merge for merging bams with command: ");
+		logger.debug("---- "+command);
+		
+		w.setCommand(command);
+		
+		tempCommand = new StringBuilder();
 		tempCommand.append("macs2");
 		String method = " callpeak";//TODO: needs to be a parameter as some point
 		tempCommand.append(method);
 		
 		//macs2 can handle merging multiple test and/or multiple control files
-		int indexSoFar = 0;
+		indexSoFar = 0;		
 		for(int i = 0; i < testFileHandleList.size(); i++){
 			if(i==0){
 				tempCommand.append(" -t ");
@@ -67,6 +81,7 @@ public class Macstwo extends SoftwarePackage{
 			tempCommand.append("${" + WorkUnit.INPUT_FILE + "["+indexSoFar+"]} ");
 			indexSoFar++;
 		}
+		
 		for(int i = 0; i < controlFileHandleList.size(); i++){
 			if(i==0){
 				tempCommand.append(" -c ");
@@ -155,7 +170,7 @@ public class Macstwo extends SoftwarePackage{
 		//String command = "java -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt 4 -I ${" + WorkUnit.INPUT_FILE + "} -R " + getGenomeIndexPath(getGenomeBuild(libraryCell)) + "genome.fasta -T RealignerTargetCreator -o gatk.${" + WorkUnit.JOB_NAME + "}.realign.intervals -known /cork/jcai/GATK_bundle_2.2/1000G_phase1.indels.hg19.vcf -known /cork/jcai/GATK_bundle_2.2/Mills_and_1000G_gold_standard.indels.hg19.vcf";
 		//String command = "java -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt 4 -I ${" + WorkUnit.INPUT_FILE + "} -R " + getGenomeIndexPath(getGenomeBuild(libraryCell)) + "genome.fasta -T RealignerTargetCreator -o gatk.${" + WorkUnit.JOB_NAME + "}.realign.intervals -known /cork/jcai/GATK_bundle_2.2/1000G_phase1.indels.hg19.vcf -known /cork/jcai/GATK_bundle_2.2/Mills_and_1000G_gold_standard.indels.hg19.vcf";
 
-		String command = new String(tempCommand);
+		command = new String(tempCommand);
 		logger.debug("---- Will execute macs2 for peakcalling with command: ");
 		logger.debug("---- "+command);
 		
