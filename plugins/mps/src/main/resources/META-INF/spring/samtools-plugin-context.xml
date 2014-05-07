@@ -9,31 +9,26 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 		
 
-	<bean id="imagemagickPluginArea" class="java.lang.String">
-		<constructor-arg>
-			<value>imagemagick</value>
-		</constructor-arg>
-	</bean>
 	
 	<!-- channel for communications with this plugin. -->
-	<int:channel id="wasp.channel.plugin.imagemagick" />
+	<int:channel id="wasp.channel.plugin.samtools" />
 
-	<int:service-activator input-channel="wasp.channel.plugin.imagemagick" ref="imagemagickPlugin" method="process" />
+	<int:service-activator input-channel="wasp.channel.plugin.samtools" ref="samtoolsPlugin" method="process" />
 	
-	<bean id="imagemagickPlugin" class="edu.yu.einstein.wasp.plugin.mps.grid.plugin.ImagemagickPlugin">
-		<constructor-arg name="iName" ref="imagemagickPluginArea" />
+	<bean id="samtoolsPlugin" class="edu.yu.einstein.wasp.plugin.mps.grid.plugin.SamtoolsPlugin">
+		<constructor-arg name="iName" ref="samtoolsPluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
-		<constructor-arg name="channel" ref="wasp.channel.plugin.imagemagick" />
-		<property name="name" value="Imagemagick" />
-		<property name="description" value="Image processing tools" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.samtools" />
+		<property name="name" value="Samtools" />
+		<property name="description" value="Manipulate alignments in the BAM format" />
 		<property name="provides" >
 			<set>
-				<ref bean="imagemagick" /> 
+				<ref bean="samtools" /> 
 			</set>
 		</property>
 		<property name="handles" >
 			<set>
-				<ref bean="imagemagickPluginArea" />
+				<ref bean="samtoolsPluginArea" />
 			</set>
 		</property>
 	</bean>
