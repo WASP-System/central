@@ -14,6 +14,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.plugin.mps.grid.software.R;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 // Un-comment the following if using the plugin service
@@ -178,6 +179,8 @@ public class Macstwo extends SoftwarePackage{
 		
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(this);
+		sd.add(this.getSoftwareDependencyByIname("samtools"));
+		sd.add(this.getSoftwareDependencyByIname("bedtools"));
 		w.setSoftwareDependencies(sd);
 
 		logger.debug("----command has been set to workunit in getPeaks()");		
@@ -206,7 +209,11 @@ public class Macstwo extends SoftwarePackage{
 		
 		w.addCommand(command2);
 		
-		w.setSoftwareDependencies(getSoftwareDependencies());
+		//w.setSoftwareDependencies(getSoftwareDependencies());
+		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
+		sd.add(this.getSoftwareDependencyByIname("imagemagick"));
+		sd.add(this.getSoftwareDependencyByIname("rPackage"));
+		w.setSoftwareDependencies(sd);
 		
 		logger.debug("----command has been set to workunit in getModelPdf");		
 		return w;
