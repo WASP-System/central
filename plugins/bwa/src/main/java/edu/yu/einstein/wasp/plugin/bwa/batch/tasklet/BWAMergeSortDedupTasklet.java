@@ -34,8 +34,10 @@ import edu.yu.einstein.wasp.plugin.bwa.software.BWABacktrackSoftwareComponent;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.BamFileTypeAttribute;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqComparator;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
+import edu.yu.einstein.wasp.plugin.picard.software.Picard;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
+
 
 /**
  * @author calder
@@ -87,6 +89,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		StepExecution stepExecution = context.getStepContext().getStepExecution();
 		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
 		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
+		Picard picard = (Picard) bwa.getSoftwareDependencyByIname("picard");
 		
 		// retrieve attributes persisted in jobExecutionContext
 		String scratchDirectory = jobExecutionContext.get("scrDir").toString();
@@ -167,6 +170,8 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 	
 		w.setCommand("shopt -s nullglob\n");
 		w.addCommand("for x in sam.*.out; do ln -s ${x} ${x/*:/}.sam ; done\n");
+		String outputBamFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
+		String outputBaiFilename = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
 		if (markDuplicates){
 			bamServiceImpl.addAttribute(bamG, BamFileTypeAttribute.DEDUP);
 			String metricsOutput = fileService.generateUniqueBaseFileName(cellLib) + "dedupMetrics.txt";
@@ -187,18 +192,13 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 			// save in step context for use later
 			stepExecutionContext.put("metricsGID", metricsGId);
 			w.getResultFiles().add(metricsG);
-			
-			w.addCommand("java -Xmx4g -jar $PICARD_ROOT/MergeSamFiles.jar $(printf 'I=%s ' *.out.sam) O=merged.${" + WorkUnit.OUTPUT_FILE + "[0]} " +
-					"SO=coordinate TMP_DIR=. CREATE_INDEX=false VALIDATION_STRINGENCY=SILENT");
-			w.addCommand("java -Xmx4g -jar $PICARD_ROOT/MarkDuplicates.jar I=merged.${" + WorkUnit.OUTPUT_FILE + "[0]} " +
-					"O=${" + WorkUnit.OUTPUT_FILE + "[0]} REMOVE_DUPLICATES=false METRICS_FILE=${" + 
-					WorkUnit.OUTPUT_FILE + "[2]} TMP_DIR=. CREATE_INDEX=true VALIDATION_STRINGENCY=SILENT");
+			String tempMergedBamFilename = "merged.${" + WorkUnit.OUTPUT_FILE + "[0]}";
+			String dedupMetricsFilename = "${" + WorkUnit.OUTPUT_FILE + "[2]}";
+			w.addCommand(picard.getMergeBamCmd("*.out.sam", tempMergedBamFilename, null));
+			w.addCommand(picard.getMarkDuplicatesCmd(tempMergedBamFilename, outputBamFilename, outputBaiFilename, dedupMetricsFilename));
 		} else {
-			w.addCommand("java -Xmx4g -jar $PICARD_ROOT/MergeSamFiles.jar $(printf 'I=%s ' *.out.sam) O=${" + WorkUnit.OUTPUT_FILE + "[0]} " +
-					"SO=coordinate TMP_DIR=. CREATE_INDEX=true VALIDATION_STRINGENCY=SILENT");
-		}
-		w.addCommand("mv ${" + WorkUnit.OUTPUT_FILE + "[0]}.bai ${" + WorkUnit.OUTPUT_FILE + "[1]}");
-			
+			w.addCommand(picard.getMergeBamCmd("*.out.sam", outputBamFilename, outputBaiFilename));
+		}	
 		w.setWorkingDirectory(scratchDirectory);
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
 		w.setSecureResults(true);

@@ -36,7 +36,9 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 
 	public final static int NUM_THREADS = 4;
 	
-	public final static int MEMORY_REQUIRED = 8; // in Gb
+	public final static int MEMORY_REQUIRED_4 = 4; // in Gb
+	
+	public final static int MEMORY_REQUIRED_8 = 8; // in Gb
 	
 	@Autowired
 	private GatkService gatkService;
@@ -54,28 +56,34 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	public GATKSoftwareComponent() {
 	}
 	
-	public String getCreateTargetCmd(Build build, String inputFilename, String intervalFilename) {
-		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt " + NUM_THREADS + 
-				" -I " + inputFilename + " -R " + genomeService.getReferenceGenomeFastaFile(build) + 
+	public String getCreateTargetCmd(Build build, Set<String> inputFilenames, String intervalFilename) {
+		String command = "java -Xmx" + MEMORY_REQUIRED_8 + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt " + NUM_THREADS;
+		for (String fileName : inputFilenames)
+			command += " -I " + fileName;
+		command += " -R " + genomeService.getReferenceGenomeFastaFile(build) + 
 				" -T RealignerTargetCreator -o " + intervalFilename + " -known " + gatkService.getReferenceIndelsVcfFile(build);
-		
 		logger.debug("Will conduct gatk create target for re-alignment with string: " + command);
 		return command;
 	}
 	
 	
-	public String getLocalAlignCmd(Build build, String inputFilename, String intervalFilename, String realnBamFilename) {
-		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -I " + inputFilename + " -R " + 
+	public String getLocalAlignCmd(Build build, Set<String> inputFilenames, String intervalFilename, String realnBamFilename, String realnBaiFilename) {
+		String command = "java -Xmx" + MEMORY_REQUIRED_8 + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar";
+		for (String fileName : inputFilenames)
+			command += " -I " + fileName;
+		command += " -R " + 
 				genomeService.getReferenceGenomeFastaFile(build) + " -T  IndelRealigner" + 
 				" -targetIntervals " + intervalFilename + " -o " + realnBamFilename + " -known " + gatkService.getReferenceIndelsVcfFile(build);
-		
+		if (realnBaiFilename != null)
+			command += " && mv " + realnBamFilename + ".bai " + realnBaiFilename;
 		logger.debug("Will conduct gatk local re-alignment with string: " + command);
 		
 		return command;
 	}
 	
+	
 	public String getRecaliTableCmd(Build build, String realnBamFilename, String recaliGrpFilename) {
-		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + genomeService.getReferenceGenomeFastaFile(build) + 
+		String command = "java -Xmx" + MEMORY_REQUIRED_8 + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + genomeService.getReferenceGenomeFastaFile(build) + 
 				" -nct " + NUM_THREADS + " -knownSites " + gatkService.getReferenceSnpsVcfFile(build) + 
 				" -I " + realnBamFilename + " -T BaseRecalibrator -o " + recaliGrpFilename;
 
@@ -85,36 +93,14 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	}
 	
 	public String getPrintRecaliCmd(Build build, String realnBamFilename, String recaliGrpFilename, String recaliBamFilename, String recaliBaiFilename) {
-		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + genomeService.getReferenceGenomeFastaFile(build) + 
+		String command = "java -Xmx" + MEMORY_REQUIRED_8 + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + genomeService.getReferenceGenomeFastaFile(build) + 
 				" -nct " + NUM_THREADS + " -I " + realnBamFilename + " -T PrintReads -o " + recaliBamFilename +
-				" -BQSR " + recaliGrpFilename + " -baq RECALCULATE && mv " + recaliBamFilename + ".bai " + recaliBaiFilename;
+				" -BQSR " + recaliGrpFilename + " -baq RECALCULATE";
+		if (recaliBaiFilename != null)
+			command += " && mv " + recaliBamFilename + ".bai " + recaliBaiFilename;
 		logger.debug("Will conduct gatk recalibrate sequences with command: " + command);
 		return command;
 	}
-	
-	public String getPicardMergeBamCmd(Set<String> inputBamFilenames, String mergedBamFilename) {
-		String command = "java -Xmx4g -jar $PICARD_ROOT/MergeSamFiles.jar";
-		for (String fileName : inputBamFilenames)
-			command += " I=" + fileName;
-		command += " O=" + mergedBamFilename + " SO=coordinate TMP_DIR=. CREATE_INDEX=false VALIDATION_STRINGENCY=SILENT";
-		logger.debug("Will conduct picard MergeSamFiles with command: " + command);
-		return command;
-	}
-	
-	public String getPicardMarkDuplicatesCmd(String inputBamFilename, String dedupBamFilename, String dedupBaiFilename, String dedupMetricsFilename){
-		String command = "java -Xmx4g -jar $PICARD_ROOT/MarkDuplicates.jar I=" + inputBamFilename + " O=" + dedupBamFilename +
-				" REMOVE_DUPLICATES=false METRICS_FILE=" + dedupMetricsFilename + 
-				" TMP_DIR=. CREATE_INDEX=true VALIDATION_STRINGENCY=SILENT && mv " + dedupBamFilename + ".bai " + dedupBaiFilename;
-		logger.debug("Will conduct picard MarkDuplicates with command: " + command);
-		return command;
-	}
-	
-	public String getIndexBamCmd(String bamFilename, String baiFilename){
-		String command = "java -Xmx4g -jar $PICARD_ROOT/BuildBamIndex.jar I=" + bamFilename + " O=" + baiFilename + 
-				" TMP_DIR=. VALIDATION_STRINGENCY=SILENT";
-		logger.debug("Will conduct picard indexing of recalibrated bam file with command: " + command);
-		return command;
-	}	
 	
 	private String getCallVariantOpts(Map<String,Object> jobParameters, String wxsIntervalFile) throws ParameterValueRetrievalException{
 		if (!jobParameters.containsKey("variantCallingMethod"))

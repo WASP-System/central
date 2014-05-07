@@ -1,8 +1,10 @@
 package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +18,12 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.picard.software.Picard;
+import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.service.GenomeService;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
@@ -25,7 +31,7 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  * @author asmclellan
  *
  */
-public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
+public class RealignTasklet extends AbstractGatkTasklet {
 	
 	@Autowired
 	private FileService fileService;
@@ -36,8 +42,22 @@ public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
 	@Autowired
 	private GridHostResolver gridHostResolver;
 	
-	public MergeSampleBamFilesTasklet(String inputFilegroupIds, String outputFilegroupIds) {
+	@Autowired
+	private GenomeService genomeService;
+	
+	@Autowired
+	private SampleService sampleService;
+	
+	public RealignTasklet(String inputFilegroupIds, String outputFilegroupIds) {
 		super(inputFilegroupIds, outputFilegroupIds);
+	}
+	
+	@Transactional("entityManager")
+	public Build getBuildForFg(FileGroup fileGroup){
+		Set<SampleSource> fgCl = fileGroup.getSampleSources();
+		if (fgCl == null || fgCl.isEmpty())
+			return null;
+		return genomeService.getGenomeBuild(fgCl.iterator().next());
 	}
 	
 	@Override
@@ -50,10 +70,12 @@ public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
 		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + jobId);
 		w.setSecureResults(true);
-		
+		Build build = null;
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();
 		for (Integer fgId : this.getInputFilegroupIds()){
 			FileGroup fg = fileService.getFileGroupById(fgId);
+			if (fhlist.isEmpty()) // first entry not yet entered
+				build = getBuildForFg(fg);
 			fhlist.addAll(fg.getFileHandles());
 		}
 		w.setRequiredFiles(fhlist);
@@ -64,19 +86,18 @@ public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
 		}
 		w.setResultFiles(fglist);
 		List<SoftwarePackage> dependencies = new ArrayList<>();
+		Picard picard = (Picard) gatk.getSoftwareDependencyByIname("picard");
 		dependencies.add(gatk);
-		dependencies.add(gatk.getSoftwareDependencyByIname("picard"));
+		dependencies.add(picard);
 		w.setSoftwareDependencies(dependencies);
 		LinkedHashSet<String> inputBamFilenames = new LinkedHashSet<>();
 		for (int i=0; i < fhlist.size(); i++)
 			inputBamFilenames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");
-		String mergedBamFilename = "merged.${"+ WorkUnit.OUTPUT_FILE+ "[0]}";
-		String mergedDedupBamFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
-		String mergedDedupBaiFilename = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
-		String mergedDedupMetricsFilename = "${" + WorkUnit.OUTPUT_FILE + "[2]}";
-		Picard picard = (Picard) gatk.getSoftwareDependencyByIname("picard");
-		w.addCommand(picard.getMergeBamCmd(inputBamFilenames, mergedBamFilename, null));
-		w.addCommand(picard.getMarkDuplicatesCmd(mergedBamFilename, mergedDedupBamFilename, mergedDedupBaiFilename, mergedDedupMetricsFilename));
+		String intervalFileName = "gatk.${" + WorkUnit.OUTPUT_FILE + "}.realign.intervals";
+		String realnBamFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
+		String realnBaiFilename = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
+		w.addCommand(gatk.getCreateTargetCmd(build, inputBamFilenames, intervalFileName));
+		w.addCommand(gatk.getLocalAlignCmd(build, inputBamFilenames, intervalFileName, realnBamFilename, realnBaiFilename));
 		GridResult result = gridHostResolver.execute(w);
 
 		// place the grid result in the step context
@@ -90,4 +111,5 @@ public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
 		for (Integer fgId : this.getOutputFilegroupIds())
 			fileService.getFileGroupById(fgId).setIsActive(1);
 	}
+
 }

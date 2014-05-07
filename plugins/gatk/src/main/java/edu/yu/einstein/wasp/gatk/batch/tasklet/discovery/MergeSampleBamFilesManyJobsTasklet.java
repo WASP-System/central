@@ -26,7 +26,8 @@ import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 
 /**
- * 
+ * Realigns test and control together to avoid slight alignment differences between the two tissue types. Also does this for bam files merged in the
+ * previous step for the same reason (consistent alignments across all lanes within a sample).
  * @author asmclellan
  *
  */
@@ -70,7 +71,8 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 	public void doExecute() {
 		Job job = jobService.getJobByJobId(jobId);
 		Assert.assertTrue(job.getId() > 0);
-		Map<Sample, LinkedHashSet<FileGroup>> sampleFileGroupsForNextStep = new HashMap<>();
+		Map<Sample, FileGroup> mergedSampleFileGroupsForNextStep = new HashMap<>();
+		Map<Sample, FileGroup> passThroughSampleFileGroupsForNextStep = new HashMap<>();
 		Map<Sample, LinkedHashSet<FileGroup>> sampleFileGroups = new HashMap<>();
 		Map<Sample, LinkedHashSet<SampleSource>> sampleCellLibraries = new HashMap<>();
 		try {
@@ -91,8 +93,6 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 			e1.printStackTrace();
 		}
 		for (Sample sample: sampleFileGroups.keySet()){
-			if (!sampleFileGroupsForNextStep.containsKey(sample))
-				sampleFileGroupsForNextStep.put(sample, new LinkedHashSet<FileGroup>());
 			LinkedHashSet<FileGroup> inputFileGroups = new LinkedHashSet<FileGroup>(sampleFileGroups.get(sample));
 			LinkedHashSet<FileGroup> outputFileGroups = new LinkedHashSet<>();
 			if (inputFileGroups.size() > 1){
@@ -113,7 +113,7 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 				bamG.setSampleSources(sampleCellLibraries.get(sample));
 				fileTypeService.setAttributes(bamG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
 				outputFileGroups.add(bamG);
-				sampleFileGroupsForNextStep.get(sample).add(bamG);
+				mergedSampleFileGroupsForNextStep.put(sample, bamG);
 	
 				FileGroup baiG = new FileGroup();
 				FileHandle bai = new FileHandle();
@@ -153,10 +153,11 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 					e.printStackTrace();
 				}
 			} else {
-				sampleFileGroupsForNextStep.get(sample).addAll(sampleFileGroups.get(sample)); // should be no more than 1 entry
+				passThroughSampleFileGroupsForNextStep.put(sample, sampleFileGroups.get(sample).iterator().next()); // should be no more than 1 entry
 			}
 			// put files needed for next step into step execution context to be promoted to job context
-			getStepExecution().getExecutionContext().put("sampleFgMap", AbstractGatkTasklet.getSampleFgMapAsJsonString(sampleFileGroups));
+			getStepExecution().getExecutionContext().put("mergedSampleFgMap", AbstractGatkTasklet.getSampleFgMapAsJsonString(mergedSampleFileGroupsForNextStep));
+			getStepExecution().getExecutionContext().put("passThroughSampleFgMap", AbstractGatkTasklet.getSampleFgMapAsJsonString(passThroughSampleFileGroupsForNextStep));
 		}
 	}
 

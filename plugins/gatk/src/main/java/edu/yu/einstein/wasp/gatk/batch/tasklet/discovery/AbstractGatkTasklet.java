@@ -84,20 +84,20 @@ public abstract class AbstractGatkTasklet extends WaspRemotingTasklet {
 		return filegroups;
 	}
 	
-	public static String getSampleFgMapAsJsonString(Map<Sample, LinkedHashSet<FileGroup>> sampleFileGroups){
+	public static String getSampleFgMapAsJsonString(Map<Sample, FileGroup> sampleFileGroups){
 		JSONObject jsonObject = new JSONObject();
 		for (Sample sample: sampleFileGroups.keySet())
-			jsonObject.put(sample.getId().toString(), getFileGroupIdsAsCommaDelimitedString(sampleFileGroups.get(sample)));
+			jsonObject.put(sample.getId().toString(), sampleFileGroups.get(sample).getId());
 		return jsonObject.toString();
 	}
 	
 	@Transactional("entityManager")
-	public static Map<Sample, LinkedHashSet<FileGroup>> getSampleFgMapFromJsonString(String jsonString, SampleService sampleService, FileService fileService){
+	public static Map<Sample, FileGroup> getSampleFgMapFromJsonString(String jsonString, SampleService sampleService, FileService fileService){
 		JSONObject jsonObject = new JSONObject(jsonString);
-		Map<Sample, LinkedHashSet<FileGroup>> sampleFileGroups = new HashMap<>();
+		Map<Sample, FileGroup> sampleFileGroups = new HashMap<>();
 		for (Object sampleIdObj : jsonObject.keySet()){
 			Sample sample = sampleService.getSampleById((Integer) sampleIdObj);
-			sampleFileGroups.put(sample, getFileGroupsFromCommaDelimitedString(jsonObject.getString(sampleIdObj.toString()), fileService));
+			sampleFileGroups.put(sample, fileService.getFileGroupById(jsonObject.getInt(sampleIdObj.toString())));
 		}
 		return sampleFileGroups;
 	}

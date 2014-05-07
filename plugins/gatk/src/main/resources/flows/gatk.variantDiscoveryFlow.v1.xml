@@ -18,10 +18,10 @@
 		</batch:step>
 	</batch:job>
 	
-	<batch:job id="gatk.variantDiscovery.hc.realignTestControlPairs.jobFlow">
-		<batch:step id="gatk.variantDiscovery.hc.realignTestControlPairs.step">
+	<batch:job id="gatk.variantDiscovery.hc.realign.jobFlow">
+		<batch:step id="gatk.variantDiscovery.hc.realign.step">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.RealignTestControlPairsTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.RealignTasklet" scope="step">
 					<constructor-arg name="inputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.INPUT_FILEGROUP_ID_LIST]}" />
 					<constructor-arg name="outputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.OUTPUT_FILEGROUP_ID_LIST]}" />
 					<constructor-arg name="jobId" value="#{jobParameters[waspSoftwareJobParameters.JOB_ID]}" />
@@ -57,7 +57,7 @@
 			<batch:listeners>
 				<batch:listener>
 					<bean class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
-						<property name="keys" value="sampleFgMap"  />
+						<property name="keys" value="mergedSampleFgMap,passThroughSampleFgMap"  />
 						<property name="statuses" value="COMPLETED,FAILED" />
 					</bean>
 				</batch:listener>
@@ -69,26 +69,28 @@
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForManyStatusMessagesTasklet" scope="step" />
 			</batch:tasklet>
 			<batch:next on="FAILED" to="gatk.variantDiscovery.hc.notifyFailed" />
-			<batch:next on="*" to="gatk.variantDiscovery.hc.realignTestControlPairs" />
+			<batch:next on="*" to="gatk.variantDiscovery.hc.realign" />
 		</batch:step>
 		
-		<batch:step id="gatk.variantDiscovery.hc.realignTestControlPairs">
+		<batch:step id="gatk.variantDiscovery.hc.realign">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.RealignTestControlPairsManyJobsTasklet" scope="step" />
+				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.RealignManyJobsTasklet" scope="step" >
+					<constructor-arg name="jobId" value="#{jobParameters[waspSoftwareJobParameters.JOB_ID]}" />
+				</bean>
 			</batch:tasklet>
 			<batch:next on="FAILED" to="gatk.variantDiscovery.hc.notifyFailed" />
-			<batch:next on="*" to="gatk.variantDiscovery.hc.realignTestControlPairs.WaitForCompletion" />
+			<batch:next on="*" to="gatk.variantDiscovery.hc.realign.WaitForCompletion" />
 			<batch:listeners>
 				<batch:listener>
 					<bean class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
-						<property name="keys" value="sampleFgMap"  /> <!-- may be updated by this step--> 
+						<property name="keys" value="mergedSampleFgMap,passThroughSampleFgMap"  /> <!-- may be updated by this step--> 
 						<property name="statuses" value="COMPLETED,FAILED" />
 					</bean>
 				</batch:listener>
 			</batch:listeners>
 		</batch:step>
 		
-		<batch:step id="gatk.variantDiscovery.hc.realignTestControlPairs.WaitForCompletion">
+		<batch:step id="gatk.variantDiscovery.hc.realign.WaitForCompletion">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForManyStatusMessagesTasklet" scope="step" />
 			</batch:tasklet>
