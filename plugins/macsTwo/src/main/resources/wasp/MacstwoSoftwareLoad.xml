@@ -22,6 +22,8 @@
 		<list>
 			<ref bean="rPackage" />
 			<ref bean="imagemagick" />
+			<ref bean="samtools" />
+			<ref bean="bedtools" />
 		</list>
 	</property>
     <!-- If specifying form elements these may be done below (after uncommenting this section, remove the spaces in the comment terminators) - - >

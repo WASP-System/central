@@ -33,6 +33,8 @@ import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.plugin.mps.grid.software.Imagemagick;
+import edu.yu.einstein.wasp.plugin.mps.grid.software.R;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -77,7 +79,9 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 	
 	@Autowired
 	private Macstwo macs2;
-	
+
+/*	don't use autowired for these two, but instead, see below in method doExecute()
+ 
 	@Autowired
 	@Qualifier("rPackage")
 	private SoftwarePackage rSoftware;
@@ -85,7 +89,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 	@Autowired
 	@Qualifier("imagemagick")
 	private SoftwarePackage imageMagickSoftware;
-
+*/
 
 	public MacstwoGenerateModelAsPdfTasklet() {
 		// proxy
@@ -125,6 +129,10 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
+		
+		Imagemagick imagemagickSoftware = (Imagemagick) macs2.getSoftwareDependencyByIname("imagemagick"); 
+		R rSoftware = (R) macs2.getSoftwareDependencyByIname("rPackage");
+
 		logger.debug("*************************************");
 		logger.debug("Starting MacstwoGenerateModelAsPdfTasklet execute");
 		
@@ -212,7 +220,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		modelPngG.addFileHandle(modelPng);
 		modelPngG.setFileType(macs2ModelPngFileType);
 		modelPngG.setDescription(modelPng.getFileName());
-		modelPngG.setSoftwareGeneratedBy(imageMagickSoftware);
+		modelPngG.setSoftwareGeneratedBy(imagemagickSoftware);
 		modelPngG = fileService.addFileGroup(modelPngG);
 		this.modelPngGId = modelPngG.getId();
 		logger.debug("recorded fileGroup and fileHandle for ImageMagick to create png in MacstwoGenerateModelAsPdfTasklet.doExecute()");
