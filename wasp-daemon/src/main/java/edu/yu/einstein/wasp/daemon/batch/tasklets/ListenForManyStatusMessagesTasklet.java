@@ -192,9 +192,10 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet i
             this.messageQueue.clear(); // clean up in case of restart
             this.abandonMessageQueue.clear(); // clean up in case of restart
             logger.debug(stepExecution.getStepName() + " going to exit step with ExitStatus=" + exitStatus);
-            batchJobHibernationManager.unregisterManyStepCompletionListener(this);
+            if (!children.isEmpty())
+            	batchJobHibernationManager.unregisterManyStepCompletionListener(this);
             jobExecution.getExecutionContext().remove(BatchJobHibernationManager.PARENT_JOB_ID_KEY);
-            return super.afterStep(stepExecution);
+            return exitStatus;
         }
         ExitStatus exitStatus = super.afterStep(stepExecution);
         exitStatus = exitStatus.and(getExitStatus(stepExecution));
@@ -204,12 +205,14 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet i
 
     private ExitStatus getExitStatus(StepExecution stepExecution) {
         logger.debug("exec: " + stepExecution.getExecutionContext());
-        if (stepExecution.getExecutionContext().containsKey(BatchJobHibernationManager.COMPLETED_CHILD_IDS)){
+        if (stepExecution.getExecutionContext().containsKey(BatchJobHibernationManager.ABANDONED_CHILD_IDS)){
 	        List<String> abandoned = Arrays.asList(StringUtils.delimitedListToStringArray(
-	                stepExecution.getExecutionContext().getString(BatchJobHibernationManager.COMPLETED_CHILD_IDS),
+	                stepExecution.getExecutionContext().getString(BatchJobHibernationManager.ABANDONED_CHILD_IDS),
 	                BatchJobHibernationManager.PARENT_JOB_CHILD_LIST_DELIMITER));
-	        if (abandoned.size() > 0)
+	        if (abandoned.size() > 0){
+	        	logger.debug("returning ExitStatus.FAILED as received " + abandoned.size() + " abandoned child notifications");
 	            return ExitStatus.FAILED;
+	        }
         }
         return stepExecution.getExitStatus();
     }

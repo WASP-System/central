@@ -45,8 +45,7 @@ public class ManyJobLaunchTests extends BatchDatabaseIntegrationTest implements 
     private MessagingTemplate messagingTemplate;
 
     private final String BATCH_JOB_NAME = "test.launchManyJob";
-    private final String BATCH_ABANDONING_JOB_NAME = "test.launchAmandoningManyJob";
-
+   
     private final String OUTBOUND_MESSAGE_CHANNEL = "wasp.channel.remoting.outbound";
     
     private volatile Message<?> message = null;
