@@ -24,6 +24,18 @@ import edu.yu.einstein.wasp.service.SampleService;
 
 public abstract class AbstractGatkTasklet extends WaspRemotingTasklet {
 	
+	public static int THREADS_2 = 2;
+	
+	public static int THREADS_4 = 4;
+	
+	public static int THREADS_8 = 8;
+	
+	public static int MEMORY_GB_2 = 2;
+	
+	public static int MEMORY_GB_4 = 4;
+	
+	public static int MEMORY_GB_8 = 8;
+	
 	@Autowired
 	protected GenomeService genomeService;
 	

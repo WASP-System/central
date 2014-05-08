@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.Strategy.StrategyType;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
-import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
@@ -53,8 +52,8 @@ public class CallVariantsWithUGTasklet extends AbstractGatkTasklet implements St
 		WorkUnit w = new WorkUnit();
 		w.setMode(ExecutionMode.PROCESS);
 		w.setProcessMode(ProcessMode.MAX);
-		w.setMemoryRequirements(GATKSoftwareComponent.MEMORY_REQUIRED_8);
-		w.setProcessorRequirements(GATKSoftwareComponent.NUM_THREADS);
+		w.setMemoryRequirements(MEMORY_GB_8);
+		w.setProcessorRequirements(THREADS_8);
 		w.setSecureResults(true);
 		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + jobId);
@@ -93,7 +92,7 @@ public class CallVariantsWithUGTasklet extends AbstractGatkTasklet implements St
 		if (strategy.getStrategy().equals("WXS"))
 			wxsIntervalFile = gatkService.getWxsIntervalFile(job, build);
 
-		w.setCommand(gatk.getCallVariantsByUnifiedGenotyper(inputBamFilenames, outputFileName, referenceGenomeFile, snpFile, wxsIntervalFile, gatkOpts));
+		w.setCommand(gatk.getCallVariantsByUnifiedGenotyper(inputBamFilenames, outputFileName, referenceGenomeFile, snpFile, wxsIntervalFile, gatkOpts, MEMORY_GB_8, THREADS_8));
 		
 		GridResult result = gridHostResolver.execute(w);
 		

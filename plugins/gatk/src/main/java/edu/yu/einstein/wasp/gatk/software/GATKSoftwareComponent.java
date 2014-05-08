@@ -30,12 +30,6 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	
 	private static final long serialVersionUID = -7585834500378105920L;
 
-	public final static int NUM_THREADS = 4;
-	
-	public final static int MEMORY_REQUIRED_4 = 4; // in Gb
-	
-	public final static int MEMORY_REQUIRED_8 = 8; // in Gb
-	
 	@Autowired
 	private GatkService gatkService;
 	
@@ -52,8 +46,8 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	public GATKSoftwareComponent() {
 	}
 	
-	public String getCreateTargetCmd(Build build, Set<String> inputFilenames, String intervalFilename) {
-		String command = "java -Xmx" + MEMORY_REQUIRED_8 + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt " + NUM_THREADS;
+	public String getCreateTargetCmd(Build build, Set<String> inputFilenames, String intervalFilename, int memRequiredGb, int numProcessors) {
+		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt " + numProcessors;
 		for (String fileName : inputFilenames)
 			command += " -I " + fileName;
 		command += " -R " + genomeService.getReferenceGenomeFastaFile(build) + 
@@ -63,8 +57,8 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	}
 	
 	
-	public String getLocalAlignCmd(Build build, Set<String> inputFilenames, String intervalFilename, String realnBamFilename, String realnBaiFilename) {
-		String command = "java -Xmx" + MEMORY_REQUIRED_8 + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar";
+	public String getLocalAlignCmd(Build build, Set<String> inputFilenames, String intervalFilename, String realnBamFilename, String realnBaiFilename, int memRequiredGb) {
+		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar";
 		for (String fileName : inputFilenames)
 			command += " -I " + fileName;
 		command += " -R " + 
@@ -78,9 +72,9 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	}
 	
 	
-	public String getRecaliTableCmd(Build build, String realnBamFilename, String recaliGrpFilename) {
-		String command = "java -Xmx" + MEMORY_REQUIRED_8 + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + genomeService.getReferenceGenomeFastaFile(build) + 
-				" -nct " + NUM_THREADS + " -knownSites " + gatkService.getReferenceSnpsVcfFile(build) + 
+	public String getRecaliTableCmd(Build build, String realnBamFilename, String recaliGrpFilename, int memRequiredGb, int numProcessors) {
+		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + genomeService.getReferenceGenomeFastaFile(build) + 
+				" -nct " + numProcessors + " -knownSites " + gatkService.getReferenceSnpsVcfFile(build) + 
 				" -I " + realnBamFilename + " -T BaseRecalibrator -o " + recaliGrpFilename;
 
 		logger.debug("Will conduct gatk generating recalibrate table with command: " + command);
@@ -88,9 +82,9 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return command;
 	}
 	
-	public String getPrintRecaliCmd(Build build, String realnBamFilename, String recaliGrpFilename, String recaliBamFilename, String recaliBaiFilename) {
-		String command = "java -Xmx" + MEMORY_REQUIRED_8 + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + genomeService.getReferenceGenomeFastaFile(build) + 
-				" -nct " + NUM_THREADS + " -I " + realnBamFilename + " -T PrintReads -o " + recaliBamFilename +
+	public String getPrintRecaliCmd(Build build, String realnBamFilename, String recaliGrpFilename, String recaliBamFilename, String recaliBaiFilename, int memRequiredGb, int numProcessors) {
+		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + genomeService.getReferenceGenomeFastaFile(build) + 
+				" -nct " + numProcessors + " -I " + realnBamFilename + " -T PrintReads -o " + recaliBamFilename +
 				" -BQSR " + recaliGrpFilename + " -baq RECALCULATE";
 		if (recaliBaiFilename != null)
 			command += " && mv " + recaliBamFilename + ".bai " + recaliBaiFilename;
@@ -116,9 +110,10 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return gatkOpts;
 	}
 	
-	public String getCallVariantsByHaplotypeCaller(Set<String> inputFileNames, String outputGvcfFile, String referenceGenomeFile, String snpFile, String intervalFile, String additionalOptions){
-		String command = "java -Xmx" + MEMORY_REQUIRED_8 + "g" +
-		" -Djava.io.tmpdir=. -jar $GATK_ROOT/GenomeAnalysisTK.jar -nct " + NUM_THREADS;
+	public String getCallVariantsByHaplotypeCaller(Set<String> inputFileNames, String outputGvcfFile, String referenceGenomeFile, String snpFile, 
+			String intervalFile, String additionalOptions, int memRequiredGb, int numProcessors){
+		String command = "java -Xmx" + memRequiredGb + "g" +
+		" -Djava.io.tmpdir=. -jar $GATK_ROOT/GenomeAnalysisTK.jar -nct " + numProcessors;
 		for (String fileName : inputFileNames)
 			command += " -I " + fileName;
 		command += " -R " + referenceGenomeFile + " -T HaplotypeCaller -o " + outputGvcfFile + " --dbsnp " + snpFile + 
@@ -130,9 +125,10 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return command;
 	}
 	
-	public String getCallVariantsByUnifiedGenotyper(Set<String> inputFileNames, String outputFileName, String referenceGenomeFile, String snpFile, String intervalFile, String additionalOptions)  {
-		String command = "java -Xmx" + MEMORY_REQUIRED_8 + "g" +
-		" -Djava.io.tmpdir=. -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt " + NUM_THREADS;
+	public String getCallVariantsByUnifiedGenotyper(Set<String> inputFileNames, String outputFileName, String referenceGenomeFile, String snpFile, 
+			String intervalFile, String additionalOptions, int memRequiredGb, int numProcessors)  {
+		String command = "java -Xmx" + memRequiredGb + "g" +
+		" -Djava.io.tmpdir=. -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt " + numProcessors;
 		for (String fileName : inputFileNames)
 			command += " -I " + fileName;
 		command += " -R " + referenceGenomeFile + " -T UnifiedGenotyper -o " + outputFileName + " --dbsnp " + snpFile + 
@@ -145,7 +141,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return command;
 	}
 	
-	public WorkUnit genotypeGVCFs(SampleSource cellLibrary, String scratchDirectory, List<FileGroup> fileGroups){
+	public WorkUnit genotypeGVCFs(SampleSource cellLibrary, String scratchDirectory, List<FileGroup> fileGroups, int memRequiredGb, int numProcessors){
 		final int MEMORY_REQUIRED = 2; // in Gb
 		WorkUnit w = new WorkUnit();
 		

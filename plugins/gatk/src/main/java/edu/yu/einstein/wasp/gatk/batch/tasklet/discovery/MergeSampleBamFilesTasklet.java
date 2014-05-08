@@ -7,7 +7,6 @@ import java.util.List;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
@@ -34,7 +33,7 @@ public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
 		WorkUnit w = new WorkUnit();
 		w.setMode(ExecutionMode.PROCESS);
 		w.setProcessMode(ProcessMode.SINGLE);
-		w.setMemoryRequirements(GATKSoftwareComponent.MEMORY_REQUIRED_4);
+		w.setMemoryRequirements(MEMORY_GB_4);
 		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + jobId);
 		w.setSecureResults(true);
@@ -63,8 +62,8 @@ public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
 		String mergedDedupBaiFilename = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
 		String mergedDedupMetricsFilename = "${" + WorkUnit.OUTPUT_FILE + "[2]}";
 		Picard picard = (Picard) gatk.getSoftwareDependencyByIname("picard");
-		w.addCommand(picard.getMergeBamCmd(inputBamFilenames, mergedBamFilename, null));
-		w.addCommand(picard.getMarkDuplicatesCmd(mergedBamFilename, mergedDedupBamFilename, mergedDedupBaiFilename, mergedDedupMetricsFilename));
+		w.addCommand(picard.getMergeBamCmd(inputBamFilenames, mergedBamFilename, null, MEMORY_GB_4));
+		w.addCommand(picard.getMarkDuplicatesCmd(mergedBamFilename, mergedDedupBamFilename, mergedDedupBaiFilename, mergedDedupMetricsFilename, MEMORY_GB_4));
 		GridResult result = gridHostResolver.execute(w);
 
 		// place the grid result in the step context

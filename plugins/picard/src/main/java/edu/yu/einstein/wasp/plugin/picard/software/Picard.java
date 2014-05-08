@@ -15,8 +15,6 @@ public class Picard extends SoftwarePackage{
 
 	private static final long serialVersionUID = 6817018170220888568L;
 	
-	public final static int MEMORY_REQUIRED_4 = 4; // in Gb
-
 	public Picard() {}
 	
 	/**
@@ -27,11 +25,11 @@ public class Picard extends SoftwarePackage{
 	 * @param dedupMetricsFilename
 	 * @return
 	 */
-	public String getMarkDuplicatesCmd(String inputBamFilename, String dedupBamFilename, String dedupBaiFilename, String dedupMetricsFilename){
+	public String getMarkDuplicatesCmd(String inputBamFilename, String dedupBamFilename, String dedupBaiFilename, String dedupMetricsFilename, int memRequiredGb){
 		boolean createIndex = false;
 		if (dedupBaiFilename != null)
 			createIndex = true;
-		String command = "java -Xmx" + MEMORY_REQUIRED_4 + "g -jar $PICARD_ROOT/MarkDuplicates.jar I=" + inputBamFilename + " O=" + dedupBamFilename +
+		String command = "java -Xmx" + memRequiredGb + "g -jar $PICARD_ROOT/MarkDuplicates.jar I=" + inputBamFilename + " O=" + dedupBamFilename +
 				" REMOVE_DUPLICATES=false METRICS_FILE=" + dedupMetricsFilename + 
 				" TMP_DIR=. CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT";
 		if (createIndex)
@@ -46,8 +44,8 @@ public class Picard extends SoftwarePackage{
 	 * @param baiFilename
 	 * @return
 	 */
-	public String getIndexBamCmd(String bamFilename, String baiFilename){
-		String command = "java -Xmx" + MEMORY_REQUIRED_4 + "g -jar $PICARD_ROOT/BuildBamIndex.jar I=" + bamFilename + " O=" + baiFilename + 
+	public String getIndexBamCmd(String bamFilename, String baiFilename, int memRequiredGb){
+		String command = "java -Xmx" + memRequiredGb + "g -jar $PICARD_ROOT/BuildBamIndex.jar I=" + bamFilename + " O=" + baiFilename + 
 				" TMP_DIR=. VALIDATION_STRINGENCY=SILENT";
 		logger.debug("Will conduct picard indexing of bam file with command: " + command);
 		return command;
@@ -60,11 +58,11 @@ public class Picard extends SoftwarePackage{
 	 * @param mergedBaiFilename (optional: may be null)
 	 * @return
 	 */
-	public String getMergeBamCmd(Set<String> inputBamFilenames, String mergedBamFilename, String mergedBaiFilename) {
+	public String getMergeBamCmd(Set<String> inputBamFilenames, String mergedBamFilename, String mergedBaiFilename, int memRequiredGb) {
 		boolean createIndex = false;
 		if (mergedBaiFilename != null)
 			createIndex = true;
-		String command = "java -Xmx" + MEMORY_REQUIRED_4 + "g -jar $PICARD_ROOT/MergeSamFiles.jar";
+		String command = "java -Xmx" + memRequiredGb + "g -jar $PICARD_ROOT/MergeSamFiles.jar";
 		for (String fileName : inputBamFilenames)
 			command += " I=" + fileName;
 		command += " O=" + mergedBamFilename + " SO=coordinate TMP_DIR=. CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT";
@@ -81,11 +79,11 @@ public class Picard extends SoftwarePackage{
 	 * @param mergedBaiFilename (optional: may be null)
 	 * @return
 	 */
-	public String getMergeBamCmd(String inputBamFilenamesGlob, String mergedBamFilename, String mergedBaiFilename) {
+	public String getMergeBamCmd(String inputBamFilenamesGlob, String mergedBamFilename, String mergedBaiFilename, int memRequiredGb) {
 		boolean createIndex = false;
 		if (mergedBaiFilename != null)
 			createIndex = true;
-		String command = "java -Xmx" + MEMORY_REQUIRED_4 + "g -jar $PICARD_ROOT/MergeSamFiles.jar $(printf 'I=%s ' " + inputBamFilenamesGlob + ")" + 
+		String command = "java -Xmx" + memRequiredGb + "g -jar $PICARD_ROOT/MergeSamFiles.jar $(printf 'I=%s ' " + inputBamFilenamesGlob + ")" + 
 		" O=" + mergedBamFilename + " SO=coordinate TMP_DIR=. CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT";
 		if (createIndex)
 			 command += " && mv " + mergedBamFilename + ".bai " + mergedBaiFilename;

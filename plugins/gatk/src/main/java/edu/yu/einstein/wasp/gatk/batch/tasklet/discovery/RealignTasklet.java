@@ -7,7 +7,6 @@ import java.util.List;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
@@ -34,8 +33,9 @@ public class RealignTasklet extends AbstractGatkTasklet {
 	public void doExecute(ChunkContext context) throws Exception {
 		WorkUnit w = new WorkUnit();
 		w.setMode(ExecutionMode.PROCESS);
-		w.setProcessMode(ProcessMode.SINGLE);
-		w.setMemoryRequirements(GATKSoftwareComponent.MEMORY_REQUIRED_4);
+		w.setProcessMode(ProcessMode.MAX);
+		w.setMemoryRequirements(MEMORY_GB_8);
+		w.setProcessorRequirements(THREADS_8);
 		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + jobId);
 		w.setSecureResults(true);
@@ -65,8 +65,8 @@ public class RealignTasklet extends AbstractGatkTasklet {
 		String intervalFileName = "gatk.${" + WorkUnit.OUTPUT_FILE + "}.realign.intervals";
 		String realnBamFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
 		String realnBaiFilename = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
-		w.addCommand(gatk.getCreateTargetCmd(build, inputBamFilenames, intervalFileName));
-		w.addCommand(gatk.getLocalAlignCmd(build, inputBamFilenames, intervalFileName, realnBamFilename, realnBaiFilename));
+		w.addCommand(gatk.getCreateTargetCmd(build, inputBamFilenames, intervalFileName, MEMORY_GB_8, THREADS_8));
+		w.addCommand(gatk.getLocalAlignCmd(build, inputBamFilenames, intervalFileName, realnBamFilename, realnBaiFilename, MEMORY_GB_8));
 		GridResult result = gridHostResolver.execute(w);
 
 		// place the grid result in the step context
