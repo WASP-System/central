@@ -163,6 +163,45 @@ public class ManyJobLaunchTests extends BatchDatabaseIntegrationTest implements 
                 Assert.fail("too long for response");
         }
     }
+    
+    /**
+     * Test getting correct reply from BatchJobLaunchServiceImpl service
+     * activator after sending a message to start a batch job. No many jobs will be launched in this test
+     */
+    @Test(groups = "unit-tests-batch-integration")
+    public void testNoJobLaunch() throws Exception {
+        Map<String, String> jobParameters = new HashMap<String, String>();
+        jobParameters.put("testMethod", "none");
+        jobParameters.put("timestamp", String.valueOf(System.currentTimeMillis()));
+        BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate(
+                new BatchJobLaunchContext(BATCH_JOB_NAME, jobParameters));
+        Message<BatchJobLaunchContext> messageToSend = batchJobLaunchMessageTemplate.build();
+        logger.debug("testSuccessfulJobLaunch(): Sending message : " + messageToSend.toString());
+        Message<?> replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class),
+                messageToSend);
+        if (replyMessage == null)
+            Assert.fail("testSuccessfulManyJobLaunch(): Failed to send message " + messageToSend.toString() + " within timeout period");
+        if (BatchJobLaunchContext.class.isInstance(replyMessage.getPayload()))
+            Assert.fail("testSuccessfulManyJobLaunch(): Message bouced");
+        if (replyMessage.getHeaders().containsKey(WaspTask.EXCEPTION))
+            Assert.fail("testSuccessfulManyJobLaunch(): Failed to launch job. Returned message: " + replyMessage.toString());
+        Assert.assertEquals(replyMessage.getPayload(), WaspStatus.COMPLETED);
+        
+        
+        int n = 0;
+        while(true) {
+            if (message != null) {
+                if (message.getHeaders().get("task") == "notifyStatus" && message.getHeaders().get("messagetype") == "analysis") {
+                    Assert.assertEquals(message.getPayload(), WaspStatus.COMPLETED);
+                    logger.debug("test successful");
+                    break;
+                }
+            }
+            Thread.sleep(200);
+            if (n++ > 30)
+                Assert.fail("too long for response");
+        }
+    }
 
     @Override
     public synchronized void handleMessage(Message<?> message) throws MessagingException {

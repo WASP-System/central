@@ -87,8 +87,6 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet i
 
     @Override
     protected void doHibernate(StepExecution stepExecution) throws WaspBatchJobExecutionReadinessException {
-        Long jobExecutionId = stepExecution.getJobExecutionId();
-        Long stepExecutionId = stepExecution.getId();
         super.doHibernate(stepExecution);
     }
 
@@ -122,6 +120,11 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet i
                 logger.warn(message);
                 throw new WaspRuntimeException(message);
             }
+        }
+        if (children.isEmpty()){
+        	logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId
+                    + ") will end immediately as no child jobs to listen for");
+        	return RepeatStatus.FINISHED;
         }
         
         // handle hibernation.  If the tasklet was not woken, then it should simply
@@ -170,8 +173,8 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet i
                 BatchJobHibernationManager.PARENT_JOB_CHILD_LIST_DELIMITER);
 
         children = Arrays.asList(child);
-        
-        batchJobHibernationManager.registerManyStepCompletionListener(this);
+        if (!children.isEmpty())
+        	batchJobHibernationManager.registerManyStepCompletionListener(this);
 
         super.beforeStep(stepExecution);
     }
@@ -201,11 +204,13 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet i
 
     private ExitStatus getExitStatus(StepExecution stepExecution) {
         logger.debug("exec: " + stepExecution.getExecutionContext());
-        List<String> abandoned = Arrays.asList(StringUtils.delimitedListToStringArray(
-                stepExecution.getExecutionContext().getString(BatchJobHibernationManager.COMPLETED_CHILD_IDS),
-                BatchJobHibernationManager.PARENT_JOB_CHILD_LIST_DELIMITER));
-        if (abandoned.size() > 0)
-            return ExitStatus.FAILED;
+        if (stepExecution.getExecutionContext().containsKey(BatchJobHibernationManager.COMPLETED_CHILD_IDS)){
+	        List<String> abandoned = Arrays.asList(StringUtils.delimitedListToStringArray(
+	                stepExecution.getExecutionContext().getString(BatchJobHibernationManager.COMPLETED_CHILD_IDS),
+	                BatchJobHibernationManager.PARENT_JOB_CHILD_LIST_DELIMITER));
+	        if (abandoned.size() > 0)
+	            return ExitStatus.FAILED;
+        }
         return stepExecution.getExitStatus();
     }
 
