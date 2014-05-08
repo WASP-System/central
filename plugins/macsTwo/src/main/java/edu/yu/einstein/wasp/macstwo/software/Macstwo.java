@@ -100,12 +100,12 @@ public class Macstwo extends SoftwarePackage{
 		}
 		*/
 		
-		String totalMappedReads = "totalMappedReads.txt"; 
+		String totalCountMappedReads = "totalCountMappedReads.txt"; //output in this file will be a single number 
 		
 		tempCommand = new StringBuilder();
-		tempCommand.append("samtools view -c -F 0x04 " + mergedTestBamFile + " > " + totalMappedReads);//count reads but skip unmapped reads
+		tempCommand.append("samtools view -c -F 0x04 " + mergedTestBamFile + " > " + totalCountMappedReads);//count reads but skip unmapped reads
 		String command2 = new String(tempCommand);
-		logger.debug("---- Will execute samtools view -c -F 0x04 xxx.bam (or mergedTESTBamFile.bam) > totalMappedReads.txt to get total count of mapped reads  with command: ");
+		logger.debug("---- Will execute samtools view -c -F 0x04 xxx.bam (or mergedTESTBamFile.bam) > totalCountMappedReads.txt to get total count of mapped reads  with command: ");
 		logger.debug("---- "+command2);
 		w.addCommand(command2);
 		
@@ -205,6 +205,33 @@ public class Macstwo extends SoftwarePackage{
 		logger.debug("---- "+command3);
 		
 		w.addCommand(command3);
+		
+		String peaksFromMacs = prefixForFileName+"_peaks.narrowPeak"; //one of the output files from macs (bed6+4)
+		String peaksInBed4Format = prefixForFileName+"_peaksBed4Format.narrowPeak"; //since bedtools coverage cannot deal with bed6+4 format (which the peaks.narrowPeak bed file is in), we must first convert, so lets convert to bed4
+		
+		tempCommand = new StringBuilder();
+		tempCommand.append("awk -v OFS='\t' '{print $1, $2, $3, $4}' " + peaksFromMacs + " > " + peaksInBed4Format);
+		String command4 = new String(tempCommand);
+		logger.debug("---- Will execute awk to convert bed6+4 to bed4 using command: ");
+		logger.debug("---- "+command4);
+		w.addCommand(command4);
+	
+		String mappedReadsInPeaks = "mappedReadsInPeaks.bed";//column 5 will be the one we need (depth)
+		tempCommand = new StringBuilder();
+		//bedtools coverage appears to only use reads that are mapped for determining coverage - which is what we want (dubin observation)
+		tempCommand.append("bedtools coverage -counts -abam " + mergedTestBamFile + " -b " + peaksInBed4Format + " > " + mappedReadsInPeaks);
+		String command5 = new String(tempCommand);
+		logger.debug("---- Will execute bedtools coverage to get coverage of number of reads in each peak using command: ");
+		logger.debug("---- "+command5);
+		w.addCommand(command5);
+	
+		String totalCountMappedReadsInPeaks = "totalCountMappedReadsInPeaks.txt";//output in this file will be a single number 
+		tempCommand = new StringBuilder();
+		tempCommand.append("awk '{sum += $5} END {print sum}' " + mappedReadsInPeaks + " > " + totalCountMappedReadsInPeaks);
+		String command6 = new String(tempCommand);
+		logger.debug("---- Will execute awk to sum up column 5 (mapped reads in each peak) from mappedReadsInPeaks.bed using command: ");
+		logger.debug("---- "+command6);
+		w.addCommand(command6);		
 		
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(this);
