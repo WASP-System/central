@@ -54,44 +54,76 @@ public class Macstwo extends SoftwarePackage{
 		tempFileHandleList.addAll(controlFileHandleList);		
 		w.setRequiredFiles(tempFileHandleList);
 		
-		StringBuilder tempCommand = new StringBuilder();
-		tempCommand.append("samtools merge mergedTESTBamFile.bam ");//mergedTESTBamFile.bam is the output of the merge; note that merge requires sorted files
-		int indexSoFar = 0;
-		for(int i = 0; i < testFileHandleList.size(); i++){
-			
-			tempCommand.append("${" + WorkUnit.INPUT_FILE + "["+indexSoFar+"]} ");
-			indexSoFar++;
-		}
-		String command = new String(tempCommand);
-		logger.debug("---- Will execute samtools merge for merging bams with command: ");
-		logger.debug("---- "+command);
+		StringBuilder tempCommand;
 		
-		w.setCommand(command);
+		String mergedTestBamFile = "";
+		
+		if(testFileHandleList.size()==1){
+			mergedTestBamFile = "${" + WorkUnit.INPUT_FILE + "[0]}";
+		}
+		else if(testFileHandleList.size() > 1){
+			mergedTestBamFile = "mergedTESTBamFile.bam";
+			
+			tempCommand = new StringBuilder();
+			tempCommand.append("samtools merge " + mergedTestBamFile + " ");//mergedTESTBamFile.bam is the output of the merge; note that merge requires sorted files
+			
+			for(int i = 0; i < testFileHandleList.size(); i++){				
+				tempCommand.append("${" + WorkUnit.INPUT_FILE + "["+i+"]} ");				
+			}
+			String command1 = new String(tempCommand);
+			logger.debug("---- Will execute samtools merge mergedTESTBamFile.bam in1.bam in2.bam [....] for merging bams with command: ");
+			logger.debug("---- "+command1);
+			
+			w.addCommand(command1);
+			
+		}
+		/* moved immediately up, so this is no longer needed
+		if(testFileHandleList.size()>1){
+			mergedTestBamFile = "mergedTESTBamFile.bam";
+		}
+		else{
+			mergedTestBamFile = "${" + WorkUnit.INPUT_FILE + "[0]}";
+		}
+		
+		if(testFileHandleList.size()>1){
+			tempCommand = new StringBuilder();
+			tempCommand.append("samtools merge " + mergedTestBamFile + " ");//mergedTESTBamFile.bam is the output of the merge; note that merge requires sorted files
+			
+			for(int i = 0; i < testFileHandleList.size(); i++){				
+				tempCommand.append("${" + WorkUnit.INPUT_FILE + "["+i+"]} ");				
+			}
+			String command1 = new String(tempCommand);
+			logger.debug("---- Will execute samtools merge for merging bams with command: ");
+			logger.debug("---- "+command1);
+			
+			w.addCommand(command1);
+		}
+		*/
+		
+		String totalMappedReads = "totalMappedReads.txt"; 
 		
 		tempCommand = new StringBuilder();
-		tempCommand.append("macs2");
-		String method = " callpeak";//TODO: needs to be a parameter as some point
-		tempCommand.append(method);
+		tempCommand.append("samtools view -c -F 0x04 " + mergedTestBamFile + " > " + totalMappedReads);//count reads but skip unmapped reads
+		String command2 = new String(tempCommand);
+		logger.debug("---- Will execute samtools view -c -F 0x04 xxx.bam (or mergedTESTBamFile.bam) > totalMappedReads.txt to get total count of mapped reads  with command: ");
+		logger.debug("---- "+command2);
+		w.addCommand(command2);
 		
+		tempCommand = new StringBuilder();
+		tempCommand.append("macs2 callpeak -t " + mergedTestBamFile);
+				
 		//macs2 can handle merging multiple test and/or multiple control files
-		indexSoFar = 0;		
-		for(int i = 0; i < testFileHandleList.size(); i++){
-			if(i==0){
-				tempCommand.append(" -t ");
-			}
-			tempCommand.append("${" + WorkUnit.INPUT_FILE + "["+indexSoFar+"]} ");
-			indexSoFar++;
-		}
 		
-		for(int i = 0; i < controlFileHandleList.size(); i++){
-			if(i==0){
+		/////don't need this anymore, the -t mergedTestBamFile takes care of this
+		/////for(int i = 0; i < testFileHandleList.size(); i++){
+		/////	tempCommand.append("${" + WorkUnit.INPUT_FILE + "["+i+"]} ");
+		/////}
+		for(int i = testFileHandleList.size(); i < testFileHandleList.size() + controlFileHandleList.size(); i++){
+			if(i==testFileHandleList.size()){
 				tempCommand.append(" -c ");
 			}
-			tempCommand.append("${" + WorkUnit.INPUT_FILE + "["+indexSoFar+"]} ");
-			indexSoFar++;
+			tempCommand.append("${" + WorkUnit.INPUT_FILE + "["+i+"]} ");
 		}
-		
-		//tempCommand.append("-f BAM ");//this could actually be figured out by macs2
 		
 		for (String key : jobParametersMap.keySet()) {
 	
@@ -168,14 +200,11 @@ public class Macstwo extends SoftwarePackage{
 		
 		tempCommand.append(" --bdg");//generates two bedGraph files
 		
-		//String command = "java -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt 4 -I ${" + WorkUnit.INPUT_FILE + "} -R " + getGenomeIndexPath(getGenomeBuild(libraryCell)) + "genome.fasta -T RealignerTargetCreator -o gatk.${" + WorkUnit.JOB_NAME + "}.realign.intervals -known /cork/jcai/GATK_bundle_2.2/1000G_phase1.indels.hg19.vcf -known /cork/jcai/GATK_bundle_2.2/Mills_and_1000G_gold_standard.indels.hg19.vcf";
-		//String command = "java -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt 4 -I ${" + WorkUnit.INPUT_FILE + "} -R " + getGenomeIndexPath(getGenomeBuild(libraryCell)) + "genome.fasta -T RealignerTargetCreator -o gatk.${" + WorkUnit.JOB_NAME + "}.realign.intervals -known /cork/jcai/GATK_bundle_2.2/1000G_phase1.indels.hg19.vcf -known /cork/jcai/GATK_bundle_2.2/Mills_and_1000G_gold_standard.indels.hg19.vcf";
-
-		String command2 = new String(tempCommand);
+		String command3 = new String(tempCommand);
 		logger.debug("---- Will execute macs2 for peakcalling with command: ");
-		logger.debug("---- "+command2);
+		logger.debug("---- "+command3);
 		
-		w.addCommand(command2);
+		w.addCommand(command3);
 		
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(this);
