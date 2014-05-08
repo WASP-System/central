@@ -13,7 +13,6 @@ import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
-import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.GenomeService;
@@ -141,32 +140,12 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return command;
 	}
 	
-	public WorkUnit genotypeGVCFs(SampleSource cellLibrary, String scratchDirectory, List<FileGroup> fileGroups, int memRequiredGb, int numProcessors){
-		final int MEMORY_REQUIRED = 2; // in Gb
-		WorkUnit w = new WorkUnit();
-		
-		w.setMode(ExecutionMode.PROCESS);
-	
-		w.setMemoryRequirements(MEMORY_REQUIRED);
-		w.setProcessMode(ProcessMode.SINGLE);
-
-		
-		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
-		sd.add(this);
-		w.setSoftwareDependencies(sd);
-		w.setSecureResults(false);
-		
-
-		w.setWorkingDirectory(scratchDirectory);
-		
-		Build build = genomeService.getGenomeBuild(cellLibrary);
-
-		String command = "java -Xmx" + MEMORY_REQUIRED + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -T GenotypeGVCFs" + 
-				" --variant `printf -- '%s\n' ${" + WorkUnit.INPUT_FILE + "[@]} | sed 's/^/-I /g' | tr '\n' ' '` -R " + 
-				genomeService.getReferenceGenomeFastaFile(build) + " -o gatk.${" + WorkUnit.JOB_NAME + "}.raw.vcf";
-		w.setCommand(command);
-
-		return w;
+	public String genotypeGVCFs(Set<String> inputFileNames, String outputFileName, Build build, int memRequiredGb, int numProcessors){
+		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -T GenotypeGVCFs -nt " + numProcessors;
+		for (String fileName : inputFileNames)
+			command += " -V " + fileName;
+		command += " -R " + genomeService.getReferenceGenomeFastaFile(build) + " -o " + outputFileName;
+		return command;
 	}
 
 	public WorkUnit getHardFilter(SampleSource cellLibrary, String scratchDirectory, String namePrefix) {

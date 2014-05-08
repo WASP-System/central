@@ -43,6 +43,7 @@ import javax.persistence.TypedQuery;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1533,10 +1534,10 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			String platformUnitName = "unknown";
 			String cellIndex = "L" + cellLibrary.getId(); // default to cell library (CL) id
 			String barcode = "none";
-			String libraryName = sampleService.getLibrary(cellLibrary).getName();
+			String libraryName = WordUtils.capitalizeFully(sampleService.getLibrary(cellLibrary).getName()).replaceAll(" ", ""); //camelcase
 			if (cell != null){ // may be null if imported from external run of unknown origin
-				platformUnitName = sampleService.getPlatformUnitForCell(cell).getName();
-				barcode = sampleService.getLibraryAdaptor(sampleService.getLibrary(cellLibrary)).getBarcodesequence();
+				platformUnitName = sampleService.getPlatformUnitForCell(cell).getName().replaceAll(" ", "");
+				barcode = sampleService.getLibraryAdaptor(sampleService.getLibrary(cellLibrary)).getBarcodesequence().replaceAll(" ", "");
 				cellIndex = sampleService.getCellIndex(cell).toString();
 			}
 
@@ -1555,10 +1556,23 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	}
 	
 	@Override
-	public String generateUniqueBaseFileName(Sample library) {
-		Assert.assertTrue(sampleService.isLibrary(library), "sample must be a library");
+	public String generateUniqueBaseFileName(Sample sample) {
+		Assert.assertTrue(sampleService.isBiomolecule(sample), "sample must be a biomolecule");
 		final String DELIM = ".";
-		return library.getName() + DELIM + "id" + library.getId().toString() + DELIM;
+		String biomoleculeTypeIdStr = "B"; // for biomolecule
+		if (sampleService.isLibrary(sample))
+			biomoleculeTypeIdStr = "L"; // for library
+		else if (sampleService.isDnaOrRna(sample))
+			biomoleculeTypeIdStr = "S"; // for sample
+		String libraryName = WordUtils.capitalizeFully(sample.getName()).replaceAll(" ", ""); // camelCase the name
+		return libraryName + DELIM + biomoleculeTypeIdStr + sample.getId().toString() + DELIM;
+	}
+	
+	@Override
+	public String generateUniqueBaseFileName(Job job) {
+		final String DELIM = ".";
+		String jobName = WordUtils.capitalizeFully(job.getName()).replaceAll(" ", ""); // camelCase the name
+		return jobName + DELIM + "J" + job.getId().toString() + DELIM;
 	}
 	
 	/*

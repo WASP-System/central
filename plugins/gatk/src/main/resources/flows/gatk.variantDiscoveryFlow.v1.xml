@@ -83,7 +83,7 @@
 			<batch:listeners>
 				<batch:listener>
 					<bean class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
-						<property name="keys" value="mergedSampleFgMap,passThroughSampleFgMap"  /> <!-- may be updated by this step--> 
+						<property name="keys" value="fgSamplesMap"  />
 						<property name="statuses" value="COMPLETED,FAILED" />
 					</bean>
 				</batch:listener>
@@ -109,7 +109,7 @@
 			<batch:listeners>
 				<batch:listener>
 					<bean class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
-						<property name="keys" value="sampleFgMap"  /> <!-- may be updated by this step--> 
+						<property name="keys" value="fgSet"  /> <!-- may be updated by this step--> 
 						<property name="statuses" value="COMPLETED,FAILED" />
 					</bean>
 				</batch:listener>
@@ -126,7 +126,9 @@
 		
 		<batch:step id="gatk.variantDiscovery.hc.jointGenotyping">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.JointGenotypingTasklet" scope="step" />
+				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.JointGenotypingTasklet" scope="step" >
+					<constructor-arg name="jobId" value="#{jobParameters[waspSoftwareJobParameters.JOB_ID]}" />
+				</bean>
 			</batch:tasklet>
 			<batch:next on="FAILED" to="gatk.variantDiscovery.hc.notifyFailed" />
 			<batch:next on="*" to="gatk.variantDiscoveryhc.flowFinished" />

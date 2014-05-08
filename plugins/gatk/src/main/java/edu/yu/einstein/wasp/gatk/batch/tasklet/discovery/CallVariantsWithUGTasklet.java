@@ -5,6 +5,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,8 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  * @author asmclellan
  */
 public class CallVariantsWithUGTasklet extends AbstractGatkTasklet implements StepExecutionListener {
+	
+	private static Logger logger = LoggerFactory.getLogger(CallVariantsWithUGTasklet.class);
 
 	@Autowired
 	private JobService jobService;

@@ -340,5 +340,7 @@ public interface FileService extends WaspService {
 	
 	public Set<FileGroup> getFilesForSample(Sample sample);
 
+	public String generateUniqueBaseFileName(Job job);
+
 }
 

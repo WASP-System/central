@@ -7,6 +7,8 @@ package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
  * 
  */
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
@@ -32,6 +34,8 @@ import edu.yu.einstein.wasp.service.SampleService;
  * @author asmclellan
  */
 public class HardFilterTasklet extends WaspRemotingTasklet implements StepExecutionListener {
+	
+	private static Logger logger = LoggerFactory.getLogger(HardFilterTasklet.class);
 
 	private String scratchDirectory;
 	private String callVariantJobName;

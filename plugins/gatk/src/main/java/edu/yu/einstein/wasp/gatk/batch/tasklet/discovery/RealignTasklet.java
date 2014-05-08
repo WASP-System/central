@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,8 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  *
  */
 public class RealignTasklet extends AbstractGatkTasklet {
+	
+	private static Logger logger = LoggerFactory.getLogger(JointGenotypingTasklet.class);
 	
 	public RealignTasklet(String inputFilegroupIds, String outputFilegroupIds) {
 		super(inputFilegroupIds, outputFilegroupIds);

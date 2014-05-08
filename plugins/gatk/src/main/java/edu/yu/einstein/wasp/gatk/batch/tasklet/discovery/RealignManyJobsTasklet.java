@@ -6,6 +6,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +34,8 @@ import edu.yu.einstein.wasp.service.SampleService;
  *
  */
 public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
+	
+	private static Logger logger = LoggerFactory.getLogger(RealignManyJobsTasklet.class);
 	
 	@Autowired
 	private JobService jobService;
@@ -75,15 +79,16 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 		allFgIn.putAll(mergedSampleFileGroupsIn);
 		if (getStepExecution().getExecutionContext().containsKey("passThroughSampleFgMap"))
 			allFgIn.putAll(AbstractGatkTasklet.getSampleFgMapFromJsonString(getStepExecution().getExecutionContext().getString("passThroughSampleFgMap"), sampleService, fileService));
-		Map<Sample, FileGroup> sampleFileGroupsForNextStep = new HashMap<>();
-		Map<Sample, FileGroup> passThroughSampleFileGroupsForNextStep = new HashMap<>();
-		
+		Map<FileGroup, Set<Sample>> fileGroupSamplesForNextStep = new HashMap<>();
+		Set<Sample> processedSamples = new HashSet<>();
 		// merge, realign and split out again test-control sample pairs
 		for (SampleSource samplePair : sampleService.getSamplePairsByJob(job)){
 			LinkedHashSet<FileGroup> inputFileGroups = new LinkedHashSet<>();
 			LinkedHashSet<FileGroup> outputFileGroups = new LinkedHashSet<>();
 			Sample test = sampleService.getTestSample(samplePair);
 			Sample control = sampleService.getControlSample(samplePair);
+			processedSamples.add(test);
+			processedSamples.add(control);
 			FileGroup testFgIn = fileService.getFileGroupById(allFgIn.get(test).getId());
 			FileGroup controlFgIn = fileService.getFileGroupById(allFgIn.get(control).getId());
 			inputFileGroups.add(testFgIn);
@@ -126,21 +131,23 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			outputFileGroups.add(baiMergedPairsG);
 			
 			Map<String, String> jobParameters = new HashMap<>();
-			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT, AbstractGatkTasklet.getFileGroupIdsAsCommaDelimitedString(inputFileGroups));
-			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT, AbstractGatkTasklet.getFileGroupIdsAsCommaDelimitedString(outputFileGroups));
+			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(inputFileGroups));
+			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(outputFileGroups));
 			jobParameters.put(WaspSoftwareJobParameters.JOB_ID, jobId.toString());
 			try {
 				requestLaunch("gatk.variantDiscovery.hc.realignTestControlPairs.jobFlow", jobParameters);
 			} catch (WaspMessageBuildingException e) {
 				e.printStackTrace();
 			}
-			sampleFileGroupsForNextStep.put(test, baiMergedPairsG);
-			sampleFileGroupsForNextStep.put(control, baiMergedPairsG);
+			fileGroupSamplesForNextStep.put(baiMergedPairsG, new HashSet<Sample>());
+			fileGroupSamplesForNextStep.get(baiMergedPairsG).add(test);
+			fileGroupSamplesForNextStep.get(baiMergedPairsG).add(control);
 		}
 		
 		// re-align merged filegroups from previous step not in pairs
 		for (Sample sample : mergedSampleFileGroupsIn.keySet()){
-			if (!sampleFileGroupsForNextStep.containsKey(sample)){
+			if (!processedSamples.contains(sample)){
+				processedSamples.add(sample);
 				LinkedHashSet<FileGroup> inputFileGroups = new LinkedHashSet<>();
 				LinkedHashSet<FileGroup> outputFileGroups = new LinkedHashSet<>();
 				FileGroup mergedBam = mergedSampleFileGroupsIn.get(sample);
@@ -177,25 +184,28 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 				outputFileGroups.add(baiMergedG);
 				
 				Map<String, String> jobParameters = new HashMap<>();
-				jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT, AbstractGatkTasklet.getFileGroupIdsAsCommaDelimitedString(inputFileGroups));
-				jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT, AbstractGatkTasklet.getFileGroupIdsAsCommaDelimitedString(outputFileGroups));
+				jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(inputFileGroups));
+				jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(outputFileGroups));
 				jobParameters.put(WaspSoftwareJobParameters.JOB_ID, jobId.toString());
 				try {
 					requestLaunch("gatk.variantDiscovery.hc.realign.jobFlow", jobParameters);
 				} catch (WaspMessageBuildingException e) {
 					e.printStackTrace();
 				}
-				sampleFileGroupsForNextStep.put(sample, bamMergedG);
+				fileGroupSamplesForNextStep.put(bamMergedG, new HashSet<Sample>());
+				fileGroupSamplesForNextStep.get(bamMergedG).add(sample);
 			}
 		}
 		
 		// prepare the list of remaining filegroups for samples not processed above.
 		for (Sample sample : allFgIn.keySet())
-			if (! sampleFileGroupsForNextStep.containsKey(sample))
-				passThroughSampleFileGroupsForNextStep.put(sample, allFgIn.get(sample));
+			if (! processedSamples.contains(sample)){
+				FileGroup fg = allFgIn.get(sample);
+				fileGroupSamplesForNextStep.put(fg, new HashSet<Sample>());
+				fileGroupSamplesForNextStep.get(fg).add(sample);
+			}
 		
 		// put files needed for next step into step execution context to be promoted to job context
-		getStepExecution().getExecutionContext().put("mergedSampleFgMap", AbstractGatkTasklet.getSampleFgMapAsJsonString(sampleFileGroupsForNextStep));
-		getStepExecution().getExecutionContext().put("passThroughSampleFgMap", AbstractGatkTasklet.getSampleFgMapAsJsonString(passThroughSampleFileGroupsForNextStep));
+		getStepExecution().getExecutionContext().put("fgSamplesMap", AbstractGatkTasklet.getFgSamplesMapAsJsonString(fileGroupSamplesForNextStep));
 	}
 }

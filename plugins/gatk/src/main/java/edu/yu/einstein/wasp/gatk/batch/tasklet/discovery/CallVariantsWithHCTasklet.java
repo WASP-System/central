@@ -5,6 +5,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,7 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  */
 public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements StepExecutionListener {
 	
+	private static Logger logger = LoggerFactory.getLogger(CallVariantsWithHCTasklet.class);
 	
 	@Autowired
 	private JobService jobService;
@@ -84,14 +87,13 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 		if (strategy.getStrategy().equals("WXS"))
 			wxsIntervalFile = gatkService.getWxsIntervalFile(job, build);
 		String gatkOpts = gatk.getCallVariantOpts(jobParameters);
-		String outputGvcfFileName = "gatk.${" + WorkUnit.JOB_NAME + "}.gvcf.vcf";
+		String outputGvcfFileName = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
 		String referenceGenomeFile = genomeService.getReferenceGenomeFastaFile(build);
 		String snpFile = gatkService.getReferenceSnpsVcfFile(build);
 		LinkedHashSet<String> inputBamFilenames = new LinkedHashSet<>();
 		for (int i=0; i < fhlist.size(); i++)
 			inputBamFilenames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");
 		w.setCommand(gatk.getCallVariantsByHaplotypeCaller(inputBamFilenames, outputGvcfFileName, referenceGenomeFile, snpFile, wxsIntervalFile, gatkOpts, MEMORY_GB_8, THREADS_8));
-		// w.addCommand(gatk.genotypeGVCFs(<params>)); TODO: implement this
 		GridResult result = gridHostResolver.execute(w);
 		
 		//place the grid result in the step context
