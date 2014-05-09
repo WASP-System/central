@@ -2295,10 +2295,6 @@ public class JobSubmissionController extends WaspController {
 			}
 		}
 		
-		for (String keystr: selectedSampleCell) {
-			logger.debug("selectedSampleCell: "+keystr); 
-		}
-		
 		getMetaHelperWebapp().setArea(jobDraft.getWorkflow().getIName());
 		jobDraft.setJobDraftMeta(getMetaHelperWebapp().getMasterList(JobDraftMeta.class));
 		m.put("jobDraft", jobDraft);
