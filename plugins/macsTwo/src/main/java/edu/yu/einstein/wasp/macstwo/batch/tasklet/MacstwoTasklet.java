@@ -4,6 +4,9 @@
  */
 package edu.yu.einstein.wasp.macstwo.batch.tasklet;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -22,9 +25,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
+import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
+import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
+import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
+import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters;
 import edu.yu.einstein.wasp.macstwo.software.Macstwo;
@@ -236,7 +244,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		WorkUnit w = macs2.getPeaks(prefixForFileName, testFileHandleList, controlFileHandleList, jobParametersMap);//configure
 		logger.debug("OK, workunit has been generated");
 		this.commandLineCall = w.getCommand();
-		this.commandLineCall = this.commandLineCall.replaceAll("\\n", "");//the workunit tagged on a newline at the end of the command; so remove it for db storage
+		this.commandLineCall = this.commandLineCall.replaceAll("\\n", "<br />");//the workunit tagged on a newline at the end of the command; so remove it for db storage and replace with <br /> for display purposes
 
 		List<String> listOfFileHandleNames = new ArrayList<String>();
 		
@@ -453,33 +461,8 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		this.controlSampleId = (Integer) stepContext.get("controlSampleId");	
 		this.commandLineCall = (String) stepContext.get("commandLineCall");	
 		
-		// register commandLineCall, testCellLibraryIdList, controlCellLibraryIdList and  controlId with sampleMeta 
-		// and associate sample with the new file groups		
+		// associate test sample with the new file groups		
 		Sample testSample = sampleService.getSampleById(testSampleId);		
-		//List<SampleMeta> testSampleMetaList = sampleService.getSampleMetaDao().getSamplesMetaBySampleId(testSample.getId().intValue());//testSample.getSampleMeta();
-		List<SampleMeta> testSampleMetaList = testSample.getSampleMeta();
-		
-		SampleMeta sm1 = new SampleMeta();
-		sm1.setK("chipseqAnalysis.testCellLibraryIdList" + "::" + this.controlSampleId.toString());
-		sm1.setV(this.testCellLibraryIdListAsString);
-		testSampleMetaList.add(sm1);
-		
-		SampleMeta sm2 = new SampleMeta();
-		sm2.setK("chipseqAnalysis.controlCellLibraryIdList" + "::" + this.controlSampleId.toString());
-		sm2.setV(this.controlCellLibraryIdListAsString);
-		testSampleMetaList.add(sm2);
-		
-		SampleMeta sm3 = new SampleMeta();
-		sm3.setK("chipseqAnalysis.commandLineCall" + "::" + this.controlSampleId.toString());
-		sm3.setV(this.commandLineCall);
-		testSampleMetaList.add(sm3);
-		
-		SampleMeta sm4 = new SampleMeta();
-		sm4.setK("chipseqAnalysis.controlId" + "::" + this.controlSampleId.toString());
-		sm4.setV(this.controlSampleId.toString());
-		testSampleMetaList.add(sm4);	
-		
-		sampleService.saveSampleWithAssociatedMeta(testSample);
 		
 		logger.debug("in middle of doPreFinish() in MacstwoTasklet");
 
@@ -567,6 +550,116 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 			fgmList.add(fgm);
 			fileService.saveFileGroupMeta(fgmList, fg);
 		}
+		
+		
+		//new, 5-9-14
+		logger.debug("new stuff, added 5-9-14, to get numbers from txt files that are not saved");
+		//context.getStepContext().attributeNames().
+		GridResult result = getStartedResult(context);
+		String workingDir = result.getWorkingDirectory();//is this the scratch, I think so
+		
+		WorkUnit w = new WorkUnit();
+		w.setProcessMode(ProcessMode.SINGLE);
+		Integer totalCountMappedReads = null;
+		Integer totalCountMappedReadsInPeaks = null;
+		Double fractionOfMappedReadsInPeaks = null;//FRiP
+		
+		try {
+			GridWorkService workService = gridHostResolver.getGridWorkService(w);
+			GridTransportConnection transportConnection = workService.getTransportConnection();
+			w.setWorkingDirectory(workingDir);
+			w.addCommand("cat totalCountMappedReads.txt");//will appear on first line of output
+			w.addCommand("cat totalCountMappedReadsInPeaks.txt");//will appear on second line of output
+			
+			GridResult r = transportConnection.sendExecToRemote(w);
+			InputStream is = r.getStdOutStream();
+			BufferedReader br = new BufferedReader(new InputStreamReader(is)); 
+			boolean keepReading = true;
+			int lineNumber = 0;
+			while (keepReading){
+				lineNumber++;
+				String line = null;
+				line = br.readLine();
+				logger.debug("line number = " + lineNumber + " and line = " + line);
+				if (line == null)
+					keepReading = false;
+				else{
+					if (lineNumber == 1){
+						totalCountMappedReads = Integer.getInteger(line);
+						logger.debug("totalCountMappedReads = " + totalCountMappedReads);
+					} else if (lineNumber == 2){
+						totalCountMappedReadsInPeaks = Integer.getInteger(line);
+						logger.debug("totalCountMappedReadsInPeaks = " + totalCountMappedReadsInPeaks);
+					} else {
+						keepReading = false;
+					}
+				}
+			}
+			br.close();
+			
+			if(totalCountMappedReads!=0){
+				fractionOfMappedReadsInPeaks = (double) (totalCountMappedReadsInPeaks / totalCountMappedReads );				
+				logger.debug("all ok and fractionOfMappedReadsInPeaks = " + fractionOfMappedReadsInPeaks);
+			}
+			
+		} catch (Exception e) {
+			logger.debug("unable to get totalCountMappedReads.txt value and/or totalCountMappedReadsInPeaks.txt in MacsTwo");
+		} 
+		
+		String totalCountMappedReads_asString = "";
+		String totalCountMappedReadsInPeaks_asString = "";
+		String fractionOfMappedReadsInPeaks_asString = "";//FRiP
+		if(totalCountMappedReads!=null){
+			totalCountMappedReads_asString = totalCountMappedReads.toString();
+		}
+		if(totalCountMappedReadsInPeaks!=null){
+			totalCountMappedReadsInPeaks_asString = totalCountMappedReadsInPeaks.toString();
+		}
+		if(fractionOfMappedReadsInPeaks!=null){
+			fractionOfMappedReadsInPeaks_asString = fractionOfMappedReadsInPeaks.toString();
+		}
+		
+		logger.debug("getting ready to save testSample metadata  in MacstwoTasklet");
+		
+		// register commandLineCall, testCellLibraryIdList, controlCellLibraryIdList and  controlId with sampleMeta 
+		//and record totalCountMappedReads, totalCountMappedReadsInPeaks, fractionOfMappedReadsInPeaks
+		List<SampleMeta> testSampleMetaList = testSample.getSampleMeta();
+		
+		SampleMeta sm1 = new SampleMeta();
+		sm1.setK("chipseqAnalysis.testCellLibraryIdList" + "::" + this.controlSampleId.toString());
+		sm1.setV(this.testCellLibraryIdListAsString);
+		testSampleMetaList.add(sm1);
+		
+		SampleMeta sm2 = new SampleMeta();
+		sm2.setK("chipseqAnalysis.controlCellLibraryIdList" + "::" + this.controlSampleId.toString());
+		sm2.setV(this.controlCellLibraryIdListAsString);
+		testSampleMetaList.add(sm2);
+		
+		SampleMeta sm3 = new SampleMeta();
+		sm3.setK("chipseqAnalysis.commandLineCall" + "::" + this.controlSampleId.toString());
+		sm3.setV(this.commandLineCall);
+		testSampleMetaList.add(sm3);
+		
+		SampleMeta sm4 = new SampleMeta();
+		sm4.setK("chipseqAnalysis.controlId" + "::" + this.controlSampleId.toString());
+		sm4.setV(this.controlSampleId.toString());
+		testSampleMetaList.add(sm4);	
+		
+		SampleMeta sm5 = new SampleMeta();
+		sm5.setK("chipseqAnalysis.totalCountMappedReads" + "::" + this.controlSampleId.toString());
+		sm5.setV(totalCountMappedReads_asString);
+		testSampleMetaList.add(sm5);	
+		SampleMeta sm6 = new SampleMeta();
+		sm6.setK("chipseqAnalysis.totalCountMappedReadsInPeaks" + "::" + this.controlSampleId.toString());
+		sm6.setV(totalCountMappedReadsInPeaks_asString);
+		testSampleMetaList.add(sm6);	
+		SampleMeta sm7 = new SampleMeta();
+		sm7.setK("chipseqAnalysis.fractionOfMappedReadsInPeaks" + "::" + this.controlSampleId.toString());
+		sm7.setV(fractionOfMappedReadsInPeaks_asString);
+		testSampleMetaList.add(sm7);		
+		
+		sampleService.saveSampleWithAssociatedMeta(testSample);
+		
 		logger.debug("ending doPreFinish() in MacstwoTasklet");
 
 	}

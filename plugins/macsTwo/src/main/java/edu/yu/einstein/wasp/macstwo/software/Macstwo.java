@@ -216,7 +216,7 @@ public class Macstwo extends SoftwarePackage{
 		logger.debug("---- "+command4);
 		w.addCommand(command4);
 	
-		String mappedReadsInPeaks = "mappedReadsInPeaks.bed";//column 5 will be the one we need (depth)
+		String mappedReadsInPeaks = prefixForFileName+"_mappedReadsInPeaks.bed";//column 5 will be the one we need (depth)
 		tempCommand = new StringBuilder();
 		//bedtools coverage appears to only use reads that are mapped for determining coverage - which is what we want (dubin observation)
 		tempCommand.append("bedtools coverage -counts -abam " + mergedTestBamFile + " -b " + peaksInBed4Format + " > " + mappedReadsInPeaks);
@@ -280,12 +280,13 @@ public class Macstwo extends SoftwarePackage{
 		w.setMode(ExecutionMode.PROCESS);		
 		w.setProcessMode(ProcessMode.MAX);		
 		w.setMemoryRequirements(8);
-		//w.setNumberOfTasks(1);//?????only important when ExecutionMode.Task_Array
-				
-		//w.setResultFiles(resultFiles);//may not be needed
 		w.setSecureResults(true);
+		//this line is irrelevant, as I'm writing over it in MacstwoTasklet.java
+		//w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		
-		w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
+	/*	probably it's wise to use this, but not really needed, as it will automatically be set
+		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
+	*/
 		
 		return w;
 	}
