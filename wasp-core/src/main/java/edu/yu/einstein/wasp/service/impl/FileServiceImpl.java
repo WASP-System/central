@@ -995,6 +995,55 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		String area = fileGroup.getFileType().getIName();
 		return pluginRegistry.getPluginsHandlingArea(area, FileDataTabViewing.class);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void removeFileGroupFromRemoteServerAndMarkDeleted(FileGroup fileGroup) throws Exception{
+		Assert.assertTrue(fileGroup.isDeleted() == 0, "Filegroup is already deleted");
+		for (FileHandle fh : fileGroup.getFileHandles()){
+			if (!fh.isDeleted()){
+				String path = fh.getFileURI().getPath();
+				GridWorkService gws = hostResolver.getGridWorkService(fileHost);
+				GridFileService gfs = gws.getGridFileService();
+				if (gfs.exists(path))
+					gfs.delete(path);
+				fh.setDeleted(true);	
+			}
+		}
+		fileGroup.setDeleted(1);
+		fileGroup.setIsActive(0);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void removeFileHandleFromRemoteServerAndMarkDeleted(FileHandle fileHandle) throws Exception{
+		// delete remote file
+		String path = fileHandle.getFileURI().getPath();
+		GridWorkService gws = hostResolver.getGridWorkService(fileHost);
+		GridFileService gfs = gws.getGridFileService();
+		if (gfs.exists(path))
+			gfs.delete(path);
+		
+		// check if any fileGroups need to be marked deleted (this was the last non-deleted file in the fileGroup)
+		for (FileGroup fileGroup : fileHandle.getFileGroup()){
+			boolean nonDeletedFhExists = false;
+			for (FileHandle fh : fileGroup.getFileHandles())
+				if (!fh.isDeleted() && !fh.equals(fileHandle)){
+					nonDeletedFhExists = false;
+					break;
+				}
+			if (!nonDeletedFhExists){
+				fileGroup.setDeleted(1);
+				fileGroup.setIsActive(0);
+			}
+		}
+		
+		fileHandle.setDeleted(true);
+	}
 
 	@Override
 	public void removeUploadedFileFromJobDraft(Integer jobDraftId, Integer fileGroupId, Integer fileHandleId) throws FileNotFoundException{
