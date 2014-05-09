@@ -86,7 +86,7 @@ $(document).ready(function() {
 					}
 				}
 			});
-
+/* do not use this anymore; see below for replacement using dropdown box
 	jQuery("#grid_id").jqGrid('setColProp', 'readType',
 			{
 				search:true,
@@ -105,7 +105,7 @@ $(document).ready(function() {
 					}
 				}
 			});
-	
+*/	
 	jQuery("#grid_id").jqGrid('setColProp', 'resourceCategoryName',
 			{
 				search:true,
@@ -132,6 +132,15 @@ $(document).ready(function() {
 				//searchrules:{integer:true} //won't work in filterToolbar, just a search dialog box 
 			});
 
+	jQuery("#grid_id").jqGrid('setColProp', 'readType',
+			{
+				search:true,
+				sopt:['eq'],
+				//searchrules:{integer:true} //won't work in filterToolbar, just a search dialog box
+				editable: true, edittype: "select", stype: 'select',
+				searchoptions: { sopt: ['eq'], value: ':<fmt:message key="run.readTypeAll.label" />;single:<fmt:message key="run.readTypeSingle.label" />;paired:<fmt:message key="run.readTypePaired.label" />' }
+			});
+	
 	jQuery("#grid_id").jqGrid('setColProp', 'cellcount',
 			{
 				search:true,

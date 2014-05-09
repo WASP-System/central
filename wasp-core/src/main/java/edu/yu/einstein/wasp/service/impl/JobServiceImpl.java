@@ -1856,14 +1856,14 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		List<Map<String,Object>> fileTypeNodes = new ArrayList<Map<String,Object>>();
 		Set<FileGroup> fgSet = new LinkedHashSet<>();
 		if (cell == null) {
-			fgSet.addAll(library.getFileGroups());
+			fgSet.addAll(fileService.getActiveFilesForSample(library));
 		} else {
 			SampleSource cellLibrary;
 			if (cell.getId() < 0)
 				cellLibrary = sampleService.getCellLibrariesForLibrary(library).get((cell.getId() * -1) - 1); 
 			else
 				cellLibrary = sampleService.getCellLibrary(cell, library);  
-			fgSet.addAll(cellLibrary.getFileGroups());
+			fgSet.addAll(fileService.getActiveFilesForCellLibrary(cellLibrary));
 			logger.debug("fgSet size=" + fgSet.size());
 		}
 		Map<FileType, Set<FileGroup>> ftMap = new HashMap<FileType, Set<FileGroup>>();
@@ -1913,9 +1913,9 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		Set<FileGroup> fgSet = new LinkedHashSet<>();
 		if (cell.getId() == 0){
 			for (SampleSource cellLibrary : sampleService.getCellLibrariesForLibrary(library))
-				fgSet.addAll(cellLibrary.getFileGroups());
+				fgSet.addAll(fileService.getActiveFilesForCellLibrary(cellLibrary));
 		} else
-			fgSet.addAll(sampleService.getCellLibrary(cell, library).getFileGroups());
+			fgSet.addAll(fileService.getActiveFilesForCellLibrary(sampleService.getCellLibrary(cell, library)));
 		Map<Integer, FileType> ftMap = new HashMap<Integer, FileType>();
 		for (FileGroup fg : fgSet) {
 			ftMap.put(fg.getFileTypeId(), fg.getFileType());
@@ -2065,89 +2065,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		return softwareList;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Map<Sample, List<String>> decodeSamplePairs(String samplePairs, List<Sample> submittedSamplesList){
-		Map<Sample, List<String>> samplePairsMap = new HashMap<Sample, List<String>>();
-		if(samplePairs!=null && !samplePairs.isEmpty()){
-			for(Sample cSample : submittedSamplesList){
-				List<String> stringList = new ArrayList<String>();
-				boolean atLeastOneAnalysisPairExists = false;
-				List <Sample> tempSubmittedSamplesList = new ArrayList<Sample>(submittedSamplesList);//identical copy of submittedSamplesList (with identical order) 
-				for(Sample tSample : tempSubmittedSamplesList){				
-					String matchFound = "f";//false
-					if(cSample.getId()==tSample.getId()){
-						stringList.add("d");//disallowed
-						continue;
-					}
-					String possiblePair = tSample.getId().toString() + ":" + cSample.getId().toString();
-					for(String realPair : samplePairs.split(";")){
-						if(realPair.equals(possiblePair)){
-							matchFound = "t";//true
-							atLeastOneAnalysisPairExists = true;
-							break;
-						}
-					}
-					stringList.add(matchFound);
-				}
-				if(atLeastOneAnalysisPairExists){//at least one "t" in the string
-					samplePairsMap.put(cSample, stringList);
-				}
-			}
-		}
-		return samplePairsMap;
-	}
 	
-	public void decodeSamplePairsWithReference(String samplePairs, List<Sample> submittedSamplesList, List<String> controlIsReferenceList, List<String> testIsReferenceList){
-		if(samplePairs!=null && !samplePairs.isEmpty() && controlIsReferenceList != null && testIsReferenceList != null){
-	 		if(samplePairs!=null && !samplePairs.isEmpty()){
-				for(Sample sample : submittedSamplesList){		
-					String matchFoundForControlIsReference = "f";
-					String matchFoundForTestIsReference = "f";
-					for(String realPair : samplePairs.split(";")){
-						String[] stringArray = realPair.split(":");
-						Integer T;
-						try{
-							T = Integer.valueOf(stringArray[0]);
-						}catch(Exception e){T = null;}
-						Integer C;
-						try{
-							C = Integer.valueOf(stringArray[1]);
-						}catch(Exception e){C = null;}					
-						
-						if(C == null && T != null && sample.getId().intValue()==T.intValue()){
-							matchFoundForControlIsReference = "t";
-						}
-						else if(T == null && C != null && sample.getId().intValue()==C.intValue()){
-							matchFoundForTestIsReference = "t";
-						}
-					}
-					controlIsReferenceList.add(matchFoundForControlIsReference);
-					testIsReferenceList.add(matchFoundForTestIsReference);
-				}
-				boolean foundOne = false;
-				for(String s : controlIsReferenceList){
-					if(s.equals("t")){
-						foundOne = true;
-					}
-				}
-				if(!foundOne){
-					controlIsReferenceList.clear();//never found a hit, so empty list
-				}
-				foundOne = false;
-				for(String s2 : testIsReferenceList){
-					if(s2.equals("t")){
-						foundOne = true;
-					}
-				}
-				if(!foundOne){
-					testIsReferenceList.clear();
-				}
-			}
-		}
-	}
 	
 	/**
 	 * {@inheritDoc}

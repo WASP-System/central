@@ -79,7 +79,8 @@ validate = function(){
 	if(typeof(pi) !== 'undefined' && pi != null && pi.length>0){
 		//could have subsituted if(typeof(pi) !== 'undefined' && pi != null && pi.length>0) with if(pi && pi.length>0)  
 		if(!properNameAndLoginFormat.test(pi)){
-			alert("Required PI format: firstname lastname (login). It is best to select name from list.");
+			//alert("Required PI format: firstname lastname (login). It is best to select name from list.");
+			alert("<fmt:message key="lab.list_pIAlert.label"/>");
 			return true;//do not perform search 
 		}
 	} 

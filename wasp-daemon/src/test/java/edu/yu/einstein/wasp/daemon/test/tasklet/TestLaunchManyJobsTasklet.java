@@ -26,7 +26,8 @@ public class TestLaunchManyJobsTasklet extends LaunchManyJobsTasklet {
 
     @Override
     public void doExecute() {
-        
+        if (method.equals("none"))
+        	return;
         try {
             for (int i = 0; i < 5; i++) {
                 Map<String,String> jobParameters = new HashMap<String,String>();

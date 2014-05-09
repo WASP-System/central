@@ -334,5 +334,11 @@ public interface FileService extends WaspService {
 
 	public List<FileHandleMeta> saveFileHandleMeta(List<FileHandleMeta> metaList, FileHandle filehandle) throws MetadataException;
 
+	public Set<FileGroup> getActiveFilesForCellLibrary(SampleSource cellLibrary);
+	
+	public Set<FileGroup> getActiveFilesForSample(Sample sample);
+	
+	public Set<FileGroup> getFilesForSample(Sample sample);
+
 }
 

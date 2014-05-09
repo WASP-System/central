@@ -15,7 +15,6 @@ import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
@@ -35,9 +34,10 @@ import edu.yu.einstein.wasp.plugin.bwa.software.BWABacktrackSoftwareComponent;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.BamFileTypeAttribute;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqComparator;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
+import edu.yu.einstein.wasp.plugin.picard.software.Picard;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.software.SoftwarePackage;
+
 
 /**
  * @author calder
@@ -89,6 +89,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		StepExecution stepExecution = context.getStepContext().getStepExecution();
 		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
 		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
+		Picard picard = (Picard) bwa.getSoftwareDependencyByIname("picard");
 		
 		// retrieve attributes persisted in jobExecutionContext
 		String scratchDirectory = jobExecutionContext.get("scrDir").toString();
@@ -133,6 +134,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		bam.setFileName(bamOutput);
 		bam.setFileType(bamFileType);
 		bam = fileService.addFile(bam);
+		bamG.setIsActive(0);
 		bamG.addFileHandle(bam);
 		bamG.setFileType(bamFileType);
 		bamG.setDescription(bamOutput);
@@ -140,6 +142,8 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		bamG = fileService.addFileGroup(bamG);
 		bamServiceImpl.addAttribute(bamG, BamFileTypeAttribute.SORTED);
 		Integer bamGId = bamG.getId();
+		
+		fileService.setSampleSourceFile(bamG, cellLib);
 		// save in step context  for use later
 		stepExecutionContext.put("bamGID", bamGId);
 		
@@ -149,12 +153,15 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		bai.setFileName(baiOutput);
 		bai.setFileType(baiFileType);
 		bai = fileService.addFile(bai);
+		baiG.setIsActive(0);
 		baiG.addFileHandle(bai);
 		baiG.setFileType(baiFileType);
 		baiG.setDescription(baiOutput);
 		baiG.setSoftwareGeneratedBy(bwa);
 		baiG = fileService.addFileGroup(baiG);
 		Integer baiGId = baiG.getId();
+		
+		fileService.setSampleSourceFile(baiG, cellLib);
 		// save in step context for use later
 		stepExecutionContext.put("baiGID", baiGId);
 		
@@ -163,6 +170,8 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 	
 		w.setCommand("shopt -s nullglob\n");
 		w.addCommand("for x in sam.*.out; do ln -s ${x} ${x/*:/}.sam ; done\n");
+		String outputBamFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
+		String outputBaiFilename = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
 		if (markDuplicates){
 			bamServiceImpl.addAttribute(bamG, BamFileTypeAttribute.DEDUP);
 			String metricsOutput = fileService.generateUniqueBaseFileName(cellLib) + "dedupMetrics.txt";
@@ -171,27 +180,25 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 			metrics.setFileName(metricsOutput);
 			metrics.setFileType(textFileType);
 			metrics = fileService.addFile(metrics);
+			metricsG.setIsActive(0);
 			metricsG.addFileHandle(metrics);
 			metricsG.setFileType(textFileType);
 			metricsG.setDescription(metricsOutput);
 			metricsG.setSoftwareGeneratedBy(bwa);
 			metricsG = fileService.addFileGroup(metricsG);
 			Integer metricsGId = metricsG.getId();
+			
+			fileService.setSampleSourceFile(metricsG, cellLib);
 			// save in step context for use later
 			stepExecutionContext.put("metricsGID", metricsGId);
 			w.getResultFiles().add(metricsG);
-			
-			w.addCommand("java -Xmx4g -jar $PICARD_ROOT/MergeSamFiles.jar $(printf 'I=%s ' *.out.sam) O=merged.${" + WorkUnit.OUTPUT_FILE + "[0]} " +
-					"SO=coordinate TMP_DIR=. CREATE_INDEX=false VALIDATION_STRINGENCY=SILENT");
-			w.addCommand("java -Xmx4g -jar $PICARD_ROOT/MarkDuplicates.jar I=merged.${" + WorkUnit.OUTPUT_FILE + "[0]} " +
-					"O=${" + WorkUnit.OUTPUT_FILE + "[0]} REMOVE_DUPLICATES=false METRICS_FILE=${" + 
-					WorkUnit.OUTPUT_FILE + "[2]} TMP_DIR=. CREATE_INDEX=true VALIDATION_STRINGENCY=SILENT");
+			String tempMergedBamFilename = "merged.${" + WorkUnit.OUTPUT_FILE + "[0]}";
+			String dedupMetricsFilename = "${" + WorkUnit.OUTPUT_FILE + "[2]}";
+			w.addCommand(picard.getMergeBamCmd("*.out.sam", tempMergedBamFilename, null));
+			w.addCommand(picard.getMarkDuplicatesCmd(tempMergedBamFilename, outputBamFilename, outputBaiFilename, dedupMetricsFilename));
 		} else {
-			w.addCommand("java -Xmx4g -jar $PICARD_ROOT/MergeSamFiles.jar $(printf 'I=%s ' *.out.sam) O=${" + WorkUnit.OUTPUT_FILE + "[0]} " +
-					"SO=coordinate TMP_DIR=. CREATE_INDEX=true VALIDATION_STRINGENCY=SILENT");
-		}
-		w.addCommand("mv ${" + WorkUnit.OUTPUT_FILE + "[0]}.bai ${" + WorkUnit.OUTPUT_FILE + "[1]}");
-			
+			w.addCommand(picard.getMergeBamCmd("*.out.sam", outputBamFilename, outputBaiFilename));
+		}	
 		w.setWorkingDirectory(scratchDirectory);
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
 		w.setSecureResults(true);
@@ -210,19 +217,17 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 	public void doPreFinish(ChunkContext context) throws Exception {
 		StepExecution stepExecution = context.getStepContext().getStepExecution();
 		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
-		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
 		Integer bamGId = stepExecutionContext.getInt("bamGID");
 		Integer baiGId = stepExecutionContext.getInt("baiGID");
-		Integer metricsGID = stepExecutionContext.getInt("metricsGID");
+		Integer metricsGId = stepExecutionContext.getInt("metricsGID");
 		
-		// register .bam and .bai file groups with cellLib so as to make available to views
-		SampleSource cellLib = sampleService.getSampleSourceDao().findById(jobExecutionContext.getInt("cellLibId"));
-		if (bamGId != null && cellLib.getId() != 0)
-			fileService.setSampleSourceFile(fileService.getFileGroupById(bamGId), cellLib);
-		if (baiGId != null && cellLib.getId() != 0)
-			fileService.setSampleSourceFile(fileService.getFileGroupById(baiGId), cellLib);	
-		if (metricsGID != null && cellLib.getId() != 0)
-			fileService.setSampleSourceFile(fileService.getFileGroupById(metricsGID), cellLib);	
+		// register .bam and .bai file groups as active to make them available to views
+		if (bamGId != null)
+			fileService.getFileGroupById(bamGId).setIsActive(1);
+		if (baiGId != null)
+			fileService.getFileGroupById(baiGId).setIsActive(1);	
+		if (metricsGId != null)
+			fileService.getFileGroupById(metricsGId).setIsActive(1);	
 	}
 	
 

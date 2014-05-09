@@ -570,13 +570,13 @@ public class JobSubmissionController extends WaspController {
 		String strategyParameter = request.getParameter("strategy"); //I suppose that some types of jobs, not yet defined, may not have any strategy. 
 		if(!strategyParameter.isEmpty()){
 			if("-1".equals(strategyParameter)){//this is not expected, as the submit button is never displayed when this is true
-				strategyError = "Please select a strategy";//needs to be internationalized
+				strategyError = messageService.getMessage("jobDraft.strategyNotSelected.error");//"Please select a strategy";
 				strategy.setType(StrategyType.LIBRARY_STRATEGY);//for now, but we need to do better
 			}
 			else{
 				strategy = strategyService.getStrategyByKey(strategyParameter);
 				if(strategy.getId()==null){//rather unlikely event
-					strategyError = "Selected strategy unexpectedly not found";//needs to be internationalized 
+					strategyError = messageService.getMessage("jobDraft.strategyNotFound.error");//"Selected strategy unexpectedly not found"; 
 				}
 			}
 		}
@@ -717,13 +717,13 @@ public class JobSubmissionController extends WaspController {
 		String strategyParameter = request.getParameter("strategy"); //I suppose that some types of jobs, not yet defined, may not have any strategy. 
 		if(!strategyParameter.isEmpty()){
 			if("-1".equals(strategyParameter)){//this is not expected to occur, as the submit button on this web page is not displayed when this value is -1
-				strategyError = "Please select a strategy";//needs to be internationalized
+				strategyError = messageService.getMessage("jobDraft.strategyNotSelected.error");//"Please select a strategy";
 				strategy.setType(StrategyType.LIBRARY_STRATEGY);//for now
 			}
 			else{
 				strategy = strategyService.getStrategyByKey(strategyParameter);//searches table Meta
 				if(strategy.getId()==null){//rather unlikely event
-					strategyError = "Selected strategy unexpectedly not found";//needs to be internationalized
+					strategyError = messageService.getMessage("jobDraft.strategyNotFound.error");//"Selected strategy unexpectedly not found";
 				}
 			}
 		}
