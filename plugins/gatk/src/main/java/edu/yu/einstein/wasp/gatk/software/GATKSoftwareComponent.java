@@ -1,7 +1,5 @@
 package edu.yu.einstein.wasp.gatk.software;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -10,10 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.gatk.service.GatkService;
-import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
-import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.SampleService;

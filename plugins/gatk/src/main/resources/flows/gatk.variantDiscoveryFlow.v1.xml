@@ -215,19 +215,12 @@
 			<batch:fail on="*" /> <!-- unexpected message -->
 		</batch:decision>
 		
-		<batch:step id="gatk.variantDiscovery.runHC" next="gatk.variantDiscovery.filter">
+		<batch:step id="gatk.variantDiscovery.runHC" next="gatk.variantDiscovery.notifyComplete">
 			<batch:flow parent="gatk.variantDiscovery.hc.flow"/>
 		</batch:step>
 		
-		<batch:step id="gatk.variantDiscovery.runUG" next="gatk.variantDiscovery.filter">
+		<batch:step id="gatk.variantDiscovery.runUG" next="gatk.variantDiscovery.notifyComplete">
 			<batch:flow parent="gatk.variantDiscovery.ug.flow"/>
-		</batch:step>
-		
-		
-		<batch:step id="gatk.variantDiscovery.filter" next="gatk.variantDiscovery.notifyComplete">
-			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.HardFilterTasklet" scope="step" />
-			</batch:tasklet>
 		</batch:step>
 		
 		<batch:step id="gatk.variantDiscovery.notifyComplete">
