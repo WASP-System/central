@@ -13,8 +13,17 @@ public class VcfTools extends SoftwarePackage{
 
 	private static final long serialVersionUID = -2765983552942308803L;
 
-	public VcfTools() {
-		
+	public VcfTools() {}
+	
+	public String vcfSubset(String inputFilename, String outputFilename, String columns, boolean bgzipOutput){
+		// --columns <string>     File or comma-separated list of columns to keep in the vcf file. If file, one column per row
+		// --exclude-ref          Exclude rows not containing variants.
+		String bgzipCommand = " ";
+		if (bgzipOutput)
+			bgzipCommand = " | bgzip -c "; // -c      write on standard output, keep original files unchanged
+		String command = "vcf-subset --exclude-ref --columns " + columns + bgzipCommand + "> " + outputFilename;
+		logger.debug("Will conduct VCF Tools vcf-subset with command string: " + command);
+		return command;
 	}
 
 	

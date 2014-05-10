@@ -139,6 +139,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		for (String fileName : inputFileNames)
 			command += " -V " + fileName;
 		command += " -R " + genomeService.getReferenceGenomeFastaFile(build) + " -o " + outputFileName;
+		logger.debug("Will conduct gatk genotyping with command string: " + command);
 		return command;
 	}
 
