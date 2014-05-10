@@ -79,6 +79,7 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 		Map<Sample, FileGroup> passThroughSampleFileGroupsForNextStep = new HashMap<>();
 		Map<Sample, LinkedHashSet<FileGroup>> sampleFileGroups = new HashMap<>();
 		Map<Sample, LinkedHashSet<SampleSource>> sampleCellLibraries = new HashMap<>();
+		LinkedHashSet<FileGroup> temporaryFileSet = new LinkedHashSet<>();
 		try {
 			for (SampleSource cl: sampleService.getCellLibrariesThatPassedQCForJob(job)){
 				Sample sample = sampleService.getLibrary(cl);
@@ -147,7 +148,7 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 				metricsG = fileService.addFileGroup(metricsG);
 				metricsG.setSampleSources(sampleCellLibraries.get(sample));
 				outputFileGroups.add(metricsG);
-
+				temporaryFileSet.addAll(outputFileGroups);
 				jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(inputFileGroups));
 				jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(outputFileGroups));
 				jobParameters.put(WaspSoftwareJobParameters.JOB_ID, jobId.toString());
@@ -159,11 +160,11 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 			} else {
 				passThroughSampleFileGroupsForNextStep.put(sample, sampleFileGroups.get(sample).iterator().next()); // should be no more than 1 entry
 			}
-			// put files needed for next step into step execution context to be promoted to job context
-			getStepExecution().getExecutionContext().put("mergedSampleFgMap", AbstractGatkTasklet.getSampleFgMapAsJsonString(mergedSampleFileGroupsForNextStep));
-			getStepExecution().getExecutionContext().put("passThroughSampleFgMap", AbstractGatkTasklet.getSampleFgMapAsJsonString(passThroughSampleFileGroupsForNextStep));
-			
 		}
+		// put files needed for next step into step execution context to be promoted to job context
+		getStepExecution().getExecutionContext().put("mergedSampleFgMap", AbstractGatkTasklet.getSampleFgMapAsJsonString(mergedSampleFileGroupsForNextStep));
+		getStepExecution().getExecutionContext().put("passThroughSampleFgMap", AbstractGatkTasklet.getSampleFgMapAsJsonString(passThroughSampleFileGroupsForNextStep));
+		getStepExecution().getExecutionContext().put("temporaryFileSet", AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(temporaryFileSet));
 	}
 
 }

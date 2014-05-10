@@ -57,7 +57,7 @@
 			<batch:listeners>
 				<batch:listener>
 					<bean class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
-						<property name="keys" value="mergedSampleFgMap,passThroughSampleFgMap"  />
+						<property name="keys" value="temporaryFileSet,mergedSampleFgMap,passThroughSampleFgMap"  />
 						<property name="statuses" value="COMPLETED,FAILED" />
 					</bean>
 				</batch:listener>
@@ -83,7 +83,7 @@
 			<batch:listeners>
 				<batch:listener>
 					<bean class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
-						<property name="keys" value="fgSamplesMap"  />
+						<property name="keys" value="temporaryFileSet,fgSamplesMap"  />
 						<property name="statuses" value="COMPLETED,FAILED" />
 					</bean>
 				</batch:listener>
@@ -109,7 +109,7 @@
 			<batch:listeners>
 				<batch:listener>
 					<bean class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
-						<property name="keys" value="fgSet"  /> <!-- may be updated by this step--> 
+						<property name="keys" value="gvcfFgSet"  /> <!-- may be updated by this step--> 
 						<property name="statuses" value="COMPLETED,FAILED" />
 					</bean>
 				</batch:listener>

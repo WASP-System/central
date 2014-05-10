@@ -16,13 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
+import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.WaspModel;
-import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -50,6 +49,9 @@ public abstract class AbstractGatkTasklet extends WaspRemotingTasklet {
 	protected FileService fileService;
 	
 	@Autowired
+	protected GatkService gatkService;
+	
+	@Autowired
 	protected GATKSoftwareComponent gatk;
 	
 	@Autowired
@@ -68,14 +70,6 @@ public abstract class AbstractGatkTasklet extends WaspRemotingTasklet {
 		this.outputFilegroupIds = getModelIdsFromCommaDelimitedString(outputFilegroupIds);
 		logger.trace("setting inputFilegroupIds=" + inputFilegroupIds);
 		logger.trace("setting outputFilegroupIds=" + outputFilegroupIds);
-	}
-	
-	@Transactional("entityManager")
-	public Build getBuildForFg(FileGroup fileGroup){
-		Set<SampleSource> fgCl = fileGroup.getSampleSources();
-		if (fgCl == null || fgCl.isEmpty())
-			return null;
-		return genomeService.getGenomeBuild(fgCl.iterator().next());
 	}
 	
 	public String getScratchDirectory() {

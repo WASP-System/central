@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.Strategy.StrategyType;
-import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
@@ -38,9 +37,6 @@ public class CallVariantsWithUGTasklet extends AbstractGatkTasklet implements St
 	@Autowired
 	private JobService jobService;
 	
-	@Autowired
-	private GatkService gatkService;
-
 	@Autowired
 	private StrategyService strategyService;
 
@@ -70,7 +66,7 @@ public class CallVariantsWithUGTasklet extends AbstractGatkTasklet implements St
 		for (Integer fgId : this.getInputFilegroupIds()){
 			FileGroup fg = fileService.getFileGroupById(fgId);
 			if (fhlist.isEmpty()) // first entry not yet entered
-				build = getBuildForFg(fg);
+				build = gatkService.getBuildForFg(fg);
 			fhlist.addAll(fg.getFileHandles());
 		}
 		w.setRequiredFiles(fhlist);

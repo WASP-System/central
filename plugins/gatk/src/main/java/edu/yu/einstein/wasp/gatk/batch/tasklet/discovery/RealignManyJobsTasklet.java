@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,11 +75,15 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 		Assert.assertTrue(job.getId() > 0);
 		Map<Sample, FileGroup> mergedSampleFileGroupsIn = new HashMap<>();
 		Map<Sample, FileGroup> allFgIn = new HashMap<>();
-		if (getStepExecution().getExecutionContext().containsKey("mergedSampleFgMap"))
-			mergedSampleFileGroupsIn = AbstractGatkTasklet.getSampleFgMapFromJsonString(getStepExecution().getExecutionContext().getString("mergedSampleFgMap"), sampleService, fileService);
+		LinkedHashSet<FileGroup> temporaryFileSet = new LinkedHashSet<>();
+		ExecutionContext jobExecutionContext = this.getStepExecution().getJobExecution().getExecutionContext();
+		if (jobExecutionContext.containsKey("temporaryFileSet"))
+			temporaryFileSet = AbstractGatkTasklet.getFileGroupsFromCommaDelimitedString(jobExecutionContext.getString("temporaryFileSet"), fileService);
+		if (jobExecutionContext.containsKey("mergedSampleFgMap"))
+			mergedSampleFileGroupsIn = AbstractGatkTasklet.getSampleFgMapFromJsonString(jobExecutionContext.getString("mergedSampleFgMap"), sampleService, fileService);
 		allFgIn.putAll(mergedSampleFileGroupsIn);
-		if (getStepExecution().getExecutionContext().containsKey("passThroughSampleFgMap"))
-			allFgIn.putAll(AbstractGatkTasklet.getSampleFgMapFromJsonString(getStepExecution().getExecutionContext().getString("passThroughSampleFgMap"), sampleService, fileService));
+		if (jobExecutionContext.containsKey("passThroughSampleFgMap"))
+			allFgIn.putAll(AbstractGatkTasklet.getSampleFgMapFromJsonString(jobExecutionContext.getString("passThroughSampleFgMap"), sampleService, fileService));
 		Map<FileGroup, Set<Sample>> fileGroupSamplesForNextStep = new HashMap<>();
 		Set<Sample> processedSamples = new HashSet<>();
 		// merge, realign and split out again test-control sample pairs
@@ -129,6 +134,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			baiMergedPairsG.addDerivedFrom(controlFgIn);
 			baiMergedPairsG.setSampleSources(sampleSources);
 			outputFileGroups.add(baiMergedPairsG);
+			temporaryFileSet.addAll(outputFileGroups);
 			
 			Map<String, String> jobParameters = new HashMap<>();
 			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(inputFileGroups));
@@ -182,6 +188,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 				baiMergedG.addDerivedFrom(mergedBam);
 				baiMergedG.setSampleSources(mergedBam.getSampleSources());
 				outputFileGroups.add(baiMergedG);
+				temporaryFileSet.addAll(outputFileGroups);
 				
 				Map<String, String> jobParameters = new HashMap<>();
 				jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(inputFileGroups));
@@ -207,5 +214,6 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 		
 		// put files needed for next step into step execution context to be promoted to job context
 		getStepExecution().getExecutionContext().put("fgSamplesMap", AbstractGatkTasklet.getFgSamplesMapAsJsonString(fileGroupSamplesForNextStep));
+		getStepExecution().getExecutionContext().put("temporaryFileSet", AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(temporaryFileSet));
 	}
 }

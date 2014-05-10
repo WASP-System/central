@@ -14,7 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.exception.MetadataRuntimeException;
 import edu.yu.einstein.wasp.gatk.fileformat.GatkBamFileTypeAttribute;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
+import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.BamFileTypeAttribute;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.GenomeService;
@@ -46,6 +48,14 @@ public class GatkServiceImpl extends WaspServiceImpl implements GatkService {
 	public String performAction() {
 		// do something
 		return "done";
+	}
+	
+	@Override
+	public Build getBuildForFg(FileGroup fileGroup){
+		Set<SampleSource> fgCl = fileGroup.getSampleSources();
+		if (fgCl == null || fgCl.isEmpty())
+			return null;
+		return genomeService.getGenomeBuild(fgCl.iterator().next());
 	}
 	
 	@Override

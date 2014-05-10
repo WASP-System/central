@@ -39,9 +39,6 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 	private JobService jobService;
 	
 	@Autowired
-	private GatkService gatkService;
-	
-	@Autowired
 	private StrategyService strategyService;
 	
 	public CallVariantsWithHCTasklet(String inputFilegroupIds, String outputFilegroupIds) {
@@ -69,7 +66,7 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 		for (Integer fgId : this.getInputFilegroupIds()){
 			FileGroup fg = fileService.getFileGroupById(fgId);
 			if (fhlist.isEmpty()) // first entry not yet entered
-				build = getBuildForFg(fg);
+				build = gatkService.getBuildForFg(fg);
 			fhlist.addAll(fg.getFileHandles());
 		}
 		w.setRequiredFiles(fhlist);

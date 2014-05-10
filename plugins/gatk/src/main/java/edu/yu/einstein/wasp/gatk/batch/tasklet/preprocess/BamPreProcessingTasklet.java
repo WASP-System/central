@@ -159,9 +159,9 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
 
 		String inputBamFilename = "${" + WorkUnit.INPUT_FILE + "}";
-		String intervalFileName = "gatk.${" + WorkUnit.JOB_NAME + "}.realign.intervals";
-		String realignBamFilename = "gatk.${" + WorkUnit.JOB_NAME + "}.realign.bam";
-		String recaliGrpFilename = "gatk.${" + WorkUnit.JOB_NAME + "}.recali.grp";
+		String intervalFileName = "gatk.${" + WorkUnit.OUTPUT_FILE + "}.realign.intervals";
+		String realignBamFilename = "gatk.${" + WorkUnit.OUTPUT_FILE + "}.realign.bam";
+		String recaliGrpFilename = "gatk.${" + WorkUnit.OUTPUT_FILE + "}.recali.grp";
 		String recaliBamFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
 		String recaliBaiFilename = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
 		Set<String> inputFilenames = new HashSet<>();

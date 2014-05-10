@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,8 +63,9 @@ public class CallVariantsWithHCManyJobsTasklet extends LaunchManyJobsTasklet {
 		Job job = jobService.getJobByJobId(jobId);
 		Assert.assertTrue(job.getId() > 0);
 		Map<FileGroup, Set<Sample>> allFgSamplesIn = new HashMap<>();
-		if (getStepExecution().getExecutionContext().containsKey("fgSamplesMap"))
-			allFgSamplesIn.putAll(AbstractGatkTasklet.getFgSamplesMapFromJsonString(getStepExecution().getExecutionContext().getString("fgSamplesMap"), sampleService, fileService));
+		ExecutionContext jobExecutionContext = this.getStepExecution().getJobExecution().getExecutionContext();
+		if (jobExecutionContext.containsKey("fgSamplesMap"))
+			allFgSamplesIn.putAll(AbstractGatkTasklet.getFgSamplesMapFromJsonString(jobExecutionContext.getString("fgSamplesMap"), sampleService, fileService));
 		LinkedHashSet<FileGroup> fileGroupsForNextStep = new LinkedHashSet<>();
 		for (FileGroup fg : allFgSamplesIn.keySet()){
 			LinkedHashSet<FileGroup> inputFileGroups = new LinkedHashSet<>();
@@ -101,7 +103,7 @@ public class CallVariantsWithHCManyJobsTasklet extends LaunchManyJobsTasklet {
 			}
 		}
 		// put files needed for next step into step execution context to be promoted to job context
-		getStepExecution().getExecutionContext().put("fgSet", AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(fileGroupsForNextStep));
+		getStepExecution().getExecutionContext().put("gvcfFgSet", AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(fileGroupsForNextStep));
 
 	}
 

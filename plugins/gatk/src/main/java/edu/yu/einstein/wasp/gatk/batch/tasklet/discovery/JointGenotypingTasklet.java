@@ -1,7 +1,9 @@
 package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -13,15 +15,23 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
+import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
+import edu.yu.einstein.wasp.grid.GridHostResolver;
+import edu.yu.einstein.wasp.grid.work.GridResult;
+import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 public class JointGenotypingTasklet extends WaspRemotingTasklet {
 	
@@ -40,7 +50,13 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 	private FileType vcfFileType;
 	
 	@Autowired
+	private GatkService gatkService;
+	
+	@Autowired
 	private GATKSoftwareComponent gatk;
+	
+	@Autowired
+	private GridHostResolver gridHostResolver;
 	
 	private Integer jobId;
 	
@@ -51,13 +67,20 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
+		LinkedHashSet<FileGroup> inputFileGroups = new LinkedHashSet<>();
+		LinkedHashSet<FileGroup> temporaryFileSet = new LinkedHashSet<>();
+		ExecutionContext jobExecutionContext = context.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
+		if (jobExecutionContext.containsKey("gvcfFgSet"))
+			inputFileGroups.addAll(AbstractGatkTasklet.getFileGroupsFromCommaDelimitedString(jobExecutionContext.getString("gvcfFgSet"), fileService));
+		if (jobExecutionContext.containsKey("temporaryFileSet"))
+			temporaryFileSet = AbstractGatkTasklet.getFileGroupsFromCommaDelimitedString(jobExecutionContext.getString("temporaryFileSet"), fileService);
+		// clean up temporary files (e.g. intermediate bams) from the server to save space
+		// this leaves the records in the database but marks them as inactive and deleted
+		for (FileGroup fg : temporaryFileSet) 
+			fileService.removeFileGroupFromRemoteServerAndMarkDeleted(fg);
+		Build build = null;
 		Job job = jobService.getJobByJobId(jobId);
 		Assert.assertTrue(job.getId() > 0);
-		LinkedHashSet<FileGroup> inputFileGroups = new LinkedHashSet<>();
-		LinkedHashSet<FileGroup> outputFileGroups = new LinkedHashSet<>();
-		ExecutionContext jobExecutionContext = context.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
-		if (jobExecutionContext.containsKey("fgSet"))
-			inputFileGroups.addAll(AbstractGatkTasklet.getFileGroupsFromCommaDelimitedString(jobExecutionContext.getString("fgSet"), fileService));
 		Set<SampleSource> sampleSources = new HashSet<>();
 		for (FileGroup fg : inputFileGroups)
 			sampleSources.addAll(fg.getSampleSources());
@@ -74,8 +97,36 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		vcfOutG = fileService.addFileGroup(vcfOutG);
 		vcfOutG.setDerivedFrom(inputFileGroups);
 		vcfOutG.setSampleSources(sampleSources);
-		outputFileGroups.add(vcfOutG);
-
+		
+		
+		WorkUnit w = new WorkUnit();
+		w.setMode(ExecutionMode.PROCESS);
+		w.setProcessMode(ProcessMode.MAX);
+		w.setMemoryRequirements(AbstractGatkTasklet.MEMORY_GB_8);
+		w.setProcessorRequirements(AbstractGatkTasklet.THREADS_8);
+		w.setSecureResults(true);
+		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
+		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + jobId);
+		w.addResultFiles(vcfOutG);
+		List<FileHandle> fhlist = new ArrayList<FileHandle>();
+		for (FileGroup fg : inputFileGroups){
+			if (fhlist.isEmpty()) // first entry not yet entered
+				build = gatkService.getBuildForFg(fg);
+			fhlist.addAll(fg.getFileHandles());
+		}
+		w.setRequiredFiles(fhlist);
+		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
+		sd.add(gatk);
+		w.setSoftwareDependencies(sd);
+		LinkedHashSet<String> inputFileNames = new LinkedHashSet<>();
+		for (int i=0; i < fhlist.size(); i++)
+			inputFileNames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");
+		String rawVcfFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
+		w.setCommand(gatk.genotypeGVCFs(inputFileNames, rawVcfFilename, build, AbstractGatkTasklet.MEMORY_GB_8, AbstractGatkTasklet.THREADS_8));
+		GridResult result = gridHostResolver.execute(w);
+		
+		//place the grid result in the step context
+		storeStartedResult(context, result);
 	}
 	
 
