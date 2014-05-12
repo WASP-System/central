@@ -244,7 +244,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		WorkUnit w = macs2.getPeaks(prefixForFileName, testFileHandleList, controlFileHandleList, jobParametersMap);//configure
 		logger.debug("OK, workunit has been generated");
 		this.commandLineCall = w.getCommand();
-		this.commandLineCall = this.commandLineCall.replaceAll("\\n", "<br />");//the workunit tagged on a newline at the end of the command; so remove it for db storage and replace with <br /> for display purposes
+		this.commandLineCall = this.commandLineCall.replaceAll("\\n", "<br /><br />");//the workunit tagged on a newline at the end of the command; so remove it for db storage and replace with <br /> for display purposes
 
 		List<String> listOfFileHandleNames = new ArrayList<String>();
 		
@@ -560,9 +560,8 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		WorkUnit w = new WorkUnit();
 		w.setProcessMode(ProcessMode.SINGLE);
-		Integer totalCountMappedReads = null;
-		Integer totalCountMappedReadsInPeaks = null;
-		Double fractionOfMappedReadsInPeaks = null;//FRiP
+		String totalCountMappedReadsAsString = "";
+		String totalCountMappedReadsInPeaksAsString = "";
 		
 		try {
 			GridWorkService workService = gridHostResolver.getGridWorkService(w);
@@ -585,11 +584,11 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 					keepReading = false;
 				else{
 					if (lineNumber == 1){
-						totalCountMappedReads = Integer.getInteger(line);
-						logger.debug("totalCountMappedReads = " + totalCountMappedReads);
+						totalCountMappedReadsAsString = line.replaceAll("\\n", "");//just in case there is a trailing new line
+						logger.debug("totalCountMappedReadsAsString = " + totalCountMappedReadsAsString);
 					} else if (lineNumber == 2){
-						totalCountMappedReadsInPeaks = Integer.getInteger(line);
-						logger.debug("totalCountMappedReadsInPeaks = " + totalCountMappedReadsInPeaks);
+						totalCountMappedReadsInPeaksAsString = line.replaceAll("\\n", "");//just in case there is a trailing new line;
+						logger.debug("totalCountMappedReadsInPeaksAsString = " + totalCountMappedReadsInPeaksAsString);
 					} else {
 						keepReading = false;
 					}
@@ -597,32 +596,14 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 			}
 			br.close();
 			
-			if(totalCountMappedReads!=0){
-				fractionOfMappedReadsInPeaks = (double) (totalCountMappedReadsInPeaks / totalCountMappedReads );				
-				logger.debug("all ok and fractionOfMappedReadsInPeaks = " + fractionOfMappedReadsInPeaks);
-			}
-			
 		} catch (Exception e) {
 			logger.debug("unable to get totalCountMappedReads.txt value and/or totalCountMappedReadsInPeaks.txt in MacsTwo");
 		} 
 		
-		String totalCountMappedReads_asString = "";
-		String totalCountMappedReadsInPeaks_asString = "";
-		String fractionOfMappedReadsInPeaks_asString = "";//FRiP
-		if(totalCountMappedReads!=null){
-			totalCountMappedReads_asString = totalCountMappedReads.toString();
-		}
-		if(totalCountMappedReadsInPeaks!=null){
-			totalCountMappedReadsInPeaks_asString = totalCountMappedReadsInPeaks.toString();
-		}
-		if(fractionOfMappedReadsInPeaks!=null){
-			fractionOfMappedReadsInPeaks_asString = fractionOfMappedReadsInPeaks.toString();
-		}
-		
 		logger.debug("getting ready to save testSample metadata  in MacstwoTasklet");
 		
 		// register commandLineCall, testCellLibraryIdList, controlCellLibraryIdList and  controlId with sampleMeta 
-		//and record totalCountMappedReads, totalCountMappedReadsInPeaks, fractionOfMappedReadsInPeaks
+		//and record totalCountMappedReads, totalCountMappedReadsInPeaks, [FRIP statistic - will be derived from totalCountMappedReadsInPeaks / totalCountMappedReadsInPeaks]
 		List<SampleMeta> testSampleMetaList = testSample.getSampleMeta();
 		
 		SampleMeta sm1 = new SampleMeta();
@@ -647,16 +628,12 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		SampleMeta sm5 = new SampleMeta();
 		sm5.setK("chipseqAnalysis.totalCountMappedReads" + "::" + this.controlSampleId.toString());
-		sm5.setV(totalCountMappedReads_asString);
+		sm5.setV(totalCountMappedReadsAsString);
 		testSampleMetaList.add(sm5);	
 		SampleMeta sm6 = new SampleMeta();
 		sm6.setK("chipseqAnalysis.totalCountMappedReadsInPeaks" + "::" + this.controlSampleId.toString());
-		sm6.setV(totalCountMappedReadsInPeaks_asString);
-		testSampleMetaList.add(sm6);	
-		SampleMeta sm7 = new SampleMeta();
-		sm7.setK("chipseqAnalysis.fractionOfMappedReadsInPeaks" + "::" + this.controlSampleId.toString());
-		sm7.setV(fractionOfMappedReadsInPeaks_asString);
-		testSampleMetaList.add(sm7);		
+		sm6.setV(totalCountMappedReadsInPeaksAsString);
+		testSampleMetaList.add(sm6);		
 		
 		sampleService.saveSampleWithAssociatedMeta(testSample);
 		
