@@ -42,6 +42,19 @@
 		</batch:step>
 	</batch:job>
 	
+	<batch:job id="gatk.variantDiscovery.hc.splitAndAnnotateVariants.jobFlow">
+		<batch:step id="gatk.variantDiscovery.hc.splitAndAnnotateVariants.step">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.SplitAndAnnotateVcfTasklet" scope="step">
+					<constructor-arg name="inputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.INPUT_FILEGROUP_ID_LIST]}" />
+					<constructor-arg name="outputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.OUTPUT_FILEGROUP_ID_LIST]}" />
+					<constructor-arg name="sampleIdentifierSet" value="#{jobParameters['sampleIdentifierSet']}" />
+					<constructor-arg name="jobId" value="#{jobParameters[waspSoftwareJobParameters.JOB_ID]}" />
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+	
 	
 	<!-- HC variant calling flow -->
 	<batch:flow id="gatk.variantDiscovery.hc.flow">
@@ -109,7 +122,7 @@
 			<batch:listeners>
 				<batch:listener>
 					<bean class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
-						<property name="keys" value="gvcfFgSet"  /> <!-- may be updated by this step--> 
+						<property name="keys" value="gvcfFgSet"  /> 
 						<property name="statuses" value="COMPLETED,FAILED" />
 					</bean>
 				</batch:listener>
@@ -129,6 +142,32 @@
 				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.JointGenotypingTasklet" scope="step" >
 					<constructor-arg name="jobId" value="#{jobParameters[waspSoftwareJobParameters.JOB_ID]}" />
 				</bean>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="gatk.variantDiscovery.hc.notifyFailed" />
+			<batch:next on="*" to="gatk.variantDiscovery.hc.splitAndAnnotate" />
+			<batch:listeners>
+				<batch:listener>
+					<bean class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
+						<property name="keys" value="combinedGenotypedVcfFgId"  /> 
+						<property name="statuses" value="COMPLETED,FAILED" />
+					</bean>
+				</batch:listener>
+			</batch:listeners>
+		</batch:step>
+		
+		<batch:step id="gatk.variantDiscovery.hc.splitAndAnnotate">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.SplitAndAnnotateVcfManyJobsTasklet" scope="step" >
+					<constructor-arg name="jobId" value="#{jobParameters[waspSoftwareJobParameters.JOB_ID]}" />
+				</bean>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="gatk.variantDiscovery.hc.notifyFailed" />
+			<batch:next on="*" to="gatk.variantDiscovery.hc.splitAndAnnotate.WaitForCompletion" />
+		</batch:step>
+		
+		<batch:step id="gatk.variantDiscovery.hc.splitAndAnnotate.WaitForCompletion">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForManyStatusMessagesTasklet" scope="step" />
 			</batch:tasklet>
 			<batch:next on="FAILED" to="gatk.variantDiscovery.hc.notifyFailed" />
 			<batch:next on="*" to="gatk.variantDiscoveryhc.flowFinished" />

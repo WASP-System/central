@@ -15,7 +15,7 @@ public class VcfTools extends SoftwarePackage{
 
 	public VcfTools() {}
 	
-	public String vcfSubset(String inputFilename, String outputFilename, String columns, boolean bgzipOutput){
+	public String getVcfSubsetCommand(String inputFilename, String outputFilename, String columns, boolean bgzipOutput){
 		// --columns <string>     File or comma-separated list of columns to keep in the vcf file. If file, one column per row
 		// --exclude-ref          Exclude rows not containing variants.
 		String bgzipCommand = " ";

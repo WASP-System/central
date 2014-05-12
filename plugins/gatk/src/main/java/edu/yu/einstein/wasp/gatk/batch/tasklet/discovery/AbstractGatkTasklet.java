@@ -160,14 +160,14 @@ public abstract class AbstractGatkTasklet extends WaspRemotingTasklet {
 	}
 	
 	@Transactional("entityManager")
-	public static Map<FileGroup, Set<Sample>> getFgSamplesMapFromJsonString(String jsonString, SampleService sampleService, FileService fileService){
+	public static Map<FileGroup, LinkedHashSet<Sample>> getFgSamplesMapFromJsonString(String jsonString, SampleService sampleService, FileService fileService){
 		logger.trace("extracting json: " + jsonString);
 		JSONObject jsonObject = new JSONObject(jsonString);
-		Map<FileGroup, Set<Sample>> fileGroupSamples = new HashMap<>();
+		Map<FileGroup, LinkedHashSet<Sample>> fileGroupSamples = new HashMap<>();
 		for (Object fgIdObj : jsonObject.keySet()){
 			FileGroup fg = fileService.getFileGroupById((Integer) fgIdObj);
 			JSONArray sampleJsonArray = jsonObject.getJSONArray(fgIdObj.toString());
-			Set<Sample> sampleSet = new HashSet<>();
+			LinkedHashSet<Sample> sampleSet = new LinkedHashSet<>();
 			for (int i=0; i < sampleJsonArray.length(); i++)
 				sampleSet.add(sampleService.getSampleById(sampleJsonArray.getInt(i)));
 			fileGroupSamples.put(fg, sampleSet);

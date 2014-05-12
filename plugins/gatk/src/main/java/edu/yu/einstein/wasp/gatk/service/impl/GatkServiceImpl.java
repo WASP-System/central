@@ -52,6 +52,7 @@ public class GatkServiceImpl extends WaspServiceImpl implements GatkService {
 	
 	@Override
 	public Build getBuildForFg(FileGroup fileGroup){
+		// TODO: verify that all builds are the same for all cell libraries 
 		Set<SampleSource> fgCl = fileGroup.getSampleSources();
 		if (fgCl == null || fgCl.isEmpty())
 			return null;

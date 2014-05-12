@@ -98,7 +98,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			FileGroup controlFgIn = fileService.getFileGroupById(allFgIn.get(control).getId());
 			inputFileGroups.add(testFgIn);
 			inputFileGroups.add(controlFgIn);
-			Set<SampleSource> sampleSources = new HashSet<>();
+			LinkedHashSet<SampleSource> sampleSources = new LinkedHashSet<>();
 			sampleSources.addAll(testFgIn.getSampleSources());
 			sampleSources.addAll(controlFgIn.getSampleSources());
 			
