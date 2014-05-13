@@ -6,6 +6,8 @@ public class IlluminaIndexingStrategy extends IndexingStrategy {
 	
 	public static final IndexingStrategy TRUSEQ = new IndexingStrategy("TRUSEQ");
 	
+	public static final IndexingStrategy TRUSEQ_DUAL = new IndexingStrategy("TRUSEQ_DUAL");
+	
 	public IlluminaIndexingStrategy(String strategy) {
 		super(strategy);
 	}

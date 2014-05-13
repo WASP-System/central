@@ -59,7 +59,8 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="waspIlluminaHiSeq.mainFlow.updateRunCompleted" next="waspIlluminaHiSeq.mainFlow.dualIndexSplit">
+		<batch:step id="waspIlluminaHiSeq.mainFlow.updateRunCompleted" next="waspIlluminaHiSeq.mainFlow.createSampleSheet">
+			<!-- next="waspIlluminaHiSeq.mainFlow.dualIndexSplit">  -->
 			<!-- task to create a sample sheet. Should do some rudimentary checking on samples. -->
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.UpdateRunCompletedTasklet" parent="baseIlluminaTasklet" scope="step">
@@ -67,53 +68,61 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
+		
+		<!-- 
 		<batch:split id="waspIlluminaHiSeq.mainFlow.dualIndexSplit" next="waspIlluminaHiSeq.mainFlow.processSAV">
-		<!--  processing of illumina runs proceeds in a split step since single index reads and dual index
+		  processing of illumina runs proceeds in a split step since single index reads and dual index
 				reads require separate runs of the CASAVA pipeline.  Under no circumstances should single
 				index reads and dual index reads be run in the same flowcell lane.   -->
+	    <!-- 
 		<batch:flow>
+		-->
 		<batch:step id="waspIlluminaHiSeq.mainFlow.createSampleSheet" next="waspIlluminaHiSeq.mainFlow.startIlluminaPipeline">
 			<!-- task to create a sample sheet. Should do some rudimentary checking on samples. -->
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.SampleSheetTasklet" parent="baseIlluminaTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
-					<constructor-arg name="method" value="#{T(edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor$IndexType).SINGLE}" />
+					<constructor-arg name="method" value="#{T(edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy).TRUSEQ}" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="waspIlluminaHiSeq.mainFlow.startIlluminaPipeline">
+		<batch:step id="waspIlluminaHiSeq.mainFlow.startIlluminaPipeline" next="waspIlluminaHiSeq.mainFlow.createSampleSheetDual">
 			<!-- initiate the illumina pipeline -->
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.PipelineTasklet" parent="baseIlluminaTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
-					<constructor-arg name="method" value="#{T(edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor$IndexType).SINGLE}" />
+					<constructor-arg name="method" value="#{T(edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy).TRUSEQ}" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
+		<!-- skipping split step for the moment... 
 		</batch:flow>
 		<batch:flow>
+		 -->
 		<batch:step id="waspIlluminaHiSeq.mainFlow.createSampleSheetDual" next="waspIlluminaHiSeq.mainFlow.startIlluminaPipelineDual">
 			<!-- task to create a sample sheet. Should do some rudimentary checking on samples. -->
 			<batch:tasklet>
 						<batch:transaction-attributes propagation="NEVER"/>
-				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.SampleSheetTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.SampleSheetTasklet" parent="baseIlluminaTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
-					<constructor-arg name="method" value="#{T(edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor$IndexType).DUAL}" />
+					<constructor-arg name="method" value="#{T(edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy).TRUSEQ_DUAL}" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="waspIlluminaHiSeq.mainFlow.startIlluminaPipelineDual">
+		<batch:step id="waspIlluminaHiSeq.mainFlow.startIlluminaPipelineDual" next="waspIlluminaHiSeq.mainFlow.processSAV">
 			<!-- initiate the illumina pipeline -->
 			<batch:tasklet>
 						<batch:transaction-attributes propagation="NEVER"/>
-				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.PipelineTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.PipelineTasklet" parent="baseIlluminaTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
-					<constructor-arg name="method" value="#{T(edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor$IndexType).DUAL}" />
+					<constructor-arg name="method" value="#{T(edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy).TRUSEQ_DUAL}" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
+		<!-- 
 		</batch:flow>
 		</batch:split>
+		 -->
 		<batch:step id="waspIlluminaHiSeq.mainFlow.processSAV" next="waspIlluminaHiSeq.mainFlow.stageResults">
 			<!-- generate QC metrics pictures a la Illumina reports -->
 			<batch:tasklet>
@@ -160,10 +169,11 @@
 		<batch:step id="waspIlluminaHiSeq.mainFlow.trim" next="waspIlluminaHiSeq.mainFlow.listenForTrimCompletion">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.analysis.SimpleFlowLaunchTasklet" scope="step">
-					<constructor-arg name="flowName" value="${trim_galore.FLOW_NAME}" />
+					<constructor-arg name="flowName" value="#{T(edu.yu.einstein.wasp.plugin.babraham.software.TrimGalore).FLOW_NAME}" />
 					<property name="jobParameters">
 						<map key-type="java.lang.String">
 							<entry key="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+							<entry key="#{T(edu.yu.einstein.wasp.integration.messages.WaspJobParameters).BEAN_NAME}" value="casava" />
 						</map>
 					</property>
 				</bean>

@@ -3,13 +3,16 @@
  */
 package edu.yu.einstein.wasp.plugin.babraham.batch.tasklet;
 
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.babraham.batch.tasklet.jobparameters.TrimGaloreParameters;
@@ -32,7 +35,8 @@ public class TrimGaloreTrimmingTasklet extends WaspRemotingTasklet {
     private int fileGroupId;
     private int fileNumber;
     private int readSegments;
-
+    private int runId;
+    
     @Autowired
     private SampleService sampleService;
 
@@ -40,13 +44,15 @@ public class TrimGaloreTrimmingTasklet extends WaspRemotingTasklet {
     private AdaptorService adaptorService;
 
     @Autowired
+    @Qualifier("trim_galore")
     private TrimGalore trimGalore;
 
     @Autowired
     private GridHostResolver hostResolver;
 
-    public TrimGaloreTrimmingTasklet(String softwareName, int cellLibraryId, int fileGroupId, int fileNumber, int readSegments) {
+    public TrimGaloreTrimmingTasklet(String softwareName, int runId, int cellLibraryId, int fileGroupId, int fileNumber, int readSegments) {
         this.software = softwareName;
+        this.runId = runId;
         this.cellLibraryId = cellLibraryId;
         this.fileGroupId = fileGroupId;
         this.fileNumber = fileNumber;
@@ -70,11 +76,18 @@ public class TrimGaloreTrimmingTasklet extends WaspRemotingTasklet {
         if (readSegments > 1)
             params.setAdapter2(adapter);
 
-        WorkUnit w = trimGalore.getTrimCommand(params, software, cellLibraryId, fileGroupId, fileNumber);
+        WorkUnit w = trimGalore.getTrimCommand(params, software, runId, cellLibraryId, fileGroupId, fileNumber);
 
         GridResult result = hostResolver.execute(w);
 
         storeStartedResult(context, result);
     }
+
+    @Override
+    public void beforeStep(StepExecution stepExecution) {
+        logger.trace("before TrimGaloreTrimmingTasklet");
+        super.beforeStep(stepExecution);
+    }
+    
 
 }

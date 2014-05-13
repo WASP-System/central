@@ -82,6 +82,7 @@ public class TrimGaloreDoRegisterTasklet extends LaunchManyJobsTasklet {
         for (SampleSource cellLibrary : cellLibraries) {
             Map<String, String> jobParameters = new HashMap<String, String>();
 
+            jobParameters.put(WaspJobParameters.RUN_ID, String.valueOf(runId));
             jobParameters.put(WaspJobParameters.CELL_LIBRARY_ID, cellLibrary.getId().toString());
             jobParameters.put(WaspJobParameters.BEAN_NAME, software);
 

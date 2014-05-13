@@ -35,6 +35,7 @@ import edu.yu.einstein.wasp.service.SampleService;
  */
 public class TrimGaloreRegisteringTasklet extends WaspRemotingTasklet {
 
+    private int runId;
     private int cellLibraryId;
     private String softwareClass;
 
@@ -53,9 +54,10 @@ public class TrimGaloreRegisteringTasklet extends WaspRemotingTasklet {
     @Autowired
     private RunService runService;
 
-    public TrimGaloreRegisteringTasklet(int cellLibraryId, String softwareClassName) {
-        this.cellLibraryId = cellLibraryId;
-        this.softwareClass = softwareClassName;
+    public TrimGaloreRegisteringTasklet(String runId, String softwareName, String cellLibraryId) {
+        this.runId = Integer.decode(runId);
+        this.cellLibraryId = Integer.decode(cellLibraryId);
+        this.softwareClass = softwareName;
     }
 
     /**
@@ -66,7 +68,7 @@ public class TrimGaloreRegisteringTasklet extends WaspRemotingTasklet {
 
         SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);
 
-        WorkUnit w = trimGalore.getRegisterTrimmedCommand(cellLibrary.getId(), softwareClass);
+        WorkUnit w = trimGalore.getRegisterTrimmedCommand(runId, cellLibrary.getId(), softwareClass);
 
         GridResult result = hostResolver.execute(w);
 
@@ -78,6 +80,7 @@ public class TrimGaloreRegisteringTasklet extends WaspRemotingTasklet {
     @BeforeStep
     public void beforeStep(StepExecution stepExecution) {
 
+        Assert.assertParameterNotNullNotZero(runId, "Must set RUN_ID");
         Assert.assertParameterNotNullNotZero(cellLibraryId, "Must set CELL_LIBRARY_ID");
         Assert.assertParameterNotNull(softwareClass, "Must set SOFTWARE_CLASS_NAME");
 

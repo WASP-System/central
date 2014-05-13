@@ -20,7 +20,7 @@
     <property name="baseArea" ref="trimGaloreArea" />
   </bean>
 
-  <bean id="fastqc" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
+  <bean id="trim_galore" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
   	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.babraham.software.TrimGalore</value></property>
     <property name="name" value="Trim Galore" />
     <property name="description" value="A quality and adapter sequence FASTQ trimming tool." />
@@ -32,28 +32,11 @@
          <property name="area" ref="trimGaloreArea" />
          <property name="metaList">
          	<list>
-         		<value>#{waspSoftware['currentVersion']}=0.2.8</value>
+         		<value>#{waspSoftware['currentVersion']}=0.3.3</value>
          	</list>
        	 </property>
        </bean>
     </property> 
-    <!-- 
-    <property name="uiFieldsFromWrapper">
-      <list>
-        <bean parent="fastQCUiFieldWrapper">
-          <property name="baseName" value="" />
-           <property name="metaposition" value="" />
-           <property name="label" value="" />
-           <property name="type" value="" />
-           <property name="range" value="" />
-           <property name="default" value="" />
-           <property name="constraint" value="" />
-           <property name="error" value="" />
-           <property name="tooltip" value="" />
-        </bean>
-      </list>
-    </property> 
-	-->
   </bean> 
 
 </beans>

@@ -22,14 +22,16 @@
 			</batch:tasklet>
 		</batch:step>
 		
-		<batch:step id="edu.yu.einstein.wasp.plugin.babraham.trim_galore.mainFlow.trimGalore" next="edu.yu.einstein.wasp.plugin.babraham.trim_galore.mainFlow.listenForCompletion">
+		<batch:step id="edu.yu.einstein.wasp.plugin.babraham.trim_galore.mainFlow.trimGalore">
 			<batch:tasklet>
 						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.plugin.babraham.batch.tasklet.TrimGaloreTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
-					<constructor-arg name="softwareName" value="#{jobParameters[waspJobParameters.BEAN_NAME}]" />
+					<constructor-arg name="softwareName" value="#{jobParameters[waspJobParameters.BEAN_NAME]}" />
 				</bean>
 			</batch:tasklet>
+			<batch:next on="FAILED" to="edu.yu.einstein.wasp.plugin.babraham.trim_galore.mainFlow.notifyTrimGaloreFailure"/>
+			<batch:next on="*" to="edu.yu.einstein.wasp.plugin.babraham.trim_galore.mainFlow.listenForCompletion" />
 		</batch:step>
 		
 		<batch:step id="edu.yu.einstein.wasp.plugin.babraham.trim_galore.mainFlow.listenForCompletion">
@@ -40,13 +42,15 @@
 			<batch:next on="*" to="edu.yu.einstein.wasp.plugin.babraham.trim_galore.mainFlow.register" />
 		</batch:step>
 		
-		<batch:step id="edu.yu.einstein.wasp.plugin.babraham.trim_galore.mainFlow.register" next="edu.yu.einstein.wasp.plugin.babraham.trim_galore.mainFlow.listenForRegistration">
+		<batch:step id="edu.yu.einstein.wasp.plugin.babraham.trim_galore.mainFlow.register">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.plugin.babraham.batch.tasklet.TrimGaloreDoRegisterTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
-					<constructor-arg name="softwareName" value="#{jobParameters[waspJobParameters.BEAN_NAME}]" />
+					<constructor-arg name="softwareName" value="#{jobParameters[waspJobParameters.BEAN_NAME]}" />
 				</bean>
 			</batch:tasklet>
+			<batch:next on="FAILED" to="edu.yu.einstein.wasp.plugin.babraham.trim_galore.mainFlow.notifyTrimGaloreFailure"/>
+			<batch:next on="*" to="edu.yu.einstein.wasp.plugin.babraham.trim_galore.mainFlow.listenForRegistration" />
 		</batch:step>
 		
 		<batch:step id="edu.yu.einstein.wasp.plugin.babraham.trim_galore.mainFlow.listenForRegistration">
@@ -94,11 +98,12 @@
 		<batch:step id="edu.yu.einstein.wasp.plugin.babraham.trim_galore.fileTrim.doTrim">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.plugin.babraham.batch.tasklet.TrimGaloreTrimmingTasklet" scope="step">
-					<constructor-arg name="softwareName" value="#{jobParameters[waspJobParameters.BEAN_NAME}]" />
+					<constructor-arg name="softwareName" value="#{jobParameters[waspJobParameters.BEAN_NAME]}" />
+					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 					<constructor-arg name="cellLibraryId" value="#{jobParameters[waspJobParameters.CELL_LIBRARY_ID]}" />
 					<constructor-arg name="fileGroupId" value="#{jobParameters[waspJobParameters.FILE_GROUP_ID]}" />
-					<constructor-arg name="fileNumber" value="#{jobParameters[fileTypeService.FILETYPE_FILE_NUMBER_META_KEY]}" />
-					<constructor-arg name="readSegments" value="#{jobParameters[fastqService.FASTQ_GROUP_NUMBER_OF_READ_SEGMENTS]}" />
+					<constructor-arg name="fileNumber" value="#{jobParameters[T(edu.yu.einstein.wasp.filetype.service.FileTypeService).FILETYPE_FILE_NUMBER_META_KEY]}" />
+					<constructor-arg name="readSegments" value="#{jobParameters[T(edu.yu.einstein.wasp.plugin.fileformat.service.FastqService).FASTQ_GROUP_NUMBER_OF_READ_SEGMENTS]}" />
 				</bean>
 			</batch:tasklet>
 			<batch:next on="FAILED" to="edu.yu.einstein.wasp.plugin.babraham.trim_galore.fileTrim.notifyManyFail" />
@@ -140,7 +145,8 @@
 		<batch:step id="edu.yu.einstein.wasp.plugin.babraham.trim_galore.register.doRegister">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.plugin.babraham.batch.tasklet.TrimGaloreRegisteringTasklet" scope="step">
-					<constructor-arg name="softwareName" value="#{jobParameters[waspJobParameters.BEAN_NAME}]" />
+					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+					<constructor-arg name="softwareName" value="#{jobParameters[waspJobParameters.BEAN_NAME]}" />
 					<constructor-arg name="cellLibraryId" value="#{jobParameters[waspJobParameters.CELL_LIBRARY_ID]}" />
 				</bean>
 			</batch:tasklet>

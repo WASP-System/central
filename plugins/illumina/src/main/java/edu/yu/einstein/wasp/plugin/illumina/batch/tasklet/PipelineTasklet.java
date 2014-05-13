@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.exception.GridException;
-import edu.yu.einstein.wasp.exception.TaskletRetryException;
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
@@ -23,9 +22,10 @@ import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.SoftwareManager;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
 import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy;
 import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
-import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor.IndexType;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 import edu.yu.einstein.wasp.util.PropertyHelper;
@@ -45,7 +45,7 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 	private int runId;
 	private Run run;
 	
-	private IndexType method;
+	private IndexingStrategy method;
 	
 	@Autowired
 	private GridHostResolver hostResolver;
@@ -62,9 +62,9 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 	/**
 	 * 
 	 */
-	public PipelineTasklet(Integer runId, IndexType method) {
+	public PipelineTasklet(Integer runId, IndexingStrategy method) {
 		this.runId = runId;
-		if (method != IndexType.SINGLE || method != IndexType.DUAL) {
+		if (! method.equals(IlluminaIndexingStrategy.TRUSEQ) && ! method.equals(IlluminaIndexingStrategy.TRUSEQ_DUAL)) {
 		    logger.error("unable to run illumina pipeline in mode " + method);
 		    throw new WaspRuntimeException("unknown illumina pipeline mode: " + method);
 		}
@@ -87,7 +87,7 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 		String outputFolder;
 		String sampleSheetName;
 		
-		if (method == IndexType.SINGLE) {
+		if (method == IlluminaIndexingStrategy.TRUSEQ) {
 		    outputFolder = IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME;
 		    sampleSheetName = IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_SAMPLE_SHEET_NAME;
 		} else {
@@ -139,16 +139,20 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 		String semaphore = sampleSheetName.equals(IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_SAMPLE_SHEET_NAME) ? 
 		        IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_SEMAPHORE : IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_SEMAPHORE;
 		
-		String retval = "if [ ! -e " + semaphore + " ]; then\n";
+		String retval = "if [ ! -e " + semaphore + " ]; then\n\n touch " + semaphore + "\n\n";
 		
-		retval+=" loc=\"_pos.txt\"\n" + 
-				" if [ -e ../L001/s_1_1101.clocs ]; then\n" +
-				"  loc=.clocs\n" +
-				" elif [ -e ../L001/s_1_1101.locs ]; then\n" +
-				"  loc=.locs\n" +
-				" fi\n\n";
+		// if the sample sheet is empty or only contains controls, don't prepare
+		retval += " nl=`awk '{if ( $0 !~ /^FCID,/ && $0 !~ /,Y,/ ) { print $0 } } ' " + sampleSheetName + " | wc -l`\n";
+		retval += " if [ $nl -ne 0 ]; then\n";
 		
-		retval += " configureBclToFastq.pl --force --positions-format ${loc} --sample-sheet " + sampleSheetName + " --output-dir ../../../" + outputFolder + " ";
+		retval+="  loc=\"_pos.txt\"\n" + 
+				"  if [ -e ../L001/s_1_1101.clocs ]; then\n" +
+				"   loc=.clocs\n" +
+				"  elif [ -e ../L001/s_1_1101.locs ]; then\n" +
+				"   loc=.locs\n" +
+				"  fi\n\n";
+		
+		retval += "  configureBclToFastq.pl --tiles 1101 --force --positions-format ${loc} --sample-sheet " + sampleSheetName + " --output-dir ../../../" + outputFolder + " ";
 		
 		if (PropertyHelper.isSet(failed) && failed == "true")
 			retval += "--with-failed-reads ";
@@ -171,9 +175,7 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 			retval += "--fastq-cluster-count " + fqc;
 		}
 		
-		retval += "\n\n touch " + semaphore + "\n\n";
-		
-		retval += " cd ../../../" + outputFolder + " && make -j ${threads} \n\nfi\n\n";
+		retval += "\n  cd ../../../" + outputFolder + " && make -j ${threads} \n\n else\n  echo no cell libraries >&2\n fi\nelse\n echo semaphore exists >&2\nfi\n\n";
 
 		return retval;
 	}

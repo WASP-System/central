@@ -95,5 +95,4 @@ public interface FastqService extends WaspService {
 
 	public void copyFastqFileHandleMetadata(FileHandle origin, FileHandle target) throws MetadataException;
 
-
 }

@@ -50,9 +50,6 @@ public class TrimGaloreTasklet extends LaunchManyJobsTasklet {
     private BabrahamService babrahamService;
 
     @Autowired
-    private FastQC fastqc;
-
-    @Autowired
     private GridHostResolver hostResolver;
     
     @Autowired
@@ -129,6 +126,7 @@ public class TrimGaloreTasklet extends LaunchManyJobsTasklet {
                 Map<String, String> jobParameters = new HashMap<String, String>();
 
                 jobParameters.put(WaspJobParameters.BEAN_NAME, "casava");
+                jobParameters.put(WaspJobParameters.RUN_ID, run.getId().toString());
                 jobParameters.put(WaspJobParameters.CELL_LIBRARY_ID, cellLibrary.getId().toString());
                 jobParameters.put(WaspJobParameters.FILE_GROUP_ID, fastqG.getId().toString());
                 jobParameters.put(FileTypeService.FILETYPE_FILE_NUMBER_META_KEY, fileNumber.toString());

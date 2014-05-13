@@ -782,7 +782,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 				@Override
 				public void run() {
 				}
-			}, 1, TimeUnit.SECONDS);
+			}, 20, TimeUnit.SECONDS);
 			while (!md5t.isDone()) {
 				// not done
 			}
@@ -1763,6 +1763,5 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		return filesByType;
 		
 	}
-
 }
-;
+
