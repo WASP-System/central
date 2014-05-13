@@ -120,7 +120,6 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 	}
 
 	@Override
-	
 	public List<E> findByMap(final Map<?, ?> m) {
 		boolean first = true;
 		String qString = "SELECT h FROM " + entityClass.getName() + " h";

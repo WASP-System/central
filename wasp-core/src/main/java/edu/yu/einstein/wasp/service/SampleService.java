@@ -1073,5 +1073,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	  public List<SampleSource> getCellLibraries();
 
 	  public List<Sample> getLibraries();
+
+	  public boolean isCellLibrary(SampleSource cellLibrary);
 	  
 }
