@@ -90,16 +90,25 @@ public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements ed
 
 	@Override
 	public List<SampleSource> getCellLibrariesForCell(Sample cell) {
-		TypedQuery<SampleSource> query = this.entityManager.createQuery("select s from SampleSource s where s.sample = :cell order by s.id", SampleSource.class);
-		query.setParameter("cell", cell);
-		return query.getResultList();
+		String query = "SELECT DISTINCT ss from SampleSource as ss " +
+				"JOIN ss.sample as cell " +
+				"WHERE cell = :cell and " +
+				"(ss.sourceSample.sampleType.iName = 'library' or ss.sourceSample.sampleType.iName = 'facilityLibrary' or ss.sourceSample.sampleType.iName = 'virtualLibrary')";
+		TypedQuery<SampleSource> ssq = this.entityManager
+				.createQuery(query, SampleSource.class)
+				.setParameter("cell", cell);
+		return ssq.getResultList();
 	}
 	
 	@Override
 	public List<SampleSource> getCellLibrariesForLibrary(Sample library) {
-		TypedQuery<SampleSource> query = this.entityManager.createQuery("select s from SampleSource s where s.sourceSample = :library order by s.id", SampleSource.class);
-		query.setParameter("library", library);
-		return query.getResultList();
+		String query = "SELECT DISTINCT ss from SampleSource as ss " +
+				"JOIN ss.sourceSample as lib " +
+				"WHERE lib = :library and ss.sample.sampleType.iName = 'cell'";
+		TypedQuery<SampleSource> ssq = this.entityManager
+				.createQuery(query, SampleSource.class)
+				.setParameter("library", library);
+		return ssq.getResultList();
 	}
 
 }
