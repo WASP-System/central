@@ -43,6 +43,7 @@ import javax.persistence.TypedQuery;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -465,7 +466,6 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	/**
 	 * {@inheritDoc}
 	 * 
-	 * @throws SampleTypeException
 	 */
 	@Override
 	public Set<FileGroup> getFilesForCellLibrary(SampleSource cellLibrary) {
@@ -478,11 +478,39 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * @throws SampleTypeException
 	 */
 	@Override
+	public Set<FileGroup> getActiveFilesForCellLibrary(SampleSource cellLibrary) {
+		return fileGroupDao.getActiveFilesForCellLibrary(cellLibrary);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 */
+	@Override
+	public Set<FileGroup> getFilesForSample(Sample sample) {
+		return fileGroupDao.getFilesForSample(sample);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	*/
+	@Override
+	public Set<FileGroup> getActiveFilesForSample(Sample sample) {
+		return fileGroupDao.getActiveFilesForSample(sample);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @throws SampleTypeException
+	 */
+	@Override
 	public Set<FileGroup> getFilesForCellLibraryByType(SampleSource cellLibrary, FileType fileType) {
 		Assert.assertParameterNotNull(cellLibrary, "must provide a cellLibrary");
 		Assert.assertParameterNotNull(fileType, "must provide a fileType");
 		Assert.assertParameterNotNull(fileType.getId(), "fileType has no valid fileTypeId");
-		return fileGroupDao.getFilesForCellLibraryByType(cellLibrary, fileType);
+		return fileGroupDao.getActiveFilesForCellLibraryByType(cellLibrary, fileType);
 	}
 	
 	/**
@@ -527,7 +555,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		Assert.assertParameterNotNull(library, "must provide a library");
 		if (!sampleService.isLibrary(library))
 			throw new SampleTypeException("sample is not of type library");
-		return fileGroupDao.getFilesForCellLibraryByType(sampleService.getCellLibrary(cell, library), fileType);
+		return fileGroupDao.getActiveFilesForCellLibraryByType(sampleService.getCellLibrary(cell, library), fileType);
 	}
 	
 	/**
@@ -966,6 +994,55 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	public List<FileDataTabViewing> getTabViewProvidingPluginsByFileGroup(FileGroup fileGroup) {
 		String area = fileGroup.getFileType().getIName();
 		return pluginRegistry.getPluginsHandlingArea(area, FileDataTabViewing.class);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void removeFileGroupFromRemoteServerAndMarkDeleted(FileGroup fileGroup) throws Exception{
+		Assert.assertTrue(fileGroup.isDeleted() == 0, "Filegroup is already deleted");
+		for (FileHandle fh : fileGroup.getFileHandles()){
+			if (!fh.isDeleted()){
+				String path = fh.getFileURI().getPath();
+				GridWorkService gws = hostResolver.getGridWorkService(fileHost);
+				GridFileService gfs = gws.getGridFileService();
+				if (gfs.exists(path))
+					gfs.delete(path);
+				fh.setDeleted(true);	
+			}
+		}
+		fileGroup.setDeleted(1);
+		fileGroup.setIsActive(0);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void removeFileHandleFromRemoteServerAndMarkDeleted(FileHandle fileHandle) throws Exception{
+		// delete remote file
+		String path = fileHandle.getFileURI().getPath();
+		GridWorkService gws = hostResolver.getGridWorkService(fileHost);
+		GridFileService gfs = gws.getGridFileService();
+		if (gfs.exists(path))
+			gfs.delete(path);
+		
+		// check if any fileGroups need to be marked deleted (this was the last non-deleted file in the fileGroup)
+		for (FileGroup fileGroup : fileHandle.getFileGroup()){
+			boolean nonDeletedFhExists = false;
+			for (FileHandle fh : fileGroup.getFileHandles())
+				if (!fh.isDeleted() && !fh.equals(fileHandle)){
+					nonDeletedFhExists = false;
+					break;
+				}
+			if (!nonDeletedFhExists){
+				fileGroup.setDeleted(1);
+				fileGroup.setIsActive(0);
+			}
+		}
+		
+		fileHandle.setDeleted(true);
 	}
 
 	@Override
@@ -1506,10 +1583,10 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			String platformUnitName = "unknown";
 			String cellIndex = "L" + cellLibrary.getId(); // default to cell library (CL) id
 			String barcode = "none";
-			String libraryName = sampleService.getLibrary(cellLibrary).getName();
+			String libraryName = WordUtils.capitalizeFully(sampleService.getLibrary(cellLibrary).getName()).replaceAll(" ", ""); //camelcase
 			if (cell != null){ // may be null if imported from external run of unknown origin
-				platformUnitName = sampleService.getPlatformUnitForCell(cell).getName();
-				barcode = sampleService.getLibraryAdaptor(sampleService.getLibrary(cellLibrary)).getBarcodesequence();
+				platformUnitName = sampleService.getPlatformUnitForCell(cell).getName().replaceAll(" ", "");
+				barcode = sampleService.getLibraryAdaptor(sampleService.getLibrary(cellLibrary)).getBarcodesequence().replaceAll(" ", "");
 				cellIndex = sampleService.getCellIndex(cell).toString();
 			}
 
@@ -1528,10 +1605,23 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	}
 	
 	@Override
-	public String generateUniqueBaseFileName(Sample library) {
-		Assert.assertTrue(sampleService.isLibrary(library), "sample must be a library");
+	public String generateUniqueBaseFileName(Sample sample) {
+		Assert.assertTrue(sampleService.isBiomolecule(sample), "sample must be a biomolecule");
 		final String DELIM = ".";
-		return library.getName() + DELIM + "id" + library.getId().toString() + DELIM;
+		String biomoleculeTypeIdStr = "B"; // for biomolecule
+		if (sampleService.isLibrary(sample))
+			biomoleculeTypeIdStr = "L"; // for library
+		else if (sampleService.isDnaOrRna(sample))
+			biomoleculeTypeIdStr = "S"; // for sample
+		String libraryName = WordUtils.capitalizeFully(sample.getName()).replaceAll(" ", ""); // camelCase the name
+		return libraryName + DELIM + biomoleculeTypeIdStr + sample.getId().toString() + DELIM;
+	}
+	
+	@Override
+	public String generateUniqueBaseFileName(Job job) {
+		final String DELIM = ".";
+		String jobName = WordUtils.capitalizeFully(job.getName()).replaceAll(" ", ""); // camelCase the name
+		return jobName + DELIM + "J" + job.getId().toString() + DELIM;
 	}
 	
 	/*

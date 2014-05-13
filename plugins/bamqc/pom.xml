@@ -5,9 +5,9 @@
     <artifactId>plugins</artifactId>
     <version>0.1.0-SNAPSHOT</version>
   </parent>
-  <groupId>edu.yu.einstein.wasp.plugin</groupId>
+  <groupId>edu.yu.einstein.wasp</groupId>
   <artifactId>bamqc</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.1.0-SNAPSHOT</version>
   <properties>
     <wasp.version>${project.parent.version}</wasp.version>
   </properties>

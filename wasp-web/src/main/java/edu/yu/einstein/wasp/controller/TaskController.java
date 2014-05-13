@@ -117,10 +117,10 @@ public class TaskController extends WaspController {
 	  for(Sample platformUnit : activePlatformUnits){
 		  String barcode = platformUnit.getSampleBarcode().get(0).getBarcode().getBarcode();
 		  if(barcode==null || barcode.equals("")){
-			  barcode = new String("Unknown");
+			  barcode = messageService.getMessage("jobListAssignLibrary.unknown.label=Unknown");//new String("Unknown");
 		  }
 		  barcodes.add(barcode);
-		  String cellCountStr = "Unknown";
+		  String cellCountStr = messageService.getMessage("jobListAssignLibrary.unknown.label=Unknown");//"Unknown";
 		  try {
 			  cellCountStr = sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnit).toString();
 		  } catch (Exception e) {

@@ -240,6 +240,23 @@ public class FileGroup extends WaspModel {
 	public Integer getIsActive () {
 		return this.isActive;
 	}
+	
+	@Column(name="deleted")
+	protected Integer deleted = 0;
+	
+	/**
+	 * @param deleted
+	 */
+	public void setDeleted(Integer deleted) {
+		this.deleted = deleted;
+	}
+	
+	/**
+	 * @return
+	 */
+	public Integer isDeleted() {
+		return this.deleted;
+	}
 
 	
 	/** 

@@ -141,7 +141,7 @@ public interface WaspDao<E> extends WaspPersistenceDao {
     * @param entity
     * @return
     */
-   boolean isAttached(E entity);
+   public boolean isAttached(E entity);
 
 
 

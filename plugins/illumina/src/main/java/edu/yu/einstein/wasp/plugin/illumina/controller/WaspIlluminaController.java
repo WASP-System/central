@@ -122,31 +122,31 @@ public class WaspIlluminaController extends WaspController {
 				detailMap.put(SequenceReadProperties.READ_LENGTH_KEY, runReadProperties.getReadLength().toString());
 				detailMap.put(SequenceReadProperties.READ_TYPE_KEY, runReadProperties.getReadType());
 				
-				String dateRunStarted = new String("not set");
+				String dateRunStarted = messageService.getMessage("run.dateNotSet.label");//new String("not set");
 				if(sequenceRun.getStarted()!=null){
 					try{				
 						dateRunStarted = new String(formatter.format(sequenceRun.getStarted()));//yyyy/MM/dd
-					}catch(Exception e){}					
+					}catch(Exception e){dateRunStarted = messageService.getMessage("run.dateNotFormattedProperly.error");}					
 				}
 				detailMap.put("dateRunStarted", dateRunStarted);
 				
-				String dateRunEnded = new String("not set");
+				String dateRunEnded = messageService.getMessage("run.dateNotSet.label");//new String("not set");
 				if(sequenceRun.getFinished()!=null){					
 					try{				
 						dateRunEnded = new String(formatter.format(sequenceRun.getFinished()));//yyyy/MM/dd
-					}catch(Exception e){}
+					}catch(Exception e){dateRunEnded = messageService.getMessage("run.dateNotFormattedProperly.error");}
 					
 				}
 				detailMap.put("dateRunEnded", dateRunEnded);
 				
 				if (runService.isRunSuccessfullyCompleted(sequenceRun)){
-					detailMap.put("runStatus", "COMPLETED");
+					detailMap.put("runStatus", messageService.getMessage("run.statusCompleted.label"));//Completed
 					lockedStatus = true;
 				} else if (runService.isRunActive(sequenceRun)){
-					detailMap.put("runStatus", "IN PROGRESS");
+					detailMap.put("runStatus", messageService.getMessage("run.statusInProgress.label"));//In Progress
 					lockedStatus = true;
 				} else {
-					detailMap.put("runStatus", "UNKNOWN");
+					detailMap.put("runStatus", messageService.getMessage("run.statusUnknown.label"));//Unknown
 				}
 				
 				

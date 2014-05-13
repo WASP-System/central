@@ -7,6 +7,7 @@ import java.util.Set;
 
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileType;
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 
 /**
@@ -20,5 +21,13 @@ public interface FileGroupDao extends WaspDao<FileGroup> {
 	public Set<FileGroup> getFilesForCellLibraryByType(SampleSource cellLibrary, FileType fileType);
 
 	public Set<FileGroup> getFilesForCellLibrary(SampleSource cellLibrary);
+
+	public Set<FileGroup> getActiveFilesForCellLibraryByType(SampleSource cellLibrary, FileType fileType);
+
+	public Set<FileGroup> getActiveFilesForCellLibrary(SampleSource cellLibrary);
+	
+	public Set<FileGroup> getFilesForSample(Sample sample);
+	
+	public Set<FileGroup> getActiveFilesForSample(Sample sample);
 
 }

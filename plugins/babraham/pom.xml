@@ -6,7 +6,7 @@
     <version>0.1.0-SNAPSHOT</version>
     <relativePath>../</relativePath>
   </parent>
-  <groupId>edu.yu.einstein.wasp.plugin</groupId>
+  <groupId>edu.yu.einstein.wasp</groupId>
   <artifactId>babraham</artifactId>
   <version>0.1.0-SNAPSHOT</version>
   <properties>

@@ -16,6 +16,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.plugin.picard.software.Picard;
+import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
@@ -23,11 +24,11 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  * @author asmclellan
  *
  */
-public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
+public class RealignTasklet extends AbstractGatkTasklet {
 	
-	private static Logger logger = LoggerFactory.getLogger(MergeSampleBamFilesTasklet.class);
+	private static Logger logger = LoggerFactory.getLogger(JointGenotypingTasklet.class);
 	
-	public MergeSampleBamFilesTasklet(String inputFilegroupIds, String outputFilegroupIds) {
+	public RealignTasklet(String inputFilegroupIds, String outputFilegroupIds) {
 		super(inputFilegroupIds, outputFilegroupIds);
 	}
 	
@@ -36,15 +37,18 @@ public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
 	public void doExecute(ChunkContext context) throws Exception {
 		WorkUnit w = new WorkUnit();
 		w.setMode(ExecutionMode.PROCESS);
-		w.setProcessMode(ProcessMode.SINGLE);
-		w.setMemoryRequirements(MEMORY_GB_4);
+		w.setProcessMode(ProcessMode.MAX);
+		w.setMemoryRequirements(MEMORY_GB_8);
+		w.setProcessorRequirements(THREADS_8);
 		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + jobId);
 		w.setSecureResults(true);
-		
+		Build build = null;
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();
 		for (Integer fgId : this.getInputFilegroupIds()){
 			FileGroup fg = fileService.getFileGroupById(fgId);
+			if (fhlist.isEmpty()) // first entry not yet entered
+				build = gatkService.getBuildForFg(fg);
 			fhlist.addAll(fg.getFileHandles());
 		}
 		w.setRequiredFiles(fhlist);
@@ -55,22 +59,22 @@ public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
 		}
 		w.setResultFiles(fglist);
 		List<SoftwarePackage> dependencies = new ArrayList<>();
+		Picard picard = (Picard) gatk.getSoftwareDependencyByIname("picard");
 		dependencies.add(gatk);
-		dependencies.add(gatk.getSoftwareDependencyByIname("picard"));
+		dependencies.add(picard);
 		w.setSoftwareDependencies(dependencies);
 		LinkedHashSet<String> inputBamFilenames = new LinkedHashSet<>();
 		for (int i=0; i < fhlist.size(); i++)
 			inputBamFilenames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");
-		String mergedBamFilename = "merged.${"+ WorkUnit.OUTPUT_FILE+ "[0]}";
-		String mergedDedupBamFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
-		String mergedDedupBaiFilename = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
-		String mergedDedupMetricsFilename = "${" + WorkUnit.OUTPUT_FILE + "[2]}";
-		Picard picard = (Picard) gatk.getSoftwareDependencyByIname("picard");
-		w.addCommand(picard.getMergeBamCmd(inputBamFilenames, mergedBamFilename, null, MEMORY_GB_4));
-		w.addCommand(picard.getMarkDuplicatesCmd(mergedBamFilename, mergedDedupBamFilename, mergedDedupBaiFilename, mergedDedupMetricsFilename, MEMORY_GB_4));
+		String intervalFileName = "gatk.${" + WorkUnit.OUTPUT_FILE + "}.realign.intervals";
+		String realnBamFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
+		String realnBaiFilename = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
+		w.addCommand(gatk.getCreateTargetCmd(build, inputBamFilenames, intervalFileName, MEMORY_GB_8, THREADS_8));
+		w.addCommand(gatk.getLocalAlignCmd(build, inputBamFilenames, intervalFileName, realnBamFilename, realnBaiFilename, MEMORY_GB_8));
 		GridResult result = gridHostResolver.execute(w);
 
 		// place the grid result in the step context
 		storeStartedResult(context, result);
 	}
+
 }

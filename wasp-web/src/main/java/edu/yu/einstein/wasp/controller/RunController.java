@@ -412,15 +412,24 @@ public class RunController extends WaspController {
 				runsFoundInSearch.clear();
 			}
 						
-			//must deal with status, but how?
-			if(statusForRunFromGrid != null){
-				//for(Run run : tempRunList){
-					//if(run.status.equals(statusForRunFromGrid)){
-					//	runsFoundInSearch.add(run);
-					//}
-				//}
-				//tempRunList.retainAll(runsFoundInSearch);
-				//runsFoundInSearch.clear();
+			//awful way to deal with this
+			if(statusForRunFromGrid != null && !statusForRunFromGrid.isEmpty()){
+				
+				for(Run run : tempRunList){
+					String s = "";
+					if (runService.isRunSuccessfullyCompleted(run)){
+						s = "Completed";
+					} else if (runService.isRunActive(run)){
+						s =  "In Progress";
+					} else {
+						s =  "Unknown";
+					}
+					if(s.toLowerCase().contains(statusForRunFromGrid.toLowerCase())){
+						runsFoundInSearch.add(run);
+					}
+				}
+				tempRunList.retainAll(runsFoundInSearch);
+				runsFoundInSearch.clear();
 			}
 		}
 		
@@ -435,7 +444,8 @@ public class RunController extends WaspController {
 			else if(sidx.equals("machine")){Collections.sort(runList, new MachineNameComparator()); indexSorted = true;}
 			else if(sidx.equals(SequenceReadProperties.READ_LENGTH_KEY)){Collections.sort(runList, new RunMetaIsStringComparator(SequenceReadProperties.READ_LENGTH_KEY)); indexSorted = true;}
 			else if(sidx.equals(SequenceReadProperties.READ_TYPE_KEY)){Collections.sort(runList, new RunMetaIsStringComparator(SequenceReadProperties.READ_TYPE_KEY)); indexSorted = true;}
-
+			else if(sidx.equals("statusForRun")){Collections.sort(runList, new StatusForRunComparator()); indexSorted = true;}
+			
 			if(indexSorted == true && sord.equals("desc")){//must be last
 				Collections.reverse(runList);
 			}
@@ -489,21 +499,30 @@ public class RunController extends WaspController {
 					logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
 				}
 				
-				String dateRunStarted = new String("not set");
+				String dateRunStarted = messageService.getMessage("run.dateNotSet.label");//new String("not set");
 				if(run.getStarted()!=null){
 					try{				
 						dateRunStarted = new String(formatter.format(run.getStarted()));//yyyy/MM/dd
-					}catch(Exception e){}					
+					}catch(Exception e){dateRunStarted = messageService.getMessage("run.dateNotFormattedProperly.error");}					
 				}
 				
-				String dateRunEnded = new String("not set");
+				String dateRunEnded = messageService.getMessage("run.dateNotSet.label");//new String("not set");
 				if(run.getFinished()!=null){					
 					try{				
 						dateRunEnded = new String(formatter.format(run.getFinished()));//yyyy/MM/dd
-					}catch(Exception e){}					
+					}catch(Exception e){dateRunEnded = messageService.getMessage("run.dateNotFormattedProperly.error");}					
 				}
 				
-				String statusForRun = new String("???");
+				String statusForRun = "";// = run.getStatus();//new String("???");
+				if (runService.isRunSuccessfullyCompleted(run)){
+					statusForRun = messageService.getMessage("run.statusCompleted.label");//"Completed";
+				} else if (runService.isRunActive(run)){
+					statusForRun =  messageService.getMessage("run.statusInProgress.label");//"In Progress";
+				} else {
+					statusForRun =  messageService.getMessage("run.statusUnknown.label");//"Unknown";
+				}
+				
+				
 				
 				//deal with platformUnit and its barcode
 				Sample platformUnit = null;
@@ -663,4 +682,32 @@ class RunMetaIsStringComparator implements Comparator<Run> {
 		return metaValue0.compareToIgnoreCase(metaValue1);
 	}
 }
+class StatusForRunComparator implements Comparator<Run> {
+	@Autowired
+	private MessageServiceWebapp messageService;
+	@Autowired
+	private RunService runService;
 
+	@Override
+	public int compare(Run arg0, Run arg1) {
+		
+		String s1 = "";
+		if (runService.isRunSuccessfullyCompleted(arg0)){
+			s1 = "Completed";
+		} else if (runService.isRunActive(arg0)){
+			s1 =  "In Progress";
+		} else {
+			s1 =  "Unknown";
+		}
+		String s2 = "";
+		if (runService.isRunSuccessfullyCompleted(arg1)){
+			s2 = "Completed";
+		} else if (runService.isRunActive(arg1)){
+			s2 =  "In Progress";
+		} else {
+			s2 =  "Unknown";
+		}
+				
+		return s1.compareToIgnoreCase(s2);
+	}
+}

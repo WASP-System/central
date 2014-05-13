@@ -333,6 +333,30 @@ public interface FileService extends WaspService {
 	public Map<FileType, Set<FileGroup>> getFilesForMacromoleculeOrLibraryMappedToFileType(Sample sample) throws SampleTypeException;
 
 	public List<FileHandleMeta> saveFileHandleMeta(List<FileHandleMeta> metaList, FileHandle filehandle) throws MetadataException;
+
+	public Set<FileGroup> getActiveFilesForCellLibrary(SampleSource cellLibrary);
 	
+	public Set<FileGroup> getActiveFilesForSample(Sample sample);
+	
+	public Set<FileGroup> getFilesForSample(Sample sample);
+
+	public String generateUniqueBaseFileName(Job job);
+
+	/**
+	 * Deletes the files in the provided filegroup on the remote server and marks all corresponding fileHandles and the filegroup
+	 * as inactive and deleted
+	 * @param fileGroup
+	 * @throws Exception
+	 */
+	public void removeFileGroupFromRemoteServerAndMarkDeleted(FileGroup fileGroup) throws Exception;
+
+	/**
+	 * Deletes the provided file on the remote server and marks the fileHandle deleted.
+	 * If the parent filegroup no longer contains any non-deleted filehandles, it too is set as inactive and deleted in the database
+	 * @param fileHandle
+	 * @throws Exception
+	 */
+	public void removeFileHandleFromRemoteServerAndMarkDeleted(FileHandle fileHandle) throws Exception;
+
 }
 

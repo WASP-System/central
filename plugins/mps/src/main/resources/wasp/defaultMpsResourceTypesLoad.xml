@@ -45,6 +45,11 @@
   	<property name="area" value="fastqProcessor" />
   </bean>
   
+  <bean id="vcfProcessorResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
+  	<property name="name" value="VCF Processor" />
+  	<property name="area" value="vcfProcessor" />
+  </bean>
+  
   <bean id="libraryStrategyResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
   	<property name="name" value="Library Strategy" />
   	<property name="area" value="libraryStrategy" />

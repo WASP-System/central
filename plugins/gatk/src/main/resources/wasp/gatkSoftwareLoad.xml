@@ -21,7 +21,13 @@
     <property name="description" value="Genome analysis tool kit from the Broad Institute" />
     <property name="area" ref="gatkPluginArea" />
     <property name="resourceType" ref="variantCallingResourceType" />
-	<property name="softwareDependency" ref="picard" />
+	<property name="softwareDependencies">
+		<list>
+			<ref bean="picard" />
+			<ref bean="vcfTools" />
+			<ref bean="snpEff" />
+		</list>
+	</property>
 	
     <property name="uiFieldsFromWrapper">
       <list>

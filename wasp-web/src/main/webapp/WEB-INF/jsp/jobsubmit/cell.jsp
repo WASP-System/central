@@ -49,7 +49,7 @@
 	      <!-- ${sd.sampleDraftId}_${i} -->
 	      <c:set var="key" value="${sd.sampleDraftId}_${i}" />
 	      <c:set var="checked" value="" />
-	      <c:if test="${fn:contains(selectedSampleCell, key)}">
+	      <c:if test="${not empty selectedSampleCell[key]}">
 	        <c:set var="checked" value="CHECKED" />
 	      </c:if>
 	      <input class="FormElement ui-widget-content ui-corner-all" type="checkbox" value="1" ${checked} name="sdc_${sd.sampleDraftId}_${i}">

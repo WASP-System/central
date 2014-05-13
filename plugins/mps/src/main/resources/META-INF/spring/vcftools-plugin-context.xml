@@ -8,31 +8,31 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 		
-	<bean id="imagemagickPluginArea" class="java.lang.String">
+	<bean id="vcfToolsPluginArea" class="java.lang.String">
 		<constructor-arg>
-			<value>imagemagick</value>
+			<value>vcftools</value>
 		</constructor-arg>
 	</bean>
 	
 	<!-- channel for communications with this plugin. -->
-	<int:channel id="wasp.channel.plugin.imagemagick" />
+	<int:channel id="wasp.channel.plugin.vcftools" />
 
-	<int:service-activator input-channel="wasp.channel.plugin.imagemagick" ref="imagemagickPlugin" method="process" />
+	<int:service-activator input-channel="wasp.channel.plugin.vcftools" ref="vcfToolsPlugin" method="process" />
 	
-	<bean id="imagemagickPlugin" class="edu.yu.einstein.wasp.plugin.mps.grid.plugin.ImagemagickPlugin">
-		<constructor-arg name="iName" ref="imagemagickPluginArea" />
+	<bean id="vcfToolsPlugin" class="edu.yu.einstein.wasp.plugin.mps.grid.plugin.VcfToolsPlugin">
+		<constructor-arg name="iName" ref="vcfToolsPluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
-		<constructor-arg name="channel" ref="wasp.channel.plugin.imagemagick" />
-		<property name="name" value="Imagemagick" />
-		<property name="description" value="Image processing tools" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.vcftools" />
+		<property name="name" value="VCF Tools" />
+		<property name="description" value="VCF file manipulating toolkit" />
 		<property name="provides" >
 			<set>
-				<ref bean="imagemagick" /> 
+				<ref bean="vcfTools" /> 
 			</set>
 		</property>
 		<property name="handles" >
 			<set>
-				<ref bean="imagemagickPluginArea" />
+				<ref bean="vcfToolsPluginArea" />
 			</set>
 		</property>
 	</bean>

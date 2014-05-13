@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd"
+    default-autowire="byName">
+    
+  <bean id="vcfTools" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
+  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.mps.grid.software.VcfTools</value></property>
+    <property name="name" value="VCF Tools" />
+    <property name="description" value="VCF file manipulating toolkit" />
+    <property name="version" value="0.1.12a" />
+    <property name="area" ref="vcfToolsPluginArea" />
+    <property name="resourceType" ref="vcfProcessorResourceType" />
+  </bean> 
+
+</beans>

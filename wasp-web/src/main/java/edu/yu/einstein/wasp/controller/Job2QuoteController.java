@@ -311,7 +311,10 @@ public class Job2QuoteController extends WaspController {
 				}
 				catch(Exception e){
 					  logger.warn("JobController: jobList : " + e);
-					  quoteAsString = "Problem - Contact Admin"; 
+					  quoteAsString = this.messageService.getMessage("acctQuote.problemContactAdmin.label");
+					  if(quoteAsString==null || quoteAsString.isEmpty()){
+						  quoteAsString = "Problem - Contact Admin";
+					  }
 				}					
 			}
 
