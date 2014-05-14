@@ -5,6 +5,7 @@
 package edu.yu.einstein.wasp.macstwo.batch.tasklet;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -206,6 +207,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		modelPdfG.setFileType(macs2ModelPdfFileType);
 		modelPdfG.setDescription(modelPdf.getFileName());
 		modelPdfG.setSoftwareGeneratedBy(rSoftware);
+		modelPdfG.addDerivedFrom(modelScriptFileGroup);
 		modelPdfG = fileService.addFileGroup(modelPdfG);
 		this.modelPdfGId = modelPdfG.getId();
 		logger.debug("recorded fileGroup and fileHandle for rscript to create pdf in MacstwoGenerateModelAsPdfTasklet.doExecute()");
@@ -221,6 +223,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		modelPngG.setFileType(macs2ModelPngFileType);
 		modelPngG.setDescription(modelPng.getFileName());
 		modelPngG.setSoftwareGeneratedBy(imagemagickSoftware);
+		modelPngG.addDerivedFrom(modelPdfG);
 		modelPngG = fileService.addFileGroup(modelPngG);
 		this.modelPngGId = modelPngG.getId();
 		logger.debug("recorded fileGroup and fileHandle for ImageMagick to create png in MacstwoGenerateModelAsPdfTasklet.doExecute()");
