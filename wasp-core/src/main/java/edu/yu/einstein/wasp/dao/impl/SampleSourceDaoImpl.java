@@ -11,6 +11,7 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -91,8 +92,7 @@ public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements ed
 	@Override
 	public List<SampleSource> getCellLibrariesForCell(Sample cell) {
 		String query = "SELECT DISTINCT ss from SampleSource as ss " +
-				"JOIN ss.sample as cell " +
-				"WHERE cell = :cell and " +
+				"WHERE ss.sample = :cell and " +
 				"(ss.sourceSample.sampleType.iName = 'library' or ss.sourceSample.sampleType.iName = 'facilityLibrary' or ss.sourceSample.sampleType.iName = 'virtualLibrary')";
 		TypedQuery<SampleSource> ssq = this.entityManager
 				.createQuery(query, SampleSource.class)
@@ -102,13 +102,24 @@ public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements ed
 	
 	@Override
 	public List<SampleSource> getCellLibrariesForLibrary(Sample library) {
+		// tried to combine these into one statement with "WHERE ss.sourceSample = :library and (ss.sample is null or ss.sample.sampleType.iName = 'cell')"
+		// but this failed to handle the nulls (probably because, unlike java, it attempts to evaluate the ss.sample.sampleType.iName = 'cell' on the null object
+		// even when the first statement (ss.sample is null) is false. asmclellan
+		List<SampleSource> results = new ArrayList<>();
 		String query = "SELECT DISTINCT ss from SampleSource as ss " +
-				"JOIN ss.sourceSample as lib " +
-				"WHERE lib = :library and ss.sample.sampleType.iName = 'cell'";
+				"WHERE ss.sourceSample = :library and ss.sample is null";
 		TypedQuery<SampleSource> ssq = this.entityManager
 				.createQuery(query, SampleSource.class)
 				.setParameter("library", library);
-		return ssq.getResultList();
+		results.addAll(ssq.getResultList());
+		
+		query = "SELECT DISTINCT ss from SampleSource as ss " +
+				"WHERE ss.sourceSample = :library and ss.sample.sampleType.iName = 'cell'";
+		ssq = this.entityManager
+				.createQuery(query, SampleSource.class)
+				.setParameter("library", library);
+		results.addAll(ssq.getResultList());
+		return results;
 	}
 
 }
