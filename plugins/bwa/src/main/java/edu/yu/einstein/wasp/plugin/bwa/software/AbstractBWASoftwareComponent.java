@@ -59,6 +59,7 @@ public abstract class AbstractBWASoftwareComponent extends ReferenceBasedAligner
 	}
 
 	protected  Build getGenomeBuild(SampleSource cellLibrary) {
+		logger.debug("getting genome build for cellLibrary id=" + cellLibrary.getId());
 		Build build = null;
 		try {
 			Sample library = sampleService.getLibrary(cellLibrary);

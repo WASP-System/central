@@ -48,7 +48,7 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 	
 	// TODO: configure
 	private int execTimeout = 300000; // 5m, VERY generous
-	
+	private int execRetries = 5;
 		
 	private String identityFileName;
 	private File identityFile;
@@ -186,45 +186,64 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 
 		try {
 			
-			openSession();
+			logger.trace("Attempting to create SshTransportConnection to " + getHostName());
 			
-			logger.debug("Attempting to create SshTransportConnection to " + getHostName());
+			openSession();
 			
 			// ensure set for direct remote execution
 			w.remoteWorkingDirectory = prefixRemoteFile(w.getWorkingDirectory());
 			w.remoteResultsDirectory = prefixRemoteFile(w.getResultsDirectory());
-
-			openSession();
-
+			
 			String command = w.getCommand();
 			if (w.getWrapperCommand() != null)
 				command = w.getWrapperCommand();
 			command = "cd " + w.remoteWorkingDirectory + " && " + command;
 			command = "if [ -e /etc/profile ]; then source /etc/profile > /dev/null 2>&1; fi && " + command;
-			logger.debug("sending exec: " + command + " at: " + getHostName());
-
-				final Command exec = session.exec(command);
-				//execute command and timeout
-				exec.join(this.execTimeout, TimeUnit.MILLISECONDS);
-				result.setExitStatus(exec.getExitStatus());
-				result.setStdErrStream(exec.getErrorStream());
-				result.setStdOutStream(exec.getInputStream());
-				logger.debug("sent command");
-				if (exec.getExitStatus() != 0) {
-					logger.error("exec terminated with non-zero exit status: " + command);
-					throw new GridAccessException("exec terminated with non-zero exit status: " + exec.getExitStatus() + " : " + exec.getOutputStream().toString());
-				}
-				logger.debug("***" + exec.getExitErrorMessage());
-				session.close();	
+			logger.trace("sending exec: " + command + " at: " + getHostName());
+			
+			for (int tries=0; tries < execRetries; tries++) {
+			    try {
+                                doExec(result, command);
+                                break;
+			    } catch (ConnectionException ce) {
+			        if (session.isOpen()) {
+			            logger.warn("Caught connection exception on open session (" + ce.getLocalizedMessage() + ") try " + tries + 
+			                    ". Will try again up to " + execRetries + " times.");
+			            continue;
+			        } else {
+			            logger.error("Caught ConnectionException " + ce.getLocalizedMessage());
+			            throw ce;
+			        }
+			    }
+                        }
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error("problem sending command");
 			throw new GridAccessException("problem closing session", e);
 		}
-		logger.debug("returning result");
+		logger.trace("returning result");
 		return (GridResult) result;
 
 	}
+	
+    private void doExec(GridResultImpl result, String command) throws ConnectionException, TransportException, GridAccessException {
+        try {
+            final Command exec = session.exec(command);
+            // execute command and timeout
+            exec.join(this.execTimeout, TimeUnit.MILLISECONDS);
+            result.setExitStatus(exec.getExitStatus());
+            result.setStdErrStream(exec.getErrorStream());
+            result.setStdOutStream(exec.getInputStream());
+            logger.trace("sent command");
+            if (exec.getExitStatus() != 0) {
+                logger.error("exec terminated with non-zero exit status: " + command);
+                throw new GridAccessException("exec terminated with non-zero exit status: " + exec.getExitStatus() + " : " + exec.getOutputStream().toString());
+            }
+        } finally {
+            session.close();
+        } 
+    }
 
 	@Override
 	public SoftwareManager getSoftwareManager() {
