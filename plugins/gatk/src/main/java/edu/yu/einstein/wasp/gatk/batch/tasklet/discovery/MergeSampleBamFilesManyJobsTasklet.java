@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +34,8 @@ import edu.yu.einstein.wasp.service.SampleService;
  *
  */
 public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
+	
+	private static Logger logger = LoggerFactory.getLogger(MergeSampleBamFilesManyJobsTasklet.class);
 		
 	@Autowired
 	private JobService jobService;
@@ -75,6 +79,7 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 		Map<Sample, FileGroup> passThroughSampleFileGroupsForNextStep = new HashMap<>();
 		Map<Sample, LinkedHashSet<FileGroup>> sampleFileGroups = new HashMap<>();
 		Map<Sample, LinkedHashSet<SampleSource>> sampleCellLibraries = new HashMap<>();
+		LinkedHashSet<FileGroup> temporaryFileSet = new LinkedHashSet<>();
 		try {
 			for (SampleSource cl: sampleService.getCellLibrariesThatPassedQCForJob(job)){
 				Sample sample = sampleService.getLibrary(cl);
@@ -143,9 +148,9 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 				metricsG = fileService.addFileGroup(metricsG);
 				metricsG.setSampleSources(sampleCellLibraries.get(sample));
 				outputFileGroups.add(metricsG);
-
-				jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT, AbstractGatkTasklet.getFileGroupIdsAsCommaDelimitedString(inputFileGroups));
-				jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT, AbstractGatkTasklet.getFileGroupIdsAsCommaDelimitedString(outputFileGroups));
+				temporaryFileSet.addAll(outputFileGroups);
+				jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(inputFileGroups));
+				jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(outputFileGroups));
 				jobParameters.put(WaspSoftwareJobParameters.JOB_ID, jobId.toString());
 				try {
 					requestLaunch("gatk.variantDiscovery.hc.mergeSampleBamFiles.jobFlow", jobParameters);
@@ -155,10 +160,11 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 			} else {
 				passThroughSampleFileGroupsForNextStep.put(sample, sampleFileGroups.get(sample).iterator().next()); // should be no more than 1 entry
 			}
-			// put files needed for next step into step execution context to be promoted to job context
-			getStepExecution().getExecutionContext().put("mergedSampleFgMap", AbstractGatkTasklet.getSampleFgMapAsJsonString(mergedSampleFileGroupsForNextStep));
-			getStepExecution().getExecutionContext().put("passThroughSampleFgMap", AbstractGatkTasklet.getSampleFgMapAsJsonString(passThroughSampleFileGroupsForNextStep));
 		}
+		// put files needed for next step into step execution context to be promoted to job context
+		getStepExecution().getExecutionContext().put("mergedSampleFgMap", AbstractGatkTasklet.getSampleFgMapAsJsonString(mergedSampleFileGroupsForNextStep));
+		getStepExecution().getExecutionContext().put("passThroughSampleFgMap", AbstractGatkTasklet.getSampleFgMapAsJsonString(passThroughSampleFileGroupsForNextStep));
+		getStepExecution().getExecutionContext().put("temporaryFileSet", AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(temporaryFileSet));
 	}
 
 }

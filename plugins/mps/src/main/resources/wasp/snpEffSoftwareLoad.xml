@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd"
+    default-autowire="byName">
+    
+  <bean id="snpEff" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
+  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.mps.grid.software.SnpEff</value></property>
+    <property name="name" value="SnpEff" />
+    <property name="description" value="SnpEff is a variant annotation and effect prediction tool. It annotates and predicts the effects of genetic variants (such as amino acid changes). " />
+    <property name="version" value="3.6" />
+    <property name="area" ref="snpEffPluginArea" />
+    <property name="resourceType" ref="vcfProcessorResourceType" />
+  </bean> 
+
+</beans>

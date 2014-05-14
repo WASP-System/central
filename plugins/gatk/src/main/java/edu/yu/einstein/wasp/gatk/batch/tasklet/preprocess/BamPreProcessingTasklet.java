@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.filetype.service.FileTypeService;
+import edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.AbstractGatkTasklet;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -114,10 +115,9 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		
 		WorkUnit w = new WorkUnit();
 		w.setMode(ExecutionMode.PROCESS);
-		w.setMemoryRequirements(GATKSoftwareComponent.MEMORY_REQUIRED_8);
+		w.setMemoryRequirements(AbstractGatkTasklet.MEMORY_GB_8);
 		w.setProcessMode(ProcessMode.MAX);
-		w.setMemoryRequirements(GATKSoftwareComponent.MEMORY_REQUIRED_8);
-		w.setProcessorRequirements(GATKSoftwareComponent.NUM_THREADS);
+		w.setProcessorRequirements(AbstractGatkTasklet.THREADS_8);
 		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		w.setRequiredFiles(fhlist);
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
@@ -159,17 +159,17 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
 
 		String inputBamFilename = "${" + WorkUnit.INPUT_FILE + "}";
-		String intervalFileName = "gatk.${" + WorkUnit.JOB_NAME + "}.realign.intervals";
-		String realignBamFilename = "gatk.${" + WorkUnit.JOB_NAME + "}.realign.bam";
-		String recaliGrpFilename = "gatk.${" + WorkUnit.JOB_NAME + "}.recali.grp";
+		String intervalFileName = "gatk.${" + WorkUnit.OUTPUT_FILE + "}.realign.intervals";
+		String realignBamFilename = "gatk.${" + WorkUnit.OUTPUT_FILE + "}.realign.bam";
+		String recaliGrpFilename = "gatk.${" + WorkUnit.OUTPUT_FILE + "}.recali.grp";
 		String recaliBamFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
 		String recaliBaiFilename = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
 		Set<String> inputFilenames = new HashSet<>();
 		inputFilenames.add(inputBamFilename);
-		w.addCommand(gatk.getCreateTargetCmd(build, inputFilenames, intervalFileName));
-		w.addCommand(gatk.getLocalAlignCmd(build, inputFilenames, intervalFileName, realignBamFilename, null));
-		w.addCommand(gatk.getRecaliTableCmd(build, realignBamFilename, recaliGrpFilename));
-		w.addCommand(gatk.getPrintRecaliCmd(build, realignBamFilename, recaliGrpFilename, recaliBamFilename, recaliBaiFilename));
+		w.addCommand(gatk.getCreateTargetCmd(build, inputFilenames, intervalFileName, AbstractGatkTasklet.MEMORY_GB_8, AbstractGatkTasklet.THREADS_8));
+		w.addCommand(gatk.getLocalAlignCmd(build, inputFilenames, intervalFileName, realignBamFilename, null, AbstractGatkTasklet.MEMORY_GB_8));
+		w.addCommand(gatk.getRecaliTableCmd(build, realignBamFilename, recaliGrpFilename, AbstractGatkTasklet.MEMORY_GB_8, AbstractGatkTasklet.THREADS_8));
+		w.addCommand(gatk.getPrintRecaliCmd(build, realignBamFilename, recaliGrpFilename, recaliBamFilename, recaliBaiFilename, AbstractGatkTasklet.MEMORY_GB_8, AbstractGatkTasklet.THREADS_8));
 
 		GridResult result = gridHostResolver.execute(w);
 		

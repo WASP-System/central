@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.LaunchManyJobsTasklet;
@@ -29,10 +30,15 @@ import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 
-public class CallVariantsWithHCManyJobsTasklet extends LaunchManyJobsTasklet {
+/**
+ * 
+ * @author asmclellan
+ *
+ */
+public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 	
-	private static Logger logger = LoggerFactory.getLogger(CallVariantsWithHCManyJobsTasklet.class);
-
+	private static Logger logger = LoggerFactory.getLogger(SplitAndAnnotateVcfManyJobsTasklet.class);
+	
 	@Autowired
 	private JobService jobService;
 	
@@ -53,58 +59,66 @@ public class CallVariantsWithHCManyJobsTasklet extends LaunchManyJobsTasklet {
 
 	private Integer jobId;
 	
-	public CallVariantsWithHCManyJobsTasklet(Integer jobId) {
+	public SplitAndAnnotateVcfManyJobsTasklet(Integer jobId) {
 		this.jobId = jobId;
 	}
-
+	
 	@Override
 	@Transactional("EntityManager")
 	public void doExecute() {
 		Job job = jobService.getJobByJobId(jobId);
 		Assert.assertTrue(job.getId() > 0);
-		Map<FileGroup, Set<Sample>> allFgSamplesIn = new HashMap<>();
+		FileGroup combinedGenotypedVcfFg = null;
 		ExecutionContext jobExecutionContext = this.getStepExecution().getJobExecution().getExecutionContext();
+		if (jobExecutionContext.containsKey("combinedGenotypedVcfFgId"))
+			combinedGenotypedVcfFg = fileService.getFileGroupById(Integer.parseInt(jobExecutionContext.getString("gvcfFgSet")));
+		
+		// a set of bam filegroups was previously registered corresponding to the inputs of the variant calling step. We now need to obtain a vcf file
+		// corresponding to the result of haplotype calling and combined genotyping for each bam file input 
+		// i.e. split out the merged vcf which was the output of cohort-level genotyping.
+		Map<FileGroup, LinkedHashSet<Sample>> fgSamplesMapUsedForVarCalling = new HashMap<>();
 		if (jobExecutionContext.containsKey("fgSamplesMap"))
-			allFgSamplesIn.putAll(AbstractGatkTasklet.getFgSamplesMapFromJsonString(jobExecutionContext.getString("fgSamplesMap"), sampleService, fileService));
-		LinkedHashSet<FileGroup> fileGroupsForNextStep = new LinkedHashSet<>();
-		for (FileGroup fg : allFgSamplesIn.keySet()){
-			LinkedHashSet<FileGroup> inputFileGroups = new LinkedHashSet<>();
-			LinkedHashSet<FileGroup> outputFileGroups = new LinkedHashSet<>();
-			inputFileGroups.add(fg);
+			fgSamplesMapUsedForVarCalling.putAll(AbstractGatkTasklet.getFgSamplesMapFromJsonString(jobExecutionContext.getString("fgSamplesMap"), sampleService, fileService));
+		
+		
+		// split and annotate per sample or per sample pair as appropriate
+		LinkedHashSet<FileGroup> inputFileGroups = new LinkedHashSet<>();
+		inputFileGroups.add(combinedGenotypedVcfFg);
+		for (FileGroup fg : fgSamplesMapUsedForVarCalling.keySet()){
+			LinkedHashSet<FileGroup> outputFileGroups = new LinkedHashSet<>();;
 			Set<SampleSource> sampleSources = new HashSet<>();
 			sampleSources.addAll(fg.getSampleSources());
-			String gvcfFileName = "";
-			for (Sample sample : allFgSamplesIn.get(fg))
-				gvcfFileName += fileService.generateUniqueBaseFileName(sample);
-			gvcfFileName += "gvcf.vcf";
-			FileGroup gvcfG = new FileGroup();
-			FileHandle gvcf = new FileHandle();
-			gvcf.setFileName(gvcfFileName);
-			gvcf = fileService.addFile(gvcf);
-			gvcfG.setIsActive(0);
-			gvcfG.addFileHandle(gvcf);
-			gvcfG.setFileType(vcfFileType);
-			gvcfG.setDescription(gvcfFileName);
-			gvcfG.setSoftwareGeneratedById(gatk.getId());
-			gvcfG = fileService.addFileGroup(gvcfG);
-			gvcfG.setDerivedFrom(inputFileGroups);
-			gvcfG.setSampleSources(sampleSources);
-			fileTypeService.addAttribute(gvcfG, VcfFileTypeAttribute.GVCF);
-			outputFileGroups.add(gvcfG);
-			fileGroupsForNextStep.add(gvcfG);
+			String vcfFileName = "";
+			LinkedHashSet<String> sampleIdentifierSet = new LinkedHashSet<>(); 
+			for (Sample sample : fgSamplesMapUsedForVarCalling.get(fg)){
+				vcfFileName += fileService.generateUniqueBaseFileName(sample);
+				sampleIdentifierSet.add(sample.getUUID().toString());
+			}
+			vcfFileName += "annotated.vcf";
+			FileGroup vcfG = new FileGroup();
+			FileHandle vcf = new FileHandle();
+			vcf.setFileName(vcfFileName);
+			vcf = fileService.addFile(vcf);
+			vcfG.setIsActive(0);
+			vcfG.addFileHandle(vcf);
+			vcfG.setFileType(vcfFileType);
+			vcfG.setDescription(vcfFileName);
+			vcfG.setSoftwareGeneratedById(gatk.getId());
+			vcfG = fileService.addFileGroup(vcfG);
+			vcfG.addDerivedFrom(combinedGenotypedVcfFg);
+			vcfG.setSampleSources(sampleSources);
+			fileTypeService.addAttribute(vcfG, VcfFileTypeAttribute.ANNOTATED);
+			outputFileGroups.add(vcfG);
 			Map<String, String> jobParameters = new HashMap<>();
 			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(inputFileGroups));
 			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(outputFileGroups));
+			jobParameters.put("sampleIdentifierSet", StringUtils.collectionToCommaDelimitedString(sampleIdentifierSet));
 			jobParameters.put(WaspSoftwareJobParameters.JOB_ID, jobId.toString());
 			try {
-				requestLaunch("gatk.variantDiscovery.hc.callVariants.jobFlow", jobParameters);
+				requestLaunch("gatk.variantDiscovery.hc.splitAndAnnotateVariants.jobFlow", jobParameters);
 			} catch (WaspMessageBuildingException e) {
 				e.printStackTrace();
 			}
 		}
-		// put files needed for next step into step execution context to be promoted to job context
-		getStepExecution().getExecutionContext().put("gvcfFgSet", AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(fileGroupsForNextStep));
-
 	}
-
 }

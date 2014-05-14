@@ -18,5 +18,7 @@
 	
 	<import resource="r-plugin-context.xml"/>
 	<import resource="imagemagick-plugin-context.xml"/>
+	<import resource="vcftools-plugin-context.xml"/>
+	<import resource="snpeff-plugin-context.xml"/>
 
 </beans>

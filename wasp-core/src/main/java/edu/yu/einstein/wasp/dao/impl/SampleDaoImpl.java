@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.TypedQuery;
+
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +27,7 @@ import edu.yu.einstein.wasp.model.Sample;
 @Transactional("entityManager")
 @Repository
 public class SampleDaoImpl extends WaspDaoImpl<Sample> implements edu.yu.einstein.wasp.dao.SampleDao {
-
+	
 	/**
 	 * SampleDaoImpl() Constructor
 	 *
@@ -103,6 +105,22 @@ public class SampleDaoImpl extends WaspDaoImpl<Sample> implements edu.yu.einstei
 			return rt;
 		}
 		return results.get(0);
+	}
+	
+	public List<Sample> getActiveLibraries() {
+		TypedQuery<Sample> sq = getEntityManager()
+				.createQuery("SELECT DISTINCT s from Sample as s " +
+						"JOIN FETCH s.sampleType as st " +
+						"WHERE st.iName = 'library' or st.iName = 'facilityLibrary' or st.iName = 'virtualLibrary' AND s.isActive = 1", Sample.class);
+		return sq.getResultList();
+	}
+	
+	public List<Sample> getActiveBiomolecules() {
+		TypedQuery<Sample> sq = getEntityManager()
+				.createQuery("SELECT DISTINCT s from Sample as s " +
+						"JOIN FETCH s.sampleType as st " +
+						"WHERE st.iName = 'dna' or st.iName = 'rna' or st.iName = 'virtualLibrary' AND s.isActive = 1", Sample.class);
+		return sq.getResultList();
 	}
 	
 	@Override
