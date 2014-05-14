@@ -30,5 +30,9 @@ public interface SampleDao extends WaspDao<Sample> {
 
 	public List<Sample> getActiveSamples();
 
+	public List<Sample> getActiveLibraries();
+
+	public List<Sample> getActiveBiomolecules();
+
 }
 

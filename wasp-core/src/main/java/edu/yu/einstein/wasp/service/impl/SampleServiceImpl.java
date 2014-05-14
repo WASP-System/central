@@ -1402,6 +1402,15 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			return true;
 		return false;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isCellLibrary(SampleSource cellLibrary){
+		Assert.assertParameterNotNull(cellLibrary, "No cellLibrary provided");
+		return isLibrary(getLibrary(cellLibrary)) && isCell(getCell(cellLibrary));
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -2960,9 +2969,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		
 		@Override
 		public List<Sample> getLibraries() {
-			Map<String, String> queryMap = new HashMap<String, String>();
-			queryMap.put("sampleType.iName", "library");
-			return sampleDao.findByMap(queryMap);
+			return sampleDao.getActiveLibraries();
 		}
 		
 		@Override

@@ -6,6 +6,7 @@ package edu.yu.einstein.wasp.gatk.service;
 
 import java.util.Set;
 
+import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.BamFileTypeAttribute;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
@@ -30,5 +31,7 @@ public interface GatkService extends WaspService {
 		public String getReferenceIndelsVcfFile(Build build);
 
 		public String getWxsIntervalFile(Job job, Build build);
+
+		public Build getBuildForFg(FileGroup fileGroup);
 
 }

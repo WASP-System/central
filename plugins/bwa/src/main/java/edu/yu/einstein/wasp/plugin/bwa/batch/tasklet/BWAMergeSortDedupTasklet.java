@@ -45,6 +45,7 @@ import edu.yu.einstein.wasp.service.SampleService;
  */
 public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 	
+	private static int MEMORY_GB_4 = 4;
 	
 	@Autowired
 	private SampleService sampleService;
@@ -117,8 +118,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		WorkUnit w = new WorkUnit();
 		w.setMode(ExecutionMode.PROCESS);
 		w.setProcessMode(ProcessMode.FIXED);
-		w.setProcessorRequirements(2);
-		w.setMemoryRequirements(4);
+		w.setMemoryRequirements(MEMORY_GB_4);
 		
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();
 		fhlist.addAll(fg.getFileHandles());
@@ -194,10 +194,10 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 			w.getResultFiles().add(metricsG);
 			String tempMergedBamFilename = "merged.${" + WorkUnit.OUTPUT_FILE + "[0]}";
 			String dedupMetricsFilename = "${" + WorkUnit.OUTPUT_FILE + "[2]}";
-			w.addCommand(picard.getMergeBamCmd("*.out.sam", tempMergedBamFilename, null));
-			w.addCommand(picard.getMarkDuplicatesCmd(tempMergedBamFilename, outputBamFilename, outputBaiFilename, dedupMetricsFilename));
+			w.addCommand(picard.getMergeBamCmd("*.out.sam", tempMergedBamFilename, null, MEMORY_GB_4));
+			w.addCommand(picard.getMarkDuplicatesCmd(tempMergedBamFilename, outputBamFilename, outputBaiFilename, dedupMetricsFilename, MEMORY_GB_4));
 		} else {
-			w.addCommand(picard.getMergeBamCmd("*.out.sam", outputBamFilename, outputBaiFilename));
+			w.addCommand(picard.getMergeBamCmd("*.out.sam", outputBamFilename, outputBaiFilename, MEMORY_GB_4));
 		}	
 		w.setWorkingDirectory(scratchDirectory);
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());

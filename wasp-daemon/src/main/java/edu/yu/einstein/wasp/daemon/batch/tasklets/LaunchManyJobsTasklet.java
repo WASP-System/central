@@ -6,18 +6,14 @@ package edu.yu.einstein.wasp.daemon.batch.tasklets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
-import org.springframework.batch.core.annotation.AfterStep;
-import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.ExecutionContext;
@@ -32,7 +28,6 @@ import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate;
 import edu.yu.einstein.wasp.service.RunService;
-import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 
 /**
  * This tasklet offers methods to provide for launching arbitrarily many jobs, and then waiting
@@ -75,7 +70,7 @@ public abstract class LaunchManyJobsTasklet implements Tasklet, StepExecutionLis
         jobParameters.put(WaspMessageTemplate.PARENT_ID, uid.toString());
         jobParameters.put(WaspMessageTemplate.CHILD_MESSAGE_ID, String.valueOf(child));
         
-        logger.debug("jobParameters: " + jobParameters);
+        logger.debug("Launching flow '" + flowName + "' with jobParameters: " + jobParameters);
         
         BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate(new BatchJobLaunchContext(flowName, jobParameters));
         Message<BatchJobLaunchContext> message = batchJobLaunchMessageTemplate.build();

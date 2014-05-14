@@ -2283,7 +2283,8 @@ public class JobSubmissionController extends WaspController {
 		List<SampleDraft> samples=jobDraft.getSampleDraft();//sampleDraftDao.getSampleDraftByJobId(jobDraftId);
 		Map<SampleDraft, Adaptor> adptorsOnSampleDrafts = jobDraftService.getAdaptorsOnSampleDrafts(samples);		
 
-		Set<String> selectedSampleCell = new HashSet<String>();
+		//Set<String> selectedSampleCell = new HashSet<String>();
+		Map<String, String> selectedSampleCell = new HashMap<String, String>();
 		//Map<Integer, Integer> cellMap = new HashMap<Integer, Integer>();
 		//int cellindexCount = 0;
 
@@ -2291,7 +2292,7 @@ public class JobSubmissionController extends WaspController {
  			for (SampleDraftJobDraftCellSelection sdc: sd.getSampleDraftJobDraftCellSelection()) {
 				int cellIndex = sdc.getJobDraftCellSelection().getCellIndex();
 				String key = sd.getId() + "_" + cellIndex;
-				selectedSampleCell.add(key);
+				selectedSampleCell.put(key, "1");
 			}
 		}
 		

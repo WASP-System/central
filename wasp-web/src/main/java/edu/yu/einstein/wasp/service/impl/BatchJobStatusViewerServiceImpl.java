@@ -125,6 +125,14 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 		}
 		if (nodeId.startsWith(JOB_EXECUTION_ID_PREFIX)){
 			Long totalCount = jobExplorer.getJobExecutionCount();
+			if (displayParam.equals(SHOW_ACTIVE))
+				totalCount = jobExplorer.getJobExecutionCount(ExitStatus.HIBERNATING);
+			else if (displayParam.equals(SHOW_COMPLETED))
+				totalCount = jobExplorer.getJobExecutionCount(ExitStatus.COMPLETED);
+			else if (displayParam.equals(SHOW_FAILED))
+				totalCount = jobExplorer.getJobExecutionCount(ExitStatus.FAILED);
+			else if (displayParam.equals(SHOW_TERMINATED))
+				totalCount = jobExplorer.getJobExecutionCount(ExitStatus.TERMINATED);
 			return new ExtTreeGridResponse(getSteps(nodeId, property, direction, start, limit), totalCount);
 		}
 		return null;

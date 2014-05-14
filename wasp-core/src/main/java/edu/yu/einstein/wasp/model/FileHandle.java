@@ -239,6 +239,23 @@ public class FileHandle extends WaspModel {
 	public boolean isArchived() {
 		return this.archived;
 	}
+	
+	@Column(name="deleted")
+	protected boolean deleted = false;
+	
+	/**
+	 * @param deleted
+	 */
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted;
+	}
+	
+	/**
+	 * @return
+	 */
+	public boolean isDeleted() {
+		return this.deleted;
+	}
 
 	/** 
 	 * md5hash

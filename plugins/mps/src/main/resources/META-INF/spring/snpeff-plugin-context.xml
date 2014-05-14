@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans"
+	default-autowire="byName"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+		
+	<bean id="snpEffPluginArea" class="java.lang.String">
+		<constructor-arg>
+			<value>snpeff</value>
+		</constructor-arg>
+	</bean>
+	
+	<!-- channel for communications with this plugin. -->
+	<int:channel id="wasp.channel.plugin.snpeff" />
+
+	<int:service-activator input-channel="wasp.channel.plugin.snpeff" ref="snpEffPlugin" method="process" />
+	
+	<bean id="snpEffPlugin" class="edu.yu.einstein.wasp.plugin.mps.grid.plugin.SnpEffPlugin">
+		<constructor-arg name="iName" ref="snpEffPluginArea" />
+		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.snpeff" />
+		<property name="name" value="SnpEff" />
+		<property name="description" value="SnpEff is a variant annotation and effect prediction tool. It annotates and predicts the effects of genetic variants (such as amino acid changes)." />
+		<property name="provides" >
+			<set>
+				<ref bean="snpEff" /> 
+			</set>
+		</property>
+		<property name="handles" >
+			<set>
+				<ref bean="snpEffPluginArea" />
+			</set>
+		</property>
+	</bean>
+
+</beans>
