@@ -228,7 +228,7 @@
 	</batch:flow>
 	
 	<!-- decider bean -->
-	<bean id="gatk.variantDiscovery.variantCallerDecider" class="edu.yu.einstein.wasp.gatk.batch.decider.discovery.VariantCallerDecider" scope="step" />
+	<bean id="gatk.variantDiscovery.variantCallerDecider" class="edu.yu.einstein.wasp.gatk.batch.decider.discovery.VariantCallerDecider" />
 		
 
 	<!-- Batch job. Call with jobId in parameters -->

@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
@@ -50,6 +52,7 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 	private GatkService gatkService;
 	
 	@Autowired
+	@Qualifier("fileTypeServiceImpl")
 	private FileTypeService fileTypeService;
 	
 	@Autowired
@@ -148,6 +151,7 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 				metricsG.setSampleSources(sampleCellLibraries.get(sample));
 				outputFileGroups.add(metricsG);
 				temporaryFileSet.addAll(outputFileGroups);
+				jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
 				jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(inputFileGroups));
 				jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(outputFileGroups));
 				jobParameters.put(WaspSoftwareJobParameters.JOB_ID, jobId.toString());

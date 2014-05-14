@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
@@ -51,6 +52,7 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 	private FileService fileService;
 	
 	@Autowired
+	@Qualifier("fileTypeServiceImpl")
 	private FileTypeService fileTypeService;
 	
 	@Autowired
