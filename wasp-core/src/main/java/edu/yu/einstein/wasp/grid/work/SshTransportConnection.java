@@ -94,12 +94,12 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 
 	private void initClient() throws GridAccessException {
 		try {
-			logger.debug("attempting to configure and connect SSH connection");
+			logger.trace("attempting to configure and connect SSH connection");
 
-			logger.debug("loading identity file " + getIdentityFile().getAbsolutePath());
-			logger.debug("BouncyCastle: " + SecurityUtils.isBouncyCastleRegistered());
-			logger.debug("connecting " + getHostName());
-			logger.debug("client: " + client.toString());
+			logger.trace("loading identity file " + getIdentityFile().getAbsolutePath());
+			logger.trace("BouncyCastle: " + SecurityUtils.isBouncyCastleRegistered());
+			logger.trace("connecting " + getHostName());
+			logger.trace("client: " + client.toString());
 			
 			client.connect(getHostName());
 			logger.debug("connected");
@@ -206,14 +206,12 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
                                 doExec(result, command);
                                 break;
 			    } catch (ConnectionException ce) {
-			        if (session.isOpen()) {
-			            logger.warn("Caught connection exception on open session (" + ce.getLocalizedMessage() + ") try " + tries + 
-			                    ". Will try again up to " + execRetries + " times.");
-			            continue;
-			        } else {
-			            logger.error("Caught ConnectionException " + ce.getLocalizedMessage());
-			            throw ce;
+			        logger.warn("Caught ConnectionException on session (" + ce.getLocalizedMessage() + ") try " + tries + 
+                                    ". Session open: " + session.isOpen() + ". Will try again up to " + execRetries + " times.");
+			        if (!session.isOpen()) {
+			            openSession();
 			        }
+			        continue;
 			    }
                         }
 			
