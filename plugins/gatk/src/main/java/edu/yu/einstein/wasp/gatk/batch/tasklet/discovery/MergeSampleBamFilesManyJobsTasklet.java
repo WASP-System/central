@@ -83,7 +83,7 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 		try {
 			for (SampleSource cl: sampleService.getCellLibrariesThatPassedQCForJob(job)){
 				Sample sample = sampleService.getLibrary(cl);
-				if (sample.getParent() != null)
+				while (sample.getParent() != null)
 					sample = sample.getParent();
 				for (FileGroup fg : fileService.getFilesForCellLibraryByType(cl, bamFileType, gatkService.getCompleteGatkPreprocessBamFileAttributeSet(), true)){
 					if (!sampleFileGroups.containsKey(sample)){
