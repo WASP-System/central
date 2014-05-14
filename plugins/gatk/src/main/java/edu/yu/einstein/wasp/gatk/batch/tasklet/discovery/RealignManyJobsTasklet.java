@@ -130,9 +130,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			baiMergedPairsG.setDescription(baiOutputMergedPairs);
 			baiMergedPairsG.setSoftwareGeneratedById(gatk.getId());
 			baiMergedPairsG = fileService.addFileGroup(baiMergedPairsG);
-			baiMergedPairsG.addDerivedFrom(testFgIn);
-			baiMergedPairsG.addDerivedFrom(controlFgIn);
-			baiMergedPairsG.setSampleSources(sampleSources);
+			baiMergedPairsG.addDerivedFrom(bamMergedPairsG);
 			outputFileGroups.add(baiMergedPairsG);
 			temporaryFileSet.addAll(outputFileGroups);
 			

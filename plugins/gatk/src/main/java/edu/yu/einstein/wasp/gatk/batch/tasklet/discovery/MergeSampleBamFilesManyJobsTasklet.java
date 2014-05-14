@@ -130,8 +130,7 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 				baiG.setDescription(baiOutput);
 				baiG.setSoftwareGeneratedById(gatk.getId());
 				baiG = fileService.addFileGroup(baiG);
-				baiG.setDerivedFrom(inputFileGroups);
-				baiG.setSampleSources(sampleCellLibraries.get(sample));
+				baiG.addDerivedFrom(bamG);
 				outputFileGroups.add(baiG);
 				
 				String metricsOutput = fileService.generateUniqueBaseFileName(sample) + "gatk_preproc_merged_dedupMetrics.txt";

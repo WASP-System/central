@@ -3,9 +3,7 @@
  */
 package edu.yu.einstein.wasp.plugin.bwa.batch.tasklet;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,7 +15,6 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -32,7 +29,6 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.bwa.software.BWABacktrackSoftwareComponent;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.BamFileTypeAttribute;
-import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqComparator;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.plugin.picard.software.Picard;
 import edu.yu.einstein.wasp.service.FileService;
@@ -97,19 +93,16 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		Integer cellLibId = jobExecutionContext.getInt("cellLibId");
 		
 		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);
+		Set<SampleSource> cellLibraries = new HashSet<>();
+		cellLibraries.add(cellLib);
 
 		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
 
 		logger.debug("Beginning sort/merge of BAM files for " + cellLib.getId() + " from job " + job.getId());
 		logger.debug("Starting from previously aln'd scratch directory " + scratchDirectory);
 		
-		Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLib, fastqFileType);
+		Set<FileGroup> fastqFileGroups = fileService.getFilesForCellLibraryByType(cellLib, fastqFileType);
 
-		Assert.assertTrue(fileGroups.size() == 1);
-		FileGroup fg = fileGroups.iterator().next();
-
-		logger.debug("file group: " + fg.getId() + ":" + fg.getDescription());
-		
 		Map<String,Object> jobParameters = context.getStepContext().getJobParameters();
 		boolean markDuplicates = false;
 		if (jobParameters.containsKey("markDuplicates") && jobParameters.get("markDuplicates").equals("yes"))
@@ -119,11 +112,6 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		w.setMode(ExecutionMode.PROCESS);
 		w.setProcessMode(ProcessMode.FIXED);
 		w.setMemoryRequirements(MEMORY_GB_4);
-		
-		List<FileHandle> fhlist = new ArrayList<FileHandle>();
-		fhlist.addAll(fg.getFileHandles());
-		Collections.sort(fhlist, new FastqComparator(fastqService));
-		w.setRequiredFiles(fhlist);
 		
 		w.setSoftwareDependencies(bwa.getSoftwareDependencies());
 		w.setSecureResults(true);
@@ -137,8 +125,11 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		bamG.setIsActive(0);
 		bamG.addFileHandle(bam);
 		bamG.setFileType(bamFileType);
+		bamG.setSampleSources(cellLibraries);
+		bamG.setDerivedFrom(fastqFileGroups);
 		bamG.setDescription(bamOutput);
 		bamG.setSoftwareGeneratedBy(bwa);
+		
 		bamG = fileService.addFileGroup(bamG);
 		bamServiceImpl.addAttribute(bamG, BamFileTypeAttribute.SORTED);
 		Integer bamGId = bamG.getId();
@@ -157,6 +148,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		baiG.addFileHandle(bai);
 		baiG.setFileType(baiFileType);
 		baiG.setDescription(baiOutput);
+		baiG.addDerivedFrom(bamG);
 		baiG.setSoftwareGeneratedBy(bwa);
 		baiG = fileService.addFileGroup(baiG);
 		Integer baiGId = baiG.getId();
