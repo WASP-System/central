@@ -22,8 +22,8 @@ public class WebPanel extends Panel{
 		super(title, content);
 	}
 
-	public WebPanel(String title, String description, Integer width, Integer height, Integer order, Content content, boolean isResizable, boolean isMaximizable, boolean isCloseable) {
-		super(title, description, width, height, order, content, isResizable, isMaximizable, isCloseable);
+	public WebPanel(String title, String description, Integer width, Integer height, Integer order, Content content, boolean resizable, boolean maximizable, boolean closeable) {
+		super(title, description, width, height, order, content, resizable, maximizable, closeable);
 	}
 
 	public WebPanel(String title, String description, Integer width, Integer height, Content content) {
