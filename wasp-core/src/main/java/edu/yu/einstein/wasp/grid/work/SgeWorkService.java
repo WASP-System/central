@@ -467,7 +467,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		String outputFile = jobNamePrefix + id + ".tar.gz ";
 		String manifestFile = jobNamePrefix + id + ".manifest";
 		String command = "touch " + manifestFile + " && find . -name '" + jobNamePrefix + id + "*' -print | sed 's/^\\.\\///' > " + manifestFile + " && " + 
-				"tar --remove-files -czvf " + outputFile + " -T " + manifestFile;
+				"tar --remove-files -czf " + outputFile + " -T " + manifestFile;
 		if (markUnfinished) {
 			command += " && touch " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME;
 		} else {
@@ -566,7 +566,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		String outputFile = jobNamePrefix + id + "-FAILED.tar.gz ";
 		String manifestFile = jobNamePrefix + id + ".manifest";
 		String command = "touch " + manifestFile + " && find . -name '" + jobNamePrefix + id + "*' -print | sed 's/^\\.\\///' > " + manifestFile + " && " + 
-				"tar --remove-files -czvf " + outputFile + " -T " + manifestFile;
+				"tar --remove-files -czf " + outputFile + " -T " + manifestFile;
 		command += " && rm -f " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME;
 		String prd = transportConnection.prefixRemoteFile(resultsDirectory);
 		if (!w.getWorkingDirectory().equals(prd)) {

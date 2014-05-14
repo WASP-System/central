@@ -11,7 +11,6 @@ import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,6 @@ import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
-import edu.yu.einstein.wasp.plugin.babraham.software.FastQC;
 import edu.yu.einstein.wasp.plugin.babraham.software.TrimGalore;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqComparator;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
@@ -44,6 +42,7 @@ import edu.yu.einstein.wasp.service.SampleService;
  * @author calder
  * 
  */
+@Transactional("entityManager")
 public class TrimGaloreTasklet extends LaunchManyJobsTasklet {
 
     @Autowired
@@ -91,7 +90,6 @@ public class TrimGaloreTasklet extends LaunchManyJobsTasklet {
      * {@inheritDoc}
      */
     @Override
-    @Transactional("entityManager")
     public void doExecute() {
 
         Run run = runService.getRunById(runId);

@@ -24,7 +24,6 @@
 		
 		<batch:step id="edu.yu.einstein.wasp.plugin.babraham.trim_galore.mainFlow.trimGalore">
 			<batch:tasklet>
-						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.plugin.babraham.batch.tasklet.TrimGaloreTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 					<constructor-arg name="softwareName" value="#{jobParameters[waspJobParameters.BEAN_NAME]}" />

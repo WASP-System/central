@@ -80,11 +80,11 @@ public class StageResultsTasklet extends WaspRemotingTasklet {
 		
 		w.setResultsDirectory(stageDir + "/" + run.getName());
 		
-		w.setCommand("mkdir -p ${WASP_RESULT_DIR}/Project_WASP");
+		w.setCommand("mkdir -vp ${WASP_RESULT_DIR}/Project_WASP");
 		
 		// copy files from single barcode truseq run
 		w.addCommand("if [ -e " + IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/DemultiplexConfig.xml ]; then");
-		w.addCommand("mkdir -v ${WASP_RESULT_DIR}/" + IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME);
+		w.addCommand("mkdir -vp ${WASP_RESULT_DIR}/" + IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME);
 		w.addCommand("cp -vf " + IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/*.xml ${WASP_RESULT_DIR}/" + 
 		        IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/");
 		w.addCommand("cp -vf " + IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/*.txt ${WASP_RESULT_DIR}/" + 
@@ -98,7 +98,7 @@ public class StageResultsTasklet extends WaspRemotingTasklet {
 		
 		// copy files from dual barcode truseq run
 		w.addCommand("if [ -e " + IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/DemultiplexConfig.xml ]; then");
-		w.addCommand("mkdir -v ${WASP_RESULT_DIR}/" + IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME);
+		w.addCommand("mkdir -vp ${WASP_RESULT_DIR}/" + IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME);
 		w.addCommand("cp -vf " + IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/*.xml ${WASP_RESULT_DIR}/" + 
 		        IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/");
 		w.addCommand("cp -vf " + IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/*.txt ${WASP_RESULT_DIR}/" + 
