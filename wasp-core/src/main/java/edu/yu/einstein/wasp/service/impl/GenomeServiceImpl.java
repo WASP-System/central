@@ -376,6 +376,7 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 	@Override
 	public Build getBuild(SampleDraft sampleDraft) throws ParameterValueRetrievalException{
 		Assert.assertParameterNotNull(sampleDraft, "sampleDraft cannot be null");
+		Assert.assertTrue(sampleService.isBiomolecule(sampleDraft), "Sample must be a biomolecule");
 		String genomeString = null;
 		List<SampleDraftMeta> sampleDraftMetaList = sampleDraft.getSampleDraftMeta();
 		if (sampleDraftMetaList == null)
@@ -395,13 +396,19 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 	@Override
 	public Build getBuild(Sample sample) throws ParameterValueRetrievalException{
 		Assert.assertParameterNotNull(sample, "sample cannot be null");
+		Assert.assertTrue(sampleService.isBiomolecule(sample), "Sample must be a biomolecule");
+		sample = sampleService.getSampleDao().merge(sample); // ensure attached
+		while (sample.getParent() != null)
+			sample = sample.getParent();
+		logger.debug("getting genome build for sample with id=" + sample.getId());
 		String genomeString = null;
-		sample = sampleService.getSampleDao().merge(sample);
 		List<SampleMeta> sampleMetaList = sample.getSampleMeta();
 		if (sampleMetaList == null)
 			sampleMetaList = new ArrayList<SampleMeta>();
+		logger.debug("Got " + sampleMetaList.size() + " items of metadata for Sample id=" + sample.getId());
 		try{
 			genomeString = (String) MetaHelper.getMetaValue(GENOME_AREA, GENOME_STRING_META_KEY, sampleMetaList);
+			logger.debug("Got genome string " + genomeString + " for Sample id=" + sample.getId());
 		} catch(Exception e) {
 			throw new ParameterValueRetrievalException(e);
 		}
