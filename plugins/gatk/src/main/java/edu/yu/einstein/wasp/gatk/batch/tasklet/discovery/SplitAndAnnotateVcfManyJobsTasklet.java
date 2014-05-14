@@ -55,6 +55,9 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 	private FileType vcfFileType;
 	
 	@Autowired
+	private FileType htmlFileType;
+	
+	@Autowired
 	private GATKSoftwareComponent gatk;
 
 	private Integer jobId;
@@ -88,13 +91,13 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 			LinkedHashSet<FileGroup> outputFileGroups = new LinkedHashSet<>();;
 			Set<SampleSource> sampleSources = new HashSet<>();
 			sampleSources.addAll(fg.getSampleSources());
-			String vcfFileName = "";
+			String fileNamePrefix = "";
 			LinkedHashSet<String> sampleIdentifierSet = new LinkedHashSet<>(); 
 			for (Sample sample : fgSamplesMapUsedForVarCalling.get(fg)){
-				vcfFileName += fileService.generateUniqueBaseFileName(sample);
+				fileNamePrefix += fileService.generateUniqueBaseFileName(sample);
 				sampleIdentifierSet.add(sample.getUUID().toString());
 			}
-			vcfFileName += "annotated.vcf";
+			String vcfFileName = fileNamePrefix + "annotated.vcf";
 			FileGroup vcfG = new FileGroup();
 			FileHandle vcf = new FileHandle();
 			vcf.setFileName(vcfFileName);
@@ -109,6 +112,22 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 			vcfG.setSampleSources(sampleSources);
 			fileTypeService.addAttribute(vcfG, VcfFileTypeAttribute.ANNOTATED);
 			outputFileGroups.add(vcfG);
+			
+			String summaryHtmlFileName = fileNamePrefix + "snpEff_summary.htm";
+			FileGroup summaryHtmlG = new FileGroup();
+			FileHandle summaryHtml = new FileHandle();
+			summaryHtml.setFileName(summaryHtmlFileName);
+			summaryHtml = fileService.addFile(summaryHtml);
+			summaryHtmlG.setIsActive(0);
+			summaryHtmlG.addFileHandle(summaryHtml);
+			summaryHtmlG.setFileType(htmlFileType);
+			summaryHtmlG.setDescription(summaryHtmlFileName);
+			summaryHtmlG.setSoftwareGeneratedById(gatk.getId());
+			summaryHtmlG = fileService.addFileGroup(summaryHtmlG);
+			summaryHtmlG.addDerivedFrom(combinedGenotypedVcfFg);
+			summaryHtmlG.setSampleSources(sampleSources);
+			outputFileGroups.add(summaryHtmlG);
+			
 			Map<String, String> jobParameters = new HashMap<>();
 			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(inputFileGroups));
 			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(outputFileGroups));
