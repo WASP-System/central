@@ -38,7 +38,6 @@ public class Macstwo extends SoftwarePackage{
 	private FileService fileService;
 	
 	public Macstwo() {
-		setSoftwareVersion("2.0.10"); // TODO: Set this value. This default may also be overridden in wasp.site.properties
 	}
 
 	//note: test is same as treated, in macs2-speak (from the immunoprecipitated sample)

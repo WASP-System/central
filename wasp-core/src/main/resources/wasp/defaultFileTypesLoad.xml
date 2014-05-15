@@ -18,6 +18,13 @@
 	    <property name="description" value="Text format." />
 	    <property name="extensions" value="txt" />
   	</bean>
+  	
+  	<bean id="htmlFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
+	    <property name="name" value="html" />
+	    <property name="area" value="html" />
+	    <property name="description" value="Html format." />
+	    <property name="extensions" value="html,htm" />
+  	</bean>
 
 
 </beans>
