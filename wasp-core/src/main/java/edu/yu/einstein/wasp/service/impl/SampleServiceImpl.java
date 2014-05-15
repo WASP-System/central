@@ -3276,5 +3276,22 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				}
 				return genomeBuildName;
 			}
+			
+			/**
+			 *  {@inheritDoc}
+			 */
+			@Override
+			public void setLibraryOnCellMeta(SampleSource cellLibrary, String area, String metaValueName, String metaValue) throws MetadataException{
+				Assert.assertParameterNotNull(cellLibrary, "A valid cellLibrary must be provided");
+				Assert.assertParameterNotNull(area, "an area must be provided");
+				Assert.assertParameterNotNull(metaValueName, "a metaValueName must be provided");
+				Assert.assertParameterNotNull(metaValue, "a metaValue must be provided");
+				MetaHelper metahelper = new MetaHelper(area, SampleSourceMeta.class);
+				metahelper.setMetaList(cellLibrary.getSampleSourceMeta());
+				metahelper.setMetaValueByName(metaValueName, metaValue);
+				List<SampleSourceMeta> meta = new ArrayList<SampleSourceMeta>();
+				meta.add( (SampleSourceMeta) metahelper.getMetaByName(metaValueName) ); // may be new OR existing
+				sampleSourceMetaDao.setMeta(meta, cellLibrary.getId());
+			}
 }
 

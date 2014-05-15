@@ -220,14 +220,27 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		Integer bamGId = stepExecutionContext.getInt("bamGID");
 		Integer baiGId = stepExecutionContext.getInt("baiGID");
 		Integer metricsGId = stepExecutionContext.getInt("metricsGID");
+		Picard picard = (Picard) bwa.getSoftwareDependencyByIname("picard");
 		
+		// retrieve attributes persisted in jobExecutionContext
+		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
+		String scratchDirectory = jobExecutionContext.get("scrDir").toString();
+		Integer cellLibId = jobExecutionContext.getInt("cellLibId");		
+		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);
+
 		// register .bam and .bai file groups as active to make them available to views
 		if (bamGId != null)
 			fileService.getFileGroupById(bamGId).setIsActive(1);
 		if (baiGId != null)
 			fileService.getFileGroupById(baiGId).setIsActive(1);	
-		if (metricsGId != null)
-			fileService.getFileGroupById(metricsGId).setIsActive(1);	
+		if (metricsGId != null){
+			FileGroup metricsG = fileService.getFileGroupById(metricsGId);
+			metricsG.setIsActive(1);
+			List<FileHandle> fileHandleList = new ArrayList<FileHandle>(metricsG.getFileHandles());
+			if(fileHandleList.size()==1){
+				picard.savePicardDedupMetrics(cellLib, fileHandleList.get(0).getFileName(), scratchDirectory, gridHostResolver);
+			}
+		}
 	}
 	
 

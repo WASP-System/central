@@ -3,8 +3,23 @@
  * @author
  */
 package edu.yu.einstein.wasp.plugin.picard.software;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Set;
 
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import edu.yu.einstein.wasp.grid.GridHostResolver;
+import edu.yu.einstein.wasp.grid.work.GridResult;
+import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
+import edu.yu.einstein.wasp.grid.work.GridWorkService;
+import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 
@@ -14,6 +29,9 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
 public class Picard extends SoftwarePackage{
 
 	private static final long serialVersionUID = 6817018170220888568L;
+	
+	@Autowired
+	SampleService sampleService;
 	
 	public Picard() {}
 	
@@ -89,5 +107,98 @@ public class Picard extends SoftwarePackage{
 			 command += " && mv " + mergedBamFilename + ".bai " + mergedBaiFilename;
 		logger.debug("Will conduct picard MergeSamFiles with command: " + command);
 		return command;
+	}
+	
+	/**
+	 * save Picard dedup metrics (if exists) to cellLibrary Meta 
+	 * @param SampleSource cellLib
+	 * @param FileGroup metricsG
+	 * @param String scratchDirectory
+	 * @return void
+	 */
+	public void savePicardDedupMetrics(SampleSource cellLib, String dedupMetricsFilename, String scratchDirectory, GridHostResolver gridHostResolver){
+			
+		/*
+		 http://picard.sourceforge.net/picard-metric-definitions.shtml#DuplicationMetrics
+		Column Definitions of DuplicationMetrics (output stats) from Picard mark duplicates
+		LIBRARY: The library on which the duplicate marking was performed.
+		UNPAIRED_READS_EXAMINED: The number of mapped reads examined which did not have a mapped mate pair, either because the read is unpaired, or the read is paired to an unmapped mate.
+		READ_PAIRS_EXAMINED: The number of mapped read pairs examined.
+		UNMAPPED_READS: The total number of unmapped reads examined.
+		UNPAIRED_READ_DUPLICATES: The number of fragments that were marked as duplicates.
+		READ_PAIR_DUPLICATES: The number of read pairs that were marked as duplicates.
+		READ_PAIR_OPTICAL_DUPLICATES: The number of read pairs duplicates that were caused by optical duplication. Value is always < READ_PAIR_DUPLICATES, which counts all duplicates regardless of source.
+		PERCENT_DUPLICATION: The percentage of mapped sequence that is marked as duplicate.
+		ESTIMATED_LIBRARY_SIZE: The estimated number of unique molecules in the library based on PE duplication.
+		ExtractIlluminaBarcodes.BarcodeMetric				
+		Metrics produced by the ExtractIlluminaBarcodes program that is used to parse data in the basecalls directory and determine to which barcode each read should be assigned.
+		
+		header in output file:
+		//LIBRARY 	UNPAIRED_READS_EXAMINED 	READ_PAIRS_EXAMINED	UNMAPPED_READS	UNPAIRED_READ_DUPLICATES	READ_PAIR_DUPLICATES	READ_PAIR_OPTICAL_DUPLICATES	PERCENT_DUPLICATION	 ESTIMATED_LIBRARY_SIZE
+			
+		*/
+		logger.debug("starting savePicardDedupMetrics");
+
+		if(cellLib==null || dedupMetricsFilename==null || dedupMetricsFilename.isEmpty() || scratchDirectory==null || scratchDirectory.isEmpty()){
+			return;
+		}
+						
+		WorkUnit w = new WorkUnit();
+		w.setProcessMode(ProcessMode.SINGLE);
+		String UNPAIRED_READS_EXAMINED = "";
+		String READ_PAIRS_EXAMINED	= "";
+		String UNMAPPED_READS = "";
+		String UNPAIRED_READ_DUPLICATES	= "";
+		String READ_PAIR_DUPLICATES	= "";
+		String READ_PAIR_OPTICAL_DUPLICATES = "";
+		String PERCENT_DUPLICATION = "";			
+		JSONObject json = new JSONObject();
+		
+		try {
+			GridWorkService workService = gridHostResolver.getGridWorkService(w);
+			GridTransportConnection transportConnection = workService.getTransportConnection();
+			w.setWorkingDirectory(scratchDirectory);
+			w.addCommand("cat " + dedupMetricsFilename + " | grep '.' | tail -1");//grep '.' excludes blank lines; tail to get the data
+			
+			GridResult r = transportConnection.sendExecToRemote(w);
+			InputStream is = r.getStdOutStream();
+			BufferedReader br = new BufferedReader(new InputStreamReader(is)); 
+			boolean keepReading = true;
+			int lineNumber = 0;
+			while (keepReading){
+				lineNumber++;
+				String line = null;
+				line = br.readLine();
+				logger.debug("line number = " + lineNumber + " and line = " + line);
+				if (line == null || lineNumber > 1)
+					keepReading = false;
+				else if (lineNumber == 1){
+					String [] stringArray = line.split("\\t");							
+					UNPAIRED_READS_EXAMINED = stringArray[1];
+					json.put("unpairedReadsExamined", UNPAIRED_READS_EXAMINED);
+					READ_PAIRS_EXAMINED	= stringArray[2];
+					json.put("readPairsExamined", READ_PAIRS_EXAMINED);
+					UNMAPPED_READS = stringArray[3];
+					json.put("unmappedReads", UNMAPPED_READS);
+					UNPAIRED_READ_DUPLICATES = stringArray[4];
+					json.put("unpairedReadDuplicates", UNPAIRED_READ_DUPLICATES);
+					READ_PAIR_DUPLICATES	= stringArray[5];
+					json.put("readPairDuplicates", READ_PAIR_DUPLICATES);
+					READ_PAIR_OPTICAL_DUPLICATES = stringArray[6];
+					json.put("readPairOpticalDuplicates", READ_PAIR_OPTICAL_DUPLICATES);
+					PERCENT_DUPLICATION = stringArray[7];
+					json.put("percentDuplication", PERCENT_DUPLICATION);
+					logger.debug("dedupMetrics:  =  UNPAIRED_READS_EXAMINED: " + UNPAIRED_READS_EXAMINED + "; READ_PAIRS_EXAMINED: " + READ_PAIRS_EXAMINED + "; UNMAPPED_READS_String: "+ UNMAPPED_READS + "; UNPAIRED_READ_DUPLICATES: "+ UNPAIRED_READ_DUPLICATES + "; READ_PAIR_DUPLICATES: "+ READ_PAIR_DUPLICATES + "; READ_PAIR_OPTICAL_DUPLICATES: "+ READ_PAIR_OPTICAL_DUPLICATES + "; PERCENT_DUPLICATION_String: "+ PERCENT_DUPLICATION);
+					logger.debug("dedupMetrics via json.toString():  =  " + json.toString());
+					sampleService.setLibraryOnCellMeta(cellLib, "picard", "dedupMetrics", json.toString());
+					logger.debug("successfully saved the picard dedup metrics");
+				} 
+			}
+			br.close();					
+		} catch (Exception e) {
+			logger.debug("unable to read from dedupMetricsFilename: " + dedupMetricsFilename );
+		} 
+		
+		logger.debug("ending savePicardDedupMetrics");
 	}
 }
