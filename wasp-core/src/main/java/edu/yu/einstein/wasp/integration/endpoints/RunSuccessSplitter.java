@@ -25,6 +25,8 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
+import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
+import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 
@@ -55,6 +57,9 @@ public class RunSuccessSplitter extends WaspAbstractMessageSplitter{
 	public void setSampleService(SampleService sampleService) {
 		this.sampleService = sampleService;
 	}
+	
+	@Autowired
+	private GenomeService genomeService;
 
 
 	private static final Logger logger = LoggerFactory.getLogger(RunSuccessSplitter.class);
@@ -82,6 +87,12 @@ public class RunSuccessSplitter extends WaspAbstractMessageSplitter{
 		for (SampleSource cellLibrary :  cellLibraries){
 			// send message to initiate job processing
 			Job job = sampleService.getJobOfLibraryOnCell(cellLibrary);
+			Build build = genomeService.getGenomeBuild(cellLibrary);
+			if (build == null) {
+			    logger.warn("Genome for cellLibrary " + cellLibrary.getId() + " is null");
+			    continue;
+			}
+			    
 			Map<String, String> jobParameters = new HashMap<String, String>();
 			jobParameters.put(WaspJobParameters.CELL_LIBRARY_ID, cellLibrary.getId().toString());
 			jobParameters.put(WaspJobParameters.BATCH_JOB_TASK, BatchJobTask.ANALYSIS_LIBRARY_PREPROCESS);

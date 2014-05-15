@@ -809,10 +809,10 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			if (!PropertyHelper.isSet(pmodeMax)) {
 				pmodeMax = "1";
 			}
-			logger.debug("WorkUnit was confifured to use " + w.getProcessorRequirements() + " threads");
+			logger.debug("WorkUnit was congigured to use " + w.getProcessorRequirements() + " threads");
 			if (w.getProcessMode().equals(ProcessMode.MAX)) {
 				w.setProcessorRequirements(new Integer(pmodeMax));
-				logger.debug("WorkUnit reconfifured to use " + w.getProcessorRequirements() + " threads (using ProcessMode.MAX)");
+				logger.debug("WorkUnit recongigured to use " + w.getProcessorRequirements() + " threads (using ProcessMode.MAX)");
 			}
 			// If the ProcessMode is set to FIXED, make sure it does not exceed the max setting for this host.
 			String pmodeMaximum = transportConnection.getConfiguredSetting("processmode.absolutemaximum");
@@ -823,7 +823,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			Integer pmm = new Integer(pmodeMaximum);
 			if (w.getProcessorRequirements() > pmm) {
 				w.setProcessorRequirements(pmm);
-				logger.debug("WorkUnit is reconfifured to use " + w.getProcessorRequirements() + " (absolute maximum) threads");
+				logger.debug("WorkUnit is recongigured to use " + w.getProcessorRequirements() + " (absolute maximum) threads");
 			}
 			if (transportConnection.getSoftwareManager() != null) {
 				String config = transportConnection.getSoftwareManager().getConfiguration(w);

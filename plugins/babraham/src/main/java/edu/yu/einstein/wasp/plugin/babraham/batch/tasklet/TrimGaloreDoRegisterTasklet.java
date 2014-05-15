@@ -9,28 +9,19 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.BeforeStep;
-import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.LaunchManyJobsTasklet;
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
-import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
-import edu.yu.einstein.wasp.grid.work.GridResult;
-import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.model.Run;
-import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.plugin.babraham.batch.tasklet.jobparameters.TrimGaloreParameters;
 import edu.yu.einstein.wasp.plugin.babraham.software.TrimGalore;
-import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;

@@ -6,7 +6,6 @@ package edu.yu.einstein.wasp.plugin.babraham.software;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,6 +37,7 @@ import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.babraham.batch.tasklet.jobparameters.TrimGaloreParameters;
+import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqComparator;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqFileTypeAttribute;
@@ -249,6 +249,7 @@ public class TrimGalore extends SoftwarePackage {
         w.addCommand("rm -f " + fastqG.getId() + "_*_trim_counts.txt");
 
         int fileN = 0;
+        Sample library = sampleService.getLibrary(cellLibrary);
 
         while (fhi.hasNext()) {
             FileHandle fh = fhi.next();
@@ -256,6 +257,7 @@ public class TrimGalore extends SoftwarePackage {
             FileHandle newF = doFile(w, fileN++, fh, fastqG);
             fileTypeService.copyMetaByArea(fh, newF, FileTypeService.FILETYPE_AREA);
             fastqService.copyFastqFileHandleMetadata(fh, newF);
+            newF.setFileName(library.getName() + "_" + newF.getFileName());
             trimmed_fastq.add(newF);
 
             if (rs == 2) {
@@ -270,17 +272,24 @@ public class TrimGalore extends SoftwarePackage {
         }
 
         FileGroup resultFiles = new FileGroup();
-        resultFiles.setDescription("Trimmed FASTQ for cellLibrary " + cellLibrary.getId());
+        resultFiles.setSoftwareGeneratedBy(this);
+
+        for (SampleSource ss : fastqG.getSampleSources()) {
+            ss.getFileGroups().add(resultFiles);
+        }
+
+        
+        resultFiles.setDescription(library.getName() + " trimmed FASTQ files");
         resultFiles.setFileType(fastqService.getFastqFileType());
-        HashSet<FileGroup> derivedFrom = new HashSet<FileGroup>();
-        derivedFrom.add(fastqG);
-        resultFiles.setDerivedFrom(derivedFrom);
+        resultFiles.getDerivedFrom().add(fastqG);
         resultFiles.setFileHandles(trimmed_fastq);
         fileService.addFileGroup(resultFiles);
         fastqService.copyFastqFileGroupMetadata(fastqG, resultFiles);
         fileTypeService.addAttribute(resultFiles, FastqFileTypeAttribute.TRIMMED);
-        
+
         w.getResultFiles().add(resultFiles);
+
+        fastqG.setIsActive(0);
 
         return w;
     }
@@ -299,13 +308,13 @@ public class TrimGalore extends SoftwarePackage {
             prefix = "_trimmed";
         }
         String trimmedName = fileHandle.getFileName().replace(".fastq.gz", prefix + ".fq.gz");
-        w.addCommand("ln -s ${" + WorkUnit.OUTPUT_FILE + "[" + fileNumber + "]} " + trimmedName);
+        w.addCommand("ln -s " + trimmedName + " ${" + WorkUnit.OUTPUT_FILE + "[" + fileNumber + "]} ");
         return createResultFile(fileHandle, trimmedName);
     }
 
     private String sortCommand(Integer fileId, Integer readSegment) {
         String filePrefix = fileId + "_" + readSegment;
-        return "sort -nk1,1 " + filePrefix + "_[0-9]+_trim_counts.txt | awk '{if (! a[$1]> 0) { a[$1]==0; b[$1]==0; c[$1]==0 }; "
+        return "sort -nk1,1 " + filePrefix + "_trim_counts.txt | awk '{if (! a[$1]> 0) { a[$1]==0; b[$1]==0; c[$1]==0 }; "
                 + "a[$1]+=$2;b[$1]+=$3;c[$1]=$4;}END{for (i in a) { print i \"\\t\" a[i] \"\\t\" b[i] \"\\t\" c[i] } }' | " + "sort -nk1,1 > " + filePrefix
                 + "_sum_trim_counts.txt";
     }

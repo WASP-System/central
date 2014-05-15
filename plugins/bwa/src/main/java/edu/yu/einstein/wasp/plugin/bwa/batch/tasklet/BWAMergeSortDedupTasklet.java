@@ -105,7 +105,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 
 		Map<String,Object> jobParameters = context.getStepContext().getJobParameters();
 		boolean markDuplicates = false;
-		if (jobParameters.containsKey("markDuplicates") && jobParameters.get("markDuplicates").equals("yes"))
+		if (!jobParameters.containsKey("markDuplicates") || jobParameters.get("markDuplicates").equals("yes"))
 			markDuplicates = true;
 		
 		WorkUnit w = new WorkUnit();
@@ -211,7 +211,10 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
 		Integer bamGId = stepExecutionContext.getInt("bamGID");
 		Integer baiGId = stepExecutionContext.getInt("baiGID");
-		Integer metricsGId = stepExecutionContext.getInt("metricsGID");
+		
+		Integer metricsGId = null; 
+		if (stepExecutionContext.containsKey("metricsGID"))
+		        metricsGId = stepExecutionContext.getInt("metricsGID");
 		
 		// register .bam and .bai file groups as active to make them available to views
 		if (bamGId != null)

@@ -13,10 +13,12 @@ import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
+import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
@@ -26,6 +28,7 @@ import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.bwa.software.BWABacktrackSoftwareComponent;
+import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqFileTypeAttribute;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
@@ -58,6 +61,10 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
 	private FileType fastqFileType;
 	
 	@Autowired
+	@Qualifier("fileTypeServiceImpl")
+	private FileTypeService fileTypeService;
+	
+	@Autowired
 	private BWABacktrackSoftwareComponent bwa;
 
 	public BWAalnTasklet() {
@@ -84,6 +91,17 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
 		logger.debug("Beginning BWA aln step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
 		
 		Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLib, fastqFileType);
+		
+		logger.trace("obtained fastq file groups of size " + fileGroups.size());
+		
+		if (fileGroups.size() != 1) {
+		    for (FileGroup fg : fileGroups) {
+		        if (!fileTypeService.hasAttribute(fg, FastqFileTypeAttribute.TRIMMED)) {
+		            logger.trace("Removing untrimmed file group " + fg.getId());
+		            fileGroups.remove(fg);
+		        }
+		    }
+		}
 		
 		Assert.assertTrue(fileGroups.size() == 1);
 		FileGroup fg = fileGroups.iterator().next();
