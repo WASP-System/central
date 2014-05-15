@@ -515,9 +515,9 @@ function click(d) {
 							title: fp.title,
 							//tools: extPortal.getTools(),
 							//frame: false,
-							closable: fp.isClosable,
-							collapsible: fp.isResizable,
-							maximizable: fp.isMaximizable,
+							closable: fp.closable,
+							collapsible: fp.resizable,
+							maximizable: fp.maximizable,
 							draggable: false,
 							items: filePanel
 						}]
@@ -644,9 +644,9 @@ function click(d) {
 							if (item1.type=="WebPanel") {
 								ptlcolArray[colid++].add({
 									title: item1.title,
-									tools: extPortal.getTools(item1.isMaximizable),
-									closable: item1.isCloseable,
-									collapsible: item1.isResizable,
+									tools: extPortal.getTools(item1.maximizable),
+									closable: item1.closeable,
+									collapsible: item1.resizable,
 									html: item1.content.htmlCode,
 									listeners: {
 										'render': Ext.bind(new Function("portlet", item1.execOnRenderCode), extPortal),
@@ -684,9 +684,9 @@ function click(d) {
 								
 								ptlcolArray[colid++].add({
 									title: item1.title,
-									tools: extPortal.getTools(item1.isMaximizable),
-									closable: item1.isCloseable,
-									collapsible: item1.isResizable,
+									tools: extPortal.getTools(item1.maximizable),
+									closable: item1.closeable,
+									collapsible: item1.resizable,
 									
 									items: gridPanel
 								});
