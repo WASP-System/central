@@ -65,9 +65,10 @@ public abstract class AbstractGatkTasklet extends WaspRemotingTasklet {
 	
 	protected String scratchDirectory;
 
-	public AbstractGatkTasklet(String inputFilegroupIds, String outputFilegroupIds) {
+	public AbstractGatkTasklet(String inputFilegroupIds, String outputFilegroupIds, Integer jobId) {
 		this.inputFilegroupIds = getModelIdsFromCommaDelimitedString(inputFilegroupIds);
 		this.outputFilegroupIds = getModelIdsFromCommaDelimitedString(outputFilegroupIds);
+		this.jobId = jobId;
 		logger.trace("setting inputFilegroupIds=" + inputFilegroupIds);
 		logger.trace("setting outputFilegroupIds=" + outputFilegroupIds);
 	}

@@ -33,8 +33,8 @@ public class SplitAndAnnotateVcfTasklet extends AbstractGatkTasklet {
 	
 	private String sampleIdentifierSet;
 	
-	public SplitAndAnnotateVcfTasklet(String inputFilegroupIds, String outputFilegroupIds, String sampleIdentifierSet) {
-		super(inputFilegroupIds, outputFilegroupIds);
+	public SplitAndAnnotateVcfTasklet(String inputFilegroupIds, String outputFilegroupIds, String sampleIdentifierSet, Integer jobId) {
+		super(inputFilegroupIds, outputFilegroupIds, jobId);
 		this.sampleIdentifierSet = sampleIdentifierSet;
 	}
 	

@@ -27,8 +27,8 @@ public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
 	
 	private static Logger logger = LoggerFactory.getLogger(MergeSampleBamFilesTasklet.class);
 	
-	public MergeSampleBamFilesTasklet(String inputFilegroupIds, String outputFilegroupIds) {
-		super(inputFilegroupIds, outputFilegroupIds);
+	public MergeSampleBamFilesTasklet(String inputFilegroupIds, String outputFilegroupIds, Integer jobId) {
+		super(inputFilegroupIds, outputFilegroupIds, jobId);
 	}
 	
 	@Override

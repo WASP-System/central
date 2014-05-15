@@ -3,8 +3,10 @@ package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jetty.util.statistic.SampleStatistic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.LaunchManyJobsTasklet;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
@@ -84,7 +87,11 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 		Map<Sample, LinkedHashSet<SampleSource>> sampleCellLibraries = new HashMap<>();
 		LinkedHashSet<FileGroup> temporaryFileSet = new LinkedHashSet<>();
 		try {
-			for (SampleSource cl: sampleService.getCellLibrariesThatPassedQCForJob(job)){
+			List<SampleSource> cellLibraries = sampleService.getCellLibrariesThatPassedQCForJob(job);
+			logger.debug("Cell libraries passing QC to process " + cellLibraries.size());
+			if (cellLibraries.isEmpty())
+				throw new WaspRuntimeException("Unable to run GATK as no cell-libraries to process");
+			for (SampleSource cl: cellLibraries){
 				Sample sample = sampleService.getLibrary(cl);
 				while (sample.getParent() != null)
 					sample = sample.getParent();
@@ -93,6 +100,8 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 						sampleFileGroups.put(sample, new LinkedHashSet<FileGroup>());
 						sampleCellLibraries.put(sample, new LinkedHashSet<SampleSource>());
 					}
+					logger.debug("sample id=" + sample.getId() + " <- FileGroup id=" + fg.getId());
+					logger.debug("sample id=" + sample.getId() + " <- cellLibrary id=" + cl.getId());
 					sampleFileGroups.get(sample).add(fg);
 					sampleCellLibraries.get(sample).add(cl);
 				}
@@ -103,7 +112,12 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 		for (Sample sample: sampleFileGroups.keySet()){
 			LinkedHashSet<FileGroup> inputFileGroups = new LinkedHashSet<FileGroup>(sampleFileGroups.get(sample));
 			LinkedHashSet<FileGroup> outputFileGroups = new LinkedHashSet<>();
-			if (inputFileGroups.size() > 1){
+			if (inputFileGroups.size() <= 1){
+				logger.debug("Sample id=" + sample.getId() + ": has only " + inputFileGroups.size() + " file group. No merge required");
+				if (inputFileGroups.size() == 1)
+					passThroughSampleFileGroupsForNextStep.put(sample, sampleFileGroups.get(sample).iterator().next());
+			} else{
+				logger.debug("Sample id=" + sample.getId() + ": going to merge " + inputFileGroups.size() + " file groups.");
 				Map<String, String> jobParameters = new HashMap<>();
 				String bamOutput = fileService.generateUniqueBaseFileName(sample) + "gatk_preproc_merged_dedup.bam";
 				String baiOutput = fileService.generateUniqueBaseFileName(sample) + "gatk_preproc_merged_dedup.bai";
@@ -146,9 +160,9 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 				metricsG.addFileHandle(metrics);
 				metricsG.setFileType(textFileType);
 				metricsG.setDescription(metricsOutput);
-				metricsG.setSoftwareGeneratedBy(gatk);
+				baiG.setSoftwareGeneratedById(gatk.getId());
 				metricsG = fileService.addFileGroup(metricsG);
-				metricsG.setSampleSources(sampleCellLibraries.get(sample));
+				metricsG.addDerivedFrom(bamG);
 				outputFileGroups.add(metricsG);
 				temporaryFileSet.addAll(outputFileGroups);
 				jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
@@ -160,9 +174,7 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 				} catch (WaspMessageBuildingException e) {
 					e.printStackTrace();
 				}
-			} else {
-				passThroughSampleFileGroupsForNextStep.put(sample, sampleFileGroups.get(sample).iterator().next()); // should be no more than 1 entry
-			}
+			} 
 		}
 		// put files needed for next step into step execution context to be promoted to job context
 		getStepExecution().getExecutionContext().put("mergedSampleFgMap", AbstractGatkTasklet.getSampleFgMapAsJsonString(mergedSampleFileGroupsForNextStep));

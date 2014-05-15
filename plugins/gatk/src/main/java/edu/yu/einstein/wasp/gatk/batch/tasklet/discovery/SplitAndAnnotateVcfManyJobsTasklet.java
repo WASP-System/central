@@ -83,6 +83,7 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 		// corresponding to the result of haplotype calling and combined genotyping for each bam file input 
 		// i.e. split out the merged vcf which was the output of cohort-level genotyping.
 		Map<FileGroup, LinkedHashSet<Sample>> fgSamplesMapUsedForVarCalling = new HashMap<>();
+		logger.debug("Getting FileGroup ids passed in from previous step");
 		if (jobExecutionContext.containsKey("fgSamplesMap"))
 			fgSamplesMapUsedForVarCalling.putAll(AbstractGatkTasklet.getFgSamplesMapFromJsonString(jobExecutionContext.getString("fgSamplesMap"), sampleService, fileService));
 		

@@ -41,8 +41,8 @@ public class CallVariantsWithUGTasklet extends AbstractGatkTasklet implements St
 	private StrategyService strategyService;
 
 
-	public CallVariantsWithUGTasklet(String inputFilegroupIds, String outputFilegroupIds) {
-		super(inputFilegroupIds, outputFilegroupIds);
+	public CallVariantsWithUGTasklet(String inputFilegroupIds, String outputFilegroupIds, Integer jobId) {
+		super(inputFilegroupIds, outputFilegroupIds, jobId);
 	}
 
 	@Override

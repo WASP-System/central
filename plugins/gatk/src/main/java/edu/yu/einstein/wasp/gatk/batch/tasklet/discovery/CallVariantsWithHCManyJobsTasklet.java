@@ -67,6 +67,7 @@ public class CallVariantsWithHCManyJobsTasklet extends LaunchManyJobsTasklet {
 		Assert.assertTrue(job.getId() > 0);
 		Map<FileGroup, Set<Sample>> allFgSamplesIn = new HashMap<>();
 		ExecutionContext jobExecutionContext = this.getStepExecution().getJobExecution().getExecutionContext();
+		logger.debug("Getting FileGroup ids passed in from previous step");
 		if (jobExecutionContext.containsKey("fgSamplesMap"))
 			allFgSamplesIn.putAll(AbstractGatkTasklet.getFgSamplesMapFromJsonString(jobExecutionContext.getString("fgSamplesMap"), sampleService, fileService));
 		LinkedHashSet<FileGroup> fileGroupsForNextStep = new LinkedHashSet<>();

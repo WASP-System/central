@@ -80,6 +80,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 		Map<Sample, FileGroup> allFgIn = new HashMap<>();
 		LinkedHashSet<FileGroup> temporaryFileSet = new LinkedHashSet<>();
 		ExecutionContext jobExecutionContext = this.getStepExecution().getJobExecution().getExecutionContext();
+		logger.debug("Getting FileGroup ids passed in from previous step");
 		if (jobExecutionContext.containsKey("temporaryFileSet"))
 			temporaryFileSet = AbstractGatkTasklet.getFileGroupsFromCommaDelimitedString(jobExecutionContext.getString("temporaryFileSet"), fileService);
 		if (jobExecutionContext.containsKey("mergedSampleFgMap"))
@@ -95,6 +96,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			LinkedHashSet<FileGroup> outputFileGroups = new LinkedHashSet<>();
 			Sample test = sampleService.getTestSample(samplePair);
 			Sample control = sampleService.getControlSample(samplePair);
+			logger.debug("handling sample pair: test id=" + test.getId() + " and control id=" + control.getId());
 			processedSamples.add(test);
 			processedSamples.add(control);
 			FileGroup testFgIn = fileService.getFileGroupById(allFgIn.get(test).getId());

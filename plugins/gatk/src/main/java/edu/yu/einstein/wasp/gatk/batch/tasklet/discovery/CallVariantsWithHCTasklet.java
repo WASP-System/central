@@ -41,8 +41,8 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 	@Autowired
 	private StrategyService strategyService;
 	
-	public CallVariantsWithHCTasklet(String inputFilegroupIds, String outputFilegroupIds) {
-		super(inputFilegroupIds, outputFilegroupIds);
+	public CallVariantsWithHCTasklet(String inputFilegroupIds, String outputFilegroupIds, Integer jobId) {
+		super(inputFilegroupIds, outputFilegroupIds, jobId);
 	}
 
 	@Override
