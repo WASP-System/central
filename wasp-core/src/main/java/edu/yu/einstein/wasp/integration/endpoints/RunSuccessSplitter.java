@@ -87,11 +87,6 @@ public class RunSuccessSplitter extends WaspAbstractMessageSplitter{
 		for (SampleSource cellLibrary :  cellLibraries){
 			// send message to initiate job processing
 			Job job = sampleService.getJobOfLibraryOnCell(cellLibrary);
-			Build build = genomeService.getGenomeBuild(cellLibrary);
-			if (build == null) {
-			    logger.warn("Genome for cellLibrary " + cellLibrary.getId() + " is null");
-			    continue;
-			}
 			    
 			Map<String, String> jobParameters = new HashMap<String, String>();
 			jobParameters.put(WaspJobParameters.CELL_LIBRARY_ID, cellLibrary.getId().toString());

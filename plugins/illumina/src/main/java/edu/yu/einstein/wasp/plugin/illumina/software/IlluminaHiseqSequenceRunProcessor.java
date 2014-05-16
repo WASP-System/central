@@ -74,7 +74,7 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 	public static final String ILLUMINA_DATA_STAGE_NAME = "illumina.data.stage";
 	
 	public IlluminaHiseqSequenceRunProcessor(){
-		setSoftwareVersion("1.8.2"); // this default may be overridden in wasp.site.properties
+		setSoftwareVersion("1.8.4"); // this default may be overridden in wasp.site.properties
 	}
 
 	/**
