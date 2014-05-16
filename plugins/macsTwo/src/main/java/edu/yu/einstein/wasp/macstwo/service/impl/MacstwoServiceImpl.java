@@ -235,7 +235,7 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 				Integer totalCountMappedReads = Integer.valueOf(totalCountMappedReadsAsString);
 				Integer totalCountMappedReadsInPeaks = Integer.valueOf(totalCountMappedReadsInPeaksAsString);
 				Double frip = (double) totalCountMappedReadsInPeaks / totalCountMappedReads;
-				DecimalFormat myFormat = new DecimalFormat("0.000");
+				DecimalFormat myFormat = new DecimalFormat("0.00000");
 				String formatedFrip = myFormat.format(frip);
 				value = totalCountMappedReadsInPeaks.toString() + " / " + totalCountMappedReads + " = " + formatedFrip.toString();
 			}

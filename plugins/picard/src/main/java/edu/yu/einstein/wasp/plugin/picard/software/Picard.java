@@ -6,6 +6,7 @@ package edu.yu.einstein.wasp.plugin.picard.software;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.DecimalFormat;
 import java.util.Set;
 
 import org.json.JSONObject;
@@ -17,9 +18,8 @@ import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
-import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.plugin.picard.service.PicardService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 
@@ -31,7 +31,7 @@ public class Picard extends SoftwarePackage{
 	private static final long serialVersionUID = 6817018170220888568L;
 	
 	@Autowired
-	SampleService sampleService;
+	PicardService picardService;
 	
 	public Picard() {}
 	
@@ -147,11 +147,17 @@ public class Picard extends SoftwarePackage{
 		w.setProcessMode(ProcessMode.SINGLE);
 		String UNPAIRED_READS_EXAMINED = "";
 		String READ_PAIRS_EXAMINED	= "";
+		String MAPPED_READS = "";//derived: UNPAIRED_READS_EXAMINED + READ_PAIRS_EXAMINED
 		String UNMAPPED_READS = "";
+		String TOTAL_READS = "";//derived: MAPPED_READS + UNMAPPED_READS
+		String FRACTION_MAPPED = "";//derived: MAPPED_READS / TOTAL_READS
 		String UNPAIRED_READ_DUPLICATES	= "";
 		String READ_PAIR_DUPLICATES	= "";
+		String DUPLICATED_READS = "";//derived: UNPAIRED_READ_DUPLICATES +  READ_PAIR_DUPLICATES (these are mapped duplicates!)
 		String READ_PAIR_OPTICAL_DUPLICATES = "";
-		String PERCENT_DUPLICATION = "";			
+		String PERCENT_DUPLICATION = "";//this value is really a fraction, so store in FRACTION_DUPLICATED
+		String FRACTION_DUPLICATED = "";//identical to PERCENT_DUPLICATION, just provided with a more descriptive name
+		
 		JSONObject json = new JSONObject();
 		
 		try {
@@ -187,10 +193,37 @@ public class Picard extends SoftwarePackage{
 					READ_PAIR_OPTICAL_DUPLICATES = stringArray[6];
 					json.put("readPairOpticalDuplicates", READ_PAIR_OPTICAL_DUPLICATES);
 					PERCENT_DUPLICATION = stringArray[7];
-					json.put("percentDuplication", PERCENT_DUPLICATION);
-					logger.debug("dedupMetrics:  =  UNPAIRED_READS_EXAMINED: " + UNPAIRED_READS_EXAMINED + "; READ_PAIRS_EXAMINED: " + READ_PAIRS_EXAMINED + "; UNMAPPED_READS_String: "+ UNMAPPED_READS + "; UNPAIRED_READ_DUPLICATES: "+ UNPAIRED_READ_DUPLICATES + "; READ_PAIR_DUPLICATES: "+ READ_PAIR_DUPLICATES + "; READ_PAIR_OPTICAL_DUPLICATES: "+ READ_PAIR_OPTICAL_DUPLICATES + "; PERCENT_DUPLICATION_String: "+ PERCENT_DUPLICATION);
-					logger.debug("dedupMetrics via json.toString():  =  " + json.toString());
-					sampleService.setLibraryOnCellMeta(cellLib, "picard", "dedupMetrics", json.toString());
+					FRACTION_DUPLICATED = PERCENT_DUPLICATION;
+					json.put("fractionDuplicated", FRACTION_DUPLICATED);
+					logger.debug("dedupMetrics:  =  UNPAIRED_READS_EXAMINED: " + UNPAIRED_READS_EXAMINED + "; READ_PAIRS_EXAMINED: " + READ_PAIRS_EXAMINED + "; UNMAPPED_READS: "+ UNMAPPED_READS + "; UNPAIRED_READ_DUPLICATES: "+ UNPAIRED_READ_DUPLICATES + "; READ_PAIR_DUPLICATES: "+ READ_PAIR_DUPLICATES + "; READ_PAIR_OPTICAL_DUPLICATES: "+ READ_PAIR_OPTICAL_DUPLICATES + "; PERCENT_DUPLICATION: "+ PERCENT_DUPLICATION + "; FRACTION_DUPLICATED: "+ FRACTION_DUPLICATED);
+					
+					//work up derived values
+					Integer mappedReads_integer = Integer.valueOf(UNPAIRED_READS_EXAMINED) + Integer.valueOf(READ_PAIRS_EXAMINED);
+					MAPPED_READS = mappedReads_integer.toString();
+					json.put("mappedReads", MAPPED_READS);
+					Integer unmappedReads_integer = Integer.valueOf(UNMAPPED_READS);
+					Integer totalReads_integer = mappedReads_integer + unmappedReads_integer;
+					TOTAL_READS = totalReads_integer.toString();
+					json.put("totalReads", TOTAL_READS);
+					
+					Double fractionMapped_double = 0.0;
+					FRACTION_MAPPED = fractionMapped_double.toString();
+					if(mappedReads_integer>0 && totalReads_integer>0){
+						fractionMapped_double = (double) mappedReads_integer / totalReads_integer;
+						DecimalFormat myFormat = new DecimalFormat("0.000000");
+						FRACTION_MAPPED = myFormat.format(fractionMapped_double);						
+					}					
+					json.put("fractionMapped", FRACTION_MAPPED);
+					
+					Integer duplicatedReads_integer = Integer.valueOf(UNPAIRED_READ_DUPLICATES) + Integer.valueOf(READ_PAIR_DUPLICATES);
+					DUPLICATED_READS = duplicatedReads_integer.toString();
+					json.put("duplicatedReads", DUPLICATED_READS);
+					
+					logger.debug("Addiditial Derived dedupMetrics:  =  MAPPED_READS: " + MAPPED_READS + "; TOTAL_READS: " + TOTAL_READS + "; FRACTION_MAPPED: " + FRACTION_MAPPED + "; DUPLICATED_READS: " + DUPLICATED_READS);
+										
+					logger.debug("ALL dedupMetrics displayed via json.toString():  =  " + json.toString());
+					
+					picardService.setDedupMetrics(cellLib, json);
 					logger.debug("successfully saved the picard dedup metrics");
 				} 
 			}
