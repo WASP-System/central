@@ -57,7 +57,7 @@
 			<artifactId>wasp-daemon</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>edu.yu.einstein.wasp.plugin</groupId>
+			<groupId>edu.yu.einstein.wasp</groupId>
 			<artifactId>babraham</artifactId>
 		</dependency>
 		<dependency>

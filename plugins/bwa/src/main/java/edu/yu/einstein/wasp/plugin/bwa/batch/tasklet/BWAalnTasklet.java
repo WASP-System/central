@@ -61,10 +61,6 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
 	private FileType fastqFileType;
 	
 	@Autowired
-	@Qualifier("fileTypeServiceImpl")
-	private FileTypeService fileTypeService;
-	
-	@Autowired
 	private BWABacktrackSoftwareComponent bwa;
 
 	public BWAalnTasklet() {
@@ -96,7 +92,7 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
 		
 		if (fileGroups.size() != 1) {
 		    for (FileGroup fg : fileGroups) {
-		        if (!fileTypeService.hasAttribute(fg, FastqFileTypeAttribute.TRIMMED)) {
+		        if (!fastqService.hasAttribute(fg, FastqFileTypeAttribute.TRIMMED)) {
 		            logger.trace("Removing untrimmed file group " + fg.getId());
 		            fileGroups.remove(fg);
 		        }
