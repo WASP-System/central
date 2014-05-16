@@ -34,6 +34,7 @@ import edu.yu.einstein.wasp.plugin.bwa.software.BWABacktrackSoftwareComponent;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.BamFileTypeAttribute;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqComparator;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
+import edu.yu.einstein.wasp.plugin.mps.grid.software.Samtools;
 import edu.yu.einstein.wasp.plugin.picard.software.Picard;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -91,6 +92,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
 		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
 		Picard picard = (Picard) bwa.getSoftwareDependencyByIname("picard");
+		Samtools samtools = (Samtools) bwa.getSoftwareDependencyByIname("samtools");
 		
 		// retrieve attributes persisted in jobExecutionContext
 		String scratchDirectory = jobExecutionContext.get("scrDir").toString();
@@ -196,6 +198,8 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 			String dedupMetricsFilename = "${" + WorkUnit.OUTPUT_FILE + "[2]}";
 			w.addCommand(picard.getMergeBamCmd("*.out.sam", tempMergedBamFilename, null, MEMORY_GB_4));
 			w.addCommand(picard.getMarkDuplicatesCmd(tempMergedBamFilename, outputBamFilename, outputBaiFilename, dedupMetricsFilename, MEMORY_GB_4));
+			w.addCommand("samtools view -c -F 0x104 -q 1 " + outputBamFilename + " > mappedUniquelyAlignedWithDuplicatesReadCount.txt");
+			w.addCommand("samtools view -c -F 0x504 -q 1 " + outputBamFilename + " > mappedUniquelyAlignedWithoutDuplicatesReadCount.txt");
 		} else {
 			w.addCommand(picard.getMergeBamCmd("*.out.sam", outputBamFilename, outputBaiFilename, MEMORY_GB_4));
 		}	
