@@ -20,11 +20,11 @@ public class Panel {
 	
 	private Integer order;
 	
-	private boolean isResizable = false;
+	private boolean resizable = false;
 	
-	private boolean isMaximizable = true;
+	private boolean maximizable = true;
 	
-	private boolean isCloseable = false;
+	private boolean closeable = false;
 	
 	public Panel() {}
 	
@@ -34,16 +34,16 @@ public class Panel {
 	}
 
 	public Panel(String title, String description, Integer width, Integer height, Integer order, Content content,
-			boolean isResizable, boolean isMaximizable, boolean isCloseable) {
+			boolean resizable, boolean maximizable, boolean closeable) {
 		this.title = title;
 		this.description = description;
 		this.width = width;
 		this.height = height;
 		this.order = order;
 		this.content = content;
-		this.isResizable = isResizable;
-		this.isMaximizable = isMaximizable;
-		this.isCloseable = isCloseable;
+		this.resizable = resizable;
+		this.maximizable = maximizable;
+		this.closeable = closeable;
 	}
 
 	public Panel(String title, String description, Integer width, Integer height, Content content) {
@@ -103,27 +103,27 @@ public class Panel {
 	}
 
 	public boolean isResizable() {
-		return isResizable;
+		return resizable;
 	}
 
-	public void setResizable(boolean isResizable) {
-		this.isResizable = isResizable;
+	public void setResizable(boolean resizable) {
+		this.resizable = resizable;
 	}
 
 	public boolean isMaximizable() {
-		return isMaximizable;
+		return maximizable;
 	}
 
-	public void setMaximizable(boolean isMaximizable) {
-		this.isMaximizable = isMaximizable;
+	public void setMaximizable(boolean maximizable) {
+		this.maximizable = maximizable;
 	}
 
 	public boolean isCloseable() {
-		return isCloseable;
+		return closeable;
 	}
 
-	public void setCloseable(boolean isCloseable) {
-		this.isCloseable = isCloseable;
+	public void setCloseable(boolean closeable) {
+		this.closeable = closeable;
 	}
 	
 

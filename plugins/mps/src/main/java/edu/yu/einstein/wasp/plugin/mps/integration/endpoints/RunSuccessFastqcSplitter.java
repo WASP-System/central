@@ -22,6 +22,7 @@ import edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTempl
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqFileTypeAttribute;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.RunService;
@@ -78,9 +79,9 @@ public class RunSuccessFastqcSplitter extends AbstractMessageSplitter {
 		Set<SampleSource> cellLibraries = runService.getCellLibrariesOnSuccessfulRunCells(run);
 		
 		for (SampleSource cellLib : cellLibraries) {
-			Set<FileGroup> fgs = fileService.getFilesForCellLibrary(cellLib);
+			Set<FileGroup> fgs = fileService.getFilesForCellLibraryByType(cellLib, fastqService.getFastqFileType());
 			for (FileGroup fg : fgs) {
-				if (fg.getFileType().equals(fastqService.getFastqFileType())) {
+				if (fastqService.hasAttribute(fg, FastqFileTypeAttribute.TRIMMED)) {
 					FileStatusMessageTemplate messageTemplate = new FileStatusMessageTemplate(fg.getId());
 					messageTemplate.setStatus(WaspStatus.CREATED);
 					try {

@@ -103,6 +103,7 @@ public class SoftwareLoaderAndFactory<T extends SoftwarePackage> extends WaspRes
 	@PostConstruct
 	public void init(){
 		software = softwareLoadService.update(resourceType, meta, iname, name, description, version, softwareDependencies, isActive, clazz);
+		software.setApplicationContext(ctx);
 	}
 
 	@Override

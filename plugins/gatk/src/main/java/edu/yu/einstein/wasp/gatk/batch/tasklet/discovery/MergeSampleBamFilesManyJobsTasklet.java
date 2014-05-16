@@ -83,7 +83,7 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 		try {
 			for (SampleSource cl: sampleService.getCellLibrariesThatPassedQCForJob(job)){
 				Sample sample = sampleService.getLibrary(cl);
-				if (sample.getParent() != null)
+				while (sample.getParent() != null)
 					sample = sample.getParent();
 				for (FileGroup fg : fileService.getFilesForCellLibraryByType(cl, bamFileType, gatkService.getCompleteGatkPreprocessBamFileAttributeSet(), true)){
 					if (!sampleFileGroups.containsKey(sample)){
@@ -130,8 +130,7 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 				baiG.setDescription(baiOutput);
 				baiG.setSoftwareGeneratedById(gatk.getId());
 				baiG = fileService.addFileGroup(baiG);
-				baiG.setDerivedFrom(inputFileGroups);
-				baiG.setSampleSources(sampleCellLibraries.get(sample));
+				baiG.addDerivedFrom(bamG);
 				outputFileGroups.add(baiG);
 				
 				String metricsOutput = fileService.generateUniqueBaseFileName(sample) + "gatk_preproc_merged_dedupMetrics.txt";

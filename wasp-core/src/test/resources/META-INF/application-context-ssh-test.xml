@@ -11,11 +11,11 @@
 	<context:property-placeholder ignore-unresolvable="true"/>
 
 	<bean id="sshTransportConnection" class="edu.yu.einstein.wasp.grid.work.SshTransportConnection" scope="prototype" lazy-init="false">
-		<property name="hostName" value="dublin.aecom.yu.edu" />
+		<property name="hostName" value="c3.einstein.yu.edu" />
 		<property name="userName" value="wasp" />
 		<property name="identityFileName" value="~/.ssh/id_rsa.testing" />
 		<property name="softwareManager" ref="waspSoftwareManager" />
-		<property name="name" value="dublin" />
+		<property name="name" value="c3" />
 		<property name="userDirIsRoot" value="true" />
 		<property name="localProperties" ref="testProperties" />
 	</bean>
@@ -40,7 +40,7 @@
 	<bean id="testProperties" class="java.util.Properties">
 		<constructor-arg>
 			<props>
-				<prop key="frankfurt.settings.metadata.root">/metadata</prop>
+				<prop key="c3.settings.metadata.root">/metadata</prop>
 			</props>
 		</constructor-arg>
 	</bean>

@@ -9,6 +9,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+
 import edu.yu.einstein.wasp.grid.work.SoftwareManager;
 import edu.yu.einstein.wasp.model.Software;
 
@@ -16,13 +20,15 @@ import edu.yu.einstein.wasp.model.Software;
  * @author calder
  *
  */
-public class SoftwarePackage extends Software {
+public class SoftwarePackage extends Software implements ApplicationContextAware {
 	
 	private static final long serialVersionUID = 522863647514139874L;
 	
 	protected String softwareVersion;
 	
 	private Map<String, SoftwarePackage> softwareDependencies = new HashMap<>();
+	
+	private ApplicationContext context;
 
 	/**
 	 * A unique name for the software component. Can be overridden at the configuration level 
@@ -73,6 +79,27 @@ public class SoftwarePackage extends Software {
 			return null;
 		return softwareDependencies.get(iname);
 	}
+
+    /** 
+     * ApplicationContextAware is not automatically called in this context, rather by the SoftwareLoaderAndFactory Bean.
+     * {@inheritDoc}
+     */
+    @Override
+    public void setApplicationContext(ApplicationContext arg0) throws BeansException {
+        this.context = arg0;
+        logger.debug("set application context in " + this.getIName());
+    }
+    
+    /**
+     * returns the application context.  Developers should prefer to use the Autowired mechanism, however
+     * this mechanism is implemented in the case that Tasklets generated at runtime need access to a bean
+     * and can get the bean by name.
+     * 
+     * @return
+     */
+    public ApplicationContext getApplicationContext() {
+        return context;
+    }
 	
 	
 }

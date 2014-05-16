@@ -36,9 +36,9 @@ import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemp
 @Transactional
 public class ListenForStatusTasklet extends WaspHibernatingTasklet implements MessageHandler {
 	
-	private static final Logger logger = LoggerFactory.getLogger(ListenForStatusTasklet.class);
+	protected static final Logger logger = LoggerFactory.getLogger(ListenForStatusTasklet.class);
 	
-	private Set<WaspStatusMessageTemplate> messageTemplates = new HashSet<>();
+	protected Set<WaspStatusMessageTemplate> messageTemplates = new HashSet<>();
 	
 	private String failOnStatuses = "";
 	

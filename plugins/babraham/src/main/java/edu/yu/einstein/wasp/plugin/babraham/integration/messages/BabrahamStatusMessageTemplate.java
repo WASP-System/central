@@ -16,25 +16,25 @@ import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemp
  */
 public class BabrahamStatusMessageTemplate extends SimpleBabrahamStatusMessageTemplate {
 	
-	public BabrahamStatusMessageTemplate(Integer fileGroupId) {
+	public BabrahamStatusMessageTemplate(Integer id) {
 		super();
-		setFileGroupId(fileGroupId);
+		setId(id);
 	}
 	
 	public BabrahamStatusMessageTemplate(Message<WaspStatus> message){
 		super(message);
 		if (!isMessageOfCorrectType(message))
 			throw new WaspMessageInitializationException("message is not of the correct type");
-		if (message.getHeaders().containsKey(WaspJobParameters.FILE_GROUP_ID))
-			setFileGroupId((Integer) message.getHeaders().get(WaspJobParameters.FILE_GROUP_ID));
+		if (message.getHeaders().containsKey(WaspJobParameters.ID))
+			setId((Integer) message.getHeaders().get(WaspJobParameters.ID));
 	}
 
-	public Integer getFileGroupId() {
-		return (Integer) getHeader(WaspJobParameters.FILE_GROUP_ID);
+	public Integer getId() {
+		return (Integer) getHeader(WaspJobParameters.ID);
 	}
 
-	public void setFileGroupId(Integer fileGroupId) {
-		addHeader(WaspJobParameters.FILE_GROUP_ID, fileGroupId);
+	public void setId(Integer id) {
+		addHeader(WaspJobParameters.ID, id);
 	}
 
 	
@@ -46,8 +46,8 @@ public class BabrahamStatusMessageTemplate extends SimpleBabrahamStatusMessageTe
 	public boolean actUponMessage(Message<?> message) {
 		String task = (String) getHeader(WaspJobTask.HEADER_KEY);
 		if (task == null)
-			return actUponMessage(message, getFileGroupId());
-		return actUponMessage(message, getFileGroupId(), task);
+			return actUponMessage(message, getId());
+		return actUponMessage(message, getId(), task);
 	}
 	
 	/**
@@ -57,8 +57,8 @@ public class BabrahamStatusMessageTemplate extends SimpleBabrahamStatusMessageTe
 	public boolean actUponMessageIgnoringTask(Message<?> message) {
 		String task = (String) getHeader(WaspJobTask.HEADER_KEY);
 		if (task == null)
-			return actUponMessage(message, getFileGroupId());
-		return actUponMessage(message, getFileGroupId(), null);
+			return actUponMessage(message, getId());
+		return actUponMessage(message, getId(), null);
 	}
 
 	// Statics.........
@@ -71,11 +71,11 @@ public class BabrahamStatusMessageTemplate extends SimpleBabrahamStatusMessageTe
 	 * @param fileGroupId
 	 * @return
 	 */
-	public static boolean actUponMessage(Message<?> message, Integer fileGroupId) {
-		if (fileGroupId == null) {
+	public static boolean actUponMessage(Message<?> message, Integer id) {
+		if (id == null) {
 			return false;
-		} else if (fileGroupId != null && message.getHeaders().containsKey(WaspJobParameters.FILE_GROUP_ID) 
-				&& ((Integer) message.getHeaders().get(WaspJobParameters.FILE_GROUP_ID)).equals(fileGroupId)) {
+		} else if (id != null && message.getHeaders().containsKey(WaspJobParameters.ID) 
+				&& ((Integer) message.getHeaders().get(WaspJobParameters.ID)).equals(id)) {
 			return true;
 		}
 		return false;
@@ -89,8 +89,8 @@ public class BabrahamStatusMessageTemplate extends SimpleBabrahamStatusMessageTe
 	 * @param fileGroupId
 	 * @return
 	 */
-	public static boolean actUponMessage(Message<?> message, Integer fileGroupId, String task) {
-		if (!actUponMessage(message, fileGroupId))
+	public static boolean actUponMessage(Message<?> message, Integer id, String task) {
+		if (!actUponMessage(message, id))
 			return false;
 		if (task == null)
 			return true;
@@ -101,7 +101,7 @@ public class BabrahamStatusMessageTemplate extends SimpleBabrahamStatusMessageTe
 	
 	@Override
 	public BabrahamStatusMessageTemplate getNewInstance(WaspStatusMessageTemplate messageTemplate){
-		BabrahamStatusMessageTemplate newTemplate = new BabrahamStatusMessageTemplate(((BabrahamStatusMessageTemplate) messageTemplate).getFileGroupId());
+		BabrahamStatusMessageTemplate newTemplate = new BabrahamStatusMessageTemplate(((BabrahamStatusMessageTemplate) messageTemplate).getId());
 		copyCommonProperties(messageTemplate, newTemplate);
 		return newTemplate;
 	}

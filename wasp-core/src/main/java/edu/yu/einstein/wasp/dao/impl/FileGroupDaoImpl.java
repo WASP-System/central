@@ -67,6 +67,7 @@ public class FileGroupDaoImpl extends WaspDaoImpl<FileGroup> implements edu.yu.e
 		TypedQuery<FileGroup> fgq = getEntityManager()
 				.createQuery("SELECT DISTINCT fg from FileGroup as fg " +
 						"JOIN FETCH fg.sampleSources as cl " +
+				                "JOIN FETCH fg.fileHandles as fh " +
 						"WHERE cl = :cellLibrary AND fg.fileType = :fileType", FileGroup.class)
 				.setParameter("cellLibrary", cellLibrary)
 				.setParameter("fileType", fileType);

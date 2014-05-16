@@ -276,6 +276,7 @@ public class FileTypeServiceImpl extends WaspServiceImpl implements FileTypeServ
     public void copyMetaByArea(FileGroup origin, FileGroup target, String area) throws MetadataException {
         Map<String,String> meta = getAllMetaByArea(origin, area);
         for (String k : meta.keySet()) {
+            logger.trace("Copying " + target + ":" + area + ":" + k + ":" + meta.get(k));
             setMeta(target, area, k, meta.get(k));
         }
         
@@ -285,11 +286,9 @@ public class FileTypeServiceImpl extends WaspServiceImpl implements FileTypeServ
     public void copyMetaByArea(FileHandle origin, FileHandle target, String area) throws MetadataException {
         Map<String,String> meta = getAllMetaByArea(origin, area);
         for (String k : meta.keySet()) {
+            logger.trace("Copying " + target + ":" + area + ":" + k + ":" + meta.get(k));
             setMeta(target, area, k, meta.get(k));
         }
         
     }
-	
-	
-	
 }
