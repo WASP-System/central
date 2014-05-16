@@ -381,7 +381,7 @@ public class ResultViewController extends WaspController {
 					    statusArray[i][2] = status.toString();
 					    if (status.equals(Status.COMPLETED)){
 					    	PanelTab panelTab = plugin.getViewPanelTab(fg);
-					    	if (!panelTab.getPanels().isEmpty()){
+					    	if (panelTab!=null && !panelTab.getPanels().isEmpty()){
 						    	String tabId = "tab-" + (tabCount++).toString();
 						    	pluginPanelTabs.put(tabId, panelTab);
 						    	statusArray[i][3] = tabId;
