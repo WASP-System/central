@@ -35,4 +35,10 @@ public class SavR extends IlluminaSequenceRunSubProcessor {
         return retval;
                 
     }
+
+    @Override
+    public String getStageDirectoryName() {
+        logger.error("should use CASAVA stage directory, returning null");
+        return null;
+    }
 }

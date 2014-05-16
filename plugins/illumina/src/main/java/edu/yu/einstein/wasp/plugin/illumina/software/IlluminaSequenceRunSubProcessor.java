@@ -9,6 +9,6 @@ import edu.yu.einstein.wasp.plugin.mps.software.sequencer.SequenceRunProcessor;
  * @author calder
  *
  */
-public class IlluminaSequenceRunSubProcessor extends SequenceRunProcessor {
+public abstract class IlluminaSequenceRunSubProcessor extends SequenceRunProcessor {
 
 }

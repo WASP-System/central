@@ -15,13 +15,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.exception.GridException;
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.SoftwareManager;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
 import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy;
 import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
@@ -42,6 +45,8 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 	private int runId;
 	private Run run;
 	
+	private IndexingStrategy method;
+	
 	@Autowired
 	private GridHostResolver hostResolver;
 	
@@ -57,8 +62,14 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 	/**
 	 * 
 	 */
-	public PipelineTasklet(Integer runId) {
+	public PipelineTasklet(Integer runId, IndexingStrategy method) {
 		this.runId = runId;
+		if (! method.equals(IlluminaIndexingStrategy.TRUSEQ) && ! method.equals(IlluminaIndexingStrategy.TRUSEQ_DUAL)) {
+		    logger.error("unable to run illumina pipeline in mode " + method);
+		    throw new WaspRuntimeException("unknown illumina pipeline mode: " + method);
+		}
+		this.method = method;
+		logger.debug("PipelineTasklet with method type " + method);
 	}
 
 	
@@ -73,6 +84,18 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(casava);
 		
+		String outputFolder;
+		String sampleSheetName;
+		
+		if (method == IlluminaIndexingStrategy.TRUSEQ) {
+		    outputFolder = IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME;
+		    sampleSheetName = IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_SAMPLE_SHEET_NAME;
+		} else {
+		    outputFolder = IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME;
+		    sampleSheetName = IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_SAMPLE_SHEET_NAME;
+		}
+		
+		// TODO: handle single and dual situations.
 		
 		// creating a work unit this way sets the runID from the jobparameters
 		WorkUnit w = new WorkUnit();
@@ -93,9 +116,9 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 		w.setWorkingDirectory(dataDir + "/" + run.getName() 
 				+ "/Data/Intensities/BaseCalls/" );
 		
-		w.setResultsDirectory(dataDir + "/" + run.getName() + "/Unaligned");
+		w.setResultsDirectory(dataDir + "/" + run.getName() + "/" + outputFolder);
 		
-		w.setCommand(getConfigureBclToFastqString(sm, procs));
+		w.setCommand(getConfigureBclToFastqString(sm, procs, sampleSheetName, outputFolder));
 
 		GridResult result = gws.execute(w);
 		
@@ -105,7 +128,7 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 		storeStartedResult(context, result);
 	}
 	
-	private String getConfigureBclToFastqString(SoftwareManager sm, int proc) {
+	private String getConfigureBclToFastqString(SoftwareManager sm, int proc, String sampleSheetName, String outputFolder) {
 		String failed = sm.getConfiguredSetting("casava.with-failed-reads");
 		String mismatches = sm.getConfiguredSetting("casava.mismatches");
 		String missingStats = sm.getConfiguredSetting("casava.ignore-missing-stats");
@@ -113,23 +136,33 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 		String missingControl = sm.getConfiguredSetting("casava.ignore-missing-control");
 		String fastqNclusters = sm.getConfiguredSetting("casava.fastq-cluster-count");
 		
-		String retval = "if [ ! -e wasp_begin.txt ]; then\n";
+		String semaphore = sampleSheetName.equals(IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_SAMPLE_SHEET_NAME) ? 
+		        IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_SEMAPHORE : IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_SEMAPHORE;
 		
-		retval+=" loc=\"_pos.txt\"\n" + 
-				" if [ -e ../L001/s_1_1101.clocs ]; then\n" +
-				"  loc=.clocs\n" +
-				" elif [ -e ../L001/s_1_1101.locs ]; then\n" +
-				"  loc=.locs\n" +
-				" fi\n\n";
+		String retval = "if [ ! -e " + semaphore + " ]; then\n\n touch " + semaphore + "\n\n";
 		
-		retval += " configureBclToFastq.pl --force --positions-format ${loc} ";
+		// if the sample sheet is empty or only contains controls, don't prepare
+		retval += " nl=`awk '{if ( $0 !~ /^FCID,/ && $0 !~ /,Y,/ ) { print $0 } } ' " + sampleSheetName + " | wc -l`\n";
+		retval += " if [ $nl -ne 0 ]; then\n";
+		
+		retval+="  loc=\"_pos.txt\"\n" + 
+				"  if [ -e ../L001/s_1_1101.clocs ]; then\n" +
+				"   loc=.clocs\n" +
+				"  elif [ -e ../L001/s_1_1101.locs ]; then\n" +
+				"   loc=.locs\n" +
+				"  fi\n\n";
+		
+		retval += "  configureBclToFastq.pl --force --positions-format ${loc} --sample-sheet " + sampleSheetName + " --output-dir ../../../" + outputFolder + " ";
 		
 		if (PropertyHelper.isSet(failed) && failed == "true")
 			retval += "--with-failed-reads ";
 		if (PropertyHelper.isSet(mismatches)) {
 			int mm = new Integer(mismatches).intValue();
-			if (mm == 0 || mm == 1) 
+			if (mm == 0 || mm == 1) { 
 				retval += "--mismatches " + mm + " ";
+			} else {
+			    logger.warn("unknown bcl2fastq mismatch option: " + mm + ", using default");
+			}
 		}
 		if (PropertyHelper.isSet(missingStats) && missingStats == "true")
 			retval += "--ignore-missing-stats ";
@@ -142,9 +175,7 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 			retval += "--fastq-cluster-count " + fqc;
 		}
 		
-		retval += "\n\n touch wasp_begin.txt\n\n";
-		
-		retval += " cd ../../../Unaligned && make -j ${threads} \n\nfi\n\n";
+		retval += "\n  cd ../../../" + outputFolder + " && make -j ${threads} \n\n else\n  echo no cell libraries >&2\n fi\nelse\n echo semaphore exists >&2\nfi\n\n";
 
 		return retval;
 	}

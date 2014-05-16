@@ -15,6 +15,7 @@
 	
 	<int:service-activator input-channel="wasp.channel.plugin.fastqc" ref="fastqcPlugin" method="process" />
 	<int:service-activator input-channel="wasp.channel.plugin.fastqscreen" ref="fastqscreenPlugin" method="process" />
+	<int:service-activator input-channel="wasp.channel.plugin.trim_galore" ref="trim_galorePlugin" method="process" />
 
 	<bean id="fastqcPlugin" class="edu.yu.einstein.wasp.plugin.babraham.plugin.FastQCPlugin">
 		<constructor-arg name="iName" ref="fastQCArea" />
@@ -49,6 +50,25 @@
 		<property name="handles" >
 			<set>
 				<ref bean="fastQScreenArea" />
+				<value>#{fastqFileType.getIName()}</value>
+			</set>
+		</property>
+	</bean>
+	
+	<bean id="trim_galorePlugin" class="edu.yu.einstein.wasp.plugin.babraham.plugin.TrimGalorePlugin">
+		<constructor-arg name="iName" ref="trimGaloreArea" />
+		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.trim_galore" />
+		<property name="name" value="Trim Galore" />
+		<property name="description" value="Trim Galore! is a wrapper script to automate quality and adapter trimming as well as quality control, with some added functionality to remove biased methylation positions for RRBS sequence files." />
+		<property name="provides" >
+			<set>
+				<ref bean="trim_galore" />
+			</set>
+		</property>
+		<property name="handles" >
+			<set>
+				<ref bean="trimGaloreArea" />
 				<value>#{fastqFileType.getIName()}</value>
 			</set>
 		</property>

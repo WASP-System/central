@@ -25,6 +25,7 @@ import edu.yu.einstein.wasp.interfacing.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
+import edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy;
 import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
 import edu.yu.einstein.wasp.service.RunService;
 
@@ -88,7 +89,8 @@ public class WaspIlluminaHiseqPlugin extends WaspPlugin implements ClientMessage
 			return MessageBuilder.withPayload("Unable to determine run from message: " + m.getPayload().toString()).build();
 		String ss;
 		try {
-			ss = getCasava().getSampleSheet(run);
+		        // TODO: change to allow both sample sheet types
+			ss = getCasava().getSampleSheet(run, IlluminaIndexingStrategy.TRUSEQ);
 		} catch (Exception e) {
 			e.printStackTrace();
 			String err = "unable to create sample sheet for run " + run.getName();

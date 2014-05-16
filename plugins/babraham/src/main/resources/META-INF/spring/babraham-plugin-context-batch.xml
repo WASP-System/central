@@ -12,6 +12,8 @@
 
 	
 	<bean class="edu.yu.einstein.wasp.plugin.babraham.batch.service.impl.BabrahamBatchServiceImpl" />
+	
+	<!-- <bean class="edu.yu.einstein.wasp.plugin.babraham.software.TrimGalore" id="trim_galore" /> -->
 		
 	<!-- common definitions -->
 	<import resource="babraham-plugin-context-common.xml" />

@@ -12,7 +12,7 @@
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.plugin.babraham.integration.messages.BabrahamStatusMessageTemplate">
-							<constructor-arg name="fileGroupId" value="#{jobParameters[waspJobParameters.FILE_GROUP_ID]}" />
+							<constructor-arg name="id" value="#{jobParameters[waspJobParameters.FILE_GROUP_ID]}" />
 							<property name="task" value="#{babrahamBatchJobTask.FASTQC}" />
 							<property name="status" value="STARTED" />
 						</bean>
@@ -35,7 +35,7 @@
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.plugin.babraham.integration.messages.BabrahamStatusMessageTemplate">
-							<constructor-arg name="fileGroupId" value="#{jobParameters[waspJobParameters.FILE_GROUP_ID]}" />
+							<constructor-arg name="id" value="#{jobParameters[waspJobParameters.FILE_GROUP_ID]}" />
 							<property name="task" value="#{babrahamBatchJobTask.FASTQC}" />
 							<property name="status" value="COMPLETED" />
 						</bean>
