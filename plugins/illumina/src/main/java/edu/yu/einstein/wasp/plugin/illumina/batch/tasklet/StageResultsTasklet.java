@@ -56,6 +56,8 @@ public class StageResultsTasklet extends WaspRemotingTasklet {
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
+	    
+	    // TODO: this step is sensitive to an existing results folder
 
 		run = runService.getRunById(runId);
 
@@ -74,26 +76,52 @@ public class StageResultsTasklet extends WaspRemotingTasklet {
 		if (!PropertyHelper.isSet(stageDir))
 			throw new GridException("illumina.data.stage is not defined!");
 		
-		w.setWorkingDirectory(dataDir + "/" + run.getName() + "/Unaligned/");
+		w.setWorkingDirectory(dataDir + "/" + run.getName() + "/");
 		
 		w.setResultsDirectory(stageDir + "/" + run.getName());
 		
-		w.setCommand("mkdir -p ${WASP_RESULT_DIR}");
-		w.addCommand("cp -f *.xml ${WASP_RESULT_DIR}");
-		w.addCommand("cp -f ../RunInfo.xml ${WASP_RESULT_DIR}");
-		w.addCommand("cp -f ../Data/Intensities/BaseCalls/SampleSheet.csv ${WASP_RESULT_DIR}");
-		w.addCommand("cp -f *.txt ${WASP_RESULT_DIR}");
-		w.addCommand("cp -fR Project_* ${WASP_RESULT_DIR}");
-		w.addCommand("cp -fR Undetermined_indices ${WASP_RESULT_DIR}");
-		w.addCommand("mkdir -p ${WASP_RESULT_DIR}/reports/FWHM");
-		w.addCommand("mkdir -p ${WASP_RESULT_DIR}/reports/Intensity");
-		w.addCommand("mkdir -p ${WASP_RESULT_DIR}/reports/NumGT30");
-		w.addCommand("mkdir -p ${WASP_RESULT_DIR}/reports/ByCycle");
-		w.addCommand("cp -f ../Data/wasp-reports/*[^@].png ${WASP_RESULT_DIR}/reports");
-		w.addCommand("cp -f ../Data/wasp-reports/FWHM/*[^@].png ${WASP_RESULT_DIR}/reports/FWHM");
-		w.addCommand("cp -f ../Data/wasp-reports/Intensity/*[^@].png ${WASP_RESULT_DIR}/reports/Intensity");
-		w.addCommand("cp -f ../Data/wasp-reports/NumGT30/*[^@].png ${WASP_RESULT_DIR}/reports/NumGT30");
-		w.addCommand("cp -f ../Data/wasp-reports/ByCycle/*.png ${WASP_RESULT_DIR}/reports/ByCycle");
+		w.setCommand("mkdir -vp ${WASP_RESULT_DIR}/Project_WASP");
+		
+		// copy files from single barcode truseq run
+		w.addCommand("if [ -e " + IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/DemultiplexConfig.xml ]; then");
+		w.addCommand("mkdir -vp ${WASP_RESULT_DIR}/" + IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME);
+		w.addCommand("cp -vf " + IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/*.xml ${WASP_RESULT_DIR}/" + 
+		        IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/");
+		w.addCommand("cp -vf " + IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/*.txt ${WASP_RESULT_DIR}/" + 
+		        IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/");
+		w.addCommand("cp -vfR " + IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/Project_WASP/* ${WASP_RESULT_DIR}/Project_WASP/");
+		w.addCommand("if [ -e " + IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/Undetermined_indices ]; then\n" +
+		        "  cp -vfR " + IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/Undetermined_indices ${WASP_RESULT_DIR}/" + 
+		            IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/\n" +
+		        "fi");
+		w.addCommand("fi");
+		
+		// copy files from dual barcode truseq run
+		w.addCommand("if [ -e " + IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/DemultiplexConfig.xml ]; then");
+		w.addCommand("mkdir -vp ${WASP_RESULT_DIR}/" + IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME);
+		w.addCommand("cp -vf " + IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/*.xml ${WASP_RESULT_DIR}/" + 
+		        IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/");
+		w.addCommand("cp -vf " + IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/*.txt ${WASP_RESULT_DIR}/" + 
+		        IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/");
+		w.addCommand("cp -vfR " + IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/Project_WASP/* ${WASP_RESULT_DIR}/Project_WASP/");
+		w.addCommand("if [ -e " + IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/Undetermined_indices ]; then\n" +
+		        "  cp -vfR " + IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/Undetermined_indices ${WASP_RESULT_DIR}/" + 
+		            IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/\n" +
+		        "fi");
+		w.addCommand("fi");
+		
+		// copy run-specific files
+		w.addCommand("cp -vf RunInfo.xml ${WASP_RESULT_DIR}");
+		w.addCommand("cp -vf Data/Intensities/BaseCalls/*SampleSheet.csv ${WASP_RESULT_DIR}");
+		w.addCommand("mkdir -vp ${WASP_RESULT_DIR}/reports/FWHM");
+		w.addCommand("mkdir -vp ${WASP_RESULT_DIR}/reports/Intensity");
+		w.addCommand("mkdir -vp ${WASP_RESULT_DIR}/reports/NumGT30");
+		w.addCommand("mkdir -vp ${WASP_RESULT_DIR}/reports/ByCycle");
+		w.addCommand("cp -vf ./Data/wasp-reports/*[^@].png ${WASP_RESULT_DIR}/reports");
+		w.addCommand("cp -vf ./Data/wasp-reports/FWHM/*[^@].png ${WASP_RESULT_DIR}/reports/FWHM");
+		w.addCommand("cp -vf ./Data/wasp-reports/Intensity/*[^@].png ${WASP_RESULT_DIR}/reports/Intensity");
+		w.addCommand("cp -vf ./Data/wasp-reports/NumGT30/*[^@].png ${WASP_RESULT_DIR}/reports/NumGT30");
+		w.addCommand("cp -vf ./Data/wasp-reports/ByCycle/*.png ${WASP_RESULT_DIR}/reports/ByCycle");
 
 		GridResult result = gws.execute(w);
 		

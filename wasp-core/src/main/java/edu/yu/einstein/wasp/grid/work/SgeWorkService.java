@@ -245,7 +245,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	
 	protected boolean isInError(Document stdout) {
 		NodeList jatstatus = stdout.getElementsByTagName("JAT_status");
-		String jobname = stdout.getElementsByTagName("JB_job_name").item(0).getTextContent();
+		String jobname = stdout.getElementsByTagName("JB_job_name").item(0).getTextContent(); // .getFirstChild().getNodeValue()??
 		boolean retval = false;
 		for (int n = 0; n < jatstatus.getLength(); n++) {
 			String status = jatstatus.item(n).getTextContent();
@@ -467,7 +467,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		String outputFile = jobNamePrefix + id + ".tar.gz ";
 		String manifestFile = jobNamePrefix + id + ".manifest";
 		String command = "touch " + manifestFile + " && find . -name '" + jobNamePrefix + id + "*' -print | sed 's/^\\.\\///' > " + manifestFile + " && " + 
-				"tar --remove-files -czvf " + outputFile + " -T " + manifestFile;
+				"tar --remove-files -czf " + outputFile + " -T " + manifestFile;
 		if (markUnfinished) {
 			command += " && touch " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME;
 		} else {
@@ -566,7 +566,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		String outputFile = jobNamePrefix + id + "-FAILED.tar.gz ";
 		String manifestFile = jobNamePrefix + id + ".manifest";
 		String command = "touch " + manifestFile + " && find . -name '" + jobNamePrefix + id + "*' -print | sed 's/^\\.\\///' > " + manifestFile + " && " + 
-				"tar --remove-files -czvf " + outputFile + " -T " + manifestFile;
+				"tar --remove-files -czf " + outputFile + " -T " + manifestFile;
 		command += " && rm -f " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME;
 		String prd = transportConnection.prefixRemoteFile(resultsDirectory);
 		if (!w.getWorkingDirectory().equals(prd)) {
@@ -705,6 +705,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 
 		protected WorkUnit w;
 		protected String name = "not_set";
+		public String jobName;
 		protected String header = "";
 		protected String preamble = "";
 		protected String configuration = "";
@@ -729,14 +730,16 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		protected SgeSubmissionScript(WorkUnit w) throws GridException, MisconfiguredWorkUnitException {
 			this.w = w;
 			this.name = w.getId();
-			
+
 			String tid = "";
+			
+			jobName = jobNamePrefix + name;
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
 			    tid = "-$TASK_ID";
 			
 			header = "#!/bin/bash\n#\n" +
-					getFlag() + " -N " + jobNamePrefix + name + "\n" +
+					getFlag() + " -N " + jobName + "\n" +
 					getFlag() + " -S /bin/bash\n" +
 					getFlag() + " -V\n" +
 					getFlag() + " -o " + w.remoteWorkingDirectory + jobNamePrefix + name + tid + ".out\n" +
@@ -806,10 +809,10 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			if (!PropertyHelper.isSet(pmodeMax)) {
 				pmodeMax = "1";
 			}
-			logger.debug("WorkUnit was confifured to use " + w.getProcessorRequirements() + " threads");
+			logger.debug("WorkUnit was congigured to use " + w.getProcessorRequirements() + " threads");
 			if (w.getProcessMode().equals(ProcessMode.MAX)) {
 				w.setProcessorRequirements(new Integer(pmodeMax));
-				logger.debug("WorkUnit reconfifured to use " + w.getProcessorRequirements() + " threads (using ProcessMode.MAX)");
+				logger.debug("WorkUnit recongigured to use " + w.getProcessorRequirements() + " threads (using ProcessMode.MAX)");
 			}
 			// If the ProcessMode is set to FIXED, make sure it does not exceed the max setting for this host.
 			String pmodeMaximum = transportConnection.getConfiguredSetting("processmode.absolutemaximum");
@@ -820,7 +823,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			Integer pmm = new Integer(pmodeMaximum);
 			if (w.getProcessorRequirements() > pmm) {
 				w.setProcessorRequirements(pmm);
-				logger.debug("WorkUnit is reconfifured to use " + w.getProcessorRequirements() + " (absolute maximum) threads");
+				logger.debug("WorkUnit is recongigured to use " + w.getProcessorRequirements() + " (absolute maximum) threads");
 			}
 			if (transportConnection.getSoftwareManager() != null) {
 				String config = transportConnection.getSoftwareManager().getConfiguration(w);

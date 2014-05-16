@@ -20,6 +20,7 @@ import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.bwa.software.BWABacktrackSoftwareComponent;
+import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.util.SoftwareConfiguration;
 import edu.yu.einstein.wasp.util.WaspJobContext;
 
@@ -77,6 +78,14 @@ public class BWABacktrackPlugin extends AbstractBWAPlugin {
 					software.getIName() + " going to prepare for software execution with default parameters");
 			softwareConfig = getDefaultBWASoftwareConfig();
 		}
+		
+		Build build = genomeService.getGenomeBuild(cl);
+                
+                if (build == null) {
+                    logger.warn("called for cellLibrary " + cl.getId() + " with null genome build");
+                    return MessageBuilder.withPayload("null genome, aborting").build();
+                }
+                
 		Map<String, String> jobParameters = softwareConfig.getParameters();
 		String clidl = WaspSoftwareJobParameters.getCellLibraryListAsParameterValue(Arrays.asList(new Integer[]{cellLibraryId}));
 		logger.debug("cellLibraryId: " + cellLibraryId + " list: " + clidl);

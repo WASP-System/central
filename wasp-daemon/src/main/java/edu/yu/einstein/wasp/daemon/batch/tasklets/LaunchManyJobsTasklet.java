@@ -20,6 +20,7 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
@@ -36,6 +37,7 @@ import edu.yu.einstein.wasp.service.RunService;
  * @author calder
  *
  */
+@Transactional("entityManager")
 public abstract class LaunchManyJobsTasklet implements Tasklet, StepExecutionListener {
     
     private StepExecution stepExecution;

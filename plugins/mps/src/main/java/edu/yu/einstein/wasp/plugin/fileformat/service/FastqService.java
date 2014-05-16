@@ -4,13 +4,13 @@ import java.util.UUID;
 
 import edu.yu.einstein.wasp.exception.InvalidFileTypeException;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.service.WaspService;
 
-public interface FastqService extends WaspService {
+public interface FastqService extends FileTypeService {
 	
 	public static final String FILE_AREA = "fastqFile";
 	
@@ -94,6 +94,5 @@ public interface FastqService extends WaspService {
 	public void copyFastqFileGroupMetadata(FileGroup origin, FileGroup target) throws MetadataException;
 
 	public void copyFastqFileHandleMetadata(FileHandle origin, FileHandle target) throws MetadataException;
-
 
 }

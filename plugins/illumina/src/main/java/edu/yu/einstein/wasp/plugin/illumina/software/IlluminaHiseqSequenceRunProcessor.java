@@ -20,6 +20,7 @@ import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
@@ -27,11 +28,13 @@ import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
-import edu.yu.einstein.wasp.model.Adaptorset;
+import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
+import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy;
+import edu.yu.einstein.wasp.plugin.mps.MpsIndexingStrategy;
 import edu.yu.einstein.wasp.plugin.mps.software.sequencer.SequenceRunProcessor;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -59,22 +62,38 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 	@Autowired
 	private String truseqIndexedDnaArea;
 	
+	public static final String SINGLE_INDEX_SAMPLE_SHEET_NAME = "waspSingleSampleSheet.csv";
+	public static final String DUAL_INDEX_SAMPLE_SHEET_NAME = "waspDualSampleSheet.csv";
+	
+	public static final String SINGLE_INDEX_OUTPUT_FOLDER_NAME = "waspSingleUnaligned";
+	public static final String DUAL_INDEX_OUTPUT_FOLDER_NAME = "waspDualUnaligned";
+	
+	public static final String SINGLE_INDEX_SEMAPHORE = "wasp_single_begin.txt";
+	public static final String DUAL_INDEX_SEMAPHORE = "wasp_dual_begin.txt";
+	
+	public static final String ILLUMINA_DATA_STAGE_NAME = "illumina.data.stage";
+	
 	public IlluminaHiseqSequenceRunProcessor(){
-		setSoftwareVersion("0.8.2"); // this default may be overridden in wasp.site.properties
+		setSoftwareVersion("1.8.2"); // this default may be overridden in wasp.site.properties
 	}
 
 	/**
 	 * Called first to set up analysis run.
 	 * 
-	 * @param platformUnit
-	 * @param ghs
-	 * @throws GridException 
+	 * @param run
+	 * @param method IlluminaSequenceRunProcessor.SINGLE_INDEX or DUAL_INDEX
+	 * @throws GridException
 	 */
-	public void doSampleSheet(Run run) throws GridException {
+	public GridResult doSampleSheet(Run run, IndexingStrategy method) throws GridException {
 		
 		logger.debug("sample sheet for " + run.getName() + ":" + run.getPlatformUnit().getName());
 		
 		logger.debug(sampleService.toString());
+		
+		if (! method.equals(IlluminaIndexingStrategy.TRUSEQ) && ! method.equals(IlluminaIndexingStrategy.TRUSEQ_DUAL)) {
+		    logger.error("sample sheet method called with unknown strategy: " + method);
+		    throw new WaspRuntimeException("sample sheet method called with unknown strategy: " + method);
+		}
 		
 		WorkUnit w = new WorkUnit();
 				
@@ -101,16 +120,23 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 		
 		String directory = "";
 		
+		String sampleSheetName;
+		if (method.equals(IlluminaIndexingStrategy.TRUSEQ)) {
+		    sampleSheetName = IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_SAMPLE_SHEET_NAME;
+		} else {
+		    sampleSheetName = IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_SAMPLE_SHEET_NAME;
+		}
+		
 		try {
 			directory = gws.getTransportConnection().getConfiguredSetting("illumina.data.dir") + "/" + run.getName();
 			logger.debug("configured remote directory as " + directory);
-			File f = createSampleSheet(run);
+			File f = createSampleSheet(run, method);
 			String newDir = directory + "/Data/Intensities/BaseCalls/";
 			
 			w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 			w.setResultsDirectory(newDir);
 			
-			gfs.put(f, newDir + "SampleSheet.csv");
+			gfs.put(f, newDir + sampleSheetName);
 			logger.debug("deleting temporary local sample sheet " + f.getAbsolutePath());
 			f.delete();
 		} catch (Exception e) {
@@ -121,18 +147,8 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 		
 		logger.debug("touching remote file");
 		w.setWorkingDirectory(directory);		
-		GridResult result = hostResolver.execute(w);
+		return hostResolver.execute(w);
 		
-		while (!gws.isFinished(result)) {
-			try {
-				logger.debug("job is not finished");
-				Thread.sleep(5000);
-			} catch (InterruptedException e) {
-				logger.error(e.getLocalizedMessage());
-				throw new GridExecutionException("unable to sleep for sample sheet", e);
-			}
-		}
-
 	}
 
 	/**
@@ -146,20 +162,31 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 	 * @throws MetadataException
 	 * @throws SampleTypeException
 	 */
-	private File createSampleSheet(Run run) throws IOException,
+	private File createSampleSheet(Run run, IndexingStrategy method) throws IOException,
 			MetadataException, SampleTypeException {
 
 		File f = File.createTempFile("wasp_iss", ".txt");
 		logger.debug("created temporary file: " + f.getAbsolutePath().toString());
 		BufferedWriter bw = new BufferedWriter(new FileWriter(f, false));
 		
-		bw.write(getSampleSheet(run));
+		bw.write(getSampleSheet(run, method));
 		
 		bw.close();
 		return f;
 	}
 	
-	public String getSampleSheet(Run run) throws SampleTypeException, MetadataException {
+	/**
+	 * Method to produce sample sheet for illumina sequencing.  Samples are assigned by the following strategy:
+	 * TRUSEQ: IndexingStrategy.NONE, FIVE_PRIME, TRUSEQ
+	 * TRUSEQ_DUAL: IndexingStrategy.TRUSEQ_DUAL
+	 * 
+	 * @param run
+	 * @param method
+	 * @return
+	 * @throws SampleTypeException
+	 * @throws MetadataException
+	 */
+	public String getSampleSheet(Run run, IndexingStrategy method) throws SampleTypeException, MetadataException {
 
 		String sampleSheet = getSampleSheetHeader();
 		
@@ -184,28 +211,54 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 			List<Sample> libraries = sampleService.getLibrariesOnCellWithoutControls(cell);
 
 			for (SampleSource cellLibrary : all) {
+			    
+			    cellMarked[cellid-1] = false;
 				
 				logger.debug("working with cell library: " + cellLibrary.getId() + " representing " + 
 						cellLibrary.getSourceSample().getId() +":"+ cellLibrary.getSourceSample().getName());
 				
-				// if the sample is not TruSeq, do not place it in the sample sheet
 				// the cell library source sample is the library itself (cellLibrary.getSample() == cell).
-				Integer adaptorsetId = adaptorService.getAdaptor(cellLibrary.getSourceSample()).getAdaptorsetId();
-				if (! adaptorService.getIndexingStrategy(adaptorsetId).equals(IlluminaIndexingStrategy.TRUSEQ))
-					continue;
-				
-				cellMarked[cellid-1] = true;
+				Adaptor adaptor = adaptorService.getAdaptor(cellLibrary.getSourceSample());
+				IndexingStrategy strategy = adaptorService.getIndexingStrategy(adaptor.getAdaptorsetId());
 				
 				// if there is one control sample in the lane and no libraries, set the control flag
-				if ((libraries.size() == 0) && (all.size() == 1)) {
-					
-					SampleSource controlCellLib = all.get(0);
-					logger.debug("looking to register lone control cell library: " + controlCellLib.getId() + " on cell: " + cellid );
-					
-					String line = buildLine(platformUnit, cell, controlCellLib.getSourceSample().getName(), controlCellLib, "Y", "control");
-					sampleSheet += "\n" + line;
-					continue;
+                                // the control library will be processed irrespective of method type.
+                                if ((libraries.size() == 0) && (all.size() == 1)) {
+                                        
+                                        SampleSource controlCellLib = all.get(0);
+                                        logger.debug("looking to register lone control cell library: " + controlCellLib.getId() + " on cell: " + cellid );
+                                        
+                                        String line = buildLine(platformUnit, cell, controlCellLib.getSourceSample().getName(), controlCellLib, "Y", "control");
+                                        sampleSheet += "\n" + line;
+                                        continue;
+                                }
+				
+				// TRUSEQ processing includes all but TRUSEQ_DUAL
+				if (method.equals(IlluminaIndexingStrategy.TRUSEQ)) {
+				    if (strategy.equals(IlluminaIndexingStrategy.TRUSEQ_DUAL))
+				        continue;
 				}
+				
+				// TRUSEQ_DUAL processing includes only TRUSEQ_DUAL
+				if (method.equals(IlluminaIndexingStrategy.TRUSEQ_DUAL)) {
+                                    if (strategy.equals(IlluminaIndexingStrategy.TRUSEQ) ||
+                                            strategy.equals(MpsIndexingStrategy.FIVE_PRIME) ||
+                                            strategy.equals(MpsIndexingStrategy.NONE))
+                                        continue;
+                                }
+				
+				// Catch-all for unsupported IndexingStrategies
+				if (! method.equals(IlluminaIndexingStrategy.TRUSEQ) &&
+				        ! method.equals(IlluminaIndexingStrategy.TRUSEQ_DUAL) &&
+				        ! method.equals(MpsIndexingStrategy.NONE) &&
+				        ! method.equals(MpsIndexingStrategy.FIVE_PRIME)) {
+				    String message = "Unsupported indexing strategy: " + method;
+				    logger.error(message);
+				    throw new WaspRuntimeException(message);
+				}
+				
+				
+				cellMarked[cellid-1] = true;
 
 				// necessary?
 				String iname = cellLibrary.getSourceSample().getSampleType().getIName();
@@ -233,7 +286,7 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 			// the lane if further demultiplexing is required
 			// or a single sample for the entire lane
 				
-			if (cellMarked[cellid-1] == false) {
+			if (cellMarked[cellid-1] == false && method.equals(IlluminaIndexingStrategy.TRUSEQ)) {
 				logger.debug("setting dummy sample cell: " + cellid);
 				SampleSource placeholder = new SampleSource();
 				//Adaptor adaptor = new Adaptor();
@@ -297,19 +350,24 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 	}
 
 	/**
-	 * Returns standard Illumina 1.8.2 SampleSheet header
+	 * Returns standard Illumina 1.8.4 SampleSheet header
 	 * 
 	 * FCID Flow cell ID Lane Positive integer, indicating the lane number (1-8)
 	 * SampleID ID of the sample SampleRef The name of the reference Index Index
 	 * sequence(s) Description Description of the sample Control Y indicates
-	 * this lane is a control lane, N means sample Recipe Recipe used during
+	 * this lane is a control lane, N means sample, Recipe Recipe used during
 	 * sequencing Operator Name or ID of the operator SampleProject The project
 	 * the sample belongs to
 	 * 
 	 * @return
 	 */
-	private String getSampleSheetHeader() {
+	public String getSampleSheetHeader() {
 		return "FCID,Lane,SampleID,SampleRef,Index,Description,Control,Recipe,Operator,SampleProject";
 	}
+
+    @Override
+    public String getStageDirectoryName() {
+        return ILLUMINA_DATA_STAGE_NAME;
+    }
 
 }

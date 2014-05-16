@@ -29,8 +29,9 @@ public class SnpEff extends SoftwarePackage{
 	 * @param build
 	 * @return
 	 */
-	public String getAnnotateVcfCommand(String inputVcfFileName, String outputVcfFileName, Build build){
+	public String getAnnotateVcfCommand(String inputVcfFileName, String outputVcfFileName, String summaryHtmlFileName, Build build){
 		String command = "snpeff eff -v " + getSnpEffGenomeDatabaseName(build) + " " + inputVcfFileName + " > " + outputVcfFileName;
+		command += " && mv snpEff_summary.html " + summaryHtmlFileName;
 		logger.debug("Will conduct SnpEFF annotation with command string: " + command);
 		return command;
 	}
@@ -42,9 +43,10 @@ public class SnpEff extends SoftwarePackage{
 	 * @param build
 	 * @return
 	 */
-	public String getAnnotateCancerVcfCommand(String inputVcfFileName, String outputVcfFileName, Build build){
+	public String getAnnotateCancerVcfCommand(String inputVcfFileName, String outputVcfFileName, String summaryHtmlFileName, Build build){
 		//  HGVS notations seems to be preferred in the clinical and cancer community hence use -hgvs to provide HGVS notation in AA sub-field.
 		String command = "snpeff eff -v -cancer -hgvs " + getSnpEffGenomeDatabaseName(build) + " " + inputVcfFileName + " > " + outputVcfFileName;
+		command += " && mv snpEff_summary.html " + summaryHtmlFileName;
 		logger.debug("Will conduct SnpEFF annotation with command string: " + command);
 		return command;
 	}
