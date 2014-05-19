@@ -125,7 +125,6 @@ public class TrimGalore extends SoftwarePackage {
         boolean paired = parameterString.contains("--paired");
 
         SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);
-        Sample cell = sampleService.getCell(cellLibrary);
         Sample library = sampleService.getLibrary(cellLibrary);
 
         Run run = runService.getRunById(runId);
