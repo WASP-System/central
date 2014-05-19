@@ -80,6 +80,7 @@ public class StageResultsTasklet extends WaspRemotingTasklet {
 		
 		w.setResultsDirectory(stageDir + "/" + run.getName());
 		
+		w.setCommand("rm -rf ${WASP_RESULT_DIR}/Project_WASP");
 		w.setCommand("mkdir -vp ${WASP_RESULT_DIR}/Project_WASP");
 		
 		// copy files from single barcode truseq run
