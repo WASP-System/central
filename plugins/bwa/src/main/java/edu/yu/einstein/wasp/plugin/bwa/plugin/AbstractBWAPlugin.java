@@ -17,6 +17,7 @@ import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 
 import edu.yu.einstein.wasp.exception.JobContextInitializationException;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
@@ -102,13 +103,17 @@ public abstract class AbstractBWAPlugin extends WaspPlugin implements ClientMess
 		return waspJobContext.getConfiguredSoftware(referenceBasedAlignerResourceType);
 	}
 	
-	protected String getGenomeBuildString(Integer cellLibraryId){
+	protected String getGenomeBuildString(Integer cellLibraryId) throws MetadataException {
 		try {
 			return genomeService.getDelimitedParameterString(cellLibraryId);
 		} catch (SampleTypeException | ParameterValueRetrievalException e) {
 			logger.warn(e.getMessage());
 			return null;
-		}	
+		} catch (NullPointerException e1) {
+		    String message = "genome/build was null, indicating that the genome is unknown or Other";
+		    logger.debug(message);
+		    throw new MetadataException(message);
+		}
 	}
 
 	@Override

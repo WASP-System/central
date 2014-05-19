@@ -398,11 +398,13 @@ public class BabrahamQCParseModule {
 		ds.setName("fastqc.sequenceLengthDist_dsName.label");
 		ds.setColLabels(pbgc.getAttributes());
 		try{
-			int lastIndex = pbgc.getDataPoints().size() - 1;
-			Integer maxLength =  Integer.valueOf( pbgc.getDataPoints().get(lastIndex).get(0) ); // last row in list
 			Map<String, Double> lengthCounts = new LinkedHashMap<String, Double>();
-			for (Integer i=1; i <= maxLength; i++)
-				lengthCounts.put(i.toString(), 0.0d);
+			if (pbgc.getDataPoints().size() == 1){
+				int lastIndex = pbgc.getDataPoints().size() - 1;
+				Integer maxLength =  Integer.valueOf( pbgc.getDataPoints().get(lastIndex).get(0) ); // last row in list
+				for (Integer i=1; i <= maxLength; i++)
+					lengthCounts.put(i.toString(), 0.0d);
+			}
 			for (List<String> dataRow : pbgc.getDataPoints())
 				lengthCounts.put(dataRow.get(0), Double.valueOf(dataRow.get(1)));
 			for (String length : lengthCounts.keySet()){
