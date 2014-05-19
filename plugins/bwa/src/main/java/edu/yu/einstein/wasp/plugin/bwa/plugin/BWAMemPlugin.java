@@ -14,6 +14,7 @@ import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.model.Job;
@@ -78,16 +79,14 @@ public class BWAMemPlugin extends AbstractBWAPlugin {
 		String clidl = WaspSoftwareJobParameters.getCellLibraryListAsParameterValue(Arrays.asList(new Integer[]{cellLibraryId}));
 		logger.debug("cellLibraryId: " + cellLibraryId + " list: " + clidl);
 		jobParameters.put(WaspSoftwareJobParameters.CELL_LIBRARY_ID_LIST, clidl);
-		
-		Build build = genomeService.getGenomeBuild(cl);
-		
-		if (build == null) {
-		    logger.warn("called for cellLibrary " + cl.getId() + " with null genome build");
-                    return MessageBuilder.withPayload("null genome, aborting").build();
-		}
-		
-		String genomeBuild = getGenomeBuildString(Integer.parseInt(clidl));
-		jobParameters.put(WaspSoftwareJobParameters.GENOME, genomeBuild);
+		try {
+		    String genomeBuild = getGenomeBuildString(Integer.parseInt(clidl));
+		    jobParameters.put(WaspSoftwareJobParameters.GENOME, genomeBuild);
+		} catch (MetadataException e) {
+                    String message = "Cell library id " + cellLibraryId + " not annotated with a genome build, going to skip alignment.";
+                    logger.warn(message);
+                    return MessageBuilder.withPayload(message).build();
+                }
 		jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
 		runService.launchBatchJob(JOB_NAME, jobParameters);
 

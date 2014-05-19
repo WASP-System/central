@@ -39,6 +39,7 @@ import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Workflow;
+import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqFileTypeAttribute;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.plugin.mps.integration.endpoints.RunSuccessFastqcSplitter;
 import edu.yu.einstein.wasp.service.FileService;
@@ -164,8 +165,8 @@ public class FileFormatMessageTests extends AbstractTestNGSpringContextTests imp
 			PowerMockito.when(mockRunService.getRunDao()).thenReturn(mockRunDao);
 			PowerMockito.when(mockRunDao.getRunByRunId(1)).thenReturn(run);
 			PowerMockito.when(mockRunService.getCellLibrariesOnSuccessfulRunCells(Mockito.any(Run.class))).thenReturn(cellLibrarys);
-			PowerMockito.when(mockFileService.getFilesForCellLibrary(Mockito.any(SampleSource.class))).thenReturn(fileGroups);
-			PowerMockito.when(mockFastqService.getFastqFileType()).thenReturn(fastq);
+			PowerMockito.when(mockFileService.getFilesForCellLibraryByType(Mockito.any(SampleSource.class), Mockito.any(FileType.class))).thenReturn(fileGroups);
+			PowerMockito.when(mockFastqService.hasAttribute(Mockito.any(FileGroup.class), Mockito.any(FastqFileTypeAttribute.class))).thenReturn(true);
 			
 			RunStatusMessageTemplate template = new RunStatusMessageTemplate(RUN_ID);
 			template.setStatus(WaspStatus.COMPLETED);

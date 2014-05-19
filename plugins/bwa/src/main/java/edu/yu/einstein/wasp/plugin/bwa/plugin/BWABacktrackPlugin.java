@@ -15,6 +15,7 @@ import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.model.Job;
@@ -90,7 +91,13 @@ public class BWABacktrackPlugin extends AbstractBWAPlugin {
 		String clidl = WaspSoftwareJobParameters.getCellLibraryListAsParameterValue(Arrays.asList(new Integer[]{cellLibraryId}));
 		logger.debug("cellLibraryId: " + cellLibraryId + " list: " + clidl);
 		jobParameters.put(WaspSoftwareJobParameters.CELL_LIBRARY_ID_LIST, clidl);
-		jobParameters.put(WaspSoftwareJobParameters.GENOME, getGenomeBuildString(Integer.parseInt(clidl)));
+		try {
+		    jobParameters.put(WaspSoftwareJobParameters.GENOME, getGenomeBuildString(Integer.parseInt(clidl)));
+		} catch (MetadataException e) {
+		    String message = "Cell library id " + cellLibraryId + " not annotated with a genome build, going to skip alignment.";
+		    logger.warn(message);
+		    return MessageBuilder.withPayload(message).build();
+		}
 		jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
 		runService.launchBatchJob(JOB_NAME, jobParameters);
 
