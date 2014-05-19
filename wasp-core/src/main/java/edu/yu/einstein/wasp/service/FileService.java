@@ -217,9 +217,6 @@ public interface FileService extends WaspService {
 	
 	public FileType getFileType(String iname);
 	
-	@Deprecated
-	public void register(FileHandle file) throws FileNotFoundException, GridException;
-	
 	/**
 	 * @param group
 	 * @throws FileNotFoundException

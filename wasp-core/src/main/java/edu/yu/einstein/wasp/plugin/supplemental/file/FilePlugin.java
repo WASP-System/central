@@ -86,7 +86,11 @@ public class FilePlugin extends WaspPlugin implements InitializingBean, Disposab
 			return badParameter(e);
 		} catch (JSONException e) {
 			return badJSON(e);
-		}
+		} catch (FileNotFoundException e) {
+		     return badParameter(e);
+                } catch (GridException e) {
+                    return badGridExecution(e);
+                }
 	}
 
 	public Message<String> addAndRegister(Message<String> m) {
@@ -104,7 +108,11 @@ public class FilePlugin extends WaspPlugin implements InitializingBean, Disposab
 			return badJSON(e);
 		} catch (URISyntaxException e) {
 			return badJSON(e);
-		}
+		} catch (FileNotFoundException e) {
+                    return badParameter(e);
+                } catch (GridException e) {
+                    return badGridExecution(e);
+                }
 	}
 
 	private JSONObject parse(Message<String> m) throws JSONException {
@@ -174,52 +182,11 @@ public class FilePlugin extends WaspPlugin implements InitializingBean, Disposab
 		return fg;
 	}
 
-	private FileGroup doRegister(FileGroup group) {
+	private FileGroup doRegister(FileGroup group) throws FileNotFoundException, GridException {
 
-		ExecutorService exec = Executors.newCachedThreadPool();
-
-		for (FileHandle f : group.getFileHandles()) {
-			if (f.getMd5hash() != null && !f.getMd5hash().equals("")) {
-				logger.warn("file " + f.getId() + " appears to already be registered, skipping");
-				continue;
-			}
-			Runnable reg = new RegThread(f);
-			exec.execute(reg);
-		}
-
-		exec.shutdown();
-
-		while (!exec.isTerminated()) {
-			try {
-				Thread.sleep(10);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-			}
-		}
-
+		fileService.register(group);
 		return group;
 
-	}
-
-	private class RegThread implements Runnable {
-		FileHandle file;
-		
-		private RegThread(FileHandle f) {
-			this.file = f;
-		}
-
-		@Override
-		public void run() {
-			try {
-				fileService.register(file);
-			} catch (FileNotFoundException e) {
-				logger.error("FileHandle not found: " + e.getLocalizedMessage());
-				e.printStackTrace();
-			} catch (GridException e) {
-				logger.error("Problem registering file: " + e.getLocalizedMessage());
-				e.printStackTrace();
-			}
-		}
 	}
 
 	private JSONObject returnFiles(FileGroup group) throws InvalidParameterException, JSONException {
@@ -273,6 +240,10 @@ public class FilePlugin extends WaspPlugin implements InitializingBean, Disposab
 
 	private Message<String> badJSON(Exception e) {
 		return MessageBuilder.withPayload("Malformed JSON: " + e.getLocalizedMessage()).build();
+	}
+	
+	private Message<String> badGridExecution(Exception e) {
+	    return MessageBuilder.withPayload("Failure to execute grid task: " + e.getLocalizedMessage()).build();
 	}
 
 	public Message<String> listFileTypes(Message<String> m) {

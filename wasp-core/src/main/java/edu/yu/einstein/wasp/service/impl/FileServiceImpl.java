@@ -698,23 +698,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		return fileTypeService.getFileTypeDao().getById(id);
 	}
 
-	/**
-	 * Take a new (isActive == 0) entity managed file and register it.
-	 * 
-	 * @throws FileNotFoundException
-	 * @throws GridUnresolvableHostException
-	 */
-	@Override
-	@Deprecated
-	public void register(FileHandle file) throws FileNotFoundException, GridException {
-		file = fileHandleDao.merge(file);
-
-		validateFile(file);
-
-		logger.debug("attempting to register " + file.getFileURI().toString());
-		setMD5(file);
-		fileHandleDao.save(file);
-	}
+	
 
 	private enum Md5 { YES, NO };
 	
