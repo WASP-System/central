@@ -88,7 +88,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 		allFgIn.putAll(mergedSampleFileGroupsIn);
 		if (jobExecutionContext.containsKey("passThroughSampleFgMap"))
 			allFgIn.putAll(AbstractGatkTasklet.getSampleFgMapFromJsonString(jobExecutionContext.getString("passThroughSampleFgMap"), sampleService, fileService));
-		Map<FileGroup, Set<Sample>> fileGroupSamplesForNextStep = new HashMap<>();
+		Map<FileGroup, LinkedHashSet<Sample>> fileGroupSamplesForNextStep = new HashMap<>();
 		Set<Sample> processedSamples = new HashSet<>();
 		// merge, realign and split out again test-control sample pairs
 		for (SampleSource samplePair : sampleService.getSamplePairsByJob(job)){
@@ -140,6 +140,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			temporaryFileSet.addAll(outputFileGroups);
 			
 			Map<String, String> jobParameters = new HashMap<>();
+			jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
 			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(inputFileGroups));
 			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(outputFileGroups));
 			jobParameters.put(WaspSoftwareJobParameters.JOB_ID, jobId.toString());
@@ -148,7 +149,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			} catch (WaspMessageBuildingException e) {
 				e.printStackTrace();
 			}
-			fileGroupSamplesForNextStep.put(baiMergedPairsG, new HashSet<Sample>());
+			fileGroupSamplesForNextStep.put(baiMergedPairsG, new LinkedHashSet<Sample>());
 			fileGroupSamplesForNextStep.get(baiMergedPairsG).add(test);
 			fileGroupSamplesForNextStep.get(baiMergedPairsG).add(control);
 		}
@@ -203,7 +204,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 				} catch (WaspMessageBuildingException e) {
 					e.printStackTrace();
 				}
-				fileGroupSamplesForNextStep.put(bamMergedG, new HashSet<Sample>());
+				fileGroupSamplesForNextStep.put(bamMergedG, new LinkedHashSet<Sample>());
 				fileGroupSamplesForNextStep.get(bamMergedG).add(sample);
 			}
 		}
@@ -212,7 +213,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 		for (Sample sample : allFgIn.keySet())
 			if (! processedSamples.contains(sample)){
 				FileGroup fg = allFgIn.get(sample);
-				fileGroupSamplesForNextStep.put(fg, new HashSet<Sample>());
+				fileGroupSamplesForNextStep.put(fg, new LinkedHashSet<Sample>());
 				fileGroupSamplesForNextStep.get(fg).add(sample);
 			}
 		
