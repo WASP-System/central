@@ -52,9 +52,6 @@ public class Helptag extends SoftwarePackage{
 	SampleService sampleService;
 	
 	@Autowired
-	private Helptag helptag;
-	
-	@Autowired
 	private GenomeService genomeService;	
 	
 	@Autowired
@@ -131,7 +128,7 @@ public class Helptag extends SoftwarePackage{
 			fgSet.addAll(fileService.getFilesForCellLibraryByType(cl, fastqFileType));
 
 			Job job = sampleService.getJobOfLibraryOnCell(cl);
-			w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, helptag) + "/" + cellLibraryId);
+			w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, this) + "/" + cellLibraryId);
 		
 			List<FileHandle> files = new ArrayList<FileHandle>();
 			for(FileGroup fg : fgSet) {
