@@ -20,14 +20,14 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.integration.Message;
-import org.springframework.integration.MessageChannel;
-import org.springframework.integration.MessageHeaders;
-import org.springframework.integration.MessagingException;
-import org.springframework.integration.channel.PublishSubscribeChannel;
-import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.MessagingTemplate;
-import org.springframework.integration.support.MessageBuilder;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessageHandler;
+import org.springframework.messaging.MessageHeaders;
+import org.springframework.messaging.MessagingException;
+import org.springframework.messaging.SubscribableChannel;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
@@ -53,11 +53,11 @@ public class AbandonMessageHandlingTasklet implements MessageHandler, NameAwareT
 	
 	@Autowired
 	@Qualifier("wasp.channel.reply")
-	PublishSubscribeChannel replyChannel;
+	SubscribableChannel replyChannel;
 	
 	@Autowired
 	@Qualifier("wasp.channel.notification.batch")
-	PublishSubscribeChannel subscribeChannel;
+	SubscribableChannel subscribeChannel;
 	
 	
 	

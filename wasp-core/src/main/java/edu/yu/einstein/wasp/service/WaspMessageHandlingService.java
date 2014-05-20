@@ -3,7 +3,7 @@ package edu.yu.einstein.wasp.service;
 import java.util.Map;
 import java.util.UUID;
 
-import org.springframework.integration.Message;
+import org.springframework.messaging.Message;
 
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 

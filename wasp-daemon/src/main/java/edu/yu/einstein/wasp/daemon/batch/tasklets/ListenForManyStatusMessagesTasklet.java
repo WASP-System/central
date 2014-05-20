@@ -21,9 +21,9 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.integration.Message;
-import org.springframework.integration.MessagingException;
-import org.springframework.integration.channel.PublishSubscribeChannel;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessagingException;
+import org.springframework.messaging.SubscribableChannel;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
@@ -60,11 +60,11 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet i
 
     @Autowired
     @Qualifier("wasp.channel.reply")
-    private PublishSubscribeChannel replyChannel;
+    private SubscribableChannel replyChannel;
 
     @Autowired
     @Qualifier("wasp.channel.notification.batch")
-    private PublishSubscribeChannel subscribeChannel;
+    private SubscribableChannel subscribeChannel;
 
     @Autowired
     private BatchJobHibernationManager batchJobHibernationManager;

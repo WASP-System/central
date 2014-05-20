@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.integration.MessageChannel;
-import org.springframework.integration.MessagingException;
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessagingException;
 
 /**
  * Registry for storing and retrieving message channel bean references

@@ -5,8 +5,6 @@ package edu.yu.einstein.wasp.grid.file;
 
 import java.net.URL;
 
-import edu.yu.einstein.wasp.model.FileHandle;
-
 /**
  * @author calder
  *

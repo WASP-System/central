@@ -10,7 +10,7 @@ import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.explore.wasp.WaspJobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.integration.MessageChannel;
+import org.springframework.messaging.MessageChannel;
 
 import edu.yu.einstein.wasp.interfacing.Hyperlink;
 import edu.yu.einstein.wasp.exception.PanelException;

@@ -16,7 +16,6 @@ import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.explore.wasp.WaspJobExplorer;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 

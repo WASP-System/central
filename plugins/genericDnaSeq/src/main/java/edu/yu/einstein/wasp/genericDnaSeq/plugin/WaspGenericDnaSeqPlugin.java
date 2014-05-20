@@ -7,7 +7,7 @@ import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.integration.MessageChannel;
+import org.springframework.messaging.MessageChannel;
 
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.interfacing.Hyperlink;
