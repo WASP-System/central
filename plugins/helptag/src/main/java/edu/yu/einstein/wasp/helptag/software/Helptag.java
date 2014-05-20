@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.NullResourceException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
@@ -50,6 +51,8 @@ public class Helptag extends SoftwarePackage{
 	@Autowired
 	SampleService sampleService;
 	
+	@Autowired
+	private Helptag helptag;
 	
 	@Autowired
 	private GenomeService genomeService;	
@@ -75,6 +78,7 @@ public class Helptag extends SoftwarePackage{
 	public Helptag() {
 	}
 
+	@Transactional("entityManager")
 	public WorkUnit getHelptag(Integer cellLibraryId) {
 		WorkUnit w = new WorkUnit();
 		
@@ -127,7 +131,7 @@ public class Helptag extends SoftwarePackage{
 			fgSet.addAll(fileService.getFilesForCellLibraryByType(cl, fastqFileType));
 
 			Job job = sampleService.getJobOfLibraryOnCell(cl);
-			w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId() + "/" + cellLibraryId);
+			w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, helptag) + "/" + cellLibraryId);
 		
 			List<FileHandle> files = new ArrayList<FileHandle>();
 			for(FileGroup fg : fgSet) {

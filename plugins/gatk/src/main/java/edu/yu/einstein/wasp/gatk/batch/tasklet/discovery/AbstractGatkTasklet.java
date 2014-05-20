@@ -22,6 +22,7 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.WaspModel;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
+import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 
 public abstract class AbstractGatkTasklet extends WaspRemotingTasklet {
@@ -39,6 +40,10 @@ public abstract class AbstractGatkTasklet extends WaspRemotingTasklet {
 	public static int MEMORY_GB_4 = 4;
 	
 	public static int MEMORY_GB_8 = 8;
+	
+
+	@Autowired
+	protected JobService jobService;
 	
 	@Autowired
 	protected GenomeService genomeService;

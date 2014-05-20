@@ -83,8 +83,7 @@ public class BWAsamTasklet extends WaspRemotingTasklet implements StepExecutionL
 		Map<String, Object> jobParameters = context.getStepContext().getJobParameters();
 
 		WorkUnit w = bwa.getSam(cellLib, scratchDirectory, alnJobName, fg, jobParameters);
-		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
-
+		
 		GridResult result = gridHostResolver.execute(w);
 
 		// place the grid result in the step context
