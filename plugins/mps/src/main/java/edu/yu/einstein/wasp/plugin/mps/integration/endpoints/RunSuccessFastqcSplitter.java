@@ -10,8 +10,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.integration.Message;
-import org.springframework.integration.MessagingException;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessagingException;
 import org.springframework.integration.splitter.AbstractMessageSplitter;
 
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
@@ -63,7 +63,8 @@ public class RunSuccessFastqcSplitter extends AbstractMessageSplitter {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	protected List<Message<WaspStatus>> splitMessage(Message<?> message) {
+	protected List<Message<WaspStatus>> splitMessage(org.springframework.integration.Message<?> message) {
+		Message<?>
 		List<Message<WaspStatus>> outputMessages = new ArrayList<>();
 		if (!RunStatusMessageTemplate.isMessageOfCorrectType(message)){
 			logger.warn("Message is not of the correct type (a Run message). Check filter and input channel are correct");

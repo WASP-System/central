@@ -5,9 +5,9 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.integration.Message;
-import org.springframework.integration.MessageHeaders;
-import org.springframework.integration.MessagingException;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHeaders;
+import org.springframework.messaging.MessagingException;
 import org.springframework.integration.annotation.ServiceActivator;
 
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;

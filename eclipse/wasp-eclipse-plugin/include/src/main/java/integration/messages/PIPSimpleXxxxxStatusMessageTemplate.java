@@ -1,6 +1,6 @@
 package ___package___.integration.messages;
 
-import org.springframework.integration.Message;
+import org.springframework.messaging.Message;
 
 import edu.yu.einstein.wasp.exception.WaspMessageInitializationException;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;

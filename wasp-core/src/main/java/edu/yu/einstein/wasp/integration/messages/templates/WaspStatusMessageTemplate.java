@@ -7,8 +7,8 @@ import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.integration.Message;
-import org.springframework.integration.support.MessageBuilder;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
