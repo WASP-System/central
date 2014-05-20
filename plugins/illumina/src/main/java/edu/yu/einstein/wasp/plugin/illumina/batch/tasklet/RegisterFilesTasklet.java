@@ -134,6 +134,7 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
         // rename files with spaces in names
         w.addCommand("shopt -s nullglob");
         w.addCommand("for f in ../reports/*' '* ; do mv -f \"$f\" \"${f// /_}\"; done");
+        w.addCommand("rm -f " + WorkUnit.OUTPUT_FILE_PREFIX + "*");
 
         Set<SampleSource> allCellLib = new HashSet<SampleSource>();
         Sample platformUnit = run.getPlatformUnit();
