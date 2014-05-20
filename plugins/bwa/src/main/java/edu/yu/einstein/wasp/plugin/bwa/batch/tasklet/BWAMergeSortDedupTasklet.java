@@ -192,7 +192,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 			w.addCommand(picard.getMergeBamCmd("*.out.sam", outputBamFilename, outputBaiFilename, MEMORY_GB_4));
 		}	
 		w.setWorkingDirectory(scratchDirectory);
-		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
+		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, bwa));
 		w.setSecureResults(true);
 		
 		GridResult result = gridHostResolver.execute(w);

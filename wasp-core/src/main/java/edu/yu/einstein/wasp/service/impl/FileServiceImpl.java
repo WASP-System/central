@@ -95,6 +95,7 @@ import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -1622,6 +1623,11 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		final String DELIM = ".";
 		String jobName = WordUtils.capitalizeFully(job.getName()).replaceAll(" ", ""); // camelCase the name
 		return jobName + DELIM + "J" + job.getId().toString() + DELIM;
+	}
+	
+	@Override
+	public String generateJobSoftwareBaseFolderName(Job job, Software software){
+		return WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId() + "/" + software.getIName();
 	}
 	
 	/*

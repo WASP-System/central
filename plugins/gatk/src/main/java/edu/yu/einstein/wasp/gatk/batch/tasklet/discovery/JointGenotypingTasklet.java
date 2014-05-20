@@ -128,7 +128,7 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		w.setProcessorRequirements(AbstractGatkTasklet.THREADS_8);
 		w.setSecureResults(true);
 		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
-		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + jobId);
+		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
 		w.addResultFiles(rawVcfOutG);
 		w.addResultFiles(annotatedVcfOutG);
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();

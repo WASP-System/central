@@ -112,8 +112,6 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
 		
 		WorkUnit w = bwa.getAln(cellLib, fg, jobParameters);
 		
-		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
-   
 		GridResult result = gridHostResolver.execute(w);
 		
 		//place the grid result in the step context
