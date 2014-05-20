@@ -2,16 +2,11 @@ package edu.yu.einstein.wasp.integration.messages.templates;
 
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 
 import edu.yu.einstein.wasp.exception.WaspMessageInitializationException;
-import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
-import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
-import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.service.SampleService;
 
 /**
  * Message template for completion of jobs launched by LaunchManyJobsTasklet

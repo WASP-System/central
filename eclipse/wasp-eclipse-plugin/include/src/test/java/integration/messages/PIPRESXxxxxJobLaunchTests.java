@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessagingException;
 import org.springframework.integration.channel.DirectChannel;
-import org.springframework.integration.channel.PublishSubscribeChannel;
+import org.springframework.messaging.SubscribableChannel;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.integration.core.MessagingTemplate;
 import org.springframework.test.context.ContextConfiguration;
@@ -72,7 +72,7 @@ public class ___PluginIName___JobLaunchTests extends AbstractTestNGSpringContext
 	// Plugin-derived messages are ultimately broadcast on the 'wasp.channel.notification.default' channel
 	@Autowired
 	@Qualifier("wasp.channel.notification.default")
-	private PublishSubscribeChannel listeningMessageChannel;
+	private SubscribableChannel listeningMessageChannel;
 	
 	private MessagingTemplate messagingTemplate;
 	

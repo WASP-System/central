@@ -1,6 +1,5 @@
 package edu.yu.einstein.wasp.cli;
 
-import edu.yu.einstein.wasp.cli.EchoService;
 
 /**
  * 

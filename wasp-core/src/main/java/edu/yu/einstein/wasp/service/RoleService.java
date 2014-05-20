@@ -14,8 +14,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Role;
+import edu.yu.einstein.wasp.model.User;
 
 @Service
 public interface RoleService extends WaspService {

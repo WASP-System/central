@@ -8,9 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.yu.einstein.wasp.helptag.integration.messages.SimpleHelptagStatusMessageTemplate;
-import edu.yu.einstein.wasp.helptag.plugin.HelptagPlugin;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
@@ -19,20 +16,20 @@ import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.MessagingException;
 import org.springframework.integration.channel.DirectChannel;
-import org.springframework.integration.channel.PublishSubscribeChannel;
-import org.springframework.messaging.MessageHandler;
 import org.springframework.integration.core.MessagingTemplate;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHandler;
+import org.springframework.messaging.MessagingException;
+import org.springframework.messaging.SubscribableChannel;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
+import edu.yu.einstein.wasp.helptag.plugin.HelptagPlugin;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
@@ -74,7 +71,7 @@ public class HelptagJobLaunchTests extends AbstractTestNGSpringContextTests impl
 	// Plugin-derived messages are ultimately broadcast on the 'wasp.channel.notification.default' channel
 	@Autowired
 	@Qualifier("wasp.channel.notification.default")
-	private PublishSubscribeChannel listeningMessageChannel;
+	private SubscribableChannel listeningMessageChannel;
 	
 	private MessagingTemplate messagingTemplate;
 	

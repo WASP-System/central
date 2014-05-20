@@ -4,11 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.Assert;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
-
-import edu.yu.einstein.wasp.exception.ModelCopyException;
 
 public class TestWaspModel {
 	
