@@ -7,6 +7,8 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.DecimalFormat;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.json.JSONObject;
@@ -29,6 +31,8 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
 public class Picard extends SoftwarePackage{
 
 	private static final long serialVersionUID = 6817018170220888568L;
+	private static final String UNIQUELY_ALIGNED_READ_COUNT_FILENAME = "uniquelyAlignedReadCount.txt";
+	private static final String UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FILENAME = "uniquelyAlignedNonRedundantReadCount.txt";
 	
 	@Autowired
 	PicardService picardService;
@@ -109,14 +113,30 @@ public class Picard extends SoftwarePackage{
 		return command;
 	}
 	
+	public String getUniquelyAlignedReadCountCmd(String bamFileName){
+		String command = "";
+		if(bamFileName==null || bamFileName.isEmpty()){
+			return command;
+		}
+		return "samtools view -c -F 0x104 -q 1 " + bamFileName + " > " + UNIQUELY_ALIGNED_READ_COUNT_FILENAME;//includes duplicates
+	}
+	
+	public String getUniquelyAlignedNonRedundantReadCountCmd(String bamFileName){
+		String command = "";
+		if(bamFileName==null || bamFileName.isEmpty()){
+			return command;
+		}
+		return "samtools view -c -F 0x504 -q 1 " + bamFileName + " > " + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FILENAME;//excludes duplicates
+	}
+	
 	/**
-	 * save Picard dedup metrics (if exists) to cellLibrary Meta 
+	 * save alignment metrics, including Picard dedup metrics and unqielyAligned Metrics
 	 * @param SampleSource cellLib
 	 * @param FileGroup metricsG
 	 * @param String scratchDirectory
 	 * @return void
 	 */
-	public void savePicardDedupMetrics(SampleSource cellLib, String dedupMetricsFilename, String scratchDirectory, GridHostResolver gridHostResolver){
+	public void saveAlignmentMetrics(SampleSource cellLib, String dedupMetricsFilename, String scratchDirectory, GridHostResolver gridHostResolver){
 			
 		/*
 		 http://picard.sourceforge.net/picard-metric-definitions.shtml#DuplicationMetrics
@@ -137,12 +157,42 @@ public class Picard extends SoftwarePackage{
 		//LIBRARY 	UNPAIRED_READS_EXAMINED 	READ_PAIRS_EXAMINED	UNMAPPED_READS	UNPAIRED_READ_DUPLICATES	READ_PAIR_DUPLICATES	READ_PAIR_OPTICAL_DUPLICATES	PERCENT_DUPLICATION	 ESTIMATED_LIBRARY_SIZE
 			
 		*/
-		logger.debug("starting savePicardDedupMetrics");
+		logger.debug("starting saveAlignmentMetrics");
 
 		if(cellLib==null || dedupMetricsFilename==null || dedupMetricsFilename.isEmpty() || scratchDirectory==null || scratchDirectory.isEmpty()){
+			logger.debug("major problem in starting saveAlignmentMetrics: something is unexpectedly null or empty");
 			return;
 		}
-						
+		
+		JSONObject json = new JSONObject();
+		try{
+			Map <String,String> picardDedupMetricsMap = picardService.getPicardDedupMetrics(dedupMetricsFilename, scratchDirectory, gridHostResolver);
+			logger.debug("size of dedupMetrics in saveAlignmentMetrics: " + picardDedupMetricsMap.size());
+			Map <String,String> uniquelyAlignedReadCountMetricMap = picardService.getUniquelyAlignedReadCountMetrics(UNIQUELY_ALIGNED_READ_COUNT_FILENAME, UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FILENAME, scratchDirectory, gridHostResolver);
+			
+			//capture and add and print out jsaon
+			logger.debug("dedupMetrics output:");
+			for (String key : picardDedupMetricsMap.keySet()) {
+				logger.debug(key + " : " + picardDedupMetricsMap.get(key));
+				json.put(key, picardDedupMetricsMap.get(key));
+			}
+			logger.debug("uniquelyAlignedMetrics output:");
+			for (String key : uniquelyAlignedReadCountMetricMap.keySet()) {
+				logger.debug(key + " : " + uniquelyAlignedReadCountMetricMap.get(key));
+				json.put(key, uniquelyAlignedReadCountMetricMap.get(key));
+			}
+			
+			logger.debug("json output from saveAlignmentMetrics: ");
+			logger.debug(json.toString());
+			
+			picardService.setAlignmentMetrics(cellLib, json);
+			logger.debug("successfully saved the picard dedup metrics");
+			
+		} catch (Exception e) {
+			logger.debug("exception in saveAlignmentMetrics: " + e.getMessage());
+		} 
+		
+		/*
 		WorkUnit w = new WorkUnit();
 		w.setProcessMode(ProcessMode.SINGLE);
 		String UNPAIRED_READS_EXAMINED = "";
@@ -158,7 +208,7 @@ public class Picard extends SoftwarePackage{
 		String PERCENT_DUPLICATION = "";//this value is really a fraction, so store in FRACTION_DUPLICATED
 		String FRACTION_DUPLICATED = "";//identical to PERCENT_DUPLICATION, just provided with a more descriptive name
 		
-		JSONObject json = new JSONObject();
+		
 		
 		try {
 			GridWorkService workService = gridHostResolver.getGridWorkService(w);
@@ -222,16 +272,19 @@ public class Picard extends SoftwarePackage{
 					logger.debug("Addiditial Derived dedupMetrics:  =  MAPPED_READS: " + MAPPED_READS + "; TOTAL_READS: " + TOTAL_READS + "; FRACTION_MAPPED: " + FRACTION_MAPPED + "; DUPLICATED_READS: " + DUPLICATED_READS);
 										
 					logger.debug("ALL dedupMetrics displayed via json.toString():  =  " + json.toString());
-					
-					picardService.setDedupMetrics(cellLib, json);
-					logger.debug("successfully saved the picard dedup metrics");
+					picardService.setAlignmentMetrics(cellLib, json);				
 				} 
 			}
 			br.close();					
 		} catch (Exception e) {
-			logger.debug("unable to read from dedupMetricsFilename: " + dedupMetricsFilename );
+			logger.debug("unable to read from dedupMetricsFilename: " + dedupMetricsFilename + " ; e.message = " + e.getMessage());
 		} 
+		*/
 		
-		logger.debug("ending savePicardDedupMetrics");
+		//picardService.setAlignmentMetrics(cellLib, json);
+		
+		
+		
+		logger.debug("ending saveAlignmentMetrics");
 	}
 }

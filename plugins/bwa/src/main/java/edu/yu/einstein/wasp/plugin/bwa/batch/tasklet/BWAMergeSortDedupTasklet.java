@@ -190,13 +190,23 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 			w.getResultFiles().add(metricsG);
 			String tempMergedBamFilename = "merged.${" + WorkUnit.OUTPUT_FILE + "[0]}";
 			String dedupMetricsFilename = "${" + WorkUnit.OUTPUT_FILE + "[2]}";
-			stepExecutionContext.put("dedupMetricsFilename", dedupMetricsFilename);
 			w.addCommand(picard.getMergeBamCmd("*.out.sam", tempMergedBamFilename, null, MEMORY_GB_4));
 			w.addCommand(picard.getMarkDuplicatesCmd(tempMergedBamFilename, outputBamFilename, outputBaiFilename, dedupMetricsFilename, MEMORY_GB_4));
-			w.addCommand("samtools view -c -F 0x104 -q 1 " + outputBamFilename + " > mappedUniquelyAlignedWithDuplicatesReadCount.txt");
-			w.addCommand("samtools view -c -F 0x504 -q 1 " + outputBamFilename + " > mappedUniquelyAlignedWithoutDuplicatesReadCount.txt");
+			//w.addCommand("samtools view -c -F 0x104 -q 1 " + outputBamFilename + " > mappedUniquelyAlignedWithDuplicatesReadCount.txt");
+			w.addCommand(picard.getUniquelyAlignedReadCountCmd(outputBamFilename));
+			//w.addCommand("samtools view -c -F 0x504 -q 1 " + outputBamFilename + " > mappedUniquelyAlignedWithoutDuplicatesReadCount.txt");
+			w.addCommand(picard.getUniquelyAlignedNonRedundantReadCountCmd(outputBamFilename));
+			
+			w.addCommand("ln -s " + dedupMetricsFilename + " " + metricsOutput);//will, I hope, permit the reading of file dedupMetricsFilename 
+			
 		} else {
 			w.addCommand(picard.getMergeBamCmd("*.out.sam", outputBamFilename, outputBaiFilename, MEMORY_GB_4));
+			//NOT GOOD; RETHINK THIS-regarding name of dedupfile (whih needs to be saved)
+			//String dedupMetricsFilename = "${" + WorkUnit.OUTPUT_FILE + "[2]}";
+			//stepExecutionContext.put("dedupMetricsFilename", dedupMetricsFilename);
+			//w.addCommand(picard.getMarkDuplicatesCmd(outputBamFilename, "notToBeSavedBamFile", "notToBeSavedBaiFile", dedupMetricsFilename, MEMORY_GB_4));
+			//w.addCommand(picard.getUniquelyAlignedWithDuplicatesReadCountCmd(outputBamFilename));
+			//w.addCommand(picard.getUniquelyAlignedWithoutDuplicatesReadCountCmd(outputBamFilename));
 		}	
 		w.setWorkingDirectory(scratchDirectory);
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
@@ -221,9 +231,6 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		Integer metricsGId = null; 
 		if (stepExecutionContext.containsKey("metricsGID"))
 		        metricsGId = stepExecutionContext.getInt("metricsGID");
-		String dedupMetricsFilename = null;
-		if (stepExecutionContext.containsKey("dedupMetricsFilename"))
-			dedupMetricsFilename = stepExecutionContext.getString("dedupMetricsFilename");
 		
 		Picard picard = (Picard) bwa.getSoftwareDependencyByIname("picard");
 		
@@ -239,19 +246,15 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		if (baiGId != null)
 			fileService.getFileGroupById(baiGId).setIsActive(1);	
 		if (metricsGId != null){
-			fileService.getFileGroupById(metricsGId).setIsActive(1);
-			/* does NOT work, as fileHandleList.get(0).getFileName() is not the name of the file in scratchDir
+			//fileService.getFileGroupById(metricsGId).setIsActive(1);
 			FileGroup metricsG = fileService.getFileGroupById(metricsGId);
 			metricsG.setIsActive(1);
 			List<FileHandle> fileHandleList = new ArrayList<FileHandle>(metricsG.getFileHandles());
+			logger.debug("yes, at A");
 			if(fileHandleList.size()==1){
-				picard.savePicardDedupMetrics(cellLib, fileHandleList.get(0).getFileName(), scratchDirectory, gridHostResolver);
-			}
-			*/	
-			logger.debug("prior to entering if statment regarding the dedupMetricsFile with name: " + dedupMetricsFilename);
-			if(dedupMetricsFilename!=null){
-				logger.debug("dedupMetricsFilename!=null so call picard.savePicardDedupMetrics()");
-				picard.savePicardDedupMetrics(cellLib, dedupMetricsFilename, scratchDirectory, gridHostResolver);
+				logger.debug("yes, at B");
+				picard.saveAlignmentMetrics(cellLib, fileHandleList.get(0).getFileName(), scratchDirectory, this.gridHostResolver);
+				logger.debug("yes, at C");
 			}
 		}
 	}
