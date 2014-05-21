@@ -192,21 +192,25 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 			String dedupMetricsFilename = "${" + WorkUnit.OUTPUT_FILE + "[2]}";
 			w.addCommand(picard.getMergeBamCmd("*.out.sam", tempMergedBamFilename, null, MEMORY_GB_4));
 			w.addCommand(picard.getMarkDuplicatesCmd(tempMergedBamFilename, outputBamFilename, outputBaiFilename, dedupMetricsFilename, MEMORY_GB_4));
+			
 			//w.addCommand("samtools view -c -F 0x104 -q 1 " + outputBamFilename + " > mappedUniquelyAlignedWithDuplicatesReadCount.txt");
 			w.addCommand(picard.getUniquelyAlignedReadCountCmd(outputBamFilename));
 			//w.addCommand("samtools view -c -F 0x504 -q 1 " + outputBamFilename + " > mappedUniquelyAlignedWithoutDuplicatesReadCount.txt");
 			w.addCommand(picard.getUniquelyAlignedNonRedundantReadCountCmd(outputBamFilename));
 			
-			w.addCommand("ln -s " + dedupMetricsFilename + " " + metricsOutput);//will, I hope, permit the reading of file dedupMetricsFilename 
+			w.addCommand("ln -s " + dedupMetricsFilename + " " + metricsOutput);//permits reading of file scratch/dedupMetricsFilename 
 			
 		} else {
 			w.addCommand(picard.getMergeBamCmd("*.out.sam", outputBamFilename, outputBaiFilename, MEMORY_GB_4));
 			//NOT GOOD; RETHINK THIS-regarding name of dedupfile (whih needs to be saved)
-			//String dedupMetricsFilename = "${" + WorkUnit.OUTPUT_FILE + "[2]}";
-			//stepExecutionContext.put("dedupMetricsFilename", dedupMetricsFilename);
 			//w.addCommand(picard.getMarkDuplicatesCmd(outputBamFilename, "notToBeSavedBamFile", "notToBeSavedBaiFile", dedupMetricsFilename, MEMORY_GB_4));
-			//w.addCommand(picard.getUniquelyAlignedWithDuplicatesReadCountCmd(outputBamFilename));
-			//w.addCommand(picard.getUniquelyAlignedWithoutDuplicatesReadCountCmd(outputBamFilename));
+			///////w.addCommand("samtools view -c -F 0x104 -q 1 " + outputBamFilename + " > mappedUniquelyAlignedWithDuplicatesReadCount.txt");
+			//w.addCommand(picard.getUniquelyAlignedReadCountCmd(outputBamFilename));
+			//////w.addCommand("samtools view -c -F 0x504 -q 1 " + outputBamFilename + " > mappedUniquelyAlignedWithoutDuplicatesReadCount.txt");
+			//w.addCommand(picard.getUniquelyAlignedNonRedundantReadCountCmd(outputBamFilename));
+			
+			//w.addCommand("ln -s " + dedupMetricsFilename + " " + metricsOutput);//permits reading of file scratch/dedupMetricsFilename 
+
 		}	
 		w.setWorkingDirectory(scratchDirectory);
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
@@ -250,11 +254,8 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 			FileGroup metricsG = fileService.getFileGroupById(metricsGId);
 			metricsG.setIsActive(1);
 			List<FileHandle> fileHandleList = new ArrayList<FileHandle>(metricsG.getFileHandles());
-			logger.debug("yes, at A");
-			if(fileHandleList.size()==1){
-				logger.debug("yes, at B");
-				picard.saveAlignmentMetrics(cellLib, fileHandleList.get(0).getFileName(), scratchDirectory, this.gridHostResolver);
-				logger.debug("yes, at C");
+			if(fileHandleList.size()==1){				
+				picard.saveAlignmentMetrics(cellLib, fileHandleList.get(0).getFileName(), scratchDirectory, this.gridHostResolver);				
 			}
 		}
 	}

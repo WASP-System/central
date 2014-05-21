@@ -11,6 +11,7 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.codehaus.jackson.JsonParser;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.model.SampleSourceMeta;
 import edu.yu.einstein.wasp.plugin.picard.service.PicardService;
 
 import edu.yu.einstein.wasp.service.SampleService;
@@ -32,6 +34,11 @@ import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 @Service
 @Transactional("entityManager")
 public class PicardServiceImpl extends WaspServiceImpl implements PicardService {
+	
+	private static final String BAMFILE_ALIGNMENT_METRICS_META_AREA = "bamFile";
+	private static final String BAMFILE_ALIGNMENT_METRICS_META_SPECIFIER = "alignmentMetrics";
+	private static final String BAMFILE_ALIGNMENT_METRICS_META_KEY = BAMFILE_ALIGNMENT_METRICS_META_AREA + "." + BAMFILE_ALIGNMENT_METRICS_META_SPECIFIER;
+
 	@Autowired
 	SampleService sampleService;
 
@@ -45,127 +52,91 @@ public class PicardServiceImpl extends WaspServiceImpl implements PicardService 
 	}
 
 	public void setAlignmentMetrics(SampleSource cellLib, JSONObject json)throws MetadataException{
-		sampleService.setLibraryOnCellMeta(cellLib, "bamFile", "alignmentMetrics", json.toString());
+		sampleService.setLibraryOnCellMeta(cellLib, BAMFILE_ALIGNMENT_METRICS_META_AREA, BAMFILE_ALIGNMENT_METRICS_META_SPECIFIER, json.toString());
 	}
-
-	public Map<String,String> getPicardDedupMetrics(String dedupMetricsFilename, String scratchDirectory, GridHostResolver gridHostResolver)throws Exception{
-		
-		/*
-		Column Definitions in the stats file generated from Picard.DuplicationMetrics 
-		taken from http://picard.sourceforge.net/picard-metric-definitions.shtml#DuplicationMetrics
-		LIBRARY: The library on which the duplicate marking was performed.
-		unpairedReadsExamined: The number of mapped reads examined which did not have a mapped mate pair, either because the read is unpaired, or the read is paired to an unmapped mate.
-		readPairsExamined: The number of mapped read pairs examined.
-		unmappedReads: The total number of unmapped reads examined.
-		unpairedReadDuplicates: The number of fragments that were marked as duplicates.
-		readPairDuplicates: The number of read pairs that were marked as duplicates.
-		readPairOpticalDuplicates: The number of read pairs duplicates that were caused by optical duplication. Value is always < readPairDuplicates, which counts all duplicates regardless of source.
-		percentDuplication: The percentage of mapped sequence that is marked as duplicate.
-		ESTIMATED_LIBRARY_SIZE: The estimated number of unique molecules in the library based on PE duplication.
-		ExtractIlluminaBarcodes.BarcodeMetric				
-		Metrics produced by the ExtractIlluminaBarcodes program that is used to parse data in the basecalls directory and determine to which barcode each read should be assigned.
-		
-		header in output file:
-		//LIBRARY 	unpairedReadsExamined 	readPairsExamined	unmappedReads	unpairedReadDuplicates	readPairDuplicates	readPairOpticalDuplicates	percentDuplication	 ESTIMATED_LIBRARY_SIZE
-			
-		*/
-		logger.debug("entering getPicardDedupMetrics");
-		
-		Map<String,String> picardDedupMetricsMap = new HashMap<String,String>();
-		
-		WorkUnit w = new WorkUnit();
-		w.setProcessMode(ProcessMode.SINGLE);
-		String unpairedReadsExamined = "";
-		String readPairsExamined	= "";
-		String mappedReads = "";//derived: unpairedReadsExamined + readPairsExamined
-		String unmappedReads = "";
-		String totalReads = "";//derived: mappedReads + unmappedReads
-		String fractionMapped = "";//derived: mappedReads / totalReads
-		String unpairedReadDuplicates	= "";
-		String readPairDuplicates	= "";
-		String duplicateReads = "";//derived: unpairedReadDuplicates +  readPairDuplicates (these are mapped duplicates!)
-		String readPairOpticalDuplicates = "";
-		String percentDuplication = "";//this value is really a fraction, so store in fractionDuplicated
-		String fractionDuplicated = "";//identical to percentDuplication, just provided with a more descriptive name
-				
-		GridWorkService workService = gridHostResolver.getGridWorkService(w);
-		GridTransportConnection transportConnection = workService.getTransportConnection();
-		w.setWorkingDirectory(scratchDirectory);
-		logger.debug("setting cat command in getPicardDedupMetrics");
-		w.addCommand("cat " + dedupMetricsFilename + " | grep '.' | tail -1");//grep '.' excludes blank lines; tail to get the data
-		
-		GridResult r = transportConnection.sendExecToRemote(w);
-		InputStream is = r.getStdOutStream();
-		BufferedReader br = new BufferedReader(new InputStreamReader(is)); 
-		boolean keepReading = true;
-		int lineNumber = 0;
-		logger.debug("getting ready to read picardDedupMetrics file");
-		while (keepReading){
-			lineNumber++;
-			String line = null;
-			line = br.readLine();
-			logger.debug("line number = " + lineNumber + " and line = " + line);
-			if (line == null)
-				keepReading = false;
-			else if (lineNumber == 1){
-				String [] stringArray = line.split("\\t");							
-				unpairedReadsExamined = stringArray[1];
-				picardDedupMetricsMap.put("unpairedReads", unpairedReadsExamined);//unpairedReadsExamined
-				readPairsExamined	= stringArray[2];
-				picardDedupMetricsMap.put("pairedReads", readPairsExamined);//readPairsExamined
-				unmappedReads = stringArray[3];
-				picardDedupMetricsMap.put("unmappedReads", unmappedReads);//unmappedReads
-				unpairedReadDuplicates = stringArray[4];
-				picardDedupMetricsMap.put("unpairedReadDuplicates", unpairedReadDuplicates);//unpairedReadDuplicates
-				readPairDuplicates	= stringArray[5];
-				picardDedupMetricsMap.put("pairedReadDuplicates", readPairDuplicates);//readPairDuplicates
-				readPairOpticalDuplicates = stringArray[6];
-				picardDedupMetricsMap.put("pairedReadOpticalDuplicates", readPairOpticalDuplicates);//readPairOpticalDuplicates
-				percentDuplication = stringArray[7];
-				fractionDuplicated = percentDuplication;//percentDuplication is actually a fraction duplicated
-				picardDedupMetricsMap.put("percentDuplicated", percentDuplication);//percentDuplication
-				picardDedupMetricsMap.put("fractionDuplicated", fractionDuplicated);//fractionDuplicated
-				logger.debug("finished reading from the dedupMetrics file");
-				
-				//work up derived values
-				Integer mappedReads_integer = Integer.valueOf(unpairedReadsExamined) + Integer.valueOf(readPairsExamined);
-				mappedReads = mappedReads_integer.toString();
-				picardDedupMetricsMap.put("mappedReads", mappedReads);
-				Integer unmappedReads_integer = Integer.valueOf(unmappedReads);
-				Integer totalReads_integer = mappedReads_integer + unmappedReads_integer;
-				totalReads = totalReads_integer.toString();
-				picardDedupMetricsMap.put("totalReads", totalReads);
-				
-				Double fractionMapped_double = 0.0;
-				fractionMapped = fractionMapped_double.toString();
-				if(mappedReads_integer>0 && totalReads_integer>0){
-					fractionMapped_double = (double) mappedReads_integer / totalReads_integer;
-					DecimalFormat myFormat = new DecimalFormat("0.000000");
-					fractionMapped = myFormat.format(fractionMapped_double);						
-				}					
-				picardDedupMetricsMap.put("fractionMapped", fractionMapped);
-				
-				Integer duplicateReads_integer = Integer.valueOf(unpairedReadDuplicates) + Integer.valueOf(readPairDuplicates);
-				duplicateReads = duplicateReads_integer.toString();
-				picardDedupMetricsMap.put("duplicateReads", duplicateReads);
-
-				logger.debug("output of gathered alignment metrics (key:value) :");
-				for (String key : picardDedupMetricsMap.keySet()) {
-					logger.debug(key + " : " + picardDedupMetricsMap.get(key));
-				}
-			} 
+	private String getAlignmentMetric(SampleSource cellLib, String jsonKey){
+		String value = "";
+		JSONObject json = getAlignmentMetricsMetaAsJSON(cellLib);
+		if(json.has(jsonKey)){
+			value = json.getString(jsonKey);
 		}
-		br.close();					
-		
-		logger.debug("exiting getPicardDedupMetrics");
-		return picardDedupMetricsMap;
+		return value;
 	}
-
-	public Map<String,String> getUniquelyAlignedReadCountMetrics(String uniquelyAlignedReadCountfilename, String uniquelyAlignedNonRedundantReadCountfilename,String scratchDirectory, GridHostResolver gridHostResolver){
-		Map<String,String> uniquelyAlignedReadCountMetricsMap = new HashMap<String,String>();
-		return uniquelyAlignedReadCountMetricsMap;
+	private JSONObject getAlignmentMetricsMetaAsJSON(SampleSource cellLib){
 		
+		JSONObject jsonObj = null;
+		String meta = "";
+		for(SampleSourceMeta ssm : cellLib.getSampleSourceMeta()){
+			if(ssm.getK().equalsIgnoreCase(BAMFILE_ALIGNMENT_METRICS_META_KEY)){
+				meta = ssm.getV();
+			}
+		}
+		if(!meta.isEmpty()){
+			jsonObj = new JSONObject(meta);
+		}
+		return jsonObj;
 	}
 	
-
+	public String getUnpairedMappedReads(SampleSource cellLib){		
+		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_UNPAIRED_READS);
+	}
+	public String getPairedMappedReads(SampleSource cellLib){		
+		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_PAIRED_READS);
+	}
+	public String getUnmappedReads(SampleSource cellLib){		
+		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_UNMAPPED_READS);
+	}
+	public String getUnpairedMappedReadDuplicates(SampleSource cellLib){		
+		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_UNPAIRED_READ_DUPLICATES);
+	}
+	public String getPairedMappedReadDuplicates(SampleSource cellLib){		
+		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_PAIRED_READ_DUPLICATES);
+	}
+	public String getPairedMappedReadOpticalDuplicates(SampleSource cellLib){		
+		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_PAIRED_READ_OPTICAL_DUPLICATES);
+	}
+	
+	public String getFractionMapped(SampleSource cellLib){		
+		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_FRACTION_MAPPED);
+	}
+	public String getMappedReads(SampleSource cellLib){		
+		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_MAPPED_READS);
+	}
+	public String getTotalReads(SampleSource cellLib){		
+		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_TOTAL_READS);
+	}	
+	public String getFractionMappedAsCalculation(SampleSource cellLib){		
+		String fractionMapped = this.getFractionMapped(cellLib);
+		String mappedReads = this.getMappedReads(cellLib);
+		String totalReads = this.getTotalReads(cellLib);		
+		return mappedReads + " / " + totalReads + " = " + fractionMapped;
+	}
+	
+	public String getFractionDuplicated(SampleSource cellLib){		
+		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_FRACTION_DUPLICATED);//fraction of mapped reads
+	}
+	public String getDuplicateReads(SampleSource cellLib){		
+		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_DUPLICATE_READS);
+	}
+	public String getFractionDuplicatedAsCalculation(SampleSource cellLib){	
+		String fractionDuplicated = getFractionDuplicated(cellLib);
+		String duplicateReads = getDuplicateReads(cellLib);
+		String mappedReads = this.getMappedReads(cellLib);		
+		return duplicateReads + " / " + mappedReads + " = " + fractionDuplicated;	}
+	
+	public String getFractionUniqueNonRedundant(SampleSource cellLib){	
+		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT);
+	}
+	public String getUniqueReads(SampleSource cellLib){	
+		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS);
+	}
+	public String getUniqueNonRedundantReads(SampleSource cellLib){	
+		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS);
+	}
+	public String getFractionUniqueNonRedundantAsCalculation(SampleSource cellLib){	
+		String fractionUniqueNonRedundant = getFractionUniqueNonRedundant(cellLib);
+		String uniqueReads = getUniqueReads(cellLib);
+		String uniqueNonRedundantReads = getUniqueNonRedundantReads(cellLib);		
+		return uniqueNonRedundantReads + " / " + uniqueReads + " = " + fractionUniqueNonRedundant;
+	}
 }
