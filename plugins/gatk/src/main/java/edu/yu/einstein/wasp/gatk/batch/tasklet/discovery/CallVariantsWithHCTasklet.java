@@ -1,13 +1,16 @@
 package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,11 +36,17 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 	
 	private static Logger logger = LoggerFactory.getLogger(CallVariantsWithHCTasklet.class);
 	
+	private Long jobExecutionId;
+	
 	@Autowired
 	private StrategyService strategyService;
 	
-	public CallVariantsWithHCTasklet(String inputFilegroupIds, String outputFilegroupIds, Integer jobId) {
+	@Autowired
+	private JobExplorer jobExplorer;
+	
+	public CallVariantsWithHCTasklet(String inputFilegroupIds, String outputFilegroupIds, Integer jobId, Long parentJobExecutionId) {
 		super(inputFilegroupIds, outputFilegroupIds, jobId);
+		this.jobExecutionId = parentJobExecutionId;
 	}
 
 	@Override
@@ -70,9 +79,12 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 		sd.add(gatk);
 		w.setSoftwareDependencies(sd);
 		
-		Map<String,Object> jobParameters = context.getStepContext().getJobParameters();
-		for (String key : jobParameters.keySet()) {
-			logger.trace("Key: " + key + " Value: " + jobParameters.get(key).toString());
+		Map<String,Object> jobParameters = new HashMap<>();
+		Map<String, JobParameter> paramMap = jobExplorer.getJobExecution(jobExecutionId).getJobParameters().getParameters();
+		for (String key : paramMap.keySet()) {
+			Object value =  paramMap.get(key).getValue();
+			logger.trace("Key: " + key + " Value: " + value.toString());
+			jobParameters.put(key, value);
 		}
 		Strategy strategy = strategyService.getThisJobsStrategy(StrategyType.LIBRARY_STRATEGY, job);
 		String wxsIntervalFile = null;

@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.integration.endpoints;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -13,6 +14,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.Assert;
+import edu.yu.einstein.wasp.batch.SimpleManyJobRecipient;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionException;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionReadinessException;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
@@ -78,6 +81,8 @@ public class BatchJobHibernationManager {
 	
 	public static final String COMPLETED_CHILD_IDS = "completedChildren";
 	public static final String ABANDONED_CHILD_IDS = "abandonedChildren";
+	
+	public static final String MANY_JOB_RECIPIENT_KEY = "mjr";
 	
 	/**
 	 * Delimited list of failed jobs to be stored in the StepExecutionContext of the LintenForManyStatusMessagesTasklet.
@@ -1031,9 +1036,36 @@ public class BatchJobHibernationManager {
         jobRepository.updateExecutionContext(se);
     }
     
+    @Transactional
     public synchronized void registerManyStepCompletionListener(ManyJobRecipient jobRecipient) {
-        logger.debug("registering step with parent id " + jobRecipient.getParentID());
+    	if (!SimpleManyJobRecipient.class.isInstance(jobRecipient))
+    		jobRecipient = new SimpleManyJobRecipient(jobRecipient); // otherwise trouble when making a json object later
+    	logger.debug("registering step with parent id " + jobRecipient.getParentID());
         waitingManyJobs.put(jobRecipient.getParentID(), jobRecipient);
+        
+        // persist jobRecipient object in stepExecutionContext in Json format. This is required if re-registering the jobRecipient after
+        // a batch restart.
+        JobExecution je= jobExplorer.getJobExecution(jobRecipient.getJobExecutionId());
+        if (je == null){
+        	logger.warn("Unable to retrieve a jobExecution with id=" + jobRecipient.getJobExecutionId());
+        	return;
+        }
+        StepExecution se = jobRepository.getLastStepExecution(je.getJobInstance(), jobRecipient.getStepName());
+        if (se == null){
+        	logger.warn("Unable to retrieve a StepExecution with jobExecution id=" + jobRecipient.getJobExecutionId() + 
+        			" and step name = '" + jobRecipient.getStepName() + "'");
+        	return;
+        }	
+        ObjectMapper jsonObjectmapper = new ObjectMapper();
+		try {
+			String jsonText = jsonObjectmapper.writeValueAsString(jobRecipient);
+			se.getExecutionContext().putString(MANY_JOB_RECIPIENT_KEY, jsonText);
+			jobRepository.updateExecutionContext(se);
+			logger.debug("Updated StepExecutionContext with json for jobRecipient where jobExecution id=" + jobRecipient.getJobExecutionId() + 
+        			" and step name = '" + jobRecipient.getStepName() + "': " + jsonText);
+		} catch (IOException e) {
+			logger.warn("Unable to convert jobRecipient to json for persistance in StepExecution Context: " + e.getLocalizedMessage());
+		}
     }
     
     public synchronized void unregisterManyStepCompletionListener(ManyJobRecipient jobRecipient) {
