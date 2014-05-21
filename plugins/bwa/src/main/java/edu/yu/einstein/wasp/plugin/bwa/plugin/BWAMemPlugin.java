@@ -94,7 +94,7 @@ public class BWAMemPlugin extends AbstractBWAPlugin {
 	@Override
 	public Message<String> alignHelp() {
 		String mstr = "BWA plugin: align registered fastq files:\n" +
-				"wasp -T bwa-backtrack -t align -m \'{cellLibrary:\"101\"}\'\n";
+				"wasp -T bwa-mem -t align -m \'{cellLibrary:\"101\"}\'\n";
 		return MessageBuilder.withPayload(mstr).build();
 	}
 
