@@ -181,12 +181,13 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet i
 
     @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
+    	ExitStatus exitStatus = super.afterStep(stepExecution);
+    	exitStatus = exitStatus.and(getExitStatus(stepExecution));
         if (stepExecution.getExitStatus().isHibernating()) {
             // do stuff immediately before hibernating
             logger.trace(stepExecution.getStepName() + " afterStep going into hibernation");
             return ExitStatus.HIBERNATING;
         } else if (!stepExecution.getExitStatus().isRunning()) { // ExitStatus not "EXECUTING", "HIBERNATING" or "UNKNOWN"
-            ExitStatus exitStatus = super.afterStep(stepExecution);
             exitStatus = exitStatus.and(getExitStatus(stepExecution));
             // set exit status to equal the most severe outcome of all received messages
             this.messageQueue.clear(); // clean up in case of restart
@@ -195,12 +196,9 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet i
             if (!children.isEmpty())
             	batchJobHibernationManager.unregisterManyStepCompletionListener(this);
             jobExecution.getExecutionContext().remove(BatchJobHibernationManager.PARENT_JOB_ID_KEY);
-            return exitStatus;
         }
-        ExitStatus exitStatus = super.afterStep(stepExecution);
-        exitStatus = exitStatus.and(getExitStatus(stepExecution));
         logger.debug(stepExecution.getStepName() + " going to exit step with ExitStatus=" + exitStatus + " step was running but not hibernating!");
-        return super.afterStep(stepExecution);
+        return exitStatus;
     }
 
     private ExitStatus getExitStatus(StepExecution stepExecution) {

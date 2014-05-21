@@ -298,7 +298,7 @@ public class BatchJobHibernationManager {
                                                 // all messages.  Here we eschew abandonment to allow the listener to scoop up all
 					        // remaining messages.
 
-                                                abandonJobExecution(se);                                                
+                        abandonJobExecution(se);                                                
 						// remove all step executions being monitored for this abandoned JobExecution
 						removeStepExecutionFromMessageMap(je, messageTemplatesWakingStepExecutions);
 						removeStepExecutionFromMessageMap(je, messageTemplatesAbandoningStepExecutions);
@@ -386,37 +386,43 @@ public class BatchJobHibernationManager {
 		    if (!messageTemplate.getHeaders().containsKey(WaspMessageTemplate.PARENT_ID)) {
 		        logger.warn("got message " + messageTemplate.toString() + " which claims to be of type MANY, but does not contain a PARENT_ID");
 		    } else {
-                        UUID parentId = UUID.fromString((String) messageTemplate.getHeader(WaspMessageTemplate.PARENT_ID));
-                        Integer childId = Integer.decode(messageTemplate.getHeader(WaspMessageTemplate.CHILD_MESSAGE_ID).toString());
-                        WaspStatus status = messageTemplate.getStatus();
-                        if (status == WaspStatus.COMPLETED) {
-                            logger.debug("Marking " + parentId.toString() + " child " + childId + " as COMPLETED");
-                            markManyJobAsCompleted(waitingManyJobs.get(parentId), childId);
-                        } else {
-                            // anything other than completed will be treated as abandoned...
-                            logger.debug("Marking " + parentId.toString() + " child " + childId + " as ABANDONED");
-                            markManyJobAsAbandoned(waitingManyJobs.get(parentId), childId);
-                        }
-                        int comp = 0;
-                        int aban = 0;
-                        if (completedManyJobs.get(parentId) != null)
-                            comp = completedManyJobs.get(parentId).size();
-                        if (abandonedManyJobs.get(parentId) != null)
-                            aban = abandonedManyJobs.get(parentId).size();
-                        
-                        int completed = comp + aban;
-                        int waiting = waitingManyJobs.get(parentId).getChildIDs().size();
-                        
-                        if (completed < waiting) {
-                            logger.trace("Received " + completed + " out of " + waiting + " completion messages for MANY job with parent ID " + parentId);
-                        } else {
-                            logger.debug("Received all " + completed + " out of " + waiting + " completion messages for MANY job with parent ID " + parentId + ", proceeding to wake step.");
-                            doHandleManyComplete(parentId);
-                        }
+                UUID parentId = UUID.fromString((String) messageTemplate.getHeader(WaspMessageTemplate.PARENT_ID));
+                Integer childId = Integer.decode(messageTemplate.getHeader(WaspMessageTemplate.CHILD_MESSAGE_ID).toString());
+                JobExecution je = jobExplorer.getJobExecution(waitingManyJobs.get(parentId).getJobExecutionId());
+                if (isLockedJobExecution(je, LockType.ANY)){
+					logger.debug("JobExecution id=" + je.getId() + " is currently locked. Going to push message back into queue.");
+					throw new WaspBatchJobExecutionReadinessException("Need to push message back into queue as job locked");
+				} else {
+	                WaspStatus status = messageTemplate.getStatus();
+	                if (status == WaspStatus.COMPLETED) {
+	                    logger.debug("Marking " + parentId.toString() + " child " + childId + " as COMPLETED");
+	                    markManyJobAsCompleted(waitingManyJobs.get(parentId), childId);
+	                } else {
+	                    // anything other than completed will be treated as abandoned...
+	                    logger.debug("Marking " + parentId.toString() + " child " + childId + " as ABANDONED");
+	                    markManyJobAsAbandoned(waitingManyJobs.get(parentId), childId);
+	                }
+	                int comp = 0;
+	                int aban = 0;
+	                if (completedManyJobs.get(parentId) != null)
+	                    comp = completedManyJobs.get(parentId).size();
+	                if (abandonedManyJobs.get(parentId) != null)
+	                    aban = abandonedManyJobs.get(parentId).size();
+	                
+	                int completed = comp + aban;
+	                int waiting = waitingManyJobs.get(parentId).getChildIDs().size();
+	                
+	                if (completed < waiting) {
+	                    logger.trace("Received " + completed + " out of " + waiting + " completion messages for MANY job with parent ID " + parentId);
+	                } else {
+	                    logger.debug("Received all " + completed + " out of " + waiting + " completion messages for MANY job with parent ID " + parentId + ", proceeding to wake step.");
+	                    doHandleManyComplete(parentId);
+	                }
+				}
 		    }
 		} else {
-                    logger.debug("messageTemplatesWakingStepExecutions.keySet() does not contain message");
-                }
+			logger.debug("messageTemplatesWakingStepExecutions.keySet() does not contain message");
+        }
 		return awakeningJobExecutionIds;
 	}
 	
@@ -994,6 +1000,7 @@ public class BatchJobHibernationManager {
 		template.removeHeader(WaspStatusMessageTemplate.RESEND);
 	}
 	
+	@Transactional
     public synchronized void markManyJobAsCompleted(ManyJobRecipient recip, Integer childId) {
         logger.trace("getting job execution " + recip.getJobExecutionId());
         JobExecution je = jobExplorer.getJobExecution(recip.getJobExecutionId());
@@ -1013,8 +1020,10 @@ public class BatchJobHibernationManager {
         stepContext.putString(COMPLETED_CHILD_IDS, StringUtils.collectionToDelimitedString(completed, PARENT_JOB_CHILD_LIST_DELIMITER));
         logger.debug("persisting completed: " + StringUtils.collectionToDelimitedString(completed, PARENT_JOB_CHILD_LIST_DELIMITER));
         jobRepository.updateExecutionContext(se);
+        logger.debug("StepContext: " + stepContext.toString());
     }
 
+    @Transactional
     public synchronized void markManyJobAsAbandoned(ManyJobRecipient recip, Integer childId) {
         logger.trace("getting job execution " + recip.getJobExecutionId());
         JobExecution je = jobExplorer.getJobExecution(recip.getJobExecutionId());
@@ -1034,6 +1043,7 @@ public class BatchJobHibernationManager {
         stepContext.putString(ABANDONED_CHILD_IDS, StringUtils.collectionToDelimitedString(abandoned, PARENT_JOB_CHILD_LIST_DELIMITER));
         logger.debug("persisting abandoned: " + StringUtils.collectionToDelimitedString(abandoned, PARENT_JOB_CHILD_LIST_DELIMITER));
         jobRepository.updateExecutionContext(se);
+        logger.debug("StepContext: " + stepContext.toString());
     }
     
     @Transactional
