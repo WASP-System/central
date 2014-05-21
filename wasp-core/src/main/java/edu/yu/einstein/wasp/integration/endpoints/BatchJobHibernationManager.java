@@ -1022,7 +1022,6 @@ public class BatchJobHibernationManager {
         logger.debug("StepContext: " + stepContext.toString());
     }
 
-    @Transactional
     public synchronized void markManyJobAsAbandoned(ManyJobRecipient recip, Integer childId) {
         logger.trace("getting job execution " + recip.getJobExecutionId());
         JobExecution je = jobExplorer.getJobExecution(recip.getJobExecutionId());
@@ -1045,7 +1044,6 @@ public class BatchJobHibernationManager {
         logger.debug("StepContext: " + stepContext.toString());
     }
     
-    @Transactional
     public synchronized void registerManyStepCompletionListener(ManyJobRecipient jobRecipient) {
     	if (!SimpleManyJobRecipient.class.isInstance(jobRecipient))
     		jobRecipient = new SimpleManyJobRecipient(jobRecipient); // otherwise trouble when making a json object later
