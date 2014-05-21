@@ -389,7 +389,7 @@ public class BatchJobHibernationManager {
                 UUID parentId = UUID.fromString((String) messageTemplate.getHeader(WaspMessageTemplate.PARENT_ID));
                 Integer childId = Integer.decode(messageTemplate.getHeader(WaspMessageTemplate.CHILD_MESSAGE_ID).toString());
                 JobExecution je = jobExplorer.getJobExecution(waitingManyJobs.get(parentId).getJobExecutionId());
-                if (isLockedJobExecution(je, LockType.ANY)){
+                if (!lockJobExecution(je, LockType.WAKE)){
 					logger.debug("JobExecution id=" + je.getId() + " is currently locked. Going to push message back into queue.");
 					throw new WaspBatchJobExecutionReadinessException("Need to push message back into queue as job locked");
 				} else {
@@ -414,6 +414,7 @@ public class BatchJobHibernationManager {
 	                
 	                if (completed < waiting) {
 	                    logger.trace("Received " + completed + " out of " + waiting + " completion messages for MANY job with parent ID " + parentId);
+	                    unlockJobExecution(je, LockType.WAKE);
 	                } else {
 	                    logger.debug("Received all " + completed + " out of " + waiting + " completion messages for MANY job with parent ID " + parentId + ", proceeding to wake step.");
 	                    doHandleManyComplete(parentId);
@@ -439,16 +440,14 @@ public class BatchJobHibernationManager {
             reawakenJobExecution(se, WOKEN_ON_MESSAGE_STATUS, WaspStatus.COMPLETED);
             removeStepExecutionFromMessageMap(se, messageTemplatesWakingStepExecutions);
             removeStepExecutionFromMessageMap(se, messageTemplatesAbandoningStepExecutions);
-            unlockJobExecution(je, LockType.ANY);
         } catch (WaspBatchJobExecutionException e) {
-            unlockJobExecution(se.getJobExecution(), LockType.WAKE);
             logger.debug("Problem reawakening job execution and cleaning up 'messageTemplatesWakingStepExecutions': " + e.getLocalizedMessage());
         } catch (Exception e1) {
             logger.warn("Problem reawakening job execution and cleaning up 'messageTemplatesAbandoningStepExecutions'. Caught " + e1.getClass().getName()
                     + " exception.: " + e1.getLocalizedMessage());
-            unlockJobExecution(se.getJobExecution(), LockType.WAKE);
+        } finally {
+        	unlockJobExecution(se.getJobExecution(), LockType.WAKE);
         }
-
     }
 	
 	/**
