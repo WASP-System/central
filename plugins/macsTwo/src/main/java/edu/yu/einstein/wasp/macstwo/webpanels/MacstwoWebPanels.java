@@ -79,6 +79,58 @@ public class MacstwoWebPanels {
 		return panelTab;
 	}
 	
+	public static PanelTab getFrips(List<Sample> testSampleList, Map<Sample, List<Sample>> testSampleControlSampleListMap, Map<String,String> sampleIdControlIdFripMap){
+
+		//create the panelTab to house the panel
+		PanelTab panelTab = new PanelTab();
+		panelTab.setName("FRiP");
+		panelTab.setNumberOfColumns(1);
+
+		//create the panel
+		GridPanel panel = new GridPanel();
+		panel.setTitle("Fraction Of Reads Within Peaks");
+		panel.setDescription("Fraction Of Reads Within Peaks");
+		panel.setResizable(true);
+		panel.setMaximizable(true);	
+		panel.setOrder(1);
+		
+		//create content (think of it as the table)
+		GridContent content = new GridContent();
+		//create the data model 
+		content.addDataFields(new GridDataField("TestSample", "String"));//dataIndex, datatype
+		content.addDataFields(new GridDataField("ControlSample", "String"));//dataIndex, datatype
+		content.addDataFields(new GridDataField("FRiP", "String"));//dataIndex, datatype
+
+		//create columns and associate each column with its displayed header and a data model attribute (dataIndex)
+		content.addColumn(new GridColumn("Test Sample", "TestSample", 250, 0));//header,dataIndex	     width=250; flex=0	
+		content.addColumn(new GridColumn("Control Sample", "ControlSample", 250, 0));//header,dataIndex	 width=250; flex=0	
+		content.addColumn(new GridColumn("FRiP", "FRiP", 1));//header,dataIndex               flex=1
+		
+		//create rows with  information
+		for(Sample testSample : testSampleList){
+			List<Sample> controlSampleList = testSampleControlSampleListMap.get(testSample);
+			for(Sample controlSample : controlSampleList){
+				
+				List<String> row = new ArrayList<String>();
+				
+				row.add(testSample.getName());
+				row.add(controlSample.getName());
+				
+				String frip = sampleIdControlIdFripMap.get(testSample.getId().toString()+"::"+controlSample.getId().toString());
+				if(frip==null || frip.isEmpty()){
+					frip = "?";
+				}
+				row.add(frip);
+				
+				content.addDataRow(row);//add the new row to the content
+			}
+		}
+				
+		panel.setContent(content);//add content to panel
+		panelTab.addPanel(panel);//add panel to panelTab
+		return panelTab;
+	}
+	
 	public static PanelTab getSampleLibraryRuns(List<Sample> testSampleList, Map<Sample, List<Sample>> sampleLibraryListMap, Map<Sample, List<String>> libraryRunInfoListMap){
 
 		//create the panelTab to house the panel

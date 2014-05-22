@@ -1076,4 +1076,6 @@ public interface SampleService extends WaspMessageHandlingService {
 
 	  public boolean isCellLibrary(SampleSource cellLibrary);
 	  
+	  public void setLibraryOnCellMeta(SampleSource cellLibrary, String area, String metaValueName, String metaValue) throws MetadataException;
+			
 }

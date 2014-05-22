@@ -4,7 +4,11 @@
  */
 package edu.yu.einstein.wasp.macstwo.batch.tasklet;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,9 +23,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
+import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
+import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
+import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
+import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.macstwo.software.Macstwo;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -175,9 +184,12 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		logger.debug("testSample.name = " + testSample.getName());		
 		this.testSampleId = testSample.getId();
 
+		Set<SampleSource> setOfCellLibrariesForDerivedFrom = new HashSet<SampleSource>();//tests and controls
+		
 		List<FileHandle> testFileHandleList = new ArrayList<FileHandle>();		
 		for(Integer id : this.testCellLibraryIdList){
 			SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(id);
+			setOfCellLibrariesForDerivedFrom.add(cellLibrary);
 			Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLibrary, bamFileType);
 			logger.debug("test fileGroups size = " + fileGroups.size());
 			for(FileGroup fileGroup : fileGroups){
@@ -209,6 +221,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		List<FileHandle> controlFileHandleList = new ArrayList<FileHandle>();
 		for(Integer id : this.controlCellLibraryIdList){
 			SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(id);
+			setOfCellLibrariesForDerivedFrom.add(cellLibrary);
 			Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLibrary, bamFileType);
 			logger.debug("control fileGroups size = " + fileGroups.size());
 			for(FileGroup fileGroup : fileGroups){
@@ -233,7 +246,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		WorkUnit w = macs2.getPeaks(prefixForFileName, testFileHandleList, controlFileHandleList, jobParametersMap);//configure
 		logger.debug("OK, workunit has been generated");
 		this.commandLineCall = w.getCommand();
-		this.commandLineCall = this.commandLineCall.replaceAll("\\n", "");//the workunit tagged on a newline at the end of the command; so remove it for db storage
+		this.commandLineCall = this.commandLineCall.replaceAll("\\n", "<br /><br />");//the workunit tagged on a newline at the end of the command; so remove it for db storage and replace with <br /> for display purposes
 
 		List<String> listOfFileHandleNames = new ArrayList<String>();
 		
@@ -247,6 +260,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		modelScriptG.setFileType(macs2ModelScriptFileType);
 		modelScriptG.setDescription(modelScript.getFileName());
 		modelScriptG.setSoftwareGeneratedBy(macs2);
+		modelScriptG.setSampleSources(setOfCellLibrariesForDerivedFrom);
 		modelScriptG = fileService.addFileGroup(modelScriptG);
 		this.modelScriptGId = modelScriptG.getId();
 		
@@ -260,6 +274,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		peaksXlsG.setFileType(macs2PeaksXlsFileType);
 		peaksXlsG.setDescription(peaksXls.getFileName());
 		peaksXlsG.setSoftwareGeneratedBy(macs2);
+		peaksXlsG.setSampleSources(setOfCellLibrariesForDerivedFrom);
 		peaksXlsG = fileService.addFileGroup(peaksXlsG);
 		this.peaksXlsGId = peaksXlsG.getId();
 		
@@ -273,6 +288,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		narrowPeaksBedG.setFileType(macs2NarrowPeaksBedFileType);
 		narrowPeaksBedG.setDescription(narrowPeaksBed.getFileName());
 		narrowPeaksBedG.setSoftwareGeneratedBy(macs2);
+		narrowPeaksBedG.setSampleSources(setOfCellLibrariesForDerivedFrom);
 		narrowPeaksBedG = fileService.addFileGroup(narrowPeaksBedG);
 		this.narrowPeaksBedGId = narrowPeaksBedG.getId();
 	
@@ -286,6 +302,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		summitsBedG.setFileType(macs2SummitsBedFileType);
 		summitsBedG.setDescription(summitsBed.getFileName());
 		summitsBedG.setSoftwareGeneratedBy(macs2);
+		summitsBedG.setSampleSources(setOfCellLibrariesForDerivedFrom);
 		summitsBedG = fileService.addFileGroup(summitsBedG);
 		this.summitsBedGId = summitsBedG.getId();		
 /*		
@@ -299,6 +316,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		summitsModifiedBedG.setFileType(macs2SummitsModifiedBedFileType);
 		summitsModifiedBedG.setDescription(summitsModifiedBed.getFileName());
 		summitsModifiedBedG.setSoftwareGeneratedBy(macs2);
+		summitsModifiedBedG.setSampleSources(setOfCellLibrariesForDerivedFrom);
 		summitsModifiedBedG = fileService.addFileGroup(summitsModifiedBedG);
 		this.summitsModifiedBedGId = summitsModifiedBedG.getId();		
 */
@@ -312,6 +330,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		treatPileupBedGraphG.setFileType(macs2TreatPileupBedGraphFileType);
 		treatPileupBedGraphG.setDescription(treatPileupBedGraph.getFileName());
 		treatPileupBedGraphG.setSoftwareGeneratedBy(macs2);
+		treatPileupBedGraphG.setSampleSources(setOfCellLibrariesForDerivedFrom);
 		treatPileupBedGraphG = fileService.addFileGroup(treatPileupBedGraphG);
 		this.treatPileupBedGraphGId = treatPileupBedGraphG.getId();
 	
@@ -325,6 +344,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		controlLambdaBedGraphG.setFileType(macs2ControlLambdaBedGraphFileType);
 		controlLambdaBedGraphG.setDescription(controlLambdaBedGraph.getFileName());
 		controlLambdaBedGraphG.setSoftwareGeneratedBy(macs2);
+		controlLambdaBedGraphG.setSampleSources(setOfCellLibrariesForDerivedFrom);
 		controlLambdaBedGraphG = fileService.addFileGroup(controlLambdaBedGraphG);
 		this.controlLambdaBedGraphGId = controlLambdaBedGraphG.getId();
 
@@ -450,33 +470,8 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		this.controlSampleId = (Integer) stepContext.get("controlSampleId");	
 		this.commandLineCall = (String) stepContext.get("commandLineCall");	
 		
-		// register commandLineCall, testCellLibraryIdList, controlCellLibraryIdList and  controlId with sampleMeta 
-		// and associate sample with the new file groups		
+		// associate test sample with the new file groups		
 		Sample testSample = sampleService.getSampleById(testSampleId);		
-		//List<SampleMeta> testSampleMetaList = sampleService.getSampleMetaDao().getSamplesMetaBySampleId(testSample.getId().intValue());//testSample.getSampleMeta();
-		List<SampleMeta> testSampleMetaList = testSample.getSampleMeta();
-		
-		SampleMeta sm1 = new SampleMeta();
-		sm1.setK("chipseqAnalysis.testCellLibraryIdList" + "::" + this.controlSampleId.toString());
-		sm1.setV(this.testCellLibraryIdListAsString);
-		testSampleMetaList.add(sm1);
-		
-		SampleMeta sm2 = new SampleMeta();
-		sm2.setK("chipseqAnalysis.controlCellLibraryIdList" + "::" + this.controlSampleId.toString());
-		sm2.setV(this.controlCellLibraryIdListAsString);
-		testSampleMetaList.add(sm2);
-		
-		SampleMeta sm3 = new SampleMeta();
-		sm3.setK("chipseqAnalysis.commandLineCall" + "::" + this.controlSampleId.toString());
-		sm3.setV(this.commandLineCall);
-		testSampleMetaList.add(sm3);
-		
-		SampleMeta sm4 = new SampleMeta();
-		sm4.setK("chipseqAnalysis.controlId" + "::" + this.controlSampleId.toString());
-		sm4.setV(this.controlSampleId.toString());
-		testSampleMetaList.add(sm4);	
-		
-		sampleService.saveSampleWithAssociatedMeta(testSample);
 		
 		logger.debug("in middle of doPreFinish() in MacstwoTasklet");
 
@@ -564,6 +559,93 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 			fgmList.add(fgm);
 			fileService.saveFileGroupMeta(fgmList, fg);
 		}
+		
+		
+		//new, 5-9-14
+		logger.debug("new stuff, added 5-9-14, to get numbers from txt files that are not saved");
+		//context.getStepContext().attributeNames().
+		GridResult result = getStartedResult(context);
+		String workingDir = result.getWorkingDirectory();//is this the scratch, I think so
+		
+		WorkUnit w = new WorkUnit();
+		w.setProcessMode(ProcessMode.SINGLE);
+		String totalCountMappedReadsAsString = "";
+		String totalCountMappedReadsInPeaksAsString = "";
+		
+		try {
+			GridWorkService workService = gridHostResolver.getGridWorkService(w);
+			GridTransportConnection transportConnection = workService.getTransportConnection();
+			w.setWorkingDirectory(workingDir);
+			w.addCommand("cat totalCountMappedReads.txt");//will appear on first line of output
+			w.addCommand("cat totalCountMappedReadsInPeaks.txt");//will appear on second line of output
+			
+			GridResult r = transportConnection.sendExecToRemote(w);
+			InputStream is = r.getStdOutStream();
+			BufferedReader br = new BufferedReader(new InputStreamReader(is)); 
+			boolean keepReading = true;
+			int lineNumber = 0;
+			while (keepReading){
+				lineNumber++;
+				String line = null;
+				line = br.readLine();
+				logger.debug("line number = " + lineNumber + " and line = " + line);
+				if (line == null)
+					keepReading = false;
+				else{
+					if (lineNumber == 1){
+						totalCountMappedReadsAsString = line.replaceAll("\\n", "");//just in case there is a trailing new line
+						logger.debug("totalCountMappedReadsAsString = " + totalCountMappedReadsAsString);
+					} else if (lineNumber == 2){
+						totalCountMappedReadsInPeaksAsString = line.replaceAll("\\n", "");//just in case there is a trailing new line;
+						logger.debug("totalCountMappedReadsInPeaksAsString = " + totalCountMappedReadsInPeaksAsString);
+					} else {
+						keepReading = false;
+					}
+				}
+			}
+			br.close();
+			
+		} catch (Exception e) {
+			logger.debug("unable to get totalCountMappedReads.txt value and/or totalCountMappedReadsInPeaks.txt in MacsTwo");
+		} 
+		
+		logger.debug("getting ready to save testSample metadata  in MacstwoTasklet");
+		
+		// register commandLineCall, testCellLibraryIdList, controlCellLibraryIdList and  controlId with sampleMeta 
+		//and record totalCountMappedReads, totalCountMappedReadsInPeaks, [FRIP statistic - will be derived from totalCountMappedReadsInPeaks / totalCountMappedReadsInPeaks]
+		List<SampleMeta> testSampleMetaList = testSample.getSampleMeta();
+		
+		SampleMeta sm1 = new SampleMeta();
+		sm1.setK("chipseqAnalysis.testCellLibraryIdList" + "::" + this.controlSampleId.toString());
+		sm1.setV(this.testCellLibraryIdListAsString);
+		testSampleMetaList.add(sm1);
+		
+		SampleMeta sm2 = new SampleMeta();
+		sm2.setK("chipseqAnalysis.controlCellLibraryIdList" + "::" + this.controlSampleId.toString());
+		sm2.setV(this.controlCellLibraryIdListAsString);
+		testSampleMetaList.add(sm2);
+		
+		SampleMeta sm3 = new SampleMeta();
+		sm3.setK("chipseqAnalysis.commandLineCall" + "::" + this.controlSampleId.toString());
+		sm3.setV(this.commandLineCall);
+		testSampleMetaList.add(sm3);
+		
+		SampleMeta sm4 = new SampleMeta();
+		sm4.setK("chipseqAnalysis.controlId" + "::" + this.controlSampleId.toString());
+		sm4.setV(this.controlSampleId.toString());
+		testSampleMetaList.add(sm4);	
+		
+		SampleMeta sm5 = new SampleMeta();
+		sm5.setK("chipseqAnalysis.totalCountMappedReads" + "::" + this.controlSampleId.toString());
+		sm5.setV(totalCountMappedReadsAsString);
+		testSampleMetaList.add(sm5);	
+		SampleMeta sm6 = new SampleMeta();
+		sm6.setK("chipseqAnalysis.totalCountMappedReadsInPeaks" + "::" + this.controlSampleId.toString());
+		sm6.setV(totalCountMappedReadsInPeaksAsString);
+		testSampleMetaList.add(sm6);		
+		
+		sampleService.saveSampleWithAssociatedMeta(testSample);
+		
 		logger.debug("ending doPreFinish() in MacstwoTasklet");
 
 	}
