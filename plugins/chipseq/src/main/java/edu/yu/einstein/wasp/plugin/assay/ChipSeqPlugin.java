@@ -19,9 +19,9 @@ import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.integration.Message;
-import org.springframework.integration.MessageChannel;
-import org.springframework.integration.support.MessageBuilder;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.chipseq.service.ChipSeqService;
 import edu.yu.einstein.wasp.exception.PanelException;

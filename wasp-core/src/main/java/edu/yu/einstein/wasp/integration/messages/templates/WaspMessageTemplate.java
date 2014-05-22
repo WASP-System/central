@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.integration.Message;
+import org.springframework.messaging.Message;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;

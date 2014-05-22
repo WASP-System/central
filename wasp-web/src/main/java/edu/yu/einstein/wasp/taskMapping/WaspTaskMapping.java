@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.exception.WaspException;
-import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.WebAuthenticationService;
 import edu.yu.einstein.wasp.web.WebHyperlink;

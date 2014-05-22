@@ -1,7 +1,6 @@
 package edu.yu.einstein.wasp.model;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

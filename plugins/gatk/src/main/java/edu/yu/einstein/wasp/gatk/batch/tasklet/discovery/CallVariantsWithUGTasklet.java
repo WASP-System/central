@@ -22,7 +22,6 @@ import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
-import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.StrategyService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
@@ -35,19 +34,17 @@ public class CallVariantsWithUGTasklet extends AbstractGatkTasklet implements St
 	private static Logger logger = LoggerFactory.getLogger(CallVariantsWithUGTasklet.class);
 
 	@Autowired
-	private JobService jobService;
-	
-	@Autowired
 	private StrategyService strategyService;
 
 
-	public CallVariantsWithUGTasklet(String inputFilegroupIds, String outputFilegroupIds) {
-		super(inputFilegroupIds, outputFilegroupIds);
+	public CallVariantsWithUGTasklet(String inputFilegroupIds, String outputFilegroupIds, Integer jobId) {
+		super(inputFilegroupIds, outputFilegroupIds, jobId);
 	}
 
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
+		Job job = jobService.getJobByJobId(jobId);
 		Build build = null;
 		WorkUnit w = new WorkUnit();
 		w.setMode(ExecutionMode.PROCESS);
@@ -56,7 +53,7 @@ public class CallVariantsWithUGTasklet extends AbstractGatkTasklet implements St
 		w.setProcessorRequirements(THREADS_8);
 		w.setSecureResults(true);
 		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
-		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + jobId);
+		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
 		LinkedHashSet<FileGroup> fglist = new LinkedHashSet<FileGroup>();
 		for (Integer fgId : this.getOutputFilegroupIds()){
 			fglist.add(fileService.getFileGroupById(fgId));
@@ -78,7 +75,6 @@ public class CallVariantsWithUGTasklet extends AbstractGatkTasklet implements St
 		for (String key : jobParameters.keySet()) {
 			logger.trace("Key: " + key + " Value: " + jobParameters.get(key).toString());
 		}
-		Job job = jobService.getJobByJobId(jobId);
 		Strategy strategy = strategyService.getThisJobsStrategy(StrategyType.LIBRARY_STRATEGY, job);
 		String gatkOpts = gatk.getCallVariantOpts(jobParameters);
 		

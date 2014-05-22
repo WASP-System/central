@@ -4,9 +4,7 @@
 package edu.yu.einstein.wasp.plugin.babraham.software;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,14 +21,12 @@ import edu.yu.einstein.wasp.plugin.babraham.batch.service.impl.BabrahamBatchServ
 import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamQCParseModule;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
-import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqComparator;
-import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
- * @author calder
+ * @author calder / asmclellan
  *
  */
 @Transactional("entityManager")

@@ -2,7 +2,7 @@ package edu.yu.einstein.wasp.interfacing.plugin.cli;
 
 import java.rmi.RemoteException;
 
-import org.springframework.integration.Message;
+import org.springframework.messaging.Message;
 
 public interface ClientMessageI {
 	

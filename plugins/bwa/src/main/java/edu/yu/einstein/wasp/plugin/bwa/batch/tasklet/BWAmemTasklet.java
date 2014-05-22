@@ -98,8 +98,6 @@ public class BWAmemTasklet extends WaspRemotingTasklet implements StepExecutionL
 		
 		WorkUnit w = bwa.getMem(cellLib, fg, jobParameters);
 		
-		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
-   
 		GridResult result = gridHostResolver.execute(w);
 		
 		//place the grid result in the step context

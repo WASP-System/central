@@ -6,14 +6,12 @@ package edu.yu.einstein.wasp.plugin.fileformat.plugin;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
 import edu.yu.einstein.wasp.filetype.FileHandleComparator;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
-import edu.yu.einstein.wasp.service.FileService;
 
 /**
  * FileHandle comparator specifically for ordering FASTQ files.  Will provide a natural order for FASTQ files by:

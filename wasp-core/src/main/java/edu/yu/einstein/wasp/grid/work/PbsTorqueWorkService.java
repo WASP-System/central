@@ -3,7 +3,6 @@
  */
 package edu.yu.einstein.wasp.grid.work;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -18,14 +17,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import edu.yu.einstein.wasp.exception.GridException;
-import edu.yu.einstein.wasp.exception.NullResourceException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
-import edu.yu.einstein.wasp.model.FileGroup;
-import edu.yu.einstein.wasp.model.FileHandle;
-import edu.yu.einstein.wasp.util.PropertyHelper;
 
 /**
  * {@link GridWorkService} implementation for PBS/torque.  Based on version 2.4.6.

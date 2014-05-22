@@ -1,7 +1,6 @@
 package edu.yu.einstein.wasp.plugin.illumina.service;
 
 import java.util.List;
-import java.util.Set;
 
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;

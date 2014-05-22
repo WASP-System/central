@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
@@ -51,6 +52,7 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 	private FileService fileService;
 	
 	@Autowired
+	@Qualifier("fileTypeServiceImpl")
 	private FileTypeService fileTypeService;
 	
 	@Autowired
@@ -128,7 +130,7 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		w.setProcessorRequirements(AbstractGatkTasklet.THREADS_8);
 		w.setSecureResults(true);
 		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
-		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + jobId);
+		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
 		w.addResultFiles(rawVcfOutG);
 		w.addResultFiles(annotatedVcfOutG);
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();

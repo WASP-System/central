@@ -1,6 +1,6 @@
 package edu.yu.einstein.wasp.integration.messages.templates;
 
-import org.springframework.integration.Message;
+import org.springframework.messaging.Message;
 
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 

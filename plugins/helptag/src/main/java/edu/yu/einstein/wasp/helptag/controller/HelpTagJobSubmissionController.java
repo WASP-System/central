@@ -1,14 +1,11 @@
 package edu.yu.einstein.wasp.helptag.controller;
 
-import edu.yu.einstein.wasp.controller.JobSubmissionController; 
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,13 +16,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import edu.yu.einstein.wasp.model.JobDraft;
-import edu.yu.einstein.wasp.model.SampleDraft;
-import edu.yu.einstein.wasp.model.SampleDraftMeta;
-import edu.yu.einstein.wasp.dao.JobDraftMetaDao;
+import edu.yu.einstein.wasp.controller.JobSubmissionController;
 import edu.yu.einstein.wasp.dao.JobDraftDao;
+import edu.yu.einstein.wasp.dao.JobDraftMetaDao;
 import edu.yu.einstein.wasp.dao.SampleDraftDao;
 import edu.yu.einstein.wasp.helptag.service.HelptagService;
+import edu.yu.einstein.wasp.model.JobDraft;
+import edu.yu.einstein.wasp.model.SampleDraft;
 
 @Controller
 @Transactional

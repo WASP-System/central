@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.loader.WebappClassLoader;
-
 import org.apache.catalina.startup.Bootstrap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
