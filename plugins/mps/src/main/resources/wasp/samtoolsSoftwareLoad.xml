@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd"
+    default-autowire="byName">
+   
+   <bean id="samtoolsPluginArea" class="java.lang.String">
+		<constructor-arg>
+			<value>samtools</value>
+		</constructor-arg>
+	</bean>
+	
+	 
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="samtoolsUiFieldWrapper">
+    <property name="baseArea" ref="samtoolsPluginArea" />
+  </bean>
+
+  <bean id="samtools" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
+  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.mps.grid.software.Samtools</value></property>
+    <property name="name" value="Samtools" />
+    <property name="description" value="Manipulate alignments in the BAM format" />
+    <property name="version" value="0.1.19" />
+    <property name="area" ref="samtoolsPluginArea" />
+    <property name="resourceType" ref="genericPluginResourceType" /> <!-- TODO: choose a more appropriate resource type -->
+  </bean> 
+
+</beans>
