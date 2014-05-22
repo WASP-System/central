@@ -6,8 +6,6 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.Strategy;
-import edu.yu.einstein.wasp.model.SampleType;
-import edu.yu.einstein.wasp.model.SampleTypeCategory;
 import edu.yu.einstein.wasp.service.StrategyService;
 
 public class StrategyLoaderAndFactory implements FactoryBean<Strategy> {

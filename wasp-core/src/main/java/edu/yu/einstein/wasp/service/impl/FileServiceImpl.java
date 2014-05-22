@@ -95,6 +95,7 @@ import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -845,7 +846,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 			String basename = path.substring(path.lastIndexOf('/') + 1);
 
-			String resultPath = resultsDir + "/" + job.getId() + "/submitted/";
+			String resultPath = resultsDir + "/" + job.getId() + "/jobSubmissionUploads/";
 
 			gfs.mkdir(resultPath);
 			String resultFile = resultPath + basename;
@@ -1031,7 +1032,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		if (isInDemoMode)
 			throw new FileUploadException("Cannot perform this action in demo mode");
 		try{
-			FileGroup fileGroup = this.uploadFile(mpFile.getOriginalFilename(), mpFile.getInputStream(), job.getId(), fileDescription, randomNumberGenerator, "results.dir", "submitted");
+			FileGroup fileGroup = this.uploadFile(mpFile.getOriginalFilename(), mpFile.getInputStream(), job.getId(), fileDescription, randomNumberGenerator, "results.dir", "jobSubmissionUploads");
 			this.linkFileGroupWithJob(fileGroup, job);//this should really be in the job service, not fileservice
 		}catch(Exception e){
 			throw new FileUploadException(e.getMessage());
@@ -1044,7 +1045,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		if (isInDemoMode)
 			throw new FileUploadException("Cannot perform this action in demo mode");
 		try{
-			FileGroup fileGroup = this.uploadFile(mpFile.getOriginalFilename(), mpFile.getInputStream(), job.getId(), fileDescription, randomNumberGenerator, "results.dir", "submitted");
+			FileGroup fileGroup = this.uploadFile(mpFile.getOriginalFilename(), mpFile.getInputStream(), job.getId(), fileDescription, randomNumberGenerator, "results.dir", "jobSubmissionUploads");
 			return fileGroup;
 		}catch(Exception e){
 			throw new FileUploadException(e.getMessage());
@@ -1528,6 +1529,11 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		return jobName + DELIM + "J" + job.getId().toString() + DELIM;
 	}
 	
+	@Override
+	public String generateJobSoftwareBaseFolderName(Job job, Software software){
+		return WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId() + "/" + software.getIName();
+	}
+	
 	/*
 	 * create and return a temporary file
 	 * @see edu.yu.einstein.wasp.service.FileService#createTempFile()
@@ -1570,7 +1576,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	@Transactional
 	public FileGroup saveLocalJobFile(Job job, File localFile, String fileName, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
 		try{
-			FileGroup fileGroup = this.saveLocalFile(job.getId(), localFile, fileName, fileDescription, randomNumberGenerator, "results.dir", "submitted");
+			FileGroup fileGroup = this.saveLocalFile(job.getId(), localFile, fileName, fileDescription, randomNumberGenerator, "results.dir", "jobSubmissionUploads");
 			this.linkFileGroupWithJob(fileGroup, job);
 			return fileGroup;
 		}catch(Exception e){
@@ -1580,7 +1586,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	
 	public FileGroup saveLocalQuoteOrInvoiceFile(Job job, File localFile, String fileName, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
 		try{
-			FileGroup fileGroup = this.saveLocalFile(job.getId(), localFile, fileName, fileDescription, randomNumberGenerator, "results.dir", "submitted");
+			FileGroup fileGroup = this.saveLocalFile(job.getId(), localFile, fileName, fileDescription, randomNumberGenerator, "results.dir", "jobSubmissionUploads");
 			//DO NOT USE NEXT LINE HERE: the quote or invoice is linked via job's acctQuote or job's acctInvoice   
 			//////////this.linkFileGroupWithJob(fileGroup, job);
 			return fileGroup;

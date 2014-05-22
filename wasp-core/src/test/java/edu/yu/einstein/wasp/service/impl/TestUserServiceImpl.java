@@ -1,19 +1,19 @@
 package edu.yu.einstein.wasp.service.impl;
 
 import static org.easymock.EasyMock.createMockBuilder;
-import junit.framework.Assert;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+import junit.framework.Assert;
 
 import org.easymock.EasyMock;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
 import edu.yu.einstein.wasp.dao.UserDao;

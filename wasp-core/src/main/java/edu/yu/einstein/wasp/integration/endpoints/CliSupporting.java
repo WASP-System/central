@@ -1,7 +1,7 @@
 package edu.yu.einstein.wasp.integration.endpoints;
 
 import org.json.JSONObject;
-import org.springframework.integration.Message;
+import org.springframework.messaging.Message;
 
 public interface CliSupporting {
 	

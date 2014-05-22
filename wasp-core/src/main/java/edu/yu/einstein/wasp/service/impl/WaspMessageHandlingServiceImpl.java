@@ -6,10 +6,10 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.integration.Message;
-import org.springframework.integration.MessageHandlingException;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.core.MessagingTemplate;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHandlingException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

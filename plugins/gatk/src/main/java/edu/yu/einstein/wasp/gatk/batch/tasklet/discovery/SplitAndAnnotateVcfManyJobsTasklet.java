@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
@@ -49,6 +51,7 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 	private FileService fileService;
 	
 	@Autowired
+	@Qualifier("fileTypeServiceImpl")
 	private FileTypeService fileTypeService;
 	
 	@Autowired
@@ -80,6 +83,7 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 		// corresponding to the result of haplotype calling and combined genotyping for each bam file input 
 		// i.e. split out the merged vcf which was the output of cohort-level genotyping.
 		Map<FileGroup, LinkedHashSet<Sample>> fgSamplesMapUsedForVarCalling = new HashMap<>();
+		logger.debug("Getting FileGroup ids passed in from previous step");
 		if (jobExecutionContext.containsKey("fgSamplesMap"))
 			fgSamplesMapUsedForVarCalling.putAll(AbstractGatkTasklet.getFgSamplesMapFromJsonString(jobExecutionContext.getString("fgSamplesMap"), sampleService, fileService));
 		
@@ -129,6 +133,7 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 			outputFileGroups.add(summaryHtmlG);
 			
 			Map<String, String> jobParameters = new HashMap<>();
+			jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
 			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(inputFileGroups));
 			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(outputFileGroups));
 			jobParameters.put("sampleIdentifierSet", StringUtils.collectionToCommaDelimitedString(sampleIdentifierSet));

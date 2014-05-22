@@ -110,7 +110,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		for (String fileName : inputFileNames)
 			command += " -I " + fileName;
 		command += " -R " + referenceGenomeFile + " -T HaplotypeCaller -o " + outputGvcfFile + " --dbsnp " + snpFile + 
-				" --genotyping_mode DISCOVERY --emitRefConfidence GVCF --variant_index_type LINEAR --variant_index_parameter 12800 " + additionalOptions;
+				" --genotyping_mode DISCOVERY --emitRefConfidence GVCF --variant_index_type LINEAR --variant_index_parameter 128000 " + additionalOptions;
 		if (intervalFile != null) 
 			command += " -L " + intervalFile;
 

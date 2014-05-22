@@ -10,12 +10,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.integration.Message;
-import org.springframework.integration.MessagingException;
-import org.springframework.integration.channel.DirectChannel;
-import org.springframework.integration.channel.PublishSubscribeChannel;
-import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.MessagingTemplate;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessagingException;
+import org.springframework.messaging.MessageHandler;
+import org.springframework.messaging.SubscribableChannel;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -48,11 +48,11 @@ public class BabrahamMessageTests extends AbstractTestNGSpringContextTests imple
 	
 	@Autowired
 	@Qualifier("wasp.channel.notification.file")
-	private DirectChannel outMessageChannel;
+	private MessageChannel outMessageChannel;
 	
 	@Autowired
 	@Qualifier("wasp.channel.batch")
-	private PublishSubscribeChannel inMessageChannel;
+	private SubscribableChannel inMessageChannel;
 	
 	private MessagingTemplate messagingTemplate;
 	

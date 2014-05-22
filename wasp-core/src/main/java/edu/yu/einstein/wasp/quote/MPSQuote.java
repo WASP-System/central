@@ -1,17 +1,12 @@
 package edu.yu.einstein.wasp.quote;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import edu.yu.einstein.wasp.model.Job;
 
 /**
  * 

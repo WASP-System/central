@@ -10,7 +10,6 @@ import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.service.WaspService;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
-import edu.yu.einstein.wasp.viewpanel.DataTabViewing.Status;
 
 /**
  * 

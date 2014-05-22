@@ -7,13 +7,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
-import edu.yu.einstein.wasp.grid.file.GridFileMover;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 
 /**

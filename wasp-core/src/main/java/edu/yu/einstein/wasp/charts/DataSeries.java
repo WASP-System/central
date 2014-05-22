@@ -8,8 +8,6 @@ import java.util.Map;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
-import com.jcraft.jsch.Logger;
-
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.service.MessageService;
 

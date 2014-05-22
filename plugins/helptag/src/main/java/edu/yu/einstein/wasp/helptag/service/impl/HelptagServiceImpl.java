@@ -14,11 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.dao.FileTypeDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.helptag.service.HelptagService;
-import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.SampleDraft;
-import edu.yu.einstein.wasp.model.SampleDraftMeta;
-
 import edu.yu.einstein.wasp.service.JobDraftService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.util.MetaHelper;

@@ -21,9 +21,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.integration.Message;
-import org.springframework.integration.MessageChannel;
-import org.springframework.integration.support.MessageBuilder;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;

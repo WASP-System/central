@@ -44,6 +44,7 @@ import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 
 @Service
@@ -299,7 +300,7 @@ public interface FileService extends WaspService {
 
 	public String generateUniqueBaseFileName(SampleSource cellLibrary);
 
-	public String generateUniqueBaseFileName(Sample library);
+	public String generateUniqueBaseFileName(Sample sample);
 
 	public File createTempFile() throws FileUploadException;
 	
@@ -365,6 +366,8 @@ public interface FileService extends WaspService {
 	 * @throws Exception
 	 */
 	public void removeFileHandleFromRemoteServerAndMarkDeleted(FileHandle fileHandle) throws Exception;
+
+	public String generateJobSoftwareBaseFolderName(Job job, Software software);
 
 }
 

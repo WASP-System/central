@@ -153,7 +153,6 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		baiG = fileService.addFileGroup(baiG);
 		Integer baiGId = baiG.getId();
 		
-		fileService.setSampleSourceFile(baiG, cellLib);
 		// save in step context for use later
 		stepExecutionContext.put("baiGID", baiGId);
 		
@@ -177,6 +176,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 			metricsG.setFileType(textFileType);
 			metricsG.setDescription(metricsOutput);
 			metricsG.setSoftwareGeneratedBy(bwa);
+			metricsG.addDerivedFrom(bamG);
 			metricsG = fileService.addFileGroup(metricsG);
 			Integer metricsGId = metricsG.getId();
 			
@@ -192,7 +192,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 			w.addCommand(picard.getMergeBamCmd("*.out.sam", outputBamFilename, outputBaiFilename, MEMORY_GB_4));
 		}	
 		w.setWorkingDirectory(scratchDirectory);
-		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
+		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId() + "/bwa");
 		w.setSecureResults(true);
 		
 		GridResult result = gridHostResolver.execute(w);

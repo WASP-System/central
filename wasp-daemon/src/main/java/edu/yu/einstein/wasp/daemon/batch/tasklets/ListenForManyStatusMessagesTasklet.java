@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
@@ -21,12 +23,13 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.integration.Message;
-import org.springframework.integration.MessagingException;
-import org.springframework.integration.channel.PublishSubscribeChannel;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessagingException;
+import org.springframework.messaging.SubscribableChannel;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import edu.yu.einstein.wasp.batch.SimpleManyJobRecipient;
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionReadinessException;
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
@@ -60,11 +63,11 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet i
 
     @Autowired
     @Qualifier("wasp.channel.reply")
-    private PublishSubscribeChannel replyChannel;
+    private SubscribableChannel replyChannel;
 
     @Autowired
     @Qualifier("wasp.channel.notification.batch")
-    private PublishSubscribeChannel subscribeChannel;
+    private SubscribableChannel subscribeChannel;
 
     @Autowired
     private BatchJobHibernationManager batchJobHibernationManager;
@@ -174,19 +177,20 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet i
 
         children = Arrays.asList(child);
         if (!children.isEmpty())
-        	batchJobHibernationManager.registerManyStepCompletionListener(this);
+        	registerManyStepCompletionListener(stepExecution);
 
         super.beforeStep(stepExecution);
     }
 
     @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
+    	ExitStatus exitStatus = super.afterStep(stepExecution);
+    	exitStatus = exitStatus.and(getExitStatus(stepExecution));
         if (stepExecution.getExitStatus().isHibernating()) {
             // do stuff immediately before hibernating
             logger.trace(stepExecution.getStepName() + " afterStep going into hibernation");
             return ExitStatus.HIBERNATING;
         } else if (!stepExecution.getExitStatus().isRunning()) { // ExitStatus not "EXECUTING", "HIBERNATING" or "UNKNOWN"
-            ExitStatus exitStatus = super.afterStep(stepExecution);
             exitStatus = exitStatus.and(getExitStatus(stepExecution));
             // set exit status to equal the most severe outcome of all received messages
             this.messageQueue.clear(); // clean up in case of restart
@@ -195,12 +199,24 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet i
             if (!children.isEmpty())
             	batchJobHibernationManager.unregisterManyStepCompletionListener(this);
             jobExecution.getExecutionContext().remove(BatchJobHibernationManager.PARENT_JOB_ID_KEY);
-            return exitStatus;
         }
-        ExitStatus exitStatus = super.afterStep(stepExecution);
-        exitStatus = exitStatus.and(getExitStatus(stepExecution));
         logger.debug(stepExecution.getStepName() + " going to exit step with ExitStatus=" + exitStatus + " step was running but not hibernating!");
-        return super.afterStep(stepExecution);
+        return exitStatus;
+    }
+    
+    private void registerManyStepCompletionListener(StepExecution stepExecution){
+    	SimpleManyJobRecipient jobRecipient = new SimpleManyJobRecipient(this); // otherwise trouble when making a json object later
+    	// persist jobRecipient object in stepExecutionContext in Json format. This is required if re-registering the jobRecipient after
+        // a batch restart.
+        ObjectMapper jsonObjectmapper = new ObjectMapper();
+		try {
+			String jsonText = jsonObjectmapper.writeValueAsString(jobRecipient);
+			stepExecution.getExecutionContext().putString(BatchJobHibernationManager.MANY_JOB_RECIPIENT_KEY, jsonText);
+			logger.debug("Updated StepExecutionContext with json for jobRecipient where StepExecution id=" + stepExecution.getId() +  ": " + jsonText);
+		} catch (IOException e) {
+			logger.warn("Unable to convert jobRecipient to json for persistance in StepExecution Context: " + e.getLocalizedMessage());
+		}
+    	batchJobHibernationManager.registerManyStepCompletionListener(jobRecipient);
     }
 
     private ExitStatus getExitStatus(StepExecution stepExecution) {

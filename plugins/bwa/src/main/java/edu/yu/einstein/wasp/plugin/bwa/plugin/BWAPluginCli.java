@@ -1,6 +1,6 @@
 package edu.yu.einstein.wasp.plugin.bwa.plugin;
 
-import org.springframework.integration.Message;
+import org.springframework.messaging.Message;
 
 public interface BWAPluginCli {
 	

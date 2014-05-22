@@ -156,7 +156,7 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		
 		w.getResultFiles().add(bamG);
 		w.getResultFiles().add(baiG);
-		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
+		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
 
 		String inputBamFilename = "${" + WorkUnit.INPUT_FILE + "}";
 		String intervalFileName = "gatk.${" + WorkUnit.OUTPUT_FILE + "}.realign.intervals";

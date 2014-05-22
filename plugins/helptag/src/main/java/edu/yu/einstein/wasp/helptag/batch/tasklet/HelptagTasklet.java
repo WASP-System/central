@@ -93,7 +93,7 @@ public class HelptagTasklet extends WaspRemotingTasklet  implements StepExecutio
 		// get work unit
 		WorkUnit w = helptag.getHelptag(cellLibraryId);
 
-//		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
+//		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, helptag));
    
 		GridResult result = gridHostResolver.execute(w);
 		
