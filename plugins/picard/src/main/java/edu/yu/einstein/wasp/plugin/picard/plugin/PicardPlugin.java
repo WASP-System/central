@@ -158,14 +158,6 @@ public class PicardPlugin extends WaspPlugin
 		
 		logger.debug("------------THIS IS A ROB TEST in picard");
 		PanelTab panelTab = new PanelTab();
-		panelTab.setName("TEST alignmentMetrics Panel Tab");
-		panelTab.setNumberOfColumns(1);
-		//return panelTab;
-		WebPanel wp = new WebPanel();
-		WebContent wc = new WebContent();
-		wc.setHtmlCode("this is a text code");
-		wp.setContent(wc);
-		panelTab.addPanel(wp);
 		return panelTab;
 		
 		
