@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -234,7 +235,7 @@ public interface FileService extends WaspService {
 	 * @throws FileNotFoundException
 	 * @throws GridException
 	 */
-	public void register(List<FileHandle> fileHandles) throws FileNotFoundException, GridException;
+	public void register(Collection<FileHandle> fileHandles) throws FileNotFoundException, GridException;
 	
 	public FileHandle getFileHandle(UUID uuid) throws FileNotFoundException;
 
@@ -259,7 +260,7 @@ public interface FileService extends WaspService {
 	 * @throws FileNotFoundException
 	 * @throws GridException
 	 */
-	void registerWithoutMD5(List<FileHandle> fileHandles) throws FileNotFoundException, GridException;
+	void registerWithoutMD5(Collection<FileHandle> fileHandles) throws FileNotFoundException, GridException;
 
 
 	/**

@@ -23,6 +23,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -706,18 +707,18 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	public enum Md5 { YES, NO };
 	
 	@Override
-	public void register(List<FileHandle> fhl) throws FileNotFoundException, GridException {
-		register(fhl, Md5.YES);
+	public void register(Collection<FileHandle> fhc) throws FileNotFoundException, GridException {
+		register(fhc, Md5.YES);
 	}
 	
 	@Override
-	public void registerWithoutMD5(List<FileHandle> fhl) throws FileNotFoundException, GridException {
-		register(fhl, Md5.NO);
+	public void registerWithoutMD5(Collection<FileHandle> fhc) throws FileNotFoundException, GridException {
+		register(fhc, Md5.NO);
 	}
 	
-	public List<FileHandle> register(List<FileHandle> fhl, Md5 md5) throws FileNotFoundException, GridException {
+	public List<FileHandle> register(Collection<FileHandle> fhc, Md5 md5) throws FileNotFoundException, GridException {
 	    List<FileHandle> retval = new ArrayList<FileHandle>();
-	    for (FileHandle fh : fhl) {
+	    for (FileHandle fh : fhc) {
 	        logger.debug("attempting to register FileHandle: " + fh.getId());
 	        fh = fileHandleDao.merge(fh);
 		validateFile(fh);
