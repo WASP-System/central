@@ -551,7 +551,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 				@Override
 				public void run() {
 				}
-			}, 20, TimeUnit.SECONDS);
+			}, Integer.decode(transportConnection.getConfiguredSetting("host.pollinterval")), TimeUnit.MILLISECONDS);
 			while (!md5t.isDone()) {
 				// not done
 			}
