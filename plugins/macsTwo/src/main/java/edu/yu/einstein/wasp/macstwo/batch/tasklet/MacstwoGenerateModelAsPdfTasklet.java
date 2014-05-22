@@ -5,6 +5,7 @@
 package edu.yu.einstein.wasp.macstwo.batch.tasklet;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -191,6 +192,8 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		logger.debug("commandLineCall in MacstwoGenerateModelAsPdfTasklet.doExecute() is : " + commandLineCall);
 			
 		List<String> listOfFileHandleNames = new ArrayList<String>();
+		
+		Set<FileHandle> files = new LinkedHashSet<FileHandle>();
 
 		//the pdf (generated from running Rscript on xx_model.r file)
 		FileGroup modelPdfG = new FileGroup();
@@ -200,6 +203,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		modelPdf.setFileType(macs2ModelPdfFileType);
 		modelPdf = fileService.addFile(modelPdf);
 		modelPdfG.addFileHandle(modelPdf);
+		files.add(modelPdf);
 		modelPdfG.setFileType(macs2ModelPdfFileType);
 		modelPdfG.setDescription(modelPdf.getFileName());
 		modelPdfG.setSoftwareGeneratedBy(rSoftware);
@@ -216,6 +220,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		modelPng.setFileType(macs2ModelPngFileType);
 		modelPng = fileService.addFile(modelPng);
 		modelPngG.addFileHandle(modelPng);
+		files.add(modelPng);
 		modelPngG.setFileType(macs2ModelPngFileType);
 		modelPngG.setDescription(modelPng.getFileName());
 		modelPngG.setSoftwareGeneratedBy(imagemagickSoftware);
@@ -235,8 +240,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		stepContext.put("modelPngGId", this.modelPngGId);
 		logger.debug("saved 5 variables in stepContext within MacstwoGenerateModelAsPdfTasklet.doExecute()");
 		
-		w.getResultFiles().add(modelPdfG);
-		w.getResultFiles().add(modelPngG);
+		w.setResultFiles(files);
 		logger.debug("executed w.getResultFiles().add(modelPdfG) within MacstwoGenerateModelAsPdfTasklet.doExecute()");
 		logger.debug("executed w.getResultFiles().add(modelPngG) within MacstwoGenerateModelAsPdfTasklet.doExecute()");
 		
