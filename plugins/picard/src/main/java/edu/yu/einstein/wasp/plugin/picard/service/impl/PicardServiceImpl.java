@@ -24,10 +24,13 @@ import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSourceMeta;
 import edu.yu.einstein.wasp.plugin.picard.service.PicardService;
 
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 
@@ -35,12 +38,11 @@ import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 @Transactional("entityManager")
 public class PicardServiceImpl extends WaspServiceImpl implements PicardService {
 	
-	private static final String BAMFILE_ALIGNMENT_METRICS_META_AREA = "bamFile";
-	private static final String BAMFILE_ALIGNMENT_METRICS_META_SPECIFIER = "alignmentMetrics";
-	private static final String BAMFILE_ALIGNMENT_METRICS_META_KEY = BAMFILE_ALIGNMENT_METRICS_META_AREA + "." + BAMFILE_ALIGNMENT_METRICS_META_SPECIFIER;
 
 	@Autowired
 	SampleService sampleService;
+	@Autowired
+	FileService fileService;
 
 	/**
 	 * {@inheritDoc}
@@ -51,24 +53,29 @@ public class PicardServiceImpl extends WaspServiceImpl implements PicardService 
 		return "done";
 	}
 
-	public void setAlignmentMetrics(SampleSource cellLib, JSONObject json)throws MetadataException{
-		sampleService.setLibraryOnCellMeta(cellLib, BAMFILE_ALIGNMENT_METRICS_META_AREA, BAMFILE_ALIGNMENT_METRICS_META_SPECIFIER, json.toString());
+	
+	public boolean alignmentMetricsExist(FileGroup fileGroup){
+		JSONObject jsonObj = getAlignmentMetricsMetaAsJSON(fileGroup);
+		if(jsonObj != null){
+			return true;
+		}
+		return false;
 	}
-	private String getAlignmentMetric(SampleSource cellLib, String jsonKey){
+	private String getAlignmentMetric(FileGroup fileGroup, String jsonKey){
 		String value = "";
-		JSONObject json = getAlignmentMetricsMetaAsJSON(cellLib);
+		JSONObject json = getAlignmentMetricsMetaAsJSON(fileGroup);
 		if(json.has(jsonKey)){
 			value = json.getString(jsonKey);
 		}
 		return value;
 	}
-	private JSONObject getAlignmentMetricsMetaAsJSON(SampleSource cellLib){
+	private JSONObject getAlignmentMetricsMetaAsJSON(FileGroup fileGroup){
 		
 		JSONObject jsonObj = null;
 		String meta = "";
-		for(SampleSourceMeta ssm : cellLib.getSampleSourceMeta()){
-			if(ssm.getK().equalsIgnoreCase(BAMFILE_ALIGNMENT_METRICS_META_KEY)){
-				meta = ssm.getV();
+		for(FileGroupMeta fgm : fileGroup.getFileGroupMeta()){
+			if(fgm.getK().equalsIgnoreCase(BAMFILE_ALIGNMENT_METRICS_META_KEY)){
+				meta = fgm.getV();
 			}
 		}
 		if(!meta.isEmpty()){
@@ -77,66 +84,66 @@ public class PicardServiceImpl extends WaspServiceImpl implements PicardService 
 		return jsonObj;
 	}
 	
-	public String getUnpairedMappedReads(SampleSource cellLib){		
-		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_UNPAIRED_READS);
+	public String getUnpairedMappedReads(FileGroup fileGroup){		
+		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_UNPAIRED_READS);
 	}
-	public String getPairedMappedReads(SampleSource cellLib){		
-		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_PAIRED_READS);
+	public String getPairedMappedReads(FileGroup fileGroup){		
+		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_PAIRED_READS);
 	}
-	public String getUnmappedReads(SampleSource cellLib){		
-		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_UNMAPPED_READS);
+	public String getUnmappedReads(FileGroup fileGroup){		
+		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_UNMAPPED_READS);
 	}
-	public String getUnpairedMappedReadDuplicates(SampleSource cellLib){		
-		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_UNPAIRED_READ_DUPLICATES);
+	public String getUnpairedMappedReadDuplicates(FileGroup fileGroup){		
+		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_UNPAIRED_READ_DUPLICATES);
 	}
-	public String getPairedMappedReadDuplicates(SampleSource cellLib){		
-		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_PAIRED_READ_DUPLICATES);
+	public String getPairedMappedReadDuplicates(FileGroup fileGroup){		
+		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_PAIRED_READ_DUPLICATES);
 	}
-	public String getPairedMappedReadOpticalDuplicates(SampleSource cellLib){		
-		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_PAIRED_READ_OPTICAL_DUPLICATES);
+	public String getPairedMappedReadOpticalDuplicates(FileGroup fileGroup){		
+		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_PAIRED_READ_OPTICAL_DUPLICATES);
 	}
 	
-	public String getFractionMapped(SampleSource cellLib){		
-		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_FRACTION_MAPPED);
+	public String getFractionMapped(FileGroup fileGroup){		
+		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_FRACTION_MAPPED);
 	}
-	public String getMappedReads(SampleSource cellLib){		
-		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_MAPPED_READS);
+	public String getMappedReads(FileGroup fileGroup){		
+		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_MAPPED_READS);
 	}
-	public String getTotalReads(SampleSource cellLib){		
-		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_TOTAL_READS);
+	public String getTotalReads(FileGroup fileGroup){		
+		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_TOTAL_READS);
 	}	
-	public String getFractionMappedAsCalculation(SampleSource cellLib){		
-		String fractionMapped = this.getFractionMapped(cellLib);
-		String mappedReads = this.getMappedReads(cellLib);
-		String totalReads = this.getTotalReads(cellLib);		
+	public String getFractionMappedAsCalculation(FileGroup fileGroup){		
+		String fractionMapped = this.getFractionMapped(fileGroup);
+		String mappedReads = this.getMappedReads(fileGroup);
+		String totalReads = this.getTotalReads(fileGroup);		
 		return mappedReads + " / " + totalReads + " = " + fractionMapped;
 	}
 	
-	public String getFractionDuplicated(SampleSource cellLib){		
-		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_FRACTION_DUPLICATED);//fraction of mapped reads
+	public String getFractionDuplicated(FileGroup fileGroup){		
+		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_FRACTION_DUPLICATED);//fraction of mapped reads
 	}
-	public String getDuplicateReads(SampleSource cellLib){		
-		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_DUPLICATE_READS);
+	public String getDuplicateReads(FileGroup fileGroup){		
+		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_DUPLICATE_READS);
 	}
-	public String getFractionDuplicatedAsCalculation(SampleSource cellLib){	
-		String fractionDuplicated = getFractionDuplicated(cellLib);
-		String duplicateReads = getDuplicateReads(cellLib);
-		String mappedReads = this.getMappedReads(cellLib);		
+	public String getFractionDuplicatedAsCalculation(FileGroup fileGroup){	
+		String fractionDuplicated = getFractionDuplicated(fileGroup);
+		String duplicateReads = getDuplicateReads(fileGroup);
+		String mappedReads = this.getMappedReads(fileGroup);		
 		return duplicateReads + " / " + mappedReads + " = " + fractionDuplicated;	}
 	
-	public String getFractionUniqueNonRedundant(SampleSource cellLib){	
-		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT);
+	public String getFractionUniqueNonRedundant(FileGroup fileGroup){	
+		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT);
 	}
-	public String getUniqueReads(SampleSource cellLib){	
-		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS);
+	public String getUniqueReads(FileGroup fileGroup){	
+		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS);
 	}
-	public String getUniqueNonRedundantReads(SampleSource cellLib){	
-		return this.getAlignmentMetric(cellLib, BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS);
+	public String getUniqueNonRedundantReads(FileGroup fileGroup){	
+		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS);
 	}
-	public String getFractionUniqueNonRedundantAsCalculation(SampleSource cellLib){	
-		String fractionUniqueNonRedundant = getFractionUniqueNonRedundant(cellLib);
-		String uniqueReads = getUniqueReads(cellLib);
-		String uniqueNonRedundantReads = getUniqueNonRedundantReads(cellLib);		
+	public String getFractionUniqueNonRedundantAsCalculation(FileGroup fileGroup){	
+		String fractionUniqueNonRedundant = getFractionUniqueNonRedundant(fileGroup);
+		String uniqueReads = getUniqueReads(fileGroup);
+		String uniqueNonRedundantReads = getUniqueNonRedundantReads(fileGroup);		
 		return uniqueNonRedundantReads + " / " + uniqueReads + " = " + fractionUniqueNonRedundant;
 	}
 }

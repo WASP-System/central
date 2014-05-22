@@ -4,30 +4,52 @@
  */
 package edu.yu.einstein.wasp.plugin.picard.plugin;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 
+import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
+import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Software; 
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
+import edu.yu.einstein.wasp.plugin.picard.service.PicardService;
+import edu.yu.einstein.wasp.interfacing.Hyperlink;
 import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
+import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
+import edu.yu.einstein.wasp.viewpanel.PanelTab;
+import edu.yu.einstein.wasp.viewpanel.DataTabViewing.Status;
 
 /**
  * @author 
  */
 public class PicardPlugin extends WaspPlugin 
 		implements 
-			ClientMessageI {
+			ClientMessageI, FileDataTabViewing {
+
+	
+	private static final long serialVersionUID = 1988113569229047484L;
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
@@ -44,6 +66,16 @@ public class PicardPlugin extends WaspPlugin
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
 	
+	@Autowired
+	PicardService picardService;
+	
+	protected JobExplorerWasp batchJobExplorer;
+	
+	@Autowired
+	void setJobExplorer(JobExplorer jobExplorer){
+		this.batchJobExplorer = (JobExplorerWasp) jobExplorer;
+	}
+
 	@Autowired
 	@Qualifier("picard")
 	private Software picard;
@@ -96,4 +128,51 @@ public class PicardPlugin extends WaspPlugin
 		// TODO Auto-generated method stub
 
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Status getStatus(FileGroup fileGroup) {
+		if(picardService.alignmentMetricsExist(fileGroup)){
+			return Status.COMPLETED;
+		}
+		return Status.UNKNOWN;
+		//return Status.COMPLETED; //MUST REMOVE THIS LINE AND UNCOMMENT LINE ABOVE
+		/*
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> fileGroupIdStringSet = new LinkedHashSet<String>();
+		fileGroupIdStringSet.add(fileGroup.getId().toString());
+		parameterMap.put(WaspJobParameters.FILE_GROUP_ID, fileGroupIdStringSet);
+		JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer.getJobExecutions(FLOW_NAME, parameterMap, false));
+		if (je == null)
+			return Status.UNKNOWN;
+		ExitStatus jobExitStatus = je.getExitStatus();
+		if (jobExitStatus.isRunning())
+			return Status.STARTED;
+		if (jobExitStatus.isCompleted())
+			return Status.COMPLETED;
+		return Status.FAILED;
+		*/
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public PanelTab getViewPanelTab(FileGroup fileGroup) throws PanelException {
+		//return ((PicardWebServiceImpl) picardService).getAlignmentMetricsDataToDisplay(fileGroup);
+		PanelTab panelTab = new PanelTab();
+		//panelTab.setName("TEST alignmentMetrics Panel Tab");
+		//panelTab.setNumberOfColumns(1);
+		return panelTab;
+	}
+
+	@Override
+	public Hyperlink getDescriptionPageHyperlink() {
+		// TODO Auto-generated method stub
+		//something like: return new Hyperlink("chipSeq.hyperlink.label", "/chipSeq/description.do");
+		return null;
+	}
+	
 }

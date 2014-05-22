@@ -15,14 +15,18 @@ import java.util.Set;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.picard.service.PicardService;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 
@@ -37,6 +41,8 @@ public class Picard extends SoftwarePackage{
 	
 	@Autowired
 	PicardService picardService;
+	@Autowired
+	FileService fileService;
 	
 	public Picard() {}
 	
@@ -137,11 +143,11 @@ public class Picard extends SoftwarePackage{
 	 * @param String scratchDirectory
 	 * @return void
 	 */
-	public void saveAlignmentMetrics(SampleSource cellLib, String dedupMetricsFilename, String scratchDirectory, GridHostResolver gridHostResolver){
+	public void saveAlignmentMetrics(Integer fileGroupId, String dedupMetricsFilename, String scratchDirectory, GridHostResolver gridHostResolver){
 
 		logger.debug("starting saveAlignmentMetrics");
 
-		if(cellLib==null || dedupMetricsFilename==null || dedupMetricsFilename.isEmpty() || scratchDirectory==null || scratchDirectory.isEmpty()){
+		if(fileGroupId==null || dedupMetricsFilename==null || dedupMetricsFilename.isEmpty() || scratchDirectory==null || scratchDirectory.isEmpty()){
 			logger.debug("major problem in starting saveAlignmentMetrics: something is unexpectedly null or empty");
 			return;
 		}
@@ -164,14 +170,14 @@ public class Picard extends SoftwarePackage{
 				json.put(key, uniquelyAlignedReadCountMetricMap.get(key));
 			}
 			
-			logger.debug("json output from saveAlignmentMetrics: ");
+			logger.debug("json output from saveAlignmentMetrics to filegroupmeta: ");
 			logger.debug(json.toString());
 			
-			picardService.setAlignmentMetrics(cellLib, json);
-			logger.debug("successfully saved the picard dedup metrics");
+			setAlignmentMetricsToFileGroupMeta(fileGroupId, json);
+			logger.debug("successfully saved the picard dedup metrics to filegroupmeta");
 			
 		} catch (Exception e) {
-			logger.debug("exception in saveAlignmentMetrics: " + e.getMessage());
+			logger.debug("exception in saveAlignmentMetrics to filegroupmeta: " + e.getMessage());
 		} 		
 		logger.debug("ending saveAlignmentMetrics");
 	}
@@ -350,5 +356,14 @@ public class Picard extends SoftwarePackage{
 		return uniquelyAlignedReadCountMetricsMap;
 		
 	}
-	
+	private void setAlignmentMetricsToFileGroupMeta(Integer fileGroupId, JSONObject json)throws MetadataException{
+		FileGroup fileGroup = fileService.getFileGroupById(fileGroupId);
+		List<FileGroupMeta> fileGroupMetaList = fileGroup.getFileGroupMeta();
+		FileGroupMeta fgm = new FileGroupMeta();
+		fgm.setFileGroup(fileGroup);
+		fgm.setK(PicardService.BAMFILE_ALIGNMENT_METRICS_META_KEY);
+		fgm.setV(json.toString());
+		fileGroupMetaList.add(fgm);
+		fileService.saveFileGroupMeta(fileGroupMetaList, fileGroup);		
+	}
 }

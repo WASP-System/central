@@ -254,8 +254,8 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 			FileGroup metricsG = fileService.getFileGroupById(metricsGId);
 			metricsG.setIsActive(1);
 			List<FileHandle> fileHandleList = new ArrayList<FileHandle>(metricsG.getFileHandles());
-			if(fileHandleList.size()==1){				
-				picard.saveAlignmentMetrics(cellLib, fileHandleList.get(0).getFileName(), scratchDirectory, this.gridHostResolver);				
+			if(fileHandleList.size()==1 && bamGId != null){	//save the metrics information with the BamFileGroupMeta			
+				picard.saveAlignmentMetrics(bamGId, fileHandleList.get(0).getFileName(), scratchDirectory, this.gridHostResolver);				
 			}
 		}
 	}

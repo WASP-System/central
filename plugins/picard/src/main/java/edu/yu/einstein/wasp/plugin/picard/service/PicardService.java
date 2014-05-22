@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
+import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.service.WaspService;
 
@@ -17,6 +18,8 @@ import edu.yu.einstein.wasp.service.WaspService;
  * 
  */
 public interface PicardService extends WaspService {
+
+	public static final String BAMFILE_ALIGNMENT_METRICS_META_KEY = "bamFile.alignmentMetrics";
 
 	public static final String BAMFILE_ALIGNMENT_METRIC_UNPAIRED_READS = "unpairedReads";	
 	public static final String BAMFILE_ALIGNMENT_METRIC_PAIRED_READS = "pairedReads";	
@@ -40,27 +43,26 @@ public interface PicardService extends WaspService {
 		public String performAction();
 
 		/**
-		 * @param SampleSource cellLib
+		 * @param FileGroup fileGroup
 		 * @aparam JSONObject json
 		 * @return void
 		 */
-		public void setAlignmentMetrics(SampleSource cellLib, JSONObject json)throws MetadataException;
-		
-		public String getUnpairedMappedReads(SampleSource cellLib);
-		public String getPairedMappedReads(SampleSource cellLib);
-		public String getUnmappedReads(SampleSource cellLib);
-		public String getUnpairedMappedReadDuplicates(SampleSource cellLib);
-		public String getPairedMappedReadDuplicates(SampleSource cellLib);
-		public String getPairedMappedReadOpticalDuplicates(SampleSource cellLib);		
-		public String getFractionMapped(SampleSource cellLib);
-		public String getMappedReads(SampleSource cellLib);
-		public String getTotalReads(SampleSource cellLib);
-		public String getFractionMappedAsCalculation(SampleSource cellLib);
-		public String getFractionDuplicated(SampleSource cellLib);
-		public String getDuplicateReads(SampleSource cellLib);
-		public String getFractionDuplicatedAsCalculation(SampleSource cellLib);
-		public String getFractionUniqueNonRedundant(SampleSource cellLib);
-		public String getUniqueReads(SampleSource cellLib);
-		public String getUniqueNonRedundantReads(SampleSource cellLib);
-		public String getFractionUniqueNonRedundantAsCalculation(SampleSource cellLib);
+		public boolean alignmentMetricsExist(FileGroup fileGroup);
+		public String getUnpairedMappedReads(FileGroup fileGroup);
+		public String getPairedMappedReads(FileGroup fileGroup);
+		public String getUnmappedReads(FileGroup fileGroup);
+		public String getUnpairedMappedReadDuplicates(FileGroup fileGroup);
+		public String getPairedMappedReadDuplicates(FileGroup fileGroup);
+		public String getPairedMappedReadOpticalDuplicates(FileGroup fileGroup);		
+		public String getFractionMapped(FileGroup fileGroup);
+		public String getMappedReads(FileGroup fileGroup);
+		public String getTotalReads(FileGroup fileGroup);
+		public String getFractionMappedAsCalculation(FileGroup fileGroup);
+		public String getFractionDuplicated(FileGroup fileGroup);
+		public String getDuplicateReads(FileGroup fileGroup);
+		public String getFractionDuplicatedAsCalculation(FileGroup fileGroup);
+		public String getFractionUniqueNonRedundant(FileGroup fileGroup);
+		public String getUniqueReads(FileGroup fileGroup);
+		public String getUniqueNonRedundantReads(FileGroup fileGroup);
+		public String getFractionUniqueNonRedundantAsCalculation(FileGroup fileGroup);
 }

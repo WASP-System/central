@@ -35,6 +35,7 @@
 		<property name="handles" >
 			<set>
 				<ref bean="picardPluginArea" />
+				<value>#{bamFileType.getIName()}</value>
 			</set>
 		</property>
 	</bean>
