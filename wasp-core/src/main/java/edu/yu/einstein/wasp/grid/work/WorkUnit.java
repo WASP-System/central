@@ -37,7 +37,16 @@ public class WorkUnit {
 	public static final String JOB_NAME = "WASPNAME";
 	public static final String WORKING_DIRECTORY = "WASP_WORK_DIR";
 	public static final String RESULTS_DIRECTORY = "WASP_RESULT_DIR";
-	public static final String TASK_ARRAY_ID = "WASP_TASK_ID"; 
+	
+	/**
+	 * 0-based task array numbering $(( SGE_TASK_ID-1 )) 
+	 */
+	public static final String TASK_ARRAY_ID = "WASP_TASK_ID";
+	
+	/**
+	 * 1-based task array numbering 
+	 */
+	public static final String SGE_TASK_ID = "SGE_TASK_ID";
 	public static final String TASK_OUTPUT_FILE = "WASP_TASK_OUTPUT";
 	public static final String TASK_END_FILE = "WASP_TASK_END";
 	public static final String INPUT_FILE = "WASPFILE";
@@ -117,7 +126,7 @@ public class WorkUnit {
 	 * Set of expected output files.  These files will be returned to WASP host and entered as WASP {@link FileHandle} objects
 	 * upon successful completion of the WorkUnit.
 	 */
-	private LinkedHashSet<FileGroup> resultFiles = new LinkedHashSet<FileGroup>();
+	private Set<FileHandle> resultFiles = new LinkedHashSet<FileHandle>();
 	
 	/**
 	 * List of software packages that need to be configured by a {@link SoftwareManager}.
@@ -445,18 +454,18 @@ public class WorkUnit {
 	 * the WASPOUTPUT bash array.
 	 * @return the resultFiles
 	 */
-	public LinkedHashSet<FileGroup> getResultFiles() {
+	public Set<FileHandle> getResultFiles() {
 		return resultFiles;
 	}
 	
 	/**
 	 * @param resultFiles the resultFiles to set
 	 */
-	public void setResultFiles(LinkedHashSet<FileGroup> resultFiles) {
+	public void setResultFiles(Set<FileHandle> resultFiles) {
 		this.resultFiles = resultFiles;
 	}
 	
-	public void addResultFiles(FileGroup file) {
+	public void addResultFile(FileHandle file) {
 		this.resultFiles.add(file);
 	}
 	/**

@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.grid.work;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -99,12 +100,11 @@ public interface GridResult {
 	public boolean isSecureResults();
 	
 	/**
-	 * Set of result FileGroup IDs.  Stored as a set of id's because the GridResult is often stored in the execution
-	 * context, and the serialized result must fit in the Batch ExecutionContext database column.
+	 * List of result FileHandle IDs.  
 	 * 
 	 * @return
 	 */
-	public Set<Integer> getFileGroupIds();
+	public List<Integer> getFileHandleIds();
 	
 	/**
 	 * Unique ID of the job.  Useful for constructing path to output of previous result.

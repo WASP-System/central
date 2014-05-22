@@ -14,18 +14,24 @@ package edu.yu.einstein.wasp.dao.impl;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.sql.Connection;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Query;
+import javax.sql.DataSource;
 
 import org.apache.commons.lang.WordUtils;
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +52,10 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 	
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	@Qualifier("dataSource")
+	private DataSource dataSource;
 	
 	@Override
 	public boolean isAttached(final E entity){
@@ -376,32 +386,49 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 	}
 
 	private void setEditorId(E entity) {
-		try {
-			Method setLastUpdatedUserMethod = entity.getClass().getMethod("setLastUpdatedByUser", User.class);
-			// org.springframework.security.core.userdetails.User u=
-			// (org.springframework.security.core.userdetails.User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-			User user = null;
-			try{
-				
-				try{
-					final String login = SecurityContextHolder.getContext().getAuthentication().getName();
-					user = userService.getUserByLogin(login);
-					if (user.getId() == null)
-						user = userService.getUserDao().getUserByLogin("wasp"); // wasp user (reserved)
-				} catch (Exception e){
-					user = userService.getUserDao().getUserByLogin("wasp"); // wasp user (reserved)
-				}
-				setLastUpdatedUserMethod.invoke(entity, user);
-			} catch (Exception e){
-				logger.debug("not attempting setting last updating user of " + entity.getClass().getName() + " as not able to resolve a user to assign");
-			}
-			
+            try {
+                    Method setLastUpdatedUserMethod = entity.getClass().getMethod("setLastUpdatedByUser", User.class);
+                    // org.springframework.security.core.userdetails.User u=
+                    // (org.springframework.security.core.userdetails.User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                    User user = null;
+                    try{
+                            
+                            try{
+                                    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+                                    if (auth != null) {
+                                        final String login = SecurityContextHolder.getContext().getAuthentication().getName();
+                                        user = userService.getUserByLogin(login);
+                                    }
+                                    if (user == null || user.getId() == null) {
+                                        logger.debug("looking for wasp user");
+                                        logger.debug(userService.toString());
+                                        logger.debug(userService.getUserDao().toString());
+                                            user = userService.getUserDao().getUserByLogin("wasp"); // wasp user (reserved)
+                                    }
+                                    if (user == null || user.getId() == null) {
+                                        logger.warn("attempting creation of wasp user");
+                                        JdbcTemplate t = new JdbcTemplate(dataSource);
+                                        String ins = "INSERT INTO wuser (id, firstName, lastName, login, email, locale) VALUES (1, 'wasp', 'wasp', 'wasp', 'wasp', 'en_US')";
+                                        int i = t.update(ins);
+                                        logger.debug("insert " + i + " user");
+                                        user = userService.getUserDao().getUserByLogin("wasp"); 
+                                    }
+                            } catch (Exception e){
+                                e.printStackTrace();
+                                    logger.warn("final attempt to get wasp user");
+                                    user = userService.getUserDao().getUserByLogin("wasp"); // wasp user (reserved)
+                            }
+                            setLastUpdatedUserMethod.invoke(entity, user);
+                    } catch (Exception e){
+                            logger.debug("not attempting setting last updating user of " + entity.getClass().getName() + " as not able to resolve a user to assign");
+                    }
+                    
 
-		} catch (Exception e) {
-			// likely no such method setLastUpdUser in class E
-			logger.warn("attempted setting last updating user of " + entity.getClass().getName() + " resulted in failure because method for setting user was not found");
-		}
-	}
+            } catch (Exception e) {
+                    // likely no such method setLastUpdUser in class E
+                    logger.warn("attempted setting last updating user of " + entity.getClass().getName() + " resulted in failure because method for setting user was not found");
+            }
+    }
 	
 	@SuppressWarnings("rawtypes")
 	@Override
