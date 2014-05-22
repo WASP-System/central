@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.Strategy.StrategyType;
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
@@ -74,6 +75,8 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 				build = gatkService.getBuildForFg(fg);
 			fhlist.addAll(fg.getFileHandles());
 		}
+		if (build == null)
+			throw new WaspRuntimeException("No build could be sourced for job id=" + jobId);
 		w.setRequiredFiles(fhlist);
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(gatk);
@@ -87,7 +90,7 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 			jobParameters.put(key, value);
 		}
 		Strategy strategy = strategyService.getThisJobsStrategy(StrategyType.LIBRARY_STRATEGY, job);
-		String wxsIntervalFile = null;
+		String wxsIntervalFile = null; 
 		if (strategy.getStrategy().equals("WXS"))
 			wxsIntervalFile = gatkService.getWxsIntervalFile(job, build);
 		String gatkOpts = gatk.getCallVariantOpts(jobParameters);

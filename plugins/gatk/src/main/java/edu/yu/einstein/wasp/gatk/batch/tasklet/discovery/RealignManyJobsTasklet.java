@@ -107,8 +107,10 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			sampleSources.addAll(testFgIn.getSampleSources());
 			sampleSources.addAll(controlFgIn.getSampleSources());
 			
-			String bamOutputMergedPairs = testFgIn.getDescription().replace(".bam", "_pairRealn.bam");
-			String baiOutputMergedPairs = bamOutputMergedPairs.replace(".bam", ".bai");
+			String bamOutputMergedPairs = fileService.generateUniqueBaseFileName(test) + 
+					fileService.generateUniqueBaseFileName(control) + "gatk_preproc_merged_dedup_pairRealn.bam";
+			String baiOutputMergedPairs = fileService.generateUniqueBaseFileName(test) + 
+					fileService.generateUniqueBaseFileName(control) + "gatk_preproc_merged_dedup_pairRealn.bai";
 			FileGroup bamMergedPairsG = new FileGroup();
 			FileHandle bamMergedPairs = new FileHandle();
 			bamMergedPairs.setFileName(bamOutputMergedPairs);
@@ -149,9 +151,9 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			} catch (WaspMessageBuildingException e) {
 				e.printStackTrace();
 			}
-			fileGroupSamplesForNextStep.put(baiMergedPairsG, new LinkedHashSet<Sample>());
-			fileGroupSamplesForNextStep.get(baiMergedPairsG).add(test);
-			fileGroupSamplesForNextStep.get(baiMergedPairsG).add(control);
+			fileGroupSamplesForNextStep.put(bamMergedPairsG, new LinkedHashSet<Sample>());
+			fileGroupSamplesForNextStep.get(bamMergedPairsG).add(test);
+			fileGroupSamplesForNextStep.get(bamMergedPairsG).add(control);
 		}
 		
 		// re-align merged filegroups from previous step not in pairs
