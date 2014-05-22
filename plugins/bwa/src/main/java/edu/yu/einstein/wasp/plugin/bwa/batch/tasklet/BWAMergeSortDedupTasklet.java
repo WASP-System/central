@@ -3,7 +3,9 @@
  */
 package edu.yu.einstein.wasp.plugin.bwa.batch.tasklet;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,6 +32,7 @@ import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.bwa.software.BWABacktrackSoftwareComponent;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.BamFileTypeAttribute;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
+import edu.yu.einstein.wasp.plugin.mps.grid.software.Samtools;
 import edu.yu.einstein.wasp.plugin.picard.software.Picard;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -87,6 +90,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
 		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
 		Picard picard = (Picard) bwa.getSoftwareDependencyByIname("picard");
+		Samtools samtools = (Samtools) bwa.getSoftwareDependencyByIname("samtools");
 		
 		// retrieve attributes persisted in jobExecutionContext
 		String scratchDirectory = jobExecutionContext.get("scrDir").toString();
@@ -188,8 +192,25 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 			String dedupMetricsFilename = "${" + WorkUnit.OUTPUT_FILE + "[2]}";
 			w.addCommand(picard.getMergeBamCmd("*.out.sam", tempMergedBamFilename, null, MEMORY_GB_4));
 			w.addCommand(picard.getMarkDuplicatesCmd(tempMergedBamFilename, outputBamFilename, outputBaiFilename, dedupMetricsFilename, MEMORY_GB_4));
+			
+			//w.addCommand("samtools view -c -F 0x104 -q 1 " + outputBamFilename + " > mappedUniquelyAlignedWithDuplicatesReadCount.txt");
+			w.addCommand(picard.getUniquelyAlignedReadCountCmd(outputBamFilename));
+			//w.addCommand("samtools view -c -F 0x504 -q 1 " + outputBamFilename + " > mappedUniquelyAlignedWithoutDuplicatesReadCount.txt");
+			w.addCommand(picard.getUniquelyAlignedNonRedundantReadCountCmd(outputBamFilename));
+			
+			w.addCommand("ln -s " + dedupMetricsFilename + " " + metricsOutput);//permits reading of file scratch/dedupMetricsFilename 
+			
 		} else {
 			w.addCommand(picard.getMergeBamCmd("*.out.sam", outputBamFilename, outputBaiFilename, MEMORY_GB_4));
+			//NOT GOOD; RETHINK THIS-regarding name of dedupfile (whih needs to be saved)
+			//w.addCommand(picard.getMarkDuplicatesCmd(outputBamFilename, "notToBeSavedBamFile", "notToBeSavedBaiFile", dedupMetricsFilename, MEMORY_GB_4));
+			///////w.addCommand("samtools view -c -F 0x104 -q 1 " + outputBamFilename + " > mappedUniquelyAlignedWithDuplicatesReadCount.txt");
+			//w.addCommand(picard.getUniquelyAlignedReadCountCmd(outputBamFilename));
+			//////w.addCommand("samtools view -c -F 0x504 -q 1 " + outputBamFilename + " > mappedUniquelyAlignedWithoutDuplicatesReadCount.txt");
+			//w.addCommand(picard.getUniquelyAlignedNonRedundantReadCountCmd(outputBamFilename));
+			
+			//w.addCommand("ln -s " + dedupMetricsFilename + " " + metricsOutput);//permits reading of file scratch/dedupMetricsFilename 
+
 		}	
 		w.setWorkingDirectory(scratchDirectory);
 		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId() + "/bwa");
@@ -211,18 +232,32 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
 		Integer bamGId = stepExecutionContext.getInt("bamGID");
 		Integer baiGId = stepExecutionContext.getInt("baiGID");
-		
 		Integer metricsGId = null; 
 		if (stepExecutionContext.containsKey("metricsGID"))
 		        metricsGId = stepExecutionContext.getInt("metricsGID");
 		
+		Picard picard = (Picard) bwa.getSoftwareDependencyByIname("picard");
+		
+		// retrieve attributes persisted in jobExecutionContext
+		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
+		String scratchDirectory = jobExecutionContext.get("scrDir").toString();
+		Integer cellLibId = jobExecutionContext.getInt("cellLibId");		
+		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);
+
 		// register .bam and .bai file groups as active to make them available to views
 		if (bamGId != null)
 			fileService.getFileGroupById(bamGId).setIsActive(1);
 		if (baiGId != null)
 			fileService.getFileGroupById(baiGId).setIsActive(1);	
-		if (metricsGId != null)
-			fileService.getFileGroupById(metricsGId).setIsActive(1);	
+		if (metricsGId != null){
+			//fileService.getFileGroupById(metricsGId).setIsActive(1);
+			FileGroup metricsG = fileService.getFileGroupById(metricsGId);
+			metricsG.setIsActive(1);
+			List<FileHandle> fileHandleList = new ArrayList<FileHandle>(metricsG.getFileHandles());
+			if(fileHandleList.size()==1 && bamGId != null){	//save the metrics information with the BamFileGroupMeta			
+				picard.saveAlignmentMetrics(bamGId, fileHandleList.get(0).getFileName(), scratchDirectory, this.gridHostResolver);				
+			}
+		}
 	}
 	
 

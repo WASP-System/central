@@ -1,3 +1,4 @@
+
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 
@@ -14,9 +15,11 @@
 <select class="FormElement ui-widget-content ui-corner-all" name="changeResource" onchange="this.parentNode.submit()">
   <option value="-1"><fmt:message key="wasp.default_select.label"/></option>
 <c:forEach items="${workflowSoftwares}" var="w">
-  <option value="<c:out value="${w.software.softwareId}" />" <c:if test="${w.software.softwareId == jobDraftSoftware.software.softwareId}"> SELECTED</c:if>>
-    <c:out value="${w.software.name}" />
-  </option>
+  <c:if test="${w.software.isActive==1}">
+   <option value="<c:out value="${w.software.softwareId}" />" <c:if test="${w.software.softwareId == jobDraftSoftware.software.softwareId}"> SELECTED</c:if>>
+     <c:out value="${w.software.name}" />
+   </option>
+  </c:if>
 </c:forEach>
 </select>
 </form>
