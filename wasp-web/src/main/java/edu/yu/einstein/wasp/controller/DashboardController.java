@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.taskMapping.TaskMappingRegistry;
-import edu.yu.einstein.wasp.taskMapping.WaspTaskMapping;
 
 @Controller
 @Transactional

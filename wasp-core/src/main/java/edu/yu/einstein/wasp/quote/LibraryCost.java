@@ -1,6 +1,5 @@
 package edu.yu.einstein.wasp.quote;
 
-import edu.yu.einstein.wasp.model.Sample;
 
 public class LibraryCost {
 

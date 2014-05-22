@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobParameter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.integration.MessagingException;
+import org.springframework.messaging.MessagingException;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
@@ -95,7 +95,12 @@ public class PeakCallerTasklet extends LaunchManyJobsTasklet {
 		Job job = jobService.getJobByJobId(jobIdFromJobParameter);
 		Assert.assertTrue(job.getId()>0);
 		
-//TODO: ROBERT A DUBIN (1 of 1) comment out next line and uncomment out the next set immediately after for production   !!!!!!!!!!!!!!!!!!!!!!!!  
+		//TODO: ROBERT A DUBIN (1 of 1) comment out next line and uncomment out the next set immediately after for production   !!!!!!!!!!!!!!!!!!!!!!!!  
+		
+		// TODO: better to make a proper test for this, these things get forgotten. \
+		// Test code should never be placed in production code anyway either commented or uncommented. 
+		// Use a personal branch if you must do this kind of testing 'in situ' but please leave it out of develop or master: asmclellan
+		
 		//List<SampleSource> approvedCellLibraryList = new ArrayList<SampleSource>(sampleService.getCellLibrariesForJob(job));//sampleService.getCellLibrariesPassQCAndNoAggregateAnalysis(job);		
 		List<SampleSource> approvedCellLibraryList = null;
 		try{

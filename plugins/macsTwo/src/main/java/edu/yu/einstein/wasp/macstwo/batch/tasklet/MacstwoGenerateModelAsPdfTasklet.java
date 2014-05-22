@@ -5,20 +5,16 @@
 package edu.yu.einstein.wasp.macstwo.batch.tasklet;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
@@ -32,14 +28,13 @@ import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.plugin.mps.grid.software.Imagemagick;
 import edu.yu.einstein.wasp.plugin.mps.grid.software.R;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
  * @author 
@@ -145,6 +140,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 			logger.debug("jobParametersMap Key: " + key + " Value: " + jobParametersMap.get(key).toString());
 		}
 		Assert.assertTrue(this.jobId.intValue() > 0);
+		Job job = jobService.getJobByJobId(jobId);
 		logger.debug("in doExecute of MacstwoGenerateModelAsPdfTasklet: this.jobId (integer): " + this.jobId.toString());
 				
 		Map<String,Object> jobExecutionContextMap = context.getStepContext().getJobExecutionContext();		
@@ -244,7 +240,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		logger.debug("executed w.getResultFiles().add(modelPdfG) within MacstwoGenerateModelAsPdfTasklet.doExecute()");
 		logger.debug("executed w.getResultFiles().add(modelPngG) within MacstwoGenerateModelAsPdfTasklet.doExecute()");
 		
-		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + this.jobId.toString()); 
+		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, macs2)); 
 		
 		int counter = 0;
 		for(String fileName : listOfFileHandleNames){//need to make this symbolic link in order to properly copy files

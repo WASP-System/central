@@ -7,8 +7,8 @@ package edu.yu.einstein.wasp.integration.messaging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.integration.Message;
 import org.springframework.integration.core.MessageSelector;
+import org.springframework.messaging.Message;
 
 import edu.yu.einstein.wasp.service.AuthenticationService;
 

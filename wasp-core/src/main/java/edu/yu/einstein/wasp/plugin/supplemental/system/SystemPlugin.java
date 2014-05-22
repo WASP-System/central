@@ -5,7 +5,7 @@ package edu.yu.einstein.wasp.plugin.supplemental.system;
 
 import java.util.Properties;
 
-import org.springframework.integration.MessageChannel;
+import org.springframework.messaging.MessageChannel;
 
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 

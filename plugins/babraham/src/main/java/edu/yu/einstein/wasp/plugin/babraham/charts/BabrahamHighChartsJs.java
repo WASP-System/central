@@ -29,7 +29,6 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 	private static final String HEX_RED = "#F6CECE";
 	private static final String HEX_YELLOW = "#F5ECCE";
 	private static final String HEX_GREEN = "#CEF6CE";
-	private static final String HEX_BLUE = "#0101DF";
 	
 	private static String getFastQcCredits(MessageService messageService){
 		return "<div class='chart_credit'>" + messageService.getMessage("fastqc.credit.label") + "</div>";

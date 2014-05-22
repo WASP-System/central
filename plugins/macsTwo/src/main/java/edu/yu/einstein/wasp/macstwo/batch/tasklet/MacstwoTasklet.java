@@ -11,16 +11,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,12 +32,12 @@ import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
-import edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters;
 import edu.yu.einstein.wasp.macstwo.software.Macstwo;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
@@ -169,7 +166,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		logger.debug("in doExecute this.jobId: " + this.jobId);
 		logger.debug("in doExecute testCellLibraryIdList.size(): " + testCellLibraryIdList.size());
 		logger.debug("in doExecute controlCellLibraryIdList.size(): " + controlCellLibraryIdList.size());
-
+		Job job = jobService.getJobByJobId(jobId);
 		Map<String,Object> jobParametersMap = context.getStepContext().getJobParameters();		
 		for (String key : jobParametersMap.keySet()) {
 			logger.debug("jobParameters Key: " + key + " Value: " + jobParametersMap.get(key).toString());
@@ -379,7 +376,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		w.getResultFiles().add(controlLambdaBedGraphG);
 		logger.debug("executed w.getResultFiles().add(x) for 7 FileGroups");
 		
-		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + this.jobId.toString());	
+		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, macs2));	
 		
 		int counter = 0;
 		for(String fileName : listOfFileHandleNames){//need to make these symbolic links in order to properly copy files

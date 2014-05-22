@@ -3,26 +3,27 @@
  */
 package edu.yu.einstein.wasp.plugin.babraham.batch.tasklet;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
-import edu.yu.einstein.wasp.model.Run;
-import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.plugin.babraham.batch.tasklet.jobparameters.TrimGaloreParameters;
 import edu.yu.einstein.wasp.plugin.babraham.software.TrimGalore;
 import edu.yu.einstein.wasp.service.AdaptorService;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 
@@ -41,6 +42,9 @@ public class TrimGaloreRegisteringTasklet extends WaspRemotingTasklet {
 
     @Autowired
     private SampleService sampleService;
+    
+    @Autowired
+    private FileService fileService;
 
     @Autowired
     private AdaptorService adaptorService;
@@ -64,6 +68,7 @@ public class TrimGaloreRegisteringTasklet extends WaspRemotingTasklet {
      * {@inheritDoc}
      */
     @Override
+    @Transactional("entityManager")
     public void doExecute(ChunkContext context) throws Exception {
 
         SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);
@@ -71,10 +76,30 @@ public class TrimGaloreRegisteringTasklet extends WaspRemotingTasklet {
         WorkUnit w = trimGalore.getRegisterTrimmedCommand(runId, cellLibrary.getId(), softwareClass);
 
         GridResult result = hostResolver.execute(w);
-
+        
+        // save results files id's in StepExecutionContext
+        List<Integer> resultsFileIds = new ArrayList<>();
+        for (FileGroup fg : w.getResultFiles())
+        	resultsFileIds.add(fg.getId());
+        context.getStepContext().getStepExecution().getExecutionContext().putString("resultsFilesIdStr", StringUtils.collectionToCommaDelimitedString(resultsFileIds));
+        
         storeStartedResult(context, result);
 
     }
+    
+    /** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional("entityManager")
+	public void doPreFinish(ChunkContext context) {
+		// get results files and make them active
+		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
+		if (stepExecutionContext.containsKey("resultsFilesIdStr"))
+			for (String fgIdStr : StringUtils.commaDelimitedListToStringArray(stepExecutionContext.getString("resultsFilesIdStr")))
+				fileService.getFileGroupById(Integer.parseInt(fgIdStr)).setIsActive(1);
+			
+	}
 
     @Override
     @BeforeStep

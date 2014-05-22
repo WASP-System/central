@@ -13,22 +13,16 @@ package edu.yu.einstein.wasp.service.impl;
 import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
-import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.itextpdf.text.Anchor;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
@@ -45,41 +39,24 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
 
-import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
-import edu.yu.einstein.wasp.dao.LabDao;
-import edu.yu.einstein.wasp.dao.LabUserDao;
-import edu.yu.einstein.wasp.dao.LabPendingDao;
-import edu.yu.einstein.wasp.dao.RoleDao;
-import edu.yu.einstein.wasp.dao.UserDao;
-import edu.yu.einstein.wasp.dao.UserroleDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
-import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.Lab;
-import edu.yu.einstein.wasp.model.LabPending;
-import edu.yu.einstein.wasp.model.LabUser;
-import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserMeta;
-import edu.yu.einstein.wasp.model.UserPending;
-import edu.yu.einstein.wasp.model.Userrole;
 import edu.yu.einstein.wasp.quote.AdditionalCost;
 import edu.yu.einstein.wasp.quote.Comment;
 import edu.yu.einstein.wasp.quote.Discount;
 import edu.yu.einstein.wasp.quote.LibraryCost;
 import edu.yu.einstein.wasp.quote.MPSQuote;
 import edu.yu.einstein.wasp.quote.SequencingCost;
-import edu.yu.einstein.wasp.service.LabService;
-import edu.yu.einstein.wasp.service.QuoteAndInvoiceService;
-import edu.yu.einstein.wasp.service.UserService;
-import edu.yu.einstein.wasp.service.WaspService;
-import edu.yu.einstein.wasp.util.AuthCode;
-import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.QuoteAndInvoiceService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.util.MetaHelper;
 
 @Service
 @Transactional("entityManager")

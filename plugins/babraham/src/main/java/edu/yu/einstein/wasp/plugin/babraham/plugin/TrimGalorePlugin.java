@@ -4,21 +4,33 @@
  */
 package edu.yu.einstein.wasp.plugin.babraham.plugin;
 
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.explore.wasp.WaspJobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.integration.MessageChannel;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.support.MessageBuilder;
 
-import edu.yu.einstein.wasp.interfacing.Hyperlink;
 import edu.yu.einstein.wasp.exception.PanelException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
+import edu.yu.einstein.wasp.interfacing.Hyperlink;
+import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
-import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
+import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
@@ -31,9 +43,16 @@ public class TrimGalorePlugin extends WaspPlugin implements ClientMessageI, File
      * 
      */
     private static final long serialVersionUID = 8094367515193248876L;
+    
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
+    
+    public static final String FLOW_NAME = "edu.yu.einstein.wasp.plugin.babraham.trim_galore.mainFlow";
 
     @Autowired
     BabrahamService babrahamService;
+    
+    @Autowired
+	protected RunService runService;
 
     protected WaspJobExplorer batchJobExplorer;
 
@@ -96,5 +115,52 @@ public class TrimGalorePlugin extends WaspPlugin implements ClientMessageI, File
     public PanelTab getViewPanelTab(FileGroup fileGroup) throws PanelException {
 	return null;
     }
+    
+    public Message<String> trim(Message<String> m) {
+		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
+			return trimHelp();
+		
+		Map<String, String> jobParameters = new HashMap<String, String>();
+		
+		logger.info("launching TrimGalore flow");
+		
+		try {
+			Integer id = getIDFromMessage(m);
+			if (id == null)
+				return MessageBuilder.withPayload("Unable to determine run id from message: " + m.getPayload().toString()).build();
+			
+			jobParameters.put(WaspJobParameters.ID, id.toString());
+			jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
+			logger.info("Sending launch message to flow '" + FLOW_NAME + "' on run with id=" + id);
+			runService.launchBatchJob(FLOW_NAME, jobParameters);
+			
+			return (Message<String>) MessageBuilder.withPayload("Initiating TrimGalore flow on run with id=" + id).build();
+		} catch (WaspMessageBuildingException e1) {
+			logger.warn("unable to build message around jobParameters: " + jobParameters.toString());
+			return MessageBuilder.withPayload("Unable to launch TrimGalore").build();
+		}
+		
+	}
+	
+	private Message<String> trimHelp() {
+		String mstr = "\nBabraham Trim Galore plugin: launch the trim flow with given run Id.\n" +
+				"wasp -T trim_galore -t trim -m \'{id:\"1\"}\'\n";
+		return MessageBuilder.withPayload(mstr).build();
+	}
+	
+	private Integer getIDFromMessage(Message<String> m) {
+		Integer id = null;
+		
+		JSONObject jo;
+		try {
+			jo = new JSONObject(m.getPayload().toString());
+			if (jo.has("id")) {
+				id = new Integer(jo.get("id").toString());
+			} 
+		} catch (JSONException e) {
+			logger.warn("unable to parse JSON");
+		}
+		return id;
+	}
 
 }

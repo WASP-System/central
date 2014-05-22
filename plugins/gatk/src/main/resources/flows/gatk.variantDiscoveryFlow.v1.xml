@@ -10,9 +10,40 @@
 		<batch:step id="gatk.variantDiscovery.hc.mergeSampleBamFiles.step">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.MergeSampleBamFilesTasklet" scope="step">
-					<constructor-arg name="inputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.INPUT_FILEGROUP_ID_LIST]}" />
-					<constructor-arg name="outputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.OUTPUT_FILEGROUP_ID_LIST]}" />
+					<constructor-arg name="inputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT]}" />
+					<constructor-arg name="outputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT]}" />
 					<constructor-arg name="jobId" value="#{jobParameters[waspSoftwareJobParameters.JOB_ID]}" />
+				</bean>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="gatk.variantDiscovery.hc.mergeSampleBamFiles.notifyRegisterFail" />
+			<batch:next on="*" to="gatk.variantDiscovery.hc.mergeSampleBamFiles.notifyRegisterSuccess" />
+		</batch:step>
+		<batch:step id="gatk.variantDiscovery.hc.mergeSampleBamFiles.notifyRegisterFail">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.ManyJobStatusMessageTemplate">
+							<constructor-arg name="parentId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).PARENT_ID]}" />
+						<constructor-arg name="childId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).CHILD_MESSAGE_ID]}" />
+						<property name="status" value="FAILED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+			<batch:fail on="*"/>
+		</batch:step>
+		<batch:step id="gatk.variantDiscovery.hc.mergeSampleBamFiles.notifyRegisterSuccess">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.ManyJobStatusMessageTemplate">
+							<constructor-arg name="parentId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).PARENT_ID]}" />
+							<constructor-arg name="childId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).CHILD_MESSAGE_ID]}" />
+							<property name="status" value="COMPLETED" />
+						</bean>
+					</constructor-arg>
 				</bean>
 			</batch:tasklet>
 		</batch:step>
@@ -22,9 +53,40 @@
 		<batch:step id="gatk.variantDiscovery.hc.realign.step">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.RealignTasklet" scope="step">
-					<constructor-arg name="inputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.INPUT_FILEGROUP_ID_LIST]}" />
-					<constructor-arg name="outputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.OUTPUT_FILEGROUP_ID_LIST]}" />
+					<constructor-arg name="inputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT]}" />
+					<constructor-arg name="outputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT]}" />
 					<constructor-arg name="jobId" value="#{jobParameters[waspSoftwareJobParameters.JOB_ID]}" />
+				</bean>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="gatk.variantDiscovery.hc.realign.notifyRegisterFail" />
+			<batch:next on="*" to="gatk.variantDiscovery.hc.realign.notifyRegisterSuccess" />
+		</batch:step>
+		<batch:step id="gatk.variantDiscovery.hc.realign.notifyRegisterFail">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.ManyJobStatusMessageTemplate">
+							<constructor-arg name="parentId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).PARENT_ID]}" />
+							<constructor-arg name="childId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).CHILD_MESSAGE_ID]}" />
+							<property name="status" value="FAILED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+			<batch:fail on="*"/>
+		</batch:step>
+		<batch:step id="gatk.variantDiscovery.hc.realign.notifyRegisterSuccess">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.ManyJobStatusMessageTemplate">
+							<constructor-arg name="parentId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).PARENT_ID]}" />
+							<constructor-arg name="childId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).CHILD_MESSAGE_ID]}" />
+							<property name="status" value="COMPLETED" />
+						</bean>
+					</constructor-arg>
 				</bean>
 			</batch:tasklet>
 		</batch:step>
@@ -34,9 +96,41 @@
 		<batch:step id="gatk.variantDiscovery.hc.callVariants.step">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.CallVariantsWithHCTasklet" scope="step">
-					<constructor-arg name="inputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.INPUT_FILEGROUP_ID_LIST]}" />
-					<constructor-arg name="outputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.OUTPUT_FILEGROUP_ID_LIST]}" />
+					<constructor-arg name="inputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT]}" />
+					<constructor-arg name="outputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT]}" />
 					<constructor-arg name="jobId" value="#{jobParameters[waspSoftwareJobParameters.JOB_ID]}" />
+					<constructor-arg name="parentJobExecutionId" value ="#{jobParameters['parentJobExecutionId']}" /> <!-- need this to get parent job execution's parameters -->
+				</bean>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="gatk.variantDiscovery.hc.callVariants.notifyRegisterFail" />
+			<batch:next on="*" to="gatk.variantDiscovery.hc.callVariants.notifyRegisterSuccess" />
+		</batch:step>
+		<batch:step id="gatk.variantDiscovery.hc.callVariants.notifyRegisterFail">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.ManyJobStatusMessageTemplate">
+							<constructor-arg name="parentId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).PARENT_ID]}" />
+							<constructor-arg name="childId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).CHILD_MESSAGE_ID]}" />
+							<property name="status" value="FAILED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+			<batch:fail on="*"/>
+		</batch:step>
+		<batch:step id="gatk.variantDiscovery.hc.callVariants.notifyRegisterSuccess">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.ManyJobStatusMessageTemplate">
+							<constructor-arg name="parentId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).PARENT_ID]}" />
+							<constructor-arg name="childId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).CHILD_MESSAGE_ID]}" />
+							<property name="status" value="COMPLETED" />
+						</bean>
+					</constructor-arg>
 				</bean>
 			</batch:tasklet>
 		</batch:step>
@@ -46,10 +140,41 @@
 		<batch:step id="gatk.variantDiscovery.hc.splitAndAnnotateVariants.step">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.gatk.batch.tasklet.discovery.SplitAndAnnotateVcfTasklet" scope="step">
-					<constructor-arg name="inputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.INPUT_FILEGROUP_ID_LIST]}" />
-					<constructor-arg name="outputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.OUTPUT_FILEGROUP_ID_LIST]}" />
+					<constructor-arg name="inputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT]}" />
+					<constructor-arg name="outputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT]}" />
 					<constructor-arg name="sampleIdentifierSet" value="#{jobParameters['sampleIdentifierSet']}" />
 					<constructor-arg name="jobId" value="#{jobParameters[waspSoftwareJobParameters.JOB_ID]}" />
+				</bean>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="gatk.variantDiscovery.hc.splitAndAnnotateVariants.notifyRegisterFail" />
+			<batch:next on="*" to="gatk.variantDiscovery.hc.splitAndAnnotateVariants.notifyRegisterSuccess" />
+		</batch:step>
+		<batch:step id="gatk.variantDiscovery.hc.splitAndAnnotateVariants.notifyRegisterFail">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.ManyJobStatusMessageTemplate">
+							<constructor-arg name="parentId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).PARENT_ID]}" />
+							<constructor-arg name="childId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).CHILD_MESSAGE_ID]}" />
+							<property name="status" value="FAILED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+			<batch:fail on="*"/>
+		</batch:step>
+		<batch:step id="gatk.variantDiscovery.hc.splitAndAnnotateVariants.notifyRegisterSuccess">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.ManyJobStatusMessageTemplate">
+							<constructor-arg name="parentId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).PARENT_ID]}" />
+							<constructor-arg name="childId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).CHILD_MESSAGE_ID]}" />
+							<property name="status" value="COMPLETED" />
+						</bean>
+					</constructor-arg>
 				</bean>
 			</batch:tasklet>
 		</batch:step>
@@ -170,14 +295,7 @@
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForManyStatusMessagesTasklet" scope="step" />
 			</batch:tasklet>
 			<batch:next on="FAILED" to="gatk.variantDiscovery.hc.notifyFailed" />
-			<batch:next on="*" to="gatk.variantDiscoveryhc.flowFinished" />
-		</batch:step>
-		
-		<batch:step id="gatk.variantDiscoveryhc.flowFinished">
-			<batch:tasklet>
-				<!-- dummy step as we need to point previous step somewhere if not a failure case -->
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" />
-			</batch:tasklet>
+			<batch:end on="*" />
 		</batch:step>
 		
 		<batch:step id="gatk.variantDiscovery.hc.notifyFailed">
@@ -228,7 +346,7 @@
 	</batch:flow>
 	
 	<!-- decider bean -->
-	<bean id="gatk.variantDiscovery.variantCallerDecider" class="edu.yu.einstein.wasp.gatk.batch.decider.discovery.VariantCallerDecider" scope="step" />
+	<bean id="gatk.variantDiscovery.variantCallerDecider" class="edu.yu.einstein.wasp.gatk.batch.decider.discovery.VariantCallerDecider" />
 		
 
 	<!-- Batch job. Call with jobId in parameters -->
