@@ -56,7 +56,7 @@ public class GatkServiceImpl extends WaspServiceImpl implements GatkService {
 		// figure out the genome from its sample source
 		// We assume all source files share a common genome
 		// TODO: verify that all builds are the same for all cell libraries 
-		while (fileGroup.getDerivedFrom() != null)
+		while (fileGroup.getDerivedFrom() != null && fileGroup.getDerivedFrom().iterator().hasNext())
 			fileGroup = fileGroup.getDerivedFrom().iterator().next();
 		Set<SampleSource> fgCl = fileGroup.getSampleSources();
 		if (fgCl == null || fgCl.isEmpty())
