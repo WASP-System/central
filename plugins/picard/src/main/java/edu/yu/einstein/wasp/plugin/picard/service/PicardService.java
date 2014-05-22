@@ -13,6 +13,7 @@ import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.service.WaspService;
+import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 /**
  * 
@@ -48,6 +49,7 @@ public interface PicardService extends WaspService {
 		 * @return void
 		 */
 		public boolean alignmentMetricsExist(FileGroup fileGroup);
+		
 		public String getUnpairedMappedReads(FileGroup fileGroup);
 		public String getPairedMappedReads(FileGroup fileGroup);
 		public String getUnmappedReads(FileGroup fileGroup);
@@ -65,4 +67,6 @@ public interface PicardService extends WaspService {
 		public String getUniqueReads(FileGroup fileGroup);
 		public String getUniqueNonRedundantReads(FileGroup fileGroup);
 		public String getFractionUniqueNonRedundantAsCalculation(FileGroup fileGroup);
+		
+		public PanelTab getAlignmentMetricsForDisplay(FileGroup fileGroup);
 }

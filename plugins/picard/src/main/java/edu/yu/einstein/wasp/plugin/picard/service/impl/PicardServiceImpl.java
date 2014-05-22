@@ -9,6 +9,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 
 import org.codehaus.jackson.JsonParser;
@@ -29,10 +31,12 @@ import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSourceMeta;
 import edu.yu.einstein.wasp.plugin.picard.service.PicardService;
+import edu.yu.einstein.wasp.plugin.picard.webpanels.PicardWebPanels;
 
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
+import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 @Service
 @Transactional("entityManager")
@@ -145,5 +149,19 @@ public class PicardServiceImpl extends WaspServiceImpl implements PicardService 
 		String uniqueReads = getUniqueReads(fileGroup);
 		String uniqueNonRedundantReads = getUniqueNonRedundantReads(fileGroup);		
 		return uniqueNonRedundantReads + " / " + uniqueReads + " = " + fractionUniqueNonRedundant;
+	}
+	public PanelTab getAlignmentMetricsForDisplay(FileGroup fileGroup){
+		
+		Map<String,Map<String,String>> metrics = new LinkedHashMap<String,Map<String,String>>();
+		
+		Map<String,String> mapped = new LinkedHashMap<String, String>();
+		mapped.put("Unmapped Reads", getUnmappedReads(fileGroup));
+		mapped.put("Mapped Reads", getMappedReads(fileGroup));
+		mapped.put("Total Reads", getTotalReads(fileGroup));
+		mapped.put("Fraction Mapped", getFractionMapped(fileGroup));
+		mapped.put("Mapping Efficiency", getUnmappedReads(fileGroup));
+		metrics.put("Mapped ", mapped);
+		
+		return PicardWebPanels.getAlignmentMetrics(metrics);
 	}
 }

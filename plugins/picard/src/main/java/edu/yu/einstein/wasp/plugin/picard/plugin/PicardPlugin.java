@@ -30,6 +30,7 @@ import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Software; 
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
@@ -38,8 +39,14 @@ import edu.yu.einstein.wasp.interfacing.Hyperlink;
 import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
+import edu.yu.einstein.wasp.viewpanel.GridColumn;
+import edu.yu.einstein.wasp.viewpanel.GridContent;
+import edu.yu.einstein.wasp.viewpanel.GridDataField;
+import edu.yu.einstein.wasp.viewpanel.GridPanel;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 import edu.yu.einstein.wasp.viewpanel.DataTabViewing.Status;
+import edu.yu.einstein.wasp.viewpanel.WebContent;
+import edu.yu.einstein.wasp.viewpanel.WebPanel;
 
 /**
  * @author 
@@ -137,8 +144,8 @@ public class PicardPlugin extends WaspPlugin
 		if(picardService.alignmentMetricsExist(fileGroup)){
 			return Status.COMPLETED;
 		}
-		return Status.UNKNOWN;
-		//return Status.COMPLETED; //MUST REMOVE THIS LINE AND UNCOMMENT LINE ABOVE
+		//return Status.UNKNOWN;
+		return Status.COMPLETED; //MUST REMOVE THIS LINE AND UNCOMMENT LINE ABOVE
 		/*
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		Set<String> fileGroupIdStringSet = new LinkedHashSet<String>();
@@ -161,11 +168,24 @@ public class PicardPlugin extends WaspPlugin
 	 */
 	@Override
 	public PanelTab getViewPanelTab(FileGroup fileGroup) throws PanelException {
-		//return ((PicardWebServiceImpl) picardService).getAlignmentMetricsDataToDisplay(fileGroup);
+		
+		
+		//return picardService.getAlignmentMetricsForDisplay(fileGroup);
+		
+		logger.debug("------------THIS IS A ROB TEST in picard");
 		PanelTab panelTab = new PanelTab();
-		//panelTab.setName("TEST alignmentMetrics Panel Tab");
-		//panelTab.setNumberOfColumns(1);
+		panelTab.setName("TEST alignmentMetrics Panel Tab");
+		panelTab.setNumberOfColumns(1);
+		//return panelTab;
+		WebPanel wp = new WebPanel();
+		WebContent wc = new WebContent();
+		wc.setHtmlCode("this is a text code");
+		wp.setContent(wc);
+		panelTab.addPanel(wp);
 		return panelTab;
+		
+		
+		
 	}
 
 	@Override
