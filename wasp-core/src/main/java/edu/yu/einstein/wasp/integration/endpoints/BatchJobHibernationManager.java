@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.integration.endpoints;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -13,6 +14,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.Assert;
+import edu.yu.einstein.wasp.batch.SimpleManyJobRecipient;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionException;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionReadinessException;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
@@ -1055,6 +1058,59 @@ public class BatchJobHibernationManager {
     
     public synchronized boolean isListenerRegistered(WaspStatusMessageTemplate template) {
         return waitingManyJobs.containsKey(UUID.fromString((String)template.getHeader(WaspMessageTemplate.PARENT_ID)));
+    }
+    
+    /**
+     * After Daemon restart it is necessary to re-register status with the hibernation manager from information held in the step execution context.
+     * @param jobExecutionId
+     * @param stepExecutionId
+     * @param initialExponentialInterval
+     */
+    public synchronized void resetStatusAfterDaemonRestart(Long jobExecutionId, Long stepExecutionId, Long initialExponentialInterval) {
+    	StepExecution se = jobExplorer.getStepExecution(jobExecutionId, stepExecutionId);
+		Assert.assertParameterNotNull(se, "Unable to retrieve a StepExecution with stepExecutionId=" + stepExecutionId + " and jobExecutionId=" + jobExecutionId);
+		
+    	SimpleManyJobRecipient jobRecipient = null;
+    	
+    	// re-populate templates for waking / abandoning step
+    	addMessageTemplatesForWakingJobStep(jobExecutionId, stepExecutionId);
+		addMessageTemplatesForAbandoningJobStep(jobExecutionId, stepExecutionId);
+		
+		// If a wake-time interval is set re-register executions to be woken after a delay (reset to provided interval).
+		if (getWakeTimeInterval(jobExecutionId, stepExecutionId) != null){
+			setWakeTimeInterval(jobExecutionId, stepExecutionId, initialExponentialInterval);
+			addTimeIntervalForJobStep(jobExecutionId, stepExecutionId, initialExponentialInterval);
+		}
+		
+		// if stepExecution is for a many job, re-register status
+    	ExecutionContext stepContext = se.getExecutionContext();
+    	if (stepContext.containsKey(BatchJobHibernationManager.MANY_JOB_RECIPIENT_KEY)){
+			ObjectMapper mapper = new ObjectMapper();
+			try{
+				jobRecipient = mapper.readValue(stepContext.getString(BatchJobHibernationManager.MANY_JOB_RECIPIENT_KEY),
+						SimpleManyJobRecipient.class);
+				
+				List<String> abandoned = new ArrayList<String>();
+		        if (stepContext.containsKey(ABANDONED_CHILD_IDS)) {
+		            String acids = stepContext.getString(ABANDONED_CHILD_IDS);
+		            abandoned.addAll(Arrays.asList(StringUtils.delimitedListToStringArray(acids, PARENT_JOB_CHILD_LIST_DELIMITER)));
+		        }
+		        abandonedManyJobs.put(jobRecipient.getParentID(), abandoned);
+		        
+		        List<String> completed = new ArrayList<String>();
+		        if (stepContext.containsKey(COMPLETED_CHILD_IDS)) {
+		            String cids = stepContext.getString(COMPLETED_CHILD_IDS);
+		            completed.addAll(Arrays.asList(StringUtils.delimitedListToStringArray(cids, PARENT_JOB_CHILD_LIST_DELIMITER)));
+		        }
+		        completedManyJobs.put(jobRecipient.getParentID(), completed);
+		        
+		        registerManyStepCompletionListener(jobRecipient);
+		        
+			} catch(IOException e){
+				throw new JSONException("Cannot create object of type ManyJobRecipient from JSON. Caught exception of type " + 
+						e.getClass().getName() + " : " + e.getLocalizedMessage());
+			}
+		}
     }
     
 }

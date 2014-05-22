@@ -1,13 +1,10 @@
 package edu.yu.einstein.wasp.batch.launch;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
@@ -20,7 +17,6 @@ import org.springframework.batch.core.explore.wasp.WaspJobExplorer;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.repository.JobRepository;
 
-import edu.yu.einstein.wasp.batch.SimpleManyJobRecipient;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 
 /**
@@ -130,25 +126,8 @@ public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunni
 		
 		// re-populate hibernation manager with all persisted messages to wake steps
 		logger.debug("Re-populate hibernation manager...");
-		for (StepExecution se : hibernatingStepExecutions){
-			if (se.getExecutionContext().containsKey(BatchJobHibernationManager.MANY_JOB_RECIPIENT_KEY)){
-				ObjectMapper mapper = new ObjectMapper();
-				try{
-					SimpleManyJobRecipient jobRecipient = mapper.readValue(se.getExecutionContext().getString(BatchJobHibernationManager.MANY_JOB_RECIPIENT_KEY),
-							SimpleManyJobRecipient.class);
-					hibernationManager.registerManyStepCompletionListener(jobRecipient);
-				} catch(IOException e){
-					throw new JSONException("Cannot create object of type ManyJobRecipient from JSON. Caught exception of type " + 
-							e.getClass().getName() + " : " + e.getLocalizedMessage());
-				}
-			}
-			hibernationManager.addMessageTemplatesForWakingJobStep(se.getJobExecutionId(), se.getId());
-			hibernationManager.addMessageTemplatesForAbandoningJobStep(se.getJobExecutionId(), se.getId());
-			if (hibernationManager.getWakeTimeInterval(se.getJobExecutionId(), se.getId()) != null){
-				hibernationManager.setWakeTimeInterval(se.getJobExecutionId(), se.getId(), initialExponentialInterval);
-				hibernationManager.addTimeIntervalForJobStep(se.getJobExecutionId(), se.getId(), initialExponentialInterval);
-			}
-		}
+		for (StepExecution se : hibernatingStepExecutions)
+			hibernationManager.resetStatusAfterDaemonRestart(se.getJobExecutionId(), se.getId(), initialExponentialInterval);
 	}
 
 }
