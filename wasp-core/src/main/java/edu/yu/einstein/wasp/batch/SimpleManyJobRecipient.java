@@ -16,6 +16,8 @@ public class SimpleManyJobRecipient implements ManyJobRecipient {
 	
 	private List<String> childIDs;
 	
+	public SimpleManyJobRecipient(){}
+	
 	public SimpleManyJobRecipient(final ManyJobRecipient sourceJobRecipient){
 		setJobExecutionId(sourceJobRecipient.getJobExecutionId());
 		setStepName(sourceJobRecipient.getStepName());
