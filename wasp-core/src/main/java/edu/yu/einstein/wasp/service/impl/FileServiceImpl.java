@@ -129,8 +129,8 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 	@Autowired
 	private FileGroupDao fileGroupDao;
-	
-	@Autowired
+
+        @Autowired
 	private FileGroupMetaDao fileGroupMetaDao;
 	
 	@Autowired
@@ -324,8 +324,10 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		file.setFileURI(gfs.remoteFileRepresentationToLocalURI(remoteFile));
 
 		try {
-			gfs.put(localFile, remoteFile);			
-			registerWithoutMD5(retGroup);
+			gfs.put(localFile, remoteFile);	
+			List<FileHandle> fhs = new ArrayList<FileHandle>();
+			fhs.addAll(retGroup.getFileHandles());
+			registerWithoutMD5(fhs);
 		} catch (GridException e) {
 			String mess = "Problem accessing remote resources " + e.getLocalizedMessage();
 			logger.warn(mess);
@@ -700,31 +702,32 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 	
 
-	private enum Md5 { YES, NO };
+	public enum Md5 { YES, NO };
 	
 	@Override
-	public void register(FileGroup group) throws FileNotFoundException, GridException {
-		register(group, Md5.YES);
+	public void register(List<FileHandle> fhl) throws FileNotFoundException, GridException {
+		register(fhl, Md5.YES);
 	}
 	
 	@Override
-	public void registerWithoutMD5(FileGroup group) throws FileNotFoundException, GridException {
-		register(group, Md5.NO);
+	public void registerWithoutMD5(List<FileHandle> fhl) throws FileNotFoundException, GridException {
+		register(fhl, Md5.NO);
 	}
 	
-	public void register(FileGroup group, Md5 md5) throws FileNotFoundException, GridException {
-		group = fileGroupDao.merge(group);
-		for (FileHandle f : group.getFileHandles()) {
-			validateFile(f);
-		}
-		logger.debug("attempting to register FileGroup: " + group.getId());
-
-		if (md5.equals(Md5.YES))
-			setMD5(group);
-
-		group.setIsActive(1);
-		group.setIsArchived(0);
-		fileGroupDao.save(group);
+	public List<FileHandle> register(List<FileHandle> fhl, Md5 md5) throws FileNotFoundException, GridException {
+	    List<FileHandle> retval = new ArrayList<FileHandle>();
+	    for (FileHandle fh : fhl) {
+	        logger.debug("attempting to register FileHandle: " + fh.getId());
+	        fh = fileHandleDao.merge(fh);
+		validateFile(fh);
+		retval.add(fh);
+	    }
+            if (md5.equals(Md5.YES))
+		setMD5(retval);
+            for (FileHandle fh : retval) {
+		fileHandleDao.save(fh);
+	    }
+            return retval;
 	}
 
 	private void validateFile(FileHandle file) throws FileNotFoundException {
@@ -742,26 +745,23 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 	}
 
-	private void setMD5(FileGroup fileGroup) throws GridException, FileNotFoundException {
+	private void setMD5(List<FileHandle> fileHandles) throws GridException, FileNotFoundException {
 
-		if (fileGroup.getFileHandles().isEmpty())
-			throw new FileNotFoundException("No file handles in file group: " + fileGroup.getId());
+		if (fileHandles.isEmpty())
+			throw new FileNotFoundException("No file handles to set MD5");
 
-		String host = fileGroup.getFileHandles().iterator().next().getFileURI().getHost();
+		String host = fileHandles.iterator().next().getFileURI().getHost();
 
 		// use task array to submit in one batch
 		WorkUnit w = new WorkUnit();
 		w.setRegistering(true);
-		w.setSecureResults(false);
+		w.setSecureResults(true);
 		w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		w.setMode(ExecutionMode.TASK_ARRAY);
 
 		int numFiles = 0;
 
-		Set<FileHandle> fileH = new LinkedHashSet<FileHandle>();
-		fileH.addAll(fileGroup.getFileHandles());
-
-		for (FileHandle f : fileH) {
+		for (FileHandle f : fileHandles) {
 			String fileHost = f.getFileURI().getHost().toString();
 			if (!fileHost.equals(host))
 				throw new GridAccessException("files must all reside on the same host for calculating MD5 by file group");
@@ -787,7 +787,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		GridWorkService gws = hostResolver.getGridWorkService(host);
 		GridResult r = gws.execute(w);
 
-		logger.debug("waiting for file registration");
+		logger.trace("waiting for file registration");
 		ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
 		while (!gws.isFinished(r)) {
 			ScheduledFuture<?> md5t = ex.schedule(new Runnable() {
@@ -800,17 +800,17 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			}
 		}
 		ex.shutdownNow();
-		logger.debug("registered, getting results");
+		logger.trace("registered, getting results");
 		
 		try {
 			Map<Integer, String> output = gws.getMappedTaskOutput(r);
 
-			Iterator<FileHandle> fhi = fileH.iterator();
-			for (int rec=0; rec < fileH.size(); rec++) {
+			Iterator<FileHandle> fhi = fileHandles.iterator();
+			for (int rec=1; rec <= fileHandles.size(); rec++) {
 			    FileHandle f = fhi.next();
 			    String md5 = StringUtils.chomp(output.get(rec));
-			    if (md5 == null) {
-			        logger.error("unable to find MD5 result for " + f.getFileName());
+			    if (md5 == null || md5.length() != 32) {
+			        logger.error("unable to find valid MD5 result for " + f.getFileName() + " saw: '" + md5 + "'");
 			        continue;
 			    }
 			    logger.debug("MD5: " + rec + " : " + md5 + ":" + f.getFileName());
@@ -1138,8 +1138,10 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		// automatically determine mime type.
 
 		try {
-			gfs.put(localFile, remoteFile);			
-			registerWithoutMD5(retGroup);
+			gfs.put(localFile, remoteFile);	
+			List<FileHandle> fhs = new ArrayList<FileHandle>();
+			fhs.addAll(retGroup.getFileHandles());
+			registerWithoutMD5(fhs);
 		} catch (GridException e) {
 			String mess = "Problem accessing remote resources " + e.getLocalizedMessage();
 			logger.warn(mess);
@@ -1651,8 +1653,10 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		// automatically determine mime type.
 
 		try {
-			gfs.put(localFile, remoteFile);			
-			registerWithoutMD5(retGroup);
+			gfs.put(localFile, remoteFile);	
+			List<FileHandle> fhs = new ArrayList<FileHandle>();
+			fhs.addAll(retGroup.getFileHandles());
+			registerWithoutMD5(fhs);
 		} catch (GridException e) {
 			String mess = "Problem accessing remote resources " + e.getLocalizedMessage();
 			logger.warn(mess);
@@ -1755,6 +1759,17 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		return filesByType;
 		
 	}
+
+    @Override
+    public void setFileGroupDao(FileGroupDao fileDao) {
+        this.fileGroupDao = fileDao;
+        
+    }
+
+    @Override
+    public FileGroupDao getFileGroupDao() {
+        return fileGroupDao;
+    }
 
 }
 

@@ -3,7 +3,9 @@ package edu.yu.einstein.wasp.plugin.supplemental.file;
 import java.io.FileNotFoundException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -183,10 +185,10 @@ public class FilePlugin extends WaspPlugin implements InitializingBean, Disposab
 	}
 
 	private FileGroup doRegister(FileGroup group) throws FileNotFoundException, GridException {
-
-		fileService.register(group);
+	        List<FileHandle> fhs = new ArrayList<FileHandle>();
+	        fhs.addAll(group.getFileHandles());
+		fileService.register(fhs);
 		return group;
-
 	}
 
 	private JSONObject returnFiles(FileGroup group) throws InvalidParameterException, JSONException {
