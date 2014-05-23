@@ -12,7 +12,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -92,16 +91,16 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	 * WorkService  |
 	 *     |        |
 	 * FileService -+
-	 * @return the fileService
+	 * @return the getFileService()
 	 */
 	public FileService getFileService() {
-		if (fileService == null) {
-			this.setFileService(applicationContext.getBean(FileService.class));
-		}
+		if (fileService == null) 
+			setFileService(applicationContext.getBean(FileService.class));
 		return fileService;
 	}
 	
 	public void setFileService(FileService fileService) {
+		logger.debug("setting file service");
 	    this.fileService = fileService;
 	}
 	
@@ -516,9 +515,11 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			copyResultsFiles(g);
 			List<FileHandle> fhl = new ArrayList<FileHandle>();
 			for (Integer id : g.getFileHandleIds()) {
+				logger.debug("calling: getFileService().getFileHandleById(" + id + ") ");
 			    FileHandle fh = getFileService().getFileHandleById(id);
 			    fhl.add(fh);
 			}    
+			logger.debug("calling: getFileService().register(" + fhl + ") ");
 			getFileService().register(fhl);
 		}
 	}
@@ -532,12 +533,12 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		w.addCommand("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"0\" ]; then touch " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
 		int files = 0;
 		for (Integer hid : g.getFileHandleIds()) {
-		    FileHandle fh = fileService.getFileHandleById(hid);
-                    w.addCommand("COPY[" + files + "]=\"" + WorkUnit.OUTPUT_FILE_PREFIX + "_" + fh.getId() + "." + g.getUuid().toString() + " " + fh.getFileName() + "\"");
-                    files++;
-                    fh.setFileURI(this.gridFileService.remoteFileRepresentationToLocalURI(w.getResultsDirectory() + "/" + fh.getFileName()));
-                    fileService.addFile(fh);
-                }
+			FileHandle fh = getFileService().getFileHandleById(hid);
+            w.addCommand("COPY[" + files + "]=\"" + WorkUnit.OUTPUT_FILE_PREFIX + "_" + fh.getId() + "." + g.getUuid().toString() + " " + fh.getFileName() + "\"");
+            files++;
+            fh.setFileURI(this.gridFileService.remoteFileRepresentationToLocalURI(w.getResultsDirectory() + "/" + fh.getFileName()));
+            getFileService().addFile(fh);
+        }
 		w.setNumberOfTasks(files);
 		w.addCommand("THIS=${COPY[WASP_TASK_ID]}");
 		w.addCommand("read -ra FILE <<< \"$THIS\"");
