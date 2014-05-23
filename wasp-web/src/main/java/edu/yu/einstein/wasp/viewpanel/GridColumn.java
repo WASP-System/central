@@ -21,7 +21,7 @@ public class GridColumn {
 	
 	private boolean hideable = false;
 	
-	private String align = "right";
+	private String align = "left";
 	
 	private String style = "text-align:left";
 
@@ -124,21 +124,27 @@ public class GridColumn {
 	 * @param align the align to set
 	 */
 	public void setAlign(String align) {
-		this.align = align;
+		String al = align.trim().toLowerCase();
+		if (al.equals("left") || al.equals("right")) {
+			this.align = align;
+		}
 	}
 
 	/**
 	 * @return the style
 	 */
-	public String getStyle() {
+	public String getHeaderAlign() {
 		return style;
 	}
 
 	/**
 	 * @param style the style to set
 	 */
-	public void setStyle(String style) {
-		this.style = style;
+	public void setHeaderAlign(String align) {
+		String al = align.trim().toLowerCase();
+		if (al.equals("left") || al.equals("right")) {
+			this.style = "text-align:" + align;
+		}
 	}
 
 	/**
