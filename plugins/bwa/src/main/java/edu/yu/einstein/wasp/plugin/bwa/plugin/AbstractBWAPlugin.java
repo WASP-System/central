@@ -104,16 +104,19 @@ public abstract class AbstractBWAPlugin extends WaspPlugin implements ClientMess
 	}
 	
 	protected String getGenomeBuildString(Integer cellLibraryId) throws MetadataException {
-		try {
-			return genomeService.getDelimitedParameterString(cellLibraryId);
-		} catch (SampleTypeException | ParameterValueRetrievalException e) {
-			logger.warn(e.getMessage());
-			return null;
-		} catch (NullPointerException e1) {
-		    String message = "genome/build was null, indicating that the genome is unknown or Other";
-		    logger.debug(message);
-		    throw new MetadataException(message);
-		}
+	    String retval;
+	    try {
+		retval = genomeService.getDelimitedParameterString(cellLibraryId);
+	    } catch (SampleTypeException | ParameterValueRetrievalException e) {
+		logger.warn(e.getMessage());
+		return null;
+	    }
+	    if (retval == null) {
+	        String message = "genome/build was null, indicating that the genome is unknown or Other";
+	        logger.debug(message);
+	        throw new MetadataException(message);
+	    }
+	    return retval;
 	}
 
 	@Override
