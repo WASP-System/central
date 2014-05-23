@@ -128,23 +128,7 @@ public class PicardPlugin extends WaspPlugin
 		if(picardService.alignmentMetricsExist(fileGroup)){
 			return Status.COMPLETED;
 		}
-		//return Status.UNKNOWN;
-		return Status.COMPLETED; //MUST REMOVE THIS LINE AND UNCOMMENT LINE ABOVE
-		/*
-		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
-		Set<String> fileGroupIdStringSet = new LinkedHashSet<String>();
-		fileGroupIdStringSet.add(fileGroup.getId().toString());
-		parameterMap.put(WaspJobParameters.FILE_GROUP_ID, fileGroupIdStringSet);
-		JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer.getJobExecutions(FLOW_NAME, parameterMap, false));
-		if (je == null)
-			return Status.UNKNOWN;
-		ExitStatus jobExitStatus = je.getExitStatus();
-		if (jobExitStatus.isRunning())
-			return Status.STARTED;
-		if (jobExitStatus.isCompleted())
-			return Status.COMPLETED;
-		return Status.FAILED;
-		*/
+		return Status.UNKNOWN;
 	}
 
 	/**
@@ -152,10 +136,9 @@ public class PicardPlugin extends WaspPlugin
 	 */
 	@Override
 	public PanelTab getViewPanelTab(FileGroup fileGroup) throws PanelException {
-		
-		
-		//return picardService.getAlignmentMetricsForDisplay(fileGroup);
-		
+				
+		return picardService.getAlignmentMetricsForDisplay(fileGroup);
+		/* can remove this
 		logger.debug("------------THIS IS A ROB TEST in picard");
 		PanelTab panelTab = new PanelTab();
 		panelTab.setName("TEST alignmentMetrics Panel Tab");
@@ -167,9 +150,7 @@ public class PicardPlugin extends WaspPlugin
 		wp.setContent(wc);
 		panelTab.addPanel(wp);
 		return panelTab;
-		
-		
-		
+		*/	
 	}
 
 	@Override
