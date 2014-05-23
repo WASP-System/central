@@ -13,17 +13,24 @@
   	</bean>
   	
   	<bean id="textFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
-	    <property name="name" value="text" />
+	    <property name="name" value="Plain Text" />
 	    <property name="area" value="txt" />
 	    <property name="description" value="Text format." />
 	    <property name="extensions" value="txt" />
   	</bean>
   	
   	<bean id="htmlFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
-	    <property name="name" value="html" />
+	    <property name="name" value="HTML Page" />
 	    <property name="area" value="html" />
 	    <property name="description" value="Html format." />
 	    <property name="extensions" value="html,htm" />
+  	</bean>
+
+  	<bean id="pdfFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
+	    <property name="name" value="PDF Doc" />
+	    <property name="area" value="pdf" />
+	    <property name="description" value="Portable Document Format." />
+	    <property name="extensions" value="pdf" />
   	</bean>
 
 
