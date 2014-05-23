@@ -116,14 +116,14 @@ public class GridColumn {
 	/**
 	 * @return the align
 	 */
-	public String getAlign() {
+	public String getCellAlign() {
 		return align;
 	}
 
 	/**
 	 * @param align the align to set
 	 */
-	public void setAlign(String align) {
+	public void setCellAlign(String align) {
 		String al = align.trim().toLowerCase();
 		if (al.equals("left") || al.equals("right")) {
 			this.align = align;
