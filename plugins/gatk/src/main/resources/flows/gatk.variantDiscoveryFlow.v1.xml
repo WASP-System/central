@@ -372,12 +372,16 @@
 			<batch:fail on="*" /> <!-- unexpected message -->
 		</batch:decision>
 		
-		<batch:step id="gatk.variantDiscovery.runHC" next="gatk.variantDiscovery.notifyComplete">
+		<batch:step id="gatk.variantDiscovery.runHC">
 			<batch:flow parent="gatk.variantDiscovery.hc.flow"/>
+			<batch:next on="FAILED" to="gatk.variantDiscovery.notifyFailed"/>
+			<batch:next on="*" to="gatk.variantDiscovery.notifyComplete" /> 
 		</batch:step>
 		
-		<batch:step id="gatk.variantDiscovery.runUG" next="gatk.variantDiscovery.notifyComplete">
+		<batch:step id="gatk.variantDiscovery.runUG">
 			<batch:flow parent="gatk.variantDiscovery.ug.flow"/>
+			<batch:next on="FAILED" to="gatk.variantDiscovery.notifyFailed"/>
+			<batch:next on="*" to="gatk.variantDiscovery.notifyComplete" />
 		</batch:step>
 		
 		<batch:step id="gatk.variantDiscovery.notifyComplete">
@@ -393,6 +397,22 @@
 					</constructor-arg>
 				</bean>
 			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="gatk.variantDiscovery.notifyFailed">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+							<property name="jobId" value="#{jobParameters[waspSoftwareJobParameters.JOB_ID]}"/> 
+							<property name="task" value="#{sequencingBatchJobTasks.VARIANT_DISCOVERY}"/>
+							<property name="status" value="FAILED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+			<batch:fail on="*" />
 		</batch:step>
 		
 	</batch:job>

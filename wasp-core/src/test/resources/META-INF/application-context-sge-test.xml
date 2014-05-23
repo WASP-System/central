@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:mockito="http://www.mockito.org/spring/mockito"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.mockito.org/spring/mockito http://www.mockito.org/spring/mockito.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"> 
+		<property name="locations"> <list> <value>classpath:test-hsqldb-database.properties</value> 
+		<value>classpath:database.properties</value> <value>classpath:authentication.properties</value> 
+		<value>classpath:email.properties</value> <value>classpath:wasp.site.properties</value> 
+		<value>classpath:daemon.properties</value> </list> </property> <property 
+		name="ignoreUnresolvablePlaceholders" value="true" /> </bean> -->
+
+	<context:property-placeholder
+		ignore-unresolvable="true" />
+
+	<bean id="testEntityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="packagesToScan" value="edu.yu.einstein.wasp.model" />
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+		</property>
+		<property name="jpaProperties">
+			<props>
+				<prop key="hibernate.hbm2ddl.auto">create-drop</prop>
+				<prop key="hibernate.dialect">org.hibernate.dialect.HSQLDialect</prop>
+			</props>
+		</property>
+	</bean>
+
+	<jdbc:embedded-database id="dataSource" type="HSQL" />
+
+	<context:annotation-config />
+
+	<bean id="testTransactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="testEntityManagerFactory" />
+		<qualifier value="entityManager" />
+	</bean>
+
+	<tx:annotation-driven transaction-manager="testTransactionManager" />
+
+	<bean id="persistenceExceptionTranslationPostProcessor"
+		class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
+
+
+	<bean id="sshTransportConnection" class="edu.yu.einstein.wasp.grid.work.SshTransportConnection"
+		scope="prototype" lazy-init="false">
+		<property name="hostName" value="c3.einstein.yu.edu" />
+		<property name="userName" value="wasp" />
+		<property name="identityFileName" value="~/.ssh/id_rsa.testing" />
+		<property name="softwareManager" ref="waspSoftwareManager" />
+		<property name="name" value="c3" />
+		<property name="userDirIsRoot" value="true" />
+		<property name="localProperties" ref="testProperties" />
+	</bean>
+
+	<bean id="testGridTransportConnection" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="targetSource">
+			<bean class="org.springframework.aop.target.CommonsPoolTargetSource"
+				lazy-init="false">
+				<property name="targetClass"
+					value="edu.yu.einstein.wasp.grid.work.SshTransportConnection" />
+				<property name="targetBeanName" value="sshTransportConnection" />
+				<property name="maxSize" value="5" />
+				<property name="maxWait" value="1000" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="testGridWorkService" class="edu.yu.einstein.wasp.grid.work.SgeWorkService">
+		<constructor-arg ref="testGridTransportConnection" />
+		<property name="jobNamePrefix" value="TESTWASP" />
+		<property name="gridFileService" ref="testGridFileService" />
+		<property name="fileService" ref="fileServiceImpl" />
+	</bean>
+	
+	<bean id="gridHostResolver" class="edu.yu.einstein.wasp.grid.SingleHostResolver">
+		<constructor-arg name="gridWorkService" ref="testGridWorkService" />
+	</bean>
+
+	<bean id="testGridFileService" class="edu.yu.einstein.wasp.grid.file.SshFileService">
+		<constructor-arg ref="testGridTransportConnection" />
+		<property name="timeout" value="10000" />
+		<property name="retries" value="6" />
+	</bean>
+
+
+	<bean id="testProperties" class="java.util.Properties">
+		<constructor-arg>
+			<props>
+				<prop key="c3.settings.results.dir">/wasp/testing</prop>
+				<prop key="c3.settings.scratch.dir">/wasp/testing</prop>
+				<prop key="c3.settings.metadata.root">/metadata</prop>
+				<prop key="wasp.temporary.dir">/tmp</prop>
+			</props>
+		</constructor-arg>
+	</bean>
+
+	<bean id="fileServiceImpl" class="edu.yu.einstein.wasp.service.impl.FileServiceImpl" />
+	<bean id="fileTypeServiceImpl"
+		class="edu.yu.einstein.wasp.filetype.service.impl.FileTypeServiceImpl" />
+	<bean id="userServiceImpl" class="edu.yu.einstein.wasp.service.impl.UserServiceImpl" />
+
+	<context:component-scan base-package="edu.yu.einstein.wasp.dao.impl" />
+
+	<mockito:mock id="sampleServiceMock"
+		class="edu.yu.einstein.wasp.service.SampleService" />
+	<mockito:mock id="PluginRegistryMock"
+		class="edu.yu.einstein.wasp.plugin.WaspPluginRegistry" />
+
+	<aop:aspectj-autoproxy expose-proxy="true"
+		proxy-target-class="true" />
+
+	<bean id="waspSoftwareManager" class="edu.yu.einstein.wasp.grid.work.NoneManager" />
+
+	<bean id="waspMetadataEnvironmentAspect"
+		class="edu.yu.einstein.wasp.grid.work.WorkUnitEnvironmentAdvice">
+		<constructor-arg name="key" value="metadata.root" />
+		<constructor-arg name="name" value="METADATA_ROOT" />
+		<constructor-arg name="type"
+			value="#{T(edu.yu.einstein.wasp.grid.work.WorkUnitEnvironmentAdvice$WORKUNIT_ENV_VAR_TYPE).FILE}" />
+	</bean>
+
+</beans>

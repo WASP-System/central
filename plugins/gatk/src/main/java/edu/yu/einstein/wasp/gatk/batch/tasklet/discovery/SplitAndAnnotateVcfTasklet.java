@@ -52,6 +52,7 @@ public class SplitAndAnnotateVcfTasklet extends AbstractGatkTasklet {
 		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
 		w.setSecureResults(true);
 		Build build = null;
+		
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();
 		for (Integer fgId : this.getInputFilegroupIds()){
 			FileGroup fg = fileService.getFileGroupById(fgId);
@@ -61,11 +62,14 @@ public class SplitAndAnnotateVcfTasklet extends AbstractGatkTasklet {
 		}
 		w.setRequiredFiles(fhlist);
 		
-		LinkedHashSet<FileGroup> fglist = new LinkedHashSet<FileGroup>();
+		LinkedHashSet<FileHandle> outFiles = new LinkedHashSet<FileHandle>();
+		
 		for (Integer fgId : this.getOutputFilegroupIds()){
-			fglist.add(fileService.getFileGroupById(fgId));
+			FileGroup fg = fileService.getFileGroupById(fgId);
+			// single file handle groups
+			outFiles.add(fg.getFileHandles().iterator().next());
 		}
-		w.setResultFiles(fglist);
+		w.setResultFiles(outFiles);
 		List<SoftwarePackage> dependencies = new ArrayList<>();
 		VcfTools vcfTools = (VcfTools) gatk.getSoftwareDependencyByIname("vcfTools");
 		SnpEff snpEff = (SnpEff) gatk.getSoftwareDependencyByIname("SnpEff");

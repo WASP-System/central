@@ -321,7 +321,7 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
             platformUnit.getFileGroups().add(pufg);
             sampleService.getSampleDao().save(platformUnit);
             // register and md5sum
-            fileService.register(pufg);
+            fileService.register(pufg.getFileHandles());
 
             for (SampleSource cl : cellLibSeqfg.keySet()) {
                 // save all samplefile groups
@@ -365,7 +365,7 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
             }
             qcfg.setDescription("Illumina QC files");
             fileService.addFileGroup(qcfg);
-            fileService.register(qcfg);
+            fileService.register(qcfg.getFileHandles());
             fileService.setSampleFile(qcfg, run.getPlatformUnit());
         } catch (Exception e) {
             logger.warn("unable to register files: " + e.getLocalizedMessage());

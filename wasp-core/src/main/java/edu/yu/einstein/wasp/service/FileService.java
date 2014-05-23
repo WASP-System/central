@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -24,6 +25,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import edu.yu.einstein.wasp.dao.FileGroupDao;
 import edu.yu.einstein.wasp.dao.FileHandleDao;
 import edu.yu.einstein.wasp.exception.FileDownloadException;
 import edu.yu.einstein.wasp.exception.FileUploadException;
@@ -64,6 +66,16 @@ public interface FileService extends WaspService {
 	 *
 	 */
 	public FileHandleDao getFileHandleDao();
+	
+	/**
+	 * @param fileDao
+	 */
+	public void setFileGroupDao(FileGroupDao fileDao);
+	
+	/**
+	 * @return
+	 */
+	public FileGroupDao getFileGroupDao();
 
 	/**
 	 * Return a file object with specified file id
@@ -218,15 +230,12 @@ public interface FileService extends WaspService {
 	
 	public FileType getFileType(String iname);
 	
-	@Deprecated
-	public void register(FileHandle file) throws FileNotFoundException, GridException;
-	
 	/**
 	 * @param group
 	 * @throws FileNotFoundException
 	 * @throws GridException
 	 */
-	public void register(FileGroup group) throws FileNotFoundException, GridException;
+	public void register(Collection<FileHandle> fileHandles) throws FileNotFoundException, GridException;
 	
 	public FileHandle getFileHandle(UUID uuid) throws FileNotFoundException;
 
@@ -251,7 +260,7 @@ public interface FileService extends WaspService {
 	 * @throws FileNotFoundException
 	 * @throws GridException
 	 */
-	void registerWithoutMD5(FileGroup group) throws FileNotFoundException, GridException;
+	void registerWithoutMD5(Collection<FileHandle> fileHandles) throws FileNotFoundException, GridException;
 
 
 	/**

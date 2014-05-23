@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -240,6 +241,8 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 
 		List<String> listOfFileHandleNames = new ArrayList<String>();
 		
+		Set<FileHandle> files = new LinkedHashSet<FileHandle>();
+		
 		FileGroup modelScriptG = new FileGroup();
 		FileHandle modelScript = new FileHandle();
 		modelScript.setFileName(prefixForFileName + "_model.r");//will eventually run Rscript on this file to generate pdf
@@ -247,6 +250,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		modelScript.setFileType(macs2ModelScriptFileType);
 		modelScript = fileService.addFile(modelScript);
 		modelScriptG.addFileHandle(modelScript);
+		files.add(modelScript);
 		modelScriptG.setFileType(macs2ModelScriptFileType);
 		modelScriptG.setDescription(modelScript.getFileName());
 		modelScriptG.setSoftwareGeneratedBy(macs2);
@@ -261,6 +265,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		peaksXls.setFileType(macs2PeaksXlsFileType);
 		peaksXls = fileService.addFile(peaksXls);
 		peaksXlsG.addFileHandle(peaksXls);
+		files.add(peaksXls);
 		peaksXlsG.setFileType(macs2PeaksXlsFileType);
 		peaksXlsG.setDescription(peaksXls.getFileName());
 		peaksXlsG.setSoftwareGeneratedBy(macs2);
@@ -275,6 +280,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		narrowPeaksBed.setFileType(macs2NarrowPeaksBedFileType);
 		narrowPeaksBed = fileService.addFile(narrowPeaksBed);
 		narrowPeaksBedG.addFileHandle(narrowPeaksBed);
+		files.add(narrowPeaksBed);
 		narrowPeaksBedG.setFileType(macs2NarrowPeaksBedFileType);
 		narrowPeaksBedG.setDescription(narrowPeaksBed.getFileName());
 		narrowPeaksBedG.setSoftwareGeneratedBy(macs2);
@@ -289,6 +295,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		summitsBed.setFileType(macs2SummitsBedFileType);
 		summitsBed = fileService.addFile(summitsBed);
 		summitsBedG.addFileHandle(summitsBed);
+		files.add(summitsBed);
 		summitsBedG.setFileType(macs2SummitsBedFileType);
 		summitsBedG.setDescription(summitsBed.getFileName());
 		summitsBedG.setSoftwareGeneratedBy(macs2);
@@ -303,6 +310,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		summitsModifiedBed.setFileType(macs2SummitsModifiedBedFileType);
 		summitsModifiedBed = fileService.addFile(summitsModifiedBed);
 		summitsModifiedBedG.addFileHandle(summitsModifiedBed);
+		files.add(summitsModifiedBed);
 		summitsModifiedBedG.setFileType(macs2SummitsModifiedBedFileType);
 		summitsModifiedBedG.setDescription(summitsModifiedBed.getFileName());
 		summitsModifiedBedG.setSoftwareGeneratedBy(macs2);
@@ -317,6 +325,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		treatPileupBedGraph.setFileType(macs2TreatPileupBedGraphFileType);
 		treatPileupBedGraph = fileService.addFile(treatPileupBedGraph);
 		treatPileupBedGraphG.addFileHandle(treatPileupBedGraph);
+		files.add(treatPileupBedGraph);
 		treatPileupBedGraphG.setFileType(macs2TreatPileupBedGraphFileType);
 		treatPileupBedGraphG.setDescription(treatPileupBedGraph.getFileName());
 		treatPileupBedGraphG.setSoftwareGeneratedBy(macs2);
@@ -331,6 +340,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		controlLambdaBedGraph.setFileType(macs2ControlLambdaBedGraphFileType);
 		controlLambdaBedGraph = fileService.addFile(controlLambdaBedGraph);
 		controlLambdaBedGraphG.addFileHandle(controlLambdaBedGraph);
+		files.add(controlLambdaBedGraph);
 		controlLambdaBedGraphG.setFileType(macs2ControlLambdaBedGraphFileType);
 		controlLambdaBedGraphG.setDescription(controlLambdaBedGraph.getFileName());
 		controlLambdaBedGraphG.setSoftwareGeneratedBy(macs2);
@@ -357,14 +367,9 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		stepContext.put("commandLineCall", this.commandLineCall);
 		logger.debug("saved variables in stepContext in case of crash in MacstwoTasklet.doExecute()");
 
-		w.getResultFiles().add(modelScriptG);
-		w.getResultFiles().add(peaksXlsG);
-		w.getResultFiles().add(narrowPeaksBedG);
-		w.getResultFiles().add(summitsBedG);
-		//w.getResultFiles().add(summitsModifiedBedG);
-		w.getResultFiles().add(treatPileupBedGraphG);
-		w.getResultFiles().add(controlLambdaBedGraphG);
-		logger.debug("executed w.getResultFiles().add(x) for 7 FileGroups");
+		w.setResultFiles(files);
+		
+		logger.debug("executed w.getResultFiles().add(x) for " + files.size() + " FileHandles");
 		
 		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, macs2));	
 		

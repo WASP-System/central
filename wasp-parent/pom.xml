@@ -379,7 +379,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-compress</artifactId>
-				<version>1.7</version>
+				<version>1.8.1</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-beanutils</groupId>
