@@ -107,38 +107,66 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			sampleSources.addAll(testFgIn.getSampleSources());
 			sampleSources.addAll(controlFgIn.getSampleSources());
 			
-			String bamOutputMergedPairs = fileService.generateUniqueBaseFileName(test) + 
-					fileService.generateUniqueBaseFileName(control) + "gatk_preproc_merged_dedup_pairRealn.bam";
-			String baiOutputMergedPairs = fileService.generateUniqueBaseFileName(test) + 
-					fileService.generateUniqueBaseFileName(control) + "gatk_preproc_merged_dedup_pairRealn.bai";
-			FileGroup bamMergedPairsG = new FileGroup();
-			FileHandle bamMergedPairs = new FileHandle();
-			bamMergedPairs.setFileName(bamOutputMergedPairs);
-			bamMergedPairs = fileService.addFile(bamMergedPairs);
-			bamMergedPairsG.setIsActive(0);
-			bamMergedPairsG.addFileHandle(bamMergedPairs);
-			bamMergedPairsG.setFileType(bamFileType);
-			bamMergedPairsG.setDescription(bamOutputMergedPairs);
-			bamMergedPairsG.setSoftwareGeneratedById(gatk.getId());
-			bamMergedPairsG = fileService.addFileGroup(bamMergedPairsG);
-			bamMergedPairsG.addDerivedFrom(testFgIn);
-			bamMergedPairsG.addDerivedFrom(controlFgIn);
-			bamMergedPairsG.setSampleSources(sampleSources);
-			fileTypeService.setAttributes(bamMergedPairsG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
-			outputFileGroups.add(bamMergedPairsG);
+			String bamOutputMergedPairsTest = fileService.generateUniqueBaseFileName(test) + "gatk_preproc_merged_dedup_pairRealn.bam";
+			String baiOutputMergedPairsTest = fileService.generateUniqueBaseFileName(test) + "gatk_preproc_merged_dedup_pairRealn.bai";
+			FileGroup bamMergedPairsTestG = new FileGroup();
+			FileHandle bamMergedPairsTest = new FileHandle();
+			bamMergedPairsTest.setFileName(bamOutputMergedPairsTest);
+			bamMergedPairsTest = fileService.addFile(bamMergedPairsTest);
+			bamMergedPairsTestG.setIsActive(0);
+			bamMergedPairsTestG.addFileHandle(bamMergedPairsTest);
+			bamMergedPairsTestG.setFileType(bamFileType);
+			bamMergedPairsTestG.setDescription(bamOutputMergedPairsTest);
+			bamMergedPairsTestG.setSoftwareGeneratedById(gatk.getId());
+			bamMergedPairsTestG = fileService.addFileGroup(bamMergedPairsTestG);
+			bamMergedPairsTestG.addDerivedFrom(testFgIn);
+			bamMergedPairsTestG.setSampleSources(sampleSources);
+			fileTypeService.setAttributes(bamMergedPairsTestG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
+			outputFileGroups.add(bamMergedPairsTestG);
 
-			FileGroup baiMergedPairsG = new FileGroup();
-			FileHandle baiMergedPairs = new FileHandle();
-			baiMergedPairs.setFileName(baiOutputMergedPairs);
-			baiMergedPairs = fileService.addFile(baiMergedPairs);
-			baiMergedPairsG.setIsActive(0);
-			baiMergedPairsG.addFileHandle(baiMergedPairs);
-			baiMergedPairsG.setFileType(baiFileType);
-			baiMergedPairsG.setDescription(baiOutputMergedPairs);
-			baiMergedPairsG.setSoftwareGeneratedById(gatk.getId());
-			baiMergedPairsG = fileService.addFileGroup(baiMergedPairsG);
-			baiMergedPairsG.addDerivedFrom(bamMergedPairsG);
-			outputFileGroups.add(baiMergedPairsG);
+			FileGroup baiMergedPairsTestG = new FileGroup();
+			FileHandle baiMergedPairsTest = new FileHandle();
+			baiMergedPairsTest.setFileName(baiOutputMergedPairsTest);
+			baiMergedPairsTest = fileService.addFile(baiMergedPairsTest);
+			baiMergedPairsTestG.setIsActive(0);
+			baiMergedPairsTestG.addFileHandle(baiMergedPairsTest);
+			baiMergedPairsTestG.setFileType(baiFileType);
+			baiMergedPairsTestG.setDescription(baiOutputMergedPairsTest);
+			baiMergedPairsTestG.setSoftwareGeneratedById(gatk.getId());
+			baiMergedPairsTestG = fileService.addFileGroup(baiMergedPairsTestG);
+			baiMergedPairsTestG.addDerivedFrom(bamMergedPairsTestG);
+			outputFileGroups.add(baiMergedPairsTestG);
+			
+			String bamOutputMergedPairsControl = fileService.generateUniqueBaseFileName(control) + "gatk_preproc_merged_dedup_pairRealn.bam";
+			String baiOutputMergedPairsControl = fileService.generateUniqueBaseFileName(control) + "gatk_preproc_merged_dedup_pairRealn.bai";
+			FileGroup bamMergedPairsControlG = new FileGroup();
+			FileHandle bamMergedPairsControl = new FileHandle();
+			bamMergedPairsControl.setFileName(bamOutputMergedPairsControl);
+			bamMergedPairsControl = fileService.addFile(bamMergedPairsControl);
+			bamMergedPairsControlG.setIsActive(0);
+			bamMergedPairsControlG.addFileHandle(bamMergedPairsControl);
+			bamMergedPairsControlG.setFileType(bamFileType);
+			bamMergedPairsControlG.setDescription(bamOutputMergedPairsControl);
+			bamMergedPairsControlG.setSoftwareGeneratedById(gatk.getId());
+			bamMergedPairsControlG = fileService.addFileGroup(bamMergedPairsControlG);
+			bamMergedPairsControlG.addDerivedFrom(controlFgIn);
+			bamMergedPairsControlG.setSampleSources(sampleSources);
+			fileTypeService.setAttributes(bamMergedPairsControlG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
+			outputFileGroups.add(bamMergedPairsControlG);
+
+			FileGroup baiMergedPairsControlG = new FileGroup();
+			FileHandle baiMergedPairsControl = new FileHandle();
+			baiMergedPairsControl.setFileName(baiOutputMergedPairsControl);
+			baiMergedPairsControl = fileService.addFile(baiMergedPairsControl);
+			baiMergedPairsControlG.setIsActive(0);
+			baiMergedPairsControlG.addFileHandle(baiMergedPairsControl);
+			baiMergedPairsControlG.setFileType(baiFileType);
+			baiMergedPairsControlG.setDescription(baiOutputMergedPairsControl);
+			baiMergedPairsControlG.setSoftwareGeneratedById(gatk.getId());
+			baiMergedPairsControlG = fileService.addFileGroup(baiMergedPairsControlG);
+			baiMergedPairsControlG.addDerivedFrom(bamMergedPairsControlG);
+			outputFileGroups.add(baiMergedPairsControlG);
+			
 			temporaryFileSet.addAll(outputFileGroups);
 			
 			Map<String, String> jobParameters = new HashMap<>();
@@ -151,9 +179,9 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			} catch (WaspMessageBuildingException e) {
 				e.printStackTrace();
 			}
-			fileGroupSamplesForNextStep.put(bamMergedPairsG, new LinkedHashSet<Sample>());
-			fileGroupSamplesForNextStep.get(bamMergedPairsG).add(test);
-			fileGroupSamplesForNextStep.get(bamMergedPairsG).add(control);
+			fileGroupSamplesForNextStep.put(bamMergedPairsTestG, new LinkedHashSet<Sample>());
+			fileGroupSamplesForNextStep.get(bamMergedPairsTestG).add(test);
+			fileGroupSamplesForNextStep.get(bamMergedPairsTestG).add(control);
 		}
 		
 		// re-align merged filegroups from previous step not in pairs

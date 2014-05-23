@@ -46,14 +46,14 @@ public class RealignTasklet extends AbstractGatkTasklet {
 		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
 		w.setSecureResults(true);
 		Build build = null;
-		List<FileHandle> fhlist = new ArrayList<FileHandle>();
+		List<FileHandle> inFiles = new ArrayList<FileHandle>();
 		for (Integer fgId : this.getInputFilegroupIds()){
 			FileGroup fg = fileService.getFileGroupById(fgId);
-			if (fhlist.isEmpty()) // first entry not yet entered
+			if (inFiles.isEmpty()) // first entry not yet entered
 				build = gatkService.getBuildForFg(fg);
-			fhlist.addAll(fg.getFileHandles());
+			inFiles.addAll(fg.getFileHandles());
 		}
-		w.setRequiredFiles(fhlist);
+		w.setRequiredFiles(inFiles);
 		
 		LinkedHashSet<FileHandle> outFiles = new LinkedHashSet<FileHandle>();
 		for (Integer fgId : this.getOutputFilegroupIds()){
@@ -67,14 +67,17 @@ public class RealignTasklet extends AbstractGatkTasklet {
 		dependencies.add(gatk);
 		dependencies.add(picard);
 		w.setSoftwareDependencies(dependencies);
+		
 		LinkedHashSet<String> inputBamFilenames = new LinkedHashSet<>();
-		for (int i=0; i < fhlist.size(); i++)
+		for (int i=0; i < inFiles.size(); i++)
 			inputBamFilenames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");
+		LinkedHashSet<String> outputFilenames = new LinkedHashSet<>();
+		for (int i=0; i < outFiles.size(); i++)
+			outputFilenames.add("${" + WorkUnit.OUTPUT_FILE + "[" + i + "]}");
+		
 		String intervalFileName = "gatk.${" + WorkUnit.OUTPUT_FILE + "}.realign.intervals";
-		String realnBamFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
-		String realnBaiFilename = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
 		w.addCommand(gatk.getCreateTargetCmd(build, inputBamFilenames, intervalFileName, MEMORY_GB_8, THREADS_8));
-		w.addCommand(gatk.getLocalAlignCmd(build, inputBamFilenames, intervalFileName, realnBamFilename, realnBaiFilename, MEMORY_GB_8));
+		w.addCommand(gatk.getLocalAlignCmd(build, inputBamFilenames, intervalFileName, outputFilenames, MEMORY_GB_8));
 		GridResult result = gridHostResolver.execute(w);
 
 		// place the grid result in the step context

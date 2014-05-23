@@ -2,7 +2,7 @@
  * Created by Wasp System Eclipse Plugin
  * @author 
  */
-package edu.yu.einstein.wasp.genericfileviewing.controller;
+package edu.yu.einstein.wasp.genericfileviewing.web.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

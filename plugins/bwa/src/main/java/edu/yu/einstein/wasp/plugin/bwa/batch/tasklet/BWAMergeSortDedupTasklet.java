@@ -188,7 +188,6 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 			metricsG = fileService.addFileGroup(metricsG);
 			Integer metricsGId = metricsG.getId();
 			
-			fileService.setSampleSourceFile(metricsG, cellLib);
 			// save in step context for use later
 			stepExecutionContext.put("metricsGID", metricsGId);
 			String tempMergedBamFilename = "merged.${" + WorkUnit.OUTPUT_FILE + "[0]}";

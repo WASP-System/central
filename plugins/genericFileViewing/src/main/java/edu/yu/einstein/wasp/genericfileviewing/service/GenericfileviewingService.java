@@ -18,7 +18,7 @@ public interface GenericfileviewingService extends WaspService {
 		 * @return String
 		 */
 		public String performAction();
-
+		
 		public PanelTab getPanelTabForFileGroup(Integer id) throws PanelException;
 
 }
