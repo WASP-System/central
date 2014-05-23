@@ -20,6 +20,10 @@ public class GridColumn {
 	private boolean sortable = false;
 	
 	private boolean hideable = false;
+	
+	private String align = "right";
+	
+	private String style = "text-align:left";
 
 	/**
 	 * @return the header
@@ -107,6 +111,34 @@ public class GridColumn {
 	 */
 	public void setHideable(boolean hideable) {
 		this.hideable = hideable;
+	}
+
+	/**
+	 * @return the align
+	 */
+	public String getAlign() {
+		return align;
+	}
+
+	/**
+	 * @param align the align to set
+	 */
+	public void setAlign(String align) {
+		this.align = align;
+	}
+
+	/**
+	 * @return the style
+	 */
+	public String getStyle() {
+		return style;
+	}
+
+	/**
+	 * @param style the style to set
+	 */
+	public void setStyle(String style) {
+		this.style = style;
 	}
 
 	/**
