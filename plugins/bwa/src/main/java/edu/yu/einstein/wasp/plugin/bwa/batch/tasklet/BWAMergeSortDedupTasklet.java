@@ -191,7 +191,10 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		
 		if (markDuplicates){
 			bamServiceImpl.addAttribute(bamG, BamFileTypeAttribute.DEDUP);			
-			
+
+			// save in step context for use later
+			stepExecutionContext.put("metricsGID", metricsGId);
+
 			String tempMergedBamFilename = "merged.${" + WorkUnit.OUTPUT_FILE + "[0]}";
 			
 			w.addCommand(picard.getMergeBamCmd("*.out.sam", tempMergedBamFilename, null, MEMORY_GB_4));
