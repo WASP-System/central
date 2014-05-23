@@ -14,8 +14,6 @@ package edu.yu.einstein.wasp.dao.impl;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.sql.Connection;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -400,10 +398,7 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
                                         user = userService.getUserByLogin(login);
                                     }
                                     if (user == null || user.getId() == null) {
-                                        logger.debug("looking for wasp user");
-                                        logger.debug(userService.toString());
-                                        logger.debug(userService.getUserDao().toString());
-                                            user = userService.getUserDao().getUserByLogin("wasp"); // wasp user (reserved)
+                                    	user = userService.getUserDao().getUserByLogin("wasp"); // wasp user (reserved)
                                     }
                                     if (user == null || user.getId() == null) {
                                         logger.warn("attempting creation of wasp user");
