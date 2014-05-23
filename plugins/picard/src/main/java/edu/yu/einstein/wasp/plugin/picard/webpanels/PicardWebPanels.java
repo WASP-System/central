@@ -48,11 +48,8 @@ public class PicardWebPanels {
 				//create columns and associate each column with its displayed header and a data model attribute (dataIndex)
 				///////don't want this to display: content.addColumn(new GridColumn("Title", "Title"));//header,dataIndex		
 				content.addColumn(new GridColumn("Stat", "Stat", 300, 0));//header,dataIndex	 width=250; flex=0	
-				//content.addColumn(new GridColumn("Value", "Value", 250,0));//header,dataIndex	 flex=1	
-				
-				//used for the extra col
 				content.addColumn(new GridColumn("Value", "Value", 120, 0));//header,dataIndex	 width=300; flex=0	
-				content.addColumn(new GridColumn("", "", 1));//header,dataIndex	 flex=1 ---the extra one
+				content.addColumn(new GridColumn("", "", 1));//header,dataIndex	 flex=1 ---extra column, displaying nothing
 				
 				//create rows with data
 				for (String title : metrics.keySet()) {					
@@ -65,7 +62,7 @@ public class PicardWebPanels {
 						row.add(statKey);
 						String value = statAndValueMap.get(statKey);
 						row.add(value);	
-						row.add("");	//the extra col. 
+						row.add("");	//the extra column 
 						content.addDataRow(row);//add the new row to the content
 					}
 					
