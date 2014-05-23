@@ -76,45 +76,10 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 	@Autowired
 	private Macstwo macs2;
 
-/*	don't use autowired for these two, but instead, see below in method doExecute()
- 
-	@Autowired
-	@Qualifier("rPackage")
-	private SoftwarePackage rSoftware;
-
-	@Autowired
-	@Qualifier("imagemagick")
-	private SoftwarePackage imageMagickSoftware;
-*/
-
 	public MacstwoGenerateModelAsPdfTasklet() {
 		// proxy
 	}
 
-	/*
-	//this constructor not currently used; could NOT make it obtain parameters from the xml macstwo.mainFlow.v1.xml
-	public MacstwoGenerateModelAsPdfTasklet(String modelScriptGIdAsString) throws Exception {
-		//METHOD IS NOT PICKING UP INFORMATION FROM THE XML FILE
-		//METHOD IS NOT WORKING-can probably be removed
-		logger.debug("***Starting MacstwoGenerateModelAsPdfTasklet constructor");
-		logger.debug("modelScriptGIdAsString: " + modelScriptGIdAsString);
-		this.modelScriptGId = new Integer(modelScriptGIdAsString);
-		Assert.assertTrue(this.modelScriptGId != null);
-		Assert.assertTrue(this.modelScriptGId.intValue() > 0);
-		logger.debug("value in constructor: this.modelScriptGId (integer): " + this.modelScriptGId.toString());
-		logger.debug("Ending MacstwoGenerateModelAsPdfTasklet constructor");
-	}
-	*/
-	
-//TODO: ROBERT A DUBIN (1 of 3) comment out this next method for production
-/*
-	@Override
-	@Transactional("entityManager")
-	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
-		this.doExecute(context);
-		return RepeatStatus.FINISHED;
-	}
-*/
 	/**
 	 * 
 	 * @param contrib
@@ -251,20 +216,11 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		
 		logger.debug("executed w.setResultsDirectory(Workunit.....) within MacstwoGenerateModelAsPdfTasklet.doExecute()");
 		
-//TODO: ROBERT A DUBIN (2 of 3) uncomment next 3 lines for production  !!!!!!!!!!
-///*		
-		 GridResult result = gridHostResolver.execute(w);
+		GridResult result = gridHostResolver.execute(w);
 		logger.debug("****Executed gridHostResolver.execute(w) in MacstwoGenerateModelAsPdfTasklet.doExecute()");		
 		storeStartedResult(context, result);//place the grid result in the step context
-//*/
-		
-//TODO: ROBERT A DUBIN (3 of 3) comment out TWO (yes TWO) next line for production  !!!!!!!!!!
-/*
-		logger.debug("getting ready to call doPreFinish() in MacstwoGenerateModelAsPdfTasklet from doExecute()");
-		this.doPreFinish(context);
-*/
+
 	}
-	
 
 	/** 
 	 * {@inheritDoc}
