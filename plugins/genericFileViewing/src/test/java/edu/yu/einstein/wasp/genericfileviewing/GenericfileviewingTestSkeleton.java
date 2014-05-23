@@ -46,7 +46,7 @@ public class GenericfileviewingTestSkeleton extends AbstractTestNGSpringContextT
 	 * Simple Test skeleton
 	 * @throws Exception
 	 */
-	@Test (groups = "genericfileviewing-tests")
+//@Test (groups = "genericfileviewing-tests")
 	public void testGenericfileviewingTestSkeleton() throws Exception{
 		try{
 			// TODO: Test logic here. 
