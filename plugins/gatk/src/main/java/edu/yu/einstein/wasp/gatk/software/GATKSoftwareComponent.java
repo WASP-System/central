@@ -64,6 +64,39 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return command;
 	}
 	
+	/**
+	 * assumes outputfiles are 1:1 with input files (matching order), or if output file list size is double input file list size, 
+	 * assumes bai files present, thus bam files have odd number indexes and bai files have even number indexes:
+	 * e.g. foo.bam (3rd input file) => foo.realn.bam (5th output file) and foo.realn.bai (6th output file)
+	 * @param build
+	 * @param inputFilenames
+	 * @param intervalFilename
+	 * @param memRequiredGb
+	 * @return
+	 */
+	public String getLocalAlignCmd(Build build, Set<String> inputFilenames, String intervalFilename, Set<String> outputFilenames, int memRequiredGb) {
+		boolean hasBaiFiles = false;
+		if (outputFilenames.size() == inputFilenames.size() * 2)
+			hasBaiFiles = true;
+		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar";
+		for (String fileName : inputFilenames)
+			command += " -I " + fileName;
+		command += " -R " + 
+				genomeService.getReferenceGenomeFastaFile(build) + " -T  IndelRealigner --nWayOut .getLocalAlign" + 
+				" -targetIntervals " + intervalFilename + " -known " + gatkService.getReferenceIndelsVcfFile(build);
+		int i = -1;
+		for (String fileName : inputFilenames){
+			if (outputFilenames.iterator().hasNext())
+				command += " && temp[" + ++i + "]=" + fileName + ";mv ${temp[" + i + "]/.bam/.getLocalAlign} " + outputFilenames.iterator().next();
+			if (hasBaiFiles && outputFilenames.iterator().hasNext())
+				command += ";mv ${temp[" + i + "]/.bam/.getLocalAlign}.bai " + outputFilenames.iterator().next();
+		}
+			
+		logger.debug("Will conduct gatk local re-alignment with string: " + command);
+		
+		return command;
+	}
+	
 	
 	public String getRecaliTableCmd(Build build, String realnBamFilename, String recaliGrpFilename, int memRequiredGb, int numProcessors) {
 		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + genomeService.getReferenceGenomeFastaFile(build) + 
