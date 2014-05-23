@@ -20,6 +20,7 @@ import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.babraham.software.TrimGalore;
 import edu.yu.einstein.wasp.service.AdaptorService;
@@ -79,8 +80,8 @@ public class TrimGaloreRegisteringTasklet extends WaspRemotingTasklet {
         
         // save results files id's in StepExecutionContext
         List<Integer> resultsFileIds = new ArrayList<>();
-        for (FileGroup fg : w.getResultFiles())
-        	resultsFileIds.add(fg.getId());
+        for (FileHandle fh : w.getResultFiles())
+        	resultsFileIds.add(fh.getId());
         context.getStepContext().getStepExecution().getExecutionContext().putString("resultsFilesIdStr", StringUtils.collectionToCommaDelimitedString(resultsFileIds));
         
         storeStartedResult(context, result);
@@ -96,8 +97,11 @@ public class TrimGaloreRegisteringTasklet extends WaspRemotingTasklet {
 		// get results files and make them active
 		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
 		if (stepExecutionContext.containsKey("resultsFilesIdStr"))
-			for (String fgIdStr : StringUtils.commaDelimitedListToStringArray(stepExecutionContext.getString("resultsFilesIdStr")))
-				fileService.getFileGroupById(Integer.parseInt(fgIdStr)).setIsActive(1);
+			for (String fhIdStr : StringUtils.commaDelimitedListToStringArray(stepExecutionContext.getString("resultsFilesIdStr"))) {
+			    FileGroup fg = fileService.getFileHandleById(Integer.parseInt(fhIdStr)).getFileGroup().iterator().next();
+			    fg.setIsActive(1);
+			    fileService.getFileGroupDao().merge(fg);
+			}
 			
 	}
 

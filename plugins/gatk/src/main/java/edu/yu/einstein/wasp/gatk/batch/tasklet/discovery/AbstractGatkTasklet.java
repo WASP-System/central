@@ -5,7 +5,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,9 +68,10 @@ public abstract class AbstractGatkTasklet extends WaspRemotingTasklet {
 	
 	protected String scratchDirectory;
 
-	public AbstractGatkTasklet(String inputFilegroupIds, String outputFilegroupIds) {
+	public AbstractGatkTasklet(String inputFilegroupIds, String outputFilegroupIds, Integer jobId) {
 		this.inputFilegroupIds = getModelIdsFromCommaDelimitedString(inputFilegroupIds);
 		this.outputFilegroupIds = getModelIdsFromCommaDelimitedString(outputFilegroupIds);
+		this.jobId = jobId;
 		logger.trace("setting inputFilegroupIds=" + inputFilegroupIds);
 		logger.trace("setting outputFilegroupIds=" + outputFilegroupIds);
 	}
@@ -138,7 +138,7 @@ public abstract class AbstractGatkTasklet extends WaspRemotingTasklet {
 	public static String getSampleFgMapAsJsonString(Map<Sample, FileGroup> sampleFileGroups){
 		JSONObject jsonObject = new JSONObject();
 		for (Sample sample: sampleFileGroups.keySet())
-			jsonObject.put(sample.getId().toString(), sampleFileGroups.get(sample).getId());
+			jsonObject.put(sample.getId().toString(), sampleFileGroups.get(sample).getId().toString());
 		logger.trace("returning json: " + jsonObject.toString());
 		return jsonObject.toString();
 	}
@@ -149,16 +149,16 @@ public abstract class AbstractGatkTasklet extends WaspRemotingTasklet {
 		JSONObject jsonObject = new JSONObject(jsonString);
 		Map<Sample, FileGroup> sampleFileGroups = new HashMap<>();
 		for (Object sampleIdObj : jsonObject.keySet()){
-			Sample sample = sampleService.getSampleById((Integer) sampleIdObj);
+			Sample sample = sampleService.getSampleById(Integer.parseInt(sampleIdObj.toString()));
 			sampleFileGroups.put(sample, fileService.getFileGroupById(jsonObject.getInt(sampleIdObj.toString())));
 		}
 		return sampleFileGroups;
 	}
 	
-	public static String getFgSamplesMapAsJsonString(Map<FileGroup, Set<Sample>> fileGroupSamples){
+	public static String getFgSamplesMapAsJsonString(Map<FileGroup, LinkedHashSet<Sample>> fileGroupSamples){
 		JSONObject jsonObject = new JSONObject();
 		for (FileGroup fg: fileGroupSamples.keySet())
-			jsonObject.put(fg.getId().toString(),  new JSONArray(fileGroupSamples.get(fg)));
+			jsonObject.put(fg.getId().toString(), getModelIdsAsCommaDelimitedString(fileGroupSamples.get(fg)));
 		logger.trace("returning json: " + jsonObject.toString());
 		return jsonObject.toString();
 	}
@@ -169,11 +169,10 @@ public abstract class AbstractGatkTasklet extends WaspRemotingTasklet {
 		JSONObject jsonObject = new JSONObject(jsonString);
 		Map<FileGroup, LinkedHashSet<Sample>> fileGroupSamples = new HashMap<>();
 		for (Object fgIdObj : jsonObject.keySet()){
-			FileGroup fg = fileService.getFileGroupById((Integer) fgIdObj);
-			JSONArray sampleJsonArray = jsonObject.getJSONArray(fgIdObj.toString());
+			FileGroup fg = fileService.getFileGroupById(Integer.parseInt(fgIdObj.toString()));
 			LinkedHashSet<Sample> sampleSet = new LinkedHashSet<>();
-			for (int i=0; i < sampleJsonArray.length(); i++)
-				sampleSet.add(sampleService.getSampleById(sampleJsonArray.getInt(i)));
+			for (Integer sampleId : getModelIdsFromCommaDelimitedString(jsonObject.getString(fgIdObj.toString())))
+				sampleSet.add(sampleService.getSampleById(sampleId));
 			fileGroupSamples.put(fg, sampleSet);
 		}
 		return fileGroupSamples;

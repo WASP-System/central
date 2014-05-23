@@ -8,34 +8,27 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 		
-	<context:component-scan base-package="edu.yu.einstein.wasp.plugin.picard.service.impl" />
 
-	<bean id="picardPluginArea" class="java.lang.String">
-		<constructor-arg>
-			<value>picard</value>
-		</constructor-arg>
-	</bean>
-	
+
 	<!-- channel for communications with this plugin. -->
-	<int:channel id="wasp.channel.plugin.picard" />
+	<int:channel id="wasp.channel.plugin.bedtools" />
 
-	<int:service-activator input-channel="wasp.channel.plugin.picard" ref="picardPlugin" method="process" />
+	<int:service-activator input-channel="wasp.channel.plugin.bedtools" ref="bedtoolsPlugin" method="process" />
 	
-	<bean id="picardPlugin" class="edu.yu.einstein.wasp.plugin.picard.plugin.PicardPlugin" depends-on="mps-tools">
-		<constructor-arg name="iName" ref="picardPluginArea" />
+	<bean id="bedtoolsPlugin" class="edu.yu.einstein.wasp.plugin.mps.grid.plugin.BedtoolsPlugin">
+		<constructor-arg name="iName" ref="bedtoolsPluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
-		<constructor-arg name="channel" ref="wasp.channel.plugin.picard" />
-		<property name="name" value="Picard" />
-		<property name="description" value="A tool for working with NGS data in BAM format" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.bedtools" />
+		<property name="name" value="Bedtools" />
+		<property name="description" value="A fast, flexible toolset for genome arithmetic" />
 		<property name="provides" >
 			<set>
-				<ref bean="picard" /> 
+				<ref bean="bedtools" /> 
 			</set>
 		</property>
 		<property name="handles" >
 			<set>
-				<ref bean="picardPluginArea" />
-				<value>#{bamFileType.getIName()}</value>
+				<ref bean="bedtoolsPluginArea" />
 			</set>
 		</property>
 	</bean>

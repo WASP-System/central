@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
@@ -51,6 +52,7 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 	private FileService fileService;
 	
 	@Autowired
+	@Qualifier("fileTypeServiceImpl")
 	private FileTypeService fileTypeService;
 	
 	@Autowired
@@ -86,6 +88,9 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		for (FileGroup fg : temporaryFileSet) 
 			fileService.removeFileGroupFromRemoteServerAndMarkDeleted(fg);
 		Build build = null;
+		
+		Set<FileHandle> outFiles = new LinkedHashSet<FileHandle>();
+		
 		Job job = jobService.getJobByJobId(jobId);
 		Assert.assertTrue(job.getId() > 0);
 		Set<SampleSource> sampleSources = new HashSet<>();
@@ -98,6 +103,7 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		rawVcfOut = fileService.addFile(rawVcfOut);
 		rawVcfOutG.setIsActive(0);
 		rawVcfOutG.addFileHandle(rawVcfOut);
+		outFiles.add(rawVcfOut);
 		rawVcfOutG.setFileType(vcfFileType);
 		rawVcfOutG.setDescription(rawVcfOutFileName);
 		rawVcfOutG.setSoftwareGeneratedById(gatk.getId());
@@ -112,6 +118,7 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		annotatedVcfOut = fileService.addFile(annotatedVcfOut);
 		annotatedVcfOutG.setIsActive(0);
 		annotatedVcfOutG.addFileHandle(annotatedVcfOut);
+		outFiles.add(annotatedVcfOut);
 		annotatedVcfOutG.setFileType(vcfFileType);
 		annotatedVcfOutG.setDescription(annotatedVcfOutFileName);
 		annotatedVcfOutG.setSoftwareGeneratedById(gatk.getId());
@@ -129,8 +136,7 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		w.setSecureResults(true);
 		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
-		w.addResultFiles(rawVcfOutG);
-		w.addResultFiles(annotatedVcfOutG);
+		w.setResultFiles(outFiles);
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();
 		for (FileGroup fg : inputFileGroups){
 			if (fhlist.isEmpty()) // first entry not yet entered

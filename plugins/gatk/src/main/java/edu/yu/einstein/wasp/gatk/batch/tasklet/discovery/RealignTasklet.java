@@ -28,9 +28,9 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
 public class RealignTasklet extends AbstractGatkTasklet {
 	
 	private static Logger logger = LoggerFactory.getLogger(JointGenotypingTasklet.class);
-		
-	public RealignTasklet(String inputFilegroupIds, String outputFilegroupIds) {
-		super(inputFilegroupIds, outputFilegroupIds);
+
+	public RealignTasklet(String inputFilegroupIds, String outputFilegroupIds, Integer jobId) {
+		super(inputFilegroupIds, outputFilegroupIds, jobId);
 	}
 	
 	@Override
@@ -55,11 +55,13 @@ public class RealignTasklet extends AbstractGatkTasklet {
 		}
 		w.setRequiredFiles(fhlist);
 		
-		LinkedHashSet<FileGroup> fglist = new LinkedHashSet<FileGroup>();
+		LinkedHashSet<FileHandle> outFiles = new LinkedHashSet<FileHandle>();
 		for (Integer fgId : this.getOutputFilegroupIds()){
-			fglist.add(fileService.getFileGroupById(fgId));
+			FileGroup fg = fileService.getFileGroupById(fgId);
+			// single file handle groups
+			outFiles.add(fg.getFileHandles().iterator().next());
 		}
-		w.setResultFiles(fglist);
+		w.setResultFiles(outFiles);
 		List<SoftwarePackage> dependencies = new ArrayList<>();
 		Picard picard = (Picard) gatk.getSoftwareDependencyByIname("picard");
 		dependencies.add(gatk);

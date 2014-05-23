@@ -23,6 +23,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -130,8 +131,8 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 	@Autowired
 	private FileGroupDao fileGroupDao;
-	
-	@Autowired
+
+        @Autowired
 	private FileGroupMetaDao fileGroupMetaDao;
 	
 	@Autowired
@@ -325,8 +326,10 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		file.setFileURI(gfs.remoteFileRepresentationToLocalURI(remoteFile));
 
 		try {
-			gfs.put(localFile, remoteFile);			
-			registerWithoutMD5(retGroup);
+			gfs.put(localFile, remoteFile);	
+			List<FileHandle> fhs = new ArrayList<FileHandle>();
+			fhs.addAll(retGroup.getFileHandles());
+			registerWithoutMD5(fhs);
 		} catch (GridException e) {
 			String mess = "Problem accessing remote resources " + e.getLocalizedMessage();
 			logger.warn(mess);
@@ -699,49 +702,34 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		return fileTypeService.getFileTypeDao().getById(id);
 	}
 
-	/**
-	 * Take a new (isActive == 0) entity managed file and register it.
-	 * 
-	 * @throws FileNotFoundException
-	 * @throws GridUnresolvableHostException
-	 */
-	@Override
-	@Deprecated
-	public void register(FileHandle file) throws FileNotFoundException, GridException {
-		file = fileHandleDao.merge(file);
+	
 
-		validateFile(file);
-
-		logger.debug("attempting to register " + file.getFileURI().toString());
-		setMD5(file);
-		fileHandleDao.save(file);
-	}
-
-	private enum Md5 { YES, NO };
+	public enum Md5 { YES, NO };
 	
 	@Override
-	public void register(FileGroup group) throws FileNotFoundException, GridException {
-		register(group, Md5.YES);
+	public void register(Collection<FileHandle> fhc) throws FileNotFoundException, GridException {
+		register(fhc, Md5.YES);
 	}
 	
 	@Override
-	public void registerWithoutMD5(FileGroup group) throws FileNotFoundException, GridException {
-		register(group, Md5.NO);
+	public void registerWithoutMD5(Collection<FileHandle> fhc) throws FileNotFoundException, GridException {
+		register(fhc, Md5.NO);
 	}
 	
-	public void register(FileGroup group, Md5 md5) throws FileNotFoundException, GridException {
-		group = fileGroupDao.merge(group);
-		for (FileHandle f : group.getFileHandles()) {
-			validateFile(f);
-		}
-		logger.debug("attempting to register FileGroup: " + group.getId());
-
-		if (md5.equals(Md5.YES))
-			setMD5(group);
-
-		group.setIsActive(1);
-		group.setIsArchived(0);
-		fileGroupDao.save(group);
+	public List<FileHandle> register(Collection<FileHandle> fhc, Md5 md5) throws FileNotFoundException, GridException {
+	    List<FileHandle> retval = new ArrayList<FileHandle>();
+	    for (FileHandle fh : fhc) {
+	        logger.debug("attempting to register FileHandle: " + fh.getId());
+	        fh = fileHandleDao.merge(fh);
+		validateFile(fh);
+		retval.add(fh);
+	    }
+            if (md5.equals(Md5.YES))
+		setMD5(retval);
+            for (FileHandle fh : retval) {
+		fileHandleDao.save(fh);
+	    }
+            return retval;
 	}
 
 	private void validateFile(FileHandle file) throws FileNotFoundException {
@@ -759,26 +747,23 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 	}
 
-	private void setMD5(FileGroup fileGroup) throws GridException, FileNotFoundException {
+	private void setMD5(List<FileHandle> fileHandles) throws GridException, FileNotFoundException {
 
-		if (fileGroup.getFileHandles().isEmpty())
-			throw new FileNotFoundException("No file handles in file group: " + fileGroup.getId());
+		if (fileHandles.isEmpty())
+			throw new FileNotFoundException("No file handles to set MD5");
 
-		String host = fileGroup.getFileHandles().iterator().next().getFileURI().getHost();
+		String host = fileHandles.iterator().next().getFileURI().getHost();
 
 		// use task array to submit in one batch
 		WorkUnit w = new WorkUnit();
 		w.setRegistering(true);
-		w.setSecureResults(false);
+		w.setSecureResults(true);
 		w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		w.setMode(ExecutionMode.TASK_ARRAY);
 
 		int numFiles = 0;
 
-		Set<FileHandle> fileH = new LinkedHashSet<FileHandle>();
-		fileH.addAll(fileGroup.getFileHandles());
-
-		for (FileHandle f : fileH) {
+		for (FileHandle f : fileHandles) {
 			String fileHost = f.getFileURI().getHost().toString();
 			if (!fileHost.equals(host))
 				throw new GridAccessException("files must all reside on the same host for calculating MD5 by file group");
@@ -804,7 +789,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		GridWorkService gws = hostResolver.getGridWorkService(host);
 		GridResult r = gws.execute(w);
 
-		logger.debug("waiting for file registration");
+		logger.trace("waiting for file registration");
 		ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
 		while (!gws.isFinished(r)) {
 			ScheduledFuture<?> md5t = ex.schedule(new Runnable() {
@@ -817,17 +802,17 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			}
 		}
 		ex.shutdownNow();
-		logger.debug("registered, getting results");
+		logger.trace("registered, getting results");
 		
 		try {
 			Map<Integer, String> output = gws.getMappedTaskOutput(r);
 
-			Iterator<FileHandle> fhi = fileH.iterator();
-			for (int rec=0; rec < fileH.size(); rec++) {
+			Iterator<FileHandle> fhi = fileHandles.iterator();
+			for (int rec=1; rec <= fileHandles.size(); rec++) {
 			    FileHandle f = fhi.next();
 			    String md5 = StringUtils.chomp(output.get(rec));
-			    if (md5 == null) {
-			        logger.error("unable to find MD5 result for " + f.getFileName());
+			    if (md5 == null || md5.length() != 32) {
+			        logger.error("unable to find valid MD5 result for " + f.getFileName() + " saw: '" + md5 + "'");
 			        continue;
 			    }
 			    logger.debug("MD5: " + rec + " : " + md5 + ":" + f.getFileName());
@@ -839,88 +824,6 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			throw new GridException("unable to read output of task array", e);
 		}
 		
-	}
-
-	/**
-	 * 
-	 * @param file
-	 * @throws GridException
-	 * @throws FileNotFoundException
-	 */
-	@Deprecated
-	private MD5Result setMD5(FileHandle file) throws GridException, FileNotFoundException {
-		URL url;
-		logger.debug("calculating MD5 for: " + file.getFileURI());
-		try {
-			url = file.getFileURI().toURL();
-		} catch (MalformedURLException e) {
-			String message = "malformed url " + file.getFileURI().toString();
-			logger.warn(message);
-			throw new FileNotFoundException(message);
-		}
-
-		GridWorkService gws = hostResolver.getGridWorkService(url.getHost());
-
-		String path = url.getPath();
-
-		try {
-			if (!gws.getGridFileService().exists(path)) {
-				String message = "unable to locate" + url.toString() + ", file does not exist";
-				logger.warn(message);
-				throw new FileNotFoundException(message);
-			}
-		} catch (IOException e) {
-			String message = e.getLocalizedMessage();
-			logger.error(message);
-			throw new GridAccessException(message);
-		}
-
-		logger.debug("checking MD5 of " + file.getFileURI().toString());
-
-		WorkUnit w = new WorkUnit();
-		w.setRegistering(true);
-		w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
-		w.addRequiredFile(file);
-		w.setCommand("md5sum ${WASPFILE[0]} | awk '{print $1}'");
-		GridResult r = gws.execute(w);
-		logger.debug("returning MD5 result");
-		return new MD5Result(file, gws, r);
-
-	}
-
-	@Deprecated
-	private class MD5Result {
-
-		FileHandle file;
-		GridWorkService gws;
-		GridResult r;
-
-		public MD5Result(FileHandle file, GridWorkService gws, GridResult r) {
-			this.file = file;
-			this.gws = gws;
-			this.r = r;
-		}
-
-		public boolean isRegistered() throws GridException {
-			boolean running = gws.isFinished(r);
-			if (running)
-				return false;
-			try {
-				InputStream is = gws.readResultStdOut(r);
-				StringWriter sw = new StringWriter();
-				IOUtils.copy(is, sw);
-				String md5 = sw.toString();
-				file.setMd5hash(StringUtils.chomp(md5));
-				fileHandleDao.save(file);
-				logger.debug("file registered with MD5: " + file.getMd5hash());
-			} catch (IOException e) {
-				String message = "Unable to obtain stdout: " + e.getLocalizedMessage();
-				logger.warn(message);
-				throw new GridExecutionException(message);
-			}
-			return true;
-		}
-
 	}
 
 	@Override
@@ -944,7 +847,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 			String basename = path.substring(path.lastIndexOf('/') + 1);
 
-			String resultPath = resultsDir + "/" + job.getId() + "/submitted/";
+			String resultPath = resultsDir + "/" + job.getId() + "/jobSubmissionUploads/";
 
 			gfs.mkdir(resultPath);
 			String resultFile = resultPath + basename;
@@ -1130,7 +1033,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		if (isInDemoMode)
 			throw new FileUploadException("Cannot perform this action in demo mode");
 		try{
-			FileGroup fileGroup = this.uploadFile(mpFile.getOriginalFilename(), mpFile.getInputStream(), job.getId(), fileDescription, randomNumberGenerator, "results.dir", "submitted");
+			FileGroup fileGroup = this.uploadFile(mpFile.getOriginalFilename(), mpFile.getInputStream(), job.getId(), fileDescription, randomNumberGenerator, "results.dir", "jobSubmissionUploads");
 			this.linkFileGroupWithJob(fileGroup, job);//this should really be in the job service, not fileservice
 		}catch(Exception e){
 			throw new FileUploadException(e.getMessage());
@@ -1143,7 +1046,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		if (isInDemoMode)
 			throw new FileUploadException("Cannot perform this action in demo mode");
 		try{
-			FileGroup fileGroup = this.uploadFile(mpFile.getOriginalFilename(), mpFile.getInputStream(), job.getId(), fileDescription, randomNumberGenerator, "results.dir", "submitted");
+			FileGroup fileGroup = this.uploadFile(mpFile.getOriginalFilename(), mpFile.getInputStream(), job.getId(), fileDescription, randomNumberGenerator, "results.dir", "jobSubmissionUploads");
 			return fileGroup;
 		}catch(Exception e){
 			throw new FileUploadException(e.getMessage());
@@ -1237,8 +1140,10 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		// automatically determine mime type.
 
 		try {
-			gfs.put(localFile, remoteFile);			
-			registerWithoutMD5(retGroup);
+			gfs.put(localFile, remoteFile);	
+			List<FileHandle> fhs = new ArrayList<FileHandle>();
+			fhs.addAll(retGroup.getFileHandles());
+			registerWithoutMD5(fhs);
 		} catch (GridException e) {
 			String mess = "Problem accessing remote resources " + e.getLocalizedMessage();
 			logger.warn(mess);
@@ -1672,7 +1577,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	@Transactional
 	public FileGroup saveLocalJobFile(Job job, File localFile, String fileName, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
 		try{
-			FileGroup fileGroup = this.saveLocalFile(job.getId(), localFile, fileName, fileDescription, randomNumberGenerator, "results.dir", "submitted");
+			FileGroup fileGroup = this.saveLocalFile(job.getId(), localFile, fileName, fileDescription, randomNumberGenerator, "results.dir", "jobSubmissionUploads");
 			this.linkFileGroupWithJob(fileGroup, job);
 			return fileGroup;
 		}catch(Exception e){
@@ -1682,7 +1587,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	
 	public FileGroup saveLocalQuoteOrInvoiceFile(Job job, File localFile, String fileName, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
 		try{
-			FileGroup fileGroup = this.saveLocalFile(job.getId(), localFile, fileName, fileDescription, randomNumberGenerator, "results.dir", "submitted");
+			FileGroup fileGroup = this.saveLocalFile(job.getId(), localFile, fileName, fileDescription, randomNumberGenerator, "results.dir", "jobSubmissionUploads");
 			//DO NOT USE NEXT LINE HERE: the quote or invoice is linked via job's acctQuote or job's acctInvoice   
 			//////////this.linkFileGroupWithJob(fileGroup, job);
 			return fileGroup;
@@ -1755,8 +1660,10 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		// automatically determine mime type.
 
 		try {
-			gfs.put(localFile, remoteFile);			
-			registerWithoutMD5(retGroup);
+			gfs.put(localFile, remoteFile);	
+			List<FileHandle> fhs = new ArrayList<FileHandle>();
+			fhs.addAll(retGroup.getFileHandles());
+			registerWithoutMD5(fhs);
 		} catch (GridException e) {
 			String mess = "Problem accessing remote resources " + e.getLocalizedMessage();
 			logger.warn(mess);
@@ -1859,6 +1766,17 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		return filesByType;
 		
 	}
+
+    @Override
+    public void setFileGroupDao(FileGroupDao fileDao) {
+        this.fileGroupDao = fileDao;
+        
+    }
+
+    @Override
+    public FileGroupDao getFileGroupDao() {
+        return fileGroupDao;
+    }
 
 }
 

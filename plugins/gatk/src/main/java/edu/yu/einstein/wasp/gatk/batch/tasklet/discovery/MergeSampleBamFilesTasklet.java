@@ -28,8 +28,8 @@ public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
 	
 	private static Logger logger = LoggerFactory.getLogger(MergeSampleBamFilesTasklet.class);
 	
-	public MergeSampleBamFilesTasklet(String inputFilegroupIds, String outputFilegroupIds) {
-		super(inputFilegroupIds, outputFilegroupIds);
+	public MergeSampleBamFilesTasklet(String inputFilegroupIds, String outputFilegroupIds, Integer jobId) {
+		super(inputFilegroupIds, outputFilegroupIds, jobId);
 	}
 	
 	@Override
@@ -51,11 +51,13 @@ public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
 		}
 		w.setRequiredFiles(fhlist);
 		
-		LinkedHashSet<FileGroup> fglist = new LinkedHashSet<FileGroup>();
-		for (Integer fgId : this.getOutputFilegroupIds()){
-			fglist.add(fileService.getFileGroupById(fgId));
-		}
-		w.setResultFiles(fglist);
+		LinkedHashSet<FileHandle> outFiles = new LinkedHashSet<FileHandle>();
+                for (Integer fgId : this.getOutputFilegroupIds()){
+                        FileGroup fg = fileService.getFileGroupById(fgId);
+                        // single file handle groups
+                        outFiles.add(fg.getFileHandles().iterator().next());
+                }
+		w.setResultFiles(outFiles);
 		List<SoftwarePackage> dependencies = new ArrayList<>();
 		dependencies.add(gatk);
 		dependencies.add(gatk.getSoftwareDependencyByIname("picard"));

@@ -3,7 +3,6 @@
  */
 package edu.yu.einstein.wasp.grid.work;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -12,8 +11,9 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
@@ -39,6 +39,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -46,6 +47,7 @@ import org.xml.sax.SAXException;
 
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.NullResourceException;
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
@@ -53,7 +55,6 @@ import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
-import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.util.PropertyHelper;
@@ -64,12 +65,16 @@ import edu.yu.einstein.wasp.util.PropertyHelper;
  * @author calder
  * 
  */
+@Transactional("entityManager")
 public class SgeWorkService implements GridWorkService, ApplicationContextAware {
+    
+    @Value("${wasp.developermode:false}")
+    protected boolean developerMode;
 	
 	/**
 	 * LOCAL temporary directory
 	 */
-	@Value("${wasp.temporary.dir}")
+	@Value("${wasp.temporary.dir:/tmp}")
 	protected String localTempDir;
 	
 	@Value("${wasp.nfs.timeout:0}")
@@ -91,9 +96,13 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	 */
 	public FileService getFileService() {
 		if (fileService == null) {
-			this.fileService = applicationContext.getBean(FileService.class);
+			this.setFileService(applicationContext.getBean(FileService.class));
 		}
 		return fileService;
+	}
+	
+	public void setFileService(FileService fileService) {
+	    this.fileService = fileService;
 	}
 	
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -503,12 +512,14 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	 * @throws FileNotFoundException 
 	 */
 	protected void secureResultsFiles(GridResult g) throws GridException, FileNotFoundException {
-		if (g.getFileGroupIds() != null && g.getFileGroupIds().size() > 0) {
+		if (g.getFileHandleIds() != null && g.getFileHandleIds().size() > 0) {
 			copyResultsFiles(g);
-			for (Integer id : g.getFileGroupIds()) {
-				FileGroup fg = getFileService().getFileGroupById(id);
-				getFileService().register(fg);
-			}
+			List<FileHandle> fhl = new ArrayList<FileHandle>();
+			for (Integer id : g.getFileHandleIds()) {
+			    FileHandle fh = getFileService().getFileHandleById(id);
+			    fhl.add(fh);
+			}    
+			getFileService().register(fhl);
 		}
 	}
 	
@@ -520,36 +531,33 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		w.setMode(ExecutionMode.TASK_ARRAY);
 		w.addCommand("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"0\" ]; then touch " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
 		int files = 0;
-		for (Integer id : g.getFileGroupIds()) {
-			FileGroup fg = getFileService().getFileGroupById(id);
-			for (FileHandle f : fg.getFileHandles()) {
-				w.addCommand("COPY[" + files + "]=\""+ WorkUnit.OUTPUT_FILE_PREFIX + "_" + fg.getId() + "." + f.getId() + 
-						" " + f.getFileName() + "\"");
-				files++;
-				f.setFileURI(this.gridFileService.remoteFileRepresentationToLocalURI(w.getResultsDirectory() + "/" + f.getFileName()));
-				fileService.addFile(f);
-			}
-		}
+		for (Integer hid : g.getFileHandleIds()) {
+		    FileHandle fh = fileService.getFileHandleById(hid);
+                    w.addCommand("COPY[" + files + "]=\"" + WorkUnit.OUTPUT_FILE_PREFIX + "_" + fh.getId() + "." + g.getUuid().toString() + " " + fh.getFileName() + "\"");
+                    files++;
+                    fh.setFileURI(this.gridFileService.remoteFileRepresentationToLocalURI(w.getResultsDirectory() + "/" + fh.getFileName()));
+                    fileService.addFile(fh);
+                }
 		w.setNumberOfTasks(files);
 		w.addCommand("THIS=${COPY[WASP_TASK_ID]}");
 		w.addCommand("read -ra FILE <<< \"$THIS\"");
 		w.addCommand("cp -f ${FILE[0]} ${" + WorkUnit.RESULTS_DIRECTORY + "}${FILE[1]}");
 		w.addCommand("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"0\" ]; then rm -f " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
 		GridResult r = execute(w);
-		logger.debug("waiting for results file copy");
+		logger.trace("waiting for results file copy");
 		ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
 		while (!isFinished(r)) {
 			ScheduledFuture<?> md5t = ex.schedule(new Runnable() {
 				@Override
 				public void run() {
 				}
-			}, 5, TimeUnit.SECONDS);
+			}, Integer.decode(transportConnection.getConfiguredSetting("host.pollinterval")), TimeUnit.MILLISECONDS);
 			while (!md5t.isDone()) {
 				// not done
 			}
 		}
 		ex.shutdownNow();
-		logger.debug("copied");
+		logger.trace("copied");
 
 	}
 	
@@ -656,8 +664,8 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		result.setMode(w.getMode());
 		result.setSecureResults(w.isSecureResults());
 		if (w.isSecureResults()) {
-			for (FileGroup fg : w.getResultFiles()) {
-				result.getFileGroupIds().add(fg.getId());
+			for (FileHandle fg : w.getResultFiles()) {
+				result.getFileHandleIds().add(fg.getId());
 			}
 			
 		}
@@ -760,8 +768,8 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY)) {
 				preamble += WorkUnit.TASK_ARRAY_ID + "=$[SGE_TASK_ID-1]\n" + 
-						WorkUnit.TASK_OUTPUT_FILE + "=$WASPNAME:${WASP_TASK_ID}.out\n" +
-						WorkUnit.TASK_END_FILE + "=$WASPNAME:${WASP_TASK_ID}.end\n";
+						WorkUnit.TASK_OUTPUT_FILE + "=$WASPNAME-${SGE_TASK_ID}.out\n" +
+						WorkUnit.TASK_END_FILE + "=$WASPNAME:${SGE_TASK_ID}.end\n";
 			}
 			
 			String metadata = transportConnection.getConfiguredSetting("metadata.root");
@@ -782,11 +790,12 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 				fi++;
 			}
 			fi = 0;
-			for (FileGroup fg : w.getResultFiles()) {
-				for (FileHandle f : fg.getFileHandles()) {
-					preamble += WorkUnit.OUTPUT_FILE + "[" + fi + "]=" + WorkUnit.OUTPUT_FILE_PREFIX + "_" + fg.getId() +"."+ f.getId() + "\n";
-					fi++;
-				}
+			logger.trace("file inspection for " + w.getResultFiles().size() + " file groups");
+			logger.trace("adding file variables for " + w.getResultFiles().size() + " file handles");
+			for (FileHandle fh : w.getResultFiles()) {
+			    String filestr = WorkUnit.OUTPUT_FILE + "[" + fi + "]=" + WorkUnit.OUTPUT_FILE_PREFIX + "_" + fh.getId() +"."+ w.getId().replaceFirst(jobNamePrefix, "") + "\n";
+			    preamble += filestr;
+			    fi++;
 			}
 			
 			preamble += "\n# Configured environment variables\n\n";
@@ -885,7 +894,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			if (w.getMode() == ExecutionMode.MPI)
 				pe = getParallelEnvironment();
 			
-			return header + 
+			String result = header + 
 					"\n\n##### resource requests\n\n" +
 					getAccount() + 
 					getQueue() +
@@ -904,6 +913,8 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 					command + 
 					"\n\n##### postscript\n\n" +
 					postscript;
+			logger.debug(result);
+			return result;
 		}
 
 		/** 
@@ -1087,8 +1098,13 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		return readResultFile(r, suffix, true);
 	}
 
+    /** 
+     * {@inheritDoc}
+     */
     @Override
     public LinkedHashMap<Integer, String> getMappedTaskOutput(GridResult r) throws IOException {
+        if (!r.getMode().equals(ExecutionMode.TASK_ARRAY))
+            throw new WaspRuntimeException("Mapped task output is only available from TASK_ARRAY results");
         LinkedHashMap<Integer, String> result = new LinkedHashMap<Integer, String>();
         File f = File.createTempFile("wasp", "work");
         String path = r.getArchivedResultOutputPath();
@@ -1097,32 +1113,25 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
         FileInputStream afis = new FileInputStream(f);
         GZIPInputStream agz = new GZIPInputStream(afis);
         TarArchiveInputStream a = new TarArchiveInputStream(agz);
-        logger.debug("tar " + a.toString());
-        TarArchiveEntry e;
-        while ((e = a.getNextTarEntry()) != null) {
-            logger.debug("saw tar file entry " + e.getName());
-            Matcher filem = Pattern.compile(":([0-9]+?).out").matcher(e.getName());
-            if (!filem.find())
-                continue;
-            Integer record = Integer.decode(filem.group(1));
-            logger.trace("record number " + record);
-            byte[] content = new byte[(int) e.getSize()];
-            a.read(content, 0, content.length);
-            ByteArrayInputStream bais = new ByteArrayInputStream(content);
-            BufferedReader br = new BufferedReader(new InputStreamReader(bais));
-
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
+        try {
+            logger.debug("tar " + a.toString());
+            TarArchiveEntry e;
+            while ((e = a.getNextTarEntry()) != null) {
+                logger.trace("saw tar file entry " + e.getName());
+                Matcher filem = Pattern.compile("-([0-9]+?).out").matcher(e.getName());
+                if (!filem.find())
+                    continue;
+                Integer record = Integer.decode(filem.group(1));
+                logger.trace("record number " + record + " size " + e.getSize());
+                result.put(record, IOUtils.toString(a, "UTF-8"));
+                
             }
-            result.put(record, sb.toString());
-            br.close();
+        } finally {
+            a.close();
+            agz.close();
+            afis.close();
+            // TODO: RESTORE! f.delete();
         }
-        a.close();
-        agz.close();
-        afis.close();
-        f.delete();
         return result;
     }
 	

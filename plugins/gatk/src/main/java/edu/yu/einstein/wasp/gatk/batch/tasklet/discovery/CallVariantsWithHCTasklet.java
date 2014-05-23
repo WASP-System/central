@@ -1,19 +1,23 @@
 package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.Strategy.StrategyType;
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
@@ -33,11 +37,17 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 	
 	private static Logger logger = LoggerFactory.getLogger(CallVariantsWithHCTasklet.class);
 	
+	private Long jobExecutionId;
+	
 	@Autowired
 	private StrategyService strategyService;
 	
-	public CallVariantsWithHCTasklet(String inputFilegroupIds, String outputFilegroupIds) {
-		super(inputFilegroupIds, outputFilegroupIds);
+	@Autowired
+	private JobExplorer jobExplorer;
+	
+	public CallVariantsWithHCTasklet(String inputFilegroupIds, String outputFilegroupIds, Integer jobId, Long parentJobExecutionId) {
+		super(inputFilegroupIds, outputFilegroupIds, jobId);
+		this.jobExecutionId = parentJobExecutionId;
 	}
 
 	@Override
@@ -53,11 +63,13 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 		w.setSecureResults(true);
 		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
-		LinkedHashSet<FileGroup> fglist = new LinkedHashSet<FileGroup>();
-		for (Integer fgId : this.getOutputFilegroupIds()){
-			fglist.add(fileService.getFileGroupById(fgId));
-		}
-		w.setResultFiles(fglist);
+		LinkedHashSet<FileHandle> outFiles = new LinkedHashSet<FileHandle>();
+                for (Integer fgId : this.getOutputFilegroupIds()){
+                        FileGroup fg = fileService.getFileGroupById(fgId);
+                        // single file handle groups
+                        outFiles.add(fg.getFileHandles().iterator().next());
+                }
+                w.setResultFiles(outFiles);
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();
 		for (Integer fgId : this.getInputFilegroupIds()){
 			FileGroup fg = fileService.getFileGroupById(fgId);
@@ -65,17 +77,22 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 				build = gatkService.getBuildForFg(fg);
 			fhlist.addAll(fg.getFileHandles());
 		}
+		if (build == null)
+			throw new WaspRuntimeException("No build could be sourced for job id=" + jobId);
 		w.setRequiredFiles(fhlist);
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(gatk);
 		w.setSoftwareDependencies(sd);
 		
-		Map<String,Object> jobParameters = context.getStepContext().getJobParameters();
-		for (String key : jobParameters.keySet()) {
-			logger.trace("Key: " + key + " Value: " + jobParameters.get(key).toString());
+		Map<String,Object> jobParameters = new HashMap<>();
+		Map<String, JobParameter> paramMap = jobExplorer.getJobExecution(jobExecutionId).getJobParameters().getParameters();
+		for (String key : paramMap.keySet()) {
+			Object value =  paramMap.get(key).getValue();
+			logger.trace("Key: " + key + " Value: " + value.toString());
+			jobParameters.put(key, value);
 		}
 		Strategy strategy = strategyService.getThisJobsStrategy(StrategyType.LIBRARY_STRATEGY, job);
-		String wxsIntervalFile = null;
+		String wxsIntervalFile = null; 
 		if (strategy.getStrategy().equals("WXS"))
 			wxsIntervalFile = gatkService.getWxsIntervalFile(job, build);
 		String gatkOpts = gatk.getCallVariantOpts(jobParameters);

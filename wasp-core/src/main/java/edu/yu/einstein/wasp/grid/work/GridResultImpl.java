@@ -5,7 +5,9 @@ package edu.yu.einstein.wasp.grid.work;
 
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -188,18 +190,18 @@ public class GridResultImpl implements GridResult, Serializable {
 		this.secureResults = secure;
 	}
 	
-	private Set<Integer> fileGroupIds = new HashSet<Integer>();
+	private List<Integer> fileHandleIds = new ArrayList<Integer>();
 
 	/* (non-Javadoc)
 	 * @see edu.yu.einstein.wasp.grid.work.GridResult#getFileGroupIds()
 	 */
 	@Override
-	public Set<Integer> getFileGroupIds() {
-		return fileGroupIds;
+	public List<Integer> getFileHandleIds() {
+		return fileHandleIds;
 	}
 	
-	public void setFileGroupIds(Set<Integer> ids) {
-		this.fileGroupIds = ids;
+	public void setFileHandleIds(List<Integer> ids) {
+		this.fileHandleIds = ids;
 	}
 
 	/** 

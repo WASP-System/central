@@ -5,6 +5,7 @@
 package edu.yu.einstein.wasp.macstwo.batch.tasklet;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,7 +16,6 @@ import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
@@ -31,10 +31,11 @@ import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.plugin.mps.grid.software.Imagemagick;
+import edu.yu.einstein.wasp.plugin.mps.grid.software.R;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
  * @author 
@@ -75,7 +76,9 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 	
 	@Autowired
 	private Macstwo macs2;
-	
+
+/*	don't use autowired for these two, but instead, see below in method doExecute()
+ 
 	@Autowired
 	@Qualifier("rPackage")
 	private SoftwarePackage rSoftware;
@@ -83,7 +86,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 	@Autowired
 	@Qualifier("imagemagick")
 	private SoftwarePackage imageMagickSoftware;
-
+*/
 
 	public MacstwoGenerateModelAsPdfTasklet() {
 		// proxy
@@ -123,6 +126,10 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
+		
+		Imagemagick imagemagickSoftware = (Imagemagick) macs2.getSoftwareDependencyByIname("imagemagick"); 
+		R rSoftware = (R) macs2.getSoftwareDependencyByIname("rPackage");
+
 		logger.debug("*************************************");
 		logger.debug("Starting MacstwoGenerateModelAsPdfTasklet execute");
 		
@@ -185,6 +192,8 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		logger.debug("commandLineCall in MacstwoGenerateModelAsPdfTasklet.doExecute() is : " + commandLineCall);
 			
 		List<String> listOfFileHandleNames = new ArrayList<String>();
+		
+		Set<FileHandle> files = new LinkedHashSet<FileHandle>();
 
 		//the pdf (generated from running Rscript on xx_model.r file)
 		FileGroup modelPdfG = new FileGroup();
@@ -194,9 +203,11 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		modelPdf.setFileType(macs2ModelPdfFileType);
 		modelPdf = fileService.addFile(modelPdf);
 		modelPdfG.addFileHandle(modelPdf);
+		files.add(modelPdf);
 		modelPdfG.setFileType(macs2ModelPdfFileType);
 		modelPdfG.setDescription(modelPdf.getFileName());
 		modelPdfG.setSoftwareGeneratedBy(rSoftware);
+		modelPdfG.addDerivedFrom(modelScriptFileGroup);
 		modelPdfG = fileService.addFileGroup(modelPdfG);
 		this.modelPdfGId = modelPdfG.getId();
 		logger.debug("recorded fileGroup and fileHandle for rscript to create pdf in MacstwoGenerateModelAsPdfTasklet.doExecute()");
@@ -209,9 +220,11 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		modelPng.setFileType(macs2ModelPngFileType);
 		modelPng = fileService.addFile(modelPng);
 		modelPngG.addFileHandle(modelPng);
+		files.add(modelPng);
 		modelPngG.setFileType(macs2ModelPngFileType);
 		modelPngG.setDescription(modelPng.getFileName());
-		modelPngG.setSoftwareGeneratedBy(imageMagickSoftware);
+		modelPngG.setSoftwareGeneratedBy(imagemagickSoftware);
+		modelPngG.addDerivedFrom(modelPdfG);
 		modelPngG = fileService.addFileGroup(modelPngG);
 		this.modelPngGId = modelPngG.getId();
 		logger.debug("recorded fileGroup and fileHandle for ImageMagick to create png in MacstwoGenerateModelAsPdfTasklet.doExecute()");
@@ -227,8 +240,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		stepContext.put("modelPngGId", this.modelPngGId);
 		logger.debug("saved 5 variables in stepContext within MacstwoGenerateModelAsPdfTasklet.doExecute()");
 		
-		w.getResultFiles().add(modelPdfG);
-		w.getResultFiles().add(modelPngG);
+		w.setResultFiles(files);
 		logger.debug("executed w.getResultFiles().add(modelPdfG) within MacstwoGenerateModelAsPdfTasklet.doExecute()");
 		logger.debug("executed w.getResultFiles().add(modelPngG) within MacstwoGenerateModelAsPdfTasklet.doExecute()");
 		

@@ -75,6 +75,15 @@ public interface GridWorkService {
 	
 	public InputStream readTaskOutput(GridResult r, int taskId) throws IOException;
 
+	/**
+	 * Pull the result tarball of a task array job and return contents of .out files in a map.
+	 * There should not be excessively large files in the tarball.  Reads entire contents of 
+	 * file into a single byte array and puts the strings into a map, numbered from task 1.
+	 * 
+	 * @param r
+	 * @return
+	 * @throws IOException
+	 */
 	public LinkedHashMap<Integer,String> getMappedTaskOutput(GridResult r) throws IOException;
 	
 	//public void setGridFileMovers(List<GridFileMover> gridFileMovers);

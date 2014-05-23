@@ -4,6 +4,7 @@
  */
 package edu.yu.einstein.wasp.macstwo.service.impl;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -89,6 +90,9 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 			
 			//commandLine (for the samplePairsTab)
 			Map<String, String> sampleIdControlIdCommandLineMap = getSampleIdControlIdCommandLineMap(testSampleList);//reviewed and OK
+			//FRiP (for the samplePairsTab)
+			Map<String, String> sampleIdControlIdFripMap = getSampleIdControlIdFripMap(testSampleList);//reviewed and OK
+			
 			
 			//sample library runs (for the runs tab)
 			Map<Sample, List<SampleSource>> sampleCellLibraryListMap = getSampleCellLibraryListMap(testSampleList);//reviewed and OK
@@ -106,6 +110,8 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 
 			PanelTab samplePairsPanelTab = MacstwoWebPanels.getSamplePairs(testSampleList, testSampleControlSampleListMap, sampleIdControlIdCommandLineMap);
 			if(samplePairsPanelTab!=null){panelTabSet.add(samplePairsPanelTab);}
+			PanelTab fripPanelTab = MacstwoWebPanels.getFrips(testSampleList, testSampleControlSampleListMap, sampleIdControlIdFripMap);
+			if(fripPanelTab!=null){panelTabSet.add(fripPanelTab);}
 			PanelTab sampleLibraryRunsPanelTab = MacstwoWebPanels.getSampleLibraryRuns(testSampleList, sampleLibraryListMap, libraryRunInfoListMap);
 			if(sampleLibraryRunsPanelTab!=null){panelTabSet.add(sampleLibraryRunsPanelTab);}
 			PanelTab fileTypeDefinitionsPanelTab = MacstwoWebPanels.getFileTypeDefinitions(fileTypeList);
@@ -198,6 +204,49 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 			}
 		}
 		return sampleIdControlIdCommandLineMap;
+	}
+	private Map<String, String> getSampleIdControlIdFripMap(List<Sample> testSampleList){//reviewed and OK
+
+		Map<String, String> sampleIdControlIdTotalCountMappedReadsMap = new HashMap<String, String>();
+		Map<String, String> sampleIdControlIdTotalCountMappedReadsInPeaksMap = new HashMap<String, String>();
+		Map<String, String> sampleIdControlIdFripMap = new HashMap<String, String>();		
+		for(Sample testSample : testSampleList){			
+			for(SampleMeta sm : testSample.getSampleMeta()){
+				if(sm.getK().startsWith("chipseqAnalysis.totalCountMappedReads::")){//capture for each distinct chipseq analysis (following the :: is controlId)
+					String[] splitK = sm.getK().split("::");
+					String controlIdAsString = splitK[1];
+					sampleIdControlIdTotalCountMappedReadsMap.put(testSample.getId().toString() + "::" + controlIdAsString, sm.getV());
+				}
+				if(sm.getK().startsWith("chipseqAnalysis.totalCountMappedReadsInPeaks::")){//capture for each distinct chipseq analysis (following the :: is controlId)
+					String[] splitK = sm.getK().split("::");
+					String controlIdAsString = splitK[1];
+					sampleIdControlIdTotalCountMappedReadsInPeaksMap.put(testSample.getId().toString() + "::" + controlIdAsString, sm.getV());
+				}
+			}
+		}
+		for (String key : sampleIdControlIdTotalCountMappedReadsMap.keySet()) {
+			String totalCountMappedReadsAsString = sampleIdControlIdTotalCountMappedReadsMap.get(key);
+			String totalCountMappedReadsInPeaksAsString = sampleIdControlIdTotalCountMappedReadsInPeaksMap.get(key);
+			String value  = "";
+			if(totalCountMappedReadsAsString==null || totalCountMappedReadsInPeaksAsString==null){
+				value = "Error";
+			}
+			try{
+				Integer totalCountMappedReads = Integer.valueOf(totalCountMappedReadsAsString);
+				Integer totalCountMappedReadsInPeaks = Integer.valueOf(totalCountMappedReadsInPeaksAsString);
+				Double frip = (double) totalCountMappedReadsInPeaks / totalCountMappedReads;
+				DecimalFormat myFormat = new DecimalFormat("0.00000");
+				String formatedFrip = myFormat.format(frip);
+				value = totalCountMappedReadsInPeaks.toString() + " / " + totalCountMappedReads + " = " + formatedFrip.toString();
+			}
+			catch(Exception e){
+				value = "Error";
+			}			
+			System.out.println("Key : " + key + " Value (FRiP : " + value);
+			sampleIdControlIdFripMap.put(key, value);
+		}
+		
+		return sampleIdControlIdFripMap;
 	}
 	
 	private Map<Sample, List<SampleSource>> getSampleCellLibraryListMap(List<Sample> testSampleList)throws SampleTypeException{//reviewed and OK
@@ -303,8 +352,13 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 		for(String key : sampleIdControlIdFileTypeIdFileHandleMap.keySet()){
 			FileHandle fh = sampleIdControlIdFileTypeIdFileHandleMap.get(key);
 			//******************ROBERT A DUBIN comment-out next line and uncomment the line following it for production!!!!!!!!
-			String resolvedURL = "file://c3.einstein.yu.edu/wasp/results/3/submitted/215882339_Job3_Quote_2014_04_02.pdf";
-			//String resolvedURL = "";
+			
+			// TODO: better to make a proper test for this, these things get forgotten (this was). 
+			// Test code should never be placed in production code anyway either commented or uncommented. 
+			// Use a personal branch if you must do this kind of testing 'in situ' but please leave it out of develop or master: asmclellan
+			
+			//String resolvedURL = "file://c3.einstein.yu.edu/wasp/results/3/jobSubmissionUploads/215882339_Job3_Quote_2014_04_02.pdf";
+			String resolvedURL = "";
 			try{
 				resolvedURL = fileUrlResolver.getURL(fh).toString();
 			}catch(Exception e){logger.debug("***************UNABLE TO RESOLVE URL for file: " + fh.getFileName());}

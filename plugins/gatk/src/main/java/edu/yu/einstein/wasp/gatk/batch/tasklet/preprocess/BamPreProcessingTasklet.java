@@ -3,6 +3,7 @@ package edu.yu.einstein.wasp.gatk.batch.tasklet.preprocess;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -114,6 +115,7 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		logger.debug("Bam File group: " + fg.getId() + ": " + fg.getDescription());
 		
 		WorkUnit w = new WorkUnit();
+		Set<FileHandle> files = new LinkedHashSet<FileHandle>();
 		w.setMode(ExecutionMode.PROCESS);
 		w.setMemoryRequirements(AbstractGatkTasklet.MEMORY_GB_8);
 		w.setProcessMode(ProcessMode.MAX);
@@ -131,6 +133,7 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		bam.setFileName(bamOutput);
 		bam = fileService.addFile(bam);
 		bamG.addFileHandle(bam);
+		files.add(bam);
 		bamG.setFileType(bamFileType);
 		bamG.setDescription(bamOutput);
 		bamG.setSoftwareGeneratedById(gatk.getId());
@@ -140,12 +143,12 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		// save in step context  for use later
 		stepExecutionContext.put("bamGID", bamGId);
 		
-		
 		FileGroup baiG = new FileGroup();
 		FileHandle bai = new FileHandle();
 		bai.setFileName(baiOutput);
 		bai = fileService.addFile(bai);
 		baiG.addFileHandle(bai);
+		files.add(bai);
 		baiG.setFileType(baiFileType);
 		baiG.setDescription(baiOutput);
 		baiG.setSoftwareGeneratedById(gatk.getId());
@@ -154,8 +157,8 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		// save in step context for use later
 		stepExecutionContext.put("baiGID", baiGId);
 		
-		w.getResultFiles().add(bamG);
-		w.getResultFiles().add(baiG);
+		w.setResultFiles(files);
+		
 		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
 
 		String inputBamFilename = "${" + WorkUnit.INPUT_FILE + "}";

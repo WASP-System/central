@@ -9,8 +9,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import junit.framework.Assert;
-
 import org.apache.commons.io.IOUtils;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -23,6 +21,7 @@ import org.testng.annotations.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
 
@@ -57,8 +56,8 @@ public class SgeWorkServiceTest { //extends AbstractTestNGSpringContextTests {
 	@BeforeClass
 	public void beforeClass() {
 		MockitoAnnotations.initMocks(this);
-		Assert.assertNotNull(mockTransportConnection);
-		Assert.assertNotNull(mockGridResult);
+		Assert.assertParameterNotNull(mockTransportConnection);
+		Assert.assertParameterNotNull(mockGridResult);
 		sgeWorkService = new SgeWorkService(mockTransportConnection);
 	}
 	
@@ -96,7 +95,7 @@ public class SgeWorkServiceTest { //extends AbstractTestNGSpringContextTests {
 		
 		Document retval = sgeWorkService.getQstat(fakeResult, "none");
 		boolean unknown = sgeWorkService.isUnknown(retval);
-		Assert.assertFalse(unknown);
+		Assert.assertTrue(!unknown);
 		
 	}
 	
@@ -110,7 +109,7 @@ public class SgeWorkServiceTest { //extends AbstractTestNGSpringContextTests {
 		
 		Document retval = sgeWorkService.getQstat(fakeResult, "none");
 		boolean unknown = sgeWorkService.isInError(retval);
-		Assert.assertFalse(unknown);
+		Assert.assertTrue(!unknown);
 		
 	}
 	
@@ -124,7 +123,7 @@ public class SgeWorkServiceTest { //extends AbstractTestNGSpringContextTests {
 		
 		Document retval = sgeWorkService.getQstat(fakeResult, "none");
 		boolean unknown = sgeWorkService.isInError(retval);
-		Assert.assertFalse(unknown);
+		Assert.assertTrue(!unknown);
 		
 	}
 	

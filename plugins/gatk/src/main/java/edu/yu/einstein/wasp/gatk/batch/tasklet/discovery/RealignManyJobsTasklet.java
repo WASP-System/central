@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
@@ -51,6 +53,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 	private GatkService gatkService;
 	
 	@Autowired
+	@Qualifier("fileTypeServiceImpl")
 	private FileTypeService fileTypeService;
 	
 	@Autowired
@@ -77,6 +80,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 		Map<Sample, FileGroup> allFgIn = new HashMap<>();
 		LinkedHashSet<FileGroup> temporaryFileSet = new LinkedHashSet<>();
 		ExecutionContext jobExecutionContext = this.getStepExecution().getJobExecution().getExecutionContext();
+		logger.debug("Getting FileGroup ids passed in from previous step");
 		if (jobExecutionContext.containsKey("temporaryFileSet"))
 			temporaryFileSet = AbstractGatkTasklet.getFileGroupsFromCommaDelimitedString(jobExecutionContext.getString("temporaryFileSet"), fileService);
 		if (jobExecutionContext.containsKey("mergedSampleFgMap"))
@@ -84,7 +88,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 		allFgIn.putAll(mergedSampleFileGroupsIn);
 		if (jobExecutionContext.containsKey("passThroughSampleFgMap"))
 			allFgIn.putAll(AbstractGatkTasklet.getSampleFgMapFromJsonString(jobExecutionContext.getString("passThroughSampleFgMap"), sampleService, fileService));
-		Map<FileGroup, Set<Sample>> fileGroupSamplesForNextStep = new HashMap<>();
+		Map<FileGroup, LinkedHashSet<Sample>> fileGroupSamplesForNextStep = new HashMap<>();
 		Set<Sample> processedSamples = new HashSet<>();
 		// merge, realign and split out again test-control sample pairs
 		for (SampleSource samplePair : sampleService.getSamplePairsByJob(job)){
@@ -92,6 +96,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			LinkedHashSet<FileGroup> outputFileGroups = new LinkedHashSet<>();
 			Sample test = sampleService.getTestSample(samplePair);
 			Sample control = sampleService.getControlSample(samplePair);
+			logger.debug("handling sample pair: test id=" + test.getId() + " and control id=" + control.getId());
 			processedSamples.add(test);
 			processedSamples.add(control);
 			FileGroup testFgIn = fileService.getFileGroupById(allFgIn.get(test).getId());
@@ -102,8 +107,10 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			sampleSources.addAll(testFgIn.getSampleSources());
 			sampleSources.addAll(controlFgIn.getSampleSources());
 			
-			String bamOutputMergedPairs = testFgIn.getDescription().replace(".bam", "_pairRealn.bam");
-			String baiOutputMergedPairs = bamOutputMergedPairs.replace(".bam", ".bai");
+			String bamOutputMergedPairs = fileService.generateUniqueBaseFileName(test) + 
+					fileService.generateUniqueBaseFileName(control) + "gatk_preproc_merged_dedup_pairRealn.bam";
+			String baiOutputMergedPairs = fileService.generateUniqueBaseFileName(test) + 
+					fileService.generateUniqueBaseFileName(control) + "gatk_preproc_merged_dedup_pairRealn.bai";
 			FileGroup bamMergedPairsG = new FileGroup();
 			FileHandle bamMergedPairs = new FileHandle();
 			bamMergedPairs.setFileName(bamOutputMergedPairs);
@@ -135,17 +142,18 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			temporaryFileSet.addAll(outputFileGroups);
 			
 			Map<String, String> jobParameters = new HashMap<>();
+			jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
 			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(inputFileGroups));
 			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(outputFileGroups));
 			jobParameters.put(WaspSoftwareJobParameters.JOB_ID, jobId.toString());
 			try {
-				requestLaunch("gatk.variantDiscovery.hc.realignTestControlPairs.jobFlow", jobParameters);
+				requestLaunch("gatk.variantDiscovery.hc.realign.jobFlow", jobParameters);
 			} catch (WaspMessageBuildingException e) {
 				e.printStackTrace();
 			}
-			fileGroupSamplesForNextStep.put(baiMergedPairsG, new HashSet<Sample>());
-			fileGroupSamplesForNextStep.get(baiMergedPairsG).add(test);
-			fileGroupSamplesForNextStep.get(baiMergedPairsG).add(control);
+			fileGroupSamplesForNextStep.put(bamMergedPairsG, new LinkedHashSet<Sample>());
+			fileGroupSamplesForNextStep.get(bamMergedPairsG).add(test);
+			fileGroupSamplesForNextStep.get(bamMergedPairsG).add(control);
 		}
 		
 		// re-align merged filegroups from previous step not in pairs
@@ -189,6 +197,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 				temporaryFileSet.addAll(outputFileGroups);
 				
 				Map<String, String> jobParameters = new HashMap<>();
+				jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
 				jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(inputFileGroups));
 				jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(outputFileGroups));
 				jobParameters.put(WaspSoftwareJobParameters.JOB_ID, jobId.toString());
@@ -197,7 +206,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 				} catch (WaspMessageBuildingException e) {
 					e.printStackTrace();
 				}
-				fileGroupSamplesForNextStep.put(bamMergedG, new HashSet<Sample>());
+				fileGroupSamplesForNextStep.put(bamMergedG, new LinkedHashSet<Sample>());
 				fileGroupSamplesForNextStep.get(bamMergedG).add(sample);
 			}
 		}
@@ -206,7 +215,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 		for (Sample sample : allFgIn.keySet())
 			if (! processedSamples.contains(sample)){
 				FileGroup fg = allFgIn.get(sample);
-				fileGroupSamplesForNextStep.put(fg, new HashSet<Sample>());
+				fileGroupSamplesForNextStep.put(fg, new LinkedHashSet<Sample>());
 				fileGroupSamplesForNextStep.get(fg).add(sample);
 			}
 		

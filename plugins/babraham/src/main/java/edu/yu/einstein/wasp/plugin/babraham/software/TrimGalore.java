@@ -6,6 +6,7 @@ package edu.yu.einstein.wasp.plugin.babraham.software;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -240,7 +241,7 @@ public class TrimGalore extends SoftwarePackage {
         fastq.addAll(fastqG.getFileHandles());
         Iterator<FileHandle> fhi = fastq.iterator();
 
-        Set<FileHandle> trimmed_fastq = new HashSet<FileHandle>();
+        Set<FileHandle> trimmed_fastq = new LinkedHashSet<FileHandle>();
 
         Integer rs = fastqService.getNumberOfReadSegments(fastqG);
 
@@ -286,7 +287,7 @@ public class TrimGalore extends SoftwarePackage {
         fastqService.copyFastqFileGroupMetadata(fastqG, resultFiles);
         fileTypeService.addAttribute(resultFiles, FastqFileTypeAttribute.TRIMMED);
 
-        w.getResultFiles().add(resultFiles);
+        w.setResultFiles(trimmed_fastq);
 
         fastqG.setIsActive(0);
 

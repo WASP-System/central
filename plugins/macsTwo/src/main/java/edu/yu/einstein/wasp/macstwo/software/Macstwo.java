@@ -14,6 +14,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.plugin.mps.grid.software.R;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 // Un-comment the following if using the plugin service
@@ -45,36 +46,83 @@ public class Macstwo extends SoftwarePackage{
 		
 		Assert.assertTrue(!testFileHandleList.isEmpty());
 		
-		WorkUnit w = prepareWorkUnit();
+		WorkUnit w = prepareWorkUnit();	
 		
 		List<FileHandle> tempFileHandleList = new ArrayList<FileHandle>();
 		tempFileHandleList.addAll(testFileHandleList);//THIS LIST MUST BE ADDED FIRST
 		tempFileHandleList.addAll(controlFileHandleList);		
 		w.setRequiredFiles(tempFileHandleList);
 		
-		StringBuilder tempCommand = new StringBuilder();
-		tempCommand.append("macs2");
-		String method = " callpeak";//TODO: needs to be a parameter as some point
-		tempCommand.append(method);
+		StringBuilder tempCommand;
 		
-		//macs2 can handle merging multiple test and/or multiple control files
-		int indexSoFar = 0;
-		for(int i = 0; i < testFileHandleList.size(); i++){
-			if(i==0){
-				tempCommand.append(" -t ");
-			}
-			tempCommand.append("${" + WorkUnit.INPUT_FILE + "["+indexSoFar+"]} ");
-			indexSoFar++;
+		String mergedTestBamFile = "";
+		
+		if(testFileHandleList.size()==1){
+			mergedTestBamFile = "${" + WorkUnit.INPUT_FILE + "[0]}";
 		}
-		for(int i = 0; i < controlFileHandleList.size(); i++){
-			if(i==0){
+		else if(testFileHandleList.size() > 1){
+			mergedTestBamFile = "mergedTESTBamFile.bam";
+			
+			tempCommand = new StringBuilder();
+			tempCommand.append("samtools merge " + mergedTestBamFile + " ");//mergedTESTBamFile.bam is the output of the merge; note that merge requires sorted files
+			
+			for(int i = 0; i < testFileHandleList.size(); i++){				
+				tempCommand.append("${" + WorkUnit.INPUT_FILE + "["+i+"]} ");				
+			}
+			String command1 = new String(tempCommand);
+			logger.debug("---- Will execute samtools merge mergedTESTBamFile.bam in1.bam in2.bam [....] for merging bams with command: ");
+			logger.debug("---- "+command1);
+			
+			w.addCommand(command1);
+			
+		}
+		/* moved immediately up, so this is no longer needed
+		if(testFileHandleList.size()>1){
+			mergedTestBamFile = "mergedTESTBamFile.bam";
+		}
+		else{
+			mergedTestBamFile = "${" + WorkUnit.INPUT_FILE + "[0]}";
+		}
+		
+		if(testFileHandleList.size()>1){
+			tempCommand = new StringBuilder();
+			tempCommand.append("samtools merge " + mergedTestBamFile + " ");//mergedTESTBamFile.bam is the output of the merge; note that merge requires sorted files
+			
+			for(int i = 0; i < testFileHandleList.size(); i++){				
+				tempCommand.append("${" + WorkUnit.INPUT_FILE + "["+i+"]} ");				
+			}
+			String command1 = new String(tempCommand);
+			logger.debug("---- Will execute samtools merge for merging bams with command: ");
+			logger.debug("---- "+command1);
+			
+			w.addCommand(command1);
+		}
+		*/
+		
+		String totalCountMappedReads = "totalCountMappedReads.txt"; //output in this file will be a single number 
+		
+		tempCommand = new StringBuilder();
+		tempCommand.append("samtools view -c -F 0x04 " + mergedTestBamFile + " > " + totalCountMappedReads);//count reads but skip unmapped reads
+		String command2 = new String(tempCommand);
+		logger.debug("---- Will execute samtools view -c -F 0x04 xxx.bam (or mergedTESTBamFile.bam) > totalCountMappedReads.txt to get total count of mapped reads  with command: ");
+		logger.debug("---- "+command2);
+		w.addCommand(command2);
+		
+		tempCommand = new StringBuilder();
+		tempCommand.append("macs2 callpeak -t " + mergedTestBamFile);
+				
+		//macs2 can handle merging multiple test and/or multiple control files
+		
+		/////don't need this anymore, the -t mergedTestBamFile takes care of this
+		/////for(int i = 0; i < testFileHandleList.size(); i++){
+		/////	tempCommand.append("${" + WorkUnit.INPUT_FILE + "["+i+"]} ");
+		/////}
+		for(int i = testFileHandleList.size(); i < testFileHandleList.size() + controlFileHandleList.size(); i++){
+			if(i==testFileHandleList.size()){
 				tempCommand.append(" -c ");
 			}
-			tempCommand.append("${" + WorkUnit.INPUT_FILE + "["+indexSoFar+"]} ");
-			indexSoFar++;
+			tempCommand.append("${" + WorkUnit.INPUT_FILE + "["+i+"]} ");
 		}
-		
-		//tempCommand.append("-f BAM ");//this could actually be figured out by macs2
 		
 		for (String key : jobParametersMap.keySet()) {
 	
@@ -151,17 +199,43 @@ public class Macstwo extends SoftwarePackage{
 		
 		tempCommand.append(" --bdg");//generates two bedGraph files
 		
-		//String command = "java -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt 4 -I ${" + WorkUnit.INPUT_FILE + "} -R " + getGenomeIndexPath(getGenomeBuild(libraryCell)) + "genome.fasta -T RealignerTargetCreator -o gatk.${" + WorkUnit.JOB_NAME + "}.realign.intervals -known /cork/jcai/GATK_bundle_2.2/1000G_phase1.indels.hg19.vcf -known /cork/jcai/GATK_bundle_2.2/Mills_and_1000G_gold_standard.indels.hg19.vcf";
-		//String command = "java -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt 4 -I ${" + WorkUnit.INPUT_FILE + "} -R " + getGenomeIndexPath(getGenomeBuild(libraryCell)) + "genome.fasta -T RealignerTargetCreator -o gatk.${" + WorkUnit.JOB_NAME + "}.realign.intervals -known /cork/jcai/GATK_bundle_2.2/1000G_phase1.indels.hg19.vcf -known /cork/jcai/GATK_bundle_2.2/Mills_and_1000G_gold_standard.indels.hg19.vcf";
-
-		String command = new String(tempCommand);
+		String command3 = new String(tempCommand);
 		logger.debug("---- Will execute macs2 for peakcalling with command: ");
-		logger.debug("---- "+command);
+		logger.debug("---- "+command3);
 		
-		w.setCommand(command);
+		w.addCommand(command3);
+		
+		String peaksFromMacs = prefixForFileName+"_peaks.narrowPeak"; //one of the output files from macs (bed6+4)
+		String peaksInBed4Format = prefixForFileName+"_peaksBed4Format.narrowPeak"; //since bedtools coverage cannot deal with bed6+4 format (which the peaks.narrowPeak bed file is in), we must first convert, so lets convert to bed4
+		
+		tempCommand = new StringBuilder();
+		tempCommand.append("awk -v OFS='\t' '{print $1, $2, $3, $4}' " + peaksFromMacs + " > " + peaksInBed4Format);
+		String command4 = new String(tempCommand);
+		logger.debug("---- Will execute awk to convert bed6+4 to bed4 using command: ");
+		logger.debug("---- "+command4);
+		w.addCommand(command4);
+	
+		String mappedReadsInPeaks = prefixForFileName+"_mappedReadsInPeaks.bed";//column 5 will be the one we need (depth)
+		tempCommand = new StringBuilder();
+		//bedtools coverage appears to only use reads that are mapped for determining coverage - which is what we want (dubin observation)
+		tempCommand.append("bedtools coverage -counts -abam " + mergedTestBamFile + " -b " + peaksInBed4Format + " > " + mappedReadsInPeaks);
+		String command5 = new String(tempCommand);
+		logger.debug("---- Will execute bedtools coverage to get coverage of number of reads in each peak using command: ");
+		logger.debug("---- "+command5);
+		w.addCommand(command5);
+	
+		String totalCountMappedReadsInPeaks = "totalCountMappedReadsInPeaks.txt";//output in this file will be a single number 
+		tempCommand = new StringBuilder();
+		tempCommand.append("awk '{sum += $5} END {print sum}' " + mappedReadsInPeaks + " > " + totalCountMappedReadsInPeaks);
+		String command6 = new String(tempCommand);
+		logger.debug("---- Will execute awk to sum up column 5 (mapped reads in each peak) from mappedReadsInPeaks.bed using command: ");
+		logger.debug("---- "+command6);
+		w.addCommand(command6);		
 		
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(this);
+		sd.add(this.getSoftwareDependencyByIname("samtools"));
+		sd.add(this.getSoftwareDependencyByIname("bedtools"));
 		w.setSoftwareDependencies(sd);
 
 		logger.debug("----command has been set to workunit in getPeaks()");		
@@ -190,7 +264,11 @@ public class Macstwo extends SoftwarePackage{
 		
 		w.addCommand(command2);
 		
-		w.setSoftwareDependencies(getSoftwareDependencies());
+		//w.setSoftwareDependencies(getSoftwareDependencies());
+		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
+		sd.add(this.getSoftwareDependencyByIname("imagemagick"));
+		sd.add(this.getSoftwareDependencyByIname("rPackage"));
+		w.setSoftwareDependencies(sd);
 		
 		logger.debug("----command has been set to workunit in getModelPdf");		
 		return w;
@@ -201,12 +279,13 @@ public class Macstwo extends SoftwarePackage{
 		w.setMode(ExecutionMode.PROCESS);		
 		w.setProcessMode(ProcessMode.MAX);		
 		w.setMemoryRequirements(8);
-		//w.setNumberOfTasks(1);//?????only important when ExecutionMode.Task_Array
-				
-		//w.setResultFiles(resultFiles);//may not be needed
 		w.setSecureResults(true);
+		//this line is irrelevant, as I'm writing over it in MacstwoTasklet.java
+		//w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		
-		w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
+	/*	probably it's wise to use this, but not really needed, as it will automatically be set
+		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
+	*/
 		
 		return w;
 	}
