@@ -28,6 +28,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<module>babraham</module>
 		<module>macsTwo</module>
 		<module>variantCalling</module>
+		<module>genericFileViewing</module>
 	</modules>
 
 	<build>
