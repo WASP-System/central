@@ -85,13 +85,13 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		command += " -R " + 
 				genomeService.getReferenceGenomeFastaFile(build) + " -T  IndelRealigner --nWayOut .getLocalAlign" + 
 				" -targetIntervals " + intervalFilename + " -known " + gatkService.getReferenceIndelsVcfFile(build);
-		int i = -1;
 		Iterator<String> outFileIterator = outputFilenames.iterator();
 		for (String fileName : inputFilenames){
 			if (outFileIterator.hasNext())
-				command += " && temp[" + ++i + "]=" + fileName + ";mv ${temp[" + i + "]/.bam/.getLocalAlign} " + outFileIterator.next();
+				command += " && inFilePath=" + fileName + ";inFile=${inFilePath##*/};tempOutFile=${inFile/.bam/.getLocalAlign};mv $tempOutFile " + 
+						outFileIterator.next();
 			if (hasBaiFiles && outFileIterator.hasNext())
-				command += ";mv ${temp[" + i + "]/.bam/.getLocalAlign}.bai " + outFileIterator.next();
+				command += ";mv ${tempOutFile}.bai " + outFileIterator.next();
 		}
 			
 		logger.debug("Will conduct gatk local re-alignment with string: " + command);
