@@ -88,7 +88,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 		allFgIn.putAll(mergedSampleFileGroupsIn);
 		if (jobExecutionContext.containsKey("passThroughSampleFgMap"))
 			allFgIn.putAll(AbstractGatkTasklet.getSampleFgMapFromJsonString(jobExecutionContext.getString("passThroughSampleFgMap"), sampleService, fileService));
-		Map<FileGroup, LinkedHashSet<Sample>> fileGroupSamplesForNextStep = new HashMap<>();
+		Map<Sample, FileGroup> sampleFileGroupsForNextStep = new HashMap<>();
 		Set<Sample> processedSamples = new HashSet<>();
 		// merge, realign and split out again test-control sample pairs
 		for (SampleSource samplePair : sampleService.getSamplePairsByJob(job)){
@@ -103,10 +103,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			FileGroup controlFgIn = fileService.getFileGroupById(allFgIn.get(control).getId());
 			inputFileGroups.add(testFgIn);
 			inputFileGroups.add(controlFgIn);
-			LinkedHashSet<SampleSource> sampleSources = new LinkedHashSet<>();
-			sampleSources.addAll(testFgIn.getSampleSources());
-			sampleSources.addAll(controlFgIn.getSampleSources());
-			
+						
 			String bamOutputMergedPairsTest = fileService.generateUniqueBaseFileName(test) + "gatk_preproc_merged_dedup_pairRealn.bam";
 			String baiOutputMergedPairsTest = fileService.generateUniqueBaseFileName(test) + "gatk_preproc_merged_dedup_pairRealn.bai";
 			FileGroup bamMergedPairsTestG = new FileGroup();
@@ -120,7 +117,6 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			bamMergedPairsTestG.setSoftwareGeneratedById(gatk.getId());
 			bamMergedPairsTestG = fileService.addFileGroup(bamMergedPairsTestG);
 			bamMergedPairsTestG.addDerivedFrom(testFgIn);
-			bamMergedPairsTestG.setSampleSources(sampleSources);
 			fileTypeService.setAttributes(bamMergedPairsTestG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
 			outputFileGroups.add(bamMergedPairsTestG);
 
@@ -150,7 +146,6 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			bamMergedPairsControlG.setSoftwareGeneratedById(gatk.getId());
 			bamMergedPairsControlG = fileService.addFileGroup(bamMergedPairsControlG);
 			bamMergedPairsControlG.addDerivedFrom(controlFgIn);
-			bamMergedPairsControlG.setSampleSources(sampleSources);
 			fileTypeService.setAttributes(bamMergedPairsControlG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
 			outputFileGroups.add(bamMergedPairsControlG);
 
@@ -179,9 +174,8 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			} catch (WaspMessageBuildingException e) {
 				e.printStackTrace();
 			}
-			fileGroupSamplesForNextStep.put(bamMergedPairsTestG, new LinkedHashSet<Sample>());
-			fileGroupSamplesForNextStep.get(bamMergedPairsTestG).add(test);
-			fileGroupSamplesForNextStep.get(bamMergedPairsTestG).add(control);
+			sampleFileGroupsForNextStep.put(test, bamMergedPairsTestG);
+			sampleFileGroupsForNextStep.put(control, bamMergedPairsControlG);
 		}
 		
 		// re-align merged filegroups from previous step not in pairs
@@ -234,8 +228,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 				} catch (WaspMessageBuildingException e) {
 					e.printStackTrace();
 				}
-				fileGroupSamplesForNextStep.put(bamMergedG, new LinkedHashSet<Sample>());
-				fileGroupSamplesForNextStep.get(bamMergedG).add(sample);
+				sampleFileGroupsForNextStep.put(sample, bamMergedG);
 			}
 		}
 		
@@ -243,12 +236,11 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 		for (Sample sample : allFgIn.keySet())
 			if (! processedSamples.contains(sample)){
 				FileGroup fg = allFgIn.get(sample);
-				fileGroupSamplesForNextStep.put(fg, new LinkedHashSet<Sample>());
-				fileGroupSamplesForNextStep.get(fg).add(sample);
+				sampleFileGroupsForNextStep.put(sample, fg);
 			}
 		
 		// put files needed for next step into step execution context to be promoted to job context
-		getStepExecution().getExecutionContext().put("fgSamplesMap", AbstractGatkTasklet.getFgSamplesMapAsJsonString(fileGroupSamplesForNextStep));
+		getStepExecution().getExecutionContext().put("sampleFgMap", AbstractGatkTasklet.getSampleFgMapAsJsonString(sampleFileGroupsForNextStep));
 		getStepExecution().getExecutionContext().put("temporaryFileSet", AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(temporaryFileSet));
 	}
 }

@@ -88,10 +88,10 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		Iterator<String> outFileIterator = outputFilenames.iterator();
 		for (String fileName : inputFilenames){
 			if (outFileIterator.hasNext())
-				command += " && inFilePath=" + fileName + ";inFile=${inFilePath##*/};tempOutFile=${inFile/.bam/.getLocalAlign};mv $tempOutFile " + 
+				command += " && inFilePath=" + fileName + ";inFile=${inFilePath##*/};tempOutFile=${inFile/.bam/.getLocalAlign};ln -sf $tempOutFile " + 
 						outFileIterator.next();
 			if (hasBaiFiles && outFileIterator.hasNext())
-				command += ";mv ${tempOutFile}.bai " + outFileIterator.next();
+				command += ";ln -sf ${tempOutFile}.bai " + outFileIterator.next();
 		}
 			
 		logger.debug("Will conduct gatk local re-alignment with string: " + command);

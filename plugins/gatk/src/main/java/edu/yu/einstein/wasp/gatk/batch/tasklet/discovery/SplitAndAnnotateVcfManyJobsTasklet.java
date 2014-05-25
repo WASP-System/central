@@ -2,10 +2,9 @@ package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +25,6 @@ import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.VcfFileTypeAttribute;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
@@ -82,25 +80,19 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 		// a set of bam filegroups was previously registered corresponding to the inputs of the variant calling step. We now need to obtain a vcf file
 		// corresponding to the result of haplotype calling and combined genotyping for each bam file input 
 		// i.e. split out the merged vcf which was the output of cohort-level genotyping.
-		Map<FileGroup, LinkedHashSet<Sample>> fgSamplesMapUsedForVarCalling = new HashMap<>();
+		Map<Sample,FileGroup> samplesFgMapUsedForVarCalling = new LinkedHashMap<>();
 		logger.debug("Getting FileGroup ids passed in from previous step");
-		if (jobExecutionContext.containsKey("fgSamplesMap"))
-			fgSamplesMapUsedForVarCalling.putAll(AbstractGatkTasklet.getFgSamplesMapFromJsonString(jobExecutionContext.getString("fgSamplesMap"), sampleService, fileService));
-		
-		
+		if (jobExecutionContext.containsKey("sampleFgMap"))
+			samplesFgMapUsedForVarCalling.putAll(AbstractGatkTasklet.getSampleFgMapFromJsonString(jobExecutionContext.getString("sampleFgMap"), sampleService, fileService));
+	
 		// split and annotate per sample or per sample pair as appropriate
 		LinkedHashSet<FileGroup> inputFileGroups = new LinkedHashSet<>();
 		inputFileGroups.add(combinedGenotypedVcfFg);
-		for (FileGroup fg : fgSamplesMapUsedForVarCalling.keySet()){
+		LinkedHashSet<String> sampleIdentifierSet = new LinkedHashSet<>(); 
+		for (Sample sample : samplesFgMapUsedForVarCalling.keySet()){
+			sampleIdentifierSet.add(sample.getUUID().toString());
 			LinkedHashSet<FileGroup> outputFileGroups = new LinkedHashSet<>();;
-			Set<SampleSource> sampleSources = new HashSet<>();
-			sampleSources.addAll(fg.getSampleSources());
-			String fileNamePrefix = "";
-			LinkedHashSet<String> sampleIdentifierSet = new LinkedHashSet<>(); 
-			for (Sample sample : fgSamplesMapUsedForVarCalling.get(fg)){
-				fileNamePrefix += fileService.generateUniqueBaseFileName(sample);
-				sampleIdentifierSet.add(sample.getUUID().toString());
-			}
+			String fileNamePrefix = fileService.generateUniqueBaseFileName(sample);
 			String vcfFileName = fileNamePrefix + "annotated.vcf";
 			FileGroup vcfG = new FileGroup();
 			FileHandle vcf = new FileHandle();
@@ -113,7 +105,6 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 			vcfG.setSoftwareGeneratedById(gatk.getId());
 			vcfG = fileService.addFileGroup(vcfG);
 			vcfG.addDerivedFrom(combinedGenotypedVcfFg);
-			vcfG.setSampleSources(sampleSources);
 			fileTypeService.addAttribute(vcfG, VcfFileTypeAttribute.ANNOTATED);
 			outputFileGroups.add(vcfG);
 			
@@ -129,7 +120,6 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 			summaryHtmlG.setSoftwareGeneratedById(gatk.getId());
 			summaryHtmlG = fileService.addFileGroup(summaryHtmlG);
 			summaryHtmlG.addDerivedFrom(combinedGenotypedVcfFg);
-			summaryHtmlG.setSampleSources(sampleSources);
 			outputFileGroups.add(summaryHtmlG);
 			
 			Map<String, String> jobParameters = new HashMap<>();

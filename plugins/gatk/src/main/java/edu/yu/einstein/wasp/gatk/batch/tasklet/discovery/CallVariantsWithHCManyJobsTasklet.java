@@ -2,10 +2,8 @@ package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +23,6 @@ import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.VcfFileTypeAttribute;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
@@ -65,22 +62,18 @@ public class CallVariantsWithHCManyJobsTasklet extends LaunchManyJobsTasklet {
 	public void doExecute() {
 		Job job = jobService.getJobByJobId(jobId);
 		Assert.assertTrue(job.getId() > 0);
-		Map<FileGroup, Set<Sample>> allFgSamplesIn = new HashMap<>();
+		Map<Sample, FileGroup> allsampleFgIn = new HashMap<>();
 		ExecutionContext jobExecutionContext = this.getStepExecution().getJobExecution().getExecutionContext();
 		logger.debug("Getting FileGroup ids passed in from previous step");
-		if (jobExecutionContext.containsKey("fgSamplesMap"))
-			allFgSamplesIn.putAll(AbstractGatkTasklet.getFgSamplesMapFromJsonString(jobExecutionContext.getString("fgSamplesMap"), sampleService, fileService));
+		if (jobExecutionContext.containsKey("sampleFgMap"))
+			allsampleFgIn.putAll(AbstractGatkTasklet.getSampleFgMapFromJsonString(jobExecutionContext.getString("sampleFgMap"), sampleService, fileService));
 		LinkedHashSet<FileGroup> fileGroupsForNextStep = new LinkedHashSet<>();
-		for (FileGroup fg : allFgSamplesIn.keySet()){
+		for (Sample sample : allsampleFgIn.keySet()){
 			LinkedHashSet<FileGroup> inputFileGroups = new LinkedHashSet<>();
 			LinkedHashSet<FileGroup> outputFileGroups = new LinkedHashSet<>();
+			FileGroup fg = allsampleFgIn.get(sample);
 			inputFileGroups.add(fg);
-			Set<SampleSource> sampleSources = new HashSet<>();
-			sampleSources.addAll(fg.getSampleSources());
-			String gvcfFileName = "";
-			for (Sample sample : allFgSamplesIn.get(fg))
-				gvcfFileName += fileService.generateUniqueBaseFileName(sample);
-			gvcfFileName += "gvcf.vcf";
+			String gvcfFileName = fileService.generateUniqueBaseFileName(sample) + "gvcf.vcf";
 			FileGroup gvcfG = new FileGroup();
 			FileHandle gvcf = new FileHandle();
 			gvcf.setFileName(gvcfFileName);
@@ -91,8 +84,7 @@ public class CallVariantsWithHCManyJobsTasklet extends LaunchManyJobsTasklet {
 			gvcfG.setDescription(gvcfFileName);
 			gvcfG.setSoftwareGeneratedById(gatk.getId());
 			gvcfG = fileService.addFileGroup(gvcfG);
-			gvcfG.setDerivedFrom(inputFileGroups);
-			gvcfG.setSampleSources(sampleSources);
+			gvcfG.addDerivedFrom(fg);
 			fileTypeService.addAttribute(gvcfG, VcfFileTypeAttribute.GVCF);
 			outputFileGroups.add(gvcfG);
 			fileGroupsForNextStep.add(gvcfG);
