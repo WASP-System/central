@@ -11,6 +11,7 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
@@ -67,7 +68,10 @@ public class SplitAndAnnotateVcfTasklet extends AbstractGatkTasklet {
 		for (Integer fgId : this.getOutputFilegroupIds()){
 			FileGroup fg = fileService.getFileGroupById(fgId);
 			// single file handle groups
-			outFiles.add(fg.getFileHandles().iterator().next());
+			if (fg.getFileHandles().iterator().hasNext())
+            	outFiles.add(fg.getFileHandles().iterator().next());
+            else
+            	throw new WaspRuntimeException("Cannot obtain a single filehandle from FileGroup id=" + fgId);
 		}
 		w.setResultFiles(outFiles);
 		List<SoftwarePackage> dependencies = new ArrayList<>();

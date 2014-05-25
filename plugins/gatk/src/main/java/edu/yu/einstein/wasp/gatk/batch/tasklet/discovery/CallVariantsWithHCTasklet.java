@@ -64,12 +64,15 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
 		LinkedHashSet<FileHandle> outFiles = new LinkedHashSet<FileHandle>();
-                for (Integer fgId : this.getOutputFilegroupIds()){
-                        FileGroup fg = fileService.getFileGroupById(fgId);
-                        // single file handle groups
-                        outFiles.add(fg.getFileHandles().iterator().next());
-                }
-                w.setResultFiles(outFiles);
+        for (Integer fgId : this.getOutputFilegroupIds()){
+            FileGroup fg = fileService.getFileGroupById(fgId);
+            // single file handle groups
+            if (fg.getFileHandles().iterator().hasNext())
+            	outFiles.add(fg.getFileHandles().iterator().next());
+            else
+            	throw new WaspRuntimeException("Cannot obtain a single filehandle from FileGroup id=" + fgId);
+        }
+        w.setResultFiles(outFiles);
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();
 		for (Integer fgId : this.getInputFilegroupIds()){
 			FileGroup fg = fileService.getFileGroupById(fgId);
