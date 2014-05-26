@@ -100,32 +100,32 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		FileGroup rawVcfOutG = new FileGroup();
 		FileHandle rawVcfOut = new FileHandle();
 		rawVcfOut.setFileName(rawVcfOutFileName);
-		rawVcfOut = fileService.addFile(rawVcfOut);
+		rawVcfOut = fileService.addFileInDiscreteTransaction(rawVcfOut);
 		rawVcfOutG.setIsActive(0);
 		rawVcfOutG.addFileHandle(rawVcfOut);
 		outFiles.add(rawVcfOut);
 		rawVcfOutG.setFileType(vcfFileType);
 		rawVcfOutG.setDescription(rawVcfOutFileName);
 		rawVcfOutG.setSoftwareGeneratedById(gatk.getId());
-		rawVcfOutG = fileService.addFileGroup(rawVcfOutG);
 		rawVcfOutG.setDerivedFrom(inputFileGroups);
 		rawVcfOutG.setSampleSources(sampleSources);
+		rawVcfOutG = fileService.addFileGroupInDiscreteTransaction(rawVcfOutG);
 		
 		String annotatedVcfOutFileName = fileService.generateUniqueBaseFileName(job) + "annotatedt.vcf";
 		FileGroup annotatedVcfOutG = new FileGroup();
 		FileHandle annotatedVcfOut = new FileHandle();
 		annotatedVcfOut.setFileName(annotatedVcfOutFileName);
-		annotatedVcfOut = fileService.addFile(annotatedVcfOut);
+		annotatedVcfOut = fileService.addFileInDiscreteTransaction(annotatedVcfOut);
 		annotatedVcfOutG.setIsActive(0);
 		annotatedVcfOutG.addFileHandle(annotatedVcfOut);
 		outFiles.add(annotatedVcfOut);
 		annotatedVcfOutG.setFileType(vcfFileType);
 		annotatedVcfOutG.setDescription(annotatedVcfOutFileName);
 		annotatedVcfOutG.setSoftwareGeneratedById(gatk.getId());
-		annotatedVcfOutG = fileService.addFileGroup(annotatedVcfOutG);
-		fileTypeService.addAttribute(annotatedVcfOutG, VcfFileTypeAttribute.ANNOTATED);
 		annotatedVcfOutG.addDerivedFrom(rawVcfOutG);
 		annotatedVcfOutG.setSampleSources(sampleSources);
+		annotatedVcfOutG = fileService.addFileGroupInDiscreteTransaction(annotatedVcfOutG);
+		fileTypeService.addAttribute(annotatedVcfOutG, VcfFileTypeAttribute.ANNOTATED);
 		
 		
 		WorkUnit w = new WorkUnit();

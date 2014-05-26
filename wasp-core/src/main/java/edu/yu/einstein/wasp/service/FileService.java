@@ -370,5 +370,9 @@ public interface FileService extends WaspService {
 
 	public String generateJobSoftwareBaseFolderName(Job job, Software software);
 
+	public FileHandle addFileInDiscreteTransaction(FileHandle file);
+
+	public FileGroup addFileGroupInDiscreteTransaction(FileGroup group);
+
 }
 

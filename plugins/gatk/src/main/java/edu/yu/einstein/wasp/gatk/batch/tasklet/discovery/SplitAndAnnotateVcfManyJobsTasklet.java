@@ -68,7 +68,7 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 	}
 	
 	@Override
-	@Transactional("EntityManager")
+	@Transactional("entityManager")
 	public void doExecute() {
 		Job job = jobService.getJobByJobId(jobId);
 		Assert.assertTrue(job.getId() > 0);
@@ -97,14 +97,14 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 			FileGroup vcfG = new FileGroup();
 			FileHandle vcf = new FileHandle();
 			vcf.setFileName(vcfFileName);
-			vcf = fileService.addFile(vcf);
+			vcf = fileService.addFileInDiscreteTransaction(vcf);
 			vcfG.setIsActive(0);
 			vcfG.addFileHandle(vcf);
 			vcfG.setFileType(vcfFileType);
 			vcfG.setDescription(vcfFileName);
 			vcfG.setSoftwareGeneratedById(gatk.getId());
-			vcfG = fileService.addFileGroup(vcfG);
 			vcfG.addDerivedFrom(combinedGenotypedVcfFg);
+			vcfG = fileService.addFileGroupInDiscreteTransaction(vcfG);
 			fileTypeService.addAttribute(vcfG, VcfFileTypeAttribute.ANNOTATED);
 			outputFileGroups.add(vcfG);
 			
@@ -112,14 +112,14 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 			FileGroup summaryHtmlG = new FileGroup();
 			FileHandle summaryHtml = new FileHandle();
 			summaryHtml.setFileName(summaryHtmlFileName);
-			summaryHtml = fileService.addFile(summaryHtml);
+			summaryHtml = fileService.addFileInDiscreteTransaction(summaryHtml);
 			summaryHtmlG.setIsActive(0);
 			summaryHtmlG.addFileHandle(summaryHtml);
 			summaryHtmlG.setFileType(htmlFileType);
 			summaryHtmlG.setDescription(summaryHtmlFileName);
 			summaryHtmlG.setSoftwareGeneratedById(gatk.getId());
-			summaryHtmlG = fileService.addFileGroup(summaryHtmlG);
 			summaryHtmlG.addDerivedFrom(combinedGenotypedVcfFg);
+			summaryHtmlG = fileService.addFileGroupInDiscreteTransaction(summaryHtmlG);
 			outputFileGroups.add(summaryHtmlG);
 			
 			Map<String, String> jobParameters = new HashMap<>();

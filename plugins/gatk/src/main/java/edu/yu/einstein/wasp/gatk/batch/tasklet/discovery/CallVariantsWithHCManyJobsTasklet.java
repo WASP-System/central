@@ -58,7 +58,7 @@ public class CallVariantsWithHCManyJobsTasklet extends LaunchManyJobsTasklet {
 	}
 
 	@Override
-	@Transactional("EntityManager")
+	@Transactional("entityManager")
 	public void doExecute() {
 		Job job = jobService.getJobByJobId(jobId);
 		Assert.assertTrue(job.getId() > 0);
@@ -69,22 +69,22 @@ public class CallVariantsWithHCManyJobsTasklet extends LaunchManyJobsTasklet {
 			allsampleFgIn.putAll(AbstractGatkTasklet.getSampleFgMapFromJsonString(jobExecutionContext.getString("sampleFgMap"), sampleService, fileService));
 		LinkedHashSet<FileGroup> fileGroupsForNextStep = new LinkedHashSet<>();
 		for (Sample sample : allsampleFgIn.keySet()){
+			FileGroup inputFile = allsampleFgIn.get(sample);
 			LinkedHashSet<FileGroup> inputFileGroups = new LinkedHashSet<>();
 			LinkedHashSet<FileGroup> outputFileGroups = new LinkedHashSet<>();
-			FileGroup fg = allsampleFgIn.get(sample);
-			inputFileGroups.add(fg);
+			inputFileGroups.add(inputFile);
 			String gvcfFileName = fileService.generateUniqueBaseFileName(sample) + "gvcf.vcf";
 			FileGroup gvcfG = new FileGroup();
 			FileHandle gvcf = new FileHandle();
 			gvcf.setFileName(gvcfFileName);
-			gvcf = fileService.addFile(gvcf);
+			gvcf = fileService.addFileInDiscreteTransaction(gvcf);
 			gvcfG.setIsActive(0);
 			gvcfG.addFileHandle(gvcf);
 			gvcfG.setFileType(vcfFileType);
 			gvcfG.setDescription(gvcfFileName);
 			gvcfG.setSoftwareGeneratedById(gatk.getId());
-			gvcfG = fileService.addFileGroup(gvcfG);
-			gvcfG.addDerivedFrom(fg);
+			gvcfG.addDerivedFrom(inputFile);
+			gvcfG = fileService.addFileGroupInDiscreteTransaction(gvcfG);
 			fileTypeService.addAttribute(gvcfG, VcfFileTypeAttribute.GVCF);
 			outputFileGroups.add(gvcfG);
 			fileGroupsForNextStep.add(gvcfG);

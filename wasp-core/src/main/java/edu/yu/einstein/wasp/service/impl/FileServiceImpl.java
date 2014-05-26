@@ -18,7 +18,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -53,6 +52,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -75,7 +75,6 @@ import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.filetype.FileTypeAttribute;
 import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.grid.GridAccessException;
-import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
@@ -675,6 +674,18 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 	@Override
 	public FileGroup addFileGroup(FileGroup group) {
+		return fileGroupDao.save(group);
+	}
+	
+	@Override
+	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
+	public FileHandle addFileInDiscreteTransaction(FileHandle file) {
+		return fileHandleDao.save(file);
+	}
+
+	@Override
+	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
+	public FileGroup addFileGroupInDiscreteTransaction(FileGroup group) {
 		return fileGroupDao.save(group);
 	}
 

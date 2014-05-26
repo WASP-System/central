@@ -54,14 +54,14 @@ public class SplitAndAnnotateVcfTasklet extends AbstractGatkTasklet {
 		w.setSecureResults(true);
 		Build build = null;
 		
-		List<FileHandle> fhlist = new ArrayList<FileHandle>();
+		List<FileHandle> inFilelist = new ArrayList<FileHandle>();
 		for (Integer fgId : this.getInputFilegroupIds()){
 			FileGroup fg = fileService.getFileGroupById(fgId);
-			if (fhlist.isEmpty()) // first entry not yet entered
+			if (inFilelist.isEmpty()) // first entry not yet entered
 				build = gatkService.getBuildForFg(fg);
-			fhlist.addAll(fg.getFileHandles());
+			inFilelist.addAll(fg.getFileHandles());
 		}
-		w.setRequiredFiles(fhlist);
+		w.setRequiredFiles(inFilelist);
 		
 		LinkedHashSet<FileHandle> outFiles = new LinkedHashSet<FileHandle>();
 		

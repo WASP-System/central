@@ -76,7 +76,7 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 	}
 	
 	@Override
-	@Transactional("EntityManager")
+	@Transactional("entityManager")
 	public void doExecute() {
 		Job job = jobService.getJobByJobId(jobId);
 		Assert.assertTrue(job.getId() > 0);
@@ -123,15 +123,15 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 				FileGroup bamG = new FileGroup();
 				FileHandle bam = new FileHandle();
 				bam.setFileName(bamOutput);
-				bam = fileService.addFile(bam);
+				bam = fileService.addFileInDiscreteTransaction(bam);
 				bamG.setIsActive(0);
 				bamG.addFileHandle(bam);
 				bamG.setFileType(bamFileType);
 				bamG.setDescription(bamOutput);
 				bamG.setSoftwareGeneratedById(gatk.getId());
-				bamG = fileService.addFileGroup(bamG);
 				bamG.setDerivedFrom(inputFileGroups);
 				bamG.setSampleSources(sampleCellLibraries.get(sample));
+				bamG = fileService.addFileGroupInDiscreteTransaction(bamG);
 				fileTypeService.setAttributes(bamG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
 				outputFileGroups.add(bamG);
 				mergedSampleFileGroupsForNextStep.put(sample, bamG);
@@ -139,14 +139,14 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 				FileGroup baiG = new FileGroup();
 				FileHandle bai = new FileHandle();
 				bai.setFileName(baiOutput);
-				bai = fileService.addFile(bai);
+				bai = fileService.addFileInDiscreteTransaction(bai);
 				baiG.setIsActive(0);
 				baiG.addFileHandle(bai);
 				baiG.setFileType(baiFileType);
 				baiG.setDescription(baiOutput);
 				baiG.setSoftwareGeneratedById(gatk.getId());
-				baiG = fileService.addFileGroup(baiG);
 				baiG.addDerivedFrom(bamG);
+				baiG = fileService.addFileGroupInDiscreteTransaction(baiG);
 				outputFileGroups.add(baiG);
 				
 				String metricsOutput = fileService.generateUniqueBaseFileName(sample) + "gatk_preproc_merged_dedupMetrics.txt";
@@ -154,14 +154,14 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 				FileHandle metrics = new FileHandle();
 				metrics.setFileName(metricsOutput);
 				metrics.setFileType(textFileType);
-				metrics = fileService.addFile(metrics);
+				metrics = fileService.addFileInDiscreteTransaction(metrics);
 				metricsG.setIsActive(0);
 				metricsG.addFileHandle(metrics);
 				metricsG.setFileType(textFileType);
 				metricsG.setDescription(metricsOutput);
 				baiG.setSoftwareGeneratedById(gatk.getId());
-				metricsG = fileService.addFileGroup(metricsG);
 				metricsG.addDerivedFrom(bamG);
+				metricsG = fileService.addFileGroupInDiscreteTransaction(metricsG);
 				outputFileGroups.add(metricsG);
 				temporaryFileSet.addAll(outputFileGroups);
 				jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once

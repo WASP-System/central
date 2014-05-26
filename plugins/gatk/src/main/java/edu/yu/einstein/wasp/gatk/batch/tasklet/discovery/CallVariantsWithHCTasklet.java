@@ -66,6 +66,7 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 		LinkedHashSet<FileHandle> outFiles = new LinkedHashSet<FileHandle>();
         for (Integer fgId : this.getOutputFilegroupIds()){
             FileGroup fg = fileService.getFileGroupById(fgId);
+            logger.debug("FileGroup with id=" + fgId + " contains " + fg.getFileHandles().size() + " filehandles");
             // single file handle groups
             if (fg.getFileHandles().iterator().hasNext())
             	outFiles.add(fg.getFileHandles().iterator().next());
