@@ -110,7 +110,7 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		rawVcfOutG.setSampleSources(sampleSources);
 		rawVcfOutG = fileService.addFileGroupInDiscreteTransaction(rawVcfOutG);
 		
-		String annotatedVcfOutFileName = fileService.generateUniqueBaseFileName(job) + "annotatedt.vcf";
+		String annotatedVcfOutFileName = fileService.generateUniqueBaseFileName(job) + "annotated.vcf";
 		FileGroup annotatedVcfOutG = new FileGroup();
 		FileHandle annotatedVcfOut = new FileHandle();
 		annotatedVcfOut.setFileName(annotatedVcfOutFileName);
@@ -153,7 +153,8 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 			inputFileNames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");
 		String rawVcfFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
 		String annotatedVcfFilename = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
-		w.setCommand(gatk.genotypeGVCFs(inputFileNames, rawVcfFilename, build, AbstractGatkTasklet.MEMORY_GB_8, AbstractGatkTasklet.THREADS_8));
+		String snpFile = gatkService.getReferenceSnpsVcfFile(build);
+		w.setCommand(gatk.genotypeGVCFs(inputFileNames, rawVcfFilename, build, snpFile, AbstractGatkTasklet.MEMORY_GB_8, AbstractGatkTasklet.THREADS_8));
 		
 		// we have already added snp database Ids during haplotype calling. We will now also add indel database ids
 		w.addCommand(snpEff.getAnnotateIdsCommand(rawVcfFilename, gatkService.getReferenceIndelsVcfFile(build), annotatedVcfFilename));

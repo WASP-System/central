@@ -180,56 +180,56 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 		
 		// re-align merged filegroups from previous step not in pairs
 		for (Sample sample : mergedSampleFileGroupsIn.keySet()){
-			if (!processedSamples.contains(sample)){
-				processedSamples.add(sample);
-				LinkedHashSet<FileGroup> inputFileGroups = new LinkedHashSet<>();
-				LinkedHashSet<FileGroup> outputFileGroups = new LinkedHashSet<>();
-				FileGroup mergedBam = mergedSampleFileGroupsIn.get(sample);
-				inputFileGroups.add(mergedBam);
-				String bamOutputMerged = mergedBam.getDescription().replace(".bam", "_realn.bam");
-				String baiOutputMerged = bamOutputMerged.replace(".bam", ".bai");
-				FileGroup bamMergedG = new FileGroup();
-				FileHandle bamMerged = new FileHandle();
-				bamMerged.setFileName(bamOutputMerged);
-				bamMerged = fileService.addFileInDiscreteTransaction(bamMerged);
-				bamMergedG.setIsActive(0);
-				bamMergedG.addFileHandle(bamMerged);
-				bamMergedG.setFileType(bamFileType);
-				bamMergedG.setDescription(bamOutputMerged);
-				bamMergedG.setSoftwareGeneratedById(gatk.getId());
-				bamMergedG.addDerivedFrom(mergedBam);
-				bamMergedG.setSampleSources(mergedBam.getSampleSources());
-				bamMergedG = fileService.addFileGroupInDiscreteTransaction(bamMergedG);
-				fileTypeService.setAttributes(bamMergedG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
-				outputFileGroups.add(bamMergedG);
+			if (processedSamples.contains(sample))
+				continue;
+			processedSamples.add(sample);
+			LinkedHashSet<FileGroup> inputFileGroups = new LinkedHashSet<>();
+			LinkedHashSet<FileGroup> outputFileGroups = new LinkedHashSet<>();
+			FileGroup mergedBam = mergedSampleFileGroupsIn.get(sample);
+			inputFileGroups.add(mergedBam);
+			String bamOutputMerged = mergedBam.getDescription().replace(".bam", "_realn.bam");
+			String baiOutputMerged = bamOutputMerged.replace(".bam", ".bai");
+			FileGroup bamMergedG = new FileGroup();
+			FileHandle bamMerged = new FileHandle();
+			bamMerged.setFileName(bamOutputMerged);
+			bamMerged = fileService.addFileInDiscreteTransaction(bamMerged);
+			bamMergedG.setIsActive(0);
+			bamMergedG.addFileHandle(bamMerged);
+			bamMergedG.setFileType(bamFileType);
+			bamMergedG.setDescription(bamOutputMerged);
+			bamMergedG.setSoftwareGeneratedById(gatk.getId());
+			bamMergedG.addDerivedFrom(mergedBam);
+			bamMergedG.setSampleSources(mergedBam.getSampleSources());
+			bamMergedG = fileService.addFileGroupInDiscreteTransaction(bamMergedG);
+			fileTypeService.setAttributes(bamMergedG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
+			outputFileGroups.add(bamMergedG);
 
-				FileGroup baiMergedG = new FileGroup();
-				FileHandle baiMerged = new FileHandle();
-				baiMerged.setFileName(baiOutputMerged);
-				baiMerged = fileService.addFileInDiscreteTransaction(baiMerged);
-				baiMergedG.setIsActive(0);
-				baiMergedG.addFileHandle(baiMerged);
-				baiMergedG.setFileType(baiFileType);
-				baiMergedG.setDescription(baiOutputMerged);
-				baiMergedG.setSoftwareGeneratedById(gatk.getId());
-				baiMergedG.addDerivedFrom(mergedBam);
-				baiMergedG.setSampleSources(mergedBam.getSampleSources());
-				baiMergedG = fileService.addFileGroupInDiscreteTransaction(baiMergedG);
-				outputFileGroups.add(baiMergedG);
-				temporaryFileSet.addAll(outputFileGroups);
-				
-				Map<String, String> jobParameters = new HashMap<>();
-				jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
-				jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(inputFileGroups));
-				jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(outputFileGroups));
-				jobParameters.put(WaspSoftwareJobParameters.JOB_ID, jobId.toString());
-				try {
-					requestLaunch("gatk.variantDiscovery.hc.realign.jobFlow", jobParameters);
-				} catch (WaspMessageBuildingException e) {
-					e.printStackTrace();
-				}
-				sampleFileGroupsForNextStep.put(sample, bamMergedG);
+			FileGroup baiMergedG = new FileGroup();
+			FileHandle baiMerged = new FileHandle();
+			baiMerged.setFileName(baiOutputMerged);
+			baiMerged = fileService.addFileInDiscreteTransaction(baiMerged);
+			baiMergedG.setIsActive(0);
+			baiMergedG.addFileHandle(baiMerged);
+			baiMergedG.setFileType(baiFileType);
+			baiMergedG.setDescription(baiOutputMerged);
+			baiMergedG.setSoftwareGeneratedById(gatk.getId());
+			baiMergedG.addDerivedFrom(mergedBam);
+			baiMergedG.setSampleSources(mergedBam.getSampleSources());
+			baiMergedG = fileService.addFileGroupInDiscreteTransaction(baiMergedG);
+			outputFileGroups.add(baiMergedG);
+			temporaryFileSet.addAll(outputFileGroups);
+			
+			Map<String, String> jobParameters = new HashMap<>();
+			jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
+			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(inputFileGroups));
+			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(outputFileGroups));
+			jobParameters.put(WaspSoftwareJobParameters.JOB_ID, jobId.toString());
+			try {
+				requestLaunch("gatk.variantDiscovery.hc.realign.jobFlow", jobParameters);
+			} catch (WaspMessageBuildingException e) {
+				e.printStackTrace();
 			}
+			sampleFileGroupsForNextStep.put(sample, bamMergedG);
 		}
 		
 		// prepare the list of remaining filegroups for samples not processed above.

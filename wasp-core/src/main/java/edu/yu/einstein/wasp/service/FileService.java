@@ -374,5 +374,12 @@ public interface FileService extends WaspService {
 
 	public FileGroup addFileGroupInDiscreteTransaction(FileGroup group);
 
+	/**
+	 * CamelCase the name and remove any illegal characters
+	 * @param name
+	 * @return
+	 */
+	public String getSanitizedName(String name);
+
 }
 

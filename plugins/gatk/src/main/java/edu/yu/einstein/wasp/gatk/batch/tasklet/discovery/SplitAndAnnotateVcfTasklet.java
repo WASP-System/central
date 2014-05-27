@@ -75,7 +75,7 @@ public class SplitAndAnnotateVcfTasklet extends AbstractGatkTasklet {
 		}
 		w.setResultFiles(outFiles);
 		List<SoftwarePackage> dependencies = new ArrayList<>();
-		VcfTools vcfTools = (VcfTools) gatk.getSoftwareDependencyByIname("vcfTools");
+		VcfTools vcfTools = (VcfTools) gatk.getSoftwareDependencyByIname("vcftools");
 		SnpEff snpEff = (SnpEff) gatk.getSoftwareDependencyByIname("snpEff");
 		dependencies.add(gatk);
 		dependencies.add(snpEff);

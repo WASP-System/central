@@ -73,8 +73,8 @@ public class SnpEff extends SoftwarePackage{
 	 * @return
 	 */
 	public String getAddPedigreeToHeaderCommand(String vcfFileToModify, String testSampleName, String controlSampleName){
-		 String command = "grep -q '##PEDIGREE' " + vcfFileToModify + " || sed -i 's/#CHROM/##PEDIGREE=<" + 
-				 testSampleName + ",Original=" + controlSampleName + ">\n&/' " + vcfFileToModify;
+		 String command = "grep -q '##PEDIGREE' " + vcfFileToModify + " || sed -i 's/#CHROM/##PEDIGREE=<Derived=" +
+				 testSampleName + ",Original=" + controlSampleName + ">\\n&/' " + vcfFileToModify;
 		logger.debug("Will conduct VCF header modification with command string: " + command);
 		return command;
 	}

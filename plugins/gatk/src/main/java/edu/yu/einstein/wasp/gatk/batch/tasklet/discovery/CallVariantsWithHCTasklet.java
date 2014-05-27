@@ -102,11 +102,10 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 		String gatkOpts = gatk.getCallVariantOpts(jobParameters);
 		String outputGvcfFileName = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
 		String referenceGenomeFile = genomeService.getReferenceGenomeFastaFile(build);
-		String snpFile = gatkService.getReferenceSnpsVcfFile(build);
 		LinkedHashSet<String> inputBamFilenames = new LinkedHashSet<>();
 		for (int i=0; i < fhlist.size(); i++)
 			inputBamFilenames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");
-		w.setCommand(gatk.getCallVariantsByHaplotypeCaller(inputBamFilenames, outputGvcfFileName, referenceGenomeFile, snpFile, wxsIntervalFile, gatkOpts, MEMORY_GB_8, THREADS_8));
+		w.setCommand(gatk.getCallVariantsByHaplotypeCaller(inputBamFilenames, outputGvcfFileName, referenceGenomeFile, wxsIntervalFile, gatkOpts, MEMORY_GB_8, THREADS_8));
 		GridResult result = gridHostResolver.execute(w);
 		
 		//place the grid result in the step context

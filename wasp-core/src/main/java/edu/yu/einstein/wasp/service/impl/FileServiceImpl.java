@@ -1483,6 +1483,14 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		logger.debug("ContentType of file is: " + mimeType);
 		return mimeType;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getSanitizedName(String name){
+		return WordUtils.uncapitalize(WordUtils.capitalizeFully(name).replaceAll("[:;\\.,]", "_").replaceAll("[^a-zA-Z0-9_\\-\\.]", ""));
+	}
 
 	/** 
 	 * This needs to be improved
@@ -1500,10 +1508,10 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			String platformUnitName = "unknown";
 			String cellIndex = "L" + cellLibrary.getId(); // default to cell library (CL) id
 			String barcode = "none";
-			String libraryName = WordUtils.capitalizeFully(sampleService.getLibrary(cellLibrary).getName()).replaceAll(" ", ""); //camelcase
+			String libraryName = getSanitizedName(sampleService.getLibrary(cellLibrary).getName()); 
 			if (cell != null){ // may be null if imported from external run of unknown origin
 				platformUnitName = sampleService.getPlatformUnitForCell(cell).getName().replaceAll(" ", "");
-				barcode = sampleService.getLibraryAdaptor(sampleService.getLibrary(cellLibrary)).getBarcodesequence().replaceAll(" ", "");
+				barcode = sampleService.getLibraryAdaptor(sampleService.getLibrary(cellLibrary)).getBarcodesequence().replaceAll("[^a-zA-Z0-9.-]", "");
 				cellIndex = sampleService.getCellIndex(cell).toString();
 			}
 
@@ -1530,15 +1538,14 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			biomoleculeTypeIdStr = "L"; // for library
 		else if (sampleService.isDnaOrRna(sample))
 			biomoleculeTypeIdStr = "S"; // for sample
-		String libraryName = WordUtils.capitalizeFully(sample.getName()).replaceAll(" ", ""); // camelCase the name
-		return libraryName + DELIM + biomoleculeTypeIdStr + sample.getId().toString() + DELIM;
+		return getSanitizedName(sample.getName()) + DELIM + biomoleculeTypeIdStr + sample.getId().toString() + DELIM;
 	}
 	
 	@Override
 	public String generateUniqueBaseFileName(Job job) {
 		final String DELIM = ".";
-		String jobName = WordUtils.capitalizeFully(job.getName()).replaceAll(" ", ""); // camelCase the name
-		return jobName + DELIM + "J" + job.getId().toString() + DELIM;
+		// camelCase the name and then uncapitalize the first letter
+		return getSanitizedName(job.getName()) + DELIM + "J" + job.getId().toString() + DELIM;
 	}
 	
 	@Override
