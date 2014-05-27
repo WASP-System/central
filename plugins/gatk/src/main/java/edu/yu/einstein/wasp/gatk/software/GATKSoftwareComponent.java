@@ -138,13 +138,13 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return gatkOpts;
 	}
 	
-	public String getCallVariantsByHaplotypeCaller(Set<String> inputFileNames, String outputGvcfFile, String referenceGenomeFile, String snpFile, 
+	public String getCallVariantsByHaplotypeCaller(Set<String> inputFileNames, String outputGvcfFile, String referenceGenomeFile, 
 			String intervalFile, String additionalOptions, int memRequiredGb, int numProcessors){
 		String command = "java -Xmx" + memRequiredGb + "g" +
 		" -Djava.io.tmpdir=. -jar $GATK_ROOT/GenomeAnalysisTK.jar -nct " + numProcessors;
 		for (String fileName : inputFileNames)
 			command += " -I " + fileName;
-		command += " -R " + referenceGenomeFile + " -T HaplotypeCaller -o " + outputGvcfFile + " --dbsnp " + snpFile + 
+		command += " -R " + referenceGenomeFile + " -T HaplotypeCaller -o " + outputGvcfFile + 
 				" --genotyping_mode DISCOVERY --emitRefConfidence GVCF --variant_index_type LINEAR --variant_index_parameter 128000 " + additionalOptions;
 		if (intervalFile != null) 
 			command += " -L " + intervalFile;
@@ -169,8 +169,8 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return command;
 	}
 	
-	public String genotypeGVCFs(Set<String> inputFileNames, String outputFileName, Build build, int memRequiredGb, int numProcessors){
-		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -T GenotypeGVCFs -nt " + numProcessors;
+	public String genotypeGVCFs(Set<String> inputFileNames, String outputFileName, Build build, String snpFile, int memRequiredGb, int numProcessors){
+		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -T GenotypeGVCFs -nt " + numProcessors + " --dbsnp " + snpFile;
 		for (String fileName : inputFileNames)
 			command += " -V " + fileName;
 		command += " -R " + genomeService.getReferenceGenomeFastaFile(build) + " -o " + outputFileName;
