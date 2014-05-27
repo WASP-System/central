@@ -21,9 +21,9 @@ public class GridColumn {
 	
 	private boolean hideable = false;
 	
-	private String align = "left";
+	private String cellAlign;
 	
-	private String style = "text-align:left";
+	private String headerAlign;
 
 	/**
 	 * @return the header
@@ -114,36 +114,36 @@ public class GridColumn {
 	}
 
 	/**
-	 * @return the align
+	 * @return the cellAlign
 	 */
 	public String getCellAlign() {
-		return align;
+		return cellAlign;
 	}
 
 	/**
-	 * @param align the align to set
+	 * @param cellAlign the cellAlign to set "left" or "center" or "right"
 	 */
-	public void setCellAlign(String align) {
-		String al = align.trim().toLowerCase();
-		if (al.equals("left") || al.equals("right")) {
-			this.align = align;
+	public void setCellAlign(String cellAlign) {
+		String al = cellAlign.trim().toLowerCase();
+		if (al.equals("left") || al.equals("center") || al.equals("right")) {
+			this.cellAlign = al;
 		}
 	}
 
 	/**
-	 * @return the style
+	 * @return the headerAlign
 	 */
 	public String getHeaderAlign() {
-		return style;
+		return headerAlign;
 	}
 
 	/**
-	 * @param style the style to set
+	 * @param headerAlign the headerAlign to set "left" or "center" or "right"
 	 */
-	public void setHeaderAlign(String align) {
-		String al = align.trim().toLowerCase();
-		if (al.equals("left") || al.equals("right")) {
-			this.style = "text-align:" + align;
+	public void setHeaderAlign(String headerAlign) {
+		String al = headerAlign.trim().toLowerCase();
+		if (al.equals("left") || al.equals("center") || al.equals("right")) {
+			this.headerAlign = al;
 		}
 	}
 
@@ -170,49 +170,95 @@ public class GridColumn {
 	/**
 	 * @param header
 	 * @param dataIndex
-	 * @param width
+	 * @param flex
+	 * @param cellalign "left" or "center" or "right"
+	 */
+	public GridColumn(String header, String dataIndex, Integer flex, String cellAlign) {
+		this.header = header;
+		this.dataIndex = dataIndex;
+		if (flex!=null && flex>0) {
+			this.width = 0;
+			this.flex = flex;
+		}
+		this.setCellAlign(cellAlign);
+	}
+
+	/**
+	 * @param header
+	 * @param dataIndex
+	 * @param flex
+	 * @param cellalign "left" or "center" or "right"
+	 * @param headeralign "left" or "center" or "right"
+	 */
+	public GridColumn(String header, String dataIndex, Integer flex, String cellAlign, String headerAlign) {
+		this.header = header;
+		this.dataIndex = dataIndex;
+		if (flex!=null && flex>0) {
+			this.width = 0;
+			this.flex = flex;
+		}
+		this.setCellAlign(cellAlign);
+		this.setHeaderAlign(headerAlign);
+	}
+
+	/**
+	 * @param header
+	 * @param dataIndex
+	 * @param width width can be set only when flex is 0 or null; width is reset to 0 when flex>0
 	 * @param flex
 	 */
 	public GridColumn(String header, String dataIndex, Integer width, Integer flex) {
 		this.header = header;
 		this.dataIndex = dataIndex;
 		this.width = width;
+		if (flex!=null && flex>0) {
+			this.width = 0;
+			this.flex = flex;
+		}
 	}
 
 	/**
 	 * @param header
 	 * @param dataIndex
-	 * @param width
+	 * @param width width can be set only when flex is 0 or null; width is reset to 0 when flex>0
 	 * @param flex
-	 * @param cellalign ("left" or "right")
+	 * @param cellalign "left" or "center" or "right"
 	 */
-	public GridColumn(String header, String dataIndex, Integer width, Integer flex, String cellalign) {
+	public GridColumn(String header, String dataIndex, Integer width, Integer flex, String cellAlign) {
 		this.header = header;
 		this.dataIndex = dataIndex;
 		this.width = width;
-		this.setCellAlign(cellalign);
+		if (flex!=null && flex>0) {
+			this.width = 0;
+			this.flex = flex;
+		}
+		this.setCellAlign(cellAlign);
 	}
 
 	/**
 	 * @param header
 	 * @param dataIndex
-	 * @param width
+	 * @param width width can be set only when flex is 0 or null; width is reset to 0 when flex>0
 	 * @param flex
-	 * @param cellalign ("left" or "right")
-	 * @param headeralign ("left" or "right")
+	 * @param cellalign "left" or "center" or "right"
+	 * @param headeralign "left" or "center" or "right"
 	 */
-	public GridColumn(String header, String dataIndex, Integer width, Integer flex, String cellalign, String headeralign) {
+	public GridColumn(String header, String dataIndex, Integer width, Integer flex, String cellAlign, String headerAlign) {
 		this.header = header;
 		this.dataIndex = dataIndex;
 		this.width = width;
-		this.setCellAlign(cellalign);
-		this.setHeaderAlign(headeralign);
+		if (flex!=null && flex>0) {
+			this.width = 0;
+			this.flex = flex;
+		}
+		this.setCellAlign(cellAlign);
+		this.setHeaderAlign(headerAlign);
 	}
 
 	/**
 	 * @param header
 	 * @param dataIndex
-	 * @param width
+	 * @param width width can be set only when flex is 0 or null; width is reset to 0 when flex>0
 	 * @param flex
 	 * @param sortable
 	 * @param hideable
@@ -222,7 +268,10 @@ public class GridColumn {
 		this.header = header;
 		this.width = width;
 		this.dataIndex = dataIndex;
-		this.flex = flex;
+		if (flex!=null && flex>0) {
+			this.width = 0;
+			this.flex = flex;
+		}
 		this.sortable = sortable;
 		this.hideable = hideable;
 	}
