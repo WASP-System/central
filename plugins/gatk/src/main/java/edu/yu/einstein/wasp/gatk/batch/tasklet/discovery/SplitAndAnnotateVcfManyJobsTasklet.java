@@ -12,14 +12,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.LaunchManyJobsTasklet;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
-import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -29,6 +27,7 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.VcfFileTypeAttribute;
+import edu.yu.einstein.wasp.plugin.mps.grid.software.SnpEff;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -50,10 +49,6 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 	
 	@Autowired
 	private FileService fileService;
-	
-	@Autowired
-	@Qualifier("fileTypeServiceImpl")
-	private FileTypeService fileTypeService;
 	
 	@Autowired
 	private FileType vcfFileType;
@@ -116,34 +111,32 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 	}
 	
 	private void prepareOutFilesAndLaunchJob(LinkedHashSet<FileGroup> inputFileGroups, String outFileNamePrefix, LinkedHashSet<String> sampleIdentifierSet){
+		SnpEff snpEff = (SnpEff) gatk.getSoftwareDependencyByIname("snpEff");
 		LinkedHashSet<FileGroup> outputFileGroups = new LinkedHashSet<>();
 		String vcfFileName = outFileNamePrefix + "annotated.vcf";
 		FileGroup vcfG = new FileGroup();
 		FileHandle vcf = new FileHandle();
 		vcf.setFileName(vcfFileName);
-		vcf = fileService.addFileInDiscreteTransaction(vcf);
 		vcfG.setIsActive(0);
 		vcfG.addFileHandle(vcf);
 		vcfG.setFileType(vcfFileType);
 		vcfG.setDescription(vcfFileName);
-		vcfG.setSoftwareGeneratedById(gatk.getId());
+		vcfG.setSoftwareGeneratedBy(snpEff);
 		vcfG.setDerivedFrom(inputFileGroups);
-		vcfG = fileService.addFileGroupInDiscreteTransaction(vcfG);
-		fileTypeService.addAttribute(vcfG, VcfFileTypeAttribute.ANNOTATED);
+		vcfG = fileService.saveInDiscreteTransaction(vcfG, vcf, VcfFileTypeAttribute.ANNOTATED);
 		outputFileGroups.add(vcfG);
 		
 		String summaryHtmlFileName = outFileNamePrefix + "snpEff_summary.htm";
 		FileGroup summaryHtmlG = new FileGroup();
 		FileHandle summaryHtml = new FileHandle();
 		summaryHtml.setFileName(summaryHtmlFileName);
-		summaryHtml = fileService.addFileInDiscreteTransaction(summaryHtml);
 		summaryHtmlG.setIsActive(0);
 		summaryHtmlG.addFileHandle(summaryHtml);
 		summaryHtmlG.setFileType(htmlFileType);
 		summaryHtmlG.setDescription(summaryHtmlFileName);
-		summaryHtmlG.setSoftwareGeneratedById(gatk.getId());
+		summaryHtmlG.setSoftwareGeneratedBy(snpEff);
 		summaryHtmlG.setDerivedFrom(inputFileGroups);
-		summaryHtmlG = fileService.addFileGroupInDiscreteTransaction(summaryHtmlG);
+		summaryHtmlG = fileService.saveInDiscreteTransaction(summaryHtmlG, summaryHtml);
 		outputFileGroups.add(summaryHtmlG);
 		
 		Map<String, String> jobParameters = new HashMap<>();

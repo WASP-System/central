@@ -11,13 +11,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.LaunchManyJobsTasklet;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
-import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
@@ -51,10 +49,6 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 	
 	@Autowired
 	private GatkService gatkService;
-	
-	@Autowired
-	@Qualifier("fileTypeServiceImpl")
-	private FileTypeService fileTypeService;
 	
 	@Autowired
 	private FileType bamFileType;
@@ -109,28 +103,25 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			FileGroup bamMergedPairsTestG = new FileGroup();
 			FileHandle bamMergedPairsTest = new FileHandle();
 			bamMergedPairsTest.setFileName(bamOutputMergedPairsTest);
-			bamMergedPairsTest = fileService.addFileInDiscreteTransaction(bamMergedPairsTest);
 			bamMergedPairsTestG.setIsActive(0);
 			bamMergedPairsTestG.addFileHandle(bamMergedPairsTest);
 			bamMergedPairsTestG.setFileType(bamFileType);
 			bamMergedPairsTestG.setDescription(bamOutputMergedPairsTest);
-			bamMergedPairsTestG.setSoftwareGeneratedById(gatk.getId());
+			bamMergedPairsTestG.setSoftwareGeneratedBy(gatk);
 			bamMergedPairsTestG.addDerivedFrom(testFgIn);
-			bamMergedPairsTestG = fileService.addFileGroupInDiscreteTransaction(bamMergedPairsTestG);
-			fileTypeService.setAttributes(bamMergedPairsTestG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
+			bamMergedPairsTestG = fileService.saveInDiscreteTransaction(bamMergedPairsTestG, bamMergedPairsTest, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
 			outputFileGroups.add(bamMergedPairsTestG);
 
 			FileGroup baiMergedPairsTestG = new FileGroup();
 			FileHandle baiMergedPairsTest = new FileHandle();
 			baiMergedPairsTest.setFileName(baiOutputMergedPairsTest);
-			baiMergedPairsTest = fileService.addFileInDiscreteTransaction(baiMergedPairsTest);
 			baiMergedPairsTestG.setIsActive(0);
 			baiMergedPairsTestG.addFileHandle(baiMergedPairsTest);
 			baiMergedPairsTestG.setFileType(baiFileType);
 			baiMergedPairsTestG.setDescription(baiOutputMergedPairsTest);
-			baiMergedPairsTestG.setSoftwareGeneratedById(gatk.getId());
+			baiMergedPairsTestG.setSoftwareGeneratedBy(gatk);
 			baiMergedPairsTestG.addDerivedFrom(bamMergedPairsTestG);
-			baiMergedPairsTestG = fileService.addFileGroupInDiscreteTransaction(baiMergedPairsTestG);
+			baiMergedPairsTestG = fileService.saveInDiscreteTransaction(baiMergedPairsTestG, baiMergedPairsTest);
 			outputFileGroups.add(baiMergedPairsTestG);
 			
 			String bamOutputMergedPairsControl = fileService.generateUniqueBaseFileName(control) + "gatk_preproc_merged_dedup_pairRealn.bam";
@@ -138,28 +129,25 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			FileGroup bamMergedPairsControlG = new FileGroup();
 			FileHandle bamMergedPairsControl = new FileHandle();
 			bamMergedPairsControl.setFileName(bamOutputMergedPairsControl);
-			bamMergedPairsControl = fileService.addFileInDiscreteTransaction(bamMergedPairsControl);
 			bamMergedPairsControlG.setIsActive(0);
 			bamMergedPairsControlG.addFileHandle(bamMergedPairsControl);
 			bamMergedPairsControlG.setFileType(bamFileType);
 			bamMergedPairsControlG.setDescription(bamOutputMergedPairsControl);
-			bamMergedPairsControlG.setSoftwareGeneratedById(gatk.getId());
+			bamMergedPairsControlG.setSoftwareGeneratedBy(gatk);
 			bamMergedPairsControlG.addDerivedFrom(controlFgIn);
-			bamMergedPairsControlG = fileService.addFileGroupInDiscreteTransaction(bamMergedPairsControlG);
-			fileTypeService.setAttributes(bamMergedPairsControlG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
+			bamMergedPairsControlG = fileService.saveInDiscreteTransaction(bamMergedPairsControlG, bamMergedPairsControl, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
 			outputFileGroups.add(bamMergedPairsControlG);
 
 			FileGroup baiMergedPairsControlG = new FileGroup();
 			FileHandle baiMergedPairsControl = new FileHandle();
 			baiMergedPairsControl.setFileName(baiOutputMergedPairsControl);
-			baiMergedPairsControl = fileService.addFileInDiscreteTransaction(baiMergedPairsControl);
 			baiMergedPairsControlG.setIsActive(0);
 			baiMergedPairsControlG.addFileHandle(baiMergedPairsControl);
 			baiMergedPairsControlG.setFileType(baiFileType);
 			baiMergedPairsControlG.setDescription(baiOutputMergedPairsControl);
-			baiMergedPairsControlG.setSoftwareGeneratedById(gatk.getId());
+			baiMergedPairsControlG.setSoftwareGeneratedBy(gatk);
 			baiMergedPairsControlG.addDerivedFrom(bamMergedPairsControlG);
-			baiMergedPairsControlG = fileService.addFileGroupInDiscreteTransaction(baiMergedPairsControlG);
+			baiMergedPairsControlG = fileService.saveInDiscreteTransaction(baiMergedPairsControlG, baiMergedPairsControl);
 			outputFileGroups.add(baiMergedPairsControlG);
 			
 			temporaryFileSet.addAll(outputFileGroups);
@@ -192,30 +180,27 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			FileGroup bamMergedG = new FileGroup();
 			FileHandle bamMerged = new FileHandle();
 			bamMerged.setFileName(bamOutputMerged);
-			bamMerged = fileService.addFileInDiscreteTransaction(bamMerged);
 			bamMergedG.setIsActive(0);
 			bamMergedG.addFileHandle(bamMerged);
 			bamMergedG.setFileType(bamFileType);
 			bamMergedG.setDescription(bamOutputMerged);
-			bamMergedG.setSoftwareGeneratedById(gatk.getId());
+			bamMergedG.setSoftwareGeneratedBy(gatk);
 			bamMergedG.addDerivedFrom(mergedBam);
 			bamMergedG.setSampleSources(mergedBam.getSampleSources());
-			bamMergedG = fileService.addFileGroupInDiscreteTransaction(bamMergedG);
-			fileTypeService.setAttributes(bamMergedG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
+			bamMergedG = fileService.saveInDiscreteTransaction(bamMergedG, bamMerged, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
 			outputFileGroups.add(bamMergedG);
 
 			FileGroup baiMergedG = new FileGroup();
 			FileHandle baiMerged = new FileHandle();
 			baiMerged.setFileName(baiOutputMerged);
-			baiMerged = fileService.addFileInDiscreteTransaction(baiMerged);
 			baiMergedG.setIsActive(0);
 			baiMergedG.addFileHandle(baiMerged);
 			baiMergedG.setFileType(baiFileType);
 			baiMergedG.setDescription(baiOutputMerged);
-			baiMergedG.setSoftwareGeneratedById(gatk.getId());
+			baiMergedG.setSoftwareGeneratedBy(gatk);
 			baiMergedG.addDerivedFrom(mergedBam);
 			baiMergedG.setSampleSources(mergedBam.getSampleSources());
-			baiMergedG = fileService.addFileGroupInDiscreteTransaction(baiMergedG);
+			baiMergedG = fileService.saveInDiscreteTransaction(baiMergedG, baiMerged);
 			outputFileGroups.add(baiMergedG);
 			temporaryFileSet.addAll(outputFileGroups);
 			

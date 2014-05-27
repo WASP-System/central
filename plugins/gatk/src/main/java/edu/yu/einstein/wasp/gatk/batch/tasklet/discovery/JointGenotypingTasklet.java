@@ -11,12 +11,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
-import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -49,10 +47,6 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 	
 	@Autowired
 	private FileService fileService;
-	
-	@Autowired
-	@Qualifier("fileTypeServiceImpl")
-	private FileTypeService fileTypeService;
 	
 	@Autowired
 	private FileType vcfFileType;
@@ -99,32 +93,29 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		FileGroup rawVcfOutG = new FileGroup();
 		FileHandle rawVcfOut = new FileHandle();
 		rawVcfOut.setFileName(rawVcfOutFileName);
-		rawVcfOut = fileService.addFileInDiscreteTransaction(rawVcfOut);
 		rawVcfOutG.setIsActive(0);
 		rawVcfOutG.addFileHandle(rawVcfOut);
 		outFiles.add(rawVcfOut);
 		rawVcfOutG.setFileType(vcfFileType);
 		rawVcfOutG.setDescription(rawVcfOutFileName);
-		rawVcfOutG.setSoftwareGeneratedById(gatk.getId());
+		rawVcfOutG.setSoftwareGeneratedBy(gatk);
 		rawVcfOutG.setDerivedFrom(inputFileGroups);
 		rawVcfOutG.setSampleSources(sampleSources);
-		rawVcfOutG = fileService.addFileGroupInDiscreteTransaction(rawVcfOutG);
+		rawVcfOutG = fileService.saveInDiscreteTransaction(rawVcfOutG, rawVcfOut);
 		
 		String annotatedVcfOutFileName = fileService.generateUniqueBaseFileName(job) + "annotated.vcf";
 		FileGroup annotatedVcfOutG = new FileGroup();
 		FileHandle annotatedVcfOut = new FileHandle();
 		annotatedVcfOut.setFileName(annotatedVcfOutFileName);
-		annotatedVcfOut = fileService.addFileInDiscreteTransaction(annotatedVcfOut);
 		annotatedVcfOutG.setIsActive(0);
 		annotatedVcfOutG.addFileHandle(annotatedVcfOut);
 		outFiles.add(annotatedVcfOut);
 		annotatedVcfOutG.setFileType(vcfFileType);
 		annotatedVcfOutG.setDescription(annotatedVcfOutFileName);
-		annotatedVcfOutG.setSoftwareGeneratedById(gatk.getId());
+		annotatedVcfOutG.setSoftwareGeneratedBy(gatk);
 		annotatedVcfOutG.addDerivedFrom(rawVcfOutG);
 		annotatedVcfOutG.setSampleSources(sampleSources);
-		annotatedVcfOutG = fileService.addFileGroupInDiscreteTransaction(annotatedVcfOutG);
-		fileTypeService.addAttribute(annotatedVcfOutG, VcfFileTypeAttribute.ANNOTATED);
+		annotatedVcfOutG = fileService.saveInDiscreteTransaction(annotatedVcfOutG, annotatedVcfOut, VcfFileTypeAttribute.ANNOTATED);
 		
 		
 		WorkUnit w = new WorkUnit();

@@ -679,14 +679,69 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	
 	@Override
 	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
-	public FileHandle addFileInDiscreteTransaction(FileHandle file) {
+	public FileHandle saveInDiscreteTransaction(FileHandle file) {
 		return fileHandleDao.save(file);
 	}
 
 	@Override
 	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
-	public FileGroup addFileGroupInDiscreteTransaction(FileGroup group) {
+	public FileGroup saveInDiscreteTransaction(FileGroup group) {
 		return fileGroupDao.save(group);
+	}
+	
+	@Override
+	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
+	public FileGroup saveInDiscreteTransaction(FileGroup group, LinkedHashSet<FileHandle> files, Set<? extends FileTypeAttribute> fgAttributes) {
+		if (files != null){
+			for (FileHandle fh : files){
+				fileHandleDao.save(fh);
+				group.addFileHandle(fh);
+			}
+		}
+		FileGroup savedFilegroup = fileGroupDao.save(group);
+		if (fgAttributes != null)
+			fileTypeService.setAttributes(savedFilegroup, fgAttributes);
+		return savedFilegroup;
+	}
+	
+	@Override
+	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
+	public FileGroup saveInDiscreteTransaction(FileGroup group, LinkedHashSet<FileHandle> files) {
+		return saveInDiscreteTransaction(group, files, (Set<? extends FileTypeAttribute>) null);
+	}
+	
+	@Override
+	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
+	public FileGroup saveInDiscreteTransaction(FileGroup group, FileHandle file) {
+		LinkedHashSet<FileHandle> fhs = new LinkedHashSet<>();
+		fhs.add(file);
+		return saveInDiscreteTransaction(group, fhs, (Set<? extends FileTypeAttribute>) null);
+	}
+	
+	@Override
+	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
+	public FileGroup saveInDiscreteTransaction(FileGroup group, LinkedHashSet<FileHandle> files, FileTypeAttribute fgAttribute) {
+		Set<FileTypeAttribute> fgAttributes = new HashSet<>();
+		fgAttributes.add(fgAttribute);
+		return saveInDiscreteTransaction(group, files, fgAttributes);
+	}
+	
+	@Override
+	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
+	public FileGroup saveInDiscreteTransaction(FileGroup group, FileHandle file, Set<? extends FileTypeAttribute> fgAttributes) {
+		LinkedHashSet<FileHandle> fhs = new LinkedHashSet<>();
+		fhs.add(file);
+		return saveInDiscreteTransaction(group, fhs, fgAttributes);
+	}
+	
+	@Override
+	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
+	public FileGroup saveInDiscreteTransaction(FileGroup group, FileHandle file, FileTypeAttribute fgAttribute) {
+		LinkedHashSet<FileHandle> fhs = new LinkedHashSet<>();
+		fhs.add(file);
+		Set<FileTypeAttribute> fgAttributes = new HashSet<>();
+		fgAttributes.add(fgAttribute);
+		return saveInDiscreteTransaction(group, fhs, fgAttributes);
 	}
 
 	@Override

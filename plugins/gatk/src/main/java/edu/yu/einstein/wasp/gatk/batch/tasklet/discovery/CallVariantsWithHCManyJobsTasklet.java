@@ -9,13 +9,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.LaunchManyJobsTasklet;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
-import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -40,10 +38,6 @@ public class CallVariantsWithHCManyJobsTasklet extends LaunchManyJobsTasklet {
 	
 	@Autowired
 	private FileService fileService;
-	
-	@Autowired
-	@Qualifier("fileTypeServiceImpl")
-	private FileTypeService fileTypeService;
 	
 	@Autowired
 	private FileType vcfFileType;
@@ -77,15 +71,13 @@ public class CallVariantsWithHCManyJobsTasklet extends LaunchManyJobsTasklet {
 			FileGroup gvcfG = new FileGroup();
 			FileHandle gvcf = new FileHandle();
 			gvcf.setFileName(gvcfFileName);
-			gvcf = fileService.addFileInDiscreteTransaction(gvcf);
 			gvcfG.setIsActive(0);
 			gvcfG.addFileHandle(gvcf);
 			gvcfG.setFileType(vcfFileType);
 			gvcfG.setDescription(gvcfFileName);
-			gvcfG.setSoftwareGeneratedById(gatk.getId());
+			gvcfG.setSoftwareGeneratedBy(gatk);
 			gvcfG.addDerivedFrom(inputFile);
-			gvcfG = fileService.addFileGroupInDiscreteTransaction(gvcfG);
-			fileTypeService.addAttribute(gvcfG, VcfFileTypeAttribute.GVCF);
+			gvcfG = fileService.saveInDiscreteTransaction(gvcfG, gvcf, VcfFileTypeAttribute.GVCF);
 			outputFileGroups.add(gvcfG);
 			fileGroupsForNextStep.add(gvcfG);
 			Map<String, String> jobParameters = new HashMap<>();
