@@ -121,7 +121,7 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 				bamG.addFileHandle(bam);
 				bamG.setFileType(bamFileType);
 				bamG.setDescription(bamOutput);
-				bamG.setSoftwareGeneratedBy(gatk);
+				bamG.setSoftwareGeneratedById(gatk.getId());
 				bamG.setDerivedFrom(inputFileGroups);
 				bamG.setSampleSources(sampleCellLibraries.get(sample));
 				bamG = fileService.saveInDiscreteTransaction(bamG, bam, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
@@ -135,7 +135,7 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 				baiG.addFileHandle(bai);
 				baiG.setFileType(baiFileType);
 				baiG.setDescription(baiOutput);
-				baiG.setSoftwareGeneratedBy(gatk);
+				baiG.setSoftwareGeneratedById(gatk.getId());
 				baiG.addDerivedFrom(bamG);
 				baiG = fileService.saveInDiscreteTransaction(baiG, bai);
 				outputFileGroups.add(baiG);
@@ -149,7 +149,7 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 				metricsG.addFileHandle(metrics);
 				metricsG.setFileType(textFileType);
 				metricsG.setDescription(metricsOutput);
-				baiG.setSoftwareGeneratedBy(gatk);
+				baiG.setSoftwareGeneratedById(gatk.getId());
 				metricsG.addDerivedFrom(bamG);
 				metricsG = fileService.saveInDiscreteTransaction(metricsG, metrics);
 				outputFileGroups.add(metricsG);

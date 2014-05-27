@@ -136,7 +136,7 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		files.add(bam);
 		bamG.setFileType(bamFileType);
 		bamG.setDescription(bamOutput);
-		bamG.setSoftwareGeneratedBy(gatk);
+		bamG.setSoftwareGeneratedById(gatk.getId());
 		bamG = fileService.addFileGroup(bamG);
 		fileTypeService.setAttributes(bamG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
 		Integer bamGId = bamG.getId();
@@ -151,7 +151,7 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		files.add(bai);
 		baiG.setFileType(baiFileType);
 		baiG.setDescription(baiOutput);
-		baiG.setSoftwareGeneratedBy(gatk);
+		baiG.setSoftwareGeneratedById(gatk.getId());
 		baiG = fileService.addFileGroup(baiG);
 		Integer baiGId = baiG.getId();
 		// save in step context for use later

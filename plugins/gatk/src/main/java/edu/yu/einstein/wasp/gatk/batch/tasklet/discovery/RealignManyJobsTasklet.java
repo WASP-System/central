@@ -107,7 +107,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			bamMergedPairsTestG.addFileHandle(bamMergedPairsTest);
 			bamMergedPairsTestG.setFileType(bamFileType);
 			bamMergedPairsTestG.setDescription(bamOutputMergedPairsTest);
-			bamMergedPairsTestG.setSoftwareGeneratedBy(gatk);
+			bamMergedPairsTestG.setSoftwareGeneratedById(gatk.getId());
 			bamMergedPairsTestG.addDerivedFrom(testFgIn);
 			bamMergedPairsTestG = fileService.saveInDiscreteTransaction(bamMergedPairsTestG, bamMergedPairsTest, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
 			outputFileGroups.add(bamMergedPairsTestG);
@@ -119,7 +119,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			baiMergedPairsTestG.addFileHandle(baiMergedPairsTest);
 			baiMergedPairsTestG.setFileType(baiFileType);
 			baiMergedPairsTestG.setDescription(baiOutputMergedPairsTest);
-			baiMergedPairsTestG.setSoftwareGeneratedBy(gatk);
+			baiMergedPairsTestG.setSoftwareGeneratedById(gatk.getId());
 			baiMergedPairsTestG.addDerivedFrom(bamMergedPairsTestG);
 			baiMergedPairsTestG = fileService.saveInDiscreteTransaction(baiMergedPairsTestG, baiMergedPairsTest);
 			outputFileGroups.add(baiMergedPairsTestG);
@@ -133,7 +133,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			bamMergedPairsControlG.addFileHandle(bamMergedPairsControl);
 			bamMergedPairsControlG.setFileType(bamFileType);
 			bamMergedPairsControlG.setDescription(bamOutputMergedPairsControl);
-			bamMergedPairsControlG.setSoftwareGeneratedBy(gatk);
+			bamMergedPairsControlG.setSoftwareGeneratedById(gatk.getId());
 			bamMergedPairsControlG.addDerivedFrom(controlFgIn);
 			bamMergedPairsControlG = fileService.saveInDiscreteTransaction(bamMergedPairsControlG, bamMergedPairsControl, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
 			outputFileGroups.add(bamMergedPairsControlG);
@@ -145,7 +145,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			baiMergedPairsControlG.addFileHandle(baiMergedPairsControl);
 			baiMergedPairsControlG.setFileType(baiFileType);
 			baiMergedPairsControlG.setDescription(baiOutputMergedPairsControl);
-			baiMergedPairsControlG.setSoftwareGeneratedBy(gatk);
+			baiMergedPairsControlG.setSoftwareGeneratedById(gatk.getId());
 			baiMergedPairsControlG.addDerivedFrom(bamMergedPairsControlG);
 			baiMergedPairsControlG = fileService.saveInDiscreteTransaction(baiMergedPairsControlG, baiMergedPairsControl);
 			outputFileGroups.add(baiMergedPairsControlG);
@@ -184,7 +184,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			bamMergedG.addFileHandle(bamMerged);
 			bamMergedG.setFileType(bamFileType);
 			bamMergedG.setDescription(bamOutputMerged);
-			bamMergedG.setSoftwareGeneratedBy(gatk);
+			bamMergedG.setSoftwareGeneratedById(gatk.getId());
 			bamMergedG.addDerivedFrom(mergedBam);
 			bamMergedG.setSampleSources(mergedBam.getSampleSources());
 			bamMergedG = fileService.saveInDiscreteTransaction(bamMergedG, bamMerged, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
@@ -197,7 +197,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			baiMergedG.addFileHandle(baiMerged);
 			baiMergedG.setFileType(baiFileType);
 			baiMergedG.setDescription(baiOutputMerged);
-			baiMergedG.setSoftwareGeneratedBy(gatk);
+			baiMergedG.setSoftwareGeneratedById(gatk.getId());
 			baiMergedG.addDerivedFrom(mergedBam);
 			baiMergedG.setSampleSources(mergedBam.getSampleSources());
 			baiMergedG = fileService.saveInDiscreteTransaction(baiMergedG, baiMerged);
