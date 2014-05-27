@@ -135,7 +135,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		bamG.setSampleSources(cellLibraries);
 		bamG.setDerivedFrom(fastqFileGroups);
 		bamG.setDescription(bamOutput);
-		bamG.setSoftwareGeneratedById(bwa);
+		bamG.setSoftwareGeneratedBy(bwa);
 		
 		bamG = fileService.addFileGroup(bamG);
 		bamServiceImpl.addAttribute(bamG, BamFileTypeAttribute.SORTED);
@@ -157,7 +157,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		baiG.setFileType(baiFileType);
 		baiG.setDescription(baiOutput);
 		baiG.addDerivedFrom(bamG);
-		baiG.setSoftwareGeneratedById(bwa);
+		baiG.setSoftwareGeneratedBy(bwa);
 		baiG = fileService.addFileGroup(baiG);
 		Integer baiGId = baiG.getId();
 		
@@ -183,7 +183,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 			files.add(metrics);
 			metricsG.setFileType(textFileType);
 			metricsG.setDescription(metricsOutput);
-			metricsG.setSoftwareGeneratedById(bwa);
+			metricsG.setSoftwareGeneratedBy(bwa);
 			metricsG.addDerivedFrom(bamG);
 			metricsG = fileService.addFileGroup(metricsG);
 			Integer metricsGId = metricsG.getId();

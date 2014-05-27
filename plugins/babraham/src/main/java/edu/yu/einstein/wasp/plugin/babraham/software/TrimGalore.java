@@ -272,7 +272,7 @@ public class TrimGalore extends SoftwarePackage {
         }
 
         FileGroup resultFiles = new FileGroup();
-        resultFiles.setSoftwareGeneratedById(this);
+        resultFiles.setSoftwareGeneratedBy(this);
 
         for (SampleSource ss : fastqG.getSampleSources()) {
             ss.getFileGroups().add(resultFiles);

@@ -206,7 +206,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		files.add(modelPdf);
 		modelPdfG.setFileType(macs2ModelPdfFileType);
 		modelPdfG.setDescription(modelPdf.getFileName());
-		modelPdfG.setSoftwareGeneratedById(rSoftware);
+		modelPdfG.setSoftwareGeneratedBy(rSoftware);
 		modelPdfG.addDerivedFrom(modelScriptFileGroup);
 		modelPdfG = fileService.addFileGroup(modelPdfG);
 		this.modelPdfGId = modelPdfG.getId();
@@ -223,7 +223,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		files.add(modelPng);
 		modelPngG.setFileType(macs2ModelPngFileType);
 		modelPngG.setDescription(modelPng.getFileName());
-		modelPngG.setSoftwareGeneratedById(imagemagickSoftware);
+		modelPngG.setSoftwareGeneratedBy(imagemagickSoftware);
 		modelPngG.addDerivedFrom(modelPdfG);
 		modelPngG = fileService.addFileGroup(modelPngG);
 		this.modelPngGId = modelPngG.getId();

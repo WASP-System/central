@@ -398,7 +398,7 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 							if (sw == null || sw.getId() == null)
 								throw new WaspRuntimeException("Unable to get software with id=" + attributeVal);
 							if (currentFileGroup != null && !sw.getId().equals(currentFileGroup.getSoftwareGeneratedById()) )
-								currentFileGroup.setSoftwareGeneratedById(sw);
+								currentFileGroup.setSoftwareGeneratedBy(sw);
 						}
 					}
 					else if (model.equals("FileGroupMeta")){
