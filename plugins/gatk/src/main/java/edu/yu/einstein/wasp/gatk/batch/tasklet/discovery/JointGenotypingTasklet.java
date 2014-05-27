@@ -31,7 +31,6 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.VcfFileTypeAttribute;
 import edu.yu.einstein.wasp.plugin.mps.grid.software.SnpEff;
-import edu.yu.einstein.wasp.plugin.mps.grid.software.VcfTools;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
@@ -145,8 +144,7 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		}
 		w.setRequiredFiles(fhlist);
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
-		VcfTools vcfTools = (VcfTools) gatk.getSoftwareDependencyByIname("vcfTools");
-		SnpEff snpEff = (SnpEff) gatk.getSoftwareDependencyByIname("SnpEff");
+		SnpEff snpEff = (SnpEff) gatk.getSoftwareDependencyByIname("snpEff");
 		sd.add(gatk);
 		sd.add(snpEff);
 		w.setSoftwareDependencies(sd);
@@ -158,7 +156,7 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		w.setCommand(gatk.genotypeGVCFs(inputFileNames, rawVcfFilename, build, AbstractGatkTasklet.MEMORY_GB_8, AbstractGatkTasklet.THREADS_8));
 		
 		// we have already added snp database Ids during haplotype calling. We will now also add indel database ids
-		w.setCommand(snpEff.getAnnotateIdsCommand(rawVcfFilename, gatkService.getReferenceIndelsVcfFile(build), annotatedVcfFilename));
+		w.addCommand(snpEff.getAnnotateIdsCommand(rawVcfFilename, gatkService.getReferenceIndelsVcfFile(build), annotatedVcfFilename));
 
 		GridResult result = gridHostResolver.execute(w);
 		

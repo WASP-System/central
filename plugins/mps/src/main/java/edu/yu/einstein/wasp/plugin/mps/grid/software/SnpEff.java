@@ -59,7 +59,7 @@ public class SnpEff extends SoftwarePackage{
 	 * @return
 	 */
 	public String getAnnotateIdsCommand(String inputVcfFileName, String idVcfFileName, String outputVcfFileName){
-		String command = "snpsift annotate -id -v " + idVcfFileName + " " + inputVcfFileName + " > " + outputVcfFileName;
+		String command = "snpsift annotate -id " + idVcfFileName + " " + inputVcfFileName + " > " + outputVcfFileName;
 		logger.debug("Will conduct SnpSift id annotation with command string: " + command);
 		return command;
 	}

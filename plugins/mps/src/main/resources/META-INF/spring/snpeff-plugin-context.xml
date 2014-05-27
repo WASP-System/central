@@ -10,7 +10,7 @@
 		
 	<bean id="snpEffPluginArea" class="java.lang.String">
 		<constructor-arg>
-			<value>snpeff</value>
+			<value>snpEff</value>
 		</constructor-arg>
 	</bean>
 	
