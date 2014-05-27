@@ -75,7 +75,7 @@ public class CallVariantsWithHCManyJobsTasklet extends LaunchManyJobsTasklet {
 			gvcfG.addFileHandle(gvcf);
 			gvcfG.setFileType(vcfFileType);
 			gvcfG.setDescription(gvcfFileName);
-			gvcfG.setSoftwareGeneratedBy(gatk);
+			gvcfG.setSoftwareGeneratedById(gatk.getId());
 			gvcfG.addDerivedFrom(inputFile);
 			gvcfG = fileService.saveInDiscreteTransaction(gvcfG, gvcf, VcfFileTypeAttribute.GVCF);
 			outputFileGroups.add(gvcfG);

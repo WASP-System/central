@@ -121,7 +121,7 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 		vcfG.addFileHandle(vcf);
 		vcfG.setFileType(vcfFileType);
 		vcfG.setDescription(vcfFileName);
-		vcfG.setSoftwareGeneratedBy(snpEff);
+		vcfG.setSoftwareGeneratedById(snpEff.getId());
 		vcfG.setDerivedFrom(inputFileGroups);
 		vcfG = fileService.saveInDiscreteTransaction(vcfG, vcf, VcfFileTypeAttribute.ANNOTATED);
 		outputFileGroups.add(vcfG);
@@ -134,7 +134,7 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 		summaryHtmlG.addFileHandle(summaryHtml);
 		summaryHtmlG.setFileType(htmlFileType);
 		summaryHtmlG.setDescription(summaryHtmlFileName);
-		summaryHtmlG.setSoftwareGeneratedBy(snpEff);
+		summaryHtmlG.setSoftwareGeneratedById(snpEff.getId());
 		summaryHtmlG.setDerivedFrom(inputFileGroups);
 		summaryHtmlG = fileService.saveInDiscreteTransaction(summaryHtmlG, summaryHtml);
 		outputFileGroups.add(summaryHtmlG);
