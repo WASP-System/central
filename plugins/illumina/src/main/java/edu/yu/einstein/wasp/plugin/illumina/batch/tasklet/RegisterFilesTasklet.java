@@ -228,12 +228,12 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
             pufg.setIsActive(1);
             pufg.setIsArchived(0);
             pufg.setFileType(fastqFileType);
-            pufg.setSoftwareGeneratedBy(casava);
+            pufg.setSoftwareGeneratedById(casava);
             fileService.addFileGroup(pufg);
 
             FileGroup jobQCfg = new FileGroup();
             jobQCfg.setFileType(waspIlluminaHiseqQcMetricsFileType);
-            jobQCfg.setSoftwareGeneratedBy(casava);
+            jobQCfg.setSoftwareGeneratedById(casava);
             fileService.addFileGroup(pufg);
 
             Map<SampleSource, FileGroup> cellLibSeqfg = new HashMap<SampleSource, FileGroup>();
@@ -272,7 +272,7 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
                     sampleGroup.setIsActive(1);
                     sampleGroup.setIsArchived(0);
                     sampleGroup.setFileType(fastqFileType);
-                    sampleGroup.setSoftwareGeneratedBy(casava);
+                    sampleGroup.setSoftwareGeneratedById(casava);
                     fileService.addFileGroup(sampleGroup);
                     fqs.setNumberOfReadSegments(sampleGroup, readSegments);
                     cellLibSeqfg.put(cellLib, sampleGroup);
@@ -329,7 +329,7 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
                 FileGroup sfg = cellLibSeqfg.get(cl);
                 sfg.setDescription(sampleService.getLibrary(cl).getName() + " FASTQ files");
                 sfg.setFileType(this.fastqFileType);
-                sfg.setSoftwareGeneratedBy(casava);
+                sfg.setSoftwareGeneratedById(casava);
                 fileService.addFileGroup(sfg);
                 cl.getFileGroups().add(sfg);
                 sampleService.getSampleSourceDao().save(cl);
@@ -347,7 +347,7 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
         String line;
         FileGroup qcfg = new FileGroup();
         qcfg.setFileType(waspIlluminaHiseqQcMetricsFileType);
-        qcfg.setSoftwareGeneratedBy(casava);
+        qcfg.setSoftwareGeneratedById(casava);
         qcfg.setIsActive(1);
         qcfg.setIsArchived(0);
 

@@ -263,7 +263,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		files.add(modelScript);
 		modelScriptG.setFileType(macs2ModelScriptFileType);
 		modelScriptG.setDescription(modelScript.getFileName());
-		modelScriptG.setSoftwareGeneratedBy(macs2);
+		modelScriptG.setSoftwareGeneratedById(macs2);
 		modelScriptG.setSampleSources(setOfCellLibrariesForDerivedFrom);
 		modelScriptG = fileService.addFileGroup(modelScriptG);
 		this.modelScriptGId = modelScriptG.getId();
@@ -278,7 +278,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		files.add(peaksXls);
 		peaksXlsG.setFileType(macs2PeaksXlsFileType);
 		peaksXlsG.setDescription(peaksXls.getFileName());
-		peaksXlsG.setSoftwareGeneratedBy(macs2);
+		peaksXlsG.setSoftwareGeneratedById(macs2);
 		peaksXlsG.setSampleSources(setOfCellLibrariesForDerivedFrom);
 		peaksXlsG = fileService.addFileGroup(peaksXlsG);
 		this.peaksXlsGId = peaksXlsG.getId();
@@ -293,7 +293,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		files.add(narrowPeaksBed);
 		narrowPeaksBedG.setFileType(macs2NarrowPeaksBedFileType);
 		narrowPeaksBedG.setDescription(narrowPeaksBed.getFileName());
-		narrowPeaksBedG.setSoftwareGeneratedBy(macs2);
+		narrowPeaksBedG.setSoftwareGeneratedById(macs2);
 		narrowPeaksBedG.setSampleSources(setOfCellLibrariesForDerivedFrom);
 		narrowPeaksBedG = fileService.addFileGroup(narrowPeaksBedG);
 		this.narrowPeaksBedGId = narrowPeaksBedG.getId();
@@ -308,7 +308,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		files.add(summitsBed);
 		summitsBedG.setFileType(macs2SummitsBedFileType);
 		summitsBedG.setDescription(summitsBed.getFileName());
-		summitsBedG.setSoftwareGeneratedBy(macs2);
+		summitsBedG.setSoftwareGeneratedById(macs2);
 		summitsBedG.setSampleSources(setOfCellLibrariesForDerivedFrom);
 		summitsBedG = fileService.addFileGroup(summitsBedG);
 		this.summitsBedGId = summitsBedG.getId();		
@@ -323,7 +323,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		files.add(summitsModifiedBed);
 		summitsModifiedBedG.setFileType(macs2SummitsModifiedBedFileType);
 		summitsModifiedBedG.setDescription(summitsModifiedBed.getFileName());
-		summitsModifiedBedG.setSoftwareGeneratedBy(macs2);
+		summitsModifiedBedG.setSoftwareGeneratedById(macs2);
 		summitsModifiedBedG.setSampleSources(setOfCellLibrariesForDerivedFrom);
 		summitsModifiedBedG = fileService.addFileGroup(summitsModifiedBedG);
 		this.summitsModifiedBedGId = summitsModifiedBedG.getId();		
@@ -338,7 +338,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		files.add(treatPileupBedGraph);
 		treatPileupBedGraphG.setFileType(macs2TreatPileupBedGraphFileType);
 		treatPileupBedGraphG.setDescription(treatPileupBedGraph.getFileName());
-		treatPileupBedGraphG.setSoftwareGeneratedBy(macs2);
+		treatPileupBedGraphG.setSoftwareGeneratedById(macs2);
 		treatPileupBedGraphG.setSampleSources(setOfCellLibrariesForDerivedFrom);
 		treatPileupBedGraphG = fileService.addFileGroup(treatPileupBedGraphG);
 		this.treatPileupBedGraphGId = treatPileupBedGraphG.getId();
@@ -353,7 +353,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		files.add(controlLambdaBedGraph);
 		controlLambdaBedGraphG.setFileType(macs2ControlLambdaBedGraphFileType);
 		controlLambdaBedGraphG.setDescription(controlLambdaBedGraph.getFileName());
-		controlLambdaBedGraphG.setSoftwareGeneratedBy(macs2);
+		controlLambdaBedGraphG.setSoftwareGeneratedById(macs2);
 		controlLambdaBedGraphG.setSampleSources(setOfCellLibrariesForDerivedFrom);
 		controlLambdaBedGraphG = fileService.addFileGroup(controlLambdaBedGraphG);
 		this.controlLambdaBedGraphGId = controlLambdaBedGraphG.getId();
