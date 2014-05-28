@@ -121,6 +121,7 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
 		stepExecutionContext.put("scrDir", result.getWorkingDirectory());
 		stepExecutionContext.put("alnName", result.getId());
 		stepExecutionContext.put("alnStr", w.getCommand());
+		stepExecutionContext.put("method", "backtrack");
 	}
 	
 	/** 
