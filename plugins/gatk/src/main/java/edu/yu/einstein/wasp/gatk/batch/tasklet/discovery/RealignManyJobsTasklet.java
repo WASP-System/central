@@ -186,7 +186,6 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			bamMergedG.setDescription(bamOutputMerged);
 			bamMergedG.setSoftwareGeneratedById(gatk.getId());
 			bamMergedG.addDerivedFrom(mergedBam);
-			bamMergedG.setSampleSources(mergedBam.getSampleSources());
 			bamMergedG = fileService.saveInDiscreteTransaction(bamMergedG, bamMerged, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
 			outputFileGroups.add(bamMergedG);
 
@@ -199,7 +198,6 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			baiMergedG.setDescription(baiOutputMerged);
 			baiMergedG.setSoftwareGeneratedById(gatk.getId());
 			baiMergedG.addDerivedFrom(mergedBam);
-			baiMergedG.setSampleSources(mergedBam.getSampleSources());
 			baiMergedG = fileService.saveInDiscreteTransaction(baiMergedG, baiMerged);
 			outputFileGroups.add(baiMergedG);
 			temporaryFileSet.addAll(outputFileGroups);

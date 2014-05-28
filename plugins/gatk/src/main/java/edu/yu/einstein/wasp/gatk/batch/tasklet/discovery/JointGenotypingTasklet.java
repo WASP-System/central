@@ -86,9 +86,6 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		
 		Job job = jobService.getJobByJobId(jobId);
 		Assert.assertTrue(job.getId() > 0);
-		Set<SampleSource> sampleSources = new HashSet<>();
-		for (FileGroup fg : inputFileGroups)
-			sampleSources.addAll(fg.getSampleSources());
 		String rawVcfOutFileName = fileService.generateUniqueBaseFileName(job) + "raw.vcf";
 		FileGroup rawVcfOutG = new FileGroup();
 		FileHandle rawVcfOut = new FileHandle();
@@ -100,7 +97,6 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		rawVcfOutG.setDescription(rawVcfOutFileName);
 		rawVcfOutG.setSoftwareGeneratedById(gatk.getId());
 		rawVcfOutG.setDerivedFrom(inputFileGroups);
-		rawVcfOutG.setSampleSources(sampleSources);
 		rawVcfOutG = fileService.saveInDiscreteTransaction(rawVcfOutG, rawVcfOut);
 		
 		String annotatedVcfOutFileName = fileService.generateUniqueBaseFileName(job) + "annotated.vcf";
@@ -114,7 +110,6 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		annotatedVcfOutG.setDescription(annotatedVcfOutFileName);
 		annotatedVcfOutG.setSoftwareGeneratedById(gatk.getId());
 		annotatedVcfOutG.addDerivedFrom(rawVcfOutG);
-		annotatedVcfOutG.setSampleSources(sampleSources);
 		annotatedVcfOutG = fileService.saveInDiscreteTransaction(annotatedVcfOutG, annotatedVcfOut, VcfFileTypeAttribute.ANNOTATED);
 		
 		

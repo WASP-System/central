@@ -483,15 +483,28 @@ public class FileGroup extends WaspModel {
 	}
 
 	/**
-	 * @param derivedFrom the derivedFrom to set
+	 * Sets FileGroups this instance is derived from. 
+	 * Also automatically populates this instance with Samples and SampleSources from the derived FileGroups.
+	 * @param derivedFrom
 	 */
 	public void setDerivedFrom(Set<FileGroup> derivedFrom) {
-		this.derivedFrom = derivedFrom;
+		if (derivedFrom != null)
+			for (FileGroup fg : derivedFrom)
+				addDerivedFrom(fg);
 	}
 	
+	/**
+	 * Adds a fileGroups that this instance is derived from. 
+	 * Also automatically populates this instance with Samples and SampleSources from the derived FileGroup.
+	 * @param fileGroup
+	 */
 	public void addDerivedFrom(FileGroup fileGroup) {
-        if (!getDerivedFrom().contains(fileGroup)) {
-            getDerivedFrom().add(fileGroup);
+		if (!getDerivedFrom().contains(fileGroup)) {
+			getDerivedFrom().add(fileGroup);
+        	if (fileGroup.getSamples() != null)
+        		getSamples().addAll(fileGroup.getSamples());
+        	if (fileGroup.getSampleSources() != null)
+        		getSampleSources().addAll(fileGroup.getSampleSources());
         }
     }
 	

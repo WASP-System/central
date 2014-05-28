@@ -132,7 +132,6 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		bamG.addFileHandle(bam);
 		files.add(bam);
 		bamG.setFileType(bamFileType);
-		bamG.setSampleSources(cellLibraries);
 		bamG.setDerivedFrom(fastqFileGroups);
 		bamG.setDescription(bamOutput);
 		bamG.setSoftwareGeneratedBy(bwa);

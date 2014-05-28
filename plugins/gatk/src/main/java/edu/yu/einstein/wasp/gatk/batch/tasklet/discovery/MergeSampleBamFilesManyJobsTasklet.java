@@ -123,7 +123,6 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 				bamG.setDescription(bamOutput);
 				bamG.setSoftwareGeneratedById(gatk.getId());
 				bamG.setDerivedFrom(inputFileGroups);
-				bamG.setSampleSources(sampleCellLibraries.get(sample));
 				bamG = fileService.saveInDiscreteTransaction(bamG, bam, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
 				outputFileGroups.add(bamG);
 				mergedSampleFileGroupsForNextStep.put(sample, bamG);
