@@ -192,11 +192,10 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		Integer baiGId = stepExecutionContext.getInt("baiGID");
 		
 		// register .bam and .bai file groups with cellLib so as to make available to views
-		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
-		if (bamGId != null && cellLib.getId() != 0)
-			fileService.setSampleSourceFile(fileService.getFileGroupById(bamGId), cellLib);
-		if (baiGId != null && cellLib.getId() != 0)
-			fileService.setSampleSourceFile(fileService.getFileGroupById(baiGId), cellLib);	
+		if (bamGId != null)
+			fileService.getFileGroupById(bamGId).setIsActive(1);
+		if (baiGId != null)
+			fileService.getFileGroupById(baiGId).setIsActive(1);
 	}
 	
 	/** 
