@@ -80,7 +80,6 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 		}
 		entityManager.flush();
 		entityManager.refresh(entity);
-		logEntityFieldDetailsOnCRUD(entity, "returning");
 		return entity;
 	}
 
