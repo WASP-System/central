@@ -47,6 +47,8 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 	
 	private static int MEMORY_GB_4 = 4;
 	
+	private final String BWA_BAM_TAG_INDICATING_UNIQUE_ALIGNMENT = "XT:A:U";
+	
 	@Autowired
 	private SampleService sampleService;
 	
@@ -200,8 +202,8 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 			w.addCommand(picard.getMergeBamCmd("*.out.sam", tempMergedBamFilename, null, MEMORY_GB_4));
 			w.addCommand(picard.getMarkDuplicatesCmd(tempMergedBamFilename, outputBamFilename, outputBaiFilename, dedupMetricsFilename, MEMORY_GB_4));
 			
-			w.addCommand(picard.getUniquelyAlignedReadCountCmd(outputBamFilename));
-			w.addCommand(picard.getUniquelyAlignedNonRedundantReadCountCmd(outputBamFilename));
+			w.addCommand(picard.getUniquelyAlignedReadCountCmd(outputBamFilename, BWA_BAM_TAG_INDICATING_UNIQUE_ALIGNMENT));
+			w.addCommand(picard.getUniquelyAlignedNonRedundantReadCountCmd(outputBamFilename, BWA_BAM_TAG_INDICATING_UNIQUE_ALIGNMENT));
 			
 			w.addCommand("ln -s " + dedupMetricsFilename + " " + metricsOutput);//permits reading of file metricsOutput from scratch/dedupMetricsFilename 
 			
@@ -213,8 +215,8 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 			//in this way, the final .bam file is NOT marked for duplicates, but the alignement stats are still obtained
 			w.addCommand(picard.getMarkDuplicatesCmd(outputBamFilename, tempMarkedDupOutputBamNotToBeSaved, tempBaiNotToBeSaved, dedupMetricsFilename, MEMORY_GB_4));
 			
-			w.addCommand(picard.getUniquelyAlignedReadCountCmd(tempMarkedDupOutputBamNotToBeSaved));
-			w.addCommand(picard.getUniquelyAlignedNonRedundantReadCountCmd(tempMarkedDupOutputBamNotToBeSaved));
+			w.addCommand(picard.getUniquelyAlignedReadCountCmd(tempMarkedDupOutputBamNotToBeSaved, BWA_BAM_TAG_INDICATING_UNIQUE_ALIGNMENT));
+			w.addCommand(picard.getUniquelyAlignedNonRedundantReadCountCmd(tempMarkedDupOutputBamNotToBeSaved, BWA_BAM_TAG_INDICATING_UNIQUE_ALIGNMENT));
 			
 			w.addCommand("ln -s " + dedupMetricsFilename + " " + metricsOutput);//permits reading of file metricsOutput from scratch/dedupMetricsFilename 
 
