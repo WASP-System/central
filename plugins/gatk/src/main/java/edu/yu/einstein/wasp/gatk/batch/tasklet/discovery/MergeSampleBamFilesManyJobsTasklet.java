@@ -148,7 +148,7 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 				metricsG.addFileHandle(metrics);
 				metricsG.setFileType(textFileType);
 				metricsG.setDescription(metricsOutput);
-				baiG.setSoftwareGeneratedById(gatk.getId());
+				metricsG.setSoftwareGeneratedById(gatk.getId());
 				metricsG.addDerivedFrom(bamG);
 				metricsG = fileService.saveInDiscreteTransaction(metricsG, metrics);
 				outputFileGroups.add(metricsG);
