@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,6 +60,9 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 		// required for AOP/CGLIB/Batch/Annotations/BeanIdentity
 	}
 
+	@Value("${wasp.developermode:false")
+	private String devmode;
+	
 	/**
 	 * 
 	 */
@@ -152,7 +156,13 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 				"   loc=.locs\n" +
 				"  fi\n\n";
 		
-		retval += "  configureBclToFastq.pl --force --positions-format ${loc} --sample-sheet " + sampleSheetName + " --output-dir ../../../" + outputFolder + " ";
+		String dev = "";
+		if (Boolean.parseBoolean(devmode)) {
+		    logger.debug("found developer mode annotation, will only process 1 tile in each lane for illumina pipeline");
+		    dev = " --tiles 1101";
+		}
+		
+		retval += "  configureBclToFastq.pl " + dev + " --tiles 1101 --force --positions-format ${loc} --sample-sheet " + sampleSheetName + " --output-dir ../../../" + outputFolder + " ";
 		
 		if (PropertyHelper.isSet(failed) && failed == "true")
 			retval += "--with-failed-reads ";

@@ -39,14 +39,15 @@ public class WorkUnit {
 	public static final String RESULTS_DIRECTORY = "WASP_RESULT_DIR";
 	
 	/**
-	 * 0-based task array numbering $(( SGE_TASK_ID-1 )) 
+	 * 1-based task array numbering 
 	 */
 	public static final String TASK_ARRAY_ID = "WASP_TASK_ID";
 	
 	/**
-	 * 1-based task array numbering 
+	 * 0-based task array numbering
 	 */
-	public static final String SGE_TASK_ID = "SGE_TASK_ID";
+	public static final String ZERO_TASK_ARRAY_ID = "ZERO_TASK_ID";
+	
 	public static final String TASK_OUTPUT_FILE = "WASP_TASK_OUTPUT";
 	public static final String TASK_END_FILE = "WASP_TASK_END";
 	public static final String INPUT_FILE = "WASPFILE";

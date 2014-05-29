@@ -34,7 +34,7 @@ public class BWABacktrackSoftwareComponent extends AbstractBWASoftwareComponent{
 		
 		String command = "bwa aln " + alnOpts + " -t ${" + WorkUnit.NUMBER_OF_THREADS + "} " + 
 				getGenomeIndexPath(getGenomeBuild(cellLibrary)) + " " +
-				"${" + WorkUnit.INPUT_FILE + "[" + WorkUnit.TASK_ARRAY_ID + "]} " +
+				"${" + WorkUnit.INPUT_FILE + "[" + WorkUnit.ZERO_TASK_ARRAY_ID + "]} " +
 				"> sai.${" + WorkUnit.TASK_OUTPUT_FILE + "}"; 
 		
 		logger.debug("Will conduct bwa aln with string: " + command);
@@ -103,13 +103,13 @@ public class BWABacktrackSoftwareComponent extends AbstractBWASoftwareComponent{
 		String varStr = "";
 		int lim = w.getRequiredFiles().size();
 		if (method.equals("samse")) {
-			for (int i = 0; i < lim; i++) {
+			for (int i = 1; i <= lim; i++) {
 				varStr += "sai[" + i + "]=sai." + namePrefix + ":" + i + ".out\n";
 			}
 			return varStr;
 		} else {
 			int n = 0;
-			for (int i = 0; i < lim; i=i+2) {
+			for (int i = 1; i <= lim; i=i+2) {
 				varStr += "sai1[" + n + "]=sai." + namePrefix + ":" + i + ".out\n";
 				int i2 = i + 1;
 				varStr += "sai2[" + n + "]=sai." + namePrefix + ":" + i2 + ".out\n";		
