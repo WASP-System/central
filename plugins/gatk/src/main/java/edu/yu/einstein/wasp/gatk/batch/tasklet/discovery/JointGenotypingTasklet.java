@@ -94,8 +94,8 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		rawVcfOutG.setSoftwareGeneratedById(gatk.getId());
 		rawVcfOutG.setDerivedFrom(inputFileGroups);
 		rawVcfOutG = fileService.saveInDiscreteTransaction(rawVcfOutG, rawVcfOut, VcfFileTypeAttribute.ANNOTATED);
-		
-		
+		context.getStepContext().setAttribute("rawVcfFgId", rawVcfOutG.getId());
+				
 		WorkUnit w = new WorkUnit();
 		w.setMode(ExecutionMode.PROCESS);
 		w.setProcessMode(ProcessMode.MAX);
@@ -137,6 +137,16 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		
 		//place the grid result in the step context
 		storeStartedResult(context, result);
+	}
+	
+	@Transactional("entityManager")
+	@Override
+	public void doPreFinish(ChunkContext context) throws Exception {
+		if (context.getStepContext().hasAttribute("rawVcfFgId")){
+			Integer rawVcfFgId = Integer.parseInt(context.getStepContext().getAttribute("rawVcfFgId").toString());
+			logger.debug("Setting as active FileGroup with id=: " + rawVcfFgId);
+			fileService.getFileGroupById(rawVcfFgId).setIsActive(1);
+		}
 	}
 	
 
