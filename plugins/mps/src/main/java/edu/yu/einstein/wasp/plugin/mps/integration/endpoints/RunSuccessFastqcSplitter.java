@@ -78,11 +78,14 @@ public class RunSuccessFastqcSplitter extends AbstractMessageSplitter {
 		Run run = runService.getRunDao().getRunByRunId(runStatusMessageTemplate.getRunId());
 		Set<SampleSource> cellLibraries = runService.getCellLibrariesOnSuccessfulRunCells(run);
 		
+		logger.trace("checking " + cellLibraries.size() + " cell libraries for QC messaging");
+		
 		for (SampleSource cellLib : cellLibraries) {
 			Set<FileGroup> fgs = fileService.getFilesForCellLibraryByType(cellLib, fastqService.getFastqFileType());
 			for (FileGroup fg : fgs) {
 				if (fastqService.hasAttribute(fg, FastqFileTypeAttribute.TRIMMED)) {
 					FileStatusMessageTemplate messageTemplate = new FileStatusMessageTemplate(fg.getId());
+					logger.trace("Trimmed file group " + fg.getId() + " messaging for QC");
 					messageTemplate.setStatus(WaspStatus.CREATED);
 					try {
 						outputMessages.add(messageTemplate.build());
@@ -93,6 +96,7 @@ public class RunSuccessFastqcSplitter extends AbstractMessageSplitter {
 			}
 			
 		}
+		logger.debug("returning " + outputMessages.size() + " messages in response to run " + run.getId() + " completion.");
 		return outputMessages;
 	}
 

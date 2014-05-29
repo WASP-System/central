@@ -175,7 +175,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		
 	
 		w.setCommand("shopt -s nullglob\n");
-		w.addCommand("for x in sam.*.out; do ln -s ${x} ${x/*:/}.sam ; done\n");
+		w.addCommand("for x in sam.*.out; do ln -s ${x} ${x/*-/}.sam ; done\n");
 		String outputBamFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
 		String outputBaiFilename = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
 		if (markDuplicates){

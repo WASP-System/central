@@ -32,7 +32,7 @@ public class BWAMemSoftwareComponent extends AbstractBWASoftwareComponent{
 		
 		String command = "bwa mem " + alnOpts  + " -R " + this.getReadGroupString(cellLibrary) + " -t ${" + WorkUnit.NUMBER_OF_THREADS + "} " + 
 				getGenomeIndexPath(getGenomeBuild(cellLibrary)) + " " +
-				"${" + WorkUnit.INPUT_FILE + "[" + WorkUnit.TASK_ARRAY_ID + "]} " +
+				"${" + WorkUnit.INPUT_FILE + "[" + WorkUnit.ZERO_TASK_ARRAY_ID + "]} " +
 				"> sam.${" + WorkUnit.TASK_OUTPUT_FILE + "}"; 
 		
 		logger.debug("Will conduct bwa mem with string: " + command);
