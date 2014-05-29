@@ -12,6 +12,13 @@
 	    <property name="extensions" value="csv" />
   	</bean>
   	
+  	<bean id="tsvFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
+	    <property name="name" value="Tab Seperated Values" />
+	    <property name="area" value="tsv" />
+	    <property name="description" value="Tab delimited data format." />
+	    <property name="extensions" value="tsv,tab" />
+  	</bean>
+  	
   	<bean id="textFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
 	    <property name="name" value="Plain Text" />
 	    <property name="area" value="txt" />

@@ -57,6 +57,9 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 	private FileType htmlFileType;
 	
 	@Autowired
+	private FileType tsvFileType;
+	
+	@Autowired
 	private GATKSoftwareComponent gatk;
 
 	private Integer jobId;
@@ -138,6 +141,19 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 		summaryHtmlG.setDerivedFrom(inputFileGroups);
 		summaryHtmlG = fileService.saveInDiscreteTransaction(summaryHtmlG, summaryHtml);
 		outputFileGroups.add(summaryHtmlG);
+		
+		String summaryGeneFileName = outFileNamePrefix + "snpEff_geneSummary.tsv";
+		FileGroup summaryGeneG = new FileGroup();
+		FileHandle summaryGene = new FileHandle();
+		summaryGene.setFileName(summaryGeneFileName);
+		summaryGeneG.setIsActive(0);
+		summaryGeneG.addFileHandle(summaryGene);
+		summaryGeneG.setFileType(tsvFileType);
+		summaryGeneG.setDescription(summaryGeneFileName);
+		summaryGeneG.setSoftwareGeneratedById(snpEff.getId());
+		summaryGeneG.setDerivedFrom(inputFileGroups);
+		summaryGeneG = fileService.saveInDiscreteTransaction(summaryGeneG, summaryGene);
+		outputFileGroups.add(summaryGeneG);
 		
 		Map<String, String> jobParameters = new HashMap<>();
 		jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once

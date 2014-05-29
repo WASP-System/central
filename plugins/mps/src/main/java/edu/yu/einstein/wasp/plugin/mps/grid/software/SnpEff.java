@@ -27,11 +27,16 @@ public class SnpEff extends SoftwarePackage{
 	 * @param inputVcfFileName
 	 * @param outputVcfFileName
 	 * @param build
+	 * @param makeGatkCompatible
 	 * @return
 	 */
-	public String getAnnotateVcfCommand(String inputVcfFileName, String outputVcfFileName, String summaryHtmlFileName, Build build){
-		String command = "snpeff eff -v " + getSnpEffGenomeDatabaseName(build) + " " + inputVcfFileName + " > " + outputVcfFileName;
-		command += " && mv snpEff_summary.html " + summaryHtmlFileName;
+	public String getAnnotateVcfCommand(String inputVcfFileName, String outputVcfFileName, String summaryHtmlFileName, String summaryGenesFileName, Build build, boolean makeGatkCompatible){
+		String gatkCompatibilityStr = "";
+		if (makeGatkCompatible)
+			gatkCompatibilityStr = "-o gatk";
+		String command = "snpeff eff " + gatkCompatibilityStr + " -v " + getSnpEffGenomeDatabaseName(build) + " " + inputVcfFileName + " > " + outputVcfFileName;
+		command += " && ln -sf snpEff_summary.html " + summaryHtmlFileName;
+		command += " && ln -sf snpEff_genes.txt " + summaryGenesFileName;
 		logger.debug("Will conduct SnpEFF annotation with command string: " + command);
 		return command;
 	}
@@ -41,12 +46,17 @@ public class SnpEff extends SoftwarePackage{
 	 * @param inputVcfFileName
 	 * @param outputVcfFileName
 	 * @param build
+	 * @param makeGatkCompatible
 	 * @return
 	 */
-	public String getAnnotateCancerVcfCommand(String inputVcfFileName, String outputVcfFileName, String summaryHtmlFileName, Build build){
+	public String getAnnotateCancerVcfCommand(String inputVcfFileName, String outputVcfFileName, String summaryHtmlFileName, String summaryGenesFileName, Build build, boolean makeGatkCompatible){
+		String gatkCompatibilityStr = "";
+		if (makeGatkCompatible)
+			gatkCompatibilityStr = "-o gatk";
 		//  HGVS notations seems to be preferred in the clinical and cancer community hence use -hgvs to provide HGVS notation in AA sub-field.
-		String command = "snpeff eff -v -cancer -hgvs " + getSnpEffGenomeDatabaseName(build) + " " + inputVcfFileName + " > " + outputVcfFileName;
-		command += " && mv snpEff_summary.html " + summaryHtmlFileName;
+		String command = "snpeff eff " + gatkCompatibilityStr + " -v -cancer -hgvs " + getSnpEffGenomeDatabaseName(build) + " " + inputVcfFileName + " > " + outputVcfFileName;
+		command += " && ln -sf snpEff_summary.html " + summaryHtmlFileName;
+		command += " && ln -sf snpEff_genes.txt " + summaryGenesFileName;
 		logger.debug("Will conduct SnpEFF annotation with command string: " + command);
 		return command;
 	}

@@ -1,7 +1,6 @@
 package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -13,7 +12,6 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
@@ -26,7 +24,6 @@ import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.VcfFileTypeAttribute;
 import edu.yu.einstein.wasp.plugin.mps.grid.software.SnpEff;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
@@ -85,7 +82,6 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		Set<FileHandle> outFiles = new LinkedHashSet<FileHandle>();
 		
 		Job job = jobService.getJobByJobId(jobId);
-		Assert.assertTrue(job.getId() > 0);
 		String rawVcfOutFileName = fileService.generateUniqueBaseFileName(job) + "raw.vcf";
 		FileGroup rawVcfOutG = new FileGroup();
 		FileHandle rawVcfOut = new FileHandle();
@@ -97,20 +93,7 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		rawVcfOutG.setDescription(rawVcfOutFileName);
 		rawVcfOutG.setSoftwareGeneratedById(gatk.getId());
 		rawVcfOutG.setDerivedFrom(inputFileGroups);
-		rawVcfOutG = fileService.saveInDiscreteTransaction(rawVcfOutG, rawVcfOut);
-		
-		String annotatedVcfOutFileName = fileService.generateUniqueBaseFileName(job) + "annotated.vcf";
-		FileGroup annotatedVcfOutG = new FileGroup();
-		FileHandle annotatedVcfOut = new FileHandle();
-		annotatedVcfOut.setFileName(annotatedVcfOutFileName);
-		annotatedVcfOutG.setIsActive(0);
-		annotatedVcfOutG.addFileHandle(annotatedVcfOut);
-		outFiles.add(annotatedVcfOut);
-		annotatedVcfOutG.setFileType(vcfFileType);
-		annotatedVcfOutG.setDescription(annotatedVcfOutFileName);
-		annotatedVcfOutG.setSoftwareGeneratedById(gatk.getId());
-		annotatedVcfOutG.addDerivedFrom(rawVcfOutG);
-		annotatedVcfOutG = fileService.saveInDiscreteTransaction(annotatedVcfOutG, annotatedVcfOut, VcfFileTypeAttribute.ANNOTATED);
+		rawVcfOutG = fileService.saveInDiscreteTransaction(rawVcfOutG, rawVcfOut, VcfFileTypeAttribute.ANNOTATED);
 		
 		
 		WorkUnit w = new WorkUnit();
@@ -138,16 +121,19 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		for (int i=0; i < fhlist.size(); i++)
 			inputFileNames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");
 		String rawVcfFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
-		String annotatedVcfFilename = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
+		String genotypeGVCFOutputFilename = "gatk.genotypeGVCF.vcf";
+		String snpIdAnnotatedVcfFilename = "snpsift.snpIdAnnotated.vcf";
 		String snpFile = gatkService.getReferenceSnpsVcfFile(build);
-		w.setCommand(gatk.genotypeGVCFs(inputFileNames, rawVcfFilename, build, snpFile, AbstractGatkTasklet.MEMORY_GB_8, AbstractGatkTasklet.THREADS_8));
+		String indelsFile = gatkService.getReferenceIndelsVcfFile(build);
+		w.setCommand(gatk.genotypeGVCFs(inputFileNames, genotypeGVCFOutputFilename, build, AbstractGatkTasklet.MEMORY_GB_8, AbstractGatkTasklet.THREADS_8));
 		
-		// we have already added snp database Ids during haplotype calling. We will now also add indel database ids
-		w.addCommand(snpEff.getAnnotateIdsCommand(rawVcfFilename, gatkService.getReferenceIndelsVcfFile(build), annotatedVcfFilename));
+		// We will now add snp and indel database ids
+		w.addCommand(snpEff.getAnnotateIdsCommand(genotypeGVCFOutputFilename, snpFile, snpIdAnnotatedVcfFilename));
+		w.addCommand(snpEff.getAnnotateIdsCommand(snpIdAnnotatedVcfFilename, indelsFile, rawVcfFilename));
 
 		GridResult result = gridHostResolver.execute(w);
 		
-		context.getStepContext().getStepExecution().getExecutionContext().put("combinedGenotypedVcfFgId", annotatedVcfOutG.getId().toString());
+		context.getStepContext().getStepExecution().getExecutionContext().put("combinedGenotypedVcfFgId", rawVcfOutG.getId().toString());
 		
 		//place the grid result in the step context
 		storeStartedResult(context, result);

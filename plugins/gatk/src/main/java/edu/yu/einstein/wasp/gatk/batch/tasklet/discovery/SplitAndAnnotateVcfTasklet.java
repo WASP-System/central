@@ -85,13 +85,14 @@ public class SplitAndAnnotateVcfTasklet extends AbstractGatkTasklet {
 		String subsetVcfFileName = "subset.${" + WorkUnit.OUTPUT_FILE + "[0]}.vcf";
 		String outputVcfFileName = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
 		String outputHtmlSummaryFileName = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
+		String outputGenesSummaryFileName = "${" + WorkUnit.OUTPUT_FILE + "[2]}";
 		w.addCommand(vcfTools.getVcfSubsetCommand(inputVcfFileName, subsetVcfFileName, sampleIdentifierSet, false));
 		List<String> sampleIdentifierList = Arrays.asList(StringUtils.commaDelimitedListToStringArray(sampleIdentifierSet));
 		if (sampleIdentifierList.size() == 2){ // e.g. cancer Tumor / Normal pairs
 			w.addCommand(snpEff.getAddPedigreeToHeaderCommand(subsetVcfFileName, sampleIdentifierList.get(0), sampleIdentifierList.get(1)));
-			w.addCommand(snpEff.getAnnotateCancerVcfCommand(subsetVcfFileName, outputVcfFileName, outputHtmlSummaryFileName, build));
+			w.addCommand(snpEff.getAnnotateCancerVcfCommand(subsetVcfFileName, outputVcfFileName, outputHtmlSummaryFileName, outputGenesSummaryFileName, build, true));
 		} else {
-			w.addCommand(snpEff.getAnnotateVcfCommand(subsetVcfFileName, outputVcfFileName, outputHtmlSummaryFileName, build));
+			w.addCommand(snpEff.getAnnotateVcfCommand(subsetVcfFileName, outputVcfFileName, outputHtmlSummaryFileName, outputGenesSummaryFileName, build, true));
 		}
 		
 		GridResult result = gridHostResolver.execute(w);

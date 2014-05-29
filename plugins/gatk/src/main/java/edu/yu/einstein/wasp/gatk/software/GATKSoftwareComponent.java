@@ -153,13 +153,13 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return command;
 	}
 	
-	public String getCallVariantsByUnifiedGenotyper(Set<String> inputFileNames, String outputFileName, String referenceGenomeFile, String snpFile, 
+	public String getCallVariantsByUnifiedGenotyper(Set<String> inputFileNames, String outputFileName, String referenceGenomeFile, 
 			String intervalFile, String additionalOptions, int memRequiredGb, int numProcessors)  {
 		String command = "java -Xmx" + memRequiredGb + "g" +
 		" -Djava.io.tmpdir=. -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt " + numProcessors;
 		for (String fileName : inputFileNames)
 			command += " -I " + fileName;
-		command += " -R " + referenceGenomeFile + " -T UnifiedGenotyper -o " + outputFileName + " --dbsnp " + snpFile + 
+		command += " -R " + referenceGenomeFile + " -T UnifiedGenotyper -o " + outputFileName + 
 		" -l INFO -baq CALCULATE_AS_NECESSARY -dt BY_SAMPLE -G Standard -rf BadCigar -A Coverage -A MappingQualityRankSumTest" +
 		" -A FisherStrand -A InbreedingCoeff -A ReadPosRankSumTest -A QualByDepth -A HaplotypeScore -A RMSMappingQuality -glm BOTH " + additionalOptions;
 		if (intervalFile != null) 
@@ -169,8 +169,8 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return command;
 	}
 	
-	public String genotypeGVCFs(Set<String> inputFileNames, String outputFileName, Build build, String snpFile, int memRequiredGb, int numProcessors){
-		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -T GenotypeGVCFs -nt " + numProcessors + " --dbsnp " + snpFile;
+	public String genotypeGVCFs(Set<String> inputFileNames, String outputFileName, Build build, int memRequiredGb, int numProcessors){
+		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -T GenotypeGVCFs -nt " + numProcessors;
 		for (String fileName : inputFileNames)
 			command += " -V " + fileName;
 		command += " -R " + genomeService.getReferenceGenomeFastaFile(build) + " -o " + outputFileName;

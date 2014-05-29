@@ -89,12 +89,11 @@ public class CallVariantsWithUGTasklet extends AbstractGatkTasklet implements St
 			inputBamFilenames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");
 		String outputFileName = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
 		String referenceGenomeFile = genomeService.getReferenceGenomeFastaFile(build);
-		String snpFile = gatkService.getReferenceSnpsVcfFile(build);
 		String wxsIntervalFile = null;
 		if (strategy.getStrategy().equals("WXS"))
 			wxsIntervalFile = gatkService.getWxsIntervalFile(job, build);
 
-		w.setCommand(gatk.getCallVariantsByUnifiedGenotyper(inputBamFilenames, outputFileName, referenceGenomeFile, snpFile, wxsIntervalFile, gatkOpts, MEMORY_GB_8, THREADS_8));
+		w.setCommand(gatk.getCallVariantsByUnifiedGenotyper(inputBamFilenames, outputFileName, referenceGenomeFile, wxsIntervalFile, gatkOpts, MEMORY_GB_8, THREADS_8));
 		
 		GridResult result = gridHostResolver.execute(w);
 		
