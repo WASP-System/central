@@ -113,7 +113,7 @@ public abstract class AbstractGatkTasklet extends WaspRemotingTasklet {
 	public static LinkedHashSet<Integer> getModelIdsFromCommaDelimitedString(String modelIdListString){
 		logger.trace("extracting: " + modelIdListString);
 		LinkedHashSet<Integer> modelIds = new LinkedHashSet<>();
-		for (String idStr : StringUtils.commaDelimitedListToSet(modelIdListString))
+		for (String idStr : StringUtils.commaDelimitedListToStringArray(modelIdListString))
 			modelIds.add(Integer.parseInt(idStr));
 		return modelIds;
 	}
@@ -122,7 +122,7 @@ public abstract class AbstractGatkTasklet extends WaspRemotingTasklet {
 	public static LinkedHashSet<FileGroup> getFileGroupsFromCommaDelimitedString(String fileGroupIdListString, FileService fileService){
 		logger.trace("extracting: " + fileGroupIdListString);
 		LinkedHashSet<FileGroup> filegroups = new LinkedHashSet<>();
-		for (String fgIdStr : StringUtils.commaDelimitedListToSet(fileGroupIdListString))
+		for (String fgIdStr : StringUtils.commaDelimitedListToStringArray(fileGroupIdListString))
 			filegroups.add(fileService.getFileGroupById(Integer.parseInt(fgIdStr)));
 		return filegroups;
 	}
@@ -153,29 +153,6 @@ public abstract class AbstractGatkTasklet extends WaspRemotingTasklet {
 			sampleFileGroups.put(sample, fileService.getFileGroupById(jsonObject.getInt(sampleIdObj.toString())));
 		}
 		return sampleFileGroups;
-	}
-	
-	public static String getFgSamplesMapAsJsonString(Map<FileGroup, LinkedHashSet<Sample>> fileGroupSamples){
-		JSONObject jsonObject = new JSONObject();
-		for (FileGroup fg: fileGroupSamples.keySet())
-			jsonObject.put(fg.getId().toString(), getModelIdsAsCommaDelimitedString(fileGroupSamples.get(fg)));
-		logger.trace("returning json: " + jsonObject.toString());
-		return jsonObject.toString();
-	}
-	
-	@Transactional("entityManager")
-	public static Map<FileGroup, LinkedHashSet<Sample>> getFgSamplesMapFromJsonString(String jsonString, SampleService sampleService, FileService fileService){
-		logger.trace("extracting json: " + jsonString);
-		JSONObject jsonObject = new JSONObject(jsonString);
-		Map<FileGroup, LinkedHashSet<Sample>> fileGroupSamples = new HashMap<>();
-		for (Object fgIdObj : jsonObject.keySet()){
-			FileGroup fg = fileService.getFileGroupById(Integer.parseInt(fgIdObj.toString()));
-			LinkedHashSet<Sample> sampleSet = new LinkedHashSet<>();
-			for (Integer sampleId : getModelIdsFromCommaDelimitedString(jsonObject.getString(fgIdObj.toString())))
-				sampleSet.add(sampleService.getSampleById(sampleId));
-			fileGroupSamples.put(fg, sampleSet);
-		}
-		return fileGroupSamples;
 	}
 	
 	@Transactional("entityManager")

@@ -107,6 +107,7 @@ public class BWAmemTasklet extends WaspRemotingTasklet implements StepExecutionL
 		// to the job context at run time.
 		stepExecutionContext.put("cellLibId", cellLib.getId()); 
 		stepExecutionContext.put("scrDir", result.getWorkingDirectory());
+		stepExecutionContext.put("method", "mem");
 	}
 	
 	/** 

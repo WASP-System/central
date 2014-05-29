@@ -30,7 +30,9 @@ import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.bwa.software.AbstractBWASoftwareComponent;
 import edu.yu.einstein.wasp.plugin.bwa.software.BWABacktrackSoftwareComponent;
+import edu.yu.einstein.wasp.plugin.bwa.software.BWAMemSoftwareComponent;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.BamFileTypeAttribute;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.plugin.mps.grid.software.Samtools;
@@ -77,7 +79,10 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 	private GridHostResolver gridHostResolver;
 	
 	@Autowired
-	private BWABacktrackSoftwareComponent bwa;
+	private BWABacktrackSoftwareComponent bwaBacktrack;
+	
+	@Autowired
+	private BWAMemSoftwareComponent bwaMem;
 	
 	public BWAMergeSortDedupTasklet() {
 		// proxy
@@ -92,12 +97,16 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		StepExecution stepExecution = context.getStepContext().getStepExecution();
 		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
 		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
-		Picard picard = (Picard) bwa.getSoftwareDependencyByIname("picard");
-		Samtools samtools = (Samtools) bwa.getSoftwareDependencyByIname("samtools");
 		
 		// retrieve attributes persisted in jobExecutionContext
 		String scratchDirectory = jobExecutionContext.get("scrDir").toString();
 		Integer cellLibId = jobExecutionContext.getInt("cellLibId");
+		AbstractBWASoftwareComponent bwa = bwaMem;
+		if (jobExecutionContext.getString("method").equals("backtrack"))
+			bwa = bwaBacktrack;
+		
+		Picard picard = (Picard) bwa.getSoftwareDependencyByIname("picard");
+		Samtools samtools = (Samtools) bwa.getSoftwareDependencyByIname("samtools");
 		
 		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);
 		Set<SampleSource> cellLibraries = new HashSet<>();
@@ -134,7 +143,6 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		bamG.addFileHandle(bam);
 		files.add(bam);
 		bamG.setFileType(bamFileType);
-		bamG.setSampleSources(cellLibraries);
 		bamG.setDerivedFrom(fastqFileGroups);
 		bamG.setDescription(bamOutput);
 		bamG.setSoftwareGeneratedBy(bwa);
@@ -186,7 +194,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		stepExecutionContext.put("metricsGID", metricsGId);
 		
 		w.setCommand("shopt -s nullglob\n");
-		w.addCommand("for x in sam.*.out; do ln -s ${x} ${x/*:/}.sam ; done\n");
+		w.addCommand("for x in sam.*.out; do ln -s ${x} ${x/*-/}.sam ; done\n");
 		String outputBamFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
 		String outputBaiFilename = "${" + WorkUnit.OUTPUT_FILE + "[1]}";			
 		String dedupMetricsFilename = "${" + WorkUnit.OUTPUT_FILE + "[2]}";
@@ -241,16 +249,16 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 	public void doPreFinish(ChunkContext context) throws Exception {
 		StepExecution stepExecution = context.getStepContext().getStepExecution();
 		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
+		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
 		Integer bamGId = stepExecutionContext.getInt("bamGID");
 		Integer baiGId = stepExecutionContext.getInt("baiGID");
 		Integer metricsGId = null; 
 		if (stepExecutionContext.containsKey("metricsGID"))
-		        metricsGId = stepExecutionContext.getInt("metricsGID");
+			metricsGId = stepExecutionContext.getInt("metricsGID");
 		
-		Picard picard = (Picard) bwa.getSoftwareDependencyByIname("picard");
+		Picard picard = (Picard) bwaMem.getSoftwareDependencyByIname("picard");
 		
 		// retrieve attributes persisted in jobExecutionContext
-		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
 		String scratchDirectory = jobExecutionContext.get("scrDir").toString();
 		Integer cellLibId = jobExecutionContext.getInt("cellLibId");		
 		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);

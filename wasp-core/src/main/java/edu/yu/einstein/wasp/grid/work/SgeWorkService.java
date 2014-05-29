@@ -530,7 +530,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		w.setResultsDirectory(g.getResultsDirectory());
 		w.setRegistering(true);
 		w.setMode(ExecutionMode.TASK_ARRAY);
-		w.addCommand("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"0\" ]; then touch " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
+		w.addCommand("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then touch " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
 		int files = 0;
 		for (Integer hid : g.getFileHandleIds()) {
 			FileHandle fh = getFileService().getFileHandleById(hid);
@@ -540,10 +540,10 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
             getFileService().addFile(fh);
         }
 		w.setNumberOfTasks(files);
-		w.addCommand("THIS=${COPY[WASP_TASK_ID]}");
+		w.addCommand("THIS=${COPY[ZERO_TASK_ID]}");
 		w.addCommand("read -ra FILE <<< \"$THIS\"");
 		w.addCommand("cp -f ${FILE[0]} ${" + WorkUnit.RESULTS_DIRECTORY + "}${FILE[1]}");
-		w.addCommand("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"0\" ]; then rm -f " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
+		w.addCommand("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then rm -f " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
 		GridResult r = execute(w);
 		logger.trace("waiting for results file copy");
 		ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
@@ -768,9 +768,10 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 					WorkUnit.RESULTS_DIRECTORY + "=" + w.remoteResultsDirectory + "\n";
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY)) {
-				preamble += WorkUnit.TASK_ARRAY_ID + "=$[SGE_TASK_ID-1]\n" + 
-						WorkUnit.TASK_OUTPUT_FILE + "=$WASPNAME-${SGE_TASK_ID}.out\n" +
-						WorkUnit.TASK_END_FILE + "=$WASPNAME:${SGE_TASK_ID}.end\n";
+				preamble += WorkUnit.TASK_ARRAY_ID + "=$[SGE_TASK_ID]\n" + 
+				                WorkUnit.ZERO_TASK_ARRAY_ID + "=${ZERO_TASK_ID}\n" +
+						WorkUnit.TASK_OUTPUT_FILE + "=$WASPNAME-${WASP_TASK_ID}.out\n" +
+						WorkUnit.TASK_END_FILE + "=$WASPNAME:${WASP_TASK_ID}.end\n";
 			}
 			
 			String metadata = transportConnection.getConfiguredSetting("metadata.root");
@@ -850,7 +851,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 					"echo \"##### end ${" + WorkUnit.JOB_NAME + "}\" >> " + w.remoteWorkingDirectory + "${" + WorkUnit.JOB_NAME + "}.command\n";
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
-			    postscript = "if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"0\" ]; then\n" + postscript + "fi\n";
+			    postscript = "if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then\n" + postscript + "fi\n";
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY)) {
 				postscript += "touch ${" + WorkUnit.WORKING_DIRECTORY + "}/${" + WorkUnit.TASK_END_FILE + "}\n" +

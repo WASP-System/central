@@ -11,6 +11,7 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
@@ -53,26 +54,29 @@ public class SplitAndAnnotateVcfTasklet extends AbstractGatkTasklet {
 		w.setSecureResults(true);
 		Build build = null;
 		
-		List<FileHandle> fhlist = new ArrayList<FileHandle>();
+		List<FileHandle> inFilelist = new ArrayList<FileHandle>();
 		for (Integer fgId : this.getInputFilegroupIds()){
 			FileGroup fg = fileService.getFileGroupById(fgId);
-			if (fhlist.isEmpty()) // first entry not yet entered
+			if (inFilelist.isEmpty()) // first entry not yet entered
 				build = gatkService.getBuildForFg(fg);
-			fhlist.addAll(fg.getFileHandles());
+			inFilelist.addAll(fg.getFileHandles());
 		}
-		w.setRequiredFiles(fhlist);
+		w.setRequiredFiles(inFilelist);
 		
 		LinkedHashSet<FileHandle> outFiles = new LinkedHashSet<FileHandle>();
 		
 		for (Integer fgId : this.getOutputFilegroupIds()){
 			FileGroup fg = fileService.getFileGroupById(fgId);
 			// single file handle groups
-			outFiles.add(fg.getFileHandles().iterator().next());
+			if (fg.getFileHandles().iterator().hasNext())
+            	outFiles.add(fg.getFileHandles().iterator().next());
+            else
+            	throw new WaspRuntimeException("Cannot obtain a single filehandle from FileGroup id=" + fgId);
 		}
 		w.setResultFiles(outFiles);
 		List<SoftwarePackage> dependencies = new ArrayList<>();
-		VcfTools vcfTools = (VcfTools) gatk.getSoftwareDependencyByIname("vcfTools");
-		SnpEff snpEff = (SnpEff) gatk.getSoftwareDependencyByIname("SnpEff");
+		VcfTools vcfTools = (VcfTools) gatk.getSoftwareDependencyByIname("vcftools");
+		SnpEff snpEff = (SnpEff) gatk.getSoftwareDependencyByIname("snpEff");
 		dependencies.add(gatk);
 		dependencies.add(snpEff);
 		dependencies.add(vcfTools);
@@ -81,13 +85,14 @@ public class SplitAndAnnotateVcfTasklet extends AbstractGatkTasklet {
 		String subsetVcfFileName = "subset.${" + WorkUnit.OUTPUT_FILE + "[0]}.vcf";
 		String outputVcfFileName = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
 		String outputHtmlSummaryFileName = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
+		String outputGenesSummaryFileName = "${" + WorkUnit.OUTPUT_FILE + "[2]}";
 		w.addCommand(vcfTools.getVcfSubsetCommand(inputVcfFileName, subsetVcfFileName, sampleIdentifierSet, false));
 		List<String> sampleIdentifierList = Arrays.asList(StringUtils.commaDelimitedListToStringArray(sampleIdentifierSet));
 		if (sampleIdentifierList.size() == 2){ // e.g. cancer Tumor / Normal pairs
 			w.addCommand(snpEff.getAddPedigreeToHeaderCommand(subsetVcfFileName, sampleIdentifierList.get(0), sampleIdentifierList.get(1)));
-			w.addCommand(snpEff.getAnnotateCancerVcfCommand(subsetVcfFileName, outputVcfFileName, outputHtmlSummaryFileName, build));
+			w.addCommand(snpEff.getAnnotateCancerVcfCommand(subsetVcfFileName, outputVcfFileName, outputHtmlSummaryFileName, outputGenesSummaryFileName, build, true));
 		} else {
-			w.addCommand(snpEff.getAnnotateVcfCommand(subsetVcfFileName, outputVcfFileName, outputHtmlSummaryFileName, build));
+			w.addCommand(snpEff.getAnnotateVcfCommand(subsetVcfFileName, outputVcfFileName, outputHtmlSummaryFileName, outputGenesSummaryFileName, build, true));
 		}
 		
 		GridResult result = gridHostResolver.execute(w);

@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.Strategy.StrategyType;
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
@@ -55,12 +56,15 @@ public class CallVariantsWithUGTasklet extends AbstractGatkTasklet implements St
 		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
 		LinkedHashSet<FileHandle> outFiles = new LinkedHashSet<FileHandle>();
-                for (Integer fgId : this.getOutputFilegroupIds()){
-                        FileGroup fg = fileService.getFileGroupById(fgId);
-                        // single file handle groups
-                        outFiles.add(fg.getFileHandles().iterator().next());
-                }
-                w.setResultFiles(outFiles);
+        for (Integer fgId : this.getOutputFilegroupIds()){
+            FileGroup fg = fileService.getFileGroupById(fgId);
+            // single file handle groups
+            if (fg.getFileHandles().iterator().hasNext())
+            	outFiles.add(fg.getFileHandles().iterator().next());
+            else
+            	throw new WaspRuntimeException("Cannot obtain a single filehandle from FileGroup id=" + fgId);
+        }
+        w.setResultFiles(outFiles);
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();
 		for (Integer fgId : this.getInputFilegroupIds()){
 			FileGroup fg = fileService.getFileGroupById(fgId);
@@ -85,12 +89,11 @@ public class CallVariantsWithUGTasklet extends AbstractGatkTasklet implements St
 			inputBamFilenames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");
 		String outputFileName = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
 		String referenceGenomeFile = genomeService.getReferenceGenomeFastaFile(build);
-		String snpFile = gatkService.getReferenceSnpsVcfFile(build);
 		String wxsIntervalFile = null;
 		if (strategy.getStrategy().equals("WXS"))
 			wxsIntervalFile = gatkService.getWxsIntervalFile(job, build);
 
-		w.setCommand(gatk.getCallVariantsByUnifiedGenotyper(inputBamFilenames, outputFileName, referenceGenomeFile, snpFile, wxsIntervalFile, gatkOpts, MEMORY_GB_8, THREADS_8));
+		w.setCommand(gatk.getCallVariantsByUnifiedGenotyper(inputBamFilenames, outputFileName, referenceGenomeFile, wxsIntervalFile, gatkOpts, MEMORY_GB_8, THREADS_8));
 		
 		GridResult result = gridHostResolver.execute(w);
 		

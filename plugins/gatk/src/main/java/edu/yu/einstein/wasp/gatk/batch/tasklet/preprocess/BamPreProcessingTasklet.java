@@ -137,6 +137,7 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		bamG.setFileType(bamFileType);
 		bamG.setDescription(bamOutput);
 		bamG.setSoftwareGeneratedById(gatk.getId());
+		bamG.addDerivedFrom(fg);
 		bamG = fileService.addFileGroup(bamG);
 		fileTypeService.setAttributes(bamG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
 		Integer bamGId = bamG.getId();
@@ -153,6 +154,7 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		baiG.setDescription(baiOutput);
 		baiG.setSoftwareGeneratedById(gatk.getId());
 		baiG = fileService.addFileGroup(baiG);
+		baiG.addDerivedFrom(bamG);
 		Integer baiGId = baiG.getId();
 		// save in step context for use later
 		stepExecutionContext.put("baiGID", baiGId);
@@ -192,11 +194,10 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		Integer baiGId = stepExecutionContext.getInt("baiGID");
 		
 		// register .bam and .bai file groups with cellLib so as to make available to views
-		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
-		if (bamGId != null && cellLib.getId() != 0)
-			fileService.setSampleSourceFile(fileService.getFileGroupById(bamGId), cellLib);
-		if (baiGId != null && cellLib.getId() != 0)
-			fileService.setSampleSourceFile(fileService.getFileGroupById(baiGId), cellLib);	
+		if (bamGId != null)
+			fileService.getFileGroupById(bamGId).setIsActive(1);
+		if (baiGId != null)
+			fileService.getFileGroupById(baiGId).setIsActive(1);
 	}
 	
 	/** 

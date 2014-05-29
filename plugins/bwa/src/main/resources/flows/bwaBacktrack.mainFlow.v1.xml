@@ -32,7 +32,7 @@
 			<batch:listeners>
 				<batch:listener>
 					<bean class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
-						<property name="keys" value="scrDir,alnName,alnStr,cellLibId"  />
+						<property name="keys" value="scrDir,alnName,alnStr,cellLibId,method"  />
 						<property name="statuses" value="COMPLETED,FAILED" />
 					</bean>
 				</batch:listener>

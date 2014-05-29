@@ -16,6 +16,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -369,6 +370,29 @@ public interface FileService extends WaspService {
 	public void removeFileHandleFromRemoteServerAndMarkDeleted(FileHandle fileHandle) throws Exception;
 
 	public String generateJobSoftwareBaseFolderName(Job job, Software software);
+
+	public FileHandle saveInDiscreteTransaction(FileHandle file);
+
+	public FileGroup saveInDiscreteTransaction(FileGroup group);
+
+	/**
+	 * CamelCase the name and remove any illegal characters
+	 * @param name
+	 * @return
+	 */
+	public String getSanitizedName(String name);
+
+	public FileGroup saveInDiscreteTransaction(FileGroup group, LinkedHashSet<FileHandle> files, Set<? extends FileTypeAttribute> attributes);
+
+	public FileGroup saveInDiscreteTransaction(FileGroup group, LinkedHashSet<FileHandle> files, FileTypeAttribute fgAttribute);
+
+	public FileGroup saveInDiscreteTransaction(FileGroup group, FileHandle file, Set<? extends FileTypeAttribute> fgAttributes);
+
+	public FileGroup saveInDiscreteTransaction(FileGroup group, FileHandle file, FileTypeAttribute fgAttribute);
+
+	public FileGroup saveInDiscreteTransaction(FileGroup group, FileHandle file);
+
+	public FileGroup saveInDiscreteTransaction(FileGroup group, LinkedHashSet<FileHandle> files);
 
 }
 

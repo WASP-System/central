@@ -85,13 +85,13 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		command += " -R " + 
 				genomeService.getReferenceGenomeFastaFile(build) + " -T  IndelRealigner --nWayOut .getLocalAlign" + 
 				" -targetIntervals " + intervalFilename + " -known " + gatkService.getReferenceIndelsVcfFile(build);
-		int i = -1;
 		Iterator<String> outFileIterator = outputFilenames.iterator();
 		for (String fileName : inputFilenames){
 			if (outFileIterator.hasNext())
-				command += " && temp[" + ++i + "]=" + fileName + ";mv ${temp[" + i + "]/.bam/.getLocalAlign} " + outFileIterator.next();
+				command += " && inFilePath=" + fileName + ";inFile=${inFilePath##*/};tempOutFile=${inFile/.bam/.getLocalAlign};ln -sf $tempOutFile " + 
+						outFileIterator.next();
 			if (hasBaiFiles && outFileIterator.hasNext())
-				command += ";mv ${temp[" + i + "]/.bam/.getLocalAlign}.bai " + outFileIterator.next();
+				command += ";ln -sf ${tempOutFile}.bai " + outFileIterator.next();
 		}
 			
 		logger.debug("Will conduct gatk local re-alignment with string: " + command);
@@ -138,13 +138,13 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return gatkOpts;
 	}
 	
-	public String getCallVariantsByHaplotypeCaller(Set<String> inputFileNames, String outputGvcfFile, String referenceGenomeFile, String snpFile, 
+	public String getCallVariantsByHaplotypeCaller(Set<String> inputFileNames, String outputGvcfFile, String referenceGenomeFile, 
 			String intervalFile, String additionalOptions, int memRequiredGb, int numProcessors){
 		String command = "java -Xmx" + memRequiredGb + "g" +
 		" -Djava.io.tmpdir=. -jar $GATK_ROOT/GenomeAnalysisTK.jar -nct " + numProcessors;
 		for (String fileName : inputFileNames)
 			command += " -I " + fileName;
-		command += " -R " + referenceGenomeFile + " -T HaplotypeCaller -o " + outputGvcfFile + " --dbsnp " + snpFile + 
+		command += " -R " + referenceGenomeFile + " -T HaplotypeCaller -o " + outputGvcfFile + 
 				" --genotyping_mode DISCOVERY --emitRefConfidence GVCF --variant_index_type LINEAR --variant_index_parameter 128000 " + additionalOptions;
 		if (intervalFile != null) 
 			command += " -L " + intervalFile;
@@ -153,13 +153,13 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return command;
 	}
 	
-	public String getCallVariantsByUnifiedGenotyper(Set<String> inputFileNames, String outputFileName, String referenceGenomeFile, String snpFile, 
+	public String getCallVariantsByUnifiedGenotyper(Set<String> inputFileNames, String outputFileName, String referenceGenomeFile, 
 			String intervalFile, String additionalOptions, int memRequiredGb, int numProcessors)  {
 		String command = "java -Xmx" + memRequiredGb + "g" +
 		" -Djava.io.tmpdir=. -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt " + numProcessors;
 		for (String fileName : inputFileNames)
 			command += " -I " + fileName;
-		command += " -R " + referenceGenomeFile + " -T UnifiedGenotyper -o " + outputFileName + " --dbsnp " + snpFile + 
+		command += " -R " + referenceGenomeFile + " -T UnifiedGenotyper -o " + outputFileName + 
 		" -l INFO -baq CALCULATE_AS_NECESSARY -dt BY_SAMPLE -G Standard -rf BadCigar -A Coverage -A MappingQualityRankSumTest" +
 		" -A FisherStrand -A InbreedingCoeff -A ReadPosRankSumTest -A QualByDepth -A HaplotypeScore -A RMSMappingQuality -glm BOTH " + additionalOptions;
 		if (intervalFile != null) 
