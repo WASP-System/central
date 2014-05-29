@@ -158,7 +158,7 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 				jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(outputFileGroups));
 				jobParameters.put(WaspSoftwareJobParameters.JOB_ID, jobId.toString());
 				try {
-					requestLaunch("gatk.variantDiscovery.hc.mergeSampleBamFiles.jobFlow", jobParameters);
+					requestLaunch("gatk.variantDiscovery.mergeSampleBamFiles.jobFlow", jobParameters);
 				} catch (WaspMessageBuildingException e) {
 					e.printStackTrace();
 				}

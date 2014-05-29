@@ -18,6 +18,8 @@ import org.springframework.util.StringUtils;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.LaunchManyJobsTasklet;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.filetype.FileTypeAttribute;
+import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -51,6 +53,9 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 	private FileService fileService;
 	
 	@Autowired
+	private FileTypeService fileTypeService;
+	
+	@Autowired
 	private FileType vcfFileType;
 	
 	@Autowired
@@ -73,10 +78,13 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 	public void doExecute() {
 		Job job = jobService.getJobByJobId(jobId);
 		Assert.assertTrue(job.getId() > 0);
-		FileGroup combinedGenotypedVcfFg = null;
+		FileGroup filteredSnpsVcfFg = null;
+		FileGroup filteredIndelsVcfFg = null;
 		ExecutionContext jobExecutionContext = this.getStepExecution().getJobExecution().getExecutionContext();
-		if (jobExecutionContext.containsKey("combinedGenotypedVcfFgId"))
-			combinedGenotypedVcfFg = fileService.getFileGroupById(Integer.parseInt(jobExecutionContext.getString("combinedGenotypedVcfFgId")));
+		if (jobExecutionContext.containsKey("filteredSnpsVcfFgId"))
+			filteredSnpsVcfFg = fileService.getFileGroupById(Integer.parseInt(jobExecutionContext.getString("filteredSnpsVcfFgId")));
+		if (jobExecutionContext.containsKey("filteredIndelsVcfFgId"))
+			filteredIndelsVcfFg = fileService.getFileGroupById(Integer.parseInt(jobExecutionContext.getString("filteredIndelsVcfFgId")));
 		
 		// a set of bam filegroups was previously registered corresponding to the inputs of the variant calling step. We now need to obtain a vcf file
 		// corresponding to the result of haplotype calling and combined genotyping for each bam file input 
@@ -87,8 +95,7 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 			samplesFgMapUsedForVarCalling.putAll(AbstractGatkTasklet.getSampleFgMapFromJsonString(jobExecutionContext.getString("sampleFgMap"), sampleService, fileService));
 	
 		// split and annotate per sample or per sample pair as appropriate
-		LinkedHashSet<FileGroup> inputFileGroups = new LinkedHashSet<>();
-		inputFileGroups.add(combinedGenotypedVcfFg);
+		
 		Set<Sample> processedSamples = new HashSet<>();
 		for (SampleSource samplePair : sampleService.getSamplePairsByJob(job)){
 			LinkedHashSet<String> sampleIdentifierSet = new LinkedHashSet<>(); 
@@ -100,7 +107,8 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 			sampleIdentifierSet.add(test.getUUID().toString());
 			sampleIdentifierSet.add(control.getUUID().toString());
 			String outFileNamePrefix = fileService.generateUniqueBaseFileName(test) + fileService.generateUniqueBaseFileName(control);
-			prepareOutFilesAndLaunchJob(inputFileGroups, outFileNamePrefix, sampleIdentifierSet);	
+			prepareOutFilesAndLaunchJob(filteredSnpsVcfFg, outFileNamePrefix + "snps.", sampleIdentifierSet);
+			prepareOutFilesAndLaunchJob(filteredIndelsVcfFg, outFileNamePrefix + "indels.", sampleIdentifierSet);
 		}
 		for (Sample sample : samplesFgMapUsedForVarCalling.keySet()){
 			if (processedSamples.contains(sample))
@@ -109,11 +117,14 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 			LinkedHashSet<String> sampleIdentifierSet = new LinkedHashSet<>(); 
 			sampleIdentifierSet.add(sample.getUUID().toString());
 			String outFileNamePrefix = fileService.generateUniqueBaseFileName(sample);
-			prepareOutFilesAndLaunchJob(inputFileGroups, outFileNamePrefix, sampleIdentifierSet);	
+			prepareOutFilesAndLaunchJob(filteredSnpsVcfFg, outFileNamePrefix + "filteredSnps.", sampleIdentifierSet);
+			prepareOutFilesAndLaunchJob(filteredIndelsVcfFg, outFileNamePrefix + "filteredIndels.", sampleIdentifierSet);
 		}
 	}
 	
-	private void prepareOutFilesAndLaunchJob(LinkedHashSet<FileGroup> inputFileGroups, String outFileNamePrefix, LinkedHashSet<String> sampleIdentifierSet){
+	private void prepareOutFilesAndLaunchJob(FileGroup inputFileGroup, String outFileNamePrefix, LinkedHashSet<String> sampleIdentifierSet){
+		LinkedHashSet<FileGroup> inputFileGroups = new LinkedHashSet<>();
+		inputFileGroups.add(inputFileGroup);
 		SnpEff snpEff = (SnpEff) gatk.getSoftwareDependencyByIname("snpEff");
 		LinkedHashSet<FileGroup> outputFileGroups = new LinkedHashSet<>();
 		String vcfFileName = outFileNamePrefix + "annotated.vcf";
@@ -126,7 +137,10 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 		vcfG.setDescription(vcfFileName);
 		vcfG.setSoftwareGeneratedById(snpEff.getId());
 		vcfG.setDerivedFrom(inputFileGroups);
-		vcfG = fileService.saveInDiscreteTransaction(vcfG, vcf, VcfFileTypeAttribute.ANNOTATED);
+		
+		Set<FileTypeAttribute> fta = new HashSet<>(fileTypeService.getAttributes(inputFileGroup));
+		fta.add(VcfFileTypeAttribute.ANNOTATED);
+		vcfG = fileService.saveInDiscreteTransaction(vcfG, vcf, fta);
 		outputFileGroups.add(vcfG);
 		
 		String summaryHtmlFileName = outFileNamePrefix + "snpEff_summary.htm";
@@ -162,7 +176,7 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 		jobParameters.put("sampleIdentifierSet", StringUtils.collectionToCommaDelimitedString(sampleIdentifierSet));
 		jobParameters.put(WaspSoftwareJobParameters.JOB_ID, jobId.toString());
 		try {
-			requestLaunch("gatk.variantDiscovery.hc.splitAndAnnotateVariants.jobFlow", jobParameters);
+			requestLaunch("gatk.variantDiscovery.splitAndAnnotateVariants.jobFlow", jobParameters);
 		} catch (WaspMessageBuildingException e) {
 			e.printStackTrace();
 		}

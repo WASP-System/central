@@ -25,9 +25,9 @@ import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.VcfFileTypeAttribute;
-import edu.yu.einstein.wasp.plugin.mps.grid.software.SnpEff;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
@@ -50,6 +50,9 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 	
 	@Autowired
 	private GatkService gatkService;
+	
+	@Autowired
+	protected GenomeService genomeService;
 	
 	@Autowired
 	private GATKSoftwareComponent gatk;
@@ -113,24 +116,15 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		}
 		w.setRequiredFiles(fhlist);
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
-		SnpEff snpEff = (SnpEff) gatk.getSoftwareDependencyByIname("snpEff");
 		sd.add(gatk);
-		sd.add(snpEff);
 		w.setSoftwareDependencies(sd);
 		LinkedHashSet<String> inputFileNames = new LinkedHashSet<>();
 		for (int i=0; i < fhlist.size(); i++)
 			inputFileNames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");
 		String rawVcfFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
-		String genotypeGVCFOutputFilename = "gatk.genotypeGVCF.vcf";
-		String snpIdAnnotatedVcfFilename = "snpsift.snpIdAnnotated.vcf";
-		String snpFile = gatkService.getReferenceSnpsVcfFile(build);
-		String indelsFile = gatkService.getReferenceIndelsVcfFile(build);
-		w.setCommand(gatk.genotypeGVCFs(inputFileNames, genotypeGVCFOutputFilename, build, AbstractGatkTasklet.MEMORY_GB_8, AbstractGatkTasklet.THREADS_8));
-		
-		// We will now add snp and indel database ids
-		w.addCommand(snpEff.getAnnotateIdsCommand(genotypeGVCFOutputFilename, snpFile, snpIdAnnotatedVcfFilename));
-		w.addCommand(snpEff.getAnnotateIdsCommand(snpIdAnnotatedVcfFilename, indelsFile, rawVcfFilename));
-
+		String referenceGenomeFile = genomeService.getReferenceGenomeFastaFile(build);
+		w.setCommand(gatk.genotypeGVCFs(inputFileNames, rawVcfFilename, referenceGenomeFile, AbstractGatkTasklet.MEMORY_GB_8, AbstractGatkTasklet.THREADS_8));
+	
 		GridResult result = gridHostResolver.execute(w);
 		
 		context.getStepContext().getStepExecution().getExecutionContext().put("combinedGenotypedVcfFgId", rawVcfOutG.getId().toString());
