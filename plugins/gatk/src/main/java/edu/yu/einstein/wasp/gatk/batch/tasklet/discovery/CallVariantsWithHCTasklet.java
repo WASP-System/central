@@ -64,12 +64,16 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
 		LinkedHashSet<FileHandle> outFiles = new LinkedHashSet<FileHandle>();
-                for (Integer fgId : this.getOutputFilegroupIds()){
-                        FileGroup fg = fileService.getFileGroupById(fgId);
-                        // single file handle groups
-                        outFiles.add(fg.getFileHandles().iterator().next());
-                }
-                w.setResultFiles(outFiles);
+        for (Integer fgId : this.getOutputFilegroupIds()){
+            FileGroup fg = fileService.getFileGroupById(fgId);
+            logger.debug("FileGroup with id=" + fgId + " contains " + fg.getFileHandles().size() + " filehandles");
+            // single file handle groups
+            if (fg.getFileHandles().iterator().hasNext())
+            	outFiles.add(fg.getFileHandles().iterator().next());
+            else
+            	throw new WaspRuntimeException("Cannot obtain a single filehandle from FileGroup id=" + fgId);
+        }
+        w.setResultFiles(outFiles);
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();
 		for (Integer fgId : this.getInputFilegroupIds()){
 			FileGroup fg = fileService.getFileGroupById(fgId);
@@ -98,11 +102,10 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 		String gatkOpts = gatk.getCallVariantOpts(jobParameters);
 		String outputGvcfFileName = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
 		String referenceGenomeFile = genomeService.getReferenceGenomeFastaFile(build);
-		String snpFile = gatkService.getReferenceSnpsVcfFile(build);
 		LinkedHashSet<String> inputBamFilenames = new LinkedHashSet<>();
 		for (int i=0; i < fhlist.size(); i++)
 			inputBamFilenames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");
-		w.setCommand(gatk.getCallVariantsByHaplotypeCaller(inputBamFilenames, outputGvcfFileName, referenceGenomeFile, snpFile, wxsIntervalFile, gatkOpts, MEMORY_GB_8, THREADS_8));
+		w.setCommand(gatk.getCallVariantsByHaplotypeCaller(inputBamFilenames, outputGvcfFileName, referenceGenomeFile, wxsIntervalFile, gatkOpts, MEMORY_GB_8, THREADS_8));
 		GridResult result = gridHostResolver.execute(w);
 		
 		//place the grid result in the step context

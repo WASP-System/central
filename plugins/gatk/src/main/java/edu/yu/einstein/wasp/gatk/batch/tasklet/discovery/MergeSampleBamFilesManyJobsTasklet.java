@@ -6,11 +6,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.jetty.util.statistic.SampleStatistic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
@@ -18,7 +16,6 @@ import edu.yu.einstein.wasp.daemon.batch.tasklets.LaunchManyJobsTasklet;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
-import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
@@ -55,10 +52,6 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 	private GatkService gatkService;
 	
 	@Autowired
-	@Qualifier("fileTypeServiceImpl")
-	private FileTypeService fileTypeService;
-	
-	@Autowired
 	private FileType bamFileType;
 	
 	@Autowired
@@ -77,7 +70,7 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 	}
 	
 	@Override
-	@Transactional("EntityManager")
+	@Transactional("entityManager")
 	public void doExecute() {
 		Job job = jobService.getJobByJobId(jobId);
 		Assert.assertTrue(job.getId() > 0);
@@ -124,30 +117,26 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 				FileGroup bamG = new FileGroup();
 				FileHandle bam = new FileHandle();
 				bam.setFileName(bamOutput);
-				bam = fileService.addFile(bam);
 				bamG.setIsActive(0);
 				bamG.addFileHandle(bam);
 				bamG.setFileType(bamFileType);
 				bamG.setDescription(bamOutput);
 				bamG.setSoftwareGeneratedById(gatk.getId());
-				bamG = fileService.addFileGroup(bamG);
 				bamG.setDerivedFrom(inputFileGroups);
-				bamG.setSampleSources(sampleCellLibraries.get(sample));
-				fileTypeService.setAttributes(bamG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
+				bamG = fileService.saveInDiscreteTransaction(bamG, bam, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
 				outputFileGroups.add(bamG);
 				mergedSampleFileGroupsForNextStep.put(sample, bamG);
 	
 				FileGroup baiG = new FileGroup();
 				FileHandle bai = new FileHandle();
 				bai.setFileName(baiOutput);
-				bai = fileService.addFile(bai);
 				baiG.setIsActive(0);
 				baiG.addFileHandle(bai);
 				baiG.setFileType(baiFileType);
 				baiG.setDescription(baiOutput);
 				baiG.setSoftwareGeneratedById(gatk.getId());
-				baiG = fileService.addFileGroup(baiG);
 				baiG.addDerivedFrom(bamG);
+				baiG = fileService.saveInDiscreteTransaction(baiG, bai);
 				outputFileGroups.add(baiG);
 				
 				String metricsOutput = fileService.generateUniqueBaseFileName(sample) + "gatk_preproc_merged_dedupMetrics.txt";
@@ -155,14 +144,13 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 				FileHandle metrics = new FileHandle();
 				metrics.setFileName(metricsOutput);
 				metrics.setFileType(textFileType);
-				metrics = fileService.addFile(metrics);
 				metricsG.setIsActive(0);
 				metricsG.addFileHandle(metrics);
 				metricsG.setFileType(textFileType);
 				metricsG.setDescription(metricsOutput);
-				baiG.setSoftwareGeneratedById(gatk.getId());
-				metricsG = fileService.addFileGroup(metricsG);
+				metricsG.setSoftwareGeneratedById(gatk.getId());
 				metricsG.addDerivedFrom(bamG);
+				metricsG = fileService.saveInDiscreteTransaction(metricsG, metrics);
 				outputFileGroups.add(metricsG);
 				temporaryFileSet.addAll(outputFileGroups);
 				jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
@@ -170,7 +158,7 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 				jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(outputFileGroups));
 				jobParameters.put(WaspSoftwareJobParameters.JOB_ID, jobId.toString());
 				try {
-					requestLaunch("gatk.variantDiscovery.hc.mergeSampleBamFiles.jobFlow", jobParameters);
+					requestLaunch("gatk.variantDiscovery.mergeSampleBamFiles.jobFlow", jobParameters);
 				} catch (WaspMessageBuildingException e) {
 					e.printStackTrace();
 				}

@@ -18,7 +18,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -53,6 +52,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -75,7 +75,6 @@ import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.filetype.FileTypeAttribute;
 import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.grid.GridAccessException;
-import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
@@ -676,6 +675,73 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	@Override
 	public FileGroup addFileGroup(FileGroup group) {
 		return fileGroupDao.save(group);
+	}
+	
+	@Override
+	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
+	public FileHandle saveInDiscreteTransaction(FileHandle file) {
+		return fileHandleDao.save(file);
+	}
+
+	@Override
+	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
+	public FileGroup saveInDiscreteTransaction(FileGroup group) {
+		return fileGroupDao.save(group);
+	}
+	
+	@Override
+	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
+	public FileGroup saveInDiscreteTransaction(FileGroup group, LinkedHashSet<FileHandle> files, Set<? extends FileTypeAttribute> fgAttributes) {
+		if (files != null){
+			for (FileHandle fh : files){
+				fileHandleDao.save(fh);
+				group.addFileHandle(fh);
+			}
+		}
+		FileGroup savedFilegroup = fileGroupDao.save(group);
+		if (fgAttributes != null)
+			fileTypeService.setAttributes(savedFilegroup, fgAttributes);
+		return savedFilegroup;
+	}
+	
+	@Override
+	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
+	public FileGroup saveInDiscreteTransaction(FileGroup group, LinkedHashSet<FileHandle> files) {
+		return saveInDiscreteTransaction(group, files, (Set<? extends FileTypeAttribute>) null);
+	}
+	
+	@Override
+	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
+	public FileGroup saveInDiscreteTransaction(FileGroup group, FileHandle file) {
+		LinkedHashSet<FileHandle> fhs = new LinkedHashSet<>();
+		fhs.add(file);
+		return saveInDiscreteTransaction(group, fhs, (Set<? extends FileTypeAttribute>) null);
+	}
+	
+	@Override
+	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
+	public FileGroup saveInDiscreteTransaction(FileGroup group, LinkedHashSet<FileHandle> files, FileTypeAttribute fgAttribute) {
+		Set<FileTypeAttribute> fgAttributes = new HashSet<>();
+		fgAttributes.add(fgAttribute);
+		return saveInDiscreteTransaction(group, files, fgAttributes);
+	}
+	
+	@Override
+	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
+	public FileGroup saveInDiscreteTransaction(FileGroup group, FileHandle file, Set<? extends FileTypeAttribute> fgAttributes) {
+		LinkedHashSet<FileHandle> fhs = new LinkedHashSet<>();
+		fhs.add(file);
+		return saveInDiscreteTransaction(group, fhs, fgAttributes);
+	}
+	
+	@Override
+	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
+	public FileGroup saveInDiscreteTransaction(FileGroup group, FileHandle file, FileTypeAttribute fgAttribute) {
+		LinkedHashSet<FileHandle> fhs = new LinkedHashSet<>();
+		fhs.add(file);
+		Set<FileTypeAttribute> fgAttributes = new HashSet<>();
+		fgAttributes.add(fgAttribute);
+		return saveInDiscreteTransaction(group, fhs, fgAttributes);
 	}
 
 	@Override
@@ -1472,6 +1538,14 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		logger.debug("ContentType of file is: " + mimeType);
 		return mimeType;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getSanitizedName(String name){
+		return WordUtils.uncapitalize(WordUtils.capitalizeFully(name).replaceAll("[:;\\.,]", "_").replaceAll("[^a-zA-Z0-9_\\-\\.]", ""));
+	}
 
 	/** 
 	 * This needs to be improved
@@ -1489,10 +1563,10 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			String platformUnitName = "unknown";
 			String cellIndex = "L" + cellLibrary.getId(); // default to cell library (CL) id
 			String barcode = "none";
-			String libraryName = WordUtils.capitalizeFully(sampleService.getLibrary(cellLibrary).getName()).replaceAll(" ", ""); //camelcase
+			String libraryName = getSanitizedName(sampleService.getLibrary(cellLibrary).getName()); 
 			if (cell != null){ // may be null if imported from external run of unknown origin
 				platformUnitName = sampleService.getPlatformUnitForCell(cell).getName().replaceAll(" ", "");
-				barcode = sampleService.getLibraryAdaptor(sampleService.getLibrary(cellLibrary)).getBarcodesequence().replaceAll(" ", "");
+				barcode = sampleService.getLibraryAdaptor(sampleService.getLibrary(cellLibrary)).getBarcodesequence().replaceAll("[^a-zA-Z0-9.-]", "");
 				cellIndex = sampleService.getCellIndex(cell).toString();
 			}
 
@@ -1519,15 +1593,14 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			biomoleculeTypeIdStr = "L"; // for library
 		else if (sampleService.isDnaOrRna(sample))
 			biomoleculeTypeIdStr = "S"; // for sample
-		String libraryName = WordUtils.capitalizeFully(sample.getName()).replaceAll(" ", ""); // camelCase the name
-		return libraryName + DELIM + biomoleculeTypeIdStr + sample.getId().toString() + DELIM;
+		return getSanitizedName(sample.getName()) + DELIM + biomoleculeTypeIdStr + sample.getId().toString() + DELIM;
 	}
 	
 	@Override
 	public String generateUniqueBaseFileName(Job job) {
 		final String DELIM = ".";
-		String jobName = WordUtils.capitalizeFully(job.getName()).replaceAll(" ", ""); // camelCase the name
-		return jobName + DELIM + "J" + job.getId().toString() + DELIM;
+		// camelCase the name and then uncapitalize the first letter
+		return getSanitizedName(job.getName()) + DELIM + "J" + job.getId().toString() + DELIM;
 	}
 	
 	@Override

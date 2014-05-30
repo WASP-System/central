@@ -21,7 +21,7 @@ public class VcfTools extends SoftwarePackage{
 		String bgzipCommand = " ";
 		if (bgzipOutput)
 			bgzipCommand = " | bgzip -c "; // -c      write on standard output, keep original files unchanged
-		String command = "vcf-subset --exclude-ref --columns " + columns + bgzipCommand + "> " + outputFilename;
+		String command = "vcf-subset --exclude-ref --columns " + columns  + " " + inputFilename + bgzipCommand + "> " + outputFilename;
 		logger.debug("Will conduct VCF Tools vcf-subset with command string: " + command);
 		return command;
 	}

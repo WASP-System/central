@@ -200,7 +200,7 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet i
             	batchJobHibernationManager.unregisterManyStepCompletionListener(this);
             jobExecution.getExecutionContext().remove(BatchJobHibernationManager.PARENT_JOB_ID_KEY);
         }
-        logger.debug(stepExecution.getStepName() + " going to exit step with ExitStatus=" + exitStatus + " step was running but not hibernating!");
+        logger.debug(stepExecution.getStepName() + " going to exit step with ExitStatus=" + exitStatus);
         return exitStatus;
     }
     

@@ -164,6 +164,16 @@ Ext.define('Wasp.GridPortlet', {
 				}
 			});
 		}
+		
+		// add cell align and header align to columns
+		this.columns.forEach(function (element, index, array) {
+			if (element.cellAlign != 'undefined') {
+				Ext.apply(element, { align: element.cellAlign });
+			}
+			if (element.headerAlign != 'undefined') {
+				Ext.apply(element, { style: 'text-align: '+element.headerAlign });
+			}
+		});
 
 		var gridHeight = rowCnt * rowHeight + gridHeaderHeight;
 		gridHeight = (gridHeight<minGridHeight) ? minGridHeight : gridHeight;

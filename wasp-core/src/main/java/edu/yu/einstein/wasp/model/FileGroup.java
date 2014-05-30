@@ -44,6 +44,8 @@ public class FileGroup extends WaspModel {
 		fileHandles = new HashSet<FileHandle>();
 		begat = new HashSet<FileGroup>();
 		derivedFrom = new HashSet<FileGroup>();
+		samples = new HashSet<Sample>();
+		sampleSources = new HashSet<SampleSource>();
 	}
 
 	/**
@@ -483,23 +485,38 @@ public class FileGroup extends WaspModel {
 	}
 
 	/**
-	 * @param derivedFrom the derivedFrom to set
+	 * Sets FileGroups this instance is derived from. 
+	 * Also automatically populates this instance with Samples and SampleSources from the derived FileGroups.
+	 * @param derivedFrom
 	 */
 	public void setDerivedFrom(Set<FileGroup> derivedFrom) {
-		this.derivedFrom = derivedFrom;
+		if (derivedFrom != null){
+			for (FileGroup fg : derivedFrom)
+				addDerivedFrom(fg);
+		}
 	}
 	
+	/**
+	 * Adds a fileGroups that this instance is derived from. 
+	 * Also automatically populates this instance with Samples and SampleSources from the derived FileGroup.
+	 * @param fileGroup
+	 */
 	public void addDerivedFrom(FileGroup fileGroup) {
-        if (!getDerivedFrom().contains(fileGroup)) {
-            getDerivedFrom().add(fileGroup);
-        }
+		if (!getDerivedFrom().contains(fileGroup)) {
+			getDerivedFrom().add(fileGroup);
+			if (fileGroup.getSamples().size() > 0)
+				getSamples().addAll(fileGroup.getSamples());
+        	if (fileGroup.getSampleSources().size() > 0)
+        		getSampleSources().addAll(fileGroup.getSampleSources());
+        } 
     }
 	
 	/**
 	 * 
 	 */
-	@ManyToMany(mappedBy="fileGroups")
-	private Set<Sample> samples = new HashSet<Sample>();
+	@ManyToMany
+	@JoinTable(name="samplefilegroup", joinColumns={@JoinColumn(name="filegroupid")}, inverseJoinColumns={@JoinColumn(name="sampleid")})
+	private Set<Sample> samples;
 
 	/**
 	 * @return the fileGroups
@@ -518,8 +535,9 @@ public class FileGroup extends WaspModel {
 	/**
 	 * 
 	 */
-	@ManyToMany(mappedBy="fileGroups")
-	private Set<SampleSource> sampleSources = new HashSet<SampleSource>();
+	@ManyToMany
+	@JoinTable(name="samplesourcefilegroup", joinColumns={@JoinColumn(name="filegroupid")}, inverseJoinColumns={@JoinColumn(name="samplesourceid")})
+	private Set<SampleSource> sampleSources;
 
 	/**
 	 * @return the fileGroups

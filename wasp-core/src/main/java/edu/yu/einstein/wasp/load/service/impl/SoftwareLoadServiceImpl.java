@@ -62,6 +62,8 @@ public class SoftwareLoadServiceImpl extends WaspLoadServiceImpl implements	Soft
 	    } else {
 	      if (software.getName() == null || !software.getName().equals(name))
 	    	  software.setName(name);
+	      if (software.getIName() == null || !software.getIName().equals(iname))
+	    	  software.setIName(iname);
 	      if (software.getDescription() == null || !software.getDescription().equals(description))
 	    	  software.setDescription(description);
 	      if (software.getResourceTypeId() != resourceType.getId())

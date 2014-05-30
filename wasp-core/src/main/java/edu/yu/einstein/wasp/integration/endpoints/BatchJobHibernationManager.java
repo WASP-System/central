@@ -147,7 +147,7 @@ public class BatchJobHibernationManager {
 	 * TaskScheduler executed method: executed periodically at a rate defined in configuration (wasp.hibernation.heartbeat)
 	 */
 	public synchronized void runTimedTasks() {
-		logger.trace("Checking to see if any StepExecutions require waking after timed sleep");
+		//logger.trace("Checking to see if any StepExecutions require waking after timed sleep");
 		Set<Long> orderedTimes = new TreeSet<>(timesWakingStepExecutions.keySet());
 		Date timeNow = new Date();
 		for (Long time: orderedTimes){
