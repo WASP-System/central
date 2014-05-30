@@ -162,7 +162,7 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 		    dev = " --tiles 1101";
 		}
 		
-		retval += "  configureBclToFastq.pl " + dev + " --tiles 1101 --force --positions-format ${loc} --sample-sheet " + sampleSheetName + " --output-dir ../../../" + outputFolder + " ";
+		retval += "  configureBclToFastq.pl " + dev + " --force --positions-format ${loc} --sample-sheet " + sampleSheetName + " --output-dir ../../../" + outputFolder + " ";
 		
 		if (PropertyHelper.isSet(failed) && failed == "true")
 			retval += "--with-failed-reads ";
