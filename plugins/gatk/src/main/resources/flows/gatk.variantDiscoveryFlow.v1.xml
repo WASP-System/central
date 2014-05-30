@@ -365,7 +365,7 @@
 		<batch:step id="gatk.variantDiscovery.runHC">
 			<batch:flow parent="gatk.variantDiscovery.hc.flow"/>
 			<batch:next on="FAILED" to="gatk.variantDiscovery.notifyFailed"/>
-			<batch:next on="*" to="gatk.variantDiscovery.splitAndAnnotate" /> 
+			<batch:next on="*" to="gatk.variantDiscovery.hardFilter" /> 
 		</batch:step>
 		
 		<batch:step id="gatk.variantDiscovery.runUG">

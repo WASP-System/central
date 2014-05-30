@@ -69,6 +69,7 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
+		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
 		LinkedHashSet<FileGroup> inputFileGroups = new LinkedHashSet<>();
 		LinkedHashSet<FileGroup> temporaryFileSet = new LinkedHashSet<>();
 		ExecutionContext jobExecutionContext = context.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
@@ -97,7 +98,7 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		rawVcfOutG.setSoftwareGeneratedById(gatk.getId());
 		rawVcfOutG.setDerivedFrom(inputFileGroups);
 		rawVcfOutG = fileService.saveInDiscreteTransaction(rawVcfOutG, rawVcfOut, VcfFileTypeAttribute.ANNOTATED);
-		context.getStepContext().setAttribute("rawVcfFgId", rawVcfOutG.getId());
+		stepExecutionContext.putString("combinedGenotypedVcfFgId", rawVcfOutG.getId().toString());
 				
 		WorkUnit w = new WorkUnit();
 		w.setMode(ExecutionMode.PROCESS);
@@ -127,8 +128,6 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 	
 		GridResult result = gridHostResolver.execute(w);
 		
-		context.getStepContext().getStepExecution().getExecutionContext().put("combinedGenotypedVcfFgId", rawVcfOutG.getId().toString());
-		
 		//place the grid result in the step context
 		storeStartedResult(context, result);
 	}
@@ -136,8 +135,9 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 	@Transactional("entityManager")
 	@Override
 	public void doPreFinish(ChunkContext context) throws Exception {
-		if (context.getStepContext().hasAttribute("rawVcfFgId")){
-			Integer rawVcfFgId = Integer.parseInt(context.getStepContext().getAttribute("rawVcfFgId").toString());
+		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
+		if (stepExecutionContext.containsKey("combinedGenotypedVcfFgId")){
+			Integer rawVcfFgId = Integer.parseInt(stepExecutionContext.getString("combinedGenotypedVcfFgId"));
 			logger.debug("Setting as active FileGroup with id=: " + rawVcfFgId);
 			fileService.getFileGroupById(rawVcfFgId).setIsActive(1);
 		}

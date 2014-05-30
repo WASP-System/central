@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Strategy;
@@ -61,6 +62,7 @@ public class HardFilterTasklet extends WaspRemotingTasklet {
 	protected GenomeService genomeService;
 	
 	@Autowired
+	@Qualifier("fileTypeServiceImpl")
 	private FileTypeService fileTypeService;
 	
 	@Autowired
@@ -78,6 +80,7 @@ public class HardFilterTasklet extends WaspRemotingTasklet {
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
+		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
 		ExecutionContext jobExecutionContext = context.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
 		FileGroup combinedGenotypedVcfFg = null;
 		if (jobExecutionContext.containsKey("combinedGenotypedVcfFgId"))
@@ -102,7 +105,7 @@ public class HardFilterTasklet extends WaspRemotingTasklet {
 		filteredSnpVcfOutG.addDerivedFrom(combinedGenotypedVcfFg);
 		filteredSnpVcfOutG = fileService.saveInDiscreteTransaction(filteredSnpVcfOutG, filteredSnpVcfOut, attributes);
 		outFiles.add(filteredSnpVcfOut);
-		context.getStepContext().setAttribute("filteredSnpsVcfFgId", filteredSnpVcfOutG.getId().toString());
+		stepExecutionContext.putString("filteredSnpsVcfFgId", filteredSnpVcfOutG.getId().toString());
 		
 		String filteredIndelVcfOutFileName = fileService.generateUniqueBaseFileName(job) + "filteredIndels.vcf";
 		FileGroup filteredIndelVcfOutG = new FileGroup();
@@ -116,7 +119,7 @@ public class HardFilterTasklet extends WaspRemotingTasklet {
 		filteredIndelVcfOutG.addDerivedFrom(combinedGenotypedVcfFg);
 		filteredIndelVcfOutG = fileService.saveInDiscreteTransaction(filteredIndelVcfOutG, filteredIndelVcfOut, attributes);
 		outFiles.add(filteredIndelVcfOut);
-		context.getStepContext().setAttribute("filteredIndelsVcfFgId", filteredIndelVcfOutG.getId().toString());
+		stepExecutionContext.putString("filteredIndelsVcfFgId", filteredIndelVcfOutG.getId().toString());
 				
 		WorkUnit w = new WorkUnit();
 		w.setMode(ExecutionMode.PROCESS);
@@ -140,15 +143,15 @@ public class HardFilterTasklet extends WaspRemotingTasklet {
 		if (strategy.getStrategy().equals("WXS"))
 			wxsIntervalFile = gatkService.getWxsIntervalFile(job, build);
 		String rawVariantsFileName = "${" + WorkUnit.INPUT_FILE + "[0]}";
-		String rawSnpsFileName = "snps.${" + WorkUnit.INPUT_FILE + "[0]}";
-		String rawIndelsFileName = "indels.${" + WorkUnit.INPUT_FILE + "[0]}";
-		String filteredSnpVcfFileName = "snps.filtered.${" + WorkUnit.INPUT_FILE + "[0]}";
-		String filteredIndelVcfFileName = "indels.filtered.${" + WorkUnit.INPUT_FILE + "[0]}";
+		String rawSnpsFileName = "snps.${" + WorkUnit.OUTPUT_FILE + "[0]}";
+		String rawIndelsFileName = "indels.${" + WorkUnit.OUTPUT_FILE + "[1]}";
+		String filteredSnpVcfFileName = "snps.filtered.${" + WorkUnit.OUTPUT_FILE + "[0]}";
+		String filteredIndelVcfFileName = "indels.filtered.${" + WorkUnit.OUTPUT_FILE + "[1]}";
 		String referenceGenomeFileName = genomeService.getReferenceGenomeFastaFile(build);
-		w.setCommand(gatk.selectSnpsFromVariantsFile(rawVariantsFileName, rawSnpsFileName, referenceGenomeFileName, wxsIntervalFile, AbstractGatkTasklet.MEMORY_GB_4));
-		w.setCommand(gatk.selectIndelsFromVariantsFile(rawVariantsFileName, rawIndelsFileName, referenceGenomeFileName, wxsIntervalFile, AbstractGatkTasklet.MEMORY_GB_4));
-		w.setCommand(gatk.applyGenericHardFilterForSnps(rawSnpsFileName, filteredSnpVcfFileName, referenceGenomeFileName, AbstractGatkTasklet.MEMORY_GB_4));
-		w.setCommand(gatk.applyGenericHardFilterForIndels(rawSnpsFileName, filteredIndelVcfFileName, referenceGenomeFileName, AbstractGatkTasklet.MEMORY_GB_4));
+		w.addCommand(gatk.selectSnpsFromVariantsFile(rawVariantsFileName, rawSnpsFileName, referenceGenomeFileName, wxsIntervalFile, AbstractGatkTasklet.MEMORY_GB_4));
+		w.addCommand(gatk.selectIndelsFromVariantsFile(rawVariantsFileName, rawIndelsFileName, referenceGenomeFileName, wxsIntervalFile, AbstractGatkTasklet.MEMORY_GB_4));
+		w.addCommand(gatk.applyGenericHardFilterForSnps(rawSnpsFileName, filteredSnpVcfFileName, referenceGenomeFileName, AbstractGatkTasklet.MEMORY_GB_4));
+		w.addCommand(gatk.applyGenericHardFilterForIndels(rawSnpsFileName, filteredIndelVcfFileName, referenceGenomeFileName, AbstractGatkTasklet.MEMORY_GB_4));
 		
 		// We will now add snp and indel database ids
 		String snpFile = gatkService.getReferenceSnpsVcfFile(build);
@@ -167,13 +170,14 @@ public class HardFilterTasklet extends WaspRemotingTasklet {
 	@Transactional("entityManager")
 	@Override
 	public void doPreFinish(ChunkContext context) throws Exception {
-		if (context.getStepContext().hasAttribute("filteredSnpsVcfFgId")){
-			Integer filteredSnpsVcfFgId = Integer.parseInt(context.getStepContext().getAttribute("filteredSnpsVcfFgId").toString());
+		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
+		if (stepExecutionContext.containsKey("filteredSnpsVcfFgId")){
+			Integer filteredSnpsVcfFgId = Integer.parseInt(stepExecutionContext.getString("filteredSnpsVcfFgId"));
 			logger.debug("Setting as active FileGroup with id=: " + filteredSnpsVcfFgId);
 			fileService.getFileGroupById(filteredSnpsVcfFgId).setIsActive(1);
 		}
-		if (context.getStepContext().hasAttribute("filteredIndelsVcfFgId")){
-			Integer filteredIndelsVcfFgId = Integer.parseInt(context.getStepContext().getAttribute("filteredIndelsVcfFgId").toString());
+		if (stepExecutionContext.containsKey("filteredIndelsVcfFgId")){
+			Integer filteredIndelsVcfFgId = Integer.parseInt(stepExecutionContext.getString("filteredIndelsVcfFgId"));
 			logger.debug("Setting as active FileGroup with id=: " + filteredIndelsVcfFgId);
 			fileService.getFileGroupById(filteredIndelsVcfFgId).setIsActive(1);
 		}
