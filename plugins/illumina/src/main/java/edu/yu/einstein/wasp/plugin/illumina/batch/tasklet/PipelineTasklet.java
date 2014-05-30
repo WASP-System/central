@@ -60,7 +60,7 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 		// required for AOP/CGLIB/Batch/Annotations/BeanIdentity
 	}
 
-	@Value("${wasp.developermode:false")
+	@Value("${wasp.developermode:false}")
 	private String devmode;
 	
 	/**
