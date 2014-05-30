@@ -96,9 +96,12 @@ public class TrimGaloreRegisteringTasklet extends WaspRemotingTasklet {
 	public void doPreFinish(ChunkContext context) {
 		// get results files and make them active
 		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
+		logger.trace("attempting file group activation");
 		if (stepExecutionContext.containsKey("resultsFilesIdStr"))
+		    logger.trace("resultsFilesIdStr: " + stepExecutionContext.getString("resultsFilesIdStr"));
 			for (String fhIdStr : StringUtils.commaDelimitedListToStringArray(stepExecutionContext.getString("resultsFilesIdStr"))) {
 			    FileGroup fg = fileService.getFileHandleById(Integer.parseInt(fhIdStr)).getFileGroup().iterator().next();
+			    logger.trace("file group " + fg.getId() + " which contains file group " + fhIdStr + " is going to be set to be active");
 			    fg.setIsActive(1);
 			    fileService.getFileGroupDao().merge(fg);
 			}

@@ -532,13 +532,15 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		w.setMode(ExecutionMode.TASK_ARRAY);
 		w.addCommand("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then touch " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
 		int files = 0;
+		logger.trace("preparing to copy " + g.getFileHandleIds().size() + " files for GridResult " + g.getUuid().toString());
 		for (Integer hid : g.getFileHandleIds()) {
-			FileHandle fh = getFileService().getFileHandleById(hid);
-            w.addCommand("COPY[" + files + "]=\"" + WorkUnit.OUTPUT_FILE_PREFIX + "_" + fh.getId() + "." + g.getUuid().toString() + " " + fh.getFileName() + "\"");
-            files++;
-            fh.setFileURI(this.gridFileService.remoteFileRepresentationToLocalURI(w.getResultsDirectory() + "/" + fh.getFileName()));
-            getFileService().addFile(fh);
-        }
+		    logger.trace("adding fileHandleId " + hid);
+		    FileHandle fh = fileService.getFileHandleById(hid);
+                    w.addCommand("COPY[" + files + "]=\"" + WorkUnit.OUTPUT_FILE_PREFIX + "_" + fh.getId() + "." + g.getUuid().toString() + " " + fh.getFileName() + "\"");
+                    files++;
+                    fh.setFileURI(this.gridFileService.remoteFileRepresentationToLocalURI(w.getResultsDirectory() + "/" + fh.getFileName()));
+                    getFileService.addFile(fh);
+                }
 		w.setNumberOfTasks(files);
 		w.addCommand("THIS=${COPY[ZERO_TASK_ID]}");
 		w.addCommand("read -ra FILE <<< \"$THIS\"");
@@ -665,8 +667,9 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		result.setMode(w.getMode());
 		result.setSecureResults(w.isSecureResults());
 		if (w.isSecureResults()) {
-			for (FileHandle fg : w.getResultFiles()) {
-				result.getFileHandleIds().add(fg.getId());
+			for (FileHandle fh : w.getResultFiles()) {
+			    logger.trace("WorkUnit " + w.getId() + " is going to register FileHandle " + fh.getId());
+				result.getFileHandleIds().add(fh.getId());
 			}
 			
 		}
