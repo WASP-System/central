@@ -149,7 +149,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		if (intervalFile != null) 
 			command += " -L " + intervalFile;
 
-		logger.debug("Will conduct gatk variant-calling with command string: " + command);
+		logger.debug("Will conduct gatk variant-calling (HaplotypeCaller) with command string: " + command);
 		return command;
 	}
 	
@@ -165,16 +165,52 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		if (intervalFile != null) 
 			command += " -L " + intervalFile;
 		//
-		logger.debug("Will conduct gatk variant-calling with command string: " + command);
+		logger.debug("Will conduct gatk variant-calling (UnifiedGenotyper) with command string: " + command);
 		return command;
 	}
 	
-	public String genotypeGVCFs(Set<String> inputFileNames, String outputFileName, Build build, int memRequiredGb, int numProcessors){
+	public String genotypeGVCFs(Set<String> inputFileNames, String outputFileName, String referenceGenomeFile, int memRequiredGb, int numProcessors){
 		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -T GenotypeGVCFs -nt " + numProcessors;
 		for (String fileName : inputFileNames)
 			command += " -V " + fileName;
-		command += " -R " + genomeService.getReferenceGenomeFastaFile(build) + " -o " + outputFileName;
+		command += " -R " + referenceGenomeFile + " -o " + outputFileName;
 		logger.debug("Will conduct gatk genotyping with command string: " + command);
+		return command;
+	}
+	
+	public String selectSnpsFromVariantsFile(String inputVariantsFileName, String snpsOutFileName, String referenceGenomeFile, String intervalFile, int memRequiredGb){
+		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -T SelectVariants";
+		command += " -R " + referenceGenomeFile + " -V " + inputVariantsFileName + " -selectType SNP"  + " -o " + snpsOutFileName;
+		if (intervalFile != null) 
+			command += " -L " + intervalFile;
+		logger.debug("Will conduct gatk SelectVariants for snps with command string: " + command);
+		return command;
+	}
+	
+	public String selectIndelsFromVariantsFile(String inputVariantsFileName, String indelsOutFileName, String referenceGenomeFile, String intervalFile, int memRequiredGb){
+		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -T SelectVariants";
+		command += " -R " + referenceGenomeFile + " -V " + inputVariantsFileName + " -selectType INDEL"  + " -o " + indelsOutFileName;
+		if (intervalFile != null) 
+			command += " -L " + intervalFile;
+		logger.debug("Will conduct gatk SelectVariants for indels with command string: " + command);
+		return command;
+	}
+	
+	public String applyGenericHardFilterForSnps(String snpsInputFileName, String filteredSnpsOutFileName, String referenceGenomeFile, int memRequiredGb){
+		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -T VariantFiltration";
+		command += " -R " + referenceGenomeFile + " -V " + snpsInputFileName + " -o " + filteredSnpsOutFileName;
+		command += " --filterExpression 'QD < 2.0 || FS > 60.0 || MQ < 40.0 || HaplotypeScore > 13.0 || MappingQualityRankSum < -12.5 || ReadPosRankSum < -8.0'";
+		command += " --filterName 'waspBasicSnpFilter'";
+		logger.debug("Will conduct gatk VariantFiltration for snps with command string: " + command);
+		return command;
+	}
+	
+	public String applyGenericHardFilterForIndels(String indelsInputFileName, String filteredIndelsOutFileName, String referenceGenomeFile, int memRequiredGb){
+		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -T VariantFiltration";
+		command += " -R " + referenceGenomeFile + " -V " + indelsInputFileName + " -o " + filteredIndelsOutFileName;
+		command += " --filterExpression 'QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0'";
+		command += " --filterName 'waspBasicIndelFilter'";
+		logger.debug("Will conduct gatk VariantFiltration for indels with command string: " + command);
 		return command;
 	}
 
