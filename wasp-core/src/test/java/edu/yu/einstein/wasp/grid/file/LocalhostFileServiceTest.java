@@ -52,7 +52,16 @@ public class LocalhostFileServiceTest extends AbstractTestNGSpringContextTests {
 	}
 	
 	@Test(groups = "unit-tests")
-	public void testGetLocalhostFileURI(){
+	public void testGetLocalhostFileURI1(){
+		String path = "foo/bar.txt";
+		Path pathObj = lfs.getLocalhostFilePath(path);
+		String userHome = System.getProperty("user.home");
+		logger.debug(pathObj.toString());
+		Assert.assertEquals(pathObj.toString(), userHome + "/" + path);
+	}
+	
+	@Test(groups = "unit-tests")
+	public void testGetLocalhostFileURI2(){
 		String path = "/foo/bar.txt";
 		Path pathObj = lfs.getLocalhostFilePath(path);
 		String userHome = System.getProperty("user.home");

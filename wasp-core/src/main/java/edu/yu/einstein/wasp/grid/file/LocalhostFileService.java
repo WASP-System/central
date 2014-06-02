@@ -125,8 +125,11 @@ public class LocalhostFileService implements GridFileService {
 	
 	public Path getLocalhostFilePath(String path) {
 		Path pathObj = null;
-		if (userDirIsRoot)
+		if (userDirIsRoot){
+			if (path.startsWith("/"))
+				path = path.replaceFirst("/", "");
 			pathObj = Paths.get(System.getProperty("user.home") + "/" + path);
+		}
 		else
 			pathObj = Paths.get(path);
 		logger.debug("constructed path: " + pathObj);
