@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
@@ -90,10 +91,12 @@ public class TrimGaloreRegisteringTasklet extends WaspRemotingTasklet {
     
     /** 
 	 * {@inheritDoc}
+     * @throws SampleTypeException 
 	 */
 	@Override
 	@Transactional("entityManager")
-	public void doPreFinish(ChunkContext context) {
+	public void doPreFinish(ChunkContext context) throws SampleTypeException {
+	        SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);
 		// get results files and make them active
 		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
 		logger.trace("attempting file group activation");
@@ -103,6 +106,7 @@ public class TrimGaloreRegisteringTasklet extends WaspRemotingTasklet {
 			    FileGroup fg = fileService.getFileHandleById(Integer.parseInt(fhIdStr)).getFileGroup().iterator().next();
 			    logger.trace("file group " + fg.getId() + " which contains file group " + fhIdStr + " is going to be set to be active");
 			    fg.setIsActive(1);
+			    fg.getSampleSources().add(cellLibrary);
 			    fileService.getFileGroupDao().merge(fg);
 			}
 			

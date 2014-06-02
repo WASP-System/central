@@ -535,11 +535,11 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		logger.trace("preparing to copy " + g.getFileHandleIds().size() + " files for GridResult " + g.getUuid().toString());
 		for (Integer hid : g.getFileHandleIds()) {
 		    logger.trace("adding fileHandleId " + hid);
-		    FileHandle fh = fileService.getFileHandleById(hid);
+		    FileHandle fh = getFileService().getFileHandleById(hid);
                     w.addCommand("COPY[" + files + "]=\"" + WorkUnit.OUTPUT_FILE_PREFIX + "_" + fh.getId() + "." + g.getUuid().toString() + " " + fh.getFileName() + "\"");
                     files++;
                     fh.setFileURI(this.gridFileService.remoteFileRepresentationToLocalURI(w.getResultsDirectory() + "/" + fh.getFileName()));
-                    getFileService.addFile(fh);
+                    getFileService().addFile(fh);
                 }
 		w.setNumberOfTasks(files);
 		w.addCommand("THIS=${COPY[ZERO_TASK_ID]}");

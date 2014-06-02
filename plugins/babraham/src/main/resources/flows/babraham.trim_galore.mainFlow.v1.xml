@@ -88,6 +88,7 @@
 					</constructor-arg>
 				</bean>
 			</batch:tasklet>
+			<batch:fail on="*"/>
 		</batch:step>
 		
 	</batch:job>
@@ -122,6 +123,7 @@
 					</constructor-arg>
 				</bean>
 			</batch:tasklet>
+			<batch:fail on="*"/>
 		</batch:step>
 		<batch:step id="edu.yu.einstein.wasp.plugin.babraham.trim_galore.fileTrim.notifyManySuccess">
 			<batch:tasklet>
