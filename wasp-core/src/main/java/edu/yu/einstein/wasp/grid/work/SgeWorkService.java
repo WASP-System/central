@@ -549,12 +549,16 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		GridResult r = execute(w);
 		logger.trace("waiting for results file copy");
 		ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
+		String poll = transportConnection.getConfiguredSetting("host.pollinterval");
+		if (poll == null) 
+			poll = "10000"; // 10s
+		Integer pollint = Integer.decode(poll);
 		while (!isFinished(r)) {
 			ScheduledFuture<?> md5t = ex.schedule(new Runnable() {
 				@Override
 				public void run() {
 				}
-			}, Integer.decode(transportConnection.getConfiguredSetting("host.pollinterval")), TimeUnit.MILLISECONDS);
+			}, pollint, TimeUnit.MILLISECONDS);
 			while (!md5t.isDone()) {
 				// not done
 			}
@@ -771,8 +775,8 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 					WorkUnit.RESULTS_DIRECTORY + "=" + w.remoteResultsDirectory + "\n";
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY)) {
-				preamble += WorkUnit.TASK_ARRAY_ID + "=$[SGE_TASK_ID]\n" + 
-				                WorkUnit.ZERO_TASK_ARRAY_ID + "=${ZERO_TASK_ID}\n" +
+				preamble += WorkUnit.TASK_ARRAY_ID + "=${SGE_TASK_ID}\n" + 
+				                WorkUnit.ZERO_TASK_ARRAY_ID + "=$[WASP_TASK_ID - 1]\n" +
 						WorkUnit.TASK_OUTPUT_FILE + "=$WASPNAME-${WASP_TASK_ID}.out\n" +
 						WorkUnit.TASK_END_FILE + "=$WASPNAME:${WASP_TASK_ID}.end\n";
 			}

@@ -452,6 +452,14 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 	public Set<Organism> getOrganismsPlusOther(){
 		Set<Organism> organisms = getOrganisms();
 		Organism other = new Organism(0);
+		Genome oGenome = new Genome("Other");
+		Build oBuild = new Build("Other");
+		Map<String,Build> oBuilds = new HashMap<String,Build>();
+		oBuilds.put("Other", oBuild);
+		oGenome.setBuilds(oBuilds);
+		Map<String,Genome> oGenomes = new HashMap<String,Genome>();
+		oGenomes.put("Other", oGenome);
+		other.setGenomes(oGenomes);
 		other.setCommonName("Other");
 		other.setName("Other");
 		other.setAlias("Other");

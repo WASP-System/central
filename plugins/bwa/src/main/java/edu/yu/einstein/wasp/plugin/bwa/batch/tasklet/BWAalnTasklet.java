@@ -10,6 +10,7 @@ import java.util.Set;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
@@ -58,6 +60,8 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
 	@Autowired
 	private FileType fastqFileType;
 	
+	private boolean skip = false;
+	
 	@Autowired
 	private BWABacktrackSoftwareComponent bwa;
 
@@ -86,7 +90,7 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
 		
 		Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLib, fastqFileType);
 		
-		logger.trace("obtained fastq file groups of size " + fileGroups.size());
+		logger.trace("obtained fastq file groups of size " + fileGroups.size() + " for CellLibrary" + cellLib.getId());
 		
 		if (fileGroups.size() != 1) {
 		    for (FileGroup fg : fileGroups) {
@@ -108,20 +112,25 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
 			logger.debug("Key: " + key + " Value: " + jobParameters.get(key).toString());
 		}
 		
-		WorkUnit w = bwa.getAln(cellLib, fg, jobParameters);
+		try {
+			WorkUnit w = bwa.getAln(cellLib, fg, jobParameters);
 		
-		GridResult result = gridHostResolver.execute(w);
+			GridResult result = gridHostResolver.execute(w);
 		
-		//place the grid result in the step context
-		storeStartedResult(context, result);
+			//place the grid result in the step context
+			storeStartedResult(context, result);
 		
-		// place properties for use in later steps into the step execution context, to be promoted
-		// to the job context at run time.
-		stepExecutionContext.put("cellLibId", cellLib.getId()); 
-		stepExecutionContext.put("scrDir", result.getWorkingDirectory());
-		stepExecutionContext.put("alnName", result.getId());
-		stepExecutionContext.put("alnStr", w.getCommand());
-		stepExecutionContext.put("method", "backtrack");
+			// place properties for use in later steps into the step execution context, to be promoted
+			// to the job context at run time.
+			stepExecutionContext.put("cellLibId", cellLib.getId()); 
+			stepExecutionContext.put("scrDir", result.getWorkingDirectory());
+			stepExecutionContext.put("alnName", result.getId());
+			stepExecutionContext.put("alnStr", w.getCommand());
+			stepExecutionContext.put("method", "backtrack");
+		} catch (ParameterValueRetrievalException e) {
+		    logger.info("BWA aln requested but got ParameterValueRetrievalException: " + e.getLocalizedMessage() + ". Assume alignment not possible, returning SKIP.");
+		    skip = true;
+		}
 	}
 	
 	/** 
@@ -137,6 +146,9 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
 	 */
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution) {
+		if (skip == true) {
+			return new ExitStatus("SKIP");
+		}
 		return super.afterStep(stepExecution);
 	}
 

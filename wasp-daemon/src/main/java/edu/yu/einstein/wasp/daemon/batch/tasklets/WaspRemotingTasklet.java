@@ -62,6 +62,11 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
 			wasHibernationRequested = false;
 		}
+		
+		// Three cases at this point
+		// isStarted=F and isHibernationRequested=F == first run
+		// isStarted=T and isHibernationResuested=T == job started on grid service
+		// isStarted=F and isHibernationRequested=T == not going to request grid work
 		if (isGridWorkUnitStarted(context)){
 			GridResult result = getStartedResult(context);
 			GridWorkService gws = hostResolver.getGridWorkService(result);
@@ -80,6 +85,10 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 		} else if (!wasHibernationRequested){
 			logger.debug("Tasklet not yet configured with a result (StepExecution id=" + stepExecutionId + ")");
 			doExecute(context);
+		}
+		if (!isGridWorkUnitStarted(context)) {
+			logger.debug("no work unit configured, exiting without execution.");
+			return RepeatStatus.FINISHED;
 		}
 		if (!wasHibernationRequested){
 			Long timeoutInterval = exponentiallyIncreaseTimeoutIntervalInContext(context);

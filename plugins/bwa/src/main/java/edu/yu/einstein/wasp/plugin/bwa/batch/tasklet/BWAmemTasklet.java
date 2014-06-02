@@ -10,6 +10,7 @@ import java.util.Set;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,8 @@ public class BWAmemTasklet extends WaspRemotingTasklet implements StepExecutionL
 	
 	@Autowired
 	private BWAMemSoftwareComponent bwa;
+	
+	private boolean skip = false;
 
 	public BWAmemTasklet() {
 		// proxy
@@ -96,6 +99,7 @@ public class BWAmemTasklet extends WaspRemotingTasklet implements StepExecutionL
 			logger.debug("Key: " + key + " Value: " + jobParameters.get(key).toString());
 		}
 		
+		try {
 		WorkUnit w = bwa.getMem(cellLib, fg, jobParameters);
 		
 		GridResult result = gridHostResolver.execute(w);
@@ -108,6 +112,10 @@ public class BWAmemTasklet extends WaspRemotingTasklet implements StepExecutionL
 		stepExecutionContext.put("cellLibId", cellLib.getId()); 
 		stepExecutionContext.put("scrDir", result.getWorkingDirectory());
 		stepExecutionContext.put("method", "mem");
+		} catch (ParameterValueRetrievalException e) {
+			logger.info("BWA aln requested but got ParameterValueRetrievalException: " + e.getLocalizedMessage() + ". Assume alignment not possible, returning SKIP.");
+		    skip = true;
+		}
 	}
 	
 	/** 
@@ -123,6 +131,9 @@ public class BWAmemTasklet extends WaspRemotingTasklet implements StepExecutionL
 	 */
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution) {
+		if (skip == true) {
+			return new ExitStatus("SKIP");
+		}
 		return super.afterStep(stepExecution);
 	}
 
