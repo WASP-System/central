@@ -837,7 +837,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			numFiles++;
 			w.addRequiredFile(f);
 
-			w.setCommand("md5sum ${WASPFILE[WASP_TASK_ID]} | awk '{print $1}' > $WASP_TASK_OUTPUT");
+			w.setCommand("md5sum ${WASPFILE[ZERO_TASK_ID]} | awk '{print $1}' > $WASP_TASK_OUTPUT");
 
 			try {
 				// TODO: URN resolution

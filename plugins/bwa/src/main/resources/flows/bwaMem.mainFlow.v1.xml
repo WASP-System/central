@@ -28,6 +28,7 @@
 				</bean>
 			</batch:tasklet>
 			<batch:next on="FAILED" to="bwa-mem.alignmentFlow.notifyBWAFailed" />
+			<batch:end on="SKIP"/>
 			<batch:next on="*" to="bwa-mem.alignmentFlow.mergeBAM" />
 			<batch:listeners>
 				<batch:listener>

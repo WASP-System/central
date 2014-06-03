@@ -532,13 +532,15 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		w.setMode(ExecutionMode.TASK_ARRAY);
 		w.addCommand("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then touch " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
 		int files = 0;
+		logger.trace("preparing to copy " + g.getFileHandleIds().size() + " files for GridResult " + g.getUuid().toString());
 		for (Integer hid : g.getFileHandleIds()) {
-			FileHandle fh = getFileService().getFileHandleById(hid);
-            w.addCommand("COPY[" + files + "]=\"" + WorkUnit.OUTPUT_FILE_PREFIX + "_" + fh.getId() + "." + g.getUuid().toString() + " " + fh.getFileName() + "\"");
-            files++;
-            fh.setFileURI(this.gridFileService.remoteFileRepresentationToLocalURI(w.getResultsDirectory() + "/" + fh.getFileName()));
-            getFileService().addFile(fh);
-        }
+		    logger.trace("adding fileHandleId " + hid);
+		    FileHandle fh = getFileService().getFileHandleById(hid);
+                    w.addCommand("COPY[" + files + "]=\"" + WorkUnit.OUTPUT_FILE_PREFIX + "_" + fh.getId() + "." + g.getUuid().toString() + " " + fh.getFileName() + "\"");
+                    files++;
+                    fh.setFileURI(this.gridFileService.remoteFileRepresentationToLocalURI(w.getResultsDirectory() + "/" + fh.getFileName()));
+                    getFileService().addFile(fh);
+                }
 		w.setNumberOfTasks(files);
 		w.addCommand("THIS=${COPY[ZERO_TASK_ID]}");
 		w.addCommand("read -ra FILE <<< \"$THIS\"");
@@ -547,12 +549,16 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		GridResult r = execute(w);
 		logger.trace("waiting for results file copy");
 		ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
+		String poll = transportConnection.getConfiguredSetting("host.pollinterval");
+		if (poll == null) 
+			poll = "10000"; // 10s
+		Integer pollint = Integer.decode(poll);
 		while (!isFinished(r)) {
 			ScheduledFuture<?> md5t = ex.schedule(new Runnable() {
 				@Override
 				public void run() {
 				}
-			}, Integer.decode(transportConnection.getConfiguredSetting("host.pollinterval")), TimeUnit.MILLISECONDS);
+			}, pollint, TimeUnit.MILLISECONDS);
 			while (!md5t.isDone()) {
 				// not done
 			}
@@ -665,8 +671,9 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		result.setMode(w.getMode());
 		result.setSecureResults(w.isSecureResults());
 		if (w.isSecureResults()) {
-			for (FileHandle fg : w.getResultFiles()) {
-				result.getFileHandleIds().add(fg.getId());
+			for (FileHandle fh : w.getResultFiles()) {
+			    logger.trace("WorkUnit " + w.getId() + " is going to register FileHandle " + fh.getId());
+				result.getFileHandleIds().add(fh.getId());
 			}
 			
 		}
@@ -768,8 +775,8 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 					WorkUnit.RESULTS_DIRECTORY + "=" + w.remoteResultsDirectory + "\n";
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY)) {
-				preamble += WorkUnit.TASK_ARRAY_ID + "=$[SGE_TASK_ID]\n" + 
-				                WorkUnit.ZERO_TASK_ARRAY_ID + "=${ZERO_TASK_ID}\n" +
+				preamble += WorkUnit.TASK_ARRAY_ID + "=${SGE_TASK_ID}\n" + 
+				                WorkUnit.ZERO_TASK_ARRAY_ID + "=$[WASP_TASK_ID - 1]\n" +
 						WorkUnit.TASK_OUTPUT_FILE + "=$WASPNAME-${WASP_TASK_ID}.out\n" +
 						WorkUnit.TASK_END_FILE + "=$WASPNAME:${WASP_TASK_ID}.end\n";
 			}

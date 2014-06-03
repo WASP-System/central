@@ -28,6 +28,7 @@
 				</bean>
 			</batch:tasklet>
 			<batch:next on="FAILED" to="bwa-backtrack.alignmentFlow.notifyBWAFailed" />
+			<batch:end on="SKIP"/>
 			<batch:next on="*" to="bwa-backtrack.alignmentFlow.BWAsam" />
 			<batch:listeners>
 				<batch:listener>
