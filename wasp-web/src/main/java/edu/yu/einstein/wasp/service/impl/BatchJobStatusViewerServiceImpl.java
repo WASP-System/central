@@ -61,7 +61,7 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 		model.setExecutionId(se.getId());
 		model.setName(se.getStepName());
 		model.setStartTime(se.getStartTime());
-		if (!se.getExitStatus().getExitCode().equals(ExitStatus.HIBERNATING.getExitCode()))
+		if (!se.getExitStatus().getExitCode().equals(ExitStatus.HIBERNATING.getExitCode()) && !se.getExitStatus().getExitCode().equals(ExitStatus.UNKNOWN.getExitCode()))
 			model.setEndTime(se.getEndTime()); // only set if not hibernating as a hibernating job is unfinished
 		model.setStatus(se.getStatus().toString());
 		model.setExitCode(se.getExitStatus().getExitCode());
