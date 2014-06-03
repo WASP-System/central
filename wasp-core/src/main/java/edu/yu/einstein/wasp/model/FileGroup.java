@@ -514,11 +514,13 @@ public class FileGroup extends WaspModel {
 	/**
 	 * 
 	 */
-	@ManyToMany
-	@JoinTable(name="samplefilegroup", joinColumns={@JoinColumn(name="filegroupid")}, inverseJoinColumns={@JoinColumn(name="sampleid")})
+	@ManyToMany(mappedBy="fileGroups")
 	private Set<Sample> samples;
 
 	/**
+	 * WARNING: many-to-many relationship owned by Sample.
+	 * Adding Samples added here without then calling fileService.addFileGroup() to persist this object will result in them NOT being persisted.
+	 * Either persist with fileService.addFileGroup() or save this object and add it to the 
 	 * @return the fileGroups
 	 */
 	public Set<Sample> getSamples() {
@@ -526,6 +528,8 @@ public class FileGroup extends WaspModel {
 	}
 
 	/**
+	 * WARNING: many-to-many relationship owned by Sample.
+	 * Adding Samples added here without then calling fileService.addFileGroup() to persist this object will result in them NOT being persisted.
 	 * @param fileGroups the fileGroups to set
 	 */
 	public void setSamples(Set<Sample> samples) {
@@ -535,11 +539,12 @@ public class FileGroup extends WaspModel {
 	/**
 	 * 
 	 */
-	@ManyToMany
-	@JoinTable(name="samplesourcefilegroup", joinColumns={@JoinColumn(name="filegroupid")}, inverseJoinColumns={@JoinColumn(name="samplesourceid")})
+	@ManyToMany(mappedBy="fileGroups")
 	private Set<SampleSource> sampleSources;
 
 	/**
+	 * WARNING: many-to-many relationship owned by SampleSource.
+	 * Adding SampleSources added here without then calling fileService.addFileGroup() to persist this object will result in them NOT being persisted.
 	 * @return the fileGroups
 	 */
 	public Set<SampleSource> getSampleSources() {
@@ -547,6 +552,8 @@ public class FileGroup extends WaspModel {
 	}
 
 	/**
+	 * WARNING: many-to-many relationship owned by SampleSource.
+	 * Adding SampleSources added here without then calling fileService.addFileGroup() to persist this object will result in them NOT being persisted.
 	 * @param fileGroups the fileGroups to set
 	 */
 	public void setSampleSources(Set<SampleSource> sampleSource) {

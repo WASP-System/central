@@ -674,7 +674,28 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 	@Override
 	public FileGroup addFileGroup(FileGroup group) {
-		return fileGroupDao.save(group);
+		// FileGroup is many-to-many with SampleSource and Sample. SampleSource and Sample control the relationships
+		// thus it is only possible to persist SampleSources and Samples associated with a fileGroup from the other side
+		
+		// copy the sets from FileGroup to be persisted
+		Set<SampleSource> ssSet = new HashSet<>(group.getSampleSources());
+		Set<Sample> sSet = new HashSet<>(group.getSamples());
+		
+		// save the FileGroup
+		group = fileGroupDao.save(group);
+		
+		// add the filegroup to any SampleSource or Sample objects in the relationship
+		for (SampleSource ss : ssSet){
+			ss.getFileGroups().add(group);
+			sampleService.getSampleSourceDao().save(ss);
+		}
+		for (Sample s : sSet){
+			s.getFileGroups().add(group);
+			sampleDao.save(s);
+		}
+		
+		// return the filegroup, refreshed to include sets of SampleSources and Samples
+		return getFileGroupById(group.getId()); 
 	}
 	
 	@Override
