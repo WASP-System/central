@@ -552,7 +552,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		String poll = transportConnection.getConfiguredSetting("host.pollinterval");
 		if (poll == null) 
 			poll = "10000"; // 10s
-		Integer pollint = Integer.decode(poll);
+		Integer pollint = Integer.parseInt(poll);
 		while (!isFinished(r)) {
 			ScheduledFuture<?> md5t = ex.schedule(new Runnable() {
 				@Override
@@ -1114,7 +1114,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
                 Matcher filem = Pattern.compile("-([0-9]+?).out").matcher(e.getName());
                 if (!filem.find())
                     continue;
-                Integer record = Integer.decode(filem.group(1));
+                Integer record = Integer.parseInt(filem.group(1));
                 logger.trace("record number " + record + " size " + e.getSize());
                 result.put(record, IOUtils.toString(a, "UTF-8"));
                 

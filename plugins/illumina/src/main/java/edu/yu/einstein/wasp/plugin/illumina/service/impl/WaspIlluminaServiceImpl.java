@@ -1,24 +1,46 @@
 package edu.yu.einstein.wasp.plugin.illumina.service.impl;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
+import edu.yu.einstein.wasp.Assert;
+import edu.yu.einstein.wasp.dao.RunDao;
+import edu.yu.einstein.wasp.dao.RunMetaDao;
 import edu.yu.einstein.wasp.exception.GridException;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
 import edu.yu.einstein.wasp.plugin.illumina.util.IlluminaRunFolderNameParser;
+import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
+import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.PropertyHelper;
 
 @Service
@@ -27,6 +49,15 @@ public class WaspIlluminaServiceImpl extends WaspServiceImpl implements WaspIllu
 	
 	@Autowired
 	private GridHostResolver hostResolver;
+	
+	@Autowired
+	private RunService runService;
+	
+	@Autowired
+	private RunDao runDao;
+	
+	@Autowired
+	private RunMetaDao runMetaDao;
 	
 	/**
 	 * {@inheritDoc}
@@ -65,6 +96,138 @@ public class WaspIlluminaServiceImpl extends WaspServiceImpl implements WaspIllu
 			throw new GridException("Caught " + e.getClass().getSimpleName() + " when trying to read Illumina run folder (illumina.data.dir): " + e.getLocalizedMessage());
 		}
 		return folderNames;
+	}
+
+	@Override
+	public void setIlluminaRunXml(GridResult result, Run run, String runXML) throws GridException, IOException, MetadataException {
+		
+		GridWorkService gws = hostResolver.getGridWorkService(result);
+		
+		if (!result.getResultsDirectory().contains(run.getName())) {
+			String mess = "result from " + result.getResultsDirectory() + " does not appear to be related to " + run.getName();
+			logger.error(mess);
+			throw new MetadataException(mess);
+		}
+		
+		String runInfoS = StringUtils.chomp(gws.getUnregisteredFileContents(result, runXML));		
+		
+		setRunMeta(run, RUN_INFO, runInfoS);
+		
+	}
+	
+	@Override
+	public void setIlluminaRunXml(GridResult result, Run run) throws GridException, IOException, MetadataException {
+		setIlluminaRunXml(result, run, "RunInfo.xml");
+	}
+	
+	
+	protected void setRunMeta(Run run, String metaKey, String metaValue) throws MetadataException {
+		Assert.assertParameterNotNull(run, "run cannot be null");
+		Assert.assertParameterNotNull(metaKey, "metaKey cannot be null");
+		Assert.assertParameterNotNull(metaValue, "metaValue cannot be null");
+		run = runDao.merge(run);
+		RunMeta runMeta = new RunMeta();
+		runMeta.setRunId(run.getId());
+		runMeta.setK(ILLUMINA_AREA + "." + metaKey);
+		runMeta.setV(metaValue);
+		logger.debug("setting meta  " + runMeta + " for Run with id=" + run.getId());
+		runMetaDao.setMeta(runMeta);
+	}
+	
+	protected String getRunMeta(Run run, String area, String k) {
+		Assert.assertParameterNotNull(run, "file group cannot be null");
+		String v = null;
+		List<RunMeta> runMetaList = runMetaDao.getMeta(run.getId());
+		if (runMetaList == null)
+			runMetaList = new ArrayList<RunMeta>();
+		runMetaList.size();
+		try{
+			v = (String) MetaHelper.getMetaValue(area, k, runMetaList);
+		} catch(MetadataException e) {
+			logger.debug("unable to get a meta value with key=" + area + "." + k + " for FileGroup with id=" + run.getId());
+		}
+		logger.debug("returning meta value " + area + "." + k + "=" + v + " for FileGroup with id=" + run.getId());
+		return v;
+	}
+
+	@Override
+	public Document getIlluminaRunXml(Run run) throws MetadataException {
+		InputSource is = new InputSource();
+        is.setCharacterStream(new StringReader(getRunMeta(run, ILLUMINA_AREA, RUN_INFO)));
+		
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+    	
+		DocumentBuilder db;
+		try {
+			db = dbf.newDocumentBuilder();
+			return db.parse(is);
+		} catch (ParserConfigurationException | SAXException | IOException e) {
+			String mess = "unable to create documentbuilder, throwing metadataexception, reason: " + e.getLocalizedMessage();
+			logger.warn(mess);
+			throw new MetadataException(mess, e);
+		}
+		
+	}
+
+	@Override
+	public int getNumberOfReadSegments(Run run) throws MetadataException {
+		Document dom = getIlluminaRunXml(run);
+		int n = 0;
+		NodeList nodes = dom.getElementsByTagName("Read");
+		for (int i = 0; i < nodes.getLength(); i++) {
+		      Element element = (Element) nodes.item(i);
+		      if (element.getAttribute("IsIndexedRead").equals("N"))
+		    	  n++;
+		}
+		return n;
+	}
+
+	@Override
+	public int getNumberOfIndexedReads(Run run) throws MetadataException {
+		Document dom = getIlluminaRunXml(run);
+		int n = 0;
+		NodeList nodes = dom.getElementsByTagName("Read");
+		for (int i = 0; i < nodes.getLength(); i++) {
+		      Element element = (Element) nodes.item(i);
+		      if (element.getAttribute("IsIndexedRead").equals("Y"))
+		    	  n++;
+		}
+		return n;
+	}
+
+	@Override
+	public int getTotalNumberOfReads(Run run) throws MetadataException {
+		Document dom = getIlluminaRunXml(run);
+		int n = 0;
+		NodeList nodes = dom.getElementsByTagName("Read");
+		n = nodes.getLength();
+		return n;
+	}
+
+	@Override
+	public List<Integer> getLengthOfReadSegments(Run run) throws MetadataException {
+		Document dom = getIlluminaRunXml(run);
+		List<Integer> res = new ArrayList<Integer>();
+		NodeList nodes = dom.getElementsByTagName("Read");
+		for (int i = 0; i < nodes.getLength(); i++) {
+		      Element element = (Element) nodes.item(i);
+		      if (element.getAttribute("IsIndexedRead").equals("N"))
+		    	  res.add(Integer.parseInt(element.getAttribute("NumCycles")));
+		}
+		return res;
+	}
+
+	@Override
+	public List<Integer> getLengthOfIndexedReads(Run run) throws MetadataException {
+		Document dom = getIlluminaRunXml(run);
+		List<Integer> res = new ArrayList<Integer>();
+		NodeList nodes = dom.getElementsByTagName("Read");
+		for (int i = 0; i < nodes.getLength(); i++) {
+		      Element element = (Element) nodes.item(i);
+		      if (element.getAttribute("IsIndexedRead").equals("Y"))
+		    	  res.add(Integer.parseInt(element.getAttribute("NumCycles")));
+		}
+		return res;
 	}
 
 

@@ -3,9 +3,13 @@
  */
 package edu.yu.einstein.wasp.plugin.babraham.batch.tasklet;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.json.JSONException;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.core.scope.context.ChunkContext;
@@ -13,9 +17,12 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.xml.sax.SAXException;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
+import edu.yu.einstein.wasp.exception.GridException;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
@@ -23,6 +30,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.plugin.babraham.software.TrimGalore;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.FileService;
@@ -40,6 +48,9 @@ public class TrimGaloreRegisteringTasklet extends WaspRemotingTasklet {
 
     private int runId;
     private int cellLibraryId;
+    /**
+     * Name of the bean that produced the sequence data.
+     */
     private String softwareClass;
 
     @Autowired
@@ -53,6 +64,9 @@ public class TrimGaloreRegisteringTasklet extends WaspRemotingTasklet {
 
     @Autowired
     private TrimGalore trimGalore;
+    
+    @Autowired
+    private BabrahamService babrahamService;
 
     @Autowired
     private GridHostResolver hostResolver;
@@ -61,8 +75,8 @@ public class TrimGaloreRegisteringTasklet extends WaspRemotingTasklet {
     private RunService runService;
 
     public TrimGaloreRegisteringTasklet(String runId, String softwareName, String cellLibraryId) {
-        this.runId = Integer.decode(runId);
-        this.cellLibraryId = Integer.decode(cellLibraryId);
+        this.runId = Integer.parseInt(runId);
+        this.cellLibraryId = Integer.parseInt(cellLibraryId);
         this.softwareClass = softwareName;
     }
 
@@ -92,10 +106,17 @@ public class TrimGaloreRegisteringTasklet extends WaspRemotingTasklet {
     /** 
 	 * {@inheritDoc}
      * @throws SampleTypeException 
+     * @throws ParserConfigurationException 
+     * @throws SAXException 
+     * @throws IOException 
+     * @throws JSONException 
+     * @throws GridException 
+     * @throws MetadataException 
 	 */
 	@Override
 	@Transactional("entityManager")
-	public void doPreFinish(ChunkContext context) throws SampleTypeException {
+	public void doPreFinish(ChunkContext context) throws SampleTypeException, MetadataException, GridException, JSONException, IOException, SAXException, ParserConfigurationException {
+		GridResult r = getStartedResult(context);
 	        SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);
 		// get results files and make them active
 		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
@@ -108,6 +129,7 @@ public class TrimGaloreRegisteringTasklet extends WaspRemotingTasklet {
 			    fg.setIsActive(1);
 			    fg.getSampleSources().add(cellLibrary);
 			    fileService.getFileGroupDao().merge(fg);
+			    babrahamService.saveJsonForParsedSoftwareOutput(trimGalore.parseOutput(r, fg), "TRIM_GALORE", trimGalore, fg.getId());
 			}
 			
 	}

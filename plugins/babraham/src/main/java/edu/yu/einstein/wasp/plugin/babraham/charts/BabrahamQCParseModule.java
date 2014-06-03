@@ -1,7 +1,12 @@
 package edu.yu.einstein.wasp.plugin.babraham.charts;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -446,6 +451,75 @@ public class BabrahamQCParseModule {
 		chart.addDataSeries(ds2);
 		chart.addDataSeries(ds3);
 		chart.addDataSeries(ds4);
+		return chart.getAsJSON();
+	}
+	
+	public static JSONObject getTrimGaloreChart(List<String> trimStats, int numberOfClusters) throws IOException {
+		
+		final class TrimStruct {
+			public Integer pos;
+			public Integer obs;
+			public Double expect;
+			public Integer err;
+			
+			TrimStruct(String[] init) {
+				pos = Integer.parseInt(init[0]);
+				obs = Integer.parseInt(init[1]);
+				expect = Double.valueOf(init[2]);
+				err = Integer.parseInt(init[3]);
+			}
+		}
+		
+		WaspChart2D chart = new WaspChart2D();
+		chart.setTitle("trimgalore.title.label");
+		chart.setxAxisLabel("trimgalore.xAxis.label");
+		chart.setyAxisLabel("trimgalore.yAxis.label");
+		chart.setDescription("trimgalore.description.label");
+		List<Map<Integer,TrimStruct>> tsl = new ArrayList<Map<Integer,TrimStruct>>();
+		
+		for (String sdat : trimStats) { // for each read segment
+			BufferedReader br = new BufferedReader(new StringReader(sdat));
+			
+			Map<Integer,TrimStruct> obs = new HashMap<Integer,TrimStruct>();
+			
+			String line;
+			while ((line=br.readLine()) != null) {
+				String[] e = line.split("\t");
+				obs.put(Integer.parseInt(e[0]), new TrimStruct(e));
+			}
+			tsl.add(obs);
+		}
+		int max = 0;
+		// find the longest length read
+		for(Map<Integer,TrimStruct> m : tsl) {
+			int nm = Collections.max(m.keySet());
+			if (nm > max)
+				max = nm;
+		}
+		//loop down to 1
+		int i = 1;
+		for(Map<Integer,TrimStruct> m : tsl) {
+
+			DataSeries dso = new DataSeries("trimgalore.ds" + i + "Name.label");
+			DataSeries dse = new DataSeries("trimgalore.eds" + i + "Name.label");
+			double cumObsPct = 0;
+			double cumExpectPct = 0;
+			for (int n = max; n>0; n--) {
+				TrimStruct ts = m.get(n);
+				if (ts == null)
+					continue;
+				
+				cumObsPct += (double) ts.obs / numberOfClusters;
+				cumExpectPct += (double) ts.expect / numberOfClusters;
+				
+				dso.addRowWithSingleColumn(ts.pos.toString(), cumObsPct);
+				dse.addRowWithSingleColumn(ts.pos.toString(), cumExpectPct);
+			}
+			chart.addDataSeries(dso);
+			if (i==1)
+				chart.addDataSeries(dse);
+			i++;
+		}
 		return chart.getAsJSON();
 	}
 	

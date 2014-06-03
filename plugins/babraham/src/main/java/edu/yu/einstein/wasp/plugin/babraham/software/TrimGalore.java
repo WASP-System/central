@@ -3,6 +3,9 @@
  */
 package edu.yu.einstein.wasp.plugin.babraham.software;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -12,12 +15,23 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
+import edu.yu.einstein.wasp.charts.DataSeries;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
@@ -25,6 +39,7 @@ import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
+import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
@@ -38,6 +53,7 @@ import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.babraham.batch.tasklet.jobparameters.TrimGaloreParameters;
+import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamQCParseModule;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqComparator;
@@ -179,6 +195,8 @@ public class TrimGalore extends SoftwarePackage {
         String command = "trim_galore " + parameterString + " ${" + WorkUnit.INPUT_FILE + "[" + 0 + "]}";
         if (paired)
             command += " ${" + WorkUnit.INPUT_FILE + "[" + 1 + "]}";
+        
+        command += " 2> " + " ${" + WorkUnit.INPUT_FILE + "[" + 0 + "]/.fastq.gz/}" + "_trim_galore.out.txt";
 
         w.setCommand(command);
 
@@ -247,6 +265,7 @@ public class TrimGalore extends SoftwarePackage {
 
         w.setCommand("shopt -u nullglob");
         w.addCommand("rm -f " + fastqG.getId() + "_*_trim_counts.txt");
+        w.addCommand("rm -f " + fastqG.getId() + "_*_trim_number.txt");
 
         int fileN = 0;
         Sample library = sampleService.getLibrary(cellLibrary);
@@ -267,8 +286,10 @@ public class TrimGalore extends SoftwarePackage {
         }
 
         w.addCommand(sortCommand(fastqG.getId(), 1));
+        w.addCommand(sumNumber(fastqG.getId(), 1));
         if (rs == 2) {
             w.addCommand(sortCommand(fastqG.getId(), 2));
+            w.addCommand(sumNumber(fastqG.getId(), 2));
         }
 
         FileGroup resultFiles = new FileGroup();
@@ -300,7 +321,12 @@ public class TrimGalore extends SoftwarePackage {
         prefix = "_" + fastqService.getFastqReadSegmentNumber(fileHandle);
         w.addCommand("sed -n '/^length/,/^$/p' ${" + WorkUnit.INPUT_FILE + "[" + fileNumber + "]}_trimming_report.txt | tail -n +2 | head -n -1 >> "
                 + fileGroup.getId() + prefix + "_trim_counts.txt");
-        if (rs == 2) {
+        if (rs == 1) {
+        	w.addCommand("grep \"Processed reads:\" " + WorkUnit.INPUT_FILE + "[" + fileNumber + "]}_trimming_report.txt  | sed 's/.* //g' >> "
+        		+ fileGroup.getId() + prefix + "_trim_number.txt");
+        } else if (rs == 2) {
+        	w.addCommand("grep \"Total number of sequences analysed: \" " + WorkUnit.INPUT_FILE + "[" + fileNumber + "]/fastq.gz/}_trim_galore.out.txt | sed 's/.* //g' >> " 
+        		+ fileGroup.getId() + prefix + "_trim_number.txt");
             // paired-end read names end in "_val_?.fq.gz" while single-end
             // reads end with "_trimmed.fq.gz"
             prefix = "_val_" + prefix;
@@ -318,6 +344,11 @@ public class TrimGalore extends SoftwarePackage {
                 + "a[$1]+=$2;b[$1]+=$3;c[$1]=$4;}END{for (i in a) { print i \"\\t\" a[i] \"\\t\" b[i] \"\\t\" c[i] } }' | " + "sort -nk1,1 > " + filePrefix
                 + "_sum_trim_counts.txt";
     }
+    
+    private String sumNumber(Integer fileId, Integer readSegment) {
+    	String filePrefix = fileId + "_" + readSegment;
+    	return "paste -sd+ " + filePrefix + "_trim_number.txt | bc > " + filePrefix + "_sum_trim_number.txt";
+    }
 
     private FileHandle createResultFile(FileHandle originFile, String fileName) throws MetadataException {
         FileHandle trimmed = new FileHandle();
@@ -329,20 +360,38 @@ public class TrimGalore extends SoftwarePackage {
     }
 
     /**
-     * This method takes a grid result of a successfully run FastQC job, gets
-     * the working directory and uses it to parse the <em>fastqc_data.txt</em>
-     * file into a Map which contains static Strings defining the output keys
-     * (see above) and JSONObjects representing the data.
+     * Given a GridResult (used for host and working dir info) and a file group id, this method 
+     * will return a DataSeries representation of the total number of reads and the trimming result 
+     * summary statistics.
      * 
      * @param result
+     * @param fileGroup
      * @return
      * @throws GridException
-     * @throws BabrahamDataParseException
      * @throws JSONException
+     * @throws IOException
+     * @throws SAXException 
+     * @throws ParserConfigurationException 
      */
-    public Map<String, JSONObject> parseOutput(String resultsDir) throws GridException, JSONException {
-
-        return null;
+    public JSONObject parseOutput(GridResult result, FileGroup fileGroup) throws GridException, JSONException, IOException, SAXException, ParserConfigurationException {
+    	GridWorkService gws = hostResolver.getGridWorkService(result);
+    	Integer rs = fastqService.getNumberOfReadSegments(fileGroup);
+    	
+    	List<String> trimStrings = new ArrayList<String>();
+    	
+    	String numStr = StringUtils.chomp(gws.getUnregisteredFileContents(result, fileGroup.getId() + "_1_sum_trim_number.txt"));
+    	
+		int numberOfClusters = Integer.parseInt(numStr);
+		
+		logger.trace("FileGroup " + fileGroup.getId() + " number of clusters : " + numberOfClusters);
+		
+		for (int i=1; i<=rs; i++) {
+			logger.trace("collecting trim data for " + fileGroup.getId() + " read " + i);
+			String ts = gws.getUnregisteredFileContents(result, fileGroup.getId() + "_" + i + "_sum_trim_counts.txt");
+			trimStrings.add(ts);
+		}
+    	
+		return BabrahamQCParseModule.getTrimGaloreChart(trimStrings, numberOfClusters);
     }
 
 }

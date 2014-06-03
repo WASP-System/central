@@ -387,7 +387,7 @@ public class BatchJobHibernationManager {
 		        logger.warn("got message " + messageTemplate.toString() + " which claims to be of type MANY, but does not contain a PARENT_ID");
 		    } else {
                 UUID parentId = UUID.fromString((String) messageTemplate.getHeader(WaspMessageTemplate.PARENT_ID));
-                Integer childId = Integer.decode(messageTemplate.getHeader(WaspMessageTemplate.CHILD_MESSAGE_ID).toString());
+                Integer childId = Integer.parseInt(messageTemplate.getHeader(WaspMessageTemplate.CHILD_MESSAGE_ID).toString());
                 JobExecution je = jobExplorer.getJobExecution(waitingManyJobs.get(parentId).getJobExecutionId());
                 if (!lockJobExecution(je, LockType.WAKE)){
 					logger.debug("JobExecution id=" + je.getId() + " is currently locked. Going to push message back into queue.");
