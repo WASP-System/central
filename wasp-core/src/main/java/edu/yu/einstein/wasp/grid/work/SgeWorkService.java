@@ -1090,22 +1090,6 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	protected void doProvisionRemoteFile(edu.yu.einstein.wasp.model.FileHandle file) throws FileNotFoundException, GridException {
 		// TODO: provision remote file from other host.
 	}
-	
-	@Override
-	public InputStream readResultStdOut(GridResult r) throws IOException {
-		return readResultFile(r, ".out", false);
-	}
-	
-	@Override
-	public InputStream readResultStdErr(GridResult r) throws IOException {
-		return readResultFile(r, ".err", false);
-	}
-	
-	@Override
-	public InputStream readTaskOutput(GridResult r, int taskId) throws IOException {
-		String suffix = ":" + taskId + ".out";
-		return readResultFile(r, suffix, true);
-	}
 
     /** 
      * {@inheritDoc}
@@ -1139,7 +1123,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
             a.close();
             agz.close();
             afis.close();
-            // TODO: RESTORE! f.delete();
+            f.delete();
         }
         return result;
     }
@@ -1157,16 +1141,16 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		}
 		if (!f.exists())
 			gridFileService.get(path, f);
-		logger.debug("temporary tar file " + f.getAbsolutePath());
+		logger.trace("temporary tar file " + f.getAbsolutePath());
 		String contentName = jobNamePrefix + r.getUuid() + suffix;
-		logger.debug("looking for: " + contentName);
+		logger.trace("looking for: " + contentName);
 		FileInputStream afis = new FileInputStream(f);
 		GZIPInputStream agz = new GZIPInputStream(afis);
 		TarArchiveInputStream a = new TarArchiveInputStream(agz);
-		logger.debug("tar " + a.toString());
+		logger.trace("tar " + a.toString());
 		TarArchiveEntry e;
 		while ((e = a.getNextTarEntry()) != null) {
-			logger.debug("saw tar file entry " + e.getName());
+			logger.trace("saw tar file entry " + e.getName());
 			if (e.getName().equals(contentName)) {
 				byte[] content = new byte[(int) e.getSize()];
 				a.read(content, 0, content.length);
@@ -1193,6 +1177,57 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	public void setApplicationContext(ApplicationContext arg0) throws BeansException {
 		this.applicationContext = arg0;
 		
+	}
+
+	@Override
+	public String getResultStdOut(GridResult r) throws IOException {
+		return getResultOutputFile(r, "out");
+	}
+
+	@Override
+	public String getResultStdErr(GridResult r) throws IOException {
+		return getResultOutputFile(r, "err");
+	}
+	
+	private String getResultOutputFile(GridResult r, String type) throws IOException {
+		String result = "";
+		File f = File.createTempFile("wasp", "work");
+        String path = r.getArchivedResultOutputPath();
+        logger.debug("temporary tar file " + f.getAbsolutePath() + " for " + path);
+        gridFileService.get(path, f);
+        FileInputStream afis = new FileInputStream(f);
+        GZIPInputStream agz = new GZIPInputStream(afis);
+        TarArchiveInputStream a = new TarArchiveInputStream(agz);
+        try {
+            logger.trace("tar " + a.toString());
+            TarArchiveEntry e;
+            while ((e = a.getNextTarEntry()) != null) {
+                logger.trace("saw tar file entry " + e.getName());
+                Matcher filem = Pattern.compile(r.getId() + "." + type).matcher(e.getName());
+                if (!filem.find())
+                    continue;
+                logger.trace("matched " + e.getName() + " size " + e.getSize());
+                result = IOUtils.toString(a, "UTF-8");
+                break;
+            }
+        } finally {
+            a.close();
+            agz.close();
+            afis.close();
+            f.delete();
+        }
+        return result;
+	}
+
+	@Override
+	public String getUnregisteredFileContents(GridResult r, String filename) throws IOException {
+		String result = "";
+		File f = File.createTempFile("wasp", "work");
+		String path = r.getWorkingDirectory() + "/" + filename;
+		gridFileService.get(path, f);
+		FileInputStream afis = new FileInputStream(f);
+		result = IOUtils.toString(afis, "UTF-8");
+		return result;
 	}
 	
 }

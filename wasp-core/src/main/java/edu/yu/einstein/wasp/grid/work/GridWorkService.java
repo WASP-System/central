@@ -69,12 +69,6 @@ public interface GridWorkService {
 	
 	public GridTransportConnection getTransportConnection();
 
-	public InputStream readResultStdErr(GridResult r) throws IOException;
-	
-	public InputStream readResultStdOut(GridResult r) throws IOException;
-	
-	public InputStream readTaskOutput(GridResult r, int taskId) throws IOException;
-
 	/**
 	 * Pull the result tarball of a task array job and return contents of .out files in a map.
 	 * There should not be excessively large files in the tarball.  Reads entire contents of 
@@ -85,6 +79,36 @@ public interface GridWorkService {
 	 * @throws IOException
 	 */
 	public LinkedHashMap<Integer,String> getMappedTaskOutput(GridResult r) throws IOException;
+	
+	/**
+	 * Pull the result tarball of a non task-array job and return the contents of the .out file
+	 * in a string.
+	 * 
+	 * @param r
+	 * @return
+	 * @throws IOException
+	 */
+	public String getResultStdOut(GridResult r) throws IOException;
+	
+	/**
+	 * Pull the result tarball of a non task-array job and return the contents of the .err file
+	 * in a string.
+	 * 
+	 * @param r
+	 * @return
+	 * @throws IOException
+	 */
+	public String getResultStdErr(GridResult r) throws IOException;
+	
+	/**
+	 * Given a GridResult, pull a small named file from the job's working directory as a string.
+	 * 
+	 * @param r
+	 * @param filename
+	 * @return
+	 * @throws IOException
+	 */
+	public String getUnregisteredFileContents(GridResult r, String filename) throws IOException;
 	
 	//public void setGridFileMovers(List<GridFileMover> gridFileMovers);
 	

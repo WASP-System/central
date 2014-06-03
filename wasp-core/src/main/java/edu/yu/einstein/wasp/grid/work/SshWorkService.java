@@ -26,6 +26,7 @@ import edu.yu.einstein.wasp.grid.file.GridFileService;
  * @author calder
  *
  */
+@Deprecated
 @SuppressWarnings("unused")
 public class SshWorkService implements GridWorkService {
 	
@@ -146,23 +147,25 @@ public class SshWorkService implements GridWorkService {
 	}
 
 	@Override
-	public InputStream readResultStdErr(GridResult r) throws IOException {
-		return r.getStdErrStream();
-	}
-
-	@Override
-	public InputStream readResultStdOut(GridResult r) throws IOException {
-		return r.getStdOutStream();
-	}
-
-	@Override
-	public InputStream readTaskOutput(GridResult r, int taskId) throws IOException {
-		// TODO Fake a task array
+	public LinkedHashMap<Integer, String> getMappedTaskOutput(GridResult r) throws IOException {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public LinkedHashMap<Integer, String> getMappedTaskOutput(GridResult r) throws IOException {
+	public String getResultStdOut(GridResult r) throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getResultStdErr(GridResult r) throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getUnregisteredFileContents(GridResult r, String filename) throws IOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
