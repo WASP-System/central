@@ -11,7 +11,7 @@
 
 package edu.yu.einstein.wasp.model;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -19,6 +19,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -258,8 +259,9 @@ public class SampleSource extends WaspModel {
 	/**
 	 * 
 	 */
-	@ManyToMany(mappedBy="sampleSources")
-	private Set<FileGroup> fileGroups = new HashSet<FileGroup>();
+	@ManyToMany
+	@JoinTable(name="samplesourcefilegroup", joinColumns={@JoinColumn(name="samplesourceid")}, inverseJoinColumns={@JoinColumn(name="filegroupid")})
+	private Set<FileGroup> fileGroups = new LinkedHashSet<FileGroup>();
 
 	/**
 	 * @return the fileGroups
