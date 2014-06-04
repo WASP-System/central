@@ -129,7 +129,8 @@ public class TrimGalorePlugin extends WaspPlugin implements ClientMessageI, File
 			if (id == null)
 				return MessageBuilder.withPayload("Unable to determine run id from message: " + m.getPayload().toString()).build();
 			
-			jobParameters.put(WaspJobParameters.ID, id.toString());
+			jobParameters.put(WaspJobParameters.RUN_ID, id.toString());
+			jobParameters.put(WaspJobParameters.BEAN_NAME, "casava");
 			jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
 			logger.info("Sending launch message to flow '" + FLOW_NAME + "' on run with id=" + id);
 			runService.launchBatchJob(FLOW_NAME, jobParameters);

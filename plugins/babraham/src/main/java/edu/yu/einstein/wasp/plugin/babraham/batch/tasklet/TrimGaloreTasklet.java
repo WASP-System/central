@@ -123,7 +123,7 @@ public class TrimGaloreTasklet extends LaunchManyJobsTasklet {
             while (fhi.hasNext()) {
                 Map<String, String> jobParameters = new HashMap<String, String>();
 
-                jobParameters.put(WaspJobParameters.BEAN_NAME, "casava");
+                jobParameters.put(WaspJobParameters.BEAN_NAME, software);
                 jobParameters.put(WaspJobParameters.RUN_ID, run.getId().toString());
                 jobParameters.put(WaspJobParameters.CELL_LIBRARY_ID, cellLibrary.getId().toString());
                 jobParameters.put(WaspJobParameters.FILE_GROUP_ID, fastqG.getId().toString());
