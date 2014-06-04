@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.plugin.babraham.charts;
 
 import java.awt.Color;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,6 +37,10 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 	
 	private static String getFastQScreenCredits(MessageService messageService){
 		return "<div class='chart_credit'>" + messageService.getMessage("fastqscreen.credit.label") + "</div>";
+	}
+	
+	private static String getTrimGaloreCredits(MessageService messageService){
+		return "<div class='chart_credit'>" + messageService.getMessage("trim_galore.credit.label") + "</div>";
 	}
 	
 	public static WebContent getPerBaseSeqQualityPlotHtml(final WaspBoxPlot waspBoxPlot, MessageService messageService) throws ChartException {
@@ -158,7 +163,7 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 		try{
 			List<DataSeries> ds = chart.getDataSeries();
 			if (ds.size() != 4)
-				throw new ChartException("Expected 4 data series but got ");
+				throw new ChartException("Expected 4 data series but got " + ds.size());
 			WebContent content = new WebContent();
 			content.setScriptDependencies(getScriptDependencies());
 			String containerId = getUniqueContainerId();
@@ -199,5 +204,51 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 		WebContent content = WebChartsBase.getTableRepresentation(basicStats, false, messageService);
 		content.setHtmlCode(content.getHtmlCode() + getFastQcCredits(messageService));
 		return content;
+	}
+
+	public static WebContent getSplineForTrimGalore(WaspChart2D chart, MessageService messageService) throws ChartException {
+		try{
+			List<DataSeries> ds = chart.getDataSeries();
+			if (ds.size() != 2 || ds.size() != 3)
+				throw new ChartException("Expected 2 or 3 data series but got " + ds.size());
+			DataSeries dsF = chart.getDataSeries("trimgalore.ds1Name.label");
+			DataSeries dsE = chart.getDataSeries("trimgalore.ds2Name.label");
+			DataSeries dsR = null;
+			if (ds.size() == 3)
+				dsR = chart.getDataSeries("trimgalore.ds2Name.label");
+			WebContent content = new WebContent();
+			content.setScriptDependencies(getScriptDependencies());
+			String containerId = getUniqueContainerId();
+			content.setHtmlCode(getSimpleContainerCode(HIGHCHART_DIV_PREFIX, "", chart.getLocalizedDescription(messageService), containerId) + getTrimGaloreCredits(messageService));
+			StringBuilder sb = new StringBuilder();
+			sb.append(getHCScriptStartCode(ChartType.COLUMN, containerId, chart.getLocalizedTitle(messageService), true));
+			Integer max = 0;
+			for (String x : ds.get(0).getLocalizedRowLabels(messageService)) {
+				int y = Integer.parseInt(x);
+				if (y > max)
+					max = y;
+			}
+			if (ds.size() == 3) {
+				for (String x : ds.get(2).getLocalizedRowLabels(messageService)) {
+					int y = Integer.parseInt(x);
+					if (y > max)
+						max = y;
+				}
+			}
+			sb.append(getBasicXAxisCode(chart.getLocalizedXAxisLabel(messageService), max, 1));
+			sb.append(getBasicYAxisCode(chart.getLocalizedYAxisLabel(messageService), 0, 1));
+			sb.append("plotOptions: { column: { stacking: 'normal' } },\n");
+			Set<BasicHighChartsSeries> seriesSet = new LinkedHashSet<BasicHighChartsSeries>();
+			seriesSet.add(new BasicHighChartsSeries(dsF, false, false, Color.RED));
+			seriesSet.add(new BasicHighChartsSeries(dsE, false, false, Color.BLACK));
+			if (dsR != null)
+				seriesSet.add(new BasicHighChartsSeries(dsR, false, false, Color.BLUE));
+			sb.append(getBasicSeriesCode(seriesSet, messageService));
+			sb.append(getHCScriptEndCode());
+			content.setScriptCode(sb.toString());
+			return content;
+		} catch(Exception e){
+			throw new ChartException("Unexpected error caught rendering chart", e);
+		}
 	}
 }

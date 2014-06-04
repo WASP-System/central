@@ -15,6 +15,7 @@ import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.babraham.batch.tasklet.FastQScreenTasklet;
 import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamPanelRenderer;
+import edu.yu.einstein.wasp.plugin.babraham.plugin.TrimGalorePlugin;
 import edu.yu.einstein.wasp.plugin.babraham.service.impl.BabrahamServiceImpl;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQC.PlotType;
 import edu.yu.einstein.wasp.plugin.babraham.web.service.BabrahamWebService;
@@ -39,12 +40,20 @@ public class BabrahamWebServiceImpl extends BabrahamServiceImpl implements Babra
 	private Software fastqscreen;
 	
 	@Autowired
+	@Qualifier("trim_galore")
+	private Software trim_galore;
+	
+	@Autowired
 	@Qualifier("fastqcPlugin")
 	private WaspPlugin fastqcPlugin;
 	
 	@Autowired
 	@Qualifier("fastqscreenPlugin")
 	private WaspPlugin fastqscreenPlugin;
+	
+	@Autowired
+	@Qualifier("trim_galorePlugin")
+	private WaspPlugin trim_galorePlugin;
 	
 	/**
 	 * {@inheritDoc}
@@ -118,6 +127,16 @@ public class BabrahamWebServiceImpl extends BabrahamServiceImpl implements Babra
 		JSONObject json = getJsonForParsedSoftwareOutputByKey(FastQScreenTasklet.FASTQSCREEN_PLOT_META_KEY, fastqscreen, fileGroupId);
 		if (json != null)
 			panelTab.addPanel(BabrahamPanelRenderer.getFastQScreenPanel(json, messageService, servletPath));
+		return panelTab;
+	}
+
+	public PanelTab getTrimGaloreDataToDisplay(Integer fileGroupId) throws PanelException {
+		PanelTab panelTab = new PanelTab();
+		panelTab.setName(trim_galore.getName());
+		panelTab.setDescription(trim_galore.getDescription());
+		JSONObject json = getJsonForParsedSoftwareOutputByKey(TrimGalorePlugin.TRIM_GALORE_PLOT_KEY, trim_galore, fileGroupId);
+		if (json != null)
+			panelTab.addPanel(BabrahamPanelRenderer.getTrimGalorePanel(json, messageService, servletPath));
 		return panelTab;
 	}
 
