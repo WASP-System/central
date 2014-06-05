@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+
+
+	<definition name="rnaseq/description" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/rnaseq/description.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/rnaseq/description.jsp" />
+	</definition>
+	
+</tiles-definitions>
+

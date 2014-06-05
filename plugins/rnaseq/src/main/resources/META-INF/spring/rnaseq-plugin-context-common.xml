@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans"
+	default-autowire="byName"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+		
+	<context:component-scan base-package="edu.yu.einstein.wasp.plugin.rnaseq.service.impl" />
+
+	<bean id="rnaseqPluginArea" class="java.lang.String">
+		<constructor-arg>
+			<value>rnaseq</value>
+		</constructor-arg>
+	</bean>
+	
+	<!-- channel for communications with this plugin. -->
+	<int:channel id="wasp.channel.plugin.rnaseq" />
+
+	<int:service-activator input-channel="wasp.channel.plugin.rnaseq" ref="rnaseqPlugin" method="process" />
+	
+	<bean id="rnaseqPlugin" class="edu.yu.einstein.wasp.plugin.rnaseq.plugin.RnaseqPlugin">
+		<constructor-arg name="iName" ref="rnaseqPluginArea" />
+		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.rnaseq" />
+		<property name="name" value="rnaseq" />
+		<property name="description" value="RNA-seq" />
+		<property name="provides" >
+			<set>
+				<ref bean="rnaseq" /> 
+			</set>
+		</property>
+		<property name="handles" >
+			<set>
+				<ref bean="rnaseqPluginArea" />
+			</set>
+		</property>
+	</bean>
+
+</beans>
