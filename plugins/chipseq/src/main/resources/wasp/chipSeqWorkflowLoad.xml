@@ -23,6 +23,7 @@
 		<value>/jobsubmit/genomes/{n}</value>
 		<value>/jobsubmit/cells/{n}</value>
 		<value>/jobsubmit/chipSeq/pair/{n}</value> 
+		<value>/jobsubmit/chipSeq/replicates/{n}</value> 
 		<value>/jobsubmit/software/#{referenceBasedAlignerResourceType.getIName()}/{n}</value>
 		<value>/jobsubmit/software/#{peakcallerResourceType.getIName()}/{n}</value>
 		<value>/jobsubmit/comment/{n}</value> 
@@ -82,6 +83,10 @@
           <property name="label" value="chipSeq.pair.title" />
         </bean>
         <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/chipSeq/replicates" />
+          <property name="label" value="chipSeq.replicates.title" />
+        </bean> 
+        <bean parent="chipSeqUiFieldWrapper">
           <property name="baseName" value="jobsubmit/software/referenceBasedAligner" />
           <property name="label" value="chipSeq.aligner.title" />
         </bean>
@@ -104,6 +109,10 @@
         <bean parent="chipSeqUiFieldWrapper">
           <property name="baseName" value="pairing_instructions" />
           <property name="label" value="chipSeq.pair.instructions" />
+        </bean>  
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="replicates_instructions" />
+          <property name="label" value="chipSeq.replicates.instructions" />
         </bean>  
         <bean parent="chipSeqUiFieldWrapper">
           <property name="baseName" value="test" />

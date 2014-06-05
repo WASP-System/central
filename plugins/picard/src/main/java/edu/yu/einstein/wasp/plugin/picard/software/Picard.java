@@ -140,7 +140,7 @@ public class Picard extends SoftwarePackage{
 			return command;
 		}
 		if(alignerSpecificBamTagIndicatingUniqueAlignment != null && !alignerSpecificBamTagIndicatingUniqueAlignment.isEmpty()){
-			command = "samtools view -F 0x404 " + bamFileName + " | grep -c '"+ alignerSpecificBamTagIndicatingUniqueAlignment +"' > "   + UNIQUELY_ALIGNED_READ_COUNT_FILENAME;//excludes duplicates
+			command = "samtools view -F 0x404 " + bamFileName + " | grep -c '"+ alignerSpecificBamTagIndicatingUniqueAlignment +"' > "   + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FILENAME;//excludes duplicates
 		}
 		else{
 			command = "samtools view -c -F 0x404 -q 1 " + bamFileName + " > " + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FILENAME;//excludes duplicates

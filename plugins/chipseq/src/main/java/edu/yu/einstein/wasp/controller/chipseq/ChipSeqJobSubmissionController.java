@@ -74,10 +74,10 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 					}
 				}
 			}
-			if(foundInputOrIP == false){//unexpected, but....., then put on both lists (for consistency with previous method of pairing all to all)
-				inputSampleDrafts.add(sampleDraft);
-				ipSampleDrafts.add(sampleDraft);
-			}
+			//if(foundInputOrIP == false){//unexpected, but....., then put on both lists (for consistency with previous method of pairing all to all)
+			//	inputSampleDrafts.add(sampleDraft);
+			//	ipSampleDrafts.add(sampleDraft);
+			//}
 		}
 		if (ipSampleDrafts.isEmpty() || inputSampleDrafts.isEmpty()){//no pairing is possible
 			return nextPage(jobDraft);
@@ -93,11 +93,23 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 			}
 		}
 
+		Map<SampleDraft,SampleDraft> testControlMap = new HashMap<SampleDraft,SampleDraft>();
+		for(Map<SampleDraft, SampleDraft> pair: sampleDraftPairSet){
+			for (SampleDraft key : pair.keySet()) {
+				testControlMap.put(key, pair.get(key));//OK, since for each key, only one value for chipseq
+			}
+		}
+		System.out.println("testControlMap size = " + testControlMap.size());
+		for (SampleDraft sampleDraft : testControlMap.keySet()) {
+			System.out.println("Test : " + sampleDraft.getName() + " and Control : "
+				+ testControlMap.get(sampleDraft).getName());
+		}
 		m.put("jobDraft", jobDraft);
 		m.put("samples", sampleDrafts);
 		m.put("inputSamples", inputSampleDrafts);
 		m.put("ipSamples", ipSampleDrafts);
 		m.put("sampleOrganismMap", sampleDraftOrganismMap);
+		m.put("selectedTestControlMap", testControlMap);
 		m.put("selectedSamplePairs", selectedSampleDraftPairStringSet);
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
 		return "jobsubmit/chipseqform";
@@ -112,9 +124,45 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 			return "redirect:/dashboard.do";
 	
 	    Map<String,String[]> params = request.getParameterMap();
+	    for (String key : params.keySet()) {
+			System.out.println("Key : " + key.toString());
+			String[] stringArray = params.get(key);
+			
+			for(String s : stringArray){
+				System.out.println("--val: " + s);
+			}
+		}
 	
-	    List<SampleDraft> samples =  jobDraft.getSampleDraft();
-	
+	    List<SampleDraft> allDraftSamples =  jobDraft.getSampleDraft();	
+	    Set<Map<SampleDraft, SampleDraft>> sampleDraftPairSet = new HashSet<Map<SampleDraft, SampleDraft>>();
+	    
+	    for (SampleDraft draftSample : allDraftSamples) {
+	    	String draftSampleId = String.valueOf(draftSample.getId().intValue());
+	    	String[] stringArray = params.get("controlIdForIP_" + draftSampleId);
+	    	if(stringArray==null){//this draftSample is not an IP sample	    		
+	    		continue;
+	    	}
+	    	else{
+	    		SampleDraft ipSampleDraft = draftSample;
+	    		String controlId = stringArray[0];
+	    		if(controlId.equals("0")){//no control for this IP draftSample
+	    			continue;
+	    		}
+	    		else{
+	    			SampleDraft controlSampleDraft = sampleDraftDao.getSampleDraftBySampleDraftId(Integer.parseInt(controlId));
+	    			Map<SampleDraft,SampleDraft> sampleDraftPair = new HashMap<SampleDraft,SampleDraft>();
+	    			sampleDraftPair.put(ipSampleDraft, controlSampleDraft);
+	    			sampleDraftPairSet.add(sampleDraftPair);	
+	    			System.out.println("IP:Control =  " + ipSampleDraft.getName() + ":" + controlSampleDraft.getName());
+	    		}
+	    	}	    	
+	    }
+	    jobDraftService.setSampleDraftPairsByJobDraft(jobDraft, sampleDraftPairSet);
+	   
+	   	return nextPage(jobDraft);
+	    
+	   	/*	
+	    List<SampleDraft> samples =  jobDraft.getSampleDraft();	  
 	    Set<Map<SampleDraft, SampleDraft>> sampleDraftPairSet = new HashSet<Map<SampleDraft, SampleDraft>>();
 	    for (SampleDraft sd1: samples) {
 	    	String sd1Id = String.valueOf(sd1.getId().intValue());
@@ -136,11 +184,38 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 	    	}
 	    }
 	    
-	    jobDraftService.setSampleDraftPairsByJobDraft(jobDraft, sampleDraftPairSet);
+	    jobDraftService.setSampleDraftPairsByJobDraft(jobDraft, sampleDraftPairSet);	
+		return nextPage(jobDraft);
+	   	*/
+	}
+
+	@RequestMapping(value="/replicates/{jobDraftId}.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String showChipSeqReplicatesForm (@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+
+
+		List<SampleDraft> sampleDrafts=sampleDraftDao.getSampleDraftByJobId(jobDraftId);
+		if (sampleDrafts.size() < 2){
+			return nextPage(jobDraft);
+		}
+		m.put("jobDraft", jobDraft);
+		m.put("pageFlowMap", getPageFlowMap(jobDraft));
+		return "jobsubmit/replicates";
+		
+	}
+	
+	@RequestMapping(value="/replicates/{jobDraftId}.do", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String updateChipSeqReplicates(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
 	
 		return nextPage(jobDraft);
 	}
-
-
 }
 

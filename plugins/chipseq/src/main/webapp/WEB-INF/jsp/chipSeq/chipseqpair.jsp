@@ -14,7 +14,39 @@
    <fmt:message key="${workflowIName}.pairing_instructions.label"/>
 </div>
 
-
+<form method="POST">
+<table class="data">
+  	<tr class="row">
+ 		<td class="label" align="center">IP Sample</td>
+ 		<td class="label" align="center">Control/Input</td>
+ 	</tr>
+  	<c:forEach var="ip" items="${ipSamples}">
+  		<tr class="row">
+  			<td class="label" align="center">
+  				<c:out value="${ip.name}" />
+  			</td>
+  			<td align="center">
+  				<select name="controlIdForIP_<c:out value="${ip.id}" />">
+  					<option value="0">None</option>
+	  				<c:forEach var="input" items="${inputSamples}" >
+	  					<c:if test="${sampleOrganismMap.get(ip) == sampleOrganismMap.get(input) }">
+	  						<c:choose>
+	  							<c:when test="${not empty selectedTestControlMap.get(ip) && selectedTestControlMap.get(ip).id==input.id}"><option selected value="<c:out value="${input.id}" />"><c:out value="${input.name}" /></option></c:when>
+	  							<c:otherwise>	<option value="<c:out value="${input.id}" />"><c:out value="${input.name}" /></option></c:otherwise>
+	  						</c:choose>
+	  					</c:if>	
+	  				</c:forEach>
+  				</select>
+  			</td>
+  		</tr>
+ 	 </c:forEach>
+</table>
+<div class="submit">
+    <input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<wasp:relativeUrl value="dashboard.do"/>'" /> 
+    <input type="submit" onClick="return confirmPairing();" value="<fmt:message key="jobDraft.continue.label" />" />
+</div>
+</form>
+<%-- 
 <form method="POST">
 <table class="data">
 	<tr class="row">
@@ -75,3 +107,4 @@
     <input type="submit" value="<fmt:message key="jobDraft.continue.label" />" />
 </div>
 </form>
+--%>

@@ -39,10 +39,10 @@
 	        
 	        <bean parent="chipSeqDnaUiFieldWrapper">
 	          <property name="baseName" value="inputOrIP" />
-	          <property name="label" value="Specific IP or Input" />
+	          <property name="label" value="IP or Input/Control" />
 	          <property name="metaposition" value="30" />
 	          <property name="constraint" value="NotEmpty" />
-	          <property name="control" value="select:input:Input;ip:IP" />
+	          <property name="control" value="select:input:Input/Control;ip:IP" />
 	          <property name="error" value="You must provide a value" />
 	         </bean>
 	        
