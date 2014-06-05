@@ -232,8 +232,10 @@ public class DataSeries {
 	
 	@SuppressWarnings("unchecked")
 	public void addRow(List<?> row){
-		if (row == null || (row.size() > 1 && row.size() != colLabels.size()) )
-			throw new InvalidParameterException("supplied parameter is null or size does not match size of colLabels");
+		if (row == null)
+			throw new InvalidParameterException("row was null");
+		if (row.size() > 1 && row.size() != colLabels.size())
+			throw new InvalidParameterException("row size does not match size of colLabels");
 		if (data == null)
 			data = new ArrayList<List<Object>>();
 		data.add((List<Object>) row);
