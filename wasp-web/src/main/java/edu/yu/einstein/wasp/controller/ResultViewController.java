@@ -380,7 +380,12 @@ public class ResultViewController extends WaspController {
 					    statusArray[i][1] = plugin.getDescription();
 					    statusArray[i][2] = status.toString();
 					    if (status.equals(Status.COMPLETED)){
-					    	PanelTab panelTab = plugin.getViewPanelTab(fg);
+					    	PanelTab panelTab = null;
+					    	try {
+					    		panelTab = plugin.getViewPanelTab(fg);
+					    	} catch (Exception e) {
+					    		logger.warn("Plugin " + plugin.getName() + " threw exception " + e.getLocalizedMessage() + " when attempting to get panel tab.  Skipping.");
+					    	}
 					    	if (panelTab!=null && !panelTab.getPanels().isEmpty()){
 						    	String tabId = "tab-" + (tabCount++).toString();
 						    	pluginPanelTabs.put(tabId, panelTab);
