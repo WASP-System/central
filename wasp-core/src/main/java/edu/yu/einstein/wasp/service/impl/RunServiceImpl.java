@@ -283,6 +283,24 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		return runs;
 	}
 	
+	private boolean isAnySuccessfulRunCells(Run run){
+		Assert.assertParameterNotNull(run, "a run must be provided");
+		Assert.assertParameterNotNullNotZero(run.getId(), "run provided is invalid or not in the database");
+		try {
+			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
+				try {
+					if (sampleService.isCellSequencedSuccessfully(cell))
+						return true;
+				} catch (MetaAttributeNotFoundException e) {
+					// do nothing as not yet set
+				}	
+			}
+		} catch (SampleTypeException e) {
+			logger.warn("Unexpected SampleTypeException caught: " + e.getLocalizedMessage());
+		}
+		return false;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -290,6 +308,8 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	public boolean isRunSuccessfullyCompleted(Run run){
 		Assert.assertParameterNotNull(run, "run cannot be null");
 		Assert.assertParameterNotNull(run.getId(), "run must be defined");
+		if (isAnySuccessfulRunCells(run))
+			return true;
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		Set<String> runIdStringSet = new LinkedHashSet<String>();
 		runIdStringSet.add(run.getId().toString());
