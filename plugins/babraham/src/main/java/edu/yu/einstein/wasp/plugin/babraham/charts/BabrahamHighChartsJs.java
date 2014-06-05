@@ -40,7 +40,7 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 	}
 	
 	private static String getTrimGaloreCredits(MessageService messageService){
-		return "<div class='chart_credit'>" + messageService.getMessage("trim_galore.credit.label") + "</div>";
+		return "<div class='chart_credit'>" + messageService.getMessage("trimgalore.credit.label") + "</div>";
 	}
 	
 	public static WebContent getPerBaseSeqQualityPlotHtml(final WaspBoxPlot waspBoxPlot, MessageService messageService) throws ChartException {
@@ -209,35 +209,38 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 	public static WebContent getSplineForTrimGalore(WaspChart2D chart, MessageService messageService) throws ChartException {
 		try{
 			List<DataSeries> ds = chart.getDataSeries();
-			if (ds.size() != 2 || ds.size() != 3)
-				throw new ChartException("Expected 2 or 3 data series but got " + ds.size());
+			if (ds.size() != 2 && ds.size() != 3)
+				throw new ChartException("Expected 2 or 3 fastq data series but got " + ds.size());
 			DataSeries dsF = chart.getDataSeries("trimgalore.ds1Name.label");
-			DataSeries dsE = chart.getDataSeries("trimgalore.ds2Name.label");
+			DataSeries dsE = chart.getDataSeries("trimgalore.eds1Name.label");
 			DataSeries dsR = null;
 			if (ds.size() == 3)
 				dsR = chart.getDataSeries("trimgalore.ds2Name.label");
 			WebContent content = new WebContent();
-			content.setScriptDependencies(getScriptDependencies());
-			String containerId = getUniqueContainerId();
-			content.setHtmlCode(getSimpleContainerCode(HIGHCHART_DIV_PREFIX, "", chart.getLocalizedDescription(messageService), containerId) + getTrimGaloreCredits(messageService));
-			StringBuilder sb = new StringBuilder();
-			sb.append(getHCScriptStartCode(ChartType.COLUMN, containerId, chart.getLocalizedTitle(messageService), true));
+			
 			Integer max = 0;
-			for (String x : ds.get(0).getLocalizedRowLabels(messageService)) {
-				int y = Integer.parseInt(x);
+			for (List<Object> x : dsF.getData()) {
+				int y = (int) x.get(0);
 				if (y > max)
 					max = y;
 			}
 			if (ds.size() == 3) {
-				for (String x : ds.get(2).getLocalizedRowLabels(messageService)) {
-					int y = Integer.parseInt(x);
+				for (List<Object> x : dsR.getData()) {
+					int y = (int) x.get(0);
 					if (y > max)
 						max = y;
 				}
 			}
-			sb.append(getBasicXAxisCode(chart.getLocalizedXAxisLabel(messageService), max, 1));
+			
+			int interval = max / 5;
+			
+			content.setScriptDependencies(getScriptDependencies());
+			String containerId = getUniqueContainerId();
+			content.setHtmlCode(getSimpleContainerCode(HIGHCHART_DIV_PREFIX, "", chart.getLocalizedDescription(messageService), containerId) + getTrimGaloreCredits(messageService));
+			StringBuilder sb = new StringBuilder();
+			sb.append(getHCScriptStartCode(ChartType.SPLINE, containerId, chart.getLocalizedTitle(messageService), true));
+			sb.append(getBasicXAxisCode(chart.getLocalizedXAxisLabel(messageService), null, interval, 1,  max, true));
 			sb.append(getBasicYAxisCode(chart.getLocalizedYAxisLabel(messageService), 0, 1));
-			sb.append("plotOptions: { column: { stacking: 'normal' } },\n");
 			Set<BasicHighChartsSeries> seriesSet = new LinkedHashSet<BasicHighChartsSeries>();
 			seriesSet.add(new BasicHighChartsSeries(dsF, false, false, Color.RED));
 			seriesSet.add(new BasicHighChartsSeries(dsE, false, false, Color.BLACK));
@@ -245,6 +248,7 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 				seriesSet.add(new BasicHighChartsSeries(dsR, false, false, Color.BLUE));
 			sb.append(getBasicSeriesCode(seriesSet, messageService));
 			sb.append(getHCScriptEndCode());
+			logger.trace(sb.toString());
 			content.setScriptCode(sb.toString());
 			return content;
 		} catch(Exception e){

@@ -322,16 +322,15 @@ public class TrimGalore extends SoftwarePackage {
         w.addCommand("sed -n '/^length/,/^$/p' ${" + WorkUnit.INPUT_FILE + "[" + fileNumber + "]}_trimming_report.txt | tail -n +2 | head -n -1 >> "
                 + fileGroup.getId() + prefix + "_trim_counts.txt");
         if (rs == 1) {
-        	w.addCommand("grep \"Processed reads:\" " + WorkUnit.INPUT_FILE + "[" + fileNumber + "]}_trimming_report.txt  | sed 's/.* //g' >> "
+        	w.addCommand("grep \"Processed reads:\" ${" + WorkUnit.INPUT_FILE + "[" + fileNumber + "]}_trimming_report.txt  | sed 's/.* //g' >> "
         		+ fileGroup.getId() + prefix + "_trim_number.txt");
+        	prefix = "_trimmed";
         } else if (rs == 2) {
-        	w.addCommand("grep \"Total number of sequences analysed: \" " + WorkUnit.INPUT_FILE + "[" + fileNumber + "]/fastq.gz/}_trim_galore.out.txt | sed 's/.* //g' >> " 
+        	w.addCommand("grep \"Total number of sequences analysed: \" ${" + WorkUnit.INPUT_FILE + "[" + fileNumber + "]/fastq.gz/}_trim_galore.out.txt | sed 's/.* //g' >> " 
         		+ fileGroup.getId() + prefix + "_trim_number.txt");
             // paired-end read names end in "_val_?.fq.gz" while single-end
             // reads end with "_trimmed.fq.gz"
             prefix = "_val_" + prefix;
-        } else {
-            prefix = "_trimmed";
         }
         String trimmedName = fileHandle.getFileName().replace(".fastq.gz", prefix + ".fq.gz");
         w.addCommand("ln -s " + trimmedName + " ${" + WorkUnit.OUTPUT_FILE + "[" + fileNumber + "]} ");
@@ -379,7 +378,19 @@ public class TrimGalore extends SoftwarePackage {
     	
     	List<String> trimStrings = new ArrayList<String>();
     	
-    	String numStr = StringUtils.chomp(gws.getUnregisteredFileContents(result, fileGroup.getId() + "_1_sum_trim_number.txt"));
+    	Set<FileGroup> originalFastq = fileGroup.getDerivedFrom();
+    	
+    	if (originalFastq.size() != 1) {
+    		String mess = "Trimmed fastq file group unexpectedly claims to be derived from " + originalFastq.size() + " input file groups.";
+    		logger.error(mess);
+    		throw new ParserConfigurationException(mess);
+    	}
+    	
+    	Integer origId = originalFastq.iterator().next().getId();
+    	logger.trace("trimmed fastq FileGroup " + fileGroup.getId() + " was derived from FileGroup " + origId);
+    	
+    	// output was written to parent filegroup ID
+    	String numStr = StringUtils.chomp(gws.getUnregisteredFileContents(result,  origId + "_1_sum_trim_number.txt"));
     	
 		int numberOfClusters = Integer.parseInt(numStr);
 		
@@ -387,7 +398,8 @@ public class TrimGalore extends SoftwarePackage {
 		
 		for (int i=1; i<=rs; i++) {
 			logger.trace("collecting trim data for " + fileGroup.getId() + " read " + i);
-			String ts = gws.getUnregisteredFileContents(result, fileGroup.getId() + "_" + i + "_sum_trim_counts.txt");
+			// output was written to parent filegroup ID
+			String ts = gws.getUnregisteredFileContents(result, origId + "_" + i + "_sum_trim_counts.txt");
 			trimStrings.add(ts);
 		}
     	

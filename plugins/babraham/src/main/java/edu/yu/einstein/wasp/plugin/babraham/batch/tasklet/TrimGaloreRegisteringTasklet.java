@@ -30,6 +30,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.babraham.plugin.TrimGalorePlugin;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.plugin.babraham.software.TrimGalore;
 import edu.yu.einstein.wasp.service.AdaptorService;
@@ -129,7 +130,7 @@ public class TrimGaloreRegisteringTasklet extends WaspRemotingTasklet {
 			    fg.setIsActive(1);
 			    fg.getSampleSources().add(cellLibrary);
 			    fileService.getFileGroupDao().merge(fg);
-			    babrahamService.saveJsonForParsedSoftwareOutput(trimGalore.parseOutput(r, fg), "TRIM_GALORE", trimGalore, fg.getId());
+			    babrahamService.saveJsonForParsedSoftwareOutput(trimGalore.parseOutput(r, fg), TrimGalorePlugin.TRIM_GALORE_PLOT_KEY, trimGalore, fg.getId());
 			}
 			
 	}

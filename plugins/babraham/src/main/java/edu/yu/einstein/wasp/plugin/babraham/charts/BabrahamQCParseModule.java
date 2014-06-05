@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -500,10 +501,17 @@ public class BabrahamQCParseModule {
 		int i = 1;
 		for(Map<Integer,TrimStruct> m : tsl) {
 
+			String[] colLab = {"base", "pctC"};
 			DataSeries dso = new DataSeries("trimgalore.ds" + i + "Name.label");
+			dso.setColLabels((List<String>) Arrays.asList(colLab));
+			
 			DataSeries dse = new DataSeries("trimgalore.eds" + i + "Name.label");
+			dse.setColLabels((List<String>) Arrays.asList(colLab));
+			
 			double cumObsPct = 0;
 			double cumExpectPct = 0;
+			List<List<Number>> vals = new ArrayList<List<Number>>();
+			List<List<Number>> vals2 = new ArrayList<List<Number>>();
 			for (int n = max; n>0; n--) {
 				TrimStruct ts = m.get(n);
 				if (ts == null)
@@ -512,8 +520,22 @@ public class BabrahamQCParseModule {
 				cumObsPct += (double) ts.obs / numberOfClusters;
 				cumExpectPct += (double) ts.expect / numberOfClusters;
 				
-				dso.addRowWithSingleColumn(ts.pos.toString(), cumObsPct);
-				dse.addRowWithSingleColumn(ts.pos.toString(), cumExpectPct);
+				List<Number> data = new ArrayList<Number>();
+				data.add(ts.pos);
+				data.add(cumObsPct);
+				vals.add(data);
+				List<Number> data2 = new ArrayList<Number>();
+				data2.add(ts.pos);
+				data2.add(cumExpectPct);
+				vals2.add(data2);
+			}
+			Collections.reverse(vals);
+			for (List<Number> x : vals) {
+				dso.addRow(x);
+			}
+			Collections.reverse(vals2);
+			for (List<Number> x : vals2) {
+				dse.addRow(x);
 			}
 			chart.addDataSeries(dso);
 			if (i==1)

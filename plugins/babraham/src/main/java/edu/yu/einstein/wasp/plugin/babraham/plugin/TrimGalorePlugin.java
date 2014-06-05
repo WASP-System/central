@@ -48,7 +48,7 @@ public class TrimGalorePlugin extends WaspPlugin implements ClientMessageI, File
     protected final Logger logger = LoggerFactory.getLogger(getClass());
     
     public static final String FLOW_NAME = "edu.yu.einstein.wasp.plugin.babraham.trim_galore.mainFlow";
-    public static final String TRIM_GALORE_PLOT_KEY = "trim_galore.size-plot";
+    public static final String TRIM_GALORE_PLOT_KEY = "size-plot";
 
     @Autowired
     BabrahamService babrahamService;
