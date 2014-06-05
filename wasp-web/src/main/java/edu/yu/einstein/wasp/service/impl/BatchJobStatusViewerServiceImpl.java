@@ -43,8 +43,8 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 		model.setExecutionId(je.getId());
 		model.setName(je.getJobInstance().getJobName());
 		model.setStartTime(je.getStartTime());
-		if (!je.getExitStatus().getExitCode().equals(ExitStatus.HIBERNATING.getExitCode()))
-			model.setEndTime(je.getEndTime()); // only set if not hibernating as a hibernating job is unfinished
+		if (!je.getExitStatus().isRunning() && !je.getExitStatus().getExitCode().equals(ExitStatus.UNKNOWN.getExitCode()))
+			model.setEndTime(je.getEndTime()); // only set if not running or unknown
 		model.setStatus(je.getStatus().toString());
 		model.setExitCode(je.getExitStatus().getExitCode());
 		model.setExitMessage(je.getExitStatus().getExitDescription());
@@ -61,8 +61,8 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 		model.setExecutionId(se.getId());
 		model.setName(se.getStepName());
 		model.setStartTime(se.getStartTime());
-		if (!se.getExitStatus().getExitCode().equals(ExitStatus.HIBERNATING.getExitCode()) || !se.getExitStatus().getExitCode().equals(ExitStatus.UNKNOWN.getExitCode()))
-			model.setEndTime(se.getEndTime()); // only set if not hibernating as a hibernating job is unfinished
+		if (!se.getExitStatus().isRunning() && !se.getExitStatus().getExitCode().equals(ExitStatus.UNKNOWN.getExitCode()))
+			model.setEndTime(se.getEndTime()); // only set if not running or unknown
 		model.setStatus(se.getStatus().toString());
 		model.setExitCode(se.getExitStatus().getExitCode());
 		model.setExitMessage(se.getExitStatus().getExitDescription());
