@@ -298,7 +298,7 @@ public class TrimGalore extends SoftwarePackage {
         Integer rs = fastqService.getNumberOfReadSegments(fileGroup);
         String prefix = "";
         prefix = "_" + fastqService.getFastqReadSegmentNumber(fileHandle);
-        w.addCommand("sed -n '/^length/,/^$/p' ${" + WorkUnit.INPUT_FILE + "[" + fileNumber + "]}_trimming_report.txt | tail -n +2 | head -n -1 >> "
+        w.addCommand("inFilePath=${" + WorkUnit.INPUT_FILE + "[" + fileNumber + "]};inFileName=${inFilePath##*/};sed -n '/^length/,/^$/p' ${inFileName}_trimming_report.txt | tail -n +2 | head -n -1 >> "
                 + fileGroup.getId() + prefix + "_trim_counts.txt");
         if (rs == 2) {
             // paired-end read names end in "_val_?.fq.gz" while single-end
