@@ -144,9 +144,11 @@ public class SshFileService implements GridFileService {
 
 			} catch (Exception e) {
 				// FileSystemException, GridUnresolvableHostException
+				if (e instanceof FileNotFoundException)
+					throw (FileNotFoundException) e;
 				logger.debug("caught exception in retry block: " + e.toString());
 				if (attempt <= attempts) {
-					logger.debug("failed, retrying: " + e.getCause().toString());
+					logger.debug("failed, retrying: " + e.toString());
 					try {
 						Thread.sleep(delayMillis);
 					} catch (InterruptedException e1) {
