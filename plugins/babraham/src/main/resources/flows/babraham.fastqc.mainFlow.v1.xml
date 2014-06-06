@@ -6,7 +6,7 @@
 	
 	<!-- for job, call with parameter 'fileGroupId' -->
 	<batch:job id="babraham.fastqc.mainFlow">
-		<batch:step id="babraham.fastqc.mainFlow.notifyQCStart" next="babraham.fastqc.mainFlow.fastQC">
+		<batch:step id="babraham.fastqc.mainFlow.notifyQCStart" next="babraham.fastqc.mainFlow.doFastQC">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
@@ -21,7 +21,7 @@
 			</batch:tasklet>
 		</batch:step>
 		
-		<batch:step id="babraham.fastqc.mainFlow.fastQC" next="babraham.fastqc.mainFlow.notifyQCComplete">
+		<batch:step id="babraham.fastqc.mainFlow.doFastQC" next="babraham.fastqc.mainFlow.notifyQCComplete">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.plugin.babraham.batch.tasklet.FastQCTasklet" scope="step">
 					<constructor-arg name="fileGroupId" value="#{jobParameters[waspJobParameters.FILE_GROUP_ID]}" />
