@@ -51,7 +51,7 @@ public class FastQCPlugin extends BabrahamPluginBase{
 
 	private static final long serialVersionUID = -4008147590778610484L;
 
-	public static final String FLOW_NAME = "edu.yu.einstein.wasp.plugin.babraham.fastqc.mainFlow";
+	public static final String FLOW_NAME = "babraham.fastqc.mainFlow";
 
 	public FastQCPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
 		super(iName, waspSiteProperties, channel);

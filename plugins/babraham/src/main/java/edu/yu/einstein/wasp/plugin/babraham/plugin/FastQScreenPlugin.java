@@ -41,7 +41,7 @@ public class FastQScreenPlugin extends BabrahamPluginBase{
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	public static final String FLOW_NAME = "edu.yu.einstein.wasp.plugin.babraham.fastqscreen.mainFlow";
+	public static final String FLOW_NAME = "babraham.fastqscreen.mainFlow";
 	
 	protected JobExplorerWasp batchJobExplorer;
 	
