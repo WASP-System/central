@@ -269,6 +269,7 @@ public class TrimGalore extends SoftwarePackage {
 
             if (rs == 2) {
                 fh = fhi.next();
+                w.addRequiredFile(fh);
                 trimmed_fastq.add(doFile(w, fileN++, fh, fastqG));
             }
         }
@@ -307,14 +308,16 @@ public class TrimGalore extends SoftwarePackage {
         Integer rs = fastqService.getNumberOfReadSegments(fileGroup);
         String prefix = "";
         prefix = "_" + fastqService.getFastqReadSegmentNumber(fileHandle);
-        w.addCommand("inFilePath=${" + WorkUnit.INPUT_FILE + "[" + fileNumber + "]};inFileName=${inFilePath##*/};sed -n '/^length/,/^$/p' ${inFileName}_trimming_report.txt | tail -n +2 | head -n -1 >> "
+        w.addCommand("inFilePath=${" + WorkUnit.INPUT_FILE + "[" + fileNumber + "]}");
+        w.addCommand("inFileName=${inFilePath##*/}");
+        w.addCommand("sed -n '/^length/,/^$/p' ${inFileName}_trimming_report.txt | tail -n +2 | head -n -1 >> "
                 + fileGroup.getId() + prefix + "_trim_counts.txt");
         if (rs == 1) {
-        	w.addCommand("grep \"Processed reads:\" ${" + WorkUnit.INPUT_FILE + "[" + fileNumber + "]}_trimming_report.txt  | sed 's/.* //g' >> "
+        	w.addCommand("grep \"Processed reads:\" ${inFileName}_trimming_report.txt  | sed 's/.* //g' >> "
         		+ fileGroup.getId() + prefix + "_trim_number.txt");
         	prefix = "_trimmed";
         } else if (rs == 2) {
-        	w.addCommand("grep \"Total number of sequences analysed: \" ${" + WorkUnit.INPUT_FILE + "[" + fileNumber + "]/fastq.gz/}_trim_galore.out.txt | sed 's/.* //g' >> " 
+        	w.addCommand("grep \"Total number of sequences analysed: \" ${inFileName/fastq.gz/}_trim_galore.out.txt | sed 's/.* //g' >> " 
         		+ fileGroup.getId() + prefix + "_trim_number.txt");
             // paired-end read names end in "_val_?.fq.gz" while single-end
             // reads end with "_trimmed.fq.gz"
