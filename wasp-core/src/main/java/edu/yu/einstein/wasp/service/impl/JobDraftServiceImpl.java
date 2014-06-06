@@ -12,6 +12,8 @@ package edu.yu.einstein.wasp.service.impl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -409,5 +411,87 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 	public JobDraftMetaDao getJobDraftMetaDao() {
 		return jobDraftMetaDao;
 	}
-
+	
+	public static final String REPLICATE_SETS_META_KEY = "replicateSets";
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public Map<Integer, Set<SampleDraft>> getReplicateSets(JobDraft jobDraft){
+		
+		List<SampleDraft> sampleDraftList = jobDraft.getSampleDraft();//sampleDraftDao.getSampleDraftByJobId(jobDraftId);
+		Map<Integer, SampleDraft> idSampleDraftMap = new HashMap<Integer, SampleDraft>();
+		for(SampleDraft sd : sampleDraftList){
+			idSampleDraftMap.put(sd.getId(), sd);
+		}
+		
+		Map<Integer, Set<SampleDraft>> replicateSetsMap = new LinkedHashMap<Integer, Set<SampleDraft>>();
+		String replicatesKey = jobDraft.getWorkflow().getIName()+"."+REPLICATE_SETS_META_KEY;
+		JobDraftMeta replicatesMetaData = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(replicatesKey, jobDraft.getId());
+		
+		Integer numberOfSets = 0;
+		
+		for(String setOfSampleDraftIdsAsString: replicatesMetaData.getV().split(";")){
+			String[] sampleDraftIdAsStringArray = setOfSampleDraftIdsAsString.split(":");
+			Set<SampleDraft> sampleDraftSet = new LinkedHashSet<SampleDraft>();			
+			for(String sampleDraftidAsString : sampleDraftIdAsStringArray){
+				Integer id = Integer.parseInt(sampleDraftidAsString);
+				if(idSampleDraftMap.containsKey(id)){
+					sampleDraftSet.add(idSampleDraftMap.get(id));
+				}				
+			}
+			if(!sampleDraftSet.isEmpty()){
+				numberOfSets++;
+				replicateSetsMap.put(numberOfSets, sampleDraftSet);
+			}
+		}
+		//for testing only
+		System.out.println("Testing output");
+		for (Integer key : replicateSetsMap.keySet()) {
+			System.out.println("Key : " + key.toString());
+			Set<SampleDraft> set = replicateSetsMap.get(key);
+			for(SampleDraft sd : set){
+				System.out.println("---:"+sd.getId()+" ---: "+sd.getName());
+			}			
+		}
+		System.out.println("Completed testing output");
+		
+		return replicateSetsMap;
+		
+	}
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public void saveReplicateSets(JobDraft jobDraft, SampleDraft sampleDraft){
+		String replicatesKey = jobDraft.getWorkflow().getIName()+"."+REPLICATE_SETS_META_KEY;
+		JobDraftMeta replicatesMetaData = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(replicatesKey, jobDraft.getId());
+		
+		// remove old paired sample for jobdraft
+		if (replicatesMetaData.getId() != null){
+			jobDraftMetaDao.remove(replicatesMetaData);
+			jobDraftMetaDao.flush(replicatesMetaData);
+		}
+		
+		String replicatesMetaString = ""; 
+		
+		replicatesMetaString = sampleDraft.getId().toString();
+		/*
+	    if (!sampleDraftPairSet.isEmpty()){
+			for(Map<SampleDraft, SampleDraft> pair: sampleDraftPairSet){
+				Entry<SampleDraft, SampleDraft> e = pair.entrySet().iterator().next();
+				pairMetaString += e.getKey().getId()+":"+e.getValue().getId()+";";
+			}
+		}
+	    */
+		if (!replicatesMetaString.isEmpty()){
+			// persist pair meta string
+			JobDraftMeta jdm = new JobDraftMeta(); 
+			jdm.setJobDraftId(jobDraft.getId());
+			jdm.setK(replicatesKey);
+			jdm.setV(replicatesMetaString); 
+			jobDraftMetaDao.save(jdm);
+		}
+	}
 }

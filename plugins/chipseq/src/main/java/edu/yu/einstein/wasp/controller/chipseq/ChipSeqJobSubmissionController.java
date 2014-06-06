@@ -74,6 +74,15 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 					}
 				}
 			}
+			if(!sampleDraftOrganismMap.containsKey(sampleDraft)){//species == OTHER
+				if(inputSampleDrafts.contains(sampleDraft)){
+					inputSampleDrafts.remove(sampleDraft);
+				}
+				if(ipSampleDrafts.contains(sampleDraft)){
+					ipSampleDrafts.remove(sampleDraft);
+				}
+				
+			}
 			//if(foundInputOrIP == false){//unexpected, but....., then put on both lists (for consistency with previous method of pairing all to all)
 			//	inputSampleDrafts.add(sampleDraft);
 			//	ipSampleDrafts.add(sampleDraft);
@@ -192,15 +201,71 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 	@RequestMapping(value="/replicates/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showChipSeqReplicatesForm (@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+		
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
-		if (! isJobDraftEditable(jobDraft))
+		if ( ! isJobDraftEditable(jobDraft) ){
 			return "redirect:/dashboard.do";
-
-
+		}
 		List<SampleDraft> sampleDrafts=sampleDraftDao.getSampleDraftByJobId(jobDraftId);
 		if (sampleDrafts.size() < 2){
 			return nextPage(jobDraft);
 		}
+		
+		Map<Integer, Set<SampleDraft>> replicateSetsMap = jobDraftService.getReplicateSets(jobDraft);//from database
+		for (Integer key : replicateSetsMap.keySet()) {
+			System.out.println("Key : " + key.toString());
+			Set<SampleDraft> set = replicateSetsMap.get(key);
+			for(SampleDraft sd : set){
+				System.out.println("---:"+sd.getId()+" ---: "+sd.getName());
+			}			
+		}
+		
+		Set<SampleDraft> sampleDraftsAlreadyInReplicateSet = new HashSet<SampleDraft>();		
+		for (Integer key : replicateSetsMap.keySet()) {			
+			Set<SampleDraft> set = replicateSetsMap.get(key);
+			for(SampleDraft sd : set){
+				sampleDraftsAlreadyInReplicateSet.add(sd);
+			}			
+		}
+		for(SampleDraft sd : sampleDraftsAlreadyInReplicateSet){
+			System.out.println("sampleDraft already in a replicate set in jobDraftMeta: ---:"+sd.getId()+" ---: "+sd.getName());
+		}
+		
+		
+		
+		List<SampleDraft> inputSampleDrafts = new ArrayList<SampleDraft>();
+		List<SampleDraft> ipSampleDrafts = new ArrayList<SampleDraft>();
+		Map<SampleDraft, Integer> sampleDraftOrganismMap = new HashMap<SampleDraft, Integer>();
+		
+		for(SampleDraft sampleDraft : sampleDrafts){			
+			for(SampleDraftMeta sampleDraftMeta : sampleDraft.getSampleDraftMeta()){
+				if(sampleDraftMeta.getK().endsWith("organism")){
+					sampleDraftOrganismMap.put(sampleDraft, new Integer(sampleDraftMeta.getV()));
+				}
+				if(sampleDraftMeta.getK().endsWith("inputOrIP")){
+					if(sampleDraftMeta.getV().equals("ip")){
+						ipSampleDrafts.add(sampleDraft);
+					}
+				}
+			}
+			if(!sampleDraftOrganismMap.containsKey(sampleDraft)){//species == OTHER
+				if(ipSampleDrafts.contains(sampleDraft)){
+					ipSampleDrafts.remove(sampleDraft);
+				}				
+			}
+			if(sampleDraftsAlreadyInReplicateSet.contains(sampleDraft)){
+				if(ipSampleDrafts.contains(sampleDraft)){
+					ipSampleDrafts.remove(sampleDraft);
+				}
+			}
+		}
+		if (sampleDraftsAlreadyInReplicateSet.isEmpty() && (ipSampleDrafts.isEmpty() || ipSampleDrafts.size() == 1)){//first time around and either no ipSamples or one ipSample -- unable to make any ip replicates
+			return nextPage(jobDraft);
+		}
+		
+		
+		m.put("replicateSetsMap", replicateSetsMap);
+		m.put("ipSamples", ipSampleDrafts);//for dropdown box
 		m.put("jobDraft", jobDraft);
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
 		return "jobsubmit/replicates";
@@ -215,7 +280,32 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 	
-		return nextPage(jobDraft);
+		Map<String,String[]> params = request.getParameterMap();
+	    for (String key : params.keySet()) {
+			System.out.println("Key : " + key.toString());
+			String[] stringArray = params.get(key);
+			
+			for(String s : stringArray){
+				System.out.println("--val: " + s);
+			}
+		}
+	    if(params.containsKey("continueToNextPage")){
+	    	return nextPage(jobDraft);
+	    }
+	    else{
+	    	if(params.containsKey("ipIdForNewReplicateSet")){
+	    		String[] stringArray = params.get("ipIdForNewReplicateSet");
+	    		String ipId = stringArray[0];
+	    		System.out.println("--------ipIdForNewReplicateSet = " + ipId);
+	    		SampleDraft ipSampleDraft = sampleDraftDao.getSampleDraftBySampleDraftId(Integer.parseInt(ipId));
+	    		System.out.println("--------ipSampleDraft's ID  = " + ipSampleDraft.getId().toString());
+	    		jobDraftService.saveReplicateSets(jobDraft, ipSampleDraft);
+	    	}
+	    	
+	    	
+	    	waspErrorMessage("wasp.unexpected_error.error");
+	    	return "redirect:/jobsubmit/chipSeq/replicates/"+jobDraftId+".do";
+	    }
 	}
 }
 

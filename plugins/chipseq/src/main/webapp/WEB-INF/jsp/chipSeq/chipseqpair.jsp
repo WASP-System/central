@@ -17,8 +17,8 @@
 <form method="POST">
 <table class="data">
   	<tr class="row">
- 		<td class="label" align="center">IP Sample</td>
- 		<td class="label" align="center">Control/Input</td>
+ 		<td class="label" align="center"><fmt:message key="chipSeq.pair_ipsample.label"/></td>
+ 		<td class="label" align="center"><fmt:message key="chipSeq.pair_controlinput.label"/></td>
  	</tr>
   	<c:forEach var="ip" items="${ipSamples}">
   		<tr class="row">
@@ -27,7 +27,7 @@
   			</td>
   			<td align="center">
   				<select name="controlIdForIP_<c:out value="${ip.id}" />">
-  					<option value="0">None</option>
+  					<option value="0"><fmt:message key="chipSeq.pair_none.label"/></option>
 	  				<c:forEach var="input" items="${inputSamples}" >
 	  					<c:if test="${sampleOrganismMap.get(ip) == sampleOrganismMap.get(input) }">
 	  						<c:choose>
