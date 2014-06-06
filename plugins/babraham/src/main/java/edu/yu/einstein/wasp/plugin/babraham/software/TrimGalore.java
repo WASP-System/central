@@ -315,7 +315,8 @@ public class TrimGalore extends SoftwarePackage {
         		+ fileGroup.getId() + prefix + "_trim_number.txt");
         	prefix = "_trimmed";
         } else if (rs == 2) {
-        	w.addCommand("grep \"Total number of sequences analysed: \" ${inFileName/.fastq.gz/}_trim_galore.out.txt | sed 's/.* //g' >> " 
+        	w.addCommand("inFile0Name=${" + WorkUnit.INPUT_FILE + "[" + 0 + "]##*/}");
+        	w.addCommand("grep \"Total number of sequences analysed: \" ${inFile0Name/.fastq.gz/}_trim_galore.out.txt | sed 's/.* //g' >> " 
         		+ fileGroup.getId() + prefix + "_trim_number.txt");
             // paired-end read names end in "_val_?.fq.gz" while single-end
             // reads end with "_trimmed.fq.gz"
