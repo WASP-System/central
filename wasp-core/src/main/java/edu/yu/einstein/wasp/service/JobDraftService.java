@@ -116,6 +116,6 @@ public interface JobDraftService extends WaspService {
 
 	JobDraftMetaDao getJobDraftMetaDao();
 	
-	public Map<Integer, Set<SampleDraft>> getReplicateSets(JobDraft jobDraft);
-	public void saveReplicateSets(JobDraft jobDraft, SampleDraft sampleDraft);
+	public List<List<SampleDraft>> getReplicateSets(JobDraft jobDraft);
+	public void saveReplicateSets(JobDraft jobDraft, SampleDraft sampleDraft, Integer setNumber);
 }

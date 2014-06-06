@@ -418,7 +418,7 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 	 *  {@inheritDoc}
 	 */
 	@Override
-	public Map<Integer, Set<SampleDraft>> getReplicateSets(JobDraft jobDraft){
+	public List<List<SampleDraft>> getReplicateSets(JobDraft jobDraft){
 		
 		List<SampleDraft> sampleDraftList = jobDraft.getSampleDraft();//sampleDraftDao.getSampleDraftByJobId(jobDraftId);
 		Map<Integer, SampleDraft> idSampleDraftMap = new HashMap<Integer, SampleDraft>();
@@ -426,11 +426,11 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 			idSampleDraftMap.put(sd.getId(), sd);
 		}
 		
-		Map<Integer, Set<SampleDraft>> replicateSetsMap = new LinkedHashMap<Integer, Set<SampleDraft>>();
+		List<List<SampleDraft>> replicatesListOfLists = new ArrayList<List<SampleDraft>>();
 		String replicatesKey = jobDraft.getWorkflow().getIName()+"."+REPLICATE_SETS_META_KEY;
 		JobDraftMeta replicatesMetaData = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(replicatesKey, jobDraft.getId());
 		
-		Integer numberOfSets = 0;
+		
 		
 		for(String setOfSampleDraftIdsAsString: replicatesMetaData.getV().split(";")){
 			String[] sampleDraftIdAsStringArray = setOfSampleDraftIdsAsString.split(":");
@@ -442,36 +442,52 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 				}				
 			}
 			if(!sampleDraftSet.isEmpty()){
-				numberOfSets++;
-				replicateSetsMap.put(numberOfSets, sampleDraftSet);
+				replicatesListOfLists.add(new ArrayList<SampleDraft>(sampleDraftSet));
 			}
 		}
 		//for testing only
-		System.out.println("Testing output");
-		for (Integer key : replicateSetsMap.keySet()) {
-			System.out.println("Key : " + key.toString());
-			Set<SampleDraft> set = replicateSetsMap.get(key);
-			for(SampleDraft sd : set){
+		System.out.println("Testing replicatesListOfLists output");
+		for (List<SampleDraft> sdList: replicatesListOfLists) {
+			for(SampleDraft sd : sdList){
 				System.out.println("---:"+sd.getId()+" ---: "+sd.getName());
 			}			
 		}
-		System.out.println("Completed testing output");
+		System.out.println("Completed testing replicatesListOfLists output");
 		
-		return replicateSetsMap;
+		return replicatesListOfLists;
 		
 	}
 	/**
 	 *  {@inheritDoc}
 	 */
 	@Override
-	public void saveReplicateSets(JobDraft jobDraft, SampleDraft sampleDraft){
+	public void saveReplicateSets(JobDraft jobDraft, SampleDraft sampleDraft, Integer setNumber){
+		
 		String replicatesKey = jobDraft.getWorkflow().getIName()+"."+REPLICATE_SETS_META_KEY;
 		JobDraftMeta replicatesMetaData = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(replicatesKey, jobDraft.getId());
 		
+		//if setNumber is null , sample draft is being added to new replicate set; just add sampleDraft.id to the end of the metada, followed by a semicolon
+		if(setNumber==null){
+			if (replicatesMetaData.getId() != null){
+				String oldValue = replicatesMetaData.getV();
+				String newValue = oldValue + sampleDraft.getId().toString() + ";";
+				replicatesMetaData.setV(newValue);
+				jobDraftMetaDao.save(replicatesMetaData);
+			}
+			else{//first replicate entry, so create new metadata entry
+				JobDraftMeta jdm = new JobDraftMeta(); 
+				jdm.setJobDraftId(jobDraft.getId());
+				jdm.setK(replicatesKey);
+				jdm.setV(sampleDraft.getId().toString() + ";"); 
+				jobDraftMetaDao.save(jdm);
+			}
+			return;
+		}
+		
 		// remove old paired sample for jobdraft
 		if (replicatesMetaData.getId() != null){
-			jobDraftMetaDao.remove(replicatesMetaData);
-			jobDraftMetaDao.flush(replicatesMetaData);
+			//////////jobDraftMetaDao.remove(replicatesMetaData);
+			//////////jobDraftMetaDao.flush(replicatesMetaData);
 		}
 		
 		String replicatesMetaString = ""; 
@@ -491,7 +507,7 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 			jdm.setJobDraftId(jobDraft.getId());
 			jdm.setK(replicatesKey);
 			jdm.setV(replicatesMetaString); 
-			jobDraftMetaDao.save(jdm);
+			/////////////////jobDraftMetaDao.save(jdm);
 		}
 	}
 }

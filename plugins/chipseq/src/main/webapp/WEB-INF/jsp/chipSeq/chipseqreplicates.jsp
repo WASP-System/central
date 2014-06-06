@@ -51,18 +51,26 @@
  
  <table class="data">
 	<tr class="row">
+		<td class="label" align="center">Set Number</td>
 		<td class="label" align="center"><fmt:message key="chipSeq.replicates_replicateset.label"/></td>
  		<td class="label" align="center"><fmt:message key="chipSeq.replicates_addreplicatesample.label"/></td>
  	</tr> 
- 	<%-- 
- 	<c:forEach items="${replicateSetsMap}" var="submittedObject" varStatus="statusSubmittedObject">
- 	<c:if test="${ipSamples.size() > 1}">
+ 	 
+ 	<c:forEach items="${replicatesListOfLists}" var="replicateList" varStatus="replicateStatus">
+ 	
 		<tr class="row">	
-			<td class="label"></td>
+			<td class="label" align="center"><c:out value="${replicateStatus.count}" /></td>
+			<td class="label" align="center">
+				<c:forEach items="${replicateList}" var="sampleDraft" varStatus="sampleDraftStatus">
+					<c:if test="${not sampleDraftStatus.first}"><br /></c:if>
+					<c:out value="${sampleDraft.name}" /> [<a>remove</a>]
+				</c:forEach>
+			</td>
 			<td align="center">
+			  <c:if test="${ipSamples.size() > 0}">
 				<div>
 				<form method="POST">
-	  				<select name="ipIdForNewReplicateSet" >
+	  				<select name="ipIdForExistingReplicateSet_${replicateStatus.count}" >
 	  					<option value="0">--select sample--</option>
 		  				<c:forEach var="ip" items="${ipSamples}" >
 		  					<option value="<c:out value="${ip.id}" />"><c:out value="${ip.name}" /></option>
@@ -71,15 +79,17 @@
 	  				&nbsp; 	<input type="submit" onClick="return checkSampleSelected(this);" value="Add Sample To Set" />		
 	  			</form>
 	  			</div>
+	  		  </c:if>
 	  		</td>	
 		</tr>
-	</c:if>
+	
  	</c:forEach>
- 	--%>
+ 	
  		
  	<c:if test="${ipSamples.size() > 1}">
 		<tr class="row">	
-			<td class="label"></td>
+			<td class="label" align="center">New Set</td>
+			<td class="label" align="center">Currently No Samples</td>
 			<td align="center">
 				<div>
 				<form method="POST">

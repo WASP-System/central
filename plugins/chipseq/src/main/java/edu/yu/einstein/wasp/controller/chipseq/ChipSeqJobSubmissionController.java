@@ -211,19 +211,16 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 			return nextPage(jobDraft);
 		}
 		
-		Map<Integer, Set<SampleDraft>> replicateSetsMap = jobDraftService.getReplicateSets(jobDraft);//from database
-		for (Integer key : replicateSetsMap.keySet()) {
-			System.out.println("Key : " + key.toString());
-			Set<SampleDraft> set = replicateSetsMap.get(key);
-			for(SampleDraft sd : set){
+		List<List<SampleDraft>> replicatesListOfLists = jobDraftService.getReplicateSets(jobDraft);//from database
+		for (List<SampleDraft> sdList: replicatesListOfLists) {
+			for(SampleDraft sd : sdList){
 				System.out.println("---:"+sd.getId()+" ---: "+sd.getName());
 			}			
 		}
 		
 		Set<SampleDraft> sampleDraftsAlreadyInReplicateSet = new HashSet<SampleDraft>();		
-		for (Integer key : replicateSetsMap.keySet()) {			
-			Set<SampleDraft> set = replicateSetsMap.get(key);
-			for(SampleDraft sd : set){
+		for (List<SampleDraft> sdList: replicatesListOfLists) {
+			for(SampleDraft sd : sdList){
 				sampleDraftsAlreadyInReplicateSet.add(sd);
 			}			
 		}
@@ -264,7 +261,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		}
 		
 		
-		m.put("replicateSetsMap", replicateSetsMap);
+		m.put("replicatesListOfLists", replicatesListOfLists);//replicate sets already in db
 		m.put("ipSamples", ipSampleDrafts);//for dropdown box
 		m.put("jobDraft", jobDraft);
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
@@ -277,11 +274,13 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 	public String updateChipSeqReplicates(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
-		if (! isJobDraftEditable(jobDraft))
+		if (! isJobDraftEditable(jobDraft)){
 			return "redirect:/dashboard.do";
-	
+		}
+		
 		Map<String,String[]> params = request.getParameterMap();
-	    for (String key : params.keySet()) {
+		//for testing only
+		for (String key : params.keySet()) {
 			System.out.println("Key : " + key.toString());
 			String[] stringArray = params.get(key);
 			
@@ -289,23 +288,53 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 				System.out.println("--val: " + s);
 			}
 		}
-	    if(params.containsKey("continueToNextPage")){
+		
+		if(params.containsKey("continueToNextPage")){
 	    	return nextPage(jobDraft);
 	    }
-	    else{
-	    	if(params.containsKey("ipIdForNewReplicateSet")){
-	    		String[] stringArray = params.get("ipIdForNewReplicateSet");
-	    		String ipId = stringArray[0];
-	    		System.out.println("--------ipIdForNewReplicateSet = " + ipId);
-	    		SampleDraft ipSampleDraft = sampleDraftDao.getSampleDraftBySampleDraftId(Integer.parseInt(ipId));
-	    		System.out.println("--------ipSampleDraft's ID  = " + ipSampleDraft.getId().toString());
-	    		jobDraftService.saveReplicateSets(jobDraft, ipSampleDraft);
-	    	}
-	    	
-	    	
-	    	waspErrorMessage("wasp.unexpected_error.error");
-	    	return "redirect:/jobsubmit/chipSeq/replicates/"+jobDraftId+".do";
-	    }
+
+    	if(params.containsKey("ipIdForNewReplicateSet")){
+    		String[] stringArray = params.get("ipIdForNewReplicateSet");
+    		String ipId = stringArray[0];
+    		System.out.println("--------ipIdForNewReplicateSet = " + ipId);
+    		SampleDraft sampleDraftToBeSavedToNewReplicateSet = sampleDraftDao.getSampleDraftBySampleDraftId(Integer.parseInt(ipId));
+    		System.out.println("--------sampleDraftToBeSavedToNewReplicateSet ID  = " + sampleDraftToBeSavedToNewReplicateSet.getId().toString());
+    		jobDraftService.saveReplicateSets(jobDraft, sampleDraftToBeSavedToNewReplicateSet, null);
+    		return "redirect:/jobsubmit/chipSeq/replicates/"+jobDraftId+".do";
+    	}
+    	
+	    String paramPrefix = "ipIdForExistingReplicateSet_";
+	    String completeKey = "";
+    	for (String key : params.keySet()) {
+    		if(key.startsWith(paramPrefix)){
+    			completeKey = key;
+    			break;
+    		}
+		}
+    	if( !completeKey.isEmpty() ){
+    		String[] stringArray = params.get(completeKey);
+    		String replicateSetNumberAsString = completeKey.replaceFirst(paramPrefix, "");//so ipIdForExistingReplicateSet__1 is converted to 1
+    		System.out.println("replicateSetNumberAsString: " + replicateSetNumberAsString);
+    		Integer replicateSetNumberAsInteger = null;
+    		try{
+    			replicateSetNumberAsInteger = Integer.parseInt(replicateSetNumberAsString);
+    		}catch(Exception e){
+    			waspErrorMessage("wasp.unexpected_error.error");
+    			return "redirect:/jobsubmit/chipSeq/replicates/"+jobDraftId+".do";
+    		} 
+    		String ipId = stringArray[0];
+    		System.out.println("--------ipIdForExistingReplicateSet = " + ipId);
+    		SampleDraft sampleDraftToBeSavedToExistingReplicateSet = sampleDraftDao.getSampleDraftBySampleDraftId(Integer.parseInt(ipId));
+    		System.out.println("--------sampleDraftToBeSavedToExistingReplicateSet ID  = " + sampleDraftToBeSavedToExistingReplicateSet.getId().toString());
+    		jobDraftService.saveReplicateSets(jobDraft, sampleDraftToBeSavedToExistingReplicateSet, replicateSetNumberAsInteger);
+    		//success message??
+    		System.out.println("GOT HERE SO LOOKS OK");
+    		return "redirect:/jobsubmit/chipSeq/replicates/"+jobDraftId+".do";
+    	}
+    	
+    	
+	    waspErrorMessage("wasp.unexpected_error.error");
+    	return "redirect:/jobsubmit/chipSeq/replicates/"+jobDraftId+".do";
 	}
 }
 
