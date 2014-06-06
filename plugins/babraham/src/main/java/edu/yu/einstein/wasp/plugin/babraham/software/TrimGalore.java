@@ -106,11 +106,11 @@ public class TrimGalore extends SoftwarePackage {
     @Qualifier("fileTypeServiceImpl")
     private FileTypeService fileTypeService;
 
-    public static final String MANY_FLOW_NAME = "edu.yu.einstein.wasp.plugin.babraham.trim_galore.fileTrim";
+    public static final String MANY_FLOW_NAME = "babraham.trim_galore.fileTrim";
 
-    public static final String FLOW_NAME = "edu.yu.einstein.wasp.plugin.babraham.trim_galore.mainFlow";
+    public static final String FLOW_NAME = "babraham.trim_galore.mainFlow";
 
-    public static final String MANY_REGISTRATION_NAME = "edu.yu.einstein.wasp.plugin.babraham.trim_galore.register";
+    public static final String MANY_REGISTRATION_NAME = "babraham.trim_galore.register";
 
     /**
 	 * 
