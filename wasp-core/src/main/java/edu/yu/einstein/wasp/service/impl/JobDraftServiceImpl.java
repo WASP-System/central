@@ -484,6 +484,13 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 			return;
 		}
 		
+		//ON MONDAY - need to deal with adding a sampledraft to setNumber (or removing one); send back 0 or 1 for message
+		//AND CHECK FOR ORGANISM MATCH WHEN ADDING TO An existing set
+		
+		
+		
+		
+		
 		// remove old paired sample for jobdraft
 		if (replicatesMetaData.getId() != null){
 			//////////jobDraftMetaDao.remove(replicatesMetaData);
