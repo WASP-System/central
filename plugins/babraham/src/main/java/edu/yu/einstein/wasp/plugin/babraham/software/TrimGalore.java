@@ -179,14 +179,13 @@ public class TrimGalore extends SoftwarePackage {
         w.addRequiredFile((FileHandle) fqa[firstFile]);
         if (paired)
             w.addRequiredFile((FileHandle) fqa[firstFile + 1]);
-
+        w.addCommand("inFile0Name=${" + WorkUnit.INPUT_FILE + "[" + 0 + "]##*/}");
         String command = "trim_galore " + parameterString + " ${" + WorkUnit.INPUT_FILE + "[" + 0 + "]}";
         if (paired)
             command += " ${" + WorkUnit.INPUT_FILE + "[" + 1 + "]}";
-        
-        command += " 2> " + " ${" + WorkUnit.INPUT_FILE + "[" + 0 + "]/.fastq.gz/}" + "_trim_galore.out.txt";
+        command += " 2> ${inFile0Name/.fastq.gz/}_trim_galore.out.txt";
 
-        w.setCommand(command);
+        w.addCommand(command);
 
         return w;
 
@@ -308,8 +307,7 @@ public class TrimGalore extends SoftwarePackage {
         Integer rs = fastqService.getNumberOfReadSegments(fileGroup);
         String prefix = "";
         prefix = "_" + fastqService.getFastqReadSegmentNumber(fileHandle);
-        w.addCommand("inFilePath=${" + WorkUnit.INPUT_FILE + "[" + fileNumber + "]}");
-        w.addCommand("inFileName=${inFilePath##*/}");
+        w.addCommand("inFileName=${" + WorkUnit.INPUT_FILE + "[" + fileNumber + "]##*/}");
         w.addCommand("sed -n '/^length/,/^$/p' ${inFileName}_trimming_report.txt | tail -n +2 | head -n -1 >> "
                 + fileGroup.getId() + prefix + "_trim_counts.txt");
         if (rs == 1) {
@@ -317,7 +315,7 @@ public class TrimGalore extends SoftwarePackage {
         		+ fileGroup.getId() + prefix + "_trim_number.txt");
         	prefix = "_trimmed";
         } else if (rs == 2) {
-        	w.addCommand("grep \"Total number of sequences analysed: \" ${inFileName/fastq.gz/}_trim_galore.out.txt | sed 's/.* //g' >> " 
+        	w.addCommand("grep \"Total number of sequences analysed: \" ${inFileName/.fastq.gz/}_trim_galore.out.txt | sed 's/.* //g' >> " 
         		+ fileGroup.getId() + prefix + "_trim_number.txt");
             // paired-end read names end in "_val_?.fq.gz" while single-end
             // reads end with "_trimmed.fq.gz"
