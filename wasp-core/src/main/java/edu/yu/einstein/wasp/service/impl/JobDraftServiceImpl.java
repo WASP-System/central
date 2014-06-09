@@ -431,18 +431,19 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 		JobDraftMeta replicatesMetaData = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(replicatesKey, jobDraft.getId());
 		
 		//TODO: order the List<SampleDraft> by name or id
-		
-		for(String setOfSampleDraftIdsAsString: replicatesMetaData.getV().split(";")){
-			String[] sampleDraftIdAsStringArray = setOfSampleDraftIdsAsString.split(":");
-			Set<SampleDraft> sampleDraftSet = new LinkedHashSet<SampleDraft>();			
-			for(String sampleDraftidAsString : sampleDraftIdAsStringArray){
-				Integer id = Integer.parseInt(sampleDraftidAsString);
-				if(idSampleDraftMap.containsKey(id)){
-					sampleDraftSet.add(idSampleDraftMap.get(id));
-				}				
-			}
-			if(!sampleDraftSet.isEmpty()){
-				replicatesListOfLists.add(new ArrayList<SampleDraft>(sampleDraftSet));
+		if(replicatesMetaData!=null && replicatesMetaData.getId()!=null && replicatesMetaData.getId()>0){
+			for(String setOfSampleDraftIdsAsString: replicatesMetaData.getV().split(";")){
+				String[] sampleDraftIdAsStringArray = setOfSampleDraftIdsAsString.split(":");
+				Set<SampleDraft> sampleDraftSet = new LinkedHashSet<SampleDraft>();			
+				for(String sampleDraftidAsString : sampleDraftIdAsStringArray){
+					Integer id = Integer.parseInt(sampleDraftidAsString);
+					if(idSampleDraftMap.containsKey(id)){
+						sampleDraftSet.add(idSampleDraftMap.get(id));
+					}				
+				}
+				if(!sampleDraftSet.isEmpty()){
+					replicatesListOfLists.add(new ArrayList<SampleDraft>(sampleDraftSet));
+				}
 			}
 		}
 		//for testing only
@@ -501,8 +502,8 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 		}
 		
 		//ON MONDAY - need to deal with adding (and later removing) a sampledraft to setNumber (or removing one); send back 0 or 1 for message
-		//AND CHECK FOR ORGANISM MATCH WHEN ADDING TO An existing set
-		else if(setNumber!=null){//adding new sampleDraft to existing replicate set (so replicatesMetaData should not be null) [so two potential problems: setNumber is wrong; existing entry for replicatesMetaData doesn't exit; or id is already in the set or already in another set; or id not part of job; and organism match, and sampleDraft is not null.......] 
+		//AND CHECK FOR ORGANISM MATCH WHEN ADDING TO An existing set; for the moment, the jsp deals with this
+		else if(setNumber!=null && replicatesMetaData.getId() != null){//adding new sampleDraft to existing replicate set (so replicatesMetaData should not be null) [so two potential problems: setNumber is wrong; existing entry for replicatesMetaData doesn't exit; or id is already in the set or already in another set; or id not part of job; and organism match, and sampleDraft is not null.......] 
 			List<List<SampleDraft>> replicates = this.getReplicateSets(jobDraft);
 			replicates.get(setNumber - 1).add(sampleDraft);//must confirm setNumber-1 exists for this list of list
 			String newValue = this.convertReplicatesToString(replicates);
@@ -537,5 +538,29 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 			/////////////////jobDraftMetaDao.save(jdm);
 		}
 		*/
+	}
+	public void removeSampleDraftFromReplicates(JobDraft jobDraft, SampleDraft sampleDraft){
+		String replicatesKey = jobDraft.getWorkflow().getIName()+"."+REPLICATE_SETS_META_KEY;
+		JobDraftMeta replicatesMetaData = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(replicatesKey, jobDraft.getId());
+		if(replicatesMetaData.getId() != null){
+			List<List<SampleDraft>> replicates = this.getReplicateSets(jobDraft);
+			for(List<SampleDraft> sampleDraftList : replicates){
+				if(sampleDraftList.contains(sampleDraft)){
+					sampleDraftList.remove(sampleDraft);
+					break;
+				}
+			}
+			String newValue = this.convertReplicatesToString(replicates);
+			if(!newValue.isEmpty()){
+				replicatesMetaData.setV(newValue);
+				jobDraftMetaDao.save(replicatesMetaData);
+			}
+			else{//new value of the metaData record is empty, so remove entry
+				jobDraftMetaDao.remove(replicatesMetaData);
+				jobDraftMetaDao.flush(replicatesMetaData);
+			}
+		}
+		return;
+
 	}
 }

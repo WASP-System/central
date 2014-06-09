@@ -232,6 +232,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		
 		List<SampleDraft> inputSampleDrafts = new ArrayList<SampleDraft>();
 		List<SampleDraft> ipSampleDrafts = new ArrayList<SampleDraft>();
+		
 		Map<SampleDraft, Integer> sampleDraftOrganismMap = new HashMap<SampleDraft, Integer>();
 		Map<SampleDraft, String> sampleDraftSpeciesNameMap = new HashMap<SampleDraft, String>();
 		
@@ -240,8 +241,9 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 				if(sampleDraftMeta.getK().endsWith("organism")){
 					Integer genomeId = Integer.parseInt(sampleDraftMeta.getV());
 					sampleDraftOrganismMap.put(sampleDraft, genomeId);
-					String organismName = genomeService.getOrganismMap().get(genomeId).getName();
-					sampleDraftSpeciesNameMap.put(sampleDraft, organismName);
+					String speciesName = genomeService.getOrganismMap().get(genomeId).getName();
+					System.out.println("want species------------------------sampleDraft: " + sampleDraft.getName() + "   " + " species: " + speciesName);
+					sampleDraftSpeciesNameMap.put(sampleDraft, speciesName);
 				}
 				if(sampleDraftMeta.getK().endsWith("inputOrIP")){
 					if(sampleDraftMeta.getV().equals("ip")){
@@ -264,9 +266,33 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 			return nextPage(jobDraft);
 		}
 		
+		Map<String,Integer> speciesNameCountMap = new HashMap<String,Integer>();
+		for(SampleDraft sd : ipSampleDrafts){
+			String speciesName = sampleDraftSpeciesNameMap.get(sd);
+			if(!speciesNameCountMap.containsKey(speciesName)){
+				speciesNameCountMap.put(speciesName, new Integer(1));				
+			}
+			else{
+				Integer temp = speciesNameCountMap.get(speciesName);
+				speciesNameCountMap.put(speciesName, new Integer(temp.intValue()+1));
+			}
+		}		
+		List<SampleDraft> ipSampleDraftsForCreateNew = new ArrayList<SampleDraft>(ipSampleDrafts);
+		List<SampleDraft> sampleDraftToRemove = new ArrayList<SampleDraft>();
+		for(SampleDraft sd : ipSampleDraftsForCreateNew){
+			String speciesName = sampleDraftSpeciesNameMap.get(sd);
+			if(speciesNameCountMap.containsKey(speciesName)){
+				Integer temp = speciesNameCountMap.get(speciesName);
+				if(temp.intValue() < 2){
+					sampleDraftToRemove.add(sd);
+				}
+			}
+		}
+		ipSampleDraftsForCreateNew.removeAll(sampleDraftToRemove);
 		
 		m.put("replicatesListOfLists", replicatesListOfLists);//replicate sets already in db
 		m.put("ipSamples", ipSampleDrafts);//for dropdown box
+		m.put("ipSamplesForCreateNew", ipSampleDraftsForCreateNew);//for dropdown box for the create new replicate (MUST contain at least two samples of same species)
 		m.put("sampleDraftSpeciesNameMap", sampleDraftSpeciesNameMap);
 		m.put("jobDraft", jobDraft);
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
@@ -340,6 +366,22 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
     	
 	    waspErrorMessage("wasp.unexpected_error.error");
     	return "redirect:/jobsubmit/chipSeq/replicates/"+jobDraftId+".do";
+	}
+	
+	@RequestMapping(value="/replicates/{jobDraftId}/remove/{sampleDraftId}.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String removeSampleDraftFromReplicates (@PathVariable("jobDraftId") Integer jobDraftId, @PathVariable("sampleDraftId") Integer sampleDraftId, ModelMap m) {
+		
+		System.out.println("-------inside new function: removeSampleDraftFromReplicates()");
+		
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft)){
+			return "redirect:/dashboard.do";
+		}
+		SampleDraft sampleDraftToBeRemovedFromExistingReplicateSet = sampleDraftDao.getSampleDraftBySampleDraftId(sampleDraftId);
+		jobDraftService.removeSampleDraftFromReplicates(jobDraft, sampleDraftToBeRemovedFromExistingReplicateSet);
+		return "redirect:/jobsubmit/chipSeq/replicates/"+jobDraftId+".do";
+		//return "redirect:/dashboard.do";
 	}
 }
 

@@ -53,6 +53,7 @@
 	<tr class="row">
 		<td class="label" align="center">Set Number</td>
 		<td class="label" align="center"><fmt:message key="chipSeq.replicates_replicateset.label"/></td>
+		<td class="label" align="center"><fmt:message key="chipSeq.replicates_species.label"/></td>
  		<td class="label" align="center"><fmt:message key="chipSeq.replicates_addreplicatesample.label"/></td>
  	</tr> 
  	 
@@ -62,18 +63,29 @@
 			<td class="label" align="center"><c:out value="${replicateStatus.count}" /></td>
 			<td class="label" >
 				<c:forEach items="${replicateList}" var="sampleDraft" varStatus="sampleDraftStatus">
+					<c:if test="${sampleDraftStatus.first}"><c:set value="${sampleDraftSpeciesNameMap.get(sampleDraft)}" var="speciesForThisReplicateSet"/></c:if>
 					<c:if test="${not sampleDraftStatus.first}"><br /></c:if>
-					<c:out value="${sampleDraft.name}" /> [<a>remove</a>]
+					<c:out value="${sampleDraft.name}" /> [<a href="<wasp:relativeUrl value="jobsubmit/chipSeq/replicates/${jobDraft.id}/remove/${sampleDraft.id}.do" />" >remove</a>]
 				</c:forEach>
 			</td>
+			<td class="label" align="center"><c:out value="${speciesForThisReplicateSet}" /></td>
 			<td align="center">
-			  <c:if test="${ipSamples.size() > 0}">
+			  <c:set value="false" var="speciesForSelectIncludesSpeciesForThisReplicate"/>
+			  <c:forEach var="ip" items="${ipSamples}" >
+			  	<c:if test="${speciesForThisReplicateSet == sampleDraftSpeciesNameMap.get(ip)}">
+			  		<c:set value="true" var="speciesForSelectIncludesSpeciesForThisReplicate"/>
+			  	</c:if>
+			  </c:forEach>
+			  <c:if test='${speciesForSelectIncludesSpeciesForThisReplicate=="true" && ipSamples.size() > 0}'>
 				<div>
 				<form method="POST">
 	  				<select name="ipIdForExistingReplicateSet_${replicateStatus.count}" >
 	  					<option value="0">--select sample--</option>
 		  				<c:forEach var="ip" items="${ipSamples}" >
-		  					<option value="<c:out value="${ip.id}" />"><c:out value="${ip.name}" /></option>
+		  					<c:set value="${sampleDraftSpeciesNameMap.get(ip)}" var="speciesForSelect"/>
+		  					<c:if test="${speciesForThisReplicateSet == speciesForSelect}">
+		  						<option value="<c:out value="${ip.id}" />"><c:out value="${ip.name }" /><c:if test="${not empty speciesForSelect }"> [<c:out value="${speciesForSelect}" />]</c:if></option>
+		  					</c:if>
 		  				</c:forEach>
 	  				</select>   				 
 	  				&nbsp; 	<input type="submit" onClick="return checkSampleSelected(this);" value="Add Sample To Set" />		
@@ -86,17 +98,19 @@
  	</c:forEach>
  	
  		
- 	<c:if test="${ipSamples.size() > 1}">
+ 	<c:if test="${ipSamplesForCreateNew.size() > 1}">
 		<tr class="row">	
 			<td class="label" align="center">Create New Set</td>
-			<td class="label" align="center">None</td>
+			<td class="label" align="center"></td>
+			<td class="label" align="center"></td>
 			<td align="center">
 				<div>
 				<form method="POST">
 	  				<select name="ipIdForNewReplicateSet" >
 	  					<option value="0">--select sample--</option>
-		  				<c:forEach var="ip" items="${ipSamples}" >
-		  					<option value="<c:out value="${ip.id}" />"><c:out value="${ip.name}" /></option>
+		  				<c:forEach var="ip" items="${ipSamplesForCreateNew}" >
+		  					<c:set value="${sampleDraftSpeciesNameMap.get(ip)}" var="speciesForSelect"/>
+		  					<option value="<c:out value="${ip.id}" />"><c:out value="${ip.name }" /><c:if test="${not empty speciesForSelect }"> [<c:out value="${speciesForSelect}" />]</c:if></option>
 		  				</c:forEach>
 	  				</select>   				 
 	  				&nbsp; 	<input type="submit" onClick="return checkSampleSelected(this);" value="Add Sample To Set" />		
