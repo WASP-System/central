@@ -233,11 +233,15 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		List<SampleDraft> inputSampleDrafts = new ArrayList<SampleDraft>();
 		List<SampleDraft> ipSampleDrafts = new ArrayList<SampleDraft>();
 		Map<SampleDraft, Integer> sampleDraftOrganismMap = new HashMap<SampleDraft, Integer>();
+		Map<SampleDraft, String> sampleDraftSpeciesNameMap = new HashMap<SampleDraft, String>();
 		
 		for(SampleDraft sampleDraft : sampleDrafts){			
 			for(SampleDraftMeta sampleDraftMeta : sampleDraft.getSampleDraftMeta()){
 				if(sampleDraftMeta.getK().endsWith("organism")){
-					sampleDraftOrganismMap.put(sampleDraft, new Integer(sampleDraftMeta.getV()));
+					Integer genomeId = Integer.parseInt(sampleDraftMeta.getV());
+					sampleDraftOrganismMap.put(sampleDraft, genomeId);
+					String organismName = genomeService.getOrganismMap().get(genomeId).getName();
+					sampleDraftSpeciesNameMap.put(sampleDraft, organismName);
 				}
 				if(sampleDraftMeta.getK().endsWith("inputOrIP")){
 					if(sampleDraftMeta.getV().equals("ip")){
@@ -263,6 +267,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		
 		m.put("replicatesListOfLists", replicatesListOfLists);//replicate sets already in db
 		m.put("ipSamples", ipSampleDrafts);//for dropdown box
+		m.put("sampleDraftSpeciesNameMap", sampleDraftSpeciesNameMap);
 		m.put("jobDraft", jobDraft);
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
 		return "jobsubmit/replicates";

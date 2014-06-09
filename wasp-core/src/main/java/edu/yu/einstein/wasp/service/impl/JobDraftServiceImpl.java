@@ -430,7 +430,7 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 		String replicatesKey = jobDraft.getWorkflow().getIName()+"."+REPLICATE_SETS_META_KEY;
 		JobDraftMeta replicatesMetaData = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(replicatesKey, jobDraft.getId());
 		
-		
+		//TODO: order the List<SampleDraft> by name or id
 		
 		for(String setOfSampleDraftIdsAsString: replicatesMetaData.getV().split(";")){
 			String[] sampleDraftIdAsStringArray = setOfSampleDraftIdsAsString.split(":");
@@ -457,6 +457,22 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 		return replicatesListOfLists;
 		
 	}
+	private String convertReplicatesToString(List<List<SampleDraft>> replicates){
+		
+		StringBuffer replicatesAsStringBuffer = new StringBuffer("");
+		for(List<SampleDraft>  sampleDraftReplicateSet : replicates){
+			int counter = 0;
+			for(SampleDraft sd : sampleDraftReplicateSet){
+				if(counter++ > 0){
+					replicatesAsStringBuffer.append(":");
+				}
+				replicatesAsStringBuffer.append(sd.getId().toString());				
+			}
+			replicatesAsStringBuffer.append(";");
+		}
+		return new String(replicatesAsStringBuffer);
+	}
+	
 	/**
 	 *  {@inheritDoc}
 	 */
@@ -468,7 +484,7 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 		
 		//if setNumber is null , sample draft is being added to new replicate set; just add sampleDraft.id to the end of the metada, followed by a semicolon
 		if(setNumber==null){
-			if (replicatesMetaData.getId() != null){
+			if (replicatesMetaData.getId() != null){//add new replicate set sampleDraft to end, followed by semicolon
 				String oldValue = replicatesMetaData.getV();
 				String newValue = oldValue + sampleDraft.getId().toString() + ";";
 				replicatesMetaData.setV(newValue);
@@ -484,13 +500,17 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 			return;
 		}
 		
-		//ON MONDAY - need to deal with adding a sampledraft to setNumber (or removing one); send back 0 or 1 for message
+		//ON MONDAY - need to deal with adding (and later removing) a sampledraft to setNumber (or removing one); send back 0 or 1 for message
 		//AND CHECK FOR ORGANISM MATCH WHEN ADDING TO An existing set
-		
-		
-		
-		
-		
+		else if(setNumber!=null){//adding new sampleDraft to existing replicate set (so replicatesMetaData should not be null) [so two potential problems: setNumber is wrong; existing entry for replicatesMetaData doesn't exit; or id is already in the set or already in another set; or id not part of job; and organism match, and sampleDraft is not null.......] 
+			List<List<SampleDraft>> replicates = this.getReplicateSets(jobDraft);
+			replicates.get(setNumber - 1).add(sampleDraft);//must confirm setNumber-1 exists for this list of list
+			String newValue = this.convertReplicatesToString(replicates);
+			replicatesMetaData.setV(newValue);
+			jobDraftMetaDao.save(replicatesMetaData);
+			return;
+		}
+		/*
 		// remove old paired sample for jobdraft
 		if (replicatesMetaData.getId() != null){
 			//////////jobDraftMetaDao.remove(replicatesMetaData);
@@ -500,14 +520,14 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 		String replicatesMetaString = ""; 
 		
 		replicatesMetaString = sampleDraft.getId().toString();
-		/*
-	    if (!sampleDraftPairSet.isEmpty()){
-			for(Map<SampleDraft, SampleDraft> pair: sampleDraftPairSet){
-				Entry<SampleDraft, SampleDraft> e = pair.entrySet().iterator().next();
-				pairMetaString += e.getKey().getId()+":"+e.getValue().getId()+";";
-			}
-		}
-	    */
+		
+	    //if (!sampleDraftPairSet.isEmpty()){
+		//	for(Map<SampleDraft, SampleDraft> pair: sampleDraftPairSet){
+		//		Entry<SampleDraft, SampleDraft> e = pair.entrySet().iterator().next();
+		//		pairMetaString += e.getKey().getId()+":"+e.getValue().getId()+";";
+		//	}
+		//}
+	    
 		if (!replicatesMetaString.isEmpty()){
 			// persist pair meta string
 			JobDraftMeta jdm = new JobDraftMeta(); 
@@ -516,5 +536,6 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 			jdm.setV(replicatesMetaString); 
 			/////////////////jobDraftMetaDao.save(jdm);
 		}
+		*/
 	}
 }

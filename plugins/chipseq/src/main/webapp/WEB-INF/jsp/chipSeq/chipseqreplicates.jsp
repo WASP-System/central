@@ -60,7 +60,7 @@
  	
 		<tr class="row">	
 			<td class="label" align="center"><c:out value="${replicateStatus.count}" /></td>
-			<td class="label" align="center">
+			<td class="label" >
 				<c:forEach items="${replicateList}" var="sampleDraft" varStatus="sampleDraftStatus">
 					<c:if test="${not sampleDraftStatus.first}"><br /></c:if>
 					<c:out value="${sampleDraft.name}" /> [<a>remove</a>]
@@ -88,8 +88,8 @@
  		
  	<c:if test="${ipSamples.size() > 1}">
 		<tr class="row">	
-			<td class="label" align="center">New Set</td>
-			<td class="label" align="center">Currently No Samples</td>
+			<td class="label" align="center">Create New Set</td>
+			<td class="label" align="center">None</td>
 			<td align="center">
 				<div>
 				<form method="POST">
