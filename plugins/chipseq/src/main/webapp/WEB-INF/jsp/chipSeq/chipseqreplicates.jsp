@@ -48,7 +48,7 @@
 </table>
  </div>
  --%>
- 
+ <c:set value="false" var="atLeastOneReplicateSetWithSingleSample"/>
  <table class="data">
 	<tr class="row">
 		<td class="label" align="center">Set Number</td>
@@ -58,7 +58,7 @@
  	</tr> 
  	 
  	<c:forEach items="${replicatesListOfLists}" var="replicateList" varStatus="replicateStatus">
- 	
+ 		<c:if test="${fn:length(replicateList) ==1}"><c:set value="true" var="atLeastOneReplicateSetWithSingleSample"/></c:if>
 		<tr class="row">	
 			<td class="label" align="center"><c:out value="${replicateStatus.count}" /></td>
 			<td class="label" >
@@ -123,6 +123,6 @@
 <form method="POST">
 <div class="submit">
     <input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<wasp:relativeUrl value="dashboard.do"/>'" /> 
-    <input type="submit" name="continueToNextPage" value="continueToNextPage" onClick="return true;" value="<fmt:message key="jobDraft.continue.label" />" />
+    <input type="submit" name="continueToNextPage" value="continueToNextPage" onClick="return checksOnContinueToNextPage('<c:out value="${atLeastOneReplicateSetWithSingleSample}" />');" value="<fmt:message key="jobDraft.continue.label" />" />
 </div>
 </form>

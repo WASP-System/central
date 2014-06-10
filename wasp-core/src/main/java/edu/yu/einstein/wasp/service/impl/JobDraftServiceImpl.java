@@ -469,7 +469,9 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 				}
 				replicatesAsStringBuffer.append(sd.getId().toString());				
 			}
-			replicatesAsStringBuffer.append(";");
+			if(counter>0){
+				replicatesAsStringBuffer.append(";");
+			}
 		}
 		return new String(replicatesAsStringBuffer);
 	}
