@@ -16,7 +16,7 @@ function checkSampleSelected(obj){
 }
 function checksOnContinueToNextPage(atLeastOneReplicateSetWithSingleSample){
 	if(atLeastOneReplicateSetWithSingleSample=="true"){//not permited 
-		alert("You have at least one replicate set that contains a single sample. Since each replicate set must contain at least two samples, you must either add another sample to that set OR delete the single sample from its set.")
+		alert("You have at least one replicate set that contains a single sample. Since each replicate set must contain at least two samples, you must either add another sample to that set(s) OR delete the single sample from its set(s).")
 		return false;
 	}
 	//check that no selections have currently been made on any of the select boxes, since those selections will not be saved when going to the next page. If this selection is to be saved, the user must click the appropriate 'Add Sample To Set Button.'

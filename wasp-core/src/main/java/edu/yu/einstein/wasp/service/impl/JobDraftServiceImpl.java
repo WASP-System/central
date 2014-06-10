@@ -503,8 +503,7 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 			return;
 		}
 		
-		//ON MONDAY - need to deal with adding (and later removing) a sampledraft to setNumber (or removing one); send back 0 or 1 for message
-		//AND CHECK FOR ORGANISM MATCH WHEN ADDING TO An existing set; for the moment, the jsp deals with this
+		//CHECK FOR ORGANISM compatibility currently dealt with within the jsp
 		else if(setNumber!=null && replicatesMetaData.getId() != null){//adding new sampleDraft to existing replicate set (so replicatesMetaData should not be null) [so two potential problems: setNumber is wrong; existing entry for replicatesMetaData doesn't exit; or id is already in the set or already in another set; or id not part of job; and organism match, and sampleDraft is not null.......] 
 			List<List<SampleDraft>> replicates = this.getReplicateSets(jobDraft);
 			replicates.get(setNumber - 1).add(sampleDraft);//must confirm setNumber-1 exists for this list of list
@@ -513,33 +512,6 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 			jobDraftMetaDao.save(replicatesMetaData);
 			return;
 		}
-		/*
-		// remove old paired sample for jobdraft
-		if (replicatesMetaData.getId() != null){
-			//////////jobDraftMetaDao.remove(replicatesMetaData);
-			//////////jobDraftMetaDao.flush(replicatesMetaData);
-		}
-		
-		String replicatesMetaString = ""; 
-		
-		replicatesMetaString = sampleDraft.getId().toString();
-		
-	    //if (!sampleDraftPairSet.isEmpty()){
-		//	for(Map<SampleDraft, SampleDraft> pair: sampleDraftPairSet){
-		//		Entry<SampleDraft, SampleDraft> e = pair.entrySet().iterator().next();
-		//		pairMetaString += e.getKey().getId()+":"+e.getValue().getId()+";";
-		//	}
-		//}
-	    
-		if (!replicatesMetaString.isEmpty()){
-			// persist pair meta string
-			JobDraftMeta jdm = new JobDraftMeta(); 
-			jdm.setJobDraftId(jobDraft.getId());
-			jdm.setK(replicatesKey);
-			jdm.setV(replicatesMetaString); 
-			/////////////////jobDraftMetaDao.save(jdm);
-		}
-		*/
 	}
 	public void removeSampleDraftFromReplicates(JobDraft jobDraft, SampleDraft sampleDraft){
 		String replicatesKey = jobDraft.getWorkflow().getIName()+"."+REPLICATE_SETS_META_KEY;
