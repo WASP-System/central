@@ -5,19 +5,6 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="wasp" uri="http://einstein.yu.edu/wasp" %>
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
- <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.js"></script>
-  <script type="text/javascript" src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script> 
- <script type="text/javascript" src="<wasp:relativeUrl value='scripts/jquery/jquery.table.addrow.js' />"></script>
- 
-<script type="text/javascript">
-	(function($){ 
-		$(document).ready(function(){			
-				//needed for the addrow and delete row functionality:
-				$(".addRow").btnAddRow();
-				$(".delRow").btnDelRow();
-		});
-	})(jQuery);
-</script>
 	
 <c:set var="workflowIName" value="${jobDraft.getWorkflow().getIName()}" />
 <h1><fmt:message key="jobDraft.create.label"/> -- <fmt:message key="${workflowIName}.jobsubmit/chipSeq/replicates.label"/></h1>
@@ -28,26 +15,6 @@
    <fmt:message key="${workflowIName}.replicates_instructions.label"/>
 </div>
 
-<%-- 
-<div id="container_div_for_adding_rows" >
-<table class="data">
-	<tr class="row">
-		<td class="label" align="center"><fmt:message key="chipSeq.replicates_replicateset.label"/></td>
- 		<td class="label" align="center"><fmt:message key="chipSeq.replicates_addreplicatesample.label"/></td>
- 	</tr>
-	<tr class="row">
-		<td class="label">Email</td>
-		<td><input type="text" size="24"/></td>
-		<td><input type="text" size="24"/></td>
-		
-		<td><input type="button" class="delRow" value="Delete Row"/></td>
-	</tr>
-	<tr class="row">
-		<td colspan="4"><input type="button" class="addRow" value="Add Row"/></td>
-	</tr>
-</table>
- </div>
- --%>
  <c:set value="false" var="atLeastOneReplicateSetWithSingleSample"/>
  <table class="data">
 	<tr class="row">
@@ -71,20 +38,20 @@
 			<td class="label" align="center"><c:out value="${speciesForThisReplicateSet}" /></td>
 			<td align="center">
 			  <c:set value="false" var="speciesForSelectIncludesSpeciesForThisReplicate"/>
-			  <c:forEach var="ip" items="${ipSamples}" >
-			  	<c:if test="${speciesForThisReplicateSet == sampleDraftSpeciesNameMap.get(ip)}">
+			  <c:forEach var="testSampleDraft" items="${testSampleDraftsAvailableForReplicateSelection}" >
+			  	<c:if test="${speciesForThisReplicateSet == sampleDraftSpeciesNameMap.get(testSampleDraft)}">
 			  		<c:set value="true" var="speciesForSelectIncludesSpeciesForThisReplicate"/>
 			  	</c:if>
 			  </c:forEach>
-			  <c:if test='${speciesForSelectIncludesSpeciesForThisReplicate=="true" && ipSamples.size() > 0}'>
+			  <c:if test='${speciesForSelectIncludesSpeciesForThisReplicate=="true" && testSampleDraftsAvailableForReplicateSelection.size() > 0}'>
 				<div>
 				<form method="POST">
-	  				<select name="ipIdForExistingReplicateSet_${replicateStatus.count}" >
+	  				<select name="testSampleDraftIdForExistingReplicateSet_${replicateStatus.count}" >
 	  					<option value="0">--select sample--</option>
-		  				<c:forEach var="ip" items="${ipSamples}" >
-		  					<c:set value="${sampleDraftSpeciesNameMap.get(ip)}" var="speciesForSelect"/>
+		  				<c:forEach var="testSampleDraft" items="${testSampleDraftsAvailableForReplicateSelection}" >
+		  					<c:set value="${sampleDraftSpeciesNameMap.get(testSampleDraft)}" var="speciesForSelect"/>
 		  					<c:if test="${speciesForThisReplicateSet == speciesForSelect}">
-		  						<option value="<c:out value="${ip.id}" />"><c:out value="${ip.name }" /><c:if test="${not empty speciesForSelect }"> [<c:out value="${speciesForSelect}" />]</c:if></option>
+		  						<option value="<c:out value="${testSampleDraft.id}" />"><c:out value="${testSampleDraft.name }" /><c:if test="${not empty speciesForSelect }"> [<c:out value="${speciesForSelect}" />]</c:if></option>
 		  					</c:if>
 		  				</c:forEach>
 	  				</select>   				 
@@ -98,7 +65,7 @@
  	</c:forEach>
  	
  		
- 	<c:if test="${ipSamplesForCreateNew.size() > 1}">
+ 	<c:if test="${testSampleDraftsForCreateNew.size() > 1}">
 		<tr class="row">	
 			<td class="label" align="center">Create New<br />Replicate Set</td>
 			<td class="label" align="center"></td>
@@ -106,11 +73,11 @@
 			<td align="center">
 				<div>
 				<form method="POST">
-	  				<select name="ipIdForNewReplicateSet" >
+	  				<select name="testSampleDraftIdForNewReplicateSet" >
 	  					<option value="0">--select sample--</option>
-		  				<c:forEach var="ip" items="${ipSamplesForCreateNew}" >
-		  					<c:set value="${sampleDraftSpeciesNameMap.get(ip)}" var="speciesForSelect"/>
-		  					<option value="<c:out value="${ip.id}" />"><c:out value="${ip.name }" /><c:if test="${not empty speciesForSelect }"> [<c:out value="${speciesForSelect}" />]</c:if></option>
+		  				<c:forEach var="testSampleDraft" items="${testSampleDraftsForCreateNew}" >
+		  					<c:set value="${sampleDraftSpeciesNameMap.get(testSampleDraft)}" var="speciesForSelect"/>
+		  					<option value="<c:out value="${testSampleDraft.id}" />"><c:out value="${testSampleDraft.name }" /><c:if test="${not empty speciesForSelect }"> [<c:out value="${speciesForSelect}" />]</c:if></option>
 		  				</c:forEach>
 	  				</select>   				 
 	  				&nbsp; 	<input type="submit" onClick="return checkSampleSelected(this);" value="Add Sample To Set" />		

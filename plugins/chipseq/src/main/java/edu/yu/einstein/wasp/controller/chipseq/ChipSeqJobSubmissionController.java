@@ -218,22 +218,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 				testSampleDraftsAlreadyInReplicateSet.add(sd);
 			}			
 		}
-		/*
-		//for testing only
-		for (List<SampleDraft> sdList: replicatesListOfLists) {
-			for(SampleDraft sd : sdList){
-				System.out.println("---:"+sd.getId()+" ---: "+sd.getName());
-			}			
-		}
-		*/
-		
-		/*
-		//for testing only
-		for(SampleDraft sd : sampleDraftsAlreadyInReplicateSet){
-			System.out.println("sampleDraft already in a replicate set in jobDraftMeta: ---:"+sd.getId()+" ---: "+sd.getName());
-		}
-		*/
-		 
+				 
 		List<SampleDraft> testSampleDraftsAvailableForReplicateSelection = new ArrayList<SampleDraft>();//must be IP; must have a species (species cannot be OTHER)
 		
 		Map<SampleDraft, String> sampleDraftSpeciesNameMap = new HashMap<SampleDraft, String>();
@@ -291,8 +276,8 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		}
 		
 		m.put("replicatesListOfLists", replicatesListOfLists);//replicate sets already in db
-		m.put("ipSamples", testSampleDraftsAvailableForReplicateSelection);/* NAME WAS CHANGED - should be altered on jsp */ //for dropdown box  /* NAME WAS CHANGED - should be altered on jsp */
-		m.put("ipSamplesForCreateNew", testSampleDraftsForCreateNew);/* NAME WAS CHANGED - should be altered on jsp *///for dropdown box for the create new replicate (MUST contain at least two samples of same species)
+		m.put("testSampleDraftsAvailableForReplicateSelection", testSampleDraftsAvailableForReplicateSelection);/* NAME WAS CHANGED - should be altered on jsp */ //for dropdown box  /* NAME WAS CHANGED - should be altered on jsp */
+		m.put("testSampleDraftsForCreateNew", testSampleDraftsForCreateNew);/* NAME WAS CHANGED - should be altered on jsp *///for dropdown box for the create new replicate (MUST contain at least two samples of same species)
 		m.put("sampleDraftSpeciesNameMap", sampleDraftSpeciesNameMap);
 		m.put("jobDraft", jobDraft);
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
@@ -323,18 +308,18 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		if(params.containsKey("continueToNextPage")){
 	    	return nextPage(jobDraft);
 	    }
-
-    	if(params.containsKey("ipIdForNewReplicateSet")){
-    		String[] stringArray = params.get("ipIdForNewReplicateSet");
+		
+    	if(params.containsKey("testSampleDraftIdForNewReplicateSet")){
+    		String[] stringArray = params.get("testSampleDraftIdForNewReplicateSet");
     		String ipId = stringArray[0];
-    		System.out.println("--------ipIdForNewReplicateSet = " + ipId);
+    		System.out.println("--------testSampleDraftIdForNewReplicateSet = " + ipId);
     		SampleDraft sampleDraftToBeSavedToNewReplicateSet = sampleDraftDao.getSampleDraftBySampleDraftId(Integer.parseInt(ipId));
     		System.out.println("--------sampleDraftToBeSavedToNewReplicateSet ID  = " + sampleDraftToBeSavedToNewReplicateSet.getId().toString());
     		jobDraftService.saveReplicateSets(jobDraft, sampleDraftToBeSavedToNewReplicateSet, null);
     		return "redirect:/jobsubmit/chipSeq/replicates/"+jobDraftId+".do";
     	}
     	
-	    String paramPrefix = "ipIdForExistingReplicateSet_";
+	    String paramPrefix = "testSampleDraftIdForExistingReplicateSet_";
 	    String completeKey = "";
     	for (String key : params.keySet()) {
     		if(key.startsWith(paramPrefix)){
@@ -344,7 +329,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		}
     	if( !completeKey.isEmpty() ){
     		String[] stringArray = params.get(completeKey);
-    		String replicateSetNumberAsString = completeKey.replaceFirst(paramPrefix, "");//so ipIdForExistingReplicateSet__1 is converted to 1
+    		String replicateSetNumberAsString = completeKey.replaceFirst(paramPrefix, "");//so testSampleDraftIdForExistingReplicateSet__1 is converted to 1
     		System.out.println("replicateSetNumberAsString: " + replicateSetNumberAsString);
     		Integer replicateSetNumberAsInteger = null;
     		try{
