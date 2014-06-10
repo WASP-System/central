@@ -100,7 +100,7 @@
  		
  	<c:if test="${ipSamplesForCreateNew.size() > 1}">
 		<tr class="row">	
-			<td class="label" align="center">Create New Set</td>
+			<td class="label" align="center">Create New<br />Replicate Set</td>
 			<td class="label" align="center"></td>
 			<td class="label" align="center"></td>
 			<td align="center">

@@ -10,6 +10,8 @@
 
 package edu.yu.einstein.wasp.service.impl;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -32,6 +34,7 @@ import edu.yu.einstein.wasp.dao.SampleDraftDao;
 import edu.yu.einstein.wasp.dao.SampleDraftJobDraftCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleDraftMetaDao;
 import edu.yu.einstein.wasp.model.Adaptor;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftCellSelection;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
@@ -423,14 +426,13 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 		List<SampleDraft> sampleDraftList = jobDraft.getSampleDraft();//sampleDraftDao.getSampleDraftByJobId(jobDraftId);
 		Map<Integer, SampleDraft> idSampleDraftMap = new HashMap<Integer, SampleDraft>();
 		for(SampleDraft sd : sampleDraftList){
-			idSampleDraftMap.put(sd.getId(), sd);
+			idSampleDraftMap.put(sd.getId(), sd);//will use this below rather than going to db each time for each SampleDraft via its id
 		}
 		
 		List<List<SampleDraft>> replicatesListOfLists = new ArrayList<List<SampleDraft>>();
 		String replicatesKey = jobDraft.getWorkflow().getIName()+"."+REPLICATE_SETS_META_KEY;
 		JobDraftMeta replicatesMetaData = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(replicatesKey, jobDraft.getId());
 		
-		//TODO: order the List<SampleDraft> by name or id
 		if(replicatesMetaData!=null && replicatesMetaData.getId()!=null && replicatesMetaData.getId()>0){
 			for(String setOfSampleDraftIdsAsString: replicatesMetaData.getV().split(";")){
 				String[] sampleDraftIdAsStringArray = setOfSampleDraftIdsAsString.split(":");
@@ -442,10 +444,19 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 					}				
 				}
 				if(!sampleDraftSet.isEmpty()){
-					replicatesListOfLists.add(new ArrayList<SampleDraft>(sampleDraftSet));
+					List<SampleDraft> tempList = new ArrayList<SampleDraft>(sampleDraftSet);
+					class SampleDraftNameComparator implements Comparator<SampleDraft> {
+						@Override
+						public int compare(SampleDraft arg0, SampleDraft arg1) {
+							return arg0.getName().compareToIgnoreCase(arg1.getName());
+						}
+					}
+					Collections.sort(tempList, new SampleDraftNameComparator());//sort by SampleDraft name 
+					replicatesListOfLists.add(tempList);
 				}
 			}
 		}
+		/*
 		//for testing only
 		System.out.println("Testing replicatesListOfLists output");
 		for (List<SampleDraft> sdList: replicatesListOfLists) {
@@ -454,7 +465,7 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 			}			
 		}
 		System.out.println("Completed testing replicatesListOfLists output");
-		
+		*/
 		return replicatesListOfLists;
 		
 	}

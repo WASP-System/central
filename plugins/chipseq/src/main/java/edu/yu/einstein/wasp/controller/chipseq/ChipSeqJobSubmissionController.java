@@ -206,93 +206,93 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		if ( ! isJobDraftEditable(jobDraft) ){
 			return "redirect:/dashboard.do";
 		}
-		List<SampleDraft> sampleDrafts=sampleDraftDao.getSampleDraftByJobId(jobDraftId);
-		if (sampleDrafts.size() < 2){
+		List<SampleDraft> sampleDrafts=jobDraft.getSampleDraft();//sampleDraftDao.getSampleDraftByJobId(jobDraftId);
+		if (sampleDrafts.size() < 2){//require at least two samples in jobDraft to create any possible replicate set
 			return nextPage(jobDraft);
 		}
 		
-		List<List<SampleDraft>> replicatesListOfLists = jobDraftService.getReplicateSets(jobDraft);//from database
+		List<List<SampleDraft>> replicatesListOfLists = jobDraftService.getReplicateSets(jobDraft);//from database		
+		Set<SampleDraft> testSampleDraftsAlreadyInReplicateSet = new HashSet<SampleDraft>();//data from List<List<SampleDraft>> replicatesListOfLists converted to a single list for ease of use below
+		for (List<SampleDraft> sdList: replicatesListOfLists) {
+			for(SampleDraft sd : sdList){
+				testSampleDraftsAlreadyInReplicateSet.add(sd);
+			}			
+		}
+		/*
+		//for testing only
 		for (List<SampleDraft> sdList: replicatesListOfLists) {
 			for(SampleDraft sd : sdList){
 				System.out.println("---:"+sd.getId()+" ---: "+sd.getName());
 			}			
 		}
+		*/
 		
-		Set<SampleDraft> sampleDraftsAlreadyInReplicateSet = new HashSet<SampleDraft>();		
-		for (List<SampleDraft> sdList: replicatesListOfLists) {
-			for(SampleDraft sd : sdList){
-				sampleDraftsAlreadyInReplicateSet.add(sd);
-			}			
-		}
+		/*
+		//for testing only
 		for(SampleDraft sd : sampleDraftsAlreadyInReplicateSet){
 			System.out.println("sampleDraft already in a replicate set in jobDraftMeta: ---:"+sd.getId()+" ---: "+sd.getName());
 		}
+		*/
+		 
+		List<SampleDraft> testSampleDraftsAvailableForReplicateSelection = new ArrayList<SampleDraft>();//must be IP; must have a species (species cannot be OTHER)
 		
-		
-		
-		List<SampleDraft> inputSampleDrafts = new ArrayList<SampleDraft>();
-		List<SampleDraft> ipSampleDrafts = new ArrayList<SampleDraft>();
-		
-		Map<SampleDraft, Integer> sampleDraftOrganismMap = new HashMap<SampleDraft, Integer>();
 		Map<SampleDraft, String> sampleDraftSpeciesNameMap = new HashMap<SampleDraft, String>();
 		
 		for(SampleDraft sampleDraft : sampleDrafts){			
 			for(SampleDraftMeta sampleDraftMeta : sampleDraft.getSampleDraftMeta()){
 				if(sampleDraftMeta.getK().endsWith("organism")){
 					Integer genomeId = Integer.parseInt(sampleDraftMeta.getV());
-					sampleDraftOrganismMap.put(sampleDraft, genomeId);
 					String speciesName = genomeService.getOrganismMap().get(genomeId).getName();
-					System.out.println("want species------------------------sampleDraft: " + sampleDraft.getName() + "   " + " species: " + speciesName);
+					//System.out.println("want species------------------------sampleDraft: " + sampleDraft.getName() + "   " + " species: " + speciesName);
 					sampleDraftSpeciesNameMap.put(sampleDraft, speciesName);
 				}
 				if(sampleDraftMeta.getK().endsWith("inputOrIP")){
 					if(sampleDraftMeta.getV().equals("ip")){
-						ipSampleDrafts.add(sampleDraft);
+						if(!testSampleDraftsAlreadyInReplicateSet.contains(sampleDraft)){//if not here, then add
+							testSampleDraftsAvailableForReplicateSelection.add(sampleDraft);
+						}
 					}
 				}
 			}
-			if(!sampleDraftOrganismMap.containsKey(sampleDraft)){//species == OTHER
-				if(ipSampleDrafts.contains(sampleDraft)){
-					ipSampleDrafts.remove(sampleDraft);
-				}				
-			}
-			if(sampleDraftsAlreadyInReplicateSet.contains(sampleDraft)){
-				if(ipSampleDrafts.contains(sampleDraft)){
-					ipSampleDrafts.remove(sampleDraft);
-				}
+			//this must be performed following completion of above inner for loop: for(SampleDraftMeta sampleDraftMeta : sampleDraft.getSampleDraftMeta()){ 
+			if(!sampleDraftSpeciesNameMap.containsKey(sampleDraft)){//species == OTHER
+				testSampleDraftsAvailableForReplicateSelection.remove(sampleDraft);		
 			}
 		}
-		if (sampleDraftsAlreadyInReplicateSet.isEmpty() && (ipSampleDrafts.isEmpty() || ipSampleDrafts.size() == 1)){//first time around and either no ipSamples or one ipSample -- unable to make any ip replicates
+		if (testSampleDraftsAlreadyInReplicateSet.isEmpty() && (testSampleDraftsAvailableForReplicateSelection.isEmpty() || testSampleDraftsAvailableForReplicateSelection.size() == 1)){//first time around and either no ipSamples or one ipSample -- unable to make any ip replicates
 			return nextPage(jobDraft);
 		}
 		
-		Map<String,Integer> speciesNameCountMap = new HashMap<String,Integer>();
-		for(SampleDraft sd : ipSampleDrafts){
+		//In order to determine the SampleDrafts for the createNew select box (which will be stored in testSampleDraftsForCreateNew)
+		//first, determine number of times a species appears in the set of available sampleDrafts (testSampleDraftsAvailableForReplicateSelection)
+		Map<String,Integer> speciesNameSampleDraftCountMap = new HashMap<String,Integer>();
+		List<SampleDraft> testSampleDraftsForCreateNew = new ArrayList<SampleDraft>();
+
+		for(SampleDraft sd : testSampleDraftsAvailableForReplicateSelection){
 			String speciesName = sampleDraftSpeciesNameMap.get(sd);
-			if(!speciesNameCountMap.containsKey(speciesName)){
-				speciesNameCountMap.put(speciesName, new Integer(1));				
+			if(!speciesNameSampleDraftCountMap.containsKey(speciesName)){
+				speciesNameSampleDraftCountMap.put(speciesName, new Integer(1));				
 			}
 			else{
-				Integer temp = speciesNameCountMap.get(speciesName);
-				speciesNameCountMap.put(speciesName, new Integer(temp.intValue()+1));
+				Integer temp = speciesNameSampleDraftCountMap.get(speciesName);
+				speciesNameSampleDraftCountMap.put(speciesName, new Integer(temp.intValue()+1));
 			}
-		}		
-		List<SampleDraft> ipSampleDraftsForCreateNew = new ArrayList<SampleDraft>(ipSampleDrafts);
-		List<SampleDraft> sampleDraftToRemove = new ArrayList<SampleDraft>();
-		for(SampleDraft sd : ipSampleDraftsForCreateNew){
+		}	
+		//add sampleDraft to testSampleDraftsForCreateNew if its species appears at least twice in speciesNameSampleDraftCountMap
+		//testSampleDraftsForCreateNew differs from testSampleDraftsAvailableForReplicateSelection as testSampleDraftsForCreateNew MUST contain at least two samples of same species
+		for(SampleDraft sd : testSampleDraftsAvailableForReplicateSelection){
 			String speciesName = sampleDraftSpeciesNameMap.get(sd);
-			if(speciesNameCountMap.containsKey(speciesName)){
-				Integer temp = speciesNameCountMap.get(speciesName);
-				if(temp.intValue() < 2){
-					sampleDraftToRemove.add(sd);
+			if(speciesNameSampleDraftCountMap.containsKey(speciesName)){
+				Integer temp = speciesNameSampleDraftCountMap.get(speciesName);
+				if(temp.intValue() > 1){
+					testSampleDraftsForCreateNew.add(sd);
 				}
 			}
 		}
-		ipSampleDraftsForCreateNew.removeAll(sampleDraftToRemove);
 		
 		m.put("replicatesListOfLists", replicatesListOfLists);//replicate sets already in db
-		m.put("ipSamples", ipSampleDrafts);//for dropdown box
-		m.put("ipSamplesForCreateNew", ipSampleDraftsForCreateNew);//for dropdown box for the create new replicate (MUST contain at least two samples of same species)
+		m.put("ipSamples", testSampleDraftsAvailableForReplicateSelection);/* NAME WAS CHANGED - should be altered on jsp */ //for dropdown box  /* NAME WAS CHANGED - should be altered on jsp */
+		m.put("ipSamplesForCreateNew", testSampleDraftsForCreateNew);/* NAME WAS CHANGED - should be altered on jsp *///for dropdown box for the create new replicate (MUST contain at least two samples of same species)
 		m.put("sampleDraftSpeciesNameMap", sampleDraftSpeciesNameMap);
 		m.put("jobDraft", jobDraft);
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
