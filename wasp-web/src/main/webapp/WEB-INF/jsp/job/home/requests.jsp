@@ -63,8 +63,8 @@
 			<h2 style="font-weight:bold"><fmt:message key="listJobSamples.sampleReplicatesRequested.label"/>:</h2>		
 			<table class="data">
 				<tr class="FormData">
-					<td class="label-centered" style="background-color:#FAF2D6">Replicate Set</td>
-					<td class="label-centered" style="background-color:#FAF2D6">Samples</td>
+					<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.replicateSet.label"/></td>
+					<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.samples.label"/></td>
 				</tr>
 				<c:forEach items="${replicatesListOfLists}" var="replicateList" varStatus="replicateStatus">
 				<tr class="FormData">				
