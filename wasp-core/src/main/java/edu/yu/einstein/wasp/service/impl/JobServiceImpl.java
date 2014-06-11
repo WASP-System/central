@@ -2512,4 +2512,46 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		m.put("jobId", jobId);
 		return jobMetaDao.findByMap(m);
 	}
+	
+	/*
+	 * 
+	 * 
+	 */
+	@Override
+	public List<List<Sample>> getSampleReplicates(Job job){
+		List<Sample> sampleList = job.getSample();
+		Map<Integer, Sample> idSampleMap = new HashMap<Integer, Sample>();
+		for(Sample s : sampleList){
+			idSampleMap.put(s.getId(), s);//will use this below rather than going to db each time for each Sample via its id
+		}
+		
+		List<List<Sample>> replicatesListOfLists = new ArrayList<List<Sample>>();
+		String replicatesKey = job.getWorkflow().getIName()+"."+JobService.REPLICATE_SETS_META_KEY;
+		JobMeta replicatesMetaData = jobMetaDao.getJobMetaByKJobId(replicatesKey, job.getId().intValue());
+		
+		if(replicatesMetaData!=null && replicatesMetaData.getId()!=null && replicatesMetaData.getId()>0){
+			for(String setOfSampleIdsAsString: replicatesMetaData.getV().split(";")){
+				String[] sampleIdAsStringArray = setOfSampleIdsAsString.split(":");
+				Set<Sample> sampleSet = new LinkedHashSet<Sample>();			
+				for(String sampleIdAsString : sampleIdAsStringArray){
+					Integer id = Integer.parseInt(sampleIdAsString);
+					if(idSampleMap.containsKey(id)){
+						sampleSet.add(idSampleMap.get(id));
+					}				
+				}
+				if(!sampleSet.isEmpty()){
+					List<Sample> tempList = new ArrayList<Sample>(sampleSet);
+					class SampleNameComparator implements Comparator<Sample> {
+						@Override
+						public int compare(Sample arg0, Sample arg1) {
+							return arg0.getName().compareToIgnoreCase(arg1.getName());
+						}
+					}
+					Collections.sort(tempList, new SampleNameComparator());//sort by Sample name 
+					replicatesListOfLists.add(tempList);
+				}
+			}
+		}
+		return replicatesListOfLists;
+	}
 }

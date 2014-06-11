@@ -276,8 +276,8 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		}
 		
 		m.put("replicatesListOfLists", replicatesListOfLists);//replicate sets already in db
-		m.put("testSampleDraftsAvailableForReplicateSelection", testSampleDraftsAvailableForReplicateSelection);/* NAME WAS CHANGED - should be altered on jsp */ //for dropdown box  /* NAME WAS CHANGED - should be altered on jsp */
-		m.put("testSampleDraftsForCreateNew", testSampleDraftsForCreateNew);/* NAME WAS CHANGED - should be altered on jsp *///for dropdown box for the create new replicate (MUST contain at least two samples of same species)
+		m.put("testSampleDraftsAvailableForReplicateSelection", testSampleDraftsAvailableForReplicateSelection);//for dropdown box  /* NAME WAS CHANGED - should be altered on jsp */
+		m.put("testSampleDraftsForCreateNew", testSampleDraftsForCreateNew);//for dropdown box for the create new replicate (MUST contain at least two samples of same species)
 		m.put("sampleDraftSpeciesNameMap", sampleDraftSpeciesNameMap);
 		m.put("jobDraft", jobDraft);
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));

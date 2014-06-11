@@ -675,5 +675,7 @@ public interface JobService extends WaspMessageHandlingService {
 	public JobSampleDao getJobSampleDao();
 
 	public void setJobDraftService(JobDraftService mockJobDraftServiceImpl);
+	 
+	public List<List<Sample>> getSampleReplicates(Job job);
 
 }

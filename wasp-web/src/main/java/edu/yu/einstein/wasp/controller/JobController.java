@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -57,6 +58,7 @@ import edu.yu.einstein.wasp.dao.AdaptorsetDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
+import edu.yu.einstein.wasp.dao.JobMetaDao;
 import edu.yu.einstein.wasp.dao.JobUserDao;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
@@ -76,6 +78,7 @@ import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
+import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
@@ -90,6 +93,7 @@ import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
@@ -159,7 +163,8 @@ public class JobController extends WaspController {
 		return this.roleDao;
 	}
 
-
+	@Autowired
+	private JobMetaDao	jobMetaDao;
 	@Autowired
 	private LabDao	labDao;
 	@Autowired
@@ -1957,7 +1962,9 @@ public class JobController extends WaspController {
 		}
 		
 		//samplePairingRequest
-		getSamplePairsRequested(job, m);		
+		getSamplePairsRequested(job, m);
+		//getReplicatesRequest
+		getSampleReplicatesRequested(job, m);
 		//software request
 		getSoftwareRequested(job, m);
 		//getSubmittedSamplesAndOrganism_Genome_BuildForAlignment
@@ -2022,6 +2029,11 @@ public class JobController extends WaspController {
 		if(testLabel.equalsIgnoreCase(temp)){testLabel = "Test";}
 		m.addAttribute("controlLabel", controlLabel);
 		m.addAttribute("testLabel", testLabel);
+	}
+	
+	@Transactional
+	private void getSampleReplicatesRequested(Job job, ModelMap m){		
+		m.addAttribute("replicatesListOfLists", jobService.getSampleReplicates(job));
 	}
 	
 	@Transactional
