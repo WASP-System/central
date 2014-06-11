@@ -127,6 +127,7 @@ import edu.yu.einstein.wasp.quote.MPSQuote;
 import edu.yu.einstein.wasp.sequence.SequenceReadProperties;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.service.JobDraftService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
@@ -369,8 +370,19 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		
 	@Autowired
 	protected WorkflowService workflowService;
-	
-	 /**
+
+	@Autowired
+	protected JobDraftService jobDraftService;
+
+	 public JobDraftService getJobDraftService() {
+		return jobDraftService;
+	}
+
+	public void setJobDraftService(JobDraftService jobDraftService) {
+		this.jobDraftService = jobDraftService;
+	}
+
+	/**
 	   * {@inheritDoc}
 	   */
 	@Override
@@ -1017,6 +1029,9 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 					sampleDraftPairs = jdm.getV();
 					continue; 
 				}
+				if(jdm.getK().indexOf(REPLICATE_SETS_META_KEY)>-1){//we need to deal with this piece of meta separately
+					continue; 
+				}
 				JobMeta jobMeta = new JobMeta();
 				jobMeta.setJobId(jobDb.getId());
 				jobMeta.setK(jdm.getK());
@@ -1081,6 +1096,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			// Create Samples
 			List<Sample> samples = new ArrayList<Sample>();
 			Map<Integer, Integer> sampleDraftIDKeyToSampleIDValueMap = new HashMap<Integer, Integer>();
+			Map<SampleDraft, Sample> sampleDraftKeyToSampleValueMap = new HashMap<SampleDraft, Sample>();
 			for (SampleDraft sd: jobDraft.getSampleDraft()) {
 				Sample sample = new Sample();
 				sample.setName(sd.getName()); 
@@ -1095,7 +1111,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				Sample sampleDb = sampleDao.save(sample); 
 				samples.add(sampleDb);
 				sampleDraftIDKeyToSampleIDValueMap.put(sd.getId(), sampleDb.getId());
-		
+				sampleDraftKeyToSampleValueMap.put(sd, sampleDb);
 				
 		
 				// Sample Draft Meta Data
@@ -1142,6 +1158,33 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				}
 			}
 
+			//6-10-14 translate replicateSets from sampleDrafts to samples and store string in jobMeta
+			List<List<SampleDraft>> replicateSetsListForJobDraft = jobDraftService.getReplicateSets(jobDraft);
+			StringBuffer replicatesAsStringBuffer = new StringBuffer("");
+			for(List<SampleDraft> sampleDraftReplicateSet : replicateSetsListForJobDraft){
+				int counter = 0;
+				for(SampleDraft sd : sampleDraftReplicateSet){
+					if(counter++ > 0){
+						replicatesAsStringBuffer.append(":");
+					}
+					//replicatesAsStringBuffer.append(sd.getId().toString());
+					Integer sampleId = sampleDraftIDKeyToSampleIDValueMap.get(sd.getId());
+					replicatesAsStringBuffer.append(sampleId.toString());
+				}
+				if(counter>0){
+					replicatesAsStringBuffer.append(";");
+				}
+			}
+			
+			String replicatesString = new String(replicatesAsStringBuffer);
+			if(!replicatesString.isEmpty()){
+				JobMeta jobMeta = new JobMeta();
+				jobMeta.setJobId(jobDb.getId());
+				String replicatesKey = jobDb.getWorkflow().getIName()+"."+REPLICATE_SETS_META_KEY;
+				jobMeta.setK(replicatesKey);
+				jobMeta.setV(replicatesString);			
+				jobMetaDao.save(jobMeta);
+			}
 			
 			// jobDraftFile -> jobFile
 			if (jobDraft.getJobDraftFile() != null) {

@@ -295,16 +295,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		}
 		
 		Map<String,String[]> params = request.getParameterMap();
-		//for testing only
-		for (String key : params.keySet()) {
-			System.out.println("Key : " + key.toString());
-			String[] stringArray = params.get(key);
-			
-			for(String s : stringArray){
-				System.out.println("--val: " + s);
-			}
-		}
-		
+				
 		if(params.containsKey("continueToNextPage")){
 	    	return nextPage(jobDraft);
 	    }
@@ -312,9 +303,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
     	if(params.containsKey("testSampleDraftIdForNewReplicateSet")){
     		String[] stringArray = params.get("testSampleDraftIdForNewReplicateSet");
     		String ipId = stringArray[0];
-    		System.out.println("--------testSampleDraftIdForNewReplicateSet = " + ipId);
     		SampleDraft sampleDraftToBeSavedToNewReplicateSet = sampleDraftDao.getSampleDraftBySampleDraftId(Integer.parseInt(ipId));
-    		System.out.println("--------sampleDraftToBeSavedToNewReplicateSet ID  = " + sampleDraftToBeSavedToNewReplicateSet.getId().toString());
     		jobDraftService.saveReplicateSets(jobDraft, sampleDraftToBeSavedToNewReplicateSet, null);
     		return "redirect:/jobsubmit/chipSeq/replicates/"+jobDraftId+".do";
     	}
@@ -330,7 +319,6 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
     	if( !completeKey.isEmpty() ){
     		String[] stringArray = params.get(completeKey);
     		String replicateSetNumberAsString = completeKey.replaceFirst(paramPrefix, "");//so testSampleDraftIdForExistingReplicateSet__1 is converted to 1
-    		System.out.println("replicateSetNumberAsString: " + replicateSetNumberAsString);
     		Integer replicateSetNumberAsInteger = null;
     		try{
     			replicateSetNumberAsInteger = Integer.parseInt(replicateSetNumberAsString);
@@ -338,17 +326,12 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
     			waspErrorMessage("wasp.unexpected_error.error");
     			return "redirect:/jobsubmit/chipSeq/replicates/"+jobDraftId+".do";
     		} 
-    		String ipId = stringArray[0];
-    		System.out.println("--------ipIdForExistingReplicateSet = " + ipId);
-    		SampleDraft sampleDraftToBeSavedToExistingReplicateSet = sampleDraftDao.getSampleDraftBySampleDraftId(Integer.parseInt(ipId));
-    		System.out.println("--------sampleDraftToBeSavedToExistingReplicateSet ID  = " + sampleDraftToBeSavedToExistingReplicateSet.getId().toString());
+    		String testSampleDraftId = stringArray[0];
+    		SampleDraft sampleDraftToBeSavedToExistingReplicateSet = sampleDraftDao.getSampleDraftBySampleDraftId(Integer.parseInt(testSampleDraftId));
     		jobDraftService.saveReplicateSets(jobDraft, sampleDraftToBeSavedToExistingReplicateSet, replicateSetNumberAsInteger);
-    		//success message??
-    		System.out.println("GOT HERE SO LOOKS OK");
+    		
     		return "redirect:/jobsubmit/chipSeq/replicates/"+jobDraftId+".do";
     	}
-    	
-    	
 	    waspErrorMessage("wasp.unexpected_error.error");
     	return "redirect:/jobsubmit/chipSeq/replicates/"+jobDraftId+".do";
 	}
@@ -357,8 +340,6 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String removeSampleDraftFromReplicates (@PathVariable("jobDraftId") Integer jobDraftId, @PathVariable("sampleDraftId") Integer sampleDraftId, ModelMap m) {
 		
-		System.out.println("-------inside new function: removeSampleDraftFromReplicates()");
-		
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft)){
 			return "redirect:/dashboard.do";
@@ -366,7 +347,6 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		SampleDraft sampleDraftToBeRemovedFromExistingReplicateSet = sampleDraftDao.getSampleDraftBySampleDraftId(sampleDraftId);
 		jobDraftService.removeSampleDraftFromReplicates(jobDraft, sampleDraftToBeRemovedFromExistingReplicateSet);
 		return "redirect:/jobsubmit/chipSeq/replicates/"+jobDraftId+".do";
-		//return "redirect:/dashboard.do";
 	}
 }
 

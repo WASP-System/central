@@ -41,6 +41,7 @@ import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftJobDraftCellSelection;
 import edu.yu.einstein.wasp.service.JobDraftService;
+import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -415,8 +416,6 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 		return jobDraftMetaDao;
 	}
 	
-	public static final String REPLICATE_SETS_META_KEY = "replicateSets";
-	
 	/**
 	 *  {@inheritDoc}
 	 */
@@ -430,7 +429,7 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 		}
 		
 		List<List<SampleDraft>> replicatesListOfLists = new ArrayList<List<SampleDraft>>();
-		String replicatesKey = jobDraft.getWorkflow().getIName()+"."+REPLICATE_SETS_META_KEY;
+		String replicatesKey = jobDraft.getWorkflow().getIName()+"."+JobService.REPLICATE_SETS_META_KEY;
 		JobDraftMeta replicatesMetaData = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(replicatesKey, jobDraft.getId());
 		
 		if(replicatesMetaData!=null && replicatesMetaData.getId()!=null && replicatesMetaData.getId()>0){
@@ -493,7 +492,7 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 	@Override
 	public void saveReplicateSets(JobDraft jobDraft, SampleDraft sampleDraft, Integer setNumber){
 		
-		String replicatesKey = jobDraft.getWorkflow().getIName()+"."+REPLICATE_SETS_META_KEY;
+		String replicatesKey = jobDraft.getWorkflow().getIName()+"."+JobService.REPLICATE_SETS_META_KEY;
 		JobDraftMeta replicatesMetaData = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(replicatesKey, jobDraft.getId());
 		
 		//if setNumber is null , sample draft is being added to new replicate set; just add sampleDraft.id to the end of the metada, followed by a semicolon
@@ -525,7 +524,7 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 		}
 	}
 	public void removeSampleDraftFromReplicates(JobDraft jobDraft, SampleDraft sampleDraft){
-		String replicatesKey = jobDraft.getWorkflow().getIName()+"."+REPLICATE_SETS_META_KEY;
+		String replicatesKey = jobDraft.getWorkflow().getIName()+"."+JobService.REPLICATE_SETS_META_KEY;
 		JobDraftMeta replicatesMetaData = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(replicatesKey, jobDraft.getId());
 		if(replicatesMetaData.getId() != null){
 			List<List<SampleDraft>> replicates = this.getReplicateSets(jobDraft);
