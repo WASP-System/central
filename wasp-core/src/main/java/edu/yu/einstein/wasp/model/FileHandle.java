@@ -157,6 +157,7 @@ public class FileHandle extends WaspModel {
 	
 	/**
 	 * Get the string representation of the original name of this file
+	 * This represents how the user sees the file name, not how remote systems see the name.
 	 * @return
 	 */
 	public String getFileName() {
