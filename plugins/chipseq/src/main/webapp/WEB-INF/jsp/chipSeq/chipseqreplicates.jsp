@@ -16,9 +16,10 @@
 </div>
 
  <c:set value="false" var="atLeastOneReplicateSetWithSingleSample"/>
+ <c:set value="false" var="atLeastOneReplicateSetWithIPLackingControl"/>
  <table class="data">
 	<tr class="row">
-		<td class="label" align="center">Set Number</td>
+		<td class="label" align="center"><fmt:message key="chipSeq.replicates_setnumber.label"/></td>
 		<td class="label" align="center"><fmt:message key="chipSeq.replicates_replicateset.label"/></td>
 		<td class="label" align="center"><fmt:message key="chipSeq.replicates_species.label"/></td>
  		<td class="label" align="center"><fmt:message key="chipSeq.replicates_addreplicatesample.label"/></td>
@@ -33,6 +34,11 @@
 					<c:if test="${sampleDraftStatus.first}"><c:set value="${sampleDraftSpeciesNameMap.get(sampleDraft)}" var="speciesForThisReplicateSet"/></c:if>
 					<c:if test="${not sampleDraftStatus.first}"><br /></c:if>
 					<c:out value="${sampleDraft.name}" /> [<a href="<wasp:relativeUrl value="jobsubmit/chipSeq/replicates/${jobDraft.id}/remove/${sampleDraft.id}.do" />" >remove</a>]
+					<c:if test="${empty testControlMap.get(sampleDraft)}">
+						<c:set value="true" var="atLeastOneReplicateSetWithIPLackingControl"/>
+						<span style="color:red; font-weight:bold">**IP LACKS CONTROL**</span>
+					</c:if>
+					
 				</c:forEach>
 			</td>
 			<td class="label" align="center"><c:out value="${speciesForThisReplicateSet}" /></td>
@@ -90,6 +96,6 @@
 <form method="POST">
 <div class="submit">
     <input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<wasp:relativeUrl value="dashboard.do"/>'" /> 
-    <input type="submit" name="continueToNextPage" value="continueToNextPage" onClick="return checksOnContinueToNextPage('<c:out value="${atLeastOneReplicateSetWithSingleSample}" />');" value="<fmt:message key="jobDraft.continue.label" />" />
+    <input type="submit" name="continueToNextPage" value="continueToNextPage" onClick="return checksOnContinueToNextPage('<c:out value="${atLeastOneReplicateSetWithSingleSample}" />', '<c:out value="${atLeastOneReplicateSetWithIPLackingControl}" />');" value="<fmt:message key="jobDraft.continue.label" />" />
 </div>
 </form>

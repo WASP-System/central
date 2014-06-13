@@ -211,6 +211,15 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 			return nextPage(jobDraft);
 		}
 		
+		//added 6-13-14; get samplePairs list, since for chipSeq's use of IDR for integrative analysis, IP replicates must be paired with an input/control
+		Set<Map<SampleDraft, SampleDraft>> sampleDraftPairSet = jobDraftService.getSampleDraftPairsByJobDraft(jobDraft);
+		Map<SampleDraft,SampleDraft> testControlMap = new HashMap<SampleDraft,SampleDraft>();
+		for(Map<SampleDraft, SampleDraft> pair: sampleDraftPairSet){
+			for (SampleDraft key : pair.keySet()) {
+				testControlMap.put(key, pair.get(key));//OK, since for each key, only one value for chipseq
+			}
+		}
+		
 		List<List<SampleDraft>> replicatesListOfLists = jobDraftService.getReplicateSets(jobDraft);//from database		
 		Set<SampleDraft> testSampleDraftsAlreadyInReplicateSet = new HashSet<SampleDraft>();//data from List<List<SampleDraft>> replicatesListOfLists converted to a single list for ease of use below
 		for (List<SampleDraft> sdList: replicatesListOfLists) {
@@ -242,6 +251,9 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 			//this must be performed following completion of above inner for loop: for(SampleDraftMeta sampleDraftMeta : sampleDraft.getSampleDraftMeta()){ 
 			if(!sampleDraftSpeciesNameMap.containsKey(sampleDraft)){//species == OTHER
 				testSampleDraftsAvailableForReplicateSelection.remove(sampleDraft);		
+			}
+			if(!testControlMap.containsKey(sampleDraft)){//no control/input paired with this IP, so remove it
+				testSampleDraftsAvailableForReplicateSelection.remove(sampleDraft);
 			}
 		}
 		if (testSampleDraftsAlreadyInReplicateSet.isEmpty() && (testSampleDraftsAvailableForReplicateSelection.isEmpty() || testSampleDraftsAvailableForReplicateSelection.size() == 1)){//first time around and either no ipSamples or one ipSample -- unable to make any ip replicates
@@ -275,6 +287,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 			}
 		}
 		
+		m.put("testControlMap", testControlMap);
 		m.put("replicatesListOfLists", replicatesListOfLists);//replicate sets already in db
 		m.put("testSampleDraftsAvailableForReplicateSelection", testSampleDraftsAvailableForReplicateSelection);//for dropdown box  /* NAME WAS CHANGED - should be altered on jsp */
 		m.put("testSampleDraftsForCreateNew", testSampleDraftsForCreateNew);//for dropdown box for the create new replicate (MUST contain at least two samples of same species)

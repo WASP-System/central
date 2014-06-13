@@ -14,7 +14,11 @@ function checkSampleSelected(obj){
 	}
 	return true;
 }
-function checksOnContinueToNextPage(atLeastOneReplicateSetWithSingleSample){
+function checksOnContinueToNextPage(atLeastOneReplicateSetWithSingleSample, atLeastOneReplicateSetWithIPLackingControl){
+	if(atLeastOneReplicateSetWithIPLackingControl=="true"){//not permited; expected to be a very very rare occurrence 
+		alert("You have at least one replicate set that contains an IP sample lacking a control (see message in red). IP samples in replicate sets MUST be paired with a control. Please remove the offensive IP sample before going to the next page.")
+		return false;
+	}
 	if(atLeastOneReplicateSetWithSingleSample=="true"){//not permited 
 		alert("You have at least one replicate set that contains a single sample. Since each replicate set must contain at least two samples, you must either add another sample to that set(s) OR delete the single sample from its set(s).")
 		return false;
