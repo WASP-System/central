@@ -327,12 +327,12 @@ public class TrimGalore extends SoftwarePackage {
         String originalName = fileHandle.getFileURI().getPath().replaceFirst("^.*/", "");
         String trimmedName = originalName.replaceFirst(".fastq.gz$", "")
         		.replaceFirst(".fastq$", "")
-        		.replaceFirst("fq.gz$", "")
+        		.replaceFirst(".fq.gz$", "")
         		.replaceFirst(".fq$", "");
         // however, we should name the file as it was previously named
         String displayName = fileHandle.getFileName().replaceFirst(".fastq.gz$", "")
         		.replaceFirst(".fastq$", "")
-        		.replaceFirst("fq.gz$", "")
+        		.replaceFirst(".fq.gz$", "")
         		.replaceFirst(".fq$", "");
         displayName += "_trimmed.fq.gz";
         
