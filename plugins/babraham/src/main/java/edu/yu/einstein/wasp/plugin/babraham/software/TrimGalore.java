@@ -320,11 +320,26 @@ public class TrimGalore extends SoftwarePackage {
         		+ fileGroup.getId() + prefix + "_trim_number.txt");
             // paired-end read names end in "_val_?.fq.gz" while single-end
             // reads end with "_trimmed.fq.gz"
-            prefix = "_val_" + prefix;
+            prefix = "_val" + prefix;
         }
-        String trimmedName = fileHandle.getFileName().replace(".fastq.gz", prefix + ".fq.gz");
+        
+        // trim_galore will know the real file name, not the display name.
+        String originalName = fileHandle.getFileURI().getPath().replaceFirst("^.*/", "");
+        String trimmedName = originalName.replaceFirst(".fastq.gz$", "")
+        		.replaceFirst(".fastq$", "")
+        		.replaceFirst("fq.gz$", "")
+        		.replaceFirst(".fq$", "");
+        // however, we should name the file as it was previously named
+        String displayName = fileHandle.getFileName().replaceFirst(".fastq.gz$", "")
+        		.replaceFirst(".fastq$", "")
+        		.replaceFirst("fq.gz$", "")
+        		.replaceFirst(".fq$", "");
+        displayName += "_trimmed.fq.gz";
+        
+        trimmedName += prefix + ".fq.gz";
+        logger.trace("trimmed file name " + originalName + " to " + trimmedName + " with final name " + displayName);
         w.addCommand("ln -s " + trimmedName + " ${" + WorkUnit.OUTPUT_FILE + "[" + fileNumber + "]} ");
-        return createResultFile(fileHandle, trimmedName);
+        return createResultFile(fileHandle, displayName);
     }
 
     private String sortCommand(Integer fileId, Integer readSegment) {
