@@ -547,4 +547,16 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 		return;
 
 	}
+	public void removeSampleDraftFromSamplePairsByJobDraft(JobDraft jobDraft, SampleDraft sampleDraftToBeRemoved){
+		Set<Map<SampleDraft, SampleDraft>> sampleDraftPairSet = this.getSampleDraftPairsByJobDraft(jobDraft);
+		if(sampleDraftPairSet.isEmpty()){return;}
+		Set<Map<SampleDraft, SampleDraft>> mapsContainingTheSampleDraftToBeRemoved = new HashSet<Map<SampleDraft, SampleDraft>>();
+		for(Map<SampleDraft,SampleDraft> map : sampleDraftPairSet){
+			if(map.containsKey(sampleDraftToBeRemoved) || map.containsValue(sampleDraftToBeRemoved)){//remove if the sampleDraftToBeRemoved is either key or value
+				mapsContainingTheSampleDraftToBeRemoved.add(map);
+			}
+		}
+		sampleDraftPairSet.removeAll(mapsContainingTheSampleDraftToBeRemoved);
+		this.setSampleDraftPairsByJobDraft(jobDraft, sampleDraftPairSet);
+	}
 }

@@ -36,7 +36,7 @@
 					<c:out value="${sampleDraft.name}" /> [<a href="<wasp:relativeUrl value="jobsubmit/chipSeq/replicates/${jobDraft.id}/remove/${sampleDraft.id}.do" />" >remove</a>]
 					<c:if test="${empty testControlMap.get(sampleDraft)}">
 						<c:set value="true" var="atLeastOneReplicateSetWithIPLackingControl"/>
-						<span style="color:red; font-weight:bold">**IP LACKS CONTROL**</span>
+						<span style="color:red; font-weight:bold">**ERROR: IP LACKS CONTROL**</span>
 					</c:if>
 					
 				</c:forEach>

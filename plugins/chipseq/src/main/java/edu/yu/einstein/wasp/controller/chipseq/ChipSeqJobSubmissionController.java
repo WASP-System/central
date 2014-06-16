@@ -39,6 +39,50 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 	@Autowired
 	protected JobDraftMetaDao jobDraftMetaDao;
 
+	private void confirmContinuedValidityOfSamplePairsAndAdjustAsNeeded(JobDraft jobDraft){
+		
+		//clean up any samplPairs entries that arise from changes made to of sampleDraft metadata inputOrIP
+		//in short, if the user altered an ip to a control or visa versa, then there is the possibility that the samplePairs might no longer be valid
+		//so confirm the validity of IP and input/control status and if a problem, then correct it by deleting that specific portion of the samplePair entry
+
+		List<SampleDraft> ipSampleDrafts = new ArrayList<SampleDraft>();
+		List<SampleDraft> inputSampleDrafts = new ArrayList<SampleDraft>();
+		
+		List<SampleDraft> sampleDrafts=jobDraft.getSampleDraft();
+		for(SampleDraft sampleDraft : sampleDrafts){			
+			for(SampleDraftMeta sampleDraftMeta : sampleDraft.getSampleDraftMeta()){				
+				if(sampleDraftMeta.getK().endsWith("inputOrIP")){
+					if(sampleDraftMeta.getV().equals("ip")){
+						ipSampleDrafts.add(sampleDraft);
+						break;//from inner for
+					}
+					else if(sampleDraftMeta.getV().equals("input")){
+						inputSampleDrafts.add(sampleDraft);
+						break;//from inner for
+					}
+				}
+				
+			}
+		}
+		
+		Set<Map<SampleDraft, SampleDraft>> sampleDraftPairSet = jobDraftService.getSampleDraftPairsByJobDraft(jobDraft);
+		Set<Map<SampleDraft, SampleDraft>> mapsContainingTheSampleDraftToBeRemoved = new HashSet<Map<SampleDraft, SampleDraft>>();
+		
+		for(Map<SampleDraft, SampleDraft> pair: sampleDraftPairSet){
+			for(SampleDraft key : sampleDrafts){
+				if(pair.containsKey(key)){
+					SampleDraft ipInSamplePair = key;
+					SampleDraft inputInSamplePair = pair.get(ipInSamplePair);
+					if(!ipSampleDrafts.contains(ipInSamplePair) || !inputSampleDrafts.contains(inputInSamplePair) ){
+						mapsContainingTheSampleDraftToBeRemoved.add(pair);						
+					}
+				}
+			}
+		}
+		sampleDraftPairSet.removeAll(mapsContainingTheSampleDraftToBeRemoved);
+		jobDraftService.setSampleDraftPairsByJobDraft(jobDraft, sampleDraftPairSet);
+	}
+	
 	@RequestMapping(value="/pair/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showChipSeqPairForm (@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
@@ -47,7 +91,8 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 
-
+		this.confirmContinuedValidityOfSamplePairsAndAdjustAsNeeded(jobDraft);
+		
 		List<SampleDraft> sampleDrafts=sampleDraftDao.getSampleDraftByJobId(jobDraftId);
 		if (sampleDrafts.size() < 2){
 			return nextPage(jobDraft);
@@ -198,6 +243,53 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 	   	*/
 	}
 
+	void confirmContinuedValidityOfReplicatesAndAdjustAsNeeded(JobDraft jobDraft){
+		//clean up any replicate entries that arise from changes made to of sampleDraft metadata inputOrIP
+		//in short, if the user altered an ip to a control or visa versa, then there is the possibility that the replicates might no longer be valid
+		//so confirm the validity of IP and input/control status AND whether an IP has a control; if a problem, then correct it by deleting that replicate
+		//FINALLY, recall that if a control sampleDraft was Removed (deleted), this fact won't yet be reflected in the replicates list, since the list is only of IPs. So we need to deal with that deletion here (by examining the samplePair data)
+
+		List<SampleDraft> ipSampleDrafts = new ArrayList<SampleDraft>();
+		List<SampleDraft> inputSampleDrafts = new ArrayList<SampleDraft>();
+		
+		List<SampleDraft> sampleDrafts=jobDraft.getSampleDraft();
+		for(SampleDraft sampleDraft : sampleDrafts){			
+			for(SampleDraftMeta sampleDraftMeta : sampleDraft.getSampleDraftMeta()){				
+				if(sampleDraftMeta.getK().endsWith("inputOrIP")){
+					if(sampleDraftMeta.getV().equals("ip")){
+						ipSampleDrafts.add(sampleDraft);
+						break;//from inner for
+					}
+					else if(sampleDraftMeta.getV().equals("input")){
+						inputSampleDrafts.add(sampleDraft);
+						break;//from inner for
+					}
+				}
+				
+			}
+		}
+		
+		Set<Map<SampleDraft, SampleDraft>> sampleDraftPairSet = jobDraftService.getSampleDraftPairsByJobDraft(jobDraft);
+		Map<SampleDraft,SampleDraft> testControlMap = new HashMap<SampleDraft,SampleDraft>();
+		for(Map<SampleDraft, SampleDraft> pair: sampleDraftPairSet){
+			for (SampleDraft key : pair.keySet()) {
+				testControlMap.put(key, pair.get(key));//OK, since for each key, only one value for chipseq
+			}
+		}
+		
+		List<List<SampleDraft>> replicatesListOfLists = jobDraftService.getReplicateSets(jobDraft);//from database		
+		for (List<SampleDraft> sdList: replicatesListOfLists) {
+			for(SampleDraft ip : sdList){
+				if( !ipSampleDrafts.contains(ip) || !inputSampleDrafts.contains(testControlMap.get(ip)) || !testControlMap.containsKey(ip) ){
+					// !ipSampleDrafts.contains(ip)  --ip was previously edited to control
+					// !inputSampleDrafts.contains(testControlMap.get(ip))  --input was previously edited to ip
+					// !testControlMap.containsKey(ip) --a control sampleDraft was deleted (we have to catch this problem here)					
+					jobDraftService.removeSampleDraftFromReplicates(jobDraft, ip);
+				}
+			}			
+		}		
+	}
+	
 	@RequestMapping(value="/replicates/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showChipSeqReplicatesForm (@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
@@ -206,11 +298,15 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		if ( ! isJobDraftEditable(jobDraft) ){
 			return "redirect:/dashboard.do";
 		}
+		
+		this.confirmContinuedValidityOfSamplePairsAndAdjustAsNeeded(jobDraft);
+		this.confirmContinuedValidityOfReplicatesAndAdjustAsNeeded(jobDraft);
+		
 		List<SampleDraft> sampleDrafts=jobDraft.getSampleDraft();//sampleDraftDao.getSampleDraftByJobId(jobDraftId);
 		if (sampleDrafts.size() < 2){//require at least two samples in jobDraft to create any possible replicate set
 			return nextPage(jobDraft);
 		}
-		
+				
 		//added 6-13-14; get samplePairs list, since for chipSeq's use of IDR for integrative analysis, IP replicates must be paired with an input/control
 		Set<Map<SampleDraft, SampleDraft>> sampleDraftPairSet = jobDraftService.getSampleDraftPairsByJobDraft(jobDraft);
 		Map<SampleDraft,SampleDraft> testControlMap = new HashMap<SampleDraft,SampleDraft>();

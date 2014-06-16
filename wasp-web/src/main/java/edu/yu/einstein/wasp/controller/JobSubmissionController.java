@@ -1474,7 +1474,15 @@ public class JobSubmissionController extends WaspController {
 		for (SampleDraftMeta sdm : sampleDraftMetaDao.findByMap(query)){
 			sampleDraftMetaDao.remove(sdm);
 		}
-		sampleDraftDao.remove(sampleDraft);
+
+		//6-23-14: added by dubin
+		//new feature: remove sampleDraft from jobDraft's metadata related to sample pairs (currently chipseq and helptag) and replicates (currently chipseq)
+		jobDraftService.removeSampleDraftFromReplicates(jobDraft, sampleDraft);
+		jobDraftService.removeSampleDraftFromSamplePairsByJobDraft(jobDraft, sampleDraft);//removes from all samplePairs in this jobDraft
+		
+		
+		sampleDraftDao.remove(sampleDraft);		
+		
 		waspMessage("sampleDetail.updated_success.label");
 		return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
 	}

@@ -119,4 +119,5 @@ public interface JobDraftService extends WaspService {
 	public List<List<SampleDraft>> getReplicateSets(JobDraft jobDraft);
 	public void saveReplicateSets(JobDraft jobDraft, SampleDraft sampleDraft, Integer setNumber);
 	public void removeSampleDraftFromReplicates(JobDraft jobDraft, SampleDraft sampleDraft);
+	public void removeSampleDraftFromSamplePairsByJobDraft(JobDraft jobDraft, SampleDraft sampleDraft);
 }

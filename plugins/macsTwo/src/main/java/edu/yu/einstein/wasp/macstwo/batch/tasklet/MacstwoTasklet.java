@@ -7,7 +7,9 @@ package edu.yu.einstein.wasp.macstwo.batch.tasklet;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -167,8 +169,14 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		SampleSource firstTestCellLibrary = sampleService.getCellLibraryBySampleSourceId(this.testCellLibraryIdList.get(0));
 		Sample testSample = sampleService.getLibrary(firstTestCellLibrary);//all these cellLibraries are from the same library or macromoleucle
+		String antibodyTarget = null;
 		while(testSample.getParentId()!=null){
 			testSample = sampleService.getSampleById(testSample.getParentId());
+			for(SampleMeta sm : testSample.getSampleMeta()){
+				if(sm.getK().toLowerCase().contains("antibody")){
+					antibodyTarget = sm.getV();
+				}
+			}
 		}
 		logger.debug("testSample.name = " + testSample.getName());		
 		this.testSampleId = testSample.getId();
@@ -222,14 +230,28 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		}
 		logger.debug("controlFileHandleList.size = " + controlFileHandleList.size());
 			
-		
-		String prefixForFileName = "TEST_" + testSample.getName().replaceAll("\\s+", "_") + "_CONTROL_";
+		Date dateNow = new Date( );
+	    SimpleDateFormat ft = new SimpleDateFormat ("yyyyMMdd");
+	    //new
+	    String prefixForFileName = ft.format(dateNow)+ "_IP_" + testSample.getName().replaceAll("\\s+", "_");
+	    if(antibodyTarget!=null){
+	    	prefixForFileName = prefixForFileName + "_TARGET_" + antibodyTarget.replaceAll("\\s+", "_");
+	    }
+	    if(controlSample != null){
+	    	prefixForFileName = prefixForFileName + "_CONTROL_" + controlSample.getName().replaceAll("\\s+", "_");
+	    }
+	    
+	    //old
+	    /*
+	    String prefixForFileName = "TEST_" + testSample.getName().replaceAll("\\s+", "_") + "_CONTROL_";
 		if(controlSample == null){
 			prefixForFileName = prefixForFileName + "none";
 		}
 		else{
 			prefixForFileName = prefixForFileName + controlSample.getName().replaceAll("\\s+", "_");
 		}
+		*/
+		
 		logger.debug("prefixForFileName = " + prefixForFileName);
 		logger.debug("preparing to generate workunit");
 		WorkUnit w = macs2.getPeaks(prefixForFileName, testFileHandleList, controlFileHandleList, jobParametersMap);//configure
