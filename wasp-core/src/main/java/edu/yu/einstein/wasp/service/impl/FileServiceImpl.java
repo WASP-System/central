@@ -11,12 +11,14 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -50,6 +52,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.context.ResourceLoaderAware;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -77,6 +82,7 @@ import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
+import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
@@ -104,7 +110,7 @@ import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 
 @Service
 @Transactional("entityManager")
-public class FileServiceImpl extends WaspServiceImpl implements FileService {
+public class FileServiceImpl extends WaspServiceImpl implements FileService, ResourceLoaderAware {
 
 	@Autowired
 	private MessageSource messageSource;
@@ -1872,5 +1878,45 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
         return fileGroupDao;
     }
 
+    private ResourceLoader resourceLoader = null;
+    @Autowired
+	private FileUrlResolver fileUrlResolver;
+    
+	@Override
+	public void setResourceLoader(ResourceLoader resourceLoader) {
+		this.resourceLoader = resourceLoader;
+	}
+
+	public Resource getResource(String location){
+		if (this.resourceLoader != null) {
+			return this.resourceLoader.getResource(location);
+		}
+		return null;
+	}
+	
+	@Override
+	public InputStream getInputStreamFromFileHandle(FileHandle fileHandle) {
+		try {
+			String strURL = fileUrlResolver.getURL(fileHandle).toString();
+			Resource resource = this.getResource(strURL);
+
+			if (resource != null) {
+				return resource.getInputStream();
+			}
+		} catch (IOException | GridUnresolvableHostException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	@Override
+	public String getURLStringFromFileHandle(FileHandle fileHandle) {
+		try {
+			return fileUrlResolver.getURL(fileHandle).toString();
+		} catch (GridUnresolvableHostException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 }
 

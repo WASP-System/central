@@ -14,6 +14,7 @@ package edu.yu.einstein.wasp.service;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -393,6 +394,10 @@ public interface FileService extends WaspService {
 	public FileGroup saveInDiscreteTransaction(FileGroup group, FileHandle file);
 
 	public FileGroup saveInDiscreteTransaction(FileGroup group, LinkedHashSet<FileHandle> files);
+
+	public InputStream getInputStreamFromFileHandle(FileHandle fileHandle);
+
+	public String getURLStringFromFileHandle(FileHandle fileHandle);
 
 }
 
