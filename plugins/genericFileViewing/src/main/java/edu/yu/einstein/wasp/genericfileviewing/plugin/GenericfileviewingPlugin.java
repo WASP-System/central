@@ -114,7 +114,7 @@ public class GenericfileviewingPlugin extends WaspPlugin
 	 */
 	@Override
 	public PanelTab getViewPanelTab(FileGroup fileGroup) throws PanelException {
-		return fileViewingService.getPanelTabForFileGroup(fileGroup.getId());
+		return fileViewingService.getPanelTabForFileGroup(fileGroup);
 	}
 	
 	

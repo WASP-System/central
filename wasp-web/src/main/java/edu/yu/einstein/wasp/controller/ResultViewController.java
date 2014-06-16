@@ -305,8 +305,8 @@ public class ResultViewController extends WaspController {
 				GridPanel filePanel = new GridPanel();
 				filePanel.setTitle("File Download Panel");
 				GridContent fileGridContent = new GridContent();
-				fileGridContent.addColumn(new GridColumn("File Name", "fname", 1, "center"));
-				fileGridContent.addColumn(new GridColumn("MD5 Checksum", "md5", 300, 0, "right", "center"));
+				fileGridContent.addColumn(new GridColumn("File Name", "fname", 1));
+				fileGridContent.addColumn(new GridColumn("MD5 Checksum", "md5", 300, 0, "center", "center"));
 				fileGridContent.addColumn(new GridColumn("Size", "size", 100, 0, true, false));
 				
 				fileGridContent.addDataFields(new GridDataField("fgname", "string"));
