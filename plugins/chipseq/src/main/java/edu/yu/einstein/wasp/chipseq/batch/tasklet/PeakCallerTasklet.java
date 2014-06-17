@@ -122,7 +122,7 @@ public class PeakCallerTasklet extends LaunchManyJobsTasklet {
 					prepareAndLaunchMessage(job, convertCellLibraryListToIdList(cellLibraryListForTest), new ArrayList<Integer>());
 				}
 				else{
-					for(Sample controlSample : controlSampleList){					
+					for(Sample controlSample : controlSampleList){	//currently, only single control permitted for any IP				
 						List<SampleSource> cellLibraryListForControl = approvedSampleApprovedCellLibraryListMap.get(controlSample);
 						Assert.assertTrue( ! cellLibraryListForControl.isEmpty() );
 						prepareAndLaunchMessage(job, convertCellLibraryListToIdList(cellLibraryListForTest), convertCellLibraryListToIdList(cellLibraryListForControl));
