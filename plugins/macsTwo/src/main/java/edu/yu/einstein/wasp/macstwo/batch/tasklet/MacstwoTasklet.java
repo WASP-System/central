@@ -284,7 +284,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		String modelFileName = prefixForFileName + "_model.r";
 		String pdfFileName = modelFileName.replaceAll(".r$", ".pdf");//abc_model.r will be used to generate abc_model.pdf
-		String pngFileName = pdfFileName.replaceAll(".r$", ".png");//abc_model.pdf will be used to generate abc_model.png
+		String pngFileName = modelFileName.replaceAll(".r$", ".png");//abc_model.pdf will be used to generate abc_model.png
 
 		WorkUnit w = macs2.getPeaks(prefixForFileName, testFileHandleList, controlFileHandleList, jobParametersMap, modelFileName, pdfFileName, pngFileName);//configure
 		logger.debug("OK, workunit has been generated");
