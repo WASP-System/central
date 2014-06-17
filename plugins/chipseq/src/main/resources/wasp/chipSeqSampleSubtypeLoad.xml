@@ -51,7 +51,16 @@
 	          <property name="label" value="Antibody Target (if any)" />
 	          <property name="metaposition" value="40" />
 	        </bean>
-	        	        
+	        
+	        <bean parent="chipSeqDnaUiFieldWrapper">
+	          <property name="baseName" value="peakType" />
+	          <property name="label" value="Peak Type" />
+	          <property name="metaposition" value="30" />
+	          <property name="constraint" value="NotEmpty" />
+	          <property name="control" value="select:punctate:punctate;broad:broad;mixed:mixed;none:none (if input)" />
+	          <property name="error" value="You must provide a value" />
+	         </bean>
+	         	        
 	      </list>
       </property>
   </bean>
