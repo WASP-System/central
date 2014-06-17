@@ -32,6 +32,7 @@ import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.FileService;
@@ -113,24 +114,37 @@ public class PeakCallerTasklet extends LaunchManyJobsTasklet {
 		Assert.assertTrue(confirmSamplePairsAreOfSameSpecies(testSampleControlSampleListMap));
 
 		for(Sample testSample : setOfApprovedSamples){
-			
-			List<SampleSource> cellLibraryListForTest = approvedSampleApprovedCellLibraryListMap.get(testSample);
-			Assert.assertTrue( ! cellLibraryListForTest.isEmpty() );
-			List<Sample> controlSampleList = testSampleControlSampleListMap.get(testSample);
-			if(controlSampleList.isEmpty()){//no control (input sample)
-				prepareAndLaunchMessage(job, convertCellLibraryListToIdList(cellLibraryListForTest), new ArrayList<Integer>());
-			}
-			else{
-				for(Sample controlSample : controlSampleList){					
-					List<SampleSource> cellLibraryListForControl = approvedSampleApprovedCellLibraryListMap.get(controlSample);
-					Assert.assertTrue( ! cellLibraryListForControl.isEmpty() );
-					prepareAndLaunchMessage(job, convertCellLibraryListToIdList(cellLibraryListForTest), convertCellLibraryListToIdList(cellLibraryListForControl));
+			if(isIP(testSample)){//as of 6-17-14, only call peaks for IP samples 
+				List<SampleSource> cellLibraryListForTest = approvedSampleApprovedCellLibraryListMap.get(testSample);
+				Assert.assertTrue( ! cellLibraryListForTest.isEmpty() );
+				List<Sample> controlSampleList = testSampleControlSampleListMap.get(testSample);
+				if(controlSampleList.isEmpty()){//no control 
+					prepareAndLaunchMessage(job, convertCellLibraryListToIdList(cellLibraryListForTest), new ArrayList<Integer>());
+				}
+				else{
+					for(Sample controlSample : controlSampleList){					
+						List<SampleSource> cellLibraryListForControl = approvedSampleApprovedCellLibraryListMap.get(controlSample);
+						Assert.assertTrue( ! cellLibraryListForControl.isEmpty() );
+						prepareAndLaunchMessage(job, convertCellLibraryListToIdList(cellLibraryListForTest), convertCellLibraryListToIdList(cellLibraryListForControl));
+					}
 				}
 			}
 		}		
 	}
 	
-
+	private boolean isIP(Sample sample){
+		boolean retValue = false;
+		List<SampleMeta> sampleMetaList = sample.getSampleMeta();
+		for(SampleMeta sm : sampleMetaList){
+			if(sm.getK().contains("inputOrIP")){
+				if(sm.getV().equalsIgnoreCase("ip")){
+					return true;
+				}
+			}
+		}
+		return retValue;
+	}
+	
 	private boolean confirmCellLibrariesAssociatedWithBamFiles(List<SampleSource> cellLibraryList) {
 		for(SampleSource cellLibrary : cellLibraryList){
 			Set<FileGroup> fileGroupSetFromCellLibrary = fileService.getFilesForCellLibraryByType(cellLibrary, bamFileType);
