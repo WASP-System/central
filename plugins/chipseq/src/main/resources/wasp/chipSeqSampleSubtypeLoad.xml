@@ -48,7 +48,7 @@
 	        
 	        <bean parent="chipSeqDnaUiFieldWrapper">
 	          <property name="baseName" value="antibody" />
-	          <property name="label" value="Antibody Target (if any)" />
+	          <property name="label" value="ChIP Target" />
 	          <property name="metaposition" value="40" />
 	        </bean>
 	        
