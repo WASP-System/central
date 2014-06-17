@@ -235,7 +235,21 @@ public class Macstwo extends SoftwarePackage{
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(this);
 		sd.add(this.getSoftwareDependencyByIname("samtools"));
-		sd.add(this.getSoftwareDependencyByIname("bedtools"));
+		sd.add(this.getSoftwareDependencyByIname("bedtools"));		
+		
+		
+		
+		
+		sd.add(this.getSoftwareDependencyByIname("imagemagick"));
+		sd.add(this.getSoftwareDependencyByIname("rPackage"));
+		String new_command_1 = "Rscript " + prefixForFileName + "_model.r";
+		w.addCommand(new_command_1);
+		String new_command2 = "convert " +  prefixForFileName + "_model.pdf" + " -append " + prefixForFileName + "_model.png";
+		w.addCommand(new_command2);
+			
+		
+		
+		
 		w.setSoftwareDependencies(sd);
 
 		logger.debug("----command has been set to workunit in getPeaks()");		

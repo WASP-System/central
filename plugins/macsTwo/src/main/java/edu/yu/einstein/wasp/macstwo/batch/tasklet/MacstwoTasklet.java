@@ -42,6 +42,8 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.mps.grid.software.Imagemagick;
+import edu.yu.einstein.wasp.plugin.mps.grid.software.R;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -68,6 +70,13 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	private Integer controlSampleId;
 	private String commandLineCall;
 	
+	
+	
+	private Integer modelPdfGId;//generated in doExecute()
+	private Integer modelPngGId;//generated in doExecute()
+	
+	
+	
 	private StepExecution stepExecution;
 	
 	@Autowired
@@ -84,6 +93,18 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	private FileType macs2TreatPileupBedGraphFileType;
 	@Autowired
 	private FileType macs2ControlLambdaBedGraphFileType;
+	
+	
+	
+	@Autowired
+	private FileType macs2ModelPdfFileType;
+
+	@Autowired
+	private FileType macs2ModelPngFileType;
+	
+	
+	
+	
 	
 	@Autowired
 	private JobService jobService;
@@ -374,6 +395,57 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		controlLambdaBedGraphG = fileService.addFileGroup(controlLambdaBedGraphG);
 		this.controlLambdaBedGraphGId = controlLambdaBedGraphG.getId();
 
+		
+		
+		Imagemagick imagemagickSoftware = (Imagemagick) macs2.getSoftwareDependencyByIname("imagemagick"); 
+		R rSoftware = (R) macs2.getSoftwareDependencyByIname("rPackage");
+
+		String pdfFileName = modelScript.getFileName().replaceAll(".r$", ".pdf");//abc_model.r will be used to generate abc_model.pdf
+		String pngFileName = modelScript.getFileName().replaceAll(".r$", ".png");//abc_model.pdf will be used to generate abc_model.png
+
+		//the pdf (generated from running Rscript on xx_model.r file)
+		FileGroup modelPdfG = new FileGroup();
+		FileHandle modelPdf = new FileHandle();
+		modelPdf.setFileName(pdfFileName);
+		listOfFileHandleNames.add(pdfFileName);
+		modelPdf.setFileType(macs2ModelPdfFileType);
+		modelPdf = fileService.addFile(modelPdf);
+		modelPdfG.addFileHandle(modelPdf);
+		files.add(modelPdf);
+		modelPdfG.setFileType(macs2ModelPdfFileType);
+		modelPdfG.setDescription(modelPdf.getFileName());
+		modelPdfG.setSoftwareGeneratedBy(rSoftware);
+		modelPdfG.addDerivedFrom(modelScriptG);
+		modelPdfG = fileService.addFileGroup(modelPdfG);
+		this.modelPdfGId = modelPdfG.getId();
+		logger.debug("new ---   recorded fileGroup and fileHandle for rscript to create pdf in MacstwoGenerateModelAsPdfTasklet.doExecute()");
+
+		//the png (converted from the pdf using ImageMagick)
+		FileGroup modelPngG = new FileGroup();
+		FileHandle modelPng = new FileHandle();
+		modelPng.setFileName(pngFileName);
+		listOfFileHandleNames.add(pngFileName);
+		modelPng.setFileType(macs2ModelPngFileType);
+		modelPng = fileService.addFile(modelPng);
+		modelPngG.addFileHandle(modelPng);
+		files.add(modelPng);
+		modelPngG.setFileType(macs2ModelPngFileType);
+		modelPngG.setDescription(modelPng.getFileName());
+		modelPngG.setSoftwareGeneratedBy(imagemagickSoftware);
+		modelPngG.addDerivedFrom(modelPdfG);
+		modelPngG = fileService.addFileGroup(modelPngG);
+		this.modelPngGId = modelPngG.getId();
+		logger.debug("new --- recorded fileGroup and fileHandle for ImageMagick to create png in MacstwoGenerateModelAsPdfTasklet.doExecute()");
+
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		logger.debug("recorded fileGroups and fileHandles for macs2 files in MacstwoTasklet.doExecute()");
 		
 		//place in the step context in case of crash
@@ -390,6 +462,11 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		stepContext.put("summitsModifiedBedGId", this.summitsModifiedBedGId);
 		stepContext.put("treatPileupBedGraphGId", this.treatPileupBedGraphGId);
 		stepContext.put("controlLambdaBedGraphGId", this.controlLambdaBedGraphGId);
+		
+		stepContext.put("modelPdfGId", this.modelPdfGId);
+		stepContext.put("modelPngGId", this.modelPngGId);
+		
+		
 		stepContext.put("commandLineCall", this.commandLineCall);
 		logger.debug("saved variables in stepContext in case of crash in MacstwoTasklet.doExecute()");
 
@@ -456,6 +533,9 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		this.testSampleId = (Integer) stepContext.get("testSampleId");
 		this.controlSampleId = (Integer) stepContext.get("controlSampleId");	
 		this.commandLineCall = (String) stepContext.get("commandLineCall");	
+		
+		this.modelPdfGId = (Integer) stepContext.get("modelPdfGId");
+		this.modelPngGId = (Integer) stepContext.get("modelPngGId");
 	}
 	
 	/** 
@@ -482,6 +562,9 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		this.testSampleId = (Integer) stepContext.get("testSampleId");
 		this.controlSampleId = (Integer) stepContext.get("controlSampleId");	
 		this.commandLineCall = (String) stepContext.get("commandLineCall");	
+		
+		this.modelPdfGId = (Integer) stepContext.get("modelPdfGId");
+		this.modelPngGId = (Integer) stepContext.get("modelPngGId");
 		
 		// associate test sample with the new file groups		
 		Sample testSample = sampleService.getSampleById(testSampleId);		
@@ -572,6 +655,40 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 			fgmList.add(fgm);
 			fileService.saveFileGroupMeta(fgmList, fg);
 		}
+		
+		
+		
+		
+		
+		if (this.modelPdfGId != null && testSample.getId() != 0){
+			////fileService.setSampleFile(fileService.getFileGroupById(modelPdfGId), testSample);
+			FileGroup fg = fileService.getFileGroupById(this.modelPdfGId);
+			fileService.setSampleFile(fg, testSample);
+			FileGroupMeta fgm = new FileGroupMeta();
+			fgm.setK("chipseqAnalysis.controlId");
+			fgm.setV(this.controlSampleId.toString());//could be zero
+			fgm.setFileGroupId(fg.getId());
+			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
+			fgmList.add(fgm);
+			fileService.saveFileGroupMeta(fgmList, fg);
+		}
+		
+		if (this.modelPngGId != null && testSample.getId() != 0){
+			////fileService.setSampleFile(fileService.getFileGroupById(modelPdfGId), testSample);
+			FileGroup fg = fileService.getFileGroupById(this.modelPngGId);
+			fileService.setSampleFile(fg, testSample);
+			FileGroupMeta fgm = new FileGroupMeta();
+			fgm.setK("chipseqAnalysis.controlId");
+			fgm.setV(this.controlSampleId.toString());//could be zero
+			fgm.setFileGroupId(fg.getId());
+			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
+			fgmList.add(fgm);
+			fileService.saveFileGroupMeta(fgmList, fg);
+		}
+		
+		
+		
+		
 		
 		
 		//new, 5-9-14
