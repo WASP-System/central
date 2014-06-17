@@ -281,7 +281,12 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		logger.debug("prefixForFileName = " + prefixForFileName);
 		logger.debug("preparing to generate workunit");
-		WorkUnit w = macs2.getPeaks(prefixForFileName, testFileHandleList, controlFileHandleList, jobParametersMap);//configure
+		
+		String modelFileName = prefixForFileName + "_model.r";
+		String pdfFileName = modelFileName.replaceAll(".r$", ".pdf");//abc_model.r will be used to generate abc_model.pdf
+		String pngFileName = pdfFileName.replaceAll(".r$", ".png");//abc_model.pdf will be used to generate abc_model.png
+
+		WorkUnit w = macs2.getPeaks(prefixForFileName, testFileHandleList, controlFileHandleList, jobParametersMap, modelFileName, pdfFileName, pngFileName);//configure
 		logger.debug("OK, workunit has been generated");
 		this.commandLineCall = w.getCommand();
 		this.commandLineCall = this.commandLineCall.replaceAll("\\n", "<br /><br />");//the workunit tagged on a newline at the end of the command; so remove it for db storage and replace with <br /> for display purposes
@@ -292,8 +297,8 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		FileGroup modelScriptG = new FileGroup();
 		FileHandle modelScript = new FileHandle();
-		modelScript.setFileName(prefixForFileName + "_model.r");//will eventually run Rscript on this file to generate pdf
-		listOfFileHandleNames.add(prefixForFileName + "_model.r");
+		modelScript.setFileName(modelFileName);//prefixForFileName + "_model.r"
+		listOfFileHandleNames.add(modelFileName );
 		modelScript.setFileType(macs2ModelScriptFileType);
 		modelScript = fileService.addFile(modelScript);
 		modelScriptG.addFileHandle(modelScript);
@@ -400,8 +405,6 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		Imagemagick imagemagickSoftware = (Imagemagick) macs2.getSoftwareDependencyByIname("imagemagick"); 
 		R rSoftware = (R) macs2.getSoftwareDependencyByIname("rPackage");
 
-		String pdfFileName = modelScript.getFileName().replaceAll(".r$", ".pdf");//abc_model.r will be used to generate abc_model.pdf
-		String pngFileName = modelScript.getFileName().replaceAll(".r$", ".png");//abc_model.pdf will be used to generate abc_model.png
 
 		//the pdf (generated from running Rscript on xx_model.r file)
 		FileGroup modelPdfG = new FileGroup();

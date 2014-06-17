@@ -42,7 +42,8 @@ public class Macstwo extends SoftwarePackage{
 	}
 
 	//note: test is same as treated, in macs2-speak (from the immunoprecipitated sample)
-	public WorkUnit getPeaks(String prefixForFileName, List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList, Map<String,Object> jobParametersMap){
+	public WorkUnit getPeaks(String prefixForFileName, List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList, 
+			Map<String,Object> jobParametersMap, String modelFileName, String pdfFileName, String pngFileName){
 		
 		Assert.assertTrue(!testFileHandleList.isEmpty());
 		
@@ -242,9 +243,11 @@ public class Macstwo extends SoftwarePackage{
 		
 		sd.add(this.getSoftwareDependencyByIname("imagemagick"));
 		sd.add(this.getSoftwareDependencyByIname("rPackage"));
-		String new_command_1 = "Rscript " + prefixForFileName + "_model.r";
+		//String new_command_1 = "Rscript " + prefixForFileName + "_model.r";
+		String new_command_1 = "Rscript " + modelFileName;
 		w.addCommand(new_command_1);
-		String new_command2 = "convert " +  prefixForFileName + "_model.pdf" + " -append " + prefixForFileName + "_model.png";
+		//String new_command2 = "convert " +  prefixForFileName + "_model.pdf" + " -append " + prefixForFileName + "_model.png";
+		String new_command2 = "convert " +  pdfFileName + " -append " + pngFileName;
 		w.addCommand(new_command2);
 			
 		
