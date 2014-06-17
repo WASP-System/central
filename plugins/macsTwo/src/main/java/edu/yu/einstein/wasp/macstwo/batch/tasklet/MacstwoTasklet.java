@@ -234,11 +234,17 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	    SimpleDateFormat ft = new SimpleDateFormat ("yyyyMMdd");
 	    //new
 	    String prefixForFileName = ft.format(dateNow)+ "_IP_" + testSample.getName().replaceAll("\\s+", "_");
-	    if(antibodyTarget!=null){
+	    if(antibodyTarget!=null && !antibodyTarget.isEmpty()){
 	    	prefixForFileName = prefixForFileName + "_TARGET_" + antibodyTarget.replaceAll("\\s+", "_");
+	    }
+	    else{
+	    	prefixForFileName = prefixForFileName + "_TARGET_unspecified";
 	    }
 	    if(controlSample != null){
 	    	prefixForFileName = prefixForFileName + "_CONTROL_" + controlSample.getName().replaceAll("\\s+", "_");
+	    }
+	    else{
+	    	prefixForFileName = prefixForFileName + "_CONTROL_none";
 	    }
 	    
 	    //old
