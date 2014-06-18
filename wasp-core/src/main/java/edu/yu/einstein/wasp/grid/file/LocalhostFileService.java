@@ -41,6 +41,7 @@ public class LocalhostFileService implements GridFileService {
 	public void put(File localFile, String remoteFile) throws IOException {
 		Path remote = getLocalhostFilePath(remoteFile);
 		logger.debug("put called: " + localFile + " to localhost as " + remote);
+		Files.createDirectories(remote.getParent());
 		Files.copy(localFile.toPath(), remote, StandardCopyOption.REPLACE_EXISTING);
 	}
 
@@ -63,6 +64,7 @@ public class LocalhostFileService implements GridFileService {
 	public void touch(String remoteFile) throws IOException {
 		Path remote = getLocalhostFilePath(remoteFile);
 		logger.debug("touch called: " + remote);
+		Files.createDirectories(remote.getParent());
 		try {
 			Files.createFile(remote);
 		} catch (FileAlreadyExistsException e){
@@ -74,11 +76,7 @@ public class LocalhostFileService implements GridFileService {
 	public void mkdir(String remoteDir) throws IOException {
 		Path remote = getLocalhostFilePath(remoteDir);
 		logger.debug("mkdir called: " + remote);
-		try {
-			Files.createDirectory(remote);
-		} catch (FileAlreadyExistsException e){
-			logger.info("cannot mkdir " + remote + " as already exists");
-		}
+		Files.createDirectories(remote);
 	}
 
 	@Override
@@ -93,6 +91,7 @@ public class LocalhostFileService implements GridFileService {
 		Path originPath = getLocalhostFilePath(origin);
 		Path destinationPath = getLocalhostFilePath(destination);
 		logger.debug("move called: " + originPath + " to " + destinationPath + " at localhost");
+		Files.createDirectories(destinationPath.getParent());
 		Files.move(originPath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
 	}
 
@@ -101,6 +100,7 @@ public class LocalhostFileService implements GridFileService {
 		Path originPath = getLocalhostFilePath(origin);
 		Path destinationPath = getLocalhostFilePath(destination);
 		logger.debug("copy called: " + originPath + " to " + destinationPath + " at localhost");
+		Files.createDirectories(destinationPath.getParent());
 		Files.copy(originPath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
 	}
 
