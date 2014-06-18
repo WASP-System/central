@@ -47,7 +47,7 @@ public class LocalhostTransportConnection implements GridTransportConnection {
 		if (w.getWrapperCommand() != null) 
 			command = w.getWrapperCommand();
 		command = "cd " + w.remoteWorkingDirectory + " && " + command;
-		command = "if [ -e /etc/profile ]; then source /etc/profile > /dev/null 2>&1; fi && " + command;
+		command = "/bin/bash -c if [ -e /etc/profile ]; then source /etc/profile > /dev/null 2>&1; fi && " + command;
 		try {
 			logger.trace("sending exec: " + command + " at: " + getHostName());
 			Process proc = runtime.exec(command);
