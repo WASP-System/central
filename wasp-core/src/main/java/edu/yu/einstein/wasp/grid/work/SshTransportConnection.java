@@ -110,7 +110,7 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 		} catch (IOException e) {
 			e.printStackTrace();
 			logger.error("unable to connect to remote host " + getHostName());
-			throw new GridAccessException("unable to connect to remote", e.getCause());
+			throw new GridAccessException("unable to connect to remote", e);
 		}
 		
 		logger.debug("adding sshj connection: " + this.client.toString());

@@ -449,7 +449,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			return exists;
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new GridAccessException("Unable to connect to remote host: ", e.getCause());
+			throw new GridAccessException("Unable to connect to remote host: ", e);
 		}
 	}
 	
@@ -645,7 +645,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			throw new GridAccessException("unable to get local temp file ", e.getCause());
+			throw new GridAccessException("unable to get local temp file ", e);
 		}
 		try {
 			logger.debug("putting script file on remote server");
@@ -653,7 +653,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			logger.debug("script file copied");
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new GridAccessException("unable to begin grid transaction ", e.getCause());
+			throw new GridAccessException("unable to begin grid transaction ", e);
 		} finally {
 			logger.debug("deleting local temporary script file: " + script.getAbsolutePath().toString());
 			script.delete();
