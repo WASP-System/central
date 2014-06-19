@@ -59,22 +59,11 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	private String controlCellLibraryIdListAsString;
 	private List<Integer> testCellLibraryIdList;//treated, such as IP
 	private List<Integer> controlCellLibraryIdList;//contol, such as input 
-	private Integer modelScriptGId;
-	private Integer peaksXlsGId;
-	private Integer narrowPeaksBedGId;
-	private Integer summitsBedGId;
-	private Integer summitsModifiedBedGId;
-	private Integer treatPileupBedGraphGId;
-	private Integer controlLambdaBedGraphGId;
+	
 	private Integer testSampleId;
 	private Integer controlSampleId;
-	private String commandLineCall;
-	
-	
-	
-	private Integer modelPdfGId;//generated in doExecute()
-	private Integer modelPngGId;//generated in doExecute()
-	
+	private String commandLineCall;	
+	private String softwareIdUsedListAsString;
 	private Integer macs2AnalysisFileGroupId;
 	
 	private StepExecution stepExecution;
@@ -93,16 +82,11 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	@Autowired
 	private FileType macs2TreatPileupBedGraphFileType;
 	@Autowired
-	private FileType macs2ControlLambdaBedGraphFileType;
-	
-	
-	
+	private FileType macs2ControlLambdaBedGraphFileType;	
 	@Autowired
 	private FileType macs2ModelPdfFileType;
-
 	@Autowired
 	private FileType macs2ModelPngFileType;
-	
 	
 	@Autowired
 	private FileType macs2AnalysisFileType;
@@ -302,175 +286,95 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		Set<FileHandle> files = new LinkedHashSet<FileHandle>();
 				
-		FileGroup modelScriptG = new FileGroup();
 		FileHandle modelScript = new FileHandle();
 		modelScript.setFileName(modelFileName);//prefixForFileName + "_model.r"
-		//WHEN THHIS IS A SINGLE FILEGROUP FOR ALL FILES, then do:
-		//BUT NOT FOR modelScriptG, use the new name  whatever that is modelScriptG.setDerivedFrom(derrivedFromFileGroups);
-		//but keep the other meta just in case, as fileGroupMeta
-		//since the fileGroup will have a file type of chipSeqAnalysis.macs2 with a name of previxForFileName
-		listOfFileHandleNames.add(modelFileName );
+		listOfFileHandleNames.add(modelFileName );//this will likely become unnecessary
 		modelScript.setFileType(macs2ModelScriptFileType);
 		modelScript = fileService.addFile(modelScript);
-		modelScriptG.addFileHandle(modelScript);
 		files.add(modelScript);
-		modelScriptG.setFileType(macs2ModelScriptFileType);
-		modelScriptG.setDescription(modelScript.getFileName());
-		modelScriptG.setSoftwareGeneratedBy(macs2);
-		modelScriptG.setSampleSources(setOfCellLibrariesForDerivedFrom);
-		modelScriptG = fileService.addFileGroup(modelScriptG);
-		this.modelScriptGId = modelScriptG.getId();
 		
-		FileGroup peaksXlsG = new FileGroup();
 		FileHandle peaksXls = new FileHandle();
 		peaksXls.setFileName(prefixForFileName + "_peaks.xls");
-		listOfFileHandleNames.add(prefixForFileName + "_peaks.xls");
+		listOfFileHandleNames.add(prefixForFileName + "_peaks.xls");//this will likely become unnecessary
 		peaksXls.setFileType(macs2PeaksXlsFileType);
 		peaksXls = fileService.addFile(peaksXls);
-		peaksXlsG.addFileHandle(peaksXls);
 		files.add(peaksXls);
-		peaksXlsG.setFileType(macs2PeaksXlsFileType);
-		peaksXlsG.setDescription(peaksXls.getFileName());
-		peaksXlsG.setSoftwareGeneratedBy(macs2);
-		peaksXlsG.setSampleSources(setOfCellLibrariesForDerivedFrom);
-		peaksXlsG = fileService.addFileGroup(peaksXlsG);
-		this.peaksXlsGId = peaksXlsG.getId();
 		
-		FileGroup narrowPeaksBedG = new FileGroup();
 		FileHandle narrowPeaksBed = new FileHandle();
-		narrowPeaksBed.setFileName(prefixForFileName + "_peaks.narrowPeak");
+		narrowPeaksBed.setFileName(prefixForFileName + "_peaks.narrowPeak");//this will likely become unnecessary
 		listOfFileHandleNames.add(prefixForFileName + "_peaks.narrowPeak");
 		narrowPeaksBed.setFileType(macs2NarrowPeaksBedFileType);
 		narrowPeaksBed = fileService.addFile(narrowPeaksBed);
-		narrowPeaksBedG.addFileHandle(narrowPeaksBed);
 		files.add(narrowPeaksBed);
-		narrowPeaksBedG.setFileType(macs2NarrowPeaksBedFileType);
-		narrowPeaksBedG.setDescription(narrowPeaksBed.getFileName());
-		narrowPeaksBedG.setSoftwareGeneratedBy(macs2);
-		narrowPeaksBedG.setSampleSources(setOfCellLibrariesForDerivedFrom);
-		narrowPeaksBedG = fileService.addFileGroup(narrowPeaksBedG);
-		this.narrowPeaksBedGId = narrowPeaksBedG.getId();
 	
-		FileGroup summitsBedG = new FileGroup();
 		FileHandle summitsBed = new FileHandle();
 		summitsBed.setFileName(prefixForFileName + "_summits.bed");
-		listOfFileHandleNames.add(prefixForFileName + "_summits.bed");
+		listOfFileHandleNames.add(prefixForFileName + "_summits.bed");//this will likely become unnecessary
 		summitsBed.setFileType(macs2SummitsBedFileType);
 		summitsBed = fileService.addFile(summitsBed);
-		summitsBedG.addFileHandle(summitsBed);
 		files.add(summitsBed);
-		summitsBedG.setFileType(macs2SummitsBedFileType);
-		summitsBedG.setDescription(summitsBed.getFileName());
-		summitsBedG.setSoftwareGeneratedBy(macs2);
-		summitsBedG.setSampleSources(setOfCellLibrariesForDerivedFrom);
-		summitsBedG = fileService.addFileGroup(summitsBedG);
-		this.summitsBedGId = summitsBedG.getId();		
-/*		
-		FileGroup summitsModifiedBedG = new FileGroup();
+		
+/*
 		FileHandle summitsModifiedBed = new FileHandle();
 		summitsModifiedBed.setFileName(prefixForFileName + "_summits.modified.bed");
-		listOfFileHandleNames.add(prefixForFileName + "_summits.modified.bed");
+		listOfFileHandleNames.add(prefixForFileName + "_summits.modified.bed");//this will likely become unnecessary
 		summitsModifiedBed.setFileType(macs2SummitsModifiedBedFileType);
 		summitsModifiedBed = fileService.addFile(summitsModifiedBed);
-		summitsModifiedBedG.addFileHandle(summitsModifiedBed);
 		files.add(summitsModifiedBed);
-		summitsModifiedBedG.setFileType(macs2SummitsModifiedBedFileType);
-		summitsModifiedBedG.setDescription(summitsModifiedBed.getFileName());
-		summitsModifiedBedG.setSoftwareGeneratedBy(macs2);
-		summitsModifiedBedG.setSampleSources(setOfCellLibrariesForDerivedFrom);
-		summitsModifiedBedG = fileService.addFileGroup(summitsModifiedBedG);
-		this.summitsModifiedBedGId = summitsModifiedBedG.getId();		
 */
-		FileGroup treatPileupBedGraphG = new FileGroup();
 		FileHandle treatPileupBedGraph = new FileHandle();
 		treatPileupBedGraph.setFileName(prefixForFileName + "_treat_pileup.bdg");
-		listOfFileHandleNames.add(prefixForFileName + "_treat_pileup.bdg");
+		listOfFileHandleNames.add(prefixForFileName + "_treat_pileup.bdg");//this will likely become unnecessary
 		treatPileupBedGraph.setFileType(macs2TreatPileupBedGraphFileType);
 		treatPileupBedGraph = fileService.addFile(treatPileupBedGraph);
-		treatPileupBedGraphG.addFileHandle(treatPileupBedGraph);
 		files.add(treatPileupBedGraph);
-		treatPileupBedGraphG.setFileType(macs2TreatPileupBedGraphFileType);
-		treatPileupBedGraphG.setDescription(treatPileupBedGraph.getFileName());
-		treatPileupBedGraphG.setSoftwareGeneratedBy(macs2);
-		treatPileupBedGraphG.setSampleSources(setOfCellLibrariesForDerivedFrom);
-		treatPileupBedGraphG = fileService.addFileGroup(treatPileupBedGraphG);
-		this.treatPileupBedGraphGId = treatPileupBedGraphG.getId();
 	
-		FileGroup controlLambdaBedGraphG = new FileGroup();
 		FileHandle controlLambdaBedGraph = new FileHandle();
 		controlLambdaBedGraph.setFileName(prefixForFileName + "_control_lambda.bdg");
-		listOfFileHandleNames.add(prefixForFileName + "_control_lambda.bdg");
+		listOfFileHandleNames.add(prefixForFileName + "_control_lambda.bdg");//this will likely become unnecessary
 		controlLambdaBedGraph.setFileType(macs2ControlLambdaBedGraphFileType);
 		controlLambdaBedGraph = fileService.addFile(controlLambdaBedGraph);
-		controlLambdaBedGraphG.addFileHandle(controlLambdaBedGraph);
 		files.add(controlLambdaBedGraph);
-		controlLambdaBedGraphG.setFileType(macs2ControlLambdaBedGraphFileType);
-		controlLambdaBedGraphG.setDescription(controlLambdaBedGraph.getFileName());
-		controlLambdaBedGraphG.setSoftwareGeneratedBy(macs2);
-		controlLambdaBedGraphG.setSampleSources(setOfCellLibrariesForDerivedFrom);
-		controlLambdaBedGraphG = fileService.addFileGroup(controlLambdaBedGraphG);
-		this.controlLambdaBedGraphGId = controlLambdaBedGraphG.getId();
-
 		
-		
-		Imagemagick imagemagickSoftware = (Imagemagick) macs2.getSoftwareDependencyByIname("imagemagick"); 
-		R rSoftware = (R) macs2.getSoftwareDependencyByIname("rPackage");
-
-
 		//the pdf (generated from running Rscript on xx_model.r file)
-		FileGroup modelPdfG = new FileGroup();
 		FileHandle modelPdf = new FileHandle();
 		modelPdf.setFileName(pdfFileName);
-		listOfFileHandleNames.add(pdfFileName);
+		listOfFileHandleNames.add(pdfFileName);//this will likely become unnecessary
 		modelPdf.setFileType(macs2ModelPdfFileType);
 		modelPdf = fileService.addFile(modelPdf);
-		modelPdfG.addFileHandle(modelPdf);
 		files.add(modelPdf);
-		modelPdfG.setFileType(macs2ModelPdfFileType);
-		modelPdfG.setDescription(modelPdf.getFileName());
-		modelPdfG.setSoftwareGeneratedBy(rSoftware);
-		modelPdfG.addDerivedFrom(modelScriptG);
-		modelPdfG = fileService.addFileGroup(modelPdfG);
-		this.modelPdfGId = modelPdfG.getId();
-		logger.debug("new ---   recorded fileGroup and fileHandle for rscript to create pdf in MacstwoGenerateModelAsPdfTasklet.doExecute()");
+		logger.debug("new -------   recorded fileGroup and fileHandle for rscript to create pdf in MacstwoGenerateModelAsPdfTasklet.doExecute()");
 
 		//the png (converted from the pdf using ImageMagick)
-		FileGroup modelPngG = new FileGroup();
 		FileHandle modelPng = new FileHandle();
 		modelPng.setFileName(pngFileName);
-		listOfFileHandleNames.add(pngFileName);
+		listOfFileHandleNames.add(pngFileName);//this will likely become unnecessary
 		modelPng.setFileType(macs2ModelPngFileType);
 		modelPng = fileService.addFile(modelPng);
-		modelPngG.addFileHandle(modelPng);
 		files.add(modelPng);
-		modelPngG.setFileType(macs2ModelPngFileType);
-		modelPngG.setDescription(modelPng.getFileName());
-		modelPngG.setSoftwareGeneratedBy(imagemagickSoftware);
-		modelPngG.addDerivedFrom(modelPdfG);
-		modelPngG = fileService.addFileGroup(modelPngG);
-		this.modelPngGId = modelPngG.getId();
-		logger.debug("new --- recorded fileGroup and fileHandle for ImageMagick to create png in MacstwoGenerateModelAsPdfTasklet.doExecute()");
-
+		logger.debug("new ------- recorded fileGroup and fileHandle for ImageMagick to create png in MacstwoGenerateModelAsPdfTasklet.doExecute()");
 		
-		
-		//6-18-14
-		//deal with the new macs2Analysis fileGroup
-		//WHEN THHIS IS A SINGLE FILEGROUP FOR ALL FILES, then do:
-		//BUT NOT FOR modelScriptG, use the new name  whatever that is modelScriptG.setDerivedFrom(derrivedFromFileGroups);
-		//but keep the other meta just in case, as fileGroupMeta
-		//since the fileGroup will have a file type of chipSeqAnalysis.macs2 with a name of previxForFileName
+		//6-19-14
+		//macs2Analysis fileGroup serves as single fileGroup to house ALL files from a macs analysis 
+		//and from whence they came (through fileGroup.derivedFrom). 
+		//Also, the fileGroup.description will contain the base name for all the files
+		//Importantly fileGroup's MetaData will store some additional information about this analysis
 		FileGroup macs2AnalysisFileGroup = new FileGroup();
 		macs2AnalysisFileGroup.setFileType(macs2AnalysisFileType);
 		macs2AnalysisFileGroup.setDescription(prefixForFileName);
-		macs2AnalysisFileGroup.setSoftwareGeneratedBy(macs2);
+		macs2AnalysisFileGroup.setSoftwareGeneratedBy(macs2);//would like to add imagemagickSoftware and rSoftware, but no way
 		macs2AnalysisFileGroup.setDerivedFrom(derrivedFromFileGroups);
 		macs2AnalysisFileGroup.setFileHandles(files);
 		macs2AnalysisFileGroup = fileService.addFileGroup(macs2AnalysisFileGroup);
 		this.macs2AnalysisFileGroupId = macs2AnalysisFileGroup.getId();
-		logger.debug("new --- recorded all encompassing fileGroup macs2AnalysisFileGroup as a container for files outputted by macs2");
+		logger.debug("new ------- recorded all encompassing fileGroup macs2AnalysisFileGroup as a container for files outputted by macs2");
 	
 		logger.debug("recorded fileGroups and fileHandles for macs2 files in MacstwoTasklet.doExecute()");
 		
+		Imagemagick imagemagickSoftware = (Imagemagick) macs2.getSoftwareDependencyByIname("imagemagick"); 
+		R rSoftware = (R) macs2.getSoftwareDependencyByIname("rPackage");
+		this.softwareIdUsedListAsString = macs2.getId().toString() + ":" + rSoftware.getId().toString() + ":" + imagemagickSoftware.getId().toString();
+
 		//place in the step context in case of crash
 		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
 		stepContext.put("jobId", this.jobId); 
@@ -478,18 +382,9 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		stepContext.put("controlCellLibraryIdListAsString", this.controlCellLibraryIdListAsString); 		
 		stepContext.put("testSampleId", this.testSampleId); 
 		stepContext.put("controlSampleId", this.controlSampleId); 	 
-		stepContext.put("modelScriptGId", this.modelScriptGId);
-		stepContext.put("peaksXlsGId", this.peaksXlsGId);
-		stepContext.put("narrowPeaksBedGId", this.narrowPeaksBedGId);
-		stepContext.put("summitsBedGId", this.summitsBedGId);
-		stepContext.put("summitsModifiedBedGId", this.summitsModifiedBedGId);
-		stepContext.put("treatPileupBedGraphGId", this.treatPileupBedGraphGId);
-		stepContext.put("controlLambdaBedGraphGId", this.controlLambdaBedGraphGId);
-		
-		stepContext.put("modelPdfGId", this.modelPdfGId);
-		stepContext.put("modelPngGId", this.modelPngGId);
-		
-		stepContext.put("macs2AnalysisFileGroupId", macs2AnalysisFileGroupId);
+				
+		stepContext.put("macs2AnalysisFileGroupId", this.macs2AnalysisFileGroupId);
+		stepContext.put("softwareIdUsedListAsString", this.softwareIdUsedListAsString);
 		
 		stepContext.put("commandLineCall", this.commandLineCall);
 		logger.debug("saved variables in stepContext in case of crash in MacstwoTasklet.doExecute()");
@@ -500,6 +395,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, macs2));	
 		
+		//I think this is actually NOT serving any purpose
 		int counter = 0;
 		for(String fileName : listOfFileHandleNames){//need to make these symbolic links in order to properly copy files
 			w.addCommand("ln -s " + fileName + " ${" + WorkUnit.OUTPUT_FILE+"["+counter+"]}");
@@ -547,21 +443,13 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		if(this.controlCellLibraryIdListAsString==null){//set initially in constructor
 			this.controlCellLibraryIdListAsString = (String) stepContext.get("controlCellLibraryIdListAsString");
 		}
-		this.modelScriptGId = (Integer) stepContext.get("modelScriptGId");
-		this.peaksXlsGId = (Integer) stepContext.get("peaksXlsGId");
-		this.narrowPeaksBedGId = (Integer) stepContext.get("narrowPeaksBedGId");
-		this.summitsBedGId = (Integer) stepContext.get("summitsBedGId");
-		this.summitsModifiedBedGId = (Integer) stepContext.get("summitsModifiedBedGId");
-		this.treatPileupBedGraphGId = (Integer) stepContext.get("treatPileupBedGraphGId");
-		this.controlLambdaBedGraphGId = (Integer) stepContext.get("controlLambdaBedGraphGId");
+		
 		this.testSampleId = (Integer) stepContext.get("testSampleId");
 		this.controlSampleId = (Integer) stepContext.get("controlSampleId");	
 		this.commandLineCall = (String) stepContext.get("commandLineCall");	
 		
-		this.modelPdfGId = (Integer) stepContext.get("modelPdfGId");
-		this.modelPngGId = (Integer) stepContext.get("modelPngGId");
-		
 		this.macs2AnalysisFileGroupId = (Integer) stepContext.get("macs2AnalysisFileGroupId");
+		this.softwareIdUsedListAsString = (String) stepContext.getString("softwareIdUsedListAsString");
 	}
 	
 	/** 
@@ -578,145 +466,18 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		this.jobId = (Integer) stepContext.get("jobId");//currently, not really needed here
 		this.testCellLibraryIdListAsString = (String) stepContext.get("testCellLibraryIdListAsString");
 		this.controlCellLibraryIdListAsString = (String) stepContext.get("controlCellLibraryIdListAsString");
-		this.modelScriptGId = (Integer) stepContext.get("modelScriptGId");
-		this.peaksXlsGId = (Integer) stepContext.get("peaksXlsGId");
-		this.narrowPeaksBedGId = (Integer) stepContext.get("narrowPeaksBedGId");
-		this.summitsBedGId = (Integer) stepContext.get("summitsBedGId");
-		this.summitsModifiedBedGId = (Integer) stepContext.get("summitsModifiedBedGId");
-		this.treatPileupBedGraphGId = (Integer) stepContext.get("treatPileupBedGraphGId");
-		this.controlLambdaBedGraphGId = (Integer) stepContext.get("controlLambdaBedGraphGId");
+		
 		this.testSampleId = (Integer) stepContext.get("testSampleId");
 		this.controlSampleId = (Integer) stepContext.get("controlSampleId");	
-		this.commandLineCall = (String) stepContext.get("commandLineCall");	
-		
-		this.modelPdfGId = (Integer) stepContext.get("modelPdfGId");
-		this.modelPngGId = (Integer) stepContext.get("modelPngGId");
+		this.commandLineCall = (String) stepContext.get("commandLineCall");		
 		
 		this.macs2AnalysisFileGroupId = (Integer) stepContext.get("macs2AnalysisFileGroupId");
+		this.softwareIdUsedListAsString = (String) stepContext.getString("softwareIdUsedListAsString");
 		
 		// associate test sample with the new file groups		
 		Sample testSample = sampleService.getSampleById(testSampleId);		
 		
 		logger.debug("in middle of doPreFinish() in MacstwoTasklet");
-
-		if (this.modelScriptGId != null && testSample.getId() != 0){
-			////fileService.setSampleFile(fileService.getFileGroupById(modelScriptGId), testSample);
-			FileGroup fg = fileService.getFileGroupById(this.modelScriptGId);
-			fileService.setSampleFile(fg, testSample);
-			FileGroupMeta fgm = new FileGroupMeta();
-			fgm.setK("chipseqAnalysis.controlId");
-			fgm.setV(this.controlSampleId.toString());
-			fgm.setFileGroupId(fg.getId());
-			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
-			fgmList.add(fgm);
-			fileService.saveFileGroupMeta(fgmList, fg);
-		}
-		if (this.peaksXlsGId != null && testSample.getId() != 0){
-			////fileService.setSampleFile(fileService.getFileGroupById(peaksXlsGId), testSample);
-			FileGroup fg = fileService.getFileGroupById(this.peaksXlsGId);
-			fileService.setSampleFile(fg, testSample);
-			FileGroupMeta fgm = new FileGroupMeta();
-			fgm.setK("chipseqAnalysis.controlId");
-			fgm.setV(this.controlSampleId.toString());
-			fgm.setFileGroupId(fg.getId());
-			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
-			fgmList.add(fgm);
-			fileService.saveFileGroupMeta(fgmList, fg);
-		}
-		if (this.narrowPeaksBedGId != null && testSample.getId() != 0){
-			////fileService.setSampleFile(fileService.getFileGroupById(narrowPeaksBedGId), testSample);
-			FileGroup fg = fileService.getFileGroupById(this.narrowPeaksBedGId);
-			fileService.setSampleFile(fg, testSample);
-			FileGroupMeta fgm = new FileGroupMeta();
-			fgm.setK("chipseqAnalysis.controlId");
-			fgm.setV(this.controlSampleId.toString());
-			fgm.setFileGroupId(fg.getId());
-			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
-			fgmList.add(fgm);
-			fileService.saveFileGroupMeta(fgmList, fg);
-		}
-		if (this.summitsBedGId != null && testSample.getId() != 0){
-			///fileService.setSampleFile(fileService.getFileGroupById(summitsBedGId), testSample);
-			FileGroup fg = fileService.getFileGroupById(this.summitsBedGId);
-			fileService.setSampleFile(fg, testSample);
-			FileGroupMeta fgm = new FileGroupMeta();
-			fgm.setK("chipseqAnalysis.controlId");
-			fgm.setV(this.controlSampleId.toString());
-			fgm.setFileGroupId(fg.getId());
-			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
-			fgmList.add(fgm);
-			fileService.saveFileGroupMeta(fgmList, fg);
-		}
-		if (this.summitsModifiedBedGId != null && testSample.getId() != 0){
-			///fileService.setSampleFile(fileService.getFileGroupById(summitsBedGId), testSample);
-			FileGroup fg = fileService.getFileGroupById(this.summitsModifiedBedGId);
-			fileService.setSampleFile(fg, testSample);
-			FileGroupMeta fgm = new FileGroupMeta();
-			fgm.setK("chipseqAnalysis.controlId");
-			fgm.setV(this.controlSampleId.toString());
-			fgm.setFileGroupId(fg.getId());
-			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
-			fgmList.add(fgm);
-			fileService.saveFileGroupMeta(fgmList, fg);
-		}
-		if (this.treatPileupBedGraphGId != null && testSample.getId() != 0){
-			///fileService.setSampleFile(fileService.getFileGroupById(treatPileupBedGraphGId), testSample);
-			FileGroup fg = fileService.getFileGroupById(this.treatPileupBedGraphGId);
-			fileService.setSampleFile(fg, testSample);
-			FileGroupMeta fgm = new FileGroupMeta();
-			fgm.setK("chipseqAnalysis.controlId");
-			fgm.setV(this.controlSampleId.toString());
-			fgm.setFileGroupId(fg.getId());
-			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
-			fgmList.add(fgm);
-			fileService.saveFileGroupMeta(fgmList, fg);
-		}
-		if (this.controlLambdaBedGraphGId != null && testSample.getId() != 0){
-			///fileService.setSampleFile(fileService.getFileGroupById(controlLambdaBedGraphGId), testSample);
-			FileGroup fg = fileService.getFileGroupById(this.controlLambdaBedGraphGId);
-			fileService.setSampleFile(fg, testSample);
-			FileGroupMeta fgm = new FileGroupMeta();
-			fgm.setK("chipseqAnalysis.controlId");
-			fgm.setV(this.controlSampleId.toString());
-			fgm.setFileGroupId(fg.getId());
-			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
-			fgmList.add(fgm);
-			fileService.saveFileGroupMeta(fgmList, fg);
-		}
-		
-		
-		
-		
-		
-		if (this.modelPdfGId != null && testSample.getId() != 0){
-			////fileService.setSampleFile(fileService.getFileGroupById(modelPdfGId), testSample);
-			FileGroup fg = fileService.getFileGroupById(this.modelPdfGId);
-			fileService.setSampleFile(fg, testSample);
-			FileGroupMeta fgm = new FileGroupMeta();
-			fgm.setK("chipseqAnalysis.controlId");
-			fgm.setV(this.controlSampleId.toString());//could be zero
-			fgm.setFileGroupId(fg.getId());
-			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
-			fgmList.add(fgm);
-			fileService.saveFileGroupMeta(fgmList, fg);
-		}
-		
-		if (this.modelPngGId != null && testSample.getId() != 0){
-			////fileService.setSampleFile(fileService.getFileGroupById(modelPdfGId), testSample);
-			FileGroup fg = fileService.getFileGroupById(this.modelPngGId);
-			fileService.setSampleFile(fg, testSample);
-			FileGroupMeta fgm = new FileGroupMeta();
-			fgm.setK("chipseqAnalysis.controlId");
-			fgm.setV(this.controlSampleId.toString());//could be zero
-			fgm.setFileGroupId(fg.getId());
-			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
-			fgmList.add(fgm);
-			fileService.saveFileGroupMeta(fgmList, fg);
-		}
-		
-		
-		
-		
 		
 		//new, 5-9-14
 		logger.debug("new stuff, added 5-9-14, to get numbers from txt files that are not saved");
@@ -768,42 +529,8 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		logger.debug("getting ready to save testSample metadata  in MacstwoTasklet");
 		
-		// register commandLineCall, testCellLibraryIdList, controlCellLibraryIdList and  controlId with sampleMeta 
+		//register commandLineCall, testCellLibraryIdList, controlCellLibraryIdList and  controlId and testId with fileGroupMeta 
 		//and record totalCountMappedReads, totalCountMappedReadsInPeaks, [FRIP statistic - will be derived from totalCountMappedReadsInPeaks / totalCountMappedReadsInPeaks]
-		List<SampleMeta> testSampleMetaList = testSample.getSampleMeta();
-		
-		SampleMeta sm1 = new SampleMeta();
-		sm1.setK("chipseqAnalysis.testCellLibraryIdList" + "::" + this.controlSampleId.toString());
-		sm1.setV(this.testCellLibraryIdListAsString);
-		testSampleMetaList.add(sm1);
-		
-		SampleMeta sm2 = new SampleMeta();
-		sm2.setK("chipseqAnalysis.controlCellLibraryIdList" + "::" + this.controlSampleId.toString());
-		sm2.setV(this.controlCellLibraryIdListAsString);
-		testSampleMetaList.add(sm2);
-		
-		SampleMeta sm3 = new SampleMeta();
-		sm3.setK("chipseqAnalysis.commandLineCall" + "::" + this.controlSampleId.toString());
-		sm3.setV(this.commandLineCall);
-		testSampleMetaList.add(sm3);
-		
-		SampleMeta sm4 = new SampleMeta();
-		sm4.setK("chipseqAnalysis.controlId" + "::" + this.controlSampleId.toString());
-		sm4.setV(this.controlSampleId.toString());
-		testSampleMetaList.add(sm4);	
-		
-		SampleMeta sm5 = new SampleMeta();
-		sm5.setK("chipseqAnalysis.totalCountMappedReads" + "::" + this.controlSampleId.toString());
-		sm5.setV(totalCountMappedReadsAsString);
-		testSampleMetaList.add(sm5);	
-		SampleMeta sm6 = new SampleMeta();
-		sm6.setK("chipseqAnalysis.totalCountMappedReadsInPeaks" + "::" + this.controlSampleId.toString());
-		sm6.setV(totalCountMappedReadsInPeaksAsString);
-		testSampleMetaList.add(sm6);		
-		
-		sampleService.saveSampleWithAssociatedMeta(testSample);
-		
-		
 		//new 6-18-14
 		if (this.macs2AnalysisFileGroupId != null && testSample.getId() != 0){
 			FileGroup fg = fileService.getFileGroupById(this.macs2AnalysisFileGroupId);
@@ -852,6 +579,12 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 			fgm7.setV(totalCountMappedReadsInPeaksAsString);
 			fgm7.setFileGroupId(fg.getId());			
 			fgmList.add(fgm7);
+			
+			FileGroupMeta fgm8 = new FileGroupMeta();
+			fgm8.setK("macs2Analysis.softwareIdUsedListAsString");
+			fgm8.setV(softwareIdUsedListAsString);
+			fgm8.setFileGroupId(fg.getId());			
+			fgmList.add(fgm8);
 			
 			fileService.saveFileGroupMeta(fgmList, fg);
 		}

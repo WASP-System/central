@@ -51,6 +51,8 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 	private FileUrlResolver fileUrlResolver;
 	@Autowired
 	private RunService runService;
+	@Autowired
+	private FileType macs2AnalysisFileType;
 	
 	public class SampleNameComparator implements Comparator<Sample> {
 	    @Override
@@ -83,6 +85,19 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 	public Set<PanelTab> getMacstwoDataToDisplay(Job job)throws PanelException{
 		 
 		 try{
+			 //First, assemble the data	
+			 //get job.samples. Get fileGroup for these samples where fileGroupType is a macs2 analysis (macs2AnalysisFiles)
+			 List<FileGroup> macs2AnalysisList = getMacs2AnalysisList(job);
+			 class FileGroupDescriptionComparator implements Comparator<FileGroup> {
+				 @Override
+				 public int compare(FileGroup arg0, FileGroup arg1) {
+					 return arg0.getDescription().compareToIgnoreCase(arg1.getDescription());
+				 }
+			 }
+			 Collections.sort(macs2AnalysisList, new FileGroupDescriptionComparator());//sorted by description
+			 Map<FileGroup, List<FileHandle>> fileGroupFileHandleListMap = getMacs2AnalysisFiles(macs2AnalysisList);
+			 
+/*
 			 //First, assemble the data			
 			//samplePairs (for the samplePairsTab)
 			Map<Sample, List<Sample>> testSampleControlSampleListMap = getTestSampleControlSampleListMap(job);//reviewed and OK		
@@ -104,10 +119,10 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 			Map<String, FileHandle> sampleIdControlIdFileTypeIdFileHandleMap = getCodedFileHandleMap(sampleIdControlIdFileTypeIdFileGroupMap);//new HashMap<String, FileHandle>();
 			Map<FileHandle, String> fileHandleResolvedURLMap = getFileHandleResolvedURLMap(sampleIdControlIdFileTypeIdFileHandleMap);//new HashMap<FileHandle, String>();
 			List<FileType> fileTypeList = getOrderedFileTypeList(sampleIdControlIdFileTypeIdFileGroupMap);//actually, ordered set
-			
+*/		
 			//SECOND, present the data within an ordered set of panel tabs (recall that the summary panel has already been taken care of)
 			Set<PanelTab> panelTabSet = new LinkedHashSet<PanelTab>();
-
+/*
 			PanelTab samplePairsPanelTab = MacstwoWebPanels.getSamplePairs(testSampleList, testSampleControlSampleListMap, sampleIdControlIdCommandLineMap);
 			if(samplePairsPanelTab!=null){panelTabSet.add(samplePairsPanelTab);}
 			PanelTab fripPanelTab = MacstwoWebPanels.getFrips(testSampleList, testSampleControlSampleListMap, sampleIdControlIdFripMap);
@@ -123,7 +138,7 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 			
 			PanelTab allModelPNGFilesDisplayedInPanelsTab = MacstwoWebPanels.getModelImages(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
 			if(allModelPNGFilesDisplayedInPanelsTab!=null){panelTabSet.add(allModelPNGFilesDisplayedInPanelsTab);}
-			
+*/			
 			return panelTabSet;
 			
 		}catch(Exception e){
@@ -132,6 +147,29 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 		}		
 	}
 
+	private List<FileGroup> getMacs2AnalysisList(Job job){
+		
+		List<FileGroup> macs2AnalysisFileGroupList = new ArrayList<FileGroup>();
+		for(Sample sample : job.getSample()){
+			for(FileGroup fg : sample.getFileGroups()){
+				if(fg.getFileType().getId().intValue()==macs2AnalysisFileType.getId().intValue()){
+					macs2AnalysisFileGroupList.add(fg);
+				}
+			}
+		}
+		return macs2AnalysisFileGroupList;		
+	}
+	
+	private Map<FileGroup, List<FileHandle>> getMacs2AnalysisFiles(List<FileGroup> macs2AnalysisList){
+		Map<FileGroup, List<FileHandle>> macs2AnalysisFilesMap = new HashMap<FileGroup, List<FileHandle>>();
+		
+		for(FileGroup fg : macs2AnalysisList){
+			
+		}
+		
+		return macs2AnalysisFilesMap;
+	}
+	
 	private Map<Sample, List<Sample>> getTestSampleControlSampleListMap(Job job){//reviewed and OK
 		
 		Map<Sample, List<Sample>> testSampleControlSampleListMap = new HashMap<Sample, List<Sample>>();
