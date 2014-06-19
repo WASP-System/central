@@ -75,9 +75,10 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	private Integer modelPdfGId;//generated in doExecute()
 	private Integer modelPngGId;//generated in doExecute()
 	
-	
+	private Integer macs2AnalysisFileGroupId;
 	
 	private StepExecution stepExecution;
+	
 	
 	@Autowired
 	private FileType macs2ModelScriptFileType;
@@ -103,6 +104,8 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	private FileType macs2ModelPngFileType;
 	
 	
+	@Autowired
+	private FileType macs2AnalysisFileType;
 	
 	
 	
@@ -193,10 +196,10 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		String antibodyTarget = null;
 		while(testSample.getParentId()!=null){
 			testSample = sampleService.getSampleById(testSample.getParentId());
-			for(SampleMeta sm : testSample.getSampleMeta()){
-				if(sm.getK().toLowerCase().contains("antibody")){
-					antibodyTarget = sm.getV();
-				}
+		}
+		for(SampleMeta sm : testSample.getSampleMeta()){
+			if(sm.getK().toLowerCase().contains("antibody")){
+				antibodyTarget = sm.getV();
 			}
 		}
 		logger.debug("testSample.name = " + testSample.getName());		
@@ -204,11 +207,14 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 
 		Set<SampleSource> setOfCellLibrariesForDerivedFrom = new HashSet<SampleSource>();//tests and controls
 		
+		Set<FileGroup> derrivedFromFileGroups = new HashSet<FileGroup>();
+		
 		List<FileHandle> testFileHandleList = new ArrayList<FileHandle>();		
 		for(Integer id : this.testCellLibraryIdList){
 			SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(id);
 			setOfCellLibrariesForDerivedFrom.add(cellLibrary);
 			Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLibrary, bamFileType);
+			derrivedFromFileGroups.addAll(fileGroups);
 			logger.debug("test fileGroups size = " + fileGroups.size());
 			for(FileGroup fileGroup : fileGroups){
 				for(FileHandle fileHandle : fileGroup.getFileHandles()){
@@ -241,6 +247,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 			SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(id);
 			setOfCellLibrariesForDerivedFrom.add(cellLibrary);
 			Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLibrary, bamFileType);
+			derrivedFromFileGroups.addAll(fileGroups);
 			logger.debug("control fileGroups size = " + fileGroups.size());
 			for(FileGroup fileGroup : fileGroups){
 				for(FileHandle fileHandle : fileGroup.getFileHandles()){
@@ -294,10 +301,14 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		List<String> listOfFileHandleNames = new ArrayList<String>();
 		
 		Set<FileHandle> files = new LinkedHashSet<FileHandle>();
-		
+				
 		FileGroup modelScriptG = new FileGroup();
 		FileHandle modelScript = new FileHandle();
 		modelScript.setFileName(modelFileName);//prefixForFileName + "_model.r"
+		//WHEN THHIS IS A SINGLE FILEGROUP FOR ALL FILES, then do:
+		//BUT NOT FOR modelScriptG, use the new name  whatever that is modelScriptG.setDerivedFrom(derrivedFromFileGroups);
+		//but keep the other meta just in case, as fileGroupMeta
+		//since the fileGroup will have a file type of chipSeqAnalysis.macs2 with a name of previxForFileName
 		listOfFileHandleNames.add(modelFileName );
 		modelScript.setFileType(macs2ModelScriptFileType);
 		modelScript = fileService.addFile(modelScript);
@@ -442,13 +453,22 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 
 		
 		
-		
-		
-		
-		
-		
-		
-		
+		//6-18-14
+		//deal with the new macs2Analysis fileGroup
+		//WHEN THHIS IS A SINGLE FILEGROUP FOR ALL FILES, then do:
+		//BUT NOT FOR modelScriptG, use the new name  whatever that is modelScriptG.setDerivedFrom(derrivedFromFileGroups);
+		//but keep the other meta just in case, as fileGroupMeta
+		//since the fileGroup will have a file type of chipSeqAnalysis.macs2 with a name of previxForFileName
+		FileGroup macs2AnalysisFileGroup = new FileGroup();
+		macs2AnalysisFileGroup.setFileType(macs2AnalysisFileType);
+		macs2AnalysisFileGroup.setDescription(prefixForFileName);
+		macs2AnalysisFileGroup.setSoftwareGeneratedBy(macs2);
+		macs2AnalysisFileGroup.setDerivedFrom(derrivedFromFileGroups);
+		macs2AnalysisFileGroup.setFileHandles(files);
+		macs2AnalysisFileGroup = fileService.addFileGroup(macs2AnalysisFileGroup);
+		this.macs2AnalysisFileGroupId = macs2AnalysisFileGroup.getId();
+		logger.debug("new --- recorded all encompassing fileGroup macs2AnalysisFileGroup as a container for files outputted by macs2");
+	
 		logger.debug("recorded fileGroups and fileHandles for macs2 files in MacstwoTasklet.doExecute()");
 		
 		//place in the step context in case of crash
@@ -469,6 +489,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		stepContext.put("modelPdfGId", this.modelPdfGId);
 		stepContext.put("modelPngGId", this.modelPngGId);
 		
+		stepContext.put("macs2AnalysisFileGroupId", macs2AnalysisFileGroupId);
 		
 		stepContext.put("commandLineCall", this.commandLineCall);
 		logger.debug("saved variables in stepContext in case of crash in MacstwoTasklet.doExecute()");
@@ -539,6 +560,8 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		this.modelPdfGId = (Integer) stepContext.get("modelPdfGId");
 		this.modelPngGId = (Integer) stepContext.get("modelPngGId");
+		
+		this.macs2AnalysisFileGroupId = (Integer) stepContext.get("macs2AnalysisFileGroupId");
 	}
 	
 	/** 
@@ -568,6 +591,8 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		this.modelPdfGId = (Integer) stepContext.get("modelPdfGId");
 		this.modelPngGId = (Integer) stepContext.get("modelPngGId");
+		
+		this.macs2AnalysisFileGroupId = (Integer) stepContext.get("macs2AnalysisFileGroupId");
 		
 		// associate test sample with the new file groups		
 		Sample testSample = sampleService.getSampleById(testSampleId);		
@@ -693,7 +718,6 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		
 		
-		
 		//new, 5-9-14
 		logger.debug("new stuff, added 5-9-14, to get numbers from txt files that are not saved");
 		//context.getStepContext().attributeNames().
@@ -779,7 +803,59 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		sampleService.saveSampleWithAssociatedMeta(testSample);
 		
-		logger.debug("ending doPreFinish() in MacstwoTasklet");
+		
+		//new 6-18-14
+		if (this.macs2AnalysisFileGroupId != null && testSample.getId() != 0){
+			FileGroup fg = fileService.getFileGroupById(this.macs2AnalysisFileGroupId);
+			fileService.setSampleFile(fg, testSample);
+			
+			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
+			
+			FileGroupMeta fgm = new FileGroupMeta();
+			fgm.setK("macs2Analysis.controlId");//could be gotten from the derivedFrom data
+			fgm.setV(this.controlSampleId.toString());
+			fgm.setFileGroupId(fg.getId());
+			fgmList.add(fgm);
+			
+			FileGroupMeta fgm2 = new FileGroupMeta();
+			fgm2.setK("macs2Analysis.testId");//sample --> sampleFileGroup table; but could be gotten from the derivedFrom data
+			fgm2.setV(testSample.getId().toString());
+			fgm2.setFileGroupId(fg.getId());
+			fgmList.add(fgm2);
+			
+			FileGroupMeta fgm3 = new FileGroupMeta();
+			fgm3.setK("macs2Analysis.testCellLibraryIdList");//these are now really stored in derivedFrom, as list of Bam files
+			fgm3.setV(this.testCellLibraryIdListAsString);
+			fgm3.setFileGroupId(fg.getId());
+			fgmList.add(fgm3);
+			
+			FileGroupMeta fgm4 = new FileGroupMeta();
+			fgm4.setK("macs2Analysis.controlCellLibraryIdList");//these are now really stored in derivedFrom, as list of Bam files
+			fgm4.setV(this.controlCellLibraryIdListAsString);
+			fgm4.setFileGroupId(fg.getId());
+			fgmList.add(fgm4);
+			
+			FileGroupMeta fgm5 = new FileGroupMeta();
+			fgm5.setK("macs2Analysis.commandLineCall");
+			fgm5.setV(this.commandLineCall);
+			fgm5.setFileGroupId(fg.getId());
+			fgmList.add(fgm5);
+			
+			FileGroupMeta fgm6 = new FileGroupMeta();
+			fgm6.setK("macs2Analysis.totalCountMappedReads");
+			fgm6.setV(totalCountMappedReadsAsString);
+			fgm6.setFileGroupId(fg.getId());
+			fgmList.add(fgm6);
+			
+			FileGroupMeta fgm7 = new FileGroupMeta();
+			fgm7.setK("macs2Analysis.totalCountMappedReadsInPeaksAsString");
+			fgm7.setV(totalCountMappedReadsInPeaksAsString);
+			fgm7.setFileGroupId(fg.getId());			
+			fgmList.add(fgm7);
+			
+			fileService.saveFileGroupMeta(fgmList, fg);
+		}
 
+		logger.debug("ending doPreFinish() in MacstwoTasklet");
 	}
 }

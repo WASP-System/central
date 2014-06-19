@@ -5,6 +5,14 @@
 	default-autowire="byName"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 	
+ <!-- macs2AnalysisFileType is really a fileType for a FileGroup -->
+ <bean id="macs2AnalysisFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
+    <property name="name" value="macs2 Analysis Files" />
+    <property name="area" value="macs2AnalysisFiles" />
+    <property name="description" value="Macs2 Output Files" />
+    <property name="extensions" value="" />
+  </bean>
+	
   <bean id="macs2ModelScriptFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
     <property name="name" value="ModelScript" />
     <property name="area" value="macs2modelscript" />

@@ -115,6 +115,7 @@ public class PeakCallerTasklet extends LaunchManyJobsTasklet {
 
 		for(Sample testSample : setOfApprovedSamples){
 			if(isIP(testSample)){//as of 6-17-14, only call peaks for IP samples 
+				//could also have if(isPunctate(sample) or is destined of IDR with macs, whihc whould need more info passed
 				List<SampleSource> cellLibraryListForTest = approvedSampleApprovedCellLibraryListMap.get(testSample);
 				Assert.assertTrue( ! cellLibraryListForTest.isEmpty() );
 				List<Sample> controlSampleList = testSampleControlSampleListMap.get(testSample);
