@@ -187,7 +187,7 @@ public class MacstwoWebPanels {
 		panelTab.addPanel(panel);//add panel to panelTab
 		return panelTab;
 	}
-	public static PanelTab getFileTypeDefinitions(List<FileType> fileTypeList){
+	public static PanelTab getFileTypeDefinitions(List<FileType> fileTypeList){//we kept this
 		
 		//create the panelTab to house the panel
 		PanelTab panelTab = new PanelTab();
@@ -214,9 +214,9 @@ public class MacstwoWebPanels {
 		
 		//create rows with  information
 		for(FileType fileType : fileTypeList){
-			if(fileType.getExtensions().endsWith("_model.png")){//macstwo specific
-				continue;
-			}
+			//if(fileType.getExtensions().endsWith("_model.png")){//macstwo specific
+			//	continue;
+			//}
 			List<String> row = new ArrayList<String>();			
 			row.add(fileType.getName());
 			row.add(fileType.getDescription());			
@@ -226,6 +226,60 @@ public class MacstwoWebPanels {
 		panel.setContent(content);//add content to panel
 		panelTab.addPanel(panel);//add panel to panelTab
 		return panelTab;
+	}
+	public static PanelTab getFilesByAnalysis(List<FileGroup> macs2AnalysisFileGroupList, Map<FileGroup,List<FileHandle>> fileGroupFileHandleListMap, Map<FileHandle,String> fileHandleResolvedURLMap){
+		
+		//create the panelTab to house the panel
+		PanelTab panelTab = new PanelTab();
+		panelTab.setName("Files By Analysis");
+		panelTab.setNumberOfColumns(1);
+	
+		//create the panel
+		GridPanel panel = new GridPanel();
+		panel.setTitle("Files By Analysis");
+		panel.setDescription("Files By Analysis");
+		panel.setResizable(true);
+		panel.setMaximizable(true);	
+		panel.setOrder(1);
+		panel.setGrouping(true);
+		panel.setGroupField("Analysis");
+		panel.setHasDownload(true);
+		panel.setDownloadLinkField("Download");
+		panel.setAllowSelectDownload(true);
+		panel.setAllowGroupDownload(true);
+		panel.setSelectDownloadText("Download Selected");
+		
+		//create content (think of it as the table)
+		GridContent content = new GridContent();
+		//create the data model 
+		content.addDataFields(new GridDataField("Analysis", "String"));//THIS WILL BE THE UNIQUE GROUPING FIELD //dataIndex, datatype
+		content.addDataFields(new GridDataField("FileType", "String"));//dataIndex, datatype
+		content.addDataFields(new GridDataField("File", "String"));//dataIndex, datatype
+		content.addDataFields(new GridDataField("MD5", "String"));//dataIndex, datatype
+		content.addDataFields(new GridDataField("Download", "String"));//dataIndex, datatype
+
+		//create columns and associate each column with its displayed header and a data model attribute (dataIndex)
+		///////don't want this to display: content.addColumn(new GridColumn("Analysis", "Analysis"));//header,dataIndex		
+		content.addColumn(new GridColumn("File Type", "FileType", 150, 0));//header,dataIndex	width=150; flex=0	
+		content.addColumn(new GridColumn("File", "File", 1));//header,dataIndex					flex=1
+		content.addColumn(new GridColumn("MD5", "MD5", 270, 0));//header,dataIndex					width=270; flex=0
+		////content.addColumn(new GridColumn(" ", "Download", 100, 0));//header is single space string,dataIndex	width=100; flex=0
+		
+		for(FileGroup fileGroup : macs2AnalysisFileGroupList){				
+			for(FileHandle fileHandle : fileGroupFileHandleListMap.get(fileGroup)){				
+				List<String> row = new ArrayList<String>();				
+				row.add(fileGroup.getDescription());//won't be displayed on each row, but will be the header for each section (but must be part of the row
+				row.add(fileHandle.getFileType().getName());
+				row.add(fileHandle.getFileName());
+				row.add(fileHandle.getMd5hash());
+				row.add(fileHandleResolvedURLMap.get(fileHandle));
+				content.addDataRow(row);//add the new row to the content
+			}			
+		}
+		panel.setContent(content);//add content to panel
+		panelTab.addPanel(panel);//add panel to panelTab
+	
+		return panelTab;		 
 	}
 	public static PanelTab getFilesBySample(List<Sample> testSampleList, Map<Sample, List<Sample>> testSampleControlSampleListMap, List<FileType> fileTypeList, Map<String, FileHandle>  sampleIdControlIdFileTypeIdFileHandleMap, Map<FileHandle, String> fileHandleResolvedURLMap, Map<String, FileGroup> sampleIdControlIdFileTypeIdFileGroupMap){
 

@@ -87,16 +87,44 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 		 try{
 			 //First, assemble the data	
 			 //get job.samples. Get fileGroup for these samples where fileGroupType is a macs2 analysis (macs2AnalysisFiles)
-			 List<FileGroup> macs2AnalysisList = getMacs2AnalysisList(job);
+			 List<FileGroup> macs2AnalysisFileGroupList = getMacs2AnalysisList(job);
 			 class FileGroupDescriptionComparator implements Comparator<FileGroup> {
 				 @Override
 				 public int compare(FileGroup arg0, FileGroup arg1) {
 					 return arg0.getDescription().compareToIgnoreCase(arg1.getDescription());
 				 }
 			 }
-			 Collections.sort(macs2AnalysisList, new FileGroupDescriptionComparator());//sorted by description
-			 Map<FileGroup, List<FileHandle>> fileGroupFileHandleListMap = getMacs2AnalysisFiles(macs2AnalysisList);
+			 Collections.sort(macs2AnalysisFileGroupList, new FileGroupDescriptionComparator());//sorted by description (base name)
 			 
+			 Map<FileGroup, List<FileHandle>> fileGroupFileHandleListMap = getMacs2AnalysisFiles(macs2AnalysisFileGroupList);			 
+			 
+			 List<FileHandle> fileHandleList = new ArrayList<FileHandle>();
+			 for(FileGroup fg : macs2AnalysisFileGroupList){
+				 for(FileHandle fh : fileGroupFileHandleListMap.get(fg)){
+					 fileHandleList.add(fh);
+				 }
+			 }
+			 
+			 Map<FileHandle, String> fileHandleResolvedURLMap = getResolvedURL(fileHandleList);			 
+			 
+			 /* testing */
+			 for(FileGroup fg : macs2AnalysisFileGroupList){
+				 System.out.println("--Analysis: " + fg.getDescription());
+				 for(FileHandle fh : fileGroupFileHandleListMap.get(fg)){
+					 System.out.println("----FileName: " + fh.getFileName());
+					 System.out.println("------ResolvedURL: " +  fileHandleResolvedURLMap.get(fh));
+				 }
+			 }
+			 
+			 Set<FileType> fileTypeSet = getFileTypeSet(fileHandleList);
+			 List<FileType> fileTypeList = new ArrayList<FileType>(fileTypeSet);
+			 Collections.sort(fileTypeList, new FileTypeComparator());
+			 /* testing */
+			 System.out.println("--FileTypes: ");
+			 for(FileType ft : fileTypeList){
+				 System.out.println("----" + ft.getName());
+				 System.out.println("------" + ft.getDescription());
+			 }
 /*
 			 //First, assemble the data			
 			//samplePairs (for the samplePairsTab)
@@ -122,6 +150,10 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 */		
 			//SECOND, present the data within an ordered set of panel tabs (recall that the summary panel has already been taken care of)
 			Set<PanelTab> panelTabSet = new LinkedHashSet<PanelTab>();
+			PanelTab fileTypeDefinitionsPanelTab = MacstwoWebPanels.getFileTypeDefinitions(fileTypeList);
+			if(fileTypeDefinitionsPanelTab!=null){panelTabSet.add(fileTypeDefinitionsPanelTab);}
+			PanelTab allFilesDisplayedByAnalysisTab = MacstwoWebPanels.getFilesByAnalysis(macs2AnalysisFileGroupList, fileGroupFileHandleListMap, fileHandleResolvedURLMap);
+			if(allFilesDisplayedByAnalysisTab!=null){panelTabSet.add(allFilesDisplayedByAnalysisTab);}
 /*
 			PanelTab samplePairsPanelTab = MacstwoWebPanels.getSamplePairs(testSampleList, testSampleControlSampleListMap, sampleIdControlIdCommandLineMap);
 			if(samplePairsPanelTab!=null){panelTabSet.add(samplePairsPanelTab);}
@@ -161,14 +193,51 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 	}
 	
 	private Map<FileGroup, List<FileHandle>> getMacs2AnalysisFiles(List<FileGroup> macs2AnalysisList){
+		
 		Map<FileGroup, List<FileHandle>> macs2AnalysisFilesMap = new HashMap<FileGroup, List<FileHandle>>();
 		
 		for(FileGroup fg : macs2AnalysisList){
+			List<FileHandle> fileHandleList = new ArrayList<FileHandle>();
+			for(FileHandle fh : fg.getFileHandles()){
+				fileHandleList.add(fh);
+			}
 			
-		}
-		
+			class FileHandleViaFileTypeComparator implements Comparator<FileHandle> {
+				 @Override
+				 public int compare(FileHandle arg0, FileHandle arg1) {
+					 return arg0.getFileType().getIName().compareToIgnoreCase(arg1.getFileType().getIName());
+				 }
+			 }
+			 
+			 Collections.sort(fileHandleList, new FileHandleViaFileTypeComparator());
+			 macs2AnalysisFilesMap.put(fg, fileHandleList);
+		}		
 		return macs2AnalysisFilesMap;
 	}
+	
+	private  Set<FileType> getFileTypeSet(List<FileHandle> fileHandleList){
+		Set<FileType> fileTypeSet = new HashSet<FileType>();
+		for(FileHandle fh : fileHandleList){
+			fileTypeSet.add(fh.getFileType());
+		}
+		return fileTypeSet;
+	}
+	
+	private Map<FileHandle, String> getResolvedURL(List<FileHandle> fileHandleList){
+		Map<FileHandle, String> fileHandleResolvedURLMap = new HashMap<FileHandle, String>();
+		for(FileHandle fh : fileHandleList){
+			String resolvedURL = "";
+			try{
+				resolvedURL = fileUrlResolver.getURL(fh).toString();
+			}catch(Exception e){logger.debug("***************UNABLE TO RESOLVE URL for file: " + fh.getFileName());}
+			
+			fileHandleResolvedURLMap.put(fh, resolvedURL);
+		}
+		return fileHandleResolvedURLMap;
+	}
+	
+	
+	
 	
 	private Map<Sample, List<Sample>> getTestSampleControlSampleListMap(Job job){//reviewed and OK
 		
