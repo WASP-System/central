@@ -449,7 +449,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		this.commandLineCall = (String) stepContext.get("commandLineCall");	
 		
 		this.macs2AnalysisFileGroupId = (Integer) stepContext.get("macs2AnalysisFileGroupId");
-		this.softwareIdUsedListAsString = (String) stepContext.getString("softwareIdUsedListAsString");
+		this.softwareIdUsedListAsString = (String) stepContext.get("softwareIdUsedListAsString");
 	}
 	
 	/** 
@@ -472,7 +472,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		this.commandLineCall = (String) stepContext.get("commandLineCall");		
 		
 		this.macs2AnalysisFileGroupId = (Integer) stepContext.get("macs2AnalysisFileGroupId");
-		this.softwareIdUsedListAsString = (String) stepContext.getString("softwareIdUsedListAsString");
+		this.softwareIdUsedListAsString = (String) stepContext.get("softwareIdUsedListAsString");
 		
 		// associate test sample with the new file groups		
 		Sample testSample = sampleService.getSampleById(testSampleId);		
@@ -582,7 +582,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 			
 			FileGroupMeta fgm8 = new FileGroupMeta();
 			fgm8.setK("macs2Analysis.softwareIdUsedListAsString");
-			fgm8.setV(softwareIdUsedListAsString);
+			fgm8.setV(this.softwareIdUsedListAsString);
 			fgm8.setFileGroupId(fg.getId());			
 			fgmList.add(fgm8);
 			
