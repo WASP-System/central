@@ -49,6 +49,7 @@ public class LocalhostFileService implements GridFileService {
 	public void get(String remoteFile, File localFile) throws IOException {
 		Path remote = getLocalhostFilePath(remoteFile);
 		logger.debug("get called: " + remote + " from localhost as " + localFile);
+		Files.createDirectories(localFile.toPath().getParent());
 		Files.copy(remote, localFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 	}
 
