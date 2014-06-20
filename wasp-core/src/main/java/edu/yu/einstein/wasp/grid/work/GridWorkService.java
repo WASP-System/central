@@ -4,9 +4,8 @@
 package edu.yu.einstein.wasp.grid.work;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.Set;
 
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
@@ -54,9 +53,17 @@ public interface GridWorkService {
 	 * Set the parallel environment strings.
 	 * @param pe
 	 */
-	public void setAvailableParallelEnvironments(List<String> pe);
+	public void setAvailableParallelEnvironments(Set<String> pe);
 	
-	public List<String> getAvailableParallelEnvironments();
+	public Set<String> getAvailableParallelEnvironments();
+	
+	public void setDefaultParallelEnvironment(String defaultParallelEnvironment);
+
+	public String getDefaultParallelEnvironment();
+
+	public String getDefaultMpiParallelEnvironment();
+
+	public void setDefaultMpiParallelEnvironment(String defaultMpiParallelEnvironment);
 	
 	/**
 	 * Set the grid file service.
@@ -99,6 +106,10 @@ public interface GridWorkService {
 	 * @throws IOException
 	 */
 	public String getResultStdErr(GridResult r) throws IOException;
+
+	public boolean isNumProcConsumable();
+
+	public void setNumProcConsumable(boolean isNumProcConsumable);
 	
 	/**
 	 * Given a GridResult, pull a small named file from the job's working directory as a string.

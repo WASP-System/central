@@ -2,13 +2,12 @@ package edu.yu.einstein.wasp.grid.work;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,14 +119,14 @@ public class SshWorkService implements GridWorkService {
 	}
 
 	@Override
-	public void setAvailableParallelEnvironments(List<String> pe) {
+	public void setAvailableParallelEnvironments(Set<String> pe) {
 		// MPI PE not available in direct ssh mode 
 	}
 
 	@Override
-	public List<String> getAvailableParallelEnvironments() {
+	public Set<String> getAvailableParallelEnvironments() {
 		// MPI PE not available in direct ssh mode
-		return new ArrayList<String>();
+		return new HashSet<String>();
 	}
 
 	@Override
@@ -168,6 +167,42 @@ public class SshWorkService implements GridWorkService {
 	public String getUnregisteredFileContents(GridResult r, String filename) throws IOException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void setDefaultParallelEnvironment(String defaultParallelEnvironment) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String getDefaultParallelEnvironment() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getDefaultMpiParallelEnvironment() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setDefaultMpiParallelEnvironment(String defaultMpiParallelEnvironment) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isNumProcConsumable() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setNumProcConsumable(boolean isNumProcConsumable) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

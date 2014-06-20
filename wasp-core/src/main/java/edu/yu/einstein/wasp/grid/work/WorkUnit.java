@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
-import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
@@ -179,6 +178,29 @@ public class WorkUnit {
 	 */
 	private String user;
 	
+	/**
+	 * Specify a parallel environment to use. If default and MPI parallel environments are provided in configuration
+	 * it is not necessary to set this unless a non-default PE is required.
+	 */
+	private String parallelEnvironment;
+	
+	/**
+	 * get the parallel environment
+	 * @return
+	 */
+	public String getParallelEnvironment() {
+		return parallelEnvironment;
+	}
+
+	/**
+	 * Specify a parallel environment to use. If default and MPI parallel environments are provided in configuration
+	 * it is not necessary to set this unless a non-default PE is required.
+	 * @param parallelEnvironment
+	 */
+	public void setParallelEnvironment(String parallelEnvironment) {
+		this.parallelEnvironment = parallelEnvironment;
+	}
+	
 	
 	/**
 	 * Method for determining how many processors are necessary to execute this task.
@@ -192,6 +214,8 @@ public class WorkUnit {
 	public ProcessMode getProcessMode() {
 		return processMode;
 	}
+	
+
 	/**
 	 * set the ProcessMode
 	 * @param mode
