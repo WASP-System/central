@@ -29,12 +29,6 @@ public abstract class AbstractGatkTasklet extends WaspRemotingTasklet {
 	
 	private static Logger logger = LoggerFactory.getLogger(AbstractGatkTasklet.class);
 	
-	public static int THREADS_2 = 2;
-	
-	public static int THREADS_4 = 4;
-	
-	public static int THREADS_8 = 8;
-	
 	public static int MEMORY_GB_2 = 2;
 	
 	public static int MEMORY_GB_4 = 4;
