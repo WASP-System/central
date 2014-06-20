@@ -119,7 +119,7 @@ public class SshWorkService implements GridWorkService {
 	}
 
 	@Override
-	public void setAvailableParallelEnvironments(Set<String> pe) {
+	public void setAvailableParallelEnvironments(String commaDelimitedParallelEnvironments) {
 		// MPI PE not available in direct ssh mode 
 	}
 
