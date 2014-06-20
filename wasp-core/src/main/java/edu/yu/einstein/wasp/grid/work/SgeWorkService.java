@@ -127,7 +127,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	
 	protected String name;
 	
-	protected Set<String> parallelEnvironments;
+	protected Set<String> parallelEnvironments = new HashSet<>();
 	
 	protected String defaultParallelEnvironment;
 	
@@ -636,12 +636,12 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		if(getMaxRunTime() != null)
 			sss.setMaxRunTime(getMaxRunTime());
 		if (!w.getProcessMode().equals(ProcessMode.SINGLE)){
-			if (w.getParallelEnvironment() != null){
+			if (w.getParallelEnvironment() != null && !w.getParallelEnvironment().isEmpty()){
 				if (!getAvailableParallelEnvironments().contains(w.getParallelEnvironment()))
 					throw new MisconfiguredWorkUnitException("Parallel environment specified in work unit is not registered as an available parallel environment in the Grid Work Service");
 				sss.setParallelEnvironment(w.getParallelEnvironment(), w.getProcessorRequirements());
 			} else if (w.getProcessMode().equals(ProcessMode.MPI)){
-				if (getDefaultMpiParallelEnvironment() != null){
+				if (getDefaultMpiParallelEnvironment() != null && !w.getParallelEnvironment().isEmpty()){
 					sss.setParallelEnvironment(getDefaultMpiParallelEnvironment(), w.getProcessorRequirements());
 				} else if (getDefaultParallelEnvironment() != null){
 					logger.info("No default MPI parallel environment set so using default parallel environment");
@@ -719,8 +719,9 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	}
 	
 	@Override
-	public void setAvailableParallelEnvironments(Set<String> pe) {
-		this.parallelEnvironments = pe;
+	public void setAvailableParallelEnvironments(String commaDelimitedParallelEnvironments){
+		for (String parallelEnv : commaDelimitedParallelEnvironments.split(","))
+			this.parallelEnvironments.add(parallelEnv);
 	}
 	
 	@Override
@@ -741,8 +742,6 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	@Override
 	public void setDefaultParallelEnvironment(String defaultParallelEnvironment) {
 		this.defaultParallelEnvironment = defaultParallelEnvironment;
-		if (this.parallelEnvironments == null)
-			this.parallelEnvironments = new HashSet<>();
 		this.parallelEnvironments.add(defaultParallelEnvironment);
 		
 	}
@@ -760,8 +759,6 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	@Override
 	public void setDefaultMpiParallelEnvironment(String defaultMpiParallelEnvironment) {
 		this.defaultMpiParallelEnvironment = defaultMpiParallelEnvironment;
-		if (this.parallelEnvironments == null)
-			this.parallelEnvironments = new HashSet<>();
 		this.parallelEnvironments.add(defaultMpiParallelEnvironment);
 	}
 

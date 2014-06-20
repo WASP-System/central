@@ -53,7 +53,7 @@ public interface GridWorkService {
 	 * Set the parallel environment strings.
 	 * @param pe
 	 */
-	public void setAvailableParallelEnvironments(Set<String> pe);
+	public void setAvailableParallelEnvironments(String commaDelimitedParallelEnvironments);
 	
 	public Set<String> getAvailableParallelEnvironments();
 	
