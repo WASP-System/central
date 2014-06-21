@@ -41,14 +41,19 @@ public class LocalhostTransportConnection implements GridTransportConnection {
 	 */
 	@Override
 	public GridResult sendExecToRemote(WorkUnit w) throws GridAccessException {
+		// ensure set for direct remote execution
+		w.remoteWorkingDirectory = prefixRemoteFile(w.getWorkingDirectory());
+		w.remoteResultsDirectory = prefixRemoteFile(w.getResultsDirectory());
+		
 		Runtime runtime = Runtime.getRuntime();
-		GridResultImpl result = new GridResultImpl();
 		String command = w.getCommand();
-		if (w.getWrapperCommand() != null) 
+		if (w.getWrapperCommand() != null)
 			command = w.getWrapperCommand();
 		command = "cd " + w.remoteWorkingDirectory + " && " + command;
 		command = "if [ -e /etc/profile ]; then source /etc/profile > /dev/null 2>&1; fi && " + command;
+		
 		logger.debug("sending exec: " + command + " at: " + getHostName());
+		GridResultImpl result = new GridResultImpl();
 		try {
 			Process proc = runtime.exec(new String[]{"/bin/bash", "-c", command});
 			proc.waitFor();
@@ -63,8 +68,7 @@ public class LocalhostTransportConnection implements GridTransportConnection {
 			e.printStackTrace();
 			throw new GridAccessException("Process interrupted", e);
 		} 
-		
-		return result;
+		return (GridResult) result;
 		
 	}
 
