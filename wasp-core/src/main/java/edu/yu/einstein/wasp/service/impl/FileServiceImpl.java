@@ -850,7 +850,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		w.setRegistering(true);
 		w.setSecureResults(true);
 		w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
-		w.setWorkingDirectory("/tmp/" + WorkUnit.JOB_NAME);
+		w.setWorkingDirectory(WorkUnit.TMP_DIR_PLACEHOLDER);
 		w.setMode(ExecutionMode.TASK_ARRAY);
 
 		int numFiles = 0;
