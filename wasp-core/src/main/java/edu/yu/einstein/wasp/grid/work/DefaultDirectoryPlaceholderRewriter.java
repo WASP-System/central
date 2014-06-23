@@ -63,10 +63,10 @@ public class DefaultDirectoryPlaceholderRewriter implements DirectoryPlaceholder
 		// rewrite the scratch directory.  By definition, scratch is not in results.
 		String wd = w.getWorkingDirectory();
 		if (wd.contains(WorkUnit.TMP_DIR_PLACEHOLDER)){
-			w.setResultsDirectory(replaceTmp(wd, tmp, w));
+			w.setWorkingDirectory(replaceTmp(wd, tmp, w));
 			w.setWorkingDirectoryRelativeToRoot(true);
 		} else 
-			w.setResultsDirectory(replaceScratch(wd, scratch, w));
+			w.setWorkingDirectory(replaceScratch(wd, scratch, w));
 		
 		// results might be in scratch, or in results, results should be careful to set a subdir
 		String rd = w.getResultsDirectory();
