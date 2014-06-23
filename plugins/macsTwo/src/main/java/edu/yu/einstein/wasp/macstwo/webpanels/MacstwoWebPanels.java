@@ -187,6 +187,11 @@ public class MacstwoWebPanels {
 		panelTab.addPanel(panel);//add panel to panelTab
 		return panelTab;
 	}
+	
+	
+	
+	
+	
 	public static PanelTab getFileTypeDefinitions(List<FileType> fileTypeList){//we kept this
 		
 		//create the panelTab to house the panel
@@ -227,6 +232,7 @@ public class MacstwoWebPanels {
 		panelTab.addPanel(panel);//add panel to panelTab
 		return panelTab;
 	}
+	//this is new
 	public static PanelTab getFilesByAnalysis(List<FileGroup> macs2AnalysisFileGroupList, Map<FileGroup,List<FileHandle>> fileGroupFileHandleListMap, Map<FileHandle,String> fileHandleResolvedURLMap){
 		
 		//create the panelTab to house the panel
@@ -281,6 +287,50 @@ public class MacstwoWebPanels {
 	
 		return panelTab;		 
 	}
+	public static PanelTab getModelPNGFilesByAnalysis(List<FileGroup> macs2AnalysisFileGroupList, Map<FileGroup,List<FileHandle>> fileGroupFileHandleListMap, Map<FileHandle,String> fileHandleResolvedURLMap){
+
+		//create the panelTab to house the panel
+		PanelTab panelTab = new PanelTab();
+		panelTab.setName("Model View");
+		panelTab.setNumberOfColumns(2);
+		
+		int counter = 1;
+		for(FileGroup fileGroup : macs2AnalysisFileGroupList){				
+			for(FileHandle fileHandle : fileGroupFileHandleListMap.get(fileGroup)){	
+				if(fileHandle.getFileType().getExtensions().endsWith("_model.png")){//macstwo specific
+					String resolvedURL = fileHandleResolvedURLMap.get(fileHandle);
+					if(fileHandle==null || resolvedURL==null || resolvedURL.isEmpty()){//unexpected
+						continue;
+					}
+					//create the panel
+					WebPanel panel = new WebPanel();
+					panel.setTitle(fileGroup.getDescription());
+					panel.setDescription(fileGroup.getDescription());
+					panel.setHeight(900);
+					panel.setResizable(true);
+					panel.setMaximizable(true);	
+					panel.setOrder(counter++);
+					
+					WebContent content = new WebContent();
+					//works nicely:
+					content.setHtmlCode("<img src= '"+resolvedURL+"' height='800' width='400'>");
+					
+					//this works, but uses iframe which we do not want:
+					//content.setHtmlCode("<iframe width=\"470\" height=\"900\" src=\"http://localhost:8080/wasp/file/fileHandle/"+fileHandle.getId()+"/view.do\" ></iframe>");
+					//apparently works fine:
+					//content.setHtmlCode("<img width=\"200\" height=\"200\" src=\"http://localhost:8080/wasp/images/fail.png\" />");
+					//doesn't work
+					//content.setHtmlCode("<img src= '<wasp:url fileAccessor= '${"+fileHandle.getId().toString()+"}' />' height='800' width='400'>");
+					panel.setContent(content);
+					panelTab.addPanel(panel);//add panel to panelTab			
+				}			
+			}
+		}	
+		return panelTab;
+	}
+	
+	
+	
 	public static PanelTab getFilesBySample(List<Sample> testSampleList, Map<Sample, List<Sample>> testSampleControlSampleListMap, List<FileType> fileTypeList, Map<String, FileHandle>  sampleIdControlIdFileTypeIdFileHandleMap, Map<FileHandle, String> fileHandleResolvedURLMap, Map<String, FileGroup> sampleIdControlIdFileTypeIdFileGroupMap){
 
 		//create the panelTab to house the panel
