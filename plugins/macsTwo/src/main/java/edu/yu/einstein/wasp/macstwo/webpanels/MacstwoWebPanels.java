@@ -202,8 +202,8 @@ public class MacstwoWebPanels {
 
 		//create the panel
 		GridPanel panel = new GridPanel();
-		panel.setTitle("File Type Definitions For Aggregate Analysis");
-		panel.setDescription("FileTypes Used For Aggregate Analysis");
+		panel.setTitle("File Type Deescriptions");
+		panel.setDescription("FileTypes Deescriptions");
 		panel.setResizable(true);
 		panel.setMaximizable(true);	
 		panel.setOrder(1);
@@ -234,10 +234,48 @@ public class MacstwoWebPanels {
 		return panelTab;
 	}
 	//this is new
+	public static PanelTab getFripCalculationByAnalysis(List<FileGroup> macs2AnalysisFileGroupList, Map<FileGroup, String> fileGroupFripCalculationMap){
+		
+		//create the panelTab to house the panel
+		PanelTab panelTab = new PanelTab();
+		panelTab.setName("FRiP (%)");
+		panelTab.setNumberOfColumns(1);
+
+		//create the panel
+		GridPanel panel = new GridPanel();
+		panel.setTitle("Fraction Of Reads Within Peaks (%)<br />Note: ENCODE Consortium scrutinizes experiments with FRiP < 1%");
+		panel.setDescription("Fraction Of Reads Within Peaks (%)<br />Note: ENCODE Consortium scrutinizes experiments with FRiP < 1%");
+		panel.setResizable(true);
+		panel.setMaximizable(true);	
+		panel.setOrder(1);
+		
+		//create content (think of it as the table)
+		GridContent content = new GridContent();
+		//create the data model 
+		content.addDataFields(new GridDataField("Analysis", "String"));//dataIndex, datatype
+		content.addDataFields(new GridDataField("FRiP (%)", "String"));//dataIndex, datatype
+
+		//create columns and associate each column with its displayed header and a data model attribute (dataIndex)
+		content.addColumn(new GridColumn("Analysis", "Analysis", 600, 0));//header,dataIndex		width=300; flex=0
+		content.addColumn(new GridColumn("FRiP (%)", "FRiP (%)", 1));//header,dataIndex		flex=1
+		
+		//create rows with  information
+		for(FileGroup fileGroup : macs2AnalysisFileGroupList){
+			List<String> row = new ArrayList<String>();			
+			row.add(fileGroup.getDescription());
+			row.add(fileGroupFripCalculationMap.get(fileGroup));			
+			content.addDataRow(row);//add the new row to the content
+		}
+						
+		panel.setContent(content);//add content to panel
+		panelTab.addPanel(panel);//add panel to panelTab
+		return panelTab;
+	}
+	//this is new
 	public static PanelTab getFilesByAnalysis(List<FileGroup> macs2AnalysisFileGroupList, 
 											Map<FileGroup,List<FileHandle>> fileGroupFileHandleListMap, 
 											Map<FileHandle,String> fileHandleResolvedURLMap, 
-											Map<FileGroup, Double> fileGroupFripMap){
+											Map<FileGroup, Double> fileGroupFripPercentMap){
 		
 		//create the panelTab to house the panel
 		PanelTab panelTab = new PanelTab();
@@ -279,11 +317,12 @@ public class MacstwoWebPanels {
 			for(FileHandle fileHandle : fileGroupFileHandleListMap.get(fileGroup)){				
 				List<String> row = new ArrayList<String>();	
 				String headerForGroup = fileGroup.getDescription();
-				Double frip = fileGroupFripMap.get(fileGroup);
+				Double frip = fileGroupFripPercentMap.get(fileGroup);
 				if(frip!=null){
+					Double fripAsPercent = frip * 100;
 					DecimalFormat myFormat = new DecimalFormat("0.00000");
-					String formatedFrip = myFormat.format(frip);
-					headerForGroup += " (FRiP: " + formatedFrip + ")";
+					String formatedFrip = myFormat.format(fripAsPercent);
+					headerForGroup += " (FRiP: " + formatedFrip + " %)";
 				}
 				row.add(headerForGroup);//won't be displayed on each row, but will be the header for each section (but must be part of the row)
 				row.add(fileHandle.getFileType().getName());
