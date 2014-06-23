@@ -85,10 +85,10 @@ public class LocalhostFileServiceTest extends AbstractTestNGSpringContextTests {
 	public void testGet() throws IOException{
 		Path localPath = testPath.resolve("bar.txt");
 		Path remotePath = testPath.resolve("baz.txt");
-		remotePath = Files.createFile(remotePath);
+		localPath = Files.createFile(localPath);
 		File localFile = localPath.toFile();
 		lfs.get(testFolder + "/baz.txt", localFile);
-		Assert.assertTrue(Files.exists(localPath));
+		Assert.assertTrue(Files.exists(remotePath));
 		Files.delete(localPath);
 		Files.delete(remotePath);
 	}
