@@ -408,7 +408,12 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			e.printStackTrace();
 			throw new GridAccessException("unable to determine status of task array", e);
 		}
-		Integer numEndFiles = new Integer(StringUtils.chomp(writer.toString()));
+		Integer numEndFiles = 0;
+		try{
+			numEndFiles = Integer.parseInt(StringUtils.chomp(writer.toString()));
+		} catch (NumberFormatException e){
+			throw new GridException("Unable to convert '" + writer.toString() + "' to Integer trying to set numEndFiles");
+		}
 		int numTasks = g.getNumberOfTasks();
 		logger.debug("number of tasks=" + numTasks + " and number of '.end' files=" + numEndFiles);
 		if (numEndFiles.equals(numTasks))

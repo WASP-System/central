@@ -27,6 +27,7 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  */
 public class WorkUnit {
 	
+	public static final String TMP_DIR_PLACEHOLDER = "<<<TMP_DIR>>>";
 	public static final String SCRATCH_DIR_PLACEHOLDER = "<<<SCRATCH_DIR>>>";
 	public static final String RESULTS_DIR_PLACEHOLDER = "<<<RESULTS_DIR>>>";
 	
@@ -56,6 +57,8 @@ public class WorkUnit {
 	public static final String REQUESTED_GB_MEMORY = "MEMORYGB";
 
 	private boolean isRegistering;
+	
+	private boolean WorkingDirectoryRelativeToRoot = false;
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
@@ -536,6 +539,22 @@ public class WorkUnit {
 	 */
 	public void setEnvironmentVars(Map<String,String> environmentVars) {
 		this.environmentVars = environmentVars;
+	}
+
+	/**
+	 * informs whether the working directory is specified as relative to root. Overrides configuration setting userDirIsRoot
+	 * @param workingDirectoryIsRelativeToRoot
+	 */
+	public boolean isWorkingDirectoryRelativeToRoot() {
+		return WorkingDirectoryRelativeToRoot;
+	}
+
+	/**
+	 * Set whether the working directory is relative to root. Overrides configuration setting userDirIsRoot
+	 * @param workingDirectoryIsRelativeToRoot
+	 */
+	public void setWorkingDirectoryRelativeToRoot(boolean workingDirectoryIsRelativeToRoot) {
+		WorkingDirectoryRelativeToRoot = workingDirectoryIsRelativeToRoot;
 	}
 	
 

@@ -3,14 +3,17 @@
  */
 package edu.yu.einstein.wasp.grid.work;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +45,8 @@ public class LocalhostTransportConnection implements GridTransportConnection {
 	@Override
 	public GridResult sendExecToRemote(WorkUnit w) throws GridAccessException {
 		// ensure set for direct remote execution
-		w.remoteWorkingDirectory = prefixRemoteFile(w.getWorkingDirectory());
+		if (!w.isWorkingDirectoryRelativeToRoot())
+			w.remoteWorkingDirectory = prefixRemoteFile(w.getWorkingDirectory());
 		w.remoteResultsDirectory = prefixRemoteFile(w.getResultsDirectory());
 		
 		Runtime runtime = Runtime.getRuntime();
@@ -51,14 +55,27 @@ public class LocalhostTransportConnection implements GridTransportConnection {
 			command = w.getWrapperCommand();
 		command = "cd " + w.remoteWorkingDirectory + " && " + command;
 		command = "HOME=" + System.getProperty("user.home") + ";if [ -e /etc/profile ]; then source /etc/profile > /dev/null 2>&1; fi && " + command;
-		logger.debug("sending exec: " + command + " at: " + getHostName());
+		logger.trace("sending exec: " + command + " at: " + getHostName());
 		GridResultImpl result = new GridResultImpl();
 		try {
 			Process proc = runtime.exec(new String[]{"/bin/bash", "-c", command});
 			proc.waitFor();
-			result.setStdErrStream(proc.getErrorStream());
-			result.setStdOutStream(proc.getInputStream());
 			result.setExitStatus(proc.exitValue());
+			if (logger.isTraceEnabled()){
+				byte[] outBA = IOUtils.toByteArray(proc.getInputStream()); // extract as Byte[] so that we can read it more than once
+				byte[] errBA = IOUtils.toByteArray(proc.getErrorStream()); // extract as Byte[] so that we can read it more than once
+				StringWriter outWriter = new StringWriter();
+				IOUtils.copy(new ByteArrayInputStream(outBA), outWriter);
+				logger.trace("stdout:" + outWriter.toString());
+				StringWriter errWriter = new StringWriter();
+				IOUtils.copy(new ByteArrayInputStream(errBA), errWriter);
+				logger.trace("stderr:" + errWriter.toString());
+				result.setStdOutStream(new ByteArrayInputStream(outBA));
+				result.setStdErrStream(new ByteArrayInputStream(errBA));
+			} else {
+				result.setStdOutStream(proc.getInputStream());
+				result.setStdErrStream(proc.getErrorStream());
+			}
 		} catch (IOException e) {
 			logger.warn("caught IOExeption executing '" + command + "' : " + e.getMessage() );
 			e.printStackTrace();

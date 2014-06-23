@@ -11,14 +11,12 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -852,6 +850,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		w.setRegistering(true);
 		w.setSecureResults(true);
 		w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
+		w.setWorkingDirectory("/tmp/" + WorkUnit.JOB_NAME);
 		w.setMode(ExecutionMode.TASK_ARRAY);
 
 		int numFiles = 0;

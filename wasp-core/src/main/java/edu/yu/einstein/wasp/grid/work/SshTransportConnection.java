@@ -4,9 +4,11 @@
 package edu.yu.einstein.wasp.grid.work;
 
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +23,7 @@ import net.schmizz.sshj.connection.channel.direct.Session.Command;
 import net.schmizz.sshj.transport.TransportException;
 import net.schmizz.sshj.userauth.keyprovider.KeyProvider;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -193,14 +196,15 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 			openSession();
 			
 			// ensure set for direct remote execution
-			w.remoteWorkingDirectory = prefixRemoteFile(w.getWorkingDirectory());
+			if (!w.isWorkingDirectoryRelativeToRoot())
+				w.remoteWorkingDirectory = prefixRemoteFile(w.getWorkingDirectory());
 			w.remoteResultsDirectory = prefixRemoteFile(w.getResultsDirectory());
 			
 			String command = w.getCommand();
 			if (w.getWrapperCommand() != null)
 				command = w.getWrapperCommand();
 			command = "cd " + w.remoteWorkingDirectory + " && " + command;
-			command = "if [ -e /etc/profile ]; then source /etc/profile > /dev/null 2>&1; fi && " + command;
+			command = "HOME=" + System.getProperty("user.home") + ";if [ -e /etc/profile ]; then source /etc/profile > /dev/null 2>&1; fi && " + command;
 			logger.trace("sending exec: " + command + " at: " + getHostName());
 			
 			for (int tries=0; tries < execRetries; tries++) {
@@ -233,13 +237,30 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
             // execute command and timeout
             exec.join(this.execTimeout, TimeUnit.MILLISECONDS);
             result.setExitStatus(exec.getExitStatus());
-            result.setStdErrStream(exec.getErrorStream());
-            result.setStdOutStream(exec.getInputStream());
+            if (logger.isTraceEnabled()){
+				byte[] outBA = IOUtils.toByteArray(exec.getInputStream()); // extract as Byte[] so that we can read it more than once
+				byte[] errBA = IOUtils.toByteArray(exec.getErrorStream()); // extract as Byte[] so that we can read it more than once
+				StringWriter outWriter = new StringWriter();
+				IOUtils.copy(new ByteArrayInputStream(outBA), outWriter);
+				logger.trace("stdout:" + outWriter.toString());
+				StringWriter errWriter = new StringWriter();
+				IOUtils.copy(new ByteArrayInputStream(errBA), errWriter);
+				logger.trace("stderr:" + errWriter.toString());
+				result.setStdOutStream(new ByteArrayInputStream(outBA));
+				result.setStdErrStream(new ByteArrayInputStream(errBA));
+			} else {
+				result.setStdOutStream(exec.getInputStream());
+				result.setStdErrStream(exec.getErrorStream());
+			}
             logger.trace("sent command");
             if (exec.getExitStatus() != 0) {
                 logger.error("exec terminated with non-zero exit status: " + command);
                 throw new GridAccessException("exec terminated with non-zero exit status: " + exec.getExitStatus() + " : " + exec.getOutputStream().toString());
             }
+        } catch (IOException e) {
+			logger.warn("caught IOExeption executing '" + command + "' : " + e.getMessage() );
+			e.printStackTrace();
+			throw new GridAccessException("Unable to exec", e);
         } finally {
             session.close();
         } 

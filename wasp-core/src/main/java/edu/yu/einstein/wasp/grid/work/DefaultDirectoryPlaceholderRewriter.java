@@ -44,6 +44,7 @@ public class DefaultDirectoryPlaceholderRewriter implements DirectoryPlaceholder
 	 */
 	@Override
 	public void replaceDirectoryPlaceholders(GridTransportConnection transportConnection, WorkUnit w) throws MisconfiguredWorkUnitException {
+		String tmp = transportConnection.getConfiguredSetting("tmp.dir");
 		String scratch = transportConnection.getConfiguredSetting("scratch.dir");
 		String results = transportConnection.getConfiguredSetting("results.dir");
 		logger.debug("scratch: " + scratch + " & " + "results: " + results);
@@ -61,13 +62,21 @@ public class DefaultDirectoryPlaceholderRewriter implements DirectoryPlaceholder
 		
 		// rewrite the scratch directory.  By definition, scratch is not in results.
 		String wd = w.getWorkingDirectory();
-		w.setWorkingDirectory(replaceScratch(wd, scratch, w));
+		if (wd.contains(WorkUnit.SCRATCH_DIR_PLACEHOLDER)) {
+			w.setResultsDirectory(replaceScratch(wd, scratch, w));
+		} else if (wd.contains(WorkUnit.TMP_DIR_PLACEHOLDER)){
+			w.setResultsDirectory(replaceTmp(wd, tmp, w));
+			w.setWorkingDirectoryRelativeToRoot(true);
+		}
 		
 		// results might be in scratch, or in results, results should be careful to set a subdir
 		String rd = w.getResultsDirectory();
 		if (rd.contains(WorkUnit.SCRATCH_DIR_PLACEHOLDER)) {
 			w.setResultsDirectory(replaceScratch(rd, scratch, w));
-		} else if (rd.equals(WorkUnit.RESULTS_DIR_PLACEHOLDER)) {
+		} else if (rd.contains(WorkUnit.TMP_DIR_PLACEHOLDER)){
+			w.setResultsDirectory(replaceTmp(rd, tmp, w));
+		}
+		else if (rd.equals(WorkUnit.RESULTS_DIR_PLACEHOLDER)) {
 			// files need to go into $results/"somewhere"
 			throw new MisconfiguredWorkUnitException("WorkUnit attempted to use default results location, "
 					+ "must set a subfolder.");
@@ -77,6 +86,10 @@ public class DefaultDirectoryPlaceholderRewriter implements DirectoryPlaceholder
 
 		logger.debug("After processing, work unit configured with work: " + w.getWorkingDirectory() + " & results: " + w.getResultsDirectory());
 
+	}
+	
+	private String replaceTmp(String s, String tmp, WorkUnit w) {
+		return s.replaceAll(WorkUnit.TMP_DIR_PLACEHOLDER, tmp + "/" + w.getId() + "/").replaceAll("//", "/").replaceAll("//", "/");
 	}
 	
 	private String replaceScratch(String s, String scratch, WorkUnit w) {
