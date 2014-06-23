@@ -116,6 +116,9 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 				 }
 			 }
 			 
+			 Map<FileGroup, Double> fileGroupFripMap = getFripValues(macs2AnalysisFileGroupList);
+			 
+			 
 			 Set<FileType> fileTypeSet = getFileTypeSet(fileHandleList);
 			 List<FileType> fileTypeList = new ArrayList<FileType>(fileTypeSet);
 			 Collections.sort(fileTypeList, new FileTypeComparator());
@@ -152,7 +155,7 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 			Set<PanelTab> panelTabSet = new LinkedHashSet<PanelTab>();
 			PanelTab fileTypeDefinitionsPanelTab = MacstwoWebPanels.getFileTypeDefinitions(fileTypeList);
 			if(fileTypeDefinitionsPanelTab!=null){panelTabSet.add(fileTypeDefinitionsPanelTab);}
-			PanelTab allFilesDisplayedByAnalysisPanelTab = MacstwoWebPanels.getFilesByAnalysis(macs2AnalysisFileGroupList, fileGroupFileHandleListMap, fileHandleResolvedURLMap);
+			PanelTab allFilesDisplayedByAnalysisPanelTab = MacstwoWebPanels.getFilesByAnalysis(macs2AnalysisFileGroupList, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileGroupFripMap);
 			if(allFilesDisplayedByAnalysisPanelTab!=null){panelTabSet.add(allFilesDisplayedByAnalysisPanelTab);}
 
 			PanelTab modelPNGFilesDisplayedByAnalysisPanelTab = MacstwoWebPanels.getModelPNGFilesByAnalysis(macs2AnalysisFileGroupList, fileGroupFileHandleListMap, fileHandleResolvedURLMap);
@@ -239,8 +242,35 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 		}
 		return fileHandleResolvedURLMap;
 	}
-	
-	
+	private Map<FileGroup,Double> getFripValues(List<FileGroup> macs2AnalysisFileGroupList){
+		Map<FileGroup,Double> fileGroupFripValueMap = new HashMap<FileGroup,Double>();
+		for(FileGroup fg : macs2AnalysisFileGroupList){
+			Double fripAsDouble = getFripValue(fg);
+			if(fripAsDouble!=null){
+				fileGroupFripValueMap.put(fg, fripAsDouble);
+			}
+		}
+		return fileGroupFripValueMap;
+	}
+	public Double getFripValue(FileGroup fileGroup){
+		String mappedReadsAsString = "";
+		String mappedReadsInPeaksAsString = "";
+		for(FileGroupMeta fgm : fileGroup.getFileGroupMeta()){
+			if(fgm.getK().equalsIgnoreCase("macs2Analysis.totalCountMappedReads")){
+				mappedReadsAsString = fgm.getV();
+			}
+			if(fgm.getK().equalsIgnoreCase("macs2Analysis.totalCountMappedReadsInPeaksAsString")){
+				mappedReadsInPeaksAsString = fgm.getV();
+			}
+		}
+		try{
+			Integer totalCountMappedReads = Integer.valueOf(mappedReadsAsString);
+			Integer totalCountMappedReadsInPeaks = Integer.valueOf(mappedReadsInPeaksAsString);
+			Double frip = (double) totalCountMappedReadsInPeaks / totalCountMappedReads;
+			return frip;
+			
+		}catch(Exception e){logger.debug("unable to retrieve Frip values as fileGroupMeta"); return null;}
+	}
 	
 	
 	private Map<Sample, List<Sample>> getTestSampleControlSampleListMap(Job job){//reviewed and OK

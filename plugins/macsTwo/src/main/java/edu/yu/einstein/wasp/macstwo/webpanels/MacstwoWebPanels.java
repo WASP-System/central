@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.macstwo.webpanels;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -191,8 +192,8 @@ public class MacstwoWebPanels {
 	
 	
 	
-	
-	public static PanelTab getFileTypeDefinitions(List<FileType> fileTypeList){//we kept this
+	//we keep and still use this
+	public static PanelTab getFileTypeDefinitions(List<FileType> fileTypeList){
 		
 		//create the panelTab to house the panel
 		PanelTab panelTab = new PanelTab();
@@ -233,7 +234,10 @@ public class MacstwoWebPanels {
 		return panelTab;
 	}
 	//this is new
-	public static PanelTab getFilesByAnalysis(List<FileGroup> macs2AnalysisFileGroupList, Map<FileGroup,List<FileHandle>> fileGroupFileHandleListMap, Map<FileHandle,String> fileHandleResolvedURLMap){
+	public static PanelTab getFilesByAnalysis(List<FileGroup> macs2AnalysisFileGroupList, 
+											Map<FileGroup,List<FileHandle>> fileGroupFileHandleListMap, 
+											Map<FileHandle,String> fileHandleResolvedURLMap, 
+											Map<FileGroup, Double> fileGroupFripMap){
 		
 		//create the panelTab to house the panel
 		PanelTab panelTab = new PanelTab();
@@ -273,8 +277,15 @@ public class MacstwoWebPanels {
 		
 		for(FileGroup fileGroup : macs2AnalysisFileGroupList){				
 			for(FileHandle fileHandle : fileGroupFileHandleListMap.get(fileGroup)){				
-				List<String> row = new ArrayList<String>();				
-				row.add(fileGroup.getDescription());//won't be displayed on each row, but will be the header for each section (but must be part of the row
+				List<String> row = new ArrayList<String>();	
+				String headerForGroup = fileGroup.getDescription();
+				Double frip = fileGroupFripMap.get(fileGroup);
+				if(frip!=null){
+					DecimalFormat myFormat = new DecimalFormat("0.00000");
+					String formatedFrip = myFormat.format(frip);
+					headerForGroup += " (FRiP: " + formatedFrip + ")";
+				}
+				row.add(headerForGroup);//won't be displayed on each row, but will be the header for each section (but must be part of the row)
 				row.add(fileHandle.getFileType().getName());
 				row.add(fileHandle.getFileName());
 				row.add(fileHandle.getMd5hash());
@@ -287,6 +298,7 @@ public class MacstwoWebPanels {
 	
 		return panelTab;		 
 	}
+	//this is new
 	public static PanelTab getModelPNGFilesByAnalysis(List<FileGroup> macs2AnalysisFileGroupList, Map<FileGroup,List<FileHandle>> fileGroupFileHandleListMap, Map<FileHandle,String> fileHandleResolvedURLMap){
 
 		//create the panelTab to house the panel
