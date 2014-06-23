@@ -65,9 +65,8 @@ public class DefaultDirectoryPlaceholderRewriter implements DirectoryPlaceholder
 		if (wd.contains(WorkUnit.TMP_DIR_PLACEHOLDER)){
 			w.setResultsDirectory(replaceTmp(wd, tmp, w));
 			w.setWorkingDirectoryRelativeToRoot(true);
-		} else {
+		} else 
 			w.setResultsDirectory(replaceScratch(wd, scratch, w));
-		} 
 		
 		// results might be in scratch, or in results, results should be careful to set a subdir
 		String rd = w.getResultsDirectory();
@@ -75,8 +74,7 @@ public class DefaultDirectoryPlaceholderRewriter implements DirectoryPlaceholder
 			w.setResultsDirectory(replaceScratch(rd, scratch, w));
 		} else if (rd.contains(WorkUnit.TMP_DIR_PLACEHOLDER)){
 			w.setResultsDirectory(replaceTmp(rd, tmp, w));
-		}
-		else if (rd.equals(WorkUnit.RESULTS_DIR_PLACEHOLDER)) {
+		} else if (rd.equals(WorkUnit.RESULTS_DIR_PLACEHOLDER)) {
 			// files need to go into $results/"somewhere"
 			throw new MisconfiguredWorkUnitException("WorkUnit attempted to use default results location, "
 					+ "must set a subfolder.");
