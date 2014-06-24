@@ -40,24 +40,27 @@ public class LocalhostFileService implements GridFileService {
 	@Override
 	public void put(File localFile, String remoteFile) throws IOException {
 		Path remote = getLocalhostFilePath(remoteFile);
-		logger.debug("put called: " + localFile + " to localhost as " + remote);
+		Path localFileAbsolutePath = Paths.get(localFile.getAbsolutePath());
+		logger.debug("put called: " + localFileAbsolutePath + " to localhost as " + remote);
 		Files.createDirectories(remote.getParent());
-		Files.copy(localFile.toPath(), remote, StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(localFileAbsolutePath, remote, StandardCopyOption.REPLACE_EXISTING);
+		logger.debug(localFileAbsolutePath + " copied to " + remote);
 	}
 
 	@Override
 	public void get(String remoteFile, File localFile) throws IOException {
 		Path remote = getLocalhostFilePath(remoteFile);
-		logger.debug("get called: " + localFile + " from localhost as " + remoteFile);
-		Files.createDirectories(remote.getParent());
-		Files.copy(localFile.toPath(), remote, StandardCopyOption.REPLACE_EXISTING);
+		Path localFileAbsolutePath = Paths.get(localFile.getAbsolutePath());
+		logger.debug("get called: " + remote + " from localhost as " + localFileAbsolutePath);
+		Files.copy(remote, localFileAbsolutePath, StandardCopyOption.REPLACE_EXISTING);
+		logger.debug(remote + " from localhost copied to " + localFileAbsolutePath);
 	}
 
 	@Override
 	public boolean exists(String remoteFile) throws IOException {
 		Path remote = getLocalhostFilePath(remoteFile);
 		boolean fileExists = Files.exists(remote);
-		logger.debug("exists called: " + remote + ": result=" + fileExists);
+		logger.debug("exists called: " + remote + ": result=" + fileExists + " (on localhost)");
 		return fileExists;
 	}
 
@@ -78,6 +81,7 @@ public class LocalhostFileService implements GridFileService {
 		Path remote = getLocalhostFilePath(remoteDir);
 		logger.debug("mkdir called: " + remote);
 		Files.createDirectories(remote);
+		logger.debug(remote + " created on localhost");
 	}
 
 	@Override
@@ -85,6 +89,7 @@ public class LocalhostFileService implements GridFileService {
 		Path remote = getLocalhostFilePath(remoteFile);
 		logger.debug("delete called: " + remote);
 		Files.deleteIfExists(remote);
+		logger.debug(remote + " deleted on localhost");
 	}
 
 	@Override
@@ -94,6 +99,7 @@ public class LocalhostFileService implements GridFileService {
 		logger.debug("move called: " + originPath + " to " + destinationPath + " at localhost");
 		Files.createDirectories(destinationPath.getParent());
 		Files.move(originPath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+		logger.debug(originPath + " moved to " + destinationPath + " on localhost");
 	}
 
 	@Override
@@ -103,6 +109,7 @@ public class LocalhostFileService implements GridFileService {
 		logger.debug("copy called: " + originPath + " to " + destinationPath + " at localhost");
 		Files.createDirectories(destinationPath.getParent());
 		Files.copy(originPath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+		logger.debug(originPath + " copied to " + destinationPath + " on localhost");
 	}
 
 	@Override
