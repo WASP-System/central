@@ -35,8 +35,10 @@ import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.SoftwareService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
@@ -53,6 +55,8 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 	private RunService runService;
 	@Autowired
 	private FileType macs2AnalysisFileType;
+	@Autowired
+	private SoftwareService softwareService;
 	
 	public class SampleNameComparator implements Comparator<Sample> {
 	    @Override
@@ -85,7 +89,14 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 	public Set<PanelTab> getMacstwoDataToDisplay(Job job)throws PanelException{
 		 
 		 try{
-			 //First, assemble the data	
+			 //First, assemble the data
+			 Map<FileGroup, Sample> fileGroupTestSampleMap = new HashMap<FileGroup, Sample>();
+			 Map<FileGroup, Sample> fileGroupControlSampleMap = new HashMap<FileGroup, Sample>();
+			 Map<FileGroup, String> fileGroupCommandLineMap = new HashMap<FileGroup, String>();
+			 Map<FileGroup, List<Sample>> fileGroupLibraryListMap = new HashMap<FileGroup, List<Sample>>();
+			 Map<FileGroup, List<FileHandle>> fileGroupBamFilesUsedMap = new HashMap<FileGroup, List<FileHandle>>();
+			 Map<FileGroup, List<Software>> fileGroupSoftwareUsedMap = new HashMap<FileGroup, List<Software>>();
+			 
 			 Map<FileGroup, Double> fileGroupFripMap = new HashMap<FileGroup, Double>();
 			 Map<FileGroup, String> fileGroupFripCalculationMap = new HashMap<FileGroup, String>();
 			 Map<FileGroup, List<FileHandle>> fileGroupFileHandleListMap = new HashMap<FileGroup, List<FileHandle>>();
@@ -102,6 +113,26 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 			 Collections.sort(macs2AnalysisFileGroupList, new FileGroupDescriptionComparator());//sorted by description (base name)
 			 
 			 for(FileGroup fileGroup : macs2AnalysisFileGroupList){
+				 
+				 Set<Sample> testAndControlSamples = getTestAndControlSamples(fileGroup);	
+				 Sample test = getTestSample(testAndControlSamples);//getTestSample(fileGroup);
+				 if(test!=null){
+					 fileGroupTestSampleMap.put(fileGroup, test);
+				 }
+				 Sample control = getControlSample(testAndControlSamples);//getControlSample(fileGroup);
+				 if(control!=null){
+					 fileGroupControlSampleMap.put(fileGroup, control);
+				 } 
+				 String commandLineCalls = getCommandLineCalls(fileGroup);
+				 fileGroupCommandLineMap.put(fileGroup, commandLineCalls);
+				 List<Software> softwareUsed = getSoftwareUsedInAnalysis(fileGroup);
+				 fileGroupSoftwareUsedMap.put(fileGroup, softwareUsed);
+				 
+				 List<Sample> librariesUsed = getLibrariesUsedInAnalysis(fileGroup);
+				 fileGroupLibraryListMap.put(fileGroup, librariesUsed);
+				 List<FileHandle> bamFilesUsed = getBamFilesUsedInAnalysis(fileGroup);
+				 fileGroupBamFilesUsedMap.put(fileGroup, bamFilesUsed);				 
+				 
 				 //deal with frip (metadata of fileGroup)
 				 Double frip = getFrip(fileGroup);
 				 if(frip!=null){
@@ -138,9 +169,19 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 			 
 			//SECOND, present the data within an ordered set of panel tabs (recall that the summary panel has already been taken care of)
 			Set<PanelTab> panelTabSet = new LinkedHashSet<PanelTab>();
+			
 			PanelTab fileTypeDefinitionsPanelTab = MacstwoWebPanels.getFileTypeDefinitions(fileTypeList);
 			if(fileTypeDefinitionsPanelTab!=null){panelTabSet.add(fileTypeDefinitionsPanelTab);}
 			
+			PanelTab samplePairsPanelTab = MacstwoWebPanels.getSamplePairsByAnalysis(macs2AnalysisFileGroupList, fileGroupTestSampleMap, fileGroupControlSampleMap);
+			if(samplePairsPanelTab!=null){panelTabSet.add(samplePairsPanelTab);}			
+			
+			PanelTab commandPanelTab = MacstwoWebPanels.getCommandsByAnalysis(macs2AnalysisFileGroupList, fileGroupSoftwareUsedMap, fileGroupCommandLineMap);
+			if(commandPanelTab!=null){panelTabSet.add(commandPanelTab);}
+
+			PanelTab librariesAndBamFilesPanelTab = MacstwoWebPanels.getLibrariesAndBamFilesUsedByAnalysis(macs2AnalysisFileGroupList, fileGroupLibraryListMap, fileGroupBamFilesUsedMap);
+			if(librariesAndBamFilesPanelTab!=null){panelTabSet.add(librariesAndBamFilesPanelTab);}
+
 			PanelTab fripCalculationPanelTab = MacstwoWebPanels.getFripCalculationByAnalysis(macs2AnalysisFileGroupList, fileGroupFripCalculationMap);
 			if(fripCalculationPanelTab!=null){panelTabSet.add(fripCalculationPanelTab);}
 			
@@ -149,7 +190,8 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 
 			PanelTab modelPNGFilesDisplayedByAnalysisPanelTab = MacstwoWebPanels.getModelPNGFilesByAnalysis(macs2AnalysisFileGroupList, fileGroupFileHandleListMap, fileHandleResolvedURLMap);
 			if(modelPNGFilesDisplayedByAnalysisPanelTab!=null){panelTabSet.add(modelPNGFilesDisplayedByAnalysisPanelTab);}
-
+			
+			
 			return panelTabSet;
 			
 		}catch(Exception e){
@@ -211,8 +253,182 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 			return "100 * " + mappedReadsInPeaks.toString() + " / " + mappedReads + " = " + formatedFripPercent.toString();			
 		}catch(Exception e){logger.debug("unable to retrieve Frip calculation values as fileGroupMeta"); return "Calculation Error";}		
 	}
+	private String getCommandLineCalls(FileGroup fileGroup){
+		String commandLineCalls = "";		
+		for(FileGroupMeta fgm : fileGroup.getFileGroupMeta()){
+			if(fgm.getK().equalsIgnoreCase("macs2Analysis.commandLineCall")){
+				commandLineCalls = fgm.getV();
+				break;
+			}
+		}
+		return commandLineCalls;
+	}
 	
-	/*
+	private Sample getTestSample(Set<Sample> sampleSet){		
+		for(Sample s : sampleSet){
+			for(SampleMeta sm : s.getSampleMeta()){
+				if(sm.getK().contains("inputOrIP")){
+					if(sm.getV().equalsIgnoreCase("ip")){//IP == test
+						return s;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	private Sample getControlSample(Set<Sample> sampleSet){		
+		for(Sample s : sampleSet){
+			for(SampleMeta sm : s.getSampleMeta()){
+				if(sm.getK().contains("inputOrIP")){
+					if(sm.getV().equalsIgnoreCase("input")){//input == control
+						return s;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	private Set<Sample> getTestAndControlSamples(FileGroup fileGroup){
+		
+		//at end,should return set containing one sample (IP only, if no control) or two samples (IP and Control)
+		
+		Set<Sample> tempDerivedFromSamples = new HashSet<Sample>();
+		Set<SampleSource> derivedFromSampleSources = new HashSet<SampleSource>();//at end,should be one (IP) or two (IP and Control)
+		Set<FileGroup> derivedFromFileGroupSet = fileGroup.getDerivedFrom();		 
+		for(FileGroup derivedFromFileGroup : derivedFromFileGroupSet){
+			if(derivedFromFileGroup.getSamples().size()>0){//bam files appear NOT to use this
+				tempDerivedFromSamples.addAll(derivedFromFileGroup.getSamples());//could be libraries or samples; not yet sure
+			}
+			else if(derivedFromFileGroup.getSampleSources().size()>0){//bam files appear to use this
+				derivedFromSampleSources.addAll(derivedFromFileGroup.getSampleSources());
+			}
+		}
+		if(derivedFromSampleSources.size()>0){
+			for(SampleSource ss : derivedFromSampleSources){
+				Sample library = sampleService.getLibrary(ss);//library
+				tempDerivedFromSamples.add(library);
+			}
+		}
+		Set<Sample> derivedFromSamples = new HashSet<Sample>();//will be returned
+		for(Sample s : tempDerivedFromSamples){//move up the chain
+			while(s.getParent()!=null){
+				s = s.getParent();
+			}
+			derivedFromSamples.add(s);
+		}
+		return derivedFromSamples;
+	}
+	private List<Sample> getLibrariesUsedInAnalysis(FileGroup fileGroup){
+		
+		//at end,should return set containing one sample (IP only, if no control) or two samples (IP and Control)
+		
+		Set<Sample> tempDerivedFromLibraries = new HashSet<Sample>();
+		Set<SampleSource> derivedFromSampleSources = new HashSet<SampleSource>();//at end,should be one (IP) or two (IP and Control)
+		Set<FileGroup> derivedFromFileGroupSet = fileGroup.getDerivedFrom();		 
+		for(FileGroup derivedFromFileGroup : derivedFromFileGroupSet){
+			if(derivedFromFileGroup.getSamples().size()>0){//bam files appear NOT to use this
+				tempDerivedFromLibraries.addAll(derivedFromFileGroup.getSamples());//could be libraries or samples; not yet sure
+			}
+			else if(derivedFromFileGroup.getSampleSources().size()>0){//bam files appear to use this
+				derivedFromSampleSources.addAll(derivedFromFileGroup.getSampleSources());
+			}
+		}
+		if(derivedFromSampleSources.size()>0){
+			for(SampleSource ss : derivedFromSampleSources){
+				Sample library = sampleService.getLibrary(ss);//library
+				tempDerivedFromLibraries.add(library);
+			}
+		}
+		List<Sample> derivedFromLibraries = new ArrayList<Sample>(tempDerivedFromLibraries);//will be returned
+		Collections.sort(derivedFromLibraries, new SampleNameComparator());
+		return derivedFromLibraries;
+	}
+	private List<FileHandle> getBamFilesUsedInAnalysis(FileGroup fileGroup){
+		List<FileHandle> bamFiles = new ArrayList<FileHandle>();
+		Set<FileGroup> derivedFromFileGroupSet = fileGroup.getDerivedFrom();
+		for(FileGroup fg : derivedFromFileGroupSet){
+			for(FileHandle fh : fg.getFileHandles()){
+				bamFiles.add(fh);
+			}
+		}
+		class FileHandleNameComparator implements Comparator<FileHandle> {
+		    @Override
+		    public int compare(FileHandle arg0, FileHandle arg1) {
+		        return arg0.getFileName().compareToIgnoreCase(arg1.getFileName());
+		    }
+		}
+		Collections.sort(bamFiles, new FileHandleNameComparator());
+		return bamFiles;
+	}
+	private List<Software> getSoftwareUsedInAnalysis(FileGroup fileGroup){
+		Set<Software> tempSoftwareUsedSet = new HashSet<Software>();
+		String softwareIdUsedStringList = "";		
+		for(FileGroupMeta fgm : fileGroup.getFileGroupMeta()){
+			if(fgm.getK().contains("softwareIdUsedListAsString")){
+				softwareIdUsedStringList = fgm.getV();
+			}
+		}
+		try{
+			if(!softwareIdUsedStringList.isEmpty()){
+				String[] softwareIdAsStringArray = softwareIdUsedStringList.split(":");
+				for(String softwareIdAsString : softwareIdAsStringArray){
+					Software software = softwareService.getById(Integer.parseInt(softwareIdAsString));
+					tempSoftwareUsedSet.add(software);
+				}
+			}
+		}catch(Exception e){logger.debug("error obtaining software in macs2");}
+		List<Software> softwareUsedList = new ArrayList<Software>(tempSoftwareUsedSet);
+		class SoftwareNameComparator implements Comparator<Software> {
+		    @Override
+		    public int compare(Software arg0, Software arg1) {
+		        return arg0.getName().compareToIgnoreCase(arg1.getName());
+		    }
+		}
+		Collections.sort(softwareUsedList, new SoftwareNameComparator());
+		return softwareUsedList;
+	}
+	/* no longer used
+	private Sample getTestSample(FileGroup fileGroup){
+		
+		Sample test = null;
+		String testId = "";	
+		System.out.println("testId is starting empty");
+		for(FileGroupMeta fgm : fileGroup.getFileGroupMeta()){
+			if(fgm.getK().equalsIgnoreCase("macs2Analysis.testId")){
+				testId = fgm.getV();
+				break;
+			}
+		}
+		if(!testId.isEmpty()){
+			System.out.println("testId is NOT empty and it's value is " + testId);
+			try{
+				test = sampleService.getSampleById(Integer.valueOf(testId));
+				System.out.println("test's name is: " + test.getName());
+			}catch(Exception e){logger.debug("failed to obtain test sample in getTestSample(FileGroup fileGroup)");}
+		}
+		else{System.out.println("testId IS empty ");}
+		return test;
+	}
+	private Sample getControlSample(FileGroup fileGroup){
+		Sample control = null;
+		String controlId = "";	
+		for(FileGroupMeta fgm : fileGroup.getFileGroupMeta()){
+			if(fgm.getK().equalsIgnoreCase("macs2Analysis.controlId")){
+				controlId = fgm.getV();
+				break;
+			}
+		}
+		if(!controlId.isEmpty()){
+			try{
+				control = sampleService.getSampleById(Integer.valueOf(controlId));
+			}catch(Exception e){logger.debug("failed to obtain control sample in getControlSample(FileGroup fileGroup) or it could be 0");}
+		}
+		return control;
+	}
+	
+	*/
+	
+	/* no longer used
 	public Double getFripValue(FileGroup fileGroup){
 		String mappedReadsAsString = "";
 		String mappedReadsInPeaksAsString = "";

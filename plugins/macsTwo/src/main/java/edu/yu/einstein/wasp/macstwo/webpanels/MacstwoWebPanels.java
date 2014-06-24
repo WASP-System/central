@@ -12,6 +12,7 @@ import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.viewpanel.GridColumn;
 import edu.yu.einstein.wasp.viewpanel.GridContent;
@@ -233,6 +234,208 @@ public class MacstwoWebPanels {
 		panelTab.addPanel(panel);//add panel to panelTab
 		return panelTab;
 	}
+	//this is new
+	public static PanelTab getSamplePairsByAnalysis(List<FileGroup> macs2AnalysisFileGroupList, Map<FileGroup,Sample> fileGroupTestSampleMap, Map<FileGroup,Sample> fileGroupControlSampleMap){
+
+		//create the panelTab to house the panel
+		PanelTab panelTab = new PanelTab();
+		panelTab.setName("Sample Pairs");
+		panelTab.setNumberOfColumns(1);
+
+		//create the panel
+		GridPanel panel = new GridPanel();
+		panel.setTitle("Sample Pairs");
+		panel.setDescription("Sample Pairs");
+		panel.setResizable(true);
+		panel.setMaximizable(true);	
+		panel.setOrder(1);
+		
+		//create content (think of it as the table)
+		GridContent content = new GridContent();
+		//create the data model 
+		content.addDataFields(new GridDataField("Analysis", "String"));//dataIndex, datatype
+		content.addDataFields(new GridDataField("Test Sample", "String"));//dataIndex, datatype
+		content.addDataFields(new GridDataField("Control Sample", "String"));//dataIndex, datatype
+		//////content.addDataFields(new GridDataField("Command", "String"));//dataIndex, datatype
+
+		//create columns and associate each column with its displayed header and a data model attribute (dataIndex)
+		content.addColumn(new GridColumn("Analysis", "Analysis", 500, 0));//header,dataIndex	     width=250; flex=0
+		content.addColumn(new GridColumn("Test Sample", "Test Sample", 250, 0));//header,dataIndex	     width=250; flex=0	
+		content.addColumn(new GridColumn("Control Sample", "Control Sample",  1));//header,dataIndex	 width=250; flex=0	
+		//content.addColumn(new GridColumn("Command Line", "Command", 1));//header,dataIndex               flex=1
+		
+		//create rows with  information
+		for(FileGroup fileGroup : macs2AnalysisFileGroupList){
+				
+			if(fileGroupTestSampleMap.isEmpty()){System.out.println("fileGroupTestSampleMap is empty ");}
+			List<String> row = new ArrayList<String>();
+			row.add(fileGroup.getDescription());
+			Sample testSample = fileGroupTestSampleMap.get(fileGroup);
+			String testSampleName = "Unexpected Error";
+			if(testSample!=null){
+				testSampleName = testSample.getName();
+				
+			}else{System.out.println("testSample is null");}
+			Sample controlSample = fileGroupControlSampleMap.get(fileGroup);
+			String controlSampleName = "None";
+			if(controlSample!=null && controlSample.getId().intValue()>0){
+				controlSampleName = controlSample.getName();				
+			}
+			System.out.println("testSampleName = " + testSampleName);
+			System.out.println("controlSampleName = " + controlSampleName);
+			row.add(testSampleName);
+			row.add(controlSampleName);
+			/*
+			String command = sampleIdControlIdCommandLineMap.get(testSample.getId().toString()+"::"+controlSample.getId().toString());
+			if(command==null || command.isEmpty()){
+				command = " ";
+			}
+			else{
+				command = command.replaceAll("\\n", "");//the workunit may put a newline at the end, which is incompatible with Extjs grids
+			}
+			row.add(command);
+			*/	
+			content.addDataRow(row);//add the new row to the content			
+		}
+				
+		panel.setContent(content);//add content to panel
+		panelTab.addPanel(panel);//add panel to panelTab
+		return panelTab;
+	}
+	
+	//this is new
+	public static PanelTab getCommandsByAnalysis(List<FileGroup> macs2AnalysisFileGroupList, Map<FileGroup, List<Software>> fileGroupSoftwareUsedMap, Map<FileGroup, String> fileGroupCommandLineMap){
+
+		//create the panelTab to house the panel
+		PanelTab panelTab = new PanelTab();
+		panelTab.setName("Commands");
+		panelTab.setNumberOfColumns(1);
+
+		//create the panel
+		GridPanel panel = new GridPanel();
+		panel.setTitle("Commands");
+		panel.setDescription("Commands");
+		panel.setResizable(true);
+		panel.setMaximizable(true);	
+		panel.setOrder(1);
+		
+		//create content (think of it as the table)
+		GridContent content = new GridContent();
+		//create the data model 
+		content.addDataFields(new GridDataField("Analysis", "String"));//dataIndex, datatype
+		content.addDataFields(new GridDataField("Major Software", "String"));//dataIndex, datatype
+		content.addDataFields(new GridDataField("Commands", "String"));//dataIndex, datatype
+		
+		//////content.addDataFields(new GridDataField("Command", "String"));//dataIndex, datatype
+
+		//create columns and associate each column with its displayed header and a data model attribute (dataIndex)
+		content.addColumn(new GridColumn("Analysis", "Analysis", 500, 0));//header,dataIndex	     width=500; flex=0
+		content.addColumn(new GridColumn("Major Software", "Major Software", 150, 0));//header,dataIndex	     width=250; flex=0
+		content.addColumn(new GridColumn("Commands", "Commands", 1));//header,dataIndex	      flex=1
+		
+		//create rows with  information
+		for(FileGroup fileGroup : macs2AnalysisFileGroupList){
+			
+			List<Software> softwareList  = fileGroupSoftwareUsedMap.get(fileGroup);
+			StringBuffer softwareUsedStringBuffer = new StringBuffer();
+			for(Software software : softwareList){
+				if(softwareUsedStringBuffer.length() > 0){
+					softwareUsedStringBuffer.append("<br />");
+				}
+				softwareUsedStringBuffer.append(software.getName());
+			}
+			String softwareUsedString = new String(softwareUsedStringBuffer);
+			if(softwareUsedString.isEmpty()){
+				softwareUsedString = "";
+			}			
+			
+			String commands = fileGroupCommandLineMap.get(fileGroup);
+			if(commands == null){
+				commands = "";
+			}
+			List<String> row = new ArrayList<String>();
+			row.add(fileGroup.getDescription());
+			row.add(softwareUsedString);
+			row.add(commands);
+			content.addDataRow(row);//add the new row to the content			
+		}
+				
+		panel.setContent(content);//add content to panel
+		panelTab.addPanel(panel);//add panel to panelTab
+		return panelTab;
+	}
+	
+	//PanelTab bamFilesPanelTab = MacstwoWebPanels.getBamFilesUsedByAnalysis(macs2AnalysisFileGroupList, fileGroupBamFilesUsedMap);
+	//this is new
+	public static PanelTab getLibrariesAndBamFilesUsedByAnalysis(List<FileGroup> macs2AnalysisFileGroupList, Map<FileGroup, List<Sample>> fileGroupLibrariesUsedMap, Map<FileGroup, List<FileHandle>> fileGroupBamFilesUsedMap){
+
+			//create the panelTab to house the panel
+			PanelTab panelTab = new PanelTab();
+			panelTab.setName("Libraries & Bam Files");
+			panelTab.setNumberOfColumns(1);
+
+			//create the panel
+			GridPanel panel = new GridPanel();
+			panel.setTitle("Libraries & Bam Files Used");
+			panel.setDescription("Libraries & Bam Files Used");
+			panel.setResizable(true);
+			panel.setMaximizable(true);	
+			panel.setOrder(1);
+			
+			//create content (think of it as the table)
+			GridContent content = new GridContent();
+			//create the data model 
+			content.addDataFields(new GridDataField("Analysis", "String"));//dataIndex, datatype
+			content.addDataFields(new GridDataField("Libraries Used", "String"));//dataIndex, datatype
+			content.addDataFields(new GridDataField("Bam Files Used", "String"));//dataIndex, datatype
+			
+			//////content.addDataFields(new GridDataField("Command", "String"));//dataIndex, datatype
+
+			//create columns and associate each column with its displayed header and a data model attribute (dataIndex)
+			content.addColumn(new GridColumn("Analysis", "Analysis", 500, 0));//header,dataIndex	     width=500; flex=0
+			content.addColumn(new GridColumn("Libraries Used", "Libraries Used", 150, 0));//header,dataIndex	width=300;      flex=0
+			content.addColumn(new GridColumn("Bam Files Used", "Bam Files Used", 1));//header,dataIndex	      flex=1
+			
+			//create rows with  information
+			for(FileGroup fileGroup : macs2AnalysisFileGroupList){				
+				
+				List<String> row = new ArrayList<String>();
+				row.add(fileGroup.getDescription());
+				
+				List<Sample>  libraries = fileGroupLibrariesUsedMap.get(fileGroup);
+				if(libraries.isEmpty()){
+					row.add("Error");
+				}
+				else{
+					StringBuffer libraryNamesAsStringBuffer = new StringBuffer();
+					for(Sample library : libraries){
+						if(libraryNamesAsStringBuffer.length()>0){libraryNamesAsStringBuffer.append("<br />");}
+						libraryNamesAsStringBuffer.append(library.getName());
+					}
+					row.add(new String(libraryNamesAsStringBuffer));
+				}
+				
+				List<FileHandle>  bamFiles = fileGroupBamFilesUsedMap.get(fileGroup);
+				if(bamFiles.isEmpty()){
+					row.add("Error");
+				}
+				else{
+					StringBuffer bamFileNamesAsStringBuffer = new StringBuffer();
+					for(FileHandle fh : bamFiles){
+						if(bamFileNamesAsStringBuffer.length()>0){bamFileNamesAsStringBuffer.append("<br />");}
+						bamFileNamesAsStringBuffer.append(fh.getFileName());
+					}
+					row.add(new String(bamFileNamesAsStringBuffer));
+				}
+				
+				content.addDataRow(row);//add the new row to the content			
+			}
+					
+			panel.setContent(content);//add content to panel
+			panelTab.addPanel(panel);//add panel to panelTab
+			return panelTab;
+		}
+	
 	//this is new
 	public static PanelTab getFripCalculationByAnalysis(List<FileGroup> macs2AnalysisFileGroupList, Map<FileGroup, String> fileGroupFripCalculationMap){
 		
