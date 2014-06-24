@@ -70,6 +70,8 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 
 	private Properties localProperties;
 	
+	private DirectoryPlaceholderRewriter directoryPlaceholderRewriter = new DefaultDirectoryPlaceholderRewriter();
+	
 	public Map<String, String> getSettings() {
 		return settings;
 	}
@@ -186,9 +188,14 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 	 */
 	@Override
 	public GridResult sendExecToRemote(WorkUnit w) throws GridAccessException, GridExecutionException, GridUnresolvableHostException, MisconfiguredWorkUnitException {
-
+		try {
+			directoryPlaceholderRewriter.replaceDirectoryPlaceholders(this, w);
+		} catch (MisconfiguredWorkUnitException e1) {
+			throw new GridAccessException("Handled edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException: " + e1.getMessage());
+		}
+		
 		GridResultImpl result = new GridResultImpl();
-
+		
 		try {
 			
 			logger.trace("Attempting to create SshTransportConnection to " + getHostName());

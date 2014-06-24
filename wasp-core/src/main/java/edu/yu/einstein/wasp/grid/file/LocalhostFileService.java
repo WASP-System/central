@@ -25,7 +25,6 @@ public class LocalhostFileService implements GridFileService {
 	
 	private static boolean userDirIsRoot = true;
 	
-	
 	private GridTransportConnection transportConnection;
 
 	public LocalhostFileService(GridTransportConnection transportConnection) {

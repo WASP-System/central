@@ -87,15 +87,15 @@ public class DefaultDirectoryPlaceholderRewriter implements DirectoryPlaceholder
 	}
 	
 	private String replaceTmp(String s, String tmp, WorkUnit w) {
-		return s.replaceAll(WorkUnit.TMP_DIR_PLACEHOLDER, tmp + "/" + w.getId() + "/").replaceAll("//", "/").replaceAll("//", "/");
+		return s.replaceAll(WorkUnit.TMP_DIR_PLACEHOLDER, tmp + "/" + w.getId() + "/").replaceAll("//", "/");
 	}
 	
 	private String replaceScratch(String s, String scratch, WorkUnit w) {
-		return s.replaceAll(WorkUnit.SCRATCH_DIR_PLACEHOLDER, scratch + "/" + w.getId() + "/").replaceAll("//", "/").replaceAll("//", "/");
+		return s.replaceAll(WorkUnit.SCRATCH_DIR_PLACEHOLDER, scratch + "/" + w.getId() + "/").replaceAll("//", "/");
 	}
 	
 	private String replaceResults(String s, String results) {
-		return s.replaceAll(WorkUnit.RESULTS_DIR_PLACEHOLDER, results + "/").replaceAll("//", "/").replaceAll("//", "/");
+		return s.replaceAll(WorkUnit.RESULTS_DIR_PLACEHOLDER, results + "/").replaceAll("//", "/");
 	}
 
 }
