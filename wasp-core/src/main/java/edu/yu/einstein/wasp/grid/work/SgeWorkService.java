@@ -210,7 +210,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			if (w.getResultsDirectory().equals(null) || w.getResultsDirectory().equals("/")) {
 				throw new MisconfiguredWorkUnitException("Must configure results directory.");
 			}
-			
+			w.remoteWorkingDirectory = w.getWorkingDirectory();
 			if (!w.isWorkingDirectoryRelativeToRoot())
 				w.remoteWorkingDirectory = transportConnection.prefixRemoteFile(w.getWorkingDirectory());
 			w.remoteResultsDirectory = transportConnection.prefixRemoteFile(w.getResultsDirectory());
