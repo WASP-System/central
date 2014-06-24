@@ -25,7 +25,7 @@ import edu.yu.einstein.wasp.viewpanel.WebPanel;
 public class MacstwoWebPanels {
 
 	static protected  Logger logger = LoggerFactory.getLogger(WaspServiceImpl.class);	
-
+/*
 	public static PanelTab getSamplePairs(List<Sample> testSampleList, Map<Sample, List<Sample>> testSampleControlSampleListMap, Map<String,String> sampleIdControlIdCommandLineMap){
 
 		//create the panelTab to house the panel
@@ -190,7 +190,7 @@ public class MacstwoWebPanels {
 		return panelTab;
 	}
 	
-	
+*/	
 	
 	
 	//we keep and still use this
@@ -254,13 +254,13 @@ public class MacstwoWebPanels {
 		GridContent content = new GridContent();
 		//create the data model 
 		content.addDataFields(new GridDataField("Analysis", "String"));//dataIndex, datatype
-		content.addDataFields(new GridDataField("Test Sample", "String"));//dataIndex, datatype
+		content.addDataFields(new GridDataField("IP Sample", "String"));//dataIndex, datatype
 		content.addDataFields(new GridDataField("Control Sample", "String"));//dataIndex, datatype
 		//////content.addDataFields(new GridDataField("Command", "String"));//dataIndex, datatype
 
 		//create columns and associate each column with its displayed header and a data model attribute (dataIndex)
 		content.addColumn(new GridColumn("Analysis", "Analysis", 500, 0));//header,dataIndex	     width=250; flex=0
-		content.addColumn(new GridColumn("Test Sample", "Test Sample", 250, 0));//header,dataIndex	     width=250; flex=0	
+		content.addColumn(new GridColumn("IP Sample", "IP Sample", 250, 0));//header,dataIndex	     width=250; flex=0	
 		content.addColumn(new GridColumn("Control Sample", "Control Sample",  1));//header,dataIndex	 width=250; flex=0	
 		//content.addColumn(new GridColumn("Command Line", "Command", 1));//header,dataIndex               flex=1
 		
@@ -285,16 +285,6 @@ public class MacstwoWebPanels {
 			System.out.println("controlSampleName = " + controlSampleName);
 			row.add(testSampleName);
 			row.add(controlSampleName);
-			/*
-			String command = sampleIdControlIdCommandLineMap.get(testSample.getId().toString()+"::"+controlSample.getId().toString());
-			if(command==null || command.isEmpty()){
-				command = " ";
-			}
-			else{
-				command = command.replaceAll("\\n", "");//the workunit may put a newline at the end, which is incompatible with Extjs grids
-			}
-			row.add(command);
-			*/	
 			content.addDataRow(row);//add the new row to the content			
 		}
 				
@@ -541,6 +531,66 @@ public class MacstwoWebPanels {
 		return panelTab;		 
 	}
 	//this is new
+	public static PanelTab getFilesByFileType(List<FileGroup> macs2AnalysisFileGroupList, 
+											Map<FileGroup,List<FileHandle>> fileGroupFileHandleListMap, 
+											Map<FileHandle,String> fileHandleResolvedURLMap, 
+											List<FileType> fileTypeList){
+		
+		//create the panelTab to house the panel
+		PanelTab panelTab = new PanelTab();
+		panelTab.setName("Files By Type");
+		panelTab.setNumberOfColumns(1);
+	
+		//create the panel
+		GridPanel panel = new GridPanel();
+		panel.setTitle("Files By Type");
+		panel.setDescription("Files By Type");
+		panel.setResizable(true);
+		panel.setMaximizable(true);	
+		panel.setOrder(1);
+		panel.setGrouping(true);
+		panel.setGroupField("FileType");
+		panel.setHasDownload(true);
+		panel.setDownloadLinkField("Download");
+		panel.setAllowSelectDownload(true);
+		panel.setAllowGroupDownload(true);
+		panel.setSelectDownloadText("Download Selected");
+		
+		//create content (think of it as the table)
+		GridContent content = new GridContent();
+		//create the data model 
+		content.addDataFields(new GridDataField("FileType", "String"));//THIS WILL BE THE UNIQUE GROUPING FIELD //dataIndex, datatype
+		content.addDataFields(new GridDataField("File", "String"));//dataIndex, datatype
+		content.addDataFields(new GridDataField("MD5", "String"));//dataIndex, datatype
+		content.addDataFields(new GridDataField("Download", "String"));//dataIndex, datatype
+
+		//create columns and associate each column with its displayed header and a data model attribute (dataIndex)
+		///////don't want this to display: content.addColumn(new GridColumn("Analysis", "Analysis"));//header,dataIndex		
+		
+		content.addColumn(new GridColumn("File", "File", 500));//header,dataIndex					flex=1
+		content.addColumn(new GridColumn("MD5", "MD5", 270, 0));//header,dataIndex					width=270; flex=0
+		////content.addColumn(new GridColumn(" ", "Download", 100, 0));//header is single space string,dataIndex	width=100; flex=0
+		
+		for(FileType fileType : fileTypeList){						
+			for(FileGroup fileGroup : macs2AnalysisFileGroupList){
+				for(FileHandle fileHandle : fileGroupFileHandleListMap.get(fileGroup)){
+					if(fileHandle.getFileType().getId().intValue()== fileType.getId().intValue()){
+						List<String> row = new ArrayList<String>();					
+						row.add(fileType.getName());//won't be displayed on each row, but will be the header for each section (but must be part of the row)
+						row.add(fileHandle.getFileName());
+						row.add(fileHandle.getMd5hash());
+						row.add(fileHandleResolvedURLMap.get(fileHandle));
+						content.addDataRow(row);//add the new row to the content
+					}
+				}
+			}
+		}
+		panel.setContent(content);//add content to panel
+		panelTab.addPanel(panel);//add panel to panelTab
+	
+		return panelTab;		 
+	}
+	//this is new
 	public static PanelTab getModelPNGFilesByAnalysis(List<FileGroup> macs2AnalysisFileGroupList, Map<FileGroup,List<FileHandle>> fileGroupFileHandleListMap, Map<FileHandle,String> fileHandleResolvedURLMap){
 
 		//create the panelTab to house the panel
@@ -583,7 +633,7 @@ public class MacstwoWebPanels {
 		return panelTab;
 	}
 	
-	
+	/*
 	
 	public static PanelTab getFilesBySample(List<Sample> testSampleList, Map<Sample, List<Sample>> testSampleControlSampleListMap, List<FileType> fileTypeList, Map<String, FileHandle>  sampleIdControlIdFileTypeIdFileHandleMap, Map<FileHandle, String> fileHandleResolvedURLMap, Map<String, FileGroup> sampleIdControlIdFileTypeIdFileGroupMap){
 
@@ -786,5 +836,5 @@ public class MacstwoWebPanels {
 		}	
 		return panelTab;
 	}
-
+*/
 }
