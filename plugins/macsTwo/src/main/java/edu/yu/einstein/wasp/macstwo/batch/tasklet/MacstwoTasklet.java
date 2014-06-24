@@ -539,49 +539,49 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
 			
 			FileGroupMeta fgm = new FileGroupMeta();
-			fgm.setK("macs2Analysis.controlId");//could be gotten from the derivedFrom data
+			fgm.setK("macs2Analysis.controlId");//could be gotten from the derivedFrom data; stored but never used
 			fgm.setV(this.controlSampleId.toString());
 			fgm.setFileGroupId(fg.getId());
 			fgmList.add(fgm);
 			
 			FileGroupMeta fgm2 = new FileGroupMeta();
-			fgm2.setK("macs2Analysis.testId");//sample --> sampleFileGroup table; but could be gotten from the derivedFrom data
+			fgm2.setK("macs2Analysis.testId");//sample --> sampleFileGroup table; but could be gotten from the derivedFrom data; ; stored but never used
 			fgm2.setV(testSample.getId().toString());
 			fgm2.setFileGroupId(fg.getId());
 			fgmList.add(fgm2);
 			
 			FileGroupMeta fgm3 = new FileGroupMeta();
-			fgm3.setK("macs2Analysis.testCellLibraryIdList");//these are now really stored in derivedFrom, as list of Bam files
+			fgm3.setK("macs2Analysis.testCellLibraryIdList");//these are now really stored in derivedFrom, as list of Bam files; ; stored but never used
 			fgm3.setV(this.testCellLibraryIdListAsString);
 			fgm3.setFileGroupId(fg.getId());
 			fgmList.add(fgm3);
 			
 			FileGroupMeta fgm4 = new FileGroupMeta();
-			fgm4.setK("macs2Analysis.controlCellLibraryIdList");//these are now really stored in derivedFrom, as list of Bam files
+			fgm4.setK("macs2Analysis.controlCellLibraryIdList");//these are now really stored in derivedFrom, as list of Bam files; ; stored but never used
 			fgm4.setV(this.controlCellLibraryIdListAsString);
 			fgm4.setFileGroupId(fg.getId());
 			fgmList.add(fgm4);
 			
 			FileGroupMeta fgm5 = new FileGroupMeta();
-			fgm5.setK("macs2Analysis.commandLineCall");
+			fgm5.setK("macs2Analysis.commandLineCall");//used
 			fgm5.setV(this.commandLineCall);
 			fgm5.setFileGroupId(fg.getId());
 			fgmList.add(fgm5);
 			
 			FileGroupMeta fgm6 = new FileGroupMeta();
-			fgm6.setK("macs2Analysis.totalCountMappedReads");
+			fgm6.setK("macs2Analysis.totalCountMappedReads");//used
 			fgm6.setV(totalCountMappedReadsAsString);
 			fgm6.setFileGroupId(fg.getId());
 			fgmList.add(fgm6);
 			
 			FileGroupMeta fgm7 = new FileGroupMeta();
-			fgm7.setK("macs2Analysis.totalCountMappedReadsInPeaksAsString");
+			fgm7.setK("macs2Analysis.totalCountMappedReadsInPeaksAsString");//used
 			fgm7.setV(totalCountMappedReadsInPeaksAsString);
 			fgm7.setFileGroupId(fg.getId());			
 			fgmList.add(fgm7);
 			
 			FileGroupMeta fgm8 = new FileGroupMeta();
-			fgm8.setK("macs2Analysis.softwareIdUsedListAsString");
+			fgm8.setK("macs2Analysis.softwareIdUsedListAsString");//used
 			fgm8.setV(this.softwareIdUsedListAsString);
 			fgm8.setFileGroupId(fg.getId());			
 			fgmList.add(fgm8);
