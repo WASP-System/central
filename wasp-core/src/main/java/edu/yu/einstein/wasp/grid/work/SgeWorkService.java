@@ -982,8 +982,10 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		 */
 		@Override
 		public String getProcs() {
-			return getFlag() + " -l p=" + w.getProcessorRequirements().toString() + "\n" +
-					WorkUnit.NUMBER_OF_THREADS + "=" + w.getProcessorRequirements().toString() + "\n";
+			String procsStr = WorkUnit.NUMBER_OF_THREADS + "=" + w.getProcessorRequirements().toString() + "\n";
+			if (isNumProcConsumable)
+				procsStr += getFlag() + " -l p=" + w.getProcessorRequirements().toString() + "\n";
+			return procsStr;
 		}
 
 		public String toString() {
@@ -995,9 +997,8 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 				.append(getMaxRunTime());
 			if (getParallelEnvironment() != null)
 				sb.append(getParallelEnvironment());
-			if (isNumProcConsumable)
-				sb.append(getProcs());
-			sb.append(getMemory()) 
+			sb.append(getProcs())
+				.append(getMemory()) 
 				.append(getProject())
 				.append(getMailRecipient())
 				.append(getMailCircumstances())
