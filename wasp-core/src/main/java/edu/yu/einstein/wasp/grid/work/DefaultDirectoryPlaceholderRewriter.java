@@ -6,7 +6,6 @@ package edu.yu.einstein.wasp.grid.work;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
 import edu.yu.einstein.wasp.util.PropertyHelper;
 
 /**
@@ -43,7 +42,7 @@ public class DefaultDirectoryPlaceholderRewriter implements DirectoryPlaceholder
 	 * edu.yu.einstein.wasp.grid.work.WorkUnit)
 	 */
 	@Override
-	public void replaceDirectoryPlaceholders(GridTransportConnection transportConnection, WorkUnit w) throws MisconfiguredWorkUnitException {
+	public void replaceDirectoryPlaceholders(GridTransportConnection transportConnection, WorkUnit w) {
 		String tmp = transportConnection.getConfiguredSetting("tmp.dir");
 		String scratch = transportConnection.getConfiguredSetting("scratch.dir");
 		String results = transportConnection.getConfiguredSetting("results.dir");
@@ -76,8 +75,7 @@ public class DefaultDirectoryPlaceholderRewriter implements DirectoryPlaceholder
 			w.setResultsDirectory(replaceTmp(rd, tmp, w));
 		} else if (rd.equals(WorkUnit.RESULTS_DIR_PLACEHOLDER)) {
 			// files need to go into $results/"somewhere"
-			throw new MisconfiguredWorkUnitException("WorkUnit attempted to use default results location, "
-					+ "must set a subfolder.");
+			logger.info("WorkUnit configured with default results location. Assuming not required.");
 		} else {
 			w.setResultsDirectory(replaceResults(rd, results));
 		}

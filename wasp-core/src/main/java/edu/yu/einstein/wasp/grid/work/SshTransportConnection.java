@@ -188,12 +188,7 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 	 */
 	@Override
 	public GridResult sendExecToRemote(WorkUnit w) throws GridAccessException, GridExecutionException, GridUnresolvableHostException, MisconfiguredWorkUnitException {
-		try {
-			directoryPlaceholderRewriter.replaceDirectoryPlaceholders(this, w);
-		} catch (MisconfiguredWorkUnitException e1) {
-			throw new GridAccessException("Handled edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException: " + e1.getMessage());
-		}
-		
+			
 		GridResultImpl result = new GridResultImpl();
 		
 		try {
@@ -203,6 +198,7 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 			openSession();
 			
 			// ensure set for direct remote execution
+			directoryPlaceholderRewriter.replaceDirectoryPlaceholders(this, w);
 			if (!w.isWorkingDirectoryRelativeToRoot())
 				w.remoteWorkingDirectory = prefixRemoteFile(w.getWorkingDirectory());
 			w.remoteResultsDirectory = prefixRemoteFile(w.getResultsDirectory());

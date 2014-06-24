@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
-import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
 
 /**
  * {@link GridTransportConnection} for exec of commands on the local machine.
@@ -48,11 +47,7 @@ public class LocalhostTransportConnection implements GridTransportConnection {
 	@Override
 	public GridResult sendExecToRemote(WorkUnit w) throws GridAccessException {
 		// ensure set for direct remote execution
-		try {
-			directoryPlaceholderRewriter.replaceDirectoryPlaceholders(this, w);
-		} catch (MisconfiguredWorkUnitException e1) {
-			throw new GridAccessException("Handled edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException: " + e1.getMessage());
-		}
+		directoryPlaceholderRewriter.replaceDirectoryPlaceholders(this, w);
 		if (!w.isWorkingDirectoryRelativeToRoot())
 			w.remoteWorkingDirectory = prefixRemoteFile(w.getWorkingDirectory());
 		w.remoteResultsDirectory = prefixRemoteFile(w.getResultsDirectory());
