@@ -175,14 +175,19 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 			}
 		}
 		if (PropertyHelper.isSet(missingStats) && missingStats == "true")
-			retval += "--ignore-missing-stats ";
+			retval += " --ignore-missing-stats ";
 		if (PropertyHelper.isSet(missingBcl) && missingBcl == "true")
-			retval += "--ignore-missing-bcl ";
+			retval += " --ignore-missing-bcl ";
 		if (PropertyHelper.isSet(missingControl) && missingControl == "true")
-			retval += "--ignore-missing-control ";
+			retval += " --ignore-missing-control ";
 		if (PropertyHelper.isSet(fastqNclusters)) {
 			int fqc = new Integer(fastqNclusters).intValue();
-			retval += "--fastq-cluster-count " + fqc;
+			retval += " --fastq-cluster-count " + fqc;
+		}
+		if (method.equals(IlluminaIndexingStrategy.TRUSEQ)) {
+			retval += " --use-bases-mask Y*,I6n*,n*,Y* ";
+		} else {
+			retval += " --use-bases-mask Y*,I8,I8,Y* ";
 		}
 		
 		retval += "\n  cd ../../../" + outputFolder + " && make -j ${threads} \n\n else\n  echo no cell libraries >&2\n fi\nelse\n echo semaphore exists >&2\nfi\n\n";
