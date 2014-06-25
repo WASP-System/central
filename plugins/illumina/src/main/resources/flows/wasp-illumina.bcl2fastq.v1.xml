@@ -4,6 +4,8 @@
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
 		
 	
+	<!-- NOT CURRENTLY IN USE -->
+	
 	<!-- Many job for Illumina bcl2fastq runs, performed at the flowcell level -->
 	<batch:job id="wasp-illumina.bcl2fastq">
 		<batch:step id="wasp-illumina.bcl2fastq.doBcl2Fastq">
