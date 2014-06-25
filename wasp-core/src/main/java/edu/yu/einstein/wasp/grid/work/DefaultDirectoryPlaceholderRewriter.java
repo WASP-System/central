@@ -6,7 +6,6 @@ package edu.yu.einstein.wasp.grid.work;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
 import edu.yu.einstein.wasp.util.PropertyHelper;
 
 /**
@@ -43,7 +42,8 @@ public class DefaultDirectoryPlaceholderRewriter implements DirectoryPlaceholder
 	 * edu.yu.einstein.wasp.grid.work.WorkUnit)
 	 */
 	@Override
-	public void replaceDirectoryPlaceholders(GridTransportConnection transportConnection, WorkUnit w) throws MisconfiguredWorkUnitException {
+	public void replaceDirectoryPlaceholders(GridTransportConnection transportConnection, WorkUnit w) {
+		String tmp = transportConnection.getConfiguredSetting("tmp.dir");
 		String scratch = transportConnection.getConfiguredSetting("scratch.dir");
 		String results = transportConnection.getConfiguredSetting("results.dir");
 		logger.debug("scratch: " + scratch + " & " + "results: " + results);
@@ -61,16 +61,21 @@ public class DefaultDirectoryPlaceholderRewriter implements DirectoryPlaceholder
 		
 		// rewrite the scratch directory.  By definition, scratch is not in results.
 		String wd = w.getWorkingDirectory();
-		w.setWorkingDirectory(replaceScratch(wd, scratch, w));
+		if (wd.contains(WorkUnit.TMP_DIR_PLACEHOLDER)){
+			w.setWorkingDirectory(replaceTmp(wd, tmp, w));
+			w.setWorkingDirectoryRelativeToRoot(true);
+		} else 
+			w.setWorkingDirectory(replaceScratch(wd, scratch, w));
 		
 		// results might be in scratch, or in results, results should be careful to set a subdir
 		String rd = w.getResultsDirectory();
 		if (rd.contains(WorkUnit.SCRATCH_DIR_PLACEHOLDER)) {
 			w.setResultsDirectory(replaceScratch(rd, scratch, w));
+		} else if (rd.contains(WorkUnit.TMP_DIR_PLACEHOLDER)){
+			w.setResultsDirectory(replaceTmp(rd, tmp, w));
 		} else if (rd.equals(WorkUnit.RESULTS_DIR_PLACEHOLDER)) {
 			// files need to go into $results/"somewhere"
-			throw new MisconfiguredWorkUnitException("WorkUnit attempted to use default results location, "
-					+ "must set a subfolder.");
+			logger.info("WorkUnit configured with default results location. Assuming not required.");
 		} else {
 			w.setResultsDirectory(replaceResults(rd, results));
 		}
@@ -79,12 +84,16 @@ public class DefaultDirectoryPlaceholderRewriter implements DirectoryPlaceholder
 
 	}
 	
+	private String replaceTmp(String s, String tmp, WorkUnit w) {
+		return s.replaceAll(WorkUnit.TMP_DIR_PLACEHOLDER, tmp + "/" + w.getId() + "/").replaceAll("//", "/");
+	}
+	
 	private String replaceScratch(String s, String scratch, WorkUnit w) {
-		return s.replaceAll(WorkUnit.SCRATCH_DIR_PLACEHOLDER, scratch + "/" + w.getId() + "/").replaceAll("//", "/").replaceAll("//", "/");
+		return s.replaceAll(WorkUnit.SCRATCH_DIR_PLACEHOLDER, scratch + "/" + w.getId() + "/").replaceAll("//", "/");
 	}
 	
 	private String replaceResults(String s, String results) {
-		return s.replaceAll(WorkUnit.RESULTS_DIR_PLACEHOLDER, results + "/").replaceAll("//", "/").replaceAll("//", "/");
+		return s.replaceAll(WorkUnit.RESULTS_DIR_PLACEHOLDER, results + "/").replaceAll("//", "/");
 	}
 
 }

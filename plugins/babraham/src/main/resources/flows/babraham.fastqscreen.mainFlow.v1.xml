@@ -5,8 +5,8 @@
 		
 	
 	<!-- for job, call with parameter 'fileGroupId' -->
-	<batch:job id="edu.yu.einstein.wasp.plugin.babraham.fastqscreen.mainFlow">
-		<batch:step id="edu.yu.einstein.wasp.plugin.babraham.fastqscreen.mainFlow.notifyQCStart" next="edu.yu.einstein.wasp.plugin.babrahamQC.mainFlow.fastQScreen">
+	<batch:job id="babraham.fastqscreen.mainFlow">
+		<batch:step id="babraham.fastqscreen.mainFlow.notifyQCStart" next="babraham.fastqscreen.mainflow.doFastqscreen">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
@@ -21,7 +21,7 @@
 			</batch:tasklet>
 		</batch:step>
 		
-		<batch:step id="edu.yu.einstein.wasp.plugin.babrahamQC.mainFlow.fastQScreen" next="edu.yu.einstein.wasp.plugin.babraham.fastqscreen.mainFlow.notifyQCComplete">
+		<batch:step id="babraham.fastqscreen.mainflow.doFastqscreen" next="babraham.fastqscreen.mainFlow.notifyQCComplete">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.plugin.babraham.batch.tasklet.FastQScreenTasklet" scope="step">
 					<constructor-arg name="fileGroupId" value="#{jobParameters[waspJobParameters.FILE_GROUP_ID]}" />
@@ -29,7 +29,7 @@
 			</batch:tasklet>
 		</batch:step>
 
-		<batch:step id="edu.yu.einstein.wasp.plugin.babraham.fastqscreen.mainFlow.notifyQCComplete">
+		<batch:step id="babraham.fastqscreen.mainFlow.notifyQCComplete">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />

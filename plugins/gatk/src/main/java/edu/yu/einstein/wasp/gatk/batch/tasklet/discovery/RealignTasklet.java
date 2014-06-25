@@ -42,7 +42,6 @@ public class RealignTasklet extends AbstractGatkTasklet {
 		w.setMode(ExecutionMode.PROCESS);
 		w.setProcessMode(ProcessMode.MAX);
 		w.setMemoryRequirements(MEMORY_GB_8);
-		w.setProcessorRequirements(THREADS_8);
 		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
 		w.setSecureResults(true);
@@ -80,7 +79,7 @@ public class RealignTasklet extends AbstractGatkTasklet {
 			outputFilenames.add("${" + WorkUnit.OUTPUT_FILE + "[" + i + "]}");
 		
 		String intervalFileName = "gatk.${" + WorkUnit.OUTPUT_FILE + "}.realign.intervals";
-		w.addCommand(gatk.getCreateTargetCmd(build, inputBamFilenames, intervalFileName, MEMORY_GB_8, THREADS_8));
+		w.addCommand(gatk.getCreateTargetCmd(build, inputBamFilenames, intervalFileName, MEMORY_GB_8));
 		w.addCommand(gatk.getLocalAlignCmd(build, inputBamFilenames, intervalFileName, outputFilenames, MEMORY_GB_8));
 		GridResult result = gridHostResolver.execute(w);
 

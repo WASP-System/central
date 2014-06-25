@@ -37,9 +37,16 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 	@Override
 	public Integer getFastqReadSegmentNumber(FileHandle file) {
 		String metaValue = getMeta(file, FILE_AREA, FASTQ_READ_SEGMENT_NUMBER);
-		if (metaValue == null)
+		if (metaValue == null){
+			logger.warn("No value for read segment number specified so returning null");
 			return null;
-		return Integer.parseInt(metaValue);
+		}
+		try{
+			return Integer.parseInt(metaValue);
+		} catch (NumberFormatException e){
+			logger.warn("Unable to parse '" + metaValue + "' to integer so returning null", e);
+			return null;
+		}
 	}
 
 	public void setFastqReadSegmentNumber(FileHandle file, Integer number) throws InvalidFileTypeException, MetadataException {
@@ -49,9 +56,16 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 	@Override
 	public Integer getFastqNumberOfReads(FileHandle file) {
 		String metaValue = getMeta(file, FILE_AREA, FASTQ_NUMBER_OF_READS);
-		if (metaValue == null)
+		if (metaValue == null){
+			logger.warn("No value for number of reads specified so returning null");
 			return null;
-		return Integer.parseInt(metaValue);
+		}
+		try{
+			return Integer.parseInt(metaValue);
+		} catch (NumberFormatException e){
+			logger.warn("Unable to parse '" + metaValue + "' to integer so returning null", e);
+			return null;
+		}
 	}
 	
 	public void setFastqNumberOfReads(FileHandle file, Integer number) throws InvalidFileTypeException, MetadataException {
@@ -61,9 +75,16 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 	@Override
 	public Integer getFastqNumberOfPassFilterReads(FileHandle file) {
 		String metaValue = (getMeta(file, FILE_AREA, FASTQ_NUMBER_OF_PASS_FILTER_READS));
-		if (metaValue == null)
+		if (metaValue == null){
+			logger.warn("No value for number of pass filter reads specified so returning null");
 			return null;
-		return Integer.parseInt(metaValue);
+		}
+		try{
+			return Integer.parseInt(metaValue);
+		} catch (NumberFormatException e){
+			logger.warn("Unable to parse '" + metaValue + "' to integer so returning null", e);
+			return null;
+		}
 	}
 	
 	public void setFastqNumberOfPassFilterReads(FileHandle file, Integer number) throws MetadataException {
@@ -85,7 +106,17 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 
 	@Override
 	public Integer getFastqFileNumber(FileHandle file) {
-		Integer fileNumber = new Integer(getMeta(file, FILETYPE_AREA, FileTypeService.FILETYPE_FILE_NUMBER_META_KEY));
+		Integer fileNumber = 0;
+		String metaValue = getMeta(file, FILETYPE_AREA, FileTypeService.FILETYPE_FILE_NUMBER_META_KEY);
+		if (metaValue == null){
+			logger.warn("No Fastq file number specified so returning default value of 0");
+			return fileNumber;
+		}
+		try{
+			fileNumber = Integer.parseInt(metaValue);
+		} catch (NumberFormatException e){
+			logger.warn("Unable to parse '" + metaValue + "' to integer so returning default value of 0", e);
+		}
 		return fileNumber;
 	}
 	
@@ -119,10 +150,15 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 	public Integer getNumberOfReadSegments(FileGroup filegroup) {
 		Assert.assertParameterNotNull(filegroup);
 		Integer numberOfSegments = 1;
+		String metaValue = getMeta(filegroup, FILE_AREA, FASTQ_GROUP_NUMBER_OF_READ_SEGMENTS);
+		if (metaValue == null){
+			logger.warn("Unable to obtain number of read segments from meta so returning default value of 1");
+			return numberOfSegments;
+		}
 		try{
-			numberOfSegments = new Integer(getMeta(filegroup, FILE_AREA, FASTQ_GROUP_NUMBER_OF_READ_SEGMENTS));
+			numberOfSegments = Integer.parseInt(metaValue);
 		} catch (NumberFormatException e){
-			logger.warn("Unable to obtain number of read segments from meta so defaulting to 1");
+			logger.warn("Unable to parse '" + metaValue + "' to integer so returning default value of 1", e);
 		}
 		return numberOfSegments;
 	}

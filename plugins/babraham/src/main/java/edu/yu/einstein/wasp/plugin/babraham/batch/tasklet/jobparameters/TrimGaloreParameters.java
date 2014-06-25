@@ -46,6 +46,7 @@ public class TrimGaloreParameters {
 
     public void setAdapter2(String adapter2) {
         this.adapter2 = adapter2;
+        setPaired(true);
     }
 
     public int getStringency() {
@@ -87,5 +88,13 @@ public class TrimGaloreParameters {
     public void setClip_r2(int clip_r2) {
         this.clip_r2 = clip_r2;
     }
+
+	public boolean isPaired() {
+		return paired;
+	}
+
+	public void setPaired(boolean paired) {
+		this.paired = paired;
+	}
 
 }

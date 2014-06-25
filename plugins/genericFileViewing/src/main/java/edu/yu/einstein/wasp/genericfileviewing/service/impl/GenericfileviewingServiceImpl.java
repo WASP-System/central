@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.genericfileviewing.service.GenericfileviewingService;
+import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
@@ -26,7 +27,7 @@ public class GenericfileviewingServiceImpl extends WaspServiceImpl implements Ge
 	}
 
 	@Override
-	public PanelTab getPanelTabForFileGroup(Integer id) throws PanelException {
+	public PanelTab getPanelTabForFileGroup(FileGroup fileGroup) throws PanelException {
 		return null;
 	}
 

@@ -3,14 +3,17 @@
  */
 package edu.yu.einstein.wasp.grid.work;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,32 +39,55 @@ public class LocalhostTransportConnection implements GridTransportConnection {
 	private File identityFile;
 	private String identityFileName;
 	
+	private DirectoryPlaceholderRewriter directoryPlaceholderRewriter = new DefaultDirectoryPlaceholderRewriter();
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public GridResult sendExecToRemote(WorkUnit w) throws GridAccessException {
+		// ensure set for direct remote execution
+		directoryPlaceholderRewriter.replaceDirectoryPlaceholders(this, w);
+		if (!w.isWorkingDirectoryRelativeToRoot())
+			w.remoteWorkingDirectory = prefixRemoteFile(w.getWorkingDirectory());
+		w.remoteResultsDirectory = prefixRemoteFile(w.getResultsDirectory());
+		
 		Runtime runtime = Runtime.getRuntime();
+		String command = w.getCommand();
+		if (w.getWrapperCommand() != null)
+			command = w.getWrapperCommand();
+		command = "cd " + w.remoteWorkingDirectory + " && " + command;
+		command = "HOME=" + System.getProperty("user.home") + ";if [ -e /etc/profile ]; then source /etc/profile > /dev/null 2>&1; fi && " + command;
+		logger.trace("sending exec: " + command + " at: " + getHostName());
 		GridResultImpl result = new GridResultImpl();
 		try {
-			String command = w.getCommand();
-			if (w.getWrapperCommand() != null) {
-				command = w.getWrapperCommand();
-			}
-			Process proc = runtime.exec(command);
+			Process proc = runtime.exec(new String[]{"/bin/bash", "-c", command});
 			proc.waitFor();
-			result.setStdErrStream(proc.getErrorStream());
-			result.setStdOutStream(proc.getInputStream());
 			result.setExitStatus(proc.exitValue());
+			if (logger.isTraceEnabled()){
+				byte[] outBA = IOUtils.toByteArray(proc.getInputStream()); // extract as Byte[] so that we can read it more than once
+				byte[] errBA = IOUtils.toByteArray(proc.getErrorStream()); // extract as Byte[] so that we can read it more than once
+				StringWriter outWriter = new StringWriter();
+				IOUtils.copy(new ByteArrayInputStream(outBA), outWriter);
+				logger.trace("stdout:" + outWriter.toString());
+				StringWriter errWriter = new StringWriter();
+				IOUtils.copy(new ByteArrayInputStream(errBA), errWriter);
+				logger.trace("stderr:" + errWriter.toString());
+				result.setStdOutStream(new ByteArrayInputStream(outBA));
+				result.setStdErrStream(new ByteArrayInputStream(errBA));
+			} else {
+				result.setStdOutStream(proc.getInputStream());
+				result.setStdErrStream(proc.getErrorStream());
+			}
 		} catch (IOException e) {
+			logger.warn("caught IOExeption executing '" + command + "' : " + e.getMessage() );
 			e.printStackTrace();
-			throw new GridAccessException("Unable to exec", e.getCause());
+			throw new GridAccessException("Unable to exec", e);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-			throw new GridAccessException("Process interrupted", e.getCause());
+			throw new GridAccessException("Process interrupted", e);
 		} 
-		
-		return result;
+		return (GridResult) result;
 		
 	}
 
