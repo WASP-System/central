@@ -213,6 +213,39 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	}
 	
 	/**
+	 * Basis for a stored list of active jobs
+	 * @return
+	 * @throws GridException
+	 * @throws SAXException
+	 * @throws IOException
+	 */
+	protected Document getAllQstat() throws GridException, SAXException, IOException {
+		WorkUnit w = new WorkUnit();
+		w.setWorkingDirectory("$HOME");
+		w.setCommand("qstat -xml");
+		GridResult result;
+		try {
+			result = transportConnection.sendExecToRemote(w);
+		} catch (MisconfiguredWorkUnitException e) {
+			logger.warn(e.getLocalizedMessage());
+			throw new GridException(e.getLocalizedMessage(), e);
+		}
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder docBuilder;
+		try {
+			dbFactory.setValidating(false);
+			docBuilder = dbFactory.newDocumentBuilder();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+			throw new GridAccessException("unable to generate xml parser");
+		}
+		InputStream is = result.getStdOutStream();
+		Document doc = docBuilder.parse(new InputSource(is));
+		is.close();
+		return doc;
+	}
+	
+	/**
 	 * @param g
 	 * @param jobname
 	 * @return
@@ -922,7 +955,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 					command + 
 					"\n\n##### postscript\n\n" +
 					postscript;
-			logger.debug(result);
+			logger.trace(result);
 			return result;
 		}
 
