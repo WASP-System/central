@@ -74,6 +74,10 @@
 		  processing of illumina runs proceeds in a split step since single index reads and dual index
 				reads require separate runs of the CASAVA pipeline.  Under no circumstances should single
 				index reads and dual index reads be run in the same flowcell lane.   -->
+				
+				<!--  there is another flow that is ready to be inserted here as a many job for processing
+				different bcl2fastq configurations, will require some refactoring -->
+				
 	    <!-- 
 		<batch:flow>
 		-->
