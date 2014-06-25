@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
+		
+	
+	<!-- Many job for Illumina bcl2fastq runs, performed at the flowcell level -->
+	<batch:job id="wasp-illumina.bcl2fastq">
+		<batch:step id="wasp-illumina.bcl2fastq.doBcl2Fastq">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.Bcl2FastqTasklet" scope="step">
+					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+					<constructor-arg name="method" value="{}" />
+				</bean>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="wasp-illumina.bcl2fastq.notifyFailure"/>
+			<batch:next on="*" to="wasp-illumina.bcl2fastq.doBarcodeSummmary" />
+		</batch:step>
+		
+		<batch:step id="wasp-illumina.bcl2fastq.doBarcodeSummmary">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.LaunchBarcodeSummary" scope="step">
+					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+					<constructor-arg name="method" value="{}" />
+				</bean>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="wasp-illumina.bcl2fastq.notifyFailure"/>
+			<batch:next on="*" to="wasp-illumina.bcl2fastq.listenForBarcodeSummary" />
+		</batch:step>
+		
+		<batch:step id="wasp-illumina.bcl2fastq.listenForBarcodeSummary">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForManyStatusMessagesTasklet" scope="step" />
+			</batch:tasklet>
+			<batch:next on="FAILED" to="wasp-illumina.bcl2fastq.notifyFailure"/>
+			<batch:next on="*" to="wasp-illumina.bcl2fastq.notifySuccess" />
+		</batch:step>
+		
+		
+		<batch:step id="wasp-illumina.bcl2fastq.notifySuccess">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.ManyJobStatusMessageTemplate">
+							<constructor-arg name="parentId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).PARENT_ID]}" />
+							<constructor-arg name="childId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).CHILD_MESSAGE_ID]}" />
+							<property name="status" value="COMPLETED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="wasp-illumina.bcl2fastq.notifyFailure">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.ManyJobStatusMessageTemplate">
+							<constructor-arg name="parentId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).PARENT_ID]}" />
+							<constructor-arg name="childId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).CHILD_MESSAGE_ID]}" />
+							<property name="status" value="FAILED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+			<batch:fail on="*"/>
+		</batch:step>
+		
+	</batch:job>
+	
+	<!-- Many job run at the per lane, per bcl2fastq level -->
+	<batch:job id="wasp-illumina.bcl2fastq.barcodeSummary">
+		<batch:step id="wasp-illumina.bcl2fastq.barcodeSummary.do">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.DoBarcodeSummary" scope="step">
+					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+					<constructor-arg name="method" value="{}" />
+					<constructor-arg name="lane" value="#{jobParameters[waspJobParameters.CELL_ID]}" />
+				</bean>
+			</batch:tasklet>
+			<batch:next on="FAILURE" to="wasp-illumina.bcl2fastq.barcodeSummary.notifyFailure"/>
+			<batch:next on="*" to="wasp-illumina.bcl2fastq.barcodeSummary.notifySuccess"/>
+		</batch:step>
+		
+		<batch:step id="wasp-illumina.bcl2fastq.barcodeSummary.notifySuccess">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.ManyJobStatusMessageTemplate">
+							<constructor-arg name="parentId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).PARENT_ID]}" />
+							<constructor-arg name="childId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).CHILD_MESSAGE_ID]}" />
+							<property name="status" value="COMPLETED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="wasp-illumina.bcl2fastq.barcodeSummary.notifyFailure">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.ManyJobStatusMessageTemplate">
+							<constructor-arg name="parentId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).PARENT_ID]}" />
+							<constructor-arg name="childId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).CHILD_MESSAGE_ID]}" />
+							<property name="status" value="FAILED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+			<batch:fail on="*"/>
+		</batch:step>
+	
+	</batch:job>
+
+</beans>
+
