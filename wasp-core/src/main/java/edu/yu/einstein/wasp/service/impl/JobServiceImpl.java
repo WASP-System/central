@@ -68,6 +68,7 @@ import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleJobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
+import edu.yu.einstein.wasp.dao.SampleSourceMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.SoftwareDao;
@@ -319,6 +320,9 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 
 	@Autowired
 	protected SampleDao sampleDao;
+	
+	@Autowired
+	protected SampleSourceMetaDao sampleSourceMetaDao;
 
 	@Autowired
 	protected JobSampleDao jobSampleDao;
@@ -2468,5 +2472,11 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		Map<String, Integer> m = new HashMap<String, Integer>();
 		m.put("jobId", jobId);
 		return jobMetaDao.findByMap(m);
+	}
+
+	@Override
+	public Job getJobForCellLibrary(SampleSource cellLibrary) {
+		String jid = sampleSourceMetaDao.getSampleSourceMetaByKSampleSourceId(SampleServiceImpl.LIBRARY_ON_CELL_AREA, cellLibrary.getId()).getV();
+		return getJobByJobId(Integer.valueOf(jid));
 	}
 }

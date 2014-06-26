@@ -53,6 +53,7 @@ import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.quote.MPSQuote;
@@ -671,5 +672,7 @@ public interface JobService extends WaspMessageHandlingService {
 	public JobDataTabViewing getTabViewPluginByJob(Job job);
 
 	public JobSampleDao getJobSampleDao();
+	
+	public Job getJobForCellLibrary(SampleSource cellLibrary);
 
 }
