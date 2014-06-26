@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.sequence;
+package edu.yu.einstein.wasp.plugin.mps;
 
 import java.util.List;
 
@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.dao.WaspMetaDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.interfacing.plugin.ResourceConfigurableProperties;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.WaspModel;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -17,8 +18,10 @@ import edu.yu.einstein.wasp.util.MetaHelper;
  * @author asmclellan
  *
  */
-public class SequenceReadProperties {
+public class SequenceReadProperties extends ResourceConfigurableProperties{
 
+	private static final long serialVersionUID = 4013322632809540659L;
+	
 	private static final Logger logger = LoggerFactory.getLogger(SequenceReadProperties.class);
 	
 	static class ReadType{
@@ -36,28 +39,27 @@ public class SequenceReadProperties {
 	public static final String READ_LENGTH_KEY = "readLength";
 	public static final String READ_TYPE_KEY = "readType";
 	
-	private String readType;
-	
-	private Integer readLength;
-
 	public Integer getReadLength() {
-		return readLength;
+		return (Integer) this.get(READ_LENGTH_KEY);
 	}
 
 	public void setReadLength(Integer readLength) {
-		this.readLength = readLength;
+		this.put(READ_LENGTH_KEY, readLength.toString());
 	}
 
 	public String getReadType() {
-		return readType;
-	}
-
-	public void setReadType(String readType){
-		Assert.assertTrue(ReadType.isReadType(readType));
-		this.readType = readType;
+		return (String) this.get(READ_TYPE_KEY);
 	}
 	
-	public SequenceReadProperties(){};
+	public void setReadType(String readType) {
+		this.put(READ_TYPE_KEY, readType);
+	}
+	
+	public SequenceReadProperties(){
+		// set default value
+		setReadType(ReadType.UNDEFINED);
+		setReadLength(-1);
+	}
 
 	public SequenceReadProperties(String readType, Integer readLength) {
 		setReadType(readType);

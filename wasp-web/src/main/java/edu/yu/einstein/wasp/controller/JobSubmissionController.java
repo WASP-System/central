@@ -74,7 +74,6 @@ import edu.yu.einstein.wasp.dao.SampleJobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
-import edu.yu.einstein.wasp.dao.SoftwareDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.dao.WorkflowResourceTypeDao;
 import edu.yu.einstein.wasp.dao.WorkflowSoftwareDao;
@@ -109,8 +108,6 @@ import edu.yu.einstein.wasp.model.WorkflowMeta;
 import edu.yu.einstein.wasp.model.WorkflowResourceType;
 import edu.yu.einstein.wasp.model.WorkflowSoftware;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
-import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
-import edu.yu.einstein.wasp.model.WorkflowsoftwareMeta;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
@@ -121,6 +118,7 @@ import edu.yu.einstein.wasp.service.JobDraftService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.SoftwareService;
 import edu.yu.einstein.wasp.service.StrategyService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -188,7 +186,7 @@ public class JobSubmissionController extends WaspController {
 	protected ResourceCategoryDao resourceCategoryDao;
 
 	@Autowired
-	protected SoftwareDao softwareDao;
+	protected SoftwareService softwareService;
 
 	@Autowired
 	protected ResourceTypeDao resourceTypeDao;
@@ -903,28 +901,13 @@ public class JobSubmissionController extends WaspController {
 		Map<String, List<MetaAttribute.Control.Option>> resourceOptions = new HashMap<String, List<MetaAttribute.Control.Option>>();
 
 		if (jobDraftResourceCategory != null) {
-			Workflowresourcecategory workflowresourcecategory = workflowresourcecategoryDao.getWorkflowresourcecategoryByWorkflowIdResourcecategoryId(jobDraft.getWorkflow().getId(), jobDraftResourceCategory.getResourcecategoryId());
-			for (WorkflowresourcecategoryMeta wrm: workflowresourcecategory.getWorkflowresourcecategoryMeta()) {
-				String key = wrm.getK(); 
-	
-	//			if (! key.matches("^.*allowableUiField\\.")) { continue; }
-				key = key.replaceAll("^.*allowableUiField\\.", "");
-				List<MetaAttribute.Control.Option> options=new ArrayList<MetaAttribute.Control.Option>();
-				for(String el: org.springframework.util.StringUtils.tokenizeToStringArray(wrm.getV(),";")) {
-					String [] pair=StringUtils.split(el,":");
-					MetaAttribute.Control.Option option = new MetaAttribute.Control.Option();
-					option.setValue(pair[0]);
-					option.setLabel(pair[1]);
-					options.add(option);
-				}
-				if (options.isEmpty()){
-					waspErrorMessage("jobDraft.resourceCategories_not_configured.error");
-					return "redirect:/dashboard.do";
-				}
-				resourceOptions.put(key, options);
+			try{
+				resourceOptions.putAll(workflowService.getConfiguredOptions(jobDraft.getWorkflow(), jobDraftResourceCategory.getResourceCategory()));
+			} catch (MetadataException e){
+				waspErrorMessage("jobDraft.resourceCategories_not_configured.error");
+				return "redirect:/dashboard.do";
 			}
 		}
-
 
 		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
 		metaHelperWebapp.setArea(resourceCategoryArea);
@@ -1066,25 +1049,11 @@ public class JobSubmissionController extends WaspController {
 		Map<String, List<MetaAttribute.Control.Option>> resourceOptions = new HashMap<String, List<MetaAttribute.Control.Option>>();
 
 		if (jobDraftSoftware != null) {
-			WorkflowSoftware workflowSoftware = workflowSoftwareDao.getWorkflowSoftwareByWorkflowIdSoftwareId(jobDraft.getWorkflow().getId(), jobDraftSoftware.getSoftwareId());
-			for (WorkflowsoftwareMeta wrm: workflowSoftware.getWorkflowsoftwareMeta()) {
-				String key = wrm.getK(); 
-	
-	//			if (! key.matches("^.*allowableUiField\\.")) { continue; }
-				key = key.replaceAll("^.*allowableUiField\\.", "");
-				List<MetaAttribute.Control.Option> options=new ArrayList<MetaAttribute.Control.Option>();
-				for(String el: org.springframework.util.StringUtils.tokenizeToStringArray(wrm.getV(),";")) {
-					String [] pair=StringUtils.split(el,":");
-					MetaAttribute.Control.Option option = new MetaAttribute.Control.Option();
-					option.setValue(pair[0]);
-					option.setLabel(pair[1]);
-					options.add(option);
-				}
-				if (options.isEmpty()){
-					waspErrorMessage("jobDraft.software_not_configured.error");
-					return "redirect:/dashboard.do";
-				}
-				resourceOptions.put(key, options);
+			try{
+				resourceOptions = workflowService.getConfiguredOptions(jobDraft.getWorkflow(), jobDraftSoftware.getSoftware());
+			} catch (MetadataException e){
+				waspErrorMessage("jobDraft.software_not_configured.error");
+				return "redirect:/dashboard.do";
 			}
 		}
 
