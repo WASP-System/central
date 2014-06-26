@@ -24,15 +24,34 @@ public class SequenceReadProperties extends ResourceConfigurableProperties{
 	
 	private static final Logger logger = LoggerFactory.getLogger(SequenceReadProperties.class);
 	
-	static class ReadType{
-		public static final String SINGLE = "single";
-		public static final String PAIRED = "paired";
-		public static final String UNDEFINED = "undefined";
+	public static class ReadType{
+		public static final ReadType SINGLE = new ReadType("single");
+		public static final ReadType PAIRED = new ReadType("paired");
+		public static final ReadType UNDEFINED = new ReadType("undefined");
 		
-		public static boolean isReadType(String readType){
-			if (readType.equals(READ_TYPE_KEY) || readType.equals(SINGLE) || readType.equals(PAIRED) || readType.equals(UNDEFINED))
-				return true;
-			return false;
+		private String readType = "";
+		
+		public ReadType(String readType){
+			this.readType = readType;
+		}
+		
+		@Override
+		public String toString(){
+			return readType;
+		}
+		
+		@Override
+		public boolean equals(Object obj){
+			if (this == obj) return true;
+			if (obj == null) return false;
+			if (!this.getClass().isInstance(obj) && !obj.getClass().isInstance(this)) 
+				return false; // allow comparison if one class is derived from the other
+			return readType.equals(obj.toString());
+		}
+		
+		@Override
+		public int hashCode(){
+			return readType.hashCode();
 		}
 	}
 	
@@ -40,18 +59,18 @@ public class SequenceReadProperties extends ResourceConfigurableProperties{
 	public static final String READ_TYPE_KEY = "readType";
 	
 	public Integer getReadLength() {
-		return (Integer) this.get(READ_LENGTH_KEY);
+		return Integer.parseInt(this.get(READ_LENGTH_KEY).toString());
 	}
 
 	public void setReadLength(Integer readLength) {
 		this.put(READ_LENGTH_KEY, readLength.toString());
 	}
 
-	public String getReadType() {
-		return (String) this.get(READ_TYPE_KEY);
+	public ReadType getReadType() {
+		return (ReadType) this.get(READ_TYPE_KEY);
 	}
 	
-	public void setReadType(String readType) {
+	public void setReadType(ReadType readType) {
 		this.put(READ_TYPE_KEY, readType);
 	}
 	
@@ -61,7 +80,7 @@ public class SequenceReadProperties extends ResourceConfigurableProperties{
 		setReadLength(-1);
 	}
 
-	public SequenceReadProperties(String readType, Integer readLength) {
+	public SequenceReadProperties(ReadType readType, Integer readLength) {
 		setReadType(readType);
 		setReadLength(readLength);
 	}
@@ -77,7 +96,7 @@ public class SequenceReadProperties extends ResourceConfigurableProperties{
 		Assert.assertParameterNotNull(modelInstance, "you must supply a value for modelInstance");
 		Assert.assertParameterNotNull(metaClass, "you must supply a value for metaClass");
 		Assert.assertTrue(! MetaBase.class.isInstance(modelInstance), "modelInstance cannot be of type MetaBase");
-		String type = null;
+		ReadType type = null;
 		Integer length = null;
 		MetaHelper metaHelper = new MetaHelper(metaClass);
 		if (area != null)
@@ -85,7 +104,7 @@ public class SequenceReadProperties extends ResourceConfigurableProperties{
 		try{
 			metaHelper.setMetaList((List<? extends MetaBase>) modelInstance.getClass().getDeclaredMethod("get" + metaClass.getSimpleName()).invoke(modelInstance));
 			try{
-				type = metaHelper.getMetaValueByName(READ_TYPE_KEY);
+				type = new ReadType(metaHelper.getMetaValueByName(READ_TYPE_KEY));
 			} catch (MetadataException e){
 				logger.debug("Not setting readType as cannot find in meta with key " + area + "." + READ_TYPE_KEY + " for " + modelInstance.getClass().getSimpleName() + " with id=" + modelInstance.getId());
 			}
@@ -116,7 +135,7 @@ public class SequenceReadProperties extends ResourceConfigurableProperties{
 		if (area != null)
 			metaHelper.setArea(area);
 		if (readProperties.getReadType() != null)
-			metaHelper.setMetaValueByName(READ_TYPE_KEY, readProperties.getReadType());
+			metaHelper.setMetaValueByName(READ_TYPE_KEY, readProperties.getReadType().toString());
 		if (readProperties.getReadLength() != null)
 			metaHelper.setMetaValueByName(READ_LENGTH_KEY, readProperties.getReadLength().toString());
 		metaDao.setMeta((List<T>) metaHelper.getMetaList(), modelInstance.getId());

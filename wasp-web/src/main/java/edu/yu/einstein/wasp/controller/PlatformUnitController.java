@@ -301,7 +301,7 @@ public class PlatformUnitController extends WaspController {
 				for(Sample sample : tempPlatformUnitList){
 					 try {
 						  SequenceReadProperties readProperties = SequenceReadProperties.getSequenceReadProperties(sample, PLATFORM_UNIT_INSTANCE_AREA, SampleMeta.class);
-						  if(readProperties.getReadType().equalsIgnoreCase(readTypeFromGrid))
+						  if(readProperties.getReadType().toString().equalsIgnoreCase(readTypeFromGrid))
 								platformUnitsFoundInSearch.add(sample);
 					  } catch (MetadataException e) {
 						  logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
@@ -440,7 +440,7 @@ public class PlatformUnitController extends WaspController {
 							"<a href=" + getServletPath() + "/" + sampleService.getPlatformunitViewLink(platformUnit) + ">" + platformUnit.getName()+ "</a>",
 							barcode,
 							platformUnit.getSampleSubtype()==null?"": platformUnit.getSampleSubtype().getName(),
-							readProperties.getReadType(),
+							readProperties.getReadType().toString(),
 							readProperties.getReadLength().toString(),
 							cellcount
 				}));

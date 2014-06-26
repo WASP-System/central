@@ -120,7 +120,7 @@ public class WaspIlluminaController extends WaspController {
 				Map<String,String> detailMap = new HashMap<String, String>();
 				
 				detailMap.put(SequenceReadProperties.READ_LENGTH_KEY, runReadProperties.getReadLength().toString());
-				detailMap.put(SequenceReadProperties.READ_TYPE_KEY, runReadProperties.getReadType());
+				detailMap.put(SequenceReadProperties.READ_TYPE_KEY, runReadProperties.getReadType().toString());
 				
 				String dateRunStarted = messageService.getMessage("run.dateNotSet.label");//new String("not set");
 				if(sequenceRun.getStarted()!=null){

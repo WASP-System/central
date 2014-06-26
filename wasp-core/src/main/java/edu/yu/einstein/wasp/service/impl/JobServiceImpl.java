@@ -896,10 +896,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			  logger.debug("Getting configured properties for plugin with iname=" + resourceIName);
 			  ConfigureablePropertyProviding plugin = (ConfigureablePropertyProviding) waspPluginRegistry.getPluginsHandlingArea(resourceIName, ConfigureablePropertyProviding.class).get(0);
 			  ResourceConfigurableProperties rcp = plugin.getConfiguredProperties(job, area, JobMeta.class);
-			  for (String key : rcp.keySet()){
-				  logger.debug("message key = " + rcp.getI18nMessageKey(key));
+			  for (String key : rcp.keySet())
 				  extraJobDetailsMap.put(rcp.getI18nMessageKey(key), rcp.get(key).toString());
-			  }
 		  } catch (Exception e) {
 			  logger.warn("Cannot get resource-configured properties: " + e.getLocalizedMessage());
 			  e.printStackTrace();
