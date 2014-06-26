@@ -43,7 +43,7 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userrole;
-import edu.yu.einstein.wasp.sequence.SequenceReadProperties;
+import edu.yu.einstein.wasp.plugin.mps.SequenceReadProperties;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.ResourceService;
 import edu.yu.einstein.wasp.service.RunService;
@@ -377,7 +377,7 @@ public class RunController extends WaspController {
 				for(Run run : tempRunList){
 					try {
 						SequenceReadProperties runReadProperties = SequenceReadProperties.getSequenceReadProperties(run, PlatformUnitController.RUN_INSTANCE_AREA, RunMeta.class);
-						if(runReadProperties.getReadType().equalsIgnoreCase(readTypeFromGrid))
+						if(runReadProperties.getReadType().toString().equalsIgnoreCase(readTypeFromGrid))
 							runsFoundInSearch.add(run);
 					} catch (MetadataException e) {
 						logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
@@ -542,7 +542,7 @@ public class RunController extends WaspController {
 						"<a href=" + getServletPath() + "/" + sampleService.getPlatformunitViewLink(platformUnit) + ">"+platformUnitBarcode+"</a>",
 						run.getResource().getName() + " - " + run.getResource().getResourceCategory().getName(),
 						readProperties.getReadLength().toString(),
-						readProperties.getReadType(),
+						readProperties.getReadType().toString(),
 						dateRunStarted,
 						dateRunEnded,
 						statusForRun

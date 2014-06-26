@@ -3,6 +3,7 @@
  */
 package edu.yu.einstein.wasp.plugin.illumina.plugin;
 
+import java.util.Map;
 import java.util.Properties;
 
 import org.json.JSONException;
@@ -20,20 +21,24 @@ import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.interfacing.Hyperlink;
+import edu.yu.einstein.wasp.interfacing.plugin.ConfigureablePropertyProviding;
 import edu.yu.einstein.wasp.interfacing.plugin.RunQcProviding;
 import edu.yu.einstein.wasp.interfacing.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
+import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.model.WaspModel;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy;
 import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
+import edu.yu.einstein.wasp.plugin.mps.SequenceReadProperties;
 import edu.yu.einstein.wasp.service.RunService;
 
 /**
  * @author calder
  * 
  */
-public class WaspIlluminaHiseqPlugin extends WaspPlugin implements ClientMessageI, RunQcProviding, SequencingViewProviding {
+public class WaspIlluminaHiseqPlugin extends WaspPlugin implements ClientMessageI, RunQcProviding, SequencingViewProviding, ConfigureablePropertyProviding {
 
 	private static Logger logger = LoggerFactory.getLogger(WaspIlluminaHiseqPlugin.class);
 
@@ -217,6 +222,15 @@ public class WaspIlluminaHiseqPlugin extends WaspPlugin implements ClientMessage
 	@Override
 	public String getRunQcStepName() {
 		return STEP_LISTEN_FOR_QC;
+	}
+
+	@Override
+	public SequenceReadProperties getConfiguredProperties(Object modelInstance, String area, Class<?> metadataModelClass) throws Exception {
+		logger.debug("returning configured SequenceReadProperties");
+		SequenceReadProperties srp = SequenceReadProperties.getSequenceReadProperties((WaspModel) modelInstance, area, (Class<? extends MetaBase>) metadataModelClass);
+		srp.addI18nMessageKey(SequenceReadProperties.READ_LENGTH_KEY, "illumina.rl.label");
+		srp.addI18nMessageKey(SequenceReadProperties.READ_TYPE_KEY, "illumina.rt.label");
+		return srp;
 	}
 
 }
