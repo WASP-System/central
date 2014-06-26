@@ -41,15 +41,19 @@ public class SequencingServiceImpl extends WaspServiceImpl implements Sequencing
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean isReadLengthConfiguredToBeAvailable(Workflow workflow, ResourceCategory resourceCategory, Integer readlength) throws MetadataException{
-		Map<String, List<Option>> resourceOptions = workflowService.getConfiguredOptions(workflow, resourceCategory);
-		for (String key : resourceOptions.keySet()){
-			if (key.equals(SequenceReadProperties.READ_LENGTH_KEY)){
-				for (Option option : resourceOptions.get(key))
-					if (option.getValue().equals(readlength.toString()))
-						return true;
-				return false;
+	public boolean isReadLengthConfiguredToBeAvailable(Workflow workflow, ResourceCategory resourceCategory, Integer readlength){
+		try{ 
+			Map<String, List<Option>> resourceOptions = workflowService.getConfiguredOptions(workflow, resourceCategory);
+			for (String key : resourceOptions.keySet()){
+				if (key.equals(SequenceReadProperties.READ_LENGTH_KEY)){
+					for (Option option : resourceOptions.get(key))
+						if (option.getValue().equals(readlength.toString()))
+							return true;
+					return false;
+				}
 			}
+		} catch (MetadataException e){
+			logger.warn("Returning false as caught MetadataException: " + e.getLocalizedMessage());
 		}
 		return false;
 	}
@@ -58,15 +62,19 @@ public class SequencingServiceImpl extends WaspServiceImpl implements Sequencing
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean isReadTypeConfiguredToBeAvailable(Workflow workflow, ResourceCategory resourceCategory, ReadType readType) throws MetadataException{
-		Map<String, List<Option>> resourceOptions = workflowService.getConfiguredOptions(workflow, resourceCategory);
-		for (String key : resourceOptions.keySet()){
-			if (key.equals(SequenceReadProperties.READ_TYPE_KEY)){
-				for (Option option : resourceOptions.get(key))
-					if (option.getValue().equals(readType.toString()))
-						return true;
-				return false;
+	public boolean isReadTypeConfiguredToBeAvailable(Workflow workflow, ResourceCategory resourceCategory, ReadType readType){
+		try{ 
+			Map<String, List<Option>> resourceOptions = workflowService.getConfiguredOptions(workflow, resourceCategory);
+			for (String key : resourceOptions.keySet()){
+				if (key.equals(SequenceReadProperties.READ_TYPE_KEY)){
+					for (Option option : resourceOptions.get(key))
+						if (option.getValue().equals(readType.toString()))
+							return true;
+					return false;
+				}
 			}
+		} catch (MetadataException e){
+			logger.warn("Returning false as caught MetadataException: " + e.getLocalizedMessage());
 		}
 		return false;
 	}
