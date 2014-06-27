@@ -128,7 +128,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			outputFileGroups.add(baiMergedPairsTestG);
 			
 			baseName = StringUtils.removeEnd(fileService.generateUniqueBaseFileName(control), ".") + 
-					"_realinedWith_" + fileService.generateUniqueBaseFileName(test);
+					"_realignedWith_" + fileService.generateUniqueBaseFileName(test);
 			String bamOutputMergedPairsControl = baseName + "gatk_preproc_merged_dedup_pairRealn.bam";
 			String baiOutputMergedPairsControl = baseName + "gatk_preproc_merged_dedup_pairRealn.bai";
 			FileGroup bamMergedPairsControlG = new FileGroup();
