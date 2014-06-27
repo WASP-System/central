@@ -7,6 +7,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ExecutionContext;
@@ -30,7 +31,8 @@ import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 
 /**
- * 
+ * Realigns test and control together to avoid slight alignment differences between the two tissue types. Also does this for bam files merged in the
+ * previous step to ensure consistent alignments across all lanes within a sample. 
  * @author asmclellan
  *
  */
@@ -97,9 +99,10 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			FileGroup controlFgIn = fileService.getFileGroupById(allFgIn.get(control).getId());
 			inputFileGroups.add(testFgIn);
 			inputFileGroups.add(controlFgIn);
-						
-			String bamOutputMergedPairsTest = fileService.generateUniqueBaseFileName(test) + "gatk_preproc_merged_dedup_pairRealn.bam";
-			String baiOutputMergedPairsTest = fileService.generateUniqueBaseFileName(test) + "gatk_preproc_merged_dedup_pairRealn.bai";
+			String baseName = StringUtils.removeEnd(fileService.generateUniqueBaseFileName(test), ".") + 
+					"_realinedWith_" + fileService.generateUniqueBaseFileName(control);
+			String bamOutputMergedPairsTest = baseName + "gatk_preproc_merged_dedup_pairRealn.bam";
+			String baiOutputMergedPairsTest = baseName + "gatk_preproc_merged_dedup_pairRealn.bai";
 			FileGroup bamMergedPairsTestG = new FileGroup();
 			FileHandle bamMergedPairsTest = new FileHandle();
 			bamMergedPairsTest.setFileName(bamOutputMergedPairsTest);
@@ -124,8 +127,10 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			baiMergedPairsTestG = fileService.saveInDiscreteTransaction(baiMergedPairsTestG, baiMergedPairsTest);
 			outputFileGroups.add(baiMergedPairsTestG);
 			
-			String bamOutputMergedPairsControl = fileService.generateUniqueBaseFileName(control) + "gatk_preproc_merged_dedup_pairRealn.bam";
-			String baiOutputMergedPairsControl = fileService.generateUniqueBaseFileName(control) + "gatk_preproc_merged_dedup_pairRealn.bai";
+			baseName = StringUtils.removeEnd(fileService.generateUniqueBaseFileName(control), ".") + 
+					"_realinedWith_" + fileService.generateUniqueBaseFileName(test);
+			String bamOutputMergedPairsControl = baseName + "gatk_preproc_merged_dedup_pairRealn.bam";
+			String baiOutputMergedPairsControl = baseName + "gatk_preproc_merged_dedup_pairRealn.bai";
 			FileGroup bamMergedPairsControlG = new FileGroup();
 			FileHandle bamMergedPairsControl = new FileHandle();
 			bamMergedPairsControl.setFileName(bamOutputMergedPairsControl);
