@@ -406,12 +406,14 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		if (died) {
 			cleanUpAbnormallyTerminatedJob(g);
 			g.setArchivedResultOutputPath(getFailedArchiveName(g));
+			((GridResultImpl) g).setExitStatus(1);
 			throw new GridExecutionException("abnormally terminated job");
 		}
 		if (ended) {
 			logger.debug("packaging " + jobname);
 			cleanUpCompletedJob(g);
 			g.setArchivedResultOutputPath(getCompletedArchiveName(g));
+			((GridResultImpl) g).setExitStatus(0);
 		}
 		
 		return ended;
@@ -573,6 +575,11 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	}
 	
 	protected void copyResultsFiles(GridResult g) throws GridException {
+		GridResult r = g.getChildResult("copyResultsFiles");
+		if (r != null){
+			logger.debug("found an existing copy job associated with this grid result so going to return now");
+			return;
+		}
 		WorkUnit w = new WorkUnit();
 		w.setWorkingDirectory(g.getWorkingDirectory());
 		w.setResultsDirectory(g.getResultsDirectory());
@@ -594,26 +601,8 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		w.addCommand("read -ra FILE <<< \"$THIS\"");
 		w.addCommand("cp -f ${FILE[0]} ${" + WorkUnit.RESULTS_DIRECTORY + "}${FILE[1]}");
 		w.addCommand("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then rm -f " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
-		GridResult r = execute(w);
-		logger.trace("waiting for results file copy");
-		ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
-		String poll = transportConnection.getConfiguredSetting("host.pollinterval");
-		if (poll == null) 
-			poll = "10000"; // 10s
-		Integer pollint = Integer.parseInt(poll);
-		while (!isFinished(r)) {
-			ScheduledFuture<?> md5t = ex.schedule(new Runnable() {
-				@Override
-				public void run() {
-				}
-			}, pollint, TimeUnit.MILLISECONDS);
-			while (!md5t.isDone()) {
-				// not done
-			}
-		}
-		ex.shutdownNow();
-		logger.trace("copied");
-
+		r = execute(w);
+		g.addChildResult("copyResultsFiles", r);
 	}
 	
 	protected void cleanUpAbnormallyTerminatedJob(GridResult g) throws GridAccessException, GridExecutionException, GridUnresolvableHostException {

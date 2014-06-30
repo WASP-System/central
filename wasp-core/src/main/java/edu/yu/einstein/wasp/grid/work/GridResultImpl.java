@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
@@ -31,11 +32,13 @@ public class GridResultImpl implements GridResult, Serializable {
 	protected int finalStatus = 0;
 	transient protected String archivedResultOutputPath = "";
 
-	private int exitStatus;
+	private int exitStatus = -1;
 	transient private InputStream stdOutStream;
 	transient private InputStream stdErrStream;
 	
 	private ExecutionMode mode = ExecutionMode.PROCESS;
+	
+	private Map<String, GridResult> childResults;
 	
 	private int numberOfTasks = 1;
 	
@@ -212,5 +215,22 @@ public class GridResultImpl implements GridResult, Serializable {
 	
 	public void setId(String id) {
 		this.id = id;
+	}
+
+	@Override
+	public GridResult getChildResult(String key) {
+		if (!childResults.containsKey(key))
+			return null;
+		return childResults.get(key);
+	}
+	
+	@Override
+	public Map<String, GridResult> getChildResults(){
+		return childResults;
+	}
+
+	@Override
+	public void addChildResult(String key, GridResult result) {
+		childResults.put(key, result);
 	}
 }
