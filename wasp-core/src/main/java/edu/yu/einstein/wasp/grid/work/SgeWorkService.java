@@ -674,16 +674,17 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			sss.setMailCircumstances(getMailCircumstances());
 		if(getMaxRunTime() != null)
 			sss.setMaxRunTime(getMaxRunTime());
-		if (!w.getProcessMode().equals(ProcessMode.SINGLE)){
+		if (!w.getProcessMode().equals(ProcessMode.SINGLE) && w.getProcessorRequirements() > 1){
 			if (w.getParallelEnvironment() != null && !w.getParallelEnvironment().isEmpty()){
 				if (!getAvailableParallelEnvironments().contains(w.getParallelEnvironment()))
 					throw new MisconfiguredWorkUnitException("Parallel environment specified in work unit is not registered as an available parallel environment in the Grid Work Service");
 				sss.setParallelEnvironment(w.getParallelEnvironment(), w.getProcessorRequirements());
-			} else if (w.getProcessMode().equals(ProcessMode.MPI)){
-				if (getDefaultMpiParallelEnvironment() != null && !w.getParallelEnvironment().isEmpty()){
+			} else {
+				if (w.getProcessMode().equals(ProcessMode.MPI) && getDefaultMpiParallelEnvironment() != null && !getDefaultMpiParallelEnvironment().isEmpty()){
+					logger.info("Seleted default MPI parallel environment");
 					sss.setParallelEnvironment(getDefaultMpiParallelEnvironment(), w.getProcessorRequirements());
-				} else if (getDefaultParallelEnvironment() != null){
-					logger.info("No default MPI parallel environment set so using default parallel environment");
+				} else if (getDefaultParallelEnvironment() != null && !getDefaultParallelEnvironment().isEmpty()){
+					logger.info("Selected default parallel environment");
 					sss.setParallelEnvironment(getDefaultParallelEnvironment(), w.getProcessorRequirements());
 				} else if (getAvailableParallelEnvironments().size() == 1){
 					logger.info("No default parallel environments set so falling back to only known parallel environment in set of available parallel environments");
@@ -1006,8 +1007,13 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			// 'mem_free' specifies how much memory should be free on a node before scheduling a job (or task) there 
 			// 'h_vmem' specifies maximum memory a scheduled job (or task) may use. Will kill job / task 
 			// with a memory allocation error if memory used exceeds this value
-			return getFlag() + " -l mem_free=" + w.getMemoryRequirements().toString() + "G\n" +
-					WorkUnit.REQUESTED_GB_MEMORY + "=" + w.getMemoryRequirements().toString() + "\n";
+			int memRequested = w.getMemoryRequirements(); // allocation per slot
+			int totalMemory = memRequested; // total for job
+			if (memRequested > 1 && w.getProcessorRequirements() > 1 && getParallelEnvironment() != null && !getParallelEnvironment().isEmpty()){
+				memRequested = Math.round(memRequested / w.getProcessorRequirements());
+				totalMemory = memRequested * w.getProcessorRequirements(); // may be modified by rounding hence recalculate total
+			}
+			return getFlag() + " -l mem_free=" + memRequested + "G\n" +	WorkUnit.REQUESTED_GB_MEMORY + "=" + totalMemory + "\n";
 		}
 		
 		/** 
@@ -1100,6 +1106,8 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		 */
 		@Override
 		public String getParallelEnvironment() {
+			if (isNumProcConsumable && !w.getMode().equals(ProcessMode.MPI))
+				return ""; // TODO: this is not ideal - satisfies Einstein requirement to reserve resources but not specify PE unless MPI
 			return parallelEnvironment;
 		}
 
