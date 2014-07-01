@@ -18,10 +18,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -350,14 +346,22 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	 */
 	@Override
 	public boolean isFinished(GridResult g) throws GridException {
-
+		
 		String jobname = this.jobNamePrefix + g.getUuid().toString();
 		
 		logger.debug("testing for completion of " + jobname);
 		
 		boolean died = false;
-		boolean started = isJobStarted(g);
-		boolean ended = isJobOrTaskArrayEnded(g);
+		boolean started;
+		boolean ended;
+		if (g.getJobStatus().isFinished()){
+			started = true;
+			ended = true;
+		}
+		else {
+			started = isJobStarted(g);
+			ended = isJobOrTaskArrayEnded(g);
+		}
 		logger.debug("Job status semaphores (started, ended): " + started + ", " + ended);
 		if (started && !ended){
 			final int INCREMENT_FACTOR = 2;
@@ -403,20 +407,32 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		}
 		
 		logger.debug("Job Status (ended, died): " + ended + ", " + died);
+		
 		if (died) {
 			cleanUpAbnormallyTerminatedJob(g);
 			g.setArchivedResultOutputPath(getFailedArchiveName(g));
-			((GridResultImpl) g).setExitStatus(1);
+			((GridResultImpl) g).setExitCode(1);
 			throw new GridExecutionException("abnormally terminated job");
 		}
+		
+		boolean areAllChildJobsComplete = false;
 		if (ended) {
+			areAllChildJobsComplete = true;
 			logger.debug("packaging " + jobname);
 			cleanUpCompletedJob(g);
 			g.setArchivedResultOutputPath(getCompletedArchiveName(g));
-			((GridResultImpl) g).setExitStatus(0);
+			for (GridResult r : g.getChildResults().values())
+				if (r.getJobStatus().isRunning()){
+					areAllChildJobsComplete = false;
+					break;
+				}
+			if (areAllChildJobsComplete)
+				((GridResultImpl) g).setExitCode(0);
+			else
+				logger.debug("Child jobs are still running so going to return false");
 		}
 		
-		return ended;
+		return ended && areAllChildJobsComplete;
 	}
 	
 	protected boolean isTaskArrayEnded(GridResult g) throws GridException {
@@ -562,7 +578,12 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	 */
 	protected void secureResultsFiles(GridResult g) throws GridException, FileNotFoundException {
 		if (g.getFileHandleIds() != null && g.getFileHandleIds().size() > 0) {
-			copyResultsFiles(g);
+			GridResult cr = g.getChildResult("copyResultsFiles");
+			if (cr == null)
+				copyResultsFiles(g);
+			else 
+				if (!cr.getJobStatus().isFinished())
+					return;
 			List<FileHandle> fhl = new ArrayList<FileHandle>();
 			for (Integer id : g.getFileHandleIds()) {
 				logger.debug("calling: getFileService().getFileHandleById(" + id + ") ");
@@ -570,7 +591,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			    fhl.add(fh);
 			}    
 			logger.debug("calling: getFileService().register(" + fhl + ") ");
-			getFileService().register(fhl);
+			getFileService().register(fhl, g.getChildResult("registerFiles"));
 		}
 	}
 	
@@ -744,6 +765,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 				throw new MisconfiguredWorkUnitException("Task arrays need to set numberOfTasks (cannot be null)");
 			result.setNumberOfTasks(w.getNumberOfTasks());
 		}
+		result.setJobStatus(GridJobStatus.EXECUTING);
 		return (GridResult) result;
 	}
 	

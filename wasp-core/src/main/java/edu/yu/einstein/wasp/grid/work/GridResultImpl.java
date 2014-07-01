@@ -29,10 +29,10 @@ public class GridResultImpl implements GridResult, Serializable {
 	private String username;
 	private String workingDirectory;
 	private String resultsDirectory;
-	protected int finalStatus = 0;
+	protected GridJobStatus status = GridJobStatus.UNKNOWN;
 	transient protected String archivedResultOutputPath = "";
 
-	private int exitStatus = -1;
+	private int exitCode = -1;
 	transient private InputStream stdOutStream;
 	transient private InputStream stdErrStream;
 	
@@ -73,12 +73,20 @@ public class GridResultImpl implements GridResult, Serializable {
 	}
 
 	@Override
-	public int getExitStatus() {
-		return exitStatus;
+	public int getExitCode() {
+		return exitCode;
 	}
 	
-	public void setExitStatus(int exitStatus) {
-		this.exitStatus = exitStatus;
+	/**
+	 * sets exit code and also updates jobStatus accordingly
+	 * @param exitCode
+	 */
+	public void setExitCode(int exitCode) {
+		this.exitCode = exitCode;
+		if (exitCode == 0)
+			setJobStatus(GridJobStatus.COMPLETED);
+		else if (exitCode > 0)
+			setJobStatus(GridJobStatus.FAILED);
 	}
 
 	/* (non-Javadoc)
@@ -166,8 +174,13 @@ public class GridResultImpl implements GridResult, Serializable {
 	}
 
 	@Override
-	public int getFinalStatus() {
-		return this.finalStatus;
+	public GridJobStatus getJobStatus() {
+		return this.status;
+	}
+	
+	@Override
+	public void setJobStatus(GridJobStatus status) {
+		this.status = status;
 	}
 
 	@Override

@@ -816,14 +816,14 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 	    List<FileHandle> retval = new ArrayList<FileHandle>();
 	    for (FileHandle fh : fhc) {
 	        logger.debug("attempting to register FileHandle: " + fh.getId());
-	        fh = fileHandleDao.merge(fh);
-		validateFile(fh);
-		retval.add(fh);
+	        if (result == null){ // if returning to this method after starting grid job we don't need to do this again
+		        fh = fileHandleDao.save(fh);
+		        validateFile(fh);
+	        }
+	        retval.add(fh);
 	    }
 	    if (!md5.equals(Md5.NO))
 	    	setMD5(retval, result, md5);
-	    for (FileHandle fh : retval) 
-	    	fileHandleDao.save(fh);
 	    return retval;
 	}
 
@@ -849,8 +849,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		
 		String host = fileHandles.iterator().next().getFileURI().getHost();
 		GridWorkService gws = hostResolver.getGridWorkService(host);
-		if (r == null){
-	
+		if (r == null || r.getJobStatus().isUnknown()){
 			// use task array to submit in one batch
 			WorkUnit w = new WorkUnit();
 			w.setRegistering(true);
@@ -887,8 +886,8 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 			r = gws.execute(w);
 		}
 
-		logger.trace("waiting for file registration");
 		if (md5Selection.equals(Md5.WAIT)){
+			logger.trace("waiting for file registration");
 			ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
 			while (!gws.isFinished(r)) {
 				ScheduledFuture<?> md5t = ex.schedule(new Runnable() {
@@ -901,7 +900,8 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 				}
 			}
 			ex.shutdownNow();
-		} else if (r.getExitStatus() == 0){
+		}
+		if ((md5Selection.equals(Md5.WAIT) || gws.isFinished(r)) && r.getJobStatus().isCompletedSuccessfully()){
 			logger.trace("registered, getting results");
 			
 			try {
@@ -922,9 +922,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 				}
 			} catch (IOException e) {
 				throw new GridException("unable to read output of task array", e);
-			} finally {
-				r = null; 
-			}
+			} 
 		}
 		
 	}

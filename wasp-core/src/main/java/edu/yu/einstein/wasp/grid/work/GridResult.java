@@ -23,7 +23,7 @@ public interface GridResult {
 	 * 
 	 * @return
 	 */
-	public int getExitStatus();
+	public int getExitCode();
 	
 	/**
 	 * STDOUT of GridResult.  Since this can be from the command itself or from the {@link GridWorkService} 
@@ -96,10 +96,16 @@ public interface GridResult {
 	public String getUsername();
 	
 	/**
-	 * Final return value
+	 * Get current status of job.
 	 * @return
 	 */
-	public int getFinalStatus();
+	public GridJobStatus getJobStatus();
+	
+	/**
+	 * Set current status of job.
+	 * @return
+	 */
+	public void setJobStatus(GridJobStatus status);
 	
 	/**
 	 * Get the path to the tarball of results.
