@@ -189,14 +189,14 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		logger.debug("testSample.name = " + testSample.getName());		
 		this.testSampleId = testSample.getId();
 
-		Set<SampleSource> setOfCellLibrariesForDerivedFrom = new HashSet<SampleSource>();//tests and controls
+		//// seems like not really used for anything Set<SampleSource> setOfCellLibrariesForDerivedFrom = new HashSet<SampleSource>();//tests and controls; seems like this info isn't really used. Perhaps it was superseded by derrivedFromFileGroups immediately below
 		
 		Set<FileGroup> derrivedFromFileGroups = new HashSet<FileGroup>();
 		
 		List<FileHandle> testFileHandleList = new ArrayList<FileHandle>();		
 		for(Integer id : this.testCellLibraryIdList){
 			SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(id);
-			setOfCellLibrariesForDerivedFrom.add(cellLibrary);
+			//setOfCellLibrariesForDerivedFrom.add(cellLibrary);
 			Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLibrary, bamFileType);
 			derrivedFromFileGroups.addAll(fileGroups);
 			logger.debug("test fileGroups size = " + fileGroups.size());
@@ -229,7 +229,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		List<FileHandle> controlFileHandleList = new ArrayList<FileHandle>();
 		for(Integer id : this.controlCellLibraryIdList){
 			SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(id);
-			setOfCellLibrariesForDerivedFrom.add(cellLibrary);
+			//setOfCellLibrariesForDerivedFrom.add(cellLibrary);
 			Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLibrary, bamFileType);
 			derrivedFromFileGroups.addAll(fileGroups);
 			logger.debug("control fileGroups size = " + fileGroups.size());
