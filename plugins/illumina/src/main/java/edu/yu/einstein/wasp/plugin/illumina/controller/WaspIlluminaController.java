@@ -48,7 +48,7 @@ import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userrole;
 import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
 import edu.yu.einstein.wasp.plugin.illumina.util.IlluminaRunFolderNameParser;
-import edu.yu.einstein.wasp.sequence.SequenceReadProperties;
+import edu.yu.einstein.wasp.plugin.mps.SequenceReadProperties;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.ResourceService;
@@ -120,7 +120,7 @@ public class WaspIlluminaController extends WaspController {
 				Map<String,String> detailMap = new HashMap<String, String>();
 				
 				detailMap.put(SequenceReadProperties.READ_LENGTH_KEY, runReadProperties.getReadLength().toString());
-				detailMap.put(SequenceReadProperties.READ_TYPE_KEY, runReadProperties.getReadType());
+				detailMap.put(SequenceReadProperties.READ_TYPE_KEY, runReadProperties.getReadType().toString());
 				
 				String dateRunStarted = messageService.getMessage("run.dateNotSet.label");//new String("not set");
 				if(sequenceRun.getStarted()!=null){
@@ -295,9 +295,9 @@ public class WaspIlluminaController extends WaspController {
 		Resource resource;
 		resource = resourceService.getResourceDao().getResourceByResourceId(new Integer(resourceId));
 		ResourceCategory resourceCategory = resource.getResourceCategory();
-		for(Option som : resourceService.getResourceCategorySelectOptions(resourceCategory, SequenceReadProperties.READ_TYPE_KEY))
+		for(Option som : resourceService.getAllAvailableResourceCategoryOptions(resourceCategory, SequenceReadProperties.READ_TYPE_KEY))
 			readType.append("<option value='"+som.getValue()+"'>"+som.getLabel()+"</option>");
-		for(Option som : resourceService.getResourceCategorySelectOptions(resourceCategory, SequenceReadProperties.READ_LENGTH_KEY))
+		for(Option som : resourceService.getAllAvailableResourceCategoryOptions(resourceCategory, SequenceReadProperties.READ_LENGTH_KEY))
 			readLength.append("<option value='"+som.getValue()+"'>"+som.getLabel()+"</option>");
 		returnString = new String(readType + "****" + readLength);
 		//logger.debug("The return string = " + returnString);
@@ -330,8 +330,8 @@ public class WaspIlluminaController extends WaspController {
 		m.addAttribute("run", run);
 		Resource requestedSequencingMachine = run.getResource();
 		if (requestedSequencingMachine != null && requestedSequencingMachine.getId() != null){
-			m.addAttribute("readLengths", resourceService.getResourceCategorySelectOptions(requestedSequencingMachine.getResourceCategory(), SequenceReadProperties.READ_LENGTH_KEY));
-			m.addAttribute("readTypes", resourceService.getResourceCategorySelectOptions(requestedSequencingMachine.getResourceCategory(), SequenceReadProperties.READ_TYPE_KEY));
+			m.addAttribute("readLengths", resourceService.getAllAvailableResourceCategoryOptions(requestedSequencingMachine.getResourceCategory(), SequenceReadProperties.READ_LENGTH_KEY));
+			m.addAttribute("readTypes", resourceService.getAllAvailableResourceCategoryOptions(requestedSequencingMachine.getResourceCategory(), SequenceReadProperties.READ_TYPE_KEY));
 			m.addAttribute("technicians", userService.getFacilityTechnicians());
 		}
 	}

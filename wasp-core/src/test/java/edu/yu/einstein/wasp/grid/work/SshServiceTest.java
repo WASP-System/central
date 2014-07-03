@@ -77,7 +77,7 @@ public class SshServiceTest extends AbstractTestNGSpringContextTests {
 	/**
 	 * @throws java.lang.Exception
 	 */
-	@AfterTest(groups = { "ssh" })
+	@AfterTest(groups = { "ssh" } )
 	public void tearDown() throws Exception {
 		// stc.doDisconnect();
 	}

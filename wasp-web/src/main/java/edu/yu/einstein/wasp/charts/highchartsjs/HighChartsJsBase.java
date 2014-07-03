@@ -76,73 +76,87 @@ public abstract class HighChartsJsBase extends WebChartsBase{
 	}
 	
 	public static String getBasicXAxisCode(String title){
-		return getBasicAxisCode(X_AXIS_NAME, title, null, null, null, null);
+		return getBasicAxisCode(X_AXIS_NAME, title, null, null, null, null, false);
 	}
 	
 	public static String getBasicXAxisCode(String title, List<String> categories){
-		return getBasicAxisCode(X_AXIS_NAME, title, categories, null, null, null);
+		return getBasicAxisCode(X_AXIS_NAME, title, categories, null, null, null, false);
 	}
 	
 	public static String getBasicXAxisCode(String title, Integer tickInterval){
-		return getBasicAxisCode(X_AXIS_NAME, title, null, tickInterval, null, null);
+		return getBasicAxisCode(X_AXIS_NAME, title, null, tickInterval, null, null, false);
 	}
 	
 	public static String getBasicXAxisCode(String title, List<String> categories, Integer tickInterval){
-		return getBasicAxisCode(X_AXIS_NAME, title, categories, tickInterval, null, null);
+		return getBasicAxisCode(X_AXIS_NAME, title, categories, tickInterval, null, null, false);
 	}
 	
 	public static String getBasicYAxisCode(String title){
-		return getBasicAxisCode(Y_AXIS_NAME, title, null, null, null, null);
+		return getBasicAxisCode(Y_AXIS_NAME, title, null, null, null, null, false);
 	}
 	
 	public static String getBasicYAxisCode(String title, List<String> categories, Integer tickInterval){
-		return getBasicAxisCode(Y_AXIS_NAME, title, categories, tickInterval, null, null);
+		return getBasicAxisCode(Y_AXIS_NAME, title, categories, tickInterval, null, null, false);
 	}
 	
 	public static String getBasicYAxisCode(String title, List<String> categories){
-		return getBasicAxisCode(Y_AXIS_NAME, title, categories, null, null, null);
+		return getBasicAxisCode(Y_AXIS_NAME, title, categories, null, null, null, false);
 	}
 	
 	public static String getBasicYAxisCode(String title, Integer tickInterval){
-		return getBasicAxisCode(Y_AXIS_NAME, title, null, tickInterval, null, null);
+		return getBasicAxisCode(Y_AXIS_NAME, title, null, tickInterval, null, null, false);
 	}
 	
 	public static String getBasicXAxisCode(String title, Number min, Number max){
-		return getBasicAxisCode(X_AXIS_NAME, title, null, null, min, max);
+		return getBasicAxisCode(X_AXIS_NAME, title, null, null, min, max, false);
 	}
 	
 	public static String getBasicXAxisCode(String title, List<String> categories, Number min, Number max){
-		return getBasicAxisCode(X_AXIS_NAME, title, categories, null, min, max);
+		return getBasicAxisCode(X_AXIS_NAME, title, categories, null, min, max, false);
 	}
 	
 	public static String getBasicXAxisCode(String title, Integer tickInterval, Number min, Number max){
-		return getBasicAxisCode(X_AXIS_NAME, title, null, tickInterval, min, max);
+		return getBasicAxisCode(X_AXIS_NAME, title, null, tickInterval, min, max, false);
 	}
 	
-	public static String getBasicXAxisCode(String title, List<String> categories, Integer tickInterval, Number min, Number max){
-		return getBasicAxisCode(X_AXIS_NAME, title, categories, tickInterval, min, max);
+	public static String getBasicXAxisCode(String title, List<String> categories, 
+			Integer tickInterval, Number min, Number max){
+		return getBasicAxisCode(X_AXIS_NAME, title, categories, tickInterval, min, max, false);
+	}
+	
+	public static String getBasicXAxisCode(String title, List<String> categories, Integer tickInterval, 
+			Number min, Number max, boolean reversed) {
+		return getBasicAxisCode(X_AXIS_NAME, title, categories, tickInterval, min, max, reversed);
 	}
 	
 	public static String getBasicYAxisCode(String title, Number min, Number max){
-		return getBasicAxisCode(Y_AXIS_NAME, title, null, null, min, max);
+		return getBasicAxisCode(Y_AXIS_NAME, title, null, null, min, max, false);
 	}
 	
 	public static String getBasicYAxisCode(String title, List<String> categories, Integer tickInterval, Number min, Number max){
-		return getBasicAxisCode(Y_AXIS_NAME, title, categories, tickInterval, min, max);
+		return getBasicAxisCode(Y_AXIS_NAME, title, categories, tickInterval, min, max, false);
 	}
 	
 	public static String getBasicYAxisCode(String title, List<String> categories, Number min, Number max){
-		return getBasicAxisCode(Y_AXIS_NAME, title, categories, null, min, max);
+		return getBasicAxisCode(Y_AXIS_NAME, title, categories, null, min, max, false);
 	}
 	
 	public static String getBasicYAxisCode(String title, Integer tickInterval, Number min, Number max){
-		return getBasicAxisCode(Y_AXIS_NAME, title, null, tickInterval, min, max);
+		return getBasicAxisCode(Y_AXIS_NAME, title, null, tickInterval, min, max, false);
+	}
+	
+	public static String getBasicYAxisCode(String title, Integer tickInterval, 
+			Number min, Number max, boolean reversed){
+		return getBasicAxisCode(Y_AXIS_NAME, title, null, tickInterval, min, max, reversed);
 	}
 	
 	
-	private static String getBasicAxisCode(String axis, String title, List<String> categories, Integer tickInterval, Number min, Number max){
+	private static String getBasicAxisCode(String axis, String title, List<String> categories, 
+			Integer tickInterval, Number min, Number max, boolean reversed){
 		StringBuilder sb = new StringBuilder();
 		sb.append(axis + ": { ");
+		if (reversed)
+			sb.append("reversed: true,\n");
 		if (categories != null && !categories.isEmpty()){
 			sb.append("categories: [");
 			boolean isFirst = true;

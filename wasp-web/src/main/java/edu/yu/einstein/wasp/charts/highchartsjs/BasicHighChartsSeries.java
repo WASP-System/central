@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.charts.DataSeries;
 import edu.yu.einstein.wasp.service.MessageService;
@@ -19,6 +21,8 @@ public class BasicHighChartsSeries{
 	public enum Type{
 		AREA, AREASPLINE, BAR, COLUMN, LINE, PIE, SCATTER, SPLINE;
 	}
+	
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	private DataSeries ds;
 	
@@ -156,6 +160,7 @@ public class BasicHighChartsSeries{
 	public String getInnerHtml(MessageService messageService) throws JSONException{
 		String seriesName = "";
 		String name = "";
+		logger.trace("Working with DataSeries named: " + ds.getName());
 		if (messageService == null){
 			name = ds.getName();
 		} else {

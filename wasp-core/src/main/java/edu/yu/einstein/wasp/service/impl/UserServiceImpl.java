@@ -46,7 +46,6 @@ public class UserServiceImpl extends WaspServiceImpl implements UserService {
   @Override
 @Autowired
   public void setUserDao(UserDao userDao) {
-      System.out.println("SETTING USERDAO");
     this.userDao = userDao;
   }
   @Override

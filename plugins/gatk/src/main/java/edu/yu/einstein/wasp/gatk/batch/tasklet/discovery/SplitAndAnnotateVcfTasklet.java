@@ -46,9 +46,8 @@ public class SplitAndAnnotateVcfTasklet extends AbstractGatkTasklet {
 		Job job = jobService.getJobByJobId(jobId);
 		WorkUnit w = new WorkUnit();
 		w.setMode(ExecutionMode.PROCESS);
-		w.setProcessMode(ProcessMode.MAX);
+		w.setProcessMode(ProcessMode.SINGLE);
 		w.setMemoryRequirements(MEMORY_GB_4);
-		w.setProcessorRequirements(THREADS_8);
 		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
 		w.setSecureResults(true);

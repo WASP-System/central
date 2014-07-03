@@ -3,7 +3,6 @@
  */
 package edu.yu.einstein.wasp.grid.work;
 
-import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
 
 /**
  * defines a tool to rewrite static strings in a work unit's directory names.
@@ -13,6 +12,6 @@ import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
  */
 public interface DirectoryPlaceholderRewriter {
 
-	public void replaceDirectoryPlaceholders(GridTransportConnection transportConnection, WorkUnit w) throws MisconfiguredWorkUnitException;
+	public void replaceDirectoryPlaceholders(GridTransportConnection transportConnection, WorkUnit w);
 
 }

@@ -22,6 +22,14 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>wasp-interface</artifactId>
 		</dependency>
+		
+		<!-- TODO: The following MUST be removed after SequenceReadProperties refactored out of the web!!!!  -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>mps</artifactId>
+			<version>0.1.0-SNAPSHOT</version>
+		</dependency>
+		
 		<dependency>
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjrt</artifactId>

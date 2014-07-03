@@ -3,20 +3,23 @@
  */
 package edu.yu.einstein.wasp.plugin.babraham.software;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
+import org.xml.sax.SAXException;
 
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.MetadataException;
@@ -25,6 +28,7 @@ import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
+import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
@@ -38,7 +42,7 @@ import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.babraham.batch.tasklet.jobparameters.TrimGaloreParameters;
-import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
+import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamQCParseModule;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqComparator;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqFileTypeAttribute;
@@ -102,11 +106,11 @@ public class TrimGalore extends SoftwarePackage {
     @Qualifier("fileTypeServiceImpl")
     private FileTypeService fileTypeService;
 
-    public static final String MANY_FLOW_NAME = "edu.yu.einstein.wasp.plugin.babraham.trim_galore.fileTrim";
+    public static final String MANY_FLOW_NAME = "babraham.trim_galore.fileTrim";
 
-    public static final String FLOW_NAME = "edu.yu.einstein.wasp.plugin.babraham.trim_galore.mainFlow";
+    public static final String FLOW_NAME = "babraham.trim_galore.mainFlow";
 
-    public static final String MANY_REGISTRATION_NAME = "edu.yu.einstein.wasp.plugin.babraham.trim_galore.register";
+    public static final String MANY_REGISTRATION_NAME = "babraham.trim_galore.register";
 
     /**
 	 * 
@@ -175,12 +179,13 @@ public class TrimGalore extends SoftwarePackage {
         w.addRequiredFile((FileHandle) fqa[firstFile]);
         if (paired)
             w.addRequiredFile((FileHandle) fqa[firstFile + 1]);
-
+        w.addCommand("inFile0Name=${" + WorkUnit.INPUT_FILE + "[" + 0 + "]##*/}");
         String command = "trim_galore " + parameterString + " ${" + WorkUnit.INPUT_FILE + "[" + 0 + "]}";
         if (paired)
             command += " ${" + WorkUnit.INPUT_FILE + "[" + 1 + "]}";
+        command += " 2> ${inFile0Name/.fastq.gz/}_trim_galore.out.txt";
 
-        w.setCommand(command);
+        w.addCommand(command);
 
         return w;
 
@@ -247,6 +252,7 @@ public class TrimGalore extends SoftwarePackage {
 
         w.setCommand("shopt -u nullglob");
         w.addCommand("rm -f " + fastqG.getId() + "_*_trim_counts.txt");
+        w.addCommand("rm -f " + fastqG.getId() + "_*_trim_number.txt");
 
         int fileN = 0;
         Sample library = sampleService.getLibrary(cellLibrary);
@@ -262,13 +268,16 @@ public class TrimGalore extends SoftwarePackage {
 
             if (rs == 2) {
                 fh = fhi.next();
+                w.addRequiredFile(fh);
                 trimmed_fastq.add(doFile(w, fileN++, fh, fastqG));
             }
         }
 
         w.addCommand(sortCommand(fastqG.getId(), 1));
+        w.addCommand(sumNumber(fastqG.getId(), 1));
         if (rs == 2) {
             w.addCommand(sortCommand(fastqG.getId(), 2));
+            w.addCommand(sumNumber(fastqG.getId(), 2));
         }
 
         FileGroup resultFiles = new FileGroup();
@@ -298,18 +307,39 @@ public class TrimGalore extends SoftwarePackage {
         Integer rs = fastqService.getNumberOfReadSegments(fileGroup);
         String prefix = "";
         prefix = "_" + fastqService.getFastqReadSegmentNumber(fileHandle);
-        w.addCommand("inFilePath=${" + WorkUnit.INPUT_FILE + "[" + fileNumber + "]};inFileName=${inFilePath##*/};sed -n '/^length/,/^$/p' ${inFileName}_trimming_report.txt | tail -n +2 | head -n -1 >> "
+        w.addCommand("inFileName=${" + WorkUnit.INPUT_FILE + "[" + fileNumber + "]##*/}");
+        w.addCommand("sed -n '/^length/,/^$/p' ${inFileName}_trimming_report.txt | tail -n +2 | head -n -1 >> "
                 + fileGroup.getId() + prefix + "_trim_counts.txt");
-        if (rs == 2) {
+        if (rs == 1) {
+        	w.addCommand("grep \"Processed reads:\" ${inFileName}_trimming_report.txt  | sed 's/.* //g' >> "
+        		+ fileGroup.getId() + prefix + "_trim_number.txt");
+        	prefix = "_trimmed";
+        } else if (rs == 2) {
+        	w.addCommand("inFile0Name=${" + WorkUnit.INPUT_FILE + "[" + 0 + "]##*/}");
+        	w.addCommand("grep \"Total number of sequences analysed: \" ${inFile0Name/.fastq.gz/}_trim_galore.out.txt | sed 's/.* //g' >> " 
+        		+ fileGroup.getId() + prefix + "_trim_number.txt");
             // paired-end read names end in "_val_?.fq.gz" while single-end
             // reads end with "_trimmed.fq.gz"
-            prefix = "_val_" + prefix;
-        } else {
-            prefix = "_trimmed";
+            prefix = "_val" + prefix;
         }
-        String trimmedName = fileHandle.getFileName().replace(".fastq.gz", prefix + ".fq.gz");
+        
+        // trim_galore will know the real file name, not the display name.
+        String originalName = fileHandle.getFileURI().getPath().replaceFirst("^.*/", "");
+        String trimmedName = originalName.replaceFirst(".fastq.gz$", "")
+        		.replaceFirst(".fastq$", "")
+        		.replaceFirst(".fq.gz$", "")
+        		.replaceFirst(".fq$", "");
+        // however, we should name the file as it was previously named
+        String displayName = fileHandle.getFileName().replaceFirst(".fastq.gz$", "")
+        		.replaceFirst(".fastq$", "")
+        		.replaceFirst(".fq.gz$", "")
+        		.replaceFirst(".fq$", "");
+        displayName += "_trimmed.fq.gz";
+        
+        trimmedName += prefix + ".fq.gz";
+        logger.trace("trimmed file name " + originalName + " to " + trimmedName + " with final name " + displayName);
         w.addCommand("ln -s " + trimmedName + " ${" + WorkUnit.OUTPUT_FILE + "[" + fileNumber + "]} ");
-        return createResultFile(fileHandle, trimmedName);
+        return createResultFile(fileHandle, displayName);
     }
 
     private String sortCommand(Integer fileId, Integer readSegment) {
@@ -317,6 +347,11 @@ public class TrimGalore extends SoftwarePackage {
         return "sort -nk1,1 " + filePrefix + "_trim_counts.txt | awk '{if (! a[$1]> 0) { a[$1]==0; b[$1]==0; c[$1]==0 }; "
                 + "a[$1]+=$2;b[$1]+=$3;c[$1]=$4;}END{for (i in a) { print i \"\\t\" a[i] \"\\t\" b[i] \"\\t\" c[i] } }' | " + "sort -nk1,1 > " + filePrefix
                 + "_sum_trim_counts.txt";
+    }
+    
+    private String sumNumber(Integer fileId, Integer readSegment) {
+    	String filePrefix = fileId + "_" + readSegment;
+    	return "paste -sd+ " + filePrefix + "_trim_number.txt | bc > " + filePrefix + "_sum_trim_number.txt";
     }
 
     private FileHandle createResultFile(FileHandle originFile, String fileName) throws MetadataException {
@@ -329,20 +364,51 @@ public class TrimGalore extends SoftwarePackage {
     }
 
     /**
-     * This method takes a grid result of a successfully run FastQC job, gets
-     * the working directory and uses it to parse the <em>fastqc_data.txt</em>
-     * file into a Map which contains static Strings defining the output keys
-     * (see above) and JSONObjects representing the data.
+     * Given a GridResult (used for host and working dir info) and a file group id, this method 
+     * will return a DataSeries representation of the total number of reads and the trimming result 
+     * summary statistics.
      * 
      * @param result
+     * @param fileGroup
      * @return
      * @throws GridException
-     * @throws BabrahamDataParseException
      * @throws JSONException
+     * @throws IOException
+     * @throws SAXException 
+     * @throws ParserConfigurationException 
      */
-    public Map<String, JSONObject> parseOutput(String resultsDir) throws GridException, JSONException {
-
-        return null;
+    public JSONObject parseOutput(GridResult result, FileGroup fileGroup) throws GridException, JSONException, IOException, SAXException, ParserConfigurationException {
+    	GridWorkService gws = hostResolver.getGridWorkService(result);
+    	Integer rs = fastqService.getNumberOfReadSegments(fileGroup);
+    	
+    	List<String> trimStrings = new ArrayList<String>();
+    	
+    	Set<FileGroup> originalFastq = fileGroup.getDerivedFrom();
+    	
+    	if (originalFastq.size() != 1) {
+    		String mess = "Trimmed fastq file group unexpectedly claims to be derived from " + originalFastq.size() + " input file groups.";
+    		logger.error(mess);
+    		throw new ParserConfigurationException(mess);
+    	}
+    	
+    	Integer origId = originalFastq.iterator().next().getId();
+    	logger.trace("trimmed fastq FileGroup " + fileGroup.getId() + " was derived from FileGroup " + origId);
+    	
+    	// output was written to parent filegroup ID
+    	String numStr = StringUtils.chomp(gws.getUnregisteredFileContents(result,  origId + "_1_sum_trim_number.txt"));
+    	
+		int numberOfClusters = Integer.parseInt(numStr);
+		
+		logger.trace("FileGroup " + fileGroup.getId() + " number of clusters : " + numberOfClusters);
+		
+		for (int i=1; i<=rs; i++) {
+			logger.trace("collecting trim data for " + fileGroup.getId() + " read " + i);
+			// output was written to parent filegroup ID
+			String ts = gws.getUnregisteredFileContents(result, origId + "_" + i + "_sum_trim_counts.txt");
+			trimStrings.add(ts);
+		}
+    	
+		return BabrahamQCParseModule.getTrimGaloreChart(trimStrings, numberOfClusters);
     }
 
 }

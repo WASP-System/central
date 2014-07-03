@@ -30,6 +30,7 @@ import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
+import edu.yu.einstein.wasp.plugin.babraham.web.service.impl.BabrahamWebServiceImpl;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
@@ -46,7 +47,8 @@ public class TrimGalorePlugin extends WaspPlugin implements ClientMessageI, File
     
     protected final Logger logger = LoggerFactory.getLogger(getClass());
     
-    public static final String FLOW_NAME = "edu.yu.einstein.wasp.plugin.babraham.trim_galore.mainFlow";
+    public static final String FLOW_NAME = "babraham.trim_galore.mainFlow";
+    public static final String TRIM_GALORE_PLOT_KEY = "size-plot";
 
     @Autowired
     BabrahamService babrahamService;
@@ -112,9 +114,9 @@ public class TrimGalorePlugin extends WaspPlugin implements ClientMessageI, File
      * {@inheritDoc}
      */
     @Override
-    public PanelTab getViewPanelTab(FileGroup fileGroup) throws PanelException {
-	return null;
-    }
+	public PanelTab getViewPanelTab(FileGroup fileGroup) throws PanelException {
+		return ((BabrahamWebServiceImpl) babrahamService).getTrimGaloreDataToDisplay(fileGroup.getId());
+	}
     
     public Message<String> trim(Message<String> m) {
 		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))

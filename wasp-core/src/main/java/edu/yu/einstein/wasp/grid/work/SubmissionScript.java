@@ -85,4 +85,16 @@ interface SubmissionScript {
 	 */
 	public abstract void setMailCircumstances(String mailCircumstances);
 
+	/**
+	 * 
+	 * @return
+	 */
+	public boolean isNumProcConsumable();
+
+	/**
+	 * 
+	 * @param isNumProcConsumable
+	 */
+	public void setNumProcConsumable(boolean isNumProcConsumable);
+
 }

@@ -179,4 +179,15 @@ public class BabrahamPanelRenderer {
 			throw new PanelException("Caught unexpected exception generating WebPanel", e);
 		}
 	}
+
+
+	public static Panel getTrimGalorePanel(JSONObject json, MessageService messageService, String servletPath) throws PanelException {
+		try {
+			WaspChart2D chart = WaspChart.getChart(json, WaspChart2D.class);
+			return getViewPanel(chart.getLocalizedDescription(messageService),1,BabrahamHighChartsJs.getSplineForTrimGalore(chart, messageService), servletPath);
+		} catch (ChartException | JSONException e) {
+			throw new PanelException("Caught unexpected exception generating WebPanel", e);
+		}
+		
+	}
 }

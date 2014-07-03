@@ -13,8 +13,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -125,7 +127,11 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	
 	protected String name;
 	
-	protected List<String> parallelEnvironments;
+	protected Set<String> parallelEnvironments = new HashSet<>();
+	
+	protected String defaultParallelEnvironment;
+	
+	protected String defaultMpiParallelEnvironment;
 	
 	protected String queue;
 	protected String maxRunTime;
@@ -134,12 +140,15 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	protected String mailRecipient;
 	protected String mailCircumstances;
 	
+	protected boolean isNumProcConsumable = false;
+	
 	public void setQueue(String queue) {
 		this.queue = queue;
 	}
 	public String getQueue() {
 		return queue;
 	}
+
 	public void setMaxRunTime(String maxRunTime) {
 		this.maxRunTime = maxRunTime;
 	}
@@ -201,8 +210,9 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			if (w.getResultsDirectory().equals(null) || w.getResultsDirectory().equals("/")) {
 				throw new MisconfiguredWorkUnitException("Must configure results directory.");
 			}
-			
-			w.remoteWorkingDirectory = transportConnection.prefixRemoteFile(w.getWorkingDirectory());
+			w.remoteWorkingDirectory = w.getWorkingDirectory();
+			if (!w.isWorkingDirectoryRelativeToRoot())
+				w.remoteWorkingDirectory = transportConnection.prefixRemoteFile(w.getWorkingDirectory());
 			w.remoteResultsDirectory = transportConnection.prefixRemoteFile(w.getResultsDirectory());
 			//end
 			
@@ -210,6 +220,39 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		} catch (MisconfiguredWorkUnitException e) {
 			throw new GridAccessException("Misconfigured work unit", e);
 		}
+	}
+	
+	/**
+	 * Basis for a stored list of active jobs
+	 * @return
+	 * @throws GridException
+	 * @throws SAXException
+	 * @throws IOException
+	 */
+	protected Document getAllQstat() throws GridException, SAXException, IOException {
+		WorkUnit w = new WorkUnit();
+		w.setWorkingDirectory("$HOME");
+		w.setCommand("qstat -xml");
+		GridResult result;
+		try {
+			result = transportConnection.sendExecToRemote(w);
+		} catch (MisconfiguredWorkUnitException e) {
+			logger.warn(e.getLocalizedMessage());
+			throw new GridException(e.getLocalizedMessage(), e);
+		}
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder docBuilder;
+		try {
+			dbFactory.setValidating(false);
+			docBuilder = dbFactory.newDocumentBuilder();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+			throw new GridAccessException("unable to generate xml parser");
+		}
+		InputStream is = result.getStdOutStream();
+		Document doc = docBuilder.parse(new InputSource(is));
+		is.close();
+		return doc;
 	}
 	
 	/**
@@ -399,7 +442,12 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			e.printStackTrace();
 			throw new GridAccessException("unable to determine status of task array", e);
 		}
-		Integer numEndFiles = new Integer(StringUtils.chomp(writer.toString()));
+		Integer numEndFiles = 0;
+		try{
+			numEndFiles = Integer.parseInt(StringUtils.chomp(writer.toString()));
+		} catch (NumberFormatException e){
+			throw new GridException("Unable to convert '" + writer.toString() + "' to Integer trying to set numEndFiles");
+		}
 		int numTasks = g.getNumberOfTasks();
 		logger.debug("number of tasks=" + numTasks + " and number of '.end' files=" + numEndFiles);
 		if (numEndFiles.equals(numTasks))
@@ -449,7 +497,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			return exists;
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new GridAccessException("Unable to connect to remote host: ", e.getCause());
+			throw new GridAccessException("Unable to connect to remote host: ", e);
 		}
 	}
 	
@@ -530,7 +578,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		w.setResultsDirectory(g.getResultsDirectory());
 		w.setRegistering(true);
 		w.setMode(ExecutionMode.TASK_ARRAY);
-		w.addCommand("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then touch " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
+		w.addCommand("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then ls -1 > /dev/null && touch " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
 		int files = 0;
 		logger.trace("preparing to copy " + g.getFileHandleIds().size() + " files for GridResult " + g.getUuid().toString());
 		for (Integer hid : g.getFileHandleIds()) {
@@ -552,7 +600,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		String poll = transportConnection.getConfiguredSetting("host.pollinterval");
 		if (poll == null) 
 			poll = "10000"; // 10s
-		Integer pollint = Integer.decode(poll);
+		Integer pollint = Integer.parseInt(poll);
 		while (!isFinished(r)) {
 			ScheduledFuture<?> md5t = ex.schedule(new Runnable() {
 				@Override
@@ -614,38 +662,62 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		}
 		
 		logger.debug("begin start job " + w.getId());
-
+		// verify parallel environement is valid for this GWS if specified in work unit 
+			
+		SubmissionScript sss = getSubmissionScript(w);
+		// TODO: user specific account settings
+		if (getAccount() != null)
+			sss.setAccount(getAccount());
+		if(getMailRecipient() != null)
+			sss.setMailRecipient(getMailRecipient());
+		if(getMailCircumstances() != null)
+			sss.setMailCircumstances(getMailCircumstances());
+		if(getMaxRunTime() != null)
+			sss.setMaxRunTime(getMaxRunTime());
+		if (!w.getProcessMode().equals(ProcessMode.SINGLE) && w.getProcessorRequirements() > 1){
+			if (w.getParallelEnvironment() != null && !w.getParallelEnvironment().isEmpty()){
+				if (!getAvailableParallelEnvironments().contains(w.getParallelEnvironment()))
+					throw new MisconfiguredWorkUnitException("Parallel environment specified in work unit is not registered as an available parallel environment in the Grid Work Service");
+				sss.setParallelEnvironment(w.getParallelEnvironment(), w.getProcessorRequirements());
+			} else {
+				if (w.getProcessMode().equals(ProcessMode.MPI) && getDefaultMpiParallelEnvironment() != null && !getDefaultMpiParallelEnvironment().isEmpty()){
+					logger.info("Seleted default MPI parallel environment");
+					sss.setParallelEnvironment(getDefaultMpiParallelEnvironment(), w.getProcessorRequirements());
+				} else if (getDefaultParallelEnvironment() != null && !getDefaultParallelEnvironment().isEmpty()){
+					logger.info("Selected default parallel environment");
+					sss.setParallelEnvironment(getDefaultParallelEnvironment(), w.getProcessorRequirements());
+				} else if (getAvailableParallelEnvironments().size() == 1){
+					logger.info("No default parallel environments set so falling back to only known parallel environment in set of available parallel environments");
+					sss.setParallelEnvironment(getAvailableParallelEnvironments().iterator().next(), w.getProcessorRequirements());
+				} else {
+					if (!isNumProcConsumable)
+						logger.warn("A non-single core process mode was selected but no parallel environment was set and not more than one consumable core was selected. This may be an error.");
+				}
+			}
+		} else {
+			if (w.getParallelEnvironment() != null)
+				logger.warn("A single core process mode was selected yet a parallel environment was set. This may be an error.");
+		}
+		sss.setNumProcConsumable(isNumProcConsumable());
+		if(getProject() != null)
+			sss.setProject(getProject());
+		else if (w.getProject() != null)
+			// if the host does not have a project set, attempt to set from the work unit (for accounting).
+			sss.setProject(w.getProject());
+		if(getQueue() != null)
+			sss.setQueue(getQueue());
+		
 		File script;
 		try {
 			script = File.createTempFile("wasp-", ".sge");
 			logger.debug("creating temporary local sge script: " + script.getAbsolutePath().toString());
 			BufferedWriter scriptHandle = new BufferedWriter(new FileWriter(script));
-			SubmissionScript sss = getSubmissionScript(w);
-			// TODO: user specific account settings
-			if (getAccount() != null)
-				sss.setAccount(getAccount());
-			if(getMailRecipient() != null)
-				sss.setMailRecipient(getMailRecipient());
-			if(getMailCircumstances() != null)
-				sss.setMailCircumstances(getMailCircumstances());
-			if(getMaxRunTime() != null)
-				sss.setMaxRunTime(getMaxRunTime());
-			// TODO: PE
-			//if(getAvailableParallelEnvironments().size() > 0)
-			//	sss.setParallelEnvironment("", w.getProcessorRequirements());
-			if(getProject() != null)
-				sss.setProject(getProject());
-			else if (w.getProject() != null)
-				// if the host does not have a project set, attempt to set from the work unit (for accounting).
-				sss.setProject(w.getProject());
-			if(getQueue() != null)
-				sss.setQueue(getQueue());
 			scriptHandle.write(sss.toString());
 			scriptHandle.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			throw new GridAccessException("unable to get local temp file ", e.getCause());
+			throw new GridAccessException("unable to get local temp file ", e);
 		}
 		try {
 			logger.debug("putting script file on remote server");
@@ -653,7 +725,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			logger.debug("script file copied");
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new GridAccessException("unable to begin grid transaction ", e.getCause());
+			throw new GridAccessException("unable to begin grid transaction ", e);
 		} finally {
 			logger.debug("deleting local temporary script file: " + script.getAbsolutePath().toString());
 			script.delete();
@@ -687,16 +759,49 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	}
 	
 	@Override
-	public void setAvailableParallelEnvironments(List<String> pe) {
-		this.parallelEnvironments = pe;
+	public void setAvailableParallelEnvironments(String commaDelimitedParallelEnvironments){
+		for (String parallelEnv : commaDelimitedParallelEnvironments.split(","))
+			this.parallelEnvironments.add(parallelEnv);
+	}
+	
+	@Override
+	public Set<String> getAvailableParallelEnvironments() {
+		return this.parallelEnvironments;
+	}
+	
+	@Override
+	public String getDefaultParallelEnvironment() {
+		return defaultParallelEnvironment;
+	}
+
+	/**
+	 * set default parallel environment to be use for non-MPI jobs requiring multi-cores. Also adds this parallel environment to the set of 
+	 * available parallel environments
+	 * @param defaultParallelEnvironment
+	 */
+	@Override
+	public void setDefaultParallelEnvironment(String defaultParallelEnvironment) {
+		this.defaultParallelEnvironment = defaultParallelEnvironment;
+		this.parallelEnvironments.add(defaultParallelEnvironment);
 		
 	}
 	
 	@Override
-	public List<String> getAvailableParallelEnvironments() {
-		return this.parallelEnvironments;
+	public String getDefaultMpiParallelEnvironment() {
+		return defaultMpiParallelEnvironment;
 	}
-	
+
+	/**
+	 * set default parallel environment to be use for MPI jobs. Also adds this parallel environment to the set of 
+	 * available parallel environments
+	 * @param defaultMpiParallelEnvironment
+	 */
+	@Override
+	public void setDefaultMpiParallelEnvironment(String defaultMpiParallelEnvironment) {
+		this.defaultMpiParallelEnvironment = defaultMpiParallelEnvironment;
+		this.parallelEnvironments.add(defaultMpiParallelEnvironment);
+	}
+
 	protected SubmissionScript getSubmissionScript(WorkUnit w) throws GridException, MisconfiguredWorkUnitException {
 		return new SgeSubmissionScript(w);
 	}
@@ -734,6 +839,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		protected String project = "";
 		protected String mailRecipient = "";
 		protected String mailCircumstances = "";
+		protected boolean isNumProcConsumable = false;
 		
 		/**
 		 * Default no-arg constructor is unused.
@@ -873,6 +979,22 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		 * {@inheritDoc}
 		 */
 		@Override
+		public boolean isNumProcConsumable() {
+			return isNumProcConsumable;
+		}
+		
+		/** 
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void setNumProcConsumable(boolean isNumProcConsumable) {
+			this.isNumProcConsumable = isNumProcConsumable;
+		}
+		
+		/** 
+		 * {@inheritDoc}
+		 */
+		@Override
 		public String getFlag() {
 			return schedulerFlag;
 		}
@@ -885,8 +1007,13 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			// 'mem_free' specifies how much memory should be free on a node before scheduling a job (or task) there 
 			// 'h_vmem' specifies maximum memory a scheduled job (or task) may use. Will kill job / task 
 			// with a memory allocation error if memory used exceeds this value
-			return getFlag() + " -l mem_free=" + w.getMemoryRequirements().toString() + "G\n" +
-					WorkUnit.REQUESTED_GB_MEMORY + "=" + w.getMemoryRequirements().toString() + "\n";
+			int memRequested = w.getMemoryRequirements(); // allocation per slot
+			int totalMemory = memRequested; // total for job
+			if (memRequested > 1 && w.getProcessorRequirements() > 1 && getParallelEnvironment() != null && !getParallelEnvironment().isEmpty()){
+				memRequested = Math.round(memRequested / w.getProcessorRequirements());
+				totalMemory = memRequested * w.getProcessorRequirements(); // may be modified by rounding hence recalculate total
+			}
+			return getFlag() + " -l mem_free=" + memRequested + "G\n" +	WorkUnit.REQUESTED_GB_MEMORY + "=" + totalMemory + "\n";
 		}
 		
 		/** 
@@ -894,36 +1021,36 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		 */
 		@Override
 		public String getProcs() {
-			return getFlag() + " -l p=" + w.getProcessorRequirements().toString() + "\n" +
-					WorkUnit.NUMBER_OF_THREADS + "=" + w.getProcessorRequirements().toString() + "\n";
+			String procsStr = WorkUnit.NUMBER_OF_THREADS + "=" + w.getProcessorRequirements().toString() + "\n";
+			if (isNumProcConsumable)
+				procsStr += getFlag() + " -l p=" + w.getProcessorRequirements().toString() + "\n";
+			return procsStr;
 		}
 
 		public String toString() {
-			String pe = "";
-			if (w.getMode() == ExecutionMode.MPI)
-				pe = getParallelEnvironment();
-			
-			String result = header + 
-					"\n\n##### resource requests\n\n" +
-					getAccount() + 
-					getQueue() +
-					getMaxRunTime() +
-					pe +
-					getProject() + 
-					getMailRecipient() +
-					getMailCircumstances() +
-					getProcs() +
-					getMemory() + 
-					"\n\n##### preamble \n\n" +
-					preamble + 
-					"\n\n##### configuration \n\n" +
-					configuration +
-					"\n\n##### command \n\n" +
-					command + 
-					"\n\n##### postscript\n\n" +
-					postscript;
-			logger.debug(result);
-			return result;
+			StringBuilder sb = new StringBuilder();
+			sb.append(header)
+				.append("\n\n##### resource requests\n\n")
+				.append(getAccount())
+				.append(getQueue())
+				.append(getMaxRunTime());
+			if (getParallelEnvironment() != null)
+				sb.append(getParallelEnvironment());
+			sb.append(getProcs())
+				.append(getMemory()) 
+				.append(getProject())
+				.append(getMailRecipient())
+				.append(getMailCircumstances())
+				.append("\n\n##### preamble \n\n")
+				.append(preamble) 
+				.append("\n\n##### configuration \n\n")
+				.append(configuration)
+				.append("\n\n##### command \n\n")
+				.append(command) 
+				.append("\n\n##### postscript\n\n")
+				.append(postscript);
+			logger.debug(sb.toString());
+			return sb.toString();
 		}
 
 		/** 
@@ -979,6 +1106,8 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		 */
 		@Override
 		public String getParallelEnvironment() {
+			if (isNumProcConsumable && !w.getMode().equals(ProcessMode.MPI))
+				return ""; // TODO: this is not ideal - satisfies Einstein requirement to reserve resources but not specify PE unless MPI
 			return parallelEnvironment;
 		}
 
@@ -1114,7 +1243,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
                 Matcher filem = Pattern.compile("-([0-9]+?).out").matcher(e.getName());
                 if (!filem.find())
                     continue;
-                Integer record = Integer.decode(filem.group(1));
+                Integer record = Integer.parseInt(filem.group(1));
                 logger.trace("record number " + record + " size " + e.getSize());
                 result.put(record, IOUtils.toString(a, "UTF-8"));
                 
@@ -1228,6 +1357,16 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		FileInputStream afis = new FileInputStream(f);
 		result = IOUtils.toString(afis, "UTF-8");
 		return result;
+	}
+	
+	@Override
+	public boolean isNumProcConsumable() {
+		return isNumProcConsumable;
+	}
+
+	@Override
+	public void setNumProcConsumable(boolean isNumProcConsumable) {
+		this.isNumProcConsumable = isNumProcConsumable;
 	}
 	
 }

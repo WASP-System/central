@@ -119,7 +119,7 @@ public class ResourceServiceImpl extends WaspServiceImpl implements ResourceServ
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Set<Option> getResourceCategorySelectOptions(ResourceCategory resourceCategory, String metaKey) {
+	public Set<Option> getAllAvailableResourceCategoryOptions(ResourceCategory resourceCategory, String metaKey) {
 		Set<Option> set = new LinkedHashSet<Option>();
 		for(ResourceCategoryMeta rcm : resourceCategory.getResourceCategoryMeta()){
 			if( rcm.getK().indexOf(metaKey) > -1 ){//such as readLength
@@ -137,10 +137,10 @@ public class ResourceServiceImpl extends WaspServiceImpl implements ResourceServ
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Set<Option> getResourceCategorySelectOptions(SampleSubtype sampleSubtype, String metaKey) {
+	public Set<Option> getAllAvailableResourceCategoryOptions(SampleSubtype sampleSubtype, String metaKey) {
 		Set<Option> set = new LinkedHashSet<Option>();
 		for(SampleSubtypeResourceCategory ssrc : sampleSubtype.getSampleSubtypeResourceCategory()){
-			set.addAll(getResourceCategorySelectOptions(ssrc.getResourceCategory(), metaKey));
+			set.addAll(getAllAvailableResourceCategoryOptions(ssrc.getResourceCategory(), metaKey));
 		}	
 		return set;
 	}
@@ -149,10 +149,10 @@ public class ResourceServiceImpl extends WaspServiceImpl implements ResourceServ
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Set<Option> getResourceCategorySelectOptions(Sample sample, String metaKey) {
+	public Set<Option> getAllAvailableResourceCategoryOptions(Sample sample, String metaKey) {
 		Set<Option> set = new LinkedHashSet<Option>();
 		for(SampleSubtypeResourceCategory ssrc : sample.getSampleSubtype().getSampleSubtypeResourceCategory()){			
-			set.addAll(getResourceCategorySelectOptions(ssrc.getResourceCategory(), metaKey));
+			set.addAll(getAllAvailableResourceCategoryOptions(ssrc.getResourceCategory(), metaKey));
 		}	
 		return set;
 	}

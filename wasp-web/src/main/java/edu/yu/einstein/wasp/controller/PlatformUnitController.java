@@ -61,7 +61,7 @@ import edu.yu.einstein.wasp.model.SampleBarcode;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
-import edu.yu.einstein.wasp.sequence.SequenceReadProperties;
+import edu.yu.einstein.wasp.plugin.mps.SequenceReadProperties;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
@@ -301,7 +301,7 @@ public class PlatformUnitController extends WaspController {
 				for(Sample sample : tempPlatformUnitList){
 					 try {
 						  SequenceReadProperties readProperties = SequenceReadProperties.getSequenceReadProperties(sample, PLATFORM_UNIT_INSTANCE_AREA, SampleMeta.class);
-						  if(readProperties.getReadType().equalsIgnoreCase(readTypeFromGrid))
+						  if(readProperties.getReadType().toString().equalsIgnoreCase(readTypeFromGrid))
 								platformUnitsFoundInSearch.add(sample);
 					  } catch (MetadataException e) {
 						  logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
@@ -440,7 +440,7 @@ public class PlatformUnitController extends WaspController {
 							"<a href=" + getServletPath() + "/" + sampleService.getPlatformunitViewLink(platformUnit) + ">" + platformUnit.getName()+ "</a>",
 							barcode,
 							platformUnit.getSampleSubtype()==null?"": platformUnit.getSampleSubtype().getName(),
-							readProperties.getReadType(),
+							readProperties.getReadType().toString(),
 							readProperties.getReadLength().toString(),
 							cellcount
 				}));
@@ -534,8 +534,8 @@ public class PlatformUnitController extends WaspController {
 				m.addAttribute(metaHelperWebapp.getParentArea(), platformunitInstance);
 				
 				sampleSubtype = sampleService.getSampleSubtypeConfirmedForPlatformunit(sampleSubtypeId);//if not in database or not of type and subtype platformunit, throw exception
-				m.addAttribute("readLengths", resourceService.getResourceCategorySelectOptions(sampleSubtype, SequenceReadProperties.READ_LENGTH_KEY));
-				m.addAttribute("readTypes", resourceService.getResourceCategorySelectOptions(sampleSubtype, SequenceReadProperties.READ_TYPE_KEY));
+				m.addAttribute("readLengths", resourceService.getAllAvailableResourceCategoryOptions(sampleSubtype, SequenceReadProperties.READ_LENGTH_KEY));
+				m.addAttribute("readTypes", resourceService.getAllAvailableResourceCategoryOptions(sampleSubtype, SequenceReadProperties.READ_TYPE_KEY));
 				m.addAttribute("numberOfCellsList", sampleService.getNumberOfCellsListForThisTypeOfPlatformUnit(sampleSubtype));//throws exception if problems
 			
 			}//end of if(sampleSubtypeId.intValue()>0)				
@@ -649,8 +649,8 @@ public class PlatformUnitController extends WaspController {
 				m.addAttribute(metaHelperWebapp.getParentArea(), platformunitInstance);//metaHelperWebapp.getParentArea() is sample
 				
 				m.put("sampleSubtypes", sampleService.getSampleSubtypesBySampleTypeIName(PLATFORM_UNIT_AREA));//throws exception if SampleTypeIName not valid, otherwise return empty (size=0) or full list
-				m.addAttribute("readLengths", resourceService.getResourceCategorySelectOptions(sampleSubtype, SequenceReadProperties.READ_LENGTH_KEY));
-				m.addAttribute("readTypes", resourceService.getResourceCategorySelectOptions(sampleSubtype, SequenceReadProperties.READ_TYPE_KEY));
+				m.addAttribute("readLengths", resourceService.getAllAvailableResourceCategoryOptions(sampleSubtype, SequenceReadProperties.READ_LENGTH_KEY));
+				m.addAttribute("readTypes", resourceService.getAllAvailableResourceCategoryOptions(sampleSubtype, SequenceReadProperties.READ_TYPE_KEY));
 				m.addAttribute("numberOfCellsList", sampleService.getNumberOfCellsListForThisTypeOfPlatformUnit(sampleSubtype));//throws exception if problems
 	
 				return "facility/platformunit/createUpdatePlatformUnit";			

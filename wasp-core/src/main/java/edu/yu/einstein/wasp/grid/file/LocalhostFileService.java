@@ -25,7 +25,6 @@ public class LocalhostFileService implements GridFileService {
 	
 	private static boolean userDirIsRoot = true;
 	
-	
 	private GridTransportConnection transportConnection;
 
 	public LocalhostFileService(GridTransportConnection transportConnection) {
@@ -40,22 +39,28 @@ public class LocalhostFileService implements GridFileService {
 	@Override
 	public void put(File localFile, String remoteFile) throws IOException {
 		Path remote = getLocalhostFilePath(remoteFile);
-		logger.debug("put called: " + localFile + " to localhost as " + remote);
-		Files.copy(localFile.toPath(), remote, StandardCopyOption.REPLACE_EXISTING);
+		Path localFileAbsolutePath = Paths.get(localFile.getAbsolutePath());
+		logger.debug("put called: " + localFileAbsolutePath + " to localhost as " + remote);
+		if (!Files.exists(remote.getParent()))
+			Files.createDirectories(remote.getParent());
+		Files.copy(localFileAbsolutePath, remote, StandardCopyOption.REPLACE_EXISTING);
+		logger.debug(localFileAbsolutePath + " copied to " + remote);
 	}
 
 	@Override
 	public void get(String remoteFile, File localFile) throws IOException {
 		Path remote = getLocalhostFilePath(remoteFile);
-		logger.debug("get called: " + remote + " from localhost as " + localFile);
-		Files.copy(remote, localFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		Path localFileAbsolutePath = Paths.get(localFile.getAbsolutePath());
+		logger.debug("get called: " + remote + " from localhost as " + localFileAbsolutePath);
+		Files.copy(remote, localFileAbsolutePath, StandardCopyOption.REPLACE_EXISTING);
+		logger.debug(remote + " from localhost copied to " + localFileAbsolutePath);
 	}
 
 	@Override
 	public boolean exists(String remoteFile) throws IOException {
 		Path remote = getLocalhostFilePath(remoteFile);
 		boolean fileExists = Files.exists(remote);
-		logger.debug("exists called: " + remote + ": result=" + fileExists);
+		logger.debug("exists called: " + remote + ": result=" + fileExists + " (on localhost)");
 		return fileExists;
 	}
 
@@ -63,6 +68,8 @@ public class LocalhostFileService implements GridFileService {
 	public void touch(String remoteFile) throws IOException {
 		Path remote = getLocalhostFilePath(remoteFile);
 		logger.debug("touch called: " + remote);
+		if (!Files.exists(remote.getParent()))
+			Files.createDirectories(remote.getParent());
 		try {
 			Files.createFile(remote);
 		} catch (FileAlreadyExistsException e){
@@ -74,11 +81,9 @@ public class LocalhostFileService implements GridFileService {
 	public void mkdir(String remoteDir) throws IOException {
 		Path remote = getLocalhostFilePath(remoteDir);
 		logger.debug("mkdir called: " + remote);
-		try {
-			Files.createDirectory(remote);
-		} catch (FileAlreadyExistsException e){
-			logger.info("cannot mkdir " + remote + " as already exists");
-		}
+		if (!Files.exists(remote.getParent()))
+			Files.createDirectories(remote);
+		logger.debug(remote + " created on localhost");
 	}
 
 	@Override
@@ -86,6 +91,7 @@ public class LocalhostFileService implements GridFileService {
 		Path remote = getLocalhostFilePath(remoteFile);
 		logger.debug("delete called: " + remote);
 		Files.deleteIfExists(remote);
+		logger.debug(remote + " deleted on localhost");
 	}
 
 	@Override
@@ -93,7 +99,10 @@ public class LocalhostFileService implements GridFileService {
 		Path originPath = getLocalhostFilePath(origin);
 		Path destinationPath = getLocalhostFilePath(destination);
 		logger.debug("move called: " + originPath + " to " + destinationPath + " at localhost");
+		if (!Files.exists(destinationPath.getParent()))
+			Files.createDirectories(destinationPath.getParent());
 		Files.move(originPath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+		logger.debug(originPath + " moved to " + destinationPath + " on localhost");
 	}
 
 	@Override
@@ -101,7 +110,10 @@ public class LocalhostFileService implements GridFileService {
 		Path originPath = getLocalhostFilePath(origin);
 		Path destinationPath = getLocalhostFilePath(destination);
 		logger.debug("copy called: " + originPath + " to " + destinationPath + " at localhost");
+		if (!Files.exists(destinationPath.getParent()))
+			Files.createDirectories(destinationPath.getParent());
 		Files.copy(originPath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+		logger.debug(originPath + " copied to " + destinationPath + " on localhost");
 	}
 
 	@Override

@@ -91,6 +91,8 @@ import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate;
 import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
+import edu.yu.einstein.wasp.interfacing.plugin.ConfigureablePropertyProviding;
+import edu.yu.einstein.wasp.interfacing.plugin.ResourceConfigurableProperties;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -124,7 +126,6 @@ import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.quote.MPSQuote;
-import edu.yu.einstein.wasp.sequence.SequenceReadProperties;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobDraftService;
@@ -901,19 +902,18 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 				extraJobDetailsMap.put("jobdetail_for_import.Run_Type.label", jobMeta.getV());
 			}
 		  }
-		  String readLength = "?";
-		  String readType = "?";
+		  
 		  try {
-			  SequenceReadProperties readProperties = SequenceReadProperties.getSequenceReadProperties(job, area, JobMeta.class);
-			  if (readProperties != null){
-				  readLength = readProperties.getReadLength().toString();
-				  readType = readProperties.getReadType().toUpperCase();
-			  }
-		  } catch (MetadataException e) {
-			  logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
+			  String resourceIName = job.getJobResourcecategory().get(0).getResourceCategory().getIName();
+			  logger.debug("Getting configured properties for plugin with iname=" + resourceIName);
+			  ConfigureablePropertyProviding plugin = (ConfigureablePropertyProviding) waspPluginRegistry.getPluginsHandlingArea(resourceIName, ConfigureablePropertyProviding.class).get(0);
+			  ResourceConfigurableProperties rcp = plugin.getConfiguredProperties(job, area, JobMeta.class);
+			  for (String key : rcp.keySet())
+				  extraJobDetailsMap.put(rcp.getI18nMessageKey(key), rcp.get(key).toString());
+		  } catch (Exception e) {
+			  logger.warn("Cannot get resource-configured properties: " + e.getLocalizedMessage());
+			  e.printStackTrace();
 		  }
-		  extraJobDetailsMap.put("jobdetail_for_import.Read_Length.label", readLength);
-		  extraJobDetailsMap.put("jobdetail_for_import.Read_Type.label", readType);
 		 
 		  /* replaced with code below
 		  try{

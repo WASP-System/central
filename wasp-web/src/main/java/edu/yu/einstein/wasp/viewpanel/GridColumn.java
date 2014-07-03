@@ -21,9 +21,9 @@ public class GridColumn {
 	
 	private boolean hideable = false;
 	
-	private String cellAlign;
+	private String cellAlign = "left";
 	
-	private String headerAlign;
+	private String headerAlign = "left";
 
 	/**
 	 * @return the header

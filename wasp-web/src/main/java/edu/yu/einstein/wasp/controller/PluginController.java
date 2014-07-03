@@ -36,8 +36,13 @@ public class PluginController extends WaspController {
 	@RequestMapping(value = "/listAll", method = RequestMethod.GET)
 	public String getPluginList(ModelMap m){
 		List<WebHyperlink> registeredDescriptions = new ArrayList<WebHyperlink>();
-		for (WebInterfacing webPlugin : pluginRegistry.getPlugins(WebInterfacing.class))
-			registeredDescriptions.add(new WebHyperlink(webPlugin.getDescriptionPageHyperlink(), messageService));
+		for (WebInterfacing webPlugin : pluginRegistry.getPlugins(WebInterfacing.class)){
+			logger.debug("getting web hyperlink for plugin: " + webPlugin.getName());
+			if (webPlugin.getDescriptionPageHyperlink() == null)
+				logger.warn("No hyperlink available for plugin: " + webPlugin.getName());
+			else 
+				registeredDescriptions.add(new WebHyperlink(webPlugin.getDescriptionPageHyperlink(), messageService));
+		}
 		Collections.sort(registeredDescriptions);
 		m.addAttribute("descriptionHyperlinks", registeredDescriptions);
 		return "plugin/list";

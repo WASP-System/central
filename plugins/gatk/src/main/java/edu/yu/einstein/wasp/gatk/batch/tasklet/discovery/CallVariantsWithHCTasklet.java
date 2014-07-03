@@ -58,8 +58,7 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 		WorkUnit w = new WorkUnit();
 		w.setMode(ExecutionMode.PROCESS);
 		w.setProcessMode(ProcessMode.MAX);
-		w.setMemoryRequirements(MEMORY_GB_8);
-		w.setProcessorRequirements(THREADS_8);
+		w.setMemoryRequirements(MEMORY_GB_16);
 		w.setSecureResults(true);
 		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
@@ -105,7 +104,7 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 		LinkedHashSet<String> inputBamFilenames = new LinkedHashSet<>();
 		for (int i=0; i < fhlist.size(); i++)
 			inputBamFilenames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");
-		w.setCommand(gatk.getCallVariantsByHaplotypeCaller(inputBamFilenames, outputGvcfFileName, referenceGenomeFile, wxsIntervalFile, gatkOpts, MEMORY_GB_8, THREADS_8));
+		w.setCommand(gatk.getCallVariantsByHaplotypeCaller(inputBamFilenames, outputGvcfFileName, referenceGenomeFile, wxsIntervalFile, gatkOpts, MEMORY_GB_16));
 		GridResult result = gridHostResolver.execute(w);
 		
 		//place the grid result in the step context

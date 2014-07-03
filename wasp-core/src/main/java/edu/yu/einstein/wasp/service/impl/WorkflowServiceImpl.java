@@ -1,7 +1,9 @@
 package edu.yu.einstein.wasp.service.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,9 +13,19 @@ import org.springframework.util.StringUtils;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.dao.WorkflowMetaDao;
+import edu.yu.einstein.wasp.dao.WorkflowSoftwareDao;
+import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.model.MetaAttribute;
+import edu.yu.einstein.wasp.model.MetaAttribute.Control.Option;
+import edu.yu.einstein.wasp.model.ResourceCategory;
+import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.WorkflowMeta;
+import edu.yu.einstein.wasp.model.WorkflowSoftware;
+import edu.yu.einstein.wasp.model.Workflowresourcecategory;
+import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
+import edu.yu.einstein.wasp.model.WorkflowsoftwareMeta;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
@@ -32,6 +44,21 @@ public class WorkflowServiceImpl extends WaspServiceImpl implements WorkflowServ
 	private WorkflowMetaDao workflowMetaDao;
 	
 	private WorkflowDao workflowDao;
+	
+	private WorkflowresourcecategoryDao workflowresourcecategoryDao;
+	
+	private WorkflowSoftwareDao workflowSoftwareDao;
+
+	@Override
+	public WorkflowSoftwareDao getWorkflowSoftwareDao() {
+		return workflowSoftwareDao;
+	}
+
+	@Override
+	@Autowired
+	public void setWorkflowSoftwareDao(WorkflowSoftwareDao workflowSoftwareDao) {
+		this.workflowSoftwareDao = workflowSoftwareDao;
+	}
 
 	@Override
 	@Autowired
@@ -55,6 +82,8 @@ public class WorkflowServiceImpl extends WaspServiceImpl implements WorkflowServ
 		return workflowDao;
 	}
 	
+	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -62,6 +91,18 @@ public class WorkflowServiceImpl extends WaspServiceImpl implements WorkflowServ
 	public List<Workflow> getWorkflows(){
 		return workflowDao.findAll();
 	}
+
+	@Override
+	public WorkflowresourcecategoryDao getWorkflowresourcecategoryDao() {
+		return workflowresourcecategoryDao;
+	}
+
+	@Override
+	@Autowired
+	public void setWorkflowresourcecategoryDao(WorkflowresourcecategoryDao workflowresourcecategoryDao) {
+		this.workflowresourcecategoryDao = workflowresourcecategoryDao;
+	}
+
 
 	/**
 	 * {@inheritDoc}
@@ -124,6 +165,59 @@ public class WorkflowServiceImpl extends WaspServiceImpl implements WorkflowServ
 		setMeta(workflow, PAGE_FLOW_ORDER_META_KEY, StringUtils.collectionToDelimitedString(pageList, DELIMITER));
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Map<String, List<Option>> getConfiguredOptions(Workflow workflow, ResourceCategory resourceCategory) throws MetadataException{
+		// Resource Options loading
+		Map<String, List<Option>> resourceOptions = new HashMap<String, List<Option>>();
+		Workflowresourcecategory workflowresourcecategory = workflowresourcecategoryDao.getWorkflowresourcecategoryByWorkflowIdResourcecategoryId(workflow.getId(), resourceCategory.getId());
+		for (WorkflowresourcecategoryMeta wrm: workflowresourcecategory.getWorkflowresourcecategoryMeta()) {
+			String key = wrm.getK(); 
+			key = key.replaceAll("^.*allowableUiField\\.", "");
+			List<MetaAttribute.Control.Option> options=new ArrayList<MetaAttribute.Control.Option>();
+			for(String el: org.springframework.util.StringUtils.tokenizeToStringArray(wrm.getV(),";")) {
+				String [] pair=StringUtils.split(el,":");
+				MetaAttribute.Control.Option option = new MetaAttribute.Control.Option();
+				option.setValue(pair[0]);
+				option.setLabel(pair[1]);
+				options.add(option);
+			}
+			if (options.isEmpty())
+				throw new MetadataException("No options obtained from metadata");
+			resourceOptions.put(key, options);
+		}
+		return resourceOptions;
+	}
+	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Map<String, List<Option>> getConfiguredOptions(Workflow workflow, Software software) throws MetadataException{
+		// Resource Options loading
+		Map<String, List<Option>> resourceOptions = new HashMap<String, List<Option>>();
+		WorkflowSoftware workflowSoftware = workflowSoftwareDao.getWorkflowSoftwareByWorkflowIdSoftwareId(workflow.getId(), software.getId());
+		for (WorkflowsoftwareMeta wrm: workflowSoftware.getWorkflowsoftwareMeta()) {
+			String key = wrm.getK(); 
+			key = key.replaceAll("^.*allowableUiField\\.", "");
+			List<MetaAttribute.Control.Option> options=new ArrayList<MetaAttribute.Control.Option>();
+			for(String el: org.springframework.util.StringUtils.tokenizeToStringArray(wrm.getV(),";")) {
+				String [] pair=StringUtils.split(el,":");
+				MetaAttribute.Control.Option option = new MetaAttribute.Control.Option();
+				option.setValue(pair[0]);
+				option.setLabel(pair[1]);
+				options.add(option);
+			}
+			if (options.isEmpty())
+				throw new MetadataException("No options obtained from metadata");
+			resourceOptions.put(key, options);
+		}
+		return resourceOptions;
+	}
+	
 	private void setMeta(Workflow workflow, String metaKey, String metaValue) throws MetadataException{
 		Assert.assertParameterNotNull(workflow, "workflow cannot be null");
 		Assert.assertParameterNotNull(metaKey, "metaKey cannot be null");
@@ -131,7 +225,7 @@ public class WorkflowServiceImpl extends WaspServiceImpl implements WorkflowServ
 		WorkflowMeta jobFlowBatchJobNameMeta = new WorkflowMeta();
 		jobFlowBatchJobNameMeta.setK(WORKFLOW_AREA + "." + metaKey);
 		jobFlowBatchJobNameMeta.setV(metaValue);
-		jobFlowBatchJobNameMeta.setWorkflowId(workflow.getWorkflowId());
+		jobFlowBatchJobNameMeta.setWorkflowId(workflow.getId());
 		workflowMetaDao.setMeta(jobFlowBatchJobNameMeta);
 	}
 	

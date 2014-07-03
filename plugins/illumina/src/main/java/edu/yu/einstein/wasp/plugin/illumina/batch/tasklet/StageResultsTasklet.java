@@ -1,14 +1,23 @@
 package edu.yu.einstein.wasp.plugin.illumina.batch.tasklet;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.exception.GridException;
@@ -18,6 +27,7 @@ import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
 import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
@@ -42,6 +52,9 @@ public class StageResultsTasklet extends WaspRemotingTasklet {
 
 	@Autowired
 	private IlluminaHiseqSequenceRunProcessor casava;
+	
+	@Autowired
+	private WaspIlluminaService illuminaService;
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -131,6 +144,13 @@ public class StageResultsTasklet extends WaspRemotingTasklet {
 		//place the grid result in the step context
 		storeStartedResult(context, result);
 
+	}
+
+	@Override
+	public void doPreFinish(ChunkContext context) throws Exception {
+		run = runService.getRunById(runId);
+		illuminaService.setIlluminaRunXml(getStartedResult(context), run);
+		super.doPreFinish(context);
 	}
 
 	/**
