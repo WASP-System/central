@@ -36,6 +36,7 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
+import edu.yu.einstein.wasp.plugin.mps.service.SequencingService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
@@ -57,6 +58,9 @@ public class PeakCallerTasklet extends LaunchManyJobsTasklet {
 	private SampleService sampleService;
 	
 	@Autowired
+	private SequencingService sequencingService;
+	
+	@Autowired
 	private JobService jobService;
 	
 	@Autowired
@@ -67,9 +71,6 @@ public class PeakCallerTasklet extends LaunchManyJobsTasklet {
 
 	@Autowired
 	private GridHostResolver gridHostResolver;
-	
-	@Autowired
-	private FileType bamFileType;
 	
 	private ResourceType softwareResourceType;
 
@@ -107,7 +108,7 @@ public class PeakCallerTasklet extends LaunchManyJobsTasklet {
 			logger.debug("unable to obtain approvedCellLibraryList in PeakCallerTasklet; message = " + e.getMessage());
 		}
 		Assert.assertTrue( approvedCellLibraryList!=null && ! approvedCellLibraryList.isEmpty() );		
-		Assert.assertTrue(this.sampleService.confirmCellLibrariesAssociatedWithBamFiles(approvedCellLibraryList));
+		Assert.assertTrue(this.sequencingService.confirmCellLibrariesAssociatedWithBamFiles(approvedCellLibraryList));
 
 		Map<Sample, List<SampleSource>> approvedSampleApprovedCellLibraryListMap = sampleService.associateUppermostSampleWithCellLibraries(approvedCellLibraryList);
 		//the Sample object is as high up as you can go (library if no macromolecule submitted; macromolecule otherwise).

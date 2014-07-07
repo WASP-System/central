@@ -253,12 +253,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	GenomeService genomeService;
 	
 	@Autowired
-	private FileService fileService;
-	
-	@Autowired
-	private FileType bamFileType;
-	
-	@Autowired
 	protected RunMetaDao runMetaDao;
 	
 	@Autowired
@@ -3353,21 +3347,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				return true;
 			}
 			
-			/**
-			 * {@inheritDoc}
-			 */
-			@Transactional("entityManager")
-			@Override
-			public boolean confirmCellLibrariesAssociatedWithBamFiles(List<SampleSource> cellLibraryList) {
-				for(SampleSource cellLibrary : cellLibraryList){
-					Set<FileGroup> fileGroupSetFromCellLibrary = fileService.getFilesForCellLibraryByType(cellLibrary, bamFileType);
-					if(fileGroupSetFromCellLibrary.isEmpty()){//very unexpected
-						logger.debug("no Bam files associated with cellLibrary"); 
-						return false;
-					}
-				}
-				return true;
-			}
 			
 			/**
 			 * {@inheritDoc}
