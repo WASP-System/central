@@ -342,23 +342,22 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 
 	/**
 	 * {@inheritDoc}
+	 * Checks if finished and will update the state of the provided GridResult with the latest information about the job.
 	 * @throws GridUnresolvableHostException 
 	 */
 	@Override
 	public boolean isFinished(GridResult g) throws GridException {
-		
 		String jobname = this.jobNamePrefix + g.getUuid().toString();
 		
 		logger.debug("testing for completion of " + jobname);
 		
 		boolean died = false;
 		boolean started;
-		boolean ended;
-		if (g.getJobStatus().isFinished()){
+		boolean	ended;
+		if (g.getJobStatus().isEnded()){
 			started = true;
 			ended = true;
-		}
-		else {
+		} else {
 			started = isJobStarted(g);
 			ended = isJobOrTaskArrayEnded(g);
 		}
@@ -411,28 +410,31 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		if (died) {
 			cleanUpAbnormallyTerminatedJob(g);
 			g.setArchivedResultOutputPath(getFailedArchiveName(g));
-			((GridResultImpl) g).setExitCode(1);
+			((GridResultImpl) g).setExitCode(g.getExitCode() > 1 ? g.getExitCode() : 1);
 			throw new GridExecutionException("abnormally terminated job");
 		}
 		
-		boolean areAllChildJobsComplete = false;
 		if (ended) {
-			areAllChildJobsComplete = true;
+			g.setJobStatus(GridJobStatus.ENDED);
 			logger.debug("packaging " + jobname);
 			cleanUpCompletedJob(g);
 			g.setArchivedResultOutputPath(getCompletedArchiveName(g));
-			for (GridResult r : g.getChildResults().values())
-				if (r.getJobStatus().isRunning()){
-					areAllChildJobsComplete = false;
-					break;
+			for (String key : g.getChildResults().keySet()){
+				GridResult r = g.getChildResults().get(key);
+				if (r == null){
+					logger.debug("child job key=" + key + " has no grid result yet so going to return false");
+					return false;
 				}
-			if (areAllChildJobsComplete)
-				((GridResultImpl) g).setExitCode(0);
-			else
-				logger.debug("Child jobs are still running so going to return false");
+				logger.debug("child job key=" + key + " has status=" + r.getJobStatus());
+				if (!r.getJobStatus().isFinished()){
+					logger.debug("child job key=" + key + " is not finished so going to return false");
+					return false;
+				}
+			}
+			logger.debug("No child jobs or all child jobs are complete so going to return true");
+			((GridResultImpl) g).setExitCode(g.getExitCode() > 0 ? g.getExitCode() : 0);
 		}
-		
-		return ended && areAllChildJobsComplete;
+		return ended;
 	}
 	
 	protected boolean isTaskArrayEnded(GridResult g) throws GridException {
@@ -520,7 +522,11 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	}
 	
 	protected void cleanUpCompletedJob(GridResult g) throws GridException {
-		cleanUpCompletedJob(g.getHostname(), g.getWorkingDirectory(), g.getResultsDirectory(), g.getUuid().toString(), !g.isSecureResults());
+		GridResult r = g.getChildResult("cleanUpCompletedJob");
+		if (r == null){
+			r = cleanUpCompletedJob(g.getHostname(), g.getWorkingDirectory(), g.getResultsDirectory(), g.getUuid().toString(), !g.isSecureResults());
+			g.addChildResult("cleanUpCompletedJob", r);
+		}
 		if (g.isSecureResults())
 			try {
 				secureResultsFiles(g);
@@ -531,7 +537,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			}
 	}
 
-	protected void cleanUpCompletedJob(String hostname, String workingDirectory, String resultsDirectory, String id, boolean markUnfinished)
+	protected GridResult cleanUpCompletedJob(String hostname, String workingDirectory, String resultsDirectory, String id, boolean markUnfinished)
 			throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
 		logger.debug("Cleaning successful job " + id + " at " + transportConnection.getHostName() + ":" + workingDirectory);
 		
@@ -562,7 +568,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		}
 		
 		try {
-			transportConnection.sendExecToRemote(w);
+			return transportConnection.sendExecToRemote(w);
 		} catch (MisconfiguredWorkUnitException e) {
 			logger.warn(e.getLocalizedMessage());
 			throw new GridExecutionException(e.getLocalizedMessage(), e);
@@ -582,7 +588,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			if (cr == null)
 				copyResultsFiles(g);
 			else 
-				if (!cr.getJobStatus().isFinished())
+				if (!isFinished(cr))
 					return;
 			List<FileHandle> fhl = new ArrayList<FileHandle>();
 			for (Integer id : g.getFileHandleIds()) {
@@ -591,7 +597,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			    fhl.add(fh);
 			}    
 			logger.debug("calling: getFileService().register(" + fhl + ") ");
-			getFileService().register(fhl, g.getChildResult("registerFiles"));
+			g.addChildResult("registerFiles", getFileService().register(fhl, g.getChildResult("registerFiles")));
 		}
 	}
 	
@@ -601,6 +607,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			logger.debug("found an existing copy job associated with this grid result so going to return now");
 			return;
 		}
+		logger.debug("No Existing copy results files job registered so going to create one now");
 		WorkUnit w = new WorkUnit();
 		w.setWorkingDirectory(g.getWorkingDirectory());
 		w.setResultsDirectory(g.getResultsDirectory());
@@ -765,7 +772,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 				throw new MisconfiguredWorkUnitException("Task arrays need to set numberOfTasks (cannot be null)");
 			result.setNumberOfTasks(w.getNumberOfTasks());
 		}
-		result.setJobStatus(GridJobStatus.EXECUTING);
+		result.setJobStatus(GridJobStatus.STARTED);
 		return (GridResult) result;
 	}
 	

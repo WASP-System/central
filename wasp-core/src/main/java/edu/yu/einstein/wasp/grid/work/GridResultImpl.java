@@ -6,9 +6,13 @@ package edu.yu.einstein.wasp.grid.work;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 
@@ -20,6 +24,8 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
  *
  */
 public class GridResultImpl implements GridResult, Serializable {
+	
+	private final static Logger logger = LoggerFactory.getLogger(GridResultImpl.class);
 	
 	private static final long serialVersionUID = 1423472291111175147L;
 
@@ -38,7 +44,7 @@ public class GridResultImpl implements GridResult, Serializable {
 	
 	private ExecutionMode mode = ExecutionMode.PROCESS;
 	
-	private Map<String, GridResult> childResults;
+	private Map<String, GridResult> childResults = new HashMap<>();;
 	
 	private int numberOfTasks = 1;
 	
@@ -87,6 +93,7 @@ public class GridResultImpl implements GridResult, Serializable {
 			setJobStatus(GridJobStatus.COMPLETED);
 		else if (exitCode > 0)
 			setJobStatus(GridJobStatus.FAILED);
+		logger.debug("Set exitCode=" + getExitCode() + " and jobStatus=" + getJobStatus() + " on GridResult with UUID=" + getUuid());
 	}
 
 	/* (non-Javadoc)

@@ -1,14 +1,25 @@
 package edu.yu.einstein.wasp.grid.work;
 
+import java.io.Serializable;
 
-public class GridJobStatus {
+
+public class GridJobStatus implements Serializable{
 	
-	public static final GridJobStatus UNKNOWN = new GridJobStatus("unknown");
-	public static final GridJobStatus EXECUTING = new GridJobStatus("executing");
-	public static final GridJobStatus COMPLETED = new GridJobStatus("completed");
-	public static final GridJobStatus FAILED = new GridJobStatus("failed");
+	private static final long serialVersionUID = -380186718810033714L;
+	
+	public static final GridJobStatus UNKNOWN = new GridJobStatus("unknown"); // status unknown
+	
+	//the following status' refer to cluster observations 
+	public static final GridJobStatus STARTED = new GridJobStatus("started"); // has started on cluster
+	public static final GridJobStatus ENDED = new GridJobStatus("ended"); // has ended on cluster
+	
+	// the following status' refer to assessments of the success of the job after ending i.e. ending could be because of success or failure
+	public static final GridJobStatus COMPLETED = new GridJobStatus("completed"); // is assessed to be completed successfully
+	public static final GridJobStatus FAILED = new GridJobStatus("failed"); // is assessed to have failed
 	
 	private String exitStatus = "unknown";
+	
+	public GridJobStatus(){}
 	
 	public GridJobStatus(String exitStatus){
 		this.exitStatus = exitStatus;
@@ -16,7 +27,14 @@ public class GridJobStatus {
 	
 	public boolean isRunning(){
 		GridJobStatus currentJs = new GridJobStatus(exitStatus);
-		if (currentJs.equals(EXECUTING))
+		if (currentJs.equals(STARTED))
+			return true;
+		return false;
+	}
+	
+	public boolean isEnded(){
+		GridJobStatus currentJs = new GridJobStatus(exitStatus);
+		if (currentJs.equals(ENDED) || isFinished())
 			return true;
 		return false;
 	}

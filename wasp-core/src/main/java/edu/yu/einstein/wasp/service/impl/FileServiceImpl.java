@@ -803,8 +803,8 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 	}
 	
 	@Override
-	public void register(Collection<FileHandle> fhc, GridResult result) throws FileNotFoundException, GridException {
-		register(fhc, Md5.NOWAIT, result);
+	public GridResult register(Collection<FileHandle> fhc, GridResult result) throws FileNotFoundException, GridException {
+		return register(fhc, Md5.NOWAIT, result);
 	}
 	
 	@Override
@@ -812,19 +812,21 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		register(fhc, Md5.NO, null);
 	}
 	
-	public List<FileHandle> register(Collection<FileHandle> fhc, Md5 md5, GridResult result) throws FileNotFoundException, GridException {
+	public GridResult register(Collection<FileHandle> fhc, Md5 md5, GridResult result) throws FileNotFoundException, GridException {
 	    List<FileHandle> retval = new ArrayList<FileHandle>();
 	    for (FileHandle fh : fhc) {
-	        logger.debug("attempting to register FileHandle: " + fh.getId());
-	        if (result == null){ // if returning to this method after starting grid job we don't need to do this again
+	    	if (result == null){ // if returning to this method after starting grid job we don't need to do this again
+	        	logger.debug("attempting to register FileHandle: " + fh.getId());
 		        fh = fileHandleDao.save(fh);
 		        validateFile(fh);
 	        }
+	    	else 
+	    		logger.debug("Awaiting register completion for FileHandle: " + fh.getId());
 	        retval.add(fh);
 	    }
 	    if (!md5.equals(Md5.NO))
-	    	setMD5(retval, result, md5);
-	    return retval;
+	    	return setMD5(retval, result, md5);
+	    return result;
 	}
 
 	private void validateFile(FileHandle file) throws FileNotFoundException {
@@ -842,7 +844,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 
 	}
 
-	private void setMD5(List<FileHandle> fileHandles, GridResult r, Md5 md5Selection) throws GridException, FileNotFoundException {
+	private GridResult setMD5(List<FileHandle> fileHandles, GridResult r, Md5 md5Selection) throws GridException, FileNotFoundException {
 
 		if (fileHandles.isEmpty())
 			throw new FileNotFoundException("No file handles to set MD5");
@@ -884,10 +886,11 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 			w.setNumberOfTasks(numFiles);
 	
 			r = gws.execute(w);
+			logger.debug("registerFiles job Status is: " + r.getJobStatus());
 		}
 
 		if (md5Selection.equals(Md5.WAIT)){
-			logger.trace("waiting for file registration");
+			logger.debug("waiting for file registration");
 			ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
 			while (!gws.isFinished(r)) {
 				ScheduledFuture<?> md5t = ex.schedule(new Runnable() {
@@ -902,7 +905,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 			ex.shutdownNow();
 		}
 		if ((md5Selection.equals(Md5.WAIT) || gws.isFinished(r)) && r.getJobStatus().isCompletedSuccessfully()){
-			logger.trace("registered, getting results");
+			logger.debug("registered, getting results");
 			
 			try {
 				Map<Integer, String> output = gws.getMappedTaskOutput(r);
@@ -924,7 +927,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 				throw new GridException("unable to read output of task array", e);
 			} 
 		}
-		
+		return r;
 	}
 
 	@Override

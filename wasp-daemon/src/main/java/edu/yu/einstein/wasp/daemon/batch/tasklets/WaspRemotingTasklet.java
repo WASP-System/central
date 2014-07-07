@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
+import edu.yu.einstein.wasp.grid.work.GridJobStatus;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
@@ -67,8 +68,10 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 		// isStarted=F and isHibernationRequested=F == first run
 		// isStarted=T and isHibernationResuested=T == job started on grid service
 		// isStarted=F and isHibernationRequested=T == not going to request grid work
+		boolean isJobInRunningToEndingTransition = false;
 		if (isGridWorkUnitStarted(context)){
 			GridResult result = getStartedResult(context);
+			GridJobStatus currentStatus = result.getJobStatus();
 			GridWorkService gws = hostResolver.getGridWorkService(result);
 			try {
 				if (gws.isFinished(result)){
@@ -76,6 +79,12 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 					logger.debug("Workunit is finished. Step complete.");
 					return RepeatStatus.FINISHED;
 				}
+				if (currentStatus.isRunning() && result.getJobStatus().isEnded()){
+					// calling isFinished() on result can update the result
+					logger.debug("Job has transitioned from running to ended. Going to reset timeoutInterval to minimum");
+					isJobInRunningToEndingTransition = true;
+				}
+				storeStartedResult(context, result); // result may have been modified whilst checking in isFinished
 			} catch (GridException e) {
 				logger.debug(result.toString() + " threw exception: " + e.getLocalizedMessage() + " removing and rethrowing");
 				removeStartedResult(context);
@@ -91,7 +100,12 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 			return RepeatStatus.FINISHED;
 		}
 		if (!wasHibernationRequested){
-			Long timeoutInterval = exponentiallyIncreaseTimeoutIntervalInContext(context);
+			Long timeoutInterval;
+			if (isJobInRunningToEndingTransition){
+				timeoutInterval = initialExponentialInterval;
+				setTimeoutIntervalInContext(context, timeoutInterval);
+			} else 
+				timeoutInterval = exponentiallyIncreaseTimeoutIntervalInContext(context);
 			logger.debug("Going to request hibernation for " + timeoutInterval + " ms");
 			addStatusMessagesToAbandonStepToContext(context, abandonTemplates);
 		} else {

@@ -190,7 +190,7 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet i
             // do stuff immediately before hibernating
             logger.trace(stepExecution.getStepName() + " afterStep going into hibernation");
             return ExitStatus.HIBERNATING;
-        } else if (!stepExecution.getExitStatus().isRunning()) { // ExitStatus not "EXECUTING", "HIBERNATING" or "UNKNOWN"
+        } else if (!stepExecution.getExitStatus().isRunning()) { // ExitStatus not "STARTED", "HIBERNATING" or "UNKNOWN"
             exitStatus = exitStatus.and(getExitStatus(stepExecution));
             // set exit status to equal the most severe outcome of all received messages
             this.messageQueue.clear(); // clean up in case of restart

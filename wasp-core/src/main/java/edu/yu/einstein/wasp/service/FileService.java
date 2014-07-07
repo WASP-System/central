@@ -240,7 +240,7 @@ public interface FileService extends WaspService {
 	 */
 	public void register(Collection<FileHandle> fileHandles) throws FileNotFoundException, GridException;
 	
-	public void register(Collection<FileHandle> fileHandles, GridResult result) throws FileNotFoundException, GridException;
+	public GridResult register(Collection<FileHandle> fileHandles, GridResult result) throws FileNotFoundException, GridException;
 	
 	public FileHandle getFileHandle(UUID uuid) throws FileNotFoundException;
 
