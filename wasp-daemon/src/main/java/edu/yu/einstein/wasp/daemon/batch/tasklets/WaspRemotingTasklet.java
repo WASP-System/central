@@ -1,5 +1,8 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
@@ -71,7 +74,8 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 		boolean isJobInRunningToEndingTransition = false;
 		if (isGridWorkUnitStarted(context)){
 			GridResult result = getStartedResult(context);
-			GridJobStatus currentStatus = result.getJobStatus();
+			GridJobStatus currentStatus = new GridJobStatus(result.getJobStatus().toString());
+			Map<String, GridResult> currentChildJobResults = new HashMap<String, GridResult>(result.getChildResults());
 			GridWorkService gws = hostResolver.getGridWorkService(result);
 			try {
 				if (gws.isFinished(result)){
@@ -79,9 +83,11 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 					logger.debug("Workunit is finished. Step complete.");
 					return RepeatStatus.FINISHED;
 				}
-				if (currentStatus.isRunning() && result.getJobStatus().isEnded()){
-					// calling isFinished() on result can update the result
-					logger.debug("Job has transitioned from running to ended. Going to reset timeoutInterval to minimum");
+				boolean jobHasTransitioned = currentStatus.isRunning() && result.getJobStatus().isEnded();
+				boolean jobHasUpdatedChild = !currentChildJobResults.equals(result.getChildResults());
+				if (jobHasTransitioned || jobHasUpdatedChild){
+					logger.debug("Job result has transitioned state (" + jobHasTransitioned + 
+							") or has updated a child job (" + jobHasUpdatedChild + "). Going to reset timeoutInterval to minimum");
 					isJobInRunningToEndingTransition = true;
 				}
 				storeStartedResult(context, result); // result may have been modified whilst checking in isFinished

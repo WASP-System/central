@@ -64,6 +64,12 @@ import edu.yu.einstein.wasp.util.PropertyHelper;
  */
 @Transactional("entityManager")
 public class SgeWorkService implements GridWorkService, ApplicationContextAware {
+	
+	private static final String COPY_RESULTS_FILES_KEY = "copyResultsFiles";
+	
+	private static final String REGISTER_FILES_KEY = "registerFiles";
+	
+	private static final String CLEAN_COMPLETED_JOB_KEY = "cleanUpCompletedJob";
     
     @Value("${wasp.developermode:false}")
     protected boolean developerMode;
@@ -360,52 +366,51 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		} else {
 			started = isJobStarted(g);
 			ended = isJobOrTaskArrayEnded(g);
-		}
-		logger.debug("Job status semaphores (started, ended): " + started + ", " + ended);
-		if (started && !ended){
-			final int INCREMENT_FACTOR = 2;
-			final int NEVER_TIME_OUT = -1;
-			final int ZERO_TIME_OUT = 0;
-			Integer waitMs = 1000;
-			int totalWaitedMs = 0;
-			boolean timedOut = false;
-			do {
-				try {
-					died = didDie(g, jobname, started, ended);
-				} catch (SAXException e) {
-					// TODO: improve this logic
-					logger.warn("caught SAXException, skipping as if job has not died");
-					e.printStackTrace();
-					died = false;
-				}
-				if (died) { 
-					// maybe end file not there yet due to nfs problem so hasn't actually died. 
-					if (nfsTimeout == ZERO_TIME_OUT){
-						logger.debug("job unknown and 'end' semaphore missing. Assuming job failed.");
-						timedOut = true;
+			logger.debug("Job status semaphores (started, ended): " + started + ", " + ended);
+			if (started && !ended){
+				final int INCREMENT_FACTOR = 2;
+				final int NEVER_TIME_OUT = -1;
+				final int ZERO_TIME_OUT = 0;
+				Integer waitMs = 1000;
+				int totalWaitedMs = 0;
+				boolean timedOut = false;
+				do {
+					try {
+						died = didDie(g, jobname, started, ended);
+					} catch (SAXException e) {
+						// TODO: improve this logic
+						logger.warn("caught SAXException, skipping as if job has not died");
+						e.printStackTrace();
+						died = false;
 					}
-					else {
-						logger.debug("job unknown and 'end' semaphore missing. Waiting " + waitMs + " ms then checking status again");
-						try {
-							Thread.sleep(waitMs); // wait a bit and see if file appears on nfs
-						} catch (InterruptedException e) {
-							logger.warn(e.getLocalizedMessage());
-						}
-						if ( totalWaitedMs >= nfsTimeout && nfsTimeout != NEVER_TIME_OUT){
-							logger.debug("job unknown and 'end' semaphore missing. Wait timeout of " + nfsTimeout + " ms exceeded so job failure assumed");
+					if (died) { 
+						// maybe end file not there yet due to nfs problem so hasn't actually died. 
+						if (nfsTimeout == ZERO_TIME_OUT){
+							logger.debug("job unknown and 'end' semaphore missing. Assuming job failed.");
 							timedOut = true;
 						}
-						totalWaitedMs += waitMs;
-						waitMs *= INCREMENT_FACTOR;
-						if (totalWaitedMs + waitMs > nfsTimeout && nfsTimeout != NEVER_TIME_OUT)
-							waitMs = nfsTimeout - totalWaitedMs;
-						ended = isJobOrTaskArrayEnded(g);
+						else {
+							logger.debug("job unknown and 'end' semaphore missing. Waiting " + waitMs + " ms then checking status again");
+							try {
+								Thread.sleep(waitMs); // wait a bit and see if file appears on nfs
+							} catch (InterruptedException e) {
+								logger.warn(e.getLocalizedMessage());
+							}
+							if ( totalWaitedMs >= nfsTimeout && nfsTimeout != NEVER_TIME_OUT){
+								logger.debug("job unknown and 'end' semaphore missing. Wait timeout of " + nfsTimeout + " ms exceeded so job failure assumed");
+								timedOut = true;
+							}
+							totalWaitedMs += waitMs;
+							waitMs *= INCREMENT_FACTOR;
+							if (totalWaitedMs + waitMs > nfsTimeout && nfsTimeout != NEVER_TIME_OUT)
+								waitMs = nfsTimeout - totalWaitedMs;
+							ended = isJobOrTaskArrayEnded(g);
+						}
 					}
-				}
-			} while (died && !timedOut);
+				} while (died && !timedOut);
+			}
+			logger.debug("Job Status (ended, died): " + ended + ", " + died);
 		}
-		
-		logger.debug("Job Status (ended, died): " + ended + ", " + died);
 		
 		if (died) {
 			cleanUpAbnormallyTerminatedJob(g);
@@ -422,16 +427,16 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			for (String key : g.getChildResults().keySet()){
 				GridResult r = g.getChildResults().get(key);
 				if (r == null){
-					logger.debug("child job key=" + key + " has no grid result yet so going to return false");
+					logger.debug("Parent grid job has ended but child job key=" + key + " has no grid result yet so going to return false");
 					return false;
 				}
-				logger.debug("child job key=" + key + " has status=" + r.getJobStatus());
+				logger.debug("Child job key=" + key + " has status=" + r.getJobStatus());
 				if (!r.getJobStatus().isFinished()){
-					logger.debug("child job key=" + key + " is not finished so going to return false");
+					logger.debug("Parent grid job has ended but child job key=" + key + " is not finished so going to return false");
 					return false;
 				}
 			}
-			logger.debug("No child jobs or all child jobs are complete so going to return true");
+			logger.debug("Parent grid job has ended and no child jobs or all child jobs are complete so going to return true");
 			((GridResultImpl) g).setExitCode(g.getExitCode() > 0 ? g.getExitCode() : 0);
 		}
 		return ended;
@@ -522,10 +527,10 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	}
 	
 	protected void cleanUpCompletedJob(GridResult g) throws GridException {
-		GridResult r = g.getChildResult("cleanUpCompletedJob");
-		if (r == null){
-			r = cleanUpCompletedJob(g.getHostname(), g.getWorkingDirectory(), g.getResultsDirectory(), g.getUuid().toString(), !g.isSecureResults());
-			g.addChildResult("cleanUpCompletedJob", r);
+		GridResult cleanCompletedJobResult = g.getChildResult(CLEAN_COMPLETED_JOB_KEY);
+		if (cleanCompletedJobResult == null){
+			cleanCompletedJobResult = cleanUpCompletedJob(g.getHostname(), g.getWorkingDirectory(), g.getResultsDirectory(), g.getUuid().toString(), !g.isSecureResults());
+			g.addChildResult(CLEAN_COMPLETED_JOB_KEY, cleanCompletedJobResult);
 		}
 		if (g.isSecureResults())
 			try {
@@ -575,6 +580,8 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		}
 	}
 	
+	
+	
 	/**
 	 * copy declared result files to results directory and register
 	 * 
@@ -584,12 +591,13 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	 */
 	protected void secureResultsFiles(GridResult g) throws GridException, FileNotFoundException {
 		if (g.getFileHandleIds() != null && g.getFileHandleIds().size() > 0) {
-			GridResult cr = g.getChildResult("copyResultsFiles");
-			if (cr == null)
+			GridResult copyJobResult = g.getChildResult(COPY_RESULTS_FILES_KEY);
+			if (copyJobResult == null)
 				copyResultsFiles(g);
-			else 
-				if (!isFinished(cr))
-					return;
+			else if (!isFinished(copyJobResult)){
+				logger.debug("found an existing unfinished copy job associated with this grid result so going to return now");
+				return;
+			}
 			List<FileHandle> fhl = new ArrayList<FileHandle>();
 			for (Integer id : g.getFileHandleIds()) {
 				logger.debug("calling: getFileService().getFileHandleById(" + id + ") ");
@@ -597,12 +605,12 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			    fhl.add(fh);
 			}    
 			logger.debug("calling: getFileService().register(" + fhl + ") ");
-			g.addChildResult("registerFiles", getFileService().register(fhl, g.getChildResult("registerFiles")));
+			g.addChildResult(REGISTER_FILES_KEY, getFileService().register(fhl, g.getChildResult(REGISTER_FILES_KEY)));
 		}
 	}
 	
 	protected void copyResultsFiles(GridResult g) throws GridException {
-		GridResult r = g.getChildResult("copyResultsFiles");
+		GridResult r = g.getChildResult(COPY_RESULTS_FILES_KEY);
 		if (r != null){
 			logger.debug("found an existing copy job associated with this grid result so going to return now");
 			return;
@@ -630,7 +638,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		w.addCommand("cp -f ${FILE[0]} ${" + WorkUnit.RESULTS_DIRECTORY + "}${FILE[1]}");
 		w.addCommand("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then rm -f " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
 		r = execute(w);
-		g.addChildResult("copyResultsFiles", r);
+		g.addChildResult(COPY_RESULTS_FILES_KEY, r);
 	}
 	
 	protected void cleanUpAbnormallyTerminatedJob(GridResult g) throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
