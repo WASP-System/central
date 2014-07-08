@@ -41,7 +41,8 @@ public class Samtools extends SoftwarePackage{
 			return command;
 		}
 		if(alignerSpecificBamTagIndicatingUniqueAlignment != null && !alignerSpecificBamTagIndicatingUniqueAlignment.isEmpty()){
-			command = "samtools view -F 0x4 " + bamFileName + " | grep -c '"+ alignerSpecificBamTagIndicatingUniqueAlignment +"' > "   + UNIQUELY_ALIGNED_READ_COUNT_FILENAME;//includes duplicates
+			command = "samtools view -F 0x4 " + bamFileName + " | awk 'BEGIN { c=0 } /" + alignerSpecificBamTagIndicatingUniqueAlignment + 
+					"/ { c++ } END { print c }' > "   + UNIQUELY_ALIGNED_READ_COUNT_FILENAME;//includes duplicates
 		}
 		else{
 			command = "samtools view -c -F 0x4 -q 1 " + bamFileName + " > " + UNIQUELY_ALIGNED_READ_COUNT_FILENAME;//includes duplicates
@@ -55,7 +56,8 @@ public class Samtools extends SoftwarePackage{
 			return command;
 		}
 		if(alignerSpecificBamTagIndicatingUniqueAlignment != null && !alignerSpecificBamTagIndicatingUniqueAlignment.isEmpty()){
-			command = "samtools view -F 0x404 " + bamFileName + " | grep -c '"+ alignerSpecificBamTagIndicatingUniqueAlignment +"' > "   + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FILENAME;//excludes duplicates
+			command = "samtools view -F 0x404 " + bamFileName + " | awk 'BEGIN { c=0 } /" + alignerSpecificBamTagIndicatingUniqueAlignment + 
+					"/ { c++ } END { print c }' > "   + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FILENAME;//excludes duplicates
 		}
 		else{
 			command = "samtools view -c -F 0x404 -q 1 " + bamFileName + " > " + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FILENAME;//excludes duplicates
