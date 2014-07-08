@@ -45,9 +45,6 @@ public class Picard extends SoftwarePackage{
 	@Autowired
 	FileService fileService;
 	
-	@Autowired
-	Samtools samtools;
-	
 	public Picard() {}
 	
 	/**
@@ -144,6 +141,7 @@ public class Picard extends SoftwarePackage{
 		
 		JSONObject json = new JSONObject();
 		try{
+			Samtools samtools = (Samtools) getSoftwareDependencyByIname("samtools");
 			Map <String,String> picardDedupMetricsMap = this.getPicardDedupMetrics(dedupMetricsFilename, scratchDirectory, gridHostResolver);
 			logger.debug("size of dedupMetrics in saveAlignmentMetrics: " + picardDedupMetricsMap.size());
 			Map <String,String> uniquelyAlignedReadCountMetricMap = samtools.getUniquelyAlignedReadCountMetrics(Samtools.UNIQUELY_ALIGNED_READ_COUNT_FILENAME, Samtools.UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FILENAME, scratchDirectory, gridHostResolver);
