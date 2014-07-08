@@ -49,6 +49,8 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 	
 	private static int MEMORY_GB_4 = 4;
 	
+	private final String BWA_BAM_TAG_INDICATING_UNIQUE_ALIGNMENT = "XT:A:U";
+	
 	@Autowired
 	private SampleService sampleService;
 	
@@ -172,54 +174,59 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		// save in step context for use later
 		stepExecutionContext.put("baiGID", baiGId);
 		
-		
+		String metricsOutput = fileService.generateUniqueBaseFileName(cellLib) + "alignmentMetrics.txt";
+		FileGroup metricsG = new FileGroup();
+		FileHandle metrics = new FileHandle();
+		metrics.setFileName(metricsOutput);
+		metrics.setFileType(textFileType);
+		metrics = fileService.addFile(metrics);
+		metricsG.setIsActive(0);
+		metricsG.addFileHandle(metrics);
+		files.add(metrics);
+		metricsG.setFileType(textFileType);
+		metricsG.setDescription(metricsOutput);
+		metricsG.setSoftwareGeneratedBy(bwa);
+		metricsG.addDerivedFrom(bamG);
+		metricsG = fileService.addFileGroup(metricsG);
+		Integer metricsGId = metricsG.getId();
 	
+		// save in step context for use later
+		stepExecutionContext.put("metricsGID", metricsGId);
+		
 		w.setCommand("shopt -s nullglob\n");
 		w.addCommand("for x in sam.*.out; do ln -s ${x} ${x/*-/}.sam ; done\n");
 		String outputBamFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
-		String outputBaiFilename = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
+		String outputBaiFilename = "${" + WorkUnit.OUTPUT_FILE + "[1]}";			
+		String dedupMetricsFilename = "${" + WorkUnit.OUTPUT_FILE + "[2]}";
+		
 		if (markDuplicates){
-			bamServiceImpl.addAttribute(bamG, BamFileTypeAttribute.DEDUP);
-			String metricsOutput = fileService.generateUniqueBaseFileName(cellLib) + "dedupMetrics.txt";
-			FileGroup metricsG = new FileGroup();
-			FileHandle metrics = new FileHandle();
-			metrics.setFileName(metricsOutput);
-			metrics.setFileType(textFileType);
-			metrics = fileService.addFile(metrics);
-			metricsG.setIsActive(0);
-			metricsG.addFileHandle(metrics);
-			files.add(metrics);
-			metricsG.setFileType(textFileType);
-			metricsG.setDescription(metricsOutput);
-			metricsG.setSoftwareGeneratedBy(bwa);
-			metricsG.addDerivedFrom(bamG);
-			metricsG = fileService.addFileGroup(metricsG);
-			Integer metricsGId = metricsG.getId();
-			
+			bamServiceImpl.addAttribute(bamG, BamFileTypeAttribute.DEDUP);			
+
 			// save in step context for use later
 			stepExecutionContext.put("metricsGID", metricsGId);
+
 			String tempMergedBamFilename = "merged.${" + WorkUnit.OUTPUT_FILE + "[0]}";
-			String dedupMetricsFilename = "${" + WorkUnit.OUTPUT_FILE + "[2]}";
+			
 			w.addCommand(picard.getMergeBamCmd("*.out.sam", tempMergedBamFilename, null, MEMORY_GB_4));
 			w.addCommand(picard.getMarkDuplicatesCmd(tempMergedBamFilename, outputBamFilename, outputBaiFilename, dedupMetricsFilename, MEMORY_GB_4));
 			
-			//w.addCommand("samtools view -c -F 0x104 -q 1 " + outputBamFilename + " > mappedUniquelyAlignedWithDuplicatesReadCount.txt");
-			w.addCommand(picard.getUniquelyAlignedReadCountCmd(outputBamFilename));
-			//w.addCommand("samtools view -c -F 0x504 -q 1 " + outputBamFilename + " > mappedUniquelyAlignedWithoutDuplicatesReadCount.txt");
-			w.addCommand(picard.getUniquelyAlignedNonRedundantReadCountCmd(outputBamFilename));
+			w.addCommand(picard.getUniquelyAlignedReadCountCmd(outputBamFilename, BWA_BAM_TAG_INDICATING_UNIQUE_ALIGNMENT));
+			w.addCommand(picard.getUniquelyAlignedNonRedundantReadCountCmd(outputBamFilename, BWA_BAM_TAG_INDICATING_UNIQUE_ALIGNMENT));
 			
-			w.addCommand("ln -s " + dedupMetricsFilename + " " + metricsOutput);//permits reading of file scratch/dedupMetricsFilename 
+			w.addCommand("ln -s " + dedupMetricsFilename + " " + metricsOutput);//permits reading of file metricsOutput from scratch/dedupMetricsFilename 
 			
 		} else {
-			w.addCommand(picard.getMergeBamCmd("*.out.sam", outputBamFilename, outputBaiFilename, MEMORY_GB_4));
-			//NOT GOOD; RETHINK THIS-regarding name of dedupfile (whih needs to be saved)
-			//w.addCommand(picard.getMarkDuplicatesCmd(outputBamFilename, "notToBeSavedBamFile", "notToBeSavedBaiFile", dedupMetricsFilename, MEMORY_GB_4));
-			///////w.addCommand("samtools view -c -F 0x104 -q 1 " + outputBamFilename + " > mappedUniquelyAlignedWithDuplicatesReadCount.txt");
-			//w.addCommand(picard.getUniquelyAlignedReadCountCmd(outputBamFilename));
-			//////w.addCommand("samtools view -c -F 0x504 -q 1 " + outputBamFilename + " > mappedUniquelyAlignedWithoutDuplicatesReadCount.txt");
-			//w.addCommand(picard.getUniquelyAlignedNonRedundantReadCountCmd(outputBamFilename));
+			String tempMarkedDupOutputBamNotToBeSaved = "tempMarkedDupOutputBamNotToBeSaved.bam";
+			String tempBaiNotToBeSaved = "tempBaiNotToBeSaved.bai";
 			
-			//w.addCommand("ln -s " + dedupMetricsFilename + " " + metricsOutput);//permits reading of file scratch/dedupMetricsFilename 
+			w.addCommand(picard.getMergeBamCmd("*.out.sam", outputBamFilename, outputBaiFilename, MEMORY_GB_4));
+			//in this way, the final .bam file is NOT marked for duplicates, but the alignement stats are still obtained
+			w.addCommand(picard.getMarkDuplicatesCmd(outputBamFilename, tempMarkedDupOutputBamNotToBeSaved, tempBaiNotToBeSaved, dedupMetricsFilename, MEMORY_GB_4));
+			
+			w.addCommand(picard.getUniquelyAlignedReadCountCmd(tempMarkedDupOutputBamNotToBeSaved, BWA_BAM_TAG_INDICATING_UNIQUE_ALIGNMENT));
+			w.addCommand(picard.getUniquelyAlignedNonRedundantReadCountCmd(tempMarkedDupOutputBamNotToBeSaved, BWA_BAM_TAG_INDICATING_UNIQUE_ALIGNMENT));
+			
+			w.addCommand("ln -s " + dedupMetricsFilename + " " + metricsOutput);//permits reading of file metricsOutput from scratch/dedupMetricsFilename 
 
 		}	
 		w.setWorkingDirectory(scratchDirectory);

@@ -1077,5 +1077,10 @@ public interface SampleService extends WaspMessageHandlingService {
 	  public boolean isCellLibrary(SampleSource cellLibrary);
 	  
 	  public void setLibraryOnCellMeta(SampleSource cellLibrary, String area, String metaValueName, String metaValue) throws MetadataException;
+	  
+	  public Map<Sample, List<SampleSource>> associateUppermostSampleWithCellLibraries(List<SampleSource> cellLibraryList);
+	  public boolean confirmSamplePairIsOfSameSpecies(Sample s1, Sample s2);
+	  public boolean confirmCellLibrariesAssociatedWithBamFiles(List<SampleSource> cellLibraryList);
+	  public List<Integer> convertCellLibraryListToIdList(List<SampleSource> cellLibraryList);
 			
 }

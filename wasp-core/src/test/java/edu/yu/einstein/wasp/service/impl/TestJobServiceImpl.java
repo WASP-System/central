@@ -97,6 +97,7 @@ import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.service.JobDraftService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 
@@ -124,6 +125,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
   JobExplorer mockJobExplorer;
   
   JobService mockJobServiceImpl;
+  JobDraftService mockJobDraftServiceImpl;
   SampleService mockSampleService;
 	
   JobServiceImpl jobServiceImpl = new JobServiceImpl();
@@ -832,7 +834,8 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  mockJobServiceImpl.setSampleJobCellSelectionDao(mockSampleJobCellSelectionDao);
 	  mockJobServiceImpl.setJobDraftDao(mockJobDraftDao);
 	  mockJobServiceImpl.setSampleTypeDao(mockSampleTypeDao);
-
+	  mockJobServiceImpl.setJobDraftService(mockJobDraftServiceImpl);
+	  
 	  mockJobServiceImpl.setLogger(LoggerFactory.getLogger(WaspServiceImpl.class));
 	  
 	  User user = new User();
@@ -874,6 +877,11 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  expect(mockJobMetaDao.save(EasyMock.isA(JobMeta.class))).andReturn(jobMeta);
 	  replay(mockJobMetaDao);
 	  
+	  //testing replicates
+	  List<List<SampleDraft>> replicateSetsListForJobDraft = new ArrayList<List<SampleDraft>>();
+	  expect(mockJobDraftServiceImpl.getReplicateSets(EasyMock.isA(JobDraft.class))).andReturn(replicateSetsListForJobDraft);
+	  replay(mockJobDraftServiceImpl);
+			  
 	// save the software selected
 	  JobDraftSoftware jobDraftSoftware = new JobDraftSoftware();
 	  jobDraftSoftware.setSoftwareId(new Integer(123));
@@ -1619,6 +1627,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  jobServiceImpl.setJobDraftDao(mockJobDraftDao);
 	  jobServiceImpl.setSampleMetaDao(mockSampleMetaDao);
 
+	  jobServiceImpl.jobDraftService = mockJobDraftServiceImpl;
 
   }
 
@@ -1644,7 +1653,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  EasyMock.reset(mockSampleMetaDao);
 	  EasyMock.reset(mockSampleService);
 	  EasyMock.reset(mockSampleTypeDao);
-
+	  EasyMock.reset(mockJobDraftServiceImpl);
 
 	  //resetAll();//resets all registered mock controls
 
@@ -1676,7 +1685,8 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  mockJobDraftDao = createMockBuilder(JobDraftDaoImpl.class).addMockedMethods(JobDraftDaoImpl.class.getMethods()).createMock();
 	  mockSampleMetaDao = createMockBuilder(SampleMetaDaoImpl.class).addMockedMethods(SampleMetaDaoImpl.class.getMethods()).createMock();
 	  mockSampleTypeDao = createMockBuilder(SampleTypeDaoImpl.class).addMockedMethods(SampleTypeDaoImpl.class.getMethods()).createMock();
-
+	  mockJobDraftServiceImpl = createMockBuilder(JobDraftServiceImpl.class).addMockedMethods(JobDraftServiceImpl.class.getMethods()).createMock();
+	  
 	  mockJobExplorerWasp = EasyMock.createNiceMock(JobExplorerWasp.class);
 	  		
 	  mockJobServiceImpl = EasyMock
@@ -1714,6 +1724,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  Assert.assertNotNull(mockJobDraftDao);
 	  Assert.assertNotNull(mockSampleMetaDao);
 	  Assert.assertNotNull(mockSampleTypeDao);
+	  Assert.assertNotNull(mockJobDraftServiceImpl);
 
 
 

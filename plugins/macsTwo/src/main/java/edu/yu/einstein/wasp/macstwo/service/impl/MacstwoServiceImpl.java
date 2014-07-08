@@ -35,8 +35,10 @@ import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.SoftwareService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
@@ -51,6 +53,10 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 	private FileUrlResolver fileUrlResolver;
 	@Autowired
 	private RunService runService;
+	@Autowired
+	private FileType macs2AnalysisFileType;
+	@Autowired
+	private SoftwareService softwareService;
 	
 	public class SampleNameComparator implements Comparator<Sample> {
 	    @Override
@@ -83,46 +89,110 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 	public Set<PanelTab> getMacstwoDataToDisplay(Job job)throws PanelException{
 		 
 		 try{
-			 //First, assemble the data			
-			//samplePairs (for the samplePairsTab)
-			Map<Sample, List<Sample>> testSampleControlSampleListMap = getTestSampleControlSampleListMap(job);//reviewed and OK		
-			List<Sample> testSampleList = getTestSampleList(testSampleControlSampleListMap);//reviewed and OK	//basically will end up being an ordered set of the testSamples
-			
-			//commandLine (for the samplePairsTab)
-			Map<String, String> sampleIdControlIdCommandLineMap = getSampleIdControlIdCommandLineMap(testSampleList);//reviewed and OK
-			//FRiP (for the samplePairsTab)
-			Map<String, String> sampleIdControlIdFripMap = getSampleIdControlIdFripMap(testSampleList);//reviewed and OK
-			
-			
-			//sample library runs (for the runs tab)
-			Map<Sample, List<SampleSource>> sampleCellLibraryListMap = getSampleCellLibraryListMap(testSampleList);//reviewed and OK
-			Map<Sample,List<Sample>> sampleLibraryListMap = getSampleLibraryListMap(sampleCellLibraryListMap);//reviewed and OK
-			Map<Sample, List<String>> libraryRunInfoListMap = getLibraryRunInfoListMap(sampleCellLibraryListMap);//reviewed and OK
-	
-			//get the fileGroups, fileHandles, resolvedURLs and fileTypeList 
-			Map<String, FileGroup> sampleIdControlIdFileTypeIdFileGroupMap = getCodedFileGroupMap(testSampleList);//new HashMap<String, FileGroup>();
-			Map<String, FileHandle> sampleIdControlIdFileTypeIdFileHandleMap = getCodedFileHandleMap(sampleIdControlIdFileTypeIdFileGroupMap);//new HashMap<String, FileHandle>();
-			Map<FileHandle, String> fileHandleResolvedURLMap = getFileHandleResolvedURLMap(sampleIdControlIdFileTypeIdFileHandleMap);//new HashMap<FileHandle, String>();
-			List<FileType> fileTypeList = getOrderedFileTypeList(sampleIdControlIdFileTypeIdFileGroupMap);//actually, ordered set
-			
+			 //First, assemble the data
+			 Map<FileGroup, Sample> fileGroupTestSampleMap = new HashMap<FileGroup, Sample>();
+			 Map<FileGroup, Sample> fileGroupControlSampleMap = new HashMap<FileGroup, Sample>();
+			 Map<FileGroup, String> fileGroupCommandLineMap = new HashMap<FileGroup, String>();
+			 Map<FileGroup, List<Sample>> fileGroupLibraryListMap = new HashMap<FileGroup, List<Sample>>();
+			 Map<FileGroup, List<FileHandle>> fileGroupBamFilesUsedMap = new HashMap<FileGroup, List<FileHandle>>();
+			 Map<FileGroup, List<Software>> fileGroupSoftwareUsedMap = new HashMap<FileGroup, List<Software>>();
+			 
+			 Map<FileGroup, Double> fileGroupFripMap = new HashMap<FileGroup, Double>();
+			 Map<FileGroup, String> fileGroupFripCalculationMap = new HashMap<FileGroup, String>();
+			 Map<FileGroup, List<FileHandle>> fileGroupFileHandleListMap = new HashMap<FileGroup, List<FileHandle>>();
+			 Map<FileHandle, String> fileHandleResolvedURLMap = new HashMap<FileHandle, String>();
+			 Set<FileType> fileTypeSet = new HashSet<FileType>();			 
+
+			 List<FileGroup> macs2AnalysisFileGroupList = getMacs2AnalysisFileGroups(job);
+			 class FileGroupDescriptionComparator implements Comparator<FileGroup> {
+				 @Override
+				 public int compare(FileGroup arg0, FileGroup arg1) {
+					 return arg0.getDescription().compareToIgnoreCase(arg1.getDescription());//base name
+				 }
+			 }
+			 Collections.sort(macs2AnalysisFileGroupList, new FileGroupDescriptionComparator());//sorted by description (base name)
+			 
+			 for(FileGroup fileGroup : macs2AnalysisFileGroupList){
+				 
+				 Set<Sample> testAndControlSamples = getTestAndControlSamples(fileGroup);	
+				 Sample test = getTestSample(testAndControlSamples);//getTestSample(fileGroup);
+				 if(test!=null){
+					 fileGroupTestSampleMap.put(fileGroup, test);
+				 }
+				 Sample control = getControlSample(testAndControlSamples);//getControlSample(fileGroup);
+				 if(control!=null){
+					 fileGroupControlSampleMap.put(fileGroup, control);
+				 } 
+				 String commandLineCalls = getCommandLineCalls(fileGroup);
+				 fileGroupCommandLineMap.put(fileGroup, commandLineCalls);
+				 List<Software> softwareUsed = getSoftwareUsedInAnalysis(fileGroup);
+				 fileGroupSoftwareUsedMap.put(fileGroup, softwareUsed);
+				 
+				 List<Sample> librariesUsed = getLibrariesUsedInAnalysis(fileGroup);
+				 fileGroupLibraryListMap.put(fileGroup, librariesUsed);
+				 List<FileHandle> bamFilesUsed = getBamFilesUsedInAnalysis(fileGroup);
+				 fileGroupBamFilesUsedMap.put(fileGroup, bamFilesUsed);				 
+				 
+				 //deal with frip (metadata of fileGroup)
+				 Double frip = getFrip(fileGroup);
+				 if(frip!=null){
+					 fileGroupFripMap.put(fileGroup, frip);
+				 }
+				 String fripCalculation = getFripPercentCalculation(fileGroup);
+				 if(fripCalculation!=null){
+					 fileGroupFripCalculationMap.put(fileGroup, fripCalculation);
+				 }
+				 //deal with list of fileHandles for this fileGroup
+				 List<FileHandle> fileHandleList = new ArrayList<FileHandle>(fileGroup.getFileHandles());
+				 class FileHandleViaFileTypeComparator implements Comparator<FileHandle> {
+					 @Override
+					 public int compare(FileHandle arg0, FileHandle arg1) {
+						 return arg0.getFileType().getIName().compareToIgnoreCase(arg1.getFileType().getIName());
+					 }
+				 }				 
+				 Collections.sort(fileHandleList, new FileHandleViaFileTypeComparator());
+				 fileGroupFileHandleListMap.put(fileGroup, fileHandleList);
+				 
+				 //get SET of filetypes (and convert later to list, so it can be sorted)
+				 //get resolvedURL for each fileHandle
+				 for(FileHandle fileHandle : fileHandleList){
+					fileTypeSet.add(fileHandle.getFileType());
+					String resolvedURL = "";
+					try{
+						resolvedURL = fileUrlResolver.getURL(fileHandle).toString();
+					}catch(Exception e){logger.debug("***************UNABLE TO RESOLVE URL for file: " + fileHandle.getFileName());}						
+					fileHandleResolvedURLMap.put(fileHandle, resolvedURL);
+				 }
+			 }
+			 List<FileType> fileTypeList = new ArrayList<FileType>(fileTypeSet);
+			 Collections.sort(fileTypeList, new FileTypeComparator());
+			 
 			//SECOND, present the data within an ordered set of panel tabs (recall that the summary panel has already been taken care of)
 			Set<PanelTab> panelTabSet = new LinkedHashSet<PanelTab>();
-
-			PanelTab samplePairsPanelTab = MacstwoWebPanels.getSamplePairs(testSampleList, testSampleControlSampleListMap, sampleIdControlIdCommandLineMap);
-			if(samplePairsPanelTab!=null){panelTabSet.add(samplePairsPanelTab);}
-			PanelTab fripPanelTab = MacstwoWebPanels.getFrips(testSampleList, testSampleControlSampleListMap, sampleIdControlIdFripMap);
-			if(fripPanelTab!=null){panelTabSet.add(fripPanelTab);}
-			PanelTab sampleLibraryRunsPanelTab = MacstwoWebPanels.getSampleLibraryRuns(testSampleList, sampleLibraryListMap, libraryRunInfoListMap);
-			if(sampleLibraryRunsPanelTab!=null){panelTabSet.add(sampleLibraryRunsPanelTab);}
+			
 			PanelTab fileTypeDefinitionsPanelTab = MacstwoWebPanels.getFileTypeDefinitions(fileTypeList);
 			if(fileTypeDefinitionsPanelTab!=null){panelTabSet.add(fileTypeDefinitionsPanelTab);}
-			PanelTab allFilesDisplayedBySampleUsingGroupingGridPanelTab = MacstwoWebPanels.getFilesBySample(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
-			if(allFilesDisplayedBySampleUsingGroupingGridPanelTab!=null){panelTabSet.add(allFilesDisplayedBySampleUsingGroupingGridPanelTab);}
-			PanelTab allFilesDisplayedByFileTypeUsingGroupingGridPanelTab = MacstwoWebPanels.getFilesByFileType(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
-			if(allFilesDisplayedByFileTypeUsingGroupingGridPanelTab!=null){panelTabSet.add(allFilesDisplayedByFileTypeUsingGroupingGridPanelTab);}
 			
-			PanelTab allModelPNGFilesDisplayedInPanelsTab = MacstwoWebPanels.getModelImages(testSampleList, testSampleControlSampleListMap, fileTypeList, sampleIdControlIdFileTypeIdFileHandleMap, fileHandleResolvedURLMap, sampleIdControlIdFileTypeIdFileGroupMap);
-			if(allModelPNGFilesDisplayedInPanelsTab!=null){panelTabSet.add(allModelPNGFilesDisplayedInPanelsTab);}
+			PanelTab samplePairsPanelTab = MacstwoWebPanels.getSamplePairsByAnalysis(macs2AnalysisFileGroupList, fileGroupTestSampleMap, fileGroupControlSampleMap);
+			if(samplePairsPanelTab!=null){panelTabSet.add(samplePairsPanelTab);}			
+			
+			PanelTab commandPanelTab = MacstwoWebPanels.getCommandsByAnalysis(macs2AnalysisFileGroupList, fileGroupSoftwareUsedMap, fileGroupCommandLineMap);
+			if(commandPanelTab!=null){panelTabSet.add(commandPanelTab);}
+
+			PanelTab librariesAndBamFilesPanelTab = MacstwoWebPanels.getLibrariesAndBamFilesUsedByAnalysis(macs2AnalysisFileGroupList, fileGroupLibraryListMap, fileGroupBamFilesUsedMap);
+			if(librariesAndBamFilesPanelTab!=null){panelTabSet.add(librariesAndBamFilesPanelTab);}
+
+			PanelTab fripCalculationPanelTab = MacstwoWebPanels.getFripCalculationByAnalysis(macs2AnalysisFileGroupList, fileGroupFripCalculationMap);
+			if(fripCalculationPanelTab!=null){panelTabSet.add(fripCalculationPanelTab);}
+			
+			PanelTab allFilesDisplayedByAnalysisPanelTab = MacstwoWebPanels.getFilesByAnalysis(macs2AnalysisFileGroupList, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileGroupFripMap);
+			if(allFilesDisplayedByAnalysisPanelTab!=null){panelTabSet.add(allFilesDisplayedByAnalysisPanelTab);}
+			PanelTab allFilesDisplayedByFileTypePanelTab = MacstwoWebPanels.getFilesByFileType(macs2AnalysisFileGroupList, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileTypeList);
+			if(allFilesDisplayedByFileTypePanelTab!=null){panelTabSet.add(allFilesDisplayedByFileTypePanelTab);}
+
+			PanelTab modelPNGFilesDisplayedByAnalysisPanelTab = MacstwoWebPanels.getModelPNGFilesByAnalysis(macs2AnalysisFileGroupList, fileGroupFileHandleListMap, fileHandleResolvedURLMap);
+			if(modelPNGFilesDisplayedByAnalysisPanelTab!=null){panelTabSet.add(modelPNGFilesDisplayedByAnalysisPanelTab);}
+			
 			
 			return panelTabSet;
 			
@@ -132,261 +202,237 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 		}		
 	}
 
-	private Map<Sample, List<Sample>> getTestSampleControlSampleListMap(Job job){//reviewed and OK
+	private List<FileGroup> getMacs2AnalysisFileGroups(Job job){
 		
-		Map<Sample, List<Sample>> testSampleControlSampleListMap = new HashMap<Sample, List<Sample>>();
-		
-		Sample noControlSample = new Sample();
-		noControlSample.setId(0);
-		noControlSample.setName("None");
-		
+		List<FileGroup> macs2AnalysisFileGroupList = new ArrayList<FileGroup>();
 		for(Sample sample : job.getSample()){
-			for(SampleMeta sm : sample.getSampleMeta()){
-				if(sm.getK().startsWith("chipseqAnalysis.controlId::")){//there exists at least one chipseq analysis for this sample, but could be more than one (so do not put a break; at end of this meta for loop)
-					if(!testSampleControlSampleListMap.containsKey(sample)){
-						testSampleControlSampleListMap.put(sample, new ArrayList<Sample>());
-					}
-					Sample controlSample = null;
-					Integer controlId = Integer.parseInt(sm.getV());
-					if(controlId.intValue()==0){
-						controlSample = noControlSample;
-					}
-					else{
-						controlSample = sampleService.getSampleById(controlId);
-					}
-					testSampleControlSampleListMap.get(sample).add(controlSample);
+			for(FileGroup fg : sample.getFileGroups()){
+				if(fg.getFileType().getId().intValue()==macs2AnalysisFileType.getId().intValue()){
+					macs2AnalysisFileGroupList.add(fg);
 				}
 			}
 		}
+		return macs2AnalysisFileGroupList;		
+	}
+	
+	public Double getFrip(FileGroup fileGroup){		
+		String mappedReadsAsString = "";
+		String mappedReadsInPeaksAsString = "";
+		for(FileGroupMeta fgm : fileGroup.getFileGroupMeta()){
+			if(fgm.getK().equalsIgnoreCase("macs2Analysis.totalCountMappedReads")){
+				mappedReadsAsString = fgm.getV();
+			}
+			if(fgm.getK().equalsIgnoreCase("macs2Analysis.totalCountMappedReadsInPeaksAsString")){
+				mappedReadsInPeaksAsString = fgm.getV();
+			}
+		}
+		try{
+			Integer totalCountMappedReads = Integer.valueOf(mappedReadsAsString);
+			Integer totalCountMappedReadsInPeaks = Integer.valueOf(mappedReadsInPeaksAsString);
+			Double frip = (double) totalCountMappedReadsInPeaks / totalCountMappedReads;
+			return frip;			
+		}catch(Exception e){logger.debug("unable to retrieve Frip values as fileGroupMeta"); return null;}		
+	}
+	
+	public String getFripPercentCalculation(FileGroup fileGroup){		
+		String mappedReadsAsString = "";
+		String mappedReadsInPeaksAsString = "";
+		for(FileGroupMeta fgm : fileGroup.getFileGroupMeta()){
+			if(fgm.getK().equalsIgnoreCase("macs2Analysis.totalCountMappedReads")){
+				mappedReadsAsString = fgm.getV();
+			}
+			if(fgm.getK().equalsIgnoreCase("macs2Analysis.totalCountMappedReadsInPeaksAsString")){
+				mappedReadsInPeaksAsString = fgm.getV();
+			}
+		}
+		try{
+			Integer mappedReads = Integer.valueOf(mappedReadsAsString);
+			Integer mappedReadsInPeaks = Integer.valueOf(mappedReadsInPeaksAsString);
+			Double frip = (double) mappedReadsInPeaks / mappedReads;
+			Double fripPercent = 100 * frip;
+			DecimalFormat myFormat = new DecimalFormat("0.00000");
+			String formatedFripPercent = myFormat.format(fripPercent);
+			return "100 * " + mappedReadsInPeaks.toString() + " / " + mappedReads + " = " + formatedFripPercent.toString();			
+		}catch(Exception e){logger.debug("unable to retrieve Frip calculation values as fileGroupMeta"); return "Calculation Error";}		
+	}
+	private String getCommandLineCalls(FileGroup fileGroup){
+		String commandLineCalls = "";		
+		for(FileGroupMeta fgm : fileGroup.getFileGroupMeta()){
+			if(fgm.getK().equalsIgnoreCase("macs2Analysis.commandLineCall")){
+				commandLineCalls = fgm.getV();
+				break;
+			}
+		}
+		return commandLineCalls;
+	}
+	
+	private Sample getTestSample(Set<Sample> sampleSet){		
+		for(Sample s : sampleSet){
+			for(SampleMeta sm : s.getSampleMeta()){
+				if(sm.getK().contains("inputOrIP")){
+					if(sm.getV().equalsIgnoreCase("ip")){//IP == test
+						return s;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	private Sample getControlSample(Set<Sample> sampleSet){		
+		for(Sample s : sampleSet){
+			for(SampleMeta sm : s.getSampleMeta()){
+				if(sm.getK().contains("inputOrIP")){
+					if(sm.getV().equalsIgnoreCase("input")){//input == control
+						return s;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	private Set<Sample> getTestAndControlSamples(FileGroup fileGroup){
 		
-		//finally, order the controlSampleLists by controlSample.getName()
-		/* 
-		 class SampleNameComparator implements Comparator<Sample> {
+		//at end,should return set containing one sample (IP only, if no control) or two samples (IP and Control)
+		
+		Set<Sample> tempDerivedFromSamples = new HashSet<Sample>();
+		Set<SampleSource> derivedFromSampleSources = new HashSet<SampleSource>();//at end,should be one (IP) or two (IP and Control)
+		Set<FileGroup> derivedFromFileGroupSet = fileGroup.getDerivedFrom();		 
+		for(FileGroup derivedFromFileGroup : derivedFromFileGroupSet){
+			if(derivedFromFileGroup.getSamples().size()>0){//bam files appear NOT to use this
+				tempDerivedFromSamples.addAll(derivedFromFileGroup.getSamples());//could be libraries or samples; not yet sure
+			}
+			else if(derivedFromFileGroup.getSampleSources().size()>0){//bam files appear to use this
+				derivedFromSampleSources.addAll(derivedFromFileGroup.getSampleSources());
+			}
+		}
+		if(derivedFromSampleSources.size()>0){
+			for(SampleSource ss : derivedFromSampleSources){
+				Sample library = sampleService.getLibrary(ss);//library
+				tempDerivedFromSamples.add(library);
+			}
+		}
+		Set<Sample> derivedFromSamples = new HashSet<Sample>();//will be returned
+		for(Sample s : tempDerivedFromSamples){//move up the chain
+			while(s.getParent()!=null){
+				s = s.getParent();
+			}
+			derivedFromSamples.add(s);
+		}
+		return derivedFromSamples;
+	}
+	private List<Sample> getLibrariesUsedInAnalysis(FileGroup fileGroup){
+		
+		//at end,should return set containing one sample (IP only, if no control) or two samples (IP and Control)
+		
+		Set<Sample> tempDerivedFromLibraries = new HashSet<Sample>();
+		Set<SampleSource> derivedFromSampleSources = new HashSet<SampleSource>();//at end,should be one (IP) or two (IP and Control)
+		Set<FileGroup> derivedFromFileGroupSet = fileGroup.getDerivedFrom();		 
+		for(FileGroup derivedFromFileGroup : derivedFromFileGroupSet){
+			if(derivedFromFileGroup.getSamples().size()>0){//bam files appear NOT to use this
+				tempDerivedFromLibraries.addAll(derivedFromFileGroup.getSamples());//could be libraries or samples; not yet sure
+			}
+			else if(derivedFromFileGroup.getSampleSources().size()>0){//bam files appear to use this
+				derivedFromSampleSources.addAll(derivedFromFileGroup.getSampleSources());
+			}
+		}
+		if(derivedFromSampleSources.size()>0){
+			for(SampleSource ss : derivedFromSampleSources){
+				Sample library = sampleService.getLibrary(ss);//library
+				tempDerivedFromLibraries.add(library);
+			}
+		}
+		List<Sample> derivedFromLibraries = new ArrayList<Sample>(tempDerivedFromLibraries);//will be returned
+		Collections.sort(derivedFromLibraries, new SampleNameComparator());
+		return derivedFromLibraries;
+	}
+	private List<FileHandle> getBamFilesUsedInAnalysis(FileGroup fileGroup){
+		List<FileHandle> bamFiles = new ArrayList<FileHandle>();
+		Set<FileGroup> derivedFromFileGroupSet = fileGroup.getDerivedFrom();
+		for(FileGroup fg : derivedFromFileGroupSet){
+			for(FileHandle fh : fg.getFileHandles()){
+				bamFiles.add(fh);
+			}
+		}
+		class FileHandleNameComparator implements Comparator<FileHandle> {
 		    @Override
-		    public int compare(Sample arg0, Sample arg1) {
+		    public int compare(FileHandle arg0, FileHandle arg1) {
+		        return arg0.getFileName().compareToIgnoreCase(arg1.getFileName());
+		    }
+		}
+		Collections.sort(bamFiles, new FileHandleNameComparator());
+		return bamFiles;
+	}
+	private List<Software> getSoftwareUsedInAnalysis(FileGroup fileGroup){
+		Set<Software> tempSoftwareUsedSet = new HashSet<Software>();
+		String softwareIdUsedStringList = "";		
+		for(FileGroupMeta fgm : fileGroup.getFileGroupMeta()){
+			if(fgm.getK().contains("softwareIdUsedListAsString")){
+				softwareIdUsedStringList = fgm.getV();
+			}
+		}
+		try{
+			if(!softwareIdUsedStringList.isEmpty()){
+				String[] softwareIdAsStringArray = softwareIdUsedStringList.split(":");
+				for(String softwareIdAsString : softwareIdAsStringArray){
+					Software software = softwareService.getById(Integer.parseInt(softwareIdAsString));
+					tempSoftwareUsedSet.add(software);
+				}
+			}
+		}catch(Exception e){logger.debug("error obtaining software in macs2");}
+		List<Software> softwareUsedList = new ArrayList<Software>(tempSoftwareUsedSet);
+		class SoftwareNameComparator implements Comparator<Software> {
+		    @Override
+		    public int compare(Software arg0, Software arg1) {
 		        return arg0.getName().compareToIgnoreCase(arg1.getName());
 		    }
 		}
-		*/
-		for(Sample testSample : testSampleControlSampleListMap.keySet()){
-			Collections.sort(testSampleControlSampleListMap.get(testSample), new SampleNameComparator());
-		}
-		return testSampleControlSampleListMap;
+		Collections.sort(softwareUsedList, new SoftwareNameComparator());
+		return softwareUsedList;
 	}
-	
-	private List<Sample> getTestSampleList(Map<Sample, List<Sample>> testSampleControlSampleListMap){
-		List<Sample> testSampleList = new ArrayList<Sample>();
-		for(Sample sample : testSampleControlSampleListMap.keySet()){
-			testSampleList.add(sample);
-		}	
-		/*
-		class SampleNameComparator implements Comparator<Sample> {
-		    @Override
-		    public int compare(Sample arg0, Sample arg1) {
-		        return arg0.getName().compareToIgnoreCase(arg1.getName());
-		    }
-		}
-		*/
-		Collections.sort(testSampleList, new SampleNameComparator());	//order list by sample name	
-		return testSampleList;		
-	}
-	
-	private Map<String, String> getSampleIdControlIdCommandLineMap(List<Sample> testSampleList){//reviewed and OK
-
-		Map<String, String> sampleIdControlIdCommandLineMap = new HashMap<String, String>();		
-		for(Sample testSample : testSampleList){			
-			for(SampleMeta sm : testSample.getSampleMeta()){
-				if(sm.getK().startsWith("chipseqAnalysis.commandLineCall::")){//capture for each distinct chipseq analysis (following the :: is controlId)
-					String[] splitK = sm.getK().split("::");
-					String controlIdAsString = splitK[1];
-					sampleIdControlIdCommandLineMap.put(testSample.getId().toString() + "::" + controlIdAsString, sm.getV());
-				}
+	/*
+	//no longer used
+	private Sample getTestSample(FileGroup fileGroup){
+		
+		Sample test = null;
+		String testId = "";	
+		System.out.println("testId is starting empty");
+		for(FileGroupMeta fgm : fileGroup.getFileGroupMeta()){
+			if(fgm.getK().equalsIgnoreCase("macs2Analysis.testId")){
+				testId = fgm.getV();
+				break;
 			}
 		}
-		return sampleIdControlIdCommandLineMap;
-	}
-	private Map<String, String> getSampleIdControlIdFripMap(List<Sample> testSampleList){//reviewed and OK
-
-		Map<String, String> sampleIdControlIdTotalCountMappedReadsMap = new HashMap<String, String>();
-		Map<String, String> sampleIdControlIdTotalCountMappedReadsInPeaksMap = new HashMap<String, String>();
-		Map<String, String> sampleIdControlIdFripMap = new HashMap<String, String>();		
-		for(Sample testSample : testSampleList){			
-			for(SampleMeta sm : testSample.getSampleMeta()){
-				if(sm.getK().startsWith("chipseqAnalysis.totalCountMappedReads::")){//capture for each distinct chipseq analysis (following the :: is controlId)
-					String[] splitK = sm.getK().split("::");
-					String controlIdAsString = splitK[1];
-					sampleIdControlIdTotalCountMappedReadsMap.put(testSample.getId().toString() + "::" + controlIdAsString, sm.getV());
-				}
-				if(sm.getK().startsWith("chipseqAnalysis.totalCountMappedReadsInPeaks::")){//capture for each distinct chipseq analysis (following the :: is controlId)
-					String[] splitK = sm.getK().split("::");
-					String controlIdAsString = splitK[1];
-					sampleIdControlIdTotalCountMappedReadsInPeaksMap.put(testSample.getId().toString() + "::" + controlIdAsString, sm.getV());
-				}
-			}
-		}
-		for (String key : sampleIdControlIdTotalCountMappedReadsMap.keySet()) {
-			String totalCountMappedReadsAsString = sampleIdControlIdTotalCountMappedReadsMap.get(key);
-			String totalCountMappedReadsInPeaksAsString = sampleIdControlIdTotalCountMappedReadsInPeaksMap.get(key);
-			String value  = "";
-			if(totalCountMappedReadsAsString==null || totalCountMappedReadsInPeaksAsString==null){
-				value = "Error";
-			}
+		if(!testId.isEmpty()){
+			System.out.println("testId is NOT empty and it's value is " + testId);
 			try{
-				Integer totalCountMappedReads = Integer.valueOf(totalCountMappedReadsAsString);
-				Integer totalCountMappedReadsInPeaks = Integer.valueOf(totalCountMappedReadsInPeaksAsString);
-				Double frip = (double) totalCountMappedReadsInPeaks / totalCountMappedReads;
-				DecimalFormat myFormat = new DecimalFormat("0.00000");
-				String formatedFrip = myFormat.format(frip);
-				value = totalCountMappedReadsInPeaks.toString() + " / " + totalCountMappedReads + " = " + formatedFrip.toString();
-			}
-			catch(Exception e){
-				value = "Error";
-			}			
-			System.out.println("Key : " + key + " Value (FRiP : " + value);
-			sampleIdControlIdFripMap.put(key, value);
+				test = sampleService.getSampleById(Integer.valueOf(testId));
+				System.out.println("test's name is: " + test.getName());
+			}catch(Exception e){logger.debug("failed to obtain test sample in getTestSample(FileGroup fileGroup)");}
 		}
-		
-		return sampleIdControlIdFripMap;
+		else{System.out.println("testId IS empty ");}
+		return test;
 	}
-	
-	private Map<Sample, List<SampleSource>> getSampleCellLibraryListMap(List<Sample> testSampleList)throws SampleTypeException{//reviewed and OK
-		
-		Map<Sample, List<SampleSource>> sampleCellLibraryListMap = new HashMap<Sample, List<SampleSource>>();
-		for(Sample testSample : testSampleList){
-			for(SampleMeta sm : testSample.getSampleMeta()){
-				if(sm.getK().startsWith("chipseqAnalysis.testCellLibraryIdList::")){//while there could be more than one entry for a single sample, we only need to capture this meta once for each test sample (as it is the same for each entry: thus the break; command) (note: following the :: is controlId)
-					String cellLibraryIdListAsString = sm.getV();
-					List<Integer> cellLibraryIdList = WaspSoftwareJobParameters.getCellLibraryIdList(cellLibraryIdListAsString);
-					sampleCellLibraryListMap.put(testSample, new ArrayList<SampleSource>());
-					for(Integer cellLibraryId : cellLibraryIdList){
-						SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);
-						sampleCellLibraryListMap.get(testSample).add(cellLibrary);						
-					}
-					break;//break out of meta loop and move on to next testSample (since we only need to get this repeated info once)
-				}
-			}
-		}	
-		return sampleCellLibraryListMap;
-	}
-	
-	private Map<Sample,List<Sample>>  getSampleLibraryListMap(Map<Sample, List<SampleSource>> sampleCellLibraryListMap){//reviewed and OK
-		Map<Sample,List<Sample>> sampleLibraryListMap = new HashMap<Sample,List<Sample>>();
-		for(Sample sample : sampleCellLibraryListMap.keySet()){
-			List<SampleSource> cellLibraryList = sampleCellLibraryListMap.get(sample);
-			sampleLibraryListMap.put(sample, new ArrayList<Sample>());
-			
-			for(SampleSource cellLibrary : cellLibraryList){
-				Sample library = sampleService.getLibrary(cellLibrary);				
-				if(!sampleLibraryListMap.get(sample).contains(library)){//the LibraryList is acting as a set (since a library could be run more than once)
-					sampleLibraryListMap.get(sample).add(library);
-				}
+	//no longer used
+	private Sample getControlSample(FileGroup fileGroup){
+		Sample control = null;
+		String controlId = "";	
+		for(FileGroupMeta fgm : fileGroup.getFileGroupMeta()){
+			if(fgm.getK().equalsIgnoreCase("macs2Analysis.controlId")){
+				controlId = fgm.getV();
+				break;
 			}
 		}
-		
-		//finally, order each LibraryList by library name
-		/*
-		class SampleNameComparator implements Comparator<Sample> {
-		    @Override
-		    public int compare(Sample arg0, Sample arg1) {
-		        return arg0.getName().compareToIgnoreCase(arg1.getName());
-		    }
-		}
-		*/
-		for(Sample testSample : sampleLibraryListMap.keySet()){
-			Collections.sort(sampleLibraryListMap.get(testSample), new SampleNameComparator());	//order each list by sample name				
-		}
-		return sampleLibraryListMap;
-	}
-	
-	private Map<Sample, List<String>> getLibraryRunInfoListMap(Map<Sample, List<SampleSource>> sampleCellLibraryListMap)throws SampleTypeException, SampleParentChildException{//reviewed and OK
-		Map<Sample, List<String>> libraryRunInfoListMap = new HashMap<Sample, List<String>>();
-		for(Sample sample : sampleCellLibraryListMap.keySet()){
-			List<SampleSource> cellLibraryList = sampleCellLibraryListMap.get(sample);
-			for(SampleSource cellLibrary : cellLibraryList){
-				Sample library = sampleService.getLibrary(cellLibrary);
-				if(!libraryRunInfoListMap.containsKey(library)){
-					libraryRunInfoListMap.put(library, new ArrayList<String>());
-				}
-				Sample cell = sampleService.getCell(cellLibrary);
-				String lane = sampleService.getCellIndex(cell).toString(); 
-				Sample platformUnit = sampleService.getPlatformUnitForCell(cell);
-				List<Run> runList = runService.getSuccessfullyCompletedRunsForPlatformUnit(platformUnit);//WHY IS THIS A LIST rather than a singleton?
-				if(runList.isEmpty()){
-					libraryRunInfoListMap.get(library).add("Lane " + lane + ": " + platformUnit.getName()); 
-				}
-				else{
-					libraryRunInfoListMap.get(library).add("Lane " + lane + ": " + runList.get(0).getName()); 
-				}				
-			}
-		}		
-		return libraryRunInfoListMap;
-	}
-	private Map<String, FileGroup> getCodedFileGroupMap(List<Sample> testSampleList){
-		Map<String, FileGroup> sampleIdControlIdFileTypeIdFileGroupMap = new HashMap<String, FileGroup>();
-		for(Sample testSample : testSampleList){
-			for(FileGroup fg : testSample.getFileGroups()){
-				for(FileGroupMeta fgm : fg.getFileGroupMeta()){
-					if(fgm.getK().equalsIgnoreCase("chipseqAnalysis.controlId")){
-						String controlId = fgm.getV();						
-						String fileTypeId = fg.getFileType().getId().toString();
-						String sampleIdControlIdFileTypeIdKey = testSample.getId().toString()+"::"+controlId+"::"+fileTypeId;
-						sampleIdControlIdFileTypeIdFileGroupMap.put(sampleIdControlIdFileTypeIdKey, fg);
-						break;//from filegroupmeta for loop
-					}
-				}
-			}
-		}
-		return sampleIdControlIdFileTypeIdFileGroupMap;
-	}
-	private Map<String, FileHandle> getCodedFileHandleMap(Map<String, FileGroup> sampleIdControlIdFileTypeIdFileGroupMap){
-		Map<String, FileHandle> sampleIdControlIdFileTypeIdFileHandleMap = new HashMap<String, FileHandle>();
-		for(String key : sampleIdControlIdFileTypeIdFileGroupMap.keySet()){
-			FileGroup fg = sampleIdControlIdFileTypeIdFileGroupMap.get(key);
-			FileHandle fileHandle = new ArrayList<FileHandle>(fg.getFileHandles()).get(0);
-			sampleIdControlIdFileTypeIdFileHandleMap.put(key, fileHandle);
-		}
-		return sampleIdControlIdFileTypeIdFileHandleMap;				
-	}
-	private Map<FileHandle, String>  getFileHandleResolvedURLMap(Map<String, FileHandle> sampleIdControlIdFileTypeIdFileHandleMap){
-		Map<FileHandle, String> fileHandleResolvedURLMap = new HashMap<FileHandle,String>();
-		for(String key : sampleIdControlIdFileTypeIdFileHandleMap.keySet()){
-			FileHandle fh = sampleIdControlIdFileTypeIdFileHandleMap.get(key);
-			//******************ROBERT A DUBIN comment-out next line and uncomment the line following it for production!!!!!!!!
-			
-			// TODO: better to make a proper test for this, these things get forgotten (this was). 
-			// Test code should never be placed in production code anyway either commented or uncommented. 
-			// Use a personal branch if you must do this kind of testing 'in situ' but please leave it out of develop or master: asmclellan
-			
-			//String resolvedURL = "file://c3.einstein.yu.edu/wasp/results/3/jobSubmissionUploads/215882339_Job3_Quote_2014_04_02.pdf";
-			String resolvedURL = "";
+		if(!controlId.isEmpty()){
 			try{
-				resolvedURL = fileUrlResolver.getURL(fh).toString();
-			}catch(Exception e){logger.debug("***************UNABLE TO RESOLVE URL for file: " + fh.getFileName());}
-			
-			fileHandleResolvedURLMap.put(fh, resolvedURL);
+				control = sampleService.getSampleById(Integer.valueOf(controlId));
+			}catch(Exception e){logger.debug("failed to obtain control sample in getControlSample(FileGroup fileGroup) or it could be 0");}
 		}
-		return fileHandleResolvedURLMap;
+		return control;
 	}
-	private List<FileType> getOrderedFileTypeList(Map<String, FileGroup> sampleIdControlIdFileTypeIdFileGroupMap){
-		Set<FileType> fileTypeSet = new HashSet<FileType>();
-		List<FileType> orderedFileTypeList = new ArrayList<FileType>();
-		for(String key : sampleIdControlIdFileTypeIdFileGroupMap.keySet()){
-			FileGroup fg = sampleIdControlIdFileTypeIdFileGroupMap.get(key);
-			fileTypeSet.add(fg.getFileType());
-		}
-		orderedFileTypeList.addAll(fileTypeSet);//next, sort the list
-		/*
-		class FileTypeComparator implements Comparator<FileType> {
-		    @Override
-		    public int compare(FileType arg0, FileType arg1) {
-		        return arg0.getIName().compareToIgnoreCase(arg1.getIName());
-		    }
-		}
-		*/
-		Collections.sort(orderedFileTypeList, new FileTypeComparator());
-		
-		return orderedFileTypeList;		
-	}
+	
+	*/
+	
+	
 }
 
 

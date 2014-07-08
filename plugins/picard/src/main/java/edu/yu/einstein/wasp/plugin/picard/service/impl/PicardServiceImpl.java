@@ -4,7 +4,10 @@
  */
 package edu.yu.einstein.wasp.plugin.picard.service.impl;
 
+import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONObject;
@@ -14,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.plugin.picard.service.PicardService;
 import edu.yu.einstein.wasp.plugin.picard.webpanels.PicardWebPanels;
 import edu.yu.einstein.wasp.service.FileService;
@@ -135,16 +139,36 @@ public class PicardServiceImpl extends WaspServiceImpl implements PicardService 
 	}
 	public PanelTab getAlignmentMetricsForDisplay(FileGroup fileGroup){
 		
+		List<FileHandle> fileHandleList = new ArrayList<FileHandle>(fileGroup.getFileHandles());
+		String bamFileName = fileHandleList.get(0).getFileName();
+		
 		Map<String,Map<String,String>> metrics = new LinkedHashMap<String,Map<String,String>>();
 		
 		Map<String,String> mapped = new LinkedHashMap<String, String>();
-		mapped.put("Unmapped Reads", getUnmappedReads(fileGroup));
-		mapped.put("Mapped Reads", getMappedReads(fileGroup));
-		mapped.put("Total Reads", getTotalReads(fileGroup));
+		mapped.put("Total Reads", formatWithCommas(getTotalReads(fileGroup)));
+		mapped.put("Unmapped Reads", formatWithCommas(getUnmappedReads(fileGroup)));		
+		mapped.put("Mapped Reads", formatWithCommas(getMappedReads(fileGroup)));		
 		mapped.put("Fraction Mapped", getFractionMapped(fileGroup));
-		mapped.put("Mapping Efficiency", getUnmappedReads(fileGroup));
-		metrics.put("Mapped ", mapped);
+		metrics.put("Alignment Stats:", mapped);
 		
-		return PicardWebPanels.getAlignmentMetrics(metrics);
+		Map<String,String> duplicate = new LinkedHashMap<String, String>();		
+		duplicate.put("Mapped Reads", formatWithCommas(getMappedReads(fileGroup)));
+		duplicate.put("Duplicate Mapped Reads", formatWithCommas(getDuplicateReads(fileGroup)));
+		duplicate.put("Fraction Duplicated", getFractionDuplicated(fileGroup));
+		metrics.put("Duplicate Stats:", duplicate);
+		
+		Map<String,String> unique = new LinkedHashMap<String, String>();
+		unique.put("Uniquely Mapped Reads", formatWithCommas(getUniqueReads(fileGroup)));
+		unique.put("Uniquely Mapped &amp; Nonredundant Reads", formatWithCommas(getUniqueNonRedundantReads(fileGroup)));
+		unique.put("Fraction Uniquely Mapped &amp; Nonredundant", getFractionUniqueNonRedundant(fileGroup));
+		metrics.put("Uniquely Aligned Stats:", unique);
+		
+		return PicardWebPanels.getAlignmentMetrics(metrics, bamFileName);
+	}
+	private String formatWithCommas(String unformatedIntegerAsString){	
+		//getNumberInstance() will return a general-purpose number format for the current default locale, so for USA, 1000 is converted to 1,000   
+		String s = NumberFormat.getIntegerInstance().format(Long.valueOf(unformatedIntegerAsString));
+		return s;
+		
 	}
 }

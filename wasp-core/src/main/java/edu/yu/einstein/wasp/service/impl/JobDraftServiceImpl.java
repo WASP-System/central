@@ -10,8 +10,12 @@
 
 package edu.yu.einstein.wasp.service.impl;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -30,12 +34,14 @@ import edu.yu.einstein.wasp.dao.SampleDraftDao;
 import edu.yu.einstein.wasp.dao.SampleDraftJobDraftCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleDraftMetaDao;
 import edu.yu.einstein.wasp.model.Adaptor;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftCellSelection;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftJobDraftCellSelection;
 import edu.yu.einstein.wasp.service.JobDraftService;
+import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -409,5 +415,148 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 	public JobDraftMetaDao getJobDraftMetaDao() {
 		return jobDraftMetaDao;
 	}
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public List<List<SampleDraft>> getReplicateSets(JobDraft jobDraft){
+		
+		List<SampleDraft> sampleDraftList = jobDraft.getSampleDraft();//sampleDraftDao.getSampleDraftByJobId(jobDraftId);
+		Map<Integer, SampleDraft> idSampleDraftMap = new HashMap<Integer, SampleDraft>();
+		for(SampleDraft sd : sampleDraftList){
+			idSampleDraftMap.put(sd.getId(), sd);//will use this below rather than going to db each time for each SampleDraft via its id
+		}
+		
+		List<List<SampleDraft>> replicatesListOfLists = new ArrayList<List<SampleDraft>>();
+		String replicatesKey = jobDraft.getWorkflow().getIName()+"."+JobService.REPLICATE_SETS_META_KEY;
+		JobDraftMeta replicatesMetaData = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(replicatesKey, jobDraft.getId());
+		
+		if(replicatesMetaData!=null && replicatesMetaData.getId()!=null && replicatesMetaData.getId()>0){
+			for(String setOfSampleDraftIdsAsString: replicatesMetaData.getV().split(";")){
+				String[] sampleDraftIdAsStringArray = setOfSampleDraftIdsAsString.split(":");
+				Set<SampleDraft> sampleDraftSet = new LinkedHashSet<SampleDraft>();			
+				for(String sampleDraftidAsString : sampleDraftIdAsStringArray){
+					Integer id = Integer.parseInt(sampleDraftidAsString);
+					if(idSampleDraftMap.containsKey(id)){
+						sampleDraftSet.add(idSampleDraftMap.get(id));
+					}				
+				}
+				if(!sampleDraftSet.isEmpty()){
+					List<SampleDraft> tempList = new ArrayList<SampleDraft>(sampleDraftSet);
+					class SampleDraftNameComparator implements Comparator<SampleDraft> {
+						@Override
+						public int compare(SampleDraft arg0, SampleDraft arg1) {
+							return arg0.getName().compareToIgnoreCase(arg1.getName());
+						}
+					}
+					Collections.sort(tempList, new SampleDraftNameComparator());//sort by SampleDraft name 
+					replicatesListOfLists.add(tempList);
+				}
+			}
+		}
+		/*
+		//for testing only
+		System.out.println("Testing replicatesListOfLists output");
+		for (List<SampleDraft> sdList: replicatesListOfLists) {
+			for(SampleDraft sd : sdList){
+				System.out.println("---:"+sd.getId()+" ---: "+sd.getName());
+			}			
+		}
+		System.out.println("Completed testing replicatesListOfLists output");
+		*/
+		return replicatesListOfLists;
+		
+	}
+	private String convertReplicatesToString(List<List<SampleDraft>> replicates){
+		
+		StringBuffer replicatesAsStringBuffer = new StringBuffer("");
+		for(List<SampleDraft>  sampleDraftReplicateSet : replicates){
+			int counter = 0;
+			for(SampleDraft sd : sampleDraftReplicateSet){
+				if(counter++ > 0){
+					replicatesAsStringBuffer.append(":");
+				}
+				replicatesAsStringBuffer.append(sd.getId().toString());				
+			}
+			if(counter>0){
+				replicatesAsStringBuffer.append(";");
+			}
+		}
+		return new String(replicatesAsStringBuffer);
+	}
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public void saveReplicateSets(JobDraft jobDraft, SampleDraft sampleDraft, Integer setNumber){
+		
+		String replicatesKey = jobDraft.getWorkflow().getIName()+"."+JobService.REPLICATE_SETS_META_KEY;
+		JobDraftMeta replicatesMetaData = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(replicatesKey, jobDraft.getId());
+		
+		//if setNumber is null , sample draft is being added to new replicate set; just add sampleDraft.id to the end of the metada, followed by a semicolon
+		if(setNumber==null){
+			if (replicatesMetaData.getId() != null){//add new replicate set sampleDraft to end, followed by semicolon
+				String oldValue = replicatesMetaData.getV();
+				String newValue = oldValue + sampleDraft.getId().toString() + ";";
+				replicatesMetaData.setV(newValue);
+				jobDraftMetaDao.save(replicatesMetaData);
+			}
+			else{//first replicate entry, so create new metadata entry
+				JobDraftMeta jdm = new JobDraftMeta(); 
+				jdm.setJobDraftId(jobDraft.getId());
+				jdm.setK(replicatesKey);
+				jdm.setV(sampleDraft.getId().toString() + ";"); 
+				jobDraftMetaDao.save(jdm);
+			}
+			return;
+		}
+		
+		//CHECK FOR ORGANISM compatibility currently dealt with within the jsp
+		else if(setNumber!=null && replicatesMetaData.getId() != null){//adding new sampleDraft to existing replicate set (so replicatesMetaData should not be null) [so two potential problems: setNumber is wrong; existing entry for replicatesMetaData doesn't exit; or id is already in the set or already in another set; or id not part of job; and organism match, and sampleDraft is not null.......] 
+			List<List<SampleDraft>> replicates = this.getReplicateSets(jobDraft);
+			replicates.get(setNumber - 1).add(sampleDraft);//must confirm setNumber-1 exists for this list of list
+			String newValue = this.convertReplicatesToString(replicates);
+			replicatesMetaData.setV(newValue);
+			jobDraftMetaDao.save(replicatesMetaData);
+			return;
+		}
+	}
+	public void removeSampleDraftFromReplicates(JobDraft jobDraft, SampleDraft sampleDraft){
+		String replicatesKey = jobDraft.getWorkflow().getIName()+"."+JobService.REPLICATE_SETS_META_KEY;
+		JobDraftMeta replicatesMetaData = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(replicatesKey, jobDraft.getId());
+		if(replicatesMetaData.getId() != null){
+			List<List<SampleDraft>> replicates = this.getReplicateSets(jobDraft);
+			for(List<SampleDraft> sampleDraftList : replicates){
+				if(sampleDraftList.contains(sampleDraft)){
+					sampleDraftList.remove(sampleDraft);
+					break;
+				}
+			}
+			String newValue = this.convertReplicatesToString(replicates);
+			if(!newValue.isEmpty()){
+				replicatesMetaData.setV(newValue);
+				jobDraftMetaDao.save(replicatesMetaData);
+			}
+			else{//new value of the metaData record is empty, so remove entry
+				jobDraftMetaDao.remove(replicatesMetaData);
+				jobDraftMetaDao.flush(replicatesMetaData);
+			}
+		}
+		return;
 
+	}
+	public void removeSampleDraftFromSamplePairsByJobDraft(JobDraft jobDraft, SampleDraft sampleDraftToBeRemoved){
+		Set<Map<SampleDraft, SampleDraft>> sampleDraftPairSet = this.getSampleDraftPairsByJobDraft(jobDraft);
+		if(sampleDraftPairSet.isEmpty()){return;}
+		Set<Map<SampleDraft, SampleDraft>> mapsContainingTheSampleDraftToBeRemoved = new HashSet<Map<SampleDraft, SampleDraft>>();
+		for(Map<SampleDraft,SampleDraft> map : sampleDraftPairSet){
+			if(map.containsKey(sampleDraftToBeRemoved) || map.containsValue(sampleDraftToBeRemoved)){//remove if the sampleDraftToBeRemoved is either key or value
+				mapsContainingTheSampleDraftToBeRemoved.add(map);
+			}
+		}
+		sampleDraftPairSet.removeAll(mapsContainingTheSampleDraftToBeRemoved);
+		this.setSampleDraftPairsByJobDraft(jobDraft, sampleDraftPairSet);
+	}
 }

@@ -1,5 +1,22 @@
-
-<script>
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+<script type="text/javascript">
+function confirmPairing(){	
+	var selects = document.getElementsByTagName('select');
+	var num_ip_samples = selects.length;
+	var num_paired_ip_samples = 0;
+	for(var i = 0; i < num_ip_samples; i++) {
+		if(selects[i].value > 0){
+			num_paired_ip_samples++;
+		}
+	}
+	if(num_paired_ip_samples < num_ip_samples){//not all were paired 
+		//return confirm("Please confirm (by selecting OK) that you have paired " + num_paired_ip_samples + " of your " + num_ip_samples + " IP samples with a control/input"); 
+		return confirm("<fmt:message key='chipseqpair.confirm_1.label' />" + " " + num_paired_ip_samples + " " + "<fmt:message key='chipseqpair.confirm_2.label' />" + " " + num_ip_samples + " " + "<fmt:message key='chipseqpair.confirm_3.label' />");
+	}
+	else{
+		return true;
+	}
+}
 
 function toggleRow(controlIndex, testCount){
 	var button = document.getElementById("row_"+controlIndex+"_select_all");

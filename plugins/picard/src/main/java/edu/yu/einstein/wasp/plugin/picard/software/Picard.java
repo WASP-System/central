@@ -120,20 +120,32 @@ public class Picard extends SoftwarePackage{
 		return command;
 	}
 	
-	public String getUniquelyAlignedReadCountCmd(String bamFileName){
+	public String getUniquelyAlignedReadCountCmd(String bamFileName, String alignerSpecificBamTagIndicatingUniqueAlignment){
 		String command = "";
 		if(bamFileName==null || bamFileName.isEmpty()){
 			return command;
 		}
-		return "samtools view -c -F 0x104 -q 1 " + bamFileName + " > " + UNIQUELY_ALIGNED_READ_COUNT_FILENAME;//includes duplicates
+		if(alignerSpecificBamTagIndicatingUniqueAlignment != null && !alignerSpecificBamTagIndicatingUniqueAlignment.isEmpty()){
+			command = "samtools view -F 0x4 " + bamFileName + " | grep -c '"+ alignerSpecificBamTagIndicatingUniqueAlignment +"' > "   + UNIQUELY_ALIGNED_READ_COUNT_FILENAME;//includes duplicates
+		}
+		else{
+			command = "samtools view -c -F 0x4 -q 1 " + bamFileName + " > " + UNIQUELY_ALIGNED_READ_COUNT_FILENAME;//includes duplicates
+		}
+		return command;
 	}
 	
-	public String getUniquelyAlignedNonRedundantReadCountCmd(String bamFileName){
+	public String getUniquelyAlignedNonRedundantReadCountCmd(String bamFileName, String alignerSpecificBamTagIndicatingUniqueAlignment){
 		String command = "";
 		if(bamFileName==null || bamFileName.isEmpty()){
 			return command;
 		}
-		return "samtools view -c -F 0x504 -q 1 " + bamFileName + " > " + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FILENAME;//excludes duplicates
+		if(alignerSpecificBamTagIndicatingUniqueAlignment != null && !alignerSpecificBamTagIndicatingUniqueAlignment.isEmpty()){
+			command = "samtools view -F 0x404 " + bamFileName + " | grep -c '"+ alignerSpecificBamTagIndicatingUniqueAlignment +"' > "   + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FILENAME;//excludes duplicates
+		}
+		else{
+			command = "samtools view -c -F 0x404 -q 1 " + bamFileName + " > " + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FILENAME;//excludes duplicates
+		}
+		return command;
 	}
 	
 	/**

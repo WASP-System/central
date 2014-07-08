@@ -80,6 +80,8 @@ import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemp
 import edu.yu.einstein.wasp.interfacing.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Barcode;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
 import edu.yu.einstein.wasp.model.JobMeta;
@@ -104,6 +106,7 @@ import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
@@ -248,6 +251,12 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		
 	@Autowired
 	GenomeService genomeService;
+	
+	@Autowired
+	private FileService fileService;
+	
+	@Autowired
+	private FileType bamFileType;
 	
 	@Autowired
 	protected RunMetaDao runMetaDao;
@@ -3016,7 +3025,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			Assert.assertParameterNotNull(sample, "sample cannot be null");
 			Integer genomeId = new Integer(0);
 			try{	
-				genomeId = Integer.parseInt(MetaHelper.getMetaValue(ORGANISM_META_AREA, ORGANISM_META_KEY, sample.getSampleMeta()));
+				genomeId = Integer.parseInt(MetaHelper.getMetaValue(ORGANISM_META_AREA, ORGANISM_META_KEY, this.getSampleMetaDao().getSamplesMetaBySampleId(sample.getId())));
 			}
 			catch(Exception me){
 				logger.debug("Unable to identify organism for sampleId " + sample.getId() + " assuming it is of type 'Other'");
@@ -3293,5 +3302,85 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				meta.add( (SampleSourceMeta) metahelper.getMetaByName(metaValueName) ); // may be new OR existing
 				sampleSourceMetaDao.setMeta(meta, cellLibrary.getId());
 			}
+			
+			/**
+			 * {@inheritDoc}
+			 */
+			@Transactional("entityManager")
+			@Override
+			public Map<Sample, List<SampleSource>> associateUppermostSampleWithCellLibraries(List<SampleSource> cellLibraryList){
+				
+				Map<Sample, List<SampleSource>> sampleCellLibraryListMap = new HashMap<Sample, List<SampleSource>>();
+				
+				for(SampleSource cellLibrary : cellLibraryList){
+					
+					Sample parentSample = this.getLibrary(cellLibrary);
+					
+					while(parentSample.getParentId()!=null){
+						//get the uppermost sample associated with these cellLibraries
+						//parentSample = parentSample.getParent();//this call could have possible lazy loading issues; 02-18-14
+						parentSample = this.getSampleById(parentSample.getParentId());//avoids any possible downstream lazy loading issues
+					}
+					if(sampleCellLibraryListMap.containsKey(parentSample)){
+						sampleCellLibraryListMap.get(parentSample).add(cellLibrary);
+					}
+					else{
+						List<SampleSource> cellLibraryListForASample = new ArrayList<SampleSource>();
+						cellLibraryListForASample.add(cellLibrary);
+						sampleCellLibraryListMap.put(parentSample, cellLibraryListForASample);
+					}
+				}
+				return sampleCellLibraryListMap;
+			}
+			
+			/**
+			 * {@inheritDoc}
+			 */
+			@Transactional("entityManager")
+			@Override
+			public boolean confirmSamplePairIsOfSameSpecies(Sample s1, Sample s2) {
+				
+				Integer s1OrganismId = this.getIdOfOrganism(s1);
+				Integer s2OrganismId = this.getIdOfOrganism(s2);
+				if( s1OrganismId.intValue()==0 || s2OrganismId.intValue()==0 ){
+					logger.debug("one or both organisms of this samplePair is Not known"); 
+					return false;
+				}
+				else if(s1OrganismId.intValue()!=s2OrganismId.intValue()){
+					logger.debug("samplePair Not of same organism"); 
+					return false;
+				}
+				return true;
+			}
+			
+			/**
+			 * {@inheritDoc}
+			 */
+			@Transactional("entityManager")
+			@Override
+			public boolean confirmCellLibrariesAssociatedWithBamFiles(List<SampleSource> cellLibraryList) {
+				for(SampleSource cellLibrary : cellLibraryList){
+					Set<FileGroup> fileGroupSetFromCellLibrary = fileService.getFilesForCellLibraryByType(cellLibrary, bamFileType);
+					if(fileGroupSetFromCellLibrary.isEmpty()){//very unexpected
+						logger.debug("no Bam files associated with cellLibrary"); 
+						return false;
+					}
+				}
+				return true;
+			}
+			
+			/**
+			 * {@inheritDoc}
+			 */
+			@Transactional("entityManager")
+			@Override
+			public List<Integer> convertCellLibraryListToIdList(List<SampleSource> cellLibraryList){
+				List<Integer> list = new ArrayList<Integer>();
+				for(SampleSource ss : cellLibraryList){
+					list.add(ss.getId());
+				}
+				return list;
+			}
+			
 }
 

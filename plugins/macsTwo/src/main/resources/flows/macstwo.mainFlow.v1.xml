@@ -16,6 +16,7 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
+<!--  
 		<batch:step id="edu.yu.einstein.wasp.macstwo.mainFlow.performAction" next="edu.yu.einstein.wasp.macstwo.generateModelAsPdf.performAction">
 			<batch:tasklet>
 				<batch:transaction-attributes propagation="NEVER"/>
@@ -29,20 +30,31 @@
 				<batch:listener ref="macstwoPromotionListener" />
 			</batch:listeners>
 		</batch:step>
-		
+-->		
+		<batch:step id="edu.yu.einstein.wasp.macstwo.mainFlow.performAction" >
+			<batch:tasklet>
+				<batch:transaction-attributes propagation="NEVER"/>
+				<bean class="edu.yu.einstein.wasp.macstwo.batch.tasklet.MacstwoTasklet" scope="step">
+					<constructor-arg name="jobIdAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.chipseq.integration.messages.ChipSeqSoftwareJobParameters).JOB_ID]}" />
+					<constructor-arg name="testCellLibraryIdListAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.chipseq.integration.messages.ChipSeqSoftwareJobParameters).TEST_LIBRARY_CELL_ID_LIST]}" />
+					<constructor-arg name="controlCellLibraryIdListAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.chipseq.integration.messages.ChipSeqSoftwareJobParameters).CONTROL_LIBRARY_CELL_ID_LIST]}" />
+				</bean>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="edu.yu.einstein.wasp.macstwo.mainFlow.notifyFail" />
+			<batch:next on="*" to="edu.yu.einstein.wasp.macstwo.mainFlow.notifyComplete" />
+		</batch:step>
+		<!--
 		<batch:step id="edu.yu.einstein.wasp.macstwo.generateModelAsPdf.performAction" >
 			<batch:tasklet>
 				<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.macstwo.batch.tasklet.MacstwoGenerateModelAsPdfTasklet" scope="step">
-				<!--	never was able to make this work via the constructor
-					<constructor-arg name="modelScriptGIdAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters).MODEL_SCRIPT_FILEGROUP_ID]}" />
-				-->
+					
 				</bean>				
 			</batch:tasklet>
 			<batch:next on="FAILED" to="edu.yu.einstein.wasp.macstwo.mainFlow.notifyFail" />
 			<batch:next on="*" to="edu.yu.einstein.wasp.macstwo.mainFlow.notifyComplete" />
 		</batch:step>
-		
+		-->
 		<batch:step id="edu.yu.einstein.wasp.macstwo.mainFlow.notifyComplete">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
@@ -75,12 +87,12 @@
 	</batch:job>
 
 	<bean id="edu.yu.einstein.wasp.macstwo.mainFlow.skipTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" scope="step" />
-	
+<!--  	
 	<bean id="macstwoPromotionListener" class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
 		<property name="keys" value="#{T(edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters).MODEL_SCRIPT_FILEGROUP_ID}, #{T(edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters).TEST_SAMPLE_ID}, #{T(edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters).CONTROL_SAMPLE_ID}"  />
 		<property name="statuses" value="COMPLETED,FAILED" />
 	</bean>
-	
+-->	
 </beans>
 
 <!-- NOTE 1: public static members of a bean can easily be accessed using SpEL e.g.:  -->

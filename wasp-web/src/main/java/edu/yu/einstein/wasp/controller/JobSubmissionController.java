@@ -1443,7 +1443,15 @@ public class JobSubmissionController extends WaspController {
 		for (SampleDraftMeta sdm : sampleDraftMetaDao.findByMap(query)){
 			sampleDraftMetaDao.remove(sdm);
 		}
-		sampleDraftDao.remove(sampleDraft);
+
+		//6-23-14: added by dubin
+		//new feature: remove sampleDraft from jobDraft's metadata related to sample pairs (currently chipseq and helptag) and replicates (currently chipseq)
+		jobDraftService.removeSampleDraftFromReplicates(jobDraft, sampleDraft);
+		jobDraftService.removeSampleDraftFromSamplePairsByJobDraft(jobDraft, sampleDraft);//removes from all samplePairs in this jobDraft
+		
+		
+		sampleDraftDao.remove(sampleDraft);		
+		
 		waspMessage("sampleDetail.updated_success.label");
 		return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
 	}
@@ -2586,12 +2594,20 @@ public class JobSubmissionController extends WaspController {
 
 
 			String expandPage = page.replaceAll("\\{n\\}", ""+jobDraft.getId());
+			expandPage = expandPage.replace("^/", "");//added 6-11-14; dubin to repair the breadcrumbs anchor on jobsubmission pages (see additional change a few lines below)
+			//System.out.println("page: " + page);
+			//System.out.println("mapPage: " + mapPage);
+			//System.out.println("expandPage: " + expandPage);
+			//System.out.println("currentMapping: " + currentMapping);
+			
 			if (currentMapping.equals(expandPage)) {
 				request.setAttribute("forcePageTitle", getPageTitle(mapPage, jobDraft.getWorkflow().getIName()));
 				break;
 
 			}
 
+			expandPage = expandPage.replaceAll("^/", "");//added 6-11-14; dubin yep, do this yet again, to repair the breadcrumbs anchor on jobsubmission pages
+			//System.out.println("expandPage again: " + expandPage);
 			String[] r = {expandPage, getPageTitle(mapPage, jobDraft.getWorkflow().getIName())};
 			rt.add(r);
 	

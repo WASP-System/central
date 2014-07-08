@@ -80,7 +80,7 @@
           <property name="default" value="no" />
           <property name="tooltip" value="peakcaller.macstwo.dup.tooltip" />
         </bean>
-        
+        <!--  this is now an attribute of samplemeta peakType
          <bean parent="macstwoUiFieldWrapper">
           <property name="baseName" value="broadPeakExpected" />
           <property name="metaposition" value="50" />
@@ -89,7 +89,7 @@
           <property name="default" value="no" />
           <property name="tooltip" value="peakcaller.macstwo.broad.tooltip" />
         </bean>
-        
+        -->
       </list>
     </property>
   </bean> 
