@@ -554,9 +554,9 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		String command = "touch " + manifestFile + " && find . -name '" + jobNamePrefix + id + "*' -print | sed 's/^\\.\\///' > " + manifestFile + " && " + 
 				"tar --remove-files -czf " + outputFile + " -T " + manifestFile;
 		if (markUnfinished) {
-			command += " && touch " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME;
+			command += " && touch " + id + "." + WorkUnit.PROCESSING_INCOMPLETE_FILENAME;
 		} else {
-		        command += " && rm -f " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME;
+			command += " && rm -f " + id + "." + WorkUnit.PROCESSING_INCOMPLETE_FILENAME;
 		}
 		String prd = transportConnection.prefixRemoteFile(resultsDirectory);
 		if (!w.getWorkingDirectory().equals(prd)) {
@@ -622,7 +622,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		w.setResultsDirectory(g.getResultsDirectory());
 		w.setRegistering(true);
 		w.setMode(ExecutionMode.TASK_ARRAY);
-		w.addCommand("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then ls -1 > /dev/null && touch " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
+		w.addCommand("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then ls -1 > /dev/null && touch " + w.getId() + "." + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
 		int files = 0;
 		logger.trace("preparing to copy " + g.getFileHandleIds().size() + " files for GridResult " + g.getUuid().toString());
 		for (Integer hid : g.getFileHandleIds()) {
@@ -637,7 +637,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		w.addCommand("THIS=${COPY[ZERO_TASK_ID]}");
 		w.addCommand("read -ra FILE <<< \"$THIS\"");
 		w.addCommand("cp -f ${FILE[0]} ${" + WorkUnit.RESULTS_DIRECTORY + "}${FILE[1]}");
-		w.addCommand("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then rm -f " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
+		w.addCommand("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then rm -f " + w.getId() + "." + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
 		r = execute(w);
 		g.addChildResult(COPY_RESULTS_FILES_KEY, r);
 	}
@@ -656,7 +656,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		String manifestFile = jobNamePrefix + id + ".manifest";
 		String command = "touch " + manifestFile + " && find . -name '" + jobNamePrefix + id + "*' -print | sed 's/^\\.\\///' > " + manifestFile + " && " + 
 				"tar --remove-files -czf " + outputFile + " -T " + manifestFile;
-		command += " && rm -f " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME;
+		command += " && rm -f " + w.getId() + "." + WorkUnit.PROCESSING_INCOMPLETE_FILENAME;
 		String prd = transportConnection.prefixRemoteFile(resultsDirectory);
 		if (!w.getWorkingDirectory().equals(prd)) {
 				command += " && cp " + outputFile + " " + prd;
