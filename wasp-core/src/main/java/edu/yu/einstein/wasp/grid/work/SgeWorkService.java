@@ -360,7 +360,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		boolean died = false;
 		boolean started;
 		boolean	ended;
-		if (g.getJobStatus().isEnded()){
+		if (g.getJobStatus().equals(GridJobStatus.ENDED)){
 			started = true;
 			ended = true;
 		} else {

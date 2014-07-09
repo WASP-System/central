@@ -32,13 +32,6 @@ public class GridJobStatus implements Serializable{
 		return false;
 	}
 	
-	public boolean isEnded(){
-		GridJobStatus currentJs = new GridJobStatus(exitStatus);
-		if (currentJs.equals(ENDED) || isFinished())
-			return true;
-		return false;
-	}
-	
 	public boolean isCompletedSuccessfully(){
 		GridJobStatus currentJs = new GridJobStatus(exitStatus);
 		if (currentJs.equals(COMPLETED))

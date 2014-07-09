@@ -71,10 +71,9 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 		// isStarted=F and isHibernationRequested=F == first run
 		// isStarted=T and isHibernationResuested=T == job started on grid service
 		// isStarted=F and isHibernationRequested=T == not going to request grid work
-		boolean isJobInRunningToEndingTransition = false;
+		boolean jobHasUpdatedChild = false;
 		if (isGridWorkUnitStarted(context)){
 			GridResult result = getStartedResult(context);
-			GridJobStatus currentStatus = new GridJobStatus(result.getJobStatus().toString());
 			Map<String, GridResult> currentChildJobResults = new HashMap<String, GridResult>(result.getChildResults());
 			GridWorkService gws = hostResolver.getGridWorkService(result);
 			try {
@@ -83,13 +82,9 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 					logger.debug("Workunit is finished. Step complete.");
 					return RepeatStatus.FINISHED;
 				}
-				boolean jobHasTransitioned = currentStatus.isRunning() && result.getJobStatus().isEnded();
-				boolean jobHasUpdatedChild = !currentChildJobResults.equals(result.getChildResults());
-				if (jobHasTransitioned || jobHasUpdatedChild){
-					logger.debug("Job result has transitioned state (" + jobHasTransitioned + 
-							") or has updated a child job (" + jobHasUpdatedChild + "). Going to reset timeoutInterval to minimum");
-					isJobInRunningToEndingTransition = true;
-				}
+				jobHasUpdatedChild = !currentChildJobResults.equals(result.getChildResults());
+				if (jobHasUpdatedChild)
+					logger.debug("Job result has updated a child job so going to reset timeoutInterval to minimum");
 				storeStartedResult(context, result); // result may have been modified whilst checking in isFinished
 			} catch (GridException e) {
 				logger.debug(result.toString() + " threw exception: " + e.getLocalizedMessage() + " removing and rethrowing");
@@ -107,7 +102,7 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 		}
 		if (!wasHibernationRequested){
 			Long timeoutInterval;
-			if (isJobInRunningToEndingTransition){
+			if (jobHasUpdatedChild){
 				timeoutInterval = initialExponentialInterval;
 				setTimeoutIntervalInContext(context, timeoutInterval);
 			} else 
