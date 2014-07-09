@@ -26,6 +26,8 @@ public class Panel {
 	
 	private boolean closeable = false;
 	
+	private boolean maxOnLoad = false;
+	
 	public Panel() {}
 	
 	public Panel(String title, Content content) {
@@ -124,6 +126,20 @@ public class Panel {
 
 	public void setCloseable(boolean closeable) {
 		this.closeable = closeable;
+	}
+
+	/**
+	 * @return the maxOnLoad
+	 */
+	public boolean isMaxOnLoad() {
+		return maxOnLoad;
+	}
+
+	/**
+	 * @param maxOnLoad the maxOnLoad to set
+	 */
+	public void setMaxOnLoad(boolean maxOnLoad) {
+		this.maxOnLoad = maxOnLoad;
 	}
 	
 

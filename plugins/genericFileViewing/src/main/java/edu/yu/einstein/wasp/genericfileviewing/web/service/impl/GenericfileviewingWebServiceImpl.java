@@ -40,6 +40,7 @@ public class GenericfileviewingWebServiceImpl extends GenericfileviewingServiceI
 		panelTab.setName(genericfileviewingPlugin.getName());
 		panelTab.setDescription(genericfileviewingPlugin.getDescription());
 		panelTab.setNumberOfColumns(1);
+		panelTab.setMaxOnLoad(true);
 		
 		Set<FileHandle> set = fileGroup.getFileHandles();
 		Iterator<FileHandle> it = set.iterator();

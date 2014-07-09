@@ -96,7 +96,7 @@ Ext.define('Wasp.PDFPortlet',{
      * @cfg{Number} inputItemWidth
      * The width in pixels of the combobox used to change display scale of the PDF.
      */
-    scaleWidth: 60,
+    scaleWidth: 68,
 
     getPagingItems: function(){
         var me = this;
