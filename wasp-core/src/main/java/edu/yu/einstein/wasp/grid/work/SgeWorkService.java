@@ -360,7 +360,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		boolean died = false;
 		boolean started;
 		boolean	ended;
-		if (g.getJobStatus().equals(GridJobStatus.ENDED)){
+		if (g.getJobStatus().isEnded()){
 			started = true;
 			ended = true;
 		} else {
@@ -591,13 +591,14 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	 */
 	protected void secureResultsFiles(GridResult g) throws GridException, FileNotFoundException {
 		if (g.getFileHandleIds() != null && g.getFileHandleIds().size() > 0) {
-			GridResult copyJobResult = g.getChildResult(COPY_RESULTS_FILES_KEY);
-			if (copyJobResult == null)
+			// if copy job has not bee initiated initiate it now
+			if (g.getChildResult(COPY_RESULTS_FILES_KEY) == null)
 				copyResultsFiles(g);
-			else if (!isFinished(copyJobResult)){
+			if (!isFinished(g.getChildResult(COPY_RESULTS_FILES_KEY))){
 				logger.debug("found an existing unfinished copy job associated with this grid result so going to return now");
 				return;
 			}
+			// copy job finished. Proceed to register
 			List<FileHandle> fhl = new ArrayList<FileHandle>();
 			for (Integer id : g.getFileHandleIds()) {
 				logger.debug("calling: getFileService().getFileHandleById(" + id + ") ");
@@ -760,6 +761,10 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		String submit = "qsub " + jobNamePrefix + w.getId() + ".sh 2>&1";
 		w.setWrapperCommand(submit);
 		GridResultImpl result = (GridResultImpl) transportConnection.sendExecToRemote(w);
+		if (result.getExitCode() > 0)
+			throw new GridAccessException("Remote job submission failed");
+		result.setExitCode(-1); // reset to default value
+		result.setJobStatus(GridJobStatus.STARTED);
 		result.setUuid(UUID.fromString(w.getId()));
 		result.setId(jobNamePrefix + w.getId());
 		result.setWorkingDirectory(w.getWorkingDirectory());
@@ -780,7 +785,6 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 				throw new MisconfiguredWorkUnitException("Task arrays need to set numberOfTasks (cannot be null)");
 			result.setNumberOfTasks(w.getNumberOfTasks());
 		}
-		result.setJobStatus(GridJobStatus.STARTED);
 		return (GridResult) result;
 	}
 	
