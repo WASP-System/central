@@ -239,7 +239,7 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
             final Command exec = session.exec(command);
             // execute command and timeout
             exec.join(this.execTimeout, TimeUnit.MILLISECONDS);
-            result.setExitStatus(exec.getExitStatus());
+            result.setExitCode(exec.getExitStatus());
             if (logger.isTraceEnabled()){
 				byte[] outBA = IOUtils.toByteArray(exec.getInputStream()); // extract as Byte[] so that we can read it more than once
 				byte[] errBA = IOUtils.toByteArray(exec.getErrorStream()); // extract as Byte[] so that we can read it more than once

@@ -39,19 +39,28 @@
 	        
 	        <bean parent="chipSeqDnaUiFieldWrapper">
 	          <property name="baseName" value="inputOrIP" />
-	          <property name="label" value="Specific IP or Input" />
+	          <property name="label" value="IP or Input/Control" />
 	          <property name="metaposition" value="30" />
 	          <property name="constraint" value="NotEmpty" />
-	          <property name="control" value="select:input:Input;ip:IP" />
+	          <property name="control" value="select:input:Input/Control;ip:IP" />
 	          <property name="error" value="You must provide a value" />
 	         </bean>
 	        
 	        <bean parent="chipSeqDnaUiFieldWrapper">
 	          <property name="baseName" value="antibody" />
-	          <property name="label" value="Antibody (if any)" />
+	          <property name="label" value="ChIP Target" />
 	          <property name="metaposition" value="40" />
 	        </bean>
-	        	        
+	        
+	        <bean parent="chipSeqDnaUiFieldWrapper">
+	          <property name="baseName" value="peakType" />
+	          <property name="label" value="Peak Type" />
+	          <property name="metaposition" value="30" />
+	          <property name="constraint" value="NotEmpty" />
+	          <property name="control" value="select:punctate:punctate;broad:broad;mixed:mixed;none:none (if input)" />
+	          <property name="error" value="You must provide a value" />
+	         </bean>
+	         	        
 	      </list>
       </property>
   </bean>

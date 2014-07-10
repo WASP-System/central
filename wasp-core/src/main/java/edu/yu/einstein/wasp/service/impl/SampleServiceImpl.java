@@ -80,6 +80,8 @@ import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemp
 import edu.yu.einstein.wasp.interfacing.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Barcode;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
 import edu.yu.einstein.wasp.model.JobMeta;
@@ -104,6 +106,7 @@ import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
@@ -1114,12 +1117,13 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  if (cell.getSampleSource() == null)
 			  return libraries;
 		  
-		  Map<String,Integer> q = new HashMap<String,Integer>();
-		  q.put("sampleId", cell.getId());
+		  //no longer used
+		  //Map<String,Integer> q = new HashMap<String,Integer>();
+		  //q.put("sampleId", cell.getId());
 		  		  
-		  for (SampleSource ss : getSampleSourceDao().findByMap(q)){
+		  for (SampleSource ss : this.getCellLibrariesForCell(cell)){ //this.getSampleSourceDao().findByMap(q)){
 			  Sample library = ss.getSourceSample();
-			  if (!this.isLibrary(library) && !library.getSampleType().getIName().equals("controlLibrarySample")){
+			  if (!this.isLibrary(library)){//controlLibraries are of type library // WHAT IS THIS DOING HERE??? && !library.getSampleType().getIName().equals("controlLibrarySample")){
 				  throw new SampleTypeException("Expected 'library' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.: cellId: " + cell.getId().intValue() + " cellName = " + cell.getName() + " problem libraryId = " + library.getId().intValue() + " problem library name = " + library.getName() );
 			  }
 			  if (maxIndex != null && ss.getIndex() != null && ss.getIndex() > maxIndex.getValue())
@@ -3016,7 +3020,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			Assert.assertParameterNotNull(sample, "sample cannot be null");
 			Integer genomeId = new Integer(0);
 			try{	
-				genomeId = Integer.parseInt(MetaHelper.getMetaValue(ORGANISM_META_AREA, ORGANISM_META_KEY, sample.getSampleMeta()));
+				genomeId = Integer.parseInt(MetaHelper.getMetaValue(ORGANISM_META_AREA, ORGANISM_META_KEY, this.getSampleMetaDao().getSamplesMetaBySampleId(sample.getId())));
 			}
 			catch(Exception me){
 				logger.debug("Unable to identify organism for sampleId " + sample.getId() + " assuming it is of type 'Other'");
@@ -3060,39 +3064,79 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		   * {@inheritDoc}
 		   */
 		  @Override
-		  public void addLibraryToCell(Sample cell, Sample library,	Float libConcInCellPicoM, Job job) throws SampleTypeException, SampleException, SampleMultiplexException, MetadataException{
+		  public void addLibraryToCell(Sample cell, Sample libraryToBeAddedToCell, Float libConcInCellPicoM, Job job) throws SampleTypeException, SampleException, SampleMultiplexException, MetadataException{
+			  
+			  //reworked 7-9-14 by dubin
 			  
 			  Assert.assertParameterNotNull(cell, "No cell provided");
 			  Assert.assertParameterNotNullNotZero(cell.getId(), "Invalid cell Provided");
-			  Assert.assertParameterNotNull(library, "No library provided");
-			  Assert.assertParameterNotNullNotZero(library.getId(), "Invalid library Provided");
+			  Assert.assertParameterNotNull(libraryToBeAddedToCell, "No library provided");
+			  Assert.assertParameterNotNullNotZero(libraryToBeAddedToCell.getId(), "Invalid library Provided");
 			  Assert.assertParameterNotNull(libConcInCellPicoM, "No lib conc provided");
 			  Assert.assertParameterNotNull(job, "No job provided");
 			  Assert.assertParameterNotNullNotZero(job.getId(), "Invalid job Provided");
-
 			  if (!isCell(cell)){
 				  throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 			  }
-			  if (!this.isLibrary(library)){
-				  throw new SampleTypeException("Expected 'library' but got Sample of type '" + library.getSampleType().getIName() + "' instead.");
+			  if (!this.isLibrary(libraryToBeAddedToCell)){
+				  throw new SampleTypeException("Expected 'library' but got Sample of type '" + libraryToBeAddedToCell.getSampleType().getIName() + "' instead.");
 			  }
 			  List<Sample> jobLibraryList = jobService.getLibraries(job);
-			  if( !jobLibraryList.contains(library) ){
-				  throw new SampleException("Library (id = "+library.getId()+") not part of specified job (id=" + job.getId()+")");
+			  if( !jobLibraryList.contains(libraryToBeAddedToCell) ){
+				  throw new SampleException("Library (id = "+libraryToBeAddedToCell.getId()+") not part of specified job (id=" + job.getId()+")");
 			  }
+			  
+			  //If the library being added has a valid barcode or if it has no barcode (empty barcode), only permit ONE library on the flowcell that has that barcode (a valid barcode or an empty (none) barcode).
+			  Adaptor adaptorOnLibraryBeingAdded = null;
+			  String barcodeOnLibraryBeingAdded = null;//this is the key variable being used
+			  try{
+				  adaptorOnLibraryBeingAdded = adaptorDao.getAdaptorByAdaptorId(Integer.valueOf(MetaHelper.getMetaValue("genericLibrary", "adaptor", libraryToBeAddedToCell.getSampleMeta())));
+				  barcodeOnLibraryBeingAdded = adaptorOnLibraryBeingAdded.getBarcodesequence();	
+				  if(barcodeOnLibraryBeingAdded==null){
+					  barcodeOnLibraryBeingAdded = "";//no barcode on the control
+				  }				  
+			  }catch(Exception e){
+				  //this is ok; no adaptor or index; some libraries may have no adaptor in the metadata, indicating no indexing
+				  logger.debug("Cannot convert genericLibrary.adaptor meta result to Integer or cannot find the requested metadata: "+e.getMessage());
+				  barcodeOnLibraryBeingAdded = "";//no barcode on the control
+			  }
+			  
+			  Index index = new Index();
+			  List<Sample> librariesAlreadyOnCell = this.getLibrariesOnCell(cell, index); //all Libraries, both job-related and control libraries
+			  ////List<Sample> librariesAlreadyOnCell = this.getLibrariesOnCell(cell);//all Libraries, both job-related and control libraries
+			  for(Sample libraryAlreadyOnCell : librariesAlreadyOnCell){
+				  logger.debug("addLibraryToCell: Lib on cell: " + libraryAlreadyOnCell.getName());
+				  Adaptor adaptorOnLibraryAlreadyOnCell = null;
+				  String barcodeOnLibraryAlreadyOnCell = null;//this is the key variable being used
+				  try{
+					  adaptorOnLibraryAlreadyOnCell = adaptorDao.getAdaptorByAdaptorId(Integer.valueOf(MetaHelper.getMetaValue("genericLibrary", "adaptor", libraryAlreadyOnCell.getSampleMeta())));
+					  barcodeOnLibraryAlreadyOnCell = adaptorOnLibraryAlreadyOnCell.getBarcodesequence();	
+					  if(barcodeOnLibraryAlreadyOnCell==null){
+						  barcodeOnLibraryAlreadyOnCell = "";//no barcode
+					  }					  
+				  }catch(Exception e){
+					  //this is ok; no adaptor; some one library per lane may have no adaptor in the metadata or an adaptor with no barcode, indicating no indexing
+					  logger.debug("Cannot convert genericLibrary.adaptor meta result to Integer or cannot find the requested metadata: "+e.getMessage());
+					  barcodeOnLibraryAlreadyOnCell = "";//no barcode
+				  }
+				  if(barcodeOnLibraryBeingAdded.equalsIgnoreCase(barcodeOnLibraryAlreadyOnCell)){
+					  throw new SampleMultiplexException("addLibraryToCell: You may not have two libraries with same barcode (which could be no barcode)");
+				  }
+			  }
+			  
 			  /* 
-				(1) identify the barcode sequence on the library being added. If problem then terminate. 
-				(2) if the library being added has a barcode that is NONE, and the cell contains ANY OTHER LIBRARY, then terminate. 
-				(3) identify barcode of libraries already on cell; if problem, terminate. Should also get their jobIds.
-				(4) if the cell already has a library with a barcode of NONE, then terminate
-				(5) if the library being added has a bardcode that is something other than NONE (meaning a real barcode sequence) AND if a library already on the cell has that same barcode, then terminate. 
-				(6) do we want to maintain only a single jobId for a cell???
-			   */
+				////(1) identify the barcode sequence on the library being added. If problem then terminate. 
+				////(2) if the library being added has a barcode that is NONE, and the cell contains ANY OTHER LIBRARY, then terminate. 
+				////(3) identify barcode of libraries already on cell; if problem, terminate. Should also get their jobIds.
+				////(4) if the cell already has a library with a barcode of NONE, then terminate
+				////(5) if the library being added has a bardcode that is something other than NONE (meaning a real barcode sequence) AND if a library already on the cell has that same barcode, then terminate. 
+				////(6) do we want to maintain only a single jobId for a cell???
+			   
 
 			  //case 1: identify the adaptor barcode for the library being added; it's barcode is either NONE (no multiplexing) or has some more interesting barcode sequence (for multiplexing, such as AACTG)
 			  Adaptor adaptorOnLibraryBeingAdded = null;
 			  try{
-				  adaptorOnLibraryBeingAdded = adaptorDao.getAdaptorByAdaptorId(Integer.valueOf(MetaHelper.getMetaValue("genericLibrary", "adaptor", library.getSampleMeta())));
+				  adaptorOnLibraryBeingAdded = adaptorDao.getAdaptorByAdaptorId(Integer.valueOf(MetaHelper.getMetaValue("genericLibrary", "adaptor", libraryToBeAddedToCell.getSampleMeta())));
 			  } catch(NumberFormatException e){
 				  throw new MetadataException("Cannot convert genericLibrary.adaptor meta result to Integer: "+e.getMessage());
 			  }
@@ -3116,6 +3160,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			  //cases 3, 4, 5, 6 
 			  if (libraries != null) {
 				  for (Sample libraryAlreadyOnCell: libraries) {
+					  if(libraryAlreadyOnCell.getSampleSubtype().getIName().equals("controlLibrarySample")){
+						  continue;
+					  }
 					  Adaptor adaptorOnCell = null;
 					  try{
 						  adaptorOnCell = adaptorDao.getAdaptorByAdaptorId(Integer.valueOf(MetaHelper.getMetaValue("genericLibrary", "adaptor", libraryAlreadyOnCell.getSampleMeta())));
@@ -3140,10 +3187,15 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 					  }
 				  }	
 			  }
-
+		*/
+			  
+			  
+			  
+			  
+			  //all OK, so add new library
 			  SampleSource newSampleSource = new SampleSource(); 
 			  newSampleSource.setSample(cell);
-			  newSampleSource.setSourceSample(library);
+			  newSampleSource.setSourceSample(libraryToBeAddedToCell);
 			  newSampleSource.setIndex(index.getValue());
 			  SampleSource newSampleSourceDB = getSampleSourceDao().save(newSampleSource);//capture the new samplesourceid
 			  
@@ -3293,5 +3345,159 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				meta.add( (SampleSourceMeta) metahelper.getMetaByName(metaValueName) ); // may be new OR existing
 				sampleSourceMetaDao.setMeta(meta, cellLibrary.getId());
 			}
+			
+			/**
+			 * {@inheritDoc}
+			 */
+			@Transactional("entityManager")
+			@Override
+			public Map<Sample, List<SampleSource>> associateUppermostSampleWithCellLibraries(List<SampleSource> cellLibraryList){
+				
+				Map<Sample, List<SampleSource>> sampleCellLibraryListMap = new HashMap<Sample, List<SampleSource>>();
+				
+				for(SampleSource cellLibrary : cellLibraryList){
+					
+					Sample parentSample = this.getLibrary(cellLibrary);
+					
+					while(parentSample.getParentId()!=null){
+						//get the uppermost sample associated with these cellLibraries
+						//parentSample = parentSample.getParent();//this call could have possible lazy loading issues; 02-18-14
+						parentSample = this.getSampleById(parentSample.getParentId());//avoids any possible downstream lazy loading issues
+					}
+					if(sampleCellLibraryListMap.containsKey(parentSample)){
+						sampleCellLibraryListMap.get(parentSample).add(cellLibrary);
+					}
+					else{
+						List<SampleSource> cellLibraryListForASample = new ArrayList<SampleSource>();
+						cellLibraryListForASample.add(cellLibrary);
+						sampleCellLibraryListMap.put(parentSample, cellLibraryListForASample);
+					}
+				}
+				return sampleCellLibraryListMap;
+			}
+			
+			/**
+			 * {@inheritDoc}
+			 */
+			@Transactional("entityManager")
+			@Override
+			public boolean confirmSamplePairIsOfSameSpecies(Sample s1, Sample s2) {
+				
+				Integer s1OrganismId = this.getIdOfOrganism(s1);
+				Integer s2OrganismId = this.getIdOfOrganism(s2);
+				if( s1OrganismId.intValue()==0 || s2OrganismId.intValue()==0 ){
+					logger.debug("one or both organisms of this samplePair is Not known"); 
+					return false;
+				}
+				else if(s1OrganismId.intValue()!=s2OrganismId.intValue()){
+					logger.debug("samplePair Not of same organism"); 
+					return false;
+				}
+				return true;
+			}
+			
+			
+			/**
+			 * {@inheritDoc}
+			 */
+			@Transactional("entityManager")
+			@Override
+			public List<Integer> convertCellLibraryListToIdList(List<SampleSource> cellLibraryList){
+				List<Integer> list = new ArrayList<Integer>();
+				for(SampleSource ss : cellLibraryList){
+					list.add(ss.getId());
+				}
+				return list;
+			}
+			
+			/**
+			 * {@inheritDoc}
+			 */
+			@Transactional("entityManager")
+			@Override
+			public void addControlLibraryToCell(Sample cell, Sample controlLibraryToBeAdded, Float libConcInCellPicoM) throws SampleTypeException, SampleSubtypeException, SampleException, SampleMultiplexException, MetadataException{
+			
+				  //reworked by dubin, 7-9-14
+				
+				  Assert.assertParameterNotNull(cell, "No cell provided");
+				  Assert.assertParameterNotNullNotZero(cell.getId(), "Invalid cell Provided");
+				  Assert.assertParameterNotNull(controlLibraryToBeAdded, "No library provided");
+				  Assert.assertParameterNotNullNotZero(controlLibraryToBeAdded.getId(), "Invalid library Provided");
+				  Assert.assertParameterNotNull(libConcInCellPicoM, "No lib conc provided");
+				  if (!isCell(cell)){
+					  throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+				  }
+				  if (!this.isLibrary(controlLibraryToBeAdded)){
+					  throw new SampleTypeException("Expected 'library' but got Sample of type '" + controlLibraryToBeAdded.getSampleType().getIName() + "' instead.");
+				  }
+				  if(!controlLibraryToBeAdded.getSampleSubtype().getIName().equals("controlLibrarySample")){
+					  throw new SampleSubtypeException("Expected 'controlLibrarySample' but got Sample with SampleSubtype '" + controlLibraryToBeAdded.getSampleSubtype().getIName() + "' instead.");
+				  }
+		  
+				  //as of 7-8-14, only permit ONE control library per flowcell lane
+				  //the web page should prevent this, but just in case....
+				  if(this.getControlLibrariesOnCell(cell).size()>0){
+					  throw new SampleException("Only one control library permitted per lane");
+				  }
+				  
+				  //If the control has an adaptor index (barcode), check against the libraries already on the lane and do NOT permit duplicate barcodes. 
+				  //If the control has no adaptor index (barcode), permit addition of this control library except if there already is a library on the lane that lacks a barcode. 
+				  //so, in other words, prohibit libraries with the same barcode and only permit ONE library on the flowcell that lacks a barcode
+				  //so, in other words, if there is a barcode or barcode is not present, only permit ONE library on the flowcell that has that barcode (a valid barcode or an empty (none) barcode)
+				  //so, in other word, If the control library being added has a valid barcode or if it has no barcode (empty barcode), only permit ONE library on the flowcell that has that barcode (a valid barcode or an empty (none) barcode).
+				  
+				  Adaptor adaptorOnControlLibraryBeingAdded = null;
+				  String barcodeOnControlLibraryBeingAdded = null;//this is the key variable being used
+				  try{
+					//I'm not certain we should be using getMetaValue("genericLibrary" ... for a controlLibrary, but as of this minute, I have no example of a control Library with an index!)
+					  adaptorOnControlLibraryBeingAdded = adaptorDao.getAdaptorByAdaptorId(Integer.valueOf(MetaHelper.getMetaValue("genericLibrary", "adaptor", controlLibraryToBeAdded.getSampleMeta())));
+					  barcodeOnControlLibraryBeingAdded = adaptorOnControlLibraryBeingAdded.getBarcodesequence();	
+					  if(barcodeOnControlLibraryBeingAdded==null){
+						  barcodeOnControlLibraryBeingAdded = "";//no barcode on the control
+					  }				  
+				  }catch(Exception e){
+					  //this is ok; no adaptor; some control libraries have no adaptor in the metadata, indicating no indexing
+					  logger.debug("Cannot convert genericLibrary.adaptor meta result to Integer or cannot find the requested metadata: "+e.getMessage());
+					  barcodeOnControlLibraryBeingAdded = "";//no barcode on the control
+				  }
+				  
+				  List<Sample> librariesAlreadyOnCell = this.getLibrariesOnCell(cell);//all Libraries, both job-related and control libraries
+				  for(Sample libraryAlreadyOnCell : librariesAlreadyOnCell){
+					  logger.debug("addControlLibraryToCell: Lib on cell: " + libraryAlreadyOnCell.getName());
+					  Adaptor adaptorOnLibraryAlreadyOnCell = null;
+					  String barcodeOnLibraryAlreadyOnCell = null;//this is the key variable being used
+					  try{
+						  adaptorOnLibraryAlreadyOnCell = adaptorDao.getAdaptorByAdaptorId(Integer.valueOf(MetaHelper.getMetaValue("genericLibrary", "adaptor", libraryAlreadyOnCell.getSampleMeta())));
+						  barcodeOnLibraryAlreadyOnCell = adaptorOnLibraryAlreadyOnCell.getBarcodesequence();	
+						  if(barcodeOnLibraryAlreadyOnCell==null){
+							  barcodeOnLibraryAlreadyOnCell = "";//no barcode
+						  }					  
+					  }catch(Exception e){
+						  //this is ok; no adaptor; some one library per lane may have no adaptor in the metadata or an adaptor with no barcode, indicating no indexing
+						  logger.debug("Cannot convert genericLibrary.adaptor meta result to Integer or cannot find the requested metadata: "+e.getMessage());
+						  barcodeOnLibraryAlreadyOnCell = "";//no barcode
+					  }
+					  if(barcodeOnControlLibraryBeingAdded.equalsIgnoreCase(barcodeOnLibraryAlreadyOnCell)){
+						  throw new SampleMultiplexException("addControlLibraryToCell: You may not have two libraries with same barcode (which could be no barcode)");
+					  }
+				  }
+				  
+				  //OK; no conflicts, so add control library to the lane
+				  SampleSource newSampleSource = new SampleSource(); 
+				  newSampleSource.setSample(cell);
+				  newSampleSource.setSourceSample(controlLibraryToBeAdded);
+				  //newSampleSource.setIndex(index.getValue());
+				  newSampleSource = getSampleSourceDao().save(newSampleSource);//capture the new samplesourceid
+				  
+				  try{
+					  //setJobForLibraryOnCell(cell, library); //no job for control library
+					  setLibraryOnCellConcentration(cell, controlLibraryToBeAdded, libConcInCellPicoM);		  
+				  } catch(Exception e){
+					  logger.debug("Unable to set LibraryOnCell SampleSourceMeta");
+					  throw new MetadataException("Unable to set LibraryOnCell SampleSourceMeta");
+				  }
+				  logger.debug("OK, was able to add controlLibrary to Lane: " + cell.getName());				  
+			}
+
 }
 

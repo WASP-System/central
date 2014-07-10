@@ -63,6 +63,8 @@ import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 @Service
 public interface JobService extends WaspMessageHandlingService {
 
+	public static final String REPLICATE_SETS_META_KEY = "replicateSets";
+	
 	/**
 	 * setJobDao(JobDao jobDao)
 	 * 
@@ -674,5 +676,9 @@ public interface JobService extends WaspMessageHandlingService {
 	public JobSampleDao getJobSampleDao();
 	
 	public Job getJobForCellLibrary(SampleSource cellLibrary);
+
+	public void setJobDraftService(JobDraftService mockJobDraftServiceImpl);
+	 
+	public List<List<Sample>> getSampleReplicates(Job job);
 
 }

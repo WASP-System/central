@@ -10,7 +10,7 @@
 <div >
 	<table class="EditTable ui-widget ui-widget-content">
 	<tr class="FormData"><td  class="CaptionTD"><fmt:message key="jobDraft.comment_optional.label" /></td></tr>
-	<tr class="FormData"><td ><textarea id="comment" name="comment" cols="70" rows="6"><c:out value="${comment}" /></textarea></td></tr>	
+	<tr class="FormData"><td ><textarea id="comment" name="comment" cols="70" rows="6"><c:out value="${comment}"  /></textarea></td></tr>	
 	<tr class="FormData"><td >&nbsp;</td></tr>	
 	</table>
 </div>

@@ -19,7 +19,7 @@ public class SnpEff extends SoftwarePackage{
 	}
 	
 	public static String getSnpEffGenomeDatabaseName(Build build){
-		return build.getGenome().getName() + "." + build.getName();
+		return build.getMetadata("snpeff.database.name");
 	}
 	
 	/**

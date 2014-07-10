@@ -250,16 +250,15 @@ public class ChipSeqPlugin extends WaspPlugin implements
 	@Override
 	public Set<PanelTab> getViewPanelTabs(Job job) throws PanelException{
 		try{
-			//recall that the summary panelTab is now provided directly from within the web: ResultViewController()			
-			
+			//the summary panelTab is now provided directly from within the web: ResultViewController()					
 			Set<PanelTab> panelTabSet = new LinkedHashSet<PanelTab>();
-			 //TODO: ROBERT A DUBIN uncomment this for production    if(this.getStatus(job).toString().equals(Status.COMPLETED.toString())){
+			 if(this.getStatus(job).toString().equals(Status.COMPLETED.toString())){
 				JobDataTabViewing peakcallerPlugin = chipSeqService.getPeakcallerPlugin(job);//at this time, only option is macstwo
 				Set<PanelTab> downstreamPanelTabSet = peakcallerPlugin.getViewPanelTabs(job);//all the macstwo specific info
 				if(downstreamPanelTabSet != null && !downstreamPanelTabSet.isEmpty()){
 					panelTabSet.addAll(downstreamPanelTabSet);
 				}
-			//}
+			}
 			return panelTabSet;
 		}catch(Exception e){
 			throw new PanelException(e.getMessage());

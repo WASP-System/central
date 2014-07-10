@@ -35,6 +35,8 @@ public abstract class AbstractGatkTasklet extends WaspRemotingTasklet {
 	
 	public static int MEMORY_GB_8 = 8;
 	
+	public static int MEMORY_GB_16 = 16;
+	
 
 	@Autowired
 	protected JobService jobService;

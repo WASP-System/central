@@ -94,6 +94,7 @@ function sendFormViaGetAndShowModlessDialog(formObjectId, theUrl){
 
 //used for comments, viewerManager 
 function postFormWithAjax(formObjectId, theUrl){
+	$("#wait_dialog-modal").dialog("open");
 	var frm = $("#" + formObjectId);
 	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel; http://stackoverflow.com/questions/1331335/how-to-get-the-selected-tab-panel-element-in-jquery-ui-tabs 
 	$.ajax({
@@ -101,9 +102,11 @@ function postFormWithAjax(formObjectId, theUrl){
         url: theUrl,
         data: frm.serialize(), // for example sampleSubtypeId=5&sampleTypeId=2&name=input1 
         success: function (response) {
+        	$("#wait_dialog-modal").dialog("close");
         	selectedPanel.html(response);
         },
         error: function (response) {
+        	$("#wait_dialog-modal").dialog("close");
         	selectedPanel.html('<fmt:message key="jobHomeHomepage.unexpectedFailure.label" />');
         }
     });
@@ -113,6 +116,7 @@ function postFormWithAjax(formObjectId, theUrl){
 //used for the samples and libraries; this way, the objects on the page are sent as json objects 
 //look at this, it's good: http://blog.springsource.org/2010/01/25/ajax-simplifications-in-spring-3-0/
 function postFormWithAjaxJson(formObjectId, theUrl){
+	$("#wait_dialog-modal").dialog("open");
 	var frm = $("#" + formObjectId);  
 	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel 
 	var serializedObject = {};
@@ -136,9 +140,11 @@ function postFormWithAjaxJson(formObjectId, theUrl){
         data: jsonData,
         contentType: 'application/json',
         success: function (response) {
+        	$("#wait_dialog-modal").dialog("close");
         	selectedPanel.html(response);
         },
 		error: function (response) {
+			$("#wait_dialog-modal").dialog("close");
 			selectedPanel.html('<fmt:message key="jobHomeHomepage.unexpectedFailure.label" />');
     	}
     });
@@ -164,14 +170,17 @@ function uploadJqueryForm(formObjectId){
      
 //used on viewerManager to remove a viewer via an ajax GET, using only parth variable parameters in the rest part of URL 
 function doGetWithAjax(theUrl) {
+	$("#wait_dialog-modal").dialog("open");
    	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel 
 	$.ajax({
         type: "GET",
         url: theUrl,
         success: function (response) {
+        	$("#wait_dialog-modal").dialog("close");
         	selectedPanel.html(response);
         },
         error: function (response) {
+        	$("#wait_dialog-modal").dialog("close");
         	selectedPanel.html('<fmt:message key="jobHomeHomepage.unexpectedFailure.label" />');
         }
     });

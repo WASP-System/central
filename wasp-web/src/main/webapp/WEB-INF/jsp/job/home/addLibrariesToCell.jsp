@@ -8,7 +8,7 @@
 <a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${job.getId()}/requests.do?onlyDisplayCellsRequested=true" />");' ><fmt:message key="jobHomeAddLibrariesToCell.viewLaneRequest.label" /></a>
 <a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/samples.do" />");' ><fmt:message key="jobHomeAddLibrariesToCell.backTo.label" /></a><br />
 <br /><br />
-<form  method='post' name='addLibrariesToCell' id="addLibrariesToCellId" action="" 
+<form method='post' name='addLibrariesToCell' id="addLibrariesToCellId" action="" 
 	onsubmit='	 
 				var s = document.getElementById("cellId"); 
 				var sVal = s.options[s.selectedIndex].value; 
@@ -46,8 +46,7 @@
 				if(atLeastOneTextboxWithValidValue==false){
 					alert("<fmt:message key="jobHomeAddLibrariesToCell.youMustProvideAConcentration.label" />");
 					return false;
-				}	
-				 										
+				}								
 				postFormWithAjax("addLibrariesToCellId", "<wasp:relativeUrl value="job/${job.getId()}/addLibrariesToCell.do" />"); 
 				return false;' >
 

@@ -18,10 +18,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -68,6 +64,12 @@ import edu.yu.einstein.wasp.util.PropertyHelper;
  */
 @Transactional("entityManager")
 public class SgeWorkService implements GridWorkService, ApplicationContextAware {
+	
+	private static final String COPY_RESULTS_FILES_KEY = "copyResultsFiles";
+	
+	private static final String REGISTER_FILES_KEY = "registerFiles";
+	
+	private static final String CLEAN_COMPLETED_JOB_KEY = "cleanUpCompletedJob";
     
     @Value("${wasp.developermode:false}")
     protected boolean developerMode;
@@ -346,74 +348,97 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 
 	/**
 	 * {@inheritDoc}
+	 * Checks if finished and will update the state of the provided GridResult with the latest information about the job.
 	 * @throws GridUnresolvableHostException 
 	 */
 	@Override
 	public boolean isFinished(GridResult g) throws GridException {
-
 		String jobname = this.jobNamePrefix + g.getUuid().toString();
 		
 		logger.debug("testing for completion of " + jobname);
 		
 		boolean died = false;
-		boolean started = isJobStarted(g);
-		boolean ended = isJobOrTaskArrayEnded(g);
-		logger.debug("Job status semaphores (started, ended): " + started + ", " + ended);
-		if (started && !ended){
-			final int INCREMENT_FACTOR = 2;
-			final int NEVER_TIME_OUT = -1;
-			final int ZERO_TIME_OUT = 0;
-			Integer waitMs = 1000;
-			int totalWaitedMs = 0;
-			boolean timedOut = false;
-			do {
-				try {
-					died = didDie(g, jobname, started, ended);
-				} catch (SAXException e) {
-					// TODO: improve this logic
-					logger.warn("caught SAXException, skipping as if job has not died");
-					e.printStackTrace();
-					died = false;
-				}
-				if (died) { 
-					// maybe end file not there yet due to nfs problem so hasn't actually died. 
-					if (nfsTimeout == ZERO_TIME_OUT){
-						logger.debug("job unknown and 'end' semaphore missing. Assuming job failed.");
-						timedOut = true;
+		boolean started;
+		boolean	ended;
+		if (g.getJobStatus().isEnded()){
+			started = true;
+			ended = true;
+		} else {
+			started = isJobStarted(g);
+			ended = isJobOrTaskArrayEnded(g);
+			logger.debug("Job status semaphores (started, ended): " + started + ", " + ended);
+			if (started && !ended){
+				final int INCREMENT_FACTOR = 2;
+				final int NEVER_TIME_OUT = -1;
+				final int ZERO_TIME_OUT = 0;
+				Integer waitMs = 1000;
+				int totalWaitedMs = 0;
+				boolean timedOut = false;
+				do {
+					try {
+						died = didDie(g, jobname, started, ended);
+					} catch (SAXException e) {
+						// TODO: improve this logic
+						logger.warn("caught SAXException, skipping as if job has not died");
+						e.printStackTrace();
+						died = false;
 					}
-					else {
-						logger.debug("job unknown and 'end' semaphore missing. Waiting " + waitMs + " ms then checking status again");
-						try {
-							Thread.sleep(waitMs); // wait a bit and see if file appears on nfs
-						} catch (InterruptedException e) {
-							logger.warn(e.getLocalizedMessage());
-						}
-						if ( totalWaitedMs >= nfsTimeout && nfsTimeout != NEVER_TIME_OUT){
-							logger.debug("job unknown and 'end' semaphore missing. Wait timeout of " + nfsTimeout + " ms exceeded so job failure assumed");
+					if (died) { 
+						// maybe end file not there yet due to nfs problem so hasn't actually died. 
+						if (nfsTimeout == ZERO_TIME_OUT){
+							logger.debug("job unknown and 'end' semaphore missing. Assuming job failed.");
 							timedOut = true;
 						}
-						totalWaitedMs += waitMs;
-						waitMs *= INCREMENT_FACTOR;
-						if (totalWaitedMs + waitMs > nfsTimeout && nfsTimeout != NEVER_TIME_OUT)
-							waitMs = nfsTimeout - totalWaitedMs;
-						ended = isJobOrTaskArrayEnded(g);
+						else {
+							logger.debug("job unknown and 'end' semaphore missing. Waiting " + waitMs + " ms then checking status again");
+							try {
+								Thread.sleep(waitMs); // wait a bit and see if file appears on nfs
+							} catch (InterruptedException e) {
+								logger.warn(e.getLocalizedMessage());
+							}
+							if ( totalWaitedMs >= nfsTimeout && nfsTimeout != NEVER_TIME_OUT){
+								logger.debug("job unknown and 'end' semaphore missing. Wait timeout of " + nfsTimeout + " ms exceeded so job failure assumed");
+								timedOut = true;
+							}
+							totalWaitedMs += waitMs;
+							waitMs *= INCREMENT_FACTOR;
+							if (totalWaitedMs + waitMs > nfsTimeout && nfsTimeout != NEVER_TIME_OUT)
+								waitMs = nfsTimeout - totalWaitedMs;
+							ended = isJobOrTaskArrayEnded(g);
+						}
 					}
-				}
-			} while (died && !timedOut);
+				} while (died && !timedOut);
+			}
+			logger.debug("Job Status (ended, died): " + ended + ", " + died);
 		}
 		
-		logger.debug("Job Status (ended, died): " + ended + ", " + died);
 		if (died) {
 			cleanUpAbnormallyTerminatedJob(g);
 			g.setArchivedResultOutputPath(getFailedArchiveName(g));
+			((GridResultImpl) g).setExitCode(g.getExitCode() > 1 ? g.getExitCode() : 1);
 			throw new GridExecutionException("abnormally terminated job");
 		}
+		
 		if (ended) {
+			g.setJobStatus(GridJobStatus.ENDED);
 			logger.debug("packaging " + jobname);
 			cleanUpCompletedJob(g);
 			g.setArchivedResultOutputPath(getCompletedArchiveName(g));
+			for (String key : g.getChildResults().keySet()){
+				GridResult r = g.getChildResults().get(key);
+				if (r == null){
+					logger.debug("Parent grid job has ended but child job key=" + key + " has no grid result yet so going to return false");
+					return false;
+				}
+				logger.debug("Child job key=" + key + " has status=" + r.getJobStatus());
+				if (!r.getJobStatus().isFinished()){
+					logger.debug("Parent grid job has ended but child job key=" + key + " is not finished so going to return false");
+					return false;
+				}
+			}
+			logger.debug("Parent grid job has ended and no child jobs or all child jobs are complete so going to return true");
+			((GridResultImpl) g).setExitCode(g.getExitCode() > 0 ? g.getExitCode() : 0);
 		}
-		
 		return ended;
 	}
 	
@@ -502,7 +527,11 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	}
 	
 	protected void cleanUpCompletedJob(GridResult g) throws GridException {
-		cleanUpCompletedJob(g.getHostname(), g.getWorkingDirectory(), g.getResultsDirectory(), g.getUuid().toString(), !g.isSecureResults());
+		GridResult cleanCompletedJobResult = g.getChildResult(CLEAN_COMPLETED_JOB_KEY);
+		if (cleanCompletedJobResult == null){
+			cleanCompletedJobResult = cleanUpCompletedJob(g.getHostname(), g.getWorkingDirectory(), g.getResultsDirectory(), g.getUuid().toString(), !g.isSecureResults());
+			g.addChildResult(CLEAN_COMPLETED_JOB_KEY, cleanCompletedJobResult);
+		}
 		if (g.isSecureResults())
 			try {
 				secureResultsFiles(g);
@@ -513,7 +542,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			}
 	}
 
-	protected void cleanUpCompletedJob(String hostname, String workingDirectory, String resultsDirectory, String id, boolean markUnfinished)
+	protected GridResult cleanUpCompletedJob(String hostname, String workingDirectory, String resultsDirectory, String id, boolean markUnfinished)
 			throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
 		logger.debug("Cleaning successful job " + id + " at " + transportConnection.getHostName() + ":" + workingDirectory);
 		
@@ -525,9 +554,9 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		String command = "touch " + manifestFile + " && find . -name '" + jobNamePrefix + id + "*' -print | sed 's/^\\.\\///' > " + manifestFile + " && " + 
 				"tar --remove-files -czf " + outputFile + " -T " + manifestFile;
 		if (markUnfinished) {
-			command += " && touch " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME;
+			command += " && touch " + id + "." + WorkUnit.PROCESSING_INCOMPLETE_FILENAME;
 		} else {
-		        command += " && rm -f " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME;
+			command += " && rm -f " + id + "." + WorkUnit.PROCESSING_INCOMPLETE_FILENAME;
 		}
 		String prd = transportConnection.prefixRemoteFile(resultsDirectory);
 		if (!w.getWorkingDirectory().equals(prd)) {
@@ -544,12 +573,14 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		}
 		
 		try {
-			transportConnection.sendExecToRemote(w);
+			return transportConnection.sendExecToRemote(w);
 		} catch (MisconfiguredWorkUnitException e) {
 			logger.warn(e.getLocalizedMessage());
 			throw new GridExecutionException(e.getLocalizedMessage(), e);
 		}
 	}
+	
+	
 	
 	/**
 	 * copy declared result files to results directory and register
@@ -560,7 +591,14 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	 */
 	protected void secureResultsFiles(GridResult g) throws GridException, FileNotFoundException {
 		if (g.getFileHandleIds() != null && g.getFileHandleIds().size() > 0) {
-			copyResultsFiles(g);
+			// if copy job has not bee initiated initiate it now
+			if (g.getChildResult(COPY_RESULTS_FILES_KEY) == null)
+				copyResultsFiles(g);
+			if (!isFinished(g.getChildResult(COPY_RESULTS_FILES_KEY))){
+				logger.debug("found an existing unfinished copy job associated with this grid result so going to return now");
+				return;
+			}
+			// copy job finished. Proceed to register
 			List<FileHandle> fhl = new ArrayList<FileHandle>();
 			for (Integer id : g.getFileHandleIds()) {
 				logger.debug("calling: getFileService().getFileHandleById(" + id + ") ");
@@ -568,17 +606,23 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			    fhl.add(fh);
 			}    
 			logger.debug("calling: getFileService().register(" + fhl + ") ");
-			getFileService().register(fhl);
+			g.addChildResult(REGISTER_FILES_KEY, getFileService().register(fhl, g.getChildResult(REGISTER_FILES_KEY)));
 		}
 	}
 	
 	protected void copyResultsFiles(GridResult g) throws GridException {
+		GridResult r = g.getChildResult(COPY_RESULTS_FILES_KEY);
+		if (r != null){
+			logger.debug("found an existing copy job associated with this grid result so going to return now");
+			return;
+		}
+		logger.debug("No Existing copy results files job registered so going to create one now");
 		WorkUnit w = new WorkUnit();
 		w.setWorkingDirectory(g.getWorkingDirectory());
 		w.setResultsDirectory(g.getResultsDirectory());
 		w.setRegistering(true);
 		w.setMode(ExecutionMode.TASK_ARRAY);
-		w.addCommand("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then ls -1 > /dev/null && touch " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
+		w.addCommand("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then ls -1 > /dev/null && touch " + w.getId() + "." + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
 		int files = 0;
 		logger.trace("preparing to copy " + g.getFileHandleIds().size() + " files for GridResult " + g.getUuid().toString());
 		for (Integer hid : g.getFileHandleIds()) {
@@ -593,27 +637,9 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		w.addCommand("THIS=${COPY[ZERO_TASK_ID]}");
 		w.addCommand("read -ra FILE <<< \"$THIS\"");
 		w.addCommand("cp -f ${FILE[0]} ${" + WorkUnit.RESULTS_DIRECTORY + "}${FILE[1]}");
-		w.addCommand("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then rm -f " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
-		GridResult r = execute(w);
-		logger.trace("waiting for results file copy");
-		ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
-		String poll = transportConnection.getConfiguredSetting("host.pollinterval");
-		if (poll == null) 
-			poll = "10000"; // 10s
-		Integer pollint = Integer.parseInt(poll);
-		while (!isFinished(r)) {
-			ScheduledFuture<?> md5t = ex.schedule(new Runnable() {
-				@Override
-				public void run() {
-				}
-			}, pollint, TimeUnit.MILLISECONDS);
-			while (!md5t.isDone()) {
-				// not done
-			}
-		}
-		ex.shutdownNow();
-		logger.trace("copied");
-
+		w.addCommand("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then rm -f " + w.getId() + "." + WorkUnit.PROCESSING_INCOMPLETE_FILENAME + "; fi");
+		r = execute(w);
+		g.addChildResult(COPY_RESULTS_FILES_KEY, r);
 	}
 	
 	protected void cleanUpAbnormallyTerminatedJob(GridResult g) throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
@@ -630,7 +656,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		String manifestFile = jobNamePrefix + id + ".manifest";
 		String command = "touch " + manifestFile + " && find . -name '" + jobNamePrefix + id + "*' -print | sed 's/^\\.\\///' > " + manifestFile + " && " + 
 				"tar --remove-files -czf " + outputFile + " -T " + manifestFile;
-		command += " && rm -f " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME;
+		command += " && rm -f " + w.getId() + "." + WorkUnit.PROCESSING_INCOMPLETE_FILENAME;
 		String prd = transportConnection.prefixRemoteFile(resultsDirectory);
 		if (!w.getWorkingDirectory().equals(prd)) {
 				command += " && cp " + outputFile + " " + prd;
@@ -674,16 +700,17 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			sss.setMailCircumstances(getMailCircumstances());
 		if(getMaxRunTime() != null)
 			sss.setMaxRunTime(getMaxRunTime());
-		if (!w.getProcessMode().equals(ProcessMode.SINGLE)){
+		if (!w.getProcessMode().equals(ProcessMode.SINGLE) && w.getProcessorRequirements() > 1){
 			if (w.getParallelEnvironment() != null && !w.getParallelEnvironment().isEmpty()){
 				if (!getAvailableParallelEnvironments().contains(w.getParallelEnvironment()))
 					throw new MisconfiguredWorkUnitException("Parallel environment specified in work unit is not registered as an available parallel environment in the Grid Work Service");
 				sss.setParallelEnvironment(w.getParallelEnvironment(), w.getProcessorRequirements());
-			} else if (w.getProcessMode().equals(ProcessMode.MPI)){
-				if (getDefaultMpiParallelEnvironment() != null && !w.getParallelEnvironment().isEmpty()){
+			} else {
+				if (w.getProcessMode().equals(ProcessMode.MPI) && getDefaultMpiParallelEnvironment() != null && !getDefaultMpiParallelEnvironment().isEmpty()){
+					logger.info("Seleted default MPI parallel environment");
 					sss.setParallelEnvironment(getDefaultMpiParallelEnvironment(), w.getProcessorRequirements());
-				} else if (getDefaultParallelEnvironment() != null){
-					logger.info("No default MPI parallel environment set so using default parallel environment");
+				} else if (getDefaultParallelEnvironment() != null && !getDefaultParallelEnvironment().isEmpty()){
+					logger.info("Selected default parallel environment");
 					sss.setParallelEnvironment(getDefaultParallelEnvironment(), w.getProcessorRequirements());
 				} else if (getAvailableParallelEnvironments().size() == 1){
 					logger.info("No default parallel environments set so falling back to only known parallel environment in set of available parallel environments");
@@ -734,6 +761,10 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		String submit = "qsub " + jobNamePrefix + w.getId() + ".sh 2>&1";
 		w.setWrapperCommand(submit);
 		GridResultImpl result = (GridResultImpl) transportConnection.sendExecToRemote(w);
+		if (result.getExitCode() > 0)
+			throw new GridAccessException("Remote job submission failed");
+		result.setExitCode(-1); // reset to default value
+		result.setJobStatus(GridJobStatus.STARTED);
 		result.setUuid(UUID.fromString(w.getId()));
 		result.setId(jobNamePrefix + w.getId());
 		result.setWorkingDirectory(w.getWorkingDirectory());
@@ -1006,8 +1037,13 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			// 'mem_free' specifies how much memory should be free on a node before scheduling a job (or task) there 
 			// 'h_vmem' specifies maximum memory a scheduled job (or task) may use. Will kill job / task 
 			// with a memory allocation error if memory used exceeds this value
-			return getFlag() + " -l mem_free=" + w.getMemoryRequirements().toString() + "G\n" +
-					WorkUnit.REQUESTED_GB_MEMORY + "=" + w.getMemoryRequirements().toString() + "\n";
+			int memRequested = w.getMemoryRequirements(); // allocation per slot
+			int totalMemory = memRequested; // total for job
+			if (memRequested > 1 && w.getProcessorRequirements() > 1 && getParallelEnvironment() != null && !getParallelEnvironment().isEmpty()){
+				memRequested = Math.round(memRequested / w.getProcessorRequirements());
+				totalMemory = memRequested * w.getProcessorRequirements(); // may be modified by rounding hence recalculate total
+			}
+			return getFlag() + " -l mem_free=" + memRequested + "G\n" +	WorkUnit.REQUESTED_GB_MEMORY + "=" + totalMemory + "\n";
 		}
 		
 		/** 
@@ -1100,6 +1136,8 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		 */
 		@Override
 		public String getParallelEnvironment() {
+			if (isNumProcConsumable && !w.getMode().equals(ProcessMode.MPI))
+				return ""; // TODO: this is not ideal - satisfies Einstein requirement to reserve resources but not specify PE unless MPI
 			return parallelEnvironment;
 		}
 

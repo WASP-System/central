@@ -36,6 +36,7 @@ import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.filetype.FileTypeAttribute;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
+import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.interfacing.Hyperlink;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
@@ -238,6 +239,8 @@ public interface FileService extends WaspService {
 	 * @throws GridException
 	 */
 	public void register(Collection<FileHandle> fileHandles) throws FileNotFoundException, GridException;
+	
+	public GridResult register(Collection<FileHandle> fileHandles, GridResult result) throws FileNotFoundException, GridException;
 	
 	public FileHandle getFileHandle(UUID uuid) throws FileNotFoundException;
 
