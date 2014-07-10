@@ -795,32 +795,38 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 
 	
 
-	public enum Md5 { YES, NO };
+	public enum Md5 { WAIT, NOWAIT, NO };
 	
 	@Override
 	public void register(Collection<FileHandle> fhc) throws FileNotFoundException, GridException {
-		register(fhc, Md5.YES);
+		register(fhc, Md5.WAIT, null);
+	}
+	
+	@Override
+	public GridResult register(Collection<FileHandle> fhc, GridResult result) throws FileNotFoundException, GridException {
+		return register(fhc, Md5.NOWAIT, result);
 	}
 	
 	@Override
 	public void registerWithoutMD5(Collection<FileHandle> fhc) throws FileNotFoundException, GridException {
-		register(fhc, Md5.NO);
+		register(fhc, Md5.NO, null);
 	}
 	
-	public List<FileHandle> register(Collection<FileHandle> fhc, Md5 md5) throws FileNotFoundException, GridException {
+	public GridResult register(Collection<FileHandle> fhc, Md5 md5, GridResult result) throws FileNotFoundException, GridException {
 	    List<FileHandle> retval = new ArrayList<FileHandle>();
 	    for (FileHandle fh : fhc) {
-	        logger.debug("attempting to register FileHandle: " + fh.getId());
-	        fh = fileHandleDao.merge(fh);
-		validateFile(fh);
-		retval.add(fh);
+	    	if (result == null){ // if returning to this method after starting grid job we don't need to do this again
+	        	logger.debug("attempting to register FileHandle: " + fh.getId());
+		        fh = fileHandleDao.save(fh);
+		        validateFile(fh);
+	        }
+	    	else 
+	    		logger.debug("Awaiting register completion for FileHandle: " + fh.getId());
+	        retval.add(fh);
 	    }
-            if (md5.equals(Md5.YES))
-		setMD5(retval);
-            for (FileHandle fh : retval) {
-		fileHandleDao.save(fh);
-	    }
-            return retval;
+	    if (!md5.equals(Md5.NO))
+	    	return setMD5(retval, result, md5);
+	    return result;
 	}
 
 	private void validateFile(FileHandle file) throws FileNotFoundException {
@@ -838,84 +844,90 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 
 	}
 
-	private void setMD5(List<FileHandle> fileHandles) throws GridException, FileNotFoundException {
+	private GridResult setMD5(List<FileHandle> fileHandles, GridResult r, Md5 md5Selection) throws GridException, FileNotFoundException {
 
 		if (fileHandles.isEmpty())
 			throw new FileNotFoundException("No file handles to set MD5");
-
+		
 		String host = fileHandles.iterator().next().getFileURI().getHost();
-
-		// use task array to submit in one batch
-		WorkUnit w = new WorkUnit();
-		w.setRegistering(true);
-		w.setSecureResults(true);
-		w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
-		//w.setWorkingDirectory(WorkUnit.TMP_DIR_PLACEHOLDER);
-		w.setMode(ExecutionMode.TASK_ARRAY);
-
-		int numFiles = 0;
-
-		for (FileHandle f : fileHandles) {
-			String fileHost = f.getFileURI().getHost().toString();
-			if (!fileHost.equals(host))
-				throw new GridAccessException("files must all reside on the same host for calculating MD5 by file group");
-
-			numFiles++;
-			w.addRequiredFile(f);
-
-			w.setCommand("md5sum ${WASPFILE[ZERO_TASK_ID]} | awk '{print $1}' > $WASP_TASK_OUTPUT");
-
-			try {
-				// TODO: URN resolution
-				URL url = f.getFileURI().toURL();
-			} catch (MalformedURLException e) {
-				String message = "malformed url " + f.getFileURI().toString();
-				logger.warn(message);
-				throw new FileNotFoundException(message);
-			}
-			logger.debug("added " + f.getFileURI() + " to get MD5");
-		}
-
-		w.setNumberOfTasks(numFiles);
-
 		GridWorkService gws = hostResolver.getGridWorkService(host);
-		GridResult r = gws.execute(w);
-
-		logger.trace("waiting for file registration");
-		ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
-		while (!gws.isFinished(r)) {
-			ScheduledFuture<?> md5t = ex.schedule(new Runnable() {
-				@Override
-				public void run() {
+		if (r == null || r.getJobStatus().isUnknown()){
+			// use task array to submit in one batch
+			WorkUnit w = new WorkUnit();
+			w.setRegistering(true);
+			w.setSecureResults(true);
+			w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
+			//w.setWorkingDirectory(WorkUnit.TMP_DIR_PLACEHOLDER);
+			w.setMode(ExecutionMode.TASK_ARRAY);
+	
+			int numFiles = 0;
+	
+			for (FileHandle f : fileHandles) {
+				String fileHost = f.getFileURI().getHost().toString();
+				if (!fileHost.equals(host))
+					throw new GridAccessException("files must all reside on the same host for calculating MD5 by file group");
+	
+				numFiles++;
+				w.addRequiredFile(f);
+	
+				w.setCommand("md5sum ${WASPFILE[ZERO_TASK_ID]} | awk '{print $1}' > $WASP_TASK_OUTPUT");
+	
+				try {
+					// TODO: URN resolution
+					URL url = f.getFileURI().toURL();
+				} catch (MalformedURLException e) {
+					String message = "malformed url " + f.getFileURI().toString();
+					logger.warn(message);
+					throw new FileNotFoundException(message);
 				}
-			}, 20, TimeUnit.SECONDS);
-			while (!md5t.isDone()) {
-				// not done
+				logger.debug("added " + f.getFileURI() + " to get MD5");
 			}
+	
+			w.setNumberOfTasks(numFiles);
+	
+			r = gws.execute(w);
+			logger.debug("registerFiles job Status is: " + r.getJobStatus());
 		}
-		ex.shutdownNow();
-		logger.trace("registered, getting results");
-		
-		try {
-			Map<Integer, String> output = gws.getMappedTaskOutput(r);
 
-			Iterator<FileHandle> fhi = fileHandles.iterator();
-			for (int rec=1; rec <= fileHandles.size(); rec++) {
-			    FileHandle f = fhi.next();
-			    String md5 = StringUtils.chomp(output.get(rec));
-			    if (md5 == null || md5.length() != 32) {
-			        logger.error("unable to find valid MD5 result for " + f.getFileName() + " saw: '" + md5 + "'");
-			        continue;
-			    }
-			    logger.debug("MD5: " + rec + " : " + md5 + ":" + f.getFileName());
-			    f.setMd5hash(md5);
-			    fileHandleDao.save(f);
-			    logger.debug("file registered with MD5: " + f.getMd5hash());
+		if (md5Selection.equals(Md5.WAIT)){
+			logger.debug("waiting for file registration");
+			ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
+			while (!gws.isFinished(r)) {
+				ScheduledFuture<?> md5t = ex.schedule(new Runnable() {
+					@Override
+					public void run() {
+					}
+				}, 20, TimeUnit.SECONDS);
+				while (!md5t.isDone()) {
+					// not done
+				}
 			}
-		} catch (IOException e) {
-			throw new GridException("unable to read output of task array", e);
+			ex.shutdownNow();
 		}
-		
+		if ((md5Selection.equals(Md5.WAIT) || gws.isFinished(r)) && r.getJobStatus().isCompletedSuccessfully()){
+			logger.debug("registered, getting results");
+			
+			try {
+				Map<Integer, String> output = gws.getMappedTaskOutput(r);
+	
+				Iterator<FileHandle> fhi = fileHandles.iterator();
+				for (int rec=1; rec <= fileHandles.size(); rec++) {
+				    FileHandle f = fhi.next();
+				    String md5 = StringUtils.chomp(output.get(rec));
+				    if (md5 == null || md5.length() != 32) {
+				        logger.error("unable to find valid MD5 result for " + f.getFileName() + " saw: '" + md5 + "'");
+				        continue;
+				    }
+				    logger.debug("MD5: " + rec + " : " + md5 + ":" + f.getFileName());
+				    f.setMd5hash(md5);
+				    fileHandleDao.save(f);
+				    logger.debug("file registered with MD5: " + f.getMd5hash());
+				}
+			} catch (IOException e) {
+				throw new GridException("unable to read output of task array", e);
+			} 
+		}
+		return r;
 	}
 
 	@Override

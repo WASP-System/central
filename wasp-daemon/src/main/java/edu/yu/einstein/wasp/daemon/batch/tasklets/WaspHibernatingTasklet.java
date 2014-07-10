@@ -50,11 +50,11 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 	
 	@Autowired
 	@Value("${wasp.hibernation.retry.exponential.initialInterval:5000}")
-	private Long initialExponentialInterval;
+	protected Long initialExponentialInterval;
 	
 	@Autowired
 	@Value("${wasp.hibernation.retry.exponential.maxInterval:3600000}")
-	private Long maxExponentialInterval;
+	protected Long maxExponentialInterval;
 	
 	@Autowired
 	protected BatchJobHibernationManager hibernationManager;
@@ -279,6 +279,10 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 		if (!newTimeInterval.equals(previousTimeInterval))
 			BatchJobHibernationManager.setWakeTimeInterval(stepExecution, newTimeInterval);
 		return newTimeInterval;
+	}
+	
+	protected void setTimeoutIntervalInContext(ChunkContext context, Long timeoutInterval){
+		BatchJobHibernationManager.setWakeTimeInterval(context.getStepContext().getStepExecution(), timeoutInterval);
 	}
 	
 	protected void addStatusMessagesToWakeStepToContext(ChunkContext context, Set<WaspStatusMessageTemplate> templates) throws JSONException{

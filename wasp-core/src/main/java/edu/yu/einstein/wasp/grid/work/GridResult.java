@@ -2,7 +2,7 @@ package edu.yu.einstein.wasp.grid.work;
 
 import java.io.InputStream;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
 
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
@@ -23,7 +23,7 @@ public interface GridResult {
 	 * 
 	 * @return
 	 */
-	public int getExitStatus();
+	public int getExitCode();
 	
 	/**
 	 * STDOUT of GridResult.  Since this can be from the command itself or from the {@link GridWorkService} 
@@ -38,6 +38,32 @@ public interface GridResult {
 	 * @return
 	 */
 	public InputStream getStdErrStream();
+	
+	/**
+	 * Some tasks may add one or more child GridResults to monitor i.e. if the task generating this GridResult also spawns another
+	 * task. Example: a task invokes a long running file copy job that needs to come under the enclosing logic for hibernating and testing for completion.
+	 * @param key
+	 * @return Map of child GridResults and associated isComplete status (true / false)
+	 */
+	public GridResult getChildResult(String key);
+	
+	/**
+	 * Some tasks may add one or more child GridResults to monitor i.e. if the task generating this GridResult also spawns another
+	 * task. Example: a task invokes a long running file copy job that needs to come under the enclosing logic for hibernating and testing for completion.
+	 * This method facilitates adding of child grid results. Use of a key allows methods to locate GridResults they 
+	 * have spawned when called previously. 
+	 * @param key
+	 * @param result
+	 */
+	public void addChildResult(String key, GridResult result);
+	
+	/**
+	 * Some tasks may add one or more child GridResults to monitor i.e. if the task generating this GridResult also spawns another. This method returns
+	 * the Map of GridResults associated with a key provided when set.
+	 * @return
+	 */
+	public Map<String, GridResult> getChildResults();
+	
 	
 	/**
 	 * Method to get a universally unique identifier for this grid job. 
@@ -70,10 +96,16 @@ public interface GridResult {
 	public String getUsername();
 	
 	/**
-	 * Final return value
+	 * Get current status of job.
 	 * @return
 	 */
-	public int getFinalStatus();
+	public GridJobStatus getJobStatus();
+	
+	/**
+	 * Set current status of job.
+	 * @return
+	 */
+	public void setJobStatus(GridJobStatus status);
 	
 	/**
 	 * Get the path to the tarball of results.

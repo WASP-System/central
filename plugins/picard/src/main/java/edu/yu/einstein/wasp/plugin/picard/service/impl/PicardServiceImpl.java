@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.plugin.fileformat.service.BamService;
 import edu.yu.einstein.wasp.plugin.picard.service.PicardService;
 import edu.yu.einstein.wasp.plugin.picard.webpanels.PicardWebPanels;
 import edu.yu.einstein.wasp.service.FileService;
@@ -65,7 +66,7 @@ public class PicardServiceImpl extends WaspServiceImpl implements PicardService 
 		JSONObject jsonObj = null;
 		String meta = "";
 		for(FileGroupMeta fgm : fileGroup.getFileGroupMeta()){
-			if(fgm.getK().equalsIgnoreCase(BAMFILE_ALIGNMENT_METRICS_META_KEY)){
+			if(fgm.getK().equalsIgnoreCase(BamService.BAMFILE_ALIGNMENT_METRICS_META_KEY)){
 				meta = fgm.getV();
 			}
 		}
@@ -76,32 +77,32 @@ public class PicardServiceImpl extends WaspServiceImpl implements PicardService 
 	}
 	
 	public String getUnpairedMappedReads(FileGroup fileGroup){		
-		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_UNPAIRED_READS);
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_UNPAIRED_READS);
 	}
 	public String getPairedMappedReads(FileGroup fileGroup){		
-		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_PAIRED_READS);
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_PAIRED_READS);
 	}
 	public String getUnmappedReads(FileGroup fileGroup){		
-		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_UNMAPPED_READS);
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_UNMAPPED_READS);
 	}
 	public String getUnpairedMappedReadDuplicates(FileGroup fileGroup){		
-		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_UNPAIRED_READ_DUPLICATES);
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_UNPAIRED_READ_DUPLICATES);
 	}
 	public String getPairedMappedReadDuplicates(FileGroup fileGroup){		
-		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_PAIRED_READ_DUPLICATES);
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_PAIRED_READ_DUPLICATES);
 	}
 	public String getPairedMappedReadOpticalDuplicates(FileGroup fileGroup){		
-		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_PAIRED_READ_OPTICAL_DUPLICATES);
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_PAIRED_READ_OPTICAL_DUPLICATES);
 	}
 	
 	public String getFractionMapped(FileGroup fileGroup){		
-		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_FRACTION_MAPPED);
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_FRACTION_MAPPED);
 	}
 	public String getMappedReads(FileGroup fileGroup){		
-		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_MAPPED_READS);
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_MAPPED_READS);
 	}
 	public String getTotalReads(FileGroup fileGroup){		
-		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_TOTAL_READS);
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_TOTAL_READS);
 	}	
 	public String getFractionMappedAsCalculation(FileGroup fileGroup){		
 		String fractionMapped = this.getFractionMapped(fileGroup);
@@ -111,10 +112,10 @@ public class PicardServiceImpl extends WaspServiceImpl implements PicardService 
 	}
 	
 	public String getFractionDuplicated(FileGroup fileGroup){		
-		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_FRACTION_DUPLICATED);//fraction of mapped reads
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_FRACTION_DUPLICATED);//fraction of mapped reads
 	}
 	public String getDuplicateReads(FileGroup fileGroup){		
-		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_DUPLICATE_READS);
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_DUPLICATE_READS);
 	}
 	public String getFractionDuplicatedAsCalculation(FileGroup fileGroup){	
 		String fractionDuplicated = getFractionDuplicated(fileGroup);
@@ -123,13 +124,13 @@ public class PicardServiceImpl extends WaspServiceImpl implements PicardService 
 		return duplicateReads + " / " + mappedReads + " = " + fractionDuplicated;	}
 	
 	public String getFractionUniqueNonRedundant(FileGroup fileGroup){	
-		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT);
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT);
 	}
 	public String getUniqueReads(FileGroup fileGroup){	
-		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS);
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS);
 	}
 	public String getUniqueNonRedundantReads(FileGroup fileGroup){	
-		return this.getAlignmentMetric(fileGroup, BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS);
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS);
 	}
 	public String getFractionUniqueNonRedundantAsCalculation(FileGroup fileGroup){	
 		String fractionUniqueNonRedundant = getFractionUniqueNonRedundant(fileGroup);

@@ -588,7 +588,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  //Test case 1: Returns TRUE if stepExecution != null and ExitStatus.EXECUTING
 	  expect(mockJobExplorerWasp.getStepExecutions("step.quote", parameterMap, true, ExitStatus.RUNNING)).andReturn(stepExecutions);
 	  
-	  //Test case 2: Returns FALSE if stepExecution != null and ExitStatus != EXECUTING
+	  //Test case 2: Returns FALSE if stepExecution != null and ExitStatus != STARTED
 	  expect(mockJobExplorerWasp.getStepExecutions("step.quote", parameterMap, true, ExitStatus.RUNNING)).andReturn(stepExecutions2);
 	  
 	  replay(mockJobExplorerWasp);

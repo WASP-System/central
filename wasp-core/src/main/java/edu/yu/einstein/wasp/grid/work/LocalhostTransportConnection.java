@@ -63,7 +63,7 @@ public class LocalhostTransportConnection implements GridTransportConnection {
 		try {
 			Process proc = runtime.exec(new String[]{"/bin/bash", "-c", command});
 			proc.waitFor();
-			result.setExitStatus(proc.exitValue());
+			result.setExitCode(proc.exitValue());
 			if (logger.isTraceEnabled()){
 				byte[] outBA = IOUtils.toByteArray(proc.getInputStream()); // extract as Byte[] so that we can read it more than once
 				byte[] errBA = IOUtils.toByteArray(proc.getErrorStream()); // extract as Byte[] so that we can read it more than once
