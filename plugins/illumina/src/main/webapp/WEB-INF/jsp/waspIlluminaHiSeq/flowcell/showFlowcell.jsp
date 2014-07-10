@@ -101,7 +101,7 @@
             				</c:forEach>
             				<c:if test="${runLocked == false}">
 	            				<%-- <form  name='removeLib' method='post' action="<wasp:relativeUrl value="facility/platformunit/assignRemove.do" />" onsubmit='return confirm("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_removeControlFromThisCell.label"/>");'> --%>
-								<form  name='removeLib' method='post' action="<wasp:relativeUrl value="facility/platformunit/assignRemove.do" />" onsubmit='confirmRemove("controlLibrary");'>
+								<form  name='removeLib' method='post' action="<wasp:relativeUrl value="facility/platformunit/assignRemove.do" />" onsubmit='return confirmRemove("controlLibrary");'>
 								<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
 								<input type='hidden' name='cellLibraryId' value='<c:out value="${cellLibrary.getId()}" />'/>
 								<input type='submit' value='<fmt:message key="showPlatformUnit.removeControl.label"/>'/>
@@ -203,7 +203,7 @@
 					</c:forEach>
 					<c:if test="${runLocked == false}">
 					<%--	<form  name='removeLib' method='post' action="<wasp:relativeUrl value="facility/platformunit/assignRemove.do" />" onsubmit='return confirm("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_removeLibFromCell_alert.label"/>");'> --%>
-						<form  name='removeLib' method='post' action="<wasp:relativeUrl value="facility/platformunit/assignRemove.do" />" onsubmit='confirmRemove("thisIsNotControlLibrary");'>
+						<form  name='removeLib' method='post' action="<wasp:relativeUrl value="facility/platformunit/assignRemove.do" />" onsubmit='return confirmRemove("thisIsNotControlLibrary");'>
 							<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
 							<input type='hidden' name='cellLibraryId' value='<c:out value="${cellLibrary.getId()}" />'/>
 							<input type='submit' value='<fmt:message key="showPlatformUnit.removeLibrary.label"/>'/>
