@@ -1082,5 +1082,8 @@ public interface SampleService extends WaspMessageHandlingService {
 	  public boolean confirmSamplePairIsOfSameSpecies(Sample s1, Sample s2);
 	  
 	  public List<Integer> convertCellLibraryListToIdList(List<SampleSource> cellLibraryList);
+	  
+	  public void addControlLibraryToCell(Sample cell, Sample library,	Float libConcInCellPicoM) throws SampleTypeException, SampleException, SampleMultiplexException, MetadataException;
+
 			
 }

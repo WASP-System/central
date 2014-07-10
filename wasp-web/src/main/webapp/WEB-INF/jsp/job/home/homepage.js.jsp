@@ -170,14 +170,17 @@ function uploadJqueryForm(formObjectId){
      
 //used on viewerManager to remove a viewer via an ajax GET, using only parth variable parameters in the rest part of URL 
 function doGetWithAjax(theUrl) {
+	$("#wait_dialog-modal").dialog("open");
    	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel 
 	$.ajax({
         type: "GET",
         url: theUrl,
         success: function (response) {
+        	$("#wait_dialog-modal").dialog("close");
         	selectedPanel.html(response);
         },
         error: function (response) {
+        	$("#wait_dialog-modal").dialog("close");
         	selectedPanel.html('<fmt:message key="jobHomeHomepage.unexpectedFailure.label" />');
         }
     });

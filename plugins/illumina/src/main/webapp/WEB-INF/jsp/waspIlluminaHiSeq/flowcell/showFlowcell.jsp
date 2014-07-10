@@ -6,7 +6,7 @@
 <%@ taglib prefix="wasp" uri="http://einstein.yu.edu/wasp" %>
  <br />
 <h1><fmt:message key="pageTitle.waspIlluminaHiSeq/flowcell/showflowcell.label"/></h1>
- <c:out value="${runLocked}" />
+<%-- <c:out value="${runLocked}" /> --%>
 <div>
 
 <%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
@@ -100,7 +100,8 @@
             					<c:if test="${fn:indexOf(cellLibraryMetaItem.k,'libConcInCellPicoM') > -1 }"><br /><fmt:message key="waspIlluminaPlugin.showPlatformUnit_concOnCell.label"/>: <c:out value="${cellLibraryMetaItem.v}"/> <fmt:message key="showPlatformUnit.pM.label"/> </c:if>					
             				</c:forEach>
             				<c:if test="${runLocked == false}">
-	            				<form  name='removeLib' method='post' action="<wasp:relativeUrl value="facility/platformunit/assignRemove.do" />" onsubmit='return confirm("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_removeControlFromThisCell.label"/>");'>
+	            				<%-- <form  name='removeLib' method='post' action="<wasp:relativeUrl value="facility/platformunit/assignRemove.do" />" onsubmit='return confirm("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_removeControlFromThisCell.label"/>");'> --%>
+								<form  name='removeLib' method='post' action="<wasp:relativeUrl value="facility/platformunit/assignRemove.do" />" onsubmit='confirmRemove("controlLibrary");'>
 								<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
 								<input type='hidden' name='cellLibraryId' value='<c:out value="${cellLibrary.getId()}" />'/>
 								<input type='submit' value='<fmt:message key="showPlatformUnit.removeControl.label"/>'/>
@@ -108,7 +109,7 @@
 							</c:if>
             				
             					
-            				<hr>
+            				<%--not needed anymore; only one control permitted, at least for now    <hr> --%>
             			</c:if>
 					</c:forEach>			  						  		
 					<c:if test="${numberControlLibrariesPerLane == 0 }">
@@ -117,7 +118,7 @@
 					</c:if>
 					
 					<c:set var="idNewControlCounter" value="${idNewControlCounter + 1}" scope="page" />
-					<c:if test="${runLocked == false}">
+					<c:if test="${runLocked == false && numberControlLibrariesPerLane == 0}"><%--only allow one control per lane --%>
 						<a href="javascript:void(0)" id="newControlAnchor_<c:out value="${idNewControlCounter}" />" onclick="toggleDisplayAddNewControlForm('show_form',<c:out value="${idNewControlCounter}" />)"><fmt:message key="showPlatformUnit.addControl.label"/></a>
 					</c:if>
 					<div id="idNewControlFormDiv_<c:out value="${idNewControlCounter}" />" style="display:none">
@@ -159,9 +160,10 @@
 				<c:set var="numberRegularLibrariesPerLane" value="0" scope="page" />
 				<c:forEach items="${cell.sampleSource}" var="cellLibrary">
 				  <c:set var="library" value="${cellLibrary.sourceSample}" scope="page" />
-				  <c:if test="${counter > 1}"><hr></c:if>
+				  
 				  
 				  <c:if test="${library.sampleSubtype.getIName() != 'controlLibrarySample'}">	
+				    <c:if test="${counter > 1}"><hr></c:if>
 					<c:set var="numberRegularLibrariesPerLane" value="${numberRegularLibrariesPerLane + 1}" scope="page" />						
 					<c:out value="${library.name}" />
 					<c:set var="cellLibraryMeta" value="${cellLibrary.sampleSourceMeta}" scope="page" />
@@ -200,7 +202,8 @@
 					
 					</c:forEach>
 					<c:if test="${runLocked == false}">
-						<form  name='removeLib' method='post' action="<wasp:relativeUrl value="facility/platformunit/assignRemove.do" />" onsubmit='return confirm("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_removeLibFromCell_alert.label"/>");'>
+					<%--	<form  name='removeLib' method='post' action="<wasp:relativeUrl value="facility/platformunit/assignRemove.do" />" onsubmit='return confirm("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_removeLibFromCell_alert.label"/>");'> --%>
+						<form  name='removeLib' method='post' action="<wasp:relativeUrl value="facility/platformunit/assignRemove.do" />" onsubmit='confirmRemove("thisIsNotControlLibrary");'>
 							<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
 							<input type='hidden' name='cellLibraryId' value='<c:out value="${cellLibrary.getId()}" />'/>
 							<input type='submit' value='<fmt:message key="showPlatformUnit.removeLibrary.label"/>'/>
