@@ -723,29 +723,41 @@ function click(d) {
 							}
 	
 							var colid = 0;
-							$.each(item.panels, function (index1, item1) {
-								if (item1.type=="WebPanel") {
+							$.each(item.panels, function (index1, panel) {
+								if (panel.type=="PDFPanel" && !panel.content.pdfURL.isEmpty()) {
+									pdfpanel = ptlcolArray[colid++].add({
+										xtype: 'portlet',
+										title: panel.title,
+										closable: false,
+										collapsible: false,
+										draggable: false,
+										html: "<div id='pdfpanel-"+ panel.content.pdfURL.hashCode() +"'></div>",
+										url: panel.content.pdfURL,
+										items: []
+									});
+									pdfpanel.add(createPDFPanel(pdfpanel.url, panel.pageScale, 'pdfpanel-'+pdfpanel.url.hashCode()));
+								} else if (panel.type=="WebPanel" && !panel.content.htmlCode.isEmpty()) {
 									ptlcolArray[colid++].add({
-										title: item1.title,
-										tools: extPortal.getTools(item1.maximizable),
-										closable: item1.closeable,
-										collapsible: item1.resizable,
-										html: item1.content.htmlCode,
+										title: panel.title,
+										tools: extPortal.getTools(panel.maximizable),
+										closable: panel.closeable,
+										collapsible: panel.resizable,
+										html: panel.content.htmlCode,
 										listeners: {
-											'render': Ext.bind(new Function("portlet", item1.execOnRenderCode), extPortal),
-											'resize': Ext.bind(new Function("portlet", item1.execOnResizeCode), extPortal),
-											'expand': Ext.bind(new Function("portlet", item1.execOnExpandCode), extPortal)
+											'render': Ext.bind(new Function("portlet", panel.execOnRenderCode), extPortal),
+											'resize': Ext.bind(new Function("portlet", panel.execOnResizeCode), extPortal),
+											'expand': Ext.bind(new Function("portlet", panel.execOnExpandCode), extPortal)
 										}
 									});
-								} else if (item1.type=="GridPanel") {
+								} else if (panel.type=="GridPanel") {
 							
 									ptlcolArray[colid++].add({
-										title: item1.title,
-										tools: extPortal.getTools(item1.maximizable),
-										closable: item1.closeable,
-										collapsible: item1.resizable,
+										title: panel.title,
+										tools: extPortal.getTools(panel.maximizable),
+										closable: panel.closeable,
+										collapsible: panel.resizable,
 										
-										items: createGridPanel(item1)
+										items: createGridPanel(panel)
 									});
 								}
 								colid %= numcol;
