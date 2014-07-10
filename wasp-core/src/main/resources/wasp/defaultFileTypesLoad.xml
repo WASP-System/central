@@ -40,6 +40,40 @@
 	    <property name="extensions" value="pdf" />
   	</bean>
 
+  	<bean id="gifFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
+	    <property name="name" value="GIF Image" />
+	    <property name="area" value="gif" />
+	    <property name="description" value="GIF Image Format." />
+	    <property name="extensions" value="gif" />
+  	</bean>
+
+  	<bean id="bmpFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
+	    <property name="name" value="BMP Image" />
+	    <property name="area" value="bmp" />
+	    <property name="description" value="BitMap Image Format." />
+	    <property name="extensions" value="bmp" />
+  	</bean>
+
+  	<bean id="jpgFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
+	    <property name="name" value="JPEG Image" />
+	    <property name="area" value="jpg" />
+	    <property name="description" value="JPEG Image Format." />
+	    <property name="extensions" value="jpg,jpeg" />
+  	</bean>
+
+  	<bean id="pngFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
+	    <property name="name" value="PNG Image" />
+	    <property name="area" value="png" />
+	    <property name="description" value="PNG Image Format." />
+	    <property name="extensions" value="png" />
+  	</bean>
+
+  	<bean id="tifFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
+	    <property name="name" value="TIFF Image" />
+	    <property name="area" value="tif" />
+	    <property name="description" value="TIFF Image Format." />
+	    <property name="extensions" value="tif,tiff" />
+  	</bean>
 
 </beans>
 

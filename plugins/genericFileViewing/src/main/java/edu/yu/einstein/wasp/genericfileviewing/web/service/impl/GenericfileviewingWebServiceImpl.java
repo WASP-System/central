@@ -57,7 +57,8 @@ public class GenericfileviewingWebServiceImpl extends GenericfileviewingServiceI
 			p = CsvFilePanelRenderer.getPanelForFileGroup(fileService.getInputStreamFromFileHandle(file), false);
 		} else if (fileGroup.getFileType().getIName().equals("pdf")) {
 			p = PdfFilePanelRenderer.getPanelForFileGroup(fileService.getURLStringFromFileHandle(file));
-		} else if (fileGroup.getFileType().getIName().equals("jpg") || 
+		} else if (fileGroup.getFileType().getIName().equals("jpg") ||
+				fileGroup.getFileType().getIName().equals("bmp") || 
 				fileGroup.getFileType().getIName().equals("gif") || 
 				fileGroup.getFileType().getIName().equals("png") || 
 				fileGroup.getFileType().getIName().equals("tif")) {
