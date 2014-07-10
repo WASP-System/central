@@ -18,6 +18,8 @@ public class PanelTab {
 	
 	private int numberOfColumns = 2; //default
 	
+	private boolean maxOnLoad = false;
+	
 	public PanelTab(){}
 	
 	public PanelTab(Set<Panel> panels, String name, int numberOfColumns) {
@@ -60,6 +62,20 @@ public class PanelTab {
 
 	public void setNumberOfColumns(int numberOfColumns) {
 		this.numberOfColumns = numberOfColumns;
+	}
+
+	/**
+	 * @return the maxOnLoad
+	 */
+	public boolean isMaxOnLoad() {
+		return maxOnLoad;
+	}
+
+	/**
+	 * @param maxOnLoad the maxOnLoad to set
+	 */
+	public void setMaxOnLoad(boolean maxOnLoad) {
+		this.maxOnLoad = maxOnLoad;
 	}
 
 
