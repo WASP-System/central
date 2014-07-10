@@ -213,15 +213,15 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 			} else {
 				logger.warn("Number of number of indexed read segments was " + indexedReads );
 			}
-		} else if (readSegments == 2) {
-			basesMask += ",Y*";
-			logger.debug("paired end run");
 		} else {
 			String mess = "Unknown number of read segments " + readSegments;
 			logger.error(mess);
 			throw new WaspRuntimeException(mess);
 		}
-		
+		if (readSegments == 2) {
+			basesMask += ",Y*";
+			logger.debug("paired end run");
+		}
 		logger.info("run " + run.getName() + " bcl2fastq processing for " + method.toString() + " bases mask=" + basesMask);
 		
 		retval += " --use-bases-mask " + basesMask;
