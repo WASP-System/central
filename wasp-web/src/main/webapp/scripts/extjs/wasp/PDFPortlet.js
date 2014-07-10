@@ -273,7 +273,11 @@ Ext.define('Wasp.PDFPortlet',{
         }
 
         // Asynchronously download PDF as an ArrayBuffer
-        me.getDocument();
+        me.on('afterrender', function(){
+	        me.getDocument();
+        }, me,{
+            single: true
+        });
     },
 
     onLoad: function(){

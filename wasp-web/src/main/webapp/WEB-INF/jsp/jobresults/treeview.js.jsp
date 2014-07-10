@@ -17,6 +17,21 @@
 
 <script type="text/javascript">
 
+String.prototype.isEmpty = function() {
+    return (this.length === 0 || !this.trim());
+};
+
+String.prototype.hashCode = function() {
+  var hash = 0, i, chr, len;
+  if (this.length == 0) return hash;
+  for (i = 0, len = this.length; i < len; i++) {
+    chr   = this.charCodeAt(i);
+    hash  = ((hash << 5) - hash) + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+};
+
 String.prototype.width = function (font) {
 	var f = font || '13px sans-serif',
 		o = $('<div>' + this + '</div>')
@@ -453,12 +468,12 @@ function createGridPanel(panel) {
 	return gridPanel;
 }
 
-function createPDFPanel(url, renderDiv) {
+function createPDFPanel(url, scale, renderDiv) {
 	var pdfPanel = Ext.create('Wasp.PDFPortlet', {
 //        title    : 'PDF Panel',
         width    : '100%',
         height   : '100%',
-        pageScale: 0.75,	// Initial scaling of the PDF. 1 = 100%
+        pageScale: scale, // 0.75,	// Initial scaling of the PDF. 1 = 100%
         src      : url,		// URL to the PDF - Same Domain or Server with CORS Support
         renderTo : Ext.getCmp(renderDiv)
     });
@@ -515,32 +530,6 @@ function click(d) {
 //					fgListStr: result.fgliststr
 //				});
 				var fp = result.filepanel;
-//				var filePanel = Ext.create('Wasp.GridPortlet', {
-//								fields: fp.content.dataFields,
-//								data: fp.content.data,
-//								columns: fp.content.columns,
-//								
-//								grouping: fp.grouping,
-//								groupfield: fp.groupField,
-//								
-//								dlcol: fp.hasDownload,
-//								dllinkfld: fp.downloadLinkField,
-//								dlcoltip: fp.downloadTooltip,
-//								
-//								dlselect: fp.allowSelectDownload,
-//								dlbtntxt: fp.selectDownloadText,
-//								dlbtnalign: fp.selectDownloadAlign,
-//								
-//								grpdl: fp.allowGroupDownload,
-//								grpdltip: fp.groupDownloadTooltip,
-//								grpdlalign: fp.groupDownloadAlign,
-//								
-//								statusfld: fp.statusField,
-//
-//								gbucsccol: fp.hasGbUcscLink,
-//								gbucscfld: fp.gbUcscLinkField,
-//								gbucsctip: fp.gbUcscTooltip
-//							});
 
 				//test
 				//$.fileDownload('http://phoenix.einstein.yu.edu:8080/wasp-file/get/file/c7d5237e-ab84-4837-a618-6ec17ac6add3');
@@ -600,7 +589,7 @@ function click(d) {
 
 				var createPortal = function () {
 					// if the node clicked is filegroup, create an extra summary tab in the portal
-					if (d.type=='filegroup1') {
+					if (d.type=='filegroup') {
 						var summaryPanel;
 						if (result.statuslist.length > 0) {
 							summaryPanel = Ext.create('Wasp.PluginSummaryGridPortlet', {
@@ -677,33 +666,37 @@ function click(d) {
 							}]
 						});
 						var pmax = null;
+						var pdfpanel = null;
 						if (item.maxOnLoad && item.panels.length==1) {
 							pmax = tab.items.first();
 							//var ptlcol = ptlpnl.add({ id: tabid + '-col-1' });
 							var panel = item.panels[0];
-							if (panel.type=="WebPanel") {
+							if (panel.type=="PDFPanel" && !panel.content.pdfURL.isEmpty()) {
+								pdfpanel = pmax.add({
+									xtype: 'portlet',
+									title: panel.title,
+									closable: false,
+									collapsible: false,
+									draggable: false,
+									html: "<div id='pdfpanel-"+ panel.content.pdfURL.hashCode() +"'></div>",
+									url: panel.content.pdfURL,
+									items: []
+								});
+								pdfpanel.add(createPDFPanel(pdfpanel.url, panel.pageScale, 'pdfpanel-'+pdfpanel.url.hashCode()));
+							} else if (panel.type=="WebPanel" && !panel.content.htmlCode.isEmpty()) {
 								pmax.add({
 									xtype: 'portlet',
 									title: panel.title,
 									closable: false,
 									collapsible: false,
 									draggable: false,
-									html: "<div id='pdfpanel'></div>",
-									items: createPDFPanel(panel.content.htmlCode, 'pdfpanel')
+									html: panel.content.htmlCode,
+									listeners: {
+										'render': Ext.bind(new Function("portlet", panel.execOnRenderCode), extPortal),
+										'resize': Ext.bind(new Function("portlet", panel.execOnResizeCode), extPortal),
+										'expand': Ext.bind(new Function("portlet", panel.execOnExpandCode), extPortal)
+									}
 								});
-//								pmax.add({
-//									xtype: 'portlet',
-//									title: panel.title,
-//									closable: false,
-//									collapsible: false,
-//									draggable: false,
-//									html: panel.content.htmlCode,
-//									listeners: {
-//										'render': Ext.bind(new Function("portlet", panel.execOnRenderCode), extPortal),
-//										'resize': Ext.bind(new Function("portlet", panel.execOnResizeCode), extPortal),
-//										'expand': Ext.bind(new Function("portlet", panel.execOnExpandCode), extPortal)
-//									}
-//								});
 							} else if (panel.type=="GridPanel") {
 								pmax.add({
 									xtype: 'portlet',
@@ -745,33 +738,7 @@ function click(d) {
 										}
 									});
 								} else if (item1.type=="GridPanel") {
-//									var gridPanel = Ext.create('Wasp.GridPortlet', {
-//										fields: item1.content.dataFields,
-//										data: item1.content.data,
-//										columns: item1.content.columns,
-//	
-//										grouping: item1.grouping,
-//										groupfield: item1.groupField,
-//										
-//										dlcol: item1.hasDownload,
-//										dllinkfld: item1.downloadLinkField,
-//										dlcoltip: item1.downloadTooltip,
-//										
-//										dlselect: item1.allowSelectDownload,
-//										dlbtntxt: item1.selectDownloadText,
-//										dlbtnalign: item1.selectDownloadAlign,
-//										
-//										grpdl: item1.allowGroupDownload,
-//										grpdltip: item1.groupDownloadTooltip,
-//										grpdlalign: item1.groupDownloadAlign,
-//										
-//										statusfld: item1.statusField,
-//	
-//										gbucsccol: item1.hasGbUcscLink,
-//										gbucscfld: item1.gbUcscLinkField,
-//										gbucsctip: item1.gbUcscTooltip
-//									});
-									
+							
 									ptlcolArray[colid++].add({
 										title: item1.title,
 										tools: extPortal.getTools(item1.maximizable),
