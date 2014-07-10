@@ -473,10 +473,10 @@ public class TestSampleServiceImpl {
 	  List<SampleSource> ssc = new ArrayList<SampleSource>();
 	  ssc.add(ssCell1Lib3);	  
 	  
-	  expect(mockSampleSourceDao.findByMap(qu)).andReturn(cell1Libraries);
-	  expect(mockSampleSourceDao.findByMap(qu)).andReturn(cell1LibrariesNoControl);
-	  expect(mockSampleSourceDao.findByMap(qu)).andReturn(ssc);
-	  expect(mockSampleSourceDao.findByMap(qu)).andReturn(cell1LibrariesWithNonLibrary);
+	  expect(mockSampleSourceDao.getCellLibrariesForCell(cell1)).andReturn(cell1Libraries);
+	  expect(mockSampleSourceDao.getCellLibrariesForCell(cell1)).andReturn(cell1LibrariesNoControl);
+	  expect(mockSampleSourceDao.getCellLibrariesForCell(cell1)).andReturn(ssc);
+	  expect(mockSampleSourceDao.getCellLibrariesForCell(cell1)).andReturn(cell1LibrariesWithNonLibrary);
 	  
 	  replay(mockSampleSourceDao);
 	  	  

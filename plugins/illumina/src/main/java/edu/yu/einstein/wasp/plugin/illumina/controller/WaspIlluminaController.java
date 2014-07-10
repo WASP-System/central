@@ -272,13 +272,21 @@ public class WaspIlluminaController extends WaspController {
 			@RequestParam("newControlId") Integer newControlId,	
 			@RequestParam("newControlConcInCellPicoM") String newControlConcInCellPicoM,
 			ModelMap m){
-		
+		//as of 7-08-2014, only permit one control per lane
+		//the web page should prevent this, but just in case....
 		Sample controlLibrary = sampleService.getSampleById(newControlId);
-		Sample cell = sampleService.getSampleById(cellId);
+		Sample cell = sampleService.getSampleById(cellId);		
 		try {
-			sampleService.addLibraryToCell(cell, controlLibrary, Float.parseFloat(newControlConcInCellPicoM));
+			List<Sample> controlLibrariesOnCell = sampleService.getControlLibrariesOnCell(cell);
+			if(controlLibrariesOnCell.size()==0){
+				sampleService.addControlLibraryToCell(cell, controlLibrary, Float.parseFloat(newControlConcInCellPicoM));
+			}
+			else{//as of 7-08-2014, only permit one control per lane; the web page should prevent this, but just in case....
+				logger.warn("Problem adding control library to cell: Only one controlLibrary permitted per lane");
+				waspErrorMessage("platformunit.libAdded.error");
+			}
 		} catch (Exception e) {
-			logger.warn("Problem adding library to cell: " + e.getLocalizedMessage());
+			logger.warn("Problem adding control library to cell: " + e.getLocalizedMessage());
 			waspErrorMessage("platformunit.libAdded.error");
 		}
 
