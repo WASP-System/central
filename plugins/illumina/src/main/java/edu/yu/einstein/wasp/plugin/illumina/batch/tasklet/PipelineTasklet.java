@@ -190,7 +190,7 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 			retval += " --fastq-cluster-count " + fqc;
 		}
 		int readSegments = waspIlluminaService.getNumberOfReadSegments(run);
-		int indexedReads = waspIlluminaService.getNumberOfReadSegments(run);
+		int indexedReads = waspIlluminaService.getNumberOfIndexedReads(run);
 		
 		String basesMask = "";
 		if (readSegments == 1 || readSegments == 2) {
