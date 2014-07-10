@@ -255,7 +255,7 @@ public class WaspIlluminaServiceImpl extends WaspServiceImpl implements WaspIllu
 	@Override
 	public boolean assayAllowsPairedEndData(SampleSource cellLibrary) throws MetadataException {
 		boolean retval = false;
-		Job job = jobService.getJobForCellLibrary(cellLibrary);
+		Job job = sampleService.getJobOfLibraryOnCell(cellLibrary);
 		List<JobResourcecategory> jrc = job.getJobResourcecategory();
 		ResourceCategory illumina = jrc.get(0).getResourceCategory();
 		if (jrc.size() != 1) {
