@@ -226,6 +226,7 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
                                         
                 	String line = buildLine(platformUnit, cell, controlCellLib.getSourceSample().getName(), controlCellLib, "Y", "control");
                 	sampleSheet += "\n" + line;
+                	cellMarked[cellid-1] = true;
                 	continue;
                 }
 				
