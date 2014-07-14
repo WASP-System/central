@@ -276,11 +276,11 @@ public class SampleFlowTests extends BatchDatabaseIntegrationTest implements Mes
 	 * This test exercises the normal sample flow with a DNA sample received.
 	 * The method sets up a listeningChannel and listens on it. It then launches the wasp.default.sample.mainFlow.v1 flow.
 	 */
-	@Test (groups = "unit-tests-batch-integration")
+/*	@Test (groups = "unit-tests-batch-integration")
 	public void testManyDNASamplesReceived() throws Exception{
-		testSamplesReceived(50, 2);
+		testSamplesReceived(5, 2);
 	}
-	
+*/	
 	/**
 	 * This test exercises the normal sample flow with a DNA sample received with many simultaneous messages.
 	 * The method sets up a listeningChannel and listens on it. It then launches the wasp.default.sample.mainFlow.v1 flow.
