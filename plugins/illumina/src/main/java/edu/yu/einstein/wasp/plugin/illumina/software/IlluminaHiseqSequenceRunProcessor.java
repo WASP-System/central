@@ -230,9 +230,12 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
                 }
 				
                 //if this cellLibrary's library is a control library, AND other libraries are on the lane, then continue, as we do NOT include the control on the sample sheet 
+                logger.debug("attempting to check whether cellLibrary's library is a control library");
                 if(sampleService.isControlLibrary(cellLibrary.getSourceSample())){
+                	logger.debug("YES! The cellLibrary's library is a control library");
                 	continue;
                 }
+                logger.debug("NO! The cellLibrary's library is NOT a control library");
                 
 				// the cell library source sample is the library itself (cellLibrary.getSample() == cell).
 				Adaptor adaptor = adaptorService.getAdaptor(cellLibrary.getSourceSample());
