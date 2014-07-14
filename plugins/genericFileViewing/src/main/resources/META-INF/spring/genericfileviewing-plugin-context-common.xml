@@ -37,6 +37,11 @@
 				<value>#{textFileType.getIName()}</value>
 				<value>#{htmlFileType.getIName()}</value>
 				<value>#{pdfFileType.getIName()}</value>
+				<value>#{gifFileType.getIName()}</value>
+				<value>#{jpgFileType.getIName()}</value>
+				<value>#{bmpFileType.getIName()}</value>
+				<value>#{pngFileType.getIName()}</value>
+				<value>#{tifFileType.getIName()}</value>
 			</set>
 		</property>
 	</bean>

@@ -253,6 +253,9 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 		}
 
+		// Added by AJ: to enable Cross-site HTTP requests for CORS support
+		response.setHeader("Access-Control-Allow-Origin", "*");
+		
 		String range = request.getHeader("Range");
         if (range == null) {
 
