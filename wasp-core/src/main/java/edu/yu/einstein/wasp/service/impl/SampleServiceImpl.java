@@ -1567,7 +1567,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Override
 	public boolean isControlLibrary(Sample library) {
 		Assert.assertParameterNotNull(library, "No library provided");
-		if (this.isLibrary(library) && !library.getSampleType().getIName().equals("controlLibrarySample")) {
+		if (this.isLibrary(library) && !library.getSampleSubtype().getIName().equals("controlLibrarySample")) {
 			return false;
 		}
 		return true;
