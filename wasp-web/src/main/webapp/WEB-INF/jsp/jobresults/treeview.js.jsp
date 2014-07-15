@@ -709,7 +709,7 @@ function click(d) {
 							}
 							//pmax.doLayout();
 							tab.getLayout().setActiveItem(pmax);
-						} else if (item.panels.length>1) {
+						} else {
 							var ptlpnl = tab.add({
 								xtype: 'portalpanel'
 							});
