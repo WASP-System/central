@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
-import edu.yu.einstein.wasp.grid.work.GridJobStatus;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
@@ -103,7 +102,7 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 		if (!wasHibernationRequested){
 			Long timeoutInterval;
 			if (jobHasUpdatedChild){
-				timeoutInterval = initialExponentialInterval;
+				timeoutInterval = getRandomInitialExponentialInterval();
 				setTimeoutIntervalInContext(context, timeoutInterval);
 			} else 
 				timeoutInterval = exponentiallyIncreaseTimeoutIntervalInContext(context);

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.Set;
 
 import org.json.JSONException;
@@ -50,7 +51,11 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 	
 	@Autowired
 	@Value("${wasp.hibernation.retry.exponential.initialInterval:5000}")
-	protected Long initialExponentialInterval;
+	private Long initialExponentialInterval;
+	
+	@Autowired
+	@Value("${wasp.hibernation.retry.exponential.initialInterval.random_limit:0}")
+	private Long initialExponentialIntervalRandomLimit;
 	
 	@Autowired
 	@Value("${wasp.hibernation.retry.exponential.maxInterval:3600000}")
@@ -68,6 +73,16 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 
 	public void setParallelSiblingFlowSteps(Set<? extends NameAwareTasklet> parallelSteps) {
 		this.parallelSiblingFlowSteps = parallelSteps;
+	}
+	
+	public Long getRandomInitialExponentialInterval(){
+		// if initialExponentialInterval == 5000 and initialExponentialIntervalRandomLimit == 2000
+		// will return a random value between 3000 and 7000
+		Random rand = new Random();
+		double n = rand.nextDouble(); // between 0.0d and 1.0d
+		long min = initialExponentialInterval - initialExponentialIntervalRandomLimit;
+		long max = initialExponentialInterval + initialExponentialIntervalRandomLimit;
+		return Math.round((n * (max - min)) + min);
 	}
 	
 	/**
@@ -281,7 +296,7 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 		Long previousTimeInterval = BatchJobHibernationManager.getWakeTimeInterval(stepExecution);
 		Long newTimeInterval;
 		if (previousTimeInterval == null){
-			newTimeInterval = initialExponentialInterval;
+			newTimeInterval = getRandomInitialExponentialInterval();
 			previousTimeInterval = 0L;
 		} else if (previousTimeInterval * MULTIPLICATION_FACTOR > maxExponentialInterval)
 			newTimeInterval = maxExponentialInterval;
