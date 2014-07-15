@@ -31,6 +31,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.interfacing.Hyperlink;
 import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
@@ -112,21 +113,23 @@ public class TrimGalorePlugin extends WaspPlugin implements ClientMessageI, File
     @Override
     public Status getStatus(FileGroup fileGroup) {
     	Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
-		Set<String> fileGroupIdStringSet = new LinkedHashSet<String>();
-		fileGroupIdStringSet.add(fileGroup.getId().toString());
-		parameterMap.put(WaspJobParameters.FILE_GROUP_ID, fileGroupIdStringSet);
-		Status status = Status.UNKNOWN;
-		// there is a file_trim task per file of file group. Assess all those for current file group to decide status
-		for (JobExecution je : batchJobExplorer.getJobExecutions(TrimGalore.MANY_FLOW_NAME, parameterMap, false)){
-			ExitStatus jobExitStatus = je.getExitStatus();
-			if (jobExitStatus.isFailed())
-				return Status.FAILED; // report failed immediately if any jobs have failed
-			if (jobExitStatus.isRunning())
-				status = Status.STARTED; // trumps previously set status of COMPLETED
-			else if (jobExitStatus.isCompleted() && !status.equals(Status.STARTED))
-				status = Status.COMPLETED; // doesn't override status of STARTED
+		Run run = babrahamService.getRunForFileGroup(fileGroup);
+		if (run == null){
+			logger.warn("Unable to determine status as failed to obtain a run for filegroup with id = " + fileGroup.getId());
+			return Status.UNKNOWN;
 		}
-		return status;
+		Set<String> runIdStringSet = new LinkedHashSet<String>();
+		runIdStringSet.add(run.getId().toString());
+		parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
+		JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer.getJobExecutions(TrimGalore.FLOW_NAME, parameterMap, false));
+		ExitStatus jobExitStatus = je.getExitStatus();
+		if (jobExitStatus.isFailed())
+			return Status.FAILED; 
+		if (jobExitStatus.isRunning())
+			return Status.STARTED; 
+		if (jobExitStatus.isCompleted())
+			return Status.COMPLETED; 
+		return Status.UNKNOWN;
     }
 
     /**
