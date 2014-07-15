@@ -175,20 +175,33 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 	 */
 	private void waitUntilStateTransitionsStable(StepExecution stepExecution){
 		int repeat = 0;
-		Map<String, BatchStatus> previouslyExecutingSteps = new HashMap<>();
+		Map<String, StepExecution> previouslyExecutingSteps = new HashMap<>();
 		while (repeat++ < 5){
 			logger.debug("Waiting for hibernation from step id=" + stepExecution.getId() + " repeat=" + repeat);
-			Map<String, BatchStatus> currentlyExecutingSteps = new HashMap<>();
+			Map<String, StepExecution> currentlyExecutingSteps = new HashMap<>();
 			boolean allStepsRemainSame = true;
 			for (StepExecution se : stepExecution.getJobExecution().getStepExecutions()){
-				currentlyExecutingSteps.put(se.getStepName(), se.getStatus());
-				if (allStepsRemainSame && 
-						(!previouslyExecutingSteps.containsKey(se.getStepName()) || !previouslyExecutingSteps.get(se.getStepName()).equals(se.getStatus()))
-						)
-					allStepsRemainSame = false;
+				if (!currentlyExecutingSteps.containsKey(se.getStepName()) ||
+					se.getId() > currentlyExecutingSteps.get(se.getStepName()).getId()){
+					logger.trace("Adding/updating step:" + se.getStepName() + " with status " + se.getStatus() + " to currentlyExecutingSteps");
+					currentlyExecutingSteps.put(se.getStepName(), se);
+				}
 			}
-			if (allStepsRemainSame && (currentlyExecutingSteps.size() != previouslyExecutingSteps.size()))
+			if (allStepsRemainSame && (currentlyExecutingSteps.size() != previouslyExecutingSteps.size())){
+				logger.debug("number of currentlyExecutingSteps differs from previouslyExecutingSteps so setting allStepsRemainSame = false");
 				allStepsRemainSame = false;
+			} else {
+				for (String name : currentlyExecutingSteps.keySet()){
+					if (!previouslyExecutingSteps.containsKey(name)){
+						logger.debug("previouslyExecutingSteps does not contain step with name " + name + " so setting allStepsRemainSame = false");
+						allStepsRemainSame = false;
+					} else if (!previouslyExecutingSteps.get(name).getStatus().equals(currentlyExecutingSteps.get(name).getStatus())){
+						logger.debug("previouslyExecutingSteps does contains a step with name " + name + 
+								" but status has changed so setting allStepsRemainSame = false");
+						allStepsRemainSame = false;
+					}
+				}
+			}
 			previouslyExecutingSteps.clear();
 			previouslyExecutingSteps.putAll(currentlyExecutingSteps);
 			if (!allStepsRemainSame)

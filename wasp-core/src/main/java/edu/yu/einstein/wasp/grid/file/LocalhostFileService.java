@@ -73,7 +73,7 @@ public class LocalhostFileService implements GridFileService {
 		try {
 			Files.createFile(remote);
 		} catch (FileAlreadyExistsException e){
-			logger.info("not touching " + remote + " as already exists");
+			logger.info("not touching " + remote + " as already exists on localhost");
 		}
 	}
 
@@ -81,9 +81,12 @@ public class LocalhostFileService implements GridFileService {
 	public void mkdir(String remoteDir) throws IOException {
 		Path remote = getLocalhostFilePath(remoteDir);
 		logger.debug("mkdir called: " + remote);
-		if (!Files.exists(remote.getParent()))
+		if (Files.exists(remote))
+			logger.debug("not creating directory " + remote + " as already exists on localhost");
+		else {
 			Files.createDirectories(remote);
-		logger.debug(remote + " created on localhost");
+			logger.debug(remote + " created on localhost");
+		}
 	}
 
 	@Override

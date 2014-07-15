@@ -17,6 +17,7 @@ import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy;
+import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
 import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
 import edu.yu.einstein.wasp.service.RunService;
 
@@ -35,6 +36,9 @@ public class SampleSheetTasklet extends WaspRemotingTasklet {
 	
 	@Autowired
 	private IlluminaHiseqSequenceRunProcessor casava;
+	
+	@Autowired
+	private WaspIlluminaService illuminaService;
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
@@ -61,6 +65,13 @@ public class SampleSheetTasklet extends WaspRemotingTasklet {
 		run = runService.getRunById(runId);
 		logger.debug("preparing sample sheet for " + run.getName() + ":" + run.getPlatformUnit().getName());
 		storeStartedResult(context, casava.doSampleSheet(run, method));
+	}
+	
+	@Override
+	public void doPreFinish(ChunkContext context) throws Exception {
+		run = runService.getRunById(runId);
+		illuminaService.setIlluminaRunXml(getStartedResult(context), run);
+		super.doPreFinish(context);
 	}
 
 	/**
