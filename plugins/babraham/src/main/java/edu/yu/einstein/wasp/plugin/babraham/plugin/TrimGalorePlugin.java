@@ -6,13 +6,17 @@ package edu.yu.einstein.wasp.plugin.babraham.plugin;
 
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.explore.wasp.WaspJobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +34,7 @@ import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
+import edu.yu.einstein.wasp.plugin.babraham.software.TrimGalore;
 import edu.yu.einstein.wasp.plugin.babraham.web.service.impl.BabrahamWebServiceImpl;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
@@ -47,7 +52,6 @@ public class TrimGalorePlugin extends WaspPlugin implements ClientMessageI, File
     
     protected final Logger logger = LoggerFactory.getLogger(getClass());
     
-    public static final String FLOW_NAME = "babraham.trim_galore.mainFlow";
     public static final String TRIM_GALORE_PLOT_KEY = "size-plot";
 
     @Autowired
@@ -107,7 +111,22 @@ public class TrimGalorePlugin extends WaspPlugin implements ClientMessageI, File
      */
     @Override
     public Status getStatus(FileGroup fileGroup) {
-	return Status.COMPLETED;
+    	Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> fileGroupIdStringSet = new LinkedHashSet<String>();
+		fileGroupIdStringSet.add(fileGroup.getId().toString());
+		parameterMap.put(WaspJobParameters.FILE_GROUP_ID, fileGroupIdStringSet);
+		Status status = Status.UNKNOWN;
+		// there is a file_trim task per file of file group. Assess all those for current file group to decide status
+		for (JobExecution je : batchJobExplorer.getJobExecutions(TrimGalore.MANY_FLOW_NAME, parameterMap, false)){
+			ExitStatus jobExitStatus = je.getExitStatus();
+			if (jobExitStatus.isFailed())
+				return Status.FAILED; // report failed immediately if any jobs have failed
+			if (jobExitStatus.isRunning())
+				status = Status.STARTED; // trumps previously set status of COMPLETED
+			else if (jobExitStatus.isCompleted() && !status.equals(Status.STARTED))
+				status = Status.COMPLETED; // doesn't override status of STARTED
+		}
+		return status;
     }
 
     /**
@@ -134,8 +153,8 @@ public class TrimGalorePlugin extends WaspPlugin implements ClientMessageI, File
 			jobParameters.put(WaspJobParameters.RUN_ID, id.toString());
 			jobParameters.put(WaspJobParameters.BEAN_NAME, "casava");
 			jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
-			logger.info("Sending launch message to flow '" + FLOW_NAME + "' on run with id=" + id);
-			runService.launchBatchJob(FLOW_NAME, jobParameters);
+			logger.info("Sending launch message to flow '" + TrimGalore.FLOW_NAME + "' on run with id=" + id);
+			runService.launchBatchJob(TrimGalore.FLOW_NAME, jobParameters);
 			
 			return (Message<String>) MessageBuilder.withPayload("Initiating TrimGalore flow on run with id=" + id).build();
 		} catch (WaspMessageBuildingException e1) {
