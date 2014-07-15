@@ -121,14 +121,17 @@ public class TrimGalorePlugin extends WaspPlugin implements ClientMessageI, File
 		Set<String> runIdStringSet = new LinkedHashSet<String>();
 		runIdStringSet.add(run.getId().toString());
 		parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
+		try{
+			if (!getViewPanelTab(fileGroup).getPanels().isEmpty())
+				return Status.COMPLETED;
+		} catch (PanelException e){}
+		
 		JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer.getJobExecutions(TrimGalore.FLOW_NAME, parameterMap, false));
 		ExitStatus jobExitStatus = je.getExitStatus();
 		if (jobExitStatus.isFailed())
 			return Status.FAILED; 
 		if (jobExitStatus.isRunning())
-			return Status.STARTED; 
-		if (jobExitStatus.isCompleted())
-			return Status.COMPLETED; 
+			return Status.STARTED; // trumps previously set status of COMPLETED
 		return Status.UNKNOWN;
     }
 
