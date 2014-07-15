@@ -673,7 +673,7 @@ public interface JobService extends WaspMessageHandlingService {
 	public JobDataTabViewing getTabViewPluginByJob(Job job);
 
 	public JobSampleDao getJobSampleDao();
-
+	
 	public void setJobDraftService(JobDraftService mockJobDraftServiceImpl);
 	 
 	public List<List<Sample>> getSampleReplicates(Job job);

@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.exception.GridException;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
@@ -26,6 +27,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy;
+import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
 import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
@@ -53,6 +55,9 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 	
 	@Autowired
 	private IlluminaHiseqSequenceRunProcessor casava;
+	
+	@Autowired
+	private WaspIlluminaService waspIlluminaService;
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
@@ -122,7 +127,7 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 		
 		w.setResultsDirectory(dataDir + "/" + run.getName() + "/" + outputFolder);
 		
-		w.setCommand(getConfigureBclToFastqString(sm, procs, sampleSheetName, outputFolder));
+		w.setCommand(getConfigureBclToFastqString(sm, run, procs, sampleSheetName, outputFolder));
 
 		GridResult result = gws.execute(w);
 		
@@ -132,7 +137,7 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 		storeStartedResult(context, result);
 	}
 	
-	private String getConfigureBclToFastqString(SoftwareManager sm, int proc, String sampleSheetName, String outputFolder) {
+	private String getConfigureBclToFastqString(SoftwareManager sm, Run run, int proc, String sampleSheetName, String outputFolder) throws MetadataException {
 		String failed = sm.getConfiguredSetting("casava.with-failed-reads");
 		String mismatches = sm.getConfiguredSetting("casava.mismatches");
 		String missingStats = sm.getConfiguredSetting("casava.ignore-missing-stats");
@@ -184,11 +189,42 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 			int fqc = new Integer(fastqNclusters).intValue();
 			retval += " --fastq-cluster-count " + fqc;
 		}
-		if (method.equals(IlluminaIndexingStrategy.TRUSEQ)) {
-			retval += " --use-bases-mask Y*,I6n*,n*,Y* ";
+		int readSegments = waspIlluminaService.getNumberOfReadSegments(run);
+		int indexedReads = waspIlluminaService.getNumberOfIndexedReads(run);
+		
+		String basesMask = "";
+		if (readSegments == 1 || readSegments == 2) {
+			basesMask = "Y*";
+			if (indexedReads == 1) {
+				basesMask += ",I6n*";
+				logger.debug("TruSeq single barcode, single sequencing");
+			} else if (indexedReads == 2) {
+				if (method.equals(IlluminaIndexingStrategy.TRUSEQ)) {
+					basesMask += ",I6n*,n*";
+					logger.debug("TruSeq single barcode, dual sequencing");
+				} else if (method.equals(IlluminaIndexingStrategy.TRUSEQ_DUAL)) {
+					basesMask += ",I8,I8";
+					logger.debug("TruSeq dual barcode, dual sequencing");
+				} else {
+					String mess = "Unknown indexing strategy " + method.toString();
+					logger.error(mess);
+					throw new WaspRuntimeException(mess);
+				}
+			} else {
+				logger.warn("Number of number of indexed read segments was " + indexedReads );
+			}
 		} else {
-			retval += " --use-bases-mask Y*,I8,I8,Y* ";
+			String mess = "Unknown number of read segments " + readSegments;
+			logger.error(mess);
+			throw new WaspRuntimeException(mess);
 		}
+		if (readSegments == 2) {
+			basesMask += ",Y*";
+			logger.debug("paired end run");
+		}
+		logger.info("run " + run.getName() + " bcl2fastq processing for " + method.toString() + " bases mask=" + basesMask);
+		
+		retval += " --use-bases-mask " + basesMask;
 		
 		retval += "\n  cd ../../../" + outputFolder + " && make -j ${threads} \n\n else\n  echo no cell libraries >&2\n fi\nelse\n echo semaphore exists >&2\nfi\n\n";
 

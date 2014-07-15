@@ -40,6 +40,7 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.plugin.fileformat.service.impl.FastqServiceImpl;
+import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
 import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
@@ -84,6 +85,9 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
 
     @Autowired
     private FileType waspIlluminaHiseqQcMetricsFileType;
+    
+    @Autowired
+    private WaspIlluminaService waspIlluminaService;
 
     private int runId;
     private Run run;
@@ -189,16 +193,7 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
 
         BufferedReader br = new BufferedReader(new InputStreamReader(r.getStdOutStream()));
 
-        w = new WorkUnit();
-        w.setProcessMode(ProcessMode.SINGLE);
-        w.setSoftwareDependencies(sd);
-        w.setWorkingDirectory(workingDirectory);
-        w.setCommand("grep -c \"IsIndexedRead=\\\"N\\\"\" RunInfo.xml");
-
-        r = transportConnection.sendExecToRemote(w);
-
-        BufferedReader rsn = new BufferedReader(new InputStreamReader(r.getStdOutStream()));
-        Integer readSegments = new Integer(StringUtils.chomp(rsn.readLine()));
+        Integer readSegments = waspIlluminaService.getNumberOfReadSegments(run);
 
         this.createSequenceFiles(platformUnit, allCellLib, br, readSegments);
 
@@ -274,42 +269,51 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
                     sampleGroup.setFileType(fastqFileType);
                     sampleGroup.setSoftwareGeneratedBy(casava);
                     fileService.addFileGroup(sampleGroup);
-                    fqs.setNumberOfReadSegments(sampleGroup, readSegments);
+                    Integer rsn = readSegments;
+                    if (rsn == 2 && !waspIlluminaService.assayAllowsPairedEndData(cellLib))
+                    	rsn = 1;
+                    fqs.setNumberOfReadSegments(sampleGroup, rsn);
                     cellLibSeqfg.put(cellLib, sampleGroup);
 
                 }
+                
+                
+                // do not register files for assays that do not allow paired sequence data
+				if (read == 1 || (read == 2 && waspIlluminaService.assayAllowsPairedEndData(cellLib))) {
 
-                FileHandle file = new FileHandle();
-                file.setFileURI(workService.getGridFileService().remoteFileRepresentationToLocalURI(workingDirectory + "wasp/sequence/" + line));
-                String actualBarcode = sampleService.getLibraryAdaptor(sampleService.getLibrary(cellLib)).getBarcodesequence();
-                if (!actualBarcode.equals(barcode)) {
-                    logger.error("cell library " + cellLibId + " barcode " + actualBarcode + " does not match file's indicaded barcode: " + barcode);
-                    throw new edu.yu.einstein.wasp.exception.SampleIndexException("sample barcode does not match");
-                }
+					FileHandle file = new FileHandle();
+					file.setFileURI(workService.getGridFileService().remoteFileRepresentationToLocalURI(workingDirectory + "wasp/sequence/" + line));
+					String actualBarcode = sampleService.getLibraryAdaptor(sampleService.getLibrary(cellLib)).getBarcodesequence();
+					if (!actualBarcode.equals(barcode)) {
+						logger.error("cell library " + cellLibId + " barcode " + actualBarcode + " does not match file's indicaded barcode: " + barcode);
+						throw new edu.yu.einstein.wasp.exception.SampleIndexException("sample barcode does not match");
+					}
 
-                String uri = file.getFileURI().toString();
-                file.setFileName(uri.substring(uri.lastIndexOf('/') + 1));
-                file.setFileType(fastqFileType);
-                fileService.addFile(file);
-                fqs.setSingleFile(file, false);
-                fqs.setFileNumber(file, fileNum);
-                fqs.setFastqReadSegmentNumber(file, read);
+					String uri = file.getFileURI().toString();
+					file.setFileName(uri.substring(uri.lastIndexOf('/') + 1));
+					file.setFileType(fastqFileType);
+					fileService.addFile(file);
+					fqs.setSingleFile(file, false);
+					fqs.setFileNumber(file, fileNum);
+					fqs.setFastqReadSegmentNumber(file, read);
 
-                SoftwareManager sm = transportConnection.getSoftwareManager();
-                String failed = sm.getConfiguredSetting("casava.with-failed-reads");
+					SoftwareManager sm = transportConnection.getSoftwareManager();
+					String failed = sm.getConfiguredSetting("casava.with-failed-reads");
 
-                boolean f = false;
-                if (PropertyHelper.isSet(failed) && failed == "true")
-                    f = true;
-                fqs.setContainsFailed(file, f);
+					boolean f = false;
+					if (PropertyHelper.isSet(failed) && failed == "true")
+						f = true;
+					fqs.setContainsFailed(file, f);
 
-                fqs.setLibraryUUID(file, sampleService.getLibrary(cellLib));
+					fqs.setLibraryUUID(file, sampleService.getLibrary(cellLib));
 
-                // add file to pu samplefile and library samplefile
-                pufg.getFileHandles().add(file);
-                cellLibSeqfg.get(cellLib).getFileHandles().add(file);
+					// add file to pu samplefile and library samplefile
+					pufg.getFileHandles().add(file);
+					cellLibSeqfg.get(cellLib).getFileHandles().add(file);
 
-                logger.debug("created file " + file.getFileURI().toASCIIString() + " id: " + file.getId());
+					logger.debug("created file " + file.getFileURI().toASCIIString() + " id: " + file.getId());
+
+				}
 
                 line = br.readLine();
             }
