@@ -210,9 +210,11 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 			
 			List<Sample> libraries = sampleService.getLibrariesOnCellWithoutControls(cell);
 
+			cellMarked[cellid-1] = false;//rob; 7-14-14; moved here from below
+			
 			for (SampleSource cellLibrary : all) {
 			    
-			    cellMarked[cellid-1] = false;
+			    //cellMarked[cellid-1] = false;//rob; 7-14-14; commented out and moved just above this for loop
 				
 				logger.debug("working with cell library: " + cellLibrary.getId() + " representing " + 
 						cellLibrary.getSourceSample().getId() +":"+ cellLibrary.getSourceSample().getName());
@@ -226,13 +228,13 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
                                         
                 	String line = buildLine(platformUnit, cell, controlCellLib.getSourceSample().getName(), controlCellLib, "Y", "control");
                 	sampleSheet += "\n" + line;
-                	cellMarked[cellid-1] = true;
+                	cellMarked[cellid-1] = true;//rob; 7-14-14
                 	continue;
                 }
 				
                 //if this cellLibrary's library is a control library, AND other libraries are on the lane, then continue, as we do NOT include the control on the sample sheet 
                 logger.debug("attempting to check whether cellLibrary's library is a control library");
-                if(sampleService.isControlLibrary(cellLibrary.getSourceSample())){
+                if(sampleService.isControlLibrary(cellLibrary.getSourceSample())){//rob; 7-14-14
                 	logger.debug("YES! The cellLibrary's library is a control library");
                 	continue;
                 }
