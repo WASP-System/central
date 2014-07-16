@@ -96,6 +96,12 @@ public interface GridResult {
 	public String getUsername();
 	
 	/**
+	 * Map of metadata stored for the job, e.g. job id, hostname etc
+	 * @return
+	 */
+	public Map<String, String> getJobInfo();
+	
+	/**
 	 * Get current status of job.
 	 * @return
 	 */

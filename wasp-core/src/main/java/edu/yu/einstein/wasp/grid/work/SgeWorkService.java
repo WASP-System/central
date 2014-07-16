@@ -952,7 +952,11 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			preamble += "\n####\n";
 			
 			preamble +=	"\necho $JOB_ID >> " + "${" + WorkUnit.JOB_NAME + "}.start\n" +
-					"echo submitted to host `hostname -f` `date` 1>&2";
+					"echo #### begin job info 1>&2\n" + 
+					"echo Grid job Id : $JOB_ID 1>&2\n" + 
+					"echo Host Node   : `hostname -f` 1>&2\n" + 
+					"echo Start Time  : `date` 1>&2\n" + 
+					"echo #### end job info 1>&2\n\n";
 			// if there is a configured setting to prepare the interpreter, do that here 
 			String env = transportConnection.getConfiguredSetting("env");
 			if (PropertyHelper.isSet(env)) {
