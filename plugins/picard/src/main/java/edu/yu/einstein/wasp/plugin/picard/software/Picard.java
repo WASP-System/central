@@ -14,20 +14,30 @@ import java.util.Set;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.w3c.dom.Document;
 
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
+import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.fileformat.service.BamService;
+import edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy;
+import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
 import edu.yu.einstein.wasp.plugin.mps.grid.software.Samtools;
 import edu.yu.einstein.wasp.plugin.picard.service.PicardService;
 import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.service.RunService;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 
@@ -44,6 +54,15 @@ public class Picard extends SoftwarePackage{
 	
 	@Autowired
 	FileService fileService;
+	
+	@Autowired
+	private WaspIlluminaService illuminaService;
+	
+	@Autowired
+	private RunService runService;
+	
+	@Autowired
+	private SampleService sampleService;
 	
 	public Picard() {}
 	
@@ -282,6 +301,130 @@ public class Picard extends SoftwarePackage{
 		return picardDedupMetricsMap;
 	}
 
+	public Map<String,String> getUniquelyAlignedReadCountMetrics(String uniquelyAlignedReadCountfilename, String uniquelyAlignedNonRedundantReadCountfilename,String scratchDirectory, GridHostResolver gridHostResolver)throws Exception{
+		
+		logger.debug("entering getUniquelyAlignedReadCountMetrics");
+		
+		Map<String,String> uniquelyAlignedReadCountMetricsMap = new HashMap<String,String>();
+		
+		String uniqueReads = "";
+		String uniqueNonRedundantReads = "";
+		
+		WorkUnit w = new WorkUnit();
+		w.setProcessMode(ProcessMode.SINGLE);
+		GridWorkService workService = gridHostResolver.getGridWorkService(w);
+		GridTransportConnection transportConnection = workService.getTransportConnection();
+		w.setWorkingDirectory(scratchDirectory);
+		logger.debug("setting cat command in getPicardDedupMetrics");
+		w.addCommand("cat " + uniquelyAlignedReadCountfilename );
+		w.addCommand("cat " + uniquelyAlignedNonRedundantReadCountfilename );
+		
+		GridResult r = transportConnection.sendExecToRemote(w);
+		InputStream is = r.getStdOutStream();
+		BufferedReader br = new BufferedReader(new InputStreamReader(is)); 
+		boolean keepReading = true;
+		int lineNumber = 0;
+		logger.debug("getting ready to read 2 uniquelAlignedMetrics files");
+		while (keepReading){
+			lineNumber++;
+			String line = null;
+			line = br.readLine();
+			logger.debug("line number = " + lineNumber + " and line = " + line);
+			if (line == null)
+				keepReading = false;
+			if (lineNumber == 1){
+				uniqueReads = line.replaceAll("\\n", "");//just in case there is a trailing new line
+				uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS, uniqueReads);
+				logger.debug("uniqueReads = " + uniqueReads);
+			} else if (lineNumber == 2){
+				uniqueNonRedundantReads = line.replaceAll("\\n", "");//just in case there is a trailing new line;
+				uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS, uniqueNonRedundantReads);
+				logger.debug("uniqueNonRedundantReads = " + uniqueNonRedundantReads);
+			} else {
+				keepReading = false;
+			}
+			 
+		}
+		br.close();	
+		
+		Double fractionUniqueNonRedundant_double = 0.0;
+		String fractionUniqueNonRedundant = fractionUniqueNonRedundant_double.toString();
+		Integer uniqueReads_integer = Integer.valueOf(uniqueReads);
+		Integer uniqueNonRedundantReads_integer = Integer.valueOf(uniqueNonRedundantReads);
+		
+		if(uniqueReads_integer>0 && uniqueNonRedundantReads_integer>0){
+			fractionUniqueNonRedundant_double = (double) uniqueNonRedundantReads_integer / uniqueReads_integer;
+			DecimalFormat myFormat = new DecimalFormat("0.000000");
+			fractionUniqueNonRedundant = myFormat.format(fractionUniqueNonRedundant_double);						
+		}	
+		uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT, fractionUniqueNonRedundant);
+		
+		logger.debug("leaving getUniquelyAlignedReadCountMetrics");
+		return uniquelyAlignedReadCountMetricsMap;
+		
+	}
+	
+	public String getExtractIlluminaBarcodesCommand(Run run, Map<Integer,Sample> indexedCellMap) throws MetadataException, SampleTypeException {
+		
+		String cmd = "rm -rf BARCODES && mkdir -p BARCODES/SINGLE && mkdir -p BARCODES/DUAL\n";
+		
+		Document runInfo = illuminaService.getIlluminaRunXml(run);
+		
+		for (Integer index : indexedCellMap.keySet()) {
+			
+			
+			
+			
+			
+		
+			cmd += "mkdir -p BARCODES/L" + i;
+			cmd += "java -Xmx4g -jar $PICARD_ROOT/ExtractIlluminaBarcodes.jar B=. OUTPUT_DIR=./BARCODES/L" + i + " L=" + i + " RS=" + getReadStructure(run, , strategy) +
+					" ";
+		}
+		
+		return null;
+	}
+	
+	private String getReadStructure(Run run, Integer cellId, IlluminaIndexingStrategy strategy) throws MetadataException, SampleTypeException {
+		String rs = null;
+		List<Integer> indexLengths = illuminaService.getLengthOfIndexedReads(run);
+		List<Integer> segmentLengths = illuminaService.getLengthOfReadSegments(run);
+		if (segmentLengths.size() == 0)
+			return rs;
+		Map<Integer,Sample> cellMap = sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit());
+		Sample cell = cellMap.get(cellId);
+		List<Sample> libraries = sampleService.getLibrariesOnCell(cell);
+		int maxBarcodeLength = 0;
+		for (Sample lib : libraries) {
+			Adaptor adapter = sampleService.getLibraryAdaptor(lib);
+			String[] barcodes = adapter.getBarcodesequence().split("-");
+			if(barcodes[0].length() > maxBarcodeLength) 
+				maxBarcodeLength = barcodes[0].length();
+		}
+		rs = segmentLengths.get(0) + "T";
+		int d = indexLengths.get(0) - maxBarcodeLength;
+
+		// This strategy assumes barcodes of same length
+		String barcodeString = maxBarcodeLength + "B";
+		if (d > 0) 
+			barcodeString += d + "S";
+		if (indexLengths.size() == 2 && strategy.equals(IlluminaIndexingStrategy.TRUSEQ_DUAL)) {
+			barcodeString += maxBarcodeLength + "B";
+			if (d > 0) 
+				barcodeString += d + "S"; 
+		}
+		if (indexLengths.size() == 2 && strategy.equals(IlluminaIndexingStrategy.TRUSEQ)) {
+			barcodeString += indexLengths.get(1) + "S";
+		}
+		rs += barcodeString;
+		if (segmentLengths.size() == 2) {
+			rs += segmentLengths.get(1) + "T";
+		}
+		logger.debug("Read Structure string: " + rs);
+		
+		return rs;
+	}
+	
 	private void setAlignmentMetricsToFileGroupMeta(Integer fileGroupId, JSONObject json)throws MetadataException{
 		FileGroup fileGroup = fileService.getFileGroupById(fileGroupId);
 		List<FileGroupMeta> fileGroupMetaList = fileGroup.getFileGroupMeta();
@@ -292,4 +435,5 @@ public class Picard extends SoftwarePackage{
 		fileGroupMetaList.add(fgm);
 		fileService.saveFileGroupMeta(fileGroupMetaList, fileGroup);		
 	}
+	
 }
