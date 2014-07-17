@@ -34,6 +34,7 @@ import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.ResourceCategory;
@@ -264,6 +265,12 @@ public class WaspIlluminaServiceImpl extends WaspServiceImpl implements WaspIllu
 		retval = sequencingService.isReadTypeConfiguredToBeAvailable(job.getWorkflow(), illumina, ReadType.PAIRED);
 		logger.trace("workflow: " + job.getWorkflow().getName() + " resourcecategory: " + illumina.getName() + " paired=" + retval);
 		return retval;
+	}
+
+	@Override
+	public IndexingStrategy getIndexingStrategy(SampleSource cellLibrary) throws MetadataException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

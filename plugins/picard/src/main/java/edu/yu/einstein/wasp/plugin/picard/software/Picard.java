@@ -380,7 +380,6 @@ public class Picard extends SoftwarePackage{
 			cmd += "mkdir -p BARCODES/L" + i;
 			cmd += "java -Xmx4g -jar $PICARD_ROOT/ExtractIlluminaBarcodes.jar B=. OUTPUT_DIR=./BARCODES/L" + i + " L=" + i + " RS=" + getReadStructure(run, , strategy) +
 					" ";
-		}
 		
 		return null;
 	}
@@ -425,6 +424,8 @@ public class Picard extends SoftwarePackage{
 		return rs;
 	}
 	
+=======
+>>>>>>> Stashed changes
 	private void setAlignmentMetricsToFileGroupMeta(Integer fileGroupId, JSONObject json)throws MetadataException{
 		FileGroup fileGroup = fileService.getFileGroupById(fileGroupId);
 		List<FileGroupMeta> fileGroupMetaList = fileGroup.getFileGroupMeta();

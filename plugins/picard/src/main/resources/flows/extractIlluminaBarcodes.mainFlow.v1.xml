@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
+
+	<!-- for job, call with parameter 'runID' -->
+	<batch:flow id="extractIlluminaBarcodes.flow">
+	
+		<batch:step id="extractIlluminaBarcodes.do" next="extractIlluminaBarcodes.register">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.plugin.picard.tasklet.ExtractIlluminaBarcodes" scope="step">
+					<constructor-arg name="flowCellId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+					<constructor-arg name="strategy" value="#{jobParameters[T(edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy).INDEXING_KEY]}" />
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+
+		<batch:step id="extractIlluminaBarcodes.register">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.plugin.picard.tasklet.RegisterIlluminaBarcodes" scope="step">
+					<constructor-arg name="flowCellId" value="#{jobParameters[waspJobParameters.RUNƒ_ID]}" />
+					<constructor-arg name="strategy" value="#{jobParameters[T(edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy).INDEXING_KEY]}" />
+				</bean>
+			</batch:tasklet>
+			<batch:fail on="FAILED" />
+		</batch:step>
+
+	</batch:flow>
+	
+	<batch:job id="extractIlluminaBarcodes">
+		<batch:flow id="extractIlluminaBarcodes.f" parent="extractIlluminaBarcodes.flow"/>
+	</batch:job>
+	
+</beans>
