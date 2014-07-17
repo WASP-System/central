@@ -653,7 +653,7 @@ public class TaskController extends WaspController {
 			  return job1.getId().compareTo(job2.getId());
 		  }
 	}
-	
+	// TODO: This is extremely slow!!!! 
 	//to sort samplesource objects based on macromoleucle name, then library name then platformunit name, then run name
 	private class SampleSourceComparator implements Comparator<SampleSource> {
 	    @Override
@@ -714,7 +714,7 @@ public class TaskController extends WaspController {
 		Map<SampleSource, Sample> cellLibraryPUMap = new HashMap<SampleSource, Sample>();
 		Map<SampleSource, Run> cellLibraryRunMap = new HashMap<SampleSource, Run>();	 
 		Map<SampleSource, String> cellLibraryQcStatusCommentMap = new HashMap<SampleSource,String>();
-		Collections.sort(cellLibraries, new SampleSourceComparator());//sort the SampleSourceList
+		// Collections.sort(cellLibraries, new SampleSourceComparator());//sort the SampleSourceList
   		for(SampleSource cellLibrary : cellLibraries){
 			Sample library = sampleService.getLibrary(cellLibrary);
 			cellLibraryLibraryMap.put(cellLibrary, library);
@@ -767,18 +767,8 @@ public class TaskController extends WaspController {
   @RequestMapping(value = "/cellLibraryQC/list", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('fm-*')")
 	public String listCellLibraryQC(ModelMap m) throws SampleTypeException {
-
-	  /* *************will currently be none, so add two jobs.
-	  boolean fakeIt = false;
-	  if(activeJobsWithNoSamplesCurrentlyBeingProcessed.isEmpty()){
-		  activeJobsWithNoSamplesCurrentlyBeingProcessed.add(jobService.getJobByJobId(40));
-		  activeJobsWithNoSamplesCurrentlyBeingProcessed.add(jobService.getJobByJobId(46));
-		  fakeIt = true;
-	  }
-	  */  //**************will currently be none, so add two jobs.
-	  
+	  List<SampleSource> allPreprocessedCellLibraries = new ArrayList<SampleSource>();
 	  List<Job> activeJobsWithCellLibrariesAwaitingQC = new ArrayList<Job>();
-	  List<SampleSource> preprocessedCellLibraries = new ArrayList<SampleSource>();
 	  Map<Job, List<SampleSource>> jobCellLibraryMap = new HashMap<Job, List<SampleSource>>();
 	  Map<SampleSource, Boolean> cellLibraryQcStatusMap = new HashMap<SampleSource, Boolean>();
 	  for(Job job : jobService.getActiveJobs()){
@@ -788,11 +778,13 @@ public class TaskController extends WaspController {
 		  }
 		  boolean atLeastOneCellLibraryAwaitingQC = false;
 		  Map<SampleSource, ExitStatus> jobCellLibrariesWithPreprocessingStatus = sampleService.getCellLibrariesWithPreprocessingStatus(job);//a preprocessed library is one that is sequenced and aligned
+		  List<SampleSource> preprocessedCellLibraries = new ArrayList<SampleSource>();
 		  for (SampleSource cellLibrary: jobCellLibrariesWithPreprocessingStatus.keySet()){
 			  ExitStatus exitStatus = jobCellLibrariesWithPreprocessingStatus.get(cellLibrary);
 			  if (!exitStatus.isCompleted())
 				  continue;
 			  preprocessedCellLibraries.add(cellLibrary);
+			  allPreprocessedCellLibraries.add(cellLibrary);
 			  if (sampleService.isCellLibraryAwaitingQC(cellLibrary))
 				  atLeastOneCellLibraryAwaitingQC = true;
 			  Boolean isCellLibraryPassedQC = null;
@@ -806,7 +798,7 @@ public class TaskController extends WaspController {
 			  jobCellLibraryMap.put(job, preprocessedCellLibraries);
 		  }
 	  }
-	  populateModelMapWithCommonCellLibraryAssociatedData(preprocessedCellLibraries, m);
+	  populateModelMapWithCommonCellLibraryAssociatedData(allPreprocessedCellLibraries, m);
 	  //sort by job ID desc
 	  Collections.sort(activeJobsWithCellLibrariesAwaitingQC, new JobIdComparator()); 
 
@@ -916,7 +908,7 @@ public class TaskController extends WaspController {
 	  }
 	  
 	  waspMessage("task.cellLibraryqc_update_success.label");	
-	  return "redirect:/task/myTaskList.do";
+	  return "redirect:/task/cellLibraryQC/list.do";
   }
   
   	
@@ -934,7 +926,7 @@ public class TaskController extends WaspController {
 	  for(Job job : jobService.getActiveJobs()){
 		  List<SampleSource> allCellLibrariesForJob = new ArrayList<SampleSource>();
 		  //make certain that aggregateAnalysis has not yet been kicked-off for this job
-		  if(jobService.isAggregationAnalysisBatchJob(job)){
+		  if(jobService.isAnySampleCurrentlyBeingProcessed(job) || jobService.isAggregationAnalysisBatchJob(job)){
 			  continue;
 		  }
 		  Map<SampleSource, ExitStatus> jobCellLibrariesWithPreprocessingStatus = sampleService.getCellLibrariesWithPreprocessingStatus(job);//a preprocessed library is one that is sequenced and aligned
@@ -1035,10 +1027,10 @@ public class TaskController extends WaspController {
 			  }
 			  else if("Later".equalsIgnoreCase(startAnalysis)){
 				  waspMessage("task.aggregateAnalysis_analysisNotBegun.label");
-				  return "redirect:/task/myTaskList.do";
+				  return "redirect:/task/aggregationAnalysis/list.do";
 			  }
 			  //waspMessage("task.aggregateAnalysis_update_success.label");	
-			  return "redirect:/task/myTaskList.do";
+			  return "redirect:/task/aggregationAnalysis/list.do";
 		}
 //	};
 	  
