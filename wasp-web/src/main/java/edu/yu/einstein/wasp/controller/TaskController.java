@@ -926,7 +926,7 @@ public class TaskController extends WaspController {
 	  for(Job job : jobService.getActiveJobs()){
 		  List<SampleSource> allCellLibrariesForJob = new ArrayList<SampleSource>();
 		  //make certain that aggregateAnalysis has not yet been kicked-off for this job
-		  if(jobService.isAggregationAnalysisBatchJob(job)){
+		  if(jobService.isAnySampleCurrentlyBeingProcessed(job) || jobService.isAggregationAnalysisBatchJob(job)){
 			  continue;
 		  }
 		  Map<SampleSource, ExitStatus> jobCellLibrariesWithPreprocessingStatus = sampleService.getCellLibrariesWithPreprocessingStatus(job);//a preprocessed library is one that is sequenced and aligned
