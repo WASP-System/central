@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.genericfileviewing.panelrenderer.CsvFilePanelRenderer;
+import edu.yu.einstein.wasp.genericfileviewing.panelrenderer.HtmlFilePanelRenderer;
+import edu.yu.einstein.wasp.genericfileviewing.panelrenderer.ImageFilePanelRenderer;
 import edu.yu.einstein.wasp.genericfileviewing.panelrenderer.PdfFilePanelRenderer;
 import edu.yu.einstein.wasp.genericfileviewing.panelrenderer.TextFilePanelRenderer;
 import edu.yu.einstein.wasp.genericfileviewing.service.impl.GenericfileviewingServiceImpl;
@@ -40,6 +42,7 @@ public class GenericfileviewingWebServiceImpl extends GenericfileviewingServiceI
 		panelTab.setName(genericfileviewingPlugin.getName());
 		panelTab.setDescription(genericfileviewingPlugin.getDescription());
 		panelTab.setNumberOfColumns(1);
+		panelTab.setMaxOnLoad(true);
 		
 		Set<FileHandle> set = fileGroup.getFileHandles();
 		Iterator<FileHandle> it = set.iterator();
@@ -48,10 +51,18 @@ public class GenericfileviewingWebServiceImpl extends GenericfileviewingServiceI
 		Panel p;
 		if (fileGroup.getFileType().getIName().equals("txt")) {
 			p = TextFilePanelRenderer.getPanelForFileGroup(fileService.getInputStreamFromFileHandle(file));
+		} else if (fileGroup.getFileType().getIName().equals("html")) {
+			p = HtmlFilePanelRenderer.getPanelForFileGroup(fileService.getURLStringFromFileHandle(file));
 		} else if (fileGroup.getFileType().getIName().equals("csv")) {
 			p = CsvFilePanelRenderer.getPanelForFileGroup(fileService.getInputStreamFromFileHandle(file), false);
 		} else if (fileGroup.getFileType().getIName().equals("pdf")) {
 			p = PdfFilePanelRenderer.getPanelForFileGroup(fileService.getURLStringFromFileHandle(file));
+		} else if (fileGroup.getFileType().getIName().equals("jpg") ||
+				fileGroup.getFileType().getIName().equals("bmp") || 
+				fileGroup.getFileType().getIName().equals("gif") || 
+				fileGroup.getFileType().getIName().equals("png") || 
+				fileGroup.getFileType().getIName().equals("tif")) {
+			p = ImageFilePanelRenderer.getPanelForFileGroup(fileService.getURLStringFromFileHandle(file), fileGroup.getDescription());
 		} else {
 			p = new Panel();
 		}

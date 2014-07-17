@@ -926,13 +926,13 @@ public class TaskController extends WaspController {
 	public String aggregationAnalysisGet(ModelMap m) throws SampleTypeException {
 
 	  List<Job> activeJobsWithCellLibrariesToDisplay = new ArrayList<Job>();
-	  List<SampleSource> allCellLibraries = new ArrayList<SampleSource>();
 	  Map<Job, List<SampleSource>> jobCellLibraryMap = new HashMap<Job, List<SampleSource>>();
-	   
+	  List<SampleSource> allCellLibraries = new ArrayList<SampleSource>();
 	  Map<SampleSource, Boolean> cellLibraryQcStatusMap = new HashMap<SampleSource, Boolean>();
 	  
 	  Map<SampleSource, String> cellLibraryWithPreprocessingStatusMap = new HashMap<SampleSource,String>();
 	  for(Job job : jobService.getActiveJobs()){
+		  List<SampleSource> allCellLibrariesForJob = new ArrayList<SampleSource>();
 		  //make certain that aggregateAnalysis has not yet been kicked-off for this job
 		  if(jobService.isAggregationAnalysisBatchJob(job)){
 			  continue;
@@ -945,11 +945,12 @@ public class TaskController extends WaspController {
 				  isCellLibraryPassedQC = sampleService.isCellLibraryPassedQC(cellLibrary);
 			  } catch (MetaAttributeNotFoundException e){} // no value set
 			  cellLibraryQcStatusMap.put(cellLibrary, isCellLibraryPassedQC);
+			  allCellLibrariesForJob.add(cellLibrary);
 			  allCellLibraries.add(cellLibrary);
 		  }
 		  if (!jobCellLibrariesWithPreprocessingStatus.isEmpty()){
 			  activeJobsWithCellLibrariesToDisplay.add(job);
-			  jobCellLibraryMap.put(job, allCellLibraries);
+			  jobCellLibraryMap.put(job, allCellLibrariesForJob);
 		  }
 	  }
 	  populateModelMapWithCommonCellLibraryAssociatedData(allCellLibraries, m);
