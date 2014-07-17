@@ -36,8 +36,14 @@ public class CsvFilePanelRenderer {
 		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
-			String line = br.readLine();
+			String line = br.readLine().trim();
 			if (line!=null) {
+				// If the first line starts with #, it is a header line
+				if (line.startsWith("#")) {
+					header = true;
+					line = line.substring(1);
+				}
+				
 				String[] fields = line.split(csvSplitBy);
 				Integer dataIndex = 1;
 				if (header) {	// the first line is the header
@@ -57,7 +63,7 @@ public class CsvFilePanelRenderer {
 					content.addDataRow(row);
 				}
 			}
-			while ((line = br.readLine()) != null) {
+			while ((line = br.readLine().trim()) != null && !line.isEmpty()) {
 				List<String> row = new ArrayList<String>();
 				String[] fields = line.split(csvSplitBy);
 				for (String fstr : fields) {

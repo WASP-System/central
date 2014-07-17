@@ -4110,6 +4110,7 @@ img {
   list-style-type: none;
   margin: 0;
   padding: 0;
+  font: normal 12px helvetica, arial, verdana, sans-serif;
 }
 
 /* line 143, ../../../ext-theme-base/sass/src/Component.scss */
@@ -5432,7 +5433,7 @@ a.x-tab {
   background-repeat: no-repeat;
   font-size: 0;
 /* added by AJ, for removing padding on the first column where checkbox is */
-  padding: 0;
+  padding: 0 !important;
 }
 
 /* line 1, ../../../ext-theme-base/sass/src/tab/Panel.scss */
@@ -14071,7 +14072,7 @@ div.x-lbl-top-err-icon {
 /* line 6, ../../../ext-theme-neutral/sass/src/form/field/Base.scss */
 .x-form-item,
 .x-form-field {
-  font: normal 13px helvetica, arial, verdana, sans-serif;
+  font: normal 12px helvetica, arial, verdana, sans-serif;
 }
 
 /* line 21, ../../../ext-theme-neutral/sass/src/form/field/Base.scss */
@@ -15099,6 +15100,7 @@ a.x-color-picker-item:hover {
   background-color: white;
   border-color: #ededed;
   border-style: solid;
+  padding: 2px 10px 0 10px;
 }
 
 /* line 26, ../../../ext-theme-neutral/sass/src/panel/Table.scss */

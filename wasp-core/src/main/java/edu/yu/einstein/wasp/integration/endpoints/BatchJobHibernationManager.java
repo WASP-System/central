@@ -238,15 +238,6 @@ public class BatchJobHibernationManager {
 		return replyMessage;
 	}
 	
-	private void processManyMessage(WaspStatusMessageTemplate m) {
-	    // without the MANY message type or PARENT_ID header, this is a bad or just a normal message, skip.
-	    if (m.getHeader(WaspMessageType.HEADER_KEY).equals(WaspMessageType.MANY) && !m.getHeaders().containsKey(WaspStatusMessageTemplate.PARENT_ID)) {
-	        logger.warn("received message proporting to be a MANY message, but it does not contain a PARENT_ID!.  Skipping!");
-	        return;
-	    }
-	    
-	}
-	
 	Message<WaspStatus> getMessageToResend(Message<WaspStatus> originalMessage, int resendCount){
 		// make new message of high priority
 		Message<WaspStatus> newMessage = MessageBuilder

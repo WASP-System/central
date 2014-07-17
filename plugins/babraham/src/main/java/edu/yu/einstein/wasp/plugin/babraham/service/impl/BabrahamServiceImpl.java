@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,14 +17,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.SampleParentChildException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqComparator;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.service.RunService;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
@@ -32,6 +39,12 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	
 	@Autowired
 	private FileService fileService;
+	
+	@Autowired
+	private RunService runService;
+	
+	@Autowired
+	private SampleService sampleService;
 	
 	@Autowired
 	private FastqService fastqService;
@@ -125,5 +138,24 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 		Collections.sort(fiveRandomForwardReadFastqFiles, new FastqComparator(fastqService));//this comparator appears to order files like: a read (R1_001.fq), followed immediately by its mate (R2_001.fq),  if it was a paired end read. This is exactly what fastq_screen requires.
 		return fiveRandomForwardReadFastqFiles;		
 	}	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Run getRunForFileGroup(FileGroup fileGroup){
+		fileGroup = fileService.getFileGroupById(fileGroup.getId()); // ensure attached
+		Set<SampleSource> ss = fileGroup.getSampleSources();
+		if (ss.isEmpty())
+			return null;
+		SampleSource cellLibrary = ss.iterator().next();
+		try {
+			return runService.getRunsForPlatformUnit(sampleService.getPlatformUnitForCell(sampleService.getCell(cellLibrary))).get(0);
+		} catch (SampleTypeException | SampleParentChildException e) {
+			logger.warn(e.getMessage());
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 }
