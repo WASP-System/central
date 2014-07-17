@@ -152,7 +152,7 @@ public interface JobService extends WaspMessageHandlingService {
 	 * returns true if any jobs exist which are awaiting QC of a Sample
 	 * @return
 	 */
-	public boolean isJobsAwaitingSampleQC();
+	public boolean isJobsAwaitingSampleQC(List<Job> jobs);
 
 	/**
 	 * returns list of jobs awaiting QC of at least one Library
@@ -164,7 +164,7 @@ public interface JobService extends WaspMessageHandlingService {
 	 * returns true if any jobs exist which are awaiting QC of a library
 	 * @return
 	 */
-	public boolean isJobsAwaitingLibraryQC();
+	public boolean isJobsAwaitingLibraryQC(List<Job> jobs);
 	
 	/**
 	 *  returns true if jobs is awaiting QC of a library
@@ -184,7 +184,7 @@ public interface JobService extends WaspMessageHandlingService {
 	 * returns true if any job is awaiting cell-library QC
 	 * @return
 	 */
-	public boolean isJobsAwaitingCellLibraryQC();
+	public boolean isJobsAwaitingCellLibraryQC(List<Job> jobs);
 
 	
 	/**
@@ -398,7 +398,7 @@ public interface JobService extends WaspMessageHandlingService {
 	 * Returns true if there are jobs awaiting receiving of sample
 	 * @return
 	 */
-	public boolean isJobsAwaitingReceivingOfSamples();
+	public boolean isJobsAwaitingReceivingOfSamples(List<Job> activeJobs);
 
 	
 	/**
@@ -463,7 +463,7 @@ public interface JobService extends WaspMessageHandlingService {
 	 * returns true if one or more jobs are awaiting quoting
 	 * @return
 	 */
-	public boolean isJobsAwaitingQuote();
+	public boolean isJobsAwaitingQuote(List<Job> activeJobs);
 
 	public void setSampleService(SampleService sampleService);
 

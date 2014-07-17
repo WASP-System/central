@@ -30,11 +30,11 @@ public interface TaskService extends WaspService {
 
 	public int getDepartmentAdminPendingTasks(List<LabPending> labsPendingDaApprovalList, List<Job> jobsPendingDaApprovalList);
 
-	public boolean isDepartmentAdminPendingTasks();
+	public boolean isDepartmentAdminPendingTasks(List<Job> activeJobs);
 
-	public boolean isLabManagerPendingTasks();
+	public boolean isLabManagerPendingTasks(List<Job> activeJobs);
 
-	public boolean isFmPendingTasks();
+	public boolean isFmPendingTasks(List<Job> activeJobs);
 		
 	
 }
