@@ -476,7 +476,107 @@ public class MacstwoWebPanels {
 		}	
 		return panelTab;
 	}
+	/*
+	//not working, needs AJ support
+	//very new 7-18-14
+		//this is an experiment
+		public static PanelTab getBrowserByAnalysis(List<FileGroup> macs2AnalysisFileGroupList, 
+												Map<FileGroup,List<FileHandle>> fileGroupFileHandleListMap, 
+												Map<FileHandle,String> fileHandleResolvedURLMap, 
+												Map<FileGroup, Double> fileGroupFripPercentMap){
+			
+			//create the panelTab to house the panel
+			PanelTab panelTab = new PanelTab();
+			panelTab.setName("Genome Browser");
+			panelTab.setNumberOfColumns(1);
+		
+			//create the panel
+			GridPanel panel = new GridPanel();
+			panel.setTitle("UCSC Genome Browser");
+			panel.setDescription("UCSC Genome Browser");
+			panel.setResizable(true);
+			panel.setMaximizable(true);	
+			panel.setOrder(1);
+			panel.setGrouping(true);
+			panel.setGroupField("Analysis");
+			///panel.setHasDownload(true);
+			///panel.setDownloadLinkField("Download");
+			///panel.setAllowSelectDownload(true);
+			///panel.setAllowGroupDownload(true);
+			///panel.setSelectDownloadText("Download Selected");
+			panel.setHasGbLink(true);
+			panel.setGbLinkField("Link");
+			panel.setGbTypeField("Icon");
+			panel.setHideGbField("Hide");
+			
+			
+			//create content (think of it as the table)
+			GridContent content = new GridContent();
+			//create the data model 
+			content.addDataFields(new GridDataField("Analysis", "String"));//THIS WILL BE THE UNIQUE GROUPING FIELD //dataIndex, datatype
+			content.addDataFields(new GridDataField("FileType", "String"));//dataIndex, datatype
+			content.addDataFields(new GridDataField("File", "String"));//dataIndex, datatype
+			///content.addDataFields(new GridDataField("MD5", "String"));//dataIndex, datatype
+			content.addDataFields(new GridDataField("Link", "String"));//dataIndex, datatype
+			content.addDataFields(new GridDataField("Icon", "String"));//dataIndex, datatype
+			content.addDataFields(new GridDataField("Hide", "boolean"));//dataIndex, datatype
+
+			//create columns and associate each column with its displayed header and a data model attribute (dataIndex)
+			///////don't want this to display: content.addColumn(new GridColumn("Analysis", "Analysis"));//header,dataIndex		
+			content.addColumn(new GridColumn("File Type", "FileType", 150, 0));//header,dataIndex	width=150; flex=0	
+			content.addColumn(new GridColumn("File", "File", 1));//header,dataIndex					flex=1
+			///content.addColumn(new GridColumn("MD5", "MD5", 270, 0));//header,dataIndex					width=270; flex=0
+			////content.addColumn(new GridColumn(" ", "Download", 100, 0));//header is single space string,dataIndex	width=100; flex=0
+			
+			for(FileGroup fileGroup : macs2AnalysisFileGroupList){				
+				for(FileHandle fileHandle : fileGroupFileHandleListMap.get(fileGroup)){	
+					
+					if(fileHandle.getFileName().endsWith(".bed") || fileHandle.getFileName().endsWith(".bdg") || fileHandle.getFileName().endsWith("Peak")){
+					
+						List<String> row = new ArrayList<String>();	
+						String headerForGroup = fileGroup.getDescription();
+						Double frip = fileGroupFripPercentMap.get(fileGroup);
+						if(frip!=null){
+							Double fripAsPercent = frip * 100;
+							DecimalFormat myFormat = new DecimalFormat("0.00000");
+							String formatedFrip = myFormat.format(fripAsPercent);
+							headerForGroup += " (FRiP: " + formatedFrip + " %)";
+						}
+						row.add(headerForGroup);//won't be displayed on each row, but will be the header for each section (but must be part of the row)
+						row.add(fileHandle.getFileType().getName());
+						row.add(fileHandle.getFileName());
+						///row.add(fileHandle.getMd5hash());
+						
+						//UCSC GB formats: http://genome.ucsc.edu/goldenPath/help/customTrack.html#TRACK
+						//http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&hgt.customText=http://wasp.einstein.yu.edu/results/production_wiki/PKenny/NChandiramani/P685/J11076/analyzed/Wildtype_flag.AC44H0ACXX.lane_7_P0_I10.hg19/Wildtype_flag.AC44H0ACXX.lane_7_P0_I10.hg19_peaks.bed.bz2
+						
+						//Ensembl GB formats: http://useast.ensembl.org/info/docs/webcode/linking.html#attachurl
+						//http://www.ensembl.org/Homo_sapiens/Location/View?g=ENSG00000130544;contigviewbottom=url:http://www.ensembl.org/info/website/upload/sample_files/example.bed=half_height
+						//Note on bedGraph format If attaching a bedGraph file, please add the parameter 'format=bedGraph' to the URL, e.g.
+						//http://www.ensembl.org/Homo_sapiens/Location/View?g=ENSG00000012048;contigviewbottom=url:http://www.abcd.edu/myprojects/data.bed=tiling;format=bedGraph 
+
+						//from UCSC
+						//row.add("http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&hgt.customText="+fileHandleResolvedURLMap.get(fileHandle));
+						//for ensembl:
+						row.add("http://useast.ensembl.org/Homo_sapiens/Location/View?r=1:1-620074;contigviewbottom=url:http://wasp.einstein.yu.edu/results/rob/20140710_IP_Wildtype_flag_TARGET_GATA3_CONTROL_Wildtype_inp_summits2.bed");
+						row.add("ensembl");
+						row.add("false");//true means hide
+						content.addDataRow(row);//add the new row to the content
+					}
+				}			
+			}
+			panel.setContent(content);//add content to panel
+			panelTab.addPanel(panel);//add panel to panelTab
+		
+			return panelTab;		 
+		}
 	
+	*/
+	
+	
+	
+	
+/*	
 	//very new 7-15-14
 	//this is an experiment
 	public static PanelTab getBrowserByAnalysis(List<FileGroup> macs2AnalysisFileGroupList, 
@@ -563,4 +663,5 @@ public class MacstwoWebPanels {
 	
 		return panelTab;		 
 	}
+	*/
 }
