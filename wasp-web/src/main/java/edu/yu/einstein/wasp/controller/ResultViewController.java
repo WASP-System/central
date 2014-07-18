@@ -316,6 +316,9 @@ public class ResultViewController extends WaspController {
 				fileGridContent.addDataFields(new GridDataField("size", "string"));
 				fileGridContent.addDataFields(new GridDataField("link", "string"));
 				fileGridContent.addDataFields(new GridDataField("gblink", "string"));
+				fileGridContent.addDataFields(new GridDataField("gbtype", "string"));
+				fileGridContent.addDataFields(new GridDataField("gbttp", "string"));
+				fileGridContent.addDataFields(new GridDataField("hidegb", "boolean"));
 				
 				try {
 					for (FileGroup fg : fgSet) {
@@ -332,7 +335,38 @@ public class ResultViewController extends WaspController {
 							filerow.add(fh.getSizek() != null ? fh.getSizek().toString() : "");
 							hl = new Hyperlink("Download", fileUrlResolver.getURL(fh).toString());
 							filerow.add(hl.getTargetLink());
+							
 							filerow.add(hl.getTargetLink());
+//							filerow.add("ucsc");
+//							filerow.add("View in UCSC Genome Browser");
+//							filerow.add("false");
+							switch ( (int) (Math.random()*3) ) {
+								case 0:	filerow.add("ucsc");
+										filerow.add("View in UCSC Genome Browser");
+										if ((int) (Math.random()*2)==0)
+											filerow.add("false");
+										else
+											filerow.add("true");
+										break;
+								
+								case 1:	filerow.add("ensembl");
+										filerow.add("View in Ensembl Genome Browser");
+										if ((int) (Math.random()*2)==0)
+											filerow.add("false");
+										else
+											filerow.add("true");
+										break;
+								
+								case 2:	filerow.add("igv");
+										filerow.add("View in IGV Genome Browser");
+										if ((int) (Math.random()*2)==0)
+											filerow.add("false");
+										else
+											filerow.add("true");
+										break;
+								
+								default: break;
+							}
 							
 							fileGridContent.addDataRow(filerow);
 						}
@@ -358,9 +392,11 @@ public class ResultViewController extends WaspController {
 				filePanel.setGroupDownloadTooltip("Download all");
 				filePanel.setGroupDownloadAlign("left");
 				
-				filePanel.setHasGbUcscLink(true);
-				filePanel.setGbUcscLinkField("gblink");
-				filePanel.setGbUcscTooltip("View in UCSC Genome Browser");
+				filePanel.setHasGbLink(true);
+				filePanel.setGbLinkField("gblink");
+				filePanel.setGbTypeField("gbtype");
+				filePanel.setGbTtpField("gbttp");
+				filePanel.setHideGbField("hidegb");
 				
 				jsDetailsTabs.put("filepanel", filePanel);
 				

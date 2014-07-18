@@ -449,6 +449,7 @@ function createGridPanel(panel) {
 		dlcol: panel.hasDownload,
 		dllinkfld: panel.downloadLinkField,
 		dlcoltip: panel.downloadTooltip,
+		hidedl: panel.hideDownloadField,
 		
 		dlselect: panel.allowSelectDownload,
 		dlbtntxt: panel.selectDownloadText,
@@ -460,9 +461,11 @@ function createGridPanel(panel) {
 		
 		statusfld: panel.statusField,
 
-		gbucsccol: panel.hasGbUcscLink,
-		gbucscfld: panel.gbUcscLinkField,
-		gbucsctip: panel.gbUcscTooltip
+		gbcol: panel.hasGbLink,
+		gblink: panel.gbLinkField,
+		gbtype: panel.gbTypeField,
+		gbttp: panel.gbTtpField,
+		hidegb: panel.hideGbField
 	});
 
 	return gridPanel;
