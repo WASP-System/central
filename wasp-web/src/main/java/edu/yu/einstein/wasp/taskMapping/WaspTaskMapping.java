@@ -76,7 +76,22 @@ public abstract class WaspTaskMapping extends WebHyperlink{
 	 * Return boolean value indicating whether or not to display the link (no point if nothing actionable).
 	 * @return
 	 */
-	public abstract boolean isRequirementToShowLink() throws WaspException;
+	public abstract boolean isRequirementToShowLink(Object o) throws WaspException;
+	
+	
+	/**
+	 * Return boolean indicating whether or not there is a requirement to display the link and whether the logged in user
+	 * has permission to view the link.
+	 * @return
+	 */
+	public boolean isLinkToBeShown(Object o){
+		try {
+			return isUserAuthorizedToViewLink() && isRequirementToShowLink(o);
+		} catch (WaspException e) {
+			logger.warn("Unable to determine if there is a requirement to show the link so returning false: " + e.getLocalizedMessage());
+		}
+		return false;
+	}
 	
 	/**
 	 * Return boolean indicating whether or not there is a requirement to display the link and whether the logged in user
@@ -85,7 +100,7 @@ public abstract class WaspTaskMapping extends WebHyperlink{
 	 */
 	public boolean isLinkToBeShown(){
 		try {
-			return isUserAuthorizedToViewLink() && isRequirementToShowLink();
+			return isUserAuthorizedToViewLink() && isRequirementToShowLink(null);
 		} catch (WaspException e) {
 			logger.warn("Unable to determine if there is a requirement to show the link so returning false: " + e.getLocalizedMessage());
 		}
