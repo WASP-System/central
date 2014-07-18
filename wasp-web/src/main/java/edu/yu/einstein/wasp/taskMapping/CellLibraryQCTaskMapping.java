@@ -1,8 +1,11 @@
 package edu.yu.einstein.wasp.taskMapping;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.exception.WaspException;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.service.JobService;
 
 /**
@@ -24,8 +27,10 @@ public class CellLibraryQCTaskMapping extends WaspTaskMapping {
 	}
 
 	@Override
-	public boolean isRequirementToShowLink() throws WaspException {
-		if (jobService.isJobsAwaitingCellLibraryQC())
+	public boolean isRequirementToShowLink(Object o) throws WaspException {
+		@SuppressWarnings("unchecked")
+		List<Job> jobList = (List<Job>) o;
+		if (jobService.isJobsAwaitingCellLibraryQC(jobList))
 			return true;
 		return false;
 	}

@@ -62,10 +62,10 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 	private JobService jobService;
 	
 	@Override
-	public boolean isLabManagerPendingTasks() {
+	public boolean isLabManagerPendingTasks(List<Job> activeJobs) {
 		List<Job> allJobsAwaitingLmApproval = new ArrayList<Job>();
 		Role pendingLabmemberRole = roleDao.getRoleByName("Lab Member Pending");
-		for (Job job: jobService.getActiveJobs()){
+		for (Job job: activeJobs){
 			if (jobService.isJobAwaitingPiApproval(job)){
 				if (authenticationService.isSuperUser())
 					return true;
@@ -171,7 +171,7 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 	}
 	
 	@Override
-	public boolean isDepartmentAdminPendingTasks() {
+	public boolean isDepartmentAdminPendingTasks(List<Job> activeJobs) {
 		Map<String, Object> labPendingSearchMap = new HashMap<String, Object>();
 		labPendingSearchMap.put("status", "PENDING");
 		if ( (authenticationService.isSuperUser() || authenticationService.hasRole("ga")) && 
@@ -183,7 +183,7 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 			if (!labPendingDao.findByMap(labPendingSearchMap).isEmpty())
 				return true;
 		}
-		for (Job job : jobService.getActiveJobs()){
+		for (Job job : activeJobs){
 			if (!jobService.isJobAwaitingDaApproval(job))
 				continue;
 			if (authenticationService.isSuperUser() || authenticationService.hasRole("ga"))
@@ -232,8 +232,8 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 	}
 	
 	@Override
-	public boolean isFmPendingTasks() {
-		for (Job job : jobService.getActiveJobs())
+	public boolean isFmPendingTasks(List<Job> activeJobs) {
+		for (Job job : activeJobs)
 			if (jobService.isJobAwaitingFmApproval(job))
 				return true;
 		return false;

@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.gatk.service.GatkService;
@@ -36,6 +37,9 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	
 	@Autowired
 	private GenomeService genomeService;
+	
+	@Value("${wasp.temporary.dir:/tmp}")
+	protected String localTempDir;
 	
 	
 	public GATKSoftwareComponent() {
@@ -142,7 +146,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	public String getCallVariantsByHaplotypeCaller(Set<String> inputFileNames, String outputGvcfFile, String referenceGenomeFile, 
 			String intervalFile, String additionalOptions, int memRequiredGb){
 		String command = "java -Xmx" + memRequiredGb + "g" +
-		" -Djava.io.tmpdir=. -jar $GATK_ROOT/GenomeAnalysisTK.jar -nct ${" + WorkUnit.NUMBER_OF_THREADS + "}";
+		" -Djava.io.tmpdir=" + localTempDir + " -jar $GATK_ROOT/GenomeAnalysisTK.jar -nct ${" + WorkUnit.NUMBER_OF_THREADS + "}";
 		for (String fileName : inputFileNames)
 			command += " -I " + fileName;
 		command += " -R " + referenceGenomeFile + " -T HaplotypeCaller -o " + outputGvcfFile + 
@@ -157,7 +161,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	public String getCallVariantsByUnifiedGenotyper(Set<String> inputFileNames, String outputFileName, String referenceGenomeFile, 
 			String intervalFile, String additionalOptions, int memRequiredGb)  {
 		String command = "java -Xmx" + memRequiredGb + "g" +
-		" -Djava.io.tmpdir=. -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt ${" + WorkUnit.NUMBER_OF_THREADS + "}";
+		" -Djava.io.tmpdir=" + localTempDir + " -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt ${" + WorkUnit.NUMBER_OF_THREADS + "}";
 		for (String fileName : inputFileNames)
 			command += " -I " + fileName;
 		command += " -R " + referenceGenomeFile + " -T UnifiedGenotyper -o " + outputFileName + 

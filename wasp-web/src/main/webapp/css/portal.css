@@ -97,3 +97,21 @@ div.tooltip {
 	font-weight: bold;
 	white-space: normal;
 }
+
+/* Added by AJ: for proper display of the toolbar fields of PDF Portlet */
+.x-form-item-input-row .x-form-item-body {
+	padding: 0;
+	vertical-align: middle;
+	
+}
+
+.x-form-trigger-wrap .x-form-trigger-input-cell {
+	padding: 0;
+	vertical-align: middle;
+}
+
+.x-form-trigger-wrap .x-trigger-cell {
+	padding: 0;
+}
+/* Added by AJ ends here */
+

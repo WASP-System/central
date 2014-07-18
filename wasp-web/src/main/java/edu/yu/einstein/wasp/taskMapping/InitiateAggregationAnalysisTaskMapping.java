@@ -1,5 +1,7 @@
 package edu.yu.einstein.wasp.taskMapping;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +31,11 @@ public class InitiateAggregationAnalysisTaskMapping extends WaspTaskMapping {
 	}
 
 	@Override
-	public boolean isRequirementToShowLink() throws WaspException {
-		for(Job job: jobService.getActiveJobs()){
-			if (jobService.isJobActive(job) && !jobService.isAggregationAnalysisBatchJob(job) && !jobService.isAnySampleCurrentlyBeingProcessed(job))
+	public boolean isRequirementToShowLink(Object o) throws WaspException {
+		@SuppressWarnings("unchecked")
+		List<Job> jobList = (List<Job>) o;
+		for(Job job: jobList){
+			if (!jobService.isAggregationAnalysisBatchJob(job) && !jobService.isAnySampleCurrentlyBeingProcessed(job))
 				return true;
 		}
 		return false;
