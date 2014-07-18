@@ -118,6 +118,17 @@ Ext.define('Wasp.GridPortlet', {
 			header: 'Actions',
 			minWidth: 80,
 			actions: [],
+			callbacks: {
+				'icon-gb-ucsc': function(grid, record, action, row, col) {
+					window.open(record.get(grid.gblink), '_blank');
+				},
+				'icon-gb-ensembl': function(grid, record, action, row, col) {
+					window.open(record.get(grid.gblink), '_blank');
+				},
+				'icon-gb-igv': function(grid, record, action, row, col) {
+					window.open(record.get(grid.gblink), '_blank');
+				}
+			},
 			keepSelection: true
 		};
 		
@@ -149,10 +160,7 @@ Ext.define('Wasp.GridPortlet', {
 			actioncol.actions.push({
 				iconIndex: this.gbtype,
 				qtipIndex: this.gbttp,
-				hideIndex: this.hidegb,
-				callback: function (grid, record, action, idx, col, e, target) {
-					window.location = record.get(grid.gblink);
-				}
+				hideIndex: this.hidegb//,
 			});
 		}
 
