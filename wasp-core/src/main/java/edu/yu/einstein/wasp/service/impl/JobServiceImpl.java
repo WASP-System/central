@@ -600,8 +600,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	   * {@inheritDoc}
 	   */
 	@Override
-	public boolean isJobsAwaitingReceivingOfSamples(){
-		for (Job job: getActiveJobs())
+	public boolean isJobsAwaitingReceivingOfSamples(List<Job> activeJobs){
+		for (Job job: activeJobs)
 			if (isJobAwaitingReceivingOfSamples(job)) // some samples not yet received
 				return true;
 		return false;
@@ -641,8 +641,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean isJobsAwaitingCellLibraryQC(){
-		for (Job job : getActiveJobs()){
+	public boolean isJobsAwaitingCellLibraryQC(List<Job> jobs){
+		for (Job job : jobs){
 			if (isJobAwaitingCellLibraryQC(job))
 				return true;
 		}
@@ -714,8 +714,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	   * {@inheritDoc}
 	   */
 	@Override
-	public boolean isJobsAwaitingSampleQC(){
-		for (Job job: getActiveJobs())
+	public boolean isJobsAwaitingSampleQC(List<Job> jobs){
+		for (Job job: jobs)
 			if (this.isJobAwaitingSampleQC(job)) // some samples not yet received
 				return true;
 		return false;
@@ -744,8 +744,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	   * {@inheritDoc}
 	   */
 	@Override
-	public boolean isJobsAwaitingLibraryQC(){
-		for (Job job: getActiveJobs())
+	public boolean isJobsAwaitingLibraryQC(List<Job> jobs){
+		for (Job job: jobs)
 			if (this.isJobAwaitingLibraryQC(job)) // some libraries not yet received
 				return true;
 		return false;
@@ -875,8 +875,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		 * {@inheritDoc}
 		 */
 		@Override
-		public boolean isJobsAwaitingQuote(){
-			for (Job job : getActiveJobs())
+		public boolean isJobsAwaitingQuote(List<Job> activeJobs){
+			for (Job job : activeJobs)
 				if (isJobAwaitingQuote(job))
 					return true;
 			return false;

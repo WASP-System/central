@@ -14,6 +14,7 @@ import java.util.Set;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -45,6 +46,9 @@ public class Picard extends SoftwarePackage{
 	@Autowired
 	FileService fileService;
 	
+	@Value("${wasp.temporary.dir:/tmp}")
+	protected String localTempDir;
+	
 	public Picard() {}
 	
 	/**
@@ -61,7 +65,7 @@ public class Picard extends SoftwarePackage{
 			createIndex = true;
 		String command = "java -Xmx" + memRequiredGb + "g -jar $PICARD_ROOT/MarkDuplicates.jar I=" + inputBamFilename + " O=" + dedupBamFilename +
 				" REMOVE_DUPLICATES=false METRICS_FILE=" + dedupMetricsFilename + 
-				" TMP_DIR=. CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT";
+				" TMP_DIR=" + localTempDir + " CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT";
 		if (createIndex)
 			 command += " && mv " + dedupBamFilename + ".bai " + dedupBaiFilename;
 		logger.debug("Will conduct picard MarkDuplicates with command: " + command);
@@ -76,7 +80,7 @@ public class Picard extends SoftwarePackage{
 	 */
 	public String getIndexBamCmd(String bamFilename, String baiFilename, int memRequiredGb){
 		String command = "java -Xmx" + memRequiredGb + "g -jar $PICARD_ROOT/BuildBamIndex.jar I=" + bamFilename + " O=" + baiFilename + 
-				" TMP_DIR=. VALIDATION_STRINGENCY=SILENT";
+				" TMP_DIR=" + localTempDir + " VALIDATION_STRINGENCY=SILENT";
 		logger.debug("Will conduct picard indexing of bam file with command: " + command);
 		return command;
 	}	
@@ -95,7 +99,7 @@ public class Picard extends SoftwarePackage{
 		String command = "java -Xmx" + memRequiredGb + "g -jar $PICARD_ROOT/MergeSamFiles.jar";
 		for (String fileName : inputBamFilenames)
 			command += " I=" + fileName;
-		command += " O=" + mergedBamFilename + " SO=coordinate TMP_DIR=. CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT";
+		command += " O=" + mergedBamFilename + " SO=coordinate TMP_DIR=" + localTempDir + " CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT";
 		if (createIndex)
 			 command += " && mv " + mergedBamFilename + ".bai " + mergedBaiFilename;
 		logger.debug("Will conduct picard MergeSamFiles with command: " + command);
@@ -114,7 +118,7 @@ public class Picard extends SoftwarePackage{
 		if (mergedBaiFilename != null)
 			createIndex = true;
 		String command = "java -Xmx" + memRequiredGb + "g -jar $PICARD_ROOT/MergeSamFiles.jar $(printf 'I=%s ' " + inputBamFilenamesGlob + ")" + 
-		" O=" + mergedBamFilename + " SO=coordinate TMP_DIR=. CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT";
+		" O=" + mergedBamFilename + " SO=coordinate TMP_DIR=" + localTempDir + " CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT";
 		if (createIndex)
 			 command += " && mv " + mergedBamFilename + ".bai " + mergedBaiFilename;
 		logger.debug("Will conduct picard MergeSamFiles with command: " + command);

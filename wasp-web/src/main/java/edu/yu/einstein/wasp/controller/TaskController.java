@@ -620,7 +620,7 @@ public class TaskController extends WaspController {
 	 */
 	@RequestMapping(value = "/myTaskList.do", method = RequestMethod.GET)
 	public String getMyTasks(ModelMap m)  {
-		
+		List<Job> activeJobs = jobService.getActiveJobs();
 		List<WebHyperlink> taskMappingHyperlinksToDisplay = new ArrayList<WebHyperlink>();
 		for (String name: taskMappingRegistry.getNames()){
 			WaspTaskMapping taskMapping = taskMappingRegistry.getTaskMapping(name);
@@ -628,7 +628,7 @@ public class TaskController extends WaspController {
 				logger.warn("Unable to retrieve a taskmapping with name '" + name + "' from the TaskMappingRegistry");
 				continue;
 			}
-			if (taskMapping.isLinkToBeShown()){				
+			if (taskMapping.isLinkToBeShown(activeJobs)){				
 					taskMappingHyperlinksToDisplay.add(taskMapping);
 			}
 		}
