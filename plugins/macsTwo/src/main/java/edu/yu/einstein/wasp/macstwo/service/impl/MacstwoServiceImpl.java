@@ -193,9 +193,9 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 			PanelTab modelPNGFilesDisplayedByAnalysisPanelTab = MacstwoWebPanels.getModelPNGFilesByAnalysis(macs2AnalysisFileGroupList, fileGroupFileHandleListMap, fileHandleResolvedURLMap);
 			if(modelPNGFilesDisplayedByAnalysisPanelTab!=null){panelTabSet.add(modelPNGFilesDisplayedByAnalysisPanelTab);}
 			
-			//I'm working on this for now
-			//PanelTab browserByAnalysisPanelTab = MacstwoWebPanels.getBrowserByAnalysis(macs2AnalysisFileGroupList, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileGroupFripMap);
-			//if(browserByAnalysisPanelTab!=null){panelTabSet.add(browserByAnalysisPanelTab);}
+			//Experiment:
+			PanelTab browserByAnalysisPanelTab = MacstwoWebPanels.getBrowserByAnalysis(macs2AnalysisFileGroupList, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileGroupFripMap);
+			if(browserByAnalysisPanelTab!=null){panelTabSet.add(browserByAnalysisPanelTab);}
 
 			
 			return panelTabSet;
@@ -393,49 +393,6 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 		Collections.sort(softwareUsedList, new SoftwareNameComparator());
 		return softwareUsedList;
 	}
-	/*
-	//no longer used
-	private Sample getTestSample(FileGroup fileGroup){
-		
-		Sample test = null;
-		String testId = "";	
-		System.out.println("testId is starting empty");
-		for(FileGroupMeta fgm : fileGroup.getFileGroupMeta()){
-			if(fgm.getK().equalsIgnoreCase("macs2Analysis.testId")){
-				testId = fgm.getV();
-				break;
-			}
-		}
-		if(!testId.isEmpty()){
-			System.out.println("testId is NOT empty and it's value is " + testId);
-			try{
-				test = sampleService.getSampleById(Integer.valueOf(testId));
-				System.out.println("test's name is: " + test.getName());
-			}catch(Exception e){logger.debug("failed to obtain test sample in getTestSample(FileGroup fileGroup)");}
-		}
-		else{System.out.println("testId IS empty ");}
-		return test;
-	}
-	//no longer used
-	private Sample getControlSample(FileGroup fileGroup){
-		Sample control = null;
-		String controlId = "";	
-		for(FileGroupMeta fgm : fileGroup.getFileGroupMeta()){
-			if(fgm.getK().equalsIgnoreCase("macs2Analysis.controlId")){
-				controlId = fgm.getV();
-				break;
-			}
-		}
-		if(!controlId.isEmpty()){
-			try{
-				control = sampleService.getSampleById(Integer.valueOf(controlId));
-			}catch(Exception e){logger.debug("failed to obtain control sample in getControlSample(FileGroup fileGroup) or it could be 0");}
-		}
-		return control;
-	}
-	
-	*/
-	
 	
 }
 

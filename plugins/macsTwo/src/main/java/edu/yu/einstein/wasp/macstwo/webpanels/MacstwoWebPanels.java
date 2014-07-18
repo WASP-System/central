@@ -328,6 +328,7 @@ public class MacstwoWebPanels {
 		content.addDataFields(new GridDataField("Analysis", "String"));//THIS WILL BE THE UNIQUE GROUPING FIELD //dataIndex, datatype
 		content.addDataFields(new GridDataField("FileType", "String"));//dataIndex, datatype
 		content.addDataFields(new GridDataField("File", "String"));//dataIndex, datatype
+		content.addDataFields(new GridDataField("Size", "String"));//dataIndex, datatype
 		content.addDataFields(new GridDataField("MD5", "String"));//dataIndex, datatype
 		content.addDataFields(new GridDataField("Download", "String"));//dataIndex, datatype
 
@@ -335,7 +336,8 @@ public class MacstwoWebPanels {
 		///////don't want this to display: content.addColumn(new GridColumn("Analysis", "Analysis"));//header,dataIndex		
 		content.addColumn(new GridColumn("File Type", "FileType", 150, 0));//header,dataIndex	width=150; flex=0	
 		content.addColumn(new GridColumn("File", "File", 1));//header,dataIndex					flex=1
-		content.addColumn(new GridColumn("MD5", "MD5", 270, 0));//header,dataIndex					width=270; flex=0
+		content.addColumn(new GridColumn("Size", "Size", 100, 0));//header,dataIndex					width=270; flex=0
+		content.addColumn(new GridColumn("MD5", "MD5", 170, 0));//header,dataIndex					width=270; flex=0
 		////content.addColumn(new GridColumn(" ", "Download", 100, 0));//header is single space string,dataIndex	width=100; flex=0
 		
 		for(FileGroup fileGroup : macs2AnalysisFileGroupList){				
@@ -352,6 +354,10 @@ public class MacstwoWebPanels {
 				row.add(headerForGroup);//won't be displayed on each row, but will be the header for each section (but must be part of the row)
 				row.add(fileHandle.getFileType().getName());
 				row.add(fileHandle.getFileName());
+				Integer sizeK = fileHandle.getSizek();
+				if(sizeK!=null){
+					row.add(fileHandle.getSizek().toString());
+				}else{row.add("");}
 				row.add(fileHandle.getMd5hash());
 				row.add(fileHandleResolvedURLMap.get(fileHandle));
 				content.addDataRow(row);//add the new row to the content
@@ -393,6 +399,7 @@ public class MacstwoWebPanels {
 		//create the data model 
 		content.addDataFields(new GridDataField("FileType", "String"));//THIS WILL BE THE UNIQUE GROUPING FIELD //dataIndex, datatype
 		content.addDataFields(new GridDataField("File", "String"));//dataIndex, datatype
+		content.addDataFields(new GridDataField("Size", "String"));//dataIndex, datatype
 		content.addDataFields(new GridDataField("MD5", "String"));//dataIndex, datatype
 		content.addDataFields(new GridDataField("Download", "String"));//dataIndex, datatype
 
@@ -400,7 +407,8 @@ public class MacstwoWebPanels {
 		///////don't want this to display: content.addColumn(new GridColumn("Analysis", "Analysis"));//header,dataIndex		
 		
 		content.addColumn(new GridColumn("File", "File", 500));//header,dataIndex					flex=1
-		content.addColumn(new GridColumn("MD5", "MD5", 270, 0));//header,dataIndex					width=270; flex=0
+		content.addColumn(new GridColumn("Size", "Size", 100, 0));//header,dataIndex
+		content.addColumn(new GridColumn("MD5", "MD5", 170, 0));//header,dataIndex					width=270; flex=0
 		////content.addColumn(new GridColumn(" ", "Download", 100, 0));//header is single space string,dataIndex	width=100; flex=0
 		
 		for(FileType fileType : fileTypeList){						
@@ -410,6 +418,10 @@ public class MacstwoWebPanels {
 						List<String> row = new ArrayList<String>();					
 						row.add(fileType.getName());//won't be displayed on each row, but will be the header for each section (but must be part of the row)
 						row.add(fileHandle.getFileName());
+						Integer sizeK = fileHandle.getSizek();
+						if(sizeK!=null){
+							row.add(fileHandle.getSizek().toString());
+						}else{row.add("");}
 						row.add(fileHandle.getMd5hash());
 						row.add(fileHandleResolvedURLMap.get(fileHandle));
 						content.addDataRow(row);//add the new row to the content
@@ -466,7 +478,7 @@ public class MacstwoWebPanels {
 	}
 	
 	//very new 7-15-14
-	//this is new
+	//this is an experiment
 	public static PanelTab getBrowserByAnalysis(List<FileGroup> macs2AnalysisFileGroupList, 
 											Map<FileGroup,List<FileHandle>> fileGroupFileHandleListMap, 
 											Map<FileHandle,String> fileHandleResolvedURLMap, 
@@ -474,7 +486,7 @@ public class MacstwoWebPanels {
 		
 		//create the panelTab to house the panel
 		PanelTab panelTab = new PanelTab();
-		panelTab.setName("UCSC Genome Browser");
+		panelTab.setName("Genome Browser");
 		panelTab.setNumberOfColumns(1);
 	
 		//create the panel
@@ -538,8 +550,10 @@ public class MacstwoWebPanels {
 					//Note on bedGraph format If attaching a bedGraph file, please add the parameter 'format=bedGraph' to the URL, e.g.
 					//http://www.ensembl.org/Homo_sapiens/Location/View?g=ENSG00000012048;contigviewbottom=url:http://www.abcd.edu/myprojects/data.bed=tiling;format=bedGraph 
 
-					
-					row.add("http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&hgt.customText="+fileHandleResolvedURLMap.get(fileHandle));
+					//from UCSC
+					//row.add("http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&hgt.customText="+fileHandleResolvedURLMap.get(fileHandle));
+					//for ensembl:
+					row.add("http://useast.ensembl.org/Homo_sapiens/Location/View?r=1:1-620074;contigviewbottom=url:http://wasp.einstein.yu.edu/results/rob/20140710_IP_Wildtype_flag_TARGET_GATA3_CONTROL_Wildtype_inp_summits2.bed");
 					content.addDataRow(row);//add the new row to the content
 				}
 			}			
