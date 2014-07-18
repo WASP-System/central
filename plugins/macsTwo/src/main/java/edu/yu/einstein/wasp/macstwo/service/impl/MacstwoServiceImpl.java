@@ -194,8 +194,8 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 			if(modelPNGFilesDisplayedByAnalysisPanelTab!=null){panelTabSet.add(modelPNGFilesDisplayedByAnalysisPanelTab);}
 			
 			//Experiment:
-			//PanelTab browserByAnalysisPanelTab = MacstwoWebPanels.getBrowserByAnalysis(macs2AnalysisFileGroupList, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileGroupFripMap);
-			//if(browserByAnalysisPanelTab!=null){panelTabSet.add(browserByAnalysisPanelTab);}
+			PanelTab browserByAnalysisPanelTab = MacstwoWebPanels.getBrowserByAnalysis(macs2AnalysisFileGroupList, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileGroupFripMap);
+			if(browserByAnalysisPanelTab!=null){panelTabSet.add(browserByAnalysisPanelTab);}
 
 			
 			return panelTabSet;

@@ -321,6 +321,7 @@ public class MacstwoWebPanels {
 		panel.setAllowSelectDownload(true);
 		panel.setAllowGroupDownload(true);
 		panel.setSelectDownloadText("Download Selected");
+		panel.setDownloadTooltip("Download");
 		
 		//create content (think of it as the table)
 		GridContent content = new GridContent();
@@ -393,6 +394,7 @@ public class MacstwoWebPanels {
 		panel.setAllowSelectDownload(true);
 		panel.setAllowGroupDownload(true);
 		panel.setSelectDownloadText("Download Selected");
+		panel.setDownloadTooltip("Download");
 		
 		//create content (think of it as the table)
 		GridContent content = new GridContent();
@@ -476,7 +478,7 @@ public class MacstwoWebPanels {
 		}	
 		return panelTab;
 	}
-	/*
+	
 	//not working, needs AJ support
 	//very new 7-18-14
 		//this is an experiment
@@ -508,6 +510,7 @@ public class MacstwoWebPanels {
 			panel.setGbLinkField("Link");
 			panel.setGbTypeField("Icon");
 			panel.setHideGbField("Hide");
+			panel.setGbTtpField("Tip");
 			
 			
 			//create content (think of it as the table)
@@ -520,6 +523,7 @@ public class MacstwoWebPanels {
 			content.addDataFields(new GridDataField("Link", "String"));//dataIndex, datatype
 			content.addDataFields(new GridDataField("Icon", "String"));//dataIndex, datatype
 			content.addDataFields(new GridDataField("Hide", "boolean"));//dataIndex, datatype
+			content.addDataFields(new GridDataField("Tip", "String"));//dataIndex, datatype
 
 			//create columns and associate each column with its displayed header and a data model attribute (dataIndex)
 			///////don't want this to display: content.addColumn(new GridColumn("Analysis", "Analysis"));//header,dataIndex		
@@ -561,6 +565,7 @@ public class MacstwoWebPanels {
 						row.add("http://useast.ensembl.org/Homo_sapiens/Location/View?r=1:1-620074;contigviewbottom=url:http://wasp.einstein.yu.edu/results/rob/20140710_IP_Wildtype_flag_TARGET_GATA3_CONTROL_Wildtype_inp_summits2.bed");
 						row.add("ensembl");
 						row.add("false");//true means hide
+						row.add("View in Ensembl Genome Browser");
 						content.addDataRow(row);//add the new row to the content
 					}
 				}			
@@ -571,7 +576,7 @@ public class MacstwoWebPanels {
 			return panelTab;		 
 		}
 	
-	*/
+	
 	
 	
 	
