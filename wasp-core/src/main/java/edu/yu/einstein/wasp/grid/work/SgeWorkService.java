@@ -72,6 +72,11 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	private static final String REGISTER_FILES_KEY = "registerFiles";
 	
 	private static final String CLEAN_COMPLETED_JOB_KEY = "cleanUpCompletedJob";
+	
+	private static final String GRID_JOB_ID_KEY = "Grid Job Id";
+	private static final String GRID_JOB_NAME = "Grid Job Name";
+	private static final String HOST_NODE_KEY = "Host Node";
+	private static final String START_TIME_KEY = "Start Time";
     
     @Value("${wasp.developermode:false}")
     protected boolean developerMode;
@@ -347,6 +352,23 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		else
 			return isTaskArrayEnded(g);
 	}
+	
+	private void recordQaactData(GridResult g) throws GridException {
+		logger.trace("saving qacct data in " + g.getId() + ".stats");
+		if (g.getGridJobId() == null)
+			throw new GridException("Unable to get qacct data for grid job id=" + g.getUuid() + " as no grid job id set");
+		WorkUnit w = new WorkUnit();
+		w.setWorkingDirectory(transportConnection.prefixRemoteFile(g.getWorkingDirectory()));
+		w.setWrapperCommand("qacct -j " + g.getGridJobId() + " > " + g.getId() + ".stats");
+		GridResultImpl result;
+		try {
+			result = (GridResultImpl) transportConnection.sendExecToRemote(w);
+		} catch (MisconfiguredWorkUnitException e) {
+			throw new GridException("Remote job submission failed: caught MisconfiguredWorkUnitException: " + e.getLocalizedMessage());
+		}
+		if (result.getExitCode() > 0)
+			throw new GridAccessException("Remote job submission failed");
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -362,22 +384,24 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		boolean died = false;
 		boolean started;
 		boolean	ended;
-		if (g.getJobInfo().isEmpty()){
-			try{
-				g.getJobInfo().putAll(getJobInfoFromJson(new JSONArray(getUnregisteredFileContents(g, g.getId() + ".start"))));
-				if (logger.isTraceEnabled())
-					for (String key : g.getJobInfo().keySet())
-						logger.trace("Registering job info in GridResult [ " + key + " : " + g.getJobInfo().get(key) + " ]");
-			} catch(IOException e){
-				logger.warn("Unable to extract job info from " + g.getId() + ".start: " + e.getLocalizedMessage());
-			}
-		}
 			
 		if (g.getJobStatus().isEnded()){
 			started = true;
 			ended = true;
 		} else {
 			started = isJobStarted(g);
+			if (started && g.getGridJobId() == null){
+				try{
+					Map<String, String> gridJobInfo = getJobInfoFromJson(new JSONArray(getUnregisteredFileContents(g, g.getId() + ".start")));
+					g.setGridJobId(Long.valueOf(gridJobInfo.get(GRID_JOB_ID_KEY)));
+					g.getJobInfo().putAll(gridJobInfo);
+					if (logger.isTraceEnabled())
+						for (String key : g.getJobInfo().keySet())
+							logger.trace("Registering job info in GridResult [ " + key + " : " + g.getJobInfo().get(key) + " ]");
+				} catch(IOException e){
+					logger.warn("Unable to extract job info from " + g.getId() + ".start: " + e.getLocalizedMessage());
+				}
+			}
 			ended = isJobOrTaskArrayEnded(g);
 			logger.debug("Job status semaphores (started, ended): " + started + ", " + ended);
 			if (started && !ended){
@@ -421,7 +445,8 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 						}
 					}
 				} while (died && !timedOut);
-			}
+			} else if (ended)
+				recordQaactData(g);
 			logger.debug("Job Status (ended, died): " + ended + ", " + died);
 		}
 		
@@ -981,14 +1006,15 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			
 			// write job info to .start file (as JSON) and also to stderr
 			Map<String, String> jobInfo = new LinkedHashMap<String, String>();
-			jobInfo.put("Grid job Id", "$JOB_ID");
-			jobInfo.put("Host Node", "`hostname -f`");
-			jobInfo.put("Start Time", "`date`");
+			jobInfo.put(GRID_JOB_ID_KEY, "$JOB_ID");
+			jobInfo.put(GRID_JOB_NAME, "${" + WorkUnit.JOB_NAME + "}");
+			jobInfo.put(HOST_NODE_KEY, "`hostname -f`");
+			jobInfo.put(START_TIME_KEY, "`date`");
 			preambleStrBuf.append("\necho \"").append(getJsonForJobInfo(jobInfo).toString().replaceAll("\"", "\\\\\"")).append("\" > ").append("${").append(WorkUnit.JOB_NAME).append("}.start\n")
-					.append("echo #### begin job info 1>&2\n");
+					.append("echo \"#### begin job info\" 1>&2\n");
 			for (String key : jobInfo.keySet())
 				preambleStrBuf.append("echo ").append(key).append(" : ").append(jobInfo.get(key)).append(" 1>&2\n"); // write info to stderr
-			preambleStrBuf.append("echo #### end job info 1>&2\n\n");
+			preambleStrBuf.append("echo \"#### end job info\" 1>&2\n\n");
 			preamble = preambleStrBuf.toString();
 			
 			// if there is a configured setting to prepare the interpreter, do that here 

@@ -156,5 +156,17 @@ public interface GridResult {
 	 * @return
 	 */
 	public String getId();
+	
+	/**
+	 * Get id of the grid job (no guarantee that this has been set)
+	 * @return
+	 */
+	public Long getGridJobId();
+	
+	/**
+	 * Set id of the grid job
+	 * @return
+	 */
+	public void setGridJobId(Long gridJobId);
 
 }

@@ -32,6 +32,7 @@ public class GridResultImpl implements GridResult, Serializable {
 
 	private UUID uuid;
 	private String id;
+	private Long gridJobId;
 	private String hostname;
 	private String username;
 	private String workingDirectory;
@@ -261,5 +262,15 @@ public class GridResultImpl implements GridResult, Serializable {
 	@Override
 	public Map<String, String> getJobInfo() {
 		return jobInfo;
+	}
+
+	@Override
+	public Long getGridJobId() {
+		return gridJobId;
+	}
+
+	@Override
+	public void setGridJobId(Long gridJobId) {
+		this.gridJobId = gridJobId;
 	}
 }
