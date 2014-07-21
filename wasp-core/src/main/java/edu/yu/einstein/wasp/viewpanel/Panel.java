@@ -12,7 +12,7 @@ public class Panel {
 	
 	private String description = "";
 	
-	private Content content;
+	private Content content = null;
 	
 	private Integer width;
 	

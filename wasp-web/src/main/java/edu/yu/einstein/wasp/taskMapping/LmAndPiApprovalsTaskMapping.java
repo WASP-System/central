@@ -1,8 +1,11 @@
 package edu.yu.einstein.wasp.taskMapping;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.exception.WaspException;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.service.TaskService;
 
 /**
@@ -27,8 +30,10 @@ public class LmAndPiApprovalsTaskMapping extends WaspTaskMapping {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean isRequirementToShowLink() throws WaspException {
-		return taskService.isLabManagerPendingTasks();
+	public boolean isRequirementToShowLink(Object o) throws WaspException {
+		@SuppressWarnings("unchecked")
+		List<Job> jobList = (List<Job>) o;
+		return taskService.isLabManagerPendingTasks(jobList);
 	}
 
 }

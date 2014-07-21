@@ -1,5 +1,7 @@
 package edu.yu.einstein.wasp.viewpanel;
 
+import java.util.List;
+
 /**
  * Class for describing a generic vizualisation panel. Plugins may be asked to return a WebPanel object for displaying data.
  * The panel data may be used by any web rendering tool for presenting a panel within a view.
@@ -22,6 +24,8 @@ public class GridPanel extends Panel{
 	
 	private String downloadTooltip = "";
 	
+	private String hideDownloadField = "";
+	
 	private boolean allowSelectDownload = false;
 	
 	private String selectDownloadText = "";
@@ -36,11 +40,15 @@ public class GridPanel extends Panel{
 	
 	private String statusField;
 	
-	private boolean hasGbUcscLink = false;
+	private boolean hasGbLink = false;
 	
-	private String gbUcscLinkField;
+	private String gbTypeField = "";
 	
-	private String gbUcscTooltip = "";
+	private String gbLinkField = "";
+	
+	private String gbTtpField = "";
+	
+	private String hideGbField = "";
 
 	public GridPanel() {}
 	
@@ -148,6 +156,20 @@ public class GridPanel extends Panel{
 	}
 
 	/**
+	 * @return the hideDownloadField
+	 */
+	public String getHideDownloadField() {
+		return hideDownloadField;
+	}
+
+	/**
+	 * @param hideDownloadField the hideDownloadField to set
+	 */
+	public void setHideDownloadField(String hideDownloadField) {
+		this.hideDownloadField = hideDownloadField;
+	}
+
+	/**
 	 * @return the allowSelectDownload
 	 */
 	public boolean isAllowSelectDownload() {
@@ -246,47 +268,111 @@ public class GridPanel extends Panel{
 	}
 
 	/**
-	 * @return the hasGbUcsc
+	 * @return the hasGbLink
 	 */
-	public boolean isHasGbUcscLink() {
-		return hasGbUcscLink;
+	public boolean isHasGbLink() {
+		return hasGbLink;
 	}
 
 	/**
-	 * @param hasGbUcsc the hasGbUcsc to set
+	 * @param hasGbLink the hasGbLink to set
 	 */
-	public void setHasGbUcscLink(boolean hasGbUcscLink) {
-		this.hasGbUcscLink = hasGbUcscLink;
+	public void setHasGbLink(boolean hasGbLink) {
+		this.hasGbLink = hasGbLink;
 	}
 
 	/**
-	 * @return the gbUcscLinkField
+	 * @return the gbTypeField
 	 */
-	public String getGbUcscLinkField() {
-		return gbUcscLinkField;
+	public String getGbTypeField() {
+		return gbTypeField;
 	}
 
 	/**
-	 * @param gbUcscLinkField the gbUcscLinkField to set
+	 * @param gbTypeField the gbTypeField to set
 	 */
-	public void setGbUcscLinkField(String gbUcscLinkField) {
-		this.gbUcscLinkField = gbUcscLinkField;
+	public void setGbTypeField(String gbTypeField) {
+		this.gbTypeField = gbTypeField;
+		
+		GridContent gridContent = (GridContent) this.getContent();
+		if (gridContent != null) {
+			List<GridDataField> fields = ((GridContent)gridContent).getDataFields();
+			for (int index = 0; index < fields.size(); index++) {
+				if (fields.get(index).getName().equals(this.gbTypeField)) {
+					List<List<String>> data = gridContent.getData();
+					for (int i = 0; i < data.size(); i++) {
+						List<String> datarow = data.get(i);
+						String type = datarow.get(index);
+						datarow.set(index, "icon-gb-" + type);
+						data.set(i, datarow);
+					}
+					break;
+				}
+			}
+		}
 	}
 
 	/**
-	 * @return the gbUcscTooltip
+	 * @return the gbLinkField
 	 */
-	public String getGbUcscTooltip() {
-		return gbUcscTooltip;
+	public String getGbLinkField() {
+		return gbLinkField;
 	}
 
 	/**
-	 * @param gbUcscTooltip the gbUcscTooltip to set
+	 * @param gbLinkField the gbLinkField to set
 	 */
-	public void setGbUcscTooltip(String gbUcscTooltip) {
-		this.gbUcscTooltip = gbUcscTooltip;
+	public void setGbLinkField(String gbLinkField) {
+		this.gbLinkField = gbLinkField;
 	}
-	
-	
+
+	/**
+	 * @return the gbTtpField
+	 */
+	public String getGbTtpField() {
+		return gbTtpField;
+	}
+
+	/**
+	 * @param gbTtpField the gbTtpField to set
+	 */
+	public void setGbTtpField(String gbTtpField) {
+		this.gbTtpField = gbTtpField;
+	}
+
+	/**
+	 * @return the hideGbField
+	 */
+	public String getHideGbField() {
+		return hideGbField;
+	}
+
+	/**
+	 * @param hideGbField the hideGbField to set
+	 */
+	public void setHideGbField(String hideGbField) {
+		this.hideGbField = hideGbField;
+	}
+
+	@Override
+	public void setContent(Content gridContent) {
+		if (this.isHasGbLink() && !this.gbTypeField.isEmpty()) {
+			List<GridDataField> fields = ((GridContent)gridContent).getDataFields();
+			for (int index = 0; index < fields.size(); index++) {
+				if (fields.get(index).getName().equals(this.gbTypeField)) {
+					List<List<String>> data = ((GridContent) gridContent).getData();
+					for (int i = 0; i < data.size(); i++) {
+						List<String> datarow = data.get(i);
+						String type = datarow.get(index);
+						datarow.set(index, "icon-gb-" + type);
+						data.set(i, datarow);
+					}
+					break;
+				}
+			}
+		}
+		
+		super.setContent(gridContent);
+	}
 
 }

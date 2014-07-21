@@ -16,7 +16,7 @@
 		<h4><a href="#">Job J<c:out value="${job.jobId}" /> : <c:out value="${job.getName()}" /> (<fmt:message key="jobapprovetask.submitter.label" />: <c:out value="${job.getUser().getNameFstLst()}" />; <fmt:message key="jobapprovetask.pi.label" />: <c:out value="${job.getLab().getUser().getNameFstLst()}" />)</a></h4>
 		<div>
 			<table class="EditTable ui-widget ui-widget-content">
-			<form  id="theForm${job.getJobId()}" method="POST" onsubmit="openWaitDialog();"  >
+			<form  id="theForm${job.getJobId()}" method="POST" onsubmit="return validate(this);"  >
 		 	<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobId" value="${job.getJobId()}"> 
 		 	<tr class="FormData">
 				<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.cellLibraryqc_sample.label" /></th>

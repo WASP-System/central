@@ -19,7 +19,7 @@ public class IlluminaRunQCTaskMapping extends WaspTaskMapping {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean isRequirementToShowLink() throws WaspException {
+	public boolean isRequirementToShowLink(Object o) throws WaspException {
 		return runService.isRunsAwaitingQc();
 	}
 
