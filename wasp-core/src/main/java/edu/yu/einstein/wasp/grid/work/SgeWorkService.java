@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -30,6 +31,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.util.StringUtils;
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -360,6 +362,17 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		boolean died = false;
 		boolean started;
 		boolean	ended;
+		if (g.getJobInfo().isEmpty()){
+			try{
+				g.getJobInfo().putAll(getJobInfoFromJson(new JSONArray(getUnregisteredFileContents(g, g.getId() + ".start"))));
+				if (logger.isTraceEnabled())
+					for (String key : g.getJobInfo().keySet())
+						logger.trace("Registering job info in GridResult [ " + key + " : " + g.getJobInfo().get(key) + " ]");
+			} catch(IOException e){
+				logger.warn("Unable to extract job info from " + g.getId() + ".start: " + e.getLocalizedMessage());
+			}
+		}
+			
 		if (g.getJobStatus().isEnded()){
 			started = true;
 			ended = true;
@@ -415,7 +428,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		if (died) {
 			cleanUpAbnormallyTerminatedJob(g);
 			g.setArchivedResultOutputPath(getFailedArchiveName(g));
-			((GridResultImpl) g).setExitCode(g.getExitCode() > 1 ? g.getExitCode() : 1);
+			g.setExitCode(g.getExitCode() > 1 ? g.getExitCode() : 1);
 			throw new GridExecutionException("abnormally terminated job");
 		}
 		
@@ -437,7 +450,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 				}
 			}
 			logger.debug("Parent grid job has ended and no child jobs or all child jobs are complete so going to return true");
-			((GridResultImpl) g).setExitCode(g.getExitCode() > 0 ? g.getExitCode() : 0);
+			g.setExitCode(g.getExitCode() > 0 ? g.getExitCode() : 0);
 		}
 		return ended;
 	}
@@ -835,6 +848,22 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	protected SubmissionScript getSubmissionScript(WorkUnit w) throws GridException, MisconfiguredWorkUnitException {
 		return new SgeSubmissionScript(w);
 	}
+	
+	private JSONArray getJsonForJobInfo(Map<String, String> jobInfo){
+		List<String> jobInfoList = new ArrayList<String>();
+		for (String key : jobInfo.keySet())
+			jobInfoList.add(key + "::" + jobInfo.get(key));
+		return new JSONArray(jobInfoList);
+	}
+	
+	private Map<String, String> getJobInfoFromJson(JSONArray json){
+		Map<String, String> jobInfo = new LinkedHashMap<String, String>();
+		for (int i=0; i< json.length(); i++){
+			String[] keyValuePairs = json.getString(i).split("::");
+			jobInfo.put(keyValuePairs[0], keyValuePairs[1]);
+		}
+		return jobInfo;
+	}
 
 	/**
 	 * Inner class representing a standard SGE submission script.
@@ -889,46 +918,47 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
 			    tid = "-$TASK_ID";
-			
-			header = "#!/bin/bash\n#\n" +
-					getFlag() + " -N " + jobName + "\n" +
-					getFlag() + " -S /bin/bash\n" +
-					getFlag() + " -V\n" +
-					getFlag() + " -o " + w.remoteWorkingDirectory + jobNamePrefix + name + tid + ".out\n" +
-					getFlag() + " -e " + w.remoteWorkingDirectory + jobNamePrefix + name + tid + ".err\n";
+			StringBuffer headerStrBuf = new StringBuffer();
+			headerStrBuf.append("#!/bin/bash\n#\n")
+					.append(getFlag()).append(" -N ").append(jobName).append("\n")
+					.append(getFlag()).append(" -S /bin/bash\n")
+					.append(getFlag()).append(" -V\n")
+					.append(getFlag()).append(" -o ").append(w.remoteWorkingDirectory).append(jobNamePrefix).append(name).append(tid).append(".out\n")
+					.append(getFlag()).append(" -e ").append(w.remoteWorkingDirectory).append(jobNamePrefix).append(name).append(tid).append(".err\n");
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY)) {
-				header += getFlag() + " -t 1-" + w.getNumberOfTasks() + "\n"; 
+				headerStrBuf.append(getFlag()).append(" -t 1-").append(w.getNumberOfTasks()).append("\n"); 
 			}
+			header = headerStrBuf.toString();
 			
-			preamble = "\nset -o errexit\n" + 	// die if any script returns non 0 exit code
-					"set -o pipefail\n" + 		// die if any script in a pipe returns non 0 exit code
-					"set -o physical\n"; 		// replace symbolic links with physical path
-			
-			preamble += "\ncd " + w.remoteWorkingDirectory + "\n" +
-					WorkUnit.JOB_NAME + "=" + jobNamePrefix + name + "\n" +
-					WorkUnit.WORKING_DIRECTORY + "=" + w.remoteWorkingDirectory + "\n" +
-					WorkUnit.RESULTS_DIRECTORY + "=" + w.remoteResultsDirectory + "\n";
+			StringBuffer preambleStrBuf = new StringBuffer();
+			preambleStrBuf.append("\nset -o errexit\n") 	// die if any script returns non 0 exit code
+					.append("set -o pipefail\n") 		// die if any script in a pipe returns non 0 exit code
+					.append("set -o physical\n") 		// replace symbolic links with physical path
+					.append("\ncd ").append(w.remoteWorkingDirectory).append("\n")
+					.append(WorkUnit.JOB_NAME).append("=").append(jobNamePrefix).append(name).append("\n")
+					.append(WorkUnit.WORKING_DIRECTORY).append("=").append(w.remoteWorkingDirectory).append("\n")
+					.append(WorkUnit.RESULTS_DIRECTORY).append("=").append(w.remoteResultsDirectory).append("\n");
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY)) {
-				preamble += WorkUnit.TASK_ARRAY_ID + "=${SGE_TASK_ID}\n" + 
-				                WorkUnit.ZERO_TASK_ARRAY_ID + "=$[WASP_TASK_ID - 1]\n" +
-						WorkUnit.TASK_OUTPUT_FILE + "=$WASPNAME-${WASP_TASK_ID}.out\n" +
-						WorkUnit.TASK_END_FILE + "=$WASPNAME:${WASP_TASK_ID}.end\n";
+				preambleStrBuf.append(WorkUnit.TASK_ARRAY_ID).append("=${SGE_TASK_ID}\n")
+					.append(WorkUnit.ZERO_TASK_ARRAY_ID).append("=$[WASP_TASK_ID - 1]\n")
+					.append(WorkUnit.TASK_OUTPUT_FILE).append("=$WASPNAME-${WASP_TASK_ID}.out\n")
+					.append(WorkUnit.TASK_END_FILE).append("=$WASPNAME:${WASP_TASK_ID}.end\n");
 			}
 			
 			String metadata = transportConnection.getConfiguredSetting("metadata.root");
 			if (!PropertyHelper.isSet(metadata)) {
 				throw new NullResourceException("metadata folder not configured!");
 			}
-			preamble += WorkUnit.METADATA_ROOT + "=" + transportConnection.prefixRemoteFile(metadata) + "\n";
+			preambleStrBuf.append(WorkUnit.METADATA_ROOT).append("=").append(transportConnection.prefixRemoteFile(metadata)).append("\n");
 			
 			int fi = 0;
 			for (edu.yu.einstein.wasp.model.FileHandle f : w.getRequiredFiles()) {
 				
 				logger.debug("WorkUnit required file: " + f.getFileURI().toString());
 				try {
-					preamble += WorkUnit.INPUT_FILE + "[" + fi + "]=" + provisionRemoteFile(f) + "\n";
+					preambleStrBuf.append(WorkUnit.INPUT_FILE).append("[").append(fi).append("]=").append(provisionRemoteFile(f)).append("\n");
 				} catch (FileNotFoundException e) {
 					throw new MisconfiguredWorkUnitException("unknown file " + f.getFileURI());
 				} 
@@ -939,24 +969,28 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			logger.trace("adding file variables for " + w.getResultFiles().size() + " file handles");
 			for (FileHandle fh : w.getResultFiles()) {
 			    String filestr = WorkUnit.OUTPUT_FILE + "[" + fi + "]=" + WorkUnit.OUTPUT_FILE_PREFIX + "_" + fh.getId() +"."+ w.getId().replaceFirst(jobNamePrefix, "") + "\n";
-			    preamble += filestr;
+			    preambleStrBuf.append(filestr);
 			    fi++;
 			}
 			
-			preamble += "\n# Configured environment variables\n\n";
-			
+			preambleStrBuf.append("\n# Configured environment variables\n\n");
 			for (String key : w.getEnvironmentVars().keySet()) {
-				preamble += key + "=" + w.getEnvironmentVars().get(key) + "\n";
+				preambleStrBuf.append(key).append("=").append(w.getEnvironmentVars().get(key)).append("\n");
 			}
+			preambleStrBuf.append("\n####\n");
 			
-			preamble += "\n####\n";
+			// write job info to .start file (as JSON) and also to stderr
+			Map<String, String> jobInfo = new LinkedHashMap<String, String>();
+			jobInfo.put("Grid job Id", "$JOB_ID");
+			jobInfo.put("Host Node", "`hostname -f`");
+			jobInfo.put("Start Time", "`date`");
+			preambleStrBuf.append("\necho \"").append(getJsonForJobInfo(jobInfo).toString().replaceAll("\"", "\\\\\"")).append("\" > ").append("${").append(WorkUnit.JOB_NAME).append("}.start\n")
+					.append("echo #### begin job info 1>&2\n");
+			for (String key : jobInfo.keySet())
+				preambleStrBuf.append("echo ").append(key).append(" : ").append(jobInfo.get(key)).append(" 1>&2\n"); // write info to stderr
+			preambleStrBuf.append("echo #### end job info 1>&2\n\n");
+			preamble = preambleStrBuf.toString();
 			
-			preamble +=	"\necho $JOB_ID >> " + "${" + WorkUnit.JOB_NAME + "}.start\n" +
-					"echo #### begin job info 1>&2\n" + 
-					"echo Grid job Id : $JOB_ID 1>&2\n" + 
-					"echo Host Node   : `hostname -f` 1>&2\n" + 
-					"echo Start Time  : `date` 1>&2\n" + 
-					"echo #### end job info 1>&2\n\n";
 			// if there is a configured setting to prepare the interpreter, do that here 
 			String env = transportConnection.getConfiguredSetting("env");
 			if (PropertyHelper.isSet(env)) {
@@ -991,22 +1025,24 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			} 
 			command = w.getCommand();
 			
-			postscript = "echo \"##### begin ${" + WorkUnit.JOB_NAME + "}\" > " + w.remoteWorkingDirectory + "${" + WorkUnit.JOB_NAME + "}.command\n\n" +
-					"awk '/^##### preamble/,/^##### postscript|~$/' " + 
-						w.remoteWorkingDirectory + "${" + WorkUnit.JOB_NAME + "}.sh | sed 's/^##### .*$//g' | grep -v \"^$\" >> " +
-						w.remoteWorkingDirectory + "${" + WorkUnit.JOB_NAME + "}.command\n" +
-					"echo \"##### end ${" + WorkUnit.JOB_NAME + "}\" >> " + w.remoteWorkingDirectory + "${" + WorkUnit.JOB_NAME + "}.command\n";
+			StringBuffer postscriptStrBuf = new StringBuffer();
+			postscriptStrBuf.append("echo \"##### begin ${").append(WorkUnit.JOB_NAME).append("}\" > ").append(w.remoteWorkingDirectory).append("${").append(WorkUnit.JOB_NAME).append("}.command\n\n")
+					.append("awk '/^##### preamble/,/^##### postscript|~$/' ")
+					.append(w.remoteWorkingDirectory).append("${").append(WorkUnit.JOB_NAME).append("}.sh | sed 's/^##### .*$//g' | grep -v \"^$\" >> ")
+					.append(w.remoteWorkingDirectory).append("${").append(WorkUnit.JOB_NAME).append("}.command\n")
+					.append("echo \"##### end ${").append(WorkUnit.JOB_NAME).append("}\" >> ").append(w.remoteWorkingDirectory).append("${").append(WorkUnit.JOB_NAME).append("}.command\n");
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
-			    postscript = "if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then\n" + postscript + "fi\n";
+				postscriptStrBuf.append("if [ \"$").append(WorkUnit.TASK_ARRAY_ID).append("\" -eq \"1\" ]; then\n").append(postscriptStrBuf.toString()).append("fi\n");
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY)) {
-				postscript += "touch ${" + WorkUnit.WORKING_DIRECTORY + "}/${" + WorkUnit.TASK_END_FILE + "}\n" +
-					"echo completed on `hostname -f` `date` 1>&2\n";
+				postscriptStrBuf.append("touch ${").append(WorkUnit.WORKING_DIRECTORY).append("}/${").append(WorkUnit.TASK_END_FILE).append("}\n")
+					.append("echo completed on `hostname -f` `date` 1>&2\n");
 			} else {
-				postscript += "touch " + w.remoteWorkingDirectory + "${" + WorkUnit.JOB_NAME + "}.end\n" +
-					"echo completed on `hostname -f` `date` 1>&2\n";
+				postscriptStrBuf.append("touch ").append(w.remoteWorkingDirectory).append("${").append(WorkUnit.JOB_NAME).append("}.end\n")
+					.append("echo completed on `hostname -f` `date` 1>&2\n");
 			}
+			postscript = postscriptStrBuf.toString();
 		}
 		
 		/** 

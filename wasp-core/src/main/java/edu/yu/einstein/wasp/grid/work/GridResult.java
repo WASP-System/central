@@ -26,6 +26,12 @@ public interface GridResult {
 	public int getExitCode();
 	
 	/**
+	 * set the value of exit code
+	 * @param exitCode
+	 */
+	public void setExitCode(int exitCode);
+	
+	/**
 	 * STDOUT of GridResult.  Since this can be from the command itself or from the {@link GridWorkService} 
 	 * implementation, this may not be of particular use outside of core components.
 	 * @return

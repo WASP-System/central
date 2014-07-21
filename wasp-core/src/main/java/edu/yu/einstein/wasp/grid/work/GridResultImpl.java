@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -39,6 +40,8 @@ public class GridResultImpl implements GridResult, Serializable {
 	transient protected String archivedResultOutputPath = "";
 
 	private int exitCode = -1;
+	
+	private Map<String, String> jobInfo = new LinkedHashMap<String, String>();
 	transient private InputStream stdOutStream;
 	transient private InputStream stdErrStream;
 	
@@ -87,6 +90,7 @@ public class GridResultImpl implements GridResult, Serializable {
 	 * sets exit code and also updates jobStatus accordingly
 	 * @param exitCode
 	 */
+	@Override
 	public void setExitCode(int exitCode) {
 		this.exitCode = exitCode;
 		if (exitCode == 0)
@@ -252,5 +256,10 @@ public class GridResultImpl implements GridResult, Serializable {
 	@Override
 	public void addChildResult(String key, GridResult result) {
 		childResults.put(key, result);
+	}
+	
+	@Override
+	public Map<String, String> getJobInfo() {
+		return jobInfo;
 	}
 }
