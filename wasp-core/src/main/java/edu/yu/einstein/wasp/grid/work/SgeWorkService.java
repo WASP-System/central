@@ -363,16 +363,36 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		WorkUnit w = new WorkUnit();
 		w.setWorkingDirectory(transportConnection.prefixRemoteFile(g.getWorkingDirectory()));
 		w.setWrapperCommand("qacct -j " + g.getGridJobId() + " > " + g.getId() + ".stats");
-		GridResultImpl result;
-		try {
-			result = (GridResultImpl) transportConnection.sendExecToRemote(w);
-			if (result.getExitCode() > 0)
-				logger.warn("Unable to get qacct data for grid job id=" + g.getUuid() + 
-						": Remote job submission failed (exitCode=" + result.getExitCode() + ")");
-		} catch (MisconfiguredWorkUnitException | GridException e) {
-			logger.warn("Unable to get qacct data for grid job id=" + g.getUuid() + 
-					": Remote job submission failed: caught MisconfiguredWorkUnitException: " + e.getLocalizedMessage());
+		GridResultImpl result = null;;
+		int attempts = 1;
+		int maxAttempts = 10;
+		int waitMs = 3000;
+		
+		while ( (result == null || result.getExitCode() != 0) && attempts <= maxAttempts){
+			if (attempts > 1){
+				try {
+					logger.debug("Goint to sleep for " + waitMs + "ms before trying again");
+					Thread.sleep(waitMs); // wait a bit before trying again
+				} catch (InterruptedException e) {
+					logger.warn("Caught InterruptedException: " + e.getLocalizedMessage());
+				}
+			}
+			try {
+				result = (GridResultImpl) transportConnection.sendExecToRemote(w);
+				if (result.getExitCode() > 0){
+					logger.warn("Unable to get qacct data for grid job id=" + g.getGridJobId() + 
+							"(" + g.getId()  + "): Remote job submission failed (exitCode=" + result.getExitCode() + ") on attempt " + attempts);
+				}
+			} catch (MisconfiguredWorkUnitException | GridException e) {
+				logger.warn("Unable to get qacct data for grid job id=" + g.getGridJobId() + 
+						"(" + g.getId()  + "): Remote job submission failed on attempt " + attempts + 
+						" : caught MisconfiguredWorkUnitException: " + e.getLocalizedMessage());
+			}
+			attempts++;
 		}
+		if (attempts > maxAttempts)
+			logger.warn("Given up trying to to obtain qacct data after " + maxAttempts + " attempts");
+		
 	}
 
 	/**
