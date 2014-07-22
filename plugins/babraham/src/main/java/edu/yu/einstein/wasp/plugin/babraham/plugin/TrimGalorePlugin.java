@@ -127,6 +127,10 @@ public class TrimGalorePlugin extends WaspPlugin implements ClientMessageI, File
 		} catch (PanelException e){}
 		
 		JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer.getJobExecutions(TrimGalore.FLOW_NAME, parameterMap, false));
+		if (je == null){
+			logger.info("No TrimGalore batch jobs found for FileGroup id=" + fileGroup.getId());
+			return Status.UNKNOWN;
+		}
 		ExitStatus jobExitStatus = je.getExitStatus();
 		if (jobExitStatus.isFailed())
 			return Status.FAILED; 
