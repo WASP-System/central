@@ -32,6 +32,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.util.StringUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -353,21 +354,25 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			return isTaskArrayEnded(g);
 	}
 	
-	private void recordQaactData(GridResult g) throws GridException {
+	private void recordQaactData(GridResult g){
 		logger.trace("saving qacct data in " + g.getId() + ".stats");
-		if (g.getGridJobId() == null)
-			throw new GridException("Unable to get qacct data for grid job id=" + g.getUuid() + " as no grid job id set");
+		if (g.getGridJobId() == null){
+			logger.warn("Unable to get qacct data for grid job id=" + g.getUuid() + " as no grid job id set");
+			return;
+		}
 		WorkUnit w = new WorkUnit();
 		w.setWorkingDirectory(transportConnection.prefixRemoteFile(g.getWorkingDirectory()));
 		w.setWrapperCommand("qacct -j " + g.getGridJobId() + " > " + g.getId() + ".stats");
 		GridResultImpl result;
 		try {
 			result = (GridResultImpl) transportConnection.sendExecToRemote(w);
-		} catch (MisconfiguredWorkUnitException e) {
-			throw new GridException("Remote job submission failed: caught MisconfiguredWorkUnitException: " + e.getLocalizedMessage());
+			if (result.getExitCode() > 0)
+				logger.warn("Unable to get qacct data for grid job id=" + g.getUuid() + 
+						": Remote job submission failed (exitCode=" + result.getExitCode() + ")");
+		} catch (MisconfiguredWorkUnitException | GridException e) {
+			logger.warn("Unable to get qacct data for grid job id=" + g.getUuid() + 
+					": Remote job submission failed: caught MisconfiguredWorkUnitException: " + e.getLocalizedMessage());
 		}
-		if (result.getExitCode() > 0)
-			throw new GridAccessException("Remote job submission failed");
 	}
 
 	/**
@@ -398,7 +403,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 					if (logger.isTraceEnabled())
 						for (String key : g.getJobInfo().keySet())
 							logger.trace("Registering job info in GridResult [ " + key + " : " + g.getJobInfo().get(key) + " ]");
-				} catch(IOException e){
+				} catch(JSONException | IOException e){
 					logger.warn("Unable to extract job info from " + g.getId() + ".start: " + e.getLocalizedMessage());
 				}
 			}
