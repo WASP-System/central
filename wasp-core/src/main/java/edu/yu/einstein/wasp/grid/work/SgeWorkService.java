@@ -1084,7 +1084,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 					.append("echo \"##### end ${").append(WorkUnit.JOB_NAME).append("}\" >> ").append(w.remoteWorkingDirectory).append("${").append(WorkUnit.JOB_NAME).append("}.command\n");
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
-				postscriptStrBuf.append("if [ \"$").append(WorkUnit.TASK_ARRAY_ID).append("\" -eq \"1\" ]; then\n").append(postscriptStrBuf.toString()).append("fi\n");
+				postscriptStrBuf.insert(0,"if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then\n").append("fi\n");
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY)) {
 				postscriptStrBuf.append("touch ${").append(WorkUnit.WORKING_DIRECTORY).append("}/${").append(WorkUnit.TASK_END_FILE).append("}\n")
