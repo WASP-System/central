@@ -6,14 +6,17 @@ package edu.yu.einstein.wasp.plugin.picard.software;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.rmi.RemoteException;
 import java.text.DecimalFormat;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.Message;
 import org.w3c.dom.Document;
 
 import edu.yu.einstein.wasp.exception.MetadataException;
@@ -35,6 +38,7 @@ import edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy;
 import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
 import edu.yu.einstein.wasp.plugin.mps.grid.software.Samtools;
 import edu.yu.einstein.wasp.plugin.picard.service.PicardService;
+import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -44,7 +48,7 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
 /**
  * @author asmclellan
  */
-public class Picard extends SoftwarePackage{
+public class Picard extends SoftwarePackage {
 
 	private static final long serialVersionUID = 6817018170220888568L;
 	
@@ -63,6 +67,9 @@ public class Picard extends SoftwarePackage{
 	
 	@Autowired
 	private SampleService sampleService;
+	
+	@Autowired
+	private AdaptorService adaptorService;
 	
 	public Picard() {}
 	
@@ -364,24 +371,52 @@ public class Picard extends SoftwarePackage{
 		
 	}
 	
-	public String getExtractIlluminaBarcodesCommand(Run run, Map<Integer,Sample> indexedCellMap) throws MetadataException, SampleTypeException {
+	/**
+	 * 
+	 * Get a command string for Picard ExtractIlluminaBarcodes.  This command REQUIRES at least ~1500 file descriptors for Illumina HiSeq flowcells.   
+	 * Check to see that your submission mechanism allows this on the remote host (eg. qsub -cwd -N testFD -S /bin/bash -j y -b y "ulimit -S -n && ulimit -H -n").
+	 * A suggested value would be 10,000 open files to prevent issues.
+	 * 
+	 * @param run
+	 * @param indexedCellMap
+	 * @return
+	 * @throws MetadataException
+	 * @throws SampleTypeException
+	 */
+	public String getExtractIlluminaBarcodesCmd(Run run) throws MetadataException, SampleTypeException {
 		
-		String cmd = "rm -rf BARCODES && mkdir -p BARCODES/SINGLE && mkdir -p BARCODES/DUAL\n";
+		String cmd = "rm -rf ./BARCODES\n";
+		
+		Map<Integer,Sample> indexedCellMap = sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit());
 		
 		Document runInfo = illuminaService.getIlluminaRunXml(run);
 		
 		for (Integer index : indexedCellMap.keySet()) {
 			
+			Set<IlluminaIndexingStrategy> strategies = new HashSet<IlluminaIndexingStrategy>(); 
 			
+			Sample cell = indexedCellMap.get(index);
+			List<SampleSource> cellLibraries = sampleService.getCellLibrariesForCell(cell);
 			
+			for (SampleSource ss : cellLibraries) {
+				strategies.add(new IlluminaIndexingStrategy(illuminaService.getIndexingStrategy(ss).toString()));
+			}
 			
+			logger.trace("Lane " + index + ", dealing with " + strategies.size() + " strategies");
 			
+			for (IlluminaIndexingStrategy s : strategies) {
+				logger.debug("going to prepare getExtractIlluminaBarcodes command for run: " + run.getName() + " cell: " + cell.getId() + " (lane " + index + ") strategy: " + s.toString());
+				String outputDir = "BARCODES/" +  s.toString() + "/L" + index;
+				cmd += "mkdir -p " + outputDir + "\n";
+				cmd += getCreateBarcodeFileCmd(outputDir, cellLibraries, s) + "\n";
+				cmd += "java -Xmx4g -jar $PICARD_ROOT/ExtractIlluminaBarcodes.jar TMP_DIR=. L=" + index + " B=./Data/Intensities/BaseCalls OUTPUT_DIR=./" + outputDir + 
+						" M=./" + outputDir + "/mets.txt RS=" + getReadStructure(run, index, s) + " BARCODE_FILE=./BARCODES/" + s.toString() + "/L" + index + 
+						"/barcodes.txt GZIP=true NUM_PROCESSORS=$NTHREADS\n\n###################\n\n";
+			}
+			
+		}
 		
-			cmd += "mkdir -p BARCODES/L" + i;
-			cmd += "java -Xmx4g -jar $PICARD_ROOT/ExtractIlluminaBarcodes.jar B=. OUTPUT_DIR=./BARCODES/L" + i + " L=" + i + " RS=" + getReadStructure(run, , strategy) +
-					" ";
-		
-		return null;
+		return cmd;
 	}
 	
 	private String getReadStructure(Run run, Integer cellId, IlluminaIndexingStrategy strategy) throws MetadataException, SampleTypeException {
@@ -424,8 +459,36 @@ public class Picard extends SoftwarePackage{
 		return rs;
 	}
 	
-=======
->>>>>>> Stashed changes
+	private String getCreateBarcodeFileCmd(String outputDir, List<SampleSource> cellLibraries, IlluminaIndexingStrategy strategy) throws SampleTypeException, MetadataException {
+		String outputFile = "./" + outputDir + "/barcodes.txt";
+		String retval = "echo -e \"" + getBarcodeFileHeader() + "\" > " + outputFile + "\n";
+		for (SampleSource cellLib : cellLibraries) {
+			Sample library = sampleService.getLibrary(cellLib);
+			Adaptor a = adaptorService.getAdaptor(library);
+			if (strategy.equals(IlluminaIndexingStrategy.TRUSEQ)) {
+				retval += "echo -e \"" + a.getBarcodesequence() + "\\t\\t" + a.getName() + "\\t" + library.getName() + "\" >> " + outputFile + "\n";
+			} else if (strategy.equals(IlluminaIndexingStrategy.TRUSEQ_DUAL)) {
+				int sepIndex = a.getSequence().indexOf("-");
+				if (sepIndex == -1) {
+					String mess = "Not able to decode TRUSEQ_DUAL barcode " + a.getSequence();
+					logger.error(mess);
+					throw new MetadataException(mess);
+				}
+				retval += "echo -e \"" + a.getBarcodesequence().substring(0, sepIndex) + "\\t" + a.getBarcodesequence().substring(sepIndex+1) + "\\t" + a.getName() + "\\t" + library.getName() + "\" >> " + outputFile + "\n";
+			} else {
+				String mess = "Unknown IlluminaIndexingStrategy: " + strategy.toString();
+				logger.error(mess);
+				throw new MetadataException(mess);
+			}
+			 
+		}
+		return retval;
+	}
+	
+	private String getBarcodeFileHeader() {
+		return "barcode_sequence_1\\tbarcode_sequence_2\\tbarcode_name\\tlibrary_name";
+	}
+	
 	private void setAlignmentMetricsToFileGroupMeta(Integer fileGroupId, JSONObject json)throws MetadataException{
 		FileGroup fileGroup = fileService.getFileGroupById(fileGroupId);
 		List<FileGroupMeta> fileGroupMetaList = fileGroup.getFileGroupMeta();

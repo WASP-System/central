@@ -7,14 +7,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
+import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
@@ -28,12 +33,13 @@ import edu.yu.einstein.wasp.plugin.picard.software.Picard;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
+import edu.yu.einstein.wasp.util.PropertyHelper;
 
 /**
  * @author calder
  *
  */
-public class ExtractIlluminaBarcodes extends WaspRemotingTasklet {
+public class ExtractIlluminaBarcodesTasklet extends WaspRemotingTasklet {
 	
 	@Autowired
 	private RunService runService;
@@ -54,18 +60,16 @@ public class ExtractIlluminaBarcodes extends WaspRemotingTasklet {
 	@Qualifier("picard")
 	private Picard picard;
 	
+	private Integer runId;
 	private Run run;
-	private Sample platformUnit;
-	private IlluminaIndexingStrategy strategy;
 
 	/**
 	 * @throws WaspException 
 	 * 
 	 */
-	public ExtractIlluminaBarcodes(Integer runId, String strategy) throws WaspException {
-		this.run = runService.getRunById(runId);
-		this.platformUnit = run.getPlatformUnit();
-		this.strategy = new IlluminaIndexingStrategy(strategy);
+	public ExtractIlluminaBarcodesTasklet(Integer runId) throws WaspException {
+		logger.debug("ExtractIlluminaBarcodesTasklet initiated with runId " + runId);
+		this.runId = runId;
 	}
 
 	/** 
@@ -74,9 +78,7 @@ public class ExtractIlluminaBarcodes extends WaspRemotingTasklet {
 	@Override
 	public void doExecute(ChunkContext context) throws Exception {
 		
-		Map<Integer,Sample> indexedCellMap = sampleService.getIndexedCellsOnPlatformUnit(platformUnit);
 		Document runInfo = illuminaService.getIlluminaRunXml(run);
-		
 		
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(casava);
@@ -86,12 +88,62 @@ public class ExtractIlluminaBarcodes extends WaspRemotingTasklet {
 		w.setProcessMode(ProcessMode.MAX);
 		w.setMode(ExecutionMode.PROCESS);
 		
-		w.setCommand(picard.getExtractIlluminaBarcodesCommand(run, indexedCellMap));
-		
 		GridWorkService gws = hostResolver.getGridWorkService(w);
 		
-		hostResolver.get
+		String dataDir = gws.getTransportConnection().getConfiguredSetting("illumina.data.dir");
+		if (!PropertyHelper.isSet(dataDir)) {
+			String mess = "Unable to determine illumina.data.stage for host: " + gws.getTransportConnection().getHostName();
+			logger.error(mess);
+			throw new WaspException(mess);
+		}
+		
+		String runFolder = dataDir + "/" + run.getName(); 
+		
+		w.setWorkingDirectory(runFolder);
+		w.setResultsDirectory(runFolder);
+		w.setSecureResults(true); // 
+		
+		w.setCommand(picard.getExtractIlluminaBarcodesCmd(run));
+		
+		
+		GridResult result = hostResolver.execute(w);
+		
+		//place the grid result in the step context
+		storeStartedResult(context, result);
+		
 
 	}
+	
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional("entityManager")
+	public void doPreFinish(ChunkContext context) throws Exception {
+		logger.trace("doPreFinish");
+		super.doPreFinish(context);
+	}
+	
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ExitStatus afterStep(StepExecution stepExecution) {
+		logger.trace("afterStep");
+		return super.afterStep(stepExecution);
+	}
+
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void beforeStep(StepExecution stepExecution) {
+		logger.trace("beforeStep");
+		this.run = runService.getRunById(this.runId);
+		logger.trace("going to operate on run " + run.getName());
+		super.beforeStep(stepExecution);
+	}
+	
+	
 
 }

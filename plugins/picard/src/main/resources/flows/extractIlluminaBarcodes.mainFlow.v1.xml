@@ -4,22 +4,12 @@
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
 
 	<!-- for job, call with parameter 'runID' -->
-	<batch:flow id="extractIlluminaBarcodes.flow">
+	<batch:flow id="picard.extractIlluminaBarcodes.flow">
 	
-		<batch:step id="extractIlluminaBarcodes.do" next="extractIlluminaBarcodes.register">
+		<batch:step id="picard.extractIlluminaBarcodes.do">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.plugin.picard.tasklet.ExtractIlluminaBarcodes" scope="step">
-					<constructor-arg name="flowCellId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
-					<constructor-arg name="strategy" value="#{jobParameters[T(edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy).INDEXING_KEY]}" />
-				</bean>
-			</batch:tasklet>
-		</batch:step>
-
-		<batch:step id="extractIlluminaBarcodes.register">
-			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.plugin.picard.tasklet.RegisterIlluminaBarcodes" scope="step">
-					<constructor-arg name="flowCellId" value="#{jobParameters[waspJobParameters.RUNƒ_ID]}" />
-					<constructor-arg name="strategy" value="#{jobParameters[T(edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy).INDEXING_KEY]}" />
+				<bean class="edu.yu.einstein.wasp.plugin.picard.tasklet.ExtractIlluminaBarcodesTasklet" scope="step">
+					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 				</bean>
 			</batch:tasklet>
 			<batch:fail on="FAILED" />
@@ -27,8 +17,8 @@
 
 	</batch:flow>
 	
-	<batch:job id="extractIlluminaBarcodes">
-		<batch:flow id="extractIlluminaBarcodes.f" parent="extractIlluminaBarcodes.flow"/>
+	<batch:job id="picard.extractIlluminaBarcodes">
+		<batch:flow id="picard.extractIlluminaBarcodes.f" parent="picard.extractIlluminaBarcodes.flow"/>
 	</batch:job>
 	
 </beans>
