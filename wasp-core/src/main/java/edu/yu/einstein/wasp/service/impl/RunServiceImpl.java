@@ -231,10 +231,11 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	public Set<Run> getCurrentlyActiveRuns(){
 		Set<Run> runs = new LinkedHashSet<Run>();
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
-		Set<String> runIdStringSet = new LinkedHashSet<String>();
-		runIdStringSet.add("*");
-		parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
-		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, false, ExitStatus.RUNNING);
+		Set<String> genericParamValStringSet = new LinkedHashSet<String>();
+		genericParamValStringSet.add("*");
+		parameterMap.put(WaspJobParameters.RUN_ID, genericParamValStringSet);
+		parameterMap.put(WaspJobParameters.RUN_NAME, genericParamValStringSet);
+		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.RUNNING);
 		for(JobExecution jobExecution: jobExecutions){
 			try{
 				Integer runId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(jobExecution, WaspJobParameters.RUN_ID));
@@ -255,8 +256,11 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		Set<String> runIdStringSet = new LinkedHashSet<String>();
 		runIdStringSet.add(run.getId().toString());
+		Set<String> genericParamValStringSet = new LinkedHashSet<String>();
+		genericParamValStringSet.add("*");
 		parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
-		if (! batchJobExplorer.getJobExecutions(parameterMap, false, ExitStatus.RUNNING).isEmpty())
+		parameterMap.put(WaspJobParameters.RUN_NAME, genericParamValStringSet);
+		if (! batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.RUNNING).isEmpty())
 			return true;
 		return false;
 	}
@@ -268,10 +272,11 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	public Set<Run> getSuccessfullyCompletedRuns(){
 		Set<Run> runs = new LinkedHashSet<Run>();
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
-		Set<String> jobIdStringSet = new LinkedHashSet<String>();
-		jobIdStringSet.add("*");
-		parameterMap.put(WaspJobParameters.RUN_ID, jobIdStringSet);
-		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, false, ExitStatus.COMPLETED);
+		Set<String> genericParamValStringSet = new LinkedHashSet<String>();
+		genericParamValStringSet.add("*");
+		parameterMap.put(WaspJobParameters.RUN_ID, genericParamValStringSet);
+		parameterMap.put(WaspJobParameters.RUN_NAME, genericParamValStringSet);
+		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.COMPLETED);
 		for(JobExecution jobExecution: jobExecutions){
 			try {
 				Integer runId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(jobExecution, WaspJobParameters.RUN_ID));
