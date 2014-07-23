@@ -13,6 +13,7 @@ import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.Software;
+import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.viewpanel.GridColumn;
 import edu.yu.einstein.wasp.viewpanel.GridContent;
@@ -298,6 +299,7 @@ public class MacstwoWebPanels {
 	}
 	//this is new
 	public static PanelTab getFilesByAnalysis(List<FileGroup> macs2AnalysisFileGroupList, 
+											Map<FileGroup, Build> fileGroupBuildMap,
 											Map<FileGroup,List<FileHandle>> fileGroupFileHandleListMap, 
 											Map<FileHandle,String> fileHandleResolvedURLMap, 
 											Map<FileGroup, Double> fileGroupFripPercentMap){
@@ -375,17 +377,55 @@ public class MacstwoWebPanels {
 				row.add(fileHandle.getMd5hash());
 				row.add(fileHandleResolvedURLMap.get(fileHandle));
 				
+				//7/23/14
+				List<String> genomeBrowserIcon = addGenomeBrowserIcon(fileGroupBuildMap.get(fileGroup), fileHandle, fileHandleResolvedURLMap.get(fileHandle));
+				if(genomeBrowserIcon.isEmpty()){//not correct filetype
+					row.add("");
+					row.add("");
+					row.add("true");//true means hide
+					row.add("");
+				}
+				else{
+					row.addAll(genomeBrowserIcon);
+				}
 				//7-18-14
 				//row.add("http://useast.ensembl.org/Homo_sapiens/Location/View?r=1:1-620074;contigviewbottom=url:http://wasp.einstein.yu.edu/results/rob/20140710_IP_Wildtype_flag_TARGET_GATA3_CONTROL_Wildtype_inp_summits2.bed");
 				//row.add("ensembl");
 				//row.add("false");//true means hide
 				//row.add("Ensembl Genome Browser");
 				//7-18-14
+				/*
 				if(fileHandle.getFileName().endsWith(".bed") || fileHandle.getFileName().endsWith(".bdg") || fileHandle.getFileName().endsWith("Peak")){
-					row.add("http://useast.ensembl.org/Homo_sapiens/Location/View?r=1:1-620074;contigviewbottom=url:http://wasp.einstein.yu.edu/results/rob/20140710_IP_Wildtype_flag_TARGET_GATA3_CONTROL_Wildtype_inp_summits2.bed");
-					row.add("ensembl");
-					row.add("false");//true means hide
-					row.add("Ensembl Genome Browser");
+					
+					//Ensembl GB formats: http://useast.ensembl.org/info/docs/webcode/linking.html#attachurl
+					//http://www.ensembl.org/Homo_sapiens/Location/View?g=ENSG00000130544;contigviewbottom=url:http://www.ensembl.org/info/website/upload/sample_files/example.bed=half_height
+					//Note on bedGraph format If attaching a bedGraph file, please add the parameter 'format=bedGraph' to the URL, e.g.
+					//http://www.ensembl.org/Homo_sapiens/Location/View?g=ENSG00000012048;contigviewbottom=url:http://www.abcd.edu/myprojects/data.bed=tiling;format=bedGraph 
+
+					//UCSC GB formats: http://genome.ucsc.edu/goldenPath/help/customTrack.html#TRACK
+					//http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&hgt.customText=http://wasp.einstein.yu.edu/results/production_wiki/PKenny/NChandiramani/P685/J11076/analyzed/Wildtype_flag.AC44H0ACXX.lane_7_P0_I10.hg19/Wildtype_flag.AC44H0ACXX.lane_7_P0_I10.hg19_peaks.bed.bz2
+					
+					Build build = fileGroupBuildMap.get(fileGroup);
+					String genomeName = build.getGenome().getName();//such as    GRCm38 or hg19
+					String organismName = build.getGenome().getOrganism().getName();//such as   Mus musculus
+					String organismNameWithoutSpaces = organismName.replaceAll("\\s+", "_");
+					if(genomeName.startsWith("GRC")){//bam file created using GRC genome, so display in Ensembl genome browser
+						if(fileHandle.getFileName().endsWith(".bdg")){
+							row.add("http://useast.ensembl.org/"+ organismNameWithoutSpaces +"/Location/View?r=1:1-620000;contigviewbottom=url:" + fileHandleResolvedURLMap.get(fileHandle) + "=tiling;format=bedGraph");
+						}
+						else{
+							row.add("http://useast.ensembl.org/"+ organismNameWithoutSpaces +"/Location/View?r=1:1-620000;contigviewbottom=url:" + fileHandleResolvedURLMap.get(fileHandle));							
+						}
+						row.add("ensembl");
+						row.add("false");//true means hide, which is the default setting
+						row.add("Ensembl Genome Browser");
+					}
+					else{//display in UCSC genome browser
+						row.add("http://genome.ucsc.edu/cgi-bin/hgTracks?db="+ genomeName +"&hgt.customText=" + fileHandleResolvedURLMap.get(fileHandle));
+						row.add("ucsc");
+						row.add("false");//true means hide
+						row.add("UCSC Genome Browser");
+					}
 				}
 				else{
 					row.add("");
@@ -393,7 +433,7 @@ public class MacstwoWebPanels {
 					row.add("true");//true means hide
 					row.add("");							
 				}
-
+				*/
 				
 				content.addDataRow(row);//add the new row to the content
 			}			
@@ -403,8 +443,48 @@ public class MacstwoWebPanels {
 	
 		return panelTab;		 
 	}
+	private static List<String> addGenomeBrowserIcon(Build build, FileHandle fileHandle, String resolvedUrl){
+		List<String> row = new ArrayList<String>();
+		
+		if(fileHandle.getFileName().endsWith(".bed") || fileHandle.getFileName().endsWith(".bdg") || fileHandle.getFileName().endsWith("Peak")){
+			
+			//Ensembl GB formats: http://useast.ensembl.org/info/docs/webcode/linking.html#attachurl
+			//http://www.ensembl.org/Homo_sapiens/Location/View?g=ENSG00000130544;contigviewbottom=url:http://www.ensembl.org/info/website/upload/sample_files/example.bed=half_height
+			//Note on bedGraph format If attaching a bedGraph file, please add the parameter 'format=bedGraph' to the URL, e.g.
+			//http://www.ensembl.org/Homo_sapiens/Location/View?g=ENSG00000012048;contigviewbottom=url:http://www.abcd.edu/myprojects/data.bed=tiling;format=bedGraph 
+
+			//UCSC GB formats: http://genome.ucsc.edu/goldenPath/help/customTrack.html#TRACK
+			//http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&hgt.customText=http://wasp.einstein.yu.edu/results/production_wiki/PKenny/NChandiramani/P685/J11076/analyzed/Wildtype_flag.AC44H0ACXX.lane_7_P0_I10.hg19/Wildtype_flag.AC44H0ACXX.lane_7_P0_I10.hg19_peaks.bed.bz2
+			
+			String genomeName = build.getGenome().getName();//such as    GRCm38 or hg19
+			String organismName = build.getGenome().getOrganism().getName();//such as   Mus musculus
+			String organismNameWithoutSpaces = organismName.replaceAll("\\s+", "_");
+			if(genomeName.startsWith("GRC")){//bam file created using GRC genome, so display in Ensembl genome browser
+				if(fileHandle.getFileName().endsWith(".bdg")){
+					//row.add("http://useast.ensembl.org/"+ organismNameWithoutSpaces +"/Location/View?r=1:1-620000;contigviewbottom=url:" + resolvedUrl + "=tiling;format=bedGraph");
+					row.add("http://useast.ensembl.org/Homo_sapiens/Location/View?r=1:1-620074;contigviewbottom=url:http://wasp.einstein.yu.edu/results/rob/20140710_IP_Wildtype_flag_TARGET_GATA3_CONTROL_Wildtype_inp_summits2.bed");
+				}
+				else{
+					//row.add("http://useast.ensembl.org/"+ organismNameWithoutSpaces +"/Location/View?r=1:1-620000;contigviewbottom=url:" + resolvedUrl);							
+					row.add("http://useast.ensembl.org/Homo_sapiens/Location/View?r=1:1-620074;contigviewbottom=url:http://wasp.einstein.yu.edu/results/rob/20140710_IP_Wildtype_flag_TARGET_GATA3_CONTROL_Wildtype_inp_summits2.bed");
+				}
+				row.add("ensembl");
+				row.add("false");//true means hide, which is the default setting
+				row.add("Ensembl Genome Browser");
+			}
+			else{//display in UCSC genome browser
+				row.add("http://genome.ucsc.edu/cgi-bin/hgTracks?db="+ genomeName +"&hgt.customText=" + resolvedUrl);
+				row.add("ucsc");
+				row.add("false");//true means hide
+				row.add("UCSC Genome Browser");
+			}
+		}
+		
+		return row;
+	}
 	//this is new
-	public static PanelTab getFilesByFileType(List<FileGroup> macs2AnalysisFileGroupList, 
+	public static PanelTab getFilesByFileType(List<FileGroup> macs2AnalysisFileGroupList,
+											Map<FileGroup, Build> fileGroupBuildMap,
 											Map<FileGroup,List<FileHandle>> fileGroupFileHandleListMap, 
 											Map<FileHandle,String> fileHandleResolvedURLMap, 
 											List<FileType> fileTypeList){
@@ -473,14 +553,57 @@ public class MacstwoWebPanels {
 						}else{row.add("");}
 						row.add(fileHandle.getMd5hash());
 						row.add(fileHandleResolvedURLMap.get(fileHandle));
-						content.addDataRow(row);//add the new row to the content
 						
+						//7/23/14
+						List<String> genomeBrowserIcon = addGenomeBrowserIcon(fileGroupBuildMap.get(fileGroup), fileHandle, fileHandleResolvedURLMap.get(fileHandle));
+						if(genomeBrowserIcon.isEmpty()){//not correct filetype
+							row.add("");
+							row.add("");
+							row.add("true");//true means hide
+							row.add("");
+						}
+						else{
+							row.addAll(genomeBrowserIcon);
+						}
+						
+						/*
+						//7-18-14
+						//row.add("http://useast.ensembl.org/Homo_sapiens/Location/View?r=1:1-620074;contigviewbottom=url:http://wasp.einstein.yu.edu/results/rob/20140710_IP_Wildtype_flag_TARGET_GATA3_CONTROL_Wildtype_inp_summits2.bed");
+						//row.add("ensembl");
+						//row.add("false");//true means hide
+						//row.add("Ensembl Genome Browser");
 						//7-18-14
 						if(fileHandle.getFileName().endsWith(".bed") || fileHandle.getFileName().endsWith(".bdg") || fileHandle.getFileName().endsWith("Peak")){
-							row.add("http://useast.ensembl.org/Homo_sapiens/Location/View?r=1:1-620074;contigviewbottom=url:http://wasp.einstein.yu.edu/results/rob/20140710_IP_Wildtype_flag_TARGET_GATA3_CONTROL_Wildtype_inp_summits2.bed");
-							row.add("ensembl");
-							row.add("false");//true means hide
-							row.add("Ensembl Genome Browser");
+							
+							//Ensembl GB formats: http://useast.ensembl.org/info/docs/webcode/linking.html#attachurl
+							//http://www.ensembl.org/Homo_sapiens/Location/View?g=ENSG00000130544;contigviewbottom=url:http://www.ensembl.org/info/website/upload/sample_files/example.bed=half_height
+							//Note on bedGraph format If attaching a bedGraph file, please add the parameter 'format=bedGraph' to the URL, e.g.
+							//http://www.ensembl.org/Homo_sapiens/Location/View?g=ENSG00000012048;contigviewbottom=url:http://www.abcd.edu/myprojects/data.bed=tiling;format=bedGraph 
+
+							//UCSC GB formats: http://genome.ucsc.edu/goldenPath/help/customTrack.html#TRACK
+							//http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&hgt.customText=http://wasp.einstein.yu.edu/results/production_wiki/PKenny/NChandiramani/P685/J11076/analyzed/Wildtype_flag.AC44H0ACXX.lane_7_P0_I10.hg19/Wildtype_flag.AC44H0ACXX.lane_7_P0_I10.hg19_peaks.bed.bz2
+							
+							Build build = fileGroupBuildMap.get(fileGroup);
+							String genomeName = build.getGenome().getName();//such as    GRCm38 or hg19
+							String organismName = build.getGenome().getOrganism().getName();//such as   Mus musculus
+							String organismNameWithoutSpaces = organismName.replaceAll("\\s+", "_");
+							if(genomeName.startsWith("GRC")){//bam file created using GRC genome, so display in Ensembl genome browser
+								if(fileHandle.getFileName().endsWith(".bdg")){
+									row.add("http://useast.ensembl.org/"+ organismNameWithoutSpaces +"/Location/View?r=1:1-620000;contigviewbottom=url:" + fileHandleResolvedURLMap.get(fileHandle) + "=tiling;format=bedGraph");
+								}
+								else{
+									row.add("http://useast.ensembl.org/"+ organismNameWithoutSpaces +"/Location/View?r=1:1-620000;contigviewbottom=url:" + fileHandleResolvedURLMap.get(fileHandle));							
+								}
+								row.add("ensembl");
+								row.add("false");//true means hide, which is the default setting
+								row.add("Ensembl Genome Browser");
+							}
+							else{//display in UCSC genome browser
+								row.add("http://genome.ucsc.edu/cgi-bin/hgTracks?db="+ genomeName +"&hgt.customText=" + fileHandleResolvedURLMap.get(fileHandle));
+								row.add("ucsc");
+								row.add("false");//true means hide
+								row.add("UCSC Genome Browser");
+							}
 						}
 						else{
 							row.add("");
@@ -488,7 +611,10 @@ public class MacstwoWebPanels {
 							row.add("true");//true means hide
 							row.add("");							
 						}
-			
+						*/
+						
+						content.addDataRow(row);//add the new row to the content
+						
 					}
 				}
 			}
@@ -544,7 +670,8 @@ public class MacstwoWebPanels {
 	//not working, needs AJ support
 	//very new 7-18-14
 		//this is an experiment
-		public static PanelTab getBrowserByAnalysis(List<FileGroup> macs2AnalysisFileGroupList, 
+		public static PanelTab getBrowserByAnalysis(List<FileGroup> macs2AnalysisFileGroupList,
+												Map<FileGroup, Build> fileGroupBuildMap,
 												Map<FileGroup,List<FileHandle>> fileGroupFileHandleListMap, 
 												Map<FileHandle,String> fileHandleResolvedURLMap, 
 												Map<FileGroup, Double> fileGroupFripPercentMap){
@@ -556,8 +683,8 @@ public class MacstwoWebPanels {
 		
 			//create the panel
 			GridPanel panel = new GridPanel();
-			panel.setTitle("UCSC Genome Browser");
-			panel.setDescription("UCSC Genome Browser");
+			panel.setTitle("Genome Browser");
+			panel.setDescription("Genome Browser");
 			panel.setResizable(true);
 			panel.setMaximizable(true);	
 			panel.setOrder(1);
@@ -597,7 +724,9 @@ public class MacstwoWebPanels {
 			for(FileGroup fileGroup : macs2AnalysisFileGroupList){				
 				for(FileHandle fileHandle : fileGroupFileHandleListMap.get(fileGroup)){	
 					
-					if(fileHandle.getFileName().endsWith(".bed") || fileHandle.getFileName().endsWith(".bdg") || fileHandle.getFileName().endsWith("Peak")){
+					List<String> genomeBrowserIcon = addGenomeBrowserIcon(fileGroupBuildMap.get(fileGroup), fileHandle, fileHandleResolvedURLMap.get(fileHandle));
+					if(!genomeBrowserIcon.isEmpty()){
+					//if(fileHandle.getFileName().endsWith(".bed") || fileHandle.getFileName().endsWith(".bdg") || fileHandle.getFileName().endsWith("Peak")){
 					
 						List<String> row = new ArrayList<String>();	
 						String headerForGroup = fileGroup.getDescription();
@@ -624,10 +753,36 @@ public class MacstwoWebPanels {
 						//from UCSC
 						//row.add("http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&hgt.customText="+fileHandleResolvedURLMap.get(fileHandle));
 						//for ensembl:
-						row.add("http://useast.ensembl.org/Homo_sapiens/Location/View?r=1:1-620074;contigviewbottom=url:http://wasp.einstein.yu.edu/results/rob/20140710_IP_Wildtype_flag_TARGET_GATA3_CONTROL_Wildtype_inp_summits2.bed");
-						row.add("ensembl");
-						row.add("false");//true means hide
-						row.add("Ensembl Genome Browser");
+						/////////row.add("http://useast.ensembl.org/Homo_sapiens/Location/View?r=1:1-620074;contigviewbottom=url:http://wasp.einstein.yu.edu/results/rob/20140710_IP_Wildtype_flag_TARGET_GATA3_CONTROL_Wildtype_inp_summits2.bed");
+						//////////row.add("ensembl");
+						///////////row.add("false");//true means hide
+						////////////row.add("Ensembl Genome Browser");
+						
+						/*
+						Build build = fileGroupBuildMap.get(fileGroup);
+						String genomeName = build.getGenome().getName();//such as    GRCm38 or hg19
+						String organismName = build.getGenome().getOrganism().getName();//such as   Mus musculus
+						String organismNameWithoutSpaces = organismName.replaceAll("\\s+", "_");
+						if(genomeName.startsWith("GRC")){//bam file created using GRC genome, so display in Ensembl genome browser
+							if(fileHandle.getFileName().endsWith(".bdg")){
+								row.add("http://useast.ensembl.org/"+ organismNameWithoutSpaces +"/Location/View?r=1:1-620000;contigviewbottom=url:" + fileHandleResolvedURLMap.get(fileHandle) + "=tiling;format=bedGraph");
+							}
+							else{
+								row.add("http://useast.ensembl.org/"+ organismNameWithoutSpaces +"/Location/View?r=1:1-620000;contigviewbottom=url:" + fileHandleResolvedURLMap.get(fileHandle));							
+							}
+							row.add("ensembl");
+							row.add("false");//true means hide, which is the default setting
+							row.add("Ensembl Genome Browser");
+						}
+						else{//display in UCSC genome browser
+							row.add("http://genome.ucsc.edu/cgi-bin/hgTracks?db="+ genomeName +"&hgt.customText=" + fileHandleResolvedURLMap.get(fileHandle));
+							row.add("ucsc");
+							row.add("false");//true means hide
+							row.add("UCSC Genome Browser");
+						}
+						*/
+						row.addAll(genomeBrowserIcon);
+						
 						content.addDataRow(row);//add the new row to the content
 					}
 				}			
@@ -645,7 +800,7 @@ public class MacstwoWebPanels {
 	
 /*	
 	//very new 7-15-14
-	//this is an experiment
+	//this is the initial experiment
 	public static PanelTab getBrowserByAnalysis(List<FileGroup> macs2AnalysisFileGroupList, 
 											Map<FileGroup,List<FileHandle>> fileGroupFileHandleListMap, 
 											Map<FileHandle,String> fileHandleResolvedURLMap, 

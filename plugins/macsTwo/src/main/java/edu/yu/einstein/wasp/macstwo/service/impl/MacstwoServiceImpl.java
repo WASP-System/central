@@ -36,6 +36,8 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Software;
+import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
+import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.SoftwareService;
@@ -57,6 +59,8 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 	private FileType macs2AnalysisFileType;
 	@Autowired
 	private SoftwareService softwareService;
+	@Autowired
+	private GenomeService genomeService;
 	
 	public class SampleNameComparator implements Comparator<Sample> {
 	    @Override
@@ -100,6 +104,7 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 			 Map<FileGroup, Double> fileGroupFripMap = new HashMap<FileGroup, Double>();
 			 Map<FileGroup, String> fileGroupFripCalculationMap = new HashMap<FileGroup, String>();
 			 Map<FileGroup, List<FileHandle>> fileGroupFileHandleListMap = new HashMap<FileGroup, List<FileHandle>>();
+			 Map<FileGroup, Build> fileGroupBuildMap = new HashMap<FileGroup, Build>();
 			 Map<FileHandle, String> fileHandleResolvedURLMap = new HashMap<FileHandle, String>();
 			 Set<FileType> fileTypeSet = new HashSet<FileType>();			 
 
@@ -142,6 +147,16 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 				 if(fripCalculation!=null){
 					 fileGroupFripCalculationMap.put(fileGroup, fripCalculation);
 				 }
+				 
+				//7-23-14
+				 //genomeBrowser
+				 Build build = genomeService.getBuild(test);
+				 //logger.debug("--SAMPLE name: " + test.getName());
+				 //logger.debug("---BUILD name: " + build.getName());//such as      BUILD name: 74
+				 //logger.debug("----GENOME name: " + build.getGenome().getName());//such as       GENOME name: GRCm38
+				 //logger.debug("-----ORGANISM name: " + build.getGenome().getOrganism().getName());//such as      ORGANISM name: Mus musculus
+				 fileGroupBuildMap.put(fileGroup, build);
+				 
 				 //deal with list of fileHandles for this fileGroup
 				 List<FileHandle> fileHandleList = new ArrayList<FileHandle>(fileGroup.getFileHandles());
 				 class FileHandleViaFileTypeComparator implements Comparator<FileHandle> {
@@ -163,6 +178,7 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 					}catch(Exception e){logger.debug("***************UNABLE TO RESOLVE URL for file: " + fileHandle.getFileName());}						
 					fileHandleResolvedURLMap.put(fileHandle, resolvedURL);
 				 }
+				 
 			 }
 			 List<FileType> fileTypeList = new ArrayList<FileType>(fileTypeSet);
 			 Collections.sort(fileTypeList, new FileTypeComparator());
@@ -185,16 +201,16 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 			PanelTab fripCalculationPanelTab = MacstwoWebPanels.getFripCalculationByAnalysis(macs2AnalysisFileGroupList, fileGroupFripCalculationMap);
 			if(fripCalculationPanelTab!=null){panelTabSet.add(fripCalculationPanelTab);}
 			
-			PanelTab allFilesDisplayedByAnalysisPanelTab = MacstwoWebPanels.getFilesByAnalysis(macs2AnalysisFileGroupList, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileGroupFripMap);
+			PanelTab allFilesDisplayedByAnalysisPanelTab = MacstwoWebPanels.getFilesByAnalysis(macs2AnalysisFileGroupList, fileGroupBuildMap, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileGroupFripMap);
 			if(allFilesDisplayedByAnalysisPanelTab!=null){panelTabSet.add(allFilesDisplayedByAnalysisPanelTab);}
-			PanelTab allFilesDisplayedByFileTypePanelTab = MacstwoWebPanels.getFilesByFileType(macs2AnalysisFileGroupList, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileTypeList);
+			PanelTab allFilesDisplayedByFileTypePanelTab = MacstwoWebPanels.getFilesByFileType(macs2AnalysisFileGroupList, fileGroupBuildMap, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileTypeList);
 			if(allFilesDisplayedByFileTypePanelTab!=null){panelTabSet.add(allFilesDisplayedByFileTypePanelTab);}
 
 			PanelTab modelPNGFilesDisplayedByAnalysisPanelTab = MacstwoWebPanels.getModelPNGFilesByAnalysis(macs2AnalysisFileGroupList, fileGroupFileHandleListMap, fileHandleResolvedURLMap);
 			if(modelPNGFilesDisplayedByAnalysisPanelTab!=null){panelTabSet.add(modelPNGFilesDisplayedByAnalysisPanelTab);}
 			
 			//Experiment:
-			PanelTab browserByAnalysisPanelTab = MacstwoWebPanels.getBrowserByAnalysis(macs2AnalysisFileGroupList, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileGroupFripMap);
+			PanelTab browserByAnalysisPanelTab = MacstwoWebPanels.getBrowserByAnalysis(macs2AnalysisFileGroupList, fileGroupBuildMap, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileGroupFripMap);
 			if(browserByAnalysisPanelTab!=null){panelTabSet.add(browserByAnalysisPanelTab);}
 
 			
