@@ -13,7 +13,22 @@
 				</bean>
 			</batch:tasklet>
 			<batch:fail on="FAILED" />
+			<batch:end on="*" />
 		</batch:step>
+		
+		<!-- 
+		
+		<batch:step id="picard.extractIlluminaBarcodes.register">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.plugin.picard.tasklet.ExtractIlluminaBarcodesRegistrationTasklet" scope="step">
+					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+				</bean>
+			</batch:tasklet>
+			<batch:fail on="FAILED" />
+			<batch:end on="*" />
+		</batch:step>
+		
+		 -->
 
 	</batch:flow>
 	

@@ -17,7 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.WaspException;
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
@@ -121,11 +123,21 @@ public class ExtractIlluminaBarcodesTasklet extends WaspRemotingTasklet {
 	@Transactional("entityManager")
 	public void doPreFinish(ChunkContext context) throws Exception {
 		logger.trace("doPreFinish");
+		GridResult result = (GridResult) context.getStepContext().getStepExecution().getExecutionContext().get(GridResult.GRID_RESULT_KEY);
+		try {
+			picard.registerBarcodeMetadata(run, result);
+		} catch (WaspException e) {
+			String message = "Problem registering barcode scanning results: " + e.getLocalizedMessage();
+			logger.error(message);
+			throw new WaspRuntimeException(message);
+		}
 		super.doPreFinish(context);
 	}
 	
 	/** 
 	 * {@inheritDoc}
+	 * @throws WaspException 
+	 * @throws MetadataException 
 	 */
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution) {
@@ -143,7 +155,6 @@ public class ExtractIlluminaBarcodesTasklet extends WaspRemotingTasklet {
 		logger.trace("going to operate on run " + run.getName());
 		super.beforeStep(stepExecution);
 	}
-	
 	
 
 }

@@ -17,11 +17,13 @@ import java.util.Set;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
+import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.springframework.beans.factory.annotation.Value;
 
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
@@ -33,17 +35,20 @@ import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.fileformat.service.BamService;
 import edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy;
 import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
 import edu.yu.einstein.wasp.plugin.mps.grid.software.Samtools;
+import edu.yu.einstein.wasp.plugin.picard.metrics.PicardMetricsParser;
 import edu.yu.einstein.wasp.plugin.picard.service.PicardService;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
+import edu.yu.einstein.wasp.util.MetaHelper;
 
 
 /**
@@ -70,9 +75,16 @@ public class Picard extends SoftwarePackage {
 	private SampleService sampleService;
 	
 	@Autowired
+	private GridHostResolver hostResolver;
+	
+	@Autowired
 	private AdaptorService adaptorService;
 	@Value("${wasp.temporary.dir:/tmp}")
 	protected String localTempDir;
+	
+	public static final String BARCODES_DIRECTORY = "BARCODES";
+	
+	private static final String PICARD_BARCODE_METRICS_AREA = "picardBarcodeMetricsArea";
 	
 	public Picard() {}
 	
@@ -388,7 +400,7 @@ public class Picard extends SoftwarePackage {
 	 */
 	public String getExtractIlluminaBarcodesCmd(Run run) throws MetadataException, SampleTypeException {
 		
-		String cmd = "rm -rf ./BARCODES\n";
+		String cmd = "rm -rf ./" + BARCODES_DIRECTORY + "\n";
 		
 		Map<Integer,Sample> indexedCellMap = sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit());
 		
@@ -409,11 +421,11 @@ public class Picard extends SoftwarePackage {
 			
 			for (IlluminaIndexingStrategy s : strategies) {
 				logger.debug("going to prepare getExtractIlluminaBarcodes command for run: " + run.getName() + " cell: " + cell.getId() + " (lane " + index + ") strategy: " + s.toString());
-				String outputDir = "BARCODES/" +  s.toString() + "/L" + index;
+				String outputDir = BARCODES_DIRECTORY + "/" +  s.toString() + "/L" + index;
 				cmd += "mkdir -p " + outputDir + "\n";
 				cmd += getCreateBarcodeFileCmd(outputDir, cellLibraries, s) + "\n";
 				cmd += "java -Xmx4g -jar $PICARD_ROOT/ExtractIlluminaBarcodes.jar TMP_DIR=. L=" + index + " B=./Data/Intensities/BaseCalls OUTPUT_DIR=./" + outputDir + 
-						" M=./" + outputDir + "/mets.txt RS=" + getReadStructure(run, index, s) + " BARCODE_FILE=./BARCODES/" + s.toString() + "/L" + index + 
+						" M=./" + outputDir + "/mets.txt RS=" + getReadStructure(run, index, s) + " BARCODE_FILE=./" + BARCODES_DIRECTORY + "/" + s.toString() + "/L" + index + 
 						"/barcodes.txt GZIP=true NUM_PROCESSORS=$NTHREADS\n\n###################\n\n";
 			}
 			
@@ -501,6 +513,39 @@ public class Picard extends SoftwarePackage {
 		fgm.setV(json.toString());
 		fileGroupMetaList.add(fgm);
 		fileService.saveFileGroupMeta(fileGroupMetaList, fileGroup);		
+	}
+	
+	@Transactional("entityManager")
+	public void registerBarcodeMetadata(Run run, GridResult result) throws WaspException, MetadataException {
+		
+		Map<Integer,Sample> indexedCellMap = sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit());
+		
+		Document runInfo = illuminaService.getIlluminaRunXml(run);
+		
+		for (Integer index : indexedCellMap.keySet()) {
+			
+			Set<IlluminaIndexingStrategy> strategies = new HashSet<IlluminaIndexingStrategy>(); 
+			
+			Sample cell = indexedCellMap.get(index);
+			List<SampleSource> cellLibraries = sampleService.getCellLibrariesForCell(cell);
+			
+			for (SampleSource ss : cellLibraries) {
+				strategies.add(new IlluminaIndexingStrategy(illuminaService.getIndexingStrategy(ss).toString()));
+			}
+			
+			logger.trace("Lane " + index + ", registering " + strategies.size() + " strategies");
+			
+			for (IlluminaIndexingStrategy s : strategies) {
+				logger.debug("going to register barcode metrics for run: " + run.getName() + " cell: " + cell.getId() + " (lane " + index + ") strategy: " + s.toString());
+				String fileName = BARCODES_DIRECTORY + "/" +  s.toString() + "/L" + index + "/mets.txt";
+				PicardMetricsParser p = new PicardMetricsParser(hostResolver, result, fileName);
+				MetaHelper metahelper = new MetaHelper(PICARD_BARCODE_METRICS_AREA, SampleMeta.class);
+				metahelper.setMetaValueByName(s.toString(), p.parseResult().toString());
+				sampleService.getSampleMetaDao().setMeta((List<SampleMeta>) metahelper.getMetaList(), cell.getId());
+			}
+			
+		}
+		
 	}
 	
 }
