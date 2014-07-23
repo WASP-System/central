@@ -131,7 +131,7 @@ p	{
 	}
 	
 td {
-	/* padding: 2px 10px 0 10px; Removed by AJ, "padding" should be set in specific style instead of "td"*/
+	padding: 2px 10px 0 10px;
 }
 
 th {

@@ -51,9 +51,11 @@ Ext.define('Wasp.GridPortlet', {
 
 	statusfld: null,
 
-	gbucsccol: false,
-	gbucscfld: '',
-	gbucsctip: 'View in UCSC Genome Browser',
+	gbcol: false,
+	gblink: '',
+	gbtype: '',
+	gbttp: '',
+	hidegb: '',
 
 	/**
 	 * Custom function used for column renderer
@@ -116,13 +118,25 @@ Ext.define('Wasp.GridPortlet', {
 			header: 'Actions',
 			minWidth: 80,
 			actions: [],
+			callbacks: {
+				'icon-gb-ucsc': function(grid, record, action, row, col) {
+					window.open(record.get(grid.gblink), '_blank');
+				},
+				'icon-gb-ensembl': function(grid, record, action, row, col) {
+					window.open(record.get(grid.gblink), '_blank');
+				},
+				'icon-gb-igv': function(grid, record, action, row, col) {
+					window.open(record.get(grid.gblink), '_blank');
+				}
+			},
 			keepSelection: true
 		};
 		
 		if (this.dlcol && this.dllinkfld != '') {
 			actioncol.actions.push({
-				iconCls: 'icon-clear-group',
+				iconCls: 'icon-download',
 				qtip: this.dlcoltip,
+				hideIndex: this.hidedl,
 				callback: function (grid, record, action, idx, col, e, target) {
 					window.location = record.get(grid.dllinkfld);
 				}
@@ -130,7 +144,7 @@ Ext.define('Wasp.GridPortlet', {
 
 			if (this.grpdl) {
 				actioncol.groupActions = [{
-					iconCls: 'icon-grid',
+					iconCls: 'icon-group-download',
 					qtip: this.grpdltip,
 					align: this.grpdlalign,
 					callback: function (grid, records, action, groupValue) {
@@ -142,13 +156,11 @@ Ext.define('Wasp.GridPortlet', {
 
 		}
 
-		if (this.gbucsccol && this.gbucscfld != '') {
+		if (this.gbcol && this.gblink != '') {
 			actioncol.actions.push({
-				iconCls: 'icon-gb-ucsc',
-				qtip: this.gbucsctip,
-				callback: function (grid, record, action, idx, col, e, target) {
-					window.location = record.get(grid.gbucscfld);
-				}
+				iconIndex: this.gbtype,
+				qtipIndex: this.gbttp,
+				hideIndex: this.hidegb//,
 			});
 		}
 
