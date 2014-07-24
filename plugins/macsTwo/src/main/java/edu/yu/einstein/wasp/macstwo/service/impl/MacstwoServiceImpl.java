@@ -20,10 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.PanelException;
-import edu.yu.einstein.wasp.exception.SampleParentChildException;
-import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
-import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.macstwo.service.MacstwoService;
 import edu.yu.einstein.wasp.macstwo.webpanels.MacstwoWebPanels;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -31,7 +28,6 @@ import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
@@ -209,10 +205,9 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 			PanelTab modelPNGFilesDisplayedByAnalysisPanelTab = MacstwoWebPanels.getModelPNGFilesByAnalysis(macs2AnalysisFileGroupList, fileGroupFileHandleListMap, fileHandleResolvedURLMap);
 			if(modelPNGFilesDisplayedByAnalysisPanelTab!=null){panelTabSet.add(modelPNGFilesDisplayedByAnalysisPanelTab);}
 			
-			//Experiment:
+			//This tab can be removed, as browser icons now also appear on getFilesByAnalysis AND getFilesByFileType, next to the download icons
 			PanelTab browserByAnalysisPanelTab = MacstwoWebPanels.getBrowserByAnalysis(macs2AnalysisFileGroupList, fileGroupBuildMap, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileGroupFripMap);
 			if(browserByAnalysisPanelTab!=null){panelTabSet.add(browserByAnalysisPanelTab);}
-
 			
 			return panelTabSet;
 			
