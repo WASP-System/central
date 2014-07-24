@@ -58,11 +58,21 @@ public class DefaultDirectoryPlaceholderRewriter implements DirectoryPlaceholder
 					+ transportConnection.getName() + ".settings.results.dir).  Defaulting to \"$HOME/\".");
 			results = "$HOME/";
 		}
+		if (!PropertyHelper.isSet(tmp)) {
+			logger.warn("Tmp directory has not been set!  Set this value in the properties file of the config project: ("
+					+ transportConnection.getName() + ".settings.tmp.dir).  Defaulting to \"/tmp/\".");
+			tmp = "/tmp/";
+		}
+		
+		// rewrite the tmp directory.
+		String td = w.getTmpDirectory();
+		if (td.contains(WorkUnit.TMP_DIR_PLACEHOLDER))
+			w.setTmpDirectory(replaceTmp(td, tmp, "TMP_", w));
 		
 		// rewrite the scratch directory.  By definition, scratch is not in results.
 		String wd = w.getWorkingDirectory();
 		if (wd.contains(WorkUnit.TMP_DIR_PLACEHOLDER)){
-			w.setWorkingDirectory(replaceTmp(wd, tmp, w));
+			w.setWorkingDirectory(replaceTmp(wd, tmp, "", w));
 			w.setWorkingDirectoryRelativeToRoot(true);
 		} else 
 			w.setWorkingDirectory(replaceScratch(wd, scratch, w));
@@ -72,7 +82,7 @@ public class DefaultDirectoryPlaceholderRewriter implements DirectoryPlaceholder
 		if (rd.contains(WorkUnit.SCRATCH_DIR_PLACEHOLDER)) {
 			w.setResultsDirectory(replaceScratch(rd, scratch, w));
 		} else if (rd.contains(WorkUnit.TMP_DIR_PLACEHOLDER)){
-			w.setResultsDirectory(replaceTmp(rd, tmp, w));
+			w.setResultsDirectory(replaceTmp(rd, tmp, "", w));
 		} else if (rd.equals(WorkUnit.RESULTS_DIR_PLACEHOLDER)) {
 			// files need to go into $results/"somewhere"
 			logger.info("WorkUnit configured with default results location. Assuming not required.");
@@ -80,12 +90,13 @@ public class DefaultDirectoryPlaceholderRewriter implements DirectoryPlaceholder
 			w.setResultsDirectory(replaceResults(rd, results));
 		}
 
-		logger.debug("After processing, work unit configured with work: " + w.getWorkingDirectory() + " & results: " + w.getResultsDirectory());
+		logger.debug("After processing, work unit configured with work: " + w.getWorkingDirectory() + " & results: " + w.getResultsDirectory() +
+				" & tmp: " + w.getTmpDirectory());
 
 	}
 	
-	private String replaceTmp(String s, String tmp, WorkUnit w) {
-		return s.replaceAll(WorkUnit.TMP_DIR_PLACEHOLDER, tmp + "/" + w.getId() + "/").replaceAll("//", "/");
+	private String replaceTmp(String s, String tmp, String subFolderPrefix, WorkUnit w) {
+		return s.replaceAll(WorkUnit.TMP_DIR_PLACEHOLDER, tmp + "/" + subFolderPrefix + w.getId() + "/").replaceAll("//", "/");
 	}
 	
 	private String replaceScratch(String s, String scratch, WorkUnit w) {
