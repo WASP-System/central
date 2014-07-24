@@ -676,6 +676,10 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		return fileHandleDao.save(file);
 	}
 
+	
+	/**
+	 *  Persist FileGroup together with any registered FileHandles, SampleSources and Samples
+	 */
 	@Override
 	public FileGroup addFileGroup(FileGroup group) {
 		// FileGroup is many-to-many with SampleSource and Sample. SampleSource and Sample control the relationships
@@ -684,6 +688,10 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		// copy the sets from FileGroup to be persisted
 		Set<SampleSource> ssSet = new HashSet<>(group.getSampleSources());
 		Set<Sample> sSet = new HashSet<>(group.getSamples());
+		
+		// save the FileHandles
+		for (FileHandle fh : group.getFileHandles())
+			fileHandleDao.save(fh);
 		
 		// save the FileGroup
 		group = fileGroupDao.save(group);
@@ -708,60 +716,36 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		return fileHandleDao.save(file);
 	}
 
+	/**
+	 * Persist FileGroup together with any registered FileHandles, SampleSources and Samples. 
+	 * This is done within a discrete transaction (REQUIRES_NEW)
+	 */
 	@Override
 	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
-	public FileGroup saveInDiscreteTransaction(FileGroup group) {
-		return addFileGroup(group);
-	}
-	
-	@Override
-	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
-	public FileGroup saveInDiscreteTransaction(FileGroup group, LinkedHashSet<FileHandle> files, Set<? extends FileTypeAttribute> fgAttributes) {
-		if (files != null){
-			for (FileHandle fh : files){
-				fileHandleDao.save(fh);
-				group.addFileHandle(fh);
-			}
+	public FileGroup saveInDiscreteTransaction(FileGroup group, Set<? extends FileTypeAttribute> fgAttributes) {
+		Set<SampleSource> ssSet = new HashSet<>(group.getSampleSources());
+		Set<Sample> sSet = new HashSet<>(group.getSamples());
+		
+		// save the FileHandles
+		for (FileHandle fh : group.getFileHandles())
+			fileHandleDao.save(fh);
+		
+		// save the FileGroup
+		group = fileGroupDao.save(group);
+		
+		// add the filegroup to any SampleSource or Sample objects in the relationship
+		for (SampleSource ss : ssSet){
+			ss.getFileGroups().add(group);
+			sampleService.getSampleSourceDao().save(ss);
 		}
-		FileGroup savedFilegroup = addFileGroup(group);
+		for (Sample s : sSet){
+			s.getFileGroups().add(group);
+			sampleDao.save(s);
+		}
+		
 		if (fgAttributes != null)
-			fileTypeService.setAttributes(savedFilegroup, fgAttributes);
-		return savedFilegroup;
-	}
-	
-	@Override
-	public FileGroup saveInDiscreteTransaction(FileGroup group, LinkedHashSet<FileHandle> files) {
-		return saveInDiscreteTransaction(group, files, (Set<? extends FileTypeAttribute>) null);
-	}
-	
-	@Override
-	public FileGroup saveInDiscreteTransaction(FileGroup group, FileHandle file) {
-		LinkedHashSet<FileHandle> fhs = new LinkedHashSet<>();
-		fhs.add(file);
-		return saveInDiscreteTransaction(group, fhs, (Set<? extends FileTypeAttribute>) null);
-	}
-	
-	@Override
-	public FileGroup saveInDiscreteTransaction(FileGroup group, LinkedHashSet<FileHandle> files, FileTypeAttribute fgAttribute) {
-		Set<FileTypeAttribute> fgAttributes = new HashSet<>();
-		fgAttributes.add(fgAttribute);
-		return saveInDiscreteTransaction(group, files, fgAttributes);
-	}
-	
-	@Override
-	public FileGroup saveInDiscreteTransaction(FileGroup group, FileHandle file, Set<? extends FileTypeAttribute> fgAttributes) {
-		LinkedHashSet<FileHandle> fhs = new LinkedHashSet<>();
-		fhs.add(file);
-		return saveInDiscreteTransaction(group, fhs, fgAttributes);
-	}
-	
-	@Override
-	public FileGroup saveInDiscreteTransaction(FileGroup group, FileHandle file, FileTypeAttribute fgAttribute) {
-		LinkedHashSet<FileHandle> fhs = new LinkedHashSet<>();
-		fhs.add(file);
-		Set<FileTypeAttribute> fgAttributes = new HashSet<>();
-		fgAttributes.add(fgAttribute);
-		return saveInDiscreteTransaction(group, fhs, fgAttributes);
+			fileTypeService.setAttributes(group, fgAttributes);
+		return group;
 	}
 
 	@Override

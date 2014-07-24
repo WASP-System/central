@@ -1,6 +1,5 @@
 package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -145,7 +144,7 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 		vcfG.setSamples(sampleSet);
 		Set<FileTypeAttribute> fta = new HashSet<>(fileTypeService.getAttributes(inputFileGroup));
 		fta.add(VcfFileTypeAttribute.ANNOTATED);
-		vcfG = fileService.saveInDiscreteTransaction(vcfG, vcf, fta);
+		vcfG = fileService.saveInDiscreteTransaction(vcfG, fta);
 		outputFileGroups.add(vcfG);
 		
 		String summaryHtmlFileName = outFileNamePrefix + "snpEff_summary.htm";
@@ -159,7 +158,7 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 		summaryHtmlG.setSoftwareGeneratedById(snpEff.getId());
 		summaryHtmlG.setDerivedFrom(inputFileGroups);
 		summaryHtmlG.setSamples(sampleSet);
-		summaryHtmlG = fileService.saveInDiscreteTransaction(summaryHtmlG, summaryHtml);
+		summaryHtmlG = fileService.saveInDiscreteTransaction(summaryHtmlG, null);
 		outputFileGroups.add(summaryHtmlG);
 		
 		String summaryGeneFileName = outFileNamePrefix + "snpEff_geneSummary.tsv";
@@ -173,7 +172,7 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 		summaryGeneG.setSoftwareGeneratedById(snpEff.getId());
 		summaryGeneG.setDerivedFrom(inputFileGroups);
 		summaryGeneG.setSamples(sampleSet);
-		summaryGeneG = fileService.saveInDiscreteTransaction(summaryGeneG, summaryGene);
+		summaryGeneG = fileService.saveInDiscreteTransaction(summaryGeneG, null);
 		outputFileGroups.add(summaryGeneG);
 		
 		Map<String, String> jobParameters = new HashMap<>();

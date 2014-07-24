@@ -1,9 +1,10 @@
 package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 
-import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.LaunchManyJobsTasklet;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.filetype.FileTypeAttribute;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -77,7 +79,9 @@ public class CallVariantsWithHCManyJobsTasklet extends LaunchManyJobsTasklet {
 			gvcfG.setDescription(gvcfFileName);
 			gvcfG.setSoftwareGeneratedById(gatk.getId());
 			gvcfG.addDerivedFrom(inputFile);
-			gvcfG = fileService.saveInDiscreteTransaction(gvcfG, gvcf, VcfFileTypeAttribute.GVCF);
+			Set<FileTypeAttribute> fta = new HashSet<FileTypeAttribute>();
+			fta.add(VcfFileTypeAttribute.GVCF);
+			gvcfG = fileService.saveInDiscreteTransaction(gvcfG, fta);
 			outputFileGroups.add(gvcfG);
 			fileGroupsForNextStep.add(gvcfG);
 			Map<String, String> jobParameters = new HashMap<>();

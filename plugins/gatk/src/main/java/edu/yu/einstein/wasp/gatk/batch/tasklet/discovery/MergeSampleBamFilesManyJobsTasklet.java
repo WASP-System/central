@@ -1,6 +1,5 @@
 package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -122,7 +121,7 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 				bamG.setDescription(bamOutput);
 				bamG.setSoftwareGeneratedById(gatk.getId());
 				bamG.setDerivedFrom(inputFileGroups);
-				bamG = fileService.saveInDiscreteTransaction(bamG, bam, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
+				bamG = fileService.saveInDiscreteTransaction(bamG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
 				outputFileGroups.add(bamG);
 				mergedSampleFileGroupsForNextStep.put(sample, bamG);
 	
@@ -135,7 +134,7 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 				baiG.setDescription(baiOutput);
 				baiG.setSoftwareGeneratedById(gatk.getId());
 				baiG.addDerivedFrom(bamG);
-				baiG = fileService.saveInDiscreteTransaction(baiG, bai);
+				baiG = fileService.saveInDiscreteTransaction(baiG, null);
 				outputFileGroups.add(baiG);
 				
 				String metricsOutput = fileService.generateUniqueBaseFileName(sample) + "gatk_preproc_merged_dedupMetrics.txt";
@@ -149,7 +148,7 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 				metricsG.setDescription(metricsOutput);
 				metricsG.setSoftwareGeneratedById(gatk.getId());
 				metricsG.addDerivedFrom(bamG);
-				metricsG = fileService.saveInDiscreteTransaction(metricsG, metrics);
+				metricsG = fileService.saveInDiscreteTransaction(metricsG, null);
 				outputFileGroups.add(metricsG);
 				temporaryFileSet.addAll(outputFileGroups);
 				//jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
