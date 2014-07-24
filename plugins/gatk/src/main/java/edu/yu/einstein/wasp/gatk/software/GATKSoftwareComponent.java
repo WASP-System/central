@@ -141,7 +141,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	public String getCallVariantsByHaplotypeCaller(Set<String> inputFileNames, String outputGvcfFile, String referenceGenomeFile, 
 			String intervalFile, String additionalOptions, int memRequiredGb){
 		String command = "java -Xmx" + memRequiredGb + "g" +
-		" -Djava.io.tmpdir=${" + WorkUnit.TMP_DIR_PLACEHOLDER + "} -jar $GATK_ROOT/GenomeAnalysisTK.jar -nct ${" + WorkUnit.NUMBER_OF_THREADS + "}";
+		" -Djava.io.tmpdir=${" + WorkUnit.TMP_DIRECTORY + "} -jar $GATK_ROOT/GenomeAnalysisTK.jar -nct ${" + WorkUnit.NUMBER_OF_THREADS + "}";
 		for (String fileName : inputFileNames)
 			command += " -I " + fileName;
 		command += " -R " + referenceGenomeFile + " -T HaplotypeCaller -o " + outputGvcfFile + 
@@ -156,7 +156,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	public String getCallVariantsByUnifiedGenotyper(Set<String> inputFileNames, String outputFileName, String referenceGenomeFile, 
 			String intervalFile, String additionalOptions, int memRequiredGb)  {
 		String command = "java -Xmx" + memRequiredGb + "g" +
-		" -Djava.io.tmpdir=${" + WorkUnit.TMP_DIR_PLACEHOLDER + "} -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt ${" + WorkUnit.NUMBER_OF_THREADS + "}";
+		" -Djava.io.tmpdir=${" + WorkUnit.TMP_DIRECTORY + "} -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt ${" + WorkUnit.NUMBER_OF_THREADS + "}";
 		for (String fileName : inputFileNames)
 			command += " -I " + fileName;
 		command += " -R " + referenceGenomeFile + " -T UnifiedGenotyper -o " + outputFileName + 
