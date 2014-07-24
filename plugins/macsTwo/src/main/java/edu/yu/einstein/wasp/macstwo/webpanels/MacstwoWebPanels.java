@@ -401,7 +401,7 @@ public class MacstwoWebPanels {
 		
 		if(fileHandle.getFileName().endsWith(".bed") || fileHandle.getFileName().endsWith(".bdg") || fileHandle.getFileName().endsWith("Peak")){
 			
-			//Ensembl GB formats: http://useast.ensembl.org/info/docs/webcode/linking.html#attachurl
+			//Ensembl GB formats: http://useast.ensembl.org/info/docs/webcode/linking.html#attachurl   AND http://useast.ensembl.org/info/website/upload/index.html#addtrack
 			//http://www.ensembl.org/Homo_sapiens/Location/View?g=ENSG00000130544;contigviewbottom=url:http://www.ensembl.org/info/website/upload/sample_files/example.bed=half_height
 			//Note on bedGraph format If attaching a bedGraph file, please add the parameter 'format=bedGraph' to the URL, e.g.
 			//http://www.ensembl.org/Homo_sapiens/Location/View?g=ENSG00000012048;contigviewbottom=url:http://www.abcd.edu/myprojects/data.bed=tiling;format=bedGraph 
@@ -436,6 +436,10 @@ public class MacstwoWebPanels {
 				row.add("false");//true means hide
 				row.add("UCSC Genome Browser");
 			}
+			//for testing
+			logger.debug("http://useast.ensembl.org/"+ organismNameWithoutSpaces +"/Location/View?r=1:1-620000;contigviewbottom=url:" + resolvedUrl + "=tiling;format=bedGraph");
+			logger.debug("http://useast.ensembl.org/"+ organismNameWithoutSpaces +"/Location/View?r=1:1-620000;contigviewbottom=url:" + resolvedUrl);
+			logger.debug("http://genome.ucsc.edu/cgi-bin/hgTracks?db="+ genomeName +"&hgt.customText=" + resolvedUrl);
 		}
 		
 		return row;
