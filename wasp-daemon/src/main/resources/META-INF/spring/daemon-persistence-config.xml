@@ -17,6 +17,7 @@
 		<property name="initialPoolSize"><value>${batchdb.jdbc.initialPoolSize}</value></property>
 		<property name="maxPoolSize"><value>${batchdb.jdbc.maxPoolSize}</value></property>
 		<property name="maxIdleTime"><value>${batchdb.jdbc.maxIdleTime}</value></property>
+		<property name="maxIdleTimeExcessConnections"><value>${batchdb.jdbc.maxIdleTimeExcessConnections}</value></property>
 		<property name="minPoolSize"><value>${batchdb.jdbc.minPoolSize}</value></property>
 		<property name="testConnectionOnCheckin"><value>${batchdb.jdbc.testConnectionOnCheckin}</value></property>
 		<property name="preferredTestQuery"><value>${batchdb.jdbc.preferredTestQuery}</value></property>
@@ -27,6 +28,8 @@
 		<property name="unreturnedConnectionTimeout"><value>${batchdb.jdbc.unreturnedConnectionTimeout}</value></property>
 		<property name="debugUnreturnedConnectionStackTraces"><value>${batchdb.jdbc.debugUnreturnedConnectionStackTraces}</value></property>
 		<property name="autoCommitOnClose"><value>${batchdb.jdbc.autoCommitOnClose}</value></property>
+		<property name="acquireRetryAttempts"><value>${batchdb.jdbc.acquireRetryAttempts}</value></property>
+		<property name="acquireRetryDelay"><value>${batchdb.jdbc.acquireRetryDelay}</value></property>
 	</bean>
 
 	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
@@ -38,6 +41,7 @@
 		<property name="initialPoolSize"><value>${db.jdbc.initialPoolSize}</value></property>
 		<property name="maxPoolSize"><value>${db.jdbc.maxPoolSize}</value></property>
 		<property name="maxIdleTime"><value>${db.jdbc.maxIdleTime}</value></property>
+		<property name="maxIdleTimeExcessConnections"><value>${db.jdbc.maxIdleTimeExcessConnections}</value></property>
 		<property name="minPoolSize"><value>${db.jdbc.minPoolSize}</value></property>
 		<property name="testConnectionOnCheckin"><value>${db.jdbc.testConnectionOnCheckin}</value></property>
 		<property name="preferredTestQuery"><value>${db.jdbc.preferredTestQuery}</value></property>

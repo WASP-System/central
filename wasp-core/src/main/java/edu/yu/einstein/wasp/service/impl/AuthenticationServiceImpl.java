@@ -218,7 +218,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	        Authentication result = authenticationManager.authenticate(authRequest);
 	        SecurityContextHolder.getContext().setAuthentication(result);
 	    } catch(AuthenticationException e) {
-	    	logger.warn("failed to authenticate:" + e.getCause());
+	    	logger.warn("failed to authenticate:" + e);
 	        return false;
 	    }
 		return true;
@@ -230,7 +230,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	        Authentication authRequest = new UsernamePasswordAuthenticationToken(name, password);
 	        authenticationManager.authenticate(authRequest);
 	    } catch(AuthenticationException e) {
-	    	logger.warn("failed to authenticate:" + e.getCause());
+	    	logger.warn("failed to authenticate:" + e);
 	        return false;
 	    }
 		return true;

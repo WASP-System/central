@@ -14,6 +14,7 @@ package edu.yu.einstein.wasp.service;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -35,6 +36,7 @@ import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.filetype.FileTypeAttribute;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
+import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.interfacing.Hyperlink;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
@@ -238,6 +240,8 @@ public interface FileService extends WaspService {
 	 */
 	public void register(Collection<FileHandle> fileHandles) throws FileNotFoundException, GridException;
 	
+	public GridResult register(Collection<FileHandle> fileHandles, GridResult result) throws FileNotFoundException, GridException;
+	
 	public FileHandle getFileHandle(UUID uuid) throws FileNotFoundException;
 
 	public void removeUploadedFileFromJobDraft(Integer jobDraftId, Integer fileGroupId, Integer fileHandleId) throws FileNotFoundException;
@@ -393,6 +397,10 @@ public interface FileService extends WaspService {
 	public FileGroup saveInDiscreteTransaction(FileGroup group, FileHandle file);
 
 	public FileGroup saveInDiscreteTransaction(FileGroup group, LinkedHashSet<FileHandle> files);
+
+	public InputStream getInputStreamFromFileHandle(FileHandle fileHandle);
+
+	public String getURLStringFromFileHandle(FileHandle fileHandle);
 
 }
 

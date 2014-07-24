@@ -74,7 +74,6 @@ import edu.yu.einstein.wasp.dao.SampleJobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
-import edu.yu.einstein.wasp.dao.SoftwareDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.dao.WorkflowResourceTypeDao;
 import edu.yu.einstein.wasp.dao.WorkflowSoftwareDao;
@@ -109,8 +108,6 @@ import edu.yu.einstein.wasp.model.WorkflowMeta;
 import edu.yu.einstein.wasp.model.WorkflowResourceType;
 import edu.yu.einstein.wasp.model.WorkflowSoftware;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
-import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
-import edu.yu.einstein.wasp.model.WorkflowsoftwareMeta;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
@@ -121,6 +118,7 @@ import edu.yu.einstein.wasp.service.JobDraftService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.SoftwareService;
 import edu.yu.einstein.wasp.service.StrategyService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -188,7 +186,7 @@ public class JobSubmissionController extends WaspController {
 	protected ResourceCategoryDao resourceCategoryDao;
 
 	@Autowired
-	protected SoftwareDao softwareDao;
+	protected SoftwareService softwareService;
 
 	@Autowired
 	protected ResourceTypeDao resourceTypeDao;
@@ -903,28 +901,13 @@ public class JobSubmissionController extends WaspController {
 		Map<String, List<MetaAttribute.Control.Option>> resourceOptions = new HashMap<String, List<MetaAttribute.Control.Option>>();
 
 		if (jobDraftResourceCategory != null) {
-			Workflowresourcecategory workflowresourcecategory = workflowresourcecategoryDao.getWorkflowresourcecategoryByWorkflowIdResourcecategoryId(jobDraft.getWorkflow().getId(), jobDraftResourceCategory.getResourcecategoryId());
-			for (WorkflowresourcecategoryMeta wrm: workflowresourcecategory.getWorkflowresourcecategoryMeta()) {
-				String key = wrm.getK(); 
-	
-	//			if (! key.matches("^.*allowableUiField\\.")) { continue; }
-				key = key.replaceAll("^.*allowableUiField\\.", "");
-				List<MetaAttribute.Control.Option> options=new ArrayList<MetaAttribute.Control.Option>();
-				for(String el: org.springframework.util.StringUtils.tokenizeToStringArray(wrm.getV(),";")) {
-					String [] pair=StringUtils.split(el,":");
-					MetaAttribute.Control.Option option = new MetaAttribute.Control.Option();
-					option.setValue(pair[0]);
-					option.setLabel(pair[1]);
-					options.add(option);
-				}
-				if (options.isEmpty()){
-					waspErrorMessage("jobDraft.resourceCategories_not_configured.error");
-					return "redirect:/dashboard.do";
-				}
-				resourceOptions.put(key, options);
+			try{
+				resourceOptions.putAll(workflowService.getConfiguredOptions(jobDraft.getWorkflow(), jobDraftResourceCategory.getResourceCategory()));
+			} catch (MetadataException e){
+				waspErrorMessage("jobDraft.resourceCategories_not_configured.error");
+				return "redirect:/dashboard.do";
 			}
 		}
-
 
 		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
 		metaHelperWebapp.setArea(resourceCategoryArea);
@@ -1066,25 +1049,11 @@ public class JobSubmissionController extends WaspController {
 		Map<String, List<MetaAttribute.Control.Option>> resourceOptions = new HashMap<String, List<MetaAttribute.Control.Option>>();
 
 		if (jobDraftSoftware != null) {
-			WorkflowSoftware workflowSoftware = workflowSoftwareDao.getWorkflowSoftwareByWorkflowIdSoftwareId(jobDraft.getWorkflow().getId(), jobDraftSoftware.getSoftwareId());
-			for (WorkflowsoftwareMeta wrm: workflowSoftware.getWorkflowsoftwareMeta()) {
-				String key = wrm.getK(); 
-	
-	//			if (! key.matches("^.*allowableUiField\\.")) { continue; }
-				key = key.replaceAll("^.*allowableUiField\\.", "");
-				List<MetaAttribute.Control.Option> options=new ArrayList<MetaAttribute.Control.Option>();
-				for(String el: org.springframework.util.StringUtils.tokenizeToStringArray(wrm.getV(),";")) {
-					String [] pair=StringUtils.split(el,":");
-					MetaAttribute.Control.Option option = new MetaAttribute.Control.Option();
-					option.setValue(pair[0]);
-					option.setLabel(pair[1]);
-					options.add(option);
-				}
-				if (options.isEmpty()){
-					waspErrorMessage("jobDraft.software_not_configured.error");
-					return "redirect:/dashboard.do";
-				}
-				resourceOptions.put(key, options);
+			try{
+				resourceOptions = workflowService.getConfiguredOptions(jobDraft.getWorkflow(), jobDraftSoftware.getSoftware());
+			} catch (MetadataException e){
+				waspErrorMessage("jobDraft.software_not_configured.error");
+				return "redirect:/dashboard.do";
 			}
 		}
 
@@ -1474,7 +1443,15 @@ public class JobSubmissionController extends WaspController {
 		for (SampleDraftMeta sdm : sampleDraftMetaDao.findByMap(query)){
 			sampleDraftMetaDao.remove(sdm);
 		}
-		sampleDraftDao.remove(sampleDraft);
+
+		//6-23-14: added by dubin
+		//new feature: remove sampleDraft from jobDraft's metadata related to sample pairs (currently chipseq and helptag) and replicates (currently chipseq)
+		jobDraftService.removeSampleDraftFromReplicates(jobDraft, sampleDraft);
+		jobDraftService.removeSampleDraftFromSamplePairsByJobDraft(jobDraft, sampleDraft);//removes from all samplePairs in this jobDraft
+		
+		
+		sampleDraftDao.remove(sampleDraft);		
+		
 		waspMessage("sampleDetail.updated_success.label");
 		return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
 	}
@@ -2393,7 +2370,8 @@ public class JobSubmissionController extends WaspController {
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 
-		String trimmedComment = comment==null?"":StringEscapeUtils.escapeXml(comment.trim());//any standard html/xml [Supports only the five basic XML entities (gt, lt, quot, amp, apos)] will be converted to characters like &gt; //http://commons.apache.org/lang/api-3.1/org/apache/commons/lang3/StringEscapeUtils.html#escapeXml%28java.lang.String%29
+		//String trimmedComment = comment==null?"":StringEscapeUtils.escapeXml(comment.trim());//any standard html/xml [Supports only the five basic XML entities (gt, lt, quot, amp, apos)] will be converted to characters like &gt; //http://commons.apache.org/lang/api-3.1/org/apache/commons/lang3/StringEscapeUtils.html#escapeXml%28java.lang.String%29
+		String trimmedComment = comment==null?"":comment.trim();//7-7-14
 		
 		try{
 			jobDraftService.saveUserJobDraftComment(jobDraftId, trimmedComment);
@@ -2617,12 +2595,20 @@ public class JobSubmissionController extends WaspController {
 
 
 			String expandPage = page.replaceAll("\\{n\\}", ""+jobDraft.getId());
+			expandPage = expandPage.replace("^/", "");//added 6-11-14; dubin to repair the breadcrumbs anchor on jobsubmission pages (see additional change a few lines below)
+			//System.out.println("page: " + page);
+			//System.out.println("mapPage: " + mapPage);
+			//System.out.println("expandPage: " + expandPage);
+			//System.out.println("currentMapping: " + currentMapping);
+			
 			if (currentMapping.equals(expandPage)) {
 				request.setAttribute("forcePageTitle", getPageTitle(mapPage, jobDraft.getWorkflow().getIName()));
 				break;
 
 			}
 
+			expandPage = expandPage.replaceAll("^/", "");//added 6-11-14; dubin yep, do this yet again, to repair the breadcrumbs anchor on jobsubmission pages
+			//System.out.println("expandPage again: " + expandPage);
 			String[] r = {expandPage, getPageTitle(mapPage, jobDraft.getWorkflow().getIName())};
 			rt.add(r);
 	

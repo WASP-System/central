@@ -103,8 +103,7 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		WorkUnit w = new WorkUnit();
 		w.setMode(ExecutionMode.PROCESS);
 		w.setProcessMode(ProcessMode.MAX);
-		w.setMemoryRequirements(AbstractGatkTasklet.MEMORY_GB_8);
-		w.setProcessorRequirements(AbstractGatkTasklet.THREADS_8);
+		w.setMemoryRequirements(AbstractGatkTasklet.MEMORY_GB_16);
 		w.setSecureResults(true);
 		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
@@ -124,7 +123,7 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 			inputFileNames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");
 		String rawVcfFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
 		String referenceGenomeFile = genomeService.getReferenceGenomeFastaFile(build);
-		w.setCommand(gatk.genotypeGVCFs(inputFileNames, rawVcfFilename, referenceGenomeFile, AbstractGatkTasklet.MEMORY_GB_8, AbstractGatkTasklet.THREADS_8));
+		w.setCommand(gatk.genotypeGVCFs(inputFileNames, rawVcfFilename, referenceGenomeFile, AbstractGatkTasklet.MEMORY_GB_16));
 	
 		GridResult result = gridHostResolver.execute(w);
 		

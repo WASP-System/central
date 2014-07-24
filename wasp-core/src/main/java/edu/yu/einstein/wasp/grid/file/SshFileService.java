@@ -90,7 +90,7 @@ public class SshFileService implements GridFileService {
 				// FileSystemException, GridUnresolvableHostException
 				logger.debug("caught exception in retry block: " + e.toString());
 				if (attempt <= attempts) {
-					logger.debug("failed, retrying: " + e.getCause().toString());
+					logger.debug("failed, retrying: " + e.toString());
 					try {
 						Thread.sleep(delayMillis);
 					} catch (InterruptedException e1) {
@@ -207,7 +207,7 @@ public class SshFileService implements GridFileService {
 						logger.info("interrupted: " + e.toString());
 						Thread.currentThread().interrupt();
 					}
-					logger.debug("failed, retrying: " + e.getCause().toString());
+					logger.debug("failed, retrying: " + e.toString());
 					// ignore exception, try again
 					continue;
 				}
@@ -258,7 +258,7 @@ public class SshFileService implements GridFileService {
 						logger.info("interrupted: " + e.toString());
 						Thread.currentThread().interrupt();
 					}
-					logger.debug("failed, retrying: " + e.getCause().toString());
+					logger.debug("failed, retrying: " + e.toString());
 					// ignore exception, try again
 					continue;
 				}
@@ -331,7 +331,7 @@ public class SshFileService implements GridFileService {
 				// FileSystemException, GridUnresolvableHostException
 				logger.debug("caught exception in retry block: " + e.toString());
 				if (attempt <= attempts) {
-					logger.debug("failed, retrying: " + e.getCause().toString());
+					logger.debug("failed, retrying: " + e.toString());
 					try {
 						Thread.sleep(delayMillis);
 					} catch (InterruptedException e1) {
@@ -399,7 +399,7 @@ public class SshFileService implements GridFileService {
 				// FileSystemException, GridUnresolvableHostException
 				logger.debug("caught exception in retry block: " + e.toString());
 				if (attempt <= attempts) {
-					logger.debug("failed, retrying: " + e.getCause().toString());
+					logger.debug("failed, retrying: " + e.toString());
 					try {
 						Thread.sleep(delayMillis);
 					} catch (InterruptedException e1) {
@@ -456,7 +456,7 @@ public class SshFileService implements GridFileService {
 				// FileSystemException, GridUnresolvableHostException
 				logger.debug("caught exception in retry block: " + e.toString());
 				if (attempt <= attempts) {
-					logger.debug("failed, retrying: " + e.getCause().toString());
+					logger.debug("failed, retrying: " + e.toString());
 					try {
 						Thread.sleep(delayMillis);
 					} catch (InterruptedException e1) {
@@ -503,7 +503,7 @@ public class SshFileService implements GridFileService {
 				// FileSystemException, GridUnresolvableHostException
 				logger.debug("caught exception in retry block: " + e.toString());
 				if (attempt <= retries) {
-					logger.debug("failed, retrying: " + e.getCause().toString());
+					logger.debug("failed, retrying: " + e.toString());
 					// ignore exception, try again
 					continue;
 				}

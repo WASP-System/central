@@ -3,6 +3,7 @@
  */
 package edu.yu.einstein.wasp.plugin.babraham.batch.tasklet;
 
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +80,8 @@ public class TrimGaloreTrimmingTasklet extends WaspRemotingTasklet {
 
         GridResult result = hostResolver.execute(w);
 
+        logger.debug("submitted trim step, going for hibernation");
+        
         storeStartedResult(context, result);
     }
 
@@ -86,6 +89,12 @@ public class TrimGaloreTrimmingTasklet extends WaspRemotingTasklet {
     public void beforeStep(StepExecution stepExecution) {
         logger.trace("before TrimGaloreTrimmingTasklet");
         super.beforeStep(stepExecution);
+    }
+    
+    @Override
+    public ExitStatus afterStep(StepExecution stepExecution) {
+    	logger.trace("after TrimGaloreTrimmingTasklet");
+    	return super.afterStep(stepExecution);
     }
     
 

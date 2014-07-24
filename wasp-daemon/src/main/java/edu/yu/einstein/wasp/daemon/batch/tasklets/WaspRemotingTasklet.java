@@ -1,5 +1,8 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
@@ -67,8 +70,10 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 		// isStarted=F and isHibernationRequested=F == first run
 		// isStarted=T and isHibernationResuested=T == job started on grid service
 		// isStarted=F and isHibernationRequested=T == not going to request grid work
+		boolean jobHasUpdatedChild = false;
 		if (isGridWorkUnitStarted(context)){
 			GridResult result = getStartedResult(context);
+			Map<String, GridResult> currentChildJobResults = new HashMap<String, GridResult>(result.getChildResults());
 			GridWorkService gws = hostResolver.getGridWorkService(result);
 			try {
 				if (gws.isFinished(result)){
@@ -76,6 +81,10 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 					logger.debug("Workunit is finished. Step complete.");
 					return RepeatStatus.FINISHED;
 				}
+				jobHasUpdatedChild = !currentChildJobResults.equals(result.getChildResults());
+				if (jobHasUpdatedChild)
+					logger.debug("Job result has updated a child job so going to reset timeoutInterval to minimum");
+				storeStartedResult(context, result); // result may have been modified whilst checking in isFinished
 			} catch (GridException e) {
 				logger.debug(result.toString() + " threw exception: " + e.getLocalizedMessage() + " removing and rethrowing");
 				removeStartedResult(context);
@@ -91,7 +100,12 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 			return RepeatStatus.FINISHED;
 		}
 		if (!wasHibernationRequested){
-			Long timeoutInterval = exponentiallyIncreaseTimeoutIntervalInContext(context);
+			Long timeoutInterval;
+			if (jobHasUpdatedChild){
+				timeoutInterval = getRandomInitialExponentialInterval();
+				setTimeoutIntervalInContext(context, timeoutInterval);
+			} else 
+				timeoutInterval = exponentiallyIncreaseTimeoutIntervalInContext(context);
 			logger.debug("Going to request hibernation for " + timeoutInterval + " ms");
 			addStatusMessagesToAbandonStepToContext(context, abandonTemplates);
 		} else {

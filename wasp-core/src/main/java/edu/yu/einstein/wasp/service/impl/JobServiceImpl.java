@@ -68,6 +68,7 @@ import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleJobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
+import edu.yu.einstein.wasp.dao.SampleSourceMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.SoftwareDao;
@@ -91,6 +92,8 @@ import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate;
 import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
+import edu.yu.einstein.wasp.interfacing.plugin.ConfigureablePropertyProviding;
+import edu.yu.einstein.wasp.interfacing.plugin.ResourceConfigurableProperties;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -124,9 +127,9 @@ import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.quote.MPSQuote;
-import edu.yu.einstein.wasp.sequence.SequenceReadProperties;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.service.JobDraftService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
@@ -318,6 +321,9 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 
 	@Autowired
 	protected SampleDao sampleDao;
+	
+	@Autowired
+	protected SampleSourceMetaDao sampleSourceMetaDao;
 
 	@Autowired
 	protected JobSampleDao jobSampleDao;
@@ -369,8 +375,19 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		
 	@Autowired
 	protected WorkflowService workflowService;
-	
-	 /**
+
+	@Autowired
+	protected JobDraftService jobDraftService;
+
+	 public JobDraftService getJobDraftService() {
+		return jobDraftService;
+	}
+
+	public void setJobDraftService(JobDraftService jobDraftService) {
+		this.jobDraftService = jobDraftService;
+	}
+
+	/**
 	   * {@inheritDoc}
 	   */
 	@Override
@@ -583,8 +600,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	   * {@inheritDoc}
 	   */
 	@Override
-	public boolean isJobsAwaitingReceivingOfSamples(){
-		for (Job job: getActiveJobs())
+	public boolean isJobsAwaitingReceivingOfSamples(List<Job> activeJobs){
+		for (Job job: activeJobs)
 			if (isJobAwaitingReceivingOfSamples(job)) // some samples not yet received
 				return true;
 		return false;
@@ -624,8 +641,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean isJobsAwaitingCellLibraryQC(){
-		for (Job job : getActiveJobs()){
+	public boolean isJobsAwaitingCellLibraryQC(List<Job> jobs){
+		for (Job job : jobs){
 			if (isJobAwaitingCellLibraryQC(job))
 				return true;
 		}
@@ -697,8 +714,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	   * {@inheritDoc}
 	   */
 	@Override
-	public boolean isJobsAwaitingSampleQC(){
-		for (Job job: getActiveJobs())
+	public boolean isJobsAwaitingSampleQC(List<Job> jobs){
+		for (Job job: jobs)
 			if (this.isJobAwaitingSampleQC(job)) // some samples not yet received
 				return true;
 		return false;
@@ -727,8 +744,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	   * {@inheritDoc}
 	   */
 	@Override
-	public boolean isJobsAwaitingLibraryQC(){
-		for (Job job: getActiveJobs())
+	public boolean isJobsAwaitingLibraryQC(List<Job> jobs){
+		for (Job job: jobs)
 			if (this.isJobAwaitingLibraryQC(job)) // some libraries not yet received
 				return true;
 		return false;
@@ -858,8 +875,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		 * {@inheritDoc}
 		 */
 		@Override
-		public boolean isJobsAwaitingQuote(){
-			for (Job job : getActiveJobs())
+		public boolean isJobsAwaitingQuote(List<Job> activeJobs){
+			for (Job job : activeJobs)
 				if (isJobAwaitingQuote(job))
 					return true;
 			return false;
@@ -889,19 +906,18 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 				extraJobDetailsMap.put("jobdetail_for_import.Run_Type.label", jobMeta.getV());
 			}
 		  }
-		  String readLength = "?";
-		  String readType = "?";
+		  
 		  try {
-			  SequenceReadProperties readProperties = SequenceReadProperties.getSequenceReadProperties(job, area, JobMeta.class);
-			  if (readProperties != null){
-				  readLength = readProperties.getReadLength().toString();
-				  readType = readProperties.getReadType().toUpperCase();
-			  }
-		  } catch (MetadataException e) {
-			  logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
+			  String resourceIName = job.getJobResourcecategory().get(0).getResourceCategory().getIName();
+			  logger.debug("Getting configured properties for plugin with iname=" + resourceIName);
+			  ConfigureablePropertyProviding plugin = (ConfigureablePropertyProviding) waspPluginRegistry.getPluginsHandlingArea(resourceIName, ConfigureablePropertyProviding.class).get(0);
+			  ResourceConfigurableProperties rcp = plugin.getConfiguredProperties(job, area, JobMeta.class);
+			  for (String key : rcp.keySet())
+				  extraJobDetailsMap.put(rcp.getI18nMessageKey(key), rcp.get(key).toString());
+		  } catch (Exception e) {
+			  logger.warn("Cannot get resource-configured properties: " + e.getLocalizedMessage());
+			  e.printStackTrace();
 		  }
-		  extraJobDetailsMap.put("jobdetail_for_import.Read_Length.label", readLength);
-		  extraJobDetailsMap.put("jobdetail_for_import.Read_Type.label", readType);
 		 
 		  /* replaced with code below
 		  try{
@@ -1017,6 +1033,9 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 					sampleDraftPairs = jdm.getV();
 					continue; 
 				}
+				if(jdm.getK().indexOf(REPLICATE_SETS_META_KEY)>-1){//we need to deal with this piece of meta separately
+					continue; 
+				}
 				JobMeta jobMeta = new JobMeta();
 				jobMeta.setJobId(jobDb.getId());
 				jobMeta.setK(jdm.getK());
@@ -1081,6 +1100,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			// Create Samples
 			List<Sample> samples = new ArrayList<Sample>();
 			Map<Integer, Integer> sampleDraftIDKeyToSampleIDValueMap = new HashMap<Integer, Integer>();
+			Map<SampleDraft, Sample> sampleDraftKeyToSampleValueMap = new HashMap<SampleDraft, Sample>();
 			for (SampleDraft sd: jobDraft.getSampleDraft()) {
 				Sample sample = new Sample();
 				sample.setName(sd.getName()); 
@@ -1095,7 +1115,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				Sample sampleDb = sampleDao.save(sample); 
 				samples.add(sampleDb);
 				sampleDraftIDKeyToSampleIDValueMap.put(sd.getId(), sampleDb.getId());
-		
+				sampleDraftKeyToSampleValueMap.put(sd, sampleDb);
 				
 		
 				// Sample Draft Meta Data
@@ -1142,6 +1162,33 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				}
 			}
 
+			//6-10-14 translate replicateSets from sampleDrafts to samples and store string in jobMeta
+			List<List<SampleDraft>> replicateSetsListForJobDraft = jobDraftService.getReplicateSets(jobDraft);
+			StringBuffer replicatesAsStringBuffer = new StringBuffer("");
+			for(List<SampleDraft> sampleDraftReplicateSet : replicateSetsListForJobDraft){
+				int counter = 0;
+				for(SampleDraft sd : sampleDraftReplicateSet){
+					if(counter++ > 0){
+						replicatesAsStringBuffer.append(":");
+					}
+					//replicatesAsStringBuffer.append(sd.getId().toString());
+					Integer sampleId = sampleDraftIDKeyToSampleIDValueMap.get(sd.getId());
+					replicatesAsStringBuffer.append(sampleId.toString());
+				}
+				if(counter>0){
+					replicatesAsStringBuffer.append(";");
+				}
+			}
+			
+			String replicatesString = new String(replicatesAsStringBuffer);
+			if(!replicatesString.isEmpty()){
+				JobMeta jobMeta = new JobMeta();
+				jobMeta.setJobId(jobDb.getId());
+				String replicatesKey = jobDb.getWorkflow().getIName()+"."+REPLICATE_SETS_META_KEY;
+				jobMeta.setK(replicatesKey);
+				jobMeta.setV(replicatesString);			
+				jobMetaDao.save(jobMeta);
+			}
 			
 			// jobDraftFile -> jobFile
 			if (jobDraft.getJobDraftFile() != null) {
@@ -1787,7 +1834,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 
 
 			// add file type nodes to library
-			//dubin 3-21-14 WE DO NOT WANT THIS! (confirmed with AJ)     children.addAll(getFileNodesByLibrary(library, null));
+			children.addAll(getFileNodesByLibrary(library, null));
 
 			curNode.put("children", children);
 		} else if (type.equalsIgnoreCase("cell")) {
@@ -2468,5 +2515,47 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		Map<String, Integer> m = new HashMap<String, Integer>();
 		m.put("jobId", jobId);
 		return jobMetaDao.findByMap(m);
+	}
+	
+	/*
+	 * 
+	 * 
+	 */
+	@Override
+	public List<List<Sample>> getSampleReplicates(Job job){
+		List<Sample> sampleList = job.getSample();
+		Map<Integer, Sample> idSampleMap = new HashMap<Integer, Sample>();
+		for(Sample s : sampleList){
+			idSampleMap.put(s.getId(), s);//will use this below rather than going to db each time for each Sample via its id
+		}
+		
+		List<List<Sample>> replicatesListOfLists = new ArrayList<List<Sample>>();
+		String replicatesKey = job.getWorkflow().getIName()+"."+JobService.REPLICATE_SETS_META_KEY;
+		JobMeta replicatesMetaData = jobMetaDao.getJobMetaByKJobId(replicatesKey, job.getId().intValue());
+		
+		if(replicatesMetaData!=null && replicatesMetaData.getId()!=null && replicatesMetaData.getId()>0){
+			for(String setOfSampleIdsAsString: replicatesMetaData.getV().split(";")){
+				String[] sampleIdAsStringArray = setOfSampleIdsAsString.split(":");
+				Set<Sample> sampleSet = new LinkedHashSet<Sample>();			
+				for(String sampleIdAsString : sampleIdAsStringArray){
+					Integer id = Integer.parseInt(sampleIdAsString);
+					if(idSampleMap.containsKey(id)){
+						sampleSet.add(idSampleMap.get(id));
+					}				
+				}
+				if(!sampleSet.isEmpty()){
+					List<Sample> tempList = new ArrayList<Sample>(sampleSet);
+					class SampleNameComparator implements Comparator<Sample> {
+						@Override
+						public int compare(Sample arg0, Sample arg1) {
+							return arg0.getName().compareToIgnoreCase(arg1.getName());
+						}
+					}
+					Collections.sort(tempList, new SampleNameComparator());//sort by Sample name 
+					replicatesListOfLists.add(tempList);
+				}
+			}
+		}
+		return replicatesListOfLists;
 	}
 }

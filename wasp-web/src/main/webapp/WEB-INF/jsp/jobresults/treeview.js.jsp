@@ -6,12 +6,31 @@
 <script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/ext-all-dev.js"></script>
 <script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/packages/ext-theme-neptune/build/ext-theme-neptune.js"></script>
 <script type="text/javascript"	src="<wasp:relativeUrl value='scripts/extjs/wasp/WaspNamespaceDefinition.js.jsp' />"></script>
+<script type="text/javascript"	src="<wasp:relativeUrl value='scripts/extjs/wasp/pdf.js/web/compatibility.js' />"></script>
+<script type="text/javascript"	src="<wasp:relativeUrl value='scripts/extjs/wasp/pdf.js/build/pdf.js' />"></script>
+
 <link rel="stylesheet" type="text/css" href="<wasp:relativeUrl value='css/ext-theme-neptune-all-wasp.css' />" />
 <link rel="stylesheet" type="text/css" href="<wasp:relativeUrl value='css/portal.css' />" />
 <link rel="stylesheet" type="text/css" href="<wasp:relativeUrl value='css/RowActions.css' />" />
+<link rel="stylesheet" type="text/css" href="<wasp:relativeUrl value='css/TextLayerBuilder.css' />" />
 
 
 <script type="text/javascript">
+
+String.prototype.isEmpty = function() {
+    return (this.length === 0 || !this.trim());
+};
+
+String.prototype.hashCode = function() {
+  var hash = 0, i, chr, len;
+  if (this.length == 0) return hash;
+  for (i = 0, len = this.length; i < len; i++) {
+    chr   = this.charCodeAt(i);
+    hash  = ((hash << 5) - hash) + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+};
 
 String.prototype.width = function (font) {
 	var f = font || '13px sans-serif',
@@ -85,7 +104,8 @@ Ext.require([
 	'Ext.fx.target.Element',
 	'Ext.fx.target.Component',
 	'Ext.window.Window',
-	'Wasp.Portal'
+	'Wasp.Portal',
+	'Wasp.PDFPortlet'
 ]);
 
 Ext.override(Ext.grid.View, { enableTextSelection: true });
@@ -417,6 +437,53 @@ var tabs, tabCounter = 0;
 var jscssfilesadded = ""; //list of external script/css files already added
 var numcol = 2;
 
+function createGridPanel(panel) {
+	var gridPanel = Ext.create('Wasp.GridPortlet', {
+		fields: panel.content.dataFields,
+		data: panel.content.data,
+		columns: panel.content.columns,
+
+		grouping: panel.grouping,
+		groupfield: panel.groupField,
+		
+		dlcol: panel.hasDownload,
+		dllinkfld: panel.downloadLinkField,
+		dlcoltip: panel.downloadTooltip,
+		hidedl: panel.hideDownloadField,
+		
+		dlselect: panel.allowSelectDownload,
+		dlbtntxt: panel.selectDownloadText,
+		dlbtnalign: panel.selectDownloadAlign,
+		
+		grpdl: panel.allowGroupDownload,
+		grpdltip: panel.groupDownloadTooltip,
+		grpdlalign: panel.groupDownloadAlign,
+		
+		statusfld: panel.statusField,
+
+		gbcol: panel.hasGbLink,
+		gblink: panel.gbLinkField,
+		gbtype: panel.gbTypeField,
+		gbttp: panel.gbTtpField,
+		hidegb: panel.hideGbField
+	});
+
+	return gridPanel;
+}
+
+function createPDFPanel(url, scale, renderDiv) {
+	var pdfPanel = Ext.create('Wasp.PDFPortlet', {
+//        title    : 'PDF Panel',
+        width    : '100%',
+        height   : '100%',
+        pageScale: scale, // 0.75,	// Initial scaling of the PDF. 1 = 100%
+        src      : url,		// URL to the PDF - Same Domain or Server with CORS Support
+        renderTo : Ext.getCmp(renderDiv)
+    });
+    
+    return pdfPanel;
+}
+
 function click(d) {
 	if (d.jid == undefined) {
 		d.jid = -1;
@@ -466,32 +533,6 @@ function click(d) {
 //					fgListStr: result.fgliststr
 //				});
 				var fp = result.filepanel;
-				var filePanel = Ext.create('Wasp.GridPortlet', {
-								fields: fp.content.dataFields,
-								data: fp.content.data,
-								columns: fp.content.columns,
-								
-								grouping: fp.grouping,
-								groupfield: fp.groupField,
-								
-								dlcol: fp.hasDownload,
-								dllinkfld: fp.downloadLinkField,
-								dlcoltip: fp.downloadTooltip,
-								
-								dlselect: fp.allowSelectDownload,
-								dlbtntxt: fp.selectDownloadText,
-								dlbtnalign: fp.selectDownloadAlign,
-								
-								grpdl: fp.allowGroupDownload,
-								grpdltip: fp.groupDownloadTooltip,
-								grpdlalign: fp.groupDownloadAlign,
-								
-								statusfld: fp.statusField,
-
-								gbucsccol: fp.hasGbUcscLink,
-								gbucscfld: fp.gbUcscLinkField,
-								gbucsctip: fp.gbUcscTooltip
-							});
 
 				//test
 				//$.fileDownload('http://phoenix.einstein.yu.edu:8080/wasp-file/get/file/c7d5237e-ab84-4837-a618-6ec17ac6add3');
@@ -519,7 +560,7 @@ function click(d) {
 							collapsible: fp.resizable,
 							maximizable: fp.maximizable,
 							draggable: false,
-							items: filePanel
+							items: createGridPanel(fp)
 						}]
 						//}]
 					}]
@@ -627,72 +668,104 @@ function click(d) {
 								layout: 'fit'
 							}]
 						});
-						var ptlpnl = tab.add({
-							xtype: 'portalpanel'
-						});
-						var ptlcolArray = new Array;
-
-						numcol = item.numberOfColumns;
-						for (var i = 0; i < numcol; i++) {
-							ptlcolArray.push(ptlpnl.add({
-								id: tabid + '-col-' + (i + 1)
-							}));
-						}
-
-						var colid = 0;
-						$.each(item.panels, function (index1, item1) {
-							if (item1.type=="WebPanel") {
-								ptlcolArray[colid++].add({
-									title: item1.title,
-									tools: extPortal.getTools(item1.maximizable),
-									closable: item1.closeable,
-									collapsible: item1.resizable,
-									html: item1.content.htmlCode,
+						var pmax = null;
+						var pdfpanel = null;
+						if (item.maxOnLoad && item.panels.length==1) {
+							pmax = tab.items.first();
+							//var ptlcol = ptlpnl.add({ id: tabid + '-col-1' });
+							var panel = item.panels[0];
+							if (panel.type=="PDFPanel" && !panel.content.pdfURL.isEmpty()) {
+								pdfpanel = pmax.add({
+									xtype: 'portlet',
+									title: panel.title,
+									closable: false,
+									collapsible: false,
+									draggable: false,
+									html: "<div id='pdfpanel-"+ panel.content.pdfURL.hashCode() +"'></div>",
+									url: panel.content.pdfURL,
+									items: []
+								});
+								pdfpanel.add(createPDFPanel(pdfpanel.url, panel.pageScale, 'pdfpanel-'+pdfpanel.url.hashCode()));
+							} else if (panel.type=="WebPanel" && !panel.content.htmlCode.isEmpty()) {
+								pmax.add({
+									xtype: 'portlet',
+									title: panel.title,
+									closable: false,
+									collapsible: false,
+									draggable: false,
+									html: panel.content.htmlCode,
 									listeners: {
-										'render': Ext.bind(new Function("portlet", item1.execOnRenderCode), extPortal),
-										'resize': Ext.bind(new Function("portlet", item1.execOnResizeCode), extPortal),
-										'expand': Ext.bind(new Function("portlet", item1.execOnExpandCode), extPortal)
+										'render': Ext.bind(new Function("portlet", panel.execOnRenderCode), extPortal),
+										'resize': Ext.bind(new Function("portlet", panel.execOnResizeCode), extPortal),
+										'expand': Ext.bind(new Function("portlet", panel.execOnExpandCode), extPortal)
 									}
 								});
-							} else if (item1.type=="GridPanel") {
-								var gridPanel = Ext.create('Wasp.GridPortlet', {
-									fields: item1.content.dataFields,
-									data: item1.content.data,
-									columns: item1.content.columns,
-
-									grouping: item1.grouping,
-									groupfield: item1.groupField,
-									
-									dlcol: item1.hasDownload,
-									dllinkfld: item1.downloadLinkField,
-									dlcoltip: item1.downloadTooltip,
-									
-									dlselect: item1.allowSelectDownload,
-									dlbtntxt: item1.selectDownloadText,
-									dlbtnalign: item1.selectDownloadAlign,
-									
-									grpdl: item1.allowGroupDownload,
-									grpdltip: item1.groupDownloadTooltip,
-									grpdlalign: item1.groupDownloadAlign,
-									
-									statusfld: item1.statusField,
-
-									gbucsccol: item1.hasGbUcscLink,
-									gbucscfld: item1.gbUcscLinkField,
-									gbucsctip: item1.gbUcscTooltip
-								});
-								
-								ptlcolArray[colid++].add({
-									title: item1.title,
-									tools: extPortal.getTools(item1.maximizable),
-									closable: item1.closeable,
-									collapsible: item1.resizable,
-									
-									items: gridPanel
+							} else if (panel.type=="GridPanel") {
+								pmax.add({
+									xtype: 'portlet',
+									title: panel.title,
+									closable: false,
+									collapsible: false,
+									draggable: false,
+									items: createGridPanel(panel)
 								});
 							}
-							colid %= numcol;
-						});
+							//pmax.doLayout();
+							tab.getLayout().setActiveItem(pmax);
+						} else {
+							var ptlpnl = tab.add({
+								xtype: 'portalpanel'
+							});
+							var ptlcolArray = new Array;
+	
+							numcol = item.numberOfColumns;
+							for (var i = 0; i < numcol; i++) {
+								ptlcolArray.push(ptlpnl.add({
+									id: tabid + '-col-' + (i + 1)
+								}));
+							}
+	
+							var colid = 0;
+							$.each(item.panels, function (index1, panel) {
+								if (panel.type=="PDFPanel" && !panel.content.pdfURL.isEmpty()) {
+									pdfpanel = ptlcolArray[colid++].add({
+										xtype: 'portlet',
+										title: panel.title,
+										closable: false,
+										collapsible: false,
+										draggable: false,
+										html: "<div id='pdfpanel-"+ panel.content.pdfURL.hashCode() +"'></div>",
+										url: panel.content.pdfURL,
+										items: []
+									});
+									pdfpanel.add(createPDFPanel(pdfpanel.url, panel.pageScale, 'pdfpanel-'+pdfpanel.url.hashCode()));
+								} else if (panel.type=="WebPanel" && !panel.content.htmlCode.isEmpty()) {
+									ptlcolArray[colid++].add({
+										title: panel.title,
+										tools: extPortal.getTools(panel.maximizable),
+										closable: panel.closeable,
+										collapsible: panel.resizable,
+										html: panel.content.htmlCode,
+										listeners: {
+											'render': Ext.bind(new Function("portlet", panel.execOnRenderCode), extPortal),
+											'resize': Ext.bind(new Function("portlet", panel.execOnResizeCode), extPortal),
+											'expand': Ext.bind(new Function("portlet", panel.execOnExpandCode), extPortal)
+										}
+									});
+								} else if (panel.type=="GridPanel") {
+							
+									ptlcolArray[colid++].add({
+										title: panel.title,
+										tools: extPortal.getTools(panel.maximizable),
+										closable: panel.closeable,
+										collapsible: panel.resizable,
+										
+										items: createGridPanel(panel)
+									});
+								}
+								colid %= numcol;
+							});
+						}
 					});
 
 					tabpanel.setActiveTab(0);

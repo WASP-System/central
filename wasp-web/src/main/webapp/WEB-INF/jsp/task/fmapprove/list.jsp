@@ -9,7 +9,7 @@
     </c:when>
     <c:otherwise>
     	<h2><fmt:message key="jobapprovetask.subtitle2.label" /></h2>  
-		<div id="accordion2">         
+		<div id="accordion">         
     	<c:forEach items="${jobspendinglist}" var="job">      
       		<h4><a href="#"><fmt:message key="jobapprovetask.jobId.label" />: J<c:out value="${job.jobId}" /> (<fmt:message key="jobapprovetask.submitter.label" />: <c:out value="${job.getUser().getNameFstLst()}" />; <fmt:message key="jobapprovetask.pi.label" />: <c:out value="${job.getLab().getUser().getNameFstLst()}" />)</a></h4>
       		<div>

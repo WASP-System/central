@@ -211,5 +211,17 @@ function validateUpdateForm(idCounter){
 	}
 	
 }
-
+function confirmRemove(libraryType){
+	var returnValue = false;
+	if(libraryType=="controlLibrary"){
+		returnValue = confirm("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_removeControlFromThisCell.label"/>");
+	}
+	else{
+		returnValue = confirm("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_removeLibFromCell_alert.label"/>");
+	}
+	if(returnValue==true){
+		$("#wait_dialog-modal").dialog("open");
+	}
+	return returnValue;
+}
 </script>

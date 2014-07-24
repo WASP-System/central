@@ -93,7 +93,7 @@ public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunni
 		stepExecutionsToRestart.addAll(jobExplorer.getStepExecutions(ExitStatus.UNKNOWN));
 		stepExecutionsToRestart.addAll(jobExplorer.getStepExecutions(ExitStatus.EXECUTING));
 		
-		// First clean up all existing step executions in ExitStatus UNKNOWN or EXECUTING. We should set these to FAILED
+		// First clean up all existing step executions in ExitStatus UNKNOWN or STARTED. We should set these to FAILED
 		for (StepExecution stepExecution: stepExecutionsToRestart){
 			stepExecution.setStatus(BatchStatus.FAILED);
         	stepExecution.setExitStatus(new ExitStatus("FAILED", "Failed because wasp-daemon was shutdown inproperly (was found in an active state on startup)"));
@@ -101,7 +101,7 @@ public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunni
         	jobRepository.update(stepExecution);
 		}
 		
-		// Now we can clean up all existing job executions in ExitStatus UNKNOWN or EXECUTING. We should set these to FAILED
+		// Now we can clean up all existing job executions in ExitStatus UNKNOWN or STARTED. We should set these to FAILED
 		// then restart them.
 		Set<JobExecution> jobExecutionsToRestart = new HashSet<JobExecution>();
 		jobExecutionsToRestart.addAll(jobExplorer.getJobExecutions(ExitStatus.UNKNOWN));

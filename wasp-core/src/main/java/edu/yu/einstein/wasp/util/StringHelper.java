@@ -113,4 +113,21 @@ public class StringHelper {
 		}
 		return _integer;
 	}
+	
+	/**
+	 * Converts provided string to camel-case e.g. "Foo bar baz" -> "fooBarBaz"
+	 * @param s
+	 * @return
+	 */
+	public static String toCamelCase(String s){
+		return WordUtils.uncapitalize(WordUtils.capitalizeFully(s).replaceAll(" ", ""));
+	}
+	
+	public static String deCamelCase(String s){
+		Pattern p = Pattern.compile("([a-z])([A-Z])");
+		Matcher m = p.matcher(s);
+		while (m.find())
+			s = s.replaceFirst(m.group(0), m.group(1) + " " + m.group(2).toLowerCase());
+		return StringUtils.capitalize(s);
+	}
 }

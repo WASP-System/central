@@ -5,6 +5,7 @@
 package edu.yu.einstein.wasp.genericfileviewing.service;
 
 import edu.yu.einstein.wasp.exception.PanelException;
+import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.service.WaspService;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
@@ -19,6 +20,6 @@ public interface GenericfileviewingService extends WaspService {
 		 */
 		public String performAction();
 		
-		public PanelTab getPanelTabForFileGroup(Integer id) throws PanelException;
+		public PanelTab getPanelTabForFileGroup(FileGroup fileGroup) throws PanelException;
 
 }

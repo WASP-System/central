@@ -28,17 +28,31 @@ import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.RunMetaDao;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
+import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobResourcecategory;
+import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.RunMeta;
+import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.model.Workflow;
+import edu.yu.einstein.wasp.plugin.illumina.plugin.IlluminaResourceCategory;
 import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
 import edu.yu.einstein.wasp.plugin.illumina.util.IlluminaRunFolderNameParser;
+import edu.yu.einstein.wasp.plugin.mps.SequenceReadProperties.ReadType;
+import edu.yu.einstein.wasp.plugin.mps.service.SequencingService;
+import edu.yu.einstein.wasp.service.AdaptorService;
+import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.RunService;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.PropertyHelper;
@@ -54,10 +68,22 @@ public class WaspIlluminaServiceImpl extends WaspServiceImpl implements WaspIllu
 	private RunService runService;
 	
 	@Autowired
+	private SampleService sampleService;
+	
+	@Autowired
+	private JobService jobService;
+	
+	@Autowired
 	private RunDao runDao;
 	
 	@Autowired
 	private RunMetaDao runMetaDao;
+	
+	@Autowired
+	private SequencingService sequencingService;
+	
+	@Autowired
+	private AdaptorService adaptorService;
 	
 	/**
 	 * {@inheritDoc}
@@ -228,6 +254,29 @@ public class WaspIlluminaServiceImpl extends WaspServiceImpl implements WaspIllu
 		    	  res.add(Integer.parseInt(element.getAttribute("NumCycles")));
 		}
 		return res;
+	}
+
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean assayAllowsPairedEndData(SampleSource cellLibrary) throws MetadataException {
+		boolean retval = false;
+		Job job = sampleService.getJobOfLibraryOnCell(cellLibrary);
+		List<JobResourcecategory> jrc = job.getJobResourcecategory();
+		ResourceCategory illumina = jrc.get(0).getResourceCategory();
+		if (jrc.size() != 1) {
+			logger.warn("expected job to have JobResourceCategory size of 1, found " + jrc.size() + " attempting to proceed using " + illumina.getName());
+		}
+		retval = sequencingService.isReadTypeConfiguredToBeAvailable(job.getWorkflow(), illumina, ReadType.PAIRED);
+		logger.trace("workflow: " + job.getWorkflow().getName() + " resourcecategory: " + illumina.getName() + " paired=" + retval);
+		return retval;
+	}
+
+	@Override
+	public IndexingStrategy getIndexingStrategy(SampleSource cellLibrary) throws MetadataException, SampleTypeException {
+		Sample library = sampleService.getLibrary(cellLibrary);
+		return adaptorService.getIndexingStrategy(adaptorService.getAdaptor(library).getAdaptorset());
 	}
 
 

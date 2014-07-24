@@ -30,8 +30,7 @@ import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 
 /**
- * Realigns test and control together to avoid slight alignment differences between the two tissue types. Also does this for bam files merged in the
- * previous step for the same reason (consistent alignments across all lanes within a sample).
+ * Once pre-processing of each lane individually, lanes belonging to the same sample are merged into a single BAM file.
  * @author asmclellan
  *
  */

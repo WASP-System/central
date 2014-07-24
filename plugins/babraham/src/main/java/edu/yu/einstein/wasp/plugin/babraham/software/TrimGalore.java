@@ -3,20 +3,14 @@
  */
 package edu.yu.einstein.wasp.plugin.babraham.software;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang.StringUtils;
@@ -25,13 +19,8 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import edu.yu.einstein.wasp.charts.DataSeries;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
@@ -54,7 +43,6 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.babraham.batch.tasklet.jobparameters.TrimGaloreParameters;
 import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamQCParseModule;
-import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqComparator;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqFileTypeAttribute;
@@ -118,11 +106,11 @@ public class TrimGalore extends SoftwarePackage {
     @Qualifier("fileTypeServiceImpl")
     private FileTypeService fileTypeService;
 
-    public static final String MANY_FLOW_NAME = "edu.yu.einstein.wasp.plugin.babraham.trim_galore.fileTrim";
+    public static final String MANY_FLOW_NAME = "babraham.trim_galore.fileTrim";
 
-    public static final String FLOW_NAME = "edu.yu.einstein.wasp.plugin.babraham.trim_galore.mainFlow";
+    public static final String FLOW_NAME = "babraham.trim_galore.mainFlow";
 
-    public static final String MANY_REGISTRATION_NAME = "edu.yu.einstein.wasp.plugin.babraham.trim_galore.register";
+    public static final String MANY_REGISTRATION_NAME = "babraham.trim_galore.register";
 
     /**
 	 * 
@@ -191,14 +179,13 @@ public class TrimGalore extends SoftwarePackage {
         w.addRequiredFile((FileHandle) fqa[firstFile]);
         if (paired)
             w.addRequiredFile((FileHandle) fqa[firstFile + 1]);
-
+        w.addCommand("inFile0Name=${" + WorkUnit.INPUT_FILE + "[" + 0 + "]##*/}");
         String command = "trim_galore " + parameterString + " ${" + WorkUnit.INPUT_FILE + "[" + 0 + "]}";
         if (paired)
             command += " ${" + WorkUnit.INPUT_FILE + "[" + 1 + "]}";
-        
-        command += " 2> " + " ${" + WorkUnit.INPUT_FILE + "[" + 0 + "]/.fastq.gz/}" + "_trim_galore.out.txt";
+        command += " 2> ${inFile0Name/.fastq.gz/}_trim_galore.out.txt";
 
-        w.setCommand(command);
+        w.addCommand(command);
 
         return w;
 
@@ -281,6 +268,7 @@ public class TrimGalore extends SoftwarePackage {
 
             if (rs == 2) {
                 fh = fhi.next();
+                w.addRequiredFile(fh);
                 trimmed_fastq.add(doFile(w, fileN++, fh, fastqG));
             }
         }
@@ -319,22 +307,39 @@ public class TrimGalore extends SoftwarePackage {
         Integer rs = fastqService.getNumberOfReadSegments(fileGroup);
         String prefix = "";
         prefix = "_" + fastqService.getFastqReadSegmentNumber(fileHandle);
-        w.addCommand("inFilePath=${" + WorkUnit.INPUT_FILE + "[" + fileNumber + "]};inFileName=${inFilePath##*/};sed -n '/^length/,/^$/p' ${inFileName}_trimming_report.txt | tail -n +2 | head -n -1 >> "
+        w.addCommand("inFileName=${" + WorkUnit.INPUT_FILE + "[" + fileNumber + "]##*/}");
+        w.addCommand("sed -n '/^length/,/^$/p' ${inFileName}_trimming_report.txt | tail -n +2 | head -n -1 >> "
                 + fileGroup.getId() + prefix + "_trim_counts.txt");
         if (rs == 1) {
-        	w.addCommand("grep \"Processed reads:\" ${" + WorkUnit.INPUT_FILE + "[" + fileNumber + "]}_trimming_report.txt  | sed 's/.* //g' >> "
+        	w.addCommand("grep \"Processed reads:\" ${inFileName}_trimming_report.txt  | sed 's/.* //g' >> "
         		+ fileGroup.getId() + prefix + "_trim_number.txt");
         	prefix = "_trimmed";
         } else if (rs == 2) {
-        	w.addCommand("grep \"Total number of sequences analysed: \" ${" + WorkUnit.INPUT_FILE + "[" + fileNumber + "]/fastq.gz/}_trim_galore.out.txt | sed 's/.* //g' >> " 
+        	w.addCommand("inFile0Name=${" + WorkUnit.INPUT_FILE + "[" + 0 + "]##*/}");
+        	w.addCommand("grep \"Total number of sequences analysed: \" ${inFile0Name/.fastq.gz/}_trim_galore.out.txt | sed 's/.* //g' >> " 
         		+ fileGroup.getId() + prefix + "_trim_number.txt");
             // paired-end read names end in "_val_?.fq.gz" while single-end
             // reads end with "_trimmed.fq.gz"
-            prefix = "_val_" + prefix;
+            prefix = "_val" + prefix;
         }
-        String trimmedName = fileHandle.getFileName().replace(".fastq.gz", prefix + ".fq.gz");
+        
+        // trim_galore will know the real file name, not the display name.
+        String originalName = fileHandle.getFileURI().getPath().replaceFirst("^.*/", "");
+        String trimmedName = originalName.replaceFirst(".fastq.gz$", "")
+        		.replaceFirst(".fastq$", "")
+        		.replaceFirst(".fq.gz$", "")
+        		.replaceFirst(".fq$", "");
+        // however, we should name the file as it was previously named
+        String displayName = fileHandle.getFileName().replaceFirst(".fastq.gz$", "")
+        		.replaceFirst(".fastq$", "")
+        		.replaceFirst(".fq.gz$", "")
+        		.replaceFirst(".fq$", "");
+        displayName += "_trimmed.fq.gz";
+        
+        trimmedName += prefix + ".fq.gz";
+        logger.trace("trimmed file name " + originalName + " to " + trimmedName + " with final name " + displayName);
         w.addCommand("ln -s " + trimmedName + " ${" + WorkUnit.OUTPUT_FILE + "[" + fileNumber + "]} ");
-        return createResultFile(fileHandle, trimmedName);
+        return createResultFile(fileHandle, displayName);
     }
 
     private String sortCommand(Integer fileId, Integer readSegment) {

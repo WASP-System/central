@@ -240,6 +240,7 @@ public class WorkflowController extends WaspController {
 				continue;
 			}
 			workflowResourceCategoryMap.put(wrc.getResourceCategory().getIName(), wrc);
+			// TODO: refactor the following to use WorkflowService.getConfiguredOptions();
 			for (WorkflowresourcecategoryMeta wrcm: wrc.getWorkflowresourcecategoryMeta()) {
 				if (wrcm.getK().matches(".*\\.allowableUiField\\..*")) {
 					String optionName = wrc.getResourceCategory().getIName() + ";" + 
@@ -266,6 +267,7 @@ public class WorkflowController extends WaspController {
 			}
 			String area = ws.getSoftware().getIName();
 			workflowSoftwareMap.put(area, ws);
+			// TODO: refactor the following to use WorkflowService.getConfiguredOptions();
 			for (WorkflowsoftwareMeta wsm: ws.getWorkflowsoftwareMeta()) {
 				if (wsm.getK().matches(".*\\.allowableUiField\\..*")) {
 					String optionName = ws.getSoftware().getIName() + ";" + 

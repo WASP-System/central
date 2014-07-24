@@ -20,7 +20,7 @@
     <property name="name" value="Variant Calling" />
     <property name="pageFlowOrder">
       <list>
-		<value>/jobsubmit/modifymeta/{n}</value>
+		<!-- <value>/jobsubmit/modifymeta/{n}</value> -->
 		<value>/jobsubmit/resource/#{mpsResourceType.getIName()}/{n}</value>
 		<value>/jobsubmit/samples/{n}</value>
 		<value>/jobsubmit/genomes/{n}</value>

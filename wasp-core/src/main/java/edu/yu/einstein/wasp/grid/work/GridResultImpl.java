@@ -6,10 +6,13 @@ package edu.yu.einstein.wasp.grid.work;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 
@@ -22,6 +25,8 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
  */
 public class GridResultImpl implements GridResult, Serializable {
 	
+	private final static Logger logger = LoggerFactory.getLogger(GridResultImpl.class);
+	
 	private static final long serialVersionUID = 1423472291111175147L;
 
 	private UUID uuid;
@@ -30,14 +35,16 @@ public class GridResultImpl implements GridResult, Serializable {
 	private String username;
 	private String workingDirectory;
 	private String resultsDirectory;
-	protected int finalStatus = 0;
+	protected GridJobStatus status = GridJobStatus.UNKNOWN;
 	transient protected String archivedResultOutputPath = "";
 
-	private int exitStatus;
+	private int exitCode = -1;
 	transient private InputStream stdOutStream;
 	transient private InputStream stdErrStream;
 	
 	private ExecutionMode mode = ExecutionMode.PROCESS;
+	
+	private Map<String, GridResult> childResults = new HashMap<>();;
 	
 	private int numberOfTasks = 1;
 	
@@ -72,12 +79,21 @@ public class GridResultImpl implements GridResult, Serializable {
 	}
 
 	@Override
-	public int getExitStatus() {
-		return exitStatus;
+	public int getExitCode() {
+		return exitCode;
 	}
 	
-	public void setExitStatus(int exitStatus) {
-		this.exitStatus = exitStatus;
+	/**
+	 * sets exit code and also updates jobStatus accordingly
+	 * @param exitCode
+	 */
+	public void setExitCode(int exitCode) {
+		this.exitCode = exitCode;
+		if (exitCode == 0)
+			setJobStatus(GridJobStatus.COMPLETED);
+		else if (exitCode > 0)
+			setJobStatus(GridJobStatus.FAILED);
+		logger.debug("Set exitCode=" + getExitCode() + " and jobStatus=" + getJobStatus() + " on GridResult with UUID=" + getUuid());
 	}
 
 	/* (non-Javadoc)
@@ -165,8 +181,13 @@ public class GridResultImpl implements GridResult, Serializable {
 	}
 
 	@Override
-	public int getFinalStatus() {
-		return this.finalStatus;
+	public GridJobStatus getJobStatus() {
+		return this.status;
+	}
+	
+	@Override
+	public void setJobStatus(GridJobStatus status) {
+		this.status = status;
 	}
 
 	@Override
@@ -214,5 +235,22 @@ public class GridResultImpl implements GridResult, Serializable {
 	
 	public void setId(String id) {
 		this.id = id;
+	}
+
+	@Override
+	public GridResult getChildResult(String key) {
+		if (!childResults.containsKey(key))
+			return null;
+		return childResults.get(key);
+	}
+	
+	@Override
+	public Map<String, GridResult> getChildResults(){
+		return childResults;
+	}
+
+	@Override
+	public void addChildResult(String key, GridResult result) {
+		childResults.put(key, result);
 	}
 }

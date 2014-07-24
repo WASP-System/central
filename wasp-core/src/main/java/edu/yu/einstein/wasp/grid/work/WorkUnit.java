@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
-import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
@@ -28,6 +27,7 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  */
 public class WorkUnit {
 	
+	public static final String TMP_DIR_PLACEHOLDER = "<<<TMP_DIR>>>";
 	public static final String SCRATCH_DIR_PLACEHOLDER = "<<<SCRATCH_DIR>>>";
 	public static final String RESULTS_DIR_PLACEHOLDER = "<<<RESULTS_DIR>>>";
 	
@@ -37,6 +37,7 @@ public class WorkUnit {
 	public static final String JOB_NAME = "WASPNAME";
 	public static final String WORKING_DIRECTORY = "WASP_WORK_DIR";
 	public static final String RESULTS_DIRECTORY = "WASP_RESULT_DIR";
+	public static final String TMP_DIRECTORY = "WASP_TMP_DIRECTORY";
 	
 	/**
 	 * 1-based task array numbering 
@@ -57,6 +58,8 @@ public class WorkUnit {
 	public static final String REQUESTED_GB_MEMORY = "MEMORYGB";
 
 	private boolean isRegistering;
+	
+	private boolean WorkingDirectoryRelativeToRoot = false;
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
@@ -112,6 +115,11 @@ public class WorkUnit {
 	private String resultsDirectory;
 	
 	protected String remoteResultsDirectory = null;
+	
+	/**
+	 * Directory to for remote temporary work
+	 */
+	private String tmpDirectory;
 	
 	/**
 	 * Transport specific connection
@@ -179,6 +187,29 @@ public class WorkUnit {
 	 */
 	private String user;
 	
+	/**
+	 * Specify a parallel environment to use. If default and MPI parallel environments are provided in configuration
+	 * it is not necessary to set this unless a non-default PE is required.
+	 */
+	private String parallelEnvironment;
+	
+	/**
+	 * get the parallel environment
+	 * @return
+	 */
+	public String getParallelEnvironment() {
+		return parallelEnvironment;
+	}
+
+	/**
+	 * Specify a parallel environment to use. If default and MPI parallel environments are provided in configuration
+	 * it is not necessary to set this unless a non-default PE is required.
+	 * @param parallelEnvironment
+	 */
+	public void setParallelEnvironment(String parallelEnvironment) {
+		this.parallelEnvironment = parallelEnvironment;
+	}
+	
 	
 	/**
 	 * Method for determining how many processors are necessary to execute this task.
@@ -192,6 +223,8 @@ public class WorkUnit {
 	public ProcessMode getProcessMode() {
 		return processMode;
 	}
+	
+
 	/**
 	 * set the ProcessMode
 	 * @param mode
@@ -266,6 +299,7 @@ public class WorkUnit {
 		this.executionEnvironments.add("default");
 		this.workingDirectory = SCRATCH_DIR_PLACEHOLDER;
 		this.resultsDirectory = RESULTS_DIR_PLACEHOLDER;
+		this.tmpDirectory = TMP_DIR_PLACEHOLDER;
 		UUID resultID = UUID.randomUUID();
 		this.setId(resultID.toString());
 	}
@@ -335,6 +369,14 @@ public class WorkUnit {
 		}
 	}
 	
+	public String getTmpDirectory() {
+		return tmpDirectory;
+	}
+
+	public void setTmpDirectory(String tmpDirectory) {
+		this.tmpDirectory = tmpDirectory;
+	}
+
 	public String getResultsDirectory() {
 		return resultsDirectory;
 	}
@@ -512,6 +554,22 @@ public class WorkUnit {
 	 */
 	public void setEnvironmentVars(Map<String,String> environmentVars) {
 		this.environmentVars = environmentVars;
+	}
+
+	/**
+	 * informs whether the working directory is specified as relative to root. Overrides configuration setting userDirIsRoot
+	 * @param workingDirectoryIsRelativeToRoot
+	 */
+	public boolean isWorkingDirectoryRelativeToRoot() {
+		return WorkingDirectoryRelativeToRoot;
+	}
+
+	/**
+	 * Set whether the working directory is relative to root. Overrides configuration setting userDirIsRoot
+	 * @param workingDirectoryIsRelativeToRoot
+	 */
+	public void setWorkingDirectoryRelativeToRoot(boolean workingDirectoryIsRelativeToRoot) {
+		WorkingDirectoryRelativeToRoot = workingDirectoryIsRelativeToRoot;
 	}
 	
 

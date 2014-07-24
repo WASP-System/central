@@ -73,7 +73,11 @@
 		<batch:split id="waspIlluminaHiSeq.mainFlow.dualIndexSplit" next="waspIlluminaHiSeq.mainFlow.processSAV">
 		  processing of illumina runs proceeds in a split step since single index reads and dual index
 				reads require separate runs of the CASAVA pipeline.  Under no circumstances should single
-				index reads and dual index reads be run in the same flowcell lane.   -->
+				index reads and dual index reads be run in the same flowcell lane. (except Illumina says it's OK)  -->
+				
+				<!--  there is another flow that is ready to be inserted here as a many job for processing
+				different bcl2fastq configurations, will require some refactoring -->
+				
 	    <!-- 
 		<batch:flow>
 		-->
@@ -109,7 +113,7 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="waspIlluminaHiSeq.mainFlow.startIlluminaPipelineDual" next="waspIlluminaHiSeq.mainFlow.processSAV">
+		<batch:step id="waspIlluminaHiSeq.mainFlow.startIlluminaPipelineDual" next="waspIlluminaHiSeq.mainFlow.barcodeStats">
 			<!-- initiate the illumina pipeline -->
 			<batch:tasklet>
 						<batch:transaction-attributes propagation="NEVER"/>
@@ -119,10 +123,20 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<!-- 
-		</batch:flow>
-		</batch:split>
-		 -->
+		
+		<batch:step id="waspIlluminaHiSeq.mainFlow.barcodeStats" next="waspIlluminaHiSeq.mainFlow.processSAV">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.LaunchJobAndContinueTasklet" scope="step">
+					<constructor-arg name="flowName" value="#{T(edu.yu.einstein.wasp.plugin.picard.plugin.PicardPlugin).EXTRACT_ILLUMINA_BARCODES_FLOW}" />
+					<constructor-arg name="jobParameters">
+						<map>
+							<entry key="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+						</map>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		
 		<batch:step id="waspIlluminaHiSeq.mainFlow.processSAV" next="waspIlluminaHiSeq.mainFlow.stageResults">
 			<!-- generate QC metrics pictures a la Illumina reports -->
 			<batch:tasklet>

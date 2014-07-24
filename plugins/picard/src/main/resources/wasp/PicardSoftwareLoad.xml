@@ -20,6 +20,7 @@
     <property name="area" ref="picardPluginArea" />
     <property name="resourceType" ref="genericPluginResourceType" /> <!-- TODO: choose a more appropriate resource type -->
     <property name="version" value="1.104" />
+    <property name="softwareDependency" ref="samtools" />
 	
   </bean> 
 

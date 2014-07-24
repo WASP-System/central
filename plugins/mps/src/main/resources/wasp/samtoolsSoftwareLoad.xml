@@ -8,14 +8,7 @@
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context.xsd"
     default-autowire="byName">
-   
-   <bean id="samtoolsPluginArea" class="java.lang.String">
-		<constructor-arg>
-			<value>samtools</value>
-		</constructor-arg>
-	</bean>
-	
-	 
+    
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="samtoolsUiFieldWrapper">
     <property name="baseArea" ref="samtoolsPluginArea" />
   </bean>

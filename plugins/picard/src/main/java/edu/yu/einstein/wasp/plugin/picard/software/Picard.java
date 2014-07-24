@@ -6,43 +6,85 @@ package edu.yu.einstein.wasp.plugin.picard.software;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.rmi.RemoteException;
 import java.text.DecimalFormat;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.Message;
+import org.springframework.transaction.annotation.Transactional;
+import org.w3c.dom.Document;
+import org.springframework.beans.factory.annotation.Value;
 
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
+import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.fileformat.service.BamService;
+import edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy;
+import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
+import edu.yu.einstein.wasp.plugin.mps.grid.software.Samtools;
+import edu.yu.einstein.wasp.plugin.picard.metrics.PicardMetricsParser;
 import edu.yu.einstein.wasp.plugin.picard.service.PicardService;
+import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.service.RunService;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
+import edu.yu.einstein.wasp.util.MetaHelper;
 
 
 /**
  * @author asmclellan
  */
-public class Picard extends SoftwarePackage{
+public class Picard extends SoftwarePackage {
 
 	private static final long serialVersionUID = 6817018170220888568L;
-	private static final String UNIQUELY_ALIGNED_READ_COUNT_FILENAME = "uniquelyAlignedReadCount.txt";
-	private static final String UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FILENAME = "uniquelyAlignedNonRedundantReadCount.txt";
+	
 	
 	@Autowired
 	PicardService picardService;
+	
 	@Autowired
 	FileService fileService;
+	
+	@Autowired
+	private WaspIlluminaService illuminaService;
+	
+	@Autowired
+	private RunService runService;
+	
+	@Autowired
+	private SampleService sampleService;
+	
+	@Autowired
+	private GridHostResolver hostResolver;
+	
+	@Autowired
+	private AdaptorService adaptorService;
+	@Value("${wasp.temporary.dir:/tmp}")
+	protected String localTempDir;
+	
+	public static final String BARCODES_DIRECTORY = "BARCODES";
+	
+	private static final String PICARD_BARCODE_METRICS_AREA = "picardBarcodeMetricsArea";
 	
 	public Picard() {}
 	
@@ -60,7 +102,7 @@ public class Picard extends SoftwarePackage{
 			createIndex = true;
 		String command = "java -Xmx" + memRequiredGb + "g -jar $PICARD_ROOT/MarkDuplicates.jar I=" + inputBamFilename + " O=" + dedupBamFilename +
 				" REMOVE_DUPLICATES=false METRICS_FILE=" + dedupMetricsFilename + 
-				" TMP_DIR=. CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT";
+				" TMP_DIR=${" + WorkUnit.TMP_DIRECTORY + "} CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT";
 		if (createIndex)
 			 command += " && mv " + dedupBamFilename + ".bai " + dedupBaiFilename;
 		logger.debug("Will conduct picard MarkDuplicates with command: " + command);
@@ -75,7 +117,7 @@ public class Picard extends SoftwarePackage{
 	 */
 	public String getIndexBamCmd(String bamFilename, String baiFilename, int memRequiredGb){
 		String command = "java -Xmx" + memRequiredGb + "g -jar $PICARD_ROOT/BuildBamIndex.jar I=" + bamFilename + " O=" + baiFilename + 
-				" TMP_DIR=. VALIDATION_STRINGENCY=SILENT";
+				" TMP_DIR=${" + WorkUnit.TMP_DIRECTORY + "} VALIDATION_STRINGENCY=SILENT";
 		logger.debug("Will conduct picard indexing of bam file with command: " + command);
 		return command;
 	}	
@@ -94,7 +136,7 @@ public class Picard extends SoftwarePackage{
 		String command = "java -Xmx" + memRequiredGb + "g -jar $PICARD_ROOT/MergeSamFiles.jar";
 		for (String fileName : inputBamFilenames)
 			command += " I=" + fileName;
-		command += " O=" + mergedBamFilename + " SO=coordinate TMP_DIR=. CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT";
+		command += " O=" + mergedBamFilename + " SO=coordinate TMP_DIR=${" + WorkUnit.TMP_DIRECTORY + "} CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT";
 		if (createIndex)
 			 command += " && mv " + mergedBamFilename + ".bai " + mergedBaiFilename;
 		logger.debug("Will conduct picard MergeSamFiles with command: " + command);
@@ -113,28 +155,14 @@ public class Picard extends SoftwarePackage{
 		if (mergedBaiFilename != null)
 			createIndex = true;
 		String command = "java -Xmx" + memRequiredGb + "g -jar $PICARD_ROOT/MergeSamFiles.jar $(printf 'I=%s ' " + inputBamFilenamesGlob + ")" + 
-		" O=" + mergedBamFilename + " SO=coordinate TMP_DIR=. CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT";
+		" O=" + mergedBamFilename + " SO=coordinate TMP_DIR=${" + WorkUnit.TMP_DIRECTORY + "} CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT";
 		if (createIndex)
 			 command += " && mv " + mergedBamFilename + ".bai " + mergedBaiFilename;
 		logger.debug("Will conduct picard MergeSamFiles with command: " + command);
 		return command;
 	}
 	
-	public String getUniquelyAlignedReadCountCmd(String bamFileName){
-		String command = "";
-		if(bamFileName==null || bamFileName.isEmpty()){
-			return command;
-		}
-		return "samtools view -c -F 0x104 -q 1 " + bamFileName + " > " + UNIQUELY_ALIGNED_READ_COUNT_FILENAME;//includes duplicates
-	}
 	
-	public String getUniquelyAlignedNonRedundantReadCountCmd(String bamFileName){
-		String command = "";
-		if(bamFileName==null || bamFileName.isEmpty()){
-			return command;
-		}
-		return "samtools view -c -F 0x504 -q 1 " + bamFileName + " > " + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FILENAME;//excludes duplicates
-	}
 	
 	/**
 	 * save alignment metrics, including Picard dedup metrics and unqielyAligned Metrics
@@ -154,9 +182,10 @@ public class Picard extends SoftwarePackage{
 		
 		JSONObject json = new JSONObject();
 		try{
+			Samtools samtools = (Samtools) getSoftwareDependencyByIname("samtools");
 			Map <String,String> picardDedupMetricsMap = this.getPicardDedupMetrics(dedupMetricsFilename, scratchDirectory, gridHostResolver);
 			logger.debug("size of dedupMetrics in saveAlignmentMetrics: " + picardDedupMetricsMap.size());
-			Map <String,String> uniquelyAlignedReadCountMetricMap = this.getUniquelyAlignedReadCountMetrics(UNIQUELY_ALIGNED_READ_COUNT_FILENAME, UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FILENAME, scratchDirectory, gridHostResolver);
+			Map <String,String> uniquelyAlignedReadCountMetricMap = samtools.getUniquelyAlignedReadCountMetrics(Samtools.UNIQUELY_ALIGNED_READ_COUNT_FILENAME, Samtools.UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FILENAME, scratchDirectory, gridHostResolver);
 			
 			//capture and add and print out jsaon
 			logger.debug("dedupMetrics output:");
@@ -243,31 +272,31 @@ public class Picard extends SoftwarePackage{
 			else if (lineNumber == 1){
 				String [] stringArray = line.split("\\t");							
 				unpairedReadsExamined = stringArray[1];
-				picardDedupMetricsMap.put(PicardService.BAMFILE_ALIGNMENT_METRIC_UNPAIRED_READS, unpairedReadsExamined);//unpairedReadsExamined (mapped)
+				picardDedupMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_UNPAIRED_READS, unpairedReadsExamined);//unpairedReadsExamined (mapped)
 				readPairsExamined	= stringArray[2];
-				picardDedupMetricsMap.put(PicardService.BAMFILE_ALIGNMENT_METRIC_PAIRED_READS, readPairsExamined);//readPairsExamined (mapped)
+				picardDedupMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_PAIRED_READS, readPairsExamined);//readPairsExamined (mapped)
 				unmappedReads = stringArray[3];
-				picardDedupMetricsMap.put(PicardService.BAMFILE_ALIGNMENT_METRIC_UNMAPPED_READS, unmappedReads);//unmappedReads
+				picardDedupMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_UNMAPPED_READS, unmappedReads);//unmappedReads
 				unpairedReadDuplicates = stringArray[4];
-				picardDedupMetricsMap.put(PicardService.BAMFILE_ALIGNMENT_METRIC_UNPAIRED_READ_DUPLICATES, unpairedReadDuplicates);//unpairedReadDuplicates
+				picardDedupMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_UNPAIRED_READ_DUPLICATES, unpairedReadDuplicates);//unpairedReadDuplicates
 				readPairDuplicates	= stringArray[5];
-				picardDedupMetricsMap.put(PicardService.BAMFILE_ALIGNMENT_METRIC_PAIRED_READ_DUPLICATES, readPairDuplicates);//readPairDuplicates
+				picardDedupMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_PAIRED_READ_DUPLICATES, readPairDuplicates);//readPairDuplicates
 				readPairOpticalDuplicates = stringArray[6];
-				picardDedupMetricsMap.put(PicardService.BAMFILE_ALIGNMENT_METRIC_PAIRED_READ_OPTICAL_DUPLICATES, readPairOpticalDuplicates);//readPairOpticalDuplicates
+				picardDedupMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_PAIRED_READ_OPTICAL_DUPLICATES, readPairOpticalDuplicates);//readPairOpticalDuplicates
 				percentDuplication = stringArray[7];
 				fractionDuplicated = percentDuplication;//percentDuplication is actually a fraction duplicated
 				picardDedupMetricsMap.put("percentDuplicated", percentDuplication);//percentDuplication
-				picardDedupMetricsMap.put(PicardService.BAMFILE_ALIGNMENT_METRIC_FRACTION_DUPLICATED, fractionDuplicated);//fractionDuplicated
+				picardDedupMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_FRACTION_DUPLICATED, fractionDuplicated);//fractionDuplicated
 				logger.debug("finished reading from the dedupMetrics file");
 				
 				//work up derived values
 				Integer mappedReads_integer = Integer.valueOf(unpairedReadsExamined) + Integer.valueOf(readPairsExamined);
 				mappedReads = mappedReads_integer.toString();
-				picardDedupMetricsMap.put(PicardService.BAMFILE_ALIGNMENT_METRIC_MAPPED_READS, mappedReads);
+				picardDedupMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_MAPPED_READS, mappedReads);
 				Integer unmappedReads_integer = Integer.valueOf(unmappedReads);
 				Integer totalReads_integer = mappedReads_integer + unmappedReads_integer;
 				totalReads = totalReads_integer.toString();
-				picardDedupMetricsMap.put(PicardService.BAMFILE_ALIGNMENT_METRIC_TOTAL_READS, totalReads);
+				picardDedupMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_TOTAL_READS, totalReads);
 				
 				Double fractionMapped_double = 0.0;
 				fractionMapped = fractionMapped_double.toString();
@@ -276,11 +305,11 @@ public class Picard extends SoftwarePackage{
 					DecimalFormat myFormat = new DecimalFormat("0.000000");
 					fractionMapped = myFormat.format(fractionMapped_double);						
 				}					
-				picardDedupMetricsMap.put(PicardService.BAMFILE_ALIGNMENT_METRIC_FRACTION_MAPPED, fractionMapped);
+				picardDedupMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_FRACTION_MAPPED, fractionMapped);
 				
 				Integer duplicateReads_integer = Integer.valueOf(unpairedReadDuplicates) + Integer.valueOf(readPairDuplicates);
 				duplicateReads = duplicateReads_integer.toString();
-				picardDedupMetricsMap.put(PicardService.BAMFILE_ALIGNMENT_METRIC_DUPLICATE_READS, duplicateReads);
+				picardDedupMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_DUPLICATE_READS, duplicateReads);
 
 				logger.debug("output of gathered alignment metrics (key:value) :");
 				for (String key : picardDedupMetricsMap.keySet()) {
@@ -327,11 +356,11 @@ public class Picard extends SoftwarePackage{
 				keepReading = false;
 			if (lineNumber == 1){
 				uniqueReads = line.replaceAll("\\n", "");//just in case there is a trailing new line
-				uniquelyAlignedReadCountMetricsMap.put(PicardService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS, uniqueReads);
+				uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS, uniqueReads);
 				logger.debug("uniqueReads = " + uniqueReads);
 			} else if (lineNumber == 2){
 				uniqueNonRedundantReads = line.replaceAll("\\n", "");//just in case there is a trailing new line;
-				uniquelyAlignedReadCountMetricsMap.put(PicardService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS, uniqueNonRedundantReads);
+				uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS, uniqueNonRedundantReads);
 				logger.debug("uniqueNonRedundantReads = " + uniqueNonRedundantReads);
 			} else {
 				keepReading = false;
@@ -350,20 +379,173 @@ public class Picard extends SoftwarePackage{
 			DecimalFormat myFormat = new DecimalFormat("0.000000");
 			fractionUniqueNonRedundant = myFormat.format(fractionUniqueNonRedundant_double);						
 		}	
-		uniquelyAlignedReadCountMetricsMap.put(PicardService.BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT, fractionUniqueNonRedundant);
+		uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT, fractionUniqueNonRedundant);
 		
 		logger.debug("leaving getUniquelyAlignedReadCountMetrics");
 		return uniquelyAlignedReadCountMetricsMap;
 		
 	}
+	
+	/**
+	 * 
+	 * Get a command string for Picard ExtractIlluminaBarcodes.  This command REQUIRES at least ~1500 file descriptors for Illumina HiSeq flowcells.   
+	 * Check to see that your submission mechanism allows this on the remote host (eg. qsub -cwd -N testFD -S /bin/bash -j y -b y "ulimit -S -n && ulimit -H -n").
+	 * A suggested value would be 10,000 open files to prevent issues.
+	 * 
+	 * @param run
+	 * @param indexedCellMap
+	 * @return
+	 * @throws MetadataException
+	 * @throws SampleTypeException
+	 */
+	public String getExtractIlluminaBarcodesCmd(Run run) throws MetadataException, SampleTypeException {
+		
+		String cmd = "rm -rf ./" + BARCODES_DIRECTORY + "\n";
+		
+		Map<Integer,Sample> indexedCellMap = sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit());
+		
+		Document runInfo = illuminaService.getIlluminaRunXml(run);
+		
+		for (Integer index : indexedCellMap.keySet()) {
+			
+			Set<IlluminaIndexingStrategy> strategies = new HashSet<IlluminaIndexingStrategy>(); 
+			
+			Sample cell = indexedCellMap.get(index);
+			List<SampleSource> cellLibraries = sampleService.getCellLibrariesForCell(cell);
+			
+			for (SampleSource ss : cellLibraries) {
+				strategies.add(new IlluminaIndexingStrategy(illuminaService.getIndexingStrategy(ss).toString()));
+			}
+			
+			logger.trace("Lane " + index + ", dealing with " + strategies.size() + " strategies");
+			
+			for (IlluminaIndexingStrategy s : strategies) {
+				logger.debug("going to prepare getExtractIlluminaBarcodes command for run: " + run.getName() + " cell: " + cell.getId() + " (lane " + index + ") strategy: " + s.toString());
+				String outputDir = BARCODES_DIRECTORY + "/" +  s.toString() + "/L" + index;
+				cmd += "mkdir -p " + outputDir + "\n";
+				cmd += getCreateBarcodeFileCmd(outputDir, cellLibraries, s) + "\n";
+				cmd += "java -Xmx4g -jar $PICARD_ROOT/ExtractIlluminaBarcodes.jar TMP_DIR=. L=" + index + " B=./Data/Intensities/BaseCalls OUTPUT_DIR=./" + outputDir + 
+						" M=./" + outputDir + "/mets.txt RS=" + getReadStructure(run, index, s) + " BARCODE_FILE=./" + BARCODES_DIRECTORY + "/" + s.toString() + "/L" + index + 
+						"/barcodes.txt GZIP=true NUM_PROCESSORS=$NTHREADS\n\n###################\n\n";
+			}
+			
+		}
+		
+		return cmd;
+	}
+	
+	private String getReadStructure(Run run, Integer cellId, IlluminaIndexingStrategy strategy) throws MetadataException, SampleTypeException {
+		String rs = null;
+		List<Integer> indexLengths = illuminaService.getLengthOfIndexedReads(run);
+		List<Integer> segmentLengths = illuminaService.getLengthOfReadSegments(run);
+		if (segmentLengths.size() == 0)
+			return rs;
+		Map<Integer,Sample> cellMap = sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit());
+		Sample cell = cellMap.get(cellId);
+		List<Sample> libraries = sampleService.getLibrariesOnCell(cell);
+		int maxBarcodeLength = 0;
+		for (Sample lib : libraries) {
+			Adaptor adapter = sampleService.getLibraryAdaptor(lib);
+			String[] barcodes = adapter.getBarcodesequence().split("-");
+			if(barcodes[0].length() > maxBarcodeLength) 
+				maxBarcodeLength = barcodes[0].length();
+		}
+		rs = segmentLengths.get(0) + "T";
+		int d = indexLengths.get(0) - maxBarcodeLength;
+
+		// This strategy assumes barcodes of same length
+		String barcodeString = maxBarcodeLength + "B";
+		if (d > 0) 
+			barcodeString += d + "S";
+		if (indexLengths.size() == 2 && strategy.equals(IlluminaIndexingStrategy.TRUSEQ_DUAL)) {
+			barcodeString += maxBarcodeLength + "B";
+			if (d > 0) 
+				barcodeString += d + "S"; 
+		}
+		if (indexLengths.size() == 2 && strategy.equals(IlluminaIndexingStrategy.TRUSEQ)) {
+			barcodeString += indexLengths.get(1) + "S";
+		}
+		rs += barcodeString;
+		if (segmentLengths.size() == 2) {
+			rs += segmentLengths.get(1) + "T";
+		}
+		logger.debug("Read Structure string: " + rs);
+		
+		return rs;
+	}
+	
+	private String getCreateBarcodeFileCmd(String outputDir, List<SampleSource> cellLibraries, IlluminaIndexingStrategy strategy) throws SampleTypeException, MetadataException {
+		String outputFile = "./" + outputDir + "/barcodes.txt";
+		String retval = "echo -e \"" + getBarcodeFileHeader() + "\" > " + outputFile + "\n";
+		for (SampleSource cellLib : cellLibraries) {
+			Sample library = sampleService.getLibrary(cellLib);
+			Adaptor a = adaptorService.getAdaptor(library);
+			if (strategy.equals(IlluminaIndexingStrategy.TRUSEQ)) {
+				retval += "echo -e \"" + a.getBarcodesequence() + "\\t\\t" + a.getName() + "\\t" + library.getName() + "\" >> " + outputFile + "\n";
+			} else if (strategy.equals(IlluminaIndexingStrategy.TRUSEQ_DUAL)) {
+				int sepIndex = a.getSequence().indexOf("-");
+				if (sepIndex == -1) {
+					String mess = "Not able to decode TRUSEQ_DUAL barcode " + a.getSequence();
+					logger.error(mess);
+					throw new MetadataException(mess);
+				}
+				retval += "echo -e \"" + a.getBarcodesequence().substring(0, sepIndex) + "\\t" + a.getBarcodesequence().substring(sepIndex+1) + "\\t" + a.getName() + "\\t" + library.getName() + "\" >> " + outputFile + "\n";
+			} else {
+				String mess = "Unknown IlluminaIndexingStrategy: " + strategy.toString();
+				logger.error(mess);
+				throw new MetadataException(mess);
+			}
+			 
+		}
+		return retval;
+	}
+	
+	private String getBarcodeFileHeader() {
+		return "barcode_sequence_1\\tbarcode_sequence_2\\tbarcode_name\\tlibrary_name";
+	}
+	
 	private void setAlignmentMetricsToFileGroupMeta(Integer fileGroupId, JSONObject json)throws MetadataException{
 		FileGroup fileGroup = fileService.getFileGroupById(fileGroupId);
 		List<FileGroupMeta> fileGroupMetaList = fileGroup.getFileGroupMeta();
 		FileGroupMeta fgm = new FileGroupMeta();
 		fgm.setFileGroup(fileGroup);
-		fgm.setK(PicardService.BAMFILE_ALIGNMENT_METRICS_META_KEY);
+		fgm.setK(BamService.BAMFILE_ALIGNMENT_METRICS_META_KEY);
 		fgm.setV(json.toString());
 		fileGroupMetaList.add(fgm);
 		fileService.saveFileGroupMeta(fileGroupMetaList, fileGroup);		
 	}
+	
+	@Transactional("entityManager")
+	public void registerBarcodeMetadata(Run run, GridResult result) throws WaspException, MetadataException {
+		
+		Map<Integer,Sample> indexedCellMap = sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit());
+		
+		Document runInfo = illuminaService.getIlluminaRunXml(run);
+		
+		for (Integer index : indexedCellMap.keySet()) {
+			
+			Set<IlluminaIndexingStrategy> strategies = new HashSet<IlluminaIndexingStrategy>(); 
+			
+			Sample cell = indexedCellMap.get(index);
+			List<SampleSource> cellLibraries = sampleService.getCellLibrariesForCell(cell);
+			
+			for (SampleSource ss : cellLibraries) {
+				strategies.add(new IlluminaIndexingStrategy(illuminaService.getIndexingStrategy(ss).toString()));
+			}
+			
+			logger.trace("Lane " + index + ", registering " + strategies.size() + " strategies");
+			
+			for (IlluminaIndexingStrategy s : strategies) {
+				logger.debug("going to register barcode metrics for run: " + run.getName() + " cell: " + cell.getId() + " (lane " + index + ") strategy: " + s.toString());
+				String fileName = BARCODES_DIRECTORY + "/" +  s.toString() + "/L" + index + "/mets.txt";
+				PicardMetricsParser p = new PicardMetricsParser(hostResolver, result, fileName);
+				MetaHelper metahelper = new MetaHelper(PICARD_BARCODE_METRICS_AREA, SampleMeta.class);
+				metahelper.setMetaValueByName(s.toString(), p.parseResult().toString());
+				sampleService.getSampleMetaDao().setMeta((List<SampleMeta>) metahelper.getMetaList(), cell.getId());
+			}
+			
+		}
+		
+	}
+	
 }

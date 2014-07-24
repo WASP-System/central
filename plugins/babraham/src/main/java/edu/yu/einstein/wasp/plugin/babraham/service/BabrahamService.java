@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.service.WaspService;
 
@@ -62,6 +63,13 @@ public interface BabrahamService extends WaspService {
 		 * 
 		 */
 		public List<FileHandle> getUpToFiveRandomForwardReadFiles(FileGroup fileGroup);
+
+		/**
+		 * Given a fileGroup, get the run associated with it
+		 * @param fileGroup
+		 * @return
+		 */
+		public Run getRunForFileGroup(FileGroup fileGroup);
 
 
 

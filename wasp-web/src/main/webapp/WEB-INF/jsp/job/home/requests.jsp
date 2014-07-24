@@ -59,6 +59,29 @@
 	</div>
 
 	<div>
+		<c:if test="${not empty replicatesListOfLists}">
+			<h2 style="font-weight:bold"><fmt:message key="listJobSamples.sampleReplicatesRequested.label"/>:</h2>		
+			<table class="data">
+				<tr class="FormData">
+					<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.replicateSet.label"/></td>
+					<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.samples.label"/></td>
+				</tr>
+				<c:forEach items="${replicatesListOfLists}" var="replicateList" varStatus="replicateStatus">
+				<tr class="FormData">				
+					<td class="value-centered" ><c:out value="${replicateStatus.count}" /></td>		 	
+				 	<td>
+				 		<c:forEach items="${replicateList}" var="sample" varStatus="sampleStatus">
+				 			<c:if test="${not sampleStatus.first}"><br /></c:if>
+				 			<c:out value="${sample.name}" />
+				 		</c:forEach>
+				 	</td>  
+				 </tr>
+				</c:forEach>
+			</table>
+		</c:if>
+	</div>
+
+	<div>
 		<c:choose>
 			<c:when test="${empty softwareList}">
 				<h2 style="font-weight:bold"><fmt:message key="analysisParameters.no_software_requested.label"/></h2>

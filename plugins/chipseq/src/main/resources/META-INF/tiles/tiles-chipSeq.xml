@@ -14,6 +14,11 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/chipSeq/chipseqpair.jsp" />
 	</definition>
 
+	<definition name="jobsubmit/replicates" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/chipSeq/chipseqreplicates.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/chipSeq/chipseqreplicates.jsp" />
+	</definition>
+
 
 </tiles-definitions>
 

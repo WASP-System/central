@@ -48,7 +48,7 @@ import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userrole;
 import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
 import edu.yu.einstein.wasp.plugin.illumina.util.IlluminaRunFolderNameParser;
-import edu.yu.einstein.wasp.sequence.SequenceReadProperties;
+import edu.yu.einstein.wasp.plugin.mps.SequenceReadProperties;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.ResourceService;
@@ -120,7 +120,7 @@ public class WaspIlluminaController extends WaspController {
 				Map<String,String> detailMap = new HashMap<String, String>();
 				
 				detailMap.put(SequenceReadProperties.READ_LENGTH_KEY, runReadProperties.getReadLength().toString());
-				detailMap.put(SequenceReadProperties.READ_TYPE_KEY, runReadProperties.getReadType());
+				detailMap.put(SequenceReadProperties.READ_TYPE_KEY, runReadProperties.getReadType().toString());
 				
 				String dateRunStarted = messageService.getMessage("run.dateNotSet.label");//new String("not set");
 				if(sequenceRun.getStarted()!=null){
@@ -272,13 +272,21 @@ public class WaspIlluminaController extends WaspController {
 			@RequestParam("newControlId") Integer newControlId,	
 			@RequestParam("newControlConcInCellPicoM") String newControlConcInCellPicoM,
 			ModelMap m){
-		
+		//as of 7-08-2014, only permit one control per lane
+		//the web page should prevent this, but just in case....
 		Sample controlLibrary = sampleService.getSampleById(newControlId);
-		Sample cell = sampleService.getSampleById(cellId);
+		Sample cell = sampleService.getSampleById(cellId);		
 		try {
-			sampleService.addLibraryToCell(cell, controlLibrary, Float.parseFloat(newControlConcInCellPicoM));
+			List<Sample> controlLibrariesOnCell = sampleService.getControlLibrariesOnCell(cell);
+			if(controlLibrariesOnCell.size()==0){
+				sampleService.addControlLibraryToCell(cell, controlLibrary, Float.parseFloat(newControlConcInCellPicoM));
+			}
+			else{//as of 7-08-2014, only permit one control per lane; the web page should prevent this, but just in case....
+				logger.warn("Problem adding control library to cell: Only one controlLibrary permitted per lane");
+				waspErrorMessage("platformunit.libAdded.error");
+			}
 		} catch (Exception e) {
-			logger.warn("Problem adding library to cell: " + e.getLocalizedMessage());
+			logger.warn("Problem adding control library to cell: " + e.getLocalizedMessage());
 			waspErrorMessage("platformunit.libAdded.error");
 		}
 
@@ -295,9 +303,9 @@ public class WaspIlluminaController extends WaspController {
 		Resource resource;
 		resource = resourceService.getResourceDao().getResourceByResourceId(new Integer(resourceId));
 		ResourceCategory resourceCategory = resource.getResourceCategory();
-		for(Option som : resourceService.getResourceCategorySelectOptions(resourceCategory, SequenceReadProperties.READ_TYPE_KEY))
+		for(Option som : resourceService.getAllAvailableResourceCategoryOptions(resourceCategory, SequenceReadProperties.READ_TYPE_KEY))
 			readType.append("<option value='"+som.getValue()+"'>"+som.getLabel()+"</option>");
-		for(Option som : resourceService.getResourceCategorySelectOptions(resourceCategory, SequenceReadProperties.READ_LENGTH_KEY))
+		for(Option som : resourceService.getAllAvailableResourceCategoryOptions(resourceCategory, SequenceReadProperties.READ_LENGTH_KEY))
 			readLength.append("<option value='"+som.getValue()+"'>"+som.getLabel()+"</option>");
 		returnString = new String(readType + "****" + readLength);
 		//logger.debug("The return string = " + returnString);
@@ -330,8 +338,8 @@ public class WaspIlluminaController extends WaspController {
 		m.addAttribute("run", run);
 		Resource requestedSequencingMachine = run.getResource();
 		if (requestedSequencingMachine != null && requestedSequencingMachine.getId() != null){
-			m.addAttribute("readLengths", resourceService.getResourceCategorySelectOptions(requestedSequencingMachine.getResourceCategory(), SequenceReadProperties.READ_LENGTH_KEY));
-			m.addAttribute("readTypes", resourceService.getResourceCategorySelectOptions(requestedSequencingMachine.getResourceCategory(), SequenceReadProperties.READ_TYPE_KEY));
+			m.addAttribute("readLengths", resourceService.getAllAvailableResourceCategoryOptions(requestedSequencingMachine.getResourceCategory(), SequenceReadProperties.READ_LENGTH_KEY));
+			m.addAttribute("readTypes", resourceService.getAllAvailableResourceCategoryOptions(requestedSequencingMachine.getResourceCategory(), SequenceReadProperties.READ_TYPE_KEY));
 			m.addAttribute("technicians", userService.getFacilityTechnicians());
 		}
 	}

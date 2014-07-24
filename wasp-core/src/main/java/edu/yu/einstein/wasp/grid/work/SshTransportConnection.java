@@ -4,9 +4,11 @@
 package edu.yu.einstein.wasp.grid.work;
 
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +23,7 @@ import net.schmizz.sshj.connection.channel.direct.Session.Command;
 import net.schmizz.sshj.transport.TransportException;
 import net.schmizz.sshj.userauth.keyprovider.KeyProvider;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -67,6 +70,8 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 
 	private Properties localProperties;
 	
+	private DirectoryPlaceholderRewriter directoryPlaceholderRewriter = new DefaultDirectoryPlaceholderRewriter();
+	
 	public Map<String, String> getSettings() {
 		return settings;
 	}
@@ -110,7 +115,7 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 		} catch (IOException e) {
 			e.printStackTrace();
 			logger.error("unable to connect to remote host " + getHostName());
-			throw new GridAccessException("unable to connect to remote", e.getCause());
+			throw new GridAccessException("unable to connect to remote", e);
 		}
 		
 		logger.debug("adding sshj connection: " + this.client.toString());
@@ -183,9 +188,9 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 	 */
 	@Override
 	public GridResult sendExecToRemote(WorkUnit w) throws GridAccessException, GridExecutionException, GridUnresolvableHostException, MisconfiguredWorkUnitException {
-
+			
 		GridResultImpl result = new GridResultImpl();
-
+		
 		try {
 			
 			logger.trace("Attempting to create SshTransportConnection to " + getHostName());
@@ -193,7 +198,9 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 			openSession();
 			
 			// ensure set for direct remote execution
-			w.remoteWorkingDirectory = prefixRemoteFile(w.getWorkingDirectory());
+			directoryPlaceholderRewriter.replaceDirectoryPlaceholders(this, w);
+			if (!w.isWorkingDirectoryRelativeToRoot())
+				w.remoteWorkingDirectory = prefixRemoteFile(w.getWorkingDirectory());
 			w.remoteResultsDirectory = prefixRemoteFile(w.getResultsDirectory());
 			
 			String command = w.getCommand();
@@ -232,14 +239,31 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
             final Command exec = session.exec(command);
             // execute command and timeout
             exec.join(this.execTimeout, TimeUnit.MILLISECONDS);
-            result.setExitStatus(exec.getExitStatus());
-            result.setStdErrStream(exec.getErrorStream());
-            result.setStdOutStream(exec.getInputStream());
+            result.setExitCode(exec.getExitStatus());
+            if (logger.isTraceEnabled()){
+				byte[] outBA = IOUtils.toByteArray(exec.getInputStream()); // extract as Byte[] so that we can read it more than once
+				byte[] errBA = IOUtils.toByteArray(exec.getErrorStream()); // extract as Byte[] so that we can read it more than once
+				StringWriter outWriter = new StringWriter();
+				IOUtils.copy(new ByteArrayInputStream(outBA), outWriter);
+				logger.trace("stdout:" + outWriter.toString());
+				StringWriter errWriter = new StringWriter();
+				IOUtils.copy(new ByteArrayInputStream(errBA), errWriter);
+				logger.trace("stderr:" + errWriter.toString());
+				result.setStdOutStream(new ByteArrayInputStream(outBA));
+				result.setStdErrStream(new ByteArrayInputStream(errBA));
+			} else {
+				result.setStdOutStream(exec.getInputStream());
+				result.setStdErrStream(exec.getErrorStream());
+			}
             logger.trace("sent command");
             if (exec.getExitStatus() != 0) {
                 logger.error("exec terminated with non-zero exit status: " + command);
                 throw new GridAccessException("exec terminated with non-zero exit status: " + exec.getExitStatus() + " : " + exec.getOutputStream().toString());
             }
+        } catch (IOException e) {
+			logger.warn("caught IOExeption executing '" + command + "' : " + e.getMessage() );
+			e.printStackTrace();
+			throw new GridAccessException("Unable to exec", e);
         } finally {
             session.close();
         } 

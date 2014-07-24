@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.Set;
 
 import org.json.JSONException;
@@ -53,8 +54,12 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 	private Long initialExponentialInterval;
 	
 	@Autowired
+	@Value("${wasp.hibernation.retry.exponential.initialInterval.random_limit:0}")
+	private Long initialExponentialIntervalRandomLimit;
+	
+	@Autowired
 	@Value("${wasp.hibernation.retry.exponential.maxInterval:3600000}")
-	private Long maxExponentialInterval;
+	protected Long maxExponentialInterval;
 	
 	@Autowired
 	protected BatchJobHibernationManager hibernationManager;
@@ -68,6 +73,16 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 
 	public void setParallelSiblingFlowSteps(Set<? extends NameAwareTasklet> parallelSteps) {
 		this.parallelSiblingFlowSteps = parallelSteps;
+	}
+	
+	public Long getRandomInitialExponentialInterval(){
+		// if initialExponentialInterval == 5000 and initialExponentialIntervalRandomLimit == 2000
+		// will return a random value between 3000 and 7000
+		Random rand = new Random();
+		double n = rand.nextDouble(); // between 0.0d and 1.0d
+		long min = initialExponentialInterval - initialExponentialIntervalRandomLimit;
+		long max = initialExponentialInterval + initialExponentialIntervalRandomLimit;
+		return Math.round((n * (max - min)) + min);
 	}
 	
 	/**
@@ -175,20 +190,33 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 	 */
 	private void waitUntilStateTransitionsStable(StepExecution stepExecution){
 		int repeat = 0;
-		Map<String, BatchStatus> previouslyExecutingSteps = new HashMap<>();
+		Map<String, StepExecution> previouslyExecutingSteps = new HashMap<>();
 		while (repeat++ < 5){
 			logger.debug("Waiting for hibernation from step id=" + stepExecution.getId() + " repeat=" + repeat);
-			Map<String, BatchStatus> currentlyExecutingSteps = new HashMap<>();
+			Map<String, StepExecution> currentlyExecutingSteps = new HashMap<>();
 			boolean allStepsRemainSame = true;
 			for (StepExecution se : stepExecution.getJobExecution().getStepExecutions()){
-				currentlyExecutingSteps.put(se.getStepName(), se.getStatus());
-				if (allStepsRemainSame && 
-						(!previouslyExecutingSteps.containsKey(se.getStepName()) || !previouslyExecutingSteps.get(se.getStepName()).equals(se.getStatus()))
-						)
-					allStepsRemainSame = false;
+				if (!currentlyExecutingSteps.containsKey(se.getStepName()) ||
+					se.getId() > currentlyExecutingSteps.get(se.getStepName()).getId()){
+					logger.trace("Adding/updating step:" + se.getStepName() + " with status " + se.getStatus() + " to currentlyExecutingSteps");
+					currentlyExecutingSteps.put(se.getStepName(), se);
+				}
 			}
-			if (allStepsRemainSame && (currentlyExecutingSteps.size() != previouslyExecutingSteps.size()))
+			if (allStepsRemainSame && (currentlyExecutingSteps.size() != previouslyExecutingSteps.size())){
+				logger.debug("number of currentlyExecutingSteps differs from previouslyExecutingSteps so setting allStepsRemainSame = false");
 				allStepsRemainSame = false;
+			} else {
+				for (String name : currentlyExecutingSteps.keySet()){
+					if (!previouslyExecutingSteps.containsKey(name)){
+						logger.debug("previouslyExecutingSteps does not contain step with name " + name + " so setting allStepsRemainSame = false");
+						allStepsRemainSame = false;
+					} else if (!previouslyExecutingSteps.get(name).getStatus().equals(currentlyExecutingSteps.get(name).getStatus())){
+						logger.debug("previouslyExecutingSteps does contains a step with name " + name + 
+								" but status has changed so setting allStepsRemainSame = false");
+						allStepsRemainSame = false;
+					}
+				}
+			}
 			previouslyExecutingSteps.clear();
 			previouslyExecutingSteps.putAll(currentlyExecutingSteps);
 			if (!allStepsRemainSame)
@@ -268,7 +296,7 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 		Long previousTimeInterval = BatchJobHibernationManager.getWakeTimeInterval(stepExecution);
 		Long newTimeInterval;
 		if (previousTimeInterval == null){
-			newTimeInterval = initialExponentialInterval;
+			newTimeInterval = getRandomInitialExponentialInterval();
 			previousTimeInterval = 0L;
 		} else if (previousTimeInterval * MULTIPLICATION_FACTOR > maxExponentialInterval)
 			newTimeInterval = maxExponentialInterval;
@@ -279,6 +307,10 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 		if (!newTimeInterval.equals(previousTimeInterval))
 			BatchJobHibernationManager.setWakeTimeInterval(stepExecution, newTimeInterval);
 		return newTimeInterval;
+	}
+	
+	protected void setTimeoutIntervalInContext(ChunkContext context, Long timeoutInterval){
+		BatchJobHibernationManager.setWakeTimeInterval(context.getStepContext().getStepExecution(), timeoutInterval);
 	}
 	
 	protected void addStatusMessagesToWakeStepToContext(ChunkContext context, Set<WaspStatusMessageTemplate> templates) throws JSONException{
