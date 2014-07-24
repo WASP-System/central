@@ -116,6 +116,11 @@ public class WorkUnit {
 	protected String remoteResultsDirectory = null;
 	
 	/**
+	 * Directory to for remote temporary work
+	 */
+	private String tmpDirectory;
+	
+	/**
 	 * Transport specific connection
 	 */
 	//private GridTransportConnection connection;
@@ -293,6 +298,7 @@ public class WorkUnit {
 		this.executionEnvironments.add("default");
 		this.workingDirectory = SCRATCH_DIR_PLACEHOLDER;
 		this.resultsDirectory = RESULTS_DIR_PLACEHOLDER;
+		this.tmpDirectory = TMP_DIR_PLACEHOLDER;
 		UUID resultID = UUID.randomUUID();
 		this.setId(resultID.toString());
 	}
@@ -362,6 +368,14 @@ public class WorkUnit {
 		}
 	}
 	
+	public String getTmpDirectory() {
+		return tmpDirectory;
+	}
+
+	public void setTmpDirectory(String tmpDirectory) {
+		this.tmpDirectory = tmpDirectory;
+	}
+
 	public String getResultsDirectory() {
 		return resultsDirectory;
 	}
