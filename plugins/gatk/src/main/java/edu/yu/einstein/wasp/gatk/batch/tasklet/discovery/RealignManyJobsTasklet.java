@@ -1,6 +1,5 @@
 package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
