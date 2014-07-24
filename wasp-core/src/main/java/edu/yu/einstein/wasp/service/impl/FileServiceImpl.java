@@ -730,13 +730,11 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 	}
 	
 	@Override
-	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
 	public FileGroup saveInDiscreteTransaction(FileGroup group, LinkedHashSet<FileHandle> files) {
 		return saveInDiscreteTransaction(group, files, (Set<? extends FileTypeAttribute>) null);
 	}
 	
 	@Override
-	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
 	public FileGroup saveInDiscreteTransaction(FileGroup group, FileHandle file) {
 		LinkedHashSet<FileHandle> fhs = new LinkedHashSet<>();
 		fhs.add(file);
@@ -744,7 +742,6 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 	}
 	
 	@Override
-	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
 	public FileGroup saveInDiscreteTransaction(FileGroup group, LinkedHashSet<FileHandle> files, FileTypeAttribute fgAttribute) {
 		Set<FileTypeAttribute> fgAttributes = new HashSet<>();
 		fgAttributes.add(fgAttribute);
@@ -752,7 +749,6 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 	}
 	
 	@Override
-	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
 	public FileGroup saveInDiscreteTransaction(FileGroup group, FileHandle file, Set<? extends FileTypeAttribute> fgAttributes) {
 		LinkedHashSet<FileHandle> fhs = new LinkedHashSet<>();
 		fhs.add(file);
@@ -760,7 +756,6 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 	}
 	
 	@Override
-	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
 	public FileGroup saveInDiscreteTransaction(FileGroup group, FileHandle file, FileTypeAttribute fgAttribute) {
 		LinkedHashSet<FileHandle> fhs = new LinkedHashSet<>();
 		fhs.add(file);
