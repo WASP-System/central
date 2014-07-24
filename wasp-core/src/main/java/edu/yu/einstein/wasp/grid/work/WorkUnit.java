@@ -37,6 +37,7 @@ public class WorkUnit {
 	public static final String JOB_NAME = "WASPNAME";
 	public static final String WORKING_DIRECTORY = "WASP_WORK_DIR";
 	public static final String RESULTS_DIRECTORY = "WASP_RESULT_DIR";
+	public static final String TMP_DIRECTORY = "WASP_TMP_DIRECTORY";
 	
 	/**
 	 * 1-based task array numbering 
