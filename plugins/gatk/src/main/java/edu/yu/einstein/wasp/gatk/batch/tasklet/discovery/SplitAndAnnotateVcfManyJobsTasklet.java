@@ -125,6 +125,9 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 	}
 	
 	private void prepareOutFilesAndLaunchJob(FileGroup inputFileGroup, String outFileNamePrefix, LinkedHashSet<String> sampleIdentifierSet){
+		Set<Sample> sampleSet = new HashSet<Sample>();
+		for (String sIdStr : sampleIdentifierSet)
+			sampleSet.add(sampleService.getSampleById(Integer.parseInt(sIdStr)));
 		LinkedHashSet<FileGroup> inputFileGroups = new LinkedHashSet<>();
 		inputFileGroups.add(inputFileGroup);
 		SnpEff snpEff = (SnpEff) gatk.getSoftwareDependencyByIname("snpEff");
@@ -139,7 +142,7 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 		vcfG.setDescription(vcfFileName);
 		vcfG.setSoftwareGeneratedById(snpEff.getId());
 		vcfG.setDerivedFrom(inputFileGroups);
-		
+		vcfG.setSamples(sampleSet);
 		Set<FileTypeAttribute> fta = new HashSet<>(fileTypeService.getAttributes(inputFileGroup));
 		fta.add(VcfFileTypeAttribute.ANNOTATED);
 		vcfG = fileService.saveInDiscreteTransaction(vcfG, vcf, fta);
@@ -155,6 +158,7 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 		summaryHtmlG.setDescription(summaryHtmlFileName);
 		summaryHtmlG.setSoftwareGeneratedById(snpEff.getId());
 		summaryHtmlG.setDerivedFrom(inputFileGroups);
+		summaryHtmlG.setSamples(sampleSet);
 		summaryHtmlG = fileService.saveInDiscreteTransaction(summaryHtmlG, summaryHtml);
 		outputFileGroups.add(summaryHtmlG);
 		
@@ -168,11 +172,12 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 		summaryGeneG.setDescription(summaryGeneFileName);
 		summaryGeneG.setSoftwareGeneratedById(snpEff.getId());
 		summaryGeneG.setDerivedFrom(inputFileGroups);
+		summaryGeneG.setSamples(sampleSet);
 		summaryGeneG = fileService.saveInDiscreteTransaction(summaryGeneG, summaryGene);
 		outputFileGroups.add(summaryGeneG);
 		
 		Map<String, String> jobParameters = new HashMap<>();
-		jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
+		//jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
 		jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(inputFileGroups));
 		jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(outputFileGroups));
 		jobParameters.put("sampleIdentifierSet", StringUtils.collectionToCommaDelimitedString(sampleIdentifierSet));

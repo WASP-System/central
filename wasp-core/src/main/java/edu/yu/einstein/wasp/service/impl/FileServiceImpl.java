@@ -711,7 +711,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 	@Override
 	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
 	public FileGroup saveInDiscreteTransaction(FileGroup group) {
-		return fileGroupDao.save(group);
+		return addFileGroup(group);
 	}
 	
 	@Override
@@ -723,7 +723,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 				group.addFileHandle(fh);
 			}
 		}
-		FileGroup savedFilegroup = fileGroupDao.save(group);
+		FileGroup savedFilegroup = addFileGroup(group);
 		if (fgAttributes != null)
 			fileTypeService.setAttributes(savedFilegroup, fgAttributes);
 		return savedFilegroup;

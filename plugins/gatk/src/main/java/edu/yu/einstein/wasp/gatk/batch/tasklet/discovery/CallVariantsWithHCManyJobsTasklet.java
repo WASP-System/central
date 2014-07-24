@@ -81,7 +81,7 @@ public class CallVariantsWithHCManyJobsTasklet extends LaunchManyJobsTasklet {
 			outputFileGroups.add(gvcfG);
 			fileGroupsForNextStep.add(gvcfG);
 			Map<String, String> jobParameters = new HashMap<>();
-			jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
+			//jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
 			jobParameters.put("parentJobExecutionId", getStepExecution().getJobExecutionId().toString());
 			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(inputFileGroups));
 			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(outputFileGroups));

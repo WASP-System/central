@@ -152,7 +152,7 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 				metricsG = fileService.saveInDiscreteTransaction(metricsG, metrics);
 				outputFileGroups.add(metricsG);
 				temporaryFileSet.addAll(outputFileGroups);
-				jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
+				//jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
 				jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(inputFileGroups));
 				jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(outputFileGroups));
 				jobParameters.put(WaspSoftwareJobParameters.JOB_ID, jobId.toString());

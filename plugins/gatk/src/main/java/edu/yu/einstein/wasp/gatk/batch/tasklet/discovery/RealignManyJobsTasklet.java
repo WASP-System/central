@@ -158,7 +158,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			temporaryFileSet.addAll(outputFileGroups);
 			
 			Map<String, String> jobParameters = new HashMap<>();
-			jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
+			//jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
 			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(inputFileGroups));
 			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(outputFileGroups));
 			jobParameters.put(WaspSoftwareJobParameters.JOB_ID, jobId.toString());
@@ -208,7 +208,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			temporaryFileSet.addAll(outputFileGroups);
 			
 			Map<String, String> jobParameters = new HashMap<>();
-			jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
+			//jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
 			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(inputFileGroups));
 			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(outputFileGroups));
 			jobParameters.put(WaspSoftwareJobParameters.JOB_ID, jobId.toString());

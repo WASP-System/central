@@ -124,7 +124,7 @@ public class GatkPlugin extends WaspPlugin
 			logger.info("Sending launch message with gatk data preprocessing flow " + PREPROCESSING_FLOW + " and cellLibrary id: " + id);
 			jobParameters.put(WaspSoftwareJobParameters.CELL_LIBRARY_ID_LIST, id.toString());
 			jobParameters.put(WaspSoftwareJobParameters.GENOME, "10090::GRCm38::70");
-			jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
+			//jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
 
 			waspMessageHandlingService.launchBatchJob(PREPROCESSING_FLOW, jobParameters);
 			return (Message<String>) MessageBuilder.withPayload("Initiating gatk data preprocessing flow on cellLibrary id " + id).build();
@@ -158,7 +158,7 @@ public class GatkPlugin extends WaspPlugin
 			logger.info("Sending launch message with  gatk variant discovery flow " + VARIANT_DISCOVERY_FLOW + " and cellLibrary ids: " + ids);
 			jobParameters.put(WaspSoftwareJobParameters.CELL_LIBRARY_ID_LIST, WaspSoftwareJobParameters.getCellLibraryListAsParameterValue(ids));
 			jobParameters.put(WaspSoftwareJobParameters.GENOME, "10090::GRCm38::70");
-			jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
+			//jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
 			jobParameters.put("gatk-stand_call_conf", "30");
 			jobParameters.put("gatk-stand_emit_conf", "10");
 			jobParameters.put("gatk--max_alternate_alleles", "6");
