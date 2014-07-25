@@ -735,19 +735,19 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		
 		// add the filegroup to any SampleSource or Sample objects in the relationship
 		for (SampleSource ss : ssSet){
-			ss.getFileGroups().add(group);
 			if (ss.getId() == null)
 				sampleService.getSampleSourceDao().persist(ss);
 			else
 				sampleService.getSampleSourceDao().merge(ss);
+			ss.getFileGroups().add(group);
 		}
 		
 		for (Sample s : sSet){
-			s.getFileGroups().add(group);
 			if (s.getId() == null)
 				sampleService.getSampleDao().persist(s);
 			else
 				sampleService.getSampleDao().merge(s);
+			s.getFileGroups().add(group);
 		}
 		
 		if (fgAttributes != null)
