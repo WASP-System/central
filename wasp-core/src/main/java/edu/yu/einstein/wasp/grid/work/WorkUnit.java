@@ -37,6 +37,7 @@ public class WorkUnit {
 	public static final String JOB_NAME = "WASPNAME";
 	public static final String WORKING_DIRECTORY = "WASP_WORK_DIR";
 	public static final String RESULTS_DIRECTORY = "WASP_RESULT_DIR";
+	public static final String TMP_DIRECTORY = "WASP_TMP_DIRECTORY";
 	
 	/**
 	 * 1-based task array numbering 
@@ -114,6 +115,11 @@ public class WorkUnit {
 	private String resultsDirectory;
 	
 	protected String remoteResultsDirectory = null;
+	
+	/**
+	 * Directory to for remote temporary work
+	 */
+	private String tmpDirectory;
 	
 	/**
 	 * Transport specific connection
@@ -293,6 +299,7 @@ public class WorkUnit {
 		this.executionEnvironments.add("default");
 		this.workingDirectory = SCRATCH_DIR_PLACEHOLDER;
 		this.resultsDirectory = RESULTS_DIR_PLACEHOLDER;
+		this.tmpDirectory = TMP_DIR_PLACEHOLDER;
 		UUID resultID = UUID.randomUUID();
 		this.setId(resultID.toString());
 	}
@@ -362,6 +369,14 @@ public class WorkUnit {
 		}
 	}
 	
+	public String getTmpDirectory() {
+		return tmpDirectory;
+	}
+
+	public void setTmpDirectory(String tmpDirectory) {
+		this.tmpDirectory = tmpDirectory;
+	}
+
 	public String getResultsDirectory() {
 		return resultsDirectory;
 	}

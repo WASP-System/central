@@ -988,6 +988,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 					.append("\ncd ").append(w.remoteWorkingDirectory).append("\n")
 					.append(WorkUnit.JOB_NAME).append("=").append(jobNamePrefix).append(name).append("\n")
 					.append(WorkUnit.WORKING_DIRECTORY).append("=").append(w.remoteWorkingDirectory).append("\n")
+					.append(WorkUnit.TMP_DIRECTORY).append("=").append(w.getTmpDirectory()).append("\n")
 					.append(WorkUnit.RESULTS_DIRECTORY).append("=").append(w.remoteResultsDirectory).append("\n");
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY)) {

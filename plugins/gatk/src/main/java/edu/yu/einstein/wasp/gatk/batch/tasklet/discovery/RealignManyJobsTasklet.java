@@ -1,6 +1,5 @@
 package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -112,7 +111,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			bamMergedPairsTestG.setDescription(bamOutputMergedPairsTest);
 			bamMergedPairsTestG.setSoftwareGeneratedById(gatk.getId());
 			bamMergedPairsTestG.addDerivedFrom(testFgIn);
-			bamMergedPairsTestG = fileService.saveInDiscreteTransaction(bamMergedPairsTestG, bamMergedPairsTest, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
+			bamMergedPairsTestG = fileService.saveInDiscreteTransaction(bamMergedPairsTestG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
 			outputFileGroups.add(bamMergedPairsTestG);
 
 			FileGroup baiMergedPairsTestG = new FileGroup();
@@ -124,7 +123,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			baiMergedPairsTestG.setDescription(baiOutputMergedPairsTest);
 			baiMergedPairsTestG.setSoftwareGeneratedById(gatk.getId());
 			baiMergedPairsTestG.addDerivedFrom(bamMergedPairsTestG);
-			baiMergedPairsTestG = fileService.saveInDiscreteTransaction(baiMergedPairsTestG, baiMergedPairsTest);
+			baiMergedPairsTestG = fileService.saveInDiscreteTransaction(baiMergedPairsTestG, null);
 			outputFileGroups.add(baiMergedPairsTestG);
 			
 			baseName = StringUtils.removeEnd(fileService.generateUniqueBaseFileName(control), ".") + 
@@ -140,7 +139,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			bamMergedPairsControlG.setDescription(bamOutputMergedPairsControl);
 			bamMergedPairsControlG.setSoftwareGeneratedById(gatk.getId());
 			bamMergedPairsControlG.addDerivedFrom(controlFgIn);
-			bamMergedPairsControlG = fileService.saveInDiscreteTransaction(bamMergedPairsControlG, bamMergedPairsControl, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
+			bamMergedPairsControlG = fileService.saveInDiscreteTransaction(bamMergedPairsControlG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
 			outputFileGroups.add(bamMergedPairsControlG);
 
 			FileGroup baiMergedPairsControlG = new FileGroup();
@@ -152,13 +151,13 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			baiMergedPairsControlG.setDescription(baiOutputMergedPairsControl);
 			baiMergedPairsControlG.setSoftwareGeneratedById(gatk.getId());
 			baiMergedPairsControlG.addDerivedFrom(bamMergedPairsControlG);
-			baiMergedPairsControlG = fileService.saveInDiscreteTransaction(baiMergedPairsControlG, baiMergedPairsControl);
+			baiMergedPairsControlG = fileService.saveInDiscreteTransaction(baiMergedPairsControlG, null);
 			outputFileGroups.add(baiMergedPairsControlG);
 			
 			temporaryFileSet.addAll(outputFileGroups);
 			
 			Map<String, String> jobParameters = new HashMap<>();
-			jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
+			//jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
 			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(inputFileGroups));
 			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(outputFileGroups));
 			jobParameters.put(WaspSoftwareJobParameters.JOB_ID, jobId.toString());
@@ -191,7 +190,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			bamMergedG.setDescription(bamOutputMerged);
 			bamMergedG.setSoftwareGeneratedById(gatk.getId());
 			bamMergedG.addDerivedFrom(mergedBam);
-			bamMergedG = fileService.saveInDiscreteTransaction(bamMergedG, bamMerged, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
+			bamMergedG = fileService.saveInDiscreteTransaction(bamMergedG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
 			outputFileGroups.add(bamMergedG);
 
 			FileGroup baiMergedG = new FileGroup();
@@ -203,12 +202,12 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			baiMergedG.setDescription(baiOutputMerged);
 			baiMergedG.setSoftwareGeneratedById(gatk.getId());
 			baiMergedG.addDerivedFrom(mergedBam);
-			baiMergedG = fileService.saveInDiscreteTransaction(baiMergedG, baiMerged);
+			baiMergedG = fileService.saveInDiscreteTransaction(baiMergedG, null);
 			outputFileGroups.add(baiMergedG);
 			temporaryFileSet.addAll(outputFileGroups);
 			
 			Map<String, String> jobParameters = new HashMap<>();
-			jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
+			//jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
 			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(inputFileGroups));
 			jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(outputFileGroups));
 			jobParameters.put(WaspSoftwareJobParameters.JOB_ID, jobId.toString());
