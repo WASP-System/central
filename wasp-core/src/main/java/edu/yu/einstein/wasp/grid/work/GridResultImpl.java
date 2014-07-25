@@ -42,7 +42,7 @@ public class GridResultImpl implements GridResult, Serializable {
 
 	private int exitCode = -1;
 	
-	private Map<String, String> jobInfo = new LinkedHashMap<String, String>();
+	private Map<String, String> jobInfo = new LinkedHashMap<>();
 	transient private InputStream stdOutStream;
 	transient private InputStream stdErrStream;
 	
