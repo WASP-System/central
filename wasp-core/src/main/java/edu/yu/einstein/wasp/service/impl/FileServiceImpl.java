@@ -69,6 +69,7 @@ import edu.yu.einstein.wasp.dao.JobDraftDao;
 import edu.yu.einstein.wasp.dao.JobDraftFileDao;
 import edu.yu.einstein.wasp.dao.JobFileDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.exception.FileDownloadException;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.GridException;
@@ -127,6 +128,9 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 
 	@Autowired
 	private SampleDao sampleDao;
+	
+	@Autowired
+	private SampleSourceDao sampleSourceDao;
 
 	@Autowired
 	@Qualifier("fileTypeServiceImpl")
@@ -736,17 +740,18 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		// add the filegroup to any SampleSource or Sample objects in the relationship
 		for (SampleSource ss : ssSet){
 			if (ss.getId() == null)
-				sampleService.getSampleSourceDao().persist(ss);
+				sampleSourceDao.persist(ss);
 			else
-				sampleService.getSampleSourceDao().merge(ss);
+				ss = sampleSourceDao.getById(ss.getId());
 			ss.getFileGroups().add(group);
 		}
 		
 		for (Sample s : sSet){
 			if (s.getId() == null)
 				sampleService.getSampleDao().persist(s);
-			else
-				sampleService.getSampleDao().merge(s);
+			else{
+				s = sampleDao.getById(s.getId());
+			}
 			s.getFileGroups().add(group);
 		}
 		
