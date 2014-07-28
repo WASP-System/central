@@ -210,29 +210,40 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 			
 			List<Sample> libraries = sampleService.getLibrariesOnCellWithoutControls(cell);
 
+			cellMarked[cellid-1] = false;//rob; 7-14-14; moved here from below
+			
 			for (SampleSource cellLibrary : all) {
 			    
-			    cellMarked[cellid-1] = false;
+			    //cellMarked[cellid-1] = false;//rob; 7-14-14; commented out and moved just above this for loop
 				
 				logger.debug("working with cell library: " + cellLibrary.getId() + " representing " + 
 						cellLibrary.getSourceSample().getId() +":"+ cellLibrary.getSourceSample().getName());
+								
+				// if there is one control sample in the lane and no libraries, set the control flag
+                // the control library will be processed irrespective of method type.
+                if ((libraries.size() == 0) && (all.size() == 1)) {
+                                        
+                	SampleSource controlCellLib = all.get(0);
+                	logger.debug("looking to register lone control cell library: " + controlCellLib.getId() + " on cell: " + cellid );
+                                        
+                	String line = buildLine(platformUnit, cell, controlCellLib.getSourceSample().getName(), controlCellLib, "Y", "control");
+                	sampleSheet += "\n" + line;
+                	cellMarked[cellid-1] = true;//rob; 7-14-14
+                	continue;
+                }
 				
+                //if this cellLibrary's library is a control library, AND other libraries are on the lane, then continue, as we do NOT include the control on the sample sheet 
+                logger.debug("attempting to check whether cellLibrary's library is a control library");
+                if(sampleService.isControlLibrary(cellLibrary.getSourceSample())){//rob; 7-14-14
+                	logger.debug("YES! The cellLibrary's library is a control library");
+                	continue;
+                }
+                logger.debug("NO! The cellLibrary's library is NOT a control library");
+                
 				// the cell library source sample is the library itself (cellLibrary.getSample() == cell).
 				Adaptor adaptor = adaptorService.getAdaptor(cellLibrary.getSourceSample());
 				IndexingStrategy strategy = adaptorService.getIndexingStrategy(adaptor.getAdaptorsetId());
-				
-				// if there is one control sample in the lane and no libraries, set the control flag
-                                // the control library will be processed irrespective of method type.
-                                if ((libraries.size() == 0) && (all.size() == 1)) {
-                                        
-                                        SampleSource controlCellLib = all.get(0);
-                                        logger.debug("looking to register lone control cell library: " + controlCellLib.getId() + " on cell: " + cellid );
-                                        
-                                        String line = buildLine(platformUnit, cell, controlCellLib.getSourceSample().getName(), controlCellLib, "Y", "control");
-                                        sampleSheet += "\n" + line;
-                                        continue;
-                                }
-				
+
 				// TRUSEQ processing includes all but TRUSEQ_DUAL
 				if (method.equals(IlluminaIndexingStrategy.TRUSEQ)) {
 				    if (strategy.equals(IlluminaIndexingStrategy.TRUSEQ_DUAL))

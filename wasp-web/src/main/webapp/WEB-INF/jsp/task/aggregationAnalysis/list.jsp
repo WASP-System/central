@@ -33,9 +33,10 @@
 					<c:set value="${cellLibraryLibraryMap.get(cellLibrary)}" var="library" />
 					<c:set value="${cellLibraryPUMap.get(cellLibrary)}" var="pu" />
 					<c:set value="${cellLibraryRunMap.get(cellLibrary)}" var="run" />
+					<c:set value="${cellLibraryLaneMap.get(cellLibrary)}" var="laneNumber" />
 					<td style='text-align:center;vertical-align:middle;'><c:out value="${macromolecule.getName()}" /></td>
 					<td style='text-align:center;vertical-align:middle;'><c:out value="${library.getName()}" /></td>
-					<td style='text-align:center;vertical-align:middle;'><c:out value="${pu.getName()}" /> (Cell: <c:out value="${cellLibrary.getIndex().toString()}" />) --&gt;<br /><c:out value="${run.getName()}" /></td>
+					<td style='text-align:center;vertical-align:middle;'><c:out value="${pu.getName()}" /> (Cell: <c:out value="${laneNumber.toString()}" />) --&gt;<br /><c:out value="${run.getName()}" /></td>
 					<td style='text-align:center;vertical-align:middle;'>
 						<c:set value="${cellLibraryWithPreprocessingStatusMap.get(cellLibrary)}" var = "processingStatus" />
 						<c:if test="${processingStatus != null && processingStatus == 'COMPLETED' }">

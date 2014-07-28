@@ -486,6 +486,10 @@ public class JobSubmissionController extends WaspController {
 		}
 		m.put("assayWorkflows", assayWorkflows);
 
+		//As I was unable to embed a fmt:message within a wasp:tooltip on the create.jsp page, I was forced to use this this alternative solution of creating two new variables within this controller. 
+		m.put("libraryStrategyTooltip", messageService.getMessage("jobsubmitCreate.libraryStrategyTooltip.label"));
+		m.put("assayWorkflowTooltip", messageService.getMessage("jobsubmitCreate.assayWorkflowTooltip.label"));
+		
 		return "jobsubmit/create";
 	}
 
