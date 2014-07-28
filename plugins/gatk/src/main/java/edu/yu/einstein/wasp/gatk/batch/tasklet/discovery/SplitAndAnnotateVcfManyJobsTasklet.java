@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,14 +100,14 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 		
 		Set<Sample> processedSamples = new HashSet<>();
 		for (SampleSource samplePair : sampleService.getSamplePairsByJob(job)){
-			LinkedHashSet<String> sampleIdentifierSet = new LinkedHashSet<>(); 
+			LinkedHashSet<UUID> sampleIdentifierSet = new LinkedHashSet<>(); 
 			Sample test = sampleService.getTestSample(samplePair);
 			Sample control = sampleService.getControlSample(samplePair);
 			logger.debug("handling sample pair: test id=" + test.getId() + " and control id=" + control.getId());
 			processedSamples.add(test);
 			processedSamples.add(control);
-			sampleIdentifierSet.add(test.getUUID().toString());
-			sampleIdentifierSet.add(control.getUUID().toString());
+			sampleIdentifierSet.add(test.getUUID());
+			sampleIdentifierSet.add(control.getUUID());
 			String outFileNamePrefix = fileService.generateUniqueBaseFileName(test) + fileService.generateUniqueBaseFileName(control);
 			prepareOutFilesAndLaunchJob(filteredSnpsVcfFg, outFileNamePrefix + "snps.", sampleIdentifierSet);
 			prepareOutFilesAndLaunchJob(filteredIndelsVcfFg, outFileNamePrefix + "indels.", sampleIdentifierSet);
@@ -115,18 +116,18 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 			if (processedSamples.contains(sample))
 				continue;
 			processedSamples.add(sample);
-			LinkedHashSet<String> sampleIdentifierSet = new LinkedHashSet<>(); 
-			sampleIdentifierSet.add(sample.getUUID().toString());
+			LinkedHashSet<UUID> sampleIdentifierSet = new LinkedHashSet<>(); 
+			sampleIdentifierSet.add(sample.getUUID());
 			String outFileNamePrefix = fileService.generateUniqueBaseFileName(sample);
 			prepareOutFilesAndLaunchJob(filteredSnpsVcfFg, outFileNamePrefix + "filteredSnps.", sampleIdentifierSet);
 			prepareOutFilesAndLaunchJob(filteredIndelsVcfFg, outFileNamePrefix + "filteredIndels.", sampleIdentifierSet);
 		}
 	}
 	
-	private void prepareOutFilesAndLaunchJob(FileGroup inputFileGroup, String outFileNamePrefix, LinkedHashSet<String> sampleIdentifierSet){
+	private void prepareOutFilesAndLaunchJob(FileGroup inputFileGroup, String outFileNamePrefix, LinkedHashSet<UUID> sampleIdentifierSet){
 		Set<Sample> sampleSet = new HashSet<Sample>();
-		for (String sIdStr : sampleIdentifierSet)
-			sampleSet.add(sampleService.getSampleById(Integer.parseInt(sIdStr)));
+		for (UUID sIdStr : sampleIdentifierSet)
+			sampleSet.add(sampleService.getSampleDao().getByUUID(sIdStr));
 		LinkedHashSet<FileGroup> inputFileGroups = new LinkedHashSet<>();
 		inputFileGroups.add(inputFileGroup);
 		SnpEff snpEff = (SnpEff) gatk.getSoftwareDependencyByIname("snpEff");

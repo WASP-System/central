@@ -95,16 +95,8 @@ public class SampleDaoImpl extends WaspDaoImpl<Sample> implements edu.yu.einstei
 
 	@Override
 	public Sample getSampleByName(String name) {
-		HashMap<String, String> m = new HashMap<String, String>();
-		m.put("name", name);
-
-		List<Sample> results = this.findByMap(m);
-
-		if (results.size() == 0) {
-			Sample rt = new Sample();
-			return rt;
-		}
-		return results.get(0);
+		TypedQuery<Sample> sq = getEntityManager().createQuery("SELECT s from Sample as s WHERE s.name = '" + name + "'", Sample.class);
+		return sq.getSingleResult();
 	}
 	
 	public List<Sample> getActiveLibraries() {

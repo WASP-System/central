@@ -4,8 +4,13 @@
  */
 package edu.yu.einstein.wasp.plugin.picard.plugin;
 
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.explore.JobExplorer;
@@ -16,16 +21,21 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.MessageBuilder;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.exception.PanelException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
+import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.interfacing.Hyperlink;
 import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.picard.service.PicardService;
+import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
@@ -41,6 +51,8 @@ public class PicardPlugin extends WaspPlugin
 
 	
 	private static final long serialVersionUID = 1988113569229047484L;
+	
+	private static final String EXTRACT_ILLUMINA_BARCODES_FLOW = "picard.extractIlluminaBarcodes";
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
@@ -71,6 +83,9 @@ public class PicardPlugin extends WaspPlugin
 	@Qualifier("picard")
 	private Software picard;
 	
+	@Autowired
+	private RunService runService;
+	
 
 	public PicardPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
 		super(iName, waspSiteProperties, channel);
@@ -99,6 +114,50 @@ public class PicardPlugin extends WaspPlugin
 		String mstr = "\nPicard plugin: hello world!\n" +
 				"wasp -T picard -t helloWorld\n";
 		return MessageBuilder.withPayload(mstr).build();
+	}
+	
+	public Message<String> extractIlluminaBarcodes(Message<String> m) {
+		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
+			return extractIlluminaBarcodesHelp();
+		
+		logger.trace(m.getPayload());
+		
+		try {
+			Integer id = getIDFromMessage(m);
+			Run run = runService.getRunById(id);
+			if (id == null)
+				return MessageBuilder.withPayload("Unable to determine cellLibrary id from message: " + m.getPayload().toString()).build();
+			
+			Map<String, String> jobParameters = new HashMap<String, String>();
+			logger.info("Sending launch message to extract Illumina barcodes for " + run.getName() + " with ID: " + id);
+			jobParameters.put(WaspSoftwareJobParameters.RUN_ID, id.toString());
+			jobParameters.put("testId", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
+
+			waspMessageHandlingService.launchBatchJob(EXTRACT_ILLUMINA_BARCODES_FLOW, jobParameters);
+			return (Message<String>) MessageBuilder.withPayload("Initiating gatk data preprocessing flow on cellLibrary id " + id).build();
+		} catch (WaspMessageBuildingException | JSONException e1) {
+			logger.warn("unable to build message to launch batch job " + EXTRACT_ILLUMINA_BARCODES_FLOW);
+			return MessageBuilder.withPayload("Unable to launch batch job " + EXTRACT_ILLUMINA_BARCODES_FLOW).build();
+		}
+	}
+	
+	private Message<String> extractIlluminaBarcodesHelp() {
+		String resp = "\nextractIlluminaBarcodes: Extract Illumina barcode sequences in the run folder (run_name/BARCODES).  Both single and dual.\n" +
+				"wasp -T picard -t extractIlluminaBarcodes -m '{runId:\"101\"}'\n" +
+				"wasp -T picard -t extractIlluminaBarcodes -m '{runName:150101_SN111_0111_B11ABCACXX}'\n";
+		return MessageBuilder.withPayload(resp).build();
+	}
+	
+	private Integer getIDFromMessage(Message<String> m) throws JSONException {
+		JSONObject jr = new JSONObject(m.getPayload());
+		Integer retval = null;
+		if (jr.has("runId")) {
+			retval = runService.getRunById(jr.getInt("runId")).getId();
+		} else {
+			retval = runService.getRunByName(jr.getString("runName")).getId();
+		}
+		Assert.assertParameterNotNull(retval);
+		return retval;
 	}
 
 	
@@ -136,13 +195,7 @@ public class PicardPlugin extends WaspPlugin
 	 */
 	@Override
 	public PanelTab getViewPanelTab(FileGroup fileGroup) throws PanelException {
-				
 		return picardService.getAlignmentMetricsForDisplay(fileGroup);
-		/* can remove this
-		logger.debug("------------THIS IS A ROB TEST in picard");
-		PanelTab panelTab = new PanelTab();
-		return panelTab;
-		*/	
 	}
 
 	@Override
