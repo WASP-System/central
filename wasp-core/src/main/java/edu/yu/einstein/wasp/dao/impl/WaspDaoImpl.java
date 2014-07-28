@@ -14,6 +14,7 @@ package edu.yu.einstein.wasp.dao.impl;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -439,7 +440,8 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 	
 	@Override
 	public E getByUUID(UUID uuid) {
-		TypedQuery<E> sq = getEntityManager().createQuery("SELECT o from " + entityClass.getName() + " as o WHERE o.uuid = '" + uuid.toString() + "'", entityClass);
+		TypedQuery<E> sq = getEntityManager().createQuery("SELECT o from " + entityClass.getName() + " as o WHERE o.uuid = :uuid", entityClass)
+				.setParameter("uuid", uuid);
 		return sq.getSingleResult();
 	}
 	
