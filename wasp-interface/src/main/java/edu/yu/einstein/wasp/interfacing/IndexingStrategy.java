@@ -10,11 +10,17 @@ public class IndexingStrategy {
 		this.strategy = strategy;
 	}
 	
+	/** 
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString(){
 		return strategy;
 	}
 	
+	/** 
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(Object o){
 		if (o == null)
@@ -25,4 +31,14 @@ public class IndexingStrategy {
 			return true;
 		return false;
 	}
+
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode() {
+		return strategy.hashCode();
+	}
+	
+	
 }

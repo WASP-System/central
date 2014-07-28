@@ -1381,12 +1381,20 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 
 	@Override
 	public String getUnregisteredFileContents(GridResult r, String filename) throws IOException {
-		String result = "";
-		File f = File.createTempFile("wasp", "work");
-		String path = r.getWorkingDirectory() + "/" + filename;
-		gridFileService.get(path, f);
-		FileInputStream afis = new FileInputStream(f);
-		result = IOUtils.toString(afis, "UTF-8");
+		
+		String result;
+		File f = null;
+		try {
+			result = "";
+			f = File.createTempFile("wasp", "work");
+			String path = r.getWorkingDirectory() + "/" + filename;
+			gridFileService.get(path, f);
+			FileInputStream afis = new FileInputStream(f);
+			result = IOUtils.toString(afis, "UTF-8");
+		} finally {
+			f.delete();
+		}
+		
 		return result;
 	}
 	
