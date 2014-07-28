@@ -94,7 +94,7 @@ $(document).ready(function() {
 		          <option value="${strategy.getType()}.${strategy.getStrategy()}"  <c:if test="${strategy.getId() == thisJobDraftsStrategy.getId()}"> SELECTED</c:if>  ><c:out value="${strategy.getDisplayStrategy()}"/></option>
 		        </c:forEach>
 		      </select>
-		      <a id="viewDefinitionsAnchor" href="javascript:void(0);"><fmt:message key="jobsubmitCreate.viewHelp.label" /></a>
+		      <wasp:tooltip value="${libraryStrategyTooltip}" /> <a id="viewDefinitionsAnchor" href="javascript:void(0);"><fmt:message key="jobsubmitCreate.viewHelp.label" /></a>
 		    </td>
 		    <td class="CaptionTD error"> <c:out value="${strategyError}"/> <%--this is not a real part of jobDraft object, so it's toxic here <form:errors path="strategy" />--%></td>
 		  </tr>
@@ -108,7 +108,7 @@ $(document).ready(function() {
 	    			<select class="FormElement ui-widget-content ui-corner-all" id="workflowId" name="workflowId">
 	        			<%-- options will be gotten via ajax call --%>
 	    			</select>
-	 
+	 				<wasp:tooltip value="${assayWorkflowTooltip}" />
 	    		</td>
 	    		<td class="CaptionTD error"><form:errors path="workflowId" /></td>
 	  		</tr>
@@ -125,6 +125,7 @@ $(document).ready(function() {
 			        		<option value="${workflow.key}"  <c:if test="${workflow.key == jobDraft.workflowId}"> SELECTED</c:if>   >${workflow.value}</option>
 			        	</c:forEach>
 			    	 </select>
+			    	 <wasp:tooltip value="${assayWorkflowTooltip}" />
 			    </td>
 			    <td class="CaptionTD error"><form:errors path="workflowId" /></td>
 		  </tr>
