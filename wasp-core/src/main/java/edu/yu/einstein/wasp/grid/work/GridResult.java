@@ -169,4 +169,6 @@ public interface GridResult {
 	 */
 	public void setGridJobId(Long gridJobId);
 
+	public void addJobInfo(String key, String value);
+
 }

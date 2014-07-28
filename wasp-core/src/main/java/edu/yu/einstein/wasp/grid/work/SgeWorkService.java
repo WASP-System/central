@@ -419,10 +419,11 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 				try{
 					Map<String, String> gridJobInfo = getJobInfoFromJson(new JSONArray(getUnregisteredFileContents(g, g.getId() + ".start")));
 					g.setGridJobId(Long.valueOf(gridJobInfo.get(GRID_JOB_ID_KEY)));
-					g.getJobInfo().putAll(gridJobInfo);
-					if (logger.isTraceEnabled())
-						for (String key : g.getJobInfo().keySet())
-							logger.trace("Registering job info in GridResult [ " + key + " : " + g.getJobInfo().get(key) + " ]");
+					for (String key : gridJobInfo.keySet()){
+						String value = gridJobInfo.get(key);
+						g.addJobInfo(key, value);	;
+						logger.trace("Registering job info in GridResult [ " + key + " : " + value + " ]");
+					}
 				} catch(JSONException | IOException e){
 					logger.warn("Unable to extract job info from " + g.getId() + ".start: " + e.getLocalizedMessage());
 				}
