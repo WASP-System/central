@@ -13,6 +13,7 @@ package edu.yu.einstein.wasp.dao;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import edu.yu.einstein.wasp.exception.ModelDetachException;
 
@@ -142,6 +143,13 @@ public interface WaspDao<E> extends WaspPersistenceDao {
     * @return
     */
    public boolean isAttached(E entity);
+
+   /**
+    * get model object by UUID
+    * @param uuid
+    * @return
+    */
+   public E getByUUID(UUID uuid);
 
 
 
