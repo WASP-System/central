@@ -471,7 +471,8 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 						}
 					}
 				} while (died && !timedOut);
-			} else if (ended)
+			} 
+			if (ended || died)
 				recordQaactData(g);
 			logger.debug("Job Status (ended, died): " + ended + ", " + died);
 		}
