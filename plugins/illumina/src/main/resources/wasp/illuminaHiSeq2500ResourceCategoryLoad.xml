@@ -37,6 +37,7 @@
           <property name="baseName" value="runType" />
           <property name="metaposition" value="10" />
           <property name="label" value="illumina.runType.label" />
+          <property name="tooltip" value="illumina.runType.tt" />
           <property name="control" value="select:#{dollar}{resourceOptions.get(runType)}:value:label" /> 
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="illumina.runType.error" />
