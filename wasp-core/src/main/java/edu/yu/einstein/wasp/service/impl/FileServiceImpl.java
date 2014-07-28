@@ -39,7 +39,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import javax.persistence.TypedQuery;
+import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -206,13 +207,13 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 
 	@Override
 	public FileGroup getFileGroup(UUID uuid) throws FileNotFoundException {
-		TypedQuery<FileGroup> fgq = fileGroupDao.getEntityManager()
-				.createQuery("select f from FileGroup f where f.uuid = :uuid", FileGroup.class)
-				.setParameter("uuid", uuid);
-		FileGroup fg = fgq.getSingleResult();
-		if (fg == null)
+		try{
+			return fileGroupDao.getByUUID(uuid);
+		} catch (NoResultException e){
 			throw new FileNotFoundException("File group represented by " + uuid.toString() + " was not found.");
-		return fg;
+		} catch (NonUniqueResultException e){
+			throw new FileNotFoundException("File group represented by " + uuid.toString() + " was not unique.");
+		}
 	}
 	
 	/**
@@ -967,13 +968,13 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 
 	@Override
 	public FileHandle getFileHandle(UUID uuid) throws FileNotFoundException {
-		TypedQuery<FileHandle> fhq = fileHandleDao.getEntityManager()
-				.createQuery("select f from FileHandle f where f.uuid = :uuid", FileHandle.class)
-				.setParameter("uuid", uuid);
-		FileHandle fh = fhq.getSingleResult();
-		if (fh == null)
+		try{
+			return fileHandleDao.getByUUID(uuid);
+		} catch (NoResultException e){
 			throw new FileNotFoundException("File represented by " + uuid.toString() + " was not found.");
-		return fh;
+		} catch (NonUniqueResultException e){
+			throw new FileNotFoundException("File represented by " + uuid.toString() + " was not unique.");
+		}
 	}
 	
 	@Override
