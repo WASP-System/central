@@ -29,11 +29,11 @@ import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;  ///// PIP
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.FileGroup; ///// VIZ
 import edu.yu.einstein.wasp.model.Software;  ///// RES
-import edu.yu.einstein.wasp.plugin.BatchJobProviding;  ///// PIP 
+import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;  ///// PIP 
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WebInterfacing; ///// FORM
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing; ///// VIZ
-import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
+import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 import edu.yu.einstein.wasp.viewpanel.PanelTab; ///// VIZ
 
