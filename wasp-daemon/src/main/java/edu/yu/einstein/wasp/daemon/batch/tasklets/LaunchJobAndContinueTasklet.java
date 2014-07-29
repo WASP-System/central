@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
@@ -23,7 +24,7 @@ import edu.yu.einstein.wasp.service.RunService;
  * @author calder
  *
  */
-public class LaunchJobAndContinueTasklet extends AbandonMessageHandlingTasklet {
+public class LaunchJobAndContinueTasklet implements Tasklet {
 	
 	private String flowName;
 	private Map<String,String> jobParameters;
@@ -45,9 +46,7 @@ public class LaunchJobAndContinueTasklet extends AbandonMessageHandlingTasklet {
         Message<BatchJobLaunchContext> message = batchJobLaunchMessageTemplate.build();
         logger.debug("requesting sendOutboundMessage for: " + message.toString());
         runService.sendOutboundMessage(message, true);
-		return super.execute(contrib, context);
+		return RepeatStatus.FINISHED;
 	}
-	
-	
 
 }
