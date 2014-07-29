@@ -471,7 +471,11 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 			return "redirect:/dashboard.do";
 		}
 		List<SampleDraft> sampleDraftList = new ArrayList<SampleDraft>();
+		Map<SampleDraft, List<String>> sampleDraftErrorListMap = new HashMap<SampleDraft,List<String>>();
+		boolean errorsExist = false;
 		for(SampleDraft sampleDraft : jobDraft.getSampleDraft()){
+			
+			System.out.println("SampleDraftName: " + sampleDraft.getName());
 			
 				List<SampleDraftMeta> normalizedMeta = new ArrayList<SampleDraftMeta>();
 				try {			
@@ -481,15 +485,86 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 					logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
 				}
 				sampleDraft.setSampleDraftMeta(normalizedMeta);
-				sampleDraftList.add(sampleDraft);			
+				sampleDraftList.add(sampleDraft);
+			System.out.println("got the meta:" + normalizedMeta.size());
+			
+				List<String> errorList = this.checkForInputOrIPError(sampleDraft);
+				if(!errorList.isEmpty()){
+					errorsExist = true;
+				}
+				sampleDraftErrorListMap.put(sampleDraft, errorList);
 			
 		}
 		
 		m.addAttribute("edit", "true");//will want to remove here and on its jsp
 		m.addAttribute("jobDraft", jobDraft);
 		m.addAttribute("sampleDraftList", sampleDraftList);
+		m.addAttribute("sampleDraftErrorListMap", sampleDraftErrorListMap);
+		m.addAttribute("errorsExist", errorsExist);
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
 		return "jobsubmit/chipSeqSpecificSampleReview";
+	}
+	
+	private List<String> checkForInputOrIPError(SampleDraft sampleDraft){
+		List<String> errorList = new ArrayList<String>();
+		
+		String inputOrIP = "";//should be either ip or input
+		String antibodyTarget = "";//should be blank or none if sample is and input/control; should not be blank or the word none if sample is IP
+		String peakType = "";//punctate, broad, mixed, none    (should be punctate, broad, or mixed if IP; should be none if sample is input)
+		
+		List<SampleDraftMeta> sampleDraftMetaList = sampleDraft.getSampleDraftMeta();
+		for(SampleDraftMeta sdm : sampleDraftMetaList){
+			if(sdm.getK().contains("inputOrIP")){
+				inputOrIP = sdm.getV();
+			}
+			else if(sdm.getK().contains("antibody")){
+				antibodyTarget = sdm.getV();
+			}
+			if(sdm.getK().contains("peakType")){
+				peakType = sdm.getV();
+			}
+		}
+		
+		//The next two if statements are very unlikely; the samples page should not permit these two pieces of metadata to be empty
+		if(inputOrIP.isEmpty()){
+			errorList.add("IP or Input/Control cannot be empty");
+		}
+		if(peakType.isEmpty()){
+			errorList.add("Peak Type cannot be empty");
+		}
+		
+		if(inputOrIP.equals("ip")){
+			if(antibodyTarget.isEmpty()){
+				errorList.add("Provide CHiP Target for this IP sample");
+			}
+			if(antibodyTarget.trim().toLowerCase().equals("none")){
+				errorList.add("Provide valid CHiP Target for this IP sample");
+			}
+			if(peakType.toLowerCase().equals("none")){
+				errorList.add("Peak Type for this IP sample cannot be none");
+			}
+		}
+		else if(inputOrIP.equals("input")){
+			if(!antibodyTarget.isEmpty() && !antibodyTarget.trim().toLowerCase().equals("none")){
+				errorList.add("CHiP Target for this Input/Control must be blank or type the word none");
+			}
+			if(!peakType.toLowerCase().equals("none")){
+				errorList.add("Peak Type for this Input/Control sample must be none");
+			}
+		}
+		
+		return errorList;
+	}
+	
+	@RequestMapping(value="/chipSeqSpecificSampleReview/{jobDraftId}.do", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String chipSeqSpecificSampleReviewPost (@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+		
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft)){
+			return "redirect:/dashboard.do";
+		}
+		return nextPage(jobDraft);
 	}
 }
 
