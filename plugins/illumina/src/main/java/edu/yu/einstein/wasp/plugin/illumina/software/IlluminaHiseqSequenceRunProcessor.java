@@ -94,7 +94,6 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 		    logger.error("sample sheet method called with unknown strategy: " + method);
 		    throw new WaspRuntimeException("sample sheet method called with unknown strategy: " + method);
 		}
-		
 		WorkUnit w = new WorkUnit();
 				
 		Sample platformUnit = run.getPlatformUnit();

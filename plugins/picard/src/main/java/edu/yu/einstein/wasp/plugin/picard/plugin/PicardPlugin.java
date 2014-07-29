@@ -39,8 +39,6 @@ import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
-import edu.yu.einstein.wasp.viewpanel.WebContent;
-import edu.yu.einstein.wasp.viewpanel.WebPanel;
 
 /**
  * @author 

@@ -694,21 +694,25 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		Set<SampleSource> ssSet = new HashSet<>(group.getSampleSources());
 		Set<Sample> sSet = new HashSet<>(group.getSamples());
 		
-		// save the FileHandles
-		for (FileHandle fh : group.getFileHandles())
-			fileHandleDao.save(fh);
-		
 		// save the FileGroup
 		group = fileGroupDao.save(group);
 		
 		// add the filegroup to any SampleSource or Sample objects in the relationship
 		for (SampleSource ss : ssSet){
+			if (ss.getId() == null)
+				sampleSourceDao.persist(ss);
+			else
+				ss = sampleSourceDao.merge(ss);
 			ss.getFileGroups().add(group);
-			sampleService.getSampleSourceDao().save(ss);
 		}
+		
 		for (Sample s : sSet){
+			if (s.getId() == null)
+				sampleService.getSampleDao().persist(s);
+			else{
+				s = sampleDao.merge(s);
+			}
 			s.getFileGroups().add(group);
-			sampleDao.save(s);
 		}
 		
 		// return the filegroup, refreshed to include sets of SampleSources and Samples
