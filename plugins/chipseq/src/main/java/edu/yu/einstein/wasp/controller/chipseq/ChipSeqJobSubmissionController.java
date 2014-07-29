@@ -18,12 +18,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import edu.yu.einstein.wasp.controller.JobSubmissionController;
+import edu.yu.einstein.wasp.controller.util.SampleAndSampleDraftMetaHelper;
 import edu.yu.einstein.wasp.dao.JobDraftDao;
 import edu.yu.einstein.wasp.dao.JobDraftMetaDao;
 import edu.yu.einstein.wasp.dao.SampleDraftDao;
+import edu.yu.einstein.wasp.exception.MetadataTypeException;
+import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
+import edu.yu.einstein.wasp.util.MetaHelper;
 
 @Controller
 @Transactional
@@ -456,6 +460,36 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		SampleDraft sampleDraftToBeRemovedFromExistingReplicateSet = sampleDraftDao.getSampleDraftBySampleDraftId(sampleDraftId);
 		jobDraftService.removeSampleDraftFromReplicates(jobDraft, sampleDraftToBeRemovedFromExistingReplicateSet);
 		return "redirect:/jobsubmit/chipSeq/replicates/"+jobDraftId+".do";
+	}
+	
+	@RequestMapping(value="/chipSeqSpecificSampleReview/{jobDraftId}.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String chipSeqSpecificSampleReview (@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+		
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft)){
+			return "redirect:/dashboard.do";
+		}
+		List<SampleDraft> sampleDraftList = new ArrayList<SampleDraft>();
+		for(SampleDraft sampleDraft : jobDraft.getSampleDraft()){
+			
+				List<SampleDraftMeta> normalizedMeta = new ArrayList<SampleDraftMeta>();
+				try {			
+					normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(sampleDraft.getSampleSubtype(), sampleDraft.getSampleDraftMeta(), SampleDraftMeta.class));
+					//not right for here: normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(sampleSubtype, SampleDraftMeta.class));
+				} catch (MetadataTypeException e) {
+					logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
+				}
+				sampleDraft.setSampleDraftMeta(normalizedMeta);
+				sampleDraftList.add(sampleDraft);			
+			
+		}
+		
+		m.addAttribute("edit", "true");//will want to remove here and on its jsp
+		m.addAttribute("jobDraft", jobDraft);
+		m.addAttribute("sampleDraftList", sampleDraftList);
+		m.put("pageFlowMap", getPageFlowMap(jobDraft));
+		return "jobsubmit/chipSeqSpecificSampleReview";
 	}
 }
 
