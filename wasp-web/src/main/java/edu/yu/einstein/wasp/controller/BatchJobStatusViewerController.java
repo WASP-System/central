@@ -61,9 +61,9 @@ public class BatchJobStatusViewerController extends WaspController {
 			if (exitCode.equals(ExitStatus.EXECUTING.getExitCode()))
 				batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_green_30x30.png' height='15'/>");
 			else if (exitCode.equals(ExitStatus.UNKNOWN.getExitCode()))
-				batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_orange_30x30.png' height='15' />");
-			else if (exitCode.equals(ExitStatus.HIBERNATING.getExitCode()))
 				batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_green_30x30.png' height='15' />");
+			else if (exitCode.equals(ExitStatus.HIBERNATING.getExitCode()))
+				batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_green_zzz_30x30.png' height='15' />");
 			else if (exitCode.equals(ExitStatus.COMPLETED.getExitCode()))
 				batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/pass.png' height='15' />");
 			else if (exitCode.equals(ExitStatus.TERMINATED.getExitCode()))
