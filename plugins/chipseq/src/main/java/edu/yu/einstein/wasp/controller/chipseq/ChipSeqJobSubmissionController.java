@@ -101,7 +101,11 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		
 		List<SampleDraft> sampleDrafts=sampleDraftDao.getSampleDraftByJobId(jobDraftId);
 		if (sampleDrafts.size() < 2){
-			return nextPage(jobDraft);
+			m.put("noPairingPossible", "true");
+			m.put("jobDraft", jobDraft);
+			m.put("nextPage", nextPage(jobDraft).replaceFirst("redirect:/", ""));
+			m.put("pageFlowMap", getPageFlowMap(jobDraft));
+			return "jobsubmit/chipseqform";
 		}
 
 		List<SampleDraft> inputSampleDrafts = new ArrayList<SampleDraft>();
@@ -140,9 +144,12 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 			//}
 		}
 		if (ipSampleDrafts.isEmpty() || inputSampleDrafts.isEmpty()){//no pairing is possible
-			return nextPage(jobDraft);
+			m.put("noPairingPossible", "true");	
+			m.put("jobDraft", jobDraft);
+			m.put("nextPage", nextPage(jobDraft).replaceFirst("redirect:/", ""));
+			m.put("pageFlowMap", getPageFlowMap(jobDraft));
+			return "jobsubmit/chipseqform";
 		}
-
 		
 		Set<String> selectedSampleDraftPairStringSet = new HashSet<String>();
 		Set<Map<SampleDraft, SampleDraft>> sampleDraftPairSet = jobDraftService.getSampleDraftPairsByJobDraft(jobDraft);
@@ -164,6 +171,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 			System.out.println("Test : " + sampleDraft.getName() + " and Control : "
 				+ testControlMap.get(sampleDraft).getName());
 		}
+		m.put("noPairingPossible", "false");
 		m.put("jobDraft", jobDraft);
 		m.put("samples", sampleDrafts);
 		m.put("inputSamples", inputSampleDrafts);

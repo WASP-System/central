@@ -4,6 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="wasp" uri="http://einstein.yu.edu/wasp" %>
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 <c:set var="workflowIName" value="${jobDraft.getWorkflow().getIName()}" />
 <h1><fmt:message key="jobDraft.create.label"/> -- <fmt:message key="${workflowIName}.jobsubmit/chipSeq/pair.label"/></h1>
@@ -13,7 +14,22 @@
 <div class="instructions">
    <fmt:message key="${workflowIName}.pairing_instructions.label"/>
 </div>
-
+<c:choose>
+<c:when test="${noPairingPossible == 'true' }">
+	<br />
+	<h2><fmt:message key="chipSeq.pairingNotPossible1.label"/></h2>	
+	<h3>&nbsp;&nbsp;&nbsp; * &nbsp;<fmt:message key="chipSeq.pairingNotPossible2.label"/></h3>
+	<h3>&nbsp;&nbsp;&nbsp; * &nbsp;<fmt:message key="chipSeq.pairingNotPossible3.label"/></h3>	
+	<h3>&nbsp;&nbsp;&nbsp; * &nbsp;<fmt:message key="chipSeq.pairingNotPossible4.label"/></h3>	
+	<br />
+	<h2><fmt:message key="chipSeq.pairingNotPossible5.label"/></h2>
+	<br />
+	<div class="submit">
+    	<input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<wasp:relativeUrl value="dashboard.do"/>'" /> 
+    	<input class="fm-button" type="button" value="<fmt:message key="jobDraft.continue.label" />" onClick="window.location='<wasp:relativeUrl value="${nextPage}"/>'" /> 
+	</div>
+</c:when>
+<c:otherwise>
 <form method="POST">
 <table class="data">
   	<tr class="row">
@@ -46,6 +62,10 @@
     <input type="submit" onClick="return confirmPairing();" value="<fmt:message key="jobDraft.continue.label" />" />
 </div>
 </form>
+
+</c:otherwise>
+</c:choose>
+
 <%-- 
 <form method="POST">
 <table class="data">
