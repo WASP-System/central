@@ -18,7 +18,7 @@
   <nav id="jobSubmit">
     <c:forEach items="${pageFlowMap}" var="entry" varStatus="status">
       <c:if test="${status.first == (1==1)}" >
-      	<span style="color:red; font-weight:bold"><fmt:message key="jobDraft.info_navigate.label" />: </span>
+      	<span style="color:red; font-weight:bold; font-size: larger"><fmt:message key="jobDraft.info_navigate.label" />: </span>
       </c:if>
       <a href="<wasp:relativeUrl value="${entry[0]}" />.do"><c:out value="${entry[1]}"/></a>
       <c:if test="${status.last != (1==1)}" >
