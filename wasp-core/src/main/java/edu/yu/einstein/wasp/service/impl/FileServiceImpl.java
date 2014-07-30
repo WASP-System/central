@@ -428,7 +428,9 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 	@Override
 	public Set<FileGroup> getFilesForLibraryByType(Sample library, FileType fileType, Set<? extends FileTypeAttribute> attributes, boolean hasOnlyAttributesSpecified) throws SampleTypeException {
 		Set<FileGroup> fgsWithAttributes = new LinkedHashSet<>();
-		for (FileGroup fg : getFilesForLibraryByType(library, fileType))
+		for (FileGroup fg : getFilesForLibraryByType(library, fileType)){
+			if (fg.getIsActive() == 0)
+				continue;
 			if (hasOnlyAttributesSpecified){
 				if (fileTypeService.hasOnlyAttributes(fg, attributes))
 					fgsWithAttributes.add(fg);
@@ -436,6 +438,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 				if (fileTypeService.hasAttributes(fg, attributes))
 					fgsWithAttributes.add(fg);
 			}
+		}
 		return fgsWithAttributes;
 	}
 
@@ -467,6 +470,8 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		Sample s = sampleDao.findById(library.getId());
 		Map<FileType, Set<FileGroup>> filesByType = new HashMap<FileType, Set<FileGroup>>();
 		for (FileGroup fg : s.getFileGroups()) {
+			if (fg.getIsActive() == 0)
+				continue;
 			FileType ft = fg.getFileType();
 			if (!filesByType.containsKey(ft))
 				filesByType.put(ft, new LinkedHashSet<FileGroup>());
@@ -476,12 +481,13 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 	}
 	
 	/**
-	 * {@inheritDoc}
+	 * Depreciated. Use getActiveFilesForCellLibrary(SampleSource cellLibrary)
 	 * 
 	 */
 	@Override
+	@Deprecated
 	public Set<FileGroup> getFilesForCellLibrary(SampleSource cellLibrary) {
-		return fileGroupDao.getFilesForCellLibrary(cellLibrary);
+		return getActiveFilesForCellLibrary(cellLibrary);
 	}
 	
 	/**
@@ -495,12 +501,13 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 	}
 	
 	/**
-	 * {@inheritDoc}
+	 * Depreciated. Use getActiveFilesForSample(Sample sample)
 	 * 
 	 */
 	@Override
+	@Deprecated
 	public Set<FileGroup> getFilesForSample(Sample sample) {
-		return fileGroupDao.getFilesForSample(sample);
+		return getActiveFilesForSample(sample);
 	}
 	
 	/**
@@ -597,6 +604,8 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		SampleSource ss = sampleService.getCellLibrary(cell, library);
 		Map<FileType, Set<FileGroup>> filesByType = new HashMap<FileType, Set<FileGroup>>();
 		for (FileGroup fg : ss.getFileGroups()) {
+			if (fg.getIsActive() == 0)
+				continue;
 			FileType ft = fg.getFileType();
 			if (!filesByType.containsKey(ft))
 				filesByType.put(ft, new HashSet<FileGroup>());
@@ -617,7 +626,11 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		if (!sampleService.isPlatformUnit(platformUnit))
 			throw new SampleTypeException("sample is not of type platformUnit");
 		Sample lib = sampleService.getSampleById(platformUnit.getId());
-		return lib.getFileGroups();
+		Set<FileGroup> fgs = new HashSet<>();
+		for (FileGroup fg : lib.getFileGroups())
+			if (fg.getIsActive() == 1)
+				fgs.add(fg);
+		return fgs;
 	}
 
 	/**
@@ -644,7 +657,9 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 	@Override
 	public Set<FileGroup> getFilesForPlatformUnitByType(Sample platformUnit, FileType fileType, Set<? extends FileTypeAttribute> attributes, boolean hasOnlyAttributesSpecified) throws SampleTypeException {
 		Set<FileGroup> fgsWithAttributes = new LinkedHashSet<>();
-		for (FileGroup fg : getFilesForPlatformUnitByType(platformUnit, fileType))
+		for (FileGroup fg : getFilesForPlatformUnitByType(platformUnit, fileType)){
+			if (fg.getIsActive() == 0)
+				continue;
 			if (hasOnlyAttributesSpecified){
 				if (fileTypeService.hasOnlyAttributes(fg, attributes))
 					fgsWithAttributes.add(fg);
@@ -652,6 +667,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 				if (fileTypeService.hasAttributes(fg, attributes))
 					fgsWithAttributes.add(fg);
 			}
+		}
 		return fgsWithAttributes;
 	}
 
@@ -668,6 +684,8 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		Sample s = sampleDao.findById(platformUnit.getId());
 		Map<FileType, Set<FileGroup>> filesByType = new HashMap<FileType, Set<FileGroup>>();
 		for (FileGroup fg : s.getFileGroups()) {
+			if (fg.getIsActive() == 0)
+				continue;
 			FileType ft = fg.getFileType();
 			if (!filesByType.containsKey(ft))
 				filesByType.put(ft, new HashSet<FileGroup>());
@@ -1167,7 +1185,6 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 			throw new FileUploadException(mess);
 		}
 
-		//////////String draftDir = gws.getTransportConnection().getConfiguredSetting("draft.dir");
 		String partialDir = gws.getTransportConnection().getConfiguredSetting(targetDir);
 		
 		if (partialDir == null) {
@@ -1176,7 +1193,6 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 			throw new FileUploadException(mess);
 		}
 
-		//String remoteDir = partialDir + "/" + id + "/";
 		String remoteDir;
 		if(additionalSubJobDir==null || additionalSubJobDir.isEmpty()){
 			remoteDir = partialDir + "/" + id + "/"; 
@@ -1195,32 +1211,28 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 			e.printStackTrace();
 			throw new FileUploadException(mess);
 		}
-
-		File localFile = this.createTempFile();
-
+		
+		File localFile = null;
+		OutputStream tmpFile = null;
 		try {
-			OutputStream tmpFile = new FileOutputStream(localFile);
-
-			int read = 0;
-			byte[] bytes = new byte[1024];
-
-			while ((read = inputStream.read(bytes)) != -1) {
-				tmpFile.write(bytes, 0, read);
-			}
-
-			inputStream.close();
-			tmpFile.flush();
-			tmpFile.close();
-		} catch (IOException e) {
+			localFile = this.createTempFile();
+			tmpFile = new FileOutputStream(localFile);
+			IOUtils.copy(inputStream, tmpFile);
+			IOUtils.closeQuietly(tmpFile);
+		} catch (Exception e) {
 			String mess = "Unable to generate local temporary file with contents of multipart file";
 			logger.warn(mess);
 			e.printStackTrace();
-			localFile.delete();
+			if (localFile != null){
+				IOUtils.closeQuietly(tmpFile);
+				localFile.delete();
+			}
 			throw new FileUploadException(mess);
+		} finally {
+			IOUtils.closeQuietly(inputStream);
 		}
 		
 		int randomNumber = randomNumberGenerator.nextInt(1000000000) + 100;
-		//String noSpacesFileName = mpFile.getOriginalFilename().replaceAll("\\s+", "_");
 		String noSpacesFileName = originalFileName.replaceAll("\\s+", "_");
 		String taggedNoSpacesFileName = randomNumber + "_" + noSpacesFileName;
 
@@ -1255,12 +1267,10 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 			e.printStackTrace();
 			throw new FileUploadException(mess);
 		} finally {
-			localFile.delete();
+			if (localFile != null)
+				localFile.delete();
 		}
 
-		fileHandleDao.save(file);
-		fileGroupDao.save(retGroup);
-		
 		return retGroup;
 	}	
 	
@@ -1784,9 +1794,6 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		} finally {
 			localFile.delete();
 		}
-
-		fileHandleDao.save(file);
-		fileGroupDao.save(retGroup);
 		
 		return retGroup;
 		
@@ -1832,7 +1839,9 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 	@Override
 	public Set<FileGroup> getFilesForMacromoleculeOrLibraryByType(Sample sample, FileType fileType, Set<? extends FileTypeAttribute> attributes, boolean hasOnlyAttributesSpecified) throws SampleTypeException {
 		Set<FileGroup> fgsWithAttributes = new LinkedHashSet<>();
-		for (FileGroup fg : getFilesForMacromoleculeOrLibraryByType(sample, fileType))
+		for (FileGroup fg : getFilesForMacromoleculeOrLibraryByType(sample, fileType)){
+			if (fg.getIsActive() == 0)
+				continue;
 			if (hasOnlyAttributesSpecified){
 				if (fileTypeService.hasOnlyAttributes(fg, attributes))
 					fgsWithAttributes.add(fg);
@@ -1840,6 +1849,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 				if (fileTypeService.hasAttributes(fg, attributes))
 					fgsWithAttributes.add(fg);
 			}
+		}
 		return fgsWithAttributes;
 	}
 	
@@ -1860,6 +1870,8 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		if (sampleTypeIName.equals("library") || sampleTypeIName.equals("dna") || sampleTypeIName.equals("rna")){
 			Sample s = sampleDao.findById(sample.getId());
 			for (FileGroup fg : s.getFileGroups()) {
+				if (fg.getIsActive() == 0)
+					continue;
 				FileType ft = fg.getFileType();
 				if (!filesByType.containsKey(ft)){
 					filesByType.put(ft, new LinkedHashSet<FileGroup>());
