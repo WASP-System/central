@@ -116,4 +116,27 @@ public class FileController {
 			}
 		}
 	}
+
+	@RequestMapping(method = {RequestMethod.GET, RequestMethod.HEAD}, value = "/get/gblinksfile/{uuid:.+}")
+	public void getMergeLinksInFileForGB(@PathVariable("uuid") String uuids, HttpServletRequest request, HttpServletResponse response) {
+		try {
+			wfService.processLinksFileRequest(uuids, request, response);
+			
+		} catch (IOException ex) {
+			if (ex.toString().contains("ClientAbortException")) {
+				logger.warn("Client abort when downloading files(" + uuids + ")");
+			} else {
+				logger.warn("Error writing files(" + uuids + ") to output stream.");
+				ex.printStackTrace();
+			}
+		} catch (WaspException e) {
+			logger.warn("unable to deliver files(" + uuids + ")");
+			try {
+				response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+	}
 }
