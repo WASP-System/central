@@ -1241,6 +1241,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		FileHandle file = new FileHandle();
 		file.setFileName(taggedNoSpacesFileName);
 		file.setFileURI(gfs.remoteFileRepresentationToLocalURI(remoteFile));
+		file = fileHandleDao.save(file);
 		FileGroup retGroup = new FileGroup();
 		retGroup.addFileHandle(file);
 		retGroup.setDescription(fileDescription);
@@ -1793,9 +1794,6 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		} finally {
 			localFile.delete();
 		}
-
-		fileHandleDao.save(file);
-		fileGroupDao.save(retGroup);
 		
 		return retGroup;
 		
