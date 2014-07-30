@@ -1,13 +1,13 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp"%>
 <script type="text/javascript"	src="<wasp:relativeUrl value='scripts/jquery/jquery.cookie.js' />"></script>
-<script type="text/javascript"	src="https://rawgithub.com/rgrove/lazyload/master/lazyload.js"></script>
-<script type="text/javascript"	src="https://rawgithub.com/johnculviner/jquery.fileDownload/master/src/Scripts/jquery.fileDownload.js"></script>
+<script type="text/javascript"	src="https://rawgit.com/rgrove/lazyload/master/lazyload.js"></script>
+<script type="text/javascript"	src="https://rawgit.com/johnculviner/jquery.fileDownload/master/src/Scripts/jquery.fileDownload.js"></script>
 <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
 <script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/ext-all-dev.js"></script>
 <script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/packages/ext-theme-neptune/build/ext-theme-neptune.js"></script>
 <script type="text/javascript"	src="<wasp:relativeUrl value='scripts/extjs/wasp/WaspNamespaceDefinition.js.jsp' />"></script>
-<script type="text/javascript"	src="<wasp:relativeUrl value='scripts/extjs/wasp/pdf.js/web/compatibility.js' />"></script>
-<script type="text/javascript"	src="<wasp:relativeUrl value='scripts/extjs/wasp/pdf.js/build/pdf.js' />"></script>
+<script type="text/javascript"	src="https://rawgit.com/mozilla/pdf.js/gh-pages/web/compatibility.js"></script>
+<script type="text/javascript"	src="https://rawgit.com/mozilla/pdf.js/gh-pages/build/pdf.js"></script>
 
 <link rel="stylesheet" type="text/css" href="<wasp:relativeUrl value='css/ext-theme-neptune-all-wasp.css' />" />
 <link rel="stylesheet" type="text/css" href="<wasp:relativeUrl value='css/portal.css' />" />
