@@ -348,9 +348,11 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 			for(SampleDraftMeta sampleDraftMeta : sampleDraft.getSampleDraftMeta()){
 				if(sampleDraftMeta.getK().endsWith("organism")){
 					Integer genomeId = Integer.valueOf(sampleDraftMeta.getV());
-					String speciesName = genomeService.getOrganismMap().get(genomeId).getName();
+					if(genomeId != 0){//0 indicates species Other
+						String speciesName = genomeService.getOrganismMap().get(genomeId).getName();
 					//System.out.println("want species------------------------sampleDraft: " + sampleDraft.getName() + "   " + " species: " + speciesName);
-					sampleDraftSpeciesNameMap.put(sampleDraft, speciesName);
+						sampleDraftSpeciesNameMap.put(sampleDraft, speciesName);
+					}
 				}
 				if(sampleDraftMeta.getK().endsWith("inputOrIP")){
 					if(sampleDraftMeta.getV().equals("ip")){

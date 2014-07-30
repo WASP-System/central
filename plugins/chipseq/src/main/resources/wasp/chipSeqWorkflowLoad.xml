@@ -71,6 +71,10 @@
           <property name="baseName" value="jobsubmit/samples" />
           <property name="label" value="chipSeq.samples.title" />
         </bean>
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/chipSeq/chipSeqSpecificSampleReview" />
+          <property name="label" value="chipSeq.chipSeqSpecificSampleReview.title" />
+        </bean>
 		<bean parent="chipSeqUiFieldWrapper">
 			<property name="baseName" value="jobsubmit/genomes" />
 			<property name="label" value="chipSeq.genomes.title" />

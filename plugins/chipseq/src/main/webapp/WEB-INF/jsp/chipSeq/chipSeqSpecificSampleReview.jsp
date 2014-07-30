@@ -7,7 +7,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 	
 <c:set var="workflowIName" value="${jobDraft.getWorkflow().getIName()}" />
-<h1><fmt:message key="jobDraft.create.label"/> -- <fmt:message key="${workflowIName}.jobsubmit/chipSeq/sampleReview.label"/></h1>
+<h1><fmt:message key="jobDraft.create.label"/> -- <fmt:message key="${workflowIName}.jobsubmit/chipSeq/chipSeqSpecificSampleReview.label"/></h1>
 
 <%@ include file="/WEB-INF/jsp/jobsubmit/jobsubmitinfo.jsp" %>
  
