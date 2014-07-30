@@ -494,7 +494,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 				sampleDraft.setSampleDraftMeta(normalizedMeta);
 				sampleDraftList.add(sampleDraft);
 			
-				List<String> errorList = this.checkForInputOrIPError(normalizedMeta);
+				List<String> errorList = this.checkForInputOrIPOrOrganismError(normalizedMeta);
 				if(!errorList.isEmpty()){
 					errorsExist = true;
 				}
@@ -506,15 +506,17 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		m.addAttribute("sampleDraftErrorListMap", sampleDraftErrorListMap);
 		m.addAttribute("errorsExist", errorsExist);
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
+		m.addAttribute("organisms",  genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
 		return "jobsubmit/chipSeqSpecificSampleReview";
 	}
 	
-	private List<String> checkForInputOrIPError(List<SampleDraftMeta> sampleDraftMetaList){
+	private List<String> checkForInputOrIPOrOrganismError(List<SampleDraftMeta> sampleDraftMetaList){
 		List<String> errorList = new ArrayList<String>();
 		
 		String inputOrIP = "";//should be either ip or input
 		String antibodyTarget = "";//if IP, should not be empty. For input/control, the value is NOT used, so let user do whatever they like
 		String peakType = "";//punctate, broad, mixed, none    (should be "punctate", "broad", or "mixed" if IP; should be "none" if sample is input)
+		String organism = "";//cannot be empty
 		
 		for(SampleDraftMeta sdm : sampleDraftMetaList){
 			if(sdm.getK().contains("inputOrIP")){
@@ -526,14 +528,19 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 			else if(sdm.getK().contains("peakType")){
 				peakType = sdm.getV();
 			}
+			else if(sdm.getK().contains("organism")){
+				organism = sdm.getV();
+			}
 		}
 		
-		//The next two if statements are very unlikely to occur since the samples webpage should not permit these two pieces of metadata from being empty
 		if(inputOrIP.isEmpty()){
 			errorList.add(messageService.getMessage("chipSeq.ip_input_empty.error"));//IP or Input/Control cannot be empty
 		}
 		if(peakType.isEmpty()){
 			errorList.add(messageService.getMessage("chipSeq.peakType_empty.error"));//Peak Type cannot be empty
+		}
+		if(organism.isEmpty()){
+			errorList.add(messageService.getMessage("chipSeq.organism_empty.error"));//Organism cannot be empty
 		}
 		
 		if(inputOrIP.equals("ip")){
@@ -575,18 +582,22 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 
 		String[] inputOrIPValues = null;
 		String[] antibodyTargetValues = null;
-		String[] peakTypeValues = null;		
+		String[] peakTypeValues = null;	
+		String[] organismValues = null;
 		
 		Map<String, String[]> parameterMap = request.getParameterMap();
 		for (String key : parameterMap.keySet()) {
-			if(key.contains("inputOrIP")){
+			if(key.endsWith("inputOrIP")){
 				inputOrIPValues = parameterMap.get(key);
 			}
-			else if(key.contains("antibody")){
+			else if(key.endsWith("antibody")){
 				antibodyTargetValues = parameterMap.get(key);
 			}
-			else if(key.contains("peakType")){
+			else if(key.endsWith("peakType")){
 				peakTypeValues = parameterMap.get(key);
+			}
+			else if(key.endsWith("organism")){
+				organismValues = parameterMap.get(key);
 			}
 		}
 		
@@ -605,14 +616,17 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 				logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
 			}
 			for(SampleDraftMeta sdm : normalizedMeta){
-				if(sdm.getK().contains("inputOrIP")){
+				if(sdm.getK().endsWith("inputOrIP")){
 					sdm.setV(inputOrIPValues[counter]);
 				}
-				else if(sdm.getK().contains("antibody")){
+				else if(sdm.getK().endsWith("antibody")){
 					sdm.setV(antibodyTargetValues[counter]);
 				}
-				else if(sdm.getK().contains("peakType")){
+				else if(sdm.getK().endsWith("peakType")){
 					sdm.setV(peakTypeValues[counter]);
+				}
+				else if(sdm.getK().endsWith("organism")){
+					sdm.setV(organismValues[counter]);
 				}
 			}
 			//conscious decision by Rob: save the new meta, even if it has problems. will check below (if errorsExist==true) and return to jobsubmit/chipSeqSpecificSampleReview if errors
@@ -624,7 +638,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 			sampleDraft.setSampleDraftMeta(normalizedMeta);			
 			sampleDraftList.add(sampleDraft);
 			
-			List<String> errorList = this.checkForInputOrIPError(normalizedMeta);
+			List<String> errorList = this.checkForInputOrIPOrOrganismError(normalizedMeta);
 			if(!errorList.isEmpty()){
 				errorsExist = true;
 			}
@@ -639,6 +653,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 			m.addAttribute("sampleDraftErrorListMap", sampleDraftErrorListMap);
 			m.addAttribute("errorsExist", errorsExist);
 			m.put("pageFlowMap", getPageFlowMap(jobDraft));
+			m.addAttribute("organisms",  genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
 			return "jobsubmit/chipSeqSpecificSampleReview";
 		}
 		

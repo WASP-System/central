@@ -40,7 +40,7 @@
 								</c:if>
 								<c:set var="labelKey" value="${_meta.property.label}" />								
 								<c:set var="id" value="${fn:substringAfter(_meta.k,'.')}" />
-								<c:if test="${id=='inputOrIP' || id=='antibody' || id=='peakType'}">
+								<c:if test="${id=='inputOrIP' || id=='antibody' || id=='peakType' || id=='organism'}">
 									<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap>${labelKey}
 										<c:if test="${not empty _meta.property.constraint}">
 											<span style="color:red">*</span>
@@ -81,7 +81,7 @@
 							</c:if>
 							<c:set var="labelKey" value="${_meta.property.label}" />
 							<c:set var="id" value="${fn:substringAfter(_meta.k,'.')}" />
-							<c:if test="${id=='inputOrIP' || id=='antibody' || id=='peakType'}">
+							<c:if test="${id=='inputOrIP' || id=='antibody' || id=='peakType' || id=='organism'}">
 							<td align='center' class="DataTD">
 								<c:choose>
 									<c:when test="${not empty _meta.property.control}">
