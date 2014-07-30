@@ -52,16 +52,8 @@ public class GatkServiceImpl extends WaspServiceImpl implements GatkService {
 	
 	@Override
 	public Build getBuildForFg(FileGroup fileGroup){
-		// follow back along a single line to an original file group which should be a fastq file
-		// figure out the genome from its sample source
-		// We assume all source files share a common genome
-		// TODO: verify that all builds are the same for all cell libraries 
-		while (fileGroup.getDerivedFrom() != null && fileGroup.getDerivedFrom().iterator().hasNext())
-			fileGroup = fileGroup.getDerivedFrom().iterator().next();
-		Set<SampleSource> fgCl = fileGroup.getSampleSources();
-		if (fgCl == null || fgCl.isEmpty())
-			return null;
-		return genomeService.getGenomeBuild(fgCl.iterator().next());
+		// method moved to genomeService
+		return genomeService.getBuildForFg(fileGroup);
 	}
 	
 	@Override

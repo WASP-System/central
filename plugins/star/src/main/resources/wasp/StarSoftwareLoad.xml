@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd"
+    default-autowire="byName">
+    
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="starUiFieldWrapper">
+    <property name="baseArea" ref="starPluginArea" />
+  </bean>
+
+  <bean id="star" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
+  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugins.star.software.Star</value></property>
+    <property name="name" value="Star" />
+    <property name="description" value="STAR RNA-seq aligner" />
+    <property name="area" ref="starPluginArea" />
+    <property name="resourceType" ref="genericPluginResourceType" /> <!-- TODO: choose a more appropriate resource type -->
+	
+	<property name="metaFromWrapper">
+       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
+         <property name="area" ref="starPluginArea" />
+         <!-- Load any software metadata 
+         <property name="metaList">
+         	<list>
+         		<value>star.myMetaValue=foo</value>
+         	</list>
+       	 </property>
+       	 -->
+       </bean>
+    </property> 
+  </bean> 
+
+</beans>

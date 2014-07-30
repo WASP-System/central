@@ -194,40 +194,4 @@ public abstract class AbstractBWASoftwareComponent extends ReferenceBasedAligner
 		return index;
 	}
 
-	@Override
-	public Genome getGenome(String genome) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean genomeExists(Genome genome) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void buildGenome(Genome genome) throws WaspException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public boolean metadataExists(Genome genome) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean metadataAvailable(Genome genome) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void buildMetadata(Genome genome) throws WaspException {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

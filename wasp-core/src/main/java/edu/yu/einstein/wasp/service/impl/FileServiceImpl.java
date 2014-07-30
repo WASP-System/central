@@ -1929,5 +1929,10 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		}
 		return null;
 	}
+
+	@Override
+	public FileGroupMetaDao getFileGroupMetaDao() {
+		return fileGroupMetaDao;
+	}
 }
 

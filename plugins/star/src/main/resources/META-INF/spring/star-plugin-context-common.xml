@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans"
+	default-autowire="byName"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+		
+	<context:component-scan base-package="edu.yu.einstein.wasp.plugins.star.service.impl" />
+
+	<bean id="starPluginArea" class="java.lang.String">
+		<constructor-arg>
+			<value>star</value>
+		</constructor-arg>
+	</bean>
+	
+	<!-- channel for communications with this plugin. -->
+	<int:channel id="wasp.channel.plugin.star" />
+
+	<int:service-activator input-channel="wasp.channel.plugin.star" ref="starPlugin" method="process" />
+	
+	<bean id="starPlugin" class="edu.yu.einstein.wasp.plugins.star.plugin.StarPlugin">
+		<constructor-arg name="iName" ref="starPluginArea" />
+		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.star" />
+		<property name="name" value="STAR" />
+		<property name="description" value="STAR RNA-seq aligner" />
+		<property name="provides" >
+			<set>
+				<ref bean="star" /> 
+			</set>
+		</property>
+		<property name="handles" >
+			<set>
+				<ref bean="starPluginArea" />
+			</set>
+		</property>
+	</bean>
+
+</beans>

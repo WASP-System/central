@@ -3,6 +3,7 @@
  */
 package edu.yu.einstein.wasp.service.impl;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +34,7 @@ import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
@@ -256,16 +258,123 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 	public Organism getOrganismById(Integer organismId) {
 		return this.organisms.get(organismId);
 	}
+	
+	private String getMetadataPath(GridWorkService workService) {
+		return workService.getTransportConnection().getConfiguredSetting("metadata.root");
+	}
+	
+	private String getMetadataSubdirPath(GridWorkService workService, Build build, String index, String subdirectory) {
+		String path = getMetadataPath(workService) + "/" + getRemoteBuildPathSubstring(build) + index + "/";
+		if (subdirectory != null) 
+			path += subdirectory + "/";
+		return path;
+	}
 
 
 	/**
+	 * {@inheritDoc} 
+	 */
+	@Override
+	public boolean exists(GridWorkService workService, Build build, String index) throws IOException {
+		return exists(workService, build, index, null);
+	}
+	
+	/** 
+	 * {@inheritDoc} 
+	 */
+	@Override
+	public boolean exists(GridWorkService workService, Build build, String index, String subdirectory) throws IOException {
+		String path = getMetadataSubdirPath(workService, build, index, subdirectory);
+		return workService.getGridFileService().exists(path);
+	}
+
+	/** 
+	 * {@inheritDoc} 
+	 */
+	@Override
+	public boolean isStarted(GridWorkService workService, Build build, String index) throws IOException {
+		return isStarted(workService, build, index, null);
+	}
+
+	/** 
+	 * {@inheritDoc} 
+	 */
+	@Override
+	public boolean isCompleted(GridWorkService workService, Build build, String index) throws IOException {
+		return isCompleted(workService, build, index, null);
+	}
+
+	/** 
+	 * {@inheritDoc} 
+	 */
+	@Override
+	public boolean isStarted(GridWorkService workService, Build build, String index, String subdir) throws IOException {
+		String path = getMetadataSubdirPath(workService, build, index, subdir);
+		path += GenomeService.INDEX_CREATION_STARTED;
+		return workService.getGridFileService().exists(path);
+	}
+
+	/** 
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean exists(GridWorkService workService, Build build, String index) {
-		// TODO Auto-generated method stub
-		// this is to get through at the moment
-		return true;
+	public boolean isCompleted(GridWorkService workService, Build build, String index, String subdir) throws IOException {
+		String path = getMetadataSubdirPath(workService, build, index, subdir);
+		path += GenomeService.INDEX_CREATION_COMPLETED;
+		return workService.getGridFileService().exists(path);
+	}
+
+	/** 
+	 * {@inheritDoc} 
+	 */
+	@Override
+	public void createIndexLocation(GridWorkService workService, Build build, String index) throws IOException {
+		createIndexLocation(workService, build, index, null);
+	}
+
+	/** 
+	 * {@inheritDoc} 
+	 */
+	@Override
+	public void createIndexLocation(GridWorkService workService, Build build, String index, String subdir) throws IOException {
+		String path = getMetadataSubdirPath(workService, build, index, subdir);
+		workService.getGridFileService().mkdir(path);	
+	}
+
+	/** 
+	 * {@inheritDoc} 
+	 */
+	@Override
+	public void markIndexBegun(GridWorkService workService, Build build, String index) throws IOException {
+		markIndexBegun(workService, build, index, null);
+	}
+
+	/** 
+	 * {@inheritDoc} 
+	 */
+	@Override
+	public void markIndexBegun(GridWorkService workService, Build build, String index, String subdir) throws IOException {
+		String path = getMetadataSubdirPath(workService, build, index, subdir) + GenomeService.INDEX_CREATION_STARTED;
+		workService.getGridFileService().touch(path);
+		
+	}
+
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void markIndexComplete(GridWorkService workService, Build build, String index) throws IOException {
+		markIndexComplete(workService, build, index, null);
+	}
+
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void markIndexComplete(GridWorkService workService, Build build, String index, String subdir) throws IOException {
+		String path = getMetadataSubdirPath(workService, build, index, subdir) + GenomeService.INDEX_CREATION_COMPLETED;
+		workService.getGridFileService().touch(path);
+		
 	}
 	
 	/**
@@ -438,8 +547,12 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 	 */
 	@Override
 	public String getRemoteBuildPath(Build build) {
-		String path = "${" + WorkUnit.METADATA_ROOT + "}/" + 
-				build.getGenome().getOrganism().getNcbiID() +"/"+
+		String path = "${" + WorkUnit.METADATA_ROOT + "}/" + getRemoteBuildPathSubstring(build); 
+		return path;
+	}
+	
+	private String getRemoteBuildPathSubstring(Build build) {
+		String path = build.getGenome().getOrganism().getNcbiID() +"/"+
 				build.getGenome().getName() + "/" + 
 				build.getName() + "/";
 		return path;
@@ -500,6 +613,23 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 		if (folder == null || folder.isEmpty() || filename == null || filename.isEmpty())
 			throw new MetadataRuntimeException("failed to locate reference genome fasta file");
 		return getRemoteBuildPath(build) + "/" + folder + "/" + filename;
+	}
+	
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Build getBuildForFg(FileGroup fileGroup){
+		// follow back along a single line to an original file group which should be a fastq file
+		// figure out the genome from its sample source
+		// We assume all source files share a common genome
+		// TODO: verify that all builds are the same for all cell libraries 
+		while (fileGroup.getDerivedFrom() != null && fileGroup.getDerivedFrom().iterator().hasNext())
+			fileGroup = fileGroup.getDerivedFrom().iterator().next();
+		Set<SampleSource> fgCl = fileGroup.getSampleSources();
+		if (fgCl == null || fgCl.isEmpty())
+			return null;
+		return getGenomeBuild(fgCl.iterator().next());
 	}
 
 }

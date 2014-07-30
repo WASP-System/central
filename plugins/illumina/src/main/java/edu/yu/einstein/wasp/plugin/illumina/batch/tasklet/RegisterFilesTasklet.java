@@ -33,6 +33,7 @@ import edu.yu.einstein.wasp.grid.work.SoftwareManager;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Run;
@@ -42,6 +43,8 @@ import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.plugin.fileformat.service.impl.FastqServiceImpl;
 import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
 import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
+import edu.yu.einstein.wasp.plugin.mps.SequenceReadProperties;
+import edu.yu.einstein.wasp.plugin.mps.SequenceReadProperties.ReadType;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
 import edu.yu.einstein.wasp.service.RunService;
@@ -328,6 +331,7 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
             fileService.register(pufg.getFileHandles());
 
             for (SampleSource cl : cellLibSeqfg.keySet()) {
+            	
                 // save all samplefile groups
                 logger.debug("saving cell library " + cl.getId());
                 FileGroup sfg = cellLibSeqfg.get(cl);
@@ -337,6 +341,24 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
                 fileService.addFileGroup(sfg);
                 cl.getFileGroups().add(sfg);
                 sampleService.getSampleSourceDao().save(cl);
+                
+
+            	List<Integer> lens = waspIlluminaService.getLengthOfReadSegments(run);
+            	int segs = waspIlluminaService.getNumberOfReadSegments(run);
+            	ReadType rt;
+            	if (segs == 1) {
+            		rt = ReadType.SINGLE;
+            	} else if (segs == 2) {
+            		rt = ReadType.PAIRED;
+            	} else {
+            		logger.warn("ReadType with " + segs + " read segments is unknown!");
+            		rt = new ReadType("UNKNOWN: " + segs);
+            	}
+            	
+            	SequenceReadProperties srp = new SequenceReadProperties(rt, lens.get(0) - 1); // illumina sequences read length +1
+            	
+            	SequenceReadProperties.setSequenceReadProperties(srp, sfg, fileService.getFileGroupMetaDao(), FileGroupMeta.class);
+                
             }
 
         } catch (Exception e) {
