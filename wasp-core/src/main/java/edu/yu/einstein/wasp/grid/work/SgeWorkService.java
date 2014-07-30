@@ -80,8 +80,8 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	private static final String HOST_NODE_KEY = "Host Node";
 	private static final String START_TIME_KEY = "Start Time";
 	
-	private static final long NO_FILE_SIZE_LIMIT = -1L;
-	private static final long MAX_32MB = 1024 * 32;
+	public static final long NO_FILE_SIZE_LIMIT = -1L;
+	public static final long MAX_32MB = 1024 * 32;
     
     @Value("${wasp.developermode:false}")
     protected boolean developerMode;
