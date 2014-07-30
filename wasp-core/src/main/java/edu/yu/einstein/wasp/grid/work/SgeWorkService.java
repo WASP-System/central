@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -78,6 +79,9 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	private static final String GRID_JOB_NAME = "Grid Job Name";
 	private static final String HOST_NODE_KEY = "Host Node";
 	private static final String START_TIME_KEY = "Start Time";
+	
+	private static final long NO_FILE_SIZE_LIMIT = -1L;
+	private static final long MAX_32MB = 1024 * 32;
     
     @Value("${wasp.developermode:false}")
     protected boolean developerMode;
@@ -417,7 +421,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			started = isJobStarted(g);
 			if (started && g.getGridJobId() == null){
 				try{
-					Map<String, String> gridJobInfo = getJobInfoFromJson(new JSONArray(getUnregisteredFileContents(g, g.getId() + ".start")));
+					Map<String, String> gridJobInfo = getJobInfoFromJson(new JSONArray(getUnregisteredFileContents(g, g.getId() + ".start", NO_FILE_SIZE_LIMIT)));
 					g.setGridJobId(Long.valueOf(gridJobInfo.get(GRID_JOB_ID_KEY)));
 					for (String key : gridJobInfo.keySet()){
 						String value = gridJobInfo.get(key);
@@ -853,17 +857,26 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		return (GridResult) result;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setAvailableParallelEnvironments(String commaDelimitedParallelEnvironments){
 		for (String parallelEnv : commaDelimitedParallelEnvironments.split(","))
 			this.parallelEnvironments.add(parallelEnv);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Set<String> getAvailableParallelEnvironments() {
 		return this.parallelEnvironments;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getDefaultParallelEnvironment() {
 		return defaultParallelEnvironment;
@@ -881,6 +894,9 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getDefaultMpiParallelEnvironment() {
 		return defaultMpiParallelEnvironment;
@@ -1151,6 +1167,9 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			return procsStr;
 		}
 
+		/**
+		 * {@inheritDoc}
+		 */
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
 			sb.append(header)
@@ -1293,6 +1312,9 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public GridFileService getGridFileService() {
 		return gridFileService;
@@ -1301,6 +1323,10 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	public void setGridFileService(GridFileService gridFileService) {
 		this.gridFileService = gridFileService;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public GridTransportConnection getTransportConnection() {
 		return transportConnection;
@@ -1426,29 +1452,38 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		throw new FileNotFoundException("Archive " + f.getAbsolutePath() + " did not appear to contain " + contentName);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setApplicationContext(ApplicationContext arg0) throws BeansException {
 		this.applicationContext = arg0;
 		
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public String getResultStdOut(GridResult r) throws IOException {
-		return getResultOutputFile(r, "out");
+	public String getResultStdOut(GridResult r, long tailByteLimit) throws IOException {
+		return getResultOutputFile(r, "out", tailByteLimit);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public String getResultStdErr(GridResult r) throws IOException {
-		return getResultOutputFile(r, "err");
+	public String getResultStdErr(GridResult r, long tailByteLimit) throws IOException {
+		return getResultOutputFile(r, "err", tailByteLimit);
 	}
 	
-	private String getResultOutputFile(GridResult r, String type) throws IOException {
+	private String getResultOutputFile(GridResult r, String type, long tailByteLimit) throws IOException {
 		String result = "";
-		File f = File.createTempFile("wasp", "work");
+		File t = File.createTempFile("wasp", "work"); // tar archive
         String path = r.getArchivedResultOutputPath();
-        logger.debug("temporary tar file " + f.getAbsolutePath() + " for " + path);
-        gridFileService.get(path, f);
-        FileInputStream afis = new FileInputStream(f);
+        logger.debug("temporary tar file " + t.getAbsolutePath() + " for " + path);
+        gridFileService.get(path, t);
+        FileInputStream afis = new FileInputStream(t);
         GZIPInputStream agz = new GZIPInputStream(afis);
         TarArchiveInputStream a = new TarArchiveInputStream(agz);
         try {
@@ -1460,20 +1495,39 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
                 if (!filem.find())
                     continue;
                 logger.trace("matched " + e.getName() + " size " + e.getSize());
-                result = IOUtils.toString(a, "UTF-8");
+                if (tailByteLimit == NO_FILE_SIZE_LIMIT)
+                	result = IOUtils.toString(a, "UTF-8");
+                else {
+                	RandomAccessFile raf = null;
+                	try{
+	                	raf = new RandomAccessFile(a.getCurrentEntry().getFile(), "r");
+	                	long strLen = (raf.length() < MAX_32MB) ? raf.length() : MAX_32MB;
+	                		
+	                    raf.seek(strLen - MAX_32MB);
+	                    byte[] b = new byte[(int) strLen];
+	                    raf.readFully(b);
+	                    result = new String(b, "UTF-8");
+                	} finally {
+                		if (raf != null)
+                			raf.close();
+                	}
+                }
                 break;
             }
         } finally {
             a.close();
             agz.close();
             afis.close();
-            f.delete();
+            t.delete();
         }
         return result;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public String getUnregisteredFileContents(GridResult r, String filename) throws IOException {
+	public String getUnregisteredFileContents(GridResult r, String filename, long tailByteLimit) throws IOException {
 		
 		String result;
 		File f = null;
@@ -1491,11 +1545,17 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		return result;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean isNumProcConsumable() {
 		return isNumProcConsumable;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setNumProcConsumable(boolean isNumProcConsumable) {
 		this.isNumProcConsumable = isNumProcConsumable;
