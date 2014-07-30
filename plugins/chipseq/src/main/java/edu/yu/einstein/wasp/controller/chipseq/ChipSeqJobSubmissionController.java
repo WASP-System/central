@@ -116,7 +116,9 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 			boolean foundInputOrIP = false;
 			for(SampleDraftMeta sampleDraftMeta : sampleDraft.getSampleDraftMeta()){
 				if(sampleDraftMeta.getK().endsWith("organism")){
-					sampleDraftOrganismMap.put(sampleDraft, new Integer(sampleDraftMeta.getV()));
+					if(!sampleDraftMeta.getV().equals("0")){//species == OTHER
+						sampleDraftOrganismMap.put(sampleDraft, new Integer(sampleDraftMeta.getV()));
+					}
 				}
 				if(sampleDraftMeta.getK().endsWith("inputOrIP")){
 					if(sampleDraftMeta.getV().equals("input")){
@@ -345,7 +347,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		for(SampleDraft sampleDraft : sampleDrafts){			
 			for(SampleDraftMeta sampleDraftMeta : sampleDraft.getSampleDraftMeta()){
 				if(sampleDraftMeta.getK().endsWith("organism")){
-					Integer genomeId = Integer.parseInt(sampleDraftMeta.getV());
+					Integer genomeId = Integer.valueOf(sampleDraftMeta.getV());
 					String speciesName = genomeService.getOrganismMap().get(genomeId).getName();
 					//System.out.println("want species------------------------sampleDraft: " + sampleDraft.getName() + "   " + " species: " + speciesName);
 					sampleDraftSpeciesNameMap.put(sampleDraft, speciesName);
@@ -444,7 +446,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
     		String replicateSetNumberAsString = completeKey.replaceFirst(paramPrefix, "");//so testSampleDraftIdForExistingReplicateSet__1 is converted to 1
     		Integer replicateSetNumberAsInteger = null;
     		try{
-    			replicateSetNumberAsInteger = Integer.parseInt(replicateSetNumberAsString);
+    			replicateSetNumberAsInteger = Integer.valueOf(replicateSetNumberAsString);
     		}catch(Exception e){
     			waspErrorMessage("wasp.unexpected_error.error");
     			return "redirect:/jobsubmit/chipSeq/replicates/"+jobDraftId+".do";
