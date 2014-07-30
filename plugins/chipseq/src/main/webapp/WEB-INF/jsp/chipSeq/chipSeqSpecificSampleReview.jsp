@@ -12,7 +12,7 @@
 <%@ include file="/WEB-INF/jsp/jobsubmit/jobsubmitinfo.jsp" %>
  
 <div class="instructions">
-   <fmt:message key="${workflowIName}.sampleReview_instructions.label"/>
+   <fmt:message key="${workflowIName}.chipSeqSpecificSampleReview_instructions.label"/>
 </div>
 
 <br />
@@ -26,10 +26,7 @@
 			<c:forEach items="${sampleDraftList}" var="sampleDraft" varStatus="sampleDraftStatus">
 				<c:if test="${sampleDraftStatus.first}">
 					<tr class="FormData">
-						<c:if test="${fn:length(errorList)>0}">
-							<td align='center' style="background-color:#FAF2D6; font-weight:bold; color:red" nowrap><fmt:message key="jobsubmitManySamples.errors.label" /></td>
-							<c:set var="colspan" value = '${colspan + 1}' scope="request"/>
-						</c:if>
+						
 						<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap><fmt:message key="jobsubmitManySamples.sampleName.label" /></td>
 						<c:set var="colspan" value = '${colspan + 1}' scope="request"/>
 					    <c:set var="_area" value = "sampleDraft" scope="request"/>
@@ -56,29 +53,19 @@
 								</c:if>
 							</c:if>
 						</c:forEach>
-						<c:if test="${empty edit}">
-							<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap><fmt:message key="jobsubmitManySamples.action.label" /></td>
-						</c:if>
-						<c:if test="${edit=='true'}">
+						
+						<c:if test="${errorsExist=='true'}">
 							<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap>
-								<fmt:message key="jobsubmitManySamples.deleteRow.label" />
+								<fmt:message key="chipSeq.chipSeqSpecificSampleReview_errors.label" />
 							</td>
+							<c:set var="colspan" value = '${colspan + 1}' scope="request"/>
 						</c:if>
-						<c:set var="colspan" value = '${colspan + 1}' scope="request"/>
+						
 					</tr>
 				</c:if>
 				
 				<tr>
-					<c:if test="${fn:length(errorList)>0}">
-						<c:choose>
-							<c:when test="${empty errorList.get(sampleDraftStatus.index)}">
-								<td >&nbsp;</td>
-							</c:when>
-							<c:otherwise>
-								<td id="errorMessageThatShouldNotBeCopied" align='center' style="background-color:red;" nowrap><wasp:tooltip value="${errorList.get(sampleDraftStatus.index)}" /></td>
-							</c:otherwise>
-						</c:choose>
-					</c:if>
+					
 					<td>					
 						<input type='hidden' name="sampleId" id="" value='${sampleDraft.getId()}'/>
 						<c:out value="${sampleDraft.getName()}" />
@@ -131,33 +118,28 @@
 								</c:choose>
 							</td>
 							</c:if>
-							<c:if test="${ id=='adaptorset' }">
-								 <input type='hidden' name="${_area}Meta_${_meta.k}" id="${id}" value=''/>			 				
-							</c:if>
+							
 						</c:if>			 
 					</c:forEach>
-					<td align='center'>
-						<c:if test="${empty edit}">
-							<input type="button" class="delRow" value="<fmt:message key="jobsubmitManySamples.deleteRow.label" />"/><%--this button IS controlled by the javascript that removes a new row; it's used for new samples or new libraries --%>
+					
+						<c:if test="${errorsExist=='true'}">
+						<td align='left' class="CaptionTD error">
+						   <c:set var="errorList" value="${sampleDraftErrorListMap.get(sampleDraft)}" />
+						   <c:forEach items="${errorList}" var="error" varStatus="errorStatus">
+						   		<c:if test="${not errorStatus.first}">
+						   			<br />
+						   		</c:if>
+						   		<c:out value="${error }" />
+						   </c:forEach>
+						</td>
 						</c:if>
-						<c:if test="${edit=='true'}">
-							<%-- <input type="button" class="delRow" value="Need To Do: Delete Row"/>--%><%--NOT controlled by that javascript that removes new rows --%>
-							<select name="deleteRow" id="deleteRow" class="FormElement ui-widget-content ui-corner-all">
-								<option value="no"  <c:if test="${deleteRowsList.get(sampleDraftStatus.index)=='no'}">selected</c:if>  ><fmt:message key="jobsubmitManySamples.NO.label" /></option>
-								<option value="yes" <c:if test="${deleteRowsList.get(sampleDraftStatus.index)=='yes'}">selected</c:if>  ><fmt:message key="jobsubmitManySamples.YES.label" /></option>
-							</select>
-							<input type='hidden' name="edit" id="" value='${edit}'/><%--need this here if user hits save button and there are errors in the post; we need to inform that this is an edit --%>
-						</c:if>
-					</td>
+					
 				</tr>
 			</c:forEach>
-			<%--do NOT remove this next line; it's colspan is needed to set colspan of first table row if there are libraries!! --%>
-			<tr ><td id="singleCellInVeryLastTableRow" colspan="${colspan}" align="center"><c:if test="${empty edit}"><input style="width:300" type="button" class="addRow" value="<fmt:message key="jobsubmitManySamples.addAdditionalRow.label" />"/></c:if></td></tr>
 			
 			</table>
 		</div>
 		<input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<wasp:relativeUrl value="dashboard.do"/>'" /> 
-		
 		<input type="submit" name="submit" id="submit" value="<fmt:message key="jobDraft.continue.label"/>" />
 	</form>
 

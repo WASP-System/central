@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.controller.chipseq;
 
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -22,6 +23,7 @@ import edu.yu.einstein.wasp.controller.util.SampleAndSampleDraftMetaHelper;
 import edu.yu.einstein.wasp.dao.JobDraftDao;
 import edu.yu.einstein.wasp.dao.JobDraftMetaDao;
 import edu.yu.einstein.wasp.dao.SampleDraftDao;
+import edu.yu.einstein.wasp.dao.SampleDraftMetaDao;
 import edu.yu.einstein.wasp.exception.MetadataTypeException;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.JobDraft;
@@ -36,10 +38,10 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 
 	@Autowired
 	protected JobDraftDao jobDraftDao;
-
 	@Autowired
 	protected SampleDraftDao sampleDraftDao;
-	
+	@Autowired
+	protected SampleDraftMetaDao sampleDraftMetaDao;	
 	@Autowired
 	protected JobDraftMetaDao jobDraftMetaDao;
 
@@ -475,28 +477,22 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		boolean errorsExist = false;
 		for(SampleDraft sampleDraft : jobDraft.getSampleDraft()){
 			
-			System.out.println("SampleDraftName: " + sampleDraft.getName());
-			
 				List<SampleDraftMeta> normalizedMeta = new ArrayList<SampleDraftMeta>();
 				try {			
 					normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(sampleDraft.getSampleSubtype(), sampleDraft.getSampleDraftMeta(), SampleDraftMeta.class));
-					//not right for here: normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(sampleSubtype, SampleDraftMeta.class));
 				} catch (MetadataTypeException e) {
 					logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
 				}
 				sampleDraft.setSampleDraftMeta(normalizedMeta);
 				sampleDraftList.add(sampleDraft);
-			System.out.println("got the meta:" + normalizedMeta.size());
 			
-				List<String> errorList = this.checkForInputOrIPError(sampleDraft);
+				List<String> errorList = this.checkForInputOrIPError(normalizedMeta);
 				if(!errorList.isEmpty()){
 					errorsExist = true;
 				}
-				sampleDraftErrorListMap.put(sampleDraft, errorList);
-			
+				sampleDraftErrorListMap.put(sampleDraft, errorList);			
 		}
 		
-		m.addAttribute("edit", "true");//will want to remove here and on its jsp
 		m.addAttribute("jobDraft", jobDraft);
 		m.addAttribute("sampleDraftList", sampleDraftList);
 		m.addAttribute("sampleDraftErrorListMap", sampleDraftErrorListMap);
@@ -505,14 +501,13 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		return "jobsubmit/chipSeqSpecificSampleReview";
 	}
 	
-	private List<String> checkForInputOrIPError(SampleDraft sampleDraft){
+	private List<String> checkForInputOrIPError(List<SampleDraftMeta> sampleDraftMetaList){
 		List<String> errorList = new ArrayList<String>();
 		
 		String inputOrIP = "";//should be either ip or input
-		String antibodyTarget = "";//should be blank or none if sample is and input/control; should not be blank or the word none if sample is IP
-		String peakType = "";//punctate, broad, mixed, none    (should be punctate, broad, or mixed if IP; should be none if sample is input)
+		String antibodyTarget = "";//if IP, should not be empty. For input/control, the value is NOT used, so let user do whatever they like
+		String peakType = "";//punctate, broad, mixed, none    (should be "punctate", "broad", or "mixed" if IP; should be "none" if sample is input)
 		
-		List<SampleDraftMeta> sampleDraftMetaList = sampleDraft.getSampleDraftMeta();
 		for(SampleDraftMeta sdm : sampleDraftMetaList){
 			if(sdm.getK().contains("inputOrIP")){
 				inputOrIP = sdm.getV();
@@ -520,36 +515,38 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 			else if(sdm.getK().contains("antibody")){
 				antibodyTarget = sdm.getV();
 			}
-			if(sdm.getK().contains("peakType")){
+			else if(sdm.getK().contains("peakType")){
 				peakType = sdm.getV();
 			}
 		}
 		
-		//The next two if statements are very unlikely; the samples page should not permit these two pieces of metadata to be empty
+		//The next two if statements are very unlikely to occur since the samples webpage should not permit these two pieces of metadata from being empty
 		if(inputOrIP.isEmpty()){
-			errorList.add("IP or Input/Control cannot be empty");
+			errorList.add(messageService.getMessage("chipSeq.ip_input_empty.error"));//IP or Input/Control cannot be empty
 		}
 		if(peakType.isEmpty()){
-			errorList.add("Peak Type cannot be empty");
+			errorList.add(messageService.getMessage("chipSeq.peakType_empty.error"));//Peak Type cannot be empty
 		}
 		
 		if(inputOrIP.equals("ip")){
 			if(antibodyTarget.isEmpty()){
-				errorList.add("Provide CHiP Target for this IP sample");
+				errorList.add(messageService.getMessage("chipSeq.ip_target_empty.error"));	//Provide CHiP Target for this IP sample			
 			}
 			if(antibodyTarget.trim().toLowerCase().equals("none")){
-				errorList.add("Provide valid CHiP Target for this IP sample");
+				errorList.add(messageService.getMessage("chipSeq.ip_target_none.error"));	//CHiP Target for any IP sample cannot be none
 			}
 			if(peakType.toLowerCase().equals("none")){
-				errorList.add("Peak Type for this IP sample cannot be none");
+				errorList.add(messageService.getMessage("chipSeq.ip_peakType_none.error"));//Peak Type for any IP sample cannot be none
 			}
 		}
 		else if(inputOrIP.equals("input")){
 			if(!antibodyTarget.isEmpty() && !antibodyTarget.trim().toLowerCase().equals("none")){
-				errorList.add("CHiP Target for this Input/Control must be blank or type the word none");
+				//decided in the end not to worry about antibodyTarget for an input/control, as the information is, so far, never used
+				//and a user might care to put none, or pre-immune, or whatever, so let them put what they like.
+				///////errorList.add(messageService.getMessage("chipSeq.input_target_not_empty_and_not_none.error"));//CHiP Target for any Input/Control must be blank or none
 			}
 			if(!peakType.toLowerCase().equals("none")){
-				errorList.add("Peak Type for this Input/Control sample must be none");
+				errorList.add(messageService.getMessage("chipSeq.input_peakType_must_be_none.error"));//Peak Type for any Input/Control sample must be none
 			}
 		}
 		
@@ -564,7 +561,80 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		if (! isJobDraftEditable(jobDraft)){
 			return "redirect:/dashboard.do";
 		}
-		return nextPage(jobDraft);
+		
+		String[] sampleIdsAsStringArray = request.getParameterValues("sampleId");
+		int numberOfIncomingRows = sampleIdsAsStringArray.length;
+
+		String[] inputOrIPValues = null;
+		String[] antibodyTargetValues = null;
+		String[] peakTypeValues = null;		
+		
+		Map<String, String[]> parameterMap = request.getParameterMap();
+		for (String key : parameterMap.keySet()) {
+			if(key.contains("inputOrIP")){
+				inputOrIPValues = parameterMap.get(key);
+			}
+			else if(key.contains("antibody")){
+				antibodyTargetValues = parameterMap.get(key);
+			}
+			else if(key.contains("peakType")){
+				peakTypeValues = parameterMap.get(key);
+			}
+		}
+		
+		List<SampleDraft> sampleDraftList = new ArrayList<SampleDraft>();
+		Map<SampleDraft, List<String>> sampleDraftErrorListMap = new HashMap<SampleDraft,List<String>>();
+		boolean errorsExist = false;
+		
+		int counter = 0;
+		for(String idAsString: sampleIdsAsStringArray){
+			SampleDraft sampleDraft = sampleDraftDao.getSampleDraftBySampleDraftId(Integer.parseInt(idAsString));
+			
+			List<SampleDraftMeta> normalizedMeta = new ArrayList<SampleDraftMeta>();
+			try {			
+				normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(sampleDraft.getSampleSubtype(), sampleDraft.getSampleDraftMeta(), SampleDraftMeta.class));
+			} catch (MetadataTypeException e) {
+				logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
+			}
+			for(SampleDraftMeta sdm : normalizedMeta){
+				if(sdm.getK().contains("inputOrIP")){
+					sdm.setV(inputOrIPValues[counter]);
+				}
+				else if(sdm.getK().contains("antibody")){
+					sdm.setV(antibodyTargetValues[counter]);
+				}
+				else if(sdm.getK().contains("peakType")){
+					sdm.setV(peakTypeValues[counter]);
+				}
+			}
+			//conscious decision by Rob: save the new meta, even if it has problems. will check below (if errorsExist==true) and return to jobsubmit/chipSeqSpecificSampleReview if errors
+			try{
+				sampleDraftMetaDao.setMeta(normalizedMeta, sampleDraft.getId());//THIS IS A SAVE COMMAND!
+			}
+			catch(Exception e){logger.debug("unable to save sampleMetaList in chipSeqSpecificSampleReviewPost() for sampleDraft: " + sampleDraft.getName() + ". message: " + e.getMessage());}
+			
+			sampleDraft.setSampleDraftMeta(normalizedMeta);			
+			sampleDraftList.add(sampleDraft);
+			
+			List<String> errorList = this.checkForInputOrIPError(normalizedMeta);
+			if(!errorList.isEmpty()){
+				errorsExist = true;
+			}
+			sampleDraftErrorListMap.put(sampleDraft, errorList);
+			
+			counter++;
+		}
+		 
+		if(errorsExist == true){			
+			m.addAttribute("jobDraft", jobDraft);
+			m.addAttribute("sampleDraftList", sampleDraftList);
+			m.addAttribute("sampleDraftErrorListMap", sampleDraftErrorListMap);
+			m.addAttribute("errorsExist", errorsExist);
+			m.put("pageFlowMap", getPageFlowMap(jobDraft));
+			return "jobsubmit/chipSeqSpecificSampleReview";
+		}
+		
+		return nextPage(jobDraft);		
 	}
 }
 
