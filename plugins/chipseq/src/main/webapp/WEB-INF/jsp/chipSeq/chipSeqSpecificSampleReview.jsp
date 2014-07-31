@@ -22,12 +22,12 @@
 	<form action="<wasp:relativeUrl value="jobsubmit/chipSeq/chipSeqSpecificSampleReview/${jobDraft.getId()}.do" />" method="POST" >
 	
 		<div class="fixed-width_scrollable">
-			<table class="data" style="margin: 0px 0px" >			
+			<table class="EditTable ui-widget ui-widget-content" style="margin: 0px 0px" >			
 			<c:forEach items="${sampleDraftList}" var="sampleDraft" varStatus="sampleDraftStatus">
 				<c:if test="${sampleDraftStatus.first}">
-					<tr class="FormData">
+					<tr >
 						
-						<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap><fmt:message key="jobsubmitManySamples.sampleName.label" /></td>
+						<td class="CaptionTD top-heading" nowrap><fmt:message key="jobsubmitManySamples.sampleName.label" /></td>
 						<c:set var="colspan" value = '${colspan + 1}' scope="request"/>
 					    <c:set var="_area" value = "sampleDraft" scope="request"/>
 						<c:set var="_metaList" value = "${sampleDraft.getSampleDraftMeta()}" scope="request" />		
@@ -41,7 +41,7 @@
 								<c:set var="labelKey" value="${_meta.property.label}" />								
 								<c:set var="id" value="${fn:substringAfter(_meta.k,'.')}" />
 								<c:if test="${id=='inputOrIP' || id=='antibody' || id=='peakType' || id=='organism'}">
-									<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap>${labelKey}
+									<td class="CaptionTD top-heading" nowrap>${labelKey}
 										<c:if test="${not empty _meta.property.constraint}">
 											<span style="color:red">*</span>
 										</c:if>
@@ -55,7 +55,7 @@
 						</c:forEach>
 						
 						<c:if test="${errorsExist=='true'}">
-							<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap>
+							<td class="CaptionTD top-heading" nowrap>
 								<fmt:message key="chipSeq.chipSeqSpecificSampleReview_errors.label" />
 							</td>
 							<c:set var="colspan" value = '${colspan + 1}' scope="request"/>
@@ -66,7 +66,7 @@
 				
 				<tr>
 					
-					<td>					
+					<td class="DataTD value-centered <c:if test="${sampleDraftStatus.count % 2 == 0}"> td-even-number</c:if>">					
 						<input type='hidden' name="sampleId" id="" value='${sampleDraft.getId()}'/>
 						<c:out value="${sampleDraft.getName()}" />
 					</td>
@@ -82,7 +82,7 @@
 							<c:set var="labelKey" value="${_meta.property.label}" />
 							<c:set var="id" value="${fn:substringAfter(_meta.k,'.')}" />
 							<c:if test="${id=='inputOrIP' || id=='antibody' || id=='peakType' || id=='organism'}">
-							<td align='center' class="DataTD">
+							<td class="DataTD value-centered <c:if test="${sampleDraftStatus.count % 2 == 0}"> td-even-number</c:if>">
 								<c:choose>
 									<c:when test="${not empty _meta.property.control}">
 								    <%-- this tag will define selectItems/itemValue/itemLabel request attributes --%>
@@ -123,13 +123,13 @@
 					</c:forEach>
 					
 						<c:if test="${errorsExist=='true'}">
-						<td align='left' class="CaptionTD error">
+						<td class="DataTD value-centered <c:if test="${sampleDraftStatus.count % 2 == 0}"> td-even-number</c:if>">
 						   <c:set var="errorList" value="${sampleDraftErrorListMap.get(sampleDraft)}" />
 						   <c:forEach items="${errorList}" var="error" varStatus="errorStatus">
 						   		<c:if test="${not errorStatus.first}">
 						   			<br />
 						   		</c:if>
-						   		<c:out value="${error }" />
+						   		<span style="color:red; font-weight:bold"><c:out value="${error }" /></span>
 						   </c:forEach>
 						</td>
 						</c:if>

@@ -516,6 +516,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		m.addAttribute("errorsExist", errorsExist);
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
 		m.addAttribute("organisms",  genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
+		if(errorsExist){waspErrorMessage("chipSeq.chipSeqSpecificSampleReview.error");}
 		return "jobsubmit/chipSeqSpecificSampleReview";
 	}
 	
@@ -663,6 +664,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 			m.addAttribute("errorsExist", errorsExist);
 			m.put("pageFlowMap", getPageFlowMap(jobDraft));
 			m.addAttribute("organisms",  genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
+			waspErrorMessage("chipSeq.chipSeqSpecificSampleReview.error");
 			return "jobsubmit/chipSeqSpecificSampleReview";
 		}
 		

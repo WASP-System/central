@@ -31,21 +31,21 @@
 </c:when>
 <c:otherwise>
 <form method="POST">
-<table class="data">
-  	<tr class="row">
- 		<td class="label" align="center"><fmt:message key="chipSeq.pair_ipsample.label"/></td>
- 		<td class="label" align="center"><fmt:message key="chipSeq.pair_ipsample_species.label"/></td>
- 		<td class="label" align="center"><fmt:message key="chipSeq.pair_controlinput.label"/></td>
+<table class="EditTable ui-widget ui-widget-content">
+  	<tr >
+ 		<td class="CaptionTD top-heading" align="center"><fmt:message key="chipSeq.pair_ipsample.label"/></td>
+ 		<td class="CaptionTD top-heading" align="center"><fmt:message key="chipSeq.pair_ipsample_species.label"/></td>
+ 		<td class="CaptionTD top-heading" align="center"><fmt:message key="chipSeq.pair_controlinput.label"/></td>
  	</tr>
-  	<c:forEach var="ip" items="${ipSamples}">
-  		<tr class="FormData">
-  			<td  class="DataTD" align="center">
+  	<c:forEach var="ip" items="${ipSamples}" varStatus="status">
+  		<tr >
+  			<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> td-even-number</c:if>">
   				<c:out value="${ip.name}" />
   			</td>
-  			<td  class="DataTD" align="center">
+  			<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> td-even-number</c:if>">
   				<c:out value="${sampleSpeciesNameMap.get(ip)}" />
   			</td>
-  			<td align="center">
+  			<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> td-even-number</c:if>">
   				<select name="controlIdForIP_<c:out value="${ip.id}" />">
   					<option value="0"><fmt:message key="chipSeq.pair_none.label"/></option>
 	  				<c:forEach var="input" items="${inputSamples}" >

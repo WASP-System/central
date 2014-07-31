@@ -18,18 +18,18 @@
  <c:set value="false" var="atLeastOneReplicateSetWithSingleSample"/>
  <c:set value="false" var="atLeastOneReplicateSetWithIPLackingControl"/>
  <table class="data">
-	<tr class="row">
-		<td class="label" align="center"><fmt:message key="chipSeq.replicates_setnumber.label"/></td>
-		<td class="label" align="center"><fmt:message key="chipSeq.replicates_replicateset.label"/></td>
-		<td class="label" align="center"><fmt:message key="chipSeq.replicates_species.label"/></td>
- 		<td class="label" align="center"><fmt:message key="chipSeq.replicates_addreplicatesample.label"/></td>
+	<tr class="FormData">
+		<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="chipSeq.replicates_setnumber.label"/></td>
+		<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="chipSeq.replicates_replicateset.label"/></td>
+		<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="chipSeq.replicates_species.label"/></td>
+ 		<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="chipSeq.replicates_addreplicatesample.label"/></td>
  	</tr> 
  	 
  	<c:forEach items="${replicatesListOfLists}" var="replicateList" varStatus="replicateStatus">
  		<c:if test="${fn:length(replicateList) ==1}"><c:set value="true" var="atLeastOneReplicateSetWithSingleSample"/></c:if>
-		<tr class="row">	
-			<td class="label" align="center"><c:out value="${replicateStatus.count}" /></td>
-			<td class="label" >
+		<tr >	
+			<td  align="center"><c:out value="${replicateStatus.count}" /></td>
+			<td  align="center">
 				<c:forEach items="${replicateList}" var="sampleDraft" varStatus="sampleDraftStatus">
 					<c:if test="${sampleDraftStatus.first}"><c:set value="${sampleDraftSpeciesNameMap.get(sampleDraft)}" var="speciesForThisReplicateSet"/></c:if>
 					<c:if test="${not sampleDraftStatus.first}"><br /></c:if>
@@ -41,7 +41,7 @@
 					
 				</c:forEach>
 			</td>
-			<td class="label" align="center"><c:out value="${speciesForThisReplicateSet}" /></td>
+			<td  align="center"><c:out value="${speciesForThisReplicateSet}" /></td>
 			<td align="center">
 			  <c:set value="false" var="speciesForSelectIncludesSpeciesForThisReplicate"/>
 			  <c:forEach var="testSampleDraft" items="${testSampleDraftsAvailableForReplicateSelection}" >
@@ -72,10 +72,10 @@
  	
  		
  	<c:if test="${testSampleDraftsForCreateNew.size() > 1}">
-		<tr class="row">	
-			<td class="label" align="center">Create New<br />Replicate Set</td>
-			<td class="label" align="center"></td>
-			<td class="label" align="center"></td>
+		<tr >	
+			<td  align="center">Create New<br />Replicate Set</td>
+			<td  align="center"></td>
+			<td  align="center"></td>
 			<td align="center">
 				<div>
 				<form method="POST">
