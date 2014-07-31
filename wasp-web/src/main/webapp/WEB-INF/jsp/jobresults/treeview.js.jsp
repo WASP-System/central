@@ -67,7 +67,7 @@ var treeviewWidth,
 var barHeight = 20,
 	barWidth;
 
-var div;
+var treenode_tip;
 
 var tree = d3.layout.tree().size([treeviewHeight, 100]);
 
@@ -141,7 +141,7 @@ Ext.onReady(function () {
 	barWidth = treeviewWidth * .58;
 	barHeight = 20;
 
-	div = d3.select("body").append("div")
+	treenode_tip = d3.select("body").append("div")
 		.attr("class", "tooltip")
 		.style("opacity", 0);
 
@@ -258,6 +258,9 @@ function getNodeName(d) {
 	if (d.name.length > 30) {
 		d.fullname = d.name;
 		d.name = d.fullname.substring(0, 26) + '...';
+	}
+	if (d===root) {
+		d.fullname = "Click to view job analysis results";
 	}
 	return d.name;
 }
@@ -525,10 +528,10 @@ function click(d) {
 					extPortal.showMsg("wasp-tabpanel is not defined!");
 					return;
 				}
+				//remove all existing tabs from tabpanel first
+				tabpanel.removeAll();
 	
 				if (d.type.indexOf('filetype') > -1) {
-					//remove all existing tabs from tabpanel first
-					tabpanel.removeAll();
 	//				var filePanel = Ext.create('Wasp.FileDownloadGridPortlet', {
 	//					fgListStr: result.fgliststr
 	//				});
@@ -848,7 +851,7 @@ function onMouseOver(d) {
 	if (d.parent) {}
 
 	if (d.fullname) {
-		div.transition()
+		treenode_tip.transition()
 			.duration(200)
 			.style("opacity", .8);
 	}
@@ -856,7 +859,7 @@ function onMouseOver(d) {
 
 function onMouseMove(d) {
 	if (d.fullname) {
-		div.text(d.fullname)
+		treenode_tip.text(d.fullname)
 		//.style("width", x(txt))
 		.style("left", (d3.event.pageX) + "px")
 			.style("top", (d3.event.pageY + 18) + "px");
@@ -868,7 +871,7 @@ function onMouseOut(d) {
 	d3.select(this).select("text").style("font-weight", "normal");
 	if (d.parent) {}
 
-	div.transition()
+	treenode_tip.transition()
 		.duration(100)
 		.style("opacity", 0);
 }
