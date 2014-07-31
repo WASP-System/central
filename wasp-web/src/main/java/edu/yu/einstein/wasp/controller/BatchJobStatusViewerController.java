@@ -63,31 +63,31 @@ public class BatchJobStatusViewerController extends WaspController {
 			BatchJobTreeModel batchJobTreeModel = (BatchJobTreeModel) treeModel;
 			String exitCode = batchJobTreeModel.getExitCode();
 			if (exitCode.equals(ExitStatus.EXECUTING.getExitCode()))
-				batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_green_30x30.png' height='15'/>");
+				batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_green_30x30.png' alt='running (live thread)' height='15'/>");
 			else if (exitCode.equals(ExitStatus.UNKNOWN.getExitCode()))
-				batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_green_30x30.png' height='15' />");
+				batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_green_30x30.png' alt='running (live thread)' height='15' />");
 			else if (exitCode.equals(ExitStatus.HIBERNATING.getExitCode())){
 				try {
 					DateFormat df = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
 					DateTime startDateTime = new DateTime(df.parse(batchJobTreeModel.getStartTime()).getTime());
 					if (startDateTime.plusMonths(1).isBeforeNow())
-						batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_red_zzz_30x30.png' height='15' />");
+						batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_red_zzz_30x30.png' alt='running (hiberating &gt; 1 month)' height='15' />");
 					else if (startDateTime.plusWeeks(1).isBeforeNow())
-						batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_orange_zzz_30x30.png' height='15' />");
+						batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_orange_zzz_30x30.png' alt='running (hiberating &gt; 1 week)' height='15' />");
 					else
-						batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_green_zzz_30x30.png' height='15' />");
+						batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_green_zzz_30x30.png' alt='running (hiberating)' height='15' />");
 				} catch (ParseException e) {
 					logger.warn("unable to parse to DateTime: " + batchJobTreeModel.getStartTime());
-					batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_green_zzz_30x30.png' height='15' />");
+					batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_green_zzz_30x30.png' alt='running (hiberating)' height='15' />");
 				}
 				
 			}
 			else if (exitCode.equals(ExitStatus.COMPLETED.getExitCode()))
-				batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/pass.png' height='15' />");
+				batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/pass.png' alt='completed' height='15' />");
 			else if (exitCode.equals(ExitStatus.TERMINATED.getExitCode()))
-				batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/stop_yellow_25x25.png' height='15' />");
+				batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/stop_yellow_25x25.png' alt='stopped' height='15' />");
 			else if (exitCode.equals(ExitStatus.FAILED.getExitCode()))
-				batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/fail.png' height='15' />");
+				batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/fail.png' alt='failed' height='15' />");
 		}
 		return extTreeGridResponse;
 	}

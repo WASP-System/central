@@ -1477,7 +1477,57 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		return getResultOutputFile(r, "err", tailByteLimit);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getResultInfo(GridResult r, long tailByteLimit) throws IOException {
+		return getResultOutputFile(r, "info", tailByteLimit);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getResultScript(GridResult r, long tailByteLimit) throws IOException {
+		return getResultOutputFile(r, "sh", tailByteLimit);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getResultJobStats(GridResult r, long tailByteLimit) throws IOException {
+		return getResultOutputFile(r, "stats", tailByteLimit);
+	}
+	
 	private String getResultOutputFile(GridResult r, String type, long tailByteLimit) throws IOException {
+		String path = r.getArchivedResultOutputPath(); 
+		if (!path.isEmpty()){
+			logger.debug("found file of type '." + type + "' from GridResult with id=" + r.getId() + " in archivedResultOutputPath");
+			return getCompressedOutputFile(r, type, tailByteLimit);  // is a compressed archive registered in the result
+		}
+		String filename = r.getId() + "." + type;
+		path = r.getWorkingDirectory() + "/" + filename;
+		if (gridFileService.exists(path)){
+			logger.debug("found file of type '." + type + "' from GridResult with id=" + r.getId() + " in unarchived working directory");
+			return getUnregisteredFileContents(r, filename, tailByteLimit); // the file is still unregistered
+		}
+		path = getCompletedArchiveName(r);
+		if (gridFileService.exists(path)) {
+			logger.debug("found file of type '." + type + "' from GridResult with id=" + r.getId() + " in completed archive (not recorded in GridResult)");
+			return getCompressedOutputFile(r, type, tailByteLimit); // is in a completed archive that wasn't appended to this GridResult
+		}
+		path = getFailedArchiveName(r);
+		if (gridFileService.exists(path)) {
+			logger.debug("found file of type '." + type + "' from GridResult with id=" + r.getId() + " in failed archive (not recorded in GridResult)");
+			return getCompressedOutputFile(r, type, tailByteLimit); // is in a failed archive that wasn't appended to this GridResult
+		}
+		throw new IOException("Unable to to obtain file of type '." + type + "' from GridResult with id=" + r.getId() + 
+				". No archive or working directory found matching GridResult");
+	}
+	
+	private String getCompressedOutputFile(GridResult r, String type, long tailByteLimit) throws IOException {
 		String result = "";
 		File t = File.createTempFile("wasp", "work"); // tar archive
         String path = r.getArchivedResultOutputPath();
@@ -1536,8 +1586,23 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			f = File.createTempFile("wasp", "work");
 			String path = r.getWorkingDirectory() + "/" + filename;
 			gridFileService.get(path, f);
-			FileInputStream afis = new FileInputStream(f);
-			result = IOUtils.toString(afis, "UTF-8");
+			if (tailByteLimit == NO_FILE_SIZE_LIMIT){
+				result = IOUtils.toString(new FileInputStream(f), "UTF-8");
+        	} else {
+				RandomAccessFile raf = null;
+	        	try{
+	            	raf = new RandomAccessFile(f, "r");
+	            	long strLen = (raf.length() < MAX_32MB) ? raf.length() : MAX_32MB;
+	            		
+	                raf.seek(strLen - MAX_32MB);
+	                byte[] b = new byte[(int) strLen];
+	                raf.readFully(b);
+	                result = new String(b, "UTF-8");
+	        	} finally {
+	        		if (raf != null)
+	        			raf.close();
+	        	}
+        	}
 		} finally {
 			f.delete();
 		}

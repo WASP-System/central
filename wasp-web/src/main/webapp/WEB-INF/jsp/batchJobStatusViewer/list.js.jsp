@@ -5,6 +5,16 @@
 <link rel="stylesheet" type="text/css" href="<wasp:relativeUrl value='css/ext-theme-neptune-all-wasp.css' />" />
 <link rel="stylesheet" type="text/css" href="<wasp:relativeUrl value='css/treeGrid.css' />" />
 
+<style>
+	.infoIcon {
+        background-image: url(<wasp:relativeUrl value="images/information_30x30.png" />) !important;
+        background-size: 15px 15px;
+	}
+	.infoNotAvailableIcon {
+        background-image: url(<wasp:relativeUrl value="images/information_unavailable_30x30.png" />) !important;
+        background-size: 15px 15px;
+	}
+</style>
 
 <script type="text/javascript">
 
@@ -62,6 +72,54 @@ var store = Ext.create('Wasp.store.TreeGridStore', {
     }
 });
 
+var win;
+
+function displayInfo(){
+
+	if (!win) {
+	    win = Ext.create('widget.window', {
+	        title: 'Layout Window with title <em>after</em> tools',
+	        header: {
+	            titlePosition: 2,
+	            titleAlign: 'center'
+	        },
+	        closable: true,
+	        closeAction: 'hide',
+	        width: 600,
+	        minWidth: 350,
+	        height: 350,
+	        tools: [{type: 'pin'}],
+	        layout: {
+	            type: 'border',
+	            padding: 5
+	        },
+	        items: [{
+	            region: 'center',
+	            xtype: 'tabpanel',
+	            items: [{
+	                // LTR even when example is RTL so that the code can be read
+	                rtl: false,
+	                title: 'Bogus Tab',
+	                html: '<p>Window configured with:</p><pre style="margin-left:20px"><code>header: {\n    titlePosition: 2,\n    titleAlign: "center"\n},\ntools: [{type: "pin"}],\nclosable: true</code></pre>'
+	            }, {
+	                title: 'Another Tab',
+	                html: 'Hello world 2'
+	            }, {
+	                title: 'Closable Tab',
+	                html: 'Hello world 3',
+	                closable: true
+	            }]
+	        }]
+	    });
+	}
+	
+	if (win.isVisible()) {
+	    win.hide();
+	} else {
+	    win.show();
+	}
+};
+
 
 Ext.onReady(function() {
 
@@ -108,11 +166,20 @@ Ext.onReady(function() {
             xtype: 'actioncolumn',
             width: 50,
             items: [{
-            	icon: '<wasp:relativeUrl value="images/information_30x30.png" />',
+            	iconCls: 'infoIcon',
                 tooltip: 'Get Job Information',
+                getClass: function(v, meta, rec) {
+                    if (rec.get('leaf') == true) {
+                        return 'infoIcon';
+                    } else {
+                        return 'infoNotAvailableIcon';
+                    }
+                },
                 handler: function(grid, rowIndex, colIndex) {
                 	var rec = grid.getStore().getAt(rowIndex);
-                    Ext.Msg.alert('info', 'showing Job Info for ' + rec.get('executionId') );
+                	if (rec.get('leaf') == true)
+                		displayInfo();
+                    //Ext.Msg.alert('info', 'showing Job Info for ' + rec.get('executionId') );
                 }
             }]
         }],
