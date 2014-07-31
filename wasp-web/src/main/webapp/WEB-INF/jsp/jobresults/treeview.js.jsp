@@ -78,10 +78,10 @@ var diagonal = d3.svg.diagonal()
 
 var vis;
 
-root.myid = ${myid};
+root.myid = ${myid};	// node id, could be jobid, cellid, fileid
 root.type = "${type}";
 root.jid = -1;
-root.pid = -1;
+root.pid = -1;	// parent id, root.pid is -1
 
 var seen = [];
 var rootstr = JSON.stringify(root, function (key, val) {
@@ -93,10 +93,12 @@ var rootstr = JSON.stringify(root, function (key, val) {
 	return val;
 });
 
-var activeNode = {
-	myid: null,
-	type: null
-};
+var activeNode = null;
+//{
+//	myid: null,
+//	type: null,
+//	pid: null
+//};
 
 Ext.require([
 	'Ext.layout.container.*',
@@ -403,10 +405,7 @@ function update(source) {
 
 	// store the parent's id in everynode
 	nodes.forEach(function (d) {
-		if (d != root)
-			d.pid = d.parent.myid;
-		else
-			d.pid = -1;
+		d.pid = d!==root ? d.parent.myid : -1;
 	});
 }
 
@@ -498,8 +497,8 @@ function click(d) {
 	if (d!=root)
 		d.pid = d.parent.myid; */
 
-	if (d.myid !== activeNode.myid || d.type !== activeNode.type) {
-		
+//	if (d.myid!==activeNode.myid || d.type!==activeNode.type || d.pid!==activeNode.pid ) {
+	if (d!==activeNode) {	
 		var seen = [];
 		var dstr = JSON.stringify(d, function (key, val) {
 			if (key == "parent" || key == "children") { //don't stringify the parent/children nodes
@@ -810,11 +809,15 @@ function click(d) {
 					checkForPageRedirect(jqXHR.responseText);
 				});
 		}
-	
+
 		//console.log("clicked:"+d.myid+"|"+d.type+" active:"+activeNode.myid+"|"+activeNode.type);
-		activeNode.myid = d.myid;
-		activeNode.type = d.type;
-	
+//		activeNode.myid = d.myid;
+//		activeNode.type = d.type;
+//		activeNode.pid = d!==root ? d.parent.myid : -1;
+		activeNode = d;
+
+		update(d);
+
 	} else { //only toggle nodes when the current node is active
 		//console.log("clicked:"+d.myid+"|"+d.type+" active:"+activeNode.myid+"|"+activeNode.type);
 		if (d.pid != -1) {	//root node will not be toggled
@@ -833,7 +836,10 @@ function localBarWidth(d) {
 }
 
 function color(d) {
-	return d._children ? "#3182bd" : d.children ? "#c6dbef" : "#fd8d3c";
+	//console.log("clicked:"+d.myid+"|"+d.type+" active:"+activeNode.myid+"|"+activeNode.type);
+	//return (d.myid == activeNode.myid && d.type == activeNode.type) ? "#fd8d3c" : d._children ? "#3182bd" : "#c6dbef";
+	return (d===activeNode) ? "#fd8d3c" : d._children ? "#3182bd" : "#c6dbef";
+	//return d._children ? "#3182bd" : d.children ? "#c6dbef" : "#fd8d3c";
 }
 
 function onMouseOver(d) {
