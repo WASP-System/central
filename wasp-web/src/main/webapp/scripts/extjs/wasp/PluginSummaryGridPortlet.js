@@ -18,6 +18,8 @@ Ext.define('Wasp.PluginSummaryGridPortlet', {
             return '<span style="color:green;">Running</span>';
         } else if (val == 'UNKNOWN') {
             return '<span style="color:orange;">Not Invoked</span>';
+        } else if (val == 'NOT_APPLICABLE') {
+            return '<span style="color:orange;">N/A</span>';
         } else {
             return '<span style="color:red;">Failed</span>';
         }

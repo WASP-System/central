@@ -152,19 +152,19 @@ public class SshWorkService implements GridWorkService {
 	}
 
 	@Override
-	public String getResultStdOut(GridResult r) throws IOException {
+	public String getResultStdOut(GridResult r, long tailByteLimit) throws IOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getResultStdErr(GridResult r) throws IOException {
+	public String getResultStdErr(GridResult r, long tailByteLimit) throws IOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getUnregisteredFileContents(GridResult r, String filename) throws IOException {
+	public String getUnregisteredFileContents(GridResult r, String filename, long tailByteLimit) throws IOException {
 		// TODO Auto-generated method stub
 		return null;
 	}

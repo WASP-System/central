@@ -14,7 +14,7 @@ import edu.yu.einstein.wasp.viewpanel.GridColumn;
 import edu.yu.einstein.wasp.viewpanel.GridContent;
 import edu.yu.einstein.wasp.viewpanel.GridDataField;
 import edu.yu.einstein.wasp.viewpanel.GridPanel;
-import edu.yu.einstein.wasp.viewpanel.Panel;
+import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 /**
  * @author aj
@@ -22,15 +22,20 @@ import edu.yu.einstein.wasp.viewpanel.Panel;
  */
 public class CsvFilePanelRenderer {
 
-	public static Panel getPanelForFileGroup(InputStream is, boolean header) {
+	public static PanelTab getPanelForFileGroup(String fileName, InputStream is, boolean header) {
 		String csvSplitBy = ",";
-		
+		PanelTab panelTab = new PanelTab();
+		panelTab.setNumberOfColumns(1);
+		panelTab.setMaxOnLoad(true);
+		panelTab.setName("CSV File Viewer");
+		panelTab.setDescription("Generic CSV file viewing");
 		GridPanel panel = new GridPanel();
+		panel.setTitle(fileName);
+		panelTab.addPanel(panel);
 		GridContent content = new GridContent();
-
 		if (is == null) {
 			panel.setContent(content);
-			return panel;
+			return panelTab;
 		}
 
 		try {
@@ -78,8 +83,7 @@ public class CsvFilePanelRenderer {
 		}
 
 		panel.setContent(content);
-
-		return panel;
+		return panelTab;
 	}
 
 }

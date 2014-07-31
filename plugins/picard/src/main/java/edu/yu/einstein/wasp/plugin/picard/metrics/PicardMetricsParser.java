@@ -24,6 +24,7 @@ import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
+import edu.yu.einstein.wasp.grid.work.SgeWorkService;
 
 /**
  * Generic parser for Picard Metrics files to JSON
@@ -108,7 +109,7 @@ public class PicardMetricsParser {
 		String result;
 		if (gridResult != null) {
 			GridWorkService gws = hostResolver.getGridWorkService(gridResult);
-			result = gws.getUnregisteredFileContents(gridResult, pathToFile);
+			result = gws.getUnregisteredFileContents(gridResult, pathToFile, SgeWorkService.NO_FILE_SIZE_LIMIT);
 		} else {
 			file = new File(pathToFile);
 			FileInputStream afis = new FileInputStream(file);

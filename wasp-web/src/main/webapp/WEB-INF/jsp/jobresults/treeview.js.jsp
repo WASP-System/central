@@ -517,7 +517,6 @@ function click(d) {
 		dataType: 'json'
 		})
 		.done(function (result) {
-
 			var tabpanel = Ext.getCmp('wasp-tabpanel');
 			if (tabpanel === undefined) {
 				// alert if the tabpanel is undefined
@@ -528,7 +527,6 @@ function click(d) {
 			if (d.type.indexOf('filetype') > -1) {
 				//remove all existing tabs from tabpanel first
 				tabpanel.removeAll();
-
 //				var filePanel = Ext.create('Wasp.FileDownloadGridPortlet', {
 //					fgListStr: result.fgliststr
 //				});
@@ -538,7 +536,7 @@ function click(d) {
 				//$.fileDownload('http://phoenix.einstein.yu.edu:8080/wasp-file/get/file/c7d5237e-ab84-4837-a618-6ec17ac6add3');
 				//test
 
-				var summarytab = tabpanel.add({
+				tabpanel.add({
 					id: 'file-tab',
 					xtype: 'panel',
 					title: 'File Download',
@@ -568,7 +566,6 @@ function click(d) {
 			} else if (d.type=='job' || d.type=='filegroup') {
 				//remove all existing tabs from tabpanel first
 				tabpanel.removeAll();
-
 				var jsList = new Array(),
 					cssList = new Array();
 				$.each(result.paneltablist, function (index, item) {
@@ -593,35 +590,29 @@ function click(d) {
 				var createPortal = function () {
 					// if the node clicked is filegroup, create an extra summary tab in the portal
 					if (d.type=='filegroup') {
-						var summaryPanel;
-						if (result.statuslist.length > 0) {
-							summaryPanel = Ext.create('Wasp.PluginSummaryGridPortlet', {
-								statusData: result.statuslist,
-								tabPanel: tabpanel
-							});
-//							var clmstr = '[{"text":"Price", "width":200, "dataIndex":"price"}]';
-//							var fldstr = '[{"name":"company", "type":"string"}, {"name":"price", "type":"float"}, "link", "glink"]';
-//							var datastr = '[["3m Co", 71.72, "http://google.com", "http://yahoo.com"], ["3m Co", 29.01, "http://nba.com", "http://yahoo.com"]]';
-//							summaryPanel = Ext.create('Wasp.GridPortlet', {
-//								fields: jQuery.parseJSON(fldstr),
-//								data: jQuery.parseJSON(datastr),
-//								columns: jQuery.parseJSON(clmstr),
-//								dlselect: true,
-//								grouping: true,
-//								groupfield: 'company',
-//								dlcol: true,
-//								dlcoltip: "website",
-//								dllinkfld: 'link',
-//								grpdl: true,
-//								grpdltip: "grpweb",
-//								grpdlalign: 'right'
-//							});
-						} else {
-							summaryPanel = {
-								html: '<div class="noPlugin">No registered plugins handle this data.</div>'
+						var isAllStatusesNA = false;
+						if (result.statuslist.length > 0){
+							isAllStatusesNA = true;
+							for (var i=0; i<result.statuslist.length; i++ ){
+								if (result.statuslist[i][2] != "NOT_APPLICABLE"){
+									isAllStatusesNA = false;
+									break;
+								}
 							}
 						}
-						var summarytab = tabpanel.add({
+						if (!isAllStatusesNA){
+							var summaryPanel;
+							if (result.statuslist.length > 0) {
+								summaryPanel = Ext.create('Wasp.PluginSummaryGridPortlet', {
+									statusData: result.statuslist,
+									tabPanel: tabpanel
+								});
+							} else {
+								summaryPanel = {
+									html: '<div class="noPlugin">No registered plugins handle this data.</div>'
+								}
+							}
+							tabpanel.add({
 							id: 'summary-tab',
 							xtype: 'panel',
 							title: 'Summary',
@@ -642,8 +633,9 @@ function click(d) {
 									draggable: false,
 									items: summaryPanel
 								}]
-							}]
-						});
+							  }]
+							});
+						}
 					}
 
 					$.each(result.paneltablist, function (index, item) {

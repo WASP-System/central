@@ -33,6 +33,7 @@ import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
+import edu.yu.einstein.wasp.grid.work.SgeWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
@@ -135,7 +136,7 @@ public class WaspIlluminaServiceImpl extends WaspServiceImpl implements WaspIllu
 			throw new MetadataException(mess);
 		}
 		
-		String runInfoS = StringUtils.chomp(gws.getUnregisteredFileContents(result, runXML));		
+		String runInfoS = StringUtils.chomp(gws.getUnregisteredFileContents(result, runXML, SgeWorkService.NO_FILE_SIZE_LIMIT));		
 		
 		setRunMeta(run, RUN_INFO, runInfoS);
 		
