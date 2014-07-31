@@ -1,11 +1,15 @@
 package edu.yu.einstein.wasp.controller;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.joda.time.DateTime;
 import org.json.JSONObject;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,8 +66,22 @@ public class BatchJobStatusViewerController extends WaspController {
 				batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_green_30x30.png' height='15'/>");
 			else if (exitCode.equals(ExitStatus.UNKNOWN.getExitCode()))
 				batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_green_30x30.png' height='15' />");
-			else if (exitCode.equals(ExitStatus.HIBERNATING.getExitCode()))
-				batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_green_zzz_30x30.png' height='15' />");
+			else if (exitCode.equals(ExitStatus.HIBERNATING.getExitCode())){
+				try {
+					DateFormat df = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
+					DateTime startDateTime = new DateTime(df.parse(batchJobTreeModel.getStartTime()).getTime());
+					if (startDateTime.plusMonths(1).isBeforeNow())
+						batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_red_zzz_30x30.png' height='15' />");
+					else if (startDateTime.plusWeeks(1).isBeforeNow())
+						batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_orange_zzz_30x30.png' height='15' />");
+					else
+						batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_green_zzz_30x30.png' height='15' />");
+				} catch (ParseException e) {
+					logger.warn("unable to parse to DateTime: " + batchJobTreeModel.getStartTime());
+					batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_green_zzz_30x30.png' height='15' />");
+				}
+				
+			}
 			else if (exitCode.equals(ExitStatus.COMPLETED.getExitCode()))
 				batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/pass.png' height='15' />");
 			else if (exitCode.equals(ExitStatus.TERMINATED.getExitCode()))

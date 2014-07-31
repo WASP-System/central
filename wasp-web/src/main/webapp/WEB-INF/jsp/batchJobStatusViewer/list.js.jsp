@@ -10,6 +10,7 @@
 
 Ext.require([
     'Ext.data.*',
+    'Ext.button.*',
     'Ext.tree.*',
     'Wasp.store.TreeGridStore'
 ]);
@@ -101,11 +102,19 @@ Ext.onReady(function() {
             width: 70,
             sortable: true,
             dataIndex: 'exitCode'
-        }, {
-        	text: '<fmt:message key="batchViewer.statusMessageCol.label"/>',
-            sortable: false,
-            flex: 1,
-            dataIndex: 'exitMessage'
+        },{
+        	text: 'Info',
+        	sortable: false,
+            xtype: 'actioncolumn',
+            width: 50,
+            items: [{
+            	icon: '<wasp:relativeUrl value="images/information_30x30.png" />',
+                tooltip: 'Get Job Information',
+                handler: function(grid, rowIndex, colIndex) {
+                	var rec = grid.getStore().getAt(rowIndex);
+                    Ext.Msg.alert('info', 'showing Job Info for ' + rec.get('executionId') );
+                }
+            }]
         }],
         tbar: [{
             text: '<fmt:message key="batchViewer.showAllButton.label"/>',
