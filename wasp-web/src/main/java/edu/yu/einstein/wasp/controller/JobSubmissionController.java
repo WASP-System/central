@@ -2338,7 +2338,8 @@ public class JobSubmissionController extends WaspController {
 			m.put("adptorsOnSampleDrafts", adptorsOnSampleDrafts);
 			m.put("selectedSampleCell", selectedSampleCell);//m.put("selectedSampleCell", selectedSampleCell);
 			m.put("pageFlowMap", getPageFlowMap(jobDraft));
-			return "jobsubmit/cell";
+			return "jobsubmit/cell";   
+			
 		}
 		
 		//if all is OK		
