@@ -166,18 +166,19 @@ Ext.onReady(function () {
 		//root.children.forEach(collapse);
 		update(root);
 		click(root);
-		toggle(root);
-		activeNode.myid = root.myid;
-		activeNode.type = root.type;
+		//toggle(root);
+		
+//		activeNode.myid = root.myid;
+//		activeNode.type = root.type;
 	});
 	
-	d3.select('#toggle_button').on('click', function() {
-		if ( root.children && root.children!="" ) {
-			root.children.forEach(expandAll);
-			update(root);
-		} else if ( root._children && root._children!="" ) {
-		}        
-	});
+//	d3.select('#toggle_button').on('click', function() {
+//		if ( root.children && root.children!="" ) {
+//			root.children.forEach(expandAll);
+//			update(root);
+//		} else if ( root._children && root._children!="" ) {
+//		}        
+//	});
 });
 
 function zoom() {
@@ -193,59 +194,59 @@ function collapse(d) {
 }
 
 // Collapse/Expand/Toggle all descendents
-function collapseAll(d) {
-	if (d.children && d.children!="") {
-		d._children = d.children;
-		d.children = null;
-	}
-	if (d._children && d._children!="")
-		d._children.forEach(collapseAll);
-}
-function expandAll(d) {
-	if (!d.children && !d._children) {
-		if (d.jid == undefined) {
-			d.jid = -1;
-		}
-		var seen = [];
-		var dstr = JSON.stringify(d, function (key, val) {
-			if (key == "parent" || key == "children") { //don't stringify the parent/children nodes
-				return undefined;
-			} else if (typeof val == "object") {
-				if (seen.indexOf(val) >= 0)
-					return undefined;
-				seen.push(val);
-			}
-			return val;
-		});
-		$.ajax({
-			url: '<wasp:relativeUrl value="jobresults/getTreeJson.do?node=" />' + dstr,
-			type: 'GET',
-			dataType: 'json'
-		})
-		.done(function (result) {
-			if (result.children != '') {
-				d.children = result.children;
-			}
-		})
-		.fail(function(jqXHR){
-			checkForPageRedirect(jqXHR.responseText);
-		});
-	}
-	if (d._children && d._children!="") {
-		d.children = d._children;
-		d._children = null;
-	}
-	if (d.children && d.children!="")
-		d.children.forEach(expandAll);
-}
-function toggleAll(d) {
-	if (d.children && d.children!="") {
-		collapseAll(d);
-	} else if (d._children && d._children!="") {
-		expandAll(d);
-	}
-	update(d);
-}
+//function collapseAll(d) {
+//	if (d.children && d.children!="") {
+//		d._children = d.children;
+//		d.children = null;
+//	}
+//	if (d._children && d._children!="")
+//		d._children.forEach(collapseAll);
+//}
+//function expandAll(d) {
+//	if (!d.children && !d._children) {
+//		if (d.jid == undefined) {
+//			d.jid = -1;
+//		}
+//		var seen = [];
+//		var dstr = JSON.stringify(d, function (key, val) {
+//			if (key == "parent" || key == "children") { //don't stringify the parent/children nodes
+//				return undefined;
+//			} else if (typeof val == "object") {
+//				if (seen.indexOf(val) >= 0)
+//					return undefined;
+//				seen.push(val);
+//			}
+//			return val;
+//		});
+//		$.ajax({
+//			url: '<wasp:relativeUrl value="jobresults/getTreeJson.do?node=" />' + dstr,
+//			type: 'GET',
+//			dataType: 'json'
+//		})
+//		.done(function (result) {
+//			if (result.children != '') {
+//				d.children = result.children;
+//			}
+//		})
+//		.fail(function(jqXHR){
+//			checkForPageRedirect(jqXHR.responseText);
+//		});
+//	}
+//	if (d._children && d._children!="") {
+//		d.children = d._children;
+//		d._children = null;
+//	}
+//	if (d.children && d.children!="")
+//		d.children.forEach(expandAll);
+//}
+//function toggleAll(d) {
+//	if (d.children && d.children!="") {
+//		collapseAll(d);
+//	} else if (d._children && d._children!="") {
+//		expandAll(d);
+//	}
+//	update(d);
+//}
 
 
 //var g = d3.select("g");
@@ -497,230 +498,179 @@ function click(d) {
 	if (d!=root)
 		d.pid = d.parent.myid; */
 
-	var seen = [];
-	var dstr = JSON.stringify(d, function (key, val) {
-		if (key == "parent" || key == "children") { //don't stringify the parent/children nodes
-			return undefined;
-		} else if (typeof val == "object") {
-			if (seen.indexOf(val) >= 0)
+	if (d.myid !== activeNode.myid || d.type !== activeNode.type) {
+		
+		var seen = [];
+		var dstr = JSON.stringify(d, function (key, val) {
+			if (key == "parent" || key == "children") { //don't stringify the parent/children nodes
 				return undefined;
-			seen.push(val);
-		}
-		return val;
-	});
-
-	//var tabs = $('#mytabs').tabs({closable: true});
-
-	$.ajax({
-		url: '<wasp:relativeUrl value="jobresults/getDetailsJson.do?node=" />' + dstr,
-		type: 'GET',
-		dataType: 'json'
-		})
-		.done(function (result) {
-			var tabpanel = Ext.getCmp('wasp-tabpanel');
-			if (tabpanel === undefined) {
-				// alert if the tabpanel is undefined
-				extPortal.showMsg("wasp-tabpanel is not defined!");
-				return;
+			} else if (typeof val == "object") {
+				if (seen.indexOf(val) >= 0)
+					return undefined;
+				seen.push(val);
 			}
-
-			if (d.type.indexOf('filetype') > -1) {
-				//remove all existing tabs from tabpanel first
-				tabpanel.removeAll();
-//				var filePanel = Ext.create('Wasp.FileDownloadGridPortlet', {
-//					fgListStr: result.fgliststr
-//				});
-				var fp = result.filepanel;
-
-				//test
-				//$.fileDownload('http://phoenix.einstein.yu.edu:8080/wasp-file/get/file/c7d5237e-ab84-4837-a618-6ec17ac6add3');
-				//test
-
-				tabpanel.add({
-					id: 'file-tab',
-					xtype: 'panel',
-					title: 'File Download',
-					layout: 'card',
-					activeItem: 1,
-					items: [{
-						layout: 'fit'
-					}, {
-						xtype: 'portalpanel',
-						//items: [{
-						//id: 'col-',
+			return val;
+		});
+	
+		//var tabs = $('#mytabs').tabs({closable: true});
+	
+		$.ajax({
+			url: '<wasp:relativeUrl value="jobresults/getDetailsJson.do?node=" />' + dstr,
+			type: 'GET',
+			dataType: 'json'
+			})
+			.done(function (result) {
+				var tabpanel = Ext.getCmp('wasp-tabpanel');
+				if (tabpanel === undefined) {
+					// alert if the tabpanel is undefined
+					extPortal.showMsg("wasp-tabpanel is not defined!");
+					return;
+				}
+	
+				if (d.type.indexOf('filetype') > -1) {
+					//remove all existing tabs from tabpanel first
+					tabpanel.removeAll();
+	//				var filePanel = Ext.create('Wasp.FileDownloadGridPortlet', {
+	//					fgListStr: result.fgliststr
+	//				});
+					var fp = result.filepanel;
+	
+					//test
+					//$.fileDownload('http://phoenix.einstein.yu.edu:8080/wasp-file/get/file/c7d5237e-ab84-4837-a618-6ec17ac6add3');
+					//test
+	
+					tabpanel.add({
+						id: 'file-tab',
+						xtype: 'panel',
+						title: 'File Download',
+						layout: 'card',
+						activeItem: 1,
 						items: [{
-							//id: 'portlet-',
-							xtype: 'portlet',
-							title: fp.title,
-							//tools: extPortal.getTools(),
-							//frame: false,
-							closable: fp.closable,
-							collapsible: fp.resizable,
-							maximizable: fp.maximizable,
-							draggable: false,
-							items: createGridPanel(fp)
-						}]
-						//}]
-					}]
-				});
-			} else if (d.type=='job' || d.type=='filegroup') {
-				//remove all existing tabs from tabpanel first
-				tabpanel.removeAll();
-				var jsList = new Array(),
-					cssList = new Array();
-				$.each(result.paneltablist, function (index, item) {
-					$.each(item.panels, function (index1, item1) {
-						if (item1.type=="WebPanel") {
-							for (var i = 0, len = item1.content.scriptDependencies.length; i < len; i++) {
-								if (jscssfilesadded.indexOf("[" + item1.content.scriptDependencies[i] + "]") == -1) { //if the file not been loaded before
-									jsList.push(item1.content.scriptDependencies[i]);
-									jscssfilesadded += "[" + item1.content.scriptDependencies[i] + "]";
-								}
-							}
-							for (var i = 0, len = item1.content.cssDependencies.length; i < len; i++) {
-								if (jscssfilesadded.indexOf("[" + item1.content.cssDependencies[i] + "]") == -1) { //if the file not been loaded before
-									cssList.push(item1.content.cssDependencies[i]);
-									jscssfilesadded += "[" + item1.content.cssDependencies[i] + "]";
-								}
-							}
-						}
-					});
-				});
-
-				var createPortal = function () {
-					// if the node clicked is filegroup, create an extra summary tab in the portal
-					if (d.type=='filegroup') {
-						var isAllStatusesNA = false;
-						if (result.statuslist.length > 0){
-							isAllStatusesNA = true;
-							for (var i=0; i<result.statuslist.length; i++ ){
-								if (result.statuslist[i][2] != "NOT_APPLICABLE"){
-									isAllStatusesNA = false;
-									break;
-								}
-							}
-						}
-						if (!isAllStatusesNA){
-							var summaryPanel;
-							if (result.statuslist.length > 0) {
-								summaryPanel = Ext.create('Wasp.PluginSummaryGridPortlet', {
-									statusData: result.statuslist,
-									tabPanel: tabpanel
-								});
-							} else {
-								summaryPanel = {
-									html: '<div class="noPlugin">No registered plugins handle this data.</div>'
-								}
-							}
-							tabpanel.add({
-							id: 'summary-tab',
-							xtype: 'panel',
-							title: 'Summary',
-							layout: 'card',
-							activeItem: 1,
+							layout: 'fit'
+						}, {
+							xtype: 'portalpanel',
+							//items: [{
+							//id: 'col-',
 							items: [{
-								layout: 'fit'
-							}, {
-								xtype: 'portalpanel',
-								items: [{
-									//id: 'portlet-',
-									xtype: 'portlet',
-									title: 'Completion Status for Plugins Handling this Data',
-									//tools: extPortal.getTools(),
-									//frame: false,
-									closable: false,
-									collapsible: false,
-									draggable: false,
-									items: summaryPanel
-								}]
-							  }]
-							});
-						}
-					}
-
-					$.each(result.paneltablist, function (index, item) {
-						var tabTitle;
-
-//						if ((d.type.split('-'))[0] == "filetype") {
-//							tabTitle = "Download " + (d.type.split('-'))[1].toUpperCase() + " files";
-//							return;
-//						} else {
-							tabTitle = item.name; //d.name+" Details";
-//						}
-
-
-						var tabid = index;
-						var tab = tabpanel.add({
-							xtype: 'panel',
-							id: tabid,
-							title: tabTitle,
-							layout: 'card',
-							activeItem: 1,
-							items: [{
-								layout: 'fit'
+								//id: 'portlet-',
+								xtype: 'portlet',
+								title: fp.title,
+								//tools: extPortal.getTools(),
+								//frame: false,
+								closable: fp.closable,
+								collapsible: fp.resizable,
+								maximizable: fp.maximizable,
+								draggable: false,
+								items: createGridPanel(fp)
 							}]
-						});
-						var pmax = null;
-						var pdfpanel = null;
-						if (item.maxOnLoad && item.panels.length==1) {
-							pmax = tab.items.first();
-							//var ptlcol = ptlpnl.add({ id: tabid + '-col-1' });
-							var panel = item.panels[0];
-							if (panel.type=="PDFPanel" && !panel.content.pdfURL.isEmpty()) {
-								pdfpanel = pmax.add({
-									xtype: 'portlet',
-									title: panel.title,
-									closable: false,
-									collapsible: false,
-									draggable: false,
-									html: "<div id='pdfpanel-"+ panel.content.pdfURL.hashCode() +"'></div>",
-									url: panel.content.pdfURL,
-									items: []
-								});
-								pdfpanel.add(createPDFPanel(pdfpanel.url, panel.pageScale, 'pdfpanel-'+pdfpanel.url.hashCode()));
-							} else if (panel.type=="WebPanel" && !panel.content.htmlCode.isEmpty()) {
-								pmax.add({
-									xtype: 'portlet',
-									title: panel.title,
-									closable: false,
-									collapsible: false,
-									draggable: false,
-									html: panel.content.htmlCode,
-									listeners: {
-										'render': Ext.bind(new Function("portlet", panel.execOnRenderCode), extPortal),
-										'resize': Ext.bind(new Function("portlet", panel.execOnResizeCode), extPortal),
-										'expand': Ext.bind(new Function("portlet", panel.execOnExpandCode), extPortal)
+							//}]
+						}]
+					});
+				} else if (d.type=='job' || d.type=='filegroup') {
+					//remove all existing tabs from tabpanel first
+					tabpanel.removeAll();
+					var jsList = new Array(),
+						cssList = new Array();
+					$.each(result.paneltablist, function (index, item) {
+						$.each(item.panels, function (index1, item1) {
+							if (item1.type=="WebPanel") {
+								for (var i = 0, len = item1.content.scriptDependencies.length; i < len; i++) {
+									if (jscssfilesadded.indexOf("[" + item1.content.scriptDependencies[i] + "]") == -1) { //if the file not been loaded before
+										jsList.push(item1.content.scriptDependencies[i]);
+										jscssfilesadded += "[" + item1.content.scriptDependencies[i] + "]";
 									}
-								});
-							} else if (panel.type=="GridPanel") {
-								pmax.add({
-									xtype: 'portlet',
-									title: panel.title,
-									closable: false,
-									collapsible: false,
-									draggable: false,
-									items: createGridPanel(panel)
+								}
+								for (var i = 0, len = item1.content.cssDependencies.length; i < len; i++) {
+									if (jscssfilesadded.indexOf("[" + item1.content.cssDependencies[i] + "]") == -1) { //if the file not been loaded before
+										cssList.push(item1.content.cssDependencies[i]);
+										jscssfilesadded += "[" + item1.content.cssDependencies[i] + "]";
+									}
+								}
+							}
+						});
+					});
+	
+					var createPortal = function () {
+						// if the node clicked is filegroup, create an extra summary tab in the portal
+						if (d.type=='filegroup') {
+							var isAllStatusesNA = false;
+							if (result.statuslist.length > 0){
+								isAllStatusesNA = true;
+								for (var i=0; i<result.statuslist.length; i++ ){
+									if (result.statuslist[i][2] != "NOT_APPLICABLE"){
+										isAllStatusesNA = false;
+										break;
+									}
+								}
+							}
+							if (!isAllStatusesNA){
+								var summaryPanel;
+								if (result.statuslist.length > 0) {
+									summaryPanel = Ext.create('Wasp.PluginSummaryGridPortlet', {
+										statusData: result.statuslist,
+										tabPanel: tabpanel
+									});
+								} else {
+									summaryPanel = {
+										html: '<div class="noPlugin">No registered plugins handle this data.</div>'
+									}
+								}
+								tabpanel.add({
+								id: 'summary-tab',
+								xtype: 'panel',
+								title: 'Summary',
+								layout: 'card',
+								activeItem: 1,
+								items: [{
+									layout: 'fit'
+								}, {
+									xtype: 'portalpanel',
+									items: [{
+										//id: 'portlet-',
+										xtype: 'portlet',
+										title: 'Completion Status for Plugins Handling this Data',
+										//tools: extPortal.getTools(),
+										//frame: false,
+										closable: false,
+										collapsible: false,
+										draggable: false,
+										items: summaryPanel
+									}]
+								  }]
 								});
 							}
-							//pmax.doLayout();
-							tab.getLayout().setActiveItem(pmax);
-						} else {
-							var ptlpnl = tab.add({
-								xtype: 'portalpanel'
+						}
+	
+						$.each(result.paneltablist, function (index, item) {
+							var tabTitle;
+	
+	//						if ((d.type.split('-'))[0] == "filetype") {
+	//							tabTitle = "Download " + (d.type.split('-'))[1].toUpperCase() + " files";
+	//							return;
+	//						} else {
+								tabTitle = item.name; //d.name+" Details";
+	//						}
+	
+	
+							var tabid = index;
+							var tab = tabpanel.add({
+								xtype: 'panel',
+								id: tabid,
+								title: tabTitle,
+								layout: 'card',
+								activeItem: 1,
+								items: [{
+									layout: 'fit'
+								}]
 							});
-							var ptlcolArray = new Array;
-	
-							numcol = item.numberOfColumns;
-							for (var i = 0; i < numcol; i++) {
-								ptlcolArray.push(ptlpnl.add({
-									id: tabid + '-col-' + (i + 1)
-								}));
-							}
-	
-							var colid = 0;
-							$.each(item.panels, function (index1, panel) {
+							var pmax = null;
+							var pdfpanel = null;
+							if (item.maxOnLoad && item.panels.length==1) {
+								pmax = tab.items.first();
+								//var ptlcol = ptlpnl.add({ id: tabid + '-col-1' });
+								var panel = item.panels[0];
 								if (panel.type=="PDFPanel" && !panel.content.pdfURL.isEmpty()) {
-									pdfpanel = ptlcolArray[colid++].add({
+									pdfpanel = pmax.add({
 										xtype: 'portlet',
 										title: panel.title,
 										closable: false,
@@ -732,11 +682,12 @@ function click(d) {
 									});
 									pdfpanel.add(createPDFPanel(pdfpanel.url, panel.pageScale, 'pdfpanel-'+pdfpanel.url.hashCode()));
 								} else if (panel.type=="WebPanel" && !panel.content.htmlCode.isEmpty()) {
-									ptlcolArray[colid++].add({
+									pmax.add({
+										xtype: 'portlet',
 										title: panel.title,
-										tools: extPortal.getTools(panel.maximizable),
-										closable: panel.closeable,
-										collapsible: panel.resizable,
+										closable: false,
+										collapsible: false,
+										draggable: false,
 										html: panel.content.htmlCode,
 										listeners: {
 											'render': Ext.bind(new Function("portlet", panel.execOnRenderCode), extPortal),
@@ -745,27 +696,88 @@ function click(d) {
 										}
 									});
 								} else if (panel.type=="GridPanel") {
-							
-									ptlcolArray[colid++].add({
+									pmax.add({
+										xtype: 'portlet',
 										title: panel.title,
-										tools: extPortal.getTools(panel.maximizable),
-										closable: panel.closeable,
-										collapsible: panel.resizable,
-										
+										closable: false,
+										collapsible: false,
+										draggable: false,
 										items: createGridPanel(panel)
 									});
 								}
-								colid %= numcol;
-							});
-						}
-					});
-
-					tabpanel.setActiveTab(0);
-				};
-
-				// load all css then all js then create portal
-				if (cssList.length > 0) {
-					LazyLoad.css(cssList, function () {
+								//pmax.doLayout();
+								tab.getLayout().setActiveItem(pmax);
+							} else {
+								var ptlpnl = tab.add({
+									xtype: 'portalpanel'
+								});
+								var ptlcolArray = new Array;
+		
+								numcol = item.numberOfColumns;
+								for (var i = 0; i < numcol; i++) {
+									ptlcolArray.push(ptlpnl.add({
+										id: tabid + '-col-' + (i + 1)
+									}));
+								}
+		
+								var colid = 0;
+								$.each(item.panels, function (index1, panel) {
+									if (panel.type=="PDFPanel" && !panel.content.pdfURL.isEmpty()) {
+										pdfpanel = ptlcolArray[colid++].add({
+											xtype: 'portlet',
+											title: panel.title,
+											closable: false,
+											collapsible: false,
+											draggable: false,
+											html: "<div id='pdfpanel-"+ panel.content.pdfURL.hashCode() +"'></div>",
+											url: panel.content.pdfURL,
+											items: []
+										});
+										pdfpanel.add(createPDFPanel(pdfpanel.url, panel.pageScale, 'pdfpanel-'+pdfpanel.url.hashCode()));
+									} else if (panel.type=="WebPanel" && !panel.content.htmlCode.isEmpty()) {
+										ptlcolArray[colid++].add({
+											title: panel.title,
+											tools: extPortal.getTools(panel.maximizable),
+											closable: panel.closeable,
+											collapsible: panel.resizable,
+											html: panel.content.htmlCode,
+											listeners: {
+												'render': Ext.bind(new Function("portlet", panel.execOnRenderCode), extPortal),
+												'resize': Ext.bind(new Function("portlet", panel.execOnResizeCode), extPortal),
+												'expand': Ext.bind(new Function("portlet", panel.execOnExpandCode), extPortal)
+											}
+										});
+									} else if (panel.type=="GridPanel") {
+								
+										ptlcolArray[colid++].add({
+											title: panel.title,
+											tools: extPortal.getTools(panel.maximizable),
+											closable: panel.closeable,
+											collapsible: panel.resizable,
+											
+											items: createGridPanel(panel)
+										});
+									}
+									colid %= numcol;
+								});
+							}
+						});
+	
+						tabpanel.setActiveTab(0);
+					};
+	
+					// load all css then all js then create portal
+					if (cssList.length > 0) {
+						LazyLoad.css(cssList, function () {
+							if (jsList.length > 0) {
+								LazyLoad.js(jsList, function () {
+									createPortal();
+								});
+							} else {
+								createPortal();
+							}
+						});
+					} else {
 						if (jsList.length > 0) {
 							LazyLoad.js(jsList, function () {
 								createPortal();
@@ -773,46 +785,41 @@ function click(d) {
 						} else {
 							createPortal();
 						}
-					});
-				} else {
-					if (jsList.length > 0) {
-						LazyLoad.js(jsList, function () {
-							createPortal();
-						});
-					} else {
-						createPortal();
 					}
-				}
-			} else {
-				return;
-			}
-		})
-		.fail(function(jqXHR){
-			checkForPageRedirect(jqXHR.responseText);
-		});
-
-	if (!d.children && !d._children) {
-		$.ajax({
-			url: '<wasp:relativeUrl value="jobresults/getTreeJson.do?node=" />' + dstr,
-			type: 'GET',
-			dataType: 'json'
-			})
-			.done(function (result) {
-				if (result.children != '') {
-					d.children = result.children;
-					update(d);
+				} else {
+					return;
 				}
 			})
 			.fail(function(jqXHR){
 				checkForPageRedirect(jqXHR.responseText);
 			});
-	}
-
-	toggle(d);
-
-	if (d.myid !== activeNode.myid && d.type !== activeNode.type) {
+	
+		if (!d.children && !d._children) {
+			$.ajax({
+				url: '<wasp:relativeUrl value="jobresults/getTreeJson.do?node=" />' + dstr,
+				type: 'GET',
+				dataType: 'json'
+				})
+				.done(function (result) {
+					if (result.children != '') {
+						d.children = result.children;
+						update(d);
+					}
+				})
+				.fail(function(jqXHR){
+					checkForPageRedirect(jqXHR.responseText);
+				});
+		}
+	
+		//console.log("clicked:"+d.myid+"|"+d.type+" active:"+activeNode.myid+"|"+activeNode.type);
 		activeNode.myid = d.myid;
 		activeNode.type = d.type;
+	
+	} else { //only toggle nodes when the current node is active
+		//console.log("clicked:"+d.myid+"|"+d.type+" active:"+activeNode.myid+"|"+activeNode.type);
+		if (d.pid != -1) {	//root node will not be toggled
+			toggle(d);
+		}
 	}
 }
 
