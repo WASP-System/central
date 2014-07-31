@@ -34,12 +34,16 @@
 <table class="data">
   	<tr class="row">
  		<td class="label" align="center"><fmt:message key="chipSeq.pair_ipsample.label"/></td>
+ 		<td class="label" align="center"><fmt:message key="chipSeq.pair_ipsample_species.label"/></td>
  		<td class="label" align="center"><fmt:message key="chipSeq.pair_controlinput.label"/></td>
  	</tr>
   	<c:forEach var="ip" items="${ipSamples}">
-  		<tr class="row">
-  			<td class="label" align="center">
+  		<tr class="FormData">
+  			<td  class="DataTD" align="center">
   				<c:out value="${ip.name}" />
+  			</td>
+  			<td  class="DataTD" align="center">
+  				<c:out value="${sampleSpeciesNameMap.get(ip)}" />
   			</td>
   			<td align="center">
   				<select name="controlIdForIP_<c:out value="${ip.id}" />">
@@ -47,8 +51,8 @@
 	  				<c:forEach var="input" items="${inputSamples}" >
 	  					<c:if test="${sampleOrganismMap.get(ip) == sampleOrganismMap.get(input) }">
 	  						<c:choose>
-	  							<c:when test="${not empty selectedTestControlMap.get(ip) && selectedTestControlMap.get(ip).id==input.id}"><option selected value="<c:out value="${input.id}" />"><c:out value="${input.name}" /></option></c:when>
-	  							<c:otherwise>	<option value="<c:out value="${input.id}" />"><c:out value="${input.name}" /></option></c:otherwise>
+	  							<c:when test="${not empty selectedTestControlMap.get(ip) && selectedTestControlMap.get(ip).id==input.id}"><option selected value="<c:out value="${input.id}" />"><c:out value="${input.name}" /> (<c:out value="${sampleSpeciesNameMap.get(input)}" />)</option></c:when>
+	  							<c:otherwise>	<option value="<c:out value="${input.id}" />"><c:out value="${input.name}" /> (<c:out value="${sampleSpeciesNameMap.get(input)}" />)</option></c:otherwise>
 	  						</c:choose>
 	  					</c:if>	
 	  				</c:forEach>

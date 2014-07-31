@@ -111,13 +111,17 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		List<SampleDraft> inputSampleDrafts = new ArrayList<SampleDraft>();
 		List<SampleDraft> ipSampleDrafts = new ArrayList<SampleDraft>();
 		Map<SampleDraft, Integer> sampleDraftOrganismMap = new HashMap<SampleDraft, Integer>();
+		Map<SampleDraft, String> sampleDraftSpeciesNameMap = new HashMap<SampleDraft, String>();
 		
 		for(SampleDraft sampleDraft : sampleDrafts){
 			boolean foundInputOrIP = false;
 			for(SampleDraftMeta sampleDraftMeta : sampleDraft.getSampleDraftMeta()){
 				if(sampleDraftMeta.getK().endsWith("organism")){
-					if(!sampleDraftMeta.getV().equals("0")){//species == OTHER
-						sampleDraftOrganismMap.put(sampleDraft, new Integer(sampleDraftMeta.getV()));
+					if(!sampleDraftMeta.getV().equals("0")){//if 0, then species = OTHER
+						Integer genomeId = Integer.valueOf(sampleDraftMeta.getV());
+						sampleDraftOrganismMap.put(sampleDraft, genomeId);
+						String speciesName = genomeService.getOrganismMap().get(genomeId).getName();
+						sampleDraftSpeciesNameMap.put(sampleDraft, speciesName);
 					}
 				}
 				if(sampleDraftMeta.getK().endsWith("inputOrIP")){
@@ -179,6 +183,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		m.put("inputSamples", inputSampleDrafts);
 		m.put("ipSamples", ipSampleDrafts);
 		m.put("sampleOrganismMap", sampleDraftOrganismMap);
+		m.put("sampleSpeciesNameMap", sampleDraftSpeciesNameMap);
 		m.put("selectedTestControlMap", testControlMap);
 		m.put("selectedSamplePairs", selectedSampleDraftPairStringSet);
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
