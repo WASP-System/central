@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.file.web.service.impl;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.FileInputStream;
@@ -507,49 +508,41 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
     	
 		// parse the comma delimited string into a list of filegroup uuids
 		List<String> uuidList = Arrays.asList(uuids.split("\\s*,\\s*"));
+		String pathURL = request.getRequestURL().toString();
+		pathURL = pathURL.substring(0, pathURL.lastIndexOf('/')+1);
+
+		String linksFileStr = "";
 		UUID uu;
 		for (String uuid : uuidList) {
-			try {
-				uu = UUID.fromString(uuid);
-			} catch (NumberFormatException e) {
-				throw new WaspException("unable to search for record " + uuid);
+			java.io.File download = getLocalFileFromUUID(uuid, "");
+			if (!download.exists()) {
+				response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			} else {
+				linksFileStr += pathURL + uuid + "\n";
 			}
 		}
 		
-//		java.io.File download = getLocalFileFromUUID(null, null);
-//		
-//		String filename = download.getName();
-//		
-//		ConfigurableMimeFileTypeMap mimeMap = new ConfigurableMimeFileTypeMap();
-//		String contentType = mimeMap.getContentType(filename);
-//		logger.debug("ContentType of file is: " + contentType);
-//		
-//		if (!download.exists()) {
-//			response.sendError(HttpServletResponse.SC_NOT_FOUND);
-//		}
-//
-//		// Added by AJ: to enable Cross-site HTTP requests for CORS support
-//		response.setHeader("Access-Control-Allow-Origin", "*");
-//
-//		InputStream is = new FileInputStream(download);
-//		
-//		response.setContentType(contentType);
-//		response.setHeader("Content-Disposition", "attachment;filename=" + filename);
-//		response.setHeader("Content-Length", String.valueOf( download.length() ));
-//		
-//		// set 'max-age' to cache files for up to 1h (3600s) since most files shouldn't change on the server anyway. 
-//		// We use 'must-revalidate' to force browser to always use this rule. 
-//		response.setHeader("Cache-Control", "max-age=3600, must-revalidate"); 
-//		
-//		// write a cookie to indicate that a file download has been initiated properly
-//		// for the jquery file download plugin (http://johnculviner.com/jquery-file-download-plugin-for-ajax-like-feature-rich-file-downloads/)
-//		response.setHeader("Set-Cookie", "fileDownload=true; path=/");
-//
-//		// copy it to response's OutputStream
-//		IOUtils.copy(is, response.getOutputStream());
-//		response.flushBuffer();
-//		is.close();
+		// Added by AJ: to enable Cross-site HTTP requests for CORS support
+		response.setHeader("Access-Control-Allow-Origin", "*");
+
+		InputStream is = new ByteArrayInputStream(linksFileStr.getBytes());
 		
+		response.setContentType("text/html");
+		response.setHeader("Content-Disposition", "attachment;filename=multi-tracks.txt");
+		response.setHeader("Content-Length", String.valueOf( linksFileStr.length() ));
+		
+		// set 'max-age' to cache files for up to 1h (3600s) since most files shouldn't change on the server anyway. 
+		// We use 'must-revalidate' to force browser to always use this rule. 
+		response.setHeader("Cache-Control", "max-age=3600, must-revalidate"); 
+		
+		// write a cookie to indicate that a file download has been initiated properly
+		// for the jquery file download plugin (http://johnculviner.com/jquery-file-download-plugin-for-ajax-like-feature-rich-file-downloads/)
+		response.setHeader("Set-Cookie", "fileDownload=true; path=/");
+
+		// copy it to response's OutputStream
+		IOUtils.copy(is, response.getOutputStream());
+		response.flushBuffer();
+		is.close();
 	}
 
 	@Override
