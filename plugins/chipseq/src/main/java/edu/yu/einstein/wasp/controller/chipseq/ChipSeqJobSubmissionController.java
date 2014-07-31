@@ -323,9 +323,11 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		this.confirmContinuedValidityOfSamplePairsAndAdjustAsNeeded(jobDraft);
 		this.confirmContinuedValidityOfReplicatesAndAdjustAsNeeded(jobDraft);
 		
+		String noReplicatesPossible = "false";
+		
 		List<SampleDraft> sampleDrafts=jobDraft.getSampleDraft();//sampleDraftDao.getSampleDraftByJobId(jobDraftId);
 		if (sampleDrafts.size() < 2){//require at least two samples in jobDraft to create any possible replicate set
-			return nextPage(jobDraft);
+			noReplicatesPossible = "true";
 		}
 				
 		//added 6-13-14; get samplePairs list, since for chipSeq's use of IDR for integrative analysis, IP replicates must be paired with an input/control
@@ -376,7 +378,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 			}
 		}
 		if (testSampleDraftsAlreadyInReplicateSet.isEmpty() && (testSampleDraftsAvailableForReplicateSelection.isEmpty() || testSampleDraftsAvailableForReplicateSelection.size() == 1)){//first time around and either no ipSamples or one ipSample -- unable to make any ip replicates
-			return nextPage(jobDraft);
+			noReplicatesPossible = "true";
 		}
 		
 		//In order to determine the SampleDrafts for the createNew select box (which will be stored in testSampleDraftsForCreateNew)
@@ -413,6 +415,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		m.put("sampleDraftSpeciesNameMap", sampleDraftSpeciesNameMap);
 		m.put("jobDraft", jobDraft);
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
+		m.put("noReplicatesPossible", noReplicatesPossible);
 		return "jobsubmit/replicates";
 		
 	}

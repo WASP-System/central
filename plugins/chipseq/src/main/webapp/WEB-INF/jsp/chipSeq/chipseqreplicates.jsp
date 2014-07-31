@@ -14,7 +14,11 @@
 <div class="instructions">
    <fmt:message key="${workflowIName}.replicates_instructions.label"/>
 </div>
-
+<c:if test="${noReplicatesPossible == 'true' }">
+	<br />
+	<h2><fmt:message key="chipSeq.replicatesNotPossible1.label"/></h2>	
+	<br />
+</c:if>
  <c:set value="false" var="atLeastOneReplicateSetWithSingleSample"/>
  <c:set value="false" var="atLeastOneReplicateSetWithIPLackingControl"/>
  <table class="data">
