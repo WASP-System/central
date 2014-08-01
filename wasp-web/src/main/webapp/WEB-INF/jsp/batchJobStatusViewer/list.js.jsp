@@ -105,7 +105,7 @@ var infoStore = Ext.create('Ext.data.Store',{
 
 
 function displayInfoData(executionId){
-
+	 $("#wait_dialog-modal").dialog("open");
 	infoStore.load({
 	    params: {
 	    	executionId: executionId
@@ -157,6 +157,7 @@ function displayInfoData(executionId){
   			        }]
   			    }]
    			});
+   	   	 	$("#wait_dialog-modal").dialog("close");
     		win.show();
 
 	    },
