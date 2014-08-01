@@ -26,6 +26,12 @@ public interface GridResult {
 	public int getExitCode();
 	
 	/**
+	 * set the value of exit code
+	 * @param exitCode
+	 */
+	public void setExitCode(int exitCode);
+	
+	/**
 	 * STDOUT of GridResult.  Since this can be from the command itself or from the {@link GridWorkService} 
 	 * implementation, this may not be of particular use outside of core components.
 	 * @return
@@ -96,6 +102,12 @@ public interface GridResult {
 	public String getUsername();
 	
 	/**
+	 * Map of metadata stored for the job, e.g. job id, hostname etc
+	 * @return
+	 */
+	public Map<String, String> getJobInfo();
+	
+	/**
 	 * Get current status of job.
 	 * @return
 	 */
@@ -144,5 +156,19 @@ public interface GridResult {
 	 * @return
 	 */
 	public String getId();
+	
+	/**
+	 * Get id of the grid job (no guarantee that this has been set)
+	 * @return
+	 */
+	public Long getGridJobId();
+	
+	/**
+	 * Set id of the grid job
+	 * @return
+	 */
+	public void setGridJobId(Long gridJobId);
+
+	public void addJobInfo(String key, String value);
 
 }

@@ -72,7 +72,7 @@ Ext.define('Wasp.Portal', {
                 layout: 'border',
                 items: [{
                     id: 'wasp-treeview',
-                    title: 'Treeview',
+                    title: 'WASP Job Results',
                     region: 'west',
                     animCollapse: true,
                     width: this.width*0.3,

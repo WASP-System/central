@@ -57,7 +57,7 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 		Build build = null;
 		WorkUnit w = new WorkUnit();
 		w.setMode(ExecutionMode.PROCESS);
-		w.setProcessMode(ProcessMode.MAX);
+		w.setProcessMode(ProcessMode.SINGLE);
 		w.setMemoryRequirements(MEMORY_GB_16);
 		w.setSecureResults(true);
 		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);

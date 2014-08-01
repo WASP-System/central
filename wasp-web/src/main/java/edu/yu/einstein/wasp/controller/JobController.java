@@ -1876,7 +1876,6 @@ public class JobController extends WaspController {
 	}
 	
 	//Note: we use MultipartHttpServletRequest to be able to upload files using Ajax. See http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/
-	  @Transactional
 	  @RequestMapping(value="/{jobId}/fileUploadManager", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public /*Callable<String>*/ String jobFileUploadPostPage(@PathVariable("jobId") final Integer jobId,

@@ -20,15 +20,15 @@ import edu.yu.einstein.wasp.viewpanel.PanelTab;
  * @author aj
  *
  */
-public class CsvFilePanelRenderer {
+public class TsvFilePanelRenderer {
 
 	public static PanelTab getPanelForFileGroup(String fileName, InputStream is, boolean header) {
-		String csvSplitBy = ",";
+		String tsvSplitBy = "\t";
 		PanelTab panelTab = new PanelTab();
 		panelTab.setNumberOfColumns(1);
+		panelTab.setName("TSV File Viewer");
+		panelTab.setDescription("Generic TSV file viewing");
 		panelTab.setMaxOnLoad(true);
-		panelTab.setName("CSV File Viewer");
-		panelTab.setDescription("Generic CSV file viewing");
 		GridPanel panel = new GridPanel();
 		panel.setTitle(fileName);
 		panelTab.addPanel(panel);
@@ -49,7 +49,7 @@ public class CsvFilePanelRenderer {
 					line = line.substring(1);
 				}
 				
-				String[] fields = line.split(csvSplitBy);
+				String[] fields = line.split(tsvSplitBy);
 				Integer dataIndex = 1;
 				if (header) {	// the first line is the header
 					for (String fstr : fields) {
@@ -70,7 +70,7 @@ public class CsvFilePanelRenderer {
 			}
 			while ((line = br.readLine().trim()) != null && !line.isEmpty()) {
 				List<String> row = new ArrayList<String>();
-				String[] fields = line.split(csvSplitBy);
+				String[] fields = line.split(tsvSplitBy);
 				for (String fstr : fields) {
 					row.add(fstr.trim());
 				}
@@ -83,6 +83,7 @@ public class CsvFilePanelRenderer {
 		}
 
 		panel.setContent(content);
+
 		return panelTab;
 	}
 

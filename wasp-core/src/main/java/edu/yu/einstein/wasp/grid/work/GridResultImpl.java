@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -31,22 +32,35 @@ public class GridResultImpl implements GridResult, Serializable {
 
 	private UUID uuid;
 	private String id;
+	private Long gridJobId;
 	private String hostname;
 	private String username;
 	private String workingDirectory;
 	private String resultsDirectory;
-	protected GridJobStatus status = GridJobStatus.UNKNOWN;
-	transient protected String archivedResultOutputPath = "";
+	protected GridJobStatus status;
+	transient protected String archivedResultOutputPath;
 
-	private int exitCode = -1;
+	private int exitCode;
+	
+	private String jobInfo; // TODO: Would be better as a LinkedHashMap but problems decoding by XStream if NULL for some reason
 	transient private InputStream stdOutStream;
 	transient private InputStream stdErrStream;
 	
-	private ExecutionMode mode = ExecutionMode.PROCESS;
+	private ExecutionMode mode;
 	
-	private Map<String, GridResult> childResults = new HashMap<>();;
+	private Map<String, GridResult> childResults;
 	
-	private int numberOfTasks = 1;
+	private int numberOfTasks;
+	
+	public GridResultImpl(){
+		 jobInfo = "";
+		 childResults = new HashMap<>();
+		 archivedResultOutputPath = "";
+		 numberOfTasks = 1;
+		 exitCode = -1;
+		 status = GridJobStatus.UNKNOWN;
+		 mode = ExecutionMode.PROCESS;
+	}
 	
 	/**
 	 * @return the mode
@@ -87,6 +101,7 @@ public class GridResultImpl implements GridResult, Serializable {
 	 * sets exit code and also updates jobStatus accordingly
 	 * @param exitCode
 	 */
+	@Override
 	public void setExitCode(int exitCode) {
 		this.exitCode = exitCode;
 		if (exitCode == 0)
@@ -252,5 +267,32 @@ public class GridResultImpl implements GridResult, Serializable {
 	@Override
 	public void addChildResult(String key, GridResult result) {
 		childResults.put(key, result);
+	}
+	
+	@Override
+	public Map<String, String> getJobInfo() {
+		Map<String, String> jobInfoMap = new LinkedHashMap<>();
+		for (String pair : jobInfo.split(";;")){
+			String[] items = pair.split("::");
+			jobInfoMap.put(items[0], items[1]);
+		}
+		return jobInfoMap;
+	}
+	
+	@Override
+	public void addJobInfo(String key, String value) {
+		if (!jobInfo.isEmpty())
+			jobInfo += ";;";
+		jobInfo += key + "::" + value;
+	}
+
+	@Override
+	public Long getGridJobId() {
+		return gridJobId;
+	}
+
+	@Override
+	public void setGridJobId(Long gridJobId) {
+		this.gridJobId = gridJobId;
 	}
 }

@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
-public class ExtTreeModel implements Serializable{
+public class ExtTreeModel extends ExtModel{
 	
 	private static final long serialVersionUID = 4827904024619482123L;
 

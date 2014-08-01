@@ -139,8 +139,11 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 				Run r = l.get(x);
 				if (r.getId() > result.getId()) result = r;
 			}
-		} else {
+		} else if (l.size() ==1 ){
 			result = l.get(0);
+		} else {
+			logger.warn("Run " + name + " is not in the database");
+			result = null;
 		}
 		
 		return result;

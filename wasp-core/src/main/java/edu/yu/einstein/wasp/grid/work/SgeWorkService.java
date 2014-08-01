@@ -11,11 +11,13 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -30,6 +32,8 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.util.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -70,6 +74,14 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	private static final String REGISTER_FILES_KEY = "registerFiles";
 	
 	private static final String CLEAN_COMPLETED_JOB_KEY = "cleanUpCompletedJob";
+	
+	private static final String GRID_JOB_ID_KEY = "Grid Job Id";
+	private static final String GRID_JOB_NAME = "Grid Job Name";
+	private static final String HOST_NODE_KEY = "Host Node";
+	private static final String START_TIME_KEY = "Start Time";
+	
+	public static final long NO_FILE_SIZE_LIMIT = -1L;
+	public static final long MAX_32MB = 1024 * 32;
     
     @Value("${wasp.developermode:false}")
     protected boolean developerMode;
@@ -345,6 +357,47 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		else
 			return isTaskArrayEnded(g);
 	}
+	
+	private void recordQaactData(GridResult g){
+		logger.trace("saving qacct data in " + g.getId() + ".stats");
+		if (g.getGridJobId() == null){
+			logger.warn("Unable to get qacct data for grid job id=" + g.getUuid() + " as no grid job id set");
+			return;
+		}
+		WorkUnit w = new WorkUnit();
+		w.setWorkingDirectory(transportConnection.prefixRemoteFile(g.getWorkingDirectory()));
+		w.setWrapperCommand("qacct -j " + g.getGridJobId() + " > " + g.getId() + ".stats");
+		GridResultImpl result = null;;
+		int attempts = 1;
+		int maxAttempts = 10;
+		int waitMs = 3000;
+		
+		while ( (result == null || result.getExitCode() != 0) && attempts <= maxAttempts){
+			if (attempts > 1){
+				try {
+					logger.debug("Goint to sleep for " + waitMs + "ms before trying again");
+					Thread.sleep(waitMs); // wait a bit before trying again
+				} catch (InterruptedException e) {
+					logger.warn("Caught InterruptedException: " + e.getLocalizedMessage());
+				}
+			}
+			try {
+				result = (GridResultImpl) transportConnection.sendExecToRemote(w);
+				if (result.getExitCode() > 0){
+					logger.warn("Unable to get qacct data for grid job id=" + g.getGridJobId() + 
+							"(" + g.getId()  + "): Remote job submission failed (exitCode=" + result.getExitCode() + ") on attempt " + attempts);
+				}
+			} catch (MisconfiguredWorkUnitException | GridException e) {
+				logger.warn("Unable to get qacct data for grid job id=" + g.getGridJobId() + 
+						"(" + g.getId()  + "): Remote job submission failed on attempt " + attempts + 
+						" : caught MisconfiguredWorkUnitException: " + e.getLocalizedMessage());
+			}
+			attempts++;
+		}
+		if (attempts > maxAttempts)
+			logger.warn("Given up trying to to obtain qacct data after " + maxAttempts + " attempts");
+		
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -360,11 +413,25 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		boolean died = false;
 		boolean started;
 		boolean	ended;
+			
 		if (g.getJobStatus().isEnded()){
 			started = true;
 			ended = true;
 		} else {
 			started = isJobStarted(g);
+			if (started && g.getGridJobId() == null){
+				try{
+					Map<String, String> gridJobInfo = getJobInfoFromJson(new JSONArray(getUnregisteredFileContents(g, g.getId() + ".start", NO_FILE_SIZE_LIMIT)));
+					g.setGridJobId(Long.valueOf(gridJobInfo.get(GRID_JOB_ID_KEY)));
+					for (String key : gridJobInfo.keySet()){
+						String value = gridJobInfo.get(key);
+						g.addJobInfo(key, value);	;
+						logger.trace("Registering job info in GridResult [ " + key + " : " + value + " ]");
+					}
+				} catch(JSONException | IOException e){
+					logger.warn("Unable to extract job info from " + g.getId() + ".start: " + e.getLocalizedMessage());
+				}
+			}
 			ended = isJobOrTaskArrayEnded(g);
 			logger.debug("Job status semaphores (started, ended): " + started + ", " + ended);
 			if (started && !ended){
@@ -408,14 +475,16 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 						}
 					}
 				} while (died && !timedOut);
-			}
+			} 
+			if (ended || died)
+				recordQaactData(g);
 			logger.debug("Job Status (ended, died): " + ended + ", " + died);
 		}
 		
 		if (died) {
 			cleanUpAbnormallyTerminatedJob(g);
 			g.setArchivedResultOutputPath(getFailedArchiveName(g));
-			((GridResultImpl) g).setExitCode(g.getExitCode() > 1 ? g.getExitCode() : 1);
+			g.setExitCode(g.getExitCode() > 1 ? g.getExitCode() : 1);
 			throw new GridExecutionException("abnormally terminated job");
 		}
 		
@@ -437,7 +506,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 				}
 			}
 			logger.debug("Parent grid job has ended and no child jobs or all child jobs are complete so going to return true");
-			((GridResultImpl) g).setExitCode(g.getExitCode() > 0 ? g.getExitCode() : 0);
+			g.setExitCode(g.getExitCode() > 0 ? g.getExitCode() : 0);
 		}
 		return ended;
 	}
@@ -788,17 +857,26 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		return (GridResult) result;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setAvailableParallelEnvironments(String commaDelimitedParallelEnvironments){
 		for (String parallelEnv : commaDelimitedParallelEnvironments.split(","))
 			this.parallelEnvironments.add(parallelEnv);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Set<String> getAvailableParallelEnvironments() {
 		return this.parallelEnvironments;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getDefaultParallelEnvironment() {
 		return defaultParallelEnvironment;
@@ -816,6 +894,9 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getDefaultMpiParallelEnvironment() {
 		return defaultMpiParallelEnvironment;
@@ -834,6 +915,22 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 
 	protected SubmissionScript getSubmissionScript(WorkUnit w) throws GridException, MisconfiguredWorkUnitException {
 		return new SgeSubmissionScript(w);
+	}
+	
+	private JSONArray getJsonForJobInfo(Map<String, String> jobInfo){
+		List<String> jobInfoList = new ArrayList<String>();
+		for (String key : jobInfo.keySet())
+			jobInfoList.add(key + "::" + jobInfo.get(key));
+		return new JSONArray(jobInfoList);
+	}
+	
+	private Map<String, String> getJobInfoFromJson(JSONArray json){
+		Map<String, String> jobInfo = new LinkedHashMap<String, String>();
+		for (int i=0; i< json.length(); i++){
+			String[] keyValuePairs = json.getString(i).split("::");
+			jobInfo.put(keyValuePairs[0], keyValuePairs[1]);
+		}
+		return jobInfo;
 	}
 
 	/**
@@ -889,47 +986,48 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
 			    tid = "-$TASK_ID";
-			
-			header = "#!/bin/bash\n#\n" +
-					getFlag() + " -N " + jobName + "\n" +
-					getFlag() + " -S /bin/bash\n" +
-					getFlag() + " -V\n" +
-					getFlag() + " -o " + w.remoteWorkingDirectory + jobNamePrefix + name + tid + ".out\n" +
-					getFlag() + " -e " + w.remoteWorkingDirectory + jobNamePrefix + name + tid + ".err\n";
+			StringBuffer headerStrBuf = new StringBuffer();
+			headerStrBuf.append("#!/bin/bash\n#\n")
+					.append(getFlag()).append(" -N ").append(jobName).append("\n")
+					.append(getFlag()).append(" -S /bin/bash\n")
+					.append(getFlag()).append(" -V\n")
+					.append(getFlag()).append(" -o ").append(w.remoteWorkingDirectory).append(jobNamePrefix).append(name).append(tid).append(".out\n")
+					.append(getFlag()).append(" -e ").append(w.remoteWorkingDirectory).append(jobNamePrefix).append(name).append(tid).append(".err\n");
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY)) {
-				header += getFlag() + " -t 1-" + w.getNumberOfTasks() + "\n"; 
+				headerStrBuf.append(getFlag()).append(" -t 1-").append(w.getNumberOfTasks()).append("\n"); 
 			}
+			header = headerStrBuf.toString();
 			
-			preamble = "\nset -o errexit\n" + 	// die if any script returns non 0 exit code
-					"set -o pipefail\n" + 		// die if any script in a pipe returns non 0 exit code
-					"set -o physical\n"; 		// replace symbolic links with physical path
-			
-			preamble += "\ncd " + w.remoteWorkingDirectory + "\n" +
-					WorkUnit.JOB_NAME + "=" + jobNamePrefix + name + "\n" +
-					WorkUnit.WORKING_DIRECTORY + "=" + w.remoteWorkingDirectory + "\n" +
-					WorkUnit.TMP_DIRECTORY + "=" + w.getTmpDirectory() + "\n" +
-					WorkUnit.RESULTS_DIRECTORY + "=" + w.remoteResultsDirectory + "\n";
+			StringBuffer preambleStrBuf = new StringBuffer();
+			preambleStrBuf.append("\nset -o errexit\n") 	// die if any script returns non 0 exit code
+					.append("set -o pipefail\n") 		// die if any script in a pipe returns non 0 exit code
+					.append("set -o physical\n") 		// replace symbolic links with physical path
+					.append("\ncd ").append(w.remoteWorkingDirectory).append("\n")
+					.append(WorkUnit.JOB_NAME).append("=").append(jobNamePrefix).append(name).append("\n")
+					.append(WorkUnit.WORKING_DIRECTORY).append("=").append(w.remoteWorkingDirectory).append("\n")
+					.append(WorkUnit.TMP_DIRECTORY).append("=").append(w.getTmpDirectory()).append("\n")
+					.append(WorkUnit.RESULTS_DIRECTORY).append("=").append(w.remoteResultsDirectory).append("\n");
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY)) {
-				preamble += WorkUnit.TASK_ARRAY_ID + "=${SGE_TASK_ID}\n" + 
-				                WorkUnit.ZERO_TASK_ARRAY_ID + "=$[WASP_TASK_ID - 1]\n" +
-						WorkUnit.TASK_OUTPUT_FILE + "=$WASPNAME-${WASP_TASK_ID}.out\n" +
-						WorkUnit.TASK_END_FILE + "=$WASPNAME:${WASP_TASK_ID}.end\n";
+				preambleStrBuf.append(WorkUnit.TASK_ARRAY_ID).append("=${SGE_TASK_ID}\n")
+					.append(WorkUnit.ZERO_TASK_ARRAY_ID).append("=$[WASP_TASK_ID - 1]\n")
+					.append(WorkUnit.TASK_OUTPUT_FILE).append("=$WASPNAME-${WASP_TASK_ID}.out\n")
+					.append(WorkUnit.TASK_END_FILE).append("=$WASPNAME:${WASP_TASK_ID}.end\n");
 			}
 			
 			String metadata = transportConnection.getConfiguredSetting("metadata.root");
 			if (!PropertyHelper.isSet(metadata)) {
 				throw new NullResourceException("metadata folder not configured!");
 			}
-			preamble += WorkUnit.METADATA_ROOT + "=" + transportConnection.prefixRemoteFile(metadata) + "\n";
+			preambleStrBuf.append(WorkUnit.METADATA_ROOT).append("=").append(transportConnection.prefixRemoteFile(metadata)).append("\n");
 			
 			int fi = 0;
 			for (edu.yu.einstein.wasp.model.FileHandle f : w.getRequiredFiles()) {
 				
 				logger.debug("WorkUnit required file: " + f.getFileURI().toString());
 				try {
-					preamble += WorkUnit.INPUT_FILE + "[" + fi + "]=" + provisionRemoteFile(f) + "\n";
+					preambleStrBuf.append(WorkUnit.INPUT_FILE).append("[").append(fi).append("]=").append(provisionRemoteFile(f)).append("\n");
 				} catch (FileNotFoundException e) {
 					throw new MisconfiguredWorkUnitException("unknown file " + f.getFileURI());
 				} 
@@ -940,20 +1038,29 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			logger.trace("adding file variables for " + w.getResultFiles().size() + " file handles");
 			for (FileHandle fh : w.getResultFiles()) {
 			    String filestr = WorkUnit.OUTPUT_FILE + "[" + fi + "]=" + WorkUnit.OUTPUT_FILE_PREFIX + "_" + fh.getId() +"."+ w.getId().replaceFirst(jobNamePrefix, "") + "\n";
-			    preamble += filestr;
+			    preambleStrBuf.append(filestr);
 			    fi++;
 			}
 			
-			preamble += "\n# Configured environment variables\n\n";
-			
+			preambleStrBuf.append("\n# Configured environment variables\n\n");
 			for (String key : w.getEnvironmentVars().keySet()) {
-				preamble += key + "=" + w.getEnvironmentVars().get(key) + "\n";
+				preambleStrBuf.append(key).append("=").append(w.getEnvironmentVars().get(key)).append("\n");
 			}
+			preambleStrBuf.append("\n####\n");
 			
-			preamble += "\n####\n";
+			// write job info to .start file (as JSON) and also to stderr
+			Map<String, String> jobInfo = new LinkedHashMap<String, String>();
+			jobInfo.put(GRID_JOB_ID_KEY, "$JOB_ID");
+			jobInfo.put(GRID_JOB_NAME, "${" + WorkUnit.JOB_NAME + "}");
+			jobInfo.put(HOST_NODE_KEY, "`hostname -f`");
+			jobInfo.put(START_TIME_KEY, "`date`");
+			preambleStrBuf.append("\necho \"").append(getJsonForJobInfo(jobInfo).toString().replaceAll("\"", "\\\\\"")).append("\" > ").append("${").append(WorkUnit.JOB_NAME).append("}.start\n")
+					.append("echo \"#### begin job info\" 1>&2\n");
+			for (String key : jobInfo.keySet())
+				preambleStrBuf.append("echo ").append(key).append(" : ").append(jobInfo.get(key)).append(" 1>&2\n"); // write info to stderr
+			preambleStrBuf.append("echo \"#### end job info\" 1>&2\n\n");
+			preamble = preambleStrBuf.toString();
 			
-			preamble +=	"\necho $JOB_ID >> " + "${" + WorkUnit.JOB_NAME + "}.start\n" +
-					"echo submitted to host `hostname -f` `date` 1>&2";
 			// if there is a configured setting to prepare the interpreter, do that here 
 			String env = transportConnection.getConfiguredSetting("env");
 			if (PropertyHelper.isSet(env)) {
@@ -988,22 +1095,24 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			} 
 			command = w.getCommand();
 			
-			postscript = "echo \"##### begin ${" + WorkUnit.JOB_NAME + "}\" > " + w.remoteWorkingDirectory + "${" + WorkUnit.JOB_NAME + "}.command\n\n" +
-					"awk '/^##### preamble/,/^##### postscript|~$/' " + 
-						w.remoteWorkingDirectory + "${" + WorkUnit.JOB_NAME + "}.sh | sed 's/^##### .*$//g' | grep -v \"^$\" >> " +
-						w.remoteWorkingDirectory + "${" + WorkUnit.JOB_NAME + "}.command\n" +
-					"echo \"##### end ${" + WorkUnit.JOB_NAME + "}\" >> " + w.remoteWorkingDirectory + "${" + WorkUnit.JOB_NAME + "}.command\n";
+			StringBuffer postscriptStrBuf = new StringBuffer();
+			postscriptStrBuf.append("echo \"##### begin ${").append(WorkUnit.JOB_NAME).append("}\" > ").append(w.remoteWorkingDirectory).append("${").append(WorkUnit.JOB_NAME).append("}.command\n\n")
+					.append("awk '/^##### preamble/,/^##### postscript|~$/' ")
+					.append(w.remoteWorkingDirectory).append("${").append(WorkUnit.JOB_NAME).append("}.sh | sed 's/^##### .*$//g' | grep -v \"^$\" >> ")
+					.append(w.remoteWorkingDirectory).append("${").append(WorkUnit.JOB_NAME).append("}.command\n")
+					.append("echo \"##### end ${").append(WorkUnit.JOB_NAME).append("}\" >> ").append(w.remoteWorkingDirectory).append("${").append(WorkUnit.JOB_NAME).append("}.command\n");
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
-			    postscript = "if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then\n" + postscript + "fi\n";
+				postscriptStrBuf.insert(0,"if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then\n").append("fi\n");
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY)) {
-				postscript += "touch ${" + WorkUnit.WORKING_DIRECTORY + "}/${" + WorkUnit.TASK_END_FILE + "}\n" +
-					"echo completed on `hostname -f` `date` 1>&2\n";
+				postscriptStrBuf.append("touch ${").append(WorkUnit.WORKING_DIRECTORY).append("}/${").append(WorkUnit.TASK_END_FILE).append("}\n")
+					.append("echo completed on `hostname -f` `date` 1>&2\n");
 			} else {
-				postscript += "touch " + w.remoteWorkingDirectory + "${" + WorkUnit.JOB_NAME + "}.end\n" +
-					"echo completed on `hostname -f` `date` 1>&2\n";
+				postscriptStrBuf.append("touch ").append(w.remoteWorkingDirectory).append("${").append(WorkUnit.JOB_NAME).append("}.end\n")
+					.append("echo completed on `hostname -f` `date` 1>&2\n");
 			}
+			postscript = postscriptStrBuf.toString();
 		}
 		
 		/** 
@@ -1058,6 +1167,9 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			return procsStr;
 		}
 
+		/**
+		 * {@inheritDoc}
+		 */
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
 			sb.append(header)
@@ -1200,6 +1312,9 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public GridFileService getGridFileService() {
 		return gridFileService;
@@ -1208,6 +1323,10 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	public void setGridFileService(GridFileService gridFileService) {
 		this.gridFileService = gridFileService;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public GridTransportConnection getTransportConnection() {
 		return transportConnection;
@@ -1333,29 +1452,87 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		throw new FileNotFoundException("Archive " + f.getAbsolutePath() + " did not appear to contain " + contentName);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setApplicationContext(ApplicationContext arg0) throws BeansException {
 		this.applicationContext = arg0;
 		
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public String getResultStdOut(GridResult r) throws IOException {
-		return getResultOutputFile(r, "out");
+	public String getResultStdOut(GridResult r, long tailByteLimit) throws IOException {
+		return getResultOutputFile(r, "out", tailByteLimit);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public String getResultStdErr(GridResult r) throws IOException {
-		return getResultOutputFile(r, "err");
+	public String getResultStdErr(GridResult r, long tailByteLimit) throws IOException {
+		return getResultOutputFile(r, "err", tailByteLimit);
 	}
 	
-	private String getResultOutputFile(GridResult r, String type) throws IOException {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getResultInfo(GridResult r, long tailByteLimit) throws IOException {
+		return getResultOutputFile(r, "start", tailByteLimit);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getResultScript(GridResult r, long tailByteLimit) throws IOException {
+		return getResultOutputFile(r, "sh", tailByteLimit);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getResultJobStats(GridResult r, long tailByteLimit) throws IOException {
+		return getResultOutputFile(r, "stats", tailByteLimit);
+	}
+	
+	private String getResultOutputFile(GridResult r, String type, long tailByteLimit) throws IOException {
+		String path = r.getArchivedResultOutputPath(); 
+		if (!path.isEmpty()){
+			logger.debug("found file of type '." + type + "' from GridResult with id=" + r.getId() + " in archivedResultOutputPath");
+			return getCompressedOutputFile(path, r.getId(), type, tailByteLimit);  // is a compressed archive registered in the result
+		}
+		String filename = r.getId() + "." + type;
+		path = r.getWorkingDirectory() + "/" + filename;
+		if (gridFileService.exists(path)){
+			logger.debug("found file of type '." + type + "' from GridResult with id=" + r.getId() + " in unarchived working directory");
+			return getUnregisteredFileContents(r, filename, tailByteLimit); // the file is still unregistered
+		}
+		path = getCompletedArchiveName(r);
+		if (gridFileService.exists(path)) {
+			logger.debug("found file of type '." + type + "' from GridResult with id=" + r.getId() + " in completed archive (not recorded in GridResult)");
+			return getCompressedOutputFile(path, r.getId(), type, tailByteLimit); // is in a completed archive that wasn't appended to this GridResult
+		}
+		path = getFailedArchiveName(r);
+		if (gridFileService.exists(path)) {
+			logger.debug("found file of type '." + type + "' from GridResult with id=" + r.getId() + " in failed archive (not recorded in GridResult)");
+			return getCompressedOutputFile(path, r.getId(), type, tailByteLimit); // is in a failed archive that wasn't appended to this GridResult
+		}
+		throw new IOException("Unable to to obtain file of type '." + type + "' from GridResult with id=" + r.getId() + 
+				". No archive or working directory found matching GridResult");
+	}
+	
+	private String getCompressedOutputFile(String path, String jobId, String type, long tailByteLimit) throws IOException {
 		String result = "";
-		File f = File.createTempFile("wasp", "work");
-        String path = r.getArchivedResultOutputPath();
-        logger.debug("temporary tar file " + f.getAbsolutePath() + " for " + path);
-        gridFileService.get(path, f);
-        FileInputStream afis = new FileInputStream(f);
+		File t = File.createTempFile("wasp", "work"); // tar archive
+        logger.debug("temporary tar file " + t.getAbsolutePath() + " for " + path);
+        gridFileService.get(path, t);
+        FileInputStream afis = new FileInputStream(t);
         GZIPInputStream agz = new GZIPInputStream(afis);
         TarArchiveInputStream a = new TarArchiveInputStream(agz);
         try {
@@ -1363,38 +1540,100 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
             TarArchiveEntry e;
             while ((e = a.getNextTarEntry()) != null) {
                 logger.trace("saw tar file entry " + e.getName());
-                Matcher filem = Pattern.compile(r.getId() + "." + type).matcher(e.getName());
+                Matcher filem = Pattern.compile(jobId + "." + type).matcher(e.getName());
                 if (!filem.find())
                     continue;
                 logger.trace("matched " + e.getName() + " size " + e.getSize());
                 result = IOUtils.toString(a, "UTF-8");
+                if (tailByteLimit == MAX_32MB){
+                	byte[] utf8bytes = result.getBytes("UTF8");
+                	if (utf8bytes.length > MAX_32MB){
+	        			byte[] trunc = new byte[(int) MAX_32MB];
+	        			for (int i = utf8bytes.length-1; i >= utf8bytes.length - trunc.length; i--){
+	        				int j = i - (utf8bytes.length - trunc.length);
+	        				trunc[j] = utf8bytes[i];
+	        			}
+	        			result = new String(trunc, "UTF8");
+                	}
+                }
+                /* TODO: implement the following instead. Currently e.getFile() returns null for some reason!
+                if (tailByteLimit == NO_FILE_SIZE_LIMIT)
+                	result = IOUtils.toString(a, "UTF-8");
+                else {
+                	RandomAccessFile raf = null;
+                	try{
+	                	raf = new RandomAccessFile(e.getFile(), "r");
+	                	long strLen = (raf.length() < MAX_32MB) ? raf.length() : MAX_32MB;
+	                		
+	                    raf.seek(strLen - MAX_32MB);
+	                    byte[] b = new byte[(int) strLen];
+	                    raf.readFully(b);
+	                    result = new String(b, "UTF-8");
+                	} finally {
+                		if (raf != null)
+                			raf.close();
+                	}
+                }
+                */
                 break;
             }
         } finally {
             a.close();
             agz.close();
             afis.close();
-            f.delete();
+            t.delete();
         }
         return result;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public String getUnregisteredFileContents(GridResult r, String filename) throws IOException {
-		String result = "";
-		File f = File.createTempFile("wasp", "work");
-		String path = r.getWorkingDirectory() + "/" + filename;
-		gridFileService.get(path, f);
-		FileInputStream afis = new FileInputStream(f);
-		result = IOUtils.toString(afis, "UTF-8");
+	public String getUnregisteredFileContents(GridResult r, String filename, long tailByteLimit) throws IOException {
+		
+		String result;
+		File f = null;
+		try {
+			result = "";
+			f = File.createTempFile("wasp", "work");
+			String path = r.getWorkingDirectory() + "/" + filename;
+			gridFileService.get(path, f);
+			if (tailByteLimit == NO_FILE_SIZE_LIMIT){
+				result = IOUtils.toString(new FileInputStream(f), "UTF-8");
+        	} else {
+				RandomAccessFile raf = null;
+	        	try{
+	            	raf = new RandomAccessFile(f, "r");
+	            	long strLen = (raf.length() < MAX_32MB) ? raf.length() : MAX_32MB;
+	            		
+	                raf.seek(strLen - MAX_32MB);
+	                byte[] b = new byte[(int) strLen];
+	                raf.readFully(b);
+	                result = new String(b, "UTF-8");
+	        	} finally {
+	        		if (raf != null)
+	        			raf.close();
+	        	}
+        	}
+		} finally {
+			f.delete();
+		}
+		
 		return result;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean isNumProcConsumable() {
 		return isNumProcConsumable;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setNumProcConsumable(boolean isNumProcConsumable) {
 		this.isNumProcConsumable = isNumProcConsumable;

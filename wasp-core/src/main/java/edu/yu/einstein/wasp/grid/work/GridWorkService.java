@@ -89,37 +89,80 @@ public interface GridWorkService {
 	
 	/**
 	 * Pull the result tarball of a non task-array job and return the contents of the .out file
-	 * in a string.
+	 * in a string. If tailByteLimit is set to -1 the entire
+	 * file contents are returned as a string, otherwise the specified number of bytes from the end of the file are returned as a string.
 	 * 
 	 * @param r
+	 * @param tailByteLimit (set to -1 for unlimited)
 	 * @return
 	 * @throws IOException
 	 */
-	public String getResultStdOut(GridResult r) throws IOException;
+	public String getResultStdOut(GridResult r, long tailByteLimit) throws IOException;
+	
+	/**
+	 * Return the contents of the .info file
+	 * in a string. If tailByteLimit is set to -1 the entire
+	 * file contents are returned as a string, otherwise the specified number of bytes from the end of the file are returned as a string.
+	 * 
+	 * @param r
+	 * @param tailByteLimit (set to -1 for unlimited)
+	 * @return
+	 * @throws IOException
+	 */
+	public String getResultInfo(GridResult r, long tailByteLimit) throws IOException;
+
+	/**
+	 * Return the contents of the .sh file
+	 * in a string. If tailByteLimit is set to -1 the entire
+	 * file contents are returned as a string, otherwise the specified number of bytes from the end of the file are returned as a string.
+	 * 
+	 * @param r
+	 * @param tailByteLimit (set to -1 for unlimited)
+	 * @return
+	 * @throws IOException
+	 */
+	public String getResultScript(GridResult r, long tailByteLimit) throws IOException;
+
+	/**
+	 * Pull the result tarball of a non task-array job and return the contents of the .stats file
+	 * in a string. If tailByteLimit is set to -1 the entire
+	 * file contents are returned as a string, otherwise the specified number of bytes from the end of the file are returned as a string.
+	 * 
+	 * @param r
+	 * @param tailByteLimit (set to -1 for unlimited)
+	 * @return
+	 * @throws IOException
+	 */
+	public String getResultJobStats(GridResult r, long tailByteLimit) throws IOException;
 	
 	/**
 	 * Pull the result tarball of a non task-array job and return the contents of the .err file
-	 * in a string.
+	 * in a string. If tailByteLimit is set to -1 the entire
+	 * file contents are returned as a string, otherwise the specified number of bytes from the end of the file are returned as a string.
 	 * 
 	 * @param r
+	 * @param tailByteLimit (set to -1 for unlimited)
 	 * @return
 	 * @throws IOException
 	 */
-	public String getResultStdErr(GridResult r) throws IOException;
+	public String getResultStdErr(GridResult r, long tailByteLimit) throws IOException;
 
 	public boolean isNumProcConsumable();
 
 	public void setNumProcConsumable(boolean isNumProcConsumable);
 	
 	/**
-	 * Given a GridResult, pull a small named file from the job's working directory as a string.
+	 * Given a GridResult, pull a small named file from the job's working directory as a string. If tailByteLimit is set to -1 the entire
+	 * file contents are returned as a string, otherwise the specified number of bytes from the end of the file are returned as a string.
 	 * 
 	 * @param r
 	 * @param filename
+	 * @param tailByteLimit (set to -1 for unlimited)
 	 * @return
 	 * @throws IOException
 	 */
-	public String getUnregisteredFileContents(GridResult r, String filename) throws IOException;
+	public String getUnregisteredFileContents(GridResult r, String filename, long tailByteLimit) throws IOException;
+
 	
 	//public void setGridFileMovers(List<GridFileMover> gridFileMovers);
 	

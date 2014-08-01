@@ -82,7 +82,9 @@ public class ModulesManager extends HashMap<String, String> implements
 			result += new StringBuilder().append(
 					"module load " + remoteName + "/" + version + "\n").toString();
 		}
-		result += "module list" + "\n\n";
+		result += "echo \"#### begin modules info\" 1>&2\n" + 
+				"module list\n" + 
+				"echo \"#### end modules info\" 1>&2\n\n";
 		
 		// configure the number of processes that will be used.
 		// TODO: clean up this logic

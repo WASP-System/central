@@ -415,7 +415,7 @@ public class ResultViewController extends WaspController {
 						statusArray[i][0] = plugin.getName();
 					    statusArray[i][1] = plugin.getDescription();
 					    statusArray[i][2] = status.toString();
-					    if (status.equals(Status.COMPLETED)){
+					    if (status.equals(Status.COMPLETED) || status.equals(Status.NOT_APPLICABLE)){
 					    	PanelTab panelTab = null;
 					    	try {
 					    		panelTab = plugin.getViewPanelTab(fg);
@@ -453,7 +453,8 @@ public class ResultViewController extends WaspController {
 			Collections.sort(softwareNameList);
 			PanelTab summaryPanelTab = constructSummaryPanelTab(jobStatus, job, strategy, softwareNameList);
 			return summaryPanelTab;			
-		}catch(Exception e){logger.debug("exception in chipseqService.getChipSeqSummaryPanelTab(job): "+ e.getStackTrace());
+		}catch(Exception e){
+			logger.debug(e.getStackTrace().toString());
 			throw new PanelException(e.getMessage());
 		}
 	}

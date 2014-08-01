@@ -1,13 +1,16 @@
 package edu.yu.einstein.wasp.service.impl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.dao.wasp.BatchJobSortAttribute;
 import org.springframework.batch.core.repository.dao.wasp.BatchJobSortAttribute.SortDirection;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,22 +18,34 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.controller.util.BatchJobTreeModel;
-import edu.yu.einstein.wasp.controller.util.ExtTreeGridResponse;
+import edu.yu.einstein.wasp.controller.util.ExtGridResponse;
+import edu.yu.einstein.wasp.controller.util.ExtStepInfoModel;
 import edu.yu.einstein.wasp.controller.util.ExtTreeModel;
 import edu.yu.einstein.wasp.controller.util.ExtTreeModel.ExtIcon;
+import edu.yu.einstein.wasp.grid.work.GridResult;
+import edu.yu.einstein.wasp.grid.work.GridWorkService;
+import edu.yu.einstein.wasp.grid.work.SgeWorkService;
 import edu.yu.einstein.wasp.service.BatchJobStatusViewerService;
 
 @Service
 @Transactional // batch
 public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerService{
 	
+	private static Logger logger = Logger.getLogger(BatchJobStatusViewerServiceImpl.class);
+	
 	private JobExplorerWasp jobExplorer;
+	
+	@Autowired
+	private GridWorkService gws;
+	
+	@Autowired
+	private JobRepository jobRepository;
 	
 	@Autowired
 	public void setJobExplorer(JobExplorer jobExplorer){
 		this.jobExplorer = (JobExplorerWasp) jobExplorer;
 	}
-
+	
 	public BatchJobStatusViewerServiceImpl() {
 		
 	}
@@ -101,26 +116,26 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 	}
 	
 	@Override
-	public ExtTreeGridResponse getPagedModelList(String nodeId, String displayParam, Long start, Long limit){
+	public ExtGridResponse<ExtTreeModel> getPagedModelList(String nodeId, String displayParam, Long start, Long limit){
 		return getPagedModelList(nodeId, displayParam, null, null, start, limit);
 	}
 	
 	@Override
-	public ExtTreeGridResponse getPagedModelList(String nodeId, String displayParam, String property, String direction, Long start, Long limit){
+	public ExtGridResponse<ExtTreeModel> getPagedModelList(String nodeId, String displayParam, String property, String direction, Long start, Long limit){
 		if (nodeId.equals(ROOT_NODE_ID)){
 			if (limit == null || start == null)
-				return new ExtTreeGridResponse(new ArrayList<ExtTreeModel>(), jobExplorer.getJobExecutionCount());
+				return new ExtGridResponse<ExtTreeModel>(new ArrayList<ExtTreeModel>(), jobExplorer.getJobExecutionCount());
 			if (displayParam.equals(SHOW_ALL))
-				return new ExtTreeGridResponse(getJobList(property, direction, start, limit), jobExplorer.getJobExecutionCount());
+				return new ExtGridResponse<ExtTreeModel>(getJobList(property, direction, start, limit), jobExplorer.getJobExecutionCount());
 			if (displayParam.equals(SHOW_ACTIVE))
-				return new ExtTreeGridResponse(getJobList(ExitStatus.RUNNING, property, direction, start, limit), 
+				return new ExtGridResponse<ExtTreeModel>(getJobList(ExitStatus.RUNNING, property, direction, start, limit), 
 						jobExplorer.getJobExecutionCount(ExitStatus.EXECUTING) + jobExplorer.getJobExecutionCount(ExitStatus.HIBERNATING));
 			if (displayParam.equals(SHOW_COMPLETED))
-				return new ExtTreeGridResponse(getJobList(ExitStatus.COMPLETED, property, direction, start, limit), jobExplorer.getJobExecutionCount(ExitStatus.COMPLETED));
+				return new ExtGridResponse<ExtTreeModel>(getJobList(ExitStatus.COMPLETED, property, direction, start, limit), jobExplorer.getJobExecutionCount(ExitStatus.COMPLETED));
 			if (displayParam.equals(SHOW_FAILED))
-				return new ExtTreeGridResponse(getJobList(ExitStatus.FAILED, property, direction, start, limit), jobExplorer.getJobExecutionCount(ExitStatus.FAILED));
+				return new ExtGridResponse<ExtTreeModel>(getJobList(ExitStatus.FAILED, property, direction, start, limit), jobExplorer.getJobExecutionCount(ExitStatus.FAILED));
 			if (displayParam.equals(SHOW_TERMINATED))
-				return new ExtTreeGridResponse(getJobList(ExitStatus.TERMINATED, property, direction, start, limit), jobExplorer.getJobExecutionCount(ExitStatus.TERMINATED));
+				return new ExtGridResponse<ExtTreeModel>(getJobList(ExitStatus.TERMINATED, property, direction, start, limit), jobExplorer.getJobExecutionCount(ExitStatus.TERMINATED));
 			
 		}
 		if (nodeId.startsWith(JOB_EXECUTION_ID_PREFIX)){
@@ -133,9 +148,51 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 				totalCount = jobExplorer.getJobExecutionCount(ExitStatus.FAILED);
 			else if (displayParam.equals(SHOW_TERMINATED))
 				totalCount = jobExplorer.getJobExecutionCount(ExitStatus.TERMINATED);
-			return new ExtTreeGridResponse(getSteps(nodeId, property, direction, start, limit), totalCount);
+			return new ExtGridResponse<ExtTreeModel>(getSteps(nodeId, property, direction, start, limit), totalCount);
 		}
 		return null;
+	}
+	
+	@Override
+	public ExtStepInfoModel getExtStepInfoModel(Long jobExecutionId, Long stepExecutionId){
+		ExtStepInfoModel m = new ExtStepInfoModel();
+		StepExecution se = jobExplorer.getStepExecution(jobExecutionId, stepExecutionId);
+		if (se == null){
+			logger.warn("Unable to retrieve Step Execution with jobExecutionId=" + jobExecutionId + " and stepExecutionId=" + stepExecutionId);
+			return m;
+		}
+		GridResult r = null;
+		if (se.getExecutionContext().containsKey(GridResult.GRID_RESULT_KEY)){
+			r = (GridResult) se.getExecutionContext().get(GridResult.GRID_RESULT_KEY);
+		} else {
+			logger.info("Unable to retrieve a GridResult for stepExecutionId=" + stepExecutionId);
+			return m;
+		}
+		String info = "";
+		for (String key: r.getJobInfo().keySet())
+			info += key + "\t: " + r.getJobInfo().get(key) + "\n";
+		m.setInfo(info);
+		try{
+			m.setScript(gws.getResultScript(r, SgeWorkService.MAX_32MB));
+		} catch (IOException e){
+			logger.info("No info execution script returned for GridResult id=" + r.getId());
+		}
+		try{
+			m.setStdout(gws.getResultStdOut(r, SgeWorkService.MAX_32MB));
+		} catch (IOException e){
+			logger.info("No stdout returned for GridResult id=" + r.getId());
+		}
+		try{
+			m.setStderr(gws.getResultStdErr(r, SgeWorkService.MAX_32MB));
+		} catch (IOException e){
+			logger.info("No stderr returned for GridResult id=" + r.getId());
+		}
+		try{
+			m.setClusterReport(gws.getResultJobStats(r, SgeWorkService.MAX_32MB));
+		} catch (IOException e){
+			logger.info("No grid execution final report returned for GridResult id=" + r.getId());
+		}
+		return m;
 	}
 	
 	private BatchJobSortAttribute getJobSortProperty(String property){

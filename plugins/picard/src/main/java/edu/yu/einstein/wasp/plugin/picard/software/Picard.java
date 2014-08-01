@@ -6,35 +6,55 @@ package edu.yu.einstein.wasp.plugin.picard.software;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.rmi.RemoteException;
 import java.text.DecimalFormat;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.Message;
+import org.springframework.transaction.annotation.Transactional;
+import org.w3c.dom.Document;
+import org.springframework.beans.factory.annotation.Value;
 
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
+import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.fileformat.service.BamService;
+import edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy;
+import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
 import edu.yu.einstein.wasp.plugin.mps.grid.software.Samtools;
+import edu.yu.einstein.wasp.plugin.picard.metrics.PicardMetricsParser;
 import edu.yu.einstein.wasp.plugin.picard.service.PicardService;
+import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.service.RunService;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
+import edu.yu.einstein.wasp.util.MetaHelper;
 
 
 /**
  * @author asmclellan
  */
-public class Picard extends SoftwarePackage{
+public class Picard extends SoftwarePackage {
 
 	private static final long serialVersionUID = 6817018170220888568L;
 	
@@ -44,6 +64,27 @@ public class Picard extends SoftwarePackage{
 	
 	@Autowired
 	FileService fileService;
+	
+	@Autowired
+	private WaspIlluminaService illuminaService;
+	
+	@Autowired
+	private RunService runService;
+	
+	@Autowired
+	private SampleService sampleService;
+	
+	@Autowired
+	private GridHostResolver hostResolver;
+	
+	@Autowired
+	private AdaptorService adaptorService;
+	@Value("${wasp.temporary.dir:/tmp}")
+	protected String localTempDir;
+	
+	public static final String BARCODES_DIRECTORY = "BARCODES";
+	
+	private static final String PICARD_BARCODE_METRICS_AREA = "picardBarcodeMetricsArea";
 	
 	public Picard() {}
 	
@@ -282,6 +323,187 @@ public class Picard extends SoftwarePackage{
 		return picardDedupMetricsMap;
 	}
 
+	public Map<String,String> getUniquelyAlignedReadCountMetrics(String uniquelyAlignedReadCountfilename, String uniquelyAlignedNonRedundantReadCountfilename,String scratchDirectory, GridHostResolver gridHostResolver)throws Exception{
+		
+		logger.debug("entering getUniquelyAlignedReadCountMetrics");
+		
+		Map<String,String> uniquelyAlignedReadCountMetricsMap = new HashMap<String,String>();
+		
+		String uniqueReads = "";
+		String uniqueNonRedundantReads = "";
+		
+		WorkUnit w = new WorkUnit();
+		w.setProcessMode(ProcessMode.SINGLE);
+		GridWorkService workService = gridHostResolver.getGridWorkService(w);
+		GridTransportConnection transportConnection = workService.getTransportConnection();
+		w.setWorkingDirectory(scratchDirectory);
+		logger.debug("setting cat command in getPicardDedupMetrics");
+		w.addCommand("cat " + uniquelyAlignedReadCountfilename );
+		w.addCommand("cat " + uniquelyAlignedNonRedundantReadCountfilename );
+		
+		GridResult r = transportConnection.sendExecToRemote(w);
+		InputStream is = r.getStdOutStream();
+		BufferedReader br = new BufferedReader(new InputStreamReader(is)); 
+		boolean keepReading = true;
+		int lineNumber = 0;
+		logger.debug("getting ready to read 2 uniquelAlignedMetrics files");
+		while (keepReading){
+			lineNumber++;
+			String line = null;
+			line = br.readLine();
+			logger.debug("line number = " + lineNumber + " and line = " + line);
+			if (line == null)
+				keepReading = false;
+			if (lineNumber == 1){
+				uniqueReads = line.replaceAll("\\n", "");//just in case there is a trailing new line
+				uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS, uniqueReads);
+				logger.debug("uniqueReads = " + uniqueReads);
+			} else if (lineNumber == 2){
+				uniqueNonRedundantReads = line.replaceAll("\\n", "");//just in case there is a trailing new line;
+				uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS, uniqueNonRedundantReads);
+				logger.debug("uniqueNonRedundantReads = " + uniqueNonRedundantReads);
+			} else {
+				keepReading = false;
+			}
+			 
+		}
+		br.close();	
+		
+		Double fractionUniqueNonRedundant_double = 0.0;
+		String fractionUniqueNonRedundant = fractionUniqueNonRedundant_double.toString();
+		Integer uniqueReads_integer = Integer.valueOf(uniqueReads);
+		Integer uniqueNonRedundantReads_integer = Integer.valueOf(uniqueNonRedundantReads);
+		
+		if(uniqueReads_integer>0 && uniqueNonRedundantReads_integer>0){
+			fractionUniqueNonRedundant_double = (double) uniqueNonRedundantReads_integer / uniqueReads_integer;
+			DecimalFormat myFormat = new DecimalFormat("0.000000");
+			fractionUniqueNonRedundant = myFormat.format(fractionUniqueNonRedundant_double);						
+		}	
+		uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT, fractionUniqueNonRedundant);
+		
+		logger.debug("leaving getUniquelyAlignedReadCountMetrics");
+		return uniquelyAlignedReadCountMetricsMap;
+		
+	}
+	
+	/**
+	 * 
+	 * Get a command string for Picard ExtractIlluminaBarcodes.  This command REQUIRES at least ~1500 file descriptors for Illumina HiSeq flowcells.   
+	 * Check to see that your submission mechanism allows this on the remote host (eg. qsub -cwd -N testFD -S /bin/bash -j y -b y "ulimit -S -n && ulimit -H -n").
+	 * A suggested value would be 10,000 open files to prevent issues.
+	 * 
+	 * @param run
+	 * @param indexedCellMap
+	 * @return
+	 * @throws MetadataException
+	 * @throws SampleTypeException
+	 */
+	public String getExtractIlluminaBarcodesCmd(Run run) throws MetadataException, SampleTypeException {
+		
+		String cmd = "rm -rf ./" + BARCODES_DIRECTORY + "\n";
+		
+		Map<Integer,Sample> indexedCellMap = sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit());
+		
+		Document runInfo = illuminaService.getIlluminaRunXml(run);
+		
+		for (Integer index : indexedCellMap.keySet()) {
+			
+			Set<IlluminaIndexingStrategy> strategies = new HashSet<IlluminaIndexingStrategy>(); 
+			
+			Sample cell = indexedCellMap.get(index);
+			List<SampleSource> cellLibraries = sampleService.getCellLibrariesForCell(cell);
+			
+			for (SampleSource ss : cellLibraries) {
+				strategies.add(new IlluminaIndexingStrategy(illuminaService.getIndexingStrategy(ss).toString()));
+			}
+			
+			logger.trace("Lane " + index + ", dealing with " + strategies.size() + " strategies");
+			
+			for (IlluminaIndexingStrategy s : strategies) {
+				logger.debug("going to prepare getExtractIlluminaBarcodes command for run: " + run.getName() + " cell: " + cell.getId() + " (lane " + index + ") strategy: " + s.toString());
+				String outputDir = BARCODES_DIRECTORY + "/" +  s.toString() + "/L" + index;
+				cmd += "mkdir -p " + outputDir + "\n";
+				cmd += getCreateBarcodeFileCmd(outputDir, cellLibraries, s) + "\n";
+				cmd += "java -Xmx4g -jar $PICARD_ROOT/ExtractIlluminaBarcodes.jar TMP_DIR=. L=" + index + " B=./Data/Intensities/BaseCalls OUTPUT_DIR=./" + outputDir + 
+						" M=./" + outputDir + "/mets.txt RS=" + getReadStructure(run, index, s) + " BARCODE_FILE=./" + BARCODES_DIRECTORY + "/" + s.toString() + "/L" + index + 
+						"/barcodes.txt GZIP=true NUM_PROCESSORS=$NTHREADS\n\n###################\n\n";
+			}
+			
+		}
+		
+		return cmd;
+	}
+	
+	private String getReadStructure(Run run, Integer cellId, IlluminaIndexingStrategy strategy) throws MetadataException, SampleTypeException {
+		String rs = null;
+		List<Integer> indexLengths = illuminaService.getLengthOfIndexedReads(run);
+		List<Integer> segmentLengths = illuminaService.getLengthOfReadSegments(run);
+		if (segmentLengths.size() == 0)
+			return rs;
+		Map<Integer,Sample> cellMap = sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit());
+		Sample cell = cellMap.get(cellId);
+		List<Sample> libraries = sampleService.getLibrariesOnCell(cell);
+		int maxBarcodeLength = 0;
+		for (Sample lib : libraries) {
+			Adaptor adapter = sampleService.getLibraryAdaptor(lib);
+			String[] barcodes = adapter.getBarcodesequence().split("-");
+			if(barcodes[0].length() > maxBarcodeLength) 
+				maxBarcodeLength = barcodes[0].length();
+		}
+		rs = segmentLengths.get(0) + "T";
+		int d = indexLengths.get(0) - maxBarcodeLength;
+
+		// This strategy assumes barcodes of same length
+		String barcodeString = maxBarcodeLength + "B";
+		if (d > 0) 
+			barcodeString += d + "S";
+		if (indexLengths.size() == 2 && strategy.equals(IlluminaIndexingStrategy.TRUSEQ_DUAL)) {
+			barcodeString += maxBarcodeLength + "B";
+			if (d > 0) 
+				barcodeString += d + "S"; 
+		}
+		if (indexLengths.size() == 2 && strategy.equals(IlluminaIndexingStrategy.TRUSEQ)) {
+			barcodeString += indexLengths.get(1) + "S";
+		}
+		rs += barcodeString;
+		if (segmentLengths.size() == 2) {
+			rs += segmentLengths.get(1) + "T";
+		}
+		logger.debug("Read Structure string: " + rs);
+		
+		return rs;
+	}
+	
+	private String getCreateBarcodeFileCmd(String outputDir, List<SampleSource> cellLibraries, IlluminaIndexingStrategy strategy) throws SampleTypeException, MetadataException {
+		String outputFile = "./" + outputDir + "/barcodes.txt";
+		String retval = "echo -e \"" + getBarcodeFileHeader() + "\" > " + outputFile + "\n";
+		for (SampleSource cellLib : cellLibraries) {
+			Sample library = sampleService.getLibrary(cellLib);
+			Adaptor a = adaptorService.getAdaptor(library);
+			if (strategy.equals(IlluminaIndexingStrategy.TRUSEQ)) {
+				retval += "echo -e \"" + a.getBarcodesequence() + "\\t\\t" + a.getName() + "\\t" + library.getName() + "\" >> " + outputFile + "\n";
+			} else if (strategy.equals(IlluminaIndexingStrategy.TRUSEQ_DUAL)) {
+				int sepIndex = a.getSequence().indexOf("-");
+				if (sepIndex == -1) {
+					String mess = "Not able to decode TRUSEQ_DUAL barcode " + a.getSequence();
+					logger.error(mess);
+					throw new MetadataException(mess);
+				}
+				retval += "echo -e \"" + a.getBarcodesequence().substring(0, sepIndex) + "\\t" + a.getBarcodesequence().substring(sepIndex+1) + "\\t" + a.getName() + "\\t" + library.getName() + "\" >> " + outputFile + "\n";
+			} else {
+				String mess = "Unknown IlluminaIndexingStrategy: " + strategy.toString();
+				logger.error(mess);
+				throw new MetadataException(mess);
+			}
+			 
+		}
+		return retval;
+	}
+	
+	private String getBarcodeFileHeader() {
+		return "barcode_sequence_1\\tbarcode_sequence_2\\tbarcode_name\\tlibrary_name";
+	}
+	
 	private void setAlignmentMetricsToFileGroupMeta(Integer fileGroupId, JSONObject json)throws MetadataException{
 		FileGroup fileGroup = fileService.getFileGroupById(fileGroupId);
 		List<FileGroupMeta> fileGroupMetaList = fileGroup.getFileGroupMeta();
@@ -292,4 +514,38 @@ public class Picard extends SoftwarePackage{
 		fileGroupMetaList.add(fgm);
 		fileService.saveFileGroupMeta(fileGroupMetaList, fileGroup);		
 	}
+	
+	@Transactional("entityManager")
+	public void registerBarcodeMetadata(Run run, GridResult result) throws WaspException, MetadataException {
+		
+		Map<Integer,Sample> indexedCellMap = sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit());
+		
+		Document runInfo = illuminaService.getIlluminaRunXml(run);
+		
+		for (Integer index : indexedCellMap.keySet()) {
+			
+			Set<IlluminaIndexingStrategy> strategies = new HashSet<IlluminaIndexingStrategy>(); 
+			
+			Sample cell = indexedCellMap.get(index);
+			List<SampleSource> cellLibraries = sampleService.getCellLibrariesForCell(cell);
+			
+			for (SampleSource ss : cellLibraries) {
+				strategies.add(new IlluminaIndexingStrategy(illuminaService.getIndexingStrategy(ss).toString()));
+			}
+			
+			logger.trace("Lane " + index + ", registering " + strategies.size() + " strategies");
+			
+			for (IlluminaIndexingStrategy s : strategies) {
+				logger.debug("going to register barcode metrics for run: " + run.getName() + " cell: " + cell.getId() + " (lane " + index + ") strategy: " + s.toString());
+				String fileName = BARCODES_DIRECTORY + "/" +  s.toString() + "/L" + index + "/mets.txt";
+				PicardMetricsParser p = new PicardMetricsParser(hostResolver, result, fileName);
+				MetaHelper metahelper = new MetaHelper(PICARD_BARCODE_METRICS_AREA, SampleMeta.class);
+				metahelper.setMetaValueByName(s.toString(), p.parseResult().toString());
+				sampleService.getSampleMetaDao().setMeta((List<SampleMeta>) metahelper.getMetaList(), cell.getId());
+			}
+			
+		}
+		
+	}
+	
 }

@@ -106,7 +106,7 @@ public class GenericfileviewingPlugin extends WaspPlugin
 	 */
 	@Override
 	public Status getStatus(FileGroup fileGroup) {
-		return Status.COMPLETED;
+		return Status.NOT_APPLICABLE;
 	}
 
 	/**

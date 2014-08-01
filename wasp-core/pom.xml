@@ -507,5 +507,10 @@
 				<artifactId>spring-boot-starter-redis</artifactId>
 				<version>1.0.0.RELEASE</version>
 			</dependency>
+			<dependency>
+				<groupId>joda-time</groupId>
+				<artifactId>joda-time</artifactId>
+				<version>2.3</version>
+			</dependency>
 	</dependencies>
 </project>

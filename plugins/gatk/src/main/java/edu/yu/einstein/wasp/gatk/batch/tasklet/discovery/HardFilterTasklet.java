@@ -103,7 +103,7 @@ public class HardFilterTasklet extends WaspRemotingTasklet {
 		filteredSnpVcfOutG.setDescription(filteredSnpVcfOutFileName);
 		filteredSnpVcfOutG.setSoftwareGeneratedById(gatk.getId());
 		filteredSnpVcfOutG.addDerivedFrom(combinedGenotypedVcfFg);
-		filteredSnpVcfOutG = fileService.saveInDiscreteTransaction(filteredSnpVcfOutG, filteredSnpVcfOut, attributes);
+		filteredSnpVcfOutG = fileService.saveInDiscreteTransaction(filteredSnpVcfOutG, attributes);
 		outFiles.add(filteredSnpVcfOut);
 		stepExecutionContext.putString("filteredSnpsVcfFgId", filteredSnpVcfOutG.getId().toString());
 		
@@ -117,7 +117,7 @@ public class HardFilterTasklet extends WaspRemotingTasklet {
 		filteredIndelVcfOutG.setDescription(filteredIndelVcfOutFileName);
 		filteredIndelVcfOutG.setSoftwareGeneratedById(gatk.getId());
 		filteredIndelVcfOutG.addDerivedFrom(combinedGenotypedVcfFg);
-		filteredIndelVcfOutG = fileService.saveInDiscreteTransaction(filteredIndelVcfOutG, filteredIndelVcfOut, attributes);
+		filteredIndelVcfOutG = fileService.saveInDiscreteTransaction(filteredIndelVcfOutG, attributes);
 		outFiles.add(filteredIndelVcfOut);
 		stepExecutionContext.putString("filteredIndelsVcfFgId", filteredIndelVcfOutG.getId().toString());
 				

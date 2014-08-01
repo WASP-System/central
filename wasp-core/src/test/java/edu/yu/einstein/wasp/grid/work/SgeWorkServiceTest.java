@@ -174,7 +174,7 @@ public class SgeWorkServiceTest extends AbstractTestNGSpringContextTests {
 		while (!ghr.isFinished(r)) {
 			Thread.sleep(5000);
 		}
-		String out = gws.getResultStdOut(r);
+		String out = gws.getResultStdOut(r, SgeWorkService.NO_FILE_SIZE_LIMIT);
 		logger.debug("String was: " + out);
 		Assert.assertTrue("test".equals(StringUtils.chomp(out)));
 		
@@ -190,7 +190,7 @@ public class SgeWorkServiceTest extends AbstractTestNGSpringContextTests {
 		while (!ghr.isFinished(r)) {
 			Thread.sleep(5000);
 		}
-		String err = gws.getResultStdErr(r);
+		String err = gws.getResultStdErr(r, SgeWorkService.NO_FILE_SIZE_LIMIT);
 		logger.debug("String was: " + err);
 		Assert.assertTrue(err.contains("testErr") && err.startsWith("submitted"));
 	}
@@ -205,7 +205,7 @@ public class SgeWorkServiceTest extends AbstractTestNGSpringContextTests {
 		while (!ghr.isFinished(r)) {
 			Thread.sleep(5000);
 		}
-		String f = gws.getUnregisteredFileContents(r, "arbitraryFile.txt");
+		String f = gws.getUnregisteredFileContents(r, "arbitraryFile.txt", SgeWorkService.NO_FILE_SIZE_LIMIT);
 		logger.debug("String was: " + f);
 		Assert.assertTrue(StringUtils.chomp(f).equals("testArb"));
 	}

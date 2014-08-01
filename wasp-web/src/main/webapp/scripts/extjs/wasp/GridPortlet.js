@@ -8,7 +8,7 @@ Ext.require([
 	'Wasp.RowActions'
 ]);
 
-function mergeLinks(records, linkfield) {
+function mergeDownloadLinks(records, linkfield) {
 
 	var links = records[0].get(linkfield);
 
@@ -19,6 +19,8 @@ function mergeLinks(records, linkfield) {
 
 	return links;
 }
+
+
 
 var rowHeight = 30, gridHeaderHeight = 30;
 var minGridHeight = 200, maxGridHeight = 650;
@@ -99,6 +101,7 @@ Ext.define('Wasp.GridPortlet', {
 		
 		var rowCnt = myStore.getTotalCount();
 
+		// enable grouping view
 		if (this.grouping) {
 			myStore.groupField = this.groupfield;
 			myStore.group(this.groupfield);
@@ -132,6 +135,7 @@ Ext.define('Wasp.GridPortlet', {
 			keepSelection: true
 		};
 		
+		// Add download action buttons to the action column
 		if (this.dlcol && this.dllinkfld != '') {
 			actioncol.actions.push({
 				iconCls: 'icon-download',
@@ -142,6 +146,7 @@ Ext.define('Wasp.GridPortlet', {
 				}
 			});
 
+			// If grouping view is set, add group download button
 			if (this.grpdl) {
 				actioncol.groupActions = [{
 					iconCls: 'icon-group-download',
@@ -149,24 +154,26 @@ Ext.define('Wasp.GridPortlet', {
 					align: this.grpdlalign,
 					callback: function (grid, records, action, groupValue) {
 						if (records.length > 0)
-							window.location = mergeLinks(records, grid.dllinkfld);
+							window.location = mergeDownloadLinks(records, grid.dllinkfld);
 					}
 				}];
 			}
 
 		}
 
+		// Add genome browser buttons to the action column
 		if (this.gbcol && this.gblink != '') {
 			actioncol.actions.push({
 				iconIndex: this.gbtype,
 				qtipIndex: this.gbttp,
-				hideIndex: this.hidegb//,
+				hideIndex: this.hidegb
 			});
 		}
 
 		if (actioncol.actions.length > 0)
 			this.columns.push(actioncol);
 
+		// Add colorful renderer to the status column
 		if (this.statusfld != null) {
 			this.columns.forEach(function (element, index, array) {
 				if (element.dataIndex == grid.statusfld) {
@@ -187,15 +194,7 @@ Ext.define('Wasp.GridPortlet', {
 			}
 		});
 
-		var gridHeight = rowCnt * rowHeight + gridHeaderHeight;
-		gridHeight = (gridHeight<minGridHeight) ? minGridHeight : gridHeight;
-		gridHeight = (gridHeight>maxGridHeight) ? maxGridHeight : gridHeight;
-		Ext.apply(this, {
-			store: myStore,
-			columns: this.columns,
-			height: gridHeight //this.height
-		});
-
+		// enable selecting multiple files to download
 		if (this.dlselect && this.dllinkfld != '') {
 			Ext.apply(this, {
 				selModel: Ext.create('Ext.selection.CheckboxModel', {
@@ -229,13 +228,23 @@ Ext.define('Wasp.GridPortlet', {
 							var records = grid.getSelectionModel()
 								.getSelection();
 							if (records.length > 0) {
-								window.location = mergeLinks(records, grid.dllinkfld);
+								window.location = mergeDownloadLinks(records, grid.dllinkfld);
 							}
 						}
 				}]
 			}]
 			});
 		}
+
+		// adjust grid height by the number of rows in the grid 
+		var gridHeight = rowCnt * rowHeight + gridHeaderHeight;
+		gridHeight = (gridHeight<minGridHeight) ? minGridHeight : gridHeight;
+		gridHeight = (gridHeight>maxGridHeight) ? maxGridHeight : gridHeight;
+		Ext.apply(this, {
+			store: myStore,
+			columns: this.columns,
+			height: gridHeight //this.height
+		});
 
 		this.callParent(arguments);
 	}

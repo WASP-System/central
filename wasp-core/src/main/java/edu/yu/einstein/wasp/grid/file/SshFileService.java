@@ -34,7 +34,7 @@ public class SshFileService implements GridFileService {
 	private static File identityFile;
 	private static boolean userDirIsRoot = true;
 	private int timeout = 10000; // milliseconds
-	private int retries = 6;
+	private int retries = 30;
 	
 	public void setTimeout(int millis) {
 		this.timeout = millis;
