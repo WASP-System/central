@@ -1482,7 +1482,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	 */
 	@Override
 	public String getResultInfo(GridResult r, long tailByteLimit) throws IOException {
-		return getResultOutputFile(r, "info", tailByteLimit);
+		return getResultOutputFile(r, "start", tailByteLimit);
 	}
 	
 	/**
@@ -1505,7 +1505,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		String path = r.getArchivedResultOutputPath(); 
 		if (!path.isEmpty()){
 			logger.debug("found file of type '." + type + "' from GridResult with id=" + r.getId() + " in archivedResultOutputPath");
-			return getCompressedOutputFile(r, type, tailByteLimit);  // is a compressed archive registered in the result
+			return getCompressedOutputFile(path, r.getId(), type, tailByteLimit);  // is a compressed archive registered in the result
 		}
 		String filename = r.getId() + "." + type;
 		path = r.getWorkingDirectory() + "/" + filename;
@@ -1516,21 +1516,20 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		path = getCompletedArchiveName(r);
 		if (gridFileService.exists(path)) {
 			logger.debug("found file of type '." + type + "' from GridResult with id=" + r.getId() + " in completed archive (not recorded in GridResult)");
-			return getCompressedOutputFile(r, type, tailByteLimit); // is in a completed archive that wasn't appended to this GridResult
+			return getCompressedOutputFile(path, r.getId(), type, tailByteLimit); // is in a completed archive that wasn't appended to this GridResult
 		}
 		path = getFailedArchiveName(r);
 		if (gridFileService.exists(path)) {
 			logger.debug("found file of type '." + type + "' from GridResult with id=" + r.getId() + " in failed archive (not recorded in GridResult)");
-			return getCompressedOutputFile(r, type, tailByteLimit); // is in a failed archive that wasn't appended to this GridResult
+			return getCompressedOutputFile(path, r.getId(), type, tailByteLimit); // is in a failed archive that wasn't appended to this GridResult
 		}
 		throw new IOException("Unable to to obtain file of type '." + type + "' from GridResult with id=" + r.getId() + 
 				". No archive or working directory found matching GridResult");
 	}
 	
-	private String getCompressedOutputFile(GridResult r, String type, long tailByteLimit) throws IOException {
+	private String getCompressedOutputFile(String path, String jobId, String type, long tailByteLimit) throws IOException {
 		String result = "";
 		File t = File.createTempFile("wasp", "work"); // tar archive
-        String path = r.getArchivedResultOutputPath();
         logger.debug("temporary tar file " + t.getAbsolutePath() + " for " + path);
         gridFileService.get(path, t);
         FileInputStream afis = new FileInputStream(t);
@@ -1541,16 +1540,29 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
             TarArchiveEntry e;
             while ((e = a.getNextTarEntry()) != null) {
                 logger.trace("saw tar file entry " + e.getName());
-                Matcher filem = Pattern.compile(r.getId() + "." + type).matcher(e.getName());
+                Matcher filem = Pattern.compile(jobId + "." + type).matcher(e.getName());
                 if (!filem.find())
                     continue;
                 logger.trace("matched " + e.getName() + " size " + e.getSize());
+                result = IOUtils.toString(a, "UTF-8");
+                if (tailByteLimit == MAX_32MB){
+                	byte[] utf8bytes = result.getBytes("UTF8");
+                	if (utf8bytes.length > MAX_32MB){
+	        			byte[] trunc = new byte[(int) MAX_32MB];
+	        			for (int i = utf8bytes.length-1; i >= utf8bytes.length - trunc.length; i--){
+	        				int j = i - (utf8bytes.length - trunc.length);
+	        				trunc[j] = utf8bytes[i];
+	        			}
+	        			result = new String(trunc, "UTF8");
+                	}
+                }
+                /* TODO: implement the following instead. Currently e.getFile() returns null for some reason!
                 if (tailByteLimit == NO_FILE_SIZE_LIMIT)
                 	result = IOUtils.toString(a, "UTF-8");
                 else {
                 	RandomAccessFile raf = null;
                 	try{
-	                	raf = new RandomAccessFile(a.getCurrentEntry().getFile(), "r");
+	                	raf = new RandomAccessFile(e.getFile(), "r");
 	                	long strLen = (raf.length() < MAX_32MB) ? raf.length() : MAX_32MB;
 	                		
 	                    raf.seek(strLen - MAX_32MB);
@@ -1562,6 +1574,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
                 			raf.close();
                 	}
                 }
+                */
                 break;
             }
         } finally {

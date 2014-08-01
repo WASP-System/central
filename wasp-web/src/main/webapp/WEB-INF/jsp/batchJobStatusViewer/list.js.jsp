@@ -104,56 +104,58 @@ var infoStore = Ext.create('Ext.data.Store',{
 });
 
 
-function displayInfoData(executionId){
+function displayInfoData(jobExecutionId, stepExecutionId){
 	 $("#wait_dialog-modal").dialog("open");
 	infoStore.load({
 	    params: {
-	    	executionId: executionId
+	    	stepExecutionId: stepExecutionId,
+	    	jobExecutionId: jobExecutionId
 	    },
 	    callback: function(records, operation, success) {
 	    	// need to do all work in callback as loading is asynchronous and we 
 	    	// can only be sure we have access to retrieved data when inside the callback which is
 	    	// executed on data loading
 	    	rec = infoStore.first();
-   	   		win = Ext.create('Ext.window.Window', {
-   			title: 'Status Information for Step Execution with id ' + executionId,
+   	   		win = Ext.create('widget.window', {
+   			title: 'Status Information for Step Execution with id ' + stepExecutionId,
   			    header: {
   			        titlePosition: 2,
   			        titleAlign: 'center'
   			    },
+  			    renderTo: Ext.getBody(),
   			    closable: true,
   			    maximizable: true,
-  			    closeAction: 'hide',
+  			  	closeAction: 'hide',
   			    width: 800,
   			    minWidth: 350,
   			    height: 600,
-  			    layout: {
-  			        type: 'border',
-  			        padding: 5
-  			    },
+  			    layout: 'fit',
   			    items: [{
   			        region: 'center',
   			        xtype: 'tabpanel',
   			        items: [{
-  			            // LTR even when example is RTL so that the code can be read
-  			            rtl: false,
-  			            title: 'Status',
-  			            html: ''
-  			        }, {
+  // 			            title: 'Status',
+ // 			            html: ''
+ // 			        }, {
   			            title: 'Submission Info',
-  			            html: rec.get('info')
+  			            html: '<pre style="padding:10px">' + rec.get('info') + '</pre>',
+  			            autoScroll: true,
   			        }, {
   			            title: 'Script',
-  			            html: rec.get('script')
+  			            html: '<pre style="padding:10px">' + rec.get('script') + '</pre>',
+  			            autoScroll: true,
   			        }, {
   			            title: 'StdOut (tail)',
-  			            html: rec.get('stdout')
+  			            html: '<pre style="padding:10px">' + rec.get('stdout') + '</pre>',
+  			            autoScroll: true,
   			        }, {
   			            title: 'StdErr (tail)',
-  			            html: rec.get('stderr')
+  			            html: '<pre style="padding:10px">' + rec.get('stderr') + '</pre>',
+  			            autoScroll: true,
   			        }, {
   			            title: 'Cluster Report',
-  			            html: rec.get('clusterReport')
+  			            html: '<pre style="padding:10px">' + rec.get('clusterReport') + '</pre>',
+  			            autoScroll: true,
   			        }]
   			    }]
    			});
@@ -222,8 +224,11 @@ Ext.onReady(function() {
                 },
                 handler: function(grid, rowIndex, colIndex) {
                 	var rec = grid.getStore().getAt(rowIndex);
-                	if (rec.get('leaf') == true){;
-                		displayInfoData(rec.get('executionId'));
+                	if (rec.get('leaf') == true){
+                		id = rec.get('id');
+                		stepExecId = rec.get('executionId');
+                		jobExecId = id.substring(2, id.indexOf('SE'));
+                		displayInfoData(jobExecId, stepExecId);
                 	}
                     //Ext.Msg.alert('info', 'showing Job Info for ' + rec.get('executionId') );
                 }

@@ -1,13 +1,16 @@
 package edu.yu.einstein.wasp.service.impl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.dao.wasp.BatchJobSortAttribute;
 import org.springframework.batch.core.repository.dao.wasp.BatchJobSortAttribute.SortDirection;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,21 +19,33 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.controller.util.BatchJobTreeModel;
 import edu.yu.einstein.wasp.controller.util.ExtGridResponse;
+import edu.yu.einstein.wasp.controller.util.ExtStepInfoModel;
 import edu.yu.einstein.wasp.controller.util.ExtTreeModel;
 import edu.yu.einstein.wasp.controller.util.ExtTreeModel.ExtIcon;
+import edu.yu.einstein.wasp.grid.work.GridResult;
+import edu.yu.einstein.wasp.grid.work.GridWorkService;
+import edu.yu.einstein.wasp.grid.work.SgeWorkService;
 import edu.yu.einstein.wasp.service.BatchJobStatusViewerService;
 
 @Service
 @Transactional // batch
 public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerService{
 	
+	private static Logger logger = Logger.getLogger(BatchJobStatusViewerServiceImpl.class);
+	
 	private JobExplorerWasp jobExplorer;
+	
+	@Autowired
+	private GridWorkService gws;
+	
+	@Autowired
+	private JobRepository jobRepository;
 	
 	@Autowired
 	public void setJobExplorer(JobExplorer jobExplorer){
 		this.jobExplorer = (JobExplorerWasp) jobExplorer;
 	}
-
+	
 	public BatchJobStatusViewerServiceImpl() {
 		
 	}
@@ -136,6 +151,48 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 			return new ExtGridResponse<ExtTreeModel>(getSteps(nodeId, property, direction, start, limit), totalCount);
 		}
 		return null;
+	}
+	
+	@Override
+	public ExtStepInfoModel getExtStepInfoModel(Long jobExecutionId, Long stepExecutionId){
+		ExtStepInfoModel m = new ExtStepInfoModel();
+		StepExecution se = jobExplorer.getStepExecution(jobExecutionId, stepExecutionId);
+		if (se == null){
+			logger.warn("Unable to retrieve Step Execution with jobExecutionId=" + jobExecutionId + " and stepExecutionId=" + stepExecutionId);
+			return m;
+		}
+		GridResult r = null;
+		if (se.getExecutionContext().containsKey(GridResult.GRID_RESULT_KEY)){
+			r = (GridResult) se.getExecutionContext().get(GridResult.GRID_RESULT_KEY);
+		} else {
+			logger.info("Unable to retrieve a GridResult for stepExecutionId=" + stepExecutionId);
+			return m;
+		}
+		String info = "";
+		for (String key: r.getJobInfo().keySet())
+			info += key + "\t: " + r.getJobInfo().get(key) + "\n";
+		m.setInfo(info);
+		try{
+			m.setScript(gws.getResultScript(r, SgeWorkService.MAX_32MB));
+		} catch (IOException e){
+			logger.info("No info execution script returned for GridResult id=" + r.getId());
+		}
+		try{
+			m.setStdout(gws.getResultStdOut(r, SgeWorkService.MAX_32MB));
+		} catch (IOException e){
+			logger.info("No stdout returned for GridResult id=" + r.getId());
+		}
+		try{
+			m.setStderr(gws.getResultStdErr(r, SgeWorkService.MAX_32MB));
+		} catch (IOException e){
+			logger.info("No stderr returned for GridResult id=" + r.getId());
+		}
+		try{
+			m.setClusterReport(gws.getResultJobStats(r, SgeWorkService.MAX_32MB));
+		} catch (IOException e){
+			logger.info("No grid execution final report returned for GridResult id=" + r.getId());
+		}
+		return m;
 	}
 	
 	private BatchJobSortAttribute getJobSortProperty(String property){

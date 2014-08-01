@@ -205,4 +205,25 @@ public class SshWorkService implements GridWorkService {
 		
 	}
 
+	@Override
+	public String getResultInfo(GridResult r, long tailByteLimit)
+			throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getResultScript(GridResult r, long tailByteLimit)
+			throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getResultJobStats(GridResult r, long tailByteLimit)
+			throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
