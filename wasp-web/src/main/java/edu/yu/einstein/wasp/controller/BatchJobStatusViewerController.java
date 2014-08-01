@@ -21,7 +21,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import edu.yu.einstein.wasp.controller.util.BatchJobTreeModel;
-import edu.yu.einstein.wasp.controller.util.ExtTreeGridResponse;
+import edu.yu.einstein.wasp.controller.util.ExtModel;
+import edu.yu.einstein.wasp.controller.util.ExtStepInfoModel;
+import edu.yu.einstein.wasp.controller.util.ExtGridResponse;
 import edu.yu.einstein.wasp.controller.util.ExtTreeModel;
 import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.service.BatchJobStatusViewerService;
@@ -48,7 +50,7 @@ public class BatchJobStatusViewerController extends WaspController {
 			@RequestParam(value="sort", required=false) String sort,
 			HttpServletResponse response) throws WaspException, JsonMappingException, IOException {
 		logger.debug("Getting model data for node=" + node + ", limit=" + limit + ", page=" + page + ", start=" + start + ", sort=" + sort);
-		ExtTreeGridResponse extTreeGridResponse;
+		ExtGridResponse<ExtTreeModel> extTreeGridResponse;
 		if (sort == null)
 			extTreeGridResponse = statusViewerService.getPagedModelList(node, displayParam, start, limit);
 		else {
@@ -58,7 +60,17 @@ public class BatchJobStatusViewerController extends WaspController {
 		return outputJSON(replaceExitCodesWithIcons(extTreeGridResponse), response);
 	}
 	
-	private ExtTreeGridResponse replaceExitCodesWithIcons(ExtTreeGridResponse extTreeGridResponse){
+	@RequestMapping(value="/getStepInfoJson", method = RequestMethod.GET)
+	public String getStepInfoJson(@RequestParam(value="executionId", required=true) Long stepExecutionId, 
+			HttpServletResponse response) throws WaspException, JsonMappingException, IOException {
+		ExtStepInfoModel extStepInfoModel = new ExtStepInfoModel();
+		ExtGridResponse<ExtStepInfoModel> extTreeGridResponse = new ExtGridResponse<>();
+		extTreeGridResponse.addModel(extStepInfoModel);
+		extTreeGridResponse.setTotalCount(1L);
+		return outputJSON(extTreeGridResponse, response);
+	}
+	
+	private ExtGridResponse<ExtTreeModel> replaceExitCodesWithIcons(ExtGridResponse<ExtTreeModel> extTreeGridResponse) {
 		for (ExtTreeModel treeModel: extTreeGridResponse.getModelList()){
 			BatchJobTreeModel batchJobTreeModel = (BatchJobTreeModel) treeModel;
 			String exitCode = batchJobTreeModel.getExitCode();
@@ -92,7 +104,7 @@ public class BatchJobStatusViewerController extends WaspController {
 		return extTreeGridResponse;
 	}
 	
-	private  String outputJSON(ExtTreeGridResponse extTreeGridResponse, HttpServletResponse response) throws JsonMappingException, IOException {
+	private String outputJSON(ExtGridResponse<? extends ExtModel> extTreeGridResponse, HttpServletResponse response) throws JsonMappingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		String json=mapper.writeValueAsString(extTreeGridResponse);
 		response.setContentType("application/json;charset=UTF-8");

@@ -43,7 +43,7 @@ Ext.define('BatchTreeModel', {
 
 var itemsPerPage = 14;
 
-var store = Ext.create('Wasp.store.TreeGridStore', {
+var treeGridStore = Ext.create('Wasp.store.TreeGridStore', {
     model: 'BatchTreeModel',
     remoteSort: true,
     pageSize: itemsPerPage,
@@ -57,7 +57,7 @@ var store = Ext.create('Wasp.store.TreeGridStore', {
             totalProperty: 'totalCount',
             model: 'BatchTreeModel',
             listeners: {
-                exception: function(store, response, op) {
+                exception: function(treeGridStore, response, op) {
                 	window.location = window.location.pathname;
                 }
             }
@@ -72,52 +72,96 @@ var store = Ext.create('Wasp.store.TreeGridStore', {
     }
 });
 
-var win;
+Ext.define('StepInfoModel', {
+	extend: 'Ext.data.Model',
+	fields: [
+		{name: 'info', type: 'string'},
+		{name: 'script', type: 'string'},
+		{name: 'stdout', type: 'string'},
+		{name: 'stderr', type: 'string'},
+		{name: 'clusterReport', type: 'string'}
+	]
+});
 
-function displayInfo(){
+var infoStore = Ext.create('Ext.data.Store',{
+	model: 'StepInfoModel',
+	proxy: {
+		type: 'ajax',
+		url: 'getStepInfoJson.do',
+		reader:{
+			type: 'json',
+			root: 'modelList',
+			enablePaging: false,
+			model: 'StepInfoModel',
+			listeners: {
+                exception: function(infoStore, response, op) {
+                	window.location = window.location.pathname;
+                }
+            }
+			
+		}
+	}
+});
 
-	if (!win) {
-	    win = Ext.create('widget.window', {
-	        title: 'Layout Window with title <em>after</em> tools',
-	        header: {
-	            titlePosition: 2,
-	            titleAlign: 'center'
-	        },
-	        closable: true,
-	        closeAction: 'hide',
-	        width: 600,
-	        minWidth: 350,
-	        height: 350,
-	        tools: [{type: 'pin'}],
-	        layout: {
-	            type: 'border',
-	            padding: 5
-	        },
-	        items: [{
-	            region: 'center',
-	            xtype: 'tabpanel',
-	            items: [{
-	                // LTR even when example is RTL so that the code can be read
-	                rtl: false,
-	                title: 'Bogus Tab',
-	                html: '<p>Window configured with:</p><pre style="margin-left:20px"><code>header: {\n    titlePosition: 2,\n    titleAlign: "center"\n},\ntools: [{type: "pin"}],\nclosable: true</code></pre>'
-	            }, {
-	                title: 'Another Tab',
-	                html: 'Hello world 2'
-	            }, {
-	                title: 'Closable Tab',
-	                html: 'Hello world 3',
-	                closable: true
-	            }]
-	        }]
-	    });
-	}
-	
-	if (win.isVisible()) {
-	    win.hide();
-	} else {
-	    win.show();
-	}
+
+function displayInfoData(executionId){
+
+	infoStore.load({
+	    params: {
+	    	executionId: executionId
+	    },
+	    callback: function(records, operation, success) {
+	    	// need to do all work in callback as loading is asynchronous and we 
+	    	// can only be sure we have access to retrieved data when inside the callback which is
+	    	// executed on data loading
+	    	rec = infoStore.first();
+   	   		win = Ext.create('Ext.window.Window', {
+   			title: 'Status Information for Step Execution with id ' + executionId,
+  			    header: {
+  			        titlePosition: 2,
+  			        titleAlign: 'center'
+  			    },
+  			    closable: true,
+  			    maximizable: true,
+  			    closeAction: 'hide',
+  			    width: 800,
+  			    minWidth: 350,
+  			    height: 600,
+  			    layout: {
+  			        type: 'border',
+  			        padding: 5
+  			    },
+  			    items: [{
+  			        region: 'center',
+  			        xtype: 'tabpanel',
+  			        items: [{
+  			            // LTR even when example is RTL so that the code can be read
+  			            rtl: false,
+  			            title: 'Status',
+  			            html: ''
+  			        }, {
+  			            title: 'Submission Info',
+  			            html: rec.get('info')
+  			        }, {
+  			            title: 'Script',
+  			            html: rec.get('script')
+  			        }, {
+  			            title: 'StdOut (tail)',
+  			            html: rec.get('stdout')
+  			        }, {
+  			            title: 'StdErr (tail)',
+  			            html: rec.get('stderr')
+  			        }, {
+  			            title: 'Cluster Report',
+  			            html: rec.get('clusterReport')
+  			        }]
+  			    }]
+   			});
+    		win.show();
+
+	    },
+	    scope: this
+	});
 };
 
 
@@ -131,7 +175,7 @@ Ext.onReady(function() {
         collapsible: false,
         useArrows: true,
         rootVisible: false,
-        store: store,
+        store: treeGridStore,
         forceFit: true,
         multiSelect: false,
         columns: [{
@@ -177,8 +221,9 @@ Ext.onReady(function() {
                 },
                 handler: function(grid, rowIndex, colIndex) {
                 	var rec = grid.getStore().getAt(rowIndex);
-                	if (rec.get('leaf') == true)
-                		displayInfo();
+                	if (rec.get('leaf') == true){;
+                		displayInfoData(rec.get('executionId'));
+                	}
                     //Ext.Msg.alert('info', 'showing Job Info for ' + rec.get('executionId') );
                 }
             }]
@@ -187,49 +232,49 @@ Ext.onReady(function() {
             text: '<fmt:message key="batchViewer.showAllButton.label"/>',
             scope: this,
             handler: function (){
-            	store.getProxy().extraParams.displayParam = "All";
-            	store.loadPage(1);
+            	treeGridStore.getProxy().extraParams.displayParam = "All";
+            	treeGridStore.loadPage(1);
             }
         }, {
             text: "<fmt:message key='batchViewer.showActiveButton.label'/> <img src='<wasp:relativeUrl value="images/gears_green_30x30.png" />' height='12' />",
             scope: this,
             handler: function (){
-            	store.getProxy().extraParams.displayParam = "Active";
-            	store.loadPage(1);
+            	treeGridStore.getProxy().extraParams.displayParam = "Active";
+            	treeGridStore.loadPage(1);
             }
         }, {
             text: "<fmt:message key='batchViewer.showCompletedButton.label'/> <img src='<wasp:relativeUrl value="images/pass.png" />' height='12' />",
             scope: this,
             handler: function (){
-            	store.getProxy().extraParams.displayParam = "Completed";
-            	store.loadPage(1);
+            	treeGridStore.getProxy().extraParams.displayParam = "Completed";
+            	treeGridStore.loadPage(1);
             }
         }, {
             text: "<fmt:message key='batchViewer.showTerminatedButton.label'/> <img src='<wasp:relativeUrl value="images/stop_yellow_25x25.png" />' height='12' />",
             scope: this,
             handler: function (){
-            	store.getProxy().extraParams.displayParam = "Terminated";
-            	store.loadPage(1);
+            	treeGridStore.getProxy().extraParams.displayParam = "Terminated";
+            	treeGridStore.loadPage(1);
             }
         }, {
             text: "<fmt:message key='batchViewer.showFailedButton.label'/> <img src='<wasp:relativeUrl value="images/fail.png" />' height='12' />",
             scope: this,
             handler: function (){
-            	store.getProxy().extraParams.displayParam = "Failed";
-            	store.loadPage(1);
+            	treeGridStore.getProxy().extraParams.displayParam = "Failed";
+            	treeGridStore.loadPage(1);
             }
         }],
         bbar: { // bottom tool bar for paging
             xtype: 'pagingtoolbar',
             emptyMsg: "<fmt:message key='batchViewer.pagingEmptyMsg.label'/>",
             pageSize: itemsPerPage,
-            store: store,
+            store: treeGridStore,
             displayInfo: true
         },
         listeners: {
         	sortchange: function(ct, column, direction, eOpts) {
         		// after sorting be sure to load the first page again
-            	store.loadPage(1);
+            	treeGridStore.loadPage(1);
             }
         }
     });
@@ -238,7 +283,7 @@ Ext.onReady(function() {
    	 tree.setHeight($('#content').height());
 	}).trigger('resize');
     
-    store.loadPage(1);
+    treeGridStore.loadPage(1);
 });
 
 </script>
