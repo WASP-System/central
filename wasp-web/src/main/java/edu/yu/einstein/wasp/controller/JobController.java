@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -1554,7 +1555,7 @@ public class JobController extends WaspController {
 		
 		List<Discount> discounts = mpsQuote.getDiscounts();
 
-		int cumulativePercentDiscount = 0;
+		Double cumulativePercentDiscount = 0.0;
  	    List<String> discountReasonList = new ArrayList<String>();
 
  		String currencyIcon = mpsQuote.getLocalCurrencyIcon();//Currency.getInstance(Locale.getDefault()).getSymbol();//+String.format("%.2f", price)); 
@@ -1562,12 +1563,12 @@ public class JobController extends WaspController {
  		for(int i = 0; i < numberOfDiscountRows; i++){
 			if( "".equals(discountReasonArray[i].trim())	 &&
 				"".equals(discountTypeArray[i].trim())	 &&
-				"".equals(discountValueArray[i].trim()) ){
+				"".equals(discountValueArray[i].trim().replaceAll("%", "").replaceAll(currencyIcon, "")) ){
 					continue;
 			}
 			else if( "".equals(discountReasonArray[i].trim())	 ||
 					 "".equals(discountTypeArray[i].trim())	 ||
-					 "".equals(discountValueArray[i].trim()) ){
+					 "".equals(discountValueArray[i].trim().replaceAll("%", "").replaceAll(currencyIcon, "")) ){
 						//errors.add("Row "+(i+1) + " in Discount/Credit section is missing information - Please review");
 						errors.add(messageService.getMessage("jobConstructQuote.row.error")+" "+(i+1)+": "+messageService.getMessage("jobConstructQuote.discountCreditMissingInfo.error"));			
 			}
@@ -1587,21 +1588,22 @@ public class JobController extends WaspController {
 					errors.add(messageService.getMessage("jobConstructQuote.row.error")+" "+(i+1)+": "+messageService.getMessage("jobConstructQuote.discountCreditSelectDiscountType.error") + " " + currencyIcon + " or %");			
 				}
 			}
-			Integer discountValue=null;
+			Double discountValue=null;
 			try{
-				if(!"".equals(discountValueArray[i].trim())){
-					discountValue = new Integer(discountValueArray[i].trim());
+				if(!"".equals(discountValueArray[i].trim().replaceAll("%", "").replaceAll(currencyIcon, ""))){
+					DecimalFormat twoDFormat = new DecimalFormat("#.##");
+					String twoDString = discountValueArray[i].trim().replaceAll("%", "").replaceAll(currencyIcon, "");
+					discountValue = Double.valueOf(twoDFormat.format(Double.parseDouble(twoDString)));
 					if("%".equals(discountTypeArray[i].trim())){
 						cumulativePercentDiscount += discountValue;
-						if(discountValue >100){
+						if(discountValue > 100.00){
 							//errors.add("Row "+(i+1) + " in Discount/Credit section cannot be greater than 100% - please modify or remove");
 							errors.add(messageService.getMessage("jobConstructQuote.row.error")+" "+(i+1)+": "+messageService.getMessage("jobConstructQuote.discountCreditGreaterThan100Percent.error"));			
 						}
 					}										
 				}
 			}catch(Exception e){
-				//errors.add("Row "+(i+1) + " in Discount/Credit section is missing information - enter a whole number for discount; no fractions allowed (example: enter 25 for 25%)");
-				errors.add(messageService.getMessage("jobConstructQuote.row.error")+" "+(i+1)+": "+messageService.getMessage("jobConstructQuote.discountCreditWholeNumberForDiscount.error"));			
+				errors.add(messageService.getMessage("jobConstructQuote.row.error")+" "+(i+1)+": "+messageService.getMessage("jobConstructQuote.discountCreditCheckValueForDiscount.error"));			
 			}
 			
 			if(errors.isEmpty()){
@@ -1609,7 +1611,7 @@ public class JobController extends WaspController {
 			}
 		}
  		
- 		if(cumulativePercentDiscount>100){
+ 		if(cumulativePercentDiscount>100.00){
 			//errors.add("Cumulative Discount Percent may not exceed 100%");
 			errors.add(messageService.getMessage("jobConstructQuote.discountCreditCumulativeDiscountCannotExceed100Percent.error"));			
 		}

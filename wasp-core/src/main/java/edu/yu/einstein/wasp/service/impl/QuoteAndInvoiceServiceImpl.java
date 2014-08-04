@@ -12,6 +12,7 @@
 package edu.yu.einstein.wasp.service.impl;
 import java.io.OutputStream;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -572,6 +573,7 @@ public class QuoteAndInvoiceServiceImpl extends WaspServiceImpl implements Quote
 		int totalFinalCost = 0;
 		int totalCosts = 0;
 		int totalDiscounts = 0;
+		DecimalFormat twoDFormat = new DecimalFormat("#.##");
 		
 		Paragraph anticipatedCosts = new Paragraph();
 		anticipatedCosts.setSpacingBefore(15);
@@ -615,17 +617,17 @@ public class QuoteAndInvoiceServiceImpl extends WaspServiceImpl implements Quote
 	 	    for(Discount discount : discounts){
 	 	    	
 	 	    	if(discount.getType().equals("%")){
-	 	    		int percentOff = discount.getValue().intValue();
-	 	    		costTable.addCell(new Phrase(discount.getReason() + " (" + percentOff + discount.getType()+")", NORMAL_BOLD));
-	 	    		int thisDiscount = totalCosts * percentOff / 100;
-	 	    		totalDiscounts += thisDiscount;
-	 	    		PdfPCell secondCell = new PdfPCell(new Phrase("("+currencyIcon + " " + thisDiscount+")", NORMAL_BOLD));
+	 	    		Double percentOff = Double.valueOf(twoDFormat.format(discount.getValue()));//it's stored as float with two fractional decimals ###.##
+	 	    		costTable.addCell(new Phrase(discount.getReason() + " (" + percentOff.doubleValue() + discount.getType()+")", NORMAL_BOLD));
+	 	    		Double thisDiscount = Double.valueOf(twoDFormat.format(totalCosts * percentOff / 100));
+	 	    		totalDiscounts += thisDiscount.intValue();
+	 	    		PdfPCell secondCell = new PdfPCell(new Phrase("("+currencyIcon + " " + thisDiscount.intValue()+")", NORMAL_BOLD));
 		 		    secondCell.setBorder(0);
 		 		    secondCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
 		 	 	    costTable.addCell(secondCell); 
 	 	    	}
 	 	    	else if(discount.getType().equals(currencyIcon)){
-	 	    		int thisDiscount = discount.getValue().intValue();
+	 	    		int thisDiscount = discount.getValue().intValue();//it's stored as float with two fractional decimals ###.##
 	 	    		costTable.addCell(new Phrase(discount.getReason(), NORMAL_BOLD));
 	 	    		totalDiscounts += thisDiscount;
 	 	    		PdfPCell secondCell = new PdfPCell(new Phrase("("+currencyIcon + " " + thisDiscount+")", NORMAL_BOLD));

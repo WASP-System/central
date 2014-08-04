@@ -321,7 +321,7 @@
 											</c:forEach>					
 										</select>
 									</td>
-									<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='discountValue' id='discountValue' value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${discount.getValue()}" />">.00</td>
+									<td align='center'><input type='text' style="text-align:right;" size='8' maxlength='8' name='discountValue' id='discountValue' value="${discount.getValue()}" /></td>
 									<td align='center'><input type="button" class="delRow" value="<fmt:message key="jobHomeCreateUpdateQuote.deleteRow.label" />"/></td>
 								</tr>
 							</c:forEach>
@@ -345,7 +345,7 @@
 										</c:forEach>
 									</select>
 								</td>
-								<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='discountValue' id='discountValue'>.00</td>
+								<td align='center'><input type='text' style="text-align:right;" size='8' maxlength='8' name='discountValue' id='discountValue' value="" ></td>
 								<td align='center'><input type="button" class="delRow" value="<fmt:message key="jobHomeCreateUpdateQuote.deleteRow.label" />"/></td>
 							</tr>
 						</c:otherwise>
