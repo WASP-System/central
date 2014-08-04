@@ -71,8 +71,8 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 		// isStarted=T and isHibernationResuested=T == job started on grid service
 		// isStarted=F and isHibernationRequested=T == not going to request grid work
 		boolean jobHasUpdatedChild = false;
-		if (isGridWorkUnitStarted(context)){
-			GridResult result = getStartedResult(context);
+		GridResult result = getGridResult(context);
+		if (result != null && !isFlaggedForRestart(context)){
 			Map<String, GridResult> currentChildJobResults = new HashMap<String, GridResult>(result.getChildResults());
 			GridWorkService gws = hostResolver.getGridWorkService(result);
 			try {
@@ -84,20 +84,23 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 				jobHasUpdatedChild = !currentChildJobResults.equals(result.getChildResults());
 				if (jobHasUpdatedChild)
 					logger.debug("Job result has updated a child job so going to reset timeoutInterval to minimum");
-				storeStartedResult(context, result); // result may have been modified whilst checking in isFinished
 			} catch (GridException e) {
 				logger.debug(result.toString() + " threw exception: " + e.getLocalizedMessage() + " removing and rethrowing");
-				removeStartedResult(context);
+				setIsFlaggedForRestart(context, result, true);
 				throw e;
+			} finally {
+				saveGridResult(context, result); // result may have been modified whilst checking in isFinished
 			}
 			logger.debug("StepExecution id=" + stepExecutionId + " is going to request hibernation as " + result.getUuid() + " started but not complete");
 		} else if (!wasHibernationRequested){
 			logger.debug("Tasklet not yet configured with a result (StepExecution id=" + stepExecutionId + ")");
 			doExecute(context);
-		}
-		if (!isGridWorkUnitStarted(context)) {
-			logger.debug("no work unit configured, exiting without execution.");
-			return RepeatStatus.FINISHED;
+			result = getGridResult(context);
+			if (result == null || !result.getJobStatus().isSubmitted()) {
+				logger.debug("no work unit configured, or workunit not properly configured. Exiting without execution.");
+				return RepeatStatus.FINISHED;
+			} else 
+				setIsFlaggedForRestart(context, getGridResult(context), false);
 		}
 		if (!wasHibernationRequested){
 			Long timeoutInterval;
@@ -118,35 +121,31 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 
 	protected final static Logger logger = LoggerFactory.getLogger(WaspRemotingTasklet.class);
 	
-
-	
-	/**
-	 * Check to see if a grid result has been stored by a previous execution of the current step.
-	 * @param context
-	 * @return
-	 */
-	public static boolean isGridWorkUnitStarted(ChunkContext context) {
+	public boolean isFlaggedForRestart(ChunkContext context) {
 		StepExecution stepExecution = context.getStepContext().getStepExecution();
-		boolean isStarted = false;
-		if (stepExecution.getExecutionContext().containsKey(GridResult.GRID_RESULT_KEY))
-			isStarted = true;
-		logger.debug("Grid work unit for StepExecutionId=" + stepExecution.getId() + " is started=" + isStarted);
-		return isStarted;
+		boolean isFlaggedForRestart = false;
+		if (stepExecution.getExecutionContext().containsKey(GridResult.FLAGGED_FOR_RESTART))
+			isFlaggedForRestart =  true;
+		logger.debug("Grid work unit for StepExecutionId=" + stepExecution.getId() + " is flagged for restart=" + isFlaggedForRestart);
+		return isFlaggedForRestart;
 	}
-	protected static void storeStartedResult(ChunkContext context, GridResult result) {
+	
+	protected static void setIsFlaggedForRestart(ChunkContext context, GridResult result, Boolean isFlaggedForRestart) {
+		StepExecution stepExecution = context.getStepContext().getStepExecution();
+		logger.debug(result.toString());
+		stepExecution.getExecutionContext().put(GridResult.FLAGGED_FOR_RESTART, isFlaggedForRestart.toString());
+	}
+	
+	protected static void saveGridResult(ChunkContext context, GridResult result) {
 		StepExecution stepExecution = context.getStepContext().getStepExecution();
 		logger.debug(result.toString());
 		stepExecution.getExecutionContext().put(GridResult.GRID_RESULT_KEY, result);
 	}
 	
-	private void removeStartedResult(ChunkContext context) {
+	public static GridResult getGridResult(ChunkContext context) {
 		StepExecution stepExecution = context.getStepContext().getStepExecution();
-		logger.debug("removing result from step context due to GridException");
-		stepExecution.getExecutionContext().remove(GridResult.GRID_RESULT_KEY);
-	}
-	
-	public static GridResult getStartedResult(ChunkContext context) {
-		StepExecution stepExecution = context.getStepContext().getStepExecution();
+		if (!stepExecution.getExecutionContext().containsKey(GridResult.GRID_RESULT_KEY))
+			return null;
 		return (GridResult) stepExecution.getExecutionContext().get(GridResult.GRID_RESULT_KEY);
 	}
 	

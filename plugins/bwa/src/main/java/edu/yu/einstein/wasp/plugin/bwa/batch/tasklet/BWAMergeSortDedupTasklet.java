@@ -243,7 +243,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		GridResult result = gridHostResolver.execute(w);
 
 		// place the grid result in the step context
-		storeStartedResult(context, result);
+		saveGridResult(context, result);
 	}
 	
 	/** 

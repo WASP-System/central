@@ -175,22 +175,22 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 		if (!jobInfo.isEmpty())
 			m.setInfo(parseJobInfo(jobInfo));
 		try{
-			m.setScript(renderScriptData(gws.getResultScript(r, SgeWorkService.MAX_32MB)));
+			m.setScript(renderScriptData(gws.getResultScript(r, SgeWorkService.MAX_FILE_SIZE)));
 		} catch (IOException e){
 			logger.info("No execution script returned for GridResult id=" + r.getId());
 		}
 		try{
-			m.setStdout(getPreformattedHtml(gws.getResultStdOut(r, SgeWorkService.MAX_32MB)));
+			m.setStdout(getPreformattedHtml(gws.getResultStdOut(r, SgeWorkService.MAX_FILE_SIZE)));
 		} catch (IOException e){
 			logger.info("No stdout returned for GridResult id=" + r.getId());
 		}
 		try{
-			m.setStderr(getPreformattedHtml(gws.getResultStdErr(r, SgeWorkService.MAX_32MB)));
+			m.setStderr(getPreformattedHtml(gws.getResultStdErr(r, SgeWorkService.MAX_FILE_SIZE)));
 		} catch (IOException e){
 			logger.info("No stderr returned for GridResult id=" + r.getId());
 		}
 		try{
-			m.setClusterReport(gws.renderGridSummaryData(gws.getResultJobStats(r, SgeWorkService.MAX_32MB)));
+			m.setClusterReport(gws.renderGridSummaryData(gws.getResultJobStats(r, SgeWorkService.MAX_FILE_SIZE)));
 		} catch (IOException e){
 			logger.info("No grid execution final report returned for GridResult id=" + r.getId());
 		}

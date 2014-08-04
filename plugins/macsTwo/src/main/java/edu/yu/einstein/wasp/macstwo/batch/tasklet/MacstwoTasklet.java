@@ -407,7 +407,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 
 		GridResult result = gridHostResolver.execute(w);
 		logger.debug("****Executed gridHostResolver.execute(w) in MactwoTasklet.doExecute()");
-		storeStartedResult(context, result);//place the grid result in the step context
+		saveGridResult(context, result);//place the grid result in the step context
 	
 	}
 	
@@ -482,7 +482,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		//new, 5-9-14
 		logger.debug("new stuff, added 5-9-14, to get numbers from txt files that are not saved");
 		//context.getStepContext().attributeNames().
-		GridResult result = getStartedResult(context);
+		GridResult result = getGridResult(context);
 		String workingDir = result.getWorkingDirectory();//is this the scratch, I think so
 		
 		WorkUnit w = new WorkUnit();

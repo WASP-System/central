@@ -12,7 +12,6 @@
 	}
 	.infoNotAvailableIcon {
         background-image: none;
-        background-size: 15px 15px;
 	}
 </style>
 

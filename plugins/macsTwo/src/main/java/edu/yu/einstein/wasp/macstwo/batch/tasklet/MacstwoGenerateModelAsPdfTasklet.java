@@ -222,7 +222,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		
 		GridResult result = gridHostResolver.execute(w);
 		logger.debug("****Executed gridHostResolver.execute(w) in MacstwoGenerateModelAsPdfTasklet.doExecute()");		
-		storeStartedResult(context, result);//place the grid result in the step context
+		saveGridResult(context, result);//place the grid result in the step context
 
 	}
 

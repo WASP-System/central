@@ -81,7 +81,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	private static final String START_TIME_KEY = "Start Time";
 	
 	public static final long NO_FILE_SIZE_LIMIT = -1L;
-	public static final long MAX_32MB = 1024 * 32;
+	public static final long MAX_FILE_SIZE = 1024 * 32;
     
     @Value("${wasp.developermode:false}")
     protected boolean developerMode;
@@ -230,7 +230,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			w.remoteResultsDirectory = transportConnection.prefixRemoteFile(w.getResultsDirectory());
 			//end
 			
-			return startJob(w);
+			return submitJob(w);
 		} catch (MisconfiguredWorkUnitException e) {
 			throw new GridAccessException("Misconfigured work unit", e);
 		}
@@ -420,6 +420,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		} else {
 			started = isJobStarted(g);
 			if (started && g.getGridJobId() == null){
+				g.setJobStatus(GridJobStatus.STARTED);
 				try{
 					Map<String, String> gridJobInfo = getJobInfoFromJson(new JSONArray(getUnregisteredFileContents(g, g.getId() + ".start", NO_FILE_SIZE_LIMIT)));
 					g.setGridJobId(Long.valueOf(gridJobInfo.get(GRID_JOB_ID_KEY)));
@@ -750,7 +751,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	}
 
 
-	protected GridResult startJob(WorkUnit w) throws MisconfiguredWorkUnitException, GridException {
+	protected GridResult submitJob(WorkUnit w) throws MisconfiguredWorkUnitException, GridException {
 		
 		if (isJobExists(w)) {
 			throw new GridAccessException("UUID already exists");
@@ -833,7 +834,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		if (result.getExitCode() > 0)
 			throw new GridAccessException("Remote job submission failed");
 		result.setExitCode(-1); // reset to default value
-		result.setJobStatus(GridJobStatus.STARTED);
+		result.setJobStatus(GridJobStatus.SUBMITTED);
 		result.setUuid(UUID.fromString(w.getId()));
 		result.setId(jobNamePrefix + w.getId());
 		result.setWorkingDirectory(w.getWorkingDirectory());
@@ -1555,10 +1556,10 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
                     continue;
                 logger.trace("matched " + e.getName() + " size " + e.getSize());
                 result = IOUtils.toString(a, "UTF-8");
-                if (tailByteLimit == MAX_32MB){
+                if (tailByteLimit == MAX_FILE_SIZE){
                 	byte[] utf8bytes = result.getBytes("UTF8");
-                	if (utf8bytes.length > MAX_32MB){
-	        			byte[] trunc = new byte[(int) MAX_32MB];
+                	if (utf8bytes.length > MAX_FILE_SIZE){
+	        			byte[] trunc = new byte[(int) MAX_FILE_SIZE];
 	        			for (int i = utf8bytes.length-1; i >= utf8bytes.length - trunc.length; i--){
 	        				int j = i - (utf8bytes.length - trunc.length);
 	        				trunc[j] = utf8bytes[i];
@@ -1615,9 +1616,9 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 				RandomAccessFile raf = null;
 	        	try{
 	            	raf = new RandomAccessFile(f, "r");
-	            	long strLen = (raf.length() < MAX_32MB) ? raf.length() : MAX_32MB;
+	            	long strLen = (raf.length() < MAX_FILE_SIZE) ? raf.length() : MAX_FILE_SIZE;
 	            		
-	                raf.seek(strLen - MAX_32MB);
+	                raf.seek(strLen - MAX_FILE_SIZE);
 	                byte[] b = new byte[(int) strLen];
 	                raf.readFully(b);
 	                result = new String(b, "UTF-8");

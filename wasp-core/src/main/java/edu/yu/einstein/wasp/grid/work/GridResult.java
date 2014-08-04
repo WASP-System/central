@@ -15,6 +15,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 public interface GridResult {
 	
 	public static final String GRID_RESULT_KEY ="gridResult";
+	public static final String FLAGGED_FOR_RESTART ="restart";
 	
 	/**
 	 * Exit code from running on {@link GridWorkService}. In the case of a simple exec, this is the exit code
