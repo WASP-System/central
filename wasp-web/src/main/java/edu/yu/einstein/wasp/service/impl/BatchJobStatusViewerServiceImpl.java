@@ -198,7 +198,7 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 	}
 	
 	private String renderScriptData(String data) {
-		StringBuffer sb = new StringBuffer("<div style=\"padding: 10px;white-space: nowrap;\">");
+		StringBuilder sb = new StringBuilder("<div style=\"padding: 10px;white-space: nowrap;\">");
 		for (String line : data.split("\n")){
 			if (line.startsWith("#$"))
 				sb.append("<span style=\"color: orange\">").append(line).append("</span>");
@@ -215,12 +215,12 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 	}
 	
 	private String getPreformattedHtml(String text){
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		return sb.append("<pre style=\"padding: 10px\">").append(text).append("</pre>").toString();
 	}
 	
 	private String parseJobInfo(Map<String, String> jobInfo){
-		StringBuffer info = new StringBuffer("<table class=\"keyValue\">");
+		StringBuilder info = new StringBuilder("<table class=\"keyValue\">");
 		for (String key: jobInfo.keySet())
 			info.append("<tr><th>").append(key).append("</th><td>").append(jobInfo.get(key)).append("</td></tr>");
 		info.append("</table>");

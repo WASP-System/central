@@ -470,20 +470,20 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 	}
 	private String convertReplicatesToString(List<List<SampleDraft>> replicates){
 		
-		StringBuffer replicatesAsStringBuffer = new StringBuffer("");
+		StringBuilder replicatesAsStringBuilder = new StringBuilder("");
 		for(List<SampleDraft>  sampleDraftReplicateSet : replicates){
 			int counter = 0;
 			for(SampleDraft sd : sampleDraftReplicateSet){
 				if(counter++ > 0){
-					replicatesAsStringBuffer.append(":");
+					replicatesAsStringBuilder.append(":");
 				}
-				replicatesAsStringBuffer.append(sd.getId().toString());				
+				replicatesAsStringBuilder.append(sd.getId().toString());				
 			}
 			if(counter>0){
-				replicatesAsStringBuffer.append(";");
+				replicatesAsStringBuilder.append(";");
 			}
 		}
-		return new String(replicatesAsStringBuffer);
+		return new String(replicatesAsStringBuilder);
 	}
 	
 	/**

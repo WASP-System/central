@@ -577,7 +577,7 @@ public class JQFieldTag extends BodyTagSupport {
 	   		
 			/*
 			String jsName= "_"+name+"_list";
-			StringBuffer buf=new StringBuffer();
+			StringBuilder buf=new StringBuilder();
 			
 			buf.append("var="+jsName+"="+json+";\n");
 			

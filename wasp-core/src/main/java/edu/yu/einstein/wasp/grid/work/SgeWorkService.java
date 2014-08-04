@@ -986,7 +986,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
 			    tid = "-$TASK_ID";
-			StringBuffer headerStrBuf = new StringBuffer();
+			StringBuilder headerStrBuf = new StringBuilder();
 			headerStrBuf.append("#!/bin/bash\n#\n")
 					.append(getFlag()).append(" -N ").append(jobName).append("\n")
 					.append(getFlag()).append(" -S /bin/bash\n")
@@ -999,7 +999,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			}
 			header = headerStrBuf.toString();
 			
-			StringBuffer preambleStrBuf = new StringBuffer();
+			StringBuilder preambleStrBuf = new StringBuilder();
 			preambleStrBuf.append("\nset -o errexit\n") 	// die if any script returns non 0 exit code
 					.append("set -o pipefail\n") 		// die if any script in a pipe returns non 0 exit code
 					.append("set -o physical\n") 		// replace symbolic links with physical path
@@ -1095,7 +1095,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			} 
 			command = w.getCommand();
 			
-			StringBuffer postscriptStrBuf = new StringBuffer();
+			StringBuilder postscriptStrBuf = new StringBuilder();
 			postscriptStrBuf.append("echo \"##### begin ${").append(WorkUnit.JOB_NAME).append("}\" > ").append(w.remoteWorkingDirectory).append("${").append(WorkUnit.JOB_NAME).append("}.command\n\n")
 					.append("awk '/^##### preamble/,/^##### postscript|~$/' ")
 					.append(w.remoteWorkingDirectory).append("${").append(WorkUnit.JOB_NAME).append("}.sh | sed 's/^##### .*$//g' | grep -v \"^$\" >> ")
@@ -1654,7 +1654,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	 */
 	@Override
 	public String renderGridSummaryData(String data) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("<table class=\"keyValue\">");
 		for (String line : data.split("\n")){
 			if (line.startsWith("=") || line.startsWith("ru_") || line.startsWith("arid"))

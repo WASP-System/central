@@ -50,7 +50,7 @@ public class CommentTag extends BodyTagSupport {
 		if (commentText == null) 
 			return Tag.SKIP_PAGE;
 		
-		StringBuffer buf=new StringBuffer("");
+		StringBuilder buf=new StringBuilder("");
 		String servletPath = pageContext.getServletContext().getContextPath();
 		buf.append(Tooltip.getCommentHtmlString(commentText, servletPath));
 		
