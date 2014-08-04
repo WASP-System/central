@@ -1343,6 +1343,8 @@ public class JobController extends WaspController {
 		//c. here get the runCost parameters and check for highly unexpected errors
 		param = "runCostResourceCategoryId";
 		String [] runCostResourceCategoryIdAsStringArray = request.getParameterValues(param);
+		param = "runCostRunType";
+		String [] runCostRunTypeArray = request.getParameterValues(param);		
 		param = "runCostReadLength";
 		String [] runCostReadLengthArray = request.getParameterValues(param);
 		param = "runCostReadType";
@@ -1351,12 +1353,12 @@ public class JobController extends WaspController {
 		String [] runCostNumberLanesArray = request.getParameterValues(param);
 		param = "runCostPricePerLane";
 		String [] runCostPricePerLaneArray = request.getParameterValues(param);	
-		if(runCostResourceCategoryIdAsStringArray==null || runCostReadLengthArray==null || runCostReadTypeArray==null || 
+		if(runCostResourceCategoryIdAsStringArray==null || runCostRunTypeArray==null || runCostReadLengthArray==null || runCostReadTypeArray==null || 
 				runCostNumberLanesArray==null || runCostPricePerLaneArray==null){
 			errors.add(messageService.getMessage("jobConstructQuote.problemSequenceRunInfo.error"));//"Unexpected problem interpreting sequence run information");
 		}			
 		int numberOfRunRows = runCostResourceCategoryIdAsStringArray.length;
-		if(runCostReadLengthArray.length != numberOfRunRows && runCostReadTypeArray.length != numberOfRunRows  &&
+		if(runCostRunTypeArray.length != numberOfRunRows && runCostReadLengthArray.length != numberOfRunRows && runCostReadTypeArray.length != numberOfRunRows  &&
 				runCostNumberLanesArray.length != numberOfRunRows && runCostPricePerLaneArray.length != numberOfRunRows ){
 			errors.add(messageService.getMessage("jobConstructQuote.problemSequenceRunInfo.error"));//"Unexpected problem interpreting sequence run information");
 		}
@@ -1450,6 +1452,7 @@ public class JobController extends WaspController {
 		
 		for(int i = 0; i < numberOfRunRows; i++){ 
 			if( "".equals(runCostResourceCategoryIdAsStringArray[i].trim())	 &&
+				"".equals(runCostRunTypeArray[i].trim())	 &&
 				"".equals(runCostReadLengthArray[i].trim())	 &&
 				"".equals(runCostReadTypeArray[i].trim())	 &&
 				"".equals(runCostNumberLanesArray[i].trim()) &&
@@ -1457,6 +1460,7 @@ public class JobController extends WaspController {
 				continue;
 			}
 			if( "".equals(runCostResourceCategoryIdAsStringArray[i].trim())    ||
+				"".equals(runCostRunTypeArray[i].trim()) ||
 				"".equals(runCostReadLengthArray[i].trim())	||
 				"".equals(runCostReadTypeArray[i].trim())	||
 				"".equals(runCostNumberLanesArray[i].trim()) ||
@@ -1503,7 +1507,7 @@ public class JobController extends WaspController {
 				errors.add(messageService.getMessage("jobConstructQuote.row.error")+" "+(i+1)+": "+messageService.getMessage("jobConstructQuote.sequenceRunWholeNumberForCostPerLane.error"));
 			}
 			if(errors.isEmpty()){
-				sequencingCosts.add(new SequencingCost(resourceCategory, readLength, runCostReadTypeArray[i].trim(),numberOfLanes, new Float(costPerLane)));
+				sequencingCosts.add(new SequencingCost(resourceCategory, runCostRunTypeArray[i].trim(), readLength, runCostReadTypeArray[i].trim(),numberOfLanes, new Float(costPerLane)));
 			}
 		}
 

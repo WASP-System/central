@@ -427,7 +427,7 @@ public class QuoteAndInvoiceServiceImpl extends WaspServiceImpl implements Quote
 
 		for(SequencingCost sequencingCost : sequencingCosts){
 			runTable.addCell(new Phrase(""+runCounter, NORMAL));
-			runTable.addCell(new Phrase(sequencingCost.getResourceCategory().getName(), NORMAL));
+			runTable.addCell(new Phrase(sequencingCost.getResourceCategory().getName() + " (run-type:" + sequencingCost.getRunType() + ")", NORMAL));//run-type is printed on next line
 			runTable.addCell(new Phrase(sequencingCost.getReadLength().toString(), NORMAL));
 			runTable.addCell(new Phrase(sequencingCost.getReadType(), NORMAL));
 			Integer numLanes = sequencingCost.getNumberOfLanes();

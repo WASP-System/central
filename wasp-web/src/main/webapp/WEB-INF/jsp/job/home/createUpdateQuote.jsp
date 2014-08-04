@@ -181,6 +181,7 @@
 				<table  class="data" style="margin: 0px 0px">
 					<tr class="FormData">
 						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCreateUpdateQuote.machine.label" /></td>
+						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCreateUpdateQuote.runType.label" /></td>
 						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCreateUpdateQuote.readLength.label" /></td>
 						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCreateUpdateQuote.readType.label" /></td>
 						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCreateUpdateQuote.numberOfLanes.label" /></td>
@@ -202,6 +203,14 @@
 											<option value='<c:out value="${resourceCategory.getId()}" />' <c:out value="${selected}" /> ><c:out value="${resourceCategory.getName()}" />
 										</c:forEach>
 									</select>
+								</td>
+								<td align='center'>	
+									<select name='runCostRunType' id='runCostRunType' size='1'>
+										<option value=''><fmt:message key="wasp.default_select.label" />
+										<option value='high-output'  <c:if test='${sequencingCost.getRunType()=="high-output"}'>selected</c:if>><fmt:message key="jobHomeCreateUpdateQuote.runType_highOutput.label" />
+										<option value='rapid-run' <c:if test='${sequencingCost.getRunType()=="rapid-run"}'>selected</c:if>><fmt:message key="jobHomeCreateUpdateQuote.runType_rapidRun.label" />
+										<option value='standard' <c:if test='${sequencingCost.getRunType()=="starndar"}'>selected</c:if>><fmt:message key="jobHomeCreateUpdateQuote.runType_standard.label" />
+									</select>
 								</td>				
 								<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='runCostReadLength' id='runCostReadLength' value="${sequencingCost.getReadLength()}"></td>
 								<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostReadType' id='runCostReadType' value="${sequencingCost.getReadType()}"></td>
@@ -221,6 +230,14 @@
 									</c:forEach>
 								</select>
 							</td>
+							<td align='center'>	
+								<select name='runCostRunType' id='runCostRunType' size='1'>
+									<option value=''><fmt:message key="wasp.default_select.label" />
+									<option value='high-output'><fmt:message key="jobHomeCreateUpdateQuote.runType_highOutput.label" />
+									<option value='rapid-run'><fmt:message key="jobHomeCreateUpdateQuote.runType_rapidRun.label" />
+									<option value='standard'><fmt:message key="jobHomeCreateUpdateQuote.runType_standard.label" />
+								</select>
+							</td>				
 							<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='runCostReadLength' id='runCostReadLength' ></td>
 							<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostReadType' id='runCostReadType'></td>
 							<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostNumberLanes' id='runCostNumberLanes'></td>
@@ -229,7 +246,7 @@
 						</tr>	
 					</c:otherwise>
 					</c:choose>
-					<tr><td colspan="6" align="center"><input style="width:300" type="button" class="addRow" value="<fmt:message key="jobHomeCreateUpdateQuote.addAdditionalRow.label" />"/></td></tr>
+					<tr><td colspan="7" align="center"><input style="width:300" type="button" class="addRow" value="<fmt:message key="jobHomeCreateUpdateQuote.addAdditionalRow.label" />"/></td></tr>
 				</table>
 				
 				<br /><br />
