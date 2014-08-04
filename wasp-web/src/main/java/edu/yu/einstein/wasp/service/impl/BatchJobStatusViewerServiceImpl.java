@@ -3,6 +3,7 @@ package edu.yu.einstein.wasp.service.impl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.batch.core.ExitStatus;
@@ -84,6 +85,7 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 		model.setIconCls(ExtIcon.TASK);
 		model.setExpanded(false);
 		model.setLeaf(true);
+		model.setResultAvailable(se.getExecutionContext().containsKey(GridResult.GRID_RESULT_KEY));
 		return model;
 	}
 
@@ -153,6 +155,7 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 		return null;
 	}
 	
+	
 	@Override
 	public ExtStepInfoModel getExtStepInfoModel(Long jobExecutionId, Long stepExecutionId){
 		ExtStepInfoModel m = new ExtStepInfoModel();
@@ -168,32 +171,62 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 			logger.info("Unable to retrieve a GridResult for stepExecutionId=" + stepExecutionId);
 			return m;
 		}
-		String info = "";
-		for (String key: r.getJobInfo().keySet())
-			info += key + "\t: " + r.getJobInfo().get(key) + "\n";
-		m.setInfo(info);
+		Map<String, String> jobInfo = gws.getJobSubmissionInfo(r);
+		if (!jobInfo.isEmpty())
+			m.setInfo(parseJobInfo(jobInfo));
 		try{
-			m.setScript(gws.getResultScript(r, SgeWorkService.MAX_32MB));
+			m.setScript(renderScriptData(gws.getResultScript(r, SgeWorkService.MAX_32MB)));
 		} catch (IOException e){
-			logger.info("No info execution script returned for GridResult id=" + r.getId());
+			logger.info("No execution script returned for GridResult id=" + r.getId());
 		}
 		try{
-			m.setStdout(gws.getResultStdOut(r, SgeWorkService.MAX_32MB));
+			m.setStdout(getPreformattedHtml(gws.getResultStdOut(r, SgeWorkService.MAX_32MB)));
 		} catch (IOException e){
 			logger.info("No stdout returned for GridResult id=" + r.getId());
 		}
 		try{
-			m.setStderr(gws.getResultStdErr(r, SgeWorkService.MAX_32MB));
+			m.setStderr(getPreformattedHtml(gws.getResultStdErr(r, SgeWorkService.MAX_32MB)));
 		} catch (IOException e){
 			logger.info("No stderr returned for GridResult id=" + r.getId());
 		}
 		try{
-			m.setClusterReport(gws.getResultJobStats(r, SgeWorkService.MAX_32MB));
+			m.setClusterReport(gws.renderGridSummaryData(gws.getResultJobStats(r, SgeWorkService.MAX_32MB)));
 		} catch (IOException e){
 			logger.info("No grid execution final report returned for GridResult id=" + r.getId());
 		}
 		return m;
 	}
+	
+	private String renderScriptData(String data) {
+		StringBuffer sb = new StringBuffer("<div style=\"padding: 10px;white-space: nowrap;\">");
+		for (String line : data.split("\n")){
+			if (line.startsWith("#$"))
+				sb.append("<span style=\"color: orange\">").append(line).append("</span>");
+			else if (line.startsWith("##### "))
+				sb.append("<span style=\"color: blue\">").append(line).append("</span>");
+			else if (line.startsWith("#"))
+				sb.append("<span style=\"color: green\">").append(line).append("</span>");
+			else
+				sb.append(line);
+			sb.append("<br />");
+		}
+		sb.append("</div>");
+		return sb.toString();
+	}
+	
+	private String getPreformattedHtml(String text){
+		StringBuffer sb = new StringBuffer();
+		return sb.append("<pre style=\"padding: 10px\">").append(text).append("</pre>").toString();
+	}
+	
+	private String parseJobInfo(Map<String, String> jobInfo){
+		StringBuffer info = new StringBuffer("<table class=\"keyValue\">");
+		for (String key: jobInfo.keySet())
+			info.append("<tr><th>").append(key).append("</th><td>").append(jobInfo.get(key)).append("</td></tr>");
+		info.append("</table>");
+		return info.toString();
+	}
+	
 	
 	private BatchJobSortAttribute getJobSortProperty(String property){
 		if (property == null)

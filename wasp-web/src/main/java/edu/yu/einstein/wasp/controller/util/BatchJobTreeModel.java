@@ -20,6 +20,8 @@ public class BatchJobTreeModel extends ExtTreeModel {
 	private String exitCode = "";
 	
 	private String exitMessage = "";
+	
+	private boolean isResultAvailable = false;
 
 	public BatchJobTreeModel() {
 	}
@@ -29,7 +31,7 @@ public class BatchJobTreeModel extends ExtTreeModel {
 	}
 
 	public BatchJobTreeModel(String id, ExtIcon iconCls, boolean isExpanded, boolean isLeaf, String name, Long executionId, Date startTime, Date endTime,
-			String status, String exitCode, String exitMessage) {
+			String status, String exitCode, String exitMessage, boolean isResultAvailable) {
 		super(id, iconCls, isExpanded, isLeaf);
 		this.name = name;
 		this.executionId = executionId;
@@ -38,6 +40,7 @@ public class BatchJobTreeModel extends ExtTreeModel {
 		this.status = status;
 		this.exitCode = exitCode;
 		this.exitMessage = exitMessage;
+		this.isResultAvailable = isResultAvailable;
 	}
 
 	public String getName() {
@@ -101,6 +104,14 @@ public class BatchJobTreeModel extends ExtTreeModel {
 
 	public void setExitMessage(String exitMessage) {
 		this.exitMessage = exitMessage;
+	}
+
+	public boolean isResultAvailable() {
+		return isResultAvailable;
+	}
+
+	public void setResultAvailable(boolean isResultAvailable) {
+		this.isResultAvailable = isResultAvailable;
 	}
 
 }

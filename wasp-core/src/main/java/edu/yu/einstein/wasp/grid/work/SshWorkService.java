@@ -206,8 +206,7 @@ public class SshWorkService implements GridWorkService {
 	}
 
 	@Override
-	public String getResultInfo(GridResult r, long tailByteLimit)
-			throws IOException {
+	public Map<String, String> getJobSubmissionInfo(GridResult r) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -222,6 +221,12 @@ public class SshWorkService implements GridWorkService {
 	@Override
 	public String getResultJobStats(GridResult r, long tailByteLimit)
 			throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String renderGridSummaryData(String data) {
 		// TODO Auto-generated method stub
 		return null;
 	}

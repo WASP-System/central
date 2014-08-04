@@ -419,6 +419,26 @@ span.requiredField{
 
 hr.ui-widget-content	{margin: 10px !important;}*/
 
+TABLE.keyValue {
+	border: 1px solid #ccc;
+	margin-top: 20px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+TABLE.keyValue TH	{
+	text-align: right;
+}
+
+TABLE.keyValue TD	{
+	background: #fff;
+	text-align: left;
+	border-bottom: 1px solid #ccc;
+	border-right: 1px solid #CCCCCC;
+	vertical-align: middle;
+	}
+
+
 TABLE.data	{
 	border: 1px solid #ccc;
 	margin: 10px 0;
@@ -431,6 +451,10 @@ TABLE.data TD	{
 	vertical-align: middle;
 	}
 
+
+TABLE.data TH.alignRight	{
+	text-align: right;
+	}
 	
 TABLE.data TD.noBorder	{
 	background: #ffffff;

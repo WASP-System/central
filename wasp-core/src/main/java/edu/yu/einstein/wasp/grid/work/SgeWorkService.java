@@ -1481,8 +1481,18 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getResultInfo(GridResult r, long tailByteLimit) throws IOException {
-		return getResultOutputFile(r, "start", tailByteLimit);
+	public Map<String, String> getJobSubmissionInfo(GridResult r) {
+		if (!r.getJobInfo().isEmpty())
+			return r.getJobInfo();
+		try{
+			String info = getResultOutputFile(r, "start", NO_FILE_SIZE_LIMIT);
+			if (info.isEmpty())
+				throw new IOException(".start file for GridResult with id=" + r.getId() + " contains no data");
+			return getJobInfoFromJson(new JSONArray(info));
+		} catch (Exception e){
+			logger.info("Unable to obtain job submission data from GridResult with id=" + r.getId() + " : " + e.getLocalizedMessage());
+			return new LinkedHashMap<String, String>();	
+		}
 	}
 	
 	/**
@@ -1637,6 +1647,27 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	@Override
 	public void setNumProcConsumable(boolean isNumProcConsumable) {
 		this.isNumProcConsumable = isNumProcConsumable;
+	}
+	
+	/**
+	 * output from qacct filtered and rendered to an html table
+	 */
+	@Override
+	public String renderGridSummaryData(String data) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("<table class=\"keyValue\">");
+		for (String line : data.split("\n")){
+			if (line.startsWith("=") || line.startsWith("ru_") || line.startsWith("arid"))
+				continue; // filter lines
+			String[] elements = line.split("\\s+", 2);
+			sb.append("<tr><th>")
+				.append(elements[0].replaceAll("_", " "))
+				.append("</th><td>")
+				.append(elements[1])
+				.append("</td></tr>");
+		}
+		sb.append("</table>");
+		return sb.toString();
 	}
 	
 }

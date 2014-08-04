@@ -5,6 +5,7 @@ package edu.yu.einstein.wasp.grid.work;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import edu.yu.einstein.wasp.exception.GridException;
@@ -100,16 +101,11 @@ public interface GridWorkService {
 	public String getResultStdOut(GridResult r, long tailByteLimit) throws IOException;
 	
 	/**
-	 * Return the contents of the .info file
-	 * in a string. If tailByteLimit is set to -1 the entire
-	 * file contents are returned as a string, otherwise the specified number of bytes from the end of the file are returned as a string.
-	 * 
+	 * Return the contents of the .start file as a String.
 	 * @param r
-	 * @param tailByteLimit (set to -1 for unlimited)
 	 * @return
-	 * @throws IOException
 	 */
-	public String getResultInfo(GridResult r, long tailByteLimit) throws IOException;
+	public Map<String, String> getJobSubmissionInfo(GridResult r);
 
 	/**
 	 * Return the contents of the .sh file
@@ -162,6 +158,8 @@ public interface GridWorkService {
 	 * @throws IOException
 	 */
 	public String getUnregisteredFileContents(GridResult r, String filename, long tailByteLimit) throws IOException;
+	
+	public String renderGridSummaryData(String data);
 
 	
 	//public void setGridFileMovers(List<GridFileMover> gridFileMovers);
