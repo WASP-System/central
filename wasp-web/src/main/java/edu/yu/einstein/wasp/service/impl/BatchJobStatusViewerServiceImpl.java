@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.batch.core.ExitStatus;
@@ -204,6 +205,20 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 		} catch (IOException e){
 			logger.info("No grid execution final report returned for GridResult id=" + r.getId());
 		}
+		try{
+			Map<String, String> env = gws.getParsedEnvironment(r);
+			if (!env.isEmpty())
+				m.setEnvVars(renderMapToHtmlTable(env));
+		} catch (IOException e){
+			logger.info("No grid environment data returned for GridResult id=" + r.getId());
+		}
+		try{
+			Set<String> sw = gws.getParsedSoftware(r);
+			if (!sw.isEmpty())
+				m.setSoftwareList(renderSetToHtmlTable(sw));
+		} catch (IOException e){
+			logger.info("No grid software data returned for GridResult id=" + r.getId());
+		}
 		return m;
 	}
 	
@@ -228,6 +243,15 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 		StringBuilder info = new StringBuilder("<table class=\"keyValue\">");
 		for (String key: data.keySet())
 			info.append("<tr><th>").append(key).append("</th><td>").append(data.get(key)).append("</td></tr>");
+		info.append("</table>");
+		return info.toString();
+	}
+	
+	private String renderSetToHtmlTable(Set<String> data){
+		int index = 1;
+		StringBuilder info = new StringBuilder("<table class=\"keyValue\">");
+		for (String value: data)
+			info.append("<tr><th>").append(index++).append("</th><td>").append(value).append("</td></tr>");
 		info.append("</table>");
 		return info.toString();
 	}

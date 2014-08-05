@@ -3,6 +3,8 @@
  */
 package edu.yu.einstein.wasp.grid.work;
 
+import java.util.Set;
+
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 
 /**
@@ -21,6 +23,12 @@ public class NoneManager implements SoftwareManager {
 
 	@Override
 	public String getConfiguredSetting(String key) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<String> parseSoftwareListFromText(String data) {
 		// TODO Auto-generated method stub
 		return null;
 	}

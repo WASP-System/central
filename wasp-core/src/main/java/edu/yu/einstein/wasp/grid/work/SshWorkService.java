@@ -224,5 +224,18 @@ public class SshWorkService implements GridWorkService {
 		return null;
 	}
 
+	@Override
+	public Map<String, String> getParsedEnvironment(GridResult r)
+			throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<String> getParsedSoftware(GridResult r) throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 
 }

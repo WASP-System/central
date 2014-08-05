@@ -1051,24 +1051,21 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			jobInfo.put(START_TIME_KEY, "`date`");
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
 				preambleStrBuf.append("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then\n");
-			preambleStrBuf.append("\necho \"").append(getJsonForJobInfo(jobInfo).toString().replaceAll("\"", "\\\\\"")).append("\" > ").append("${").append(WorkUnit.JOB_NAME).append("}.start\n")
-					.append("echo \"#### begin job info\" 1>&2\n");
-			for (String key : jobInfo.keySet())
-				preambleStrBuf.append("echo ").append(key).append(" : ").append(jobInfo.get(key)).append(" 1>&2\n"); // write info to stderr
-			preambleStrBuf.append("echo \"#### end job info\" 1>&2\n\n");
+			preambleStrBuf.append("\necho \"").append(getJsonForJobInfo(jobInfo).toString().replaceAll("\"", "\\\\\"")).append("\" > ").append("${").append(WorkUnit.JOB_NAME).append("}.start\n");
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
 				preambleStrBuf.append("fi\n");
 			
-			preambleStrBuf.append("\n##### Configured environment variables\n\n");
-			for (String key : w.getEnvironmentVars().keySet()) {
-				preambleStrBuf.append(key).append("=").append(w.getEnvironmentVars().get(key)).append("\n");
-			}
 			preamble = preambleStrBuf.toString();
 			
+			
+			StringBuilder configurationStrBuf = new StringBuilder();
+			for (String key : w.getEnvironmentVars().keySet()) {
+				configurationStrBuf.append(key).append("=").append(w.getEnvironmentVars().get(key)).append("\n");
+			}
 			// if there is a configured setting to prepare the interpreter, do that here 
 			String env = transportConnection.getConfiguredSetting("env");
 			if (PropertyHelper.isSet(env)) {
-				configuration = env + "\n";
+				configurationStrBuf.append(env).append("\n");
 			}
 			// If the ProcessMode is set to MAX, get the configuration for this host and set processor reqs
 			String pmodeMax = transportConnection.getConfiguredSetting("processmode.max");
@@ -1094,9 +1091,11 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			if (transportConnection.getSoftwareManager() != null) {
 				String config = transportConnection.getSoftwareManager().getConfiguration(w);
 				if (config != null) {
-					configuration += config;
+					configurationStrBuf.append(config);
 				}
 			} 
+			configurationStrBuf.append("printenv | sort > ").append("${").append(WorkUnit.JOB_NAME).append("}.env\n");
+			configuration = configurationStrBuf.toString();
 			command = w.getCommand();
 			
 			StringBuilder postscriptStrBuf = new StringBuilder();
@@ -1523,6 +1522,31 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			stats.put(elements[0].replaceAll("_", " "), elements[1]);
 		}
 		return stats;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Map<String, String> getParsedEnvironment(GridResult r) throws IOException{
+		Map<String, String> env = new LinkedHashMap<String, String>();
+		String data = getResultOutputFile(r, "env", NO_FILE_SIZE_LIMIT);
+		for (String line : data.split("\n")){
+			String[] elements = line.split("=", 2);
+			if (elements.length != 2)
+				continue;
+			env.put(elements[0], elements[1]);
+		}
+		return env;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Set<String> getParsedSoftware(GridResult r) throws IOException{
+		String data = getResultOutputFile(r, "sw", NO_FILE_SIZE_LIMIT);
+		return transportConnection.getSoftwareManager().parseSoftwareListFromText(data);
 	}
 	
 	private String getResultOutputFile(GridResult r, String type, long tailByteLimit) throws IOException {

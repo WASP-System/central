@@ -420,6 +420,7 @@ span.requiredField{
 hr.ui-widget-content	{margin: 10px !important;}*/
 
 TABLE.keyValue {
+	padding: 15px;
 	border: 1px solid #ccc;
 	margin-top: 20px;
 	margin-left: auto;

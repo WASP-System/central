@@ -79,7 +79,9 @@ Ext.define('StepInfoModel', {
 		{name: 'script', type: 'string'},
 		{name: 'stdout', type: 'string'},
 		{name: 'stderr', type: 'string'},
-		{name: 'clusterReport', type: 'string'}
+		{name: 'clusterReport', type: 'string'},
+		{name: 'softwareList', type: 'string'},
+		{name: 'envVars', type: 'string'}
 	]
 });
 
@@ -144,6 +146,14 @@ function displayInfoData(jobExecutionId, stepName){
   			        }, {
   			            title: 'Script',
   			            html: rec.get('script'),
+  			            autoScroll: true,
+  			        }, {
+  			            title: 'Software',
+  			            html: rec.get('softwareList'),
+  			            autoScroll: true,
+  			        }, {
+  			            title: 'Env',
+  			            html: rec.get('envVars'),
   			            autoScroll: true,
   			        }, {
   			            title: 'StdOut (tail)',

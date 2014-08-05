@@ -116,12 +116,29 @@ public interface GridWorkService {
 	/**
 	 * Return the contents of the job script.
 	 * 
-	 * 
 	 * @param r
 	 * @return
 	 * @throws IOException
 	 */
 	public String getJobScript(GridResult r) throws IOException;
+	
+	/**
+	 * Return a Map representation of the environment
+	 * 
+	 * @param r
+	 * @return
+	 * @throws IOException
+	 */
+	public Map<String, String> getParsedEnvironment(GridResult r) throws IOException;
+	
+	/**
+	 * Return a Sorted Set of software
+	 * 
+	 * @param r
+	 * @return
+	 * @throws IOException
+	 */
+	public Set<String> getParsedSoftware(GridResult r) throws IOException;
 	
 	/**
 	 * Return information recorded about a job submission parsed to a Map representation.

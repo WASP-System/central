@@ -14,6 +14,10 @@ public class ExtStepInfoModel extends ExtModel{
 	
 	private String clusterReport;
 	
+	private String softwareList;
+	
+	private String envVars;
+	
 	
 	public ExtStepInfoModel() {
 		super();
@@ -22,15 +26,19 @@ public class ExtStepInfoModel extends ExtModel{
 		this.stdout = "No stdout data is available";
 		this.stderr = "No stderr data is available";
 		this.clusterReport = "No cluster report is available";
+		this.softwareList = "No software data is available";
+		this.envVars = "No environment data is available";
 	}
 
-	public ExtStepInfoModel(String info, String script, String stdout, String stderr, String clusterReport) {
+	public ExtStepInfoModel(String info, String script, String stdout, String stderr, String clusterReport, String softwareList, String envVars) {
 		super();
 		this.info = info;
 		this.script = script;
 		this.stdout = stdout;
 		this.stderr = stderr;
 		this.clusterReport = clusterReport;
+		this.softwareList = softwareList;
+		this. envVars = envVars;
 	}
 
 	public String getInfo() {
@@ -71,6 +79,22 @@ public class ExtStepInfoModel extends ExtModel{
 
 	public void setClusterReport(String clusterReport) {
 		this.clusterReport = clusterReport;
+	}
+
+	public String getSoftwareList() {
+		return softwareList;
+	}
+
+	public void setSoftwareList(String softwareList) {
+		this.softwareList = softwareList;
+	}
+
+	public String getEnvVars() {
+		return envVars;
+	}
+
+	public void setEnvVars(String envVars) {
+		this.envVars = envVars;
 	}
 
 }
