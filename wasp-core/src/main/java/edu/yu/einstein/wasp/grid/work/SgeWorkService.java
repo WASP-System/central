@@ -1485,7 +1485,15 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Map<String, String> getJobSubmissionInfo(GridResult r) {
+	public String getJobScript(GridResult r) throws IOException {
+		return getResultOutputFile(r, "sh", NO_FILE_SIZE_LIMIT);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Map<String, String> getParsedJobSubmissionInfo(GridResult r) throws IOException {
 		if (!r.getJobInfo().isEmpty())
 			return r.getJobInfo();
 		try{
@@ -1493,26 +1501,28 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			if (info.isEmpty())
 				throw new IOException(".start file for GridResult with id=" + r.getId() + " contains no data");
 			return getJobInfoFromJson(new JSONArray(info));
-		} catch (Exception e){
-			logger.info("Unable to obtain job submission data from GridResult with id=" + r.getId() + " : " + e.getLocalizedMessage());
-			return new LinkedHashMap<String, String>();	
+		} catch (JSONException e){
+			throw new IOException(e);
 		}
 	}
 	
 	/**
 	 * {@inheritDoc}
+	 * Filtered results from executing 'qacct -j <jobid>' at the command line
 	 */
 	@Override
-	public String getResultScript(GridResult r, long tailByteLimit) throws IOException {
-		return getResultOutputFile(r, "sh", tailByteLimit);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getResultJobStats(GridResult r, long tailByteLimit) throws IOException {
-		return getResultOutputFile(r, "stats", tailByteLimit);
+	public Map<String, String> getParsedFinalJobClusterStats(GridResult r) throws IOException {
+		Map<String, String> stats = new LinkedHashMap<String, String>();
+		String data = getResultOutputFile(r, "stats", NO_FILE_SIZE_LIMIT);
+		for (String line : data.split("\n")){
+			if (line.trim().isEmpty() || line.startsWith("=") || line.startsWith("ru_") || line.startsWith("arid"))
+				continue; // filter lines
+			String[] elements = line.split("\\s+", 2);
+			if (elements.length != 2)
+				continue;
+			stats.put(elements[0].replaceAll("_", " "), elements[1]);
+		}
+		return stats;
 	}
 	
 	private String getResultOutputFile(GridResult r, String type, long tailByteLimit) throws IOException {
@@ -1658,25 +1668,6 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		this.isNumProcConsumable = isNumProcConsumable;
 	}
 	
-	/**
-	 * output from qacct filtered and rendered to an html table
-	 */
-	@Override
-	public String renderGridSummaryData(String data) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("<table class=\"keyValue\">");
-		for (String line : data.split("\n")){
-			if (line.trim().isEmpty() || line.startsWith("=") || line.startsWith("ru_") || line.startsWith("arid"))
-				continue; // filter lines
-			String[] elements = line.split("\\s+", 2);
-			sb.append("<tr><th>")
-				.append(elements[0].replaceAll("_", " "))
-				.append("</th><td>")
-				.append(elements[1])
-				.append("</td></tr>");
-		}
-		sb.append("</table>");
-		return sb.toString();
-	}
+
 	
 }

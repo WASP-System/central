@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
@@ -157,45 +158,50 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 	
 	
 	@Override
-	public ExtStepInfoModel getExtStepInfoModel(Long jobExecutionId, Long stepExecutionId){
+	public ExtStepInfoModel getExtStepInfoModel(Long jobExecutionId, String stepName){
 		ExtStepInfoModel m = new ExtStepInfoModel();
-		StepExecution se = jobExplorer.getStepExecution(jobExecutionId, stepExecutionId);
+		// StepExecution with id provided may have been expired since displaying tree-grid so make sure we get the 
+		// latest StepExecution of the same name for the given JobInstance
+		JobInstance ji = jobExplorer.getJobExecution(jobExecutionId).getJobInstance();
+		StepExecution se = jobRepository.getLastStepExecution(ji, stepName);
 		if (se == null){
-			logger.warn("Unable to retrieve Step Execution with jobExecutionId=" + jobExecutionId + " and stepExecutionId=" + stepExecutionId);
+			logger.warn("Unable to retrieve Step Execution with jobExecutionId=" + jobExecutionId + " and stepName=" + stepName);
 			return m;
 		}
 		GridResult r = null;
 		if (se.getExecutionContext().containsKey(GridResult.GRID_RESULT_KEY)){
 			r = (GridResult) se.getExecutionContext().get(GridResult.GRID_RESULT_KEY);
 		} else {
-			logger.info("Unable to retrieve a GridResult for stepExecutionId=" + stepExecutionId);
+			logger.info("Unable to retrieve a GridResult for stepName=" + stepName);
 			return m;
 		}
-		Map<String, String> jobInfo = gws.getJobSubmissionInfo(r);
-		if (!jobInfo.isEmpty())
-			m.setInfo(parseJobInfo(jobInfo));
 		try{
-			m.setScript(renderScriptData(gws.getResultScript(r, SgeWorkService.MAX_FILE_SIZE)));
+			Map<String, String> jobInfo = gws.getParsedJobSubmissionInfo(r);
+			if (!jobInfo.isEmpty())
+				m.setInfo(renderMapToHtmlTable(jobInfo));
 		} catch (IOException e){
-			e.printStackTrace();
+			logger.info("No grid job information returned for GridResult id=" + r.getId());
+		}
+		try{
+			m.setScript(renderScriptData(gws.getJobScript(r)));
+		} catch (IOException e){
 			logger.info("No execution script returned for GridResult id=" + r.getId());
 		}
 		try{
 			m.setStdout(getPreformattedHtml(gws.getResultStdOut(r, SgeWorkService.MAX_FILE_SIZE)));
 		} catch (IOException e){
-			e.printStackTrace();
 			logger.info("No stdout returned for GridResult id=" + r.getId());
 		}
 		try{
 			m.setStderr(getPreformattedHtml(gws.getResultStdErr(r, SgeWorkService.MAX_FILE_SIZE)));
 		} catch (IOException e){
-			e.printStackTrace();
 			logger.info("No stderr returned for GridResult id=" + r.getId());
 		}
 		try{
-			m.setClusterReport(gws.renderGridSummaryData(gws.getResultJobStats(r, SgeWorkService.MAX_FILE_SIZE)));
+			Map<String, String> clusterStats = gws.getParsedFinalJobClusterStats(r);
+			if (!clusterStats.isEmpty())
+				m.setClusterReport(renderMapToHtmlTable(clusterStats));
 		} catch (IOException e){
-			e.printStackTrace();
 			logger.info("No grid execution final report returned for GridResult id=" + r.getId());
 		}
 		return m;
@@ -218,19 +224,18 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 		return sb.toString();
 	}
 	
-	private String getPreformattedHtml(String text){
-		StringBuilder sb = new StringBuilder();
-		return sb.append("<pre style=\"padding: 10px\">").append(text).append("</pre>").toString();
-	}
-	
-	private String parseJobInfo(Map<String, String> jobInfo){
+	private String renderMapToHtmlTable(Map<String, String> data){
 		StringBuilder info = new StringBuilder("<table class=\"keyValue\">");
-		for (String key: jobInfo.keySet())
-			info.append("<tr><th>").append(key).append("</th><td>").append(jobInfo.get(key)).append("</td></tr>");
+		for (String key: data.keySet())
+			info.append("<tr><th>").append(key).append("</th><td>").append(data.get(key)).append("</td></tr>");
 		info.append("</table>");
 		return info.toString();
 	}
 	
+	private String getPreformattedHtml(String text){
+		StringBuilder sb = new StringBuilder();
+		return sb.append("<pre style=\"padding: 10px\">").append(text).append("</pre>").toString();
+	}
 	
 	private BatchJobSortAttribute getJobSortProperty(String property){
 		if (property == null)

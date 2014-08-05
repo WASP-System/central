@@ -187,7 +187,7 @@ public class TrimGalore extends SoftwarePackage {
         command += " 2>&1";
 
         w.addCommand(command);
-        w.addCommand("cp ${" + WorkUnit.WORKING_DIRECTORY + "}${" + WorkUnit.JOB_NAME + "}.out > ${inFile0Name/.fastq.gz/}_trim_galore.out.txt");
+        w.addCommand("cp ${" + WorkUnit.WORKING_DIRECTORY + "}${" + WorkUnit.JOB_NAME + "}.out ${inFile0Name/.fastq.gz/}_trim_galore.out.txt");
 
         return w;
 

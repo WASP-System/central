@@ -101,37 +101,6 @@ public interface GridWorkService {
 	public String getResultStdOut(GridResult r, long tailByteLimit) throws IOException;
 	
 	/**
-	 * Return the contents of the .start file as a String.
-	 * @param r
-	 * @return
-	 */
-	public Map<String, String> getJobSubmissionInfo(GridResult r);
-
-	/**
-	 * Return the contents of the .sh file
-	 * in a string. If tailByteLimit is set to -1 the entire
-	 * file contents are returned as a string, otherwise the specified number of bytes from the end of the file are returned as a string.
-	 * 
-	 * @param r
-	 * @param tailByteLimit (set to -1 for unlimited)
-	 * @return
-	 * @throws IOException
-	 */
-	public String getResultScript(GridResult r, long tailByteLimit) throws IOException;
-
-	/**
-	 * Pull the result tarball of a non task-array job and return the contents of the .stats file
-	 * in a string. If tailByteLimit is set to -1 the entire
-	 * file contents are returned as a string, otherwise the specified number of bytes from the end of the file are returned as a string.
-	 * 
-	 * @param r
-	 * @param tailByteLimit (set to -1 for unlimited)
-	 * @return
-	 * @throws IOException
-	 */
-	public String getResultJobStats(GridResult r, long tailByteLimit) throws IOException;
-	
-	/**
 	 * Pull the result tarball of a non task-array job and return the contents of the .err file
 	 * in a string. If tailByteLimit is set to -1 the entire
 	 * file contents are returned as a string, otherwise the specified number of bytes from the end of the file are returned as a string.
@@ -142,6 +111,35 @@ public interface GridWorkService {
 	 * @throws IOException
 	 */
 	public String getResultStdErr(GridResult r, long tailByteLimit) throws IOException;
+	
+
+	/**
+	 * Return the contents of the job script.
+	 * 
+	 * 
+	 * @param r
+	 * @return
+	 * @throws IOException
+	 */
+	public String getJobScript(GridResult r) throws IOException;
+	
+	/**
+	 * Return information recorded about a job submission parsed to a Map representation.
+	 * @param r
+	 * @return
+	 * @throws IOException
+	 */
+	public Map<String, String> getParsedJobSubmissionInfo(GridResult r) throws IOException;
+
+	/**
+	 * Return the final cluster job stats parsed to a Map representation. 
+	 * 
+	 * @param r
+	 * @return
+	 * @throws IOException
+	 */
+	public Map<String, String> getParsedFinalJobClusterStats(GridResult r) throws IOException;
+	
 
 	public boolean isNumProcConsumable();
 
@@ -158,8 +156,6 @@ public interface GridWorkService {
 	 * @throws IOException
 	 */
 	public String getUnregisteredFileContents(GridResult r, String filename, long tailByteLimit) throws IOException;
-	
-	public String renderGridSummaryData(String data);
 
 	
 	//public void setGridFileMovers(List<GridFileMover> gridFileMovers);

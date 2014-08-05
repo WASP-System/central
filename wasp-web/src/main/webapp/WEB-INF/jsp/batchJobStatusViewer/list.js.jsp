@@ -104,11 +104,11 @@ var infoStore = Ext.create('Ext.data.Store',{
 });
 
 
-function displayInfoData(jobExecutionId, stepExecutionId){
+function displayInfoData(jobExecutionId, stepName){
 	 $("#wait_dialog-modal").dialog("open");
 	infoStore.load({
 	    params: {
-	    	stepExecutionId: stepExecutionId,
+	    	stepName: stepName,
 	    	jobExecutionId: jobExecutionId
 	    },
 	    callback: function(records, operation, success) {
@@ -117,7 +117,7 @@ function displayInfoData(jobExecutionId, stepExecutionId){
 	    	// executed on data loading
 	    	rec = infoStore.first();
    	   		win = Ext.create('Ext.window.Window', {
-   			title: 'Status Information for Step Execution with id ' + stepExecutionId,
+   			title: 'Step \'' + stepName + '\' (job #' + jobExecutionId + ')' ,
   			    header: {
   			        titlePosition: 2,
   			        titleAlign: 'center'
@@ -126,6 +126,7 @@ function displayInfoData(jobExecutionId, stepExecutionId){
   			    closable: true,
   			    maximizable: true,
   			  	closeAction: 'hide',
+  			  	modal: true,
   			    width: 800,
   			    minWidth: 350,
   			    height: 600,
@@ -232,9 +233,9 @@ Ext.onReady(function() {
                 	var rec = grid.getStore().getAt(rowIndex);
                 	if (rec.get('resultAvailable') == true){
                 		id = rec.get('id');
-                		stepExecId = rec.get('executionId');
+                		stepName = rec.get('name');
                 		jobExecId = id.substring(2, id.indexOf('SE'));
-                		displayInfoData(jobExecId, stepExecId);
+                		displayInfoData(jobExecId, stepName);
                 	}
                     //Ext.Msg.alert('info', 'showing Job Info for ' + rec.get('executionId') );
                 }
