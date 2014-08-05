@@ -37,25 +37,6 @@ public class StarServiceImpl extends WaspServiceImpl implements StarService, Con
 	 * {@inheritDoc}
 	 */
 	@Override
-	public synchronized GenomeIndexStatus getGenomeIndexStatus(GridWorkService workService, Build build) {
-		// TODO Auto-generated method stub
-		genomeService.getRemoteBuildPath(build);
-		return null;
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	public synchronized GenomeIndexStatus getGenomeIndexStatus(GridWorkService workService, String pathToDirectory, Build build) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
 	public synchronized GenomeIndexStatus getGenomeIndexStatus(GridWorkService workService, Build build, GenomeIndexConfiguration<String, String> config) {
 		// TODO Auto-generated method stub
 		return null;
