@@ -6,6 +6,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
@@ -86,7 +87,7 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 					logger.debug("Job result has updated a child job so going to reset timeoutInterval to minimum");
 			} catch (GridException e) {
 				logger.debug(result.toString() + " threw exception: " + e.getLocalizedMessage() + " removing and rethrowing");
-				setIsFlaggedForRestart(context, result, true);
+				setIsFlaggedForRestart(context, true);
 				throw e;
 			} finally {
 				saveGridResult(context, result); // result may have been modified whilst checking in isFinished
@@ -99,8 +100,8 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 			if (result == null || !result.getJobStatus().isSubmitted()) {
 				logger.debug("no work unit configured, or workunit not properly configured. Exiting without execution.");
 				return RepeatStatus.FINISHED;
-			} else 
-				setIsFlaggedForRestart(context, getGridResult(context), false);
+			}
+			setIsFlaggedForRestart(context, false);
 		}
 		if (!wasHibernationRequested){
 			Long timeoutInterval;
@@ -122,18 +123,17 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 	protected final static Logger logger = LoggerFactory.getLogger(WaspRemotingTasklet.class);
 	
 	public boolean isFlaggedForRestart(ChunkContext context) {
-		StepExecution stepExecution = context.getStepContext().getStepExecution();
+		JobExecution je = context.getStepContext().getStepExecution().getJobExecution();
 		boolean isFlaggedForRestart = false;
-		if (stepExecution.getExecutionContext().containsKey(GridResult.FLAGGED_FOR_RESTART))
-			isFlaggedForRestart =  true;
-		logger.debug("Grid work unit for StepExecutionId=" + stepExecution.getId() + " is flagged for restart=" + isFlaggedForRestart);
+		if (je.getExecutionContext().containsKey(GridResult.FLAGGED_FOR_RESTART))
+			isFlaggedForRestart =  Boolean.parseBoolean(je.getExecutionContext().getString(GridResult.FLAGGED_FOR_RESTART));
+		logger.debug("Grid work unit for JobExecutionId=" + je.getId() + " is flagged for restart=" + isFlaggedForRestart);
 		return isFlaggedForRestart;
 	}
 	
-	protected static void setIsFlaggedForRestart(ChunkContext context, GridResult result, Boolean isFlaggedForRestart) {
-		StepExecution stepExecution = context.getStepContext().getStepExecution();
-		logger.debug(result.toString());
-		stepExecution.getExecutionContext().put(GridResult.FLAGGED_FOR_RESTART, isFlaggedForRestart.toString());
+	protected static void setIsFlaggedForRestart(ChunkContext context, Boolean isFlaggedForRestart) {
+		JobExecution je = context.getStepContext().getStepExecution().getJobExecution();
+		je.getExecutionContext().put(GridResult.FLAGGED_FOR_RESTART, isFlaggedForRestart.toString());
 	}
 	
 	protected static void saveGridResult(ChunkContext context, GridResult result) {

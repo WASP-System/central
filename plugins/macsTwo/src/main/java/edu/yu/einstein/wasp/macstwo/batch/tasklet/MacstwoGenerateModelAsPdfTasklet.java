@@ -213,8 +213,8 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 		
 		int counter = 0;
 		for(String fileName : listOfFileHandleNames){//need to make this symbolic link in order to properly copy files
-			w.addCommand("ln -s " + fileName + " ${" + WorkUnit.OUTPUT_FILE+"["+counter+"]}");
-			logger.debug("add command: " + "ln -s " + fileName + " ${" + WorkUnit.OUTPUT_FILE+"["+counter+"]}");
+			w.addCommand("ln -sf " + fileName + " ${" + WorkUnit.OUTPUT_FILE+"["+counter+"]}");
+			logger.debug("add command: " + "ln -sf " + fileName + " ${" + WorkUnit.OUTPUT_FILE+"["+counter+"]}");
 			counter++;
 		}
 		

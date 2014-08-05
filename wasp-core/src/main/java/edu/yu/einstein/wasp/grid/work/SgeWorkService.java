@@ -1043,23 +1043,26 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			    fi++;
 			}
 			
-			preambleStrBuf.append("\n# Configured environment variables\n\n");
-			for (String key : w.getEnvironmentVars().keySet()) {
-				preambleStrBuf.append(key).append("=").append(w.getEnvironmentVars().get(key)).append("\n");
-			}
-			preambleStrBuf.append("\n####\n");
-			
 			// write job info to .start file (as JSON) and also to stderr
 			Map<String, String> jobInfo = new LinkedHashMap<String, String>();
 			jobInfo.put(GRID_JOB_ID_KEY, "$JOB_ID");
 			jobInfo.put(GRID_JOB_NAME, "${" + WorkUnit.JOB_NAME + "}");
 			jobInfo.put(HOST_NODE_KEY, "`hostname -f`");
 			jobInfo.put(START_TIME_KEY, "`date`");
+			if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
+				preambleStrBuf.append("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then\n");
 			preambleStrBuf.append("\necho \"").append(getJsonForJobInfo(jobInfo).toString().replaceAll("\"", "\\\\\"")).append("\" > ").append("${").append(WorkUnit.JOB_NAME).append("}.start\n")
 					.append("echo \"#### begin job info\" 1>&2\n");
 			for (String key : jobInfo.keySet())
 				preambleStrBuf.append("echo ").append(key).append(" : ").append(jobInfo.get(key)).append(" 1>&2\n"); // write info to stderr
 			preambleStrBuf.append("echo \"#### end job info\" 1>&2\n\n");
+			if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
+				preambleStrBuf.append("fi\n");
+			
+			preambleStrBuf.append("\n##### Configured environment variables\n\n");
+			for (String key : w.getEnvironmentVars().keySet()) {
+				preambleStrBuf.append(key).append("=").append(w.getEnvironmentVars().get(key)).append("\n");
+			}
 			preamble = preambleStrBuf.toString();
 			
 			// if there is a configured setting to prepare the interpreter, do that here 
@@ -1554,7 +1557,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
                 Matcher filem = Pattern.compile(jobId + "." + type).matcher(e.getName());
                 if (!filem.find())
                     continue;
-                logger.trace("matched " + e.getName() + " size " + e.getSize());
+                logger.trace("matched " + e.getName() + " size " + e.getSize() + " bytes");
                 result = IOUtils.toString(a, "UTF-8");
                 if (tailByteLimit == MAX_FILE_SIZE){
                 	byte[] utf8bytes = result.getBytes("UTF8");
@@ -1616,9 +1619,14 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 				RandomAccessFile raf = null;
 	        	try{
 	            	raf = new RandomAccessFile(f, "r");
-	            	long strLen = (raf.length() < MAX_FILE_SIZE) ? raf.length() : MAX_FILE_SIZE;
-	            		
-	                raf.seek(strLen - MAX_FILE_SIZE);
+	            	logger.debug("File '" + filename + "' size " + raf.length() + " bytes");
+	            	long strLen = raf.length();
+	            	long offset = 0;
+	            	if (raf.length() > MAX_FILE_SIZE){
+	            		strLen = MAX_FILE_SIZE;
+	            		offset = strLen - MAX_FILE_SIZE;
+	            	} 
+	                raf.seek(offset);
 	                byte[] b = new byte[(int) strLen];
 	                raf.readFully(b);
 	                result = new String(b, "UTF-8");
@@ -1658,7 +1666,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		StringBuilder sb = new StringBuilder();
 		sb.append("<table class=\"keyValue\">");
 		for (String line : data.split("\n")){
-			if (line.startsWith("=") || line.startsWith("ru_") || line.startsWith("arid"))
+			if (line.trim().isEmpty() || line.startsWith("=") || line.startsWith("ru_") || line.startsWith("arid"))
 				continue; // filter lines
 			String[] elements = line.split("\\s+", 2);
 			sb.append("<tr><th>")

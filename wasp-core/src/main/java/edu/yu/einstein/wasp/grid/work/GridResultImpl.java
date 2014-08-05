@@ -272,6 +272,8 @@ public class GridResultImpl implements GridResult, Serializable {
 	@Override
 	public Map<String, String> getJobInfo() {
 		Map<String, String> jobInfoMap = new LinkedHashMap<>();
+		if (jobInfo.isEmpty())
+			return jobInfoMap;
 		for (String pair : jobInfo.split(";;")){
 			String[] items = pair.split("::");
 			jobInfoMap.put(items[0], items[1]);

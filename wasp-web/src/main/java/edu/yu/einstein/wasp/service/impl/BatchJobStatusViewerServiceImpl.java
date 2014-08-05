@@ -177,21 +177,25 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 		try{
 			m.setScript(renderScriptData(gws.getResultScript(r, SgeWorkService.MAX_FILE_SIZE)));
 		} catch (IOException e){
+			e.printStackTrace();
 			logger.info("No execution script returned for GridResult id=" + r.getId());
 		}
 		try{
 			m.setStdout(getPreformattedHtml(gws.getResultStdOut(r, SgeWorkService.MAX_FILE_SIZE)));
 		} catch (IOException e){
+			e.printStackTrace();
 			logger.info("No stdout returned for GridResult id=" + r.getId());
 		}
 		try{
 			m.setStderr(getPreformattedHtml(gws.getResultStdErr(r, SgeWorkService.MAX_FILE_SIZE)));
 		} catch (IOException e){
+			e.printStackTrace();
 			logger.info("No stderr returned for GridResult id=" + r.getId());
 		}
 		try{
 			m.setClusterReport(gws.renderGridSummaryData(gws.getResultJobStats(r, SgeWorkService.MAX_FILE_SIZE)));
 		} catch (IOException e){
+			e.printStackTrace();
 			logger.info("No grid execution final report returned for GridResult id=" + r.getId());
 		}
 		return m;
