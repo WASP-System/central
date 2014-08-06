@@ -111,7 +111,7 @@ public class ExtractIlluminaBarcodesTasklet extends WaspRemotingTasklet {
 		GridResult result = hostResolver.execute(w);
 		
 		//place the grid result in the step context
-		storeStartedResult(context, result);
+		saveGridResult(context, result);
 		
 
 	}

@@ -81,7 +81,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	private static final String START_TIME_KEY = "Start Time";
 	
 	public static final long NO_FILE_SIZE_LIMIT = -1L;
-	public static final long MAX_32MB = 1024 * 32;
+	public static final long MAX_FILE_SIZE = 1024 * 32;
     
     @Value("${wasp.developermode:false}")
     protected boolean developerMode;
@@ -230,7 +230,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			w.remoteResultsDirectory = transportConnection.prefixRemoteFile(w.getResultsDirectory());
 			//end
 			
-			return startJob(w);
+			return submitJob(w);
 		} catch (MisconfiguredWorkUnitException e) {
 			throw new GridAccessException("Misconfigured work unit", e);
 		}
@@ -372,7 +372,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		int maxAttempts = 10;
 		int waitMs = 3000;
 		
-		while ( (result == null || result.getExitCode() != 0) && attempts <= maxAttempts){
+		while ( (result == null || result.getExitStatus() != 0) && attempts <= maxAttempts){
 			if (attempts > 1){
 				try {
 					logger.debug("Goint to sleep for " + waitMs + "ms before trying again");
@@ -383,9 +383,9 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			}
 			try {
 				result = (GridResultImpl) transportConnection.sendExecToRemote(w);
-				if (result.getExitCode() > 0){
+				if (result.getExitStatus() > 0){
 					logger.warn("Unable to get qacct data for grid job id=" + g.getGridJobId() + 
-							"(" + g.getId()  + "): Remote job submission failed (exitCode=" + result.getExitCode() + ") on attempt " + attempts);
+							"(" + g.getId()  + "): Remote job submission failed (exitCode=" + result.getExitStatus() + ") on attempt " + attempts);
 				}
 			} catch (MisconfiguredWorkUnitException | GridException e) {
 				logger.warn("Unable to get qacct data for grid job id=" + g.getGridJobId() + 
@@ -420,6 +420,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		} else {
 			started = isJobStarted(g);
 			if (started && g.getGridJobId() == null){
+				g.setJobStatus(GridJobStatus.STARTED);
 				try{
 					Map<String, String> gridJobInfo = getJobInfoFromJson(new JSONArray(getUnregisteredFileContents(g, g.getId() + ".start", NO_FILE_SIZE_LIMIT)));
 					g.setGridJobId(Long.valueOf(gridJobInfo.get(GRID_JOB_ID_KEY)));
@@ -484,7 +485,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		if (died) {
 			cleanUpAbnormallyTerminatedJob(g);
 			g.setArchivedResultOutputPath(getFailedArchiveName(g));
-			g.setExitCode(g.getExitCode() > 1 ? g.getExitCode() : 1);
+			g.setExitStatus(g.getExitStatus() > 1 ? g.getExitStatus() : 1);
 			throw new GridExecutionException("abnormally terminated job");
 		}
 		
@@ -506,7 +507,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 				}
 			}
 			logger.debug("Parent grid job has ended and no child jobs or all child jobs are complete so going to return true");
-			g.setExitCode(g.getExitCode() > 0 ? g.getExitCode() : 0);
+			g.setExitStatus(g.getExitStatus() > 0 ? g.getExitStatus() : 0);
 		}
 		return ended;
 	}
@@ -750,7 +751,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	}
 
 
-	protected GridResult startJob(WorkUnit w) throws MisconfiguredWorkUnitException, GridException {
+	protected GridResult submitJob(WorkUnit w) throws MisconfiguredWorkUnitException, GridException {
 		
 		if (isJobExists(w)) {
 			throw new GridAccessException("UUID already exists");
@@ -830,10 +831,10 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		String submit = "qsub " + jobNamePrefix + w.getId() + ".sh 2>&1";
 		w.setWrapperCommand(submit);
 		GridResultImpl result = (GridResultImpl) transportConnection.sendExecToRemote(w);
-		if (result.getExitCode() > 0)
+		if (result.getExitStatus() > 0)
 			throw new GridAccessException("Remote job submission failed");
-		result.setExitCode(-1); // reset to default value
-		result.setJobStatus(GridJobStatus.STARTED);
+		result.setExitStatus(-1); // reset to default value
+		result.setJobStatus(GridJobStatus.SUBMITTED);
 		result.setUuid(UUID.fromString(w.getId()));
 		result.setId(jobNamePrefix + w.getId());
 		result.setWorkingDirectory(w.getWorkingDirectory());
@@ -986,7 +987,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
 			    tid = "-$TASK_ID";
-			StringBuffer headerStrBuf = new StringBuffer();
+			StringBuilder headerStrBuf = new StringBuilder();
 			headerStrBuf.append("#!/bin/bash\n#\n")
 					.append(getFlag()).append(" -N ").append(jobName).append("\n")
 					.append(getFlag()).append(" -S /bin/bash\n")
@@ -999,7 +1000,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			}
 			header = headerStrBuf.toString();
 			
-			StringBuffer preambleStrBuf = new StringBuffer();
+			StringBuilder preambleStrBuf = new StringBuilder();
 			preambleStrBuf.append("\nset -o errexit\n") 	// die if any script returns non 0 exit code
 					.append("set -o pipefail\n") 		// die if any script in a pipe returns non 0 exit code
 					.append("set -o physical\n") 		// replace symbolic links with physical path
@@ -1042,29 +1043,29 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			    fi++;
 			}
 			
-			preambleStrBuf.append("\n# Configured environment variables\n\n");
-			for (String key : w.getEnvironmentVars().keySet()) {
-				preambleStrBuf.append(key).append("=").append(w.getEnvironmentVars().get(key)).append("\n");
-			}
-			preambleStrBuf.append("\n####\n");
-			
 			// write job info to .start file (as JSON) and also to stderr
 			Map<String, String> jobInfo = new LinkedHashMap<String, String>();
 			jobInfo.put(GRID_JOB_ID_KEY, "$JOB_ID");
 			jobInfo.put(GRID_JOB_NAME, "${" + WorkUnit.JOB_NAME + "}");
 			jobInfo.put(HOST_NODE_KEY, "`hostname -f`");
 			jobInfo.put(START_TIME_KEY, "`date`");
-			preambleStrBuf.append("\necho \"").append(getJsonForJobInfo(jobInfo).toString().replaceAll("\"", "\\\\\"")).append("\" > ").append("${").append(WorkUnit.JOB_NAME).append("}.start\n")
-					.append("echo \"#### begin job info\" 1>&2\n");
-			for (String key : jobInfo.keySet())
-				preambleStrBuf.append("echo ").append(key).append(" : ").append(jobInfo.get(key)).append(" 1>&2\n"); // write info to stderr
-			preambleStrBuf.append("echo \"#### end job info\" 1>&2\n\n");
+			if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
+				preambleStrBuf.append("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then\n");
+			preambleStrBuf.append("\necho \"").append(getJsonForJobInfo(jobInfo).toString().replaceAll("\"", "\\\\\"")).append("\" > ").append("${").append(WorkUnit.JOB_NAME).append("}.start\n");
+			if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
+				preambleStrBuf.append("fi\n");
+			
 			preamble = preambleStrBuf.toString();
 			
+			
+			StringBuilder configurationStrBuf = new StringBuilder();
+			for (String key : w.getEnvironmentVars().keySet()) {
+				configurationStrBuf.append(key).append("=").append(w.getEnvironmentVars().get(key)).append("\n");
+			}
 			// if there is a configured setting to prepare the interpreter, do that here 
 			String env = transportConnection.getConfiguredSetting("env");
 			if (PropertyHelper.isSet(env)) {
-				configuration = env + "\n";
+				configurationStrBuf.append(env).append("\n");
 			}
 			// If the ProcessMode is set to MAX, get the configuration for this host and set processor reqs
 			String pmodeMax = transportConnection.getConfiguredSetting("processmode.max");
@@ -1090,12 +1091,14 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			if (transportConnection.getSoftwareManager() != null) {
 				String config = transportConnection.getSoftwareManager().getConfiguration(w);
 				if (config != null) {
-					configuration += config;
+					configurationStrBuf.append(config);
 				}
 			} 
+			configurationStrBuf.append("printenv | sort > ").append("${").append(WorkUnit.JOB_NAME).append("}.env\n");
+			configuration = configurationStrBuf.toString();
 			command = w.getCommand();
 			
-			StringBuffer postscriptStrBuf = new StringBuffer();
+			StringBuilder postscriptStrBuf = new StringBuilder();
 			postscriptStrBuf.append("echo \"##### begin ${").append(WorkUnit.JOB_NAME).append("}\" > ").append(w.remoteWorkingDirectory).append("${").append(WorkUnit.JOB_NAME).append("}.command\n\n")
 					.append("awk '/^##### preamble/,/^##### postscript|~$/' ")
 					.append(w.remoteWorkingDirectory).append("${").append(WorkUnit.JOB_NAME).append("}.sh | sed 's/^##### .*$//g' | grep -v \"^$\" >> ")
@@ -1481,24 +1484,69 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getResultInfo(GridResult r, long tailByteLimit) throws IOException {
-		return getResultOutputFile(r, "start", tailByteLimit);
+	public String getJobScript(GridResult r) throws IOException {
+		return getResultOutputFile(r, "sh", NO_FILE_SIZE_LIMIT);
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getResultScript(GridResult r, long tailByteLimit) throws IOException {
-		return getResultOutputFile(r, "sh", tailByteLimit);
+	public Map<String, String> getParsedJobSubmissionInfo(GridResult r) throws IOException {
+		if (!r.getJobInfo().isEmpty())
+			return r.getJobInfo();
+		try{
+			String info = getResultOutputFile(r, "start", NO_FILE_SIZE_LIMIT);
+			if (info.isEmpty())
+				throw new IOException(".start file for GridResult with id=" + r.getId() + " contains no data");
+			return getJobInfoFromJson(new JSONArray(info));
+		} catch (JSONException e){
+			throw new IOException(e);
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * Filtered results from executing 'qacct -j <jobid>' at the command line
+	 */
+	@Override
+	public Map<String, String> getParsedFinalJobClusterStats(GridResult r) throws IOException {
+		Map<String, String> stats = new LinkedHashMap<String, String>();
+		String data = getResultOutputFile(r, "stats", NO_FILE_SIZE_LIMIT);
+		for (String line : data.split("\n")){
+			if (line.trim().isEmpty() || line.startsWith("=") || line.startsWith("ru_") || line.startsWith("arid"))
+				continue; // filter lines
+			String[] elements = line.split("\\s+", 2);
+			if (elements.length != 2)
+				continue;
+			stats.put(elements[0].replaceAll("_", " "), elements[1]);
+		}
+		return stats;
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getResultJobStats(GridResult r, long tailByteLimit) throws IOException {
-		return getResultOutputFile(r, "stats", tailByteLimit);
+	public Map<String, String> getParsedEnvironment(GridResult r) throws IOException{
+		Map<String, String> env = new LinkedHashMap<String, String>();
+		String data = getResultOutputFile(r, "env", NO_FILE_SIZE_LIMIT);
+		for (String line : data.split("\n")){
+			String[] elements = line.split("=", 2);
+			if (elements.length != 2)
+				continue;
+			env.put(elements[0], elements[1]);
+		}
+		return env;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Set<String> getParsedSoftware(GridResult r) throws IOException{
+		String data = getResultOutputFile(r, "sw", NO_FILE_SIZE_LIMIT);
+		return transportConnection.getSoftwareManager().parseSoftwareListFromText(data);
 	}
 	
 	private String getResultOutputFile(GridResult r, String type, long tailByteLimit) throws IOException {
@@ -1543,12 +1591,12 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
                 Matcher filem = Pattern.compile(jobId + "." + type).matcher(e.getName());
                 if (!filem.find())
                     continue;
-                logger.trace("matched " + e.getName() + " size " + e.getSize());
+                logger.trace("matched " + e.getName() + " size " + e.getSize() + " bytes");
                 result = IOUtils.toString(a, "UTF-8");
-                if (tailByteLimit == MAX_32MB){
+                if (tailByteLimit == MAX_FILE_SIZE){
                 	byte[] utf8bytes = result.getBytes("UTF8");
-                	if (utf8bytes.length > MAX_32MB){
-	        			byte[] trunc = new byte[(int) MAX_32MB];
+                	if (utf8bytes.length > MAX_FILE_SIZE){
+	        			byte[] trunc = new byte[(int) MAX_FILE_SIZE];
 	        			for (int i = utf8bytes.length-1; i >= utf8bytes.length - trunc.length; i--){
 	        				int j = i - (utf8bytes.length - trunc.length);
 	        				trunc[j] = utf8bytes[i];
@@ -1605,9 +1653,14 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 				RandomAccessFile raf = null;
 	        	try{
 	            	raf = new RandomAccessFile(f, "r");
-	            	long strLen = (raf.length() < MAX_32MB) ? raf.length() : MAX_32MB;
-	            		
-	                raf.seek(strLen - MAX_32MB);
+	            	logger.debug("File '" + filename + "' size " + raf.length() + " bytes");
+	            	long strLen = raf.length();
+	            	long offset = 0;
+	            	if (raf.length() > MAX_FILE_SIZE){
+	            		strLen = MAX_FILE_SIZE;
+	            		offset = strLen - MAX_FILE_SIZE;
+	            	} 
+	                raf.seek(offset);
 	                byte[] b = new byte[(int) strLen];
 	                raf.readFully(b);
 	                result = new String(b, "UTF-8");
@@ -1638,5 +1691,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	public void setNumProcConsumable(boolean isNumProcConsumable) {
 		this.isNumProcConsumable = isNumProcConsumable;
 	}
+	
+
 	
 }

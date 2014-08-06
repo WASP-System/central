@@ -2,11 +2,20 @@ package edu.yu.einstein.wasp.service.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
@@ -62,7 +71,6 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 			model.setEndTime(je.getEndTime()); // only set if not running or unknown
 		model.setStatus(je.getStatus().toString());
 		model.setExitCode(je.getExitStatus().getExitCode());
-		model.setExitMessage(je.getExitStatus().getExitDescription());
 		model.setIconCls(ExtIcon.TASK_FOLDER);
 		model.setExpanded(false);
 		model.setLeaf(false);
@@ -80,10 +88,10 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 			model.setEndTime(se.getEndTime()); // only set if not running or unknown
 		model.setStatus(se.getStatus().toString());
 		model.setExitCode(se.getExitStatus().getExitCode());
-		model.setExitMessage(se.getExitStatus().getExitDescription());
 		model.setIconCls(ExtIcon.TASK);
 		model.setExpanded(false);
 		model.setLeaf(true);
+		model.setResultAvailable(se.getExecutionContext().containsKey(GridResult.GRID_RESULT_KEY));
 		return model;
 	}
 
@@ -153,46 +161,151 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 		return null;
 	}
 	
+	
 	@Override
-	public ExtStepInfoModel getExtStepInfoModel(Long jobExecutionId, Long stepExecutionId){
+	public ExtStepInfoModel getExtStepInfoModel(Long jobExecutionId, String stepName){
 		ExtStepInfoModel m = new ExtStepInfoModel();
-		StepExecution se = jobExplorer.getStepExecution(jobExecutionId, stepExecutionId);
+		// StepExecution with id provided may have been expired since displaying tree-grid so make sure we get the 
+		// latest StepExecution of the same name for the given JobInstance
+		JobInstance ji = jobExplorer.getJobExecution(jobExecutionId).getJobInstance();
+		StepExecution se = jobRepository.getLastStepExecution(ji, stepName);
 		if (se == null){
-			logger.warn("Unable to retrieve Step Execution with jobExecutionId=" + jobExecutionId + " and stepExecutionId=" + stepExecutionId);
+			logger.warn("Unable to retrieve Step Execution with jobExecutionId=" + jobExecutionId + " and stepName=" + stepName);
 			return m;
 		}
 		GridResult r = null;
 		if (se.getExecutionContext().containsKey(GridResult.GRID_RESULT_KEY)){
 			r = (GridResult) se.getExecutionContext().get(GridResult.GRID_RESULT_KEY);
 		} else {
-			logger.info("Unable to retrieve a GridResult for stepExecutionId=" + stepExecutionId);
+			logger.info("Unable to retrieve a GridResult for stepName=" + stepName);
 			return m;
 		}
-		String info = "";
-		for (String key: r.getJobInfo().keySet())
-			info += key + "\t: " + r.getJobInfo().get(key) + "\n";
-		m.setInfo(info);
 		try{
-			m.setScript(gws.getResultScript(r, SgeWorkService.MAX_32MB));
+			Map<String, String> jobInfo = gws.getParsedJobSubmissionInfo(r);
+			if (!se.getExitStatus().isRunning() && !se.getExitStatus().getExitCode().equals(ExitStatus.UNKNOWN.getExitCode()))
+				jobInfo.put("Total Run time", getElapsedTime(se.getStartTime(), se.getEndTime()));
+			else
+				jobInfo.put("Time Executing", getElapsedTime(se.getStartTime(), new Date()));
+			jobInfo.put("Batch Job Status", se.getExitStatus().getExitCode().toString().toLowerCase());
+			jobInfo.put("Cluster Job Status", r.getJobStatus().toString().toLowerCase());
+			if (r.getExitStatus() != -1)
+				jobInfo.put("Cluster Job ExitStatus", parseExitStatus(r.getExitStatus()));
+			if (!se.getExitStatus().getExitDescription().isEmpty())
+				jobInfo.put("Exit Description", se.getExitStatus().getExitDescription());
+			if (!jobInfo.isEmpty())
+				m.setInfo(renderMapToHtmlTable(jobInfo));
+			else 
+				m.setInfo(renderMessageToHtml("Currently unable to display job information"));
 		} catch (IOException e){
-			logger.info("No info execution script returned for GridResult id=" + r.getId());
+			m.setInfo(renderMessageToHtml("Currently unable to display cluster job information"));
+			logger.info("No grid job information returned for GridResult id=" + r.getId());
 		}
 		try{
-			m.setStdout(gws.getResultStdOut(r, SgeWorkService.MAX_32MB));
+			m.setScript(renderScriptData(gws.getJobScript(r)));
 		} catch (IOException e){
+			m.setScript(renderMessageToHtml("Currently unable to display job script"));
+			logger.info("No execution script returned for GridResult id=" + r.getId());
+		}
+		try{
+			m.setStdout(getPreformattedHtml(gws.getResultStdOut(r, SgeWorkService.MAX_FILE_SIZE)));
+		} catch (IOException e){
+			m.setStdout(renderMessageToHtml("Currently unable to stdout"));
 			logger.info("No stdout returned for GridResult id=" + r.getId());
 		}
 		try{
-			m.setStderr(gws.getResultStdErr(r, SgeWorkService.MAX_32MB));
+			m.setStderr(getPreformattedHtml(gws.getResultStdErr(r, SgeWorkService.MAX_FILE_SIZE)));
 		} catch (IOException e){
+			m.setStderr(renderMessageToHtml("Currently unable to display stderr"));
 			logger.info("No stderr returned for GridResult id=" + r.getId());
 		}
 		try{
-			m.setClusterReport(gws.getResultJobStats(r, SgeWorkService.MAX_32MB));
+			Map<String, String> clusterStats = gws.getParsedFinalJobClusterStats(r);
+			if (!clusterStats.isEmpty())
+				m.setClusterReport(renderMapToHtmlTable(clusterStats));
+			else
+				m.setClusterReport(renderMessageToHtml("Currently unable to display completed job report"));
 		} catch (IOException e){
 			logger.info("No grid execution final report returned for GridResult id=" + r.getId());
+			m.setClusterReport(renderMessageToHtml("Currently unable to display completed job report"));
+		}
+		try{
+			Map<String, String> env = gws.getParsedEnvironment(r);
+			if (!env.isEmpty())
+				m.setEnvVars(renderMapToHtmlTable(env));
+			else
+				m.setEnvVars(renderMessageToHtml("Currently unable to display environment data"));
+		} catch (IOException e){
+			m.setEnvVars(renderMessageToHtml("Currently unable to display environment data"));
+			logger.info("No grid environment data returned for GridResult id=" + r.getId());
+		}
+		try{
+			Set<String> sw = gws.getParsedSoftware(r);
+			if (!sw.isEmpty())
+				m.setSoftwareList(renderSetToHtmlTable(sw));
+			else
+				m.setSoftwareList(renderMessageToHtml("Currently unable to display software dependencies"));
+		} catch (IOException e){
+			m.setSoftwareList(renderMessageToHtml("Currently unable to display software dependencies"));
+			logger.info("No grid software data returned for GridResult id=" + r.getId());
 		}
 		return m;
+	}
+	
+	private String getElapsedTime(Date t1, Date t2){
+		Period period = new Period(new DateTime(t1.getTime()), new DateTime(t2.getTime()));
+	  	PeriodFormatter pf = new PeriodFormatterBuilder()
+	  		.appendYears().appendSuffix("Y, ")
+	  		.appendMonths().appendSuffix("M, ")
+	  		.appendDays().appendSuffix("D, ")
+	  		.appendHours().appendSuffix("h, ")
+	  		.appendMinutes().appendSuffix("m, ")
+	  		.appendSeconds().appendSuffix("s")
+	  		.printZeroNever()
+	  		.toFormatter();
+	  	return StringUtils.removeEnd(pf.print(period), ", ");
+	}
+	
+	private String renderScriptData(String data) {
+		StringBuilder sb = new StringBuilder("<div style=\"padding: 10px;white-space: nowrap;\">");
+		for (String line : data.split("\n")){
+			if (line.startsWith("#$"))
+				sb.append("<span style=\"color: orange\">").append(line).append("</span>");
+			else if (line.startsWith("##### "))
+				sb.append("<span style=\"color: blue\">").append(line).append("</span>");
+			else if (line.startsWith("#"))
+				sb.append("<span style=\"color: green\">").append(line).append("</span>");
+			else
+				sb.append(line);
+			sb.append("<br />");
+		}
+		sb.append("</div>");
+		return sb.toString();
+	}
+	
+	private String renderMessageToHtml(String message){
+		return "<h2 style=\"padding-top: 50px;text-align:center\">" + message.replace("\n", "<br />") + "</h2>";
+	}
+	
+	private String renderMapToHtmlTable(Map<String, String> data){
+		StringBuilder info = new StringBuilder("<div style=\"margin:15px\"><table class=\"keyValue\">");
+		for (String key: data.keySet())
+			info.append("<tr><th>").append(key).append("</th><td>").append(data.get(key).replace("\n", "<br />")).append("</td></tr>");
+		info.append("</table></div>");
+		return info.toString();
+	}
+	
+	private String renderSetToHtmlTable(Set<String> data){
+		int index = 1;
+		StringBuilder info = new StringBuilder("<div style=\"margin:15px\"><table class=\"keyValue\">");
+		for (String value: data)
+			info.append("<tr><th>").append(index++).append("</th><td>").append(value.replace("\n", "<br />")).append("</td></tr>");
+		info.append("</table></div>");
+		return info.toString();
+	}
+	
+	private String getPreformattedHtml(String text){
+		StringBuilder sb = new StringBuilder();
+		return sb.append("<pre style=\"padding: 15px\">").append(text).append("</pre>").toString();
 	}
 	
 	private BatchJobSortAttribute getJobSortProperty(String property){
@@ -239,6 +352,23 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 		if (direction.equals("DESC"))
 			return SortDirection.DESC;
 		return null;
+	}
+	
+	private String parseExitStatus(int exitStatus){
+		String exitStatusStr = Integer.toString(exitStatus);
+		if (exitStatus == 1)
+			exitStatusStr += " (unspecified error)";
+		else if (exitStatus == 2)
+			exitStatusStr += " (misuse of shell builtins)";
+		else if (exitStatus == 126)
+			exitStatusStr += " (command invoked cannot execute)";
+		else if (exitStatus == 127)
+			exitStatusStr += " (command not found)";
+		else if (exitStatus == 128)
+			exitStatusStr += " (invalid argument to exit)";
+		else if (exitStatus == 137)
+			exitStatusStr += " (job killed)";
+		return exitStatusStr;
 	}
 
 }

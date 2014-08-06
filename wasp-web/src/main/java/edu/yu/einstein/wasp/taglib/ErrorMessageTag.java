@@ -63,7 +63,7 @@ public class ErrorMessageTag extends BodyTagSupport {
 		
 	
 		
-		StringBuffer buf=new StringBuffer("");
+		StringBuilder buf=new StringBuilder("");
 		buf.append("<div id='waspErrorMessage' class='waspErrorMessage'>");
 		if (messageKeys!=null && !messageKeys.isEmpty()){
 			buf.append("<ul>\n");

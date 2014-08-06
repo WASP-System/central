@@ -42,7 +42,7 @@ public class UrlForFile extends BodyTagSupport {
 	
 	@Override
 	public int doEndTag() throws JspException {
-		StringBuffer buf = new StringBuffer("");
+		StringBuilder buf = new StringBuilder("");
 		URL url = null;
 		try{
 			ApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(this.pageContext.getServletContext());

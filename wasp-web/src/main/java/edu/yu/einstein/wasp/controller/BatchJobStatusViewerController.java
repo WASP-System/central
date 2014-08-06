@@ -62,9 +62,9 @@ public class BatchJobStatusViewerController extends WaspController {
 	
 	@RequestMapping(value="/getStepInfoJson", method = RequestMethod.GET)
 	public String getStepInfoJson(@RequestParam(value="jobExecutionId", required=true) Long jobExecutionId,
-			@RequestParam(value="stepExecutionId", required=true) Long stepExecutionId,
+			@RequestParam(value="stepName", required=true) String stepName,
 			HttpServletResponse response) throws WaspException, JsonMappingException, IOException {
-		ExtStepInfoModel extStepInfoModel = statusViewerService.getExtStepInfoModel(jobExecutionId, stepExecutionId);
+		ExtStepInfoModel extStepInfoModel = statusViewerService.getExtStepInfoModel(jobExecutionId, stepName);
 		ExtGridResponse<ExtStepInfoModel> extTreeGridResponse = new ExtGridResponse<>();
 		extTreeGridResponse.addModel(extStepInfoModel);
 		extTreeGridResponse.setTotalCount(1L);

@@ -57,7 +57,7 @@ public boolean exists(final String locale, final String area, final String name,
   }
 
   //utility functions to format SQL insert queries 
-  private void process(StringBuffer result,String value) {
+  private void process(StringBuilder result,String value) {
       if (value==null) {
     	  result.append("NULL");
       } else {
@@ -68,7 +68,7 @@ public boolean exists(final String locale, final String area, final String name,
 
   }
  /* 
-  private void process(StringBuffer result,Integer value) {
+  private void process(StringBuilder result,Integer value) {
       if (value==null) {
     	  result.append("NULL");
       } else {
@@ -85,7 +85,7 @@ public String dumpUiFieldTable() {
 	  
 	  final List<UiField> all = super.findAll();
 			   
-	  StringBuffer result = new StringBuffer("truncate table uifield;\n");
+	  StringBuilder result = new StringBuilder("truncate table uifield;\n");
 	  
 	  for(UiField f:all) {
 		  result.append("insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values(");

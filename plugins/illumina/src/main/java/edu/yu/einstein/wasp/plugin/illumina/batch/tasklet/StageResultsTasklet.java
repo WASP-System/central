@@ -129,7 +129,7 @@ public class StageResultsTasklet extends WaspRemotingTasklet {
 		logger.debug("started staging of illumina output: " + result.getUuid());
 		
 		//place the grid result in the step context
-		storeStartedResult(context, result);
+		saveGridResult(context, result);
 
 	}
 

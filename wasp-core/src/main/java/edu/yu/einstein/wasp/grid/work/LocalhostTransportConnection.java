@@ -78,7 +78,7 @@ public class LocalhostTransportConnection implements GridTransportConnection {
 				result.setStdErrStream(proc.getErrorStream());
 			}
 			int exitValue = proc.waitFor();
-			result.setExitCode(exitValue);
+			result.setExitStatus(exitValue);
 		} catch (IOException e) {
 			logger.warn("caught IOExeption executing '" + command + "' : " + e.getMessage() );
 			e.printStackTrace();

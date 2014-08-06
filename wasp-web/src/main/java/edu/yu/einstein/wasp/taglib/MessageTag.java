@@ -63,7 +63,7 @@ public class MessageTag extends BodyTagSupport {
 		
 	
 		
-		StringBuffer buf=new StringBuffer("");
+		StringBuilder buf=new StringBuilder("");
 		buf.append("<div id='waspMessage' class='waspMessage'>");
 		if (messageKeys!=null && !messageKeys.isEmpty()){
 			buf.append("<ul>\n");

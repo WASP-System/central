@@ -249,7 +249,7 @@ public class QuoteAndInvoiceServiceImpl extends WaspServiceImpl implements Quote
 	private Paragraph addMPSDetailsToJobDetailsParagraph(Job job, Paragraph jobDetailsParagraph){
 		
 		List<JobResourcecategory> jobResourcecategoryList = job.getJobResourcecategory();
-		StringBuffer jobMachineListSB = new StringBuffer();
+		StringBuilder jobMachineListSB = new StringBuilder();
 		int count = 0;
 	 	for(JobResourcecategory jrc: jobResourcecategoryList){
 	 		if(count==0){
@@ -337,7 +337,7 @@ public class QuoteAndInvoiceServiceImpl extends WaspServiceImpl implements Quote
 
 			Sample sample = sampleService.getSampleById(libraryCost.getSampleId());
 			String coverageString = coverageMap.get(sample);//for example, a coverage string for this sample might look like 00101 which would mean run this sample on lanes 3 and 5
-			StringBuffer runOnWhichLanesSB = new StringBuffer();
+			StringBuilder runOnWhichLanesSB = new StringBuilder();
 			char testChar = '1';//means run this sample on the lane (the lane number is set by i+1)
 			for(int i = 0; i < coverageString.length(); i++){
 				if(coverageString.charAt(i) == testChar){//run on lane i+1

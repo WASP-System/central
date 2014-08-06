@@ -206,24 +206,36 @@ public class SshWorkService implements GridWorkService {
 	}
 
 	@Override
-	public String getResultInfo(GridResult r, long tailByteLimit)
+	public String getJobScript(GridResult r) throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Map<String, String> getParsedJobSubmissionInfo(GridResult r) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Map<String, String> getParsedFinalJobClusterStats(GridResult r)
 			throws IOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getResultScript(GridResult r, long tailByteLimit)
+	public Map<String, String> getParsedEnvironment(GridResult r)
 			throws IOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getResultJobStats(GridResult r, long tailByteLimit)
-			throws IOException {
+	public Set<String> getParsedSoftware(GridResult r) throws IOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 
 }

@@ -47,7 +47,7 @@ public class SuccessIconTag extends BodyTagSupport {
 		
 	@Override
 	public int doEndTag() throws javax.servlet.jsp.JspException {
-		StringBuffer buf=new StringBuffer("");
+		StringBuilder buf=new StringBuilder("");
 		String servletPath = pageContext.getServletContext().getContextPath();
 		buf.append(Tooltip.getSuccessHtmlString(commentText, servletPath));
 		

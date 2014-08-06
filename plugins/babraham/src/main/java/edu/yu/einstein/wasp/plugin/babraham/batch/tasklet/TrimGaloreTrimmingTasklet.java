@@ -82,7 +82,7 @@ public class TrimGaloreTrimmingTasklet extends WaspRemotingTasklet {
 
         logger.debug("submitted trim step, going for hibernation");
         
-        storeStartedResult(context, result);
+        saveGridResult(context, result);
     }
 
     @Override

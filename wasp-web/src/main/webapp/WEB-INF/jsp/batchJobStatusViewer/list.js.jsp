@@ -11,8 +11,7 @@
         background-size: 15px 15px;
 	}
 	.infoNotAvailableIcon {
-        background-image: url(<wasp:relativeUrl value="images/information_unavailable_30x30.png" />) !important;
-        background-size: 15px 15px;
+        background-image: none;
 	}
 </style>
 
@@ -36,7 +35,8 @@ Ext.define('BatchTreeModel', {
         {name: 'endTime',     type: 'string'},
         {name: 'status',     type: 'string'},
         {name: 'exitCode', type: 'string'},
-        {name: 'exitMessage',     type: 'string'}
+        {name: 'exitMessage',     type: 'string'},
+        {name: 'resultAvailable', type: 'boolean'}
     ]
 });
 
@@ -79,7 +79,9 @@ Ext.define('StepInfoModel', {
 		{name: 'script', type: 'string'},
 		{name: 'stdout', type: 'string'},
 		{name: 'stderr', type: 'string'},
-		{name: 'clusterReport', type: 'string'}
+		{name: 'clusterReport', type: 'string'},
+		{name: 'softwareList', type: 'string'},
+		{name: 'envVars', type: 'string'}
 	]
 });
 
@@ -104,11 +106,11 @@ var infoStore = Ext.create('Ext.data.Store',{
 });
 
 
-function displayInfoData(jobExecutionId, stepExecutionId){
+function displayInfoData(jobExecutionId, stepName){
 	 $("#wait_dialog-modal").dialog("open");
 	infoStore.load({
 	    params: {
-	    	stepExecutionId: stepExecutionId,
+	    	stepName: stepName,
 	    	jobExecutionId: jobExecutionId
 	    },
 	    callback: function(records, operation, success) {
@@ -116,8 +118,8 @@ function displayInfoData(jobExecutionId, stepExecutionId){
 	    	// can only be sure we have access to retrieved data when inside the callback which is
 	    	// executed on data loading
 	    	rec = infoStore.first();
-   	   		win = Ext.create('widget.window', {
-   			title: 'Status Information for Step Execution with id ' + stepExecutionId,
+   	   		win = Ext.create('Ext.window.Window', {
+   			title: 'Step \'' + stepName + '\' (job #' + jobExecutionId + ')' ,
   			    header: {
   			        titlePosition: 2,
   			        titleAlign: 'center'
@@ -126,6 +128,7 @@ function displayInfoData(jobExecutionId, stepExecutionId){
   			    closable: true,
   			    maximizable: true,
   			  	closeAction: 'hide',
+  			  	modal: true,
   			    width: 800,
   			    minWidth: 350,
   			    height: 600,
@@ -138,23 +141,31 @@ function displayInfoData(jobExecutionId, stepExecutionId){
  // 			            html: ''
  // 			        }, {
   			            title: 'Submission Info',
-  			            html: '<pre style="padding:10px">' + rec.get('info') + '</pre>',
+  			            html: rec.get('info'),
   			            autoScroll: true,
   			        }, {
   			            title: 'Script',
-  			            html: '<pre style="padding:10px">' + rec.get('script') + '</pre>',
+  			            html: rec.get('script'),
+  			            autoScroll: true,
+  			        }, {
+  			            title: 'Software',
+  			            html: rec.get('softwareList'),
+  			            autoScroll: true,
+  			        }, {
+  			            title: 'Env',
+  			            html: rec.get('envVars'),
   			            autoScroll: true,
   			        }, {
   			            title: 'StdOut (tail)',
-  			            html: '<pre style="padding:10px">' + rec.get('stdout') + '</pre>',
+  			            html: rec.get('stdout'),
   			            autoScroll: true,
   			        }, {
   			            title: 'StdErr (tail)',
-  			            html: '<pre style="padding:10px">' + rec.get('stderr') + '</pre>',
+  			            html: rec.get('stderr'),
   			            autoScroll: true,
   			        }, {
   			            title: 'Cluster Report',
-  			            html: '<pre style="padding:10px">' + rec.get('clusterReport') + '</pre>',
+  			            html: rec.get('clusterReport'),
   			            autoScroll: true,
   			        }]
   			    }]
@@ -194,41 +205,47 @@ Ext.onReady(function() {
             dataIndex: 'executionId'
         }, {
             text: '<fmt:message key="batchViewer.startedCol.label"/>',
+        	align: 'center',
             width: 150,
             sortable: true,
             dataIndex: 'startTime'
         }, {
         	text: '<fmt:message key="batchViewer.endedCol.label"/>',
+        	align: 'center',
             width: 150,
             sortable: true,
             dataIndex: 'endTime'
         }, {
         	text: '<fmt:message key="batchViewer.statusCol.label"/>',
-            width: 70,
+        	align: 'center',
+            width: 50,
             sortable: true,
             dataIndex: 'exitCode'
         },{
-        	text: 'Info',
+        	text: '',
+        	align: 'center',
         	sortable: false,
             xtype: 'actioncolumn',
             width: 50,
             items: [{
             	iconCls: 'infoIcon',
                 tooltip: 'Get Job Information',
+                tooltipType: 'title',
                 getClass: function(v, meta, rec) {
-                    if (rec.get('leaf') == true) {
+                    if (rec.get('resultAvailable') == true) {
                         return 'infoIcon';
                     } else {
                         return 'infoNotAvailableIcon';
                     }
                 },
                 handler: function(grid, rowIndex, colIndex) {
+                	// action to be performed when icon clicked
                 	var rec = grid.getStore().getAt(rowIndex);
-                	if (rec.get('leaf') == true){
+                	if (rec.get('resultAvailable') == true){
                 		id = rec.get('id');
-                		stepExecId = rec.get('executionId');
+                		stepName = rec.get('name');
                 		jobExecId = id.substring(2, id.indexOf('SE'));
-                		displayInfoData(jobExecId, stepExecId);
+                		displayInfoData(jobExecId, stepName);
                 	}
                     //Ext.Msg.alert('info', 'showing Job Info for ' + rec.get('executionId') );
                 }
