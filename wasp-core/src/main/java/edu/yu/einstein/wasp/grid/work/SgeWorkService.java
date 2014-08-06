@@ -485,7 +485,13 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		if (died) {
 			cleanUpAbnormallyTerminatedJob(g);
 			g.setArchivedResultOutputPath(getFailedArchiveName(g));
-			g.setExitStatus(g.getExitStatus() > 1 ? g.getExitStatus() : 1);
+			try{
+				int exitStatus = Integer.parseInt(getParsedFinalJobClusterStats(g).get("exit status"));
+				g.setExitStatus(exitStatus);
+			} catch (Exception e){
+				logger.warn("Unable to parse exception from job cluster stats so using default instead: " + e.getLocalizedMessage());
+				g.setExitStatus(g.getExitStatus() > 1 ? g.getExitStatus() : 1);
+			}
 			throw new GridExecutionException("abnormally terminated job");
 		}
 		
@@ -1514,7 +1520,8 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		Map<String, String> stats = new LinkedHashMap<String, String>();
 		String data = getResultOutputFile(r, "stats", NO_FILE_SIZE_LIMIT);
 		for (String line : data.split("\n")){
-			if (line.trim().isEmpty() || line.startsWith("=") || line.startsWith("ru_") || line.startsWith("arid"))
+			line = line.trim();
+			if (line.isEmpty() || line.startsWith("=") || line.startsWith("ru_") || line.startsWith("arid"))
 				continue; // filter lines
 			String[] elements = line.split("\\s+", 2);
 			if (elements.length != 2)
