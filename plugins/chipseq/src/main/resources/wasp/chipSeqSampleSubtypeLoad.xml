@@ -42,12 +42,14 @@
 	          <property name="label" value="IP or Input/Control" />
 	          <property name="metaposition" value="30" />
 	          <property name="constraint" value="NotEmpty" />
+	          <property name="tooltip" value="chipSeq.inputOrIP.tt" />
 	          <property name="control" value="select:input:Input/Control;ip:IP" />
 	          <property name="error" value="You must provide a value" />
 	         </bean>
 	        
 	        <bean parent="chipSeqDnaUiFieldWrapper">
 	          <property name="baseName" value="antibody" />
+	          <property name="tooltip" value="chipSeq.antibody.tt" />
 	          <property name="label" value="ChIP Target" />
 	          <property name="metaposition" value="40" />
 	        </bean>
@@ -55,9 +57,10 @@
 	        <bean parent="chipSeqDnaUiFieldWrapper">
 	          <property name="baseName" value="peakType" />
 	          <property name="label" value="Peak Type" />
-	          <property name="metaposition" value="30" />
+	          <property name="metaposition" value="50" />
 	          <property name="constraint" value="NotEmpty" />
-	          <property name="control" value="select:punctate:punctate;broad:broad;mixed:mixed;none:none (if input)" />
+	          <property name="tooltip" value="chipSeq.peakType.tt" />
+	          <property name="control" value="select:punctate:punctate;broad:broad;mixed:mixed;none:none (if input/control)" />
 	          <property name="error" value="You must provide a value" />
 	         </bean>
 	         	        

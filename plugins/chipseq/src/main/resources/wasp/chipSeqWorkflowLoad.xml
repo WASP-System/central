@@ -20,6 +20,7 @@
 		<!-- <value>/jobsubmit/modifymeta/{n}</value> --> 
 		<value>/jobsubmit/resource/#{mpsResourceType.getIName()}/{n}</value>
 		<value>/jobsubmit/samples/{n}</value>
+		 <value>/jobsubmit/chipSeq/chipSeqSpecificSampleReview/{n}</value> 
 		<value>/jobsubmit/genomes/{n}</value>
 		<value>/jobsubmit/cells/{n}</value>
 		<value>/jobsubmit/chipSeq/pair/{n}</value> 
@@ -69,6 +70,10 @@
         <bean parent="chipSeqUiFieldWrapper">
           <property name="baseName" value="jobsubmit/samples" />
           <property name="label" value="chipSeq.samples.title" />
+        </bean>
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/chipSeq/chipSeqSpecificSampleReview" />
+          <property name="label" value="chipSeq.chipSeqSpecificSampleReview.title" />
         </bean>
 		<bean parent="chipSeqUiFieldWrapper">
 			<property name="baseName" value="jobsubmit/genomes" />

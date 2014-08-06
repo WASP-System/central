@@ -2322,12 +2322,12 @@ public class JobSubmissionController extends WaspController {
 		//if placement of samples is unacceptable (meaning that an exception was thrown), 
 		//get data for re-display on the GET, prepare to show flash error message, and navigate to jsp: "return jobsubmit/cell"
 		if(errors){			
-			Set<String> selectedSampleCell = new HashSet<String>();
+			Map<String, String> selectedSampleCell = new HashMap<String,String>();//only interested in the key; object is irrelevant, but must not be an empty string
 			for(Integer cellIndex : cellMap.keySet()){
 				List<SampleDraft> sdList = cellMap.get(cellIndex);
 				for(SampleDraft sd : sdList){
 					String key = sd.getId() + "_" + cellIndex.intValue();
-					selectedSampleCell.add(key);
+					selectedSampleCell.put(key,"present");
 				}
 			}
 			getMetaHelperWebapp().setArea(jobDraft.getWorkflow().getIName());
@@ -2338,7 +2338,8 @@ public class JobSubmissionController extends WaspController {
 			m.put("adptorsOnSampleDrafts", adptorsOnSampleDrafts);
 			m.put("selectedSampleCell", selectedSampleCell);//m.put("selectedSampleCell", selectedSampleCell);
 			m.put("pageFlowMap", getPageFlowMap(jobDraft));
-			return "jobsubmit/cell";
+			return "jobsubmit/cell";   
+			
 		}
 		
 		//if all is OK		

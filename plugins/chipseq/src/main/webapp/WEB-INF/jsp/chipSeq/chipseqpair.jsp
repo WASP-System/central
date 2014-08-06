@@ -4,6 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="wasp" uri="http://einstein.yu.edu/wasp" %>
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 <c:set var="workflowIName" value="${jobDraft.getWorkflow().getIName()}" />
 <h1><fmt:message key="jobDraft.create.label"/> -- <fmt:message key="${workflowIName}.jobsubmit/chipSeq/pair.label"/></h1>
@@ -13,26 +14,45 @@
 <div class="instructions">
    <fmt:message key="${workflowIName}.pairing_instructions.label"/>
 </div>
-
+<c:choose>
+<c:when test="${noPairingPossible == 'true' }">
+	<br />
+	<h2><fmt:message key="chipSeq.pairingNotPossible1.label"/></h2>	
+	<h3>&nbsp;&nbsp;&nbsp; * &nbsp;<fmt:message key="chipSeq.pairingNotPossible2.label"/></h3>
+	<h3>&nbsp;&nbsp;&nbsp; * &nbsp;<fmt:message key="chipSeq.pairingNotPossible3.label"/></h3>	
+	<h3>&nbsp;&nbsp;&nbsp; * &nbsp;<fmt:message key="chipSeq.pairingNotPossible4.label"/></h3>	
+	<br />
+	<h2><fmt:message key="chipSeq.pairingNotPossible5.label"/></h2>
+	<br />
+	<div class="submit">
+    	<input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<wasp:relativeUrl value="dashboard.do"/>'" /> 
+    	<input class="fm-button" type="button" value="<fmt:message key="jobDraft.continue.label" />" onClick="window.location='<wasp:relativeUrl value="${nextPage}"/>'" /> 
+	</div>
+</c:when>
+<c:otherwise>
 <form method="POST">
-<table class="data">
-  	<tr class="row">
- 		<td class="label" align="center"><fmt:message key="chipSeq.pair_ipsample.label"/></td>
- 		<td class="label" align="center"><fmt:message key="chipSeq.pair_controlinput.label"/></td>
+<table class="EditTable ui-widget ui-widget-content">
+  	<tr >
+ 		<td class="CaptionTD top-heading" align="center"><fmt:message key="chipSeq.pair_ipsample.label"/></td>
+ 		<td class="CaptionTD top-heading" align="center"><fmt:message key="chipSeq.pair_ipsample_species.label"/></td>
+ 		<td class="CaptionTD top-heading" align="center"><fmt:message key="chipSeq.pair_controlinput.label"/></td>
  	</tr>
-  	<c:forEach var="ip" items="${ipSamples}">
-  		<tr class="row">
-  			<td class="label" align="center">
+  	<c:forEach var="ip" items="${ipSamples}" varStatus="status">
+  		<tr >
+  			<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> td-even-number</c:if>">
   				<c:out value="${ip.name}" />
   			</td>
-  			<td align="center">
+  			<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> td-even-number</c:if>">
+  				<c:out value="${sampleSpeciesNameMap.get(ip)}" />
+  			</td>
+  			<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> td-even-number</c:if>">
   				<select name="controlIdForIP_<c:out value="${ip.id}" />">
   					<option value="0"><fmt:message key="chipSeq.pair_none.label"/></option>
 	  				<c:forEach var="input" items="${inputSamples}" >
 	  					<c:if test="${sampleOrganismMap.get(ip) == sampleOrganismMap.get(input) }">
 	  						<c:choose>
-	  							<c:when test="${not empty selectedTestControlMap.get(ip) && selectedTestControlMap.get(ip).id==input.id}"><option selected value="<c:out value="${input.id}" />"><c:out value="${input.name}" /></option></c:when>
-	  							<c:otherwise>	<option value="<c:out value="${input.id}" />"><c:out value="${input.name}" /></option></c:otherwise>
+	  							<c:when test="${not empty selectedTestControlMap.get(ip) && selectedTestControlMap.get(ip).id==input.id}"><option selected value="<c:out value="${input.id}" />"><c:out value="${input.name}" /> (<c:out value="${sampleSpeciesNameMap.get(input)}" />)</option></c:when>
+	  							<c:otherwise>	<option value="<c:out value="${input.id}" />"><c:out value="${input.name}" /> (<c:out value="${sampleSpeciesNameMap.get(input)}" />)</option></c:otherwise>
 	  						</c:choose>
 	  					</c:if>	
 	  				</c:forEach>
@@ -46,6 +66,10 @@
     <input type="submit" onClick="return confirmPairing();" value="<fmt:message key="jobDraft.continue.label" />" />
 </div>
 </form>
+
+</c:otherwise>
+</c:choose>
+
 <%-- 
 <form method="POST">
 <table class="data">
