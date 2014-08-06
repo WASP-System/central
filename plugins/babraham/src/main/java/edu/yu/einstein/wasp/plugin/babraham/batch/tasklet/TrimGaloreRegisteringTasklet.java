@@ -100,7 +100,7 @@ public class TrimGaloreRegisteringTasklet extends WaspRemotingTasklet {
         	resultsFileIds.add(fh.getId());
         context.getStepContext().getStepExecution().getExecutionContext().putString("resultsFilesIdStr", StringUtils.collectionToCommaDelimitedString(resultsFileIds));
         
-        storeStartedResult(context, result);
+        saveGridResult(context, result);
 
     }
     
@@ -117,7 +117,7 @@ public class TrimGaloreRegisteringTasklet extends WaspRemotingTasklet {
 	@Override
 	@Transactional("entityManager")
 	public void doPreFinish(ChunkContext context) throws SampleTypeException, MetadataException, GridException, JSONException, IOException, SAXException, ParserConfigurationException {
-		GridResult r = getStartedResult(context);
+		GridResult r = getGridResult(context);
 	        SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);
 		// get results files and make them active
 		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();

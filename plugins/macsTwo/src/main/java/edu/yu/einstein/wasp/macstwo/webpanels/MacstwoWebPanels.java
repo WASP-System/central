@@ -161,14 +161,14 @@ public class MacstwoWebPanels {
 		for(FileGroup fileGroup : macs2AnalysisFileGroupList){
 			
 			List<Software> softwareList  = fileGroupSoftwareUsedMap.get(fileGroup);
-			StringBuffer softwareUsedStringBuffer = new StringBuffer();
+			StringBuilder softwareUsedStringBuilder = new StringBuilder();
 			for(Software software : softwareList){
-				if(softwareUsedStringBuffer.length() > 0){
-					softwareUsedStringBuffer.append("<br />");
+				if(softwareUsedStringBuilder.length() > 0){
+					softwareUsedStringBuilder.append("<br />");
 				}
-				softwareUsedStringBuffer.append(software.getName());
+				softwareUsedStringBuilder.append(software.getName());
 			}
-			String softwareUsedString = new String(softwareUsedStringBuffer);
+			String softwareUsedString = new String(softwareUsedStringBuilder);
 			if(softwareUsedString.isEmpty()){
 				softwareUsedString = "";
 			}			
@@ -230,12 +230,12 @@ public class MacstwoWebPanels {
 					row.add("Error");
 				}
 				else{
-					StringBuffer libraryNamesAsStringBuffer = new StringBuffer();
+					StringBuilder libraryNamesAsStringBuilder = new StringBuilder();
 					for(Sample library : libraries){
-						if(libraryNamesAsStringBuffer.length()>0){libraryNamesAsStringBuffer.append("<br />");}
-						libraryNamesAsStringBuffer.append(library.getName());
+						if(libraryNamesAsStringBuilder.length()>0){libraryNamesAsStringBuilder.append("<br />");}
+						libraryNamesAsStringBuilder.append(library.getName());
 					}
-					row.add(new String(libraryNamesAsStringBuffer));
+					row.add(new String(libraryNamesAsStringBuilder));
 				}
 				
 				List<FileHandle>  bamFiles = fileGroupBamFilesUsedMap.get(fileGroup);
@@ -243,12 +243,12 @@ public class MacstwoWebPanels {
 					row.add("Error");
 				}
 				else{
-					StringBuffer bamFileNamesAsStringBuffer = new StringBuffer();
+					StringBuilder bamFileNamesAsStringBuilder = new StringBuilder();
 					for(FileHandle fh : bamFiles){
-						if(bamFileNamesAsStringBuffer.length()>0){bamFileNamesAsStringBuffer.append("<br />");}
-						bamFileNamesAsStringBuffer.append(fh.getFileName());
+						if(bamFileNamesAsStringBuilder.length()>0){bamFileNamesAsStringBuilder.append("<br />");}
+						bamFileNamesAsStringBuilder.append(fh.getFileName());
 					}
-					row.add(new String(bamFileNamesAsStringBuffer));
+					row.add(new String(bamFileNamesAsStringBuilder));
 				}
 				
 				content.addDataRow(row);//add the new row to the content			

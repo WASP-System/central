@@ -34,6 +34,6 @@ public interface BatchJobStatusViewerService {
 	
 	public ExtGridResponse<ExtTreeModel> getPagedModelList(String nodeId, String displayParam, String property, String direction, Long start, Long limit);
 
-	public ExtStepInfoModel getExtStepInfoModel(Long jobExecutionId, Long stepExecutionId);
+	public ExtStepInfoModel getExtStepInfoModel(Long jobExecutionId, String stepName);
 
 }

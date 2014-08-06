@@ -199,7 +199,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		stepExecutionContext.put("metricsGID", metricsGId);
 		
 		w.setCommand("shopt -s nullglob\n");
-		w.addCommand("for x in sam.*.out; do ln -s ${x} ${x/*-/}.sam ; done\n");
+		w.addCommand("for x in sam.*.out; do ln -sf ${x} ${x/*-/}.sam ; done\n");
 		String outputBamFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
 		String outputBaiFilename = "${" + WorkUnit.OUTPUT_FILE + "[1]}";			
 		String dedupMetricsFilename = "${" + WorkUnit.OUTPUT_FILE + "[2]}";
@@ -220,7 +220,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 				w.addCommand(nrfCommand);
 			}
 			
-			w.addCommand("ln -s " + dedupMetricsFilename + " " + metricsOutput);//permits reading of file metricsOutput from scratch/dedupMetricsFilename 
+			w.addCommand("ln -sf " + dedupMetricsFilename + " " + metricsOutput);//permits reading of file metricsOutput from scratch/dedupMetricsFilename 
 			
 		} else {
 			String tempMarkedDupOutputBamNotToBeSaved = "tempMarkedDupOutputBamNotToBeSaved.bam";
@@ -235,7 +235,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 				w.addCommand(nrfCommand);
 			}
 			
-			w.addCommand("ln -s " + dedupMetricsFilename + " " + metricsOutput);//permits reading of file metricsOutput from scratch/dedupMetricsFilename 
+			w.addCommand("ln -sf " + dedupMetricsFilename + " " + metricsOutput);//permits reading of file metricsOutput from scratch/dedupMetricsFilename 
 
 		}	
 		w.setWorkingDirectory(scratchDirectory);
@@ -247,7 +247,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		GridResult result = gridHostResolver.execute(w);
 
 		// place the grid result in the step context
-		storeStartedResult(context, result);
+		saveGridResult(context, result);
 	}
 	
 	/** 

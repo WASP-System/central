@@ -461,7 +461,7 @@ public class SampleController extends WaspController {
 			return "";
 		}
 		
-		StringBuffer stringBuffer = new StringBuffer("");	
+		StringBuilder stringBuffer = new StringBuilder("");	
 		stringBuffer.append("<option value=''>---SELECT AN ADAPTOR---</option>");
 		adaptorService.sortAdaptorsByBarcodenumber(adaptorList);
 		for(Adaptor adaptor : adaptorList){

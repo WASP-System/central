@@ -93,7 +93,7 @@ public class GridResultImpl implements GridResult, Serializable {
 	}
 
 	@Override
-	public int getExitCode() {
+	public int getExitStatus() {
 		return exitCode;
 	}
 	
@@ -102,13 +102,13 @@ public class GridResultImpl implements GridResult, Serializable {
 	 * @param exitCode
 	 */
 	@Override
-	public void setExitCode(int exitCode) {
+	public void setExitStatus(int exitCode) {
 		this.exitCode = exitCode;
 		if (exitCode == 0)
 			setJobStatus(GridJobStatus.COMPLETED);
 		else if (exitCode > 0)
 			setJobStatus(GridJobStatus.FAILED);
-		logger.debug("Set exitCode=" + getExitCode() + " and jobStatus=" + getJobStatus() + " on GridResult with UUID=" + getUuid());
+		logger.debug("Set exitCode=" + getExitStatus() + " and jobStatus=" + getJobStatus() + " on GridResult with UUID=" + getUuid());
 	}
 
 	/* (non-Javadoc)
@@ -272,6 +272,8 @@ public class GridResultImpl implements GridResult, Serializable {
 	@Override
 	public Map<String, String> getJobInfo() {
 		Map<String, String> jobInfoMap = new LinkedHashMap<>();
+		if (jobInfo.isEmpty())
+			return jobInfoMap;
 		for (String pair : jobInfo.split(";;")){
 			String[] items = pair.split("::");
 			jobInfoMap.put(items[0], items[1]);

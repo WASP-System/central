@@ -116,7 +116,7 @@ public class UserLocaleInterceptor extends HandlerInterceptorAdapter {
     
 	private void initJSTLResourceBundle(Locale locale, HttpSession session) {
 
-		StringBuffer buf = new StringBuffer("");
+		StringBuilder buf = new StringBuilder("");
 	
 		List<UiField> res = uiFieldDao.findAll();
 

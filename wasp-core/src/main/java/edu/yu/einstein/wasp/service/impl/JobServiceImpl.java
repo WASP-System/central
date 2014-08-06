@@ -1147,7 +1147,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			}
 			
 			//translate sampleDraftPairs to samplePairs, and save them in the samplesource table
-			//StringBuffer samplePairsSB = new StringBuffer();
+			//StringBuilder samplePairsSB = new StringBuilder();
 			if(sampleDraftPairs != null){
 				for(String pair : sampleDraftPairs.split(";")){
 					try{
@@ -1164,23 +1164,23 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 
 			//6-10-14 translate replicateSets from sampleDrafts to samples and store string in jobMeta
 			List<List<SampleDraft>> replicateSetsListForJobDraft = jobDraftService.getReplicateSets(jobDraft);
-			StringBuffer replicatesAsStringBuffer = new StringBuffer("");
+			StringBuilder replicatesAsStringBuilder = new StringBuilder("");
 			for(List<SampleDraft> sampleDraftReplicateSet : replicateSetsListForJobDraft){
 				int counter = 0;
 				for(SampleDraft sd : sampleDraftReplicateSet){
 					if(counter++ > 0){
-						replicatesAsStringBuffer.append(":");
+						replicatesAsStringBuilder.append(":");
 					}
-					//replicatesAsStringBuffer.append(sd.getId().toString());
+					//replicatesAsStringBuilder.append(sd.getId().toString());
 					Integer sampleId = sampleDraftIDKeyToSampleIDValueMap.get(sd.getId());
-					replicatesAsStringBuffer.append(sampleId.toString());
+					replicatesAsStringBuilder.append(sampleId.toString());
 				}
 				if(counter>0){
-					replicatesAsStringBuffer.append(";");
+					replicatesAsStringBuilder.append(";");
 				}
 			}
 			
-			String replicatesString = new String(replicatesAsStringBuffer);
+			String replicatesString = new String(replicatesAsStringBuilder);
 			if(!replicatesString.isEmpty()){
 				JobMeta jobMeta = new JobMeta();
 				jobMeta.setJobId(jobDb.getId());
@@ -1645,7 +1645,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		
 		Map<Sample, String> coverageMap = new LinkedHashMap<Sample, String>();
 		for(Sample sample : this.getSubmittedSamples(job)){
-			StringBuffer stringBuffer = new StringBuffer("");
+			StringBuilder stringBuffer = new StringBuilder("");
 			for(int i = 1; i <= job.getJobCellSelection().size(); i++){
 				boolean found = false;
 				for(JobCellSelection jobCellSelection : job.getJobCellSelection()){

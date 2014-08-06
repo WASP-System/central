@@ -8,6 +8,7 @@ public class GridJobStatus implements Serializable{
 	private static final long serialVersionUID = -380186718810033714L;
 	
 	public static final GridJobStatus UNKNOWN = new GridJobStatus("unknown"); // status unknown
+	public static final GridJobStatus SUBMITTED = new GridJobStatus("submitted"); // submitted to cluster
 	
 	//the following status' refer to cluster observations 
 	public static final GridJobStatus STARTED = new GridJobStatus("started"); // has started on cluster
@@ -23,6 +24,13 @@ public class GridJobStatus implements Serializable{
 	
 	public GridJobStatus(String exitStatus){
 		this.exitStatus = exitStatus;
+	}
+	
+	public boolean isSubmitted(){
+		GridJobStatus currentJs = new GridJobStatus(exitStatus);
+		if (currentJs.equals(SUBMITTED))
+			return true;
+		return false;
 	}
 	
 	public boolean isRunning(){

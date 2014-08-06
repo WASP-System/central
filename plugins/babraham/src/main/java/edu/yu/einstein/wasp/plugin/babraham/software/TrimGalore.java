@@ -184,9 +184,10 @@ public class TrimGalore extends SoftwarePackage {
         String command = "trim_galore " + parameterString + " ${" + WorkUnit.INPUT_FILE + "[" + 0 + "]}";
         if (paired)
             command += " ${" + WorkUnit.INPUT_FILE + "[" + 1 + "]}";
-        command += " 2> ${inFile0Name/.fastq.gz/}_trim_galore.out.txt";
+        command += " 2>&1";
 
         w.addCommand(command);
+        w.addCommand("cp ${" + WorkUnit.WORKING_DIRECTORY + "}${" + WorkUnit.JOB_NAME + "}.out ${inFile0Name/.fastq.gz/}_trim_galore.out.txt");
 
         return w;
 
@@ -339,7 +340,7 @@ public class TrimGalore extends SoftwarePackage {
         
         trimmedName += prefix + ".fq.gz";
         logger.trace("trimmed file name " + originalName + " to " + trimmedName + " with final name " + displayName);
-        w.addCommand("ln -s " + trimmedName + " ${" + WorkUnit.OUTPUT_FILE + "[" + fileNumber + "]} ");
+        w.addCommand("ln -sf " + trimmedName + " ${" + WorkUnit.OUTPUT_FILE + "[" + fileNumber + "]} ");
         return createResultFile(fileHandle, displayName);
     }
 

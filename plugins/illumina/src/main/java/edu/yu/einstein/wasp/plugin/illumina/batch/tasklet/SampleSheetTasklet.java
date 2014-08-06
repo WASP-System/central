@@ -64,13 +64,13 @@ public class SampleSheetTasklet extends WaspRemotingTasklet {
 	public void doExecute(ChunkContext context) throws Exception {
 		run = runService.getRunById(runId);
 		logger.debug("preparing sample sheet for " + run.getName() + ":" + run.getPlatformUnit().getName());
-		storeStartedResult(context, casava.doSampleSheet(run, method));
+		saveGridResult(context, casava.doSampleSheet(run, method));
 	}
 	
 	@Override
 	public void doPreFinish(ChunkContext context) throws Exception {
 		run = runService.getRunById(runId);
-		illuminaService.setIlluminaRunXml(getStartedResult(context), run);
+		illuminaService.setIlluminaRunXml(getGridResult(context), run);
 		super.doPreFinish(context);
 	}
 

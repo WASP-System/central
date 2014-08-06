@@ -99,7 +99,7 @@ public class ProcessSAVTasklet extends WaspRemotingTasklet {
 		logger.debug("started savR processing: " + result.getUuid());
 		
 		//place the grid result in the step context
-		storeStartedResult(context, result);
+		saveGridResult(context, result);
 	}
 
 
