@@ -35,10 +35,11 @@ import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.SgeWorkService;
 import edu.yu.einstein.wasp.service.BatchJobStatusViewerService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 
 @Service
 @Transactional // batch
-public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerService{
+public class BatchJobStatusViewerServiceImpl extends WaspServiceImpl implements BatchJobStatusViewerService{
 	
 	private static Logger logger = Logger.getLogger(BatchJobStatusViewerServiceImpl.class);
 	
@@ -49,6 +50,9 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 	
 	@Autowired
 	private JobRepository jobRepository;
+	
+	@Autowired
+	protected MessageServiceWebapp messageService;
 	
 	@Autowired
 	public void setJobExplorer(JobExplorer jobExplorer){
@@ -183,39 +187,39 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 		try{
 			Map<String, String> jobInfo = gws.getParsedJobSubmissionInfo(r);
 			if (!se.getExitStatus().isRunning() && !se.getExitStatus().getExitCode().equals(ExitStatus.UNKNOWN.getExitCode()))
-				jobInfo.put("Total Run time", getElapsedTime(se.getStartTime(), se.getEndTime()));
+				jobInfo.put(messageService.getMessage("batchViewer.runTime.label"), getElapsedTime(se.getStartTime(), se.getEndTime()));
 			else
-				jobInfo.put("Time Executing", getElapsedTime(se.getStartTime(), new Date()));
-			jobInfo.put("Batch Job Status", se.getExitStatus().getExitCode().toString().toLowerCase());
-			jobInfo.put("Cluster Job Status", r.getJobStatus().toString().toLowerCase());
+				jobInfo.put(messageService.getMessage("batchViewer.executingTime.label"), getElapsedTime(se.getStartTime(), new Date()));
+			jobInfo.put(messageService.getMessage("batchViewer.clusterJobStatus.label"), r.getJobStatus().toString().toLowerCase());
 			if (r.getExitStatus() != -1)
-				jobInfo.put("Cluster Job ExitStatus", parseExitStatus(r.getExitStatus()));
+				jobInfo.put(messageService.getMessage("batchViewer.clusterJobExitStatus.label"), parseExitStatus(r.getExitStatus()));
+			jobInfo.put(messageService.getMessage("batchViewer.batchJobStatus.label"), se.getExitStatus().getExitCode().toString().toLowerCase());
 			if (!se.getExitStatus().getExitDescription().isEmpty())
-				jobInfo.put("Exit Description", se.getExitStatus().getExitDescription());
+				jobInfo.put(messageService.getMessage("batchViewer.batchJobExitDesc.label"), se.getExitStatus().getExitDescription());
 			if (!jobInfo.isEmpty())
 				m.setInfo(renderMapToHtmlTable(jobInfo));
 			else 
-				m.setInfo(renderMessageToHtml("Currently unable to display job information"));
+				m.setInfo(renderMessageToHtml(messageService.getMessage("batchViewer.renderJobInfoFail.label")));
 		} catch (IOException e){
-			m.setInfo(renderMessageToHtml("Currently unable to display cluster job information"));
+			m.setInfo(renderMessageToHtml(messageService.getMessage("batchViewer.renderJobInfoFail.label")));
 			logger.info("No grid job information returned for GridResult id=" + r.getId());
 		}
 		try{
 			m.setScript(renderScriptData(gws.getJobScript(r)));
 		} catch (IOException e){
-			m.setScript(renderMessageToHtml("Currently unable to display job script"));
+			m.setScript(renderMessageToHtml(messageService.getMessage("batchViewer.renderScriptFail.label")));
 			logger.info("No execution script returned for GridResult id=" + r.getId());
 		}
 		try{
 			m.setStdout(getPreformattedHtml(gws.getResultStdOut(r, SgeWorkService.MAX_FILE_SIZE)));
 		} catch (IOException e){
-			m.setStdout(renderMessageToHtml("Currently unable to stdout"));
+			m.setStdout(renderMessageToHtml(messageService.getMessage("batchViewer.renderStdoutFail.label")));
 			logger.info("No stdout returned for GridResult id=" + r.getId());
 		}
 		try{
 			m.setStderr(getPreformattedHtml(gws.getResultStdErr(r, SgeWorkService.MAX_FILE_SIZE)));
 		} catch (IOException e){
-			m.setStderr(renderMessageToHtml("Currently unable to display stderr"));
+			m.setStderr(renderMessageToHtml(messageService.getMessage("batchViewer.renderStderrFail.label")));
 			logger.info("No stderr returned for GridResult id=" + r.getId());
 		}
 		try{
@@ -223,19 +227,19 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 			if (!clusterStats.isEmpty())
 				m.setClusterReport(renderMapToHtmlTable(clusterStats));
 			else
-				m.setClusterReport(renderMessageToHtml("Currently unable to display completed job report"));
+				m.setClusterReport(renderMessageToHtml(messageService.getMessage("batchViewer.renderJobReportFail.label")));
 		} catch (IOException e){
 			logger.info("No grid execution final report returned for GridResult id=" + r.getId());
-			m.setClusterReport(renderMessageToHtml("Currently unable to display completed job report"));
+			m.setClusterReport(renderMessageToHtml(messageService.getMessage("batchViewer.renderJobReportFail.label")));
 		}
 		try{
 			Map<String, String> env = gws.getParsedEnvironment(r);
 			if (!env.isEmpty())
 				m.setEnvVars(renderMapToHtmlTable(env));
 			else
-				m.setEnvVars(renderMessageToHtml("Currently unable to display environment data"));
+				m.setEnvVars(renderMessageToHtml(messageService.getMessage("batchViewer.renderEnvFail.label")));
 		} catch (IOException e){
-			m.setEnvVars(renderMessageToHtml("Currently unable to display environment data"));
+			m.setEnvVars(renderMessageToHtml(messageService.getMessage("batchViewer.renderEnvFail.label")));
 			logger.info("No grid environment data returned for GridResult id=" + r.getId());
 		}
 		try{
@@ -243,9 +247,9 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 			if (!sw.isEmpty())
 				m.setSoftwareList(renderSetToHtmlTable(sw));
 			else
-				m.setSoftwareList(renderMessageToHtml("Currently unable to display software dependencies"));
+				m.setSoftwareList(renderMessageToHtml(messageService.getMessage("batchViewer.renderSwFail.label")));
 		} catch (IOException e){
-			m.setSoftwareList(renderMessageToHtml("Currently unable to display software dependencies"));
+			m.setSoftwareList(renderMessageToHtml(messageService.getMessage("batchViewer.renderSwFail.label")));
 			logger.info("No grid software data returned for GridResult id=" + r.getId());
 		}
 		return m;
@@ -283,11 +287,11 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 	}
 	
 	private String renderMessageToHtml(String message){
-		return "<h2 style=\"padding-top: 50px;text-align:center\">" + message.replace("\n", "<br />") + "</h2>";
+		return "<h2 style=\"padding-top: 25px;text-align:center\">" + message.replace("\n", "<br />") + "</h2>";
 	}
 	
 	private String renderMapToHtmlTable(Map<String, String> data){
-		StringBuilder info = new StringBuilder("<div style=\"margin:15px\"><table class=\"keyValue\">");
+		StringBuilder info = new StringBuilder("<div style=\"margin:10px\"><table class=\"keyValue\">");
 		for (String key: data.keySet())
 			info.append("<tr><th>").append(key).append("</th><td>").append(data.get(key).replace("\n", "<br />")).append("</td></tr>");
 		info.append("</table></div>");
@@ -296,7 +300,7 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 	
 	private String renderSetToHtmlTable(Set<String> data){
 		int index = 1;
-		StringBuilder info = new StringBuilder("<div style=\"margin:15px\"><table class=\"keyValue\">");
+		StringBuilder info = new StringBuilder("<div style=\"margin:10px\"><table class=\"keyValue\">");
 		for (String value: data)
 			info.append("<tr><th>").append(index++).append("</th><td>").append(value.replace("\n", "<br />")).append("</td></tr>");
 		info.append("</table></div>");
@@ -305,7 +309,7 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 	
 	private String getPreformattedHtml(String text){
 		StringBuilder sb = new StringBuilder();
-		return sb.append("<pre style=\"padding: 15px\">").append(text).append("</pre>").toString();
+		return sb.append("<pre style=\"padding: 10px\">").append(text).append("</pre>").toString();
 	}
 	
 	private BatchJobSortAttribute getJobSortProperty(String property){
@@ -357,17 +361,17 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 	private String parseExitStatus(int exitStatus){
 		String exitStatusStr = Integer.toString(exitStatus);
 		if (exitStatus == 1)
-			exitStatusStr += " (unspecified error)";
+			exitStatusStr += messageService.getMessage("batchViewer.errorCode_1.label");
 		else if (exitStatus == 2)
-			exitStatusStr += " (misuse of shell builtins)";
+			exitStatusStr += messageService.getMessage("batchViewer.errorCode_2.label");
 		else if (exitStatus == 126)
-			exitStatusStr += " (command invoked cannot execute)";
+			exitStatusStr += messageService.getMessage("batchViewer.errorCode_126.label");
 		else if (exitStatus == 127)
-			exitStatusStr += " (command not found)";
+			exitStatusStr += messageService.getMessage("batchViewer.errorCode_127.label");
 		else if (exitStatus == 128)
-			exitStatusStr += " (invalid argument to exit)";
+			exitStatusStr += messageService.getMessage("batchViewer.errorCode_128.label");
 		else if (exitStatus == 137)
-			exitStatusStr += " (job killed)";
+			exitStatusStr += messageService.getMessage("batchViewer.errorCode_137.label");
 		return exitStatusStr;
 	}
 
