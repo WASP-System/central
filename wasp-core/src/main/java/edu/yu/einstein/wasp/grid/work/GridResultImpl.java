@@ -40,7 +40,7 @@ public class GridResultImpl implements GridResult, Serializable {
 	protected GridJobStatus status;
 	transient protected String archivedResultOutputPath;
 
-	private int exitStatus;
+	private int exitCode;
 	
 	private String jobInfo; // TODO: Would be better as a LinkedHashMap but problems decoding by XStream if NULL for some reason
 	transient private InputStream stdOutStream;
@@ -57,7 +57,7 @@ public class GridResultImpl implements GridResult, Serializable {
 		 childResults = new HashMap<>();
 		 archivedResultOutputPath = "";
 		 numberOfTasks = 1;
-		 exitStatus = -1;
+		 exitCode = -1;
 		 status = GridJobStatus.UNKNOWN;
 		 mode = ExecutionMode.PROCESS;
 	}
@@ -94,7 +94,7 @@ public class GridResultImpl implements GridResult, Serializable {
 
 	@Override
 	public int getExitStatus() {
-		return exitStatus;
+		return exitCode;
 	}
 	
 	/**
@@ -103,7 +103,7 @@ public class GridResultImpl implements GridResult, Serializable {
 	 */
 	@Override
 	public void setExitStatus(int exitCode) {
-		this.exitStatus = exitCode;
+		this.exitCode = exitCode;
 		if (exitCode == 0)
 			setJobStatus(GridJobStatus.COMPLETED);
 		else if (exitCode > 0)

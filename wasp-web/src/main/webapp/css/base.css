@@ -428,6 +428,7 @@ TABLE.keyValue {
 
 TABLE.keyValue TH	{
 	text-align: right;
+	white-space: nowrap;
 }
 
 TABLE.keyValue TD	{

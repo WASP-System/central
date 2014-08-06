@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -187,6 +188,8 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 				jobInfo.put("Time Executing", getElapsedTime(se.getStartTime(), new Date()));
 			jobInfo.put("Batch Job Status", se.getExitStatus().getExitCode().toString().toLowerCase());
 			jobInfo.put("Cluster Job Status", r.getJobStatus().toString().toLowerCase());
+			if (r.getExitStatus() != -1)
+				jobInfo.put("Cluster Job ExitStatus", parseExitStatus(r.getExitStatus()));
 			if (!se.getExitStatus().getExitDescription().isEmpty())
 				jobInfo.put("Exit Description", se.getExitStatus().getExitDescription());
 			if (!jobInfo.isEmpty())
@@ -259,7 +262,7 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 	  		.appendSeconds().appendSuffix("s")
 	  		.printZeroNever()
 	  		.toFormatter();
-	  	return pf.print(period);
+	  	return StringUtils.removeEnd(pf.print(period), ", ");
 	}
 	
 	private String renderScriptData(String data) {
@@ -280,13 +283,13 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 	}
 	
 	private String renderMessageToHtml(String message){
-		return "<h2 style=\"padding-top: 50px;text-align:center\">" + message + "</h2>";
+		return "<h2 style=\"padding-top: 50px;text-align:center\">" + message.replace("\n", "<br />") + "</h2>";
 	}
 	
 	private String renderMapToHtmlTable(Map<String, String> data){
 		StringBuilder info = new StringBuilder("<div style=\"margin:15px\"><table class=\"keyValue\">");
 		for (String key: data.keySet())
-			info.append("<tr><th>").append(key).append("</th><td>").append(data.get(key)).append("</td></tr>");
+			info.append("<tr><th>").append(key).append("</th><td>").append(data.get(key).replace("\n", "<br />")).append("</td></tr>");
 		info.append("</table></div>");
 		return info.toString();
 	}
@@ -295,7 +298,7 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 		int index = 1;
 		StringBuilder info = new StringBuilder("<div style=\"margin:15px\"><table class=\"keyValue\">");
 		for (String value: data)
-			info.append("<tr><th>").append(index++).append("</th><td>").append(value).append("</td></tr>");
+			info.append("<tr><th>").append(index++).append("</th><td>").append(value.replace("\n", "<br />")).append("</td></tr>");
 		info.append("</table></div>");
 		return info.toString();
 	}
@@ -349,6 +352,23 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 		if (direction.equals("DESC"))
 			return SortDirection.DESC;
 		return null;
+	}
+	
+	private String parseExitStatus(int exitStatus){
+		String exitStatusStr = Integer.toString(exitStatus);
+		if (exitStatus == 1)
+			exitStatusStr += " (unspecified error)";
+		else if (exitStatus == 2)
+			exitStatusStr += " (misuse of shell builtins)";
+		else if (exitStatus == 126)
+			exitStatusStr += " (command invoked cannot execute)";
+		else if (exitStatus == 127)
+			exitStatusStr += " (command not found)";
+		else if (exitStatus == 128)
+			exitStatusStr += " (invalid argument to exit)";
+		else if (exitStatus == 137)
+			exitStatusStr += " (job killed)";
+		return exitStatusStr;
 	}
 
 }
