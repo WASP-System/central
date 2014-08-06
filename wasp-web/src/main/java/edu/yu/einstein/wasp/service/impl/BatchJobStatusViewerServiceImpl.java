@@ -2,11 +2,16 @@ package edu.yu.einstein.wasp.service.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobInstance;
@@ -65,7 +70,6 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 			model.setEndTime(je.getEndTime()); // only set if not running or unknown
 		model.setStatus(je.getStatus().toString());
 		model.setExitCode(je.getExitStatus().getExitCode());
-		model.setExitMessage(je.getExitStatus().getExitDescription());
 		model.setIconCls(ExtIcon.TASK_FOLDER);
 		model.setExpanded(false);
 		model.setLeaf(false);
@@ -83,7 +87,6 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 			model.setEndTime(se.getEndTime()); // only set if not running or unknown
 		model.setStatus(se.getStatus().toString());
 		model.setExitCode(se.getExitStatus().getExitCode());
-		model.setExitMessage(se.getExitStatus().getExitDescription());
 		model.setIconCls(ExtIcon.TASK);
 		model.setExpanded(false);
 		model.setLeaf(true);
@@ -178,48 +181,85 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 		}
 		try{
 			Map<String, String> jobInfo = gws.getParsedJobSubmissionInfo(r);
+			if (!se.getExitStatus().isRunning() && !se.getExitStatus().getExitCode().equals(ExitStatus.UNKNOWN.getExitCode()))
+				jobInfo.put("Total Run time", getElapsedTime(se.getStartTime(), se.getEndTime()));
+			else
+				jobInfo.put("Time Executing", getElapsedTime(se.getStartTime(), new Date()));
+			jobInfo.put("Batch Job Status", se.getExitStatus().getExitCode().toString().toLowerCase());
+			jobInfo.put("Cluster Job Status", r.getJobStatus().toString().toLowerCase());
+			if (!se.getExitStatus().getExitDescription().isEmpty())
+				jobInfo.put("Exit Description", se.getExitStatus().getExitDescription());
 			if (!jobInfo.isEmpty())
 				m.setInfo(renderMapToHtmlTable(jobInfo));
+			else 
+				m.setInfo(renderMessageToHtml("Currently unable to display job information"));
 		} catch (IOException e){
+			m.setInfo(renderMessageToHtml("Currently unable to display cluster job information"));
 			logger.info("No grid job information returned for GridResult id=" + r.getId());
 		}
 		try{
 			m.setScript(renderScriptData(gws.getJobScript(r)));
 		} catch (IOException e){
+			m.setScript(renderMessageToHtml("Currently unable to display job script"));
 			logger.info("No execution script returned for GridResult id=" + r.getId());
 		}
 		try{
 			m.setStdout(getPreformattedHtml(gws.getResultStdOut(r, SgeWorkService.MAX_FILE_SIZE)));
 		} catch (IOException e){
+			m.setStdout(renderMessageToHtml("Currently unable to stdout"));
 			logger.info("No stdout returned for GridResult id=" + r.getId());
 		}
 		try{
 			m.setStderr(getPreformattedHtml(gws.getResultStdErr(r, SgeWorkService.MAX_FILE_SIZE)));
 		} catch (IOException e){
+			m.setStderr(renderMessageToHtml("Currently unable to display stderr"));
 			logger.info("No stderr returned for GridResult id=" + r.getId());
 		}
 		try{
 			Map<String, String> clusterStats = gws.getParsedFinalJobClusterStats(r);
 			if (!clusterStats.isEmpty())
 				m.setClusterReport(renderMapToHtmlTable(clusterStats));
+			else
+				m.setClusterReport(renderMessageToHtml("Currently unable to display completed job report"));
 		} catch (IOException e){
 			logger.info("No grid execution final report returned for GridResult id=" + r.getId());
+			m.setClusterReport(renderMessageToHtml("Currently unable to display completed job report"));
 		}
 		try{
 			Map<String, String> env = gws.getParsedEnvironment(r);
 			if (!env.isEmpty())
 				m.setEnvVars(renderMapToHtmlTable(env));
+			else
+				m.setEnvVars(renderMessageToHtml("Currently unable to display environment data"));
 		} catch (IOException e){
+			m.setEnvVars(renderMessageToHtml("Currently unable to display environment data"));
 			logger.info("No grid environment data returned for GridResult id=" + r.getId());
 		}
 		try{
 			Set<String> sw = gws.getParsedSoftware(r);
 			if (!sw.isEmpty())
 				m.setSoftwareList(renderSetToHtmlTable(sw));
+			else
+				m.setSoftwareList(renderMessageToHtml("Currently unable to display software dependencies"));
 		} catch (IOException e){
+			m.setSoftwareList(renderMessageToHtml("Currently unable to display software dependencies"));
 			logger.info("No grid software data returned for GridResult id=" + r.getId());
 		}
 		return m;
+	}
+	
+	private String getElapsedTime(Date t1, Date t2){
+		Period period = new Period(new DateTime(t1.getTime()), new DateTime(t2.getTime()));
+	  	PeriodFormatter pf = new PeriodFormatterBuilder()
+	  		.appendYears().appendSuffix("Y, ")
+	  		.appendMonths().appendSuffix("M, ")
+	  		.appendDays().appendSuffix("D, ")
+	  		.appendHours().appendSuffix("h, ")
+	  		.appendMinutes().appendSuffix("m, ")
+	  		.appendSeconds().appendSuffix("s")
+	  		.printZeroNever()
+	  		.toFormatter();
+	  	return pf.print(period);
 	}
 	
 	private String renderScriptData(String data) {
@@ -239,26 +279,30 @@ public class BatchJobStatusViewerServiceImpl implements BatchJobStatusViewerServ
 		return sb.toString();
 	}
 	
+	private String renderMessageToHtml(String message){
+		return "<h2 style=\"padding-top: 50px;text-align:center\">" + message + "</h2>";
+	}
+	
 	private String renderMapToHtmlTable(Map<String, String> data){
-		StringBuilder info = new StringBuilder("<table class=\"keyValue\">");
+		StringBuilder info = new StringBuilder("<div style=\"margin:15px\"><table class=\"keyValue\">");
 		for (String key: data.keySet())
 			info.append("<tr><th>").append(key).append("</th><td>").append(data.get(key)).append("</td></tr>");
-		info.append("</table>");
+		info.append("</table></div>");
 		return info.toString();
 	}
 	
 	private String renderSetToHtmlTable(Set<String> data){
 		int index = 1;
-		StringBuilder info = new StringBuilder("<table class=\"keyValue\">");
+		StringBuilder info = new StringBuilder("<div style=\"margin:15px\"><table class=\"keyValue\">");
 		for (String value: data)
 			info.append("<tr><th>").append(index++).append("</th><td>").append(value).append("</td></tr>");
-		info.append("</table>");
+		info.append("</table></div>");
 		return info.toString();
 	}
 	
 	private String getPreformattedHtml(String text){
 		StringBuilder sb = new StringBuilder();
-		return sb.append("<pre style=\"padding: 10px\">").append(text).append("</pre>").toString();
+		return sb.append("<pre style=\"padding: 15px\">").append(text).append("</pre>").toString();
 	}
 	
 	private BatchJobSortAttribute getJobSortProperty(String property){
