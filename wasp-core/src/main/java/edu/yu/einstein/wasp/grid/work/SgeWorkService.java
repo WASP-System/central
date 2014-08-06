@@ -372,7 +372,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		int maxAttempts = 10;
 		int waitMs = 3000;
 		
-		while ( (result == null || result.getExitCode() != 0) && attempts <= maxAttempts){
+		while ( (result == null || result.getExitStatus() != 0) && attempts <= maxAttempts){
 			if (attempts > 1){
 				try {
 					logger.debug("Goint to sleep for " + waitMs + "ms before trying again");
@@ -383,9 +383,9 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			}
 			try {
 				result = (GridResultImpl) transportConnection.sendExecToRemote(w);
-				if (result.getExitCode() > 0){
+				if (result.getExitStatus() > 0){
 					logger.warn("Unable to get qacct data for grid job id=" + g.getGridJobId() + 
-							"(" + g.getId()  + "): Remote job submission failed (exitCode=" + result.getExitCode() + ") on attempt " + attempts);
+							"(" + g.getId()  + "): Remote job submission failed (exitCode=" + result.getExitStatus() + ") on attempt " + attempts);
 				}
 			} catch (MisconfiguredWorkUnitException | GridException e) {
 				logger.warn("Unable to get qacct data for grid job id=" + g.getGridJobId() + 
@@ -485,7 +485,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		if (died) {
 			cleanUpAbnormallyTerminatedJob(g);
 			g.setArchivedResultOutputPath(getFailedArchiveName(g));
-			g.setExitCode(g.getExitCode() > 1 ? g.getExitCode() : 1);
+			g.setExitStatus(g.getExitStatus() > 1 ? g.getExitStatus() : 1);
 			throw new GridExecutionException("abnormally terminated job");
 		}
 		
@@ -507,7 +507,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 				}
 			}
 			logger.debug("Parent grid job has ended and no child jobs or all child jobs are complete so going to return true");
-			g.setExitCode(g.getExitCode() > 0 ? g.getExitCode() : 0);
+			g.setExitStatus(g.getExitStatus() > 0 ? g.getExitStatus() : 0);
 		}
 		return ended;
 	}
@@ -831,9 +831,9 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		String submit = "qsub " + jobNamePrefix + w.getId() + ".sh 2>&1";
 		w.setWrapperCommand(submit);
 		GridResultImpl result = (GridResultImpl) transportConnection.sendExecToRemote(w);
-		if (result.getExitCode() > 0)
+		if (result.getExitStatus() > 0)
 			throw new GridAccessException("Remote job submission failed");
-		result.setExitCode(-1); // reset to default value
+		result.setExitStatus(-1); // reset to default value
 		result.setJobStatus(GridJobStatus.SUBMITTED);
 		result.setUuid(UUID.fromString(w.getId()));
 		result.setId(jobNamePrefix + w.getId());

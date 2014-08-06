@@ -40,7 +40,7 @@ public class GridResultImpl implements GridResult, Serializable {
 	protected GridJobStatus status;
 	transient protected String archivedResultOutputPath;
 
-	private int exitCode;
+	private int exitStatus;
 	
 	private String jobInfo; // TODO: Would be better as a LinkedHashMap but problems decoding by XStream if NULL for some reason
 	transient private InputStream stdOutStream;
@@ -57,7 +57,7 @@ public class GridResultImpl implements GridResult, Serializable {
 		 childResults = new HashMap<>();
 		 archivedResultOutputPath = "";
 		 numberOfTasks = 1;
-		 exitCode = -1;
+		 exitStatus = -1;
 		 status = GridJobStatus.UNKNOWN;
 		 mode = ExecutionMode.PROCESS;
 	}
@@ -93,8 +93,8 @@ public class GridResultImpl implements GridResult, Serializable {
 	}
 
 	@Override
-	public int getExitCode() {
-		return exitCode;
+	public int getExitStatus() {
+		return exitStatus;
 	}
 	
 	/**
@@ -102,13 +102,13 @@ public class GridResultImpl implements GridResult, Serializable {
 	 * @param exitCode
 	 */
 	@Override
-	public void setExitCode(int exitCode) {
-		this.exitCode = exitCode;
+	public void setExitStatus(int exitCode) {
+		this.exitStatus = exitCode;
 		if (exitCode == 0)
 			setJobStatus(GridJobStatus.COMPLETED);
 		else if (exitCode > 0)
 			setJobStatus(GridJobStatus.FAILED);
-		logger.debug("Set exitCode=" + getExitCode() + " and jobStatus=" + getJobStatus() + " on GridResult with UUID=" + getUuid());
+		logger.debug("Set exitCode=" + getExitStatus() + " and jobStatus=" + getJobStatus() + " on GridResult with UUID=" + getUuid());
 	}
 
 	/* (non-Javadoc)
