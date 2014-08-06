@@ -6,7 +6,8 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 
-import edu.yu.einstein.wasp.controller.util.ExtTreeGridResponse;
+import edu.yu.einstein.wasp.controller.util.ExtGridResponse;
+import edu.yu.einstein.wasp.controller.util.ExtStepInfoModel;
 import edu.yu.einstein.wasp.controller.util.ExtTreeModel;
 
 public interface BatchJobStatusViewerService {
@@ -29,8 +30,10 @@ public interface BatchJobStatusViewerService {
 	
 	public List<ExtTreeModel> getJobList(ExitStatus exitStatus, String property, String direction, Long start, Long limit);
 	
-	public ExtTreeGridResponse getPagedModelList(String nodeId, String displayParam, Long start, Long limit);
+	public ExtGridResponse<ExtTreeModel> getPagedModelList(String nodeId, String displayParam, Long start, Long limit);
 	
-	public ExtTreeGridResponse getPagedModelList(String nodeId, String displayParam, String property, String direction, Long start, Long limit);
+	public ExtGridResponse<ExtTreeModel> getPagedModelList(String nodeId, String displayParam, String property, String direction, Long start, Long limit);
+
+	public ExtStepInfoModel getExtStepInfoModel(Long jobExecutionId, String stepName);
 
 }

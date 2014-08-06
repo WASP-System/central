@@ -66,7 +66,7 @@ public class FastQCTasklet extends WaspRemotingTasklet {
 		GridResult result = hostResolver.execute(w);
 		
 		//place the grid result in the step context
-		storeStartedResult(context, result);
+		saveGridResult(context, result);
 	}
 	
 	/** 
@@ -76,7 +76,7 @@ public class FastQCTasklet extends WaspRemotingTasklet {
 	@Transactional("entityManager")
 	public void doPreFinish(ChunkContext context) throws BabrahamDataParseException, MetadataException, GridException, JSONException {
 		// the work unit is complete, parse output
-		GridResult result = getStartedResult(context);
+		GridResult result = getGridResult(context);
 		// parse and save output
 		babrahamService.saveJsonForParsedSoftwareOutput(fastqc.parseOutput(result.getResultsDirectory()), fastqc, fileGroupId);
 	}

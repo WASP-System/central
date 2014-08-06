@@ -16,4 +16,7 @@ public interface WebFileService {
 			HttpServletRequest request, HttpServletResponse response)
 			throws IOException, WaspException;
 
+	void processLinksFileRequest(String uuids, HttpServletRequest request,
+			HttpServletResponse response) throws IOException, WaspException;
+
 }

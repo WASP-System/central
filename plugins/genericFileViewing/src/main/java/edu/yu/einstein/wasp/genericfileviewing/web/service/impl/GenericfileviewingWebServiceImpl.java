@@ -17,13 +17,13 @@ import edu.yu.einstein.wasp.genericfileviewing.panelrenderer.HtmlFilePanelRender
 import edu.yu.einstein.wasp.genericfileviewing.panelrenderer.ImageFilePanelRenderer;
 import edu.yu.einstein.wasp.genericfileviewing.panelrenderer.PdfFilePanelRenderer;
 import edu.yu.einstein.wasp.genericfileviewing.panelrenderer.TextFilePanelRenderer;
+import edu.yu.einstein.wasp.genericfileviewing.panelrenderer.TsvFilePanelRenderer;
 import edu.yu.einstein.wasp.genericfileviewing.service.impl.GenericfileviewingServiceImpl;
 import edu.yu.einstein.wasp.genericfileviewing.web.service.GenericfileviewingWebService;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.service.FileService;
-import edu.yu.einstein.wasp.viewpanel.Panel;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 @Service
@@ -38,37 +38,34 @@ public class GenericfileviewingWebServiceImpl extends GenericfileviewingServiceI
 	
 	@Override
 	public PanelTab getPanelTabForFileGroup(FileGroup fileGroup) throws PanelException {
-		PanelTab panelTab = new PanelTab();
-		panelTab.setName(genericfileviewingPlugin.getName());
-		panelTab.setDescription(genericfileviewingPlugin.getDescription());
-		panelTab.setNumberOfColumns(1);
-		panelTab.setMaxOnLoad(true);
+		PanelTab panelTab = null;
 		
 		Set<FileHandle> set = fileGroup.getFileHandles();
 		Iterator<FileHandle> it = set.iterator();
 		FileHandle file = it.next();
-
-		Panel p;
+		String fileName = fileGroup.getDescription();
 		if (fileGroup.getFileType().getIName().equals("txt")) {
-			p = TextFilePanelRenderer.getPanelForFileGroup(fileService.getInputStreamFromFileHandle(file));
+			panelTab = TextFilePanelRenderer.getPanelForFileGroup(fileName, fileService.getInputStreamFromFileHandle(file));
 		} else if (fileGroup.getFileType().getIName().equals("html")) {
-			p = HtmlFilePanelRenderer.getPanelForFileGroup(fileService.getURLStringFromFileHandle(file));
+			panelTab = HtmlFilePanelRenderer.getPanelForFileGroup(fileName, fileService.getURLStringFromFileHandle(file));
 		} else if (fileGroup.getFileType().getIName().equals("csv")) {
-			p = CsvFilePanelRenderer.getPanelForFileGroup(fileService.getInputStreamFromFileHandle(file), false);
+			panelTab = CsvFilePanelRenderer.getPanelForFileGroup(fileName, fileService.getInputStreamFromFileHandle(file), false);
+		} else if (fileGroup.getFileType().getIName().equals("csv")) {
+			panelTab = TsvFilePanelRenderer.getPanelForFileGroup(fileName, fileService.getInputStreamFromFileHandle(file), false);
 		} else if (fileGroup.getFileType().getIName().equals("pdf")) {
-			p = PdfFilePanelRenderer.getPanelForFileGroup(fileService.getURLStringFromFileHandle(file));
+			panelTab = PdfFilePanelRenderer.getPanelForFileGroup(fileName, fileService.getURLStringFromFileHandle(file));
 		} else if (fileGroup.getFileType().getIName().equals("jpg") ||
 				fileGroup.getFileType().getIName().equals("bmp") || 
 				fileGroup.getFileType().getIName().equals("gif") || 
 				fileGroup.getFileType().getIName().equals("png") || 
 				fileGroup.getFileType().getIName().equals("tif")) {
-			p = ImageFilePanelRenderer.getPanelForFileGroup(fileService.getURLStringFromFileHandle(file), fileGroup.getDescription());
+			panelTab = ImageFilePanelRenderer.getPanelForFileGroup(fileName, fileService.getURLStringFromFileHandle(file));
 		} else {
-			p = new Panel();
+			panelTab = new PanelTab();
+			panelTab.setDescription(genericfileviewingPlugin.getDescription());
+			panelTab.setNumberOfColumns(1);
+			panelTab.setMaxOnLoad(true);
 		}
-
-		p.setTitle(fileGroup.getDescription());
-		panelTab.addPanel(p);
 
 		return panelTab;
 	}

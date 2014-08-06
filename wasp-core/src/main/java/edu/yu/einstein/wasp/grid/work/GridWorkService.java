@@ -5,6 +5,7 @@ package edu.yu.einstein.wasp.grid.work;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import edu.yu.einstein.wasp.exception.GridException;
@@ -89,37 +90,90 @@ public interface GridWorkService {
 	
 	/**
 	 * Pull the result tarball of a non task-array job and return the contents of the .out file
-	 * in a string.
+	 * in a string. If tailByteLimit is set to -1 the entire
+	 * file contents are returned as a string, otherwise the specified number of bytes from the end of the file are returned as a string.
 	 * 
 	 * @param r
+	 * @param tailByteLimit (set to -1 for unlimited)
 	 * @return
 	 * @throws IOException
 	 */
-	public String getResultStdOut(GridResult r) throws IOException;
+	public String getResultStdOut(GridResult r, long tailByteLimit) throws IOException;
 	
 	/**
 	 * Pull the result tarball of a non task-array job and return the contents of the .err file
-	 * in a string.
+	 * in a string. If tailByteLimit is set to -1 the entire
+	 * file contents are returned as a string, otherwise the specified number of bytes from the end of the file are returned as a string.
+	 * 
+	 * @param r
+	 * @param tailByteLimit (set to -1 for unlimited)
+	 * @return
+	 * @throws IOException
+	 */
+	public String getResultStdErr(GridResult r, long tailByteLimit) throws IOException;
+	
+
+	/**
+	 * Return the contents of the job script.
 	 * 
 	 * @param r
 	 * @return
 	 * @throws IOException
 	 */
-	public String getResultStdErr(GridResult r) throws IOException;
+	public String getJobScript(GridResult r) throws IOException;
+	
+	/**
+	 * Return a Map representation of the environment
+	 * 
+	 * @param r
+	 * @return
+	 * @throws IOException
+	 */
+	public Map<String, String> getParsedEnvironment(GridResult r) throws IOException;
+	
+	/**
+	 * Return a Sorted Set of software
+	 * 
+	 * @param r
+	 * @return
+	 * @throws IOException
+	 */
+	public Set<String> getParsedSoftware(GridResult r) throws IOException;
+	
+	/**
+	 * Return information recorded about a job submission parsed to a Map representation.
+	 * @param r
+	 * @return
+	 * @throws IOException
+	 */
+	public Map<String, String> getParsedJobSubmissionInfo(GridResult r) throws IOException;
+
+	/**
+	 * Return the final cluster job stats parsed to a Map representation. 
+	 * 
+	 * @param r
+	 * @return
+	 * @throws IOException
+	 */
+	public Map<String, String> getParsedFinalJobClusterStats(GridResult r) throws IOException;
+	
 
 	public boolean isNumProcConsumable();
 
 	public void setNumProcConsumable(boolean isNumProcConsumable);
 	
 	/**
-	 * Given a GridResult, pull a small named file from the job's working directory as a string.
+	 * Given a GridResult, pull a small named file from the job's working directory as a string. If tailByteLimit is set to -1 the entire
+	 * file contents are returned as a string, otherwise the specified number of bytes from the end of the file are returned as a string.
 	 * 
 	 * @param r
 	 * @param filename
+	 * @param tailByteLimit (set to -1 for unlimited)
 	 * @return
 	 * @throws IOException
 	 */
-	public String getUnregisteredFileContents(GridResult r, String filename) throws IOException;
+	public String getUnregisteredFileContents(GridResult r, String filename, long tailByteLimit) throws IOException;
+
 	
 	//public void setGridFileMovers(List<GridFileMover> gridFileMovers);
 	

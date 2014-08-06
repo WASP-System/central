@@ -1,12 +1,12 @@
 package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,14 +100,14 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 		
 		Set<Sample> processedSamples = new HashSet<>();
 		for (SampleSource samplePair : sampleService.getSamplePairsByJob(job)){
-			LinkedHashSet<String> sampleIdentifierSet = new LinkedHashSet<>(); 
+			LinkedHashSet<UUID> sampleIdentifierSet = new LinkedHashSet<>(); 
 			Sample test = sampleService.getTestSample(samplePair);
 			Sample control = sampleService.getControlSample(samplePair);
 			logger.debug("handling sample pair: test id=" + test.getId() + " and control id=" + control.getId());
 			processedSamples.add(test);
 			processedSamples.add(control);
-			sampleIdentifierSet.add(test.getUUID().toString());
-			sampleIdentifierSet.add(control.getUUID().toString());
+			sampleIdentifierSet.add(test.getUUID());
+			sampleIdentifierSet.add(control.getUUID());
 			String outFileNamePrefix = fileService.generateUniqueBaseFileName(test) + fileService.generateUniqueBaseFileName(control);
 			prepareOutFilesAndLaunchJob(filteredSnpsVcfFg, outFileNamePrefix + "snps.", sampleIdentifierSet);
 			prepareOutFilesAndLaunchJob(filteredIndelsVcfFg, outFileNamePrefix + "indels.", sampleIdentifierSet);
@@ -116,15 +116,18 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 			if (processedSamples.contains(sample))
 				continue;
 			processedSamples.add(sample);
-			LinkedHashSet<String> sampleIdentifierSet = new LinkedHashSet<>(); 
-			sampleIdentifierSet.add(sample.getUUID().toString());
+			LinkedHashSet<UUID> sampleIdentifierSet = new LinkedHashSet<>(); 
+			sampleIdentifierSet.add(sample.getUUID());
 			String outFileNamePrefix = fileService.generateUniqueBaseFileName(sample);
 			prepareOutFilesAndLaunchJob(filteredSnpsVcfFg, outFileNamePrefix + "filteredSnps.", sampleIdentifierSet);
 			prepareOutFilesAndLaunchJob(filteredIndelsVcfFg, outFileNamePrefix + "filteredIndels.", sampleIdentifierSet);
 		}
 	}
 	
-	private void prepareOutFilesAndLaunchJob(FileGroup inputFileGroup, String outFileNamePrefix, LinkedHashSet<String> sampleIdentifierSet){
+	private void prepareOutFilesAndLaunchJob(FileGroup inputFileGroup, String outFileNamePrefix, LinkedHashSet<UUID> sampleIdentifierSet){
+		Set<Sample> sampleSet = new HashSet<Sample>();
+		for (UUID sIdStr : sampleIdentifierSet)
+			sampleSet.add(sampleService.getSampleDao().getByUUID(sIdStr));
 		LinkedHashSet<FileGroup> inputFileGroups = new LinkedHashSet<>();
 		inputFileGroups.add(inputFileGroup);
 		SnpEff snpEff = (SnpEff) gatk.getSoftwareDependencyByIname("snpEff");
@@ -139,10 +142,10 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 		vcfG.setDescription(vcfFileName);
 		vcfG.setSoftwareGeneratedById(snpEff.getId());
 		vcfG.setDerivedFrom(inputFileGroups);
-		
+		vcfG.setSamples(sampleSet);
 		Set<FileTypeAttribute> fta = new HashSet<>(fileTypeService.getAttributes(inputFileGroup));
 		fta.add(VcfFileTypeAttribute.ANNOTATED);
-		vcfG = fileService.saveInDiscreteTransaction(vcfG, vcf, fta);
+		vcfG = fileService.saveInDiscreteTransaction(vcfG, fta);
 		outputFileGroups.add(vcfG);
 		
 		String summaryHtmlFileName = outFileNamePrefix + "snpEff_summary.htm";
@@ -155,7 +158,8 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 		summaryHtmlG.setDescription(summaryHtmlFileName);
 		summaryHtmlG.setSoftwareGeneratedById(snpEff.getId());
 		summaryHtmlG.setDerivedFrom(inputFileGroups);
-		summaryHtmlG = fileService.saveInDiscreteTransaction(summaryHtmlG, summaryHtml);
+		summaryHtmlG.setSamples(sampleSet);
+		summaryHtmlG = fileService.saveInDiscreteTransaction(summaryHtmlG, null);
 		outputFileGroups.add(summaryHtmlG);
 		
 		String summaryGeneFileName = outFileNamePrefix + "snpEff_geneSummary.tsv";
@@ -168,11 +172,12 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 		summaryGeneG.setDescription(summaryGeneFileName);
 		summaryGeneG.setSoftwareGeneratedById(snpEff.getId());
 		summaryGeneG.setDerivedFrom(inputFileGroups);
-		summaryGeneG = fileService.saveInDiscreteTransaction(summaryGeneG, summaryGene);
+		summaryGeneG.setSamples(sampleSet);
+		summaryGeneG = fileService.saveInDiscreteTransaction(summaryGeneG, null);
 		outputFileGroups.add(summaryGeneG);
 		
 		Map<String, String> jobParameters = new HashMap<>();
-		jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
+		//jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
 		jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(inputFileGroups));
 		jobParameters.put(WaspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT, AbstractGatkTasklet.getModelIdsAsCommaDelimitedString(outputFileGroups));
 		jobParameters.put("sampleIdentifierSet", StringUtils.collectionToCommaDelimitedString(sampleIdentifierSet));

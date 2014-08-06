@@ -152,19 +152,19 @@ public class SshWorkService implements GridWorkService {
 	}
 
 	@Override
-	public String getResultStdOut(GridResult r) throws IOException {
+	public String getResultStdOut(GridResult r, long tailByteLimit) throws IOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getResultStdErr(GridResult r) throws IOException {
+	public String getResultStdErr(GridResult r, long tailByteLimit) throws IOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getUnregisteredFileContents(GridResult r, String filename) throws IOException {
+	public String getUnregisteredFileContents(GridResult r, String filename, long tailByteLimit) throws IOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -204,5 +204,38 @@ public class SshWorkService implements GridWorkService {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public String getJobScript(GridResult r) throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Map<String, String> getParsedJobSubmissionInfo(GridResult r) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Map<String, String> getParsedFinalJobClusterStats(GridResult r)
+			throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Map<String, String> getParsedEnvironment(GridResult r)
+			throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<String> getParsedSoftware(GridResult r) throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 
 }

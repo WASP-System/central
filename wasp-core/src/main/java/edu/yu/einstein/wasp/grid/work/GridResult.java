@@ -15,15 +15,22 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 public interface GridResult {
 	
 	public static final String GRID_RESULT_KEY ="gridResult";
+	public static final String FLAGGED_FOR_RESTART ="restart";
 	
 	/**
-	 * Exit code from running on {@link GridWorkService}. In the case of a simple exec, this is the exit code
+	 * Exit status from running on {@link GridWorkService}. In the case of a simple exec, this is the exit code
 	 * of the command.  In the case of a scheduler, meta-scheduler or other execution engine, it is the exit
 	 * code of the submission.
 	 * 
 	 * @return
 	 */
-	public int getExitCode();
+	public int getExitStatus();
+	
+	/**
+	 * set the value of exit status
+	 * @param exitCode
+	 */
+	public void setExitStatus(int exitCode);
 	
 	/**
 	 * STDOUT of GridResult.  Since this can be from the command itself or from the {@link GridWorkService} 
@@ -96,6 +103,12 @@ public interface GridResult {
 	public String getUsername();
 	
 	/**
+	 * Map of metadata stored for the job, e.g. job id, hostname etc
+	 * @return
+	 */
+	public Map<String, String> getJobInfo();
+	
+	/**
 	 * Get current status of job.
 	 * @return
 	 */
@@ -144,5 +157,19 @@ public interface GridResult {
 	 * @return
 	 */
 	public String getId();
+	
+	/**
+	 * Get id of the grid job (no guarantee that this has been set)
+	 * @return
+	 */
+	public Long getGridJobId();
+	
+	/**
+	 * Set id of the grid job
+	 * @return
+	 */
+	public void setGridJobId(Long gridJobId);
+
+	public void addJobInfo(String key, String value);
 
 }

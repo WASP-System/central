@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepContribution;
@@ -187,7 +186,7 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
         w.setProcessMode(ProcessMode.SINGLE);
         w.setSoftwareDependencies(sd);
         w.setWorkingDirectory(workingDirectory);
-        w.setCommand("cd wasp/sequence && ls -1");
+        w.setCommand("cd wasp/sequence && ls -1 *.fastq.gz");
 
         // method to send commands without wrapping them in a submission script.
         // will return when complete (also gives access to stdout), only do this

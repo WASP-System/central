@@ -99,7 +99,7 @@ public class StringHelper {
 	public static Integer convertStringToInteger(String s){
 		Integer _integer = null;
 		if(s != null){
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			for(int i=0; i<s.length(); i++)
 			{
 				if(Character.isDigit(s.charAt(i))){

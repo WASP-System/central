@@ -14,12 +14,15 @@ package edu.yu.einstein.wasp.dao.impl;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import javax.sql.DataSource;
 
 import org.apache.commons.lang.WordUtils;
@@ -433,6 +436,13 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 	  	List<String> orderByList = new ArrayList<String>();
 	  	orderByList.add("v");
 		return this.findByMapDistinctOrderBy(metaQueryMap, orderByList, orderByList, direction); 
+	}
+	
+	@Override
+	public E getByUUID(UUID uuid) {
+		TypedQuery<E> sq = getEntityManager().createQuery("SELECT o from " + entityClass.getName() + " as o WHERE o.uuid = :uuid", entityClass)
+				.setParameter("uuid", uuid);
+		return sq.getSingleResult();
 	}
 	
 	/**

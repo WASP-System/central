@@ -157,10 +157,10 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 	
 	private void closeSession() throws TransportException, ConnectionException {
 		logger.debug("closing session");
-		if (session != null) {
+		if (session != null && session.isOpen()) {
 			session.close();
 		} else {
-			logger.debug("no session to close");
+			logger.debug("no open session to close");
 		}
 	}
 
@@ -212,8 +212,8 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 			
 			for (int tries=0; tries < execRetries; tries++) {
 			    try {
-                                doExec(result, command);
-                                break;
+                    doExec(result, command);
+                    break;
 			    } catch (ConnectionException ce) {
 			        logger.warn("Caught ConnectionException on session (" + ce.getLocalizedMessage() + ") try " + tries + 
                                     ". Session open: " + session.isOpen() + ". Will try again up to " + execRetries + " times.");
@@ -222,24 +222,32 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 			        }
 			        continue;
 			    }
-                        }
-			
+			}
+			try{
+				closeSession();
+			} catch (ConnectionException | TransportException e) {
+				logger.warn("problem closing session to execute command");
+				throw new GridAccessException("problem closing session", e);
+			}
+		} catch (ConnectionException | TransportException e) {
+			logger.warn("problem opening session to execute command");
+			throw new GridAccessException("problem opening session", e);
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.error("problem sending command");
-			throw new GridAccessException("problem closing session", e);
+			logger.warn("problem executing command");
+			throw new GridExecutionException("problem executing command", e);
 		}
 		logger.trace("returning result");
 		return (GridResult) result;
 
 	}
 	
-    private void doExec(GridResultImpl result, String command) throws ConnectionException, TransportException, GridAccessException {
+    private void doExec(GridResultImpl result, String command) throws ConnectionException, TransportException, GridAccessException, GridExecutionException {
         try {
             final Command exec = session.exec(command);
             // execute command and timeout
             exec.join(this.execTimeout, TimeUnit.MILLISECONDS);
-            result.setExitCode(exec.getExitStatus());
+            int exitCode = exec.getExitStatus();
+            result.setExitStatus(exitCode);
             if (logger.isTraceEnabled()){
 				byte[] outBA = IOUtils.toByteArray(exec.getInputStream()); // extract as Byte[] so that we can read it more than once
 				byte[] errBA = IOUtils.toByteArray(exec.getErrorStream()); // extract as Byte[] so that we can read it more than once
@@ -256,14 +264,15 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 				result.setStdErrStream(exec.getErrorStream());
 			}
             logger.trace("sent command");
-            if (exec.getExitStatus() != 0) {
-                logger.error("exec terminated with non-zero exit status: " + command);
-                throw new GridAccessException("exec terminated with non-zero exit status: " + exec.getExitStatus() + " : " + exec.getOutputStream().toString());
+            if (exitCode != 0) {
+                logger.error("exec terminated with non-zero exit status (" + exitCode + ") whilst attempting to run command: " + command + ". StdErr=[" + 
+                		IOUtils.toString(result.getStdErrStream()).trim() + "]");
+                throw new GridAccessException("exec terminated with non-zero exit status: " + exitCode);
             }
         } catch (IOException e) {
-			logger.warn("caught IOExeption executing '" + command + "' : " + e.getMessage() );
+			logger.error("caught IOExeption executing '" + command + "' : " + e.getMessage() );
 			e.printStackTrace();
-			throw new GridAccessException("Unable to exec", e);
+			throw new GridExecutionException("Unable to exec", e);
         } finally {
             session.close();
         } 

@@ -39,8 +39,6 @@ import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
-import edu.yu.einstein.wasp.viewpanel.WebContent;
-import edu.yu.einstein.wasp.viewpanel.WebPanel;
 
 /**
  * @author 
@@ -52,7 +50,7 @@ public class PicardPlugin extends WaspPlugin
 	
 	private static final long serialVersionUID = 1988113569229047484L;
 	
-	private static final String EXTRACT_ILLUMINA_BARCODES_FLOW = "picard.extractIlluminaBarcodes";
+	public static final String EXTRACT_ILLUMINA_BARCODES_FLOW = "picard.extractIlluminaBarcodes";
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	

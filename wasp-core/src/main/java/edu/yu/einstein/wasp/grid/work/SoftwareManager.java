@@ -3,6 +3,8 @@
  */
 package edu.yu.einstein.wasp.grid.work;
 
+import java.util.Set;
+
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 
 /**
@@ -24,5 +26,12 @@ public interface SoftwareManager {
 	 * @param s
 	 */
 	public abstract String getConfiguredSetting(String key);
+	
+	/**
+	 * Return a string representation of a software configuration.
+	 * @param data
+	 * @return
+	 */
+	public Set<String> parseSoftwareListFromText(String data);
 
 }

@@ -712,7 +712,8 @@ public class TaskController extends WaspController {
   		Map<SampleSource, Sample> cellLibraryLibraryMap = new HashMap<SampleSource, Sample>();
 		Map<SampleSource, Sample> cellLibraryMacromoleculeMap = new HashMap<SampleSource, Sample>();
 		Map<SampleSource, Sample> cellLibraryPUMap = new HashMap<SampleSource, Sample>();
-		Map<SampleSource, Run> cellLibraryRunMap = new HashMap<SampleSource, Run>();	 
+		Map<SampleSource, Run> cellLibraryRunMap = new HashMap<SampleSource, Run>();
+		Map<SampleSource, Integer> cellLibraryLaneMap = new HashMap<SampleSource, Integer>();
 		Map<SampleSource, String> cellLibraryQcStatusCommentMap = new HashMap<SampleSource,String>();
 		// Collections.sort(cellLibraries, new SampleSourceComparator());//sort the SampleSourceList
   		for(SampleSource cellLibrary : cellLibraries){
@@ -726,6 +727,15 @@ public class TaskController extends WaspController {
 			cellLibraryMacromoleculeMap.put(cellLibrary, macromolecule);
 			  
 			Sample cell = sampleService.getCell(cellLibrary);
+			System.out.println("cell: " + cell.getName());
+			try{
+				Integer laneNumber = sampleService.getCellIndex(cell);
+				System.out.println("cell lane number: " + laneNumber);
+				cellLibraryLaneMap.put(cellLibrary, laneNumber);//cell's position on flowcell (ie.: lane 3)
+			}catch(Exception e){
+				logger.warn("Unable to locate lane number for cell with Id " + cell.getId());
+			}
+			System.out.println("done");
 			Sample platformUnit = null;
 			try{
 				platformUnit = sampleService.getPlatformUnitForCell(cell);
@@ -757,11 +767,17 @@ public class TaskController extends WaspController {
 				cellLibraryQcStatusCommentMap.put(cellLibrary, inAnalysisCommentList.get(0).getValue());
 			}
 		}
+  		for(SampleSource cellLibrary : cellLibraries){
+  			Integer laneNo = cellLibraryLaneMap.get(cellLibrary);
+  			System.out.println("laneNo = " + laneNo);
+  			
+  		}
   		m.addAttribute("cellLibraryLibraryMap", cellLibraryLibraryMap);
   		m.addAttribute("cellLibraryMacromoleculeMap", cellLibraryMacromoleculeMap);
   		m.addAttribute("cellLibraryPUMap", cellLibraryPUMap);
   		m.addAttribute("cellLibraryRunMap", cellLibraryRunMap);
   		m.addAttribute("cellLibraryQcStatusCommentMap", cellLibraryQcStatusCommentMap);
+  		m.addAttribute("cellLibraryLaneMap", cellLibraryLaneMap);///added by rob, 7-17-14
   	}
  
   @RequestMapping(value = "/cellLibraryQC/list", method = RequestMethod.GET)

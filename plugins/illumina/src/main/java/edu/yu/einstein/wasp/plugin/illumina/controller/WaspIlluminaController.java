@@ -298,8 +298,8 @@ public class WaspIlluminaController extends WaspController {
 	public @ResponseBody String ajaxReadType(@RequestParam("resourceId") String resourceId){
 		//logger.debug("in ajaxReadType and resourceId = " + resourceId);
 		String returnString;
-		StringBuffer readType = new StringBuffer("<option value=''>---SELECT A READ TYPE---</option>");
-		StringBuffer readLength = new StringBuffer("<option value=''>---SELECT A READ LENGTH---</option>");
+		StringBuilder readType = new StringBuilder("<option value=''>---SELECT A READ TYPE---</option>");
+		StringBuilder readLength = new StringBuilder("<option value=''>---SELECT A READ LENGTH---</option>");
 		Resource resource;
 		resource = resourceService.getResourceDao().getResourceByResourceId(new Integer(resourceId));
 		ResourceCategory resourceCategory = resource.getResourceCategory();

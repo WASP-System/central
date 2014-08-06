@@ -5,6 +5,8 @@ package edu.yu.einstein.wasp.grid.work;
 
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +21,7 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  * @author calder
  * 
  */
-public class ModulesManager extends HashMap<String, String> implements
-		SoftwareManager {
+public class ModulesManager extends HashMap<String, String> implements SoftwareManager {
 
 	/**
 	 * 
@@ -52,8 +53,8 @@ public class ModulesManager extends HashMap<String, String> implements
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.yu.einstein.wasp.grid.work.SoftwareManager#getConfiguration(edu.yu.einstein.wasp.grid.work.WorkUnit)
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public String getConfiguration(WorkUnit w) throws GridExecutionException {
@@ -82,7 +83,7 @@ public class ModulesManager extends HashMap<String, String> implements
 			result += new StringBuilder().append(
 					"module load " + remoteName + "/" + version + "\n").toString();
 		}
-		result += "module list" + "\n\n";
+		result += "module list 2> ${" + WorkUnit.JOB_NAME + "}.sw\n\n";
 		
 		// configure the number of processes that will be used.
 		// TODO: clean up this logic
@@ -119,8 +120,8 @@ public class ModulesManager extends HashMap<String, String> implements
 		return result;
 	}
 	
-	/* (non-Javadoc)
-	 * @see edu.yu.einstein.wasp.grid.work.SoftwareManager#getConfiguredSetting(java.lang.String)
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public String getConfiguredSetting(String key) {
@@ -128,6 +129,31 @@ public class ModulesManager extends HashMap<String, String> implements
 			return this.get(key);
 		}
 		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * In this case output of executing 'module list' at the command line:
+	 * <pre>Currently Loaded Modulefiles:
+  	 * 1) intel/11.1.072            3) mysql/intel/5.1.41
+  	 * 2) gsl/intel/1.15            4) python/intel/2.7.3</pre>
+	 */
+	@Override
+	public Set<String> parseSoftwareListFromText(String data) {
+		Set<String> sw = new TreeSet<>();
+		for (String line : data.split("\n")){
+			line = line.trim();
+			if (line.isEmpty() || line.startsWith("Currently Loaded Modulefiles"))
+				continue; // filter lines
+			String[] elements = line.split("[^\\)]\\s+");
+			for (String element : elements){
+				String[] parts = element.split("\\)\\s+");
+				if (parts.length != 2)
+					continue;
+				sw.add(parts[1]);
+			}
+		}
+		return sw;
 	}
 
 }

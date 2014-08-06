@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
+import edu.yu.einstein.wasp.filetype.FileTypeAttribute;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -97,7 +99,9 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		rawVcfOutG.setDescription(rawVcfOutFileName);
 		rawVcfOutG.setSoftwareGeneratedById(gatk.getId());
 		rawVcfOutG.setDerivedFrom(inputFileGroups);
-		rawVcfOutG = fileService.saveInDiscreteTransaction(rawVcfOutG, rawVcfOut, VcfFileTypeAttribute.ANNOTATED);
+		Set<FileTypeAttribute> fta = new HashSet<FileTypeAttribute>();
+		fta.add(VcfFileTypeAttribute.ANNOTATED);
+		rawVcfOutG = fileService.saveInDiscreteTransaction(rawVcfOutG, fta);
 		stepExecutionContext.putString("combinedGenotypedVcfFgId", rawVcfOutG.getId().toString());
 				
 		WorkUnit w = new WorkUnit();
@@ -128,7 +132,7 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		GridResult result = gridHostResolver.execute(w);
 		
 		//place the grid result in the step context
-		storeStartedResult(context, result);
+		saveGridResult(context, result);
 	}
 	
 	@Transactional("entityManager")

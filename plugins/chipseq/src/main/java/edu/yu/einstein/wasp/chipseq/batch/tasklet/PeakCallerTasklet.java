@@ -78,6 +78,7 @@ public class PeakCallerTasklet extends LaunchManyJobsTasklet {
 
 	public PeakCallerTasklet() {
 		// proxy
+logger.debug("in PeakCallerTasklet constructor");
 	}
 
 	public PeakCallerTasklet(ResourceType softwareResourceType) {
@@ -87,20 +88,22 @@ public class PeakCallerTasklet extends LaunchManyJobsTasklet {
 	@Override
 	@Transactional("entityManager")
 	public void doExecute() {
-		
+		//logger.debug("1	in doExecute() ");	
 		Map<String,JobParameter> jobParametersMap = getStepExecution().getJobParameters().getParameters();	
 		Integer jobIdFromJobParameter = null;
 		for (String key : getStepExecution().getJobParameters().getParameters().keySet()) {
+			//logger.debug("2	in doExecute() key: " + key);	
 			if(key.equalsIgnoreCase(WaspJobParameters.JOB_ID)){
 				JobParameter jp = jobParametersMap.get(key);
 				jobIdFromJobParameter = new Integer(jp.toString());
+				//logger.debug("3	in doExecute() jobIdFromJobParameter: " + jobIdFromJobParameter.toString());
 			}
 		}
 		
 		Assert.assertTrue(jobIdFromJobParameter>0);
 		Job job = jobService.getJobByJobId(jobIdFromJobParameter);
 		Assert.assertTrue(job.getId()>0);
-		
+		//logger.debug("4	in doExecute()		");
 		List<SampleSource> approvedCellLibraryList = null;
 		try{
 			approvedCellLibraryList = sampleService.getCellLibrariesPassQCAndNoAggregateAnalysis(job);	
@@ -109,27 +112,34 @@ public class PeakCallerTasklet extends LaunchManyJobsTasklet {
 		}
 		Assert.assertTrue( approvedCellLibraryList!=null && ! approvedCellLibraryList.isEmpty() );		
 		Assert.assertTrue(this.sequencingService.confirmCellLibrariesAssociatedWithBamFiles(approvedCellLibraryList));
-
+		//logger.debug("5	in doExecute()	approvedCellLibraryList.size(): 	" + approvedCellLibraryList.size());
 		Map<Sample, List<SampleSource>> approvedSampleApprovedCellLibraryListMap = sampleService.associateUppermostSampleWithCellLibraries(approvedCellLibraryList);
 		//the Sample object is as high up as you can go (library if no macromolecule submitted; macromolecule otherwise).
 		//This is needed since the samplePairs and the replicateSet reference the Sample as high up as it can go
 		//and we also need to check the organism of each
-		
+		//logger.debug("6	in doExecute()	");	
 		Set<Sample> setOfApprovedSamples = new HashSet<Sample>();//for a specific job (note: this really could have been a list)
 		for (Sample approvedSample : approvedSampleApprovedCellLibraryListMap.keySet()) {
+			//logger.debug("7	in doExecute()	approved sample: " + approvedSample.getName());	
 			setOfApprovedSamples.add(approvedSample);
 		}
 		
 		Set<Sample> ipOfRequestedIPControlPairWithFilesForBoth = new HashSet<Sample>();
 		for(Sample approvedSample : setOfApprovedSamples){
+			//logger.debug("8	in doExecute()	");		
 			if(chipSeqService.isIP(approvedSample)){//as of 6-17-14, only call peaks for IP samples 
+				//logger.debug("A	in doExecute()	YES, it's an IP sample" );
 				List<SampleSource> cellLibraryListForIP = approvedSampleApprovedCellLibraryListMap.get(approvedSample);
+				//logger.debug("B	in doExecute()	cellLibraryListForIP.size(): " + cellLibraryListForIP.size());
 				//if(isPunctate(approvedSample){
 					for(SampleSource ss : sampleService.getSamplePairsByJob(job)){//each chipseq IP sample (ipFromSamplePair) will appear only once in this samplePair set
+						//logger.debug("C	in doExecute() ");
 						Sample ipFromSamplePair = ss.getSample();//IP 
 						Sample controlFromSamplePair = ss.getSourceSample();//input 
 						if(approvedSample.getId().intValue() == ipFromSamplePair.getId().intValue()){
+							//logger.debug("D	in doExecute() ");
 							if(setOfApprovedSamples.contains(controlFromSamplePair)){
+								//logger.debug("E	in doExecute() ");
 								Assert.assertTrue(sampleService.confirmSamplePairIsOfSameSpecies(ipFromSamplePair, controlFromSamplePair));
 								List<SampleSource> cellLibraryListForControl = approvedSampleApprovedCellLibraryListMap.get(controlFromSamplePair);
 								ipOfRequestedIPControlPairWithFilesForBoth.add(approvedSample);
@@ -149,6 +159,7 @@ public class PeakCallerTasklet extends LaunchManyJobsTasklet {
 	private void prepareAndLaunchMessage(Job job, List<Integer> testCellLibraryIdList, List<Integer> controlCellLibraryIdList){
 		try{
 			//this used to work in next line, but it no longer functions; instead we get error: lazy load problem    new WaspJobContext(jobId, jobService)
+			//logger.debug("9	in prepareAndLaunchMessage() of PeakCallerTasklet	");
 			WaspJobContext waspJobContext = new WaspJobContext(jobService.getJobAndSoftware(job));
 			SoftwareConfiguration softwareConfig = waspJobContext.getConfiguredSoftware(this.softwareResourceType);
 			if (softwareConfig == null){

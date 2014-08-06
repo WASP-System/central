@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -379,8 +378,6 @@ public interface FileService extends WaspService {
 
 	public FileHandle saveInDiscreteTransaction(FileHandle file);
 
-	public FileGroup saveInDiscreteTransaction(FileGroup group);
-
 	/**
 	 * CamelCase the name and remove any illegal characters
 	 * @param name
@@ -388,17 +385,7 @@ public interface FileService extends WaspService {
 	 */
 	public String getSanitizedName(String name);
 
-	public FileGroup saveInDiscreteTransaction(FileGroup group, LinkedHashSet<FileHandle> files, Set<? extends FileTypeAttribute> attributes);
-
-	public FileGroup saveInDiscreteTransaction(FileGroup group, LinkedHashSet<FileHandle> files, FileTypeAttribute fgAttribute);
-
-	public FileGroup saveInDiscreteTransaction(FileGroup group, FileHandle file, Set<? extends FileTypeAttribute> fgAttributes);
-
-	public FileGroup saveInDiscreteTransaction(FileGroup group, FileHandle file, FileTypeAttribute fgAttribute);
-
-	public FileGroup saveInDiscreteTransaction(FileGroup group, FileHandle file);
-
-	public FileGroup saveInDiscreteTransaction(FileGroup group, LinkedHashSet<FileHandle> files);
+	public FileGroup saveInDiscreteTransaction(FileGroup group, Set<? extends FileTypeAttribute> attributes);
 
 	public InputStream getInputStreamFromFileHandle(FileHandle fileHandle);
 

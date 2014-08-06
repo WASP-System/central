@@ -5,11 +5,21 @@
 <link rel="stylesheet" type="text/css" href="<wasp:relativeUrl value='css/ext-theme-neptune-all-wasp.css' />" />
 <link rel="stylesheet" type="text/css" href="<wasp:relativeUrl value='css/treeGrid.css' />" />
 
+<style>
+	.infoIcon {
+        background-image: url(<wasp:relativeUrl value="images/information_30x30.png" />) !important;
+        background-size: 15px 15px;
+	}
+	.infoNotAvailableIcon {
+        background-image: none;
+	}
+</style>
 
 <script type="text/javascript">
 
 Ext.require([
     'Ext.data.*',
+    'Ext.button.*',
     'Ext.tree.*',
     'Wasp.store.TreeGridStore'
 ]);
@@ -25,14 +35,15 @@ Ext.define('BatchTreeModel', {
         {name: 'endTime',     type: 'string'},
         {name: 'status',     type: 'string'},
         {name: 'exitCode', type: 'string'},
-        {name: 'exitMessage',     type: 'string'}
+        {name: 'exitMessage',     type: 'string'},
+        {name: 'resultAvailable', type: 'boolean'}
     ]
 });
 
 
 var itemsPerPage = 14;
 
-var store = Ext.create('Wasp.store.TreeGridStore', {
+var treeGridStore = Ext.create('Wasp.store.TreeGridStore', {
     model: 'BatchTreeModel',
     remoteSort: true,
     pageSize: itemsPerPage,
@@ -46,7 +57,7 @@ var store = Ext.create('Wasp.store.TreeGridStore', {
             totalProperty: 'totalCount',
             model: 'BatchTreeModel',
             listeners: {
-                exception: function(store, response, op) {
+                exception: function(treeGridStore, response, op) {
                 	window.location = window.location.pathname;
                 }
             }
@@ -61,6 +72,112 @@ var store = Ext.create('Wasp.store.TreeGridStore', {
     }
 });
 
+Ext.define('StepInfoModel', {
+	extend: 'Ext.data.Model',
+	fields: [
+		{name: 'info', type: 'string'},
+		{name: 'script', type: 'string'},
+		{name: 'stdout', type: 'string'},
+		{name: 'stderr', type: 'string'},
+		{name: 'clusterReport', type: 'string'},
+		{name: 'softwareList', type: 'string'},
+		{name: 'envVars', type: 'string'}
+	]
+});
+
+var infoStore = Ext.create('Ext.data.Store',{
+	model: 'StepInfoModel',
+	proxy: {
+		type: 'ajax',
+		url: 'getStepInfoJson.do',
+		reader:{
+			type: 'json',
+			root: 'modelList',
+			enablePaging: false,
+			model: 'StepInfoModel',
+			listeners: {
+                exception: function(infoStore, response, op) {
+                	window.location = window.location.pathname;
+                }
+            }
+			
+		}
+	}
+});
+
+
+function displayInfoData(jobExecutionId, stepName){
+	 $("#wait_dialog-modal").dialog("open");
+	infoStore.load({
+	    params: {
+	    	stepName: stepName,
+	    	jobExecutionId: jobExecutionId
+	    },
+	    callback: function(records, operation, success) {
+	    	// need to do all work in callback as loading is asynchronous and we 
+	    	// can only be sure we have access to retrieved data when inside the callback which is
+	    	// executed on data loading
+	    	rec = infoStore.first();
+   	   		win = Ext.create('Ext.window.Window', {
+   			title: 'Step \'' + stepName + '\' (job #' + jobExecutionId + ')' ,
+  			    header: {
+  			        titlePosition: 2,
+  			        titleAlign: 'center'
+  			    },
+  			    renderTo: Ext.getBody(),
+  			    closable: true,
+  			    maximizable: true,
+  			  	closeAction: 'hide',
+  			  	modal: true,
+  			    width: 800,
+  			    minWidth: 350,
+  			    height: 600,
+  			    layout: 'fit',
+  			    items: [{
+  			        region: 'center',
+  			        xtype: 'tabpanel',
+  			        items: [{
+  // 			            title: 'Status',
+ // 			            html: ''
+ // 			        }, {
+  			            title: 'Submission Info',
+  			            html: rec.get('info'),
+  			            autoScroll: true,
+  			        }, {
+  			            title: 'Script',
+  			            html: rec.get('script'),
+  			            autoScroll: true,
+  			        }, {
+  			            title: 'Software',
+  			            html: rec.get('softwareList'),
+  			            autoScroll: true,
+  			        }, {
+  			            title: 'Env',
+  			            html: rec.get('envVars'),
+  			            autoScroll: true,
+  			        }, {
+  			            title: 'StdOut (tail)',
+  			            html: rec.get('stdout'),
+  			            autoScroll: true,
+  			        }, {
+  			            title: 'StdErr (tail)',
+  			            html: rec.get('stderr'),
+  			            autoScroll: true,
+  			        }, {
+  			            title: 'Cluster Report',
+  			            html: rec.get('clusterReport'),
+  			            autoScroll: true,
+  			        }]
+  			    }]
+   			});
+   	   	 	$("#wait_dialog-modal").dialog("close");
+    		win.show();
+
+	    },
+	    scope: this
+	});
+};
+
 
 Ext.onReady(function() {
 
@@ -72,7 +189,7 @@ Ext.onReady(function() {
         collapsible: false,
         useArrows: true,
         rootVisible: false,
-        store: store,
+        store: treeGridStore,
         forceFit: true,
         multiSelect: false,
         columns: [{
@@ -88,72 +205,99 @@ Ext.onReady(function() {
             dataIndex: 'executionId'
         }, {
             text: '<fmt:message key="batchViewer.startedCol.label"/>',
+        	align: 'center',
             width: 150,
             sortable: true,
             dataIndex: 'startTime'
         }, {
         	text: '<fmt:message key="batchViewer.endedCol.label"/>',
+        	align: 'center',
             width: 150,
             sortable: true,
             dataIndex: 'endTime'
         }, {
         	text: '<fmt:message key="batchViewer.statusCol.label"/>',
-            width: 70,
+        	align: 'center',
+            width: 50,
             sortable: true,
             dataIndex: 'exitCode'
-        }, {
-        	text: '<fmt:message key="batchViewer.statusMessageCol.label"/>',
-            sortable: false,
-            flex: 1,
-            dataIndex: 'exitMessage'
+        },{
+        	text: '',
+        	align: 'center',
+        	sortable: false,
+            xtype: 'actioncolumn',
+            width: 50,
+            items: [{
+            	iconCls: 'infoIcon',
+                tooltip: 'Get Job Information',
+                tooltipType: 'title',
+                getClass: function(v, meta, rec) {
+                    if (rec.get('resultAvailable') == true) {
+                        return 'infoIcon';
+                    } else {
+                        return 'infoNotAvailableIcon';
+                    }
+                },
+                handler: function(grid, rowIndex, colIndex) {
+                	// action to be performed when icon clicked
+                	var rec = grid.getStore().getAt(rowIndex);
+                	if (rec.get('resultAvailable') == true){
+                		id = rec.get('id');
+                		stepName = rec.get('name');
+                		jobExecId = id.substring(2, id.indexOf('SE'));
+                		displayInfoData(jobExecId, stepName);
+                	}
+                    //Ext.Msg.alert('info', 'showing Job Info for ' + rec.get('executionId') );
+                }
+            }]
         }],
         tbar: [{
             text: '<fmt:message key="batchViewer.showAllButton.label"/>',
             scope: this,
             handler: function (){
-            	store.getProxy().extraParams.displayParam = "All";
-            	store.loadPage(1);
+            	treeGridStore.getProxy().extraParams.displayParam = "All";
+            	treeGridStore.loadPage(1);
             }
         }, {
             text: "<fmt:message key='batchViewer.showActiveButton.label'/> <img src='<wasp:relativeUrl value="images/gears_green_30x30.png" />' height='12' />",
             scope: this,
             handler: function (){
-            	store.getProxy().extraParams.displayParam = "Active";
-            	store.loadPage(1);
+            	treeGridStore.getProxy().extraParams.displayParam = "Active";
+            	treeGridStore.loadPage(1);
             }
         }, {
             text: "<fmt:message key='batchViewer.showCompletedButton.label'/> <img src='<wasp:relativeUrl value="images/pass.png" />' height='12' />",
             scope: this,
             handler: function (){
-            	store.getProxy().extraParams.displayParam = "Completed";
-            	store.loadPage(1);
+            	treeGridStore.getProxy().extraParams.displayParam = "Completed";
+            	treeGridStore.loadPage(1);
             }
         }, {
             text: "<fmt:message key='batchViewer.showTerminatedButton.label'/> <img src='<wasp:relativeUrl value="images/stop_yellow_25x25.png" />' height='12' />",
             scope: this,
             handler: function (){
-            	store.getProxy().extraParams.displayParam = "Terminated";
-            	store.loadPage(1);
+            	treeGridStore.getProxy().extraParams.displayParam = "Terminated";
+            	treeGridStore.loadPage(1);
             }
         }, {
             text: "<fmt:message key='batchViewer.showFailedButton.label'/> <img src='<wasp:relativeUrl value="images/fail.png" />' height='12' />",
             scope: this,
             handler: function (){
-            	store.getProxy().extraParams.displayParam = "Failed";
-            	store.loadPage(1);
+            	treeGridStore.getProxy().extraParams.displayParam = "Failed";
+            	treeGridStore.loadPage(1);
             }
         }],
         bbar: { // bottom tool bar for paging
             xtype: 'pagingtoolbar',
             emptyMsg: "<fmt:message key='batchViewer.pagingEmptyMsg.label'/>",
             pageSize: itemsPerPage,
-            store: store,
+            store: treeGridStore,
             displayInfo: true
         },
         listeners: {
         	sortchange: function(ct, column, direction, eOpts) {
         		// after sorting be sure to load the first page again
-            	store.loadPage(1);
+            	treeGridStore.loadPage(1);
             }
         }
     });
@@ -162,7 +306,7 @@ Ext.onReady(function() {
    	 tree.setHeight($('#content').height());
 	}).trigger('resize');
     
-    store.loadPage(1);
+    treeGridStore.loadPage(1);
 });
 
 </script>

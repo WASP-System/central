@@ -266,7 +266,7 @@ public class UserController extends WaspController {
 				 
 				//List<String> roles = roleService.getUniqueSortedRoleList(user);//unique list without lab affiliation
 				List<String> roles = roleService.getCompleteSortedRoleList(user);//complete list with lab affilation if labmember or labmanager
-				StringBuffer stringBuffer = new StringBuffer();
+				StringBuilder stringBuffer = new StringBuilder();
 				int counter = 1;
 				for(String role : roles){
 					if(counter > 1){stringBuffer.append("<br />");}

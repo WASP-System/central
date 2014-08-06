@@ -31,6 +31,7 @@ import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
+import edu.yu.einstein.wasp.grid.work.SgeWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
@@ -183,9 +184,10 @@ public class TrimGalore extends SoftwarePackage {
         String command = "trim_galore " + parameterString + " ${" + WorkUnit.INPUT_FILE + "[" + 0 + "]}";
         if (paired)
             command += " ${" + WorkUnit.INPUT_FILE + "[" + 1 + "]}";
-        command += " 2> ${inFile0Name/.fastq.gz/}_trim_galore.out.txt";
+        command += " 2>&1";
 
         w.addCommand(command);
+        w.addCommand("cp ${" + WorkUnit.WORKING_DIRECTORY + "}${" + WorkUnit.JOB_NAME + "}.out ${inFile0Name/.fastq.gz/}_trim_galore.out.txt");
 
         return w;
 
@@ -338,7 +340,7 @@ public class TrimGalore extends SoftwarePackage {
         
         trimmedName += prefix + ".fq.gz";
         logger.trace("trimmed file name " + originalName + " to " + trimmedName + " with final name " + displayName);
-        w.addCommand("ln -s " + trimmedName + " ${" + WorkUnit.OUTPUT_FILE + "[" + fileNumber + "]} ");
+        w.addCommand("ln -sf " + trimmedName + " ${" + WorkUnit.OUTPUT_FILE + "[" + fileNumber + "]} ");
         return createResultFile(fileHandle, displayName);
     }
 
@@ -395,7 +397,7 @@ public class TrimGalore extends SoftwarePackage {
     	logger.trace("trimmed fastq FileGroup " + fileGroup.getId() + " was derived from FileGroup " + origId);
     	
     	// output was written to parent filegroup ID
-    	String numStr = StringUtils.chomp(gws.getUnregisteredFileContents(result,  origId + "_1_sum_trim_number.txt"));
+    	String numStr = StringUtils.chomp(gws.getUnregisteredFileContents(result,  origId + "_1_sum_trim_number.txt", SgeWorkService.NO_FILE_SIZE_LIMIT));
     	
 		int numberOfClusters = Integer.parseInt(numStr);
 		
@@ -404,7 +406,7 @@ public class TrimGalore extends SoftwarePackage {
 		for (int i=1; i<=rs; i++) {
 			logger.trace("collecting trim data for " + fileGroup.getId() + " read " + i);
 			// output was written to parent filegroup ID
-			String ts = gws.getUnregisteredFileContents(result, origId + "_" + i + "_sum_trim_counts.txt");
+			String ts = gws.getUnregisteredFileContents(result, origId + "_" + i + "_sum_trim_counts.txt", SgeWorkService.NO_FILE_SIZE_LIMIT);
 			trimStrings.add(ts);
 		}
     	
