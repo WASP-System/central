@@ -185,7 +185,7 @@ public class Picard extends SoftwarePackage {
 			Samtools samtools = (Samtools) getSoftwareDependencyByIname("samtools");
 			Map <String,String> picardDedupMetricsMap = this.getPicardDedupMetrics(dedupMetricsFilename, scratchDirectory, gridHostResolver);
 			logger.debug("size of dedupMetrics in saveAlignmentMetrics: " + picardDedupMetricsMap.size());
-			Map <String,String> uniquelyAlignedReadCountMetricMap = samtools.getUniquelyAlignedReadCountMetrics(Samtools.UNIQUELY_ALIGNED_READ_COUNT_FILENAME, Samtools.UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FILENAME, scratchDirectory, gridHostResolver);
+			Map <String,String> uniquelyAlignedReadCountMetricMap = samtools.getUniquelyAlignedReadCountMetrics(scratchDirectory, gridHostResolver);
 			
 			//capture and add and print out jsaon
 			logger.debug("dedupMetrics output:");
@@ -322,7 +322,7 @@ public class Picard extends SoftwarePackage {
 		logger.debug("exiting getPicardDedupMetrics");
 		return picardDedupMetricsMap;
 	}
-
+/* this is apparently no longer used; was moved: see samtools.getUniquelyAlignedReadCountMetrics(String scratchDirectory, GridHostResolver gridHostResolver) in Samtools.java
 	public Map<String,String> getUniquelyAlignedReadCountMetrics(String uniquelyAlignedReadCountfilename, String uniquelyAlignedNonRedundantReadCountfilename,String scratchDirectory, GridHostResolver gridHostResolver)throws Exception{
 		
 		logger.debug("entering getUniquelyAlignedReadCountMetrics");
@@ -385,7 +385,7 @@ public class Picard extends SoftwarePackage {
 		return uniquelyAlignedReadCountMetricsMap;
 		
 	}
-	
+*/	
 	/**
 	 * 
 	 * Get a command string for Picard ExtractIlluminaBarcodes.  This command REQUIRES at least ~1500 file descriptors for Illumina HiSeq flowcells.   

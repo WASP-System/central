@@ -24,7 +24,16 @@ public interface BamService extends FileTypeService {
 	public static final String BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS = "uniqueReads";//map to single location	
 	public static final String BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS = "uniqueNonRedundantReads";//map to single location (duplicates removed)
 	public static final String BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT = "fractionUniqueNonRedundant"; // uniqueNonRedundantReads / uniqueReads
-	
+
+	//for mammalian genomes (point chip-seq)
+	public static final String BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS_FROM_10M = "uniqueReadsFrom10M";//the first 10M uniquely mapped reads in the bam file (so should be 10 Million)	
+	public static final String BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS_FROM_10M = "uniqueNonRedundantReadsFrom10M";//duplicates removed  from uniqueReadsFrom10M 
+	public static final String BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT_FROM_10M = "fractionUniqueNonRedundantFrom10M"; // uniqueNonRedundantReadsFrom10M / uniqueReadsFrom10M
+	//for mammalian genomes (broad chip-seq)
+	public static final String BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS_FROM_20M = "uniqueReadsFrom20M";//the first 20M uniquely mapped reads in the bam file (so should be 20 Million)	
+	public static final String BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS_FROM_20M = "uniqueNonRedundantReadsFrom20M";//duplicates removed  from uniqueReadsFrom20M 
+	public static final String BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT_FROM_20M = "fractionUniqueNonRedundantFrom20M"; // uniqueNonRedundantReadsFrom20M / uniqueReadsFrom20M
+
 	public FileType getBamFileType();
 
 }
