@@ -287,11 +287,11 @@ public class BatchJobStatusViewerServiceImpl extends WaspServiceImpl implements 
 	}
 	
 	private String renderMessageToHtml(String message){
-		return "<h2 style=\"padding-top: 50px;text-align:center\">" + message.replace("\n", "<br />") + "</h2>";
+		return "<h2 style=\"padding-top: 25px;text-align:center\">" + message.replace("\n", "<br />") + "</h2>";
 	}
 	
 	private String renderMapToHtmlTable(Map<String, String> data){
-		StringBuilder info = new StringBuilder("<div style=\"margin:15px\"><table class=\"keyValue\">");
+		StringBuilder info = new StringBuilder("<div style=\"margin:10px\"><table class=\"keyValue\">");
 		for (String key: data.keySet())
 			info.append("<tr><th>").append(key).append("</th><td>").append(data.get(key).replace("\n", "<br />")).append("</td></tr>");
 		info.append("</table></div>");
@@ -300,7 +300,7 @@ public class BatchJobStatusViewerServiceImpl extends WaspServiceImpl implements 
 	
 	private String renderSetToHtmlTable(Set<String> data){
 		int index = 1;
-		StringBuilder info = new StringBuilder("<div style=\"margin:15px\"><table class=\"keyValue\">");
+		StringBuilder info = new StringBuilder("<div style=\"margin:10px\"><table class=\"keyValue\">");
 		for (String value: data)
 			info.append("<tr><th>").append(index++).append("</th><td>").append(value.replace("\n", "<br />")).append("</td></tr>");
 		info.append("</table></div>");
@@ -309,7 +309,7 @@ public class BatchJobStatusViewerServiceImpl extends WaspServiceImpl implements 
 	
 	private String getPreformattedHtml(String text){
 		StringBuilder sb = new StringBuilder();
-		return sb.append("<pre style=\"padding: 15px\">").append(text).append("</pre>").toString();
+		return sb.append("<pre style=\"padding: 10px\">").append(text).append("</pre>").toString();
 	}
 	
 	private BatchJobSortAttribute getJobSortProperty(String property){
