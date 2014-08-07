@@ -41,6 +41,14 @@ public class Samtools extends SoftwarePackage{
 	private static final String UNIQUELY_ALIGNED_READ_COUNT_FROM_20M_READS_FILENAME = "uniquelyAlignedReadCountFrom20MReads.txt";
 	private static final String UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FROM_20M_READS_FILENAME = "uniquelyAlignedNonRedundantReadCountFrom20MReads.txt";
 
+	private static final String TEMP_SAM_2M_READS_FILENAME = "tempSamFileWith2MReads.sam";
+	private static final String UNIQUELY_ALIGNED_READ_COUNT_FROM_2M_READS_FILENAME = "uniquelyAlignedReadCountFrom2MReads.txt";
+	private static final String UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FROM_2M_READS_FILENAME = "uniquelyAlignedNonRedundantReadCountFrom2MReads.txt";
+
+	private static final String TEMP_SAM_5M_READS_FILENAME = "tempSamFileWith5MReads.sam";
+	private static final String UNIQUELY_ALIGNED_READ_COUNT_FROM_5M_READS_FILENAME = "uniquelyAlignedReadCountFrom5MReads.txt";
+	private static final String UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FROM_5M_READS_FILENAME = "uniquelyAlignedNonRedundantReadCountFrom5MReads.txt";
+
 	public Samtools() {
 		
 	}
@@ -51,11 +59,11 @@ public class Samtools extends SoftwarePackage{
 			return commandList;
 		}
 		commandList.addAll(getCommandsForNonRedundantFractionFromAllReads(bamFileName, alignerSpecificBamTagIndicatingUniqueAlignment));
-		commandList.addAll(getCommandsForNonRedundantFractionFrom10Mand20MReads(bamFileName, alignerSpecificBamTagIndicatingUniqueAlignment));		
+		commandList.addAll(getCommandsForNonRedundantFractionFrom2Mand5Mand10Mand20MReads(bamFileName, alignerSpecificBamTagIndicatingUniqueAlignment));		
 		return commandList;
 	}
 	
-	public List<String> getCommandsForNonRedundantFractionFromAllReads(String bamFileName, String alignerSpecificBamTagIndicatingUniqueAlignment){
+	private List<String> getCommandsForNonRedundantFractionFromAllReads(String bamFileName, String alignerSpecificBamTagIndicatingUniqueAlignment){
 		
 		List<String> commandList = new ArrayList<String>();
 		if(bamFileName==null || bamFileName.isEmpty()){
@@ -97,13 +105,14 @@ public class Samtools extends SoftwarePackage{
 		return command;
 	}
 	
-	public List<String> getCommandsForNonRedundantFractionFrom10Mand20MReads(String bamFileName, String alignerSpecificBamTagIndicatingUniqueAlignment){
+	private List<String> getCommandsForNonRedundantFractionFrom2Mand5Mand10Mand20MReads(String bamFileName, String alignerSpecificBamTagIndicatingUniqueAlignment){
 		
 		List<String> commandList = new ArrayList<String>();
 		if(bamFileName==null || bamFileName.isEmpty()){
 			return commandList;
 		}
-		//order IS important here
+		//10M
+		//order of commands IS important here (for commands 1 - 4; 5-8; 9-12; and 13-16)
 		//first: get the bamfile header and put it into new sam file named tempSamFileWith10MReads.sam (-H means add the header only)
 		String command = "samtools view -H -o " + TEMP_SAM_10M_READS_FILENAME + " " + bamFileName;
 		commandList.add(command);
@@ -124,7 +133,7 @@ public class Samtools extends SoftwarePackage{
 		String command4 = "samtools view -S -c -F 0x400 " + TEMP_SAM_10M_READS_FILENAME + " > " + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FROM_10M_READS_FILENAME;
 		commandList.add(command4);
 		
-		
+		//20M
 		String command5 = "samtools view -H -o " + TEMP_SAM_20M_READS_FILENAME + " " + bamFileName;
 		commandList.add(command5);
 		//second: append to named tempSamFileWith20MReads.sam the first 20,000,000 uniquely aligned reads using filter XT:A:U or use -q 1
@@ -144,6 +153,46 @@ public class Samtools extends SoftwarePackage{
 		String command8 = "samtools view -S -c -F 0x400 " + TEMP_SAM_20M_READS_FILENAME + " > " + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FROM_20M_READS_FILENAME;
 		commandList.add(command8);
 		
+		//2M
+		String command9 = "samtools view -H -o " + TEMP_SAM_2M_READS_FILENAME + " " + bamFileName;
+		commandList.add(command9);
+		//second: append to named tempSamFileWith2MReads.sam the first 2,000,000 uniquely aligned reads using filter XT:A:U or use -q 1
+		//it still works fine if there are less than 2M reads
+		String command10 = "";
+		if(alignerSpecificBamTagIndicatingUniqueAlignment != null && !alignerSpecificBamTagIndicatingUniqueAlignment.isEmpty()){
+			command10 = "samtools view " + bamFileName + " | awk 'BEGIN { c=0 } /" + alignerSpecificBamTagIndicatingUniqueAlignment + "/ { print; c++; if (c>=2000000) exit; } END {}' >> " + TEMP_SAM_2M_READS_FILENAME;
+		}
+		else{
+			command10 = "samtools view -q 1 " + bamFileName + " | awk 'BEGIN { c=0 } { print; c++; if (c>=2000000) exit; } END {}' >> " + TEMP_SAM_2M_READS_FILENAME;
+		}
+		commandList.add(command10);
+		//third: get total count -- should be 2M or in some cases hopefully rare cases, less than 2M (-S since input is samfile)
+		String command11 = "samtools view -S -c  " + TEMP_SAM_2M_READS_FILENAME + " > " + UNIQUELY_ALIGNED_READ_COUNT_FROM_2M_READS_FILENAME;
+		commandList.add(command11);
+		//four: remove duplicates and get non-redundant count from those 2M reads
+		String command12 = "samtools view -S -c -F 0x400 " + TEMP_SAM_2M_READS_FILENAME + " > " + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FROM_2M_READS_FILENAME;
+		commandList.add(command12);
+		
+		//5M
+		String command13 = "samtools view -H -o " + TEMP_SAM_5M_READS_FILENAME + " " + bamFileName;
+		commandList.add(command13);
+		//second: append to named tempSamFileWith5MReads.sam the first 5,000,000 uniquely aligned reads using filter XT:A:U or use -q 1
+		//it still works fine if there are less than 5M reads
+		String command14 = "";
+		if(alignerSpecificBamTagIndicatingUniqueAlignment != null && !alignerSpecificBamTagIndicatingUniqueAlignment.isEmpty()){
+			command14 = "samtools view " + bamFileName + " | awk 'BEGIN { c=0 } /" + alignerSpecificBamTagIndicatingUniqueAlignment + "/ { print; c++; if (c>=5000000) exit; } END {}' >> " + TEMP_SAM_5M_READS_FILENAME;
+		}
+		else{
+			command14 = "samtools view -q 1 " + bamFileName + " | awk 'BEGIN { c=0 } { print; c++; if (c>=5000000) exit; } END {}' >> " + TEMP_SAM_5M_READS_FILENAME;
+		}
+		commandList.add(command14);
+		//third: get total count -- should be 5M or in some cases hopefully rare cases, less than 5M (-S since input is samfile)
+		String command15 = "samtools view -S -c  " + TEMP_SAM_5M_READS_FILENAME + " > " + UNIQUELY_ALIGNED_READ_COUNT_FROM_5M_READS_FILENAME;
+		commandList.add(command15);
+		//four: remove duplicates and get non-redundant count from those 20M reads
+		String command16 = "samtools view -S -c -F 0x400 " + TEMP_SAM_5M_READS_FILENAME + " > " + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FROM_5M_READS_FILENAME;
+		commandList.add(command16);
+		
 		return commandList;
 	}	
 	
@@ -153,12 +202,16 @@ public class Samtools extends SoftwarePackage{
 		
 		Map<String,String> uniquelyAlignedReadCountMetricsMap = new HashMap<String,String>();
 		
-		String uniqueReads = "";//all the uniquely mapped reads
-		String uniqueNonRedundantReads = "";		
+		String uniqueReads = "";//all the uniquely mapped reads from the bam file
+		String uniqueNonRedundantReads = "";	//all the non-redundant uniquely mapped reads from the bam file	
 		String uniqueReadsFrom10M = "";//the first 10M uniquely mapped reads
 		String uniqueNonRedundantReadsFrom10M = "";//out of uniqueReadsFrom10M
 		String uniqueReadsFrom20M = "";
-		String uniqueNonRedundantReadsFrom20M = "";
+		String uniqueNonRedundantReadsFrom20M = "";		
+		String uniqueReadsFrom2M = "";
+		String uniqueNonRedundantReadsFrom2M = "";
+		String uniqueReadsFrom5M = "";//the first 5M uniquely mapped reads
+		String uniqueNonRedundantReadsFrom5M = "";//non-redundant reads out of the first 5M uniquely mapped reads
 		
 		WorkUnit w = new WorkUnit();
 		w.setProcessMode(ProcessMode.SINGLE);
@@ -172,7 +225,11 @@ public class Samtools extends SoftwarePackage{
 		w.addCommand("cat " + UNIQUELY_ALIGNED_READ_COUNT_FROM_10M_READS_FILENAME );
 		w.addCommand("cat " + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FROM_10M_READS_FILENAME );
 		w.addCommand("cat " + UNIQUELY_ALIGNED_READ_COUNT_FROM_20M_READS_FILENAME );
-		w.addCommand("cat " + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FROM_20M_READS_FILENAME );
+		w.addCommand("cat " + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FROM_20M_READS_FILENAME );		
+		w.addCommand("cat " + UNIQUELY_ALIGNED_READ_COUNT_FROM_2M_READS_FILENAME );
+		w.addCommand("cat " + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FROM_2M_READS_FILENAME );		
+		w.addCommand("cat " + UNIQUELY_ALIGNED_READ_COUNT_FROM_5M_READS_FILENAME );
+		w.addCommand("cat " + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FROM_5M_READS_FILENAME );
 		
 		GridResult r = transportConnection.sendExecToRemote(w);
 		InputStream is = r.getStdOutStream();
@@ -206,7 +263,19 @@ public class Samtools extends SoftwarePackage{
 			} else if (lineNumber == 6){
 				uniqueNonRedundantReadsFrom20M = line.replaceAll("\\n", "");//just in case there is a trailing new line;				
 				logger.debug("uniqueNonRedundantReadsFrom20M = " + uniqueNonRedundantReadsFrom20M);
-			} 
+			} else if (lineNumber == 7){
+				uniqueReadsFrom2M = line.replaceAll("\\n", "");//just in case there is a trailing new line				
+				logger.debug("uniqueReadsFrom2M = " + uniqueReadsFrom2M);
+			} else if (lineNumber == 8){
+				uniqueNonRedundantReadsFrom2M = line.replaceAll("\\n", "");//just in case there is a trailing new line;				
+				logger.debug("uniqueNonRedundantReadsFrom2M = " + uniqueNonRedundantReadsFrom2M);
+			} else if (lineNumber == 9){
+				uniqueReadsFrom5M = line.replaceAll("\\n", "");//just in case there is a trailing new line				
+				logger.debug("uniqueReadsFrom5M = " + uniqueReadsFrom5M);
+			} else if (lineNumber == 10){
+				uniqueNonRedundantReadsFrom5M = line.replaceAll("\\n", "");//just in case there is a trailing new line;				
+				logger.debug("uniqueNonRedundantReadsFrom5M = " + uniqueNonRedundantReadsFrom5M);
+			}
 			else {
 				keepReading = false;
 			}
@@ -220,7 +289,12 @@ public class Samtools extends SoftwarePackage{
 		uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS_FROM_10M, uniqueNonRedundantReadsFrom10M);
 		uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS_FROM_20M, uniqueReadsFrom20M);
 		uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS_FROM_20M, uniqueNonRedundantReadsFrom20M);
-		
+		uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS_FROM_2M, uniqueReadsFrom2M);
+		uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS_FROM_2M, uniqueNonRedundantReadsFrom2M);
+		uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS_FROM_5M, uniqueReadsFrom5M);
+		uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS_FROM_5M, uniqueNonRedundantReadsFrom5M);
+
+		//all
 		Double fractionUniqueNonRedundant_double = 0.0;
 		String fractionUniqueNonRedundant = fractionUniqueNonRedundant_double.toString();
 		if(!uniqueReads.isEmpty()&&!uniqueNonRedundantReads.isEmpty()){
@@ -234,6 +308,7 @@ public class Samtools extends SoftwarePackage{
 		}		
 		uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT, fractionUniqueNonRedundant);
 	
+		//10M
 		Double fractionUniqueNonRedundantFrom10M_double = 0.0;
 		String fractionUniqueNonRedundantFrom10M = fractionUniqueNonRedundantFrom10M_double.toString();
 		if(!uniqueReadsFrom10M.isEmpty() && !uniqueNonRedundantReadsFrom10M.isEmpty() ){
@@ -247,6 +322,7 @@ public class Samtools extends SoftwarePackage{
 		}
 		uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT_FROM_10M, fractionUniqueNonRedundantFrom10M);
 
+		//20M
 		Double fractionUniqueNonRedundantFrom20M_double = 0.0;
 		String fractionUniqueNonRedundantFrom20M = fractionUniqueNonRedundantFrom20M_double.toString();
 		if(!uniqueReadsFrom20M.isEmpty() && !uniqueNonRedundantReadsFrom20M.isEmpty() ){
@@ -260,6 +336,34 @@ public class Samtools extends SoftwarePackage{
 		}
 		uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT_FROM_20M, fractionUniqueNonRedundantFrom20M);
 
+		//2M
+		Double fractionUniqueNonRedundantFrom2M_double = 0.0;
+		String fractionUniqueNonRedundantFrom2M = fractionUniqueNonRedundantFrom2M_double.toString();
+		if(!uniqueReadsFrom2M.isEmpty() && !uniqueNonRedundantReadsFrom2M.isEmpty() ){
+			Integer uniqueReadsFrom2M_integer = Integer.valueOf(uniqueReadsFrom2M);
+			Integer uniqueNonRedundantReadsFrom2M_integer = Integer.valueOf(uniqueNonRedundantReadsFrom2M);		
+			if(uniqueReadsFrom2M_integer>0 && uniqueNonRedundantReadsFrom2M_integer>0){
+				fractionUniqueNonRedundantFrom2M_double = (double) uniqueNonRedundantReadsFrom2M_integer / uniqueReadsFrom2M_integer;
+				DecimalFormat myFormat = new DecimalFormat("0.000000");
+				fractionUniqueNonRedundantFrom2M = myFormat.format(fractionUniqueNonRedundantFrom2M_double);						
+			}	
+		}
+		uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT_FROM_2M, fractionUniqueNonRedundantFrom2M);
+		
+		//5M
+		Double fractionUniqueNonRedundantFrom5M_double = 0.0;
+		String fractionUniqueNonRedundantFrom5M = fractionUniqueNonRedundantFrom5M_double.toString();
+		if(!uniqueReadsFrom5M.isEmpty() && !uniqueNonRedundantReadsFrom5M.isEmpty() ){
+			Integer uniqueReadsFrom5M_integer = Integer.valueOf(uniqueReadsFrom5M);
+			Integer uniqueNonRedundantReadsFrom5M_integer = Integer.valueOf(uniqueNonRedundantReadsFrom5M);		
+			if(uniqueReadsFrom5M_integer>0 && uniqueNonRedundantReadsFrom5M_integer>0){
+				fractionUniqueNonRedundantFrom5M_double = (double) uniqueNonRedundantReadsFrom5M_integer / uniqueReadsFrom5M_integer;
+				DecimalFormat myFormat = new DecimalFormat("0.000000");
+				fractionUniqueNonRedundantFrom5M = myFormat.format(fractionUniqueNonRedundantFrom5M_double);						
+			}	
+		}
+		uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT_FROM_5M, fractionUniqueNonRedundantFrom5M);
+		
 		logger.debug("leaving getUniquelyAlignedReadCountMetrics");
 		return uniquelyAlignedReadCountMetricsMap;
 		
