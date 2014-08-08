@@ -44,13 +44,14 @@ public class GenericfileviewingWebServiceImpl extends GenericfileviewingServiceI
 		Iterator<FileHandle> it = set.iterator();
 		FileHandle file = it.next();
 		String fileName = fileGroup.getDescription();
+		logger.debug("Getting PanelTab for file of type " + fileGroup.getFileType().getIName());
 		if (fileGroup.getFileType().getIName().equals("txt")) {
 			panelTab = TextFilePanelRenderer.getPanelForFileGroup(fileName, fileService.getInputStreamFromFileHandle(file));
 		} else if (fileGroup.getFileType().getIName().equals("html")) {
 			panelTab = HtmlFilePanelRenderer.getPanelForFileGroup(fileName, fileService.getURLStringFromFileHandle(file));
 		} else if (fileGroup.getFileType().getIName().equals("csv")) {
 			panelTab = CsvFilePanelRenderer.getPanelForFileGroup(fileName, fileService.getInputStreamFromFileHandle(file), false);
-		} else if (fileGroup.getFileType().getIName().equals("csv")) {
+		} else if (fileGroup.getFileType().getIName().equals("tsv")) {
 			panelTab = TsvFilePanelRenderer.getPanelForFileGroup(fileName, fileService.getInputStreamFromFileHandle(file), false);
 		} else if (fileGroup.getFileType().getIName().equals("pdf")) {
 			panelTab = PdfFilePanelRenderer.getPanelForFileGroup(fileName, fileService.getURLStringFromFileHandle(file));

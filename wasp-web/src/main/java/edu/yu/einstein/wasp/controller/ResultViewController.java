@@ -56,13 +56,13 @@ public class ResultViewController extends WaspController {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
-	private JobService	jobService;
+	private JobService jobService;
 
 	@Autowired
-	private FilterService	filterService;
+	private FilterService filterService;
 
 	@Autowired
-	private AuthenticationService	authenticationService;
+	private AuthenticationService authenticationService;
 
 	@Autowired
 	private SampleService sampleService;
@@ -164,14 +164,11 @@ public class ResultViewController extends WaspController {
 		
 		HashMap<String, Object> jsDetailsTabs = new HashMap<String, Object>();
 
-		LinkedHashMap<String, Object> jsDetails = new LinkedHashMap<String, Object>();
 		logger.trace("nodeJSON=" + nodeJSON);
 		try {
 			JSONObject node = new JSONObject(nodeJSON);
 			Integer id = node.getInt("myid");
 			String type = node.getString("type");
-			Integer pid = node.getInt("pid");
-			Integer jid = node.getInt("jid");
 			
 			if(type.startsWith("job")) {
 				Integer jobId = id;
@@ -268,6 +265,7 @@ public class ResultViewController extends WaspController {
 					    		panelTab = plugin.getViewPanelTab(fg);
 					    	} catch (Exception e) {
 					    		logger.warn("Plugin " + plugin.getName() + " threw exception " + e.getLocalizedMessage() + " when attempting to get panel tab.  Skipping.");
+					    		e.printStackTrace();
 					    	}
 					    	if (panelTab!=null && !panelTab.getPanels().isEmpty()){
 						    	String tabId = "tab-" + (tabCount++).toString();

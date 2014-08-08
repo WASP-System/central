@@ -24,7 +24,7 @@
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.genericfileviewing" />
 		<property name="name" value="Generic File Viewing" />
-		<property name="description" value="Display generic type (csv, txt, html, pdf, images) files in panels " />
+		<property name="description" value="Display generic type (csv, tsv, txt, html, pdf, images) files in panels " />
 		<property name="provides" >
 			<set>
 				<ref bean="genericfileviewing" /> 
@@ -34,6 +34,7 @@
 			<set>
 				<ref bean="genericfileviewingPluginArea" />
 				<value>#{csvFileType.getIName()}</value>
+				<value>#{tsvFileType.getIName()}</value>
 				<value>#{textFileType.getIName()}</value>
 				<value>#{htmlFileType.getIName()}</value>
 				<value>#{pdfFileType.getIName()}</value>
