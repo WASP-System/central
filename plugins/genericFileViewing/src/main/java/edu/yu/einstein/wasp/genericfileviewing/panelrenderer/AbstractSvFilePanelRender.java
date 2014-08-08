@@ -13,6 +13,12 @@ import edu.yu.einstein.wasp.viewpanel.GridColumn;
 import edu.yu.einstein.wasp.viewpanel.GridContent;
 import edu.yu.einstein.wasp.viewpanel.GridDataField;
 
+/**
+ * 
+ * @author aj
+ * @author asmclellan
+ *
+ */
 public class AbstractSvFilePanelRender {
 	
 	private static Logger logger = Logger.getLogger(AbstractSvFilePanelRender.class);
@@ -37,9 +43,7 @@ public class AbstractSvFilePanelRender {
 			int lineNumber = 1;
 			while ((line = br.readLine()) != null && !line.trim().isEmpty() && (lineLimit == -1 || lineNumber++ <= lineLimit)) {
 				line = line.trim();
-				//logger.debug("line=" + line);
 				if (isFirstNonHeaderLineNotProcessed){
-					//logger.debug("isFirstNonHeaderLineNotProcessed=true");
 					// If the first line starts with #, it might be a header line There may be more than one so only consider the 
 					// last one we find a possible header line and then only if more than one tab delimited item
 					if (line.startsWith("#")) {
@@ -57,7 +61,9 @@ public class AbstractSvFilePanelRender {
 						if (fields.length > 1){ // unlikely to be a true header if only 1 field
 							Integer dataIndex = 1;
 							for (String fstr : fields) {
-								content.addColumn(new GridColumn(fstr.trim(), "di"+dataIndex, 1));
+								GridColumn c = new GridColumn(fstr.trim(), "di"+dataIndex, 1);
+								c.setWidth(150);
+								content.addColumn(c);
 								content.addDataFields(new GridDataField("di"+dataIndex, "string"));
 								dataIndex++;
 							}
@@ -66,20 +72,19 @@ public class AbstractSvFilePanelRender {
 					Integer dataIndex = 1;
 					List<String> row = new ArrayList<String>();
 					for (String fstr : line.split(seperator)) {
-						content.addColumn(new GridColumn("", "di"+dataIndex, 1));
-						content.addDataFields(new GridDataField("di"+dataIndex, "string"));
-						//logger.debug("row.add(" + fstr.trim() + ") for first line");
+						if (!header){
+							content.addColumn(new GridColumn("", "di"+dataIndex, 1));
+							content.addDataFields(new GridDataField("di"+dataIndex, "string"));
+						}
 						row.add(fstr.trim());
 						dataIndex++;
 					}
 					content.addDataRow(row);
 					isFirstNonHeaderLineNotProcessed = false;
 				} else { 
-					//logger.debug("isFirstNonHeaderLineNotProcessed=false");
 					List<String> row = new ArrayList<String>();
 					for (String fstr : line.split(seperator)){
 						row.add(fstr.trim());
-						//logger.debug("row.add(" + fstr.trim() + ")");
 					}
 					content.addDataRow(row);
 				}

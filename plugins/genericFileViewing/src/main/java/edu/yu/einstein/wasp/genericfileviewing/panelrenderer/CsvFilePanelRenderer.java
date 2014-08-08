@@ -26,7 +26,7 @@ public class CsvFilePanelRenderer extends AbstractSvFilePanelRender{
 		panelTab.setName("CSV File Viewer");
 		panelTab.setDescription("Generic CSV file viewing");
 		GridPanel panel = new GridPanel();
-		panel.setTitle(fileName);
+		panel.setTitle(fileName + " (up to " + LINE_LIMIT + " lines shown)");
 		panelTab.addPanel(panel);
 		if (is == null) {
 			panel.setContent(new GridContent());
