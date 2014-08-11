@@ -18,6 +18,7 @@ import edu.yu.einstein.wasp.genericfileviewing.panelrenderer.ImageFilePanelRende
 import edu.yu.einstein.wasp.genericfileviewing.panelrenderer.PdfFilePanelRenderer;
 import edu.yu.einstein.wasp.genericfileviewing.panelrenderer.TextFilePanelRenderer;
 import edu.yu.einstein.wasp.genericfileviewing.panelrenderer.TsvFilePanelRenderer;
+import edu.yu.einstein.wasp.genericfileviewing.panelrenderer.VcfFilePanelRenderer;
 import edu.yu.einstein.wasp.genericfileviewing.service.impl.GenericfileviewingServiceImpl;
 import edu.yu.einstein.wasp.genericfileviewing.web.service.GenericfileviewingWebService;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -53,6 +54,8 @@ public class GenericfileviewingWebServiceImpl extends GenericfileviewingServiceI
 			panelTab = CsvFilePanelRenderer.getPanelForFileGroup(fileName, fileService.getInputStreamFromFileHandle(file), false);
 		} else if (fileGroup.getFileType().getIName().equals("tsv")) {
 			panelTab = TsvFilePanelRenderer.getPanelForFileGroup(fileName, fileService.getInputStreamFromFileHandle(file), false);
+		} else if (fileGroup.getFileType().getIName().equals("vcf")) {
+			panelTab = VcfFilePanelRenderer.getPanelForFileGroup(fileName, fileService.getInputStreamFromFileHandle(file), false);
 		} else if (fileGroup.getFileType().getIName().equals("pdf")) {
 			panelTab = PdfFilePanelRenderer.getPanelForFileGroup(fileName, fileService.getURLStringFromFileHandle(file));
 		} else if (fileGroup.getFileType().getIName().equals("jpg") ||

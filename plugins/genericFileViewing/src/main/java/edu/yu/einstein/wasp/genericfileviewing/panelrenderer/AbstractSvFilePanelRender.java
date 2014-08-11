@@ -7,8 +7,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import edu.yu.einstein.wasp.viewpanel.GridColumn;
 import edu.yu.einstein.wasp.viewpanel.GridContent;
 import edu.yu.einstein.wasp.viewpanel.GridDataField;
@@ -21,7 +19,6 @@ import edu.yu.einstein.wasp.viewpanel.GridDataField;
  */
 public class AbstractSvFilePanelRender {
 	
-	private static Logger logger = Logger.getLogger(AbstractSvFilePanelRender.class);
 	
 	protected AbstractSvFilePanelRender(){} // makes abstract
 	
@@ -41,14 +38,14 @@ public class AbstractSvFilePanelRender {
 			String headerLine = "";
 			boolean isFirstNonHeaderLineNotProcessed = true;
 			int lineNumber = 1;
-			while ((line = br.readLine()) != null && !line.trim().isEmpty() && (lineLimit == -1 || lineNumber++ <= lineLimit)) {
+			while ((line = br.readLine()) != null && !line.trim().isEmpty() && (lineLimit == -1 || lineNumber <= lineLimit)) {
 				line = line.trim();
 				if (isFirstNonHeaderLineNotProcessed){
 					// If the first line starts with #, it might be a header line There may be more than one so only consider the 
 					// last one we find a possible header line and then only if more than one tab delimited item
 					if (line.startsWith("#")) {
 						header = true;
-						headerLine = line.substring(1);
+						headerLine = line.replaceFirst("#+", "");
 						continue;
 					}
 					if (header && headerLine.isEmpty()){
@@ -81,12 +78,14 @@ public class AbstractSvFilePanelRender {
 					}
 					content.addDataRow(row);
 					isFirstNonHeaderLineNotProcessed = false;
+					lineNumber++;
 				} else { 
 					List<String> row = new ArrayList<String>();
 					for (String fstr : line.split(seperator)){
 						row.add(fstr.trim());
 					}
 					content.addDataRow(row);
+					lineNumber++;
 				}
 			}
 			br.close();
