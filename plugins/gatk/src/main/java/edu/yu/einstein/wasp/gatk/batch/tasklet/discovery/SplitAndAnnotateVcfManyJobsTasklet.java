@@ -119,7 +119,7 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 			LinkedHashSet<UUID> sampleIdentifierSet = new LinkedHashSet<>(); 
 			sampleIdentifierSet.add(sample.getUUID());
 			String outFileNamePrefix = fileService.generateUniqueBaseFileName(sample);
-			prepareOutFilesAndLaunchJob(filteredSnpsVcfFg, outFileNamePrefix + "snps.filtered..", sampleIdentifierSet);
+			prepareOutFilesAndLaunchJob(filteredSnpsVcfFg, outFileNamePrefix + "snps.filtered.", sampleIdentifierSet);
 			prepareOutFilesAndLaunchJob(filteredIndelsVcfFg, outFileNamePrefix + "indels.filtered.", sampleIdentifierSet);
 		}
 	}
