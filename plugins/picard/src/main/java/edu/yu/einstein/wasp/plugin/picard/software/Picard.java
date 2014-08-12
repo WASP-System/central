@@ -411,7 +411,18 @@ public class Picard extends SoftwarePackage {
 			List<SampleSource> cellLibraries = sampleService.getCellLibrariesForCell(cell);
 			
 			for (SampleSource ss : cellLibraries) {
-				strategies.add(new IlluminaIndexingStrategy(illuminaService.getIndexingStrategy(ss).toString()));
+				try {
+					strategies.add(new IlluminaIndexingStrategy(illuminaService.getIndexingStrategy(ss).toString()));
+				} catch (WaspException e){
+					Sample lib = sampleService.getLibrary(ss);
+					if (sampleService.isControlLibrary(lib))
+						logger.info("Not able to retrieve indexing strategy for cell-library id=" + ss.getId() + 
+								", a control library with id=" + lib.getId() + " (" + lib.getName() + "). Probably no index which is normal");
+					else {
+						logger.warn("Unable to retrieve indexing strategy for cell-library id=" + ss.getId() + 
+								" (library id=" + lib.getId() + "): " + e.getLocalizedMessage());
+					}
+				}
 			}
 			
 			logger.trace("Lane " + index + ", dealing with " + strategies.size() + " strategies");
@@ -513,7 +524,7 @@ public class Picard extends SoftwarePackage {
 	}
 	
 	@Transactional("entityManager")
-	public void registerBarcodeMetadata(Run run, GridResult result) throws WaspException, MetadataException {
+	public void registerBarcodeMetadata(Run run, GridResult result) throws WaspException {
 		
 		Map<Integer,Sample> indexedCellMap = sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit());
 		
