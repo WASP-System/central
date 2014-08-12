@@ -431,7 +431,7 @@ public class Picard extends SoftwarePackage {
 		return cmd;
 	}
 	
-	private String getReadStructure(Run run, Integer cellId, IlluminaIndexingStrategy strategy) throws MetadataException, SampleTypeException {
+	private String getReadStructure(Run run, Integer cellId, IlluminaIndexingStrategy strategy) throws WaspException {
 		String rs = null;
 		List<Integer> indexLengths = illuminaService.getLengthOfIndexedReads(run);
 		List<Integer> segmentLengths = illuminaService.getLengthOfReadSegments(run);

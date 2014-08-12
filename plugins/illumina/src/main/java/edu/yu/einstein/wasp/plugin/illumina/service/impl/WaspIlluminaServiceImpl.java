@@ -28,7 +28,7 @@ import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.RunMetaDao;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.MetadataException;
-import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
@@ -44,8 +44,6 @@ import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.model.Workflow;
-import edu.yu.einstein.wasp.plugin.illumina.plugin.IlluminaResourceCategory;
 import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
 import edu.yu.einstein.wasp.plugin.illumina.util.IlluminaRunFolderNameParser;
 import edu.yu.einstein.wasp.plugin.mps.SequenceReadProperties.ReadType;
@@ -275,7 +273,7 @@ public class WaspIlluminaServiceImpl extends WaspServiceImpl implements WaspIllu
 	}
 
 	@Override
-	public IndexingStrategy getIndexingStrategy(SampleSource cellLibrary) throws MetadataException, SampleTypeException {
+	public IndexingStrategy getIndexingStrategy(SampleSource cellLibrary) throws WaspException {
 		Sample library = sampleService.getLibrary(cellLibrary);
 		return adaptorService.getIndexingStrategy(adaptorService.getAdaptor(library).getAdaptorset());
 	}

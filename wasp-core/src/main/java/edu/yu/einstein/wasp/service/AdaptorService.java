@@ -54,6 +54,7 @@ public interface AdaptorService extends WaspService {
 	 * 
 	 * @param library
 	 * @return
+	 * @throws WaspException
 	 */
 	public Adaptor getAdaptor(Sample library) throws WaspException;
 
