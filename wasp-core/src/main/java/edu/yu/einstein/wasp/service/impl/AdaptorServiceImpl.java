@@ -86,7 +86,7 @@ public class AdaptorServiceImpl extends WaspServiceImpl implements
 			String adaptorId = MetaHelper.getMetaValue("genericLibrary", "adaptor", lib.getSampleMeta());
 			return getAdaptorByAdaptorId(new Integer(adaptorId));
 		} catch (MetadataException | NumberFormatException | SampleTypeException e){
-			throw new WaspException("Failed to get adaptor for library with id=" + library.getId() + ": " + e.getLocalizedMessage());
+			throw new WaspException("Failed to get adaptor for library with id=" + library.getId() + ": " + e.getLocalizedMessage(), e);
 		}
 	}
 	
