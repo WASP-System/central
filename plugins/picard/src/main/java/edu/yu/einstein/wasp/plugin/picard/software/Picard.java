@@ -6,7 +6,6 @@ package edu.yu.einstein.wasp.plugin.picard.software;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.rmi.RemoteException;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,10 +15,8 @@ import java.util.Set;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.Message;
-import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.Document;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
@@ -398,13 +395,13 @@ public class Picard extends SoftwarePackage {
 	 * @throws MetadataException
 	 * @throws SampleTypeException
 	 */
-	public String getExtractIlluminaBarcodesCmd(Run run) throws MetadataException, SampleTypeException {
+	public String getExtractIlluminaBarcodesCmd(Run run) throws WaspException {
 		
 		String cmd = "rm -rf ./" + BARCODES_DIRECTORY + "\n";
 		
 		Map<Integer,Sample> indexedCellMap = sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit());
 		
-		Document runInfo = illuminaService.getIlluminaRunXml(run);
+		//Document runInfo = illuminaService.getIlluminaRunXml(run);
 		
 		for (Integer index : indexedCellMap.keySet()) {
 			
@@ -474,7 +471,7 @@ public class Picard extends SoftwarePackage {
 		return rs;
 	}
 	
-	private String getCreateBarcodeFileCmd(String outputDir, List<SampleSource> cellLibraries, IlluminaIndexingStrategy strategy) throws SampleTypeException, MetadataException {
+	private String getCreateBarcodeFileCmd(String outputDir, List<SampleSource> cellLibraries, IlluminaIndexingStrategy strategy) throws WaspException {
 		String outputFile = "./" + outputDir + "/barcodes.txt";
 		String retval = "echo -e \"" + getBarcodeFileHeader() + "\" > " + outputFile + "\n";
 		for (SampleSource cellLib : cellLibraries) {
@@ -487,13 +484,13 @@ public class Picard extends SoftwarePackage {
 				if (sepIndex == -1) {
 					String mess = "Not able to decode TRUSEQ_DUAL barcode " + a.getSequence();
 					logger.error(mess);
-					throw new MetadataException(mess);
+					throw new WaspException(mess);
 				}
 				retval += "echo -e \"" + a.getBarcodesequence().substring(0, sepIndex) + "\\t" + a.getBarcodesequence().substring(sepIndex+1) + "\\t" + a.getName() + "\\t" + library.getName() + "\" >> " + outputFile + "\n";
 			} else {
 				String mess = "Unknown IlluminaIndexingStrategy: " + strategy.toString();
 				logger.error(mess);
-				throw new MetadataException(mess);
+				throw new WaspException(mess);
 			}
 			 
 		}
@@ -520,7 +517,7 @@ public class Picard extends SoftwarePackage {
 		
 		Map<Integer,Sample> indexedCellMap = sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit());
 		
-		Document runInfo = illuminaService.getIlluminaRunXml(run);
+		//Document runInfo = illuminaService.getIlluminaRunXml(run);
 		
 		for (Integer index : indexedCellMap.keySet()) {
 			

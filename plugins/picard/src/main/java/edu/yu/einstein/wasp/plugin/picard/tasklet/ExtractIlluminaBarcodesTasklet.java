@@ -5,16 +5,13 @@ package edu.yu.einstein.wasp.plugin.picard.tasklet;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.Document;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.exception.MetadataException;
@@ -27,8 +24,6 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.Run;
-import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy;
 import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
 import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
 import edu.yu.einstein.wasp.plugin.picard.software.Picard;
@@ -80,7 +75,7 @@ public class ExtractIlluminaBarcodesTasklet extends WaspRemotingTasklet {
 	@Override
 	public void doExecute(ChunkContext context) throws Exception {
 		
-		Document runInfo = illuminaService.getIlluminaRunXml(run);
+		// Document runInfo = illuminaService.getIlluminaRunXml(run);
 		
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(casava);

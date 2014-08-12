@@ -25,6 +25,7 @@ import edu.yu.einstein.wasp.dao.AdaptorsetDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetMetaDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
@@ -77,10 +78,16 @@ public class AdaptorServiceImpl extends WaspServiceImpl implements
 	}
 
 	@Override
-	public Adaptor getAdaptor(Sample library) throws SampleTypeException, MetadataException {
-		Sample lib = sampleService.getSampleById(library.getId());
-		String adaptorId = MetaHelper.getMetaValue("genericLibrary", "adaptor", lib.getSampleMeta());
-		return getAdaptorByAdaptorId(new Integer(adaptorId));
+	public Adaptor getAdaptor(Sample library) throws WaspException {
+		try{
+			Sample lib = sampleService.getSampleById(library.getId());
+			if (!sampleService.isLibrary(lib))
+				throw new SampleTypeException("provided Sample object is not of type library");
+			String adaptorId = MetaHelper.getMetaValue("genericLibrary", "adaptor", lib.getSampleMeta());
+			return getAdaptorByAdaptorId(new Integer(adaptorId));
+		} catch (MetadataException | NumberFormatException | SampleTypeException e){
+			throw new WaspException("Failed to get adaptor for library with id=" + library.getId() + ": " + e.getLocalizedMessage());
+		}
 	}
 	
 	/**
