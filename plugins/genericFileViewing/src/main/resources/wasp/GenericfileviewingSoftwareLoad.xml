@@ -16,7 +16,7 @@
   <bean id="genericfileviewing" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
   	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.genericfileviewing.software.Genericfileviewing</value></property>
     <property name="name" value="Genericfileviewing" />
-    <property name="description" value="display generic file types in panels (csv, txt, html, pdf, images)" />
+    <property name="description" value="display generic file types in panels (csv, tsv, vcf, txt, html, pdf, images)" />
     <property name="area" ref="genericfileviewingPluginArea" />
     <property name="resourceType" ref="genericPluginResourceType" /> <!-- TODO: choose a more appropriate resource type -->
 	

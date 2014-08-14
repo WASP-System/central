@@ -55,7 +55,7 @@ public class FileController {
 			
 		} catch (IOException ex) {
 			if (ex.toString().contains("ClientAbortException")) {
-				logger.warn("Client abort when downloading file " + uuid.toString());
+				logger.warn("Client abort when downloading file " + uuid.toString() + ". This may be intentional (e.g. may be caused by closing stream early)");
 			} else {
 				logger.warn("Error writing file " + uuid.toString() + " to output stream.");
 				ex.printStackTrace();

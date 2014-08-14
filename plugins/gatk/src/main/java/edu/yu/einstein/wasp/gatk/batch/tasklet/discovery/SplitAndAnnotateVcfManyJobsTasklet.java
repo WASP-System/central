@@ -109,8 +109,8 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 			sampleIdentifierSet.add(test.getUUID());
 			sampleIdentifierSet.add(control.getUUID());
 			String outFileNamePrefix = fileService.generateUniqueBaseFileName(test) + fileService.generateUniqueBaseFileName(control);
-			prepareOutFilesAndLaunchJob(filteredSnpsVcfFg, outFileNamePrefix + "snps.", sampleIdentifierSet);
-			prepareOutFilesAndLaunchJob(filteredIndelsVcfFg, outFileNamePrefix + "indels.", sampleIdentifierSet);
+			prepareOutFilesAndLaunchJob(filteredSnpsVcfFg, outFileNamePrefix + "snps.filtered.", sampleIdentifierSet);
+			prepareOutFilesAndLaunchJob(filteredIndelsVcfFg, outFileNamePrefix + "indels.filtered.", sampleIdentifierSet);
 		}
 		for (Sample sample : samplesFgMapUsedForVarCalling.keySet()){
 			if (processedSamples.contains(sample))
@@ -119,8 +119,8 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 			LinkedHashSet<UUID> sampleIdentifierSet = new LinkedHashSet<>(); 
 			sampleIdentifierSet.add(sample.getUUID());
 			String outFileNamePrefix = fileService.generateUniqueBaseFileName(sample);
-			prepareOutFilesAndLaunchJob(filteredSnpsVcfFg, outFileNamePrefix + "filteredSnps.", sampleIdentifierSet);
-			prepareOutFilesAndLaunchJob(filteredIndelsVcfFg, outFileNamePrefix + "filteredIndels.", sampleIdentifierSet);
+			prepareOutFilesAndLaunchJob(filteredSnpsVcfFg, outFileNamePrefix + "snps.filtered.", sampleIdentifierSet);
+			prepareOutFilesAndLaunchJob(filteredIndelsVcfFg, outFileNamePrefix + "indels.filtered.", sampleIdentifierSet);
 		}
 	}
 	

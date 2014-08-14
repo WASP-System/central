@@ -3,7 +3,6 @@ package edu.yu.einstein.wasp.controller;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -19,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,21 +28,16 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.exception.PanelException;
-import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
-import edu.yu.einstein.wasp.interfacing.Hyperlink;
 import edu.yu.einstein.wasp.model.FileGroup;
-import edu.yu.einstein.wasp.model.FileHandle;
-import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobSoftware;
-import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.ResultViewService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.viewpanel.DataTabViewing.Status;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
@@ -56,20 +49,20 @@ import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 @Controller
-@Transactional
 @RequestMapping("/jobresults")
+// don't even think of putting @Transactional on here. Use the resultViewService to do transactional work
 public class ResultViewController extends WaspController {
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
-	private JobService	jobService;
+	private JobService jobService;
 
 	@Autowired
-	private FilterService	filterService;
+	private FilterService filterService;
 
 	@Autowired
-	private AuthenticationService	authenticationService;
+	private AuthenticationService authenticationService;
 
 	@Autowired
 	private SampleService sampleService;
@@ -79,6 +72,9 @@ public class ResultViewController extends WaspController {
 
 	@Autowired
 	private FileService fileService;
+	
+	@Autowired
+	private ResultViewService resultViewService;
 
 
 	//get locale-specific message
@@ -120,62 +116,16 @@ public class ResultViewController extends WaspController {
 	@PreAuthorize("hasRole('lu-*') or hasRole('su') or hasRole('ft-*') or hasRole('fm-*')")
 	public @ResponseBody String getFileGroupListJson(@RequestParam("fglist") String fgListStr, HttpServletResponse response) {
 		try {
-//			List<Map<String, String>> fgMapList = new ArrayList<Map<String,String>>();
-//			Hyperlink hl;
-//			for (String s : fgListStr.split(",")) {
-//				FileGroup fg = fileService.getFileGroupById(Integer.parseInt(s.trim()));
-//				Map<String,String> fgMap = new HashMap<String,String>();
-//				fgMap.put("id", fg.getId().toString());
-//				fgMap.put("name", fg.getDescription());
-//				try {
-//					hl = new Hyperlink("Download", fileUrlResolver.getURL(fg).toString());
-//					fgMap.put("link", hl.getTargetLink());
-//				} catch (GridUnresolvableHostException e) {
-//					logger.debug("Cannot resolver host for filegroup id " + s);
-//					e.printStackTrace();
-//				}
-//				
-//				fgMapList.add(fgMap);
-//			}
-//			
-//			return outputJSON(fgMapList, response);
-			
-			Set<FileHandle> fhSet = new HashSet<FileHandle>();
 			List<Map<String,String>> fileMapList = new ArrayList<Map<String,String>>();
-			Hyperlink hl;
 			try {
-				for (String s : fgListStr.split(",")) {
-					FileGroup fg = fileService.getFileGroupById(Integer.parseInt(s.trim()));
-
-					String fgidStr = fg.getId().toString();
-					String fgName = fg.getDescription();
-					hl = new Hyperlink("Download", fileUrlResolver.getURL(fg).toString());
-					String fgLink = hl.getTargetLink();
-					
-					fhSet = fg.getFileHandles();
-					for (FileHandle fh : fhSet) {
-						Map<String,String> fileMap = new HashMap<String,String>();
-						
-						fileMap.put("fgid", fgidStr);
-						fileMap.put("fgname", fgName);
-						fileMap.put("fglink", fgLink);
-						
-						fileMap.put("fid", fh.getId().toString());
-						fileMap.put("fname", fh.getFileName());
-						fileMap.put("md5", fh.getMd5hash());
-						fileMap.put("size", fh.getSizek() != null ? fh.getSizek().toString() : "0");
-						//fileMap.put("updated", fh.getUpdated().);
-						hl = new Hyperlink("Download", fileUrlResolver.getURL(fh).toString());
-						fileMap.put("link", hl.getTargetLink());
-						
-						fileMapList.add(fileMap);
-					}
-				}
-			} catch (GridUnresolvableHostException e) {
-				// TODO Auto-generated catch block
+				List<Integer> fgIdList = new ArrayList<Integer>();
+				for (String s : fgListStr.split(","))
+					fgIdList.add(Integer.parseInt(s.trim()));
+				fileMapList = resultViewService.getFileDataMapList(fgIdList);
+			} catch (Exception e) {
+				waspErrorMessage("resultViewer.getFileInfo.error");
 				e.printStackTrace();
 			}
-			
 			return outputJSON(fileMapList, response);
 		} catch (Throwable e) {
 			throw new IllegalStateException("Can't marshall to JSON for " + fgListStr, e);
@@ -214,14 +164,11 @@ public class ResultViewController extends WaspController {
 		
 		HashMap<String, Object> jsDetailsTabs = new HashMap<String, Object>();
 
-		LinkedHashMap<String, Object> jsDetails = new LinkedHashMap<String, Object>();
 		logger.trace("nodeJSON=" + nodeJSON);
 		try {
 			JSONObject node = new JSONObject(nodeJSON);
 			Integer id = node.getInt("myid");
 			String type = node.getString("type");
-			Integer pid = node.getInt("pid");
-			Integer jid = node.getInt("jid");
 			
 			if(type.startsWith("job")) {
 				Integer jobId = id;
@@ -281,124 +228,21 @@ public class ResultViewController extends WaspController {
 //				}
 
 			} else if(type.startsWith("filetype-")) {
-				FileType ft = fileService.getFileType(id);
-				Set<FileGroup> fgSet = new HashSet<FileGroup>();
-				if (node.has("libid")) {
-					Sample library = sampleService.getSampleById(node.getInt("libid"));
-					if (node.has("cellid")) { 
-						int cellId = node.getInt("cellid");
-						if (cellId < 0){ // will be < 0 if a library is imported 
-							SampleSource cellLibrary = sampleService.getCellLibrariesForLibrary(library).get((cellId * -1) - 1);
-							fgSet.addAll(fileService.getFilesForCellLibraryByType(cellLibrary, ft));
-						} else {
-							Sample cell = sampleService.getSampleById(cellId);
-							fgSet.addAll(fileService.getFilesForCellLibraryByType(cell, library, ft));
-						}
-					} else {
-						fgSet.addAll(fileService.getFilesForLibraryByType(library, ft));
-					}
-				}
-				
-				Set<FileHandle> fhSet = new HashSet<FileHandle>();
-				Hyperlink hl;
-
-				GridPanel filePanel = new GridPanel();
-				filePanel.setTitle("File Download Panel");
-				GridContent fileGridContent = new GridContent();
-				fileGridContent.addColumn(new GridColumn("File Name", "fname", 1));
-				fileGridContent.addColumn(new GridColumn("MD5 Checksum", "md5", 300, 0, "center", "center"));
-				fileGridContent.addColumn(new GridColumn("Size", "size", 100, 0, true, false));
-				
-				fileGridContent.addDataFields(new GridDataField("fgname", "string"));
-				fileGridContent.addDataFields(new GridDataField("fid", "string"));
-				fileGridContent.addDataFields(new GridDataField("fname", "string"));
-				fileGridContent.addDataFields(new GridDataField("md5", "string"));
-				fileGridContent.addDataFields(new GridDataField("size", "string"));
-				fileGridContent.addDataFields(new GridDataField("link", "string"));
-				fileGridContent.addDataFields(new GridDataField("gblink", "string"));
-				fileGridContent.addDataFields(new GridDataField("gbtype", "string"));
-				fileGridContent.addDataFields(new GridDataField("gbttp", "string"));
-				fileGridContent.addDataFields(new GridDataField("hidegb", "boolean"));
-				
-				try {
-					for (FileGroup fg : fgSet) {
-
-						String fgName = fg.getDescription();
-						fhSet = fg.getFileHandles();
-						for (FileHandle fh : fhSet) {
-							
-							List<String> filerow = new ArrayList<String>();
-							filerow.add(fgName);
-							filerow.add(fh.getId().toString());
-							filerow.add(fh.getFileName());
-							filerow.add(fh.getMd5hash());
-							filerow.add(fh.getSizek() != null ? fh.getSizek().toString() : "");
-							hl = new Hyperlink("Download", fileUrlResolver.getURL(fh).toString());
-							filerow.add(hl.getTargetLink());
-							
-							filerow.add(hl.getTargetLink());
-//							filerow.add("ucsc");
-//							filerow.add("View in UCSC Genome Browser");
-//							filerow.add("false");
-							switch ( (int) (Math.random()*3) ) {
-								case 0:	filerow.add("ucsc");
-										filerow.add("View in UCSC Genome Browser");
-										if ((int) (Math.random()*2)==0)
-											filerow.add("false");
-										else
-											filerow.add("true");
-										break;
-								
-								case 1:	filerow.add("ensembl");
-										filerow.add("View in Ensembl Genome Browser");
-										if ((int) (Math.random()*2)==0)
-											filerow.add("false");
-										else
-											filerow.add("true");
-										break;
-								
-								case 2:	filerow.add("igv");
-										filerow.add("View in IGV Genome Browser");
-										if ((int) (Math.random()*2)==0)
-											filerow.add("false");
-										else
-											filerow.add("true");
-										break;
-								
-								default: break;
-							}
-							
-							fileGridContent.addDataRow(filerow);
-						}
-					}
-				} catch (GridUnresolvableHostException e) {
-					// TODO Auto-generated catch block
+				Integer fileTypeId = id;
+				Integer libraryId = null;
+				Integer cellId = null ;
+				if (node.has("libid")) 
+					libraryId = node.getInt("libid");
+				if (node.has("cellid"))
+					cellId = node.getInt("cellid");
+				GridPanel filePanel = null;
+				try{
+					filePanel = resultViewService.getFileGridPanel(fileTypeId, libraryId, cellId);
+					jsDetailsTabs.put("filepanel", filePanel);
+				} catch (Exception e){
+					waspErrorMessage("resultViewer.getFilePanel.error");
 					e.printStackTrace();
 				}
-				
-				filePanel.setContent(fileGridContent);
-				
-				filePanel.setGrouping(true);
-				filePanel.setGroupField("fgname");
-				
-				filePanel.setHasDownload(true);
-				filePanel.setDownloadLinkField("link");
-				filePanel.setDownloadTooltip("Download");
-				
-				filePanel.setAllowSelectDownload(true);
-				filePanel.setSelectDownloadText("Download selected");
-				
-				filePanel.setAllowGroupDownload(true);
-				filePanel.setGroupDownloadTooltip("Download all");
-				filePanel.setGroupDownloadAlign("left");
-				
-				filePanel.setHasGbLink(true);
-				filePanel.setGbLinkField("gblink");
-				filePanel.setGbTypeField("gbtype");
-				filePanel.setGbTtpField("gbttp");
-				filePanel.setHideGbField("hidegb");
-				
-				jsDetailsTabs.put("filepanel", filePanel);
 				
 			} else if(type.startsWith("filegroup")) {
 				FileGroup fg = fileService.getFileGroupById(id);
@@ -421,6 +265,7 @@ public class ResultViewController extends WaspController {
 					    		panelTab = plugin.getViewPanelTab(fg);
 					    	} catch (Exception e) {
 					    		logger.warn("Plugin " + plugin.getName() + " threw exception " + e.getLocalizedMessage() + " when attempting to get panel tab.  Skipping.");
+					    		e.printStackTrace();
 					    	}
 					    	if (panelTab!=null && !panelTab.getPanels().isEmpty()){
 						    	String tabId = "tab-" + (tabCount++).toString();
@@ -436,8 +281,7 @@ public class ResultViewController extends WaspController {
 			}
 			
 			return outputJSON(jsDetailsTabs, response);
-		} 
-		catch (Throwable e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
 			throw new IllegalStateException("Can't marshall to JSON for " + nodeJSON, e);
 		}	
@@ -458,6 +302,7 @@ public class ResultViewController extends WaspController {
 			throw new PanelException(e.getMessage());
 		}
 	}
+	
 	private PanelTab constructSummaryPanelTab(Status jobStatus, Job job, Strategy strategy,	List<String> softwareNameList) {
 
 		//create the panelTab to house the panel

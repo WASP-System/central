@@ -190,8 +190,8 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 							logger.error(mess);
 							throw new RuntimeException(mess);
 						}
-						if (genomes.containsKey(name)) {
-							String mess = "Genome with name " + name + " already exists";
+						if (builds.containsKey(buildName)) {
+							String mess = "Build with name " + buildName + " already exists";
 							logger.error(mess);
 							throw new RuntimeException(mess);
 						}
