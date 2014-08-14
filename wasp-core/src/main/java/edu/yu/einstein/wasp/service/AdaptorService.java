@@ -18,7 +18,7 @@ import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetMetaDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
-import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
@@ -54,8 +54,9 @@ public interface AdaptorService extends WaspService {
 	 * 
 	 * @param library
 	 * @return
+	 * @throws WaspException
 	 */
-	public Adaptor getAdaptor(Sample library) throws MetadataException, SampleTypeException;
+	public Adaptor getAdaptor(Sample library) throws WaspException;
 
 	public void setAdaptorDao(AdaptorDao adaptorDao);
 

@@ -262,6 +262,12 @@ table.EditTable{
 	
 }
 
+div.scrollable{
+	height: 100%;
+	width: 100%;
+	overflow: auto;
+}
+
 	
 input[type="submit"], input[type="reset"],
 .button, 

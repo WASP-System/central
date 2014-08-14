@@ -8,7 +8,7 @@ import org.w3c.dom.Document;
 
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.MetadataException;
-import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
 import edu.yu.einstein.wasp.model.Run;
@@ -51,10 +51,10 @@ public interface WaspIlluminaService extends WaspService {
 	 * 
 	 * @param cellLibrary
 	 * @return
-	 * @throws MetadataException
+	 * @throws WaspException
 	 */
 	public boolean assayAllowsPairedEndData(SampleSource cellLibrary) throws MetadataException;
 	
-	public IndexingStrategy getIndexingStrategy(SampleSource cellLibrary) throws MetadataException, SampleTypeException;
+	public IndexingStrategy getIndexingStrategy(SampleSource cellLibrary) throws WaspException;
 
 }

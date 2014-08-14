@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.viewpanel;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +10,9 @@ import java.util.List;
  * 
  */
 
-public class GridContent extends Content {
+public class GridContent extends Content implements Serializable {
+
+	private static final long serialVersionUID = 2220412642707429616L;
 
 	private List<GridColumn> columns;
 

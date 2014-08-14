@@ -28,7 +28,7 @@ public class HtmlFilePanelRenderer {
 			return panelTab;
 		}
 
-		content.setHtmlCode("<div id='includedContent-" + url.hashCode() + "'></div>");
+		content.setHtmlCode("<div class='scrollable' id='includedContent-" + url.hashCode() + "'></div>");
 		String jsScript = "$('#includedContent-"+url.hashCode()+"').load('"+url+"');";
 		content.setScriptCode(jsScript);
 

@@ -20,6 +20,7 @@ import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -158,19 +159,19 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 	 * @param platformUnit
 	 * @return
 	 * @throws IOException
-	 * @throws MetadataException
-	 * @throws SampleTypeException
 	 */
-	private File createSampleSheet(Run run, IndexingStrategy method) throws IOException,
-			MetadataException, SampleTypeException {
-
+	private File createSampleSheet(Run run, IndexingStrategy method) throws IOException {
 		File f = File.createTempFile("wasp_iss", ".txt");
 		logger.debug("created temporary file: " + f.getAbsolutePath().toString());
 		BufferedWriter bw = new BufferedWriter(new FileWriter(f, false));
-		
-		bw.write(getSampleSheet(run, method));
-		
-		bw.close();
+		try {
+			bw.write(getSampleSheet(run, method));
+		} catch (WaspException e) {
+			throw new IOException(e);
+		}
+		finally {
+			bw.close();
+		}
 		return f;
 	}
 	
@@ -185,7 +186,7 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 	 * @throws SampleTypeException
 	 * @throws MetadataException
 	 */
-	public String getSampleSheet(Run run, IndexingStrategy method) throws SampleTypeException, MetadataException {
+	public String getSampleSheet(Run run, IndexingStrategy method) throws WaspException {
 
 		String sampleSheet = getSampleSheetHeader();
 		
