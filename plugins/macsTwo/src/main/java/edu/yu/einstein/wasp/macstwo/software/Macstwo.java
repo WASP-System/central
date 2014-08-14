@@ -14,8 +14,11 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.plugin.mps.grid.software.R;
+import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 // Un-comment the following if using the plugin service
 // import org.springframework.beans.factory.annotation.Autowired;
@@ -37,12 +40,14 @@ public class Macstwo extends SoftwarePackage{
 
 	@Autowired
 	private FileService fileService;
-	
+	@Autowired
+	private GenomeService genomeService;
+
 	public Macstwo() {
 	}
 
 	//note: test is same as treated, in macs2-speak (from the immunoprecipitated sample)
-	public WorkUnit getPeaks(String prefixForFileName, List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList, 
+	public WorkUnit getPeaks(Sample ipSample, Sample controlSample, String prefixForFileName, List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList, 
 			Map<String,Object> jobParametersMap, String modelFileName, String pdfFileName, String pngFileName){
 		
 		Assert.assertTrue(!testFileHandleList.isEmpty());
@@ -125,6 +130,9 @@ public class Macstwo extends SoftwarePackage{
 			tempCommand.append("${" + WorkUnit.INPUT_FILE + "["+i+"]} ");
 		}
 		
+		//mappable or "effective" genome size
+		tempCommand.append(" --gsize " + this.getMappableGenomeSize(ipSample) + " ");
+		
 		for (String key : jobParametersMap.keySet()) {
 	
 			String opt = "";
@@ -157,6 +165,7 @@ public class Macstwo extends SoftwarePackage{
 					continue;
 				}
 			}
+			/* as of 8-14-14, this is now dealt with above
 			if(key.equalsIgnoreCase("genomeSize")){
 				opt = "--gsize";
 				try{
@@ -166,6 +175,7 @@ public class Macstwo extends SoftwarePackage{
 					continue;
 				}
 			}
+			*/
 			if(key.equalsIgnoreCase("keepDup") ){//only yes or no are currently permitted on the forms
 				opt = "--keep-dup";	
 				if(jobParametersMap.get(key).toString().equalsIgnoreCase("no")){   //jobParameters.get(opt).toString().equalsIgnoreCase("no")){
@@ -305,5 +315,51 @@ public class Macstwo extends SoftwarePackage{
 	*/
 		
 		return w;
+	}
+	private String getMappableGenomeSize(Sample ipSample){
+		/*	from MACS2: https://github.com/taoliu/MACS/
+		 	-g/--gsize
+			PLEASE assign this parameter to fit your needs!
+			It's the mappable genome size or effective genome size which is defined as the genome size 
+			which can be sequenced. Because of the repetitive features on the chromsomes, the actual 
+			mappable genome size will be smaller than the original size, about 90% or 70% of the genome size. 
+			The default hs -- 2.7e9 is recommended for UCSC human hg18 assembly. 
+			Here are all precompiled parameters for effective genome size:
+			hs = 2.7e9
+			mm = 1.87e9
+			ce = 9e7
+			dm = 1.2e8
+		 */
+		//might be interesting: http://www.nature.com/nbt/journal/v27/n1/fig_tab/nbt.1518_T1.html
+		String retValue = "hs";
+		try{
+			Build build = genomeService.getBuild(ipSample);
+			String speciesName = build.getGenome().getOrganism().getName().replaceAll("\\s+", "").toLowerCase();//Homo sapiens to Homosapiens to homosapiens
+			
+			if("homosapiens".equals(speciesName) || speciesName.contains("sapiens")){
+				retValue = "hs";
+			}
+			else if("musmusculus".equals(speciesName) || speciesName.contains("musculus")){
+				retValue = "mm";
+			}
+			else if("caenorhabditiselegans".equals(speciesName) || speciesName.contains("elegans") ){
+				retValue = "ce";
+			}
+			else if("drosophilamelanogaster".equals(speciesName) || speciesName.contains("melanogaster")){
+				retValue = "dm";
+			}
+			else if("saccharomycescerevisiae".equals(speciesName) || speciesName.contains("cerevisiae")){
+				retValue = "1.1e7";//taken from old WASP
+			}
+			else if("schizosaccharomycespombe".equals(speciesName) || speciesName.contains("pombe")){
+				retValue = "1.2e7";//taken from old WASP
+			}
+			else if("toxoplasmagondii".equals(speciesName) || speciesName.contains("gondii")){
+				retValue = "6e7";//taken from old WASP
+			}			
+			
+		}catch(Exception e){logger.debug("exception getting build in Macstwo.java method getMappableGenomeSize()");}
+		
+		return retValue;
 	}
 }

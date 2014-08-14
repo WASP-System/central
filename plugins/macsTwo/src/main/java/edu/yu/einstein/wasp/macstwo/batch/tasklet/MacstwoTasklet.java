@@ -44,7 +44,9 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.mps.grid.software.Imagemagick;
 import edu.yu.einstein.wasp.plugin.mps.grid.software.R;
+import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 
@@ -103,6 +105,8 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	private SampleService sampleService;
 	@Autowired
 	private FileService fileService;
+	@Autowired
+	private GenomeService genomeService;
 
 	@Autowired
 	private GridHostResolver gridHostResolver;
@@ -277,7 +281,19 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		String pdfFileName = modelFileName.replaceAll(".r$", ".pdf");//abc_model.r will be used to generate abc_model.pdf
 		String pngFileName = modelFileName.replaceAll(".r$", ".png");//abc_model.pdf will be used to generate abc_model.png
 
-		WorkUnit w = macs2.getPeaks(prefixForFileName, testFileHandleList, controlFileHandleList, jobParametersMap, modelFileName, pdfFileName, pngFileName);//configure
+		Build build = genomeService.getBuild(testSample);
+		String speciesName = build.getGenome().getOrganism().getName();//Homo sapiens
+		String speciesCode = "";//for Homo sapiens, species code will be hs
+		String [] stringArray = speciesName.split("\\s+"); 
+		if(stringArray.length==2){
+			speciesCode = stringArray[0].substring(0, 1).toLowerCase();
+			speciesCode += stringArray[1].substring(0, 1).toLowerCase();
+		}
+		if(speciesCode.length()!=2){
+			speciesCode = "";
+		}
+		
+		WorkUnit w = macs2.getPeaks(testSample, controlSample, prefixForFileName, testFileHandleList, controlFileHandleList, jobParametersMap, modelFileName, pdfFileName, pngFileName);//configure
 		logger.debug("OK, workunit has been generated");
 		this.commandLineCall = w.getCommand();
 		this.commandLineCall = this.commandLineCall.replaceAll("\\n", "<br /><br />");//the workunit tagged on a newline at the end of the command; so remove it for db storage and replace with <br /> for display purposes

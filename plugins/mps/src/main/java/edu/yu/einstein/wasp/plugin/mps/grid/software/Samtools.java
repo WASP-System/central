@@ -33,6 +33,8 @@ public class Samtools extends SoftwarePackage{
 	private static final String UNIQUELY_ALIGNED_READ_COUNT_FILENAME = "uniquelyAlignedReadCount.txt";
 	private static final String UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FILENAME = "uniquelyAlignedNonRedundantReadCount.txt";
 	
+	private static final String TEMP_SAM_READS_FILENAME = "tempSamFileWithAllReads.sam";
+	
 	private static final String TEMP_SAM_10M_READS_FILENAME = "tempSamFileWith10MReads.sam";
 	private static final String UNIQUELY_ALIGNED_READ_COUNT_FROM_10M_READS_FILENAME = "uniquelyAlignedReadCountFrom10MReads.txt";
 	private static final String UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FROM_10M_READS_FILENAME = "uniquelyAlignedNonRedundantReadCountFrom10MReads.txt";
@@ -111,6 +113,59 @@ public class Samtools extends SoftwarePackage{
 		if(bamFileName==null || bamFileName.isEmpty()){
 			return commandList;
 		}
+		//this code was added 8-14-14 to replace and improve code that is commented out below
+		String command1 = "samtools view -H -o " + TEMP_SAM_2M_READS_FILENAME + " " + bamFileName;//-H header only; -o is followed by name of output file
+		commandList.add(command1);		
+		String command2 = "samtools view -H -o " + TEMP_SAM_5M_READS_FILENAME + " " + bamFileName;
+		commandList.add(command2);
+		String command3 = "samtools view -H -o " + TEMP_SAM_10M_READS_FILENAME + " " + bamFileName;
+		commandList.add(command3);
+		String command4 = "samtools view -H -o " + TEMP_SAM_20M_READS_FILENAME + " " + bamFileName;
+		commandList.add(command4);
+		//next add uniquely mapped reads to the appropriate header-containing file 
+		if(alignerSpecificBamTagIndicatingUniqueAlignment != null && !alignerSpecificBamTagIndicatingUniqueAlignment.isEmpty()){
+			//here , we first take all reads, then filter AND count with awk in command 6
+			String command5 = "samtools view -o "  + TEMP_SAM_READS_FILENAME + " " + bamFileName;//this discrete step appears to be needed on the cluster, as opposed to using a pipe into command 6
+			commandList.add(command5);			
+			String command6 = "awk 'BEGIN { c=0 } /XT:A:U/ { if(c < 2000000){print >> " + TEMP_SAM_2M_READS_FILENAME + ";} if(c < 5000000){print >> " + TEMP_SAM_5M_READS_FILENAME + ";} if(c < 10000000){print >> " + TEMP_SAM_10M_READS_FILENAME + ";} if(c < 20000000){print >> " + TEMP_SAM_20M_READS_FILENAME + ";} if(c >= 20000000){exit 0;} c++; }' " + TEMP_SAM_READS_FILENAME;
+			commandList.add(command6);
+		}
+		else{
+			//by contrast, here, we first filter with samtools view -q 1, then count with awk in command 6
+			String command5 = "samtools view -q 1 -o "  + TEMP_SAM_READS_FILENAME + " " + bamFileName;//this discrete step appears to be needed on the cluster, as opposed to using a pipe into command 6
+			commandList.add(command5);
+			String command6 = "awk 'BEGIN { c=0 } { if(c < 2000000){print >> " + TEMP_SAM_2M_READS_FILENAME + ";} if(c < 5000000){print >> " + TEMP_SAM_5M_READS_FILENAME + ";} if(c < 10000000){print >> " + TEMP_SAM_10M_READS_FILENAME + ";} if(c < 20000000){print >> " + TEMP_SAM_20M_READS_FILENAME + ";} if(c >= 20000000){exit 0;} c++; }' " + TEMP_SAM_READS_FILENAME;
+			commandList.add(command6);			
+		}
+		
+		//get the total read counts and then the non-redundant read counts into appropriate files for storage
+		//so for example: total count in TEMP_SAM_2M_READS_FILENAME should be 2M so UNIQUELY_ALIGNED_READ_COUNT_FROM_2M_READS_FILENAME should contain the number 2000000
+		//and UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FROM_2M_READS_FILENAME will contain a number less than 2M (the non-redundant count from those 2M unique reads).
+		//2M
+		String command11 = "samtools view -S -c  " + TEMP_SAM_2M_READS_FILENAME + " > " + UNIQUELY_ALIGNED_READ_COUNT_FROM_2M_READS_FILENAME;//-c means output a count
+		commandList.add(command11);
+		String command12 = "samtools view -S -c -F 0x400 " + TEMP_SAM_2M_READS_FILENAME + " > " + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FROM_2M_READS_FILENAME;//-F 0x400 remove redundant reads (PCR or optical duplicate)
+		commandList.add(command12);
+		//5M
+		String command13 = "samtools view -S -c  " + TEMP_SAM_5M_READS_FILENAME + " > " + UNIQUELY_ALIGNED_READ_COUNT_FROM_5M_READS_FILENAME;
+		commandList.add(command13);
+		String command14 = "samtools view -S -c -F 0x400 " + TEMP_SAM_5M_READS_FILENAME + " > " + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FROM_5M_READS_FILENAME;
+		commandList.add(command14);
+		//10M
+		String command15 = "samtools view -S -c  " + TEMP_SAM_10M_READS_FILENAME + " > " + UNIQUELY_ALIGNED_READ_COUNT_FROM_10M_READS_FILENAME;
+		commandList.add(command15);
+		String command16 = "samtools view -S -c -F 0x400 " + TEMP_SAM_10M_READS_FILENAME + " > " + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FROM_10M_READS_FILENAME;
+		commandList.add(command16);
+		//20M
+		String command17 = "samtools view -S -c  " + TEMP_SAM_20M_READS_FILENAME + " > " + UNIQUELY_ALIGNED_READ_COUNT_FROM_20M_READS_FILENAME;
+		commandList.add(command17);
+		String command18 = "samtools view -S -c -F 0x400 " + TEMP_SAM_20M_READS_FILENAME + " > " + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FROM_20M_READS_FILENAME;
+		commandList.add(command18);
+
+		
+		
+		
+		/*
 		//10M
 		//order of commands IS important here (for commands 1 - 4; 5-8; 9-12; and 13-16)
 		//first: get the bamfile header and put it into new sam file named tempSamFileWith10MReads.sam (-H means add the header only)
@@ -120,10 +175,10 @@ public class Samtools extends SoftwarePackage{
 		//it still works fine if there are less than 10M reads
 		String command2 = "";
 		if(alignerSpecificBamTagIndicatingUniqueAlignment != null && !alignerSpecificBamTagIndicatingUniqueAlignment.isEmpty()){
-			command2 = "samtools view " + bamFileName + " | awk 'BEGIN { c=0 } /" + alignerSpecificBamTagIndicatingUniqueAlignment + "/ { print; c++; if (c>=10000000) exit; } END {}' >> " + TEMP_SAM_10M_READS_FILENAME;
+			command2 = "samtools view " + bamFileName + " | awk 'BEGIN { c=0 } /" + alignerSpecificBamTagIndicatingUniqueAlignment + "/ { print; c++; if (c>=10000000) {exit 0;} } ' >> " + TEMP_SAM_10M_READS_FILENAME;
 		}
 		else{
-			command2 = "samtools view -q 1 " + bamFileName + " | awk 'BEGIN { c=0 } { print; c++; if (c>=10000000) exit; } END {}' >> " + TEMP_SAM_10M_READS_FILENAME;
+			command2 = "samtools view -q 1 " + bamFileName + " | awk 'BEGIN { c=0 } { print; c++; if (c>=10000000) {exit 0;} }' >> " + TEMP_SAM_10M_READS_FILENAME;
 		}
 		commandList.add(command2);
 		//third: get total count -- should be 10M or in some cases hopefully rare cases, less than 10M (-S since input is samfile)
@@ -140,10 +195,10 @@ public class Samtools extends SoftwarePackage{
 		//it still works fine if there are less than 20M reads
 		String command6 = "";
 		if(alignerSpecificBamTagIndicatingUniqueAlignment != null && !alignerSpecificBamTagIndicatingUniqueAlignment.isEmpty()){
-			command6 = "samtools view " + bamFileName + " | awk 'BEGIN { c=0 } /" + alignerSpecificBamTagIndicatingUniqueAlignment + "/ { print; c++; if (c>=20000000) exit; } END {}' >> " + TEMP_SAM_20M_READS_FILENAME;
+			command6 = "samtools view " + bamFileName + " | awk 'BEGIN { c=0 } /" + alignerSpecificBamTagIndicatingUniqueAlignment + "/ { print; c++; if (c>=20000000) {exit 0;} }' >> " + TEMP_SAM_20M_READS_FILENAME;
 		}
 		else{
-			command6 = "samtools view -q 1 " + bamFileName + " | awk 'BEGIN { c=0 } { print; c++; if (c>=20000000) exit; } END {}' >> " + TEMP_SAM_20M_READS_FILENAME;
+			command6 = "samtools view -q 1 " + bamFileName + " | awk 'BEGIN { c=0 } { print; c++; if (c>=20000000) {exit 0;} }' >> " + TEMP_SAM_20M_READS_FILENAME;
 		}
 		commandList.add(command6);
 		//third: get total count -- should be 20M or in some cases hopefully rare cases, less than 20M (-S since input is samfile)
@@ -192,7 +247,7 @@ public class Samtools extends SoftwarePackage{
 		//four: remove duplicates and get non-redundant count from those 20M reads
 		String command16 = "samtools view -S -c -F 0x400 " + TEMP_SAM_5M_READS_FILENAME + " > " + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FROM_5M_READS_FILENAME;
 		commandList.add(command16);
-		
+		*/
 		return commandList;
 	}	
 	
