@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.grid.GridExecutionException;
+import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
@@ -83,7 +84,12 @@ public class ModulesManager extends HashMap<String, String> implements SoftwareM
 			result += new StringBuilder().append(
 					"module load " + remoteName + "/" + version + "\n").toString();
 		}
-		result += "module list 2> ${" + WorkUnit.JOB_NAME + "}.sw\n\n";
+		if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
+			result += "if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then\n";
+		result += "module list 2> ${" + WorkUnit.JOB_NAME + "}.sw\n";
+		if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
+			result +="fi\n";
+		
 		
 		// configure the number of processes that will be used.
 		// TODO: clean up this logic

@@ -1099,8 +1099,15 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 				if (config != null) {
 					configurationStrBuf.append(config);
 				}
-			} 
+			}
+			
+			if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
+				configurationStrBuf.append("if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then\n");
 			configurationStrBuf.append("printenv | sort > ").append("${").append(WorkUnit.JOB_NAME).append("}.env\n");
+			if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
+				configurationStrBuf.append("fi\n");
+			
+			
 			configuration = configurationStrBuf.toString();
 			command = w.getCommand();
 			
