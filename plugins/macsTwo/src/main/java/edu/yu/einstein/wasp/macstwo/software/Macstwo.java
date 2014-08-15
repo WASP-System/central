@@ -15,10 +15,12 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.plugin.mps.grid.software.R;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 // Un-comment the following if using the plugin service
 // import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,8 @@ public class Macstwo extends SoftwarePackage{
 	private FileService fileService;
 	@Autowired
 	private GenomeService genomeService;
+	@Autowired
+	private SampleService sampleService;
 
 	public Macstwo() {
 	}
@@ -131,7 +135,19 @@ public class Macstwo extends SoftwarePackage{
 		}
 		
 		//mappable or "effective" genome size
-		tempCommand.append(" --gsize " + this.getMappableGenomeSize(ipSample) + " ");
+		//really should have this with the build , at least for those that are not hs, mm, dm, and ce
+		String genomeSize = this.getMappableGenomeSize(ipSample);
+		Assert.assertTrue(!genomeSize.isEmpty());
+		tempCommand.append(" --gsize " + genomeSize + " ");
+		
+		//bandwidth : sonication size if macromolecule; insert size if library  (no, it's not 1/2 of this value, this according to Dayou; also, it's the fragment/sonication size of the IP that is important (no need to consider the control for this parameter)
+		//old wasp used library insert; here we use a user-provided fragmentSize
+		String fragmentSize = this.getFragmentSize(ipSample);
+		if(!fragmentSize.isEmpty()){//if is empty, accept default value
+			tempCommand.append(" --bw " + fragmentSize + " ");
+		}
+		
+		//tag size (take as flowcell read lenth for IPs; take smallest of all)
 		
 		for (String key : jobParametersMap.keySet()) {
 	
@@ -316,7 +332,7 @@ public class Macstwo extends SoftwarePackage{
 		
 		return w;
 	}
-	private String getMappableGenomeSize(Sample ipSample){
+	private String getMappableGenomeSize(Sample ipSample)  {
 		/*	from MACS2: https://github.com/taoliu/MACS/
 		 	-g/--gsize
 			PLEASE assign this parameter to fit your needs!
@@ -331,11 +347,11 @@ public class Macstwo extends SoftwarePackage{
 			dm = 1.2e8
 		 */
 		//might be interesting: http://www.nature.com/nbt/journal/v27/n1/fig_tab/nbt.1518_T1.html
-		String retValue = "hs";
+		//THIS IS IMPORTANT; you cannot simply use hs as a default genome size.
+		String retValue = "";
 		try{
 			Build build = genomeService.getBuild(ipSample);
-			String speciesName = build.getGenome().getOrganism().getName().replaceAll("\\s+", "").toLowerCase();//Homo sapiens to Homosapiens to homosapiens
-			
+			String speciesName = build.getGenome().getOrganism().getName().replaceAll("\\s+", "").toLowerCase();//Homo sapiens to Homosapiens to homosapiens			
 			if("homosapiens".equals(speciesName) || speciesName.contains("sapiens")){
 				retValue = "hs";
 			}
@@ -349,17 +365,25 @@ public class Macstwo extends SoftwarePackage{
 				retValue = "dm";
 			}
 			else if("saccharomycescerevisiae".equals(speciesName) || speciesName.contains("cerevisiae")){
-				retValue = "1.1e7";//taken from old WASP
+				retValue = "1.1e7";  //taken from old WASP
 			}
 			else if("schizosaccharomycespombe".equals(speciesName) || speciesName.contains("pombe")){
-				retValue = "1.2e7";//taken from old WASP
+				retValue = "1.2e7"; //taken from old WASP
 			}
 			else if("toxoplasmagondii".equals(speciesName) || speciesName.contains("gondii")){
-				retValue = "6e7";//taken from old WASP
+				retValue = "6e7";  //taken from old WASP
 			}			
-			
 		}catch(Exception e){logger.debug("exception getting build in Macstwo.java method getMappableGenomeSize()");}
 		
 		return retValue;
+	}
+	private String getFragmentSize(Sample ipSample)  {
+		String fragmentSize = "";
+		for(SampleMeta sm : ipSample.getSampleMeta()){
+			if(sm.getK().equalsIgnoreCase("chipseqDna.fragmentSize")){
+				fragmentSize = sm.getV();
+			}
+		}
+		return fragmentSize;
 	}
 }

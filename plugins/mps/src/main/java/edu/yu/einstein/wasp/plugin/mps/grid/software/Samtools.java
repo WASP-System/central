@@ -33,7 +33,7 @@ public class Samtools extends SoftwarePackage{
 	private static final String UNIQUELY_ALIGNED_READ_COUNT_FILENAME = "uniquelyAlignedReadCount.txt";
 	private static final String UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FILENAME = "uniquelyAlignedNonRedundantReadCount.txt";
 	
-	private static final String TEMP_SAM_READS_FILENAME = "tempSamFileWithAllReads.sam";
+	private static final String TEMP_SAM_READS_WITHOUT_HEADER_FILENAME = "tempSamFileWithAllReadsAndWithoutHeader.sam";
 	
 	private static final String TEMP_SAM_2M_READS_FILENAME = "tempSamFileWith2MReads.sam";
 	private static final String UNIQUELY_ALIGNED_READ_COUNT_FROM_2M_READS_FILENAME = "uniquelyAlignedReadCountFrom2MReads.txt";
@@ -132,16 +132,16 @@ public class Samtools extends SoftwarePackage{
 		//next add uniquely mapped reads to the appropriate header-containing file 
 		if(alignerSpecificBamTagIndicatingUniqueAlignment != null && !alignerSpecificBamTagIndicatingUniqueAlignment.isEmpty()){
 			//here , we first take all reads, then filter AND count with awk in command 6
-			String command5 = "samtools view -o "  + TEMP_SAM_READS_FILENAME + " " + bamFileName;//this discrete step appears to be needed on the cluster, as opposed to using a pipe into command 6
+			String command5 = "samtools view -o "  + TEMP_SAM_READS_WITHOUT_HEADER_FILENAME + " " + bamFileName;//this discrete step appears to be needed on the cluster, as opposed to using a pipe into command 6
 			commandList.add(command5);			
-			String command6 = "awk 'BEGIN { c=0 } /XT:A:U/ { if(c < 2000000){print >> " + TEMP_SAM_2M_READS_FILENAME + ";} if(c < 5000000){print >> " + TEMP_SAM_5M_READS_FILENAME + ";} if(c < 10000000){print >> " + TEMP_SAM_10M_READS_FILENAME + ";} if(c < 20000000){print >> " + TEMP_SAM_20M_READS_FILENAME + ";}  print >> " + TEMP_SAM_ALL_READS_FILENAME + "; c++; }' " + TEMP_SAM_READS_FILENAME;
+			String command6 = "awk 'BEGIN { c=0 } /XT:A:U/ { if(c < 2000000){print >> " + TEMP_SAM_2M_READS_FILENAME + ";} if(c < 5000000){print >> " + TEMP_SAM_5M_READS_FILENAME + ";} if(c < 10000000){print >> " + TEMP_SAM_10M_READS_FILENAME + ";} if(c < 20000000){print >> " + TEMP_SAM_20M_READS_FILENAME + ";}  print >> " + TEMP_SAM_ALL_READS_FILENAME + "; c++; }' " + TEMP_SAM_READS_WITHOUT_HEADER_FILENAME;
 			commandList.add(command6);
 		}
 		else{
 			//by contrast, here, we first filter with samtools view -q 1, then count with awk in command 6
-			String command5 = "samtools view -q 1 -o "  + TEMP_SAM_READS_FILENAME + " " + bamFileName;//this discrete step appears to be needed on the cluster, as opposed to using a pipe into command 6
+			String command5 = "samtools view -q 1 -o "  + TEMP_SAM_READS_WITHOUT_HEADER_FILENAME + " " + bamFileName;//this discrete step appears to be needed on the cluster, as opposed to using a pipe into command 6
 			commandList.add(command5);
-			String command6 = "awk 'BEGIN { c=0 } { if(c < 2000000){print >> " + TEMP_SAM_2M_READS_FILENAME + ";} if(c < 5000000){print >> " + TEMP_SAM_5M_READS_FILENAME + ";} if(c < 10000000){print >> " + TEMP_SAM_10M_READS_FILENAME + ";} if(c < 20000000){print >> " + TEMP_SAM_20M_READS_FILENAME + ";} print >> " + TEMP_SAM_ALL_READS_FILENAME + "; c++; }' " + TEMP_SAM_READS_FILENAME;
+			String command6 = "awk 'BEGIN { c=0 } { if(c < 2000000){print >> " + TEMP_SAM_2M_READS_FILENAME + ";} if(c < 5000000){print >> " + TEMP_SAM_5M_READS_FILENAME + ";} if(c < 10000000){print >> " + TEMP_SAM_10M_READS_FILENAME + ";} if(c < 20000000){print >> " + TEMP_SAM_20M_READS_FILENAME + ";} print >> " + TEMP_SAM_ALL_READS_FILENAME + "; c++; }' " + TEMP_SAM_READS_WITHOUT_HEADER_FILENAME;
 			commandList.add(command6);			
 		}
 		
