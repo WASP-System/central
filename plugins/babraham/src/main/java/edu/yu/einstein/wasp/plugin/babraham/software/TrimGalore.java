@@ -265,7 +265,7 @@ public class TrimGalore extends SoftwarePackage {
             FileHandle newF = doFile(w, fileN++, fh, fastqG);
             fileTypeService.copyMetaByArea(fh, newF, FileTypeService.FILETYPE_AREA);
             fastqService.copyFastqFileHandleMetadata(fh, newF);
-            newF.setFileName(library.getName() + "_" + newF.getFileName());
+            newF.setFileName(fileService.getSanitizedName(library.getName()) + "_" + newF.getFileName());
             trimmed_fastq.add(newF);
 
             if (rs == 2) {

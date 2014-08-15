@@ -92,6 +92,10 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			Sample test = sampleService.getTestSample(samplePair);
 			Sample control = sampleService.getControlSample(samplePair);
 			logger.debug("handling sample pair: test id=" + test.getId() + " and control id=" + control.getId());
+			if (!allFgIn.containsKey(test) || !allFgIn.containsKey(control)){
+				logger.info("Unable to process sample pair as at least one of the samples is not represented in the list of samples to process");
+				continue;
+			}
 			processedSamples.add(test);
 			processedSamples.add(control);
 			FileGroup testFgIn = fileService.getFileGroupById(allFgIn.get(test).getId());
