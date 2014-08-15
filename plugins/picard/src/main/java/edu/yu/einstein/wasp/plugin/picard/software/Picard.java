@@ -456,6 +456,15 @@ public class Picard extends SoftwarePackage {
 		int maxBarcodeLength = 0;
 		for (Sample lib : libraries) {
 			Adaptor adapter = sampleService.getLibraryAdaptor(lib);
+			if (adapter == null){
+				if (sampleService.isControlLibrary(lib)){
+					logger.info("Ignoring library with id=" + lib.getId() + " as no adapter and is a control");
+					continue;
+				}
+				else {
+					throw new WaspException("Library with id=" + lib.getId() + " has no adapter");
+				}
+			}
 			String[] barcodes = adapter.getBarcodesequence().split("-");
 			if(barcodes[0].length() > maxBarcodeLength) 
 				maxBarcodeLength = barcodes[0].length();
@@ -540,7 +549,18 @@ public class Picard extends SoftwarePackage {
 			List<SampleSource> cellLibraries = sampleService.getCellLibrariesForCell(cell);
 			
 			for (SampleSource ss : cellLibraries) {
-				strategies.add(new IlluminaIndexingStrategy(illuminaService.getIndexingStrategy(ss).toString()));
+				try{
+					strategies.add(new IlluminaIndexingStrategy(illuminaService.getIndexingStrategy(ss).toString()));
+				} catch (WaspException e){
+					Sample lib = sampleService.getLibrary(ss);
+					if (sampleService.isControlLibrary(lib))
+						logger.info("Not able to retrieve indexing strategy for cell-library id=" + ss.getId() + 
+								", a control library with id=" + lib.getId() + " (" + lib.getName() + "). Probably no index which is normal");
+					else {
+						logger.warn("Unable to retrieve indexing strategy for cell-library id=" + ss.getId() + 
+								" (library id=" + lib.getId() + ") so not going to process cell library: " + e.getLocalizedMessage());
+					}
+				}
 			}
 			
 			logger.trace("Lane " + index + ", registering " + strategies.size() + " strategies");
