@@ -42,6 +42,11 @@ public interface BamService extends FileTypeService {
 	public static final String BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS_FROM_5M = "uniqueNonRedundantReadsFrom5M";//duplicates removed  from uniqueReadsFrom5M 
 	public static final String BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT_FROM_5M = "fractionUniqueNonRedundantFrom5M"; // uniqueNonRedundantReadsFrom5M / uniqueReadsFrom5M
 
+	public static final String BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS_FROM_ALL = "uniqueReadsFromAll";//uniquely mapped reads in the bam file (from all the reads)
+	public static final String BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS_FROM_ALL = "uniqueNonRedundantReadsFromAll";//duplicates removed  from uniqueReadsFromAll 
+	public static final String BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT_FROM_ALL = "fractionUniqueNonRedundantFromAll"; // uniqueNonRedundantReadsFromAll / uniqueReadsFromAll
+
+	
 	public FileType getBamFileType();
 
 }
