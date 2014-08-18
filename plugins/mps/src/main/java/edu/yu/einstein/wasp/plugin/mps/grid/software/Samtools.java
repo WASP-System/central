@@ -134,14 +134,14 @@ public class Samtools extends SoftwarePackage{
 			//here , we first take all reads, then filter AND count with awk in command 6
 			String command5 = "samtools view -o "  + TEMP_SAM_READS_WITHOUT_HEADER_FILENAME + " " + bamFileName;//this discrete step appears to be needed on the cluster, as opposed to using a pipe into command 6
 			commandList.add(command5);			
-			String command6 = "awk 'BEGIN { c=0 } /XT:A:U/ { if(c < 2000000){print >> " + TEMP_SAM_2M_READS_FILENAME + ";} if(c < 5000000){print >> " + TEMP_SAM_5M_READS_FILENAME + ";} if(c < 10000000){print >> " + TEMP_SAM_10M_READS_FILENAME + ";} if(c < 20000000){print >> " + TEMP_SAM_20M_READS_FILENAME + ";}  print >> " + TEMP_SAM_ALL_READS_FILENAME + "; c++; }' " + TEMP_SAM_READS_WITHOUT_HEADER_FILENAME;
+			String command6 = "awk 'BEGIN { c=0 } /XT:A:U/ { if(c < 2000000){print >> \"" + TEMP_SAM_2M_READS_FILENAME + "\";} if(c < 5000000){print >> \"" + TEMP_SAM_5M_READS_FILENAME + "\";} if(c < 10000000){print >> \"" + TEMP_SAM_10M_READS_FILENAME + "\";} if(c < 20000000){print >> \"" + TEMP_SAM_20M_READS_FILENAME + "\";}  print >> \"" + TEMP_SAM_ALL_READS_FILENAME + "\"; c++; }' " + TEMP_SAM_READS_WITHOUT_HEADER_FILENAME;
 			commandList.add(command6);
 		}
 		else{
 			//by contrast, here, we first filter with samtools view -q 1, then count with awk in command 6
 			String command5 = "samtools view -q 1 -o "  + TEMP_SAM_READS_WITHOUT_HEADER_FILENAME + " " + bamFileName;//this discrete step appears to be needed on the cluster, as opposed to using a pipe into command 6
 			commandList.add(command5);
-			String command6 = "awk 'BEGIN { c=0 } { if(c < 2000000){print >> " + TEMP_SAM_2M_READS_FILENAME + ";} if(c < 5000000){print >> " + TEMP_SAM_5M_READS_FILENAME + ";} if(c < 10000000){print >> " + TEMP_SAM_10M_READS_FILENAME + ";} if(c < 20000000){print >> " + TEMP_SAM_20M_READS_FILENAME + ";} print >> " + TEMP_SAM_ALL_READS_FILENAME + "; c++; }' " + TEMP_SAM_READS_WITHOUT_HEADER_FILENAME;
+			String command6 = "awk 'BEGIN { c=0 } { if(c < 2000000){print >> \"" + TEMP_SAM_2M_READS_FILENAME + "\";} if(c < 5000000){print >> \"" + TEMP_SAM_5M_READS_FILENAME + "\";} if(c < 10000000){print >> \"" + TEMP_SAM_10M_READS_FILENAME + "\";} if(c < 20000000){print >> \"" + TEMP_SAM_20M_READS_FILENAME + "\";} print >> \"" + TEMP_SAM_ALL_READS_FILENAME + "\"; c++; }' " + TEMP_SAM_READS_WITHOUT_HEADER_FILENAME;
 			commandList.add(command6);			
 		}
 		

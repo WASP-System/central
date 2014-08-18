@@ -10,12 +10,15 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.Assert;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.mps.grid.software.R;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
@@ -51,7 +54,7 @@ public class Macstwo extends SoftwarePackage{
 	}
 
 	//note: test is same as treated, in macs2-speak (from the immunoprecipitated sample)
-	public WorkUnit getPeaks(Sample ipSample, Sample controlSample, String prefixForFileName, List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList, 
+	public WorkUnit getPeaks(Job job, Sample ipSample, Sample controlSample, String prefixForFileName, List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList, 
 			Map<String,Object> jobParametersMap, String modelFileName, String pdfFileName, String pngFileName){
 		
 		Assert.assertTrue(!testFileHandleList.isEmpty());
@@ -137,6 +140,9 @@ public class Macstwo extends SoftwarePackage{
 		//mappable or "effective" genome size
 		//really should have this with the build , at least for those that are not hs, mm, dm, and ce
 		String genomeSize = this.getMappableGenomeSize(ipSample);
+		if(genomeSize.isEmpty()){
+			logger.debug("genomeSize cannot be empty for macs2 - this will cause an assert to fail");
+		}
 		Assert.assertTrue(!genomeSize.isEmpty());
 		tempCommand.append(" --gsize " + genomeSize + " ");
 		
@@ -147,7 +153,8 @@ public class Macstwo extends SoftwarePackage{
 			tempCommand.append(" --bw " + fragmentSize + " ");
 		}
 		
-		//tag size (take as flowcell read lenth for IPs; take smallest of all)
+		//tag size (take as flowcell's read lenth for IPs; take smallest of all)
+		String tagSize = this.getTagSize(job, ipSample);
 		
 		for (String key : jobParametersMap.keySet()) {
 	
@@ -385,5 +392,31 @@ public class Macstwo extends SoftwarePackage{
 			}
 		}
 		return fragmentSize;
+	}
+	private String getTagSize(Job job, Sample ipSample) {
+		String smallestReadLengthForIPSample = "";
+		Integer smallestReadLength = new Integer(0);
+		try{
+			List<SampleSource>approvedCellLibraryList = sampleService.getCellLibrariesPassQCAndNoAggregateAnalysis(job);
+			for(SampleSource cellLibrary  : approvedCellLibraryList){
+				Sample library = sampleService.getLibrary(cellLibrary);
+				boolean thisIsMySample = false;
+				if(ipSample.getId().intValue() == library.getId().intValue()){
+					thisIsMySample = true;
+				}
+				if(library.getParent()!=null){
+					if(ipSample.getId().intValue() == library.getParent().getId().intValue()){
+						thisIsMySample = true;
+					}
+				}
+				if(thisIsMySample == true){
+					
+				}
+			}
+			
+			
+		}catch(Exception e){logger.debug("problem obtaining tagSize for Macs2");}
+		
+		return smallestReadLengthForIPSample;
 	}
 }
