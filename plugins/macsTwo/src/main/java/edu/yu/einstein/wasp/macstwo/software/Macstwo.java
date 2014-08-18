@@ -54,7 +54,7 @@ public class Macstwo extends SoftwarePackage{
 	}
 
 	//note: test is same as treated, in macs2-speak (from the immunoprecipitated sample)
-	public WorkUnit getPeaks(Job job, Sample ipSample, Sample controlSample, String prefixForFileName, List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList, 
+	public WorkUnit getPeaks(Sample ipSample, Sample controlSample, String prefixForFileName, List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList, 
 			Map<String,Object> jobParametersMap, String modelFileName, String pdfFileName, String pngFileName){
 		
 		Assert.assertTrue(!testFileHandleList.isEmpty());
@@ -153,8 +153,11 @@ public class Macstwo extends SoftwarePackage{
 			tempCommand.append(" --bw " + fragmentSize + " ");
 		}
 		
-		//tag size (take as flowcell's read lenth for IPs; take smallest of all)
-		String tagSize = this.getTagSize(job, ipSample);
+		//tag size :  take smallest of all IP's real read lenths)
+		String tagSize = this.getTagSize(testFileHandleList);
+		if(!tagSize.isEmpty()){//if is empty, allow MACS to calculate
+			tempCommand.append(" --tsize " + tagSize + " ");
+		}
 		
 		for (String key : jobParametersMap.keySet()) {
 	
@@ -393,26 +396,11 @@ public class Macstwo extends SoftwarePackage{
 		}
 		return fragmentSize;
 	}
-	private String getTagSize(Job job, Sample ipSample) {
+	private String getTagSize(List<FileHandle> testFileHandleList) {
 		String smallestReadLengthForIPSample = "";
 		Integer smallestReadLength = new Integer(0);
 		try{
-			List<SampleSource>approvedCellLibraryList = sampleService.getCellLibrariesPassQCAndNoAggregateAnalysis(job);
-			for(SampleSource cellLibrary  : approvedCellLibraryList){
-				Sample library = sampleService.getLibrary(cellLibrary);
-				boolean thisIsMySample = false;
-				if(ipSample.getId().intValue() == library.getId().intValue()){
-					thisIsMySample = true;
-				}
-				if(library.getParent()!=null){
-					if(ipSample.getId().intValue() == library.getParent().getId().intValue()){
-						thisIsMySample = true;
-					}
-				}
-				if(thisIsMySample == true){
-					
-				}
-			}
+			
 			
 			
 		}catch(Exception e){logger.debug("problem obtaining tagSize for Macs2");}

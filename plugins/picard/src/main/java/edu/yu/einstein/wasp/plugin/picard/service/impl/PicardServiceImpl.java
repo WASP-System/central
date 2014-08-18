@@ -138,6 +138,56 @@ public class PicardServiceImpl extends WaspServiceImpl implements PicardService 
 		String uniqueNonRedundantReads = getUniqueNonRedundantReads(fileGroup);		
 		return uniqueNonRedundantReads + " / " + uniqueReads + " = " + fractionUniqueNonRedundant;
 	}
+	
+	public String getUniqueReadsFor2M(FileGroup fileGroup){
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS_FROM_2M);
+	}
+	public String getUniqueReadsFor5M(FileGroup fileGroup){
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS_FROM_5M);
+	}
+	public String getUniqueReadsFor10M(FileGroup fileGroup){
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS_FROM_10M);
+	}
+	public String getUniqueReadsFor20M(FileGroup fileGroup){
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS_FROM_20M);
+	}	
+	public String getUniqueReadsForAll(FileGroup fileGroup){
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS_FROM_ALL);
+	}
+	
+	public String getUniqueNonRedundantReadsFor2M(FileGroup fileGroup){
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS_FROM_2M);
+	}
+	public String getUniqueNonRedundantReadsFor5M(FileGroup fileGroup){
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS_FROM_5M);
+	}
+	public String getUniqueNonRedundantReadsFor10M(FileGroup fileGroup){
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS_FROM_10M);
+	}
+	public String getUniqueNonRedundantReadsFor20M(FileGroup fileGroup){
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS_FROM_20M);
+	}
+	public String getUniqueNonRedundantReadsForAll(FileGroup fileGroup){
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS_FROM_ALL);
+	}
+	
+	public String getNonRedundantReadFractionFor2M(FileGroup fileGroup){
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT_FROM_2M);
+	}	
+	public String getNonRedundantReadFractionFor5M(FileGroup fileGroup){
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT_FROM_5M);
+	}
+	public String getNonRedundantReadFractionFor10M(FileGroup fileGroup){
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT_FROM_10M);
+	}
+	public String getNonRedundantReadFractionFor20M(FileGroup fileGroup){
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT_FROM_20M);
+	}
+	public String getNonRedundantReadFractionForAll(FileGroup fileGroup){
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT_FROM_ALL);
+	}
+	
+	
 	public PanelTab getAlignmentMetricsForDisplay(FileGroup fileGroup){
 		
 		List<FileHandle> fileHandleList = new ArrayList<FileHandle>(fileGroup.getFileHandles());
@@ -157,13 +207,28 @@ public class PicardServiceImpl extends WaspServiceImpl implements PicardService 
 		duplicate.put("Duplicate Mapped Reads", formatWithCommas(getDuplicateReads(fileGroup)));
 		duplicate.put("Fraction Duplicated", getFractionDuplicated(fileGroup));
 		metrics.put("Duplicate Stats:", duplicate);
-		
+		/*
 		Map<String,String> unique = new LinkedHashMap<String, String>();
 		unique.put("Uniquely Mapped Reads", formatWithCommas(getUniqueReads(fileGroup)));
 		unique.put("Uniquely Mapped &amp; Nonredundant Reads", formatWithCommas(getUniqueNonRedundantReads(fileGroup)));
 		unique.put("Fraction Uniquely Mapped &amp; Nonredundant", getFractionUniqueNonRedundant(fileGroup));
 		metrics.put("Uniquely Aligned Stats:", unique);
-		
+		 */
+		Map<String,String> nrf = new LinkedHashMap<String, String>();
+		if("2000000".equals(getUniqueReadsFor2M(fileGroup))){
+			nrf.put("NRF From First 2M Uniquely-Mapped Reads", getNonRedundantReadFractionFor2M(fileGroup) + " = " + formatWithCommas(getUniqueNonRedundantReadsFor2M(fileGroup)) + " / " + formatWithCommas(getUniqueReadsFor2M(fileGroup)));
+		}
+		if("5000000".equals(getUniqueReadsFor5M(fileGroup))){
+			nrf.put("NRF From First 5M Uniquely-Mapped Reads", getNonRedundantReadFractionFor5M(fileGroup) + " = " + formatWithCommas(getUniqueNonRedundantReadsFor5M(fileGroup)) + " / " + formatWithCommas(getUniqueReadsFor5M(fileGroup)));
+		}
+		if("10000000".equals(getUniqueReadsFor10M(fileGroup))){
+			nrf.put("NRF From First 10M Uniquely-Mapped Reads", getNonRedundantReadFractionFor10M(fileGroup) + " = " + formatWithCommas(getUniqueNonRedundantReadsFor10M(fileGroup)) + " / " + formatWithCommas(getUniqueReadsFor10M(fileGroup)));
+		}
+		if("20000000".equals(getUniqueReadsFor20M(fileGroup))){
+			nrf.put("NRF From First 20M Uniquely-Mapped Reads", getNonRedundantReadFractionFor20M(fileGroup) + " = " + formatWithCommas(getUniqueNonRedundantReadsFor20M(fileGroup)) + " / " + formatWithCommas(getUniqueReadsFor20M(fileGroup)));
+		}
+		nrf.put("NRF From All Uniquely-Mapped Reads", getNonRedundantReadFractionForAll(fileGroup)  + " = " + formatWithCommas(getUniqueNonRedundantReadsForAll(fileGroup)) + " / " + formatWithCommas(getUniqueReadsForAll(fileGroup)));
+		metrics.put("Non-Redundant Fraction From Uniquely-Mapped Reads (NRF):", nrf);		
 		return PicardWebPanels.getAlignmentMetrics(metrics, bamFileName);
 	}
 	private String formatWithCommas(String unformatedIntegerAsString){	
