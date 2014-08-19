@@ -53,7 +53,7 @@
           <property name="type" value="NUMBER" />
           <property name="tooltip" value="peakcaller.macstwo.cutoff.error" />
         </bean>
-        
+        <!-- this parameter, bw, is now taken from the sampleMeta attribute chipseq.fragmentSize (sonication fragment size)
         <bean parent="macstwoUiFieldWrapper">
           <property name="baseName" value="bandwidth" />
           <property name="metaposition" value="20" />
@@ -63,7 +63,8 @@
           <property name="default" value="300" />
           <property name="tooltip" value="peakcaller.macstwo.bw.tooltip" />
         </bean>
-        
+         -->
+        <!-- genomeSize is now based on the species of the individual sample (a sampleMeta attribute)
         <bean parent="macstwoUiFieldWrapper">
           <property name="baseName" value="genomeSize" />
           <property name="metaposition" value="30" />
@@ -71,7 +72,7 @@
           <property name="default" value="1e9" />
           <property name="type" value="NUMBER" />
         </bean>
-        
+        -->
         <bean parent="macstwoUiFieldWrapper">
           <property name="baseName" value="keepDup" />
           <property name="metaposition" value="40" />
