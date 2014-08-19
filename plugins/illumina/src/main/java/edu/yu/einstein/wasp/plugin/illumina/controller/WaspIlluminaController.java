@@ -420,6 +420,7 @@ public class WaspIlluminaController extends WaspController {
 	public String createPost(
 			@PathVariable("platformUnitId") Integer platformUnitId,
 			@RequestParam(value="showAll", defaultValue="false", required=false) boolean showAll,
+			@RequestParam(value="isRunStart", defaultValue="true", required=false) boolean isRunStart,
 			@Valid Run runForm, 
 			 BindingResult result,
 			 SessionStatus status, 		
@@ -460,8 +461,16 @@ public class WaspIlluminaController extends WaspController {
 				return "waspIlluminaHiSeq/flowcell/createupdaterun";
 			}
 			runForm.setResourceCategory(resource.getResourceCategory());
-			runService.updateAndInitiateRun(runForm);
-			sampleService.setPlatformUnitLockStatus(platformUnit, SampleServiceImpl.LockStatus.LOCKED);
+			if (isRunStart){
+				runService.updateAndInitiateRun(runForm);
+				sampleService.setPlatformUnitLockStatus(platformUnit, SampleServiceImpl.LockStatus.LOCKED);
+			} else {
+				// special case where super user adds a run but doesn't run the analysis. Designed for adding an externally executed run. 
+				// In this situation we need to also set all cells to status sequenced success.
+				runService.updateRun(runForm);
+				for (Sample cell : sampleService.getIndexedCellsOnPlatformUnit(platformUnit).values())
+					sampleService.setCellSequencedSuccessfully(cell, true);
+			}
 		} catch(GridException e1){
 			logger.warn("Caught unexpected " + e1.getClass().getName() + " exception: " + e1.getMessage());
 			waspErrorMessage("waspIlluminaPlugin.runFolderFind.error"); 

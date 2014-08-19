@@ -4,6 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="wasp" uri="http://einstein.yu.edu/wasp" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
  <br />
 <title><fmt:message key="pageTitle./waspIlluminaHiSeq/flowcell/createUpdateRun.label"/></title>
 <c:choose>
@@ -65,6 +66,7 @@
 
   	<form:form  cssClass="FormGrid" commandName="run" method="post">
   	<form:hidden path="name" />
+  	<input type="hidden" name="isRunStart" id="isRunStart" value="true" />
   	<input type="hidden" name="showAll" value="${showAll}" />
 	<tr class="FormData">
         <td class="CaptionTD"><fmt:message key="runInstance.name.label" />:</td>
@@ -123,6 +125,9 @@
     	<div class="submit">
     		<c:if test="${empty(resourceNameError)}" >
    	    		<input class="fm-button" type="button" onClick="submit();" value="<fmt:message key='runInstance.submit.label'/>" /> 
+   	    		<sec:authorize access="hasRole('su')">
+   	    			<input class="fm-button" type="button" onClick="$('#isRunStart').val('false');submit();" value="<fmt:message key='runInstance.submitNoStart.label'/>" /> 
+   	    		</sec:authorize>
    	    	</c:if>
    	    	<c:if test="${not empty(resourceNameError)}" >
    	    		<input class="fm-button" type="button" onClick="location.href='<wasp:relativeUrl value="resource/list.do" />';" value="<fmt:message key='resource.resource_list.label'/>" /> 
