@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.mail.MessagingException;
@@ -476,16 +477,29 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 				else
 					throw new MailPreparationException("Email address is empty");
 			}
-			if (!Pattern.matches("([\\w+|\\.?]+)\\w+@([\\w+|\\.?]+)\\.(\\w{2,8}\\w?)", sendToEmail)){
-				throw new MailPreparationException("Email address is not of a suitable format");
+			final String EMAIL_RE = "(\\w+\\.?)+@(\\w+\\.?)+\\.(\\w{2,8})";
+			if (!Pattern.matches(EMAIL_RE, sendToEmail)){
+				throw new MailPreparationException("'To' Email address is not of a suitable format");
 			}
+			String sendFromEmailProperty = props.getProperty("mail.smtp.from");
+			Matcher m = Pattern.compile("([^<>]*?)\\s*<?(" + EMAIL_RE + ")>?").matcher(sendFromEmailProperty);
+			
+			if (!m.matches() || m.groupCount() < 2 || m.group(2).isEmpty()){
+				throw new MailPreparationException("'From' Email address property cannot be parsed. Maybe email is not of a suitable format: 'Foo Bar <foo@bar.com>' or 'foo@bar.com'");
+			}
+			String sendFromPerson = m.group(1);
+			String sendFromEmail = m.group(2);
+			
 			MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-			message.setFrom(props.getProperty("mail.smtp.from")); 
+			if (sendFromPerson.isEmpty())
+				message.setFrom(sendFromEmail); 
+			else
+				message.setFrom(sendFromEmail, sendFromPerson); 
 			message.setTo(sendToEmail);
 			message.setSubject(subject);
 			String plainText = completeEmailTextHtml.replaceAll("\\<.*?>","");
 			message.setText(plainText, completeEmailTextHtml);
-		} catch(MessagingException e) {
+		} catch(MessagingException | UnsupportedEncodingException e) {
 			throw new MailPreparationException("problem generating MimeMessage from Velocity template", e); 
 		}
 	}

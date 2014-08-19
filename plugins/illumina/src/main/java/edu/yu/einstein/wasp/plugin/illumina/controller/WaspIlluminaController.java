@@ -359,6 +359,8 @@ public class WaspIlluminaController extends WaspController {
 				if ( runFolder.toUpperCase().contains(run.getPlatformUnit().getSampleBarcode().get(0).getBarcode().getBarcode().toUpperCase()) )
 					runFolderSet.add(runFolder);
 		}
+		if (run.getName() != null && !run.getName().isEmpty() && !runFolderSet.contains(run.getName()))
+			runFolderSet.add(run.getName());
 		m.addAttribute("runFolderSet", runFolderSet);
 	}
 	
@@ -369,6 +371,7 @@ public class WaspIlluminaController extends WaspController {
 	public String createRunGet(
 			@PathVariable("platformUnitId") Integer platformUnitId,
 			@RequestParam(value="runFolderName", defaultValue="", required=false) String runFolderName,
+			@RequestParam(value="runFolderNameManual", defaultValue="", required=false) String runFolderNameManual,
 			@RequestParam(value="showAll", defaultValue="false", required=false) boolean showAll,
 			ModelMap m) {	
 		
@@ -384,6 +387,8 @@ public class WaspIlluminaController extends WaspController {
 			
 			MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp(PlatformUnitController.RUN_INSTANCE_AREA, RunMeta.class, request.getSession());
 			run.setRunMeta(metaHelperWebapp.getMasterList(RunMeta.class));
+			if (!runFolderNameManual.isEmpty())
+				runFolderName = runFolderNameManual;
 			if (!runFolderName.isEmpty()){
 				IlluminaRunFolderNameParser runFolderParser = new IlluminaRunFolderNameParser(runFolderName);
 				run.setName(runFolderParser.getRunFolderName());
@@ -398,6 +403,7 @@ public class WaspIlluminaController extends WaspController {
 			setCommonCreateUpdateRunModelData(m, run);
 			setRunFoldersInModel(m, run, showAll);
 			m.addAttribute("action", "create");
+			m.addAttribute("isRunStart", false);
 			
 		} catch(GridException e1){
 			logger.warn("Caught unexpected " + e1.getClass().getName() + " exception: " + e1.getMessage());

@@ -36,10 +36,10 @@
 
 <table class="EditTable ui-widget ui-widget-content">
 <c:if test="${action == 'create'}">
+	<form name="selectRunFolder" class="FormGrid" method="get">
 	<tr class="FormData">
 		<td class="CaptionTD"><fmt:message key="runInstance.chooseRunFolder.label"/>:</td>
 		<td class="DataTD">
-		<form name="selectRunFolder" class="FormGrid" method="get">
 			<select class="FormElement ui-widget-content ui-corner-all" id="runFolderName" name="runFolderName" size="1" onchange="document.selectRunFolder.submit()">
 				<option value=""><fmt:message key="wasp.default_select.label"/>		
 				<c:forEach items="${runFolderSet}" var="runFolder">
@@ -52,14 +52,22 @@
 			 </select>	
 			 <table>
 			 	<tr class="FormData">
-				 	<td class="CaptionTD"><fmt:message key="runInstance.showAll.label"/>:</td>
+				 	<td class="CaptionTD"><fmt:message key="runInstance.showAll.label"/></td>&nbsp;</td>
 				   	<td class="DataTD"><input type="checkbox" name="showAll" value="true" <c:if test="${showAll == true }">checked="checked"</c:if> onclick="document.selectRunFolder.submit()" /></td>
 				</tr>
 			 </table>
-		 </form>
 		</td>
 		<td>&nbsp;</td>
 	</tr>
+	<sec:authorize access="hasRole('su')">
+	<tr class="FormData">
+		<td class="CaptionTD">or Enter Manually:</td>
+		<td class="DataTD"><input type="text" name="runFolderNameManual" id="runFolderNameManual" value="<c:if test='${not empty runFolderNameManual }'><c:out value='${runFolderNameManual}'></c:out></c:if>" />
+		<input class="fm-button" type="button" onClick="document.selectRunFolder.submit()" value="add" /> </td>
+		<td>&nbsp;</td>
+	</tr>
+	</sec:authorize>
+	</form>
 </c:if>
 
 <c:if test='${run.getResource() != null}'>
