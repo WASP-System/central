@@ -207,28 +207,31 @@ public class PicardServiceImpl extends WaspServiceImpl implements PicardService 
 		duplicate.put("Duplicate Mapped Reads", formatWithCommas(getDuplicateReads(fileGroup)));
 		duplicate.put("Fraction Duplicated", getFractionDuplicated(fileGroup));
 		metrics.put("Duplicate Stats:", duplicate);
-		/*
-		Map<String,String> unique = new LinkedHashMap<String, String>();
-		unique.put("Uniquely Mapped Reads", formatWithCommas(getUniqueReads(fileGroup)));
-		unique.put("Uniquely Mapped &amp; Nonredundant Reads", formatWithCommas(getUniqueNonRedundantReads(fileGroup)));
-		unique.put("Fraction Uniquely Mapped &amp; Nonredundant", getFractionUniqueNonRedundant(fileGroup));
-		metrics.put("Uniquely Aligned Stats:", unique);
-		 */
-		Map<String,String> nrf = new LinkedHashMap<String, String>();
-		if("2000000".equals(getUniqueReadsFor2M(fileGroup))){
-			nrf.put("NRF From First 2M Uniquely-Mapped Reads", getNonRedundantReadFractionFor2M(fileGroup) + " = " + formatWithCommas(getUniqueNonRedundantReadsFor2M(fileGroup)) + " / " + formatWithCommas(getUniqueReadsFor2M(fileGroup)));
+		
+		if(getUniqueReads(fileGroup)!=null && !getUniqueReads(fileGroup).isEmpty()){
+			Map<String,String> unique = new LinkedHashMap<String, String>();
+			unique.put("Uniquely Mapped Reads", formatWithCommas(getUniqueReads(fileGroup)));
+			unique.put("Uniquely Mapped &amp; Nonredundant Reads", formatWithCommas(getUniqueNonRedundantReads(fileGroup)));
+			unique.put("Fraction Uniquely Mapped &amp; Nonredundant", getFractionUniqueNonRedundant(fileGroup));
+			metrics.put("Uniquely Aligned Stats:", unique);
 		}
-		if("5000000".equals(getUniqueReadsFor5M(fileGroup))){
-			nrf.put("NRF From First 5M Uniquely-Mapped Reads", getNonRedundantReadFractionFor5M(fileGroup) + " = " + formatWithCommas(getUniqueNonRedundantReadsFor5M(fileGroup)) + " / " + formatWithCommas(getUniqueReadsFor5M(fileGroup)));
+		if(getUniqueReadsFor2M(fileGroup)!=null && !getUniqueReadsFor2M(fileGroup).isEmpty()){
+			Map<String,String> nrf = new LinkedHashMap<String, String>();
+			if("2000000".equals(getUniqueReadsFor2M(fileGroup))){
+				nrf.put("NRF From First 2M Uniquely-Mapped Reads", getNonRedundantReadFractionFor2M(fileGroup) + " = " + formatWithCommas(getUniqueNonRedundantReadsFor2M(fileGroup)) + " / " + formatWithCommas(getUniqueReadsFor2M(fileGroup)));
+			}
+			if("5000000".equals(getUniqueReadsFor5M(fileGroup))){
+				nrf.put("NRF From First 5M Uniquely-Mapped Reads", getNonRedundantReadFractionFor5M(fileGroup) + " = " + formatWithCommas(getUniqueNonRedundantReadsFor5M(fileGroup)) + " / " + formatWithCommas(getUniqueReadsFor5M(fileGroup)));
+			}
+			if("10000000".equals(getUniqueReadsFor10M(fileGroup))){
+				nrf.put("NRF From First 10M Uniquely-Mapped Reads", getNonRedundantReadFractionFor10M(fileGroup) + " = " + formatWithCommas(getUniqueNonRedundantReadsFor10M(fileGroup)) + " / " + formatWithCommas(getUniqueReadsFor10M(fileGroup)));
+			}
+			if("20000000".equals(getUniqueReadsFor20M(fileGroup))){
+				nrf.put("NRF From First 20M Uniquely-Mapped Reads", getNonRedundantReadFractionFor20M(fileGroup) + " = " + formatWithCommas(getUniqueNonRedundantReadsFor20M(fileGroup)) + " / " + formatWithCommas(getUniqueReadsFor20M(fileGroup)));
+			}
+			nrf.put("NRF From All Uniquely-Mapped Reads", getNonRedundantReadFractionForAll(fileGroup)  + " = " + formatWithCommas(getUniqueNonRedundantReadsForAll(fileGroup)) + " / " + formatWithCommas(getUniqueReadsForAll(fileGroup)));
+			metrics.put("Non-Redundant Read Fraction From Uniquely-Mapped Reads (NRF):", nrf);
 		}
-		if("10000000".equals(getUniqueReadsFor10M(fileGroup))){
-			nrf.put("NRF From First 10M Uniquely-Mapped Reads", getNonRedundantReadFractionFor10M(fileGroup) + " = " + formatWithCommas(getUniqueNonRedundantReadsFor10M(fileGroup)) + " / " + formatWithCommas(getUniqueReadsFor10M(fileGroup)));
-		}
-		if("20000000".equals(getUniqueReadsFor20M(fileGroup))){
-			nrf.put("NRF From First 20M Uniquely-Mapped Reads", getNonRedundantReadFractionFor20M(fileGroup) + " = " + formatWithCommas(getUniqueNonRedundantReadsFor20M(fileGroup)) + " / " + formatWithCommas(getUniqueReadsFor20M(fileGroup)));
-		}
-		nrf.put("NRF From All Uniquely-Mapped Reads", getNonRedundantReadFractionForAll(fileGroup)  + " = " + formatWithCommas(getUniqueNonRedundantReadsForAll(fileGroup)) + " / " + formatWithCommas(getUniqueReadsForAll(fileGroup)));
-		metrics.put("Non-Redundant Fraction From Uniquely-Mapped Reads (NRF):", nrf);		
 		return PicardWebPanels.getAlignmentMetrics(metrics, bamFileName);
 	}
 	private String formatWithCommas(String unformatedIntegerAsString){	

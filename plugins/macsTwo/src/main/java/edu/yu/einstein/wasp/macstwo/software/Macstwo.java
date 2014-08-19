@@ -159,6 +159,9 @@ public class Macstwo extends SoftwarePackage{
 			tempCommand.append(" --tsize " + tagSize + " ");
 		}
 		
+		//default q (minimum FDR) is 0.01; Genome Center requested 0.05; this value will be used if p NOT set
+		tempCommand.append(" --qvalue 0.05 ");
+		
 		for (String key : jobParametersMap.keySet()) {
 	
 			String opt = "";

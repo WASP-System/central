@@ -50,7 +50,6 @@ public class PicardWebPanels {
 				///////don't want this to display: content.addColumn(new GridColumn("Title", "Title"));//header,dataIndex		
 				content.addColumn(new GridColumn("Stat", "Stat", 350, 0));//header,dataIndex	 width=250; flex=0	
 				content.addColumn(new GridColumn("Value", "Value", 1));//header,dataIndex	 width=300; flex=0	
-				///content.addColumn(new GridColumn("", "", 1));//header,dataIndex	 flex=1 ---extra column, displaying nothing
 				
 				//create rows with data
 				for (String title : metrics.keySet()) {					
