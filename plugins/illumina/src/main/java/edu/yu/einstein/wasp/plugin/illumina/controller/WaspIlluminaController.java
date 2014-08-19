@@ -46,6 +46,7 @@ import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userrole;
+import edu.yu.einstein.wasp.plugin.illumina.exception.IlluminaRunFolderParseException;
 import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
 import edu.yu.einstein.wasp.plugin.illumina.util.IlluminaRunFolderNameParser;
 import edu.yu.einstein.wasp.plugin.mps.SequenceReadProperties;
@@ -390,20 +391,23 @@ public class WaspIlluminaController extends WaspController {
 			if (!runFolderNameManual.isEmpty())
 				runFolderName = runFolderNameManual;
 			if (!runFolderName.isEmpty()){
-				IlluminaRunFolderNameParser runFolderParser = new IlluminaRunFolderNameParser(runFolderName);
-				run.setName(runFolderParser.getRunFolderName());
-				run.setStarted(runFolderParser.getDate());
-				Resource resource = resourceService.getResourceDao().getResourceByName(runFolderParser.getMachineName());
-				if (resource.getId() == null){
-					m.addAttribute("resourceNameError", messageService.getMessage(metaHelperWebapp.getArea()+".resourceNameNotFound.error"));
-					resource.setName(runFolderParser.getMachineName());
+				try{
+					IlluminaRunFolderNameParser runFolderParser = new IlluminaRunFolderNameParser(runFolderName);
+					run.setName(runFolderParser.getRunFolderName());
+					run.setStarted(runFolderParser.getDate());
+					Resource resource = resourceService.getResourceDao().getResourceByName(runFolderParser.getMachineName());
+					if (resource.getId() == null){
+						m.addAttribute("resourceNameError", messageService.getMessage(metaHelperWebapp.getArea()+".resourceNameNotFound.error"));
+						resource.setName(runFolderParser.getMachineName());
+					} 
+					run.setResource(resource);
+				} catch (IlluminaRunFolderParseException e) {
+					waspErrorMessage("run.invalid_id.error"); 
 				} 
-				run.setResource(resource);
 			}
 			setCommonCreateUpdateRunModelData(m, run);
 			setRunFoldersInModel(m, run, showAll);
 			m.addAttribute("action", "create");
-			m.addAttribute("isRunStart", false);
 			
 		} catch(GridException e1){
 			logger.warn("Caught unexpected " + e1.getClass().getName() + " exception: " + e1.getMessage());
@@ -413,7 +417,7 @@ public class WaspIlluminaController extends WaspController {
 			logger.warn("Caught unexpected " + e.getClass().getName() + " exception: " + e.getMessage());
 			waspErrorMessage("wasp.unexpected_error.error"); 
 			return "redirect:/waspIlluminaHiSeq/flowcell/" + platformUnitId + "/show.do";
-		}
+		} 
 
 		return "waspIlluminaHiSeq/flowcell/createupdaterun";
 
