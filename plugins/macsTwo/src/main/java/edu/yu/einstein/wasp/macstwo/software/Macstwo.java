@@ -137,6 +137,10 @@ public class Macstwo extends SoftwarePackage{
 			tempCommand.append("${" + WorkUnit.INPUT_FILE + "["+i+"]} ");
 		}
 		
+		tempCommand.append(" --name " + prefixForFileName);//The name string of the experiment. MACS will use this string NAME to create output files like 'NAME_peaks.xls', etc.
+		
+		tempCommand.append(" --bdg");//generates two bedGraph files
+		
 		//mappable or "effective" genome size
 		//really should have this with the build , at least for those that are not hs, mm, dm, and ce
 		String genomeSize = this.getMappableGenomeSize(ipSample);
@@ -159,8 +163,8 @@ public class Macstwo extends SoftwarePackage{
 			tempCommand.append(" --tsize " + tagSize + " ");
 		}
 		
-		//default q (minimum FDR) is 0.01; Genome Center requested 0.05; this value will be used if p NOT set
-		tempCommand.append(" --qvalue 0.05 ");
+		//default q (minimum FDR) is 0.01; Genome Center requested 0.05; not sure what to do; this value will be used if p NOT set
+		tempCommand.append(" --qvalue 0.01 ");
 		
 		for (String key : jobParametersMap.keySet()) {
 	
@@ -185,15 +189,7 @@ public class Macstwo extends SoftwarePackage{
 					continue;//not a number so accept default and get out
 				}
 			}
-			if(key.equalsIgnoreCase("bandwidth")){//should really be sonication size
-				opt = "--bw";
-				try{
-					Integer i = Integer.parseInt(jobParametersMap.get(key).toString());//Integer.parseInt(jobParameters.get(opt).toString());
-				}
-				catch(Exception e){//not a number so accept default and get out
-					continue;
-				}
-			}
+			
 			/* as of 8-14-14, this is now dealt with above
 			if(key.equalsIgnoreCase("genomeSize")){
 				opt = "--gsize";
@@ -235,9 +231,6 @@ public class Macstwo extends SoftwarePackage{
 			}
 		}
 		
-		tempCommand.append(" --name " + prefixForFileName);//The name string of the experiment. MACS will use this string NAME to create output files like 'NAME_peaks.xls', etc.
-		
-		tempCommand.append(" --bdg");//generates two bedGraph files
 		
 		String command3 = new String(tempCommand);
 		logger.debug("---- Will execute macs2 for peakcalling with command: ");
