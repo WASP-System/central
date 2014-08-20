@@ -15,6 +15,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.MessagingException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
@@ -29,6 +30,7 @@ import edu.yu.einstein.wasp.dao.RunMetaDao;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.WaspException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
@@ -36,6 +38,8 @@ import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.SgeWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate;
 import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
@@ -52,13 +56,13 @@ import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
+import edu.yu.einstein.wasp.service.impl.WaspMessageHandlingServiceImpl;
 import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.PropertyHelper;
 
 @Service
 @Transactional("entityManager")
-public class WaspIlluminaServiceImpl extends WaspServiceImpl implements WaspIlluminaService{
+public class WaspIlluminaServiceImpl extends WaspMessageHandlingServiceImpl implements WaspIlluminaService{
 	
 	@Autowired
 	private GridHostResolver hostResolver;
@@ -276,6 +280,17 @@ public class WaspIlluminaServiceImpl extends WaspServiceImpl implements WaspIllu
 	public IndexingStrategy getIndexingStrategy(SampleSource cellLibrary) throws WaspException {
 		Sample library = sampleService.getLibrary(cellLibrary);
 		return adaptorService.getIndexingStrategy(adaptorService.getAdaptor(library).getAdaptorset());
+	}
+	
+	@Override
+	public void sendRunStatusMessage(Run run, WaspStatus ws) throws WaspMessageBuildingException{
+		RunStatusMessageTemplate messageTemplate = new RunStatusMessageTemplate(run.getId());
+		messageTemplate.setStatus(ws);
+		try{
+			sendOutboundMessage(messageTemplate.build(), true);
+		} catch (MessagingException e){
+			throw new WaspMessageBuildingException(e.getLocalizedMessage());
+		}
 	}
 
 

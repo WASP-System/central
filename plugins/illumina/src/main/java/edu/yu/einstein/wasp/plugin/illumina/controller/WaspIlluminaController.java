@@ -34,6 +34,8 @@ import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleIndexException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.MetaAttribute.Control.Option;
 import edu.yu.einstein.wasp.model.Resource;
@@ -477,9 +479,10 @@ public class WaspIlluminaController extends WaspController {
 			} else {
 				// special case where super user adds a run but doesn't run the analysis. Designed for adding an externally executed run. 
 				// In this situation we need to also set all cells to status sequenced success.
-				runService.updateRun(runForm);
+				Run run = runService.updateRun(runForm);
 				for (Sample cell : sampleService.getIndexedCellsOnPlatformUnit(platformUnit).values())
 					sampleService.setCellSequencedSuccessfully(cell, true);
+				waspIlluminaService.sendRunStatusMessage(run, WaspStatus.COMPLETED);
 			}
 		} catch(GridException e1){
 			logger.warn("Caught unexpected " + e1.getClass().getName() + " exception: " + e1.getMessage());
@@ -489,12 +492,19 @@ public class WaspIlluminaController extends WaspController {
 			logger.warn("Caught unexpected " + e2.getClass().getName() + " exception: " + e2.getMessage());
 			waspErrorMessage("waspIlluminaPlugin.runInitialize.error"); 
 			return "redirect:/waspIlluminaHiSeq/flowcell/" + platformUnitId + "/show.do";
+		} catch (WaspMessageBuildingException e3){
+			logger.warn("Caught unexpected " + e3.getClass().getName() + " exception: " + e3.getMessage());
+			waspErrorMessage("waspIlluminaPlugin.runStatusMessaging.error"); 
+			return "redirect:/waspIlluminaHiSeq/flowcell/" + platformUnitId + "/show.do";
 		} catch(Exception e){
 			logger.warn("Caught unexpected " + e.getClass().getName() + " exception: " + e.getMessage());
 			waspErrorMessage("wasp.unexpected_error.error"); 
 			return "redirect:/waspIlluminaHiSeq/flowcell/" + platformUnitId + "/show.do";
 		}
-		waspMessage("runInstance.created_success.label");
+		if (isRunStart)
+			waspMessage("runInstance.created_success.label");
+		else
+			waspMessage("runInstance.created_noStart_success.label");
 		return "redirect:/waspIlluminaHiSeq/flowcell/" + platformUnitId + "/show.do";
 	}
 	

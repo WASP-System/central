@@ -9,7 +9,9 @@ import org.w3c.dom.Document;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.WaspException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.SampleSource;
@@ -56,5 +58,7 @@ public interface WaspIlluminaService extends WaspService {
 	public boolean assayAllowsPairedEndData(SampleSource cellLibrary) throws MetadataException;
 	
 	public IndexingStrategy getIndexingStrategy(SampleSource cellLibrary) throws WaspException;
+
+	public void sendRunStatusMessage(Run run, WaspStatus ws)	throws WaspMessageBuildingException;
 
 }
