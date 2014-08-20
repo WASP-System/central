@@ -3,12 +3,15 @@ package edu.yu.einstein.wasp.util;
 
 import java.io.UnsupportedEncodingException;
 
+import org.apache.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class StringHelperTest {
+	
+	private Logger logger = Logger.getLogger("StringHelperTest");
 	
 	@BeforeClass
 	public void setUp() throws Exception {
@@ -45,11 +48,11 @@ public class StringHelperTest {
 			byte[] trunc = new byte[8];
 			for (int i = utf8bytes.length-1; i >= utf8bytes.length - trunc.length; i--){
 				int j = i - (utf8bytes.length - trunc.length);
-				System.out.println(i + "," + j);
+				logger.info(i + "," + j);
 				trunc[j] = utf8bytes[i];
 			}
 			String truncStr = new String(trunc, "UTF8");
-			System.out.println(truncStr);
+			logger.info(truncStr);
 			Assert.assertEquals("baz b®b", truncStr);
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block

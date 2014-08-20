@@ -125,6 +125,12 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 	@Value("${email.smtp.from}")
 	private String emailSmtpFrom;
 	
+	@Value("${email.smtp.bcc}")
+	private String emailSmtpBcc;
+	
+	@Value("${email.smtp.cc}")
+	private String emailSmtpCc;
+	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
@@ -497,6 +503,12 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 			else
 				message.setFrom(sendFromEmail, sendFromPerson); 
 			message.setTo(sendToEmail);
+			if (emailSmtpBcc != null && !emailSmtpBcc.isEmpty())
+				for (String bcc : emailSmtpBcc.split("[,;:\\s]+"))
+					message.addBcc(bcc.trim());
+			if (emailSmtpCc != null && !emailSmtpCc.isEmpty())
+				for (String cc : emailSmtpCc.split("[,;:\\s]+"))
+					message.addBcc(cc.trim());
 			message.setSubject(subject);
 			String plainText = completeEmailTextHtml.replaceAll("\\<.*?>","");
 			message.setText(plainText, completeEmailTextHtml);
