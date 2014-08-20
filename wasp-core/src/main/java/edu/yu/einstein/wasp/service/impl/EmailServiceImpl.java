@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailPreparationException;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
@@ -123,6 +121,9 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 	
 	@Value("${email.sending.testmode.enabled:false}")
 	private Boolean isSendingEmailInTestModeEnabled;
+	
+	@Value("${email.smtp.from}")
+	private String emailSmtpFrom;
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -464,32 +465,32 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 		String subject = extractSubject(mainText);
 		String body = extractBody(mainText);
 		String completeEmailTextHtml = headerText + body + footerText;
-		Properties props = ((JavaMailSenderImpl) mailSender).getJavaMailProperties();
+		
+		final String EMAIL_RE = "(\\w+\\.?)+@(\\w+\\.?)+\\.(\\w{2,8})";
+		
+		Matcher m = Pattern.compile("([^<>]*?)\\s*<?(" + EMAIL_RE + ")>?").matcher(emailSmtpFrom);
+		if (!m.matches() || m.groupCount() < 2 || m.group(2).isEmpty()){
+			throw new MailPreparationException("'From' Email address property cannot be parsed. Maybe email is not of a suitable format: 'Foo Bar <foo@bar.com>' or 'foo@bar.com'");
+		}
+		String sendFromPerson = m.group(1);
+		String sendFromEmail = m.group(2);
+		
 		String sendToEmail = user.getEmail();
 		if (isSendingEmailInTestModeEnabled)
-			sendToEmail = props.getProperty("mail.smtp.from");
+			sendToEmail = sendFromEmail;
 		if (isInDemoMode)
 			sendToEmail = demoEmail.getDemoEmail();
+		if (!Pattern.matches(EMAIL_RE, sendToEmail)){
+			throw new MailPreparationException("'To' Email address is not of a suitable format");
+		}
+		if (sendToEmail.isEmpty()){
+			if (isInDemoMode)
+				throw new MailPreparationException("Email address is not set in the cookie");
+			else
+				throw new MailPreparationException("Email address is empty");
+		}
 		try{
-			if (sendToEmail.isEmpty()){
-				if (isInDemoMode)
-					throw new MailPreparationException("Email address is not set in the cookie");
-				else
-					throw new MailPreparationException("Email address is empty");
-			}
-			final String EMAIL_RE = "(\\w+\\.?)+@(\\w+\\.?)+\\.(\\w{2,8})";
-			if (!Pattern.matches(EMAIL_RE, sendToEmail)){
-				throw new MailPreparationException("'To' Email address is not of a suitable format");
-			}
-			String sendFromEmailProperty = props.getProperty("mail.smtp.from");
-			Matcher m = Pattern.compile("([^<>]*?)\\s*<?(" + EMAIL_RE + ")>?").matcher(sendFromEmailProperty);
-			
-			if (!m.matches() || m.groupCount() < 2 || m.group(2).isEmpty()){
-				throw new MailPreparationException("'From' Email address property cannot be parsed. Maybe email is not of a suitable format: 'Foo Bar <foo@bar.com>' or 'foo@bar.com'");
-			}
-			String sendFromPerson = m.group(1);
-			String sendFromEmail = m.group(2);
-			
+			logger.trace("Message prepared with settings: sendFromPerson='" + sendFromPerson + "', sendFromEmail='" + sendFromEmail + "', sendToEmail='" + sendToEmail + "'");
 			MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 			if (sendFromPerson.isEmpty())
 				message.setFrom(sendFromEmail); 
