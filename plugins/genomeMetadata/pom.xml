@@ -13,8 +13,12 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>edu.yu.einstein.wasp</groupId>
-      <artifactId>wasp-web</artifactId>
+    	<groupId>edu.yu.einstein.wasp</groupId>
+    	<artifactId>wasp-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
     </dependency>
     <dependency>
       <groupId>org.powermock</groupId>

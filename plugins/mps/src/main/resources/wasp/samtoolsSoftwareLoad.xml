@@ -16,7 +16,7 @@
   <bean id="samtools" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
   	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.mps.grid.software.Samtools</value></property>
     <property name="name" value="Samtools" />
-    <property name="description" value="Manipulate alignments in the BAM format" />
+    <property name="description" value="Manipulate alignments in the BAM format, index tab delimited files using tabix" />
     <property name="version" value="0.1.19" />
     <property name="area" ref="samtoolsPluginArea" />
     <property name="resourceType" ref="genericPluginResourceType" /> <!-- TODO: choose a more appropriate resource type -->

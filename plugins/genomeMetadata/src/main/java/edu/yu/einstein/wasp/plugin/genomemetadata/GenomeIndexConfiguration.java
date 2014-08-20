@@ -1,7 +1,7 @@
 /**
  * 
  */
-package edu.yu.einstein.wasp.plugin.mps;
+package edu.yu.einstein.wasp.plugin.genomemetadata;
 
 import java.util.HashMap;
 

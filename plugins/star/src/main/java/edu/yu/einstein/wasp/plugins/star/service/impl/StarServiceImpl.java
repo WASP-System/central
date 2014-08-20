@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
-import edu.yu.einstein.wasp.plugin.mps.GenomeIndexConfiguration;
-import edu.yu.einstein.wasp.plugin.mps.GenomeIndexStatus;
+import edu.yu.einstein.wasp.plugin.genomemetadata.GenomeIndexConfiguration;
+import edu.yu.einstein.wasp.plugin.genomemetadata.GenomeIndexStatus;
 import edu.yu.einstein.wasp.plugin.mps.service.ConfigurableReferenceGenomeService;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.plugins.star.service.StarService;

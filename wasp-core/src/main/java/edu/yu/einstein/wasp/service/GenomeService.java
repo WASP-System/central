@@ -40,6 +40,8 @@ public interface GenomeService extends WaspService {
 	public static final String INDEX_CREATION_STARTED = "STARTED.txt";
 	
 	public static final String INDEX_CREATION_COMPLETED = "COMPLETED.txt";
+	
+	public static final String INDEX_CREATION_FAILED = "FAILED.txt";
 
 	public Set<Organism> getOrganisms();
 	
@@ -90,6 +92,17 @@ public interface GenomeService extends WaspService {
 	public boolean isCompleted(GridWorkService workService, Build build, String index) throws IOException;
 	
 	/**
+	 * Check for annotated failure condition.
+	 * 
+	 * @param workService
+	 * @param build
+	 * @param index
+	 * @return
+	 * @throws IOException
+	 */
+	public boolean isFailed(GridWorkService workService, Build build, String index) throws IOException;
+	
+	/**
 	 * Test to see that the index creation of the specified index has begun in the specified
 	 * subdirectory.
 	 * 
@@ -113,6 +126,18 @@ public interface GenomeService extends WaspService {
 	 * @throws IOException 
 	 */
 	public boolean isCompleted(GridWorkService workService, Build build, String index, String subdir) throws IOException;
+	
+	/**
+	 * Check for annotated failure condition.
+	 * 
+	 * @param workService
+	 * @param build
+	 * @param index
+	 * @param subdir
+	 * @return
+	 * @throws IOException
+	 */
+	public boolean isFailed(GridWorkService workService, Build build, String index, String subdir) throws IOException;
 	
 	/**
 	 * Create the specified index location.
@@ -255,7 +280,18 @@ public interface GenomeService extends WaspService {
 	 * @param build
 	 * @return
 	 */
-	String getRemoteBuildPath(Build build);
+	public String getRemoteBuildPath(Build build);
+	
+	
+	/**
+	 * Get remote directory.  Use getRemoteBuildPath(Build build).
+	 * 
+	 * @param hostname
+	 * @param build
+	 * @return
+	 */
+	public String getRemoteBuildPath(String hostname, Build build);
+	
 	
 	/**
 	 * returns the list of organisms plus a generic 'Other' organism
@@ -271,15 +307,6 @@ public interface GenomeService extends WaspService {
 	public Build getGenomeBuild(SampleSource cellLibrary);
 
 	/**
-	 * Get remote host formatted representation of metadata directory housing the fasta file of this build.
-	 * Encodes path using variable for remote metadata path, requires execution in WorkUnit.
-	 * 
-	 * @param build
-	 * @return
-	 */
-	public String getReferenceGenomeFastaFile(Build build);
-
-	/**
 	 * Get a genome {@link Build} object from a {@link FileGroup}.  If the FileGroup does not have a {@link SampleSource} 
 	 * (ie. Cell-Library) this method will return null.  If the SampleSource does not have a genome Build, it will
 	 * throw a {@link NullResourceException} (Runtime exception). 
@@ -288,6 +315,15 @@ public interface GenomeService extends WaspService {
 	 * @return
 	 */
 	public Build getBuildForFg(FileGroup fileGroup);
+	
+	/**
+	 * Get remote host formatted representation of metadata directory housing the fasta file of this build.
+	 * Encodes path using variable for remote metadata path, requires execution in WorkUnit.
+	 * 
+	 * @param build
+	 * @return
+	 */
+	public String getReferenceGenomeFastaFile(Build build);
 
 	  
 }

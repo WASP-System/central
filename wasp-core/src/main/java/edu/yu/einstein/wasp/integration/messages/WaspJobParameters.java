@@ -13,6 +13,7 @@ public class WaspJobParameters {
 	public static final String DIRECTORY_NAME = "directoryName";
 	public static final String FILE_GROUP_ID = "fileGroupId";
 	public static final String GENOME_STRING = "genomeString";
+	public static final String HOSTNAME = "hostname";
 	public static final String ID = "generalID";
 	public static final String JOB_EXECUTION_ID = "jobExecutionId";
 	public static final String JOB_ID = "jobId";

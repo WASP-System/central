@@ -31,7 +31,9 @@ import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.MetadataRuntimeException;
 import edu.yu.einstein.wasp.exception.NullResourceException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
+import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -323,6 +325,18 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 		path += GenomeService.INDEX_CREATION_COMPLETED;
 		return workService.getGridFileService().exists(path);
 	}
+	
+	@Override
+	public boolean isFailed(GridWorkService workService, Build build, String index) throws IOException {
+		return isFailed(workService, build, index, null);
+	}
+
+	@Override
+	public boolean isFailed(GridWorkService workService, Build build, String index, String subdir) throws IOException {
+		String path = getMetadataSubdirPath(workService, build, index, subdir);
+		path += GenomeService.INDEX_CREATION_FAILED;
+		return workService.getGridFileService().exists(path);
+	}
 
 	/** 
 	 * {@inheritDoc} 
@@ -551,6 +565,30 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 		return path;
 	}
 	
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getReferenceGenomeFastaFile(Build build) {
+		String folder = build.getMetadata("fasta.folder");
+		String filename = build.getMetadata("fasta.filename");
+		if (folder == null || folder.isEmpty() || filename == null || filename.isEmpty())
+			throw new MetadataRuntimeException("failed to locate reference genome fasta file");
+		return getRemoteBuildPath(build) + "/" + folder + "/" + filename;
+	}
+	
+	@Override
+	public String getRemoteBuildPath(String hostname, Build build) {
+		GridWorkService host;
+		try {
+			host = hostResolver.getGridWorkService(hostname);
+		} catch (GridUnresolvableHostException e) {
+			throw new WaspRuntimeException(e);
+		}
+		String path = host.getTransportConnection().getConfiguredSetting("metadata.root") + "/" + getRemoteBuildPathSubstring(build);
+		return path;
+	}
+	
 	private String getRemoteBuildPathSubstring(Build build) {
 		String path = build.getGenome().getOrganism().getNcbiID() +"/"+
 				build.getGenome().getName() + "/" + 
@@ -601,18 +639,6 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 			e.printStackTrace();
 		}
 		return build;
-	}
-	
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getReferenceGenomeFastaFile(Build build) {
-		String folder = build.getMetadata("fasta.folder");
-		String filename = build.getMetadata("fasta.filename");
-		if (folder == null || folder.isEmpty() || filename == null || filename.isEmpty())
-			throw new MetadataRuntimeException("failed to locate reference genome fasta file");
-		return getRemoteBuildPath(build) + "/" + folder + "/" + filename;
 	}
 	
 	/** 

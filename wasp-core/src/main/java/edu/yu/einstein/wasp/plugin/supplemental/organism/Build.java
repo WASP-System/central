@@ -7,11 +7,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.builder.CompareToBuilder;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * @author calder
@@ -180,6 +185,10 @@ public class Build implements Comparable<Build> {
 	    return metadata.get(key);
 	}
 	
+	public boolean hasMetadata(String key) {
+		return metadata.containsKey(key);
+	}
+	
 	public void setDate(String date) throws ParseException {
 		SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd");
 		this.buildDate = df.parse(date);
@@ -192,6 +201,30 @@ public class Build implements Comparable<Build> {
 	       .append(this.version, b.version)
 	       .toComparison();
 
+	}
+	
+	public String getGenomeBuildNameString() {
+		return getGenome().getName() + "." + getName(); 
+	}
+	
+	/**
+	 * Find all metadata key value pairs based on their prefix.  e.g. gtf.file would return the key and value of
+	 * gtf.file.ensembl_v75, etc.
+	 * 
+	 * @param string
+	 * @return
+	 */
+	public List<Pair<String,String>> getMetadataStartingWith(String string) {
+		List<Pair<String,String>> retval = new ArrayList<Pair<String,String>>();
+		for (String key : metadata.keySet()) {
+			if (key.startsWith(string))
+				retval.add(new ImmutablePair<String,String>(key, metadata.get(key)));
+		}
+		return retval;
+	}
+	
+	public Set<String> getMetadataKeySet() {
+		return metadata.keySet();
 	}
 
 }
