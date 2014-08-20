@@ -35,7 +35,6 @@ import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleIndexException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
-import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.MetaAttribute.Control.Option;
 import edu.yu.einstein.wasp.model.Resource;
@@ -482,7 +481,7 @@ public class WaspIlluminaController extends WaspController {
 				Run run = runService.updateRun(runForm);
 				for (Sample cell : sampleService.getIndexedCellsOnPlatformUnit(platformUnit).values())
 					sampleService.setCellSequencedSuccessfully(cell, true);
-				waspIlluminaService.sendRunStatusMessage(run, WaspStatus.COMPLETED);
+				waspIlluminaService.startTrimOnlyWorkflow(run);
 			}
 		} catch(GridException e1){
 			logger.warn("Caught unexpected " + e1.getClass().getName() + " exception: " + e1.getMessage());

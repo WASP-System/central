@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -15,7 +17,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.MessagingException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
@@ -38,8 +39,7 @@ import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.SgeWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
-import edu.yu.einstein.wasp.integration.messages.WaspStatus;
-import edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
@@ -48,6 +48,7 @@ import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.illumina.plugin.WaspIlluminaHiseqPlugin;
 import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
 import edu.yu.einstein.wasp.plugin.illumina.util.IlluminaRunFolderNameParser;
 import edu.yu.einstein.wasp.plugin.mps.SequenceReadProperties.ReadType;
@@ -282,15 +283,17 @@ public class WaspIlluminaServiceImpl extends WaspMessageHandlingServiceImpl impl
 		return adaptorService.getIndexingStrategy(adaptorService.getAdaptor(library).getAdaptorset());
 	}
 	
+	
+	/**
+	 * {@inheritDoc}
+	 * @param run
+	 * @throws WaspMessageBuildingException
+	 */
 	@Override
-	public void sendRunStatusMessage(Run run, WaspStatus ws) throws WaspMessageBuildingException{
-		RunStatusMessageTemplate messageTemplate = new RunStatusMessageTemplate(run.getId());
-		messageTemplate.setStatus(ws);
-		try{
-			sendOutboundMessage(messageTemplate.build(), true);
-		} catch (MessagingException e){
-			throw new WaspMessageBuildingException(e.getLocalizedMessage());
-		}
+	public void startTrimOnlyWorkflow(Run run) throws WaspMessageBuildingException{
+		Map<String, String> jobParameters = new HashMap<String, String>();
+		jobParameters.put(WaspJobParameters.RUN_ID, run.getId().toString());
+		launchBatchJob(WaspIlluminaHiseqPlugin.ILLUMINA_TRIM_ONLY_FLOW_NAME, jobParameters);
 	}
 
 
