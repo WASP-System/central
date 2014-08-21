@@ -33,6 +33,7 @@ import edu.yu.einstein.wasp.exception.RunException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspRunTask;
@@ -558,8 +559,16 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	public void delete(Run run){
 		Assert.assertParameterNotNull(run, "Invalid run provided");
 		Assert.assertParameterNotNullNotZero(run.getId(), "Invalid run provided");
+		run = getRunById(run.getId()); // ensure attached
 		for(RunMeta runMeta : run.getRunMeta()){
 			runMetaDao.remove(runMeta);
+		}
+		try {
+			for (Sample cell : sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values())
+				if (sampleService.isCellSequencedSuccessfully(cell))
+					sampleService.setCellSequencedSuccessfully(cell, false);
+		} catch (SampleTypeException | MetaAttributeNotFoundException | MetadataException e) {
+			throw new WaspRuntimeException(e); // trigger rollback
 		}
 		runDao.remove(run);
 		return;
