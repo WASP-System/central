@@ -10,16 +10,12 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.Assert;
-import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileHandle;
-import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
-import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.plugin.mps.grid.software.R;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
@@ -28,9 +24,6 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
 // Un-comment the following if using the plugin service
 // import org.springframework.beans.factory.annotation.Autowired;
 // import package edu.yu.einstein.wasp.macstwo.service. MacstwoService;
-
-
-
 
 /**
  * dubin; see macs2: https://github.com/taoliu/MACS/ 
@@ -54,7 +47,7 @@ public class Macstwo extends SoftwarePackage{
 	}
 
 	//note: test is same as treated, in macs2-speak (from the immunoprecipitated sample)
-	public WorkUnit getPeaks(Sample ipSample, Sample controlSample, String prefixForFileName, List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList, 
+	public WorkUnit getPeaks(int shortestReadLengthFromAllRuns, Sample ipSample, Sample controlSample, String prefixForFileName, List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList, 
 			Map<String,Object> jobParametersMap, String modelFileName, String pdfFileName, String pngFileName){
 		
 		Assert.assertTrue(!testFileHandleList.isEmpty());
@@ -89,6 +82,7 @@ public class Macstwo extends SoftwarePackage{
 			w.addCommand(command1);
 			
 		}
+		
 		/* moved immediately up, so this is no longer needed
 		if(testFileHandleList.size()>1){
 			mergedTestBamFile = "mergedTESTBamFile.bam";
@@ -142,34 +136,55 @@ public class Macstwo extends SoftwarePackage{
 		tempCommand.append(" --bdg");//generates two bedGraph files
 		
 		//mappable or "effective" genome size
-		//really should have this with the build , at least for those that are not hs, mm, dm, and ce
-		String genomeSize = this.getMappableGenomeSize(ipSample);
-		if(genomeSize.isEmpty()){
+		//really should have this with the build , at least for those that are not hs, mm, dm, and ce (and sc, sp, tg). See below
+		String mappableGenomeSize = this.getMappableGenomeSize(ipSample);
+		if(mappableGenomeSize.isEmpty()){
 			logger.debug("genomeSize cannot be empty for macs2 - this will cause an assert to fail");
 		}
-		Assert.assertTrue(!genomeSize.isEmpty());
-		tempCommand.append(" --gsize " + genomeSize + " ");
+		Assert.assertTrue(!mappableGenomeSize.isEmpty());
+		tempCommand.append(" --gsize " + mappableGenomeSize);
 		
 		//bandwidth : sonication size if macromolecule; insert size if library  (no, it's not 1/2 of this value, this according to Dayou; also, it's the fragment/sonication size of the IP that is important (no need to consider the control for this parameter)
 		//old wasp used library insert; here we use a user-provided fragmentSize
 		String fragmentSize = this.getFragmentSize(ipSample);
 		if(!fragmentSize.isEmpty()){//if is empty, accept default value
-			tempCommand.append(" --bw " + fragmentSize + " ");
+			tempCommand.append(" --bw " + fragmentSize);
 		}
 		
-		//tag size :  take smallest of all IP's real read lenths)
-		String tagSize = this.getTagSize(testFileHandleList);
-		if(!tagSize.isEmpty()){//if is empty, allow MACS to calculate
-			tempCommand.append(" --tsize " + tagSize + " ");
+		//tag size :  currently taken as smallest readLength from all IP's runs' readLengths. Would be better to have actual, average, readLength, but don't yet have that available.
+		//Dayou suggested use only IP data, not include controls here
+		if(shortestReadLengthFromAllRuns>0){//if 0 (indicating problem), simply allow MACS to calculate
+			String tagSize = Integer.valueOf(shortestReadLengthFromAllRuns).toString();
+			tempCommand.append(" --tsize " + tagSize);//size of sequencing tags
 		}
 		
+		//this is now part of the parameters in the jobParametersMap
 		//default q (minimum FDR) is 0.01; Genome Center requested 0.05; not sure what to do; this value will be used if p NOT set
-		tempCommand.append(" --qvalue 0.01 ");
-		
-		for (String key : jobParametersMap.keySet()) {
-	
-			String opt = "";
-			/*
+		///tempCommand.append(" --qvalue 0.01 ");//currently take the default of q = 0.01 and p is empty
+			
+		for (String key : jobParametersMap.keySet()) {//example of key: macs2--qvalue (note that while the jobMeta key is macstwo.macs2--qvalue, the key in jobParameterMap is simply macs2--qvalue)
+			if(key.startsWith("macs2")){//
+				String parameterName = key.trim().replaceFirst("macs2", "");//parameterName might be set to, for example, --qvalue
+				if(parameterName.isEmpty()){//should never occur
+					continue;
+				}
+				String parameterValue = jobParametersMap.get(key).toString().trim();
+				if(parameterValue.isEmpty()){//a parameter that does not have a value is not being used (for example, --pvalue; --extsize, which the user has not given a value and thus does not want to use) 
+					continue;
+				}
+				else if(parameterValue.equals("_SET_OFF_")){//parameter is to be set off (which is default), such as --nomodel (similar to linux command: ls -a). So, continue.
+					continue;
+				}
+				else if(parameterValue.equals("_SET_ON_")){//to set this parameter on, just use paramater's name
+					tempCommand.append(" " + parameterName);
+				}
+				else{//typical parameter, such as --qvalue 0.01
+					tempCommand.append(" " + parameterName + " " + parameterValue);
+				}
+				
+			}
+		}
+			/* not option on forms
 			if(key.equalsIgnoreCase("broadPeakExpected")){//TODO: not yet an option on the forms
 				opt = "--broad";
 				if(jobParametersMap.get(key).toString().equalsIgnoreCase("yes"))
@@ -179,7 +194,8 @@ public class Macstwo extends SoftwarePackage{
 				}
 				
 			}
-			*/
+			
+			//on the form, so dealt with above
 			if(key.equalsIgnoreCase("pValueCutoff")){
 				opt = "--pvalue";
 				try{
@@ -200,7 +216,8 @@ public class Macstwo extends SoftwarePackage{
 					continue;
 				}
 			}
-			*/
+			
+			//on the form, so dealt with above
 			if(key.equalsIgnoreCase("keepDup") ){//only yes or no are currently permitted on the forms
 				opt = "--keep-dup";	
 				if(jobParametersMap.get(key).toString().equalsIgnoreCase("no")){   //jobParameters.get(opt).toString().equalsIgnoreCase("no")){
@@ -229,7 +246,8 @@ public class Macstwo extends SoftwarePackage{
 			if(!opt.isEmpty()){
 				tempCommand.append(" " + opt + " " + jobParametersMap.get(key).toString());
 			}
-		}
+			*/
+		
 		
 		
 		String command3 = new String(tempCommand);
@@ -392,15 +410,5 @@ public class Macstwo extends SoftwarePackage{
 		}
 		return fragmentSize;
 	}
-	private String getTagSize(List<FileHandle> testFileHandleList) {
-		String smallestReadLengthForIPSample = "";
-		Integer smallestReadLength = new Integer(0);
-		try{
-			
-			
-			
-		}catch(Exception e){logger.debug("problem obtaining tagSize for Macs2");}
-		
-		return smallestReadLengthForIPSample;
-	}
+	
 }

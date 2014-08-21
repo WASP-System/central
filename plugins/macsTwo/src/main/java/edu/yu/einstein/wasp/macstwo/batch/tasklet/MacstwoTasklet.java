@@ -39,6 +39,8 @@ import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
@@ -48,6 +50,7 @@ import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 
 /**
@@ -107,6 +110,8 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	private FileService fileService;
 	@Autowired
 	private GenomeService genomeService;
+	@Autowired
+	private RunService runService;
 
 	@Autowired
 	private GridHostResolver gridHostResolver;
@@ -197,6 +202,8 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		Set<FileGroup> derrivedFromFileGroups = new HashSet<FileGroup>();
 		
+		int shortestReadLengthFromAllRuns = 0;
+		
 		List<FileHandle> testFileHandleList = new ArrayList<FileHandle>();		
 		for(Integer id : this.testCellLibraryIdList){
 			SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(id);
@@ -210,10 +217,33 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 					logger.debug("test fileHandle = " + fileHandle.getFileName());
 				}				
 			}
+			
+			//get shortestReadLengthFromAllRuns using smallest of all IP's run.readLength
+			Sample cell = sampleService.getCell(cellLibrary);
+			Sample platformUnit = sampleService.getPlatformUnitForCell(cell);
+			List<Run> runList = runService.getRunsForPlatformUnit(platformUnit);
+			Run run = runList.get(0);//could be a problem
+			for(RunMeta runMeta : run.getRunMeta()){
+				if(runMeta.getK().endsWith("readLength")){
+					String readLengthAsString = runMeta.getV();
+					try{
+						int readLengthAsInt = Integer.parseInt(readLengthAsString);
+						if(readLengthAsInt > 0){
+							if(shortestReadLengthFromAllRuns==0){//first time
+								shortestReadLengthFromAllRuns = readLengthAsInt;
+							}
+							else if(readLengthAsInt < shortestReadLengthFromAllRuns){
+								shortestReadLengthFromAllRuns = readLengthAsInt;
+							}
+						}
+					}catch(Exception e){logger.debug("unable to parse readLength to int");}
+				}
+			}
 		}
 		Assert.assertTrue(!testFileHandleList.isEmpty());
 		logger.debug("test bam files size = " + testFileHandleList.size());
-
+		logger.debug("shortestReadLengthFromAllRuns = " + shortestReadLengthFromAllRuns);
+		
 		Sample controlSample = null;
 		if(!controlCellLibraryIdList.isEmpty()){
 			controlSample = sampleService.getLibrary(sampleService.getCellLibraryBySampleSourceId(controlCellLibraryIdList.get(0)));//all these cellLibraries are from the same library or macromoleucle
@@ -293,7 +323,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 			speciesCode = "";
 		}
 		
-		WorkUnit w = macs2.getPeaks(testSample, controlSample, prefixForFileName, testFileHandleList, controlFileHandleList, jobParametersMap, modelFileName, pdfFileName, pngFileName);//configure
+		WorkUnit w = macs2.getPeaks(shortestReadLengthFromAllRuns, testSample, controlSample, prefixForFileName, testFileHandleList, controlFileHandleList, jobParametersMap, modelFileName, pdfFileName, pngFileName);//configure
 		logger.debug("OK, workunit has been generated");
 		this.commandLineCall = w.getCommand();
 		this.commandLineCall = this.commandLineCall.replaceAll("\\n", "<br /><br />");//the workunit tagged on a newline at the end of the command; so remove it for db storage and replace with <br /> for display purposes

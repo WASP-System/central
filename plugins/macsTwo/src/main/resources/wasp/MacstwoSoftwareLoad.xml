@@ -14,7 +14,7 @@
   <bean id="macstwo" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
   	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.macstwo.software.Macstwo</value></property>
     <property name="name" value="MACS2 Peakcaller" />
-    <property name="version" value="2.0.10"/>
+    <property name="version" value="2.1.0.20140616"/>
     <property name="description" value="peakcaller plugin" />
     <property name="area" ref="macstwoPluginArea" />
     <property name="resourceType" ref="peakcallerResourceType" />
@@ -84,9 +84,9 @@
           <property name="metaposition" value="12" />
           <property name="label" value="peakcaller.macstwo.nolambda.label" />
           <property name="tooltip" value="peakcaller.macstwo.nolambda.tt" />
-          <property name="default" value="0" />
-          <property name="constraint" value="RegExp:^0|1$" />
-          <property name="control" value="select:0:not set;1:set" />
+          <property name="default" value="_SET_OFF_" />
+          <property name="constraint" value="RegExp:^_SET_OFF_|_SET_ON_$" />
+          <property name="control" value="select:_SET_OFF_:not set;_SET_ON_:set" />
           <property name="error" value="peakcaller.macstwo.nolambda.err" />
          </bean>
  
@@ -118,9 +118,9 @@
           <property name="metaposition" value="21" />
           <property name="label" value="peakcaller.macstwo.nomodel.label" />
           <property name="tooltip" value="peakcaller.macstwo.nomodel.tt" />
-          <property name="default" value="0" />
-          <property name="constraint" value="RegExp:^0|1$" />
-          <property name="control" value="select:0:not set;1:set" />
+          <property name="default" value="_SET_OFF_" />
+          <property name="constraint" value="RegExp:^_SET_OFF_|_SET_ON_$" />
+          <property name="control" value="select:_SET_OFF_:not set;_SET_ON_:set" />
           <property name="error" value="peakcaller.macstwo.nomodel.err" />
          </bean>
  
@@ -130,9 +130,9 @@
           <property name="metaposition" value="23" />
           <property name="label" value="peakcaller.macstwo.fixbimodel.label" />
           <property name="tooltip" value="peakcaller.macstwo.fixbimodel.tt" />
-          <property name="default" value="0" />
-          <property name="constraint" value="RegExp:^0|1$" />
-          <property name="control" value="select:0:not set;1:set" />
+          <property name="default" value="_SET_OFF_" />
+          <property name="constraint" value="RegExp:^_SET_OFF_|_SET_ON_$" />
+          <property name="control" value="select:_SET_OFF_:not set;_SET_ON_:set" />
           <property name="error" value="peakcaller.macstwo.fixbimodel.err" />
          </bean>
  
@@ -175,9 +175,9 @@
           <property name="metaposition" value="34" />
           <property name="label" value="peakcaller.macstwo.tolarge.label" />
           <property name="tooltip" value="peakcaller.macstwo.tolarge.tt" />
-          <property name="default" value="0" />
-          <property name="constraint" value="RegExp:^0|1$" />
-          <property name="control" value="select:0:not set;1:set" />
+          <property name="default" value="_SET_OFF_" />
+          <property name="constraint" value="RegExp:^_SET_OFF_|_SET_ON_$" />
+          <property name="control" value="select:_SET_OFF_:not set;_SET_ON_:set" />
           <property name="error" value="peakcaller.macstwo.tolarge.err" />
         </bean>
 
@@ -187,9 +187,9 @@
           <property name="metaposition" value="37" />
           <property name="label" value="peakcaller.macstwo.downsample.label" />
           <property name="tooltip" value="peakcaller.macstwo.downsample.tt" />
-          <property name="default" value="0" />
-         <property name="constraint" value="RegExp:^0|1$" />
-          <property name="control" value="select:0:not set;1:set" />
+          <property name="default" value="_SET_OFF_" />
+         <property name="constraint" value="RegExp:^_SET_OFF_|_SET_ON_$" />
+          <property name="control" value="select:_SET_OFF_:not set;_SET_ON_:set" />
           <property name="error" value="peakcaller.macstwo.downsample.err" />
         </bean>
  
