@@ -38,7 +38,6 @@
     <property name="password" value="${email.password}" />
     <property name="javaMailProperties">
       <props>
-            <prop key="mail.smtp.from">${email.smtp.from}</prop>
             <!-- Use SMTP-AUTH to authenticate to SMTP server -->
             <prop key="mail.smtp.auth">${email.smtp.auth}</prop>
             <!-- Use TLS to encrypt communication with SMTP server -->

@@ -161,7 +161,7 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 		Map<String, String> cellLibraries = new HashMap<>();
 		for (SampleSource cellLibrary : sampleService.getCellLibraries()){
 			Sample library = sampleService.getLibrary(cellLibrary);
-			String libraryName = library.getName();
+			String libraryName = library.getName() + " / " + library.getUUID();
 			Sample cell = sampleService.getCell(cellLibrary);
 			if (cell != null){
 				if (!sampleService.isCell(cell))

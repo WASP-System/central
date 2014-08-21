@@ -600,8 +600,8 @@ public class RunController extends WaspController {
 	public String deleteRun(@PathVariable("runId") Integer runId, ModelMap m) {
 		try{
 			Run run = runService.getSequenceRun(runId);//exception if not msp run or not in db
-			runService.delete(run);
-		}catch(Exception e){
+			runService.delete(run);	
+		} catch(Exception e){
 			//throw new RuntimeException(e);
 			logger.warn(e.getMessage());
 			waspErrorMessage("wasp.unexpected_error.error");
