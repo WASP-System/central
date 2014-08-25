@@ -122,10 +122,11 @@ public class PicardServiceImpl extends WaspServiceImpl implements PicardService 
 		String duplicateReads = getDuplicateReads(fileGroup);
 		String mappedReads = this.getMappedReads(fileGroup);		
 		return duplicateReads + " / " + mappedReads + " = " + fractionDuplicated;	}
-	
+	/* no longer used
 	public String getFractionUniqueNonRedundant(FileGroup fileGroup){	
 		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT);
 	}
+	
 	public String getUniqueReads(FileGroup fileGroup){	
 		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS);
 	}
@@ -138,7 +139,7 @@ public class PicardServiceImpl extends WaspServiceImpl implements PicardService 
 		String uniqueNonRedundantReads = getUniqueNonRedundantReads(fileGroup);		
 		return uniqueNonRedundantReads + " / " + uniqueReads + " = " + fractionUniqueNonRedundant;
 	}
-	
+	*/
 	public String getUniqueReadsFor2M(FileGroup fileGroup){
 		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS_FROM_2M);
 	}
@@ -207,7 +208,7 @@ public class PicardServiceImpl extends WaspServiceImpl implements PicardService 
 		duplicate.put("Duplicate Mapped Reads", formatWithCommas(getDuplicateReads(fileGroup)));
 		duplicate.put("Fraction Duplicated", getFractionDuplicated(fileGroup));
 		metrics.put("Duplicate Stats:", duplicate);
-		
+		/* no longer used
 		if(getUniqueReads(fileGroup)!=null && !getUniqueReads(fileGroup).isEmpty()){
 			Map<String,String> unique = new LinkedHashMap<String, String>();
 			unique.put("Uniquely Mapped Reads", formatWithCommas(getUniqueReads(fileGroup)));
@@ -215,6 +216,7 @@ public class PicardServiceImpl extends WaspServiceImpl implements PicardService 
 			unique.put("Fraction Uniquely Mapped &amp; Nonredundant", getFractionUniqueNonRedundant(fileGroup));
 			metrics.put("Uniquely Aligned Stats:", unique);
 		}
+		*/
 		if(getUniqueReadsFor2M(fileGroup)!=null && !getUniqueReadsFor2M(fileGroup).isEmpty()){
 			Map<String,String> nrf = new LinkedHashMap<String, String>();
 			if("2000000".equals(getUniqueReadsFor2M(fileGroup))){
