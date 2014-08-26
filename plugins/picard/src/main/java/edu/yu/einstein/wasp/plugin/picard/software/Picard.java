@@ -100,9 +100,11 @@ public class Picard extends SoftwarePackage {
 			createIndex = true;
 		String command = "java -Xmx" + memRequiredGb + "g -jar $PICARD_ROOT/MarkDuplicates.jar I=" + inputBamFilename + " O=" + dedupBamFilename +
 				" REMOVE_DUPLICATES=false METRICS_FILE=" + dedupMetricsFilename + 
-				" TMP_DIR=${" + WorkUnit.TMP_DIRECTORY + "} CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT";
-		if (createIndex)
-			 command += " && mv " + dedupBamFilename + ".bai " + dedupBaiFilename;
+				" TMP_DIR=${" + WorkUnit.TMP_DIRECTORY + "} CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT\n";
+		if (createIndex) {
+			command += "tmpfn=" + dedupBamFilename + "\nif [ -e ${tmpfn}.bai ]; then\n mv ${tmpfn}.bai " + dedupBaiFilename + "\nfi\n";
+			command += "if [ -e ${tmpfn/.bam.bai/}.bai ]; then\n mv ${tmpfn/.bam.bai/}.bai " + dedupBaiFilename + "\nfi\n";
+		}
 		logger.debug("Will conduct picard MarkDuplicates with command: " + command);
 		return command;
 	}
