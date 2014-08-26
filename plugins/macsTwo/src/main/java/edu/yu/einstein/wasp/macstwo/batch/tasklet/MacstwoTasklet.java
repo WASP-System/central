@@ -37,6 +37,7 @@ import edu.yu.einstein.wasp.macstwo.software.Macstwo;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.FileHandleMeta;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Run;
@@ -96,7 +97,18 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	@Autowired
 	private FileType macs2AnalysisFileType;
 	
-	
+	@Autowired
+	private FileType textFileType;//here, the model.r script output file
+	@Autowired
+	private FileType pdfFileType;//output pdf file after running the model.r script
+	@Autowired
+	private FileType pngFileType;//output after imagemagik on the pdf file
+	@Autowired
+	private FileType tsvFileType;//tab-separated values (in this case, the .xls output file)
+	@Autowired
+	private FileType bedFileType;//bed file (the peaks.narrowPeak BED6+4 output file; the summits.bed file;  peaks.broadPeak is BED6+3; peaks.gappedPeak is BED12+3) 
+	@Autowired
+	private FileType bedGraphFileType;//bedGraph (treat_pileup.bdg and control_lambda.bdg)
 	
 	@Autowired
 	private JobService jobService;
@@ -335,30 +347,58 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		FileHandle modelScript = new FileHandle();
 		modelScript.setFileName(modelFileName);//prefixForFileName + "_model.r"
 		listOfFileHandleNames.add(modelFileName );//this will likely become unnecessary
-		modelScript.setFileType(macs2ModelScriptFileType);
+		modelScript.setFileType(textFileType);
 		modelScript = fileService.addFile(modelScript);
 		files.add(modelScript);
+		FileHandleMeta fileHandleMeta = new FileHandleMeta();
+		fileHandleMeta.setK("macs2Analysis.description");
+		fileHandleMeta.setV("Model (r script):Macs2-generated R script (xxx_model.r) that can be converted into a pdf (using RScript) and illustrates the peak model");
+		fileHandleMeta.setFile(modelScript);
+		List<FileHandleMeta> fhml = new ArrayList<FileHandleMeta>();
+		fhml.add(fileHandleMeta);
+		fileService.saveFileHandleMeta(fhml, modelScript);
 		
 		FileHandle peaksXls = new FileHandle();
 		peaksXls.setFileName(prefixForFileName + "_peaks.xls");
 		listOfFileHandleNames.add(prefixForFileName + "_peaks.xls");//this will likely become unnecessary
-		peaksXls.setFileType(macs2PeaksXlsFileType);
+		peaksXls.setFileType(tsvFileType);
 		peaksXls = fileService.addFile(peaksXls);
 		files.add(peaksXls);
+		fileHandleMeta = new FileHandleMeta();
+		fileHandleMeta.setK("macs2Analysis.description");
+		fileHandleMeta.setV("Peaks (xls):Macs2-generated Excel-based tabular file (xxx_peaks.xls) which contains information about called peaks");
+		fileHandleMeta.setFile(peaksXls);
+		fhml = new ArrayList<FileHandleMeta>();
+		fhml.add(fileHandleMeta);
+		fileService.saveFileHandleMeta(fhml, peaksXls);
 		
 		FileHandle narrowPeaksBed = new FileHandle();
 		narrowPeaksBed.setFileName(prefixForFileName + "_peaks.narrowPeak");//this will likely become unnecessary
 		listOfFileHandleNames.add(prefixForFileName + "_peaks.narrowPeak");
-		narrowPeaksBed.setFileType(macs2NarrowPeaksBedFileType);
+		narrowPeaksBed.setFileType(bedFileType);
 		narrowPeaksBed = fileService.addFile(narrowPeaksBed);
 		files.add(narrowPeaksBed);
+		fileHandleMeta = new FileHandleMeta();
+		fileHandleMeta.setK("macs2Analysis.description");
+		fileHandleMeta.setV("NarrowPeaks (bed6+4):Macs2-generated BED6+4 format file (xxx_peaks.narrowPeak) which contains peak locations together with peak summit, pvalue and qvalue that can be load into UCSC genome browser");
+		fileHandleMeta.setFile(narrowPeaksBed);
+		fhml = new ArrayList<FileHandleMeta>();
+		fhml.add(fileHandleMeta);
+		fileService.saveFileHandleMeta(fhml, narrowPeaksBed);
 	
 		FileHandle summitsBed = new FileHandle();
 		summitsBed.setFileName(prefixForFileName + "_summits.bed");
 		listOfFileHandleNames.add(prefixForFileName + "_summits.bed");//this will likely become unnecessary
-		summitsBed.setFileType(macs2SummitsBedFileType);
+		summitsBed.setFileType(bedFileType);
 		summitsBed = fileService.addFile(summitsBed);
 		files.add(summitsBed);
+		fileHandleMeta = new FileHandleMeta();
+		fileHandleMeta.setK("macs2Analysis.description");
+		fileHandleMeta.setV("Summits (bed):Macs2-generated BED file (xxx_summits.bed) which contains the peak summits locations for every peak and can be loaded into the UCSC genome browser");
+		fileHandleMeta.setFile(summitsBed);
+		fhml = new ArrayList<FileHandleMeta>();
+		fhml.add(fileHandleMeta);
+		fileService.saveFileHandleMeta(fhml, summitsBed);
 		
 /*
 		FileHandle summitsModifiedBed = new FileHandle();
@@ -371,33 +411,61 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		FileHandle treatPileupBedGraph = new FileHandle();
 		treatPileupBedGraph.setFileName(prefixForFileName + "_treat_pileup.bdg");
 		listOfFileHandleNames.add(prefixForFileName + "_treat_pileup.bdg");//this will likely become unnecessary
-		treatPileupBedGraph.setFileType(macs2TreatPileupBedGraphFileType);
+		treatPileupBedGraph.setFileType(bedGraphFileType);
 		treatPileupBedGraph = fileService.addFile(treatPileupBedGraph);
 		files.add(treatPileupBedGraph);
+		fileHandleMeta = new FileHandleMeta();
+		fileHandleMeta.setK("macs2Analysis.description");
+		fileHandleMeta.setV("TreatPileup (bedGraph):Macs2-generated bedGraph file (xxx_treat_pileup.bdg) that describes the read distrubution along the entire genome (for treatment data) and can be imported to UCSC genome browser or converted into even smaller bigWig file");
+		fileHandleMeta.setFile(treatPileupBedGraph);
+		fhml = new ArrayList<FileHandleMeta>();
+		fhml.add(fileHandleMeta);
+		fileService.saveFileHandleMeta(fhml, treatPileupBedGraph);
 	
 		FileHandle controlLambdaBedGraph = new FileHandle();
 		controlLambdaBedGraph.setFileName(prefixForFileName + "_control_lambda.bdg");
 		listOfFileHandleNames.add(prefixForFileName + "_control_lambda.bdg");//this will likely become unnecessary
-		controlLambdaBedGraph.setFileType(macs2ControlLambdaBedGraphFileType);
+		controlLambdaBedGraph.setFileType(bedGraphFileType);
 		controlLambdaBedGraph = fileService.addFile(controlLambdaBedGraph);
 		files.add(controlLambdaBedGraph);
+		fileHandleMeta = new FileHandleMeta();
+		fileHandleMeta.setK("macs2Analysis.description");
+		fileHandleMeta.setV("ControlLambda (bedGraph):Macs2-generated bedGraph file (xxx_control_lambda.bdg) that describes the read distrubution along the entire genome (for local lambda values from control) and can be imported to UCSC genome browser or converted into even smaller bigWig file");
+		fileHandleMeta.setFile(controlLambdaBedGraph);
+		fhml = new ArrayList<FileHandleMeta>();
+		fhml.add(fileHandleMeta);
+		fileService.saveFileHandleMeta(fhml, controlLambdaBedGraph);
 		
 		//the pdf (generated from running Rscript on xx_model.r file)
 		FileHandle modelPdf = new FileHandle();
 		modelPdf.setFileName(pdfFileName);
 		listOfFileHandleNames.add(pdfFileName);//this will likely become unnecessary
-		modelPdf.setFileType(macs2ModelPdfFileType);
+		modelPdf.setFileType(pdfFileType);
 		modelPdf = fileService.addFile(modelPdf);
 		files.add(modelPdf);
+		fileHandleMeta = new FileHandleMeta();
+		fileHandleMeta.setK("macs2Analysis.description");
+		fileHandleMeta.setV("Model (pdf):Pdf file (xxx_model.pdf) generated by running RScript against xxx_model.r and is an image of the read distribution in model peaks and fragment size estimation");
+		fileHandleMeta.setFile(modelPdf);
+		fhml = new ArrayList<FileHandleMeta>();
+		fhml.add(fileHandleMeta);
+		fileService.saveFileHandleMeta(fhml, modelPdf);
 		logger.debug("new -------   recorded fileGroup and fileHandle for rscript to create pdf in MacstwoGenerateModelAsPdfTasklet.doExecute()");
 
 		//the png (converted from the pdf using ImageMagick)
 		FileHandle modelPng = new FileHandle();
 		modelPng.setFileName(pngFileName);
 		listOfFileHandleNames.add(pngFileName);//this will likely become unnecessary
-		modelPng.setFileType(macs2ModelPngFileType);
+		modelPng.setFileType(pngFileType);
 		modelPng = fileService.addFile(modelPng);
 		files.add(modelPng);
+		fileHandleMeta = new FileHandleMeta();
+		fileHandleMeta.setK("macs2Analysis.description");
+		fileHandleMeta.setV("Model (png):Image file converted from xxx_model.pdf using ImageMagick");
+		fileHandleMeta.setFile(modelPng);
+		fhml = new ArrayList<FileHandleMeta>();
+		fhml.add(fileHandleMeta);
+		fileService.saveFileHandleMeta(fhml, modelPng);
 		logger.debug("new ------- recorded fileGroup and fileHandle for ImageMagick to create png in MacstwoGenerateModelAsPdfTasklet.doExecute()");
 		
 		//6-19-14
