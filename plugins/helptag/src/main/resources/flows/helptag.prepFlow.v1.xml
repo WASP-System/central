@@ -5,7 +5,7 @@
 
 	<!-- <batch:job id="edu.yu.einstein.wasp.helptag.prepFlow"> -->
 	<batch:flow id="helptag.library.countHpaii.flow.v1" >
-		<batch:step id="helptag.library.countHpaii.step.notifyHelptagStart" next="helptag.library.countHpaii.step.align">
+		<batch:step id="helptag.library.countHpaii.step.notifyHelptagStart" next="helptag.library.countHpaii.step.countHpaii">
 			<batch:tasklet>
 						<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
