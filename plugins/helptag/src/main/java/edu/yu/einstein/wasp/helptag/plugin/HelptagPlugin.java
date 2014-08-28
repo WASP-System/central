@@ -66,8 +66,8 @@ public class HelptagPlugin extends WaspPlugin
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
 
-	public static final String PREP_FLOW_NAME = "edu.yu.einstein.wasp.helptag.prepFlow";
-	public static final String AGGR_FLOW_NAME = "edu.yu.einstein.wasp.helptag.aggrFlow";
+	public static final String PREPROCESS_ANALYSIS_JOB = "helptag.library.preProcess.job";
+	public static final String AGREGATE_ANALYSIS_JOB = "helpta.library.aggrFlow.job";
 
 	public HelptagPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
 		super(iName, waspSiteProperties, channel);
@@ -110,17 +110,17 @@ public class HelptagPlugin extends WaspPlugin
 				return MessageBuilder.withPayload("Unable to determine id from message: " + m.getPayload().toString()).build();
 			
 			Map<String, String> jobParameters = new HashMap<String, String>();
-			logger.info("Sending launch message with flow " + PREP_FLOW_NAME + " and id: " + id);
+			logger.info("Sending launch message with flow " + PREPROCESS_ANALYSIS_JOB + " and id: " + id);
 //			jobParameters.put(WaspSoftwareJobParameters.CELL_LIBRARY_ID_LIST, id.toString());
 //			jobParameters.put(WaspSoftwareJobParameters.GENOME, "10090::GRCm38::70");
 			jobParameters.put("test", new Date().toString());
 			
 			jobParameters.put(WaspJobParameters.CELL_LIBRARY_ID, id.toString());
-			waspMessageHandlingService.launchBatchJob(PREP_FLOW_NAME, jobParameters);
+			waspMessageHandlingService.launchBatchJob(PREPROCESS_ANALYSIS_JOB, jobParameters);
 			return (Message<String>) MessageBuilder.withPayload("Initiating helptag test flow on id " + id).build();
 		} catch (WaspMessageBuildingException e1) {
-			logger.warn("unable to build message to launch batch job " + PREP_FLOW_NAME);
-			return MessageBuilder.withPayload("Unable to launch batch job " + PREP_FLOW_NAME).build();
+			logger.warn("unable to build message to launch batch job " + PREPROCESS_ANALYSIS_JOB);
+			return MessageBuilder.withPayload("Unable to launch batch job " + PREPROCESS_ANALYSIS_JOB).build();
 		}
 		
 	}
@@ -158,9 +158,9 @@ public class HelptagPlugin extends WaspPlugin
 	@Override
 	public String getBatchJobName(String batchJobType) {
 		if (batchJobType.equals(BatchJobTask.ANALYSIS_LIBRARY_PREPROCESS)) 
-			return PREP_FLOW_NAME;
+			return PREPROCESS_ANALYSIS_JOB;
 		else if (batchJobType.equals(BatchJobTask.ANALYSIS_AGGREGATE))
-			return AGGR_FLOW_NAME;
+			return AGREGATE_ANALYSIS_JOB;
 		return null;
 	}
 	
