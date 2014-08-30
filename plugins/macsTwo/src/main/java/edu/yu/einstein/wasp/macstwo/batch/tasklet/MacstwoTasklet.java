@@ -479,6 +479,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		macs2AnalysisFileGroup.setSoftwareGeneratedBy(macs2);//would like to add imagemagickSoftware and rSoftware, but no way
 		macs2AnalysisFileGroup.setDerivedFrom(derrivedFromFileGroups);
 		macs2AnalysisFileGroup.setFileHandles(files);
+		macs2AnalysisFileGroup.setIsActive(0);
 		macs2AnalysisFileGroup = fileService.addFileGroup(macs2AnalysisFileGroup);
 		this.macs2AnalysisFileGroupId = macs2AnalysisFileGroup.getId();
 		logger.debug("new ------- recorded all encompassing fileGroup macs2AnalysisFileGroup as a container for files outputted by macs2");
@@ -648,6 +649,8 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		//new 6-18-14
 		if (this.macs2AnalysisFileGroupId != null && testSample.getId() != 0){
 			FileGroup fg = fileService.getFileGroupById(this.macs2AnalysisFileGroupId);
+			fg.setIsActive(1);
+			fileService.addFileGroup(fg);
 			fileService.setSampleFile(fg, testSample);
 			
 			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
