@@ -71,8 +71,8 @@
           <!--<property name="baseName" value="mFoldRange" />-->
           <property name="baseName" value="macs2--mfold" />
           <property name="metaposition" value="9" />
-          <property name="default" value="10,30" />
-          <property name="constraint" value="RegExp:^\d+,\d+$" />
+          <property name="default" value="10 30" />
+          <property name="constraint" value="RegExp:^\d+ \d+$" />
           <property name="label" value="peakcaller.macstwo.mfoldrange.label" />
           <property name="tooltip" value="peakcaller.macstwo.mfoldrange.tt" />
           <property name="error" value="peakcaller.macstwo.mfoldrange.err" />
