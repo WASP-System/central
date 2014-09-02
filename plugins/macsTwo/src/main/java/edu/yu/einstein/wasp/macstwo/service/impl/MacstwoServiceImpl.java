@@ -26,6 +26,7 @@ import edu.yu.einstein.wasp.macstwo.webpanels.MacstwoWebPanels;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.FileHandleMeta;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
@@ -103,8 +104,13 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 			 Map<FileGroup, List<FileHandle>> fileGroupFileHandleListMap = new HashMap<FileGroup, List<FileHandle>>();
 			 Map<FileGroup, Build> fileGroupBuildMap = new HashMap<FileGroup, Build>();
 			 Map<FileHandle, String> fileHandleResolvedURLMap = new HashMap<FileHandle, String>();
-			 Set<FileType> fileTypeSet = new HashSet<FileType>();			 
-
+			 Set<FileType> fileTypeSet = new HashSet<FileType>();
+			 
+			 //9-2-14 (three lines)
+			 Set<String> fileDescriptionShortNameSet = new HashSet<String>();			 
+			 Map<String, String> fileDescriptionShortNamefileDescriptionMap = new HashMap<String,String>(); 
+			 Map<FileHandle,String> fileHandelfileDescriptionShortNameMap = new HashMap<FileHandle,String>(); 
+			 
 			 List<FileGroup> macs2AnalysisFileGroupList = getMacs2AnalysisFileGroups(job);
 			 class FileGroupDescriptionComparator implements Comparator<FileGroup> {
 				 @Override
@@ -168,6 +174,23 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 				 //get SET of filetypes (and convert later to list, so it can be sorted)
 				 //get resolvedURL for each fileHandle
 				 for(FileHandle fileHandle : fileHandleList){
+					
+					 //added 9-2-14
+					String completeFileDescriptionMetaData = getFileDescriptionMetaData(fileHandle);
+					if(!completeFileDescriptionMetaData.isEmpty()){
+						String [] stringArray =  completeFileDescriptionMetaData.split("::");
+						if(stringArray.length==2){
+							String fileDescriptionShortName = stringArray[0];
+							fileDescriptionShortNameSet.add(fileDescriptionShortName);
+							String fileDescription = stringArray[1];
+							if(!fileDescriptionShortNamefileDescriptionMap.containsKey(fileDescriptionShortName)){
+								fileDescriptionShortNamefileDescriptionMap.put(fileDescriptionShortName, fileDescription);
+							}
+							fileHandelfileDescriptionShortNameMap.put(fileHandle,fileDescriptionShortName);
+						}
+						
+					}
+					
 					fileTypeSet.add(fileHandle.getFileType());
 					String resolvedURL = "";
 					try{
@@ -179,6 +202,10 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 			 }
 			 List<FileType> fileTypeList = new ArrayList<FileType>(fileTypeSet);
 			 Collections.sort(fileTypeList, new FileTypeComparator());
+			 
+			 //new 9-2-14(two lines)
+			 List<String> fileDescriptionShortNameList = new ArrayList<String>(fileDescriptionShortNameSet);
+			 Collections.sort(fileDescriptionShortNameList);
 			
 			 if(job.getId().intValue()!=1){//9-2-14
 				//SECOND, present the data within an ordered set of panel tabs (recall that the summary panel has already been taken care of)
@@ -260,6 +287,17 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 			}
 		}
 		return macs2AnalysisFileGroupList;		
+	}
+	
+	private String getFileDescriptionMetaData(FileHandle file){
+		String fileDescription = "";
+		for(FileHandleMeta fhm : file.getFileHandleMeta()){
+			if(fhm.getK().equalsIgnoreCase("macs2Analysis.description")){
+				fileDescription = fhm.getV();
+				break;
+			}
+		}
+		return fileDescription;
 	}
 	
 	public Double getFrip(FileGroup fileGroup){		
