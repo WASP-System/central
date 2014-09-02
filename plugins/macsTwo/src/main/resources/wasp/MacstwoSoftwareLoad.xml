@@ -51,7 +51,7 @@
           <property name="metaposition" value="3" />
           <property name="label" value="peakcaller.macstwo.qvaluecutoff.label" />
           <property name="constraint" value="RegExp:^\d+|0\.\d+|\.\d+$" />
-          <property name="default" value="0.01" />
+          <property name="default" value="0.05" /><!-- ********************I checked in the macs2 main code, where default is 0.05, and as stated in the help directives-->
           <property name="tooltip" value="peakcaller.macstwo.qvaluecutoff.tt" />
           <property name="error" value="peakcaller.macstwo.qvaluecutoff.err" />
         </bean>
@@ -71,7 +71,7 @@
           <!--<property name="baseName" value="mFoldRange" />-->
           <property name="baseName" value="macs2--mfold" />
           <property name="metaposition" value="9" />
-          <property name="default" value="10 30" />
+          <property name="default" value="5 50" /><!-- ********************I checked in the macs2 main code, where default is 5 50, as stated in the help directives-->
           <property name="constraint" value="RegExp:^\d+ \d+$" />
           <property name="label" value="peakcaller.macstwo.mfoldrange.label" />
           <property name="tooltip" value="peakcaller.macstwo.mfoldrange.tt" />

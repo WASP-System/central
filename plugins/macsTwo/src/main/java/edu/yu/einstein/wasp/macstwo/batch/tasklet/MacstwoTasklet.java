@@ -214,7 +214,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		Set<FileGroup> derrivedFromFileGroups = new HashSet<FileGroup>();
 		
-		int shortestReadLengthFromAllRuns = 0;
+		int shortestReadLengthFromAllTestRuns = 0;
 		
 		List<FileHandle> testFileHandleList = new ArrayList<FileHandle>();		
 		for(Integer id : this.testCellLibraryIdList){
@@ -241,11 +241,11 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 					try{
 						int readLengthAsInt = Integer.parseInt(readLengthAsString);
 						if(readLengthAsInt > 0){
-							if(shortestReadLengthFromAllRuns==0){//first time
-								shortestReadLengthFromAllRuns = readLengthAsInt;
+							if(shortestReadLengthFromAllTestRuns==0){//first time
+								shortestReadLengthFromAllTestRuns = readLengthAsInt;
 							}
-							else if(readLengthAsInt < shortestReadLengthFromAllRuns){
-								shortestReadLengthFromAllRuns = readLengthAsInt;
+							else if(readLengthAsInt < shortestReadLengthFromAllTestRuns){
+								shortestReadLengthFromAllTestRuns = readLengthAsInt;
 							}
 						}
 					}catch(Exception e){logger.debug("unable to parse readLength to int");}
@@ -254,7 +254,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		}
 		Assert.assertTrue(!testFileHandleList.isEmpty());
 		logger.debug("test bam files size = " + testFileHandleList.size());
-		logger.debug("shortestReadLengthFromAllRuns = " + shortestReadLengthFromAllRuns);
+		logger.debug("shortestReadLengthFromAllTestRuns = " + shortestReadLengthFromAllTestRuns);
 		
 		Sample controlSample = null;
 		if(!controlCellLibraryIdList.isEmpty()){
@@ -291,7 +291,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		Date dateNow = new Date( );
 	    SimpleDateFormat ft = new SimpleDateFormat ("yyyyMMdd");
 	    //new
-	    String prefixForFileName = ft.format(dateNow)+ "_IP_" + testSample.getName().replaceAll("\\s+", "_");
+	    String prefixForFileName = ft.format(dateNow) + "_MACS2_IP_" + testSample.getName().replaceAll("\\s+", "_");
 	    if(antibodyTarget!=null && !antibodyTarget.isEmpty()){
 	    	prefixForFileName = prefixForFileName + "_TARGET_" + antibodyTarget.replaceAll("\\s+", "_");
 	    }
@@ -335,7 +335,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 			speciesCode = "";
 		}
 		
-		WorkUnit w = macs2.getPeaks(shortestReadLengthFromAllRuns, testSample, controlSample, prefixForFileName, testFileHandleList, controlFileHandleList, jobParametersMap, modelFileName, pdfFileName, pngFileName);//configure
+		WorkUnit w = macs2.getPeaks(shortestReadLengthFromAllTestRuns, testSample, controlSample, prefixForFileName, testFileHandleList, controlFileHandleList, jobParametersMap, modelFileName, pdfFileName, pngFileName);//configure
 		logger.debug("OK, workunit has been generated");
 		this.commandLineCall = w.getCommand();
 		this.commandLineCall = this.commandLineCall.replaceAll("\\n", "<br /><br />");//the workunit tagged on a newline at the end of the command; so remove it for db storage and replace with <br /> for display purposes

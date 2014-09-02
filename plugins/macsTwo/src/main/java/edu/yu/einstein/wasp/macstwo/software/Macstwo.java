@@ -47,7 +47,7 @@ public class Macstwo extends SoftwarePackage{
 	}
 
 	//note: test is same as treated, in macs2-speak (from the immunoprecipitated sample)
-	public WorkUnit getPeaks(int shortestReadLengthFromAllRuns, Sample ipSample, Sample controlSample, String prefixForFileName, List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList, 
+	public WorkUnit getPeaks(int shortestReadLengthFromAllTestRuns, Sample ipSample, Sample controlSample, String prefixForFileName, List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList, 
 			Map<String,Object> jobParametersMap, String modelFileName, String pdfFileName, String pngFileName){
 		
 		Assert.assertTrue(!testFileHandleList.isEmpty());
@@ -153,8 +153,8 @@ public class Macstwo extends SoftwarePackage{
 		
 		//tag size :  currently taken as smallest readLength from all IP's runs' readLengths. Would be better to have actual, average, readLength, but don't yet have that available.
 		//Dayou suggested use only IP data, not include controls here
-		if(shortestReadLengthFromAllRuns>0){//if 0 (indicating problem), simply allow MACS to calculate
-			String tagSize = Integer.valueOf(shortestReadLengthFromAllRuns).toString();
+		if(shortestReadLengthFromAllTestRuns>0){//if 0 (indicating problem), simply allow MACS to calculate
+			String tagSize = Integer.valueOf(shortestReadLengthFromAllTestRuns).toString();
 			tempCommand.append(" --tsize " + tagSize);//size of sequencing tags
 		}
 		
