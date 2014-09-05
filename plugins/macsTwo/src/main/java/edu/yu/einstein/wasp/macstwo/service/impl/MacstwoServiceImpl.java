@@ -206,7 +206,23 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 			 //new 9-2-14(two lines)
 			 List<String> fileDescriptionShortNameList = new ArrayList<String>(fileDescriptionShortNameSet);
 			 Collections.sort(fileDescriptionShortNameList);
-			
+			 
+			 //since we want to order by the short description (and not file type), need to next do this
+			 for(FileGroup fileGroup : macs2AnalysisFileGroupList){
+				 List<FileHandle>  fileHandleList = fileGroupFileHandleListMap.get(fileGroup);
+				 List<FileHandle> properlyOrderedFileHandleList = new ArrayList<FileHandle>();
+				 for(String fileDescriptionShortName : fileDescriptionShortNameList){
+					 for(FileHandle fh : fileHandleList){
+						 if(fileHandelfileDescriptionShortNameMap.get(fh).equalsIgnoreCase(fileDescriptionShortName)){
+							 properlyOrderedFileHandleList.add(fh);
+						 }
+					 }
+				 }
+				 fileGroupFileHandleListMap.put(fileGroup, properlyOrderedFileHandleList);				 
+			 }
+			 
+			 
+			/*
 			 if(job.getId().intValue()!=1){//9-2-14
 				//SECOND, present the data within an ordered set of panel tabs (recall that the summary panel has already been taken care of)
 				Set<PanelTab> panelTabSet = new LinkedHashSet<PanelTab>();
@@ -241,14 +257,20 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 				return panelTabSet;
 			}
 			else{//if(job.getId().intValue()==1){//9-2-14
+			*/
 				Set<PanelTab> panelTabSet = new LinkedHashSet<PanelTab>();
 				//create the sole panelTab to house ALL the panels
 				PanelTab panelTab = new PanelTab();
 				panelTab.setName("MACS2");
 				panelTab.setNumberOfColumns(1);
 				
+				/* as of 9-4-14, no longer used; replaced by getPluginSpecificFileDefinitionsPanel()
 				GridPanel fileTypeDefinitionsPanel = MacstwoWebPanels.getFileTypeDefinitionsPanel(fileTypeList);
 				panelTab.addPanel(fileTypeDefinitionsPanel);
+				*/
+				
+				GridPanel pluginSpecificFileDefinitionsPanel = MacstwoWebPanels.getPluginSpecificFileDefinitionsPanel(fileDescriptionShortNameList, fileDescriptionShortNamefileDescriptionMap);
+				panelTab.addPanel(pluginSpecificFileDefinitionsPanel);
 				GridPanel samplePairsByAnalysisPanel = MacstwoWebPanels.getSamplePairsByAnalysisPanel(macs2AnalysisFileGroupList, fileGroupTestSampleMap, fileGroupControlSampleMap);
 				panelTab.addPanel(samplePairsByAnalysisPanel);
 				GridPanel commandsByAnalysisPanel = MacstwoWebPanels.getCommandsByAnalysisPanel(macs2AnalysisFileGroupList, fileGroupSoftwareUsedMap, fileGroupCommandLineMap);
@@ -257,19 +279,23 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 				panelTab.addPanel(librariesAndBamFilesUsedByAnalysisPanel);
 				GridPanel fripCalculationByAnalysisPanel = MacstwoWebPanels.getFripCalculationByAnalysisPanel(macs2AnalysisFileGroupList, fileGroupFripCalculationMap);
 				panelTab.addPanel(fripCalculationByAnalysisPanel);
-				GridPanel filesByAnalysisPanel = MacstwoWebPanels.getFilesByAnalysisPanel(macs2AnalysisFileGroupList, fileGroupBuildMap, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileGroupFripMap);
+				GridPanel filesByAnalysisPanel = MacstwoWebPanels.getFilesByAnalysisPanel(macs2AnalysisFileGroupList, fileGroupBuildMap, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileGroupFripMap, fileHandelfileDescriptionShortNameMap);
 				panelTab.addPanel(filesByAnalysisPanel);
-				GridPanel filesByFileTypePanel = MacstwoWebPanels.getFilesByFileTypePanel(macs2AnalysisFileGroupList, fileGroupBuildMap, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileTypeList);
-				panelTab.addPanel(filesByFileTypePanel);				
+				//GridPanel filesByFileTypePanel = MacstwoWebPanels.getFilesByFileTypePanel(macs2AnalysisFileGroupList, fileGroupBuildMap, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileTypeList);
+				GridPanel filesByFileDescriptionPanel = MacstwoWebPanels.getFilesByFileDescriptionPanel(macs2AnalysisFileGroupList, fileGroupBuildMap, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileTypeList, fileDescriptionShortNameList, fileHandelfileDescriptionShortNameMap);
+				panelTab.addPanel(filesByFileDescriptionPanel);				
 				panelTabSet.add(panelTab);
 				
 				//don't know if the next two lines is good idea
 				PanelTab modelPNGFilesDisplayedByAnalysisPanelTab = MacstwoWebPanels.getModelPNGFilesByAnalysis(macs2AnalysisFileGroupList, fileGroupFileHandleListMap, fileHandleResolvedURLMap);
-				if(modelPNGFilesDisplayedByAnalysisPanelTab!=null){panelTabSet.add(modelPNGFilesDisplayedByAnalysisPanelTab);}
+				if(modelPNGFilesDisplayedByAnalysisPanelTab!=null){
+					panelTabSet.add(modelPNGFilesDisplayedByAnalysisPanelTab);
+				}
 				
 				return panelTabSet;
+			/*
 			}
-			
+			*/
 		}catch(Exception e){
 			logger.debug("exception in macstwoService.getChipSeqDataToDisplay(job): "+ e.getStackTrace());
 			throw new PanelException(e.getMessage());
