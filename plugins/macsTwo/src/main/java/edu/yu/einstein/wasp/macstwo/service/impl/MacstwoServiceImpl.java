@@ -221,81 +221,38 @@ public class MacstwoServiceImpl extends WaspServiceImpl implements MacstwoServic
 				 fileGroupFileHandleListMap.put(fileGroup, properlyOrderedFileHandleList);				 
 			 }
 			 
-			 
-			/*
-			 if(job.getId().intValue()!=1){//9-2-14
-				//SECOND, present the data within an ordered set of panel tabs (recall that the summary panel has already been taken care of)
-				Set<PanelTab> panelTabSet = new LinkedHashSet<PanelTab>();
-				
-				PanelTab fileTypeDefinitionsPanelTab = MacstwoWebPanels.getFileTypeDefinitions(fileTypeList);
-				if(fileTypeDefinitionsPanelTab!=null){panelTabSet.add(fileTypeDefinitionsPanelTab);}
-				
-				PanelTab samplePairsPanelTab = MacstwoWebPanels.getSamplePairsByAnalysis(macs2AnalysisFileGroupList, fileGroupTestSampleMap, fileGroupControlSampleMap);
-				if(samplePairsPanelTab!=null){panelTabSet.add(samplePairsPanelTab);}			
-				
-				PanelTab commandPanelTab = MacstwoWebPanels.getCommandsByAnalysis(macs2AnalysisFileGroupList, fileGroupSoftwareUsedMap, fileGroupCommandLineMap);
-				if(commandPanelTab!=null){panelTabSet.add(commandPanelTab);}
-	
-				PanelTab librariesAndBamFilesPanelTab = MacstwoWebPanels.getLibrariesAndBamFilesUsedByAnalysis(macs2AnalysisFileGroupList, fileGroupLibraryListMap, fileGroupBamFilesUsedMap);
-				if(librariesAndBamFilesPanelTab!=null){panelTabSet.add(librariesAndBamFilesPanelTab);}
-	
-				PanelTab fripCalculationPanelTab = MacstwoWebPanels.getFripCalculationByAnalysis(macs2AnalysisFileGroupList, fileGroupFripCalculationMap);
-				if(fripCalculationPanelTab!=null){panelTabSet.add(fripCalculationPanelTab);}
-				
-				PanelTab allFilesDisplayedByAnalysisPanelTab = MacstwoWebPanels.getFilesByAnalysis(macs2AnalysisFileGroupList, fileGroupBuildMap, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileGroupFripMap);
-				if(allFilesDisplayedByAnalysisPanelTab!=null){panelTabSet.add(allFilesDisplayedByAnalysisPanelTab);}
-				PanelTab allFilesDisplayedByFileTypePanelTab = MacstwoWebPanels.getFilesByFileType(macs2AnalysisFileGroupList, fileGroupBuildMap, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileTypeList);
-				if(allFilesDisplayedByFileTypePanelTab!=null){panelTabSet.add(allFilesDisplayedByFileTypePanelTab);}
-	
-				PanelTab modelPNGFilesDisplayedByAnalysisPanelTab = MacstwoWebPanels.getModelPNGFilesByAnalysis(macs2AnalysisFileGroupList, fileGroupFileHandleListMap, fileHandleResolvedURLMap);
-				if(modelPNGFilesDisplayedByAnalysisPanelTab!=null){panelTabSet.add(modelPNGFilesDisplayedByAnalysisPanelTab);}
-				
-				//This tab can be removed, as browser icons now also appear on getFilesByAnalysis AND getFilesByFileType, next to the download icons
-				PanelTab browserByAnalysisPanelTab = MacstwoWebPanels.getBrowserByAnalysis(macs2AnalysisFileGroupList, fileGroupBuildMap, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileGroupFripMap);
-				if(browserByAnalysisPanelTab!=null){panelTabSet.add(browserByAnalysisPanelTab);}
-				
-				return panelTabSet;
+			Set<PanelTab> panelTabSet = new LinkedHashSet<PanelTab>();
+			//create the sole panelTab to house ALL the panels
+			PanelTab panelTab = new PanelTab();
+			panelTab.setName("MACS2");
+			panelTab.setNumberOfColumns(1);
+							
+			GridPanel pluginSpecificFileDefinitionsPanel = MacstwoWebPanels.getPluginSpecificFileDefinitionsPanel(fileDescriptionShortNameList, fileDescriptionShortNamefileDescriptionMap);
+			panelTab.addPanel(pluginSpecificFileDefinitionsPanel);
+			GridPanel samplePairsByAnalysisPanel = MacstwoWebPanels.getSamplePairsByAnalysisPanel(macs2AnalysisFileGroupList, fileGroupTestSampleMap, fileGroupControlSampleMap);
+			panelTab.addPanel(samplePairsByAnalysisPanel);
+			GridPanel commandsByAnalysisPanel = MacstwoWebPanels.getCommandsByAnalysisPanel(macs2AnalysisFileGroupList, fileGroupSoftwareUsedMap, fileGroupCommandLineMap);
+			panelTab.addPanel(commandsByAnalysisPanel);
+			GridPanel librariesAndBamFilesUsedByAnalysisPanel = MacstwoWebPanels.getLibrariesAndBamFilesUsedByAnalysisPanel(macs2AnalysisFileGroupList, fileGroupLibraryListMap, fileGroupBamFilesUsedMap);
+			panelTab.addPanel(librariesAndBamFilesUsedByAnalysisPanel);
+			GridPanel fripCalculationByAnalysisPanel = MacstwoWebPanels.getFripCalculationByAnalysisPanel(macs2AnalysisFileGroupList, fileGroupFripCalculationMap);
+			panelTab.addPanel(fripCalculationByAnalysisPanel);
+			GridPanel filesByAnalysisPanel = MacstwoWebPanels.getFilesByAnalysisPanel(macs2AnalysisFileGroupList, fileGroupBuildMap, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileGroupFripMap, fileHandelfileDescriptionShortNameMap);
+			panelTab.addPanel(filesByAnalysisPanel);
+			//GridPanel filesByFileTypePanel = MacstwoWebPanels.getFilesByFileTypePanel(macs2AnalysisFileGroupList, fileGroupBuildMap, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileTypeList);
+			GridPanel filesByFileDescriptionPanel = MacstwoWebPanels.getFilesByFileDescriptionPanel(macs2AnalysisFileGroupList, fileGroupBuildMap, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileTypeList, fileDescriptionShortNameList, fileHandelfileDescriptionShortNameMap);
+			panelTab.addPanel(filesByFileDescriptionPanel);				
+			panelTabSet.add(panelTab);
+			
+			//don't know if the next two lines is good idea
+			//add new tab
+			PanelTab modelPNGFilesDisplayedByAnalysisPanelTab = MacstwoWebPanels.getModelPNGFilesByAnalysis(macs2AnalysisFileGroupList, fileGroupFileHandleListMap, fileHandleResolvedURLMap);
+			if(modelPNGFilesDisplayedByAnalysisPanelTab!=null){
+				panelTabSet.add(modelPNGFilesDisplayedByAnalysisPanelTab);
 			}
-			else{//if(job.getId().intValue()==1){//9-2-14
-			*/
-				Set<PanelTab> panelTabSet = new LinkedHashSet<PanelTab>();
-				//create the sole panelTab to house ALL the panels
-				PanelTab panelTab = new PanelTab();
-				panelTab.setName("MACS2");
-				panelTab.setNumberOfColumns(1);
-				
-				/* as of 9-4-14, no longer used; replaced by getPluginSpecificFileDefinitionsPanel()
-				GridPanel fileTypeDefinitionsPanel = MacstwoWebPanels.getFileTypeDefinitionsPanel(fileTypeList);
-				panelTab.addPanel(fileTypeDefinitionsPanel);
-				*/
-				
-				GridPanel pluginSpecificFileDefinitionsPanel = MacstwoWebPanels.getPluginSpecificFileDefinitionsPanel(fileDescriptionShortNameList, fileDescriptionShortNamefileDescriptionMap);
-				panelTab.addPanel(pluginSpecificFileDefinitionsPanel);
-				GridPanel samplePairsByAnalysisPanel = MacstwoWebPanels.getSamplePairsByAnalysisPanel(macs2AnalysisFileGroupList, fileGroupTestSampleMap, fileGroupControlSampleMap);
-				panelTab.addPanel(samplePairsByAnalysisPanel);
-				GridPanel commandsByAnalysisPanel = MacstwoWebPanels.getCommandsByAnalysisPanel(macs2AnalysisFileGroupList, fileGroupSoftwareUsedMap, fileGroupCommandLineMap);
-				panelTab.addPanel(commandsByAnalysisPanel);
-				GridPanel librariesAndBamFilesUsedByAnalysisPanel = MacstwoWebPanels.getLibrariesAndBamFilesUsedByAnalysisPanel(macs2AnalysisFileGroupList, fileGroupLibraryListMap, fileGroupBamFilesUsedMap);
-				panelTab.addPanel(librariesAndBamFilesUsedByAnalysisPanel);
-				GridPanel fripCalculationByAnalysisPanel = MacstwoWebPanels.getFripCalculationByAnalysisPanel(macs2AnalysisFileGroupList, fileGroupFripCalculationMap);
-				panelTab.addPanel(fripCalculationByAnalysisPanel);
-				GridPanel filesByAnalysisPanel = MacstwoWebPanels.getFilesByAnalysisPanel(macs2AnalysisFileGroupList, fileGroupBuildMap, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileGroupFripMap, fileHandelfileDescriptionShortNameMap);
-				panelTab.addPanel(filesByAnalysisPanel);
-				//GridPanel filesByFileTypePanel = MacstwoWebPanels.getFilesByFileTypePanel(macs2AnalysisFileGroupList, fileGroupBuildMap, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileTypeList);
-				GridPanel filesByFileDescriptionPanel = MacstwoWebPanels.getFilesByFileDescriptionPanel(macs2AnalysisFileGroupList, fileGroupBuildMap, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileTypeList, fileDescriptionShortNameList, fileHandelfileDescriptionShortNameMap);
-				panelTab.addPanel(filesByFileDescriptionPanel);				
-				panelTabSet.add(panelTab);
-				
-				//don't know if the next two lines is good idea
-				PanelTab modelPNGFilesDisplayedByAnalysisPanelTab = MacstwoWebPanels.getModelPNGFilesByAnalysis(macs2AnalysisFileGroupList, fileGroupFileHandleListMap, fileHandleResolvedURLMap);
-				if(modelPNGFilesDisplayedByAnalysisPanelTab!=null){
-					panelTabSet.add(modelPNGFilesDisplayedByAnalysisPanelTab);
-				}
-				
-				return panelTabSet;
-			/*
-			}
-			*/
+			
+			return panelTabSet;
+			
 		}catch(Exception e){
 			logger.debug("exception in macstwoService.getChipSeqDataToDisplay(job): "+ e.getStackTrace());
 			throw new PanelException(e.getMessage());

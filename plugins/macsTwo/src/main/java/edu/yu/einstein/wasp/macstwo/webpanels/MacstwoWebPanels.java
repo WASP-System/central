@@ -47,18 +47,6 @@ public class MacstwoWebPanels {
 		content.addColumn(new GridColumn("MACS2 File Type", "MAC2FileType", 200, 0));//header,dataIndex		width=200; flex=0
 		content.addColumn(new GridColumn("Description", "Description", 1));//header,dataIndex		flex=1
 		
-		//create rows with  information
-		/*
-		for(FileType fileType : fileTypeList){
-			//if(fileType.getExtensions().endsWith("_model.png")){//macstwo specific
-			//	continue;
-			//}
-			List<String> row = new ArrayList<String>();			
-			row.add(fileType.getName());
-			row.add(fileType.getDescription());			
-			content.addDataRow(row);//add the new row to the content
-		}
-		*/
 		for(String fileDescriptionShortName : fileDescriptionShortNameList){
 			String fileDescription = "";
 			fileDescription = fileDescriptionShortNamefileDescriptionMap.get(fileDescriptionShortName);
