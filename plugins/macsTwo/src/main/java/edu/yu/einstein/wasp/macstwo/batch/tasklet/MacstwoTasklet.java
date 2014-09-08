@@ -372,42 +372,70 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		fhml.add(fileHandleMeta);
 		fileService.saveFileHandleMeta(fhml, peaksXls);
 		
-		FileHandle narrowPeaksBed = new FileHandle();
-		narrowPeaksBed.setFileName(prefixForFileName + "_peaks.narrowPeak");//this will likely become unnecessary
-		listOfFileHandleNames.add(prefixForFileName + "_peaks.narrowPeak");
-		narrowPeaksBed.setFileType(bedFileType);
-		narrowPeaksBed = fileService.addFile(narrowPeaksBed);
-		files.add(narrowPeaksBed);
-		fileHandleMeta = new FileHandleMeta();
-		fileHandleMeta.setK("macs2Analysis.description");
-		fileHandleMeta.setV("Peaks.narrowPeak::Macs2-generated BED6+4 format file (xxx_peaks.narrowPeak) which contains peak locations together with peak summit, pvalue and qvalue that can be load into UCSC genome browser");
-		fileHandleMeta.setFile(narrowPeaksBed);
-		fhml = new ArrayList<FileHandleMeta>();
-		fhml.add(fileHandleMeta);
-		fileService.saveFileHandleMeta(fhml, narrowPeaksBed);
-	
-		FileHandle summitsBed = new FileHandle();
-		summitsBed.setFileName(prefixForFileName + "_summits.bed");
-		listOfFileHandleNames.add(prefixForFileName + "_summits.bed");//this will likely become unnecessary
-		summitsBed.setFileType(bedFileType);
-		summitsBed = fileService.addFile(summitsBed);
-		files.add(summitsBed);
-		fileHandleMeta = new FileHandleMeta();
-		fileHandleMeta.setK("macs2Analysis.description");
-		fileHandleMeta.setV("Summits.bed::Macs2-generated BED file (xxx_summits.bed) which contains the peak summits locations for every peak and can be loaded into the UCSC genome browser");
-		fileHandleMeta.setFile(summitsBed);
-		fhml = new ArrayList<FileHandleMeta>();
-		fhml.add(fileHandleMeta);
-		fileService.saveFileHandleMeta(fhml, summitsBed);
+		//macs2 will generate peaks.narrowPeak and summits.bed for punctate peaks (so we will NOT invoke --broad in the macs2 command)
+		//if(ipSamplePeakType.equal("punctate")){
 		
-/*
-		FileHandle summitsModifiedBed = new FileHandle();
-		summitsModifiedBed.setFileName(prefixForFileName + "_summits.modified.bed");
-		listOfFileHandleNames.add(prefixForFileName + "_summits.modified.bed");//this will likely become unnecessary
-		summitsModifiedBed.setFileType(macs2SummitsModifiedBedFileType);
-		summitsModifiedBed = fileService.addFile(summitsModifiedBed);
-		files.add(summitsModifiedBed);
-*/
+			FileHandle narrowPeaksBed = new FileHandle();
+			narrowPeaksBed.setFileName(prefixForFileName + "_peaks.narrowPeak");//this will likely become unnecessary
+			listOfFileHandleNames.add(prefixForFileName + "_peaks.narrowPeak");
+			narrowPeaksBed.setFileType(bedFileType);
+			narrowPeaksBed = fileService.addFile(narrowPeaksBed);
+			files.add(narrowPeaksBed);
+			fileHandleMeta = new FileHandleMeta();
+			fileHandleMeta.setK("macs2Analysis.description");
+			fileHandleMeta.setV("Peaks.narrowPeak::Macs2-generated BED6+4 format file (xxx_peaks.narrowPeak) which contains peak locations together with peak summit, pvalue and qvalue that can be load into UCSC genome browser");
+			fileHandleMeta.setFile(narrowPeaksBed);
+			fhml = new ArrayList<FileHandleMeta>();
+			fhml.add(fileHandleMeta);
+			fileService.saveFileHandleMeta(fhml, narrowPeaksBed);
+		
+			FileHandle summitsBed = new FileHandle();
+			summitsBed.setFileName(prefixForFileName + "_summits.bed");
+			listOfFileHandleNames.add(prefixForFileName + "_summits.bed");//this will likely become unnecessary
+			summitsBed.setFileType(bedFileType);
+			summitsBed = fileService.addFile(summitsBed);
+			files.add(summitsBed);
+			fileHandleMeta = new FileHandleMeta();
+			fileHandleMeta.setK("macs2Analysis.description");
+			fileHandleMeta.setV("Summits.bed::Macs2-generated BED file (xxx_summits.bed) which contains the peak summits locations for every peak and can be loaded into the UCSC genome browser");
+			fileHandleMeta.setFile(summitsBed);
+			fhml = new ArrayList<FileHandleMeta>();
+			fhml.add(fileHandleMeta);
+			fileService.saveFileHandleMeta(fhml, summitsBed);
+		//}
+		//macs2 will generate peaks.broadPeak and peaks.gappedPeaks for broad or mixed peaks (so we will invoke --broad in the macs2 command)
+		//else //if(ipSamplePeakType equals broad OR mixed){
+			/*
+			FileHandle broadPeaksBed = new FileHandle();
+			broadPeaksBed.setFileName(prefixForFileName + "_peaks.broadPeak");//this will likely become unnecessary
+			listOfFileHandleNames.add(prefixForFileName + "_peaks.broadPeak");
+			broadPeaksBed.setFileType(bedFileType);
+			broadPeaksBed = fileService.addFile(broadPeaksBed);
+			files.add(broadPeaksBed);
+			fileHandleMeta = new FileHandleMeta();
+			fileHandleMeta.setK("macs2Analysis.description");
+			fileHandleMeta.setV("Peaks.broadPeak::Macs2-generated BED6+3 format file (xxx_peaks.broadPeak) which is similar to peaks.narrowPeak file, except for missing the 10th column for annotating peak summits");
+			fileHandleMeta.setFile(broadPeaksBed);
+			fhml = new ArrayList<FileHandleMeta>();
+			fhml.add(fileHandleMeta);
+			fileService.saveFileHandleMeta(fhml, broadPeaksBed);
+		
+			FileHandle gappedPeaksBed = new FileHandle();
+			gappedPeaksBed.setFileName(prefixForFileName + "_peaks.gappedPeak");
+			listOfFileHandleNames.add(prefixForFileName + "_peaks.gappedPeak");//this will likely become unnecessary
+			gappedPeaksBed.setFileType(bedFileType);
+			gappedPeaksBed = fileService.addFile(gappedPeaksBed);
+			files.add(gappedPeaksBed);
+			fileHandleMeta = new FileHandleMeta();
+			fileHandleMeta.setK("macs2Analysis.description");
+			fileHandleMeta.setV("Peaks.gappedPeak::Macs2-generated BED12+3 file (xxx_peaks.gappedPeak) which contains both the broad region and narrow peaks and can be loaded into the genome browser");
+			fileHandleMeta.setFile(gappedPeaksBed);
+			fhml = new ArrayList<FileHandleMeta>();
+			fhml.add(fileHandleMeta);
+			fileService.saveFileHandleMeta(fhml, gappedPeaksBed);
+			*/
+		//}
+		
 		FileHandle treatPileupBedGraph = new FileHandle();
 		treatPileupBedGraph.setFileName(prefixForFileName + "_treat_pileup.bdg");
 		listOfFileHandleNames.add(prefixForFileName + "_treat_pileup.bdg");//this will likely become unnecessary

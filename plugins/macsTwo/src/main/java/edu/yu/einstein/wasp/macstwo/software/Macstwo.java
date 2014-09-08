@@ -134,6 +134,8 @@ public class Macstwo extends SoftwarePackage{
 		tempCommand.append(" --name " + prefixForFileName);//The name string of the experiment. MACS will use this string NAME to create output files like 'NAME_peaks.xls', etc.
 		
 		tempCommand.append(" --bdg");//generates two bedGraph files
+		//must test --trackline out first
+		//tempCommand.append(" --trackline");//could be problem without control sample//--trackline  Tells MACS to include trackline with bedGraph files. (However Macs2 author suggestion is to convert bedGraph to bigWig, then show the smaller and faster binary bigWig file at UCSC genome browser, as well as downstream analysis.)
 		
 		//mappable or "effective" genome size
 		//really should have this with the build , at least for those that are not hs, mm, dm, and ce (and sc, sp, tg). See below
