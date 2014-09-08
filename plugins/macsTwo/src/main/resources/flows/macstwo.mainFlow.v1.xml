@@ -36,6 +36,7 @@
 				<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.macstwo.batch.tasklet.MacstwoTasklet" scope="step">
 					<constructor-arg name="jobIdAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.chipseq.integration.messages.ChipSeqSoftwareJobParameters).JOB_ID]}" />
+					<constructor-arg name="peakType" value="#{jobParameters[T(edu.yu.einstein.wasp.chipseq.integration.messages.ChipSeqSoftwareJobParameters).PEAK_TYPE]}" />
 					<constructor-arg name="testCellLibraryIdListAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.chipseq.integration.messages.ChipSeqSoftwareJobParameters).TEST_LIBRARY_CELL_ID_LIST]}" />
 					<constructor-arg name="controlCellLibraryIdListAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.chipseq.integration.messages.ChipSeqSoftwareJobParameters).CONTROL_LIBRARY_CELL_ID_LIST]}" />
 				</bean>

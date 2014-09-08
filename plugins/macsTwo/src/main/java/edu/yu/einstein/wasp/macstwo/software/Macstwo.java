@@ -47,7 +47,7 @@ public class Macstwo extends SoftwarePackage{
 	}
 
 	//note: test is same as treated, in macs2-speak (from the immunoprecipitated sample)
-	public WorkUnit getPeaks(int shortestReadLengthFromAllTestRuns, Sample ipSample, Sample controlSample, String prefixForFileName, List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList, 
+	public WorkUnit getPeaks(String peakType, int shortestReadLengthFromAllTestRuns, Sample ipSample, Sample controlSample, String prefixForFileName, List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList, 
 			Map<String,Object> jobParametersMap, String modelFileName, String pdfFileName, String pngFileName){
 		
 		Assert.assertTrue(!testFileHandleList.isEmpty());
@@ -160,6 +160,11 @@ public class Macstwo extends SoftwarePackage{
 			tempCommand.append(" --tsize " + tagSize);//size of sequencing tags
 		}
 		
+		if( !peakType.equalsIgnoreCase("punctate") ){//not punctate, so must be broad or mixed peakType
+			tempCommand.append(" --broad --broad-cutoff 0.1");//set for broad peaks and use default cutoff of 0.1
+		}
+		
+		
 		//this is now part of the parameters in the jobParametersMap
 		//default q (minimum FDR) is 0.01; Genome Center requested 0.05; not sure what to do; this value will be used if p NOT set
 		///tempCommand.append(" --qvalue 0.01 ");//currently take the default of q = 0.01 and p is empty
@@ -258,13 +263,21 @@ public class Macstwo extends SoftwarePackage{
 		
 		w.addCommand(command3);
 		
-		String peaksFromMacs = prefixForFileName+"_peaks.narrowPeak"; //one of the output files from macs (bed6+4)
-		String peaksInBed4Format = prefixForFileName+"_peaksBed4Format.narrowPeak"; //since bedtools coverage cannot deal with bed6+4 format (which the peaks.narrowPeak bed file is in), we must first convert, so lets convert to bed4
+		String peaksFromMacs = "";
+		String peaksInBed4Format = "";
+		if(peakType.equalsIgnoreCase("punctate")){
+			peaksFromMacs = prefixForFileName+"_peaks.narrowPeak"; //one of the output files from macs (bed6+4)
+			peaksInBed4Format = prefixForFileName+"_peaksBed4Format.narrowPeak";//since bedtools coverage cannot deal with bed6+4 format (which the peaks.narrowPeak bed file is in), we must first convert, so lets convert to bed4
+		}
+		else{//broad peaks
+			peaksFromMacs = prefixForFileName+"_peaks.broadPeak";
+			peaksInBed4Format = prefixForFileName+"_peaksBed4Format.broadPeak"; //since bedtools coverage cannot deal with bed6+3 format (which the peaks.broadPeak bed file is in), we must first convert, so lets convert to bed4
+		}
 		
 		tempCommand = new StringBuilder();
 		tempCommand.append("awk -v OFS='\t' '{print $1, $2, $3, $4}' " + peaksFromMacs + " > " + peaksInBed4Format);
 		String command4 = new String(tempCommand);
-		logger.debug("---- Will execute awk to convert bed6+4 to bed4 using command: ");
+		logger.debug("---- Will execute awk to convert bed6+4 (or if not punctate, bed6+3) to bed4 using command: ");
 		logger.debug("---- "+command4);
 		w.addCommand(command4);
 	

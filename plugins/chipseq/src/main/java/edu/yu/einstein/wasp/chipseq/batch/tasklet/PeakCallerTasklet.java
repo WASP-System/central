@@ -126,6 +126,8 @@ logger.debug("in PeakCallerTasklet constructor");
 		
 		Set<Sample> ipOfRequestedIPControlPairWithFilesForBoth = new HashSet<Sample>();
 		for(Sample approvedSample : setOfApprovedSamples){
+			String peakType = chipSeqService.getPeakType(approvedSample);
+			Assert.assertTrue(!peakType.isEmpty(), "chipSeq peakType cannot be empty");
 			//logger.debug("8	in doExecute()	");		
 			if(chipSeqService.isIP(approvedSample)){//as of 6-17-14, only call peaks for IP samples 
 				//logger.debug("A	in doExecute()	YES, it's an IP sample" );
@@ -143,20 +145,20 @@ logger.debug("in PeakCallerTasklet constructor");
 								Assert.assertTrue(sampleService.confirmSamplePairIsOfSameSpecies(ipFromSamplePair, controlFromSamplePair));
 								List<SampleSource> cellLibraryListForControl = approvedSampleApprovedCellLibraryListMap.get(controlFromSamplePair);
 								ipOfRequestedIPControlPairWithFilesForBoth.add(approvedSample);
-								prepareAndLaunchMessage(job, sampleService.convertCellLibraryListToIdList(cellLibraryListForIP), sampleService.convertCellLibraryListToIdList(cellLibraryListForControl));
+								prepareAndLaunchMessage(job, peakType, sampleService.convertCellLibraryListToIdList(cellLibraryListForIP), sampleService.convertCellLibraryListToIdList(cellLibraryListForControl));
 								break;//breaks out of: for(SampleSource ss : sampleService.getSamplePairsByJob(job))
 							}
 						}
 					}
 					if(!ipOfRequestedIPControlPairWithFilesForBoth.contains(approvedSample)){//not on samplePair List, or it is on samplePair List but there are no BAM files for the requested control 
-						prepareAndLaunchMessage(job, sampleService.convertCellLibraryListToIdList(cellLibraryListForIP), new ArrayList<Integer>());						
+						prepareAndLaunchMessage(job, peakType, sampleService.convertCellLibraryListToIdList(cellLibraryListForIP), new ArrayList<Integer>());						
 					}
 				//}
 			}
 		}		
 	}
 
-	private void prepareAndLaunchMessage(Job job, List<Integer> testCellLibraryIdList, List<Integer> controlCellLibraryIdList){
+	private void prepareAndLaunchMessage(Job job, String peakType, List<Integer> testCellLibraryIdList, List<Integer> controlCellLibraryIdList){
 		try{
 			//this used to work in next line, but it no longer functions; instead we get error: lazy load problem    new WaspJobContext(jobId, jobService)
 			//logger.debug("9	in prepareAndLaunchMessage() of PeakCallerTasklet	");
@@ -176,6 +178,7 @@ logger.debug("in PeakCallerTasklet constructor");
 			jobParameters.put(ChipSeqSoftwareJobParameters.TEST_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getCellLibraryListAsParameterValue(testCellLibraryIdList));
 			jobParameters.put(ChipSeqSoftwareJobParameters.CONTROL_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getCellLibraryListAsParameterValue(controlCellLibraryIdList));
 			jobParameters.put(ChipSeqSoftwareJobParameters.JOB_ID, job.getId().toString());
+			jobParameters.put(ChipSeqSoftwareJobParameters.PEAK_TYPE, peakType);
 			
 			requestLaunch(flowName, jobParameters);
 		}	

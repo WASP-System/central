@@ -61,6 +61,7 @@ import edu.yu.einstein.wasp.service.SampleService;
 public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
 	private Integer jobId;
+	private String peakType;
 	private String testCellLibraryIdListAsString;
 	private String controlCellLibraryIdListAsString;
 	private List<Integer> testCellLibraryIdList;//treated, such as IP
@@ -136,16 +137,20 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		// proxy
 	}
 
-	public MacstwoTasklet(String jobIdAsString, String testCellLibraryIdListAsString, String controlCellLibraryIdListAsString) throws Exception {
+	public MacstwoTasklet(String jobIdAsString, String peakType, String testCellLibraryIdListAsString, String controlCellLibraryIdListAsString) throws Exception {
 		
 		logger.debug("Starting MacstwoTasklet constructor");
 		logger.debug("jobIdAsString: " + jobIdAsString);
+		logger.debug("peakType (the parameter): " + peakType);
 		logger.debug("testCellLibraryIdListAsString: " + testCellLibraryIdListAsString);
 		logger.debug("controlCellLibraryIdListAsString: " + controlCellLibraryIdListAsString);
 		
 		Assert.assertTrue(!jobIdAsString.isEmpty());
 		this.jobId = Integer.parseInt(jobIdAsString);		
 		Assert.assertTrue(this.jobId > 0);
+		
+		Assert.assertTrue(!peakType.isEmpty());
+		this.peakType = peakType;//new, as of 9-8-14
 		
 		this.testCellLibraryIdListAsString = testCellLibraryIdListAsString;
 		Assert.assertTrue(!testCellLibraryIdListAsString.isEmpty());
@@ -166,6 +171,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		}
 		
 		logger.debug("in constructor this.jobId: " + this.jobId);
+		logger.debug("in constructor this.peakType: " + this.peakType);
 		logger.debug("in constructor testCellLibraryIdList.size(): " + testCellLibraryIdList.size());
 		logger.debug("in constructor controlCellLibraryIdList.size(): " + controlCellLibraryIdList.size());
 		logger.debug("Ending MacstwoTasklet constructor");
@@ -184,6 +190,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		logger.debug("Starting MacstwoTasklet execute");		
 		logger.debug("in doExecute this.jobId: " + this.jobId);
+		logger.debug("in doExecute this.peakType: " + this.peakType);
 		logger.debug("in doExecute testCellLibraryIdList.size(): " + testCellLibraryIdList.size());
 		logger.debug("in doExecute controlCellLibraryIdList.size(): " + controlCellLibraryIdList.size());
 		Job job = jobService.getJobByJobId(jobId);
@@ -335,7 +342,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 			speciesCode = "";
 		}
 		
-		WorkUnit w = macs2.getPeaks(shortestReadLengthFromAllTestRuns, testSample, controlSample, prefixForFileName, testFileHandleList, controlFileHandleList, jobParametersMap, modelFileName, pdfFileName, pngFileName);//configure
+		WorkUnit w = macs2.getPeaks(this.peakType, shortestReadLengthFromAllTestRuns, testSample, controlSample, prefixForFileName, testFileHandleList, controlFileHandleList, jobParametersMap, modelFileName, pdfFileName, pngFileName);//configure
 		logger.debug("OK, workunit has been generated");
 		this.commandLineCall = w.getCommand();
 		this.commandLineCall = this.commandLineCall.replaceAll("\\n", "<br /><br />");//the workunit tagged on a newline at the end of the command; so remove it for db storage and replace with <br /> for display purposes
@@ -373,7 +380,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		fileService.saveFileHandleMeta(fhml, peaksXls);
 		
 		//macs2 will generate peaks.narrowPeak and summits.bed for punctate peaks (so we will NOT invoke --broad in the macs2 command)
-		//if(ipSamplePeakType.equal("punctate")){
+		if(this.peakType.equalsIgnoreCase("punctate")){
 		
 			FileHandle narrowPeaksBed = new FileHandle();
 			narrowPeaksBed.setFileName(prefixForFileName + "_peaks.narrowPeak");//this will likely become unnecessary
@@ -402,10 +409,10 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 			fhml = new ArrayList<FileHandleMeta>();
 			fhml.add(fileHandleMeta);
 			fileService.saveFileHandleMeta(fhml, summitsBed);
-		//}
+		}
 		//macs2 will generate peaks.broadPeak and peaks.gappedPeaks for broad or mixed peaks (so we will invoke --broad in the macs2 command)
-		//else //if(ipSamplePeakType equals broad OR mixed){
-			/*
+		else{ //peakType.equals broad OR mixed
+			
 			FileHandle broadPeaksBed = new FileHandle();
 			broadPeaksBed.setFileName(prefixForFileName + "_peaks.broadPeak");//this will likely become unnecessary
 			listOfFileHandleNames.add(prefixForFileName + "_peaks.broadPeak");
@@ -433,8 +440,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 			fhml = new ArrayList<FileHandleMeta>();
 			fhml.add(fileHandleMeta);
 			fileService.saveFileHandleMeta(fhml, gappedPeaksBed);
-			*/
-		//}
+		}
 		
 		FileHandle treatPileupBedGraph = new FileHandle();
 		treatPileupBedGraph.setFileName(prefixForFileName + "_treat_pileup.bdg");
@@ -505,7 +511,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		macs2AnalysisFileGroup.setFileType(macs2AnalysisFileType);
 		macs2AnalysisFileGroup.setDescription(prefixForFileName);
 		macs2AnalysisFileGroup.setSoftwareGeneratedBy(macs2);//would like to add imagemagickSoftware and rSoftware, but no way
-		macs2AnalysisFileGroup.setDerivedFrom(derrivedFromFileGroups);
+		macs2AnalysisFileGroup.setDerivedFrom(derrivedFromFileGroups);//this is actually adding reference to samplesourcefilegroup and I think, samplesourcefile
 		macs2AnalysisFileGroup.setFileHandles(files);
 		macs2AnalysisFileGroup.setIsActive(0);
 		macs2AnalysisFileGroup = fileService.addFileGroup(macs2AnalysisFileGroup);
@@ -521,6 +527,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		//place in the step context in case of crash
 		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
 		stepContext.put("jobId", this.jobId); 
+		stepContext.put("peakType", this.peakType); 
 		stepContext.put("testCellLibraryIdListAsString", this.testCellLibraryIdListAsString); 
 		stepContext.put("controlCellLibraryIdListAsString", this.controlCellLibraryIdListAsString); 		
 		stepContext.put("testSampleId", this.testSampleId); 
@@ -579,6 +586,9 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		//in case of crash
 		if(this.jobId==null){//set initially in constructor
 			this.jobId = (Integer) stepContext.get("jobId");
+		}
+		if(this.peakType==null){//set initially in constructor
+			this.peakType = (String) stepContext.get("peakType");
 		}
 		if(this.testCellLibraryIdListAsString==null){//set initially in constructor
 			this.testCellLibraryIdListAsString = (String) stepContext.get("testCellLibraryIdListAsString");
