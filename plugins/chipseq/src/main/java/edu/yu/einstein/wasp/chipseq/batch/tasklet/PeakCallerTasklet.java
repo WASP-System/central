@@ -128,6 +128,7 @@ logger.debug("in PeakCallerTasklet constructor");
 		for(Sample approvedSample : setOfApprovedSamples){
 			String peakType = chipSeqService.getPeakType(approvedSample);
 			Assert.assertTrue(!peakType.isEmpty(), "chipSeq peakType cannot be empty");
+			logger.debug("peakType : " + peakType);
 			//logger.debug("8	in doExecute()	");		
 			if(chipSeqService.isIP(approvedSample)){//as of 6-17-14, only call peaks for IP samples 
 				//logger.debug("A	in doExecute()	YES, it's an IP sample" );
