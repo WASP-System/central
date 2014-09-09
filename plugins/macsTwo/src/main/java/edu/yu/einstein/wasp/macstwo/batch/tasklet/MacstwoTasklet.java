@@ -216,8 +216,6 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		}
 		logger.debug("testSample.name = " + testSample.getName());		
 		this.testSampleId = testSample.getId();
-
-		//// seems like not really used for anything Set<SampleSource> setOfCellLibrariesForDerivedFrom = new HashSet<SampleSource>();//tests and controls; seems like this info isn't really used. Perhaps it was superseded by derrivedFromFileGroups immediately below
 		
 		Set<FileGroup> derrivedFromFileGroups = new HashSet<FileGroup>();
 		
@@ -312,17 +310,6 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	    	prefixForFileName = prefixForFileName + "_CONTROL_none";
 	    }
 	    
-	    //old
-	    /*
-	    String prefixForFileName = "TEST_" + testSample.getName().replaceAll("\\s+", "_") + "_CONTROL_";
-		if(controlSample == null){
-			prefixForFileName = prefixForFileName + "none";
-		}
-		else{
-			prefixForFileName = prefixForFileName + controlSample.getName().replaceAll("\\s+", "_");
-		}
-		*/
-		
 		logger.debug("prefixForFileName = " + prefixForFileName);
 		logger.debug("preparing to generate workunit");
 		
@@ -578,9 +565,6 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		super.beforeStep(stepExecution);
 		logger.debug("*****  StepExecutionListener beforeStep saving StepExecution in MacstwoTasklet.beforeStep");
 		this.stepExecution = stepExecution;				
-		//JobExecution jobExecution = stepExecution.getJobExecution();
-		//ExecutionContext jobContext = jobExecution.getExecutionContext();
-		//this.scratchDirectory = jobContext.get("scrDir").toString();
 	
 		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
 		//in case of crash

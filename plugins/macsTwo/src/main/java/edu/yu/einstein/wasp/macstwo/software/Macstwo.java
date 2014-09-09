@@ -83,29 +83,6 @@ public class Macstwo extends SoftwarePackage{
 			
 		}
 		
-		/* moved immediately up, so this is no longer needed
-		if(testFileHandleList.size()>1){
-			mergedTestBamFile = "mergedTESTBamFile.bam";
-		}
-		else{
-			mergedTestBamFile = "${" + WorkUnit.INPUT_FILE + "[0]}";
-		}
-		
-		if(testFileHandleList.size()>1){
-			tempCommand = new StringBuilder();
-			tempCommand.append("samtools merge " + mergedTestBamFile + " ");//mergedTESTBamFile.bam is the output of the merge; note that merge requires sorted files
-			
-			for(int i = 0; i < testFileHandleList.size(); i++){				
-				tempCommand.append("${" + WorkUnit.INPUT_FILE + "["+i+"]} ");				
-			}
-			String command1 = new String(tempCommand);
-			logger.debug("---- Will execute samtools merge for merging bams with command: ");
-			logger.debug("---- "+command1);
-			
-			w.addCommand(command1);
-		}
-		*/
-		
 		String totalCountMappedReads = "totalCountMappedReads.txt"; //output in this file will be a single number 
 		
 		tempCommand = new StringBuilder();
@@ -120,10 +97,6 @@ public class Macstwo extends SoftwarePackage{
 				
 		//macs2 can handle merging multiple test and/or multiple control files
 		
-		/////don't need this anymore, the -t mergedTestBamFile takes care of this
-		/////for(int i = 0; i < testFileHandleList.size(); i++){
-		/////	tempCommand.append("${" + WorkUnit.INPUT_FILE + "["+i+"]} ");
-		/////}
 		for(int i = testFileHandleList.size(); i < testFileHandleList.size() + controlFileHandleList.size(); i++){
 			if(i==testFileHandleList.size()){
 				tempCommand.append(" -c ");
@@ -163,11 +136,6 @@ public class Macstwo extends SoftwarePackage{
 		if( !peakType.equalsIgnoreCase("punctate") ){//not punctate, so must be broad or mixed peakType
 			tempCommand.append(" --broad --broad-cutoff 0.1");//set for broad peaks and use default cutoff of 0.1
 		}
-		
-		
-		//this is now part of the parameters in the jobParametersMap
-		//default q (minimum FDR) is 0.01; Genome Center requested 0.05; not sure what to do; this value will be used if p NOT set
-		///tempCommand.append(" --qvalue 0.01 ");//currently take the default of q = 0.01 and p is empty
 			
 		for (String key : jobParametersMap.keySet()) {//example of key: macs2--qvalue (note that while the jobMeta key is macstwo.macs2--qvalue, the key in jobParameterMap is simply macs2--qvalue)
 			if(key.startsWith("macs2")){//
@@ -185,78 +153,13 @@ public class Macstwo extends SoftwarePackage{
 				else if(parameterValue.equals("_SET_ON_")){//to set this parameter on, just use paramater's name
 					tempCommand.append(" " + parameterName);
 				}
-				else{//typical parameter, such as --qvalue 0.01
+				else{//typical parameter, such as --qvalue 0.05
 					tempCommand.append(" " + parameterName + " " + parameterValue);
 				}
 				
 			}
 		}
-			/* not option on forms
-			if(key.equalsIgnoreCase("broadPeakExpected")){//TODO: not yet an option on the forms
-				opt = "--broad";
-				if(jobParametersMap.get(key).toString().equalsIgnoreCase("yes"))
-				{   
-					tempCommand.append(" " + opt);
-					continue;
-				}
-				
-			}
-			
-			//on the form, so dealt with above
-			if(key.equalsIgnoreCase("pValueCutoff")){
-				opt = "--pvalue";
-				try{
-					Double i = Double.parseDouble(jobParametersMap.get(key).toString());
-				}
-				catch(Exception e){
-					continue;//not a number so accept default and get out
-				}
-			}
-			
-			/* as of 8-14-14, this is now dealt with above
-			if(key.equalsIgnoreCase("genomeSize")){
-				opt = "--gsize";
-				try{
-					Double i = Double.parseDouble(jobParametersMap.get(key).toString());//use double since this will be in scientific notation
-				}
-				catch(Exception e){//not a number so accept default (size of human genome) and get out
-					continue;
-				}
-			}
-			
-			//on the form, so dealt with above
-			if(key.equalsIgnoreCase("keepDup") ){//only yes or no are currently permitted on the forms
-				opt = "--keep-dup";	
-				if(jobParametersMap.get(key).toString().equalsIgnoreCase("no")){   //jobParameters.get(opt).toString().equalsIgnoreCase("no")){
-					tempCommand.append(" " + opt + " 1");
-					continue;
-				}
-				else if(jobParametersMap.get(key).toString().equalsIgnoreCase("yes")   //jobParameters.get(opt).toString().equalsIgnoreCase("yes") 
-						|| 
-						jobParametersMap.get(key).toString().equalsIgnoreCase("all")){
-					tempCommand.append(" " + opt + " all");
-					continue;
-				}
-				else if(jobParametersMap.get(key).toString().equalsIgnoreCase("auto")){//jobParameters.get(opt).toString().equalsIgnoreCase("auto")){
-					tempCommand.append(" " + opt + " auto");
-					continue;
-				}
-				else{
-					try{
-						Integer i = Integer.parseInt(jobParametersMap.get(key).toString());//Integer.parseInt(jobParameters.get(opt).toString());
-					}
-					catch(Exception e){//not a number, so accept default
-						continue;
-					}
-				}
-			}
-			if(!opt.isEmpty()){
-				tempCommand.append(" " + opt + " " + jobParametersMap.get(key).toString());
-			}
-			*/
-		
-		
-		
+
 		String command3 = new String(tempCommand);
 		logger.debug("---- Will execute macs2 for peakcalling with command: ");
 		logger.debug("---- "+command3);
@@ -301,11 +204,7 @@ public class Macstwo extends SoftwarePackage{
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(this);
 		sd.add(this.getSoftwareDependencyByIname("samtools"));
-		sd.add(this.getSoftwareDependencyByIname("bedtools"));		
-		
-		
-		
-		
+		sd.add(this.getSoftwareDependencyByIname("bedtools"));			
 		sd.add(this.getSoftwareDependencyByIname("imagemagick"));
 		sd.add(this.getSoftwareDependencyByIname("rPackage"));
 		//String new_command_1 = "Rscript " + prefixForFileName + "_model.r";
@@ -313,48 +212,14 @@ public class Macstwo extends SoftwarePackage{
 		w.addCommand(new_command_1);
 		//String new_command2 = "convert " +  prefixForFileName + "_model.pdf" + " -append " + prefixForFileName + "_model.png";
 		String new_command2 = "convert " +  pdfFileName + " -append " + pngFileName;
-		w.addCommand(new_command2);
+		w.addCommand(new_command2);			
 			
-		
-		
-		
 		w.setSoftwareDependencies(sd);
 
 		logger.debug("----command has been set to workunit in getPeaks()");		
 		return w;
 	}
-	public WorkUnit getModelPdf(FileHandle modelScriptFileHandle, String pdfFileName, String pngFileName){//as of 33-25-14, also will generate a .png from the resulting .pdf
-		
-		Assert.assertTrue(modelScriptFileHandle != null);
-		
-		WorkUnit w = prepareWorkUnit();
-		
-		List<FileHandle> tempFileHandleList = new ArrayList<FileHandle>();
-		tempFileHandleList.add(modelScriptFileHandle);		
-		w.setRequiredFiles(tempFileHandleList);
-		
-		String command = "Rscript ${" + WorkUnit.INPUT_FILE + "[0]}";
-		logger.debug("---- Will execute RScript to convert model.r to model.pdf using command: ");
-		logger.debug("---- "+command);
-		
-		w.setCommand(command);
-		
-		//String command2 = "convert ${" + WorkUnit.OUTPUT_FILE + "[0]} -append " + pngFileName; //this fails; convert needs to see .pdf, we think
-		String command2 = "convert " +  pdfFileName + " -append " + pngFileName; //this may work; will test it now
-		logger.debug("---- And Will subsequently execute ImageMagick.convert to convert model.pdf to model.png using command: ");
-		logger.debug("---- "+command2);
-		
-		w.addCommand(command2);
-		
-		//w.setSoftwareDependencies(getSoftwareDependencies());
-		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
-		sd.add(this.getSoftwareDependencyByIname("imagemagick"));
-		sd.add(this.getSoftwareDependencyByIname("rPackage"));
-		w.setSoftwareDependencies(sd);
-		
-		logger.debug("----command has been set to workunit in getModelPdf");		
-		return w;
-	}
+	
 	private WorkUnit prepareWorkUnit() {
 		WorkUnit w = new WorkUnit();
 		
