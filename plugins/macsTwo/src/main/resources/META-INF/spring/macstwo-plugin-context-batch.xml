@@ -8,6 +8,7 @@
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
+	<bean class="edu.yu.einstein.wasp.macstwo.batch.service.impl.MacstwoBatchServiceImpl" />
 	
 	<!-- common definitions -->
 	<import resource="macstwo-plugin-context-common.xml" />
