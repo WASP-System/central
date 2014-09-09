@@ -16,21 +16,7 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-<!--  
-		<batch:step id="edu.yu.einstein.wasp.macstwo.mainFlow.performAction" next="edu.yu.einstein.wasp.macstwo.generateModelAsPdf.performAction">
-			<batch:tasklet>
-				<batch:transaction-attributes propagation="NEVER"/>
-				<bean class="edu.yu.einstein.wasp.macstwo.batch.tasklet.MacstwoTasklet" scope="step">
-					<constructor-arg name="jobIdAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.chipseq.integration.messages.ChipSeqSoftwareJobParameters).JOB_ID]}" />
-					<constructor-arg name="testCellLibraryIdListAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.chipseq.integration.messages.ChipSeqSoftwareJobParameters).TEST_LIBRARY_CELL_ID_LIST]}" />
-					<constructor-arg name="controlCellLibraryIdListAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.chipseq.integration.messages.ChipSeqSoftwareJobParameters).CONTROL_LIBRARY_CELL_ID_LIST]}" />
-				</bean>
-			</batch:tasklet>
-			<batch:listeners>
-				<batch:listener ref="macstwoPromotionListener" />
-			</batch:listeners>
-		</batch:step>
--->		
+	
 		<batch:step id="edu.yu.einstein.wasp.macstwo.mainFlow.performAction" >
 			<batch:tasklet>
 				<batch:transaction-attributes propagation="NEVER"/>
@@ -44,18 +30,7 @@
 			<batch:next on="FAILED" to="edu.yu.einstein.wasp.macstwo.mainFlow.notifyFail" />
 			<batch:next on="*" to="edu.yu.einstein.wasp.macstwo.mainFlow.notifyComplete" />
 		</batch:step>
-		<!--
-		<batch:step id="edu.yu.einstein.wasp.macstwo.generateModelAsPdf.performAction" >
-			<batch:tasklet>
-				<batch:transaction-attributes propagation="NEVER"/>
-				<bean class="edu.yu.einstein.wasp.macstwo.batch.tasklet.MacstwoGenerateModelAsPdfTasklet" scope="step">
-					
-				</bean>				
-			</batch:tasklet>
-			<batch:next on="FAILED" to="edu.yu.einstein.wasp.macstwo.mainFlow.notifyFail" />
-			<batch:next on="*" to="edu.yu.einstein.wasp.macstwo.mainFlow.notifyComplete" />
-		</batch:step>
-		-->
+		
 		<batch:step id="edu.yu.einstein.wasp.macstwo.mainFlow.notifyComplete">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
