@@ -14,7 +14,7 @@
   <bean id="macstwo" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
   	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.macstwo.software.Macstwo</value></property>
     <property name="name" value="MACS2 Peakcaller" />
-    <property name="version" value="2.0.10"/>
+    <property name="version" value="2.1.0.20140616"/>
     <property name="description" value="peakcaller plugin" />
     <property name="area" ref="macstwoPluginArea" />
     <property name="resourceType" ref="peakcallerResourceType" />
@@ -45,15 +45,161 @@
 	<! - - -->
 	<property name="uiFieldsFromWrapper">
       <list>
-        <bean parent="macstwoUiFieldWrapper">
-          <property name="baseName" value="pValueCutoff" />
-          <property name="metaposition" value="10" />
-          <property name="label" value="peakcaller.macstwo.cutoff.label" />
-          <property name="default" value="1e-5" />
-          <property name="type" value="NUMBER" />
-          <property name="tooltip" value="peakcaller.macstwo.cutoff.error" />
+      <bean parent="macstwoUiFieldWrapper">
+          <!--<property name="baseName" value="qValueCutoff" />-->
+          <property name="baseName" value="macs2--qvalue" />
+          <property name="metaposition" value="3" />
+          <property name="label" value="peakcaller.macstwo.qvaluecutoff.label" />
+          <property name="constraint" value="RegExp:^\d+|0\.\d+|\.\d+$" />
+          <property name="default" value="0.05" /><!-- ********************I checked in the macs2 main code, where default is 0.05, and as stated in the help directives-->
+          <property name="tooltip" value="peakcaller.macstwo.qvaluecutoff.tt" />
+          <property name="error" value="peakcaller.macstwo.qvaluecutoff.err" />
         </bean>
         
+        <bean parent="macstwoUiFieldWrapper">
+          <!--<property name="baseName" value="pValueCutoff" />-->
+          <property name="baseName" value="macs2--pvalue" />
+          <property name="metaposition" value="6" />
+          <property name="label" value="peakcaller.macstwo.pvaluecutoff.label" />          
+          <property name="default" value="" />
+          <property name="constraint" value="RegExp:^\d+|0\.\d+|\.\d+|\s*$" /><!-- ********************empty or number -->
+          <property name="tooltip" value="peakcaller.macstwo.pvaluecutoff.tt" />
+          <property name="error" value="peakcaller.macstwo.pvaluecutoff.err" />
+        </bean>
+        
+        <bean parent="macstwoUiFieldWrapper">
+          <!--<property name="baseName" value="mFoldRange" />-->
+          <property name="baseName" value="macs2--mfold" />
+          <property name="metaposition" value="9" />
+          <property name="default" value="5 50" /><!-- ********************I checked in the macs2 main code, where default is 5 50, as stated in the help directives-->
+          <property name="constraint" value="RegExp:^\d+ \d+$" />
+          <property name="label" value="peakcaller.macstwo.mfoldrange.label" />
+          <property name="tooltip" value="peakcaller.macstwo.mfoldrange.tt" />
+          <property name="error" value="peakcaller.macstwo.mfoldrange.err" />
+        </bean>
+ 
+         <bean parent="macstwoUiFieldWrapper">
+          <!--<property name="baseName" value="noLambda" />-->
+          <property name="baseName" value="macs2--nolambda" />
+          <property name="metaposition" value="12" />
+          <property name="label" value="peakcaller.macstwo.nolambda.label" />
+          <property name="tooltip" value="peakcaller.macstwo.nolambda.tt" />
+          <property name="default" value="_SET_OFF_" />
+          <property name="constraint" value="RegExp:^_SET_OFF_|_SET_ON_$" />
+          <property name="control" value="select:_SET_OFF_:not set;_SET_ON_:set" />
+          <property name="error" value="peakcaller.macstwo.nolambda.err" />
+         </bean>
+ 
+         <bean parent="macstwoUiFieldWrapper">
+          <!--<property name="baseName" value="smallLocalRegion" />-->
+          <property name="baseName" value="macs2--slocal" />
+          <property name="metaposition" value="15" />
+          <property name="constraint" value="RegExp:^\d+$" />
+           <property name="default" value="1000" />
+          <property name="label" value="peakcaller.macstwo.smalllocalregion.label" />
+          <property name="tooltip" value="peakcaller.macstwo.smalllocalregion.tt" />
+          <property name="error" value="peakcaller.macstwo.smalllocalregion.err" />
+         </bean>
+ 
+         <bean parent="macstwoUiFieldWrapper">
+          <!--<property name="baseName" value="largeLocalRegion" />-->
+          <property name="baseName" value="macs2--llocal" />
+          <property name="metaposition" value="18" />
+          <property name="constraint" value="RegExp:^\d+$" />
+          <property name="default" value="10000" />
+          <property name="label" value="peakcaller.macstwo.largelocalregion.label" />
+          <property name="tooltip" value="peakcaller.macstwo.largelocalregion.tt" />
+          <property name="error" value="peakcaller.macstwo.largelocalregion.err" />
+         </bean>
+      
+         <bean parent="macstwoUiFieldWrapper">
+          <!--<property name="baseName" value="noModel" />-->
+          <property name="baseName" value="macs2--nomodel" />
+          <property name="metaposition" value="21" />
+          <property name="label" value="peakcaller.macstwo.nomodel.label" />
+          <property name="tooltip" value="peakcaller.macstwo.nomodel.tt" />
+          <property name="default" value="_SET_OFF_" />
+          <property name="constraint" value="RegExp:^_SET_OFF_|_SET_ON_$" />
+          <property name="control" value="select:_SET_OFF_:not set;_SET_ON_:set" />
+          <property name="error" value="peakcaller.macstwo.nomodel.err" />
+         </bean>
+ 
+         <bean parent="macstwoUiFieldWrapper">
+          <!--<property name="baseName" value="fixBimodel" />-->
+          <property name="baseName" value="macs2--fix-bimodal" />
+          <property name="metaposition" value="23" />
+          <property name="label" value="peakcaller.macstwo.fixbimodel.label" />
+          <property name="tooltip" value="peakcaller.macstwo.fixbimodel.tt" />
+          <property name="default" value="_SET_OFF_" />
+          <property name="constraint" value="RegExp:^_SET_OFF_|_SET_ON_$" />
+          <property name="control" value="select:_SET_OFF_:not set;_SET_ON_:set" />
+          <property name="error" value="peakcaller.macstwo.fixbimodel.err" />
+         </bean>
+ 
+         <bean parent="macstwoUiFieldWrapper">
+          <!--<property name="baseName" value="extSize" />-->
+          <property name="baseName" value="macs2--extsize" />
+          <property name="metaposition" value="25" />
+          <property name="default" value="" />
+          <property name="label" value="peakcaller.macstwo.extsize.label" />
+          <property name="tooltip" value="peakcaller.macstwo.extsize.tt" />          
+          <property name="constraint" value="RegExp:^\d+|\s*$" /><!-- *****************empty or number -->
+          <property name="error" value="peakcaller.macstwo.extsize.err" />
+         </bean>
+       
+        <bean parent="macstwoUiFieldWrapper">
+          <!--<property name="baseName" value="shift" />-->
+          <property name="baseName" value="macs2--shift" />
+          <property name="metaposition" value="28" />
+          <property name="label" value="peakcaller.macstwo.shift.label" />
+          <property name="constraint" value="RegExp:^-?\d+$" />
+          <property name="default" value="0" />
+          <property name="tooltip" value="peakcaller.macstwo.shift.tt" />
+          <property name="error" value="peakcaller.macstwo.shift.err" />
+        </bean>
+
+        <bean parent="macstwoUiFieldWrapper">
+          <!--<property name="baseName" value="keepDuplicates" />-->
+          <property name="baseName" value="macs2--keep-dup" />
+          <property name="metaposition" value="31" />
+          <property name="label" value="peakcaller.macstwo.keepduplicates.label" />
+          <property name="tooltip" value="peakcaller.macstwo.keepduplicates.tt" />
+          <property name="default" value="1" />
+          <property name="constraint" value="RegExp:^all|auto|\d+$" /> <!-- must be a number or auto or all -->
+          <property name="error" value="peakcaller.macstwo.keepduplicates.err" />
+        </bean>
+ 
+         <bean parent="macstwoUiFieldWrapper">
+          <!--<property name="baseName" value="toLarge" />-->
+          <property name="baseName" value="macs2--to-large" />
+          <property name="metaposition" value="34" />
+          <property name="label" value="peakcaller.macstwo.tolarge.label" />
+          <property name="tooltip" value="peakcaller.macstwo.tolarge.tt" />
+          <property name="default" value="_SET_OFF_" />
+          <property name="constraint" value="RegExp:^_SET_OFF_|_SET_ON_$" />
+          <property name="control" value="select:_SET_OFF_:not set;_SET_ON_:set" />
+          <property name="error" value="peakcaller.macstwo.tolarge.err" />
+        </bean>
+
+         <bean parent="macstwoUiFieldWrapper">
+          <!--<property name="baseName" value="downSample" />-->
+          <property name="baseName" value="macs2--down-sample" />
+          <property name="metaposition" value="37" />
+          <property name="label" value="peakcaller.macstwo.downsample.label" />
+          <property name="tooltip" value="peakcaller.macstwo.downsample.tt" />
+          <property name="default" value="_SET_OFF_" />
+         <property name="constraint" value="RegExp:^_SET_OFF_|_SET_ON_$" />
+          <property name="control" value="select:_SET_OFF_:not set;_SET_ON_:set" />
+          <property name="error" value="peakcaller.macstwo.downsample.err" />
+        </bean>
+ 
+       
+       
+       
+       
+       
+       
+        <!-- this parameter, bw, is now taken from the sampleMeta attribute chipseq.fragmentSize (sonication fragment size)
         <bean parent="macstwoUiFieldWrapper">
           <property name="baseName" value="bandwidth" />
           <property name="metaposition" value="20" />
@@ -63,7 +209,8 @@
           <property name="default" value="300" />
           <property name="tooltip" value="peakcaller.macstwo.bw.tooltip" />
         </bean>
-        
+         -->
+        <!-- genomeSize is now based on the species of the individual sample (a sampleMeta attribute)
         <bean parent="macstwoUiFieldWrapper">
           <property name="baseName" value="genomeSize" />
           <property name="metaposition" value="30" />
@@ -71,7 +218,8 @@
           <property name="default" value="1e9" />
           <property name="type" value="NUMBER" />
         </bean>
-        
+        -->
+        <!-- replaced above
         <bean parent="macstwoUiFieldWrapper">
           <property name="baseName" value="keepDup" />
           <property name="metaposition" value="40" />
@@ -80,6 +228,7 @@
           <property name="default" value="no" />
           <property name="tooltip" value="peakcaller.macstwo.dup.tooltip" />
         </bean>
+        -->
         <!--  this is now an attribute of samplemeta peakType
          <bean parent="macstwoUiFieldWrapper">
           <property name="baseName" value="broadPeakExpected" />

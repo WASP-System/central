@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.plugin.picard.webpanels;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,9 +48,8 @@ public class PicardWebPanels {
 
 				//create columns and associate each column with its displayed header and a data model attribute (dataIndex)
 				///////don't want this to display: content.addColumn(new GridColumn("Title", "Title"));//header,dataIndex		
-				content.addColumn(new GridColumn("Stat", "Stat", 300, 0));//header,dataIndex	 width=250; flex=0	
-				content.addColumn(new GridColumn("Value", "Value", 120, 0));//header,dataIndex	 width=300; flex=0	
-				content.addColumn(new GridColumn("", "", 1));//header,dataIndex	 flex=1 ---extra column, displaying nothing
+				content.addColumn(new GridColumn("Stat", "Stat", 350, 0));//header,dataIndex	 width=250; flex=0	
+				content.addColumn(new GridColumn("Value", "Value", 1));//header,dataIndex	 width=300; flex=0	
 				
 				//create rows with data
 				for (String title : metrics.keySet()) {					

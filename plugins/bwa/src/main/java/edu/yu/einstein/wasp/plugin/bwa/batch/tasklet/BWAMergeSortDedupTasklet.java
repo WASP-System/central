@@ -215,8 +215,10 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 			w.addCommand(picard.getMergeBamCmd("*.out.sam", tempMergedBamFilename, null, MEMORY_GB_4));
 			w.addCommand(picard.getMarkDuplicatesCmd(tempMergedBamFilename, outputBamFilename, outputBaiFilename, dedupMetricsFilename, MEMORY_GB_4));
 			
-			w.addCommand(samtools.getUniquelyAlignedReadCountCmd(outputBamFilename, bamTagIndicatingUniqueAlignment));
-			w.addCommand(samtools.getUniquelyAlignedNonRedundantReadCountCmd(outputBamFilename, bamTagIndicatingUniqueAlignment));
+			List<String> nfrCommandList = samtools.getCommandsForNonRedundantFraction(outputBamFilename, bamTagIndicatingUniqueAlignment);
+			for(String nrfCommand : nfrCommandList){
+				w.addCommand(nrfCommand);
+			}
 			
 			w.addCommand("ln -sf " + dedupMetricsFilename + " " + metricsOutput);//permits reading of file metricsOutput from scratch/dedupMetricsFilename 
 			
@@ -228,8 +230,10 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 			//in this way, the final .bam file is NOT marked for duplicates, but the alignement stats are still obtained
 			w.addCommand(picard.getMarkDuplicatesCmd(outputBamFilename, tempMarkedDupOutputBamNotToBeSaved, tempBaiNotToBeSaved, dedupMetricsFilename, MEMORY_GB_4));
 			
-			w.addCommand(samtools.getUniquelyAlignedReadCountCmd(tempMarkedDupOutputBamNotToBeSaved, bamTagIndicatingUniqueAlignment));
-			w.addCommand(samtools.getUniquelyAlignedNonRedundantReadCountCmd(tempMarkedDupOutputBamNotToBeSaved, bamTagIndicatingUniqueAlignment));
+			List<String> nfrCommandList = samtools.getCommandsForNonRedundantFraction(tempMarkedDupOutputBamNotToBeSaved, bamTagIndicatingUniqueAlignment);
+			for(String nrfCommand : nfrCommandList){
+				w.addCommand(nrfCommand);
+			}
 			
 			w.addCommand("ln -sf " + dedupMetricsFilename + " " + metricsOutput);//permits reading of file metricsOutput from scratch/dedupMetricsFilename 
 
