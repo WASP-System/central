@@ -148,9 +148,6 @@ import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 @Transactional("entityManager")
 public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements JobService {
 
-	private final String[] jobApproveArray = {"piApprove", "daApprove", "fmApprove"};
-	//public String[] getJobApproveArray(){return jobApproveArray;}
-	
 	private JobDao	jobDao;
 	
 	/**
@@ -948,47 +945,48 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		  Assert.assertParameterNotNull(job, "No Job provided");
 		  Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
 		  LinkedHashMap<String, String> jobApprovalsMap = new LinkedHashMap<String, String>();
-		  
+		  final String PI_APPROVAL_CODE = "piApprove";
+		  final String DA_APPROVAL_CODE = "daApprove";
+		  final String FM_APPROVAL_CODE = "fmApprove";
 		  List<String> jobApproveList = new ArrayList<String>();
-		  for(int i = 0; i < this.jobApproveArray.length; i++){
-			  jobApproveList.add(jobApproveArray[i]);//piApprove, daApprove, fmApprove
-		  }	  
+		  jobApproveList.add(PI_APPROVAL_CODE);
+		  jobApproveList.add(DA_APPROVAL_CODE);
+		  jobApproveList.add(FM_APPROVAL_CODE);
 		  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		  Set<String> jobIdStringSet = new HashSet<String>();
 		  jobIdStringSet.add(job.getId().toString());
 		  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 
 		  for(String jobApproveCode : jobApproveList){
-			  //List<StepExecution> stepExecutions =  batchJobExplorer.getStepExecutions("step.piApprove", parameterMap, true);
-			  List<StepExecution> stepExecutions = null;
-			  stepExecutions =  batchJobExplorer.getStepExecutions("step." + jobApproveCode, parameterMap, true);
-			  StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(stepExecutions);
+			  StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(batchJobExplorer.getStepExecutions("step." + jobApproveCode, parameterMap, true));
 			  String approveStatus = null;
 			  if (stepExecution == null){
-				  //jobApprovalsMap.put(piStatusLabel, "status.notYetSet.label");
-				  approveStatus = new String("notYetSet");
+				  approveStatus = "notYetSet";
 			  }
 			  else {
 				  ExitStatus adminApprovalStatus = stepExecution.getExitStatus();
 				  if( adminApprovalStatus.isRunning()){
-					  approveStatus = new String("awaitingResponse");
-					  //jobApprovalsMap.put(piStatusLabel, "status.awaitingResponse.label");
+					  approveStatus = "awaitingResponse";
 				  }
 				  else if( adminApprovalStatus.isCompleted()){
-					  approveStatus = new String("approved");
-					  //jobApprovalsMap.put(piStatusLabel, "status.approved.label");
+					  approveStatus = "approved";
 				  }
-				  else if( adminApprovalStatus.isFailed()){
-					  approveStatus = new String("rejected");
-					  //jobApprovalsMap.put(piStatusLabel, "status.rejected.label");
-				  }
-				  else if(adminApprovalStatus.isTerminated()){
-					  approveStatus = new String("abandoned");
-					  //jobApprovalsMap.put(piStatusLabel, "status.abandoned.label");
+				  else if(adminApprovalStatus.isTerminated() || adminApprovalStatus.isStopped()){
+					  // check if rejected step exists
+					  String stepNameSuffix = "step.";
+					  if (jobApproveCode.equals(PI_APPROVAL_CODE))
+						  stepNameSuffix += "rejectedByPi";
+					  else if (jobApproveCode.equals(DA_APPROVAL_CODE))
+						  stepNameSuffix += "rejectedByDa";
+					  else if (jobApproveCode.equals(FM_APPROVAL_CODE))
+						  stepNameSuffix += "rejectedByFm";
+					  if (batchJobExplorer.getMostRecentlyStartedStepExecutionInList(batchJobExplorer.getStepExecutions(stepNameSuffix, parameterMap, true)) != null)
+						  approveStatus = "rejected";
+					  else
+						  approveStatus = "abandoned";
 				  }
 				  else{
-					  approveStatus = new String("unknown");
-					  //jobApprovalsMap.put(piStatusLabel, "status.unknown.label");
+					  approveStatus ="unknown";
 				  }
 			  }
 			  jobApprovalsMap.put(jobApproveCode, approveStatus);
