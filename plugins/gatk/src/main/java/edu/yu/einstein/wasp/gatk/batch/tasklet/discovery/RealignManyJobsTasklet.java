@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.LaunchManyJobsTasklet;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
@@ -25,6 +26,7 @@ import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.fileformat.plugin.BamFileTypeAttribute;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -50,6 +52,9 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 	
 	@Autowired
 	private GatkService gatkService;
+	
+	@Autowired
+	private FileTypeService fileTypeService;
 	
 	@Autowired
 	private FileType bamFileType;
@@ -100,6 +105,9 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			processedSamples.add(control);
 			FileGroup testFgIn = fileService.getFileGroupById(allFgIn.get(test).getId());
 			FileGroup controlFgIn = fileService.getFileGroupById(allFgIn.get(control).getId());
+			boolean isDedup = false;
+			if (fileTypeService.hasAttribute(testFgIn, BamFileTypeAttribute.DEDUP) || fileTypeService.hasAttribute(controlFgIn, BamFileTypeAttribute.DEDUP))
+				isDedup = true;
 			inputFileGroups.add(testFgIn);
 			inputFileGroups.add(controlFgIn);
 			String baseName = StringUtils.removeEnd(fileService.generateUniqueBaseFileName(test), ".") + 
@@ -115,7 +123,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			bamMergedPairsTestG.setDescription(bamOutputMergedPairsTest);
 			bamMergedPairsTestG.setSoftwareGeneratedById(gatk.getId());
 			bamMergedPairsTestG.addDerivedFrom(testFgIn);
-			bamMergedPairsTestG = fileService.saveInDiscreteTransaction(bamMergedPairsTestG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
+			bamMergedPairsTestG = fileService.saveInDiscreteTransaction(bamMergedPairsTestG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet(isDedup));
 			outputFileGroups.add(bamMergedPairsTestG);
 
 			FileGroup baiMergedPairsTestG = new FileGroup();
@@ -143,7 +151,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			bamMergedPairsControlG.setDescription(bamOutputMergedPairsControl);
 			bamMergedPairsControlG.setSoftwareGeneratedById(gatk.getId());
 			bamMergedPairsControlG.addDerivedFrom(controlFgIn);
-			bamMergedPairsControlG = fileService.saveInDiscreteTransaction(bamMergedPairsControlG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
+			bamMergedPairsControlG = fileService.saveInDiscreteTransaction(bamMergedPairsControlG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet(isDedup));
 			outputFileGroups.add(bamMergedPairsControlG);
 
 			FileGroup baiMergedPairsControlG = new FileGroup();
@@ -183,6 +191,9 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			LinkedHashSet<FileGroup> outputFileGroups = new LinkedHashSet<>();
 			FileGroup mergedBam = mergedSampleFileGroupsIn.get(sample);
 			inputFileGroups.add(mergedBam);
+			boolean isDedup = false;
+			if (fileTypeService.hasAttribute(mergedBam, BamFileTypeAttribute.DEDUP))
+				isDedup = true;
 			String bamOutputMerged = mergedBam.getDescription().replace(".bam", "_realn.bam");
 			String baiOutputMerged = bamOutputMerged.replace(".bam", ".bai");
 			FileGroup bamMergedG = new FileGroup();
@@ -194,7 +205,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			bamMergedG.setDescription(bamOutputMerged);
 			bamMergedG.setSoftwareGeneratedById(gatk.getId());
 			bamMergedG.addDerivedFrom(mergedBam);
-			bamMergedG = fileService.saveInDiscreteTransaction(bamMergedG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet());
+			bamMergedG = fileService.saveInDiscreteTransaction(bamMergedG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet(isDedup));
 			outputFileGroups.add(bamMergedG);
 
 			FileGroup baiMergedG = new FileGroup();

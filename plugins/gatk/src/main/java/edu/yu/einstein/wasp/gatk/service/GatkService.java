@@ -22,7 +22,7 @@ public interface GatkService extends WaspService {
 		
 		public static final String HAPLOTYPE_CALLER_CODE="hc";
 		
-		public Set<BamFileTypeAttribute> getCompleteGatkPreprocessBamFileAttributeSet();
+		public Set<BamFileTypeAttribute> getCompleteGatkPreprocessBamFileAttributeSet(boolean isDedup);
 		
 		public String performAction();
 		
@@ -33,5 +33,6 @@ public interface GatkService extends WaspService {
 		public String getWxsIntervalFile(Job job, Build build);
 
 		public Build getBuildForFg(FileGroup fileGroup);
+
 
 }

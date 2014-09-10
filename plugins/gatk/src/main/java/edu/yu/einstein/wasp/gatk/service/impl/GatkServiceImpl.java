@@ -65,10 +65,11 @@ public class GatkServiceImpl extends WaspServiceImpl implements GatkService {
 	}
 	
 	@Override
-	public Set<BamFileTypeAttribute> getCompleteGatkPreprocessBamFileAttributeSet(){
+	public Set<BamFileTypeAttribute> getCompleteGatkPreprocessBamFileAttributeSet(boolean isDedup){
 		Set<BamFileTypeAttribute> attributes = new HashSet<>();
 		attributes.add(BamFileTypeAttribute.SORTED);
-		attributes.add(BamFileTypeAttribute.DEDUP);
+		if (isDedup)
+			attributes.add(BamFileTypeAttribute.DEDUP);
 		attributes.add(GatkBamFileTypeAttribute.REALN_AROUND_INDELS);
 		attributes.add(GatkBamFileTypeAttribute.RECAL_QC_SCORES);
 		return attributes;
