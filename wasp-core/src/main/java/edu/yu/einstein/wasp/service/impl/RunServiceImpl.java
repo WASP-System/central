@@ -254,7 +254,8 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override	public boolean isRunActive(Run run){
+	@Override	
+	public boolean isRunActive(Run run){
 		Assert.assertParameterNotNull(run, "run cannot be null");
 		Assert.assertParameterNotNull(run.getId(), "run must be defined");
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
@@ -289,6 +290,12 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 				logger.warn("unable to proccess a run Id as a parameter for job execution: "+ jobExecution.toString());
 			}
 		}
+		// if runs entered manually via CLI they will not appear in batch so perform an alternative check.
+		// We normally set all cells of the PU to having being successfully run in order to proceed with analysis 
+		// so we can use this as an alternative to see if a run is complete
+		for (Run run : runDao.findAll())
+			if (!runs.contains(run) && isAnySuccessfulRunCells(run))
+				runs.add(run);
 		return runs;
 	}
 	
