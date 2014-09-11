@@ -104,7 +104,7 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		
 		Set<BamFileTypeAttribute> attributes = new HashSet<>();
 		attributes.add(BamFileTypeAttribute.SORTED);
-		Set<FileGroup> sourceBamFileGroups = fileService.getFilesForCellLibraryByType(cellLib, bamFileType, attributes, true);
+		Set<FileGroup> sourceBamFileGroups = fileService.getFilesForCellLibraryByType(cellLib, bamFileType, attributes, false);
 		logger.debug("# bam FileGroups (sorted) for cell library id=" + cellLib.getId() + " is " +sourceBamFileGroups.size());
 		Assert.assertTrue(sourceBamFileGroups.size() == 1, "The number of filegroups (" + sourceBamFileGroups.size() + ") is not equal to 1");
 		FileGroup fg = sourceBamFileGroups.iterator().next();
