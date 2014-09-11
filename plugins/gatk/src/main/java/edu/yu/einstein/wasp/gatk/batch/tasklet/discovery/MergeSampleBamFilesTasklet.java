@@ -29,8 +29,11 @@ public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
 	
 	private static Logger logger = LoggerFactory.getLogger(MergeSampleBamFilesTasklet.class);
 	
-	public MergeSampleBamFilesTasklet(String inputFilegroupIds, String outputFilegroupIds, Integer jobId) {
+	private boolean isDedup = false;
+	
+	public MergeSampleBamFilesTasklet(String inputFilegroupIds, String outputFilegroupIds, Integer jobId, Boolean isDedup) {
 		super(inputFilegroupIds, outputFilegroupIds, jobId);
+		this.isDedup = isDedup;
 	}
 	
 	@Override
@@ -67,15 +70,20 @@ public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
 		dependencies.add(gatk.getSoftwareDependencyByIname("picard"));
 		w.setSoftwareDependencies(dependencies);
 		LinkedHashSet<String> inputBamFilenames = new LinkedHashSet<>();
+		Picard picard = (Picard) gatk.getSoftwareDependencyByIname("picard");
 		for (int i=0; i < fhlist.size(); i++)
 			inputBamFilenames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");
-		String mergedBamFilename = "merged.${"+ WorkUnit.OUTPUT_FILE+ "[0]}";
-		String mergedDedupBamFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
-		String mergedDedupBaiFilename = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
-		String mergedDedupMetricsFilename = "${" + WorkUnit.OUTPUT_FILE + "[2]}";
-		Picard picard = (Picard) gatk.getSoftwareDependencyByIname("picard");
-		w.addCommand(picard.getMergeBamCmd(inputBamFilenames, mergedBamFilename, null, MEMORY_GB_4));
-		w.addCommand(picard.getMarkDuplicatesCmd(mergedBamFilename, mergedDedupBamFilename, mergedDedupBaiFilename, mergedDedupMetricsFilename, MEMORY_GB_4));
+		String mergedBamFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
+		String mergedBaiFilename = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
+		if (isDedup){
+			String mergedPreDedupBamFilename = "mergedPreDedup.${"+ WorkUnit.OUTPUT_FILE+ "[0]}";
+			String mergedDedupMetricsFilename = "${" + WorkUnit.OUTPUT_FILE + "[2]}";
+			w.addCommand(picard.getMergeBamCmd(inputBamFilenames, mergedPreDedupBamFilename, null, MEMORY_GB_4));
+			w.addCommand(picard.getMarkDuplicatesCmd(mergedPreDedupBamFilename, mergedBamFilename, mergedBaiFilename, mergedDedupMetricsFilename, MEMORY_GB_4));
+		} else {
+			w.addCommand(picard.getMergeBamCmd(inputBamFilenames, mergedBamFilename, mergedBaiFilename, MEMORY_GB_4));
+		}
+		
 		GridResult result = gridHostResolver.execute(w);
 
 		// place the grid result in the step context

@@ -112,7 +112,9 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		fhlist.addAll(fg.getFileHandles());
 		
 		logger.debug("Bam File group: " + fg.getId() + ": " + fg.getDescription());
-		
+		boolean isDedup = false;
+		if (fileTypeService.hasAttribute(fg, BamFileTypeAttribute.DEDUP))
+			isDedup = true;
 		WorkUnit w = new WorkUnit();
 		Set<FileHandle> files = new LinkedHashSet<FileHandle>();
 		w.setMode(ExecutionMode.PROCESS);
@@ -124,8 +126,11 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		sd.add(gatk);
 		w.setSoftwareDependencies(sd);
 		w.setSecureResults(true);
-		String bamOutput = fileService.generateUniqueBaseFileName(cellLib) + "gatk_dedup_realn_recal.bam";
-		String baiOutput = fileService.generateUniqueBaseFileName(cellLib) + "gatk_dedup_realn_recal.bai";
+		String fileNameSuffix = "gatk_realn_recal";
+		if (isDedup)
+			fileNameSuffix = "gatk_dedup_realn_recal";
+		String bamOutput = fileService.generateUniqueBaseFileName(cellLib) + fileNameSuffix + ".bam";
+		String baiOutput = fileService.generateUniqueBaseFileName(cellLib) + fileNameSuffix + ".bai";
 		FileGroup bamG = new FileGroup();
 		FileHandle bam = new FileHandle();
 		bam.setFileName(bamOutput);
@@ -137,9 +142,6 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		bamG.setSoftwareGeneratedById(gatk.getId());
 		bamG.addDerivedFrom(fg);
 		bamG = fileService.addFileGroup(bamG);
-		boolean isDedup = false;
-		if (fileTypeService.hasAttribute(bamG, BamFileTypeAttribute.DEDUP))
-			isDedup = true;
 		fileTypeService.setAttributes(bamG, gatkService.getCompleteGatkPreprocessBamFileAttributeSet(isDedup));
 		Integer bamGId = bamG.getId();
 		// save in step context  for use later

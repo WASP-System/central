@@ -114,8 +114,11 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			inputFileGroups.add(controlFgIn);
 			String baseName = StringUtils.removeEnd(fileService.generateUniqueBaseFileName(test), ".") + 
 					"_realinedWith_" + fileService.generateUniqueBaseFileName(control);
-			String bamOutputMergedPairsTest = baseName + "gatk_preproc_merged_dedup_pairRealn.bam";
-			String baiOutputMergedPairsTest = baseName + "gatk_preproc_merged_dedup_pairRealn.bai";
+			String fileNameSuffix = "gatk_preproc_merged_pairRealn";
+			if (isDedup)
+				fileNameSuffix += "gatk_preproc_merged_dedup_pairRealn";
+			String bamOutputMergedPairsTest = baseName + fileNameSuffix + ".bam";
+			String baiOutputMergedPairsTest = baseName + fileNameSuffix + ".bai";
 			FileGroup bamMergedPairsTestG = new FileGroup();
 			FileHandle bamMergedPairsTest = new FileHandle();
 			bamMergedPairsTest.setFileName(bamOutputMergedPairsTest);
@@ -142,8 +145,8 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			
 			baseName = StringUtils.removeEnd(fileService.generateUniqueBaseFileName(control), ".") + 
 					"_realignedWith_" + fileService.generateUniqueBaseFileName(test);
-			String bamOutputMergedPairsControl = baseName + "gatk_preproc_merged_dedup_pairRealn.bam";
-			String baiOutputMergedPairsControl = baseName + "gatk_preproc_merged_dedup_pairRealn.bai";
+			String bamOutputMergedPairsControl = baseName + fileNameSuffix + ".bam";
+			String baiOutputMergedPairsControl = baseName + fileNameSuffix + ".bai";
 			FileGroup bamMergedPairsControlG = new FileGroup();
 			FileHandle bamMergedPairsControl = new FileHandle();
 			bamMergedPairsControl.setFileName(bamOutputMergedPairsControl);
