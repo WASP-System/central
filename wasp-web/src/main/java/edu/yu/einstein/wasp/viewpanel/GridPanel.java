@@ -18,6 +18,8 @@ public class GridPanel extends Panel{
 	
 	private String groupHeader = "{name}";
 	
+	private String statusField;
+	
 	private boolean hasDownload = false;
 	
 	private String downloadLinkField;
@@ -37,8 +39,6 @@ public class GridPanel extends Panel{
 	private String groupDownloadTooltip = "";
 	
 	private String groupDownloadAlign = "right";
-	
-	private String statusField;
 	
 	private boolean hasGbLink = false;
 	

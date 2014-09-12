@@ -2,11 +2,14 @@ package edu.yu.einstein.wasp.viewpanel;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 
  * @author AJ Jing
+ * @author asmclellan
  * 
  */
 
@@ -15,6 +18,8 @@ public class GridContent extends Content implements Serializable {
 	private static final long serialVersionUID = 2220412642707429616L;
 
 	private List<GridColumn> columns;
+	
+	private List<List<Action>> actions;
 
 	private List<GridDataField> dataFields;
 
@@ -23,6 +28,7 @@ public class GridContent extends Content implements Serializable {
 	public GridContent() {
 		columns = new ArrayList<GridColumn>();
 		dataFields = new ArrayList<GridDataField>();
+		actions = new ArrayList<List<Action>>();
 		data = new ArrayList<List<String>>();
 	}
 
@@ -39,13 +45,80 @@ public class GridContent extends Content implements Serializable {
 	public void setColumns(List<GridColumn> columns) {
 		this.columns = columns;
 	}
-
+	
 	/**
 	 * @param column the column to add
 	 */
 	public void addColumn(GridColumn column) {
 		this.columns.add(column);
 	}
+	
+	/**
+	 * @return the action columns
+	 */
+	public List<List<Action>> getActions() {
+		return actions;
+	}
+
+	/**
+	 * @param actions the action columns to set
+	 */
+	public void setActions(List<List<Action>> actions) {
+		this.actions = actions;
+	}
+	
+	/**
+	 * Add a new row of actions to the current list
+	 * @param rowIndex
+	 * @param action
+	 */
+	public void addActions(List<Action> actions) {
+		this.actions.add(actions);
+	}
+	
+	/**
+	 * Set the action list for given row
+	 * @param rowIndex
+	 * @param actions
+	 */
+	public void setRowActions(int rowIndex, List<Action> actions) {
+		this.actions.get(rowIndex).clear();
+		this.actions.get(rowIndex).addAll(actions);
+	}
+	
+	/**
+	 * Add an action to the action list for given row
+	 * @param rowIndex
+	 * @param action
+	 */
+	public void addActionForRow(int rowIndex, Action action) {
+		this.actions.get(rowIndex).add(action);
+	}
+	
+	/**
+	 * For efficiency, this method should be called only once a full list of rows of actions has been generated. It ensures that each row contains
+	 * the same complement of actions. Those actions not originally present in a row will be created and set to be hidden.
+	 */
+	public void addMissingActionsAsHiddenActions(){
+		// first create a set of unique actions
+		Set<Action> actionReferenceSet = new HashSet<>();
+		for (List<Action> actionRow : actions)
+			for (Action a : actionRow)
+				if (!actionReferenceSet.contains(a)) // uniqueness of actions is defined by icon css class name (iconClassName attribute).
+					actionReferenceSet.add(a);
+		// then add missing actions to rows such that each row contains an identical set of action classes
+		for (List<Action> actionRow : actions){
+			for (Action refAc : actionReferenceSet){
+				if (!actionRow.contains(refAc)){
+					Action newHiddenAc = new Action();
+					newHiddenAc.setIconClassName(refAc.getIconClassName());
+					newHiddenAc.setHidden(true);
+					actionRow.add(newHiddenAc);
+				}
+			}
+		}
+	}
+
 
 	/**
 	 * @return the dataFields
