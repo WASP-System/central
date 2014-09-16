@@ -1005,8 +1005,15 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 					.append("set -o pipefail\n") 		// die if any script in a pipe returns non 0 exit code
 					.append("set -o physical\n") 		// replace symbolic links with physical path
 					.append("\ncd ").append(w.remoteWorkingDirectory).append("\n")
-					.append(WorkUnit.JOB_NAME).append("=").append(jobNamePrefix).append(name).append("\n")
-					.append(WorkUnit.WORKING_DIRECTORY).append("=").append(w.remoteWorkingDirectory).append("\n")
+					.append(WorkUnit.JOB_NAME).append("=").append(jobNamePrefix).append(name).append("\n");
+			
+			String metadata = transportConnection.getConfiguredSetting("metadata.root");
+			if (!PropertyHelper.isSet(metadata)) {
+				throw new NullResourceException("metadata folder not configured!");
+			}
+			preambleStrBuf.append(WorkUnit.METADATA_ROOT).append("=").append(transportConnection.prefixRemoteFile(metadata)).append("\n");
+			
+			preambleStrBuf.append(WorkUnit.WORKING_DIRECTORY).append("=").append(w.remoteWorkingDirectory).append("\n")
 					.append(WorkUnit.TMP_DIRECTORY).append("=").append(w.getTmpDirectory()).append("\n")
 					.append(WorkUnit.RESULTS_DIRECTORY).append("=").append(w.remoteResultsDirectory).append("\n");
 			
@@ -1016,12 +1023,6 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 					.append(WorkUnit.TASK_OUTPUT_FILE).append("=$WASPNAME-${WASP_TASK_ID}.out\n")
 					.append(WorkUnit.TASK_END_FILE).append("=$WASPNAME:${WASP_TASK_ID}.end\n");
 			}
-			
-			String metadata = transportConnection.getConfiguredSetting("metadata.root");
-			if (!PropertyHelper.isSet(metadata)) {
-				throw new NullResourceException("metadata folder not configured!");
-			}
-			preambleStrBuf.append(WorkUnit.METADATA_ROOT).append("=").append(transportConnection.prefixRemoteFile(metadata)).append("\n");
 			
 			int fi = 0;
 			for (edu.yu.einstein.wasp.model.FileHandle f : w.getRequiredFiles()) {

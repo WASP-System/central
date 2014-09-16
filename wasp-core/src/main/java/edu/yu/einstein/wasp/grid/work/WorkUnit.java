@@ -88,7 +88,7 @@ public class WorkUnit {
 	 * Ordered set of possible environments where this job can be executed.  Provides a mechanism for determining
 	 * if work can be submitted to a remote computational resource.
 	 */
-	private Set<String> executionEnvironments = new LinkedHashSet<String>();
+	private LinkedHashSet<String> executionEnvironments = new LinkedHashSet<String>();
 	/**
 	 * Amount of memory required in GB.
 	 */
@@ -504,7 +504,7 @@ public class WorkUnit {
 	/**
 	 * @param resultFiles the resultFiles to set
 	 */
-	public void setResultFiles(Set<FileHandle> resultFiles) {
+	public void setResultFiles(LinkedHashSet<FileHandle> resultFiles) {
 		this.resultFiles = resultFiles;
 	}
 	

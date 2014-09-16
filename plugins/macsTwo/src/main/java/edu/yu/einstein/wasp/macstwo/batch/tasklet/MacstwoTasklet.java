@@ -284,7 +284,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 
 		List<String> listOfFileHandleNames = new ArrayList<String>();
 		
-		Set<FileHandle> files = new LinkedHashSet<FileHandle>();
+		LinkedHashSet<FileHandle> files = new LinkedHashSet<FileHandle>();
 				
 		FileHandle modelScript = new FileHandle();
 		modelScript.setFileName(modelFileName);//prefixForFileName + "_model.r"

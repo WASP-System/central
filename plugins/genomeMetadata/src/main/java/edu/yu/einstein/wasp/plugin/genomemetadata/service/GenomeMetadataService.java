@@ -35,7 +35,7 @@ public interface GenomeMetadataService extends WaspService {
 	 * 2. Download cDNA FASTA records.
 	 * 3. Build FASTA indices.
 	 * 4. Build sequence dictionaries.
-	 * 5. Build relavant annotations.
+	 * 5. Build relevant annotations.
 	 * 
 	 * This method should be synchronized by a singleton service to avoid race conditions.
 	 * 

@@ -138,7 +138,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		w.setSecureResults(true);
 		
 		String bamOutput = fileService.generateUniqueBaseFileName(cellLib) + "bwa.bam";
-		Set<FileHandle> files = new LinkedHashSet<FileHandle>();
+		LinkedHashSet<FileHandle> files = new LinkedHashSet<FileHandle>();
 		FileGroup bamG = new FileGroup();
 		FileHandle bam = new FileHandle();
 		bam.setFileName(bamOutput);

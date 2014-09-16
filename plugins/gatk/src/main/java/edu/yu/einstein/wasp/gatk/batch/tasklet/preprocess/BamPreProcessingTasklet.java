@@ -115,7 +115,7 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		logger.debug("Bam File group: " + fg.getId() + ": " + fg.getDescription());
 		
 		WorkUnit w = new WorkUnit();
-		Set<FileHandle> files = new LinkedHashSet<FileHandle>();
+		LinkedHashSet<FileHandle> files = new LinkedHashSet<FileHandle>();
 		w.setMode(ExecutionMode.PROCESS);
 		w.setMemoryRequirements(AbstractGatkTasklet.MEMORY_GB_8);
 		w.setProcessMode(ProcessMode.MAX);

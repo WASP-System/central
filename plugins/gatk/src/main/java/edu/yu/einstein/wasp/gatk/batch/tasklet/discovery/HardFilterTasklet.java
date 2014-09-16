@@ -87,7 +87,7 @@ public class HardFilterTasklet extends WaspRemotingTasklet {
 			combinedGenotypedVcfFg = fileService.getFileGroupById(Integer.parseInt(jobExecutionContext.getString("combinedGenotypedVcfFgId")));
 		Build build = null;
 		
-		Set<FileHandle> outFiles = new LinkedHashSet<FileHandle>();
+		LinkedHashSet<FileHandle> outFiles = new LinkedHashSet<FileHandle>();
 		
 		Job job = jobService.getJobByJobId(jobId);
 		Set<FileTypeAttribute> attributes = new HashSet<>(fileTypeService.getAttributes(combinedGenotypedVcfFg));

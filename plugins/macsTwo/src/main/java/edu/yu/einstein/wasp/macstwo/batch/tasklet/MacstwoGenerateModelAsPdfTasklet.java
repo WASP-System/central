@@ -158,7 +158,7 @@ public class MacstwoGenerateModelAsPdfTasklet extends WaspRemotingTasklet implem
 			
 		List<String> listOfFileHandleNames = new ArrayList<String>();
 		
-		Set<FileHandle> files = new LinkedHashSet<FileHandle>();
+		LinkedHashSet<FileHandle> files = new LinkedHashSet<FileHandle>();
 
 		//the pdf (generated from running Rscript on xx_model.r file)
 		FileGroup modelPdfG = new FileGroup();

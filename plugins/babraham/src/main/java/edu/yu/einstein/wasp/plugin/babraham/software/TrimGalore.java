@@ -248,7 +248,7 @@ public class TrimGalore extends SoftwarePackage {
         fastq.addAll(fastqG.getFileHandles());
         Iterator<FileHandle> fhi = fastq.iterator();
 
-        Set<FileHandle> trimmed_fastq = new LinkedHashSet<FileHandle>();
+        LinkedHashSet<FileHandle> trimmed_fastq = new LinkedHashSet<FileHandle>();
 
         Integer rs = fastqService.getNumberOfReadSegments(fastqG);
 

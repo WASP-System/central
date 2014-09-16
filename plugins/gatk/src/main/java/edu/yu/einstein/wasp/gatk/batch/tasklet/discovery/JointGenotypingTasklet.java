@@ -85,7 +85,7 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 			fileService.removeFileGroupFromRemoteServerAndMarkDeleted(fg);
 		Build build = null;
 		
-		Set<FileHandle> outFiles = new LinkedHashSet<FileHandle>();
+		LinkedHashSet<FileHandle> outFiles = new LinkedHashSet<FileHandle>();
 		
 		Job job = jobService.getJobByJobId(jobId);
 		String rawVcfOutFileName = fileService.generateUniqueBaseFileName(job) + "raw.vcf";

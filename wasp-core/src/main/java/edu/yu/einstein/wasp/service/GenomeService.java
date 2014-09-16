@@ -323,6 +323,7 @@ public interface GenomeService extends WaspService {
 	 * @param build
 	 * @return
 	 */
+	@Deprecated
 	public String getReferenceGenomeFastaFile(Build build);
 
 	  

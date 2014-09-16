@@ -109,7 +109,7 @@ public class IntegratedSgeServiceTest extends AbstractTestNGSpringContextTests {
         FileGroup fg = new FileGroup();
         FileHandle fh;
 
-        Set<FileHandle> fileHandles = new LinkedHashSet<FileHandle>();
+        LinkedHashSet<FileHandle> fileHandles = new LinkedHashSet<FileHandle>();
 
         int numFiles = 10;
 
