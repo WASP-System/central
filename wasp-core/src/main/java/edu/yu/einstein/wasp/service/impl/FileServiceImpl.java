@@ -1937,5 +1937,44 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		}
 		return null;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public FileGroup createFileGroupCollection(Set<FileGroup> childFileGroups){
+		FileGroup parentFg = new FileGroup();
+		parentFg.setFileType(fileTypeService.getFileTypeDao().getFileTypeByIName("fileGroupCollectionFileType"));
+		parentFg = fileGroupDao.save(parentFg);
+		for (FileGroup childFg : childFileGroups){
+			childFg.setParent(parentFg);
+			childFg = fileGroupDao.save(childFg); // will persist if not already or merge otherwise to ensure it is an attached entity
+		}
+		return fileGroupDao.getById(parentFg.getId()); // get fresh copy to be sure children are hydrated
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isFileGroupCollection(FileGroup fg){
+		return fg.getFileType().getIName().equals("fileGroupCollectionFileType");
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Set<FileHandle> getAllFileHandlesFromFileGroupCollection(FileGroup fgCollection){
+		if (fgCollection.getId() != null && fgCollection.getId() > 0)
+			fgCollection = getFileGroupById(fgCollection.getId()); // ensure attached entity
+		Set<FileHandle> fhs = new LinkedHashSet<FileHandle>();
+		for (FileGroup childFg : fgCollection.getChildren())
+			fhs.addAll(childFg.getFileHandles());
+		
+		// this is supposed to be a group of FileGroups but it is still possible to set filehandles on it too of course so...
+		fhs.addAll(fgCollection.getFileHandles()); 
+		return fhs;
+	}
 }
 
