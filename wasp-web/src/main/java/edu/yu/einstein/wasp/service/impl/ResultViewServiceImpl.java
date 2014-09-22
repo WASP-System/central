@@ -145,10 +145,10 @@ public class ResultViewServiceImpl extends WaspServiceImpl implements ResultView
 					filerow.add(hl.getTargetLink());
 					
 					filerow.add(hl.getTargetLink());
-//					filerow.add("ucsc");
-//					filerow.add("View in UCSC Genome Browser");
-//					filerow.add("false");
-					switch ( (int) (Math.random()*3) ) {
+					filerow.add("ucsc");
+					filerow.add("View in UCSC Genome Browser");
+					filerow.add("true");
+/*					switch ( (int) (Math.random()*3) ) {
 						case 0:	filerow.add("ucsc");
 								filerow.add("View in UCSC Genome Browser");
 								if ((int) (Math.random()*2)==0)
@@ -175,7 +175,7 @@ public class ResultViewServiceImpl extends WaspServiceImpl implements ResultView
 						
 						default: break;
 					}
-					
+*/					
 					fileGridContent.addDataRow(filerow);
 				}
 			}
