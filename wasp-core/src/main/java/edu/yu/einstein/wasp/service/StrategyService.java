@@ -29,7 +29,7 @@ public interface StrategyService extends WaspMessageHandlingService{
 	public WorkflowMeta saveStrategyToWorkflowMeta(Workflow workflow, Strategy strategy);//save to WorkflowMeta
 	public List<Strategy> getThisWorkflowsStrategies(String strategyType,  Workflow workflow);	//get from WorkflowMeta
 	
-	public JobDraftMeta saveStrategyToJobDraftMeta(JobDraft jobDraft, Strategy strategy); //save to JobdraftMeta
+	public JobDraftMeta saveStrategy(JobDraft jobDraft, Strategy strategy); //save to JobdraftMeta
 	public Strategy getThisJobDraftsStrategy(String strategyType,  JobDraft jobDraft);	//get from JobdraftMeta
 
 	public List<Workflow> getActiveWorkflowsForStrategyOrderByWorkflowName(Strategy requestedStrategy);

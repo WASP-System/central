@@ -24,7 +24,7 @@
 		<value>/jobsubmit/genomes/{n}</value>
 		<value>/jobsubmit/cells/{n}</value>
 		<value>/jobsubmit/chipSeq/pair/{n}</value> 
-		<value>/jobsubmit/chipSeq/replicates/{n}</value> 
+		<value>/jobsubmit/chipSeq/replicates/{n}</value>
 		<value>/jobsubmit/software/#{referenceBasedAlignerResourceType.getIName()}/{n}</value>
 		<value>/jobsubmit/software/#{peakcallerResourceType.getIName()}/{n}</value>
 		<value>/jobsubmit/comment/{n}</value> 

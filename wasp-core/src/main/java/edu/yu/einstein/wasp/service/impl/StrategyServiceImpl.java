@@ -201,7 +201,7 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 		return strategies;
 	}
 	
-	public JobDraftMeta saveStrategyToJobDraftMeta(JobDraft jobDraft, Strategy strategy){ //save to JobdraftMeta
+	public JobDraftMeta saveStrategy(JobDraft jobDraft, Strategy strategy){ //save to JobdraftMeta
 		JobDraftMeta jobDraftMeta = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(strategy.getType(), jobDraft.getId());
 		jobDraftMeta.setK(strategy.getType());
 		jobDraftMeta.setV(strategy.getType()+"."+strategy.getStrategy());

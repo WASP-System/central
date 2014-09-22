@@ -131,7 +131,17 @@ $(document).ready(function() {
 		  </tr>
 	  	</c:otherwise>
 	  </c:choose>  
-	  
+	  <tr id="workflowRowId" class="FormData" >
+		    <td class="CaptionTD"><fmt:message key="jobDraft.analysisSelected.label"/>:</td>
+		    <td class="DataTD">
+		          <select class="FormElement ui-widget-content ui-corner-all" id="isAnalysisSelected" name="isAnalysisSelected">
+		          	<option value="false"  <c:if test="${!empty isAnalysisSelected && isAnalysisSelected == false}"> SELECTED</c:if>   >No, I only need raw sequence data</option>
+		        	<option value="true"  <c:if test="${empty isAnalysisSelected || isAnalysisSelected == true}"> SELECTED</c:if>   >Yes ($50 charge / sample)</option>
+		    	 </select>
+		    	 <wasp:tooltip value="${selectAnalysisTooltip}" />
+		    </td>
+		    <td class="CaptionTD error"><form:errors path="workflowId" /></td>
+	  </tr>
 	  </table>
 	
 	  <div class="submit">
