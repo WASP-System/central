@@ -76,7 +76,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	
 	private StepExecution stepExecution;
 	
-	
+/*	
 	@Autowired
 	private FileType macs2ModelScriptFileType;
 	@Autowired
@@ -98,7 +98,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	
 	@Autowired
 	private FileType macs2AnalysisFileType;
-	
+*/	
 	@Autowired
 	private FileType textFileType;//here, the model.r script output file
 	@Autowired

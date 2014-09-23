@@ -54,8 +54,10 @@ public class MacstwoWebServiceImpl extends MacstwoServiceImpl implements Macstwo
 	private FileUrlResolver fileUrlResolver;
 	@Autowired
 	private RunService runService;
+	/*
 	@Autowired
 	private FileType macs2AnalysisFileType;
+	*/
 	@Autowired
 	private SoftwareService softwareService;
 	@Autowired

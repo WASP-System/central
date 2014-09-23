@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans"
+	default-autowire="byName"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+		
+	<bean id="ensemblGenomeBrowserPluginArea" class="java.lang.String">
+		<constructor-arg>
+			<value>ensemblGenomeBrowserPackage</value>
+		</constructor-arg>
+	</bean>
+	
+	<!-- channel for communications with this plugin. -->
+	<int:channel id="wasp.channel.plugin.ensemblGenomeBrowser" />
+
+	<int:service-activator input-channel="wasp.channel.plugin.ensemblGenomeBrowser" ref="ensemblGenomeBrowserPlugin" method="process" />
+	
+	<bean id="ensemblGenomeBrowserPlugin" class="edu.yu.einstein.wasp.plugin.mps.genomebrowser.EnsemblGenomeBrowserPlugin">
+		<constructor-arg name="iName" ref="ensemblGenomeBrowserPluginArea" />
+		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.ensemblGenomeBrowser" />
+		<property name="name" value="EnsemblGenomeBrowser" />
+		<property name="description" value="The ENSEMBL GenomeBrowser" />
+		<property name="provides" >
+			<set>
+				<ref bean="ensemblGenomeBrowserPackage" /> 
+			</set>
+		</property>
+		<property name="handles" >
+			<set>
+				<ref bean="ensemblGenomeBrowserPluginArea" />
+			</set>
+		</property>
+	</bean>
+
+</beans>
