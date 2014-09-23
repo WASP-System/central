@@ -14,9 +14,6 @@ import edu.yu.einstein.wasp.model.WorkflowMeta;
 @Service
 public interface StrategyService extends WaspMessageHandlingService{
 		
-	static final String WORKFLOW_KEY = "workflow.strategy";//USED????
-	////////static final String JOBDRAFT_KEY = "workflow.strategy";
-
 	public Strategy saveDuringInitialLoading(Strategy strategy);//save to table Meta
 	public List<Strategy> getStrategiesByStrategyType(String strategyType);//from table Meta
 		
