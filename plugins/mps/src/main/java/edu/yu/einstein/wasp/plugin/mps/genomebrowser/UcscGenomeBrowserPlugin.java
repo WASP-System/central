@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.MessageChannel;
 
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
-import edu.yu.einstein.wasp.interfacing.plugin.GenomeBrowserProviding;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
