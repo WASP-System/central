@@ -5,14 +5,14 @@
 	default-autowire="byName"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 	
- <!-- macs2AnalysisFileType is really a fileType for a FileGroup -->
+ 
  <bean id="macs2AnalysisFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
     <property name="name" value="macs2 Analysis Files" />
     <property name="area" value="macs2AnalysisFiles" />
     <property name="description" value="Macs2 Output Files" />
     <property name="extensions" value="" />
   </bean>
-	
+<!-- NO LONGER USED 	
   <bean id="macs2ModelScriptFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
     <property name="name" value="ModelScript" />
     <property name="area" value="macs2modelscript" />
@@ -46,14 +46,6 @@
     <property name="area" value="macs2narrowpeaksbed" />
     <property name="description" value="A macs2-generated BED6+4 format file (xxx_peaks.narrowPeak) which contains peak locations together with peak summit, pvalue and qvalue that can be load into UCSC genome browser" />
     <property name="extensions" value="_peaks.narrowPeak" />
-  </bean>
-
-<!-- this next file (never seen as output) is not currently generated in WASP execution of macs2 ; it is for broad peaks, such as the histone modification H3K36me3 -->
-  <bean id="macs2BroadPeaksBedFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
-    <property name="name" value="BroadPeaksBed" />
-    <property name="area" value="macs2broadpeaksbed" />
-    <property name="description" value="A macs2-generated BED12 format file (xxx_broad_peaks.bed) which contains both the broad region and narrow peaks that can be load into UCSC genome browser" />
-    <property name="extensions" value="_broad_peaks.bed" />
   </bean>
 
  <bean id="macs2BroadPeaksFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
@@ -97,5 +89,5 @@
     <property name="description" value="A macs2-generated bedGraph file (xxx_control_lambda.bdg) that describes the read distrubution along the entire genome (for local lambda values from control) and can be imported to UCSC genome browser or converted into even smaller bigWig file" />
     <property name="extensions" value="_control_lambda.bdg" />
   </bean>
-  
+  -->
 </beans>

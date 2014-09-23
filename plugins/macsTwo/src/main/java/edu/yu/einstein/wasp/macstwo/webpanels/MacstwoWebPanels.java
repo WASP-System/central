@@ -28,7 +28,7 @@ public class MacstwoWebPanels {
 	static protected  Logger logger = LoggerFactory.getLogger(WaspServiceImpl.class);
 	
 	//even newer organizational format: 9-4-14
-	public static GridPanel getPluginSpecificFileDefinitionsPanel(List<String> fileDescriptionShortNameList, Map<String, String> fileDescriptionShortNamefileDescriptionMap){
+	public static GridPanel getPluginSpecificFileDefinitionsPanel(List<String> fileDescriptionList){//List<String> fileDescriptionShortNameList, Map<String, String> fileDescriptionShortNamefileDescriptionMap){
 		//create the panel
 		GridPanel panel = new GridPanel();
 		panel.setTitle("MACS2 File Descriptions");
@@ -40,13 +40,13 @@ public class MacstwoWebPanels {
 		//create content (think of it as the table)
 		GridContent content = new GridContent();
 		//create the data model 
-		content.addDataFields(new GridDataField("MAC2FileType", "String"));//dataIndex, datatype
+		//content.addDataFields(new GridDataField("MAC2FileType", "String"));//dataIndex, datatype
 		content.addDataFields(new GridDataField("Description", "String"));//dataIndex, datatype
 
 		//create columns and associate each column with its displayed header and a data model attribute (dataIndex)
-		content.addColumn(new GridColumn("MACS2 File Type", "MAC2FileType", 200, 0));//header,dataIndex		width=200; flex=0
+		//content.addColumn(new GridColumn("MACS2 File Type", "MAC2FileType", 200, 0));//header,dataIndex		width=200; flex=0
 		content.addColumn(new GridColumn("Description", "Description", 1));//header,dataIndex		flex=1
-		
+		/*
 		for(String fileDescriptionShortName : fileDescriptionShortNameList){
 			String fileDescription = "";
 			fileDescription = fileDescriptionShortNamefileDescriptionMap.get(fileDescriptionShortName);
@@ -56,7 +56,13 @@ public class MacstwoWebPanels {
 				row.add(fileDescription);			
 				content.addDataRow(row);//add the new row to the content
 			}
-		}		
+		}
+		*/
+		for(String description : fileDescriptionList){
+			List<String> row = new ArrayList<String>();			
+			row.add(description);			
+			content.addDataRow(row);//add the new row to the content
+		}
 		panel.setContent(content);//add content to panel
 		return panel;
 	}
@@ -250,8 +256,8 @@ public class MacstwoWebPanels {
 
 		//create the panel
 		GridPanel panel = new GridPanel();
-		panel.setTitle("Fraction Of Reads Within Peaks (%)<br />Note: ENCODE Consortium scrutinizes experiments with FRiP < 1%");
-		panel.setDescription("Fraction Of Reads Within Peaks (%)<br />Note: ENCODE Consortium scrutinizes experiments with FRiP < 1%");
+		panel.setTitle("Fraction Of Reads Within Peaks (%)");
+		panel.setDescription("Fraction Of Reads Within Peaks (%)");
 		panel.setResizable(true);
 		panel.setMaximizable(true);	
 		panel.setOrder(1);
@@ -284,8 +290,7 @@ public class MacstwoWebPanels {
 												Map<FileGroup, Build> fileGroupBuildMap,
 												Map<FileGroup,List<FileHandle>> fileGroupFileHandleListMap, 
 												Map<FileHandle,String> fileHandleResolvedURLMap, 
-												Map<FileGroup, Double> fileGroupFripPercentMap,
-												Map<FileHandle, String> fileHandelfileDescriptionShortNameMap){
+												Map<FileGroup, Double> fileGroupFripPercentMap){
 		//create the panel
 		GridPanel panel = new GridPanel();
 		panel.setTitle("Files By Analysis");
@@ -313,7 +318,6 @@ public class MacstwoWebPanels {
 		GridContent content = new GridContent();
 		//create the data model 
 		content.addDataFields(new GridDataField("Analysis", "String"));//THIS WILL BE THE UNIQUE GROUPING FIELD //dataIndex, datatype
-		content.addDataFields(new GridDataField("FileType", "String"));//dataIndex, datatype
 		content.addDataFields(new GridDataField("File", "String"));//dataIndex, datatype
 		content.addDataFields(new GridDataField("Size", "String"));//dataIndex, datatype
 		content.addDataFields(new GridDataField("MD5", "String"));//dataIndex, datatype
@@ -326,12 +330,10 @@ public class MacstwoWebPanels {
 		content.addDataFields(new GridDataField("Tip", "String"));//dataIndex, datatype
 		
 		//create columns and associate each column with its displayed header and a data model attribute (dataIndex)
-		///////don't want this to display: content.addColumn(new GridColumn("Analysis", "Analysis"));//header,dataIndex		
-		content.addColumn(new GridColumn("MACS2 File Type", "FileType", 150, 0));//header,dataIndex	width=150; flex=0	
+		///////unique grouping field is NOT displayed: content.addColumn(new GridColumn("Analysis", "Analysis"));//header,dataIndex		
 		content.addColumn(new GridColumn("File", "File", 1));//header,dataIndex					flex=1
 		content.addColumn(new GridColumn("Size", "Size", 100, 0));//header,dataIndex					width=270; flex=0
 		content.addColumn(new GridColumn("MD5", "MD5", 170, 0));//header,dataIndex					width=270; flex=0
-		////content.addColumn(new GridColumn(" ", "Download", 100, 0));//header is single space string,dataIndex	width=100; flex=0
 		
 		for(FileGroup fileGroup : macs2AnalysisFileGroupList){				
 			for(FileHandle fileHandle : fileGroupFileHandleListMap.get(fileGroup)){				
@@ -345,8 +347,6 @@ public class MacstwoWebPanels {
 					headerForGroup += " (FRiP: " + formatedFrip + " %)";
 				}
 				row.add(headerForGroup);//won't be displayed on each row, but will be the header for each section (but must be part of the row)
-				//row.add(fileHandle.getFileType().getName());
-				row.add(fileHandelfileDescriptionShortNameMap.get(fileHandle));
 				row.add(fileHandle.getFileName());
 				Integer sizeK = fileHandle.getSizek();
 				if(sizeK!=null){
@@ -355,7 +355,6 @@ public class MacstwoWebPanels {
 				row.add(fileHandle.getMd5hash());
 				row.add(fileHandleResolvedURLMap.get(fileHandle));
 		
-				//7/23/14
 				List<String> genomeBrowserIcon = addGenomeBrowserIcon(fileGroupBuildMap.get(fileGroup), fileHandle, fileHandleResolvedURLMap.get(fileHandle));
 				if(genomeBrowserIcon.isEmpty()){//not correct filetype for genome browser display
 					row.add("");
@@ -373,101 +372,8 @@ public class MacstwoWebPanels {
 		
 		return panel;		 
 	}
-	
-	//newest organizational format: 9-5-14
-	public static GridPanel getFilesByFileDescriptionPanel(List<FileGroup> macs2AnalysisFileGroupList,
-												Map<FileGroup, Build> fileGroupBuildMap,
-												Map<FileGroup,List<FileHandle>> fileGroupFileHandleListMap, 
-												Map<FileHandle,String> fileHandleResolvedURLMap, 
-												List<FileType> fileTypeList,
-												List<String> fileDescriptionShortNameList,
-												Map<FileHandle,String> fileHandelfileDescriptionShortNameMap){
-
-		//create the panel
-		GridPanel panel = new GridPanel();
-		panel.setTitle("Files By Type");
-		panel.setDescription("Files By Type");
-		panel.setResizable(true);
-		panel.setMaximizable(true);	
-		panel.setOrder(1);
-		panel.setGrouping(true);
-		panel.setGroupField("FileType");
-		panel.setHasDownload(true);
-		panel.setDownloadLinkField("Download");
-		panel.setAllowSelectDownload(true);
-		panel.setAllowGroupDownload(true);
-		panel.setSelectDownloadText("Download Selected");
-		panel.setDownloadTooltip("Download");
-
-		//7-18-14
-		panel.setHasGbLink(true);
-		panel.setGbLinkField("Link");
-		panel.setGbTypeField("Icon");
-		panel.setHideGbField("Hide");
-		panel.setGbTtpField("Tip");
-
-		//create content (think of it as the table)
-		GridContent content = new GridContent();
-		//create the data model 
-		content.addDataFields(new GridDataField("FileType", "String"));//THIS WILL BE THE UNIQUE GROUPING FIELD //dataIndex, datatype
-		content.addDataFields(new GridDataField("File", "String"));//dataIndex, datatype
-		content.addDataFields(new GridDataField("Size", "String"));//dataIndex, datatype
-		content.addDataFields(new GridDataField("MD5", "String"));//dataIndex, datatype
-		content.addDataFields(new GridDataField("Download", "String"));//dataIndex, datatype
-
-		//7-18-14
-		content.addDataFields(new GridDataField("Link", "String"));//dataIndex, datatype
-		content.addDataFields(new GridDataField("Icon", "String"));//dataIndex, datatype
-		content.addDataFields(new GridDataField("Hide", "boolean"));//dataIndex, datatype
-		content.addDataFields(new GridDataField("Tip", "String"));//dataIndex, datatype
-
-		//create columns and associate each column with its displayed header and a data model attribute (dataIndex)
-		///////don't want this to display: content.addColumn(new GridColumn("Analysis", "Analysis"));//header,dataIndex		
-
-		content.addColumn(new GridColumn("File", "File", 500));//header,dataIndex					flex=1
-		content.addColumn(new GridColumn("Size", "Size", 100, 0));//header,dataIndex
-		content.addColumn(new GridColumn("MD5", "MD5", 170, 0));//header,dataIndex					width=270; flex=0
-		////content.addColumn(new GridColumn(" ", "Download", 100, 0));//header is single space string,dataIndex	width=100; flex=0
-
-		for(String fileDescriptionShortName : fileDescriptionShortNameList){						
-			for(FileGroup fileGroup : macs2AnalysisFileGroupList){
-				for(FileHandle fileHandle : fileGroupFileHandleListMap.get(fileGroup)){
-					//if(fileHandle.getFileType().getId().intValue()== fileType.getId().intValue()){
-					if(fileHandelfileDescriptionShortNameMap.get(fileHandle).equalsIgnoreCase(fileDescriptionShortName)){
-						List<String> row = new ArrayList<String>();					
-						row.add(fileDescriptionShortName);//won't be displayed on each row, but will be the header for each section (but must be part of the row)
-						row.add(fileHandle.getFileName());
-						Integer sizeK = fileHandle.getSizek();
-						if(sizeK!=null){
-							row.add(fileHandle.getSizek().toString());
-						}else{row.add("");}
-						row.add(fileHandle.getMd5hash());
-						row.add(fileHandleResolvedURLMap.get(fileHandle));
-
-						//7/23/14
-						List<String> genomeBrowserIcon = addGenomeBrowserIcon(fileGroupBuildMap.get(fileGroup), fileHandle, fileHandleResolvedURLMap.get(fileHandle));
-						if(genomeBrowserIcon.isEmpty()){//not correct filetype
-							row.add("");
-							row.add("");
-							row.add("true");//true means hide
-							row.add("");
-						}
-						else{
-							row.addAll(genomeBrowserIcon);
-						}
-				
-						content.addDataRow(row);//add the new row to the content
-
-					}
-				}
-			}
-		}
-		panel.setContent(content);//add content to panel
-
-		return panel;		 
-	}	
-	
-	//used; modified 9-5-14
+		
+	//as of 9-17-14, the call to this method is no longer used
 	public static PanelTab getModelPNGFilesByAnalysis(List<FileGroup> macs2AnalysisFileGroupList, Map<FileGroup,List<FileHandle>> fileGroupFileHandleListMap, Map<FileHandle,String> fileHandleResolvedURLMap){
 
 		//create the panelTab to house the panel
