@@ -553,11 +553,11 @@ public class JobSubmissionController extends WaspController {
 			}
 		}
 
-		if (jobDraftForm.getLabId() == null || jobDraftForm.getLabId().intValue() < 1){
+		if (jobDraftForm.getLabId() == null || jobDraftForm.getLabId().intValue() <= 1){
 			errors.rejectValue("labId", "jobDraft.labId.error", "jobDraft.labId.error (no message has been defined for this property");
 		}
 		
-		if(jobDraftForm.getWorkflowId() == null || jobDraftForm.getWorkflowId().intValue() <= 0 ){
+		if(jobDraftForm.getWorkflowId() == null || jobDraftForm.getWorkflowId().intValue() < 0 ){
 			errors.rejectValue("workflowId", "jobDraft.workflowId.error", "jobDraft.workflowId.error (no message has been defined for this property)");
 		}
 		
@@ -589,7 +589,6 @@ public class JobSubmissionController extends WaspController {
 		User me = authenticationService.getAuthenticatedUser();
 		jobDraftForm.setUserId(me.getId());
 		jobDraftForm.setStatus("PENDING");
-		jobDraftForm.setCreatets(new Date());
 		JobDraft jobDraftDb = jobDraftService.getJobDraftDao().save(jobDraftForm); 
 		String isAnalysisSelectedParam = request.getParameter("isAnalysisSelected");
 		if (isAnalysisSelectedParam != null)
