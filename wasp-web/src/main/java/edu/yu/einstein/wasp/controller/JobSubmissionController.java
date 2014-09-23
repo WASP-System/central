@@ -475,7 +475,7 @@ public class JobSubmissionController extends WaspController {
 		strategyService.orderStrategiesByDisplayStrategy(strategies);
 		m.put("strategies", strategies);		
 		
-		List <Workflow> workflowsForTheRequestedStrategyAsList = strategyService.getActiveWorkflowsForStrategyOrderByWorkflowName(thisJobDraftsStrategy);
+		List <Workflow> workflowsForTheRequestedStrategyAsList = strategyService.getActiveWorkflowsForStrategyOrDefaultsOrderByWorkflowName(thisJobDraftsStrategy);
 		Map<Integer, String> assayWorkflows = new HashMap<>();
 		for (Workflow wf: workflowsForTheRequestedStrategyAsList){//why do we have this?????? why not simply use wf.getName() on the jsp???
 			assayWorkflows.put(wf.getId(), messageService.getMessage(wf.getIName() + ".workflow.label"));
@@ -517,7 +517,7 @@ public class JobSubmissionController extends WaspController {
 		
 		Strategy requestedStrategy = strategyService.getStrategyByKey(param);
 		
-		List <Workflow> workflowsForTheRequestedStrategyAsList = strategyService.getActiveWorkflowsForStrategyOrderByWorkflowName(requestedStrategy);
+		List <Workflow> workflowsForTheRequestedStrategyAsList = strategyService.getActiveWorkflowsForStrategyOrDefaultsOrderByWorkflowName(requestedStrategy);
 		Map<Integer, String> assayWorkflows = new HashMap<>();
 		for (Workflow wf: workflowsForTheRequestedStrategyAsList){
 			assayWorkflows.put(wf.getId(), messageService.getMessage(wf.getIName() + ".workflow.label"));
@@ -553,11 +553,11 @@ public class JobSubmissionController extends WaspController {
 			}
 		}
 
-		if (jobDraftForm.getLabId() == null || jobDraftForm.getLabId().intValue() <= 1){
+		if (jobDraftForm.getLabId() == null || jobDraftForm.getLabId().intValue() < 1){
 			errors.rejectValue("labId", "jobDraft.labId.error", "jobDraft.labId.error (no message has been defined for this property");
 		}
 		
-		if(jobDraftForm.getWorkflowId() == null || jobDraftForm.getWorkflowId().intValue() < 0 ){
+		if(jobDraftForm.getWorkflowId() == null || jobDraftForm.getWorkflowId().intValue() <= 0 ){
 			errors.rejectValue("workflowId", "jobDraft.workflowId.error", "jobDraft.workflowId.error (no message has been defined for this property)");
 		}
 		

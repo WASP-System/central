@@ -33,6 +33,7 @@ public interface StrategyService extends WaspMessageHandlingService{
 	public Strategy getThisJobDraftsStrategy(String strategyType,  JobDraft jobDraft);	//get from JobdraftMeta
 
 	public List<Workflow> getActiveWorkflowsForStrategyOrderByWorkflowName(Strategy requestedStrategy);
+	public List<Workflow> getActiveWorkflowsForStrategyOrDefaultsOrderByWorkflowName(Strategy requestedStrategy);
 	
 	public Strategy getThisJobsStrategy(String strategyType,  Job job);	//get from JobMeta
 

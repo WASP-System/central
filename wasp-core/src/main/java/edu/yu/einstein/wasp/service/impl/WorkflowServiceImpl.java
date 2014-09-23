@@ -33,12 +33,6 @@ import edu.yu.einstein.wasp.util.MetaHelper;
 @Transactional("entityManager")
 public class WorkflowServiceImpl extends WaspServiceImpl implements WorkflowService{
 	
-	public static final String JOB_FLOW_BATCH_META_KEY = "jobFlowBatchJob";
-	
-	public static final String PAGE_FLOW_ORDER_META_KEY = "submitpageflow";
-	
-	public static final String WORKFLOW_AREA = "workflow";
-	
 	private static final String DELIMITER = ";";
 	
 	private WorkflowMetaDao workflowMetaDao;
@@ -216,6 +210,26 @@ public class WorkflowServiceImpl extends WaspServiceImpl implements WorkflowServ
 			resourceOptions.put(key, options);
 		}
 		return resourceOptions;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setIsWorkflowDefault(Workflow workflow, boolean isDefault) throws MetadataException{
+		setMeta(workflow, IS_WORKFLOW_DEFAULT_META_KEY, Boolean.toString(isDefault));
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean getIsWorkflowDefault(Workflow workflow){
+		WorkflowMeta wfm = workflowMetaDao.getWorkflowMetaByKWorkflowId(WORKFLOW_AREA + "." + IS_WORKFLOW_DEFAULT_META_KEY, workflow.getId());
+		logger.debug(WORKFLOW_AREA + "." + IS_WORKFLOW_DEFAULT_META_KEY + "=" + wfm);
+		if (wfm != null && wfm.getV() != null)
+			return Boolean.valueOf(wfm.getV());
+		return false;
 	}
 	
 	private void setMeta(Workflow workflow, String metaKey, String metaValue) throws MetadataException{

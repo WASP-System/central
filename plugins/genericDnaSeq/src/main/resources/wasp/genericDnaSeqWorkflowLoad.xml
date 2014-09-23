@@ -14,6 +14,7 @@
 	<bean id="genericDnaSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoaderAndFactory">
 		<property name="area" ref="waspGenericDnaSeqPluginArea" />
 		<property name="name" value="Generic DNA Seq" />
+		<property name="default" value="true" />
 		<property name="pageFlowOrder">
 			<list>
 				<!-- <value>/jobsubmit/modifymeta/{n}</value> -->

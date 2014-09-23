@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.load;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -11,6 +12,7 @@ import edu.yu.einstein.wasp.load.service.WorkflowLoadService;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.WorkflowMeta;
+import edu.yu.einstein.wasp.service.WorkflowService;
 
 /**
  * update/inserts db copy of subtype sample from bean definition
@@ -19,7 +21,8 @@ import edu.yu.einstein.wasp.model.WorkflowMeta;
  */
 
 public class WorkflowLoaderAndFactory extends WaspResourceLoader implements	FactoryBean<Workflow> {
-
+	
+	
 	@Autowired
 	private WorkflowLoadService workflowLoadService;
 	
@@ -59,8 +62,24 @@ public class WorkflowLoaderAndFactory extends WaspResourceLoader implements	Fact
 		this.isActive = isActive;
 	}
 	
+	private Boolean isDefault = false;
+	
+	public Boolean getIsDefault() {
+		return isDefault;
+	}
+
+	public void setDefault(Boolean isDefault) {
+		this.isDefault = isDefault;
+	}
+	
 	@PostConstruct
 	public void init(){
+		WorkflowMeta wfm = new WorkflowMeta();
+		wfm.setK(WorkflowService.WORKFLOW_AREA + "." + WorkflowService.IS_WORKFLOW_DEFAULT_META_KEY);
+		wfm.setV(isDefault.toString());
+		if (meta == null)
+			meta = new ArrayList<WorkflowMeta>();
+		meta.add(wfm);
 		workflow =  workflowLoadService.update(iname, name, isActive, meta, dependencies, sampleSubtypes, pageFlowOrder, jobFlowBatchJob);
 	}
 
@@ -78,4 +97,6 @@ public class WorkflowLoaderAndFactory extends WaspResourceLoader implements	Fact
 	public boolean isSingleton() {
 		return true;
 	}
+
+	
 }

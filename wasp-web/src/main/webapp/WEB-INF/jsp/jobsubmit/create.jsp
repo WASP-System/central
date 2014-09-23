@@ -5,7 +5,7 @@
 
 var savedAnalysisSelectedChoice = "";
 
-function handleStrategyFunc() {
+function handleStrategyUpdate() {
 	  if($("#strategy").val()=='-1'){
 		  $("#workflowRowId").css("display", "none"); 
 		  $("#continueButtonDivId").css("display", "none"); 
@@ -59,11 +59,11 @@ function handleStrategyFunc() {
 $(document).ready(function() {
 	
 	if ($("#strategy").val() != '-1'){
-		handleStrategyFunc();
+		handleStrategyUpdate();
 	}
 	
 	$( "#strategy" ).change(function(){
-		handleStrategyFunc();
+		handleStrategyUpdate();
 	});
 
 	$( "#viewDefinitionsAnchor" ).click(function() {

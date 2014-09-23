@@ -36,6 +36,7 @@ import edu.yu.einstein.wasp.model.Meta;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.WorkflowMeta;
 import edu.yu.einstein.wasp.service.StrategyService;
+import edu.yu.einstein.wasp.service.WorkflowService;
 
 @Service
 @Transactional("entityManager")
@@ -52,6 +53,10 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 	@Autowired
 	private WorkflowMetaDao workflowMetaDao;
 	
+	@Autowired
+	private WorkflowService workflowService;
+	
+	@Override
 	public Strategy saveDuringInitialLoading(Strategy strategy){//save to table meta
 			Assert.assertParameterNotNull(strategy.getType(), "type Cannot be null");
 			Assert.assertParameterNotNull(strategy.getStrategy(), "strategy Cannot be null");
@@ -79,6 +84,7 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 			return strategy;
 	}
 
+	@Override
 	public List<Strategy> getStrategiesByStrategyType(String strategyType){
 		List<Strategy> filteredStrategies = new ArrayList<Strategy>();
 		for(Meta meta : metaDao.findAll()){
@@ -98,10 +104,12 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 		return filteredStrategies;	
 	}
 
+	@Override
 	public void orderStrategiesByDisplayStrategy(List<Strategy> strategies){
 		Collections.sort(strategies, new StrategyComparatorOrderByDisplayStrategy());
 	}
 	
+	@Override
 	public void orderStrategiesByStrategy(List<Strategy> strategies){
 		Collections.sort(strategies, new StrategyComparatorOrderByStrategy());
 	}
@@ -119,6 +127,7 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 	    }
 	}
 	
+	@Override
 	public Strategy getStrategyByKey(String key){
 		Meta meta;
 		Strategy strategy = new Strategy();
@@ -136,6 +145,7 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 		return strategy;
 	}
 	
+	@Override
 	public WorkflowMeta saveStrategiesToWorkflowMeta(Workflow workflow, List<String> strategyKeyList, String strategyType)throws Exception{//save to WorkflowMeta
 	
 		String workflowMetaValue = "";
@@ -168,6 +178,7 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 		return workflowMeta;				
 	}
 	
+	@Override
 	public WorkflowMeta saveStrategyToWorkflowMeta(Workflow workflow, Strategy strategy){//save to WorkflowMeta
 				
 		WorkflowMeta workflowMeta = workflowMetaDao.getWorkflowMetaByKWorkflowId(strategy.getType(), workflow.getId());
@@ -184,6 +195,7 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 		return workflowMeta;
 	}
 
+	@Override
 	public List<Strategy> getThisWorkflowsStrategies(String strategyType, Workflow workflow){
 		List<Strategy> strategies = new ArrayList<Strategy>();
 		WorkflowMeta workflowMeta = workflowMetaDao.getWorkflowMetaByKWorkflowId(strategyType, workflow.getId());
@@ -201,6 +213,7 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 		return strategies;
 	}
 	
+	@Override
 	public JobDraftMeta saveStrategy(JobDraft jobDraft, Strategy strategy){ //save to JobdraftMeta
 		JobDraftMeta jobDraftMeta = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(strategy.getType(), jobDraft.getId());
 		jobDraftMeta.setK(strategy.getType());
@@ -210,6 +223,7 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 		return jobDraftMeta;
 	}
 	
+	@Override
 	public Strategy getThisJobDraftsStrategy(String strategyType, JobDraft jobDraft){	//get from JobdraftMeta
 		Strategy strategy = new Strategy();
 		JobDraftMeta jobDraftMeta = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(strategyType, jobDraft.getId());
@@ -219,8 +233,7 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 		return strategy;
 	}
 	
-	public List<Workflow> getActiveWorkflowsForStrategyOrderByWorkflowName(Strategy requestedStrategy){
-		
+	private List<Workflow> getActiveWorkflowsForStrategyOrDefaultsOrderByWorkflowName(Strategy requestedStrategy, boolean getDefaults){
 		if(requestedStrategy.getId()==null){//strategy is empty, so return empty list
 			return new ArrayList<Workflow>();
 		}
@@ -229,12 +242,14 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 		Set <Workflow> workflowsForTheRequestedStrategyAsSet = new HashSet<Workflow>();
 		for(Workflow workflow : activeWorkflows){
 			List<Strategy>  strategyiesForAWorkflow = this.getThisWorkflowsStrategies(requestedStrategy.getType(), workflow);
-			for(Strategy strategy : strategyiesForAWorkflow){
-				if(requestedStrategy.getId().intValue() == strategy.getId().intValue()){
+			for(Strategy strategy : strategyiesForAWorkflow)
+				if(requestedStrategy.getId().intValue() == strategy.getId().intValue())
 					workflowsForTheRequestedStrategyAsSet.add(workflow);
-				}
-			}
 		}		
+		if (getDefaults && workflowsForTheRequestedStrategyAsSet.isEmpty())
+			for (Workflow wf : workflowDao.findAll())
+				if (workflowService.getIsWorkflowDefault(wf))
+					workflowsForTheRequestedStrategyAsSet.add(wf);
 		//must put the set into a list, then order the list for display of the web by the workflow.name
 		List <Workflow> workflowsForTheRequestedStrategyAsList = new ArrayList<Workflow>(workflowsForTheRequestedStrategyAsSet);
 		class WorkflowComparatorOrderByName implements Comparator<Workflow> {
@@ -246,7 +261,18 @@ public class StrategyServiceImpl extends WaspMessageHandlingServiceImpl implemen
 		Collections.sort(workflowsForTheRequestedStrategyAsList, new WorkflowComparatorOrderByName());
 		return workflowsForTheRequestedStrategyAsList;
 	}
+	
+	@Override
+	public List<Workflow> getActiveWorkflowsForStrategyOrDefaultsOrderByWorkflowName(Strategy requestedStrategy){
+		return getActiveWorkflowsForStrategyOrDefaultsOrderByWorkflowName(requestedStrategy, true);
+	}
+	
+	@Override
+	public List<Workflow> getActiveWorkflowsForStrategyOrderByWorkflowName(Strategy requestedStrategy){
+		return getActiveWorkflowsForStrategyOrDefaultsOrderByWorkflowName(requestedStrategy, false);
+	}
 
+	@Override
 	public Strategy getThisJobsStrategy(String strategyType,  Job job){	//get from JobMeta
 		Strategy strategy = new Strategy();
 		JobMeta jobMeta = jobMetaDao.getJobMetaByKJobId(strategyType, job.getId());
