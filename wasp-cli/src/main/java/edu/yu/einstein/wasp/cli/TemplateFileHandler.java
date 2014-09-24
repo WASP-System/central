@@ -62,6 +62,7 @@ public class TemplateFileHandler {
 			throw new IOException("Unable to read file " + path.getFileName());
 		}
 		int lineCount = 0;
+		int headerElementCount = 0;
 		for (String line : lines){
 			line = line.trim();
 			if (line.startsWith("#") || line.startsWith("\"#"))
@@ -72,7 +73,7 @@ public class TemplateFileHandler {
 			data.add(new ArrayList<String>());
 			for (String element : line.split(",")){ // note: Trailing empty strings are not included in the resulting array.
 				if (element.isEmpty()){
-					if (lineCount <= 0)
+					if (lineCount <= 1)
 						throw new IOException("Neither header line or first line of data can have empty elements");
 					element = data.get(lineCount-1).get(elementCount); // value on previous line
 				}
@@ -80,7 +81,12 @@ public class TemplateFileHandler {
 					element = "";
 				data.get(lineCount).add(element);
 				elementCount++;
+				if (lineCount == 0)
+					headerElementCount++;
 			}
+			// the following is in case the current line element array is shorter than the header element array
+			for (int i=elementCount; i < headerElementCount; i++)
+				data.get(lineCount).add(data.get(lineCount-1).get(i)); // value on previous line
 			lineCount++;
 		}
 		return data;
