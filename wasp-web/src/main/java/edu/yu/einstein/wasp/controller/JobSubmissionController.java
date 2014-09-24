@@ -2178,9 +2178,19 @@ public class JobSubmissionController extends WaspController {
 		JobDraft jobDraft = jobDraftService.getJobDraftDao().getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
-		if (!setModelParametersForGenomeSelectionReturnIsRequired(jobDraft, m))
-			return nextPage(jobDraft);
+		boolean isAnalysisSelected = jobDraftService.getIsAnalysisSelected(jobDraft);
+		boolean isBuildSelectionRequired = setModelParametersForGenomeSelectionReturnIsRequired(jobDraft, m);
+		boolean noBuildButAnalysisSelected = false;
+		if (!isBuildSelectionRequired){
+			if (!isAnalysisSelected)
+				return nextPage(jobDraft);
+			else{
+				noBuildButAnalysisSelected = true;
+				jobDraftService.setIsAnalysisSelected(jobDraft, false);
+			}
+		}
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
+		m.put("noBuildButAnalysisSelected", noBuildButAnalysisSelected);
 		return "jobsubmit/genomes";
 	}
 	
@@ -2190,8 +2200,11 @@ public class JobSubmissionController extends WaspController {
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String selectGenomesPost(
 			@PathVariable("jobDraftId") Integer jobDraftId,
+			@RequestParam(value="noBuildButAnalysisSelected", required=true) Boolean isNoBuildButAnalysisSelected,
 			ModelMap m) {
 		JobDraft jobDraft = jobDraftService.getJobDraftDao().getJobDraftByJobDraftId(jobDraftId);
+		if (isNoBuildButAnalysisSelected)
+			return nextPage(jobDraft);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 		setModelParametersForGenomeSelectionReturnIsRequired(jobDraft, m);
