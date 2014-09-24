@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.macstwo.webpanels;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -365,34 +366,53 @@ public class MacstwoWebPanels {
 				
 				List<Action> actionList = new ArrayList<Action>();
 				
-				Set<GenomeBrowserProviding> plugins = new LinkedHashSet<>();
+				List<GenomeBrowserProviding> plugins = new ArrayList<>();
+				///System.out.println("at 2");
 				plugins.addAll(pluginRegistry.getPlugins(GenomeBrowserProviding.class));
+				///System.out.println("at 3 where number of plugins.size() is: " + plugins.size());
 				for(GenomeBrowserProviding plugin : plugins){
-					Action action = plugin.getAction(fileGroup);
+					///System.out.println("at 4 pluginName: " + plugin.getIName());
+					Action action = plugin.getAction(new ArrayList<FileGroup>(fileHandle.getFileGroup()).get(0));
+					///System.out.println("at 5");
 					if(action != null){
+						//System.out.println("at 6.1 Action is NOT NULL");
+						//System.out.println("at 6.2 fileHandle.getName() is " + fileHandle.getFileName());
+						//System.out.println("at 6.3 icon name: " + action.getIconClassName());
+						//System.out.println("at 6.4 callbackcontent: " + action.getCallbackContent());
 						actionList.add(action);
 					}
 				}
+				////System.out.println("at 7");
 				if(actionList.isEmpty()){
+					////System.out.println("at 8");
 					row.add("");
+					
 					row.add("");
 					row.add("true");//true means hide
 					row.add("");
 				}
 				else{
+					////System.out.println("at 9");
 					for(Action action : actionList){
+						////System.out.println("at 10 Action icon name: " + action.getIconClassName());
 						row.add(action.getCallbackContent());
+						////System.out.println("at 11 Action callbackcontent: " + action.getCallbackContent());
 						if(action.getIconClassName().contains("ucsc")){
+							////System.out.println("at 12");
 							row.add("ucsc");
 						}
 						else if(action.getIconClassName().contains("ensembl")){
+							////System.out.println("at 13");
 							row.add("ensembl");
 						}
+						////System.out.println("at 14");
 						row.add("false");
 						if(action.getIconClassName().contains("ucsc")){
+							////System.out.println("at 15");
 							row.add("UCSC Genome Browser");
 						}
 						else if(action.getIconClassName().contains("ensembl")){
+							////System.out.println("at 16");
 							row.add("ENSEMBL Genome Browser");
 						}
 					}
