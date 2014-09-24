@@ -2,19 +2,25 @@ package edu.yu.einstein.wasp.macstwo.webpanels;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.yu.einstein.wasp.interfacing.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.Software;
+import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
+import edu.yu.einstein.wasp.plugin.mps.genomebrowser.GenomeBrowserProviding;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
+import edu.yu.einstein.wasp.viewpanel.Action;
 import edu.yu.einstein.wasp.viewpanel.GridColumn;
 import edu.yu.einstein.wasp.viewpanel.GridContent;
 import edu.yu.einstein.wasp.viewpanel.GridDataField;
@@ -286,7 +292,7 @@ public class MacstwoWebPanels {
 	}
 	
 	//new organizational format: 9-2-14 and modified on 9-5-14
-	public static GridPanel getFilesByAnalysisPanel(List<FileGroup> macs2AnalysisFileGroupList, 
+	public static GridPanel getFilesByAnalysisPanel(WaspPluginRegistry pluginRegistry, List<FileGroup> macs2AnalysisFileGroupList, 
 												Map<FileGroup, Build> fileGroupBuildMap,
 												Map<FileGroup,List<FileHandle>> fileGroupFileHandleListMap, 
 												Map<FileHandle,String> fileHandleResolvedURLMap, 
@@ -353,18 +359,45 @@ public class MacstwoWebPanels {
 					row.add(fileHandle.getSizek().toString());
 				}else{row.add("");}
 				row.add(fileHandle.getMd5hash());
-				row.add(fileHandleResolvedURLMap.get(fileHandle));
-		
-				List<String> genomeBrowserIcon = addGenomeBrowserIcon(fileGroupBuildMap.get(fileGroup), fileHandle, fileHandleResolvedURLMap.get(fileHandle));
-				if(genomeBrowserIcon.isEmpty()){//not correct filetype for genome browser display
+				row.add(fileHandleResolvedURLMap.get(fileHandle));//for the download
+				
+				
+				
+				List<Action> actionList = new ArrayList<Action>();
+				
+				Set<GenomeBrowserProviding> plugins = new LinkedHashSet<>();
+				plugins.addAll(pluginRegistry.getPlugins(GenomeBrowserProviding.class));
+				for(GenomeBrowserProviding plugin : plugins){
+					Action action = plugin.getAction(fileGroup);
+					if(action != null){
+						actionList.add(action);
+					}
+				}
+				if(actionList.isEmpty()){
 					row.add("");
 					row.add("");
 					row.add("true");//true means hide
 					row.add("");
 				}
 				else{
-					row.addAll(genomeBrowserIcon);
-				}
+					for(Action action : actionList){
+						row.add(action.getCallbackContent());
+						if(action.getIconClassName().contains("ucsc")){
+							row.add("ucsc");
+						}
+						else if(action.getIconClassName().contains("ensembl")){
+							row.add("ensembl");
+						}
+						row.add("false");
+						if(action.getIconClassName().contains("ucsc")){
+							row.add("UCSC Genome Browser");
+						}
+						else if(action.getIconClassName().contains("ensembl")){
+							row.add("ENSEMBL Genome Browser");
+						}
+					}
+				}				
+				
 				content.addDataRow(row);//add the new row to the content
 			}			
 		}

@@ -22,6 +22,7 @@ import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.viewpanel.Action;
 
 public class UcscGenomeBrowserPlugin extends AbstractGenomeBrowserPlugin  {
 
@@ -54,9 +55,30 @@ public class UcscGenomeBrowserPlugin extends AbstractGenomeBrowserPlugin  {
 	public UcscGenomeBrowserPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
 		super(iName, waspSiteProperties, channel);
 	}
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void destroy() throws Exception {
+		// TODO Auto-generated method stub
+
+	}
+
+	public Action getAction(FileGroup fileGroup){
+		Action action = null;		
+		String link = getLink(fileGroup);
+		if(link!=null && !link.isEmpty()){
+			action = new Action();
+			action.setIconClassName(getIcon());
+			action.setCallbackContent(link);
+		}		
+		return action;
+	}
 	
-	public boolean isDisplayable(Integer fileGroupId){
-		FileGroup fg = fileService.getFileGroupById(fileGroupId);
+	private boolean isDisplayable(FileGroup fg){
 		if(fg.getId()==null){
 			return false;
 		}
@@ -75,19 +97,16 @@ public class UcscGenomeBrowserPlugin extends AbstractGenomeBrowserPlugin  {
 		}
 		return false;
 	}
-	public String getIcon(){
-		String icon = "ucsc";
-		return icon;
+	private String getIcon(){
+		return "icon-gb-ucsc";
 	}
-	@Override
-	public String getLink(Integer fileGroupId) {
-		// TODO Auto-generated method stub
+	
+	private String getLink(FileGroup fg) {
 		
-		if(!isDisplayable(fileGroupId)){
+		if(!isDisplayable(fg)){
 			return null;
 		}
 		
-		FileGroup fg = fileService.getFileGroupById(fileGroupId);		
 		FileHandle fh = new ArrayList<FileHandle>(fg.getFileHandles()).get(0);//OK?????				
 		String resolvedURL = "";
 		try{

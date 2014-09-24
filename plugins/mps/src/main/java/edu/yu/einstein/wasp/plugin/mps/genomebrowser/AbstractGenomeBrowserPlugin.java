@@ -41,7 +41,10 @@ public abstract class AbstractGenomeBrowserPlugin extends WaspPlugin implements 
 	
 	protected Build getBuild(FileGroup fg){
 
-		FileGroup parentFileGroup = fileService.isFileGroupCollection(fg)?fg.getParent():fg;
+		FileGroup parentFileGroup = fg.getParent();
+		if(parentFileGroup==null){
+			parentFileGroup = fg;
+		}
 		
 		Set<Build> buildSet = new HashSet<Build>();
 		
