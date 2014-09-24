@@ -2,19 +2,26 @@ package edu.yu.einstein.wasp.macstwo.webpanels;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.yu.einstein.wasp.interfacing.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.Software;
+import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
+import edu.yu.einstein.wasp.plugin.mps.genomebrowser.GenomeBrowserProviding;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
+import edu.yu.einstein.wasp.viewpanel.Action;
 import edu.yu.einstein.wasp.viewpanel.GridColumn;
 import edu.yu.einstein.wasp.viewpanel.GridContent;
 import edu.yu.einstein.wasp.viewpanel.GridDataField;
@@ -286,7 +293,7 @@ public class MacstwoWebPanels {
 	}
 	
 	//new organizational format: 9-2-14 and modified on 9-5-14
-	public static GridPanel getFilesByAnalysisPanel(List<FileGroup> macs2AnalysisFileGroupList, 
+	public static GridPanel getFilesByAnalysisPanel(WaspPluginRegistry pluginRegistry, List<FileGroup> macs2AnalysisFileGroupList, 
 												Map<FileGroup, Build> fileGroupBuildMap,
 												Map<FileGroup,List<FileHandle>> fileGroupFileHandleListMap, 
 												Map<FileHandle,String> fileHandleResolvedURLMap, 
@@ -353,18 +360,64 @@ public class MacstwoWebPanels {
 					row.add(fileHandle.getSizek().toString());
 				}else{row.add("");}
 				row.add(fileHandle.getMd5hash());
-				row.add(fileHandleResolvedURLMap.get(fileHandle));
-		
-				List<String> genomeBrowserIcon = addGenomeBrowserIcon(fileGroupBuildMap.get(fileGroup), fileHandle, fileHandleResolvedURLMap.get(fileHandle));
-				if(genomeBrowserIcon.isEmpty()){//not correct filetype for genome browser display
+				row.add(fileHandleResolvedURLMap.get(fileHandle));//for the download
+				
+				
+				
+				List<Action> actionList = new ArrayList<Action>();
+				
+				List<GenomeBrowserProviding> plugins = new ArrayList<>();
+				///System.out.println("at 2");
+				plugins.addAll(pluginRegistry.getPlugins(GenomeBrowserProviding.class));
+				///System.out.println("at 3 where number of plugins.size() is: " + plugins.size());
+				for(GenomeBrowserProviding plugin : plugins){
+					///System.out.println("at 4 pluginName: " + plugin.getIName());
+					Action action = plugin.getAction(new ArrayList<FileGroup>(fileHandle.getFileGroup()).get(0));
+					///System.out.println("at 5");
+					if(action != null){
+						//System.out.println("at 6.1 Action is NOT NULL");
+						//System.out.println("at 6.2 fileHandle.getName() is " + fileHandle.getFileName());
+						//System.out.println("at 6.3 icon name: " + action.getIconClassName());
+						//System.out.println("at 6.4 callbackcontent: " + action.getCallbackContent());
+						actionList.add(action);
+					}
+				}
+				////System.out.println("at 7");
+				if(actionList.isEmpty()){
+					////System.out.println("at 8");
 					row.add("");
+					
 					row.add("");
 					row.add("true");//true means hide
 					row.add("");
 				}
 				else{
-					row.addAll(genomeBrowserIcon);
-				}
+					////System.out.println("at 9");
+					for(Action action : actionList){
+						////System.out.println("at 10 Action icon name: " + action.getIconClassName());
+						row.add(action.getCallbackContent());
+						////System.out.println("at 11 Action callbackcontent: " + action.getCallbackContent());
+						if(action.getIconClassName().contains("ucsc")){
+							////System.out.println("at 12");
+							row.add("ucsc");
+						}
+						else if(action.getIconClassName().contains("ensembl")){
+							////System.out.println("at 13");
+							row.add("ensembl");
+						}
+						////System.out.println("at 14");
+						row.add("false");
+						if(action.getIconClassName().contains("ucsc")){
+							////System.out.println("at 15");
+							row.add("UCSC Genome Browser");
+						}
+						else if(action.getIconClassName().contains("ensembl")){
+							////System.out.println("at 16");
+							row.add("ENSEMBL Genome Browser");
+						}
+					}
+				}				
+				
 				content.addDataRow(row);//add the new row to the content
 			}			
 		}
