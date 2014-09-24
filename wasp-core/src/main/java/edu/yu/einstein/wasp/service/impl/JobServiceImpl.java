@@ -147,6 +147,8 @@ import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 @Service
 @Transactional("entityManager")
 public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements JobService {
+	
+	private final String ANALYSIS_SELECTED_META_KEY = "analysisSelected";
 
 	private JobDao	jobDao;
 	
@@ -2556,4 +2558,17 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		}
 		return replicatesListOfLists;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Boolean getIsAnalysisSelected(Job job){
+		JobMeta jm = jobMetaDao.getJobMetaByKJobId(ANALYSIS_SELECTED_META_KEY, job.getId());
+		logger.debug(ANALYSIS_SELECTED_META_KEY + "=" + jm);
+		if (jm != null && jm.getV() != null)
+			return Boolean.valueOf(jm.getV());
+		return null;
+	}
+	
 }
