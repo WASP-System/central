@@ -1093,6 +1093,8 @@ public class JobSubmissionController extends WaspController {
 		JobDraft jobDraft = jobDraftService.getJobDraftDao().getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
+		if (!jobDraftService.getIsAnalysisSelected(jobDraft))
+			return nextPage(jobDraft);
 		WorkflowResourceType wrt = workflowResourceTypeDao.getWorkflowResourceTypeByWorkflowIdResourceTypeId(jobDraft.getWorkflow().getId(), 
 				resourceTypeDao.getResourceTypeByIName(resourceTypeIName).getId());
 		if (wrt.getResourceTypeId() == null){
