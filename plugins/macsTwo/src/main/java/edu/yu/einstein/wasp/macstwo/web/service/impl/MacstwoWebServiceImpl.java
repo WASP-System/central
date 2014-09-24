@@ -31,6 +31,7 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Software;
+import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
@@ -55,7 +56,12 @@ public class MacstwoWebServiceImpl extends MacstwoServiceImpl implements Macstwo
 	@Autowired
 	private RunService runService;
 	@Autowired
+	protected WaspPluginRegistry pluginRegistry;
+	
+	/*
+	@Autowired
 	private FileType macs2AnalysisFileType;
+	*/
 	@Autowired
 	private SoftwareService softwareService;
 	@Autowired
@@ -197,7 +203,7 @@ public class MacstwoWebServiceImpl extends MacstwoServiceImpl implements Macstwo
 			panelTab.addPanel(librariesAndBamFilesUsedByAnalysisPanel);
 			Panel fripCalculationByAnalysisPanel = MacstwoWebPanels.getFripCalculationByAnalysisPanel(macs2AnalysisFileGroupList, fileGroupFripCalculationMap);
 			panelTab.addPanel(fripCalculationByAnalysisPanel);
-			Panel filesByAnalysisPanel = MacstwoWebPanels.getFilesByAnalysisPanel(macs2AnalysisFileGroupList, fileGroupBuildMap, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileGroupFripMap /*, fileHandelfileDescriptionShortNameMap*/);
+			Panel filesByAnalysisPanel = MacstwoWebPanels.getFilesByAnalysisPanel(pluginRegistry, macs2AnalysisFileGroupList, fileGroupBuildMap, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileGroupFripMap /*, fileHandelfileDescriptionShortNameMap*/);
 			panelTab.addPanel(filesByAnalysisPanel);
 			panelTabSet.add(panelTab);
 			

@@ -1,0 +1,11 @@
+.icon-gb-ucsc {
+	background-image: url(https://genome.ucsc.edu/favicon.ico) !important;
+}
+
+.icon-gb-ensembl {
+	background-image: url(http://static.ensembl.org/i/ensembl-favicon.png) !important;
+}
+
+.icon-gb-igv {
+	background-image: url(http://www.broadinstitute.org/favicon.ico) !important;
+}
