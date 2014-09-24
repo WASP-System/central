@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.integration.endpoints;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessagingException;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
@@ -18,6 +20,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
+import edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate;
 import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
@@ -26,6 +29,7 @@ import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.GenomeService;
+import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 
@@ -59,6 +63,9 @@ public class RunSuccessSplitter extends WaspAbstractMessageSplitter{
 	
 	@Autowired
 	private GenomeService genomeService;
+	
+	@Autowired
+	private JobService jobService;
 
 
 	private static final Logger logger = LoggerFactory.getLogger(RunSuccessSplitter.class);
@@ -66,8 +73,9 @@ public class RunSuccessSplitter extends WaspAbstractMessageSplitter{
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected List<Message<BatchJobLaunchContext>> splitMessage(Message<?> message) {
-		List<Message<BatchJobLaunchContext>> outputMessages = new ArrayList<Message<BatchJobLaunchContext>>();
+	@Transactional("entityManager")
+	protected List<Message<?>> splitMessage(Message<?> message) {
+		List<Message<?>> outputMessages = new ArrayList<Message<?>>();
 		if (isInDemoMode){
 			logger.warn("Jobs are not started when in demo mode");
 			return outputMessages;
@@ -83,10 +91,35 @@ public class RunSuccessSplitter extends WaspAbstractMessageSplitter{
 		}
 		Run run = runService.getRunDao().getRunByRunId(runStatusMessageTemplate.getRunId());
 		Set<SampleSource> cellLibraries = runService.getCellLibrariesOnSuccessfulRunCellsWithoutControls(run);
+		Set<Job> nonAnalyzedJobs = new HashSet<>();
 		for (SampleSource cellLibrary :  cellLibraries){
 			// send message to initiate job processing
 			Job job = sampleService.getJobOfLibraryOnCell(cellLibrary);
-			    
+			if (nonAnalyzedJobs.contains(job)){
+				logger.debug("Handling cellLibrary id=" + cellLibrary.getId() + 
+						". Not going to perform analysis for job id=" + job.getId() + " and already signalled completion of job. No message to send.");
+				continue; // already dealt with this job
+			}
+			if (!jobService.getIsAnalysisSelected(job)){
+				if (!jobService.isAnySampleCurrentlyBeingProcessed(job)){
+					logger.debug("Handling cellLibrary id=" + cellLibrary.getId() + 
+							". Not going to perform analysis for job id=" + job.getId() + " and no samples being processed. Signalling completion of job");
+					AnalysisStatusMessageTemplate analysisMessage = new AnalysisStatusMessageTemplate(job.getId());
+					analysisMessage.setTask(BatchJobTask.ANALYSIS_SKIP);
+					analysisMessage.setStatus(WaspStatus.COMPLETED);
+					try {
+						Message<WaspStatus> skipAnalysisMessage = analysisMessage.build();
+						logger.debug("preparing new message to send: " + skipAnalysisMessage);
+						outputMessages.add(skipAnalysisMessage);
+					} catch (WaspMessageBuildingException e) {
+						throw new MessagingException(e.getLocalizedMessage(), e);
+					}
+				} else 
+					logger.debug("Handling cellLibrary id=" + cellLibrary.getId() + 
+							". Not going to perform analysis and samples for job being processed. No message to send.");
+				nonAnalyzedJobs.add(job);
+				continue;
+			} 
 			Map<String, String> jobParameters = new HashMap<String, String>();
 			jobParameters.put(WaspJobParameters.CELL_LIBRARY_ID, cellLibrary.getId().toString());
 			jobParameters.put(WaspJobParameters.BATCH_JOB_TASK, BatchJobTask.ANALYSIS_LIBRARY_PREPROCESS);

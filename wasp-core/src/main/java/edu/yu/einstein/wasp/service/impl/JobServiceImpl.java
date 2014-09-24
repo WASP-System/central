@@ -2181,7 +2181,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				try{
 					if (sampleService.isCellSequencedSuccessfully(sampleService.getCell(cellLibrary))){
 						ExitStatus preProcessingStatus = sampleService.getCellLibraryPreprocessingStatus(cellLibrary);
-						if (!preProcessingStatus.isCompleted() && !preProcessingStatus.isFailed() && !preProcessingStatus.isTerminated()){
+						if (!preProcessingStatus.isCompleted() && !preProcessingStatus.isFailed() && !preProcessingStatus.isTerminated() && !preProcessingStatus.equals(ExitStatus.NOOP)){
 							logger.debug("job " + job.getId() + ": the library has been run and it's cell has passed QC but has not completed pre-processing yet - returning true");
 							return true; // the library has been run and passed QC but has not been pre-processed yet
 						} else if (sampleService.isCellLibraryAwaitingQC(cellLibrary)){

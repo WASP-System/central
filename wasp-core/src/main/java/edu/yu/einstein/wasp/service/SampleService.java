@@ -885,7 +885,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	  public void setCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException, MetadataException;
 	  
 	  /**
-	   * get cellLibrary pre-processing status
+	   * get cellLibrary pre-processing status (returns NOOP if analysis was not selected)
 	   * @param cellLibrary
 	   * @return boolean
 	   * @throws SampleTypeException
@@ -1027,6 +1027,12 @@ public interface SampleService extends WaspMessageHandlingService {
 	   */
 	  public List<Sample> getCellsForLibrary(Sample library, Job job) throws SampleTypeException;
 
+	  /**
+	   * Returns cell library aggregation analysis status (returns NOOP if analysis was not selected)
+	   * @param cellLibrary
+	   * @return
+	   * @throws SampleTypeException
+	   */
 	public ExitStatus getCellLibraryAggregationAnalysisStatus(SampleSource cellLibrary) throws SampleTypeException;
 	
 	/**
