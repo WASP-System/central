@@ -52,7 +52,7 @@ public class WaspGenericDnaSeqPlugin extends WaspPlugin implements ClientMessage
 
 	@Override
 	public Hyperlink getDescriptionPageHyperlink(){
-		return new Hyperlink("waspGenericDnaSeq.hyperlink.label", "/wasp-genericDnaSeq/description.do");
+		return new Hyperlink("waspGenericDnaSeq.hyperlink.label", "/genericDnaSeq/displayDescription.do");
 	}
 
 
