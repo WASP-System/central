@@ -22,5 +22,7 @@
 	<import resource="vcftools-plugin-context.xml"/>
 	<import resource="snpeff-plugin-context.xml"/>
 	<import resource="samtools-plugin-context.xml"/>
+	<import resource="ucscGenomeBrowser-plugin-context.xml"/>
+	<import resource="ensemblGenomeBrowser-plugin-context.xml"/>
 
 </beans>
