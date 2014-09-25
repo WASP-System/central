@@ -39,7 +39,7 @@ import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.analysis.WaspJobSoftwareLaunchTasklet;
 import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
-import edu.yu.einstein.wasp.integration.endpoints.RunSuccessSplitter;
+import edu.yu.einstein.wasp.integration.endpoints.RunSuccessServiceActivator;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate;
@@ -78,7 +78,7 @@ public class PostRunAnalysisJobLaunchTests extends BatchDatabaseIntegrationTest 
 	@Mock private WaspPluginRegistry mockWaspPluginRegistry;
 	
 	@Autowired
-	private RunSuccessSplitter runSuccessSplitter;
+	private RunSuccessServiceActivator runSuccessSplitter;
 	
 	@Autowired
 	private WaspJobSoftwareLaunchTasklet waspJobSoftwareLaunchTasklet;

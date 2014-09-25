@@ -10,6 +10,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessagingException;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,9 +39,12 @@ import edu.yu.einstein.wasp.service.SampleService;
  * @author asmclellan
  *
  */
-public class RunSuccessSplitter extends WaspAbstractMessageSplitter{
+public class RunSuccessServiceActivator {
 	
 	private WaspPluginRegistry waspPluginRegistry;
+	
+	@Value(value="${wasp.mode.isDemo:false}")
+	protected boolean isInDemoMode;
 	
 	@Autowired
 	public void setWaspPluginRegistry(WaspPluginRegistry waspPluginRegistry) {
@@ -68,13 +72,12 @@ public class RunSuccessSplitter extends WaspAbstractMessageSplitter{
 	private JobService jobService;
 
 
-	private static final Logger logger = LoggerFactory.getLogger(RunSuccessSplitter.class);
+	private static final Logger logger = LoggerFactory.getLogger(RunSuccessServiceActivator.class);
 
 
 	@SuppressWarnings("unchecked")
-	@Override
 	@Transactional("entityManager")
-	protected List<Message<?>> splitMessage(Message<?> message) {
+	public  List<Message<?>> process(Message<?> message) {
 		List<Message<?>> outputMessages = new ArrayList<Message<?>>();
 		if (isInDemoMode){
 			logger.warn("Jobs are not started when in demo mode");
@@ -91,20 +94,21 @@ public class RunSuccessSplitter extends WaspAbstractMessageSplitter{
 		}
 		Run run = runService.getRunDao().getRunByRunId(runStatusMessageTemplate.getRunId());
 		Set<SampleSource> cellLibraries = runService.getCellLibrariesOnSuccessfulRunCellsWithoutControls(run);
-		Set<Job> nonAnalyzedJobs = new HashSet<>();
+		Set<Integer> nonAnalyzedJobIds = new HashSet<>();
 		for (SampleSource cellLibrary :  cellLibraries){
 			// send message to initiate job processing
 			Job job = sampleService.getJobOfLibraryOnCell(cellLibrary);
-			if (nonAnalyzedJobs.contains(job)){
+			Integer jobId = job.getId();
+			if (nonAnalyzedJobIds.contains(jobId)){
 				logger.debug("Handling cellLibrary id=" + cellLibrary.getId() + 
-						". Not going to perform analysis for job id=" + job.getId() + " and already signalled completion of job. No message to send.");
+						". Not going to perform analysis for job id=" + jobId + " and already signalled completion of job. No message to send.");
 				continue; // already dealt with this job
 			}
 			if (!jobService.getIsAnalysisSelected(job)){
 				if (!jobService.isAnySampleCurrentlyBeingProcessed(job)){
 					logger.debug("Handling cellLibrary id=" + cellLibrary.getId() + 
-							". Not going to perform analysis for job id=" + job.getId() + " and no samples being processed. Signalling completion of job");
-					AnalysisStatusMessageTemplate analysisMessage = new AnalysisStatusMessageTemplate(job.getId());
+							". Not going to perform analysis for job id=" + jobId + " and no samples being processed. Signalling completion of job");
+					AnalysisStatusMessageTemplate analysisMessage = new AnalysisStatusMessageTemplate(jobId);
 					analysisMessage.setTask(BatchJobTask.ANALYSIS_SKIP);
 					analysisMessage.setStatus(WaspStatus.COMPLETED);
 					try {
@@ -117,7 +121,7 @@ public class RunSuccessSplitter extends WaspAbstractMessageSplitter{
 				} else 
 					logger.debug("Handling cellLibrary id=" + cellLibrary.getId() + 
 							". Not going to perform analysis and samples for job being processed. No message to send.");
-				nonAnalyzedJobs.add(job);
+				nonAnalyzedJobIds.add(jobId);
 				continue;
 			} 
 			Map<String, String> jobParameters = new HashMap<String, String>();

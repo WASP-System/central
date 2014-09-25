@@ -13,7 +13,6 @@ import org.springframework.messaging.MessagingException;
 
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
-import edu.yu.einstein.wasp.integration.endpoints.RunSuccessSplitter;
 import edu.yu.einstein.wasp.integration.endpoints.WaspAbstractMessageSplitter;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
@@ -38,7 +37,7 @@ public class BabrahamFastqMessageSplitter extends WaspAbstractMessageSplitter{
 	@Autowired
 	private FileService fileService;
 	
-	private static final Logger logger = LoggerFactory.getLogger(RunSuccessSplitter.class);
+	private static final Logger logger = LoggerFactory.getLogger(BabrahamFastqMessageSplitter.class);
 	
 	@SuppressWarnings("unchecked")
 	@Override
