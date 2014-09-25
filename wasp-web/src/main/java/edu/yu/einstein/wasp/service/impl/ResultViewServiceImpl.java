@@ -182,7 +182,7 @@ public class ResultViewServiceImpl extends WaspServiceImpl implements ResultView
 					
 					List<Action> actionrow = new ArrayList<Action>();
 					Action dlAction = new Action();
-					switch ( 0 ) {//(int) (Math.random()*3) ) {
+					switch ( 1 ) {//(int) (Math.random()*3) ) {
 						case 0:	dlAction.setIconClassName("icon-download");
 								dlAction.setTooltip("Download");
 								dlAction.setCallbackFunctionType(CallbackFunctionType.DOWNLOAD);
@@ -191,6 +191,8 @@ public class ResultViewServiceImpl extends WaspServiceImpl implements ResultView
 						
 						case 1:	dlAction.setIconClassName("icon-gb-ucsc");
 								dlAction.setTooltip("View in ucsc");
+								dlAction.setCallbackFunctionType(CallbackFunctionType.OPEN_IN_NEW_BROWSER_WIN);
+								dlAction.setCallbackContent("dllink");
 								break;
 						
 						case 2:	dlAction.setIconClassName("icon-gb-ensembl");
