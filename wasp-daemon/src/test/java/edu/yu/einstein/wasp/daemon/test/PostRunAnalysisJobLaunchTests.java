@@ -241,7 +241,8 @@ public class PostRunAnalysisJobLaunchTests extends BatchDatabaseIntegrationTest 
 			Thread.sleep(500);
 		} catch (InterruptedException e){}; // wait for message receiving and job completion events
 		Assert.assertEquals(messages.size(), 1);
-		Assert.assertTrue(BatchJobLaunchMessageTemplate.isMessageOfCorrectType(messages.get(0)));
+		// expect AnalysisStatusMessageTemplate as no analysis being performed so quitting job
+		Assert.assertTrue(AnalysisStatusMessageTemplate.isMessageOfCorrectType(messages.get(0)));
 					
 	}
 
