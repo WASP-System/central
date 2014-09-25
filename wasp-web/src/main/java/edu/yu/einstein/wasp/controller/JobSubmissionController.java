@@ -4,8 +4,6 @@ package edu.yu.einstein.wasp.controller;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -261,6 +259,9 @@ public class JobSubmissionController extends WaspController {
 	
 	@Value("${wasp.primaryfilehost}")
 	protected String fileHost;
+	
+	@Value("${wasp.analysis.perLibraryFee:0}")
+	private Float perLibraryAnalysisFee;
 
 
 	protected final MetaHelperWebapp getMetaHelperWebapp() {
@@ -486,7 +487,9 @@ public class JobSubmissionController extends WaspController {
 		//As I was unable to embed a fmt:message within a wasp:tooltip on the create.jsp page, I was forced to use this this alternative solution of creating two new variables within this controller. 
 		m.put("libraryStrategyTooltip", messageService.getMessage("jobsubmitCreate.libraryStrategyTooltip.label"));
 		m.put("assayWorkflowTooltip", messageService.getMessage("jobsubmitCreate.assayWorkflowTooltip.label"));
-		m.put("selectAnalysisTooltip", messageService.getMessage("jobsubmitCreate.selectAnalysisTooltip.label"));
+		Object[] args = {perLibraryAnalysisFee};
+		m.put("selectAnalysisTooltip", messageService.getMessage("jobsubmitCreate.selectAnalysisTooltip.label", args));
+		m.put("perLibraryAnalysisFee", perLibraryAnalysisFee);
 		return "jobsubmit/create";
 	}
 

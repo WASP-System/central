@@ -199,8 +199,8 @@ public class JobController extends WaspController {
 	@Autowired
 	private QuoteAndInvoiceService quoteAndInvoiceService;
 	
-	@Value("${wasp.analysis.perLibraryFee:50}")
-	private Float perLibraryFee;
+	@Value("${wasp.analysis.perLibraryFee:0}")
+	private Float perLibraryAnalysisFee;
 	
 	// list of baserolenames (da-department admin, lu- labuser ...)
 	// see role table
@@ -1144,7 +1144,7 @@ public class JobController extends WaspController {
 	 				numberOfLibrariesExpectedToBeConstructed++;
 	 			}
 	 			LibraryCost libraryCost = null;
-	 			Float analysisCost = jobService.getIsAnalysisSelected(job) ? perLibraryFee : 0.0f;
+	 			Float analysisCost = jobService.getIsAnalysisSelected(job) ? perLibraryAnalysisFee : 0.0f;
 	 			if(reasonForNoLibraryCost.isEmpty()){
 	 				libraryCost = new LibraryCost(s.getId(), s.getName(), s.getSampleType().getName(), reasonForNoLibraryCost, null, analysisCost, "");
 	 			}
