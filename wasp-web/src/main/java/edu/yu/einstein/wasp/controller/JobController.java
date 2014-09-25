@@ -844,7 +844,7 @@ public class JobController extends WaspController {
 			Strategy strategy = jobService.getStrategy(StrategyType.LIBRARY_STRATEGY, job);
 			m.addAttribute("strategy", strategy);	 
 		}catch(Exception e){ logger.warn("Job Strategy unexpectedly not found"); }
-		m.addAttribute("isAnalysisRequested", Boolean.toString(jobService.getIsAnalysisSelected(job)));
+		m.addAttribute("isAnalysisRequested", jobService.getIsAnalysisSelected(job) ? "Yes" : "No");
 		return "job/home/basic";
 	}
   
