@@ -23,6 +23,8 @@ import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.ResultViewService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.viewpanel.Action;
+import edu.yu.einstein.wasp.viewpanel.Action.CallbackFunctionType;
 import edu.yu.einstein.wasp.viewpanel.GridColumn;
 import edu.yu.einstein.wasp.viewpanel.GridContent;
 import edu.yu.einstein.wasp.viewpanel.GridDataField;
@@ -122,11 +124,11 @@ public class ResultViewServiceImpl extends WaspServiceImpl implements ResultView
 		fileGridContent.addDataFields(new GridDataField("fname", "string"));
 		fileGridContent.addDataFields(new GridDataField("md5", "string"));
 		fileGridContent.addDataFields(new GridDataField("size", "string"));
-		fileGridContent.addDataFields(new GridDataField("link", "string"));
-		fileGridContent.addDataFields(new GridDataField("gblink", "string"));
-		fileGridContent.addDataFields(new GridDataField("gbtype", "string"));
-		fileGridContent.addDataFields(new GridDataField("gbttp", "string"));
-		fileGridContent.addDataFields(new GridDataField("hidegb", "boolean"));
+		fileGridContent.addDataFields(new GridDataField("dllink", "string"));
+//		fileGridContent.addDataFields(new GridDataField("gblink", "string"));
+//		fileGridContent.addDataFields(new GridDataField("gbtype", "string"));
+//		fileGridContent.addDataFields(new GridDataField("gbttp", "string"));
+//		fileGridContent.addDataFields(new GridDataField("hidegb", "boolean"));
 		
 		try {
 			for (FileGroup fg : fgSet) {
@@ -143,7 +145,7 @@ public class ResultViewServiceImpl extends WaspServiceImpl implements ResultView
 					filerow.add(fh.getSizek() != null ? fh.getSizek().toString() : "");
 					hl = new Hyperlink("Download", fileUrlResolver.getURL(fh).toString());
 					filerow.add(hl.getTargetLink());
-					
+/*					
 					filerow.add(hl.getTargetLink());
 //					filerow.add("ucsc");
 //					filerow.add("View in UCSC Genome Browser");
@@ -175,10 +177,38 @@ public class ResultViewServiceImpl extends WaspServiceImpl implements ResultView
 						
 						default: break;
 					}
-					
+*/					
 					fileGridContent.addDataRow(filerow);
+					
+					List<Action> actionrow = new ArrayList<Action>();
+					Action dlAction = new Action();
+					switch ( 0 ) {//(int) (Math.random()*3) ) {
+						case 0:	dlAction.setIconClassName("icon-download");
+								dlAction.setTooltip("Download");
+								dlAction.setCallbackFunctionType(CallbackFunctionType.DOWNLOAD);
+								dlAction.setCallbackContent("dllink");
+								break;
+						
+						case 1:	dlAction.setIconClassName("icon-gb-ucsc");
+								dlAction.setTooltip("View in ucsc");
+								break;
+						
+						case 2:	dlAction.setIconClassName("icon-gb-ensembl");
+								dlAction.setTooltip("View in ensemble");
+								break;
+				
+						default: break;
+					}
+					actionrow.add(dlAction);
+					
+					fileGridContent.addActions(actionrow);
 				}
 			}
+			
+			// after all rows added to the content, call following method to add missing actions as hidden
+			// actions to the grid
+			fileGridContent.appendActionsToData();
+			
 		} catch (GridUnresolvableHostException e) {
 			throw new WaspException(e);
 		}

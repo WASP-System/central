@@ -446,29 +446,31 @@ function createGridPanel(panel) {
 		data: panel.content.data,
 		columns: panel.content.columns,
 
+		actionset: panel.content.actionReferenceSet,
+
 		grouping: panel.grouping,
 		groupfield: panel.groupField,
 		
-		dlcol: panel.hasDownload,
-		dllinkfld: panel.downloadLinkField,
-		dlcoltip: panel.downloadTooltip,
-		hidedl: panel.hideDownloadField,
-		
-		dlselect: panel.allowSelectDownload,
-		dlbtntxt: panel.selectDownloadText,
-		dlbtnalign: panel.selectDownloadAlign,
-		
-		grpdl: panel.allowGroupDownload,
-		grpdltip: panel.groupDownloadTooltip,
-		grpdlalign: panel.groupDownloadAlign,
-		
-		statusfld: panel.statusField,
+		statusfld: panel.statusField//,
 
-		gbcol: panel.hasGbLink,
-		gblink: panel.gbLinkField,
-		gbtype: panel.gbTypeField,
-		gbttp: panel.gbTtpField,
-		hidegb: panel.hideGbField
+//		dlcol: panel.hasDownload,
+//		dllinkfld: panel.downloadLinkField,
+//		dlcoltip: panel.downloadTooltip,
+//		hidedl: panel.hideDownloadField,
+//		
+//		dlselect: panel.allowSelectDownload,
+//		dlbtntxt: panel.selectDownloadText,
+//		dlbtnalign: panel.selectDownloadAlign,
+//		
+//		grpdl: panel.allowGroupDownload,
+//		grpdltip: panel.groupDownloadTooltip,
+//		grpdlalign: panel.groupDownloadAlign,
+//		
+//		gbcol: panel.hasGbLink,
+//		gblink: panel.gbLinkField,
+//		gbtype: panel.gbTypeField,
+//		gbttp: panel.gbTtpField,
+//		hidegb: panel.hideGbField
 	});
 
 	return gridPanel;
