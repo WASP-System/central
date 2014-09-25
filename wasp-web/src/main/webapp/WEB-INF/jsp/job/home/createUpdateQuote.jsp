@@ -141,7 +141,7 @@
 								</c:choose>											
 							</td>
 							<td class="DataTD"  style="text-align:center; white-space:nowrap;">				
-								<c:out value="${localCurrencyIcon}" /><input class="settableLibraryCost" style="text-align:right;" name="submittedSampleAnalysisCost"  type="text" maxlength="4" size="4" value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${libraryCost.getAnalysisCost()}" />"/>.00																
+								<c:out value="${localCurrencyIcon}" /><input style="text-align:right;" name="submittedSampleAnalysisCost"  type="text" maxlength="4" size="4" value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${libraryCost.getAnalysisCost()}" />"/>.00																
 							</td>
 						</tr>
 					</c:forEach>

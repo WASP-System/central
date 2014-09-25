@@ -1302,7 +1302,7 @@ public class JobController extends WaspController {
 		
 		//b. here deal with unexpected submitted sample errors (sample not in database; sample not in job, both very unexpected)
 		String param = "submittedSampleId";
-		String [] submittedSampleIdAsStringArray = request.getParameterValues(param);
+		String [] submittedSampleIdAsStringArray = request.getParameterValues("submittedSampleId");
 		param = "submittedSampleCost";
 		String [] submittedSampleCostAsStringArray = request.getParameterValues(param);
 		param = "submittedSampleAnalysisCost";
@@ -1422,10 +1422,26 @@ public class JobController extends WaspController {
 			String submittedSampleCostAsString = submittedSampleCostAsStringArray[counter];
 			String submittedSampleAnalysisCostAsString = submittedSampleAnalysisCostAsStringArray[counter];
 			String reasonForNoLibraryCost = submittedSampleReasonForNoLibraryCostArray[counter];
-			Float analysisCost = jobService.getIsAnalysisSelected(job) ? perLibraryFee : 0.0f;
+			Float libAnalysisCost = 0.0f;
+			if(submittedSampleAnalysisCostAsString.isEmpty()){
+				//errors.add("No library cost provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero");	
+				errors.add(messageService.getMessage("jobConstructQuote.noLibraryAnalysisCostProvidedForSample.error") + " "  + submittedObject.getName() + "; " + messageService.getMessage("jobConstructQuote.wholeNumbersOnly.error")+"; "+messageService.getMessage("jobConstructQuote.ifNoChargeEnterZero.error"));	
+			}
+			else if(submittedSampleAnalysisCostAsString.matches("\\D")){//any character in string that is not a digit 
+				//errors.add("Invalid library cost ("+ submittedSampleAnalysisCostAsString + ") provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero");
+				errors.add(messageService.getMessage("jobConstructQuote.invalidLibraryAnalysisCost.error")+ " ("+ submittedSampleAnalysisCostAsString + ") "+ messageService.getMessage("jobConstructQuote.forSample.error") + " " + submittedObject.getName() + "; " + messageService.getMessage("jobConstructQuote.wholeNumbersOnly.error")+"; "+messageService.getMessage("jobConstructQuote.ifNoChargeEnterZero.error"));	
+			}
+			else{				
+				try{	
+					libAnalysisCost = new Float(submittedSampleAnalysisCostAsString);
+				}catch(Exception e){
+					//errors.add("Invalid library cost ("+ submittedSampleCostAsString + ") provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero");
+					errors.add(messageService.getMessage("jobConstructQuote.invalidLibraryAnalysisCost.error")+ " ("+ submittedSampleCostAsString + ") "+ messageService.getMessage("jobConstructQuote.forSample.error") + " " + submittedObject.getName() + "; " + messageService.getMessage("jobConstructQuote.wholeNumbersOnly.error")+"; "+messageService.getMessage("jobConstructQuote.ifNoChargeEnterZero.error"));	
+				}
+			}
 			if(!reasonForNoLibraryCost.trim().isEmpty()){//there should be no cost here; such as sample withdrawn or sample is a library (n/a)
 				if(errors.isEmpty()){
-					libraryCosts.add(new LibraryCost(submittedObject.getId(), submittedSampleNameArray[counter], submittedSampleMaterialArray[counter], reasonForNoLibraryCost, 0.0f, analysisCost  ));
+					libraryCosts.add(new LibraryCost(submittedObject.getId(), submittedSampleNameArray[counter], submittedSampleMaterialArray[counter], reasonForNoLibraryCost, 0.0f, libAnalysisCost  ));
 				}
 			}
 			else if(reasonForNoLibraryCost.isEmpty()){
@@ -1439,18 +1455,9 @@ public class JobController extends WaspController {
 					//errors.add("Invalid library cost ("+ submittedSampleCostAsString + ") provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero");
 					errors.add(messageService.getMessage("jobConstructQuote.invalidLibraryCost.error")+ " ("+ submittedSampleCostAsString + ") "+ messageService.getMessage("jobConstructQuote.forSample.error") + " " + submittedObject.getName() + "; " + messageService.getMessage("jobConstructQuote.wholeNumbersOnly.error")+"; "+messageService.getMessage("jobConstructQuote.ifNoChargeEnterZero.error"));	
 				}
-				else if(submittedSampleAnalysisCostAsString.isEmpty()){
-					//errors.add("No library cost provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero");	
-					errors.add(messageService.getMessage("jobConstructQuote.noLibraryAnalysisCostProvidedForSample.error") + " "  + submittedObject.getName() + "; " + messageService.getMessage("jobConstructQuote.wholeNumbersOnly.error")+"; "+messageService.getMessage("jobConstructQuote.ifNoChargeEnterZero.error"));	
-				}
-				else if(submittedSampleAnalysisCostAsString.matches("\\D")){//any character in string that is not a digit 
-					//errors.add("Invalid library cost ("+ submittedSampleAnalysisCostAsString + ") provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero");
-					errors.add(messageService.getMessage("jobConstructQuote.invalidLibraryAnalysisCost.error")+ " ("+ submittedSampleAnalysisCostAsString + ") "+ messageService.getMessage("jobConstructQuote.forSample.error") + " " + submittedObject.getName() + "; " + messageService.getMessage("jobConstructQuote.wholeNumbersOnly.error")+"; "+messageService.getMessage("jobConstructQuote.ifNoChargeEnterZero.error"));	
-				}
 				else{				
 					try{	
 						Float libCost = new Float(submittedSampleCostAsString);
-						Float libAnalysisCost = new Float(submittedSampleAnalysisCostAsString);
 						if(errors.isEmpty()){
 							libraryCosts.add(new LibraryCost(submittedObject.getId(), submittedSampleNameArray[counter], submittedSampleMaterialArray[counter], reasonForNoLibraryCost, libCost, libAnalysisCost ));
 						}
