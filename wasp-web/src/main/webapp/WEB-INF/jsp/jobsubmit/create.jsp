@@ -84,7 +84,7 @@
 		    <td class="DataTD">
 		          <select class="FormElement ui-widget-content ui-corner-all" id="isAnalysisSelected" name="isAnalysisSelected">
 		          	<option value="false"  <c:if test="${!empty isAnalysisSelected && isAnalysisSelected == false}"> SELECTED</c:if>   ><fmt:message key="jobDraft.analysisSelectedFalse.label"/></option>
-		        	<option value="true"  <c:if test="${empty isAnalysisSelected || isAnalysisSelected == true}"> SELECTED</c:if>   ><fmt:message key="jobDraft.analysisSelectedTrue.label"/></option>
+		        	<option value="true"  <c:if test="${empty isAnalysisSelected || isAnalysisSelected == true}"> SELECTED</c:if>   ><fmt:message key="jobDraft.analysisSelectedTrue.label" ><fmt:param value="${perLibraryAnalysisFee}"/></fmt:message></option>
 		    	 </select>
 		    	 <wasp:tooltip value="${selectAnalysisTooltip}" />
 		    </td>
