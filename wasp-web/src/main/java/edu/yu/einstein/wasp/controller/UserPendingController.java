@@ -790,7 +790,9 @@ public class UserPendingController extends WaspController {
 		if (isInternal != -1){
 			Map<String, Integer> departmentQueryMap = new HashMap<String, Integer>();
 			departmentQueryMap.put("isInternal",  isInternal );
-			m.addAttribute("department", departmentDao.findByMap(departmentQueryMap));
+			List<String>  departmentAttributeList = new ArrayList<String>();
+			departmentAttributeList.add("name");
+			m.addAttribute("departments", departmentDao.findByMapOrderBy(departmentQueryMap, departmentAttributeList, "ASC"));
 		}
 	}
 	
