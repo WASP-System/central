@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -183,29 +184,33 @@ public class ResultViewServiceImpl extends WaspServiceImpl implements ResultView
 					fileGridContent.addDataRow(filerow);
 					
 					List<Action> actionrow = new ArrayList<Action>();
-					Action dlAction = new Action();
-					switch ( 2 ) {//(int) (Math.random()*3) ) {
-						case 0:	dlAction.setIconClassName("icon-download");
-								dlAction.setTooltip("Download");
-								dlAction.setCallbackFunctionType(CallbackFunctionType.DOWNLOAD);
-								dlAction.setCallbackContent("dllink");
-								break;
-						
-						case 1:	dlAction.setIconClassName("icon-gb-ucsc");
-								dlAction.setTooltip("View in ucsc");
-								dlAction.setCallbackFunctionType(CallbackFunctionType.OPEN_IN_NEW_BROWSER_WIN);
-								dlAction.setCallbackContent("dllink");
-								break;
-						
-						case 2:	dlAction.setIconClassName("icon-gb-ensembl");
-								dlAction.setTooltip("Viewer by file type");
-								dlAction.setCallbackFunctionType(CallbackFunctionType.OPEN_IN_CSS_WIN);
-								dlAction.setCallbackContent("fgid");
-								break;
-				
-						default: break;
+					int num = (int) (Math.random()*3);
+					LoggerFactory.getLogger(this.getClass()).trace("num=" + num);
+					for (int i=0;i<=num;i++) {
+						Action dlAction = new Action();
+						switch ( i ) {
+							case 0:	dlAction.setIconClassName("icon-download");
+									dlAction.setTooltip("Download");
+									dlAction.setCallbackFunctionType(CallbackFunctionType.DOWNLOAD);
+									dlAction.setCallbackContent("dllink");
+									break;
+							
+							case 1:	dlAction.setIconClassName("icon-new-window");
+									dlAction.setTooltip("View in new window");
+									dlAction.setCallbackFunctionType(CallbackFunctionType.OPEN_IN_NEW_BROWSER_WIN);
+									dlAction.setCallbackContent("dllink");
+									break;
+							
+							case 2:	dlAction.setIconClassName("icon-view-file");
+									dlAction.setTooltip("Viewer by file type");
+									dlAction.setCallbackFunctionType(CallbackFunctionType.OPEN_IN_CSS_WIN);
+									dlAction.setCallbackContent("fgid");
+									break;
+					
+							default: break;
+						}
+						actionrow.add(dlAction);
 					}
-					actionrow.add(dlAction);
 					
 					fileGridContent.addActions(actionrow);
 				}

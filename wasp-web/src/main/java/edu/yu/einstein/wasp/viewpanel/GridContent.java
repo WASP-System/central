@@ -123,7 +123,7 @@ public class GridContent extends Content implements Serializable {
 					this.addDataFields(new GridDataField("tip"+Integer.toString(a.getIcnHashCode()).replaceAll("-", "_"), "string"));
 //					this.addDataFields(new GridDataField(Integer.toString(a.getIcnHashCode())+".cb", "string"));
 					this.addDataFields(new GridDataField("hide"+Integer.toString(a.getIcnHashCode()).replaceAll("-", "_"), "boolean"));
-					 LoggerFactory.getLogger(this.getClass()).trace("hashcode("+a.getIconClassName()+")=" + a.getIcnHashCode());
+					
 				}
 		
 		// then add missing actions to rows such that each row contains an identical set of action classes
