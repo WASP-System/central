@@ -112,12 +112,16 @@ public interface JobDraftService extends WaspService {
 	 */
 	public void setSampleDraftPairsByJobDraft(JobDraft jobDraft, Set<Map<SampleDraft, SampleDraft>> sampleDraftPairSet);
 
-	JobDraftDao getJobDraftDao();
+	public JobDraftDao getJobDraftDao();
 
-	JobDraftMetaDao getJobDraftMetaDao();
+	public JobDraftMetaDao getJobDraftMetaDao();
 	
 	public List<List<SampleDraft>> getReplicateSets(JobDraft jobDraft);
 	public void saveReplicateSets(JobDraft jobDraft, SampleDraft sampleDraft, Integer setNumber);
 	public void removeSampleDraftFromReplicates(JobDraft jobDraft, SampleDraft sampleDraft);
 	public void removeSampleDraftFromSamplePairsByJobDraft(JobDraft jobDraft, SampleDraft sampleDraft);
+
+	public void setIsAnalysisSelected(JobDraft jobDraft, boolean isAnalysisSelected);
+
+	public Boolean getIsAnalysisSelected(JobDraft jobDraft);
 }

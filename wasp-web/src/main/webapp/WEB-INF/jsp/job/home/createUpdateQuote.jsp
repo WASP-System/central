@@ -53,37 +53,6 @@
 		        	$( this ).dialog( "close" );
 		        }
 		      });	
-		    /*	not used, but use find for discountReason and its use in an anchor, below
-			$(function() {
-			    var availableTags = [
-			      "ActionScript",
-			      "AppleScript",
-			      "Asp",
-			      "BASIC",
-			      "C",
-			      "C++",
-			      "Clojure",
-			      "COBOL",
-			      "ColdFusion",
-			      "Erlang",
-			      "Fortran",
-			      "Groovy",
-			      "Haskell",
-			      "Java",
-			      "JavaScript",
-			      "Lisp",
-			      "Perl",
-			      "PHP",
-			      "Python",
-			      "Ruby",
-			      "Scala",
-			      "Scheme"
-			    ];
-			    $( "#discountReason" ).autocomplete({
-			      source: availableTags
-			    });
-			  });
-			*/
 		});
 	})(jQuery);
 </script>
@@ -129,7 +98,7 @@
 							
 				<table class="data" style="margin: 0px 0px">
 					<tr class="FormData">
-						<td colspan="4" class="label-centered" style="background-color:#FAF2D6">
+						<td colspan="5" class="label-centered" style="background-color:#FAF2D6">
 							<a href="javascript:void(0);" onclick='$( "#dialog-form" ).dialog( "open" );' ><fmt:message key="jobHomeCreateUpdateQuote.clickHereToApplyOneCostToAllLibraryConstructions.label" /></a>
 						</td>
 					</tr>
@@ -138,6 +107,7 @@
 						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCreateUpdateQuote.submittedSample.label" /></td>
 						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCreateUpdateQuote.material.label" /></td>
 						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCreateUpdateQuote.libraryCost.label" /><sup>*</sup></td>
+						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCreateUpdateQuote.analysisCost.label" /><sup>*</sup></td>
 					</tr>
 					<c:forEach items="${mpsQuote.getLibraryCosts()}" var="libraryCost" varStatus="libraryCostStatus">
 						<input type='hidden' name="submittedSampleId" value="${libraryCost.getSampleId()}"/>
@@ -169,6 +139,9 @@
 										<c:out value="${localCurrencyIcon}" /><input class="settableLibraryCost" style="text-align:right;" name="submittedSampleCost"  type="text" maxlength="4" size="4" value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${libraryCost.getLibraryCost()}" />"/>.00
 									</c:when>						
 								</c:choose>											
+							</td>
+							<td class="DataTD"  style="text-align:center; white-space:nowrap;">				
+								<c:out value="${localCurrencyIcon}" /><input style="text-align:right;" name="submittedSampleAnalysisCost"  type="text" maxlength="4" size="4" value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${libraryCost.getAnalysisCost()}" />"/>.00																
 							</td>
 						</tr>
 					</c:forEach>

@@ -15,6 +15,14 @@ import edu.yu.einstein.wasp.model.Workflow;
 
 public interface WorkflowService extends WaspService {
 	
+public static final String JOB_FLOW_BATCH_META_KEY = "jobFlowBatchJob";
+	
+	public static final String PAGE_FLOW_ORDER_META_KEY = "submitpageflow";
+	
+	public static final String IS_WORKFLOW_DEFAULT_META_KEY = "isWorkFlowADefault";
+	
+	public static final String WORKFLOW_AREA = "workflow";
+	
 	/**
 	 * Get name of Batch Flow Job specified for the current workflow.
 	 * Returns null if not found.
@@ -85,6 +93,10 @@ public interface WorkflowService extends WaspService {
 	public WorkflowSoftwareDao getWorkflowSoftwareDao();
 
 	public void setWorkflowSoftwareDao(WorkflowSoftwareDao workflowSoftwareDao);
+	
+	public void setIsWorkflowDefault(Workflow workflow, boolean isDefault) throws MetadataException;
+
+	public boolean getIsWorkflowDefault(Workflow workflow);
 
 	
 	

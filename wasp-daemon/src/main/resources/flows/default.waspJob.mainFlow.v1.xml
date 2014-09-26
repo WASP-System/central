@@ -113,12 +113,19 @@
 		<batch:step id="default.waspJob.step.listenForAnalysisComplete" next="default.waspJob.step.notifyJobComplete">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
-					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-							<property name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
-							<property name="task" value="#{batchJobTasks.ANALYSIS_AGGREGATE}"/>
-							<property name="status" value="COMPLETED" />
-						</bean>
+					<constructor-arg name="messageTemplates">
+						<list>
+							<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+								<property name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+								<property name="task" value="#{batchJobTasks.ANALYSIS_AGGREGATE}"/>
+								<property name="status" value="COMPLETED" />
+							</bean>
+							<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+								<property name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+								<property name="task" value="#{batchJobTasks.ANALYSIS_SKIP}"/>
+								<property name="status" value="COMPLETED" />
+							</bean>
+						</list>
 					</constructor-arg>
 					<property name="abandonMessage">
 						<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">

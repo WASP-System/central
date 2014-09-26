@@ -1,57 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-
-<script type="text/javascript">
 <%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
-
-$(document).ready(function() {
-	
-	$( "#strategy" ).change(function() {
-		  if($( this ).val()=='-1'){
-			  $("#workflowRowId").css("display", "none"); 
-			  $("#continueButtonDivId").css("display", "none"); 
-		  }
-		  else{			  
-			  $.getJSON("<wasp:relativeUrl value="jobsubmit/getWorkflowsForAStrategy.do" />", { strategy: $( this ).val() }, function( data ) {
-					 var numberOfEntries = 0;
-					 //unable to find a way to get this number directly. $.parseJSON(data) seems to screw up the data 
-					 $.each( data, function( key, val ) {
-						 numberOfEntries++ ;
-					  });
-					 
-					  $("#workflowId").empty();
-					  
-					  if(numberOfEntries == 0){
-						  	$("#workflowId").append("<option value='-1'><fmt:message key="jobsubmitCreate.noWorkflowsFound.label" /></option>"); 
-					  }
-					  else if(numberOfEntries > 1){
-					  	$("#workflowId").append("<option value='-1'><fmt:message key="wasp.default_select.label"/></option>"); 
-					  }
-					  
-					  $.each( data, function( key, val ) {
-						  $("#workflowId").append("<option value='"+key+"'>"+val+"</option>");						 
-					  });				  
-				});//end of getJSON method 
-			  
-				$("#workflowRowId").css("display", "table-row");			  
-			  	if($( this ).val()!='-1'){
-			  		$("#continueButtonDivId").css("display", "inline");
-			  	}
-		  } 		  
-	});
-
-	$( "#viewDefinitionsAnchor" ).click(function() {
-		if($(this).text()=="<fmt:message key="jobsubmitCreate.viewHelp.label" />"){
-			$("#strategySummary").css("display", "inline");
-			$(this).text("<fmt:message key="jobsubmitCreate.hideHelp.label" />");
-		}
-		else{
-			$("#strategySummary").css("display", "none");
-			$(this).text("<fmt:message key="jobsubmitCreate.viewHelp.label" />");
-		}
-	});
-});
-</script>
-
 
 <h1><fmt:message key="jobDraft.create.label" /></h1>
 
@@ -131,7 +79,17 @@ $(document).ready(function() {
 		  </tr>
 	  	</c:otherwise>
 	  </c:choose>  
-	  
+	  <tr id="analysisSelectedId" class="FormData" style="display:none">
+		    <td class="CaptionTD"><fmt:message key="jobDraft.analysisSelected.label"/>:</td>
+		    <td class="DataTD">
+		          <select class="FormElement ui-widget-content ui-corner-all" id="isAnalysisSelected" name="isAnalysisSelected">
+		          	<option value="false"  <c:if test="${!empty isAnalysisSelected && isAnalysisSelected == false}"> SELECTED</c:if>   ><fmt:message key="jobDraft.analysisSelectedFalse.label"/></option>
+		        	<option value="true"  <c:if test="${empty isAnalysisSelected || isAnalysisSelected == true}"> SELECTED</c:if>   ><fmt:message key="jobDraft.analysisSelectedTrue.label" ><fmt:param value="${perLibraryAnalysisFee}"/></fmt:message></option>
+		    	 </select>
+		    	 <wasp:tooltip value="${selectAnalysisTooltip}" />
+		    </td>
+		    <td class="CaptionTD error"><form:errors path="workflowId" /></td>
+	  </tr>
 	  </table>
 	
 	  <div class="submit">

@@ -305,9 +305,9 @@ public class QuoteAndInvoiceServiceImpl extends WaspServiceImpl implements Quote
 	 	sampleLibraryTitle.add(new Chunk("Submitted Samples, Lane/Multiplex Request & Library Construction Costs:", NORMAL_BOLD));
 	 	document.add(sampleLibraryTitle);
 	 	
-	 	PdfPTable sampleLibraryTable = new PdfPTable(5);
+	 	PdfPTable sampleLibraryTable = new PdfPTable(7);
 	 	sampleLibraryTable.setHorizontalAlignment(Element.ALIGN_LEFT);
-	 	sampleLibraryTable.setWidths(new float[]{0.3f, 2f, 0.6f, 1f, 1f});
+	 	sampleLibraryTable.setWidths(new float[]{0.3f, 1.5f, 0.6f, 1f, 1f, 1f, 1f});
 		PdfPCell cellNo = new PdfPCell(new Phrase("No.", NORMAL_BOLD));
 		cellNo.setHorizontalAlignment(Element.ALIGN_CENTER);
 		sampleLibraryTable.addCell(cellNo);
@@ -323,6 +323,12 @@ public class QuoteAndInvoiceServiceImpl extends WaspServiceImpl implements Quote
 		PdfPCell libCostCell = new PdfPCell(new Phrase("Library Cost", NORMAL_BOLD));
 		libCostCell.setHorizontalAlignment(Element.ALIGN_CENTER);
 		sampleLibraryTable.addCell(libCostCell);
+		PdfPCell libAnalysisCostCell = new PdfPCell(new Phrase("Analysis Cost", NORMAL_BOLD));
+		libAnalysisCostCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		sampleLibraryTable.addCell(libAnalysisCostCell);
+		PdfPCell libTotalCostCell = new PdfPCell(new Phrase("Library Total", NORMAL_BOLD));
+		libTotalCostCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		sampleLibraryTable.addCell(libTotalCostCell);
 
 		int sampleCounter = 1;
 		int cumulativeCostForAllLibraries = 0;
@@ -330,7 +336,7 @@ public class QuoteAndInvoiceServiceImpl extends WaspServiceImpl implements Quote
 		String currencyIcon = mpsQuote.getLocalCurrencyIcon();
 
 		for(LibraryCost libraryCost : mpsQuote.getLibraryCosts()){
-			
+			int totalLibCost = 0;
 			sampleLibraryTable.addCell(new Phrase(""+sampleCounter, NORMAL));
 			sampleLibraryTable.addCell(new Phrase(libraryCost.getSampleName(), NORMAL));
 			sampleLibraryTable.addCell(new Phrase(libraryCost.getMaterial(), NORMAL));
@@ -356,6 +362,7 @@ public class QuoteAndInvoiceServiceImpl extends WaspServiceImpl implements Quote
 			if(libraryCost.getReasonForNoLibraryCost().isEmpty()){
 				Integer libCost = new Integer(libraryCost.getLibraryCost().intValue());//convert the Float to Integer
 				cumulativeCostForAllLibraries += libCost.intValue();
+				totalLibCost += libCost.intValue();
 				cost = new PdfPCell(new Phrase(currencyIcon+" "+libCost.toString(), NORMAL));
 			}
 			else{
@@ -363,19 +370,30 @@ public class QuoteAndInvoiceServiceImpl extends WaspServiceImpl implements Quote
 			}
 			cost.setHorizontalAlignment(Element.ALIGN_RIGHT);
 			sampleLibraryTable.addCell(cost);
+			
+			Integer libAnalysisCost = new Integer(libraryCost.getAnalysisCost().intValue());//convert the Float to Integer
+			cumulativeCostForAllLibraries += libAnalysisCost.intValue();
+			totalLibCost += libAnalysisCost.intValue();
+			PdfPCell analysisCost = new PdfPCell(new Phrase(currencyIcon+" "+libAnalysisCost.toString(), NORMAL));
+			analysisCost.setHorizontalAlignment(Element.ALIGN_RIGHT);
+			sampleLibraryTable.addCell(analysisCost);
+			
+			PdfPCell libTotal = new PdfPCell(new Phrase(currencyIcon+" "+totalLibCost, NORMAL_BOLD));
+			libTotal.setHorizontalAlignment(Element.ALIGN_RIGHT);
+			sampleLibraryTable.addCell(libTotal);
 			sampleCounter++;
 		}
 		
-		for(int i = 0; i < 4; i++){//4 empty cells with no border
+		for(int i = 0; i < 6; i++){//6 empty cells with no border
 			PdfPCell cell = new PdfPCell(new Phrase(""));
 			cell.setBorder(Rectangle.NO_BORDER);
 			sampleLibraryTable.addCell(cell);
 		}
-		PdfPCell totalLibCost = new PdfPCell(new Phrase("Total: " + currencyIcon+" "+cumulativeCostForAllLibraries, NORMAL_BOLD));
-		totalLibCost.setHorizontalAlignment(Element.ALIGN_RIGHT);
-		totalLibCost.setBorderWidth(2f);
-		totalLibCost.setBorderColor(BaseColor.BLACK);
-		sampleLibraryTable.addCell(totalLibCost);
+		PdfPCell cumulativeCost = new PdfPCell(new Phrase("Total: " + currencyIcon+" "+cumulativeCostForAllLibraries, NORMAL_BOLD));
+		cumulativeCost.setHorizontalAlignment(Element.ALIGN_RIGHT);
+		cumulativeCost.setBorderWidth(2f);
+		cumulativeCost.setBorderColor(BaseColor.BLACK);
+		sampleLibraryTable.addCell(cumulativeCost);
 			
 		document.add(sampleLibraryTable);
 		return new Integer (cumulativeCostForAllLibraries);

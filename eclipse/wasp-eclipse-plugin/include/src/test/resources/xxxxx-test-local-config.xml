@@ -16,7 +16,7 @@
 ////> RES PIP
 	<mockito:mock id ="authenticationService" class="edu.yu.einstein.wasp.service.AuthenticationService"/>
 	
-	<mockito:mock id ="runSuccessSplitter" class="edu.yu.einstein.wasp.integration.endpoints.RunSuccessSplitter"/>
+	<mockito:mock id ="runSuccessServiceActivator" class="edu.yu.einstein.wasp.integration.endpoints.RunSuccessServiceActivator"/>
 	
 	<mockito:mock id ="runService" class="edu.yu.einstein.wasp.service.impl.RunServiceImpl" />
 	

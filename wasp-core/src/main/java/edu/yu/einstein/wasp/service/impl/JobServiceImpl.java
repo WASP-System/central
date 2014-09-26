@@ -147,6 +147,8 @@ import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 @Service
 @Transactional("entityManager")
 public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements JobService {
+	
+	private final String ANALYSIS_SELECTED_META_KEY = "analysisSelected";
 
 	private JobDao	jobDao;
 	
@@ -2179,7 +2181,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				try{
 					if (sampleService.isCellSequencedSuccessfully(sampleService.getCell(cellLibrary))){
 						ExitStatus preProcessingStatus = sampleService.getCellLibraryPreprocessingStatus(cellLibrary);
-						if (!preProcessingStatus.isCompleted() && !preProcessingStatus.isFailed() && !preProcessingStatus.isTerminated()){
+						if (!preProcessingStatus.isCompleted() && !preProcessingStatus.isFailed() && !preProcessingStatus.isTerminated() && !preProcessingStatus.equals(ExitStatus.NOOP)){
 							logger.debug("job " + job.getId() + ": the library has been run and it's cell has passed QC but has not completed pre-processing yet - returning true");
 							return true; // the library has been run and passed QC but has not been pre-processed yet
 						} else if (sampleService.isCellLibraryAwaitingQC(cellLibrary)){
@@ -2556,4 +2558,17 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		}
 		return replicatesListOfLists;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean getIsAnalysisSelected(Job job){
+		JobMeta jm = jobMetaDao.getJobMetaByKJobId(ANALYSIS_SELECTED_META_KEY, job.getId());
+		logger.debug(ANALYSIS_SELECTED_META_KEY + "=" + jm);
+		if (jm != null && jm.getV() != null)
+			return Boolean.valueOf(jm.getV());
+		return false;
+	}
+	
 }

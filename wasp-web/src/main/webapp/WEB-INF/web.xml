@@ -93,14 +93,14 @@
 		</filter-mapping> -->
 
 	<servlet>
-		<servlet-name>wasp</servlet-name>
+		<servlet-name>ws</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 		<async-supported>true</async-supported>
 	</servlet>
 
 	<servlet-mapping>
-		<servlet-name>wasp</servlet-name>
+		<servlet-name>ws</servlet-name>
 		<url-pattern>*.do</url-pattern>
 	</servlet-mapping>	
 
