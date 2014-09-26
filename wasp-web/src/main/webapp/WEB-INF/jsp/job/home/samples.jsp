@@ -41,6 +41,7 @@
 			<c:choose>
 				<c:when test="${submittedMacromoleculeList.contains(submittedObject)}">					
 					<label><fmt:message key="jobHomeSamples.name.label" />:</label> <a href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/sample/${submittedObject.getId()}/sampledetail_ro.do" />");' ><c:out value="${submittedObject.getName()}" /></a><br />
+					<label><fmt:message key="jobHomeSamples.id.label" />:</label> <c:out value="${submittedObject.getId()}"/><br />
 					<label><fmt:message key="jobHomeSamples.type.label" />:</label> <c:out value="${submittedObject.getSampleType().getName()}"/><br />
 					<label><fmt:message key="jobHomeSamples.species.label" />:</label> <c:out value="${submittedObjectOrganismMap.get(submittedObject)}" /><br />
 					<label><fmt:message key="jobHomeSamples.arrivalStatus.label" />:</label> <c:out value="${receivedStatusMap.get(submittedObject)}" /><br />
@@ -78,6 +79,7 @@
 					<c:if test="${!statusLibrary.first}"><tr></c:if>	
 						<td class="DataTD" style="text-align:center; white-space:nowrap;" rowspan="1">
 							<label><fmt:message key="jobHomeSamples.name.label" />:</label> <a id="librarydetail_roAnchor"  href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/library/${library.getId()}/librarydetail_ro.do" />");' ><c:out value="${library.getName()}" /></a><br />
+							<label><fmt:message key="jobHomeSamples.id.label" />:</label> <c:out value="${library.getId()}"/><br />
 							<label><fmt:message key="jobHomeSamples.type.label" />:</label> <c:out value="${library.getSampleType().getName()}" /><br />
 							<c:if test="${submittedLibraryList.contains(library)}">
 								<label><fmt:message key="jobHomeSamples.species.label" />:</label> <c:out value="${submittedObjectOrganismMap.get(library)}" /><br />
