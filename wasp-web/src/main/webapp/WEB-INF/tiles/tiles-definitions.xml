@@ -416,6 +416,7 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/list.jsp" />
 	</definition>
 	<definition name="jobsubmit/create" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/jobsubmit/create.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/create.jsp" />
 	</definition>
 	<definition name="jobsubmit/metaform" extends="template-base">
@@ -425,6 +426,7 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/resource.jsp" />
 	</definition>
 	<definition name="jobsubmit/software" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/jobsubmit/software.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/software.jsp" />
 	</definition>
 	<definition name="jobsubmit/cell" extends="template-base">

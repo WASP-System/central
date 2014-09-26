@@ -14,12 +14,15 @@ import edu.yu.einstein.wasp.service.MessageService;
 public class MessageServiceImpl implements MessageService {
 
 	protected Logger logger = LoggerFactory.getLogger(getClass());
-
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public String getMessage(String key, Locale locale) {
+	public String getMessage(String key, Object[] args, Locale locale) {
 		String message = key; // returns the original string by default
 		try {
-			message = DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null, locale);
+			message = DBResourceBundle.MESSAGE_SOURCE.getMessage(key, args, locale);
 		} catch (NoSuchMessageException e) {
 			logger.trace("Cannot resolve message '" + key + "' from messageSource (" + e.getMessage() + ")");
 		}
@@ -30,9 +33,31 @@ public class MessageServiceImpl implements MessageService {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public String getMessage(String key, Object[] args) {
+		return getMessage(key, args, Locale.US);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getMessage(String key, Locale locale) {
+		return getMessage(key, null, Locale.US);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public String getMessage(String key) {
 		return getMessage(key, Locale.US);
 	}
+
+	
+
+	
+	
+	
 	
 
 

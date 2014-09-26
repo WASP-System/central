@@ -8,8 +8,6 @@ public class Action {
 	
 	private int icnHashCode = 0;
 	
-	private boolean isHidden = false;
-	
 	private String tooltip = "";
 	
 	private String callbackContent = "";
@@ -20,11 +18,10 @@ public class Action {
 		super();
 	}
 	
-	public Action(String iconClassName, boolean isHidden, String tooltip, CallbackFunctionType callbackFunctionType, String callbackContent) {
+	public Action(String iconClassName, String tooltip, CallbackFunctionType callbackFunctionType, String callbackContent) {
 		super();
 		this.iconClassName = iconClassName;
 		this.icnHashCode = iconClassName.hashCode();
-		this.isHidden = isHidden;
 		this.tooltip = tooltip;
 		this.callbackFunctionType = callbackFunctionType;
 		this.setCallbackContent(callbackContent);
@@ -50,22 +47,6 @@ public class Action {
 	public void setIconClassName(String iconClassName) {
 		this.iconClassName = iconClassName;
 		this.icnHashCode = iconClassName.hashCode();
-	}
-
-	/**
-	 * Should action column be hidden? Defaults to false.
-	 * @return
-	 */
-	public boolean isHidden() {
-		return isHidden;
-	}
-
-	/**
-	 * Should action column be hidden? Defaults to false.
-	 * @param isHidden
-	 */
-	public void setHidden(boolean isHidden) {
-		this.isHidden = isHidden;
 	}
 
 	/**

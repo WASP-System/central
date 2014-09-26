@@ -24,7 +24,12 @@
 		<value>/jobsubmit/genomes/{n}</value>
 		<value>/jobsubmit/cells/{n}</value>
 		<value>/jobsubmit/chipSeq/pair/{n}</value> 
+		<!--  this web page captures information regarding chipSeq replicates for use with IDR 
+				(see https://sites.google.com/site/anshulkundaje/projects/idr), however, we have not yet
+		        implemented the use of IDR for chipSeq (note: it was a request of the genome center).
+		        so, for now, this page serves no purpose.
 		<value>/jobsubmit/chipSeq/replicates/{n}</value> 
+		-->
 		<value>/jobsubmit/software/#{referenceBasedAlignerResourceType.getIName()}/{n}</value>
 		<value>/jobsubmit/software/#{peakcallerResourceType.getIName()}/{n}</value>
 		<value>/jobsubmit/comment/{n}</value> 

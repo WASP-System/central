@@ -101,7 +101,7 @@ public class TrimGalorePlugin extends WaspPlugin implements ClientMessageI, File
      */
     @Override
     public Hyperlink getDescriptionPageHyperlink() {
-	return new Hyperlink("trim_galore.hyperlink.label", "/babraham/trim_galore/description.do");
+	return new Hyperlink("trimgalore.hyperlink.label", "/babraham/trimgalore/description.do");
     }
 
     /**

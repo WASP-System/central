@@ -2588,6 +2588,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		public ExitStatus getCellLibraryPreprocessingStatus(SampleSource cellLibrary) throws SampleTypeException{
 			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
 			Assert.assertParameterNotNull(cellLibrary.getId(), "sourceSampleId cannot be null");
+			if (!jobService.getIsAnalysisSelected(getJobOfLibraryOnCell(cellLibrary)))
+				return ExitStatus.NOOP;
 			ExitStatus status = ExitStatus.UNKNOWN;
 			Map<String, Set<String>> jobParameters = new HashMap<String, Set<String>>();
 			Set<String> ssIdStringSet = new LinkedHashSet<String>();
@@ -2609,6 +2611,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		public ExitStatus getCellLibraryAggregationAnalysisStatus(SampleSource cellLibrary) throws SampleTypeException{
 			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
 			Assert.assertParameterNotNull(cellLibrary.getId(), "sourceSampleId cannot be null");
+			if (!jobService.getIsAnalysisSelected(getJobOfLibraryOnCell(cellLibrary)))
+				return ExitStatus.NOOP;
 			ExitStatus status = ExitStatus.UNKNOWN;
 			Map<String, Set<String>> jobParameters = new HashMap<String, Set<String>>();
 			Set<String> jobIdStringSet = new LinkedHashSet<String>();
