@@ -171,39 +171,39 @@ Ext.define('Wasp.GridPortlet', {
 		};
 		
 		// Add download action buttons to the action column
-		if (this.dlcol && this.dllinkfld != '') {
-			actioncol.actions.push({
-				iconCls: 'icon-download',
-				qtip: this.dlcoltip,
-				hideIndex: this.hidedl,
-				callback: function (grid, record, action, idx, col, e, target) {
-					window.location = record.get(grid.dllinkfld);
-				}
-			});
-
-			// If grouping view is set, add group download button
-			if (this.grpdl) {
-				actioncol.groupActions = [{
-					iconCls: 'icon-group-download',
-					qtip: this.grpdltip,
-					align: this.grpdlalign,
-					callback: function (grid, records, action, groupValue) {
-						if (records.length > 0)
-							window.location = mergeDownloadLinks(records, grid.dllinkfld);
-					}
-				}];
-			}
-
-		}
+//		if (this.dlcol && this.dllinkfld != '') {
+//			actioncol.actions.push({
+//				iconCls: 'icon-download',
+//				qtip: this.dlcoltip,
+//				hideIndex: this.hidedl,
+//				callback: function (grid, record, action, idx, col, e, target) {
+//					window.location = record.get(grid.dllinkfld);
+//				}
+//			});
+//
+//			// If grouping view is set, add group download button
+//			if (this.grpdl) {
+//				actioncol.groupActions = [{
+//					iconCls: 'icon-group-download',
+//					qtip: this.grpdltip,
+//					align: this.grpdlalign,
+//					callback: function (grid, records, action, groupValue) {
+//						if (records.length > 0)
+//							window.location = mergeDownloadLinks(records, grid.dllinkfld);
+//					}
+//				}];
+//			}
+//
+//		}
 
 		// Add genome browser buttons to the action column
-		if (this.gbcol && this.gblink != '') {
-			actioncol.actions.push({
-				iconIndex: this.gbtype,
-				qtipIndex: this.gbttp,
-				hideIndex: this.hidegb
-			});
-		}
+//		if (this.gbcol && this.gblink != '') {
+//			actioncol.actions.push({
+//				iconIndex: this.gbtype,
+//				qtipIndex: this.gbttp,
+//				hideIndex: this.hidegb
+//			});
+//		}
 
 		if (actioncol.actions.length > 0)
 			this.columns.push(actioncol);

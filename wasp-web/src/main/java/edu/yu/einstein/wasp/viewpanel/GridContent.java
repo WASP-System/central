@@ -2,14 +2,10 @@ package edu.yu.einstein.wasp.viewpanel;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.Assert;
 
