@@ -145,7 +145,7 @@ Ext.define('Wasp.GridPortlet', {
 			} else if (action.callbackFunctionType === 'OPEN_IN_NEW_BROWSER_WIN') {
 				strcbfunc = '{"'+action.iconClassName+'": "function(grid, record, action, row, col){window.open(record.get(\''+action.callbackContent+'\'), \'_blank\');}"}';
 			} else if (action.callbackFunctionType === 'OPEN_IN_CSS_WIN') {
-				//strcbfunc = '{"'+action.iconClassName+'": "function(grid, record, action, row, col){window.open(record.get(\''+action.callbackContent+'\'), \'_blank\');}"}';
+				strcbfunc = '{"'+action.iconClassName+'": "function(grid, record, action, row, col){getPanelDisplayWindowForFilegroup(record.get(\''+action.callbackContent+'\'));}"}';
 			} else {
 				strcbfunc = '{"'+action.iconClassName+'": "function(grid, record, action, row, col){alert(\'Action type "'+action.callbackFunctionType+'" is not supported.\');}"}';
 			}

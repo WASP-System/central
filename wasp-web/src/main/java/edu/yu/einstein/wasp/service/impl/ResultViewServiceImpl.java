@@ -129,6 +129,7 @@ public class ResultViewServiceImpl extends WaspServiceImpl implements ResultView
 //		fileGridContent.addDataFields(new GridDataField("gbtype", "string"));
 //		fileGridContent.addDataFields(new GridDataField("gbttp", "string"));
 //		fileGridContent.addDataFields(new GridDataField("hidegb", "boolean"));
+		fileGridContent.addDataFields(new GridDataField("fgid", "string"));
 		
 		try {
 			for (FileGroup fg : fgSet) {
@@ -145,6 +146,7 @@ public class ResultViewServiceImpl extends WaspServiceImpl implements ResultView
 					filerow.add(fh.getSizek() != null ? fh.getSizek().toString() : "");
 					hl = new Hyperlink("Download", fileUrlResolver.getURL(fh).toString());
 					filerow.add(hl.getTargetLink());
+					filerow.add(fg.getId().toString());
 /*					
 					filerow.add(hl.getTargetLink());
 //					filerow.add("ucsc");
@@ -182,7 +184,7 @@ public class ResultViewServiceImpl extends WaspServiceImpl implements ResultView
 					
 					List<Action> actionrow = new ArrayList<Action>();
 					Action dlAction = new Action();
-					switch ( 1 ) {//(int) (Math.random()*3) ) {
+					switch ( 2 ) {//(int) (Math.random()*3) ) {
 						case 0:	dlAction.setIconClassName("icon-download");
 								dlAction.setTooltip("Download");
 								dlAction.setCallbackFunctionType(CallbackFunctionType.DOWNLOAD);
@@ -196,7 +198,9 @@ public class ResultViewServiceImpl extends WaspServiceImpl implements ResultView
 								break;
 						
 						case 2:	dlAction.setIconClassName("icon-gb-ensembl");
-								dlAction.setTooltip("View in ensemble");
+								dlAction.setTooltip("Viewer by file type");
+								dlAction.setCallbackFunctionType(CallbackFunctionType.OPEN_IN_CSS_WIN);
+								dlAction.setCallbackContent("fgid");
 								break;
 				
 						default: break;
