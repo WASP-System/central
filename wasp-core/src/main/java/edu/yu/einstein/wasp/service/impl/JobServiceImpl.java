@@ -1211,7 +1211,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				}
 			}	
 			
-			accountsService.saveJobDraftGrant(jobDraft, accountsService.getGrantForJobDraft(jobDraft));
+			accountsService.saveJobGrant(jobDb, accountsService.getGrantForJobDraft(jobDraft));
 			
 			// update the jobdraft
 			jobDraft.setStatus("SUBMITTED");

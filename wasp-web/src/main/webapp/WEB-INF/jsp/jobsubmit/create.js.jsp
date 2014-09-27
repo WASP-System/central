@@ -32,24 +32,27 @@ function addNewGrant(){
 
 function populateGrants(){
 	  if($("#labId").val()=='-1'){
-		$("#grantSelectRowId").css("display", "none"); 
-		$("#addGrantTable").css("display", "none"); 
+		hideChooseGrantRow();
+		closeGrantAddTable(); 
+		hideContinueButton(); 
 		$( "#viewAddGrantAnchor" ).text("<fmt:message key="jobsubmitCreate.viewAddGrant.label" />");
 	  }
 	  else{
 		$.getJSON("<wasp:relativeUrl value="jobsubmit/getGrantsForLab.do" />", { selectedLabId: $("#labId").val() }, function( data ) {
 			fillGrantList(data);
-			$("#grantSelectRowId").css("display", "table-row");
+			showChooseGrantRow();
+			showContinueButton();
 		}); //end of getJSON method 
 	  }
 }
 
 function fillGrantList(data){
 	var numberOfEntries = 0;
+	
 	 $.each( data, function( key, val ) {
 		 numberOfEntries++ ;
 	  });
-	 
+	  var currentSelected = $("#selectGrantId").val();
 	  $("#selectGrantId").empty();
 	  
 	  if(numberOfEntries == 0){
@@ -64,13 +67,14 @@ function fillGrantList(data){
 	  $.each( data, function( key, val ) {
 		  $("#selectGrantId").append("<option value='"+key+"'>"+val+"</option>");						 
 	  });	
+	  $("#selectGrantId").val(currentSelected);
 }
 
 function handleStrategyUpdate() {
 	  if($("#strategy").val()=='-1'){
-		  $("#workflowRowId").css("display", "none"); 
-		  $("#continueButtonDivId").css("display", "none"); 
-		  $("#analysisSelectedRowId").css("display", "none");
+		  hideWorkflowRow(); 
+		  hideContinueButton(); 
+		  hideChooseAnalysisRow();
 	  }
 	  else{			  
 		  $.getJSON("<wasp:relativeUrl value="jobsubmit/getWorkflowsForAStrategy.do" />", { strategy: $("#strategy").val() }, function( data ) {
@@ -86,7 +90,7 @@ function handleStrategyUpdate() {
 					  	$("#workflowId").append("<option value='0'><fmt:message key="jobsubmitCreate.noWorkflowsFound.label" /></option>"); 
 					  	savedAnalysisSelectedChoice = $('#isAnalysisSelected').val();
 					  	$('#isAnalysisSelected').val('false');
-					  	$("#analysisSelectedRowId").css("display", "none");
+					  	hideChooseAnalysisRow();
 					  	
 				  }
 				  else if(numberOfEntries > 1){
@@ -95,14 +99,14 @@ function handleStrategyUpdate() {
 				  		$('#isAnalysisSelected').val(savedAnalysisSelectedChoice);
 				  		savedAnalysisSelectedChoice = "";
 				  	}
-				  	$("#analysisSelectedRowId").css("display", "table-row");
+				  	showChooseAnalysisRow();
 				  }
 				  else {
 					  if (savedAnalysisSelectedChoice != ""){
 					  		$('#isAnalysisSelected').val(savedAnalysisSelectedChoice);
 					  		savedAnalysisSelectedChoice = "";
 					  }
-					  $("#analysisSelectedRowId").css("display", "table-row");
+					  showChooseAnalysisRow();
 				  }
 				  
 				  $.each( data, function( key, val ) {
@@ -110,11 +114,40 @@ function handleStrategyUpdate() {
 				  });	
 				  
 			}); //end of getJSON method 
-		  	$("#workflowRowId").css("display", "table-row");			  
-		  	if($("#strategy").val()!='-1'){
-		  		$("#continueButtonDivId").css("display", "inline");
-		  	}
+			showWorkflowRow();		  
 	  } 		  
+}
+
+function showWorkflowRow(){
+	$("#workflowRowId").css("display", "table-row");
+}
+
+function hideWorkflowRow(){
+	$("#workflowRowId").css("display", "none");
+}
+
+function showChooseAnalysisRow(){
+	$("#analysisSelectedRowId").css("display", "table-row");
+}
+
+function hideChooseAnalysisRow(){
+	$("#analysisSelectedRowId").css("display", "none");
+}
+
+function showChooseGrantRow(){
+	$("#grantSelectRowId").css("display", "table-row");
+}
+
+function hideChooseGrantRow(){
+	$("#grantSelectRowId").css("display", "none");
+}
+
+function showContinueButton(){
+	$("#continueButtonDivId").css("display", "inline");
+}
+
+function hideContinueButton(){
+	$("#continueButtonDivId").css("display", "none");
 }
 
 function closeGrantAddTable(){
@@ -123,6 +156,8 @@ function closeGrantAddTable(){
 	$("#newGrantCode").val("");
 	$("#newGrantName").val("");
 	$("#newGrantExp").val("");
+	$("#newGrantCodeError").html("");
+	$("#newGrantExpError").html("");
 }
 
 function openGrantAddTable(){
@@ -132,7 +167,7 @@ function openGrantAddTable(){
 
 $(document).ready(function() {
 	
-	if ($("#strategy").val() != '-1'){
+	if ($( "#strategy" ).val() != '-1'){
 		handleStrategyUpdate();
 	}
 	
@@ -141,7 +176,7 @@ $(document).ready(function() {
 		handleStrategyUpdate();
 	});
 	
-	if ($("#strategy").val() != '-1'){
+	if ($("#labId").val() != '-1'){
 		populateGrants();
 	}
 	

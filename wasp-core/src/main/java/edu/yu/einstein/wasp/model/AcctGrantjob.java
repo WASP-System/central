@@ -30,6 +30,9 @@ public class AcctGrantjob extends WaspModel {
 	 */
 	private static final long serialVersionUID = 8452582861645453970L;
 	
+	@Column(name="jobid")
+	protected Integer jobId;
+	
 	/**
 	 * setJobId(Integer jobId)
 	 *
@@ -37,7 +40,7 @@ public class AcctGrantjob extends WaspModel {
 	 *
 	 */
 	public void setJobId (Integer jobId) {
-		setId(jobId);
+		this.jobId = jobId;
 	}
 
 	/**
@@ -47,7 +50,7 @@ public class AcctGrantjob extends WaspModel {
 	 *
 	 */
 	public Integer getJobId () {
-		return getId();
+		return this.jobId;
 	}
 
 
@@ -118,7 +121,7 @@ public class AcctGrantjob extends WaspModel {
 	 */
 	@NotAudited
 	@ManyToOne
-	@JoinColumn(name="id", referencedColumnName="jobId", insertable=false, updatable=false)
+	@JoinColumn(name="jobId", insertable=false, updatable=false)
 	protected AcctLedger acctLedger;
 
 	/**

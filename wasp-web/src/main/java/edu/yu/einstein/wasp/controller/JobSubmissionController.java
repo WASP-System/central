@@ -475,6 +475,12 @@ public class JobSubmissionController extends WaspController {
 
 		m.put("labs", labList);
 		
+		List<AcctGrant> grantsAvailable = new ArrayList<AcctGrant>();
+		if (jobDraft.getLabId() != null){
+			grantsAvailable = accountsService.getGrantsForLab(labDao.getById(jobDraft.getLabId()));
+		}
+		m.put("grantsAvailable", grantsAvailable);
+		m.put("thisJobDraftsGrant", (jobDraft.getId() != null) ? accountsService.getGrantForJobDraft(jobDraft) : null);
 		
 		m.put("thisJobDraftsStrategy", thisJobDraftsStrategy);		
 
@@ -498,7 +504,6 @@ public class JobSubmissionController extends WaspController {
 		Object[] args = {perLibraryAnalysisFee};
 		m.put("selectAnalysisTooltip", messageService.getMessage("jobsubmitCreate.selectAnalysisTooltip.label", args));
 		m.put("perLibraryAnalysisFee", perLibraryAnalysisFee);
-		m.put("thisJobDraftsGrant", (jobDraft.getId() != null) ? accountsService.getGrantForJobDraft(jobDraft) : null);
 		return "jobsubmit/create";
 	}
 
@@ -602,6 +607,7 @@ public class JobSubmissionController extends WaspController {
 		}catch(Exception e){}
 	}
 
+	@Transactional
 	@RequestMapping(value="/create.do", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('lu-*')")
 	public String create (
@@ -795,6 +801,13 @@ public class JobSubmissionController extends WaspController {
 			jobDraftForm.setWorkflowId(jobDraft.getWorkflowId());//set it back for re-display
 		}
 		
+		// get grant
+		Integer selectGrantId = -1;
+		String grantSelectError = "";
+		selectGrantId = Integer.parseInt(request.getParameter("selectGrantId"));
+		if (selectGrantId < 1)
+			grantSelectError = messageService.getMessage("jobDraft.grantNotSelected.error");
+		
 		//get the strategy info from the web page
 		Strategy strategy = new Strategy();
 		String strategyError = "";
@@ -812,10 +825,11 @@ public class JobSubmissionController extends WaspController {
 			}
 		}
 		result.addAllErrors(errors);
-		if (!strategyError.isEmpty() || result.hasErrors()) {
+		if (!grantSelectError.isEmpty() || !strategyError.isEmpty() || result.hasErrors()) {
 			waspErrorMessage("jobDraft.form.error");
 			m.put("jobDraft", jobDraftForm);
 			m.put("strategyError", strategyError);
+			m.put("grantSelectError", grantSelectError);
 			return generateCreateForm(jobDraftForm, strategy, m);
 		}
 		jobDraft.setName(jobDraftForm.getName());
@@ -824,6 +838,8 @@ public class JobSubmissionController extends WaspController {
 
 		JobDraft jobDraftDb = jobDraftService.getJobDraftDao().save(jobDraft);//what if save fails?		
 		strategyService.saveStrategy(jobDraftDb, strategy);//what if save fails?
+		AcctGrant acctGrant = accountsService.getAcctGrantById(selectGrantId);
+		accountsService.saveJobDraftGrant(jobDraftDb, acctGrant);
 		String isAnalysisSelectedParam = request.getParameter("isAnalysisSelected");
 		if (isAnalysisSelectedParam != null)
 			jobDraftService.setIsAnalysisSelected(jobDraftDb, Boolean.valueOf(isAnalysisSelectedParam));

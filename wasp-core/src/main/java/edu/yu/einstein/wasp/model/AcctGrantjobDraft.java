@@ -29,15 +29,22 @@ public class AcctGrantjobDraft extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -919520250156495349L;
+	
+	/** 
+	 * jobDraftId
+	 *
+	 */
+	@Column(name="jobdraftid")
+	protected Integer jobDraftId;
 
 	/**
 	 * setJobDraftId(Integer jobDraftId)
 	 *
-	 * @param jobId
+	 * @param jobDraftId
 	 *
 	 */
 	public void setJobDraftId (Integer jobDraftId) {
-		setId(jobDraftId);
+		this.jobDraftId = jobDraftId;
 	}
 
 	/**
@@ -47,7 +54,7 @@ public class AcctGrantjobDraft extends WaspModel {
 	 *
 	 */
 	public Integer getJobDraftId () {
-		return getId();
+		return this.jobDraftId;
 	}
 
 	/** 

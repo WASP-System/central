@@ -45,9 +45,9 @@ public class AcctGrantjobDaoImpl extends WaspDaoImpl<AcctGrantjob> implements ed
 
 	@Override
 	@Transactional("entityManager")
-	public AcctGrantjob getAcctGrantjobByJobId (final int jobId) {
-    		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("id", jobId);
+	public AcctGrantjob getAcctGrantjobById (final int id) {
+    	HashMap<String, Integer> m = new HashMap<String, Integer>();
+		m.put("id", id);
 
 		List<AcctGrantjob> results = this.findByMap(m);
 
@@ -58,6 +58,37 @@ public class AcctGrantjobDaoImpl extends WaspDaoImpl<AcctGrantjob> implements ed
 		return results.get(0);
 	}
 
+	@Override
+	@Transactional("entityManager")
+	public List<AcctGrantjob> getAcctGrantjobByJobId (final int jobid) {
+    	HashMap<String, Integer> m = new HashMap<String, Integer>();
+		m.put("jobId", jobid);
+		return this.findByMap(m);
+
+	}
+	
+	@Override
+	@Transactional("entityManager")
+	public List<AcctGrantjob> getAcctGrantjobByAcctGrantId (final int acctGrantId) {
+    	HashMap<String, Integer> m = new HashMap<String, Integer>();
+		m.put("grantId", acctGrantId);
+		return this.findByMap(m);
+
+	}
+
+
+	@Override
+	public AcctGrantjob getAcctGrantjobByJobIdAcctGrantId(int jobid, int acctGrantId) {
+		HashMap<String, Integer> m = new HashMap<String, Integer>();
+		m.put("grantId", acctGrantId);
+		m.put("jobId", jobid);
+		List<AcctGrantjob> results = this.findByMap(m);
+		if (results.size() == 0) {
+			AcctGrantjob rt = new AcctGrantjob();
+			return rt;
+		}
+		return results.get(0);
+	}
 
 
 }

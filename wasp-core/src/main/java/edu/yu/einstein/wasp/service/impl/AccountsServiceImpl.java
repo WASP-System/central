@@ -724,7 +724,10 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
 
 	@Override
 	public AcctGrant getGrantForJob(Job job) {
-		AcctGrantjob agj = acctGrantjobDao.getAcctGrantjobByJobId(job.getId());
+		List<AcctGrantjob> agjs = acctGrantjobDao.getAcctGrantjobByJobId(job.getId());
+		if (agjs.isEmpty())
+			return null;
+		AcctGrantjob agj = agjs.get(0);
 		if (agj == null)
 			return null;
 		return agj.getAcctGrant();
@@ -733,6 +736,9 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
 	@Override
 	public AcctGrantjob saveJobGrant(Job job, AcctGrant grant) {
 		AcctGrantjob acj = new AcctGrantjob();
+		List<AcctGrantjob> acjs = acctGrantjobDao.getAcctGrantjobByJobId(job.getId());
+		if (!acjs.isEmpty())
+			acj = acjs.get(0);
 		acj.setGrantId(grant.getId());
 		acj.setJobId(job.getId());
 		return acctGrantjobDao.save(acj);
@@ -756,7 +762,10 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
 
 	@Override
 	public AcctGrant getGrantForJobDraft(JobDraft jobDraft) {
-		AcctGrantjobDraft agjd = acctGrantjobDraftDao.getAcctGrantjobByJobDraftId(jobDraft.getId());
+		List<AcctGrantjobDraft> agjds = acctGrantjobDraftDao.getAcctGrantjobDraftByJobDraftId(jobDraft.getId());
+		if (agjds.isEmpty())
+			return null;
+		AcctGrantjobDraft agjd = agjds.get(0);
 		if (agjd == null)
 			return null;
 		return agjd.getAcctGrant();
@@ -764,10 +773,13 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
 
 	@Override
 	public AcctGrantjobDraft saveJobDraftGrant(JobDraft jobDraft, AcctGrant grant) {
-		AcctGrantjobDraft acj = new AcctGrantjobDraft();
-		acj.setGrantId(grant.getId());
-		acj.setJobDraftId(jobDraft.getId());
-		return acctGrantjobDraftDao.save(acj);
+		AcctGrantjobDraft acjd = new AcctGrantjobDraft();
+		List<AcctGrantjobDraft> acjds = acctGrantjobDraftDao.getAcctGrantjobDraftByJobDraftId(jobDraft.getId());
+		if (!acjds.isEmpty())
+			acjd = acjds.get(0);
+		acjd.setGrantId(grant.getId());
+		acjd.setJobDraftId(jobDraft.getId());
+		return acctGrantjobDraftDao.save(acjd);
 	}
 
 	@Override
