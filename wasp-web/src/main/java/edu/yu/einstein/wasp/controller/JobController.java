@@ -113,7 +113,7 @@ import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
-import edu.yu.einstein.wasp.service.QuoteAndInvoiceService;
+import edu.yu.einstein.wasp.service.AccountsService;
 import edu.yu.einstein.wasp.service.ResourceService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -197,7 +197,7 @@ public class JobController extends WaspController {
 	@Autowired
 	private MessageServiceWebapp messageService;
 	@Autowired
-	private QuoteAndInvoiceService quoteAndInvoiceService;
+	private AccountsService quoteAndInvoiceService;
 	
 	@Value("${wasp.analysis.perLibraryFee:0}")
 	private Float perLibraryAnalysisFee;

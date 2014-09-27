@@ -2,8 +2,11 @@ package edu.yu.einstein.wasp.controller;
 
 
 import java.io.FileNotFoundException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -79,6 +82,7 @@ import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.MetadataTypeException;
 import edu.yu.einstein.wasp.exception.WaspException;
+import edu.yu.einstein.wasp.model.AcctGrant;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
@@ -108,6 +112,7 @@ import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
+import edu.yu.einstein.wasp.service.AccountsService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
@@ -253,6 +258,9 @@ public class JobSubmissionController extends WaspController {
 
 	@Autowired
 	protected StrategyService strategyService;
+	
+	@Autowired
+	protected AccountsService accountsService;
 	
 	@Value("${wasp.temporary.dir}")
 	protected String downloadFolder;
@@ -490,6 +498,7 @@ public class JobSubmissionController extends WaspController {
 		Object[] args = {perLibraryAnalysisFee};
 		m.put("selectAnalysisTooltip", messageService.getMessage("jobsubmitCreate.selectAnalysisTooltip.label", args));
 		m.put("perLibraryAnalysisFee", perLibraryAnalysisFee);
+		m.put("thisJobDraftsGrant", (jobDraft.getId() != null) ? accountsService.getGrantForJobDraft(jobDraft) : null);
 		return "jobsubmit/create";
 	}
 
@@ -509,7 +518,6 @@ public class JobSubmissionController extends WaspController {
 		return generateCreateForm(jobDraft, strategy, m);
 	}
 	
-	@Transactional
 	@RequestMapping(value="/getWorkflowsForAStrategy.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('lu-*')")
 	public void getWorkflowsForAStrategy(HttpServletResponse response) {
@@ -529,8 +537,71 @@ public class JobSubmissionController extends WaspController {
 			outputJSON(assayWorkflows, response);
 		}catch(Exception e){}
 	}
+	
+	@RequestMapping(value="/getGrantsForLab.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('lu-*')")
+	public void getGrantsForLab(HttpServletResponse response) {
+		
+		//THIS IS AN AJAX CALL FROM WEB
+		
+		Lab lab = labDao.getById(Integer.parseInt(request.getParameter("selectedLabId")));
+		List <AcctGrant> grantsForTheRequestedLab = accountsService.getGrantsForLab(lab);
+		Map<Integer, String> grants = new HashMap<>();
+		for (AcctGrant grant: grantsForTheRequestedLab){
+			String value = grant.getCode();
+			if (grant.getName() != null && !grant.getName().isEmpty())
+				value += " (" + grant.getName() + ")";
+			grants.put(grant.getId(), value);
+		}
+		try{
+			outputJSON(grants, response);
+		}catch(Exception e){}
+	}
+	
+	@RequestMapping(value="/addGrant.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('lu-*')")
+	public void addGrant(HttpServletResponse response) {
+		
+		//THIS IS AN AJAX CALL FROM WEB
+		
+		String newGrantCode = request.getParameter("newGrantCode");
+		String newGrantName = request.getParameter("newGrantName");
+		String newGrantExp = request.getParameter("newGrantExp");
+		Integer labId = Integer.parseInt(request.getParameter("selectedLabId"));
+		Date newGrantExpDate = null;
+		Map<String, String> responseMap = new HashMap<>();
+		boolean isErrors = false;
+		if (newGrantCode == null || newGrantCode.isEmpty()){
+			isErrors = true;
+			responseMap.put("newGrantCodeError", messageService.getMessage("jobDraft.addGrantCode.error"));
+		}
+		if (newGrantExp == null || newGrantExp.isEmpty()){
+			isErrors = true;
+			responseMap.put("newGrantExpError", messageService.getMessage("jobDraft.addGrantExp.error"));
+		}
+		newGrantExp = newGrantExp.replaceAll("\\/", "-");
+		try{
+			newGrantExpDate = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(newGrantExp);
+		} catch (IllegalArgumentException | ParseException e){
+			isErrors = true;
+			responseMap.put("newGrantExpError", messageService.getMessage("jobDraft.addGrantExp.error"));
+		}
+		if (!isErrors){
+			AcctGrant grant = new AcctGrant();
+			grant.setCode(newGrantCode);
+			if (newGrantName != null && !newGrantName.isEmpty())
+			grant.setName(newGrantName);
+			grant.setExpirationdt(newGrantExpDate);
+			grant.setLabId(labId);
+			accountsService.saveGrant(grant);
+			responseMap.put("errors", "false");
+		}
+		try{
+			outputJSON(responseMap, response);
+			return;
+		}catch(Exception e){}
+	}
 
-	@Transactional
 	@RequestMapping(value="/create.do", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('lu-*')")
 	public String create (
@@ -580,12 +651,21 @@ public class JobSubmissionController extends WaspController {
 				}
 			}
 		}
+
+		// get grant
+		Integer selectGrantId = -1;
+		String grantSelectError = "";
+		selectGrantId = Integer.parseInt(request.getParameter("selectGrantId"));
+		if (selectGrantId < 1)
+			grantSelectError = messageService.getMessage("jobDraft.grantNotSelected.error");
+		
 		result.addAllErrors(errors);
 
-		if (!strategyError.isEmpty() || result.hasErrors()) {
+		if (!grantSelectError.isEmpty() || !strategyError.isEmpty() || result.hasErrors()) {
 			waspErrorMessage("jobDraft.form.error");
 			m.put("jobDraft", jobDraftForm); // unexpectedly, the web behaves without this line. Andy thinks that the @Valid automatically adds the form to the map
 			m.put("strategyError", strategyError);
+			m.put("grantSelectError", grantSelectError);
 			return generateCreateForm(jobDraftForm, strategy, m);
 		}
 		
@@ -593,6 +673,8 @@ public class JobSubmissionController extends WaspController {
 		jobDraftForm.setUserId(me.getId());
 		jobDraftForm.setStatus("PENDING");
 		JobDraft jobDraftDb = jobDraftService.getJobDraftDao().save(jobDraftForm); 
+		AcctGrant acctGrant = accountsService.getAcctGrantById(selectGrantId);
+		accountsService.saveJobDraftGrant(jobDraftDb, acctGrant);
 		String isAnalysisSelectedParam = request.getParameter("isAnalysisSelected");
 		if (isAnalysisSelectedParam != null)
 			jobDraftService.setIsAnalysisSelected(jobDraftDb, Boolean.valueOf(isAnalysisSelectedParam));

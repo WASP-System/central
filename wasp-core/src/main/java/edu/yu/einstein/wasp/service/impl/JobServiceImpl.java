@@ -127,6 +127,7 @@ import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.quote.MPSQuote;
+import edu.yu.einstein.wasp.service.AccountsService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobDraftService;
@@ -362,6 +363,9 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 
 	@Autowired
 	protected FileService fileService;
+	
+	@Autowired
+	protected AccountsService accountsService;
 
 	
 	protected JobExplorerWasp batchJobExplorer;
@@ -1206,6 +1210,8 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 					jobFileDao.save(jobFile);
 				}
 			}	
+			
+			accountsService.saveJobDraftGrant(jobDraft, accountsService.getGrantForJobDraft(jobDraft));
 			
 			// update the jobdraft
 			jobDraft.setStatus("SUBMITTED");

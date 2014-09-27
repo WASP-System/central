@@ -1,10 +1,10 @@
 
 /**
  *
- * QuoteAndInvoiceServiceImpl.java 
+ * AccountsServiceImpl.java 
  * @author RDubin
  *  
- * the QuoteAndInvoiceService object
+ * the AccountsServiceImpl object
  *
  *
  **/
@@ -40,8 +40,15 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
 
+import edu.yu.einstein.wasp.dao.AcctGrantDao;
+import edu.yu.einstein.wasp.dao.AcctGrantjobDao;
+import edu.yu.einstein.wasp.dao.AcctGrantjobDraftDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.model.AcctGrant;
+import edu.yu.einstein.wasp.model.AcctGrantjob;
+import edu.yu.einstein.wasp.model.AcctGrantjobDraft;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.Lab;
@@ -54,14 +61,14 @@ import edu.yu.einstein.wasp.quote.Discount;
 import edu.yu.einstein.wasp.quote.LibraryCost;
 import edu.yu.einstein.wasp.quote.MPSQuote;
 import edu.yu.einstein.wasp.quote.SequencingCost;
+import edu.yu.einstein.wasp.service.AccountsService;
 import edu.yu.einstein.wasp.service.JobService;
-import edu.yu.einstein.wasp.service.QuoteAndInvoiceService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
 @Service
 @Transactional("entityManager")
-public class QuoteAndInvoiceServiceImpl extends WaspServiceImpl implements QuoteAndInvoiceService{
+public class AccountsServiceImpl extends WaspServiceImpl implements AccountsService{
 
 	public static final Font BIG_BOLD =  new Font(FontFamily.TIMES_ROMAN, 13, Font.BOLD );
 	public static final Font NORMAL =  new Font(FontFamily.TIMES_ROMAN, 11 );
@@ -70,8 +77,18 @@ public class QuoteAndInvoiceServiceImpl extends WaspServiceImpl implements Quote
 
 	@Autowired
 	private JobService jobService;
+	
 	@Autowired
 	private SampleService sampleService;
+	
+	@Autowired
+	private AcctGrantDao acctGrantDao;
+	
+	@Autowired
+	private AcctGrantjobDao acctGrantjobDao;
+	
+	@Autowired
+	private AcctGrantjobDraftDao acctGrantjobDraftDao;
 
 	public void buildQuoteAsPDF(MPSQuote mpsQuote, Job job, OutputStream outputStream)throws DocumentException, MetadataException{
 		
@@ -688,6 +705,80 @@ public class QuoteAndInvoiceServiceImpl extends WaspServiceImpl implements Quote
 	 	document.add(costTable);		
 		
 		return new Integer(totalFinalCost);
+	}
+
+	@Override
+	public AcctGrant saveGrant(AcctGrant grant) {
+		return acctGrantDao.save(grant);
+	}
+
+	@Override
+	public List<AcctGrant> getGrantsForLab(Lab lab) {
+		Map<String, Object> m = new HashMap<String, Object>();
+		m.put("labId", lab.getId());
+		List<AcctGrant> grants = acctGrantDao.findByMap(m);
+		if (grants != null)
+			return grants;
+		return new ArrayList<AcctGrant>();
+	}
+
+	@Override
+	public AcctGrant getGrantForJob(Job job) {
+		AcctGrantjob agj = acctGrantjobDao.getAcctGrantjobByJobId(job.getId());
+		if (agj == null)
+			return null;
+		return agj.getAcctGrant();
+	}
+
+	@Override
+	public AcctGrantjob saveJobGrant(Job job, AcctGrant grant) {
+		AcctGrantjob acj = new AcctGrantjob();
+		acj.setGrantId(grant.getId());
+		acj.setJobId(job.getId());
+		return acctGrantjobDao.save(acj);
+	}
+
+	@Override
+	public AcctGrant getAcctGrantById(Integer id) {
+		return acctGrantDao.getById(id);
+	}
+
+	@Override
+	public AcctGrantjob getJobGrant(Job job, AcctGrant grant) {
+		Map<String, Object> m = new HashMap<String, Object>();
+		m.put("id", job.getId()); // jobid is primary key in this table (why ????) hence just use id
+		m.put("grantId", grant.getId());
+		List<AcctGrantjob> jobgrants = acctGrantjobDao.findByMap(m);
+		if (jobgrants != null && !jobgrants.isEmpty())
+			return jobgrants.get(0);
+		return null;
+	}
+
+	@Override
+	public AcctGrant getGrantForJobDraft(JobDraft jobDraft) {
+		AcctGrantjobDraft agjd = acctGrantjobDraftDao.getAcctGrantjobByJobDraftId(jobDraft.getId());
+		if (agjd == null)
+			return null;
+		return agjd.getAcctGrant();
+	}
+
+	@Override
+	public AcctGrantjobDraft saveJobDraftGrant(JobDraft jobDraft, AcctGrant grant) {
+		AcctGrantjobDraft acj = new AcctGrantjobDraft();
+		acj.setGrantId(grant.getId());
+		acj.setJobDraftId(jobDraft.getId());
+		return acctGrantjobDraftDao.save(acj);
+	}
+
+	@Override
+	public AcctGrantjobDraft getJobDraftGrant(JobDraft jobDraft, AcctGrant grant) {
+		Map<String, Object> m = new HashMap<String, Object>();
+		m.put("id", jobDraft.getId()); // jobDraft is primary key in this table (why ????) hence just use id
+		m.put("grantId", grant.getId());
+		List<AcctGrantjobDraft> jobDraftgrants = acctGrantjobDraftDao.findByMap(m);
+		if (jobDraftgrants != null && !jobDraftgrants.isEmpty())
+			return jobDraftgrants.get(0);
+		return null;
 	}
 	
 }

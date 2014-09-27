@@ -1,10 +1,10 @@
 
 /**
  *
- * AcctGrantjob.java 
+ * AcctGrantjobDraft.java 
  * @author echeng (table2type.pl)
  *  
- * the AcctGrantjob
+ * the AcctGrantjobDraft
  *
  *
  */
@@ -22,36 +22,33 @@ import org.hibernate.envers.NotAudited;
 
 @Entity
 @Audited
-@Table(name="acct_grantjob")
-public class AcctGrantjob extends WaspModel {
+@Table(name="acct_grantjobdraft")
+public class AcctGrantjobDraft extends WaspModel {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 8452582861645453970L;
-	
+	private static final long serialVersionUID = -919520250156495349L;
+
 	/**
-	 * setJobId(Integer jobId)
+	 * setJobDraftId(Integer jobDraftId)
 	 *
 	 * @param jobId
 	 *
 	 */
-	public void setJobId (Integer jobId) {
-		setId(jobId);
+	public void setJobDraftId (Integer jobDraftId) {
+		setId(jobDraftId);
 	}
 
 	/**
-	 * getJobId()
+	 * getJobDraftId()
 	 *
-	 * @return jobId
+	 * @return jobDraftId
 	 *
 	 */
-	public Integer getJobId () {
+	public Integer getJobDraftId () {
 		return getId();
 	}
-
-
-
 
 	/** 
 	 * grantId
@@ -110,36 +107,6 @@ public class AcctGrantjob extends WaspModel {
 	 */
 	public Integer getIsActive () {
 		return this.isActive;
-	}
-
-	/**
-	 * acctLedger
-	 *
-	 */
-	@NotAudited
-	@ManyToOne
-	@JoinColumn(name="id", referencedColumnName="jobId", insertable=false, updatable=false)
-	protected AcctLedger acctLedger;
-
-	/**
-	 * setAcctLedger (AcctLedger acctLedger)
-	 *
-	 * @param acctLedger
-	 *
-	 */
-	public void setAcctLedger (AcctLedger acctLedger) {
-		this.acctLedger = acctLedger;
-	}
-
-	/**
-	 * getAcctLedger ()
-	 *
-	 * @return acctLedger
-	 *
-	 */
-	
-	public AcctLedger getAcctLedger () {
-		return this.acctLedger;
 	}
 
 
