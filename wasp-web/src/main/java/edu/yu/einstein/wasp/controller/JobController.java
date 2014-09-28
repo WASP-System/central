@@ -70,6 +70,7 @@ import edu.yu.einstein.wasp.exception.QuoteException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.model.AcctGrant;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.Adaptor;
@@ -197,7 +198,7 @@ public class JobController extends WaspController {
 	@Autowired
 	private MessageServiceWebapp messageService;
 	@Autowired
-	private AccountsService quoteAndInvoiceService;
+	private AccountsService accountsService;
 	
 	@Value("${wasp.analysis.perLibraryFee:0}")
 	private Float perLibraryAnalysisFee;
@@ -849,6 +850,16 @@ public class JobController extends WaspController {
 			m.addAttribute("strategy", strategy);	 
 		}catch(Exception e){ logger.warn("Job Strategy unexpectedly not found"); }
 		m.addAttribute("isAnalysisRequested", jobService.getIsAnalysisSelected(job) ? "Yes" : "No");
+		String grantDetails = "N/A";
+		AcctGrant grant = accountsService.getGrantForJob(job);
+		if (grant != null){
+			grantDetails = grant.getCode();
+			if (grant.getName() != null && !grant.getName().isEmpty())
+				grantDetails += " (" + grant.getName() + ")";
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			grantDetails += ", expires " + dateFormat.format(grant.getExpirationdt());
+		}
+	    m.addAttribute("grantDetails", grantDetails);
 		return "job/home/basic";
 	}
   
@@ -1196,7 +1207,7 @@ public class JobController extends WaspController {
 		   	}catch(Exception e){logger.warn(e.getMessage()); return; }
 		}
 		try{
-			quoteAndInvoiceService.buildQuoteAsPDF(mpsQuote, job, response.getOutputStream());	
+			accountsService.buildQuoteAsPDF(mpsQuote, job, response.getOutputStream());	
 			response.setContentType("application/pdf");
 			response.getOutputStream().close();//apparently not really needed here but doesn't hurt
  	    	return;
@@ -1250,7 +1261,7 @@ public class JobController extends WaspController {
 			localFile = fileService.createTempFile();
 			outputStream = new FileOutputStream(localFile);
 			
-			quoteAndInvoiceService.buildQuoteAsPDF(mpsQuote, job, outputStream);
+			accountsService.buildQuoteAsPDF(mpsQuote, job, outputStream);
 			
 			outputStream.close();//file has been save to local location
 			 

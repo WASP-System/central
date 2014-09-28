@@ -260,6 +260,16 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
 	 	//	commonJobDetails.add(new Phrase("Completed: " + formatter.format(get the date, ask andy how), NORMAL));commonJobDetailsParagraph.add(Chunk.NEWLINE);
 	 	//}
 	    commonJobDetailsParagraph.add(new Phrase("Assay: " + job.getWorkflow().getName(), NORMAL));commonJobDetailsParagraph.add(Chunk.NEWLINE);
+	    String grantDetails = "N/A";
+	    AcctGrant grant = getGrantForJob(job);
+	    if (grant != null){
+		    grantDetails =  grant.getCode();
+		    if (grant.getName() != null && !grant.getName().isEmpty())
+		    	grantDetails += " (" + grant.getName() + ")";
+		    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		    grantDetails += ", expires " + dateFormat.format(grant.getExpirationdt());
+	    }
+	    commonJobDetailsParagraph.add(new Phrase("Grant Details: " + grantDetails, NORMAL));commonJobDetailsParagraph.add(Chunk.NEWLINE);
 	    return commonJobDetailsParagraph;
 	}
 	

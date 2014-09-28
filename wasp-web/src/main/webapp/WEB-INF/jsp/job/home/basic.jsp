@@ -51,6 +51,8 @@
 	</c:if>
 	<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobWorkflow.label" />:</td><td class="DataTD"><c:out value="${job.workflow.name}" /></td></tr>
 	<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobAnalysisRequested.label" />:</td><td class="DataTD"><c:out value="${isAnalysisRequested}" /></td></tr>
+	<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobGrantDetails.label" />:</td><td class="DataTD"><c:out value="${grantDetails}" /></td></tr>
+	
 	<c:forEach items="${extraJobDetailsMap.keySet()}" var="detailKey">
 		<tr class="FormData"><td class="CaptionTD"><fmt:message key="${detailKey}" />:</td><td class="DataTD"><c:out value="${extraJobDetailsMap.get(detailKey)}" /></td></tr>
 	</c:forEach>
