@@ -94,6 +94,7 @@ import edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTempl
 import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.interfacing.plugin.ConfigureablePropertyProviding;
 import edu.yu.einstein.wasp.interfacing.plugin.ResourceConfigurableProperties;
+import edu.yu.einstein.wasp.model.AcctGrant;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -1210,8 +1211,8 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 					jobFileDao.save(jobFile);
 				}
 			}	
-			
-			accountsService.saveJobGrant(jobDb, accountsService.getGrantForJobDraft(jobDraft));
+			AcctGrant grant = accountsService.getGrantForJobDraft(jobDraft);
+			accountsService.saveJobGrant(jobDb, grant);
 			
 			// update the jobdraft
 			jobDraft.setStatus("SUBMITTED");
