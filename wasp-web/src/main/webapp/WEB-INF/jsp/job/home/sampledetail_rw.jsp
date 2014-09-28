@@ -12,6 +12,7 @@
 	      <td class="DataTD"><form:input cssClass="FormElement ui-widget-content ui-corner-all" path="name" /><span class="requiredField">*</span></td>
 	      <td class="CaptionTD error"><form:errors path="name" /></td>
 	     </tr>
+	     <tr class="FormData"><td class="CaptionTD"><fmt:message key="sampledetail_rw.id.label" />:</td><td class="DataTD"><c:out value="${sample.getId()}" /></td><td class="CaptionTD error"><form:errors path="" /></td></tr>
 	     <tr class="FormData"><td class="CaptionTD"><fmt:message key="sampledetail_rw.sampleType.label" />:</td><td class="DataTD"><c:out value="${sample.sampleType.name}" /></td><td class="CaptionTD error"><form:errors path="" /></td></tr>
 	     <c:set var="_area" value = "sample" scope="request"/>
 		 <c:set var="_metaList" value = "${normalizedSampleMeta}" scope="request" />		

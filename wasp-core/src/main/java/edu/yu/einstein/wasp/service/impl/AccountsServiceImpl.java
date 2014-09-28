@@ -334,7 +334,7 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
 	 	
 	 	PdfPTable sampleLibraryTable = new PdfPTable(7);
 	 	sampleLibraryTable.setHorizontalAlignment(Element.ALIGN_LEFT);
-	 	sampleLibraryTable.setWidths(new float[]{0.3f, 1.5f, 0.6f, 1f, 1f, 1f, 1f});
+	 	sampleLibraryTable.setWidths(new float[]{0.3f, 1.7f, 0.7f, 0.8f, 0.8f, 0.8f, 1.0f});
 		PdfPCell cellNo = new PdfPCell(new Phrase("No.", NORMAL_BOLD));
 		cellNo.setHorizontalAlignment(Element.ALIGN_CENTER);
 		sampleLibraryTable.addCell(cellNo);

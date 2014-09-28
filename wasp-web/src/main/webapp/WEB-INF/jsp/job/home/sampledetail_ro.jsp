@@ -6,6 +6,7 @@
 <br /><br /><br />
 <table class="EditTable ui-widget ui-widget-content">
   	<tr class="FormData"><td class="CaptionTD"><fmt:message key="sampledetail_ro.sampleName.label" />:</td><td class="DataTD"><c:out value="${sample.name}" /></td></tr>
+  	<tr class="FormData"><td class="CaptionTD"><fmt:message key="sampledetail_ro.id.label" />:</td><td class="DataTD"><c:out value="${sample.getId()}" /></td></tr>
   	<tr class="FormData"><td class="CaptionTD"><fmt:message key="sampledetail_ro.sampleType.label" />:</td><td class="DataTD"><c:out value="${sample.sampleType.name}" /></td></tr>
      <c:set var="_area" value = "sample" scope="request"/>
 	 <c:set var="_metaList" value = "${normalizedSampleMeta}" scope="request" />		
