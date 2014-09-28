@@ -477,7 +477,7 @@ public class JobSubmissionController extends WaspController {
 		
 		List<AcctGrant> grantsAvailable = new ArrayList<AcctGrant>();
 		if (jobDraft.getLabId() != null){
-			grantsAvailable = accountsService.getGrantsForLab(labDao.getById(jobDraft.getLabId()));
+			grantsAvailable = accountsService.getNonExpiredGrantsForLab(labDao.getById(jobDraft.getLabId()));
 		}
 		m.put("grantsAvailable", grantsAvailable);
 		m.put("thisJobDraftsGrant", (jobDraft.getId() != null) ? accountsService.getGrantForJobDraft(jobDraft) : null);
@@ -550,7 +550,7 @@ public class JobSubmissionController extends WaspController {
 		//THIS IS AN AJAX CALL FROM WEB
 		
 		Lab lab = labDao.getById(Integer.parseInt(request.getParameter("selectedLabId")));
-		List <AcctGrant> grantsForTheRequestedLab = accountsService.getGrantsForLab(lab);
+		List <AcctGrant> grantsForTheRequestedLab = accountsService.getNonExpiredGrantsForLab(lab);
 		Map<Integer, String> grants = new HashMap<>();
 		for (AcctGrant grant: grantsForTheRequestedLab){
 			String value = grant.getCode();

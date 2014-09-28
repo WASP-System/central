@@ -46,4 +46,11 @@ public interface AccountsService extends WaspService{
 	
 	public AcctGrantjobDraft getJobDraftGrant(JobDraft jobDraft, AcctGrant grant);
 
+	/**
+	 * return list of non-expired grants
+	 * @param lab
+	 * @return
+	 */
+	public List<AcctGrant> getNonExpiredGrantsForLab(Lab lab);
+
 }

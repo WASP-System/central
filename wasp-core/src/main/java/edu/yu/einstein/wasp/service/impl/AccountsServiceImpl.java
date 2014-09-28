@@ -721,6 +721,21 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
 			return grants;
 		return new ArrayList<AcctGrant>();
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<AcctGrant> getNonExpiredGrantsForLab(Lab lab) {
+		ArrayList<AcctGrant> currentGrants = new ArrayList<AcctGrant>();
+		for (AcctGrant grant : getGrantsForLab(lab)){
+			if (grant.getExpirationdt().before(new Date()))
+				grant.setIsActive(0);
+			else
+				currentGrants.add(grant);
+		}
+		return currentGrants;
+	}
 
 	@Override
 	public AcctGrant getGrantForJob(Job job) {
