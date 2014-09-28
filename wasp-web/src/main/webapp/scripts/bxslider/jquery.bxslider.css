@@ -181,7 +181,7 @@
 
 .bx-wrapper .bx-caption {
 	position: absolute;
-	bottom: 0;
+	top: 30%;
 	left: 0;
 	background: #666\9;
 	background: rgba(80, 80, 80, 0.75);
@@ -191,7 +191,9 @@
 .bx-wrapper .bx-caption span {
 	color: #fff;
 	font-family: Arial;
+	line-height: 110%;
 	display: block;
-	font-size: .85em;
-	padding: 10px;
+	font-size: 2em;
+	text-align:center;
+	padding: 20px;
 }

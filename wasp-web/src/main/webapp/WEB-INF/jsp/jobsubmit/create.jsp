@@ -107,9 +107,9 @@
 		      	</select>
 		      	<span class="requiredField">*</span>
 		      	<a id="viewAddGrantAnchor" href="javascript:void(0);"><fmt:message key="jobsubmitCreate.viewAddGrant.label" /></a>
-		      	<table class="EditTable ui-widget ui-widget-content " id="addGrantTable" style="display:none;padding-top:10px">
+		      	<table class="EditTable ui-widget ui-widget-content " id="addGrantTable" style="display:none;margin-top:5px">
 				   <tr>
-				  	<th class="label" colspan="3"><fmt:message key="jobDraft.grantDetails.label" /></th>
+				  	<th class="label-centered" style="background-color:#FAF2D6" colspan="3"><fmt:message key="jobDraft.grantDetails.label" /></th>
 				  </tr>
 				  <tr class="FormData" >
 					    <td class="CaptionTD"><fmt:message key="jobDraft.grantCode.label" />:</td>
