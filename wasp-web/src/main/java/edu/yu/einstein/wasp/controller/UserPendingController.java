@@ -231,7 +231,8 @@ public class UserPendingController extends WaspController {
 		Lab lab = labDao.getLabByPrimaryUserId(userDao.getUserByEmail(piUserEmail).getUserId());
 		userPendingForm.setLabId(lab.getLabId());
 		userPendingForm.setStatus("WAIT_EMAIL"); // set to WAIT_EMAIL even if isEmailApproved == true or sendPendingUserConfRequestEmail() won't work properly
-				
+		if (webAuthenticationService.isAuthenticationSetExternal())
+			userPendingForm.setPassword(webAuthenticationService.getRandomPassword(20)); // authenticating off AD/LDAP so no need to store real password
 		userPendingForm.setPassword( webAuthenticationService.encodePassword(userPendingForm.getPassword()) ); 
 				
 		List<UserPendingMeta> userPendingMetaList = (List<UserPendingMeta>) userPendingMetaHelperWebapp.getMetaList();
