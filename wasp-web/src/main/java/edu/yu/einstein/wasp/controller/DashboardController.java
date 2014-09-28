@@ -7,6 +7,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.taskMapping.TaskMappingRegistry;
 import edu.yu.einstein.wasp.taskMapping.WaspTaskMapping;
 
@@ -21,18 +22,20 @@ public class DashboardController extends WaspController {
 	@Autowired
 	private TaskMappingRegistry taskMappingRegistry;
 	
+	@Autowired
+	private JobService jobService;
+	
 	@RequestMapping("/dashboard")
 	public String list(ModelMap m) {
-		m.addAttribute("me", authenticationService.getAuthenticatedUser());
 		boolean isTasks = false;
+		m.addAttribute("me", authenticationService.getAuthenticatedUser());
 		for (String name: taskMappingRegistry.getNames()){
-			logger.debug("Examining task name=" + name);
 			WaspTaskMapping taskMapping = taskMappingRegistry.getTaskMapping(name);
 			if (taskMapping == null){
 				logger.warn("Unable to retrieve a taskmapping with name '" + name + "' from the TaskMappingRegistry");
 				continue;
 			}
-			if (taskMapping.isLinkToBeShown()){
+			if (taskMapping.isLinkToBeShown(jobService.getActiveJobs())){				
 				isTasks = true;
 				break;
 			}
