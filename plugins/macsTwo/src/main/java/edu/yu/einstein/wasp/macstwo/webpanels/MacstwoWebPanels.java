@@ -370,10 +370,6 @@ public class MacstwoWebPanels {
 				// add download action to the list
 				actionList.add(new Action("icon-download", "Download", CallbackFunctionType.DOWNLOAD, fileHandleResolvedURLMap.get(fileHandle)));
 				actionList.add(new Action("icon-view-file", "View", CallbackFunctionType.OPEN_IN_CSS_WIN, new ArrayList<FileGroup>(fileHandle.getFileGroup()).get(0).getId().toString()));
-				logger.debug("Filegrp id = "+ new ArrayList<FileGroup>(fileHandle.getFileGroup()).get(0).getId());
-				logger.debug("Filehdl name = "+ fileHandle.getFileName());
-				logger.debug("Filegrp desc = "+ new ArrayList<FileGroup>(fileHandle.getFileGroup()).get(0).getDescription());
-				logger.debug("Filegrp type = "+ new ArrayList<FileGroup>(fileHandle.getFileGroup()).get(0).getFileType().getIName());
 				
 				List<GenomeBrowserProviding> plugins = new ArrayList<>();
 				///System.out.println("at 2");
