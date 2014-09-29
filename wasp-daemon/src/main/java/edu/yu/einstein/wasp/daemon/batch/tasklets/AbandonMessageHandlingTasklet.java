@@ -178,8 +178,9 @@ public class AbandonMessageHandlingTasklet implements MessageHandler, NameAwareT
 		if (! WaspStatus.class.isInstance(message.getPayload()))
 			return;
 		// first check if any abort / failure messages have been delivered from a monitored message template
+		WaspStatus statusFromMessage = (WaspStatus) message.getPayload();
 		for (StatusMessageTemplate messageTemplate: abandonTemplates){
-			if (messageTemplate.actUponMessage(message)){
+			if (messageTemplate.actUponMessage(message) && statusFromMessage.equals(messageTemplate.getStatus())){
 				this.abandonMessageQueue.add(message);
 				logger.debug(name + "handleMessage() found ABANDONED message for abort-monitored template " + 
 						messageTemplate.getClass().getName() + ". Going to fail step.");

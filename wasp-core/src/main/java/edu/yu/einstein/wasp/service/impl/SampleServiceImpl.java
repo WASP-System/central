@@ -596,7 +596,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			else if(internalStatus.isCompleted()){
 				return "RECEIVED";
 			}
-			else if(internalStatus.isTerminated()){
+			else if(internalStatus.isTerminated() || internalStatus.isStopped()){
 				return "WITHDRAWN";
 			} 
 			else {
@@ -604,23 +604,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			}
 	  }
 	  
-	  /**
-	   * {@inheritDoc}
-	   */
-	  @Override
-	  public WaspStatus convertSampleReceivedStatusFromWeb(String webStatus){
-		  // TODO: Write test!!
-		  Assert.assertParameterNotNull(webStatus, "No webStatus provided");
-		  	if(webStatus.equals("RECEIVED")){
-				return WaspStatus.CREATED;
-			}
-			else if(webStatus.equals("WITHDRAWN")){
-				return WaspStatus.ABANDONED;
-			}
-			else {
-				return WaspStatus.UNKNOWN;
-			}
-	  }
 	  
 	  /**
 	   * {@inheritDoc}
