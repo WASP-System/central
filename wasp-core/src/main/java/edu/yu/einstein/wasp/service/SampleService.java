@@ -191,13 +191,6 @@ public interface SampleService extends WaspMessageHandlingService {
 	  public String convertSampleReceivedStatusForWeb(ExitStatus internalStatus);
 	  
 	  /**
-	   * Converts sample's Receive Sample status from human-comprehensible meaning for viewing on the web to a WaspStatus
-	   * @param webStatus
-	   * @return
-	   */
-	  public WaspStatus convertSampleReceivedStatusFromWeb(String webStatus);
-
-	  /**
 	   * Gets list of Receive Sample options for web display
 	   * @param none
 	   * @return List<String> containing the list of Receive Sample Options for web display 
