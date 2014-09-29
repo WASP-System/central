@@ -3,7 +3,6 @@ package edu.yu.einstein.wasp.controller;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +12,7 @@ import javax.validation.Valid;
 import nl.captcha.Captcha;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -43,6 +43,7 @@ import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabPendingMeta;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
 import edu.yu.einstein.wasp.service.EmailService;
@@ -97,6 +98,9 @@ public class UserPendingController extends WaspController {
 	@Autowired
 	private WebAuthenticationService webAuthenticationService;
 	
+	@Value("${wasp.host.instituteName:Einstein}")
+	String hostInstituteName;
+	
 		
 	/**
 	 * get a @{link MetaHelperWebapp} instance for working with userPending metadata
@@ -106,27 +110,64 @@ public class UserPendingController extends WaspController {
 		return new MetaHelperWebapp(UserPendingMeta.class, request.getSession());
 	}
 	
-		
 	/**
-	 * Create model for a new user application form view based on the current userPending metadata in the uifield properties table
-	 * @param m model
+	 * Display form to applying user to select their PI
+	 * @param m
 	 * @return view
 	 */
-	@RequestMapping(value="/newuser", method=RequestMethod.GET)
-	public String showNewPendingUserForm(ModelMap m) {
+	@RequestMapping(value="/newuser/selectpi", method=RequestMethod.GET)
+	public String selectPiGet(ModelMap m) {
+		m.addAttribute("primaryUserIdError", "");
+		m.addAttribute("primaryUserIdError", "");
+		return "auth/newuser/selectpi";
+	}
+	
+	/**
+	 * process selectpi post request
+	 * @param primaryUserId
+	 * @param m
+	 * @return
+	 */
+	@RequestMapping(value="/newuser/selectpi", method=RequestMethod.POST)
+	public String selectPiPost(@RequestParam(value="primaryuserid", required=true) String primaryUserId, ModelMap m) {
+		String primaryUserIdError = "";
+		User primaryInvestigator = userDao.getUserByEmail(primaryUserId);
+		if (primaryInvestigator.getId() == null || 
+				primaryInvestigator.getIsActive() == 0 || 
+				labDao.getLabByPrimaryUserId(primaryInvestigator.getId()).getId() == null)
+			primaryUserIdError = messageService.getMessage("userPending.primaryuserid_notvalid.error");
+		m.addAttribute("primaryUserIdError", primaryUserIdError);
+		m.addAttribute("primaryUserId", primaryUserId);
+		if (!primaryUserIdError.isEmpty())
+			return "auth/newuser/selectpi";
+		MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp(UserMeta.class, request.getSession());
+		metaHelperWebapp.setMetaList(primaryInvestigator.getUserMeta());
+		boolean isHostInstitute = false;
+		try{
+			if (metaHelperWebapp.getMetaByName("institution").getV().equals(metaHelperWebapp.getMetaByName("institution").getV()))
+				isHostInstitute = true;
+		} catch (Exception e){
+			logger.warn("Unable to get institution for pi with userId=" + primaryInvestigator.getId() + " going to set isHostInstitute=false");
+		}
 		
-
+		metaHelperWebapp=getMetaHelperWebapp();
+		Map<String, MetaAttribute.FormVisibility> visibilityElementMap = new HashMap<String, MetaAttribute.FormVisibility>();
+		visibilityElementMap.put("userPending.primaryuserid", MetaAttribute.FormVisibility.hidden);
+		metaHelperWebapp.getMasterList(visibilityElementMap, UserPendingMeta.class);
+		try{
+			metaHelperWebapp.setMetaValueByName("primaryuserid", primaryInvestigator.getEmail());
+		} catch (MetadataException e){
+			logger.warn("unable to set primaryuserid met value to " + primaryInvestigator.getEmail());
+		}
 		UserPending userPending = new UserPending();
-		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();	
-		
-		userPending.setUserPendingMeta(metaHelperWebapp.getMasterList(UserPendingMeta.class));
-		m.put("isAuthenticationExternal", webAuthenticationService.isAuthenticationSetExternal());
+		userPending.setUserPendingMeta(metaHelperWebapp.getMetaList(UserPendingMeta.class));
+		m.addAttribute("isAuthenticationExternal", webAuthenticationService.isAuthenticationSetExternal());
+		m.addAttribute("isHostInstitute", isHostInstitute);
 		m.addAttribute(metaHelperWebapp.getParentArea(), userPending);
 		prepareSelectListData(m);
-
 		return "auth/newuser/form";
-
 	}
+	
 
 	/**
 	 * Validate posted form with bound {@link UserPending} data
@@ -190,7 +231,7 @@ public class UserPendingController extends WaspController {
 			User user = userDao.getUserByEmail(userPendingForm.getEmail());
 			//NV 12132011
 			//if (user.getUserId() != null ){
-			if (user.getUserId() != null ){
+			if (user.getId() != null ){
 
 				Errors errors=new BindException(result.getTarget(), userPendingMetaHelperWebapp.getParentArea());
 				errors.rejectValue("email", userPendingMetaHelperWebapp.getParentArea()+".email_exists.error", userPendingMetaHelperWebapp.getParentArea()+".email_exists.error (no message has been defined for this property)");
@@ -202,11 +243,9 @@ public class UserPendingController extends WaspController {
 		Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 		
 		String captchaText = request.getParameter("captcha");
-		/* NV commented for testing
 		if (captcha == null || captchaText == null || captchaText.isEmpty() || (! captcha.isCorrect(captchaText)) ){
 			m.put("captchaError", messageService.getMessage(userPendingMetaHelperWebapp.getParentArea()+".captcha.error"));
 		}
-		*/
 		if (result.hasErrors() || m.containsKey("captchaError")) {
 			userPendingForm.setUserPendingMeta((List<UserPendingMeta>) userPendingMetaHelperWebapp.getMetaList());
 			prepareSelectListData(m);
@@ -228,8 +267,8 @@ public class UserPendingController extends WaspController {
 
 		
 		//Lab lab = labDao.getLabByPrimaryUserId(userDao.getUserByLogin(piUserLogin).getUserId()); //replaced by next line, 02-04-2013
-		Lab lab = labDao.getLabByPrimaryUserId(userDao.getUserByEmail(piUserEmail).getUserId());
-		userPendingForm.setLabId(lab.getLabId());
+		Lab lab = labDao.getLabByPrimaryUserId(userDao.getUserByEmail(piUserEmail).getId());
+		userPendingForm.setLabId(lab.getId());
 		userPendingForm.setStatus("WAIT_EMAIL"); // set to WAIT_EMAIL even if isEmailApproved == true or sendPendingUserConfRequestEmail() won't work properly
 		if (webAuthenticationService.isAuthenticationSetExternal())
 			userPendingForm.setPassword(webAuthenticationService.getRandomPassword(20)); // authenticating off AD/LDAP so no need to store real password
@@ -241,7 +280,7 @@ public class UserPendingController extends WaspController {
 		userPendingForm.setLastName(StringHelper.removeExtraSpacesAndCapFirstLetter(userPendingForm.getLastName()));
 		UserPending userPendingDb = userPendingDao.save(userPendingForm);
 		try{
-			userPendingMetaDao.setMeta(userPendingMetaList, userPendingDb.getUserPendingId());
+			userPendingMetaDao.setMeta(userPendingMetaList, userPendingDb.getId());
 		} catch (MetadataException e){
 			logger.warn(e.getLocalizedMessage());
 			waspErrorMessage("user.created.error");
@@ -288,9 +327,8 @@ public class UserPendingController extends WaspController {
 	 */
 	@RequestMapping(value="/newpi/institute", method=RequestMethod.GET)
 	public String selectPiInstitute(ModelMap m) {
-		String internalInstituteList = messageService.getMessage("piPending.internal_institute_list.data");
 		List<String> instituteList = new ArrayList<String>();
-		Collections.addAll(instituteList,internalInstituteList.split(";")); 
+		instituteList.add(hostInstituteName);
 		m.addAttribute("instituteList", instituteList);
 		return "auth/newpi/institute";
 	}
@@ -309,9 +347,8 @@ public class UserPendingController extends WaspController {
 			@RequestParam(value="instituteSelect") String instituteSelect,
 			@RequestParam(value="instituteOther", required = false) String instituteOther,
 			ModelMap m) throws MetadataException {
-		String internalInstituteList = messageService.getMessage("piPending.internal_institute_list.data");
 		List<String> instituteList = new ArrayList<String>();
-		Collections.addAll(instituteList,internalInstituteList.split(";")); 
+		instituteList.add(hostInstituteName);
 		m.addAttribute("instituteList", instituteList);
 		if ( (instituteSelect == null || instituteSelect.equals("other") || instituteSelect.isEmpty()) && (instituteOther == null || instituteOther.isEmpty()) ){
 			waspErrorMessage("piPending.institute_not_selected.error");
@@ -327,10 +364,12 @@ public class UserPendingController extends WaspController {
 		String instituteName = "";
 		Map<String, MetaAttribute.FormVisibility> visibilityElementMap = new HashMap<String, MetaAttribute.FormVisibility>();
 		visibilityElementMap.put("piPending.institution", MetaAttribute.FormVisibility.immutable);
+		boolean isHostInstitute = false;
 		if (instituteSelect != null && !instituteSelect.equals("other")){
 			// internal institute
 			instituteName = instituteSelect;
 			metaHelperWebapp.getMasterList(visibilityElementMap, UserPendingMeta.class);
+			isHostInstitute = true;
 		} else {
 			// external institute
 			instituteName = StringHelper.removeExtraSpacesAndCapFirstLetter(instituteOther);
@@ -342,13 +381,14 @@ public class UserPendingController extends WaspController {
 			if (extDepartments.isEmpty() || extDepartments.size() >1 ){
 				throw new MetadataException("Either 0 or >1 external departments defined in the database. Should only be 1");
 			}
-			metaHelperWebapp.setMetaValueByName("departmentId", Integer.toString(extDepartments.get(0).getDepartmentId()));
+			metaHelperWebapp.setMetaValueByName("departmentId", Integer.toString(extDepartments.get(0).getId()));
 		}
 		metaHelperWebapp.setMetaValueByName("institution", instituteName);
 		
 		UserPending userPending = new UserPending();
 		userPending.setUserPendingMeta((List<UserPendingMeta>) metaHelperWebapp.getMetaList());
 		m.addAttribute(metaHelperWebapp.getParentArea(), userPending);
+		m.addAttribute("isHostInstitute", isHostInstitute);
 		
 		// save visibility map to session in order to use it later
 		request.getSession().setAttribute("visibilityElementMap", visibilityElementMap);
@@ -426,7 +466,7 @@ public class UserPendingController extends WaspController {
 			User user = userDao.getUserByEmail(userPendingForm.getEmail());
 
 			//NV 12132011
-			if (user.getUserId() != null){
+			if (user.getId() != null){
 
 				Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
 				errors.rejectValue("email", metaHelperWebapp.getParentArea()+".email_exists.error", metaHelperWebapp.getParentArea()+".email_exists.error (no message has been defined for this property)");
@@ -438,11 +478,9 @@ public class UserPendingController extends WaspController {
 		Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 		
 		String captchaText = request.getParameter("captcha");
-		/* NV commented for testing
 		if (captcha == null || captchaText == null || captchaText.isEmpty() || (! captcha.isCorrect(captchaText)) ){
 			m.put("captchaError", messageService.getMessage(metaHelperWebapp.getParentArea()+".captcha.error"));
 		}
-		*/
 		if (result.hasErrors() || m.containsKey("captchaError")) {
 			userPendingForm.setUserPendingMeta((List<UserPendingMeta>) metaHelperWebapp.getMetaList());
 			prepareSelectListData(m, metaHelperWebapp);
@@ -461,7 +499,7 @@ public class UserPendingController extends WaspController {
 		UserPending userPendingDb = userPendingDao.save(userPendingForm);
 		List<UserPendingMeta> userPendingMetaList = (List<UserPendingMeta>) metaHelperWebapp.getMetaList();
 		try{
-			userPendingMetaDao.setMeta(userPendingMetaList, userPendingDb.getUserPendingId());
+			userPendingMetaDao.setMeta(userPendingMetaList, userPendingDb.getId());
 		} catch (MetadataException e){
 			logger.warn(e.getLocalizedMessage());
 		}
@@ -493,7 +531,7 @@ public class UserPendingController extends WaspController {
 			return false;
 		}
 		ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByAuthcode(authCode);
-		if (email == null || email.isEmpty() || confirmEmailAuth.getConfirmEmailAuthId() == null) {
+		if (email == null || email.isEmpty() || confirmEmailAuth.getId() == null) {
 			waspErrorMessage("auth.confirmemail_bademail.error");
 			if (m != null) m.put("authcode", authCode);
 			return false;
@@ -522,8 +560,8 @@ public class UserPendingController extends WaspController {
 		List<UserPending> userPendingList = userPendingDao.findByMap(userPendingQueryMap);
 		// consider email confirmed for ALL pending user and lab applications linked to this validated email address
 		for (UserPending up: userPendingList){
-			ConfirmEmailAuth auth = confirmEmailAuthDao.getConfirmEmailAuthByUserpendingId(up.getUserPendingId());
-			if (auth.getConfirmEmailAuthId() != null){
+			ConfirmEmailAuth auth = confirmEmailAuthDao.getConfirmEmailAuthByUserpendingId(up.getId());
+			if (auth.getId() != null){
 				confirmEmailAuthDao.remove(auth);
 			}
 			up.setStatus("PENDING");
@@ -552,7 +590,7 @@ public class UserPendingController extends WaspController {
 		userPendingMetaList = userPending.getUserPendingMeta();//11-08-12 (Rob): this hibernate-type call will not work if the userPending object was just now created (second request by a PI that has confirmed email address) and not completely committed
 		if(userPendingMetaList==null){
 			Map<String, Integer> filterMap = new HashMap<String, Integer>();
-			filterMap.put("userPendingId", userPending.getUserPendingId());
+			filterMap.put("userPendingId", userPending.getId());
 			userPendingMetaList = userPendingMetaDao.findByMap(filterMap);
 			List<UserPendingMeta> toRemoveList = new ArrayList<UserPendingMeta>();
 			for(UserPendingMeta upm : userPendingMetaList){
@@ -565,7 +603,7 @@ public class UserPendingController extends WaspController {
 		userPendingMetaHelperWebapp.syncWithMaster(userPendingMetaList);
 		LabPending labPending = new LabPending();
 		labPending.setStatus("PENDING");
-		labPending.setUserpendingId(userPending.getUserPendingId());
+		labPending.setUserpendingId(userPending.getId());
 		int departmentId = Integer.parseInt(userPendingMetaHelperWebapp.getMetaByName("departmentId").getV());
 		labPending.setDepartmentId(departmentId);
 		String labName = userPendingMetaHelperWebapp.getMetaByName("labName").getV();
@@ -607,7 +645,7 @@ public class UserPendingController extends WaspController {
 			}
 		}
 		try{
-			labPendingMetaDao.setMeta((List<LabPendingMeta>)labPendingMetaHelperWebapp.getMetaList(), labPendingDb.getLabPendingId() );
+			labPendingMetaDao.setMeta((List<LabPendingMeta>)labPendingMetaHelperWebapp.getMetaList(), labPendingDb.getId() );
 		} catch (MetadataException e){
 			logger.warn(e.getLocalizedMessage());
 			waspErrorMessage("labPending.created_meta.error");
@@ -670,14 +708,12 @@ public class UserPendingController extends WaspController {
 	        @RequestParam(value="captcha_text") String captchaText,
 	        ModelMap m) throws MetadataException {
 		  Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
-		  /* NV commented for testing
 		  if (captcha == null || (! captcha.isCorrect(captchaText)) ){
 			  waspErrorMessage("auth.confirmemail_captcha.error");
 			  m.put("authcode", authCode);
 			  m.put("email", email);
 			  return "auth/confirmemail/authcodeform";
 		  }
-		   */
 		  if (! userPendingEmailValid(authCode, email, m)) return "auth/confirmemail/authcodeform";
 
 
@@ -746,14 +782,12 @@ public class UserPendingController extends WaspController {
 			ModelMap m) throws MetadataException {
 		Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 		
-		/* NV commented for testing
 		if (captcha == null || (! captcha.isCorrect(captchaText)) ){
 			waspErrorMessage("auth.confirmemail_captcha.error");
 			m.put("authcode", authCode);
 			m.put("email", email);
 			return "auth/confirmemail/authcodeform";
 		}
-		*/
 		if (! userPendingEmailValid(authCode, email, m)) return "auth/confirmemail/authcodeform";
 
 
@@ -780,7 +814,7 @@ public class UserPendingController extends WaspController {
 			String institueName = metaHelperWebapp.getMetaByName("institution").getV();
 			if (institueName.isEmpty()) 
 				throw new MetadataException();
-			if (messageService.getMessage("piPending.internal_institute_list.data").contains(institueName))
+			if (hostInstituteName.equals(institueName))
 				isInternal = 1;
 		} catch (MetadataException e){
 			// handle MetadataException by simply logging an error and defaulting to the complete department list
