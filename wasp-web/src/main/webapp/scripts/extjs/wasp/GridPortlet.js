@@ -32,6 +32,8 @@ Ext.define('Wasp.GridPortlet', {
 	fields: [],
 	data: [],
 	columns: [],
+	
+	actionset: [],
 
 	height: minGridHeight,
 
@@ -39,25 +41,25 @@ Ext.define('Wasp.GridPortlet', {
 	groupfield: '',
 	groupheader: '{name}',
 
-	dlcol: false,
-	dllinkfld: '',
-	dlcoltip: "Download",
-
-	dlselect: false,
-	dlbtntxt: "Download selected",
-	dlbtnalign: 'center',
-
-	grpdl: false,
-	grpdltip: "Download all",
-	grpdlalign: 'right',
-
 	statusfld: null,
 
-	gbcol: false,
-	gblink: '',
-	gbtype: '',
-	gbttp: '',
-	hidegb: '',
+//	dlcol: false,
+//	dllinkfld: '',
+//	dlcoltip: "Download",
+//
+//	dlselect: false,
+//	dlbtntxt: "Download selected",
+//	dlbtnalign: 'center',
+//
+//	grpdl: false,
+//	grpdltip: "Download all",
+//	grpdlalign: 'right',
+//
+//	gbcol: false,
+//	gblink: '',
+//	gbtype: '',
+//	gbttp: '',
+//	hidegb: '',
 
 	/**
 	 * Custom function used for column renderer
@@ -122,53 +124,86 @@ Ext.define('Wasp.GridPortlet', {
 			minWidth: 80,
 			actions: [],
 			callbacks: {
-				'icon-gb-ucsc': function(grid, record, action, row, col) {
-					window.open(record.get(grid.gblink), '_blank');
-				},
-				'icon-gb-ensembl': function(grid, record, action, row, col) {
-					window.open(record.get(grid.gblink), '_blank');
-				},
-				'icon-gb-igv': function(grid, record, action, row, col) {
-					window.open(record.get(grid.gblink), '_blank');
-				}
+//				'icon-gb-ucsc': function(grid, record, action, row, col) {
+//					window.open(record.get(grid.gblink), '_blank');
+//				},
+//				'icon-gb-ensembl': function(grid, record, action, row, col) {
+//					window.open(record.get(grid.gblink), '_blank');
+//				},
+//				'icon-gb-igv': function(grid, record, action, row, col) {
+//					window.open(record.get(grid.gblink), '_blank');
+//				}
 			},
 			keepSelection: true
 		};
 		
-		// Add download action buttons to the action column
-		if (this.dlcol && this.dllinkfld != '') {
-			actioncol.actions.push({
-				iconCls: 'icon-download',
-				qtip: this.dlcoltip,
-				hideIndex: this.hidedl,
-				callback: function (grid, record, action, idx, col, e, target) {
-					window.location = record.get(grid.dllinkfld);
-				}
-			});
-
-			// If grouping view is set, add group download button
-			if (this.grpdl) {
-				actioncol.groupActions = [{
-					iconCls: 'icon-group-download',
-					qtip: this.grpdltip,
-					align: this.grpdlalign,
-					callback: function (grid, records, action, groupValue) {
-						if (records.length > 0)
-							window.location = mergeDownloadLinks(records, grid.dllinkfld);
-					}
-				}];
+		for (var akey in this.actionset) {
+			var action = this.actionset[akey];
+			var strcbfunc;
+			if (action.callbackFunctionType === 'DOWNLOAD') {
+				strcbfunc = '{"'+action.iconClassName+'": "function(grid, record, action, row, col){window.location = record.get(\''+'cb'+action.icnHashCode.toString().replace('-','_')+'\');}"}';
+			} else if (action.callbackFunctionType === 'OPEN_IN_NEW_BROWSER_WIN') {
+				strcbfunc = '{"'+action.iconClassName+'": "function(grid, record, action, row, col){window.open(record.get(\''+'cb'+action.icnHashCode.toString().replace('-','_')+'\'), \'_blank\');}"}';
+			} else if (action.callbackFunctionType === 'OPEN_IN_CSS_WIN') {
+				strcbfunc = '{"'+action.iconClassName+'": "function(grid, record, action, row, col){getPanelDisplayWindowForFilegroup(record.get(\''+'cb'+action.icnHashCode.toString().replace('-','_')+'\'));}"}';
+			} else {
+				strcbfunc = '{"'+action.iconClassName+'": "function(grid, record, action, row, col){alert(\'Action type '+action.callbackFunctionType+' is not supported.\');}"}';
 			}
+			
+			var configobj = JSON.parse(strcbfunc, function (key, value) {
+			    if (value && (typeof value === 'string') && value.indexOf("function") === 0) {
+			        // we can only pass a function as string in JSON ==> doing a real function
+			        //eval("var jsFunc = " + value);
+			        var jsFunc = new Function('return ' + value)();
+			        return jsFunc;
+			    }
+			          
+			    return value;
+			});
+			//var configobj = JSON.parse('{ "'+action.iconClassName+'": function(grid, record, action, row, col) { eval('+action.callbackContent+'); } }');
+			Ext.apply(actioncol.callbacks, configobj);
+			actioncol.actions.push({
+				iconIndex: 'icon'+action.icnHashCode.toString().replace('-','_'),
+				qtipIndex: 'tip'+action.icnHashCode.toString().replace('-','_'),
+				hideIndex: 'hide'+action.icnHashCode.toString().replace('-','_')
 
-		}
+			});
+		};
+		
+		// Add download action buttons to the action column
+//		if (this.dlcol && this.dllinkfld != '') {
+//			actioncol.actions.push({
+//				iconCls: 'icon-download',
+//				qtip: this.dlcoltip,
+//				hideIndex: this.hidedl,
+//				callback: function (grid, record, action, idx, col, e, target) {
+//					window.location = record.get(grid.dllinkfld);
+//				}
+//			});
+//
+//			// If grouping view is set, add group download button
+//			if (this.grpdl) {
+//				actioncol.groupActions = [{
+//					iconCls: 'icon-group-download',
+//					qtip: this.grpdltip,
+//					align: this.grpdlalign,
+//					callback: function (grid, records, action, groupValue) {
+//						if (records.length > 0)
+//							window.location = mergeDownloadLinks(records, grid.dllinkfld);
+//					}
+//				}];
+//			}
+//
+//		}
 
 		// Add genome browser buttons to the action column
-		if (this.gbcol && this.gblink != '') {
-			actioncol.actions.push({
-				iconIndex: this.gbtype,
-				qtipIndex: this.gbttp,
-				hideIndex: this.hidegb
-			});
-		}
+//		if (this.gbcol && this.gblink != '') {
+//			actioncol.actions.push({
+//				iconIndex: this.gbtype,
+//				qtipIndex: this.gbttp,
+//				hideIndex: this.hidegb
+//			});
+//		}
 
 		if (actioncol.actions.length > 0)
 			this.columns.push(actioncol);

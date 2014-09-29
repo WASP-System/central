@@ -2,11 +2,11 @@ package edu.yu.einstein.wasp.viewpanel;
 
 public class Action {
 	
-	public enum CallbackFunctionType { UNKNOWN, DOWNLOAD, OPEN_IN_CSS_WIN, OPEN_IN_NEW_BROWSER_WIN}
+	public enum CallbackFunctionType { UNKNOWN, DOWNLOAD, OPEN_IN_CSS_WIN, OPEN_IN_NEW_BROWSER_WIN }
 	
 	private String iconClassName = "";
 	
-	private boolean isHidden = false;
+	private int icnHashCode = 0;
 	
 	private String tooltip = "";
 	
@@ -18,10 +18,10 @@ public class Action {
 		super();
 	}
 	
-	public Action(String iconClassName, boolean isHidden, String tooltip, CallbackFunctionType callbackFunctionType, String callbackContent) {
+	public Action(String iconClassName, String tooltip, CallbackFunctionType callbackFunctionType, String callbackContent) {
 		super();
 		this.iconClassName = iconClassName;
-		this.isHidden = isHidden;
+		this.icnHashCode = iconClassName.hashCode();
 		this.tooltip = tooltip;
 		this.callbackFunctionType = callbackFunctionType;
 		this.setCallbackContent(callbackContent);
@@ -36,28 +36,17 @@ public class Action {
 		return iconClassName;
 	}
 
+	public int getIcnHashCode() {
+		return icnHashCode;
+	}
+
 	/**
 	 * Set icon class name specified in css somewhere e.g. '.icon-group-download { background-image: url(ext/images/icons/fam/disk_multiple.png) !important;}'.
 	 * @param iconClassName
 	 */
 	public void setIconClassName(String iconClassName) {
 		this.iconClassName = iconClassName;
-	}
-
-	/**
-	 * Should action column be hidden? Defaults to false.
-	 * @return
-	 */
-	public boolean isHidden() {
-		return isHidden;
-	}
-
-	/**
-	 * Should action column be hidden? Defaults to false.
-	 * @param isHidden
-	 */
-	public void setHidden(boolean isHidden) {
-		this.isHidden = isHidden;
+		this.icnHashCode = iconClassName.hashCode();
 	}
 
 	/**
