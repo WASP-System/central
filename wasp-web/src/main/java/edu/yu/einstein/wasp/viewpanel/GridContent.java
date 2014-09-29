@@ -117,7 +117,7 @@ public class GridContent extends Content implements Serializable {
 					actionReferenceSet.add(a);
 					this.addDataFields(new GridDataField("icon"+Integer.toString(a.getIcnHashCode()).replaceAll("-", "_"), "string"));
 					this.addDataFields(new GridDataField("tip"+Integer.toString(a.getIcnHashCode()).replaceAll("-", "_"), "string"));
-//					this.addDataFields(new GridDataField(Integer.toString(a.getIcnHashCode())+".cb", "string"));
+					this.addDataFields(new GridDataField("cb"+Integer.toString(a.getIcnHashCode()).replaceAll("-", "_"), "string"));
 					this.addDataFields(new GridDataField("hide"+Integer.toString(a.getIcnHashCode()).replaceAll("-", "_"), "boolean"));
 					
 				}
@@ -130,29 +130,19 @@ public class GridContent extends Content implements Serializable {
 			List<String> dataRow = dataIterator.next();
 			for (Action refAc : actionReferenceSet) {
 				if (actionRow.contains(refAc)) {
-					dataRow.add(refAc.getIconClassName());
-					dataRow.add(refAc.getTooltip());
-//					dataRow.add(refAc.getCallbackContent());
+					Action act = actionRow.get(actionRow.indexOf(refAc));
+					dataRow.add(act.getIconClassName());
+					dataRow.add(act.getTooltip());
+					dataRow.add(act.getCallbackContent());
 					dataRow.add("false");
 				} else {
 					dataRow.add("");
 					dataRow.add("");
-//					dataRow.add("");
+					dataRow.add("");
 					dataRow.add("true");
 				}
 			}
 		}
-//		for (List<Action> actionRow : actions){
-//			for (Action refAc : actionReferenceSet){
-//				if (!actionRow.contains(refAc)){
-//					Action newHiddenAc = new Action();
-//					newHiddenAc.setIconClassName(refAc.getIconClassName());
-//					newHiddenAc.setHidden(true);
-//					actionRow.add(newHiddenAc);
-//					
-//				}
-//			}
-//		}
 
 	}
 

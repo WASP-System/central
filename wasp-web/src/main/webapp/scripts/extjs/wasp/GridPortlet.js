@@ -141,13 +141,13 @@ Ext.define('Wasp.GridPortlet', {
 			var action = this.actionset[akey];
 			var strcbfunc;
 			if (action.callbackFunctionType === 'DOWNLOAD') {
-				strcbfunc = '{"'+action.iconClassName+'": "function(grid, record, action, row, col){window.location = record.get(\''+action.callbackContent+'\');}"}';
+				strcbfunc = '{"'+action.iconClassName+'": "function(grid, record, action, row, col){window.location = record.get(\''+'cb'+action.icnHashCode.toString().replace('-','_')+'\');}"}';
 			} else if (action.callbackFunctionType === 'OPEN_IN_NEW_BROWSER_WIN') {
-				strcbfunc = '{"'+action.iconClassName+'": "function(grid, record, action, row, col){window.open(record.get(\''+action.callbackContent+'\'), \'_blank\');}"}';
+				strcbfunc = '{"'+action.iconClassName+'": "function(grid, record, action, row, col){window.open(record.get(\''+'cb'+action.icnHashCode.toString().replace('-','_')+'\'), \'_blank\');}"}';
 			} else if (action.callbackFunctionType === 'OPEN_IN_CSS_WIN') {
-				strcbfunc = '{"'+action.iconClassName+'": "function(grid, record, action, row, col){getPanelDisplayWindowForFilegroup(record.get(\''+action.callbackContent+'\'));}"}';
+				strcbfunc = '{"'+action.iconClassName+'": "function(grid, record, action, row, col){getPanelDisplayWindowForFilegroup(record.get(\''+'cb'+action.icnHashCode.toString().replace('-','_')+'\'));}"}';
 			} else {
-				strcbfunc = '{"'+action.iconClassName+'": "function(grid, record, action, row, col){alert(\'Action type "'+action.callbackFunctionType+'" is not supported.\');}"}';
+				strcbfunc = '{"'+action.iconClassName+'": "function(grid, record, action, row, col){alert(\'Action type '+action.callbackFunctionType+' is not supported.\');}"}';
 			}
 			
 			var configobj = JSON.parse(strcbfunc, function (key, value) {
