@@ -446,29 +446,31 @@ function createGridPanel(panel) {
 		data: panel.content.data,
 		columns: panel.content.columns,
 
+		actionset: panel.content.actionReferenceSet,
+
 		grouping: panel.grouping,
 		groupfield: panel.groupField,
 		
-		dlcol: panel.hasDownload,
-		dllinkfld: panel.downloadLinkField,
-		dlcoltip: panel.downloadTooltip,
-		hidedl: panel.hideDownloadField,
-		
-		dlselect: panel.allowSelectDownload,
-		dlbtntxt: panel.selectDownloadText,
-		dlbtnalign: panel.selectDownloadAlign,
-		
-		grpdl: panel.allowGroupDownload,
-		grpdltip: panel.groupDownloadTooltip,
-		grpdlalign: panel.groupDownloadAlign,
-		
-		statusfld: panel.statusField,
+		statusfld: panel.statusField//,
 
-		gbcol: panel.hasGbLink,
-		gblink: panel.gbLinkField,
-		gbtype: panel.gbTypeField,
-		gbttp: panel.gbTtpField,
-		hidegb: panel.hideGbField
+//		dlcol: panel.hasDownload,
+//		dllinkfld: panel.downloadLinkField,
+//		dlcoltip: panel.downloadTooltip,
+//		hidedl: panel.hideDownloadField,
+//		
+//		dlselect: panel.allowSelectDownload,
+//		dlbtntxt: panel.selectDownloadText,
+//		dlbtnalign: panel.selectDownloadAlign,
+//		
+//		grpdl: panel.allowGroupDownload,
+//		grpdltip: panel.groupDownloadTooltip,
+//		grpdlalign: panel.groupDownloadAlign,
+//		
+//		gbcol: panel.hasGbLink,
+//		gblink: panel.gbLinkField,
+//		gbtype: panel.gbTypeField,
+//		gbttp: panel.gbTtpField,
+//		hidegb: panel.hideGbField
 	});
 
 	return gridPanel;
@@ -486,6 +488,308 @@ function createPDFPanel(url, scale, renderDiv) {
     
     return pdfPanel;
 }
+
+function getPanelDisplaySummaryWindowForJob(jobId){
+	summaryWin = Ext.create('Ext.window.Window', {
+		title: 'FastQC Sample Summaries for Job 5 (study of misc rodents)' ,
+	 	header: {
+	 		titlePosition: 2,
+	 		titleAlign: 'center'
+	 	},
+	 	renderTo: Ext.getBody(),
+	 	closable: true,
+	 	maximizable: true,
+	 	closeAction: 'hide',
+	 	modal: false,
+	 	width: 800,
+	 	minWidth: 350,
+	 	height: 600,
+	 	layout: 'fit',
+	 	items: [{
+	 		region: 'center',
+	 		xtype: 'tabpanel',
+	 		items: [{
+	 			title: 'Summary',
+	 			html:'<form><input type="button" onClick="getPanelDisplayWindowForFilegroup(25)" value="see all data for sample" /></form>',
+	 			autoScroll: true
+	 		}]
+	 	}]
+	});
+	summaryWin.show();
+}
+
+function getPanelDisplayWindowForFilegroup(fgId){
+	fgPanelDisplayWin = Ext.create('Ext.window.Window', {
+		title: 'FastQC data for file rodentData.trimmed.fq' ,
+	 	header: {
+	 		titlePosition: 2,
+	 		titleAlign: 'center'
+	 	},
+	 	renderTo: Ext.getBody(),
+	 	closable: true,
+	 	maximizable: true,
+	 	closeAction: 'hide',
+	 	modal: false,
+	 	width: 800,
+	 	minWidth: 350,
+	 	height: 600,
+	 	layout: 'fit',
+	 	items: [{
+	 		region: 'center',
+	 		xtype: 'tabpanel',
+	 		items: [
+//	 			{	
+//	 				title: 'Data',
+//	 				html:''+fgId,
+//	 				autoScroll: true
+//	 			}
+	 		]
+	 	}]
+	});
+	dstr = '{"myid":'+fgId+',"type":"filegroup"}';
+	$.ajax({
+			url: '<wasp:relativeUrl value="jobresults/getDetailsJson.do?node=" />' + dstr,
+			type: 'GET',
+			dataType: 'json'
+			})
+			.done(function (result) {
+				var tabpanel = fgPanelDisplayWin.down('tabpanel');
+				if (tabpanel === undefined) {
+					// alert if the tabpanel is undefined
+					extPortal.showMsg("tabpanel is not defined!");
+					return;
+				}
+				//remove all existing tabs from tabpanel first
+				tabpanel.removeAll();
+	
+
+					var jsList = new Array(),
+						cssList = new Array();
+					$.each(result.paneltablist, function (index, item) {
+						$.each(item.panels, function (index1, item1) {
+							if (item1.type=="WebPanel") {
+								for (var i = 0, len = item1.content.scriptDependencies.length; i < len; i++) {
+									if (jscssfilesadded.indexOf("[" + item1.content.scriptDependencies[i] + "]") == -1) { //if the file not been loaded before
+										jsList.push(item1.content.scriptDependencies[i]);
+										jscssfilesadded += "[" + item1.content.scriptDependencies[i] + "]";
+									}
+								}
+								for (var i = 0, len = item1.content.cssDependencies.length; i < len; i++) {
+									if (jscssfilesadded.indexOf("[" + item1.content.cssDependencies[i] + "]") == -1) { //if the file not been loaded before
+										cssList.push(item1.content.cssDependencies[i]);
+										jscssfilesadded += "[" + item1.content.cssDependencies[i] + "]";
+									}
+								}
+							}
+						});
+					});
+	
+					var createPortal = function () {
+						// if the node clicked is filegroup, create an extra summary tab in the portal
+							var isAllStatusesNA = false;
+							if (result.statuslist.length > 0){
+								isAllStatusesNA = true;
+								for (var i=0; i<result.statuslist.length; i++ ){
+									if (result.statuslist[i][2] != "NOT_APPLICABLE"){
+										isAllStatusesNA = false;
+										break;
+									}
+								}
+							}
+							if (!isAllStatusesNA){
+								var summaryPanel;
+								if (result.statuslist.length > 0) {
+									summaryPanel = Ext.create('Wasp.PluginSummaryGridPortlet', {
+										statusData: result.statuslist,
+										tabPanel: tabpanel
+									});
+								} else {
+									summaryPanel = {
+										html: '<div class="noPlugin">No registered plugins handle this data.</div>'
+									}
+								}
+								tabpanel.add({
+								//id: 'summary-tab',
+								xtype: 'panel',
+								title: 'Summary',
+								layout: 'card',
+								activeItem: 1,
+								items: [{
+									layout: 'fit'
+								}, {
+									xtype: 'portalpanel',
+									items: [{
+										//id: 'portlet-',
+										xtype: 'portlet',
+										title: 'Completion Status for Plugins Handling this Data',
+										//tools: extPortal.getTools(),
+										//frame: false,
+										closable: false,
+										collapsible: false,
+										draggable: false,
+										items: summaryPanel
+									}]
+								  }]
+								});
+							}
+
+	
+						$.each(result.paneltablist, function (index, item) {
+							var tabTitle;
+	
+	//						if ((d.type.split('-'))[0] == "filetype") {
+	//							tabTitle = "Download " + (d.type.split('-'))[1].toUpperCase() + " files";
+	//							return;
+	//						} else {
+								tabTitle = item.name; //d.name+" Details";
+	//						}
+	
+	
+							var tabid = index;
+							var tab = tabpanel.add({
+								xtype: 'panel',
+								//id: tabid,
+								title: tabTitle,
+								layout: 'card',
+								activeItem: 1,
+								items: [{
+									layout: 'fit'
+								}]
+							});
+							var pmax = null;
+							var pdfpanel = null;
+							if (item.maxOnLoad && item.panels.length==1) {
+								pmax = tab.items.first();
+								//var ptlcol = ptlpnl.add({ id: tabid + '-col-1' });
+								var panel = item.panels[0];
+								if (panel.type=="PDFPanel" && !panel.content.pdfURL.isEmpty()) {
+									pdfpanel = pmax.add({
+										xtype: 'portlet',
+										title: panel.title,
+										closable: false,
+										collapsible: false,
+										draggable: false,
+										html: "<div id='pdfpanel-"+ panel.content.pdfURL.hashCode() +"'></div>",
+										url: panel.content.pdfURL,
+										items: []
+									});
+									pdfpanel.add(createPDFPanel(pdfpanel.url, panel.pageScale, 'pdfpanel-'+pdfpanel.url.hashCode()));
+								} else if (panel.type=="WebPanel" && !panel.content.htmlCode.isEmpty()) {
+									pmax.add({
+										xtype: 'portlet',
+										title: panel.title,
+										closable: false,
+										collapsible: false,
+										draggable: false,
+										html: panel.content.htmlCode,
+										listeners: {
+											'render': Ext.bind(new Function("portlet", panel.execOnRenderCode), extPortal),
+											'resize': Ext.bind(new Function("portlet", panel.execOnResizeCode), extPortal),
+											'expand': Ext.bind(new Function("portlet", panel.execOnExpandCode), extPortal)
+										}
+									});
+								} else if (panel.type=="GridPanel") {
+									pmax.add({
+										xtype: 'portlet',
+										title: panel.title,
+										closable: false,
+										collapsible: false,
+										draggable: false,
+										items: createGridPanel(panel)
+									});
+								}
+								//pmax.doLayout();
+								tab.getLayout().setActiveItem(pmax);
+							} else {
+								var ptlpnl = tab.add({
+									xtype: 'portalpanel'
+								});
+								var ptlcolArray = new Array;
+		
+								numcol = item.numberOfColumns;
+								for (var i = 0; i < numcol; i++) {
+									ptlcolArray.push(ptlpnl.add({
+										id: tabid + '-col-' + (i + 1)
+									}));
+								}
+		
+								var colid = 0;
+								$.each(item.panels, function (index1, panel) {
+									if (panel.type=="PDFPanel" && !panel.content.pdfURL.isEmpty()) {
+										pdfpanel = ptlcolArray[colid++].add({
+											xtype: 'portlet',
+											title: panel.title,
+											closable: false,
+											collapsible: false,
+											draggable: false,
+											html: "<div id='pdfpanel-"+ panel.content.pdfURL.hashCode() +"'></div>",
+											url: panel.content.pdfURL,
+											items: []
+										});
+										pdfpanel.add(createPDFPanel(pdfpanel.url, panel.pageScale, 'pdfpanel-'+pdfpanel.url.hashCode()));
+									} else if (panel.type=="WebPanel" && !panel.content.htmlCode.isEmpty()) {
+										ptlcolArray[colid++].add({
+											title: panel.title,
+											tools: extPortal.getTools(panel.maximizable),
+											closable: panel.closeable,
+											collapsible: panel.resizable,
+											html: panel.content.htmlCode,
+											listeners: {
+												'render': Ext.bind(new Function("portlet", panel.execOnRenderCode), extPortal),
+												'resize': Ext.bind(new Function("portlet", panel.execOnResizeCode), extPortal),
+												'expand': Ext.bind(new Function("portlet", panel.execOnExpandCode), extPortal)
+											}
+										});
+									} else if (panel.type=="GridPanel") {
+								
+										ptlcolArray[colid++].add({
+											title: panel.title,
+											tools: extPortal.getTools(panel.maximizable),
+											closable: panel.closeable,
+											collapsible: panel.resizable,
+											
+											items: createGridPanel(panel)
+										});
+									}
+									colid %= numcol;
+								});
+							}
+						});
+	
+						tabpanel.setActiveTab(0);
+					};
+	
+					// load all css then all js then create portal
+					if (cssList.length > 0) {
+						LazyLoad.css(cssList, function () {
+							if (jsList.length > 0) {
+								LazyLoad.js(jsList, function () {
+									createPortal();
+								});
+							} else {
+								createPortal();
+							}
+						});
+					} else {
+						if (jsList.length > 0) {
+							LazyLoad.js(jsList, function () {
+								createPortal();
+							});
+						} else {
+							createPortal();
+						}
+					}
+			})
+			.fail(function(jqXHR){
+				checkForPageRedirect(jqXHR.responseText);
+			});
+			
+	fgPanelDisplayWin.show();
+}
+	
+//Ext.onReady(function() {
+//	getPanelDisplaySummaryWindowForJob(5);
+//});
 
 function click(d) {
 	if (d.jid == undefined) {

@@ -82,6 +82,25 @@
     background-image: url(ext/images/icons/fam/disk.png) !important;
 }
 
+.icon-view-file {
+    background-image: url(ext/images/icons/fam/zoom.png) !important;
+}
+
+.icon-new-window {
+	background-image: url(ext/images/icons/fam/application_cascade.png) !important;
+}
+
+.icon-gb-ucsc {
+	background-image: url(https://genome.ucsc.edu/favicon.ico) !important;
+}
+
+.icon-gb-ensembl {
+	background-image: url(http://static.ensembl.org/i/ensembl-favicon.png) !important;
+}
+
+.icon-gb-igv {
+	background-image: url(http://www.broadinstitute.org/favicon.ico) !important;
+}
 
 .x-group-hd-container {
 	padding: 2px 1px 0 0

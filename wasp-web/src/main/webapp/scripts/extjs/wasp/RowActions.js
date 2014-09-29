@@ -274,7 +274,7 @@ Ext.define('Wasp.RowActions',{
 	 * is still blank space occupied by the icon. In display mode, the visible icons are shifted taking
 	 * the space of the hidden icon.
 	 */
-	,hideMode:'visiblity'
+	,hideMode:'display'//'visiblity'
 
 	/**
 	 * @cfg {Number} widthIntercept Constant used for auto-width calculation (defaults to 4).

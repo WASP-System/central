@@ -18,6 +18,7 @@ import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.viewpanel.Action;
+import edu.yu.einstein.wasp.viewpanel.Action.CallbackFunctionType;
 
 public class EnsemblGenomeBrowserPlugin extends AbstractGenomeBrowserPlugin {
 
@@ -69,7 +70,9 @@ public class EnsemblGenomeBrowserPlugin extends AbstractGenomeBrowserPlugin {
 		if(link!=null && !link.isEmpty()){
 			action = new Action();
 			action.setIconClassName(getIcon());
+			action.setCallbackFunctionType(CallbackFunctionType.OPEN_IN_NEW_BROWSER_WIN);
 			action.setCallbackContent(link);
+			action.setTooltip("View in Ensembl browser");
 		}		
 		return action;
 	}

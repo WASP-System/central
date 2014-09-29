@@ -22,6 +22,7 @@ import edu.yu.einstein.wasp.plugin.mps.genomebrowser.GenomeBrowserProviding;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.viewpanel.Action;
+import edu.yu.einstein.wasp.viewpanel.Action.CallbackFunctionType;
 import edu.yu.einstein.wasp.viewpanel.GridColumn;
 import edu.yu.einstein.wasp.viewpanel.GridContent;
 import edu.yu.einstein.wasp.viewpanel.GridDataField;
@@ -307,19 +308,19 @@ public class MacstwoWebPanels {
 		panel.setOrder(1);
 		panel.setGrouping(true);
 		panel.setGroupField("Analysis");
-		panel.setHasDownload(true);
-		panel.setDownloadLinkField("Download");
+//		panel.setHasDownload(true);
+//		panel.setDownloadLinkField("Download");
 		panel.setAllowSelectDownload(true);
 		panel.setAllowGroupDownload(true);
 		panel.setSelectDownloadText("Download Selected");
-		panel.setDownloadTooltip("Download");
+//		panel.setDownloadTooltip("Download");
 		
 		//7-18-14
-		panel.setHasGbLink(true);
-		panel.setGbLinkField("Link");
-		panel.setGbTypeField("Icon");
-		panel.setHideGbField("Hide");
-		panel.setGbTtpField("Tip");
+//		panel.setHasGbLink(true);
+//		panel.setGbLinkField("Link");
+//		panel.setGbTypeField("Icon");
+//		panel.setHideGbField("Hide");
+//		panel.setGbTtpField("Tip");
 		
 		//create content (think of it as the table)
 		GridContent content = new GridContent();
@@ -328,13 +329,13 @@ public class MacstwoWebPanels {
 		content.addDataFields(new GridDataField("File", "String"));//dataIndex, datatype
 		content.addDataFields(new GridDataField("Size", "String"));//dataIndex, datatype
 		content.addDataFields(new GridDataField("MD5", "String"));//dataIndex, datatype
-		content.addDataFields(new GridDataField("Download", "String"));//dataIndex, datatype
+//		content.addDataFields(new GridDataField("Download", "String"));//dataIndex, datatype
 		
 		//7-18-14
-		content.addDataFields(new GridDataField("Link", "String"));//dataIndex, datatype
-		content.addDataFields(new GridDataField("Icon", "String"));//dataIndex, datatype
-		content.addDataFields(new GridDataField("Hide", "boolean"));//dataIndex, datatype
-		content.addDataFields(new GridDataField("Tip", "String"));//dataIndex, datatype
+//		content.addDataFields(new GridDataField("Link", "String"));//dataIndex, datatype
+//		content.addDataFields(new GridDataField("Icon", "String"));//dataIndex, datatype
+//		content.addDataFields(new GridDataField("Hide", "boolean"));//dataIndex, datatype
+//		content.addDataFields(new GridDataField("Tip", "String"));//dataIndex, datatype
 		
 		//create columns and associate each column with its displayed header and a data model attribute (dataIndex)
 		///////unique grouping field is NOT displayed: content.addColumn(new GridColumn("Analysis", "Analysis"));//header,dataIndex		
@@ -360,11 +361,19 @@ public class MacstwoWebPanels {
 					row.add(fileHandle.getSizek().toString());
 				}else{row.add("");}
 				row.add(fileHandle.getMd5hash());
-				row.add(fileHandleResolvedURLMap.get(fileHandle));//for the download
+				//row.add(fileHandleResolvedURLMap.get(fileHandle));//for the download
 				
+				content.addDataRow(row);//add the new row to the content
 				
 				
 				List<Action> actionList = new ArrayList<Action>();
+				// add download action to the list
+				actionList.add(new Action("icon-download", "Download", CallbackFunctionType.DOWNLOAD, fileHandleResolvedURLMap.get(fileHandle)));
+				actionList.add(new Action("icon-view-file", "View", CallbackFunctionType.OPEN_IN_CSS_WIN, new ArrayList<FileGroup>(fileHandle.getFileGroup()).get(0).getId().toString()));
+				logger.debug("Filegrp id = "+ new ArrayList<FileGroup>(fileHandle.getFileGroup()).get(0).getId());
+				logger.debug("Filehdl name = "+ fileHandle.getFileName());
+				logger.debug("Filegrp desc = "+ new ArrayList<FileGroup>(fileHandle.getFileGroup()).get(0).getDescription());
+				logger.debug("Filegrp type = "+ new ArrayList<FileGroup>(fileHandle.getFileGroup()).get(0).getFileType().getIName());
 				
 				List<GenomeBrowserProviding> plugins = new ArrayList<>();
 				///System.out.println("at 2");
@@ -382,8 +391,9 @@ public class MacstwoWebPanels {
 						actionList.add(action);
 					}
 				}
+				content.addActions(actionList);
 				////System.out.println("at 7");
-				if(actionList.isEmpty()){
+/*				if(actionList.isEmpty()){
 					////System.out.println("at 8");
 					row.add("");
 					
@@ -417,8 +427,7 @@ public class MacstwoWebPanels {
 						}
 					}
 				}				
-				
-				content.addDataRow(row);//add the new row to the content
+*/				
 			}			
 		}
 		panel.setContent(content);//add content to panel
