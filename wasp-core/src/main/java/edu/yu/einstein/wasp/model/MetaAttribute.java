@@ -27,6 +27,7 @@ public final class MetaAttribute implements Serializable {
 		public static enum FormVisibility {
 			editable,
 			immutable,
+			hidden,
 			ignore
 		}
 		

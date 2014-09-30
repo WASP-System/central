@@ -14,8 +14,9 @@
 	
 	  <tr class="FormData">
 	    <td class="CaptionTD"><fmt:message key="jobDraft.name.label"/>:</td>
-	    <td class="DataTD" colspan="3">
+	    <td class="DataTD" colspan="1">
 	      <input class="FormElement ui-widget-content ui-corner-all" name="name" value="<c:out value="${jobDraft.name}"/>">
+	      <span class="requiredField">*</span>
 	    </td>
 	    <td class="CaptionTD error"><form:errors path="name" /></td>
 	  </tr>
