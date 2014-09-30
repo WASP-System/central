@@ -144,7 +144,10 @@ public class UserPendingController extends WaspController {
 		metaHelperWebapp.setMetaList(primaryInvestigator.getUserMeta());
 		boolean isHostInstitute = false;
 		try{
-			if (metaHelperWebapp.getMetaByName("institution").getV().equals(metaHelperWebapp.getMetaByName("institution").getV()))
+			String piInstitution = metaHelperWebapp.getMetaByName("institution").getV();
+			logger.debug("PI " + primaryInvestigator.getFirstName() + " " + primaryInvestigator.getLastName() + 
+					" is in institution " + piInstitution + ". Host institution is " + hostInstituteName);
+			if (hostInstituteName.equals(piInstitution))
 				isHostInstitute = true;
 		} catch (Exception e){
 			logger.warn("Unable to get institution for pi with userId=" + primaryInvestigator.getId() + " going to set isHostInstitute=false");
@@ -179,16 +182,18 @@ public class UserPendingController extends WaspController {
 	 * @throws MetadataException
 	 */
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value="/newuser", method=RequestMethod.POST)
+	@RequestMapping(value="/newuser/form", method=RequestMethod.POST)
 	public String createNewPendingUser (
 			 @Valid UserPending userPendingForm, 
 			 BindingResult result,
 			 SessionStatus status, 
+			 @RequestParam(value="isHostInstitute", required=true) boolean isHostInstitute,
 			 ModelMap m) throws MetadataException {
-		
-		
+		m.addAttribute("isHostInstitute", isHostInstitute);
+		Map<String, MetaAttribute.FormVisibility> visibilityElementMap = new HashMap<String, MetaAttribute.FormVisibility>();
+		visibilityElementMap.put("userPending.primaryuserid", MetaAttribute.FormVisibility.hidden);
 		MetaHelperWebapp userPendingMetaHelperWebapp = getMetaHelperWebapp();
-		userPendingMetaHelperWebapp.getFromRequest(request, UserPendingMeta.class);
+		userPendingMetaHelperWebapp.getFromRequest(request, visibilityElementMap, UserPendingMeta.class);
 		userPendingMetaHelperWebapp.validate(new UserPendingMetaValidatorImpl(userDao, labDao), result);
 		if (! result.hasFieldErrors("login")){
 			if (webAuthenticationService.isAuthenticationSetExternal()){
@@ -364,12 +369,10 @@ public class UserPendingController extends WaspController {
 		String instituteName = "";
 		Map<String, MetaAttribute.FormVisibility> visibilityElementMap = new HashMap<String, MetaAttribute.FormVisibility>();
 		visibilityElementMap.put("piPending.institution", MetaAttribute.FormVisibility.immutable);
-		boolean isHostInstitute = false;
 		if (instituteSelect != null && !instituteSelect.equals("other")){
 			// internal institute
 			instituteName = instituteSelect;
 			metaHelperWebapp.getMasterList(visibilityElementMap, UserPendingMeta.class);
-			isHostInstitute = true;
 		} else {
 			// external institute
 			instituteName = StringHelper.removeExtraSpacesAndCapFirstLetter(instituteOther);
@@ -388,7 +391,6 @@ public class UserPendingController extends WaspController {
 		UserPending userPending = new UserPending();
 		userPending.setUserPendingMeta((List<UserPendingMeta>) metaHelperWebapp.getMetaList());
 		m.addAttribute(metaHelperWebapp.getParentArea(), userPending);
-		m.addAttribute("isHostInstitute", isHostInstitute);
 		
 		// save visibility map to session in order to use it later
 		request.getSession().setAttribute("visibilityElementMap", visibilityElementMap);
@@ -814,14 +816,19 @@ public class UserPendingController extends WaspController {
 			String institueName = metaHelperWebapp.getMetaByName("institution").getV();
 			if (institueName.isEmpty()) 
 				throw new MetadataException();
-			if (hostInstituteName.equals(institueName))
+			if (hostInstituteName.equals(institueName)){
 				isInternal = 1;
+			}
 		} catch (MetadataException e){
 			// handle MetadataException by simply logging an error and defaulting to the complete department list
 			logger.warn("Unable to extract a valid departmentId from metadata for preparing department list. Defaulting to whole department list");
 			isInternal = -1;
 		}
 		prepareSelectListData(m);
+		if (isInternal == 1)
+			m.addAttribute("isHostInstitute", true);
+		else
+			m.addAttribute("isHostInstitute", false);
 		if (isInternal != -1){
 			Map<String, Integer> departmentQueryMap = new HashMap<String, Integer>();
 			departmentQueryMap.put("isInternal",  isInternal );

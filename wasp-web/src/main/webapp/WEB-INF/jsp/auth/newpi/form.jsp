@@ -7,29 +7,33 @@
   <div class="instructions"> 
   	<fmt:message key="piPending.form_instructions.label" />
   	<br /><br />
-  	<c:if test="${isAuthenticationExternal == true}">
-	  	<div id="passwordInstructions"><fmt:message key="piPending.form_instructions_external.label" /></div>
-	 </c:if>
-  	<c:if test="${isAuthenticationExternal == false}">
-	  	<div id="passwordInstructions"><fmt:message key="piPending.password_instructions.label" /></div>
-	 </c:if>
+  	<c:choose>
+		<c:when test="${isAuthenticationExternal == true && isHostInstitute == true}">
+	  		<div id="passwordInstructions"><fmt:message key="piPending.form_instructions_external.label" /></div>
+	 	</c:when>
+  		<c:otherwise">
+	  		<div id="passwordInstructions"><fmt:message key="piPending.password_instructions.label" /></div>
+	 	</c:otherwise>
+	</c:choose>
   </div>
   <c:set var="actionUrl"><wasp:relativeUrl value='auth/newpi/form.do' /></c:set>
   <form:form  cssClass="FormGrid" commandName="userPending" action="${actionUrl}">
     <table class="EditTable ui-widget ui-widget-content">
       <tr class="FormData">
         <td class="CaptionTD">
-        <c:if test="${isAuthenticationExternal == true}">
-          	<fmt:message key="wasp.authentication_external.label" /> 
-          </c:if>
-          <c:if test="${isAuthenticationExternal == false}">
-          	<fmt:message key="wasp.authentication_internal.label" /> 
-          </c:if>
+        <c:choose>
+	        <c:when test="${isAuthenticationExternal == true && isHostInstitute == true}">
+	          	<fmt:message key="wasp.authentication_external.label" /> 
+	        </c:when>
+	        <c:otherwise>
+	         	<fmt:message key="wasp.authentication_internal.label" /> 
+	        </c:otherwise>>
+        </c:choose>
         <fmt:message key="piPending.login.label" />:</td>
         <td class="DataTD"><form:input cssClass="FormElement ui-widget-content ui-corner-all" path="login"  /><span class="requiredField">*</span></td>
         <td class="CaptionTD error"><form:errors path="login"/></td>
       </tr> 
-      <c:if test="${isAuthenticationExternal == false}">
+      <c:if test="${isAuthenticationExternal == false || isHostInstitute == false}">
 	        <tr>
 	          <td >&nbsp;</td>
 	          <td ><div style="color:black;font-size:11px;font-weight:bold;"><fmt:message key="userPending.login_instructions_above.label" /></div></td>
@@ -39,13 +43,14 @@
       <tr class="FormData">
         <td class="CaptionTD"><fmt:message key="piPending.password.label"/>:</td>
         <td class="DataTD"><form:password path="password" cssClass="FormElement ui-widget-content ui-corner-all" onFocus="var x = document.getElementById('passwordInstructions'); x.style.color='red';x.style.fontWeight='bold'; var y = document.getElementById('passwordInstructions2'); y.style.color='red';"  /><span class="requiredField" >*</span></td>
-        <td class="CaptionTD error"><form:errors path="password" /></td>
-      </tr> 
-      <c:if test="${isAuthenticationExternal == true}">   	   
-	      <input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="password2" value="" />
-      </c:if>
-      <c:if test="${isAuthenticationExternal == false }">   
-	      <tr >
+        <td class="CaptionTD error"><form:errors path="password" />
+      <c:choose>
+		<c:when test="${isAuthenticationExternal == true && isHostInstitute == true}">  	   
+	      <input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="password2" value="" /></td></tr> 
+      	</c:when>
+      	<c:otherwise>   
+      	  </td></tr> 
+	      <tr>
 	          <td >&nbsp;</td>
 	          <td ><div id="passwordInstructions2" style="color:black;font-size:11px;font-weight:bold;"><fmt:message key="piPending.password_instructions_above.label" /></div></td>
 	          <td >&nbsp;</td>
@@ -55,7 +60,8 @@
 		        <td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" type="password" name="password2" /><span class="requiredField">*</span></td>
 			<td class="CaptionTD error">&nbsp;</td>
 	      </tr>     	   
-      </c:if>
+     	 </c:otherwise>
+      </c:choose>
       <tr class="FormData">
         <td class="CaptionTD"><fmt:message key="piPending.firstName.label" />:</td>
         <td class="DataTD"><form:input cssClass="FormElement ui-widget-content ui-corner-all" path="firstName" /><span class="requiredField">*</span></td>
