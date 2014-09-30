@@ -11,35 +11,45 @@
 		<c:when test="${isAuthenticationExternal == true && isHostInstitute == true}">
 	  		<div id="passwordInstructions"><fmt:message key="piPending.form_instructions_external.label" /></div>
 	 	</c:when>
-  		<c:otherwise">
+  		<c:otherwise>
 	  		<div id="passwordInstructions"><fmt:message key="piPending.password_instructions.label" /></div>
 	 	</c:otherwise>
 	</c:choose>
   </div>
   <c:set var="actionUrl"><wasp:relativeUrl value='auth/newpi/form.do' /></c:set>
   <form:form  cssClass="FormGrid" commandName="userPending" action="${actionUrl}">
-    <table class="EditTable ui-widget ui-widget-content">
-      <tr class="FormData">
-        <td class="CaptionTD">
-        <c:choose>
-	        <c:when test="${isAuthenticationExternal == true && isHostInstitute == true}">
-	          	<fmt:message key="wasp.authentication_external.label" /> 
-	        </c:when>
-	        <c:otherwise>
-	         	<fmt:message key="wasp.authentication_internal.label" /> 
-	        </c:otherwise>>
-        </c:choose>
-        <fmt:message key="piPending.login.label" />:</td>
-        <td class="DataTD"><form:input cssClass="FormElement ui-widget-content ui-corner-all" path="login"  /><span class="requiredField">*</span></td>
-        <td class="CaptionTD error"><form:errors path="login"/></td>
-      </tr> 
-      <c:if test="${isAuthenticationExternal == false || isHostInstitute == false}">
-	        <tr>
-	          <td >&nbsp;</td>
-	          <td ><div style="color:black;font-size:11px;font-weight:bold;"><fmt:message key="userPending.login_instructions_above.label" /></div></td>
-	          <td >&nbsp;</td>
-	        </tr>
-	  </c:if>
+    <input type="hidden" name="isHostInstitute" value="<c:out value="${isHostInstitute}" />" />
+    <c:choose>
+	      <c:when test="${not (isAuthenticationExternal == true  && isHostInstitute == false)}">
+	      		<table class="EditTable ui-widget ui-widget-content">
+		      	<tr class="FormData">
+		          <td class="CaptionTD">
+		          <c:choose>
+						<c:when test="${isAuthenticationExternal == true}">
+		          			<fmt:message key="wasp.authentication_external.label" /> 
+		          		</c:when>
+		          		<c:otherwise>
+		          			<fmt:message key="wasp.authentication_internal.label" /> 
+		          		</c:otherwise>
+		          </c:choose>
+		          <fmt:message key="userPending.login.label" />:
+		          </td>
+		          <td class="DataTD"><form:input cssClass="FormElement ui-widget-content ui-corner-all" path="login"  /><span class="requiredField">*</span></td>
+		          <td class="CaptionTD error"><form:errors path="login"/></td>
+		        </tr> 
+		        <c:if test="${isAuthenticationExternal == false}">
+			        <tr >
+			          <td >&nbsp;</td>
+			          <td ><div style="color:black;font-size:11px;font-weight:bold;"><fmt:message key="userPending.login_instructions_above.label" /></div></td>
+			          <td >&nbsp;</td>
+			        </tr>
+			    </c:if>
+		    </c:when>
+		    <c:otherwise>
+		    	 <input type="hidden" name="login" value="tempval" /> <%-- need to return something or validation will fail. Will set in controller --%>
+		    	 <table class="EditTable ui-widget ui-widget-content">
+		    </c:otherwise>
+	    </c:choose>
       <tr class="FormData">
         <td class="CaptionTD"><fmt:message key="piPending.password.label"/>:</td>
         <td class="DataTD"><form:password path="password" cssClass="FormElement ui-widget-content ui-corner-all" onFocus="var x = document.getElementById('passwordInstructions'); x.style.color='red';x.style.fontWeight='bold'; var y = document.getElementById('passwordInstructions2'); y.style.color='red';"  /><span class="requiredField" >*</span></td>

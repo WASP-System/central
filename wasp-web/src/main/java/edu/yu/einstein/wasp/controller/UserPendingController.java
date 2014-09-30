@@ -189,6 +189,8 @@ public class UserPendingController extends WaspController {
 			 SessionStatus status, 
 			 @RequestParam(value="isHostInstitute", required=true) boolean isHostInstitute,
 			 ModelMap m) throws MetadataException {
+		
+		boolean isAuthenticationSetExternal = webAuthenticationService.isAuthenticationSetExternal();
 		m.addAttribute("isHostInstitute", isHostInstitute);
 		Map<String, MetaAttribute.FormVisibility> visibilityElementMap = new HashMap<String, MetaAttribute.FormVisibility>();
 		visibilityElementMap.put("userPending.primaryuserid", MetaAttribute.FormVisibility.hidden);
@@ -196,14 +198,16 @@ public class UserPendingController extends WaspController {
 		userPendingMetaHelperWebapp.getFromRequest(request, visibilityElementMap, UserPendingMeta.class);
 		userPendingMetaHelperWebapp.validate(new UserPendingMetaValidatorImpl(userDao, labDao), result);
 		if (! result.hasFieldErrors("login")){
-			if (webAuthenticationService.isAuthenticationSetExternal()){
-				if (! webAuthenticationService.authenticate(userPendingForm.getLogin(), userPendingForm.getPassword())){
-					Errors errors=new BindException(result.getTarget(), userPendingMetaHelperWebapp.getParentArea());
-					errors.rejectValue("login", userPendingMetaHelperWebapp.getParentArea()+".external_authentication.error", userPendingMetaHelperWebapp.getParentArea()+".external_authentication.error (no message has been defined for this property)");
-					result.addAllErrors(errors);
+			if (isAuthenticationSetExternal){
+				if (isHostInstitute){
+					if (! webAuthenticationService.authenticates(userPendingForm.getLogin(), userPendingForm.getPassword())){
+						Errors errors=new BindException(result.getTarget(), userPendingMetaHelperWebapp.getParentArea());
+						errors.rejectValue("login", userPendingMetaHelperWebapp.getParentArea()+".external_authentication.error", userPendingMetaHelperWebapp.getParentArea()+".external_authentication.error (no message has been defined for this property)");
+						result.addAllErrors(errors);
+					}
 				} else {
-					// user is now authenticated with single role 'ag' (authenticated guest) log them out again
-					webAuthenticationService.logoutUser();
+					// if using external auth but user is external then set their login name to their email
+					userPendingForm.setLogin(userPendingForm.getEmail());
 				}
 			}
 			else {
@@ -229,7 +233,7 @@ public class UserPendingController extends WaspController {
 				}
 			}
 		}
-		if (!webAuthenticationService.isAuthenticationSetExternal()){
+		if (!isAuthenticationSetExternal || !isHostInstitute){
 			passwordValidator.validate(result, userPendingForm.getPassword(), request.getParameter("password2"), userPendingMetaHelperWebapp.getParentArea(), "password");
 		}
 		if (! result.hasFieldErrors("email")){
@@ -254,7 +258,7 @@ public class UserPendingController extends WaspController {
 		if (result.hasErrors() || m.containsKey("captchaError")) {
 			userPendingForm.setUserPendingMeta((List<UserPendingMeta>) userPendingMetaHelperWebapp.getMetaList());
 			prepareSelectListData(m);
-			m.put("isAuthenticationExternal", webAuthenticationService.isAuthenticationSetExternal());
+			m.put("isAuthenticationExternal", isAuthenticationSetExternal);
 			waspErrorMessage("user.created.error");
 			return "auth/newuser/form";
 		}
@@ -275,7 +279,7 @@ public class UserPendingController extends WaspController {
 		Lab lab = labDao.getLabByPrimaryUserId(userDao.getUserByEmail(piUserEmail).getId());
 		userPendingForm.setLabId(lab.getId());
 		userPendingForm.setStatus("WAIT_EMAIL"); // set to WAIT_EMAIL even if isEmailApproved == true or sendPendingUserConfRequestEmail() won't work properly
-		if (webAuthenticationService.isAuthenticationSetExternal())
+		if (isAuthenticationSetExternal && isHostInstitute)
 			userPendingForm.setPassword(webAuthenticationService.getRandomPassword(20)); // authenticating off AD/LDAP so no need to store real password
 		userPendingForm.setPassword( webAuthenticationService.encodePassword(userPendingForm.getPassword()) ); 
 				
@@ -416,8 +420,9 @@ public class UserPendingController extends WaspController {
 			 @Valid UserPending userPendingForm, 
 			 BindingResult result,
 			 SessionStatus status, 
+			 @RequestParam(value="isHostInstitute", required=true) boolean isHostInstitute,
 			 ModelMap m) throws MetadataException {
-		
+		boolean isAuthenticationSetExternal = webAuthenticationService.isAuthenticationSetExternal();
 		MetaHelperWebapp metaHelperWebapp=getMetaHelperWebapp();
 		
 		metaHelperWebapp.setArea("piPending"); 
@@ -427,14 +432,16 @@ public class UserPendingController extends WaspController {
 		metaHelperWebapp.validate(result);
 		
 		if (! result.hasFieldErrors("login")){
-			if (webAuthenticationService.isAuthenticationSetExternal()){
-				if (! webAuthenticationService.authenticate(userPendingForm.getLogin(), userPendingForm.getPassword())){
-					Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
-					errors.rejectValue("login", metaHelperWebapp.getParentArea()+".external_authentication.error", metaHelperWebapp.getParentArea()+".external_authentication.error (no message has been defined for this property)");
-					result.addAllErrors(errors);
+			if (isAuthenticationSetExternal){
+				if (isHostInstitute){
+					if (! webAuthenticationService.authenticates(userPendingForm.getLogin(), userPendingForm.getPassword())){
+						Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
+						errors.rejectValue("login", metaHelperWebapp.getParentArea()+".external_authentication.error", metaHelperWebapp.getParentArea()+".external_authentication.error (no message has been defined for this property)");
+						result.addAllErrors(errors);
+					} 
 				} else {
-					// user is now authenticated with single role 'ag' (authenticated guest) log them out again
-					webAuthenticationService.logoutUser();
+					// if using external auth but user is external then set their login name to their email
+					userPendingForm.setLogin(userPendingForm.getEmail());
 				}
 			}
 			else {
@@ -460,7 +467,7 @@ public class UserPendingController extends WaspController {
 				}
 			}
 		}
-		if (!webAuthenticationService.isAuthenticationSetExternal()){
+		if (!isAuthenticationSetExternal || !isHostInstitute){
 			passwordValidator.validate(result, userPendingForm.getPassword(), request.getParameter("password2"), metaHelperWebapp.getParentArea(), "password");
 		}
 		
@@ -486,7 +493,7 @@ public class UserPendingController extends WaspController {
 		if (result.hasErrors() || m.containsKey("captchaError")) {
 			userPendingForm.setUserPendingMeta((List<UserPendingMeta>) metaHelperWebapp.getMetaList());
 			prepareSelectListData(m, metaHelperWebapp);
-			m.put("isAuthenticationExternal", webAuthenticationService.isAuthenticationSetExternal());
+			m.put("isAuthenticationExternal", isAuthenticationSetExternal);
 			waspErrorMessage("user.created.error");
 			
 			return "auth/newpi/form";
@@ -494,7 +501,8 @@ public class UserPendingController extends WaspController {
 		if (isInDemoMode)
 			request.getSession().setAttribute("demoEmail", userPendingForm.getEmail());
 		userPendingForm.setStatus("WAIT_EMAIL");
-
+		if (isAuthenticationSetExternal && isHostInstitute)
+			userPendingForm.setPassword(webAuthenticationService.getRandomPassword(20)); // authenticating off AD/LDAP so no need to store real password
 		userPendingForm.setPassword( webAuthenticationService.encodePassword(userPendingForm.getPassword()) ); 
 		userPendingForm.setFirstName(StringHelper.removeExtraSpacesAndCapFirstLetter(userPendingForm.getFirstName()));
 		userPendingForm.setLastName(StringHelper.removeExtraSpacesAndCapFirstLetter(userPendingForm.getLastName()));
