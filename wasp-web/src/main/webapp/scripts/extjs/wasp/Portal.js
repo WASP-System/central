@@ -93,7 +93,7 @@ Ext.define('Wasp.Portal', {
 						layout : 'border',
 						items : [{
 									id : 'wasp-treeview',
-									title : 'WASP Job Results',
+									title : 'Job Explorer',
 									region : 'west',
 									animCollapse : true,
 									width : this.width * 0.3,
@@ -107,7 +107,7 @@ Ext.define('Wasp.Portal', {
 									},
 									items : [{
 												html : '<div id="treeview"></div>',
-												title : 'Job View',
+												title : 'Job Tree View',
 												autoScroll : true,
 												border : false,
 												iconCls : 'nav'
@@ -138,6 +138,7 @@ Ext.define('Wasp.Portal', {
 								}]
 					}]
 		});
+		
 		this.callParent(arguments);
 	},
 

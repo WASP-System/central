@@ -170,6 +170,9 @@ Ext.onReady(function () {
 		click(root);
 		//toggle(root);
 		
+		var treeview = Ext.getCmp('wasp-treeview');
+		treeview.collapse();
+		
 //		activeNode.myid = root.myid;
 //		activeNode.type = root.type;
 	});

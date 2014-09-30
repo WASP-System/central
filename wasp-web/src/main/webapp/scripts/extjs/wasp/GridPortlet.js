@@ -212,8 +212,11 @@ Ext.define('Wasp.GridPortlet', {
 		// });
 		// }
 
-		if (actioncol.actions.length > 0)
-			this.columns.push(actioncol);
+		if (actioncol.actions.length > 0) {
+			var acol = this.columns[this.columns.length-1];
+			if (acol===undefined || acol.xtype===undefined || acol.xtype!=='rowactions')
+				this.columns.push(actioncol);
+		}
 
 		// Add colorful renderer to the status column
 		if (this.statusfld != null) {
