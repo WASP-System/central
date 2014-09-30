@@ -9,5 +9,9 @@
 		$("#softwareForm").hide();
 	})
 	
+	$(function(){
+		$("#buttonsDiv").show();
+		////alert("testme");
+	})
 	
 </script>
