@@ -98,91 +98,68 @@ public class MacstwoWebServiceImpl extends MacstwoServiceImpl implements Macstwo
 		 
 		 try{
 			 //First, assemble the data
-			 Map<FileGroup, Sample> fileGroupTestSampleMap = new HashMap<FileGroup, Sample>();
-			 Map<FileGroup, Sample> fileGroupControlSampleMap = new HashMap<FileGroup, Sample>();
-			 Map<FileGroup, String> fileGroupCommandLineMap = new HashMap<FileGroup, String>();
-			 Map<FileGroup, List<Sample>> fileGroupLibraryListMap = new HashMap<FileGroup, List<Sample>>();
-			 Map<FileGroup, List<FileHandle>> fileGroupBamFilesUsedMap = new HashMap<FileGroup, List<FileHandle>>();
-			 Map<FileGroup, List<Software>> fileGroupSoftwareUsedMap = new HashMap<FileGroup, List<Software>>();
-			 
-			 Map<FileGroup, Double> fileGroupFripMap = new HashMap<FileGroup, Double>();
-			 Map<FileGroup, String> fileGroupFripCalculationMap = new HashMap<FileGroup, String>();
-			 Map<FileGroup, List<FileHandle>> fileGroupFileHandleListMap = new HashMap<FileGroup, List<FileHandle>>();
-			 Map<FileGroup, Build> fileGroupBuildMap = new HashMap<FileGroup, Build>();
-			 Map<FileHandle, String> fileHandleResolvedURLMap = new HashMap<FileHandle, String>();
+			 Map<FileGroup, Sample> outerCollectionFileGroupTestSampleMap = new HashMap<FileGroup, Sample>();
+			 Map<FileGroup, Sample> outerCollectionFileGroupControlSampleMap = new HashMap<FileGroup, Sample>();
+			 Map<FileGroup, String> outerCollectionFileGroupCommandLineMap = new HashMap<FileGroup, String>();
+			 Map<FileGroup, List<Sample>> outerCollectionFileGroupLibraryListMap = new HashMap<FileGroup, List<Sample>>();
+			 Map<FileGroup, List<FileHandle>> outerCollectionFileGroupBamFilesUsedMap = new HashMap<FileGroup, List<FileHandle>>();
+			 Map<FileGroup, List<Software>> outerCollectionFileGroupSoftwareUsedMap = new HashMap<FileGroup, List<Software>>();
+			 Map<FileGroup, Double> outerCollectionFileGroupFripMap = new HashMap<FileGroup, Double>();
+			 Map<FileGroup, String> outerCollectionFileGroupFripCalculationMap = new HashMap<FileGroup, String>();
 			 Set<String> fileDescriptionSet = new HashSet<String>();			 
+			 Map<FileGroup, List<FileGroup>> outerCollectionFileGroupInnerFileGroupListMap = new HashMap<FileGroup, List<FileGroup>>();
 			 
-			 List<FileGroup> macs2AnalysisFileGroupList = getMacs2AnalysisFileGroups(job);
+			 List<FileGroup> macs2AnalysisFileGroupList = getMacs2AnalysisFileGroups(job);//the outerCollectionfileGroupList
 			 class FileGroupDescriptionComparator implements Comparator<FileGroup> {
 				 @Override
 				 public int compare(FileGroup arg0, FileGroup arg1) {
 					 return arg0.getDescription().compareToIgnoreCase(arg1.getDescription());//base name
 				 }
 			 }
-			 Collections.sort(macs2AnalysisFileGroupList, new FileGroupDescriptionComparator());//sorted by description (base name)
+			 Collections.sort(macs2AnalysisFileGroupList, new FileGroupDescriptionComparator());//sorted by description (which in this case is base name); this sorts the name of an analysis, such as: 20140916_MACS2_IP_309stop_flag_TARGET_FLAG_CONTROL_309stop_input
 			 
-			 for(FileGroup fileGroup : macs2AnalysisFileGroupList){
-				 if(!fileService.isFileGroupCollection(fileGroup)){//just in case, however we will NOT enter here, since fileService.isFileGroupCollection(fileGroup) will be true, as  getMacs2AnalysisFileGroups(job) checked for this already
+			 for(FileGroup outerCollectionfileGroup : macs2AnalysisFileGroupList){
+				 if(!fileService.isFileGroupCollection(outerCollectionfileGroup)){//just in case, however we will NOT enter here, since fileService.isFileGroupCollection(fileGroup) will be true, as  getMacs2AnalysisFileGroups(job) checked for this already
 					continue;
 				 }
-				 Set<Sample> testAndControlSamples = getTestAndControlSamples(fileGroup);	
+				 Set<Sample> testAndControlSamples = getTestAndControlSamples(outerCollectionfileGroup);	
 				 Sample test = getTestSample(testAndControlSamples);
 				 if(test!=null){
-					 fileGroupTestSampleMap.put(fileGroup, test);
+					 outerCollectionFileGroupTestSampleMap.put(outerCollectionfileGroup, test);
 				 }
 				 Sample control = getControlSample(testAndControlSamples);
 				 if(control!=null){
-					 fileGroupControlSampleMap.put(fileGroup, control);
+					 outerCollectionFileGroupControlSampleMap.put(outerCollectionfileGroup, control);
 				 } 
-				 String commandLineCalls = getCommandLineCalls(fileGroup);
-				 fileGroupCommandLineMap.put(fileGroup, commandLineCalls);
-				 List<Software> softwareUsed = getSoftwareUsedInAnalysis(fileGroup);
-				 fileGroupSoftwareUsedMap.put(fileGroup, softwareUsed);
+				 String commandLineCalls = getCommandLineCalls(outerCollectionfileGroup);
+				 outerCollectionFileGroupCommandLineMap.put(outerCollectionfileGroup, commandLineCalls);
+				 List<Software> softwareUsed = getSoftwareUsedInAnalysis(outerCollectionfileGroup);
+				 outerCollectionFileGroupSoftwareUsedMap.put(outerCollectionfileGroup, softwareUsed);
 				 
-				 List<Sample> librariesUsed = getLibrariesUsedInAnalysis(fileGroup);
-				 fileGroupLibraryListMap.put(fileGroup, librariesUsed);
-				 List<FileHandle> bamFilesUsed = getBamFilesUsedInAnalysis(fileGroup);
-				 fileGroupBamFilesUsedMap.put(fileGroup, bamFilesUsed);				 
+				 List<Sample> librariesUsed = getLibrariesUsedInAnalysis(outerCollectionfileGroup);
+				 outerCollectionFileGroupLibraryListMap.put(outerCollectionfileGroup, librariesUsed);
+				 List<FileHandle> bamFilesUsed = getBamFilesUsedInAnalysis(outerCollectionfileGroup);
+				 outerCollectionFileGroupBamFilesUsedMap.put(outerCollectionfileGroup, bamFilesUsed);				 
 				 
 				 //deal with frip (metadata of fileGroup)
-				 Double frip = getFrip(fileGroup);
+				 Double frip = getFrip(outerCollectionfileGroup);
 				 if(frip!=null){
-					 fileGroupFripMap.put(fileGroup, frip);
+					 outerCollectionFileGroupFripMap.put(outerCollectionfileGroup, frip);
 				 }
-				 String fripCalculation = getFripPercentCalculation(fileGroup);
+				 String fripCalculation = getFripPercentCalculation(outerCollectionfileGroup);
 				 if(fripCalculation!=null){
-					 fileGroupFripCalculationMap.put(fileGroup, fripCalculation);
+					 outerCollectionFileGroupFripCalculationMap.put(outerCollectionfileGroup, fripCalculation);
 				 }
 				 
-				 //7-23-14
-				 //genomeBrowser
-				 Build build = genomeService.getBuild(test);
-				 //logger.debug("--SAMPLE name: " + test.getName());
-				 //logger.debug("---BUILD name: " + build.getName());//such as      BUILD name: 74
-				 //logger.debug("----GENOME name: " + build.getGenome().getName());//such as       GENOME name: GRCm38
-				 //logger.debug("-----ORGANISM name: " + build.getGenome().getOrganism().getName());//such as      ORGANISM name: Mus musculus
-				 fileGroupBuildMap.put(fileGroup, build);
-				 
-				 //finally, deal with list of fileHandles for this fileGroup
-				 List<FileHandle> fileHandleList = new ArrayList<FileHandle>();
-				 List<FileGroup> innerFileGroupList = new ArrayList<FileGroup>(fileGroup.getChildren());
+				 //finally, deal with list of fileHandles for this outer collection fileGroup
+				 //List<FileHandle> fileHandleList = new ArrayList<FileHandle>();
+				 List<FileGroup> innerFileGroupList = new ArrayList<FileGroup>(outerCollectionfileGroup.getChildren());
 				 Collections.sort(innerFileGroupList, new FileGroupDescriptionComparator());//so now, the innerFileGroups, and thus the innerFileHandles, are sorted by description 
+				 outerCollectionFileGroupInnerFileGroupListMap.put(outerCollectionfileGroup, innerFileGroupList);
 				 
 				 for(FileGroup innerFileGroup : innerFileGroupList){
 					 fileDescriptionSet.add(innerFileGroup.getDescription());
-					 fileHandleList.addAll(innerFileGroup.getFileHandles());//here, each innerFileGroup has only one fileHandle
-				 }
-				 //at this point, fileHandleList is be ordered by its innerFileGroup.description
-				 fileGroupFileHandleListMap.put(fileGroup, fileHandleList);
-				 
-				 //get resolvedURL for each fileHandle
-				 for(FileHandle fileHandle : fileHandleList){					
-					String resolvedURL = "";
-					try{
-						resolvedURL = fileUrlResolver.getURL(fileHandle).toString();
-					}catch(Exception e){logger.debug("UNABLE TO RESOLVE URL for file: " + fileHandle.getFileName());}						
-					fileHandleResolvedURLMap.put(fileHandle, resolvedURL);
-				 }				 
+				 }				 	 
 			}			 
 			List<String> fileDescriptionList = new ArrayList<String>(fileDescriptionSet);
 			Collections.sort(fileDescriptionList);
@@ -193,27 +170,21 @@ public class MacstwoWebServiceImpl extends MacstwoServiceImpl implements Macstwo
 			panelTab.setName("MACS2");
 			panelTab.setNumberOfColumns(1);
 							
-			Panel pluginSpecificFileDefinitionsPanel = MacstwoWebPanels.getPluginSpecificFileDefinitionsPanel(fileDescriptionList);//fileDescriptionShortNameList, fileDescriptionShortNamefileDescriptionMap);
+			Panel pluginSpecificFileDefinitionsPanel = MacstwoWebPanels.getPluginSpecificFileDefinitionsPanel(fileDescriptionList);
 			panelTab.addPanel(pluginSpecificFileDefinitionsPanel);
-			Panel samplePairsByAnalysisPanel = MacstwoWebPanels.getSamplePairsByAnalysisPanel(macs2AnalysisFileGroupList, fileGroupTestSampleMap, fileGroupControlSampleMap);
+			Panel samplePairsByAnalysisPanel = MacstwoWebPanels.getSamplePairsByAnalysisPanel(macs2AnalysisFileGroupList, outerCollectionFileGroupTestSampleMap, outerCollectionFileGroupControlSampleMap);
 			panelTab.addPanel(samplePairsByAnalysisPanel);
-			Panel commandsByAnalysisPanel = MacstwoWebPanels.getCommandsByAnalysisPanel(macs2AnalysisFileGroupList, fileGroupSoftwareUsedMap, fileGroupCommandLineMap);
+			Panel commandsByAnalysisPanel = MacstwoWebPanels.getCommandsByAnalysisPanel(macs2AnalysisFileGroupList, outerCollectionFileGroupSoftwareUsedMap, outerCollectionFileGroupCommandLineMap);
 			panelTab.addPanel(commandsByAnalysisPanel);
-			Panel librariesAndBamFilesUsedByAnalysisPanel = MacstwoWebPanels.getLibrariesAndBamFilesUsedByAnalysisPanel(macs2AnalysisFileGroupList, fileGroupLibraryListMap, fileGroupBamFilesUsedMap);
+			Panel librariesAndBamFilesUsedByAnalysisPanel = MacstwoWebPanels.getLibrariesAndBamFilesUsedByAnalysisPanel(macs2AnalysisFileGroupList, outerCollectionFileGroupLibraryListMap, outerCollectionFileGroupBamFilesUsedMap);
 			panelTab.addPanel(librariesAndBamFilesUsedByAnalysisPanel);
-			Panel fripCalculationByAnalysisPanel = MacstwoWebPanels.getFripCalculationByAnalysisPanel(macs2AnalysisFileGroupList, fileGroupFripCalculationMap);
-			panelTab.addPanel(fripCalculationByAnalysisPanel);
-			Panel filesByAnalysisPanel = MacstwoWebPanels.getFilesByAnalysisPanel(pluginRegistry, macs2AnalysisFileGroupList, fileGroupBuildMap, fileGroupFileHandleListMap, fileHandleResolvedURLMap, fileGroupFripMap /*, fileHandelfileDescriptionShortNameMap*/);
-			panelTab.addPanel(filesByAnalysisPanel);
+			Panel fripCalculationByAnalysisPanel = MacstwoWebPanels.getFripCalculationByAnalysisPanel(macs2AnalysisFileGroupList, outerCollectionFileGroupFripCalculationMap);
+			panelTab.addPanel(fripCalculationByAnalysisPanel);			
+			// 9-30-14
+			Panel filesByAnalysisPanel = MacstwoWebPanels.getFilesByAnalysisPanel(pluginRegistry, fileUrlResolver, macs2AnalysisFileGroupList, outerCollectionFileGroupInnerFileGroupListMap, outerCollectionFileGroupFripMap);
 			panelTabSet.add(panelTab);
-			
-			//don't know if the next two lines is good idea
-			//add new tab
-			////PanelTab modelPNGFilesDisplayedByAnalysisPanelTab = MacstwoWebPanels.getModelPNGFilesByAnalysis(macs2AnalysisFileGroupList, fileGroupFileHandleListMap, fileHandleResolvedURLMap);
-			////if(modelPNGFilesDisplayedByAnalysisPanelTab!=null){
-				////panelTabSet.add(modelPNGFilesDisplayedByAnalysisPanelTab);
-			////}
-			
+			panelTab.addPanel(filesByAnalysisPanel);
+						
 			return panelTabSet;
 			
 		}catch(Exception e){
@@ -237,10 +208,10 @@ public class MacstwoWebServiceImpl extends MacstwoServiceImpl implements Macstwo
 		return macs2AnalysisFileGroupList;		
 	}
 	
-	public Double getFrip(FileGroup fileGroup){		
+	public Double getFrip(FileGroup outerCollectionfileGroup){		
 		String mappedReadsAsString = "";
 		String mappedReadsInPeaksAsString = "";
-		for(FileGroupMeta fgm : fileGroup.getFileGroupMeta()){
+		for(FileGroupMeta fgm : outerCollectionfileGroup.getFileGroupMeta()){
 			if(fgm.getK().equalsIgnoreCase("macs2Analysis.totalCountMappedReads")){
 				mappedReadsAsString = fgm.getV();
 			}
@@ -256,10 +227,10 @@ public class MacstwoWebServiceImpl extends MacstwoServiceImpl implements Macstwo
 		}catch(Exception e){logger.debug("unable to retrieve Frip values as fileGroupMeta"); return null;}		
 	}
 	
-	public String getFripPercentCalculation(FileGroup fileGroup){		
+	public String getFripPercentCalculation(FileGroup outerCollectionfileGroup){		
 		String mappedReadsAsString = "";
 		String mappedReadsInPeaksAsString = "";
-		for(FileGroupMeta fgm : fileGroup.getFileGroupMeta()){
+		for(FileGroupMeta fgm : outerCollectionfileGroup.getFileGroupMeta()){
 			if(fgm.getK().equalsIgnoreCase("macs2Analysis.totalCountMappedReads")){
 				mappedReadsAsString = fgm.getV();
 			}
@@ -277,9 +248,9 @@ public class MacstwoWebServiceImpl extends MacstwoServiceImpl implements Macstwo
 			return "100 * " + mappedReadsInPeaks.toString() + " / " + mappedReads + " = " + formatedFripPercent.toString();			
 		}catch(Exception e){logger.debug("unable to retrieve Frip calculation values as fileGroupMeta"); return "Calculation Error";}		
 	}
-	private String getCommandLineCalls(FileGroup fileGroup){
+	private String getCommandLineCalls(FileGroup outerCollectionfileGroup){
 		String commandLineCalls = "";		
-		for(FileGroupMeta fgm : fileGroup.getFileGroupMeta()){
+		for(FileGroupMeta fgm : outerCollectionfileGroup.getFileGroupMeta()){
 			if(fgm.getK().equalsIgnoreCase("macs2Analysis.commandLineCall")){
 				commandLineCalls = fgm.getV();
 				break;
@@ -312,13 +283,13 @@ public class MacstwoWebServiceImpl extends MacstwoServiceImpl implements Macstwo
 		}
 		return null;
 	}
-	private Set<Sample> getTestAndControlSamples(FileGroup fileGroup){
+	private Set<Sample> getTestAndControlSamples(FileGroup outerCollectionfileGroup){
 		
 		//at end,should return set containing one sample (IP only, if no control) or two samples (IP and Control)
 		
 		Set<Sample> tempDerivedFromSamples = new HashSet<Sample>();
 		Set<SampleSource> derivedFromSampleSources = new HashSet<SampleSource>();//at end,should be one (IP) or two (IP and Control)
-		Set<FileGroup> derivedFromFileGroupSet = fileGroup.getDerivedFrom();		 
+		Set<FileGroup> derivedFromFileGroupSet = outerCollectionfileGroup.getDerivedFrom();		 
 		for(FileGroup derivedFromFileGroup : derivedFromFileGroupSet){
 			if(derivedFromFileGroup.getSamples().size()>0){//bam files appear NOT to use this
 				tempDerivedFromSamples.addAll(derivedFromFileGroup.getSamples());//could be libraries or samples; not yet sure
@@ -342,13 +313,13 @@ public class MacstwoWebServiceImpl extends MacstwoServiceImpl implements Macstwo
 		}
 		return derivedFromSamples;
 	}
-	private List<Sample> getLibrariesUsedInAnalysis(FileGroup fileGroup){
+	private List<Sample> getLibrariesUsedInAnalysis(FileGroup outerCollectionfileGroup){
 		
 		//at end,should return set containing one sample (IP only, if no control) or two samples (IP and Control)
 		
 		Set<Sample> tempDerivedFromLibraries = new HashSet<Sample>();
 		Set<SampleSource> derivedFromSampleSources = new HashSet<SampleSource>();//at end,should be one (IP) or two (IP and Control)
-		Set<FileGroup> derivedFromFileGroupSet = fileGroup.getDerivedFrom();		 
+		Set<FileGroup> derivedFromFileGroupSet = outerCollectionfileGroup.getDerivedFrom();		 
 		for(FileGroup derivedFromFileGroup : derivedFromFileGroupSet){
 			if(derivedFromFileGroup.getSamples().size()>0){//bam files appear NOT to use this
 				tempDerivedFromLibraries.addAll(derivedFromFileGroup.getSamples());//could be libraries or samples; not yet sure
@@ -367,9 +338,9 @@ public class MacstwoWebServiceImpl extends MacstwoServiceImpl implements Macstwo
 		Collections.sort(derivedFromLibraries, new SampleNameComparator());
 		return derivedFromLibraries;
 	}
-	private List<FileHandle> getBamFilesUsedInAnalysis(FileGroup fileGroup){
+	private List<FileHandle> getBamFilesUsedInAnalysis(FileGroup outerCollectionfileGroup){
 		List<FileHandle> bamFiles = new ArrayList<FileHandle>();
-		Set<FileGroup> derivedFromFileGroupSet = fileGroup.getDerivedFrom();
+		Set<FileGroup> derivedFromFileGroupSet = outerCollectionfileGroup.getDerivedFrom();
 		for(FileGroup fg : derivedFromFileGroupSet){
 			for(FileHandle fh : fg.getFileHandles()){
 				bamFiles.add(fh);
@@ -384,10 +355,10 @@ public class MacstwoWebServiceImpl extends MacstwoServiceImpl implements Macstwo
 		Collections.sort(bamFiles, new FileHandleNameComparator());
 		return bamFiles;
 	}
-	private List<Software> getSoftwareUsedInAnalysis(FileGroup fileGroup){
+	private List<Software> getSoftwareUsedInAnalysis(FileGroup outerCollectionfileGroup){
 		Set<Software> tempSoftwareUsedSet = new HashSet<Software>();
 		String softwareIdUsedStringList = "";		
-		for(FileGroupMeta fgm : fileGroup.getFileGroupMeta()){
+		for(FileGroupMeta fgm : outerCollectionfileGroup.getFileGroupMeta()){
 			if(fgm.getK().contains("softwareIdUsedListAsString")){
 				softwareIdUsedStringList = fgm.getV();
 			}

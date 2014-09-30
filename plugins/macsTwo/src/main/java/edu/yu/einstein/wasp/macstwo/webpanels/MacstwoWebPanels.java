@@ -11,6 +11,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 import edu.yu.einstein.wasp.interfacing.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
@@ -293,12 +294,8 @@ public class MacstwoWebPanels {
 		return panel;
 	}
 	
-	//new organizational format: 9-2-14 and modified on 9-5-14
-	public static GridPanel getFilesByAnalysisPanel(WaspPluginRegistry pluginRegistry, List<FileGroup> macs2AnalysisFileGroupList, 
-												Map<FileGroup, Build> fileGroupBuildMap,
-												Map<FileGroup,List<FileHandle>> fileGroupFileHandleListMap, 
-												Map<FileHandle,String> fileHandleResolvedURLMap, 
-												Map<FileGroup, Double> fileGroupFripPercentMap){
+	//9-30-14
+	public static GridPanel getFilesByAnalysisPanel(WaspPluginRegistry pluginRegistry, FileUrlResolver fileUrlResolver, List<FileGroup> macs2AnalysisFileGroupList, Map<FileGroup, List<FileGroup>> outerCollectionFileGroupInnerFileGroupListMap, Map<FileGroup, Double>outerCollectionFileGroupFripMap){
 		//create the panel
 		GridPanel panel = new GridPanel();
 		panel.setTitle("Files By Analysis");
@@ -308,20 +305,10 @@ public class MacstwoWebPanels {
 		panel.setOrder(1);
 		panel.setGrouping(true);
 		panel.setGroupField("Analysis");
-//		panel.setHasDownload(true);
-//		panel.setDownloadLinkField("Download");
 		panel.setAllowSelectDownload(true);
 		panel.setAllowGroupDownload(true);
 		panel.setSelectDownloadText("Download Selected");
-//		panel.setDownloadTooltip("Download");
-		
-		//7-18-14
-//		panel.setHasGbLink(true);
-//		panel.setGbLinkField("Link");
-//		panel.setGbTypeField("Icon");
-//		panel.setHideGbField("Hide");
-//		panel.setGbTtpField("Tip");
-		
+
 		//create content (think of it as the table)
 		GridContent content = new GridContent();
 		//create the data model 
@@ -329,13 +316,6 @@ public class MacstwoWebPanels {
 		content.addDataFields(new GridDataField("File", "String"));//dataIndex, datatype
 		content.addDataFields(new GridDataField("Size", "String"));//dataIndex, datatype
 		content.addDataFields(new GridDataField("MD5", "String"));//dataIndex, datatype
-//		content.addDataFields(new GridDataField("Download", "String"));//dataIndex, datatype
-		
-		//7-18-14
-//		content.addDataFields(new GridDataField("Link", "String"));//dataIndex, datatype
-//		content.addDataFields(new GridDataField("Icon", "String"));//dataIndex, datatype
-//		content.addDataFields(new GridDataField("Hide", "boolean"));//dataIndex, datatype
-//		content.addDataFields(new GridDataField("Tip", "String"));//dataIndex, datatype
 		
 		//create columns and associate each column with its displayed header and a data model attribute (dataIndex)
 		///////unique grouping field is NOT displayed: content.addColumn(new GridColumn("Analysis", "Analysis"));//header,dataIndex		
@@ -343,185 +323,54 @@ public class MacstwoWebPanels {
 		content.addColumn(new GridColumn("Size", "Size", 100, 0));//header,dataIndex					width=270; flex=0
 		content.addColumn(new GridColumn("MD5", "MD5", 170, 0));//header,dataIndex					width=270; flex=0
 		
-		for(FileGroup fileGroup : macs2AnalysisFileGroupList){				
-			for(FileHandle fileHandle : fileGroupFileHandleListMap.get(fileGroup)){				
+		for(FileGroup outerCollectionFileGroup : macs2AnalysisFileGroupList){	
+			
+			String headerForGroup = outerCollectionFileGroup.getDescription();
+			Double frip = outerCollectionFileGroupFripMap.get(outerCollectionFileGroup);
+			if(frip!=null){
+				Double fripAsPercent = frip * 100;
+				DecimalFormat myFormat = new DecimalFormat("0.00000");
+				String formatedFrip = myFormat.format(fripAsPercent);
+				headerForGroup += " (FRiP: " + formatedFrip + " %)";
+			}
+			for(FileGroup innerFileGroup : outerCollectionFileGroupInnerFileGroupListMap.get(outerCollectionFileGroup)){
 				List<String> row = new ArrayList<String>();	
-				String headerForGroup = fileGroup.getDescription();
-				Double frip = fileGroupFripPercentMap.get(fileGroup);
-				if(frip!=null){
-					Double fripAsPercent = frip * 100;
-					DecimalFormat myFormat = new DecimalFormat("0.00000");
-					String formatedFrip = myFormat.format(fripAsPercent);
-					headerForGroup += " (FRiP: " + formatedFrip + " %)";
-				}
 				row.add(headerForGroup);//won't be displayed on each row, but will be the header for each section (but must be part of the row)
+
+				FileHandle fileHandle = new ArrayList<FileHandle>(innerFileGroup.getFileHandles()).get(0);
 				row.add(fileHandle.getFileName());
 				Integer sizeK = fileHandle.getSizek();
 				if(sizeK!=null){
 					row.add(fileHandle.getSizek().toString());
 				}else{row.add("");}
-				row.add(fileHandle.getMd5hash());
-				//row.add(fileHandleResolvedURLMap.get(fileHandle));//for the download
-				
-				content.addDataRow(row);//add the new row to the content
-				
-				
+				row.add(fileHandle.getMd5hash());				
+				content.addDataRow(row);//add the new row to the content						
 				List<Action> actionList = new ArrayList<Action>();
 				// add download action to the list
-				actionList.add(new Action("icon-download", "Download", CallbackFunctionType.DOWNLOAD, fileHandleResolvedURLMap.get(fileHandle)));
-				actionList.add(new Action("icon-view-file", "View", CallbackFunctionType.OPEN_IN_CSS_WIN, new ArrayList<FileGroup>(fileHandle.getFileGroup()).get(0).getId().toString()));
+				String resolvedURL = "";
+				try{
+					resolvedURL = fileUrlResolver.getURL(fileHandle).toString();
+				}catch(Exception e){logger.debug("UNABLE TO RESOLVE URL for file: " + fileHandle.getFileName());}
+				actionList.add(new Action("icon-download", "Download", CallbackFunctionType.DOWNLOAD, resolvedURL));
+				///actionList.add(new Action("icon-view-file", "View", CallbackFunctionType.OPEN_IN_CSS_WIN, new ArrayList<FileGroup>(fileHandle.getFileGroup()).get(0).getId().toString()));
+				actionList.add(new Action("icon-view-file", "View", CallbackFunctionType.OPEN_IN_CSS_WIN, innerFileGroup.getId().toString()));
 				
-				List<GenomeBrowserProviding> plugins = new ArrayList<>();
-				///System.out.println("at 2");
+				List<GenomeBrowserProviding> plugins = new ArrayList<>();				
 				plugins.addAll(pluginRegistry.getPlugins(GenomeBrowserProviding.class));
-				///System.out.println("at 3 where number of plugins.size() is: " + plugins.size());
 				for(GenomeBrowserProviding plugin : plugins){
-					///System.out.println("at 4 pluginName: " + plugin.getIName());
 					Action action = plugin.getAction(new ArrayList<FileGroup>(fileHandle.getFileGroup()).get(0));
-					///System.out.println("at 5");
 					if(action != null){
-						//System.out.println("at 6.1 Action is NOT NULL");
-						//System.out.println("at 6.2 fileHandle.getName() is " + fileHandle.getFileName());
-						//System.out.println("at 6.3 icon name: " + action.getIconClassName());
-						//System.out.println("at 6.4 callbackcontent: " + action.getCallbackContent());
 						actionList.add(action);
 					}
 				}
-				content.addActions(actionList);
-				////System.out.println("at 7");
-/*				if(actionList.isEmpty()){
-					////System.out.println("at 8");
-					row.add("");
-					
-					row.add("");
-					row.add("true");//true means hide
-					row.add("");
-				}
-				else{
-					////System.out.println("at 9");
-					for(Action action : actionList){
-						////System.out.println("at 10 Action icon name: " + action.getIconClassName());
-						row.add(action.getCallbackContent());
-						////System.out.println("at 11 Action callbackcontent: " + action.getCallbackContent());
-						if(action.getIconClassName().contains("ucsc")){
-							////System.out.println("at 12");
-							row.add("ucsc");
-						}
-						else if(action.getIconClassName().contains("ensembl")){
-							////System.out.println("at 13");
-							row.add("ensembl");
-						}
-						////System.out.println("at 14");
-						row.add("false");
-						if(action.getIconClassName().contains("ucsc")){
-							////System.out.println("at 15");
-							row.add("UCSC Genome Browser");
-						}
-						else if(action.getIconClassName().contains("ensembl")){
-							////System.out.println("at 16");
-							row.add("ENSEMBL Genome Browser");
-						}
-					}
-				}				
-*/				
+				content.addActions(actionList);				
 			}			
 		}
+		
 		panel.setContent(content);//add content to panel
 		
-		return panel;		 
-	}
-		
-	//as of 9-17-14, the call to this method is no longer used
-	public static PanelTab getModelPNGFilesByAnalysis(List<FileGroup> macs2AnalysisFileGroupList, Map<FileGroup,List<FileHandle>> fileGroupFileHandleListMap, Map<FileHandle,String> fileHandleResolvedURLMap){
-
-		//create the panelTab to house the panel
-		PanelTab panelTab = new PanelTab();
-		panelTab.setName("MACS2 Model View");
-		panelTab.setNumberOfColumns(2);
-		int counter = 1;
-		for(FileGroup fileGroup : macs2AnalysisFileGroupList){				
-			for(FileHandle fileHandle : fileGroupFileHandleListMap.get(fileGroup)){	
-				//if(fileHandle.getFileType().getExtensions().endsWith("_model.png")){//macstwo specific
-				if(fileHandle.getFileName().toLowerCase().endsWith("_model.png")){//macstwo specific
-					String resolvedURL = fileHandleResolvedURLMap.get(fileHandle);
-					if(fileHandle==null || resolvedURL==null || resolvedURL.isEmpty()){//unexpected
-						continue;
-					}
-					//create the panel
-					WebPanel panel = new WebPanel();
-					panel.setTitle(fileGroup.getDescription());
-					panel.setDescription(fileGroup.getDescription());
-					panel.setHeight(900);
-					panel.setResizable(true);
-					panel.setMaximizable(true);	
-					panel.setOrder(counter++);
-					
-					WebContent content = new WebContent();
-					//works nicely:
-					content.setHtmlCode("<img src= '"+resolvedURL+"' height='800' width='400'>");
-					
-					//Notes:
-					//this works, but uses iframe which we do not want:
-					//content.setHtmlCode("<iframe width=\"470\" height=\"900\" src=\"http://localhost:8080/wasp/file/fileHandle/"+fileHandle.getId()+"/view.do\" ></iframe>");
-					//apparently works fine:
-					//content.setHtmlCode("<img width=\"200\" height=\"200\" src=\"http://localhost:8080/wasp/images/fail.png\" />");
-					//doesn't work
-					//content.setHtmlCode("<img src= '<wasp:url fileAccessor= '${"+fileHandle.getId().toString()+"}' />' height='800' width='400'>");
-					
-					panel.setContent(content);
-					panelTab.addPanel(panel);//add panel to panelTab			
-				}			
-			}
-		}	
-		return panelTab;
+		return panel;
 	}
 	
-	private static List<String> addGenomeBrowserIcon(Build build, FileHandle fileHandle, String resolvedUrl){
-		List<String> row = new ArrayList<String>();
-		
-		if(fileHandle.getFileName().endsWith(".bed") || fileHandle.getFileName().endsWith(".bdg") || fileHandle.getFileName().endsWith("Peak")){
-			
-			//Ensembl GB formats: http://useast.ensembl.org/info/docs/webcode/linking.html#attachurl   AND http://useast.ensembl.org/info/website/upload/index.html#addtrack
-			//http://www.ensembl.org/Homo_sapiens/Location/View?g=ENSG00000130544;contigviewbottom=url:http://www.ensembl.org/info/website/upload/sample_files/example.bed=half_height
-			//Note on bedGraph format If attaching a bedGraph file, please add the parameter 'format=bedGraph' to the URL, e.g.
-			//http://www.ensembl.org/Homo_sapiens/Location/View?g=ENSG00000012048;contigviewbottom=url:http://www.abcd.edu/myprojects/data.bed=tiling;format=bedGraph 
-
-			//this works nicely:
-			//     http://useast.ensembl.org/Homo_sapiens/Location/View?r=1:1-620074;contigviewbottom=url:http://wasp.einstein.yu.edu/results/rob/20140710_IP_Wildtype_flag_TARGET_GATA3_CONTROL_Wildtype_inp_summits2.bed"
-				
-			//UCSC GB formats: http://genome.ucsc.edu/goldenPath/help/customTrack.html#TRACK
-			//http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&hgt.customText=http://wasp.einstein.yu.edu/results/production_wiki/PKenny/NChandiramani/P685/J11076/analyzed/Wildtype_flag.AC44H0ACXX.lane_7_P0_I10.hg19/Wildtype_flag.AC44H0ACXX.lane_7_P0_I10.hg19_peaks.bed.bz2
-			
-			String genomeName = build.getGenome().getName();//such as    GRCm38 or hg19
-			String organismName = build.getGenome().getOrganism().getName();//such as   Mus musculus
-			String organismNameWithoutSpaces = organismName.replaceAll("\\s+", "_");
-			if(genomeName.startsWith("GRC")){//bam file created using GRC genome, so display in Ensembl genome browser
-				if(fileHandle.getFileName().endsWith(".bdg")){
-					row.add("http://useast.ensembl.org/"+ organismNameWithoutSpaces +"/Location/View?r=1:1-620000;contigviewbottom=url:" + resolvedUrl + "=tiling;format=bedGraph");
-					//for testing only
-					//row.add("http://useast.ensembl.org/Homo_sapiens/Location/View?r=1:1-620074;contigviewbottom=url:http://wasp.einstein.yu.edu/results/rob/20140710_IP_Wildtype_flag_TARGET_GATA3_CONTROL_Wildtype_inp_summits2.bed");
-				}
-				else{
-					row.add("http://useast.ensembl.org/"+ organismNameWithoutSpaces +"/Location/View?r=1:1-620000;contigviewbottom=url:" + resolvedUrl);							
-					//for testing only
-					//row.add("http://useast.ensembl.org/Homo_sapiens/Location/View?r=1:1-620074;contigviewbottom=url:http://wasp.einstein.yu.edu/results/rob/20140710_IP_Wildtype_flag_TARGET_GATA3_CONTROL_Wildtype_inp_summits2.bed");
-				}
-				row.add("ensembl");
-				row.add("false");//true means hide, which is the default setting
-				row.add("Ensembl Genome Browser");
-			}
-			else{//display in UCSC genome browser
-				row.add("http://genome.ucsc.edu/cgi-bin/hgTracks?db="+ genomeName +"&hgt.customText=" + resolvedUrl);
-				row.add("ucsc");
-				row.add("false");//true means hide
-				row.add("UCSC Genome Browser");
-			}
-			//for testing
-			logger.debug("http://useast.ensembl.org/"+ organismNameWithoutSpaces +"/Location/View?r=1:1-620000;contigviewbottom=url:" + resolvedUrl + "=tiling;format=bedGraph");
-			logger.debug("http://useast.ensembl.org/"+ organismNameWithoutSpaces +"/Location/View?r=1:1-620000;contigviewbottom=url:" + resolvedUrl);
-			logger.debug("http://genome.ucsc.edu/cgi-bin/hgTracks?db="+ genomeName +"&hgt.customText=" + resolvedUrl);
-		}
-		
-		return row;
-	}
+	
 }
