@@ -138,8 +138,14 @@ public class ListenForStatusTasklet extends WaspHibernatingTasklet implements Me
 		Long stepExecutionId =stepExecution.getId();
 		Long jobExecutionId = context.getStepContext().getStepExecution().getJobExecutionId();
 		Set<Message<?>> allMessages = new HashSet<>();
-		allMessages.addAll(messageQueue);
-		allMessages.addAll(abandonMessageQueue);
+		for (Message<?> m : messageQueue){
+			logger.debug("found in messageQueue: " + m.toString());
+			allMessages.add(m);
+		}
+		for (Message<?> m : abandonMessageQueue){
+			logger.debug("found in abandonMessageQueue: " + m.toString());
+			allMessages.add(m);
+		}
 		if ((!allMessages.isEmpty()) && context.getStepContext().getStepExecution().getJobExecution().getStatus().isRunning()){
 			if (wasHibernationRequested){
 				setHibernationRequestedForStep(stepExecution, false);
