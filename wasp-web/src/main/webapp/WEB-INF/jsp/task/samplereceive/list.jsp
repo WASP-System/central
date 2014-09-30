@@ -15,7 +15,7 @@
 <table class="EditTable ui-widget ui-widget-content">
 <c:forEach items="${jobList}" var="job">
 	<c:if test='${currentJobId != "-1"}'>
- 		<tr><td colspan="6" style='background-color:black'></td></tr>
+ 		<tr><td colspan="7" style='background-color:black'></td></tr>
  	</c:if>
 	<tr class="FormData">
 		<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.samplereceive_jobId.label" /></th>
@@ -23,6 +23,7 @@
 		<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.samplereceive_submitter.label" /></th>
 		<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.samplereceive_molecule.label" /></th>
 		<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.samplereceive_sample.label" /></th>
+		<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.samplereceive_sampleinternalid.label" /></th>
 		<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.samplereceive_action.label" /></th>
 	</tr>
 	<c:set var="samplesList" value="${jobAndSamplesMap.get(job)}" scope="page" />
@@ -43,6 +44,7 @@
 			</c:choose>
 			<td style='text-align:center'><c:out value="${sample.getSampleType().getName()}" /></td>
 			<td style='text-align:center'><c:out value="${sample.getName()}" /> </td>
+			<td style='text-align:center'><c:out value="${sample.getId()}" /> </td>
 			<td style='text-align:center'>
 				<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="sampleId" value="${sample.getSampleId()}"> 
 	 			<select class="FormElement ui-widget-content ui-corner-all" name="receivedStatus<c:out value="${sample.getSampleId()}" />" size="1" >
@@ -55,6 +57,7 @@
 		
 		<c:if test="${status.last}">
 			<tr class="FormData">
+				<td style='text-align:center'>&nbsp;</td>
 				<td style='text-align:center'>&nbsp;</td>
 				<td style='text-align:center'>&nbsp;</td>
 				<td style='text-align:center'>&nbsp;</td>
