@@ -358,7 +358,7 @@ public class MacstwoWebPanels {
 				List<GenomeBrowserProviding> plugins = new ArrayList<>();				
 				plugins.addAll(pluginRegistry.getPlugins(GenomeBrowserProviding.class));
 				for(GenomeBrowserProviding plugin : plugins){
-					Action action = plugin.getAction(new ArrayList<FileGroup>(fileHandle.getFileGroup()).get(0));
+					Action action = plugin.getAction(innerFileGroup);
 					if(action != null){
 						actionList.add(action);
 					}
