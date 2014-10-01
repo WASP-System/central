@@ -1,23 +1,15 @@
 package edu.yu.einstein.wasp.plugin.mps.genomebrowser;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Properties;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.MessageChannel;
-
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
-import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
@@ -76,7 +68,7 @@ public class UcscGenomeBrowserPlugin extends AbstractGenomeBrowserPlugin  {
 			action.setIconClassName(getIcon());
 			action.setCallbackFunctionType(CallbackFunctionType.OPEN_IN_NEW_BROWSER_WIN);
 			action.setCallbackContent(link);
-			action.setTooltip("View in UCSC browser");
+			action.setTooltip("UCSC Browser");
 		}		
 		return action;
 	}
@@ -105,6 +97,9 @@ public class UcscGenomeBrowserPlugin extends AbstractGenomeBrowserPlugin  {
 	}
 	
 	private String getLink(FileGroup fg) {
+		
+		//UCSC GB formats: http://genome.ucsc.edu/goldenPath/help/customTrack.html#TRACK
+		//http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&hgt.customText=http://wasp.einstein.yu.edu/results/production_wiki/PKenny/NChandiramani/P685/J11076/analyzed/Wildtype_flag.AC44H0ACXX.lane_7_P0_I10.hg19/Wildtype_flag.AC44H0ACXX.lane_7_P0_I10.hg19_peaks.bed.bz2
 		
 		if(!isDisplayable(fg)){
 			return null;

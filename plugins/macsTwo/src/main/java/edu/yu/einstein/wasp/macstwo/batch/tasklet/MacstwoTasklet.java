@@ -76,29 +76,6 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	
 	private StepExecution stepExecution;
 	
-/*	
-	@Autowired
-	private FileType macs2ModelScriptFileType;
-	@Autowired
-	private FileType macs2PeaksXlsFileType;
-	@Autowired
-	private FileType macs2NarrowPeaksBedFileType;
-	@Autowired
-	private FileType macs2SummitsBedFileType;
-	@Autowired
-	private FileType macs2SummitsModifiedBedFileType;
-	@Autowired
-	private FileType macs2TreatPileupBedGraphFileType;
-	@Autowired
-	private FileType macs2ControlLambdaBedGraphFileType;	
-	@Autowired
-	private FileType macs2ModelPdfFileType;
-	@Autowired
-	private FileType macs2ModelPngFileType;
-	
-	@Autowired
-	private FileType macs2AnalysisFileType;
-*/	
 	@Autowired
 	private FileType textFileType;//here, the model.r script output file
 	@Autowired

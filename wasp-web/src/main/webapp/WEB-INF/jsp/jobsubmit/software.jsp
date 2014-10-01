@@ -45,7 +45,7 @@
 	     <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>
 	  </table>
 	</div>
-	<div class="submit">
+	<div class="submit" id="buttonsDiv" style="display: none;" onload="displayme()">
 	  <input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<wasp:relativeUrl value="dashboard.do"/>'" /> 
 	  <input class="fm-button" type="button" value="<fmt:message key="jobDraft.editParams.label" />" onClick="editParams();" id='showParamsButton'/> 
 	  <input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="jobDraft.continue.label" />" />
