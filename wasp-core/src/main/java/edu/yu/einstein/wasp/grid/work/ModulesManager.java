@@ -151,12 +151,12 @@ public class ModulesManager extends HashMap<String, String> implements SoftwareM
 			line = line.trim();
 			if (line.isEmpty() || line.startsWith("Currently Loaded Modulefiles"))
 				continue; // filter lines
-			String[] elements = line.split("[^\\)]\\s+");
+			String[] elements = line.split("\\s*\\d+\\)\\s+");
 			for (String element : elements){
-				String[] parts = element.split("\\)\\s+");
-				if (parts.length != 2)
+				element = element.trim();
+				if (element.isEmpty())
 					continue;
-				sw.add(parts[1]);
+				sw.add(element);
 			}
 		}
 		return sw;
