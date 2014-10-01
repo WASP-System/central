@@ -1,140 +1,163 @@
 /**
  * @class Wasp.Portal
- * @extends Object
- * A sample portal layout application class.
+ * @extends Object A sample portal layout application class.
  */
 
 Ext.define('Wasp.Portal', {
 
-    extend: 'Ext.container.Container',
-    
-    requires: [	'Wasp.PortalPanel', 
-    			'Wasp.PortalColumn', 
-    			'Wasp.PluginSummaryGridPortlet', 
-    			'Wasp.FileDownloadGridPortlet', 
-    			'Wasp.ChartPortlet',
-    			'Wasp.GridPortlet'],
-    
-    width: 1500,
-    height: 800,
-    headerheight: 20,
+	extend : 'Ext.container.Container',
 
-    getTools: function(isMaximizable){
-    	if (isMaximizable) {
-	        return [{
-	        	xtype: 'tool',
-	        	type: 'maximize',
-	        	handler: function(e, target, header, tool){
-	                var portlet = header.ownerCt;
-	                var portal = portlet.up('portalpanel');
-	                if(portal===undefined) { // if the portlet is in the max panel
-	                	var pmax = portlet.ownerCt;
-	                	pmax.removeAll();
-	                	var tabpanel = pmax.ownerCt;
-	                	portal = tabpanel.items.last();
-		                tabpanel.getLayout().setActiveItem(portal);
-	                } else {  // if the portlet is in the normal portal panel
-		                var tabpanel = portal.ownerCt;
-		                var pmax = tabpanel.items.first();
-		                var portletClone = portlet.cloneConfig();
-		                portletClone.closable = false;
-		                portletClone.collapsible = false;
-		                pmax.add(portletClone);
-		                pmax.doLayout();
-		                tabpanel.getLayout().setActiveItem(pmax);
-	                }
-	            }
-	        }];
-    	}
-    },
+	requires : ['Wasp.PortalPanel', 'Wasp.PortalColumn',
+			'Wasp.PluginSummaryGridPortlet', 'Wasp.FileDownloadGridPortlet',
+			'Wasp.ChartPortlet', 'Wasp.GridPortlet'],
 
-    initComponent: function(){
-        var content = '<div class="portlet-content"></div>';
+	width : 1500,
+	height : 800,
+	headerheight : 20,
 
-        Ext.apply(this, {
-            id: 'wasp-viewport',
-            renderTo: 'resultpanel',
-            width: this.width,
-            height: this.height,
-            layout: {
-                type: 'border',
-                padding: '0 5 5 5' // pad the layout from the window edges
-            },
-            items: [{
-                id: 'wasp-header',
-                xtype: 'box',
-                region: 'north',
-                //html: 'Job Result Portal',
-                height: this.headerheight
-            },{
-                xtype: 'container',
-                region: 'center',
-                layout: 'border',
-                items: [{
-                    id: 'wasp-treeview',
-                    title: 'WASP Job Results',
-                    region: 'west',
-                    animCollapse: true,
-                    width: this.width*0.3,
-                    minWidth: 250,
-                    maxWidth: 1000,
-                    split: true,
-                    collapsible: true,
-                    layout:{
-                        type: 'accordion',
-                        animate: true
-                    },
-                    items: [{
-                        html: '<div id="treeview"></div>',
-                        title:'Job View',
-                        autoScroll: true,
-                        border: false,
-                        iconCls: 'nav'
-                    },{
-                        title:'Other View',
-                        html: content,
-                        border: false,
-                        autoScroll: true,
-                        iconCls: 'settings'
-                    }]
-                },{
-                	id: 'wasp-tabpanel',
-                    xtype: 'tabpanel',
-                    region: 'center',
-                    activeTab: 0,
-                    tabBar: {
-				        defaults: {
-				            //flex: 1, // if you want them to stretch all the way
-				            //height: 20, // set the height
-				        	border: 2,
-				            padding: 6 // set the padding
-				         },
-				        dock: 'top'
-				    },
-                    items: []
-                }]
-            }]
-        });
-        this.callParent(arguments);
-    },
+	getTools : function(isMaximizable) {
+		if (isMaximizable) {
+			return [{
+				xtype : 'tool',
+				type : 'maximize',
+				handler : function(e, target, header, tool) {
+					var portlet = header.ownerCt;
+					var portal = portlet.up('portalpanel');
+					if (portal === undefined) { // if portlet is in the max
+												// panel
+						var pmax = portlet.ownerCt;
+						pmax.removeAll();
+						var tabpanel = pmax.ownerCt;
+						portal = tabpanel.items.last();
+						tabpanel.getLayout().setActiveItem(portal);
+					} else { // if the portlet is in the normal portal panel
+						var tabpanel = portal.ownerCt;
+						var pmax = tabpanel.items.first();
+						if (portlet.items.first() === undefined) {
+							var portletClone = portlet.cloneConfig();
+							portletClone.closable = false;
+							portletClone.collapsible = false;
+							pmax.add(portletClone);
+						} else { // if it's a grid portlet
+							pmax.add({
+										xtype : 'portlet',
+										title : portlet.title,
+										closable : true,
+										collapsible : false,
+										draggable : false,
+										// tools : portlet.tools.cloneConfig(),
+										listeners : {
+											beforeclose : function(p) {
+												var pmax = p.ownerCt;
+												pmax.removeAll();
+												var tabpanel = pmax.ownerCt;
+												portal = tabpanel.items.last();
+												tabpanel.getLayout()
+														.setActiveItem(portal);
+											}
+										},
+										items : portlet.items.first()
+												.cloneConfig()
+									});
+						}
 
-    onPortletClose: function(portlet) {
-        this.showMsg('"' + portlet.title + '" was removed');
-    },
-    
-    showMsg: function(msg) {
-        var el = Ext.get('wasp-msg'),
-            msgId = Ext.id();
+						pmax.doLayout();
+						tabpanel.getLayout().setActiveItem(pmax);
+					}
+				}
+			}];
+		}
+	},
 
-        this.msgId = msgId;
-        el.update(msg).show();
+	initComponent : function() {
+		var content = '<div class="portlet-content"></div>';
 
-        Ext.defer(this.clearMsg, 3000, this, [msgId]);
-    },
+		Ext.apply(this, {
+			id : 'wasp-viewport',
+			renderTo : 'resultpanel',
+			width : this.width,
+			height : this.height,
+			layout : {
+				type : 'border',
+				padding : '0 5 5 5' // pad the layout from the window edges
+			},
+			items : [{
+						id : 'wasp-header',
+						xtype : 'box',
+						region : 'north',
+						// html: 'Job Result Portal',
+						height : this.headerheight
+					}, {
+						xtype : 'container',
+						region : 'center',
+						layout : 'border',
+						items : [{
+									id : 'wasp-treeview',
+									title : 'Job Explorer',
+									region : 'west',
+									animCollapse : true,
+									width : this.width * 0.3,
+									minWidth : 250,
+									maxWidth : 1000,
+									split : true,
+									collapsible : true,
+									layout : {
+										type : 'accordion',
+										animate : true
+									},
+									items : [{
+												html : '<div id="treeview"></div>',
+												title : 'Job Tree View',
+												autoScroll : true,
+												border : false,
+												iconCls : 'nav'
+											}, {
+												title : 'Other View',
+												html : content,
+												border : false,
+												autoScroll : true,
+												iconCls : 'settings'
+											}]
+								}, {
+									id : 'wasp-tabpanel',
+									xtype : 'tabpanel',
+									region : 'center',
+									activeTab : 0,
+									tabBar : {
+										defaults : {
+											// flex: 1, // if you want them to
+											// stretch all the way
+											// height: 20, // set the height
+											border : 2,
+											padding : 6
+											// set the padding
+										},
+										dock : 'top'
+									},
+									items : []
+								}]
+					}]
+		});
+		
+		this.callParent(arguments);
+	},
 
-    clearMsg: function(msgId) {
-        if (msgId === this.msgId) {
-            Ext.get('wasp-msg').hide();
-        }
-    }
+	onPortletClose : function(portlet) {
+		this.showMsg('"' + portlet.title + '" was removed');
+	},
+
+	showMsg : function(msg) {
+		var el = Ext.get('wasp-msg'), msgId = Ext.id();
+
+		this.msgId = msgId;
+		el.update(msg).show();
+
+		Ext.defer(this.clearMsg, 3000, this, [msgId]);
+	},
+
+	clearMsg : function(msgId) {
+		if (msgId === this.msgId) {
+			Ext.get('wasp-msg').hide();
+		}
+	}
 });
