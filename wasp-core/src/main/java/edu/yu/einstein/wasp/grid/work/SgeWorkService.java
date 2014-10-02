@@ -82,7 +82,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	private final int TASKS_SINGLE = 1;
 	
 	public static final long NO_FILE_SIZE_LIMIT = -1L;
-	public static final long MAX_FILE_SIZE = 8 * 32;
+	public static final long MAX_FILE_SIZE = 1024 * 32;
     
     @Value("${wasp.developermode:false}")
     protected boolean developerMode;
@@ -485,7 +485,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		
 		if (died) {
 			cleanUpAbnormallyTerminatedJob(g);
-			g.setArchivedResultOutputPath(getFailedArchiveName(g));
+			g.setArchivedResultOutputPath(getFailedArchiveNameFromWorkingDir(g));
 			try{
 				int exitStatus = Integer.parseInt(getParsedFinalJobClusterStats(g).get("exit status"));
 				g.setExitStatus(exitStatus);
@@ -500,7 +500,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			g.setJobStatus(GridJobStatus.ENDED);
 			logger.debug("packaging " + jobname);
 			cleanUpCompletedJob(g);
-			g.setArchivedResultOutputPath(getCompletedArchiveName(g));
+			g.setArchivedResultOutputPath(getCompletedArchiveNameFromWorkingDir(g));
 			for (String key : g.getChildResults().keySet()){
 				GridResult r = g.getChildResults().get(key);
 				if (r == null){
@@ -577,11 +577,19 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		return testSgeFileExists(g.getWorkingDirectory(), g.getUuid().toString(), "start");
 	}
 	
-	protected String getCompletedArchiveName(GridResult g) {
+	protected String getCompletedArchiveNameFromResultsDir(GridResult g) {
+		return g.getResultsDirectory() + jobNamePrefix + g.getUuid().toString() + ".tar.gz";
+	}
+	
+	protected String getFailedArchiveNameFromResultsDir(GridResult g) {
+		return g.getResultsDirectory() + jobNamePrefix + g.getUuid().toString() + "-FAILED.tar.gz";
+	}
+	
+	protected String getCompletedArchiveNameFromWorkingDir(GridResult g) {
 		return g.getWorkingDirectory() + jobNamePrefix + g.getUuid().toString() + ".tar.gz";
 	}
 	
-	protected String getFailedArchiveName(GridResult g) {
+	protected String getFailedArchiveNameFromWorkingDir(GridResult g) {
 		return g.getWorkingDirectory() + jobNamePrefix + g.getUuid().toString() + "-FAILED.tar.gz";
 	}
 
@@ -606,7 +614,45 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	protected void cleanUpCompletedJob(GridResult g) throws GridException {
 		GridResult cleanCompletedJobResult = g.getChildResult(CLEAN_COMPLETED_JOB_KEY);
 		if (cleanCompletedJobResult == null){
-			cleanCompletedJobResult = cleanUpCompletedJob(g.getHostname(), g.getWorkingDirectory(), g.getResultsDirectory(), g.getUuid().toString(), !g.isSecureResults());
+			//cleanCompletedJobResult = cleanUpCompletedJob(g.getHostname(), g.getWorkingDirectory(), g.getResultsDirectory(), g.getUuid().toString(), !g.isSecureResults());
+			String workingDirectory = g.getWorkingDirectory();
+			String resultsDirectory = g.getResultsDirectory();
+			String id = g.getUuid().toString();
+			boolean markUnfinished = !g.isSecureResults();
+			logger.debug("Cleaning successful job " + id + " at " + transportConnection.getHostName() + ":" + workingDirectory);
+			
+			WorkUnit w = new WorkUnit();
+			w.setWorkingDirectory(transportConnection.prefixRemoteFile(workingDirectory));
+			
+			String outputFile = jobNamePrefix + id + ".tar.gz ";
+			String manifestFile = jobNamePrefix + id + ".manifest";
+			String command = "touch " + manifestFile + " && find . -name '" + jobNamePrefix + id + "*' -print | sed 's/^\\.\\///' > " + manifestFile + " && " + 
+					"tar --remove-files -czf " + outputFile + " -T " + manifestFile;
+			if (markUnfinished) {
+				command += " && touch " + id + "." + WorkUnit.PROCESSING_INCOMPLETE_FILENAME;
+			} else {
+				command += " && rm -f " + id + "." + WorkUnit.PROCESSING_INCOMPLETE_FILENAME;
+			}
+			String prd = transportConnection.prefixRemoteFile(resultsDirectory);
+			if (!w.getWorkingDirectory().equals(prd)) {
+				command += " && cp " + outputFile + " " + prd;
+				g.setArchivedResultOutputPath(getCompletedArchiveNameFromResultsDir(g));
+			}
+			w.setCommand(command);
+			
+			try {
+				if (!gridFileService.exists(resultsDirectory))
+					gridFileService.mkdir(resultsDirectory);
+			} catch (IOException e) {
+				logger.debug("unable to create remote directory");
+				throw new GridExecutionException("unable to mkdir " + resultsDirectory);
+			}
+			try {
+				cleanCompletedJobResult =  transportConnection.sendExecToRemote(w);
+			} catch (MisconfiguredWorkUnitException e) {
+				logger.warn(e.getLocalizedMessage());
+				throw new GridExecutionException(e.getLocalizedMessage(), e);
+			}
 			g.addChildResult(CLEAN_COMPLETED_JOB_KEY, cleanCompletedJobResult);
 		}
 		if (g.isSecureResults())
@@ -618,45 +664,6 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 				throw new GridException("File not found error", e);
 			}
 	}
-
-	protected GridResult cleanUpCompletedJob(String hostname, String workingDirectory, String resultsDirectory, String id, boolean markUnfinished)
-			throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
-		logger.debug("Cleaning successful job " + id + " at " + transportConnection.getHostName() + ":" + workingDirectory);
-		
-		WorkUnit w = new WorkUnit();
-		w.setWorkingDirectory(transportConnection.prefixRemoteFile(workingDirectory));
-		
-		String outputFile = jobNamePrefix + id + ".tar.gz ";
-		String manifestFile = jobNamePrefix + id + ".manifest";
-		String command = "touch " + manifestFile + " && find . -name '" + jobNamePrefix + id + "*' -print | sed 's/^\\.\\///' > " + manifestFile + " && " + 
-				"tar --remove-files -czf " + outputFile + " -T " + manifestFile;
-		if (markUnfinished) {
-			command += " && touch " + id + "." + WorkUnit.PROCESSING_INCOMPLETE_FILENAME;
-		} else {
-			command += " && rm -f " + id + "." + WorkUnit.PROCESSING_INCOMPLETE_FILENAME;
-		}
-		String prd = transportConnection.prefixRemoteFile(resultsDirectory);
-		if (!w.getWorkingDirectory().equals(prd)) {
-			command += " && cp " + outputFile + " " + prd;
-		}
-		w.setCommand(command);
-		
-		try {
-			if (!gridFileService.exists(resultsDirectory))
-				gridFileService.mkdir(resultsDirectory);
-		} catch (IOException e) {
-			logger.debug("unable to create remote directory");
-			throw new GridExecutionException("unable to mkdir " + resultsDirectory);
-		}
-		
-		try {
-			return transportConnection.sendExecToRemote(w);
-		} catch (MisconfiguredWorkUnitException e) {
-			logger.warn(e.getLocalizedMessage());
-			throw new GridExecutionException(e.getLocalizedMessage(), e);
-		}
-	}
-	
 	
 	
 	/**
@@ -720,10 +727,10 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	}
 	
 	protected void cleanUpAbnormallyTerminatedJob(GridResult g) throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
-		cleanUpAbnormallyTerminatedJob(g.getHostname(), g.getWorkingDirectory(), g.getResultsDirectory(), g.getUuid().toString());
-	}
-	
-	protected void cleanUpAbnormallyTerminatedJob(String hostname, String workingDirectory, String resultsDirectory, String id) throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
+		String hostname = g.getHostname();
+		String workingDirectory = g.getWorkingDirectory();
+		String resultsDirectory =  g.getResultsDirectory();
+		String id = g.getUuid().toString();
 		logger.warn("Cleaning FAILED job " + id + " at " + hostname + ":" + workingDirectory);
 		
 		WorkUnit w = new WorkUnit();
@@ -737,6 +744,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		String prd = transportConnection.prefixRemoteFile(resultsDirectory);
 		if (!w.getWorkingDirectory().equals(prd)) {
 				command += " && cp " + outputFile + " " + prd;
+				g.setArchivedResultOutputPath(getFailedArchiveNameFromResultsDir(g));
 		}
 		w.setCommand(command);
 		
@@ -1580,14 +1588,24 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			logger.debug("found file of type '." + type + "' from GridResult with id=" + r.getId() + " in unarchived working directory");
 			return getUnregisteredFileContents(r, filenamePrefix, type, numberOfTasks, tailByteLimit); // the file is still unregistered
 		}
-		path = getCompletedArchiveName(r);
+		path = getCompletedArchiveNameFromResultsDir(r);
 		if (gridFileService.exists(path)) {
-			logger.debug("found file of type '." + type + "' from GridResult with id=" + r.getId() + " in completed archive (not recorded in GridResult)");
+			logger.debug("found file of type '." + type + "' from GridResult with id=" + r.getId() + " in completed archive in results dir (not recorded in GridResult)");
 			return getCompressedOutputFile(path, r.getId(), type, numberOfTasks, tailByteLimit); // is in a completed archive that wasn't appended to this GridResult
 		}
-		path = getFailedArchiveName(r);
+		path = getFailedArchiveNameFromResultsDir(r);
 		if (gridFileService.exists(path)) {
-			logger.debug("found file of type '." + type + "' from GridResult with id=" + r.getId() + " in failed archive (not recorded in GridResult)");
+			logger.debug("found file of type '." + type + "' from GridResult with id=" + r.getId() + " in failed archive in results dir (not recorded in GridResult)");
+			return getCompressedOutputFile(path, r.getId(), type, numberOfTasks, tailByteLimit); // is in a failed archive that wasn't appended to this GridResult
+		}
+		path = getCompletedArchiveNameFromWorkingDir(r);
+		if (gridFileService.exists(path)) {
+			logger.debug("found file of type '." + type + "' from GridResult with id=" + r.getId() + " in completed archive in working dir (not recorded in GridResult)");
+			return getCompressedOutputFile(path, r.getId(), type, numberOfTasks, tailByteLimit); // is in a completed archive that wasn't appended to this GridResult
+		}
+		path = getFailedArchiveNameFromWorkingDir(r);
+		if (gridFileService.exists(path)) {
+			logger.debug("found file of type '." + type + "' from GridResult with id=" + r.getId() + " in failed archive in working dir (not recorded in GridResult)");
 			return getCompressedOutputFile(path, r.getId(), type, numberOfTasks, tailByteLimit); // is in a failed archive that wasn't appended to this GridResult
 		}
 		throw new IOException("Unable to to obtain file of type '." + type + "' from GridResult with id=" + r.getId() + 
