@@ -1,5 +1,5 @@
 Ext.require(['Ext.grid.*', 'Ext.data.*', 'Ext.form.field.Number',
-		'Ext.form.field.Date', 'Ext.tip.QuickTipManager',
+		'Ext.form.field.Date', 'Ext.tip.QuickTipManager', 'Ext.tip.ToolTip',
 		'Ext.selection.CheckboxModel', 'Wasp.RowActions']);
 
 function mergeDownloadLinks(records, linkfield) {
@@ -65,7 +65,67 @@ Ext.define('Wasp.GridPortlet', {
 		celldblclick : function(view, td, cellIndex, record, tr, rowIndex, e,
 				eOpts) {
 			// Ext.Msg.alert('Selected Record', 'td : ' + td + ' tr: ' + tr);
+		},
+		viewready : function(grid) {
+			var view = grid.view;
+
+			// record the current cellIndex
+			grid.mon(view, {
+				uievent : function(type, view, cell, recordIndex, cellIndex, e) {
+					grid.cellIndex = cellIndex;
+					grid.recordIndex = recordIndex;
+				}
+			});
+
+			grid.tip = Ext.create('Ext.tip.ToolTip', {
+				target : view.el,
+				delegate : '.x-grid-cell',
+				trackMouse : true,
+				maxWidth : 700,
+				renderTo : Ext.getBody(),
+				listeners : {
+					beforeshow : function updateTipBody(tip) {
+						if (!Ext.isEmpty(grid.cellIndex)
+								&& grid.cellIndex !== -1) {
+							var header = grid.headerCt.getGridColumns()[grid.cellIndex];
+							if (!header.shownInTtp
+									|| header.xtype === 'rowactions') {
+								return false;
+							}
+							var val = grid.getStore().getAt(grid.recordIndex)
+									.get(header.dataIndex);
+							tip.update(header.xtype == 'datecolumn'
+									? Ext.util.Format.date(val, header.format)
+									: val);
+						}
+					}
+				}
+			});
 		}
+	},
+	
+	initToolTip: function(view){
+        //var view = this.view.getView();
+        this.toolTip = Ext.create('Ext.tip.ToolTip', {
+            target: view.el,
+            delegate: view.cellSelector,
+            trackMouse: true,
+            renderTo: Ext.getBody(),
+            listeners: {
+                beforeshow: function(tip) {
+                    var trigger = tip.triggerElement,
+                        parent = tip.triggerElement.parentElement,
+                        columnTitle = view.getHeaderByCell(trigger).text,
+                        columnDataIndex = view.getHeaderByCell(trigger).dataIndex,
+                        columnText = view.getRecord(parent).get(columnDataIndex).toString();
+                    if (columnText){
+                        tip.update("<b>" + columnTitle + ":</b> " + columnText);
+                    } else {
+                        return false;
+                    }
+                }
+            }
+        });
 	},
 
 	initComponent : function() {
@@ -213,8 +273,9 @@ Ext.define('Wasp.GridPortlet', {
 		// }
 
 		if (actioncol.actions.length > 0) {
-			var acol = this.columns[this.columns.length-1];
-			if (acol===undefined || acol.xtype===undefined || acol.xtype!=='rowactions')
+			var acol = this.columns[this.columns.length - 1];
+			if (acol === undefined || acol.xtype === undefined
+					|| acol.xtype !== 'rowactions')
 				this.columns.push(actioncol);
 		}
 
@@ -293,10 +354,10 @@ Ext.define('Wasp.GridPortlet', {
 		gridHeight = (gridHeight < minGridHeight) ? minGridHeight : gridHeight;
 		gridHeight = (gridHeight > maxGridHeight) ? maxGridHeight : gridHeight;
 		Ext.apply(this, {
-			store : myStore,
-			columns : this.columns,
-			height : gridHeight
-			});
+					store : myStore,
+					columns : this.columns,
+					height : gridHeight
+				});
 
 		this.callParent(arguments);
 	}

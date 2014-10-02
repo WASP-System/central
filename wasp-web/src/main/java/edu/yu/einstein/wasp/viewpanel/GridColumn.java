@@ -24,6 +24,8 @@ public class GridColumn {
 	private String cellAlign = "left";
 	
 	private String headerAlign = "left";
+	
+	private boolean shownInTtp = false;
 
 	/**
 	 * @return the header
@@ -148,6 +150,20 @@ public class GridColumn {
 	}
 
 	/**
+	 * @return the shownInTtp
+	 */
+	public boolean isShownInTtp() {
+		return shownInTtp;
+	}
+
+	/**
+	 * @param shownInTtp the shownInTtp to set
+	 */
+	public void setShownInTtp(boolean shownInTtp) {
+		this.shownInTtp = shownInTtp;
+	}
+
+	/**
 	 * @param header
 	 * @param dataIndex
 	 */
@@ -159,12 +175,36 @@ public class GridColumn {
 	/**
 	 * @param header
 	 * @param dataIndex
+	 * @param showInTtp
+	 */
+	public GridColumn(String header, String dataIndex, boolean shownInTtp) {
+		this.header = header;
+		this.dataIndex = dataIndex;
+		this.shownInTtp = shownInTtp;
+	}
+
+	/**
+	 * @param header
+	 * @param dataIndex
 	 * @param flex
 	 */
 	public GridColumn(String header, String dataIndex, Integer flex) {
 		this.header = header;
 		this.dataIndex = dataIndex;
 		this.flex = flex;
+	}
+
+	/**
+	 * @param header
+	 * @param dataIndex
+	 * @param flex
+	 * @param showInTtp
+	 */
+	public GridColumn(String header, String dataIndex, Integer flex, boolean shownInTtp) {
+		this.header = header;
+		this.dataIndex = dataIndex;
+		this.flex = flex;
+		this.shownInTtp = shownInTtp;
 	}
 
 	/**
