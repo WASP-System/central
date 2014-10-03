@@ -1581,14 +1581,16 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		String filenamePrefix = r.getId();
 		path = r.getWorkingDirectory() + "/" + filenamePrefix + "." + type;
 		if (gridFileService.exists(path)){
+			boolean isTaskArray = false;
 			logger.debug("found file of type '." + type + "' from GridResult with id=" + r.getId() + " in unarchived working directory");
-			return getUnregisteredFileContents(r, filenamePrefix, type, numberOfTasks, tailByteLimit); // the file is still unregistered
+			return getUnregisteredFileContents(r, filenamePrefix, type, numberOfTasks, isTaskArray, tailByteLimit); // the file is still unregistered
 		} 
 		if (type.equals("out") || type.equals("err")){
 			path = r.getWorkingDirectory() + "/" + filenamePrefix + "-1" + "." + type;
 			if (gridFileService.exists(path)){
+				boolean isTaskArray = true;
 				logger.debug("found file of type '." + type + "' from GridResult with id=" + r.getId() + " in unarchived working directory");
-				return getUnregisteredFileContents(r, filenamePrefix, type, numberOfTasks, tailByteLimit); // the file is still unregistered
+				return getUnregisteredFileContents(r, filenamePrefix, type, numberOfTasks, isTaskArray, tailByteLimit); // the file is still unregistered
 			} 
 		}
 		path = getCompletedArchiveNameFromResultsDir(r);
@@ -1682,9 +1684,13 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
         return result.toString();
 	}
 	
-	private String getUnregisteredFileContents(GridResult r, String filenamePrefix, String type, int numberOfTasks, long tailByteLimit) throws IOException {
-		if (numberOfTasks == 1)
-			return getUnregisteredFileContents(r, filenamePrefix + "." + type, tailByteLimit);
+	private String getUnregisteredFileContents(GridResult r, String filenamePrefix, String type, int numberOfTasks, boolean isTaskArray, long tailByteLimit) throws IOException {
+		if (numberOfTasks == 1){
+			if (isTaskArray)
+				return getUnregisteredFileContents(r, filenamePrefix + "-1." + type, tailByteLimit);
+			else
+				return getUnregisteredFileContents(r, filenamePrefix + "." + type, tailByteLimit);
+		}
 		StringBuilder result = new StringBuilder();
 		for (int i=1; i<=numberOfTasks; i++){
 			long fileByteLimit = tailByteLimit;
