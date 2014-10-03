@@ -79,7 +79,6 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	private static final String GRID_JOB_NAME = "Grid Job Name";
 	private static final String HOST_NODE_KEY = "Host Node";
 	private static final String START_TIME_KEY = "Start Time";
-	private final int NOT_TASK_ARRAY = -1;
 	
 	public static final long NO_FILE_SIZE_LIMIT = -1L;
 	public static final long MAX_FILE_SIZE = 1024 * 32;
@@ -1491,7 +1490,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	 */
 	@Override
 	public String getResultStdOut(GridResult r, long tailByteLimit) throws IOException {
-		return getResultOutputFile(r, "out", r.getNumberOfTasks(), tailByteLimit);
+		return getResultOutputFile(r, "out", tailByteLimit);
 	}
 
 	/**
@@ -1499,7 +1498,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	 */
 	@Override
 	public String getResultStdErr(GridResult r, long tailByteLimit) throws IOException {
-		return getResultOutputFile(r, "err", r.getNumberOfTasks(), tailByteLimit);
+		return getResultOutputFile(r, "err", tailByteLimit);
 	}
 	
 	/**
@@ -1507,7 +1506,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	 */
 	@Override
 	public String getJobScript(GridResult r) throws IOException {
-		return getResultOutputFile(r, "sh", NOT_TASK_ARRAY, NO_FILE_SIZE_LIMIT);
+		return getResultOutputFile(r, "sh", NO_FILE_SIZE_LIMIT);
 	}
 	
 	/**
@@ -1518,7 +1517,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		if (!r.getJobInfo().isEmpty())
 			return r.getJobInfo();
 		try{
-			String info = getResultOutputFile(r, "start", NOT_TASK_ARRAY, NO_FILE_SIZE_LIMIT);
+			String info = getResultOutputFile(r, "start", NO_FILE_SIZE_LIMIT);
 			if (info.isEmpty())
 				throw new IOException(".start file for GridResult with id=" + r.getId() + " contains no data");
 			return getJobInfoFromJson(new JSONArray(info));
@@ -1534,7 +1533,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	@Override
 	public Map<String, String> getParsedFinalJobClusterStats(GridResult r) throws IOException {
 		Map<String, String> stats = new LinkedHashMap<String, String>();
-		String data = getResultOutputFile(r, "stats", NOT_TASK_ARRAY, NO_FILE_SIZE_LIMIT);
+		String data = getResultOutputFile(r, "stats", NO_FILE_SIZE_LIMIT);
 		for (String line : data.split("\n")){
 			line = line.trim();
 			if (line.isEmpty() || line.startsWith("=") || line.startsWith("ru_") || line.startsWith("arid"))
@@ -1553,7 +1552,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	@Override
 	public Map<String, String> getParsedEnvironment(GridResult r) throws IOException{
 		Map<String, String> env = new LinkedHashMap<String, String>();
-		String data = getResultOutputFile(r, "env", NOT_TASK_ARRAY, NO_FILE_SIZE_LIMIT);
+		String data = getResultOutputFile(r, "env", NO_FILE_SIZE_LIMIT);
 		for (String line : data.split("\n")){
 			String[] elements = line.split("=", 2);
 			if (elements.length != 2)
@@ -1568,44 +1567,48 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	 */
 	@Override
 	public Set<String> getParsedSoftware(GridResult r) throws IOException{
-		String data = getResultOutputFile(r, "sw", NOT_TASK_ARRAY, NO_FILE_SIZE_LIMIT);
+		String data = getResultOutputFile(r, "sw", NO_FILE_SIZE_LIMIT);
 		return transportConnection.getSoftwareManager().parseSoftwareListFromText(data);
 	}
 	
-	private String getResultOutputFile(GridResult r, String type, int numberOfTasks, long tailByteLimit) throws IOException {
+	private String getResultOutputFile(GridResult r, String type, long tailByteLimit) throws IOException {
+		int numberOfTasks = r.getNumberOfTasks();
 		String path = r.getArchivedResultOutputPath(); 
 		if (!path.isEmpty()){
-			logger.debug("ArchivedResultOutputPath set : " + path);
+			logger.debug("looking for file of type '." + type + "' from GridResult with id=" + r.getId() + " in unarchived working directory:" + path);
 			return getCompressedOutputFile(path, r.getId(), type, numberOfTasks, tailByteLimit);  // is a compressed archive registered in the result
 		}
 		String filenamePrefix = r.getId();
-		String testFilename = filenamePrefix;
-		if (numberOfTasks > NOT_TASK_ARRAY)
-			testFilename += "-1";
-		testFilename += "." + type;
-		path = r.getWorkingDirectory() + "/" + testFilename;
+		path = r.getWorkingDirectory() + "/" + filenamePrefix + "." + type;
 		if (gridFileService.exists(path)){
 			logger.debug("found file of type '." + type + "' from GridResult with id=" + r.getId() + " in unarchived working directory");
 			return getUnregisteredFileContents(r, filenamePrefix, type, numberOfTasks, tailByteLimit); // the file is still unregistered
+		} 
+		if (type.equals("out") || type.equals("err")){
+			path = r.getWorkingDirectory() + "/" + filenamePrefix + "-1" + "." + type;
+			if (gridFileService.exists(path)){
+				logger.debug("found file of type '." + type + "' from GridResult with id=" + r.getId() + " in unarchived working directory");
+				return getUnregisteredFileContents(r, filenamePrefix, type, numberOfTasks, tailByteLimit); // the file is still unregistered
+			} 
 		}
 		path = getCompletedArchiveNameFromResultsDir(r);
 		if (gridFileService.exists(path)) {
-			logger.debug("found file of type '." + type + "' from GridResult with id=" + r.getId() + " in completed archive in results dir (not recorded in GridResult)");
+			logger.debug("looking for file of type '." + type + "' from GridResult with id=" + r.getId() + " in completed archive in results dir (not recorded in GridResult)");
 			return getCompressedOutputFile(path, r.getId(), type, numberOfTasks, tailByteLimit); // is in a completed archive that wasn't appended to this GridResult
 		}
 		path = getFailedArchiveNameFromResultsDir(r);
 		if (gridFileService.exists(path)) {
-			logger.debug("found file of type '." + type + "' from GridResult with id=" + r.getId() + " in failed archive in results dir (not recorded in GridResult)");
+			logger.debug("looking for file of type '." + type + "' from GridResult with id=" + r.getId() + " in failed archive in results dir (not recorded in GridResult)");
 			return getCompressedOutputFile(path, r.getId(), type, numberOfTasks, tailByteLimit); // is in a failed archive that wasn't appended to this GridResult
 		}
 		path = getCompletedArchiveNameFromWorkingDir(r);
 		if (gridFileService.exists(path)) {
-			logger.debug("found file of type '." + type + "' from GridResult with id=" + r.getId() + " in completed archive in working dir (not recorded in GridResult)");
+			logger.debug("looking for file of type '." + type + "' from GridResult with id=" + r.getId() + " in completed archive in working dir (not recorded in GridResult)");
 			return getCompressedOutputFile(path, r.getId(), type, numberOfTasks, tailByteLimit); // is in a completed archive that wasn't appended to this GridResult
 		}
 		path = getFailedArchiveNameFromWorkingDir(r);
 		if (gridFileService.exists(path)) {
-			logger.debug("found file of type '." + type + "' from GridResult with id=" + r.getId() + " in failed archive in working dir (not recorded in GridResult)");
+			logger.debug("looking for file of type '." + type + "' from GridResult with id=" + r.getId() + " in failed archive in working dir (not recorded in GridResult)");
 			return getCompressedOutputFile(path, r.getId(), type, numberOfTasks, tailByteLimit); // is in a failed archive that wasn't appended to this GridResult
 		}
 		throw new IOException("Unable to to obtain file of type '." + type + "' from GridResult with id=" + r.getId() + 
@@ -1626,10 +1629,8 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
             TarArchiveEntry e;
             while ((e = a.getNextTarEntry()) != null) {
                 logger.trace("saw tar file entry " + e.getName());
-                String filename = jobId + "." + type;
-                if (numberOfTasks > NOT_TASK_ARRAY)
-                	filename = jobId + "-" + filesProcessed + "." + type;
-                Matcher filem = Pattern.compile(filename).matcher(e.getName());
+                String filenameExp = jobId + "(-" + filesProcessed + ")?\\." + type;
+                Matcher filem = Pattern.compile(filenameExp).matcher(e.getName());
                 if (!filem.find())
                     continue;
                 logger.trace("matched " + e.getName() + " size " + e.getSize() + " bytes");
@@ -1646,7 +1647,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	        			fileData = new String(trunc, "UTF8");
                 	}
                 }
-                if (numberOfTasks > NOT_TASK_ARRAY)
+                if (numberOfTasks > 1)
                 	result.append("\n\n**** Array Task #" + filesProcessed + " ****\n\n");
                 result.append(fileData);
                 /* TODO: implement the following instead. Currently e.getFile() returns null for some reason!
@@ -1682,7 +1683,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	}
 	
 	private String getUnregisteredFileContents(GridResult r, String filenamePrefix, String type, int numberOfTasks, long tailByteLimit) throws IOException {
-		if (numberOfTasks == NOT_TASK_ARRAY)
+		if (numberOfTasks == 1)
 			return getUnregisteredFileContents(r, filenamePrefix + "." + type, tailByteLimit);
 		StringBuilder result = new StringBuilder();
 		for (int i=1; i<=numberOfTasks; i++){
