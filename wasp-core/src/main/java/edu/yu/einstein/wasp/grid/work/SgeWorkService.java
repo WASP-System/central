@@ -1685,12 +1685,12 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	}
 	
 	private String getUnregisteredFileContents(GridResult r, String filenamePrefix, String type, int numberOfTasks, boolean isTaskArray, long tailByteLimit) throws IOException {
-		if (numberOfTasks == 1){
-			if (isTaskArray)
-				return getUnregisteredFileContents(r, filenamePrefix + "-1." + type, tailByteLimit);
-			else
-				return getUnregisteredFileContents(r, filenamePrefix + "." + type, tailByteLimit);
-		}
+		
+		if (!isTaskArray)
+			return getUnregisteredFileContents(r, filenamePrefix + "." + type, tailByteLimit);
+		if (numberOfTasks == 1)
+			return getUnregisteredFileContents(r, filenamePrefix + "-1." + type, tailByteLimit);
+		
 		StringBuilder result = new StringBuilder();
 		for (int i=1; i<=numberOfTasks; i++){
 			long fileByteLimit = tailByteLimit;
