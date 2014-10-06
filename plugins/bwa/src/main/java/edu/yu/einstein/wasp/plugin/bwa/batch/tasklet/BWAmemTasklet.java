@@ -18,7 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
+import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
@@ -26,8 +28,13 @@ import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.bwa.service.BwaService;
+import edu.yu.einstein.wasp.plugin.bwa.software.AbstractBWASoftwareComponent;
 import edu.yu.einstein.wasp.plugin.bwa.software.BWAMemSoftwareComponent;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
+import edu.yu.einstein.wasp.plugin.genomemetadata.GenomeIndexStatus;
+import edu.yu.einstein.wasp.plugin.genomemetadata.batch.tasklet.TestForGenomeIndexTasklet;
+import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -36,7 +43,7 @@ import edu.yu.einstein.wasp.service.SampleService;
  * @author calder
  * 
  */
-public class BWAmemTasklet extends WaspRemotingTasklet implements StepExecutionListener {
+public class BWAmemTasklet extends TestForGenomeIndexTasklet implements StepExecutionListener {
 
 	private Integer cellLibraryId;
 	
@@ -61,7 +68,17 @@ public class BWAmemTasklet extends WaspRemotingTasklet implements StepExecutionL
 	@Autowired
 	private BWAMemSoftwareComponent bwa;
 	
+	@Autowired
+	private BwaService bwaService;
+	
 	private boolean skip = false;
+	
+	private WorkUnit w;
+	private String remoteHost;
+	private Job job;
+	private Set<FileGroup> fileGroups;
+	private SampleSource cellLib;
+	private FileGroup fg;
 
 	public BWAmemTasklet() {
 		// proxy
@@ -76,20 +93,9 @@ public class BWAmemTasklet extends WaspRemotingTasklet implements StepExecutionL
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
-		// if the work has already been started, then check to see if it is finished
-		// if not, throw an exception that is caught by the repeat policy.
-		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
+		
 		
 		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
-				
-		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
-		
-		logger.debug("Beginning BWA mem step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
-		
-		Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLib, fastqFileType);
-		
-		Assert.assertTrue(fileGroups.size() == 1);
-		FileGroup fg = fileGroups.iterator().next();
 		
 		logger.debug("file group: " + fg.getId() + ":" + fg.getDescription());
 		
@@ -102,7 +108,7 @@ public class BWAmemTasklet extends WaspRemotingTasklet implements StepExecutionL
 		try {
 		WorkUnit w = bwa.getMem(cellLib, fg, jobParameters);
 		
-		GridResult result = gridHostResolver.execute(w);
+		GridResult result = gridHostResolver.getGridWorkService(remoteHost).execute(w);
 		
 		//place the grid result in the step context
 		saveGridResult(context, result);
@@ -123,6 +129,24 @@ public class BWAmemTasklet extends WaspRemotingTasklet implements StepExecutionL
 	 */
 	@Override
 	public void beforeStep(StepExecution stepExecution){
+		if (w == null) {
+			cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
+			job = sampleService.getJobOfLibraryOnCell(cellLib);
+			
+			logger.debug("Beginning BWA mem step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
+			
+			fileGroups = fileService.getFilesForCellLibraryByType(cellLib, fastqFileType);
+			Assert.assertTrue(fileGroups.size() == 1);
+			fg = fileGroups.iterator().next();
+			w = bwa.prepareWorkUnit(fg);
+			try {
+				remoteHost = gridHostResolver.getGridWorkService(w).getTransportConnection().getHostName();
+			} catch (GridUnresolvableHostException e) {
+				String message = "Unable to determine appropriate host for BWA alignment";
+				logger.error(message);
+				throw new WaspRuntimeException(message);
+			}
+		}
 		super.beforeStep(stepExecution);
 	}
 
@@ -135,6 +159,18 @@ public class BWAmemTasklet extends WaspRemotingTasklet implements StepExecutionL
 			return new ExitStatus("SKIP");
 		}
 		return super.afterStep(stepExecution);
+	}
+
+	@Override
+	public GenomeIndexStatus getGenomeIndexStatus() {
+		try {
+			Build build = bwa.getGenomeBuild(cellLib);
+			return bwaService.getGenomeIndexStatus(gridHostResolver.getGridWorkService(remoteHost), build);
+		} catch (ParameterValueRetrievalException | GridUnresolvableHostException e) {
+			String mess = "Unable to determine build or build status " + e.getLocalizedMessage();
+			logger.error(mess);
+			throw new WaspRuntimeException(mess);
+		}
 	}
 
 }

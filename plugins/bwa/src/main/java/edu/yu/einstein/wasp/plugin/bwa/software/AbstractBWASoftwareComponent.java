@@ -19,6 +19,7 @@ import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.bwa.service.impl.BwaServiceImpl.BwaIndexType;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqComparator;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.plugin.mps.software.alignment.ReferenceBasedAligner;
@@ -58,7 +59,7 @@ public abstract class AbstractBWASoftwareComponent extends ReferenceBasedAligner
 		setSoftwareVersion("0.7.6a"); // this default may be overridden in wasp.site.properties
 	}
 
-	protected  Build getGenomeBuild(SampleSource cellLibrary) throws ParameterValueRetrievalException {
+	public  Build getGenomeBuild(SampleSource cellLibrary) throws ParameterValueRetrievalException {
 		logger.debug("getting genome build for cellLibrary id=" + cellLibrary.getId());
 		Build build = null;
 		try {
@@ -145,7 +146,7 @@ public abstract class AbstractBWASoftwareComponent extends ReferenceBasedAligner
 
 	}
 	
-	protected WorkUnit prepareWorkUnit(FileGroup fg) {
+	public WorkUnit prepareWorkUnit(FileGroup fg) {
 		WorkUnit w = new WorkUnit();
 		
 		w.setMode(ExecutionMode.TASK_ARRAY);
@@ -189,9 +190,14 @@ public abstract class AbstractBWASoftwareComponent extends ReferenceBasedAligner
 		return optString;
 	}
 	
-	protected String getGenomeIndexPath(Build build) {
-		String index = genomeService.getRemoteBuildPath(build) + "/bwa/" + build.getGenome().getName() +"."+ build.getName();
+	protected String getGenomeIndexPath(Build build, BwaIndexType type) {
+		String indexType = type.toString().toLowerCase();
+		String index = genomeService.getRemoteBuildPath(build) + "/bwa/" + indexType + "/" + build.getGenomeBuildNameString();
 		return index;
+	}
+	
+	protected String getGenomeIndexPath(Build build) {
+		return getGenomeIndexPath(build, BwaIndexType.GENOME);
 	}
 
 }
