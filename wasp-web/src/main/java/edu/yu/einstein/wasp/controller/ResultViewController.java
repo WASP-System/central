@@ -203,11 +203,13 @@ public class ResultViewController extends WaspController {
 					
 				if (plugin!=null) {
 					Set<PanelTab> panelTabSet = plugin.getViewPanelTabs(job);//additional, plugin-specific ordered, panelTabs
-					for (PanelTab ptab : panelTabSet) {
-				    	if (!ptab.getPanels().isEmpty()){
-					    	String tabId = "tab-" + (tabCountNow++).toString();
-					    	pluginPanelTabs.put(tabId, ptab);
-				    	}
+					if (panelTabSet != null){
+						for (PanelTab ptab : panelTabSet) {
+					    	if (!ptab.getPanels().isEmpty()){
+						    	String tabId = "tab-" + (tabCountNow++).toString();
+						    	pluginPanelTabs.put(tabId, ptab);
+					    	}
+						}
 					}
 				}
 

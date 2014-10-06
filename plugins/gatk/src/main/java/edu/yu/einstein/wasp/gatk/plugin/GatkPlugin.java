@@ -68,7 +68,7 @@ public class GatkPlugin extends WaspPlugin
 
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
-	
+		
 	public static final String PREPROCESSING_FLOW = "gatk.dataPreprocessing.jobFlow.v1";
 	
 	public static final String VARIANT_DISCOVERY_FLOW = "gatk.variantDiscovery.jobFlow.v1";
