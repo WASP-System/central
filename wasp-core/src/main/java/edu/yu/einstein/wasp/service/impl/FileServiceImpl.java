@@ -1666,10 +1666,11 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		}
 		
 		File temporaryDirectory = new File(tempDir);
-
+		logger.debug("wasp.temporary.dir=" + tempDir + ". Absolute path is '" + temporaryDirectory.getAbsolutePath() + "'"); 
 
 		if (!temporaryDirectory.exists()) {
 			try {
+				logger.debug("making temporary directory '" + temporaryDirectory.getAbsolutePath() + "' as doesn't exist");
 				temporaryDirectory.mkdir();
 			} catch (Exception e) {
 				String mess = "FileHandle upload failure trying to create '" + tempDir + "': " + e.getMessage();
@@ -1680,7 +1681,9 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		
 		File localFile;
 		try {
+			logger.debug("creating temporary file in " + temporaryDirectory.getAbsolutePath());
 			localFile = File.createTempFile("wasp.", ".tmp", temporaryDirectory);
+			logger.debug("created temorary file: " + localFile.getAbsolutePath());
 		} catch (IOException e) {
 			String mess = "Unable to create local temporary file: " + e.getLocalizedMessage();
 			logger.warn(mess);
