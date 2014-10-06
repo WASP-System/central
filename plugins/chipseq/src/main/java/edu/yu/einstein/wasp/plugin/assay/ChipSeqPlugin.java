@@ -231,6 +231,7 @@ public class ChipSeqPlugin extends WaspPlugin implements
 		return null;
 	}
 	
+	@Override
 	public Status getStatus(Job job){//to make proper use of this call, we must incorporate Brent's new code to deal with the proper ending of this tasklet
 		
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();

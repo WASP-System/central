@@ -22,17 +22,19 @@ public class CsvFilePanelRenderer extends AbstractSvFilePanelRender{
 	public static PanelTab getPanelForFileGroup(String fileName, InputStream is, boolean header) {
 		PanelTab panelTab = new PanelTab();
 		panelTab.setNumberOfColumns(1);
-		panelTab.setMaxOnLoad(true);
-		panelTab.setName("CSV File Viewer");
+		panelTab.setTabTitle("CSV File Viewer");
 		panelTab.setDescription("Generic CSV file viewing");
+		
 		GridPanel panel = new GridPanel();
 		panel.setTitle(fileName + " (up to " + LINE_LIMIT + " lines shown)");
-		panelTab.addPanel(panel);
+		panel.setMaxOnLoad(true);
 		if (is == null) {
 			panel.setContent(new GridContent());
 			return panelTab;
 		}
 		panel.setContent(getGridContent(is, header, DELIMITER, LINE_LIMIT));
+		
+		panelTab.addPanel(panel);
 		return panelTab;
 	}
 

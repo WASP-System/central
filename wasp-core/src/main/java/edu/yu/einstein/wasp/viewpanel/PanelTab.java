@@ -12,19 +12,17 @@ public class PanelTab {
 	
 	private Set<Panel> panels = new LinkedHashSet<>();
 	
-	private String name = "";
+	private String tabTitle = "";
 	
 	private String description = "";
 	
 	private int numberOfColumns = 2; //default
 	
-	private boolean maxOnLoad = false;
-	
 	public PanelTab(){}
 	
-	public PanelTab(Set<Panel> panels, String name, int numberOfColumns) {
+	public PanelTab(Set<Panel> panels, String tabTitle, int numberOfColumns) {
 		this.panels = panels;
-		this.name = name;
+		this.tabTitle = tabTitle;
 		this.numberOfColumns = numberOfColumns;
 	}
 
@@ -40,12 +38,12 @@ public class PanelTab {
 		this.panels.add(panel);
 	}
 
-	public String getName() {
-		return name;
+	public String getTabTitle() {
+		return tabTitle;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setTabTitle(String name) {
+		this.tabTitle = name;
 	}
 	
 	public String getDescription() {
@@ -63,20 +61,4 @@ public class PanelTab {
 	public void setNumberOfColumns(int numberOfColumns) {
 		this.numberOfColumns = numberOfColumns;
 	}
-
-	/**
-	 * @return the maxOnLoad
-	 */
-	public boolean isMaxOnLoad() {
-		return maxOnLoad;
-	}
-
-	/**
-	 * @param maxOnLoad the maxOnLoad to set
-	 */
-	public void setMaxOnLoad(boolean maxOnLoad) {
-		this.maxOnLoad = maxOnLoad;
-	}
-
-
 }

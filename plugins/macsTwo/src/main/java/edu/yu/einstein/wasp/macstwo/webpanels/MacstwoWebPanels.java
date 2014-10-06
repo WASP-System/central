@@ -181,7 +181,7 @@ public class MacstwoWebPanels {
 
 		//create the panelTab to house the panel
 		PanelTab panelTab = new PanelTab();
-		panelTab.setName("Libraries & Bam Files");
+		panelTab.setTabTitle("Libraries & Bam Files");
 		panelTab.setNumberOfColumns(1);
 
 		//create the panel
@@ -251,7 +251,7 @@ public class MacstwoWebPanels {
 		
 		//create the panelTab to house the panel
 		PanelTab panelTab = new PanelTab();
-		panelTab.setName("FRiP (%)");
+		panelTab.setTabTitle("FRiP (%)");
 		panelTab.setNumberOfColumns(1);
 
 		//create the panel
