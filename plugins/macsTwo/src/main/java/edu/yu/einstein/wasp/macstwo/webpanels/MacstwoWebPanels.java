@@ -2,25 +2,18 @@ package edu.yu.einstein.wasp.macstwo.webpanels;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
-import edu.yu.einstein.wasp.interfacing.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
-import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.plugin.mps.genomebrowser.GenomeBrowserProviding;
-import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.viewpanel.Action;
 import edu.yu.einstein.wasp.viewpanel.Action.CallbackFunctionType;
@@ -29,8 +22,6 @@ import edu.yu.einstein.wasp.viewpanel.GridContent;
 import edu.yu.einstein.wasp.viewpanel.GridDataField;
 import edu.yu.einstein.wasp.viewpanel.GridPanel;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
-import edu.yu.einstein.wasp.viewpanel.WebContent;
-import edu.yu.einstein.wasp.viewpanel.WebPanel;
 
 public class MacstwoWebPanels {
 
@@ -190,7 +181,7 @@ public class MacstwoWebPanels {
 
 		//create the panelTab to house the panel
 		PanelTab panelTab = new PanelTab();
-		panelTab.setName("Libraries & Bam Files");
+		panelTab.setTabTitle("Libraries & Bam Files");
 		panelTab.setNumberOfColumns(1);
 
 		//create the panel
@@ -260,7 +251,7 @@ public class MacstwoWebPanels {
 		
 		//create the panelTab to house the panel
 		PanelTab panelTab = new PanelTab();
-		panelTab.setName("FRiP (%)");
+		panelTab.setTabTitle("FRiP (%)");
 		panelTab.setNumberOfColumns(1);
 
 		//create the panel
@@ -319,7 +310,7 @@ public class MacstwoWebPanels {
 		
 		//create columns and associate each column with its displayed header and a data model attribute (dataIndex)
 		///////unique grouping field is NOT displayed: content.addColumn(new GridColumn("Analysis", "Analysis"));//header,dataIndex		
-		content.addColumn(new GridColumn("File", "File", 1));//header,dataIndex					flex=1
+		content.addColumn(new GridColumn("File", "File", 1, true));//header,dataIndex					flex=1, shown in tooltip
 		content.addColumn(new GridColumn("Size", "Size", 100, 0));//header,dataIndex					width=270; flex=0
 		content.addColumn(new GridColumn("MD5", "MD5", 170, 0));//header,dataIndex					width=270; flex=0
 		

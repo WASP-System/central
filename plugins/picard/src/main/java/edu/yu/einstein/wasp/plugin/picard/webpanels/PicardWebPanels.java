@@ -25,7 +25,7 @@ public class PicardWebPanels {
 	public static PanelTab getAlignmentMetrics(Map<String,Map<String,String>> metrics, String bamFileName){
 		//create the panelTab to house the panel
 				PanelTab panelTab = new PanelTab();
-				panelTab.setName("Alignment Metrics");
+				panelTab.setTabTitle("Alignment Metrics");
 				panelTab.setNumberOfColumns(1);
 
 				//create the panel

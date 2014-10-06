@@ -1968,7 +1968,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 	 */
 	@Override
 	public boolean isFileGroupCollection(FileGroup fg){
-		return fg.getFileType().getIName().equals("fileGroupCollectionFileType");
+		return fg.getFileType()!=null && fg.getFileType().getIName().equals("fileGroupCollectionFileType");
 	}
 	
 	/**

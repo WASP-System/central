@@ -30,16 +30,23 @@ import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.JobSoftware;
+import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
+import edu.yu.einstein.wasp.plugin.mps.genomebrowser.GenomeBrowserProviding;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.ResultViewService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.viewpanel.Action.CallbackFunctionType;
 import edu.yu.einstein.wasp.viewpanel.DataTabViewing.Status;
+import edu.yu.einstein.wasp.viewpanel.Action;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.GridColumn;
 import edu.yu.einstein.wasp.viewpanel.GridContent;
@@ -73,6 +80,12 @@ public class ResultViewController extends WaspController {
 	@Autowired
 	private FileService fileService;
 	
+	@Autowired
+	private WaspPluginRegistry waspPluginRegistry;
+
+	@Autowired
+	private MessageServiceWebapp messageService;
+
 	@Autowired
 	private ResultViewService resultViewService;
 
@@ -178,54 +191,29 @@ public class ResultViewController extends WaspController {
 					  return null;
 				}
 				
+				Map<String, PanelTab> pluginPanelTabs = new LinkedHashMap<>();
 				JobDataTabViewing plugin = jobService.getTabViewPluginByJob(job);
+				Integer tabCountNow = 0;
+				// get "job summary" tab and add to panel tab set
+				PanelTab summaryPanelTab = this.getSummaryPanelTab(job, plugin==null?null:plugin.getStatus(job));
+				pluginPanelTabs.put("tab-" + (tabCountNow++).toString(), summaryPanelTab);
+				// get "files by type" tab and add to panel tab set
+				//summaryPanelTab = this.getFilesByTypeTab(job);
+				//pluginPanelTabs.put("tab-" + (tabCountNow++).toString(), summaryPanelTab);
+					
 				if (plugin!=null) {
-					Map<String, PanelTab> pluginPanelTabs = new LinkedHashMap<>();
-					PanelTab summaryPanelTab = this.getSummaryPanelTab(job, plugin.getStatus(job));
-					pluginPanelTabs.put("tab-0", summaryPanelTab);
 					Set<PanelTab> panelTabSet = plugin.getViewPanelTabs(job);//additional, plugin-specific ordered, panelTabs
-					logger.debug("***size of plugin-specific panelTabSet = " + panelTabSet.size());
-					Integer tabCount = 1;
 					for (PanelTab ptab : panelTabSet) {
 				    	if (!ptab.getPanels().isEmpty()){
-					    	String tabId = "tab-" + (tabCount++).toString();
+					    	String tabId = "tab-" + (tabCountNow++).toString();
 					    	pluginPanelTabs.put(tabId, ptab);
 				    	}
 					}
-	
-					//jsDetailsTabs.put("statuslist", statusArray);
-					jsDetailsTabs.put("paneltablist",pluginPanelTabs);
 				}
 
+				jsDetailsTabs.put("paneltablist",pluginPanelTabs);
+
 			} else if(type.startsWith("sample") || type.startsWith("library") || type.startsWith("cell") || type.startsWith("pu")) {
-//				Integer sampleId = id;
-//				Sample sample = this.sampleService.getSampleById(sampleId);
-//				if(sample==null || sample.getId()==null){
-//					  waspErrorMessage("sampleDetail.sampleNotFound.error");
-//					  return null;
-//				}
-//				
-//				jsDetails.put(getMessage("sample.name.label"), sample.getName());
-//				
-//				// add sample meta info
-//				List<SampleMeta> metaList = sample.getSampleMeta();
-//				for (SampleMeta mt : metaList) {
-//					String mKey = mt.getK();
-//					try {
-//						String msg = getMessage(mKey+".label");
-//						if (!msg.equals(mKey+".label"))
-//							jsDetails.put(msg, mt.getV());
-//					}
-//					catch (NoSuchMessageException e) {
-//						;
-//					}
-//				}
-//				
-//				// add sample status message info
-//				List<MetaMessage> msgList = sampleService.getSampleQCComments(sampleId);
-//				for (MetaMessage msg : msgList) {
-//					jsDetails.put(msg.getName(), msg.getValue());
-//				}
 
 			} else if(type.startsWith("filetype-")) {
 				Integer fileTypeId = id;
@@ -307,15 +295,15 @@ public class ResultViewController extends WaspController {
 
 		//create the panelTab to house the panel
 		PanelTab panelTab = new PanelTab();
-		panelTab.setName("Summary");
+		panelTab.setTabTitle(messageService.getMessage("resultViewer.summaryTab.title"));
 		panelTab.setNumberOfColumns(1);
 
 		//create the panel
 		GridPanel panel = new GridPanel();
-		panel.setTitle("Summary");
-		panel.setDescription("Summary");
-		panel.setResizable(true);
-		panel.setMaximizable(true);	
+		panel.setTitle(messageService.getMessage("resultViewer.summaryTab.title"));
+		panel.setDescription(messageService.getMessage("resultViewer.summaryTab.description"));
+		panel.setResizable(false);
+		panel.setMaxOnLoad(true);	
 		panel.setOrder(1);
 		panel.setStatusField("Status");
 		
@@ -329,11 +317,11 @@ public class ResultViewController extends WaspController {
 		content.addDataFields(new GridDataField("Status", "String"));//dataIndex, datatype
 
 		//create columns and associate each column with its displayed header and a data model attribute (dataIndex)
-		content.addColumn(new GridColumn("Strategy", "Strategy", 150, 0));//header,dataIndex	set width=150, flex=0	
-		content.addColumn(new GridColumn("Description", "Description", 1));//header,dataIndex	set flex=1	
-		content.addColumn(new GridColumn("Workflow", "Workflow", 150, 0));//header,dataIndex		
-		content.addColumn(new GridColumn("Main Software", "Software", 200, 0));//header,dataIndex		
-		content.addColumn(new GridColumn("Analysis Status", "Status", 150, 0));//header,dataIndex
+		content.addColumn(new GridColumn(messageService.getMessage("resultViewer.summaryTab.strategyCol.header"), "Strategy", 150, 0));//header,dataIndex	set width=150, flex=0	
+		content.addColumn(new GridColumn(messageService.getMessage("resultViewer.summaryTab.descriptionCol.header"), "Description", 1));//header,dataIndex	set flex=1	
+		content.addColumn(new GridColumn(messageService.getMessage("resultViewer.summaryTab.workflowCol.header"), "Workflow", 150, 0));//header,dataIndex		
+		content.addColumn(new GridColumn(messageService.getMessage("resultViewer.summaryTab.softwareCol.header"), "Software", 200, 0));//header,dataIndex		
+		content.addColumn(new GridColumn(messageService.getMessage("resultViewer.summaryTab.statusCol.header"), "Status", 150, 0));//header,dataIndex
 		
 		//create rows with  information
 		List<String> row = new ArrayList<String>();
@@ -348,12 +336,88 @@ public class ResultViewController extends WaspController {
 			softwareNames += name;
 		}
 		row.add(softwareNames);
-		row.add(jobStatus.toString());
+		row.add(jobStatus==null ? "UNKNOWN" : jobStatus.toString());
 		content.addDataRow(row);//add row to content
 		
 		panel.setContent(content);//add content to panel
 		panelTab.addPanel(panel);//add panel to panelTab
 		return panelTab;
 	}
+	
+	private PanelTab getFilesByTypeTab(Job job) {
+
+		//create the panelTab to house the panel
+		PanelTab panelTab = new PanelTab();
+		panelTab.setTabTitle(messageService.getMessage("resultViewer.filesByTypeTab.title"));
+		panelTab.setNumberOfColumns(1);
+
+		// create the panel
+		GridPanel panel = new GridPanel();
+		panel.setTitle(messageService.getMessage("resultViewer.filesByTypeTab.title"));
+		panel.setDescription(messageService.getMessage("resultViewer.filesByTypeTab.description"));
+		panel.setResizable(false);
+		panel.setMaxOnLoad(true);
+		panel.setOrder(1);
+		
+		panel.setGrouping(true);
+		panel.setGroupField("FileType");
+		panel.setAllowSelectDownload(true);
+		panel.setAllowGroupDownload(true);
+		panel.setSelectDownloadText("Download Selected");
+
+		// create content (think of it as the table)
+		GridContent content = new GridContent();
+
+		// create the data model
+		content.addDataFields(new GridDataField("FileType", "String"));
+		content.addDataFields(new GridDataField("File", "String"));
+		content.addDataFields(new GridDataField("Size", "String"));
+		content.addDataFields(new GridDataField("MD5", "String"));
+
+		content.addColumn(new GridColumn(messageService.getMessage("resultViewer.filesByTypeTab.fileCol.header"), "File", 1));
+		content.addColumn(new GridColumn(messageService.getMessage("resultViewer.filesByTypeTab.sizeCol.header"), "Size", 100, 0));
+		content.addColumn(new GridColumn(messageService.getMessage("resultViewer.filesByTypeTab.md5Col.header"), "MD5", 170, 0));
+		
+		for (JobFile jf : job.getJobFile()) {
+			List<String> row = new ArrayList<String>();
+			FileGroup fg = jf.getFile();
+			for (FileHandle fh : fg.getFileHandles()) {
+				//row.add(fh.getFileType()==null?"Unknown File Type":fh.getFileType().getName());
+				if (fh.getFileType()==null)
+					continue;
+
+				row.add(fh.getFileName());
+				row.add(fh.getSizek()==null ? "" : fh.getSizek().toString());
+				row.add(fh.getMd5hash());
+				content.addDataRow(row);//add the new row to the content	
+				
+				List<Action> actionList = new ArrayList<Action>();
+				// add download action to the list
+				String resolvedURL = "";
+				try{
+					resolvedURL = fileUrlResolver.getURL(fh).toString();
+				}catch(Exception e){logger.debug("UNABLE TO RESOLVE URL for file: " + fh.getFileName());}
+				actionList.add(new Action("icon-download", "Download", CallbackFunctionType.DOWNLOAD, resolvedURL));
+				
+				// add generic file viewer action to the list
+				actionList.add(new Action("icon-view-file", "View", CallbackFunctionType.OPEN_IN_CSS_WIN, fg.getId().toString()));
+				
+				List<GenomeBrowserProviding> plugins = new ArrayList<>();				
+				plugins.addAll(waspPluginRegistry.getPlugins(GenomeBrowserProviding.class));
+				for(GenomeBrowserProviding plugin : plugins){
+					Action action = plugin.getAction(fg);
+					if(action != null){
+						actionList.add(action);
+					}
+				}
+				content.addActions(actionList);				
+			}
+		}
+		panel.setContent(content);// add content to panel
+
+		panelTab.addPanel(panel);//add panel to panelTab
+		return panelTab;
+	}
+
 }
 

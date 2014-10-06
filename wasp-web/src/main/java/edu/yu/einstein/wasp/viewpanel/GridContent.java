@@ -144,6 +144,8 @@ public class GridContent extends Content implements Serializable {
 			}
 		}
 
+		// After the actions added to data, clear all actions
+		actions.clear();
 	}
 
 

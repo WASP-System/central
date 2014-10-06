@@ -167,7 +167,7 @@ public class MacstwoWebServiceImpl extends MacstwoServiceImpl implements Macstwo
 			Set<PanelTab> panelTabSet = new LinkedHashSet<PanelTab>();
 			//create the sole panelTab to house ALL the panels
 			PanelTab panelTab = new PanelTab();
-			panelTab.setName("MACS2");
+			panelTab.setTabTitle("MACS2");
 			panelTab.setNumberOfColumns(1);
 							
 			Panel pluginSpecificFileDefinitionsPanel = MacstwoWebPanels.getPluginSpecificFileDefinitionsPanel(fileDescriptionList);

@@ -65,10 +65,7 @@ public class GenericfileviewingWebServiceImpl extends GenericfileviewingServiceI
 				fileGroup.getFileType().getIName().equals("tif")) {
 			panelTab = ImageFilePanelRenderer.getPanelForFileGroup(fileName, fileService.getURLStringFromFileHandle(file));
 		} else {
-			panelTab = new PanelTab();
-			panelTab.setDescription(genericfileviewingPlugin.getDescription());
-			panelTab.setNumberOfColumns(1);
-			panelTab.setMaxOnLoad(true);
+			return null;
 		}
 
 		return panelTab;

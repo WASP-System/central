@@ -77,7 +77,7 @@ public class EnsemblGenomeBrowserPlugin extends AbstractGenomeBrowserPlugin {
 	}
 	
 	private boolean isDisplayable(FileGroup fg){
-		if(fg.getId()==null){
+		if(fg.getId()==null || fg.getFileType()==null){
 			return false;
 		}
 		if(fileService.isFileGroupCollection(fg)){
