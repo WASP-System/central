@@ -39,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 
@@ -155,11 +156,17 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 	@Autowired
 	private JobDao jobDao;
 
-	@Value("${wasp.temporary.dir}")
-	protected String tempDir;
-
 	@Value("${wasp.primaryfilehost}")
 	protected String fileHost;
+	
+	@Value("${wasp.temporary.dir}")
+	protected String tempDir;
+	
+	@PostConstruct
+	public void postConstruct(){
+		if (tempDir != null && (tempDir.startsWith("~/") || tempDir.startsWith("~\\")))
+			tempDir = tempDir.replaceFirst("~", System.getProperty("user.home"));
+	}
 	
 	private static final Logger logger = LoggerFactory.getLogger(FileServiceImpl.class);
 
