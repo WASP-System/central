@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.grid.GridExecutionException;
+import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
@@ -83,7 +84,12 @@ public class ModulesManager extends HashMap<String, String> implements SoftwareM
 			result += new StringBuilder().append(
 					"module load " + remoteName + "/" + version + "\n").toString();
 		}
-		result += "module list 2> ${" + WorkUnit.JOB_NAME + "}.sw\n\n";
+		if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
+			result += "if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then\n";
+		result += "module list 2> ${" + WorkUnit.JOB_NAME + "}.sw\n";
+		if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
+			result +="fi\n";
+		
 		
 		// configure the number of processes that will be used.
 		// TODO: clean up this logic
@@ -145,12 +151,12 @@ public class ModulesManager extends HashMap<String, String> implements SoftwareM
 			line = line.trim();
 			if (line.isEmpty() || line.startsWith("Currently Loaded Modulefiles"))
 				continue; // filter lines
-			String[] elements = line.split("[^\\)]\\s+");
+			String[] elements = line.split("\\s*\\d+\\)\\s+");
 			for (String element : elements){
-				String[] parts = element.split("\\)\\s+");
-				if (parts.length != 2)
+				element = element.trim();
+				if (element.isEmpty())
 					continue;
-				sw.add(parts[1]);
+				sw.add(element);
 			}
 		}
 		return sw;

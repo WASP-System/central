@@ -14,9 +14,6 @@ import edu.yu.einstein.wasp.model.WorkflowMeta;
 @Service
 public interface StrategyService extends WaspMessageHandlingService{
 		
-	static final String WORKFLOW_KEY = "workflow.strategy";//USED????
-	////////static final String JOBDRAFT_KEY = "workflow.strategy";
-
 	public Strategy saveDuringInitialLoading(Strategy strategy);//save to table Meta
 	public List<Strategy> getStrategiesByStrategyType(String strategyType);//from table Meta
 		
@@ -29,10 +26,22 @@ public interface StrategyService extends WaspMessageHandlingService{
 	public WorkflowMeta saveStrategyToWorkflowMeta(Workflow workflow, Strategy strategy);//save to WorkflowMeta
 	public List<Strategy> getThisWorkflowsStrategies(String strategyType,  Workflow workflow);	//get from WorkflowMeta
 	
-	public JobDraftMeta saveStrategyToJobDraftMeta(JobDraft jobDraft, Strategy strategy); //save to JobdraftMeta
+	public JobDraftMeta saveStrategy(JobDraft jobDraft, Strategy strategy); //save to JobdraftMeta
 	public Strategy getThisJobDraftsStrategy(String strategyType,  JobDraft jobDraft);	//get from JobdraftMeta
 
+	/**
+	 * Get all active workflows configured for the chosen strategy
+	 * @param requestedStrategy
+	 * @return
+	 */
 	public List<Workflow> getActiveWorkflowsForStrategyOrderByWorkflowName(Strategy requestedStrategy);
+	
+	/**
+	 * Get all active workflows configured for the chosen strategy, or if none, get any workflows configured as defaults
+	 * @param requestedStrategy
+	 * @return
+	 */
+	public List<Workflow> getActiveWorkflowsForStrategyOrDefaultsOrderByWorkflowName(Strategy requestedStrategy);
 	
 	public Strategy getThisJobsStrategy(String strategyType,  Job job);	//get from JobMeta
 

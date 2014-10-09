@@ -6,13 +6,19 @@ package edu.yu.einstein.wasp.variantcalling.plugin;
 
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.Message;
@@ -31,9 +37,11 @@ import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.interfacing.plugin.WebInterfacing;
 import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
+import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 /**
@@ -44,6 +52,7 @@ public class VariantcallingPlugin extends WaspPlugin
 			BatchJobProviding,
 			WebInterfacing,
 			FileDataTabViewing,
+			JobDataTabViewing,
 			ClientMessageI {
 
 	/**
@@ -65,7 +74,13 @@ public class VariantcallingPlugin extends WaspPlugin
 
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
+
+	protected JobExplorerWasp batchJobExplorer;
 	
+	@Autowired
+	void setJobExplorer(JobExplorer jobExplorer){
+		this.batchJobExplorer = (JobExplorerWasp) jobExplorer;
+	}
 	public static final String FLOW_NAME = "edu.yu.einstein.wasp.variantcalling.mainFlow";
 	
 	public static final String VARIANT_PREPROCESSING_FLOW = "variantCalling.preProcess.jobflow.v1";
@@ -245,6 +260,34 @@ public class VariantcallingPlugin extends WaspPlugin
 	 */
 	@Override
 	public PanelTab getViewPanelTab(FileGroup fileGroup) throws PanelException {
+		return null;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Status getStatus(Job job) {
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new LinkedHashSet<String>();
+		jobIdStringSet.add(job.getId().toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+		JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer.getJobExecutions(VARIANT_DISCOVERY_FLOW, parameterMap, false));
+		if (je == null)
+			return Status.UNKNOWN;
+		ExitStatus jobExitStatus = je.getExitStatus();
+		if (jobExitStatus.isRunning())
+			return Status.STARTED;
+		if (jobExitStatus.isCompleted())
+			return Status.COMPLETED;
+		return Status.FAILED;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Set<PanelTab> getViewPanelTabs(Job job) throws PanelException {
 		return null;
 	}
 	

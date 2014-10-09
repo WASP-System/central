@@ -18,13 +18,15 @@ public class GridPanel extends Panel{
 	
 	private String groupHeader = "{name}";
 	
-	private boolean hasDownload = false;
+	private String statusField;
 	
-	private String downloadLinkField;
-	
-	private String downloadTooltip = "";
-	
-	private String hideDownloadField = "";
+//	private boolean hasDownload = false;
+//	
+//	private String downloadLinkField;
+//	
+//	private String downloadTooltip = "";
+//	
+//	private String hideDownloadField = "";
 	
 	private boolean allowSelectDownload = false;
 	
@@ -38,17 +40,15 @@ public class GridPanel extends Panel{
 	
 	private String groupDownloadAlign = "right";
 	
-	private String statusField;
-	
-	private boolean hasGbLink = false;
-	
-	private String gbTypeField = "";
-	
-	private String gbLinkField = "";
-	
-	private String gbTtpField = "";
-	
-	private String hideGbField = "";
+//	private boolean hasGbLink = false;
+//	
+//	private String gbTypeField = "";
+//	
+//	private String gbLinkField = "";
+//	
+//	private String gbTtpField = "";
+//	
+//	private String hideGbField = "";
 
 	public GridPanel() {}
 	
@@ -113,61 +113,61 @@ public class GridPanel extends Panel{
 		this.groupHeader = groupHeader;
 	}
 
-	/**
-	 * @return the hasDownload
-	 */
-	public boolean isHasDownload() {
-		return hasDownload;
-	}
-
-	/**
-	 * @param hasDownload the hasDownload to set
-	 */
-	public void setHasDownload(boolean hasDownload) {
-		this.hasDownload = hasDownload;
-	}
-
-	/**
-	 * @return the downloadLinkField
-	 */
-	public String getDownloadLinkField() {
-		return downloadLinkField;
-	}
-
-	/**
-	 * @param downloadLinkField the downloadLinkField to set
-	 */
-	public void setDownloadLinkField(String downloadLinkField) {
-		this.downloadLinkField = downloadLinkField;
-	}
-
-	/**
-	 * @return the downloadTooltip
-	 */
-	public String getDownloadTooltip() {
-		return downloadTooltip;
-	}
-
-	/**
-	 * @param downloadTooltip the downloadTooltip to set
-	 */
-	public void setDownloadTooltip(String downloadTooltip) {
-		this.downloadTooltip = downloadTooltip;
-	}
-
-	/**
-	 * @return the hideDownloadField
-	 */
-	public String getHideDownloadField() {
-		return hideDownloadField;
-	}
-
-	/**
-	 * @param hideDownloadField the hideDownloadField to set
-	 */
-	public void setHideDownloadField(String hideDownloadField) {
-		this.hideDownloadField = hideDownloadField;
-	}
+//	/**
+//	 * @return the hasDownload
+//	 */
+//	public boolean isHasDownload() {
+//		return hasDownload;
+//	}
+//
+//	/**
+//	 * @param hasDownload the hasDownload to set
+//	 */
+//	public void setHasDownload(boolean hasDownload) {
+//		this.hasDownload = hasDownload;
+//	}
+//
+//	/**
+//	 * @return the downloadLinkField
+//	 */
+//	public String getDownloadLinkField() {
+//		return downloadLinkField;
+//	}
+//
+//	/**
+//	 * @param downloadLinkField the downloadLinkField to set
+//	 */
+//	public void setDownloadLinkField(String downloadLinkField) {
+//		this.downloadLinkField = downloadLinkField;
+//	}
+//
+//	/**
+//	 * @return the downloadTooltip
+//	 */
+//	public String getDownloadTooltip() {
+//		return downloadTooltip;
+//	}
+//
+//	/**
+//	 * @param downloadTooltip the downloadTooltip to set
+//	 */
+//	public void setDownloadTooltip(String downloadTooltip) {
+//		this.downloadTooltip = downloadTooltip;
+//	}
+//
+//	/**
+//	 * @return the hideDownloadField
+//	 */
+//	public String getHideDownloadField() {
+//		return hideDownloadField;
+//	}
+//
+//	/**
+//	 * @param hideDownloadField the hideDownloadField to set
+//	 */
+//	public void setHideDownloadField(String hideDownloadField) {
+//		this.hideDownloadField = hideDownloadField;
+//	}
 
 	/**
 	 * @return the allowSelectDownload
@@ -267,109 +267,116 @@ public class GridPanel extends Panel{
 		this.statusField = statusField;
 	}
 
-	/**
-	 * @return the hasGbLink
-	 */
-	public boolean isHasGbLink() {
-		return hasGbLink;
-	}
-
-	/**
-	 * @param hasGbLink the hasGbLink to set
-	 */
-	public void setHasGbLink(boolean hasGbLink) {
-		this.hasGbLink = hasGbLink;
-	}
-
-	/**
-	 * @return the gbTypeField
-	 */
-	public String getGbTypeField() {
-		return gbTypeField;
-	}
-
-	/**
-	 * @param gbTypeField the gbTypeField to set
-	 */
-	public void setGbTypeField(String gbTypeField) {
-		this.gbTypeField = gbTypeField;
-		
-		GridContent gridContent = (GridContent) this.getContent();
-		if (gridContent != null) {
-			List<GridDataField> fields = ((GridContent)gridContent).getDataFields();
-			for (int index = 0; index < fields.size(); index++) {
-				if (fields.get(index).getName().equals(this.gbTypeField)) {
-					List<List<String>> data = gridContent.getData();
-					for (int i = 0; i < data.size(); i++) {
-						List<String> datarow = data.get(i);
-						String type = datarow.get(index);
-						datarow.set(index, "icon-gb-" + type);
-						data.set(i, datarow);
-					}
-					break;
-				}
-			}
-		}
-	}
-
-	/**
-	 * @return the gbLinkField
-	 */
-	public String getGbLinkField() {
-		return gbLinkField;
-	}
-
-	/**
-	 * @param gbLinkField the gbLinkField to set
-	 */
-	public void setGbLinkField(String gbLinkField) {
-		this.gbLinkField = gbLinkField;
-	}
-
-	/**
-	 * @return the gbTtpField
-	 */
-	public String getGbTtpField() {
-		return gbTtpField;
-	}
-
-	/**
-	 * @param gbTtpField the gbTtpField to set
-	 */
-	public void setGbTtpField(String gbTtpField) {
-		this.gbTtpField = gbTtpField;
-	}
-
-	/**
-	 * @return the hideGbField
-	 */
-	public String getHideGbField() {
-		return hideGbField;
-	}
-
-	/**
-	 * @param hideGbField the hideGbField to set
-	 */
-	public void setHideGbField(String hideGbField) {
-		this.hideGbField = hideGbField;
-	}
+//	/**
+//	 * @return the hasGbLink
+//	 */
+//	public boolean isHasGbLink() {
+//		return hasGbLink;
+//	}
+//
+//	/**
+//	 * @param hasGbLink the hasGbLink to set
+//	 */
+//	public void setHasGbLink(boolean hasGbLink) {
+//		this.hasGbLink = hasGbLink;
+//	}
+//
+//	/**
+//	 * @return the gbTypeField
+//	 */
+//	public String getGbTypeField() {
+//		return gbTypeField;
+//	}
+//
+//	/**
+//	 * @param gbTypeField the gbTypeField to set
+//	 */
+//	public void setGbTypeField(String gbTypeField) {
+//		this.gbTypeField = gbTypeField;
+//		
+//		GridContent gridContent = (GridContent) this.getContent();
+//		if (gridContent != null) {
+//			List<GridDataField> fields = ((GridContent)gridContent).getDataFields();
+//			for (int index = 0; index < fields.size(); index++) {
+//				if (fields.get(index).getName().equals(this.gbTypeField)) {
+//					List<List<String>> data = gridContent.getData();
+//					for (int i = 0; i < data.size(); i++) {
+//						List<String> datarow = data.get(i);
+//						String type = datarow.get(index);
+//						datarow.set(index, "icon-gb-" + type);
+//						data.set(i, datarow);
+//					}
+//					break;
+//				}
+//			}
+//		}
+//	}
+//
+//	/**
+//	 * @return the gbLinkField
+//	 */
+//	public String getGbLinkField() {
+//		return gbLinkField;
+//	}
+//
+//	/**
+//	 * @param gbLinkField the gbLinkField to set
+//	 */
+//	public void setGbLinkField(String gbLinkField) {
+//		this.gbLinkField = gbLinkField;
+//	}
+//
+//	/**
+//	 * @return the gbTtpField
+//	 */
+//	public String getGbTtpField() {
+//		return gbTtpField;
+//	}
+//
+//	/**
+//	 * @param gbTtpField the gbTtpField to set
+//	 */
+//	public void setGbTtpField(String gbTtpField) {
+//		this.gbTtpField = gbTtpField;
+//	}
+//
+//	/**
+//	 * @return the hideGbField
+//	 */
+//	public String getHideGbField() {
+//		return hideGbField;
+//	}
+//
+//	/**
+//	 * @param hideGbField the hideGbField to set
+//	 */
+//	public void setHideGbField(String hideGbField) {
+//		this.hideGbField = hideGbField;
+//	}
 
 	@Override
 	public void setContent(Content gridContent) {
-		if (this.isHasGbLink() && !this.gbTypeField.isEmpty()) {
-			List<GridDataField> fields = ((GridContent)gridContent).getDataFields();
-			for (int index = 0; index < fields.size(); index++) {
-				if (fields.get(index).getName().equals(this.gbTypeField)) {
-					List<List<String>> data = ((GridContent) gridContent).getData();
-					for (int i = 0; i < data.size(); i++) {
-						List<String> datarow = data.get(i);
-						String type = datarow.get(index);
-						datarow.set(index, "icon-gb-" + type);
-						data.set(i, datarow);
-					}
-					break;
-				}
-			}
+//		if (this.isHasGbLink() && !this.gbTypeField.isEmpty()) {
+//			List<GridDataField> fields = ((GridContent)gridContent).getDataFields();
+//			for (int index = 0; index < fields.size(); index++) {
+//				if (fields.get(index).getName().equals(this.gbTypeField)) {
+//					List<List<String>> data = ((GridContent) gridContent).getData();
+//					for (int i = 0; i < data.size(); i++) {
+//						List<String> datarow = data.get(i);
+//						String type = datarow.get(index);
+//						datarow.set(index, "icon-gb-" + type);
+//						data.set(i, datarow);
+//					}
+//					break;
+//				}
+//			}
+//		}
+		
+		// append actions to datarows if there's some action and actionRefSet is empty
+		if (gridContent.getClass() == GridContent.class) {
+			if (((GridContent)gridContent).getActionReferenceSet().isEmpty())
+				if (!((GridContent)gridContent).getActions().isEmpty())
+					((GridContent)gridContent).appendActionsToData();
 		}
 		
 		super.setContent(gridContent);

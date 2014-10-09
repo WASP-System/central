@@ -391,7 +391,27 @@ public interface FileService extends WaspService {
 
 	public String getURLStringFromFileHandle(FileHandle fileHandle);
 
-	public FileGroupMetaDao getFileGroupMetaDao();
+	/**
+	 * Generated and persists a new FileGroup, adds each provided child FileGroup and ensures these are also persisted.
+	 * @param childFileGroups
+	 * @return a new entity-managed FileGroup containing a set of the provided FileGroups (also entity-managed)
+	 */
+	public FileGroup createFileGroupCollection(Set<FileGroup> childFileGroups);
+
+	/**
+	 * If the FileGroup is a collection of other FileGroups, return true, otherwise return false
+	 * @param fg
+	 * @return true / false
+	 */
+	public boolean isFileGroupCollection(FileGroup fg);
+
+	/**
+	 * Returns a set of all the FileHandles contained within all the child FileGroups maintained in this FileGroup collection. If a set of FileHandles is also associated
+	 * with this FileGroup directly, they are also returned (although it is recommended that FileGroup collections only contain FileGroups).
+	 * @param fgCollection
+	 * @return
+	 */
+	public Set<FileHandle> getAllFileHandlesFromFileGroupCollection(FileGroup fgCollection);
 
 }
 

@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -17,7 +18,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -31,6 +31,7 @@ import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.MessagingException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -69,6 +70,7 @@ import edu.yu.einstein.wasp.exception.QuoteException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.model.AcctGrant;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.Adaptor;
@@ -78,7 +80,6 @@ import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
-import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
@@ -93,7 +94,6 @@ import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
@@ -114,7 +114,7 @@ import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
-import edu.yu.einstein.wasp.service.QuoteAndInvoiceService;
+import edu.yu.einstein.wasp.service.AccountsService;
 import edu.yu.einstein.wasp.service.ResourceService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -198,7 +198,10 @@ public class JobController extends WaspController {
 	@Autowired
 	private MessageServiceWebapp messageService;
 	@Autowired
-	private QuoteAndInvoiceService quoteAndInvoiceService;
+	private AccountsService accountsService;
+	
+	@Value("${wasp.analysis.perLibraryFee:0}")
+	private Float perLibraryAnalysisFee;
 	
 	// list of baserolenames (da-department admin, lu- labuser ...)
 	// see role table
@@ -846,7 +849,17 @@ public class JobController extends WaspController {
 			Strategy strategy = jobService.getStrategy(StrategyType.LIBRARY_STRATEGY, job);
 			m.addAttribute("strategy", strategy);	 
 		}catch(Exception e){ logger.warn("Job Strategy unexpectedly not found"); }
-		
+		m.addAttribute("isAnalysisRequested", jobService.getIsAnalysisSelected(job) ? "Yes" : "No");
+		String grantDetails = "N/A";
+		AcctGrant grant = accountsService.getGrantForJob(job);
+		if (grant != null){
+			grantDetails = grant.getCode();
+			if (grant.getName() != null && !grant.getName().isEmpty())
+				grantDetails += " (" + grant.getName() + ")";
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			grantDetails += ", expires " + dateFormat.format(grant.getExpirationdt());
+		}
+	    m.addAttribute("grantDetails", grantDetails);
 		return "job/home/basic";
 	}
   
@@ -1142,11 +1155,12 @@ public class JobController extends WaspController {
 	 				numberOfLibrariesExpectedToBeConstructed++;
 	 			}
 	 			LibraryCost libraryCost = null;
+	 			Float analysisCost = jobService.getIsAnalysisSelected(job) ? perLibraryAnalysisFee : 0.0f;
 	 			if(reasonForNoLibraryCost.isEmpty()){
-	 				libraryCost = new LibraryCost(s.getId(), s.getName(), s.getSampleType().getName(), reasonForNoLibraryCost, null, "");
+	 				libraryCost = new LibraryCost(s.getId(), s.getName(), s.getSampleType().getName(), reasonForNoLibraryCost, null, analysisCost, "");
 	 			}
 	 			else{
-	 				libraryCost = new LibraryCost(s.getId(), s.getName(), s.getSampleType().getName(), reasonForNoLibraryCost, new Float(0.0), "");
+	 				libraryCost = new LibraryCost(s.getId(), s.getName(), s.getSampleType().getName(), reasonForNoLibraryCost, 0.0f, analysisCost, "");
 	 			}
 	 			libraryCosts.add(libraryCost);
 	 		}
@@ -1193,7 +1207,7 @@ public class JobController extends WaspController {
 		   	}catch(Exception e){logger.warn(e.getMessage()); return; }
 		}
 		try{
-			quoteAndInvoiceService.buildQuoteAsPDF(mpsQuote, job, response.getOutputStream());	
+			accountsService.buildQuoteAsPDF(mpsQuote, job, response.getOutputStream());	
 			response.setContentType("application/pdf");
 			response.getOutputStream().close();//apparently not really needed here but doesn't hurt
  	    	return;
@@ -1247,7 +1261,7 @@ public class JobController extends WaspController {
 			localFile = fileService.createTempFile();
 			outputStream = new FileOutputStream(localFile);
 			
-			quoteAndInvoiceService.buildQuoteAsPDF(mpsQuote, job, outputStream);
+			accountsService.buildQuoteAsPDF(mpsQuote, job, outputStream);
 			
 			outputStream.close();//file has been save to local location
 			 
@@ -1299,9 +1313,11 @@ public class JobController extends WaspController {
 		
 		//b. here deal with unexpected submitted sample errors (sample not in database; sample not in job, both very unexpected)
 		String param = "submittedSampleId";
-		String [] submittedSampleIdAsStringArray = request.getParameterValues(param);
+		String [] submittedSampleIdAsStringArray = request.getParameterValues("submittedSampleId");
 		param = "submittedSampleCost";
 		String [] submittedSampleCostAsStringArray = request.getParameterValues(param);
+		param = "submittedSampleAnalysisCost";
+		String [] submittedSampleAnalysisCostAsStringArray = request.getParameterValues(param);
 		param = "submittedSampleName";
 		String [] submittedSampleNameArray = request.getParameterValues(param);		
 		param = "submittedSampleMaterial";
@@ -1309,11 +1325,11 @@ public class JobController extends WaspController {
 		param = "reasonForNoLibraryCost";
 		String [] submittedSampleReasonForNoLibraryCostArray = request.getParameterValues(param);
 		
-		if( submittedSampleIdAsStringArray==null || submittedSampleCostAsStringArray==null || submittedSampleNameArray==null || submittedSampleMaterialArray==null || submittedSampleReasonForNoLibraryCostArray==null){
+		if( submittedSampleIdAsStringArray==null || submittedSampleCostAsStringArray==null || submittedSampleAnalysisCostAsStringArray==null || submittedSampleNameArray==null || submittedSampleMaterialArray==null || submittedSampleReasonForNoLibraryCostArray==null){
 			errors.add(messageService.getMessage("jobConstructQuote.problemSubmittedSampleInfo.error"));//"Problem with submitted sample information");
 		}
 		int numberOfSubmittedSampleRows = submittedSampleIdAsStringArray.length;
-		if(numberOfSubmittedSampleRows != submittedSampleCostAsStringArray.length && numberOfSubmittedSampleRows!= submittedSampleNameArray.length && numberOfSubmittedSampleRows != submittedSampleMaterialArray.length && numberOfSubmittedSampleRows != submittedSampleReasonForNoLibraryCostArray.length){
+		if(numberOfSubmittedSampleRows != submittedSampleCostAsStringArray.length && numberOfSubmittedSampleRows!= submittedSampleNameArray.length && numberOfSubmittedSampleRows != submittedSampleMaterialArray.length && numberOfSubmittedSampleRows != submittedSampleReasonForNoLibraryCostArray.length && numberOfSubmittedSampleRows != submittedSampleAnalysisCostAsStringArray.length){
 			errors.add(messageService.getMessage("jobConstructQuote.problemSubmittedSampleInfo.error"));//"Problem with submitted sample information");
 		}
 		List<Sample>  allJobSamplesList = job.getSample();//all samples in this job (from the database)
@@ -1343,6 +1359,8 @@ public class JobController extends WaspController {
 		//c. here get the runCost parameters and check for highly unexpected errors
 		param = "runCostResourceCategoryId";
 		String [] runCostResourceCategoryIdAsStringArray = request.getParameterValues(param);
+		param = "runCostRunType";
+		String [] runCostRunTypeArray = request.getParameterValues(param);		
 		param = "runCostReadLength";
 		String [] runCostReadLengthArray = request.getParameterValues(param);
 		param = "runCostReadType";
@@ -1351,12 +1369,12 @@ public class JobController extends WaspController {
 		String [] runCostNumberLanesArray = request.getParameterValues(param);
 		param = "runCostPricePerLane";
 		String [] runCostPricePerLaneArray = request.getParameterValues(param);	
-		if(runCostResourceCategoryIdAsStringArray==null || runCostReadLengthArray==null || runCostReadTypeArray==null || 
+		if(runCostResourceCategoryIdAsStringArray==null || runCostRunTypeArray==null || runCostReadLengthArray==null || runCostReadTypeArray==null || 
 				runCostNumberLanesArray==null || runCostPricePerLaneArray==null){
 			errors.add(messageService.getMessage("jobConstructQuote.problemSequenceRunInfo.error"));//"Unexpected problem interpreting sequence run information");
 		}			
 		int numberOfRunRows = runCostResourceCategoryIdAsStringArray.length;
-		if(runCostReadLengthArray.length != numberOfRunRows && runCostReadTypeArray.length != numberOfRunRows  &&
+		if(runCostRunTypeArray.length != numberOfRunRows && runCostReadLengthArray.length != numberOfRunRows && runCostReadTypeArray.length != numberOfRunRows  &&
 				runCostNumberLanesArray.length != numberOfRunRows && runCostPricePerLaneArray.length != numberOfRunRows ){
 			errors.add(messageService.getMessage("jobConstructQuote.problemSequenceRunInfo.error"));//"Unexpected problem interpreting sequence run information");
 		}
@@ -1413,15 +1431,33 @@ public class JobController extends WaspController {
 		int counter = 0;
 		for(Sample submittedObject : submittedSampleList){
 			String submittedSampleCostAsString = submittedSampleCostAsStringArray[counter];
+			String submittedSampleAnalysisCostAsString = submittedSampleAnalysisCostAsStringArray[counter];
 			String reasonForNoLibraryCost = submittedSampleReasonForNoLibraryCostArray[counter];
-			
+			Float libAnalysisCost = 0.0f;
+			if(submittedSampleAnalysisCostAsString.isEmpty()){
+				//errors.add("No library cost provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero");	
+				errors.add(messageService.getMessage("jobConstructQuote.noLibraryAnalysisCostProvidedForSample.error") + " "  + submittedObject.getName() + "; " + messageService.getMessage("jobConstructQuote.wholeNumbersOnly.error")+"; "+messageService.getMessage("jobConstructQuote.ifNoChargeEnterZero.error"));	
+			}
+			else if(submittedSampleAnalysisCostAsString.matches("\\D")){//any character in string that is not a digit 
+				//errors.add("Invalid library cost ("+ submittedSampleAnalysisCostAsString + ") provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero");
+				errors.add(messageService.getMessage("jobConstructQuote.invalidLibraryAnalysisCost.error")+ " ("+ submittedSampleAnalysisCostAsString + ") "+ messageService.getMessage("jobConstructQuote.forSample.error") + " " + submittedObject.getName() + "; " + messageService.getMessage("jobConstructQuote.wholeNumbersOnly.error")+"; "+messageService.getMessage("jobConstructQuote.ifNoChargeEnterZero.error"));	
+			}
+			else{				
+				try{	
+					libAnalysisCost = new Float(submittedSampleAnalysisCostAsString);
+				}catch(Exception e){
+					//errors.add("Invalid library cost ("+ submittedSampleCostAsString + ") provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero");
+					errors.add(messageService.getMessage("jobConstructQuote.invalidLibraryAnalysisCost.error")+ " ("+ submittedSampleCostAsString + ") "+ messageService.getMessage("jobConstructQuote.forSample.error") + " " + submittedObject.getName() + "; " + messageService.getMessage("jobConstructQuote.wholeNumbersOnly.error")+"; "+messageService.getMessage("jobConstructQuote.ifNoChargeEnterZero.error"));	
+				}
+			}
 			if(!reasonForNoLibraryCost.trim().isEmpty()){//there should be no cost here; such as sample withdrawn or sample is a library (n/a)
 				if(errors.isEmpty()){
-					libraryCosts.add(new LibraryCost(submittedObject.getId(), submittedSampleNameArray[counter], submittedSampleMaterialArray[counter], reasonForNoLibraryCost, new Float(0.0)  ));
+					libraryCosts.add(new LibraryCost(submittedObject.getId(), submittedSampleNameArray[counter], submittedSampleMaterialArray[counter], reasonForNoLibraryCost, 0.0f, libAnalysisCost  ));
 				}
 			}
 			else if(reasonForNoLibraryCost.isEmpty()){
 				submittedSampleCostAsString = submittedSampleCostAsString.trim();
+				submittedSampleAnalysisCostAsString = submittedSampleAnalysisCostAsString.trim();
 				if(submittedSampleCostAsString.isEmpty()){
 					//errors.add("No library cost provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero");	
 					errors.add(messageService.getMessage("jobConstructQuote.noLibraryCostProvidedForSample.error") + " "  + submittedObject.getName() + "; " + messageService.getMessage("jobConstructQuote.wholeNumbersOnly.error")+"; "+messageService.getMessage("jobConstructQuote.ifNoChargeEnterZero.error"));	
@@ -1434,7 +1470,7 @@ public class JobController extends WaspController {
 					try{	
 						Float libCost = new Float(submittedSampleCostAsString);
 						if(errors.isEmpty()){
-							libraryCosts.add(new LibraryCost(submittedObject.getId(), submittedSampleNameArray[counter], submittedSampleMaterialArray[counter], reasonForNoLibraryCost, libCost  ));
+							libraryCosts.add(new LibraryCost(submittedObject.getId(), submittedSampleNameArray[counter], submittedSampleMaterialArray[counter], reasonForNoLibraryCost, libCost, libAnalysisCost ));
 						}
 					}catch(Exception e){
 						//errors.add("Invalid library cost ("+ submittedSampleCostAsString + ") provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero");
@@ -1450,6 +1486,7 @@ public class JobController extends WaspController {
 		
 		for(int i = 0; i < numberOfRunRows; i++){ 
 			if( "".equals(runCostResourceCategoryIdAsStringArray[i].trim())	 &&
+				"".equals(runCostRunTypeArray[i].trim())	 &&
 				"".equals(runCostReadLengthArray[i].trim())	 &&
 				"".equals(runCostReadTypeArray[i].trim())	 &&
 				"".equals(runCostNumberLanesArray[i].trim()) &&
@@ -1457,6 +1494,7 @@ public class JobController extends WaspController {
 				continue;
 			}
 			if( "".equals(runCostResourceCategoryIdAsStringArray[i].trim())    ||
+				"".equals(runCostRunTypeArray[i].trim()) ||
 				"".equals(runCostReadLengthArray[i].trim())	||
 				"".equals(runCostReadTypeArray[i].trim())	||
 				"".equals(runCostNumberLanesArray[i].trim()) ||
@@ -1503,7 +1541,7 @@ public class JobController extends WaspController {
 				errors.add(messageService.getMessage("jobConstructQuote.row.error")+" "+(i+1)+": "+messageService.getMessage("jobConstructQuote.sequenceRunWholeNumberForCostPerLane.error"));
 			}
 			if(errors.isEmpty()){
-				sequencingCosts.add(new SequencingCost(resourceCategory, readLength, runCostReadTypeArray[i].trim(),numberOfLanes, new Float(costPerLane)));
+				sequencingCosts.add(new SequencingCost(resourceCategory, runCostRunTypeArray[i].trim(), readLength, runCostReadTypeArray[i].trim(),numberOfLanes, new Float(costPerLane)));
 			}
 		}
 
@@ -1550,7 +1588,7 @@ public class JobController extends WaspController {
 		
 		List<Discount> discounts = mpsQuote.getDiscounts();
 
-		int cumulativePercentDiscount = 0;
+		Double cumulativePercentDiscount = 0.0;
  	    List<String> discountReasonList = new ArrayList<String>();
 
  		String currencyIcon = mpsQuote.getLocalCurrencyIcon();//Currency.getInstance(Locale.getDefault()).getSymbol();//+String.format("%.2f", price)); 
@@ -1558,12 +1596,12 @@ public class JobController extends WaspController {
  		for(int i = 0; i < numberOfDiscountRows; i++){
 			if( "".equals(discountReasonArray[i].trim())	 &&
 				"".equals(discountTypeArray[i].trim())	 &&
-				"".equals(discountValueArray[i].trim()) ){
+				"".equals(discountValueArray[i].trim().replaceAll("%", "").replaceAll(currencyIcon, "")) ){
 					continue;
 			}
 			else if( "".equals(discountReasonArray[i].trim())	 ||
 					 "".equals(discountTypeArray[i].trim())	 ||
-					 "".equals(discountValueArray[i].trim()) ){
+					 "".equals(discountValueArray[i].trim().replaceAll("%", "").replaceAll(currencyIcon, "")) ){
 						//errors.add("Row "+(i+1) + " in Discount/Credit section is missing information - Please review");
 						errors.add(messageService.getMessage("jobConstructQuote.row.error")+" "+(i+1)+": "+messageService.getMessage("jobConstructQuote.discountCreditMissingInfo.error"));			
 			}
@@ -1583,21 +1621,22 @@ public class JobController extends WaspController {
 					errors.add(messageService.getMessage("jobConstructQuote.row.error")+" "+(i+1)+": "+messageService.getMessage("jobConstructQuote.discountCreditSelectDiscountType.error") + " " + currencyIcon + " or %");			
 				}
 			}
-			Integer discountValue=null;
+			Double discountValue=null;
 			try{
-				if(!"".equals(discountValueArray[i].trim())){
-					discountValue = new Integer(discountValueArray[i].trim());
+				if(!"".equals(discountValueArray[i].trim().replaceAll("%", "").replaceAll(currencyIcon, ""))){
+					DecimalFormat twoDFormat = new DecimalFormat("#.##");
+					String twoDString = discountValueArray[i].trim().replaceAll("%", "").replaceAll(currencyIcon, "");
+					discountValue = Double.valueOf(twoDFormat.format(Double.parseDouble(twoDString)));
 					if("%".equals(discountTypeArray[i].trim())){
 						cumulativePercentDiscount += discountValue;
-						if(discountValue >100){
+						if(discountValue > 100.00){
 							//errors.add("Row "+(i+1) + " in Discount/Credit section cannot be greater than 100% - please modify or remove");
 							errors.add(messageService.getMessage("jobConstructQuote.row.error")+" "+(i+1)+": "+messageService.getMessage("jobConstructQuote.discountCreditGreaterThan100Percent.error"));			
 						}
 					}										
 				}
 			}catch(Exception e){
-				//errors.add("Row "+(i+1) + " in Discount/Credit section is missing information - enter a whole number for discount; no fractions allowed (example: enter 25 for 25%)");
-				errors.add(messageService.getMessage("jobConstructQuote.row.error")+" "+(i+1)+": "+messageService.getMessage("jobConstructQuote.discountCreditWholeNumberForDiscount.error"));			
+				errors.add(messageService.getMessage("jobConstructQuote.row.error")+" "+(i+1)+": "+messageService.getMessage("jobConstructQuote.discountCreditCheckValueForDiscount.error"));			
 			}
 			
 			if(errors.isEmpty()){
@@ -1605,7 +1644,7 @@ public class JobController extends WaspController {
 			}
 		}
  		
- 		if(cumulativePercentDiscount>100){
+ 		if(cumulativePercentDiscount>100.00){
 			//errors.add("Cumulative Discount Percent may not exceed 100%");
 			errors.add(messageService.getMessage("jobConstructQuote.discountCreditCumulativeDiscountCannotExceed100Percent.error"));			
 		}

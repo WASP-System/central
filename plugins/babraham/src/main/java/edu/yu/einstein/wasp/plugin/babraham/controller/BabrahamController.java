@@ -23,14 +23,17 @@ public class BabrahamController extends WaspController {
 	
 	@RequestMapping(value="/fastqc/description", method=RequestMethod.GET)
 	public String displayFastQcDescription(ModelMap m){
-		logger.debug("service said: " + babrahamService.performAction());
 		return "babraham/fastqc/description";
 	}
 	
 	@RequestMapping(value="/fastqscreen/description", method=RequestMethod.GET)
 	public String displayFastQScreenDescription(ModelMap m){
-		logger.debug("service said: " + babrahamService.performAction());
 		return "babraham/fastqscreen/description";
+	}
+	
+	@RequestMapping(value="/trimgalore/description", method=RequestMethod.GET)
+	public String displayTrimGaloreDescription(ModelMap m){
+		return "babraham/trimgalore/description";
 	}
 
 }

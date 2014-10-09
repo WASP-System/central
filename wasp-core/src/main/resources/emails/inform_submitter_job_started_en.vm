@@ -14,6 +14,7 @@ select Job/My Submitted Jobs from the main menu, and click on the appropriate jo
 requesting that (s)he review the job submission and either approve or withdraw it. Note that if your lab has a 
 designated WASP lab manager, (s)he has also been notified of your submission and can approve or withdraw it.</p> 
 <p>Note New Drop-off Times: Please drop off your samples on Mondays, Wednesdays, and Fridays between 2 pm and 4 pm (Price 159).</p>
+<p>WHEN YOU SUBMIT YOUR SAMPLES TO THE FACILITY, CLEARLY WRITE THE SAMPLE NAME <b>AND</b> SAMPLE ID ON YOUR SAMPLE TUBES. A unique, WASP-generated Sample ID can be found under the Samples section at the bottom of this email or alternatively, by logging into your WASP account and visiting this job's sample page.</p>
 <p>Should you have any further questions, please contact us using the information below.</p>
 <p>Regards,<br />The WASP Team<br /></p>
 
@@ -35,7 +36,7 @@ ReadLength: ${readLength} bp<br /><br />
 
 <b>Samples</b><br />
 #foreach(${sample} in ${submittedSampleList}) ## velocityCount is the default name for a foreach counter and it begins at 1
-  ${velocityCount}. ${sample.getName()} (sample type: ${sample.getSampleType().getName()})<br />
+  ${velocityCount}. ${sample.getName()} (Sample ID: ${sample.getId()}; sample type: ${sample.getSampleType().getName()})<br />
 #end
 
 </p>

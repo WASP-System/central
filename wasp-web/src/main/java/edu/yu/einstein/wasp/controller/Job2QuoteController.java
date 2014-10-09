@@ -28,12 +28,14 @@ import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.dao.AcctQuoteDao;
 import edu.yu.einstein.wasp.dao.AcctQuoteMetaDao;
 import edu.yu.einstein.wasp.dao.LabDao;
+import edu.yu.einstein.wasp.model.AcctGrant;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.service.AccountsService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.JobService;
@@ -62,8 +64,12 @@ public class Job2QuoteController extends WaspController {
 
 	@Autowired
 	private MessageServiceWebapp	messageService;
+	
 	@Autowired
 	private AuthenticationService	authenticationService;
+	
+	@Autowired
+	private AccountsService accountsService;
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp("acctQuote", AcctQuoteMeta.class, request.getSession());
@@ -326,6 +332,10 @@ public class Job2QuoteController extends WaspController {
 			//String noteAboutNeedingQuote =   ((currentQuote == null || currentQuote.getId() == null) && !jobService.isJobActive(item)) ? "[Job Terminated]":"";
 			String currentStatus = jobService.getJobStatus(item);
 			String jobStatusComment = jobService.getJobStatusComment(item);//this is really ONLY a comment if the job was rejected by fm, pi, or da
+			String grantCode = "N/A";
+			AcctGrant grant = accountsService.getGrantForJob(item);
+			if (grant != null)
+				grantCode = accountsService.getGrantForJob(item).getCode();
 			if (jobStatusComment != null)
 				currentStatus += Tooltip.getCommentHtmlString(jobStatusComment, getServletPath());
 			
@@ -340,6 +350,7 @@ public class Job2QuoteController extends WaspController {
 					item.getName(),
 					//String.format("%.2f", amount),
 					quoteAsString,
+					grantCode,
 					user.getNameFstLst(), 
 					item.getLab().getUser().getNameFstLst(),
 					formatterForDisplay.format(item.getCreated()), //item.getLastUpdTs().toString() 

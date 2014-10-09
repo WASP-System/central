@@ -4,6 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="wasp" uri="http://einstein.yu.edu/wasp" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
  <br />
 <title><fmt:message key="pageTitle./waspIlluminaHiSeq/flowcell/createUpdateRun.label"/></title>
 <c:choose>
@@ -35,10 +36,10 @@
 
 <table class="EditTable ui-widget ui-widget-content">
 <c:if test="${action == 'create'}">
+	<form name="selectRunFolder" class="FormGrid" method="get">
 	<tr class="FormData">
 		<td class="CaptionTD"><fmt:message key="runInstance.chooseRunFolder.label"/>:</td>
 		<td class="DataTD">
-		<form name="selectRunFolder" class="FormGrid" method="get">
 			<select class="FormElement ui-widget-content ui-corner-all" id="runFolderName" name="runFolderName" size="1" onchange="document.selectRunFolder.submit()">
 				<option value=""><fmt:message key="wasp.default_select.label"/>		
 				<c:forEach items="${runFolderSet}" var="runFolder">
@@ -51,20 +52,29 @@
 			 </select>	
 			 <table>
 			 	<tr class="FormData">
-				 	<td class="CaptionTD"><fmt:message key="runInstance.showAll.label"/>:</td>
+				 	<td class="CaptionTD"><fmt:message key="runInstance.showAll.label"/></td>&nbsp;</td>
 				   	<td class="DataTD"><input type="checkbox" name="showAll" value="true" <c:if test="${showAll == true }">checked="checked"</c:if> onclick="document.selectRunFolder.submit()" /></td>
 				</tr>
 			 </table>
-		 </form>
 		</td>
 		<td>&nbsp;</td>
 	</tr>
+	<sec:authorize access="hasRole('su')">
+	<tr class="FormData">
+		<td class="CaptionTD">or Enter Manually:</td>
+		<td class="DataTD"><input type="text" name="runFolderNameManual" id="runFolderNameManual" value="<c:if test='${not empty runFolderNameManual }'><c:out value='${runFolderNameManual}'></c:out></c:if>" />
+		<input class="fm-button" type="button" onClick="document.selectRunFolder.submit()" value="add" /> </td>
+		<td>&nbsp;</td>
+	</tr>
+	</sec:authorize>
+	</form>
 </c:if>
 
 <c:if test='${run.getResource() != null}'>
 
   	<form:form  cssClass="FormGrid" commandName="run" method="post">
   	<form:hidden path="name" />
+  	<input type="hidden" name="isRunStart" id="isRunStart" value="true" />
   	<input type="hidden" name="showAll" value="${showAll}" />
 	<tr class="FormData">
         <td class="CaptionTD"><fmt:message key="runInstance.name.label" />:</td>
@@ -123,6 +133,9 @@
     	<div class="submit">
     		<c:if test="${empty(resourceNameError)}" >
    	    		<input class="fm-button" type="button" onClick="submit();" value="<fmt:message key='runInstance.submit.label'/>" /> 
+   	    		<sec:authorize access="hasRole('su')">
+   	    			<input class="fm-button" type="button" onClick="$('#isRunStart').val('false');submit();" value="<fmt:message key='runInstance.submitNoStart.label'/>" /> 
+   	    		</sec:authorize>
    	    	</c:if>
    	    	<c:if test="${not empty(resourceNameError)}" >
    	    		<input class="fm-button" type="button" onClick="location.href='<wasp:relativeUrl value="resource/list.do" />';" value="<fmt:message key='resource.resource_list.label'/>" /> 

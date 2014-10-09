@@ -37,15 +37,22 @@ import edu.yu.einstein.wasp.macstwo.software.Macstwo;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.FileHandleMeta;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.mps.grid.software.Imagemagick;
 import edu.yu.einstein.wasp.plugin.mps.grid.software.R;
+import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 
 /**
@@ -55,6 +62,7 @@ import edu.yu.einstein.wasp.service.SampleService;
 public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecutionListener {
 
 	private Integer jobId;
+	private String peakType;
 	private String testCellLibraryIdListAsString;
 	private String controlCellLibraryIdListAsString;
 	private List<Integer> testCellLibraryIdList;//treated, such as IP
@@ -68,30 +76,18 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	
 	private StepExecution stepExecution;
 	
-	
 	@Autowired
-	private FileType macs2ModelScriptFileType;
+	private FileType textFileType;//here, the model.r script output file
 	@Autowired
-	private FileType macs2PeaksXlsFileType;
+	private FileType pdfFileType;//output pdf file after running the model.r script
 	@Autowired
-	private FileType macs2NarrowPeaksBedFileType;
+	private FileType pngFileType;//output after imagemagik on the pdf file
 	@Autowired
-	private FileType macs2SummitsBedFileType;
+	private FileType tsvFileType;//tab-separated values (in this case, the .xls output file)
 	@Autowired
-	private FileType macs2SummitsModifiedBedFileType;
+	private FileType bedFileType;//bed file (the peaks.narrowPeak BED6+4 output file; the summits.bed file;  peaks.broadPeak is BED6+3; peaks.gappedPeak is BED12+3) 
 	@Autowired
-	private FileType macs2TreatPileupBedGraphFileType;
-	@Autowired
-	private FileType macs2ControlLambdaBedGraphFileType;	
-	@Autowired
-	private FileType macs2ModelPdfFileType;
-	@Autowired
-	private FileType macs2ModelPngFileType;
-	
-	@Autowired
-	private FileType macs2AnalysisFileType;
-	
-	
+	private FileType bedGraphFileType;//bedGraph (treat_pileup.bdg and control_lambda.bdg)
 	
 	@Autowired
 	private JobService jobService;
@@ -103,6 +99,10 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	private SampleService sampleService;
 	@Autowired
 	private FileService fileService;
+	@Autowired
+	private GenomeService genomeService;
+	@Autowired
+	private RunService runService;
 
 	@Autowired
 	private GridHostResolver gridHostResolver;
@@ -115,16 +115,20 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		// proxy
 	}
 
-	public MacstwoTasklet(String jobIdAsString, String testCellLibraryIdListAsString, String controlCellLibraryIdListAsString) throws Exception {
+	public MacstwoTasklet(String jobIdAsString, String peakType, String testCellLibraryIdListAsString, String controlCellLibraryIdListAsString) throws Exception {
 		
 		logger.debug("Starting MacstwoTasklet constructor");
 		logger.debug("jobIdAsString: " + jobIdAsString);
+		logger.debug("peakType (the parameter): " + peakType);
 		logger.debug("testCellLibraryIdListAsString: " + testCellLibraryIdListAsString);
 		logger.debug("controlCellLibraryIdListAsString: " + controlCellLibraryIdListAsString);
 		
 		Assert.assertTrue(!jobIdAsString.isEmpty());
 		this.jobId = Integer.parseInt(jobIdAsString);		
 		Assert.assertTrue(this.jobId > 0);
+		
+		Assert.assertTrue(!peakType.isEmpty());
+		this.peakType = peakType;//new, as of 9-8-14
 		
 		this.testCellLibraryIdListAsString = testCellLibraryIdListAsString;
 		Assert.assertTrue(!testCellLibraryIdListAsString.isEmpty());
@@ -145,6 +149,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		}
 		
 		logger.debug("in constructor this.jobId: " + this.jobId);
+		logger.debug("in constructor this.peakType: " + this.peakType);
 		logger.debug("in constructor testCellLibraryIdList.size(): " + testCellLibraryIdList.size());
 		logger.debug("in constructor controlCellLibraryIdList.size(): " + controlCellLibraryIdList.size());
 		logger.debug("Ending MacstwoTasklet constructor");
@@ -163,6 +168,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		logger.debug("Starting MacstwoTasklet execute");		
 		logger.debug("in doExecute this.jobId: " + this.jobId);
+		logger.debug("in doExecute this.peakType: " + this.peakType);
 		logger.debug("in doExecute testCellLibraryIdList.size(): " + testCellLibraryIdList.size());
 		logger.debug("in doExecute controlCellLibraryIdList.size(): " + controlCellLibraryIdList.size());
 		Job job = jobService.getJobByJobId(jobId);
@@ -188,10 +194,10 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		}
 		logger.debug("testSample.name = " + testSample.getName());		
 		this.testSampleId = testSample.getId();
-
-		//// seems like not really used for anything Set<SampleSource> setOfCellLibrariesForDerivedFrom = new HashSet<SampleSource>();//tests and controls; seems like this info isn't really used. Perhaps it was superseded by derrivedFromFileGroups immediately below
 		
 		Set<FileGroup> derrivedFromFileGroups = new HashSet<FileGroup>();
+		
+		int shortestReadLengthFromAllTestRuns = 0;
 		
 		List<FileHandle> testFileHandleList = new ArrayList<FileHandle>();		
 		for(Integer id : this.testCellLibraryIdList){
@@ -206,10 +212,33 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 					logger.debug("test fileHandle = " + fileHandle.getFileName());
 				}				
 			}
+			
+			//get shortestReadLengthFromAllRuns using smallest of all IP's run.readLength
+			Sample cell = sampleService.getCell(cellLibrary);
+			Sample platformUnit = sampleService.getPlatformUnitForCell(cell);
+			List<Run> runList = runService.getRunsForPlatformUnit(platformUnit);
+			Run run = runList.get(0);//could be a problem
+			for(RunMeta runMeta : run.getRunMeta()){
+				if(runMeta.getK().endsWith("readLength")){
+					String readLengthAsString = runMeta.getV();
+					try{
+						int readLengthAsInt = Integer.parseInt(readLengthAsString);
+						if(readLengthAsInt > 0){
+							if(shortestReadLengthFromAllTestRuns==0){//first time
+								shortestReadLengthFromAllTestRuns = readLengthAsInt;
+							}
+							else if(readLengthAsInt < shortestReadLengthFromAllTestRuns){
+								shortestReadLengthFromAllTestRuns = readLengthAsInt;
+							}
+						}
+					}catch(Exception e){logger.debug("unable to parse readLength to int");}
+				}
+			}
 		}
 		Assert.assertTrue(!testFileHandleList.isEmpty());
 		logger.debug("test bam files size = " + testFileHandleList.size());
-
+		logger.debug("shortestReadLengthFromAllTestRuns = " + shortestReadLengthFromAllTestRuns);
+		
 		Sample controlSample = null;
 		if(!controlCellLibraryIdList.isEmpty()){
 			controlSample = sampleService.getLibrary(sampleService.getCellLibraryBySampleSourceId(controlCellLibraryIdList.get(0)));//all these cellLibraries are from the same library or macromoleucle
@@ -245,7 +274,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		Date dateNow = new Date( );
 	    SimpleDateFormat ft = new SimpleDateFormat ("yyyyMMdd");
 	    //new
-	    String prefixForFileName = ft.format(dateNow)+ "_IP_" + testSample.getName().replaceAll("\\s+", "_");
+	    String prefixForFileName = ft.format(dateNow) + "_MACS2_IP_" + testSample.getName().replaceAll("\\s+", "_");
 	    if(antibodyTarget!=null && !antibodyTarget.isEmpty()){
 	    	prefixForFileName = prefixForFileName + "_TARGET_" + antibodyTarget.replaceAll("\\s+", "_");
 	    }
@@ -259,17 +288,6 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	    	prefixForFileName = prefixForFileName + "_CONTROL_none";
 	    }
 	    
-	    //old
-	    /*
-	    String prefixForFileName = "TEST_" + testSample.getName().replaceAll("\\s+", "_") + "_CONTROL_";
-		if(controlSample == null){
-			prefixForFileName = prefixForFileName + "none";
-		}
-		else{
-			prefixForFileName = prefixForFileName + controlSample.getName().replaceAll("\\s+", "_");
-		}
-		*/
-		
 		logger.debug("prefixForFileName = " + prefixForFileName);
 		logger.debug("preparing to generate workunit");
 		
@@ -277,107 +295,124 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		String pdfFileName = modelFileName.replaceAll(".r$", ".pdf");//abc_model.r will be used to generate abc_model.pdf
 		String pngFileName = modelFileName.replaceAll(".r$", ".png");//abc_model.pdf will be used to generate abc_model.png
 
-		WorkUnit w = macs2.getPeaks(prefixForFileName, testFileHandleList, controlFileHandleList, jobParametersMap, modelFileName, pdfFileName, pngFileName);//configure
+		Build build = genomeService.getBuild(testSample);
+		String speciesName = build.getGenome().getOrganism().getName();//Homo sapiens
+		String speciesCode = "";//for Homo sapiens, species code will be hs
+		String [] stringArray = speciesName.split("\\s+"); 
+		if(stringArray.length==2){
+			speciesCode = stringArray[0].substring(0, 1).toLowerCase();
+			speciesCode += stringArray[1].substring(0, 1).toLowerCase();
+		}
+		if(speciesCode.length()!=2){
+			speciesCode = "";
+		}
+		
+		WorkUnit w = macs2.getPeaks(this.peakType, shortestReadLengthFromAllTestRuns, testSample, controlSample, prefixForFileName, testFileHandleList, controlFileHandleList, jobParametersMap, modelFileName, pdfFileName, pngFileName);//configure
 		logger.debug("OK, workunit has been generated");
 		this.commandLineCall = w.getCommand();
 		this.commandLineCall = this.commandLineCall.replaceAll("\\n", "<br /><br />");//the workunit tagged on a newline at the end of the command; so remove it for db storage and replace with <br /> for display purposes
 
 		List<String> listOfFileHandleNames = new ArrayList<String>();
 		
-		LinkedHashSet<FileHandle> files = new LinkedHashSet<FileHandle>();
-				
-		FileHandle modelScript = new FileHandle();
-		modelScript.setFileName(modelFileName);//prefixForFileName + "_model.r"
-		listOfFileHandleNames.add(modelFileName );//this will likely become unnecessary
-		modelScript.setFileType(macs2ModelScriptFileType);
-		modelScript = fileService.addFile(modelScript);
-		files.add(modelScript);
-		
-		FileHandle peaksXls = new FileHandle();
-		peaksXls.setFileName(prefixForFileName + "_peaks.xls");
-		listOfFileHandleNames.add(prefixForFileName + "_peaks.xls");//this will likely become unnecessary
-		peaksXls.setFileType(macs2PeaksXlsFileType);
-		peaksXls = fileService.addFile(peaksXls);
-		files.add(peaksXls);
-		
-		FileHandle narrowPeaksBed = new FileHandle();
-		narrowPeaksBed.setFileName(prefixForFileName + "_peaks.narrowPeak");//this will likely become unnecessary
-		listOfFileHandleNames.add(prefixForFileName + "_peaks.narrowPeak");
-		narrowPeaksBed.setFileType(macs2NarrowPeaksBedFileType);
-		narrowPeaksBed = fileService.addFile(narrowPeaksBed);
-		files.add(narrowPeaksBed);
-	
-		FileHandle summitsBed = new FileHandle();
-		summitsBed.setFileName(prefixForFileName + "_summits.bed");
-		listOfFileHandleNames.add(prefixForFileName + "_summits.bed");//this will likely become unnecessary
-		summitsBed.setFileType(macs2SummitsBedFileType);
-		summitsBed = fileService.addFile(summitsBed);
-		files.add(summitsBed);
-		
-/*
-		FileHandle summitsModifiedBed = new FileHandle();
-		summitsModifiedBed.setFileName(prefixForFileName + "_summits.modified.bed");
-		listOfFileHandleNames.add(prefixForFileName + "_summits.modified.bed");//this will likely become unnecessary
-		summitsModifiedBed.setFileType(macs2SummitsModifiedBedFileType);
-		summitsModifiedBed = fileService.addFile(summitsModifiedBed);
-		files.add(summitsModifiedBed);
-*/
-		FileHandle treatPileupBedGraph = new FileHandle();
-		treatPileupBedGraph.setFileName(prefixForFileName + "_treat_pileup.bdg");
-		listOfFileHandleNames.add(prefixForFileName + "_treat_pileup.bdg");//this will likely become unnecessary
-		treatPileupBedGraph.setFileType(macs2TreatPileupBedGraphFileType);
-		treatPileupBedGraph = fileService.addFile(treatPileupBedGraph);
-		files.add(treatPileupBedGraph);
-	
-		FileHandle controlLambdaBedGraph = new FileHandle();
-		controlLambdaBedGraph.setFileName(prefixForFileName + "_control_lambda.bdg");
-		listOfFileHandleNames.add(prefixForFileName + "_control_lambda.bdg");//this will likely become unnecessary
-		controlLambdaBedGraph.setFileType(macs2ControlLambdaBedGraphFileType);
-		controlLambdaBedGraph = fileService.addFile(controlLambdaBedGraph);
-		files.add(controlLambdaBedGraph);
-		
-		//the pdf (generated from running Rscript on xx_model.r file)
-		FileHandle modelPdf = new FileHandle();
-		modelPdf.setFileName(pdfFileName);
-		listOfFileHandleNames.add(pdfFileName);//this will likely become unnecessary
-		modelPdf.setFileType(macs2ModelPdfFileType);
-		modelPdf = fileService.addFile(modelPdf);
-		files.add(modelPdf);
-		logger.debug("new -------   recorded fileGroup and fileHandle for rscript to create pdf in MacstwoGenerateModelAsPdfTasklet.doExecute()");
-
-		//the png (converted from the pdf using ImageMagick)
-		FileHandle modelPng = new FileHandle();
-		modelPng.setFileName(pngFileName);
-		listOfFileHandleNames.add(pngFileName);//this will likely become unnecessary
-		modelPng.setFileType(macs2ModelPngFileType);
-		modelPng = fileService.addFile(modelPng);
-		files.add(modelPng);
-		logger.debug("new ------- recorded fileGroup and fileHandle for ImageMagick to create png in MacstwoGenerateModelAsPdfTasklet.doExecute()");
-		
-		//6-19-14
-		//macs2Analysis fileGroup serves as single fileGroup to house ALL files from a macs analysis 
-		//and from whence they came (through fileGroup.derivedFrom). 
-		//Also, the fileGroup.description will contain the base name for all the files
-		//Importantly fileGroup's MetaData will store some additional information about this analysis
-		FileGroup macs2AnalysisFileGroup = new FileGroup();
-		macs2AnalysisFileGroup.setFileType(macs2AnalysisFileType);
-		macs2AnalysisFileGroup.setDescription(prefixForFileName);
-		macs2AnalysisFileGroup.setSoftwareGeneratedBy(macs2);//would like to add imagemagickSoftware and rSoftware, but no way
-		macs2AnalysisFileGroup.setDerivedFrom(derrivedFromFileGroups);
-		macs2AnalysisFileGroup.setFileHandles(files);
-		macs2AnalysisFileGroup = fileService.addFileGroup(macs2AnalysisFileGroup);
-		this.macs2AnalysisFileGroupId = macs2AnalysisFileGroup.getId();
-		logger.debug("new ------- recorded all encompassing fileGroup macs2AnalysisFileGroup as a container for files outputted by macs2");
-	
-		logger.debug("recorded fileGroups and fileHandles for macs2 files in MacstwoTasklet.doExecute()");
+		Set<FileHandle> files = new LinkedHashSet<FileHandle>();
+		Set<FileGroup> macstwoEnclosedFileGroups = new LinkedHashSet<FileGroup>();
 		
 		Imagemagick imagemagickSoftware = (Imagemagick) macs2.getSoftwareDependencyByIname("imagemagick"); 
 		R rSoftware = (R) macs2.getSoftwareDependencyByIname("rPackage");
 		this.softwareIdUsedListAsString = macs2.getId().toString() + ":" + rSoftware.getId().toString() + ":" + imagemagickSoftware.getId().toString();
 
+		FileHandle modelScriptFileHandle = createAndSaveInnerFileHandle(modelFileName, textFileType);
+		listOfFileHandleNames.add(modelScriptFileHandle.getFileName());
+		files.add(modelScriptFileHandle);
+		FileGroup modelScriptFileGroup = createAndSaveInnerFileGroup(modelScriptFileHandle, macs2, "xxx_model.r is a macs2-generated R script that can be converted into a pdf (using RScript) and illustrates the peak model");
+		macstwoEnclosedFileGroups.add(modelScriptFileGroup);
+		
+		FileHandle peaksXlsFileHandle = createAndSaveInnerFileHandle(prefixForFileName + "_peaks.xls", tsvFileType);
+		listOfFileHandleNames.add(peaksXlsFileHandle.getFileName());
+		files.add(peaksXlsFileHandle);
+		FileGroup peaksXlsFileGroup = createAndSaveInnerFileGroup(peaksXlsFileHandle, macs2, "xxx_peaks.xls is a Macs2-generated Excel-based tabular file which contains information about called peaks");
+		macstwoEnclosedFileGroups.add(peaksXlsFileGroup);
+		
+		//macs2 will generate peaks.narrowPeak and summits.bed for punctate peaks (so we will NOT invoke --broad in the macs2 command)
+		if(this.peakType.equalsIgnoreCase("punctate")){
+			
+			FileHandle narrowPeaksBedFileHandle = createAndSaveInnerFileHandle(prefixForFileName + "_peaks.narrowPeak", bedFileType);
+			listOfFileHandleNames.add(narrowPeaksBedFileHandle.getFileName());
+			files.add(narrowPeaksBedFileHandle);
+			FileGroup narrowPeaksBedFileGroup = createAndSaveInnerFileGroup(narrowPeaksBedFileHandle, macs2, "xxx_peaks.narrowPeak is a Macs2-generated BED6+4 format file which contains peak locations together with peak summit, pvalue and qvalue that can be load into UCSC genome browser");
+			macstwoEnclosedFileGroups.add(narrowPeaksBedFileGroup);
+						
+			FileHandle summitsBedFileHandle = createAndSaveInnerFileHandle(prefixForFileName + "_summits.bed", bedFileType);
+			listOfFileHandleNames.add(summitsBedFileHandle.getFileName());
+			files.add(summitsBedFileHandle);
+			FileGroup summitsBedFileGroup = createAndSaveInnerFileGroup(summitsBedFileHandle, macs2, "xxx_summits.bed is Macs2-generated BED file which contains the peak summits locations for every peak and can be loaded into the UCSC genome browser");
+			macstwoEnclosedFileGroups.add(summitsBedFileGroup);
+			
+		}
+		//macs2 will generate peaks.broadPeak and peaks.gappedPeaks for broad or mixed peaks (so we will invoke --broad in the macs2 command)
+		else{ //peakType.equals broad OR mixed
+			
+			FileHandle broadPeaksBedFileHandle = createAndSaveInnerFileHandle(prefixForFileName + "_peaks.broadPeak", bedFileType);
+			listOfFileHandleNames.add(broadPeaksBedFileHandle.getFileName());
+			files.add(broadPeaksBedFileHandle);
+			FileGroup broadPeaksBedFileGroup = createAndSaveInnerFileGroup(broadPeaksBedFileHandle, macs2, "xxx_peaks.broadPeak is a Macs2-generated BED6+3 format file which is similar to peaks.narrowPeak file, except for missing the 10th column for annotating peak summits");
+			macstwoEnclosedFileGroups.add(broadPeaksBedFileGroup);
+			
+			FileHandle gappedPeaksBedFileHandle = createAndSaveInnerFileHandle(prefixForFileName + "_peaks.gappedPeak", bedFileType);
+			listOfFileHandleNames.add(gappedPeaksBedFileHandle.getFileName());
+			files.add(gappedPeaksBedFileHandle);
+			FileGroup gappedPeaksBedFileGroup = createAndSaveInnerFileGroup(gappedPeaksBedFileHandle, macs2, "xxx_peaks.gappedPeak is a Macs2-generated BED12+3 file which contains both the broad region and narrow peaks and can be loaded into the genome browser");
+			macstwoEnclosedFileGroups.add(gappedPeaksBedFileGroup);
+		}
+				
+		FileHandle treatPileupBedGraphFileHandle = createAndSaveInnerFileHandle(prefixForFileName + "_treat_pileup.bdg", bedGraphFileType);
+		listOfFileHandleNames.add(treatPileupBedGraphFileHandle.getFileName());
+		files.add(treatPileupBedGraphFileHandle);
+		FileGroup treatPileupBedGraphFileGroup = createAndSaveInnerFileGroup(treatPileupBedGraphFileHandle, macs2, "xxx_treat_pileup.bdg is a Macs2-generated bedGraph file that describes the read distrubution along the entire genome (for treatment data) and can be imported to UCSC genome browser or converted into even smaller bigWig file");
+		macstwoEnclosedFileGroups.add(treatPileupBedGraphFileGroup);
+						
+		FileHandle controlLambdaBedGraphFileHandle = createAndSaveInnerFileHandle(prefixForFileName + "_control_lambda.bdg", bedGraphFileType);
+		listOfFileHandleNames.add(controlLambdaBedGraphFileHandle.getFileName());
+		files.add(controlLambdaBedGraphFileHandle);
+		FileGroup controlLambdaBedGraphFileGroup = createAndSaveInnerFileGroup(controlLambdaBedGraphFileHandle, macs2, "xxx_control_lambda.bdg is a Macs2-generated bedGraph file that describes the read distrubution along the entire genome (for local lambda values from control) and can be imported to UCSC genome browser or converted into even smaller bigWig file");
+		macstwoEnclosedFileGroups.add(controlLambdaBedGraphFileGroup);
+		
+		//the pdf (generated from running Rscript on xx_model.r file)
+		FileHandle modelPdfFileHandle = createAndSaveInnerFileHandle(pdfFileName, pdfFileType);
+		listOfFileHandleNames.add(modelPdfFileHandle.getFileName());
+		files.add(modelPdfFileHandle);
+		FileGroup modelPdfFileGroup = createAndSaveInnerFileGroup(modelPdfFileHandle, rSoftware, "xxx_model.pdf is a pdf file generated by running RScript against xxx_model.r and is an image of the read distribution in model peaks and fragment size estimation");
+		macstwoEnclosedFileGroups.add(modelPdfFileGroup);
+		
+		logger.debug("very very very very new -------   recorded fileGroup and fileHandle for rscript to create pdf in MacstwoGenerateModelAsPdfTasklet.doExecute()");
+
+		//the png (converted from the pdf using ImageMagick)
+		FileHandle modelPngFileHandle = createAndSaveInnerFileHandle(pngFileName, pngFileType);
+		listOfFileHandleNames.add(modelPngFileHandle.getFileName());
+		files.add(modelPngFileHandle);
+		FileGroup modelPngFileGroup = createAndSaveInnerFileGroup(modelPngFileHandle, imagemagickSoftware, "xxx_model.png is a png image file converted from xxx_model.pdf using ImageMagick");
+		macstwoEnclosedFileGroups.add(modelPngFileGroup);	
+		
+		logger.debug("very very very very new ------- recorded fileGroup and fileHandle for ImageMagick to create png in MacstwoGenerateModelAsPdfTasklet.doExecute()");
+		
+		//9/16/14
+		FileGroup macs2AnalysisFileGroup = fileService.createFileGroupCollection(macstwoEnclosedFileGroups);//will create enclosing fileGroup, save it to db, and also set/save parent for each enclosed child fileGroup; it will set it's own filetype
+		macs2AnalysisFileGroup.setDescription(prefixForFileName);
+		macs2AnalysisFileGroup.setSoftwareGeneratedBy(macs2);
+		macs2AnalysisFileGroup.setDerivedFrom(derrivedFromFileGroups);//this is actually adding reference to samplesourcefilegroup and I think, samplefilegroup
+		macs2AnalysisFileGroup.setIsActive(0);
+		macs2AnalysisFileGroup = fileService.addFileGroup(macs2AnalysisFileGroup);
+		
+		this.macs2AnalysisFileGroupId = macs2AnalysisFileGroup.getId();
+		logger.debug("new ------- recorded all encompassing fileGroup macs2AnalysisFileGroup as a container for files outputted by macs2");
+	
+		logger.debug("recorded fileGroups and fileHandles for macs2 files in MacstwoTasklet.doExecute()");
+		
+
 		//place in the step context in case of crash
 		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
 		stepContext.put("jobId", this.jobId); 
+		stepContext.put("peakType", this.peakType); 
 		stepContext.put("testCellLibraryIdListAsString", this.testCellLibraryIdListAsString); 
 		stepContext.put("controlCellLibraryIdListAsString", this.controlCellLibraryIdListAsString); 		
 		stepContext.put("testSampleId", this.testSampleId); 
@@ -395,7 +430,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, macs2));	
 		
-		//I think this is actually NOT serving any purpose
+		
 		int counter = 0;
 		for(String fileName : listOfFileHandleNames){//need to make these symbolic links in order to properly copy files
 			w.addCommand("ln -sf " + fileName + " ${" + WorkUnit.OUTPUT_FILE+"["+counter+"]}");
@@ -428,14 +463,14 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		super.beforeStep(stepExecution);
 		logger.debug("*****  StepExecutionListener beforeStep saving StepExecution in MacstwoTasklet.beforeStep");
 		this.stepExecution = stepExecution;				
-		//JobExecution jobExecution = stepExecution.getJobExecution();
-		//ExecutionContext jobContext = jobExecution.getExecutionContext();
-		//this.scratchDirectory = jobContext.get("scrDir").toString();
 	
 		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
 		//in case of crash
 		if(this.jobId==null){//set initially in constructor
 			this.jobId = (Integer) stepContext.get("jobId");
+		}
+		if(this.peakType==null){//set initially in constructor
+			this.peakType = (String) stepContext.get("peakType");
 		}
 		if(this.testCellLibraryIdListAsString==null){//set initially in constructor
 			this.testCellLibraryIdListAsString = (String) stepContext.get("testCellLibraryIdListAsString");
@@ -533,62 +568,88 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		//and record totalCountMappedReads, totalCountMappedReadsInPeaks, [FRIP statistic - will be derived from totalCountMappedReadsInPeaks / totalCountMappedReadsInPeaks]
 		//new 6-18-14
 		if (this.macs2AnalysisFileGroupId != null && testSample.getId() != 0){
-			FileGroup fg = fileService.getFileGroupById(this.macs2AnalysisFileGroupId);
-			fileService.setSampleFile(fg, testSample);
+			FileGroup enclosingFG = fileService.getFileGroupById(this.macs2AnalysisFileGroupId);
+			enclosingFG.setIsActive(1);
+			fileService.addFileGroup(enclosingFG);//save new active setting
+			for(FileGroup childFG : enclosingFG.getChildren()){
+				childFG.setIsActive(1);
+				fileService.addFileGroup(childFG);//save new active setting
+			}
+			fileService.setSampleFile(enclosingFG, testSample);//may be executed through derivedFrom (but just to be safe)
 			
 			List<FileGroupMeta> fgmList = new ArrayList<FileGroupMeta>();
 			
 			FileGroupMeta fgm = new FileGroupMeta();
 			fgm.setK("macs2Analysis.controlId");//could be gotten from the derivedFrom data; stored but never used
 			fgm.setV(this.controlSampleId.toString());
-			fgm.setFileGroupId(fg.getId());
+			fgm.setFileGroupId(enclosingFG.getId());
 			fgmList.add(fgm);
 			
 			FileGroupMeta fgm2 = new FileGroupMeta();
 			fgm2.setK("macs2Analysis.testId");//sample --> sampleFileGroup table; but could be gotten from the derivedFrom data; ; stored but never used
 			fgm2.setV(testSample.getId().toString());
-			fgm2.setFileGroupId(fg.getId());
+			fgm2.setFileGroupId(enclosingFG.getId());
 			fgmList.add(fgm2);
 			
 			FileGroupMeta fgm3 = new FileGroupMeta();
-			fgm3.setK("macs2Analysis.testCellLibraryIdList");//these are now really stored in derivedFrom, as list of Bam files; ; stored but never used
+			fgm3.setK("macs2Analysis.testCellLibraryIdList");//these may be now really stored in derivedFrom, as list of Bam files; ; stored but never used
 			fgm3.setV(this.testCellLibraryIdListAsString);
-			fgm3.setFileGroupId(fg.getId());
+			fgm3.setFileGroupId(enclosingFG.getId());
 			fgmList.add(fgm3);
 			
 			FileGroupMeta fgm4 = new FileGroupMeta();
-			fgm4.setK("macs2Analysis.controlCellLibraryIdList");//these are now really stored in derivedFrom, as list of Bam files; ; stored but never used
+			fgm4.setK("macs2Analysis.controlCellLibraryIdList");//these may be now really stored in derivedFrom, as list of Bam files; ; stored but never used
 			fgm4.setV(this.controlCellLibraryIdListAsString);
-			fgm4.setFileGroupId(fg.getId());
+			fgm4.setFileGroupId(enclosingFG.getId());
 			fgmList.add(fgm4);
 			
 			FileGroupMeta fgm5 = new FileGroupMeta();
 			fgm5.setK("macs2Analysis.commandLineCall");//used
 			fgm5.setV(this.commandLineCall);
-			fgm5.setFileGroupId(fg.getId());
+			fgm5.setFileGroupId(enclosingFG.getId());
 			fgmList.add(fgm5);
 			
 			FileGroupMeta fgm6 = new FileGroupMeta();
 			fgm6.setK("macs2Analysis.totalCountMappedReads");//used
 			fgm6.setV(totalCountMappedReadsAsString);
-			fgm6.setFileGroupId(fg.getId());
+			fgm6.setFileGroupId(enclosingFG.getId());
 			fgmList.add(fgm6);
 			
 			FileGroupMeta fgm7 = new FileGroupMeta();
 			fgm7.setK("macs2Analysis.totalCountMappedReadsInPeaksAsString");//used
 			fgm7.setV(totalCountMappedReadsInPeaksAsString);
-			fgm7.setFileGroupId(fg.getId());			
+			fgm7.setFileGroupId(enclosingFG.getId());			
 			fgmList.add(fgm7);
 			
 			FileGroupMeta fgm8 = new FileGroupMeta();
-			fgm8.setK("macs2Analysis.softwareIdUsedListAsString");//used
+			fgm8.setK("macs2Analysis.softwareIdUsedListAsString");//used; as of 9/16, should be able to get this from the fileGroup children
 			fgm8.setV(this.softwareIdUsedListAsString);
-			fgm8.setFileGroupId(fg.getId());			
+			fgm8.setFileGroupId(enclosingFG.getId());			
 			fgmList.add(fgm8);
 			
-			fileService.saveFileGroupMeta(fgmList, fg);
+			fileService.saveFileGroupMeta(fgmList, enclosingFG);
 		}
 
 		logger.debug("ending doPreFinish() in MacstwoTasklet");
+	}
+	private FileHandle createAndSaveInnerFileHandle(String fileName, FileType fileType){
+		FileHandle fileHandle = new FileHandle();
+		fileHandle.setFileName(fileName);
+		fileHandle.setFileType(fileType);
+		fileHandle = fileService.addFile(fileHandle);
+		return fileHandle;
+	}
+	private FileGroup createAndSaveInnerFileGroup(FileHandle fileHandle, Software software, String description){
+		FileGroup fileGroup = new FileGroup();		
+		fileGroup.setDescription(description);
+		fileGroup.setFileType(fileHandle.getFileType());
+		fileGroup.setSoftwareGeneratedBy(software);
+		fileGroup.setIsActive(0);
+		//modelScriptFG.setDerivedFrom(derrivedFromFileGroups);
+		Set<FileHandle> fileHandleSet = new HashSet<FileHandle>();
+		fileHandleSet.add(fileHandle);
+		fileGroup.setFileHandles(fileHandleSet);
+		fileGroup = fileService.addFileGroup(fileGroup);		
+		return fileGroup;
 	}
 }

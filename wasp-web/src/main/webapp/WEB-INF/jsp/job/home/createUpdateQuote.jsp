@@ -53,37 +53,6 @@
 		        	$( this ).dialog( "close" );
 		        }
 		      });	
-		    /*	not used, but use find for discountReason and its use in an anchor, below
-			$(function() {
-			    var availableTags = [
-			      "ActionScript",
-			      "AppleScript",
-			      "Asp",
-			      "BASIC",
-			      "C",
-			      "C++",
-			      "Clojure",
-			      "COBOL",
-			      "ColdFusion",
-			      "Erlang",
-			      "Fortran",
-			      "Groovy",
-			      "Haskell",
-			      "Java",
-			      "JavaScript",
-			      "Lisp",
-			      "Perl",
-			      "PHP",
-			      "Python",
-			      "Ruby",
-			      "Scala",
-			      "Scheme"
-			    ];
-			    $( "#discountReason" ).autocomplete({
-			      source: availableTags
-			    });
-			  });
-			*/
 		});
 	})(jQuery);
 </script>
@@ -129,7 +98,7 @@
 							
 				<table class="data" style="margin: 0px 0px">
 					<tr class="FormData">
-						<td colspan="4" class="label-centered" style="background-color:#FAF2D6">
+						<td colspan="5" class="label-centered" style="background-color:#FAF2D6">
 							<a href="javascript:void(0);" onclick='$( "#dialog-form" ).dialog( "open" );' ><fmt:message key="jobHomeCreateUpdateQuote.clickHereToApplyOneCostToAllLibraryConstructions.label" /></a>
 						</td>
 					</tr>
@@ -138,6 +107,7 @@
 						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCreateUpdateQuote.submittedSample.label" /></td>
 						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCreateUpdateQuote.material.label" /></td>
 						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCreateUpdateQuote.libraryCost.label" /><sup>*</sup></td>
+						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCreateUpdateQuote.analysisCost.label" /><sup>*</sup></td>
 					</tr>
 					<c:forEach items="${mpsQuote.getLibraryCosts()}" var="libraryCost" varStatus="libraryCostStatus">
 						<input type='hidden' name="submittedSampleId" value="${libraryCost.getSampleId()}"/>
@@ -170,6 +140,9 @@
 									</c:when>						
 								</c:choose>											
 							</td>
+							<td class="DataTD"  style="text-align:center; white-space:nowrap;">				
+								<c:out value="${localCurrencyIcon}" /><input style="text-align:right;" name="submittedSampleAnalysisCost"  type="text" maxlength="4" size="4" value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${libraryCost.getAnalysisCost()}" />"/>.00																
+							</td>
 						</tr>
 					</c:forEach>
 				</table>
@@ -181,6 +154,7 @@
 				<table  class="data" style="margin: 0px 0px">
 					<tr class="FormData">
 						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCreateUpdateQuote.machine.label" /></td>
+						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCreateUpdateQuote.runType.label" /></td>
 						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCreateUpdateQuote.readLength.label" /></td>
 						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCreateUpdateQuote.readType.label" /></td>
 						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCreateUpdateQuote.numberOfLanes.label" /></td>
@@ -202,6 +176,14 @@
 											<option value='<c:out value="${resourceCategory.getId()}" />' <c:out value="${selected}" /> ><c:out value="${resourceCategory.getName()}" />
 										</c:forEach>
 									</select>
+								</td>
+								<td align='center'>	
+									<select name='runCostRunType' id='runCostRunType' size='1'>
+										<option value=''><fmt:message key="wasp.default_select.label" />
+										<option value='high-output'  <c:if test='${sequencingCost.getRunType()=="high-output"}'>selected</c:if>><fmt:message key="jobHomeCreateUpdateQuote.runType_highOutput.label" />
+										<option value='rapid-run' <c:if test='${sequencingCost.getRunType()=="rapid-run"}'>selected</c:if>><fmt:message key="jobHomeCreateUpdateQuote.runType_rapidRun.label" />
+										<option value='standard' <c:if test='${sequencingCost.getRunType()=="starndar"}'>selected</c:if>><fmt:message key="jobHomeCreateUpdateQuote.runType_standard.label" />
+									</select>
 								</td>				
 								<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='runCostReadLength' id='runCostReadLength' value="${sequencingCost.getReadLength()}"></td>
 								<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostReadType' id='runCostReadType' value="${sequencingCost.getReadType()}"></td>
@@ -221,6 +203,14 @@
 									</c:forEach>
 								</select>
 							</td>
+							<td align='center'>	
+								<select name='runCostRunType' id='runCostRunType' size='1'>
+									<option value=''><fmt:message key="wasp.default_select.label" />
+									<option value='high-output'><fmt:message key="jobHomeCreateUpdateQuote.runType_highOutput.label" />
+									<option value='rapid-run'><fmt:message key="jobHomeCreateUpdateQuote.runType_rapidRun.label" />
+									<option value='standard'><fmt:message key="jobHomeCreateUpdateQuote.runType_standard.label" />
+								</select>
+							</td>				
 							<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='runCostReadLength' id='runCostReadLength' ></td>
 							<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostReadType' id='runCostReadType'></td>
 							<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostNumberLanes' id='runCostNumberLanes'></td>
@@ -229,7 +219,7 @@
 						</tr>	
 					</c:otherwise>
 					</c:choose>
-					<tr><td colspan="6" align="center"><input style="width:300" type="button" class="addRow" value="<fmt:message key="jobHomeCreateUpdateQuote.addAdditionalRow.label" />"/></td></tr>
+					<tr><td colspan="7" align="center"><input style="width:300" type="button" class="addRow" value="<fmt:message key="jobHomeCreateUpdateQuote.addAdditionalRow.label" />"/></td></tr>
 				</table>
 				
 				<br /><br />
@@ -304,7 +294,7 @@
 											</c:forEach>					
 										</select>
 									</td>
-									<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='discountValue' id='discountValue' value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${discount.getValue()}" />">.00</td>
+									<td align='center'><input type='text' style="text-align:right;" size='8' maxlength='8' name='discountValue' id='discountValue' value="${discount.getValue()}" /></td>
 									<td align='center'><input type="button" class="delRow" value="<fmt:message key="jobHomeCreateUpdateQuote.deleteRow.label" />"/></td>
 								</tr>
 							</c:forEach>
@@ -328,7 +318,7 @@
 										</c:forEach>
 									</select>
 								</td>
-								<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='discountValue' id='discountValue'>.00</td>
+								<td align='center'><input type='text' style="text-align:right;" size='8' maxlength='8' name='discountValue' id='discountValue' value="" ></td>
 								<td align='center'><input type="button" class="delRow" value="<fmt:message key="jobHomeCreateUpdateQuote.deleteRow.label" />"/></td>
 							</tr>
 						</c:otherwise>

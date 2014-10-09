@@ -114,7 +114,7 @@ public abstract class AbstractBWASoftwareComponent extends ReferenceBasedAligner
 			id = cellLibrary.getUUID().toString();
 			try {
 				ks = adaptorService.getAdaptor(library).getBarcodesequence();
-			} catch (MetadataException | SampleTypeException e){
+			} catch (WaspException e){
 				logger.info("Not adding adaptor barcode information to readgroup as not available");
 			}
 			lb = library.getUUID().toString();

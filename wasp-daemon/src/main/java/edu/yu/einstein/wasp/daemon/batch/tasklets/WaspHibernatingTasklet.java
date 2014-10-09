@@ -377,7 +377,9 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 			hibernationManager.removeStepExecutionFromWakeMessageMap(stepExecution);
 			hibernationManager.removeStepExecutionFromAbandonMessageMap(stepExecution);
 		}
-		return super.afterStep(stepExecution);
+		ExitStatus exitStatus = super.afterStep(stepExecution);
+		logger.debug("WaspHibernatingTasklet afterStep() returning ExitStatus=" + exitStatus);
+		return exitStatus;
 	}
 	
 }

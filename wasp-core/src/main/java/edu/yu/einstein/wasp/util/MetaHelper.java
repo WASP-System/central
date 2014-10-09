@@ -209,6 +209,24 @@ public class MetaHelper {
 	}
 	
 	/**
+	 * Get the last generated list of metadata. 
+	 * Must call setMetaList(), getMasterList(), getFromRequest(), getFromJsonForm() or syncWithMaster() on this object first or will return null.
+	 * @param clazz
+	 * @return
+	 * @throws ClassCastException
+	 */
+	@SuppressWarnings("unchecked")
+	public <T extends MetaBase> List<T> getMetaList(Class<T> clazz) {
+		List<T> list = new ArrayList<T>();
+		for (MetaBase m : this.lastList)
+			if (clazz.isInstance(m))
+				list.add((T) m); 
+			else
+				throw new ClassCastException("cannot cast object of type " + m.getClass().getName() + " to " + clazz.getName());
+		return list;
+	}
+	
+	/**
 	 * Sets the meta list stored in metaHelper 
 	 * @param list
 	 */

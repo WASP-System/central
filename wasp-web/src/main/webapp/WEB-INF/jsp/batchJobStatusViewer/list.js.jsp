@@ -140,31 +140,31 @@ function displayInfoData(jobExecutionId, stepName){
   // 			            title: 'Status',
  // 			            html: ''
  // 			        }, {
-  			            title: 'Submission Info',
+  			            title: '<fmt:message key="batchViewer.infoTab.label"/>',
   			            html: rec.get('info'),
   			            autoScroll: true,
   			        }, {
-  			            title: 'Script',
+  			            title: '<fmt:message key="batchViewer.scriptTab.label"/>',
   			            html: rec.get('script'),
   			            autoScroll: true,
   			        }, {
-  			            title: 'Software',
+  			            title: '<fmt:message key="batchViewer.softwareTab.label"/>',
   			            html: rec.get('softwareList'),
   			            autoScroll: true,
   			        }, {
-  			            title: 'Env',
+  			            title: '<fmt:message key="batchViewer.envTab.label"/>',
   			            html: rec.get('envVars'),
   			            autoScroll: true,
   			        }, {
-  			            title: 'StdOut (tail)',
+  			            title: '<fmt:message key="batchViewer.stdoutTab.label"/>',
   			            html: rec.get('stdout'),
   			            autoScroll: true,
   			        }, {
-  			            title: 'StdErr (tail)',
+  			            title: '<fmt:message key="batchViewer.stderrTab.label"/>',
   			            html: rec.get('stderr'),
   			            autoScroll: true,
   			        }, {
-  			            title: 'Cluster Report',
+  			            title: '<fmt:message key="batchViewer.clusterReportTab.label"/>',
   			            html: rec.get('clusterReport'),
   			            autoScroll: true,
   			        }]

@@ -23,16 +23,17 @@ public class IlluminaRunFolderNameParser {
 	
 	private String flowcellPrefix;
 	
+	private static Pattern RUN_FOLDER_PATTERN = Pattern.compile("^(\\d{6})_([^_].+?)_(\\d{4})_([AB])([a-zA-Z0-9]+)$");
+	
 	public IlluminaRunFolderNameParser(String runFolderName) throws IlluminaRunFolderParseException{
 		setRunFolderName(runFolderName);
 	}
 	
 	public void setRunFolderName(String runFolderName) throws IlluminaRunFolderParseException{
 		this.runFolderName = runFolderName;
-		Pattern p = Pattern.compile("^(\\d{6})_([^_].+?)_(\\d{4})_([AB])([a-zA-Z0-9]+)$");
-		Matcher m = p.matcher(runFolderName);
+		Matcher m = RUN_FOLDER_PATTERN.matcher(runFolderName);
 		if (!m.matches())
-			throw new IlluminaRunFolderParseException("runFolderName is not a valid run folder name");
+			throw new IlluminaRunFolderParseException(runFolderName + " is not a valid run folder name");
 		if (m.groupCount() != 5)
 			throw new IlluminaRunFolderParseException("Expected 5 properties but got " + m.groupCount());
 		
@@ -79,8 +80,7 @@ public class IlluminaRunFolderNameParser {
 	}
 
 	public static boolean isProperlyFormed(String runFolderName){
-		Pattern p = Pattern.compile("^\\d{6}_[^_].+?_\\d{4}_[a-zA-Z0-9]+$");
-		Matcher m = p.matcher(runFolderName);
+		Matcher m = RUN_FOLDER_PATTERN.matcher(runFolderName);
 		if (m.matches())
 			return true;
 		return false;

@@ -262,6 +262,12 @@ table.EditTable{
 	
 }
 
+div.scrollable{
+	height: 100%;
+	width: 100%;
+	overflow: auto;
+}
+
 	
 input[type="submit"], input[type="reset"],
 .button, 
@@ -468,7 +474,7 @@ TABLE.data TD.label	{
 	font-weight: bold;
 	}
 
-TABLE.data TH.label	{
+TABLE TH.label	{
 	background: #FAF2D6;
 	border-right: 1px solid #ccc;
 	font-weight: bold;
@@ -652,3 +658,11 @@ TABLE.data TD.value-centered-small {
 	 height:800px;
 	 width:99%;
 }
+
+#wasp-msg	{
+	/*background: #fef5f1;
+	border: 1px solid #ed541d;*/
+	color: #8c2e0b;
+	padding: 10px;
+}
+

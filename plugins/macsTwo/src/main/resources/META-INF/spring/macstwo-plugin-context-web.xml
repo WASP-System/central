@@ -9,6 +9,9 @@
 	<!-- component scan -->
   	<context:component-scan base-package="edu.yu.einstein.wasp.macstwo.controller" />
 
+	<bean class="edu.yu.einstein.wasp.macstwo.web.service.impl.MacstwoWebServiceImpl" />
+
+
 	<!-- common definitions -->
 	<import resource="macstwo-plugin-context-common.xml" />
 	

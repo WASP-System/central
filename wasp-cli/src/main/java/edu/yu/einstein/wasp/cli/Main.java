@@ -237,7 +237,7 @@ public class Main {
 	}
 	
 	private static void listCellLibraries(JSONObject json){
-		String output = "\n* List of libraries [represented: cellLibrary id -> library name (platform unit name / cell index) ]\n";
+		String output = "\n* List of libraries [represented: cellLibrary id -> library name / library UUID (platform unit name / cell index) ]\n";
 		List<Integer> ids = new ArrayList<>();
 		for (Object key : json.keySet()) 
 			ids.add(Integer.parseInt((String) key));

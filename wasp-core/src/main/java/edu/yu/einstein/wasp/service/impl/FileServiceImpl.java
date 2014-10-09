@@ -39,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 
@@ -155,11 +156,17 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 	@Autowired
 	private JobDao jobDao;
 
-	@Value("${wasp.temporary.dir}")
-	protected String tempDir;
-
 	@Value("${wasp.primaryfilehost}")
 	protected String fileHost;
+	
+	@Value("${wasp.temporary.dir}")
+	protected String tempDir;
+	
+	@PostConstruct
+	public void postConstruct(){
+		if (tempDir != null && (tempDir.startsWith("~/") || tempDir.startsWith("~\\")))
+			tempDir = tempDir.replaceFirst("~", System.getProperty("user.home"));
+	}
 	
 	private static final Logger logger = LoggerFactory.getLogger(FileServiceImpl.class);
 
@@ -1666,10 +1673,11 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		}
 		
 		File temporaryDirectory = new File(tempDir);
-
+		logger.debug("wasp.temporary.dir=" + tempDir + ". Absolute path is '" + temporaryDirectory.getAbsolutePath() + "'"); 
 
 		if (!temporaryDirectory.exists()) {
 			try {
+				logger.debug("making temporary directory '" + temporaryDirectory.getAbsolutePath() + "' as doesn't exist");
 				temporaryDirectory.mkdir();
 			} catch (Exception e) {
 				String mess = "FileHandle upload failure trying to create '" + tempDir + "': " + e.getMessage();
@@ -1680,7 +1688,9 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		
 		File localFile;
 		try {
+			logger.debug("creating temporary file in " + temporaryDirectory.getAbsolutePath());
 			localFile = File.createTempFile("wasp.", ".tmp", temporaryDirectory);
+			logger.debug("created temorary file: " + localFile.getAbsolutePath());
 		} catch (IOException e) {
 			String mess = "Unable to create local temporary file: " + e.getLocalizedMessage();
 			logger.warn(mess);
@@ -1937,10 +1947,44 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		}
 		return null;
 	}
-
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public FileGroupMetaDao getFileGroupMetaDao() {
-		return fileGroupMetaDao;
+	public FileGroup createFileGroupCollection(Set<FileGroup> childFileGroups){
+		FileGroup parentFg = new FileGroup();
+		parentFg.setFileType(fileTypeService.getFileTypeDao().getFileTypeByIName("fileGroupCollectionFileType"));
+		parentFg = fileGroupDao.save(parentFg);
+		for (FileGroup childFg : childFileGroups){
+			childFg.setParent(parentFg);
+			childFg = fileGroupDao.save(childFg); // will persist if not already or merge otherwise to ensure it is an attached entity
+		}
+		return fileGroupDao.getById(parentFg.getId()); // get fresh copy to be sure children are hydrated
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isFileGroupCollection(FileGroup fg){
+		return fg.getFileType()!=null && fg.getFileType().getIName().equals("fileGroupCollectionFileType");
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Set<FileHandle> getAllFileHandlesFromFileGroupCollection(FileGroup fgCollection){
+		if (fgCollection.getId() != null && fgCollection.getId() > 0)
+			fgCollection = getFileGroupById(fgCollection.getId()); // ensure attached entity
+		Set<FileHandle> fhs = new LinkedHashSet<FileHandle>();
+		for (FileGroup childFg : fgCollection.getChildren())
+			fhs.addAll(childFg.getFileHandles());
+		
+		// this is supposed to be a group of FileGroups but it is still possible to set filehandles on it too of course so...
+		fhs.addAll(fgCollection.getFileHandles()); 
+		return fhs;
 	}
 }
 

@@ -22,6 +22,8 @@ public class WaspSoftwareJobParameters extends WaspJobParameters {
 	
 	public static final String FILEGROUP_ID_LIST_OUTPUT = "outputFgIdList";
 	
+	public static final String IS_DEDUP = "isDedup";
+	
 	
 	/**
 	 * ID for a string representation of a genome in the format: TaxonID:Genome Name:Build ID

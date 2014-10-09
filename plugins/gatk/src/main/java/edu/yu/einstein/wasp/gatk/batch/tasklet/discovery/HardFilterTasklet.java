@@ -93,7 +93,7 @@ public class HardFilterTasklet extends WaspRemotingTasklet {
 		Set<FileTypeAttribute> attributes = new HashSet<>(fileTypeService.getAttributes(combinedGenotypedVcfFg));
 		attributes.add(VcfFileTypeAttribute.FILTERED);
 		
-		String filteredSnpVcfOutFileName = fileService.generateUniqueBaseFileName(job) + "filteredSnps.vcf";
+		String filteredSnpVcfOutFileName = fileService.generateUniqueBaseFileName(job) + "snps.filtered.vcf";
 		FileGroup filteredSnpVcfOutG = new FileGroup();
 		FileHandle filteredSnpVcfOut = new FileHandle();
 		filteredSnpVcfOut.setFileName(filteredSnpVcfOutFileName);
@@ -107,7 +107,7 @@ public class HardFilterTasklet extends WaspRemotingTasklet {
 		outFiles.add(filteredSnpVcfOut);
 		stepExecutionContext.putString("filteredSnpsVcfFgId", filteredSnpVcfOutG.getId().toString());
 		
-		String filteredIndelVcfOutFileName = fileService.generateUniqueBaseFileName(job) + "filteredIndels.vcf";
+		String filteredIndelVcfOutFileName = fileService.generateUniqueBaseFileName(job) + "indels.filtered.vcf";
 		FileGroup filteredIndelVcfOutG = new FileGroup();
 		FileHandle filteredIndelVcfOut = new FileHandle();
 		filteredIndelVcfOut.setFileName(filteredIndelVcfOutFileName);

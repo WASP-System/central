@@ -678,4 +678,6 @@ public interface JobService extends WaspMessageHandlingService {
 	 
 	public List<List<Sample>> getSampleReplicates(Job job);
 
+	public boolean getIsAnalysisSelected(Job job);
+
 }

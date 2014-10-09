@@ -3,7 +3,6 @@
  */
 package edu.yu.einstein.wasp.plugin.illumina.plugin;
 
-import java.util.Map;
 import java.util.Properties;
 
 import org.json.JSONException;
@@ -61,8 +60,11 @@ public class WaspIlluminaHiseqPlugin extends WaspPlugin implements ClientMessage
 	 */
 	private static final long serialVersionUID = -654454985142070980L;
 
-	public static final String FLOW_NAME = "waspIlluminaHiSeq.jobFlow";
-
+	public static final String ILLUMINA_MAIN_FLOW_NAME = "waspIlluminaHiSeq.jobFlow";
+	
+	public static final String ILLUMINA_TRIM_ONLY_FLOW_NAME = "waspIlluminaHiSeq.trimOnly.jobFlow";
+	
+	
 	public static final String STEP_NOTIFY_RUN_START = "waspIlluminaHiSeq.mainFlow.notifyRunStart";
 	public static final String STEP_LISTEN_FOR_RUN_START = "waspIlluminaHiSeq.mainFlow.listenForRunStart";
 	public static final String STEP_LISTEN_FOR_RUN_COMPLETION = "waspIlluminaHiSeq.mainFlow.listenForRunCompletion";
@@ -190,7 +192,7 @@ public class WaspIlluminaHiseqPlugin extends WaspPlugin implements ClientMessage
 	@Override
 	public String getBatchJobName(String batchJobType) {
 		if (batchJobType.equals(BatchJobTask.GENERIC))
-			return FLOW_NAME;
+			return ILLUMINA_MAIN_FLOW_NAME;
 		return null;
 	}
 

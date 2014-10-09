@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -28,7 +30,8 @@ import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.RunMetaDao;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.MetadataException;
-import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
@@ -36,6 +39,7 @@ import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.SgeWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
@@ -44,8 +48,7 @@ import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.model.Workflow;
-import edu.yu.einstein.wasp.plugin.illumina.plugin.IlluminaResourceCategory;
+import edu.yu.einstein.wasp.plugin.illumina.plugin.WaspIlluminaHiseqPlugin;
 import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
 import edu.yu.einstein.wasp.plugin.illumina.util.IlluminaRunFolderNameParser;
 import edu.yu.einstein.wasp.plugin.mps.SequenceReadProperties.ReadType;
@@ -54,13 +57,13 @@ import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
+import edu.yu.einstein.wasp.service.impl.WaspMessageHandlingServiceImpl;
 import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.PropertyHelper;
 
 @Service
 @Transactional("entityManager")
-public class WaspIlluminaServiceImpl extends WaspServiceImpl implements WaspIlluminaService{
+public class WaspIlluminaServiceImpl extends WaspMessageHandlingServiceImpl implements WaspIlluminaService{
 	
 	@Autowired
 	private GridHostResolver hostResolver;
@@ -275,9 +278,22 @@ public class WaspIlluminaServiceImpl extends WaspServiceImpl implements WaspIllu
 	}
 
 	@Override
-	public IndexingStrategy getIndexingStrategy(SampleSource cellLibrary) throws MetadataException, SampleTypeException {
+	public IndexingStrategy getIndexingStrategy(SampleSource cellLibrary) throws WaspException {
 		Sample library = sampleService.getLibrary(cellLibrary);
 		return adaptorService.getIndexingStrategy(adaptorService.getAdaptor(library).getAdaptorset());
+	}
+	
+	
+	/**
+	 * {@inheritDoc}
+	 * @param run
+	 * @throws WaspMessageBuildingException
+	 */
+	@Override
+	public void startTrimOnlyWorkflow(Run run) throws WaspMessageBuildingException{
+		Map<String, String> jobParameters = new HashMap<String, String>();
+		jobParameters.put(WaspJobParameters.RUN_ID, run.getId().toString());
+		launchBatchJob(WaspIlluminaHiseqPlugin.ILLUMINA_TRIM_ONLY_FLOW_NAME, jobParameters);
 	}
 
 

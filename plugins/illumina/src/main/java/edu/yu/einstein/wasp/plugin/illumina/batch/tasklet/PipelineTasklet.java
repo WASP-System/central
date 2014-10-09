@@ -226,7 +226,7 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 		
 		retval += " --use-bases-mask " + basesMask;
 		
-		retval += "\n  cd ../../../" + outputFolder + " && make -j ${threads} \n\n else\n  echo no cell libraries >&2\n fi\nelse\n echo semaphore exists >&2\nfi\n\n";
+		retval += "\n  cd ../../../" + outputFolder + " && make -j ${NTHREADS} \n\n else\n  echo no cell libraries >&2\n fi\nelse\n echo semaphore exists >&2\nfi\n\n";
 
 		return retval;
 	}

@@ -45,7 +45,7 @@ public class IlluminaFlowLauncher {
 		logger.debug("Processing run message: runName=" + runName);
 		String flowName = null;
 		if (rcIname.equals(IlluminaResourceCategory.HISEQ_2000) || rcIname.equals(IlluminaResourceCategory.HISEQ_2500))
-			flowName = WaspIlluminaHiseqPlugin.FLOW_NAME;
+			flowName = WaspIlluminaHiseqPlugin.ILLUMINA_MAIN_FLOW_NAME;
 		//else if (rcIname.equals(IlluminaResourceCategory.PERSONAL))
 		//	flowName = ;
 		if (flowName == null){

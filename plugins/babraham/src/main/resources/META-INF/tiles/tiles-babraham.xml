@@ -14,5 +14,10 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/babraham/fastqscreen/description.jsp" />
 	</definition>
 	
+	<definition name="babraham/trimgalore/description" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/babraham/trimgalore/description.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/babraham/trimgalore/description.jsp" />
+	</definition>
+	
 </tiles-definitions>
 

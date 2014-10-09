@@ -16,19 +16,19 @@ public class HtmlFilePanelRenderer {
 	public static PanelTab getPanelForFileGroup(String fileName, String url) {
 		PanelTab panelTab = new PanelTab();
 		panelTab.setNumberOfColumns(1);
-		panelTab.setMaxOnLoad(true);
-		panelTab.setName("HTML File Viewer");
+		panelTab.setTabTitle("HTML File Viewer");
 		panelTab.setDescription("Generic HTML file viewing");
+		
 		WebPanel panel = new WebPanel();
 		panel.setTitle(fileName);
-		panelTab.addPanel(panel);
+		panel.setMaxOnLoad(true);
 		WebContent content = new WebContent();
 		if (url == null) {
 			panel.setContent(content);
 			return panelTab;
 		}
 
-		content.setHtmlCode("<div id='includedContent-" + url.hashCode() + "'></div>");
+		content.setHtmlCode("<div class='scrollable' id='includedContent-" + url.hashCode() + "'></div>");
 		String jsScript = "$('#includedContent-"+url.hashCode()+"').load('"+url+"');";
 		content.setScriptCode(jsScript);
 
@@ -37,6 +37,7 @@ public class HtmlFilePanelRenderer {
 		panel.setExecOnResizeCode(jsScript);
 		panel.setExecOnExpandCode(jsScript);
 
+		panelTab.addPanel(panel);
 		return panelTab;
 	}
 

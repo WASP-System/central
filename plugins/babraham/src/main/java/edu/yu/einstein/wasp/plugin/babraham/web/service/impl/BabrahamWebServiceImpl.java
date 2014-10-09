@@ -62,7 +62,7 @@ public class BabrahamWebServiceImpl extends BabrahamServiceImpl implements Babra
 	@Override
 	public PanelTab getFastQCDataToDisplay(Integer fileGroupId) throws PanelException{
 		PanelTab panelTab = new PanelTab();
-		panelTab.setName(fastqc.getName());
+		panelTab.setTabTitle(fastqc.getName());
 		panelTab.setDescription(fastqc.getDescription());
 		
 		JSONObject json = getJsonForParsedSoftwareOutputByKey(PlotType.QC_RESULT_SUMMARY, fastqc, fileGroupId);
@@ -122,7 +122,7 @@ public class BabrahamWebServiceImpl extends BabrahamServiceImpl implements Babra
 	@Override
 	public PanelTab getFastQScreenDataToDisplay(Integer fileGroupId) throws PanelException{
 		PanelTab panelTab = new PanelTab();
-		panelTab.setName(fastqscreen.getName());
+		panelTab.setTabTitle(fastqscreen.getName());
 		panelTab.setDescription(fastqscreen.getDescription());
 		JSONObject json = getJsonForParsedSoftwareOutputByKey(FastQScreenTasklet.FASTQSCREEN_PLOT_META_KEY, fastqscreen, fileGroupId);
 		if (json != null)
@@ -132,7 +132,7 @@ public class BabrahamWebServiceImpl extends BabrahamServiceImpl implements Babra
 
 	public PanelTab getTrimGaloreDataToDisplay(Integer fileGroupId) throws PanelException {
 		PanelTab panelTab = new PanelTab();
-		panelTab.setName(trim_galore.getName());
+		panelTab.setTabTitle(trim_galore.getName());
 		panelTab.setDescription(trim_galore.getDescription());
 		JSONObject json = getJsonForParsedSoftwareOutputByKey(TrimGalorePlugin.TRIM_GALORE_PLOT_KEY, trim_galore, fileGroupId);
 		if (json != null)

@@ -24,6 +24,7 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -69,6 +70,7 @@ import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
+import edu.yu.einstein.wasp.model.AcctGrant;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
 import edu.yu.einstein.wasp.model.JobDraft;
@@ -91,6 +93,7 @@ import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.service.AccountsService;
 import edu.yu.einstein.wasp.service.JobDraftService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -112,6 +115,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
   JobDraftDao mockJobDraftDao;
   SampleMetaDao mockSampleMetaDao;
   SampleTypeDao mockSampleTypeDao;
+  AccountsService mockAccountsService;
 
   WorkflowDao mockWorkflowDao;
 
@@ -829,6 +833,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  mockJobServiceImpl.setJobDraftDao(mockJobDraftDao);
 	  mockJobServiceImpl.setSampleTypeDao(mockSampleTypeDao);
 	  mockJobServiceImpl.setJobDraftService(mockJobDraftServiceImpl);
+	  ReflectionTestUtils.setField(mockJobServiceImpl, "accountsService", mockAccountsService);
 	  
 	  mockJobServiceImpl.setLogger(LoggerFactory.getLogger(WaspServiceImpl.class));
 	  
@@ -1028,6 +1033,11 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  	  
 	  expect(mockSampleJobCellSelectionDao.save(EasyMock.isA(SampleJobCellSelection.class))).andReturn(sampleJobCellSelection);
 	  replay(mockSampleJobCellSelectionDao); 
+	  AcctGrant grant = new AcctGrant();
+	  expect(mockAccountsService.getGrantForJobDraft(EasyMock.isA(JobDraft.class))).andReturn(grant);
+	  
+	  expect(mockAccountsService.saveJobGrant(job, grant)).andReturn(null);
+	  replay(mockAccountsService); 
 	  
 	// update the jobdraft
 	  jobDraft.setStatus("SUBMITTED");
@@ -1620,7 +1630,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  jobServiceImpl.setWorkflowDao(mockWorkflowDao);
 	  jobServiceImpl.setJobDraftDao(mockJobDraftDao);
 	  jobServiceImpl.setSampleMetaDao(mockSampleMetaDao);
-
+	  ReflectionTestUtils.setField(jobServiceImpl, "accountsService", mockAccountsService);
 	  jobServiceImpl.jobDraftService = mockJobDraftServiceImpl;
 
   }
@@ -1648,6 +1658,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  EasyMock.reset(mockSampleService);
 	  EasyMock.reset(mockSampleTypeDao);
 	  EasyMock.reset(mockJobDraftServiceImpl);
+	  EasyMock.reset(mockAccountsService);
 
 	  //resetAll();//resets all registered mock controls
 
@@ -1680,7 +1691,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  mockSampleMetaDao = createMockBuilder(SampleMetaDaoImpl.class).addMockedMethods(SampleMetaDaoImpl.class.getMethods()).createMock();
 	  mockSampleTypeDao = createMockBuilder(SampleTypeDaoImpl.class).addMockedMethods(SampleTypeDaoImpl.class.getMethods()).createMock();
 	  mockJobDraftServiceImpl = createMockBuilder(JobDraftServiceImpl.class).addMockedMethods(JobDraftServiceImpl.class.getMethods()).createMock();
-	  
+	  mockAccountsService = createMockBuilder(AccountsServiceImpl.class).addMockedMethods(AccountsServiceImpl.class.getMethods()).createMock();
 	  mockJobExplorerWasp = EasyMock.createNiceMock(JobExplorerWasp.class);
 	  		
 	  mockJobServiceImpl = EasyMock

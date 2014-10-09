@@ -161,7 +161,7 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 		Map<String, String> cellLibraries = new HashMap<>();
 		for (SampleSource cellLibrary : sampleService.getCellLibraries()){
 			Sample library = sampleService.getLibrary(cellLibrary);
-			String libraryName = library.getName();
+			String libraryName = library.getName() + " / " + library.getUUID();
 			Sample cell = sampleService.getCell(cellLibrary);
 			if (cell != null){
 				if (!sampleService.isCell(cell))
@@ -253,6 +253,7 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 						if (currentCellLibrary == null || !currentCellLibrary.getId().equals(id))
 							try{
 								currentCellLibrary = sampleService.getCellLibraryBySampleSourceId(id);
+								currentSample = sampleService.getLibrary(currentCellLibrary);
 							} catch (SampleTypeException e){
 								throw new WaspRuntimeException("Unable to get cellLibrary with id=" + attributeVal + ": " + e.getMessage());
 							}
@@ -421,6 +422,13 @@ public class CliSupportingServiceActivator implements ClientMessageI, CliSupport
 								currentFileHandle.setFileType(currentFileGroup.getFileType());
 								currentFileHandle = fileService.addFile(currentFileHandle);
 								currentFileGroup.addFileHandle(currentFileHandle);
+								FileHandleMeta meta = new FileHandleMeta();
+								meta.setK("fastqFile.libraryUUID");
+								meta.setV(currentSample.getUUID().toString());
+								meta.setFile(currentFileHandle);
+								List<FileHandleMeta> metaList = new ArrayList<>();
+								metaList.add(meta);
+								fileService.saveFileHandleMeta(metaList, currentFileHandle);
 							}
 						} else if (attributeName.equals("fileURI")){
 							if (currentFileHandle == null || currentFileHandle.getId() == null)

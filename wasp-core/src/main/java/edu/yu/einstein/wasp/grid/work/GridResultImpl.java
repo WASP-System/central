@@ -38,7 +38,7 @@ public class GridResultImpl implements GridResult, Serializable {
 	private String workingDirectory;
 	private String resultsDirectory;
 	protected GridJobStatus status;
-	transient protected String archivedResultOutputPath;
+	protected String archivedResultOutputPath;
 
 	private int exitCode;
 	

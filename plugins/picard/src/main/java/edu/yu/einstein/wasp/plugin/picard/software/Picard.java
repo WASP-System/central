@@ -6,20 +6,18 @@ package edu.yu.einstein.wasp.plugin.picard.software;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.rmi.RemoteException;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.Message;
-import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.Document;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
@@ -102,9 +100,11 @@ public class Picard extends SoftwarePackage {
 			createIndex = true;
 		String command = "java -Xmx" + memRequiredGb + "g -jar $PICARD_ROOT/MarkDuplicates.jar I=" + inputBamFilename + " O=" + dedupBamFilename +
 				" REMOVE_DUPLICATES=false METRICS_FILE=" + dedupMetricsFilename + 
-				" TMP_DIR=${" + WorkUnit.TMP_DIRECTORY + "} CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT";
-		if (createIndex)
-			 command += " && mv " + dedupBamFilename + ".bai " + dedupBaiFilename;
+				" TMP_DIR=${" + WorkUnit.TMP_DIRECTORY + "} CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT\n";
+		if (createIndex) {
+			command += "tmpfn=" + dedupBamFilename + "\nif [ -e ${tmpfn}.bai ]; then\n mv ${tmpfn}.bai " + dedupBaiFilename + "\nfi\n";
+			command += "if [ -e ${tmpfn/.bam.bai/}.bai ]; then\n mv ${tmpfn/.bam.bai/}.bai " + dedupBaiFilename + "\nfi\n";
+		}
 		logger.debug("Will conduct picard MarkDuplicates with command: " + command);
 		return command;
 	}
@@ -185,7 +185,7 @@ public class Picard extends SoftwarePackage {
 			Samtools samtools = (Samtools) getSoftwareDependencyByIname("samtools");
 			Map <String,String> picardDedupMetricsMap = this.getPicardDedupMetrics(dedupMetricsFilename, scratchDirectory, gridHostResolver);
 			logger.debug("size of dedupMetrics in saveAlignmentMetrics: " + picardDedupMetricsMap.size());
-			Map <String,String> uniquelyAlignedReadCountMetricMap = samtools.getUniquelyAlignedReadCountMetrics(Samtools.UNIQUELY_ALIGNED_READ_COUNT_FILENAME, Samtools.UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FILENAME, scratchDirectory, gridHostResolver);
+			Map <String,String> uniquelyAlignedReadCountMetricMap = samtools.getUniquelyAlignedReadCountMetrics(scratchDirectory, gridHostResolver);
 			
 			//capture and add and print out jsaon
 			logger.debug("dedupMetrics output:");
@@ -322,7 +322,7 @@ public class Picard extends SoftwarePackage {
 		logger.debug("exiting getPicardDedupMetrics");
 		return picardDedupMetricsMap;
 	}
-
+/* this is apparently no longer used; was moved: see samtools.getUniquelyAlignedReadCountMetrics(String scratchDirectory, GridHostResolver gridHostResolver) in Samtools.java
 	public Map<String,String> getUniquelyAlignedReadCountMetrics(String uniquelyAlignedReadCountfilename, String uniquelyAlignedNonRedundantReadCountfilename,String scratchDirectory, GridHostResolver gridHostResolver)throws Exception{
 		
 		logger.debug("entering getUniquelyAlignedReadCountMetrics");
@@ -385,7 +385,7 @@ public class Picard extends SoftwarePackage {
 		return uniquelyAlignedReadCountMetricsMap;
 		
 	}
-	
+*/	
 	/**
 	 * 
 	 * Get a command string for Picard ExtractIlluminaBarcodes.  This command REQUIRES at least ~1500 file descriptors for Illumina HiSeq flowcells.   
@@ -398,23 +398,35 @@ public class Picard extends SoftwarePackage {
 	 * @throws MetadataException
 	 * @throws SampleTypeException
 	 */
-	public String getExtractIlluminaBarcodesCmd(Run run) throws MetadataException, SampleTypeException {
+	public String getExtractIlluminaBarcodesCmd(Run run) throws WaspException {
 		
 		String cmd = "rm -rf ./" + BARCODES_DIRECTORY + "\n";
 		
 		Map<Integer,Sample> indexedCellMap = sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit());
 		
-		Document runInfo = illuminaService.getIlluminaRunXml(run);
+		//Document runInfo = illuminaService.getIlluminaRunXml(run);
 		
 		for (Integer index : indexedCellMap.keySet()) {
 			
 			Set<IlluminaIndexingStrategy> strategies = new HashSet<IlluminaIndexingStrategy>(); 
 			
 			Sample cell = indexedCellMap.get(index);
-			List<SampleSource> cellLibraries = sampleService.getCellLibrariesForCell(cell);
+			Set<SampleSource> cellLibraries = new LinkedHashSet<SampleSource>(sampleService.getCellLibrariesForCell(cell));
 			
-			for (SampleSource ss : cellLibraries) {
-				strategies.add(new IlluminaIndexingStrategy(illuminaService.getIndexingStrategy(ss).toString()));
+			for (SampleSource ss : sampleService.getCellLibrariesForCell(cell)) {
+				try {
+					strategies.add(new IlluminaIndexingStrategy(illuminaService.getIndexingStrategy(ss).toString()));
+				} catch (WaspException e){
+					Sample lib = sampleService.getLibrary(ss);
+					if (sampleService.isControlLibrary(lib))
+						logger.info("Not able to retrieve indexing strategy for cell-library id=" + ss.getId() + 
+								", a control library with id=" + lib.getId() + " (" + lib.getName() + "). Probably no index which is normal");
+					else {
+						logger.warn("Unable to retrieve indexing strategy for cell-library id=" + ss.getId() + 
+								" (library id=" + lib.getId() + ") so not going to process cell library: " + e.getLocalizedMessage());
+					}
+					cellLibraries.remove(ss); // cannot process this cell library
+				}
 			}
 			
 			logger.trace("Lane " + index + ", dealing with " + strategies.size() + " strategies");
@@ -434,7 +446,7 @@ public class Picard extends SoftwarePackage {
 		return cmd;
 	}
 	
-	private String getReadStructure(Run run, Integer cellId, IlluminaIndexingStrategy strategy) throws MetadataException, SampleTypeException {
+	private String getReadStructure(Run run, Integer cellId, IlluminaIndexingStrategy strategy) throws WaspException {
 		String rs = null;
 		List<Integer> indexLengths = illuminaService.getLengthOfIndexedReads(run);
 		List<Integer> segmentLengths = illuminaService.getLengthOfReadSegments(run);
@@ -446,6 +458,15 @@ public class Picard extends SoftwarePackage {
 		int maxBarcodeLength = 0;
 		for (Sample lib : libraries) {
 			Adaptor adapter = sampleService.getLibraryAdaptor(lib);
+			if (adapter == null){
+				if (sampleService.isControlLibrary(lib)){
+					logger.info("Ignoring library with id=" + lib.getId() + " as no adapter and is a control");
+					continue;
+				}
+				else {
+					throw new WaspException("Library with id=" + lib.getId() + " has no adapter");
+				}
+			}
 			String[] barcodes = adapter.getBarcodesequence().split("-");
 			if(barcodes[0].length() > maxBarcodeLength) 
 				maxBarcodeLength = barcodes[0].length();
@@ -474,7 +495,7 @@ public class Picard extends SoftwarePackage {
 		return rs;
 	}
 	
-	private String getCreateBarcodeFileCmd(String outputDir, List<SampleSource> cellLibraries, IlluminaIndexingStrategy strategy) throws SampleTypeException, MetadataException {
+	private String getCreateBarcodeFileCmd(String outputDir, Set<SampleSource> cellLibraries, IlluminaIndexingStrategy strategy) throws WaspException {
 		String outputFile = "./" + outputDir + "/barcodes.txt";
 		String retval = "echo -e \"" + getBarcodeFileHeader() + "\" > " + outputFile + "\n";
 		for (SampleSource cellLib : cellLibraries) {
@@ -487,13 +508,13 @@ public class Picard extends SoftwarePackage {
 				if (sepIndex == -1) {
 					String mess = "Not able to decode TRUSEQ_DUAL barcode " + a.getSequence();
 					logger.error(mess);
-					throw new MetadataException(mess);
+					throw new WaspException(mess);
 				}
 				retval += "echo -e \"" + a.getBarcodesequence().substring(0, sepIndex) + "\\t" + a.getBarcodesequence().substring(sepIndex+1) + "\\t" + a.getName() + "\\t" + library.getName() + "\" >> " + outputFile + "\n";
 			} else {
 				String mess = "Unknown IlluminaIndexingStrategy: " + strategy.toString();
 				logger.error(mess);
-				throw new MetadataException(mess);
+				throw new WaspException(mess);
 			}
 			 
 		}
@@ -516,11 +537,11 @@ public class Picard extends SoftwarePackage {
 	}
 	
 	@Transactional("entityManager")
-	public void registerBarcodeMetadata(Run run, GridResult result) throws WaspException, MetadataException {
+	public void registerBarcodeMetadata(Run run, GridResult result) throws WaspException {
 		
 		Map<Integer,Sample> indexedCellMap = sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit());
 		
-		Document runInfo = illuminaService.getIlluminaRunXml(run);
+		//Document runInfo = illuminaService.getIlluminaRunXml(run);
 		
 		for (Integer index : indexedCellMap.keySet()) {
 			
@@ -530,7 +551,18 @@ public class Picard extends SoftwarePackage {
 			List<SampleSource> cellLibraries = sampleService.getCellLibrariesForCell(cell);
 			
 			for (SampleSource ss : cellLibraries) {
-				strategies.add(new IlluminaIndexingStrategy(illuminaService.getIndexingStrategy(ss).toString()));
+				try{
+					strategies.add(new IlluminaIndexingStrategy(illuminaService.getIndexingStrategy(ss).toString()));
+				} catch (WaspException e){
+					Sample lib = sampleService.getLibrary(ss);
+					if (sampleService.isControlLibrary(lib))
+						logger.info("Not able to retrieve indexing strategy for cell-library id=" + ss.getId() + 
+								", a control library with id=" + lib.getId() + " (" + lib.getName() + "). Probably no index which is normal");
+					else {
+						logger.warn("Unable to retrieve indexing strategy for cell-library id=" + ss.getId() + 
+								" (library id=" + lib.getId() + ") so not going to process cell library: " + e.getLocalizedMessage());
+					}
+				}
 			}
 			
 			logger.trace("Lane " + index + ", registering " + strategies.size() + " strategies");

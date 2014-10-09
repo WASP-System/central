@@ -7,6 +7,8 @@
 
 <wasp:field name="amount" type="currency" sortable="true" searchable="false"/>
 
+<wasp:field name="grant_code" type="text" sortable="true" searchable="false"/>
+
 <wasp:field name="submitter" type="text" sortable="true" searchable="false" editable="false"/>
 
 <wasp:field name="lab" type="text" sortable="true" searchable="false" editable="false"/>

@@ -39,6 +39,9 @@ wasp-integration-test
 # /wasp-core/src/main/java/
 /wasp-core/src/main/java/META-INF
 
+# /wasp-daemon/
+/wasp-daemon/nohup.out
+
 # /wasp-doc/
 /wasp-doc/target
 

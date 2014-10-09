@@ -55,14 +55,6 @@
 					<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}" />
 					<property name="status" value="CREATED" />
 				</bean>
-				<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate" >
-					<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}" />
-					<property name="status" value="FAILED" />
-				</bean>
-				<bean class="edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate" >
-					<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}" />
-					<property name="status" value="ABANDONED" />
-				</bean>
 			</set>
 		</property>
 		<property name="parallelSiblingFlowSteps">
@@ -92,6 +84,7 @@
 							</bean>
 						</set>
 					</property>
+					<property name="failOnStatuses" value="FAILED" />
 				</bean>
 			</batch:tasklet>
 			<batch:next on="FAILED" to="wasp.library.step.notifyLibraryAbandoned" />

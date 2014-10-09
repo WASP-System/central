@@ -54,7 +54,7 @@ public class SnpEff extends SoftwarePackage{
 		if (makeGatkCompatible)
 			gatkCompatibilityStr = "-o gatk";
 		//  HGVS notations seems to be preferred in the clinical and cancer community hence use -hgvs to provide HGVS notation in AA sub-field.
-		String command = "snpeff eff " + gatkCompatibilityStr + " -v -cancer -hgvs " + getSnpEffGenomeDatabaseName(build) + " " + inputVcfFileName + " > " + outputVcfFileName;
+		String command = "snpeff eff " + gatkCompatibilityStr + " -v -cancer -hgvs " + getSnpEffGenomeDatabaseName(build) + " " + inputVcfFileName + " | sed -n '/^##fileformat=/,$p' > " + outputVcfFileName;
 		command += " && ln -sf snpEff_summary.html " + summaryHtmlFileName;
 		command += " && ln -sf snpEff_genes.txt " + summaryGenesFileName;
 		logger.debug("Will conduct SnpEFF annotation with command string: " + command);

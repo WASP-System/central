@@ -82,5 +82,19 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 		return retValue;
 	}
 	
-
+	/**
+	 * {@inheritDoc}
+	 */
+	@Transactional("entityManager")
+	@Override
+	public String getPeakType(Sample sample){
+		String peakType = "";
+		List<SampleMeta> sampleMetaList = sampleService.getSampleMetaDao().getSamplesMetaBySampleId(sample.getId());
+		for(SampleMeta sampleMeta : sampleMetaList){
+			if(sampleMeta.getK().equals("chipseqDna.peakType")){
+				return sampleMeta.getV();
+			}
+		}
+		return peakType;
+	}
 }

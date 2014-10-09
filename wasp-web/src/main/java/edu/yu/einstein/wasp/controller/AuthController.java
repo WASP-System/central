@@ -66,8 +66,8 @@ public class AuthController extends WaspController {
   private static final String TARGET_URL_KEY = "targetURL";
   
   private static final String LOGIN_EXPIRED_WARNING_KEY = "loginExpiredWarningLabel";
-
   
+    
   @Override
   @InitBinder
   protected void initBinder(WebDataBinder binder) {
@@ -439,7 +439,7 @@ public class AuthController extends WaspController {
 		}
 		// authcode and email match 
 		confirmEmailAuthDao.remove(auth);
-		if (isAdminCreated == 0){
+		if (isAdminCreated == 0 || webAuthenticationService.isAuthenticationSetExternal()){
 			waspMessage("user.email_change_confirmed.label");
 			return "redirect:/auth/login.do"; 	
 		}

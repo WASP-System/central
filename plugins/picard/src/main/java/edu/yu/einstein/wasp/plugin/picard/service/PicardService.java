@@ -40,10 +40,26 @@ public interface PicardService extends WaspService {
 		public String getFractionDuplicated(FileGroup fileGroup);
 		public String getDuplicateReads(FileGroup fileGroup);
 		public String getFractionDuplicatedAsCalculation(FileGroup fileGroup);
-		public String getFractionUniqueNonRedundant(FileGroup fileGroup);
-		public String getUniqueReads(FileGroup fileGroup);
-		public String getUniqueNonRedundantReads(FileGroup fileGroup);
-		public String getFractionUniqueNonRedundantAsCalculation(FileGroup fileGroup);
+		//no longer used
+		//public String getFractionUniqueNonRedundant(FileGroup fileGroup);
+		//public String getUniqueReads(FileGroup fileGroup);
+		//public String getUniqueNonRedundantReads(FileGroup fileGroup);
+		//public String getFractionUniqueNonRedundantAsCalculation(FileGroup fileGroup);
+		public String getUniqueReadsFor2M(FileGroup fileGroup);
+		public String getUniqueReadsFor5M(FileGroup fileGroup);
+		public String getUniqueReadsFor10M(FileGroup fileGroup);
+		public String getUniqueReadsFor20M(FileGroup fileGroup);
+		public String getUniqueReadsForAll(FileGroup fileGroup);		
+		public String getUniqueNonRedundantReadsFor2M(FileGroup fileGroup);
+		public String getUniqueNonRedundantReadsFor5M(FileGroup fileGroup);
+		public String getUniqueNonRedundantReadsFor10M(FileGroup fileGroup);
+		public String getUniqueNonRedundantReadsFor20M(FileGroup fileGroup);
+		public String getUniqueNonRedundantReadsForAll(FileGroup fileGroup);		
+		public String getNonRedundantReadFractionFor2M(FileGroup fileGroup);
+		public String getNonRedundantReadFractionFor5M(FileGroup fileGroup);
+		public String getNonRedundantReadFractionFor10M(FileGroup fileGroup);
+		public String getNonRedundantReadFractionFor20M(FileGroup fileGroup);
+		public String getNonRedundantReadFractionForAll(FileGroup fileGroup);
 		
 		public PanelTab getAlignmentMetricsForDisplay(FileGroup fileGroup);
 }

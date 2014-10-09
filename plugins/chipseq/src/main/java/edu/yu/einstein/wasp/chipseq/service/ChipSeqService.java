@@ -18,5 +18,6 @@ public interface ChipSeqService extends WaspService {
 
 	public JobDataTabViewing getPeakcallerPlugin(Job job) throws JobContextInitializationException, SoftwareConfigurationException;
 	public boolean isIP(Sample sample);
+	public String getPeakType(Sample sample);
 	
 }
