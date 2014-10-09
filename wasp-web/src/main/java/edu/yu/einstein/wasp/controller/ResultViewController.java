@@ -430,44 +430,53 @@ public class ResultViewController extends WaspController {
 		content.addDataFields(new GridDataField("Size", "String"));
 		content.addDataFields(new GridDataField("Software", "String"));
 
-		content.addColumn(new GridColumn(messageService
-				.getMessage("resultViewer.filesByTypeTab.fileCol.header"),
-				"File", 1));
-		content.addColumn(new GridColumn(messageService
-				.getMessage("resultViewer.filesByTypeTab.typeCol.header"),
-				"FileType", 100, 0));
-		content.addColumn(new GridColumn(messageService
-				.getMessage("resultViewer.filesByTypeTab.sizeCol.header"),
-				"Size", 100, 0));
-		content.addColumn(new GridColumn(messageService
-				.getMessage("resultViewer.filesByTypeTab.softwareCol.header"),
-				"Software", 170, 0));
+		GridColumn column = new GridColumn(messageService.getMessage("resultViewer.filesByTypeTab.fileCol.header"), "File");
+		column.setFlex(1);
+		column.setGroupable(false);
+		content.addColumn(column);
+		
+		column = new GridColumn(messageService.getMessage("resultViewer.filesByTypeTab.typeCol.header"), "FileType");
+		column.setWidth(120);
+		content.addColumn(column);
+		
+		column = new GridColumn(messageService.getMessage("resultViewer.filesByTypeTab.sizeCol.header"), "Size");
+		column.setWidth(100);
+		column.setSortable(false);
+		column.setGroupable(false);
+		content.addColumn(column);
+		
+		column = new GridColumn(messageService.getMessage("resultViewer.filesByTypeTab.softwareCol.header"), "Software");
+		column.setWidth(170);
+		content.addColumn(column);
 
 		Set<FileGroup> allFilesInJob = new HashSet<FileGroup>();
-
 		for (JobFile jf : job.getJobFile()) {
 			FileGroup fg = jf.getFile();
-			if (fg.getIsActive() == 0) 
+			if (fg.getIsActive() == 0)
 				continue;
 			allFilesInJob.add(fg);
-			logger.trace("Seeking files for job id=" + job.getId() + ". Found file group: '" + fg.getDescription() + "'");
+			logger.trace("Seeking files for job id=" + job.getId()
+					+ ". Found file group: '" + fg.getDescription() + "'");
 		}
 
 		for (Sample s : job.getSample()) {
-			for (FileGroup fg : s.getFileGroups()){
-				if (fg.getIsActive() == 0) 
+			for (FileGroup fg : s.getFileGroups()) {
+				if (fg.getIsActive() == 0)
 					continue;
-				logger.trace("Seeking files for job id=" + job.getId() + ". Found file group associated with sample id=" + s.getId() 
-						+ ": '" + fg.getDescription() + "'");
+				logger.trace("Seeking files for job id=" + job.getId()
+						+ ". Found file group associated with sample id="
+						+ s.getId() + ": '" + fg.getDescription() + "'");
 				allFilesInJob.add(fg);
 			}
-			
-			for (SampleSource ss : s.getSourceSample()){
-				for (FileGroup fg : ss.getFileGroups()){
-					if (fg.getIsActive() == 0) 
+
+			for (SampleSource ss : s.getSourceSample()) {
+				for (FileGroup fg : ss.getFileGroups()) {
+					if (fg.getIsActive() == 0)
 						continue;
-					logger.trace("Seeking files for job id=" + job.getId() + ". Found file group associated with sampleSource id=" + ss.getId() 
-							+ ": '" + fg.getDescription() + "'");
+					logger.trace("Seeking files for job id="
+							+ job.getId()
+							+ ". Found file group associated with sampleSource id="
+							+ ss.getId() + ": '" + fg.getDescription() + "'");
 					allFilesInJob.add(fg);
 				}
 			}
