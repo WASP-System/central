@@ -32,7 +32,7 @@ public class Samtools extends SoftwarePackage{
 	
 	//private static final String UNIQUELY_ALIGNED_READ_COUNT_FILENAME = "uniquelyAlignedReadCount.txt";
 	//private static final String UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FILENAME = "uniquelyAlignedNonRedundantReadCount.txt";
-	
+	/* as of 10-9-14, we (andy,brent) decided to only give NRF from ALL unique reads in the bam file
 	private static final String TEMP_SAM_READS_WITHOUT_HEADER_FILENAME = "tempSamFileWithAllReadsAndWithoutHeader.sam";
 	
 	private static final String TEMP_SAM_2M_READS_FILENAME = "tempSamFileWith2MReads.sam";
@@ -52,6 +52,8 @@ public class Samtools extends SoftwarePackage{
 	private static final String UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FROM_20M_READS_FILENAME = "uniquelyAlignedNonRedundantReadCountFrom20MReads.txt";
 
 	private static final String TEMP_SAM_ALL_READS_FILENAME = "tempSamFileWithAllReads.sam";
+	*/
+	
 	private static final String UNIQUELY_ALIGNED_READ_COUNT_FROM_ALL_READS_FILENAME = "uniquelyAlignedReadCountFromAllReads.txt";
 	private static final String UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FROM_ALL_READS_FILENAME = "uniquelyAlignedNonRedundantReadCountFromAllReads.txt";
 
@@ -59,6 +61,90 @@ public class Samtools extends SoftwarePackage{
 		
 	}
 	
+	public List<String> getCommandsForNonRedundantFraction(String bamFileName){
+		List<String> commandList = new ArrayList<String>();
+		if(bamFileName==null || bamFileName.isEmpty()){
+			return commandList;
+		}
+		String command1 = "samtools view -c -q 1 " + bamFileName + " > " + UNIQUELY_ALIGNED_READ_COUNT_FROM_ALL_READS_FILENAME;
+		commandList.add(command1);
+		String command2 = "samtools view -c -q 1 -F 0x584 " + bamFileName + " > " + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FROM_ALL_READS_FILENAME;
+		commandList.add(command2);
+		return commandList;
+	}
+	
+	public Map<String,String> getUniquelyAlignedReadCountMetrics(String scratchDirectory, GridHostResolver gridHostResolver)throws Exception{
+		
+		logger.debug("entering getUniquelyAlignedReadCountMetrics (newly written for NRF from only ALL reads)");
+		
+		Map<String,String> uniquelyAlignedReadCountMetricsMap = new HashMap<String,String>();
+		
+		String uniqueReadsFromAll = "";//uniquely mapped reads
+		String uniqueNonRedundantReadsFromAll = "";//non-redundant reads from all
+		
+		WorkUnit w = new WorkUnit();
+		w.setProcessMode(ProcessMode.SINGLE);
+		GridWorkService workService = gridHostResolver.getGridWorkService(w);
+		GridTransportConnection transportConnection = workService.getTransportConnection();
+		w.setWorkingDirectory(scratchDirectory);
+		logger.debug("setting cat command in getPicardDedupMetrics");
+		
+		w.addCommand("cat " + UNIQUELY_ALIGNED_READ_COUNT_FROM_ALL_READS_FILENAME );
+		w.addCommand("cat " + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FROM_ALL_READS_FILENAME );
+
+		GridResult r = transportConnection.sendExecToRemote(w);
+		InputStream is = r.getStdOutStream();
+		BufferedReader br = new BufferedReader(new InputStreamReader(is)); 
+		boolean keepReading = true;
+		int lineNumber = 0;
+		logger.debug("getting ready to read 2 uniquelAlignedMetrics files");
+		while (keepReading){
+			lineNumber++;
+			String line = null;
+			line = br.readLine();
+			logger.debug("line number = " + lineNumber + " and line = " + line);
+			if (line == null){
+				keepReading = false;
+			}
+			else if (lineNumber == 1){
+				uniqueReadsFromAll = line.replaceAll("\\n", "");//just in case there is a trailing new line				
+				logger.debug("uniqueReadsFromAll = " + uniqueReadsFromAll);
+			} else if (lineNumber == 2){
+				uniqueNonRedundantReadsFromAll = line.replaceAll("\\n", "");//just in case there is a trailing new line;				
+				logger.debug("uniqueNonRedundantReadsFromAll = " + uniqueNonRedundantReadsFromAll);
+			}
+			else {
+				keepReading = false;
+			}
+			 
+		}
+		br.close();	
+		
+		uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS_FROM_ALL, uniqueReadsFromAll);
+		uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS_FROM_ALL, uniqueNonRedundantReadsFromAll);
+		
+		//ALL (another way)
+		Double fractionUniqueNonRedundantFromAll_double = 0.0;
+		String fractionUniqueNonRedundantFromAll = fractionUniqueNonRedundantFromAll_double.toString();
+		if(!uniqueReadsFromAll.isEmpty() && !uniqueNonRedundantReadsFromAll.isEmpty() ){
+			Integer uniqueReadsFromAll_integer = Integer.valueOf(uniqueReadsFromAll);
+			Integer uniqueNonRedundantReadsFromAll_integer = Integer.valueOf(uniqueNonRedundantReadsFromAll);		
+			if(uniqueReadsFromAll_integer>0 && uniqueNonRedundantReadsFromAll_integer>0){
+				fractionUniqueNonRedundantFromAll_double = (double) uniqueNonRedundantReadsFromAll_integer / uniqueReadsFromAll_integer;
+				DecimalFormat myFormat = new DecimalFormat("0.000000");
+				fractionUniqueNonRedundantFromAll = myFormat.format(fractionUniqueNonRedundantFromAll_double);						
+			}	
+		}
+		uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT_FROM_ALL, fractionUniqueNonRedundantFromAll);
+
+		logger.debug("leaving getUniquelyAlignedReadCountMetrics");
+		return uniquelyAlignedReadCountMetricsMap;
+		
+	}
+	
+	/* as of 10-9-14, we (andy,brent) decided to only give NRF from ALL unique reads in the bam file
+	 
+	 
 	public List<String> getCommandsForNonRedundantFraction(String bamFileName, String alignerSpecificBamTagIndicatingUniqueAlignment){
 		List<String> commandList = new ArrayList<String>();
 		if(bamFileName==null || bamFileName.isEmpty()){
@@ -68,49 +154,7 @@ public class Samtools extends SoftwarePackage{
 		commandList.addAll(getCommandsForNonRedundantFractionFrom2Mand5Mand10Mand20MandAllReads(bamFileName, alignerSpecificBamTagIndicatingUniqueAlignment));		
 		return commandList;
 	}
-	/*
-	private List<String> getCommandsForNonRedundantFractionFromAllReads(String bamFileName, String alignerSpecificBamTagIndicatingUniqueAlignment){
-		
-		List<String> commandList = new ArrayList<String>();
-		if(bamFileName==null || bamFileName.isEmpty()){
-			return commandList;
-		}
-		//order doesn't really matter in this case
-		commandList.add(this.getUniquelyAlignedReadCountCmd(bamFileName, alignerSpecificBamTagIndicatingUniqueAlignment));
-		commandList.add(this.getUniquelyAlignedNonRedundantReadCountCmd(bamFileName, alignerSpecificBamTagIndicatingUniqueAlignment));
-		return commandList;
-	}
 	
-	private String getUniquelyAlignedReadCountCmd(String bamFileName, String alignerSpecificBamTagIndicatingUniqueAlignment){
-		String command = "";
-		if(bamFileName==null || bamFileName.isEmpty()){
-			return command;
-		}
-		if(alignerSpecificBamTagIndicatingUniqueAlignment != null && !alignerSpecificBamTagIndicatingUniqueAlignment.isEmpty()){
-			command = "samtools view -F 0x4 " + bamFileName + " | awk 'BEGIN { c=0 } /" + alignerSpecificBamTagIndicatingUniqueAlignment + 
-					"/ { c++ } END { print c }' > "   + UNIQUELY_ALIGNED_READ_COUNT_FILENAME;//includes duplicates
-		}
-		else{
-			command = "samtools view -c -F 0x4 -q 1 " + bamFileName + " > " + UNIQUELY_ALIGNED_READ_COUNT_FILENAME;//includes duplicates
-		}
-		return command;
-	}
-	
-	private String getUniquelyAlignedNonRedundantReadCountCmd(String bamFileName, String alignerSpecificBamTagIndicatingUniqueAlignment){
-		String command = "";
-		if(bamFileName==null || bamFileName.isEmpty()){
-			return command;
-		}
-		if(alignerSpecificBamTagIndicatingUniqueAlignment != null && !alignerSpecificBamTagIndicatingUniqueAlignment.isEmpty()){
-			command = "samtools view -F 0x404 " + bamFileName + " | awk 'BEGIN { c=0 } /" + alignerSpecificBamTagIndicatingUniqueAlignment + 
-					"/ { c++ } END { print c }' > "   + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FILENAME;//excludes duplicates
-		}
-		else{
-			command = "samtools view -c -F 0x404 -q 1 " + bamFileName + " > " + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FILENAME;//excludes duplicates
-		}
-		return command;
-	}
-	*/
 	
 	
 	private List<String> getCommandsForNonRedundantFractionFrom2Mand5Mand10Mand20MandAllReads(String bamFileName, String alignerSpecificBamTagIndicatingUniqueAlignment){
@@ -289,21 +333,21 @@ public class Samtools extends SoftwarePackage{
 		uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS_FROM_ALL, uniqueReadsFromAll);
 		uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS_FROM_ALL, uniqueNonRedundantReadsFromAll);
 
-		/*
+		
 		//all
-		Double fractionUniqueNonRedundant_double = 0.0;
-		String fractionUniqueNonRedundant = fractionUniqueNonRedundant_double.toString();
-		if(!uniqueReads.isEmpty()&&!uniqueNonRedundantReads.isEmpty()){
-			Integer uniqueReads_integer = Integer.valueOf(uniqueReads);
-			Integer uniqueNonRedundantReads_integer = Integer.valueOf(uniqueNonRedundantReads);		
-			if(uniqueReads_integer>0 && uniqueNonRedundantReads_integer>0){
-				fractionUniqueNonRedundant_double = (double) uniqueNonRedundantReads_integer / uniqueReads_integer;
-				DecimalFormat myFormat = new DecimalFormat("0.000000");
-				fractionUniqueNonRedundant = myFormat.format(fractionUniqueNonRedundant_double);						
-			}
-		}		
-		uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT, fractionUniqueNonRedundant);
-		*/
+		//Double fractionUniqueNonRedundant_double = 0.0;
+		//String fractionUniqueNonRedundant = fractionUniqueNonRedundant_double.toString();
+		//if(!uniqueReads.isEmpty()&&!uniqueNonRedundantReads.isEmpty()){
+		///	Integer uniqueReads_integer = Integer.valueOf(uniqueReads);
+		//	Integer uniqueNonRedundantReads_integer = Integer.valueOf(uniqueNonRedundantReads);		
+		//	if(uniqueReads_integer>0 && uniqueNonRedundantReads_integer>0){
+		//		fractionUniqueNonRedundant_double = (double) uniqueNonRedundantReads_integer / uniqueReads_integer;
+		//		DecimalFormat myFormat = new DecimalFormat("0.000000");
+		//		fractionUniqueNonRedundant = myFormat.format(fractionUniqueNonRedundant_double);						
+		//	}
+		//}		
+		//uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT, fractionUniqueNonRedundant);
+		
 		
 		//10M
 		Double fractionUniqueNonRedundantFrom10M_double = 0.0;
@@ -379,6 +423,50 @@ public class Samtools extends SoftwarePackage{
 		return uniquelyAlignedReadCountMetricsMap;
 		
 	}
+	*/
 	
+	/* very old; not used
+	private List<String> getCommandsForNonRedundantFractionFromAllReads(String bamFileName, String alignerSpecificBamTagIndicatingUniqueAlignment){
+		
+		List<String> commandList = new ArrayList<String>();
+		if(bamFileName==null || bamFileName.isEmpty()){
+			return commandList;
+		}
+		//order doesn't really matter in this case
+		commandList.add(this.getUniquelyAlignedReadCountCmd(bamFileName, alignerSpecificBamTagIndicatingUniqueAlignment));
+		commandList.add(this.getUniquelyAlignedNonRedundantReadCountCmd(bamFileName, alignerSpecificBamTagIndicatingUniqueAlignment));
+		return commandList;
+	}
+	
+	private String getUniquelyAlignedReadCountCmd(String bamFileName, String alignerSpecificBamTagIndicatingUniqueAlignment){
+		String command = "";
+		if(bamFileName==null || bamFileName.isEmpty()){
+			return command;
+		}
+		if(alignerSpecificBamTagIndicatingUniqueAlignment != null && !alignerSpecificBamTagIndicatingUniqueAlignment.isEmpty()){
+			command = "samtools view -F 0x4 " + bamFileName + " | awk 'BEGIN { c=0 } /" + alignerSpecificBamTagIndicatingUniqueAlignment + 
+					"/ { c++ } END { print c }' > "   + UNIQUELY_ALIGNED_READ_COUNT_FILENAME;//includes duplicates
+		}
+		else{
+			command = "samtools view -c -F 0x4 -q 1 " + bamFileName + " > " + UNIQUELY_ALIGNED_READ_COUNT_FILENAME;//includes duplicates
+		}
+		return command;
+	}
+	
+	private String getUniquelyAlignedNonRedundantReadCountCmd(String bamFileName, String alignerSpecificBamTagIndicatingUniqueAlignment){
+		String command = "";
+		if(bamFileName==null || bamFileName.isEmpty()){
+			return command;
+		}
+		if(alignerSpecificBamTagIndicatingUniqueAlignment != null && !alignerSpecificBamTagIndicatingUniqueAlignment.isEmpty()){
+			command = "samtools view -F 0x404 " + bamFileName + " | awk 'BEGIN { c=0 } /" + alignerSpecificBamTagIndicatingUniqueAlignment + 
+					"/ { c++ } END { print c }' > "   + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FILENAME;//excludes duplicates
+		}
+		else{
+			command = "samtools view -c -F 0x404 -q 1 " + bamFileName + " > " + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FILENAME;//excludes duplicates
+		}
+		return command;
+	}
+	*/
 
 }

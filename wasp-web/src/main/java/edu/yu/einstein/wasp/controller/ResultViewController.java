@@ -440,12 +440,17 @@ public class ResultViewController extends WaspController {
 		List<FileGroup> allFilesInJob = new ArrayList<FileGroup>();
 
 		for (JobFile jf : job.getJobFile()) {
-			allFilesInJob.add(jf.getFile());
-			logger.trace("Seeking files for job id=" + job.getId() + ". Found file group: '" + jf.getFile().getDescription() + "'");
+			FileGroup fg = jf.getFile();
+			if (fg.getIsActive() == 0) 
+				continue;
+			allFilesInJob.add(fg);
+			logger.trace("Seeking files for job id=" + job.getId() + ". Found file group: '" + fg.getDescription() + "'");
 		}
 
 		for (Sample s : job.getSample()) {
 			for (FileGroup fg : s.getFileGroups()){
+				if (fg.getIsActive() == 0) 
+					continue;
 				logger.trace("Seeking files for job id=" + job.getId() + ". Found file group associated with sample id=" + s.getId() 
 						+ ": '" + fg.getDescription() + "'");
 				allFilesInJob.add(fg);
@@ -453,6 +458,8 @@ public class ResultViewController extends WaspController {
 			
 			for (SampleSource ss : s.getSourceSample()){
 				for (FileGroup fg : ss.getFileGroups()){
+					if (fg.getIsActive() == 0) 
+						continue;
 					logger.trace("Seeking files for job id=" + job.getId() + ". Found file group associated with sampleSource id=" + ss.getId() 
 							+ ": '" + fg.getDescription() + "'");
 					allFilesInJob.add(fg);

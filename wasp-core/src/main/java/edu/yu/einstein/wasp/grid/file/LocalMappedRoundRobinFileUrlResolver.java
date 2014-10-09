@@ -55,8 +55,9 @@ public class LocalMappedRoundRobinFileUrlResolver implements FileUrlResolver {
 	
 	public URL getURL(FileHandle file, String subPath) throws GridUnresolvableHostException {
 		if (! file.getFileURI().toString().startsWith("file://")) {
-			logger.warn("unable to obtain file URL for file " + file.getId());
-			throw new GridUnresolvableHostException();
+			String message = "unable to obtain file URL for file " + file.getId();
+			logger.warn(message);
+			throw new GridUnresolvableHostException(message);
 		}
 		
 		//currently only handles file:// URLs.
@@ -70,8 +71,9 @@ public class LocalMappedRoundRobinFileUrlResolver implements FileUrlResolver {
 		String host = hostm.group(1);
 		
 		if (!hostMap.containsKey(host)) {
-			logger.warn("Host: " + host + " has not been mapped");
-			throw new GridUnresolvableHostException();
+			String message = "Host: " + host + " has not been mapped";
+			logger.warn(message);
+			throw new GridUnresolvableHostException(message);
 		}
 		
 		List<String> l = hostMap.get(host);
@@ -95,11 +97,13 @@ public class LocalMappedRoundRobinFileUrlResolver implements FileUrlResolver {
 			URI uri = new URI(file_uri);
 			retval = uri.normalize().toURL();
 		} catch (URISyntaxException e) {
-			logger.warn("unable to coerce " + file_uri + " to URI");
-			throw new GridUnresolvableHostException();
+			String message = "unable to coerce " + file_uri + " to URI";
+			logger.warn(message);
+			throw new GridUnresolvableHostException(message);
 		} catch (MalformedURLException e) {
-			logger.warn("unable to coerce " + file_uri + " to URL");
-			throw new GridUnresolvableHostException();
+			String message = "unable to coerce " + file_uri + " to URL";
+			logger.warn(message);
+			throw new GridUnresolvableHostException(message);
 		} finally {
 			
 		}
@@ -138,50 +142,57 @@ public class LocalMappedRoundRobinFileUrlResolver implements FileUrlResolver {
 		FileHandle file = it.next();
 		
 		if (! file.getFileURI().toString().startsWith("file://")) {
+			String message = "unable to obtain file URL for file " + file.getId();
 			logger.warn("unable to obtain file URL for file " + file.getId());
-			throw new GridUnresolvableHostException();
+			throw new GridUnresolvableHostException("unable to obtain file URL for file " + file.getId());
 		}
 		
 		//currently only handles file:// URLs.
 		Matcher hostm = Pattern.compile("^file://(.*?)/").matcher(file.getFileURI().toString());
 		
 		if (! hostm.find()) {
-			logger.warn("unable to parse file URL: " + file.getFileURI().toString());
-			throw new GridUnresolvableHostException();
+			String message = "unable to parse file URL: " + file.getFileURI().toString();
+			logger.warn(message);
+			throw new GridUnresolvableHostException(message);
 		}
 		
 		String host = hostm.group(1);
 		
 		if (!hostMap.containsKey(host)) {
-			logger.warn("Host: " + host + " has not been mapped");
-			throw new GridUnresolvableHostException();
+			String message = "Host: " + host + " has not been mapped";
+			logger.warn(message);
+			throw new GridUnresolvableHostException(message);
 		}
 		
 		// verify the rest files in the group are from same host
 		while (it.hasNext()) {
 			file = it.next();
 			if (! file.getFileURI().toString().startsWith("file://")) {
-				logger.warn("unable to obtain file URL for file " + file.getId());
-				throw new GridUnresolvableHostException();
+				String message = "unable to obtain file URL for file " + file.getId();
+				logger.warn(message);
+				throw new GridUnresolvableHostException(message);
 			}
 			
 			//currently only handles file:// URLs.
 			Matcher hostm2 = Pattern.compile("^file://(.*?)/").matcher(file.getFileURI().toString());
 			
 			if (! hostm2.find()) {
-				logger.warn("unable to parse file URL: " + file.getFileURI().toString());
-				throw new GridUnresolvableHostException();
+				String message = "unable to parse file URL: " + file.getFileURI().toString();
+				logger.warn(message);
+				throw new GridUnresolvableHostException(message);
 			}
 			
 			String host2 = hostm2.group(1);
 			
 			if (!hostMap.containsKey(host2)) {
-				logger.warn("Host: " + host2 + " has not been mapped");
-				throw new GridUnresolvableHostException();
+				String message = "Host: " + host2 + " has not been mapped";
+				logger.warn(message);
+				throw new GridUnresolvableHostException(message);
 			} else if (host2.compareTo(host)!=0) {
 				// throw exception if the files in the group not from same host
-				logger.warn("File group contains files from multiple host: '" + host + "', '" + host2 + "' and might be more.");
-				throw new GridUnresolvableHostException();
+				String message = "File group contains files from multiple host: '" + host + "', '" + host2 + "' and might be more.";
+				logger.warn(message);
+				throw new GridUnresolvableHostException(message);
 			}
 		}
 		
@@ -206,11 +217,13 @@ public class LocalMappedRoundRobinFileUrlResolver implements FileUrlResolver {
 			URI uri = new URI(group_uri);
 			retval = uri.normalize().toURL();
 		} catch (URISyntaxException e) {
-			logger.warn("unable to coerce " + group_uri + " to URI");
-			throw new GridUnresolvableHostException();
+			String message = "unable to coerce " + group_uri + " to URI";
+			logger.warn(message);
+			throw new GridUnresolvableHostException(message);
 		} catch (MalformedURLException e) {
-			logger.warn("unable to coerce " + group_uri + " to URL");
-			throw new GridUnresolvableHostException();
+			String message = "unable to coerce " + group_uri + " to URL";
+			logger.warn(message);
+			throw new GridUnresolvableHostException(message);
 		} finally {
 			
 		}
