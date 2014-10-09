@@ -46,10 +46,10 @@ import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.ResultViewService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.SoftwareService;
+import edu.yu.einstein.wasp.viewpanel.Action;
 import edu.yu.einstein.wasp.viewpanel.Action.CallbackFunctionType;
 import edu.yu.einstein.wasp.viewpanel.Action.GroupActionAlignType;
 import edu.yu.einstein.wasp.viewpanel.DataTabViewing.Status;
-import edu.yu.einstein.wasp.viewpanel.Action;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.GridColumn;
 import edu.yu.einstein.wasp.viewpanel.GridContent;
@@ -441,13 +441,23 @@ public class ResultViewController extends WaspController {
 
 		for (JobFile jf : job.getJobFile()) {
 			allFilesInJob.add(jf.getFile());
+			logger.trace("Seeking files for job id=" + job.getId() + ". Found file group: '" + jf.getFile().getDescription() + "'");
 		}
 
 		for (Sample s : job.getSample()) {
-			allFilesInJob.addAll(s.getFileGroups());
-
-			for (SampleSource ss : s.getSampleSource())
-				allFilesInJob.addAll(ss.getFileGroups());
+			for (FileGroup fg : s.getFileGroups()){
+				logger.trace("Seeking files for job id=" + job.getId() + ". Found file group associated with sample id=" + s.getId() 
+						+ ": '" + fg.getDescription() + "'");
+				allFilesInJob.add(fg);
+			}
+			
+			for (SampleSource ss : s.getSourceSample()){
+				for (FileGroup fg : ss.getFileGroups()){
+					logger.trace("Seeking files for job id=" + job.getId() + ". Found file group associated with sampleSource id=" + ss.getId() 
+							+ ": '" + fg.getDescription() + "'");
+					allFilesInJob.add(fg);
+				}
+			}
 		}
 
 		for (FileGroup fg : allFilesInJob) {
