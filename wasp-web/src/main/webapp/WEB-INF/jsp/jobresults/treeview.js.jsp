@@ -198,64 +198,6 @@ function collapse(d) {
 	}
 }
 
-// Collapse/Expand/Toggle all descendents
-//function collapseAll(d) {
-//	if (d.children && d.children!="") {
-//		d._children = d.children;
-//		d.children = null;
-//	}
-//	if (d._children && d._children!="")
-//		d._children.forEach(collapseAll);
-//}
-//function expandAll(d) {
-//	if (!d.children && !d._children) {
-//		if (d.jid == undefined) {
-//			d.jid = -1;
-//		}
-//		var seen = [];
-//		var dstr = JSON.stringify(d, function (key, val) {
-//			if (key == "parent" || key == "children") { //don't stringify the parent/children nodes
-//				return undefined;
-//			} else if (typeof val == "object") {
-//				if (seen.indexOf(val) >= 0)
-//					return undefined;
-//				seen.push(val);
-//			}
-//			return val;
-//		});
-//		$.ajax({
-//			url: '<wasp:relativeUrl value="jobresults/getTreeJson.do?node=" />' + dstr,
-//			type: 'GET',
-//			dataType: 'json'
-//		})
-//		.done(function (result) {
-//			if (result.children != '') {
-//				d.children = result.children;
-//			}
-//		})
-//		.fail(function(jqXHR){
-//			checkForPageRedirect(jqXHR.responseText);
-//		});
-//	}
-//	if (d._children && d._children!="") {
-//		d.children = d._children;
-//		d._children = null;
-//	}
-//	if (d.children && d.children!="")
-//		d.children.forEach(expandAll);
-//}
-//function toggleAll(d) {
-//	if (d.children && d.children!="") {
-//		collapseAll(d);
-//	} else if (d._children && d._children!="") {
-//		expandAll(d);
-//	}
-//	update(d);
-//}
-
-
-//var g = d3.select("g");
-//g.call(drag);
 
 function getNodeName(d) {
 	if (d.name.length > 30) {
@@ -454,26 +396,15 @@ function createGridPanel(panel) {
 		grouping: panel.grouping,
 		groupfield: panel.groupField,
 		
-		statusfld: panel.statusField//,
-
-//		dlcol: panel.hasDownload,
-//		dllinkfld: panel.downloadLinkField,
-//		dlcoltip: panel.downloadTooltip,
-//		hidedl: panel.hideDownloadField,
-//		
-//		dlselect: panel.allowSelectDownload,
-//		dlbtntxt: panel.selectDownloadText,
-//		dlbtnalign: panel.selectDownloadAlign,
-//		
 //		grpdl: panel.allowGroupDownload,
 //		grpdltip: panel.groupDownloadTooltip,
 //		grpdlalign: panel.groupDownloadAlign,
 //		
-//		gbcol: panel.hasGbLink,
-//		gblink: panel.gbLinkField,
-//		gbtype: panel.gbTypeField,
-//		gbttp: panel.gbTtpField,
-//		hidegb: panel.hideGbField
+//		dlselect: panel.allowSelectDownload,
+//		dlbtntxt: panel.selectDownloadText,
+//		dlbtnalign: panel.selectDownloadAlign,
+		
+		statusfld: panel.statusField
 	});
 
 	return gridPanel;
@@ -555,232 +486,27 @@ function getPanelDisplayWindowForFilegroup(fgId){
 			type: 'GET',
 			dataType: 'json'
 			})
-			.done(function (result) {
-				var tabpanel = fgPanelDisplayWin.down('tabpanel');
-				if (tabpanel === undefined) {
-					// alert if the tabpanel is undefined
-					extPortal.showMsg("tabpanel is not defined!");
-					return;
-				}
-				//remove all existing tabs from tabpanel first
-				tabpanel.removeAll();
-	
-				if (result.paneltablist === undefined || result.paneltablist.length == 0) {
-					// alert if no panel tab is returned
-					extPortal.showMsg("No panel tab is returned!");
-					return;
-				}
+		.done(function (result) {
+			var tabpanel = fgPanelDisplayWin.down('tabpanel');
+			if (tabpanel === undefined) {
+				// alert if the tabpanel is undefined
+				extPortal.showMsg("tabpanel is not defined!");
+				return;
+			}
+			//remove all existing tabs from tabpanel first
+			tabpanel.removeAll();
 
-				var jsList = new Array(),
-					cssList = new Array();
-				$.each(result.paneltablist, function (index, item) {
-					$.each(item.panels, function (index1, item1) {
-						if (item1.type=="WebPanel") {
-							for (var i = 0, len = item1.content.scriptDependencies.length; i < len; i++) {
-								if (jscssfilesadded.indexOf("[" + item1.content.scriptDependencies[i] + "]") == -1) { //if the file not been loaded before
-									jsList.push(item1.content.scriptDependencies[i]);
-									jscssfilesadded += "[" + item1.content.scriptDependencies[i] + "]";
-								}
-							}
-							for (var i = 0, len = item1.content.cssDependencies.length; i < len; i++) {
-								if (jscssfilesadded.indexOf("[" + item1.content.cssDependencies[i] + "]") == -1) { //if the file not been loaded before
-									cssList.push(item1.content.cssDependencies[i]);
-									jscssfilesadded += "[" + item1.content.cssDependencies[i] + "]";
-								}
-							}
-						}
-					});
-				});
-	
-				var createPortal = function () {
-					// if the node clicked is filegroup, create an extra summary tab in the portal
-						var isAllStatusesNA = false;
-						if (result.statuslist.length > 0){
-							isAllStatusesNA = true;
-							for (var i=0; i<result.statuslist.length; i++ ){
-								if (result.statuslist[i][2] != "NOT_APPLICABLE"){
-									isAllStatusesNA = false;
-									break;
-								}
-							}
-						}
-						if (!isAllStatusesNA){
-							var summaryPanel;
-							if (result.statuslist.length > 0) {
-								summaryPanel = Ext.create('Wasp.PluginSummaryGridPortlet', {
-									statusData: result.statuslist,
-									tabPanel: tabpanel
-								});
-							} else {
-								summaryPanel = {
-									html: '<div class="noPlugin">No registered plugins handle this data.</div>'
-								}
-							}
-							tabpanel.add({
-							//id: 'summary-tab',
-							xtype: 'panel',
-							title: 'Summary',
-							layout: 'card',
-							activeItem: 1,
-							items: [{
-								layout: 'fit'
-							}, {
-								xtype: 'portalpanel',
-								items: [{
-									//id: 'portlet-',
-									xtype: 'portlet',
-									title: 'Completion Status for Plugins Handling this Data',
-									//tools: extPortal.getTools(),
-									//frame: false,
-									closable: false,
-									collapsible: false,
-									draggable: false,
-									items: summaryPanel
-								}]
-							  }]
-							});
-						}
-
-
-					$.each(result.paneltablist, function (index, item) {
-						var tabid = index;
-						var tab = tabpanel.add({
-							xtype: 'panel',
-							//id: tabid,
-							title: item.tabTitle,
-							layout: 'card',
-							activeItem: 1,
-							items: [{
-								layout: 'fit'
-							}]
-						});
-						var pmax = null;
-						var pdfpanel = null;
-						if (item.panels.length==1 && item.panels[0].maxOnLoad==true) {
-							pmax = tab.items.first();
-							//var ptlcol = ptlpnl.add({ id: tabid + '-col-1' });
-							var panel = item.panels[0];
-							if (panel.type=="PDFPanel" && !panel.content.pdfURL.isEmpty()) {
-								pdfpanel = pmax.add({
-									xtype: 'portlet',
-									//title: panel.title,
-									closable: false,
-									collapsible: false,
-									draggable: false,
-									html: "<div id='pdfpanel-"+ panel.content.pdfURL.hashCode() +"'></div>",
-									url: panel.content.pdfURL,
-									items: []
-								});
-								pdfpanel.add(createPDFPanel(pdfpanel.url, panel.pageScale, 'pdfpanel-'+pdfpanel.url.hashCode()));
-							} else if (panel.type=="WebPanel" && !panel.content.htmlCode.isEmpty()) {
-								pmax.add({
-									xtype: 'portlet',
-									//title: panel.title,
-									closable: false,
-									collapsible: false,
-									draggable: false,
-									html: panel.content.htmlCode,
-									listeners: {
-										'render': Ext.bind(new Function("portlet", panel.execOnRenderCode), extPortal),
-										'resize': Ext.bind(new Function("portlet", panel.execOnResizeCode), extPortal),
-										'expand': Ext.bind(new Function("portlet", panel.execOnExpandCode), extPortal)
-									}
-								});
-							} else if (panel.type=="GridPanel") {
-								pmax.add({
-									xtype: 'portlet',
-									//title: panel.title,
-									closable: false,
-									collapsible: false,
-									draggable: false,
-									items: createGridPanel(panel)
-								});
-							}
-							//pmax.doLayout();
-							tab.getLayout().setActiveItem(pmax);
-						} else {
-							var ptlpnl = tab.add({
-								xtype: 'portalpanel'
-							});
-							var ptlcolArray = new Array;
-	
-							numcol = item.numberOfColumns;
-							for (var i = 0; i < numcol; i++) {
-								ptlcolArray.push(ptlpnl.add({
-									id: tabid + '-col-' + (i + 1)
-								}));
-							}
-	
-							var colid = 0;
-							$.each(item.panels, function (index1, panel) {
-								if (panel.type=="PDFPanel" && !panel.content.pdfURL.isEmpty()) {
-									pdfpanel = ptlcolArray[colid++].add({
-										xtype: 'portlet',
-										title: panel.title,
-										closable: false,
-										collapsible: false,
-										draggable: false,
-										html: "<div id='pdfpanel-"+ panel.content.pdfURL.hashCode() +"'></div>",
-										url: panel.content.pdfURL,
-										items: []
-									});
-									pdfpanel.add(createPDFPanel(pdfpanel.url, panel.pageScale, 'pdfpanel-'+pdfpanel.url.hashCode()));
-								} else if (panel.type=="WebPanel" && !panel.content.htmlCode.isEmpty()) {
-									ptlcolArray[colid++].add({
-										title: panel.title,
-										tools: extPortal.getTools(panel.maximizable),
-										closable: panel.closeable,
-										collapsible: panel.resizable,
-										html: panel.content.htmlCode,
-										listeners: {
-											'render': Ext.bind(new Function("portlet", panel.execOnRenderCode), extPortal),
-											'resize': Ext.bind(new Function("portlet", panel.execOnResizeCode), extPortal),
-											'expand': Ext.bind(new Function("portlet", panel.execOnExpandCode), extPortal)
-										}
-									});
-								} else if (panel.type=="GridPanel") {
-							
-									ptlcolArray[colid++].add({
-										title: panel.title,
-										tools: extPortal.getTools(panel.maximizable),
-										closable: panel.closeable,
-										collapsible: panel.resizable,
-										
-										items: createGridPanel(panel)
-									});
-								}
-								colid %= numcol;
-							});
-						}
-					});
-
-					tabpanel.setActiveTab(0);
-				};
-
-				// load all css then all js then create portal
-				if (cssList.length > 0) {
-					LazyLoad.css(cssList, function () {
-						if (jsList.length > 0) {
-							LazyLoad.js(jsList, function () {
-								createPortal();
-							});
-						} else {
-							createPortal();
-						}
-					});
-				} else {
-					if (jsList.length > 0) {
-						LazyLoad.js(jsList, function () {
-							createPortal();
-						});
-					} else {
-						createPortal();
-					}
-				}
-			})
-			.fail(function(jqXHR){
-				checkForPageRedirect(jqXHR.responseText);
-			});
+			if (result.paneltablist === undefined || result.paneltablist.length == 0) {
+				// alert if no panel tab is returned
+				extPortal.showMsg("No panel tab is returned!");
+				return;
+			}
+			
+			prepareTabPanel(result, tabpanel);
+		})
+		.fail(function(jqXHR){
+			checkForPageRedirect(jqXHR.responseText);
+		});
 			
 	fgPanelDisplayWin.show();
 }
@@ -831,14 +557,14 @@ function click(d) {
 					return;
 				}
 
+				//remove all existing tabs from tabpanel first
+				tabpanel.removeAll();
+
 				if (result.paneltablist === undefined || result.paneltablist.length == 0) {
 					// alert if no panel tab is returned
 					extPortal.showMsg("No panel tab is returned!");
 					return;
 				}
-
-				//remove all existing tabs from tabpanel first
-				tabpanel.removeAll();
 	
 				if (d.type.indexOf('filetype') > -1) {
 	//				var filePanel = Ext.create('Wasp.FileDownloadGridPortlet', {
@@ -878,215 +604,7 @@ function click(d) {
 						}]
 					});
 				} else if (d.type=='job' || d.type=='filegroup') {
-					//remove all existing tabs from tabpanel first
-					tabpanel.removeAll();
-					var jsList = new Array(),
-						cssList = new Array();
-					$.each(result.paneltablist, function (index, item) {
-						$.each(item.panels, function (index1, item1) {
-							if (item1.type=="WebPanel") {
-								for (var i = 0, len = item1.content.scriptDependencies.length; i < len; i++) {
-									if (jscssfilesadded.indexOf("[" + item1.content.scriptDependencies[i] + "]") == -1) { //if the file not been loaded before
-										jsList.push(item1.content.scriptDependencies[i]);
-										jscssfilesadded += "[" + item1.content.scriptDependencies[i] + "]";
-									}
-								}
-								for (var i = 0, len = item1.content.cssDependencies.length; i < len; i++) {
-									if (jscssfilesadded.indexOf("[" + item1.content.cssDependencies[i] + "]") == -1) { //if the file not been loaded before
-										cssList.push(item1.content.cssDependencies[i]);
-										jscssfilesadded += "[" + item1.content.cssDependencies[i] + "]";
-									}
-								}
-							}
-						});
-					});
-	
-					var createPortal = function () {
-						// if the node clicked is filegroup, create an extra summary tab in the portal
-						if (d.type=='filegroup') {
-							var isAllStatusesNA = false;
-							if (result.statuslist.length > 0){
-								isAllStatusesNA = true;
-								for (var i=0; i<result.statuslist.length; i++ ){
-									if (result.statuslist[i][2] != "NOT_APPLICABLE"){
-										isAllStatusesNA = false;
-										break;
-									}
-								}
-							}
-							if (!isAllStatusesNA){
-								var summaryPanel;
-								if (result.statuslist.length > 0) {
-									summaryPanel = Ext.create('Wasp.PluginSummaryGridPortlet', {
-										statusData: result.statuslist,
-										tabPanel: tabpanel
-									});
-								} else {
-									summaryPanel = {
-										html: '<div class="noPlugin">No registered plugins handle this data.</div>'
-									}
-								}
-								tabpanel.add({
-								id: 'summary-tab',
-								xtype: 'panel',
-								title: 'Summary',
-								layout: 'card',
-								activeItem: 1,
-								items: [{
-									layout: 'fit'
-								}, {
-									xtype: 'portalpanel',
-									items: [{
-										//id: 'portlet-',
-										xtype: 'portlet',
-										title: 'Completion Status for Plugins Handling this Data',
-										//tools: extPortal.getTools(),
-										//frame: false,
-										closable: false,
-										collapsible: false,
-										draggable: false,
-										items: summaryPanel
-									}]
-								  }]
-								});
-							}
-						}
-	
-						$.each(result.paneltablist, function (index, item) {
-							var tabid = index;
-							var tab = tabpanel.add({
-								xtype: 'panel',
-								id: tabid,
-								title: item.tabTitle,
-								layout: 'card',
-								activeItem: 1,
-								items: [{
-									layout: 'fit'
-								}]
-							});
-							var pmax = null;
-							var pdfpanel = null;
-							if (item.panels.length==1 && item.panels[0].maxOnLoad==true) {
-								pmax = tab.items.first();
-								//var ptlcol = ptlpnl.add({ id: tabid + '-col-1' });
-								var panel = item.panels[0];
-								if (panel.type=="PDFPanel" && !panel.content.pdfURL.isEmpty()) {
-									pdfpanel = pmax.add({
-										xtype: 'portlet',
-										//title: panel.title,
-										closable: false,
-										collapsible: false,
-										draggable: false,
-										html: "<div id='pdfpanel-"+ panel.content.pdfURL.hashCode() +"'></div>",
-										url: panel.content.pdfURL,
-										items: []
-									});
-									pdfpanel.add(createPDFPanel(pdfpanel.url, panel.pageScale, 'pdfpanel-'+pdfpanel.url.hashCode()));
-								} else if (panel.type=="WebPanel" && !panel.content.htmlCode.isEmpty()) {
-									pmax.add({
-										xtype: 'portlet',
-										//title: panel.title,
-										closable: false,
-										collapsible: false,
-										draggable: false,
-										html: panel.content.htmlCode,
-										listeners: {
-											'render': Ext.bind(new Function("portlet", panel.execOnRenderCode), extPortal),
-											'resize': Ext.bind(new Function("portlet", panel.execOnResizeCode), extPortal),
-											'expand': Ext.bind(new Function("portlet", panel.execOnExpandCode), extPortal)
-										}
-									});
-								} else if (panel.type=="GridPanel") {
-									pmax.add({
-										xtype: 'portlet',
-										//title: panel.title,
-										closable: false,
-										collapsible: false,
-										draggable: false,
-										items: createGridPanel(panel)
-									});
-								}
-								//pmax.doLayout();
-								tab.getLayout().setActiveItem(pmax);
-							} else {
-								var ptlpnl = tab.add({
-									xtype: 'portalpanel'
-								});
-								var ptlcolArray = new Array;
-		
-								numcol = item.numberOfColumns;
-								for (var i = 0; i < numcol; i++) {
-									ptlcolArray.push(ptlpnl.add({
-										id: tabid + '-col-' + (i + 1)
-									}));
-								}
-		
-								var colid = 0;
-								$.each(item.panels, function (index1, panel) {
-									if (panel.type=="PDFPanel" && !panel.content.pdfURL.isEmpty()) {
-										pdfpanel = ptlcolArray[colid++].add({
-											xtype: 'portlet',
-											title: panel.title,
-											closable: false,
-											collapsible: false,
-											draggable: false,
-											html: "<div id='pdfpanel-"+ panel.content.pdfURL.hashCode() +"'></div>",
-											url: panel.content.pdfURL,
-											items: []
-										});
-										pdfpanel.add(createPDFPanel(pdfpanel.url, panel.pageScale, 'pdfpanel-'+pdfpanel.url.hashCode()));
-									} else if (panel.type=="WebPanel" && !panel.content.htmlCode.isEmpty()) {
-										ptlcolArray[colid++].add({
-											title: panel.title,
-											tools: extPortal.getTools(panel.maximizable),
-											closable: panel.closeable,
-											collapsible: panel.resizable,
-											html: panel.content.htmlCode,
-											listeners: {
-												'render': Ext.bind(new Function("portlet", panel.execOnRenderCode), extPortal),
-												'resize': Ext.bind(new Function("portlet", panel.execOnResizeCode), extPortal),
-												'expand': Ext.bind(new Function("portlet", panel.execOnExpandCode), extPortal)
-											}
-										});
-									} else if (panel.type=="GridPanel") {
-								
-										ptlcolArray[colid++].add({
-											title: panel.title,
-											tools: extPortal.getTools(panel.maximizable),
-											closable: panel.closeable,
-											collapsible: panel.resizable,
-											
-											items: createGridPanel(panel)
-										});
-									}
-									colid %= numcol;
-								});
-							}
-						});
-	
-						tabpanel.setActiveTab(0);
-					};
-	
-					// load all css then all js then create portal
-					if (cssList.length > 0) {
-						LazyLoad.css(cssList, function () {
-							if (jsList.length > 0) {
-								LazyLoad.js(jsList, function () {
-									createPortal();
-								});
-							} else {
-								createPortal();
-							}
-						});
-					} else {
-						if (jsList.length > 0) {
-							LazyLoad.js(jsList, function () {
-								createPortal();
-							});
-						} else {
-							createPortal();
-						}
-					}
+					prepareTabPanel(result, tabpanel);
 				} else {
 					return;
 				}
@@ -1101,15 +619,15 @@ function click(d) {
 				type: 'GET',
 				dataType: 'json'
 				})
-				.done(function (result) {
-					if (result.children != '') {
-						d.children = result.children;
-						update(d);
-					}
-				})
-				.fail(function(jqXHR){
-					checkForPageRedirect(jqXHR.responseText);
-				});
+			.done(function (result) {
+				if (result.children != '') {
+					d.children = result.children;
+					update(d);
+				}
+			})
+			.fail(function(jqXHR){
+				checkForPageRedirect(jqXHR.responseText);
+			});
 		}
 
 		//console.log("clicked:"+d.myid+"|"+d.type+" active:"+activeNode.myid+"|"+activeNode.type);
@@ -1124,6 +642,215 @@ function click(d) {
 		//console.log("clicked:"+d.myid+"|"+d.type+" active:"+activeNode.myid+"|"+activeNode.type);
 		if (d.pid != -1) {	//root node will not be toggled
 			toggle(d);
+		}
+	}
+}
+
+function prepareTabPanel(jsonResult, tabPanel) {
+	var jsList = new Array(), cssList = new Array();
+	$.each(jsonResult.paneltablist, function (index, item) {
+		$.each(item.panels, function (index1, item1) {
+			if (item1.type=="WebPanel") {
+				for (var i = 0, len = item1.content.scriptDependencies.length; i < len; i++) {
+					if (jscssfilesadded.indexOf("[" + item1.content.scriptDependencies[i] + "]") == -1) { //if the file not been loaded before
+						jsList.push(item1.content.scriptDependencies[i]);
+						jscssfilesadded += "[" + item1.content.scriptDependencies[i] + "]";
+					}
+				}
+				for (var i = 0, len = item1.content.cssDependencies.length; i < len; i++) {
+					if (jscssfilesadded.indexOf("[" + item1.content.cssDependencies[i] + "]") == -1) { //if the file not been loaded before
+						cssList.push(item1.content.cssDependencies[i]);
+						jscssfilesadded += "[" + item1.content.cssDependencies[i] + "]";
+					}
+				}
+			}
+		});
+	});
+
+	var createPortal = function () {
+		// if the node clicked is filegroup, create an extra summary tab in the portal
+		if (jsonResult.statuslist!=undefined) {
+			var isAllStatusesNA = false;
+			if (jsonResult.statuslist.length > 0){
+				isAllStatusesNA = true;
+				for (var i=0; i<jsonResult.statuslist.length; i++ ){
+					if (jsonResult.statuslist[i][2] != "NOT_APPLICABLE"){
+						isAllStatusesNA = false;
+						break;
+					}
+				}
+			}
+			if (!isAllStatusesNA){
+				var summaryPanel;
+				if (jsonResult.statuslist.length > 0) {
+					summaryPanel = Ext.create('Wasp.PluginSummaryGridPortlet', {
+						statusData: jsonResult.statuslist,
+						tabPanel: tabPanel
+					});
+				} else {
+					summaryPanel = {
+						html: '<div class="noPlugin">No registered plugins handle this data.</div>'
+					}
+				}
+				tabPanel.add({
+				//id: 'summary-tab',
+				xtype: 'panel',
+				title: 'Summary',
+				layout: 'card',
+				activeItem: 1,
+				items: [{
+					layout: 'fit'
+				}, {
+					xtype: 'portalpanel',
+					items: [{
+						//id: 'portlet-',
+						xtype: 'portlet',
+						title: 'Completion Status for Plugins Handling this Data',
+						//tools: extPortal.getTools(),
+						//frame: false,
+						closable: false,
+						collapsible: false,
+						draggable: false,
+						items: summaryPanel
+					}]
+				  }]
+				});
+			}
+		}
+
+		$.each(jsonResult.paneltablist, function (index, item) {
+			var tabid = index;
+			var tab = tabPanel.add({
+				xtype: 'panel',
+				//id: tabid,
+				title: item.tabTitle,
+				layout: 'card',
+				activeItem: 1,
+				items: [{
+					layout: 'fit'
+				}]
+			});
+			var pmax = null;
+			var pdfpanel = null;
+			if (item.panels.length==1 && item.panels[0].maxOnLoad==true) {
+				pmax = tab.items.first();
+				//var ptlcol = ptlpnl.add({ id: tabid + '-col-1' });
+				var panel = item.panels[0];
+				if (panel.type=="PDFPanel" && !panel.content.pdfURL.isEmpty()) {
+					pdfpanel = pmax.add({
+						xtype: 'portlet',
+						//title: panel.title,
+						closable: false,
+						collapsible: false,
+						draggable: false,
+						html: "<div id='pdfpanel-"+ panel.content.pdfURL.hashCode() +"'></div>",
+						url: panel.content.pdfURL,
+						items: []
+					});
+					pdfpanel.add(createPDFPanel(pdfpanel.url, panel.pageScale, 'pdfpanel-'+pdfpanel.url.hashCode()));
+				} else if (panel.type=="WebPanel" && !panel.content.htmlCode.isEmpty()) {
+					pmax.add({
+						xtype: 'portlet',
+						//title: panel.title,
+						closable: false,
+						collapsible: false,
+						draggable: false,
+						html: panel.content.htmlCode,
+						listeners: {
+							'render': Ext.bind(new Function("portlet", panel.execOnRenderCode), extPortal),
+							'resize': Ext.bind(new Function("portlet", panel.execOnResizeCode), extPortal),
+							'expand': Ext.bind(new Function("portlet", panel.execOnExpandCode), extPortal)
+						}
+					});
+				} else if (panel.type=="GridPanel") {
+					pmax.add({
+						xtype: 'portlet',
+						//title: panel.title,
+						closable: false,
+						collapsible: false,
+						draggable: false,
+						items: createGridPanel(panel)
+					});
+				}
+				//pmax.doLayout();
+				tab.getLayout().setActiveItem(pmax);
+			} else {
+				var ptlpnl = tab.add({
+					xtype: 'portalpanel'
+				});
+				var ptlcolArray = new Array;
+
+				numcol = item.numberOfColumns;
+				for (var i = 0; i < numcol; i++) {
+					ptlcolArray.push(ptlpnl.add({
+						id: tabid + '-col-' + (i + 1)
+					}));
+				}
+
+				var colid = 0;
+				$.each(item.panels, function (index1, panel) {
+					if (panel.type=="PDFPanel" && !panel.content.pdfURL.isEmpty()) {
+						pdfpanel = ptlcolArray[colid++].add({
+							xtype: 'portlet',
+							title: panel.title,
+							closable: false,
+							collapsible: false,
+							draggable: false,
+							html: "<div id='pdfpanel-"+ panel.content.pdfURL.hashCode() +"'></div>",
+							url: panel.content.pdfURL,
+							items: []
+						});
+						pdfpanel.add(createPDFPanel(pdfpanel.url, panel.pageScale, 'pdfpanel-'+pdfpanel.url.hashCode()));
+					} else if (panel.type=="WebPanel" && !panel.content.htmlCode.isEmpty()) {
+						ptlcolArray[colid++].add({
+							title: panel.title,
+							tools: extPortal.getTools(panel.maximizable),
+							closable: panel.closeable,
+							collapsible: panel.resizable,
+							html: panel.content.htmlCode,
+							listeners: {
+								'render': Ext.bind(new Function("portlet", panel.execOnRenderCode), extPortal),
+								'resize': Ext.bind(new Function("portlet", panel.execOnResizeCode), extPortal),
+								'expand': Ext.bind(new Function("portlet", panel.execOnExpandCode), extPortal)
+							}
+						});
+					} else if (panel.type=="GridPanel") {
+				
+						ptlcolArray[colid++].add({
+							title: panel.title,
+							tools: extPortal.getTools(panel.maximizable),
+							closable: panel.closeable,
+							collapsible: panel.resizable,
+							
+							items: createGridPanel(panel)
+						});
+					}
+					colid %= numcol;
+				});
+			}
+		});
+
+		tabPanel.setActiveTab(0);
+	};
+
+	// load all css then all js then create portal
+	if (cssList.length > 0) {
+		LazyLoad.css(cssList, function () {
+			if (jsList.length > 0) {
+				LazyLoad.js(jsList, function () {
+					createPortal();
+				});
+			} else {
+				createPortal();
+			}
+		});
+	} else {
+		if (jsList.length > 0) {
+			LazyLoad.js(jsList, function () {
+				createPortal();
+			});
+		} else {
+			createPortal();
 		}
 	}
 }
