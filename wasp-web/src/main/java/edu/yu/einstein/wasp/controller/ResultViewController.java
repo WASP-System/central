@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.Strategy;
-import edu.yu.einstein.wasp.dao.WaspDao;
 import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -38,7 +37,6 @@ import edu.yu.einstein.wasp.model.JobSoftware;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
-import edu.yu.einstein.wasp.plugin.mps.genomebrowser.GenomeBrowserProviding;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
@@ -48,9 +46,9 @@ import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.ResultViewService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.SoftwareService;
+import edu.yu.einstein.wasp.viewpanel.Action;
 import edu.yu.einstein.wasp.viewpanel.Action.CallbackFunctionType;
 import edu.yu.einstein.wasp.viewpanel.DataTabViewing.Status;
-import edu.yu.einstein.wasp.viewpanel.Action;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.GridColumn;
 import edu.yu.einstein.wasp.viewpanel.GridContent;
@@ -446,13 +444,23 @@ public class ResultViewController extends WaspController {
 
 		for (JobFile jf : job.getJobFile()) {
 			allFilesInJob.add(jf.getFile());
+			logger.trace("Seeking files for job id=" + job.getId() + ". Found file group: '" + jf.getFile().getDescription() + "'");
 		}
 
 		for (Sample s : job.getSample()) {
-			allFilesInJob.addAll(s.getFileGroups());
-
-			for (SampleSource ss : s.getSampleSource())
-				allFilesInJob.addAll(ss.getFileGroups());
+			for (FileGroup fg : s.getFileGroups()){
+				logger.trace("Seeking files for job id=" + job.getId() + ". Found file group associated with sample id=" + s.getId() 
+						+ ": '" + fg.getDescription() + "'");
+				allFilesInJob.add(fg);
+			}
+			
+			for (SampleSource ss : s.getSourceSample()){
+				for (FileGroup fg : ss.getFileGroups()){
+					logger.trace("Seeking files for job id=" + job.getId() + ". Found file group associated with sampleSource id=" + ss.getId() 
+							+ ": '" + fg.getDescription() + "'");
+					allFilesInJob.add(fg);
+				}
+			}
 		}
 
 		for (FileGroup fg : allFilesInJob) {
