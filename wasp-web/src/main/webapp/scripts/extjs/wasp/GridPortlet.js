@@ -66,6 +66,8 @@ Ext.define('Wasp.GridPortlet', {
 				eOpts) {
 			// Ext.Msg.alert('Selected Record', 'td : ' + td + ' tr: ' + tr);
 		},
+		headerclick: function( grid, col, e ) {
+		},
 		viewready : function(grid) {
 			var view = grid.view;
 
@@ -171,6 +173,7 @@ Ext.define('Wasp.GridPortlet', {
 			// window.open(record.get(grid.gblink), '_blank');
 			// }
 			},
+			sortable: false,
 			keepSelection : true
 		};
 
@@ -235,15 +238,17 @@ Ext.define('Wasp.GridPortlet', {
 
 					});
 
-			if (action.group == true && action.callbackFunctionType === 'DOWNLOAD') {
+			if (action.group == true
+					&& action.callbackFunctionType === 'DOWNLOAD') {
 				actioncol.groupActions = [{
 					iconCls : action.groupIconClassName,
 					qtip : action.groupTooltip,
 					align : action.groupAlign.toLowerCase(),
 					callback : function(grid, records, action, groupValue) {
 						if (records.length > 0)
-							window.location = mergeDownloadLinks(records,
-									'cb' + action.icnHashCode.toString().replace('-', '_'));
+							window.location = mergeDownloadLinks(records, 'cb'
+											+ action.icnHashCode.toString()
+													.replace('-', '_'));
 					}
 				}];
 			}

@@ -2,7 +2,9 @@ package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -37,6 +39,7 @@ import edu.yu.einstein.wasp.model.JobSoftware;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
+import edu.yu.einstein.wasp.plugin.mps.genomebrowser.GenomeBrowserProviding;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
@@ -431,13 +434,16 @@ public class ResultViewController extends WaspController {
 				.getMessage("resultViewer.filesByTypeTab.fileCol.header"),
 				"File", 1));
 		content.addColumn(new GridColumn(messageService
+				.getMessage("resultViewer.filesByTypeTab.typeCol.header"),
+				"FileType", 100, 0));
+		content.addColumn(new GridColumn(messageService
 				.getMessage("resultViewer.filesByTypeTab.sizeCol.header"),
 				"Size", 100, 0));
 		content.addColumn(new GridColumn(messageService
 				.getMessage("resultViewer.filesByTypeTab.softwareCol.header"),
 				"Software", 170, 0));
 
-		List<FileGroup> allFilesInJob = new ArrayList<FileGroup>();
+		Set<FileGroup> allFilesInJob = new HashSet<FileGroup>();
 
 		for (JobFile jf : job.getJobFile()) {
 			FileGroup fg = jf.getFile();
@@ -467,7 +473,24 @@ public class ResultViewController extends WaspController {
 			}
 		}
 
-		for (FileGroup fg : allFilesInJob) {
+		// sort all filegroups in the order of "Software" then "File name"
+		List<FileGroup> sortedFilesInJob = new ArrayList<FileGroup>(
+				allFilesInJob);
+		Collections.sort(sortedFilesInJob, new Comparator<FileGroup>() {
+			public int compare(FileGroup o1, FileGroup o2) {
+				Integer i1 = o1.getSoftwareGeneratedById() == null ? -1 : o1
+						.getSoftwareGeneratedById();
+				Integer i2 = o2.getSoftwareGeneratedById() == null ? -1 : o2
+						.getSoftwareGeneratedById();
+				String s1 = o1.getDescription() == null ? "" : o1
+						.getDescription().trim();
+				String s2 = o2.getDescription() == null ? "" : o2
+						.getDescription().trim();
+				return (i1 > i2 ? -1 : (i1 == i2 ? s1.compareTo(s2) : 1));
+			}
+		});
+
+		for (FileGroup fg : sortedFilesInJob) {
 			List<String> row = new ArrayList<String>();
 			if (fg.getFileType() == null)
 				continue;
@@ -482,8 +505,7 @@ public class ResultViewController extends WaspController {
 			}
 			row.add(iFgSize == 0 ? "" : iFgSize.toString());
 
-			row.add(softwareService.getById(fg.getSoftwareGeneratedById())
-					.getName());
+			row.add(fg.getSoftwareGeneratedBy().getName());
 
 			content.addDataRow(row);// add the new row to the content
 
@@ -506,6 +528,16 @@ public class ResultViewController extends WaspController {
 					.add(new Action("icon-view-file", "View",
 							CallbackFunctionType.OPEN_IN_CSS_WIN, fg.getId()
 									.toString()));
+
+			List<GenomeBrowserProviding> plugins = new ArrayList<>();
+			plugins.addAll(waspPluginRegistry
+					.getPlugins(GenomeBrowserProviding.class));
+			for (GenomeBrowserProviding plugin : plugins) {
+				Action action = plugin.getAction(fg);
+				if (action != null) {
+					actionList.add(action);
+				}
+			}
 
 			content.addActions(actionList);
 		}
