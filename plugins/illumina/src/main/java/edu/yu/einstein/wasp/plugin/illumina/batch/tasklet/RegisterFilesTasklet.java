@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.AbandonMessageHandlingTasklet;
+import edu.yu.einstein.wasp.dao.FileGroupMetaDao;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.InvalidFileTypeException;
 import edu.yu.einstein.wasp.exception.MetadataException;
@@ -90,6 +91,9 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
     
     @Autowired
     private WaspIlluminaService waspIlluminaService;
+    
+    @Autowired
+    private FileGroupMetaDao fileGroupMetaDao;
 
     private int runId;
     private Run run;
@@ -356,7 +360,7 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
             	
             	SequenceReadProperties srp = new SequenceReadProperties(rt, lens.get(0) - 1); // illumina sequences read length +1
             	
-            	SequenceReadProperties.setSequenceReadProperties(srp, sfg, fileService.getFileGroupMetaDao(), FileGroupMeta.class);
+            	SequenceReadProperties.setSequenceReadProperties(srp, sfg, fileGroupMetaDao, FileGroupMeta.class);
                 
             }
 

@@ -314,7 +314,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 
 		List<String> listOfFileHandleNames = new ArrayList<String>();
 		
-		Set<FileHandle> files = new LinkedHashSet<FileHandle>();
+		LinkedHashSet<FileHandle> files = new LinkedHashSet<FileHandle>();
 		Set<FileGroup> macstwoEnclosedFileGroups = new LinkedHashSet<FileGroup>();
 		
 		Imagemagick imagemagickSoftware = (Imagemagick) macs2.getSoftwareDependencyByIname("imagemagick"); 
