@@ -224,6 +224,7 @@ public class ResultViewServiceImpl extends WaspServiceImpl implements ResultView
 			//fileGridContent.appendActionsToData();
 			
 		} catch (GridUnresolvableHostException e) {
+			e.printStackTrace();
 			throw new WaspException(e);
 		}
 		
