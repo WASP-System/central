@@ -427,7 +427,7 @@ public class ResultViewController extends WaspController {
 		// create the data model
 		content.addDataFields(new GridDataField("FileType", "String"));
 		content.addDataFields(new GridDataField("File", "String"));
-		content.addDataFields(new GridDataField("Size", "String"));
+		content.addDataFields(new GridDataField("Number", "String"));
 		content.addDataFields(new GridDataField("Software", "String"));
 
 		GridColumn column = new GridColumn(messageService.getMessage("resultViewer.filesByTypeTab.fileCol.header"), "File");
@@ -436,17 +436,17 @@ public class ResultViewController extends WaspController {
 		content.addColumn(column);
 		
 		column = new GridColumn(messageService.getMessage("resultViewer.filesByTypeTab.typeCol.header"), "FileType");
-		column.setWidth(120);
+		column.setWidth(200);
 		content.addColumn(column);
 		
-		column = new GridColumn(messageService.getMessage("resultViewer.filesByTypeTab.sizeCol.header"), "Size");
+		column = new GridColumn(messageService.getMessage("resultViewer.filesByTypeTab.numFiles.header"), "Number");
 		column.setWidth(100);
 		column.setSortable(false);
 		column.setGroupable(false);
 		content.addColumn(column);
 		
 		column = new GridColumn(messageService.getMessage("resultViewer.filesByTypeTab.softwareCol.header"), "Software");
-		column.setWidth(170);
+		column.setWidth(150);
 		content.addColumn(column);
 
 		Set<FileGroup> allFilesInJob = new HashSet<FileGroup>();
@@ -507,13 +507,16 @@ public class ResultViewController extends WaspController {
 			row.add(fg.getFileType().getName());
 
 			row.add(fg.getDescription());
-
+/*
 			Integer iFgSize = 0;
 			for (FileHandle fh : fg.getFileHandles()) {
 				iFgSize += fh.getSizek() == null ? 0 : fh.getSizek();
 			}
 			row.add(iFgSize == 0 ? "" : iFgSize.toString());
-
+			*/
+			Integer iFgNum = 0;
+			iFgNum =fg.getFileHandles().size();
+			row.add(iFgNum.toString());
 			row.add(fg.getSoftwareGeneratedBy().getName());
 
 			content.addDataRow(row);// add the new row to the content

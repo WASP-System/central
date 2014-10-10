@@ -423,63 +423,37 @@ function createPDFPanel(url, scale, renderDiv) {
     return pdfPanel;
 }
 
-function getPanelDisplaySummaryWindowForJob(jobId){
-	summaryWin = Ext.create('Ext.window.Window', {
-		title: 'FastQC Sample Summaries for Job 5 (study of misc rodents)' ,
-	 	header: {
-	 		titlePosition: 2,
-	 		titleAlign: 'center'
-	 	},
-	 	renderTo: Ext.getBody(),
-	 	closable: true,
-	 	maximizable: true,
-	 	closeAction: 'hide',
-	 	modal: false,
-	 	width: 800,
-	 	minWidth: 350,
-	 	height: 600,
-	 	layout: 'fit',
-	 	items: [{
-	 		region: 'center',
-	 		xtype: 'tabpanel',
-	 		items: [{
-	 			title: 'Summary',
-	 			html:'<form><input type="button" onClick="getPanelDisplayWindowForFilegroup(25)" value="see all data for sample" /></form>',
-	 			autoScroll: true
-	 		}]
-	 	}]
-	});
-	summaryWin.show();
-}
+var fgPanelDisplayWin = Ext.create('Ext.window.Window', {
+	title: 'File Data Viewer' ,
+ 	header: {
+ 		titlePosition: 2,
+ 		titleAlign: 'center'
+ 	},
+ 	renderTo: Ext.getBody(),
+ 	closable: true,
+ 	maximizable: true,
+ 	closeAction: 'hide',
+ 	modal: false,
+ 	width: 800,
+ 	minWidth: 350,
+ 	height: 600,
+ 	layout: 'fit',
+ 	items: [{
+ 		region: 'center',
+ 		xtype: 'tabpanel',
+ 		items: [
+// 			{	
+// 				title: 'Data',
+// 				html:''+fgId,
+// 				autoScroll: true
+// 			}
+ 		]
+ 	}]
+});
 
 function getPanelDisplayWindowForFilegroup(fgId){
-	fgPanelDisplayWin = Ext.create('Ext.window.Window', {
-		title: 'FastQC data for file rodentData.trimmed.fq' ,
-	 	header: {
-	 		titlePosition: 2,
-	 		titleAlign: 'center'
-	 	},
-	 	renderTo: Ext.getBody(),
-	 	closable: true,
-	 	maximizable: true,
-	 	closeAction: 'hide',
-	 	modal: false,
-	 	width: 800,
-	 	minWidth: 350,
-	 	height: 600,
-	 	layout: 'fit',
-	 	items: [{
-	 		region: 'center',
-	 		xtype: 'tabpanel',
-	 		items: [
-//	 			{	
-//	 				title: 'Data',
-//	 				html:''+fgId,
-//	 				autoScroll: true
-//	 			}
-	 		]
-	 	}]
-	});
+	fgPanelDisplayWin.hide();
+	$("#wait_dialog-modal").dialog("open");
 	dstr = '{"myid":'+fgId+',"type":"filegroup"}';
 	$.ajax({
 			url: '<wasp:relativeUrl value="jobresults/getDetailsJson.do?node=" />' + dstr,
@@ -503,12 +477,13 @@ function getPanelDisplayWindowForFilegroup(fgId){
 			}
 			
 			prepareTabPanel(result, tabpanel);
+			$("#wait_dialog-modal").dialog("close");
+			fgPanelDisplayWin.show();
 		})
 		.fail(function(jqXHR){
 			checkForPageRedirect(jqXHR.responseText);
 		});
 			
-	fgPanelDisplayWin.show();
 }
 	
 //Ext.onReady(function() {
@@ -543,7 +518,8 @@ function click(d) {
 		});
 	
 		//var tabs = $('#mytabs').tabs({closable: true});
-	
+		if (d.type=='job' || d.type=='filegroup')
+			$("#wait_dialog-modal").dialog("open");
 		$.ajax({
 			url: '<wasp:relativeUrl value="jobresults/getDetailsJson.do?node=" />' + dstr,
 			type: 'GET',
@@ -605,6 +581,7 @@ function click(d) {
 					});
 				} else if (d.type=='job' || d.type=='filegroup') {
 					prepareTabPanel(result, tabpanel);
+					$("#wait_dialog-modal").dialog("close");
 				} else {
 					return;
 				}
