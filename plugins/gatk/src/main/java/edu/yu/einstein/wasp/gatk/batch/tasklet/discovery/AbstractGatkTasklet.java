@@ -13,19 +13,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.WaspModel;
+import edu.yu.einstein.wasp.plugin.genomemetadata.batch.tasklet.TestForGenomeIndexTasklet;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 
-public abstract class AbstractGatkTasklet extends WaspRemotingTasklet {
+public abstract class AbstractGatkTasklet extends TestForGenomeIndexTasklet {
 	
 	private static Logger logger = LoggerFactory.getLogger(AbstractGatkTasklet.class);
 	
@@ -52,9 +52,6 @@ public abstract class AbstractGatkTasklet extends WaspRemotingTasklet {
 	
 	@Autowired
 	protected GATKSoftwareComponent gatk;
-	
-	@Autowired
-	protected GridHostResolver gridHostResolver;
 
 	protected LinkedHashSet<Integer> inputFilegroupIds;
 	

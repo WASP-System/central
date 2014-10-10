@@ -17,10 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
-import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
-import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
@@ -61,9 +58,6 @@ public class BWAalnTasklet extends TestForGenomeIndexTasklet implements StepExec
 	private JobService jobService;
 	
 	@Autowired
-	private GridHostResolver gridHostResolver;
-	
-	@Autowired
 	private FileType fastqFileType;
 	
 	private boolean skip = false;
@@ -74,8 +68,6 @@ public class BWAalnTasklet extends TestForGenomeIndexTasklet implements StepExec
 	@Autowired
 	private BwaService bwaService;
 	
-	private WorkUnit w;
-	private String remoteHost;
 	private Job job;
 	private Set<FileGroup> fileGroups;
 	private SampleSource cellLib;
@@ -118,7 +110,7 @@ public class BWAalnTasklet extends TestForGenomeIndexTasklet implements StepExec
 		try {
 			WorkUnit w = bwa.getAln(cellLib, fg, jobParameters);
 		
-			GridResult result = gridHostResolver.getGridWorkService(remoteHost).execute(w);
+			GridResult result = executeWorkUnit(w);
 		
 			//place the grid result in the step context
 			saveGridResult(context, result);
@@ -141,7 +133,7 @@ public class BWAalnTasklet extends TestForGenomeIndexTasklet implements StepExec
 	 */
 	@Override
 	public void beforeStep(StepExecution stepExecution){
-		if (w == null) {
+		if (cellLib == null) {
 			cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
 			job = sampleService.getJobOfLibraryOnCell(cellLib);
 			
@@ -150,14 +142,6 @@ public class BWAalnTasklet extends TestForGenomeIndexTasklet implements StepExec
 			fileGroups = fileService.getFilesForCellLibraryByType(cellLib, fastqFileType);
 			Assert.assertTrue(fileGroups.size() == 1);
 			fg = fileGroups.iterator().next();
-			w = bwa.prepareWorkUnit(fg);
-			try {
-				remoteHost = gridHostResolver.getGridWorkService(w).getTransportConnection().getHostName();
-			} catch (GridUnresolvableHostException e) {
-				String message = "Unable to determine appropriate host for BWA alignment";
-				logger.error(message);
-				throw new WaspRuntimeException(message);
-			}
 		}
 		super.beforeStep(stepExecution);
 	}
@@ -177,12 +161,17 @@ public class BWAalnTasklet extends TestForGenomeIndexTasklet implements StepExec
 	public GenomeIndexStatus getGenomeIndexStatus() {
 		try {
 			Build build = bwa.getGenomeBuild(cellLib);
-			return bwaService.getGenomeIndexStatus(gridHostResolver.getGridWorkService(remoteHost), build);
+			return bwaService.getGenomeIndexStatus(getGridWorkService(), build);
 		} catch (ParameterValueRetrievalException | GridUnresolvableHostException e) {
 			String mess = "Unable to determine build or build status " + e.getLocalizedMessage();
 			logger.error(mess);
 			throw new WaspRuntimeException(mess);
 		}
+	}
+
+	@Override
+	public WorkUnit prepareWorkUnit() {
+		return bwa.prepareWorkUnit(fg);
 	}
 
 }

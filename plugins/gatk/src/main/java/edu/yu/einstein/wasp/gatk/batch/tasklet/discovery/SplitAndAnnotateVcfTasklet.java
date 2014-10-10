@@ -19,6 +19,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.plugin.genomemetadata.GenomeIndexStatus;
 import edu.yu.einstein.wasp.plugin.mps.grid.software.SnpEff;
 import edu.yu.einstein.wasp.plugin.mps.grid.software.VcfTools;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
@@ -43,6 +44,22 @@ public class SplitAndAnnotateVcfTasklet extends AbstractGatkTasklet {
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
+		
+		
+		GridResult result = executeWorkUnit();
+
+		// place the grid result in the step context
+		saveGridResult(context, result);
+	}
+
+	@Override
+	public GenomeIndexStatus getGenomeIndexStatus() {
+		// no downloadable resources required.
+		return GenomeIndexStatus.BUILT;
+	}
+
+	@Override
+	public WorkUnit prepareWorkUnit() throws Exception {
 		Job job = jobService.getJobByJobId(jobId);
 		WorkUnit w = new WorkUnit();
 		w.setMode(ExecutionMode.PROCESS);
@@ -93,11 +110,7 @@ public class SplitAndAnnotateVcfTasklet extends AbstractGatkTasklet {
 		} else {
 			w.addCommand(snpEff.getAnnotateVcfCommand(subsetVcfFileName, outputVcfFileName, outputHtmlSummaryFileName, outputGenesSummaryFileName, build, true));
 		}
-		
-		GridResult result = gridHostResolver.execute(w);
-
-		// place the grid result in the step context
-		saveGridResult(context, result);
+		return w;
 	}
 
 }

@@ -7,9 +7,11 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
+import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
@@ -17,6 +19,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.plugin.genomemetadata.GenomeIndexStatus;
 import edu.yu.einstein.wasp.plugin.picard.software.Picard;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
@@ -39,6 +42,21 @@ public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
+		
+		GridResult result = executeWorkUnit();
+
+		// place the grid result in the step context
+		saveGridResult(context, result);
+	}
+
+	@Override
+	public GenomeIndexStatus getGenomeIndexStatus() {
+		// no buildable resources required.
+		return GenomeIndexStatus.BUILT;
+	}
+
+	@Override
+	public WorkUnit prepareWorkUnit() throws Exception {
 		Job job = jobService.getJobByJobId(jobId);
 		WorkUnit w = new WorkUnit();
 		w.setMode(ExecutionMode.PROCESS);
@@ -83,10 +101,6 @@ public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
 		} else {
 			w.addCommand(picard.getMergeBamCmd(inputBamFilenames, mergedBamFilename, mergedBaiFilename, MEMORY_GB_4));
 		}
-		
-		GridResult result = gridHostResolver.execute(w);
-
-		// place the grid result in the step context
-		saveGridResult(context, result);
+		return w;
 	}
 }

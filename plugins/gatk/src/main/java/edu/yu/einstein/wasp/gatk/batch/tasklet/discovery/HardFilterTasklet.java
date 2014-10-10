@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -8,6 +9,8 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +20,13 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.Strategy.StrategyType;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.filetype.FileTypeAttribute;
 import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
+import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
@@ -31,6 +36,8 @@ import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.VcfFileTypeAttribute;
+import edu.yu.einstein.wasp.plugin.genomemetadata.GenomeIndexStatus;
+import edu.yu.einstein.wasp.plugin.genomemetadata.batch.tasklet.TestForGenomeIndexTasklet;
 import edu.yu.einstein.wasp.plugin.mps.grid.software.SnpEff;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
@@ -39,7 +46,7 @@ import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.StrategyService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
-public class HardFilterTasklet extends WaspRemotingTasklet {
+public class HardFilterTasklet extends TestForGenomeIndexTasklet {
 	
 	private static Logger logger = LoggerFactory.getLogger(HardFilterTasklet.class);
 	
@@ -68,10 +75,12 @@ public class HardFilterTasklet extends WaspRemotingTasklet {
 	@Autowired
 	private GATKSoftwareComponent gatk;
 	
-	@Autowired
-	private GridHostResolver gridHostResolver;
-	
 	private Integer jobId;
+	
+	Build build = null;
+	
+	private ExecutionContext stepExecutionContext;
+	private ExecutionContext jobExecutionContext;
 	
 	public HardFilterTasklet(Integer jobId) {
 		this.jobId = jobId;
@@ -80,12 +89,48 @@ public class HardFilterTasklet extends WaspRemotingTasklet {
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
+		
+				
+		GridResult result = executeWorkUnit();
+		
+		//place the grid result in the step context
+		saveGridResult(context, result);
+	}
+	
+	@Transactional("entityManager")
+	@Override
+	public void doPreFinish(ChunkContext context) throws Exception {
 		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
-		ExecutionContext jobExecutionContext = context.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
+		if (stepExecutionContext.containsKey("filteredSnpsVcfFgId")){
+			Integer filteredSnpsVcfFgId = Integer.parseInt(stepExecutionContext.getString("filteredSnpsVcfFgId"));
+			logger.debug("Setting as active FileGroup with id=: " + filteredSnpsVcfFgId);
+			fileService.getFileGroupById(filteredSnpsVcfFgId).setIsActive(1);
+		}
+		if (stepExecutionContext.containsKey("filteredIndelsVcfFgId")){
+			Integer filteredIndelsVcfFgId = Integer.parseInt(stepExecutionContext.getString("filteredIndelsVcfFgId"));
+			logger.debug("Setting as active FileGroup with id=: " + filteredIndelsVcfFgId);
+			fileService.getFileGroupById(filteredIndelsVcfFgId).setIsActive(1);
+		}
+	}
+
+	@Override
+	public GenomeIndexStatus getGenomeIndexStatus() {
+		try {
+			return genomeMetadataService.getFastaStatus(getGridWorkService(), build);
+		} catch (GridUnresolvableHostException | IOException e) {
+			String mess = "Unable to determine build or build status " + e.getLocalizedMessage();
+			logger.error(mess);
+			throw new WaspRuntimeException(mess);
+		}
+	}
+
+	@Override
+	public WorkUnit prepareWorkUnit() throws Exception {
+		
 		FileGroup combinedGenotypedVcfFg = null;
 		if (jobExecutionContext.containsKey("combinedGenotypedVcfFgId"))
 			combinedGenotypedVcfFg = fileService.getFileGroupById(Integer.parseInt(jobExecutionContext.getString("combinedGenotypedVcfFgId")));
-		Build build = null;
+		
 		
 		LinkedHashSet<FileHandle> outFiles = new LinkedHashSet<FileHandle>();
 		
@@ -147,7 +192,7 @@ public class HardFilterTasklet extends WaspRemotingTasklet {
 		String rawIndelsFileName = "indels.${" + WorkUnit.OUTPUT_FILE + "[1]}";
 		String filteredSnpVcfFileName = "snps.filtered.${" + WorkUnit.OUTPUT_FILE + "[0]}";
 		String filteredIndelVcfFileName = "indels.filtered.${" + WorkUnit.OUTPUT_FILE + "[1]}";
-		String referenceGenomeFileName = genomeService.getReferenceGenomeFastaFile(build);
+		String referenceGenomeFileName = genomeMetadataService.getRemoteGenomeFastaPath(getGridWorkService(), build);
 		w.addCommand(gatk.selectSnpsFromVariantsFile(rawVariantsFileName, rawSnpsFileName, referenceGenomeFileName, wxsIntervalFile, AbstractGatkTasklet.MEMORY_GB_4));
 		w.addCommand(gatk.selectIndelsFromVariantsFile(rawVariantsFileName, rawIndelsFileName, referenceGenomeFileName, wxsIntervalFile, AbstractGatkTasklet.MEMORY_GB_4));
 		w.addCommand(gatk.applyGenericHardFilterForSnps(rawSnpsFileName, filteredSnpVcfFileName, referenceGenomeFileName, AbstractGatkTasklet.MEMORY_GB_4));
@@ -160,27 +205,15 @@ public class HardFilterTasklet extends WaspRemotingTasklet {
 		String filteredIndelWithIdsVcfFileName = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
 		w.addCommand(snpEff.getAnnotateIdsCommand(filteredSnpVcfFileName, snpFile, filteredSnpWithIdsVcfFileName));
 		w.addCommand(snpEff.getAnnotateIdsCommand(filteredIndelVcfFileName, indelsFile, filteredIndelWithIdsVcfFileName));
-				
-		GridResult result = gridHostResolver.execute(w);
 		
-		//place the grid result in the step context
-		saveGridResult(context, result);
+		return w;
 	}
-	
-	@Transactional("entityManager")
+
 	@Override
-	public void doPreFinish(ChunkContext context) throws Exception {
-		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
-		if (stepExecutionContext.containsKey("filteredSnpsVcfFgId")){
-			Integer filteredSnpsVcfFgId = Integer.parseInt(stepExecutionContext.getString("filteredSnpsVcfFgId"));
-			logger.debug("Setting as active FileGroup with id=: " + filteredSnpsVcfFgId);
-			fileService.getFileGroupById(filteredSnpsVcfFgId).setIsActive(1);
-		}
-		if (stepExecutionContext.containsKey("filteredIndelsVcfFgId")){
-			Integer filteredIndelsVcfFgId = Integer.parseInt(stepExecutionContext.getString("filteredIndelsVcfFgId"));
-			logger.debug("Setting as active FileGroup with id=: " + filteredIndelsVcfFgId);
-			fileService.getFileGroupById(filteredIndelsVcfFgId).setIsActive(1);
-		}
+	public void beforeStep(StepExecution stepExecution) {
+		stepExecutionContext = stepExecution.getExecutionContext();
+		jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
+		super.beforeStep(stepExecution);
 	}
 	
 

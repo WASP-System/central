@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,8 @@ import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.VcfFileTypeAttribute;
+import edu.yu.einstein.wasp.plugin.genomemetadata.GenomeIndexStatus;
+import edu.yu.einstein.wasp.plugin.genomemetadata.batch.tasklet.TestForGenomeIndexTasklet;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
@@ -34,7 +37,7 @@ import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
-public class JointGenotypingTasklet extends WaspRemotingTasklet {
+public class JointGenotypingTasklet extends TestForGenomeIndexTasklet {
 	
 	private static Logger logger = LoggerFactory.getLogger(JointGenotypingTasklet.class);
 	
@@ -59,10 +62,12 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 	@Autowired
 	private GATKSoftwareComponent gatk;
 	
-	@Autowired
-	private GridHostResolver gridHostResolver;
-	
 	private Integer jobId;
+	
+	Build build = null;
+	
+	ExecutionContext stepExecutionContext;
+	ExecutionContext jobExecutionContext;
 	
 	public JointGenotypingTasklet(Integer jobId) {
 		this.jobId = jobId;
@@ -71,10 +76,44 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
+		
+		
+	
+		GridResult result = executeWorkUnit();
+		
+		//place the grid result in the step context
+		saveGridResult(context, result);
+	}
+	
+	@Override
+	public void beforeStep(StepExecution stepExecution) {
+		stepExecutionContext = stepExecution.getExecutionContext();
+		jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
+		super.beforeStep(stepExecution);
+	}
+
+	@Transactional("entityManager")
+	@Override
+	public void doPreFinish(ChunkContext context) throws Exception {
 		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
+		if (stepExecutionContext.containsKey("combinedGenotypedVcfFgId")){
+			Integer rawVcfFgId = Integer.parseInt(stepExecutionContext.getString("combinedGenotypedVcfFgId"));
+			logger.debug("Setting as active FileGroup with id=: " + rawVcfFgId);
+			fileService.getFileGroupById(rawVcfFgId).setIsActive(1);
+		}
+	}
+
+	@Override
+	public GenomeIndexStatus getGenomeIndexStatus() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public WorkUnit prepareWorkUnit() throws Exception {
 		LinkedHashSet<FileGroup> inputFileGroups = new LinkedHashSet<>();
 		LinkedHashSet<FileGroup> temporaryFileSet = new LinkedHashSet<>();
-		ExecutionContext jobExecutionContext = context.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
+		
 		if (jobExecutionContext.containsKey("gvcfFgSet"))
 			inputFileGroups.addAll(AbstractGatkTasklet.getFileGroupsFromCommaDelimitedString(jobExecutionContext.getString("gvcfFgSet"), fileService));
 		if (jobExecutionContext.containsKey("temporaryFileSet"))
@@ -126,24 +165,9 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		for (int i=0; i < fhlist.size(); i++)
 			inputFileNames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");
 		String rawVcfFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
-		String referenceGenomeFile = genomeService.getReferenceGenomeFastaFile(build);
+		String referenceGenomeFile = genomeMetadataService.getRemoteGenomeFastaPath(getGridWorkService(), build);
 		w.setCommand(gatk.genotypeGVCFs(inputFileNames, rawVcfFilename, referenceGenomeFile, AbstractGatkTasklet.MEMORY_GB_16));
-	
-		GridResult result = gridHostResolver.execute(w);
-		
-		//place the grid result in the step context
-		saveGridResult(context, result);
-	}
-	
-	@Transactional("entityManager")
-	@Override
-	public void doPreFinish(ChunkContext context) throws Exception {
-		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
-		if (stepExecutionContext.containsKey("combinedGenotypedVcfFgId")){
-			Integer rawVcfFgId = Integer.parseInt(stepExecutionContext.getString("combinedGenotypedVcfFgId"));
-			logger.debug("Setting as active FileGroup with id=: " + rawVcfFgId);
-			fileService.getFileGroupById(rawVcfFgId).setIsActive(1);
-		}
+		return w;
 	}
 	
 

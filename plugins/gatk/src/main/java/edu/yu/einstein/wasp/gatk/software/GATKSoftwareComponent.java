@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -120,10 +121,10 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return command;
 	}
 	
-	public String getCallVariantOpts(Map<String,Object> jobParameters) throws ParameterValueRetrievalException{
+	public String getCallVariantOpts(Map<String,JobParameter> jobParameters) throws ParameterValueRetrievalException{
 		if (!jobParameters.containsKey("variantCallingMethod"))
 			throw new ParameterValueRetrievalException("Unable to determine variant calling method from job parameters");
-		String variantCallingMethod = (String) jobParameters.get("variantCallingMethod");
+		String variantCallingMethod = (String) jobParameters.get("variantCallingMethod").getValue();
 		String gatkOpts = "";
 		for (String opt : jobParameters.keySet()) {
 			String key;
