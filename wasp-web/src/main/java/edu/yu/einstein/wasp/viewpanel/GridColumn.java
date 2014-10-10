@@ -17,9 +17,11 @@ public class GridColumn {
 	
 	private Integer flex = 0;
 	
-	private boolean sortable = false;
+	private boolean sortable = true;
 	
-	private boolean hideable = false;
+	private boolean hideable = true;
+	
+	private boolean groupable = true;
 	
 	private String cellAlign = "left";
 	
@@ -113,6 +115,20 @@ public class GridColumn {
 	 */
 	public void setHideable(boolean hideable) {
 		this.hideable = hideable;
+	}
+
+	/**
+	 * @return the groupable
+	 */
+	public boolean isGroupable() {
+		return groupable;
+	}
+
+	/**
+	 * @param groupable the groupable to set
+	 */
+	public void setGroupable(boolean groupable) {
+		this.groupable = groupable;
 	}
 
 	/**
@@ -304,7 +320,7 @@ public class GridColumn {
 	 * @param hideable
 	 */
 	public GridColumn(String header, String dataIndex, Integer width,
-			Integer flex, boolean sortable, boolean hideable) {
+			Integer flex, boolean sortable, boolean hideable, boolean groupable) {
 		this.header = header;
 		this.width = width;
 		this.dataIndex = dataIndex;
@@ -314,6 +330,7 @@ public class GridColumn {
 		}
 		this.sortable = sortable;
 		this.hideable = hideable;
+		this.groupable = groupable;
 	}
 	
 

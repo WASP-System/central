@@ -2,7 +2,9 @@ package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -37,6 +39,7 @@ import edu.yu.einstein.wasp.model.JobSoftware;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
+import edu.yu.einstein.wasp.plugin.mps.genomebrowser.GenomeBrowserProviding;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
@@ -48,6 +51,7 @@ import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.SoftwareService;
 import edu.yu.einstein.wasp.viewpanel.Action;
 import edu.yu.einstein.wasp.viewpanel.Action.CallbackFunctionType;
+import edu.yu.einstein.wasp.viewpanel.Action.GroupActionAlignType;
 import edu.yu.einstein.wasp.viewpanel.DataTabViewing.Status;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.GridColumn;
@@ -221,10 +225,11 @@ public class ResultViewController extends WaspController {
 
 				if (plugin != null) {
 					Set<PanelTab> panelTabSet = plugin.getViewPanelTabs(job);
-					if (panelTabSet != null){
+					if (panelTabSet != null) {
 						for (PanelTab ptab : panelTabSet) {
 							if (!ptab.getPanels().isEmpty()) {
-								String tabId = "tab-" + (tabCountNow++).toString();
+								String tabId = "tab-"
+										+ (tabCountNow++).toString();
 								pluginPanelTabs.put(tabId, ptab);
 							}
 						}
@@ -347,16 +352,11 @@ public class ResultViewController extends WaspController {
 		// create content (think of it as the table)
 		GridContent content = new GridContent();
 		// create the data model
-		content.addDataFields(new GridDataField("Strategy", "String"));// dataIndex,
-																		// datatype
-		content.addDataFields(new GridDataField("Description", "String"));// dataIndex,
-																			// datatype
-		content.addDataFields(new GridDataField("Workflow", "String"));// dataIndex,
-																		// datatype
-		content.addDataFields(new GridDataField("Software", "String"));// dataIndex,
-																		// datatype
-		content.addDataFields(new GridDataField("Status", "String"));// dataIndex,
-																		// datatype
+		content.addDataFields(new GridDataField("Strategy", "String"));
+		content.addDataFields(new GridDataField("Description", "String"));
+		content.addDataFields(new GridDataField("Workflow", "String"));
+		content.addDataFields(new GridDataField("Software", "String"));
+		content.addDataFields(new GridDataField("Status", "String"));
 
 		// create columns and associate each column with its displayed header
 		// and a data model attribute (dataIndex)
@@ -427,50 +427,79 @@ public class ResultViewController extends WaspController {
 		// create the data model
 		content.addDataFields(new GridDataField("FileType", "String"));
 		content.addDataFields(new GridDataField("File", "String"));
-		content.addDataFields(new GridDataField("Size", "String"));
+		content.addDataFields(new GridDataField("Number", "String"));
 		content.addDataFields(new GridDataField("Software", "String"));
 
-		content.addColumn(new GridColumn(messageService
-				.getMessage("resultViewer.filesByTypeTab.fileCol.header"),
-				"File", 1));
-		content.addColumn(new GridColumn(messageService
-				.getMessage("resultViewer.filesByTypeTab.sizeCol.header"),
-				"Size", 100, 0));
-		content.addColumn(new GridColumn(messageService
-				.getMessage("resultViewer.filesByTypeTab.softwareCol.header"),
-				"Software", 170, 0));
+		GridColumn column = new GridColumn(messageService.getMessage("resultViewer.filesByTypeTab.fileCol.header"), "File");
+		column.setFlex(1);
+		column.setGroupable(false);
+		content.addColumn(column);
+		
+		column = new GridColumn(messageService.getMessage("resultViewer.filesByTypeTab.typeCol.header"), "FileType");
+		column.setWidth(200);
+		content.addColumn(column);
+		
+		column = new GridColumn(messageService.getMessage("resultViewer.filesByTypeTab.numFiles.header"), "Number");
+		column.setWidth(100);
+		column.setSortable(false);
+		column.setGroupable(false);
+		content.addColumn(column);
+		
+		column = new GridColumn(messageService.getMessage("resultViewer.filesByTypeTab.softwareCol.header"), "Software");
+		column.setWidth(150);
+		content.addColumn(column);
 
-		List<FileGroup> allFilesInJob = new ArrayList<FileGroup>();
-
+		Set<FileGroup> allFilesInJob = new HashSet<FileGroup>();
 		for (JobFile jf : job.getJobFile()) {
 			FileGroup fg = jf.getFile();
-			if (fg.getIsActive() == 0) 
+			if (fg.getIsActive() == 0)
 				continue;
 			allFilesInJob.add(fg);
-			logger.trace("Seeking files for job id=" + job.getId() + ". Found file group: '" + fg.getDescription() + "'");
+			logger.trace("Seeking files for job id=" + job.getId()
+					+ ". Found file group: '" + fg.getDescription() + "'");
 		}
 
 		for (Sample s : job.getSample()) {
-			for (FileGroup fg : s.getFileGroups()){
-				if (fg.getIsActive() == 0) 
+			for (FileGroup fg : s.getFileGroups()) {
+				if (fg.getIsActive() == 0)
 					continue;
-				logger.trace("Seeking files for job id=" + job.getId() + ". Found file group associated with sample id=" + s.getId() 
-						+ ": '" + fg.getDescription() + "'");
+				logger.trace("Seeking files for job id=" + job.getId()
+						+ ". Found file group associated with sample id="
+						+ s.getId() + ": '" + fg.getDescription() + "'");
 				allFilesInJob.add(fg);
 			}
-			
-			for (SampleSource ss : s.getSourceSample()){
-				for (FileGroup fg : ss.getFileGroups()){
-					if (fg.getIsActive() == 0) 
+
+			for (SampleSource ss : s.getSourceSample()) {
+				for (FileGroup fg : ss.getFileGroups()) {
+					if (fg.getIsActive() == 0)
 						continue;
-					logger.trace("Seeking files for job id=" + job.getId() + ". Found file group associated with sampleSource id=" + ss.getId() 
-							+ ": '" + fg.getDescription() + "'");
+					logger.trace("Seeking files for job id="
+							+ job.getId()
+							+ ". Found file group associated with sampleSource id="
+							+ ss.getId() + ": '" + fg.getDescription() + "'");
 					allFilesInJob.add(fg);
 				}
 			}
 		}
 
-		for (FileGroup fg : allFilesInJob) {
+		// sort all filegroups in the order of "Software" then "File name"
+		List<FileGroup> sortedFilesInJob = new ArrayList<FileGroup>(
+				allFilesInJob);
+		Collections.sort(sortedFilesInJob, new Comparator<FileGroup>() {
+			public int compare(FileGroup o1, FileGroup o2) {
+				Integer i1 = o1.getSoftwareGeneratedById() == null ? -1 : o1
+						.getSoftwareGeneratedById();
+				Integer i2 = o2.getSoftwareGeneratedById() == null ? -1 : o2
+						.getSoftwareGeneratedById();
+				String s1 = o1.getDescription() == null ? "" : o1
+						.getDescription().trim();
+				String s2 = o2.getDescription() == null ? "" : o2
+						.getDescription().trim();
+				return (i1 > i2 ? -1 : (i1 == i2 ? s1.compareTo(s2) : 1));
+			}
+		});
+
+		for (FileGroup fg : sortedFilesInJob) {
 			List<String> row = new ArrayList<String>();
 			if (fg.getFileType() == null)
 				continue;
@@ -478,20 +507,22 @@ public class ResultViewController extends WaspController {
 			row.add(fg.getFileType().getName());
 
 			row.add(fg.getDescription());
-			
+/*
 			Integer iFgSize = 0;
 			for (FileHandle fh : fg.getFileHandles()) {
 				iFgSize += fh.getSizek() == null ? 0 : fh.getSizek();
 			}
 			row.add(iFgSize == 0 ? "" : iFgSize.toString());
-			
-			row.add(softwareService.getById(fg.getSoftwareGeneratedById())
-					.getName());
-			
+			*/
+			Integer iFgNum = 0;
+			iFgNum =fg.getFileHandles().size();
+			row.add(iFgNum.toString());
+			row.add(fg.getSoftwareGeneratedBy().getName());
+
 			content.addDataRow(row);// add the new row to the content
 
 			List<Action> actionList = new ArrayList<Action>();
-			// add download action to the list
+			// add download action to the list, with "group download" feature
 			String resolvedURL = "";
 			try {
 				resolvedURL = fileUrlResolver.getURL(fg).toString();
@@ -500,13 +531,25 @@ public class ResultViewController extends WaspController {
 						+ fg.getDescription());
 			}
 			actionList.add(new Action("icon-download", "Download",
-					CallbackFunctionType.DOWNLOAD, resolvedURL));
+					CallbackFunctionType.DOWNLOAD, resolvedURL, true,
+					"icon-group-download", "Download All",
+					GroupActionAlignType.RIGHT));
 
 			// add generic file viewer action to the list
 			actionList
 					.add(new Action("icon-view-file", "View",
 							CallbackFunctionType.OPEN_IN_CSS_WIN, fg.getId()
 									.toString()));
+
+			List<GenomeBrowserProviding> plugins = new ArrayList<>();
+			plugins.addAll(waspPluginRegistry
+					.getPlugins(GenomeBrowserProviding.class));
+			for (GenomeBrowserProviding plugin : plugins) {
+				Action action = plugin.getAction(fg);
+				if (action != null) {
+					actionList.add(action);
+				}
+			}
 
 			content.addActions(actionList);
 		}

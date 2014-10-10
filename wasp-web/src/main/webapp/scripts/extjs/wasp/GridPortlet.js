@@ -66,6 +66,8 @@ Ext.define('Wasp.GridPortlet', {
 				eOpts) {
 			// Ext.Msg.alert('Selected Record', 'td : ' + td + ' tr: ' + tr);
 		},
+		headerclick: function( grid, col, e ) {
+		},
 		viewready : function(grid) {
 			var view = grid.view;
 
@@ -103,29 +105,28 @@ Ext.define('Wasp.GridPortlet', {
 			});
 		}
 	},
-	
-	initToolTip: function(view){
-        //var view = this.view.getView();
-        this.toolTip = Ext.create('Ext.tip.ToolTip', {
-            target: view.el,
-            delegate: view.cellSelector,
-            trackMouse: true,
-            renderTo: Ext.getBody(),
-            listeners: {
-                beforeshow: function(tip) {
-                    var trigger = tip.triggerElement,
-                        parent = tip.triggerElement.parentElement,
-                        columnTitle = view.getHeaderByCell(trigger).text,
-                        columnDataIndex = view.getHeaderByCell(trigger).dataIndex,
-                        columnText = view.getRecord(parent).get(columnDataIndex).toString();
-                    if (columnText){
-                        tip.update("<b>" + columnTitle + ":</b> " + columnText);
-                    } else {
-                        return false;
-                    }
-                }
-            }
-        });
+
+	initToolTip : function(view) {
+		// var view = this.view.getView();
+		this.toolTip = Ext.create('Ext.tip.ToolTip', {
+			target : view.el,
+			delegate : view.cellSelector,
+			trackMouse : true,
+			renderTo : Ext.getBody(),
+			listeners : {
+				beforeshow : function(tip) {
+					var trigger = tip.triggerElement, parent = tip.triggerElement.parentElement, columnTitle = view
+							.getHeaderByCell(trigger).text, columnDataIndex = view
+							.getHeaderByCell(trigger).dataIndex, columnText = view
+							.getRecord(parent).get(columnDataIndex).toString();
+					if (columnText) {
+						tip.update("<b>" + columnTitle + ":</b> " + columnText);
+					} else {
+						return false;
+					}
+				}
+			}
+		});
 	},
 
 	initComponent : function() {
@@ -172,6 +173,7 @@ Ext.define('Wasp.GridPortlet', {
 			// window.open(record.get(grid.gblink), '_blank');
 			// }
 			},
+			sortable: false,
 			keepSelection : true
 		};
 
@@ -235,6 +237,21 @@ Ext.define('Wasp.GridPortlet', {
 										'_')
 
 					});
+
+			if (action.group == true
+					&& action.callbackFunctionType === 'DOWNLOAD') {
+				actioncol.groupActions = [{
+					iconCls : action.groupIconClassName,
+					qtip : action.groupTooltip,
+					align : action.groupAlign.toLowerCase(),
+					callback : function(grid, records, action, groupValue) {
+						if (records.length > 0)
+							window.location = mergeDownloadLinks(records, 'cb'
+											+ action.icnHashCode.toString()
+													.replace('-', '_'));
+					}
+				}];
+			}
 		};
 
 		// Add download action buttons to the action column
@@ -272,6 +289,7 @@ Ext.define('Wasp.GridPortlet', {
 		// });
 		// }
 
+		// Avoid multiple insertion of action column
 		if (actioncol.actions.length > 0) {
 			var acol = this.columns[this.columns.length - 1];
 			if (acol === undefined || acol.xtype === undefined
