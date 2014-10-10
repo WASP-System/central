@@ -13,11 +13,12 @@
 <c:forEach items="${submittedObjectList}" var="submittedObject" varStatus="statusSubmittedObject">
 	 
 	<c:if test="${statusSubmittedObject.index>0}">
-		<tr class="FormData"><td colspan="3" class="label-centered" style="height:1px;background-color:black; white-space:nowrap;"></td></tr>
+		<tr class="FormData"><td colspan="4" class="label-centered" style="height:1px;background-color:black; white-space:nowrap;"></td></tr>
 	</c:if>
 	
 	<c:if test="${statusSubmittedObject.first}">
 		<tr class="FormData">
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"></td>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="jobHomeSamples.macromolecule.label" /></td>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="jobHomeSamples.library.label" /></td>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="jobHomeSamples.runs.label" /></td>			
@@ -37,6 +38,9 @@
 	<tr>
 	<%-- 	<td class="DataTD"  style="text-align:center; white-space:nowrap;" rowspan="${submittedObjectLibraryRowspan.get(submittedObject)}"  style="text-align:center; white-space:nowrap;">
 	--%>
+			<td class="DataTD"  style="vertical-align:middle; text-align:center; white-space:nowrap;" rowspan="${sizeOfLibraryList==0?1:sizeOfLibraryList}"  style="text-align:center; white-space:nowrap;">
+				<c:out value="${statusSubmittedObject.count}"/>
+			</td>
 			<td class="DataTD"  style="text-align:center; white-space:nowrap;" rowspan="${sizeOfLibraryList==0?1:sizeOfLibraryList}"  style="text-align:center; white-space:nowrap;">
 			<c:choose>
 				<c:when test="${submittedMacromoleculeList.contains(submittedObject)}">					
