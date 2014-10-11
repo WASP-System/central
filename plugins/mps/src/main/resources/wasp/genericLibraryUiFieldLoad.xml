@@ -75,8 +75,10 @@
           <property name="label" value="genLib.libSizeSd.label" />
           <property name="metaposition" value="70" />
           <property name="type" value="NUMBER" />
+          <!-- omit at Shahina's request 10-9-14
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="genLib.libSizeSd.error" />
+           -->
           <property name="range" value="0:1000000000" />
         </bean>
       </list>
