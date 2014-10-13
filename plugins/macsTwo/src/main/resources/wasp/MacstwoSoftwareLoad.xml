@@ -15,7 +15,7 @@
   	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.macstwo.software.Macstwo</value></property>
     <property name="name" value="MACS2 Peakcaller" />
     <property name="version" value="2.1.0.20140616"/>
-    <property name="description" value="peakcaller plugin" />
+    <property name="description" value="Algorithm that uses ChIP-seq data to identify genome-wide locations of transcription/chromatin factor binding or histone modification" />
     <property name="area" ref="macstwoPluginArea" />
     <property name="resourceType" ref="peakcallerResourceType" />
 	<property name="softwareDependencies">

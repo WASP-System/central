@@ -1575,7 +1575,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	private String getResultOutputFile(GridResult r, String type, long tailByteLimit) throws IOException {
 		int numberOfTasks = r.getNumberOfTasks();
 		String path = r.getArchivedResultOutputPath(); 
-		if (!path.isEmpty()){
+		if (!path.isEmpty() && gridFileService.exists(path)){
 			logger.debug("looking for file of type '." + type + "' from GridResult with id=" + r.getId() + " in unarchived working directory:" + path);
 			return getCompressedOutputFile(path, r.getId(), type, numberOfTasks, tailByteLimit);  // is a compressed archive registered in the result
 		}
