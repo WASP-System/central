@@ -67,6 +67,7 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 	}
 
 	@Override
+	@Transactional("entityManager")
 	public GenomeIndexStatus getGenomeIndexStatus() {
 		try {
 			return genomeMetadataService.getFastaStatus(getGridWorkService(), build);
@@ -78,6 +79,7 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 	}
 
 	@Override
+	@Transactional("entityManager")
 	public WorkUnit prepareWorkUnit() throws Exception {
 		Job job = jobService.getJobByJobId(jobId);
 		

@@ -53,6 +53,7 @@ public class RealignTasklet extends AbstractGatkTasklet {
 	}
 
 	@Override
+	@Transactional("entityManager")
 	public GenomeIndexStatus getGenomeIndexStatus() {
 		try {
 			GenomeIndexStatus s1 = genomeMetadataService.getVcfStatus(getGridWorkService(), build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.INDEL));
@@ -73,6 +74,7 @@ public class RealignTasklet extends AbstractGatkTasklet {
 	}
 
 	@Override
+	@Transactional("entityManager")
 	public WorkUnit prepareWorkUnit() throws Exception {
 		Job job = jobService.getJobByJobId(jobId);
 		WorkUnit w = new WorkUnit();

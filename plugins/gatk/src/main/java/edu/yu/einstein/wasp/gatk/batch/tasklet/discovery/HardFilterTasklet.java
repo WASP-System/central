@@ -10,7 +10,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.Strategy.StrategyType;
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.filetype.FileTypeAttribute;
 import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
-import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
@@ -114,6 +111,7 @@ public class HardFilterTasklet extends TestForGenomeIndexTasklet {
 	}
 
 	@Override
+	@Transactional("entityManager")
 	public GenomeIndexStatus getGenomeIndexStatus() {
 		try {
 			return genomeMetadataService.getFastaStatus(getGridWorkService(), build);
@@ -125,6 +123,7 @@ public class HardFilterTasklet extends TestForGenomeIndexTasklet {
 	}
 
 	@Override
+	@Transactional("entityManager")
 	public WorkUnit prepareWorkUnit() throws Exception {
 		
 		FileGroup combinedGenotypedVcfFg = null;
@@ -210,6 +209,7 @@ public class HardFilterTasklet extends TestForGenomeIndexTasklet {
 	}
 
 	@Override
+	@Transactional("entityManager")
 	public void beforeStep(StepExecution stepExecution) {
 		stepExecutionContext = stepExecution.getExecutionContext();
 		jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();

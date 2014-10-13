@@ -12,7 +12,7 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -53,6 +53,7 @@ public class BuildBwaIndexTasklet extends WaspRemotingTasklet {
 	
 
 	@Override
+	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
 
 		GridWorkService host = hostResolver.getGridWorkService(hostname);
@@ -73,7 +74,6 @@ public class BuildBwaIndexTasklet extends WaspRemotingTasklet {
 		w.addCommand("if [ -e " + GenomeService.INDEX_CREATION_FAILED + " ]; then echo \"previously failed\"; exit 2; fi");
 		
 		w.setSecureResults(true);
-		int n = 0;
 		
 		w.addCommand("touch " + GenomeService.INDEX_CREATION_STARTED + ".tmp");
 		w.addCommand("bwa index -p " + name + " " + remoteFastaName);
@@ -85,6 +85,7 @@ public class BuildBwaIndexTasklet extends WaspRemotingTasklet {
 	}
 
 	@Override
+	@Transactional("entityManager")
 	public void beforeStep(StepExecution stepExecution) {
 		// TODO Auto-generated method stub
 		super.beforeStep(stepExecution);

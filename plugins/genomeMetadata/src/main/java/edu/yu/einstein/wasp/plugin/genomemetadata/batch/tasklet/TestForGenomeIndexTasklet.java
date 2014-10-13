@@ -8,6 +8,7 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.exception.GridException;
@@ -49,6 +50,7 @@ public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
 	public abstract void doExecute(ChunkContext context) throws Exception;
 	
 	@Override
+	@Transactional("entityManager")
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		if (wasWokenOnTimeout(context)){
 			logger.trace("Woken on timeout");
@@ -83,6 +85,7 @@ public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
 	 * Classes that override this method must call to super.beforeStep(stepExecution).
 	 */
 	@Override
+	@Transactional("entityManager")
 	public void beforeStep(StepExecution stepExecution){
 		if (w == null) {
 			logger.trace("test for genome index beforeStep");
@@ -91,7 +94,8 @@ public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
 				w = this.prepareWorkUnit();
 				remoteHost = gridHostResolver.getGridWorkService(w).getTransportConnection().getHostName();
 			} catch (Exception e) {
-				String message = "Unable to determine appropriate host for BWA alignment";
+				e.printStackTrace();
+				String message = "Unable to determine appropriate host for BWA alignment: " + e.getLocalizedMessage();
 				logger.error(message);
 				throw new WaspRuntimeException(message);
 			}
