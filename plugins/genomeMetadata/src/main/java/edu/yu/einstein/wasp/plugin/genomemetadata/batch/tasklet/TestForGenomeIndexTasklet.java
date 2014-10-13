@@ -43,12 +43,7 @@ public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
 	private WorkUnit w;
 	private String remoteHost;
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public abstract void doExecute(ChunkContext context) throws Exception;
-	
+		
 	@Override
 	@Transactional("entityManager")
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
@@ -63,7 +58,9 @@ public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
 		if (status.isAvailable()) {
 			if (status.isCurrentlyAvailable()) {
 				logger.debug("genome index is available, continue with alignment");
-				super.execute(contrib, context);
+				RepeatStatus stepRepeatStatus = super.execute(contrib, context);
+				if (stepRepeatStatus.equals(RepeatStatus.FINISHED))
+					return RepeatStatus.FINISHED;
 			}
 		} else {
 			String mess = "genome not available: " + status.toString() + " : " + status.getMessage();
