@@ -9,7 +9,7 @@
 <form method="POST">
 <div >
 	<table class="EditTable ui-widget ui-widget-content">
-	<tr class="FormData"><td  class="CaptionTD"><fmt:message key="jobDraft.comment.label" /></td></tr>
+	<tr class="FormData"><td  class="CaptionTD"><fmt:message key="jobDraft.comment.label" /> <span style="color:red">*</span></td></tr>
 	<tr class="FormData"><td ><textarea id="comment" name="comment" cols="70" rows="7"><c:out value="${comment}"  /></textarea></td></tr>	
 	<tr class="FormData"><td >&nbsp;</td></tr>	
 	</table>

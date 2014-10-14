@@ -2498,6 +2498,9 @@ public class JobSubmissionController extends WaspController {
 		if(trimmedComment.isEmpty()){
 			waspErrorMessage("jobDraft.commentNotOptional.error");
 			m.put("comment", trimmedComment);
+			m.put("jobDraft", jobDraft);
+			m.put("pageFlowMap", getPageFlowMap(jobDraft));
+
 			return "jobsubmit/comment";
 		}
 		
