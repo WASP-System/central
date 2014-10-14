@@ -4,6 +4,7 @@
 	 	 								
 <a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${job.getId()}/basic.do" />");' ><fmt:message key="jobHomeSamples.viewBasicRequest.label" /></a>
 <a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${job.getId()}/requests.do?onlyDisplayCellsRequested=true" />");' ><fmt:message key="jobHomeSamples.viewLaneRequest.label" /></a>
+<a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${job.getId()}/samplePrepComment.do" />");' ><fmt:message key="jobHomeSamples.viewSamplePrepComment.label" /></a>
 <sec:authorize access="hasRole('su') or hasRole('ft')">
 	<c:if test="${numberOfLibrariesAwaitingPlatformUnitPlacement>1}"> 
 		<a class="button" href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/addLibrariesToCell.do" />");' ><fmt:message key="jobHomeSamples.assignMultipleLibraries.label" /></a><br />

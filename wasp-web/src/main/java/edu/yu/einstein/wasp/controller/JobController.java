@@ -3386,6 +3386,31 @@ public class JobController extends WaspController {
 			}
 			m.addAttribute("adaptors", adaptors); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
 		}
+	
+	@Transactional
+	@RequestMapping(value="/{jobId}/samplePrepComment", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobCommentsPage(@PathVariable("jobId") Integer jobId, ModelMap m){
+		
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("message", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
+		//get first job comment: this will be user's first comment, added during job submission. Forms requested that users 
+		//provide sample preparation method in the comment.
+		List<MetaMessage> userSubmittedJobCommentsList = jobService.getUserSubmittedJobComment(job.getId());
+		if(!userSubmittedJobCommentsList.isEmpty()){
+			String samplePrepComment = userSubmittedJobCommentsList.get(0).getValue();			
+			samplePrepComment = StringUtils.replace(samplePrepComment, "\r\n" ,"<br />");//carriage return was inserted at time of INSERT to deal with line-break. Change it to <br /> for proper html display (using c:out escapeXml=false).  
+			m.addAttribute("samplePrepComment",  samplePrepComment);
+		}
+		else{
+			m.addAttribute("samplePrepComment", "????");
+		}
+		return "job/home/samplePrepComment";
+	}
 }
 
 class JobIdComparator implements Comparator<Job> {
