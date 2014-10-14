@@ -25,6 +25,13 @@
 	     <c:set var="_area" value = "sample" scope="request"/>
 		 <c:set var="_metaList" value = "${sample.sampleMeta}" scope="request" />		
 	     <c:import url="/WEB-INF/jsp/job/home/meta_rw.jsp" />
+	     <c:if test="${ reasonForNewLibrary != null }"> 
+			<tr class="FormData">
+	      		<td class="CaptionTD"><fmt:message key="createLibrary.reasonForNewLibrary.label" />:</td>
+	      		<td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" name="reasonForNewLibrary" value="<c:out value="${reasonForNewLibrary}" />" /><span class="requiredField">*</span></td>
+	      		<td class="CaptionTD error"><c:out value="${reasonForNewLibraryError}" /></td>
+	    	 </tr>		
+	    </c:if>			
 	     <sec:authorize access="hasRole('su') or hasRole('ft')">
 		    <tr class="FormData">
 			    <td colspan="3" align="left" class="submitBottom">

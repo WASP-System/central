@@ -3482,6 +3482,23 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				  }
 				  logger.debug("OK, was able to add controlLibrary to Lane: " + cell.getName());				  
 			}
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public void setReasonForNewLibraryComment(Integer sampleId, String comment) throws Exception{
+				try{
+					metaMessageService.saveToGroup("reasonForNewLibraryComment", "Reason For New Library", comment, sampleId, SampleMeta.class, sampleMetaDao);
+				}catch(Exception e){ throw new Exception(e.getMessage());}
+			}
+			
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public List<MetaMessage> getReasonForNewLibraryComment(Integer sampleId){
+				return metaMessageService.read("reasonForNewLibraryComment", sampleId, SampleMeta.class, sampleMetaDao);
+			}
 
 }
 
