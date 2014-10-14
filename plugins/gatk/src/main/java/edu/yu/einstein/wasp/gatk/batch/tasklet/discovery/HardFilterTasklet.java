@@ -35,6 +35,7 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.VcfFileTypeAttribute;
 import edu.yu.einstein.wasp.plugin.genomemetadata.GenomeIndexStatus;
 import edu.yu.einstein.wasp.plugin.genomemetadata.batch.tasklet.TestForGenomeIndexTasklet;
+import edu.yu.einstein.wasp.plugin.genomemetadata.plugin.GenomeMetadataPlugin.VCF_TYPE;
 import edu.yu.einstein.wasp.plugin.mps.grid.software.SnpEff;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
@@ -74,10 +75,7 @@ public class HardFilterTasklet extends TestForGenomeIndexTasklet {
 	
 	private Integer jobId;
 	
-	Build build = null;
-	
-	private ExecutionContext stepExecutionContext;
-	private ExecutionContext jobExecutionContext;
+	private Build build = null;
 	
 	public HardFilterTasklet(Integer jobId) {
 		this.jobId = jobId;
@@ -88,7 +86,7 @@ public class HardFilterTasklet extends TestForGenomeIndexTasklet {
 	public void doExecute(ChunkContext context) throws Exception {
 		
 				
-		GridResult result = executeWorkUnit();
+		GridResult result = executeWorkUnit(context);
 		
 		//place the grid result in the step context
 		saveGridResult(context, result);
@@ -97,7 +95,7 @@ public class HardFilterTasklet extends TestForGenomeIndexTasklet {
 	@Transactional("entityManager")
 	@Override
 	public void doPreFinish(ChunkContext context) throws Exception {
-		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
+		ExecutionContext stepExecutionContext = getStepExecutionContext(context);
 		if (stepExecutionContext.containsKey("filteredSnpsVcfFgId")){
 			Integer filteredSnpsVcfFgId = Integer.parseInt(stepExecutionContext.getString("filteredSnpsVcfFgId"));
 			logger.debug("Setting as active FileGroup with id=: " + filteredSnpsVcfFgId);
@@ -112,9 +110,9 @@ public class HardFilterTasklet extends TestForGenomeIndexTasklet {
 
 	@Override
 	@Transactional("entityManager")
-	public GenomeIndexStatus getGenomeIndexStatus() {
+	public GenomeIndexStatus getGenomeIndexStatus(StepExecution stepExecution) {
 		try {
-			return genomeMetadataService.getFastaStatus(getGridWorkService(), build);
+			return genomeMetadataService.getFastaStatus(getGridWorkService(getStepExecutionContext(stepExecution)), build);
 		} catch (GridUnresolvableHostException | IOException e) {
 			String mess = "Unable to determine build or build status " + e.getLocalizedMessage();
 			logger.error(mess);
@@ -124,8 +122,9 @@ public class HardFilterTasklet extends TestForGenomeIndexTasklet {
 
 	@Override
 	@Transactional("entityManager")
-	public WorkUnit prepareWorkUnit() throws Exception {
-		
+	public WorkUnit prepareWorkUnit(StepExecution stepExecution) throws Exception {
+		ExecutionContext stepExecutionContext = getStepExecutionContext(stepExecution);
+		ExecutionContext jobExecutionContext = getJobExecutionContext(stepExecution);
 		FileGroup combinedGenotypedVcfFg = null;
 		if (jobExecutionContext.containsKey("combinedGenotypedVcfFgId"))
 			combinedGenotypedVcfFg = fileService.getFileGroupById(Integer.parseInt(jobExecutionContext.getString("combinedGenotypedVcfFgId")));
@@ -191,15 +190,15 @@ public class HardFilterTasklet extends TestForGenomeIndexTasklet {
 		String rawIndelsFileName = "indels.${" + WorkUnit.OUTPUT_FILE + "[1]}";
 		String filteredSnpVcfFileName = "snps.filtered.${" + WorkUnit.OUTPUT_FILE + "[0]}";
 		String filteredIndelVcfFileName = "indels.filtered.${" + WorkUnit.OUTPUT_FILE + "[1]}";
-		String referenceGenomeFileName = genomeMetadataService.getRemoteGenomeFastaPath(getGridWorkService(), build);
+		String referenceGenomeFileName = genomeMetadataService.getRemoteGenomeFastaPath(getGridWorkService(stepExecutionContext), build);
 		w.addCommand(gatk.selectSnpsFromVariantsFile(rawVariantsFileName, rawSnpsFileName, referenceGenomeFileName, wxsIntervalFile, AbstractGatkTasklet.MEMORY_GB_4));
 		w.addCommand(gatk.selectIndelsFromVariantsFile(rawVariantsFileName, rawIndelsFileName, referenceGenomeFileName, wxsIntervalFile, AbstractGatkTasklet.MEMORY_GB_4));
 		w.addCommand(gatk.applyGenericHardFilterForSnps(rawSnpsFileName, filteredSnpVcfFileName, referenceGenomeFileName, AbstractGatkTasklet.MEMORY_GB_4));
 		w.addCommand(gatk.applyGenericHardFilterForIndels(rawIndelsFileName, filteredIndelVcfFileName, referenceGenomeFileName, AbstractGatkTasklet.MEMORY_GB_4));
 		
 		// We will now add snp and indel database ids
-		String snpFile = gatkService.getReferenceSnpsVcfFile(build);
-		String indelsFile = gatkService.getReferenceIndelsVcfFile(build);
+		String snpFile = genomeMetadataService.getRemoteIndexedVcfPath(getGridWorkService(stepExecutionContext), build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.SNP));
+		String indelsFile = genomeMetadataService.getRemoteIndexedVcfPath(getGridWorkService(stepExecutionContext), build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.INDEL));
 		String filteredSnpWithIdsVcfFileName = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
 		String filteredIndelWithIdsVcfFileName = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
 		w.addCommand(snpEff.getAnnotateIdsCommand(filteredSnpVcfFileName, snpFile, filteredSnpWithIdsVcfFileName));
@@ -211,8 +210,6 @@ public class HardFilterTasklet extends TestForGenomeIndexTasklet {
 	@Override
 	@Transactional("entityManager")
 	public void beforeStep(StepExecution stepExecution) {
-		stepExecutionContext = stepExecution.getExecutionContext();
-		jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
 		super.beforeStep(stepExecution);
 	}
 	

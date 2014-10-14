@@ -9,10 +9,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobParameter;
-import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
-import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,7 +42,7 @@ public class CallVariantsWithUGTasklet extends AbstractGatkTasklet implements St
 	@Autowired
 	private StrategyService strategyService;
 
-	Build build = null;
+	private Build build = null;
 	
 	Map<String,JobParameter> jobParameters;
 
@@ -56,7 +54,7 @@ public class CallVariantsWithUGTasklet extends AbstractGatkTasklet implements St
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
 		
-		GridResult result = executeWorkUnit();
+		GridResult result = executeWorkUnit(context);
 		
 		//place the grid result in the step context
 		saveGridResult(context, result);
@@ -64,9 +62,9 @@ public class CallVariantsWithUGTasklet extends AbstractGatkTasklet implements St
 
 	@Override
 	@Transactional("entityManager")
-	public GenomeIndexStatus getGenomeIndexStatus() {
+	public GenomeIndexStatus getGenomeIndexStatus(StepExecution stepExecution) {
 		try {
-			return genomeMetadataService.getFastaStatus(getGridWorkService(), build);
+			return genomeMetadataService.getFastaStatus(getGridWorkService(getStepExecutionContext(stepExecution)), build);
 		} catch (GridUnresolvableHostException | IOException e) {
 			String mess = "Unable to determine build or build status " + e.getLocalizedMessage();
 			logger.error(mess);
@@ -76,7 +74,7 @@ public class CallVariantsWithUGTasklet extends AbstractGatkTasklet implements St
 
 	@Override
 	@Transactional("entityManager")
-	public WorkUnit prepareWorkUnit() throws Exception {
+	public WorkUnit prepareWorkUnit(StepExecution stepExecution) throws Exception {
 		Job job = jobService.getJobByJobId(jobId);
 		
 		WorkUnit w = new WorkUnit();
@@ -119,7 +117,7 @@ public class CallVariantsWithUGTasklet extends AbstractGatkTasklet implements St
 		for (int i=0; i < fhlist.size(); i++)
 			inputBamFilenames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");
 		String outputFileName = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
-		String referenceGenomeFile = genomeMetadataService.getRemoteGenomeFastaPath(getGridWorkService(), build);
+		String referenceGenomeFile = genomeMetadataService.getRemoteGenomeFastaPath(getGridWorkService(getStepExecutionContext(stepExecution)), build);
 		String wxsIntervalFile = null;
 		if (strategy.getStrategy().equals("WXS"))
 			wxsIntervalFile = gatkService.getWxsIntervalFile(job, build);
@@ -129,8 +127,8 @@ public class CallVariantsWithUGTasklet extends AbstractGatkTasklet implements St
 	}
 
 	@Override
-	public void beforeStep(StepExecution stepExecution) {
-		jobParameters = stepExecution.getJobExecution().getJobParameters().getParameters();
+	@Transactional("entityManager")
+	public void beforeStep(StepExecution stepExecution){
 		super.beforeStep(stepExecution);
 	}
 

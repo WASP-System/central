@@ -100,7 +100,7 @@ public class BWAmemTasklet extends TestForGenomeIndexTasklet implements StepExec
 		try {
 		WorkUnit w = bwa.getMem(cellLib, fg, jobParameters);
 		
-		GridResult result = executeWorkUnit(w);
+		GridResult result = executeWorkUnit(context, w);
 		
 		//place the grid result in the step context
 		saveGridResult(context, result);
@@ -148,10 +148,10 @@ public class BWAmemTasklet extends TestForGenomeIndexTasklet implements StepExec
 
 	@Override
 	@Transactional("entityManager")
-	public GenomeIndexStatus getGenomeIndexStatus() {
+	public GenomeIndexStatus getGenomeIndexStatus(StepExecution stepExecution) {
 		try {
 			Build build = bwa.getGenomeBuild(cellLib);
-			return bwaService.getGenomeIndexStatus(getGridWorkService(), build);
+			return bwaService.getGenomeIndexStatus(getGridWorkService(getStepExecutionContext(stepExecution)), build);
 		} catch (ParameterValueRetrievalException | GridUnresolvableHostException e) {
 			String mess = "Unable to determine build or build status " + e.getLocalizedMessage();
 			logger.error(mess);
@@ -161,7 +161,7 @@ public class BWAmemTasklet extends TestForGenomeIndexTasklet implements StepExec
 
 	@Override
 	@Transactional("entityManager")
-	public WorkUnit prepareWorkUnit() {
+	public WorkUnit prepareWorkUnit(StepExecution stepExecution) {
 		return bwa.prepareWorkUnit(fg);
 	}
 

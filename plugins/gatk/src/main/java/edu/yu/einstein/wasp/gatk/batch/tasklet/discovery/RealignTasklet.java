@@ -7,11 +7,12 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.MetadataException;
-import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
@@ -40,28 +41,36 @@ public class RealignTasklet extends AbstractGatkTasklet {
 		super(inputFilegroupIds, outputFilegroupIds, jobId);
 	}
 	
-	Build build = null;
+	private Build build = null;
 	
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
 		
-		GridResult result = executeWorkUnit();
+		GridResult result = executeWorkUnit(context);
 
 		// place the grid result in the step context
 		saveGridResult(context, result);
 	}
+	
+	@Override
+	@Transactional("entityManager")
+	public void beforeStep(StepExecution stepExecution){
+		super.beforeStep(stepExecution);
+	}
 
 	@Override
 	@Transactional("entityManager")
-	public GenomeIndexStatus getGenomeIndexStatus() {
+	public GenomeIndexStatus getGenomeIndexStatus(StepExecution stepExecution) {
+		ExecutionContext stepExecutionContext = getStepExecutionContext(stepExecution);
 		try {
-			GenomeIndexStatus s1 = genomeMetadataService.getVcfStatus(getGridWorkService(), build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.INDEL));
-			GenomeIndexStatus s2 = genomeMetadataService.getVcfStatus(getGridWorkService(), build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.SNP));
-			if (! (s1.isAvailable() && s2.isAvailable()) ) {
+			GenomeIndexStatus fq = genomeMetadataService.getFastaStatus(getGridWorkService(stepExecutionContext), build);
+			GenomeIndexStatus s1 = genomeMetadataService.getVcfStatus(getGridWorkService(stepExecutionContext), build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.INDEL));
+			GenomeIndexStatus s2 = genomeMetadataService.getVcfStatus(getGridWorkService(stepExecutionContext), build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.SNP));
+			if (! (fq.isAvailable() && s1.isAvailable() && s2.isAvailable()) ) {
 				return GenomeIndexStatus.UNBUILDABLE;
 			} 
-			if (s1.isCurrentlyAvailable() && s2.isCurrentlyAvailable()) {
+			if (fq.isCurrentlyAvailable() && s1.isCurrentlyAvailable() && s2.isCurrentlyAvailable()) {
 				return GenomeIndexStatus.BUILT;
 			} else {
 				return GenomeIndexStatus.BUILDING;
@@ -75,7 +84,7 @@ public class RealignTasklet extends AbstractGatkTasklet {
 
 	@Override
 	@Transactional("entityManager")
-	public WorkUnit prepareWorkUnit() throws Exception {
+	public WorkUnit prepareWorkUnit(StepExecution stepExecution) throws Exception {
 		Job job = jobService.getJobByJobId(jobId);
 		WorkUnit w = new WorkUnit();
 		w.setMode(ExecutionMode.PROCESS);
@@ -118,8 +127,8 @@ public class RealignTasklet extends AbstractGatkTasklet {
 			outputFilenames.add("${" + WorkUnit.OUTPUT_FILE + "[" + i + "]}");
 		
 		String intervalFileName = "gatk.${" + WorkUnit.OUTPUT_FILE + "}.realign.intervals";
-		w.addCommand(gatk.getCreateTargetCmd(build, inputBamFilenames, intervalFileName, MEMORY_GB_16));
-		w.addCommand(gatk.getLocalAlignCmd(build, inputBamFilenames, intervalFileName, outputFilenames, MEMORY_GB_16));
+		w.addCommand(gatk.getCreateTargetCmd(getGridWorkService(getStepExecutionContext(stepExecution)), build, inputBamFilenames, intervalFileName, MEMORY_GB_16));
+		w.addCommand(gatk.getLocalAlignCmd(getGridWorkService(getStepExecutionContext(stepExecution)), build, inputBamFilenames, intervalFileName, outputFilenames, MEMORY_GB_16));
 		return w;
 	}
 

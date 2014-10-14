@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,22 +42,28 @@ public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
 		
-		GridResult result = executeWorkUnit();
+		GridResult result = executeWorkUnit(context);
 
 		// place the grid result in the step context
 		saveGridResult(context, result);
 	}
+	
+	@Override
+	@Transactional("entityManager")
+	public void beforeStep(StepExecution stepExecution){
+		super.beforeStep(stepExecution);
+	}
 
 	@Override
 	@Transactional("entityManager")
-	public GenomeIndexStatus getGenomeIndexStatus() {
+	public GenomeIndexStatus getGenomeIndexStatus(StepExecution stepExecution) {
 		// no buildable resources required.
 		return GenomeIndexStatus.BUILT;
 	}
 
 	@Override
 	@Transactional("entityManager")
-	public WorkUnit prepareWorkUnit() throws Exception {
+	public WorkUnit prepareWorkUnit(StepExecution stepExecution) throws Exception {
 		Job job = jobService.getJobByJobId(jobId);
 		WorkUnit w = new WorkUnit();
 		w.setMode(ExecutionMode.PROCESS);

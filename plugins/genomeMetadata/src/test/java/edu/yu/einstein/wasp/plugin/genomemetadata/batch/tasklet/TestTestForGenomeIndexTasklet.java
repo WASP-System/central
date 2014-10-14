@@ -3,6 +3,7 @@
  */
 package edu.yu.einstein.wasp.plugin.genomemetadata.batch.tasklet;
 
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +40,7 @@ public class TestTestForGenomeIndexTasklet extends TestForGenomeIndexTasklet {
 	 */
 	@Override
 	@Transactional("entityManager")
-	public GenomeIndexStatus getGenomeIndexStatus() {
+	public GenomeIndexStatus getGenomeIndexStatus(StepExecution stepExecution) {
 		if (checks < 5) {
 			logger.info("simulating genome build " + checks++);
 			return GenomeIndexStatus.BUILDING;
@@ -53,7 +54,7 @@ public class TestTestForGenomeIndexTasklet extends TestForGenomeIndexTasklet {
 	 */
 	@Override
 	@Transactional("entityManager")
-	public WorkUnit prepareWorkUnit() throws Exception {
+	public WorkUnit prepareWorkUnit(StepExecution stepExecution) throws Exception {
 		return null;
 	}
 

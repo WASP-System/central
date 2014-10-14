@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.gatk.batch.tasklet.discovery;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -14,9 +15,11 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.filetype.FileTypeAttribute;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
+import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
@@ -62,10 +65,7 @@ public class JointGenotypingTasklet extends TestForGenomeIndexTasklet {
 	
 	private Integer jobId;
 	
-	Build build = null;
-	
-	ExecutionContext stepExecutionContext;
-	ExecutionContext jobExecutionContext;
+	private Build build = null;
 	
 	public JointGenotypingTasklet(Integer jobId) {
 		this.jobId = jobId;
@@ -77,7 +77,7 @@ public class JointGenotypingTasklet extends TestForGenomeIndexTasklet {
 		
 		
 	
-		GridResult result = executeWorkUnit();
+		GridResult result = executeWorkUnit(context);
 		
 		//place the grid result in the step context
 		saveGridResult(context, result);
@@ -86,15 +86,13 @@ public class JointGenotypingTasklet extends TestForGenomeIndexTasklet {
 	@Override
 	@Transactional("entityManager")
 	public void beforeStep(StepExecution stepExecution) {
-		stepExecutionContext = stepExecution.getExecutionContext();
-		jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
 		super.beforeStep(stepExecution);
 	}
 
 	@Transactional("entityManager")
 	@Override
 	public void doPreFinish(ChunkContext context) throws Exception {
-		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
+		ExecutionContext stepExecutionContext = getStepExecutionContext(context);
 		if (stepExecutionContext.containsKey("combinedGenotypedVcfFgId")){
 			Integer rawVcfFgId = Integer.parseInt(stepExecutionContext.getString("combinedGenotypedVcfFgId"));
 			logger.debug("Setting as active FileGroup with id=: " + rawVcfFgId);
@@ -104,17 +102,23 @@ public class JointGenotypingTasklet extends TestForGenomeIndexTasklet {
 
 	@Override
 	@Transactional("entityManager")
-	public GenomeIndexStatus getGenomeIndexStatus() {
-		// TODO Auto-generated method stub
-		return null;
+	public GenomeIndexStatus getGenomeIndexStatus(StepExecution stepExecution) {
+		try {
+			return genomeMetadataService.getFastaStatus(getGridWorkService(getStepExecutionContext(stepExecution)), build);
+		} catch (GridUnresolvableHostException | IOException e) {
+			String mess = "Unable to determine build or build status " + e.getLocalizedMessage();
+			logger.error(mess);
+			throw new WaspRuntimeException(mess);
+		}
 	}
 
 	@Override
 	@Transactional("entityManager")
-	public WorkUnit prepareWorkUnit() throws Exception {
+	public WorkUnit prepareWorkUnit(StepExecution stepExecution) throws Exception {
 		LinkedHashSet<FileGroup> inputFileGroups = new LinkedHashSet<>();
 		LinkedHashSet<FileGroup> temporaryFileSet = new LinkedHashSet<>();
-		
+		ExecutionContext jobExecutionContext = getJobExecutionContext(stepExecution);
+		ExecutionContext stepExecutionContext = getStepExecutionContext(stepExecution);
 		if (jobExecutionContext.containsKey("gvcfFgSet"))
 			inputFileGroups.addAll(AbstractGatkTasklet.getFileGroupsFromCommaDelimitedString(jobExecutionContext.getString("gvcfFgSet"), fileService));
 		if (jobExecutionContext.containsKey("temporaryFileSet"))
@@ -166,7 +170,7 @@ public class JointGenotypingTasklet extends TestForGenomeIndexTasklet {
 		for (int i=0; i < fhlist.size(); i++)
 			inputFileNames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");
 		String rawVcfFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
-		String referenceGenomeFile = genomeMetadataService.getRemoteGenomeFastaPath(getGridWorkService(), build);
+		String referenceGenomeFile = genomeMetadataService.getRemoteGenomeFastaPath(getGridWorkService(stepExecutionContext), build);
 		w.setCommand(gatk.genotypeGVCFs(inputFileNames, rawVcfFilename, referenceGenomeFile, AbstractGatkTasklet.MEMORY_GB_16));
 		return w;
 	}
