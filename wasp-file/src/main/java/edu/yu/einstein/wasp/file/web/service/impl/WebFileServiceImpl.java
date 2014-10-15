@@ -184,7 +184,7 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 		FileHandle wf;
 		try {
 			 wf = fileService.getFileHandle(uu);
-			 logger.debug(wf.toString());
+			 logger.debug(wf.getFileURI().toString());
 		} catch (FileNotFoundException e1) {
 			logger.debug(uuid.toString() + " not in db");
 			throw new WaspException("FileHandle not in database");
@@ -226,7 +226,11 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 			filename = location;
 		}
 		
-		filename += adjext;
+		if (filename.contains(".")) {
+			String ext = filename.substring(filename.lastIndexOf("."));
+			if (!ext.equals(adjext))
+				filename += adjext;
+		}
 
 		if (roots.get(hosts.get(host))!=null && roots.get(hosts.get(host)).equals("true")) {
 			prefix = System.getProperty("user.home");
