@@ -20,10 +20,10 @@ import edu.yu.einstein.wasp.filetype.FileTypeAttribute;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
-import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
@@ -100,10 +100,25 @@ public class JointGenotypingTasklet extends TestForGenomeIndexTasklet {
 			throw new WaspRuntimeException(mess);
 		}
 	}
+	
+	@Override
+	public WorkUnitGridConfiguration configureWorkUnit(StepExecution stepExecution) throws Exception {
+		Job job = jobService.getJobByJobId(jobId);
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+		c.setMode(ExecutionMode.PROCESS);
+		c.setProcessMode(ProcessMode.MAX);
+		c.setMemoryRequirements(AbstractGatkTasklet.MEMORY_GB_16);
+		c.setWorkingDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
+		c.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
+		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
+		sd.add(gatk);
+		c.setSoftwareDependencies(sd);
+		return c;
+	}
 
 	@Override
 	@Transactional("entityManager")
-	public WorkUnit prepareWorkUnit(StepExecution stepExecution) throws Exception {
+	public WorkUnit buildWorkUnit(StepExecution stepExecution) throws Exception {
 		LinkedHashSet<FileGroup> inputFileGroups = new LinkedHashSet<>();
 		LinkedHashSet<FileGroup> temporaryFileSet = new LinkedHashSet<>();
 		ExecutionContext jobExecutionContext = getJobExecutionContext(stepExecution);
@@ -137,13 +152,10 @@ public class JointGenotypingTasklet extends TestForGenomeIndexTasklet {
 		rawVcfOutG = fileService.saveInDiscreteTransaction(rawVcfOutG, fta);
 		stepExecutionContext.putString("combinedGenotypedVcfFgId", rawVcfOutG.getId().toString());
 				
-		WorkUnit w = new WorkUnit();
-		w.setMode(ExecutionMode.PROCESS);
-		w.setProcessMode(ProcessMode.MAX);
-		w.setMemoryRequirements(AbstractGatkTasklet.MEMORY_GB_16);
+		WorkUnit w = new WorkUnit(configureWorkUnit(stepExecution));
+		
 		w.setSecureResults(true);
-		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
-		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
+		
 		w.setResultFiles(outFiles);
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();
 		for (FileGroup fg : inputFileGroups){
@@ -152,9 +164,7 @@ public class JointGenotypingTasklet extends TestForGenomeIndexTasklet {
 			fhlist.addAll(fg.getFileHandles());
 		}
 		w.setRequiredFiles(fhlist);
-		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
-		sd.add(gatk);
-		w.setSoftwareDependencies(sd);
+		
 		LinkedHashSet<String> inputFileNames = new LinkedHashSet<>();
 		for (int i=0; i < fhlist.size(); i++)
 			inputFileNames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");

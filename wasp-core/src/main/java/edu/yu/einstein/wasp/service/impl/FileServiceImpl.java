@@ -88,7 +88,8 @@ import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
 import edu.yu.einstein.wasp.interfacing.Hyperlink;
 import edu.yu.einstein.wasp.interfacing.plugin.FileTypeViewProviding;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -874,13 +875,14 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		GridWorkService gws = hostResolver.getGridWorkService(host);
 		if (r == null || r.getJobStatus().isUnknown()){
 			// use task array to submit in one batch
-			WorkUnit w = new WorkUnit();
+			WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+			c.setResultsDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
+			//w.setWorkingDirectory(WorkUnit.TMP_DIR_PLACEHOLDER);
+			c.setMode(ExecutionMode.TASK_ARRAY);
+			WorkUnit w = new WorkUnit(c);
 			w.setRegistering(true);
 			w.setSecureResults(true);
-			w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
-			//w.setWorkingDirectory(WorkUnit.TMP_DIR_PLACEHOLDER);
-			w.setMode(ExecutionMode.TASK_ARRAY);
-	
+			
 			int numFiles = 0;
 	
 			for (FileHandle f : fileHandles) {
@@ -904,7 +906,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 				logger.debug("added " + f.getFileURI() + " to get MD5");
 			}
 	
-			w.setNumberOfTasks(numFiles);
+			c.setNumberOfTasks(numFiles);
 	
 			r = gws.execute(w);
 			logger.debug("registerFiles job Status is: " + r.getJobStatus());
@@ -1656,7 +1658,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 	
 	@Override
 	public String generateJobSoftwareBaseFolderName(Job job, Software software){
-		return WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId() + "/" + software.getIName();
+		return WorkUnitGridConfiguration.RESULTS_DIR_PLACEHOLDER + "/" + job.getId() + "/" + software.getIName();
 	}
 	
 	/*

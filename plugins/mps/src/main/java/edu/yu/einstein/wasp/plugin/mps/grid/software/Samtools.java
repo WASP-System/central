@@ -17,7 +17,8 @@ import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.plugin.fileformat.service.BamService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
@@ -81,14 +82,13 @@ public class Samtools extends SoftwarePackage{
 		
 		String uniqueReadsFromAll = "";//uniquely mapped reads
 		String uniqueNonRedundantReadsFromAll = "";//non-redundant reads from all
-		
-		WorkUnit w = new WorkUnit();
-		w.setProcessMode(ProcessMode.SINGLE);
-		GridWorkService workService = gridHostResolver.getGridWorkService(w);
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+		c.setProcessMode(ProcessMode.SINGLE);
+		GridWorkService workService = gridHostResolver.getGridWorkService(c);
 		GridTransportConnection transportConnection = workService.getTransportConnection();
-		w.setWorkingDirectory(scratchDirectory);
+		c.setWorkingDirectory(scratchDirectory);
 		logger.debug("setting cat command in getPicardDedupMetrics");
-		
+		WorkUnit w = new WorkUnit(c);
 		w.addCommand("cat " + UNIQUELY_ALIGNED_READ_COUNT_FROM_ALL_READS_FILENAME );
 		w.addCommand("cat " + UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FROM_ALL_READS_FILENAME );
 

@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridResultImpl;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
 import edu.yu.einstein.wasp.plugin.genomemetadata.GenomeIndexStatus;
 
 /**
@@ -49,13 +50,18 @@ public class TestTestForGenomeIndexTasklet extends TestForGenomeIndexTasklet {
 		return GenomeIndexStatus.BUILT;
 	}
 
-	/** 
-	 * {@inheritDoc}
-	 */
 	@Override
-	@Transactional("entityManager")
-	public WorkUnit prepareWorkUnit(StepExecution stepExecution) throws Exception {
+	public WorkUnitGridConfiguration configureWorkUnit(StepExecution stepExecution) throws Exception {
+		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public WorkUnit buildWorkUnit(StepExecution stepExecution) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	
 
 }

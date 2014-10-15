@@ -28,8 +28,9 @@ import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
@@ -167,12 +168,28 @@ public class BamPreProcessingTasklet extends TestForGenomeIndexTasklet implement
 	}
 
 	@Override
-	public WorkUnit prepareWorkUnit(StepExecution stepExecution) throws Exception {
+	public WorkUnitGridConfiguration configureWorkUnit(StepExecution stepExecution) throws Exception {
+		Job job = getJobForCellLibrary();
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+		c.setMode(ExecutionMode.PROCESS);
+		c.setMemoryRequirements(AbstractGatkTasklet.MEMORY_GB_8);
+		c.setProcessMode(ProcessMode.MAX);
+		c.setWorkingDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
+		c.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
+		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
+		sd.add(gatk);
+		c.setSoftwareDependencies(sd);
+		return c;
+	}
+
+	@Override
+	@Transactional("entityManager")
+	public WorkUnit buildWorkUnit(StepExecution stepExecution) throws Exception {
 		ExecutionContext stepExecutionContext = getStepExecutionContext(stepExecution);
 		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
 		Build build = genomeService.getGenomeBuild(cellLib);
 		
-		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
+		Job job = getJobForCellLibrary();
 		
 		logger.debug("Beginning GATK preprocessing for cellLibrary " + cellLib.getId() + " from Wasp job " + job.getId());
 		
@@ -189,16 +206,10 @@ public class BamPreProcessingTasklet extends TestForGenomeIndexTasklet implement
 		boolean isDedup = false;
 		if (fileTypeService.hasAttribute(fg, BamFileTypeAttribute.DEDUP))
 			isDedup = true;
-		WorkUnit w = new WorkUnit();
+		WorkUnit w = new WorkUnit(configureWorkUnit(stepExecution));
 		LinkedHashSet<FileHandle> files = new LinkedHashSet<FileHandle>();
-		w.setMode(ExecutionMode.PROCESS);
-		w.setMemoryRequirements(AbstractGatkTasklet.MEMORY_GB_8);
-		w.setProcessMode(ProcessMode.MAX);
-		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
+		
 		w.setRequiredFiles(fhlist);
-		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
-		sd.add(gatk);
-		w.setSoftwareDependencies(sd);
 		w.setSecureResults(true);
 		String fileNameSuffix = "gatk_realn_recal";
 		if (isDedup)
@@ -237,8 +248,6 @@ public class BamPreProcessingTasklet extends TestForGenomeIndexTasklet implement
 		stepExecutionContext.put("baiGID", baiGId);
 		
 		w.setResultFiles(files);
-		
-		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
 
 		String inputBamFilename = "${" + WorkUnit.INPUT_FILE + "}";
 		String intervalFileName = "gatk.${" + WorkUnit.OUTPUT_FILE + "}.realign.intervals";
@@ -253,6 +262,11 @@ public class BamPreProcessingTasklet extends TestForGenomeIndexTasklet implement
 		w.addCommand(gatk.getRecaliTableCmd(getGridWorkService(stepExecutionContext), build, realignBamFilename, recaliGrpFilename, AbstractGatkTasklet.MEMORY_GB_8));
 		w.addCommand(gatk.getPrintRecaliCmd(getGridWorkService(stepExecutionContext), build, realignBamFilename, recaliGrpFilename, recaliBamFilename, recaliBaiFilename, AbstractGatkTasklet.MEMORY_GB_8));
 		return w;
+	}
+	
+	private Job getJobForCellLibrary(){
+		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
+		return sampleService.getJobOfLibraryOnCell(cellLib);
 	}
 
 }

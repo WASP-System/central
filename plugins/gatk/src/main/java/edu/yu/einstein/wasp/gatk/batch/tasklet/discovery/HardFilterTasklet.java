@@ -24,10 +24,10 @@ import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
-import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
@@ -109,10 +109,28 @@ public class HardFilterTasklet extends TestForGenomeIndexTasklet {
 			throw new WaspRuntimeException(mess);
 		}
 	}
+	
+	@Override
+	public WorkUnitGridConfiguration configureWorkUnit(StepExecution stepExecution) throws Exception {
+		Job job = jobService.getJobByJobId(jobId);
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+		c.setMode(ExecutionMode.PROCESS);
+		c.setProcessMode(ProcessMode.SINGLE);
+		c.setMemoryRequirements(AbstractGatkTasklet.MEMORY_GB_4);
+		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
+		SnpEff snpEff = (SnpEff) gatk.getSoftwareDependencyByIname("snpEff");
+		sd.add(gatk);
+		sd.add(snpEff);
+		c.setSoftwareDependencies(sd);
+		
+		c.setWorkingDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
+		c.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
+		return c;
+	}
 
 	@Override
 	@Transactional("entityManager")
-	public WorkUnit prepareWorkUnit(StepExecution stepExecution) throws Exception {
+	public WorkUnit buildWorkUnit(StepExecution stepExecution) throws Exception {
 		ExecutionContext stepExecutionContext = getStepExecutionContext(stepExecution);
 		ExecutionContext jobExecutionContext = getJobExecutionContext(stepExecution);
 		FileGroup combinedGenotypedVcfFg = null;
@@ -154,23 +172,15 @@ public class HardFilterTasklet extends TestForGenomeIndexTasklet {
 		outFiles.add(filteredIndelVcfOut);
 		stepExecutionContext.putString("filteredIndelsVcfFgId", filteredIndelVcfOutG.getId().toString());
 				
-		WorkUnit w = new WorkUnit();
-		w.setMode(ExecutionMode.PROCESS);
-		w.setProcessMode(ProcessMode.SINGLE);
-		w.setMemoryRequirements(AbstractGatkTasklet.MEMORY_GB_4);
+		WorkUnit w = new WorkUnit(configureWorkUnit(stepExecution));
+		
 		w.setSecureResults(true);
-		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
-		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
 		w.setResultFiles(outFiles);
+		
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();
 		build = gatkService.getBuildForFg(combinedGenotypedVcfFg);
 		fhlist.addAll(combinedGenotypedVcfFg.getFileHandles());
 		w.setRequiredFiles(fhlist);
-		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
-		SnpEff snpEff = (SnpEff) gatk.getSoftwareDependencyByIname("snpEff");
-		sd.add(gatk);
-		sd.add(snpEff);
-		w.setSoftwareDependencies(sd);
 		String wxsIntervalFile = null; 
 		Strategy strategy = strategyService.getThisJobsStrategy(StrategyType.LIBRARY_STRATEGY, job);
 		if (strategy.getStrategy().equals("WXS"))
@@ -191,9 +201,9 @@ public class HardFilterTasklet extends TestForGenomeIndexTasklet {
 		String indelsFile = genomeMetadataService.getRemoteIndexedVcfPath(getGridWorkService(stepExecutionContext), build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.INDEL));
 		String filteredSnpWithIdsVcfFileName = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
 		String filteredIndelWithIdsVcfFileName = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
+		SnpEff snpEff = (SnpEff) gatk.getSoftwareDependencyByIname("snpEff");
 		w.addCommand(snpEff.getAnnotateIdsCommand(filteredSnpVcfFileName, snpFile, filteredSnpWithIdsVcfFileName));
 		w.addCommand(snpEff.getAnnotateIdsCommand(filteredIndelVcfFileName, indelsFile, filteredIndelWithIdsVcfFileName));
-		
 		return w;
 	}
 

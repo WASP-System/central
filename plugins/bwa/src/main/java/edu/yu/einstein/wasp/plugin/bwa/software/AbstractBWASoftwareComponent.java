@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -143,7 +144,7 @@ public abstract class AbstractBWASoftwareComponent extends ReferenceBasedAligner
 
 	}
 	
-	public WorkUnit prepareWorkUnit(FileGroup fg) {
+	public WorkUnitGridConfiguration prepareWorkUnitConfiguration(FileGroup fg) {
 		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
 		
 		c.setMode(ExecutionMode.TASK_ARRAY);
@@ -159,33 +160,32 @@ public abstract class AbstractBWASoftwareComponent extends ReferenceBasedAligner
 		//sd.add(samtools);
 		c.setSoftwareDependencies(sd);
 		c.setResultsDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
-
+		return c;
+	}
+	
+	public WorkUnit buildWorkUnit(FileGroup fg) {
+		WorkUnit w = new WorkUnit(prepareWorkUnitConfiguration(fg));
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();
 		fhlist.addAll(fg.getFileHandles());
 		Collections.sort(fhlist, new FastqComparator(fastqService));
-		
-		WorkUnit w = new WorkUnit(c);
 		w.setRequiredFiles(fhlist);
-		
 		w.setSecureResults(false);
-		
-		
 		return w;
 	}
 	
-	protected String getOptString(String optPrefix, Map<String,Object> jobParameters){
+	protected String getOptString(String optPrefix, Map<String,JobParameter> jobParameters){
 		String optString = "";
 		for (String opt : jobParameters.keySet()) {
 			if (!opt.startsWith(optPrefix))
 				continue;
 			String key = opt.replace(optPrefix, "");
-			if (jobParameters.get(opt).toString().equals("yes")){ 
+			if (jobParameters.get(opt).getValue().toString().equals("yes")){ 
 				optString += " " + key;
 				continue;
 			}
-			if (jobParameters.get(opt).toString().equals("no") || jobParameters.get(opt).toString().equals("null"))
+			if (jobParameters.get(opt).getValue().toString().equals("no") || jobParameters.get(opt).getValue().toString().equals("null"))
 				continue;
-			optString += " " + key + " " + jobParameters.get(opt).toString();
+			optString += " " + key + " " + jobParameters.get(opt).getValue().toString();
 		}
 		return optString;
 	}

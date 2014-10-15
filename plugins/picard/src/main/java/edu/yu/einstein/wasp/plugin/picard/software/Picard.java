@@ -27,7 +27,8 @@ import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
@@ -100,7 +101,7 @@ public class Picard extends SoftwarePackage {
 			createIndex = true;
 		String command = "java -Xmx" + memRequiredGb + "g -jar $PICARD_ROOT/MarkDuplicates.jar I=" + inputBamFilename + " O=" + dedupBamFilename +
 				" REMOVE_DUPLICATES=false METRICS_FILE=" + dedupMetricsFilename + 
-				" TMP_DIR=${" + WorkUnit.TMP_DIRECTORY + "} CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT\n";
+				" TMP_DIR=${" + WorkUnitGridConfiguration.TMP_DIRECTORY + "} CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT\n";
 		if (createIndex) {
 			command += "tmpfn=" + dedupBamFilename + "\nif [ -e ${tmpfn}.bai ]; then\n mv ${tmpfn}.bai " + dedupBaiFilename + "\nfi\n";
 			command += "if [ -e ${tmpfn/.bam.bai/}.bai ]; then\n mv ${tmpfn/.bam.bai/}.bai " + dedupBaiFilename + "\nfi\n";
@@ -117,7 +118,7 @@ public class Picard extends SoftwarePackage {
 	 */
 	public String getIndexBamCmd(String bamFilename, String baiFilename, int memRequiredGb){
 		String command = "java -Xmx" + memRequiredGb + "g -jar $PICARD_ROOT/BuildBamIndex.jar I=" + bamFilename + " O=" + baiFilename + 
-				" TMP_DIR=${" + WorkUnit.TMP_DIRECTORY + "} VALIDATION_STRINGENCY=SILENT";
+				" TMP_DIR=${" + WorkUnitGridConfiguration.TMP_DIRECTORY + "} VALIDATION_STRINGENCY=SILENT";
 		logger.debug("Will conduct picard indexing of bam file with command: " + command);
 		return command;
 	}	
@@ -136,7 +137,7 @@ public class Picard extends SoftwarePackage {
 		String command = "java -Xmx" + memRequiredGb + "g -jar $PICARD_ROOT/MergeSamFiles.jar";
 		for (String fileName : inputBamFilenames)
 			command += " I=" + fileName;
-		command += " O=" + mergedBamFilename + " SO=coordinate TMP_DIR=${" + WorkUnit.TMP_DIRECTORY + "} CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT";
+		command += " O=" + mergedBamFilename + " SO=coordinate TMP_DIR=${" + WorkUnitGridConfiguration.TMP_DIRECTORY + "} CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT";
 		if (createIndex)
 			 command += " && mv " + mergedBamFilename + ".bai " + mergedBaiFilename;
 		logger.debug("Will conduct picard MergeSamFiles with command: " + command);
@@ -155,7 +156,7 @@ public class Picard extends SoftwarePackage {
 		if (mergedBaiFilename != null)
 			createIndex = true;
 		String command = "java -Xmx" + memRequiredGb + "g -jar $PICARD_ROOT/MergeSamFiles.jar $(printf 'I=%s ' " + inputBamFilenamesGlob + ")" + 
-		" O=" + mergedBamFilename + " SO=coordinate TMP_DIR=${" + WorkUnit.TMP_DIRECTORY + "} CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT";
+		" O=" + mergedBamFilename + " SO=coordinate TMP_DIR=${" + WorkUnitGridConfiguration.TMP_DIRECTORY + "} CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT";
 		if (createIndex)
 			 command += " && mv " + mergedBamFilename + ".bai " + mergedBaiFilename;
 		logger.debug("Will conduct picard MergeSamFiles with command: " + command);
@@ -247,13 +248,13 @@ public class Picard extends SoftwarePackage {
 		String readPairOpticalDuplicates = "";
 		String percentDuplication = "";//this value is really a fraction, so store in fractionDuplicated; it's duplicated mapped reads / total mapped reads
 		String fractionDuplicated = "";//identical to percentDuplication, just provided with a more descriptive name; it's duplicated mapped reads / total mapped reads
-		
-		WorkUnit w = new WorkUnit();
-		w.setProcessMode(ProcessMode.SINGLE);
-		GridWorkService workService = gridHostResolver.getGridWorkService(w);
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+		c.setProcessMode(ProcessMode.SINGLE);
+		GridWorkService workService = gridHostResolver.getGridWorkService(c);
 		GridTransportConnection transportConnection = workService.getTransportConnection();
-		w.setWorkingDirectory(scratchDirectory);
+		c.setWorkingDirectory(scratchDirectory);
 		logger.debug("setting cat command in getPicardDedupMetrics");
+		WorkUnit w = new WorkUnit(c);
 		w.addCommand("cat " + dedupMetricsFilename + " | grep '.' | tail -1");//grep '.' excludes blank lines; tail to get the data
 		
 		GridResult r = transportConnection.sendExecToRemote(w);

@@ -8,17 +8,16 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
-import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
@@ -74,15 +73,27 @@ public class RealignTasklet extends AbstractGatkTasklet {
 	}
 
 	@Override
-	@Transactional("entityManager")
-	public WorkUnit prepareWorkUnit(StepExecution stepExecution) throws Exception {
+	public WorkUnitGridConfiguration configureWorkUnit(StepExecution stepExecution) throws Exception {
 		Job job = jobService.getJobByJobId(jobId);
-		WorkUnit w = new WorkUnit();
-		w.setMode(ExecutionMode.PROCESS);
-		w.setProcessMode(ProcessMode.MAX);
-		w.setMemoryRequirements(MEMORY_GB_16);
-		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
-		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+		c.setMode(ExecutionMode.PROCESS);
+		c.setProcessMode(ProcessMode.MAX);
+		c.setMemoryRequirements(MEMORY_GB_16);
+		c.setWorkingDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
+		c.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
+		List<SoftwarePackage> dependencies = new ArrayList<>();
+		Picard picard = (Picard) gatk.getSoftwareDependencyByIname("picard");
+		dependencies.add(gatk);
+		dependencies.add(picard);
+		c.setSoftwareDependencies(dependencies);
+		return c;
+	}
+
+	@Override
+	@Transactional("entityManager")
+	public WorkUnit buildWorkUnit(StepExecution stepExecution) throws Exception {
+		WorkUnit w = new WorkUnit(configureWorkUnit(stepExecution));
+	
 		w.setSecureResults(true);
 		
 		List<FileHandle> inFiles = new ArrayList<FileHandle>();
@@ -104,11 +115,6 @@ public class RealignTasklet extends AbstractGatkTasklet {
             	throw new WaspRuntimeException("Cannot obtain a single filehandle from FileGroup id=" + fgId);
 		}
 		w.setResultFiles(outFiles);
-		List<SoftwarePackage> dependencies = new ArrayList<>();
-		Picard picard = (Picard) gatk.getSoftwareDependencyByIname("picard");
-		dependencies.add(gatk);
-		dependencies.add(picard);
-		w.setSoftwareDependencies(dependencies);
 		
 		LinkedHashSet<String> inputBamFilenames = new LinkedHashSet<>();
 		for (int i=0; i < inFiles.size(); i++)

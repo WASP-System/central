@@ -5,6 +5,7 @@ package edu.yu.einstein.wasp.plugin.bwa.software;
 
 import java.util.Map;
 
+import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 
 import edu.yu.einstein.wasp.Assert;
@@ -26,8 +27,8 @@ public class BWABacktrackSoftwareComponent extends AbstractBWASoftwareComponent{
 		super();
 	}
 	
-	public WorkUnit getAln(SampleSource cellLibrary, FileGroup fg, Map<String,Object> jobParameters) throws ParameterValueRetrievalException {
-		WorkUnit w = prepareWorkUnit(fg);
+	public WorkUnit getAln(SampleSource cellLibrary, FileGroup fg, Map<String,JobParameter> jobParameters) throws ParameterValueRetrievalException {
+		WorkUnit w = buildWorkUnit(fg);
 		
 		String alnOpts = getOptString("aln", jobParameters);
 
@@ -48,7 +49,7 @@ public class BWABacktrackSoftwareComponent extends AbstractBWASoftwareComponent{
 	}
 	
 	public WorkUnit getSam(SampleSource cellLibrary, String scratchDirectory, String namePrefix, FileGroup fg, Map<String,Object> jobParameters) throws ParameterValueRetrievalException {
-		WorkUnit w = prepareWorkUnit(fg);
+		WorkUnit w = buildWorkUnit(fg);
 		w.getConfiguration().setProcessMode(ProcessMode.SINGLE);
 		w.getConfiguration().setProcessorRequirements(1);
 		w.getConfiguration().setWorkingDirectory(scratchDirectory);

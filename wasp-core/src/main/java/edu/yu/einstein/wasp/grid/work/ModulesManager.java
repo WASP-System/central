@@ -12,8 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.grid.GridExecutionException;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
@@ -62,7 +62,7 @@ public class ModulesManager extends HashMap<String, String> implements SoftwareM
 		String result = "";
 		
 		// configure software dependencies that are loaded via modules
-		for (SoftwarePackage sw : w.getSoftwareDependencies()) {
+		for (SoftwarePackage sw : w.getConfiguration().getSoftwareDependencies()) {
 
 			String name = sw.getSoftwareName();
 			String remoteName = name;
@@ -84,28 +84,28 @@ public class ModulesManager extends HashMap<String, String> implements SoftwareM
 			result += new StringBuilder().append(
 					"module load " + remoteName + "/" + version + "\n").toString();
 		}
-		if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
-			result += "if [ \"$" + WorkUnit.TASK_ARRAY_ID + "\" -eq \"1\" ]; then\n";
+		if (w.getConfiguration().getMode().equals(ExecutionMode.TASK_ARRAY))
+			result += "if [ \"$" + WorkUnitGridConfiguration.TASK_ARRAY_ID + "\" -eq \"1\" ]; then\n";
 		result += "module list 2> ${" + WorkUnit.JOB_NAME + "}.sw\n";
-		if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
+		if (w.getConfiguration().getMode().equals(ExecutionMode.TASK_ARRAY))
 			result +="fi\n";
 		
 		
 		// configure the number of processes that will be used.
 		// TODO: clean up this logic
 		int procs = 0;
-		for (SoftwarePackage sw : w.getSoftwareDependencies()) {
-			if (w.getProcessMode().equals(ProcessMode.SINGLE)) {
+		for (SoftwarePackage sw : w.getConfiguration().getSoftwareDependencies()) {
+			if (w.getConfiguration().getProcessMode().equals(ProcessMode.SINGLE)) {
 				procs++;
 				break;
 			}
-			if (w.getProcessMode().equals(ProcessMode.FIXED) || w.getProcessMode().equals(ProcessMode.MAX)) {
-				procs = w.getProcessorRequirements().intValue();
+			if (w.getConfiguration().getProcessMode().equals(ProcessMode.FIXED) || w.getConfiguration().getProcessMode().equals(ProcessMode.MAX)) {
+				procs = w.getConfiguration().getProcessorRequirements().intValue();
 				break;
 			}
 			
 			String pkey = sw.getSoftwareName() + ".env.processors";
-			if (w.getProcessMode().equals(ProcessMode.SUM)) {
+			if (w.getConfiguration().getProcessMode().equals(ProcessMode.SUM)) {
 				
 				// With this logic, SUM could exceed absolute maxiumum
 				// this application is made after setting by GridWorkService
@@ -118,10 +118,10 @@ public class ModulesManager extends HashMap<String, String> implements SoftwareM
 				}
 			}
 			
-			w.setProcessorRequirements(new Integer(procs));
+			w.getConfiguration().setProcessorRequirements(new Integer(procs));
 		}
 		
-		logger.debug("Configured work unit with mode " + w.getProcessMode().toString() + " and " + procs + " processors.");
+		logger.debug("Configured work unit with mode " + w.getConfiguration().getProcessMode().toString() + " and " + procs + " processors.");
 		
 		return result;
 	}

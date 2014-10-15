@@ -23,7 +23,8 @@ import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.SoftwareManager;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy;
@@ -107,26 +108,27 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 		// TODO: handle single and dual situations.
 		
 		// creating a work unit this way sets the runID from the jobparameters
-		WorkUnit w = new WorkUnit();
-		w.setProcessMode(ProcessMode.FIXED);
-		w.setSoftwareDependencies(sd);
-		GridWorkService gws = hostResolver.getGridWorkService(w);
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+		
+		c.setProcessMode(ProcessMode.FIXED);
+		c.setSoftwareDependencies(sd);
+		GridWorkService gws = hostResolver.getGridWorkService(c);
 		SoftwareManager sm = gws.getTransportConnection().getSoftwareManager();
 		String p = sm.getConfiguredSetting("casava.env.processors");
 		Integer procs = 1;
 		if (PropertyHelper.isSet(p)) {
 			procs = new Integer(p);
 		}
-		w.setProcessorRequirements(procs);
+		c.setProcessorRequirements(procs);
 		String dataDir = gws.getTransportConnection().getConfiguredSetting("illumina.data.dir");
 		if (!PropertyHelper.isSet(dataDir))
 			throw new GridException("illumina.data.dir is not defined!");
 		
-		w.setWorkingDirectory(dataDir + "/" + run.getName() 
+		c.setWorkingDirectory(dataDir + "/" + run.getName() 
 				+ "/Data/Intensities/BaseCalls/" );
 		
-		w.setResultsDirectory(dataDir + "/" + run.getName() + "/" + outputFolder);
-		
+		c.setResultsDirectory(dataDir + "/" + run.getName() + "/" + outputFolder);
+		WorkUnit w = new WorkUnit(c);
 		w.setCommand(getConfigureBclToFastqString(sm, run, procs, sampleSheetName, outputFolder));
 
 		GridResult result = gws.execute(w);

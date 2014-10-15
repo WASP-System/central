@@ -3,11 +3,15 @@
  */
 package edu.yu.einstein.wasp.plugin.bwa.batch.tasklet;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
@@ -21,13 +25,17 @@ import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.bwa.service.BwaService;
 import edu.yu.einstein.wasp.plugin.bwa.software.BWAMemSoftwareComponent;
+import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqComparator;
+import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqFileTypeAttribute;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.plugin.genomemetadata.GenomeIndexStatus;
 import edu.yu.einstein.wasp.plugin.genomemetadata.batch.tasklet.TestForGenomeIndexTasklet;
@@ -85,31 +93,19 @@ public class BWAmemTasklet extends TestForGenomeIndexTasklet implements StepExec
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
-		
-		
 		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
-		
-		logger.debug("file group: " + fg.getId() + ":" + fg.getDescription());
-		
-		Map<String,Object> jobParameters = context.getStepContext().getJobParameters();
-		
-		for (String key : jobParameters.keySet()) {
-			logger.debug("Key: " + key + " Value: " + jobParameters.get(key).toString());
-		}
-		
-		try {
-		WorkUnit w = bwa.getMem(cellLib, fg, jobParameters);
-		
-		GridResult result = executeWorkUnit(context, w);
-		
-		//place the grid result in the step context
-		saveGridResult(context, result);
-		
-		// place properties for use in later steps into the step execution context, to be promoted
-		// to the job context at run time.
-		stepExecutionContext.put("cellLibId", cellLib.getId()); 
-		stepExecutionContext.put("scrDir", result.getWorkingDirectory());
-		stepExecutionContext.put("method", "mem");
+		try{
+			WorkUnit w = buildWorkUnit(context.getStepContext().getStepExecution());
+			GridResult result = executeWorkUnit(context, w);
+			
+			//place the grid result in the step context
+			saveGridResult(context, result);
+			
+			// place properties for use in later steps into the step execution context, to be promoted
+			// to the job context at run time.
+			stepExecutionContext.put("cellLibId", cellLib.getId()); 
+			stepExecutionContext.put("scrDir", result.getWorkingDirectory());
+			stepExecutionContext.put("method", "mem");
 		} catch (ParameterValueRetrievalException e) {
 			logger.info("BWA aln requested but got ParameterValueRetrievalException: " + e.getLocalizedMessage() + ". Assume alignment not possible, returning SKIP.");
 		    skip = true;
@@ -128,7 +124,15 @@ public class BWAmemTasklet extends TestForGenomeIndexTasklet implements StepExec
 			
 			logger.debug("Beginning BWA mem step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
 			
-			fileGroups = fileService.getFilesForCellLibraryByType(cellLib, fastqFileType);
+			fileGroups = new HashSet<FileGroup>();;
+			
+		    for (FileGroup fg : fileService.getFilesForCellLibraryByType(cellLib, fastqFileType)) {
+		        if (!fastqService.hasAttribute(fg, FastqFileTypeAttribute.TRIMMED)) {
+		            logger.trace("Ignoring untrimmed file group " + fg.getId());
+		            continue;
+		        }
+		        fileGroups.add(fg);
+		    }
 			Assert.assertTrue(fileGroups.size() == 1);
 			fg = fileGroups.iterator().next();
 		}
@@ -161,8 +165,28 @@ public class BWAmemTasklet extends TestForGenomeIndexTasklet implements StepExec
 
 	@Override
 	@Transactional("entityManager")
-	public WorkUnit prepareWorkUnit(StepExecution stepExecution) {
-		return bwa.prepareWorkUnit(fg);
+	public WorkUnit buildWorkUnit(StepExecution stepExecution) throws Exception {
+		logger.debug("file group: " + fg.getId() + ":" + fg.getDescription());
+		
+		Map<String, JobParameter> jobParameters = stepExecution.getJobExecution().getJobParameters().getParameters();
+		if (logger.isDebugEnabled()){
+			for (String key : jobParameters.keySet()) {
+				logger.debug("Key: " + key + " Value: " + jobParameters.get(key).getValue().toString());
+			}
+		}
+		
+		WorkUnit w = bwa.getMem(cellLib, fg, jobParameters);
+		List<FileHandle> fhlist = new ArrayList<FileHandle>();
+		fhlist.addAll(fg.getFileHandles());
+		Collections.sort(fhlist, new FastqComparator(fastqService));
+		w.setRequiredFiles(fhlist);
+		w.setSecureResults(false);
+		return w;
+	}
+
+	@Override
+	public WorkUnitGridConfiguration configureWorkUnit(StepExecution stepExecution) throws Exception {
+		return bwa.prepareWorkUnitConfiguration(fg);
 	}
 
 }

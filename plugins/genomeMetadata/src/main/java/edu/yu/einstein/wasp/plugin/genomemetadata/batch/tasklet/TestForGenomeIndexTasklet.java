@@ -126,7 +126,7 @@ public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
 	/**
 	 * Work unit needs to be set up before execution in order to resolve the host prior to step execution.
 	 */
-	public abstract WorkUnit buildWorkUnit(StepExecution se) throws Exception;
+	public abstract WorkUnit buildWorkUnit(StepExecution stepExecution) throws Exception;
 	
 	/**
 	 * Execute a new work unit on the predetermined host

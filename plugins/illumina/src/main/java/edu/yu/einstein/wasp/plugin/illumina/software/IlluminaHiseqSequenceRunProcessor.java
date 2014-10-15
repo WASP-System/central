@@ -28,7 +28,8 @@ import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Run;
@@ -95,7 +96,6 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 		    logger.error("sample sheet method called with unknown strategy: " + method);
 		    throw new WaspRuntimeException("sample sheet method called with unknown strategy: " + method);
 		}
-		WorkUnit w = new WorkUnit();
 				
 		Sample platformUnit = run.getPlatformUnit();
 		
@@ -107,15 +107,15 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 			throw new edu.yu.einstein.wasp.exception.InvalidParameterException(platformUnit.getId() + " is not a platform unit");
 		}
 		
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
 		List<SoftwarePackage> sp = new ArrayList<SoftwarePackage>();
 		sp.add(this);
-		w.setCommand("touch start-illumina-pipeline.txt");
-		w.setSoftwareDependencies(sp);
-		w.setProcessMode(ProcessMode.SINGLE);
+		c.setSoftwareDependencies(sp);
+		c.setProcessMode(ProcessMode.SINGLE);	
 		
-		GridWorkService gws = hostResolver.getGridWorkService(w);
+		GridWorkService gws = hostResolver.getGridWorkService(c);
 		GridFileService gfs = gws.getGridFileService();
-		String hostname = hostResolver.getHostname(w);
+		String hostname = hostResolver.getHostname(c);
 		logger.debug("sending illumina processing job to " + hostname);
 		
 		String directory = "";
@@ -133,8 +133,8 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 			File f = createSampleSheet(run, method);
 			String newDir = directory + "/Data/Intensities/BaseCalls/";
 			
-			w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
-			w.setResultsDirectory(newDir);
+			c.setWorkingDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
+			c.setResultsDirectory(newDir);
 			
 			gfs.put(f, newDir + sampleSheetName);
 			logger.debug("deleting temporary local sample sheet " + f.getAbsolutePath());
@@ -146,7 +146,9 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 		}
 		
 		logger.debug("touching remote file");
-		w.setWorkingDirectory(directory);		
+		c.setWorkingDirectory(directory);		
+		WorkUnit w = new WorkUnit(c);
+		w.setCommand("touch start-illumina-pipeline.txt");
 		return hostResolver.execute(w);
 		
 	}
