@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.SampleSource;
 
@@ -32,10 +33,10 @@ public class BWAMemSoftwareComponent extends AbstractBWASoftwareComponent{
 
 		w.setCommand(checkIndex);
 		
-		String command = "bwa mem " + alnOpts  + " -R " + this.getReadGroupString(cellLibrary) + " -t ${" + WorkUnit.NUMBER_OF_THREADS + "} " + 
+		String command = "bwa mem " + alnOpts  + " -R " + this.getReadGroupString(cellLibrary) + " -t ${" + WorkUnitGridConfiguration.NUMBER_OF_THREADS + "} " + 
 				getGenomeIndexPath(getGenomeBuild(cellLibrary)) + " " +
-				"${" + WorkUnit.INPUT_FILE + "[" + WorkUnit.ZERO_TASK_ARRAY_ID + "]} " +
-				"> sam.${" + WorkUnit.TASK_OUTPUT_FILE + "}"; 
+				"${" + WorkUnit.INPUT_FILE + "[" + WorkUnitGridConfiguration.ZERO_TASK_ARRAY_ID + "]} " +
+				"> sam.${" + WorkUnitGridConfiguration.TASK_OUTPUT_FILE + "}"; 
 		
 		logger.debug("Will conduct bwa mem with string: " + command);
 		

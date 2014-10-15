@@ -38,15 +38,6 @@ public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
 		this.isDedup = isDedup;
 	}
 	
-	@Override
-	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
-		
-		GridResult result = executeWorkUnit(context);
-
-		// place the grid result in the step context
-		saveGridResult(context, result);
-	}
 	
 	@Override
 	@Transactional("entityManager")

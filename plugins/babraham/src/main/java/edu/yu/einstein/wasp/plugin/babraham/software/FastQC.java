@@ -17,8 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Software;
@@ -109,29 +110,29 @@ public class FastQC extends SoftwarePackage{
 	 * @return
 	 */
 	public WorkUnit getFastQC(Integer fileGroupId) {
-		
-		WorkUnit w = new WorkUnit();
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
 		
 		// require fastqc
 		List<SoftwarePackage> software = new ArrayList<SoftwarePackage>();
 		software.add(this);
-		w.setSoftwareDependencies(software);
+		c.setSoftwareDependencies(software);
 		
 		// require 1GB memory
-		w.setMemoryRequirements(1);
+		c.setMemoryRequirements(1);
 		
 		// require a single thread, execution mode PROCESS
 		// indicates this is a vanilla execution.
-		w.setProcessMode(ProcessMode.SINGLE);
-		w.setMode(ExecutionMode.PROCESS);
+		c.setProcessMode(ProcessMode.SINGLE);
+		c.setMode(ExecutionMode.PROCESS);
 		
 		// set working directory to scratch
-		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
+		c.setWorkingDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
 		
 		// we aren't actually going to retain any files, so we will set the output
 		// directory to the scratch directory.  Also set "secure results" to
 		// false to indicate that we don't care about the output.
-		w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
+		c.setResultsDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
+		WorkUnit w = new WorkUnit(c);
 		w.setSecureResults(false);
 		
 		// add the files to the work unit

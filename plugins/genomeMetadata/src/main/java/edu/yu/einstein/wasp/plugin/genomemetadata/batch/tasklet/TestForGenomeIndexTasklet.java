@@ -20,6 +20,7 @@ import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager.LockType;
 import edu.yu.einstein.wasp.plugin.genomemetadata.GenomeIndexStatus;
@@ -46,7 +47,7 @@ public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
 		
 	@Override
 	@Transactional("entityManager")
-	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
+	public final RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		if (wasWokenOnTimeout(context)){
 			logger.trace("Woken on timeout");
 			wasHibernationRequested = false;
@@ -75,6 +76,16 @@ public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
 		return RepeatStatus.CONTINUABLE;
 	}
 	
+	@Override
+	@Transactional("entityManager")
+	public void doExecute(ChunkContext context) throws Exception {
+		
+		GridResult result = executeWorkUnit(context);
+		
+		//place the grid result in the step context
+		saveGridResult(context, result);
+	}
+	
 	/** 
 	 * {@inheritDoc}
 	 * 
@@ -90,7 +101,7 @@ public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
 			// not yet set so set now
 			try {
 				logger.trace("test for genome index beforeStep");
-				setRemoteHost(stepExecution.getExecutionContext(), prepareWorkUnit(stepExecution));
+				setRemoteHost(stepExecution.getExecutionContext(), configureWorkUnit(stepExecution));
 			} catch (Exception e1) {
 				e1.printStackTrace();
 				String message = "Unable to determine appropriate host for BWA alignment: " + e.getLocalizedMessage();
@@ -108,9 +119,14 @@ public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
 	public abstract GenomeIndexStatus getGenomeIndexStatus(StepExecution stepExecution);
 	
 	/**
-	 * Work unit needs to be prepared before execution in order to resolve the host prior to step execution.
+	 * Work unit needs to be configured before execution in order to resolve the host prior to step execution.
 	 */
-	public abstract WorkUnit prepareWorkUnit(StepExecution stepExecution) throws Exception;
+	public abstract WorkUnitGridConfiguration configureWorkUnit(StepExecution stepExecution) throws Exception;
+	
+	/**
+	 * Work unit needs to be set up before execution in order to resolve the host prior to step execution.
+	 */
+	public abstract WorkUnit buildWorkUnit(StepExecution se) throws Exception;
 	
 	/**
 	 * Execute a new work unit on the predetermined host
@@ -131,7 +147,9 @@ public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
 	 * @throws Exception 
 	 */
 	public GridResult executeWorkUnit(ChunkContext context) throws Exception {
-		return executeWorkUnit(context, prepareWorkUnit(context.getStepContext().getStepExecution()));
+		return executeWorkUnit(context, 
+				buildWorkUnit( context.getStepContext().getStepExecution() ) 
+				);
 	}
 	
 	/**
@@ -143,8 +161,8 @@ public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
 		return gridHostResolver.getGridWorkService(getRemoteHost(stepExecutionContext));
 	}
 	
-	private void setRemoteHost(ExecutionContext stepExecutionContext, WorkUnit w) throws GridUnresolvableHostException{
-		stepExecutionContext.put(REMOTE_HOST_KEY, gridHostResolver.getGridWorkService(w).getTransportConnection().getHostName());
+	private void setRemoteHost(ExecutionContext stepExecutionContext, WorkUnitGridConfiguration c) throws GridUnresolvableHostException{
+		stepExecutionContext.put(REMOTE_HOST_KEY, gridHostResolver.getGridWorkService(c).getTransportConnection().getHostName());
 	}
 	
 	public String getRemoteHost(ExecutionContext stepExecutionContext) throws GridUnresolvableHostException{

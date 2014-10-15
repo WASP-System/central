@@ -81,16 +81,6 @@ public class HardFilterTasklet extends TestForGenomeIndexTasklet {
 		this.jobId = jobId;
 	}
 
-	@Override
-	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
-		
-				
-		GridResult result = executeWorkUnit(context);
-		
-		//place the grid result in the step context
-		saveGridResult(context, result);
-	}
 	
 	@Transactional("entityManager")
 	@Override

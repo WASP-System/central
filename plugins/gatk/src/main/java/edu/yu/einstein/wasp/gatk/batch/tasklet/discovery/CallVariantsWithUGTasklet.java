@@ -52,16 +52,6 @@ public class CallVariantsWithUGTasklet extends AbstractGatkTasklet implements St
 
 	@Override
 	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
-		
-		GridResult result = executeWorkUnit(context);
-		
-		//place the grid result in the step context
-		saveGridResult(context, result);
-	}
-
-	@Override
-	@Transactional("entityManager")
 	public GenomeIndexStatus getGenomeIndexStatus(StepExecution stepExecution) {
 		try {
 			return genomeMetadataService.getFastaStatus(getGridWorkService(getStepExecutionContext(stepExecution)), build);

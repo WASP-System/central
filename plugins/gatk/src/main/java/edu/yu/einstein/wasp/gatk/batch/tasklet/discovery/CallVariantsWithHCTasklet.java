@@ -13,7 +13,6 @@ import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.explore.JobExplorer;
-import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,10 +20,10 @@ import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.Strategy.StrategyType;
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
-import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
@@ -56,11 +55,41 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 		this.jobExecutionId = parentJobExecutionId;
 	}
 
+	
 	@Override
 	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
+	public GenomeIndexStatus getGenomeIndexStatus(StepExecution stepExecution) {
+		try {
+			return genomeMetadataService.getFastaStatus(getGridWorkService(getStepExecutionContext(stepExecution)), build);
+		} catch (GridUnresolvableHostException | IOException e) {
+			String mess = "Unable to determine build or build status " + e.getLocalizedMessage();
+			logger.error(mess);
+			throw new WaspRuntimeException(mess);
+		}
+	}
+	
+	@Override
+	@Transactional("entityManager")
+	public WorkUnitGridConfiguration configureWorkUnit(StepExecution se){
 		Job job = jobService.getJobByJobId(jobId);
-		WorkUnit w = prepareWorkUnit(context.getStepContext().getStepExecution());
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+		c.setMode(ExecutionMode.PROCESS);
+		c.setProcessMode(ProcessMode.SINGLE);
+		c.setMemoryRequirements(MEMORY_GB_16);
+		
+		c.setWorkingDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
+		c.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
+		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
+		sd.add(gatk);
+		c.setSoftwareDependencies(sd);
+		return c;
+	}
+
+	@Override
+	@Transactional("entityManager")
+	public WorkUnit buildWorkUnit(StepExecution se) throws Exception {
+		WorkUnit w = new WorkUnit(configureWorkUnit(se));
+		Job job = jobService.getJobByJobId(jobId);
 		LinkedHashSet<FileHandle> outFiles = new LinkedHashSet<FileHandle>();
         for (Integer fgId : this.getOutputFilegroupIds()){
             FileGroup fg = fileService.getFileGroupById(fgId);
@@ -98,43 +127,12 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 			wxsIntervalFile = gatkService.getWxsIntervalFile(job, build);
 		String gatkOpts = gatk.getCallVariantOpts(paramMap);
 		String outputGvcfFileName = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
-		String referenceGenomeFile = genomeMetadataService.getRemoteGenomeFastaPath(getGridWorkService(getStepExecutionContext(context)), build);
+		String referenceGenomeFile = genomeMetadataService.getRemoteGenomeFastaPath(getGridWorkService(getStepExecutionContext(se)), build);
 		LinkedHashSet<String> inputBamFilenames = new LinkedHashSet<>();
 		for (int i=0; i < fhlist.size(); i++)
 			inputBamFilenames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");
 		w.setCommand(gatk.getCallVariantsByHaplotypeCaller(inputBamFilenames, outputGvcfFileName, referenceGenomeFile, wxsIntervalFile, gatkOpts, MEMORY_GB_16));
-		GridResult result = executeWorkUnit(context);
-		
-		//place the grid result in the step context
-		saveGridResult(context, result);
-	}
-
-	@Override
-	@Transactional("entityManager")
-	public GenomeIndexStatus getGenomeIndexStatus(StepExecution stepExecution) {
-		try {
-			return genomeMetadataService.getFastaStatus(getGridWorkService(getStepExecutionContext(stepExecution)), build);
-		} catch (GridUnresolvableHostException | IOException e) {
-			String mess = "Unable to determine build or build status " + e.getLocalizedMessage();
-			logger.error(mess);
-			throw new WaspRuntimeException(mess);
-		}
-	}
-
-	@Override
-	@Transactional("entityManager")
-	public WorkUnit prepareWorkUnit(StepExecution stepExecution) throws Exception {
-		Job job = jobService.getJobByJobId(jobId);
-		WorkUnit w = new WorkUnit();
-		w.setMode(ExecutionMode.PROCESS);
-		w.setProcessMode(ProcessMode.SINGLE);
-		w.setMemoryRequirements(MEMORY_GB_16);
 		w.setSecureResults(true);
-		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
-		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
-		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
-		sd.add(gatk);
-		w.setSoftwareDependencies(sd);
 		return w;
 	}
 	

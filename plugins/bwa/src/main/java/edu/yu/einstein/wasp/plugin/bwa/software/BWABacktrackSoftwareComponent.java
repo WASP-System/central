@@ -9,7 +9,8 @@ import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalExcept
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.SampleSource;
 
@@ -34,10 +35,10 @@ public class BWABacktrackSoftwareComponent extends AbstractBWASoftwareComponent{
 
 		w.setCommand(checkIndex);
 		
-		String command = "bwa aln " + alnOpts + " -t ${" + WorkUnit.NUMBER_OF_THREADS + "} " + 
+		String command = "bwa aln " + alnOpts + " -t ${" + WorkUnitGridConfiguration.NUMBER_OF_THREADS + "} " + 
 				getGenomeIndexPath(getGenomeBuild(cellLibrary)) + " " +
-				"${" + WorkUnit.INPUT_FILE + "[" + WorkUnit.ZERO_TASK_ARRAY_ID + "]} " +
-				"> sai.${" + WorkUnit.TASK_OUTPUT_FILE + "}"; 
+				"${" + WorkUnit.INPUT_FILE + "[" + WorkUnitGridConfiguration.ZERO_TASK_ARRAY_ID + "]} " +
+				"> sai.${" + WorkUnitGridConfiguration.TASK_OUTPUT_FILE + "}"; 
 		
 		logger.debug("Will conduct bwa aln with string: " + command);
 		
@@ -48,9 +49,9 @@ public class BWABacktrackSoftwareComponent extends AbstractBWASoftwareComponent{
 	
 	public WorkUnit getSam(SampleSource cellLibrary, String scratchDirectory, String namePrefix, FileGroup fg, Map<String,Object> jobParameters) throws ParameterValueRetrievalException {
 		WorkUnit w = prepareWorkUnit(fg);
-		w.setProcessMode(ProcessMode.SINGLE);
-		w.setProcessorRequirements(1);
-		w.setWorkingDirectory(scratchDirectory);
+		w.getConfiguration().setProcessMode(ProcessMode.SINGLE);
+		w.getConfiguration().setProcessorRequirements(1);
+		w.getConfiguration().setWorkingDirectory(scratchDirectory);
 		
 		Integer numberOfReadSegments = fastqService.getNumberOfReadSegments(fg);
 		Assert.assertTrue(numberOfReadSegments > 0 && numberOfReadSegments <= 2);
@@ -76,22 +77,22 @@ public class BWABacktrackSoftwareComponent extends AbstractBWASoftwareComponent{
 		
 			command += "bwa " + method + " " + alnOpts + " -r " + this.getReadGroupString(cellLibrary) + " " +
 					getGenomeIndexPath(getGenomeBuild(cellLibrary)) + " " +
-					"${sai[" + WorkUnit.TASK_ARRAY_ID + "]} " + "${" + WorkUnit.INPUT_FILE + "[" + WorkUnit.ZERO_TASK_ARRAY_ID + "]} " +
-					"> sam.${" + WorkUnit.TASK_OUTPUT_FILE + "}"; 
+					"${sai[" + WorkUnitGridConfiguration.TASK_ARRAY_ID + "]} " + "${" + WorkUnit.INPUT_FILE + "[" + WorkUnitGridConfiguration.ZERO_TASK_ARRAY_ID + "]} " +
+					"> sam.${" + WorkUnitGridConfiguration.TASK_OUTPUT_FILE + "}"; 
 		
-			w.setNumberOfTasks(w.getRequiredFiles().size());
+			w.getConfiguration().setNumberOfTasks(w.getRequiredFiles().size());
 		} else {
 			
-			command += "FI=$((" + WorkUnit.ZERO_TASK_ARRAY_ID + "*2))\n";
+			command += "FI=$((" + WorkUnitGridConfiguration.ZERO_TASK_ARRAY_ID + "*2))\n";
 			command += "FI2=$((FI+1))\n";
 			command += "bwa " + method + " " + alnOpts + " -r " + this.getReadGroupString(cellLibrary) + " " +
 					getGenomeIndexPath(getGenomeBuild(cellLibrary)) + " " +
-					"${sai1[" + WorkUnit.TASK_ARRAY_ID + "]} " + 
-					"${sai2[" + WorkUnit.TASK_ARRAY_ID + "]} " +
+					"${sai1[" + WorkUnitGridConfiguration.TASK_ARRAY_ID + "]} " + 
+					"${sai2[" + WorkUnitGridConfiguration.TASK_ARRAY_ID + "]} " +
 					"${" + WorkUnit.INPUT_FILE + "[FI]} " +
 					"${" + WorkUnit.INPUT_FILE + "[FI2]} " +
-					"> sam.${" + WorkUnit.TASK_OUTPUT_FILE + "}"; 
-			w.setNumberOfTasks(w.getRequiredFiles().size()/2);
+					"> sam.${" + WorkUnitGridConfiguration.TASK_OUTPUT_FILE + "}"; 
+			w.getConfiguration().setNumberOfTasks(w.getRequiredFiles().size()/2);
 		}
 		
 		logger.debug("Will conduct bwa aln with string: " + command);

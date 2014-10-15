@@ -19,6 +19,7 @@ import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
 import edu.yu.einstein.wasp.plugin.bwa.software.BWAMemSoftwareComponent;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
@@ -59,16 +60,17 @@ public class BuildBwaIndexTasklet extends WaspRemotingTasklet {
 		GridWorkService host = hostResolver.getGridWorkService(hostname);
 		
 		logger.debug("setting up to build BWA index for " + remoteBuildPath + " on " + hostname);
-
-		WorkUnit w = new WorkUnit();
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
 		
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(bwa);
 
-		w.setWorkingDirectory(remoteBuildPath);
-		w.setResultsDirectory(remoteBuildPath);
-		w.setSoftwareDependencies(sd);
-		w.setMemoryRequirements(8);
+		c.setWorkingDirectory(remoteBuildPath);
+		c.setResultsDirectory(remoteBuildPath);
+		c.setSoftwareDependencies(sd);
+		c.setMemoryRequirements(8);
+		
+		WorkUnit w = new WorkUnit(c);
 		w.setCommand("if [ -e " + GenomeService.INDEX_CREATION_COMPLETED + " ]; then echo \"already begun\"; exit 0; fi");
 		w.addCommand("if [ -e " + GenomeService.INDEX_CREATION_STARTED + ".tmp ]; then echo \"started but not completed\"; exit 1; fi");
 		w.addCommand("if [ -e " + GenomeService.INDEX_CREATION_FAILED + " ]; then echo \"previously failed\"; exit 2; fi");
