@@ -1083,6 +1083,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	  public List<Integer> convertCellLibraryListToIdList(List<SampleSource> cellLibraryList);
 	  
 	  public void addControlLibraryToCell(Sample cell, Sample library,	Float libConcInCellPicoM) throws SampleTypeException, SampleException, SampleMultiplexException, MetadataException;
-
+	  public void setReasonForNewLibraryComment(Integer sampleId, String comment) throws Exception;
+	  public List<MetaMessage> getReasonForNewLibraryComment(Integer sampleId);
 			
 }
