@@ -48,9 +48,9 @@ public class FileController {
 				if (adjm.find()) {
 					adjExtension = adjm.group(2);
 					uuid = adjm.group(1);
-			}
+				}
 			
-			wfService.processFileRequest(uuid, adjExtension, request, response);
+				wfService.processFileRequest(uuid, adjExtension, request, response);
 			}
 			
 		} catch (IOException ex) {
