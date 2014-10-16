@@ -15,7 +15,7 @@
 
 	<bean id="nexteraDualIndexAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoaderAndFactory">
 		<property name="area" ref="nexteraDualIndexArea" />
-		<property name="name" value="nexteraDualIndex" />
+		<property name="name" value="Nextera DUAL INDEXED (pairs)" />
 		<property name="sampleType" ref="dnaSampleType" />
 		<property name="indexingStrategy" value="#{ T(edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy).TRUSEQ_DUAL }" />
 		<property name="compatibleResources">

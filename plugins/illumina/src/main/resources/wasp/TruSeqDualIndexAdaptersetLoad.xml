@@ -15,7 +15,7 @@
 
 	<bean id="truSeqDualIndexAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoaderAndFactory">
 		<property name="area" ref="truSeqDualIndexArea" />
-		<property name="name" value="truSeqDualIndex" />
+		<property name="name" value="TruSEQ DUAL INDEXED (pairs)" />
 		<property name="sampleType" ref="dnaSampleType" />
 		<property name="indexingStrategy" value="#{ T(edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy).TRUSEQ_DUAL }" />
 		<property name="compatibleResources">

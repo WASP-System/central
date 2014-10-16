@@ -15,7 +15,7 @@
 
 	<bean id="epicentreScriptSeqRnaAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoaderAndFactory">
 		<property name="area" ref="epicentreScriptSeqRnaArea" />
-		<property name="name" value="epicentreScriptSeqRna" />
+		<property name="name" value="Epicenter ScriptSeq RNA" />
 		<property name="sampleType" ref="dnaSampleType" />
 		<property name="indexingStrategy" value="#{ T(edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy).TRUSEQ }" />
 		<property name="compatibleResources">

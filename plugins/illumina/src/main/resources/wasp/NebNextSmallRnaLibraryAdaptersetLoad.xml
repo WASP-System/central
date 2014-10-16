@@ -15,7 +15,7 @@
 
 	<bean id="nebNextSmallRnaLibraryAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoaderAndFactory">
 		<property name="area" ref="nebNextSmallRnaLibraryArea" />
-		<property name="name" value="nebNextSmallRnaLibrary" />
+		<property name="name" value="NEBNext Multiplex Small RNA Library Prep" />
 		<property name="sampleType" ref="dnaSampleType" />
 		<property name="indexingStrategy" value="#{ T(edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy).TRUSEQ }" />
 		<property name="compatibleResources">

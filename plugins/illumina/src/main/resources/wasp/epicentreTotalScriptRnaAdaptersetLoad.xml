@@ -15,7 +15,7 @@
 
 	<bean id="epicentreTotalScriptRnaAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoaderAndFactory">
 		<property name="area" ref="epicentreTotalScriptRnaArea" />
-		<property name="name" value="epicentreTotalScriptRna" />
+		<property name="name" value="Epicenter TotalScript RNA" />
 		<property name="sampleType" ref="dnaSampleType" />
 		<property name="indexingStrategy" value="#{ T(edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy).TRUSEQ }" />
 		<property name="compatibleResources">
