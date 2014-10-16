@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd"
+	default-autowire="byName">
+
+	<bean id="nebNextSmallRnaLibraryArea" class="java.lang.String">
+		<constructor-arg><value>nebNextSmallRnaLibrary</value></constructor-arg>
+	</bean>
+
+	<bean id="nebNextSmallRnaLibraryAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoaderAndFactory">
+		<property name="area" ref="nebNextSmallRnaLibraryArea" />
+		<property name="name" value="NEBNext Multiplex Small RNA Library Prep" />
+		<property name="sampleType" ref="dnaSampleType" />
+		<property name="indexingStrategy" value="#{ T(edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy).TRUSEQ }" />
+		<property name="compatibleResources">
+			<list>
+				<ref bean="illuminaHiSeq2000" />
+				<ref bean="illuminaHiSeq2500" />
+				<ref bean="illuminaMiSeqPersonalSequencer" />
+			</list>
+		</property>
+
+		<property name="adaptorList">
+			<list>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nebNextSmallRnaLibrary1" />
+					<property name="name" value="NEBNext Multiplex Small RNA Library Prep, Index 1 (ATCACG)" />
+					<property name="sequence" value="AGATCGGAAGAGCACACGTCT" />
+					<property name="barcodesequence" value="ATCACG" />
+					<property name="barcodenumber" value="1" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nebNextSmallRnaLibrary2" />
+					<property name="name" value="NEBNext Multiplex Small RNA Library Prep, Index 2 (CGATGT)" />
+					<property name="sequence" value="AGATCGGAAGAGCACACGTCT" />
+					<property name="barcodesequence" value="CGATGT" />
+					<property name="barcodenumber" value="2" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nebNextSmallRnaLibrary3" />
+					<property name="name" value="NEBNext Multiplex Small RNA Library Prep, Index 3 (TTAGGC)" />
+					<property name="sequence" value="AGATCGGAAGAGCACACGTCT" />
+					<property name="barcodesequence" value="TTAGGC" />
+					<property name="barcodenumber" value="3" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nebNextSmallRnaLibrary4" />
+					<property name="name" value="NEBNext Multiplex Small RNA Library Prep, Index 4 (TGACCA)" />
+					<property name="sequence" value="AGATCGGAAGAGCACACGTCT" />
+					<property name="barcodesequence" value="TGACCA" />
+					<property name="barcodenumber" value="4" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nebNextSmallRnaLibrary5" />
+					<property name="name" value="NEBNext Multiplex Small RNA Library Prep, Index 5 (ACAGTG)" />
+					<property name="sequence" value="AGATCGGAAGAGCACACGTCT" />
+					<property name="barcodesequence" value="ACAGTG" />
+					<property name="barcodenumber" value="5" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nebNextSmallRnaLibrary6" />
+					<property name="name" value="NEBNext Multiplex Small RNA Library Prep, Index 6 (GCCAAT)" />
+					<property name="sequence" value="AGATCGGAAGAGCACACGTCT" />
+					<property name="barcodesequence" value="GCCAAT" />
+					<property name="barcodenumber" value="6" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nebNextSmallRnaLibrary7" />
+					<property name="name" value="NEBNext Multiplex Small RNA Library Prep, Index 7 (CAGATC)" />
+					<property name="sequence" value="AGATCGGAAGAGCACACGTCT" />
+					<property name="barcodesequence" value="CAGATC" />
+					<property name="barcodenumber" value="7" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nebNextSmallRnaLibrary8" />
+					<property name="name" value="NEBNext Multiplex Small RNA Library Prep, Index 8 (ACTTGA)" />
+					<property name="sequence" value="AGATCGGAAGAGCACACGTCT" />
+					<property name="barcodesequence" value="ACTTGA" />
+					<property name="barcodenumber" value="8" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nebNextSmallRnaLibrary9" />
+					<property name="name" value="NEBNext Multiplex Small RNA Library Prep, Index 9 (GATCAG)" />
+					<property name="sequence" value="AGATCGGAAGAGCACACGTCT" />
+					<property name="barcodesequence" value="GATCAG" />
+					<property name="barcodenumber" value="9" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nebNextSmallRnaLibrary10" />
+					<property name="name" value="NEBNext Multiplex Small RNA Library Prep, Index 10 (TAGCTT)" />
+					<property name="sequence" value="AGATCGGAAGAGCACACGTCT" />
+					<property name="barcodesequence" value="TAGCTT" />
+					<property name="barcodenumber" value="10" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nebNextSmallRnaLibrary11" />
+					<property name="name" value="NEBNext Multiplex Small RNA Library Prep, Index 11 (GGCTAC)" />
+					<property name="sequence" value="AGATCGGAAGAGCACACGTCT" />
+					<property name="barcodesequence" value="GGCTAC" />
+					<property name="barcodenumber" value="11" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nebNextSmallRnaLibrary12" />
+					<property name="name" value="NEBNext Multiplex Small RNA Library Prep, Index 12 (CTTGTA)" />
+					<property name="sequence" value="AGATCGGAAGAGCACACGTCT" />
+					<property name="barcodesequence" value="CTTGTA" />
+					<property name="barcodenumber" value="12" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nebNextSmallRnaLibrary13" />
+					<property name="name" value="NEBNext Multiplex Small RNA Library Prep, Index 13 (AGTCAA)" />
+					<property name="sequence" value="AGATCGGAAGAGCACACGTCT" />
+					<property name="barcodesequence" value="AGTCAA" />
+					<property name="barcodenumber" value="13" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nebNextSmallRnaLibrary14" />
+					<property name="name" value="NEBNext Multiplex Small RNA Library Prep, Index 14 (AGTTCC)" />
+					<property name="sequence" value="AGATCGGAAGAGCACACGTCT" />
+					<property name="barcodesequence" value="AGTTCC" />
+					<property name="barcodenumber" value="14" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nebNextSmallRnaLibrary15" />
+					<property name="name" value="NEBNext Multiplex Small RNA Library Prep, Index 15 (ATGTCA)" />
+					<property name="sequence" value="AGATCGGAAGAGCACACGTCT" />
+					<property name="barcodesequence" value="ATGTCA" />
+					<property name="barcodenumber" value="15" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nebNextSmallRnaLibrary16" />
+					<property name="name" value="NEBNext Multiplex Small RNA Library Prep, Index 16 (CCGTCC)" />
+					<property name="sequence" value="AGATCGGAAGAGCACACGTCT" />
+					<property name="barcodesequence" value="CCGTCC" />
+					<property name="barcodenumber" value="16" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nebNextSmallRnaLibrary17" />
+					<property name="name" value="NEBNext Multiplex Small RNA Library Prep, Index 17 (GTCCGC)" />
+					<property name="sequence" value="AGATCGGAAGAGCACACGTCT" />
+					<property name="barcodesequence" value="GTCCGC" />
+					<property name="barcodenumber" value="17" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nebNextSmallRnaLibrary18" />
+					<property name="name" value="NEBNext Multiplex Small RNA Library Prep, Index 18 (GTGAAA)" />
+					<property name="sequence" value="AGATCGGAAGAGCACACGTCT" />
+					<property name="barcodesequence" value="GTGAAA" />
+					<property name="barcodenumber" value="18" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nebNextSmallRnaLibrary19" />
+					<property name="name" value="NEBNext Multiplex Small RNA Library Prep, Index 19 (GTGGCC)" />
+					<property name="sequence" value="AGATCGGAAGAGCACACGTCT" />
+					<property name="barcodesequence" value="GTGGCC" />
+					<property name="barcodenumber" value="19" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nebNextSmallRnaLibrary20" />
+					<property name="name" value="NEBNext Multiplex Small RNA Library Prep, Index 20 (GTTTCG)" />
+					<property name="sequence" value="AGATCGGAAGAGCACACGTCT" />
+					<property name="barcodesequence" value="GTTTCG" />
+					<property name="barcodenumber" value="20" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nebNextSmallRnaLibrary21" />
+					<property name="name" value="NEBNext Multiplex Small RNA Library Prep, Index 21 (CGTACG)" />
+					<property name="sequence" value="AGATCGGAAGAGCACACGTCT" />
+					<property name="barcodesequence" value="CGTACG" />
+					<property name="barcodenumber" value="21" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nebNextSmallRnaLibrary22" />
+					<property name="name" value="NEBNext Multiplex Small RNA Library Prep, Index 22 (GAGTGG)" />
+					<property name="sequence" value="AGATCGGAAGAGCACACGTCT" />
+					<property name="barcodesequence" value="GAGTGG" />
+					<property name="barcodenumber" value="22" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nebNextSmallRnaLibrary23" />
+					<property name="name" value="NEBNext Multiplex Small RNA Library Prep, Index 23 (ACTGAT)" />
+					<property name="sequence" value="AGATCGGAAGAGCACACGTCT" />
+					<property name="barcodesequence" value="ACTGAT" />
+					<property name="barcodenumber" value="23" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nebNextSmallRnaLibrary24" />
+					<property name="name" value="NEBNext Multiplex Small RNA Library Prep, Index 24 (ATTCCT)" />
+					<property name="sequence" value="AGATCGGAAGAGCACACGTCT" />
+					<property name="barcodesequence" value="ATTCCT" />
+					<property name="barcodenumber" value="24" />
+				</bean>
+			</list>
+  		</property>
+	</bean> 
+
+</beans>
+

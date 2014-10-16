@@ -1,8 +1,9 @@
 package edu.yu.einstein.wasp.plugin.illumina;
 
 import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
+import edu.yu.einstein.wasp.plugin.mps.MpsIndexingStrategy;
 
-public class IlluminaIndexingStrategy extends IndexingStrategy {
+public class IlluminaIndexingStrategy extends MpsIndexingStrategy {
 	
 	public static final String INDEXING_KEY = "indexingStrategy";
 	
