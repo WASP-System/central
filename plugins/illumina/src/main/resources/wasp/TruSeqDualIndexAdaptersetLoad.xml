@@ -1,0 +1,708 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd"
+	default-autowire="byName">
+
+	<bean id="truSeqDualIndexArea" class="java.lang.String">
+		<constructor-arg><value>truSeqDualIndex</value></constructor-arg>
+	</bean>
+
+	<bean id="truSeqDualIndexAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoaderAndFactory">
+		<property name="area" ref="truSeqDualIndexArea" />
+		<property name="name" value="TruSEQ DUAL INDEXED (pairs)" />
+		<property name="sampleType" ref="dnaSampleType" />
+		<property name="indexingStrategy" value="#{ T(edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy).TRUSEQ_DUAL }" />
+		<property name="compatibleResources">
+			<list>
+				<ref bean="illuminaHiSeq2000" />
+				<ref bean="illuminaHiSeq2500" />
+				<ref bean="illuminaMiSeqPersonalSequencer" />
+			</list>
+		</property>
+
+		<property name="adaptorList">
+			<list>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex1" />
+					<property name="name" value="D701-D501, Index 1 (ATTACTCG-TATAGCCT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="ATTACTCG-TATAGCCT" />
+					<property name="barcodenumber" value="1" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex2" />
+					<property name="name" value="D702-D501, Index 2 (TCCGGAGA-TATAGCCT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TCCGGAGA-TATAGCCT" />
+					<property name="barcodenumber" value="2" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex3" />
+					<property name="name" value="D703-D501, Index 3 (CGCTCATT-TATAGCCT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="CGCTCATT-TATAGCCT" />
+					<property name="barcodenumber" value="3" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex4" />
+					<property name="name" value="D704-D501, Index 4 (GAGATTCC-TATAGCCT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="GAGATTCC-TATAGCCT" />
+					<property name="barcodenumber" value="4" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex5" />
+					<property name="name" value="D705-D501, Index 5 (ATTCAGAA-TATAGCCT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="ATTCAGAA-TATAGCCT" />
+					<property name="barcodenumber" value="5" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex6" />
+					<property name="name" value="D706-D501, Index 6 (GAATTCGT-TATAGCCT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="GAATTCGT-TATAGCCT" />
+					<property name="barcodenumber" value="6" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex7" />
+					<property name="name" value="D707-D501, Index 7 (CTGAAGCT-TATAGCCT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="CTGAAGCT-TATAGCCT" />
+					<property name="barcodenumber" value="7" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex8" />
+					<property name="name" value="D708-D501, Index 8 (TAATGCGC-TATAGCCT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TAATGCGC-TATAGCCT" />
+					<property name="barcodenumber" value="8" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex9" />
+					<property name="name" value="D709-D501, Index 9 (CGGCTATG-TATAGCCT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="CGGCTATG-TATAGCCT" />
+					<property name="barcodenumber" value="9" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex10" />
+					<property name="name" value="D710-D501, Index 10 (TCCGCGAA-TATAGCCT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TCCGCGAA-TATAGCCT" />
+					<property name="barcodenumber" value="10" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex11" />
+					<property name="name" value="D711-D501, Index 11 (TCTCGCGC-TATAGCCT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TCTCGCGC-TATAGCCT" />
+					<property name="barcodenumber" value="11" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex12" />
+					<property name="name" value="D712-D501, Index 12 (AGCGATAG-TATAGCCT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="AGCGATAG-TATAGCCT" />
+					<property name="barcodenumber" value="12" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex13" />
+					<property name="name" value="D701-D502, Index 13 (ATTACTCG-ATAGAGGC)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="ATTACTCG-ATAGAGGC" />
+					<property name="barcodenumber" value="13" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex14" />
+					<property name="name" value="D702-D502, Index 14 (TCCGGAGA-ATAGAGGC)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TCCGGAGA-ATAGAGGC" />
+					<property name="barcodenumber" value="14" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex15" />
+					<property name="name" value="D703-D502, Index 15 (CGCTCATT-ATAGAGGC)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="CGCTCATT-ATAGAGGC" />
+					<property name="barcodenumber" value="15" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex16" />
+					<property name="name" value="D704-D502, Index 16 (GAGATTCC-ATAGAGGC)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="GAGATTCC-ATAGAGGC" />
+					<property name="barcodenumber" value="16" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex17" />
+					<property name="name" value="D705-D502, Index 17 (ATTCAGAA-ATAGAGGC)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="ATTCAGAA-ATAGAGGC" />
+					<property name="barcodenumber" value="17" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex18" />
+					<property name="name" value="D706-D502, Index 18 (GAATTCGT-ATAGAGGC)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="GAATTCGT-ATAGAGGC" />
+					<property name="barcodenumber" value="18" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex19" />
+					<property name="name" value="D707-D502, Index 19 (CTGAAGCT-ATAGAGGC)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="CTGAAGCT-ATAGAGGC" />
+					<property name="barcodenumber" value="19" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex20" />
+					<property name="name" value="D708-D502, Index 20 (TAATGCGC-ATAGAGGC)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TAATGCGC-ATAGAGGC" />
+					<property name="barcodenumber" value="20" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex21" />
+					<property name="name" value="D709-D502, Index 21 (CGGCTATG-ATAGAGGC)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="CGGCTATG-ATAGAGGC" />
+					<property name="barcodenumber" value="21" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex22" />
+					<property name="name" value="D710-D502, Index 22 (TCCGCGAA-ATAGAGGC)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TCCGCGAA-ATAGAGGC" />
+					<property name="barcodenumber" value="22" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex23" />
+					<property name="name" value="D711-D502, Index 23 (TCTCGCGC-ATAGAGGC)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TCTCGCGC-ATAGAGGC" />
+					<property name="barcodenumber" value="23" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex24" />
+					<property name="name" value="D712-D502, Index 24 (AGCGATAG-ATAGAGGC)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="AGCGATAG-ATAGAGGC" />
+					<property name="barcodenumber" value="24" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex25" />
+					<property name="name" value="D701-D503, Index 25 (ATTACTCG-CCTATCCT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="ATTACTCG-CCTATCCT" />
+					<property name="barcodenumber" value="25" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex26" />
+					<property name="name" value="D702-D503, Index 26 (TCCGGAGA-CCTATCCT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TCCGGAGA-CCTATCCT" />
+					<property name="barcodenumber" value="26" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex27" />
+					<property name="name" value="D703-D503, Index 27 (CGCTCATT-CCTATCCT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="CGCTCATT-CCTATCCT" />
+					<property name="barcodenumber" value="27" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex28" />
+					<property name="name" value="D704-D503, Index 28 (GAGATTCC-CCTATCCT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="GAGATTCC-CCTATCCT" />
+					<property name="barcodenumber" value="28" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex29" />
+					<property name="name" value="D705-D503, Index 29 (ATTCAGAA-CCTATCCT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="ATTCAGAA-CCTATCCT" />
+					<property name="barcodenumber" value="29" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex30" />
+					<property name="name" value="D706-D503, Index 30 (GAATTCGT-CCTATCCT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="GAATTCGT-CCTATCCT" />
+					<property name="barcodenumber" value="30" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex31" />
+					<property name="name" value="D707-D503, Index 31 (CTGAAGCT-CCTATCCT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="CTGAAGCT-CCTATCCT" />
+					<property name="barcodenumber" value="31" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex32" />
+					<property name="name" value="D708-D503, Index 32 (TAATGCGC-CCTATCCT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TAATGCGC-CCTATCCT" />
+					<property name="barcodenumber" value="32" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex33" />
+					<property name="name" value="D709-D503, Index 33 (CGGCTATG-CCTATCCT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="CGGCTATG-CCTATCCT" />
+					<property name="barcodenumber" value="33" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex34" />
+					<property name="name" value="D710-D503, Index 34 (TCCGCGAA-CCTATCCT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TCCGCGAA-CCTATCCT" />
+					<property name="barcodenumber" value="34" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex35" />
+					<property name="name" value="D711-D503, Index 35 (TCTCGCGC-CCTATCCT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TCTCGCGC-CCTATCCT" />
+					<property name="barcodenumber" value="35" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex36" />
+					<property name="name" value="D712-D503, Index 36 (AGCGATAG-CCTATCCT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="AGCGATAG-CCTATCCT" />
+					<property name="barcodenumber" value="36" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex37" />
+					<property name="name" value="D701-D504, Index 37 (ATTACTCG-GGCTCTGA)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="ATTACTCG-GGCTCTGA" />
+					<property name="barcodenumber" value="37" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex38" />
+					<property name="name" value="D702-D504, Index 38 (TCCGGAGA-GGCTCTGA)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TCCGGAGA-GGCTCTGA" />
+					<property name="barcodenumber" value="38" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex39" />
+					<property name="name" value="D703-D504, Index 39 (CGCTCATT-GGCTCTGA)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="CGCTCATT-GGCTCTGA" />
+					<property name="barcodenumber" value="39" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex40" />
+					<property name="name" value="D704-D504, Index 40 (GAGATTCC-GGCTCTGA)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="GAGATTCC-GGCTCTGA" />
+					<property name="barcodenumber" value="40" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex41" />
+					<property name="name" value="D705-D504, Index 41 (ATTCAGAA-GGCTCTGA)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="ATTCAGAA-GGCTCTGA" />
+					<property name="barcodenumber" value="41" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex42" />
+					<property name="name" value="D706-D504, Index 42 (GAATTCGT-GGCTCTGA)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="GAATTCGT-GGCTCTGA" />
+					<property name="barcodenumber" value="42" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex43" />
+					<property name="name" value="D707-D504, Index 43 (CTGAAGCT-GGCTCTGA)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="CTGAAGCT-GGCTCTGA" />
+					<property name="barcodenumber" value="43" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex44" />
+					<property name="name" value="D708-D504, Index 44 (TAATGCGC-GGCTCTGA)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TAATGCGC-GGCTCTGA" />
+					<property name="barcodenumber" value="44" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex45" />
+					<property name="name" value="D709-D504, Index 45 (CGGCTATG-GGCTCTGA)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="CGGCTATG-GGCTCTGA" />
+					<property name="barcodenumber" value="45" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex46" />
+					<property name="name" value="D710-D504, Index 46 (TCCGCGAA-GGCTCTGA)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TCCGCGAA-GGCTCTGA" />
+					<property name="barcodenumber" value="46" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex47" />
+					<property name="name" value="D711-D504, Index 47 (TCTCGCGC-GGCTCTGA)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TCTCGCGC-GGCTCTGA" />
+					<property name="barcodenumber" value="47" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex48" />
+					<property name="name" value="D712-D504, Index 48 (AGCGATAG-GGCTCTGA)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="AGCGATAG-GGCTCTGA" />
+					<property name="barcodenumber" value="48" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex49" />
+					<property name="name" value="D701-D505, Index 49 (ATTACTCG-AGGCGAAG)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="ATTACTCG-AGGCGAAG" />
+					<property name="barcodenumber" value="49" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex50" />
+					<property name="name" value="D702-D505, Index 50 (TCCGGAGA-AGGCGAAG)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TCCGGAGA-AGGCGAAG" />
+					<property name="barcodenumber" value="50" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex51" />
+					<property name="name" value="D703-D505, Index 51 (CGCTCATT-AGGCGAAG)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="CGCTCATT-AGGCGAAG" />
+					<property name="barcodenumber" value="51" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex52" />
+					<property name="name" value="D704-D505, Index 52 (GAGATTCC-AGGCGAAG)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="GAGATTCC-AGGCGAAG" />
+					<property name="barcodenumber" value="52" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex53" />
+					<property name="name" value="D705-D505, Index 53 (ATTCAGAA-AGGCGAAG)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="ATTCAGAA-AGGCGAAG" />
+					<property name="barcodenumber" value="53" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex54" />
+					<property name="name" value="D706-D505, Index 54 (GAATTCGT-AGGCGAAG)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="GAATTCGT-AGGCGAAG" />
+					<property name="barcodenumber" value="54" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex55" />
+					<property name="name" value="D707-D505, Index 55 (CTGAAGCT-AGGCGAAG)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="CTGAAGCT-AGGCGAAG" />
+					<property name="barcodenumber" value="55" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex56" />
+					<property name="name" value="D708-D505, Index 56 (TAATGCGC-AGGCGAAG)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TAATGCGC-AGGCGAAG" />
+					<property name="barcodenumber" value="56" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex57" />
+					<property name="name" value="D709-D505, Index 57 (CGGCTATG-AGGCGAAG)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="CGGCTATG-AGGCGAAG" />
+					<property name="barcodenumber" value="57" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex58" />
+					<property name="name" value="D710-D505, Index 58 (TCCGCGAA-AGGCGAAG)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TCCGCGAA-AGGCGAAG" />
+					<property name="barcodenumber" value="58" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex59" />
+					<property name="name" value="D711-D505, Index 59 (TCTCGCGC-AGGCGAAG)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TCTCGCGC-AGGCGAAG" />
+					<property name="barcodenumber" value="59" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex60" />
+					<property name="name" value="D712-D505, Index 60 (AGCGATAG-AGGCGAAG)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="AGCGATAG-AGGCGAAG" />
+					<property name="barcodenumber" value="60" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex61" />
+					<property name="name" value="D701-D506, Index 61 (ATTACTCG-TAATCTTA)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="ATTACTCG-TAATCTTA" />
+					<property name="barcodenumber" value="61" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex62" />
+					<property name="name" value="D702-D506, Index 62 (TCCGGAGA-TAATCTTA)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TCCGGAGA-TAATCTTA" />
+					<property name="barcodenumber" value="62" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex63" />
+					<property name="name" value="D703-D506, Index 63 (CGCTCATT-TAATCTTA)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="CGCTCATT-TAATCTTA" />
+					<property name="barcodenumber" value="63" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex64" />
+					<property name="name" value="D704-D506, Index 64 (GAGATTCC-TAATCTTA)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="GAGATTCC-TAATCTTA" />
+					<property name="barcodenumber" value="64" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex65" />
+					<property name="name" value="D705-D506, Index 65 (ATTCAGAA-TAATCTTA)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="ATTCAGAA-TAATCTTA" />
+					<property name="barcodenumber" value="65" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex66" />
+					<property name="name" value="D706-D506, Index 66 (GAATTCGT-TAATCTTA)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="GAATTCGT-TAATCTTA" />
+					<property name="barcodenumber" value="66" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex67" />
+					<property name="name" value="D707-D506, Index 67 (CTGAAGCT-TAATCTTA)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="CTGAAGCT-TAATCTTA" />
+					<property name="barcodenumber" value="67" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex68" />
+					<property name="name" value="D708-D506, Index 68 (TAATGCGC-TAATCTTA)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TAATGCGC-TAATCTTA" />
+					<property name="barcodenumber" value="68" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex69" />
+					<property name="name" value="D709-D506, Index 69 (CGGCTATG-TAATCTTA)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="CGGCTATG-TAATCTTA" />
+					<property name="barcodenumber" value="69" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex70" />
+					<property name="name" value="D710-D506, Index 70 (TCCGCGAA-TAATCTTA)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TCCGCGAA-TAATCTTA" />
+					<property name="barcodenumber" value="70" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex71" />
+					<property name="name" value="D711-D506, Index 71 (TCTCGCGC-TAATCTTA)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TCTCGCGC-TAATCTTA" />
+					<property name="barcodenumber" value="71" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex72" />
+					<property name="name" value="D712-D506, Index 72 (AGCGATAG-TAATCTTA)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="AGCGATAG-TAATCTTA" />
+					<property name="barcodenumber" value="72" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex73" />
+					<property name="name" value="D701-D507, Index 73 (ATTACTCG-CAGGACGT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="ATTACTCG-CAGGACGT" />
+					<property name="barcodenumber" value="73" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex74" />
+					<property name="name" value="D702-D507, Index 74 (TCCGGAGA-CAGGACGT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TCCGGAGA-CAGGACGT" />
+					<property name="barcodenumber" value="74" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex75" />
+					<property name="name" value="D703-D507, Index 75 (CGCTCATT-CAGGACGT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="CGCTCATT-CAGGACGT" />
+					<property name="barcodenumber" value="75" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex76" />
+					<property name="name" value="D704-D507, Index 76 (GAGATTCC-CAGGACGT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="GAGATTCC-CAGGACGT" />
+					<property name="barcodenumber" value="76" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex77" />
+					<property name="name" value="D705-D507, Index 77 (ATTCAGAA-CAGGACGT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="ATTCAGAA-CAGGACGT" />
+					<property name="barcodenumber" value="77" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex78" />
+					<property name="name" value="D706-D507, Index 78 (GAATTCGT-CAGGACGT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="GAATTCGT-CAGGACGT" />
+					<property name="barcodenumber" value="78" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex79" />
+					<property name="name" value="D707-D507, Index 79 (CTGAAGCT-CAGGACGT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="CTGAAGCT-CAGGACGT" />
+					<property name="barcodenumber" value="79" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex80" />
+					<property name="name" value="D708-D507, Index 80 (TAATGCGC-CAGGACGT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TAATGCGC-CAGGACGT" />
+					<property name="barcodenumber" value="80" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex81" />
+					<property name="name" value="D709-D507, Index 81 (CGGCTATG-CAGGACGT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="CGGCTATG-CAGGACGT" />
+					<property name="barcodenumber" value="81" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex82" />
+					<property name="name" value="D710-D507, Index 82 (TCCGCGAA-CAGGACGT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TCCGCGAA-CAGGACGT" />
+					<property name="barcodenumber" value="82" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex83" />
+					<property name="name" value="D711-D507, Index 83 (TCTCGCGC-CAGGACGT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TCTCGCGC-CAGGACGT" />
+					<property name="barcodenumber" value="83" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex84" />
+					<property name="name" value="D712-D507, Index 84 (AGCGATAG-CAGGACGT)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="AGCGATAG-CAGGACGT" />
+					<property name="barcodenumber" value="84" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex85" />
+					<property name="name" value="D701-D508, Index 85 (ATTACTCG-GTACTGAC)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="ATTACTCG-GTACTGAC" />
+					<property name="barcodenumber" value="85" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex86" />
+					<property name="name" value="D702-D508, Index 86 (TCCGGAGA-GTACTGAC)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TCCGGAGA-GTACTGAC" />
+					<property name="barcodenumber" value="86" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex87" />
+					<property name="name" value="D703-D508, Index 87 (CGCTCATT-GTACTGAC)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="CGCTCATT-GTACTGAC" />
+					<property name="barcodenumber" value="87" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex88" />
+					<property name="name" value="D704-D508, Index 88 (GAGATTCC-GTACTGAC)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="GAGATTCC-GTACTGAC" />
+					<property name="barcodenumber" value="88" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex89" />
+					<property name="name" value="D705-D508, Index 89 (ATTCAGAA-GTACTGAC)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="ATTCAGAA-GTACTGAC" />
+					<property name="barcodenumber" value="89" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex90" />
+					<property name="name" value="D706-D508, Index 90 (GAATTCGT-GTACTGAC)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="GAATTCGT-GTACTGAC" />
+					<property name="barcodenumber" value="90" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex91" />
+					<property name="name" value="D707-D508, Index 91 (CTGAAGCT-GTACTGAC)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="CTGAAGCT-GTACTGAC" />
+					<property name="barcodenumber" value="91" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex92" />
+					<property name="name" value="D708-D508, Index 92 (TAATGCGC-GTACTGAC)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TAATGCGC-GTACTGAC" />
+					<property name="barcodenumber" value="92" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex93" />
+					<property name="name" value="D709-D508, Index 93 (CGGCTATG-GTACTGAC)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="CGGCTATG-GTACTGAC" />
+					<property name="barcodenumber" value="93" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex94" />
+					<property name="name" value="D710-D508, Index 94 (TCCGCGAA-GTACTGAC)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TCCGCGAA-GTACTGAC" />
+					<property name="barcodenumber" value="94" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex95" />
+					<property name="name" value="D711-D508, Index 95 (TCTCGCGC-GTACTGAC)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="TCTCGCGC-GTACTGAC" />
+					<property name="barcodenumber" value="95" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="truSeqDualIndex96" />
+					<property name="name" value="D712-D508, Index 96 (AGCGATAG-GTACTGAC)" />
+					<property name="sequence" value="AGATCGGAAGAGC" />
+					<property name="barcodesequence" value="AGCGATAG-GTACTGAC" />
+					<property name="barcodenumber" value="96" />
+				</bean>
+			</list>
+  		</property>
+	</bean> 
+
+</beans>
+

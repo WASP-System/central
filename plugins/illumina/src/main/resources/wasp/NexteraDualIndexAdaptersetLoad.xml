@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd"
+	default-autowire="byName">
+
+	<bean id="nexteraDualIndexArea" class="java.lang.String">
+		<constructor-arg><value>nexteraDualIndex</value></constructor-arg>
+	</bean>
+
+	<bean id="nexteraDualIndexAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoaderAndFactory">
+		<property name="area" ref="nexteraDualIndexArea" />
+		<property name="name" value="Nextera DUAL INDEXED (pairs)" />
+		<property name="sampleType" ref="dnaSampleType" />
+		<property name="indexingStrategy" value="#{ T(edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy).TRUSEQ_DUAL }" />
+		<property name="compatibleResources">
+			<list>
+				<ref bean="illuminaHiSeq2000" />
+				<ref bean="illuminaHiSeq2500" />
+				<ref bean="illuminaMiSeqPersonalSequencer" />
+			</list>
+		</property>
+
+		<property name="adaptorList">
+			<list>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex1" />
+					<property name="name" value="N701-N501, Index 1 (TAAGGCGA-TAGATCGC)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TAAGGCGA-TAGATCGC" />
+					<property name="barcodenumber" value="1" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex2" />
+					<property name="name" value="N702-N501, Index 2 (CGTACTAG-TAGATCGC)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CGTACTAG-TAGATCGC" />
+					<property name="barcodenumber" value="2" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex3" />
+					<property name="name" value="N703-N501, Index 3 (AGGCAGAA-TAGATCGC)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="AGGCAGAA-TAGATCGC" />
+					<property name="barcodenumber" value="3" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex4" />
+					<property name="name" value="N704-N501, Index 4 (TCCTGAGC-TAGATCGC)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TCCTGAGC-TAGATCGC" />
+					<property name="barcodenumber" value="4" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex5" />
+					<property name="name" value="N705-N501, Index 5 (GGACTCCT-TAGATCGC)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="GGACTCCT-TAGATCGC" />
+					<property name="barcodenumber" value="5" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex6" />
+					<property name="name" value="N706-N501, Index 6 (TAGGCATG-TAGATCGC)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TAGGCATG-TAGATCGC" />
+					<property name="barcodenumber" value="6" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex7" />
+					<property name="name" value="N707-N501, Index 7 (CTCTCTAC-TAGATCGC)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CTCTCTAC-TAGATCGC" />
+					<property name="barcodenumber" value="7" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex8" />
+					<property name="name" value="N708-N501, Index 8 (CAGAGAGG-TAGATCGC)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CAGAGAGG-TAGATCGC" />
+					<property name="barcodenumber" value="8" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex9" />
+					<property name="name" value="N701-N502, Index 9 (TAAGGCGA-CTCTCTAT)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TAAGGCGA-CTCTCTAT" />
+					<property name="barcodenumber" value="9" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex10" />
+					<property name="name" value="N702-N502, Index 10 (CGTACTAG-CTCTCTAT)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CGTACTAG-CTCTCTAT" />
+					<property name="barcodenumber" value="10" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex11" />
+					<property name="name" value="N703-N502, Index 11 (AGGCAGAA-CTCTCTAT)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="AGGCAGAA-CTCTCTAT" />
+					<property name="barcodenumber" value="11" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex12" />
+					<property name="name" value="N704-N502, Index 12 (TCCTGAGC-CTCTCTAT)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TCCTGAGC-CTCTCTAT" />
+					<property name="barcodenumber" value="12" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex13" />
+					<property name="name" value="N705-N502, Index 13 (GGACTCCT-CTCTCTAT)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="GGACTCCT-CTCTCTAT" />
+					<property name="barcodenumber" value="13" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex14" />
+					<property name="name" value="N706-N502, Index 14 (TAGGCATG-CTCTCTAT)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TAGGCATG-CTCTCTAT" />
+					<property name="barcodenumber" value="14" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex15" />
+					<property name="name" value="N707-N502, Index 15 (CTCTCTAC-CTCTCTAT)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CTCTCTAC-CTCTCTAT" />
+					<property name="barcodenumber" value="15" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex16" />
+					<property name="name" value="N708-N502, Index 16 (CAGAGAGG-CTCTCTAT)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CAGAGAGG-CTCTCTAT" />
+					<property name="barcodenumber" value="16" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex17" />
+					<property name="name" value="N701-N503, Index 17 (TAAGGCGA-TATCCTCT)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TAAGGCGA-TATCCTCT" />
+					<property name="barcodenumber" value="17" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex18" />
+					<property name="name" value="N702-N503, Index 18 (CGTACTAG-TATCCTCT)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CGTACTAG-TATCCTCT" />
+					<property name="barcodenumber" value="18" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex19" />
+					<property name="name" value="N703-N503, Index 19 (AGGCAGAA-TATCCTCT)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="AGGCAGAA-TATCCTCT" />
+					<property name="barcodenumber" value="19" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex20" />
+					<property name="name" value="N704-N503, Index 20 (TCCTGAGC-TATCCTCT)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TCCTGAGC-TATCCTCT" />
+					<property name="barcodenumber" value="20" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex21" />
+					<property name="name" value="N705-N503, Index 21 (GGACTCCT-TATCCTCT)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="GGACTCCT-TATCCTCT" />
+					<property name="barcodenumber" value="21" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex22" />
+					<property name="name" value="N706-N503, Index 22 (TAGGCATG-TATCCTCT)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TAGGCATG-TATCCTCT" />
+					<property name="barcodenumber" value="22" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex23" />
+					<property name="name" value="N707-N503, Index 23 (CTCTCTAC-TATCCTCT)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CTCTCTAC-TATCCTCT" />
+					<property name="barcodenumber" value="23" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex24" />
+					<property name="name" value="N708-N503, Index 24 (CAGAGAGG-TATCCTCT)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CAGAGAGG-TATCCTCT" />
+					<property name="barcodenumber" value="24" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex25" />
+					<property name="name" value="N701-N504, Index 25 (TAAGGCGA-AGAGTAGA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TAAGGCGA-AGAGTAGA" />
+					<property name="barcodenumber" value="25" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex26" />
+					<property name="name" value="N702-N504, Index 26 (CGTACTAG-AGAGTAGA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CGTACTAG-AGAGTAGA" />
+					<property name="barcodenumber" value="26" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex27" />
+					<property name="name" value="N703-N504, Index 27 (AGGCAGAA-AGAGTAGA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="AGGCAGAA-AGAGTAGA" />
+					<property name="barcodenumber" value="27" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex28" />
+					<property name="name" value="N704-N504, Index 28 (TCCTGAGC-AGAGTAGA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TCCTGAGC-AGAGTAGA" />
+					<property name="barcodenumber" value="28" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex29" />
+					<property name="name" value="N705-N504, Index 29 (GGACTCCT-AGAGTAGA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="GGACTCCT-AGAGTAGA" />
+					<property name="barcodenumber" value="29" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex30" />
+					<property name="name" value="N706-N504, Index 30 (TAGGCATG-AGAGTAGA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TAGGCATG-AGAGTAGA" />
+					<property name="barcodenumber" value="30" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex31" />
+					<property name="name" value="N707-N504, Index 31 (CTCTCTAC-AGAGTAGA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CTCTCTAC-AGAGTAGA" />
+					<property name="barcodenumber" value="31" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex32" />
+					<property name="name" value="N708-N504, Index 32 (CAGAGAGG-AGAGTAGA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CAGAGAGG-AGAGTAGA" />
+					<property name="barcodenumber" value="32" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex33" />
+					<property name="name" value="N701-N505, Index 33 (TAAGGCGA-GTAAGGAG)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TAAGGCGA-GTAAGGAG" />
+					<property name="barcodenumber" value="33" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex34" />
+					<property name="name" value="N702-N505, Index 34 (CGTACTAG-GTAAGGAG)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CGTACTAG-GTAAGGAG" />
+					<property name="barcodenumber" value="34" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex35" />
+					<property name="name" value="N703-N505, Index 35 (AGGCAGAA-GTAAGGAG)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="AGGCAGAA-GTAAGGAG" />
+					<property name="barcodenumber" value="35" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex36" />
+					<property name="name" value="N704-N505, Index 36 (TCCTGAGC-GTAAGGAG)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TCCTGAGC-GTAAGGAG" />
+					<property name="barcodenumber" value="36" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex37" />
+					<property name="name" value="N705-N505, Index 37 (GGACTCCT-GTAAGGAG)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="GGACTCCT-GTAAGGAG" />
+					<property name="barcodenumber" value="37" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex38" />
+					<property name="name" value="N706-N505, Index 38 (TAGGCATG-GTAAGGAG)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TAGGCATG-GTAAGGAG" />
+					<property name="barcodenumber" value="38" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex39" />
+					<property name="name" value="N707-N505, Index 39 (CTCTCTAC-GTAAGGAG)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CTCTCTAC-GTAAGGAG" />
+					<property name="barcodenumber" value="39" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex40" />
+					<property name="name" value="N708-N505, Index 40 (CAGAGAGG-GTAAGGAG)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CAGAGAGG-GTAAGGAG" />
+					<property name="barcodenumber" value="40" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex41" />
+					<property name="name" value="N701-N506, Index 41 (TAAGGCGA-ACTGCATA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TAAGGCGA-ACTGCATA" />
+					<property name="barcodenumber" value="41" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex42" />
+					<property name="name" value="N702-N506, Index 42 (CGTACTAG-ACTGCATA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CGTACTAG-ACTGCATA" />
+					<property name="barcodenumber" value="42" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex43" />
+					<property name="name" value="N703-N506, Index 43 (AGGCAGAA-ACTGCATA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="AGGCAGAA-ACTGCATA" />
+					<property name="barcodenumber" value="43" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex44" />
+					<property name="name" value="N704-N506, Index 44 (TCCTGAGC-ACTGCATA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TCCTGAGC-ACTGCATA" />
+					<property name="barcodenumber" value="44" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex45" />
+					<property name="name" value="N705-N506, Index 45 (GGACTCCT-ACTGCATA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="GGACTCCT-ACTGCATA" />
+					<property name="barcodenumber" value="45" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex46" />
+					<property name="name" value="N706-N506, Index 46 (TAGGCATG-ACTGCATA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TAGGCATG-ACTGCATA" />
+					<property name="barcodenumber" value="46" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex47" />
+					<property name="name" value="N707-N506, Index 47 (CTCTCTAC-ACTGCATA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CTCTCTAC-ACTGCATA" />
+					<property name="barcodenumber" value="47" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex48" />
+					<property name="name" value="N708-N506, Index 48 (CAGAGAGG-ACTGCATA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CAGAGAGG-ACTGCATA" />
+					<property name="barcodenumber" value="48" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex49" />
+					<property name="name" value="N701-N507, Index 49 (TAAGGCGA-AAGGAGTA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TAAGGCGA-AAGGAGTA" />
+					<property name="barcodenumber" value="49" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex50" />
+					<property name="name" value="N702-N507, Index 50 (CGTACTAG-AAGGAGTA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CGTACTAG-AAGGAGTA" />
+					<property name="barcodenumber" value="50" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex51" />
+					<property name="name" value="N703-N507, Index 51 (AGGCAGAA-AAGGAGTA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="AGGCAGAA-AAGGAGTA" />
+					<property name="barcodenumber" value="51" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex52" />
+					<property name="name" value="N704-N507, Index 52 (TCCTGAGC-AAGGAGTA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TCCTGAGC-AAGGAGTA" />
+					<property name="barcodenumber" value="52" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex53" />
+					<property name="name" value="N705-N507, Index 53 (GGACTCCT-AAGGAGTA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="GGACTCCT-AAGGAGTA" />
+					<property name="barcodenumber" value="53" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex54" />
+					<property name="name" value="N706-N507, Index 54 (TAGGCATG-AAGGAGTA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TAGGCATG-AAGGAGTA" />
+					<property name="barcodenumber" value="54" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex55" />
+					<property name="name" value="N707-N507, Index 55 (CTCTCTAC-AAGGAGTA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CTCTCTAC-AAGGAGTA" />
+					<property name="barcodenumber" value="55" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex56" />
+					<property name="name" value="N708-N507, Index 56 (CAGAGAGG-AAGGAGTA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CAGAGAGG-AAGGAGTA" />
+					<property name="barcodenumber" value="56" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex57" />
+					<property name="name" value="N701-N508, Index 57 (TAAGGCGA-CTAAGCCT)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TAAGGCGA-CTAAGCCT" />
+					<property name="barcodenumber" value="57" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex58" />
+					<property name="name" value="N702-N508, Index 58 (CGTACTAG-CTAAGCCT)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CGTACTAG-CTAAGCCT" />
+					<property name="barcodenumber" value="58" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex59" />
+					<property name="name" value="N703-N508, Index 59 (AGGCAGAA-CTAAGCCT)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="AGGCAGAA-CTAAGCCT" />
+					<property name="barcodenumber" value="59" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex60" />
+					<property name="name" value="N704-N508, Index 60 (TCCTGAGC-CTAAGCCT)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TCCTGAGC-CTAAGCCT" />
+					<property name="barcodenumber" value="60" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex61" />
+					<property name="name" value="N705-N508, Index 61 (GGACTCCT-CTAAGCCT)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="GGACTCCT-CTAAGCCT" />
+					<property name="barcodenumber" value="61" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex62" />
+					<property name="name" value="N706-N508, Index 62 (TAGGCATG-CTAAGCCT)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TAGGCATG-CTAAGCCT" />
+					<property name="barcodenumber" value="62" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex63" />
+					<property name="name" value="N707-N508, Index 63 (CTCTCTAC-CTAAGCCT)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CTCTCTAC-CTAAGCCT" />
+					<property name="barcodenumber" value="63" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex64" />
+					<property name="name" value="N708-N508, Index 64 (CAGAGAGG-CTAAGCCT)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CAGAGAGG-CTAAGCCT" />
+					<property name="barcodenumber" value="64" />
+				</bean>
+			</list>
+  		</property>
+	</bean> 
+
+</beans>
+
