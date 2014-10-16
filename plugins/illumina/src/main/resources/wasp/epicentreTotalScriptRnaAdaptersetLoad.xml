@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd"
+	default-autowire="byName">
+
+	<bean id="epicentreTotalScriptRnaArea" class="java.lang.String">
+		<constructor-arg><value>epicentreTotalScriptRna</value></constructor-arg>
+	</bean>
+
+	<bean id="epicentreTotalScriptRnaAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoaderAndFactory">
+		<property name="area" ref="epicentreTotalScriptRnaArea" />
+		<property name="name" value="epicentreTotalScriptRna" />
+		<property name="sampleType" ref="dnaSampleType" />
+		<property name="indexingStrategy" value="#{ T(edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy).TRUSEQ }" />
+		<property name="compatibleResources">
+			<list>
+				<ref bean="illuminaHiSeq2000" />
+				<ref bean="illuminaHiSeq2500" />
+				<ref bean="illuminaMiSeqPersonalSequencer" />
+			</list>
+		</property>
+
+		<property name="adaptorList">
+			<list>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="epicentreTotalScriptRna1" />
+					<property name="name" value="Epicenter TotalScript RNA, Index 1 (TAAGGCGA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TAAGGCGA" />
+					<property name="barcodenumber" value="1" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="epicentreTotalScriptRna2" />
+					<property name="name" value="Epicenter TotalScript RNA, Index 2 (CGTACTAG)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CGTACTAG" />
+					<property name="barcodenumber" value="2" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="epicentreTotalScriptRna3" />
+					<property name="name" value="Epicenter TotalScript RNA, Index 3 (AGGCAGAA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="AGGCAGAA" />
+					<property name="barcodenumber" value="3" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="epicentreTotalScriptRna4" />
+					<property name="name" value="Epicenter TotalScript RNA, Index 4 (TCCTGAGC)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TCCTGAGC" />
+					<property name="barcodenumber" value="4" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="epicentreTotalScriptRna5" />
+					<property name="name" value="Epicenter TotalScript RNA, Index 5 (GGACTCCT)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="GGACTCCT" />
+					<property name="barcodenumber" value="5" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="epicentreTotalScriptRna6" />
+					<property name="name" value="Epicenter TotalScript RNA, Index 6 (TAGGCATG)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="TAGGCATG" />
+					<property name="barcodenumber" value="6" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="epicentreTotalScriptRna7" />
+					<property name="name" value="Epicenter TotalScript RNA, Index 7 (CTCTCTAC)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CTCTCTAC" />
+					<property name="barcodenumber" value="7" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="epicentreTotalScriptRna8" />
+					<property name="name" value="Epicenter TotalScript RNA, Index 8 (CAGAGAGG)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CAGAGAGG" />
+					<property name="barcodenumber" value="8" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="epicentreTotalScriptRna9" />
+					<property name="name" value="Epicenter TotalScript RNA, Index 9 (GCTACGCT)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="GCTACGCT" />
+					<property name="barcodenumber" value="9" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="epicentreTotalScriptRna10" />
+					<property name="name" value="Epicenter TotalScript RNA, Index 10 (CGAGGCTG)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="CGAGGCTG" />
+					<property name="barcodenumber" value="10" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="epicentreTotalScriptRna11" />
+					<property name="name" value="Epicenter TotalScript RNA, Index 11 (AAGAGGCA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="AAGAGGCA" />
+					<property name="barcodenumber" value="11" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="epicentreTotalScriptRna12" />
+					<property name="name" value="Epicenter TotalScript RNA, Index 12 (GTAGAGGA)" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="GTAGAGGA" />
+					<property name="barcodenumber" value="12" />
+				</bean>
+			</list>
+  		</property>
+	</bean> 
+
+</beans>
+
