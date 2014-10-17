@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,6 +69,7 @@ import edu.yu.einstein.wasp.quote.SequencingCost;
 import edu.yu.einstein.wasp.service.AccountsService;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
@@ -101,16 +103,28 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
 	@Autowired
 	private AdaptorService adaptorService;
 
+	@Autowired
+	private MessageService messageService;
+	
+	@Value("${wasp.customimage.logo}")
+	private String relativeLogoUrl;
+
 	public void buildQuoteAsPDF(MPSQuote mpsQuote, Job job, OutputStream outputStream)throws DocumentException, MetadataException{
 		
 		Document document = new Document();
  	    PdfWriter.getInstance(document, outputStream).setInitialLeading(10);
  	    document.open();	 	    
  	    List<String> justUnderLetterheadLineList = new ArrayList<String>();
- 	    justUnderLetterheadLineList.add("Shahina Maqbool PhD (ESF Director), Albert Einstein College of Medicine, 1301 Morris Park Ave (Price 159F)");
- 	    justUnderLetterheadLineList.add("Email:shahina.maqbool@einstein.yu.edu Phone:718-678-1163");
- 	    String imageLocation = "/Users/robertdubin/Documents/images/Einstein_Logo.png";
- 	    String title = "Epigenomics Shared Facility";
+ 	    // can add up to 4 lines of subtext under letterhead e.g. contact details etc
+ 	    for (int i=1; i<5; i++){
+ 	    	String key = "accounts.pdf_letterhead_text_line_" + i + ".label";
+ 	    	String letterHeadSubtextLine = messageService.getMessage(key);
+ 	    	if (key.equals(letterHeadSubtextLine))
+ 	    		break;
+ 	    	justUnderLetterheadLineList.add(letterHeadSubtextLine);
+ 	    }
+ 	    String imageLocation = servletPath + "/" + relativeLogoUrl;
+ 	    String title = messageService.getMessage("accounts.pdf_title.label");
  	    addLetterhead(document, imageLocation, title, justUnderLetterheadLineList);
  	    Date now = new Date();
  	    DateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
@@ -144,20 +158,27 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
  	    document.close();		
 	}
 
-	private void addLetterhead(Document document, String imageLocation, String title, List<String> justUnderLetterheadLineList) throws DocumentException{
-		
+	private void addLetterhead(Document document, String imageLocation, String headerText, List<String> justUnderLetterheadLineList) throws DocumentException{
+		 boolean usingHeaderImage = false;
 		 try{
 	 	    	Image image = Image.getInstance(imageLocation);
 	 	    	if(image != null){
 	 	    		image.setAlignment(Image.MIDDLE);
-	 	    		image.scaleToFit(1000, 50);//72 is about 1 inch in height
+	 	    		float desiredImageHeight = 50.0f;
+	 	    		float desiredImageWidth = ( image.getPlainWidth() / image.getPlainHeight() ) * desiredImageHeight;
+	 	    		image.scaleToFit(desiredImageWidth, desiredImageHeight); //72 is about 1 inch in height
 	 	    		document.add(image);
+	 	    		usingHeaderImage = true;
 	 	    	}
-	 	    }catch(Exception e){}
+	 	    }catch(Exception e){
+	 	    	logger.warn("Problem occurred processing image for pdf: " + e.getLocalizedMessage());
+	 	    }
 	 	    
-	 	    Paragraph letterTitle = new Paragraph();
-	 	    letterTitle.add(new Chunk(title, BIG_BOLD));
-	 	    document.add(letterTitle);	 	    
+		 	if (!usingHeaderImage){
+		 	    Paragraph letterHeaderText = new Paragraph();
+		 	   letterHeaderText.add(new Chunk(headerText, BIG_BOLD));
+		 	    document.add(letterHeaderText);	 	
+		 	}
 	 	      	      
 	 	    LineSeparator line = new LineSeparator(); 
 	 	    line.setOffset(new Float(-5.0));
@@ -862,6 +883,32 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
  	    PdfWriter.getInstance(document, outputStream).setInitialLeading(10);
  	    document.open();	 	    
  	    List<String> justUnderLetterheadLineList = new ArrayList<String>();
+ 	    // can add up to 4 lines of subtext under letterhead e.g. contact details etc
+ 	    for (int i=1; i<5; i++){
+ 	    	String key = "accounts.pdf_letterhead_text_line_" + i + ".label";
+ 	    	String letterHeadSubtextLine = messageService.getMessage(key);
+ 	    	if (key.equals(letterHeadSubtextLine))
+ 	    		break;
+ 	    	justUnderLetterheadLineList.add(letterHeadSubtextLine);
+ 	    }
+ 	    String imageLocation = servletPath + "/" + relativeLogoUrl;
+ 	    String title = messageService.getMessage("accounts.pdf_title.label");
+ 	    addLetterhead(document, imageLocation, title, justUnderLetterheadLineList);
+ 	    Date now = new Date();
+ 	    DateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
+ 	    addNoteLine(document, "Date Document Created: ", dateFormat.format(now));
+ 	    addressTheLetterToSubmitterAndPI(document, job);
+ 	    addNoteLine(document, "Re..: ", "Job & Sample Summary For Job ID " + job.getId());
+ 	    document.add(new LineSeparator());
+ 	    Paragraph jobDetailsParagraph = startJobDetailsParagraphAndAddCommonJobDetails(job);//start new paragraph containing common job details (put the paragraph is NOT added to the document in this method, thus permitting more to be added to it)
+ 	    jobDetailsParagraph = addMPSDetailsToJobDetailsParagraph(job, jobDetailsParagraph);//add msp-specific info to the jobDetails paragraph
+ 	    document.add(jobDetailsParagraph);//add the paragraph to the document
+ 	   /*
+		
+		Document document = new Document();
+ 	    PdfWriter.getInstance(document, outputStream).setInitialLeading(10);
+ 	    document.open();	 	    
+ 	    List<String> justUnderLetterheadLineList = new ArrayList<String>();
  	    justUnderLetterheadLineList.add("Shahina Maqbool PhD (ESF Director), Albert Einstein College of Medicine, 1301 Morris Park Ave (Price 159F)");
  	    justUnderLetterheadLineList.add("Email:shahina.maqbool@einstein.yu.edu Phone:718-678-1163");
  	    String imageLocation = "/Users/robertdubin/Documents/images/Einstein_Logo.png";
@@ -876,7 +923,7 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
  	    Paragraph jobDetailsParagraph = startJobDetailsParagraphAndAddCommonJobDetails(job);//start new paragraph containing common job details (put the paragraph is NOT added to the document in this method, thus permitting more to be added to it)
  	    jobDetailsParagraph = addMPSDetailsToJobDetailsParagraph(job, jobDetailsParagraph);//add msp-specific info to the jobDetails paragraph
  	    document.add(jobDetailsParagraph);//add the paragraph to the document
- 	 	    
+ 	 	*/    
  	    document.newPage();
  	    addSubmittedSamplesQuickViewDetailsAsTable(document, job);
  	    document.newPage();

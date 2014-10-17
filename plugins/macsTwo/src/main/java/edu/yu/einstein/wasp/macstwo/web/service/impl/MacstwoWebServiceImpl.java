@@ -109,7 +109,8 @@ public class MacstwoWebServiceImpl extends MacstwoServiceImpl implements Macstwo
 			 Set<String> fileDescriptionSet = new HashSet<String>();			 
 			 Map<FileGroup, List<FileGroup>> outerCollectionFileGroupInnerFileGroupListMap = new HashMap<FileGroup, List<FileGroup>>();
 			 
-			 List<FileGroup> macs2AnalysisFileGroupList = getMacs2AnalysisFileGroups(job);//the outerCollectionfileGroupList
+			 List<FileGroup> macs2AnalysisFileGroupList = new ArrayList<FileGroup>();//the outerCollectionfileGroupList
+			 Collections.addAll(macs2AnalysisFileGroupList, (FileGroup[]) getMacs2AnalysisFileGroups(job).toArray());
 			 class FileGroupDescriptionComparator implements Comparator<FileGroup> {
 				 @Override
 				 public int compare(FileGroup arg0, FileGroup arg1) {
@@ -193,14 +194,35 @@ public class MacstwoWebServiceImpl extends MacstwoServiceImpl implements Macstwo
 		}		
 	}
 
-	private List<FileGroup> getMacs2AnalysisFileGroups(Job job){
+	private Set<FileGroup> getMacs2AnalysisFileGroups(Job job){
 		
-		List<FileGroup> macs2AnalysisFileGroupList = new ArrayList<FileGroup>();
-		for(Sample sample : job.getSample()){
-			for(FileGroup fg : sample.getFileGroups()){
+		Set<FileGroup> macs2AnalysisFileGroupList = new LinkedHashSet<FileGroup>();
+		for (Sample s : job.getSample()) {
+			for (FileGroup fg : s.getFileGroups()) {
+				if (fg.getIsActive() == 0)
+					continue;
 				if(fileService.isFileGroupCollection(fg)){
 					if(fg.getSoftwareGeneratedBy().getId().intValue()==macs2.getId().intValue()){
+						logger.trace("Seeking files for job id=" + job.getId()
+								+ ". Found file group associated with sample id="
+								+ s.getId() + ": '" + fg.getDescription() + "'");
 						macs2AnalysisFileGroupList.add(fg);
+					}
+				}
+			}
+
+			for (SampleSource ss : s.getSourceSample()) {
+				for (FileGroup fg : ss.getFileGroups()) {
+					if (fg.getIsActive() == 0)
+						continue;
+					if(fileService.isFileGroupCollection(fg)){
+						if(fg.getSoftwareGeneratedBy().getId().intValue()==macs2.getId().intValue()){
+							logger.trace("Seeking files for job id="
+									+ job.getId()
+									+ ". Found file group associated with sampleSource id="
+									+ ss.getId() + ": '" + fg.getDescription() + "'");
+							macs2AnalysisFileGroupList.add(fg);
+						}
 					}
 				}
 			}
