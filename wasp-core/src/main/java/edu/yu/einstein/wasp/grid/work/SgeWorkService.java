@@ -640,11 +640,11 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			w.setCommand(command);
 			
 			try {
-				if (!gridFileService.exists(resultsDirectory))
-					gridFileService.mkdir(resultsDirectory);
+				if (!gridFileService.exists(prd))
+					gridFileService.mkdir(prd);
 			} catch (IOException e) {
 				logger.debug("unable to create remote directory");
-				throw new GridExecutionException("unable to mkdir " + resultsDirectory);
+				throw new GridExecutionException("unable to mkdir " + prd);
 			}
 			try {
 				cleanCompletedJobResult =  transportConnection.sendExecToRemote(w);
