@@ -3,6 +3,8 @@
  */
 package edu.yu.einstein.wasp.plugin.genomemetadata.batch.tasklet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
@@ -32,6 +34,8 @@ import edu.yu.einstein.wasp.plugin.genomemetadata.service.GenomeMetadataService;
  */
 public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
 	
+	protected final static Logger logger = LoggerFactory.getLogger(TestForGenomeIndexTasklet.class);
+	
 	@Autowired
 	private GridHostResolver gridHostResolver;
 	
@@ -39,7 +43,7 @@ public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
 	protected GenomeMetadataService genomeMetadataService;
 	
 	public TestForGenomeIndexTasklet() {
-		//
+		
 	}
 	
 	private static final String REMOTE_HOST_KEY = "remotehost";
@@ -47,32 +51,35 @@ public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
 		
 	@Override
 	@Transactional("entityManager")
-	public final RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
+	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
+		Long stepExecutionId = context.getStepContext().getStepExecution().getId();
 		if (wasWokenOnTimeout(context)){
-			logger.trace("Woken on timeout");
+			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation after a timeout.");
 			wasHibernationRequested = false;
 			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
 		}
-		
-		GenomeIndexStatus status = getGenomeIndexStatus(context.getStepContext().getStepExecution());
-		
-		if (status.isAvailable()) {
-			if (status.isCurrentlyAvailable()) {
-				logger.debug("genome index is available, continue with alignment");
-				RepeatStatus stepRepeatStatus = super.execute(contrib, context);
-				if (stepRepeatStatus.equals(RepeatStatus.FINISHED))
-					return RepeatStatus.FINISHED;
+		if (!wasHibernationRequested){
+			GenomeIndexStatus status = getGenomeIndexStatus(context.getStepContext().getStepExecution());
+			
+			if (status.isAvailable()) {
+				if (status.isCurrentlyAvailable()) {
+					logger.debug("genome index is available, continue with alignment");
+					RepeatStatus stepRepeatStatus = super.execute(contrib, context);
+					if (stepRepeatStatus.equals(RepeatStatus.FINISHED))
+						return RepeatStatus.FINISHED;
+				}
+			} else {
+				String mess = "genome not available: " + status.toString() + " : " + status.getMessage();
+				logger.error(mess);
+				throw new WaspException(mess);
 			}
-		} else {
-			String mess = "genome not available: " + status.toString() + " : " + status.getMessage();
-			logger.error(mess);
-			throw new WaspException(mess);
-		}
-		logger.debug("genome index is currently being built, going to request hibernation before alignment begins");
-		Long timeoutInterval = exponentiallyIncreaseTimeoutIntervalInContext(context);
-		logger.trace("Going to request hibernation for " + timeoutInterval + " ms");
-		addStatusMessagesToAbandonStepToContext(context, abandonTemplates);
-		requestHibernation(context);
+			logger.debug("genome index is currently being built, going to request hibernation before alignment begins");
+			Long timeoutInterval = exponentiallyIncreaseTimeoutIntervalInContext(context);
+			logger.trace("Going to request hibernation for " + timeoutInterval + " ms");
+			addStatusMessagesToAbandonStepToContext(context, abandonTemplates);
+			requestHibernation(context);
+		} else 
+			logger.debug("Doing nothing as StepExecution id=" + stepExecutionId + " has already requested hibernation");
 		return RepeatStatus.CONTINUABLE;
 	}
 	
