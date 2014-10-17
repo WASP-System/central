@@ -54,6 +54,7 @@ import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.Strategy.StrategyType;
 import edu.yu.einstein.wasp.controller.util.JsonHelperWebapp;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
+import edu.yu.einstein.wasp.controller.util.SampleAndSampleDraftMetaHelper;
 import edu.yu.einstein.wasp.controller.util.SampleWrapperWebapp;
 import edu.yu.einstein.wasp.dao.AdaptorsetDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetResourceCategoryDao;
@@ -94,6 +95,7 @@ import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
@@ -2381,7 +2383,7 @@ public class JobController extends WaspController {
 
 		  m.addAttribute("submittedMacromoleculeList", submittedMacromoleculeList);//needed to distinguish submittedMacromoleucle from submitted Library
 		  m.addAttribute("submittedLibraryList", submittedLibraryList);
-		  //not used on webpage: m.addAttribute("facilityLibraryList", facilityLibraryList);
+		  m.addAttribute("facilityLibraryList", facilityLibraryList);//not used on webpage samples.jsp, but as of 10-15-14, this is now used on webpage sampleDetails.jsp
 	
 		  //consolidate job's libraries
 		  List<Sample> allJobLibraries = new ArrayList<Sample>();//could have gotten this from allJobLibraries = jobService.getLibraries(job);
@@ -3390,7 +3392,7 @@ public class JobController extends WaspController {
 	@Transactional
 	@RequestMapping(value="/{jobId}/samplePrepComment", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-	  public String jobCommentsPage(@PathVariable("jobId") Integer jobId, ModelMap m){
+	  public String samplePrepCommentPage(@PathVariable("jobId") Integer jobId, ModelMap m){
 		
 		Job job = jobService.getJobByJobId(jobId);
 		if(job.getId()==null){
@@ -3398,6 +3400,7 @@ public class JobController extends WaspController {
 		   	m.addAttribute("message", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
 			return "job/home/message";
 		}
+		//SamplePrepComment is the user's first comment, captured during job submission time
 		//get first job comment: this will be user's first comment, added during job submission. Forms requested that users 
 		//provide sample preparation method in the comment.
 		List<MetaMessage> userSubmittedJobCommentsList = jobService.getUserSubmittedJobComment(job.getId());
@@ -3410,6 +3413,62 @@ public class JobController extends WaspController {
 			m.addAttribute("samplePrepComment", "????");
 		}
 		return "job/home/samplePrepComment";
+	}
+	
+	@Transactional
+	@RequestMapping(value="/{jobId}/sampleDetails", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String sampleDetailsPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException{
+		
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("message", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
+		getSampleLibraryRunData(job, m);
+		Map<Sample,List<SampleMeta>> sampleNormalizedSampleMetaListMap = new HashMap<Sample,List<SampleMeta>>();
+		for(Sample s : job.getSample()){
+			List<SampleMeta> normalizedMeta = new ArrayList<SampleMeta>();
+			try{
+				normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(s.getSampleSubtype(), s.getSampleMeta(), SampleMeta.class));
+			}catch(Exception e){logger.debug("unable to normalize sample meta in jobController.sampleDetailsPage for sample id: " + s.getId());}
+			sampleNormalizedSampleMetaListMap.put(s, normalizedMeta);
+		}
+		m.addAttribute("sampleNormalizedSampleMetaListMap", sampleNormalizedSampleMetaListMap);
+		return "job/home/sampleDetails";
+	}
+	
+	@Transactional
+	@RequestMapping(value="/{jobId}/jobSampleReviewForLabDownload", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
+	public void jobSampleReviewForLabDownload(@PathVariable("jobId") Integer jobId, 
+			ModelMap m, HttpServletResponse response) throws SampleTypeException {
+
+		//will return a pdf created on the fly, for download
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+			return;
+		}		
+		try{
+			//do sets first; cannot be changed after response.getOutputStream() has been written to
+			response.setContentType("application/pdf"); //also worked using: response.setContentType("application/octet-stream");
+  			response.setHeader("Content-Disposition","attachment; filename=Job_J" + job.getId() + "_SummaryForLab.pdf");//line needed? yes. If line is left out, pdf is displayed directly on browser screen (not a download)
+  			Map<Sample,List<SampleMeta>> sampleNormalizedSampleMetaListMap = new HashMap<Sample,List<SampleMeta>>();  
+  			for(Sample s : job.getSample()){
+  				List<SampleMeta> normalizedMeta = new ArrayList<SampleMeta>();
+  				try{
+  					normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(s.getSampleSubtype(), s.getSampleMeta(), SampleMeta.class));
+  				}catch(Exception e){logger.debug("we are unable to normalize sample meta in jobController.jobSampleReviewForLabDownload for sample id: " + s.getId());}
+  				sampleNormalizedSampleMetaListMap.put(s, normalizedMeta);
+  			}  			  			
+  			accountsService.buildJobSampleReviewPDF(job, response.getOutputStream());  			
+  			response.getOutputStream().close();//needed?? no, but doesn't hurt
+  			//response.flushBuffer();//needed?? no 	    	
+		}catch(Exception e){
+			String errorMessage = "Problems encountered while creating on fly jobSummaryFileForLab download file for jobId " + job.getId();
+			logger.warn(errorMessage);e.printStackTrace();
+		}
 	}
 }
 

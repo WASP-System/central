@@ -40,6 +40,7 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
 
+//import edu.yu.einstein.wasp.controller.util.SampleAndSampleDraftMetaHelper;
 import edu.yu.einstein.wasp.dao.AcctGrantDao;
 import edu.yu.einstein.wasp.dao.AcctGrantjobDao;
 import edu.yu.einstein.wasp.dao.AcctGrantjobDraftDao;
@@ -47,12 +48,15 @@ import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.AcctGrant;
 import edu.yu.einstein.wasp.model.AcctGrantjob;
 import edu.yu.einstein.wasp.model.AcctGrantjobDraft;
+import edu.yu.einstein.wasp.model.Adaptor;
+import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.quote.AdditionalCost;
@@ -62,6 +66,7 @@ import edu.yu.einstein.wasp.quote.LibraryCost;
 import edu.yu.einstein.wasp.quote.MPSQuote;
 import edu.yu.einstein.wasp.quote.SequencingCost;
 import edu.yu.einstein.wasp.service.AccountsService;
+import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -74,6 +79,9 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
 	public static final Font NORMAL =  new Font(FontFamily.TIMES_ROMAN, 11 );
 	public static final Font NORMAL_BOLD =  new Font(FontFamily.TIMES_ROMAN, 11, Font.BOLD );
 	public static final Font TINY_BOLD =  new Font(FontFamily.TIMES_ROMAN, 8, Font.BOLD );
+	public static final Font TINY_NORMAL =  new Font(FontFamily.TIMES_ROMAN, 8 );
+	public static final Font SMALL_BOLD =  new Font(FontFamily.TIMES_ROMAN, 9, Font.BOLD );
+	public static final Font SMALL_NORMAL =  new Font(FontFamily.TIMES_ROMAN, 9 );
 
 	@Autowired
 	private JobService jobService;
@@ -89,6 +97,9 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
 	
 	@Autowired
 	private AcctGrantjobDraftDao acctGrantjobDraftDao;
+	
+	@Autowired
+	private AdaptorService adaptorService;
 
 	public void buildQuoteAsPDF(MPSQuote mpsQuote, Job job, OutputStream outputStream)throws DocumentException, MetadataException{
 		
@@ -245,6 +256,14 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
 	    reasonForDocument.add(new Phrase(theReason, NORMAL));
 	    document.add(reasonForDocument);
 	}
+	private void addNoteLineTinyFont(Document document, String reason, String theReason) throws DocumentException{
+	    Paragraph reasonForDocument = new Paragraph();
+	    reasonForDocument.setSpacingBefore(15);
+	    reasonForDocument.setSpacingAfter(15);
+	    reasonForDocument.add(new Chunk(reason, TINY_BOLD));
+	    reasonForDocument.add(new Phrase(theReason, TINY_NORMAL));
+	    document.add(reasonForDocument);
+	}
 	
 	private Paragraph startJobDetailsParagraphAndAddCommonJobDetails(Job job){
 	    Paragraph commonJobDetailsParagraph = new Paragraph();
@@ -288,6 +307,7 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
 		List<JobMeta> jobMetaList = job.getJobMeta();
 		String readLength = null;
 		String readType = null;
+		String runType = null;
 		for(JobMeta jm : jobMetaList){
 			if(jm.getK().toLowerCase().indexOf("readlength")>-1){
 				readLength = jm.getV();
@@ -295,21 +315,38 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
 			else if(jm.getK().toLowerCase().indexOf("readtype")>-1){
 				readType = jm.getV();
 			}
+			else if(jm.getK().toLowerCase().indexOf("runtype")>-1){
+				runType = jm.getV();
+			}
 		}
 		
 		int numberOfLanesRequested = job.getJobCellSelection().size();
 		String platform = jobResourcecategoryList.size()==1?"Platform: ":"Platforms: ";
 		jobDetailsParagraph.add(new Phrase(platform + jobMachineList, NORMAL));jobDetailsParagraph.add(Chunk.NEWLINE);
+		if(runType!=null){
+	 		jobDetailsParagraph.add(new Phrase("Run Type Requested: " + runType, NORMAL));jobDetailsParagraph.add(Chunk.NEWLINE);
+	 	}
 	 	if(readType!=null){
-	 		jobDetailsParagraph.add(new Phrase("Read Type: " + readType, NORMAL));jobDetailsParagraph.add(Chunk.NEWLINE);
+	 		jobDetailsParagraph.add(new Phrase("Read Type Requested: " + readType, NORMAL));jobDetailsParagraph.add(Chunk.NEWLINE);
 	 	}
 	 	if(readLength!=null){
-	 		jobDetailsParagraph.add(new Phrase("Read Length: " + readLength, NORMAL));jobDetailsParagraph.add(Chunk.NEWLINE);
+	 		jobDetailsParagraph.add(new Phrase("Read Length Requested: " + readLength, NORMAL));jobDetailsParagraph.add(Chunk.NEWLINE);
 	 	}
 	 	if(numberOfLanesRequested>0){
 	 		jobDetailsParagraph.add(new Phrase("Lanes Requested: " + numberOfLanesRequested, NORMAL));jobDetailsParagraph.add(Chunk.NEWLINE);
 	 	}
-	 	jobDetailsParagraph.add(new Phrase("Samples: " + job.getSample().size(), NORMAL));jobDetailsParagraph.add(Chunk.NEWLINE);
+	 	
+	 	//10-17-14 next line gets total samples (submitted macro, submitted library, and facility libraries; we really want number of submitted samples)
+	 	//INCORRECT NUMBER jobDetailsParagraph.add(new Phrase("Samples: " + job.getSample().size(), NORMAL));jobDetailsParagraph.add(Chunk.NEWLINE);
+	 	List<Sample> allJobSamples = job.getSample();//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
+		List<Sample> submittedMacromoleculeList = new ArrayList<Sample>();
+		List<Sample> submittedLibraryList = new ArrayList<Sample>();
+		List<Sample> facilityLibraryList = new ArrayList<Sample>();
+		sampleService.enumerateSamplesForMPS(allJobSamples, submittedMacromoleculeList, submittedLibraryList, facilityLibraryList);
+		List<Sample> submittedObjectList = new ArrayList<Sample>();//could have gotten this from submittedObjectList = jobService.getSubmittedSamples(job);
+		submittedObjectList.addAll(submittedMacromoleculeList);
+		submittedObjectList.addAll(submittedLibraryList);	 	
+	 	jobDetailsParagraph.add(new Phrase("Samples Submitted: " + submittedObjectList.size(), NORMAL));jobDetailsParagraph.add(Chunk.NEWLINE);
 	 	
 	 	/* Simply let the user select any appropriate discounts
 	 	Lab lab = job.getLab();
@@ -318,7 +355,7 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
 		if(labDepartment.equalsIgnoreCase("external")){
 			pricingSchedule = "External";
 		} 	 	
-	 	jobDetailsParagraph.add(new Phrase("Pricing Schecule: " + pricingSchedule, NORMAL));jobDetailsParagraph.add(Chunk.NEWLINE);
+	 	jobDetailsParagraph.add(new Phrase("Pricing Schedule: " + pricingSchedule, NORMAL));jobDetailsParagraph.add(Chunk.NEWLINE);
 	 	*/
 		
 		return jobDetailsParagraph;
@@ -818,4 +855,265 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
 		return null;
 	}
 	
+	
+	public void buildJobSampleReviewPDF(Job job, OutputStream outputStream)throws DocumentException, MetadataException{
+		
+		Document document = new Document();
+ 	    PdfWriter.getInstance(document, outputStream).setInitialLeading(10);
+ 	    document.open();	 	    
+ 	    List<String> justUnderLetterheadLineList = new ArrayList<String>();
+ 	    justUnderLetterheadLineList.add("Shahina Maqbool PhD (ESF Director), Albert Einstein College of Medicine, 1301 Morris Park Ave (Price 159F)");
+ 	    justUnderLetterheadLineList.add("Email:shahina.maqbool@einstein.yu.edu Phone:718-678-1163");
+ 	    String imageLocation = "/Users/robertdubin/Documents/images/Einstein_Logo.png";
+ 	    String title = "Epigenomics Shared Facility";
+ 	    addLetterhead(document, imageLocation, title, justUnderLetterheadLineList);
+ 	    Date now = new Date();
+ 	    DateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
+ 	    addNoteLine(document, "Date Document Created: ", dateFormat.format(now));
+ 	    addressTheLetterToSubmitterAndPI(document, job);
+ 	    addNoteLine(document, "Re.: ", "Job & Sample Summary For Job ID " + job.getId());
+ 	    document.add(new LineSeparator());
+ 	    Paragraph jobDetailsParagraph = startJobDetailsParagraphAndAddCommonJobDetails(job);//start new paragraph containing common job details (put the paragraph is NOT added to the document in this method, thus permitting more to be added to it)
+ 	    jobDetailsParagraph = addMPSDetailsToJobDetailsParagraph(job, jobDetailsParagraph);//add msp-specific info to the jobDetails paragraph
+ 	    document.add(jobDetailsParagraph);//add the paragraph to the document
+ 	 	    
+ 	    document.newPage();
+ 	    addSubmittedSamplesQuickViewDetailsAsTable(document, job);
+ 	    document.newPage();
+ 	    addLanesRequestedAsTable(document, job);
+ 	    document.close();		
+	}
+	
+	private void addSubmittedSamplesQuickViewDetailsAsTable(Document document, Job job ) throws DocumentException{
+		
+		List<Sample> allJobSamples = job.getSample();//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
+		List<Sample> submittedMacromoleculeList = new ArrayList<Sample>();
+		List<Sample> submittedLibraryList = new ArrayList<Sample>();
+		List<Sample> facilityLibraryList = new ArrayList<Sample>();
+		sampleService.enumerateSamplesForMPS(allJobSamples, submittedMacromoleculeList, submittedLibraryList, facilityLibraryList);
+		List<Sample> submittedObjectList = new ArrayList<Sample>();//could have gotten this from submittedObjectList = jobService.getSubmittedSamples(job);
+		submittedObjectList.addAll(submittedMacromoleculeList);
+		submittedObjectList.addAll(submittedLibraryList);
+		
+		Paragraph title = new Paragraph();
+		title.setSpacingBefore(5);
+		title.setSpacingAfter(5);	
+		if(submittedObjectList.size()==0){//rather unlikely
+			title.add(new Chunk("Job J"+job.getId()+": No Macromolecules Or Libraries Submitted", NORMAL_BOLD));
+			document.add(title);
+			return;
+		}
+		else{
+			title.add(new Chunk("Job J"+job.getId()+": Submitted Macromolecules & Libraries - Quick View", NORMAL_BOLD));
+			document.add(title);
+		}
+		
+		PdfPTable submittedSamplesQuickViewTable = new PdfPTable(10);
+		submittedSamplesQuickViewTable.setHorizontalAlignment(Element.ALIGN_LEFT);
+		submittedSamplesQuickViewTable.setWidths(new float[]{1.1f, 0.4f, 0.6f, 0.6f, 0.5f, 0.5f, 0.5f, 0.3f, 0.5f, 1.1f});
+		submittedSamplesQuickViewTable.setWidthPercentage(100f);
+		
+		PdfPCell sampleNameHeader = new PdfPCell(new Phrase("Sample\n(Internal ID)", TINY_BOLD));
+		sampleNameHeader.setHorizontalAlignment(Element.ALIGN_CENTER);
+		sampleNameHeader.setBackgroundColor(BaseColor.LIGHT_GRAY);
+		submittedSamplesQuickViewTable.addCell(sampleNameHeader);
+		PdfPCell typeHeader = new PdfPCell(new Phrase("Type", TINY_BOLD));
+		typeHeader.setHorizontalAlignment(Element.ALIGN_CENTER);
+		typeHeader.setBackgroundColor(BaseColor.LIGHT_GRAY);
+		submittedSamplesQuickViewTable.addCell(typeHeader);
+		PdfPCell speciesHeader = new PdfPCell(new Phrase("Species", TINY_BOLD));
+		speciesHeader.setHorizontalAlignment(Element.ALIGN_CENTER);
+		speciesHeader.setBackgroundColor(BaseColor.LIGHT_GRAY);
+		submittedSamplesQuickViewTable.addCell(speciesHeader);
+		PdfPCell arrivedHeader = new PdfPCell(new Phrase("Arrived?", TINY_BOLD));
+		arrivedHeader.setHorizontalAlignment(Element.ALIGN_CENTER);
+		arrivedHeader.setBackgroundColor(BaseColor.LIGHT_GRAY);
+		submittedSamplesQuickViewTable.addCell(arrivedHeader);
+		PdfPCell qcHeader = new PdfPCell(new Phrase("QC", TINY_BOLD));
+		qcHeader.setHorizontalAlignment(Element.ALIGN_CENTER);
+		qcHeader.setBackgroundColor(BaseColor.LIGHT_GRAY);
+		submittedSamplesQuickViewTable.addCell(qcHeader);		
+		PdfPCell concentrationHeader = new PdfPCell(new Phrase("Conc.\n(ng/mcl)", TINY_BOLD));
+		concentrationHeader.setHorizontalAlignment(Element.ALIGN_CENTER);
+		concentrationHeader.setBackgroundColor(BaseColor.LIGHT_GRAY);
+		submittedSamplesQuickViewTable.addCell(concentrationHeader);		
+		PdfPCell quantificationMethodHeader = new PdfPCell(new Phrase("Quant.\nMethod", TINY_BOLD));
+		quantificationMethodHeader.setHorizontalAlignment(Element.ALIGN_CENTER);
+		quantificationMethodHeader.setBackgroundColor(BaseColor.LIGHT_GRAY);
+		submittedSamplesQuickViewTable.addCell(quantificationMethodHeader);		
+		PdfPCell volumeHeader = new PdfPCell(new Phrase("Vol.\n(mcl)", TINY_BOLD));
+		volumeHeader.setHorizontalAlignment(Element.ALIGN_CENTER);
+		volumeHeader.setBackgroundColor(BaseColor.LIGHT_GRAY);
+		submittedSamplesQuickViewTable.addCell(volumeHeader);		
+		PdfPCell bufferHeader = new PdfPCell(new Phrase("Buffer", TINY_BOLD));
+		bufferHeader.setHorizontalAlignment(Element.ALIGN_CENTER);
+		bufferHeader.setBackgroundColor(BaseColor.LIGHT_GRAY);
+		submittedSamplesQuickViewTable.addCell(bufferHeader);
+		PdfPCell adaptorHeader = new PdfPCell(new Phrase("Adaptor", TINY_BOLD));
+		adaptorHeader.setHorizontalAlignment(Element.ALIGN_CENTER);
+		adaptorHeader.setBackgroundColor(BaseColor.LIGHT_GRAY);
+		submittedSamplesQuickViewTable.addCell(adaptorHeader);
+		
+		for(Sample submittedObject : submittedObjectList){
+			PdfPCell sampleName = new PdfPCell(new Phrase(submittedObject.getName()+"\n(ID: "+ submittedObject.getId().toString()+")", TINY_BOLD));
+			sampleName.setHorizontalAlignment(Element.ALIGN_CENTER);
+			submittedSamplesQuickViewTable.addCell(sampleName);
+			String typeString = submittedObject.getSampleType().getName();
+			typeString = typeString.replaceFirst(" ", "\n");
+			PdfPCell type = new PdfPCell(new Phrase(typeString, TINY_BOLD));
+			type.setHorizontalAlignment(Element.ALIGN_CENTER);
+			submittedSamplesQuickViewTable.addCell(type);			
+			String speciesString = sampleService.getNameOfOrganism(submittedObject, "???");
+			speciesString = speciesString.replaceAll(" ", "\n");
+			PdfPCell species = new PdfPCell(new Phrase(speciesString, TINY_BOLD));
+			species.setHorizontalAlignment(Element.ALIGN_CENTER);
+			submittedSamplesQuickViewTable.addCell(species);
+			String arrivalStatusString = sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(submittedObject));
+			arrivalStatusString = arrivalStatusString.replaceAll(" ", "\n");
+			PdfPCell arrived = new PdfPCell(new Phrase(arrivalStatusString, TINY_BOLD));
+			arrived.setHorizontalAlignment(Element.ALIGN_CENTER);
+			submittedSamplesQuickViewTable.addCell(arrived);
+			String qcStatusString = "N/A";
+			if(arrivalStatusString.equalsIgnoreCase("received")){
+				qcStatusString = sampleService.convertSampleQCStatusForWeb(sampleService.getSampleQCStatus(submittedObject));
+			}
+			PdfPCell qc = new PdfPCell(new Phrase(qcStatusString, TINY_BOLD));
+			qc.setHorizontalAlignment(Element.ALIGN_CENTER);
+			submittedSamplesQuickViewTable.addCell(qc);
+			
+			List<SampleMeta> smList = submittedObject.getSampleMeta();
+			//String pITitle = MetaHelper.getMetaValue("user", "title", pIMetaList);//apparently cannot use, as with samples, the area changes
+			PdfPCell concentration = new PdfPCell(new Phrase(getSampleMeta(smList, "concentration"), TINY_BOLD));
+			concentration.setHorizontalAlignment(Element.ALIGN_CENTER);
+			submittedSamplesQuickViewTable.addCell(concentration);
+			PdfPCell quantMethod = new PdfPCell(new Phrase(getSampleMeta(smList, "quantificationmethod"), TINY_BOLD));
+			quantMethod.setHorizontalAlignment(Element.ALIGN_CENTER);
+			submittedSamplesQuickViewTable.addCell(quantMethod);
+			PdfPCell volume = new PdfPCell(new Phrase(getSampleMeta(smList, "volume"), TINY_BOLD));
+			volume.setHorizontalAlignment(Element.ALIGN_CENTER);
+			submittedSamplesQuickViewTable.addCell(volume);
+			PdfPCell buffer = new PdfPCell(new Phrase(getSampleMeta(smList, "buffer"), TINY_BOLD));
+			buffer.setHorizontalAlignment(Element.ALIGN_CENTER);
+			submittedSamplesQuickViewTable.addCell(buffer);
+			if(submittedObject.getSampleType().getIName().toLowerCase().contains("library")){
+				String adaptorSetNameString = "";
+				String adaptorString = "";
+				try{ 
+				  Adaptor adaptor = adaptorService.getAdaptor(submittedObject);
+				  adaptorSetNameString = adaptor.getAdaptorset().getName();
+				  //Index <c:out value="${adaptor.getBarcodenumber()}" /> [<c:out value="${adaptor.getBarcodesequence()}" />]
+				  adaptorString = "Index " + adaptor.getBarcodenumber() + "\n[" + adaptor.getBarcodesequence() + "]"; 
+				}catch(Exception e){ logger.debug("unable to access adaptor in addSubmittedSamplesQuickViewDetailsAsTable"); }		  
+				
+				PdfPCell adaptor = new PdfPCell(new Phrase(adaptorSetNameString+"\n"+adaptorString, TINY_BOLD));
+				adaptor.setHorizontalAlignment(Element.ALIGN_CENTER);
+				submittedSamplesQuickViewTable.addCell(adaptor);
+			}
+			else{
+				PdfPCell adaptor = new PdfPCell(new Phrase("N/A", TINY_BOLD));
+				adaptor.setHorizontalAlignment(Element.ALIGN_CENTER);
+				submittedSamplesQuickViewTable.addCell(adaptor);
+			}
+		}
+		
+		document.add(submittedSamplesQuickViewTable);		
+		
+	}
+	
+	private void addLanesRequestedAsTable(Document document, Job job ) throws DocumentException{
+		
+		Map<Sample, String> cellsRequestedMap = jobService.getCoverageMap(job);
+		int totalNumberCellsRequested = job.getJobCellSelection()==null?0:job.getJobCellSelection().size();
+
+		Paragraph title = new Paragraph();
+		title.setSpacingBefore(5);
+		title.setSpacingAfter(5);	
+		if(totalNumberCellsRequested==0){
+			title.add(new Chunk("Job J"+job.getId()+": No Sequencing Lanes Requested", NORMAL_BOLD));//rather unlikely
+			document.add(title);
+			return;
+		}
+		else if(totalNumberCellsRequested==1){
+			title.add(new Chunk("Job J"+job.getId()+": " + totalNumberCellsRequested + " Sequencing Lane Requested", NORMAL_BOLD));
+			document.add(title);
+		}
+		else{
+			title.add(new Chunk("Job J"+job.getId()+": " + totalNumberCellsRequested + " Sequencing Lanes Requested", NORMAL_BOLD));
+			document.add(title);
+		}
+		
+		List<Sample> allJobSamples = job.getSample();//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
+		List<Sample> submittedMacromoleculeList = new ArrayList<Sample>();
+		List<Sample> submittedLibraryList = new ArrayList<Sample>();
+		List<Sample> facilityLibraryList = new ArrayList<Sample>();
+		sampleService.enumerateSamplesForMPS(allJobSamples, submittedMacromoleculeList, submittedLibraryList, facilityLibraryList);
+		List<Sample> submittedObjectList = new ArrayList<Sample>();//could have gotten this from submittedObjectList = jobService.getSubmittedSamples(job);
+		submittedObjectList.addAll(submittedMacromoleculeList);
+		submittedObjectList.addAll(submittedLibraryList);
+		
+		PdfPTable cellsRequestedTable = new PdfPTable(totalNumberCellsRequested + 1);
+		cellsRequestedTable.setHorizontalAlignment(Element.ALIGN_LEFT);
+		float[] floatArray = new float[totalNumberCellsRequested + 1];
+		floatArray[0] = 1.1f;//for sample name
+		for(int i = 1; i <= totalNumberCellsRequested; i++){
+			floatArray[i] = 0.2f;
+		}
+		//cellsRequestedTable.setWidths(new float[]{1.1f, 0.4f, 0.6f, 0.6f, 0.5f, 0.5f, 0.5f, 0.3f, 0.5f, 1.1f});
+		cellsRequestedTable.setWidths(floatArray);
+		cellsRequestedTable.setWidthPercentage(100f);
+		PdfPCell sampleNameHeader = new PdfPCell(new Phrase("Sample\n(Internal ID)", TINY_BOLD));
+		sampleNameHeader.setHorizontalAlignment(Element.ALIGN_CENTER);
+		sampleNameHeader.setBackgroundColor(BaseColor.LIGHT_GRAY);
+		cellsRequestedTable.addCell(sampleNameHeader);
+		for(int i = 1; i <= totalNumberCellsRequested; i++){
+			PdfPCell laneCellHeader = new PdfPCell(new Phrase("L"+i, TINY_BOLD));
+			laneCellHeader.setHorizontalAlignment(Element.ALIGN_CENTER);
+			laneCellHeader.setBackgroundColor(BaseColor.LIGHT_GRAY);
+			cellsRequestedTable.addCell(laneCellHeader);
+		}
+		for(Sample submittedObject : submittedObjectList){
+			
+			PdfPCell sampleName = new PdfPCell(new Phrase(submittedObject.getName()+"\n(ID: "+ submittedObject.getId().toString()+")", TINY_BOLD));
+			sampleName.setHorizontalAlignment(Element.ALIGN_CENTER);
+			cellsRequestedTable.addCell(sampleName);
+			
+			String yesNoString = "";
+			if(cellsRequestedMap.containsKey(submittedObject)){
+				yesNoString = cellsRequestedMap.get(submittedObject);
+			}
+			if(yesNoString.isEmpty()){//rather unlikely
+				for(int i = 0; i < totalNumberCellsRequested; i++){				
+					PdfPCell laneCell = new PdfPCell(new Phrase("", TINY_BOLD));
+					laneCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+					cellsRequestedTable.addCell(laneCell);
+				}
+			}
+			else{
+				for(int i = 0; i < totalNumberCellsRequested; i++){
+					String code = yesNoString.substring(i, i+1);//string of zeros and ones
+					PdfPCell laneCell;
+					if(code.equalsIgnoreCase("1")){						
+						laneCell = new PdfPCell(new Phrase("x", TINY_BOLD));
+					}
+					else{
+						laneCell = new PdfPCell(new Phrase("", TINY_BOLD));
+					}
+					laneCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+					cellsRequestedTable.addCell(laneCell);
+				}
+			}
+		}	
+		document.add(cellsRequestedTable);	
+	}
+	
+	private String getSampleMeta(List<SampleMeta> smList, String keyToSearch){
+		String val = "";
+		for(SampleMeta sm : smList){
+			if(sm.getK().toLowerCase().contains(keyToSearch)){
+				val = sm.getV();
+				break;
+			}
+		}
+		return val;
+	}
 }

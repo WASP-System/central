@@ -12,6 +12,7 @@ package edu.yu.einstein.wasp.service;
 
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 
 import com.itextpdf.text.DocumentException;
 
@@ -22,6 +23,8 @@ import edu.yu.einstein.wasp.model.AcctGrantjobDraft;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.Lab;
+import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.quote.MPSQuote;
 
 public interface AccountsService extends WaspService{
@@ -53,4 +56,5 @@ public interface AccountsService extends WaspService{
 	 */
 	public List<AcctGrant> getNonExpiredGrantsForLab(Lab lab);
 
+	public void buildJobSampleReviewPDF(Job job, OutputStream outputStream)throws DocumentException, MetadataException;
 }
