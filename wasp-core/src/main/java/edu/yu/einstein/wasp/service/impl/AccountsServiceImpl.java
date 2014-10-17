@@ -78,12 +78,13 @@ import edu.yu.einstein.wasp.util.MetaHelper;
 public class AccountsServiceImpl extends WaspServiceImpl implements AccountsService{
 
 	public static final Font BIG_BOLD =  new Font(FontFamily.TIMES_ROMAN, 13, Font.BOLD );
-	public static final Font NORMAL =  new Font(FontFamily.TIMES_ROMAN, 11 );
+	public static final Font BIG =  new Font(FontFamily.TIMES_ROMAN, 13 );	
 	public static final Font NORMAL_BOLD =  new Font(FontFamily.TIMES_ROMAN, 11, Font.BOLD );
+	public static final Font NORMAL =  new Font(FontFamily.TIMES_ROMAN, 11 );
 	public static final Font TINY_BOLD =  new Font(FontFamily.TIMES_ROMAN, 8, Font.BOLD );
-	public static final Font TINY_NORMAL =  new Font(FontFamily.TIMES_ROMAN, 8 );
+	public static final Font TINY =  new Font(FontFamily.TIMES_ROMAN, 8 );
 	public static final Font SMALL_BOLD =  new Font(FontFamily.TIMES_ROMAN, 9, Font.BOLD );
-	public static final Font SMALL_NORMAL =  new Font(FontFamily.TIMES_ROMAN, 9 );
+	public static final Font SMALL =  new Font(FontFamily.TIMES_ROMAN, 9 );
 
 	@Autowired
 	private JobService jobService;
@@ -213,11 +214,13 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
 		String submitterPhone = MetaHelper.getMetaValue("user", "phone", userMetaList);		
 		
 		Lab lab = job.getLab();
+		/*
 		String labDepartment = lab.getDepartment().getName();//Genetics, Internal, External, Cell Biology (External means not Einstein, and used for pricing)
 		String pricingSchedule = "Internal";
 		if(labDepartment.equalsIgnoreCase("external")){
 			pricingSchedule = "External";
 		}
+		*/
 		
 		User pI = lab.getUser();
 		if(submitter.getId().intValue()!=pI.getId().intValue()){
@@ -277,13 +280,14 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
 	    reasonForDocument.add(new Phrase(theReason, NORMAL));
 	    document.add(reasonForDocument);
 	}
-	private void addNoteLineTinyFont(Document document, String reason, String theReason) throws DocumentException{
-	    Paragraph reasonForDocument = new Paragraph();
-	    reasonForDocument.setSpacingBefore(15);
-	    reasonForDocument.setSpacingAfter(15);
-	    reasonForDocument.add(new Chunk(reason, TINY_BOLD));
-	    reasonForDocument.add(new Phrase(theReason, TINY_NORMAL));
-	    document.add(reasonForDocument);
+	
+	private void addLine(Document document, String reason, Font reasonFont, String theReason, Font theReasonFont, int spacingBefore, int spacingAfter) throws DocumentException{
+		Paragraph line = new Paragraph();
+		line.setSpacingBefore(spacingBefore);
+		line.setSpacingAfter(spacingAfter);
+		line.add(new Chunk(reason, reasonFont));
+		line.add(new Phrase(theReason, theReasonFont));
+	    document.add(line);
 	}
 	
 	private Paragraph startJobDetailsParagraphAndAddCommonJobDetails(Job job){
@@ -310,6 +314,15 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
 		    grantDetails += ", expires " + dateFormat.format(grant.getExpirationdt());
 	    }
 	    commonJobDetailsParagraph.add(new Phrase("Grant Details: " + grantDetails, NORMAL));commonJobDetailsParagraph.add(Chunk.NEWLINE);
+	 	
+	 	Lab lab = job.getLab();
+		String labDepartment = lab.getDepartment().getName();//Genetics, External, Cell Biology (External means not Einstein/Monte, and used for pricing)
+		String pricingSchedule = "Internal";
+		if(labDepartment.equalsIgnoreCase("external")){
+			pricingSchedule = "External";
+		} 	 	
+		commonJobDetailsParagraph.add(new Phrase("Pricing Schedule: " + pricingSchedule, NORMAL));commonJobDetailsParagraph.add(Chunk.NEWLINE);
+
 	    return commonJobDetailsParagraph;
 	}
 	
@@ -368,17 +381,7 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
 		submittedObjectList.addAll(submittedMacromoleculeList);
 		submittedObjectList.addAll(submittedLibraryList);	 	
 	 	jobDetailsParagraph.add(new Phrase("Samples Submitted: " + submittedObjectList.size(), NORMAL));jobDetailsParagraph.add(Chunk.NEWLINE);
-	 	
-	 	/* Simply let the user select any appropriate discounts
-	 	Lab lab = job.getLab();
-		String labDepartment = lab.getDepartment().getName();//Genetics, Internal, External, Cell Biology (External means not Einstein, and used for pricing)
-		String pricingSchedule = "Internal";
-		if(labDepartment.equalsIgnoreCase("external")){
-			pricingSchedule = "External";
-		} 	 	
-	 	jobDetailsParagraph.add(new Phrase("Pricing Schedule: " + pricingSchedule, NORMAL));jobDetailsParagraph.add(Chunk.NEWLINE);
-	 	*/
-		
+	 			
 		return jobDetailsParagraph;
 	}
 	
@@ -894,36 +897,17 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
  	    String imageLocation = servletPath + "/" + relativeLogoUrl;
  	    String title = messageService.getMessage("accounts.pdf_title.label");
  	    addLetterhead(document, imageLocation, title, justUnderLetterheadLineList);
+	    addLine(document, "Epigenomics Shared Facility: ", NORMAL_BOLD, "Job & Sample Summary For Job J" + job.getId(), NORMAL, 2, 1);
  	    Date now = new Date();
  	    DateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
- 	    addNoteLine(document, "Date Document Created: ", dateFormat.format(now));
- 	    addressTheLetterToSubmitterAndPI(document, job);
- 	    addNoteLine(document, "Re..: ", "Job & Sample Summary For Job ID " + job.getId());
- 	    document.add(new LineSeparator());
+ 	    addLine(document, "Date Document Created: ", NORMAL_BOLD, dateFormat.format(now), NORMAL, 1, 15);	    
+ 	    addressTheLetterToSubmitterAndPI(document, job);  	    
+ 	    addLine(document, " ", NORMAL_BOLD, " ", NORMAL, 3, 3);
+ 	    document.add(new LineSeparator());	    
  	    Paragraph jobDetailsParagraph = startJobDetailsParagraphAndAddCommonJobDetails(job);//start new paragraph containing common job details (put the paragraph is NOT added to the document in this method, thus permitting more to be added to it)
  	    jobDetailsParagraph = addMPSDetailsToJobDetailsParagraph(job, jobDetailsParagraph);//add msp-specific info to the jobDetails paragraph
  	    document.add(jobDetailsParagraph);//add the paragraph to the document
- 	   /*
-		
-		Document document = new Document();
- 	    PdfWriter.getInstance(document, outputStream).setInitialLeading(10);
- 	    document.open();	 	    
- 	    List<String> justUnderLetterheadLineList = new ArrayList<String>();
- 	    justUnderLetterheadLineList.add("Shahina Maqbool PhD (ESF Director), Albert Einstein College of Medicine, 1301 Morris Park Ave (Price 159F)");
- 	    justUnderLetterheadLineList.add("Email:shahina.maqbool@einstein.yu.edu Phone:718-678-1163");
- 	    String imageLocation = "/Users/robertdubin/Documents/images/Einstein_Logo.png";
- 	    String title = "Epigenomics Shared Facility";
- 	    addLetterhead(document, imageLocation, title, justUnderLetterheadLineList);
- 	    Date now = new Date();
- 	    DateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
- 	    addNoteLine(document, "Date Document Created: ", dateFormat.format(now));
- 	    addressTheLetterToSubmitterAndPI(document, job);
- 	    addNoteLine(document, "Re.: ", "Job & Sample Summary For Job ID " + job.getId());
- 	    document.add(new LineSeparator());
- 	    Paragraph jobDetailsParagraph = startJobDetailsParagraphAndAddCommonJobDetails(job);//start new paragraph containing common job details (put the paragraph is NOT added to the document in this method, thus permitting more to be added to it)
- 	    jobDetailsParagraph = addMPSDetailsToJobDetailsParagraph(job, jobDetailsParagraph);//add msp-specific info to the jobDetails paragraph
- 	    document.add(jobDetailsParagraph);//add the paragraph to the document
- 	 	*/    
+ 	     
  	    document.newPage();
  	    addSubmittedSamplesQuickViewDetailsAsTable(document, job);
  	    document.newPage();
