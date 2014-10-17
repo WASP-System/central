@@ -26,6 +26,7 @@ import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.plugin.genomemetadata.GenomeIndexStatus;
+import edu.yu.einstein.wasp.plugin.genomemetadata.exception.GenomeMetadataException;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.StrategyService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
@@ -41,8 +42,6 @@ public class CallVariantsWithUGTasklet extends AbstractGatkTasklet implements St
 	@Autowired
 	private StrategyService strategyService;
 
-	private Build build = null;
-	
 	Map<String,JobParameter> jobParameters;
 
 	public CallVariantsWithUGTasklet(String inputFilegroupIds, String outputFilegroupIds, Integer jobId) {
@@ -53,8 +52,12 @@ public class CallVariantsWithUGTasklet extends AbstractGatkTasklet implements St
 	@Transactional("entityManager")
 	public GenomeIndexStatus getGenomeIndexStatus(StepExecution stepExecution) {
 		try {
+			if (!this.getInputFilegroupIds().iterator().hasNext())
+				throw new GenomeMetadataException("unable to retrieve build as no files from which to determine build");
+			FileGroup fg = fileService.getFileGroupById(this.getInputFilegroupIds().iterator().next());
+			Build build = gatkService.getBuildForFg(fg);
 			return genomeMetadataService.getFastaStatus(getGridWorkService(getStepExecutionContext(stepExecution)), build);
-		} catch (GridUnresolvableHostException | IOException e) {
+		} catch (GridUnresolvableHostException | IOException | GenomeMetadataException e) {
 			String mess = "Unable to determine build or build status " + e.getLocalizedMessage();
 			logger.error(mess);
 			throw new WaspRuntimeException(mess);
@@ -96,6 +99,7 @@ public class CallVariantsWithUGTasklet extends AbstractGatkTasklet implements St
         }
         w.setResultFiles(outFiles);
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();
+		Build build = null;
 		for (Integer fgId : this.getInputFilegroupIds()){
 			FileGroup fg = fileService.getFileGroupById(fgId);
 			if (fhlist.isEmpty()) // first entry not yet entered

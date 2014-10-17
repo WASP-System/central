@@ -22,6 +22,7 @@ import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.plugin.genomemetadata.GenomeIndexStatus;
+import edu.yu.einstein.wasp.plugin.genomemetadata.exception.GenomeMetadataException;
 import edu.yu.einstein.wasp.plugin.genomemetadata.plugin.GenomeMetadataPlugin.VCF_TYPE;
 import edu.yu.einstein.wasp.plugin.picard.software.Picard;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
@@ -40,9 +41,6 @@ public class RealignTasklet extends AbstractGatkTasklet {
 		super(inputFilegroupIds, outputFilegroupIds, jobId);
 	}
 	
-	private Build build = null;
-	
-	
 	@Override
 	@Transactional("entityManager")
 	public void beforeStep(StepExecution stepExecution){
@@ -54,6 +52,10 @@ public class RealignTasklet extends AbstractGatkTasklet {
 	public GenomeIndexStatus getGenomeIndexStatus(StepExecution stepExecution) {
 		ExecutionContext stepExecutionContext = getStepExecutionContext(stepExecution);
 		try {
+			if (!this.getInputFilegroupIds().iterator().hasNext())
+				throw new GenomeMetadataException("unable to retrieve build as no files from which to determine build");
+			FileGroup fg = fileService.getFileGroupById(this.getInputFilegroupIds().iterator().next());
+			Build build = gatkService.getBuildForFg(fg);
 			GenomeIndexStatus fq = genomeMetadataService.getFastaStatus(getGridWorkService(stepExecutionContext), build);
 			GenomeIndexStatus s1 = genomeMetadataService.getVcfStatus(getGridWorkService(stepExecutionContext), build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.INDEL));
 			GenomeIndexStatus s2 = genomeMetadataService.getVcfStatus(getGridWorkService(stepExecutionContext), build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.SNP));
@@ -65,7 +67,7 @@ public class RealignTasklet extends AbstractGatkTasklet {
 			} else {
 				return GenomeIndexStatus.BUILDING;
 			}
-		} catch (IOException | GridUnresolvableHostException | MetadataException e) {
+		} catch (IOException | GridUnresolvableHostException | MetadataException | GenomeMetadataException e) {
 			String mess = "Unable to determine build or build status " + e.getLocalizedMessage();
 			logger.error(mess);
 			throw new WaspRuntimeException(mess);
@@ -95,7 +97,7 @@ public class RealignTasklet extends AbstractGatkTasklet {
 		WorkUnit w = new WorkUnit(configureWorkUnit(stepExecution));
 	
 		w.setSecureResults(true);
-		
+		Build build = null;
 		List<FileHandle> inFiles = new ArrayList<FileHandle>();
 		for (Integer fgId : this.getInputFilegroupIds()){
 			FileGroup fg = fileService.getFileGroupById(fgId);

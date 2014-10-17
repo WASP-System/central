@@ -30,6 +30,7 @@ import edu.yu.einstein.wasp.plugin.genomemetadata.service.GenomeMetadataService;
 
 /**
  * @author calder
+ * @author asmclellan
  * 
  */
 public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
@@ -47,6 +48,7 @@ public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
 	}
 	
 	private static final String REMOTE_HOST_KEY = "remotehost";
+	private static final String GENOME_IS_AVAILABLE = "genomeAvail";
 
 		
 	@Override
@@ -59,14 +61,15 @@ public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
 			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
 		}
 		if (!wasHibernationRequested){
+			if (getIsGenomeAvailable(getStepExecutionContext(context)))
+				return super.execute(contrib, context);
 			GenomeIndexStatus status = getGenomeIndexStatus(context.getStepContext().getStepExecution());
 			
 			if (status.isAvailable()) {
 				if (status.isCurrentlyAvailable()) {
 					logger.debug("genome index is available, continue with alignment");
-					RepeatStatus stepRepeatStatus = super.execute(contrib, context);
-					if (stepRepeatStatus.equals(RepeatStatus.FINISHED))
-						return RepeatStatus.FINISHED;
+					setIsGenomeAvailable(getStepExecutionContext(context), true);
+					return super.execute(contrib, context);
 				}
 			} else {
 				String mess = "genome not available: " + status.toString() + " : " + status.getMessage();
@@ -170,6 +173,16 @@ public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
 	
 	private void setRemoteHost(ExecutionContext stepExecutionContext, WorkUnitGridConfiguration c) throws GridUnresolvableHostException{
 		stepExecutionContext.put(REMOTE_HOST_KEY, gridHostResolver.getGridWorkService(c).getTransportConnection().getHostName());
+	}
+	
+	private void setIsGenomeAvailable(ExecutionContext stepExecutionContext, boolean isGenomeAvailable) {
+		stepExecutionContext.put(GENOME_IS_AVAILABLE, isGenomeAvailable);
+	}
+	
+	private boolean getIsGenomeAvailable(ExecutionContext stepExecutionContext) {
+		if (!stepExecutionContext.containsKey(GENOME_IS_AVAILABLE))
+			return false;
+		return (Boolean) stepExecutionContext.get(GENOME_IS_AVAILABLE);
 	}
 	
 	public String getRemoteHost(ExecutionContext stepExecutionContext) throws GridUnresolvableHostException{

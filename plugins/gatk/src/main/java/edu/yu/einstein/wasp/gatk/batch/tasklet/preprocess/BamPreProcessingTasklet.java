@@ -87,10 +87,6 @@ public class BamPreProcessingTasklet extends TestForGenomeIndexTasklet implement
 	@Autowired
 	private GATKSoftwareComponent gatk;
 	
-	private Build build = null;
-	
-	private ExecutionContext stepExecutionContext;
-
 	public BamPreProcessingTasklet() {
 		// proxy
 	}
@@ -117,7 +113,7 @@ public class BamPreProcessingTasklet extends TestForGenomeIndexTasklet implement
 	@Override
 	@Transactional("entityManager")
 	public void doPreFinish(ChunkContext context) throws Exception {
-		stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
+		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
 		Integer bamGId = stepExecutionContext.getInt("bamGID");
 		Integer baiGId = stepExecutionContext.getInt("baiGID");
 		
@@ -141,7 +137,6 @@ public class BamPreProcessingTasklet extends TestForGenomeIndexTasklet implement
 	@Override
 	@Transactional("entityManager")
 	public void beforeStep(StepExecution stepExecution){
-		stepExecutionContext = stepExecution.getExecutionContext();
 		super.beforeStep(stepExecution);
 	}
 
@@ -149,6 +144,8 @@ public class BamPreProcessingTasklet extends TestForGenomeIndexTasklet implement
 	public GenomeIndexStatus getGenomeIndexStatus(StepExecution stepExecution) {
 		ExecutionContext stepExecutionContext = getStepExecutionContext(stepExecution);
 		try {
+			SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
+			Build build = genomeService.getGenomeBuild(cellLib);
 			GenomeIndexStatus fq = genomeMetadataService.getFastaStatus(getGridWorkService(stepExecutionContext), build);
 			GenomeIndexStatus s1 = genomeMetadataService.getVcfStatus(getGridWorkService(stepExecutionContext), build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.INDEL));
 			GenomeIndexStatus s2 = genomeMetadataService.getVcfStatus(getGridWorkService(stepExecutionContext), build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.SNP));

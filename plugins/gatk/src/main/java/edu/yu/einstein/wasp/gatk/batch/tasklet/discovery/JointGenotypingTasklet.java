@@ -31,6 +31,7 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.VcfFileTypeAttribute;
 import edu.yu.einstein.wasp.plugin.genomemetadata.GenomeIndexStatus;
 import edu.yu.einstein.wasp.plugin.genomemetadata.batch.tasklet.TestForGenomeIndexTasklet;
+import edu.yu.einstein.wasp.plugin.genomemetadata.exception.GenomeMetadataException;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
@@ -65,8 +66,6 @@ public class JointGenotypingTasklet extends TestForGenomeIndexTasklet {
 	
 	private Integer jobId;
 	
-	private Build build = null;
-	
 	public JointGenotypingTasklet(Integer jobId) {
 		this.jobId = jobId;
 	}
@@ -93,8 +92,15 @@ public class JointGenotypingTasklet extends TestForGenomeIndexTasklet {
 	@Transactional("entityManager")
 	public GenomeIndexStatus getGenomeIndexStatus(StepExecution stepExecution) {
 		try {
+			LinkedHashSet<FileGroup> inputFileGroups = new LinkedHashSet<>();
+			if (getJobExecutionContext(stepExecution).containsKey("gvcfFgSet"))
+				inputFileGroups.addAll(AbstractGatkTasklet.getFileGroupsFromCommaDelimitedString(getJobExecutionContext(stepExecution).getString("gvcfFgSet"), fileService));
+			if (!inputFileGroups.iterator().hasNext())
+				throw new GenomeMetadataException("unable to retrieve build as no files from which to determine build");
+			FileGroup fg = inputFileGroups.iterator().next();
+			Build build = gatkService.getBuildForFg(fg);
 			return genomeMetadataService.getFastaStatus(getGridWorkService(getStepExecutionContext(stepExecution)), build);
-		} catch (GridUnresolvableHostException | IOException e) {
+		} catch (GridUnresolvableHostException | IOException | GenomeMetadataException e) {
 			String mess = "Unable to determine build or build status " + e.getLocalizedMessage();
 			logger.error(mess);
 			throw new WaspRuntimeException(mess);

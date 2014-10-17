@@ -35,6 +35,7 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.VcfFileTypeAttribute;
 import edu.yu.einstein.wasp.plugin.genomemetadata.GenomeIndexStatus;
 import edu.yu.einstein.wasp.plugin.genomemetadata.batch.tasklet.TestForGenomeIndexTasklet;
+import edu.yu.einstein.wasp.plugin.genomemetadata.exception.GenomeMetadataException;
 import edu.yu.einstein.wasp.plugin.genomemetadata.plugin.GenomeMetadataPlugin.VCF_TYPE;
 import edu.yu.einstein.wasp.plugin.mps.grid.software.SnpEff;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
@@ -75,8 +76,6 @@ public class HardFilterTasklet extends TestForGenomeIndexTasklet {
 	
 	private Integer jobId;
 	
-	private Build build = null;
-	
 	public HardFilterTasklet(Integer jobId) {
 		this.jobId = jobId;
 	}
@@ -102,8 +101,13 @@ public class HardFilterTasklet extends TestForGenomeIndexTasklet {
 	@Transactional("entityManager")
 	public GenomeIndexStatus getGenomeIndexStatus(StepExecution stepExecution) {
 		try {
+			FileGroup combinedGenotypedVcfFg = null;
+			if (!getJobExecutionContext(stepExecution).containsKey("combinedGenotypedVcfFgId"))
+				throw new GenomeMetadataException("unable to retrieve build as no combinedGenotypedVcfFgId file from which to determine build");
+			combinedGenotypedVcfFg = fileService.getFileGroupById(Integer.parseInt(getJobExecutionContext(stepExecution).getString("combinedGenotypedVcfFgId")));
+			Build build = gatkService.getBuildForFg(combinedGenotypedVcfFg);
 			return genomeMetadataService.getFastaStatus(getGridWorkService(getStepExecutionContext(stepExecution)), build);
-		} catch (GridUnresolvableHostException | IOException e) {
+		} catch (GridUnresolvableHostException | IOException | GenomeMetadataException e) {
 			String mess = "Unable to determine build or build status " + e.getLocalizedMessage();
 			logger.error(mess);
 			throw new WaspRuntimeException(mess);
@@ -178,7 +182,7 @@ public class HardFilterTasklet extends TestForGenomeIndexTasklet {
 		w.setResultFiles(outFiles);
 		
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();
-		build = gatkService.getBuildForFg(combinedGenotypedVcfFg);
+		Build build = gatkService.getBuildForFg(combinedGenotypedVcfFg);
 		fhlist.addAll(combinedGenotypedVcfFg.getFileHandles());
 		w.setRequiredFiles(fhlist);
 		String wxsIntervalFile = null; 
