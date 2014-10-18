@@ -11,7 +11,6 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -157,20 +156,7 @@ public class LocalhostFileService implements GridFileService {
 	}
 	
 	private FileAttribute<Set<PosixFilePermission>> getFolderFilePerms(){
-		// get 775 for folder
-		Set<PosixFilePermission> perms = new HashSet<>();
-	    //add owners permission
-	    perms.add(PosixFilePermission.OWNER_READ);
-	    perms.add(PosixFilePermission.OWNER_WRITE);
-	    perms.add(PosixFilePermission.OWNER_EXECUTE);
-	    //add group permissions
-	    perms.add(PosixFilePermission.GROUP_READ);
-	    perms.add(PosixFilePermission.GROUP_WRITE);
-	    perms.add(PosixFilePermission.GROUP_EXECUTE);
-	    //add others permissions
-	    perms.add(PosixFilePermission.OTHERS_READ);
-	    perms.add(PosixFilePermission.OTHERS_EXECUTE);
-		return PosixFilePermissions.asFileAttribute(perms);
+		return PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxrwxr-x"));
 	}
 
 }
