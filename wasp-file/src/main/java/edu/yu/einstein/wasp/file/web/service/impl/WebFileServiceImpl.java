@@ -1,8 +1,8 @@
 package edu.yu.einstein.wasp.file.web.service.impl;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -467,14 +467,19 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 		//..code to add URLs to the list
 		byte[] buf = new byte[2048];
 		
+		response.setContentType("application/zip");
+		response.setHeader("Content-Disposition", "attachment; filename=\""+filename+"\"");
+		// set 'max-age' to cache files for up to 1h (3600s) since most files shouldn't change on the server anyway. 
+		// We use 'must-revalidate' to force browser to always use this rule. 
+		response.setHeader("Cache-Control", "max-age=3600, must-revalidate"); 
+		
 		// Create the ZIP file
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		ZipOutputStream out = new ZipOutputStream(baos);
+		ServletOutputStream sos = response.getOutputStream();
+		ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(sos));
 		
 		// Compress the files
 		for (java.io.File file : localFilesList) {
-			FileInputStream fis = new FileInputStream(file);
-			BufferedInputStream bis = new BufferedInputStream(fis);
+			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
 			
 			// Add ZIP entry to output stream.
 			String entryname = file.getName();
@@ -487,24 +492,11 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 			
 			out.closeEntry();
 			bis.close();
-			fis.close();
 		}
-		
 		out.flush();
-		baos.flush();
-		out.close();
-		baos.close();
-		
-		ServletOutputStream sos = response.getOutputStream();
-
-		response.setContentType("application/zip");
-		response.setHeader("Content-Disposition", "attachment; filename=\""+filename+"\"");
-		// set 'max-age' to cache files for up to 1h (3600s) since most files shouldn't change on the server anyway. 
-		// We use 'must-revalidate' to force browser to always use this rule. 
-		response.setHeader("Cache-Control", "max-age=3600, must-revalidate"); 
-
-		sos.write(baos.toByteArray());
 		sos.flush();
+		out.close();
+		sos.close();
 	}
 
     @Override
