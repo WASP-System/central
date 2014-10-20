@@ -383,6 +383,7 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
 	 	PdfPTable sampleLibraryTable = new PdfPTable(7);
 	 	sampleLibraryTable.setHorizontalAlignment(Element.ALIGN_LEFT);
 	 	sampleLibraryTable.setWidths(new float[]{0.3f, 1.7f, 0.7f, 0.8f, 0.8f, 0.8f, 1.0f});
+	 	sampleLibraryTable.setWidthPercentage(100f);
 		PdfPCell cellNo = new PdfPCell(new Phrase("No.", NORMAL_BOLD));
 		cellNo.setHorizontalAlignment(Element.ALIGN_CENTER);
 		sampleLibraryTable.addCell(cellNo);
@@ -494,6 +495,7 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
 	 	PdfPTable runTable = new PdfPTable(7);
 	 	runTable.setHorizontalAlignment(Element.ALIGN_LEFT);
 	 	runTable.setWidths(new float[]{0.3f, 1.1f, 0.4f, 0.5f, 0.4f, 0.6f, 0.9f});
+	 	runTable.setWidthPercentage(100f);
 		PdfPCell cellRunNo = new PdfPCell(new Phrase("No.", NORMAL_BOLD));
 		cellRunNo.setHorizontalAlignment(Element.ALIGN_CENTER);
 		runTable.addCell(cellRunNo);
@@ -521,7 +523,7 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
 
 		for(SequencingCost sequencingCost : sequencingCosts){
 			runTable.addCell(new Phrase(""+runCounter, NORMAL));
-			runTable.addCell(new Phrase(sequencingCost.getResourceCategory().getName() + " (run-type:" + sequencingCost.getRunType() + ")", NORMAL));//run-type is printed on next line
+			runTable.addCell(new Phrase(sequencingCost.getResourceCategory().getName() + "\n(run-type:" + sequencingCost.getRunType() + ")", NORMAL));//run-type is printed on next line
 			runTable.addCell(new Phrase(sequencingCost.getReadLength().toString(), NORMAL));
 			runTable.addCell(new Phrase(sequencingCost.getReadType(), NORMAL));
 			Integer numLanes = sequencingCost.getNumberOfLanes();
@@ -570,6 +572,7 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
 	 	PdfPTable additionalCostTable = new PdfPTable(5);
 	 	additionalCostTable.setHorizontalAlignment(Element.ALIGN_LEFT);
 	 	additionalCostTable.setWidths(new float[]{0.2f, 1.4f, 0.3f, 0.5f, 0.9f});
+	 	additionalCostTable.setWidthPercentage(100f);
 		PdfPCell celladditionalCostNo = new PdfPCell(new Phrase("No.", NORMAL_BOLD));
 		celladditionalCostNo.setHorizontalAlignment(Element.ALIGN_CENTER);
 		additionalCostTable.addCell(celladditionalCostNo);
@@ -636,6 +639,7 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
 		PdfPTable commentsTable = new PdfPTable(2);
 		commentsTable.setHorizontalAlignment(Element.ALIGN_LEFT);
 		commentsTable.setWidths(new float[]{0.3f, 5f});
+		commentsTable.setWidthPercentage(100f);
 		PdfPCell commentsNo = new PdfPCell(new Phrase("No.", NORMAL_BOLD));
 		commentsNo.setHorizontalAlignment(Element.ALIGN_CENTER);
 		commentsTable.addCell(commentsNo);
