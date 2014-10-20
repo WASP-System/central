@@ -2052,7 +2052,7 @@ public class JobController extends WaspController {
 			for(SampleSource ss : sampleSourceSet){
 				Sample test = ss.getSample();
 				Sample control = ss.getSourceSample();
-				//System.out.println("----control = " + control.getName() + " AND test = " + test.getName());
+				//logger.debug("----control = " + control.getName() + " AND test = " + test.getName());
 				if(submittedSample == control){
 					list.add(test);
 				}
@@ -2118,7 +2118,7 @@ public class JobController extends WaspController {
 			encodedList.add(genomeForAlignment);
 			encodedList.add(buildForAlignment);
 			sampleGenomesForAlignmentListMap.put(submittedSample, encodedList);
-			//System.out.println("------"+ submittedSample.getName() + " : " + organismOfTheSample + " : " + organismForAlignment + " : " + genomeForAlignment + " : " + buildForAlignment);
+			//logger.debug("------"+ submittedSample.getName() + " : " + organismOfTheSample + " : " + organismForAlignment + " : " + genomeForAlignment + " : " + buildForAlignment);
 		}
 		m.addAttribute("submittedSamplesList", submittedSamplesList);
 		m.addAttribute("sampleGenomesForAlignmentListMap", sampleGenomesForAlignmentListMap);

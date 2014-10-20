@@ -455,13 +455,13 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 		}
 		/*
 		//for testing only
-		System.out.println("Testing replicatesListOfLists output");
+		logger.debug("Testing replicatesListOfLists output");
 		for (List<SampleDraft> sdList: replicatesListOfLists) {
 			for(SampleDraft sd : sdList){
-				System.out.println("---:"+sd.getId()+" ---: "+sd.getName());
+				logger.debug("---:"+sd.getId()+" ---: "+sd.getName());
 			}			
 		}
-		System.out.println("Completed testing replicatesListOfLists output");
+		logger.debug("Completed testing replicatesListOfLists output");
 		*/
 		return replicatesListOfLists;
 		
