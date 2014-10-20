@@ -457,6 +457,8 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 		}
 		
 		//..code to add URLs to the list
+		byte[] buf = new byte[2048];
+		
 		response.setContentType("application/zip");
 		response.setHeader("Content-Disposition", "attachment; filename=\""+filename+"\"");
 		// set 'max-age' to cache files for up to 1h (3600s) since most files shouldn't change on the server anyway. 
@@ -469,13 +471,18 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 		
 		// Compress the files
 		for (java.io.File file : localFilesList) {
-			InputStream is = new FileInputStream(file);
-			IOUtils.copyLarge(is, out);
+			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+			
 			// Add ZIP entry to output stream.
 			String entryname = file.getName();
 			out.putNextEntry(new ZipEntry(entryname));
+			
+			int bytesRead;
+			while ((bytesRead = bis.read(buf)) != -1) {
+				out.write(buf, 0, bytesRead);
+			}
 			out.closeEntry();
-			is.close();
+			bis.close();
 		}
 		out.flush();
 		close(out);
