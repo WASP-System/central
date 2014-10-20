@@ -136,7 +136,10 @@ public class UcscGenomeBrowserPlugin extends AbstractGenomeBrowserPlugin  {
 				logger.debug("expected last character of genomeName (" + genomeName + ") to be a digit, but it was not: " + e.getMessage());
 				return null;
 			}
-			return "http://genome.ucsc.edu/cgi-bin/hgTracks?db="+ genomeName +"&hgt.customText=" + resolvedURL;				
+			// append file name extension to the link so genome browser could recognize it
+			String ext = fh.getFileType().getExtensions().split(",")[0];
+			return "http://genome.ucsc.edu/cgi-bin/hgTracks?db=" + genomeName
+					+ "&hgt.customText=" + resolvedURL + "." + ext;
 		}
 		else{
 			return null;
