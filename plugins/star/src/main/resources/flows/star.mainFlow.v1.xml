@@ -41,13 +41,17 @@
 		<batch:step id="star.mainFlow.generateIndex">
 			<batch:tasklet ref="edu.yu.einstein.wasp.plugins.star.mainFlow.skipTasklet" />
 			<batch:next on="FAILED" to="star.mainflow.notifyFailed"/>
-			<batch:next on="*" to="star.mainFlow.secondPassDecision" />
+			<batch:next on="*" to="star.mainFlow.secondPass" />
 		</batch:step>
+		
+		<!-- 
 		
 		<batch:decision decider="skipSecondDecider" id="star.mainFlow.secondPassDecision">
 			<batch:next on="SKIP" to="star.mainFlow.register" />
 			<batch:next on="*" to="star.mainFlow.secondPass" />
 		</batch:decision>
+		
+		 -->
 		
 		<batch:step id="star.mainFlow.secondPass" next="star.mainFlow.listenForSecondPassCompletion">
 			<batch:tasklet ref="edu.yu.einstein.wasp.plugins.star.mainFlow.skipTasklet" />
@@ -92,9 +96,31 @@
 		</batch:step>
 		
 	</batch:job>
-
+	
+	<!-- star.alignment flow aligns reads on a trimmed FASTQ FileGroup level, either to a reference genome or to a 2nd-pass genome that has already been generated. -->
+	
+	<!-- notify align start 
+	<batch:flow id="star.alignment">
+		<batch:step id="star.alignment.notifyStart" next="bwa-mem.alignmentFlow.BWAmem">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+							<property name="fileGroupId" value="#{jobParameters[waspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT ]}"/>
+							<property name="task" value="#{sequencingBatchJobTasks.ALIGNMENT}" />
+							<property name="status" value="STARTED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+	
+	</batch:flow>
+	-->
+	
 	<bean id="edu.yu.einstein.wasp.plugins.star.mainFlow.skipTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" scope="step" />
 	
-	<bean id="skipSecondDecider" class="edu.yu.einstein.wasp.plugins.star.deciders.SkipSecondDecider"/>
+	<!-- <bean id="skipSecondDecider" class="edu.yu.einstein.wasp.plugins.star.deciders.SkipSecondDecider"/> -->
 
 </beans>

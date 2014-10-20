@@ -59,7 +59,7 @@ public class StarTasklet extends WaspRemotingTasklet {
 		GridResult result = gridHostResolver.execute(w);
 		
 		//place the grid result in the step context
-		storeStartedResult(context, result);
+		saveGridResult(context, result);
 	}
 	
 	/**

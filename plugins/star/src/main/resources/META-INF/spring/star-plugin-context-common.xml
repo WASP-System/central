@@ -21,7 +21,7 @@
 
 	<int:service-activator input-channel="wasp.channel.plugin.star" ref="starPlugin" method="process" />
 	
-	<bean id="starPlugin" class="edu.yu.einstein.wasp.plugins.star.plugin.StarPlugin">
+	<bean id="starPlugin" class="edu.yu.einstein.wasp.plugins.star.plugin.StarPlugin" depends-on="mps-tools,bwaMem,star">
 		<constructor-arg name="iName" ref="starPluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.star" />

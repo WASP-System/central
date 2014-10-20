@@ -558,6 +558,8 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 
 	/** 
 	 * {@inheritDoc}
+	 * 
+	 * this gets the enviroment variable path to the build directory (i.e. $WASP_META/foo/bar).
 	 */
 	@Override
 	public String getRemoteBuildPath(Build build) {
@@ -577,6 +579,11 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 		return getRemoteBuildPath(build) + "/" + folder + "/" + filename;
 	}
 	
+	/** 
+	 * {@inheritDoc}
+	 * 
+	 * This gets the actual path (with home as root if set) to the build directory.
+	 */
 	@Override
 	public String getRemoteBuildPath(String hostname, Build build) {
 		GridWorkService host;

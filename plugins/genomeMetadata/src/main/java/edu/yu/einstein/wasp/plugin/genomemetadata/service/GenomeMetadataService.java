@@ -5,11 +5,8 @@
 package edu.yu.einstein.wasp.plugin.genomemetadata.service;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.messaging.Message;
 
 import edu.yu.einstein.wasp.exception.MetadataException;
@@ -26,6 +23,9 @@ import edu.yu.einstein.wasp.service.WaspService;
  * 
  */
 public interface GenomeMetadataService extends WaspService {
+	
+	public final static String GTF_VERSION_KEY = "GTF_version";
+	public final static String VCF_VERSION_KEY = "VCF_version";
 	
 	/**
 	 * Check on the status of a FASTA record for the given genome build at a specific host.  If the FASTA file is not provisioned, based
@@ -48,13 +48,13 @@ public interface GenomeMetadataService extends WaspService {
 	
 	public Message<String> launchBuildFasta(GridWorkService workService, Build build) throws WaspMessageBuildingException;
 	
-	public String getRemoteGenomeFastaPath(GridWorkService workService, Build build);
-	public String getRemoteGenomeFastaIndexPath(GridWorkService workService, Build build);
-	public String getRemoteGenomeFastaDictionaryPath(GridWorkService workService, Build build);
+	public String getPrefixedGenomeFastaPath(GridWorkService workService, Build build);
+	public String getPrefixedGenomeFastaIndexPath(GridWorkService workService, Build build);
+	public String getPrefixedGenomeFastaDictionaryPath(GridWorkService workService, Build build);
 	
-	public String getRemoteCDnaFastaPath(GridWorkService workService, Build build);
-	public String getRemoteCDnaFastaIndexPath(GridWorkService workService, Build build);
-	public String getRemoteCDnaFastaDictionaryPath(GridWorkService workService, Build build);
+	public String getPrefixedCDnaFastaPath(GridWorkService workService, Build build);
+	public String getPrefixedCDnaFastaIndexPath(GridWorkService workService, Build build);
+	public String getPrefixedCDnaFastaDictionaryPath(GridWorkService workService, Build build);
 	
 	/**
 	 * Check on the status of a GTF record for the given genome build at a specific host. Requires a properly build FASTA index (will be built if
@@ -124,13 +124,21 @@ public interface GenomeMetadataService extends WaspService {
 	 * @param versionString
 	 * @return
 	 */
-	public String getRemoteGtfPath(GridWorkService workService, Build build, String versionString);
+	public String getPrefixedGtfPath(GridWorkService workService, Build build, String versionString);
 	
-	public String getRemoteIndexedGtfPath(GridWorkService workService, Build build, String versionString);
+	/**
+	 * return path of remote GTF file, gzipped with adjacent tabix index.
+	 * 
+	 * @param workService
+	 * @param build
+	 * @param versionString
+	 * @return
+	 */
+	public String getPrefixedIndexedGtfPath(GridWorkService workService, Build build, String versionString);
 
-	public String getRemoteVcfPath(GridWorkService workService, Build build, String versionString);
+	public String getPrefixedVcfPath(GridWorkService workService, Build build, String versionString);
 	
-	public String getRemoteIndexedVcfPath(GridWorkService workService, Build build, String versionString);
+	public String getPrefixedIndexedVcfPath(GridWorkService workService, Build build, String versionString);
 	
 	/**
 	 * Generate a key to uniquely identify the status of a given build.  If the index is 1:1 

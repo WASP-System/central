@@ -20,6 +20,11 @@
     <property name="area" value="referenceBasedAligner" />
   </bean>
   
+  <bean id="referenceBasedRNAAlignerResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
+  	<property name="name" value="Reference-based RNA Aligner" />
+  	<property name="area" value="referenceBasedRNAAligner" />
+  </bean>
+  
   <bean id="variantCallingResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
     <property name="name" value="Variant Caller" />
     <property name="area" value="variantcaller" />

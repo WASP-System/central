@@ -73,7 +73,7 @@
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.file.TouchFileTasklet" scope="step">
 					<constructor-arg name="hostname" value="#{jobParameters[waspJobParameters.HOSTNAME]}" />
-					<constructor-arg name="file" value="#{jobParameters[genomemetadataPlugin.METADATA_PATH_KEY]}/gtf/#{jobParameters[genomemetadataPlugin.VERSION_KEY]}/#{T(edu.yu.einstein.wasp.service.GenomeService).INDEX_CREATION_FAILED}" />
+					<constructor-arg name="file" value="#{jobParameters[genomemetadataPlugin.METADATA_PATH_KEY]}/bwa/#{jobParameters[genomemetadataPlugin.VERSION_KEY]}/#{T(edu.yu.einstein.wasp.service.GenomeService).INDEX_CREATION_FAILED}" />
 				</bean>
 			</batch:tasklet>
 			<batch:fail on="*"/>
