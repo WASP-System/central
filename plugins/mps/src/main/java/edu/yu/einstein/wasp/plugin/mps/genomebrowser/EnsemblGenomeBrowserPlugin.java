@@ -139,11 +139,18 @@ public class EnsemblGenomeBrowserPlugin extends AbstractGenomeBrowserPlugin {
 		if(genomeName.startsWith("GRC")){//assume compatible with ucsc	
 			//for testing only: "http://useast.ensembl.org/Homo_sapiens/Location/View?r=1:1-620074;contigviewbottom=url:http://wasp.einstein.yu.edu/results/rob/20140710_IP_Wildtype_flag_TARGET_GATA3_CONTROL_Wildtype_inp_summits2.bed";
 			// append file name extension to the link so genome browser could recognize it
-			String ext = fh.getFileType().getExtensions().split(",")[0];
+			String ext = "";
+			try{
+				ext = "." + fh.getFileType() != null ? fh.getFileType()
+						.getDefaultExtension() : fg.getFileType()
+						.getDefaultExtension();
+			} catch (Exception e){
+				logger.warn("UNABLE TO RESOLVE extension for filehandle in ucscgenomebrowserplugin: " + fh.getFileName());
+			}
 			String link = "http://useast.ensembl.org/"
 					+ organismNameWithoutSpaces
 					+ "/Location/View?r=1:1-620000;contigviewbottom=url:"
-					+ resolvedURL + "." + ext;
+					+ resolvedURL + ext;
 			if (fg.getFileType().getId().intValue() == bedGraphFileType.getId()
 					.intValue()) {
 				return link + "=tiling;format=bedGraph";
