@@ -117,6 +117,7 @@ import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.AccountsService;
+import edu.yu.einstein.wasp.service.PDFService;
 import edu.yu.einstein.wasp.service.ResourceService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -201,6 +202,8 @@ public class JobController extends WaspController {
 	private MessageServiceWebapp messageService;
 	@Autowired
 	private AccountsService accountsService;
+	@Autowired
+	private PDFService pdfService;
 	
 	@Value("${wasp.analysis.perLibraryFee:0}")
 	private Float perLibraryAnalysisFee;
@@ -1209,7 +1212,7 @@ public class JobController extends WaspController {
 		   	}catch(Exception e){logger.warn(e.getMessage()); return; }
 		}
 		try{
-			accountsService.buildQuoteAsPDF(mpsQuote, job, response.getOutputStream());	
+			pdfService.buildQuoteAsPDF(mpsQuote, job, response.getOutputStream());	
 			response.setContentType("application/pdf");
 			response.getOutputStream().close();//apparently not really needed here but doesn't hurt
  	    	return;
@@ -1263,7 +1266,7 @@ public class JobController extends WaspController {
 			localFile = fileService.createTempFile();
 			outputStream = new FileOutputStream(localFile);
 			
-			accountsService.buildQuoteAsPDF(mpsQuote, job, outputStream);
+			pdfService.buildQuoteAsPDF(mpsQuote, job, outputStream);
 			
 			outputStream.close();//file has been save to local location
 			 
@@ -3462,7 +3465,7 @@ public class JobController extends WaspController {
   				}catch(Exception e){logger.debug("we are unable to normalize sample meta in jobController.jobSampleReviewForLabDownload for sample id: " + s.getId());}
   				sampleNormalizedSampleMetaListMap.put(s, normalizedMeta);
   			}  			  			
-  			accountsService.buildJobSampleReviewPDF(job, response.getOutputStream());  			
+  			pdfService.buildJobSampleReviewPDF(job, response.getOutputStream()); 
   			response.getOutputStream().close();//needed?? no, but doesn't hurt
   			//response.flushBuffer();//needed?? no 	    	
 		}catch(Exception e){
