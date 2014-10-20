@@ -181,7 +181,8 @@ public class LocalhostTransportConnection implements GridTransportConnection {
 	@Override
 	public String prefixRemoteFile(String filespec) {
 		String prefix = "";
-		if (isUserDirIsRoot() && !filespec.startsWith("$HOME") && !filespec.startsWith("~")) prefix = "$HOME/";
+		if (filespec.startsWith("~/")) filespec = filespec.replaceAll("^~/", "/");
+		if (isUserDirIsRoot() && !filespec.startsWith("$")) prefix = "$HOME/";
 		String retval = prefix + filespec;
 		return retval.replaceAll("//", "/");
 	}
