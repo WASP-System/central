@@ -134,6 +134,7 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		FileGroup bamG = new FileGroup();
 		FileHandle bam = new FileHandle();
 		bam.setFileName(bamOutput);
+		bam.setFileType(bamFileType);
 		bam = fileService.addFile(bam);
 		bamG.addFileHandle(bam);
 		files.add(bam);
@@ -150,6 +151,7 @@ public class BamPreProcessingTasklet extends WaspRemotingTasklet implements Step
 		FileGroup baiG = new FileGroup();
 		FileHandle bai = new FileHandle();
 		bai.setFileName(baiOutput);
+		bai.setFileType(baiFileType);
 		bai = fileService.addFile(bai);
 		baiG.addFileHandle(bai);
 		files.add(bai);

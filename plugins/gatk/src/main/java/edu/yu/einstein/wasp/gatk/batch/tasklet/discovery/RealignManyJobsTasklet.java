@@ -122,6 +122,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			FileGroup bamMergedPairsTestG = new FileGroup();
 			FileHandle bamMergedPairsTest = new FileHandle();
 			bamMergedPairsTest.setFileName(bamOutputMergedPairsTest);
+			bamMergedPairsTest.setFileType(bamFileType);
 			bamMergedPairsTestG.setIsActive(0);
 			bamMergedPairsTestG.addFileHandle(bamMergedPairsTest);
 			bamMergedPairsTestG.setFileType(bamFileType);
@@ -134,6 +135,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			FileGroup baiMergedPairsTestG = new FileGroup();
 			FileHandle baiMergedPairsTest = new FileHandle();
 			baiMergedPairsTest.setFileName(baiOutputMergedPairsTest);
+			baiMergedPairsTest.setFileType(baiFileType);
 			baiMergedPairsTestG.setIsActive(0);
 			baiMergedPairsTestG.addFileHandle(baiMergedPairsTest);
 			baiMergedPairsTestG.setFileType(baiFileType);
@@ -150,6 +152,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			FileGroup bamMergedPairsControlG = new FileGroup();
 			FileHandle bamMergedPairsControl = new FileHandle();
 			bamMergedPairsControl.setFileName(bamOutputMergedPairsControl);
+			bamMergedPairsControl.setFileType(bamFileType);
 			bamMergedPairsControlG.setIsActive(0);
 			bamMergedPairsControlG.addFileHandle(bamMergedPairsControl);
 			bamMergedPairsControlG.setFileType(bamFileType);
@@ -162,6 +165,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			FileGroup baiMergedPairsControlG = new FileGroup();
 			FileHandle baiMergedPairsControl = new FileHandle();
 			baiMergedPairsControl.setFileName(baiOutputMergedPairsControl);
+			baiMergedPairsControl.setFileType(baiFileType);
 			baiMergedPairsControlG.setIsActive(0);
 			baiMergedPairsControlG.addFileHandle(baiMergedPairsControl);
 			baiMergedPairsControlG.setFileType(baiFileType);
@@ -204,6 +208,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			FileGroup bamMergedG = new FileGroup();
 			FileHandle bamMerged = new FileHandle();
 			bamMerged.setFileName(bamOutputMerged);
+			bamMerged.setFileType(bamFileType);
 			bamMergedG.setIsActive(0);
 			bamMergedG.addFileHandle(bamMerged);
 			bamMergedG.setFileType(bamFileType);
@@ -216,6 +221,7 @@ public class RealignManyJobsTasklet extends LaunchManyJobsTasklet {
 			FileGroup baiMergedG = new FileGroup();
 			FileHandle baiMerged = new FileHandle();
 			baiMerged.setFileName(baiOutputMerged);
+			baiMerged.setFileType(baiFileType);
 			baiMergedG.setIsActive(0);
 			baiMergedG.addFileHandle(baiMerged);
 			baiMergedG.setFileType(baiFileType);

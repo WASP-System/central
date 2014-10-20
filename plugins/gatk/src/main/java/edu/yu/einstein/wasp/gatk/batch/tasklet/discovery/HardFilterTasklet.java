@@ -97,6 +97,7 @@ public class HardFilterTasklet extends WaspRemotingTasklet {
 		FileGroup filteredSnpVcfOutG = new FileGroup();
 		FileHandle filteredSnpVcfOut = new FileHandle();
 		filteredSnpVcfOut.setFileName(filteredSnpVcfOutFileName);
+		filteredSnpVcfOut.setFileType(vcfFileType);
 		filteredSnpVcfOutG.setIsActive(0);
 		filteredSnpVcfOutG.addFileHandle(filteredSnpVcfOut);
 		filteredSnpVcfOutG.setFileType(vcfFileType);
@@ -111,6 +112,7 @@ public class HardFilterTasklet extends WaspRemotingTasklet {
 		FileGroup filteredIndelVcfOutG = new FileGroup();
 		FileHandle filteredIndelVcfOut = new FileHandle();
 		filteredIndelVcfOut.setFileName(filteredIndelVcfOutFileName);
+		filteredIndelVcfOut.setFileType(vcfFileType);
 		filteredIndelVcfOutG.setIsActive(0);
 		filteredIndelVcfOutG.addFileHandle(filteredIndelVcfOut);
 		filteredIndelVcfOutG.setFileType(vcfFileType);
