@@ -24,7 +24,6 @@ import edu.yu.einstein.wasp.macstwo.webpanels.MacstwoWebPanels;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
-import edu.yu.einstein.wasp.model.FileHandleMeta;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
@@ -32,7 +31,6 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
-import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.RunService;
@@ -96,7 +94,7 @@ public class MacstwoWebServiceImpl extends MacstwoServiceImpl implements Macstwo
 	@Override
 	public Set<PanelTab> getMacstwoDataToDisplay(Job job)throws PanelException{
 		 
-		 try{
+		// try{
 			 //First, assemble the data
 			 Map<FileGroup, Sample> outerCollectionFileGroupTestSampleMap = new HashMap<FileGroup, Sample>();
 			 Map<FileGroup, Sample> outerCollectionFileGroupControlSampleMap = new HashMap<FileGroup, Sample>();
@@ -110,7 +108,8 @@ public class MacstwoWebServiceImpl extends MacstwoServiceImpl implements Macstwo
 			 Map<FileGroup, List<FileGroup>> outerCollectionFileGroupInnerFileGroupListMap = new HashMap<FileGroup, List<FileGroup>>();
 			 
 			 List<FileGroup> macs2AnalysisFileGroupList = new ArrayList<FileGroup>();//the outerCollectionfileGroupList
-			 Collections.addAll(macs2AnalysisFileGroupList, (FileGroup[]) getMacs2AnalysisFileGroups(job).toArray());
+			 for (FileGroup fg : getMacs2AnalysisFileGroups(job))
+				 macs2AnalysisFileGroupList.add(fg);
 			 class FileGroupDescriptionComparator implements Comparator<FileGroup> {
 				 @Override
 				 public int compare(FileGroup arg0, FileGroup arg1) {
@@ -188,10 +187,10 @@ public class MacstwoWebServiceImpl extends MacstwoServiceImpl implements Macstwo
 						
 			return panelTabSet;
 			
-		}catch(Exception e){
-			logger.debug("exception in macstwoService.getChipSeqDataToDisplay(job): "+ e.getStackTrace());
-			throw new PanelException(e.getMessage());
-		}		
+	//	}catch(Exception e){
+	//		logger.debug("exception in macstwoService.getChipSeqDataToDisplay(job): "+ e.getStackTrace());
+	//		throw new PanelException(e.getMessage());
+	//	}		
 	}
 
 	private Set<FileGroup> getMacs2AnalysisFileGroups(Job job){

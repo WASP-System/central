@@ -1,8 +1,8 @@
 package edu.yu.einstein.wasp.file.web.service.impl;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -363,13 +363,9 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
             // Send requested file (part(s)) to client ------------------------------------------------
 
             // Prepare streams.
-            InputStream input = null;
-            OutputStream output = null;
-
-        	InputStream dataStream = new FileInputStream(download);
             // Open streams.
-            input = new BufferedInputStream(dataStream);
-            output = response.getOutputStream();
+            InputStream input = new BufferedInputStream(new FileInputStream(download));
+            ServletOutputStream sos = response.getOutputStream();
 
             if (ranges.isEmpty() || ranges.get(0) == full) {
 
@@ -378,7 +374,7 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
                 response.setContentType(contentType);
                 response.setHeader("Content-Range", "bytes " + r.start + "-" + r.end + "/" + r.total);
                 response.setHeader("Content-Length", String.valueOf(r.length));
-                copy(input, output, length, r.start, r.length);
+                copy(input, new BufferedOutputStream(sos), length, r.start, r.length);
                 
             } else if (ranges.size() == 1) {
 
@@ -390,16 +386,13 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
                 response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT); // 206.
 
                 // Copy single part range.
-                copy(input, output, length, r.start, r.length);
+                copy(input, new BufferedOutputStream(sos), length, r.start, r.length);
 
             } else {
 
                 // Return multiple parts of file.
                 response.setContentType("multipart/byteranges; boundary=" + MULTIPART_BOUNDARY);
                 response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT); // 206.
-
-                // Cast back to ServletOutputStream to get the easy println methods.
-                ServletOutputStream sos = (ServletOutputStream) output;
 
                 // Copy multi part range.
                 for (Range r : ranges) {
@@ -410,7 +403,7 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
                     sos.println("Content-Range: bytes " + r.start + "-" + r.end + "/" + r.total);
 
                     // Copy single part range of multi part range.
-                    copy(input, output, length, r.start, r.length);
+                    copy(input, new BufferedOutputStream(sos), length, r.start, r.length);
                 }
 
                 // End with multipart boundary.
@@ -418,11 +411,10 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
                 sos.println("--" + MULTIPART_BOUNDARY + "--");
             }
 
-            response.flushBuffer();
             // Gently close streams.
-        	close(dataStream);
-            close(output);
-            close(input);
+        	close(input);
+        	sos.flush();
+            close(sos);
         }
 	}
 
@@ -467,14 +459,19 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 		//..code to add URLs to the list
 		byte[] buf = new byte[2048];
 		
+		response.setContentType("application/zip");
+		response.setHeader("Content-Disposition", "attachment; filename=\""+filename+"\"");
+		// set 'max-age' to cache files for up to 1h (3600s) since most files shouldn't change on the server anyway. 
+		// We use 'must-revalidate' to force browser to always use this rule. 
+		response.setHeader("Cache-Control", "max-age=3600, must-revalidate"); 
+		
 		// Create the ZIP file
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		ZipOutputStream out = new ZipOutputStream(baos);
+		ServletOutputStream sos = response.getOutputStream();
+		ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(sos));
 		
 		// Compress the files
 		for (java.io.File file : localFilesList) {
-			FileInputStream fis = new FileInputStream(file);
-			BufferedInputStream bis = new BufferedInputStream(fis);
+			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
 			
 			// Add ZIP entry to output stream.
 			String entryname = file.getName();
@@ -484,27 +481,13 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 			while ((bytesRead = bis.read(buf)) != -1) {
 				out.write(buf, 0, bytesRead);
 			}
-			
 			out.closeEntry();
 			bis.close();
-			fis.close();
 		}
-		
 		out.flush();
-		baos.flush();
-		out.close();
-		baos.close();
-		
-		ServletOutputStream sos = response.getOutputStream();
-
-		response.setContentType("application/zip");
-		response.setHeader("Content-Disposition", "attachment; filename=\""+filename+"\"");
-		// set 'max-age' to cache files for up to 1h (3600s) since most files shouldn't change on the server anyway. 
-		// We use 'must-revalidate' to force browser to always use this rule. 
-		response.setHeader("Cache-Control", "max-age=3600, must-revalidate"); 
-
-		sos.write(baos.toByteArray());
+		close(out);
 		sos.flush();
+		close(sos);
 	}
 
     @Override

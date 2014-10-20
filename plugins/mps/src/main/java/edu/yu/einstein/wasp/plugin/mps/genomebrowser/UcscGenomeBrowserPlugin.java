@@ -2,10 +2,12 @@ package edu.yu.einstein.wasp.plugin.mps.genomebrowser;
 
 import java.util.ArrayList;
 import java.util.Properties;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.MessageChannel;
+
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
@@ -136,7 +138,15 @@ public class UcscGenomeBrowserPlugin extends AbstractGenomeBrowserPlugin  {
 				logger.debug("expected last character of genomeName (" + genomeName + ") to be a digit, but it was not: " + e.getMessage());
 				return null;
 			}
-			return "http://genome.ucsc.edu/cgi-bin/hgTracks?db="+ genomeName +"&hgt.customText=" + resolvedURL;				
+			// append file name extension to the link so genome browser could recognize it
+			String ext = "";
+			try{
+				ext = "." + fh.getFileType().getExtensions().split(",")[0];
+			} catch (Exception e){
+				logger.warn("UNABLE TO RESOLVE extension for filehandle in ucscgenomebrowserplugin: " + fh.getFileName());
+			}
+			return "http://genome.ucsc.edu/cgi-bin/hgTracks?db=" + genomeName
+					+ "&hgt.customText=" + resolvedURL + ext;
 		}
 		else{
 			return null;

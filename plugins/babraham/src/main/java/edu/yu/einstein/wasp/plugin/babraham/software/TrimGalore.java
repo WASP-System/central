@@ -263,15 +263,15 @@ public class TrimGalore extends SoftwarePackage {
             FileHandle fh = fhi.next();
             w.addRequiredFile(fh);
             FileHandle newF = doFile(w, fileN++, fh, fastqG);
-            fileTypeService.copyMetaByArea(fh, newF, FileTypeService.FILETYPE_AREA);
-            fastqService.copyFastqFileHandleMetadata(fh, newF);
-            newF.setFileName(fileService.getSanitizedName(library.getName()) + "_" + newF.getFileName());
+            newF = setupNewFile(newF, fh, library);
             trimmed_fastq.add(newF);
 
             if (rs == 2) {
                 fh = fhi.next();
                 w.addRequiredFile(fh);
-                trimmed_fastq.add(doFile(w, fileN++, fh, fastqG));
+                FileHandle newF2 = doFile(w, fileN++, fh, fastqG);
+                newF2 = setupNewFile(newF2, fh, library);
+                trimmed_fastq.add(newF2);
             }
         }
 
@@ -303,6 +303,13 @@ public class TrimGalore extends SoftwarePackage {
         fastqG.setIsActive(0);
 
         return w;
+    }
+    
+    private FileHandle setupNewFile(FileHandle newFile, FileHandle oldFile, Sample cellLibrary) throws MetadataException {
+    	fileTypeService.copyMetaByArea(oldFile, newFile, FileTypeService.FILETYPE_AREA);
+    	fastqService.copyFastqFileHandleMetadata(oldFile, newFile);
+    	newFile.setFileName(fileService.getSanitizedName(cellLibrary.getName()) + "_" + newFile.getFileName());
+    	return newFile;
     }
 
     private FileHandle doFile(WorkUnit w, int fileNumber, FileHandle fileHandle, FileGroup fileGroup) throws MetadataException {
