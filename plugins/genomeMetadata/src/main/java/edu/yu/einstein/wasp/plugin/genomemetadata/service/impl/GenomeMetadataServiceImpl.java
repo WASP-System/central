@@ -5,18 +5,14 @@
 package edu.yu.einstein.wasp.plugin.genomemetadata.service.impl;
 
 import java.io.IOException;
-import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,7 +85,7 @@ public class GenomeMetadataServiceImpl extends WaspServiceImpl implements Genome
 	 */
 	@Override
 	public synchronized GenomeIndexStatus getFastaStatus(GridWorkService workService, Build build) throws IOException {
-
+		
 		logger.trace("getFastaStatus called");
 
 		GenomeIndexStatusKey remoteKey = generateIndexKey(build, workService, GenomeIndexType.FASTA, null);
@@ -451,6 +447,7 @@ public class GenomeMetadataServiceImpl extends WaspServiceImpl implements Genome
 			updateStatus(key, status);
 			return status;
 		} catch (Exception e) {
+			e.printStackTrace();
 			logger.error("problem determining staus of " + key.getType().toString() + " build for " + key.getBuild().getGenomeBuildNameString() + ": "
 					+ e.getLocalizedMessage());
 			return GenomeIndexStatus.UNKNOWN;

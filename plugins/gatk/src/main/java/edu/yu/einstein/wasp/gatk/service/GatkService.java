@@ -27,12 +27,6 @@ public interface GatkService extends WaspService {
 		public String performAction();
 		
 		@Deprecated
-		public String getReferenceSnpsVcfFile(Build build);
-
-		@Deprecated
-		public String getReferenceIndelsVcfFile(Build build);
-
-		@Deprecated
 		public String getWxsIntervalFile(Job job, Build build);
 
 		public Build getBuildForFg(FileGroup fileGroup);

@@ -18,9 +18,9 @@ import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
-import edu.yu.einstein.wasp.grid.work.SoftwareManager;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
 import edu.yu.einstein.wasp.plugin.illumina.software.SavR;
@@ -77,21 +77,21 @@ public class ProcessSAVTasklet extends WaspRemotingTasklet {
 		
 		
 		// creating a work unit this way sets the runID from the jobparameters
-		WorkUnit w = new WorkUnit();
-		w.setProcessMode(ProcessMode.FIXED);
-		w.setSoftwareDependencies(sd);
-		GridWorkService gws = hostResolver.getGridWorkService(w);
-		SoftwareManager sm = gws.getTransportConnection().getSoftwareManager();
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+		c.setProcessMode(ProcessMode.FIXED);
+		c.setSoftwareDependencies(sd);
+		GridWorkService gws = hostResolver.getGridWorkService(c);
 		Integer procs = 1;
-		w.setProcessorRequirements(procs);
+		c.setProcessorRequirements(procs);
 		String dataDir = gws.getTransportConnection().getConfiguredSetting("illumina.data.dir");
 		if (!PropertyHelper.isSet(dataDir))
 			throw new GridException("illumina.data.dir is not defined!");
 		
-		w.setWorkingDirectory(dataDir + "/" + run.getName() );
+		c.setWorkingDirectory(dataDir + "/" + run.getName() );
 		
-		w.setResultsDirectory(dataDir + "/" + run.getName() );
+		c.setResultsDirectory(dataDir + "/" + run.getName() );
 		
+		WorkUnit w = new WorkUnit(c);
 		w.setCommand(savR.getSavR());
 
 		GridResult result = gws.execute(w);

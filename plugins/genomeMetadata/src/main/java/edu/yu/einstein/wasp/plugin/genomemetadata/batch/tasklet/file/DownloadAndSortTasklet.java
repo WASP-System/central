@@ -6,7 +6,6 @@ package edu.yu.einstein.wasp.plugin.genomemetadata.batch.tasklet.file;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
@@ -24,6 +23,7 @@ import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
@@ -74,15 +74,15 @@ public class DownloadAndSortTasklet extends AbstractRemoteFileTasklet {
 	public void doExecute(ChunkContext context) throws Exception {
 
 		GridWorkService host = hostResolver.getGridWorkService(hostname);
-
-		WorkUnit w = new WorkUnit();
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
 		
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(samtools);
 
-		w.setWorkingDirectory(remoteBuildPath);
-		w.setResultsDirectory(remoteBuildPath);
-		w.setSoftwareDependencies(sd);
+		c.setWorkingDirectory(remoteBuildPath);
+		c.setResultsDirectory(remoteBuildPath);
+		c.setSoftwareDependencies(sd);
+		WorkUnit w = new WorkUnit(c);
 		w.setCommand("if [ -e " + fileName + "_" + FILE_TRANSFER_COMPLETE_SEMAPHORE + " ]; then exit 0; fi");
 		w.addCommand("if [ -e " + fileName + "_" + FILE_TRANSFER_BEGUN_SEMAPHORE + " ]; then exit 1; fi");
 		w.addCommand("date > " + fileName + "_" + FILE_TRANSFER_BEGUN_SEMAPHORE);

@@ -23,8 +23,9 @@ import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
@@ -128,13 +129,16 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		boolean markDuplicates = false;
 		if (!jobParameters.containsKey("markDuplicates") || jobParameters.get("markDuplicates").equals("yes"))
 			markDuplicates = true;
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+		c.setMode(ExecutionMode.PROCESS);
+		c.setProcessMode(ProcessMode.FIXED);
+		c.setMemoryRequirements(MEMORY_GB_4);
 		
-		WorkUnit w = new WorkUnit();
-		w.setMode(ExecutionMode.PROCESS);
-		w.setProcessMode(ProcessMode.FIXED);
-		w.setMemoryRequirements(MEMORY_GB_4);
+		c.setSoftwareDependencies(bwa.getSoftwareDependencies());
+		c.setWorkingDirectory(scratchDirectory);
+		c.setResultsDirectory(WorkUnitGridConfiguration.RESULTS_DIR_PLACEHOLDER + "/" + job.getId() + "/bwa");
 		
-		w.setSoftwareDependencies(bwa.getSoftwareDependencies());
+		WorkUnit w = new WorkUnit(c);
 		w.setSecureResults(true);
 		
 		String bamOutput = fileService.generateUniqueBaseFileName(cellLib) + "bwa.bam";
@@ -240,8 +244,6 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 			w.addCommand("ln -sf " + dedupMetricsFilename + " " + metricsOutput);//permits reading of file metricsOutput from scratch/dedupMetricsFilename 
 
 		}	
-		w.setWorkingDirectory(scratchDirectory);
-		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId() + "/bwa");
 		w.setSecureResults(true);
 		
 		w.setResultFiles(files);

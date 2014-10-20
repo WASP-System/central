@@ -3,12 +3,14 @@
  */
 package edu.yu.einstein.wasp.plugin.genomemetadata.batch.tasklet;
 
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridResultImpl;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
 import edu.yu.einstein.wasp.plugin.genomemetadata.GenomeIndexStatus;
 
 /**
@@ -39,7 +41,7 @@ public class TestTestForGenomeIndexTasklet extends TestForGenomeIndexTasklet {
 	 */
 	@Override
 	@Transactional("entityManager")
-	public GenomeIndexStatus getGenomeIndexStatus() {
+	public GenomeIndexStatus getGenomeIndexStatus(StepExecution stepExecution) {
 		if (checks < 5) {
 			logger.info("simulating genome build " + checks++);
 			return GenomeIndexStatus.BUILDING;
@@ -48,13 +50,18 @@ public class TestTestForGenomeIndexTasklet extends TestForGenomeIndexTasklet {
 		return GenomeIndexStatus.BUILT;
 	}
 
-	/** 
-	 * {@inheritDoc}
-	 */
 	@Override
-	@Transactional("entityManager")
-	public WorkUnit prepareWorkUnit() throws Exception {
+	public WorkUnitGridConfiguration configureWorkUnit(StepExecution stepExecution) throws Exception {
+		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public WorkUnit buildWorkUnit(StepExecution stepExecution) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	
 
 }

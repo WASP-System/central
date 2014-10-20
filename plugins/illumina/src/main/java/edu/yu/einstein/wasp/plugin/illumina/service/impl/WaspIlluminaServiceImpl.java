@@ -38,7 +38,8 @@ import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.SgeWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
 import edu.yu.einstein.wasp.model.Job;
@@ -95,14 +96,16 @@ public class WaspIlluminaServiceImpl extends WaspMessageHandlingServiceImpl impl
 	@Override
 	public Set<String> getIlluminaRunFolders() throws GridException{
 		Set<String> folderNames = new LinkedHashSet<String>();
-		WorkUnit w = new WorkUnit();
-		w.setProcessMode(ProcessMode.SINGLE);
-		GridWorkService workService = hostResolver.getGridWorkService(w);
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+		
+		c.setProcessMode(ProcessMode.SINGLE);
+		GridWorkService workService = hostResolver.getGridWorkService(c);
 		GridTransportConnection transportConnection = workService.getTransportConnection();
 		String dataDir = transportConnection.getConfiguredSetting("illumina.data.dir");
 		if (!PropertyHelper.isSet(dataDir))
 			throw new GridException("illumina.data.dir is not defined!");
-		w.setWorkingDirectory(dataDir);
+		c.setWorkingDirectory(dataDir);
+		WorkUnit w = new WorkUnit(c);
 		w.addCommand("ls -1t");
 		try {
 			GridResult r = transportConnection.sendExecToRemote(w);

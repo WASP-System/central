@@ -11,8 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
@@ -214,18 +215,22 @@ public class Macstwo extends SoftwarePackage{
 		String new_command2 = "convert " +  pdfFileName + " -append " + pngFileName;
 		w.addCommand(new_command2);			
 			
-		w.setSoftwareDependencies(sd);
+		w.getConfiguration().setSoftwareDependencies(sd);
 
 		logger.debug("----command has been set to workunit in getPeaks()");		
 		return w;
 	}
 	
+	private WorkUnitGridConfiguration configureWorkUnit(){
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+		c.setMode(ExecutionMode.PROCESS);		
+		c.setProcessMode(ProcessMode.MAX);		
+		c.setMemoryRequirements(8);
+		return c;
+	}
+	
 	private WorkUnit prepareWorkUnit() {
-		WorkUnit w = new WorkUnit();
-		
-		w.setMode(ExecutionMode.PROCESS);		
-		w.setProcessMode(ProcessMode.MAX);		
-		w.setMemoryRequirements(8);
+		WorkUnit w = new WorkUnit(configureWorkUnit());
 		w.setSecureResults(true);
 		//this line is irrelevant, as I'm writing over it in MacstwoTasklet.java
 		//w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);

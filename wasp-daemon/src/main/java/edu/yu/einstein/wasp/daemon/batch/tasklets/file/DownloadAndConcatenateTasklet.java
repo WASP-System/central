@@ -21,6 +21,7 @@ import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
 
 
 /**
@@ -57,11 +58,11 @@ public class DownloadAndConcatenateTasklet extends AbstractRemoteFileTasklet {
 	public void doExecute(ChunkContext context) throws Exception {
 		
 		GridWorkService host = hostResolver.getGridWorkService(hostname);
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
 		
-		WorkUnit w = new WorkUnit();
-		
-		w.setWorkingDirectory(directory);
-		w.setResultsDirectory(directory);
+		c.setWorkingDirectory(directory);
+		c.setResultsDirectory(directory);
+		WorkUnit w = new WorkUnit(c);
 		w.setCommand("if [ -e " + fileName + "_" + FILE_TRANSFER_COMPLETE_SEMAPHORE + " ]; then exit 0; fi");
 		w.addCommand("if [ -e " + fileName + "_" + FILE_TRANSFER_BEGUN_SEMAPHORE + " ]; then exit 1; fi");
 		w.addCommand("date > " + fileName + "_" + FILE_TRANSFER_BEGUN_SEMAPHORE);

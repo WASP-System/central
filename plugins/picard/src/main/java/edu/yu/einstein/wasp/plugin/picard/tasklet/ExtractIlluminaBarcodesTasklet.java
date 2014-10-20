@@ -21,8 +21,9 @@ import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
 import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
@@ -80,12 +81,13 @@ public class ExtractIlluminaBarcodesTasklet extends WaspRemotingTasklet {
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(casava);
 		sd.add(picard);
-		WorkUnit w = new WorkUnit();
-		w.setSoftwareDependencies(sd);
-		w.setProcessMode(ProcessMode.MAX);
-		w.setMode(ExecutionMode.PROCESS);
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
 		
-		GridWorkService gws = hostResolver.getGridWorkService(w);
+		c.setSoftwareDependencies(sd);
+		c.setProcessMode(ProcessMode.MAX);
+		c.setMode(ExecutionMode.PROCESS);
+		
+		GridWorkService gws = hostResolver.getGridWorkService(c);
 		
 		String dataDir = gws.getTransportConnection().getConfiguredSetting("illumina.data.dir");
 		if (!PropertyHelper.isSet(dataDir)) {
@@ -96,10 +98,11 @@ public class ExtractIlluminaBarcodesTasklet extends WaspRemotingTasklet {
 		
 		String runFolder = dataDir + "/" + run.getName(); 
 		
-		w.setWorkingDirectory(runFolder);
-		w.setResultsDirectory(runFolder);
-		w.setSecureResults(true); // 
+		c.setWorkingDirectory(runFolder);
+		c.setResultsDirectory(runFolder);
 		
+		WorkUnit w = new WorkUnit(c);
+		w.setSecureResults(true); // 
 		w.setCommand(picard.getExtractIlluminaBarcodesCmd(run));
 		
 		

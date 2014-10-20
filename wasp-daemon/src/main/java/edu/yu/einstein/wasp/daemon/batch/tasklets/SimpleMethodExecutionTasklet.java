@@ -13,8 +13,9 @@ import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
@@ -36,7 +37,7 @@ public class SimpleMethodExecutionTasklet extends WaspRemotingTasklet {
 	
 	private List<String> arguments;
 	
-	private String workingDirectory = WorkUnit.SCRATCH_DIR_PLACEHOLDER;
+	private String workingDirectory = WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER;
 	
 	private String resultsDirectory;
 	
@@ -95,17 +96,16 @@ public class SimpleMethodExecutionTasklet extends WaspRemotingTasklet {
 	 */
 	@Override
 	public void doExecute(ChunkContext context) throws Exception {
-		WorkUnit w = new WorkUnit();
-		w.setSoftwareDependencies(softwareDependencies);
-		w.setSecureResults(secure);
-		w.setMemoryRequirements(memoryRequirements);
-		w.setMode(executionMode);
-		w.setProcessMode(processMode);
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+		c.setSoftwareDependencies(softwareDependencies);
+		c.setMemoryRequirements(memoryRequirements);
+		c.setMode(executionMode);
+		c.setProcessMode(processMode);
 		if (resultsDirectory == null)
 			resultsDirectory = workingDirectory;
-		w.setResultsDirectory(resultsDirectory);
-		
-		
+		c.setResultsDirectory(resultsDirectory);
+		WorkUnit w = new WorkUnit(c);
+		w.setSecureResults(secure);
 		GridResult r;
 		if (hostname != null)  {
 			r = hostResolver.getGridWorkService(hostname).execute(w);

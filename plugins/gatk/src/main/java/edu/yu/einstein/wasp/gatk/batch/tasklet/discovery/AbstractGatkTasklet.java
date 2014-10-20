@@ -8,6 +8,7 @@ import java.util.Set;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -154,6 +155,12 @@ public abstract class AbstractGatkTasklet extends TestForGenomeIndexTasklet {
 			logger.debug("Setting as active FileGroup with id=: " + fgId);
 			fileService.getFileGroupById(fgId).setIsActive(1);
 		}
+	}
+	
+	@Override
+	@Transactional("entityManager")
+	public void beforeStep(StepExecution stepExecution){
+		super.beforeStep(stepExecution);
 	}
 
 }

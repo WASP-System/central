@@ -16,7 +16,8 @@ import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
 import edu.yu.einstein.wasp.service.RunService;
@@ -63,11 +64,11 @@ public class StageResultsTasklet extends WaspRemotingTasklet {
 
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(casava);
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
 		
-		WorkUnit w = new WorkUnit();
-		w.setProcessMode(ProcessMode.SINGLE);
-		w.setSoftwareDependencies(sd);
-		GridWorkService gws = hostResolver.getGridWorkService(w);
+		c.setProcessMode(ProcessMode.SINGLE);
+		c.setSoftwareDependencies(sd);
+		GridWorkService gws = hostResolver.getGridWorkService(c);
 		
 		String dataDir = gws.getTransportConnection().getConfiguredSetting("illumina.data.dir");
 		if (!PropertyHelper.isSet(dataDir))
@@ -76,10 +77,11 @@ public class StageResultsTasklet extends WaspRemotingTasklet {
 		if (!PropertyHelper.isSet(stageDir))
 			throw new GridException("illumina.data.stage is not defined!");
 		
-		w.setWorkingDirectory(dataDir + "/" + run.getName() + "/");
+		c.setWorkingDirectory(dataDir + "/" + run.getName() + "/");
 		
-		w.setResultsDirectory(stageDir + "/" + run.getName());
+		c.setResultsDirectory(stageDir + "/" + run.getName());
 		
+		WorkUnit w = new WorkUnit(c);
 		w.setCommand("rm -rf ${WASP_RESULT_DIR}/Project_WASP");
 		w.setCommand("mkdir -vp ${WASP_RESULT_DIR}/Project_WASP");
 		

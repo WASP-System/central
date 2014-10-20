@@ -70,9 +70,8 @@ public class IntegratedSgeServiceTest extends AbstractTestNGSpringContextTests {
     @Transactional("entityManager")
     public void testFile() throws InterruptedException, GridException, FileNotFoundException, URISyntaxException, SQLException {
 
-        WorkUnit test = new WorkUnit();
-
-        test.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/test");
+        WorkUnit test = new WorkUnit(new WorkUnitGridConfiguration());
+        test.getConfiguration().setResultsDirectory(WorkUnitGridConfiguration.RESULTS_DIR_PLACEHOLDER + "/test");
         FileGroup fg = new FileGroup();
         FileHandle fh = new FileHandle();
         fh.setFileName("test.txt");
@@ -103,9 +102,8 @@ public class IntegratedSgeServiceTest extends AbstractTestNGSpringContextTests {
     @Test(groups = { "ssh" })
     @Transactional("entityManager")
     public void testMD5() throws GridException, InterruptedException {
-
-        WorkUnit test = new WorkUnit();
-        test.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/test");
+    	WorkUnit test = new WorkUnit(new WorkUnitGridConfiguration());
+        test.getConfiguration().setResultsDirectory(WorkUnitGridConfiguration.RESULTS_DIR_PLACEHOLDER + "/test");
         FileGroup fg = new FileGroup();
         FileHandle fh;
 

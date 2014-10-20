@@ -324,8 +324,8 @@ public interface GenomeService extends WaspService {
 	
 	/**
 	 * Get remote host formatted representation of metadata directory housing the fasta file of this build.
-	 * Encodes path using variable for remote metadata path, requires execution in WorkUnit.
-	 * 
+	 * Encodes path using variable for remote metadata path, requires execution in WorkUnit.<br /><br />
+	 * Deprecated: use GenomeMetaDataService method getRemoteGenomeFastaIndexPath(GridWorkService workService, Build build) instead
 	 * @param build
 	 * @return
 	 */

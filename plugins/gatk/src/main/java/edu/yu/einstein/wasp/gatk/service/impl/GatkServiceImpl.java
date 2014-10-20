@@ -16,7 +16,6 @@ import edu.yu.einstein.wasp.gatk.fileformat.GatkBamFileTypeAttribute;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.BamFileTypeAttribute;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.GenomeService;
@@ -65,24 +64,6 @@ public class GatkServiceImpl extends WaspServiceImpl implements GatkService {
 		attributes.add(GatkBamFileTypeAttribute.REALN_AROUND_INDELS);
 		attributes.add(GatkBamFileTypeAttribute.RECAL_QC_SCORES);
 		return attributes;
-	}
-	
-	@Override
-	public String getReferenceSnpsVcfFile(Build build) {
-		String folder = build.getMetadata("vcf.folder");
-		String filename = build.getMetadata("vcf.snps.filename");
-		if (folder == null || folder.isEmpty() || filename == null || filename.isEmpty())
-			throw new MetadataRuntimeException("failed to locate snps vcf file");
-		return genomeService.getRemoteBuildPath(build) + "/" + folder + "/" + filename;
-	}
-	
-	@Override
-	public String getReferenceIndelsVcfFile(Build build) {
-		String folder = build.getMetadata("vcf.folder");
-		String filename = build.getMetadata("vcf.indels.filename");
-		if (folder == null || folder.isEmpty() || filename == null || filename.isEmpty())
-			throw new MetadataRuntimeException("failed to locate indels vcf file");
-		return genomeService.getRemoteBuildPath(build) + "/" + folder + "/" + filename;
 	}
 	
 	/**

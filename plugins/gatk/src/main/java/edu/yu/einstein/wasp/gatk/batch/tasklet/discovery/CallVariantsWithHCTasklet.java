@@ -13,7 +13,6 @@ import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.explore.JobExplorer;
-import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,14 +20,15 @@ import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.Strategy.StrategyType;
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
-import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.plugin.genomemetadata.GenomeIndexStatus;
+import edu.yu.einstein.wasp.plugin.genomemetadata.exception.GenomeMetadataException;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.StrategyService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
@@ -49,47 +49,50 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 	@Autowired
 	private JobExplorer jobExplorer;
 	
-	Build build = null;
-	
 	public CallVariantsWithHCTasklet(String inputFilegroupIds, String outputFilegroupIds, Integer jobId, Long parentJobExecutionId) {
 		super(inputFilegroupIds, outputFilegroupIds, jobId);
 		this.jobExecutionId = parentJobExecutionId;
 	}
 
+	
 	@Override
 	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
-		
-		GridResult result = executeWorkUnit();
-		
-		//place the grid result in the step context
-		saveGridResult(context, result);
-	}
-
-	@Override
-	@Transactional("entityManager")
-	public GenomeIndexStatus getGenomeIndexStatus() {
+	public GenomeIndexStatus getGenomeIndexStatus(StepExecution stepExecution) {
 		try {
-			return genomeMetadataService.getFastaStatus(getGridWorkService(), build);
-		} catch (GridUnresolvableHostException | IOException e) {
+			if (!this.getInputFilegroupIds().iterator().hasNext())
+				throw new GenomeMetadataException("unable to retrieve build as no files from which to determine build");
+			FileGroup fg = fileService.getFileGroupById(this.getInputFilegroupIds().iterator().next());
+			Build build = gatkService.getBuildForFg(fg);
+			return genomeMetadataService.getFastaStatus(getGridWorkService(getStepExecutionContext(stepExecution)), build);
+		} catch (GridUnresolvableHostException | IOException | GenomeMetadataException e) {
 			String mess = "Unable to determine build or build status " + e.getLocalizedMessage();
 			logger.error(mess);
 			throw new WaspRuntimeException(mess);
 		}
 	}
+	
+	@Override
+	@Transactional("entityManager")
+	public WorkUnitGridConfiguration configureWorkUnit(StepExecution se){
+		Job job = jobService.getJobByJobId(jobId);
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+		c.setMode(ExecutionMode.PROCESS);
+		c.setProcessMode(ProcessMode.SINGLE);
+		c.setMemoryRequirements(MEMORY_GB_16);
+		
+		c.setWorkingDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
+		c.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
+		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
+		sd.add(gatk);
+		c.setSoftwareDependencies(sd);
+		return c;
+	}
 
 	@Override
 	@Transactional("entityManager")
-	public WorkUnit prepareWorkUnit() throws Exception {
+	public WorkUnit buildWorkUnit(StepExecution se) throws Exception {
+		WorkUnit w = new WorkUnit(configureWorkUnit(se));
 		Job job = jobService.getJobByJobId(jobId);
-		
-		WorkUnit w = new WorkUnit();
-		w.setMode(ExecutionMode.PROCESS);
-		w.setProcessMode(ProcessMode.SINGLE);
-		w.setMemoryRequirements(MEMORY_GB_16);
-		w.setSecureResults(true);
-		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
-		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
 		LinkedHashSet<FileHandle> outFiles = new LinkedHashSet<FileHandle>();
         for (Integer fgId : this.getOutputFilegroupIds()){
             FileGroup fg = fileService.getFileGroupById(fgId);
@@ -100,8 +103,9 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
             else
             	throw new WaspRuntimeException("Cannot obtain a single filehandle from FileGroup id=" + fgId);
         }
-        w.setResultFiles(outFiles);
+		w.setResultFiles(outFiles);
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();
+		Build build = null;
 		for (Integer fgId : this.getInputFilegroupIds()){
 			FileGroup fg = fileService.getFileGroupById(fgId);
 			if (fhlist.isEmpty()) // first entry not yet entered
@@ -111,9 +115,7 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 		if (build == null)
 			throw new WaspRuntimeException("No build could be sourced for job id=" + jobId);
 		w.setRequiredFiles(fhlist);
-		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
-		sd.add(gatk);
-		w.setSoftwareDependencies(sd);
+		
 		
 		Map<String,Object> jobParameters = new HashMap<>();
 		Map<String, JobParameter> paramMap = jobExplorer.getJobExecution(jobExecutionId).getJobParameters().getParameters();
@@ -134,12 +136,13 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 		for (int i=0; i < fhlist.size(); i++)
 			inputBamFilenames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");
 		w.setCommand(gatk.getCallVariantsByHaplotypeCaller(inputBamFilenames, outputGvcfFileName, referenceGenomeFile, wxsIntervalFile, gatkOpts, MEMORY_GB_16));
+		w.setSecureResults(true);
 		return w;
 	}
 	
 	@Override
-	public void beforeStep(StepExecution stepExecution) {
-		// TODO Auto-generated method stub
+	@Transactional("entityManager")
+	public void beforeStep(StepExecution stepExecution){
 		super.beforeStep(stepExecution);
 	}
 
