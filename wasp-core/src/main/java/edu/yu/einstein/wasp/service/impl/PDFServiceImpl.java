@@ -1,3 +1,13 @@
+/**
+ *
+ * PDFServiceImpl.java 
+ * @author RDubin
+ *  
+ * the PDFServiceImpl object
+ * created: 10-17-14
+ *
+ **/
+
 package edu.yu.einstein.wasp.service.impl;
 
 import java.io.OutputStream;
@@ -31,7 +41,6 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
 
-//import edu.yu.einstein.wasp.controller.util.SampleAndSampleDraftMetaHelper;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.AcctGrant;
 import edu.yu.einstein.wasp.model.Adaptor;
