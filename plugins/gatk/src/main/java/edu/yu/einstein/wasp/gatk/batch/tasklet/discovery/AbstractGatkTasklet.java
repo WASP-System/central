@@ -15,7 +15,6 @@ import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
-import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.WaspModel;

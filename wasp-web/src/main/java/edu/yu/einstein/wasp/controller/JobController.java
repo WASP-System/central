@@ -70,6 +70,7 @@ import edu.yu.einstein.wasp.exception.QuoteException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.model.AcctGrant;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
@@ -2371,6 +2372,7 @@ public class JobController extends WaspController {
 	private void getSampleLibraryRunData(Job job, ModelMap m) throws SampleTypeException {
 		
 		  m.addAttribute("job", job);
+		  m.addAttribute("jobStatus", jobService.getJobStatus(job));
 		
 		  List<Sample> allJobSamples = job.getSample();//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
 		  List<Sample> submittedMacromoleculeList = new ArrayList<Sample>();
@@ -2394,13 +2396,16 @@ public class JobController extends WaspController {
 		  m.addAttribute("submittedObjectList", submittedObjectList);	//main object list used on the web page 
 		  	  
 		  //For each job's sample, get the qcStatus and comments; note the call changes if library (getLibraryQCStatus) or macromolecule (getSampleQCStatus)
+		  //10-14-14 added reasonForNewLibraryCommentsMap for each library (each library will have a List<MetaMessage> but each list may or may not be empty)
 		  Map<Sample, String> qcStatusMap = new HashMap<Sample, String>();
 		  Map<Sample, List<MetaMessage>> qcStatusCommentsMap = new HashMap<Sample, List<MetaMessage>>();
+		  Map<Sample, List<MetaMessage>> reasonForNewLibraryCommentsMap = new HashMap<Sample, List<MetaMessage>>();
 		  for(Sample s : allJobSamples){
 			  //if(s.getSampleType().getIName().toLowerCase().contains("library")){
 			  if(allJobLibraries.contains(s)){//user-submitted libraries and facility-generated libraries
 				  qcStatusMap.put(s, sampleService.convertSampleQCStatusForWeb(sampleService.getLibraryQCStatus(s)));
 				  qcStatusCommentsMap.put(s, sampleService.getSampleQCComments(s.getId()));
+				  reasonForNewLibraryCommentsMap.put(s, sampleService.getReasonForNewLibraryComment(s.getId()));
 			  }
 			  else if (submittedMacromoleculeList.contains(s)){
 				  qcStatusMap.put(s, sampleService.convertSampleQCStatusForWeb(sampleService.getSampleQCStatus(s)));
@@ -2409,6 +2414,7 @@ public class JobController extends WaspController {
 		  }	 
 		  m.addAttribute("qcStatusMap", qcStatusMap);
 		  m.addAttribute("qcStatusCommentsMap", qcStatusCommentsMap);
+		  m.addAttribute("reasonForNewLibraryCommentsMap", reasonForNewLibraryCommentsMap);
 		  
 		  //for each submittedMacromolecule, get list of it's facility-generated libraries; also determine if this sampleMacromolecule should have a library made from it
 		  Map<Sample, List<Sample>> submittedMacromoleculeFacilityLibraryListMap = new HashMap<Sample, List<Sample>>();
@@ -2501,8 +2507,13 @@ public class JobController extends WaspController {
 					  libraryPMLoadedMap.put(library, pMLoaded);
 					  cellLibraryPMLoadedMap.put(cell, libraryPMLoadedMap);
 				  }
-				  
-				  showPlatformunitViewMap.put(platformUnit, sampleService.getPlatformunitViewLink(platformUnit));//for displaying web anchor link to platformunit
+				  String puViewLink = "#";
+				  try{
+					  puViewLink = sampleService.getPlatformunitViewLink(platformUnit);
+				  } catch (WaspException e){
+					  logger.warn("Unable to get link to display platform unit view: " + e.getLocalizedMessage()); //for displaying web anchor link to platformunit
+				  }
+				  showPlatformunitViewMap.put(platformUnit, puViewLink);
 				  
 				  //List<Run> runList = runService.getSuccessfullyCompletedRunsForPlatformUnit(platformUnit);//WHY IS THIS A LIST rather than a singleton?
 				  //For testing only:  
@@ -2799,6 +2810,11 @@ public class JobController extends WaspController {
 			return "job/home/message";
 		}		
 		m.addAttribute("macromoleculeSample", macromoleculeSample);
+		m.addAttribute("reasonForNewLibrary", null);
+		if(macromoleculeSample.getChildren().size() > 0){
+			m.addAttribute("reasonForNewLibrary", "");
+		}
+		
 		m.addAttribute("organism", sampleService.getNameOfOrganism(macromoleculeSample, "Other"));
 		
 		String[] roles = {"ft"};
@@ -2877,8 +2893,14 @@ public class JobController extends WaspController {
 				
 				//retrieve Sample.metadata from the form AND validate it too
 				List<SampleMeta> metaFromForm = SampleWrapperWebapp.getValidatedMetaFromJsonAndTemplateToSubtype(JsonHelperWebapp.constructMapFromJson(jsonString), sampleService.getSampleSubtypeById(libraryForm.getSampleSubtypeId()), result); 
-							
-				if(result.hasErrors()){
+					
+				Map<String,String> formAsMap = JsonHelperWebapp.constructMapFromJson(jsonString);
+				String reasonForNewLibrary = null;
+				if(formAsMap.containsKey("reasonForNewLibrary")){
+					reasonForNewLibrary = formAsMap.get("reasonForNewLibrary").trim();
+				}
+								
+				if( result.hasErrors() || (reasonForNewLibrary != null && reasonForNewLibrary.isEmpty()) ){
 					libraryForm.setSampleType(sampleService.getSampleTypeDao().getSampleTypeBySampleTypeId(libraryForm.getSampleTypeId()));
 					libraryForm.setSampleSubtype(sampleService.getSampleSubtypeDao().getSampleSubtypeBySampleSubtypeId(libraryForm.getSampleSubtypeId()));
 					libraryForm.setSampleMeta(SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(libraryForm.getSampleSubtype(), metaFromForm));
@@ -2889,6 +2911,11 @@ public class JobController extends WaspController {
 					m.addAttribute("organism", sampleService.getNameOfOrganism(parentMacromolecule, "Other"));
 					//need next line to send the bindingResult, with the errors, to the jsp (it's not automatic in this case)
 					m.addAttribute(BindingResult.MODEL_KEY_PREFIX+result.getObjectName(), result);//http://static.springsource.org/autorepo/docs/spring/2.5.x/api/org/springframework/validation/BindingResult.html
+					
+					m.addAttribute("reasonForNewLibrary", reasonForNewLibrary);
+					if(reasonForNewLibrary != null && reasonForNewLibrary.isEmpty()){
+						m.addAttribute("reasonForNewLibraryError", messageService.getMessage("createLibrary.reasonForNewLibraryEmpty.error"));
+					}
 					
 					return "job/home/createLibrary";
 				}
@@ -2901,8 +2928,11 @@ public class JobController extends WaspController {
 				SampleWrapper managedLibraryFromForm = new SampleWrapperWebapp(libraryForm);
 				managedLibraryFromForm.setParent(parentMacromolecule);
 				sampleService.createFacilityLibraryFromMacro(job, managedLibraryFromForm, metaFromForm);
-				String successMessage = messageService.getMessage("jobHomeCreateLibrary.newLibraryRecordCreated.label");//"New Library Record Successfully Created";
 				int newLibraryId = managedLibraryFromForm.getSampleObject().getId().intValue();
+				if(reasonForNewLibrary != null && ! reasonForNewLibrary.isEmpty()){
+					sampleService.setReasonForNewLibraryComment(newLibraryId, reasonForNewLibrary);
+				}
+				String successMessage = messageService.getMessage("jobHomeCreateLibrary.newLibraryRecordCreated.label");//"New Library Record Successfully Created";
 				return "redirect:/job/"+jobId+"/library/"+newLibraryId+"/librarydetail_ro.do?successMessage="+successMessage;			  
 		  }
 		  catch(Exception e){
@@ -3362,6 +3392,31 @@ public class JobController extends WaspController {
 			}
 			m.addAttribute("adaptors", adaptors); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
 		}
+	
+	@Transactional
+	@RequestMapping(value="/{jobId}/samplePrepComment", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobCommentsPage(@PathVariable("jobId") Integer jobId, ModelMap m){
+		
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("message", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
+		//get first job comment: this will be user's first comment, added during job submission. Forms requested that users 
+		//provide sample preparation method in the comment.
+		List<MetaMessage> userSubmittedJobCommentsList = jobService.getUserSubmittedJobComment(job.getId());
+		if(!userSubmittedJobCommentsList.isEmpty()){
+			String samplePrepComment = userSubmittedJobCommentsList.get(0).getValue();			
+			samplePrepComment = StringUtils.replace(samplePrepComment, "\r\n" ,"<br />");//carriage return was inserted at time of INSERT to deal with line-break. Change it to <br /> for proper html display (using c:out escapeXml=false).  
+			m.addAttribute("samplePrepComment",  samplePrepComment);
+		}
+		else{
+			m.addAttribute("samplePrepComment", "????");
+		}
+		return "job/home/samplePrepComment";
+	}
 }
 
 class JobIdComparator implements Comparator<Job> {

@@ -271,6 +271,9 @@
 	<definition name="job/home/comments" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/comments.jsp" />
 	</definition>
+	<definition name="job/home/samplePrepComment" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/samplePrepComment.jsp" />
+	</definition>
 	<definition name="job/home/fileUploadManager" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/fileUploadManager.jsp" />
 	</definition>

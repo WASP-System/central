@@ -2494,6 +2494,16 @@ public class JobSubmissionController extends WaspController {
 		//String trimmedComment = comment==null?"":StringEscapeUtils.escapeXml(comment.trim());//any standard html/xml [Supports only the five basic XML entities (gt, lt, quot, amp, apos)] will be converted to characters like &gt; //http://commons.apache.org/lang/api-3.1/org/apache/commons/lang3/StringEscapeUtils.html#escapeXml%28java.lang.String%29
 		String trimmedComment = comment==null?"":comment.trim();//7-7-14
 		
+		//as of 10-14-14, no longer optional. We insist on at least a description of sample description method.
+		if(trimmedComment.isEmpty()){
+			waspErrorMessage("jobDraft.commentNotOptional.error");
+			m.put("comment", trimmedComment);
+			m.put("jobDraft", jobDraft);
+			m.put("pageFlowMap", getPageFlowMap(jobDraft));
+
+			return "jobsubmit/comment";
+		}
+		
 		try{
 			jobDraftService.saveUserJobDraftComment(jobDraftId, trimmedComment);
 		}catch(Exception e){

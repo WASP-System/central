@@ -8,6 +8,7 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.exception.GridException;
@@ -42,13 +43,9 @@ public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
 	private WorkUnit w;
 	private String remoteHost;
 
-	/**
-	 * {@inheritDoc}
-	 */
+		
 	@Override
-	public abstract void doExecute(ChunkContext context) throws Exception;
-	
-	@Override
+	@Transactional("entityManager")
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		if (wasWokenOnTimeout(context)){
 			logger.trace("Woken on timeout");
@@ -61,7 +58,9 @@ public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
 		if (status.isAvailable()) {
 			if (status.isCurrentlyAvailable()) {
 				logger.debug("genome index is available, continue with alignment");
-				super.execute(contrib, context);
+				RepeatStatus stepRepeatStatus = super.execute(contrib, context);
+				if (stepRepeatStatus.equals(RepeatStatus.FINISHED))
+					return RepeatStatus.FINISHED;
 			}
 		} else {
 			String mess = "genome not available: " + status.toString() + " : " + status.getMessage();
@@ -83,6 +82,7 @@ public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
 	 * Classes that override this method must call to super.beforeStep(stepExecution).
 	 */
 	@Override
+	@Transactional("entityManager")
 	public void beforeStep(StepExecution stepExecution){
 		if (w == null) {
 			logger.trace("test for genome index beforeStep");
@@ -91,7 +91,8 @@ public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
 				w = this.prepareWorkUnit();
 				remoteHost = gridHostResolver.getGridWorkService(w).getTransportConnection().getHostName();
 			} catch (Exception e) {
-				String message = "Unable to determine appropriate host for BWA alignment";
+				e.printStackTrace();
+				String message = "Unable to determine appropriate host for BWA alignment: " + e.getLocalizedMessage();
 				logger.error(message);
 				throw new WaspRuntimeException(message);
 			}

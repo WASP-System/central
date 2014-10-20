@@ -14,11 +14,9 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.filetype.FileTypeAttribute;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
-import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
@@ -86,6 +84,7 @@ public class JointGenotypingTasklet extends TestForGenomeIndexTasklet {
 	}
 	
 	@Override
+	@Transactional("entityManager")
 	public void beforeStep(StepExecution stepExecution) {
 		stepExecutionContext = stepExecution.getExecutionContext();
 		jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
@@ -104,12 +103,14 @@ public class JointGenotypingTasklet extends TestForGenomeIndexTasklet {
 	}
 
 	@Override
+	@Transactional("entityManager")
 	public GenomeIndexStatus getGenomeIndexStatus() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
+	@Transactional("entityManager")
 	public WorkUnit prepareWorkUnit() throws Exception {
 		LinkedHashSet<FileGroup> inputFileGroups = new LinkedHashSet<>();
 		LinkedHashSet<FileGroup> temporaryFileSet = new LinkedHashSet<>();
@@ -131,6 +132,7 @@ public class JointGenotypingTasklet extends TestForGenomeIndexTasklet {
 		FileGroup rawVcfOutG = new FileGroup();
 		FileHandle rawVcfOut = new FileHandle();
 		rawVcfOut.setFileName(rawVcfOutFileName);
+		rawVcfOut.setFileType(vcfFileType);
 		rawVcfOutG.setIsActive(0);
 		rawVcfOutG.addFileHandle(rawVcfOut);
 		outFiles.add(rawVcfOut);

@@ -107,9 +107,6 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 	@Autowired
 	private AuthenticationService authenticationService;
 	
-	@Value("${wasp.host.fullServletPath}")
-	private String servletPath;
-	
 	@Autowired
 	private DemoEmail demoEmail;
 

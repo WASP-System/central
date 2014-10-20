@@ -62,21 +62,19 @@ public class LocalhostTransportConnection implements GridTransportConnection {
 		GridResultImpl result = new GridResultImpl();
 		try {
 			Process proc = runtime.exec(new String[]{"/bin/bash", "-c", command});
+			byte[] outBA = IOUtils.toByteArray(proc.getInputStream()); // extract as Byte[] so that we can read it more than once
+			byte[] errBA = IOUtils.toByteArray(proc.getErrorStream()); // extract as Byte[] so that we can read it more than once
 			if (logger.isTraceEnabled()){
-				byte[] outBA = IOUtils.toByteArray(proc.getInputStream()); // extract as Byte[] so that we can read it more than once
-				byte[] errBA = IOUtils.toByteArray(proc.getErrorStream()); // extract as Byte[] so that we can read it more than once
 				StringWriter outWriter = new StringWriter();
 				IOUtils.copy(new ByteArrayInputStream(outBA), outWriter);
 				logger.trace("stdout:" + outWriter.toString());
 				StringWriter errWriter = new StringWriter();
 				IOUtils.copy(new ByteArrayInputStream(errBA), errWriter);
 				logger.trace("stderr:" + errWriter.toString());
-				result.setStdOutStream(new ByteArrayInputStream(outBA));
-				result.setStdErrStream(new ByteArrayInputStream(errBA));
-			} else {
-				result.setStdOutStream(proc.getInputStream());
-				result.setStdErrStream(proc.getErrorStream());
-			}
+			} 
+			result.setStdOutStream(new ByteArrayInputStream(outBA));
+			result.setStdErrStream(new ByteArrayInputStream(errBA));
+			
 			int exitValue = proc.waitFor();
 			result.setExitStatus(exitValue);
 		} catch (IOException e) {

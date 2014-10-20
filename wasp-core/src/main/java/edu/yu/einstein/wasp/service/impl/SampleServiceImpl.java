@@ -59,7 +59,6 @@ import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
 import edu.yu.einstein.wasp.exception.MetadataException;
-import edu.yu.einstein.wasp.exception.PluginException;
 import edu.yu.einstein.wasp.exception.ResourceException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleIndexException;
@@ -67,6 +66,7 @@ import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleSubtypeException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
@@ -2921,7 +2921,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		   * @return
 		   */
 		  @Override
-		  public String getPlatformunitViewLink(Sample platformunit){
+		  public String getPlatformunitViewLink(Sample platformunit) throws WaspException{
 			  Assert.assertParameterNotNull(platformunit, "a platformunit must be supplied");
 			  Assert.assertTrue(isPlatformUnit(platformunit), "sample is not a platformunit");
 			  Set<SequencingViewProviding> plugins = new LinkedHashSet<>(); // use set so duplicates not added
@@ -2929,10 +2929,10 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				  plugins.addAll(pluginRegistry.getPluginsHandlingArea(rc.getIName(), SequencingViewProviding.class));
 			  // we expect one (and ONLY one) plugin to handle the platformunit otherwise we do not know which one to show so programming defensively:
 			 if (plugins.size() > 1)
-				  throw new PluginException("More than one SequencingViewProviding plugin found");
+				  throw new WaspException("More than one SequencingViewProviding plugin found");
 			  for (SequencingViewProviding plugin : plugins)
 				  return plugin.getShowPlatformUnitViewLink(platformunit.getId()); // should only be one so this is ok
-			  throw new PluginException("No SequencingViewProviding plugins found");
+			  throw new WaspException("No SequencingViewProviding plugins found");
 		  }
 
 		@Override
@@ -3481,6 +3481,23 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 					  throw new MetadataException("Unable to set LibraryOnCell SampleSourceMeta");
 				  }
 				  logger.debug("OK, was able to add controlLibrary to Lane: " + cell.getName());				  
+			}
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public void setReasonForNewLibraryComment(Integer sampleId, String comment) throws Exception{
+				try{
+					metaMessageService.saveToGroup("reasonForNewLibraryComment", "Reason For New Library", comment, sampleId, SampleMeta.class, sampleMetaDao);
+				}catch(Exception e){ throw new Exception(e.getMessage());}
+			}
+			
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public List<MetaMessage> getReasonForNewLibraryComment(Integer sampleId){
+				return metaMessageService.read("reasonForNewLibraryComment", sampleId, SampleMeta.class, sampleMetaDao);
 			}
 
 }

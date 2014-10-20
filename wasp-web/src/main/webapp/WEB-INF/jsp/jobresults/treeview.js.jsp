@@ -696,7 +696,7 @@ function prepareTabPanel(jsonResult, tabPanel) {
 		}
 
 		$.each(jsonResult.paneltablist, function (index, item) {
-			var tabid = index;
+			//var tabid = index;
 			var tab = tabPanel.add({
 				xtype: 'panel',
 				//id: tabid,
@@ -760,7 +760,7 @@ function prepareTabPanel(jsonResult, tabPanel) {
 				numcol = item.numberOfColumns;
 				for (var i = 0; i < numcol; i++) {
 					ptlcolArray.push(ptlpnl.add({
-						id: tabid + '-col-' + (i + 1)
+						//id: tabid + '-col-' + (i + 1)
 					}));
 				}
 

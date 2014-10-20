@@ -31,7 +31,6 @@ import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.bwa.service.BwaService;
-import edu.yu.einstein.wasp.plugin.bwa.service.impl.BwaServiceImpl;
 import edu.yu.einstein.wasp.plugin.genomemetadata.GenomeIndexStatus;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.GenomeService;

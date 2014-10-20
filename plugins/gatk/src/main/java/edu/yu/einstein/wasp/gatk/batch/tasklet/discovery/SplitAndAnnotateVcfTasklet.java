@@ -53,12 +53,14 @@ public class SplitAndAnnotateVcfTasklet extends AbstractGatkTasklet {
 	}
 
 	@Override
+	@Transactional("entityManager")
 	public GenomeIndexStatus getGenomeIndexStatus() {
 		// no downloadable resources required.
 		return GenomeIndexStatus.BUILT;
 	}
 
 	@Override
+	@Transactional("entityManager")
 	public WorkUnit prepareWorkUnit() throws Exception {
 		Job job = jobService.getJobByJobId(jobId);
 		WorkUnit w = new WorkUnit();

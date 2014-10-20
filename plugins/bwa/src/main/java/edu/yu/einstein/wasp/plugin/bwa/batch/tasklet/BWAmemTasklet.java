@@ -120,6 +120,7 @@ public class BWAmemTasklet extends TestForGenomeIndexTasklet implements StepExec
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional("entityManager")
 	public void beforeStep(StepExecution stepExecution){
 		if (cellLib == null) {
 			cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
@@ -146,6 +147,7 @@ public class BWAmemTasklet extends TestForGenomeIndexTasklet implements StepExec
 	}
 
 	@Override
+	@Transactional("entityManager")
 	public GenomeIndexStatus getGenomeIndexStatus() {
 		try {
 			Build build = bwa.getGenomeBuild(cellLib);
@@ -158,6 +160,7 @@ public class BWAmemTasklet extends TestForGenomeIndexTasklet implements StepExec
 	}
 
 	@Override
+	@Transactional("entityManager")
 	public WorkUnit prepareWorkUnit() {
 		return bwa.prepareWorkUnit(fg);
 	}
