@@ -15,8 +15,6 @@ import java.util.TreeMap;
 
 import org.apache.commons.cli.CommandLine;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.integration.channel.QueueChannel;
 import org.springframework.integration.rmi.RmiOutboundGateway;
 import org.springframework.messaging.Message;
@@ -32,7 +30,7 @@ import edu.yu.einstein.wasp.interfacing.plugin.cli.CliMessagingTask;
  */
 public class Main {
 	
-	private final static Logger logger = LoggerFactory.getLogger(Main.class);
+	// private final static Logger logger = LoggerFactory.getLogger(Main.class);
 
 	/**
 	 * @param args
@@ -58,10 +56,10 @@ public class Main {
 						Path path = Paths.get(cl.getOptionValue("g"));
 						TemplateFileHandler.createTemplateFile(path, true);
 					} catch (InvalidPathException e){
-						logger.debug("ERROR: not a valid path " + e.getMessage());
+						System.out.println("ERROR: not a valid path " + e.getMessage());
 						System.exit(2);
 					} catch (IOException e1){
-						logger.debug("ERROR: " + e1.getMessage());
+						System.out.println("ERROR: " + e1.getMessage());
 						System.exit(2);
 					}
 				} else if (cl.hasOption("G")){
@@ -69,10 +67,10 @@ public class Main {
 						Path path = Paths.get(cl.getOptionValue("G"));
 						TemplateFileHandler.createTemplateFile(path, false);
 					} catch (InvalidPathException e){
-						logger.debug("ERROR: not a valid path " + e.getMessage());
+						System.out.println("ERROR: not a valid path " + e.getMessage());
 						System.exit(2);
 					} catch (IOException e1){
-						logger.debug("ERROR: " + e1.getMessage());
+						System.out.println("ERROR: " + e1.getMessage());
 						System.exit(2);
 					}
 				} else if (cl.hasOption("i")){
@@ -88,13 +86,13 @@ public class Main {
 						
 						message = getMessage(parser, "cli", jsonObj.toString());
 						String result = sendMessageAndParseReply(message, gw);
-						logger.debug(result);
+						System.out.println(result);
 						
 					} catch (InvalidPathException e){
-						logger.debug("ERROR: not a valid path " + e.getMessage());
+						System.out.println("ERROR: not a valid path " + e.getMessage());
 						System.exit(2);
 					} catch (IOException e1){
-						logger.debug("ERROR: " + e1.getMessage());
+						System.out.println("ERROR: " + e1.getMessage());
 						System.exit(2);
 					}
 				} 
@@ -159,7 +157,7 @@ public class Main {
 				if(cl.hasOption("h")) m.setHeader("help", "true");
 				
 				message = m.build();
-				logger.debug(sendMessageAndParseReply(message, gw));
+				System.out.println(sendMessageAndParseReply(message, gw));
 			}
 			
 			
@@ -209,7 +207,7 @@ public class Main {
 				output += " -> " + description;
 			output += "\n";
 		}
-		logger.debug(output);
+		System.out.println(output);
 	}
 
 	private static void listGenomeBuilds(JSONObject json){
@@ -222,7 +220,7 @@ public class Main {
 			String description = json.getString(name);
 			output += "    " + name + " -> " + description + "\n";
 		}
-		logger.debug(output);
+		System.out.println(output);
 	}
 	
 	private static void listSampleSubtypes(JSONObject json){
@@ -235,7 +233,7 @@ public class Main {
 			String name = json.getString(id.toString());
 			output += "    " + id.toString() + " -> " + name + "\n";
 		}
-		logger.debug(output);
+		System.out.println(output);
 	}
 	
 	private static void listCellLibraries(JSONObject json){
@@ -248,7 +246,7 @@ public class Main {
 			String name = json.getString(id.toString());
 			output += "    " + id.toString() + " -> " + name + "\n";
 		}
-		logger.debug(output);
+		System.out.println(output);
 	}
 	
 	private static void listFileTypes(JSONObject json){
@@ -261,7 +259,7 @@ public class Main {
 			String name = json.getString(id.toString());
 			output += "    " + id.toString() + " -> " + name + "\n";
 		}
-		logger.debug(output);
+		System.out.println(output);
 	}
 	
 	private static void listWorkflows(JSONObject json){
@@ -274,7 +272,7 @@ public class Main {
 			String name = json.getString(id.toString());
 			output += "    " + id.toString() + " -> " + name + "\n";
 		}
-		logger.debug(output);
+		System.out.println(output);
 	}
 	
 	private static void listSoftware(JSONObject json){
@@ -287,7 +285,7 @@ public class Main {
 			String name = json.getString(id.toString());
 			output += "    " + id.toString() + " -> " + name + "\n";
 		}
-		logger.debug(output);
+		System.out.println(output);
 	}
 	
 	private static void listUsers(JSONObject json){
@@ -298,7 +296,7 @@ public class Main {
 		for (String details : usersTreeMap.keySet()) {
 			output += "    " + usersTreeMap.get(details) + " -> " + details + "\n";
 		}
-		logger.debug(output);
+		System.out.println(output);
 	}
 	
 	public static boolean isPareseableToInteger(String s){
