@@ -35,6 +35,7 @@ import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleSubtypeException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.Adaptor;
@@ -962,9 +963,10 @@ public interface SampleService extends WaspMessageHandlingService {
 	 * gets the view link for displaying a platformunit view based on resource category.
 	 * @param platformunit
 	 * @param area
+	 * @throws WaspException
 	 * @return
 	 */
-	public String getPlatformunitViewLink(Sample platformunit);
+	public String getPlatformunitViewLink(Sample platformunit)  throws WaspException;
 	
 	public SampleSubtypeDao getSampleSubtypeDao();
 
