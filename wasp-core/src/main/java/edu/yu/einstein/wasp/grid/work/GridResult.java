@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
 
 /**
  * Wrapper for results returned from an execution of work on a {@link GridWorkService}.

@@ -6,14 +6,14 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
-import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
@@ -37,33 +37,41 @@ public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
 		this.isDedup = isDedup;
 	}
 	
+	
 	@Override
 	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
-		
-		GridResult result = executeWorkUnit();
-
-		// place the grid result in the step context
-		saveGridResult(context, result);
+	public void beforeStep(StepExecution stepExecution){
+		super.beforeStep(stepExecution);
 	}
 
 	@Override
 	@Transactional("entityManager")
-	public GenomeIndexStatus getGenomeIndexStatus() {
+	public GenomeIndexStatus getGenomeIndexStatus(StepExecution stepExecution) {
 		// no buildable resources required.
 		return GenomeIndexStatus.BUILT;
 	}
+	
+	@Override
+	public WorkUnitGridConfiguration configureWorkUnit(StepExecution stepExecution) throws Exception {
+		Job job = jobService.getJobByJobId(jobId);
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+		c.setMode(ExecutionMode.PROCESS);
+		c.setProcessMode(ProcessMode.SINGLE);
+		c.setMemoryRequirements(MEMORY_GB_4);
+		c.setWorkingDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
+		c.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
+		List<SoftwarePackage> dependencies = new ArrayList<>();
+		dependencies.add(gatk);
+		dependencies.add(gatk.getSoftwareDependencyByIname("picard"));
+		c.setSoftwareDependencies(dependencies);
+		return c;
+	}
 
 	@Override
 	@Transactional("entityManager")
-	public WorkUnit prepareWorkUnit() throws Exception {
-		Job job = jobService.getJobByJobId(jobId);
-		WorkUnit w = new WorkUnit();
-		w.setMode(ExecutionMode.PROCESS);
-		w.setProcessMode(ProcessMode.SINGLE);
-		w.setMemoryRequirements(MEMORY_GB_4);
-		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
-		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
+	public WorkUnit buildWorkUnit(StepExecution stepExecution) throws Exception {
+		WorkUnit w = new WorkUnit(configureWorkUnit(stepExecution));
+		
 		w.setSecureResults(true);
 		
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();
@@ -83,10 +91,7 @@ public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
             	throw new WaspRuntimeException("Cannot obtain a single filehandle from FileGroup id=" + fgId);
         }
 		w.setResultFiles(outFiles);
-		List<SoftwarePackage> dependencies = new ArrayList<>();
-		dependencies.add(gatk);
-		dependencies.add(gatk.getSoftwareDependencyByIname("picard"));
-		w.setSoftwareDependencies(dependencies);
+		
 		LinkedHashSet<String> inputBamFilenames = new LinkedHashSet<>();
 		Picard picard = (Picard) gatk.getSoftwareDependencyByIname("picard");
 		for (int i=0; i < fhlist.size(); i++)

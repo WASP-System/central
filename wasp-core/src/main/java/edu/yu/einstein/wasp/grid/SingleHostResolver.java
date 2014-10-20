@@ -13,6 +13,7 @@ import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
 
 /**
  * Default implementation of GridHostResolver.  Provides a mechanism for sending {@link WorkUnit}s out to a single
@@ -33,7 +34,7 @@ public class SingleHostResolver extends AbstractGridHostResolver {
 		this.gws = gridWorkService;
 	}
 
-	public String getHostname(WorkUnit w) {
+	public String getHostname(WorkUnitGridConfiguration c) {
 		return gws.getTransportConnection().getHostName();
 	}
 
@@ -45,7 +46,7 @@ public class SingleHostResolver extends AbstractGridHostResolver {
 	}
 
 	@Override
-	public String getUsername(WorkUnit w) {
+	public String getUsername(WorkUnitGridConfiguration c) {
 		return gws.getTransportConnection().getUserName();
 	}
 
@@ -70,7 +71,7 @@ public class SingleHostResolver extends AbstractGridHostResolver {
 	
 
 	@Override
-	public GridWorkService getGridWorkService(WorkUnit w) {
+	public GridWorkService getGridWorkService(WorkUnitGridConfiguration c) {
 		return gws;
 	}
 
@@ -82,15 +83,15 @@ public class SingleHostResolver extends AbstractGridHostResolver {
 	}
 
 	@Override
-	public String getParallelEnvironmentString(WorkUnit w) {
+	public String getParallelEnvironmentString(WorkUnitGridConfiguration c) {
 		// TODO: too simplistic, only works with one PE
 		return (String) gws.getAvailableParallelEnvironments().toArray()[0];
 	}
 
 	@Override
 	public GridResult execute(WorkUnit w) throws GridException {
-		logger.debug("executing WorkUnit: " + w.toString() + " handing off to: " + getGridWorkService(w).getTransportConnection().getName());
-		return getGridWorkService(w).execute(w);
+		logger.debug("executing WorkUnit: " + w.toString() + " handing off to: " + getGridWorkService(w.getConfiguration()).getTransportConnection().getName());
+		return getGridWorkService(w.getConfiguration()).execute(w);
 	}
 
 	@Override

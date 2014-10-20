@@ -28,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.exception.MetadataException;
-import edu.yu.einstein.wasp.exception.MetadataRuntimeException;
 import edu.yu.einstein.wasp.exception.NullResourceException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
@@ -567,14 +566,11 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 	
 	/** 
 	 * {@inheritDoc}
+	 * 
 	 */
 	@Override
 	public String getReferenceGenomeFastaFile(Build build) {
-		String folder = build.getMetadata("fasta.folder");
-		String filename = build.getMetadata("fasta.filename");
-		if (folder == null || folder.isEmpty() || filename == null || filename.isEmpty())
-			throw new MetadataRuntimeException("failed to locate reference genome fasta file");
-		return getRemoteBuildPath(build) + "/" + folder + "/" + filename;
+		return getRemoteBuildPath(build) + "/fasta/" + build.getGenomeBuildNameString()	+ ".genome.fa.fai";
 	}
 	
 	@Override

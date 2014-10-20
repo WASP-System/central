@@ -31,7 +31,8 @@ import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.SoftwareManager;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
@@ -121,14 +122,13 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
 
         List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
         sd.add(casava);
-
-        WorkUnit w = new WorkUnit();
-        w.setProcessMode(ProcessMode.SINGLE);
+        WorkUnitGridConfiguration conf = new WorkUnitGridConfiguration();
+        conf.setProcessMode(ProcessMode.SINGLE);
         // set casava as software dependency to ensure we get sent to the
         // correct host
-        w.setSoftwareDependencies(sd);
+        conf.setSoftwareDependencies(sd);
         // save the GridWorkService so we can send many jobs there
-        workService = hostResolver.getGridWorkService(w);
+        workService = hostResolver.getGridWorkService(conf);
 
         transportConnection = workService.getTransportConnection();
 
@@ -138,8 +138,8 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
 
         workingDirectory = stageDir + "/" + run.getName() + "/";
 
-        w.setWorkingDirectory(workingDirectory);
-
+        conf.setWorkingDirectory(workingDirectory);
+        WorkUnit w = new WorkUnit(conf);
         w.setCommand("mkdir -p wasp && cd wasp && ln -fs ../reports . && mkdir -p sequence && cd sequence");
         // rename files with spaces in names
         w.addCommand("shopt -s nullglob");
@@ -185,11 +185,12 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
         transportConnection.sendExecToRemote(w);
 
         logger.debug("symlinked results");
-
-        w = new WorkUnit();
-        w.setProcessMode(ProcessMode.SINGLE);
-        w.setSoftwareDependencies(sd);
-        w.setWorkingDirectory(workingDirectory);
+        conf = new WorkUnitGridConfiguration();
+       
+        conf.setProcessMode(ProcessMode.SINGLE);
+        conf.setSoftwareDependencies(sd);
+        conf.setWorkingDirectory(workingDirectory);
+        w = new WorkUnit(conf);
         w.setCommand("cd wasp/sequence && ls -1 *.fastq.gz");
 
         // method to send commands without wrapping them in a submission script.
@@ -202,11 +203,11 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
         Integer readSegments = waspIlluminaService.getNumberOfReadSegments(run);
 
         this.createSequenceFiles(platformUnit, allCellLib, br, readSegments);
-
-        w = new WorkUnit();
-        w.setProcessMode(ProcessMode.SINGLE);
-        w.setSoftwareDependencies(sd);
-        w.setWorkingDirectory(workingDirectory + "wasp/reports");
+        conf = new WorkUnitGridConfiguration();
+        conf.setProcessMode(ProcessMode.SINGLE);
+        conf.setSoftwareDependencies(sd);
+        conf.setWorkingDirectory(workingDirectory + "wasp/reports");
+        w = new WorkUnit(conf);
         w.setCommand("find . -type f -print | sed \'s/^\\.\\///\'");
 
         logger.debug("registering Illumina report files");

@@ -17,7 +17,8 @@ import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
@@ -56,19 +57,19 @@ public class IndexFastaTasklet extends WaspRemotingTasklet {
 	public void doExecute(ChunkContext context) throws Exception {
 		
 		GridWorkService host = hostResolver.getGridWorkService(hostname);
-		
-		WorkUnit w = new WorkUnit();
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
 		
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(picard);
 		sd.add(samtools);
 		
-		w.setWorkingDirectory(directory);
-		w.setResultsDirectory(directory);
-		w.setSoftwareDependencies(sd);
-		w.setProcessMode(ProcessMode.SINGLE);
-		w.setMemoryRequirements(4);
+		c.setWorkingDirectory(directory);
+		c.setResultsDirectory(directory);
+		c.setSoftwareDependencies(sd);
+		c.setProcessMode(ProcessMode.SINGLE);
+		c.setMemoryRequirements(4);
 		
+		WorkUnit w = new WorkUnit(c);
 		w.setCommand("shopt -s nullglob");
 		w.addCommand("for x in *.fa *.fasta; do\n");
 		w.addCommand("y=${x%.fa*}; if [[ \"${x}\" != \"${y}.fa\" ]]; then ln -s ${x} ${y}.fa; fi");

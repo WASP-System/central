@@ -5,16 +5,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import edu.yu.einstein.wasp.exception.MetadataException;
-import edu.yu.einstein.wasp.exception.NullResourceException;
-import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Sample;
@@ -24,7 +23,6 @@ import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqComparator;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.plugin.mps.software.alignment.ReferenceBasedAligner;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
-import edu.yu.einstein.wasp.plugin.supplemental.organism.Genome;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
@@ -146,46 +144,48 @@ public abstract class AbstractBWASoftwareComponent extends ReferenceBasedAligner
 
 	}
 	
-	public WorkUnit prepareWorkUnit(FileGroup fg) {
-		WorkUnit w = new WorkUnit();
+	public WorkUnitGridConfiguration prepareWorkUnitConfiguration(FileGroup fg) {
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
 		
-		w.setMode(ExecutionMode.TASK_ARRAY);
-		w.setNumberOfTasks(fg.getFileHandles().size());
+		c.setMode(ExecutionMode.TASK_ARRAY);
+		c.setNumberOfTasks(fg.getFileHandles().size());
 		
-		w.setProcessMode(ProcessMode.MAX);
+		c.setProcessMode(ProcessMode.MAX);
 		
-		w.setMemoryRequirements(8);
-
-		List<FileHandle> fhlist = new ArrayList<FileHandle>();
-		fhlist.addAll(fg.getFileHandles());
-		Collections.sort(fhlist, new FastqComparator(fastqService));
-		w.setRequiredFiles(fhlist);
+		c.setMemoryRequirements(8);
 		
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(this);
 		//sd.add(picard);
 		//sd.add(samtools);
-		w.setSoftwareDependencies(sd);
+		c.setSoftwareDependencies(sd);
+		c.setResultsDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
+		return c;
+	}
+	
+	public WorkUnit buildWorkUnit(FileGroup fg) {
+		WorkUnit w = new WorkUnit(prepareWorkUnitConfiguration(fg));
+		List<FileHandle> fhlist = new ArrayList<FileHandle>();
+		fhlist.addAll(fg.getFileHandles());
+		Collections.sort(fhlist, new FastqComparator(fastqService));
+		w.setRequiredFiles(fhlist);
 		w.setSecureResults(false);
-		
-		w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
-		
 		return w;
 	}
 	
-	protected String getOptString(String optPrefix, Map<String,Object> jobParameters){
+	protected String getOptString(String optPrefix, Map<String,JobParameter> jobParameters){
 		String optString = "";
 		for (String opt : jobParameters.keySet()) {
 			if (!opt.startsWith(optPrefix))
 				continue;
 			String key = opt.replace(optPrefix, "");
-			if (jobParameters.get(opt).toString().equals("yes")){ 
+			if (jobParameters.get(opt).getValue().toString().equals("yes")){ 
 				optString += " " + key;
 				continue;
 			}
-			if (jobParameters.get(opt).toString().equals("no") || jobParameters.get(opt).toString().equals("null"))
+			if (jobParameters.get(opt).getValue().toString().equals("no") || jobParameters.get(opt).getValue().toString().equals("null"))
 				continue;
-			optString += " " + key + " " + jobParameters.get(opt).toString();
+			optString += " " + key + " " + jobParameters.get(opt).getValue().toString();
 		}
 		return optString;
 	}

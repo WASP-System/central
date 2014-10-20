@@ -16,8 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.exception.NullResourceException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
@@ -77,29 +78,30 @@ public class Helptag extends SoftwarePackage{
 
 	@Transactional("entityManager")
 	public WorkUnit getHelptag(Integer cellLibraryId) {
-		WorkUnit w = new WorkUnit();
-		
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+			
 		// require fastqc
 		List<SoftwarePackage> software = new ArrayList<SoftwarePackage>();
 		//software.add(this);
 		//software.add(samtools);
-		w.setSoftwareDependencies(software);
+		c.setSoftwareDependencies(software);
 		
 		// require 4GB memory
-		w.setMemoryRequirements(4);
+		c.setMemoryRequirements(4);
 		
 		// require a single thread, execution mode PROCESS
 		// indicates this is a vanilla exectuion.
-		w.setProcessMode(ProcessMode.SINGLE);
-		w.setMode(ExecutionMode.PROCESS);
+		c.setProcessMode(ProcessMode.SINGLE);
+		c.setMode(ExecutionMode.PROCESS);
 		
 		// set working directory to scratch
-		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
+		c.setWorkingDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
 		
 		// we aren't actually going to retain any files, so we will set the output
 		// directory to the scratch directory.  Also set "secure results" to
 		// false to indicate that we don't care about the output.
-		w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
+		c.setResultsDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
+		WorkUnit w = new WorkUnit(c);
 		w.setSecureResults(false);
 		
 		
@@ -123,12 +125,13 @@ public class Helptag extends SoftwarePackage{
 		//FileType ft = fileService.getFileType("bam");
 		Set<FileGroup> fgSet = new HashSet<FileGroup>();
 		SampleSource cl;
+		
 		try {
 			cl = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);
 			fgSet.addAll(fileService.getFilesForCellLibraryByType(cl, fastqFileType));
 
 			Job job = sampleService.getJobOfLibraryOnCell(cl);
-			w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, this) + "/" + cellLibraryId);
+			c.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, this) + "/" + cellLibraryId);
 		
 			List<FileHandle> files = new ArrayList<FileHandle>();
 			for(FileGroup fg : fgSet) {
@@ -158,20 +161,19 @@ public class Helptag extends SoftwarePackage{
 
 	
 	private WorkUnit prepareWorkUnit(FileGroup fg) {
-		WorkUnit w = new WorkUnit();
-		
-		w.setMode(ExecutionMode.PROCESS);
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+			
+		c.setMode(ExecutionMode.PROCESS);
 	
 		// require 4GB memory
-		w.setMemoryRequirements(4);
-
+		c.setMemoryRequirements(4);
+		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
+		sd.add(this);
+		c.setSoftwareDependencies(sd);
+		WorkUnit w = new WorkUnit(c);
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();
 		fhlist.addAll(fg.getFileHandles());
 		w.setRequiredFiles(fhlist);
-		
-		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
-		sd.add(this);
-		w.setSoftwareDependencies(sd);
 		w.setSecureResults(false);
 	
 		return w;
