@@ -204,18 +204,14 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 		for (Integer cellid : cells.keySet()) { // for each cell in platform unit
 			Sample cell = cells.get(cellid);
 
-			// throws SampleTypeException
-
 			List<SampleSource> all = sampleService.getCellLibrariesForCell(cell);
 			
 			List<Sample> libraries = sampleService.getLibrariesOnCellWithoutControls(cell);
 
-			cellMarked[cellid-1] = false;//rob; 7-14-14; moved here from below
+			cellMarked[cellid-1] = false;
 			
 			for (SampleSource cellLibrary : all) {
-			    
-			    //cellMarked[cellid-1] = false;//rob; 7-14-14; commented out and moved just above this for loop
-				
+			    				
 				logger.debug("working with cell library: " + cellLibrary.getId() + " representing " + 
 						cellLibrary.getSourceSample().getId() +":"+ cellLibrary.getSourceSample().getName());
 								
@@ -226,7 +222,7 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
                 	SampleSource controlCellLib = all.get(0);
                 	logger.debug("looking to register lone control cell library: " + controlCellLib.getId() + " on cell: " + cellid );
                                         
-                	String line = buildLine(platformUnit, cell, controlCellLib.getSourceSample().getName(), controlCellLib, "Y", "control");
+                	String line = buildLine(platformUnit, cell, controlCellLib.getSourceSample().getName(), controlCellLib, "Y", "control", true);
                 	sampleSheet += "\n" + line;
                 	cellMarked[cellid-1] = true;//rob; 7-14-14
                 	continue;
@@ -235,10 +231,10 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
                 //if this cellLibrary's library is a control library, AND other libraries are on the lane, then continue, as we do NOT include the control on the sample sheet 
                 logger.debug("attempting to check whether cellLibrary's library is a control library");
                 if(sampleService.isControlLibrary(cellLibrary.getSourceSample())){//rob; 7-14-14
-                	logger.debug("YES! The cellLibrary's library is a control library");
+                	logger.trace("YES! The cellLibrary's library is a control library");
                 	continue;
                 }
-                logger.debug("NO! The cellLibrary's library is NOT a control library");
+                logger.trace("NO! The cellLibrary's library is NOT a control library");
                 
 				// the cell library source sample is the library itself (cellLibrary.getSample() == cell).
 				Adaptor adaptor = adaptorService.getAdaptor(cellLibrary.getSourceSample());
@@ -248,6 +244,10 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 				if (method.equals(IlluminaIndexingStrategy.TRUSEQ)) {
 				    if (strategy.equals(IlluminaIndexingStrategy.TRUSEQ_DUAL))
 				        continue;
+				    // temporarily ignore 5' barcoding 
+				    if (strategy.equals(MpsIndexingStrategy.FIVE_PRIME)) {
+				    	logger.warn("SKIPPING 5' barcoded sample!!!");
+				    }
 				}
 				
 				// TRUSEQ_DUAL processing includes only TRUSEQ_DUAL
@@ -267,9 +267,6 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 				    logger.error(message);
 				    throw new WaspRuntimeException(message);
 				}
-				
-				
-				cellMarked[cellid-1] = true;
 
 				// necessary?
 				String iname = cellLibrary.getSourceSample().getSampleType().getIName();
@@ -285,17 +282,25 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 				String genome = "";
 				String control = "N";
 				String recipe = "WASP";
+				
+				// check to see if it is the only sample in the lane.  If so, demultiplexing is not necessary.
+				boolean singleton = false;
+				if (libraries.size() == 1)
+					singleton = true;
 
-				String line = buildLine(platformUnit, cell, genome, cellLibrary, control, recipe);
+				String line = buildLine(platformUnit, cell, genome, cellLibrary, control, recipe, singleton);
 
 				logger.debug("sample sheet: " + line);
 
 				sampleSheet += "\n" + line;
+				
+				cellMarked[cellid-1] = true;
 			}
 			
 			// if the cell has not been marked (has TruSeq sample), create a dummy sample for 
 			// the lane if further demultiplexing is required
 			// or a single sample for the entire lane
+			
 				
 			if (cellMarked[cellid-1] == false && method.equals(IlluminaIndexingStrategy.TRUSEQ)) {
 				logger.debug("setting dummy sample cell: " + cellid);
@@ -303,7 +308,7 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 				//Adaptor adaptor = new Adaptor();
 				placeholder.setId(-1);
 				
-				String line = buildLine(platformUnit, cell, "", placeholder, "N", "WASP");
+				String line = buildLine(platformUnit, cell, "", placeholder, "N", "WASP", true);
 				
 				sampleSheet += "\n" + line;
 			}
@@ -313,9 +318,9 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 		
 	}
 
-	private String buildLine(Sample platformUnit, Sample cell, String genome, SampleSource cellLibrary, String control, String recipe) {
+	private String buildLine(Sample platformUnit, Sample cell, String genome, SampleSource cellLibrary, String control, String recipe, boolean isSingleton) {
 
-		String adapter = "";
+		String barcode = "";
 		String sampleId;
 		String sampleName;
 		Integer cellIndex;
@@ -326,16 +331,20 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 			throw new InvalidParameterException("sample type exception" + e);
 		}
 		Sample sample = null;
+		
 		if (cellLibrary.getId().equals(-1)) {
 			sampleId = "lane_" + cellIndex;
 			sampleName = sampleId;
 		} else {
-			try {
-				adapter = adaptorService.getAdaptor(cellLibrary.getSourceSample()).getBarcodesequence();
-			} catch (Exception e) {
-				// if it is null or otherwise not set, it does not exist
-				adapter = "";
+			if (!isSingleton) {
+				try {
+					barcode = adaptorService.getAdaptor(cellLibrary.getSourceSample()).getBarcodesequence();
+				} catch (Exception e) {
+					// if it is null or otherwise not set, it does not exist
+					barcode = "";
+				}
 			}
+			
 			sample = cellLibrary.getSourceSample().getParent();
 
 			if (sample == null)
@@ -349,7 +358,7 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 				.append(cellIndex + ",")
 				.append(sampleId + ",")
 				.append(genome + ",")
-				.append(adapter + ",")
+				.append(barcode + ",")
 				.append(sampleName + ",")
 				.append(control + ",")
 				.append(recipe + ",") // TODO:recipe
