@@ -176,7 +176,7 @@ public class JointGenotypingTasklet extends TestForGenomeIndexTasklet {
 		for (int i=0; i < fhlist.size(); i++)
 			inputFileNames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");
 		String rawVcfFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
-		String referenceGenomeFile = genomeMetadataService.getRemoteGenomeFastaPath(getGridWorkService(stepExecutionContext), build);
+		String referenceGenomeFile = genomeMetadataService.getPrefixedGenomeFastaPath(getGridWorkService(stepExecutionContext), build);
 		w.setCommand(gatk.genotypeGVCFs(inputFileNames, rawVcfFilename, referenceGenomeFile, AbstractGatkTasklet.MEMORY_GB_16));
 		return w;
 	}

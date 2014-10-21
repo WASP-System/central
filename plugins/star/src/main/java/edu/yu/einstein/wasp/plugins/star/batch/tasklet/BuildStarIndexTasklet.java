@@ -22,7 +22,8 @@ import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
 import edu.yu.einstein.wasp.plugin.genomemetadata.service.GenomeMetadataService;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.plugins.star.StarGenomeIndexConfiguration;
@@ -71,16 +72,19 @@ public class BuildStarIndexTasklet extends WaspRemotingTasklet {
 		
 		logger.debug("setting up to build STAR index for " + build.getGenomeBuildNameString() + ":" + config.generateUniqueKey() + " on " + hostname);
 
-		WorkUnit w = new WorkUnit();
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
 		
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(star);
 
-		w.setWorkingDirectory(config.getDirectory());
-		w.setResultsDirectory(config.getDirectory());
-		w.setSoftwareDependencies(sd);
-		w.setMemoryRequirements(40);
-		w.setProcessMode(ProcessMode.MAX);
+		c.setWorkingDirectory(config.getDirectory());
+		c.setResultsDirectory(config.getDirectory());
+		c.setSoftwareDependencies(sd);
+		c.setMemoryRequirements(40);
+		c.setProcessMode(ProcessMode.MAX);
+		
+		WorkUnit w = new WorkUnit(c);
+		
 		w.setCommand("if [ -e " + GenomeService.INDEX_CREATION_COMPLETED + " ]; then echo \"already done\"; exit 0; fi");
 		w.addCommand("if [ -e " + GenomeService.INDEX_CREATION_STARTED + ".tmp ]; then echo \"started but not completed\"; exit 1; fi");
 		w.addCommand("if [ -e " + GenomeService.INDEX_CREATION_FAILED + " ]; then echo \"previously failed\"; exit 2; fi");

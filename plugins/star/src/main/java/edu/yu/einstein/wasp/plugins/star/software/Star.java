@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
 import edu.yu.einstein.wasp.plugin.genomemetadata.service.GenomeMetadataService;
 import edu.yu.einstein.wasp.plugin.mps.software.alignment.ReferenceBasedRNASeqAligner;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
@@ -65,11 +66,11 @@ public class Star extends ReferenceBasedRNASeqAligner {
 
 		Build build = genomeService.getBuild(config.getOrganism(), config.getGenome(), config.getBuild());
 
-		String command = "STAR --runMode genomeGenerate --runThreadN $" + WorkUnit.NUMBER_OF_THREADS + " --genomeFastaFiles "
-				+ genomeMetadataService.getRemoteGenomeFastaPath(workService, build) + " --genomeDir " + starService.getRemoteStarIndexPath(workService, config);
+		String command = "STAR --runMode genomeGenerate --runThreadN $" + WorkUnitGridConfiguration.NUMBER_OF_THREADS + " --genomeFastaFiles "
+				+ genomeMetadataService.getPrefixedGenomeFastaPath(workService, build) + " --genomeDir " + starService.getPrefixedStarIndexPath(workService, config);
 
 		if (!config.isSecond()) {
-			command += " --sjdbGTFfile " + genomeMetadataService.getRemoteGtfPath(workService, build, config.getGtfVersion()) + " --sjdbOverhang "
+			command += " --sjdbGTFfile " + genomeMetadataService.getPrefixedGtfPath(workService, build, config.getGtfVersion()) + " --sjdbOverhang "
 					+ config.getSjdbOverhang();
 		} else {
 			command = "cat " + config.getPathToJunctions() + "* | sort -u -k1,1 -k2,2n -k3,3n -k4,4 - > mergedSjdbFileChrStartEnd.txt \n" + command

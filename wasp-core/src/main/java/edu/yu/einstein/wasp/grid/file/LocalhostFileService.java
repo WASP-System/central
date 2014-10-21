@@ -143,20 +143,28 @@ public class LocalhostFileService implements GridFileService {
 	}
 	
 	public Path getLocalhostFilePath(String path) {
+		path = removePrefix(path);
 		Path pathObj = null;
-		if (userDirIsRoot){
-			if (path.startsWith("/"))
-				path = path.replaceFirst("/", "");
-			pathObj = Paths.get(System.getProperty("user.home") + "/" + path);
-		}
-		else
-			pathObj = Paths.get(path);
+		pathObj = Paths.get(path);
 		logger.debug("constructed path: " + pathObj);
 		return pathObj;
 	}
 	
 	private FileAttribute<Set<PosixFilePermission>> getFolderFilePerms(){
 		return PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxrwxr-x"));
+	}
+	
+	private String removePrefix(String path) {
+		String newPath = null;
+		if (userDirIsRoot){
+			if (path.startsWith("/"))
+				path = path.replaceFirst("/", "");
+			if (path.startsWith("$HOME/"))
+				path = path.replaceFirst("\\$HOME/", "");
+			newPath = System.getProperty("user.home") + "/" + path;
+			return newPath;
+		} 
+		return path;
 	}
 
 }

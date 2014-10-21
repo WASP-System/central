@@ -196,15 +196,15 @@ public class HardFilterTasklet extends TestForGenomeIndexTasklet {
 		String rawIndelsFileName = "indels.${" + WorkUnit.OUTPUT_FILE + "[1]}";
 		String filteredSnpVcfFileName = "snps.filtered.${" + WorkUnit.OUTPUT_FILE + "[0]}";
 		String filteredIndelVcfFileName = "indels.filtered.${" + WorkUnit.OUTPUT_FILE + "[1]}";
-		String referenceGenomeFileName = genomeMetadataService.getPrefixedGenomeFastaPath(getGridWorkService(), build);
+		String referenceGenomeFileName = genomeMetadataService.getPrefixedGenomeFastaPath(getGridWorkService(stepExecutionContext), build);
 		w.addCommand(gatk.selectSnpsFromVariantsFile(rawVariantsFileName, rawSnpsFileName, referenceGenomeFileName, wxsIntervalFile, AbstractGatkTasklet.MEMORY_GB_4));
 		w.addCommand(gatk.selectIndelsFromVariantsFile(rawVariantsFileName, rawIndelsFileName, referenceGenomeFileName, wxsIntervalFile, AbstractGatkTasklet.MEMORY_GB_4));
 		w.addCommand(gatk.applyGenericHardFilterForSnps(rawSnpsFileName, filteredSnpVcfFileName, referenceGenomeFileName, AbstractGatkTasklet.MEMORY_GB_4));
 		w.addCommand(gatk.applyGenericHardFilterForIndels(rawIndelsFileName, filteredIndelVcfFileName, referenceGenomeFileName, AbstractGatkTasklet.MEMORY_GB_4));
 		
 		// We will now add snp and indel database ids
-		String snpFile = genomeMetadataService.getRemoteIndexedVcfPath(getGridWorkService(stepExecutionContext), build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.SNP));
-		String indelsFile = genomeMetadataService.getRemoteIndexedVcfPath(getGridWorkService(stepExecutionContext), build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.INDEL));
+		String snpFile = genomeMetadataService.getPrefixedIndexedVcfPath(getGridWorkService(stepExecutionContext), build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.SNP));
+		String indelsFile = genomeMetadataService.getPrefixedIndexedVcfPath(getGridWorkService(stepExecutionContext), build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.INDEL));
 		String filteredSnpWithIdsVcfFileName = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
 		String filteredIndelWithIdsVcfFileName = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
 		SnpEff snpEff = (SnpEff) gatk.getSoftwareDependencyByIname("snpEff");
