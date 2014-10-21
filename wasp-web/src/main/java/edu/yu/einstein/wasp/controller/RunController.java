@@ -16,6 +16,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -415,18 +416,10 @@ public class RunController extends WaspController {
 			//awful way to deal with this
 			if(statusForRunFromGrid != null && !statusForRunFromGrid.isEmpty()){
 				
-				for(Run run : tempRunList){
-					String s = "";
-					if (runService.isRunSuccessfullyCompleted(run)){
-						s = "Completed";
-					} else if (runService.isRunActive(run)){
-						s =  "In Progress";
-					} else {
-						s =  "Unknown";
-					}
-					if(s.toLowerCase().contains(statusForRunFromGrid.toLowerCase())){
+				for (Run run : tempRunList){
+					String s = getWebFriendlyRunStatus(run);
+					if(s.toLowerCase().contains(statusForRunFromGrid.toLowerCase()))
 						runsFoundInSearch.add(run);
-					}
 				}
 				tempRunList.retainAll(runsFoundInSearch);
 				runsFoundInSearch.clear();
@@ -607,6 +600,18 @@ public class RunController extends WaspController {
 			waspErrorMessage("wasp.unexpected_error.error");
 		}
 		return "redirect:"+ request.getHeader("Referer");
+	}
+	
+	public String getWebFriendlyRunStatus(Run run){
+		ExitStatus runStatus = runService.getRunBatchStatus(run);
+		if (runStatus.isCompleted())
+			return messageService.getMessage("run.statusCompleted.label"); // Completed
+		else if (runStatus.isRunning())
+			return messageService.getMessage("run.statusInProgress.label"); // In Progress	
+		else if (runStatus.isFailed())
+			return messageService.getMessage("run.statusFailed.label"); // Failed
+		else 
+			return messageService.getMessage("run.statusUnknown.label"); // Unknown
 	}
 	
 

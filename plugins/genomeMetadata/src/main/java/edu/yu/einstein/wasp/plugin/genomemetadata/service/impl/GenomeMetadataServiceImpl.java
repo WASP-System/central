@@ -602,10 +602,10 @@ public class GenomeMetadataServiceImpl extends WaspServiceImpl implements Genome
 					continue;
 				if (build.hasMetadata(identifier + version + ".type")) {
 					String t = build.getMetadata(identifier + version + ".type");
-					if (!t.equals(type)) {
-						String mess = "type requested " + type + " does not match annotated type of " + t + ". Each version string should have one type only.";
-						logger.error(mess);
-						throw new MetadataException(mess);
+					if (!t.equals(type)){
+						String mess = "type requested " + type + " does not match annotated type of " + t + ". Ignoring entry: " + identifier + version;
+						logger.debug(mess);
+						continue;
 					}
 				} else {
 					logger.debug("matched " + identifier + version + " with no type to type " + type);
@@ -615,7 +615,7 @@ public class GenomeMetadataServiceImpl extends WaspServiceImpl implements Genome
 					defaultVersion.add(version);
 			}
 		}
-
+		
 		if (defaultVersion.size() == 1) {
 			return defaultVersion.iterator().next();
 		} else if (knownVersions.size() == 1) {

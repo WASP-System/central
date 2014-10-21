@@ -1,5 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<script type="text/javascript" src="http://malsup.github.com/jquery.form.js"></script>
+<script type="text/javascript" src="http://waspsystem.org/lib/malsup/jqueryformplugin-3.51.0/jquery.form.js"></script>
 
 <script type="text/javascript">
 
