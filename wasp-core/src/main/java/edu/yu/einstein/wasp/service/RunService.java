@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.RunCellDao;
@@ -205,5 +206,17 @@ public interface RunService extends WaspMessageHandlingService {
 	 */
 	public Run updateAndInitiateRun(Run run);
 
+	/**
+	 * 
+	 * @param run
+	 * @throws WaspMessageBuildingException
+	 */
 	public void updateRunQcStatusSetComplete(Run run) throws WaspMessageBuildingException;
+
+	/**
+	 * 
+	 * @param run
+	 * @return
+	 */
+	public ExitStatus getRunBatchStatus(Run run);
 }
