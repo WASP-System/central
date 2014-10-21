@@ -46,7 +46,7 @@ public class StarTestSkeleton extends AbstractTestNGSpringContextTests{
 	 * Simple Test skeleton
 	 * @throws Exception
 	 */
-	@Test (groups = "star-tests")
+	// Test (groups = "star-tests")
 	public void testStarTestSkeleton() throws Exception{
 		try{
 			// TODO: Test logic here. 

@@ -118,7 +118,7 @@ public class StarJobLaunchTests extends AbstractTestNGSpringContextTests impleme
 	 * in the correct order. 
 	 * Finally we check that the job execution exited with a success status of COMPLETED.
 	 */
-	@Test (groups = "star-tests")
+	// Test (groups = "star-tests")
 	public void testSuccessfulStarJobLaunch() throws Exception{
 		try{
 			Map<String, String> jobParameters = new HashMap<String, String>();
