@@ -363,13 +363,9 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
             // Send requested file (part(s)) to client ------------------------------------------------
 
             // Prepare streams.
-            InputStream input = null;
-            OutputStream output = null;
-
-        	InputStream dataStream = new FileInputStream(download);
             // Open streams.
-            input = new BufferedInputStream(dataStream);
-            output = response.getOutputStream();
+            InputStream input = new BufferedInputStream(new FileInputStream(download));
+            ServletOutputStream sos = response.getOutputStream();
 
             if (ranges.isEmpty() || ranges.get(0) == full) {
 
@@ -378,7 +374,7 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
                 response.setContentType(contentType);
                 response.setHeader("Content-Range", "bytes " + r.start + "-" + r.end + "/" + r.total);
                 response.setHeader("Content-Length", String.valueOf(r.length));
-                copy(input, output, length, r.start, r.length);
+                copy(input, new BufferedOutputStream(sos), length, r.start, r.length);
                 
             } else if (ranges.size() == 1) {
 
@@ -390,16 +386,13 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
                 response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT); // 206.
 
                 // Copy single part range.
-                copy(input, output, length, r.start, r.length);
+                copy(input, new BufferedOutputStream(sos), length, r.start, r.length);
 
             } else {
 
                 // Return multiple parts of file.
                 response.setContentType("multipart/byteranges; boundary=" + MULTIPART_BOUNDARY);
                 response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT); // 206.
-
-                // Cast back to ServletOutputStream to get the easy println methods.
-                ServletOutputStream sos = (ServletOutputStream) output;
 
                 // Copy multi part range.
                 for (Range r : ranges) {
@@ -410,7 +403,7 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
                     sos.println("Content-Range: bytes " + r.start + "-" + r.end + "/" + r.total);
 
                     // Copy single part range of multi part range.
-                    copy(input, output, length, r.start, r.length);
+                    copy(input, new BufferedOutputStream(sos), length, r.start, r.length);
                 }
 
                 // End with multipart boundary.
@@ -418,11 +411,10 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
                 sos.println("--" + MULTIPART_BOUNDARY + "--");
             }
 
-            response.flushBuffer();
             // Gently close streams.
-        	close(dataStream);
-            close(output);
-            close(input);
+        	close(input);
+        	sos.flush();
+            close(sos);
         }
 	}
 
