@@ -255,6 +255,28 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	 * {@inheritDoc}
 	 */
 	@Override	
+	public ExitStatus getRunBatchStatus(Run run){
+		Assert.assertParameterNotNull(run, "run cannot be null");
+		Assert.assertParameterNotNull(run.getId(), "run must be defined");
+		if (isAnySuccessfulRunCells(run))
+			return ExitStatus.COMPLETED; // no point looking for status in Batch if we know it's completed already
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> runIdStringSet = new LinkedHashSet<String>();
+		runIdStringSet.add(run.getId().toString());
+		Set<String> genericParamValStringSet = new LinkedHashSet<String>();
+		genericParamValStringSet.add("*");
+		parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
+		parameterMap.put(WaspJobParameters.RUN_NAME, genericParamValStringSet);
+		JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.RUNNING));
+		if (je == null)
+			return ExitStatus.UNKNOWN;
+		return je.getExitStatus();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override	
 	public boolean isRunActive(Run run){
 		Assert.assertParameterNotNull(run, "run cannot be null");
 		Assert.assertParameterNotNull(run.getId(), "run must be defined");
