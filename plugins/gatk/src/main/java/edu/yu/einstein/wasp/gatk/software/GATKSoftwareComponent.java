@@ -48,7 +48,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt ${" + WorkUnitGridConfiguration.NUMBER_OF_THREADS + "}";
 		for (String fileName : inputFilenames)
 			command += " -I " + fileName;
-		command += " -R " + genomeMetadataService.getPrefixedGenomeFastaIndexPath(workService, build) + 
+		command += " -R " + genomeMetadataService.getPrefixedGenomeFastaPath(workService, build) + 
 				" -T RealignerTargetCreator -o " + intervalFilename + " -known " + genomeMetadataService.getPrefixedIndexedVcfPath(workService, build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.INDEL));
 		logger.debug("Will conduct gatk create target for re-alignment with string: " + command);
 		return command;
@@ -60,7 +60,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		for (String fileName : inputFilenames)
 			command += " -I " + fileName;
 		command += " -R " + 
-				genomeMetadataService.getPrefixedGenomeFastaIndexPath(workService, build) + " -T  IndelRealigner" + 
+				genomeMetadataService.getPrefixedGenomeFastaPath(workService, build) + " -T  IndelRealigner" + 
 				" -targetIntervals " + intervalFilename + " -o " + realnBamFilename + " -known " + genomeMetadataService.getPrefixedIndexedVcfPath(workService, build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.INDEL));
 		if (realnBaiFilename != null)
 			command += " && mv " + realnBamFilename + ".bai " + realnBaiFilename;
@@ -88,7 +88,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		for (String fileName : inputFilenames)
 			command += " -I " + fileName;
 		command += " -R " + 
-				genomeMetadataService.getPrefixedGenomeFastaIndexPath(workService, build) + " -T  IndelRealigner --nWayOut .getLocalAlign" + 
+				genomeMetadataService.getPrefixedGenomeFastaPath(workService, build) + " -T  IndelRealigner --nWayOut .getLocalAlign" + 
 				" -targetIntervals " + intervalFilename + " -known " + genomeMetadataService.getPrefixedIndexedVcfPath(workService, build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.INDEL));
 		Iterator<String> outFileIterator = outputFilenames.iterator();
 		for (String fileName : inputFilenames){
@@ -106,7 +106,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	
 	
 	public String getRecaliTableCmd(GridWorkService workService, Build build, String realnBamFilename, String recaliGrpFilename, int memRequiredGb) throws MetadataException {
-		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + genomeMetadataService.getPrefixedGenomeFastaIndexPath(workService, build) + 
+		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + genomeMetadataService.getPrefixedGenomeFastaPath(workService, build) + 
 				" -nct ${" + WorkUnitGridConfiguration.NUMBER_OF_THREADS + "}" + " -knownSites " + genomeMetadataService.getPrefixedIndexedVcfPath(workService, build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.SNP)) + 
 				" -I " + realnBamFilename + " -T BaseRecalibrator -o " + recaliGrpFilename;
 
@@ -116,7 +116,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	}
 	
 	public String getPrintRecaliCmd(GridWorkService workService, Build build, String realnBamFilename, String recaliGrpFilename, String recaliBamFilename, String recaliBaiFilename, int memRequiredGb) {
-		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + genomeMetadataService.getPrefixedGenomeFastaIndexPath(workService, build) + 
+		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + genomeMetadataService.getPrefixedGenomeFastaPath(workService, build) + 
 				" -nct ${" + WorkUnitGridConfiguration.NUMBER_OF_THREADS + "}" + " -I " + realnBamFilename + " -T PrintReads -o " + recaliBamFilename +
 				" -BQSR " + recaliGrpFilename + " -baq RECALCULATE";
 		if (recaliBaiFilename != null)
