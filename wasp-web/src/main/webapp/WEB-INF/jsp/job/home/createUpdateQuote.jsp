@@ -79,7 +79,7 @@
 				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/basic.do" />");' ><fmt:message key="jobHomeCreateUpdateQuote.viewBasicRequest.label" /></a>
 				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/requests.do?onlyDisplayCellsRequested=true" />");' ><fmt:message key="jobHomeCreateUpdateQuote.viewLaneRequest.label" /></a>
 				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/previewQuote.do" />");' ><fmt:message key="jobHomeCreateUpdateQuote.previewQuote.label" /></a>
-				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/saveQuote.do" />");' ><fmt:message key="jobHomeCreateUpdateQuote.saveQuote.label" /></a>
+				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/saveQuote.do" />");' ><fmt:message key="jobHomeCreateUpdateQuote.saveQuoteAndEmailToPI.label" /></a>
 				</span>
 				<br /><br /><br />
 				

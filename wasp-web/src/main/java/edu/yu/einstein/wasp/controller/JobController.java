@@ -32,6 +32,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailPreparationException;
 import org.springframework.messaging.MessagingException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -111,6 +112,7 @@ import edu.yu.einstein.wasp.quote.LibraryCost;
 import edu.yu.einstein.wasp.quote.MPSQuote;
 import edu.yu.einstein.wasp.quote.SequencingCost;
 import edu.yu.einstein.wasp.service.AdaptorService;
+import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.GenomeService;
@@ -204,6 +206,10 @@ public class JobController extends WaspController {
 	private AccountsService accountsService;
 	@Autowired
 	private PDFService pdfService;
+	@Autowired
+	private EmailService emailService;
+	@Autowired
+	private UserService userService;
 	
 	@Value("${wasp.analysis.perLibraryFee:0}")
 	private Float perLibraryAnalysisFee;
@@ -972,7 +978,7 @@ public class JobController extends WaspController {
 		return "job/home/uploadQuoteOrInvoice";
 	}
 	
-    @Transactional
+    ////@Transactional
 	//Note: we use MultipartHttpServletRequest to be able to upload files using Ajax. See http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/
 	@RequestMapping(value="/{jobId}/uploadQuoteOrInvoice", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
@@ -1048,20 +1054,39 @@ public class JobController extends WaspController {
 					    	m.addAttribute("errorMessage", errorMessage);
 							return "job/home/uploadQuoteOrInvoice";
 						}
-					    
+						File file = null;
 						try{
-							jobService.createNewQuoteOrInvoiceAndUploadFile(job, mpFile, fileDescription, new Float(totalCost));
-							m.addAttribute("successMessage", messageService.getMessage("listJobSamples.fileUploadedSuccessfully.label"));
-						} catch(FileUploadException e){
+							FileGroup fileGroup = jobService.createNewQuoteOrInvoiceAndUploadFile(job, mpFile, fileDescription, new Float(totalCost));
+							String fileName = new ArrayList<FileHandle>(fileGroup.getFileHandles()).get(0).getFileName();
+							file = fileService.createLocalTempFile();
+							mpFile.transferTo(file);
+							//cc email to facility manager and me
+							Set<User> ccEmailRecipients = new HashSet<User>(userService.getFacilityManagers());
+							User me = webAuthenticationService.getAuthenticatedUser();
+							ccEmailRecipients.add(me);							
+							emailService.sendQuoteAsAttachmentToPI(job, ccEmailRecipients, file, fileName);
+							m.addAttribute("successMessage", messageService.getMessage("jobHomeUploadQuoteOrInvoice.fileUploadedSuccessfullyAndEmailSentToPI.label"));
+						} catch(MailPreparationException e){
+							String errorMessage = messageService.getMessage("jobHomeUploadQuoteOrInvoice.emailFailed.error");
+							logger.warn(errorMessage);
+							m.addAttribute("errorMessage", errorMessage);
+							return "job/home/uploadQuoteOrInvoice";
+						}catch(FileUploadException e){
 							String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed.error");
 							logger.warn(errorMessage);
 							m.addAttribute("errorMessage", errorMessage);
 							return "job/home/uploadQuoteOrInvoice";
 						} catch(Exception e){
+							logger.debug("exception message: " + e.getMessage());
 							String errorMessage = messageService.getMessage("jobHomeUploadQuoteOrInvoice.unexpectedError.error");//"Unexpected Error";
 							logger.warn(errorMessage);
 							m.addAttribute("errorMessage", errorMessage);
 							return "job/home/uploadQuoteOrInvoice";
+						}
+						finally{
+							if(file!=null){
+								file.delete();
+							}
 						}
 						populateCostPage(job, m);
 						return "job/home/costManager";
@@ -1271,11 +1296,17 @@ public class JobController extends WaspController {
 			outputStream.close();//file has been save to local location
 			 
 			//save the newly created local (pdf-quote) file to the remote location and create new acctQuote record (true instructs to save mpsQuote as json)
-			jobService.createNewQuoteAndSaveQuoteFile(mpsQuote, localFile, new Float(mpsQuote.getTotalFinalCost()), true);
-	 		   
+			//as of 10-21-14, createNewQuoteAndSaveQuoteFile() will not delete the local file; it is done here, in finally clause. 
+			FileGroup fileGroup = jobService.createNewQuoteAndSaveQuoteFile(mpsQuote, localFile, new Float(mpsQuote.getTotalFinalCost()), true);
+			String fileName = new ArrayList<FileHandle>(fileGroup.getFileHandles()).get(0).getFileName();
+			//cc email to facility manager and me
+			Set<User> ccEmailRecipients = new HashSet<User>(userService.getFacilityManagers());
+			User me = webAuthenticationService.getAuthenticatedUser();
+			ccEmailRecipients.add(me);			
+			emailService.sendQuoteAsAttachmentToPI(job, ccEmailRecipients, localFile, fileName);			
 	 	   	response.setContentType("text/html"); 
 	 	   	String headerHtml2 = "<html><body>";
-	 	   	String successMessage = "<h2 style='color:blue;font-weight:bold;'>"+messageService.getMessage("jobSaveQuote.fileSaved.error")+"</h2>";
+	 	   	String successMessage = "<h2 style='color:blue;font-weight:bold;'>"+messageService.getMessage("jobSaveQuote.fileSavedAndEmailSentToPI.label")+"</h2>";
 	 	   	String footerHtml2 = "<br /></body></html>";
 	 	   	response.getOutputStream().print(headerHtml2+successMessage+footerHtml2);
 	 	   	return;
@@ -1285,6 +1316,13 @@ public class JobController extends WaspController {
 			errorMessage = messageService.getMessage("job.quoteFileUpload.error");
 		} catch(MessagingException e3){
 			errorMessage = messageService.getMessage("job.quoteUpdateStatus.error"); 
+		}catch(MailPreparationException e){
+			errorMessage = messageService.getMessage("jobSaveQuote.emailFailed.error");
+		}
+		finally{
+			if(localFile != null){
+				localFile.delete();
+			}
 		}
 		if (!errorMessage.isEmpty()){
 			logger.warn(errorMessage);

@@ -1,0 +1,29 @@
+WASP: Quote For Job J${job.getJobId()}
+<p>Dear ${addressedTo.firstName} ${addressedTo.lastName},</p>
+
+<p>Attached please find a quote for Job J${job.getJobId()} that was submitted recently to the Epigenomics Shared Facility by a member of your lab, ${jobSubmitter.firstName} ${jobSubmitter.lastName}. A brief summary of the job request appears below. If it is necessary to discuss these preliminary costs, please contact the facility directly.</p>
+
+<p>Regards,<br />The WASP Team<br /></p>
+
+<p>
+<br />
+<b>BRIEF JOB SUMMARY</b><br />
+
+<b>Job Name &amp; Submitters</b><br />
+Reference Number: J${job.getJobId()}<br />
+Job Name: ${job.getName()}<br />
+Date Submitted: ${job.getCreated()}<br />
+Submitter: ${jobSubmitter.firstName} ${jobSubmitter.lastName} (email: ${jobSubmitter.getEmail()})<br />
+Principal Investigator: ${pi.firstName} ${pi.lastName} (email: ${pi.getEmail()})<br /><br />
+
+<b>Workflow &amp; Sequencer</b><br />
+Workflow: ${job.getWorkflow().getName()}<br />
+Sequencing Machine: ${machine}<br />
+ReadType: ${readType}<br />
+ReadLength: ${readLength} bp<br /><br />
+
+<b>Samples</b><br />
+#foreach(${sample} in ${submittedSampleList}) ## velocityCount is the default name for a foreach counter and it begins at 1
+   ${velocityCount}. ${sample.getName()} (Sample ID: ${sample.getId()}; sample type: ${sample.getSampleType().getName()})<br />
+#end
+</p>

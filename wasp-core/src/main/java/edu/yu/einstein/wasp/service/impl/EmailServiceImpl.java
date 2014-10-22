@@ -1,5 +1,9 @@
 package edu.yu.einstein.wasp.service.impl;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -7,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,6 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.InputStreamSource;
 import org.springframework.mail.MailPreparationException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -37,6 +44,7 @@ import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.DepartmentUser;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
@@ -49,6 +57,7 @@ import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.EmailService;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.util.AuthCode;
@@ -109,6 +118,9 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 	
 	@Autowired
 	private DemoEmail demoEmail;
+	
+	@Autowired
+	private FileService fileService;
 
 	@Value("${wasp.customimage.logo}")
 	private String customLogoResource;
@@ -714,5 +726,158 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 
 		return model;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override	
+	public void sendQuoteAsAttachmentToPI(final Job job, final Set<User> ccEmailRepicients, final File fileToAttach, String fileName){
+		// not needed sendQuoteAsAttachmentToPI(job, ccEmailRepicients, fileToAttach, fileName, "emails/send_quote_as_attachment_to_pi");
+		User pI = job.getLab().getUser();
+		Map model = getJobSummaryMapForEmailDisplay(job);
+		model.put("addressedTo", pI);//used in body of email
+		prepareAndSendEmailWithAttachment(pI, ccEmailRepicients, null, fileToAttach, fileName, "emails/send_quote_as_attachment_to_pi", model);
+	}
+	
+	/** CAN REMOVE THIS
+	 * @param Job job (for extracting job details and the PI's email address, who is the emailRecipient)
+	 * @param Set<User> ccEmailRepicients (can be null)
+	 * @param File fileToAttach (can be null)
+	 * @param String fileName (can be null)
+	 * @param String template velocityEngine .vm template file prefix (localisation and extension added within this method)
+	 CAN REMOVE THIS
+	private void sendQuoteAsAttachmentToPI(final Job job, final Set<User> ccEmailRepicients, final File fileToAttach, String fileName, final String emailTemplate){
+		User pI = job.getLab().getUser();
+		Map model = getJobSummaryMapForEmailDisplay(job);
+		model.put("addressedTo", pI);
+		prepareAndSendEmailWithAttachment(pI, ccEmailRepicients, null, fileToAttach, fileName, emailTemplate, model);
+	}
+	*/
+	
+	/**
+	 * Prepares a {@link MimeMessage} for the recipient {@link User} based on referenced Velocity template and associated model data then sends
+	 * the message using {@link JavaMailSender}. Can handle adding cc and bcc as needed; can handle attaching a file to the email as needed.
+	 * 
+	 * @param User emailRecipient user
+	 * @param Set<User> ccEmailRepicients (can be null)
+	 * @param Set<User> bccEmailRepicients (can be null)
+	 * @param File fileToAttach (can be null)
+	 * @param String fileName (can be null)
+	 * @param String template velocityEngine .vm template file prefix (localisation and extension added within this method)
+	 * @param Map model a Map object containing model data referenced within velocityEngine template
+	 */
+	@SuppressWarnings("rawtypes")
+	protected void prepareAndSendEmailWithAttachment(final User emailRecipient, final Set<User> ccEmailRepicients, final Set<User> bccEmailRepicients, final File fileToAttach, final String fileName, final String template, final Map model){
+		if (!isSendingEmailEnabled){
+			logger.info("Not sending email to user " + emailRecipient.getLastName() + ", " + emailRecipient.getFirstName() + 
+					" with template '" + template  + "' and parameters: " + model.toString() + " because mail-sending is not enabled in configuration");
+			return;
+		}
+		MimeMessagePreparator preparator = new MimeMessagePreparator() {
+			@Override
+			public void prepare(MimeMessage mimeMessage) throws MailPreparationException {
+				generateMessageForEmailWithAttachment(emailRecipient, ccEmailRepicients, bccEmailRepicients, fileToAttach, fileName, template, model, mimeMessage); 
+			}
+		};
+		logger.debug("Sending email to user " + emailRecipient.getLastName() + ", " + emailRecipient.getFirstName() + 
+					" with template '" + template  + "' and parameters: " + model.toString());
+		this.mailSender.send(preparator);
+	}
+	
+	/**
+	 * Prepares a {@link MimeMessage} message to send to user based on velocity engine template and model map supplied.
+	 * Selects template language based on user locale. Can handle adding cc and bcc as needed; can handle attaching a file to the email as needed.
+	 * 
+	 * @param User emailRecipient {@link User}
+	 * @param Set<User> ccEmailRepicients (can be null)
+	 * @param Set<User> bccEmailRepicients  (can be null)
+	 * @param File fileToAttach (can be null, along with null fileName)
+	 * @param String fileName (can be null, along with null fileToAttach)
+	 * @param String template velocityEngine .vm template file prefix (localisation and extension added within this method)
+	 * @param Map model a {@link Map} object containing model data referenced within velocityEngine template
+	 * @param MimeMessage mimeMessage MIME style email message
+	 * @throws MailPreparationException
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	protected void generateMessageForEmailWithAttachment(final User emailRecipient, final Set<User> ccEmailRepicients, final Set<User> bccEmailRepicients, final File fileToAttach, final String fileName, final String template, final Map model, MimeMessage mimeMessage) throws MailPreparationException {
+		model.put("servletUrl", servletPath);
+		model.put("customLogoResource", customLogoResource);
+		String lang=emailRecipient.getLocale().substring(0, 2);
+		
+		String headerVm = "emails/header_"+lang+".vm";
+		String footerVm = "emails/footer_"+lang+".vm";
+		String mainTextVm = template+ "_"+lang+".vm";
+
+		String headerText = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine,	headerVm, "UTF-8", model);
+		String footerText = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine,	footerVm, "UTF-8", model);
+		String mainText = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, mainTextVm, "UTF-8", model);
+
+		String subject = extractSubject(mainText);
+		String body = extractBody(mainText);
+		String completeEmailTextHtml = headerText + body + footerText;
+		
+		final String EMAIL_RE = "(\\w+\\.?)+@(\\w+\\.?)+\\.(\\w{2,8})";
+		
+		Matcher m = Pattern.compile("([^<>]*?)\\s*<?(" + EMAIL_RE + ")>?").matcher(emailSmtpFrom);
+		if (!m.matches() || m.groupCount() < 2 || m.group(2).isEmpty()){
+			throw new MailPreparationException("'From' Email address property cannot be parsed. Maybe email is not of a suitable format: 'Foo Bar <foo@bar.com>' or 'foo@bar.com'");
+		}
+		String sendFromPerson = m.group(1);
+		String sendFromEmail = m.group(2);
+		
+		String sendToEmail = emailRecipient.getEmail();
+		if (isSendingEmailInTestModeEnabled)
+			sendToEmail = sendFromEmail;
+		if (isInDemoMode)
+			sendToEmail = demoEmail.getDemoEmail();
+		if (!Pattern.matches(EMAIL_RE, sendToEmail)){
+			throw new MailPreparationException("'To' Email address is not of a suitable format");
+		}
+		if (sendToEmail.isEmpty()){
+			if (isInDemoMode)
+				throw new MailPreparationException("Email address is not set in the cookie");
+			else
+				throw new MailPreparationException("Email address is empty");
+		}
+		try{
+			logger.trace("Message prepared with settings: sendFromPerson='" + sendFromPerson + "', sendFromEmail='" + sendFromEmail + "', sendToEmail='" + sendToEmail + "'");
+			MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+			if (sendFromPerson.isEmpty())
+				message.setFrom(sendFromEmail); 
+			else
+				message.setFrom(sendFromEmail, sendFromPerson); 
+			message.setTo(sendToEmail);
+			if (emailSmtpBcc != null && !emailSmtpBcc.isEmpty())
+				for (String bcc : emailSmtpBcc.split("[,;:\\s]+"))
+					message.addBcc(bcc.trim());
+			if (emailSmtpCc != null && !emailSmtpCc.isEmpty())
+				for (String cc : emailSmtpCc.split("[,;:\\s]+"))
+					message.addBcc(cc.trim());			
+			if(ccEmailRepicients != null && !ccEmailRepicients.isEmpty()){
+				for(User ccUser : ccEmailRepicients){
+					if(!ccUser.getEmail().trim().isEmpty()){
+						message.addCc(ccUser.getEmail().trim());
+					}
+				}
+			}
+			if(bccEmailRepicients != null && !bccEmailRepicients.isEmpty()){
+				for(User bccUser : bccEmailRepicients){
+					if(!bccUser.getEmail().trim().isEmpty()){
+						message.addCc(bccUser.getEmail().trim());
+					}
+				}
+			}			
+			message.setSubject(subject);
+			String plainText = completeEmailTextHtml.replaceAll("\\<.*?>","");
+			message.setText(plainText, completeEmailTextHtml);
+			if(fileToAttach!=null && fileName!=null && !fileName.isEmpty()){
+				message.addAttachment(fileName, fileToAttach);
+			}
+		} catch(MessagingException | UnsupportedEncodingException e) {
+			throw new MailPreparationException("problem generating MimeMessage from Velocity template", e); 
+		}
+	}
+	
 }
 
