@@ -250,63 +250,63 @@ public class GenomeMetadataServiceImpl extends WaspServiceImpl implements Genome
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getRemoteGtfPath(GridWorkService workService, Build build, String versionString) {
-		return genomeService.getRemoteBuildPath(workService.getTransportConnection().getHostName(), build) + "/gtf/" + versionString + "/"
-				+ build.getGenomeBuildNameString() + "." + versionString + ".gtf";
+	public String getPrefixedGtfPath(GridWorkService workService, Build build, String versionString) {
+		return workService.getTransportConnection().prefixRemoteFile(genomeService.getRemoteBuildPath(workService.getTransportConnection().getHostName(), build) + 
+				"/gtf/" + versionString + "/" + build.getGenomeBuildNameString() + "." + versionString + ".gtf");
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getRemoteGenomeFastaPath(GridWorkService workService, Build build) {
-		return genomeService.getRemoteBuildPath(workService.getTransportConnection().getHostName(), build) + "/fasta/" + build.getGenomeBuildNameString()
-				+ ".genome.fa";
+	public String getPrefixedGenomeFastaPath(GridWorkService workService, Build build) {
+		return workService.getTransportConnection().prefixRemoteFile(genomeService.getRemoteBuildPath(workService.getTransportConnection().getHostName(), build) + 
+				"/fasta/" + build.getGenomeBuildNameString() + ".genome.fa");
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getRemoteGenomeFastaIndexPath(GridWorkService workService, Build build) {
-		return genomeService.getRemoteBuildPath(workService.getTransportConnection().getHostName(), build) + "/fasta/" + build.getGenomeBuildNameString()
-				+ ".genome.fa.fai";
+	public String getPrefixedGenomeFastaIndexPath(GridWorkService workService, Build build) {
+		return workService.getTransportConnection().prefixRemoteFile(genomeService.getRemoteBuildPath(workService.getTransportConnection().getHostName(), build) + 
+				"/fasta/" + build.getGenomeBuildNameString() + ".genome.fa.fai");
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getRemoteGenomeFastaDictionaryPath(GridWorkService workService, Build build) {
-		return genomeService.getRemoteBuildPath(workService.getTransportConnection().getHostName(), build) + "/fasta/" + build.getGenomeBuildNameString()
-				+ ".genome.dict";
+	public String getPrefixedGenomeFastaDictionaryPath(GridWorkService workService, Build build) {
+		return workService.getTransportConnection().prefixRemoteFile(genomeService.getRemoteBuildPath(workService.getTransportConnection().getHostName(), build) +
+				"/fasta/" + build.getGenomeBuildNameString() + ".genome.dict");
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getRemoteCDnaFastaPath(GridWorkService workService, Build build) {
-		return genomeService.getRemoteBuildPath(workService.getTransportConnection().getHostName(), build) + "/fasta/" + build.getGenomeBuildNameString()
-				+ ".cdna.fa";
+	public String getPrefixedCDnaFastaPath(GridWorkService workService, Build build) {
+		return workService.getTransportConnection().prefixRemoteFile(genomeService.getRemoteBuildPath(workService.getTransportConnection().getHostName(), build) +
+				"/fasta/" + build.getGenomeBuildNameString() + ".cdna.fa");
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getRemoteCDnaFastaIndexPath(GridWorkService workService, Build build) {
-		return genomeService.getRemoteBuildPath(workService.getTransportConnection().getHostName(), build) + "/fasta/" + build.getGenomeBuildNameString()
-				+ ".cdna.fa.fai";
+	public String getPrefixedCDnaFastaIndexPath(GridWorkService workService, Build build) {
+		return workService.getTransportConnection().prefixRemoteFile(genomeService.getRemoteBuildPath(workService.getTransportConnection().getHostName(), build) +
+				"/fasta/" + build.getGenomeBuildNameString() + ".cdna.fa.fai");
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getRemoteCDnaFastaDictionaryPath(GridWorkService workService, Build build) {
-		return genomeService.getRemoteBuildPath(workService.getTransportConnection().getHostName(), build) + "/fasta/" + build.getGenomeBuildNameString()
-				+ ".cdna.dict";
+	public String getPrefixedCDnaFastaDictionaryPath(GridWorkService workService, Build build) {
+		return workService.getTransportConnection().prefixRemoteFile(genomeService.getRemoteBuildPath(workService.getTransportConnection().getHostName(), build) +
+				"/fasta/" + build.getGenomeBuildNameString() + ".cdna.dict");
 	}
 
 	/**
@@ -679,19 +679,19 @@ public class GenomeMetadataServiceImpl extends WaspServiceImpl implements Genome
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getRemoteVcfPath(GridWorkService workService, Build build, String versionString) {
-		return genomeService.getRemoteBuildPath(workService.getTransportConnection().getHostName(), build) + "/vcf/" + versionString + "/"
-				+ getVcfFileName(build, versionString);
+	public String getPrefixedVcfPath(GridWorkService workService, Build build, String versionString) {
+		return workService.getTransportConnection().prefixRemoteFile(genomeService.getRemoteBuildPath(workService.getTransportConnection().getHostName(), build) +
+				"/vcf/" + versionString + "/" + getVcfFileName(build, versionString));
 	}
 
 	@Override
-	public String getRemoteIndexedGtfPath(GridWorkService workService, Build build, String versionString) {
-		return getRemoteGtfPath(workService, build, versionString) + ".gz";
+	public String getPrefixedIndexedGtfPath(GridWorkService workService, Build build, String versionString) {
+		return getPrefixedGtfPath(workService, build, versionString) + ".gz";
 	}
 
 	@Override
-	public String getRemoteIndexedVcfPath(GridWorkService workService, Build build, String versionString) {
-		return getRemoteVcfPath(workService, build, versionString) + ".gz";
+	public String getPrefixedIndexedVcfPath(GridWorkService workService, Build build, String versionString) {
+		return getPrefixedVcfPath(workService, build, versionString) + ".gz";
 	}
 
 

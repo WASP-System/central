@@ -42,6 +42,12 @@ public interface GenomeService extends WaspService {
 	public static final String INDEX_CREATION_COMPLETED = "COMPLETED.txt";
 	
 	public static final String INDEX_CREATION_FAILED = "FAILED.txt";
+	
+	public static final String ORGANISM_KEY = "ncbiOrganismId";
+	
+	public static final String GENOME_KEY = "genomeNameString";
+	
+	public static final String BUILD_KEY = "buildNameString";
 
 	public Set<Organism> getOrganisms();
 	

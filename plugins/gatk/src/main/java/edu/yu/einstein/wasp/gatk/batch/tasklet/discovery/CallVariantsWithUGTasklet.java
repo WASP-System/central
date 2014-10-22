@@ -118,7 +118,7 @@ public class CallVariantsWithUGTasklet extends AbstractGatkTasklet implements St
 		for (int i=0; i < fhlist.size(); i++)
 			inputBamFilenames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");
 		String outputFileName = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
-		String referenceGenomeFile = genomeMetadataService.getRemoteGenomeFastaPath(getGridWorkService(getStepExecutionContext(stepExecution)), build);
+		String referenceGenomeFile = genomeMetadataService.getPrefixedGenomeFastaPath(getGridWorkService(stepExecution.getExecutionContext()), build);
 		String wxsIntervalFile = null;
 		if (strategy.getStrategy().equals("WXS"))
 			wxsIntervalFile = gatkService.getWxsIntervalFile(job, build);

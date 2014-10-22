@@ -3,72 +3,83 @@
  * @author
  */
 package edu.yu.einstein.wasp.plugins.star.software;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
-import edu.yu.einstein.wasp.plugin.genomemetadata.GenomeIndexConfiguration;
-import edu.yu.einstein.wasp.plugin.genomemetadata.GenomeIndexStatus;
-import edu.yu.einstein.wasp.plugin.mps.service.ConfigurableReferenceGenomeService;
+import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.plugin.genomemetadata.service.GenomeMetadataService;
 import edu.yu.einstein.wasp.plugin.mps.software.alignment.ReferenceBasedRNASeqAligner;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
-import edu.yu.einstein.wasp.plugin.supplemental.organism.Genome;
+import edu.yu.einstein.wasp.plugins.star.StarGenomeIndexConfiguration;
+import edu.yu.einstein.wasp.plugins.star.service.StarService;
 import edu.yu.einstein.wasp.service.GenomeService;
-import edu.yu.einstein.wasp.software.SoftwarePackage;
-
 
 /**
- * ReferenceBasedRNASeqAligner implementation of the STAR RNA-seq aligner (https://code.google.com/p/rna-star/).
+ * ReferenceBasedRNASeqAligner implementation of the STAR RNA-seq aligner
+ * (https://code.google.com/p/rna-star/).
  * 
  * @author calder
  */
-public class Star extends ReferenceBasedRNASeqAligner implements ConfigurableReferenceGenomeService {
-	
+public class Star extends ReferenceBasedRNASeqAligner {
+
 	public Star() {
-		setSoftwareVersion("2.3.1o"); 
+		setSoftwareVersion("2.4.0d");
 	}
+
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
+	public static final String STAR_INDEX_FLOW = "star.index";
+
 	/**
-	 * Key for the 'sjdbOverhang' option when building reference genome (ideally [read length - 1]) 
+	 * Key for the 'sjdbOverhang' option when building reference genome (ideally
+	 * [read length - 1])
 	 */
-	public static final String STAR_GENOME_OVERLAP_LENGTH_KEY = "overlap";
-	
+	public static final String STAR_SJDBOVERHANG_KEY = "sjdbOverhang";
+
 	/**
-	 * Key for configuration of GTF file for genome generation.  Mutually exclusive with junctions file
+	 * Key for configuration of GTF file for genome generation. Mutually
+	 * exclusive with junctions file
 	 */
 	public static final String STAR_GENOME_GTF_FILE_KEY = "GTF";
-	
+
 	/**
-	 * Key for configuration of junctions file.  Mutually exclusive with GTF file.
+	 * Key for configuration of junctions file. Mutually exclusive with GTF
+	 * file.
 	 */
 	public static final String STAR_GENOME_JUNCTION_FILE_KEY = "junctions";
-	
+
 	@Autowired
 	private GenomeService genomeService;
 
-	/** 
-	 * {@inheritDoc}
-	 * 
-	 * Star requires configuration with a overlap length (read length - 1) and either a GTF input file or a juctions file.
-	 */
-	@Override
-	public GenomeIndexStatus getGenomeIndexStatus(GridWorkService workService, Build build, GenomeIndexConfiguration<String, String> config) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 * 
-	 * Star requires configuration with a overlap length (read length - 1) and either a GTF input file or a juctions file.
-	 */
-	@Override
-	public GenomeIndexStatus getGenomeIndexStatus(GridWorkService workService, String pathToDirectory, Build build,
-			GenomeIndexConfiguration<String, String> config) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
+	@Autowired
+	private GenomeMetadataService genomeMetadataService;
 	
+	@Autowired 
+	private StarService starService;
+
+	public String getStarGenomeBuildString(GridWorkService workService, StarGenomeIndexConfiguration config) throws ParameterValueRetrievalException {
+
+		Build build = genomeService.getBuild(config.getOrganism(), config.getGenome(), config.getBuild());
+
+		String command = "STAR --runMode genomeGenerate --runThreadN $" + WorkUnitGridConfiguration.NUMBER_OF_THREADS + " --genomeFastaFiles "
+				+ genomeMetadataService.getPrefixedGenomeFastaPath(workService, build) + " --genomeDir " + starService.getPrefixedStarIndexPath(workService, config);
+
+		if (!config.isSecond()) {
+			command += " --sjdbGTFfile " + genomeMetadataService.getPrefixedGtfPath(workService, build, config.getGtfVersion()) + " --sjdbOverhang "
+					+ config.getSjdbOverhang();
+		} else {
+			command = "cat " + config.getPathToJunctions() + "* | sort -u -k1,1 -k2,2n -k3,3n -k4,4 - > mergedSjdbFileChrStartEnd.txt \n" + command
+					+ " --sjdbFileChrStartEnd mergedSjdbFileChrStartEnd.txt --sjdbOverhang " + config.getSjdbOverhang();
+		}
+		
+		logger.trace(command);
+
+		return command;
+	}
+
 }

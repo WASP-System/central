@@ -131,7 +131,7 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 			wxsIntervalFile = gatkService.getWxsIntervalFile(job, build);
 		String gatkOpts = gatk.getCallVariantOpts(paramMap);
 		String outputGvcfFileName = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
-		String referenceGenomeFile = genomeMetadataService.getRemoteGenomeFastaPath(getGridWorkService(getStepExecutionContext(se)), build);
+		String referenceGenomeFile = genomeMetadataService.getPrefixedGenomeFastaPath(getGridWorkService(se.getExecutionContext()), build);
 		LinkedHashSet<String> inputBamFilenames = new LinkedHashSet<>();
 		for (int i=0; i < fhlist.size(); i++)
 			inputBamFilenames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");

@@ -89,7 +89,7 @@ public class BwaServiceImpl implements BwaService {
 
 		GenomeIndexStatus status = GenomeIndexStatus.UNKNOWN;
 		
-		// GTF requires an existing fasta index, genomic and cDNA
+		// BWA requires an existing fasta index, genomic and cDNA
 		try {
 			GenomeIndexStatus fasta = genomeMetadataService.getFastaStatus(workService, build);
 			
@@ -113,7 +113,7 @@ public class BwaServiceImpl implements BwaService {
 		try {
 			if (status.equals(GenomeIndexStatus.BUILDABLE)) {
 				logger.debug("determined that index for " + build.getGenomeBuildNameString() + " version " + remoteKey.getVersion() + " does not exist on "
-						+ remoteKey.getHostname() + " for type " + remoteKey.getType().toString() + " launching GTF build");
+						+ remoteKey.getHostname() + " for type " + remoteKey.getType().toString() + " launching BWA build");
 				launchBuildBwa(workService, build, type);
 				genomeMetadataService.updateStatus(remoteKey, GenomeIndexStatus.BUILDING);
 				return GenomeIndexStatus.BUILDING;
