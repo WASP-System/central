@@ -11,6 +11,7 @@ import java.util.Set;
 
 import javax.validation.Valid;
 
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.MessagingException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -140,18 +141,20 @@ public class WaspIlluminaController extends WaspController {
 					
 				}
 				detailMap.put("dateRunEnded", dateRunEnded);
-				
-				if (runService.isRunSuccessfullyCompleted(sequenceRun)){
-					detailMap.put("runStatus", messageService.getMessage("run.statusCompleted.label"));//Completed
+				ExitStatus runStatus = runService.getRunBatchStatus(sequenceRun);
+				if (runStatus.isCompleted()){
+					detailMap.put("runStatus", messageService.getMessage("run.statusCompleted.label")); // Completed
 					lockedStatus = true;
-				} else if (runService.isRunActive(sequenceRun)){
-					detailMap.put("runStatus", messageService.getMessage("run.statusInProgress.label"));//In Progress
+				} else if (runStatus.isRunning()){
+					detailMap.put("runStatus", messageService.getMessage("run.statusInProgress.label")); // In Progress
+					lockedStatus = true;
+				} else if (runStatus.isFailed()){
+					detailMap.put("runStatus", messageService.getMessage("run.statusFailed.label")); // Failed
 					lockedStatus = true;
 				} else {
-					detailMap.put("runStatus", messageService.getMessage("run.statusUnknown.label"));//Unknown
+					detailMap.put("runStatus", messageService.getMessage("run.statusUnknown.label")); // Unknown
 				}
-				
-				
+
 				runDetails.put(sequenceRun.getId(), detailMap);
 			}
 			m.addAttribute("runDetails", runDetails);
