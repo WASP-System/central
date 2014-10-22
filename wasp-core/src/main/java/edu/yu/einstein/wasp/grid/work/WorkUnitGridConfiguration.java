@@ -6,10 +6,6 @@ package edu.yu.einstein.wasp.grid.work;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
@@ -46,7 +42,7 @@ public class WorkUnitGridConfiguration {
 	public static final String REQUESTED_GB_MEMORY = "MEMORYGB";
 
 	
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+	//private final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	private boolean WorkingDirectoryRelativeToRoot = false;
 	
@@ -101,7 +97,7 @@ public class WorkUnitGridConfiguration {
 	/**
 	 * Set of plugins that this workunit is dependent upon, useful for GridHostResolver to determine target system.
 	 */
-	private Set<String> pluginDependencies = new LinkedHashSet<String>();
+	//private Set<String> pluginDependencies = new LinkedHashSet<String>();
 	
 	
 	/**
@@ -208,7 +204,9 @@ public class WorkUnitGridConfiguration {
 	}
 	
 	/**
-	 * Automatically populate the WorkUnit with executionEnvironment "default".  This is the minimum that a
+	 * Grid work configuration object. Provides configuration data for a grid execution and may be used by the {@link GridHostResolver} to map a 
+	 * {@link  WorkUnit} to a particular grid resource.<br /><br />
+	 * Automatically populates the WorkUnitGridConfiguration with executionEnvironment "default".  This is the minimum that a
 	 * {@link GridHostResolver} needs to implement.
 	 */
 	public WorkUnitGridConfiguration() {

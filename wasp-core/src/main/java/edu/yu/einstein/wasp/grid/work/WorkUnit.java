@@ -82,7 +82,7 @@ public class WorkUnit {
 	/**
 	 * whether or not to delete the remote working directory after successful completion.
 	 */
-	private boolean clean = true;
+	//private boolean clean = true;
 	
 	/**
 	 * If the WorkUnit has been configured with results files, this value indicates whether or not the files should be copied to 
@@ -130,7 +130,8 @@ public class WorkUnit {
 
 	
 	/**
-	 * Automatically populate the WorkUnit with executionEnvironment "default".  This is the minimum that a
+	 * Unit of work to be executed on a computational resource.<br /><br />
+	 * Automatically populates the WorkUnitGridConfiguration with executionEnvironment "default".  This is the minimum that a
 	 * {@link GridHostResolver} needs to implement.
 	 */
 	public WorkUnit(WorkUnitGridConfiguration configuration) {
@@ -198,7 +199,7 @@ public class WorkUnit {
 		for (FileHandle f : getRequiredFiles()) {
 			if (f == null) {
 				if (!isRegistering()) {
-					String message = "FileHandle has not been registered " + f.getFileURI();
+					String message = "FileHandle has not been registered";
 					logger.warn(message);
 					throw new MisconfiguredWorkUnitException(message);
 				}
