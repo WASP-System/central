@@ -283,7 +283,7 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
 					FileHandle file = new FileHandle();
 					file.setFileURI(workService.getGridFileService().remoteFileRepresentationToLocalURI(workingDirectory + "wasp/sequence/" + line));
 					String actualBarcode = sampleService.getLibraryAdaptor(sampleService.getLibrary(cellLib)).getBarcodesequence();
-					if (!actualBarcode.equals(barcode)) {
+					if (!actualBarcode.equals(barcode) && !actualBarcode.equals("NoIndex")) {
 						logger.error("cell library " + cellLibId + " barcode " + actualBarcode + " does not match file's indicaded barcode: " + barcode);
 						throw new edu.yu.einstein.wasp.exception.SampleIndexException("sample barcode does not match");
 					}
