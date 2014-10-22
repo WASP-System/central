@@ -296,6 +296,16 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
     	
 		java.io.File download = getLocalFileFromUUID(uuid, adjext);
 		
+		if (!download.exists()) {
+			if (download.getName().endsWith(".bam.bai")) {
+				download = new java.io.File(download.getPath().replaceAll("\\.bam\\.bai", ".bai"));
+			}
+			if (!download.exists()) {
+				response.sendError(HttpServletResponse.SC_NOT_FOUND);
+				throw new WaspException("File not exists: " + download.getPath());
+			}
+		}
+
 		String filename = download.getName();
 		
 		ConfigurableMimeFileTypeMap mimeMap = new ConfigurableMimeFileTypeMap();
@@ -303,10 +313,6 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 		logger.debug("File name: " + filename);
 		logger.debug("Content type: " + contentType);
 		
-		if (!download.exists()) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
-		}
-
 		// Added by AJ: to enable Cross-site HTTP requests for CORS support
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		
