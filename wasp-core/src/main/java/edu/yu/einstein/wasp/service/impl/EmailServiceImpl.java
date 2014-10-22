@@ -733,28 +733,12 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override	
 	public void sendQuoteAsAttachmentToPI(final Job job, final Set<User> ccEmailRepicients, final File fileToAttach, String fileName){
-		// not needed sendQuoteAsAttachmentToPI(job, ccEmailRepicients, fileToAttach, fileName, "emails/send_quote_as_attachment_to_pi");
 		User pI = job.getLab().getUser();
 		Map model = getJobSummaryMapForEmailDisplay(job);
 		model.put("addressedTo", pI);//used in body of email
 		prepareAndSendEmailWithAttachment(pI, ccEmailRepicients, null, fileToAttach, fileName, "emails/send_quote_as_attachment_to_pi", model);
 	}
-	
-	/** CAN REMOVE THIS
-	 * @param Job job (for extracting job details and the PI's email address, who is the emailRecipient)
-	 * @param Set<User> ccEmailRepicients (can be null)
-	 * @param File fileToAttach (can be null)
-	 * @param String fileName (can be null)
-	 * @param String template velocityEngine .vm template file prefix (localisation and extension added within this method)
-	 CAN REMOVE THIS
-	private void sendQuoteAsAttachmentToPI(final Job job, final Set<User> ccEmailRepicients, final File fileToAttach, String fileName, final String emailTemplate){
-		User pI = job.getLab().getUser();
-		Map model = getJobSummaryMapForEmailDisplay(job);
-		model.put("addressedTo", pI);
-		prepareAndSendEmailWithAttachment(pI, ccEmailRepicients, null, fileToAttach, fileName, emailTemplate, model);
-	}
-	*/
-	
+		
 	/**
 	 * Prepares a {@link MimeMessage} for the recipient {@link User} based on referenced Velocity template and associated model data then sends
 	 * the message using {@link JavaMailSender}. Can handle adding cc and bcc as needed; can handle attaching a file to the email as needed.
