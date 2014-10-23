@@ -201,7 +201,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 	
 		// save in step context for use later
 		stepExecutionContext.put("metricsGID", metricsGId);
-		
+		w.setCommand("rm -f *." + WorkUnit.PROCESSING_INCOMPLETE_FILENAME); // we're working in existing scratch subfolder so start by removing old markers
 		w.setCommand("shopt -s nullglob\n");
 		w.addCommand("for x in sam.*.out; do ln -sf ${x} ${x/*-/}.sam ; done\n");
 		String outputBamFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";

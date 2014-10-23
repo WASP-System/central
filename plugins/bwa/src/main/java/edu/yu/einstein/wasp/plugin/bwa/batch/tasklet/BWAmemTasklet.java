@@ -185,6 +185,7 @@ public class BWAmemTasklet extends TestForGenomeIndexTasklet implements StepExec
 	}
 
 	@Override
+	@Transactional("entityManager")
 	public WorkUnitGridConfiguration configureWorkUnit(StepExecution stepExecution) throws Exception {
 		return bwa.prepareWorkUnitConfiguration(fg);
 	}

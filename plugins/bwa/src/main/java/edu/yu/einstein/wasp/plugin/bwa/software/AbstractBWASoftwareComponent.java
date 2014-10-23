@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
@@ -57,6 +58,7 @@ public abstract class AbstractBWASoftwareComponent extends ReferenceBasedAligner
 		setSoftwareVersion("0.7.6a"); // this default may be overridden in wasp.site.properties
 	}
 
+	@Transactional("entityManager")
 	public  Build getGenomeBuild(SampleSource cellLibrary) throws ParameterValueRetrievalException {
 		logger.debug("getting genome build for cellLibrary id=" + cellLibrary.getId());
 		Build build = null;
@@ -73,6 +75,7 @@ public abstract class AbstractBWASoftwareComponent extends ReferenceBasedAligner
 		return build;
 	}
 	
+	@Transactional("entityManager")
 	public String getReadGroupString(SampleSource cellLibrary) {
 		
 //		ID* Read group identifier. Each @RG line must have a unique ID. The value of ID is used in the RG tags of alignment records.
@@ -144,6 +147,7 @@ public abstract class AbstractBWASoftwareComponent extends ReferenceBasedAligner
 
 	}
 	
+	@Transactional("entityManager")
 	public WorkUnitGridConfiguration prepareWorkUnitConfiguration(FileGroup fg) {
 		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
 		
@@ -163,6 +167,7 @@ public abstract class AbstractBWASoftwareComponent extends ReferenceBasedAligner
 		return c;
 	}
 	
+	@Transactional("entityManager")
 	public WorkUnit buildWorkUnit(FileGroup fg) {
 		WorkUnit w = new WorkUnit(prepareWorkUnitConfiguration(fg));
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();
