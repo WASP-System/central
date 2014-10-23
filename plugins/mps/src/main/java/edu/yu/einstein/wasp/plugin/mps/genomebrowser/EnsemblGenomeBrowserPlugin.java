@@ -140,13 +140,13 @@ public class EnsemblGenomeBrowserPlugin extends AbstractGenomeBrowserPlugin {
 			//for testing only: "http://useast.ensembl.org/Homo_sapiens/Location/View?r=1:1-620074;contigviewbottom=url:http://wasp.einstein.yu.edu/results/rob/20140710_IP_Wildtype_flag_TARGET_GATA3_CONTROL_Wildtype_inp_summits2.bed";
 			// append file name extension to the link so genome browser could recognize it
 			String ext = "";
-			try{
-				ext = "." + fh.getFileType() != null ? fh.getFileType()
-						.getDefaultExtension() : fg.getFileType()
-						.getDefaultExtension();
-			} catch (Exception e){
+			FileType ft = fh.getFileType();
+			if (ft == null)
+				ft = fg.getFileType();
+			if (ft == null)
 				logger.warn("UNABLE TO RESOLVE extension for filehandle in ucscgenomebrowserplugin: " + fh.getFileName());
-			}
+			else
+				ext =  "." + ft.getDefaultExtension();
 			String link = "http://useast.ensembl.org/"
 					+ organismNameWithoutSpaces
 					+ "/Location/View?r=1:1-620000;contigviewbottom=url:"
