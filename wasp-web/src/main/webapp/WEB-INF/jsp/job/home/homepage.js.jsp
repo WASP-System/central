@@ -35,13 +35,9 @@ $(document).ready(function() {
         position: { my: "right top", at: "right top", of: window } 
     });
 	
- 
-	
+ 	//please save this useful information: 
 	//incase the url is ..../homepage.do#tabs-2 (meaning go directly to the second tab) 
 	//get the index from URL hash and use it to select the correct tab: from http://stackoverflow.com/questions/2554951/jquery-ui-tabs-how-do-i-navigate-directly-to-a-tab-from-another-page 
-	
-	
-
 	
 });
 
@@ -77,19 +73,6 @@ function showPopupWindow(url){//not currently used, but could be useful in futur
 	 newwin=window.open(url,'customWindow', params);
 	 if (window.focus) {newwin.focus();}
 	 return false;
-}
-
-//used to send contents of form via GET request and display response in modelessdialog 
-function sendFormViaGetAndShowModlessDialog(formObjectId, theUrl){	
-	$("html, body").animate({ scrollTop: 0 }, "fast");
-
-	var frm = $("#" + formObjectId);
-	showModalessDialog(theUrl+"?"+frm.serialize());//frm.serialize() returns, for example, sampleSubtypeId=5&sampleTypeId=2&name=input1 
-	$("#modalessDialog").scrollTop("0");//bring dialog scrollbar to top of page; see http://stackoverflow.com/questions/10816279/how-to-get-jqueryui-dialog-scrolltop-to-scroll-dialog-content-to-top 
-	$("#modalessDialog").dialog({        
-        position: { my: "right top", at: "right top", of: $(document).scrollTop("0") } //of used to be of: window 
-    });
-	return false; 
 }
 
 //used for comments, viewerManager 
@@ -223,6 +206,18 @@ function loadNewPageThenLoadJSWithAjax(theUrl, scriptLocation) { //no longer use
     });    	 
   	return false; // avoid 
 }
+//10-13-14 NO LONGER USED used to send contents of form via GET request and display response in modelessdialog 
+function sendFormViaGetAndShowModlessDialog(formObjectId, theUrl){	
+	$("html, body").animate({ scrollTop: 0 }, "fast");
+
+	var frm = $("#" + formObjectId);
+	showModalessDialog(theUrl+"?"+frm.serialize());//frm.serialize() returns, for example, sampleSubtypeId=5&sampleTypeId=2&name=input1 
+	$("#modalessDialog").scrollTop("0");//bring dialog scrollbar to top of page; see http://stackoverflow.com/questions/10816279/how-to-get-jqueryui-dialog-scrolltop-to-scroll-dialog-content-to-top 
+	$("#modalessDialog").dialog({        
+        position: { my: "right top", at: "right top", of: $(document).scrollTop("0") } //of used to be of: window 
+    });
+	return false; 
+}
 function robtest_autocomplete(obj) {
 	var jQueryObject = $(obj);
     var availableTags = [
@@ -253,48 +248,5 @@ function robtest_autocomplete(obj) {
       source: availableTags
     });
 }
-
-
-
-
-function previewQuote(formObjectId, theUrl) {
-	$("#wait_dialog-modal").dialog("open");
-   	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel 
-   	var frm = $("#" + formObjectId);
-   	theUrlWithFormAttached = theUrl+"?"+frm.serialize();
-   	$("#createUpdateQuoteMessageDiv").text("");   
-	$.ajax({
-        type: "GET",
-        url: theUrlWithFormAttached,
-        success: function (response) {
-        	//note: here, response is a pdf, which I don't know how to display directly, so call for it again through iframe      	
-        	$("html, body").animate({ scrollTop: 0 }, "fast");
-        	var frm = $("#" + formObjectId);
-        	showModalessDialog(theUrl+"?"+frm.serialize());//frm.serialize() returns, for example, sampleSubtypeId=5&sampleTypeId=2&name=input1 
-        	$("#modalessDialog").scrollTop("0");//bring dialog scrollbar to top of page; see http://stackoverflow.com/questions/10816279/how-to-get-jqueryui-dialog-scrolltop-to-scroll-dialog-content-to-top 
-        	$("#modalessDialog").dialog({        
-                position: { my: "right top", at: "right top", of: $(document).scrollTop("0") } //of used to be of: window 
-            });
-        	$("#wait_dialog-modal").dialog("close");
-        },
-        error: function (response, status, error) {        	
-        	//note: here response contains error text, response.responseText, that is something like: this is one~this is two~this is three 
-        	var returnedResponseArray = response.responseText.split(/~/); 
-        	if(response.status==500){        		
-        		$("#createUpdateQuoteMessageDiv").html("<h2 style='color:red'>Please Address The Following Errors:</h2>");        		
-        	}
-        	else {
-        		$("#createUpdateQuoteMessageDiv").html("<h2 style='color:red'>Unexpected Error:</h2>");
-        	}
-        	for(var i = 0; i < returnedResponseArray.length; i++){
-    			$("#createUpdateQuoteMessageDiv").append(returnedResponseArray[i]+"<br />");
-    		}
-        	$("#wait_dialog-modal").dialog("close");
-        }
-    });
-	return false; // avoid 
-}
-
-
 
 </script>

@@ -1215,7 +1215,7 @@ public class JobController extends WaspController {
 		//deal with unexpected job error (ie.: job not found in database)
 		Job job = jobService.getJobByJobId(jobId);
 		if(job.getId()==null){//inform user and get out of here
-			errorMessage += messageService.getMessage("job.jobUnexpectedlyNotFound.error") + "<br />";
+			errorMessage += messageService.getMessage("job.jobUnexpectedlyNotFound.error");
 		   	logger.warn(errorMessage);
 		   	try{
 		   		response.setContentType("text/html"); 
@@ -1245,15 +1245,16 @@ public class JobController extends WaspController {
 		try{
 			pdfService.buildQuoteAsPDF(mpsQuote, job, response.getOutputStream());	
 			response.setContentType("application/pdf");
+			response.setStatus(HttpServletResponse.SC_OK);//200
 			response.getOutputStream().close();//apparently not really needed here but doesn't hurt
  	    	return; 	    	
 		}catch(Exception e){
 			errorMessage="";
-			errorMessage = messageService.getMessage("jobPreviewQuote.problemsEncounteredCreatingFile.error")+"<br />";//"Problems encountered while creating file";
+			errorMessage = messageService.getMessage("jobPreviewQuote.problemsEncounteredCreatingFile.error");//"Problems encountered while creating file";
 			logger.warn(errorMessage);
 			try{
 				response.setContentType("text/html"); 
-		   		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		   		response.setStatus(HttpServletResponse.SC_FORBIDDEN);//403
 		   		response.getWriter().write(errorMessage);
 		   		return;
 			}catch(Exception e2){logger.warn(e.getMessage()); return;}
@@ -1265,16 +1266,16 @@ public class JobController extends WaspController {
 	public void jobSaveQuote(@PathVariable("jobId") Integer jobId,
 			   HttpServletRequest request, HttpServletResponse response) throws SampleTypeException {
 
-		String headerHtml = "<html><body><h2 style='color:red;font-weight:bold;'>"+messageService.getMessage("jobSaveQuote.errorsDetected.error")+"</h2>";
 		String errorMessage = "";
-		String footerHtml = "<br /></body></html>";
 		//deal with unexpected job error (ie.: not found in database)
 		Job job = jobService.getJobByJobId(jobId);
 		if(job.getId()==null){//inform user and get out of here
-			errorMessage += "<br />"+messageService.getMessage("job.jobUnexpectedlyNotFound.error");
+			errorMessage += messageService.getMessage("job.jobUnexpectedlyNotFound.error");
 		   	logger.warn(errorMessage);
 		   	try{
-		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+		   		response.setContentType("text/html"); 
+		   		response.setStatus(HttpServletResponse.SC_FORBIDDEN);//403
+		   		response.getWriter().write(errorMessage);
 		   		return;
 		   	}catch(Exception e){logger.warn(e.getMessage()); return; }
 		}
@@ -1282,14 +1283,21 @@ public class JobController extends WaspController {
 		MPSQuote mpsQuote = constructMPSQuoteFromRequest(request, job);//check for errors; if none, construct mpsQuote from request form
 		if(!mpsQuote.getErrors().isEmpty()){
 			for(String error : mpsQuote.getErrors()){
-				errorMessage += "<br />"+error;
+				if(errorMessage.isEmpty()){//firstTime
+					errorMessage += error;
+				}
+				else{
+					errorMessage += "~"+error;
+				}
 			}
-		   	logger.warn(errorMessage);
 		   	try{
-		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+		   		response.setContentType("text/html"); 
+		   		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);//500
+		   		response.getWriter().write(errorMessage);
 		   		return;
 		   	}catch(Exception e){logger.warn(e.getMessage()); return; }
 		}
+		
 		File localFile = null;
 		OutputStream outputStream = null;
 		errorMessage = "";
@@ -1311,10 +1319,10 @@ public class JobController extends WaspController {
 			ccEmailRecipients.add(me);			
 			emailService.sendQuoteAsAttachmentToPI(job, ccEmailRecipients, localFile, fileName);			
 	 	   	response.setContentType("text/html"); 
-	 	   	String headerHtml2 = "<html><body>";
-	 	   	String successMessage = "<h2 style='color:blue;font-weight:bold;'>"+messageService.getMessage("jobSaveQuote.fileSavedAndEmailSentToPI.label")+"</h2>";
-	 	   	String footerHtml2 = "<br /></body></html>";
-	 	   	response.getOutputStream().print(headerHtml2+successMessage+footerHtml2);
+	 	    response.setStatus(HttpServletResponse.SC_OK);//200
+	 	   	String successMessage = messageService.getMessage("jobSaveQuote.quoteSavedAndEmailSentToPI.label");
+	 	   	logger.debug("successMessage = " + successMessage);
+	 	    response.getWriter().write(successMessage);
 	 	   	return;
 		} catch(MetadataException | DocumentException | QuoteException | JSONException e1){
 			errorMessage = messageService.getMessage("job.quoteGeneration.error");
@@ -1325,6 +1333,9 @@ public class JobController extends WaspController {
 		}catch(MailPreparationException e){
 			errorMessage = messageService.getMessage("jobSaveQuote.emailFailed.error");
 		}
+		catch(Exception e){
+			errorMessage = "Unexpected Error";
+		}
 		finally{
 			if(localFile != null){
 				localFile.delete();
@@ -1334,10 +1345,11 @@ public class JobController extends WaspController {
 			logger.warn(errorMessage);
 			//e.printStackTrace();
 			try{
-				response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+				response.setContentType("text/html"); 
+		   		response.setStatus(HttpServletResponse.SC_FORBIDDEN);//403
+		   		response.getWriter().write(errorMessage);
 				return;
 			}catch(IOException e){logger.warn(e.getMessage()); return;}
-
 		}
 	}
 		
