@@ -141,7 +141,9 @@ public class UcscGenomeBrowserPlugin extends AbstractGenomeBrowserPlugin  {
 			// append file name extension to the link so genome browser could recognize it
 			String ext = "";
 			try{
-				ext = "." + fh.getFileType().getExtensions().split(",")[0];
+				ext = "." + fh.getFileType() != null ? fh.getFileType()
+						.getDefaultExtension() : fg.getFileType()
+						.getDefaultExtension();
 			} catch (Exception e){
 				logger.warn("UNABLE TO RESOLVE extension for filehandle in ucscgenomebrowserplugin: " + fh.getFileName());
 			}
