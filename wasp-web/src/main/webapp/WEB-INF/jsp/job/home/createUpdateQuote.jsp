@@ -83,12 +83,8 @@
 				
 				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='previewQuote("quoteOrInvoiceFormId", "<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/previewQuote.do" />");' >NewPreviewTest</a>
 				
-				
 				</span>
-				<br /><br /><div id="robdubindiv"></div><br />
-				
-				
-				
+				<br /><br /><div id="createUpdateQuoteMessageDiv"></div><br />				
 				
 				<span style='font-weight:bold'>1. <fmt:message key="jobHomeCreateUpdateQuote.libraryConstructionsExpected.label" />: <c:out value="${numberOfLibrariesExpectedToBeConstructed}" />
 					<c:if test="${numberOfLibrariesExpectedToBeConstructed > 0}">

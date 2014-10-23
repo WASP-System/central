@@ -1228,7 +1228,12 @@ public class JobController extends WaspController {
 		MPSQuote mpsQuote = constructMPSQuoteFromRequest(request, job);//check for errors; if none, construct mpsQuote from request form
 		if(!mpsQuote.getErrors().isEmpty()){
 			for(String error : mpsQuote.getErrors()){
-				errorMessage += error + "<br />";
+				if(errorMessage.isEmpty()){//firstTime
+					errorMessage += error;
+				}
+				else{
+					errorMessage += "~"+error;
+				}
 			}
 		   	try{
 		   		response.setContentType("text/html"); 
@@ -1243,6 +1248,7 @@ public class JobController extends WaspController {
 			response.getOutputStream().close();//apparently not really needed here but doesn't hurt
  	    	return; 	    	
 		}catch(Exception e){
+			errorMessage="";
 			errorMessage = messageService.getMessage("jobPreviewQuote.problemsEncounteredCreatingFile.error")+"<br />";//"Problems encountered while creating file";
 			logger.warn(errorMessage);
 			try{

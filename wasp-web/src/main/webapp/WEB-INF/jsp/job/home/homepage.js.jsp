@@ -262,13 +262,12 @@ function previewQuote(formObjectId, theUrl) {
    	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel 
    	var frm = $("#" + formObjectId);
    	theUrlWithFormAttached = theUrl+"?"+frm.serialize();
+   	$("#createUpdateQuoteMessageDiv").text("");   
 	$.ajax({
         type: "GET",
         url: theUrlWithFormAttached,
         success: function (response) {
-        	
-        	$("#robdubindiv").text("");
-        	
+        	//note: here, response is a pdf, which I don't know how to display directly, so call for it again through iframe      	
         	$("html, body").animate({ scrollTop: 0 }, "fast");
         	var frm = $("#" + formObjectId);
         	showModalessDialog(theUrl+"?"+frm.serialize());//frm.serialize() returns, for example, sampleSubtypeId=5&sampleTypeId=2&name=input1 
@@ -278,19 +277,19 @@ function previewQuote(formObjectId, theUrl) {
             });
         	$("#wait_dialog-modal").dialog("close");
         },
-        error: function (response, status, error) {
-        	$("#wait_dialog-modal").dialog("close");
-        	//alert("response.status = " + response.status);
+        error: function (response, status, error) {        	
+        	//note: here response contains error text, response.responseText, that is something like: this is one~this is two~this is three 
+        	var returnedResponseArray = response.responseText.split(/~/); 
         	if(response.status==500){        		
-        		$("#robdubindiv").text("");
-        		$("#robdubindiv").html("<h2 style='color:red'>Please Address The Following Errors:</h2>");
-        		$("#robdubindiv").append(response.responseText);
+        		$("#createUpdateQuoteMessageDiv").html("<h2 style='color:red'>Please Address The Following Errors:</h2>");        		
         	}
         	else {
-        		$("#robdubindiv").text("");
-        		$("#robdubindiv").html("<h2 style='color:red'>Unexpected Error:</h2>");
-        		$("#robdubindiv").append(response.responseText);
+        		$("#createUpdateQuoteMessageDiv").html("<h2 style='color:red'>Unexpected Error:</h2>");
         	}
+        	for(var i = 0; i < returnedResponseArray.length; i++){
+    			$("#createUpdateQuoteMessageDiv").append(returnedResponseArray[i]+"<br />");
+    		}
+        	$("#wait_dialog-modal").dialog("close");
         }
     });
 	return false; // avoid 
