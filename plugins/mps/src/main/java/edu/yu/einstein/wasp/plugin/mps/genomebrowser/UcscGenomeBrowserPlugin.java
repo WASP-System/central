@@ -140,11 +140,13 @@ public class UcscGenomeBrowserPlugin extends AbstractGenomeBrowserPlugin  {
 			}
 			// append file name extension to the link so genome browser could recognize it
 			String ext = "";
-			try{
-				ext = "." + fh.getFileType().getExtensions().split(",")[0];
-			} catch (Exception e){
+			FileType ft = fh.getFileType();
+			if (ft == null)
+				ft = fg.getFileType();
+			if (ft == null)
 				logger.warn("UNABLE TO RESOLVE extension for filehandle in ucscgenomebrowserplugin: " + fh.getFileName());
-			}
+			else
+				ext =  "." + ft.getDefaultExtension();
 			return "http://genome.ucsc.edu/cgi-bin/hgTracks?db=" + genomeName
 					+ "&hgt.customText=" + resolvedURL + ext;
 		}

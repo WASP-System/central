@@ -6,6 +6,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -22,6 +24,8 @@ import edu.yu.einstein.wasp.util.SeleniumHelper;
 
 public class SelPendingLabs extends SelBaseTest{
   
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
   @BeforeClass
   public void beforeClass() {
 	  
@@ -54,7 +58,7 @@ public class SelPendingLabs extends SelBaseTest{
 	  
 	  
 	  List<WebElement> radios = driver.findElements(By.xpath("//input[@type='radio' and @value='approve']"));
-	  System.out.println("radios.size="+radios.size());
+	  logger.debug("radios.size="+radios.size());
 	  List<WebElement> submits = driver.findElements(By.xpath("//input[@type='submit' and @value='SUBMIT']"));
 
 	  for (int i = 0; i < radios.size(); i++) {  

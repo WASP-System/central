@@ -84,7 +84,7 @@ public class SshServiceTest extends AbstractTestNGSpringContextTests {
 	
 	@Test(groups = { "ssh" })
 	public void connect() throws Exception {
-		System.out.println(testGridTransportConnection.getHostName());
+		logger.debug(testGridTransportConnection.getHostName());
 	}
 	
 	@Test(groups = {"ssh"})

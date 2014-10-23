@@ -55,6 +55,80 @@
 		      });	
 		});
 	})(jQuery);
+	
+	function previewQuote(formObjectId, theUrl) {
+		$("#wait_dialog-modal").dialog("open");
+	   	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel 
+	   	var frm = $("#" + formObjectId);
+	   	theUrlWithFormAttached = theUrl+"?"+frm.serialize();
+	   	$("#createUpdateQuoteMessageDiv").text("");   
+		$.ajax({
+	        type: "GET",
+	        url: theUrlWithFormAttached,
+	        success: function (response) {
+	        	//note: here, response is a pdf, which I don't know how to display directly, so call for it again through iframe      	
+	        	$("html, body").animate({ scrollTop: 0 }, "fast");
+	        	var frm = $("#" + formObjectId);
+	        	showModalessDialog(theUrl+"?"+frm.serialize());//frm.serialize() returns, for example, sampleSubtypeId=5&sampleTypeId=2&name=input1 
+	        	$("#modalessDialog").scrollTop("0");//bring dialog scrollbar to top of page; see http://stackoverflow.com/questions/10816279/how-to-get-jqueryui-dialog-scrolltop-to-scroll-dialog-content-to-top 
+	        	$("#modalessDialog").dialog({        
+	                position: { my: "right top", at: "right top", of: $(document).scrollTop("0") } //of used to be of: window 
+	            });
+	        	$("#wait_dialog-modal").dialog("close");
+	        },
+	        error: function (response, status, error) {        	
+	        	//note: here response contains error text, response.responseText, that is something like: this is one~this is two~this is three 
+	        	var returnedResponseArray = response.responseText.split(/~/); 
+	        	if(response.status==500){        		
+	        		$("#createUpdateQuoteMessageDiv").html("<h2 style='color:red'>Please Address The Following Errors:</h2>");        		
+	        	}
+	        	else {
+	        		$("#createUpdateQuoteMessageDiv").html("<h2 style='color:red'>Unexpected Error:</h2>");
+	        	}
+	        	for(var i = 0; i < returnedResponseArray.length; i++){
+	    			$("#createUpdateQuoteMessageDiv").append("<span style='color:red'>"+(i+1)+") "+ returnedResponseArray[i]+"</span><br />");
+	    		}
+	        	$("#wait_dialog-modal").dialog("close");
+	        }
+	    });
+		return false; // avoid 
+	}
+	
+	function saveQuote(formObjectId, theUrl) {
+		$("#wait_dialog-modal").dialog("open");
+	   	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel 
+	   	var frm = $("#" + formObjectId);
+	   	theUrlWithFormAttached = theUrl+"?"+frm.serialize();
+	   	$("#createUpdateQuoteMessageDiv").text("");   
+		$.ajax({
+	        type: "GET",
+	        url: theUrlWithFormAttached,
+	        dataType: 'text',
+	        success: function (response) {	        	
+	        	//oddly enough, the response is in response, not response.responseText. For some reason, response.responseText is undefined here in the success area 
+	        	//see https://github.com/jakerella/jquery-mockjax/issues/95 for: 
+	        	//Jquery 1.9.1 version returning the response text as 'undefined' on success callback 
+	        	$("#createUpdateQuoteMessageDiv").html("<h2 style='color:green'>"+response+"</h2>");	        	
+	        	$("#wait_dialog-modal").dialog("close");
+	        	//following success, perhaps should disable anchor to save again? 
+	        },
+	        error: function (response, status, error) {        	
+	        	//note: here response contains error text, response.responseText, that is something like: this is one~this is two~this is three 
+	        	var returnedResponseArray = response.responseText.split(/~/); 
+	        	if(response.status==500){        		
+	        		$("#createUpdateQuoteMessageDiv").html("<h2 style='color:red'>Please Address The Following Errors:</h2>");        		
+	        	}
+	        	else {
+	        		$("#createUpdateQuoteMessageDiv").html("<h2 style='color:red'>Unexpected Error:</h2>");
+	        	}
+	        	for(var i = 0; i < returnedResponseArray.length; i++){
+	    			$("#createUpdateQuoteMessageDiv").append("<span style='color:red'>"+(i+1)+") "+ returnedResponseArray[i]+"</span><br />");
+	    		}
+	        	$("#wait_dialog-modal").dialog("close");
+	        }
+	    });
+		return false; // avoid 
+	}
 </script>
 
 <sec:authorize access="hasRole('su') or hasRole('ft') or hasRole('da-*')">
@@ -78,10 +152,11 @@
 				<a <%-- class="button" --%> href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/costManager.do" />");' ><fmt:message key="jobHomeCreateUpdateQuote.returnToCostsPage.label" /></a>
 				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/basic.do" />");' ><fmt:message key="jobHomeCreateUpdateQuote.viewBasicRequest.label" /></a>
 				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/requests.do?onlyDisplayCellsRequested=true" />");' ><fmt:message key="jobHomeCreateUpdateQuote.viewLaneRequest.label" /></a>
-				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/previewQuote.do" />");' ><fmt:message key="jobHomeCreateUpdateQuote.previewQuote.label" /></a>
-				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/saveQuote.do" />");' ><fmt:message key="jobHomeCreateUpdateQuote.saveQuote.label" /></a>
+				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='previewQuote("quoteOrInvoiceFormId", "<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/previewQuote.do" />");' ><fmt:message key="jobHomeCreateUpdateQuote.previewQuote.label" /></a>
+				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='saveQuote("quoteOrInvoiceFormId", "<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/saveQuote.do" />");' ><fmt:message key="jobHomeCreateUpdateQuote.saveQuoteAndEmailToPI.label" /></a>
+				
 				</span>
-				<br /><br /><br />
+				<br /><br /><div id="createUpdateQuoteMessageDiv"></div><br />				
 				
 				<span style='font-weight:bold'>1. <fmt:message key="jobHomeCreateUpdateQuote.libraryConstructionsExpected.label" />: <c:out value="${numberOfLibrariesExpectedToBeConstructed}" />
 					<c:if test="${numberOfLibrariesExpectedToBeConstructed > 0}">
@@ -355,9 +430,7 @@
 				<br /><br />
 				
 				<span style="padding:3px; border: 1px solid black;">
-				<a href="javascript:void(0);" onclick='$("html, body").animate({ scrollTop: 0 }, "fast");' ><fmt:message key="jobHomeCreateUpdateQuote.returnToTopOfPage.label" /></a>
-				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/previewQuote.do" />");' ><fmt:message key="jobHomeCreateUpdateQuote.previewQuote.label" /></a>
-				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/saveQuote.do" />");' ><fmt:message key="jobHomeCreateUpdateQuote.saveQuote.label" /></a>
+					<a href="javascript:void(0);" onclick='$("html, body").animate({ scrollTop: 0 }, "fast");' ><fmt:message key="jobHomeCreateUpdateQuote.returnToTopOfPage.label" /></a>
 				</span>
 				<br /><br />
 			</div>

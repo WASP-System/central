@@ -41,6 +41,7 @@
   box-shadow: 5px 7px 5px black;
 }
 
+
 #footer { 
   
   padding :5px 1px 1px 1px;
@@ -111,6 +112,12 @@ body	{
 	background-repeat: repeat-x;
 	height: 93%;
 	}
+	
+body.unadorned {
+	padding :5px;
+	border: none;
+ 	background-image: none;
+}
 
 h1	{
 	font-size: 1.6em;

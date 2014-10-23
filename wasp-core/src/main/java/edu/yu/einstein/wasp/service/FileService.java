@@ -412,6 +412,8 @@ public interface FileService extends WaspService {
 	 * @return
 	 */
 	public Set<FileHandle> getAllFileHandlesFromFileGroupCollection(FileGroup fgCollection);
+	
+	public File createLocalTempFile();
 
 }
 

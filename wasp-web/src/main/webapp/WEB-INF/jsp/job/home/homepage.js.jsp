@@ -30,18 +30,14 @@ $(document).ready(function() {
 	$("#smallModalessDialog").dialog({
         autoOpen: false,
         modal: false,
-        height: 500,
-        width: 500,
+        height: 600,
+        width: 600,
         position: { my: "right top", at: "right top", of: window } 
     });
 	
- 
-	
+ 	//please save this useful information: 
 	//incase the url is ..../homepage.do#tabs-2 (meaning go directly to the second tab) 
 	//get the index from URL hash and use it to select the correct tab: from http://stackoverflow.com/questions/2554951/jquery-ui-tabs-how-do-i-navigate-directly-to-a-tab-from-another-page 
-	
-	
-
 	
 });
 
@@ -77,19 +73,6 @@ function showPopupWindow(url){//not currently used, but could be useful in futur
 	 newwin=window.open(url,'customWindow', params);
 	 if (window.focus) {newwin.focus();}
 	 return false;
-}
-
-//used to send contents of form via GET request and display response in modelessdialog 
-function sendFormViaGetAndShowModlessDialog(formObjectId, theUrl){	
-	$("html, body").animate({ scrollTop: 0 }, "fast");
-
-	var frm = $("#" + formObjectId);
-	showModalessDialog(theUrl+"?"+frm.serialize());//frm.serialize() returns, for example, sampleSubtypeId=5&sampleTypeId=2&name=input1 
-	$("#modalessDialog").scrollTop("0");//bring dialog scrollbar to top of page; see http://stackoverflow.com/questions/10816279/how-to-get-jqueryui-dialog-scrolltop-to-scroll-dialog-content-to-top 
-	$("#modalessDialog").dialog({        
-        position: { my: "right top", at: "right top", of: $(document).scrollTop("0") } //of used to be of: window 
-    });
-	return false; 
 }
 
 //used for comments, viewerManager 
@@ -222,6 +205,18 @@ function loadNewPageThenLoadJSWithAjax(theUrl, scriptLocation) { //no longer use
         }
     });    	 
   	return false; // avoid 
+}
+//10-13-14 NO LONGER USED used to send contents of form via GET request and display response in modelessdialog 
+function sendFormViaGetAndShowModlessDialog(formObjectId, theUrl){	
+	$("html, body").animate({ scrollTop: 0 }, "fast");
+
+	var frm = $("#" + formObjectId);
+	showModalessDialog(theUrl+"?"+frm.serialize());//frm.serialize() returns, for example, sampleSubtypeId=5&sampleTypeId=2&name=input1 
+	$("#modalessDialog").scrollTop("0");//bring dialog scrollbar to top of page; see http://stackoverflow.com/questions/10816279/how-to-get-jqueryui-dialog-scrolltop-to-scroll-dialog-content-to-top 
+	$("#modalessDialog").dialog({        
+        position: { my: "right top", at: "right top", of: $(document).scrollTop("0") } //of used to be of: window 
+    });
+	return false; 
 }
 function robtest_autocomplete(obj) {
 	var jQueryObject = $(obj);

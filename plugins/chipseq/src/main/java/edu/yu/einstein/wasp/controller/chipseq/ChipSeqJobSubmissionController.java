@@ -172,9 +172,9 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 				testControlMap.put(key, pair.get(key));//OK, since for each key, only one value for chipseq
 			}
 		}
-		System.out.println("testControlMap size = " + testControlMap.size());
+		logger.debug("testControlMap size = " + testControlMap.size());
 		for (SampleDraft sampleDraft : testControlMap.keySet()) {
-			System.out.println("Test : " + sampleDraft.getName() + " and Control : "
+			logger.debug("Test : " + sampleDraft.getName() + " and Control : "
 				+ testControlMap.get(sampleDraft).getName());
 		}
 		m.put("noPairingPossible", "false");
@@ -200,11 +200,11 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 	
 	    Map<String,String[]> params = request.getParameterMap();
 	    for (String key : params.keySet()) {
-			System.out.println("Key : " + key.toString());
+	    	logger.debug("Key : " + key.toString());
 			String[] stringArray = params.get(key);
 			
 			for(String s : stringArray){
-				System.out.println("--val: " + s);
+				logger.debug("--val: " + s);
 			}
 		}
 	
@@ -228,7 +228,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 	    			Map<SampleDraft,SampleDraft> sampleDraftPair = new HashMap<SampleDraft,SampleDraft>();
 	    			sampleDraftPair.put(ipSampleDraft, controlSampleDraft);
 	    			sampleDraftPairSet.add(sampleDraftPair);	
-	    			System.out.println("IP:Control =  " + ipSampleDraft.getName() + ":" + controlSampleDraft.getName());
+	    			logger.debug("IP:Control =  " + ipSampleDraft.getName() + ":" + controlSampleDraft.getName());
 	    		}
 	    	}	    	
 	    }
@@ -357,7 +357,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 					Integer genomeId = Integer.valueOf(sampleDraftMeta.getV());
 					if(genomeId != 0){//0 indicates species Other
 						String speciesName = genomeService.getOrganismMap().get(genomeId).getName();
-					//System.out.println("want species------------------------sampleDraft: " + sampleDraft.getName() + "   " + " species: " + speciesName);
+					    //logger.debug("want species------------------------sampleDraft: " + sampleDraft.getName() + "   " + " species: " + speciesName);
 						sampleDraftSpeciesNameMap.put(sampleDraft, speciesName);
 					}
 				}

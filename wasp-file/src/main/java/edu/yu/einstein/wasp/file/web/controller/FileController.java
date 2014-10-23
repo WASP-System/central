@@ -40,14 +40,16 @@ public class FileController {
 	@RequestMapping(method = {RequestMethod.GET, RequestMethod.HEAD}, value = "/get/file/{uuid:.+}")
 	public void getFile(@PathVariable("uuid") String uuid, HttpServletRequest request, HttpServletResponse response) {
 		try {
+			logger.debug("Req UUID: " + uuid);
 			if (uuid.indexOf(",")>0) {
 				wfService.processMultipleFileDownloadRequest(uuid, true, request, response);
 			} else {
 				String adjExtension = "";
-				Matcher adjm = Pattern.compile("^(.+)(\\..+)$").matcher(uuid);
+				Matcher adjm = Pattern.compile("^([a-fA-F0-9-]+)(\\..+)$").matcher(uuid);
 				if (adjm.find()) {
 					adjExtension = adjm.group(2);
 					uuid = adjm.group(1);
+					logger.debug("Adj ext: " + adjExtension);
 				}
 			
 				wfService.processFileRequest(uuid, adjExtension, request, response);
@@ -62,6 +64,7 @@ public class FileController {
 			}
 		} catch (WaspException e) {
 			logger.warn("unable to deliver file: " + uuid.toString());
+			e.printStackTrace();
 			try {
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			} catch (IOException e1) {
