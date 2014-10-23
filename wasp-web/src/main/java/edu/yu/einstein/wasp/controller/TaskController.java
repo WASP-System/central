@@ -26,6 +26,7 @@ import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.Job;
@@ -106,8 +107,15 @@ public class TaskController extends WaspController {
 	  List<Sample> activePlatformUnits = sampleService.getAvailablePlatformUnits();
 	  sampleService.sortSamplesBySampleName(activePlatformUnits);
 	  Map<Sample, String> activePlatformUnitsWithViewLinks = new LinkedHashMap<Sample, String>();
-	  for (Sample pu: activePlatformUnits)
-			  activePlatformUnitsWithViewLinks.put(pu, sampleService.getPlatformunitViewLink(pu));
+	  for (Sample pu: activePlatformUnits){
+		  String puViewLink = "#";
+		  try{
+			  puViewLink = sampleService.getPlatformunitViewLink(pu);
+		  } catch (WaspException e){
+			  logger.warn("Unable to get link to display platform unit view: " + e.getLocalizedMessage()); //for displaying web anchor link to platformunit
+		  }
+		  activePlatformUnitsWithViewLinks.put(pu, puViewLink);
+	  }
 	 
 	  m.addAttribute("activePlatformUnitsWithViewLinks", activePlatformUnitsWithViewLinks);
 	  
@@ -474,7 +482,7 @@ public class TaskController extends WaspController {
 	}
 
 	@RequestMapping(value = "/daapprove/list", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga-*')")
+	@PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga-*') or hasRole('fm')")
 	public String pendingDaApprove(ModelMap m) {
 
 		List<LabPending> labsPendingDaApprovalList = new ArrayList<LabPending>();

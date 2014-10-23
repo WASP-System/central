@@ -73,6 +73,7 @@ public class CallVariantsWithHCManyJobsTasklet extends LaunchManyJobsTasklet {
 			FileGroup gvcfG = new FileGroup();
 			FileHandle gvcf = new FileHandle();
 			gvcf.setFileName(gvcfFileName);
+			gvcf.setFileType(vcfFileType);
 			gvcfG.setIsActive(0);
 			gvcfG.addFileHandle(gvcf);
 			gvcfG.setFileType(vcfFileType);

@@ -72,6 +72,7 @@ import edu.yu.einstein.wasp.exception.QuoteException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.model.AcctGrant;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
@@ -2567,8 +2568,13 @@ public class JobController extends WaspController {
 					  libraryPMLoadedMap.put(library, pMLoaded);
 					  cellLibraryPMLoadedMap.put(cell, libraryPMLoadedMap);
 				  }
-				  
-				  showPlatformunitViewMap.put(platformUnit, sampleService.getPlatformunitViewLink(platformUnit));//for displaying web anchor link to platformunit
+				  String puViewLink = "#";
+				  try{
+					  puViewLink = sampleService.getPlatformunitViewLink(platformUnit);
+				  } catch (WaspException e){
+					  logger.warn("Unable to get link to display platform unit view: " + e.getLocalizedMessage()); //for displaying web anchor link to platformunit
+				  }
+				  showPlatformunitViewMap.put(platformUnit, puViewLink);
 				  
 				  //List<Run> runList = runService.getSuccessfullyCompletedRunsForPlatformUnit(platformUnit);//WHY IS THIS A LIST rather than a singleton?
 				  //For testing only:  

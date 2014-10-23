@@ -1595,7 +1595,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 	 */
 	@Override
 	public String getSanitizedName(String name){
-		return WordUtils.uncapitalize(WordUtils.capitalizeFully(name).replaceAll("[:;\\.,]", "_").replaceAll("[^a-zA-Z0-9_\\-\\.]", ""));
+		return WordUtils.uncapitalize(WordUtils.capitalizeFully(name).replaceAll("[:;\\., ]", "_").replaceAll("[^a-zA-Z0-9_\\-\\.]", ""));
 	}
 
 	/** 

@@ -92,6 +92,7 @@ public class JointGenotypingTasklet extends WaspRemotingTasklet {
 		FileGroup rawVcfOutG = new FileGroup();
 		FileHandle rawVcfOut = new FileHandle();
 		rawVcfOut.setFileName(rawVcfOutFileName);
+		rawVcfOut.setFileType(vcfFileType);
 		rawVcfOutG.setIsActive(0);
 		rawVcfOutG.addFileHandle(rawVcfOut);
 		outFiles.add(rawVcfOut);

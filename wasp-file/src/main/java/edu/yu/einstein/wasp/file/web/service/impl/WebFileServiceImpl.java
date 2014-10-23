@@ -1,8 +1,8 @@
 package edu.yu.einstein.wasp.file.web.service.impl;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -166,6 +166,51 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
         }
     }
     
+	private static int OverlappedStringLength(String s1, String s2) {
+		// Trim s1 so it isn't longer than s2
+		if (s1.length() > s2.length())
+			s1 = s1.substring(s1.length() - s2.length());
+
+		int[] T = ComputeBackTrackTable(s2); // O(n)
+
+		int m = 0;
+		int i = 0;
+		while (m + i < s1.length()) {
+			if (s2.charAt(i) == s1.charAt(m + i)) {
+				i += 1;
+				// <-- removed the return case here, because |s1| <= |s2|
+			} else {
+				m += i - T[i];
+				if (i > 0)
+					i = T[i];
+			}
+		}
+
+		return i; // <-- changed the return here to return characters matched
+	}
+
+	private static int[] ComputeBackTrackTable(String s) {
+		int[] T = new int[s.length()];
+		int cnd = 0;
+		T[0] = -1;
+		T[1] = 0;
+		int pos = 2;
+		while (pos < s.length()) {
+			if (s.charAt(pos - 1) == s.charAt(cnd)) {
+				T[pos] = cnd + 1;
+				pos += 1;
+				cnd += 1;
+			} else if (cnd > 0) {
+				cnd = T[cnd];
+			} else {
+				T[pos] = 0;
+				pos += 1;
+			}
+		}
+
+		return T;
+	}
+    
 	/**
 	 * @param uuid
 	 * @param adjext The filename extension for adjacent file, used by UCSC genome browser, e.g. {uuid} -> XXXX.bam, {uuid}.bai -> XXXX.bam.bai
@@ -184,7 +229,7 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 		FileHandle wf;
 		try {
 			 wf = fileService.getFileHandle(uu);
-			 logger.debug(wf.getFileURI().toString());
+			 logger.debug("FileURI: "+wf.getFileURI().toString());
 		} catch (FileNotFoundException e1) {
 			logger.debug(uuid.toString() + " not in db");
 			throw new WaspException("FileHandle not in database");
@@ -213,6 +258,11 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 		String location = filem.group(2);
 		String folder;
 		String filename;
+		
+		if (roots.get(hosts.get(host))!=null && roots.get(hosts.get(host)).equals("true")) {
+			prefix = System.getProperty("user.home");
+		}
+		
 		if (location.contains("/")) {
 			Matcher locm = Pattern.compile("^(.*/)(.*)$").matcher(location);
 			if (!locm.find()) {
@@ -226,19 +276,17 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 			filename = location;
 		}
 		
-		if (filename.contains(".")) {
-			String ext = filename.substring(filename.lastIndexOf("."));
-			if (!ext.equals(adjext))
-				filename += adjext;
-		}
-
-		if (roots.get(hosts.get(host))!=null && roots.get(hosts.get(host)).equals("true")) {
-			prefix = System.getProperty("user.home");
-		}
+//		if (!filename.endsWith(adjext)) {
+//			String ext = filename.substring(filename.lastIndexOf("."));
+//			if (!ext.equals(adjext))
+//				filename += adjext;
+//		}
+		filename += adjext.substring(OverlappedStringLength(filename, adjext));
 		
-		logger.debug(prefix + "/" + folder + filename);
+		String localFilePath = prefix + "/" + folder + filename;
+		logger.debug("Local file: " + localFilePath);
 		
-		java.io.File download = new java.io.File(prefix + "/" + folder + filename);
+		java.io.File download = new java.io.File(localFilePath);
 		return download;
 	}
 
@@ -248,22 +296,29 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
     	
 		java.io.File download = getLocalFileFromUUID(uuid, adjext);
 		
+		if (!download.exists()) {
+			if (download.getName().endsWith(".bam.bai")) {
+				download = new java.io.File(download.getPath().replaceAll("\\.bam\\.bai", ".bai"));
+			}
+			if (!download.exists()) {
+				response.sendError(HttpServletResponse.SC_NOT_FOUND);
+				throw new WaspException("File not exists: " + download.getPath());
+			}
+		}
+
 		String filename = download.getName();
 		
 		ConfigurableMimeFileTypeMap mimeMap = new ConfigurableMimeFileTypeMap();
 		String contentType = mimeMap.getContentType(filename);
-		logger.debug("ContentType of file is: " + contentType);
+		logger.debug("File name: " + filename);
+		logger.debug("Content type: " + contentType);
 		
-		if (!download.exists()) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
-		}
-
 		// Added by AJ: to enable Cross-site HTTP requests for CORS support
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		
 		String range = request.getHeader("Range");
         if (range == null) {
-
+        	logger.debug("No range specified in http request header.");
 			InputStream is = new FileInputStream(download);
 			
 			response.setContentType(contentType);
@@ -284,6 +339,7 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 			is.close();
 		
         } else {
+        	logger.debug("Range specified in http request header: " + range);
         	long length = download.length();
         	// Prepare some variables. The full Range represents the complete file.
             Range full = new Range(0, length - 1, length);
@@ -363,13 +419,9 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
             // Send requested file (part(s)) to client ------------------------------------------------
 
             // Prepare streams.
-            InputStream input = null;
-            OutputStream output = null;
-
-        	InputStream dataStream = new FileInputStream(download);
             // Open streams.
-            input = new BufferedInputStream(dataStream);
-            output = response.getOutputStream();
+            InputStream input = new BufferedInputStream(new FileInputStream(download));
+            ServletOutputStream sos = response.getOutputStream();
 
             if (ranges.isEmpty() || ranges.get(0) == full) {
 
@@ -378,7 +430,7 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
                 response.setContentType(contentType);
                 response.setHeader("Content-Range", "bytes " + r.start + "-" + r.end + "/" + r.total);
                 response.setHeader("Content-Length", String.valueOf(r.length));
-                copy(input, output, length, r.start, r.length);
+                copy(input, new BufferedOutputStream(sos), length, r.start, r.length);
                 
             } else if (ranges.size() == 1) {
 
@@ -390,16 +442,13 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
                 response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT); // 206.
 
                 // Copy single part range.
-                copy(input, output, length, r.start, r.length);
+                copy(input, new BufferedOutputStream(sos), length, r.start, r.length);
 
             } else {
 
                 // Return multiple parts of file.
                 response.setContentType("multipart/byteranges; boundary=" + MULTIPART_BOUNDARY);
                 response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT); // 206.
-
-                // Cast back to ServletOutputStream to get the easy println methods.
-                ServletOutputStream sos = (ServletOutputStream) output;
 
                 // Copy multi part range.
                 for (Range r : ranges) {
@@ -410,7 +459,7 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
                     sos.println("Content-Range: bytes " + r.start + "-" + r.end + "/" + r.total);
 
                     // Copy single part range of multi part range.
-                    copy(input, output, length, r.start, r.length);
+                    copy(input, new BufferedOutputStream(sos), length, r.start, r.length);
                 }
 
                 // End with multipart boundary.
@@ -418,11 +467,10 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
                 sos.println("--" + MULTIPART_BOUNDARY + "--");
             }
 
-            response.flushBuffer();
             // Gently close streams.
-        	close(dataStream);
-            close(output);
-            close(input);
+        	close(input);
+        	sos.flush();
+            close(sos);
         }
 	}
 
@@ -467,14 +515,19 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 		//..code to add URLs to the list
 		byte[] buf = new byte[2048];
 		
+		response.setContentType("application/zip");
+		response.setHeader("Content-Disposition", "attachment; filename=\""+filename+"\"");
+		// set 'max-age' to cache files for up to 1h (3600s) since most files shouldn't change on the server anyway. 
+		// We use 'must-revalidate' to force browser to always use this rule. 
+		response.setHeader("Cache-Control", "max-age=3600, must-revalidate"); 
+		
 		// Create the ZIP file
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		ZipOutputStream out = new ZipOutputStream(baos);
+		ServletOutputStream sos = response.getOutputStream();
+		ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(sos));
 		
 		// Compress the files
 		for (java.io.File file : localFilesList) {
-			FileInputStream fis = new FileInputStream(file);
-			BufferedInputStream bis = new BufferedInputStream(fis);
+			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
 			
 			// Add ZIP entry to output stream.
 			String entryname = file.getName();
@@ -484,27 +537,13 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 			while ((bytesRead = bis.read(buf)) != -1) {
 				out.write(buf, 0, bytesRead);
 			}
-			
 			out.closeEntry();
 			bis.close();
-			fis.close();
 		}
-		
 		out.flush();
-		baos.flush();
-		out.close();
-		baos.close();
-		
-		ServletOutputStream sos = response.getOutputStream();
-
-		response.setContentType("application/zip");
-		response.setHeader("Content-Disposition", "attachment; filename=\""+filename+"\"");
-		// set 'max-age' to cache files for up to 1h (3600s) since most files shouldn't change on the server anyway. 
-		// We use 'must-revalidate' to force browser to always use this rule. 
-		response.setHeader("Cache-Control", "max-age=3600, must-revalidate"); 
-
-		sos.write(baos.toByteArray());
+		close(out);
 		sos.flush();
+		close(sos);
 	}
 
     @Override
@@ -516,7 +555,6 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 		pathURL = pathURL.substring(0, pathURL.lastIndexOf('/')+1);
 
 		String linksFileStr = "";
-		UUID uu;
 		for (String uuid : uuidList) {
 			java.io.File download = getLocalFileFromUUID(uuid, "");
 			if (!download.exists()) {

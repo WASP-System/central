@@ -59,7 +59,7 @@ Ext.define('Wasp.PluginSummaryGridPortlet', {
             	'cellclick' : this.onCellClick
             },
             columns: [{
-                id       :'plugins',
+                //id       :'plugins',
                 text   : 'Name',
                 width    : 200,
                 sortable : true,
