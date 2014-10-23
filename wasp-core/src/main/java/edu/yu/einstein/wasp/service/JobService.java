@@ -48,6 +48,7 @@ import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
+import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobMeta;
@@ -636,9 +637,9 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @param File localFile (this is wasp's newly created quote.pdf, currently locally stored)
 	 * @param Float totalFinalCost
 	 * @param boolean saveQuoteAsJSON
-	 * @return void
+	 * @return FileGroup
 	 */
-	public void createNewQuoteAndSaveQuoteFile(MPSQuote mpsQuote, File file, Float totalFinalCost, boolean saveQuoteAsJSON) throws FileUploadException, JSONException, QuoteException;
+	public FileGroup createNewQuoteAndSaveQuoteFile(MPSQuote mpsQuote, File file, Float totalFinalCost, boolean saveQuoteAsJSON) throws FileUploadException, JSONException, QuoteException;
 
 	/**
 	 * Create new acctQuote for a job and save the UPLOADED file (to the remote location)
@@ -646,9 +647,9 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @param MultipartFile mpFile (the uploaded file; uploaded from the web)
 	 * @param String fileDescription (invoice or quote only)
 	 * @param Float totalCost
-	 * @return void
+	 * @return FileGroup
 	 */
-	public void createNewQuoteOrInvoiceAndUploadFile(Job job, MultipartFile mpFile, String fileDescription, Float totalCost) throws FileUploadException, QuoteException, WaspMessageBuildingException;
+	public FileGroup createNewQuoteOrInvoiceAndUploadFile(Job job, MultipartFile mpFile, String fileDescription, Float totalCost) throws FileUploadException, QuoteException, WaspMessageBuildingException;
 	
 	
 	/**

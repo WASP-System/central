@@ -283,7 +283,9 @@
 	<definition name="job/home/samples" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/samples.jsp" />
 	</definition>
-	
+	<definition name="job/home/sampleDetails" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/sampleDetails.jsp" />
+	</definition>	
 	<definition name="job/home/addLibrariesToCell" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/addLibrariesToCell.jsp" />
 	</definition>

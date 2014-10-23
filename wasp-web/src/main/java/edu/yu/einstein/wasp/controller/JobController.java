@@ -32,6 +32,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailPreparationException;
 import org.springframework.messaging.MessagingException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -54,6 +55,7 @@ import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.Strategy.StrategyType;
 import edu.yu.einstein.wasp.controller.util.JsonHelperWebapp;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
+import edu.yu.einstein.wasp.controller.util.SampleAndSampleDraftMetaHelper;
 import edu.yu.einstein.wasp.controller.util.SampleWrapperWebapp;
 import edu.yu.einstein.wasp.dao.AdaptorsetDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetResourceCategoryDao;
@@ -95,6 +97,7 @@ import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
@@ -110,12 +113,14 @@ import edu.yu.einstein.wasp.quote.LibraryCost;
 import edu.yu.einstein.wasp.quote.MPSQuote;
 import edu.yu.einstein.wasp.quote.SequencingCost;
 import edu.yu.einstein.wasp.service.AdaptorService;
+import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.AccountsService;
+import edu.yu.einstein.wasp.service.PDFService;
 import edu.yu.einstein.wasp.service.ResourceService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -200,6 +205,12 @@ public class JobController extends WaspController {
 	private MessageServiceWebapp messageService;
 	@Autowired
 	private AccountsService accountsService;
+	@Autowired
+	private PDFService pdfService;
+	@Autowired
+	private EmailService emailService;
+	@Autowired
+	private UserService userService;
 	
 	@Value("${wasp.analysis.perLibraryFee:0}")
 	private Float perLibraryAnalysisFee;
@@ -968,7 +979,7 @@ public class JobController extends WaspController {
 		return "job/home/uploadQuoteOrInvoice";
 	}
 	
-    @Transactional
+    ////@Transactional
 	//Note: we use MultipartHttpServletRequest to be able to upload files using Ajax. See http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/
 	@RequestMapping(value="/{jobId}/uploadQuoteOrInvoice", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
@@ -1044,20 +1055,39 @@ public class JobController extends WaspController {
 					    	m.addAttribute("errorMessage", errorMessage);
 							return "job/home/uploadQuoteOrInvoice";
 						}
-					    
+						File file = null;
 						try{
-							jobService.createNewQuoteOrInvoiceAndUploadFile(job, mpFile, fileDescription, new Float(totalCost));
-							m.addAttribute("successMessage", messageService.getMessage("listJobSamples.fileUploadedSuccessfully.label"));
-						} catch(FileUploadException e){
+							FileGroup fileGroup = jobService.createNewQuoteOrInvoiceAndUploadFile(job, mpFile, fileDescription, new Float(totalCost));
+							String fileName = new ArrayList<FileHandle>(fileGroup.getFileHandles()).get(0).getFileName();
+							file = fileService.createLocalTempFile();
+							mpFile.transferTo(file);
+							//cc email to facility manager and me
+							Set<User> ccEmailRecipients = new HashSet<User>(userService.getFacilityManagers());
+							User me = webAuthenticationService.getAuthenticatedUser();
+							ccEmailRecipients.add(me);							
+							emailService.sendQuoteAsAttachmentToPI(job, ccEmailRecipients, file, fileName);
+							m.addAttribute("successMessage", messageService.getMessage("jobHomeUploadQuoteOrInvoice.fileUploadedSuccessfullyAndEmailSentToPI.label"));
+						} catch(MailPreparationException e){
+							String errorMessage = messageService.getMessage("jobHomeUploadQuoteOrInvoice.emailFailed.error");
+							logger.warn(errorMessage);
+							m.addAttribute("errorMessage", errorMessage);
+							return "job/home/uploadQuoteOrInvoice";
+						}catch(FileUploadException e){
 							String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed.error");
 							logger.warn(errorMessage);
 							m.addAttribute("errorMessage", errorMessage);
 							return "job/home/uploadQuoteOrInvoice";
 						} catch(Exception e){
+							logger.debug("exception message: " + e.getMessage());
 							String errorMessage = messageService.getMessage("jobHomeUploadQuoteOrInvoice.unexpectedError.error");//"Unexpected Error";
 							logger.warn(errorMessage);
 							m.addAttribute("errorMessage", errorMessage);
 							return "job/home/uploadQuoteOrInvoice";
+						}
+						finally{
+							if(file!=null){
+								file.delete();
+							}
 						}
 						populateCostPage(job, m);
 						return "job/home/costManager";
@@ -1181,17 +1211,17 @@ public class JobController extends WaspController {
 	public void jobPreviewQuote(@PathVariable("jobId") Integer jobId,
 			  HttpServletRequest request, HttpServletResponse response) throws SampleTypeException {
 
-		String headerHtml = "<html><body><h2 style='color:red;font-weight:bold;'>"+messageService.getMessage("jobPreviewQuote.errorsDetected.error")+"</h2>";
 		String errorMessage = "";
-		String footerHtml = "<br /></body></html>";
 		
 		//deal with unexpected job error (ie.: job not found in database)
 		Job job = jobService.getJobByJobId(jobId);
 		if(job.getId()==null){//inform user and get out of here
-			errorMessage += "<br />"+messageService.getMessage("job.jobUnexpectedlyNotFound.error");
+			errorMessage += messageService.getMessage("job.jobUnexpectedlyNotFound.error");
 		   	logger.warn(errorMessage);
 		   	try{
-		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+		   		response.setContentType("text/html"); 
+		   		response.setStatus(HttpServletResponse.SC_FORBIDDEN);//403
+		   		response.getWriter().write(errorMessage);
 		   		return;
 		   	}catch(Exception e){logger.warn(e.getMessage()); return; }
 		}
@@ -1199,30 +1229,37 @@ public class JobController extends WaspController {
 		MPSQuote mpsQuote = constructMPSQuoteFromRequest(request, job);//check for errors; if none, construct mpsQuote from request form
 		if(!mpsQuote.getErrors().isEmpty()){
 			for(String error : mpsQuote.getErrors()){
-				errorMessage += "<br />"+error;
+				if(errorMessage.isEmpty()){//firstTime
+					errorMessage += error;
+				}
+				else{
+					errorMessage += "~"+error;
+				}
 			}
-		   	logger.warn(errorMessage);
 		   	try{
-		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+		   		response.setContentType("text/html"); 
+		   		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);//500
+		   		response.getWriter().write(errorMessage);
 		   		return;
 		   	}catch(Exception e){logger.warn(e.getMessage()); return; }
 		}
 		try{
-			accountsService.buildQuoteAsPDF(mpsQuote, job, response.getOutputStream());	
+			pdfService.buildQuoteAsPDF(mpsQuote, job, response.getOutputStream());	
 			response.setContentType("application/pdf");
+			response.setStatus(HttpServletResponse.SC_OK);//200
 			response.getOutputStream().close();//apparently not really needed here but doesn't hurt
- 	    	return;
- 	    	
+ 	    	return; 	    	
 		}catch(Exception e){
+			errorMessage="";
 			errorMessage = messageService.getMessage("jobPreviewQuote.problemsEncounteredCreatingFile.error");//"Problems encountered while creating file";
 			logger.warn(errorMessage);
-			//e.printStackTrace();
 			try{
-				response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
-				return;
+				response.setContentType("text/html"); 
+		   		response.setStatus(HttpServletResponse.SC_FORBIDDEN);//403
+		   		response.getWriter().write(errorMessage);
+		   		return;
 			}catch(Exception e2){logger.warn(e.getMessage()); return;}
-		}
-				
+		}				
 	}
 	
 	@RequestMapping(value="/{jobId}/saveQuote", method=RequestMethod.GET)
@@ -1230,16 +1267,16 @@ public class JobController extends WaspController {
 	public void jobSaveQuote(@PathVariable("jobId") Integer jobId,
 			   HttpServletRequest request, HttpServletResponse response) throws SampleTypeException {
 
-		String headerHtml = "<html><body><h2 style='color:red;font-weight:bold;'>"+messageService.getMessage("jobSaveQuote.errorsDetected.error")+"</h2>";
 		String errorMessage = "";
-		String footerHtml = "<br /></body></html>";
 		//deal with unexpected job error (ie.: not found in database)
 		Job job = jobService.getJobByJobId(jobId);
 		if(job.getId()==null){//inform user and get out of here
-			errorMessage += "<br />"+messageService.getMessage("job.jobUnexpectedlyNotFound.error");
+			errorMessage += messageService.getMessage("job.jobUnexpectedlyNotFound.error");
 		   	logger.warn(errorMessage);
 		   	try{
-		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+		   		response.setContentType("text/html"); 
+		   		response.setStatus(HttpServletResponse.SC_FORBIDDEN);//403
+		   		response.getWriter().write(errorMessage);
 		   		return;
 		   	}catch(Exception e){logger.warn(e.getMessage()); return; }
 		}
@@ -1247,14 +1284,21 @@ public class JobController extends WaspController {
 		MPSQuote mpsQuote = constructMPSQuoteFromRequest(request, job);//check for errors; if none, construct mpsQuote from request form
 		if(!mpsQuote.getErrors().isEmpty()){
 			for(String error : mpsQuote.getErrors()){
-				errorMessage += "<br />"+error;
+				if(errorMessage.isEmpty()){//firstTime
+					errorMessage += error;
+				}
+				else{
+					errorMessage += "~"+error;
+				}
 			}
-		   	logger.warn(errorMessage);
 		   	try{
-		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+		   		response.setContentType("text/html"); 
+		   		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);//500
+		   		response.getWriter().write(errorMessage);
 		   		return;
 		   	}catch(Exception e){logger.warn(e.getMessage()); return; }
 		}
+		
 		File localFile = null;
 		OutputStream outputStream = null;
 		errorMessage = "";
@@ -1262,18 +1306,24 @@ public class JobController extends WaspController {
 			localFile = fileService.createTempFile();
 			outputStream = new FileOutputStream(localFile);
 			
-			accountsService.buildQuoteAsPDF(mpsQuote, job, outputStream);
+			pdfService.buildQuoteAsPDF(mpsQuote, job, outputStream);
 			
 			outputStream.close();//file has been save to local location
 			 
 			//save the newly created local (pdf-quote) file to the remote location and create new acctQuote record (true instructs to save mpsQuote as json)
-			jobService.createNewQuoteAndSaveQuoteFile(mpsQuote, localFile, new Float(mpsQuote.getTotalFinalCost()), true);
-	 		   
+			//as of 10-21-14, createNewQuoteAndSaveQuoteFile() will not delete the local file; it is done here, in finally clause. 
+			FileGroup fileGroup = jobService.createNewQuoteAndSaveQuoteFile(mpsQuote, localFile, new Float(mpsQuote.getTotalFinalCost()), true);
+			String fileName = new ArrayList<FileHandle>(fileGroup.getFileHandles()).get(0).getFileName();
+			//cc email to facility manager and me
+			Set<User> ccEmailRecipients = new HashSet<User>(userService.getFacilityManagers());
+			User me = webAuthenticationService.getAuthenticatedUser();
+			ccEmailRecipients.add(me);			
+			emailService.sendQuoteAsAttachmentToPI(job, ccEmailRecipients, localFile, fileName);			
 	 	   	response.setContentType("text/html"); 
-	 	   	String headerHtml2 = "<html><body>";
-	 	   	String successMessage = "<h2 style='color:blue;font-weight:bold;'>"+messageService.getMessage("jobSaveQuote.fileSaved.error")+"</h2>";
-	 	   	String footerHtml2 = "<br /></body></html>";
-	 	   	response.getOutputStream().print(headerHtml2+successMessage+footerHtml2);
+	 	    response.setStatus(HttpServletResponse.SC_OK);//200
+	 	   	String successMessage = messageService.getMessage("jobSaveQuote.quoteSavedAndEmailSentToPI.label");
+	 	   	logger.debug("successMessage = " + successMessage);
+	 	    response.getWriter().write(successMessage);
 	 	   	return;
 		} catch(MetadataException | DocumentException | QuoteException | JSONException e1){
 			errorMessage = messageService.getMessage("job.quoteGeneration.error");
@@ -1281,15 +1331,26 @@ public class JobController extends WaspController {
 			errorMessage = messageService.getMessage("job.quoteFileUpload.error");
 		} catch(MessagingException e3){
 			errorMessage = messageService.getMessage("job.quoteUpdateStatus.error"); 
+		}catch(MailPreparationException e){
+			errorMessage = messageService.getMessage("jobSaveQuote.emailFailed.error");
+		}
+		catch(Exception e){
+			errorMessage = "Unexpected Error";
+		}
+		finally{
+			if(localFile != null){
+				localFile.delete();
+			}
 		}
 		if (!errorMessage.isEmpty()){
 			logger.warn(errorMessage);
 			//e.printStackTrace();
 			try{
-				response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+				response.setContentType("text/html"); 
+		   		response.setStatus(HttpServletResponse.SC_FORBIDDEN);//403
+		   		response.getWriter().write(errorMessage);
 				return;
 			}catch(IOException e){logger.warn(e.getMessage()); return;}
-
 		}
 	}
 		
@@ -2048,7 +2109,7 @@ public class JobController extends WaspController {
 			for(SampleSource ss : sampleSourceSet){
 				Sample test = ss.getSample();
 				Sample control = ss.getSourceSample();
-				//System.out.println("----control = " + control.getName() + " AND test = " + test.getName());
+				//logger.debug("----control = " + control.getName() + " AND test = " + test.getName());
 				if(submittedSample == control){
 					list.add(test);
 				}
@@ -2114,7 +2175,7 @@ public class JobController extends WaspController {
 			encodedList.add(genomeForAlignment);
 			encodedList.add(buildForAlignment);
 			sampleGenomesForAlignmentListMap.put(submittedSample, encodedList);
-			//System.out.println("------"+ submittedSample.getName() + " : " + organismOfTheSample + " : " + organismForAlignment + " : " + genomeForAlignment + " : " + buildForAlignment);
+			//logger.debug("------"+ submittedSample.getName() + " : " + organismOfTheSample + " : " + organismForAlignment + " : " + genomeForAlignment + " : " + buildForAlignment);
 		}
 		m.addAttribute("submittedSamplesList", submittedSamplesList);
 		m.addAttribute("sampleGenomesForAlignmentListMap", sampleGenomesForAlignmentListMap);
@@ -2382,7 +2443,7 @@ public class JobController extends WaspController {
 
 		  m.addAttribute("submittedMacromoleculeList", submittedMacromoleculeList);//needed to distinguish submittedMacromoleucle from submitted Library
 		  m.addAttribute("submittedLibraryList", submittedLibraryList);
-		  //not used on webpage: m.addAttribute("facilityLibraryList", facilityLibraryList);
+		  m.addAttribute("facilityLibraryList", facilityLibraryList);//not used on webpage samples.jsp, but as of 10-15-14, this is now used on webpage sampleDetails.jsp
 	
 		  //consolidate job's libraries
 		  List<Sample> allJobLibraries = new ArrayList<Sample>();//could have gotten this from allJobLibraries = jobService.getLibraries(job);
@@ -3396,7 +3457,7 @@ public class JobController extends WaspController {
 	@Transactional
 	@RequestMapping(value="/{jobId}/samplePrepComment", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-	  public String jobCommentsPage(@PathVariable("jobId") Integer jobId, ModelMap m){
+	  public String samplePrepCommentPage(@PathVariable("jobId") Integer jobId, ModelMap m){
 		
 		Job job = jobService.getJobByJobId(jobId);
 		if(job.getId()==null){
@@ -3404,6 +3465,7 @@ public class JobController extends WaspController {
 		   	m.addAttribute("message", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
 			return "job/home/message";
 		}
+		//SamplePrepComment is the user's first comment, captured during job submission time
 		//get first job comment: this will be user's first comment, added during job submission. Forms requested that users 
 		//provide sample preparation method in the comment.
 		List<MetaMessage> userSubmittedJobCommentsList = jobService.getUserSubmittedJobComment(job.getId());
@@ -3416,6 +3478,62 @@ public class JobController extends WaspController {
 			m.addAttribute("samplePrepComment", "????");
 		}
 		return "job/home/samplePrepComment";
+	}
+	
+	@Transactional
+	@RequestMapping(value="/{jobId}/sampleDetails", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String sampleDetailsPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException{
+		
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("message", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
+		getSampleLibraryRunData(job, m);
+		Map<Sample,List<SampleMeta>> sampleNormalizedSampleMetaListMap = new HashMap<Sample,List<SampleMeta>>();
+		for(Sample s : job.getSample()){
+			List<SampleMeta> normalizedMeta = new ArrayList<SampleMeta>();
+			try{
+				normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(s.getSampleSubtype(), s.getSampleMeta(), SampleMeta.class));
+			}catch(Exception e){logger.debug("unable to normalize sample meta in jobController.sampleDetailsPage for sample id: " + s.getId());}
+			sampleNormalizedSampleMetaListMap.put(s, normalizedMeta);
+		}
+		m.addAttribute("sampleNormalizedSampleMetaListMap", sampleNormalizedSampleMetaListMap);
+		return "job/home/sampleDetails";
+	}
+	
+	@Transactional
+	@RequestMapping(value="/{jobId}/jobSampleReviewForLabDownload", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
+	public void jobSampleReviewForLabDownload(@PathVariable("jobId") Integer jobId, 
+			ModelMap m, HttpServletResponse response) throws SampleTypeException {
+
+		//will return a pdf created on the fly, for download
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+			return;
+		}		
+		try{
+			//do sets first; cannot be changed after response.getOutputStream() has been written to
+			response.setContentType("application/pdf"); //also worked using: response.setContentType("application/octet-stream");
+  			response.setHeader("Content-Disposition","attachment; filename=Job_J" + job.getId() + "_SummaryForLab.pdf");//line needed? yes. If line is left out, pdf is displayed directly on browser screen (not a download)
+  			Map<Sample,List<SampleMeta>> sampleNormalizedSampleMetaListMap = new HashMap<Sample,List<SampleMeta>>();  
+  			for(Sample s : job.getSample()){
+  				List<SampleMeta> normalizedMeta = new ArrayList<SampleMeta>();
+  				try{
+  					normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(s.getSampleSubtype(), s.getSampleMeta(), SampleMeta.class));
+  				}catch(Exception e){logger.debug("we are unable to normalize sample meta in jobController.jobSampleReviewForLabDownload for sample id: " + s.getId());}
+  				sampleNormalizedSampleMetaListMap.put(s, normalizedMeta);
+  			}  			  			
+  			pdfService.buildJobSampleReviewPDF(job, response.getOutputStream()); 
+  			response.getOutputStream().close();//needed?? no, but doesn't hurt
+  			//response.flushBuffer();//needed?? no 	    	
+		}catch(Exception e){
+			String errorMessage = "Problems encountered while creating on fly jobSummaryFileForLab download file for jobId " + job.getId();
+			logger.warn(errorMessage);e.printStackTrace();
+		}
 	}
 }
 

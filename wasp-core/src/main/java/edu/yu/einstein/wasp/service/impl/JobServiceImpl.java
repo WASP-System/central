@@ -2449,7 +2449,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 * @throws Exception 
 	 */
 	@Override
-	public void createNewQuoteAndSaveQuoteFile(MPSQuote mpsQuote, File file, Float totalFinalCost, boolean saveQuoteAsJSON) throws FileUploadException, JSONException, QuoteException{
+	public FileGroup createNewQuoteAndSaveQuoteFile(MPSQuote mpsQuote, File file, Float totalFinalCost, boolean saveQuoteAsJSON) throws FileUploadException, JSONException, QuoteException{
 			Job job = this.getJobByJobId(mpsQuote.getJobId());
 		
 			Date now = new Date();
@@ -2477,6 +2477,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			} catch (WaspMessageBuildingException e) {
 				throw new MessagingException(e.getLocalizedMessage());
 			}
+	 	   	return fileGroup;
 	}
 	
 	/** 
@@ -2485,11 +2486,12 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 * @throws WaspMessageBuildingException 
 	 */
 	@Override
-	public void createNewQuoteOrInvoiceAndUploadFile(Job job, MultipartFile mpFile, String fileDescription, Float totalCost) throws FileUploadException, QuoteException, WaspMessageBuildingException{
+	public FileGroup createNewQuoteOrInvoiceAndUploadFile(Job job, MultipartFile mpFile, String fileDescription, Float totalCost) throws FileUploadException, QuoteException, WaspMessageBuildingException{
 		if(!fileDescription.equalsIgnoreCase("quote") && !fileDescription.equalsIgnoreCase("invoice")){
 			  throw new QuoteException(); 
 		}
- 	   	FileGroup fileGroup = fileService.uploadFileAndReturnFileGroup(mpFile, job, fileDescription, new Random(System.currentTimeMillis()));
+ 	   	FileGroup fileGroup = null;
+ 	   	fileGroup = fileService.uploadFileAndReturnFileGroup(mpFile, job, fileDescription, new Random(System.currentTimeMillis()));
  	   	//if this is a new quote, save quote; if invoice, save invoice
  	   	AcctQuote acctQuote = new AcctQuote();
  	   	acctQuote.setAmount(totalCost);
@@ -2499,6 +2501,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
  	   	acctQuoteMeta.setV(fileGroup.getId().toString());
  	   	acctQuoteMetaList.add(acctQuoteMeta);
  	   	this.addNewQuote(job.getId(), acctQuote, acctQuoteMetaList);
+ 	   	return fileGroup;
 	}
 	
 	/*

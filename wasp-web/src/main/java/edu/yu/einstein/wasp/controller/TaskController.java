@@ -735,15 +735,15 @@ public class TaskController extends WaspController {
 			cellLibraryMacromoleculeMap.put(cellLibrary, macromolecule);
 			  
 			Sample cell = sampleService.getCell(cellLibrary);
-			System.out.println("cell: " + cell.getName());
+			logger.debug("cell: " + cell.getName());
 			try{
 				Integer laneNumber = sampleService.getCellIndex(cell);
-				System.out.println("cell lane number: " + laneNumber);
+				logger.debug("cell lane number: " + laneNumber);
 				cellLibraryLaneMap.put(cellLibrary, laneNumber);//cell's position on flowcell (ie.: lane 3)
 			}catch(Exception e){
 				logger.warn("Unable to locate lane number for cell with Id " + cell.getId());
 			}
-			System.out.println("done");
+			logger.debug("done");
 			Sample platformUnit = null;
 			try{
 				platformUnit = sampleService.getPlatformUnitForCell(cell);
@@ -777,7 +777,7 @@ public class TaskController extends WaspController {
 		}
   		for(SampleSource cellLibrary : cellLibraries){
   			Integer laneNo = cellLibraryLaneMap.get(cellLibrary);
-  			System.out.println("laneNo = " + laneNo);
+  			logger.debug("laneNo = " + laneNo);
   			
   		}
   		m.addAttribute("cellLibraryLibraryMap", cellLibraryLibraryMap);
