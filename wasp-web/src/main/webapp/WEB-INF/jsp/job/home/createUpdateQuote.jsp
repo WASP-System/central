@@ -80,8 +80,15 @@
 				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/requests.do?onlyDisplayCellsRequested=true" />");' ><fmt:message key="jobHomeCreateUpdateQuote.viewLaneRequest.label" /></a>
 				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/previewQuote.do" />");' ><fmt:message key="jobHomeCreateUpdateQuote.previewQuote.label" /></a>
 				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/saveQuote.do" />");' ><fmt:message key="jobHomeCreateUpdateQuote.saveQuoteAndEmailToPI.label" /></a>
+				
+				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='previewQuote("quoteOrInvoiceFormId", "<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/previewQuote.do" />");' >NewPreviewTest</a>
+				
+				
 				</span>
-				<br /><br /><br />
+				<br /><br /><div id="robdubindiv"></div><br />
+				
+				
+				
 				
 				<span style='font-weight:bold'>1. <fmt:message key="jobHomeCreateUpdateQuote.libraryConstructionsExpected.label" />: <c:out value="${numberOfLibrariesExpectedToBeConstructed}" />
 					<c:if test="${numberOfLibrariesExpectedToBeConstructed > 0}">

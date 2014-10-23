@@ -1210,17 +1210,17 @@ public class JobController extends WaspController {
 	public void jobPreviewQuote(@PathVariable("jobId") Integer jobId,
 			  HttpServletRequest request, HttpServletResponse response) throws SampleTypeException {
 
-		String headerHtml = "<html><body><h2 style='color:red;font-weight:bold;'>"+messageService.getMessage("jobPreviewQuote.errorsDetected.error")+"</h2>";
 		String errorMessage = "";
-		String footerHtml = "<br /></body></html>";
 		
 		//deal with unexpected job error (ie.: job not found in database)
 		Job job = jobService.getJobByJobId(jobId);
 		if(job.getId()==null){//inform user and get out of here
-			errorMessage += "<br />"+messageService.getMessage("job.jobUnexpectedlyNotFound.error");
+			errorMessage += messageService.getMessage("job.jobUnexpectedlyNotFound.error") + "<br />";
 		   	logger.warn(errorMessage);
 		   	try{
-		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+		   		response.setContentType("text/html"); 
+		   		response.setStatus(HttpServletResponse.SC_FORBIDDEN);//403
+		   		response.getWriter().write(errorMessage);
 		   		return;
 		   	}catch(Exception e){logger.warn(e.getMessage()); return; }
 		}
@@ -1228,11 +1228,12 @@ public class JobController extends WaspController {
 		MPSQuote mpsQuote = constructMPSQuoteFromRequest(request, job);//check for errors; if none, construct mpsQuote from request form
 		if(!mpsQuote.getErrors().isEmpty()){
 			for(String error : mpsQuote.getErrors()){
-				errorMessage += "<br />"+error;
+				errorMessage += error + "<br />";
 			}
-		   	logger.warn(errorMessage);
 		   	try{
-		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+		   		response.setContentType("text/html"); 
+		   		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);//500
+		   		response.getWriter().write(errorMessage);
 		   		return;
 		   	}catch(Exception e){logger.warn(e.getMessage()); return; }
 		}
@@ -1240,18 +1241,17 @@ public class JobController extends WaspController {
 			pdfService.buildQuoteAsPDF(mpsQuote, job, response.getOutputStream());	
 			response.setContentType("application/pdf");
 			response.getOutputStream().close();//apparently not really needed here but doesn't hurt
- 	    	return;
- 	    	
+ 	    	return; 	    	
 		}catch(Exception e){
-			errorMessage = messageService.getMessage("jobPreviewQuote.problemsEncounteredCreatingFile.error");//"Problems encountered while creating file";
+			errorMessage = messageService.getMessage("jobPreviewQuote.problemsEncounteredCreatingFile.error")+"<br />";//"Problems encountered while creating file";
 			logger.warn(errorMessage);
-			//e.printStackTrace();
 			try{
-				response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
-				return;
+				response.setContentType("text/html"); 
+		   		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		   		response.getWriter().write(errorMessage);
+		   		return;
 			}catch(Exception e2){logger.warn(e.getMessage()); return;}
-		}
-				
+		}				
 	}
 	
 	@RequestMapping(value="/{jobId}/saveQuote", method=RequestMethod.GET)

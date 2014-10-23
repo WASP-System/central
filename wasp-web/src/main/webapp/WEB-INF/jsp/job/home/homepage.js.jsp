@@ -30,8 +30,8 @@ $(document).ready(function() {
 	$("#smallModalessDialog").dialog({
         autoOpen: false,
         modal: false,
-        height: 500,
-        width: 500,
+        height: 600,
+        width: 600,
         position: { my: "right top", at: "right top", of: window } 
     });
 	
@@ -253,5 +253,49 @@ function robtest_autocomplete(obj) {
       source: availableTags
     });
 }
+
+
+
+
+function previewQuote(formObjectId, theUrl) {
+	$("#wait_dialog-modal").dialog("open");
+   	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel 
+   	var frm = $("#" + formObjectId);
+   	theUrlWithFormAttached = theUrl+"?"+frm.serialize();
+	$.ajax({
+        type: "GET",
+        url: theUrlWithFormAttached,
+        success: function (response) {
+        	
+        	$("#robdubindiv").text("");
+        	
+        	$("html, body").animate({ scrollTop: 0 }, "fast");
+        	var frm = $("#" + formObjectId);
+        	showModalessDialog(theUrl+"?"+frm.serialize());//frm.serialize() returns, for example, sampleSubtypeId=5&sampleTypeId=2&name=input1 
+        	$("#modalessDialog").scrollTop("0");//bring dialog scrollbar to top of page; see http://stackoverflow.com/questions/10816279/how-to-get-jqueryui-dialog-scrolltop-to-scroll-dialog-content-to-top 
+        	$("#modalessDialog").dialog({        
+                position: { my: "right top", at: "right top", of: $(document).scrollTop("0") } //of used to be of: window 
+            });
+        	$("#wait_dialog-modal").dialog("close");
+        },
+        error: function (response, status, error) {
+        	$("#wait_dialog-modal").dialog("close");
+        	//alert("response.status = " + response.status);
+        	if(response.status==500){        		
+        		$("#robdubindiv").text("");
+        		$("#robdubindiv").html("<h2 style='color:red'>Please Address The Following Errors:</h2>");
+        		$("#robdubindiv").append(response.responseText);
+        	}
+        	else {
+        		$("#robdubindiv").text("");
+        		$("#robdubindiv").html("<h2 style='color:red'>Unexpected Error:</h2>");
+        		$("#robdubindiv").append(response.responseText);
+        	}
+        }
+    });
+	return false; // avoid 
+}
+
+
 
 </script>
