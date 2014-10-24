@@ -167,6 +167,11 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
     }
     
 	private static int OverlappedStringLength(String s1, String s2) {
+		if (s1.endsWith(s2))
+			return s2.length();
+		else if (s2.length() < 2)
+			return 0;
+
 		// Trim s1 so it isn't longer than s2
 		if (s1.length() > s2.length())
 			s1 = s1.substring(s1.length() - s2.length());
@@ -210,7 +215,7 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 
 		return T;
 	}
-    
+
 	/**
 	 * @param uuid
 	 * @param adjext The filename extension for adjacent file, used by UCSC genome browser, e.g. {uuid} -> XXXX.bam, {uuid}.bai -> XXXX.bam.bai
