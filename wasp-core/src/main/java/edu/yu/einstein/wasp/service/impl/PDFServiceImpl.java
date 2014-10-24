@@ -816,6 +816,7 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
 		List<Sample> submittedObjectList = new ArrayList<Sample>();//could have gotten this from submittedObjectList = jobService.getSubmittedSamples(job);
 		submittedObjectList.addAll(submittedMacromoleculeList);
 		submittedObjectList.addAll(submittedLibraryList);
+		sampleService.sortSamplesBySampleId(submittedObjectList);
 		
 		Paragraph title = new Paragraph();
 		title.setSpacingBefore(5);
@@ -832,9 +833,14 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
 		
 		PdfPTable submittedSamplesQuickViewTable = new PdfPTable(10);
 		submittedSamplesQuickViewTable.setHorizontalAlignment(Element.ALIGN_LEFT);
-		submittedSamplesQuickViewTable.setWidths(new float[]{1.1f, 0.4f, 0.6f, 0.6f, 0.5f, 0.5f, 0.5f, 0.3f, 0.5f, 1.1f});
+		//submittedSamplesQuickViewTable.setWidths(new float[]{0.2f, 0.9f, 0.4f, 0.6f, 0.6f, 0.6f, 0.5f, 0.5f, 0.3f, 0.5f, 1.1f});
+		submittedSamplesQuickViewTable.setWidths(new float[]{0.2f, 1.3f, 0.4f, 0.6f, 0.6f,  0.5f, 0.5f, 0.3f, 0.5f, 1.2f});
 		submittedSamplesQuickViewTable.setWidthPercentage(100f);
 		
+		PdfPCell sampleCounterHeader = new PdfPCell(new Phrase(" ", TINY_BOLD));
+		sampleCounterHeader.setHorizontalAlignment(Element.ALIGN_CENTER);
+		sampleCounterHeader.setBackgroundColor(BaseColor.LIGHT_GRAY);
+		submittedSamplesQuickViewTable.addCell(sampleCounterHeader);
 		PdfPCell sampleNameHeader = new PdfPCell(new Phrase("Sample\n(Internal ID)", TINY_BOLD));
 		sampleNameHeader.setHorizontalAlignment(Element.ALIGN_CENTER);
 		sampleNameHeader.setBackgroundColor(BaseColor.LIGHT_GRAY);
@@ -851,10 +857,10 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
 		arrivedHeader.setHorizontalAlignment(Element.ALIGN_CENTER);
 		arrivedHeader.setBackgroundColor(BaseColor.LIGHT_GRAY);
 		submittedSamplesQuickViewTable.addCell(arrivedHeader);
-		PdfPCell qcHeader = new PdfPCell(new Phrase("QC", TINY_BOLD));
-		qcHeader.setHorizontalAlignment(Element.ALIGN_CENTER);
-		qcHeader.setBackgroundColor(BaseColor.LIGHT_GRAY);
-		submittedSamplesQuickViewTable.addCell(qcHeader);		
+		//PdfPCell qcHeader = new PdfPCell(new Phrase("QC", TINY_BOLD));
+		//qcHeader.setHorizontalAlignment(Element.ALIGN_CENTER);
+		//qcHeader.setBackgroundColor(BaseColor.LIGHT_GRAY);
+		//submittedSamplesQuickViewTable.addCell(qcHeader);		
 		PdfPCell concentrationHeader = new PdfPCell(new Phrase("Conc.\n(ng/mcl)", TINY_BOLD));
 		concentrationHeader.setHorizontalAlignment(Element.ALIGN_CENTER);
 		concentrationHeader.setBackgroundColor(BaseColor.LIGHT_GRAY);
@@ -876,7 +882,13 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
 		adaptorHeader.setBackgroundColor(BaseColor.LIGHT_GRAY);
 		submittedSamplesQuickViewTable.addCell(adaptorHeader);
 		
+		int counter = 1;
 		for(Sample submittedObject : submittedObjectList){
+			Integer counterInteger = new Integer(counter);
+			counter++;
+			PdfPCell sampleCounter = new PdfPCell(new Phrase(counterInteger.toString(), TINY_BOLD));
+			sampleCounter.setHorizontalAlignment(Element.ALIGN_CENTER);
+			submittedSamplesQuickViewTable.addCell(sampleCounter);			
 			PdfPCell sampleName = new PdfPCell(new Phrase(submittedObject.getName()+"\n(ID: "+ submittedObject.getId().toString()+")", TINY_BOLD));
 			sampleName.setHorizontalAlignment(Element.ALIGN_CENTER);
 			submittedSamplesQuickViewTable.addCell(sampleName);
@@ -895,13 +907,14 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
 			PdfPCell arrived = new PdfPCell(new Phrase(arrivalStatusString, TINY_BOLD));
 			arrived.setHorizontalAlignment(Element.ALIGN_CENTER);
 			submittedSamplesQuickViewTable.addCell(arrived);
-			String qcStatusString = "N/A";
-			if(arrivalStatusString.equalsIgnoreCase("received")){
-				qcStatusString = sampleService.convertSampleQCStatusForWeb(sampleService.getSampleQCStatus(submittedObject));
-			}
-			PdfPCell qc = new PdfPCell(new Phrase(qcStatusString, TINY_BOLD));
-			qc.setHorizontalAlignment(Element.ALIGN_CENTER);
-			submittedSamplesQuickViewTable.addCell(qc);
+			//String qcStatusString = "N/A";
+			//if(arrivalStatusString.equalsIgnoreCase("received")){
+			//	qcStatusString = sampleService.convertSampleQCStatusForWeb(sampleService.getSampleQCStatus(submittedObject));
+			//	qcStatusString = qcStatusString.replaceAll(" ", "\n");
+			//}
+			//PdfPCell qc = new PdfPCell(new Phrase(qcStatusString, TINY_BOLD));
+			//qc.setHorizontalAlignment(Element.ALIGN_CENTER);
+			//submittedSamplesQuickViewTable.addCell(qc);
 			
 			List<SampleMeta> smList = submittedObject.getSampleMeta();
 			//String pITitle = MetaHelper.getMetaValue("user", "title", pIMetaList);//apparently cannot use, as with samples, the area changes

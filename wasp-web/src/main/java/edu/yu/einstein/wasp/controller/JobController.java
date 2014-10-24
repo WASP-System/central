@@ -2453,7 +2453,8 @@ public class JobController extends WaspController {
 		  //consolidate job's submitted objects: submitted macromolecules and submitted libraries
 		  List<Sample> submittedObjectList = new ArrayList<Sample>();//could have gotten this from submittedObjectList = jobService.getSubmittedSamples(job);
 		  submittedObjectList.addAll(submittedMacromoleculeList);
-		  submittedObjectList.addAll(submittedLibraryList);
+		  submittedObjectList.addAll(submittedLibraryList);		  
+		  sampleService.sortSamplesBySampleId(submittedObjectList);
 		  m.addAttribute("submittedObjectList", submittedObjectList);	//main object list used on the web page 
 		  	  
 		  //For each job's sample, get the qcStatus and comments; note the call changes if library (getLibraryQCStatus) or macromolecule (getSampleQCStatus)

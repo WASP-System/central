@@ -8,11 +8,12 @@
 
 <div class="fixed-width_scrollable">
 <c:if test="${fn:length(submittedMacromoleculeList)>0}">
-<h2><fmt:message key="sampleDetails.submittedSamples.label" /></h2>
+<h2><fmt:message key="sampleDetails.submittedSamples.label" />: <c:out value="${fn:length(submittedMacromoleculeList)}" /></h2>
 	<table class="data" style="margin: 0px 0px" >	
 		<c:forEach items="${submittedMacromoleculeList}" var="submittedMacromolecule" varStatus="statusSubmittedMacromolecule">		
 			<c:if test="${statusSubmittedMacromolecule.first}">
 				<tr class="FormData">
+					<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"> </td> 
 					<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="sampleDetails.sampleName.label" /><br />(<fmt:message key="sampleDetails.internalID.label" />)</label></td> 
 					<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="sampleDetails.type.label" /></label></td>
 					<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="sampleDetails.species.label" /></label></td>
@@ -54,6 +55,7 @@
 				</tr>
 			</c:if>
 			<tr class="FormData">
+				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><c:out value="${statusSubmittedMacromolecule.count}" /></td>
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><c:out value="${submittedMacromolecule.getName()}" /><br />(<fmt:message key="sampleDetails.ID.label" />:<c:out value="${submittedMacromolecule.getId()}" />)</td>
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><c:out value="${submittedMacromolecule.getSampleType().getName()}" /></td>
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><c:out value="${submittedObjectOrganismMap.get(submittedMacromolecule)}" /></td>
@@ -97,11 +99,12 @@
 <br />
 <div class="fixed-width_scrollable">
 <c:if test="${fn:length(submittedLibraryList)>0}">
-<h2><fmt:message key="sampleDetails.submittedLibraries.label" /></h2>
+<h2><fmt:message key="sampleDetails.submittedLibraries.label" />: <c:out value="${fn:length(submittedLibraryList)}" /></h2>
 	<table class="data" style="margin: 0px 0px" >	
 		<c:forEach items="${submittedLibraryList}" var="submittedLibrary" varStatus="statusSubmittedLibrary">		
 			<c:if test="${statusSubmittedLibrary.first}">
 				<tr class="FormData">
+					<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"> </td> 					
 					<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="sampleDetails.sampleName.label" /><br />(<fmt:message key="sampleDetails.internalID.label" />)</label></td> 
 					<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="sampleDetails.type.label" /></label></td>
 					<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="sampleDetails.species.label" /></label></td>
@@ -144,6 +147,7 @@
 				</tr>
 			</c:if>
 			<tr class="FormData">
+				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><c:out value="${statusSubmittedLibrary.count}" /></td>
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><c:out value="${submittedLibrary.getName()}" /><br />(<fmt:message key="sampleDetails.ID.label" />:<c:out value="${submittedLibrary.getId()}" />)</td>
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><c:out value="${submittedLibrary.getSampleType().getName()}" /></td>
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><c:out value="${submittedObjectOrganismMap.get(submittedLibrary)}" /></td>
@@ -192,11 +196,12 @@
 <br />
 <div class="fixed-width_scrollable">
 <c:if test="${fn:length(facilityLibraryList)>0}">
-<h2><fmt:message key="sampleDetails.facilityGeneratedLibraries.label" /></h2>
+<h2><fmt:message key="sampleDetails.facilityGeneratedLibraries.label" />: <c:out value="${fn:length(facilityLibraryList)}" /></h2>
 	<table class="data" style="margin: 0px 0px" >	
 		<c:forEach items="${facilityLibraryList}" var="facilityLibrary" varStatus="statusFacilityLibrary">		
 			<c:if test="${statusFacilityLibrary.first}">
 				<tr class="FormData">
+					<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"> </td> 					
 					<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="sampleDetails.sampleName.label" /><br />(<fmt:message key="sampleDetails.internalID.label" />)<br />[<fmt:message key="sampleDetails.derivedFrom.label" />]</label></td> 
 					<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="sampleDetails.type.label" /></label></td>
 					<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="sampleDetails.qc.label" /></label></td>
@@ -237,6 +242,7 @@
 				</tr>
 			</c:if>
 			<tr class="FormData">
+				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><c:out value="${statusFacilityLibrary.count}" /></td>
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><c:out value="${facilityLibrary.getName()}" /><br />(<fmt:message key="sampleDetails.ID.label" />:<c:out value="${facilityLibrary.getId()}" />)<br />[<fmt:message key="sampleDetails.parent.label" />: <c:out value="${facilityLibrary.getParent().getName()}" /> (<fmt:message key="sampleDetails.ID.label" />:<c:out value="${facilityLibrary.getParent().getId()}" />)]</td>
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><c:out value="${facilityLibrary.getSampleType().getName()}" /></td>
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><c:out value="${qcStatusMap.get(facilityLibrary)}" /></td>
