@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.exception.MetadataRuntimeException;
 import edu.yu.einstein.wasp.gatk.fileformat.GatkBamFileTypeAttribute;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -74,12 +73,10 @@ public class GatkServiceImpl extends WaspServiceImpl implements GatkService {
 	 */
 	@Override
 	public String getWxsIntervalFile(Job job, Build build) {
-		String folder = build.getMetadata("wxsIntervals.folder");
+		// TODO: this functionality needs overhauling
 		String filename = variantCallingService.getSavedWxsIntervalFileForBuild(job, build);
-		if (folder == null || folder.isEmpty() || filename == null || filename.isEmpty())
-			throw new MetadataRuntimeException("failed to locate WXS interval file");
 		if (filename.equals(VariantcallingService.WXS_NONE_INTERVAL_FILENAME))
 			return null;
-		return genomeService.getRemoteBuildPath(build) + "/" + folder + "/" + filename;
+		return genomeService.getRemoteBuildPath(build) + filename;
 	}
 }
