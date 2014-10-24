@@ -472,7 +472,7 @@ function getPanelDisplayWindowForFilegroup(fgId){
 
 			if (result.paneltablist === undefined || result.paneltablist.length == 0) {
 				// alert if no panel tab is returned
-				extPortal.showMsg("No panel tab is returned!");
+				//extPortal.showMsg("No panel tab is returned!");
 				return;
 			}
 			
@@ -538,7 +538,7 @@ function click(d) {
 
 				if (result.paneltablist === undefined || result.paneltablist.length == 0) {
 					// alert if no panel tab is returned
-					extPortal.showMsg("No panel tab is returned!");
+					//extPortal.showMsg("No panel tab is returned!");
 					return;
 				}
 	
