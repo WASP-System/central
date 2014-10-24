@@ -330,7 +330,7 @@ public class Job2QuoteController extends WaspController {
 			Format formatterForDisplay = new SimpleDateFormat("yyyy/MM/dd");
 			
 			//String noteAboutNeedingQuote =   ((currentQuote == null || currentQuote.getId() == null) && !jobService.isJobActive(item)) ? "[Job Terminated]":"";
-			String currentStatus = jobService.getJobStatus(item);
+			String currentStatus = jobService.getDetailedJobStatusString(item);
 			String jobStatusComment = jobService.getJobStatusComment(item);//this is really ONLY a comment if the job was rejected by fm, pi, or da
 			String grantCode = "N/A";
 			AcctGrant grant = accountsService.getGrantForJob(item);

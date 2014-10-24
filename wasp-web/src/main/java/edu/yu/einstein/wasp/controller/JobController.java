@@ -502,7 +502,7 @@ public class JobController extends WaspController {
 					}					
 				}
 				
-				String currentStatus = jobService.getJobStatus(job);
+				String currentStatus = jobService.getDetailedJobStatusString(job);
 				String jobStatusComment = jobService.getJobStatusComment(job);
 				if (jobStatusComment != null)
 					currentStatus += Tooltip.getCommentHtmlString(jobStatusComment, getServletPath());
@@ -834,7 +834,7 @@ public class JobController extends WaspController {
 			return "job/home/message";
 		}
 		m.addAttribute("job", job);
-		m.addAttribute("jobStatus", jobService.getJobStatus(job));
+		m.addAttribute("jobStatus", jobService.getDetailedJobStatusString(job));
 		
 		
 		String submitterInstitution = "";
@@ -2433,7 +2433,7 @@ public class JobController extends WaspController {
 	private void getSampleLibraryRunData(Job job, ModelMap m) throws SampleTypeException {
 		
 		  m.addAttribute("job", job);
-		  m.addAttribute("jobStatus", jobService.getJobStatus(job));
+		  m.addAttribute("jobStatus", jobService.getDetailedJobStatusString(job));
 		
 		  List<Sample> allJobSamples = job.getSample();//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
 		  List<Sample> submittedMacromoleculeList = new ArrayList<Sample>();
@@ -3413,7 +3413,7 @@ public class JobController extends WaspController {
 			HashMap<String, MetaMessage> jobApprovalsCommentsMap = jobService.getLatestJobApprovalsComments(jobApprovalsMap.keySet(), jobId);
 			m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
 			//get the current jobStatus
-			m.addAttribute("jobStatus", jobService.getJobStatus(job));
+			m.addAttribute("jobStatus", jobService.getDetailedJobStatusString(job));
 
 			m.addAttribute("sample", libraryIn);
 			m.addAttribute("parentMacromolecule", parentMacromolecule);

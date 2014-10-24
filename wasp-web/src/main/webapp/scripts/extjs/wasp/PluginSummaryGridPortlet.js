@@ -12,18 +12,24 @@ Ext.define('Wasp.PluginSummaryGridPortlet', {
      * @param {Object} val
      */
     status: function(val) {
-    	if (val == 'COMPLETED') {
-            return '<span style="color:green;">Completed</span>';
-        } else if (val == 'STARTED') {
-            return '<span style="color:green;">Running</span>';
-        } else if (val == 'UNKNOWN') {
-            return '<span style="color:orange;">Not Invoked</span>';
-        } else if (val == 'NOT_APPLICABLE') {
-            return '<span style="color:orange;">N/A</span>';
-        } else {
-            return '<span style="color:red;">Failed</span>';
-        }
-        return val;
+    	// DataTabViewing.Status values: COMPLETED, STARTED, PENDING, FAILED, UNKNOWN, NOT_APPLICABLE, INCOMPLETE
+    	if (val == "COMPLETED") {
+			return '<span style="color:green;">Completed</span>';
+		} else if (val == "STARTED") {
+			return '<span style="color:green;">Started</span>';
+		} else if (val == "PENDING") {
+			return '<span style="color:green;">Pending</span>';
+		} else if (val == "FAILED") {
+			return '<span style="color:red;">Failed</span>';
+		} else if (val == "UNKNOWN") {
+			return '<span style="color:orange;">Not Invoked</span>';
+		} else if (val == "NOT_APPLICABLE") {
+			return '<span style="color:orange;">N/A</span>';
+		} else if (val == "INCOMPLETE") {
+			return '<span style="color:orange;">Incomplete</span>';
+		} else {
+			return "";
+		}
     },
     
     onCellClick : function(grid, td, cellIndex, record, tr, rowIndex, e){

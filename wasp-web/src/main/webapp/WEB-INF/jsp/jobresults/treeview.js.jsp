@@ -464,7 +464,7 @@ function getPanelDisplayWindowForFilegroup(fgId){
 			var tabpanel = fgPanelDisplayWin.down('tabpanel');
 			if (tabpanel === undefined) {
 				// alert if the tabpanel is undefined
-				extPortal.showMsg("tabpanel is not defined!");
+				//extPortal.showMsg("tabpanel is not defined!");
 				return;
 			}
 			//remove all existing tabs from tabpanel first
@@ -472,7 +472,7 @@ function getPanelDisplayWindowForFilegroup(fgId){
 
 			if (result.paneltablist === undefined || result.paneltablist.length == 0) {
 				// alert if no panel tab is returned
-				extPortal.showMsg("No panel tab is returned!");
+				//extPortal.showMsg("No panel tab is returned!");
 				return;
 			}
 			
@@ -529,7 +529,7 @@ function click(d) {
 				var tabpanel = Ext.getCmp('wasp-tabpanel');
 				if (tabpanel === undefined) {
 					// alert if the tabpanel is undefined
-					extPortal.showMsg("wasp-tabpanel is not defined!");
+					//extPortal.showMsg("wasp-tabpanel is not defined!");
 					return;
 				}
 
@@ -538,7 +538,7 @@ function click(d) {
 
 				if (result.paneltablist === undefined || result.paneltablist.length == 0) {
 					// alert if no panel tab is returned
-					extPortal.showMsg("No panel tab is returned!");
+					//extPortal.showMsg("No panel tab is returned!");
 					return;
 				}
 	

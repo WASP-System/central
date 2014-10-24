@@ -41,19 +41,24 @@ Ext.define('Wasp.GridPortlet', {
 	 * @param {Object}
 	 *            val
 	 */
+	// DataTabViewing.Status values: COMPLETED, STARTED, PENDING, FAILED, UNKNOWN, NOT_APPLICABLE, INCOMPLETE
 	status : function(val) {
-		if (val.match(/complete/i) != null) {
-			return '<span style="color:green;">' + val + '</span>';
-		} else if (val.match(/start/i) != null) {
-			return '<span style="color:blue;">' + val + '</span>';
-		} else if (val.match(/pending/i) != null) {
-			return '<span style="color:pink;">' + val + '</span>';
-		} else if (val.match(/unknown/i) != null) {
-			return '<span style="color:orange;">' + val + '</span>';
-		} else if (val.match(/fail/i) != null) {
-			return '<span style="color:red;">' + val + '</span>';
+		if (val == "COMPLETED") {
+			return '<span style="color:green;">Completed</span>';
+		} else if (val == "STARTED") {
+			return '<span style="color:green;">Started</span>';
+		} else if (val == "PENDING") {
+			return '<span style="color:green;">Pending</span>';
+		} else if (val == "FAILED") {
+			return '<span style="color:red;">Failed</span>';
+		} else if (val == "UNKNOWN") {
+			return '<span style="color:orange;">Unknown</span>';
+		} else if (val == "NOT_APPLICABLE") {
+			return '<span style="color:orange;">N/A</span>';
+		} else if (val == "INCOMPLETE") {
+			return '<span style="color:orange;">Incomplete</span>';
 		} else {
-			return '<span style="color:gold;">' + val + '</span>';
+			return "";
 		}
 	},
 

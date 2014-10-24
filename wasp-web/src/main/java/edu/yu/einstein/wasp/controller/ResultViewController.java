@@ -17,6 +17,7 @@ import javax.servlet.http.HttpSession;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -32,7 +33,6 @@ import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 import edu.yu.einstein.wasp.model.FileGroup;
-import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.JobSoftware;
@@ -210,26 +210,27 @@ public class ResultViewController extends WaspController {
 				}
 
 				Map<String, PanelTab> pluginPanelTabs = new LinkedHashMap<>();
-				JobDataTabViewing plugin = jobService
-						.getTabViewPluginByJob(job);
+				JobDataTabViewing plugin = jobService.getTabViewPluginByJob(job);
 				Integer tabCountNow = 0;
 				// get "job summary" tab and add to panel tab set
-				PanelTab summaryPanelTab = this.getSummaryPanelTab(job,
-						plugin == null ? null : plugin.getStatus(job));
-				pluginPanelTabs.put("tab-" + (tabCountNow++).toString(),
-						summaryPanelTab);
+				Status status = Status.UNKNOWN;
+				if (plugin == null){
+					if (!jobService.getIsAnalysisSelected(job))
+						status = Status.NOT_APPLICABLE;
+				} else 
+					status = plugin.getStatus(job);
+				PanelTab summaryPanelTab = this.getSummaryPanelTab(job, status);
+				pluginPanelTabs.put("tab-" + (tabCountNow++).toString(), summaryPanelTab);
 				// get "files by type" tab and add to panel tab set
 				summaryPanelTab = this.getFilesByTypeTab(job);
-				pluginPanelTabs.put("tab-" + (tabCountNow++).toString(),
-						summaryPanelTab);
+				pluginPanelTabs.put("tab-" + (tabCountNow++).toString(), summaryPanelTab);
 
 				if (plugin != null) {
 					Set<PanelTab> panelTabSet = plugin.getViewPanelTabs(job);
 					if (panelTabSet != null) {
 						for (PanelTab ptab : panelTabSet) {
 							if (!ptab.getPanels().isEmpty()) {
-								String tabId = "tab-"
-										+ (tabCountNow++).toString();
+								String tabId = "tab-" + (tabCountNow++).toString();
 								pluginPanelTabs.put(tabId, ptab);
 							}
 						}
@@ -275,8 +276,7 @@ public class ResultViewController extends WaspController {
 						statusArray[i][0] = plugin.getName();
 						statusArray[i][1] = plugin.getDescription();
 						statusArray[i][2] = status.toString();
-						if (status.equals(Status.COMPLETED)
-								|| status.equals(Status.NOT_APPLICABLE)) {
+						if (status.equals(Status.COMPLETED)	|| status.equals(Status.NOT_APPLICABLE)) {
 							PanelTab panelTab = null;
 							try {
 								panelTab = plugin.getViewPanelTab(fg);
@@ -288,8 +288,7 @@ public class ResultViewController extends WaspController {
 										+ " when attempting to get panel tab.  Skipping.");
 								e.printStackTrace();
 							}
-							if (panelTab != null
-									&& !panelTab.getPanels().isEmpty()) {
+							if (panelTab != null && !panelTab.getPanels().isEmpty()) {
 								String tabId = "tab-" + (tabCount++).toString();
 								pluginPanelTabs.put(tabId, panelTab);
 								statusArray[i][3] = tabId;

@@ -19,6 +19,7 @@ import java.util.Set;
 
 import org.json.JSONException;
 import org.slf4j.Logger;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -517,7 +518,7 @@ public interface JobService extends WaspMessageHandlingService {
 	
 	public HashMap<String, MetaMessage> getLatestJobApprovalsComments(Set<String> jobApproveCodeSet, Integer jobId);
 	
-	public String getJobStatus(Job job);
+	public String getDetailedJobStatusString(Job job);
 
 	public List<Software> getSoftwareForJob(Job job);
 
@@ -680,5 +681,7 @@ public interface JobService extends WaspMessageHandlingService {
 	public List<List<Sample>> getSampleReplicates(Job job);
 
 	public boolean getIsAnalysisSelected(Job job);
+
+	public ExitStatus getJobStatus(Job job);
 
 }
