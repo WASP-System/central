@@ -203,8 +203,8 @@ public class HardFilterTasklet extends TestForGenomeIndexTasklet {
 		w.addCommand(gatk.applyGenericHardFilterForIndels(rawIndelsFileName, filteredIndelVcfFileName, referenceGenomeFileName, AbstractGatkTasklet.MEMORY_GB_4));
 		
 		// We will now add snp and indel database ids
-		String snpFile = genomeMetadataService.getPrefixedIndexedVcfPath(getGridWorkService(stepExecutionContext), build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.SNP));
-		String indelsFile = genomeMetadataService.getPrefixedIndexedVcfPath(getGridWorkService(stepExecutionContext), build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.INDEL));
+		String snpFile = genomeMetadataService.getPrefixedVcfPath(getGridWorkService(stepExecutionContext), build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.SNP));
+		String indelsFile = genomeMetadataService.getPrefixedVcfPath(getGridWorkService(stepExecutionContext), build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.INDEL));
 		String filteredSnpWithIdsVcfFileName = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
 		String filteredIndelWithIdsVcfFileName = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
 		SnpEff snpEff = (SnpEff) gatk.getSoftwareDependencyByIname("snpEff");
