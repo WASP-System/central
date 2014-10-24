@@ -832,7 +832,7 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
 		
 		PdfPTable submittedSamplesQuickViewTable = new PdfPTable(10);
 		submittedSamplesQuickViewTable.setHorizontalAlignment(Element.ALIGN_LEFT);
-		submittedSamplesQuickViewTable.setWidths(new float[]{1.1f, 0.4f, 0.6f, 0.6f, 0.5f, 0.5f, 0.5f, 0.3f, 0.5f, 1.1f});
+		submittedSamplesQuickViewTable.setWidths(new float[]{1.0f, 0.4f, 0.6f, 0.6f, 0.6f, 0.5f, 0.5f, 0.3f, 0.5f, 1.1f});
 		submittedSamplesQuickViewTable.setWidthPercentage(100f);
 		
 		PdfPCell sampleNameHeader = new PdfPCell(new Phrase("Sample\n(Internal ID)", TINY_BOLD));
@@ -898,6 +898,7 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
 			String qcStatusString = "N/A";
 			if(arrivalStatusString.equalsIgnoreCase("received")){
 				qcStatusString = sampleService.convertSampleQCStatusForWeb(sampleService.getSampleQCStatus(submittedObject));
+				qcStatusString = qcStatusString.replaceAll(" ", "\n");
 			}
 			PdfPCell qc = new PdfPCell(new Phrase(qcStatusString, TINY_BOLD));
 			qc.setHorizontalAlignment(Element.ALIGN_CENTER);
