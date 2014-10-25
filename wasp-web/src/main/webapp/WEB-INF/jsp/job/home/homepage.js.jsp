@@ -3,7 +3,7 @@
 
 <script type="text/javascript">
 
-$(document).ready(function() {
+waspOnLoad=function() {
 	
 	$("html, body").animate({ scrollTop: 0 }, "fast");
 
@@ -39,7 +39,7 @@ $(document).ready(function() {
 	//incase the url is ..../homepage.do#tabs-2 (meaning go directly to the second tab) 
 	//get the index from URL hash and use it to select the correct tab: from http://stackoverflow.com/questions/2554951/jquery-ui-tabs-how-do-i-navigate-directly-to-a-tab-from-another-page 
 	
-});
+};
 
 function showModalDialog(url){
 	//http://clarkupdike.blogspot.com/2009/03/basic-example-of-jquerys-uidialog.html
@@ -217,36 +217,6 @@ function sendFormViaGetAndShowModlessDialog(formObjectId, theUrl){
         position: { my: "right top", at: "right top", of: $(document).scrollTop("0") } //of used to be of: window 
     });
 	return false; 
-}
-function robtest_autocomplete(obj) {
-	var jQueryObject = $(obj);
-    var availableTags = [
-      "ActionScript",
-      "AppleScript",
-      "Asp",
-      "BASIC",
-      "C",
-      "C++",
-      "Clojure",
-      "COBOL",
-      "ColdFusion",
-      "Erlang",
-      "Fortran",
-      "Groovy",
-      "Haskell",
-      "Java",
-      "JavaScript",
-      "Lisp",
-      "Perl",
-      "PHP",
-      "Python",
-      "Ruby",
-      "Scala",
-      "Scheme"
-    ];
-    jQueryObject.autocomplete({
-      source: availableTags
-    });
 }
 
 </script>
