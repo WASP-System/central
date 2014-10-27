@@ -6,7 +6,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html lang="en">
 <head>
-  <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="http://waspsystem.org/lib/jquery/jquery-1.9.1.js"></script>
   <meta charset="utf-8" />
   <script type="text/javascript">
 	  $( document ).ready( function(){

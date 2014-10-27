@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans"
+	default-autowire="byName"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+		
+	<context:component-scan base-package="edu.yu.einstein.wasp.plugin.genomemetadata.service.impl" />
+
+	<bean id="genomemetadataPluginArea" class="java.lang.String">
+		<constructor-arg>
+			<value>genomemetadata</value>
+		</constructor-arg>
+	</bean>
+	
+	<!-- channel for communications with this plugin. -->
+	<int:channel id="wasp.channel.plugin.genomemetadata" />
+
+	<int:service-activator input-channel="wasp.channel.plugin.genomemetadata" ref="genomemetadataPlugin" method="process" />
+	
+	<bean id="genomemetadataPlugin" class="edu.yu.einstein.wasp.plugin.genomemetadata.plugin.GenomeMetadataPlugin">
+		<constructor-arg name="iName" ref="genomemetadataPluginArea" />
+		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.genomemetadata" />
+		<property name="name" value="Genome Metadata Plugin" />
+		<property name="description" value="Functionality to assist in building of genome indexes and annotation" />
+		<property name="provides" >
+			<set>
+				<ref bean="genomemetadata" /> 
+			</set>
+		</property>
+		<property name="handles" >
+			<set>
+				<ref bean="genomemetadataPluginArea" />
+			</set>
+		</property>
+	</bean>
+
+</beans>

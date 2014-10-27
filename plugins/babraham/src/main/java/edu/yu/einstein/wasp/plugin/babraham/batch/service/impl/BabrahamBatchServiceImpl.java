@@ -19,7 +19,8 @@ import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.plugin.babraham.batch.service.BabrahamBatchService;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.impl.BabrahamServiceImpl;
@@ -136,13 +137,14 @@ public class BabrahamBatchServiceImpl extends BabrahamServiceImpl implements Bab
 	 */
 	@Override
 	public Map<String, FastQCDataModule> parseFastQCOutput(String resultsDir) throws BabrahamDataParseException{
-		WorkUnit w = new WorkUnit();
-		w.setProcessMode(ProcessMode.SINGLE);
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+		c.setProcessMode(ProcessMode.SINGLE);
 		try {
-			GridWorkService workService = hostResolver.getGridWorkService(w);
+			GridWorkService workService = hostResolver.getGridWorkService(c);
 			GridTransportConnection transportConnection = workService.getTransportConnection();
 			resultsDir += "/" + FastQC.OUTPUT_FOLDER;
-			w.setWorkingDirectory(resultsDir);
+			c.setWorkingDirectory(resultsDir);
+			WorkUnit w = new WorkUnit(c);
 			w.addCommand("unzip -p " + FastQC.OUTPUT_ZIP_FILE_NAME + " " + FastQC.OUTPUT_DATA_FILE_TO_EXTRACT);
 			GridResult r = transportConnection.sendExecToRemote(w);
 			return processFastQCOutput(r.getStdOutStream());
@@ -216,13 +218,14 @@ public class BabrahamBatchServiceImpl extends BabrahamServiceImpl implements Bab
 	 */
 	@Override
 	public BabrahamDataModule parseFastQScreenOutput(String resultsDir) throws BabrahamDataParseException{
-		WorkUnit w = new WorkUnit();
-		w.setProcessMode(ProcessMode.SINGLE);
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+		c.setProcessMode(ProcessMode.SINGLE);
 		try {
-			GridWorkService workService = hostResolver.getGridWorkService(w);
+			GridWorkService workService = hostResolver.getGridWorkService(c);
 			GridTransportConnection transportConnection = workService.getTransportConnection();
 			resultsDir +=  "/" + FastQScreen.OUTPUT_FOLDER;
-			w.setWorkingDirectory(resultsDir);
+			c.setWorkingDirectory(resultsDir);
+			WorkUnit w = new WorkUnit(c);
 			w.addCommand("cat *_screen.txt");
 			GridResult r = transportConnection.sendExecToRemote(w);
 			return processFastQScreenOutput(r.getStdOutStream());

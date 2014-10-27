@@ -43,6 +43,10 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>edu.yu.einstein.wasp</groupId>
+			<artifactId>genomeMetadata</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>
 			<scope>test</scope>

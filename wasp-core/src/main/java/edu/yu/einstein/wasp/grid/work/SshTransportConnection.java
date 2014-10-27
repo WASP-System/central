@@ -199,14 +199,14 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 			
 			// ensure set for direct remote execution
 			directoryPlaceholderRewriter.replaceDirectoryPlaceholders(this, w);
-			if (!w.isWorkingDirectoryRelativeToRoot())
-				w.remoteWorkingDirectory = prefixRemoteFile(w.getWorkingDirectory());
-			w.remoteResultsDirectory = prefixRemoteFile(w.getResultsDirectory());
+			if (!w.getConfiguration().isWorkingDirectoryRelativeToRoot())
+				w.getConfiguration().remoteWorkingDirectory = prefixRemoteFile(w.getConfiguration().getWorkingDirectory());
+			w.getConfiguration().remoteResultsDirectory = prefixRemoteFile(w.getConfiguration().getResultsDirectory());
 			
 			String command = w.getCommand();
 			if (w.getWrapperCommand() != null)
 				command = w.getWrapperCommand();
-			command = "cd " + w.remoteWorkingDirectory + " && " + command;
+			command = "cd " + w.getConfiguration().remoteWorkingDirectory + " && " + command;
 			command = "if [ -e /etc/profile ]; then source /etc/profile > /dev/null 2>&1; fi && " + command;
 			logger.trace("sending exec: " + command + " at: " + getHostName());
 			
@@ -369,7 +369,8 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 	@Override
 	public String prefixRemoteFile(String filespec) {
 		String prefix = "";
-		if (isUserDirIsRoot() && !filespec.startsWith("$HOME") && !filespec.startsWith("~")) prefix = "$HOME/";
+		if (filespec.startsWith("~/")) filespec = filespec.replaceAll("^~/", "/");
+		if (isUserDirIsRoot() && !filespec.startsWith("$")) prefix = "$HOME/";
 		String retval = prefix + filespec;
 		return retval.replaceAll("//", "/");
 	}

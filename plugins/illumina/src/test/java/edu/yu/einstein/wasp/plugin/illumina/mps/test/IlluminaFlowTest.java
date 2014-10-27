@@ -37,7 +37,7 @@ import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.grid.file.SshFileService;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
-import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.Adaptor;
@@ -162,11 +162,11 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 	// @Test
 	public void testListenRunStart() throws Exception {
 		
-		PowerMockito.when(hostResolver.getGridWorkService(Mockito.any(WorkUnit.class))).thenReturn(workService);
+		PowerMockito.when(hostResolver.getGridWorkService(Mockito.any(WorkUnitGridConfiguration.class))).thenReturn(workService);
 		PowerMockito.when(workService.getGridFileService()).thenReturn(fileService);
 		PowerMockito.when(workService.getTransportConnection()).thenReturn(transportConnection);
 		PowerMockito.when(transportConnection.getConfiguredSetting(Mockito.anyString())).thenReturn("configuredSetting");
-		PowerMockito.when(hostResolver.getHostname(Mockito.any(WorkUnit.class))).thenReturn("remote.host");
+		PowerMockito.when(hostResolver.getHostname(Mockito.any(WorkUnitGridConfiguration.class))).thenReturn("remote.host");
 		PowerMockito.when(fileService.exists(Mockito.anyString())).thenReturn(true);
 		
 		JobExecution je = jltu.launchStep(WaspIlluminaHiseqPlugin.STEP_LISTEN_FOR_RUN_START, getTestParameters());
@@ -182,11 +182,11 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 	// @Test
 	public void testListenRunStartNotExists() throws Exception {
 		
-		PowerMockito.when(hostResolver.getGridWorkService(Mockito.any(WorkUnit.class))).thenReturn(workService);
+		PowerMockito.when(hostResolver.getGridWorkService(Mockito.any(WorkUnitGridConfiguration.class))).thenReturn(workService);
 		PowerMockito.when(workService.getGridFileService()).thenReturn(fileService);
 		PowerMockito.when(workService.getTransportConnection()).thenReturn(transportConnection);
 		PowerMockito.when(transportConnection.getConfiguredSetting(Mockito.anyString())).thenReturn("configuredSetting");
-		PowerMockito.when(hostResolver.getHostname(Mockito.any(WorkUnit.class))).thenReturn("remote.host");
+		PowerMockito.when(hostResolver.getHostname(Mockito.any(WorkUnitGridConfiguration.class))).thenReturn("remote.host");
 		PowerMockito.when(fileService.exists(Mockito.anyString())).thenReturn(false);
 		
 		JobExecution je = jltu.launchStep(WaspIlluminaHiseqPlugin.STEP_LISTEN_FOR_RUN_START, getTestParameters());
@@ -201,11 +201,11 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 	
 	// @Test
 	public void testListenRunComplete() throws Exception {
-		PowerMockito.when(hostResolver.getGridWorkService(Mockito.any(WorkUnit.class))).thenReturn(workService);
+		PowerMockito.when(hostResolver.getGridWorkService(Mockito.any(WorkUnitGridConfiguration.class))).thenReturn(workService);
 		PowerMockito.when(workService.getGridFileService()).thenReturn(fileService);
 		PowerMockito.when(workService.getTransportConnection()).thenReturn(transportConnection);
 		PowerMockito.when(transportConnection.getConfiguredSetting(Mockito.anyString())).thenReturn("configuredSetting");
-		PowerMockito.when(hostResolver.getHostname(Mockito.any(WorkUnit.class))).thenReturn("remote.host");
+		PowerMockito.when(hostResolver.getHostname(Mockito.any(WorkUnitGridConfiguration.class))).thenReturn("remote.host");
 		PowerMockito.when(fileService.exists(Mockito.anyString())).thenReturn(true);
 		
 		JobExecution je = jltu.launchStep(WaspIlluminaHiseqPlugin.STEP_LISTEN_FOR_RUN_COMPLETION, getTestParameters());
@@ -230,9 +230,9 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 		PowerMockito.when(run.getPlatformUnit()).thenReturn(pu);
 		PowerMockito.when(sampleService.isPlatformUnit(pu)).thenReturn(true);
 		PowerMockito.when(pu.getName()).thenReturn("TEST_PLATFORM_UNIT");
-		PowerMockito.when(hostResolver.getGridWorkService(Mockito.any(WorkUnit.class))).thenReturn(workService);
+		PowerMockito.when(hostResolver.getGridWorkService(Mockito.any(WorkUnitGridConfiguration.class))).thenReturn(workService);
 		PowerMockito.when(workService.getGridFileService()).thenReturn(fileService);
-		PowerMockito.when(hostResolver.getHostname(Mockito.any(WorkUnit.class))).thenReturn("test.host");
+		PowerMockito.when(hostResolver.getHostname(Mockito.any(WorkUnitGridConfiguration.class))).thenReturn("test.host");
 		PowerMockito.when(workService.getTransportConnection()).thenReturn(transportConnection);
 		PowerMockito.when(transportConnection.getConfiguredSetting(Mockito.any(String.class))).thenReturn("TESTVALUE");
 		

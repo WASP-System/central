@@ -13,8 +13,8 @@
 	<link rel="stylesheet" type="text/css" media="screen" href="<wasp:relativeUrl value='css/jquery/jquery-ui.css' />" />
 	<link rel="stylesheet" type="text/css" media="screen" href="<wasp:relativeUrl value='css/jquery/ui.jqgrid.css' />" />
 	
-	<script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.js"></script>
-	<script type="text/javascript" src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script> 
+	<script type="text/javascript" src="http://waspsystem.org/lib/jquery/jquery-1.9.1.js"></script>
+	<script type="text/javascript" src="http://waspsystem.org/lib/jquery/ui/1.10.0/jquery-ui.js"></script> 
 	<script type="text/javascript" src="<wasp:relativeUrl value='scripts/jquery/ajaxfileupload.js' />"></script>
 	<%--  include locale-specific jqgrid file.  jqLang is set in UserLocaleInterceptor class --%> 
 	<% String locale = ((HttpServletRequest) pageContext.getRequest()).getSession().getAttribute("jqLang").toString(); %>

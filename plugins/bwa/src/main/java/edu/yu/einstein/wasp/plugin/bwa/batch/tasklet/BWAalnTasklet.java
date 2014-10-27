@@ -3,11 +3,15 @@
  */
 package edu.yu.einstein.wasp.plugin.bwa.batch.tasklet;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
@@ -17,19 +21,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
-import edu.yu.einstein.wasp.exception.MetadataException;
-import edu.yu.einstein.wasp.grid.GridHostResolver;
+import edu.yu.einstein.wasp.exception.WaspRuntimeException;
+import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.bwa.service.BwaService;
 import edu.yu.einstein.wasp.plugin.bwa.software.BWABacktrackSoftwareComponent;
+import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqComparator;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqFileTypeAttribute;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
+import edu.yu.einstein.wasp.plugin.genomemetadata.GenomeIndexStatus;
+import edu.yu.einstein.wasp.plugin.genomemetadata.batch.tasklet.TestForGenomeIndexTasklet;
+import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -38,7 +48,7 @@ import edu.yu.einstein.wasp.service.SampleService;
  * @author calder
  * 
  */
-public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionListener {
+public class BWAalnTasklet extends TestForGenomeIndexTasklet implements StepExecutionListener {
 
 	private Integer cellLibraryId;
 	
@@ -55,15 +65,20 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
 	private JobService jobService;
 	
 	@Autowired
-	private GridHostResolver gridHostResolver;
-	
-	@Autowired
 	private FileType fastqFileType;
 	
 	private boolean skip = false;
 	
 	@Autowired
 	private BWABacktrackSoftwareComponent bwa;
+	
+	@Autowired
+	private BwaService bwaService;
+	
+	private Job job;
+	private Set<FileGroup> fileGroups;
+	private SampleSource cellLib;
+	private FileGroup fg;
 
 	public BWAalnTasklet() {
 		// proxy
@@ -78,44 +93,11 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
-		// if the work has already been started, then check to see if it is finished
-		// if not, throw an exception that is caught by the repeat policy.
-		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
-		
 		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
 				
-		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
-		
-		logger.debug("Beginning BWA aln step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
-		
-		Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLib, fastqFileType);
-		
-		logger.trace("obtained fastq file groups of size " + fileGroups.size() + " for CellLibrary" + cellLib.getId());
-		
-		if (fileGroups.size() != 1) {
-		    for (FileGroup fg : fileGroups) {
-		        if (!fastqService.hasAttribute(fg, FastqFileTypeAttribute.TRIMMED)) {
-		            logger.trace("Removing untrimmed file group " + fg.getId());
-		            fileGroups.remove(fg);
-		        }
-		    }
-		}
-		
-		Assert.assertTrue(fileGroups.size() == 1);
-		FileGroup fg = fileGroups.iterator().next();
-		
-		logger.debug("file group: " + fg.getId() + ":" + fg.getDescription());
-		
-		Map<String,Object> jobParameters = context.getStepContext().getJobParameters();
-		
-		for (String key : jobParameters.keySet()) {
-			logger.debug("Key: " + key + " Value: " + jobParameters.get(key).toString());
-		}
-		
-		try {
-			WorkUnit w = bwa.getAln(cellLib, fg, jobParameters);
-		
-			GridResult result = gridHostResolver.execute(w);
+		try{
+			WorkUnit w = buildWorkUnit(context.getStepContext().getStepExecution());
+			GridResult result = executeWorkUnit(context, w);
 		
 			//place the grid result in the step context
 			saveGridResult(context, result);
@@ -137,7 +119,27 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional("entityManager")
 	public void beforeStep(StepExecution stepExecution){
+		if (cellLib == null) {
+			cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
+			job = sampleService.getJobOfLibraryOnCell(cellLib);
+			
+			logger.debug("Beginning BWA aln step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
+			
+			fileGroups = new HashSet<FileGroup>();;
+			
+		    for (FileGroup fg : fileService.getFilesForCellLibraryByType(cellLib, fastqFileType)) {
+		        if (!fastqService.hasAttribute(fg, FastqFileTypeAttribute.TRIMMED)) {
+		            logger.trace("Ignoring untrimmed file group " + fg.getId());
+		            continue;
+		        }
+		        fileGroups.add(fg);
+		    }
+
+			Assert.assertTrue(fileGroups.size() == 1, "No filegroups returned for cellLibrary " + cellLib.getId() + " from job " + job.getId());
+			fg = fileGroups.iterator().next();
+		}
 		super.beforeStep(stepExecution);
 	}
 
@@ -151,5 +153,47 @@ public class BWAalnTasklet extends WaspRemotingTasklet implements StepExecutionL
 		}
 		return super.afterStep(stepExecution);
 	}
+
+	@Override
+	@Transactional("entityManager")
+	public GenomeIndexStatus getGenomeIndexStatus(StepExecution stepExecution) {
+		try {
+			Build build = bwa.getGenomeBuild(cellLib);
+			return bwaService.getGenomeIndexStatus(getGridWorkService(getStepExecutionContext(stepExecution)), build);
+		} catch (ParameterValueRetrievalException | GridUnresolvableHostException e) {
+			String mess = "Unable to determine build or build status " + e.getLocalizedMessage();
+			logger.error(mess);
+			throw new WaspRuntimeException(mess);
+		}
+	}
+
+	@Override
+	@Transactional("entityManager")
+	public WorkUnit buildWorkUnit(StepExecution stepExecution) throws Exception {
+		logger.trace("obtained fastq file groups of size " + fileGroups.size() + " for CellLibrary" + cellLib.getId());
+		logger.debug("file group: " + fg.getId() + ":" + fg.getDescription());
+		
+		Map<String, JobParameter> jobParameters = stepExecution.getJobExecution().getJobParameters().getParameters();
+		if (logger.isDebugEnabled()){
+			for (String key : jobParameters.keySet()) {
+				logger.debug("Key: " + key + " Value: " + jobParameters.get(key).getValue().toString());
+			}
+		}
+		
+		WorkUnit w = bwa.getAln(cellLib, fg, jobParameters);
+		List<FileHandle> fhlist = new ArrayList<FileHandle>();
+		fhlist.addAll(fg.getFileHandles());
+		Collections.sort(fhlist, new FastqComparator(fastqService));
+		w.setRequiredFiles(fhlist);
+		w.setSecureResults(false);
+		return w;
+	}
+
+	@Override
+	@Transactional("entityManager")
+	public WorkUnitGridConfiguration configureWorkUnit(StepExecution stepExecution) throws Exception {
+		return bwa.prepareWorkUnitConfiguration(fg);
+	}
+
 
 }

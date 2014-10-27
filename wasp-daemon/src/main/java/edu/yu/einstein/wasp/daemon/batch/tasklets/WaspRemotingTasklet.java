@@ -10,6 +10,7 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -152,6 +153,22 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution){
 		return super.afterStep(stepExecution);
+	}
+	
+	protected ExecutionContext getStepExecutionContext(StepExecution se){
+		return se.getExecutionContext();
+	}
+	
+	protected ExecutionContext getJobExecutionContext(StepExecution se){
+		return se.getJobExecution().getExecutionContext();
+	}
+	
+	protected ExecutionContext getStepExecutionContext(ChunkContext context){
+		return getStepExecutionContext(context.getStepContext().getStepExecution());
+	}
+	
+	protected ExecutionContext getJobExecutionContext(ChunkContext context){
+		return getJobExecutionContext(context.getStepContext().getStepExecution());
 	}
 
 	

@@ -14,6 +14,7 @@ import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.service.JobService;
 
@@ -50,12 +51,10 @@ public class VariantcallingTasklet extends WaspRemotingTasklet {
 	@Override
 	@Transactional("entityManager")
 	public void doExecute(ChunkContext context) throws Exception {
-		WorkUnit w = new WorkUnit();
-		
 		//configure
-		
-		w.setResultsDirectory(WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
-   
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+		c.setResultsDirectory(WorkUnitGridConfiguration.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
+		WorkUnit w = new WorkUnit(c);
 		GridResult result = gridHostResolver.execute(w);
 		
 		//place the grid result in the step context

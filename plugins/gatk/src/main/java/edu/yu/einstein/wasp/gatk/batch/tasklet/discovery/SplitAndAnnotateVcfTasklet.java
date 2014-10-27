@@ -7,18 +7,19 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
-import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.plugin.genomemetadata.GenomeIndexStatus;
 import edu.yu.einstein.wasp.plugin.mps.grid.software.SnpEff;
 import edu.yu.einstein.wasp.plugin.mps.grid.software.VcfTools;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
@@ -42,14 +43,41 @@ public class SplitAndAnnotateVcfTasklet extends AbstractGatkTasklet {
 	
 	@Override
 	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
+	public void beforeStep(StepExecution stepExecution){
+		super.beforeStep(stepExecution);
+	}
+
+	@Override
+	@Transactional("entityManager")
+	public GenomeIndexStatus getGenomeIndexStatus(StepExecution stepExecution) {
+		// no downloadable resources required.
+		return GenomeIndexStatus.BUILT;
+	}
+
+	@Override
+	public WorkUnitGridConfiguration configureWorkUnit(StepExecution stepExecution) throws Exception {
 		Job job = jobService.getJobByJobId(jobId);
-		WorkUnit w = new WorkUnit();
-		w.setMode(ExecutionMode.PROCESS);
-		w.setProcessMode(ProcessMode.SINGLE);
-		w.setMemoryRequirements(MEMORY_GB_4);
-		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
-		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+		c.setMode(ExecutionMode.PROCESS);
+		c.setProcessMode(ProcessMode.SINGLE);
+		c.setMemoryRequirements(MEMORY_GB_4);
+		c.setWorkingDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
+		c.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
+		List<SoftwarePackage> dependencies = new ArrayList<>();
+		VcfTools vcfTools = (VcfTools) gatk.getSoftwareDependencyByIname("vcftools");
+		SnpEff snpEff = (SnpEff) gatk.getSoftwareDependencyByIname("snpEff");
+		dependencies.add(gatk);
+		dependencies.add(snpEff);
+		dependencies.add(vcfTools);
+		c.setSoftwareDependencies(dependencies);
+		return c;
+	}
+
+	@Override
+	@Transactional("entityManager")
+	public WorkUnit buildWorkUnit(StepExecution stepExecution) throws Exception {
+		WorkUnit w = new WorkUnit(configureWorkUnit(stepExecution));
+		
 		w.setSecureResults(true);
 		Build build = null;
 		
@@ -73,18 +101,13 @@ public class SplitAndAnnotateVcfTasklet extends AbstractGatkTasklet {
             	throw new WaspRuntimeException("Cannot obtain a single filehandle from FileGroup id=" + fgId);
 		}
 		w.setResultFiles(outFiles);
-		List<SoftwarePackage> dependencies = new ArrayList<>();
-		VcfTools vcfTools = (VcfTools) gatk.getSoftwareDependencyByIname("vcftools");
-		SnpEff snpEff = (SnpEff) gatk.getSoftwareDependencyByIname("snpEff");
-		dependencies.add(gatk);
-		dependencies.add(snpEff);
-		dependencies.add(vcfTools);
-		w.setSoftwareDependencies(dependencies);
 		String inputVcfFileName = "${" + WorkUnit.INPUT_FILE + "[0]}";
 		String subsetVcfFileName = "subset.${" + WorkUnit.OUTPUT_FILE + "[0]}.vcf";
 		String outputVcfFileName = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
 		String outputHtmlSummaryFileName = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
 		String outputGenesSummaryFileName = "${" + WorkUnit.OUTPUT_FILE + "[2]}";
+		VcfTools vcfTools = (VcfTools) gatk.getSoftwareDependencyByIname("vcftools");
+		SnpEff snpEff = (SnpEff) gatk.getSoftwareDependencyByIname("snpEff");
 		w.addCommand(vcfTools.getVcfSubsetCommand(inputVcfFileName, subsetVcfFileName, sampleIdentifierSet, false));
 		List<String> sampleIdentifierList = Arrays.asList(StringUtils.commaDelimitedListToStringArray(sampleIdentifierSet));
 		if (sampleIdentifierList.size() == 2){ // e.g. cancer Tumor / Normal pairs
@@ -93,11 +116,7 @@ public class SplitAndAnnotateVcfTasklet extends AbstractGatkTasklet {
 		} else {
 			w.addCommand(snpEff.getAnnotateVcfCommand(subsetVcfFileName, outputVcfFileName, outputHtmlSummaryFileName, outputGenesSummaryFileName, build, true));
 		}
-		
-		GridResult result = gridHostResolver.execute(w);
-
-		// place the grid result in the step context
-		saveGridResult(context, result);
+		return w;
 	}
 
 }

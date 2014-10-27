@@ -16,6 +16,7 @@ import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
@@ -45,11 +46,11 @@ public class SoftwareBasedGridHostResolver extends AbstractGridHostResolver {
 	 * @param w
 	 * @return
 	 */
-	private List<GridWorkService> getPossibleDestinations(WorkUnit w) {
+	private List<GridWorkService> getPossibleDestinations(WorkUnitGridConfiguration c) {
 		List<GridWorkService> retval = new ArrayList<GridWorkService>();
 		for (GridWorkService ws : gridWorkServiceMap.keySet()) {
 			List<SoftwarePackage> soft = gridWorkServiceMap.get(ws);
-			if (soft.containsAll(w.getSoftwareDependencies())) {
+			if (soft.containsAll(c.getSoftwareDependencies())) {
 				retval.add(ws);
 			}
 		}
@@ -65,7 +66,7 @@ public class SoftwareBasedGridHostResolver extends AbstractGridHostResolver {
 	 * 
 	 * @return
 	 */
-	private GridWorkService resolveTies(List<GridWorkService> workServices, WorkUnit w) {
+	private GridWorkService resolveTies(List<GridWorkService> workServices, WorkUnitGridConfiguration c) {
 		return null;
 	}
 	
@@ -80,10 +81,10 @@ public class SoftwareBasedGridHostResolver extends AbstractGridHostResolver {
 		return false;
 	}
 	
-	private GridWorkService getWorkService(WorkUnit w) throws GridUnresolvableHostException {
-		List<GridWorkService> wServ = getPossibleDestinations(w);
+	private GridWorkService getWorkService(WorkUnitGridConfiguration c) throws GridUnresolvableHostException {
+		List<GridWorkService> wServ = getPossibleDestinations(c);
 		if (wServ.size() == 0) {
-			List<SoftwarePackage> swps = w.getSoftwareDependencies();
+			List<SoftwarePackage> swps = c.getSoftwareDependencies();
 			ArrayList<String> sw = new ArrayList<String>(swps.size());
 			for (SoftwarePackage s : swps)
 				 sw.add(s.getSoftwareName() + "/" + s.getSoftwareVersion());
@@ -93,7 +94,7 @@ public class SoftwareBasedGridHostResolver extends AbstractGridHostResolver {
 		}
 		if (wServ.size() == 1)
 			return wServ.get(0);
-		return resolveTies(wServ, w);
+		return resolveTies(wServ, c);
 	}
 	
 	/**
@@ -111,16 +112,16 @@ public class SoftwareBasedGridHostResolver extends AbstractGridHostResolver {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getHostname(WorkUnit w) throws GridUnresolvableHostException {
-		return getWorkService(w).getTransportConnection().getHostName();
+	public String getHostname(WorkUnitGridConfiguration c) throws GridUnresolvableHostException {
+		return getWorkService(c).getTransportConnection().getHostName();
 	}
 
 	/** 
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getUsername(WorkUnit w) throws GridUnresolvableHostException {
-		return getWorkService(w).getTransportConnection().getUserName();
+	public String getUsername(WorkUnitGridConfiguration c) throws GridUnresolvableHostException {
+		return getWorkService(c).getTransportConnection().getUserName();
 	}
 
 	/** 
@@ -139,8 +140,8 @@ public class SoftwareBasedGridHostResolver extends AbstractGridHostResolver {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public GridWorkService getGridWorkService(WorkUnit w) throws GridUnresolvableHostException {
-		return getWorkService(w);
+	public GridWorkService getGridWorkService(WorkUnitGridConfiguration c) throws GridUnresolvableHostException {
+		return getWorkService(c);
 	}
 
 	/** 
@@ -180,7 +181,7 @@ public class SoftwareBasedGridHostResolver extends AbstractGridHostResolver {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getParallelEnvironmentString(WorkUnit w) {
+	public String getParallelEnvironmentString(WorkUnitGridConfiguration c) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -190,7 +191,7 @@ public class SoftwareBasedGridHostResolver extends AbstractGridHostResolver {
 	 */
 	@Override
 	public GridResult execute(WorkUnit w) throws GridException {
-		return getWorkService(w).execute(w);
+		return getWorkService(w.getConfiguration()).execute(w);
 	}
 
 	/** 

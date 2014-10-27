@@ -33,8 +33,9 @@ import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.SgeWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
@@ -143,13 +144,12 @@ public class TrimGalore extends SoftwarePackage {
 
         logger.debug("About to generate WorkUnit for preforming trim_galore trimming on library " + library.getId() + " cell library id instance "
                 + cellLibraryId);
+        WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+        c.setProcessMode(ProcessMode.SINGLE);
+        c.setMode(ExecutionMode.PROCESS);
+        c.setSoftwareDependencies(sd);
 
-        WorkUnit w = new WorkUnit();
-        w.setProcessMode(ProcessMode.SINGLE);
-        w.setMode(ExecutionMode.PROCESS);
-        w.setSoftwareDependencies(sd);
-
-        GridWorkService workService = hostResolver.getGridWorkService(w);
+        GridWorkService workService = hostResolver.getGridWorkService(c);
         GridTransportConnection transportConnection = workService.getTransportConnection();
 
         String stageDir = transportConnection.getConfiguredSetting(sequencer.getStageDirectoryName());
@@ -164,8 +164,10 @@ public class TrimGalore extends SoftwarePackage {
         // TODO: fix hardcode
         String workingDirectory = stageDir + "/" + run.getName() + "/wasp/sequence";
 
-        w.setWorkingDirectory(workingDirectory);
-        w.setResultsDirectory(workingDirectory);
+        c.setWorkingDirectory(workingDirectory);
+        c.setResultsDirectory(workingDirectory);
+        
+        WorkUnit w = new WorkUnit(c);
         w.setSecureResults(false);
 
         FileGroup fg = fileService.getFileGroupById(fileGroupId);
@@ -176,7 +178,6 @@ public class TrimGalore extends SoftwarePackage {
         fastq.addAll(fg.getFileHandles());
 
         Object[] fqa = (Object[]) fastq.toArray();
-
         w.addRequiredFile((FileHandle) fqa[firstFile]);
         if (paired)
             w.addRequiredFile((FileHandle) fqa[firstFile + 1]);
@@ -187,7 +188,7 @@ public class TrimGalore extends SoftwarePackage {
         command += " 2>&1";
 
         w.addCommand(command);
-        w.addCommand("cp ${" + WorkUnit.WORKING_DIRECTORY + "}${" + WorkUnit.JOB_NAME + "}.out ${inFile0Name/.fastq.gz/}_trim_galore.out.txt");
+        w.addCommand("cp ${" + WorkUnitGridConfiguration.WORKING_DIRECTORY + "}${" + WorkUnit.JOB_NAME + "}.out ${inFile0Name/.fastq.gz/}_trim_galore.out.txt");
 
         return w;
 
@@ -206,13 +207,12 @@ public class TrimGalore extends SoftwarePackage {
         logger.trace("attempting to get bean for " + softwareName.toString());
         SequenceRunProcessor sequencer = (SequenceRunProcessor) this.getApplicationContext().getBean(softwareName);
         sd.add(sequencer);
+        WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+        c.setProcessMode(ProcessMode.SINGLE);
+        c.setMode(ExecutionMode.PROCESS);
+        c.setSoftwareDependencies(sd);
 
-        WorkUnit w = new WorkUnit();
-        w.setProcessMode(ProcessMode.SINGLE);
-        w.setMode(ExecutionMode.PROCESS);
-        w.setSoftwareDependencies(sd);
-
-        GridWorkService workService = hostResolver.getGridWorkService(w);
+        GridWorkService workService = hostResolver.getGridWorkService(c);
         GridTransportConnection transportConnection = workService.getTransportConnection();
 
         String stageDir = transportConnection.getConfiguredSetting(sequencer.getStageDirectoryName());
@@ -229,9 +229,10 @@ public class TrimGalore extends SoftwarePackage {
 
         // TODO: fix hardcode
         String resultsDirectory = jobRoot + "/" + job.getId() + "/fastq";
-
-        w.setWorkingDirectory(workingDirectory);
-        w.setResultsDirectory(resultsDirectory);
+        c.setWorkingDirectory(workingDirectory);
+        c.setResultsDirectory(resultsDirectory);
+        
+        WorkUnit w = new WorkUnit(c);
         w.setSecureResults(true);
 
         Set<FileGroup> fgs = fileService.getFilesForCellLibraryByType(cellLibrary, fastqService.getFastqFileType());
@@ -248,7 +249,7 @@ public class TrimGalore extends SoftwarePackage {
         fastq.addAll(fastqG.getFileHandles());
         Iterator<FileHandle> fhi = fastq.iterator();
 
-        Set<FileHandle> trimmed_fastq = new LinkedHashSet<FileHandle>();
+        LinkedHashSet<FileHandle> trimmed_fastq = new LinkedHashSet<FileHandle>();
 
         Integer rs = fastqService.getNumberOfReadSegments(fastqG);
 

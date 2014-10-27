@@ -44,8 +44,9 @@ public class PbsTorqueWorkService extends SgeWorkService {
 	 */
 	@Override
 	protected Document getQstat(GridResult g, String jobname) throws GridException, SAXException, IOException {
-		WorkUnit w = new WorkUnit();
-		w.setWorkingDirectory(g.getWorkingDirectory());
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+		c.setWorkingDirectory(g.getWorkingDirectory());
+		WorkUnit w = new WorkUnit(c);
 		w.setCommand("qstat -x | perl -nle 'print \"<?xml version=\\\"1.0\\\"?>\"; print m|(<Job><Job_Id>[^<]*?</Job_Id><Job_Name>" + 
 				jobname + "</Job_Name>.*?</Job>)| ? $1 : \"<none />\"'");
 		GridResult result;

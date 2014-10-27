@@ -31,7 +31,8 @@ import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.macstwo.software.Macstwo;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -313,7 +314,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 
 		List<String> listOfFileHandleNames = new ArrayList<String>();
 		
-		Set<FileHandle> files = new LinkedHashSet<FileHandle>();
+		LinkedHashSet<FileHandle> files = new LinkedHashSet<FileHandle>();
 		Set<FileGroup> macstwoEnclosedFileGroups = new LinkedHashSet<FileGroup>();
 		
 		Imagemagick imagemagickSoftware = (Imagemagick) macs2.getSoftwareDependencyByIname("imagemagick"); 
@@ -427,7 +428,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		logger.debug("executed w.getResultFiles().add(x) for " + files.size() + " FileHandles");
 		
-		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, macs2));	
+		w.getConfiguration().setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, macs2));	
 		
 		
 		int counter = 0;
@@ -518,16 +519,16 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		//context.getStepContext().attributeNames().
 		GridResult result = getGridResult(context);
 		String workingDir = result.getWorkingDirectory();//is this the scratch, I think so
-		
-		WorkUnit w = new WorkUnit();
-		w.setProcessMode(ProcessMode.SINGLE);
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+		c.setProcessMode(ProcessMode.SINGLE);
 		String totalCountMappedReadsAsString = "";
 		String totalCountMappedReadsInPeaksAsString = "";
 		
 		try {
-			GridWorkService workService = gridHostResolver.getGridWorkService(w);
+			GridWorkService workService = gridHostResolver.getGridWorkService(c);
 			GridTransportConnection transportConnection = workService.getTransportConnection();
-			w.setWorkingDirectory(workingDir);
+			c.setWorkingDirectory(workingDir);
+			WorkUnit w = new WorkUnit(c);
 			w.addCommand("cat totalCountMappedReads.txt");//will appear on first line of output
 			w.addCommand("cat totalCountMappedReadsInPeaks.txt");//will appear on second line of output
 			

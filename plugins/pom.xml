@@ -17,6 +17,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 	<name>Wasp System default plugin set</name>
 
 	<modules>
+		<module>genomeMetadata</module>
 		<module>mps</module>
 		<module>bwa</module>
 		<module>gatk</module>
@@ -29,6 +30,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<module>macsTwo</module>
 		<module>variantCalling</module>
 		<module>genericFileViewing</module>
+		<module>star</module>
 	</modules>
 
 	<build>

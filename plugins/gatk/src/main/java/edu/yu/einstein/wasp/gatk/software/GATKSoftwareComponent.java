@@ -4,14 +4,18 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
-import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.GridWorkService;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.plugin.genomemetadata.plugin.GenomeMetadataPlugin.VCF_TYPE;
+import edu.yu.einstein.wasp.plugin.genomemetadata.service.GenomeMetadataService;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
-import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.StrategyService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
@@ -35,29 +39,29 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	private SampleService sampleService;
 	
 	@Autowired
-	private GenomeService genomeService;
+	private GenomeMetadataService genomeMetadataService;
 	
 	public GATKSoftwareComponent() {
 	}
 	
-	public String getCreateTargetCmd(Build build, Set<String> inputFilenames, String intervalFilename, int memRequiredGb) {
-		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt ${" + WorkUnit.NUMBER_OF_THREADS + "}";
+	public String getCreateTargetCmd(GridWorkService workService, Build build, Set<String> inputFilenames, String intervalFilename, int memRequiredGb) throws MetadataException {
+		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt ${" + WorkUnitGridConfiguration.NUMBER_OF_THREADS + "}";
 		for (String fileName : inputFilenames)
 			command += " -I " + fileName;
-		command += " -R " + genomeService.getReferenceGenomeFastaFile(build) + 
-				" -T RealignerTargetCreator -o " + intervalFilename + " -known " + gatkService.getReferenceIndelsVcfFile(build);
+		command += " -R " + genomeMetadataService.getPrefixedGenomeFastaPath(workService, build) + 
+				" -T RealignerTargetCreator -o " + intervalFilename + " -known " + genomeMetadataService.getPrefixedIndexedVcfPath(workService, build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.INDEL));
 		logger.debug("Will conduct gatk create target for re-alignment with string: " + command);
 		return command;
 	}
 	
 	
-	public String getLocalAlignCmd(Build build, Set<String> inputFilenames, String intervalFilename, String realnBamFilename, String realnBaiFilename, int memRequiredGb) {
+	public String getLocalAlignCmd(GridWorkService workService, Build build, Set<String> inputFilenames, String intervalFilename, String realnBamFilename, String realnBaiFilename, int memRequiredGb) throws MetadataException {
 		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar";
 		for (String fileName : inputFilenames)
 			command += " -I " + fileName;
 		command += " -R " + 
-				genomeService.getReferenceGenomeFastaFile(build) + " -T  IndelRealigner" + 
-				" -targetIntervals " + intervalFilename + " -o " + realnBamFilename + " -known " + gatkService.getReferenceIndelsVcfFile(build);
+				genomeMetadataService.getPrefixedGenomeFastaPath(workService, build) + " -T  IndelRealigner" + 
+				" -targetIntervals " + intervalFilename + " -o " + realnBamFilename + " -known " + genomeMetadataService.getPrefixedIndexedVcfPath(workService, build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.INDEL));
 		if (realnBaiFilename != null)
 			command += " && mv " + realnBamFilename + ".bai " + realnBaiFilename;
 		logger.debug("Will conduct gatk local re-alignment with string: " + command);
@@ -74,8 +78,9 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	 * @param intervalFilename
 	 * @param memRequiredGb
 	 * @return
+	 * @throws MetadataException 
 	 */
-	public String getLocalAlignCmd(Build build, Set<String> inputFilenames, String intervalFilename, Set<String> outputFilenames, int memRequiredGb) {
+	public String getLocalAlignCmd(GridWorkService workService, Build build, Set<String> inputFilenames, String intervalFilename, Set<String> outputFilenames, int memRequiredGb) throws MetadataException {
 		boolean hasBaiFiles = false;
 		if (outputFilenames.size() == inputFilenames.size() * 2)
 			hasBaiFiles = true;
@@ -83,8 +88,8 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		for (String fileName : inputFilenames)
 			command += " -I " + fileName;
 		command += " -R " + 
-				genomeService.getReferenceGenomeFastaFile(build) + " -T  IndelRealigner --nWayOut .getLocalAlign" + 
-				" -targetIntervals " + intervalFilename + " -known " + gatkService.getReferenceIndelsVcfFile(build);
+				genomeMetadataService.getPrefixedGenomeFastaPath(workService, build) + " -T  IndelRealigner --nWayOut .getLocalAlign" + 
+				" -targetIntervals " + intervalFilename + " -known " + genomeMetadataService.getPrefixedIndexedVcfPath(workService, build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.INDEL));
 		Iterator<String> outFileIterator = outputFilenames.iterator();
 		for (String fileName : inputFilenames){
 			if (outFileIterator.hasNext())
@@ -100,9 +105,9 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	}
 	
 	
-	public String getRecaliTableCmd(Build build, String realnBamFilename, String recaliGrpFilename, int memRequiredGb) {
-		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + genomeService.getReferenceGenomeFastaFile(build) + 
-				" -nct ${" + WorkUnit.NUMBER_OF_THREADS + "}" + " -knownSites " + gatkService.getReferenceSnpsVcfFile(build) + 
+	public String getRecaliTableCmd(GridWorkService workService, Build build, String realnBamFilename, String recaliGrpFilename, int memRequiredGb) throws MetadataException {
+		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + genomeMetadataService.getPrefixedGenomeFastaPath(workService, build) + 
+				" -nct ${" + WorkUnitGridConfiguration.NUMBER_OF_THREADS + "}" + " -knownSites " + genomeMetadataService.getPrefixedIndexedVcfPath(workService, build, genomeMetadataService.getDefaultVcf(build, VCF_TYPE.SNP)) + 
 				" -I " + realnBamFilename + " -T BaseRecalibrator -o " + recaliGrpFilename;
 
 		logger.debug("Will conduct gatk generating recalibrate table with command: " + command);
@@ -110,9 +115,9 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return command;
 	}
 	
-	public String getPrintRecaliCmd(Build build, String realnBamFilename, String recaliGrpFilename, String recaliBamFilename, String recaliBaiFilename, int memRequiredGb) {
-		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + genomeService.getReferenceGenomeFastaFile(build) + 
-				" -nct ${" + WorkUnit.NUMBER_OF_THREADS + "}" + " -I " + realnBamFilename + " -T PrintReads -o " + recaliBamFilename +
+	public String getPrintRecaliCmd(GridWorkService workService, Build build, String realnBamFilename, String recaliGrpFilename, String recaliBamFilename, String recaliBaiFilename, int memRequiredGb) {
+		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -R " + genomeMetadataService.getPrefixedGenomeFastaPath(workService, build) + 
+				" -nct ${" + WorkUnitGridConfiguration.NUMBER_OF_THREADS + "}" + " -I " + realnBamFilename + " -T PrintReads -o " + recaliBamFilename +
 				" -BQSR " + recaliGrpFilename + " -baq RECALCULATE";
 		if (recaliBaiFilename != null)
 			command += " && mv " + recaliBamFilename + ".bai " + recaliBaiFilename;
@@ -120,10 +125,10 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 		return command;
 	}
 	
-	public String getCallVariantOpts(Map<String,Object> jobParameters) throws ParameterValueRetrievalException{
+	public String getCallVariantOpts(Map<String,JobParameter> jobParameters) throws ParameterValueRetrievalException{
 		if (!jobParameters.containsKey("variantCallingMethod"))
 			throw new ParameterValueRetrievalException("Unable to determine variant calling method from job parameters");
-		String variantCallingMethod = (String) jobParameters.get("variantCallingMethod");
+		String variantCallingMethod = (String) jobParameters.get("variantCallingMethod").getValue();
 		String gatkOpts = "";
 		for (String opt : jobParameters.keySet()) {
 			String key;
@@ -141,7 +146,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	public String getCallVariantsByHaplotypeCaller(Set<String> inputFileNames, String outputGvcfFile, String referenceGenomeFile, 
 			String intervalFile, String additionalOptions, int memRequiredGb){
 		String command = "java -Xmx" + memRequiredGb + "g" +
-		" -Djava.io.tmpdir=${" + WorkUnit.TMP_DIRECTORY + "} -jar $GATK_ROOT/GenomeAnalysisTK.jar -nct ${" + WorkUnit.NUMBER_OF_THREADS + "}";
+		" -Djava.io.tmpdir=${" + WorkUnitGridConfiguration.TMP_DIRECTORY + "} -jar $GATK_ROOT/GenomeAnalysisTK.jar -nct ${" + WorkUnitGridConfiguration.NUMBER_OF_THREADS + "}";
 		for (String fileName : inputFileNames)
 			command += " -I " + fileName;
 		command += " -R " + referenceGenomeFile + " -T HaplotypeCaller -o " + outputGvcfFile + 
@@ -156,7 +161,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	public String getCallVariantsByUnifiedGenotyper(Set<String> inputFileNames, String outputFileName, String referenceGenomeFile, 
 			String intervalFile, String additionalOptions, int memRequiredGb)  {
 		String command = "java -Xmx" + memRequiredGb + "g" +
-		" -Djava.io.tmpdir=${" + WorkUnit.TMP_DIRECTORY + "} -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt ${" + WorkUnit.NUMBER_OF_THREADS + "}";
+		" -Djava.io.tmpdir=${" + WorkUnitGridConfiguration.TMP_DIRECTORY + "} -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt ${" + WorkUnitGridConfiguration.NUMBER_OF_THREADS + "}";
 		for (String fileName : inputFileNames)
 			command += " -I " + fileName;
 		command += " -R " + referenceGenomeFile + " -T UnifiedGenotyper -o " + outputFileName + 
@@ -170,7 +175,7 @@ public class GATKSoftwareComponent extends SoftwarePackage {
 	}
 	
 	public String genotypeGVCFs(Set<String> inputFileNames, String outputFileName, String referenceGenomeFile, int memRequiredGb){
-		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -T GenotypeGVCFs -nt ${" + WorkUnit.NUMBER_OF_THREADS + "}";
+		String command = "java -Xmx" + memRequiredGb + "g -jar $GATK_ROOT/GenomeAnalysisTK.jar -T GenotypeGVCFs -nt ${" + WorkUnitGridConfiguration.NUMBER_OF_THREADS + "}";
 		for (String fileName : inputFileNames)
 			command += " -V " + fileName;
 		command += " -R " + referenceGenomeFile + " -o " + outputFileName;
