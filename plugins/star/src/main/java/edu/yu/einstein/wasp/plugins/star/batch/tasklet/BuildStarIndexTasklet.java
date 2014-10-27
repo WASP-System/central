@@ -112,4 +112,10 @@ public class BuildStarIndexTasklet extends WaspRemotingTasklet {
 		return super.afterStep(stepExecution);
 	}
 
+	@Override
+	public void doCleanupBeforeRestart(ChunkContext context) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

@@ -6,7 +6,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
@@ -16,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
-import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
@@ -42,6 +40,12 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 	public abstract void doExecute(ChunkContext context) throws Exception;
 	
 	/**
+	 * cleanup work to do before a restart
+	 * @param context
+	 */
+	public abstract void doCleanupBeforeRestart(ChunkContext context) throws Exception;
+	
+	/**
 	 * tasks to perform before finishing step execution
 	 * @param context
 	 * @throws Exception
@@ -57,7 +61,8 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 	@RetryOnExceptionFixed
 	@Transactional("entityManager")
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
-		Long stepExecutionId = context.getStepContext().getStepExecution().getId();
+		StepExecution stepExecution = context.getStepContext().getStepExecution();
+		Long stepExecutionId = stepExecution.getId();
 		if (wasWokenOnTimeout(context)){
 			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation after a timeout.");
 			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
@@ -74,35 +79,38 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 		// isStarted=F and isHibernationRequested=T == not going to request grid work
 		boolean jobHasUpdatedChild = false;
 		GridResult result = getGridResult(context);
-		if (result != null && !isFlaggedForRestart(context)){
-			Map<String, GridResult> currentChildJobResults = new HashMap<String, GridResult>(result.getChildResults());
-			GridWorkService gws = hostResolver.getGridWorkService(result);
-			try {
+		try {
+			if (result != null && !isInErrorConditionAndFlaggedForRestart(context.getStepContext().getStepExecution())){
+				Map<String, GridResult> currentChildJobResults = new HashMap<String, GridResult>(result.getChildResults());
+				GridWorkService gws = hostResolver.getGridWorkService(result);
 				if (gws.isFinished(result)){
 					doPreFinish(context);
 					logger.debug("Workunit is finished. Step complete.");
+					saveGridResult(context, result); // result may have been modified whilst checking in isFinished
 					return RepeatStatus.FINISHED;
 				}
 				jobHasUpdatedChild = !currentChildJobResults.equals(result.getChildResults());
 				if (jobHasUpdatedChild)
 					logger.debug("Job result has updated a child job so going to reset timeoutInterval to minimum");
-			} catch (GridException e) {
-				logger.debug(result.toString() + " threw exception: " + e.getLocalizedMessage() + " removing and rethrowing");
-				setIsFlaggedForRestart(context, true);
-				throw e;
-			} finally {
-				saveGridResult(context, result); // result may have been modified whilst checking in isFinished
+				logger.debug("StepExecution id=" + stepExecutionId + " is going to request hibernation as " + result.getUuid() + " started but not complete");
+			} else if (!wasHibernationRequested){
+				logger.debug("Tasklet entered for first execution or restart after error (StepExecution id=" + stepExecutionId + ")");
+				if (isInErrorConditionAndFlaggedForRestart(stepExecution)){
+					doCleanupBeforeRestart(context);
+					setIsInErrorConditionAndFlaggedForRestart(stepExecution, false); // reset restart status
+				}
+				doExecute(context);
+				result = getGridResult(context);
+				if (result == null || !result.getJobStatus().isSubmitted()) {
+					logger.debug("no work unit configured, or workunit not properly configured. Exiting without execution.");
+					return RepeatStatus.FINISHED;
+				}
 			}
-			logger.debug("StepExecution id=" + stepExecutionId + " is going to request hibernation as " + result.getUuid() + " started but not complete");
-		} else if (!wasHibernationRequested){
-			logger.debug("Tasklet not yet configured with a result (StepExecution id=" + stepExecutionId + ")");
-			doExecute(context);
-			result = getGridResult(context);
-			if (result == null || !result.getJobStatus().isSubmitted()) {
-				logger.debug("no work unit configured, or workunit not properly configured. Exiting without execution.");
-				return RepeatStatus.FINISHED;
-			}
-			setIsFlaggedForRestart(context, false);
+		} catch (Exception e) {
+			logger.debug(result.toString() + " threw exception: " + e.getLocalizedMessage() + ". Going to hibernate and mark error state");
+			setIsInErrorConditionAndFlaggedForRestart(stepExecution, true);
+		} finally {
+			saveGridResult(context, result); // result may have been modified whilst checking in isFinished
 		}
 		if (!wasHibernationRequested){
 			Long timeoutInterval;
@@ -122,20 +130,6 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 	}
 
 	protected final static Logger logger = LoggerFactory.getLogger(WaspRemotingTasklet.class);
-	
-	public boolean isFlaggedForRestart(ChunkContext context) {
-		JobExecution je = context.getStepContext().getStepExecution().getJobExecution();
-		boolean isFlaggedForRestart = false;
-		if (je.getExecutionContext().containsKey(GridResult.FLAGGED_FOR_RESTART))
-			isFlaggedForRestart =  Boolean.parseBoolean(je.getExecutionContext().getString(GridResult.FLAGGED_FOR_RESTART));
-		logger.debug("Grid work unit for JobExecutionId=" + je.getId() + " is flagged for restart=" + isFlaggedForRestart);
-		return isFlaggedForRestart;
-	}
-	
-	protected static void setIsFlaggedForRestart(ChunkContext context, Boolean isFlaggedForRestart) {
-		JobExecution je = context.getStepContext().getStepExecution().getJobExecution();
-		je.getExecutionContext().put(GridResult.FLAGGED_FOR_RESTART, isFlaggedForRestart.toString());
-	}
 	
 	protected static void saveGridResult(ChunkContext context, GridResult result) {
 		StepExecution stepExecution = context.getStepContext().getStepExecution();

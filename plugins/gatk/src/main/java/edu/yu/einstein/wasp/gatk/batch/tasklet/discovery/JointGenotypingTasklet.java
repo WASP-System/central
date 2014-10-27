@@ -180,6 +180,13 @@ public class JointGenotypingTasklet extends TestForGenomeIndexTasklet {
 		w.setCommand(gatk.genotypeGVCFs(inputFileNames, rawVcfFilename, referenceGenomeFile, AbstractGatkTasklet.MEMORY_GB_16));
 		return w;
 	}
+
+
+	@Override
+	public void doCleanupBeforeRestart(ChunkContext context) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
 	
 
 }

@@ -62,6 +62,12 @@ public class TestTestForGenomeIndexTasklet extends TestForGenomeIndexTasklet {
 		return null;
 	}
 
+	@Override
+	public void doCleanupBeforeRestart(ChunkContext context) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
 	
 
 }

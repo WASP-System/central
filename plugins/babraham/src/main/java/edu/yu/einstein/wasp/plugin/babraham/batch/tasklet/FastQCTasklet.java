@@ -81,4 +81,10 @@ public class FastQCTasklet extends WaspRemotingTasklet {
 		babrahamService.saveJsonForParsedSoftwareOutput(fastqc.parseOutput(result.getResultsDirectory()), fastqc, fileGroupId);
 	}
 
+	@Override
+	public void doCleanupBeforeRestart(ChunkContext context) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

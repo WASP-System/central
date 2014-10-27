@@ -309,4 +309,10 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		super.beforeStep(stepExecution);
 	}
 
+	@Override
+	public void doCleanupBeforeRestart(ChunkContext context) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

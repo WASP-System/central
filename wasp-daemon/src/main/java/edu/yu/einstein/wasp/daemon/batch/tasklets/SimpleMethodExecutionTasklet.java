@@ -116,6 +116,12 @@ public class SimpleMethodExecutionTasklet extends WaspRemotingTasklet {
 		saveGridResult(context, r);
 		
 	}
+
+	@Override
+	public void doCleanupBeforeRestart(ChunkContext context) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
 	
 
 }

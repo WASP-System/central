@@ -268,4 +268,10 @@ public class BamPreProcessingTasklet extends TestForGenomeIndexTasklet implement
 		return sampleService.getJobOfLibraryOnCell(cellLib);
 	}
 
+	@Override
+	public void doCleanupBeforeRestart(ChunkContext context) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

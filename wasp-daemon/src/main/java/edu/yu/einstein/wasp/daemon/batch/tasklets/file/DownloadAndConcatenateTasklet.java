@@ -129,6 +129,13 @@ public class DownloadAndConcatenateTasklet extends AbstractRemoteFileTasklet {
 			this.checksums = new ArrayList<String>();
 		this.checksums = Arrays.asList(checksums.split(FILE_DELIMITER));
 	}
+
+
+	@Override
+	public void doCleanupBeforeRestart(ChunkContext context) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
 	
 
 }

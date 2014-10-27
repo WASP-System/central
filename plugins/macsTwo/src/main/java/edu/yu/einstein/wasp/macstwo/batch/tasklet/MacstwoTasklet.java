@@ -652,4 +652,10 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		fileGroup = fileService.addFileGroup(fileGroup);		
 		return fileGroup;
 	}
+
+	@Override
+	public void doCleanupBeforeRestart(ChunkContext context) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
 }

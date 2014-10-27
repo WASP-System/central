@@ -84,4 +84,10 @@ public class DownloadTasklet extends AbstractRemoteFileTasklet {
 		this.filename = filename;
 	}
 
+	@Override
+	public void doCleanupBeforeRestart(ChunkContext context) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

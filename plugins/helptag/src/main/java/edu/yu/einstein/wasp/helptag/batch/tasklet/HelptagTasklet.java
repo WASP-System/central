@@ -132,4 +132,10 @@ public class HelptagTasklet extends WaspRemotingTasklet  implements StepExecutio
 		
 	}
 
+	@Override
+	public void doCleanupBeforeRestart(ChunkContext context) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

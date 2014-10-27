@@ -32,7 +32,6 @@ import org.springframework.util.StringUtils;
 import edu.yu.einstein.wasp.batch.SimpleManyJobRecipient;
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionReadinessException;
-import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager.LockType;
 import edu.yu.einstein.wasp.interfacing.batch.ManyJobRecipient;
@@ -105,9 +104,9 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet i
         if (wasWokenOnMessage(context)) {
             logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId
                     + ") was woken up from hibernation on completion.");
-
+            setIsInErrorConditionAndFlaggedForRestart(stepExecution, false);
             if (!stepExecution.getExecutionContext().containsKey(BatchJobHibernationManager.ABANDONED_CHILD_IDS)) {
-                logger.debug(stepExecution.getStepName() + ":" + stepExecutionId + "appears to be complete, returning FINISHED");
+                logger.debug(stepExecution.getStepName() + ":" + stepExecutionId + " appears to be complete, returning FINISHED");
             
                 // does not currently deal with abandonment issues.
                 setStepStatusInJobExecutionContext(stepExecution, BatchStatus.COMPLETED);
@@ -121,10 +120,10 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet i
                 String message = "Found " + abandoned.size() + " abandoned child jobs for parent step " + parentId.toString() + 
                         " {" + StringUtils.collectionToCommaDelimitedString(abandoned) + "}";
                 logger.warn(message);
-                throw new WaspRuntimeException(message);
+                setIsInErrorConditionAndFlaggedForRestart(stepExecution, true); // error condition
             }
         }
-        if (children.isEmpty()){
+        if (children.isEmpty() && !isInErrorConditionAndFlaggedForRestart(stepExecution)){
         	logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId
                     + ") will end immediately as no child jobs to listen for");
         	return RepeatStatus.FINISHED;

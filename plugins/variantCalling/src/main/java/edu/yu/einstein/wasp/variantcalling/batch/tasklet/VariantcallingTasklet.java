@@ -92,5 +92,11 @@ public class VariantcallingTasklet extends WaspRemotingTasklet {
 	
 		return exitStatus;
 	}
+
+	@Override
+	public void doCleanupBeforeRestart(ChunkContext context) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

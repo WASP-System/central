@@ -86,4 +86,10 @@ public class IndexFastaTasklet extends WaspRemotingTasklet {
 
 	}
 
+	@Override
+	public void doCleanupBeforeRestart(ChunkContext context) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

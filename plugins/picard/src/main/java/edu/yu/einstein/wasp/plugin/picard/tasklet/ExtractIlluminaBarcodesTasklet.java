@@ -153,6 +153,12 @@ public class ExtractIlluminaBarcodesTasklet extends WaspRemotingTasklet {
 		logger.trace("going to operate on run " + run.getName());
 		super.beforeStep(stepExecution);
 	}
+
+	@Override
+	public void doCleanupBeforeRestart(ChunkContext context) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
 	
 
 }

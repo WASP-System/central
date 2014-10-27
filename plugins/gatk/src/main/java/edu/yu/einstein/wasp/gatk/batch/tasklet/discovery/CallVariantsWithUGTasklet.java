@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -131,6 +132,12 @@ public class CallVariantsWithUGTasklet extends AbstractGatkTasklet implements St
 	@Transactional("entityManager")
 	public void beforeStep(StepExecution stepExecution){
 		super.beforeStep(stepExecution);
+	}
+
+	@Override
+	public void doCleanupBeforeRestart(ChunkContext context) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 
 	

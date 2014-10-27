@@ -8,6 +8,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -129,6 +130,12 @@ public class RealignTasklet extends AbstractGatkTasklet {
 		w.addCommand(gatk.getCreateTargetCmd(getGridWorkService(getStepExecutionContext(stepExecution)), build, inputBamFilenames, intervalFileName, MEMORY_GB_16));
 		w.addCommand(gatk.getLocalAlignCmd(getGridWorkService(getStepExecutionContext(stepExecution)), build, inputBamFilenames, intervalFileName, outputFilenames, MEMORY_GB_16));
 		return w;
+	}
+
+	@Override
+	public void doCleanupBeforeRestart(ChunkContext context) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

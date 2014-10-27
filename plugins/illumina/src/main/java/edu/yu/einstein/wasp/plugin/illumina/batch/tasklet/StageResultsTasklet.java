@@ -151,4 +151,10 @@ public class StageResultsTasklet extends WaspRemotingTasklet {
 		this.runService = runService;
 	}
 
+	@Override
+	public void doCleanupBeforeRestart(ChunkContext context) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

@@ -195,5 +195,11 @@ public class BWAalnTasklet extends TestForGenomeIndexTasklet implements StepExec
 		return bwa.prepareWorkUnitConfiguration(fg);
 	}
 
+	@Override
+	public void doCleanupBeforeRestart(ChunkContext context) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 }

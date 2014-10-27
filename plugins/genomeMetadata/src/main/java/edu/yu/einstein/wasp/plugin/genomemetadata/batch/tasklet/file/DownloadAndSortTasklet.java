@@ -175,4 +175,10 @@ public class DownloadAndSortTasklet extends AbstractRemoteFileTasklet {
 		this.checksum = checksum;
 	}
 
+	@Override
+	public void doCleanupBeforeRestart(ChunkContext context) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

@@ -49,4 +49,10 @@ public class TestExponentialTimedTasklet extends WaspRemotingTasklet {
 		requestHibernation(context);
 		return RepeatStatus.CONTINUABLE;
 	}
+
+	@Override
+	public void doCleanupBeforeRestart(ChunkContext context) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
 }

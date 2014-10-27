@@ -218,6 +218,13 @@ public class HardFilterTasklet extends TestForGenomeIndexTasklet {
 	public void beforeStep(StepExecution stepExecution) {
 		super.beforeStep(stepExecution);
 	}
+
+
+	@Override
+	public void doCleanupBeforeRestart(ChunkContext context) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
 	
 
 }

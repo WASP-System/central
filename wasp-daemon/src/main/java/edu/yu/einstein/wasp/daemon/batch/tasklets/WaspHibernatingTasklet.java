@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionReadinessException;
+import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager.LockType;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
@@ -347,6 +348,12 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 		return status;	
 	}
 	
+	protected void removeWokenOnMessageStatus(StepExecution stepExecution){
+		ExecutionContext executionContext = stepExecution.getExecutionContext();
+		if (executionContext.containsKey(BatchJobHibernationManager.WOKEN_ON_MESSAGE_STATUS))
+			executionContext.remove(BatchJobHibernationManager.WOKEN_ON_MESSAGE_STATUS);
+	}
+	
 	protected boolean wasWokenOnTimeout(ChunkContext context){
 		return wasWokenOnTimeout(context.getStepContext().getStepExecution());
 	}
@@ -378,8 +385,27 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 			hibernationManager.removeStepExecutionFromAbandonMessageMap(stepExecution);
 		}
 		ExitStatus exitStatus = super.afterStep(stepExecution);
+		if (isInErrorConditionAndFlaggedForRestart(stepExecution)){
+    		logger.debug(stepExecution.getStepName() + " afterStep identified stopped state for error");
+            exitStatus =  new ExitStatus("ERROR").addExitDescription("Stopped for Error");
+        }
+		removeWokenOnMessageStatus(stepExecution);
 		logger.debug("WaspHibernatingTasklet afterStep() returning ExitStatus=" + exitStatus);
 		return exitStatus;
+	}
+	
+	public boolean isInErrorConditionAndFlaggedForRestart(StepExecution se) {
+		JobExecution je = se.getJobExecution();
+		boolean isFlaggedForRestart = false;
+		if (je.getExecutionContext().containsKey(GridResult.FLAGGED_FOR_RESTART))
+			isFlaggedForRestart =  Boolean.parseBoolean(je.getExecutionContext().getString(GridResult.FLAGGED_FOR_RESTART));
+		logger.debug("Grid work unit for JobExecutionId=" + je.getId() + " is flagged for restart=" + isFlaggedForRestart);
+		return isFlaggedForRestart;
+	}
+	
+	protected static void setIsInErrorConditionAndFlaggedForRestart(StepExecution se, Boolean isFlaggedForRestart) {
+		JobExecution je = se.getJobExecution();
+		je.getExecutionContext().put(GridResult.FLAGGED_FOR_RESTART, isFlaggedForRestart.toString());
 	}
 	
 }
