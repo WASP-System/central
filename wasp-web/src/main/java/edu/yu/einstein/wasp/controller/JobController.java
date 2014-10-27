@@ -1876,6 +1876,13 @@ public class JobController extends WaspController {
 		Collections.sort(facilityJobCommentsList, new LIFOMetaMessageDateComparator());
 		m.addAttribute("facilityJobCommentsList", facilityJobCommentsList);
 		
+		//10-25-14; changed display to interleave user-submitted and facility-submitted comments
+		List<MetaMessage> allJobCommentsList = new ArrayList<MetaMessage>();
+		allJobCommentsList.addAll(userSubmittedJobCommentsList);
+		allJobCommentsList.addAll(facilityJobCommentsList);
+		Collections.sort(allJobCommentsList, new LIFOMetaMessageDateComparator());
+		m.addAttribute("allJobCommentsList", allJobCommentsList);
+		
 		//permit job's submitter and job's PI to add a comment, as well as superuser, ftech, da:
 		boolean permissionToAddEditComment = false;//currently, no mechanism to edit exists on these comments on the webpage
 		try{

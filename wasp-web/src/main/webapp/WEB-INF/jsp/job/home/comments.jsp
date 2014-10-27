@@ -23,6 +23,7 @@
 				<input type='submit' value='Submit Comment'/>
 			</td></tr>
 		</c:if>
+<%--		
 		<c:if test='${fn:length(userSubmittedJobCommentsList) > 0}'>
 			<tr>
 				<th class="label" nowrap><fmt:message key="jobComment.jobCommentDate.label"/></th>
@@ -34,7 +35,7 @@
 					<td style="padding-top:5px;padding-bottom:5px;padding-left:5px;padding-right:5px;" nowrap><fmt:formatDate value="${userSubmittedJobComment.getDate()}" pattern="yyyy-MM-dd" /></td>
 					<td style="padding-top:5px;padding-bottom:5px;padding-left:5px;padding-right:5px;" ><c:out value="${userSubmittedJobComment.getUser().getNameFstLst()}" /></td>
 					<%-- for potential problems with escapeXML in next c:out see: http://www.coderanch.com/t/535302/JSP/java/Keeping-line-breaks-String --%><%--escapeXml="false"--%>
-					<td style="padding-top:5px;padding-bottom:5px;padding-left:5px;padding-right:5px;" ><c:out value="${userSubmittedJobComment.getValue()}"  escapeXml="false" /> </td> 
+<%--				<td style="padding-top:5px;padding-bottom:5px;padding-left:5px;padding-right:5px;" ><c:out value="${userSubmittedJobComment.getValue()}"  escapeXml="false" /> </td> 
 				</tr>
 			</c:forEach>
 		</c:if>
@@ -50,7 +51,26 @@
 				<td style="padding-top:5px;padding-bottom:5px;padding-left:5px;padding-right:5px;" nowrap><fmt:formatDate value="${facilityJobComment.getDate()}" pattern="yyyy-MM-dd" /></td>
 				<td style="padding-top:5px;padding-bottom:5px;padding-left:5px;padding-right:5px;" ><c:out value="${facilityJobComment.getUser().getNameFstLst()}" /></td>
 				<%-- for potential problems with escapeXML in next c:out see: http://www.coderanch.com/t/535302/JSP/java/Keeping-line-breaks-String --%><%--escapeXml="false"--%>
-				<td style="padding-top:5px;padding-bottom:5px;padding-left:5px;padding-right:5px;" ><c:out value="${facilityJobComment.getValue()}"  escapeXml="false" /> </td> 
+<%--			<td style="padding-top:5px;padding-bottom:5px;padding-left:5px;padding-right:5px;" ><c:out value="${facilityJobComment.getValue()}"  escapeXml="false" /> </td> 
+			</tr>
+			</c:forEach>
+		</c:if>
+--%>
+		<c:if test='${fn:length(allJobCommentsList) > 0}'>
+			<tr>
+				<th class="label" nowrap><fmt:message key="jobComment.jobCommentDate.label"/></th>
+				<th class="label" nowrap><fmt:message key="jobComment.jobCommentSubmittedBy.label"/></th>
+				<th class="label" nowrap><fmt:message key="jobComment.comments.label"/></th>
+			</tr>	
+			<c:forEach items="${allJobCommentsList}" var="theComment">
+			<tr>
+				<td style="padding-top:5px;padding-bottom:5px;padding-left:5px;padding-right:5px;" nowrap><fmt:formatDate value="${theComment.getDate()}" pattern="yyyy-MM-dd" /></td>
+				<td style="padding-top:5px;padding-bottom:5px;padding-left:5px;padding-right:5px;" nowrap><c:out value="${theComment.getUser().getNameFstLst()}" /></td>
+				<%-- for potential problems with escapeXML in next c:out see: http://www.coderanch.com/t/535302/JSP/java/Keeping-line-breaks-String --%><%--escapeXml="false"--%>
+				<td style="padding-top:5px;padding-bottom:5px;padding-left:5px;padding-right:5px;" >
+					<c:if test="${facilityJobCommentsList.contains(theComment) }"><fmt:message key="jobComment.sequencingFacilityComment.label"/>: </c:if>
+					<c:out value="${theComment.getValue()}"  escapeXml="false" /> 
+				</td> 
 			</tr>
 			</c:forEach>
 		</c:if>
