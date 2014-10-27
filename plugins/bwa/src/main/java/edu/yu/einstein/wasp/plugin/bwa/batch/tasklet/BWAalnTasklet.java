@@ -137,7 +137,7 @@ public class BWAalnTasklet extends TestForGenomeIndexTasklet implements StepExec
 		        fileGroups.add(fg);
 		    }
 
-			Assert.assertTrue(fileGroups.size() == 1);
+			Assert.assertTrue(fileGroups.size() == 1, "No filegroups returned for cellLibrary " + cellLib.getId() + " from job " + job.getId());
 			fg = fileGroups.iterator().next();
 		}
 		super.beforeStep(stepExecution);
