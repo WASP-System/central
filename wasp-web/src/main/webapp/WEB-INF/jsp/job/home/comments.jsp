@@ -6,17 +6,21 @@
 
 <br />
 <form  method='post' name='commentForm' id='commentFormId' onsubmit='postFormWithAjax("commentFormId","<wasp:relativeUrl value="job/${job.getId()}/comments.do" />"); return false;'>
-	<table class="data" style="margin: 0px 0; width:600px" >
+	<table class="data" style="margin: 0px 0; width:650px" >
 		<c:if test='${permissionToAddEditComment==true}'>
 			<tr ><th class="label" nowrap colspan="3"><fmt:message key="jobComment.addNewJobComment.label" /></th></tr>
 			<tr><td align="center" colspan="3">
-				<textarea id="comment" name="comment" cols="70" rows="4"></textarea><br />
+				<textarea id="comment" name="comment" cols="80" rows="5"></textarea><br />
 			</td></tr>
 			<c:if test="${fn:length(errorMessage)>0}">
 				<tr><td colspan="3" align="center" style="color:red;font-weight:bold"><c:out value="${errorMessage}" /></td></tr>
 			</c:if>
 			<tr><td align="center" colspan="3">
-				<input type='submit' value='Submit'/>
+				<br />
+				<%--<input type="checkbox" name="emailThisComment" value="facility">Email This Comment To Sequencing Facility &amp; Job Submitter<br />--%>
+				<span style="font-weight:bold"><fmt:message key="jobComment.jobCommentSendEmail.label"/></span><br />
+				<input type="radio" name="emailThisComment" value="yes"><fmt:message key="jobComment.jobCommentSendEmailYes.label"/> &nbsp; <input type="radio" name="emailThisComment" checked value="no"><fmt:message key="jobComment.jobCommentSendEmailNo.label"/><br />
+				<input type='submit' value='Submit Comment'/>
 			</td></tr>
 		</c:if>
 		<c:if test='${fn:length(userSubmittedJobCommentsList) > 0}'>
