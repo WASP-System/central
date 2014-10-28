@@ -54,7 +54,7 @@ public class IndexFastaTasklet extends WaspRemotingTasklet {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 		
 		GridWorkService host = hostResolver.getGridWorkService(hostname);
 		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
@@ -80,9 +80,7 @@ public class IndexFastaTasklet extends WaspRemotingTasklet {
 		
 		w.setSecureResults(true);
 		
-		GridResult r = host.execute(w);
-		
-		saveGridResult(context, r);
+		return host.execute(w);
 
 	}
 

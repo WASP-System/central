@@ -63,7 +63,7 @@ public class TrimGaloreTrimmingTasklet extends WaspRemotingTasklet {
      * {@inheritDoc}
      */
     @Override
-    public void doExecute(ChunkContext context) throws Exception {
+    public GridResult doExecute(ChunkContext context) throws Exception {
         SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);
         Sample library = sampleService.getLibrary(cellLibrary);
 
@@ -77,12 +77,8 @@ public class TrimGaloreTrimmingTasklet extends WaspRemotingTasklet {
             params.setAdapter2(adapter);
 
         WorkUnit w = trimGalore.getTrimCommand(params, software, runId, cellLibraryId, fileGroupId, fileNumber);
-
-        GridResult result = hostResolver.execute(w);
-
         logger.debug("submitted trim step, going for hibernation");
-        
-        saveGridResult(context, result);
+        return hostResolver.execute(w);
     }
 
     @Override

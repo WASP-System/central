@@ -99,12 +99,8 @@ public class BamPreProcessingTasklet extends TestForGenomeIndexTasklet implement
 
 	@Override
 	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
-		
-		GridResult result = executeWorkUnit(context);
-		
-		//place the grid result in the step context
-		saveGridResult(context, result);
+	public GridResult doExecute(ChunkContext context) throws Exception {
+		return executeWorkUnit(context);
 	}
 	
 	/** 

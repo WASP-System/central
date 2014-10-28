@@ -55,7 +55,7 @@ public class BuildBwaIndexTasklet extends WaspRemotingTasklet {
 
 	@Override
 	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 
 		GridWorkService host = hostResolver.getGridWorkService(hostname);
 		
@@ -81,9 +81,7 @@ public class BuildBwaIndexTasklet extends WaspRemotingTasklet {
 		w.addCommand("bwa index -p " + name + " " + remoteFastaName);
 		w.addCommand("rm -f " + GenomeService.INDEX_CREATION_STARTED + ".tmp");
 		
-		GridResult r = host.execute(w);
-
-		saveGridResult(context, r);
+		return host.execute(w);
 	}
 
 	@Override

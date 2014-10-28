@@ -95,7 +95,7 @@ public class SimpleMethodExecutionTasklet extends WaspRemotingTasklet {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
 		c.setSoftwareDependencies(softwareDependencies);
 		c.setMemoryRequirements(memoryRequirements);
@@ -112,8 +112,7 @@ public class SimpleMethodExecutionTasklet extends WaspRemotingTasklet {
 		} else {
 			r = hostResolver.execute(w);
 		}
-		
-		saveGridResult(context, r);
+		return r;
 		
 	}
 

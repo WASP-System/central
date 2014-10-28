@@ -74,7 +74,7 @@ public class ExtractIlluminaBarcodesTasklet extends WaspRemotingTasklet {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 		
 		// Document runInfo = illuminaService.getIlluminaRunXml(run);
 		
@@ -106,10 +106,7 @@ public class ExtractIlluminaBarcodesTasklet extends WaspRemotingTasklet {
 		w.setCommand(picard.getExtractIlluminaBarcodesCmd(run));
 		
 		
-		GridResult result = hostResolver.execute(w);
-		
-		//place the grid result in the step context
-		saveGridResult(context, result);
+		return hostResolver.execute(w);
 		
 
 	}

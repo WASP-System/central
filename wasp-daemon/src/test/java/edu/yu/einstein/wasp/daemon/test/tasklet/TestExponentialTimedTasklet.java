@@ -6,6 +6,7 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
+import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager.LockType;
 
@@ -16,8 +17,8 @@ public class TestExponentialTimedTasklet extends WaspRemotingTasklet {
 	private static final int MAX_REPEATS = 3;
 	
 	@Override
-	public void doExecute(ChunkContext context) throws Exception {
-		
+	public GridResult doExecute(ChunkContext context) throws Exception {
+		return null;
 	}
 	
 	@Override

@@ -67,7 +67,7 @@ public class ProcessSAVTasklet extends WaspRemotingTasklet {
 
 	@Override
 	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 		
 		run = runService.getRunById(runId);
 		
@@ -97,9 +97,7 @@ public class ProcessSAVTasklet extends WaspRemotingTasklet {
 		GridResult result = gws.execute(w);
 		
 		logger.debug("started savR processing: " + result.getUuid());
-		
-		//place the grid result in the step context
-		saveGridResult(context, result);
+		return result;
 	}
 
 

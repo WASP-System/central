@@ -57,7 +57,7 @@ public class BWAsamTasklet extends WaspRemotingTasklet implements StepExecutionL
 	 */
 	@Override
 	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 		StepExecution stepExecution = context.getStepContext().getStepExecution();
 		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
 		
@@ -84,10 +84,7 @@ public class BWAsamTasklet extends WaspRemotingTasklet implements StepExecutionL
 
 		WorkUnit w = bwa.getSam(cellLib, scratchDirectory, alnJobName, fg, jobParameters);
 		
-		GridResult result = gridHostResolver.execute(w);
-
-		// place the grid result in the step context
-		saveGridResult(context, result);
+		return gridHostResolver.execute(w);
 	}
 
 	/**

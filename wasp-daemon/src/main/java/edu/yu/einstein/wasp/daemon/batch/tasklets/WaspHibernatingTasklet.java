@@ -310,28 +310,24 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 		return newTimeInterval;
 	}
 	
-	protected void setTimeoutIntervalInContext(ChunkContext context, Long timeoutInterval){
-		BatchJobHibernationManager.setWakeTimeInterval(context.getStepContext().getStepExecution(), timeoutInterval);
+	protected void setTimeoutIntervalInContext(StepExecution se, Long timeoutInterval){
+		BatchJobHibernationManager.setWakeTimeInterval(se, timeoutInterval);
 	}
 	
-	protected void addStatusMessagesToWakeStepToContext(ChunkContext context, Set<WaspStatusMessageTemplate> templates) throws JSONException{
-		BatchJobHibernationManager.setWakeMessagesInStepExecutionContext(context.getStepContext().getStepExecution(), templates);
+	protected void addStatusMessagesToWakeStepToContext(StepExecution se, Set<WaspStatusMessageTemplate> templates) throws JSONException{
+		BatchJobHibernationManager.setWakeMessagesInStepExecutionContext(se, templates);
 	}
 	
-	protected void addStatusMessagesToAbandonStepToContext(ChunkContext context, Set<WaspStatusMessageTemplate> templates) throws JSONException{
-		BatchJobHibernationManager.setAbandonMessagesForStep(context.getStepContext().getStepExecution(), templates);
+	protected void addStatusMessagesToAbandonStepToContext(StepExecution se, Set<WaspStatusMessageTemplate> templates) throws JSONException{
+		BatchJobHibernationManager.setAbandonMessagesForStep(se, templates);
 	}
 	
-	protected Set<WaspStatusMessageTemplate> getStatusMessagesToWakeStepFromContext(ChunkContext context) throws JSONException{
-		return BatchJobHibernationManager.getWakeMessagesFromStepExecutionContext(context.getStepContext().getStepExecution());
+	protected Set<WaspStatusMessageTemplate> getStatusMessagesToWakeStepFromContext(StepExecution se) throws JSONException{
+		return BatchJobHibernationManager.getWakeMessagesFromStepExecutionContext(se);
 	}
 	
-	protected Set<WaspStatusMessageTemplate> getStatusMessagesToAbandonStepFromContext(ChunkContext context) throws JSONException{
-		return BatchJobHibernationManager.getAbandonMessagesForStep(context.getStepContext().getStepExecution());
-	}
-	
-	protected boolean wasWokenOnMessage(ChunkContext context){
-		return wasWokenOnMessage(context.getStepContext().getStepExecution());
+	protected Set<WaspStatusMessageTemplate> getStatusMessagesToAbandonStepFromContext(StepExecution se) throws JSONException{
+		return BatchJobHibernationManager.getAbandonMessagesForStep(se);
 	}
 	
 	protected boolean wasWokenOnMessage(StepExecution stepExecution){
@@ -358,6 +354,7 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 		return wasWokenOnTimeout(context.getStepContext().getStepExecution());
 	}
 	
+	
 	protected boolean wasWokenOnTimeout(StepExecution stepExecution){
 		ExecutionContext executionContext = stepExecution.getExecutionContext();
 		boolean woken = false;
@@ -365,6 +362,12 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 			woken = (boolean) executionContext.get(BatchJobHibernationManager.WOKEN_ON_TIMEOUT);
 		logger.debug("StepExecutionId=" + stepExecution.getId() + " wasWokenByTimeout=" + woken);
 		return woken;	
+	}
+	
+	protected void removeWokenOnTimeoutStatus(StepExecution stepExecution){
+		ExecutionContext executionContext = stepExecution.getExecutionContext();
+		if (executionContext.containsKey(BatchJobHibernationManager.WOKEN_ON_TIMEOUT))
+			executionContext.remove(BatchJobHibernationManager.WOKEN_ON_TIMEOUT);
 	}
 	
 	@Override
@@ -387,9 +390,13 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 		ExitStatus exitStatus = super.afterStep(stepExecution);
 		if (isInErrorConditionAndFlaggedForRestart(stepExecution)){
     		logger.debug(stepExecution.getStepName() + " afterStep identified stopped state for error");
+    		if (wasWokenOnTimeout(stepExecution)){
+    			removeWokenOnTimeoutStatus(stepExecution);
+    			setTimeoutIntervalInContext(stepExecution, getRandomInitialExponentialInterval()); // reset for restart
+    		} else 
+    			removeWokenOnMessageStatus(stepExecution);
             exitStatus =  new ExitStatus("ERROR").addExitDescription("Stopped for Error");
         }
-		removeWokenOnMessageStatus(stepExecution);
 		logger.debug("WaspHibernatingTasklet afterStep() returning ExitStatus=" + exitStatus);
 		return exitStatus;
 	}

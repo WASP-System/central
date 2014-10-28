@@ -86,7 +86,7 @@ public class TrimGaloreRegisteringTasklet extends WaspRemotingTasklet {
      */
     @Override
     @Transactional("entityManager")
-    public void doExecute(ChunkContext context) throws Exception {
+    public GridResult doExecute(ChunkContext context) throws Exception {
 
         SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);
 
@@ -100,7 +100,7 @@ public class TrimGaloreRegisteringTasklet extends WaspRemotingTasklet {
         	resultsFileIds.add(fh.getId());
         context.getStepContext().getStepExecution().getExecutionContext().putString("resultsFilesIdStr", StringUtils.collectionToCommaDelimitedString(resultsFileIds));
         
-        saveGridResult(context, result);
+       return result;
 
     }
     

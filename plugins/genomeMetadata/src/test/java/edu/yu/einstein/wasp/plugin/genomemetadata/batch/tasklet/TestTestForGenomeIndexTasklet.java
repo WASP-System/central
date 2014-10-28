@@ -26,13 +26,11 @@ public class TestTestForGenomeIndexTasklet extends TestForGenomeIndexTasklet {
 	 */
 	@Override
 	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 		
 		logger.info("normal execution here");
 		
-		GridResult dummy = new GridResultImpl();
-		
-		saveGridResult(context, dummy);
+		return new GridResultImpl();
 
 	}
 

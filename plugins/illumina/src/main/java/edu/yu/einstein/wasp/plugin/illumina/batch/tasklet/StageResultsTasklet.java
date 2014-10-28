@@ -56,7 +56,7 @@ public class StageResultsTasklet extends WaspRemotingTasklet {
 
 	@Override
 	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 	    
 	    // TODO: this step is sensitive to an existing results folder
 
@@ -130,8 +130,7 @@ public class StageResultsTasklet extends WaspRemotingTasklet {
 		
 		logger.debug("started staging of illumina output: " + result.getUuid());
 		
-		//place the grid result in the step context
-		saveGridResult(context, result);
+		return result;
 
 	}
 

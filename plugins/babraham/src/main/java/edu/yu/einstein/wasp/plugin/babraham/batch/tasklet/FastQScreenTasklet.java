@@ -55,15 +55,12 @@ public class FastQScreenTasklet extends WaspRemotingTasklet {
 	 */
 	@Override
 	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 		// get work unit
 		WorkUnit w = fastqscreen.getFastQScreen(fileGroupId);
 		
 		// execute it
-		GridResult result = hostResolver.execute(w);
-		
-		//place the grid result in the step context
-		saveGridResult(context, result);
+		return  hostResolver.execute(w);
 	}
 	
 	/**

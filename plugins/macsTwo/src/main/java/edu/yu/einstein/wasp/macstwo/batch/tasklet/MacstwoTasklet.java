@@ -164,7 +164,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	 */
 	@Transactional("entityManager")
 	@Override
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 		
 		logger.debug("Starting MacstwoTasklet execute");		
 		logger.debug("in doExecute this.jobId: " + this.jobId);
@@ -442,7 +442,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 
 		GridResult result = gridHostResolver.execute(w);
 		logger.debug("****Executed gridHostResolver.execute(w) in MactwoTasklet.doExecute()");
-		saveGridResult(context, result);//place the grid result in the step context
+		return result;
 	
 	}
 	

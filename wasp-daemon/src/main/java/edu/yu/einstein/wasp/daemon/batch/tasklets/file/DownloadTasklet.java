@@ -43,7 +43,7 @@ public class DownloadTasklet extends AbstractRemoteFileTasklet {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 		GridWorkService host = hostResolver.getGridWorkService(hostname);
 		URL url = new URL(fileUrl);
 		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
@@ -64,9 +64,7 @@ public class DownloadTasklet extends AbstractRemoteFileTasklet {
 		}
 		w.addCommand("date > " + url.getFile() + "_" + FILE_TRANSFER_COMPLETE_SEMAPHORE);
 		
-		GridResult r = host.execute(w);
-		
-		saveGridResult(context, r);
+		return host.execute(w);
 
 	}
 

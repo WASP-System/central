@@ -95,15 +95,16 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet i
     @Override
     @RetryOnExceptionFixed
     public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
+    	stepExecution = context.getStepContext().getStepExecution(); // refresh
+    	jobExecution = stepExecution.getJobExecution(); // refresh
         Long stepExecutionId = stepExecution.getId();
         Long jobExecutionId = jobExecution.getId();
         logger.trace(name + "execute() invoked on stepId=" + stepExecutionId);
         
         // if we are woken by a message, it means that the BatchJobHibernationManager has concluded
         // that all of the messages have been received.  
-        if (wasWokenOnMessage(context)) {
-            logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId
-                    + ") was woken up from hibernation on completion.");
+        if (wasWokenOnMessage(stepExecution)) {
+            logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + ") was woken up from hibernation on completion.");
             setIsInErrorConditionAndFlaggedForRestart(stepExecution, false);
             if (!stepExecution.getExecutionContext().containsKey(BatchJobHibernationManager.ABANDONED_CHILD_IDS)) {
                 logger.debug(stepExecution.getStepName() + ":" + stepExecutionId + " appears to be complete, returning FINISHED");

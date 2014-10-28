@@ -92,16 +92,12 @@ public class BWAalnTasklet extends TestForGenomeIndexTasklet implements StepExec
 
 	@Override
 	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
 				
 		try{
 			WorkUnit w = buildWorkUnit(context.getStepContext().getStepExecution());
 			GridResult result = executeWorkUnit(context, w);
-		
-			//place the grid result in the step context
-			saveGridResult(context, result);
-		
 			// place properties for use in later steps into the step execution context, to be promoted
 			// to the job context at run time.
 			stepExecutionContext.put("cellLibId", cellLib.getId()); 
@@ -109,9 +105,11 @@ public class BWAalnTasklet extends TestForGenomeIndexTasklet implements StepExec
 			stepExecutionContext.put("alnName", result.getId());
 			stepExecutionContext.put("alnStr", w.getCommand());
 			stepExecutionContext.put("method", "backtrack");
+			return result;
 		} catch (ParameterValueRetrievalException e) {
 		    logger.info("BWA aln requested but got ParameterValueRetrievalException: " + e.getLocalizedMessage() + ". Assume alignment not possible, returning SKIP.");
 		    skip = true;
+		    return null;
 		}
 	}
 	
