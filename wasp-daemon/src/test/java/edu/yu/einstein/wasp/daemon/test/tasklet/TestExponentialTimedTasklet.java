@@ -46,7 +46,7 @@ public class TestExponentialTimedTasklet extends WaspRemotingTasklet {
 		
 		Long timeoutInterval = exponentiallyIncreaseTimeoutIntervalInContext(context);
 		logger.debug("Going to request hibernation for " + timeoutInterval + " ms");
-		addStatusMessagesToAbandonStepToContext(context, abandonTemplates);
+		addStatusMessagesToAbandonStepToContext(context.getStepContext().getStepExecution(), abandonTemplates);
 		requestHibernation(context);
 		return RepeatStatus.CONTINUABLE;
 	}

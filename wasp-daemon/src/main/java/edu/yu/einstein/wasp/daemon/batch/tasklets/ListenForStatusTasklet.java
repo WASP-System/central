@@ -99,7 +99,7 @@ public class ListenForStatusTasklet extends WaspHibernatingTasklet implements Me
 		Long stepExecutionId =stepExecution.getId();
 		Long jobExecutionId = context.getStepContext().getStepExecution().getJobExecutionId();
 		logger.trace(name + "execute() invoked");
-		if (wasWokenOnMessage(context)){
+		if (wasWokenOnMessage(stepExecution)){
 			logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + 
 					") was woken up from hibernation for a message. Skipping to next step...");
 			setStepStatusInJobExecutionContext(stepExecution, BatchStatus.COMPLETED);
@@ -116,8 +116,8 @@ public class ListenForStatusTasklet extends WaspHibernatingTasklet implements Me
 			// all steps if this isn't done.
 			logger.info("Going to request hibernation from StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + 
 					") as not previously requested");
-			addStatusMessagesToWakeStepToContext(context, messageTemplates);
-			addStatusMessagesToAbandonStepToContext(context, abandonTemplates);
+			addStatusMessagesToWakeStepToContext(stepExecution, messageTemplates);
+			addStatusMessagesToAbandonStepToContext(stepExecution, abandonTemplates);
 			requestHibernation(context);
 		} else if (!wasHibernationRequestGranted){
 				logger.debug("Previous hibernation request made by this StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + 
