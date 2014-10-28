@@ -47,6 +47,7 @@ import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.batch.SimpleManyJobRecipient;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionException;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionReadinessException;
+import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
@@ -167,15 +168,22 @@ public class BatchJobHibernationManager {
 								" on restart wait timeout because execution locked");
 						continue;
 					}
-					try{
-						reawakenJobExecution(se, WOKEN_ON_TIMEOUT, true);
+					if (isInErrorConditionAndFlaggedForRestart(se)){
+						logger.debug("Not restarting job with JobExecution id=" + je.getId() + " for step " + se.getId() + 
+								" on restart wait timeout because in error condition. Will, however, set WOKEN_ON_TIMEOUT to true");
+						se.getExecutionContext().put(WOKEN_ON_TIMEOUT, true);
 						timesWakingStepExecutions.remove(time);
-					} catch (WaspBatchJobExecutionException e){
-						logger.warn("Problem reawakening job execution : " + e.getLocalizedMessage());
-						unlockJobExecution(je, LockType.WAKE);
-					} catch (Throwable e1){
-						logger.warn("Problem reawakening job execution. Caught " + e1.getClass().getName() + " exception.: " + e1.getLocalizedMessage());
-						unlockJobExecution(je, LockType.WAKE);
+					} else {
+						try{
+							reawakenJobExecution(se, WOKEN_ON_TIMEOUT, true);
+							timesWakingStepExecutions.remove(time);
+						} catch (WaspBatchJobExecutionException e){
+							logger.warn("Problem reawakening job execution : " + e.getLocalizedMessage());
+							unlockJobExecution(je, LockType.WAKE);
+						} catch (Throwable e1){
+							logger.warn("Problem reawakening job execution. Caught " + e1.getClass().getName() + " exception.: " + e1.getLocalizedMessage());
+							unlockJobExecution(je, LockType.WAKE);
+						}
 					}
 				}
 			}
@@ -342,27 +350,33 @@ public class BatchJobHibernationManager {
 						pushMessageBackIntoQueueRequests++;
 						continue;
 					}
-					logger.info("Waking job with JobExecution id=" +je.getId() + " for step " + se.getId() + 
-							" on receiving message " + messageTemplate.getPayload().toString());
-					
 					if (!lockJobExecution(je, LockType.WAKE)){
 						logger.debug("Unable to get lock for JobExecution id=" + je.getId());
 						pushMessageBackIntoQueueRequests++;
 						continue;
 					}
-					
-					try{
-						reawakenJobExecution(se, WOKEN_ON_MESSAGE_STATUS, messageTemplate.getStatus());
+					if (isInErrorConditionAndFlaggedForRestart(se)){
+						logger.debug("Not going to wake job with JobExecution id=" +je.getId() + " for step " + se.getId() + 
+								" as in error condition. Will, however, set WOKEN_ON_MESSAGE_STATUS to " + messageTemplate.getStatus() + 
+								" in step execution context");
+						se.getExecutionContext().put(WOKEN_ON_MESSAGE_STATUS, messageTemplate.getStatus());
 						removeStepExecutionFromMessageMap(se, messageTemplatesWakingStepExecutions);
-						removeStepExecutionFromMessageMap(se, messageTemplatesAbandoningStepExecutions);
-					} catch (WaspBatchJobExecutionException e){
-						pushMessageBackIntoQueueRequests++;
-						unlockJobExecution(je, LockType.WAKE);
-						logger.debug("Problem reawakening job execution and cleaning up 'messageTemplatesWakingStepExecutions': " + e.getLocalizedMessage());
-					} catch (Throwable e1){
-						logger.warn("Problem reawakening job execution and cleaning up 'messageTemplatesAbandoningStepExecutions'. Caught " + 
-								e1.getClass().getName() + " exception.: " + e1.getLocalizedMessage());
-						unlockJobExecution(je, LockType.WAKE);
+					} else {
+						logger.info("Waking job with JobExecution id=" +je.getId() + " for step " + se.getId() + 
+								" on receiving message " + messageTemplate.getPayload().toString());
+						try{
+							reawakenJobExecution(se, WOKEN_ON_MESSAGE_STATUS, messageTemplate.getStatus());
+							removeStepExecutionFromMessageMap(se, messageTemplatesWakingStepExecutions);
+							removeStepExecutionFromMessageMap(se, messageTemplatesAbandoningStepExecutions);
+						} catch (WaspBatchJobExecutionException e){
+							pushMessageBackIntoQueueRequests++;
+							unlockJobExecution(je, LockType.WAKE);
+							logger.debug("Problem reawakening job execution and cleaning up 'messageTemplatesWakingStepExecutions': " + e.getLocalizedMessage());
+						} catch (Throwable e1){
+							logger.warn("Problem reawakening job execution and cleaning up 'messageTemplatesAbandoningStepExecutions'. Caught " + 
+									e1.getClass().getName() + " exception.: " + e1.getLocalizedMessage());
+							unlockJobExecution(je, LockType.WAKE);
+						}
 					}
 				} 
 			}
@@ -902,6 +916,30 @@ public class BatchJobHibernationManager {
 		for (int i=0; i< jsonArray.length(); i++)
 			templates.add(new WaspStatusMessageTemplate(jsonArray.getJSONObject(i)));
 		return templates;
+	}
+	
+	/**
+	 * returns true if this job is in error state and flagged for restart
+	 * @param se
+	 * @return
+	 */
+	public static boolean isInErrorConditionAndFlaggedForRestart(StepExecution stepExecution) {
+		JobExecution je = stepExecution.getJobExecution();
+		boolean isFlaggedForRestart = false;
+		if (je.getExecutionContext().containsKey(GridResult.FLAGGED_FOR_RESTART))
+			isFlaggedForRestart =  Boolean.parseBoolean(je.getExecutionContext().getString(GridResult.FLAGGED_FOR_RESTART));
+		logger.debug("Grid work unit for JobExecutionId=" + je.getId() + " is flagged for restart=" + isFlaggedForRestart);
+		return isFlaggedForRestart;
+	}
+	
+	/**
+	 * Sets if this job is in error state and flagged for restart
+	 * @param se
+	 * @param isFlaggedForRestart
+	 */
+	public static void setIsInErrorConditionAndFlaggedForRestart(StepExecution stepExecution, Boolean isFlaggedForRestart) {
+		JobExecution je = stepExecution.getJobExecution();
+		je.getExecutionContext().put(GridResult.FLAGGED_FOR_RESTART, isFlaggedForRestart.toString());
 	}
 	
 	/**

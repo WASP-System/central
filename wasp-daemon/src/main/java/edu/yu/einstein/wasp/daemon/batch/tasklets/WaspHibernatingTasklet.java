@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionReadinessException;
-import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager.LockType;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
@@ -402,17 +401,11 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 	}
 	
 	public boolean isInErrorConditionAndFlaggedForRestart(StepExecution se) {
-		JobExecution je = se.getJobExecution();
-		boolean isFlaggedForRestart = false;
-		if (je.getExecutionContext().containsKey(GridResult.FLAGGED_FOR_RESTART))
-			isFlaggedForRestart =  Boolean.parseBoolean(je.getExecutionContext().getString(GridResult.FLAGGED_FOR_RESTART));
-		logger.debug("Grid work unit for JobExecutionId=" + je.getId() + " is flagged for restart=" + isFlaggedForRestart);
-		return isFlaggedForRestart;
+		return BatchJobHibernationManager.isInErrorConditionAndFlaggedForRestart(se);
 	}
 	
 	protected static void setIsInErrorConditionAndFlaggedForRestart(StepExecution se, Boolean isFlaggedForRestart) {
-		JobExecution je = se.getJobExecution();
-		je.getExecutionContext().put(GridResult.FLAGGED_FOR_RESTART, isFlaggedForRestart.toString());
+		BatchJobHibernationManager.setIsInErrorConditionAndFlaggedForRestart(se, isFlaggedForRestart);
 	}
 	
 }
