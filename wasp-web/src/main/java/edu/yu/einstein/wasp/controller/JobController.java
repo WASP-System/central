@@ -1876,6 +1876,13 @@ public class JobController extends WaspController {
 		Collections.sort(facilityJobCommentsList, new LIFOMetaMessageDateComparator());
 		m.addAttribute("facilityJobCommentsList", facilityJobCommentsList);
 		
+		//10-25-14; changed display to interleave user-submitted and facility-submitted comments
+		List<MetaMessage> allJobCommentsList = new ArrayList<MetaMessage>();
+		allJobCommentsList.addAll(userSubmittedJobCommentsList);
+		allJobCommentsList.addAll(facilityJobCommentsList);
+		Collections.sort(allJobCommentsList, new LIFOMetaMessageDateComparator());
+		m.addAttribute("allJobCommentsList", allJobCommentsList);
+		
 		//permit job's submitter and job's PI to add a comment, as well as superuser, ftech, da:
 		boolean permissionToAddEditComment = false;//currently, no mechanism to edit exists on these comments on the webpage
 		try{
@@ -1889,13 +1896,16 @@ public class JobController extends WaspController {
 		}
 		m.addAttribute("permissionToAddEditComment", permissionToAddEditComment);
 	}
-	
 	  @Transactional
 	  @RequestMapping(value="/{jobId}/comments", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobCommentsPostPage(@PathVariable("jobId") Integer jobId, 
 			  @RequestParam("comment") String comment,
+			  @RequestParam(value="emailThisComment", required=false) String emailThisComment,
 			  ModelMap m) throws SampleTypeException {
+		
+		boolean commentRecorded = false;
+		boolean emailSent = false;
 		
 		Job job = jobService.getJobByJobId(jobId);
 		if(job.getId()==null){
@@ -1906,18 +1916,45 @@ public class JobController extends WaspController {
 		
 		comment = comment==null?"":comment.trim();  //StringEscapeUtils.escapeXml(comment.trim());//any standard html/xml [Supports only the five basic XML entities (gt, lt, quot, amp, apos)] will be converted to characters like &gt; //http://commons.apache.org/lang/api-3.1/org/apache/commons/lang3/StringEscapeUtils.html#escapeXml%28java.lang.String%29
 
-		if("".equals(comment)){
+		if(comment == null || comment.isEmpty()){
 			m.addAttribute("errorMessage", messageService.getMessage("jobComment.jobCommentEmpty.error"));
 		}
-		else{
+		else{			
+			//place facilityManager(s) and JobSubmitter on ccEmailRecipients list
+			Set<User> ccEmailRecipients = new HashSet<User>(userService.getFacilityManagers());
+			ccEmailRecipients.add(job.getUser());//jobSubmitter
+			
+			//the comment writer will be the sendTo recipient on the email
+			User me = webAuthenticationService.getAuthenticatedUser();
+			if(ccEmailRecipients.contains(me)){
+				ccEmailRecipients.remove(me); //remove since we don't want comment writer to be on both the ccList as well as being the sendTo recipient
+			}		
+			
 			try{
-				if(webAuthenticationService.hasPermission("hasRole('su') or hasRole('fm') or hasRole('ft') or hasRole('da-*')")){
+				if(webAuthenticationService.hasPermission("hasRole('su') or hasRole('fm') or hasRole('ft') or hasRole('ga') or hasRole('da-*')")){
 					jobService.setFacilityJobComment(jobId, comment);
+					commentRecorded = true;
 				}
 				else{
-					jobService.setUserSubmittedJobComment(jobId, comment);
+					jobService.setUserSubmittedJobComment(jobId, comment);	
+					commentRecorded = true;
 				}
-				m.addAttribute("successMessage", messageService.getMessage("jobComment.jobCommentAdded.label"));
+				if(emailThisComment != null && emailThisComment.equalsIgnoreCase("yes")){
+					//emailService.sendJobComment(final Job job, final User commentWriter, final String comment, final User emailRecipient, final Set<User> ccEmailRecipients, final Set<User> bccEmailRecipients);
+					emailService.sendJobComment(job, me, comment, me, ccEmailRecipients, null);	
+					emailSent=true;
+				}
+				if(commentRecorded && emailSent){
+					m.addAttribute("successMessage", messageService.getMessage("jobComment.jobCommentAddedEmailSent.label"));
+				}
+				else{
+					m.addAttribute("successMessage", messageService.getMessage("jobComment.jobCommentAdded.label"));
+				}
+			//throws MailPreparationException
+			}catch(MailPreparationException e){
+				String errorMessage = messageService.getMessage("jobComment.jobCommentMostLikelySavedButEmailError.error");
+				logger.warn(errorMessage);
+				m.addAttribute("errorMessage", errorMessage);
 			}catch(Exception e){
 				String errorMessage = messageService.getMessage("jobComment.jobCommentCreate.error");
 				logger.warn(errorMessage);

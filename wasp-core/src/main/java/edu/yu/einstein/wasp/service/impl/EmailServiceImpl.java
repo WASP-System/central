@@ -732,11 +732,11 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override	
-	public void sendQuoteAsAttachmentToPI(final Job job, final Set<User> ccEmailRepicients, final File fileToAttach, String fileName){
+	public void sendQuoteAsAttachmentToPI(final Job job, final Set<User> ccEmailRepicients, final File fileToAttach, String fileName)throws MailPreparationException{
 		User pI = job.getLab().getUser();
 		Map model = getJobSummaryMapForEmailDisplay(job);
 		model.put("addressedTo", pI);//used in body of email
-		prepareAndSendEmailWithAttachment(pI, ccEmailRepicients, null, fileToAttach, fileName, "emails/send_quote_as_attachment_to_pi", model);
+		prepareAndSendEmailWithOrWithoutAttachment(pI, ccEmailRepicients, null, fileToAttach, fileName, "emails/send_quote_as_attachment_to_pi", model);
 	}
 		
 	/**
@@ -752,7 +752,7 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 	 * @param Map model a Map object containing model data referenced within velocityEngine template
 	 */
 	@SuppressWarnings("rawtypes")
-	protected void prepareAndSendEmailWithAttachment(final User emailRecipient, final Set<User> ccEmailRepicients, final Set<User> bccEmailRepicients, final File fileToAttach, final String fileName, final String template, final Map model){
+	protected void prepareAndSendEmailWithOrWithoutAttachment(final User emailRecipient, final Set<User> ccEmailRepicients, final Set<User> bccEmailRepicients, final File fileToAttach, final String fileName, final String template, final Map model) throws MailPreparationException{
 		if (!isSendingEmailEnabled){
 			logger.info("Not sending email to user " + emailRecipient.getLastName() + ", " + emailRecipient.getFirstName() + 
 					" with template '" + template  + "' and parameters: " + model.toString() + " because mail-sending is not enabled in configuration");
@@ -761,7 +761,7 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 		MimeMessagePreparator preparator = new MimeMessagePreparator() {
 			@Override
 			public void prepare(MimeMessage mimeMessage) throws MailPreparationException {
-				generateMessageForEmailWithAttachment(emailRecipient, ccEmailRepicients, bccEmailRepicients, fileToAttach, fileName, template, model, mimeMessage); 
+				generateMessageForEmailWithOrWithoutAttachment(emailRecipient, ccEmailRepicients, bccEmailRepicients, fileToAttach, fileName, template, model, mimeMessage); 
 			}
 		};
 		logger.debug("Sending email to user " + emailRecipient.getLastName() + ", " + emailRecipient.getFirstName() + 
@@ -784,7 +784,7 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 	 * @throws MailPreparationException
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected void generateMessageForEmailWithAttachment(final User emailRecipient, final Set<User> ccEmailRepicients, final Set<User> bccEmailRepicients, final File fileToAttach, final String fileName, final String template, final Map model, MimeMessage mimeMessage) throws MailPreparationException {
+	protected void generateMessageForEmailWithOrWithoutAttachment(final User emailRecipient, final Set<User> ccEmailRepicients, final Set<User> bccEmailRepicients, final File fileToAttach, final String fileName, final String template, final Map model, MimeMessage mimeMessage) throws MailPreparationException {
 		model.put("servletUrl", servletPath);
 		model.put("customLogoResource", customLogoResource);
 		String lang=emailRecipient.getLocale().substring(0, 2);
@@ -863,5 +863,20 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override	
+	public void sendJobComment(final Job job, final User commentWriter, final String comment, final User emailRecipient, final Set<User> ccEmailRecipients, final Set<User> bccEmailRecipients)throws MailPreparationException{
+		if(comment == null || comment.trim().isEmpty()){
+			return;
+		}
+		Map model = getJobSummaryMapForEmailDisplay(job);
+		model.put("commentWriter", commentWriter);
+		model.put("comment", comment);
+		prepareAndSendEmailWithOrWithoutAttachment(emailRecipient, ccEmailRecipients, null, null, null, "emails/send_job_comment", model);
+	}
+
 }
 
