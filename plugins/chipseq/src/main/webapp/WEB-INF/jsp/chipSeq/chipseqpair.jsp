@@ -15,6 +15,91 @@
    <fmt:message key="${workflowIName}.pairing_instructions.label"/>
 </div>
 <c:choose>
+	<c:when test="${ fn:length(ipSamples)==0 || fn:length(inputSamples)==0 || (fn:length(ipSamples) + fn:length(inputSamples))==1 }">
+		<br />
+		<h2><fmt:message key="chipSeq.pairingNotPossible1.label"/></h2>	
+		<h3>&nbsp;&nbsp;&nbsp; * &nbsp;<fmt:message key="chipSeq.pairingNotPossible2.label"/></h3>
+		<h3>&nbsp;&nbsp;&nbsp; * &nbsp;<fmt:message key="chipSeq.pairingNotPossible3.label"/></h3>	
+		<h3>&nbsp;&nbsp;&nbsp; * &nbsp;<fmt:message key="chipSeq.pairingNotPossible4.label"/></h3>
+		<h3>&nbsp;&nbsp;&nbsp; * &nbsp;<fmt:message key="chipSeq.pairingNotPossible5.label"/></h3>	
+		<br />
+		<h2><fmt:message key="chipSeq.pairingNotPossible6.label"/></h2>
+	</c:when>
+	<c:otherwise>
+	<form method="POST">
+		<table class="EditTable ui-widget ui-widget-content">
+			<tr>
+		 		<td class="CaptionTD top-heading" align="center" colspan="3"><fmt:message key="chipSeq.pair_create_pair.label"/></td>
+			</tr>
+		  	<tr>
+		 		<td class="CaptionTD top-heading" align="center"><fmt:message key="chipSeq.pair_ipsample.label"/></td>
+				<td class="CaptionTD top-heading" align="center"><fmt:message key="chipSeq.pair_controlinput.label"/></td>
+				<td class="CaptionTD top-heading" align="center"><fmt:message key="chipSeq.pair_action.label"/></td>
+			</tr>
+			<tr>
+				<td class="DataTD value-centered">
+		  			<select name="ipSampleDraftId">
+		  				<option value="0"><fmt:message key="chipSeq.pair_selectIP.label"/></option>
+			  			<c:forEach var="ipSample" items="${ipSamples}" >
+			  				<option value="<c:out value="${ipSample.id}" />"><c:out value="${ipSample.name}" /> (<c:out value="${sampleSpeciesNameMap.get(ipSample)}" />)</option>	
+			  			</c:forEach>
+		  			</select>
+		  			
+		  		</td>
+		  		<td class="DataTD value-centered">
+		  			<select name="inputSampleDraftId" >
+		  				<option value="0"><fmt:message key="chipSeq.pair_selectInputControl.label"/></option>
+			  			<c:forEach var="inputSample" items="${inputSamples}" >
+			  				<option value="<c:out value="${inputSample.id}" />"><c:out value="${inputSample.name}" /> (<c:out value="${sampleSpeciesNameMap.get(inputSample)}" />)</option>	
+			  			</c:forEach>
+		  			</select>
+		  		</td>
+				<td class="DataTD value-centered">
+		  			<div class="submit"> 
+		    			<input type="submit" onclick='$("#wait_dialog-modal").dialog("open");' value="<fmt:message key="chipSeq.pair_add.label"/>" />
+					</div>
+		  		</td>
+		  	</tr>
+		  	
+		  	<c:if test="${not empty alreadyRecordedIPInputListMap}">  	
+			  	<tr class="CaptionTD top-heading ">
+			 		<td class="CaptionTD top-heading " align="center" colspan="3"><fmt:message key="chipSeq.pair_recorded_pairs.label"/></td>
+				</tr>
+			  	<tr>
+			 		<td class="CaptionTD top-heading " align="center"><fmt:message key="chipSeq.pair_ipsample.label"/></td>
+					<td class="CaptionTD top-heading " align="center"><fmt:message key="chipSeq.pair_controlinput.label"/></td>
+					<td class="CaptionTD top-heading" align="center">Action</td>
+				</tr>
+				<c:set value="${1}" var="counter"/>
+			  	<c:forEach var="ip" items="${ipSamples}" >	  			  		
+			  		<c:set value="${alreadyRecordedIPInputListMap.get(ip) }" var="alreadyRecordedIPInputList"/>
+			  		<c:forEach var="input" items="${alreadyRecordedIPInputList}" >
+			  			<c:set value="${counter+1}" var="counter"/>
+			  			<tr>
+			  				<td class="DataTD value-centered <c:if test="${counter % 2 == 0}"> td-even-number</c:if>"  ><c:out value="${ip.name}" /> (<c:out value="${sampleSpeciesNameMap.get(ip)}" />)</td>
+			  				<td class="DataTD value-centered<c:if test="${counter % 2 == 0}"> td-even-number</c:if>"><c:out value="${input.name}" /> (<c:out value="${sampleSpeciesNameMap.get(input)}" />) </td>
+			  				<td class="DataTD value-centered<c:if test="${counter % 2 == 0}"> td-even-number</c:if>"><a href="<wasp:relativeUrl value="jobsubmit/chipSeq/pair/${jobDraft.getId()}/${ip.getId()}/${input.getId()}/remove.do" />"><fmt:message key="chipSeq.pair_remove.label"/></a></td>
+			  			</tr>	  			
+			  		</c:forEach>	  		
+			  	</c:forEach>
+		  	</c:if>
+		</table>
+	</form>
+	</c:otherwise>
+</c:choose>
+<br />
+<div class="submit">
+    <input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<wasp:relativeUrl value="dashboard.do"/>'" /> 
+   	<input class="fm-button" type="button" value="<fmt:message key="jobDraft.continue.label" />" onClick="window.location='<wasp:relativeUrl value="${nextPage}"/>'" /> 
+</div>
+
+
+
+<%-- 
+<div class="instructions">
+   <fmt:message key="${workflowIName}.pairing_instructions.label"/>
+</div>
+<c:choose>
 <c:when test="${noPairingPossible == 'true' }">
 	<br />
 	<h2><fmt:message key="chipSeq.pairingNotPossible1.label"/></h2>	
@@ -69,6 +154,8 @@
 
 </c:otherwise>
 </c:choose>
+--%>
+
 
 <%-- 
 <form method="POST">

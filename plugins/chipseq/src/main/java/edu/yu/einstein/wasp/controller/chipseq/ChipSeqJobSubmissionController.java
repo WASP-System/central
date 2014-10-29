@@ -17,6 +17,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import edu.yu.einstein.wasp.controller.JobSubmissionController;
 import edu.yu.einstein.wasp.controller.util.SampleAndSampleDraftMetaHelper;
@@ -50,24 +51,27 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		//clean up any samplPairs entries that arise from changes made to of sampleDraft metadata inputOrIP
 		//in short, if the user altered an ip to a control or visa versa, then there is the possibility that the samplePairs might no longer be valid
 		//so confirm the validity of IP and input/control status and if a problem, then correct it by deleting that specific portion of the samplePair entry
-
+		//10-29-14 added additional check to make certain species match for each pair (and no species in a pair is species "Other").
+		
 		List<SampleDraft> ipSampleDrafts = new ArrayList<SampleDraft>();
 		List<SampleDraft> inputSampleDrafts = new ArrayList<SampleDraft>();
+		Map<SampleDraft,Integer> sampleDraftOrganismIdMap = new HashMap<SampleDraft, Integer>();
 		
 		List<SampleDraft> sampleDrafts=jobDraft.getSampleDraft();
 		for(SampleDraft sampleDraft : sampleDrafts){			
 			for(SampleDraftMeta sampleDraftMeta : sampleDraft.getSampleDraftMeta()){				
 				if(sampleDraftMeta.getK().endsWith("inputOrIP")){
 					if(sampleDraftMeta.getV().equals("ip")){
-						ipSampleDrafts.add(sampleDraft);
-						break;//from inner for
+						ipSampleDrafts.add(sampleDraft);	
 					}
 					else if(sampleDraftMeta.getV().equals("input")){
 						inputSampleDrafts.add(sampleDraft);
-						break;//from inner for
 					}
 				}
-				
+				if(sampleDraftMeta.getK().endsWith("organism")){
+					Integer genomeId = Integer.valueOf(sampleDraftMeta.getV());
+					sampleDraftOrganismIdMap.put(sampleDraft, genomeId);
+				}
 			}
 		}
 		
@@ -80,13 +84,23 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 					SampleDraft ipInSamplePair = key;
 					SampleDraft inputInSamplePair = pair.get(ipInSamplePair);
 					if(!ipSampleDrafts.contains(ipInSamplePair) || !inputSampleDrafts.contains(inputInSamplePair) ){
+						logger.debug("--type mismatch");
 						mapsContainingTheSampleDraftToBeRemoved.add(pair);						
+					}
+					else if(sampleDraftOrganismIdMap.get(ipInSamplePair)==null || sampleDraftOrganismIdMap.get(inputInSamplePair)==null 
+						|| sampleDraftOrganismIdMap.get(ipInSamplePair).intValue()==0 || sampleDraftOrganismIdMap.get(inputInSamplePair).intValue()==0
+						|| sampleDraftOrganismIdMap.get(ipInSamplePair).intValue() != sampleDraftOrganismIdMap.get(inputInSamplePair).intValue()){
+						//no species recorded for at least one of the pair
+						//species 'other' recorded for at least one of the pair
+						//species mismatch
+						logger.debug("--species mismatch");
+						mapsContainingTheSampleDraftToBeRemoved.add(pair);
 					}
 				}
 			}
 		}
 		sampleDraftPairSet.removeAll(mapsContainingTheSampleDraftToBeRemoved);
-		jobDraftService.setSampleDraftPairsByJobDraft(jobDraft, sampleDraftPairSet);
+		jobDraftService.setSampleDraftPairsByJobDraft(jobDraft, sampleDraftPairSet);//reset
 	}
 	
 	@RequestMapping(value="/pair/{jobDraftId}.do", method=RequestMethod.GET)
@@ -98,21 +112,13 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 			return "redirect:/dashboard.do";
 
 		this.confirmContinuedValidityOfSamplePairsAndAdjustAsNeeded(jobDraft);
-		
-		List<SampleDraft> sampleDrafts=sampleDraftDao.getSampleDraftByJobId(jobDraftId);
-		if (sampleDrafts.size() < 2){
-			m.put("noPairingPossible", "true");
-			m.put("jobDraft", jobDraft);
-			m.put("nextPage", nextPage(jobDraft).replaceFirst("redirect:/", ""));
-			m.put("pageFlowMap", getPageFlowMap(jobDraft));
-			return "jobsubmit/chipseqform";
-		}
 
 		List<SampleDraft> inputSampleDrafts = new ArrayList<SampleDraft>();
 		List<SampleDraft> ipSampleDrafts = new ArrayList<SampleDraft>();
 		Map<SampleDraft, Integer> sampleDraftOrganismMap = new HashMap<SampleDraft, Integer>();
 		Map<SampleDraft, String> sampleDraftSpeciesNameMap = new HashMap<SampleDraft, String>();
 		
+		List<SampleDraft> sampleDrafts=sampleDraftDao.getSampleDraftByJobId(jobDraftId);
 		for(SampleDraft sampleDraft : sampleDrafts){
 			boolean foundInputOrIP = false;
 			for(SampleDraftMeta sampleDraftMeta : sampleDraft.getSampleDraftMeta()){
@@ -144,124 +150,151 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 				}
 				
 			}
+			//not used, but could be
 			//if(foundInputOrIP == false){//unexpected, but....., then put on both lists (for consistency with previous method of pairing all to all)
 			//	inputSampleDrafts.add(sampleDraft);
 			//	ipSampleDrafts.add(sampleDraft);
 			//}
-		}
-		if (ipSampleDrafts.isEmpty() || inputSampleDrafts.isEmpty()){//no pairing is possible
-			m.put("noPairingPossible", "true");	
-			m.put("jobDraft", jobDraft);
-			m.put("nextPage", nextPage(jobDraft).replaceFirst("redirect:/", ""));
-			m.put("pageFlowMap", getPageFlowMap(jobDraft));
-			return "jobsubmit/chipseqform";
+		}		
+		
+		//10-28-14
+		Set<Map<SampleDraft, SampleDraft>> sampleDraftPairSet = jobDraftService.getSampleDraftPairsByJobDraft(jobDraft);
+		List<Map<SampleDraft, SampleDraft>> existingSampleDraftPairList = new ArrayList<Map<SampleDraft, SampleDraft>>(sampleDraftPairSet);
+		Map<SampleDraft, List<SampleDraft>> alreadyRecordedIPInputListMap = new HashMap<SampleDraft, List<SampleDraft>>(); 
+		for(Map<SampleDraft, SampleDraft> existingSamplePairMap : existingSampleDraftPairList){
+			Entry<SampleDraft, SampleDraft> e = existingSamplePairMap.entrySet().iterator().next();
+			SampleDraft ip = e.getKey();
+			SampleDraft input = e.getValue();
+			if(alreadyRecordedIPInputListMap.containsKey(ip)){
+				alreadyRecordedIPInputListMap.get(ip).add(input);
+			}
+			else{
+				List<SampleDraft> sampleDraftList = new ArrayList<SampleDraft>();
+				sampleDraftList.add(input);
+				alreadyRecordedIPInputListMap.put(ip, sampleDraftList);
+			}
 		}
 		
-		Set<String> selectedSampleDraftPairStringSet = new HashSet<String>();
-		Set<Map<SampleDraft, SampleDraft>> sampleDraftPairSet = jobDraftService.getSampleDraftPairsByJobDraft(jobDraft);
-		if (!sampleDraftPairSet.isEmpty()){
-			for(Map<SampleDraft, SampleDraft> pair: sampleDraftPairSet){
-				Entry<SampleDraft, SampleDraft> e = pair.entrySet().iterator().next();
-				selectedSampleDraftPairStringSet.add("testVsControl_"+e.getKey().getId()+"_"+e.getValue().getId());
-			}
-		}
-
-		Map<SampleDraft,SampleDraft> testControlMap = new HashMap<SampleDraft,SampleDraft>();
-		for(Map<SampleDraft, SampleDraft> pair: sampleDraftPairSet){
-			for (SampleDraft key : pair.keySet()) {
-				testControlMap.put(key, pair.get(key));//OK, since for each key, only one value for chipseq
-			}
-		}
-		logger.debug("testControlMap size = " + testControlMap.size());
-		for (SampleDraft sampleDraft : testControlMap.keySet()) {
-			logger.debug("Test : " + sampleDraft.getName() + " and Control : "
-				+ testControlMap.get(sampleDraft).getName());
-		}
-		m.put("noPairingPossible", "false");
 		m.put("jobDraft", jobDraft);
-		m.put("samples", sampleDrafts);
 		m.put("inputSamples", inputSampleDrafts);
 		m.put("ipSamples", ipSampleDrafts);
-		m.put("sampleOrganismMap", sampleDraftOrganismMap);
 		m.put("sampleSpeciesNameMap", sampleDraftSpeciesNameMap);
-		m.put("selectedTestControlMap", testControlMap);
-		m.put("selectedSamplePairs", selectedSampleDraftPairStringSet);
-		m.put("pageFlowMap", getPageFlowMap(jobDraft));
+		m.put("pageFlowMap", getPageFlowMap(jobDraft));//not really used
+		m.put("nextPage", nextPage(jobDraft).replaceFirst("redirect:/", ""));
+		m.put("alreadyRecordedIPInputListMap", alreadyRecordedIPInputListMap);
+		
 		return "jobsubmit/chipseqform";
 	}
 
-	@RequestMapping(value="/pair/{jobDraftId}.do", method=RequestMethod.POST)
+	@RequestMapping(value="/pair/{jobDraftId}/{ipSampleDraftId}/{inputSampleDraftId}/remove.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
-	public String updateChipSeqPair(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
-
+	public String removeChipSeqPair(@PathVariable("jobDraftId") Integer jobDraftId, 
+			@PathVariable("ipSampleDraftId") Integer ipSampleDraftId,
+			@PathVariable("inputSampleDraftId") Integer inputSampleDraftId,
+			ModelMap m) {
+		
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
-		if (! isJobDraftEditable(jobDraft))
+		if (! isJobDraftEditable(jobDraft)){
 			return "redirect:/dashboard.do";
-	
-	    Map<String,String[]> params = request.getParameterMap();
-	    for (String key : params.keySet()) {
-	    	logger.debug("Key : " + key.toString());
-			String[] stringArray = params.get(key);
-			
-			for(String s : stringArray){
-				logger.debug("--val: " + s);
+		}
+		SampleDraft ipSampleDraft = sampleService.getSampleDraftDao().getSampleDraftBySampleDraftId(ipSampleDraftId);
+		SampleDraft inputSampleDraft = sampleService.getSampleDraftDao().getSampleDraftBySampleDraftId(inputSampleDraftId);
+		if(ipSampleDraft.getId()==null || ipSampleDraft.getId()==0 || inputSampleDraft.getId()==null || inputSampleDraft.getId()==0){
+			//error Message
+			logger.debug("dubin - unexpectedly unable to find ip and/or input sample in database");
+			waspErrorMessage("chipSeq.pair_unexpectedly_not_recorded_in_database.error");
+			return "redirect:/jobsubmit/chipSeq/pair/" + jobDraftId + ".do";
+		}
+		Set<Map<SampleDraft, SampleDraft>> existingSampleDraftPairSet = jobDraftService.getSampleDraftPairsByJobDraft(jobDraft);
+		List<Map<SampleDraft, SampleDraft>> existingSampleDraftPairList = new ArrayList<Map<SampleDraft, SampleDraft>>(existingSampleDraftPairSet);
+		//appears that test is first (key), control is second (value) in existingSampleDraftPairSet		
+		boolean sampleDraftPairAlreadyRecordedInDatabase = false;
+		for(Map<SampleDraft, SampleDraft> map : existingSampleDraftPairList){
+			if(map.containsKey(ipSampleDraft)){
+				SampleDraft inputInDB = map.get(ipSampleDraft);
+				if(inputInDB.getId().intValue()==inputSampleDraft.getId().intValue()){//already recorded
+					logger.debug("dubin - pair found _in_database");
+					sampleDraftPairAlreadyRecordedInDatabase=true;
+					break;
+				}
 			}
 		}
+		if(sampleDraftPairAlreadyRecordedInDatabase==false){
+			logger.debug("dubin - pair NOT found _in_database; cannot remove");
+			waspErrorMessage("chipSeq.unexpectedly_pair_not_recorded_in_database.error");
+		}
+		else{
+			Map<SampleDraft, SampleDraft> existingSampleDraftPairToBeRemoved = new HashMap<SampleDraft, SampleDraft>();
+			existingSampleDraftPairToBeRemoved.put(ipSampleDraft, inputSampleDraft);
+			existingSampleDraftPairSet.remove(existingSampleDraftPairToBeRemoved);
+			jobDraftService.setSampleDraftPairsByJobDraft(jobDraft, existingSampleDraftPairSet);
+			waspMessage("chipSeq.pair_removed_from_database.label");
+		}
+		return "redirect:/jobsubmit/chipSeq/pair/" + jobDraftId + ".do";
+	}
 	
-	    List<SampleDraft> allDraftSamples =  jobDraft.getSampleDraft();	
-	    Set<Map<SampleDraft, SampleDraft>> sampleDraftPairSet = new HashSet<Map<SampleDraft, SampleDraft>>();
-	    
-	    for (SampleDraft draftSample : allDraftSamples) {
-	    	String draftSampleId = String.valueOf(draftSample.getId().intValue());
-	    	String[] stringArray = params.get("controlIdForIP_" + draftSampleId);
-	    	if(stringArray==null){//this draftSample is not an IP sample	    		
-	    		continue;
-	    	}
-	    	else{
-	    		SampleDraft ipSampleDraft = draftSample;
-	    		String controlId = stringArray[0];
-	    		if(controlId.equals("0")){//no control for this IP draftSample
-	    			continue;
-	    		}
-	    		else{
-	    			SampleDraft controlSampleDraft = sampleDraftDao.getSampleDraftBySampleDraftId(Integer.parseInt(controlId));
-	    			Map<SampleDraft,SampleDraft> sampleDraftPair = new HashMap<SampleDraft,SampleDraft>();
-	    			sampleDraftPair.put(ipSampleDraft, controlSampleDraft);
-	    			sampleDraftPairSet.add(sampleDraftPair);	
-	    			logger.debug("IP:Control =  " + ipSampleDraft.getName() + ":" + controlSampleDraft.getName());
-	    		}
-	    	}	    	
-	    }
-	    jobDraftService.setSampleDraftPairsByJobDraft(jobDraft, sampleDraftPairSet);
-	   
-	   	return nextPage(jobDraft);
-	    
-	   	/*	
-	    List<SampleDraft> samples =  jobDraft.getSampleDraft();	  
-	    Set<Map<SampleDraft, SampleDraft>> sampleDraftPairSet = new HashSet<Map<SampleDraft, SampleDraft>>();
-	    for (SampleDraft sd1: samples) {
-	    	String sd1Id = String.valueOf(sd1.getId().intValue());
-	    	for (SampleDraft sd2: samples) {
-	    		String sd2Id = String.valueOf(sd2.getId().intValue());
-	    		if (sd1Id.equals(sd2Id))
-	    			continue;
-	    		String checkValue = "";
-	    		try {
-	    			checkValue = ((String[])params.get("testVsControl_" + sd1Id + "_" + sd2Id))[0];
-	    		} catch (Exception e) {
-	    		}
-		
-	    		if (checkValue.equals("1")){
-	    			Map<SampleDraft,SampleDraft> sampleDraftPair = new HashMap<SampleDraft,SampleDraft>();
-	    			sampleDraftPair.put(sd1, sd2);
-	    			sampleDraftPairSet.add(sampleDraftPair);
-	    		}
-	    	}
-	    }
-	    
-	    jobDraftService.setSampleDraftPairsByJobDraft(jobDraft, sampleDraftPairSet);	
-		return nextPage(jobDraft);
-	   	*/
+	@RequestMapping(value="/pair/{jobDraftId}.do", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String updateChipSeqPair(@PathVariable("jobDraftId") Integer jobDraftId, 
+			@RequestParam("ipSampleDraftId") Integer ipSampleDraftId,
+			@RequestParam(value = "inputSampleDraftId", required=true) Integer inputSampleDraftId,
+			ModelMap m) {
+
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft)){
+			return "redirect:/dashboard.do";
+		}
+		if(ipSampleDraftId==0 || inputSampleDraftId==0){//one or both select boxes were not selected
+			//errorMessage
+			logger.debug("dubin - ipSampleDraftId and/or inputSampleDraftId cannot be zero");
+			waspErrorMessage("chipSeq.pair_missing_ip_or_control.error");
+			return "redirect:/jobsubmit/chipSeq/pair/" + jobDraftId + ".do";
+		}
+		SampleDraft ipSampleDraft = sampleService.getSampleDraftDao().getSampleDraftBySampleDraftId(ipSampleDraftId);
+		SampleDraft inputSampleDraft = sampleService.getSampleDraftDao().getSampleDraftBySampleDraftId(inputSampleDraftId);
+		if(ipSampleDraft.getId()==null || ipSampleDraft.getId()==0 || inputSampleDraft.getId()==null || inputSampleDraft.getId()==0){
+			//error Message
+			logger.debug("dubin - unexpectedly unable to find ip and/or input sample in database");
+			waspErrorMessage("chipSeq.pair_unexpectedly_unable_to_locate_ip_or_input_in_database.error");
+			return "redirect:/jobsubmit/chipSeq/pair/" + jobDraftId + ".do";
+		}
+		String ipSampleDraftSpeciesIdAsString = null;
+		for(SampleDraftMeta sampleDraftMeta : ipSampleDraft.getSampleDraftMeta()){
+			if(sampleDraftMeta.getK().endsWith("organism")){
+				ipSampleDraftSpeciesIdAsString = sampleDraftMeta.getV();
+			}
+		}
+		String inputSampleDraftSpeciesIdAsString = null;
+		for(SampleDraftMeta sampleDraftMeta : inputSampleDraft.getSampleDraftMeta()){
+			if(sampleDraftMeta.getK().endsWith("organism")){
+				inputSampleDraftSpeciesIdAsString = sampleDraftMeta.getV();
+			}
+		}
+		if(ipSampleDraftSpeciesIdAsString==null || inputSampleDraftSpeciesIdAsString==null || !ipSampleDraftSpeciesIdAsString.equals(inputSampleDraftSpeciesIdAsString)){
+			//error Message
+			logger.debug("dubin - species mismatch");
+			waspErrorMessage("chipSeq.pair_species_mismatch.error");
+			return "redirect:/jobsubmit/chipSeq/pair/" + jobDraftId + ".do";
+		}
+		Set<Map<SampleDraft, SampleDraft>> existingSampleDraftPairSet = jobDraftService.getSampleDraftPairsByJobDraft(jobDraft);
+		List<Map<SampleDraft, SampleDraft>> existingSampleDraftPairList = new ArrayList<Map<SampleDraft, SampleDraft>>(existingSampleDraftPairSet);
+		//appears that test is first (key), control is second (value) in existingSampleDraftPairSet		
+		for(Map<SampleDraft, SampleDraft> map : existingSampleDraftPairList){
+			if(map.containsKey(ipSampleDraft)){
+				SampleDraft inputInDB = map.get(ipSampleDraft);
+				if(inputInDB.getId().intValue()==inputSampleDraft.getId().intValue()){//already recorded, so do not continue
+					logger.debug("dubin - pair_already_recorded_in_database");
+					waspErrorMessage("chipSeq.pair_already_recorded_in_database.error");
+					return "redirect:/jobsubmit/chipSeq/pair/" + jobDraftId + ".do";
+				}
+			}
+		}
+		Map<SampleDraft, SampleDraft> newSampleDraftPair = new HashMap<SampleDraft, SampleDraft>();
+		newSampleDraftPair.put(ipSampleDraft, inputSampleDraft);
+		existingSampleDraftPairSet.add(newSampleDraftPair);
+		jobDraftService.setSampleDraftPairsByJobDraft(jobDraft, existingSampleDraftPairSet);
+		waspMessage("chipSeq.pair_ip_input_pair_recorded.label");
+		return "redirect:/jobsubmit/chipSeq/pair/" + jobDraftId + ".do";
 	}
 
 	void confirmContinuedValidityOfReplicatesAndAdjustAsNeeded(JobDraft jobDraft){
