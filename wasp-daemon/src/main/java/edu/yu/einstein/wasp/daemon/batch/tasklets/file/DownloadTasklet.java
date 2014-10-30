@@ -7,6 +7,7 @@ import java.net.URL;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -83,7 +84,7 @@ public class DownloadTasklet extends AbstractRemoteFileTasklet {
 	}
 
 	@Override
-	public void doCleanupBeforeRestart(ChunkContext context) throws Exception {
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
 		// TODO Auto-generated method stub
 		
 	}

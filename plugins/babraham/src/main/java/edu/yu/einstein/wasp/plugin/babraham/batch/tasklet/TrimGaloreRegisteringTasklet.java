@@ -147,7 +147,7 @@ public class TrimGaloreRegisteringTasklet extends WaspRemotingTasklet {
     }
 
 	@Override
-	public void doCleanupBeforeRestart(ChunkContext context) throws Exception {
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
 		// TODO Auto-generated method stub
 		
 	}

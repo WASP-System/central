@@ -5,6 +5,7 @@ package edu.yu.einstein.wasp.daemon.batch.tasklets;
 
 import java.util.List;
 
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -117,7 +118,7 @@ public class SimpleMethodExecutionTasklet extends WaspRemotingTasklet {
 	}
 
 	@Override
-	public void doCleanupBeforeRestart(ChunkContext context) throws Exception {
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
 		// TODO Auto-generated method stub
 		
 	}

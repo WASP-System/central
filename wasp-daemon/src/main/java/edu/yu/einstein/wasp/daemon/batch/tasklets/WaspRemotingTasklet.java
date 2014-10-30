@@ -43,7 +43,7 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 	 * cleanup work to do before a restart
 	 * @param context
 	 */
-	public abstract void doCleanupBeforeRestart(ChunkContext context) throws Exception;
+	public abstract void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception;
 	
 	/**
 	 * tasks to perform before finishing step execution
@@ -100,7 +100,7 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 		} else if (!wasHibernationRequested){
 			logger.debug("Tasklet entered for first execution or restart after error (StepExecution id=" + stepExecutionId + ")");
 			if (isInErrorConditionAndFlaggedForRestart(stepExecution)){
-				doCleanupBeforeRestart(context);
+				doCleanupBeforeRestart(stepExecution);
 				setIsInErrorConditionAndFlaggedForRestart(stepExecution, false); // reset restart status
 			}
 			try{

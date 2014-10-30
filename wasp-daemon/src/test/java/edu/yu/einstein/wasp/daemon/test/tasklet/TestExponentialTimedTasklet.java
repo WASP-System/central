@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.daemon.test.tasklet;
 
 import org.springframework.batch.core.StepContribution;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
@@ -52,7 +53,7 @@ public class TestExponentialTimedTasklet extends WaspRemotingTasklet {
 	}
 
 	@Override
-	public void doCleanupBeforeRestart(ChunkContext context) throws Exception {
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
 		// TODO Auto-generated method stub
 		
 	}
