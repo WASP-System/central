@@ -64,7 +64,7 @@ public class GenomeMetadataServiceImpl extends WaspServiceImpl implements Genome
 	 * no version (for example the genome build should be 1:1 with fasta), enter
 	 * null.
 	 */
-	private Map<GenomeIndexStatusKey, Pair<Date, GenomeIndexStatus>> buildHistory = new HashMap<GenomeIndexStatusKey, Pair<Date, GenomeIndexStatus>>();
+	private volatile Map<GenomeIndexStatusKey, Pair<Date, GenomeIndexStatus>> buildHistory = new HashMap<GenomeIndexStatusKey, Pair<Date, GenomeIndexStatus>>();
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
