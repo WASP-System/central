@@ -4,6 +4,10 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="wasp" uri="http://einstein.yu.edu/wasp" %>
+<script type="text/javascript" src="<wasp:relativeUrl value='scripts/jquery/chosen.jquery.min.js' />"></script>
+<head>
+<link rel="stylesheet" type="text/css" href="<wasp:relativeUrl value='css/jquery/chosen.css' />">
+</head>
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 <c:set var="workflowIName" value="${jobDraft.getWorkflow().getIName()}" />
@@ -28,6 +32,7 @@
 	<c:otherwise>
 	<form method="POST">
 		<table class="EditTable ui-widget ui-widget-content">
+			
 			<tr>
 		 		<td class="CaptionTD top-heading" align="center" colspan="3"><fmt:message key="chipSeq.pair_create_pair.label"/></td>
 			</tr>
@@ -36,19 +41,23 @@
 				<td class="CaptionTD top-heading" align="center"><fmt:message key="chipSeq.pair_controlinput.label"/></td>
 				<td class="CaptionTD top-heading" align="center"><fmt:message key="chipSeq.pair_action.label"/></td>
 			</tr>
-			<tr>
-				<td class="DataTD value-centered">
-		  			<select name="ipSampleDraftId">
-		  				<option value="0"><fmt:message key="chipSeq.pair_selectIP.label"/></option>
+			
+			
+			
+			<tr id="oneToMany_tr">
+				<td class="DataTD value-centered">					
+		  			<select name="ipSampleDraftId[]" id="oneToMany_select_ip" style="width:350px;" class="chosen-select" data-placeholder="<fmt:message key="chipSeq.pair_selectOneIP.label"/>">
+		  				<%-- <option value="0"><fmt:message key="chipSeq.pair_selectIP.label"/></option>--%>
+		  				<option value="0"></option>
 			  			<c:forEach var="ipSample" items="${ipSamples}" >
 			  				<option value="<c:out value="${ipSample.id}" />"><c:out value="${ipSample.name}" /> (<c:out value="${sampleSpeciesNameMap.get(ipSample)}" />)</option>	
 			  			</c:forEach>
-		  			</select>
-		  			
+		  			</select>		  			
 		  		</td>
 		  		<td class="DataTD value-centered">
-		  			<select name="inputSampleDraftId" >
-		  				<option value="0"><fmt:message key="chipSeq.pair_selectInputControl.label"/></option>
+		  			<select name="inputSampleDraftId[]" id="oneToMany_select_input" style="width:350px;" class="chosen-select" multiple data-placeholder="<fmt:message key="chipSeq.pair_selectOneOrMoreInputs.label"/>">
+		  				<%-- <option value="0"><fmt:message key="chipSeq.pair_selectInputControl.label"/></option>--%>
+		  				<option value="0"></option>
 			  			<c:forEach var="inputSample" items="${inputSamples}" >
 			  				<option value="<c:out value="${inputSample.id}" />"><c:out value="${inputSample.name}" /> (<c:out value="${sampleSpeciesNameMap.get(inputSample)}" />)</option>	
 			  			</c:forEach>
@@ -60,6 +69,37 @@
 					</div>
 		  		</td>
 		  	</tr>
+		  	
+		  	
+		  	
+	  	
+		  	<tr id="manyToOne_tr" >
+				<td class="DataTD value-centered">					
+		  			<select name="ipSampleDraftId[]" id="manyToOne_select_ip" style="width:350px;" class="chosen-select" multiple data-placeholder="<fmt:message key="chipSeq.pair_selectOneOrMoreIPs.label"/>">
+		  				<option value="0"></option>
+			  			<c:forEach var="ipSample" items="${ipSamples}" >
+			  				<option value="<c:out value="${ipSample.id}" />"><c:out value="${ipSample.name}" /> (<c:out value="${sampleSpeciesNameMap.get(ipSample)}" />)</option>	
+			  			</c:forEach>
+		  			</select>		  			
+		  		</td>
+		  		<td class="DataTD value-centered">
+		  			<select name="inputSampleDraftId[]" id="manyToOne_select_input" style="width:350px;" class="chosen-select" data-placeholder="<fmt:message key="chipSeq.pair_selectOneInput.label"/>">
+		  				<option value="0"></option>
+			  			<c:forEach var="inputSample" items="${inputSamples}" >
+			  				<option value="<c:out value="${inputSample.id}" />"><c:out value="${inputSample.name}" /> (<c:out value="${sampleSpeciesNameMap.get(inputSample)}" />)</option>	
+			  			</c:forEach>
+		  			</select>
+		  		</td>
+				<td class="DataTD value-centered">
+		  			<div class="submit"> 
+		    			<input type="submit" onclick='$("#wait_dialog-modal").dialog("open");' value="<fmt:message key="chipSeq.pair_add.label"/>" />
+					</div>
+		  		</td>
+		  	</tr>
+		  	
+		  	<tr>
+		 		<td class="CaptionTD top-heading" style="font-size:x-small; padding-bottom: 10px;" align="center" colspan="3"><a id="toggleAnchorId" href="javascript:void(0);"><fmt:message key="chipSeq.pair_clickHereToToggle.label"/></a><br /></td>
+			</tr>
 		  	
 		  	<c:if test="${not empty alreadyRecordedIPInputListMap}">  	
 			  	<tr class="CaptionTD top-heading ">

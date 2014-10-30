@@ -1,5 +1,42 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <script type="text/javascript">
+
+(function($){ 
+	
+	$(document).ready(function(){
+		$(".chosen-select").chosen();
+		
+		//on load 
+		$('#manyToOne_select_ip').prop('disabled', true); 
+		$('#manyToOne_select_input').prop('disabled', true); 
+		$("#manyToOne_tr").hide(); 
+		
+		$("#toggleAnchorId").bind('click', function(){
+			
+			if($("#oneToMany_tr").is(':visible')){ 
+				$('#oneToMany_select_ip').prop('disabled', true); 
+				$('#oneToMany_select_input').prop('disabled', true);
+				$("#oneToMany_tr").hide();
+				
+				$('#manyToOne_select_ip').prop('disabled', false); 
+				$('#manyToOne_select_input').prop('disabled', false); 
+				$("#manyToOne_tr").show();
+			}
+			else{
+				$('#oneToMany_select_ip').prop('disabled', false); 
+				$('#oneToMany_select_input').prop('disabled', false);
+				$("#oneToMany_tr").show();
+				
+				$('#manyToOne_select_ip').prop('disabled', true); 
+				$('#manyToOne_select_input').prop('disabled', true); 
+				$("#manyToOne_tr").hide();				
+			}
+		});		
+	});
+	
+	
+})(jQuery);
+
 function confirmPairing(){	
 	var selects = document.getElementsByTagName('select');
 	var num_ip_samples = selects.length;
