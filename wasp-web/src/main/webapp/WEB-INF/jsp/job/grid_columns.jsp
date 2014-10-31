@@ -14,7 +14,7 @@
 
 <wasp:field name="amount"  type="currency" sortable="false" searchable="false" />
 
-<wasp:field name="currentStatus"  type="text"  sortable="false" searchable="false" />
+<wasp:field name="currentStatus"  type="text"  sortable="false" searchable="true" />
   
 <wasp:field name="viewfiles"  type="text"  sortable="false" searchable="false"/>
 

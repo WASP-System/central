@@ -942,4 +942,34 @@ public class AutoCompleteController extends WaspController{
 		      jsonString = jsonString.replaceAll(",$", "") + "]}";
 		      return jsonString;                
 		  }
+		  
+			/**
+		   * Obtains a json message containing distinct list of all jobStatus states (for display on web)"
+		   * Order ascending
+		   * Used to populate a JQuery autocomplete managed input box
+		   * @param jobStatus
+		   * @return json message
+		   */
+		  @RequestMapping(value="/getAllJobStatusForDisplay", method=RequestMethod.GET)
+		  public @ResponseBody String getAllJobStatusForDisplay(@RequestParam String jobStatus) {
+			  
+			  List<String> list = jobService.getAllPossibleJobStatusAsString();
+			  Set<String> theSet = new HashSet<String>();
+			  for(String s : list){//use set for distinct
+				  theSet.add(s);
+			  }
+			  List<String> theList = new ArrayList<String>();
+			  theList.addAll(theSet);
+			  Collections.sort(theList);
+			  
+		      String jsonString = new String();
+		      jsonString = jsonString + "{\"source\": [";
+		      for (String r: theList){
+		      	 if(r.indexOf(jobStatus) > -1){//note: if str equals "", this, perhaps unexpectedly, evaluates to true
+		       		 jsonString = jsonString + "\""+ r +"\",";
+		       	 }
+		      }
+		      jsonString = jsonString.replaceAll(",$", "") + "]}";
+		      return jsonString;                
+		  }
 }

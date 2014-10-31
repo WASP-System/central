@@ -17,6 +17,7 @@ import java.util.Currency;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -276,6 +277,7 @@ public class JobController extends WaspController {
 		String submitterNameAndLogin = request.getParameter("submitter")==null?null:request.getParameter("submitter").trim();//if not passed, will be null
 		String piNameAndLogin = request.getParameter("pi")==null?null:request.getParameter("pi").trim();//if not passed, will be null
 		String createDateAsString = request.getParameter("createts")==null?null:request.getParameter("createts").trim();//if not passed, will be null
+		String currentStatusAsString = request.getParameter("currentStatus")==null?null:request.getParameter("currentStatus").trim();//if not passed, will be null
 		//logger.debug("jobIdAsString = " + jobIdAsString);logger.debug("jobname = " + jobname);logger.debug("submitterNameAndLogin = " + submitterNameAndLogin);logger.debug("piNameAndLogin = " + piNameAndLogin);logger.debug("createDateAsString = " + createDateAsString);
 
 		//Additional URL parameters coming from a call from the userGrid (example: job/list.do?UserId=2&labId=3). [A similar url call came from dashboard, but on 8/16/12 it was altered and no longer sends any parameter]  
@@ -456,11 +458,19 @@ public class JobController extends WaspController {
 			List<Job> jobsToKeep = jobService.getJobsSubmittedOrViewableByUser(viewer);//default order is by jobId/desc
 			tempJobList.retainAll(jobsToKeep);
 		}
+		
+		if(currentStatusAsString!=null && !currentStatusAsString.isEmpty()){//10-31-14
+			Iterator<Job> i = tempJobList.iterator();
+			while (i.hasNext()) {
+				String currentStatus = jobService.getDetailedJobStatusString(i.next());
+				if(!currentStatusAsString.equalsIgnoreCase(currentStatus)){
+					i.remove();
+				}
+			}
+		}
+		
 		jobList.addAll(tempJobList);
 	
-		
-		
-		
 		//Format output for grid by pages
 		try {
 			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page

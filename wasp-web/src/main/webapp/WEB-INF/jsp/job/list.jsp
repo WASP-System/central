@@ -115,6 +115,24 @@ jQuery("#grid_id").jqGrid('setColProp', 'createts',
 		}
 	}
 });
+jQuery("#grid_id").jqGrid('setColProp', 'currentStatus',
+		{
+			search:true,
+			sopt:['eq'],
+			searchoptions: {
+				dataInit: function(elem) {	
+					setTimeout(
+						function(){ 
+							$.getJSON("<wasp:relativeUrl value='autocomplete/getAllJobStatusForDisplay.do' />", 
+							{ jobStatus: "" }, 
+							function(data) { 
+								jQuery(elem).autocomplete(data);
+							} );
+						}, 200
+					);
+				}
+			}
+		}); 
  
 //function to validate the user-entered data 
 validate = function(){

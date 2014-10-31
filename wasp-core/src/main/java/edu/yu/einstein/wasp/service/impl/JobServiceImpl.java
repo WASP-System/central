@@ -2067,6 +2067,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 */
 	@Override
 	public String getDetailedJobStatusString(Job job){
+		//PLEASE ALSO SEE jobService.getAllPossibleJobStatusAsString()
 		if(job==null || job.getId()==null)
 			return "Unknown";
 		ExitStatus status = getJobStatus(job);
@@ -2591,4 +2592,21 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		return false;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<String> getAllPossibleJobStatusAsString(){
+		//PLEASE also see jobService.getDetailedJobStatusString(job)
+		List<String> list = new ArrayList<String>();
+		list.add("Unknown");
+		list.add("Completed");
+		list.add("Awaiting Approvals");
+		list.add("In Progress");
+		list.add("Withdrawn By PI");
+		list.add("Withdrawn By Dept.");
+		list.add("Withdrawn By Facility");
+		list.add("Failed");
+		return list;		
+	}
 }
