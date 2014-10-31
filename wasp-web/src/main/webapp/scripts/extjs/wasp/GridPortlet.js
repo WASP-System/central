@@ -188,22 +188,19 @@ Ext.define('Wasp.GridPortlet', {
 			if (action.callbackFunctionType === 'DOWNLOAD') {
 				strcbfunc = '{"'
 						+ action.iconClassName
-						+ '": "function(grid, record, action, row, col){window.location = record.get(\''
-						+ 'cb'
+						+ '": "function(grid, record, action, row, col){window.location = record.get(\'cb'
 						+ action.icnHashCode.toString().replace('-', '_')
 						+ '\');}"}';
 			} else if (action.callbackFunctionType === 'OPEN_IN_NEW_BROWSER_WIN') {
 				strcbfunc = '{"'
 						+ action.iconClassName
-						+ '": "function(grid, record, action, row, col){window.open(record.get(\''
-						+ 'cb'
+						+ '": "function(grid, record, action, row, col){window.open(record.get(\'cb'
 						+ action.icnHashCode.toString().replace('-', '_')
 						+ '\'), \'_blank\');}"}';
 			} else if (action.callbackFunctionType === 'OPEN_IN_CSS_WIN') {
 				strcbfunc = '{"'
 						+ action.iconClassName
-						+ '": "function(grid, record, action, row, col){getPanelDisplayWindowForFilegroup(record.get(\''
-						+ 'cb'
+						+ '": "function(grid, record, action, row, col){getPanelDisplayWindowForFilegroup(record.get(\'cb'
 						+ action.icnHashCode.toString().replace('-', '_')
 						+ '\'));}"}';
 			} else {
@@ -249,7 +246,7 @@ Ext.define('Wasp.GridPortlet', {
 					iconCls : action.groupIconClassName,
 					qtip : action.groupTooltip,
 					align : action.groupAlign.toLowerCase(),
-					callback : function(grid, records, action, groupValue) {
+					callback : function(grid, records, groupAction, groupValue) {
 						if (records.length > 0)
 							window.location = mergeDownloadLinks(records, 'cb'
 											+ action.icnHashCode.toString()
