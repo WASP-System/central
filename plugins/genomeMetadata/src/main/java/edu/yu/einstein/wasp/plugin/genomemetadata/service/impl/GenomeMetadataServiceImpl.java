@@ -361,8 +361,12 @@ public class GenomeMetadataServiceImpl extends WaspServiceImpl implements Genome
 	 */
 	@Override
 	public synchronized GenomeIndexStatus getStatus(GenomeIndexStatusKey key) {
+		
+		logger.debug("GenomeMetadataServiceImpl.getStatus called with key " + key.toString());
+		
 		if (buildHistory.containsKey(key)) {
 			Pair<Date, GenomeIndexStatus> p = buildHistory.get(key);
+			logger.trace("build history contains key " + key.toString() + " from " + p.getLeft().toString() + " indicated " + p.getRight().toString());
 			// if built, just return
 			if (p.getValue().equals(GenomeIndexStatus.BUILT)) {
 				logger.debug(key.getType().toString() + " status for build " + key.getBuild().toString() + " marked as built");
@@ -374,6 +378,8 @@ public class GenomeMetadataServiceImpl extends WaspServiceImpl implements Genome
 						+ TEST_DELAY_IN_MILLIS + "ms, returning last known status of " + p.getValue());
 				return p.getValue();
 			}
+		} else {
+			logger.debug("build history did not contain key " + key.toString());
 		}
 
 		GridWorkService workService;
@@ -476,10 +482,12 @@ public class GenomeMetadataServiceImpl extends WaspServiceImpl implements Genome
 				buildHistory.put(key, new ImmutablePair<Date, GenomeIndexStatus>(date, status));
 				return;
 			}
-			logger.debug("Change of status, inserting new status value");
-			buildHistory.put(key, new ImmutablePair<Date, GenomeIndexStatus>(date, status));
+			
+		} else {
+			logger.trace("build history did not contain key " + key.toString());
 		}
-
+		logger.debug("Change of status, inserting new status value");
+		buildHistory.put(key, new ImmutablePair<Date, GenomeIndexStatus>(date, status));
 	}
 
 	/**
