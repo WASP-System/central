@@ -49,6 +49,9 @@
 		  			<select name="ipSampleDraftId[]" id="oneToMany_select_ip" style="width:350px;" class="chosen-select" data-placeholder="<fmt:message key="chipSeq.pair_selectOneIP.label"/>">
 		  				<%-- <option value="0"><fmt:message key="chipSeq.pair_selectIP.label"/></option>--%>
 		  				<option value="0"></option>
+						<c:if test="${fn:length(ipSamples)>1}">
+		  					<option value="-1">All IPs (that match selected Input species)</option>
+		  				</c:if>
 			  			<c:forEach var="ipSample" items="${ipSamples}" >
 			  				<option value="<c:out value="${ipSample.id}" />"><c:out value="${ipSample.name}" /> (<c:out value="${sampleSpeciesNameMap.get(ipSample)}" />)</option>	
 			  			</c:forEach>
@@ -85,6 +88,9 @@
 		  		<td class="DataTD value-centered">
 		  			<select name="inputSampleDraftId[]" id="manyToOne_select_input" style="width:350px;" class="chosen-select" data-placeholder="<fmt:message key="chipSeq.pair_selectOneInput.label"/>">
 		  				<option value="0"></option>
+		  				<c:if test="${fn:length(inputSamples)>1}">
+		  					<option value="-1">All Inputs (that match selected IP species)</option>
+		  				</c:if>
 			  			<c:forEach var="inputSample" items="${inputSamples}" >
 			  				<option value="<c:out value="${inputSample.id}" />"><c:out value="${inputSample.name}" /> (<c:out value="${sampleSpeciesNameMap.get(inputSample)}" />)</option>	
 			  			</c:forEach>
@@ -122,6 +128,14 @@
 			  			</tr>	  			
 			  		</c:forEach>	  		
 			  	</c:forEach>
+			  	<c:if test="${counter > 2}">
+			  		<c:set value="${counter+1}" var="counter"/>
+			  			<tr>
+			  				<td class="DataTD value-centered <c:if test="${counter % 2 == 0}"> td-even-number</c:if>">&nbsp;</td>
+			  				<td class="DataTD value-centered<c:if test="${counter % 2 == 0}"> td-even-number</c:if>">&nbsp;</td>
+			  				<td class="DataTD value-centered<c:if test="${counter % 2 == 0}"> td-even-number</c:if>"><a href="<wasp:relativeUrl value="jobsubmit/chipSeq/pair/${jobDraft.getId()}/removeAll.do" />"><fmt:message key="chipSeq.pair_removeAllPairs.label"/></a></td>
+			  			</tr>
+			  	</c:if>
 		  	</c:if>
 		</table>
 	</form>
