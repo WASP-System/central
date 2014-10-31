@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
@@ -25,6 +26,7 @@ public class BWAMemSoftwareComponent extends AbstractBWASoftwareComponent{
 		super();
 	}
 	
+	@Transactional("entityManager")
 	public WorkUnit getMem(SampleSource cellLibrary, FileGroup fg, Map<String,JobParameter> jobParameters) throws ParameterValueRetrievalException {
 		WorkUnit w = buildWorkUnit(fg);
 		
