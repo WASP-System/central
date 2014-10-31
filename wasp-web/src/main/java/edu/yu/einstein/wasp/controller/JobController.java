@@ -104,6 +104,7 @@ import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.quote.AdditionalCost;
@@ -126,6 +127,7 @@ import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.WebAuthenticationService;
+import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.SampleWrapper;
@@ -211,6 +213,8 @@ public class JobController extends WaspController {
 	private EmailService emailService;
 	@Autowired
 	private UserService userService;
+	@Autowired
+	private WorkflowService workflowService;
 	
 	@Value("${wasp.analysis.perLibraryFee:0}")
 	private Float perLibraryAnalysisFee;
@@ -267,6 +271,7 @@ public class JobController extends WaspController {
 		//see http://www.trirand.com/jqgridwiki/doku.php?id=wiki:toolbar_searching
 		//below we capture parameters on job grid's search toolbar by name (key:value).
 		String jobIdAsString = request.getParameter("jobId")==null?null:request.getParameter("jobId").trim();//if not passed, jobIdAsString will be null
+		String workflowName = request.getParameter("workflow")==null?null:request.getParameter("workflow").trim();//if not passed, will be null
 		String jobname = request.getParameter("name")==null?null:request.getParameter("name").trim();//if not passed, will be null
 		String submitterNameAndLogin = request.getParameter("submitter")==null?null:request.getParameter("submitter").trim();//if not passed, will be null
 		String piNameAndLogin = request.getParameter("pi")==null?null:request.getParameter("pi").trim();//if not passed, will be null
@@ -288,8 +293,15 @@ public class JobController extends WaspController {
 			if(jobId == null){//perhaps the passed value was abc, which is not a valid jobId
 				jobId = new Integer(0);//fake it so that result set will be empty; this way, the search will be performed with jobId = 0 and will come up with an empty result set
 			}
-		}		
+		}
 		
+		//deal with workflow
+		Integer workflowId = null;
+		if(workflowName!=null){
+			Workflow workflow = workflowService.getWorkflowDao().getWorkflowByName(workflowName);
+			workflowId = workflow.getId();
+		}	
+
 		//nothing to do to deal with jobname
 		
 		//deal with submitter from grid and UserId from URL (note that submitterNameAndLogin and userIdFromURL can both be null, but if either is not null, only one should be not null)
@@ -371,7 +383,7 @@ public class JobController extends WaspController {
 				createts = new Date(0);//fake it; parameter of 0 sets date to 01/01/1970 which is NOT in this database. So result set will be empty
 			}
 		}
-						
+				
 		//web viewer is a member of the facility or administration
 		//if(authenticationService.hasRole("su")||authenticationService.hasRole("fm")||authenticationService.hasRole("ft")
 		//		||authenticationService.hasRole("sa")||authenticationService.hasRole("ga")||authenticationService.hasRole("da")){
@@ -379,6 +391,9 @@ public class JobController extends WaspController {
 		Map<String, Object> m = new HashMap<String, Object>();
 		if(jobId != null){
 			m.put("id", jobId.intValue());
+		}
+		if(workflowId != null){
+			m.put("workflowId", workflowId.intValue());
 		}
 		if(jobname != null){
 			m.put("name", jobname.trim());
@@ -398,6 +413,9 @@ public class JobController extends WaspController {
 		if(sidx!=null && !"".equals(sidx)){//sord is apparently never null; default is desc
 			if(sidx.equals("jobId")){
 				orderByColumnAndDirection.add("id " + sord);
+			}
+			else if(sidx.equals("workflow")){
+				orderByColumnAndDirection.add("workflowid " + sord);
 			}
 			else if(sidx.equals("name")){//job.name
 				orderByColumnAndDirection.add("name " + sord);
@@ -511,8 +529,8 @@ public class JobController extends WaspController {
 
 
 							"<a href=" + getServletPath() + "/job/"+job.getId()+"/homepage.do>J"+job.getId().intValue()+"</a>",
-
-
+							
+							job.getWorkflow().getName(),
 							job.getName(),
 							user.getNameFstLst(),
 							//job.getLab().getName() + " (" + pi.getNameLstCmFst() + ")",

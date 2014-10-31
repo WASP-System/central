@@ -30,6 +30,25 @@ $(document).ready(function() {
 var url_string = window.location.href; 
 if(url_string.indexOf("userId") == -1){ //url does NOT contain the string userId, so permit search of submitter and pi using filterToolbar and autocomplete 
 
+	jQuery("#grid_id").jqGrid('setColProp', 'workflow',
+	{
+		search:true,
+		sopt:['eq'],
+		searchoptions: {
+			dataInit: function(elem) {	
+				setTimeout(
+					function(){ 
+						$.getJSON("<wasp:relativeUrl value='autocomplete/getAllWorkflowNamesForDisplay.do' />", 
+						{ workflowNameFragment: "" }, 
+						function(data) { 
+							jQuery(elem).autocomplete(data);
+						} );
+					}, 200
+				);
+			}
+		}
+	});
+			
 	jQuery("#grid_id").jqGrid('setColProp', 'submitter',
 	{
 		search:true,

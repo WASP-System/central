@@ -2,6 +2,8 @@
  
 <wasp:field name="jobId" type="text" sortable="true" searchable="true"/>
 
+<wasp:field name="workflow" type="text" sortable="true" searchable="true"/>
+
 <wasp:field name="name" type="text" sortable="true" searchable="true"/>
 
 <wasp:field name="submitter" type="text"  sortable="true" searchable="false"/>
