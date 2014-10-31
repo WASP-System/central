@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
@@ -27,6 +28,7 @@ public class BWABacktrackSoftwareComponent extends AbstractBWASoftwareComponent{
 		super();
 	}
 	
+	@Transactional("entityManager")
 	public WorkUnit getAln(SampleSource cellLibrary, FileGroup fg, Map<String,JobParameter> jobParameters) throws ParameterValueRetrievalException {
 		WorkUnit w = buildWorkUnit(fg);
 		
@@ -48,6 +50,7 @@ public class BWABacktrackSoftwareComponent extends AbstractBWASoftwareComponent{
 		return w;
 	}
 	
+	@Transactional("entityManager")
 	public WorkUnit getSam(SampleSource cellLibrary, String scratchDirectory, String namePrefix, FileGroup fg, Map<String,Object> jobParameters) throws ParameterValueRetrievalException {
 		WorkUnit w = buildWorkUnit(fg);
 		w.getConfiguration().setProcessMode(ProcessMode.SINGLE);
