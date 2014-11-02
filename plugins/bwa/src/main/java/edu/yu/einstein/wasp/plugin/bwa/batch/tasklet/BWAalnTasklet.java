@@ -75,10 +75,7 @@ public class BWAalnTasklet extends TestForGenomeIndexTasklet implements StepExec
 	@Autowired
 	private BwaService bwaService;
 	
-	private Job job;
-	private Set<FileGroup> fileGroups;
-	private SampleSource cellLib;
-	private FileGroup fg;
+	private Integer fgId;
 
 	public BWAalnTasklet() {
 		// proxy
@@ -104,7 +101,7 @@ public class BWAalnTasklet extends TestForGenomeIndexTasklet implements StepExec
 		
 			// place properties for use in later steps into the step execution context, to be promoted
 			// to the job context at run time.
-			stepExecutionContext.put("cellLibId", cellLib.getId()); 
+			stepExecutionContext.put("cellLibId", cellLibraryId); 
 			stepExecutionContext.put("scrDir", result.getWorkingDirectory());
 			stepExecutionContext.put("alnName", result.getId());
 			stepExecutionContext.put("alnStr", w.getCommand());
@@ -121,25 +118,23 @@ public class BWAalnTasklet extends TestForGenomeIndexTasklet implements StepExec
 	@Override
 	@Transactional("entityManager")
 	public void beforeStep(StepExecution stepExecution){
-		if (cellLib == null) {
-			cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
-			job = sampleService.getJobOfLibraryOnCell(cellLib);
-			
-			logger.debug("Beginning BWA aln step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
-			
-			fileGroups = new HashSet<FileGroup>();;
-			
-		    for (FileGroup fg : fileService.getFilesForCellLibraryByType(cellLib, fastqFileType)) {
-		        if (!fastqService.hasAttribute(fg, FastqFileTypeAttribute.TRIMMED)) {
-		            logger.trace("Ignoring untrimmed file group " + fg.getId());
-		            continue;
-		        }
-		        fileGroups.add(fg);
-		    }
+		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
+		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
+		
+		logger.debug("Beginning BWA aln step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
+		
+		Set<FileGroup> fileGroups = new HashSet<FileGroup>();;
+		
+	    for (FileGroup fg : fileService.getFilesForCellLibraryByType(cellLib, fastqFileType)) {
+	        if (!fastqService.hasAttribute(fg, FastqFileTypeAttribute.TRIMMED)) {
+	            logger.trace("Ignoring untrimmed file group " + fg.getId());
+	            continue;
+	        }
+	        fileGroups.add(fg);
+	    }
 
-			Assert.assertTrue(fileGroups.size() == 1, "No filegroups returned for cellLibrary " + cellLib.getId() + " from job " + job.getId());
-			fg = fileGroups.iterator().next();
-		}
+		Assert.assertTrue(fileGroups.size() == 1, "No filegroups returned for cellLibrary " + cellLib.getId() + " from job " + job.getId());
+		fgId = fileGroups.iterator().next().getId();
 		super.beforeStep(stepExecution);
 	}
 
@@ -158,6 +153,7 @@ public class BWAalnTasklet extends TestForGenomeIndexTasklet implements StepExec
 	@Transactional("entityManager")
 	public GenomeIndexStatus getGenomeIndexStatus(StepExecution stepExecution) {
 		try {
+			SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
 			Build build = bwa.getGenomeBuild(cellLib);
 			return bwaService.getGenomeIndexStatus(getGridWorkService(getStepExecutionContext(stepExecution)), build);
 		} catch (ParameterValueRetrievalException | GridUnresolvableHostException e) {
@@ -170,7 +166,8 @@ public class BWAalnTasklet extends TestForGenomeIndexTasklet implements StepExec
 	@Override
 	@Transactional("entityManager")
 	public WorkUnit buildWorkUnit(StepExecution stepExecution) throws Exception {
-		logger.trace("obtained fastq file groups of size " + fileGroups.size() + " for CellLibrary" + cellLib.getId());
+		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
+		FileGroup fg = fileService.getFileGroupById(fgId);
 		logger.debug("file group: " + fg.getId() + ":" + fg.getDescription());
 		
 		Map<String, JobParameter> jobParameters = stepExecution.getJobExecution().getJobParameters().getParameters();
@@ -192,6 +189,7 @@ public class BWAalnTasklet extends TestForGenomeIndexTasklet implements StepExec
 	@Override
 	@Transactional("entityManager")
 	public WorkUnitGridConfiguration configureWorkUnit(StepExecution stepExecution) throws Exception {
+		FileGroup fg = fileService.getFileGroupById(fgId);
 		return bwa.prepareWorkUnitConfiguration(fg);
 	}
 
