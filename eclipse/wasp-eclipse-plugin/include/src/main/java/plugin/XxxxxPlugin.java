@@ -33,13 +33,12 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Software;  ///// RES
 import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;  ///// PIP 
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
-import edu.yu.einstein.wasp.interfacingplugin.WebInterfacing; ///// FORM
+import edu.yu.einstein.wasp.interfacing.plugin.WebInterfacing; ///// FORM
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing; ///// VIZ
 import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing; ///// VIZ
 import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 import edu.yu.einstein.wasp.viewpanel.PanelTab; ///// VIZ
-import edu.yu.einstein.wasp.viewpanel.DataTabViewing.Status;
 
 /**
  * @author 

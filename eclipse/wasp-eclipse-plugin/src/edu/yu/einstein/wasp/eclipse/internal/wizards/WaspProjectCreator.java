@@ -58,7 +58,7 @@ import edu.yu.einstein.wasp.eclipse.internal.Messages;
  * is preceeded with the string 
  * 
  * "FORM" - user selected to create submission forms
- * "RES" - user selected software or metedata resource
+ * "RES" - user selected software or metadata resource
  * "PIP" - user selected pipelines
  * "VIZ" - user selected visualization
  * 
@@ -430,7 +430,8 @@ public class WaspProjectCreator {
 			folderSet.add(javaMainPackage + "/software");
 		}
 		if (web || viz){
-			folderSet.add(javaMainPackage + "/controller");
+			folderSet.add(javaMainPackage + "/web/service/impl");
+			folderSet.add(javaMainPackage + "/web/controller");
 			folderSet.add(javaRes + "/META-INF/tiles");
 			folderSet.add(javaRes + "/css/" + iname.toLowerCase());
 			folderSet.add(javaRes + "/scripts/" + iname.toLowerCase());
