@@ -19,7 +19,7 @@ import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
-import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager.LockType;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
@@ -104,11 +104,11 @@ public class ExternalFileExistsTasklet extends WaspHibernatingTasklet {
 			wasHibernationRequested = false;
 		}
 		if (!wasHibernationRequested){
-			WorkUnit w = new WorkUnit();
+			WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
 			List<SoftwarePackage> software = new ArrayList<SoftwarePackage>();
 			software.add(softwarePackage);
-			w.setSoftwareDependencies(software);
-			GridWorkService gws = gridHostResolver.getGridWorkService(w);
+			c.setSoftwareDependencies(software);
+			GridWorkService gws = gridHostResolver.getGridWorkService(c);
 			GridFileService gfs = gws.getGridFileService();
 			
 			String directory = gws.getTransportConnection().getConfiguredSetting(rootDirectory);
@@ -117,7 +117,7 @@ public class ExternalFileExistsTasklet extends WaspHibernatingTasklet {
 			}
 			
 			String fn = directory + getSubDirectory() + filename;
-			String host = gridHostResolver.getHostname(w);
+			String host = gridHostResolver.getHostname(c);
 			
 			if (gfs.exists(fn)) {
 				logger.info("Tasklet found file: " + host + ":" + fn);

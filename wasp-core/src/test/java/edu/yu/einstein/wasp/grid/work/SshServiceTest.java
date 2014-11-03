@@ -84,13 +84,13 @@ public class SshServiceTest extends AbstractTestNGSpringContextTests {
 	
 	@Test(groups = { "ssh" })
 	public void connect() throws Exception {
-		System.out.println(testGridTransportConnection.getHostName());
+		logger.debug(testGridTransportConnection.getHostName());
 	}
 	
 	@Test(groups = {"ssh"})
 	public void shellTest() throws Exception {
-		WorkUnit w = new WorkUnit();
-		w.setWorkingDirectory("~");
+		WorkUnit w = new WorkUnit(new WorkUnitGridConfiguration());
+        w.getConfiguration().setWorkingDirectory("~");
 		w.setCommand("hostname -f && export FOOBAR=1");
 		GridResult result;
 		try {
@@ -106,8 +106,8 @@ public class SshServiceTest extends AbstractTestNGSpringContextTests {
 		String hostname = writer.toString();
 		logger.debug("hostname: " + hostname);
 		
-		WorkUnit w2 = new WorkUnit();
-		w2.setWorkingDirectory("~");
+		WorkUnit w2 = new WorkUnit(new WorkUnitGridConfiguration());
+        w2.getConfiguration().setWorkingDirectory("~");
 		w2.setCommand("echo $FOOBAR");
 		GridResult result2;
 		try {
@@ -133,18 +133,18 @@ public class SshServiceTest extends AbstractTestNGSpringContextTests {
 	@Test(groups = { "ssh" })
 	public void execute() throws GridException {
 		try {
-			WorkUnit w = new WorkUnit();
-			w.setCommand("hostname -f");
-			w.setWorkingDirectory("/testing/");
-			w.setResultsDirectory("/testing/");
+			WorkUnit w = new WorkUnit(new WorkUnitGridConfiguration());
+	        w.setCommand("hostname -f");
+			w.getConfiguration().setWorkingDirectory("/testing/");
+			w.getConfiguration().setResultsDirectory("/testing/");
 			GridResult result = sshws.execute(w);
 			StringWriter writer = new StringWriter();
 			IOUtils.copy(result.getStdOutStream(), writer, "UTF-8");
 			String theString = writer.toString();
 			logger.debug("result: " + theString);
-			w = new WorkUnit();
-			w.setWorkingDirectory("/testing/");
-			w.setResultsDirectory("/testing/");
+			w = new WorkUnit(new WorkUnitGridConfiguration());
+			w.getConfiguration().setWorkingDirectory("/testing/");
+			w.getConfiguration().setResultsDirectory("/testing/");
 			w.setCommand("sleep 1 && echo $SHELL\necho foo\npwd");
 			w.addCommand("w");
 			result = sshws.execute(w);
@@ -181,9 +181,9 @@ public class SshServiceTest extends AbstractTestNGSpringContextTests {
 	@Test(groups = { "ssh" })
 	public void executeSge() throws GridException {
 		try {
-			WorkUnit w = new WorkUnit();
-			w.setWorkingDirectory("/testing");
-			w.setResultsDirectory("/testing/");
+			WorkUnit w = new WorkUnit(new WorkUnitGridConfiguration());
+	        w.getConfiguration().setWorkingDirectory("/wasp/testing/");
+			w.getConfiguration().setResultsDirectory("/wasp/testing/");
 			w.setCommand("hostname -f");
 			w.addCommand("ls -1 /apps1");
 			w.addCommand("sleep 10");

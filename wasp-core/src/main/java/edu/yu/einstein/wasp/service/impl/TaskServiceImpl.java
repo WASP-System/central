@@ -209,7 +209,7 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 		Map<String, Object> labPendingSearchMap = new HashMap<String, Object>();
 		labPendingSearchMap.put("status", "PENDING");
 		
-		if (authenticationService.isSuperUser() || authenticationService.hasRole("ga")){
+		if (authenticationService.isSuperUser() || authenticationService.hasRole("ga") || authenticationService.hasRole("fm")){
 			jobsPendingDaApprovalList.addAll(allJobsPendingDaApproval);
 			labsPendingDaApprovalList.addAll(labPendingDao.findByMap(labPendingSearchMap));
 		} else {

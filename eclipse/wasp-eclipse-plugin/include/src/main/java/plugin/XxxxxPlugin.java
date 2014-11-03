@@ -20,7 +20,7 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.MessageBuilder;
 
-import edu.yu.einstein.wasp.Hyperlink;  ///// FORMVIZ
+import edu.yu.einstein.wasp.interfacing.Hyperlink;  ///// FORMVIZ
 import edu.yu.einstein.wasp.exception.PanelException; ///// VIZ
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException; ///// PIP 
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -31,12 +31,12 @@ import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.FileGroup; ///// VIZ
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Software;  ///// RES
-import edu.yu.einstein.wasp.plugin.BatchJobProviding;  ///// PIP 
+import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;  ///// PIP 
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
-import edu.yu.einstein.wasp.plugin.WebInterfacing; ///// FORM
+import edu.yu.einstein.wasp.interfacingplugin.WebInterfacing; ///// FORM
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing; ///// VIZ
 import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing; ///// VIZ
-import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
+import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 import edu.yu.einstein.wasp.viewpanel.PanelTab; ///// VIZ
 import edu.yu.einstein.wasp.viewpanel.DataTabViewing.Status;

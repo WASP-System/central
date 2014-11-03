@@ -32,6 +32,7 @@ Ext.define('Wasp.GridPortlet', {
 	grouping : false,
 	groupfield : '',
 	groupheader : '{name}',
+	groupactiondatamap : {},
 
 	statusfld : null,
 
@@ -41,19 +42,24 @@ Ext.define('Wasp.GridPortlet', {
 	 * @param {Object}
 	 *            val
 	 */
+	// DataTabViewing.Status values: COMPLETED, STARTED, PENDING, FAILED, UNKNOWN, NOT_APPLICABLE, INCOMPLETE
 	status : function(val) {
-		if (val.match(/complete/i) != null) {
-			return '<span style="color:green;">' + val + '</span>';
-		} else if (val.match(/start/i) != null) {
-			return '<span style="color:blue;">' + val + '</span>';
-		} else if (val.match(/pending/i) != null) {
-			return '<span style="color:pink;">' + val + '</span>';
-		} else if (val.match(/unknown/i) != null) {
-			return '<span style="color:orange;">' + val + '</span>';
-		} else if (val.match(/fail/i) != null) {
-			return '<span style="color:red;">' + val + '</span>';
+		if (val == "COMPLETED") {
+			return '<span style="color:green;">Completed</span>';
+		} else if (val == "STARTED") {
+			return '<span style="color:green;">Started</span>';
+		} else if (val == "PENDING") {
+			return '<span style="color:green;">Pending</span>';
+		} else if (val == "FAILED") {
+			return '<span style="color:red;">Failed</span>';
+		} else if (val == "UNKNOWN") {
+			return '<span style="color:orange;">Unknown</span>';
+		} else if (val == "NOT_APPLICABLE") {
+			return '<span style="color:orange;">N/A</span>';
+		} else if (val == "INCOMPLETE") {
+			return '<span style="color:orange;">Incomplete</span>';
 		} else {
-			return '<span style="color:gold;">' + val + '</span>';
+			return "";
 		}
 	},
 
@@ -65,6 +71,8 @@ Ext.define('Wasp.GridPortlet', {
 		celldblclick : function(view, td, cellIndex, record, tr, rowIndex, e,
 				eOpts) {
 			// Ext.Msg.alert('Selected Record', 'td : ' + td + ' tr: ' + tr);
+		},
+		headerclick: function( grid, col, e ) {
 		},
 		viewready : function(grid) {
 			var view = grid.view;
@@ -103,29 +111,28 @@ Ext.define('Wasp.GridPortlet', {
 			});
 		}
 	},
-	
-	initToolTip: function(view){
-        //var view = this.view.getView();
-        this.toolTip = Ext.create('Ext.tip.ToolTip', {
-            target: view.el,
-            delegate: view.cellSelector,
-            trackMouse: true,
-            renderTo: Ext.getBody(),
-            listeners: {
-                beforeshow: function(tip) {
-                    var trigger = tip.triggerElement,
-                        parent = tip.triggerElement.parentElement,
-                        columnTitle = view.getHeaderByCell(trigger).text,
-                        columnDataIndex = view.getHeaderByCell(trigger).dataIndex,
-                        columnText = view.getRecord(parent).get(columnDataIndex).toString();
-                    if (columnText){
-                        tip.update("<b>" + columnTitle + ":</b> " + columnText);
-                    } else {
-                        return false;
-                    }
-                }
-            }
-        });
+
+	initToolTip : function(view) {
+		// var view = this.view.getView();
+		this.toolTip = Ext.create('Ext.tip.ToolTip', {
+			target : view.el,
+			delegate : view.cellSelector,
+			trackMouse : true,
+			renderTo : Ext.getBody(),
+			listeners : {
+				beforeshow : function(tip) {
+					var trigger = tip.triggerElement, parent = tip.triggerElement.parentElement, columnTitle = view
+							.getHeaderByCell(trigger).text, columnDataIndex = view
+							.getHeaderByCell(trigger).dataIndex, columnText = view
+							.getRecord(parent).get(columnDataIndex).toString();
+					if (columnText) {
+						tip.update("<b>" + columnTitle + ":</b> " + columnText);
+					} else {
+						return false;
+					}
+				}
+			}
+		});
 	},
 
 	initComponent : function() {
@@ -172,6 +179,7 @@ Ext.define('Wasp.GridPortlet', {
 			// window.open(record.get(grid.gblink), '_blank');
 			// }
 			},
+			sortable: false,
 			keepSelection : true
 		};
 
@@ -181,22 +189,19 @@ Ext.define('Wasp.GridPortlet', {
 			if (action.callbackFunctionType === 'DOWNLOAD') {
 				strcbfunc = '{"'
 						+ action.iconClassName
-						+ '": "function(grid, record, action, row, col){window.location = record.get(\''
-						+ 'cb'
+						+ '": "function(grid, record, action, row, col){window.location = record.get(\'cb'
 						+ action.icnHashCode.toString().replace('-', '_')
 						+ '\');}"}';
 			} else if (action.callbackFunctionType === 'OPEN_IN_NEW_BROWSER_WIN') {
 				strcbfunc = '{"'
 						+ action.iconClassName
-						+ '": "function(grid, record, action, row, col){window.open(record.get(\''
-						+ 'cb'
+						+ '": "function(grid, record, action, row, col){window.open(record.get(\'cb'
 						+ action.icnHashCode.toString().replace('-', '_')
 						+ '\'), \'_blank\');}"}';
 			} else if (action.callbackFunctionType === 'OPEN_IN_CSS_WIN') {
 				strcbfunc = '{"'
 						+ action.iconClassName
-						+ '": "function(grid, record, action, row, col){getPanelDisplayWindowForFilegroup(record.get(\''
-						+ 'cb'
+						+ '": "function(grid, record, action, row, col){getPanelDisplayWindowForFilegroup(record.get(\'cb'
 						+ action.icnHashCode.toString().replace('-', '_')
 						+ '\'));}"}';
 			} else {
@@ -235,6 +240,19 @@ Ext.define('Wasp.GridPortlet', {
 										'_')
 
 					});
+
+			if (action.group == true && action.callbackFunctionType === 'DOWNLOAD') {
+				actioncol.groupActions = [{
+					iconCls : action.groupIconClassName,
+					qtip : action.groupTooltip,
+					align : action.groupAlign.toLowerCase(),
+					callback : function(grid, records, groupAction, groupValue) {
+						if (records.length > 0 && groupAction in grid.groupactiondatamap)
+							window.location = mergeDownloadLinks(records, grid.groupactiondatamap[groupAction]);
+					}
+				}];
+				grid.groupactiondatamap[action.groupIconClassName] = 'cb' + action.icnHashCode.toString().replace('-', '_');
+			}
 		};
 
 		// Add download action buttons to the action column
@@ -272,6 +290,7 @@ Ext.define('Wasp.GridPortlet', {
 		// });
 		// }
 
+		// Avoid multiple insertion of action column
 		if (actioncol.actions.length > 0) {
 			var acol = this.columns[this.columns.length - 1];
 			if (acol === undefined || acol.xtype === undefined

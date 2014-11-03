@@ -27,7 +27,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import edu.yu.einstein.wasp.dao.FileGroupDao;
+import edu.yu.einstein.wasp.dao.FileGroupMetaDao;
 import edu.yu.einstein.wasp.dao.FileHandleDao;
+import edu.yu.einstein.wasp.dao.WaspMetaDao;
 import edu.yu.einstein.wasp.exception.FileDownloadException;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.GridException;
@@ -410,6 +412,8 @@ public interface FileService extends WaspService {
 	 * @return
 	 */
 	public Set<FileHandle> getAllFileHandlesFromFileGroupCollection(FileGroup fgCollection);
+	
+	public File createLocalTempFile();
 
 }
 

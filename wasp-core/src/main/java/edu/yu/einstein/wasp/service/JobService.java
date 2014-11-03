@@ -19,6 +19,7 @@ import java.util.Set;
 
 import org.json.JSONException;
 import org.slf4j.Logger;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -48,6 +49,7 @@ import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
+import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobMeta;
@@ -516,7 +518,7 @@ public interface JobService extends WaspMessageHandlingService {
 	
 	public HashMap<String, MetaMessage> getLatestJobApprovalsComments(Set<String> jobApproveCodeSet, Integer jobId);
 	
-	public String getJobStatus(Job job);
+	public String getDetailedJobStatusString(Job job);
 
 	public List<Software> getSoftwareForJob(Job job);
 
@@ -636,9 +638,9 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @param File localFile (this is wasp's newly created quote.pdf, currently locally stored)
 	 * @param Float totalFinalCost
 	 * @param boolean saveQuoteAsJSON
-	 * @return void
+	 * @return FileGroup
 	 */
-	public void createNewQuoteAndSaveQuoteFile(MPSQuote mpsQuote, File file, Float totalFinalCost, boolean saveQuoteAsJSON) throws FileUploadException, JSONException, QuoteException;
+	public FileGroup createNewQuoteAndSaveQuoteFile(MPSQuote mpsQuote, File file, Float totalFinalCost, boolean saveQuoteAsJSON) throws FileUploadException, JSONException, QuoteException;
 
 	/**
 	 * Create new acctQuote for a job and save the UPLOADED file (to the remote location)
@@ -646,9 +648,9 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @param MultipartFile mpFile (the uploaded file; uploaded from the web)
 	 * @param String fileDescription (invoice or quote only)
 	 * @param Float totalCost
-	 * @return void
+	 * @return FileGroup
 	 */
-	public void createNewQuoteOrInvoiceAndUploadFile(Job job, MultipartFile mpFile, String fileDescription, Float totalCost) throws FileUploadException, QuoteException, WaspMessageBuildingException;
+	public FileGroup createNewQuoteOrInvoiceAndUploadFile(Job job, MultipartFile mpFile, String fileDescription, Float totalCost) throws FileUploadException, QuoteException, WaspMessageBuildingException;
 	
 	
 	/**
@@ -679,5 +681,7 @@ public interface JobService extends WaspMessageHandlingService {
 	public List<List<Sample>> getSampleReplicates(Job job);
 
 	public boolean getIsAnalysisSelected(Job job);
+
+	public ExitStatus getJobStatus(Job job);
 
 }

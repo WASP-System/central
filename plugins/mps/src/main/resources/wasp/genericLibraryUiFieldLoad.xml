@@ -22,7 +22,17 @@
           <property name="type" value="NUMBER" />
           <property name="range" value="0.0001:1000000000" />
         </bean>
-        
+       
+        <bean parent="genericLibraryUiField">
+          <property name="baseName" value="quantificationmethod" />
+          <property name="label" value="genDna.quantificationmethod.label" />
+          <property name="metaposition" value="11" />
+          <property name="control" value="genDna.quantificationmethod.control" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="genDna.quantificationmethod.error" />
+          <property name="tooltip" value="genDna.quantificationmethod.tt" />
+        </bean>
+                
         <bean parent="genericLibraryUiField">
           <property name="baseName" value="volume" />
           <property name="label" value="genDna.vol.label" />
@@ -75,8 +85,10 @@
           <property name="label" value="genLib.libSizeSd.label" />
           <property name="metaposition" value="70" />
           <property name="type" value="NUMBER" />
+          <!-- omit at Shahina's request 10-9-14
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="genLib.libSizeSd.error" />
+           -->
           <property name="range" value="0:1000000000" />
         </bean>
       </list>

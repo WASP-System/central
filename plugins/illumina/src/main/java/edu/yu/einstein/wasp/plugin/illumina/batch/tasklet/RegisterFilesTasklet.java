@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.AbandonMessageHandlingTasklet;
+import edu.yu.einstein.wasp.dao.FileGroupMetaDao;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.InvalidFileTypeException;
 import edu.yu.einstein.wasp.exception.MetadataException;
@@ -30,8 +31,10 @@ import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.SoftwareManager;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Run;
@@ -41,6 +44,8 @@ import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.plugin.fileformat.service.impl.FastqServiceImpl;
 import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
 import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
+import edu.yu.einstein.wasp.plugin.mps.SequenceReadProperties;
+import edu.yu.einstein.wasp.plugin.mps.SequenceReadProperties.ReadType;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
 import edu.yu.einstein.wasp.service.RunService;
@@ -87,6 +92,9 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
     
     @Autowired
     private WaspIlluminaService waspIlluminaService;
+    
+    @Autowired
+    private FileGroupMetaDao fileGroupMetaDao;
 
     private int runId;
     private Run run;
@@ -114,14 +122,13 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
 
         List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
         sd.add(casava);
-
-        WorkUnit w = new WorkUnit();
-        w.setProcessMode(ProcessMode.SINGLE);
+        WorkUnitGridConfiguration conf = new WorkUnitGridConfiguration();
+        conf.setProcessMode(ProcessMode.SINGLE);
         // set casava as software dependency to ensure we get sent to the
         // correct host
-        w.setSoftwareDependencies(sd);
+        conf.setSoftwareDependencies(sd);
         // save the GridWorkService so we can send many jobs there
-        workService = hostResolver.getGridWorkService(w);
+        workService = hostResolver.getGridWorkService(conf);
 
         transportConnection = workService.getTransportConnection();
 
@@ -131,8 +138,8 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
 
         workingDirectory = stageDir + "/" + run.getName() + "/";
 
-        w.setWorkingDirectory(workingDirectory);
-
+        conf.setWorkingDirectory(workingDirectory);
+        WorkUnit w = new WorkUnit(conf);
         w.setCommand("mkdir -p wasp && cd wasp && ln -fs ../reports . && mkdir -p sequence && cd sequence");
         // rename files with spaces in names
         w.addCommand("shopt -s nullglob");
@@ -178,11 +185,12 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
         transportConnection.sendExecToRemote(w);
 
         logger.debug("symlinked results");
-
-        w = new WorkUnit();
-        w.setProcessMode(ProcessMode.SINGLE);
-        w.setSoftwareDependencies(sd);
-        w.setWorkingDirectory(workingDirectory);
+        conf = new WorkUnitGridConfiguration();
+       
+        conf.setProcessMode(ProcessMode.SINGLE);
+        conf.setSoftwareDependencies(sd);
+        conf.setWorkingDirectory(workingDirectory);
+        w = new WorkUnit(conf);
         w.setCommand("cd wasp/sequence && ls -1 *.fastq.gz");
 
         // method to send commands without wrapping them in a submission script.
@@ -195,11 +203,11 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
         Integer readSegments = waspIlluminaService.getNumberOfReadSegments(run);
 
         this.createSequenceFiles(platformUnit, allCellLib, br, readSegments);
-
-        w = new WorkUnit();
-        w.setProcessMode(ProcessMode.SINGLE);
-        w.setSoftwareDependencies(sd);
-        w.setWorkingDirectory(workingDirectory + "wasp/reports");
+        conf = new WorkUnitGridConfiguration();
+        conf.setProcessMode(ProcessMode.SINGLE);
+        conf.setSoftwareDependencies(sd);
+        conf.setWorkingDirectory(workingDirectory + "wasp/reports");
+        w = new WorkUnit(conf);
         w.setCommand("find . -type f -print | sed \'s/^\\.\\///\'");
 
         logger.debug("registering Illumina report files");
@@ -283,8 +291,8 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
 					FileHandle file = new FileHandle();
 					file.setFileURI(workService.getGridFileService().remoteFileRepresentationToLocalURI(workingDirectory + "wasp/sequence/" + line));
 					String actualBarcode = sampleService.getLibraryAdaptor(sampleService.getLibrary(cellLib)).getBarcodesequence();
-					if (!actualBarcode.equals(barcode)) {
-						logger.error("cell library " + cellLibId + " barcode " + actualBarcode + " does not match file's indicaded barcode: " + barcode);
+					if (!actualBarcode.equals(barcode) && !barcode.equals("NoIndex")) {
+						logger.error("cell library " + cellLibId + " barcode " + actualBarcode + " does not match file's indicated barcode: " + barcode);
 						throw new edu.yu.einstein.wasp.exception.SampleIndexException("sample barcode does not match");
 					}
 
@@ -327,6 +335,7 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
             fileService.register(pufg.getFileHandles());
 
             for (SampleSource cl : cellLibSeqfg.keySet()) {
+            	
                 // save all samplefile groups
                 logger.debug("saving cell library " + cl.getId());
                 FileGroup sfg = cellLibSeqfg.get(cl);
@@ -336,6 +345,24 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
                 fileService.addFileGroup(sfg);
                 cl.getFileGroups().add(sfg);
                 sampleService.getSampleSourceDao().save(cl);
+                
+
+            	List<Integer> lens = waspIlluminaService.getLengthOfReadSegments(run);
+            	int segs = waspIlluminaService.getNumberOfReadSegments(run);
+            	ReadType rt;
+            	if (segs == 1) {
+            		rt = ReadType.SINGLE;
+            	} else if (segs == 2) {
+            		rt = ReadType.PAIRED;
+            	} else {
+            		logger.warn("ReadType with " + segs + " read segments is unknown!");
+            		rt = new ReadType("UNKNOWN: " + segs);
+            	}
+            	
+            	SequenceReadProperties srp = new SequenceReadProperties(rt, lens.get(0) - 1); // illumina sequences read length +1
+            	
+            	SequenceReadProperties.setSequenceReadProperties(srp, sfg, fileGroupMetaDao, FileGroupMeta.class);
+                
             }
 
         } catch (Exception e) {

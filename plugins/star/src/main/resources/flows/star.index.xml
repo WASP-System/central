@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
+
+	<!-- This flow implements a per- trimmed FASTQ FileGroup two pass STAR alignment 
+		(Engström et al., 2013 http://www.ncbi.nlm.nih.gov/pmc/articles/PMC4018468/). 
+		In the first alignment, reads are aligned to the reference genome -->
+
+	<batch:job id="star.index">
+		<batch:step id="star.index.notifyGenomemetadataStart" next="star.index.markBegin">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean
+							class="edu.yu.einstein.wasp.plugin.genomemetadata.integration.messages.SimpleGenomeMetadataStatusMessageTemplate">
+							<property name="status" value="STARTED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+
+		<batch:step id="star.index.markBegin">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.file.TouchFileTasklet" scope="step">
+					<constructor-arg name="hostname" 
+						value="#{jobParameters[waspJobParameters.HOSTNAME]}" />
+					<constructor-arg name="file" 
+						value="#{jobParameters[genomemetadataPlugin.METADATA_PATH_KEY]}/star/#{jobParameters[genomemetadataPlugin.VERSION_KEY]}/#{T(edu.yu.einstein.wasp.service.GenomeService).INDEX_CREATION_STARTED}" />
+				</bean>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="star.index.markFailed" />
+			<batch:next on="*" to="star.index.buildIndex" />
+		</batch:step>
+
+		<batch:step id="star.index.buildIndex">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.plugins.star.batch.tasklet.BuildStarIndexTasklet" scope="step">
+					<constructor-arg name="hostname" value="#{jobParameters[waspJobParameters.HOSTNAME]}" />
+					<constructor-arg name="config" value="#{jobParameters[T(edu.yu.einstein.wasp.plugins.star.StarGenomeIndexConfiguration).STAR_GENOME_INDEX_CONFIGURATION_KEY]}" />
+				</bean>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="star.index.markFailed" />
+			<batch:next on="*" to="star.index.markComplete" />
+		</batch:step>
+
+		<batch:step id="star.index.markComplete">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.file.TouchFileTasklet" scope="step">
+					<constructor-arg name="hostname"
+						value="#{jobParameters[waspJobParameters.HOSTNAME]}" />
+					<constructor-arg name="file"
+						value="#{jobParameters[genomemetadataPlugin.METADATA_PATH_KEY]}/star/#{jobParameters[genomemetadataPlugin.VERSION_KEY]}/#{T(edu.yu.einstein.wasp.service.GenomeService).INDEX_CREATION_COMPLETED}" />
+				</bean>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="star.index.markFailed" />
+			<batch:next on="*" to="star.index.notifyComplete" />
+		</batch:step>
+
+		<batch:step id="star.index.notifyComplete">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.plugin.genomemetadata.integration.messages.SimpleGenomeMetadataStatusMessageTemplate">
+							<property name="status" value="COMPLETED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+
+		<batch:step id="star.index.markFailed">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.file.TouchFileTasklet" scope="step">
+					<constructor-arg name="hostname"
+						value="#{jobParameters[waspJobParameters.HOSTNAME]}" />
+					<constructor-arg name="file"
+						value="#{jobParameters[genomemetadataPlugin.METADATA_PATH_KEY]}/star/#{jobParameters[genomemetadataPlugin.VERSION_KEY]}/#{T(edu.yu.einstein.wasp.service.GenomeService).INDEX_CREATION_FAILED}" />
+				</bean>
+			</batch:tasklet>
+			<batch:fail on="*" />
+		</batch:step>
+
+
+	</batch:job>
+
+	<batch:job id="star.secondaryIndex">
+		<batch:step id="skipit">
+			<batch:tasklet>
+				<bean id="skip" parent="edu.yu.einstein.wasp.plugins.star.mainFlow.skipTasklet" />
+			</batch:tasklet>
+		</batch:step>
+
+	</batch:job>
+
+	<bean id="edu.yu.einstein.wasp.plugins.star.mainFlow.skipTasklet"
+		class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" scope="step" />
+
+</beans>

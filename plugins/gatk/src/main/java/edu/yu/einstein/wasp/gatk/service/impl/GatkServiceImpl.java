@@ -11,12 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.exception.MetadataRuntimeException;
 import edu.yu.einstein.wasp.gatk.fileformat.GatkBamFileTypeAttribute;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.fileformat.plugin.BamFileTypeAttribute;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.GenomeService;
@@ -52,16 +50,8 @@ public class GatkServiceImpl extends WaspServiceImpl implements GatkService {
 	
 	@Override
 	public Build getBuildForFg(FileGroup fileGroup){
-		// follow back along a single line to an original file group which should be a fastq file
-		// figure out the genome from its sample source
-		// We assume all source files share a common genome
-		// TODO: verify that all builds are the same for all cell libraries 
-		while (fileGroup.getDerivedFrom() != null && fileGroup.getDerivedFrom().iterator().hasNext())
-			fileGroup = fileGroup.getDerivedFrom().iterator().next();
-		Set<SampleSource> fgCl = fileGroup.getSampleSources();
-		if (fgCl == null || fgCl.isEmpty())
-			return null;
-		return genomeService.getGenomeBuild(fgCl.iterator().next());
+		// method moved to genomeService
+		return genomeService.getBuildForFg(fileGroup);
 	}
 	
 	@Override
@@ -75,24 +65,6 @@ public class GatkServiceImpl extends WaspServiceImpl implements GatkService {
 		return attributes;
 	}
 	
-	@Override
-	public String getReferenceSnpsVcfFile(Build build) {
-		String folder = build.getMetadata("vcf.folder");
-		String filename = build.getMetadata("vcf.snps.filename");
-		if (folder == null || folder.isEmpty() || filename == null || filename.isEmpty())
-			throw new MetadataRuntimeException("failed to locate snps vcf file");
-		return genomeService.getRemoteBuildPath(build) + "/" + folder + "/" + filename;
-	}
-	
-	@Override
-	public String getReferenceIndelsVcfFile(Build build) {
-		String folder = build.getMetadata("vcf.folder");
-		String filename = build.getMetadata("vcf.indels.filename");
-		if (folder == null || folder.isEmpty() || filename == null || filename.isEmpty())
-			throw new MetadataRuntimeException("failed to locate indels vcf file");
-		return genomeService.getRemoteBuildPath(build) + "/" + folder + "/" + filename;
-	}
-	
 	/**
 	 * Returns the path to the WXS interval file selected by the user. If no file was selected, null is returned.
 	 * @param job
@@ -101,12 +73,10 @@ public class GatkServiceImpl extends WaspServiceImpl implements GatkService {
 	 */
 	@Override
 	public String getWxsIntervalFile(Job job, Build build) {
-		String folder = build.getMetadata("wxsIntervals.folder");
+		// TODO: this functionality needs overhauling
 		String filename = variantCallingService.getSavedWxsIntervalFileForBuild(job, build);
-		if (folder == null || folder.isEmpty() || filename == null || filename.isEmpty())
-			throw new MetadataRuntimeException("failed to locate WXS interval file");
 		if (filename.equals(VariantcallingService.WXS_NONE_INTERVAL_FILENAME))
 			return null;
-		return genomeService.getRemoteBuildPath(build) + "/" + folder + "/" + filename;
+		return genomeService.getRemoteBuildPath(build) + filename;
 	}
 }

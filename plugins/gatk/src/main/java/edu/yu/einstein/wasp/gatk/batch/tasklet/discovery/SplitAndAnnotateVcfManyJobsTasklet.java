@@ -136,6 +136,7 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 		FileGroup vcfG = new FileGroup();
 		FileHandle vcf = new FileHandle();
 		vcf.setFileName(vcfFileName);
+		vcf.setFileType(vcfFileType);
 		vcfG.setIsActive(0);
 		vcfG.addFileHandle(vcf);
 		vcfG.setFileType(vcfFileType);
@@ -152,6 +153,7 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 		FileGroup summaryHtmlG = new FileGroup();
 		FileHandle summaryHtml = new FileHandle();
 		summaryHtml.setFileName(summaryHtmlFileName);
+		summaryHtml.setFileType(htmlFileType);
 		summaryHtmlG.setIsActive(0);
 		summaryHtmlG.addFileHandle(summaryHtml);
 		summaryHtmlG.setFileType(htmlFileType);
@@ -166,6 +168,7 @@ public class SplitAndAnnotateVcfManyJobsTasklet extends LaunchManyJobsTasklet {
 		FileGroup summaryGeneG = new FileGroup();
 		FileHandle summaryGene = new FileHandle();
 		summaryGene.setFileName(summaryGeneFileName);
+		summaryGene.setFileType(tsvFileType);
 		summaryGeneG.setIsActive(0);
 		summaryGeneG.addFileHandle(summaryGene);
 		summaryGeneG.setFileType(tsvFileType);

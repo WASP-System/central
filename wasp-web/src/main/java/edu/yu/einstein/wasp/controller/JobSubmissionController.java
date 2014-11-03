@@ -2010,7 +2010,7 @@ public class JobSubmissionController extends WaspController {
 			if(resultForMeta.hasErrors()){
 				List<FieldError> fieldErrors = resultForMeta.getFieldErrors();
 				for(FieldError fe : fieldErrors){
-					//System.out.println(fe.getCode());//this is something like chipseqDna.fragmentSize.error
+					//logger.debug(fe.getCode());//this is something like chipseqDna.fragmentSize.error
 					String metaErrorForDisplay = fe.getCode().substring(fe.getCode().indexOf(".")+1);//something like fragmentSize.error
 					metaErrorForDisplay = metaErrorForDisplay.replace(".", " ");//something like fragmentSize error
 					errorsForThisSample += errorsForThisSample.isEmpty()?metaErrorForDisplay:"; " + metaErrorForDisplay;
@@ -2032,9 +2032,9 @@ public class JobSubmissionController extends WaspController {
 		if(atLeastOneErrorExists==true){
 			
 			/* ********for testing only
-			System.out.println("------Print out the errors in errorList:");
+			logger.debug("------Print out the errors in errorList:");
 			for(String error : errorList){
-				System.out.println("------"+error);
+				logger.debug("------"+error);
 			}
 			 */
 			
@@ -2494,6 +2494,16 @@ public class JobSubmissionController extends WaspController {
 		//String trimmedComment = comment==null?"":StringEscapeUtils.escapeXml(comment.trim());//any standard html/xml [Supports only the five basic XML entities (gt, lt, quot, amp, apos)] will be converted to characters like &gt; //http://commons.apache.org/lang/api-3.1/org/apache/commons/lang3/StringEscapeUtils.html#escapeXml%28java.lang.String%29
 		String trimmedComment = comment==null?"":comment.trim();//7-7-14
 		
+		//as of 10-14-14, no longer optional. We insist on at least a description of sample description method.
+		if(trimmedComment.isEmpty()){
+			waspErrorMessage("jobDraft.commentNotOptional.error");
+			m.put("comment", trimmedComment);
+			m.put("jobDraft", jobDraft);
+			m.put("pageFlowMap", getPageFlowMap(jobDraft));
+
+			return "jobsubmit/comment";
+		}
+		
 		try{
 			jobDraftService.saveUserJobDraftComment(jobDraftId, trimmedComment);
 		}catch(Exception e){
@@ -2717,10 +2727,10 @@ public class JobSubmissionController extends WaspController {
 
 			String expandPage = page.replaceAll("\\{n\\}", ""+jobDraft.getId());
 			expandPage = expandPage.replace("^/", "");//added 6-11-14; dubin to repair the breadcrumbs anchor on jobsubmission pages (see additional change a few lines below)
-			//System.out.println("page: " + page);
-			//System.out.println("mapPage: " + mapPage);
-			//System.out.println("expandPage: " + expandPage);
-			//System.out.println("currentMapping: " + currentMapping);
+			//logger.debug("page: " + page);
+			//logger.debug("mapPage: " + mapPage);
+			//logger.debug("expandPage: " + expandPage);
+			//logger.debug("currentMapping: " + currentMapping);
 			
 			if (currentMapping.equals(expandPage)) {
 				request.setAttribute("forcePageTitle", getPageTitle(mapPage, jobDraft.getWorkflow().getIName()));
@@ -2729,7 +2739,7 @@ public class JobSubmissionController extends WaspController {
 			}
 
 			expandPage = expandPage.replaceAll("^/", "");//added 6-11-14; dubin yep, do this yet again, to repair the breadcrumbs anchor on jobsubmission pages
-			//System.out.println("expandPage again: " + expandPage);
+			//logger.debug("expandPage again: " + expandPage);
 			String[] r = {expandPage, getPageTitle(mapPage, jobDraft.getWorkflow().getIName())};
 			rt.add(r);
 	

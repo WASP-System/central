@@ -1,9 +1,10 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <script>
 
 	function validate(){
-		TOTAL_LANES = 8;
+		TOTAL_LANES = <c:out value="${cellIndexList.size()}" />;
 		reviewsIncomplete = false;
 		commentsIncomplete = false;
 		acceptMessage = '<fmt:message key="waspIlluminaPlugin.updateQc_noChoose.error" />';

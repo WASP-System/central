@@ -2066,44 +2066,36 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getJobStatus(Job job){
+	public String getDetailedJobStatusString(Job job){
 		if(job==null || job.getId()==null)
 			return "Unknown";
-		String currentStatus = "Not Yet Set";
-		//String approvalStatus = "Not Yet Set";
-		LinkedHashMap<String,String> jobApprovalsMap = this.getJobApprovals(job);
-		logger.debug("isJobActive for id=" + job.getId() + " : " + isJobActive(job));
-		if(isJobActive(job)){
-			currentStatus = "In Progress";
-			for(String jobApproveCode : jobApprovalsMap.keySet()){
-				if("awaitingResponse".equalsIgnoreCase(jobApprovalsMap.get(jobApproveCode))){
-					currentStatus = "Awaiting Approval(s)";
-					break;
-				}
-			}
+		ExitStatus status = getJobStatus(job);
+		if (status.isCompleted())
+			return "Completed";
+		if (status.isRunning()){
+			if (isJobPendingApprovalOrQuote(job))
+				return "Awaiting Approvals";
+			return "In Progress";
 		}
-		else{
-			currentStatus = "Completed";
+		if (status.isTerminated()){
+			LinkedHashMap<String,String> jobApprovalsMap = this.getJobApprovals(job);
 			for(String jobApproveCode : jobApprovalsMap.keySet()){
 				//if any single jobStatus is rejected, the rest are set to abandoned, so this job is withdrawn, so break
 				if("rejected".equalsIgnoreCase(jobApprovalsMap.get(jobApproveCode))){
-					if("piApprove".equals(jobApproveCode)){
-							currentStatus = "Withdrawn By PI";
-					}
-					else if("daApprove".equals(jobApproveCode)){
-						currentStatus = "Withdrawn By Dept.";
-					}
-					else if("fmApprove".equals(jobApproveCode)){
-						currentStatus = "Withdrawn By Facility";
-					}
-					else {//should never occur
-						currentStatus = "Withdrawn";
-					}
-					break;
+					if("piApprove".equals(jobApproveCode))
+						return "Withdrawn By PI";
+					else if("daApprove".equals(jobApproveCode))
+						return "Withdrawn By Dept.";
+					else if("fmApprove".equals(jobApproveCode))
+						return "Withdrawn By Facility";
+					else //should never occur
+						return "Withdrawn";
 				}
 			}
 		}
-		return currentStatus;
+		if (status.isFailed())
+			return "Failed";
+		return "Unknown";
 	}
 	
 	/**
@@ -2313,6 +2305,24 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 * {@inheritDoc}
 	 */
 	@Override
+	public ExitStatus getJobStatus(Job job){
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(job.getId(), "job Id cannot be null");
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(job.getId().toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+		JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(
+				batchJobExplorer.getJobExecutions("default.waspJob.jobflow", parameterMap, true) );
+		if (je == null)
+			return ExitStatus.UNKNOWN;
+		return je.getExitStatus();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public boolean isTerminated(Job job){
 		Assert.assertParameterNotNull(job, "job cannot be null");
 		Assert.assertParameterNotNull(job.getId(), "job Id cannot be null");
@@ -2449,7 +2459,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 * @throws Exception 
 	 */
 	@Override
-	public void createNewQuoteAndSaveQuoteFile(MPSQuote mpsQuote, File file, Float totalFinalCost, boolean saveQuoteAsJSON) throws FileUploadException, JSONException, QuoteException{
+	public FileGroup createNewQuoteAndSaveQuoteFile(MPSQuote mpsQuote, File file, Float totalFinalCost, boolean saveQuoteAsJSON) throws FileUploadException, JSONException, QuoteException{
 			Job job = this.getJobByJobId(mpsQuote.getJobId());
 		
 			Date now = new Date();
@@ -2477,6 +2487,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			} catch (WaspMessageBuildingException e) {
 				throw new MessagingException(e.getLocalizedMessage());
 			}
+	 	   	return fileGroup;
 	}
 	
 	/** 
@@ -2485,11 +2496,12 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 * @throws WaspMessageBuildingException 
 	 */
 	@Override
-	public void createNewQuoteOrInvoiceAndUploadFile(Job job, MultipartFile mpFile, String fileDescription, Float totalCost) throws FileUploadException, QuoteException, WaspMessageBuildingException{
+	public FileGroup createNewQuoteOrInvoiceAndUploadFile(Job job, MultipartFile mpFile, String fileDescription, Float totalCost) throws FileUploadException, QuoteException, WaspMessageBuildingException{
 		if(!fileDescription.equalsIgnoreCase("quote") && !fileDescription.equalsIgnoreCase("invoice")){
 			  throw new QuoteException(); 
 		}
- 	   	FileGroup fileGroup = fileService.uploadFileAndReturnFileGroup(mpFile, job, fileDescription, new Random(System.currentTimeMillis()));
+ 	   	FileGroup fileGroup = null;
+ 	   	fileGroup = fileService.uploadFileAndReturnFileGroup(mpFile, job, fileDescription, new Random(System.currentTimeMillis()));
  	   	//if this is a new quote, save quote; if invoice, save invoice
  	   	AcctQuote acctQuote = new AcctQuote();
  	   	acctQuote.setAmount(totalCost);
@@ -2499,6 +2511,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
  	   	acctQuoteMeta.setV(fileGroup.getId().toString());
  	   	acctQuoteMetaList.add(acctQuoteMeta);
  	   	this.addNewQuote(job.getId(), acctQuote, acctQuoteMetaList);
+ 	   	return fileGroup;
 	}
 	
 	/*

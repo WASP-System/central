@@ -16,7 +16,11 @@
 			</c:if>
 			<tr><td colspan="2" align="center"><input type='submit' value='Submit'/></td></tr>
 		</c:if>	
-		<c:forEach items="${jobViewers}" var="jobViewer">
+		<c:forEach items="${jobViewers}" var="jobViewer" varStatus="jobViewerStatus">
+		
+			<c:if test="${jobViewerStatus.first}">
+				<tr ><th colspan="2"  class="label" nowrap><fmt:message key="jobHomeViewerManager.usersThatCanViewThisJob.label" /></th></tr>
+			</c:if>
 			<c:choose>
 				<c:when test="${jobViewer.getId()==jobSubmitter.getId() && jobViewer.getId()==jobPI.getId()}"> <%-- submitter is also lab PI --%>
 					<tr><td ><c:out value="${jobViewer.lastName}" />, <c:out value="${jobViewer.firstName}" /></td><td style="text-align:center"><fmt:message key="jobdetail_for_import.jobSubmitter.label" /> &amp; <fmt:message key="jobdetail_for_import.jobPI.label" /></td></tr>

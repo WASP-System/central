@@ -10,6 +10,7 @@
 package edu.yu.einstein.wasp.service;
 
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
+import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleSource;
@@ -34,10 +36,179 @@ public interface GenomeService extends WaspService {
 	public static final String GENOME_STRING_META_KEY="genomeString";
 	
 	public static final String DELIMITER = "::";
+	
+	public static final String INDEX_CREATION_STARTED = "STARTED.txt";
+	
+	public static final String INDEX_CREATION_COMPLETED = "COMPLETED.txt";
+	
+	public static final String INDEX_CREATION_FAILED = "FAILED.txt";
+	
+	public static final String ORGANISM_KEY = "ncbiOrganismId";
+	
+	public static final String GENOME_KEY = "genomeNameString";
+	
+	public static final String BUILD_KEY = "buildNameString";
 
 	public Set<Organism> getOrganisms();
 	
-	public boolean exists(GridWorkService workService, Build build, String index);
+	/**
+	 * Test to see if the folder for the specified genome index exists on the remote host.
+	 * 
+	 * @param workService
+	 * @param build
+	 * @param index
+	 * @return
+	 * @throws IOException 
+	 */
+	public boolean exists(GridWorkService workService, Build build, String index) throws IOException;
+	
+	/**
+	 * Test to see if the folder for the specified genome index in the indicated subdirectory exists on the remote host.
+	 * It's up to the aligner's implementation to implement a {@link GenomeIndexConfiguration} in order to specify
+	 * the subdirectory.
+	 * 
+	 * @param workService
+	 * @param build
+	 * @param index
+	 * @return
+	 * @throws IOException 
+	 */
+	public boolean exists(GridWorkService workService, Build build, String index, String subdirectory) throws IOException;
+	
+	/**
+	 * Test to see that the index creation of the specified index has begun.
+	 * 
+	 * @param workService
+	 * @param build
+	 * @param index
+	 * @return
+	 * @throws IOException 
+	 */
+	public boolean isStarted(GridWorkService workService, Build build, String index) throws IOException;
+	
+	/**
+	 * Test to see if the index has been created.
+	 * 
+	 * @param workService
+	 * @param build
+	 * @param index
+	 * @return
+	 * @throws IOException 
+	 */
+	public boolean isCompleted(GridWorkService workService, Build build, String index) throws IOException;
+	
+	/**
+	 * Check for annotated failure condition.
+	 * 
+	 * @param workService
+	 * @param build
+	 * @param index
+	 * @return
+	 * @throws IOException
+	 */
+	public boolean isFailed(GridWorkService workService, Build build, String index) throws IOException;
+	
+	/**
+	 * Test to see that the index creation of the specified index has begun in the specified
+	 * subdirectory.
+	 * 
+	 * @param workService
+	 * @param build
+	 * @param index
+	 * @param subdir
+	 * @return
+	 * @throws IOException 
+	 */
+	public boolean isStarted(GridWorkService workService, Build build, String index, String subdir) throws IOException;
+	
+	/**
+	 * Test to see if the index has been created in the specified subdirectory.
+	 * 
+	 * @param workService
+	 * @param build
+	 * @param index
+	 * @param subdir
+	 * @return
+	 * @throws IOException 
+	 */
+	public boolean isCompleted(GridWorkService workService, Build build, String index, String subdir) throws IOException;
+	
+	/**
+	 * Check for annotated failure condition.
+	 * 
+	 * @param workService
+	 * @param build
+	 * @param index
+	 * @param subdir
+	 * @return
+	 * @throws IOException
+	 */
+	public boolean isFailed(GridWorkService workService, Build build, String index, String subdir) throws IOException;
+	
+	/**
+	 * Create the specified index location.
+	 * 
+	 * @param workService
+	 * @param build
+	 * @param index
+	 * @throws IOException 
+	 */
+	public void createIndexLocation(GridWorkService workService, Build build, String index) throws IOException;
+	
+	/**
+	 * Create the specified index location and subdirectory.
+	 * 
+	 * @param workService
+	 * @param build
+	 * @param index
+	 * @param subdir
+	 * @throws IOException 
+	 */
+	public void createIndexLocation(GridWorkService workService, Build build, String index, String subdir) throws IOException;
+	
+	/**
+	 * Mark the specified index as begun.
+	 * 
+	 * @param workService
+	 * @param build
+	 * @param index
+	 * @throws IOException 
+	 */
+	public void markIndexBegun(GridWorkService workService, Build build, String index) throws IOException;
+	
+	/**
+	 * Mark the specified index and subdirectory as begun.
+	 * 
+	 * @param workService
+	 * @param build
+	 * @param index
+	 * @param subdir
+	 * @throws IOException 
+	 */
+	public void markIndexBegun(GridWorkService workService, Build build, String index, String subdir) throws IOException;
+	
+	/**
+	 * Mark the specified index as complete.
+	 * 
+	 * @param workService
+	 * @param build
+	 * @param index
+	 * @throws IOException 
+	 */
+	public void markIndexComplete(GridWorkService workService, Build build, String index) throws IOException;
+	
+	/**
+	 * Mark the specified index and subdirectory as complete.
+	 * 
+	 * @param workService
+	 * @param build
+	 * @param index
+	 * @param subdir
+	 * @throws IOException 
+	 */
+	public void markIndexComplete(GridWorkService workService, Build build, String index, String subdir) throws IOException;
+	
+	
 
 	/**
 	 * Returns registered organism who's organism ID matches that given, or null if no match
@@ -110,10 +281,23 @@ public interface GenomeService extends WaspService {
 
 	/**
 	 * Get remote host formatted representation of metadata directory housing this build
+	 * Encodes path using variable for remote metadata path, requires execution in WorkUnit.
+	 * 
 	 * @param build
 	 * @return
 	 */
-	String getRemoteBuildPath(Build build);
+	public String getRemoteBuildPath(Build build);
+	
+	
+	/**
+	 * Get remote directory.  Use getRemoteBuildPath(Build build).
+	 * 
+	 * @param hostname
+	 * @param build
+	 * @return
+	 */
+	public String getRemoteBuildPath(String hostname, Build build);
+	
 	
 	/**
 	 * returns the list of organisms plus a generic 'Other' organism
@@ -129,10 +313,23 @@ public interface GenomeService extends WaspService {
 	public Build getGenomeBuild(SampleSource cellLibrary);
 
 	/**
-	 * Get remote host formatted representation of metadata directory housing the fasta file of this build
+	 * Get a genome {@link Build} object from a {@link FileGroup}.  If the FileGroup does not have a {@link SampleSource} 
+	 * (ie. Cell-Library) this method will return null.  If the SampleSource does not have a genome Build, it will
+	 * throw a {@link NullResourceException} (Runtime exception). 
+	 * 
+	 * @param fileGroup
+	 * @return
+	 */
+	public Build getBuildForFg(FileGroup fileGroup);
+	
+	/**
+	 * Get remote host formatted representation of metadata directory housing the fasta file of this build.
+	 * Encodes path using variable for remote metadata path, requires execution in WorkUnit.<br /><br />
+	 * Deprecated: use GenomeMetaDataService method getRemoteGenomeFastaIndexPath(GridWorkService workService, Build build) instead
 	 * @param build
 	 * @return
 	 */
+	@Deprecated
 	public String getReferenceGenomeFastaFile(Build build);
 
 	  

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mockito="http://www.mockito.org/spring/mockito" default-autowire="byName"
+	xsi:schemaLocation="http://www.mockito.org/spring/mockito https://bitbucket.org/kubek2k/springockito/raw/tip/springockito/src/main/resources/spring/mockito.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<context:property-placeholder location="classpath:test_hsqldb.properties" ignore-unresolvable="true"/>
+	
+	<!-- use Mockito to mock dependencies here. In tests DO NOT autowire these mocks otherwise Spring tries to resolve dependencies which are not required.  -->
+	<!-- e.g. Entitymanager for DAOs. Set up fresh mocks in tests instead.  -->
+	<!--  e.g. <mockito:mock id="gridHostResolver" class="edu.yu.einstein.wasp.grid.GridHostResolver" />  -->
+
+	<mockito:mock id ="authenticationService" class="edu.yu.einstein.wasp.service.AuthenticationService"/>
+	
+	<mockito:mock id ="runSuccessSplitter" class="edu.yu.einstein.wasp.integration.endpoints.RunSuccessSplitter"/>
+	
+	<mockito:mock id ="runService" class="edu.yu.einstein.wasp.service.impl.RunServiceImpl" />
+	
+	<mockito:mock id ="sampleService" class="edu.yu.einstein.wasp.service.impl.SampleServiceImpl" />
+	
+	<mockito:mock id="gridHostResolver" class="edu.yu.einstein.wasp.grid.GridHostResolver" />
+	
+	<import resource="classpath:META-INF/spring/integration/integration-common-config.xml" />
+ 	
+ 	<import resource="classpath:META-INF/spring/batch-integration-common-config.xml" />
+
+ 	
+	<!-- import configuration files  -->
+	<import resource="genomemetadata-test-persistence-config.xml" />
+
+	<bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />
+</beans>

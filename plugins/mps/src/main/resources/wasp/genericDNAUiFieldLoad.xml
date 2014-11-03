@@ -24,6 +24,16 @@
         </bean>
         
         <bean parent="genericDNAUiFieldWrapper">
+          <property name="baseName" value="quantificationmethod" />
+          <property name="label" value="genDna.quantificationmethod.label" />
+          <property name="metaposition" value="11" />
+          <property name="control" value="genDna.quantificationmethod.control" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="genDna.quantificationmethod.error" />
+          <property name="tooltip" value="genDna.quantificationmethod.tt" />
+        </bean> 
+        
+        <bean parent="genericDNAUiFieldWrapper">
           <property name="baseName" value="volume" />
           <property name="label" value="genDna.vol.label" />
           <property name="metaposition" value="20" />

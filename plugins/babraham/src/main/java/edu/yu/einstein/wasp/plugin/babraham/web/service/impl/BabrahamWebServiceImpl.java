@@ -124,6 +124,7 @@ public class BabrahamWebServiceImpl extends BabrahamServiceImpl implements Babra
 		PanelTab panelTab = new PanelTab();
 		panelTab.setTabTitle(fastqscreen.getName());
 		panelTab.setDescription(fastqscreen.getDescription());
+		panelTab.setNumberOfColumns(1);
 		JSONObject json = getJsonForParsedSoftwareOutputByKey(FastQScreenTasklet.FASTQSCREEN_PLOT_META_KEY, fastqscreen, fileGroupId);
 		if (json != null)
 			panelTab.addPanel(BabrahamPanelRenderer.getFastQScreenPanel(json, messageService, servletPath));
@@ -134,6 +135,7 @@ public class BabrahamWebServiceImpl extends BabrahamServiceImpl implements Babra
 		PanelTab panelTab = new PanelTab();
 		panelTab.setTabTitle(trim_galore.getName());
 		panelTab.setDescription(trim_galore.getDescription());
+		panelTab.setNumberOfColumns(1);
 		JSONObject json = getJsonForParsedSoftwareOutputByKey(TrimGalorePlugin.TRIM_GALORE_PLOT_KEY, trim_galore, fileGroupId);
 		if (json != null)
 			panelTab.addPanel(BabrahamPanelRenderer.getTrimGalorePanel(json, messageService, servletPath));

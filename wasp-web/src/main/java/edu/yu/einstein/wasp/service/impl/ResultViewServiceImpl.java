@@ -118,7 +118,7 @@ public class ResultViewServiceImpl extends WaspServiceImpl implements ResultView
 		GridContent fileGridContent = new GridContent();
 		fileGridContent.addColumn(new GridColumn("File Name", "fname", 1));
 		fileGridContent.addColumn(new GridColumn("MD5 Checksum", "md5", 300, 0, "center", "center"));
-		fileGridContent.addColumn(new GridColumn("Size", "size", 100, 0, true, false));
+		fileGridContent.addColumn(new GridColumn("Size", "size", 100, 0, true, true, false));
 		
 		fileGridContent.addDataFields(new GridDataField("fgname", "string"));
 		fileGridContent.addDataFields(new GridDataField("fid", "string"));
@@ -224,6 +224,7 @@ public class ResultViewServiceImpl extends WaspServiceImpl implements ResultView
 			//fileGridContent.appendActionsToData();
 			
 		} catch (GridUnresolvableHostException e) {
+			e.printStackTrace();
 			throw new WaspException(e);
 		}
 		

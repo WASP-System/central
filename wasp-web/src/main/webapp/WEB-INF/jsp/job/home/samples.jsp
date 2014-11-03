@@ -1,8 +1,10 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<br />
 
+<br />
+	 	 								
 <a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${job.getId()}/basic.do" />");' ><fmt:message key="jobHomeSamples.viewBasicRequest.label" /></a>
 <a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${job.getId()}/requests.do?onlyDisplayCellsRequested=true" />");' ><fmt:message key="jobHomeSamples.viewLaneRequest.label" /></a>
+<a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${job.getId()}/samplePrepComment.do" />");' ><fmt:message key="jobHomeSamples.viewSamplePrepComment.label" /></a>
 <sec:authorize access="hasRole('su') or hasRole('ft')">
 	<c:if test="${numberOfLibrariesAwaitingPlatformUnitPlacement>1}"> 
 		<a class="button" href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/addLibrariesToCell.do" />");' ><fmt:message key="jobHomeSamples.assignMultipleLibraries.label" /></a><br />
@@ -13,11 +15,12 @@
 <c:forEach items="${submittedObjectList}" var="submittedObject" varStatus="statusSubmittedObject">
 	 
 	<c:if test="${statusSubmittedObject.index>0}">
-		<tr class="FormData"><td colspan="3" class="label-centered" style="height:1px;background-color:black; white-space:nowrap;"></td></tr>
+		<tr class="FormData"><td colspan="4" class="label-centered" style="height:1px;background-color:black; white-space:nowrap;"></td></tr>
 	</c:if>
 	
 	<c:if test="${statusSubmittedObject.first}">
 		<tr class="FormData">
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"></td>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="jobHomeSamples.macromolecule.label" /></td>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="jobHomeSamples.library.label" /></td>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="jobHomeSamples.runs.label" /></td>			
@@ -37,6 +40,9 @@
 	<tr>
 	<%-- 	<td class="DataTD"  style="text-align:center; white-space:nowrap;" rowspan="${submittedObjectLibraryRowspan.get(submittedObject)}"  style="text-align:center; white-space:nowrap;">
 	--%>
+			<td class="DataTD"  style="vertical-align:middle; text-align:center; white-space:nowrap;" rowspan="${sizeOfLibraryList==0?1:sizeOfLibraryList}"  style="text-align:center; white-space:nowrap;">
+				<c:out value="${statusSubmittedObject.count}"/>
+			</td>
 			<td class="DataTD"  style="text-align:center; white-space:nowrap;" rowspan="${sizeOfLibraryList==0?1:sizeOfLibraryList}"  style="text-align:center; white-space:nowrap;">
 			<c:choose>
 				<c:when test="${submittedMacromoleculeList.contains(submittedObject)}">					
@@ -55,13 +61,20 @@
 						<br />		  
 					</c:if>
 					<sec:authorize access="hasRole('su') or hasRole('ft')">
-						<c:if test='${receivedStatusMap.get(submittedObject)=="RECEIVED" && qcStatusMap.get(submittedObject)=="PASSED"}'>
-							<c:if test='${not empty createLibraryStatusMap.get(submittedObject) and createLibraryStatusMap.get(submittedObject) == true}'>
- 	 							<br />
- 	 							<a class="button" href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/macromolecule/${submittedObject.getId()}/createLibrary.do" />");' ><fmt:message key="listJobSamples.createLibrary.label" /></a>
- 	 							<br /><br /> 	 							
- 	 						</c:if>
-	 					</c:if>
+						<c:if test='${jobStatus != "Completed" and receivedStatusMap.get(submittedObject)=="RECEIVED" && qcStatusMap.get(submittedObject)=="PASSED"}'>
+							<c:choose>	 	 						
+ 	 							<c:when test='${sizeOfLibraryList == 0}'>
+ 	 								<br />	 	 								
+ 	 									<a class="button" style="margin-left: auto;margin-right: auto;" href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/macromolecule/${submittedObject.getId()}/createLibrary.do" />");' ><fmt:message key="listJobSamples.createLibrary.label" /></a>
+ 	 								<br /><br /> 
+ 	 							</c:when>
+ 	 							<c:otherwise >	 	 							
+ 	 								<br />		 	 												
+	 								<a class="button" style="margin-left: auto;margin-right: auto;" href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/macromolecule/${submittedObject.getId()}/createLibrary.do" />");' ><fmt:message key="listJobSamples.createAdditionalLibrary.label" /></a>
+ 	 								<br /><br /> 	 	 								
+ 	 							</c:otherwise>
+ 	 						</c:choose>
+	 					</c:if>				
 					</sec:authorize>
 				</c:when>
 				<c:otherwise>
@@ -91,6 +104,13 @@
 							<c:if test="${not empty receivedStatusMap.get(library)}">
 								<label><fmt:message key="jobHomeSamples.arrivalStatus.label" />:</label> <c:out value="${receivedStatusMap.get(library)}" /><br />
 							</c:if>
+							<c:set value="${reasonForNewLibraryCommentsMap.get(library)}" var="reasonForNewLibraryMetaMessageList" />
+							<c:if test="${reasonForNewLibraryMetaMessageList.size()>0}">
+								<label><fmt:message key="listJobSamples.reasonForNewLibrary.label" />: </label>
+								<fmt:formatDate value="${reasonForNewLibraryMetaMessageList[0].getDate()}" pattern="yyyy-MM-dd" var="date" />
+		  						<wasp:comment value="${reasonForNewLibraryMetaMessageList[0].getValue()} (${date})" />
+		  						<br />	
+							</c:if>	
 							<c:if test='${submittedLibraryList.contains(library) && qcStatusMap.get(library) != "NONEXISTENT" && receivedStatusMap.get(library) == "RECEIVED"}'>
 								<label><fmt:message key="listJobSamples.qcStatus.label" /></label>: <c:out value="${qcStatusMap.get(library)}"/>
 								<c:set value="${qcStatusCommentsMap.get(library)}" var="metaMessageList" />
@@ -103,12 +123,12 @@
 							<c:if test='${!submittedLibraryList.contains(library) && qcStatusMap.get(library) != "NONEXISTENT"}'>
 								<label><fmt:message key="listJobSamples.qcStatus.label" /></label>: <c:out value="${qcStatusMap.get(library)}"/>
 								<c:set value="${qcStatusCommentsMap.get(library)}" var="metaMessageList" />
-								<c:if test="${metaMessageList.size()>0}">
+								<c:if test="${metaMessageList.size()>0}">									
 									<fmt:formatDate value="${metaMessageList[0].getDate()}" pattern="yyyy-MM-dd" var="date" />
 		  							<wasp:comment value="${metaMessageList[0].getValue()} (${date})" />
 								</c:if>	
-								<br />	 	 						  
-							</c:if>
+								<br /> 	 						  
+							</c:if>								
 							<sec:authorize access="hasRole('su') or hasRole('ft')">
 							<c:if test='${qcStatusMap.get(library) == "PASSED"}'>	
 							

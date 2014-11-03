@@ -88,7 +88,8 @@ import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
 import edu.yu.einstein.wasp.interfacing.Hyperlink;
 import edu.yu.einstein.wasp.interfacing.plugin.FileTypeViewProviding;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -874,13 +875,14 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		GridWorkService gws = hostResolver.getGridWorkService(host);
 		if (r == null || r.getJobStatus().isUnknown()){
 			// use task array to submit in one batch
-			WorkUnit w = new WorkUnit();
+			WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+			c.setResultsDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
+			//w.setWorkingDirectory(WorkUnit.TMP_DIR_PLACEHOLDER);
+			c.setMode(ExecutionMode.TASK_ARRAY);
+			WorkUnit w = new WorkUnit(c);
 			w.setRegistering(true);
 			w.setSecureResults(true);
-			w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
-			//w.setWorkingDirectory(WorkUnit.TMP_DIR_PLACEHOLDER);
-			w.setMode(ExecutionMode.TASK_ARRAY);
-	
+			
 			int numFiles = 0;
 	
 			for (FileHandle f : fileHandles) {
@@ -904,7 +906,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 				logger.debug("added " + f.getFileURI() + " to get MD5");
 			}
 	
-			w.setNumberOfTasks(numFiles);
+			c.setNumberOfTasks(numFiles);
 	
 			r = gws.execute(w);
 			logger.debug("registerFiles job Status is: " + r.getJobStatus());
@@ -1595,7 +1597,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 	 */
 	@Override
 	public String getSanitizedName(String name){
-		return WordUtils.uncapitalize(WordUtils.capitalizeFully(name).replaceAll("[:;\\.,]", "_").replaceAll("[^a-zA-Z0-9_\\-\\.]", ""));
+		return WordUtils.uncapitalize(WordUtils.capitalizeFully(name).replaceAll("[:;\\., ]", "_").replaceAll("[^a-zA-Z0-9_\\-\\.]", ""));
 	}
 
 	/** 
@@ -1656,7 +1658,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 	
 	@Override
 	public String generateJobSoftwareBaseFolderName(Job job, Software software){
-		return WorkUnit.RESULTS_DIR_PLACEHOLDER + "/" + job.getId() + "/" + software.getIName();
+		return WorkUnitGridConfiguration.RESULTS_DIR_PLACEHOLDER + "/" + job.getId() + "/" + software.getIName();
 	}
 	
 	/*
@@ -1771,25 +1773,25 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		String noSpacesFileName = fileName.replaceAll("\\s+", "_");
 		String taggedNoSpacesFileName = randomNumber + "_" + noSpacesFileName;
 
-		String remoteFile = remoteDir + "/" + taggedNoSpacesFileName;
-
-		FileHandle file = new FileHandle();
-		file.setFileName(taggedNoSpacesFileName);
-		file.setFileURI(gfs.remoteFileRepresentationToLocalURI(remoteFile));
-		file = fileHandleDao.save(file);
-		FileGroup retGroup = new FileGroup();
-		retGroup.addFileHandle(file);
-		retGroup.setDescription(fileDescription);
-		retGroup = fileGroupDao.save(retGroup);	
+		String remoteFile = remoteDir + "/" + taggedNoSpacesFileName;	
 
 		// TODO: Determine file type and set on the group.
 		// probably not.  Figure out where to put or whether to
 		// automatically determine mime type.
-
+		FileGroup fileGroup = null;
 		try {
-			gfs.put(localFile, remoteFile);	
+			gfs.put(localFile, remoteFile);
+			
+			FileHandle file = new FileHandle();
+			file.setFileName(taggedNoSpacesFileName);
+			file.setFileURI(gfs.remoteFileRepresentationToLocalURI(remoteFile));
+			file = fileHandleDao.save(file);
+			fileGroup = new FileGroup();
+			fileGroup.addFileHandle(file);
+			fileGroup.setDescription(fileDescription);
+			fileGroup = fileGroupDao.save(fileGroup);
 			List<FileHandle> fhs = new ArrayList<FileHandle>();
-			fhs.addAll(retGroup.getFileHandles());
+			fhs.addAll(fileGroup.getFileHandles());
 			registerWithoutMD5(fhs);
 		} catch (GridException e) {
 			String mess = "Problem accessing remote resources " + e.getLocalizedMessage();
@@ -1802,10 +1804,10 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 			e.printStackTrace();
 			throw new FileUploadException(mess);
 		} finally {
-			localFile.delete();
+			//localFile.delete();//as of 10-21-14: let method that passed in the file be the one to delete it
 		}
 		
-		return retGroup;
+		return fileGroup;
 		
 	}
 
@@ -1907,13 +1909,16 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
         return fileGroupDao;
     }
 
-    private ResourceLoader resourceLoader = null;
+    @Autowired
+    private ResourceLoader resourceLoader;
     @Autowired
 	private FileUrlResolver fileUrlResolver;
     
 	@Override
 	public void setResourceLoader(ResourceLoader resourceLoader) {
 		this.resourceLoader = resourceLoader;
+		String traceMessage = this.resourceLoader==null?"resourceLoader is null in setResourceLoader":"resourceLoader is NOT null in setResourceLoader";
+		logger.debug(traceMessage);
 	}
 
 	public Resource getResource(String location){
@@ -1930,7 +1935,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 			Resource resource = this.getResource(strURL);
 
 			if (resource != null) {
-				return resource.getInputStream();
+				return resource.getInputStream();//for remote file, resource is not null, but calling getInputStream() throws IOexception
 			}
 		} catch (IOException | GridUnresolvableHostException e) {
 			e.printStackTrace();
@@ -1985,6 +1990,32 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		// this is supposed to be a group of FileGroups but it is still possible to set filehandles on it too of course so...
 		fhs.addAll(fgCollection.getFileHandles()); 
 		return fhs;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public File createLocalTempFile(){
+		File temporaryDirectory = new File(tempDir);
+
+		if (!temporaryDirectory.exists()) {
+			try {
+				temporaryDirectory.mkdir();
+			} catch (Exception e) {
+				throw new FileUploadException("FileHandle upload failure trying to create '" + tempDir + "': " + e.getMessage());
+			}
+		}
+		File localFile;
+		try {
+			localFile = File.createTempFile("wasp.", ".tmp", temporaryDirectory);
+		} catch (IOException e) {
+			String mess = "Unable to create local temporary file: " + e.getLocalizedMessage();
+			logger.warn(mess);
+			e.printStackTrace();
+			throw new FileUploadException(mess);
+		}
+		return localFile;
 	}
 }
 

@@ -48,6 +48,7 @@ import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.Job;
@@ -433,11 +434,18 @@ public class PlatformUnitController extends WaspController {
 				}
 				
 				Format formatter = new SimpleDateFormat("yyyy/MM/dd");	
-				
+				String puLink = "<a href='#' onclick='alert(\"" + messageService.getMessage("platformunit.no_viewer.error") + 
+						"\")' title='" + messageService.getMessage("platformunit.showLinkMessage.label") + "'>" + platformUnit.getName()+ "</a>";
+				try{
+					puLink = "<a href=" + getServletPath() + "/" + sampleService.getPlatformunitViewLink(platformUnit) + 
+							" title='" + messageService.getMessage("platformunit.showLinkMessage.label") + "'>" + platformUnit.getName()+ "</a>";
+				} catch (WaspException e){
+					logger.warn("Unable to get link to display platform unit view: " + e.getLocalizedMessage());
+				}
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							formatter.format(platformUnit.getReceiveDts()),//use in this case as record created date
 							//resourceCategory.getName(),
-							"<a href=" + getServletPath() + "/" + sampleService.getPlatformunitViewLink(platformUnit) + ">" + platformUnit.getName()+ "</a>",
+							puLink,
 							barcode,
 							platformUnit.getSampleSubtype()==null?"": platformUnit.getSampleSubtype().getName(),
 							readProperties.getReadType().toString(),
@@ -1049,8 +1057,12 @@ public class PlatformUnitController extends WaspController {
 		}
 		//logger.debug("ID: " + platformUnitId.intValue());
 		//logger.debug("lock: " + lock);
-		String ret_value = "redirect:/" + sampleService.getPlatformunitViewLink(platformUnit);
-		
+		String ret_value = "";
+		try{
+			 ret_value = "redirect:/" + sampleService.getPlatformunitViewLink(platformUnit);
+		} catch (WaspException e){
+			logger.warn("Unable to get link to display platform unit view: " + e.getLocalizedMessage());
+		}
 		SampleServiceImpl.LockStatus lockStatus = SampleServiceImpl.LockStatus.UNKOWN;
 		try{
 			lockStatus = SampleServiceImpl.LockStatus.valueOf(lock);

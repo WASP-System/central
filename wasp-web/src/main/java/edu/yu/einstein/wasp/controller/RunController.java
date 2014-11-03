@@ -16,6 +16,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -415,18 +416,10 @@ public class RunController extends WaspController {
 			//awful way to deal with this
 			if(statusForRunFromGrid != null && !statusForRunFromGrid.isEmpty()){
 				
-				for(Run run : tempRunList){
-					String s = "";
-					if (runService.isRunSuccessfullyCompleted(run)){
-						s = "Completed";
-					} else if (runService.isRunActive(run)){
-						s =  "In Progress";
-					} else {
-						s =  "Unknown";
-					}
-					if(s.toLowerCase().contains(statusForRunFromGrid.toLowerCase())){
+				for (Run run : tempRunList){
+					String s = getWebFriendlyRunStatus(run);
+					if(s.toLowerCase().contains(statusForRunFromGrid.toLowerCase()))
 						runsFoundInSearch.add(run);
-					}
 				}
 				tempRunList.retainAll(runsFoundInSearch);
 				runsFoundInSearch.clear();
@@ -440,11 +433,29 @@ public class RunController extends WaspController {
 			
 			boolean indexSorted = false;
 			
-			if(sidx.equals("platformUnitBarcode")){Collections.sort(runList, new RunPlatformUnitBarcodeComparator()); indexSorted = true;}
-			else if(sidx.equals("machine")){Collections.sort(runList, new MachineNameComparator()); indexSorted = true;}
+			if(sidx.equals("platformUnitBarcode")){Collections.sort(runList, new Comparator<Run>() {
+				@Override
+				public int compare(Run arg0, Run arg1) {
+					return arg0.getPlatformUnit().getSampleBarcode().get(0).getBarcode().getBarcode().compareToIgnoreCase(arg1.getPlatformUnit().getSampleBarcode().get(0).getBarcode().getBarcode());
+				}
+			}); indexSorted = true;}
+			else if(sidx.equals("machine")){Collections.sort(runList, new Comparator<Run>() {
+				@Override
+				public int compare(Run arg0, Run arg1) {
+					return arg0.getResource().getName().compareToIgnoreCase(arg1.getResource().getName());
+				}
+			}); indexSorted = true;}
 			else if(sidx.equals(SequenceReadProperties.READ_LENGTH_KEY)){Collections.sort(runList, new RunMetaIsStringComparator(SequenceReadProperties.READ_LENGTH_KEY)); indexSorted = true;}
 			else if(sidx.equals(SequenceReadProperties.READ_TYPE_KEY)){Collections.sort(runList, new RunMetaIsStringComparator(SequenceReadProperties.READ_TYPE_KEY)); indexSorted = true;}
-			else if(sidx.equals("statusForRun")){Collections.sort(runList, new StatusForRunComparator()); indexSorted = true;}
+			else if(sidx.equals("statusForRun")){Collections.sort(runList, new Comparator<Run>() {
+				
+				@Override
+				public int compare(Run run1, Run run2) {
+					String s1 = getWebFriendlyRunStatus(run1);
+					String s2 = getWebFriendlyRunStatus(run2);				
+					return s1.compareToIgnoreCase(s2);
+				}
+			}); indexSorted = true;}
 			
 			if(indexSorted == true && sord.equals("desc")){//must be last
 				Collections.reverse(runList);
@@ -513,14 +524,7 @@ public class RunController extends WaspController {
 					}catch(Exception e){dateRunEnded = messageService.getMessage("run.dateNotFormattedProperly.error");}					
 				}
 				
-				String statusForRun = "";// = run.getStatus();//new String("???");
-				if (runService.isRunSuccessfullyCompleted(run)){
-					statusForRun = messageService.getMessage("run.statusCompleted.label");//"Completed";
-				} else if (runService.isRunActive(run)){
-					statusForRun =  messageService.getMessage("run.statusInProgress.label");//"In Progress";
-				} else {
-					statusForRun =  messageService.getMessage("run.statusUnknown.label");//"Unknown";
-				}
+				String statusForRun = getWebFriendlyRunStatus(run);
 				
 				
 				
@@ -609,105 +613,57 @@ public class RunController extends WaspController {
 		return "redirect:"+ request.getHeader("Referer");
 	}
 	
-
-}
-
-//comparators - need to be moved
-class RunNameComparator implements Comparator<Run> {
-	@Override
-	public int compare(Run arg0, Run arg1) {
-		return arg0.getName().compareToIgnoreCase(arg1.getName());
+	public String getWebFriendlyRunStatus(Run run){
+		ExitStatus runStatus = runService.getRunBatchStatus(run);
+		if (runStatus.isCompleted())
+			return messageService.getMessage("run.statusCompleted.label"); // Completed
+		else if (runStatus.isRunning())
+			return messageService.getMessage("run.statusInProgress.label"); // In Progress	
+		else if (runStatus.isFailed())
+			return messageService.getMessage("run.statusFailed.label"); // Failed
+		else 
+			return messageService.getMessage("run.statusUnknown.label"); // Unknown
 	}
-}
-class RunStatusComparator implements Comparator<Run> {
-	@Override
-	public int compare(Run arg0, Run arg1) {
-		////return arg0.getStatus().compareToIgnoreCase(arg1.getStatus());
-		return 1;
-	}
-}
-class MachineNameComparator implements Comparator<Run> {
-	@Override
-	public int compare(Run arg0, Run arg1) {
-		return arg0.getResource().getName().compareToIgnoreCase(arg1.getResource().getName());
-	}
-}
-class RunPlatformUnitBarcodeComparator implements Comparator<Run> {
-	@Override
-	public int compare(Run arg0, Run arg1) {
-		return arg0.getPlatformUnit().getSampleBarcode().get(0).getBarcode().getBarcode().compareToIgnoreCase(arg1.getPlatformUnit().getSampleBarcode().get(0).getBarcode().getBarcode());
-	}
-}
-class DateRunEndedComparator implements Comparator<Run> {
-	@Override
-	public int compare(Run arg0, Run arg1) {
-		Date date0 = arg0.getFinished()==null?new Date(0):arg0.getFinished();
-		Date date1 = arg1.getFinished()==null?new Date(0):arg1.getFinished();
-		
-		return date0.compareTo(date1);
-	}
-}
-class RunMetaIsStringComparator implements Comparator<Run> {
 	
-	String metaKey;
+	class RunMetaIsStringComparator implements Comparator<Run> {
+		
+		String metaKey;
+		
+		RunMetaIsStringComparator(String metaKey){
+			this.metaKey = new String(metaKey);
+		}
+		@Override
+		public int compare(Run arg0, Run arg1) {
+			
+			String metaValue0 = null;
+			String metaValue1 = null;
+			
+			List<RunMeta> metaList0 = arg0.getRunMeta();
+			for(RunMeta rm : metaList0){
+				if(rm.getK().indexOf(metaKey) > -1){
+					metaValue0 = new String(rm.getV());
+					break;
+				}
+			}		
+			
+			List<RunMeta> metaList1 = arg1.getRunMeta();
+			for(RunMeta rm : metaList1){
+				if(rm.getK().indexOf(metaKey) > -1){
+					metaValue1 = new String(rm.getV());
+					break;
+				}
+			}
+			
+			if(metaValue0==null){metaValue0=new String("");} 
+			if(metaValue1==null){metaValue1=new String("");}
+			
+			return metaValue0.compareToIgnoreCase(metaValue1);
+		}
 	
-	RunMetaIsStringComparator(String metaKey){
-		this.metaKey = new String(metaKey);
-	}
-	@Override
-	public int compare(Run arg0, Run arg1) {
-		
-		String metaValue0 = null;
-		String metaValue1 = null;
-		
-		List<RunMeta> metaList0 = arg0.getRunMeta();
-		for(RunMeta rm : metaList0){
-			if(rm.getK().indexOf(metaKey) > -1){
-				metaValue0 = new String(rm.getV());
-				break;
-			}
-		}		
-		
-		List<RunMeta> metaList1 = arg1.getRunMeta();
-		for(RunMeta rm : metaList1){
-			if(rm.getK().indexOf(metaKey) > -1){
-				metaValue1 = new String(rm.getV());
-				break;
-			}
-		}
-		
-		if(metaValue0==null){metaValue0=new String("");} 
-		if(metaValue1==null){metaValue1=new String("");}
-		
-		return metaValue0.compareToIgnoreCase(metaValue1);
-	}
-}
-class StatusForRunComparator implements Comparator<Run> {
-	@Autowired
-	private MessageServiceWebapp messageService;
-	@Autowired
-	private RunService runService;
 
-	@Override
-	public int compare(Run arg0, Run arg1) {
-		
-		String s1 = "";
-		if (runService.isRunSuccessfullyCompleted(arg0)){
-			s1 = "Completed";
-		} else if (runService.isRunActive(arg0)){
-			s1 =  "In Progress";
-		} else {
-			s1 =  "Unknown";
-		}
-		String s2 = "";
-		if (runService.isRunSuccessfullyCompleted(arg1)){
-			s2 = "Completed";
-		} else if (runService.isRunActive(arg1)){
-			s2 =  "In Progress";
-		} else {
-			s2 =  "Unknown";
-		}
-				
-		return s1.compareToIgnoreCase(s2);
-	}
 }
+
+
+
+}
+

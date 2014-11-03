@@ -271,6 +271,14 @@ public class SshFileService implements GridFileService {
 	}
 
 	private String getRemoteFileURL(String path) throws GridUnresolvableHostException {
+		if (userDirIsRoot) {
+			if (path.startsWith("$HOME/")) {
+				path = path.replaceFirst("\\$HOME/", "");
+				logger.trace("trimmed HOME from path");
+			}
+			
+		}
+		
 		String remote = "sftp://" + transportConnection.getUserName() + "@" + transportConnection.getHostName() + "/" + path;
 		logger.debug("constructed remote file string: " + remote);
 		return remote;

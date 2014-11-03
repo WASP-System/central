@@ -24,7 +24,6 @@ import edu.yu.einstein.wasp.macstwo.webpanels.MacstwoWebPanels;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
-import edu.yu.einstein.wasp.model.FileHandleMeta;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
@@ -32,7 +31,6 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
-import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.RunService;
@@ -96,7 +94,7 @@ public class MacstwoWebServiceImpl extends MacstwoServiceImpl implements Macstwo
 	@Override
 	public Set<PanelTab> getMacstwoDataToDisplay(Job job)throws PanelException{
 		 
-		 try{
+		// try{
 			 //First, assemble the data
 			 Map<FileGroup, Sample> outerCollectionFileGroupTestSampleMap = new HashMap<FileGroup, Sample>();
 			 Map<FileGroup, Sample> outerCollectionFileGroupControlSampleMap = new HashMap<FileGroup, Sample>();
@@ -109,7 +107,9 @@ public class MacstwoWebServiceImpl extends MacstwoServiceImpl implements Macstwo
 			 Set<String> fileDescriptionSet = new HashSet<String>();			 
 			 Map<FileGroup, List<FileGroup>> outerCollectionFileGroupInnerFileGroupListMap = new HashMap<FileGroup, List<FileGroup>>();
 			 
-			 List<FileGroup> macs2AnalysisFileGroupList = getMacs2AnalysisFileGroups(job);//the outerCollectionfileGroupList
+			 List<FileGroup> macs2AnalysisFileGroupList = new ArrayList<FileGroup>();//the outerCollectionfileGroupList
+			 for (FileGroup fg : getMacs2AnalysisFileGroups(job))
+				 macs2AnalysisFileGroupList.add(fg);
 			 class FileGroupDescriptionComparator implements Comparator<FileGroup> {
 				 @Override
 				 public int compare(FileGroup arg0, FileGroup arg1) {
@@ -187,20 +187,41 @@ public class MacstwoWebServiceImpl extends MacstwoServiceImpl implements Macstwo
 						
 			return panelTabSet;
 			
-		}catch(Exception e){
-			logger.debug("exception in macstwoService.getChipSeqDataToDisplay(job): "+ e.getStackTrace());
-			throw new PanelException(e.getMessage());
-		}		
+	//	}catch(Exception e){
+	//		logger.debug("exception in macstwoService.getChipSeqDataToDisplay(job): "+ e.getStackTrace());
+	//		throw new PanelException(e.getMessage());
+	//	}		
 	}
 
-	private List<FileGroup> getMacs2AnalysisFileGroups(Job job){
+	private Set<FileGroup> getMacs2AnalysisFileGroups(Job job){
 		
-		List<FileGroup> macs2AnalysisFileGroupList = new ArrayList<FileGroup>();
-		for(Sample sample : job.getSample()){
-			for(FileGroup fg : sample.getFileGroups()){
+		Set<FileGroup> macs2AnalysisFileGroupList = new LinkedHashSet<FileGroup>();
+		for (Sample s : job.getSample()) {
+			for (FileGroup fg : s.getFileGroups()) {
+				if (fg.getIsActive() == 0)
+					continue;
 				if(fileService.isFileGroupCollection(fg)){
 					if(fg.getSoftwareGeneratedBy().getId().intValue()==macs2.getId().intValue()){
+						logger.trace("Seeking files for job id=" + job.getId()
+								+ ". Found file group associated with sample id="
+								+ s.getId() + ": '" + fg.getDescription() + "'");
 						macs2AnalysisFileGroupList.add(fg);
+					}
+				}
+			}
+
+			for (SampleSource ss : s.getSourceSample()) {
+				for (FileGroup fg : ss.getFileGroups()) {
+					if (fg.getIsActive() == 0)
+						continue;
+					if(fileService.isFileGroupCollection(fg)){
+						if(fg.getSoftwareGeneratedBy().getId().intValue()==macs2.getId().intValue()){
+							logger.trace("Seeking files for job id="
+									+ job.getId()
+									+ ". Found file group associated with sampleSource id="
+									+ ss.getId() + ": '" + fg.getDescription() + "'");
+							macs2AnalysisFileGroupList.add(fg);
+						}
 					}
 				}
 			}

@@ -10,21 +10,13 @@
   <title> 	 	
     <wasp:pageTitle/> 
   </title>
- <%--   if these pages are displayed in a div of a wasp page, the next 5 lines are not needed, but if displayed in an iframe, they are needed 
+ 
   <link rel="stylesheet" type="text/css" media="screen" href="<wasp:relativeUrl value='css/reset.css' />" />
+  <link rel="stylesheet" type="text/css" href="<wasp:relativeUrl value='css/jquery/jquery-ui.css' />"/>
   <link rel="stylesheet" type="text/css" media="screen" href="<wasp:relativeUrl value='css/base.css' />" />
   <link rel="stylesheet" type="text/css" href="<wasp:relativeUrl value='css/jquery/jquery-ui.css' />"/>
-  <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.js"></script>
-  <script type="text/javascript" src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script> 
-  --%>
-  
-  <%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
   
   <script type="text/javascript">
-  
-  function openWaitDialog(){
-	  $("#wait_dialog-modal").dialog("open");
-  }
   
   function waspTooltip(){
 		$( ".tooltip" ).tooltip({
@@ -43,21 +35,30 @@
 	  	    });
 	}
 
-    function readyFn(){
+	$( document ).ready( function(){
 		waspTooltip();
-		
-		$( "#wait_dialog-modal" ).dialog({
-			dialogClass: "no-close",
-			height: 170,
-			autoOpen: false,
-			modal: true
-		});
-		$("#wait_dialog-modal").css("visibility", "visible");
-		waspOnLoad();
-	}
-
-	$( document ).ready( readyFn );
+  		waspFade("waspErrorMessage");
+  		waspFade("waspMessage");
+  		waspOnLoad();
+  	});
   
+  	function waspFade(el, msg) {
+		if (msg != null && msg != ""){
+			$('#'+el).html(msg);
+		}
+		if ($('#'+el).html() == ''){
+			$('#'+el).hide();
+		} else {
+			$('#'+el).show();
+			setTimeout(function() {
+				$('#'+el).fadeOut('slow',
+					function() {
+						// after fadeout do the following
+						$('#'+el).html('');
+					});
+			},7500);
+		}
+	}
   
     var waspOnLoad=function() {
       // re-define the waspOnLoad var 
@@ -69,7 +70,7 @@
   <tiles:insertAttribute name="head-js" />
   <tiles:insertAttribute name="head-style" />
 </head>
-<body style="background-image:url(''); background-color: #FFFFE6; "><%--most likely, these style changes are NO LONGER NEEDED --%>
+<body class="ui-widget-content unadorned" >
 <div>
 <%-- <wasp:errorMessage /> --%>
 <tiles:insertAttribute name="body-content" />

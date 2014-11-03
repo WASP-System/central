@@ -217,6 +217,7 @@ public class PicardServiceImpl extends WaspServiceImpl implements PicardService 
 			metrics.put("Uniquely Aligned Stats:", unique);
 		}
 		*/
+		/* no longer used as of 10-9-14; we decided to only give NRF for ALL unique reads
 		if(getUniqueReadsFor2M(fileGroup)!=null && !getUniqueReadsFor2M(fileGroup).isEmpty()){
 			Map<String,String> nrf = new LinkedHashMap<String, String>();
 			if("2000000".equals(getUniqueReadsFor2M(fileGroup))){
@@ -234,6 +235,13 @@ public class PicardServiceImpl extends WaspServiceImpl implements PicardService 
 			nrf.put("NRF From All Uniquely-Mapped Reads", getNonRedundantReadFractionForAll(fileGroup)  + " = " + formatWithCommas(getUniqueNonRedundantReadsForAll(fileGroup)) + " / " + formatWithCommas(getUniqueReadsForAll(fileGroup)));
 			metrics.put("Non-Redundant Read Fraction From Uniquely-Mapped Reads (NRF):", nrf);
 		}
+		*/
+		if(getUniqueReadsForAll(fileGroup)!=null && !getUniqueReadsForAll(fileGroup).isEmpty()){
+			Map<String,String> nrf = new LinkedHashMap<String, String>();
+			nrf.put("NRF From All Uniquely-Mapped Reads", getNonRedundantReadFractionForAll(fileGroup)  + " = " + formatWithCommas(getUniqueNonRedundantReadsForAll(fileGroup)) + " / " + formatWithCommas(getUniqueReadsForAll(fileGroup)));
+			metrics.put("Non-Redundant Read Fraction From Uniquely-Mapped Reads (NRF):", nrf);
+		}
+		
 		return PicardWebPanels.getAlignmentMetrics(metrics, bamFileName);
 	}
 	private String formatWithCommas(String unformatedIntegerAsString){	

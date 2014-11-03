@@ -132,6 +132,7 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 				FileGroup bamG = new FileGroup();
 				FileHandle bam = new FileHandle();
 				bam.setFileName(bamOutput);
+				bam.setFileType(bamFileType);
 				bamG.setIsActive(0);
 				bamG.addFileHandle(bam);
 				bamG.setFileType(bamFileType);
@@ -145,6 +146,7 @@ public class MergeSampleBamFilesManyJobsTasklet extends LaunchManyJobsTasklet {
 				FileGroup baiG = new FileGroup();
 				FileHandle bai = new FileHandle();
 				bai.setFileName(baiOutput);
+				bai.setFileType(baiFileType);
 				baiG.setIsActive(0);
 				baiG.addFileHandle(bai);
 				baiG.setFileType(baiFileType);

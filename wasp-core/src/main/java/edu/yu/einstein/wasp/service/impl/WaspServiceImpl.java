@@ -12,6 +12,9 @@ public abstract class WaspServiceImpl implements WaspService {
 	// generic logger included with every class.
 	protected  Logger logger = LoggerFactory.getLogger(WaspServiceImpl.class);
 	
+	@Value("${wasp.host.fullServletPath:}")
+	protected String servletPath;
+	
 	@Value(value="${wasp.mode.isDemo:false}")
 	protected boolean isInDemoMode;
   

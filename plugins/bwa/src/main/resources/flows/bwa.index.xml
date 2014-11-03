@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
+
+	<!--
+		BWA index builder	
+	 -->
+
+	<batch:job id="bwa.index">
+		<batch:step id="bwa.index.notifyGenomemetadataStart" next="bwa.index.markBegin">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.plugin.genomemetadata.integration.messages.SimpleGenomeMetadataStatusMessageTemplate">
+							<property name="status" value="STARTED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="bwa.index.markBegin">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.file.TouchFileTasklet" scope="step">
+					<constructor-arg name="hostname" value="#{jobParameters[waspJobParameters.HOSTNAME]}" />
+					<constructor-arg name="file" value="#{jobParameters[genomemetadataPlugin.METADATA_PATH_KEY]}/bwa/#{jobParameters[genomemetadataPlugin.VERSION_KEY]}/#{T(edu.yu.einstein.wasp.service.GenomeService).INDEX_CREATION_STARTED}" />
+				</bean>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="bwa.index.markFailed" />
+			<batch:next on="*" to="bwa.index.buildIndex" />
+		</batch:step>
+		
+		<batch:step id="bwa.index.buildIndex">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.plugin.bwa.batch.tasklet.BuildBwaIndexTasklet" scope="step">
+					<constructor-arg name="hostname" value="#{jobParameters[waspJobParameters.HOSTNAME]}" />
+					<constructor-arg name="remoteBuildPath" value="#{jobParameters[genomemetadataPlugin.METADATA_PATH_KEY]}/bwa/genome/" />
+					<constructor-arg name="remoteFastaName" value="../../fasta/#{jobParameters[genomemetadataPlugin.BUILD_NAME_KEY]}.#{jobParameters[genomemetadataPlugin.VERSION_KEY]}.fa" />
+					<constructor-arg name="name" value="#{jobParameters[genomemetadataPlugin.BUILD_NAME_KEY]}" />
+				</bean>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="bwa.index.markFailed" />
+			<batch:next on="*" to="bwa.index.markComplete" />
+		</batch:step>
+		
+		<batch:step id="bwa.index.markComplete">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.file.TouchFileTasklet" scope="step">
+					<constructor-arg name="hostname" value="#{jobParameters[waspJobParameters.HOSTNAME]}" />
+					<constructor-arg name="file" value="#{jobParameters[genomemetadataPlugin.METADATA_PATH_KEY]}/bwa/#{jobParameters[genomemetadataPlugin.VERSION_KEY]}/#{T(edu.yu.einstein.wasp.service.GenomeService).INDEX_CREATION_COMPLETED}" />
+				</bean>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="bwa.index.markFailed" />
+			<batch:next on="*" to="bwa.index.notifyComplete" />
+		</batch:step>
+		
+		<batch:step id="bwa.index.notifyComplete">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.plugin.genomemetadata.integration.messages.SimpleGenomeMetadataStatusMessageTemplate">
+							<property name="status" value="COMPLETED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="bwa.index.markFailed">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.file.TouchFileTasklet" scope="step">
+					<constructor-arg name="hostname" value="#{jobParameters[waspJobParameters.HOSTNAME]}" />
+					<constructor-arg name="file" value="#{jobParameters[genomemetadataPlugin.METADATA_PATH_KEY]}/bwa/#{jobParameters[genomemetadataPlugin.VERSION_KEY]}/#{T(edu.yu.einstein.wasp.service.GenomeService).INDEX_CREATION_FAILED}" />
+				</bean>
+			</batch:tasklet>
+			<batch:fail on="*"/>
+		</batch:step>
+		
+	</batch:job>
+
+	<bean id="edu.yu.einstein.wasp.plugin.genomemetadata.mainFlow.skipTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" scope="step" />
+
+</beans>
+
+
