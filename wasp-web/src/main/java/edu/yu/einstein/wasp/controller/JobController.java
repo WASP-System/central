@@ -417,7 +417,7 @@ public class JobController extends WaspController {
 				orderByColumnAndDirection.add("id " + sord);
 			}
 			else if(sidx.equals("workflow")){
-				orderByColumnAndDirection.add("workflowid " + sord);
+				orderByColumnAndDirection.add("workflowId " + sord);
 			}
 			else if(sidx.equals("name")){//job.name
 				orderByColumnAndDirection.add("name " + sord);
