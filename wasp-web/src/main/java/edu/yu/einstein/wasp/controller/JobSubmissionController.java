@@ -426,6 +426,7 @@ public class JobSubmissionController extends WaspController {
 				 					
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							"<a href='" + getServletPath() + "/jobsubmit/modify/"+item.getId()+".do'>"+item.getName()+"</a>",
+							item.getWorkflow().getName(),
 							user.getNameFstLst(),
 							item.getLab().getName(),
 							item.getLastUpdatedByUser().getNameFstLst(),
