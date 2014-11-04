@@ -211,6 +211,7 @@ public class Picard extends SoftwarePackage {
 		} 		
 		logger.debug("ending saveAlignmentMetrics");
 	}
+	
 	public Map<String,String> getPicardDedupMetrics(String dedupMetricsFilename, String scratchDirectory, GridHostResolver gridHostResolver)throws Exception{
 		
 		/*
@@ -323,70 +324,7 @@ public class Picard extends SoftwarePackage {
 		logger.debug("exiting getPicardDedupMetrics");
 		return picardDedupMetricsMap;
 	}
-/* this is apparently no longer used; was moved: see samtools.getUniquelyAlignedReadCountMetrics(String scratchDirectory, GridHostResolver gridHostResolver) in Samtools.java
-	public Map<String,String> getUniquelyAlignedReadCountMetrics(String uniquelyAlignedReadCountfilename, String uniquelyAlignedNonRedundantReadCountfilename,String scratchDirectory, GridHostResolver gridHostResolver)throws Exception{
-		
-		logger.debug("entering getUniquelyAlignedReadCountMetrics");
-		
-		Map<String,String> uniquelyAlignedReadCountMetricsMap = new HashMap<String,String>();
-		
-		String uniqueReads = "";
-		String uniqueNonRedundantReads = "";
-		
-		WorkUnit w = new WorkUnit();
-		w.setProcessMode(ProcessMode.SINGLE);
-		GridWorkService workService = gridHostResolver.getGridWorkService(w);
-		GridTransportConnection transportConnection = workService.getTransportConnection();
-		w.setWorkingDirectory(scratchDirectory);
-		logger.debug("setting cat command in getPicardDedupMetrics");
-		w.addCommand("cat " + uniquelyAlignedReadCountfilename );
-		w.addCommand("cat " + uniquelyAlignedNonRedundantReadCountfilename );
-		
-		GridResult r = transportConnection.sendExecToRemote(w);
-		InputStream is = r.getStdOutStream();
-		BufferedReader br = new BufferedReader(new InputStreamReader(is)); 
-		boolean keepReading = true;
-		int lineNumber = 0;
-		logger.debug("getting ready to read 2 uniquelAlignedMetrics files");
-		while (keepReading){
-			lineNumber++;
-			String line = null;
-			line = br.readLine();
-			logger.debug("line number = " + lineNumber + " and line = " + line);
-			if (line == null)
-				keepReading = false;
-			if (lineNumber == 1){
-				uniqueReads = line.replaceAll("\\n", "");//just in case there is a trailing new line
-				uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS, uniqueReads);
-				logger.debug("uniqueReads = " + uniqueReads);
-			} else if (lineNumber == 2){
-				uniqueNonRedundantReads = line.replaceAll("\\n", "");//just in case there is a trailing new line;
-				uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS, uniqueNonRedundantReads);
-				logger.debug("uniqueNonRedundantReads = " + uniqueNonRedundantReads);
-			} else {
-				keepReading = false;
-			}
-			 
-		}
-		br.close();	
-		
-		Double fractionUniqueNonRedundant_double = 0.0;
-		String fractionUniqueNonRedundant = fractionUniqueNonRedundant_double.toString();
-		Integer uniqueReads_integer = Integer.valueOf(uniqueReads);
-		Integer uniqueNonRedundantReads_integer = Integer.valueOf(uniqueNonRedundantReads);
-		
-		if(uniqueReads_integer>0 && uniqueNonRedundantReads_integer>0){
-			fractionUniqueNonRedundant_double = (double) uniqueNonRedundantReads_integer / uniqueReads_integer;
-			DecimalFormat myFormat = new DecimalFormat("0.000000");
-			fractionUniqueNonRedundant = myFormat.format(fractionUniqueNonRedundant_double);						
-		}	
-		uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT, fractionUniqueNonRedundant);
-		
-		logger.debug("leaving getUniquelyAlignedReadCountMetrics");
-		return uniquelyAlignedReadCountMetricsMap;
-		
-	}
-*/	
+
 	/**
 	 * 
 	 * Get a command string for Picard ExtractIlluminaBarcodes.  This command REQUIRES at least ~1500 file descriptors for Illumina HiSeq flowcells.   
