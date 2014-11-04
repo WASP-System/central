@@ -4,6 +4,7 @@
 package edu.yu.einstein.wasp.plugin.babraham.service.impl;
 
 import org.json.JSONArray;
+import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.filetype.service.impl.FileTypeServiceImpl;
@@ -14,6 +15,7 @@ import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamFileService;
  * @author calder
  *
  */
+@Service
 public class BabrahamFileServiceImpl extends FileTypeServiceImpl implements BabrahamFileService {
     
     public static final String BABRAHAM_FILE_AREA = "Babraham file area";

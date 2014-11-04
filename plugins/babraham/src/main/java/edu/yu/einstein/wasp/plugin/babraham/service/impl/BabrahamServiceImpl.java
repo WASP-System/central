@@ -14,6 +14,7 @@ import java.util.Set;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.MetadataException;
@@ -34,6 +35,7 @@ import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
+@Service
 @Transactional("entityManager")
 public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamService {
 	

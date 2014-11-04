@@ -11,7 +11,7 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	
-	<bean class="edu.yu.einstein.wasp.plugin.babraham.batch.service.impl.BabrahamBatchServiceImpl" />
+	<context:component-scan base-package="edu.yu.einstein.wasp.plugin.babraham.service.impl" />
 	
 	<!-- <bean class="edu.yu.einstein.wasp.plugin.babraham.software.TrimGalore" id="trim_galore" /> -->
 		
