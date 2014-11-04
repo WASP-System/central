@@ -17,7 +17,6 @@ import javax.servlet.http.HttpSession;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.ExitStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -219,6 +218,7 @@ public class ResultViewController extends WaspController {
 						status = Status.NOT_APPLICABLE;
 				} else 
 					status = plugin.getStatus(job);
+
 				PanelTab summaryPanelTab = this.getSummaryPanelTab(job, status);
 				pluginPanelTabs.put("tab-" + (tabCountNow++).toString(), summaryPanelTab);
 				// get "files by type" tab and add to panel tab set
@@ -506,13 +506,10 @@ public class ResultViewController extends WaspController {
 			row.add(fg.getFileType().getName());
 
 			row.add(fg.getDescription());
-/*
-			Integer iFgSize = 0;
-			for (FileHandle fh : fg.getFileHandles()) {
-				iFgSize += fh.getSizek() == null ? 0 : fh.getSizek();
-			}
-			row.add(iFgSize == 0 ? "" : iFgSize.toString());
-			*/
+			/*
+			 * Integer iFgSize = 0; for (FileHandle fh : fg.getFileHandles()) { iFgSize += fh.getSizek() == null ? 0 : fh.getSizek(); } row.add(iFgSize == 0 ?
+			 * "" : iFgSize.toString());
+			 */
 			Integer iFgNum = 0;
 			iFgNum =fg.getFileHandles().size();
 			row.add(iFgNum.toString());
@@ -525,20 +522,14 @@ public class ResultViewController extends WaspController {
 			String resolvedURL = "";
 			try {
 				resolvedURL = fileUrlResolver.getURL(fg).toString();
+				actionList.add(new Action("icon-download", "Download", CallbackFunctionType.DOWNLOAD, resolvedURL, true, "icon-group-download", "Download All",
+										  GroupActionAlignType.RIGHT));
 			} catch (Exception e) {
-				logger.debug("UNABLE TO RESOLVE URL for file group: "
-						+ fg.getDescription());
+				logger.debug("UNABLE TO RESOLVE URL for file group: " + fg.getDescription());
 			}
-			actionList.add(new Action("icon-download", "Download",
-					CallbackFunctionType.DOWNLOAD, resolvedURL, true,
-					"icon-group-download", "Download All",
-					GroupActionAlignType.RIGHT));
 
 			// add generic file viewer action to the list
-			actionList
-					.add(new Action("icon-view-file", "View",
-							CallbackFunctionType.OPEN_IN_CSS_WIN, fg.getId()
-									.toString()));
+			actionList.add(new Action("icon-view-file", "View", CallbackFunctionType.OPEN_IN_CSS_WIN, fg.getId().toString()));
 
 			List<GenomeBrowserProviding> plugins = new ArrayList<>();
 			plugins.addAll(waspPluginRegistry

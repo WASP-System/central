@@ -75,10 +75,9 @@ public class BWAmemTasklet extends TestForGenomeIndexTasklet implements StepExec
 	
 	private boolean skip = false;
 	
-	private Job job;
-	private Set<FileGroup> fileGroups;
-	private SampleSource cellLib;
-	private FileGroup fg;
+	private Integer fgId;
+	
+	
 
 	public BWAmemTasklet() {
 		// proxy
@@ -103,7 +102,7 @@ public class BWAmemTasklet extends TestForGenomeIndexTasklet implements StepExec
 			
 			// place properties for use in later steps into the step execution context, to be promoted
 			// to the job context at run time.
-			stepExecutionContext.put("cellLibId", cellLib.getId()); 
+			stepExecutionContext.put("cellLibId", cellLibraryId); 
 			stepExecutionContext.put("scrDir", result.getWorkingDirectory());
 			stepExecutionContext.put("method", "mem");
 		} catch (ParameterValueRetrievalException e) {
@@ -118,24 +117,24 @@ public class BWAmemTasklet extends TestForGenomeIndexTasklet implements StepExec
 	@Override
 	@Transactional("entityManager")
 	public void beforeStep(StepExecution stepExecution){
-		if (cellLib == null) {
-			cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
-			job = sampleService.getJobOfLibraryOnCell(cellLib);
-			
-			logger.debug("Beginning BWA mem step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
-			
-			fileGroups = new HashSet<FileGroup>();;
-			
-		    for (FileGroup fg : fileService.getFilesForCellLibraryByType(cellLib, fastqFileType)) {
-		        if (!fastqService.hasAttribute(fg, FastqFileTypeAttribute.TRIMMED)) {
-		            logger.trace("Ignoring untrimmed file group " + fg.getId());
-		            continue;
-		        }
-		        fileGroups.add(fg);
-		    }
-			Assert.assertTrue(fileGroups.size() == 1, "No filegroups returned for cellLibrary " + cellLib.getId() + " from job " + job.getId());
-			fg = fileGroups.iterator().next();
-		}
+		
+		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
+		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
+		
+		logger.debug("Beginning BWA mem step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
+		
+		 Set<FileGroup> fileGroups = new HashSet<FileGroup>();;
+		
+	    for (FileGroup fg : fileService.getFilesForCellLibraryByType(cellLib, fastqFileType)) {
+	        if (!fastqService.hasAttribute(fg, FastqFileTypeAttribute.TRIMMED)) {
+	            logger.trace("Ignoring untrimmed file group " + fg.getId());
+	            continue;
+	        }
+	        fileGroups.add(fg);
+	    }
+		Assert.assertTrue(fileGroups.size() == 1, "No filegroups returned for cellLibrary " + cellLib.getId() + " from job " + job.getId());
+		fgId = fileGroups.iterator().next().getId();
+		
 		super.beforeStep(stepExecution);
 	}
 
@@ -154,6 +153,7 @@ public class BWAmemTasklet extends TestForGenomeIndexTasklet implements StepExec
 	@Transactional("entityManager")
 	public GenomeIndexStatus getGenomeIndexStatus(StepExecution stepExecution) {
 		try {
+			SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
 			Build build = bwa.getGenomeBuild(cellLib);
 			return bwaService.getGenomeIndexStatus(getGridWorkService(getStepExecutionContext(stepExecution)), build);
 		} catch (ParameterValueRetrievalException | GridUnresolvableHostException e) {
@@ -166,6 +166,8 @@ public class BWAmemTasklet extends TestForGenomeIndexTasklet implements StepExec
 	@Override
 	@Transactional("entityManager")
 	public WorkUnit buildWorkUnit(StepExecution stepExecution) throws Exception {
+		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
+		FileGroup fg = fileService.getFileGroupById(fgId);
 		logger.debug("file group: " + fg.getId() + ":" + fg.getDescription());
 		
 		Map<String, JobParameter> jobParameters = stepExecution.getJobExecution().getJobParameters().getParameters();
@@ -174,7 +176,6 @@ public class BWAmemTasklet extends TestForGenomeIndexTasklet implements StepExec
 				logger.debug("Key: " + key + " Value: " + jobParameters.get(key).getValue().toString());
 			}
 		}
-		
 		WorkUnit w = bwa.getMem(cellLib, fg, jobParameters);
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();
 		fhlist.addAll(fg.getFileHandles());
@@ -187,6 +188,7 @@ public class BWAmemTasklet extends TestForGenomeIndexTasklet implements StepExec
 	@Override
 	@Transactional("entityManager")
 	public WorkUnitGridConfiguration configureWorkUnit(StepExecution stepExecution) throws Exception {
+		FileGroup fg = fileService.getFileGroupById(fgId);
 		return bwa.prepareWorkUnitConfiguration(fg);
 	}
 
