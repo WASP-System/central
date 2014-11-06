@@ -257,11 +257,26 @@
 										<option value=''><fmt:message key="wasp.default_select.label" />
 										<option value='high-output'  <c:if test='${sequencingCost.getRunType()=="high-output"}'>selected</c:if>><fmt:message key="jobHomeCreateUpdateQuote.runType_highOutput.label" />
 										<option value='rapid-run' <c:if test='${sequencingCost.getRunType()=="rapid-run"}'>selected</c:if>><fmt:message key="jobHomeCreateUpdateQuote.runType_rapidRun.label" />
-										<option value='standard' <c:if test='${sequencingCost.getRunType()=="starndar"}'>selected</c:if>><fmt:message key="jobHomeCreateUpdateQuote.runType_standard.label" />
+										<option value='standard' <c:if test='${sequencingCost.getRunType()=="standard"}'>selected</c:if>><fmt:message key="jobHomeCreateUpdateQuote.runType_standard.label" />
 									</select>
 								</td>				
-								<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='runCostReadLength' id='runCostReadLength' value="${sequencingCost.getReadLength()}"></td>
-								<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostReadType' id='runCostReadType' value="${sequencingCost.getReadType()}"></td>
+								<%-- <td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='runCostReadLength' id='runCostReadLength' value="${sequencingCost.getReadLength()}"></td>--%>
+								<td align='center'>	
+									<select name='runCostReadLength' id='runCostReadLength' size='1'>
+										<option value=''><fmt:message key="wasp.default_select.label" />
+										<c:forEach items="${allAvailableReadLengths}" var="readLength">						
+											<option value='<c:out value="${readLength}" />' <c:if test='${sequencingCost.getReadLength()==readLength}'>selected</c:if>><c:out value="${readLength}" />
+										</c:forEach>
+									</select>
+								</td>
+								<%-- <td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostReadType' id='runCostReadType' value="${sequencingCost.getReadType()}"></td>--%>
+								<td align='center'>	
+									<select name='runCostReadType' id='runCostReadType' size='1'>
+										<option value=''><fmt:message key="wasp.default_select.label" />
+										<option value='single'  <c:if test='${sequencingCost.getReadType()=="single"}'>selected</c:if>><fmt:message key="jobHomeCreateUpdateQuote.readType_single.label" />
+										<option value='paired' <c:if test='${sequencingCost.getReadType()=="paired"}'>selected</c:if>><fmt:message key="jobHomeCreateUpdateQuote.readType_paired.label" />
+									</select>
+								</td>
 								<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostNumberLanes' id='runCostNumberLanes' value="${sequencingCost.getNumberOfLanes()}"></td>
 								<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostPricePerLane' id='runCostPricePerLane' value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${sequencingCost.getCostPerLane()}" />">.00</td>
 								<td align='center'><input type="button" class="delRow" value="<fmt:message key="jobHomeCreateUpdateQuote.deleteRow.label" />"/></td>
@@ -286,8 +301,23 @@
 									<option value='standard'><fmt:message key="jobHomeCreateUpdateQuote.runType_standard.label" />
 								</select>
 							</td>				
-							<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='runCostReadLength' id='runCostReadLength' ></td>
-							<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostReadType' id='runCostReadType'></td>
+							<%--<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='runCostReadLength' id='runCostReadLength' ></td>--%>
+							<td align='center'>	
+								<select name='runCostReadLength' id='runCostReadLength' size='1'>
+									<option value=''><fmt:message key="wasp.default_select.label" />
+									<c:forEach items="${allAvailableReadLengths}" var="readLength">						
+										<option value='<c:out value="${readLength}" />' ><c:out value="${readLength}" />
+									</c:forEach>
+								</select>
+							</td>
+							<%-- <td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostReadType' id='runCostReadType'></td> --%>
+							<td align='center'>	
+									<select name='runCostReadType' id='runCostReadType' size='1'>
+										<option value=''><fmt:message key="wasp.default_select.label" />
+										<option value='single' ><fmt:message key="jobHomeCreateUpdateQuote.readType_single.label" />
+										<option value='paired'><fmt:message key="jobHomeCreateUpdateQuote.readType_paired.label" />
+									</select>
+							</td>
 							<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostNumberLanes' id='runCostNumberLanes'></td>
 							<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostPricePerLane' id='runCostPricePerLane' >.00</td>
 							<td align='center'><input type="button" class="delRow" value="<fmt:message key="jobHomeCreateUpdateQuote.deleteRow.label" />"/></td>
@@ -311,7 +341,15 @@
 						<c:when test="${not empty mpsQuote.getAdditionalCosts()}">
 							<c:forEach items="${mpsQuote.getAdditionalCosts()}" var="additionalCost">
 								<tr>
-									<td align='center'><input type='text' size='20' maxlength='44' name='additionalCostReason' id='additionalCostReason' value="${additionalCost.getReason()}"></td>
+									<%-- <td align='center'><input type='text' size='20' maxlength='44' name='additionalCostReason' id='additionalCostReason' value="${additionalCost.getReason()}"></td>--%>
+									<td align='center'>	
+										<select name='additionalCostReason' id='additionalCostReason' size='1'>
+											<option value=''><fmt:message key="wasp.default_select.label" />
+											<c:forEach items="${additionalCostReasonsList}" var="additionalCostReason">						
+												<option value='<c:out value="${additionalCostReason}" />'  <c:if test='${additionalCost.getReason()==additionalCostReason}'>selected</c:if>  ><c:out value="${additionalCostReason}" />
+											</c:forEach>
+										</select>
+									</td>									
 									<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalCostUnits' id='additionalCostUnits' value="${additionalCost.getNumberOfUnits()}"></td>
 									<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='6' maxlength='6' name='additionalCostPricePerUnit' id='additionalCostPricePerUnit' value="<fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${additionalCost.getCostPerUnit()}" />">.00</td>
 									<td align='center'><input type="button" class="delRow" value="<fmt:message key="jobHomeCreateUpdateQuote.deleteRow.label" />"/></td>				
@@ -320,7 +358,15 @@
 						</c:when>
 						<c:otherwise>
 							<tr>
-								<td align='center'><input type='text' size='20' maxlength='44' name='additionalCostReason' id='additionalCostReason'></td>
+								<%-- <td align='center'><input type='text' size='20' maxlength='44' name='additionalCostReason' id='additionalCostReason'></td>--%>
+								<td align='center'>	
+									<select name='additionalCostReason' id='additionalCostReason' size='1'>
+										<option value=''><fmt:message key="wasp.default_select.label" />
+										<c:forEach items="${additionalCostReasonsList}" var="additionalCostReason">						
+											<option value='<c:out value="${additionalCostReason}" />' ><c:out value="${additionalCostReason}" />
+										</c:forEach>
+									</select>
+								</td>								
 								<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalCostUnits' id='additionalCostUnits'></td>
 								<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalCostPricePerUnit' id='additionalCostPricePerUnit' >.00</td>
 								<td align='center'><input type="button" class="delRow" value="<fmt:message key="jobHomeCreateUpdateQuote.deleteRow.label" />"/></td>
