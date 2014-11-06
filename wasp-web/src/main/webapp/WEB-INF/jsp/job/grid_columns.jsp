@@ -2,6 +2,8 @@
  
 <wasp:field name="jobId" type="text" sortable="true" searchable="true"/>
 
+<wasp:field name="workflow" type="text" sortable="true" searchable="true"/>
+
 <wasp:field name="name" type="text" sortable="true" searchable="true"/>
 
 <wasp:field name="submitter" type="text"  sortable="true" searchable="false"/>
@@ -12,7 +14,7 @@
 
 <wasp:field name="amount"  type="currency" sortable="false" searchable="false" />
 
-<wasp:field name="currentStatus"  type="text"  sortable="false" searchable="false" />
+<wasp:field name="currentStatus"  type="text"  sortable="false" searchable="true" />
   
 <wasp:field name="viewfiles"  type="text"  sortable="false" searchable="false"/>
 

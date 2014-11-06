@@ -78,6 +78,7 @@ import edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageT
 import edu.yu.einstein.wasp.integration.messages.templates.SampleStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 import edu.yu.einstein.wasp.interfacing.plugin.SequencingViewProviding;
+import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
@@ -924,6 +925,14 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				  }
 			  }
 		  }
+		  class SampleCreatedComparator implements Comparator<Sample> {
+				@Override
+				public int compare(Sample arg0, Sample arg1) {
+					return arg1.getCreated().compareTo(arg0.getCreated());
+				}
+			}
+			Collections.sort(availableAndCompatibleFlowCells, new SampleCreatedComparator());//most recent is now first, least recent is last
+
 		  return availableAndCompatibleFlowCells;
 	  }
 	  

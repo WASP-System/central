@@ -132,7 +132,7 @@ logger.debug("in PeakCallerTasklet constructor");
 				List<SampleSource> cellLibraryListForIP = approvedSampleApprovedCellLibraryListMap.get(approvedSample);
 				//logger.debug("B	in doExecute()	cellLibraryListForIP.size(): " + cellLibraryListForIP.size());
 				//if(isPunctate(approvedSample){
-					for(SampleSource ss : sampleService.getSamplePairsByJob(job)){//each chipseq IP sample (ipFromSamplePair) will appear only once in this samplePair set
+					for(SampleSource ss : sampleService.getSamplePairsByJob(job)){//as of 10-29-14, this is no longer a true statement; could be multiple times//each chipseq IP sample (ipFromSamplePair) will appear only once in this samplePair set
 						//logger.debug("C	in doExecute() ");
 						Sample ipFromSamplePair = ss.getSample();//IP 
 						Sample controlFromSamplePair = ss.getSourceSample();//input 
@@ -144,7 +144,7 @@ logger.debug("in PeakCallerTasklet constructor");
 								List<SampleSource> cellLibraryListForControl = approvedSampleApprovedCellLibraryListMap.get(controlFromSamplePair);
 								ipOfRequestedIPControlPairWithFilesForBoth.add(approvedSample);
 								prepareAndLaunchMessage(job, peakType, sampleService.convertCellLibraryListToIdList(cellLibraryListForIP), sampleService.convertCellLibraryListToIdList(cellLibraryListForControl));
-								break;//breaks out of: for(SampleSource ss : sampleService.getSamplePairsByJob(job))
+								//as of 10-29-14, ip can be paired with more than one control, so comment out this: break;//breaks out of: for(SampleSource ss : sampleService.getSamplePairsByJob(job))
 							}
 						}
 					}

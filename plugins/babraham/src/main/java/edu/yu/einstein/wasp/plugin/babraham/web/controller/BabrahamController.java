@@ -2,7 +2,7 @@
  * Created by Wasp System Eclipse Plugin
  * @author 
  */
-package edu.yu.einstein.wasp.plugin.babraham.controller;
+package edu.yu.einstein.wasp.plugin.babraham.web.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

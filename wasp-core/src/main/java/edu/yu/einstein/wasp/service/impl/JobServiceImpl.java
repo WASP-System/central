@@ -905,12 +905,20 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			  }
 		  }
 		  for(JobMeta jobMeta : job.getJobMeta()){
-			String str = area+".runType";
-			if(str.toLowerCase().equals(jobMeta.getK().toLowerCase().trim())){
+			String strRunType = area+".runType";
+			String strReadType = area+".readType";
+			String strReadLength = area+".readLength";
+			if(strRunType.toLowerCase().equals(jobMeta.getK().toLowerCase().trim())){
 				extraJobDetailsMap.put("jobdetail_for_import.Run_Type.label", jobMeta.getV());
 			}
+			else if(strReadType.toLowerCase().equals(jobMeta.getK().toLowerCase().trim())){
+				extraJobDetailsMap.put("jobdetail_for_import.Read_Type.label", jobMeta.getV());
+			}
+			if(strReadLength.toLowerCase().equals(jobMeta.getK().toLowerCase().trim())){
+				extraJobDetailsMap.put("jobdetail_for_import.Read_Length.label", jobMeta.getV());
+			}
 		  }
-		  
+		  /*
 		  try {
 			  String resourceIName = job.getJobResourcecategory().get(0).getResourceCategory().getIName();
 			  logger.debug("Getting configured properties for plugin with iname=" + resourceIName);
@@ -922,7 +930,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			  logger.warn("Cannot get resource-configured properties: " + e.getLocalizedMessage());
 			  e.printStackTrace();
 		  }
-		 
+		 */
+		  
 		  /* replaced with code below
 		  try{
 			  Float price = new Float(job.getAcctJobquotecurrent().get(0).getAcctQuote().getAmount());
@@ -2067,6 +2076,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 */
 	@Override
 	public String getDetailedJobStatusString(Job job){
+		//PLEASE ALSO SEE jobService.getAllPossibleJobStatusAsString()
 		if(job==null || job.getId()==null)
 			return "Unknown";
 		ExitStatus status = getJobStatus(job);
@@ -2591,4 +2601,21 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		return false;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<String> getAllPossibleJobStatusAsString(){
+		//PLEASE also see jobService.getDetailedJobStatusString(job)
+		List<String> list = new ArrayList<String>();
+		list.add("Unknown");
+		list.add("Completed");
+		list.add("Awaiting Approvals");
+		list.add("In Progress");
+		list.add("Withdrawn By PI");
+		list.add("Withdrawn By Dept.");
+		list.add("Withdrawn By Facility");
+		list.add("Failed");
+		return list;		
+	}
 }

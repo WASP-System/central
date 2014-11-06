@@ -2,6 +2,8 @@
 
 <wasp:field name="name" type="text"/>
 
+<wasp:field name="workflow" type="text"/>
+
 <wasp:field name="submitter" type="text" sortable="false"/>
 
 <wasp:field name="lab" type="text" sortable="false"/>

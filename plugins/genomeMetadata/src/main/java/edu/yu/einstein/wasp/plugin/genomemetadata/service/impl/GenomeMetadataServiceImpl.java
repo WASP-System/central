@@ -494,7 +494,7 @@ public class GenomeMetadataServiceImpl extends WaspServiceImpl implements Genome
 	 * {@inheritDoc}
 	 */
 	@Override
-	public GenomeIndexStatus getVcfStatus(GridWorkService workService, Build build, String versionString) throws IOException {
+	public synchronized GenomeIndexStatus getVcfStatus(GridWorkService workService, Build build, String versionString) throws IOException {
 		logger.trace("getVcfStatus called");
 
 		GenomeIndexStatusKey remoteKey = generateIndexKey(build, workService, GenomeIndexType.VCF, versionString);

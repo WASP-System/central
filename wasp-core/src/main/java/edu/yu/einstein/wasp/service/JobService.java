@@ -683,5 +683,5 @@ public interface JobService extends WaspMessageHandlingService {
 	public boolean getIsAnalysisSelected(Job job);
 
 	public ExitStatus getJobStatus(Job job);
-
+	public List<String> getAllPossibleJobStatusAsString();
 }

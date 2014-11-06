@@ -17,6 +17,7 @@ import java.util.Currency;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -104,6 +105,7 @@ import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.quote.AdditionalCost;
@@ -126,6 +128,7 @@ import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.WebAuthenticationService;
+import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.SampleWrapper;
@@ -211,6 +214,8 @@ public class JobController extends WaspController {
 	private EmailService emailService;
 	@Autowired
 	private UserService userService;
+	@Autowired
+	private WorkflowService workflowService;
 	
 	@Value("${wasp.analysis.perLibraryFee:0}")
 	private Float perLibraryAnalysisFee;
@@ -267,10 +272,12 @@ public class JobController extends WaspController {
 		//see http://www.trirand.com/jqgridwiki/doku.php?id=wiki:toolbar_searching
 		//below we capture parameters on job grid's search toolbar by name (key:value).
 		String jobIdAsString = request.getParameter("jobId")==null?null:request.getParameter("jobId").trim();//if not passed, jobIdAsString will be null
+		String workflowName = request.getParameter("workflow")==null?null:request.getParameter("workflow").trim();//if not passed, will be null
 		String jobname = request.getParameter("name")==null?null:request.getParameter("name").trim();//if not passed, will be null
 		String submitterNameAndLogin = request.getParameter("submitter")==null?null:request.getParameter("submitter").trim();//if not passed, will be null
 		String piNameAndLogin = request.getParameter("pi")==null?null:request.getParameter("pi").trim();//if not passed, will be null
 		String createDateAsString = request.getParameter("createts")==null?null:request.getParameter("createts").trim();//if not passed, will be null
+		String currentStatusAsString = request.getParameter("currentStatus")==null?null:request.getParameter("currentStatus").trim();//if not passed, will be null
 		//logger.debug("jobIdAsString = " + jobIdAsString);logger.debug("jobname = " + jobname);logger.debug("submitterNameAndLogin = " + submitterNameAndLogin);logger.debug("piNameAndLogin = " + piNameAndLogin);logger.debug("createDateAsString = " + createDateAsString);
 
 		//Additional URL parameters coming from a call from the userGrid (example: job/list.do?UserId=2&labId=3). [A similar url call came from dashboard, but on 8/16/12 it was altered and no longer sends any parameter]  
@@ -288,8 +295,15 @@ public class JobController extends WaspController {
 			if(jobId == null){//perhaps the passed value was abc, which is not a valid jobId
 				jobId = new Integer(0);//fake it so that result set will be empty; this way, the search will be performed with jobId = 0 and will come up with an empty result set
 			}
-		}		
+		}
 		
+		//deal with workflow
+		Integer workflowId = null;
+		if(workflowName!=null){
+			Workflow workflow = workflowService.getWorkflowDao().getWorkflowByName(workflowName);
+			workflowId = workflow.getId();
+		}	
+
 		//nothing to do to deal with jobname
 		
 		//deal with submitter from grid and UserId from URL (note that submitterNameAndLogin and userIdFromURL can both be null, but if either is not null, only one should be not null)
@@ -371,7 +385,7 @@ public class JobController extends WaspController {
 				createts = new Date(0);//fake it; parameter of 0 sets date to 01/01/1970 which is NOT in this database. So result set will be empty
 			}
 		}
-						
+				
 		//web viewer is a member of the facility or administration
 		//if(authenticationService.hasRole("su")||authenticationService.hasRole("fm")||authenticationService.hasRole("ft")
 		//		||authenticationService.hasRole("sa")||authenticationService.hasRole("ga")||authenticationService.hasRole("da")){
@@ -379,6 +393,9 @@ public class JobController extends WaspController {
 		Map<String, Object> m = new HashMap<String, Object>();
 		if(jobId != null){
 			m.put("id", jobId.intValue());
+		}
+		if(workflowId != null){
+			m.put("workflowId", workflowId.intValue());
 		}
 		if(jobname != null){
 			m.put("name", jobname.trim());
@@ -398,6 +415,9 @@ public class JobController extends WaspController {
 		if(sidx!=null && !"".equals(sidx)){//sord is apparently never null; default is desc
 			if(sidx.equals("jobId")){
 				orderByColumnAndDirection.add("id " + sord);
+			}
+			else if(sidx.equals("workflow")){
+				orderByColumnAndDirection.add("workflowId " + sord);
 			}
 			else if(sidx.equals("name")){//job.name
 				orderByColumnAndDirection.add("name " + sord);
@@ -438,11 +458,19 @@ public class JobController extends WaspController {
 			List<Job> jobsToKeep = jobService.getJobsSubmittedOrViewableByUser(viewer);//default order is by jobId/desc
 			tempJobList.retainAll(jobsToKeep);
 		}
+		
+		if(currentStatusAsString!=null && !currentStatusAsString.isEmpty()){//10-31-14
+			Iterator<Job> i = tempJobList.iterator();
+			while (i.hasNext()) {
+				String currentStatus = jobService.getDetailedJobStatusString(i.next());
+				if(!currentStatusAsString.equalsIgnoreCase(currentStatus)){
+					i.remove();
+				}
+			}
+		}
+		
 		jobList.addAll(tempJobList);
 	
-		
-		
-		
 		//Format output for grid by pages
 		try {
 			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
@@ -511,8 +539,8 @@ public class JobController extends WaspController {
 
 
 							"<a href=" + getServletPath() + "/job/"+job.getId()+"/homepage.do>J"+job.getId().intValue()+"</a>",
-
-
+							
+							job.getWorkflow().getName(),
 							job.getName(),
 							user.getNameFstLst(),
 							//job.getLab().getName() + " (" + pi.getNameLstCmFst() + ")",
@@ -1201,7 +1229,43 @@ public class JobController extends WaspController {
  		}	
  		
 		m.addAttribute("mpsQuote", mpsQuote);
-	 		
+	 	
+		//11-5-14 get all possible readLengths we have available; from workflowresourcecategory
+		Set<Integer> readLengthSet = new HashSet<Integer>();
+		List<Workflow> workflowList = workflowService.getWorkflowDao().findAll();
+		for(Workflow wf : workflowList){
+			List<Workflowresourcecategory> wrcList = wf.getWorkflowresourcecategory();
+			for(Workflowresourcecategory wrc : wrcList){
+				for(WorkflowresourcecategoryMeta wrcm : wrc.getWorkflowresourcecategoryMeta()){
+					if(wrcm.getK().endsWith("readLength")){
+						for(String realPair : wrcm.getV().split(";")){
+							String [] stringArray = realPair.split(":");
+							if(stringArray[0]!=null && !stringArray[0].isEmpty()){
+								readLengthSet.add(Integer.valueOf(stringArray[0]));
+							}
+						}
+					}
+				}
+			}
+		}
+		List<Integer> readLengthList = new ArrayList<Integer>(readLengthSet);
+		Collections.sort(readLengthList);
+		List<String> readLengthStringList = new ArrayList<String>();
+		for(Integer integer : readLengthList){
+			readLengthStringList.add(integer.toString());
+		}
+		m.addAttribute("allAvailableReadLengths", readLengthStringList);
+		
+		//11-6-14 additionalCostReasonsList to populate dropdown//jobHomeCreateUpdateQuote.DepartmentalCostShare.label
+		List<String> additionalCostReasonsList = new ArrayList<String>();
+		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonAdaptors.label"));//Adaptors
+		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonFragmentAnalysisBioanalyzer.label"));//Fragment Analysis (Bioanalyzer)
+		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonMultiplexing.label"));//Multiplexing
+		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonPrimers.label"));//Primers
+		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonQuantificationQubit.label"));//Quantification (Qubit)
+		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonReagents.label"));//Reagents
+		m.addAttribute("additionalCostReasonsList", additionalCostReasonsList);
+		
 		return "job/home/createUpdateQuote";
 	}
 	

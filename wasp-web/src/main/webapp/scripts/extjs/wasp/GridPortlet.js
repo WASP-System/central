@@ -32,6 +32,7 @@ Ext.define('Wasp.GridPortlet', {
 	grouping : false,
 	groupfield : '',
 	groupheader : '{name}',
+	groupactiondatamap : {},
 
 	statusfld : null,
 
@@ -240,19 +241,17 @@ Ext.define('Wasp.GridPortlet', {
 
 					});
 
-			if (action.group == true
-					&& action.callbackFunctionType === 'DOWNLOAD') {
+			if (action.group == true && action.callbackFunctionType === 'DOWNLOAD') {
 				actioncol.groupActions = [{
 					iconCls : action.groupIconClassName,
 					qtip : action.groupTooltip,
 					align : action.groupAlign.toLowerCase(),
 					callback : function(grid, records, groupAction, groupValue) {
-						if (records.length > 0)
-							window.location = mergeDownloadLinks(records, 'cb'
-											+ action.icnHashCode.toString()
-													.replace('-', '_'));
+						if (records.length > 0 && groupAction in grid.groupactiondatamap)
+							window.location = mergeDownloadLinks(records, grid.groupactiondatamap[groupAction]);
 					}
 				}];
+				grid.groupactiondatamap[action.groupIconClassName] = 'cb' + action.icnHashCode.toString().replace('-', '_');
 			}
 		};
 
