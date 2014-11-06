@@ -1229,7 +1229,43 @@ public class JobController extends WaspController {
  		}	
  		
 		m.addAttribute("mpsQuote", mpsQuote);
-	 		
+	 	
+		//11-5-14 get all possible readLengths we have available; from workflowresourcecategory
+		Set<Integer> readLengthSet = new HashSet<Integer>();
+		List<Workflow> workflowList = workflowService.getWorkflowDao().findAll();
+		for(Workflow wf : workflowList){
+			List<Workflowresourcecategory> wrcList = wf.getWorkflowresourcecategory();
+			for(Workflowresourcecategory wrc : wrcList){
+				for(WorkflowresourcecategoryMeta wrcm : wrc.getWorkflowresourcecategoryMeta()){
+					if(wrcm.getK().endsWith("readLength")){
+						for(String realPair : wrcm.getV().split(";")){
+							String [] stringArray = realPair.split(":");
+							if(stringArray[0]!=null && !stringArray[0].isEmpty()){
+								readLengthSet.add(Integer.valueOf(stringArray[0]));
+							}
+						}
+					}
+				}
+			}
+		}
+		List<Integer> readLengthList = new ArrayList<Integer>(readLengthSet);
+		Collections.sort(readLengthList);
+		List<String> readLengthStringList = new ArrayList<String>();
+		for(Integer integer : readLengthList){
+			readLengthStringList.add(integer.toString());
+		}
+		m.addAttribute("allAvailableReadLengths", readLengthStringList);
+		
+		//11-6-14 additionalCostReasonsList to populate dropdown//jobHomeCreateUpdateQuote.DepartmentalCostShare.label
+		List<String> additionalCostReasonsList = new ArrayList<String>();
+		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonAdaptors.label"));//Adaptors
+		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonFragmentAnalysisBioanalyzer.label"));//Fragment Analysis (Bioanalyzer)
+		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonMultiplexing.label"));//Multiplexing
+		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonPrimers.label"));//Primers
+		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonQuantificationQubit.label"));//Quantification (Qubit)
+		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonReagents.label"));//Reagents
+		m.addAttribute("additionalCostReasonsList", additionalCostReasonsList);
+		
 		return "job/home/createUpdateQuote";
 	}
 	
