@@ -387,7 +387,8 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 			hibernationManager.removeStepExecutionFromAbandonMessageMap(stepExecution);
 		}
 		ExitStatus exitStatus = super.afterStep(stepExecution);
-		if (isInErrorConditionAndFlaggedForRestart(stepExecution)){
+/*	TODO: figure out how to implement stopping in error condition	
+ 		if (isInErrorConditionAndFlaggedForRestart(stepExecution)){
     		logger.debug(stepExecution.getStepName() + " afterStep identified stopped state for error");
     		if (wasWokenOnTimeout(stepExecution)){
     			removeWokenOnTimeoutStatus(stepExecution);
@@ -396,6 +397,7 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
     			removeWokenOnMessageStatus(stepExecution);
             exitStatus =  new ExitStatus("ERROR").addExitDescription("Stopped for Error");
         }
+*/
 		logger.debug("WaspHibernatingTasklet afterStep() returning ExitStatus=" + exitStatus);
 		return exitStatus;
 	}

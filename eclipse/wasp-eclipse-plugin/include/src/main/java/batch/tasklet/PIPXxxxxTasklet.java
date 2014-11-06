@@ -55,7 +55,7 @@ public class ___PluginIName___Tasklet extends WaspRemotingTasklet {
 	 */
 	@Override
 	@Transactional("entityManager") // transactional for wasp system entities (e.g. Job)
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 		
 		// get step execution for this tasklet step
 		StepExecution stepExecution = context.getStepContext().getStepExecution();
@@ -84,12 +84,11 @@ public class ___PluginIName___Tasklet extends WaspRemotingTasklet {
 		// get grid result which can be used to determine the state of an executing job 
 		GridResult result = gridHostResolver.execute(w);
 		
-		// persist the grid result in the step context (saves state in the batch db)
-		saveGridResult(context, result);
-		
 		logger.info("Batch job execution submitted with id=" + result.getGridJobId() + 
 				" on host '" + result.getHostname() + "' from step (name='" + stepExecution.getStepName() +
 							"', id=" +  stepExecution.getId() + ")");
+		
+		return result;
 	}
 	
 	/**
@@ -98,7 +97,7 @@ public class ___PluginIName___Tasklet extends WaspRemotingTasklet {
 	@Override
 	@Transactional("entityManager")
 	public void doPreFinish(ChunkContext context) throws Exception {
-		// do work post completion of remote task. 
+		// TODO: do work post completion of remote task. 
 		// e.g. get stored result to access output of task (GridResult result = getGridResult(context);)
 	}
 	
@@ -109,7 +108,7 @@ public class ___PluginIName___Tasklet extends WaspRemotingTasklet {
 	@Override
 	public void beforeStep(StepExecution stepExecution){
 		super.beforeStep(stepExecution);
-		// any pre-step logic goes here
+		// TODO: any pre-step logic goes here
 		
 		// here we can print out some information about the batch job to the info log
 		if (logger.isInfoEnabled()){ // no point looking in here otherwise
@@ -133,12 +132,21 @@ public class ___PluginIName___Tasklet extends WaspRemotingTasklet {
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution) {
 		ExitStatus exitStatus = super.afterStep(stepExecution);
-		// any post-step logic goes here
+		// TODO: any post-step logic goes here
 	
 		// here we can print out some information about the batch job status to the info log
 		logger.info("Finished executing step (name='" + stepExecution.getStepName() +
 							"', id=" +  stepExecution.getId() + ") with ExitStatus=" + exitStatus);
 		return exitStatus;
+	}
+	
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		// TODO: implement any code here for execution prior to restarting a failed step execution
+		
 	}
 	
 }

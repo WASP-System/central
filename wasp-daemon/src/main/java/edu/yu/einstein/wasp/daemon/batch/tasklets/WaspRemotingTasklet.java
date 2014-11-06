@@ -155,6 +155,11 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 	}
 	
 	@Override
+	public void beforeStep(StepExecution stepExecution) {
+		super.beforeStep(stepExecution);
+	}
+	
+	@Override
 	public ExitStatus afterStep(StepExecution stepExecution){
 		return super.afterStep(stepExecution);
 	}
