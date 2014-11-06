@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.exception.GridException;
+import edu.yu.einstein.wasp.exception.TaskletRetryException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
@@ -87,12 +88,12 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 				if (jobHasUpdatedChild)
 					logger.debug("Job result has updated a child job so going to reset timeoutInterval to minimum");
 			} catch (GridException e) {
-				logger.debug(result.toString() + " threw exception: " + e.getLocalizedMessage() + " removing and rethrowing");
+				logger.debug(result.toString() + " threw exception: " + e.getLocalizedMessage() + " re-throwing as a TaskletRetryException");
 				setIsFlaggedForRestart(context, true);
-				throw e;
-			} finally {
 				saveGridResult(context, result); // result may have been modified whilst checking in isFinished
+				throw new TaskletRetryException(e.getMessage());
 			}
+			saveGridResult(context, result); // result may have been modified whilst checking in isFinished
 			logger.debug("StepExecution id=" + stepExecutionId + " is going to request hibernation as " + result.getUuid() + " started but not complete");
 		} else if (!wasHibernationRequested){
 			logger.debug("Tasklet not yet configured with a result (StepExecution id=" + stepExecutionId + ")");
