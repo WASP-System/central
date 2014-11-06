@@ -8,6 +8,7 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -63,6 +64,7 @@ public class TrimGaloreTrimmingTasklet extends WaspRemotingTasklet {
      * {@inheritDoc}
      */
     @Override
+    @Transactional("entityManager")
     public GridResult doExecute(ChunkContext context) throws Exception {
         SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);
         Sample library = sampleService.getLibrary(cellLibrary);

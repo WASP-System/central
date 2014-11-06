@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
+import edu.yu.einstein.wasp.exception.TaskletRetryException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
@@ -93,6 +94,7 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 					logger.debug(result.toString() + " threw exception: " + e.getLocalizedMessage() + ". Going to hibernate and mark error state");
 					setIsInErrorConditionAndFlaggedForRestart(stepExecution, true);
 					saveGridResult(context, result); // result may have been modified whilst checking in isFinished
+					throw new TaskletRetryException(e.getMessage());
 				} 
 			}
 			jobHasUpdatedChild = !currentChildJobResults.equals(result.getChildResults());
