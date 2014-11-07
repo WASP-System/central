@@ -252,18 +252,63 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 	public String updateChipSeqPair(@PathVariable("jobDraftId") Integer jobDraftId, 
 			@RequestParam(value="ipSampleDraftId[]", required=false) String[] ipSampleDraftIdArray,
 			@RequestParam(value="inputSampleDraftId[]", required=false) String[] inputSampleDraftIdArray,
+			@RequestParam(value="theContinueButton", required=false) String theContinueButton,
 			ModelMap m) {
 
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft)){
 			return "redirect:/dashboard.do";
 		}
-		if(ipSampleDraftIdArray==null || ipSampleDraftIdArray.length==0 || ipSampleDraftIdArray[0].equals("0") 
+		
+		logger.debug("dubinstart");
+		logger.debug("theContinueButton = " + theContinueButton);
+		if(ipSampleDraftIdArray==null){
+			logger.debug("ipSampleDraftIdArray is null");
+		}
+		else if(ipSampleDraftIdArray.length==0){
+			logger.debug("ipSampleDraftIdArray.length==0");
+		}
+		else if(ipSampleDraftIdArray[0].equals("0")){
+			logger.debug("ipSampleDraftIdArray[0] == 0");
+		}
+		
+		if(inputSampleDraftIdArray==null){
+			logger.debug("inputSampleDraftIdArray is null");
+		}
+		else if(inputSampleDraftIdArray.length==0){
+			logger.debug("inputSampleDraftIdArray.length==0");
+		}
+		else if(inputSampleDraftIdArray[0].equals("0")){
+			logger.debug("inputSampleDraftIdArray[0] == 0");
+		}
+		
+		
+		if( (theContinueButton!=null && ipSampleDraftIdArray!=null && ipSampleDraftIdArray.length!=0 && ipSampleDraftIdArray[0].equals("0") && inputSampleDraftIdArray==null)
+			||
+			(theContinueButton!=null && ipSampleDraftIdArray==null && inputSampleDraftIdArray!=null && inputSampleDraftIdArray.length!=0 && inputSampleDraftIdArray[0].equals("0")) ){
+			
+			//user hit continue button AND no selection made in both ip and input select boxes, so go to next page
+			logger.debug("no selection with either select box, so should go to next page");
+			return nextPage(jobDraft);
+		}
+		
+		
+		
+		
+		else if(ipSampleDraftIdArray==null || ipSampleDraftIdArray.length==0 || ipSampleDraftIdArray[0].equals("0") 
 			|| inputSampleDraftIdArray==null || inputSampleDraftIdArray.length==0 || inputSampleDraftIdArray[0].equals("0")){
+			//if user hit continue button, since it's not absence of selection of both select boxes (which is dealt with in above if statement), 
+			//it must be absence of selection of just one select box (and a selection in the other select), 
+			//so assume they are trying to generate a samplepair, and thus give error message to make selection(s) and return to pair page 
+			//OR ELSE 
+			//the user hit the ADD button and there is no selection in one or both select boxes, so give error message to make selection(s) and return to pair page 
 			logger.debug("ipSampleDraftIdArray and/or inputSampleDraftIdArray cannot be null");
 			waspErrorMessage("chipSeq.pair_missing_ip_or_control.error");
 			return "redirect:/jobsubmit/chipSeq/pair/" + jobDraftId + ".do";
 		}
+		
+		logger.debug("dubinend");	
+		if(1==1){return "redirect:/jobsubmit/chipSeq/pair/" + jobDraftId + ".do";}
 		
 		List<SampleDraft> ipSampleDraftList = new ArrayList<SampleDraft>();
 		List<SampleDraft> inputSampleDraftList = new ArrayList<SampleDraft>();
