@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
+import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.TaskletRetryException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
@@ -100,26 +101,18 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 			jobHasUpdatedChild = !currentChildJobResults.equals(result.getChildResults());
 			logger.debug("StepExecution id=" + stepExecutionId + " is going to request hibernation as " + result.getUuid() + " started but not complete");
 		} else if (!wasHibernationRequested){
-			logger.debug("Tasklet entered for first execution or restart after error (StepExecution id=" + stepExecutionId + ")");
-			if (isInErrorConditionAndFlaggedForRestart(stepExecution)){
-				doCleanupBeforeRestart(stepExecution);
-				setIsInErrorConditionAndFlaggedForRestart(stepExecution, false); // reset restart status
+			logger.debug("Tasklet not yet configured with a result (StepExecution id=" + stepExecutionId + ")");
+			result = doExecute(context);
+			if (result == null) {
+				logger.debug("no work unit configured. Exiting without execution.");
+				return RepeatStatus.FINISHED;
 			}
-			try{
-				result = doExecute(context);
-				if (result == null) {
-					logger.debug("no work unit configured. Exiting without execution.");
-					return RepeatStatus.FINISHED;
-				}
-				saveGridResult(context, result);
-				if (!result.getJobStatus().isSubmitted()) {
-					logger.debug("Workunit not properly configured. Exiting without execution.");
-					return RepeatStatus.FINISHED;
-				}
-			} catch (Exception e) {
-				logger.debug(result.toString() + " threw exception: " + e.getLocalizedMessage() + ". Going to hibernate and mark error state");
-				setIsInErrorConditionAndFlaggedForRestart(stepExecution, true);
-			} 
+			saveGridResult(context, result);
+			if (!result.getJobStatus().isSubmitted()) {
+				logger.debug("Workunit not properly configured. Exiting without execution.");
+				return RepeatStatus.FINISHED;
+			}
+			setIsInErrorConditionAndFlaggedForRestart(stepExecution, false);		
 		}
 		if (!wasHibernationRequested){
 			Long timeoutInterval;
