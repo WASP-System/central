@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -921,7 +923,7 @@ public class AutoCompleteController extends WaspController{
 		   */
 		  @RequestMapping(value="/getAllWorkflowNamesForDisplay", method=RequestMethod.GET)
 		  public @ResponseBody String getAllWorkflowNamesForDisplay(@RequestParam String workflowNameFragment) {
-			  
+			 //no longer used
 			  List<Workflow> workflowList = new ArrayList<Workflow>();
 			  workflowList = workflowDao.findAll();
 			  Set<String> theSet = new HashSet<String>();
@@ -939,7 +941,26 @@ public class AutoCompleteController extends WaspController{
 		       		 jsonString = jsonString + "\""+ r +"\",";
 		       	 }
 		      }
-		      jsonString = jsonString.replaceAll(",$", "") + "]}";
+		     jsonString = jsonString.replaceAll(",$", "") + "]}";
+		     /*
+		     class WorkflowNameComparator implements Comparator<Workflow> {
+				    @Override
+				    public int compare(Workflow arg0, Workflow arg1) {
+				        return arg0.getName().compareToIgnoreCase(arg1.getName());
+				    }
+			  }
+			  Collections.sort(workflowList, new WorkflowNameComparator());//sort by Workflow name 
+			  Map<String,String> theLinkedHashMap = new LinkedHashMap<String,String>();
+			  for(Workflow wf : workflowList){//use set for distinct
+				  theLinkedHashMap.put(wf.getIName(), wf.getName());
+			  }
+		      ObjectMapper mapper = new ObjectMapper();
+		      try{
+				  jsonString=mapper.writeValueAsString(theLinkedHashMap);
+				  logger.debug("in getAllWorkflowNamesForDisplay: ");
+				  logger.debug("jsonString: " + jsonString);
+			  }catch(Exception e){logger.debug("unable to convert map to json in getAllWorkflowNamesForDisplay()");}
+		      */
 		      return jsonString;                
 		  }
 		  
@@ -952,7 +973,7 @@ public class AutoCompleteController extends WaspController{
 		   */
 		  @RequestMapping(value="/getAllJobStatusForDisplay", method=RequestMethod.GET)
 		  public @ResponseBody String getAllJobStatusForDisplay(@RequestParam String jobStatus) {
-			  
+			  //no longer used
 			  List<String> list = jobService.getAllPossibleJobStatusAsString();
 			  Set<String> theSet = new HashSet<String>();
 			  for(String s : list){//use set for distinct

@@ -242,6 +242,35 @@ public class JobController extends WaspController {
 		m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelperWebapp().getArea());
 		m.addAttribute("_metaDataMessages", MetaHelperWebapp.getMetadataMessages(request.getSession()));
 
+		//11-6-14 dubin; could use ajax with autocomplete and jqgrid (with text element on grid), 
+		//but could never get it to work using ajax along with jqgrid AND A SELECT BOX, 
+		//so had to resort to this rather direct method with workflowsForDropDownBox and jobStatusForDropDownBox
+		String allWorkflowsForDropDownBox = ":All";
+		List<Workflow> workflowList = new ArrayList<Workflow>();
+		workflowList = workflowService.getWorkflowDao().findAll();
+		class WorkflowNameComparator implements Comparator<Workflow> {
+		    @Override
+		    public int compare(Workflow arg0, Workflow arg1) {
+		        return arg0.getName().compareToIgnoreCase(arg1.getName());
+		    }
+		}
+		Collections.sort(workflowList, new WorkflowNameComparator());//sort by Workflow name 
+		for(Workflow wf : workflowList){
+			allWorkflowsForDropDownBox  += ";" + wf.getIName() + ":" + wf.getName();
+		}
+		logger.debug("allWorkflowsForDropDownBox : " + allWorkflowsForDropDownBox);
+		m.addAttribute("allWorkflowsForDropDownBox", allWorkflowsForDropDownBox);
+		
+		String allJobStatusForDropDownBox = ":All";
+		List<String> jobStatusList = jobService.getAllPossibleJobStatusAsString();
+		Collections.sort(jobStatusList);
+		for(String s : jobStatusList){
+			allJobStatusForDropDownBox  += ";" + s + ":" + s;
+		}
+		logger.debug("allJobStatusForDropDownBox : " + allJobStatusForDropDownBox);
+		m.addAttribute("allJobStatusForDropDownBox", allJobStatusForDropDownBox);
+		
+		
 		prepareSelectListData(m);
 		
 		m.addAttribute("viewerIsFacilityMember", "false");
@@ -272,7 +301,7 @@ public class JobController extends WaspController {
 		//see http://www.trirand.com/jqgridwiki/doku.php?id=wiki:toolbar_searching
 		//below we capture parameters on job grid's search toolbar by name (key:value).
 		String jobIdAsString = request.getParameter("jobId")==null?null:request.getParameter("jobId").trim();//if not passed, jobIdAsString will be null
-		String workflowName = request.getParameter("workflow")==null?null:request.getParameter("workflow").trim();//if not passed, will be null
+		String workflowIName = request.getParameter("workflow")==null?null:request.getParameter("workflow").trim();//if not passed, will be null
 		String jobname = request.getParameter("name")==null?null:request.getParameter("name").trim();//if not passed, will be null
 		String submitterNameAndLogin = request.getParameter("submitter")==null?null:request.getParameter("submitter").trim();//if not passed, will be null
 		String piNameAndLogin = request.getParameter("pi")==null?null:request.getParameter("pi").trim();//if not passed, will be null
@@ -299,8 +328,8 @@ public class JobController extends WaspController {
 		
 		//deal with workflow
 		Integer workflowId = null;
-		if(workflowName!=null){
-			Workflow workflow = workflowService.getWorkflowDao().getWorkflowByName(workflowName);
+		if(workflowIName!=null){
+			Workflow workflow = workflowService.getWorkflowDao().getWorkflowByIName(workflowIName);
 			workflowId = workflow.getId();
 		}	
 
