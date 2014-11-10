@@ -107,7 +107,7 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet i
         if (wasWokenOnMessage(stepExecution)) {
             logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId
                     + ") was woken up from hibernation on completion.");
-
+            removeWokenOnMessageStatus(stepExecution);
             if (!stepExecution.getExecutionContext().containsKey(BatchJobHibernationManager.ABANDONED_CHILD_IDS)) {
                 logger.debug(stepExecution.getStepName() + ":" + stepExecutionId + "appears to be complete, returning FINISHED");
             

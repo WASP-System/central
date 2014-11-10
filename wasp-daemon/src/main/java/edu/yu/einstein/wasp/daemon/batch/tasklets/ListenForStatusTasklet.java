@@ -181,6 +181,7 @@ public class ListenForStatusTasklet extends WaspHibernatingTasklet implements Me
 			exitStatus = exitStatus.and(getExitStatus(stepExecution, status));
 			logger.debug("Updating exit status as step id= " + stepExecution.getId() + " was woken on message with status: " + status+ 
 					". Exit status now set to " + exitStatus);
+			removeWokenOnMessageStatus(stepExecution);
 		}
 		else {
 			logger.debug("Step id= " + stepExecution.getId() +

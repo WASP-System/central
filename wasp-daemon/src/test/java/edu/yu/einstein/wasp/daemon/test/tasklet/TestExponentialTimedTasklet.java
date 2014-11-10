@@ -24,12 +24,14 @@ public class TestExponentialTimedTasklet extends WaspRemotingTasklet {
 	
 	@Override
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception{
+		StepExecution stepExecution = context.getStepContext().getStepExecution();
 		if (wasWokenOnTimeout(context)){
 			logger.debug("Woken on timeout");
 			wasHibernationRequested = false;
-			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
+			BatchJobHibernationManager.unlockJobExecution(stepExecution.getJobExecution(), LockType.WAKE);
+			removeWokenOnTimeoutStatus(stepExecution);
 		}
-		ExecutionContext ec = context.getStepContext().getStepExecution().getExecutionContext();
+		ExecutionContext ec = stepExecution.getExecutionContext();
 		int count = 0;
 		if (!ec.containsKey("COUNT")){
 			count = 1;

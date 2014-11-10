@@ -69,10 +69,12 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation after a timeout.");
 			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
 			wasHibernationRequested = false;
+			removeWokenOnTimeoutStatus(stepExecution);
 		} else if (wasWokenOnMessage(stepExecution)){
 			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation for a message.");
 			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
 			wasHibernationRequested = false;
+			removeWokenOnMessageStatus(stepExecution);
 		}
 		
 		// Three cases at this point
@@ -82,21 +84,26 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 		boolean jobHasUpdatedChild = false;
 		GridResult result = getGridResult(context);
 		
-		if (result != null && !isInErrorConditionAndFlaggedForRestart(context.getStepContext().getStepExecution())){
+		if (result != null && !isInErrorConditionAndFlaggedForRestart(stepExecution)){
 			Map<String, GridResult> currentChildJobResults = new HashMap<String, GridResult>(result.getChildResults());
 			GridWorkService gws = hostResolver.getGridWorkService(result);
 			if (gws.isFinished(result)){
 				try{
 					doPreFinish(context);
-					saveGridResult(context, result); // result may have been modified whilst checking in isFinished
 					logger.debug("Workunit is finished. Step complete.");
 					return RepeatStatus.FINISHED;
-				} catch (Exception e) {
-					logger.debug(result.toString() + " threw exception: " + e.getLocalizedMessage() + ". Going to hibernate and mark error state");
-					setIsInErrorConditionAndFlaggedForRestart(stepExecution, true);
-					saveGridResult(context, result); // result may have been modified whilst checking in isFinished
+				} catch (GridException e) {
+					logger.debug(result.toString() + " threw exception: " + e.getLocalizedMessage() + ". Going to run cleanup code and throw TaskletRetryException");
+					doCleanupBeforeRestart(stepExecution);
 					throw new TaskletRetryException(e.getMessage());
-				} 
+				} catch (Exception e) {
+					logger.debug(result.toString() + " threw exception: " + e.getLocalizedMessage() + " flagging in step execution and rethrowing");
+					setIsInErrorConditionAndFlaggedForRestart(stepExecution, true);
+					throw e;
+				} finally {
+					logger.trace("saving GridResult from finally block");
+					saveGridResult(context, result); // result may have been modified whilst checking in isFinished
+				}
 			}
 			jobHasUpdatedChild = !currentChildJobResults.equals(result.getChildResults());
 			logger.debug("StepExecution id=" + stepExecutionId + " is going to request hibernation as " + result.getUuid() + " started but not complete");
