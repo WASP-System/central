@@ -402,7 +402,7 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 		return exitStatus;
 	}
 	
-	public boolean isInErrorConditionAndFlaggedForRestart(StepExecution se) {
+	public boolean isFlaggedForRestart(StepExecution se) {
 		return BatchJobHibernationManager.isInErrorConditionAndFlaggedForRestart(se);
 	}
 	

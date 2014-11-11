@@ -30,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.batch.SimpleManyJobRecipient;
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionReadinessException;
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
@@ -94,7 +93,6 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet i
     }
 
     @Override
-    @RetryOnExceptionFixed
     public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
     	stepExecution = context.getStepContext().getStepExecution();
     	jobExecution = stepExecution.getJobExecution();

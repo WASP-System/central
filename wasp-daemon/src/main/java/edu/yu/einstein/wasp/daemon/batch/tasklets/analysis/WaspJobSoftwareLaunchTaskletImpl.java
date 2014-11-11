@@ -21,7 +21,6 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessagingException;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.AbandonMessageHandlingTasklet;
 import edu.yu.einstein.wasp.exception.SoftwareConfigurationException;
@@ -135,7 +134,6 @@ public class WaspJobSoftwareLaunchTaskletImpl extends AbandonMessageHandlingTask
 
 	@Override
 	@Transactional("entityManager") // Omission of this results in: edu.yu.einstein.wasp.exception.JobContextInitializationException: could not initialize proxy - no Session
-	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
 		WaspJobContext waspJobContext = new WaspJobContext(jobId, jobService);
 		SoftwareConfiguration softwareConfig = waspJobContext.getConfiguredSoftware(softwareResourceType);

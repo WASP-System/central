@@ -14,7 +14,6 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.TaskletRetryException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -60,7 +59,6 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 	 * Default implementation checks to see if a stored result is running 
 	 */
 	@Override
-	@RetryOnExceptionFixed
 	@Transactional("entityManager")
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		StepExecution stepExecution = context.getStepContext().getStepExecution();
@@ -83,43 +81,37 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 		// isStarted=F and isHibernationRequested=T == not going to request grid work
 		boolean jobHasUpdatedChild = false;
 		GridResult result = getGridResult(context);
-		
-		if (result != null && !isInErrorConditionAndFlaggedForRestart(stepExecution)){
-			Map<String, GridResult> currentChildJobResults = new HashMap<String, GridResult>(result.getChildResults());
-			GridWorkService gws = hostResolver.getGridWorkService(result);
-			if (gws.isFinished(result)){
-				try{
+		try{
+			if (result != null && !isFlaggedForRestart(stepExecution)){
+				Map<String, GridResult> currentChildJobResults = new HashMap<String, GridResult>(result.getChildResults());
+				GridWorkService gws = hostResolver.getGridWorkService(result);
+				if (gws.isFinished(result)){
 					doPreFinish(context);
 					logger.debug("Workunit is finished. Step complete.");
 					return RepeatStatus.FINISHED;
-				} catch (GridException e) {
-					logger.debug(result.toString() + " threw exception: " + e.getLocalizedMessage() + ". Going to run cleanup code and throw TaskletRetryException");
-					doCleanupBeforeRestart(stepExecution);
-					throw new TaskletRetryException(e.getMessage());
-				} catch (Exception e) {
-					logger.debug(result.toString() + " threw exception: " + e.getLocalizedMessage() + " flagging in step execution and rethrowing");
-					setIsInErrorConditionAndFlaggedForRestart(stepExecution, true);
-					throw e;
-				} finally {
-					logger.trace("saving GridResult from finally block");
-					saveGridResult(context, result); // result may have been modified whilst checking in isFinished
 				}
+				jobHasUpdatedChild = !currentChildJobResults.equals(result.getChildResults());
+				logger.debug("StepExecution id=" + stepExecutionId + " is going to request hibernation as " + result.getUuid() + " started but not complete");
+			} else if (!wasHibernationRequested){
+				logger.debug("Tasklet not yet configured with a result (StepExecution id=" + stepExecutionId + ")");
+				result = doExecute(context);
+				if (result == null) {
+					logger.debug("no work unit configured. Exiting without execution.");
+					return RepeatStatus.FINISHED;
+				}
+				setIsInErrorConditionAndFlaggedForRestart(stepExecution, false);		
 			}
-			jobHasUpdatedChild = !currentChildJobResults.equals(result.getChildResults());
-			logger.debug("StepExecution id=" + stepExecutionId + " is going to request hibernation as " + result.getUuid() + " started but not complete");
-		} else if (!wasHibernationRequested){
-			logger.debug("Tasklet not yet configured with a result (StepExecution id=" + stepExecutionId + ")");
-			result = doExecute(context);
-			if (result == null) {
-				logger.debug("no work unit configured. Exiting without execution.");
-				return RepeatStatus.FINISHED;
-			}
-			saveGridResult(context, result);
-			if (!result.getJobStatus().isSubmitted()) {
-				logger.debug("Workunit not properly configured. Exiting without execution.");
-				return RepeatStatus.FINISHED;
-			}
-			setIsInErrorConditionAndFlaggedForRestart(stepExecution, false);		
+		} catch (GridException e) {
+			logger.warn("GridException caught : " + e.getLocalizedMessage() + ". Going to run cleanup code and throw TaskletRetryException");
+			setIsInErrorConditionAndFlaggedForRestart(stepExecution, true);
+			doCleanupBeforeRestart(stepExecution);
+			throw new TaskletRetryException(e.getMessage());
+		} catch (Exception e) {
+			logger.warn("Exception of type " + e.getClass().getName() + " caught: " + e.getLocalizedMessage() + ". Flagging in step execution and rethrowing");
+			throw e;
+		} finally {
+			logger.trace("saving GridResult from finally block");
+			saveGridResult(context, result); // do this whatever else happens in the try block
 		}
 		if (!wasHibernationRequested){
 			Long timeoutInterval;

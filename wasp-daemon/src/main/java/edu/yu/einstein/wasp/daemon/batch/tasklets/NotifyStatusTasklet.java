@@ -10,7 +10,6 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate;
 
@@ -35,7 +34,6 @@ public class NotifyStatusTasklet extends AbandonMessageHandlingTasklet {
 	
 	
 	@Override
-	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
 		logger.debug("execute() invoked");
 		

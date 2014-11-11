@@ -1031,6 +1031,45 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 	 * {@inheritDoc}
 	 */
 	@Override
+	public void remove(FileGroup fileGroup){
+		for (FileGroupMeta fgm : fileGroup.getFileGroupMeta())
+			fileGroupMetaDao.remove(fgm);
+		for (SampleSource ss : fileGroup.getSampleSources())
+			ss.getFileGroups().remove(fileGroup);
+		for (Sample s : fileGroup.getSamples())
+			s.getFileGroups().remove(fileGroup);
+		for (FileHandle fh : fileGroup.getFileHandles())
+			fileGroup.getFileHandles().remove(fh);
+		fileGroupDao.remove(fileGroup);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void removeWithAllAssociatedFilehandles(FileGroup fileGroup){
+		for (FileHandle fh : fileGroup.getFileHandles()){
+			fileGroup.getFileHandles().remove(fh);
+			remove(fh);
+		}
+		remove(fileGroup);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void remove(FileHandle fileHandle) {
+		// delete  file from db
+		for (FileHandleMeta fhm : fileHandle.getFileHandleMeta())
+			fileHandleMetaDao.remove(fhm);
+		fileHandleDao.remove(fileHandle);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void removeFileGroupFromRemoteServerAndMarkDeleted(FileGroup fileGroup) throws Exception{
 		Assert.assertTrue(fileGroup.isDeleted() == 0, "Filegroup is already deleted");
 		for (FileHandle fh : fileGroup.getFileHandles()){
