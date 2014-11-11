@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Service;
@@ -72,6 +73,9 @@ public class BwaServiceImpl implements BwaService {
 	@Autowired
 	protected RunService runService;
 	
+	@Value("${wasp.developermode:false}")
+    protected boolean developerMode;
+	
 	@Autowired
 	@Qualifier("waspMessageHandlingServiceImpl")
 	// more than one class of type WaspMessageHandlingService so must specify
@@ -119,7 +123,8 @@ public class BwaServiceImpl implements BwaService {
             logger.warn(message);
             throw new WaspException(message);
         }
-		jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
+		if (developerMode)
+			jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
 		runService.launchBatchJob(alignFlowName, jobParameters);
 	}
 
