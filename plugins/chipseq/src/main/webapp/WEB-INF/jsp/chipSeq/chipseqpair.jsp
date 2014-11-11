@@ -28,9 +28,13 @@
 		<h3>&nbsp;&nbsp;&nbsp; * &nbsp;<fmt:message key="chipSeq.pairingNotPossible5.label"/></h3>	
 		<br />
 		<h2><fmt:message key="chipSeq.pairingNotPossible6.label"/></h2>
+		<div class="submit">
+    		<input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<wasp:relativeUrl value="dashboard.do"/>'" /> 
+   			<input class="fm-button" type="button" value="<fmt:message key="jobDraft.continue.label" />" onClick="window.location='<wasp:relativeUrl value="${nextPage}"/>'" />
+		</div>
 	</c:when>
 	<c:otherwise>
-	<form method="POST">
+	<form name="pairForm" method="POST">
 		<table class="EditTable ui-widget ui-widget-content">
 			
 			<tr>
@@ -98,7 +102,7 @@
 		  		</td>
 				<td class="DataTD value-centered">
 		  			<div class="submit"> 
-		    			<input type="submit" onclick='$("#wait_dialog-modal").dialog("open");' value="<fmt:message key="chipSeq.pair_add.label"/>" />
+		    			<input  type="submit" onclick='$("#wait_dialog-modal").dialog("open");' value="<fmt:message key="chipSeq.pair_add.label"/>" />
 					</div>
 		  		</td>
 		  	</tr>
@@ -138,14 +142,15 @@
 			  	</c:if>
 		  	</c:if>
 		</table>
+		<div class="submit">
+    		<input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<wasp:relativeUrl value="dashboard.do"/>'" /> 
+   			<input name="theContinueButton"  type="submit" value="<fmt:message key="jobDraft.continue.label" />"  /> 
+		</div>
 	</form>
 	</c:otherwise>
 </c:choose>
 <br />
-<div class="submit">
-    <input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<wasp:relativeUrl value="dashboard.do"/>'" /> 
-   	<input class="fm-button" type="button" value="<fmt:message key="jobDraft.continue.label" />" onClick="window.location='<wasp:relativeUrl value="${nextPage}"/>'" /> 
-</div>
+
 
 
 
