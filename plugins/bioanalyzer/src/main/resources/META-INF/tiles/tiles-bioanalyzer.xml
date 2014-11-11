@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+
+
+	<definition name="bioanalyzer/description" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/bioanalyzer/description.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/bioanalyzer/description.jsp" />
+	</definition>
+	
+	<definition name="bioanalyzer/create" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/bioanalyzer/create.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/bioanalyzer/create.jsp" />
+	</definition>
+	
+</tiles-definitions>
+
