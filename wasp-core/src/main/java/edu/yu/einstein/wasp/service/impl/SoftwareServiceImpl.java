@@ -16,7 +16,7 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobSoftware;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.service.SoftwareService;
-import edu.yu.einstein.wasp.util.SoftwareConfiguration;
+import edu.yu.einstein.wasp.software.SoftwareConfiguration;
 import edu.yu.einstein.wasp.util.WaspJobContext;
 
 @Service
