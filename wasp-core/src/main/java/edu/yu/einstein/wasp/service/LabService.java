@@ -66,5 +66,7 @@ public interface LabService extends WaspService {
 	public boolean isExistingUserPIPending(User user);
 
 	public List<LabUser> getAllLabUsers();
+	
+	public String getInstitutionOfLabPI(Lab lab);
 }
 
