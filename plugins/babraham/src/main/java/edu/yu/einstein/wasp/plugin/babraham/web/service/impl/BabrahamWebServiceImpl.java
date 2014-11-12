@@ -17,7 +17,7 @@ import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.babraham.batch.tasklet.FastQScreenTasklet;
 import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamPanelRenderer;
 import edu.yu.einstein.wasp.plugin.babraham.plugin.TrimGalorePlugin;
-import edu.yu.einstein.wasp.plugin.babraham.service.impl.BabrahamServiceImpl;
+import edu.yu.einstein.wasp.plugin.babraham.service.impl.AbstractBabrahamServiceImpl;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQC.PlotType;
 import edu.yu.einstein.wasp.plugin.babraham.web.service.BabrahamWebService;
 import edu.yu.einstein.wasp.service.MessageService;
@@ -25,7 +25,7 @@ import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 @Service
 @Transactional("entityManager")
-public class BabrahamWebServiceImpl extends BabrahamServiceImpl implements BabrahamWebService {
+public class BabrahamWebServiceImpl extends AbstractBabrahamServiceImpl implements BabrahamWebService {
 	
 	@Value("${wasp.host.servletPath:/wasp}")
 	private String servletPath;
