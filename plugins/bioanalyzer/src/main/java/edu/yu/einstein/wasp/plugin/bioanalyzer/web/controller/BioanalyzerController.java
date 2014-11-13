@@ -37,6 +37,7 @@ import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.StrategyService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.model.AcctGrant;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.Sample;
@@ -78,6 +79,12 @@ public class BioanalyzerController extends WaspController {
 	
 	@RequestMapping(value="/create", method=RequestMethod.GET)
 	public String createNewBioanalyzerJobGet(ModelMap m){
+		
+		Workflow bioanalyzerWorkflow = workflowService.getWorkflowDao().getWorkflowByIName("bioanalyzer");
+		if(bioanalyzerWorkflow.getId()==null){
+			waspErrorMessage("bioanalyzer.create_thisWorkflowUnexpectedlyNotFound.error");
+			return "redirect:/dashboard.do";
+		}
 		
 		prepareCreateBioanalyzerForm(m);
 		
@@ -190,13 +197,25 @@ public class BioanalyzerController extends WaspController {
 			 @RequestParam(value="workflowId") Integer workflowId,
 			 @RequestParam(value="jobName") String jobName,
 			ModelMap m){
-				
-		SampleSubtype sampleSubtype = sampleService.getSampleSubtypeDao().getSampleSubtypeByIName("bioanalyzerLibrarySample");
+		
+		//NOTE: parameter workflowId is the type of workflow that these libraries are for. 
+		//IT IS NOT job.workflowId. This new jobs workflow is bioanalyzer.
+		//workflowId will actually end up in job.meta
+		
+		Workflow bioanalyzerWorkflow = workflowService.getWorkflowDao().getWorkflowByIName("bioanalyzer");
+		if(bioanalyzerWorkflow.getId()==null){
+			waspErrorMessage("bioanalyzer.create_thisWorkflowUnexpectedlyNotFound.error");
+			return "redirect:/dashboard.do";
+		}
+		
+		User me = authenticationService.getAuthenticatedUser();		
+		
+		SampleSubtype sampleSubtype = sampleService.getSampleSubtypeDao().getSampleSubtypeByIName("bioanalyzerLibrarySample");		
 		if (sampleSubtype.getId() == null){
 			waspErrorMessage("bioanalyzer.create_sampleSubtype.error");
 			return "redirect:/dashboard.do";
 		}		
-		SampleType sampleType = sampleSubtype.getSampleType();
+		SampleType sampleType = sampleSubtype.getSampleType();		
 		
 		boolean errorsExist = false;
 		
@@ -204,14 +223,19 @@ public class BioanalyzerController extends WaspController {
 		if(labId == -1){
 			m.addAttribute("labError", messageService.getMessage("bioanalyzer.create_labMissing.error"));
 			errorsExist=true;
-		}		
+		}
+		//confirm user is labmember of selected lab
+		if(!labService.isUserLabMember(labService.getLabByLabId(labId), me)){
+			waspErrorMessage("bioanalyzer.create_userUnexpectedlyNotMemberOfSelectedLab.error");
+			return "redirect:/dashboard.do";
+		}
 		logger.debug("grantId: " + grantId.toString());
 		if(grantId == -1 || grantId == 0){
 			m.addAttribute("grantSelectError", messageService.getMessage("bioanalyzer.create_grantMissing.error"));
 			errorsExist=true;
 		}
 		logger.debug("bioanalyzerChip: " + bioanalyzerChip);
-		if(bioanalyzerChip.equalsIgnoreCase("-1")){
+		if(bioanalyzerChip.equalsIgnoreCase("-1") || bioanalyzerChip.isEmpty()){
 			m.addAttribute("chipError", messageService.getMessage("bioanalyzer.create_chipMissing.error"));
 			errorsExist=true;
 		}
@@ -221,7 +245,7 @@ public class BioanalyzerController extends WaspController {
 			errorsExist=true;
 		}
 		logger.debug("jobName: " + jobName);
-		if(jobName.isEmpty()){
+		if(jobName.isEmpty() || jobName.trim().isEmpty()){
 			m.addAttribute("jobNameError", messageService.getMessage("bioanalyzer.create_jobNameMissing.error"));
 			errorsExist=true;
 		}
@@ -282,10 +306,13 @@ public class BioanalyzerController extends WaspController {
 			}
 			
 			//second deal with sampleMeta errors, which are currently stored in resultForMeta (a BindingResult object)
-			if(resultForMeta.hasErrors()){				
+			if(resultForMeta.hasErrors()){			
 				List<FieldError> fieldErrors = resultForMeta.getFieldErrors();
 				for(FieldError fe : fieldErrors){
-					//logger.debug(fe.getCode());//this is something like chipseqDna.fragmentSize.error
+					logger.debug("getCode: " + fe.getCode());//this is something like chipseqDna.fragmentSize.error
+					logger.debug("getDefaultMessage: " +fe.getDefaultMessage());//
+					logger.debug("getField: " +fe.getField());//
+					logger.debug("getObjectName: " +fe.getObjectName());//
 					String metaErrorForDisplay = fe.getCode().substring(fe.getCode().indexOf(".")+1);//something like fragmentSize.error
 					metaErrorForDisplay = metaErrorForDisplay.replace(".", " ");//something like fragmentSize error
 					errorsForThisSample += errorsForThisSample.isEmpty()?metaErrorForDisplay:"; " + metaErrorForDisplay;
@@ -322,9 +349,10 @@ public class BioanalyzerController extends WaspController {
 			m.addAttribute("userSelectedLabId", labId);//get all the labs for this user is done in prepareCreateBioanalyzerForm(); 
 			m.addAttribute("grantsAvailable", getGrantsForLab(labId));
 			m.addAttribute("userSelectedGrantId", grantId);
-			m.addAttribute("userSelectedGrantIdAsString", grantId.toString());
+			//m.addAttribute("userSelectedGrantIdAsString", grantId.toString());//IS THIS USED? I think not!
 			m.addAttribute("userSelectedBioanalyzerChip", bioanalyzerChip);//availableBioanalyzerChipList is filled up in prepareCreateBioanalyzerForm()
-			m.addAttribute("userSelectedWorkflowId", workflowId);			
+			m.addAttribute("userSelectedWorkflowId", workflowId);//all workflows list is filled up in prepareCreateBioanalyzerForm()	
+			m.addAttribute("userSelectedJobName", jobName.trim());	
 			m.addAttribute("sampleList", sampleList);
 			m.addAttribute("errorList", errorList);
 			
@@ -333,8 +361,15 @@ public class BioanalyzerController extends WaspController {
 			
 		}
 		
-		//no errors, so iterate through sampleList (which already excludes completely empty rows) and save each new library
+		//no errors, so iterate through sampleList (which already excludes completely empty rows) and save each new library		
+		//so, first the new job
+		Job job = new Job();		
+		job.setName(jobName.trim());
+		job.setUserId(me.getId());
+		job.setLabId(labId);
+		job.setWorkflowId(bioanalyzerWorkflow.getId());//the incoming parameter workflowId is actually the workflow that these libraries are ultimately designed for
 		
+		//second, the samples
 		waspMessage("sampleDetail.updated_success.label");
 		return "redirect:/bioanalyzer/create.do";
 	}

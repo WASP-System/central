@@ -127,7 +127,7 @@
 	  <tr class="FormData">
 	    <td class="CaptionTD"><fmt:message key="bioanalyzer.create_jobName.label" />:</td>
 	    <td class="DataTD" >
-	    	<input class="FormElement ui-widget-content ui-corner-all" name="jobName" value="<c:out value="${jobName}"/>">	     
+	    	<input class="FormElement ui-widget-content ui-corner-all" name="jobName" value="<c:out value="${userSelectedJobName}"/>">	     
 	      	<span class="requiredField">*</span>
 	    </td>
 	    <td class="CaptionTD error"> <c:out value="${jobNameError}"/> </td>
@@ -281,10 +281,9 @@
 							<input type='hidden' name="edit" id="" value='${edit}'/><%--need this here if user hits save button and there are errors in the post; we need to inform that this is an edit --%>
 						</c:if>
 					</td>
-				</tr>
-				<tr ><td id="singleCellInVeryLastTableRow" colspan="${colspan}" align="center"><c:if test="${empty edit}"><input style="width:300" type="button" class="addRow" value="<fmt:message key="jobsubmitManySamples.addAdditionalRow.label" />"/></c:if></td></tr>
-			
+				</tr>			
 			</c:forEach>
+			<tr ><td id="singleCellInVeryLastTableRow" colspan="${colspan}" align="center"><c:if test="${empty edit}"><input style="width:300" type="button" class="addRow" value="<fmt:message key="jobsubmitManySamples.addAdditionalRow.label" />"/></c:if></td></tr>
 			</table>
 		</div>
 	  
