@@ -40,7 +40,7 @@ function populateGrants(){
 		$( "#viewAddGrantAnchor" ).text("<fmt:message key="jobsubmitCreate.viewAddGrant.label" />");
 	  }
 	  else{
-		$.getJSON("<wasp:relativeUrl value="jobsubmit/getGrantsForLab.do" />", { selectedLabId: $("#labId").val() }, function( data ) {
+		$.getJSON("<wasp:relativeUrl value="bioanalyzer/getGrantsForLab.do" />", { selectedLabId: $("#labId").val() }, function( data ) {
 			fillGrantList(data);
 			showChooseGrantRow();
 			showContinueButton();
@@ -212,5 +212,9 @@ $(document).ready(function() {
 	});
 	
 	 $( "#newGrantExp" ).datepicker({ dateFormat: "yy-mm-dd" });
+	 
+	 
+	 
+	 
 });
 </script>

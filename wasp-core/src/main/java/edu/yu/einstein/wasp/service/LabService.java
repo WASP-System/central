@@ -68,5 +68,7 @@ public interface LabService extends WaspService {
 	public List<LabUser> getAllLabUsers();
 	
 	public String getInstitutionOfLabPI(Lab lab);
+	
+	public Lab getLabByLabId(Integer labId);
 }
 

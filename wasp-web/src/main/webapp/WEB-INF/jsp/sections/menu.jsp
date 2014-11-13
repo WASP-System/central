@@ -45,6 +45,9 @@
 						<sec:authorize access="hasRole('su') or hasRole('lu-*')">
 							<li><a href='<wasp:relativeUrl value="jobsubmit/create.do" />'><fmt:message key="menu.submitNewJob.label" /></a></li>
 						</sec:authorize>
+						<sec:authorize access="hasRole('su') or hasRole('lu-*')">
+							<li><a href='<wasp:relativeUrl value="bioanalyzer/create.do" />'><fmt:message key="menu.submitNewBioanalyzerJob.label" /></a></li>
+						</sec:authorize>
 					</ul>
 				</li>
 			</sec:authorize>

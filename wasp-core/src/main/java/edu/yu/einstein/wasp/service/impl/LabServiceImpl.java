@@ -143,5 +143,11 @@ public class LabServiceImpl extends WaspServiceImpl implements LabService {
 		  }		  
 		  return institution;
 	  }
+	  
+	  @Override
+	  public Lab getLabByLabId(Integer labId){
+		  Lab lab = labDao.getLabByLabId(labId);
+		  return lab;
+	  }
 }
 
