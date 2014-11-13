@@ -79,13 +79,13 @@ public class BioanalyzerController extends WaspController {
 	
 	@RequestMapping(value="/create", method=RequestMethod.GET)
 	public String createNewBioanalyzerJobGet(ModelMap m){
-		
+		/*
 		Workflow bioanalyzerWorkflow = workflowService.getWorkflowDao().getWorkflowByIName("bioanalyzer");
 		if(bioanalyzerWorkflow.getId()==null){
 			waspErrorMessage("bioanalyzer.create_thisWorkflowUnexpectedlyNotFound.error");
 			return "redirect:/dashboard.do";
 		}
-		
+		*/
 		prepareCreateBioanalyzerForm(m);
 		
 		if ( ((List<Lab>)m.get("labList")).isEmpty()){
@@ -112,9 +112,9 @@ public class BioanalyzerController extends WaspController {
 			
 		//make web responsive to a list of samples, even though this method only sends one,
 		// because in the post to this method, we may have a list of many samples
-		List<Sample> sampleList = new ArrayList<Sample>();
-		sampleList.add(sample);		
-		m.addAttribute("sampleList", sampleList);		
+		List<Sample> librarySampleList = new ArrayList<Sample>();
+		librarySampleList.add(sample);		
+		m.addAttribute("librarySampleList", librarySampleList);		
 		
 		return "bioanalyzer/create";
 	}
@@ -194,20 +194,19 @@ public class BioanalyzerController extends WaspController {
 	public String createNewBioanalyzerJobPost( @RequestParam(value="labId") Integer labId,
 			@RequestParam(value="selectGrantId") Integer grantId,
 			 @RequestParam(value="bioanalyzerChip") String bioanalyzerChip,
-			 @RequestParam(value="workflowId") Integer workflowId,
+			 @RequestParam(value="workflowIdLibrariesAreDesignedFor") Integer workflowIdLibrariesAreDesignedFor,
 			 @RequestParam(value="jobName") String jobName,
 			ModelMap m){
 		
-		//NOTE: parameter workflowId is the type of workflow that these libraries are for. 
-		//IT IS NOT job.workflowId. This new jobs workflow is bioanalyzer.
-		//workflowId will actually end up in job.meta
-		
+		//NOTE: parameter workflowIdLibrariesAreDesignedFor is the type of workflow that these libraries are for and is a jobMeta attribute. 
+		//By contrast, job.workflowId is bioanalyzer workflow
+		/*
 		Workflow bioanalyzerWorkflow = workflowService.getWorkflowDao().getWorkflowByIName("bioanalyzer");
 		if(bioanalyzerWorkflow.getId()==null){
 			waspErrorMessage("bioanalyzer.create_thisWorkflowUnexpectedlyNotFound.error");
 			return "redirect:/dashboard.do";
 		}
-		
+		*/
 		User me = authenticationService.getAuthenticatedUser();		
 		
 		SampleSubtype sampleSubtype = sampleService.getSampleSubtypeDao().getSampleSubtypeByIName("bioanalyzerLibrarySample");		
@@ -239,9 +238,9 @@ public class BioanalyzerController extends WaspController {
 			m.addAttribute("chipError", messageService.getMessage("bioanalyzer.create_chipMissing.error"));
 			errorsExist=true;
 		}
-		logger.debug("workflowId: " + workflowId.toString());
-		if(workflowId == -1){
-			m.addAttribute("workflowError", messageService.getMessage("bioanalyzer.create_workflowMissing.error"));
+		logger.debug("workflowIdLibrariesAreDesignedFor: " + workflowIdLibrariesAreDesignedFor.toString());
+		if(workflowIdLibrariesAreDesignedFor == -1){
+			m.addAttribute("workflowError", messageService.getMessage("bioanalyzer.create_workflowLibrariesDesignedForMissing.error"));
 			errorsExist=true;
 		}
 		logger.debug("jobName: " + jobName);
@@ -252,14 +251,12 @@ public class BioanalyzerController extends WaspController {
 		
 		//deal with the new library requests
 		String[] libraryNamesAsStringArray = request.getParameterValues("sampleName");
-		int numberOfIncomingRows = libraryNamesAsStringArray.length;
 		
 		List<String> libraryNamesAsList = new ArrayList<String>();//used to make sure names only used once (see below)
 		
-		int numberOfCompletelyEmptyRows = 0;
 		int counter = -1;
-		List<String> errorList = new ArrayList<String>();//REALLY SHOULD name this libraryErrorList; change it here and on jsp after getting it workling
-		List<Sample> sampleList = new ArrayList<Sample>();
+		List<String> libraryErrorList = new ArrayList<String>();//errors associated with the samples (libraries) only
+		List<Sample> librarySampleList = new ArrayList<Sample>();
 		
 		for(String libraryName : libraryNamesAsStringArray){	
 			
@@ -286,7 +283,6 @@ public class BioanalyzerController extends WaspController {
 				logger.debug(sm.getK() + ":" + sm.getV());
 			}
 			if(libraryRowIsCompletelyEmpty(library)){//sample name is absent and all the sample meta is blank; ignore this row
-				numberOfCompletelyEmptyRows++;
 				continue;
 			}
 			
@@ -319,8 +315,8 @@ public class BioanalyzerController extends WaspController {
 				}
 			}
 			
-			sampleList.add(library);
-			errorList.add(errorsForThisSample);//yes, execute this line even if no errors exist for this particular sample (add "" here even if no errors for this sample).
+			librarySampleList.add(library);
+			libraryErrorList.add(errorsForThisSample);//yes, execute this line even if no errors exist for this particular sample (add "" here even if no errors for this sample).
 			if(!errorsForThisSample.isEmpty()){
 				errorsExist = true;				
 			}			
@@ -328,7 +324,7 @@ public class BioanalyzerController extends WaspController {
 		
 		if(errorsExist){			
 			
-			if(sampleList.isEmpty()){//all library rows were empty (user filled in no info at all for any library row)
+			if(librarySampleList.isEmpty()){//all library rows were empty (user filled in no info at all for any library row)
 				
 				List<SampleMeta> normalizedMeta = new ArrayList<SampleMeta>();
 				try {
@@ -340,34 +336,33 @@ public class BioanalyzerController extends WaspController {
 				}
 				Sample sample = new Sample();
 				sample.setSampleMeta(normalizedMeta);				
-				sampleList.add(sample);
+				librarySampleList.add(sample);
 				//Since no sample info was provided at all for ANY sample, give error message for this empty sample saying "PLEASE COMPLETE"???
-				errorList.add(messageService.getMessage("bioanalyzer.create_libraryPleaseFillInLibraryInfo.error"));
+				libraryErrorList.add(messageService.getMessage("bioanalyzer.create_libraryPleaseFillInLibraryInfo.error"));
 			}
 			
 			prepareCreateBioanalyzerForm(m);
 			m.addAttribute("userSelectedLabId", labId);//get all the labs for this user is done in prepareCreateBioanalyzerForm(); 
 			m.addAttribute("grantsAvailable", getGrantsForLab(labId));
 			m.addAttribute("userSelectedGrantId", grantId);
-			//m.addAttribute("userSelectedGrantIdAsString", grantId.toString());//IS THIS USED? I think not!
 			m.addAttribute("userSelectedBioanalyzerChip", bioanalyzerChip);//availableBioanalyzerChipList is filled up in prepareCreateBioanalyzerForm()
-			m.addAttribute("userSelectedWorkflowIdLibrariesAreDesignedFor", workflowId);//all workflows list is filled up in prepareCreateBioanalyzerForm()	
+			m.addAttribute("userSelectedWorkflowIdLibrariesAreDesignedFor", workflowIdLibrariesAreDesignedFor);//all workflows list is filled up in prepareCreateBioanalyzerForm()	
 			m.addAttribute("userSelectedJobName", jobName.trim());	
-			m.addAttribute("sampleList", sampleList);
-			m.addAttribute("errorList", errorList);
+			m.addAttribute("librarySampleList", librarySampleList);
+			m.addAttribute("libraryErrorList", libraryErrorList);
 			
 			waspErrorMessage("bioanalyzer.create_errorsExist.error");//appears, then disappears from the top of web page
 			return "bioanalyzer/create";
 			
 		}
 		
-		//no errors, so iterate through sampleList (which already excludes completely empty rows) and save each new library		
+		//no errors, so iterate through librarySampleList (which already excludes completely empty rows) and save each new library		
 		//so, first the new job
 		Job job = new Job();		
 		job.setName(jobName.trim());
 		job.setUserId(me.getId());
 		job.setLabId(labId);
-		job.setWorkflowId(bioanalyzerWorkflow.getId());//the incoming parameter workflowId is actually the workflow that these libraries are ultimately designed for
+		//job.setWorkflowId(bioanalyzerWorkflow.getId());//the incoming parameter workflowId is actually the workflow that these libraries are ultimately designed for
 		
 		//second, the samples
 		waspMessage("sampleDetail.updated_success.label");

@@ -10,7 +10,7 @@
 <%-- message keys link to internationalized text. Conversions can be specified in the .properties files in /src/main/resources/i18n --%>
 
 <h1>
-	<fmt:message key="pageTitle.bioanalyzer/create.label" />
+	<fmt:message key="pageTitle.bioanalyzer/create.label" /> 
 </h1>
 <div class="instructions">
 	<fmt:message key="bioanalyzer.create_instruction.label" />
@@ -140,10 +140,10 @@
 	  <c:set var="colspan" value = '0' scope="request"/>
 	  <div class="fixed-width_scrollable">
 			<table class="data" style="margin: 0px 0px" >
-			<c:forEach items="${sampleList}" var="sample" varStatus="sampleStatus">
+			<c:forEach items="${librarySampleList}" var="sample" varStatus="sampleStatus">
 				<c:if test="${sampleStatus.first}">
 					<tr class="FormData">
-						<c:if test="${fn:length(errorList)>0}">
+						<c:if test="${fn:length(libraryErrorList)>0}">
 							<td align='center' style="background-color:#FAF2D6; font-weight:bold; color:red" nowrap><fmt:message key="jobsubmitManySamples.errors.label" /></td>
 							<c:set var="colspan" value = '${colspan + 1}' scope="request"/>
 						</c:if>
@@ -159,8 +159,9 @@
 									<c:set var="_myCtxArea">${_metaArea}.</c:set>
 								</c:if>
 								<c:set var="labelKey" value="${_meta.property.label}" />
+								  
 								<c:if test="${fn:contains(labelKey,'Average')}">
-									<c:set var="labelKey" value="${fn:replace(labelKey, 'Average', 'Aver.')}" />
+									<c:set var="labelKey" value="${fn:replace(labelKey, 'Average', 'Average')}" />
 								</c:if>
 								<c:if test="${fn:contains(labelKey,'Fragmentation')}">
 									<c:set var="labelKey" value="${fn:replace(labelKey, 'Fragmentation', 'Frag.')}" />
@@ -171,6 +172,7 @@
 								<c:if test="${fn:contains(labelKey,'Volume')}">
 									<c:set var="labelKey" value="${fn:replace(labelKey, 'Volume', 'Vol.')}" />
 								</c:if>
+								
 								<c:set var="id" value="${fn:substringAfter(_meta.k,'.')}" />
 								<c:if test="${id!='adaptorset' }">
 									<td align='center' style="background-color:#FAF2D6; font-weight:bold" nowrap>${labelKey}
@@ -201,13 +203,13 @@
 				</c:if>
 				
 				<tr>
-					<c:if test="${fn:length(errorList)>0}">
+					<c:if test="${fn:length(libraryErrorList)>0}">
 						<c:choose>
-							<c:when test="${empty errorList.get(sampleStatus.index)}">
+							<c:when test="${empty libraryErrorList.get(sampleStatus.index)}">
 								<td >&nbsp;</td>
 							</c:when>
 							<c:otherwise>
-								<td id="errorMessageThatShouldNotBeCopied" align='center' style="background-color:red;" nowrap><wasp:tooltip value="${errorList.get(sampleStatus.index)}" /></td>
+								<td id="errorMessageThatShouldNotBeCopied" align='center' style="background-color:red;" nowrap><wasp:tooltip value="${libraryErrorList.get(sampleStatus.index)}" /></td>
 							</c:otherwise>
 						</c:choose>
 					</c:if>

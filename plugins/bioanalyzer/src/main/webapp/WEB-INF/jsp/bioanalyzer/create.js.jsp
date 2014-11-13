@@ -2,7 +2,7 @@
 
 <script type="text/javascript">
 
-var savedAnalysisSelectedChoice = "";
+//var savedAnalysisSelectedChoice = "";
 
 function addNewGrant(){
 		
@@ -71,70 +71,8 @@ function fillGrantList(data){
 	  });	
 	  $("#selectGrantId").val(currentSelected);
 }
-/*
-function handleStrategyUpdate() {
-	  if($("#strategy").val()=='-1'){
-		  hideWorkflowRow(); 
-		  hideContinueButton(); 
-		  hideChooseAnalysisRow();
-	  }
-	  else{			  
-		  $.getJSON("<wasp:relativeUrl value="jobsubmit/getWorkflowsForAStrategy.do" />", { strategy: $("#strategy").val() }, function( data ) {
-				 var numberOfEntries = 0;
-				 //unable to find a way to get this number directly. $.parseJSON(data) seems to screw up the data 
-				 $.each( data, function( key, val ) {
-					 numberOfEntries++ ;
-				  });
-				 
-				  $("#workflowId").empty();
-				  
-				  if(numberOfEntries == 0){
-					  	$("#workflowId").append("<option value='0'><fmt:message key="jobsubmitCreate.noWorkflowsFound.label" /></option>"); 
-					  	savedAnalysisSelectedChoice = $('#isAnalysisSelected').val();
-					  	$('#isAnalysisSelected').val('false');
-					  	hideChooseAnalysisRow();
-					  	
-				  }
-				  else if(numberOfEntries > 1){
-				  	$("#workflowId").append("<option value='-1'><fmt:message key="wasp.default_select.label"/></option>"); 
-				  	if (savedAnalysisSelectedChoice != ""){
-				  		$('#isAnalysisSelected').val(savedAnalysisSelectedChoice);
-				  		savedAnalysisSelectedChoice = "";
-				  	}
-				  	showChooseAnalysisRow();
-				  }
-				  else {
-					  if (savedAnalysisSelectedChoice != ""){
-					  		$('#isAnalysisSelected').val(savedAnalysisSelectedChoice);
-					  		savedAnalysisSelectedChoice = "";
-					  }
-					  showChooseAnalysisRow();
-				  }
-				  
-				  $.each( data, function( key, val ) {
-					  $("#workflowId").append("<option value='"+key+"'>"+val+"</option>");						 
-				  });	
-				  
-			}); //end of getJSON method 
-			showWorkflowRow();		  
-	  } 		  
-}
-*/
-function showWorkflowRow(){
-	$("#workflowRowId").css("display", "table-row");
-}
 
-function hideWorkflowRow(){
-	$("#workflowRowId").css("display", "none");
-}
 
-function showChooseAnalysisRow(){
-	$("#analysisSelectedRowId").css("display", "table-row");
-}
-
-function hideChooseAnalysisRow(){
-	$("#analysisSelectedRowId").css("display", "none");
-}
 
 function showChooseGrantRow(){
 	$("#grantSelectRowId").css("display", "table-row");
@@ -171,17 +109,8 @@ $(document).ready(function() {
 	
 	//needed for the addrow and delete row functionality:
 	$(".addRow").btnAddRow();
-	$(".delRow").btnDelRow();	
-	
-	if ($( "#strategy" ).val() != '-1'){
-		//////handleStrategyUpdate();
-	}
-	
-	
-	$( "#strategy" ).change(function(){
-		//////handleStrategyUpdate();
-	});
-	
+	$(".delRow").btnDelRow();		
+		
 	if ($("#labId").val() != '-1'){
 		populateGrants();
 	}
@@ -213,8 +142,6 @@ $(document).ready(function() {
 	
 	 $( "#newGrantExp" ).datepicker({ dateFormat: "yy-mm-dd" });
 	 
-	 
-	 
-	 
+	 	 
 });
 </script>
