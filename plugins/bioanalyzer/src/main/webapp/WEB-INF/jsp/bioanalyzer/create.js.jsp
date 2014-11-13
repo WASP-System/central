@@ -71,7 +71,7 @@ function fillGrantList(data){
 	  });	
 	  $("#selectGrantId").val(currentSelected);
 }
-
+/*
 function handleStrategyUpdate() {
 	  if($("#strategy").val()=='-1'){
 		  hideWorkflowRow(); 
@@ -119,7 +119,7 @@ function handleStrategyUpdate() {
 			showWorkflowRow();		  
 	  } 		  
 }
-
+*/
 function showWorkflowRow(){
 	$("#workflowRowId").css("display", "table-row");
 }

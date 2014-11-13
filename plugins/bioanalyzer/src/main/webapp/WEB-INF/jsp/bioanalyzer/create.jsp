@@ -113,10 +113,10 @@
 	  <tr class="FormData">
 	    <td class="CaptionTD"><fmt:message key="bioanalyzer.create_workflow.label" />:</td>
 	    <td class="DataTD" >
-	    	<select class="FormElement ui-widget-content ui-corner-all" id="workflowId" name="workflowId">
+	    	<select class="FormElement ui-widget-content ui-corner-all" name="workflowIdLibrariesAreDesignedFor">
 	      		<option value='-1'><fmt:message key="wasp.default_select.label"/></option>
 	      		<c:forEach var="workflow" items="${workflowList}">
-	      			<option value="${workflow.getId()}" <c:if test="${workflow.getId() == userSelectedWorkflowId}"> SELECTED</c:if>  ><c:out value="${workflow.getName()}"/></option>
+	      			<option value="${workflow.getId()}" <c:if test="${workflow.getId() == userSelectedWorkflowIdLibrariesAreDesignedFor}"> SELECTED</c:if>  ><c:out value="${workflow.getName()}"/></option>
 	      		</c:forEach>		      				      		
 	      	</select>
 	      	<span class="requiredField">*</span>

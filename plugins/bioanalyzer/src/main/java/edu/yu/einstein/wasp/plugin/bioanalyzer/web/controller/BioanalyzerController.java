@@ -351,7 +351,7 @@ public class BioanalyzerController extends WaspController {
 			m.addAttribute("userSelectedGrantId", grantId);
 			//m.addAttribute("userSelectedGrantIdAsString", grantId.toString());//IS THIS USED? I think not!
 			m.addAttribute("userSelectedBioanalyzerChip", bioanalyzerChip);//availableBioanalyzerChipList is filled up in prepareCreateBioanalyzerForm()
-			m.addAttribute("userSelectedWorkflowId", workflowId);//all workflows list is filled up in prepareCreateBioanalyzerForm()	
+			m.addAttribute("userSelectedWorkflowIdLibrariesAreDesignedFor", workflowId);//all workflows list is filled up in prepareCreateBioanalyzerForm()	
 			m.addAttribute("userSelectedJobName", jobName.trim());	
 			m.addAttribute("sampleList", sampleList);
 			m.addAttribute("errorList", errorList);
