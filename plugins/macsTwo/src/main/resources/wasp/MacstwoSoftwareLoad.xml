@@ -140,7 +140,7 @@
           <!--<property name="baseName" value="extSize" />-->
           <property name="baseName" value="macs2--extsize" />
           <property name="metaposition" value="25" />
-          <property name="default" value="100" />
+          <property name="default" value="200" />
           <property name="label" value="peakcaller.macstwo.extsize.label" />
           <property name="tooltip" value="peakcaller.macstwo.extsize.tt" />          
           <property name="constraint" value="RegExp:^\d+|\s*$" /><!-- *****************empty or number -->
