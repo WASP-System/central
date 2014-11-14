@@ -193,7 +193,7 @@ public class BioanalyzerController extends WaspController {
 	
 	public String createNewBioanalyzerJobPost( @RequestParam(value="labId") Integer labId,
 			@RequestParam(value="selectGrantId") Integer grantId,
-			 @RequestParam(value="bioanalyzerChip") String bioanalyzerChip,
+			 @RequestParam(value="bioanalyzerChip") String bioanalyzerChip,			 
 			 @RequestParam(value="workflowIdLibrariesAreDesignedFor") Integer workflowIdLibrariesAreDesignedFor,
 			 @RequestParam(value="jobName") String jobName,
 			ModelMap m){
@@ -238,6 +238,7 @@ public class BioanalyzerController extends WaspController {
 			m.addAttribute("chipError", messageService.getMessage("bioanalyzer.create_chipMissing.error"));
 			errorsExist=true;
 		}
+		
 		logger.debug("workflowIdLibrariesAreDesignedFor: " + workflowIdLibrariesAreDesignedFor.toString());
 		if(workflowIdLibrariesAreDesignedFor == -1){
 			m.addAttribute("workflowError", messageService.getMessage("bioanalyzer.create_workflowLibrariesDesignedForMissing.error"));
