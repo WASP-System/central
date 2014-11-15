@@ -148,13 +148,19 @@ public abstract class AbstractGatkTasklet extends TestForGenomeIndexTasklet {
 		return sampleFileGroups;
 	}
 	
-	@Transactional("entityManager")
 	@Override
+	@Transactional("entityManager")
 	public void doPreFinish(ChunkContext context) throws Exception {
 		for (Integer fgId : this.getOutputFilegroupIds()){
 			logger.debug("Setting as active FileGroup with id=: " + fgId);
 			fileService.getFileGroupById(fgId).setIsActive(1);
 		}
+	}
+	
+	@Override
+	@Transactional("entityManager")
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		
 	}
 	
 	@Override

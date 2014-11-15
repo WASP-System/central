@@ -307,9 +307,26 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 	}
 
 	@Override
+	@Transactional("entityManager")
 	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
-		// TODO Auto-generated method stub
-		
+		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
+		Integer bamGId = null;
+		if (stepExecutionContext.containsKey("bamGID"))
+			bamGId = stepExecutionContext.getInt("bamGID");
+		Integer baiGId = null;
+		if (stepExecutionContext.containsKey("baiGID"))
+			baiGId = stepExecutionContext.getInt("baiGID");
+		Integer metricsGId = null; 
+		if (stepExecutionContext.containsKey("metricsGID"))
+			metricsGId = stepExecutionContext.getInt("metricsGID");
+		logger.debug("Cleaning filegroup entries");
+		// remove .bam and .bai file group entries
+		if (bamGId != null)
+			fileService.removeWithAllAssociatedFilehandles(fileService.getFileGroupById(bamGId));
+		if (baiGId != null)
+			fileService.removeWithAllAssociatedFilehandles(fileService.getFileGroupById(baiGId));
+		if (metricsGId != null)
+			fileService.removeWithAllAssociatedFilehandles(fileService.getFileGroupById(metricsGId));
 	}
 
 }

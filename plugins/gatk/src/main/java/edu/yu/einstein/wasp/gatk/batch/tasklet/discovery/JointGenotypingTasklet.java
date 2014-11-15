@@ -184,7 +184,12 @@ public class JointGenotypingTasklet extends TestForGenomeIndexTasklet {
 
 	@Override
 	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
-		// TODO Auto-generated method stub
+		ExecutionContext stepExecutionContext = getStepExecutionContext(stepExecution);
+		if (stepExecutionContext.containsKey("combinedGenotypedVcfFgId")){
+			Integer rawVcfFgId = Integer.parseInt(stepExecutionContext.getString("combinedGenotypedVcfFgId"));
+			logger.debug("Deleting FileGroup with id=: " + rawVcfFgId);
+			fileService.removeWithAllAssociatedFilehandles(fileService.getFileGroupById(rawVcfFgId));
+		}
 		
 	}
 	
