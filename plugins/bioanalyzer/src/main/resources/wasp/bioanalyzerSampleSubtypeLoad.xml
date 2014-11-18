@@ -20,12 +20,21 @@
 	        
 		    <bean parent="bioanalyzerLibraryUiFieldWrapper">
 	          <property name="baseName" value="size" />
-	          <property name="label" value="bioanalyzerLib.libSize.label" /> <!-- This is asking for AVERAGE library size-->
+	          <property name="label" value="bioanalyzerLib.averageLibSize.label" /> <!-- This is asking for AVERAGE library size-->
 	          <property name="metaposition" value="10" />
 	          <property name="type" value="NUMBER" /> 
 	          <property name="range" value="0.0001:1000000000" /> 
 	          <property name="constraint" value="NotEmpty" />
-	          <property name="error" value="bioanalyzerLib.libSize.error" />
+	          <property name="error" value="bioanalyzerLib.averageLibSize.error" />
+	        </bean>
+	        
+	        <bean parent="bioanalyzerLibraryUiFieldWrapper">
+	          <property name="baseName" value="range" />
+	          <property name="label" value="bioanalyzerLib.libraryRange.label" />
+	          <property name="metaposition" value="11" />
+	          <property name="constraint" value="NotEmpty" />
+	          <property name="error" value="bioanalyzerLib.libraryRange.error" />
+	          <property name="tooltip" value="bioanalyzerLib.libraryRange.tt" />
 	        </bean>
 	        
 		    <bean parent="bioanalyzerLibraryUiFieldWrapper">

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	default-autowire="byName"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="bioanalyzerUiFieldWrapper">
+    <property name="baseArea" ref="bioanalyzerPluginArea" />
+  </bean>
+
+
+  <bean id="bioanalyzerWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoaderAndFactory">
+    <property name="area" ref="bioanalyzerPluginArea" />
+    <property name="name" value="Bioanalyzer Analysis" />
+    <property name="pageFlowOrder">
+      <list>
+		<!-- <value>/jobsubmit/modifymeta/{n}</value> --> 
+		<value>/bioanalyzer/chipChoiceAndInfo/{n}</value>
+		<value>/jobsubmit/samples/{n}</value>
+		<!-- <value>/bioanalyzer/submitSampleAndUploadFiles/{n}</value>-->
+		<value>/jobsubmit/comment/{n}</value> 
+		<value>/jobsubmit/verify/{n}</value>
+		<value>/jobsubmit/submit/{n}</value>
+		<value>/jobsubmit/ok</value>
+      </list>
+    </property>
+    
+    <property name="jobFlowBatchJob" value="default.waspJob.jobflow.v1" />
+
+    <property name="dependencies">
+      <list>
+       <!--  <ref bean="mpsResourceType" />
+        <ref bean="referenceBasedAlignerResourceType" />
+        <ref bean="peakcallerResourceType" />
+       -->
+        <ref bean="libraryStrategyResourceType" />
+      </list>
+    </property>
+ 
+    <property name="sampleSubtypes">
+      <list>
+        <ref bean="bioanalyzerLibrarySampleSubtypeResource" />
+      </list>
+    </property>
+    
+    <property name="uiFieldsFromWrapper">
+      <list>
+        <bean parent="bioanalyzerUiFieldWrapper">
+          <property name="baseName" value="workflow" />
+          <property name="label" value="bioanalyzer.wf.title" />
+        </bean>
+        <bean parent="bioanalyzerUiFieldWrapper">
+          <property name="baseName" value="bioanalyzer/chipChoiceAndInfo" />
+          <property name="label" value="bioanalyzer.chipChoiceAndInfo.title" />
+        </bean>       
+       <bean parent="bioanalyzerUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/comment" />
+          <property name="label" value="bioanalyzer.comments.title" />
+        </bean>
+        <bean parent="bioanalyzerUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/verify" />
+          <property name="label" value="bioanalyzer.verify.title" />
+        </bean>
+         <bean parent="bioanalyzerUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/submit" />
+          <property name="label" value="bioanalyzer.submit.title" />
+        </bean>
+     </list>
+ 
+    </property>
+  </bean>
+
+</beans>

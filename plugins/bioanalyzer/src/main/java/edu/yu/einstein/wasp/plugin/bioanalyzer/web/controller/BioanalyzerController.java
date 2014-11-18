@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
@@ -16,28 +17,38 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.DataBinder;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.Strategy.StrategyType;
 import edu.yu.einstein.wasp.controller.WaspController;
 import edu.yu.einstein.wasp.controller.util.SampleAndSampleDraftMetaHelper;
 import edu.yu.einstein.wasp.exception.MetadataTypeException;
+import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.AccountsService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.JobDraftService;
 import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.StrategyService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.model.AcctGrant;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobDraft;
+import edu.yu.einstein.wasp.model.JobDraftFile;
+import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.Sample;
@@ -61,6 +72,8 @@ public class BioanalyzerController extends WaspController {
 	@Autowired
 	private BioanalyzerService bioanalyzerService;
 	@Autowired
+	private JobDraftService jobDraftService;
+	@Autowired
 	private LabService labService;
 	@Autowired
 	private MessageServiceWebapp messageService;
@@ -77,6 +90,171 @@ public class BioanalyzerController extends WaspController {
 		return "bioanalyzer/description";
 	}
 	
+	final public String[] defaultPageFlow = {"/jobsubmit/modifymeta/{n}","/jobsubmit/samples/{n}","/jobsubmit/cells/{n}","/jobsubmit/verify/{n}","/jobsubmit/submit/{n}","/jobsubmit/ok"};
+	
+	@Transactional
+	public String nextPage(JobDraft jobDraft) {
+		String[] pageFlowArray = workflowService.getPageFlowOrder(workflowService.getWorkflowDao().getWorkflowByWorkflowId(jobDraft.getWorkflowId()));
+		if (pageFlowArray.length == 0)
+			pageFlowArray = defaultPageFlow;
+
+		
+		String context = request.getContextPath();
+		String uri = request.getRequestURI();
+	
+		// strips context, lead slash ("/"), spring mapping
+		String currentMapping = uri.replaceFirst(context, "").replaceFirst("\\.do.*$", "");
+
+		int found = -1;
+		for (int i=0; i < pageFlowArray.length; i++) {
+			String page = pageFlowArray[i];
+			page = page.replaceAll("\\{n\\}", ""+jobDraft.getId());
+	
+			if (currentMapping.equals(page)) {
+				found = i;
+				if (found == pageFlowArray.length - 1){
+					waspErrorMessage("jobDraft.noMoreWorkflowPages.error");
+					return "redirect:/dashboard.do";
+				}
+				break;
+			}
+		}
+
+		int currentWorkflowIndex = found + 1;
+		String targetPage = pageFlowArray[currentWorkflowIndex] + ".do"; 
+		targetPage = targetPage.replaceAll("\\{n\\}", ""+jobDraft.getId());
+		logger.debug("Next page: " + targetPage);
+
+		return "redirect:" + targetPage;
+	}
+	/**
+	 * Returns true if the current logged in user is the job drafter, the jobDraft status is pending
+	 * and the jobDraft object is not null and has a not-null jobDraftId
+	 * @param jobDraft
+	 * @return boolean
+	 */
+	protected boolean isJobDraftEditable(JobDraft jobDraft){
+		User me = authenticationService.getAuthenticatedUser();
+		return isJobDraftEditable(jobDraft, me);
+	}
+	
+	/**
+	 * Returns true if the current logged in user is the job drafter, the jobDraft status is pending
+	 * and the jobDraft object is not null and has a not-null jobDraftId
+	 * @param jobDraft
+	 * @return boolean
+	 */
+	protected boolean isJobDraftEditable(JobDraft jobDraft, User me){
+		if (jobDraft == null || jobDraft.getId() == null){
+			waspErrorMessage("jobDraft.jobDraft_null.error");
+			return false;
+		}
+		
+		// check if i am the drafter
+		if (me.getId().intValue() != jobDraft.getUserId().intValue()) {
+			waspErrorMessage("jobDraft.user_incorrect.error");
+			return false;
+		}
+		
+		// check that the status is PENDING
+		if (! jobDraft.getStatus().equals("PENDING")) {
+			waspErrorMessage("jobDraft.not_pending.error");
+			return false;
+		}
+		return true;
+	}
+	@RequestMapping(value="/chipChoiceAndInfo/{jobDraftId}.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String showChipChoiceAndInfoForm (@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+		
+		JobDraft jobDraft = jobDraftService.getJobDraftDao().getJobDraftByJobDraftId(jobDraftId);
+		if ( ! isJobDraftEditable(jobDraft) ){
+			return "redirect:/dashboard.do";
+		}
+		m.put("jobDraft", jobDraft);
+		List<String> availableBioanalyzerChipList = new ArrayList<String>();
+		availableBioanalyzerChipList.add(messageService.getMessage("bioanalyzer.create_bioanalyzerChipHighSensitivity.label"));
+		availableBioanalyzerChipList.add(messageService.getMessage("bioanalyzer.create_bioanalyzerChip7500.label"));
+		availableBioanalyzerChipList.add(messageService.getMessage("bioanalyzer.create_bioanalyzerChip1000.label"));
+		m.put("availableBioanalyzerChipList", availableBioanalyzerChipList);
+		
+		m.put("pageFlowMap", getPageFlowMap(jobDraft));
+		
+		return "bioanalyzer/chipChoiceAndInfo";
+	}
+	@RequestMapping(value="/chipChoiceAndInfo/{jobDraftId}.do", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String showChipChoiceAndInfoFormPost (@PathVariable("jobDraftId") Integer jobDraftId, 
+				@RequestParam(value="bioanalyzerChip") String bioanalyzerChip,			 
+				@RequestParam(value="assayLibrariesAreFor") String assayLibrariesAreFor, 
+				ModelMap m) {
+		
+		JobDraft jobDraft = jobDraftService.getJobDraftDao().getJobDraftByJobDraftId(jobDraftId);
+		if ( ! isJobDraftEditable(jobDraft) ){
+			return "redirect:/dashboard.do";
+		}
+
+		if(bioanalyzerChip==null || bioanalyzerChip.isEmpty() || bioanalyzerChip.equals("-1") ||assayLibrariesAreFor==null || assayLibrariesAreFor.trim().isEmpty()){
+			
+			if(bioanalyzerChip==null || bioanalyzerChip.isEmpty() || bioanalyzerChip.equals("-1")){
+				m.put("chipError", messageService.getMessage("bioanalyzer.chipChoiceAndInfo_chipMissing.error"));
+			}
+			if(assayLibrariesAreFor==null || assayLibrariesAreFor.trim().isEmpty()){
+				m.put("assayLibrariesAreForError", messageService.getMessage("bioanalyzer.chipChoiceAndInfo_assayMissing.error"));
+			}
+			m.put("jobDraft", jobDraft);
+			m.put("userSelectedBioanalyzerChip", bioanalyzerChip);
+			m.put("", assayLibrariesAreFor);
+			m.put("pageFlowMap", getPageFlowMap(jobDraft));			
+			List<String> availableBioanalyzerChipList = new ArrayList<String>();
+			availableBioanalyzerChipList.add(messageService.getMessage("bioanalyzer.create_bioanalyzerChipHighSensitivity.label"));
+			availableBioanalyzerChipList.add(messageService.getMessage("bioanalyzer.create_bioanalyzerChip7500.label"));
+			availableBioanalyzerChipList.add(messageService.getMessage("bioanalyzer.create_bioanalyzerChip1000.label"));
+			m.put("availableBioanalyzerChipList", availableBioanalyzerChipList);			
+			waspErrorMessage("bioanalyzer.chipChoiceAndInfo_errorsExist.error");
+			return "bioanalyzer/chipChoiceAndInfo";
+		}
+		
+		bioanalyzerService.saveOrUpdateMeta(jobDraft, bioanalyzerService.bioanalyzerChipMeta, bioanalyzerChip);
+		bioanalyzerService.saveOrUpdateMeta(jobDraft, bioanalyzerService.bioanalyzerAssayLibrariesAreForMeta, assayLibrariesAreFor.trim());
+		
+		waspMessage("bioanalyzer.chipChoiceAndInfo_updateSuccessfullyRecorded.error");
+		return nextPage(jobDraft);
+	}
+	/*
+	@RequestMapping(value="/submitSampleAndUploadFiles/{jobDraftId}.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String submitSampleAndUploadFiles(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m){
+		
+		JobDraft jobDraft = jobDraftService.getJobDraftDao().getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		List<SampleDraft> sampleDraftList = jobDraft.getSampleDraft();
+		String[] roles = new String[1];
+		roles[0] = "lu";
+		List<SampleSubtype> sampleSubtypeList = sampleService.getSampleSubtypesForWorkflowByRole(jobDraft.getWorkflowId(), roles);
+		List<FileGroup> fileGroups = new ArrayList<FileGroup>();
+		Map<FileGroup, List<FileHandle>> fileGroupFileHandlesMap = new HashMap<FileGroup, List<FileHandle>>();
+		for(JobDraftFile jdf: jobDraft.getJobDraftFile()){
+			FileGroup fileGroup = jdf.getFileGroup();
+			fileGroups.add(fileGroup);
+			List<FileHandle> fileHandles = new ArrayList<FileHandle>();
+			for(FileHandle fh : fileGroup.getFileHandles()){
+				fileHandles.add(fh);
+			}
+			fileGroupFileHandlesMap.put(fileGroup, fileHandles);
+		}
+		m.addAttribute("jobDraft", jobDraft);
+		m.addAttribute("sampleDraftList", sampleDraftList);
+		m.addAttribute("sampleSubtypeList", sampleSubtypeList);
+		//m.addAttribute("pageFlowMap", getPageFlowMap(jobDraft));
+		m.addAttribute("fileGroups", fileGroups);
+		m.addAttribute("fileGroupFileHandlesMap", fileGroupFileHandlesMap);
+		//m.addAttribute("adaptorSetsUsedOnThisJobDraft", getAdaptorSets(jobDraft));
+		//return "jobsubmit/sample";
+		return "bioanalyzer/submitSampleAndUploadFiles";
+	}
+	*/
 	@RequestMapping(value="/create", method=RequestMethod.GET)
 	public String createNewBioanalyzerJobGet(ModelMap m){
 		/*
@@ -385,4 +563,99 @@ public class BioanalyzerController extends WaspController {
 		}
 		return true;
 	}
+	
+	/**
+	 * getPageFlowMap
+	 * @param jobDraft - jobdraft (used to get workflow)
+	 *
+	 * requires request to stop user from going on future screens
+	 *
+	 * sets request attribute "forcePageTitle" to current page title
+	 * returns the pageflow map for nav bar
+	 *
+	 */
+	@Transactional
+	protected List<String[]> getPageFlowMap(JobDraft jobDraft) {
+		String[] pageFlowArray = workflowService.getPageFlowOrder(jobDraft.getWorkflow());
+		if (pageFlowArray.length == 0){
+			logger.debug("No page flow defined so using default page flow");
+			pageFlowArray = defaultPageFlow;
+		}
+		
+		String context = request.getContextPath();
+		String uri = request.getRequestURI();
+	
+		// strips context, lead slash ("/"), spring mapping
+		String currentMapping = uri.replaceFirst(context, "").replaceFirst("\\.do.*$", "");
+
+
+		List<String[]> rt = new ArrayList<String[]>(); 
+		//add the jobDraft's start page breadcrumb (3/29/13; dubin)
+		String jobDraftStartPageBreadcrumbMessage = messageService.getMessage("jobDraft.startPageBreadcrumbMessage.label");
+		if(jobDraftStartPageBreadcrumbMessage != null && !"".equals(jobDraftStartPageBreadcrumbMessage)){
+			String[] startPage = {"/jobsubmit/modify/"+jobDraft.getId().toString(), jobDraftStartPageBreadcrumbMessage};
+			rt.add(startPage);
+		}
+		
+		
+		for (int i=0; i < pageFlowArray.length -1; i++) {
+			String page = pageFlowArray[i];
+			String mapPage = page.replaceAll("^/", "");
+			mapPage = mapPage.replaceAll("/\\{n\\}", "");
+
+
+			String expandPage = page.replaceAll("\\{n\\}", ""+jobDraft.getId());
+			expandPage = expandPage.replace("^/", "");//added 6-11-14; dubin to repair the breadcrumbs anchor on jobsubmission pages (see additional change a few lines below)
+			//logger.debug("page: " + page);
+			//logger.debug("mapPage: " + mapPage);
+			//logger.debug("expandPage: " + expandPage);
+			//logger.debug("currentMapping: " + currentMapping);
+			
+			if (currentMapping.equals(expandPage)) {
+				request.setAttribute("forcePageTitle", getPageTitle(mapPage, jobDraft.getWorkflow().getIName()));
+				break;
+
+			}
+
+			expandPage = expandPage.replaceAll("^/", "");//added 6-11-14; dubin yep, do this yet again, to repair the breadcrumbs anchor on jobsubmission pages
+			//logger.debug("expandPage again: " + expandPage);
+			String[] r = {expandPage, getPageTitle(mapPage, jobDraft.getWorkflow().getIName())};
+			rt.add(r);
+	
+		}
+
+		return rt; 
+	}
+
+	/**
+	 * getPageTitle gets page title for jobsubmission page corresponding to workflow
+	 * 
+	 * @param pageDef 
+	 * @parm workflowIname
+	 *
+	 * getPageTitle expect [workflowIName].[pageDef].label
+	 * where page is in w/o leading slash or jobDraftId
+	 *
+	 */
+	@Transactional
+	private String getPageTitle(String pageDef, String workflowIName) {
+		Locale locale=(Locale)request.getSession().getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+		
+		String code=workflowIName+"."+pageDef+".label";
+			
+		try {	
+		
+		String pageTitle=DBResourceBundle.MESSAGE_SOURCE.getMessage(code, null, locale);
+		
+		if (pageTitle!=null) {		
+			return pageTitle;
+		}
+		
+		} catch (Throwable e) {
+			//log.error("Cant get page title from uifield "+tilesDef+"|"+workflowIName+". Falling back to default page name ",e);
+		}
+		
+		return pageDef;
+	}
+
 }

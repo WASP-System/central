@@ -99,14 +99,20 @@ function handleStrategyUpdate() {
 				  		$('#isAnalysisSelected').val(savedAnalysisSelectedChoice);
 				  		savedAnalysisSelectedChoice = "";
 				  	}
-				  	showChooseAnalysisRow();
+				  	
+				  	if($("#strategy").val()!='libraryStrategy.Library-QC'){//not the best way to deal with this, but...
+				  		showChooseAnalysisRow();
+				  	}
 				  }
 				  else {
 					  if (savedAnalysisSelectedChoice != ""){
 					  		$('#isAnalysisSelected').val(savedAnalysisSelectedChoice);
 					  		savedAnalysisSelectedChoice = "";
 					  }
-					  showChooseAnalysisRow();
+					  
+					  if($("#strategy").val()!='libraryStrategy.Library-QC'){//not the best way to deal with this, but...
+					  	showChooseAnalysisRow();
+					  }
 				  }
 				  
 				  $.each( data, function( key, val ) {
