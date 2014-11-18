@@ -196,7 +196,7 @@ public class Macstwo extends SoftwarePackage{
 	
 		String totalCountMappedReadsInPeaks = "totalCountMappedReadsInPeaks.txt";//output in this file will be a single number 
 		tempCommand = new StringBuilder();
-		tempCommand.append("awk '{sum += $5} END {print sum}' " + mappedReadsInPeaks + " > " + totalCountMappedReadsInPeaks);
+		tempCommand.append("awk 'BEGIN {sum = 0} {sum += $5} END {print sum}' " + mappedReadsInPeaks + " > " + totalCountMappedReadsInPeaks);
 		String command6 = new String(tempCommand);
 		logger.debug("---- Will execute awk to sum up column 5 (mapped reads in each peak) from mappedReadsInPeaks.bed using command: ");
 		logger.debug("---- "+command6);

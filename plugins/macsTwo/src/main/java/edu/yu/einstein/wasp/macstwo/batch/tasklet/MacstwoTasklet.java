@@ -317,17 +317,20 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		LinkedHashSet<FileHandle> files = new LinkedHashSet<FileHandle>();
 		Set<FileGroup> macstwoEnclosedFileGroups = new LinkedHashSet<FileGroup>();
-		
+///*	due to possible model building problem, move this elsewhere 	
 		Imagemagick imagemagickSoftware = (Imagemagick) macs2.getSoftwareDependencyByIname("imagemagick"); 
 		R rSoftware = (R) macs2.getSoftwareDependencyByIname("rPackage");
 		this.softwareIdUsedListAsString = macs2.getId().toString() + ":" + rSoftware.getId().toString() + ":" + imagemagickSoftware.getId().toString();
+//*/
+//		//this.softwareIdUsedListAsString = macs2.getId().toString();
 
+///*	due to possible model building problem, move this elsewhere 	
 		FileHandle modelScriptFileHandle = createAndSaveInnerFileHandle(modelFileName, textFileType);
 		listOfFileHandleNames.add(modelScriptFileHandle.getFileName());
 		files.add(modelScriptFileHandle);
 		FileGroup modelScriptFileGroup = createAndSaveInnerFileGroup(modelScriptFileHandle, macs2, "xxx_model.r is a macs2-generated R script that can be converted into a pdf (using RScript) and illustrates the peak model");
 		macstwoEnclosedFileGroups.add(modelScriptFileGroup);
-		
+//*/		
 		FileHandle peaksXlsFileHandle = createAndSaveInnerFileHandle(prefixForFileName + "_peaks.xls", tsvFileType);
 		listOfFileHandleNames.add(peaksXlsFileHandle.getFileName());
 		files.add(peaksXlsFileHandle);
@@ -377,7 +380,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		files.add(controlLambdaBedGraphFileHandle);
 		FileGroup controlLambdaBedGraphFileGroup = createAndSaveInnerFileGroup(controlLambdaBedGraphFileHandle, macs2, "xxx_control_lambda.bdg is a Macs2-generated bedGraph file that describes the read distrubution along the entire genome (for local lambda values from control) and can be imported to UCSC genome browser or converted into even smaller bigWig file");
 		macstwoEnclosedFileGroups.add(controlLambdaBedGraphFileGroup);
-		
+///*	due to possible model building problem, move this elsewhere 			
 		//the pdf (generated from running Rscript on xx_model.r file)
 		FileHandle modelPdfFileHandle = createAndSaveInnerFileHandle(pdfFileName, pdfFileType);
 		listOfFileHandleNames.add(modelPdfFileHandle.getFileName());
@@ -395,7 +398,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		macstwoEnclosedFileGroups.add(modelPngFileGroup);	
 		
 		logger.debug("very very very very new ------- recorded fileGroup and fileHandle for ImageMagick to create png in MacstwoGenerateModelAsPdfTasklet.doExecute()");
-		
+//*/		
 		//9/16/14
 		FileGroup macs2AnalysisFileGroup = fileService.createFileGroupCollection(macstwoEnclosedFileGroups);//will create enclosing fileGroup, save it to db, and also set/save parent for each enclosed child fileGroup; it will set it's own filetype
 		macs2AnalysisFileGroup.setDescription(prefixForFileName);
