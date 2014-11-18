@@ -920,13 +920,37 @@ public class BatchJobHibernationManager {
 	}
 	
 	/**
-	 * Sets if this job is in error state and flagged for restart
+	 * Sets if this job is in error state and flagged for restart. Increments restart counter
 	 * @param se
 	 * @param isFlaggedForRestart
 	 */
 	public static void setIsInErrorConditionAndFlaggedForRestart(StepExecution stepExecution, Boolean isFlaggedForRestart) {
 		JobExecution je = stepExecution.getJobExecution();
 		je.getExecutionContext().put(GridResult.FLAGGED_FOR_RESTART, isFlaggedForRestart.toString());
+	}
+	
+	public static void incrementRestartCounter(StepExecution stepExecution) {
+		JobExecution je = stepExecution.getJobExecution();
+		Integer stepRestartCount = getRestartCount(stepExecution);
+		Integer jobRestartCount = getRestartCount(je);
+		stepRestartCount++;
+		jobRestartCount++;
+		stepExecution.getExecutionContext().put(GridResult.RESTART_COUNT, stepRestartCount.toString());
+		je.getExecutionContext().put(GridResult.RESTART_COUNT, jobRestartCount.toString());
+	}
+	
+	public static int getRestartCount(StepExecution stepExecution){
+		Integer restartCount = 0;
+		if (stepExecution.getExecutionContext().containsKey(GridResult.RESTART_COUNT))
+			restartCount = Integer.parseInt(stepExecution.getExecutionContext().getString(GridResult.RESTART_COUNT));
+		return restartCount;
+	}
+	
+	public static int getRestartCount(JobExecution jobExecution){
+		Integer restartCount = 0;
+		if (jobExecution.getExecutionContext().containsKey(GridResult.RESTART_COUNT))
+			restartCount = Integer.parseInt(jobExecution.getExecutionContext().getString(GridResult.RESTART_COUNT));
+		return restartCount;
 	}
 	
 	/**

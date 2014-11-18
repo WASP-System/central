@@ -6,9 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
@@ -18,6 +15,8 @@ import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.core.MessagingTemplate;
@@ -41,7 +40,7 @@ import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemp
  * @author asmclellan
  */
 @Transactional
-public class AbandonMessageHandlingTasklet implements MessageHandler, NameAwareTasklet, BeanNameAware, StepExecutionListener {
+public class AbandonMessageHandlingTasklet implements MessageHandler, NameAwareTasklet, BeanNameAware, StepExecutionListener, InitializingBean, DisposableBean {
 	
 	private static final Logger logger = LoggerFactory.getLogger(AbandonMessageHandlingTasklet.class);
 	
@@ -86,31 +85,7 @@ public class AbandonMessageHandlingTasklet implements MessageHandler, NameAwareT
 		templates.add(abandonTemplate);
 		setAbandonMessages(templates);
 	}
-	
 
-	@PostConstruct
-	protected void init() throws WaspRuntimeException{
-		try{
-			// subscribe to injected message channel
-			logger.debug("subscribing to injected message channel");
-			subscribeChannel.subscribe(this);
-		} catch (Throwable e){
-			throw new WaspRuntimeException("Caught unexpected exception of type " + e.getClass().getName(), e);
-		}
-	}
-	
-	@PreDestroy
-	protected void destroy() throws WaspRuntimeException{
-		try{
-			// unregister from message channel only if this object gets garbage collected
-			if (subscribeChannel != null){
-				subscribeChannel.unsubscribe(this); 
-				subscribeChannel = null;
-			}
-		} catch (Throwable e){
-			throw new WaspRuntimeException("Caught unexpected exception of type " + e.getClass().getName(), e);
-		}
-	}
 	
 	@Override
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
@@ -185,6 +160,31 @@ public class AbandonMessageHandlingTasklet implements MessageHandler, NameAwareT
 				logger.debug(name + "handleMessage() found ABANDONED message for abort-monitored template " + 
 						messageTemplate.getClass().getName() + ". Going to fail step.");
 			}
+		}
+	}
+	
+	
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		try{
+			// subscribe to injected message channel
+			logger.debug("subscribing to injected message channel");
+			subscribeChannel.subscribe(this);
+		} catch (Throwable e){
+			throw new WaspRuntimeException("Caught unexpected exception of type " + e.getClass().getName(), e);
+		}
+	}
+
+	@Override
+	public void destroy() throws Exception {
+		try{
+			// unregister from message channel only if this object gets garbage collected
+			if (subscribeChannel != null){
+				subscribeChannel.unsubscribe(this); 
+				subscribeChannel = null;
+			}
+		} catch (Throwable e){
+			throw new WaspRuntimeException("Caught unexpected exception of type " + e.getClass().getName(), e);
 		}
 	}
 

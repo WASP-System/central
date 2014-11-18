@@ -410,4 +410,12 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 		BatchJobHibernationManager.setIsInErrorConditionAndFlaggedForRestart(se, isFlaggedForRestart);
 	}
 	
+	protected void incrementRestartCounter(StepExecution se) {
+		BatchJobHibernationManager.incrementRestartCounter(se);
+	}
+	
+	protected static int getRestartCount(StepExecution se){
+		return BatchJobHibernationManager.getRestartCount(se);
+	}
+	
 }
