@@ -198,9 +198,9 @@ public class WaspJobSoftwareLaunchTaskletImpl extends AbandonMessageHandlingTask
 		this.additionalJobParameters = additionalJobParameters;
 	}
 
-	@PostConstruct
-	public void init(){
-		super.init();
+	@Override
+	public void afterPropertiesSet() throws Exception{
+		super.afterPropertiesSet();
 		// if jobId is not set, get it from the first cellLibrary in the list and check it is unique across all in the list
 		// in this scenario (otherwise we have no idea which is supposed to be used)
 		if (this.jobId == null){

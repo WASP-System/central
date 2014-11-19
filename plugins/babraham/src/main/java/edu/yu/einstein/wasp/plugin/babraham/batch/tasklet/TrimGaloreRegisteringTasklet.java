@@ -122,7 +122,7 @@ public class TrimGaloreRegisteringTasklet extends WaspRemotingTasklet {
 		// get results files and make them active
 		ExecutionContext stepExecutionContext = context.getStepContext().getStepExecution().getExecutionContext();
 		logger.trace("attempting file group activation");
-		if (stepExecutionContext.containsKey("resultsFilesIdStr"))
+		if (stepExecutionContext.containsKey("resultsFilesIdStr")){
 		    logger.trace("resultsFilesIdStr: " + stepExecutionContext.getString("resultsFilesIdStr"));
 			for (String fhIdStr : StringUtils.commaDelimitedListToStringArray(stepExecutionContext.getString("resultsFilesIdStr"))) {
 			    FileGroup fg = fileService.getFileHandleById(Integer.parseInt(fhIdStr)).getFileGroup().iterator().next();
@@ -132,6 +132,7 @@ public class TrimGaloreRegisteringTasklet extends WaspRemotingTasklet {
 			    fileService.getFileGroupDao().merge(fg);
 			    babrahamService.saveJsonForParsedSoftwareOutput(trimGalore.parseOutput(r, fg), TrimGalorePlugin.TRIM_GALORE_PLOT_KEY, trimGalore, fg.getId());
 			}
+		}
 			
 	}
 
@@ -147,9 +148,18 @@ public class TrimGaloreRegisteringTasklet extends WaspRemotingTasklet {
     }
 
 	@Override
+	@Transactional("entityManager")
 	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
-		// TODO Auto-generated method stub
-		
+		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
+		logger.debug("Cleaning filegroup entries");
+		if (stepExecutionContext.containsKey("resultsFilesIdStr")){
+		    logger.trace("resultsFilesIdStr: " + stepExecutionContext.getString("resultsFilesIdStr"));
+			for (String fhIdStr : StringUtils.commaDelimitedListToStringArray(stepExecutionContext.getString("resultsFilesIdStr"))) {
+			    FileGroup fg = fileService.getFileHandleById(Integer.parseInt(fhIdStr)).getFileGroup().iterator().next();
+			    logger.trace("file group " + fg.getId() + " which contains file group " + fhIdStr + " is going to be deleted");
+			    fileService.removeWithAllAssociatedFilehandles(fg);
+			}
+		}
 	}
 
 }

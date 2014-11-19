@@ -121,11 +121,11 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 
 	public MacstwoTasklet(String jobIdAsString, String peakType, String testCellLibraryIdListAsString, String controlCellLibraryIdListAsString) throws Exception {
 		
-		logger.debug("Starting MacstwoTasklet constructor");
-		logger.debug("jobIdAsString: " + jobIdAsString);
-		logger.debug("peakType (the parameter): " + peakType);
-		logger.debug("testCellLibraryIdListAsString: " + testCellLibraryIdListAsString);
-		logger.debug("controlCellLibraryIdListAsString: " + controlCellLibraryIdListAsString);
+		logger.trace("Starting MacstwoTasklet constructor");
+		logger.trace("jobIdAsString: " + jobIdAsString);
+		logger.trace("peakType (the parameter): " + peakType);
+		logger.trace("testCellLibraryIdListAsString: " + testCellLibraryIdListAsString);
+		logger.trace("controlCellLibraryIdListAsString: " + controlCellLibraryIdListAsString);
 		
 		Assert.assertTrue(!jobIdAsString.isEmpty());
 		this.jobId = Integer.parseInt(jobIdAsString);		
@@ -152,11 +152,11 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 			Assert.assertTrue(!this.controlCellLibraryIdList.isEmpty());
 		}
 		
-		logger.debug("in constructor this.jobId: " + this.jobId);
-		logger.debug("in constructor this.peakType: " + this.peakType);
-		logger.debug("in constructor testCellLibraryIdList.size(): " + testCellLibraryIdList.size());
-		logger.debug("in constructor controlCellLibraryIdList.size(): " + controlCellLibraryIdList.size());
-		logger.debug("Ending MacstwoTasklet constructor");
+		logger.trace("in constructor this.jobId: " + this.jobId);
+		logger.trace("in constructor this.peakType: " + this.peakType);
+		logger.trace("in constructor testCellLibraryIdList.size(): " + testCellLibraryIdList.size());
+		logger.trace("in constructor controlCellLibraryIdList.size(): " + controlCellLibraryIdList.size());
+		logger.trace("Ending MacstwoTasklet constructor");
 	}
 	
 	/**
@@ -175,6 +175,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		logger.debug("in doExecute this.peakType: " + this.peakType);
 		logger.debug("in doExecute testCellLibraryIdList.size(): " + testCellLibraryIdList.size());
 		logger.debug("in doExecute controlCellLibraryIdList.size(): " + controlCellLibraryIdList.size());
+		this.stepExecution = context.getStepContext().getStepExecution();
 		Job job = jobService.getJobByJobId(jobId);
 		Map<String,Object> jobParametersMap = context.getStepContext().getJobParameters();		
 		for (String key : jobParametersMap.keySet()) {
@@ -514,6 +515,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		logger.debug("starting doPreFinish() in MacstwoTasklet");
 		
 		//at Andy's suggestion, do this here too:
+		this.stepExecution = context.getStepContext().getStepExecution();
 		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
 		this.jobId = (Integer) stepContext.get("jobId");//currently, not really needed here
 		this.testCellLibraryIdListAsString = (String) stepContext.get("testCellLibraryIdListAsString");
@@ -529,10 +531,10 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		// associate test sample with the new file groups		
 		Sample testSample = sampleService.getSampleById(testSampleId);		
 		
-		logger.debug("in middle of doPreFinish() in MacstwoTasklet");
+		logger.trace("in middle of doPreFinish() in MacstwoTasklet");
 		
 		//new, 5-9-14
-		logger.debug("new stuff, added 5-9-14, to get numbers from txt files that are not saved");
+		logger.trace("new stuff, added 5-9-14, to get numbers from txt files that are not saved");
 		//context.getStepContext().attributeNames().
 		GridResult result = getGridResult(context);
 		String workingDir = result.getWorkingDirectory();//is this the scratch, I think so
@@ -674,7 +676,16 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	 */
 	@Override
 	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
-		// TODO Auto-generated method stub
-		
+		ExecutionContext stepContext = stepExecution.getExecutionContext();
+		this.macs2AnalysisFileGroupId = (Integer) stepContext.get("macs2AnalysisFileGroupId");
+		if (this.macs2AnalysisFileGroupId != null){
+			FileGroup enclosingFG = fileService.getFileGroupById(this.macs2AnalysisFileGroupId);
+			Set<FileGroup> children = new HashSet<FileGroup>(enclosingFG.getChildren());
+			for(FileGroup childFG : children){
+				enclosingFG.getChildren().remove(childFG);
+				fileService.removeWithAllAssociatedFilehandles(childFG);
+			}
+			fileService.removeWithAllAssociatedFilehandles(enclosingFG);
+		}
 	}
 }

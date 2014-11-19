@@ -266,8 +266,12 @@ public class BamPreProcessingTasklet extends TestForGenomeIndexTasklet {
 	@Override
 	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
 		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
-		Integer bamGId = stepExecutionContext.getInt("bamGID");
-		Integer baiGId = stepExecutionContext.getInt("baiGID");
+		Integer bamGId = null;
+		if (stepExecutionContext.containsKey("bamGID"))
+			bamGId = stepExecutionContext.getInt("bamGID");
+		Integer baiGId = null;
+		if (stepExecutionContext.containsKey("baiGID"))
+			baiGId = stepExecutionContext.getInt("baiGID");
 		logger.debug("Cleaning filegroup entries");
 		// remove .bam and .bai file group entries
 		if (bamGId != null)

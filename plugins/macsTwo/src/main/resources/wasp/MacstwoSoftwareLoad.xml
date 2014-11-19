@@ -130,7 +130,7 @@
           <property name="metaposition" value="23" />
           <property name="label" value="peakcaller.macstwo.fixbimodel.label" />
           <property name="tooltip" value="peakcaller.macstwo.fixbimodel.tt" />
-          <property name="default" value="_SET_OFF_" />
+          <property name="default" value="_SET_ON_" />
           <property name="constraint" value="RegExp:^_SET_OFF_|_SET_ON_$" />
           <property name="control" value="select:_SET_OFF_:not set;_SET_ON_:set" />
           <property name="error" value="peakcaller.macstwo.fixbimodel.err" />
@@ -140,7 +140,7 @@
           <!--<property name="baseName" value="extSize" />-->
           <property name="baseName" value="macs2--extsize" />
           <property name="metaposition" value="25" />
-          <property name="default" value="" />
+          <property name="default" value="200" />
           <property name="label" value="peakcaller.macstwo.extsize.label" />
           <property name="tooltip" value="peakcaller.macstwo.extsize.tt" />          
           <property name="constraint" value="RegExp:^\d+|\s*$" /><!-- *****************empty or number -->

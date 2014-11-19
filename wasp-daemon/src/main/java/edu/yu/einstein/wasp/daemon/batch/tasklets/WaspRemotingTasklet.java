@@ -12,6 +12,7 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.GridException;
@@ -28,12 +29,25 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 	@Autowired
 	private GridHostResolver hostResolver;
 	
+	@Value("${wasp.batch.retryOnException.fixed.maxattempts:3}")
+	private Integer maxRetryAttempts;
+	
 	/**
 	 * protected constructor to prevent instantiation of this class directly
 	 */
 	protected WaspRemotingTasklet() {}
 	
 	
+	public Integer getMaxRetryAttempts() {
+		return maxRetryAttempts;
+	}
+
+
+	public void setMaxRetryAttempts(Integer maxRetryAttempts) {
+		this.maxRetryAttempts = maxRetryAttempts;
+	}
+
+
 	/**
 	 * Remote work defined by implementing tasklets
 	 * @param context
@@ -102,13 +116,17 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 				setIsInErrorConditionAndFlaggedForRestart(stepExecution, false);		
 			}
 		} catch (GridException e) {
-			logger.warn("GridException caught : " + e.getLocalizedMessage() + ". Going to run cleanup code and throw TaskletRetryException");
+			logger.warn("GridException caught : " + e.getLocalizedMessage() + ". Going to run cleanup code"); 
 			setIsInErrorConditionAndFlaggedForRestart(stepExecution, true);
 			doCleanupBeforeRestart(stepExecution);
-			throw new TaskletRetryException(e.getMessage());
-		} catch (Exception e) {
-			logger.warn("Exception of type " + e.getClass().getName() + " caught: " + e.getLocalizedMessage() + ". Flagging in step execution and rethrowing");
-			throw e;
+			int retryCount = getRestartCount(stepExecution) + 1;
+			if (retryCount <= maxRetryAttempts){
+				incrementRestartCounter(stepExecution);
+				logger.warn("Going to throw TaskletRetryException. This is retry attempt " + retryCount + " of " + maxRetryAttempts);
+				throw new TaskletRetryException(e.getMessage());
+			}
+			else 
+				throw new GridException("Maximum number of retry attempts (" + maxRetryAttempts + ") exceeded.", e);
 		} finally {
 			logger.trace("saving GridResult from finally block");
 			saveGridResult(context, result); // do this whatever else happens in the try block
@@ -171,6 +189,5 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 	protected ExecutionContext getJobExecutionContext(ChunkContext context){
 		return getJobExecutionContext(context.getStepContext().getStepExecution());
 	}
-
 	
 }

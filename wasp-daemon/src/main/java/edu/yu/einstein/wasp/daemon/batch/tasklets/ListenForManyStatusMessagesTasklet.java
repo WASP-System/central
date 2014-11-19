@@ -76,18 +76,6 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet i
     }
 
     @Override
-    @PostConstruct
-    protected void init() {
-        super.init();
-    }
-
-    @Override
-    @PreDestroy
-    protected void destroy() {
-        super.destroy();
-    }
-
-    @Override
     protected void doHibernate(StepExecution stepExecution) throws WaspBatchJobExecutionReadinessException {
         super.doHibernate(stepExecution);
     }

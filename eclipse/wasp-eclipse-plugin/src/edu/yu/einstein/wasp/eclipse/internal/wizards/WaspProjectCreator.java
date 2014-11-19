@@ -136,16 +136,23 @@ public class WaspProjectCreator {
 
 			IPath path = new Path(opath);
 			String dpath = opath;
-			
+			dpath = dpath.replaceAll("Xxxxx", cname);
+			dpath = dpath.replaceAll("xxxxx", lname);
 			// copy optional files
 			
 			String[] types = { "FORM", "RES", "PIP", "VIZ" };
 			List<String> seen = new ArrayList<String>();
 			
 			for (String type : types) {
-				if (opath.contains(type)) {
-					seen.add(type);
-					dpath = dpath.replaceAll(type, "");
+				if (dpath.contains(type)) {
+					if (dpath.contains(type + "X")){
+						seen.add(type + "X");
+						dpath = dpath.replaceAll(type + "X", "");
+					}
+					else{
+						seen.add(type);
+						dpath = dpath.replaceAll(type, "");
+					}
 				}
 			}
 			
@@ -160,15 +167,20 @@ public class WaspProjectCreator {
 				keep = true;
 			if (viz && seen.contains("VIZ"))
 				keep = true;
-			
+			if (web && !resource && !pipeline && !viz && seen.contains("FORMX")) // exclusive
+				keep = true;
+			if (resource && !web && !pipeline && !viz && seen.contains("RESX")) // exclusive
+				keep = true;
+			if (pipeline && !web && !resource && !viz && seen.contains("PIPX")) // exclusive
+				keep = true;
+			if (viz && !web && !pipeline && !resource && seen.contains("VIZX")) // exclusive
+				keep = true;
 			if (keep == false)
 				continue;
 			
 			dpath = dpath.replaceFirst("include/", "");
 			dpath = dpath.replaceFirst("src/main/java/", "src/main/java/" + ns + "/" + lname + "/");
 			dpath = dpath.replaceFirst("src/test/java/", "src/test/java/" + ns + "/" + lname + "/");
-			dpath = dpath.replaceAll("Xxxxx", cname);
-			dpath = dpath.replaceAll("xxxxx", lname);
 
 			IPath dest = new Path(dpath);
 
@@ -232,15 +244,27 @@ public class WaspProjectCreator {
 							pos = line.indexOf("#///"); // must check this variant first
 						else 
 							pos = line.indexOf("////");
-						String rem = line.substring(pos+5);
-						if (web && rem.contains("FORM"))
+						String rem = line.substring(pos+6);
+						if (web && !resource && !pipeline && !viz && rem.contains("FORMX")) // exclusive
 							keep = true;
-						if (resource && rem.contains("RES"))
+						else if (web && rem.contains("FORM"))
 							keep = true;
-						if (pipeline && rem.contains("PIP"))
+						
+						if (resource && !web && !pipeline && !viz && rem.contains("RESX")) // exclusive
 							keep = true;
-						if (viz && rem.contains("VIZ"))
+						else if (resource && rem.contains("RES"))
 							keep = true;
+						
+						if (pipeline && !web && !resource && !viz && rem.contains("PIPX")) // exclusive
+							keep = true;
+						else if (pipeline && rem.contains("PIP"))
+							keep = true;
+						
+						if (viz && !web && !pipeline && !resource && rem.contains("VIZX")) // exclusive
+							keep = true;
+						else if (viz && rem.contains("VIZ"))
+							keep = true;
+
 						if (line.contains("////>") || line.contains("#///>")){
 							inRemovableBlock = true;
 							keepBlock = keep;
@@ -424,6 +448,7 @@ public class WaspProjectCreator {
 			folderSet.add(javaMainPackage + "/integration/endpoints");
 			folderSet.add(javaRes + "/flows");
 			folderSet.add(javaMainPackage + "/batch/tasklet");
+			folderSet.add(javaMainPackage + "/batch/service/impl");
 			folderSet.add(javaTestPackage + "/integration/messages/test");
 		}
 		if (resource){

@@ -65,20 +65,14 @@
         </property>
     </bean>
     
-    
-    <!-- AOP advice to restart methods with @RetryOnExceptionFixed annotation-->
-    <aop:config>
-        <aop:pointcut id="taskletRetryOnExceptionFixedPointcut" expression="execution(@edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed * *(..))"/>
-        <aop:advisor pointcut-ref="taskletRetryOnExceptionFixedPointcut" advice-ref="fixedBackoffTaskletRetryOnExceptionAdvice" />
-    </aop:config>
-    
     <!-- AOP advice to restart failed tasklets where restartable is set to true -->
     <aop:config>
         <aop:pointcut id="taskletRetryPointcut" expression="execution(org.springframework.batch.repeat.RepeatStatus execute(org.springframework.batch.core.StepContribution, org.springframework.batch.core.scope.context.ChunkContext))"/>
         <aop:advisor pointcut-ref="taskletRetryPointcut" advice-ref="fixedBackoffTaskletRetryOnExceptionAdvice" />
     </aop:config>
-
-    <bean id="fixedBackoffTaskletRetryOnExceptionAdvice"  class="org.springframework.retry.interceptor.RetryOperationsInterceptor">
+    
+    
+     <bean id="fixedBackoffTaskletRetryOnExceptionAdvice"  class="org.springframework.retry.interceptor.RetryOperationsInterceptor">
         <property name="retryOperations">
             <bean class="org.springframework.retry.support.RetryTemplate">
                 <property name="retryPolicy">
@@ -102,38 +96,7 @@
         </property>
     </bean>
     
-    <!-- AOP advice to restart methods with @RetryOnExceptionExponential annotation-->
     
-    <aop:config>
-		<aop:pointcut id="taskletRetryOnExceptionExponentialPointcut" 
-			expression="execution(@edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential * *(..))" />
-		<aop:advisor pointcut-ref="taskletRetryOnExceptionExponentialPointcut" advice-ref="exponentialBackoffTaskletRetryOnExceptionAdvice" />
-	</aop:config>
-
-	<bean id="exponentialBackoffTaskletRetryOnExceptionAdvice" class="org.springframework.retry.interceptor.RetryOperationsInterceptor">
-		<property name="retryOperations">
-			<bean class="org.springframework.retry.support.RetryTemplate">
-				<property name="retryPolicy">
-					<bean class="org.springframework.retry.policy.SimpleRetryPolicy">
-						<constructor-arg name="maxAttempts" value="${wasp.batch.retryOnException.exponential.maxattempts:1000000000}" />
-						<constructor-arg name="retryableExceptions">
-							<map>
-								<entry key="edu.yu.einstein.wasp.exception.TaskletRetryException" value="true" />
-								<entry key="org.springframework.dao.DeadlockLoserDataAccessException" value="true"/>
-							</map>
-						</constructor-arg>
-					</bean>
-				</property>
-				<property name="backOffPolicy">
-					<bean class="org.springframework.retry.backoff.ExponentialBackOffPolicy">
-						<property name="initialInterval" value="${wasp.batch.retryOnException.exponential.initialInterval:5000}" />
-						<property name="maxInterval" value="${wasp.batch.retryOnException.exponential.maxInterval:3600000}" />
-						<property name="multiplier" value="${wasp.batch.retryOnException.exponential.multiplier:2}" />
-					</bean>
-				</property>
-			</bean>
-		</property>
-	</bean>
 	
 	<bean id="manyPromotionListener" class="org.springframework.batch.core.listener.ExecutionContextPromotionListener" scope="step">
 		<property name="keys" value="tttesttt,#{T(edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager).PARENT_JOB_ID_KEY},#{T(edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager).PARENT_JOB_CHILD_LIST_KEY}" />

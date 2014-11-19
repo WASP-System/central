@@ -84,11 +84,10 @@ public class ListenForStatusTasklet extends WaspHibernatingTasklet implements Me
 	}
 	
 	@Override
-	@PostConstruct
-	protected void init() throws MessagingException{
+	public void afterPropertiesSet() throws Exception{
 		if (messageTemplates == null)
 			throw new MessagingException("No message templates defined to check against");
-		super.init();
+		super.afterPropertiesSet();
 	}
 	
 	@Override

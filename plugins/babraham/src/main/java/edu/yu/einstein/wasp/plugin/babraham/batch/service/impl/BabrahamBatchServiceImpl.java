@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.GridException;
@@ -23,16 +24,16 @@ import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
 import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.plugin.babraham.batch.service.BabrahamBatchService;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
-import edu.yu.einstein.wasp.plugin.babraham.service.impl.BabrahamServiceImpl;
+import edu.yu.einstein.wasp.plugin.babraham.service.impl.AbstractBabrahamServiceImpl;
 import edu.yu.einstein.wasp.plugin.babraham.software.BabrahamDataModule;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQC;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQCDataModule;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQScreen;
 import edu.yu.einstein.wasp.service.FileService;
 
-
+@Service
 @Transactional("entityManager")
-public class BabrahamBatchServiceImpl extends BabrahamServiceImpl implements BabrahamBatchService{
+public class BabrahamBatchServiceImpl extends AbstractBabrahamServiceImpl implements BabrahamBatchService{
 	
 	@Autowired
 	private GridHostResolver hostResolver;
