@@ -430,6 +430,13 @@ public interface FileService extends WaspService {
 	 * @param fileHandle
 	 */
 	public void remove(FileHandle fileHandle);
-
+	
+	/**
+	 * Adds (inner) child file groups to existing (outer) parental FileGroup and ensures persistence.
+	 * @paran parentalFileGroup (existing, outer or enclosing file group)
+	 * @param childFileGroupSet (child (inner) file groups to be added)
+	 * @return parentalFileGroup (entity-managed)
+	 */
+	public FileGroup addToFileGroupCollection(FileGroup parentFileGroup, Set<FileGroup> childFileGroupSet);
 }
 

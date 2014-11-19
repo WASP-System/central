@@ -2056,5 +2056,18 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		}
 		return localFile;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public FileGroup addToFileGroupCollection(FileGroup parentFileGroup, Set<FileGroup> childFileGroupSet){
+		
+		for (FileGroup childFg : childFileGroupSet){
+			childFg.setParent(parentFileGroup);
+			childFg = fileGroupDao.save(childFg); // will persist if not already or merge otherwise to ensure it is an attached entity
+		}
+		return fileGroupDao.getById(parentFileGroup.getId()); // get fresh copy to be sure children are hydrated
+	}
 }
 

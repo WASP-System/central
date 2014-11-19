@@ -47,9 +47,29 @@ public class Macstwo extends SoftwarePackage{
 	public Macstwo() {
 	}
 
+	
+	public WorkUnit getModel(String modelFileName, String pdfFileName, String pngFileName){
+		
+		WorkUnit w = prepareWorkUnit();	
+		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
+		sd.add(this.getSoftwareDependencyByIname("imagemagick"));
+		sd.add(this.getSoftwareDependencyByIname("rPackage"));
+		//we should already have determined that modelFileName exists
+		String new_command_1 = "Rscript " + modelFileName;
+		w.addCommand(new_command_1);
+		String new_command2 = "convert " +  pdfFileName + " -append " + pngFileName;
+		w.addCommand(new_command2);				
+		w.getConfiguration().setSoftwareDependencies(sd);
+
+		logger.debug("----commands have been set to workunit in Macstwo.getModel()");	
+	
+		return w;
+	}
+	
+	
 	//note: test is same as treated, in macs2-speak (from the immunoprecipitated sample)
 	public WorkUnit getPeaks(String peakType, int shortestReadLengthFromAllTestRuns, Sample ipSample, Sample controlSample, String prefixForFileName, List<FileHandle> testFileHandleList, List<FileHandle> controlFileHandleList, 
-			Map<String,Object> jobParametersMap, String modelFileName, String pdfFileName, String pngFileName){
+			Map<String,Object> jobParametersMap/*, String modelFileName, String pdfFileName, String pngFileName*/){
 		
 		Assert.assertTrue(!testFileHandleList.isEmpty());
 		
@@ -205,7 +225,11 @@ public class Macstwo extends SoftwarePackage{
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(this);
 		sd.add(this.getSoftwareDependencyByIname("samtools"));
-		sd.add(this.getSoftwareDependencyByIname("bedtools"));			
+		sd.add(this.getSoftwareDependencyByIname("bedtools"));
+		
+		
+		
+		/*
 		sd.add(this.getSoftwareDependencyByIname("imagemagick"));
 		sd.add(this.getSoftwareDependencyByIname("rPackage"));
 		//String new_command_1 = "Rscript " + prefixForFileName + "_model.r";
@@ -214,7 +238,10 @@ public class Macstwo extends SoftwarePackage{
 		//String new_command2 = "convert " +  prefixForFileName + "_model.pdf" + " -append " + prefixForFileName + "_model.png";
 		String new_command2 = "convert " +  pdfFileName + " -append " + pngFileName;
 		w.addCommand(new_command2);			
-			
+			*/
+		
+		
+		
 		w.getConfiguration().setSoftwareDependencies(sd);
 
 		logger.debug("----command has been set to workunit in getPeaks()");		

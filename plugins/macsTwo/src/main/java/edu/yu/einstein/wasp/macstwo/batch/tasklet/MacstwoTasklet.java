@@ -34,6 +34,8 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
 import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
+import edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters;
+import edu.yu.einstein.wasp.macstwo.service.MacstwoService;
 import edu.yu.einstein.wasp.macstwo.software.Macstwo;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
@@ -110,6 +112,8 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 	@Autowired
 	private Macstwo macs2;
 	
+	@Autowired
+	private MacstwoService macstwoService;
 
 	public MacstwoTasklet() {
 		// proxy
@@ -291,10 +295,12 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		logger.debug("prefixForFileName = " + prefixForFileName);
 		logger.debug("preparing to generate workunit");
 		
+/*	due to possible model building problem, move this elsewhere		
 		String modelFileName = prefixForFileName + "_model.r";
 		String pdfFileName = modelFileName.replaceAll(".r$", ".pdf");//abc_model.r will be used to generate abc_model.pdf
 		String pngFileName = modelFileName.replaceAll(".r$", ".png");//abc_model.pdf will be used to generate abc_model.png
-
+*/
+		
 		Build build = genomeService.getBuild(testSample);
 		String speciesName = build.getGenome().getOrganism().getName();//Homo sapiens
 		String speciesCode = "";//for Homo sapiens, species code will be hs
@@ -307,7 +313,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 			speciesCode = "";
 		}
 		
-		WorkUnit w = macs2.getPeaks(this.peakType, shortestReadLengthFromAllTestRuns, testSample, controlSample, prefixForFileName, testFileHandleList, controlFileHandleList, jobParametersMap, modelFileName, pdfFileName, pngFileName);//configure
+		WorkUnit w = macs2.getPeaks(this.peakType, shortestReadLengthFromAllTestRuns, testSample, controlSample, prefixForFileName, testFileHandleList, controlFileHandleList, jobParametersMap/*, modelFileName, pdfFileName, pngFileName*/);//configure
 		logger.debug("OK, workunit has been generated");
 		this.commandLineCall = w.getCommand();
 		this.commandLineCall = this.commandLineCall.replaceAll("\\n", "<br /><br />");//the workunit tagged on a newline at the end of the command; so remove it for db storage and replace with <br /> for display purposes
@@ -316,88 +322,88 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		LinkedHashSet<FileHandle> files = new LinkedHashSet<FileHandle>();
 		Set<FileGroup> macstwoEnclosedFileGroups = new LinkedHashSet<FileGroup>();
-///*	due to possible model building problem, move this elsewhere 	
+/*	due to possible model building problem, move this elsewhere 	
 		Imagemagick imagemagickSoftware = (Imagemagick) macs2.getSoftwareDependencyByIname("imagemagick"); 
 		R rSoftware = (R) macs2.getSoftwareDependencyByIname("rPackage");
 		this.softwareIdUsedListAsString = macs2.getId().toString() + ":" + rSoftware.getId().toString() + ":" + imagemagickSoftware.getId().toString();
-//*/
-//		//this.softwareIdUsedListAsString = macs2.getId().toString();
+*/
+		this.softwareIdUsedListAsString = macs2.getId().toString();
 
-///*	due to possible model building problem, move this elsewhere 	
-		FileHandle modelScriptFileHandle = createAndSaveInnerFileHandle(modelFileName, textFileType);
+/*	due to possible model building problem, move this elsewhere 	
+		FileHandle modelScriptFileHandle = macstwoService.createAndSaveInnerFileHandle(modelFileName, textFileType);
 		listOfFileHandleNames.add(modelScriptFileHandle.getFileName());
 		files.add(modelScriptFileHandle);
-		FileGroup modelScriptFileGroup = createAndSaveInnerFileGroup(modelScriptFileHandle, macs2, "xxx_model.r is a macs2-generated R script that can be converted into a pdf (using RScript) and illustrates the peak model");
+		FileGroup modelScriptFileGroup = macstwoService.createAndSaveInnerFileGroup(modelScriptFileHandle, macs2, "xxx_model.r is a macs2-generated R script that can be converted into a pdf (using RScript) and illustrates the peak model");
 		macstwoEnclosedFileGroups.add(modelScriptFileGroup);
-//*/		
-		FileHandle peaksXlsFileHandle = createAndSaveInnerFileHandle(prefixForFileName + "_peaks.xls", tsvFileType);
+*/		
+		FileHandle peaksXlsFileHandle = macstwoService.createAndSaveInnerFileHandle(prefixForFileName + "_peaks.xls", tsvFileType);
 		listOfFileHandleNames.add(peaksXlsFileHandle.getFileName());
 		files.add(peaksXlsFileHandle);
-		FileGroup peaksXlsFileGroup = createAndSaveInnerFileGroup(peaksXlsFileHandle, macs2, "xxx_peaks.xls is a Macs2-generated Excel-based tabular file which contains information about called peaks");
+		FileGroup peaksXlsFileGroup = macstwoService.createAndSaveInnerFileGroup(peaksXlsFileHandle, macs2, "xxx_peaks.xls is a Macs2-generated Excel-based tabular file which contains information about called peaks");
 		macstwoEnclosedFileGroups.add(peaksXlsFileGroup);
 		
 		//macs2 will generate peaks.narrowPeak and summits.bed for punctate peaks (so we will NOT invoke --broad in the macs2 command)
 		if(this.peakType.equalsIgnoreCase("punctate")){
 			
-			FileHandle narrowPeaksBedFileHandle = createAndSaveInnerFileHandle(prefixForFileName + "_peaks.narrowPeak", bedFileType);
+			FileHandle narrowPeaksBedFileHandle = macstwoService.createAndSaveInnerFileHandle(prefixForFileName + "_peaks.narrowPeak", bedFileType);
 			listOfFileHandleNames.add(narrowPeaksBedFileHandle.getFileName());
 			files.add(narrowPeaksBedFileHandle);
-			FileGroup narrowPeaksBedFileGroup = createAndSaveInnerFileGroup(narrowPeaksBedFileHandle, macs2, "xxx_peaks.narrowPeak is a Macs2-generated BED6+4 format file which contains peak locations together with peak summit, pvalue and qvalue that can be load into UCSC genome browser");
+			FileGroup narrowPeaksBedFileGroup = macstwoService.createAndSaveInnerFileGroup(narrowPeaksBedFileHandle, macs2, "xxx_peaks.narrowPeak is a Macs2-generated BED6+4 format file which contains peak locations together with peak summit, pvalue and qvalue that can be load into UCSC genome browser");
 			macstwoEnclosedFileGroups.add(narrowPeaksBedFileGroup);
 						
-			FileHandle summitsBedFileHandle = createAndSaveInnerFileHandle(prefixForFileName + "_summits.bed", bedFileType);
+			FileHandle summitsBedFileHandle = macstwoService.createAndSaveInnerFileHandle(prefixForFileName + "_summits.bed", bedFileType);
 			listOfFileHandleNames.add(summitsBedFileHandle.getFileName());
 			files.add(summitsBedFileHandle);
-			FileGroup summitsBedFileGroup = createAndSaveInnerFileGroup(summitsBedFileHandle, macs2, "xxx_summits.bed is Macs2-generated BED file which contains the peak summits locations for every peak and can be loaded into the UCSC genome browser");
+			FileGroup summitsBedFileGroup = macstwoService.createAndSaveInnerFileGroup(summitsBedFileHandle, macs2, "xxx_summits.bed is Macs2-generated BED file which contains the peak summits locations for every peak and can be loaded into the UCSC genome browser");
 			macstwoEnclosedFileGroups.add(summitsBedFileGroup);
 			
 		}
 		//macs2 will generate peaks.broadPeak and peaks.gappedPeaks for broad or mixed peaks (so we will invoke --broad in the macs2 command)
 		else{ //peakType.equals broad OR mixed
 			
-			FileHandle broadPeaksBedFileHandle = createAndSaveInnerFileHandle(prefixForFileName + "_peaks.broadPeak", bedFileType);
+			FileHandle broadPeaksBedFileHandle = macstwoService.createAndSaveInnerFileHandle(prefixForFileName + "_peaks.broadPeak", bedFileType);
 			listOfFileHandleNames.add(broadPeaksBedFileHandle.getFileName());
 			files.add(broadPeaksBedFileHandle);
-			FileGroup broadPeaksBedFileGroup = createAndSaveInnerFileGroup(broadPeaksBedFileHandle, macs2, "xxx_peaks.broadPeak is a Macs2-generated BED6+3 format file which is similar to peaks.narrowPeak file, except for missing the 10th column for annotating peak summits");
+			FileGroup broadPeaksBedFileGroup = macstwoService.createAndSaveInnerFileGroup(broadPeaksBedFileHandle, macs2, "xxx_peaks.broadPeak is a Macs2-generated BED6+3 format file which is similar to peaks.narrowPeak file, except for missing the 10th column for annotating peak summits");
 			macstwoEnclosedFileGroups.add(broadPeaksBedFileGroup);
 			
-			FileHandle gappedPeaksBedFileHandle = createAndSaveInnerFileHandle(prefixForFileName + "_peaks.gappedPeak", bedFileType);
+			FileHandle gappedPeaksBedFileHandle = macstwoService.createAndSaveInnerFileHandle(prefixForFileName + "_peaks.gappedPeak", bedFileType);
 			listOfFileHandleNames.add(gappedPeaksBedFileHandle.getFileName());
 			files.add(gappedPeaksBedFileHandle);
-			FileGroup gappedPeaksBedFileGroup = createAndSaveInnerFileGroup(gappedPeaksBedFileHandle, macs2, "xxx_peaks.gappedPeak is a Macs2-generated BED12+3 file which contains both the broad region and narrow peaks and can be loaded into the genome browser");
+			FileGroup gappedPeaksBedFileGroup = macstwoService.createAndSaveInnerFileGroup(gappedPeaksBedFileHandle, macs2, "xxx_peaks.gappedPeak is a Macs2-generated BED12+3 file which contains both the broad region and narrow peaks and can be loaded into the genome browser");
 			macstwoEnclosedFileGroups.add(gappedPeaksBedFileGroup);
 		}
 				
-		FileHandle treatPileupBedGraphFileHandle = createAndSaveInnerFileHandle(prefixForFileName + "_treat_pileup.bdg", bedGraphFileType);
+		FileHandle treatPileupBedGraphFileHandle = macstwoService.createAndSaveInnerFileHandle(prefixForFileName + "_treat_pileup.bdg", bedGraphFileType);
 		listOfFileHandleNames.add(treatPileupBedGraphFileHandle.getFileName());
 		files.add(treatPileupBedGraphFileHandle);
-		FileGroup treatPileupBedGraphFileGroup = createAndSaveInnerFileGroup(treatPileupBedGraphFileHandle, macs2, "xxx_treat_pileup.bdg is a Macs2-generated bedGraph file that describes the read distrubution along the entire genome (for treatment data) and can be imported to UCSC genome browser or converted into even smaller bigWig file");
+		FileGroup treatPileupBedGraphFileGroup = macstwoService.createAndSaveInnerFileGroup(treatPileupBedGraphFileHandle, macs2, "xxx_treat_pileup.bdg is a Macs2-generated bedGraph file that describes the read distrubution along the entire genome (for treatment data) and can be imported to UCSC genome browser or converted into even smaller bigWig file");
 		macstwoEnclosedFileGroups.add(treatPileupBedGraphFileGroup);
 						
-		FileHandle controlLambdaBedGraphFileHandle = createAndSaveInnerFileHandle(prefixForFileName + "_control_lambda.bdg", bedGraphFileType);
+		FileHandle controlLambdaBedGraphFileHandle = macstwoService.createAndSaveInnerFileHandle(prefixForFileName + "_control_lambda.bdg", bedGraphFileType);
 		listOfFileHandleNames.add(controlLambdaBedGraphFileHandle.getFileName());
 		files.add(controlLambdaBedGraphFileHandle);
-		FileGroup controlLambdaBedGraphFileGroup = createAndSaveInnerFileGroup(controlLambdaBedGraphFileHandle, macs2, "xxx_control_lambda.bdg is a Macs2-generated bedGraph file that describes the read distrubution along the entire genome (for local lambda values from control) and can be imported to UCSC genome browser or converted into even smaller bigWig file");
+		FileGroup controlLambdaBedGraphFileGroup = macstwoService.createAndSaveInnerFileGroup(controlLambdaBedGraphFileHandle, macs2, "xxx_control_lambda.bdg is a Macs2-generated bedGraph file that describes the read distrubution along the entire genome (for local lambda values from control) and can be imported to UCSC genome browser or converted into even smaller bigWig file");
 		macstwoEnclosedFileGroups.add(controlLambdaBedGraphFileGroup);
-///*	due to possible model building problem, move this elsewhere 			
+/*	due to possible model building problem, move this elsewhere 			
 		//the pdf (generated from running Rscript on xx_model.r file)
-		FileHandle modelPdfFileHandle = createAndSaveInnerFileHandle(pdfFileName, pdfFileType);
+		FileHandle modelPdfFileHandle = macstwoService.createAndSaveInnerFileHandle(pdfFileName, pdfFileType);
 		listOfFileHandleNames.add(modelPdfFileHandle.getFileName());
 		files.add(modelPdfFileHandle);
-		FileGroup modelPdfFileGroup = createAndSaveInnerFileGroup(modelPdfFileHandle, rSoftware, "xxx_model.pdf is a pdf file generated by running RScript against xxx_model.r and is an image of the read distribution in model peaks and fragment size estimation");
+		FileGroup modelPdfFileGroup = macstwoService.createAndSaveInnerFileGroup(modelPdfFileHandle, rSoftware, "xxx_model.pdf is a pdf file generated by running RScript against xxx_model.r and is an image of the read distribution in model peaks and fragment size estimation");
 		macstwoEnclosedFileGroups.add(modelPdfFileGroup);
 		
 		logger.debug("very very very very new -------   recorded fileGroup and fileHandle for rscript to create pdf in MacstwoGenerateModelAsPdfTasklet.doExecute()");
 
 		//the png (converted from the pdf using ImageMagick)
-		FileHandle modelPngFileHandle = createAndSaveInnerFileHandle(pngFileName, pngFileType);
+		FileHandle modelPngFileHandle = macstwoService.createAndSaveInnerFileHandle(pngFileName, pngFileType);
 		listOfFileHandleNames.add(modelPngFileHandle.getFileName());
 		files.add(modelPngFileHandle);
-		FileGroup modelPngFileGroup = createAndSaveInnerFileGroup(modelPngFileHandle, imagemagickSoftware, "xxx_model.png is a png image file converted from xxx_model.pdf using ImageMagick");
+		FileGroup modelPngFileGroup = macstwoService.createAndSaveInnerFileGroup(modelPngFileHandle, imagemagickSoftware, "xxx_model.png is a png image file converted from xxx_model.pdf using ImageMagick");
 		macstwoEnclosedFileGroups.add(modelPngFileGroup);	
 		
 		logger.debug("very very very very new ------- recorded fileGroup and fileHandle for ImageMagick to create png in MacstwoGenerateModelAsPdfTasklet.doExecute()");
-//*/		
+*/		
 		//9/16/14
 		FileGroup macs2AnalysisFileGroup = fileService.createFileGroupCollection(macstwoEnclosedFileGroups);//will create enclosing fileGroup, save it to db, and also set/save parent for each enclosed child fileGroup; it will set it's own filetype
 		macs2AnalysisFileGroup.setDescription(prefixForFileName);
@@ -426,7 +432,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		
 		stepContext.put("commandLineCall", this.commandLineCall);
 		logger.debug("saved variables in stepContext in case of crash in MacstwoTasklet.doExecute()");
-
+		
 		w.setResultFiles(files);
 		
 		logger.debug("executed w.getResultFiles().add(x) for " + files.size() + " FileHandles");
@@ -445,6 +451,14 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 
 		GridResult result = gridHostResolver.execute(w);
 		logger.debug("****Executed gridHostResolver.execute(w) in MactwoTasklet.doExecute()");
+		
+		//these will be promoted if necessary to deal with Rscript and imagemagic if model is generated; they will be used in subsequent tasklet if model is generated
+		stepContext.put(MacstwoSoftwareJobParameters.JOB_ID_AS_STRING, jobId.toString());//may not actually be required
+		stepContext.put(MacstwoSoftwareJobParameters.PREFIX_FOR_FILE_NAME, prefixForFileName);
+		stepContext.put(MacstwoSoftwareJobParameters.MACSTWO_ANALYSIS_FILEGROUP_ID_AS_STRING, macs2AnalysisFileGroupId.toString());
+		stepContext.put(MacstwoSoftwareJobParameters.WORKING_DIRECTORY, result.getWorkingDirectory());
+		stepContext.put(MacstwoSoftwareJobParameters.RESULTS_DIRECTORY, result.getResultsDirectory());
+		
 		return result;
 	
 	}
@@ -635,6 +649,8 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 
 		logger.debug("ending doPreFinish() in MacstwoTasklet");
 	}
+	
+	/* moved to macstwoService
 	private FileHandle createAndSaveInnerFileHandle(String fileName, FileType fileType){
 		FileHandle fileHandle = new FileHandle();
 		fileHandle.setFileName(fileName);
@@ -655,7 +671,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		fileGroup = fileService.addFileGroup(fileGroup);		
 		return fileGroup;
 	}
-
+	 */
 	@Override
 	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
 		// TODO Auto-generated method stub
