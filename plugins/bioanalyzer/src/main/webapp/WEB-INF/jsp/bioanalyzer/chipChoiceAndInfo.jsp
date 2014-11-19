@@ -11,7 +11,7 @@
 <div class="instructions">
 	<fmt:message key="bioanalyzer.chipChoiceAndInfo_instruction.label" />
 </div>
-<div style="border:1px solid red;">
+<div style="border:1px solid red; padding-left: 15px;">
 	<h2><fmt:message key="bioanalyzer.chipChoiceAndInfo_availableChips.label" /></h2>
 	<span style="font-weight:bold"><fmt:message key="bioanalyzer.chipChoiceAndInfo_bioanalyzerChipHighSensitivity.label" />:</span> <fmt:message key="bioanalyzer.chipChoiceAndInfo_bioanalyzerChipHighSensitivityUse.label" /><br />
 	<span style="margin-left:30px"><fmt:message key="bioanalyzer.chipChoiceAndInfo_bioanalyzerChipHighSensitivityAssays.label" /><br /><br />

@@ -17,8 +17,8 @@
     <property name="sourceList">
      	<list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
 	        <!-- bioanalyzer Specific -->
-	        
-		    <bean parent="bioanalyzerLibraryUiFieldWrapper">
+	     
+ 		    <bean parent="bioanalyzerLibraryUiFieldWrapper">
 	          <property name="baseName" value="size" />
 	          <property name="label" value="bioanalyzerLib.averageLibSize.label" /> <!-- This is asking for AVERAGE library size-->
 	          <property name="metaposition" value="10" />

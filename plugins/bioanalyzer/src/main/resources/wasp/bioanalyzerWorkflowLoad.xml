@@ -55,7 +55,11 @@
         <bean parent="bioanalyzerUiFieldWrapper">
           <property name="baseName" value="bioanalyzer/chipChoiceAndInfo" />
           <property name="label" value="bioanalyzer.chipChoiceAndInfo.title" />
-        </bean>       
+        </bean> 
+        <bean parent="bioanalyzerUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/samples" />
+          <property name="label" value="bioanalyzer.samples.title" />
+        </bean>      
        <bean parent="bioanalyzerUiFieldWrapper">
           <property name="baseName" value="jobsubmit/comment" />
           <property name="label" value="bioanalyzer.comments.title" />

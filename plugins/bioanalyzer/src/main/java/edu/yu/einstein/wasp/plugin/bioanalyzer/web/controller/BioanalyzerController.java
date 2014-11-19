@@ -177,7 +177,8 @@ public class BioanalyzerController extends WaspController {
 		availableBioanalyzerChipList.add(messageService.getMessage("bioanalyzer.create_bioanalyzerChip7500.label"));
 		availableBioanalyzerChipList.add(messageService.getMessage("bioanalyzer.create_bioanalyzerChip1000.label"));
 		m.put("availableBioanalyzerChipList", availableBioanalyzerChipList);
-		
+		m.put("userSelectedBioanalyzerChip", bioanalyzerService.getMeta(jobDraft, bioanalyzerService.bioanalyzerChipMeta));
+		m.put("assayLibrariesAreFor", bioanalyzerService.getMeta(jobDraft, bioanalyzerService.bioanalyzerAssayLibrariesAreForMeta));
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
 		
 		return "bioanalyzer/chipChoiceAndInfo";
@@ -215,8 +216,12 @@ public class BioanalyzerController extends WaspController {
 			return "bioanalyzer/chipChoiceAndInfo";
 		}
 		
-		bioanalyzerService.saveOrUpdateMeta(jobDraft, bioanalyzerService.bioanalyzerChipMeta, bioanalyzerChip);
-		bioanalyzerService.saveOrUpdateMeta(jobDraft, bioanalyzerService.bioanalyzerAssayLibrariesAreForMeta, assayLibrariesAreFor.trim());
+		bioanalyzerService.saveOrUpdateJobDraftMeta(jobDraft, bioanalyzerService.bioanalyzerChipMeta, bioanalyzerChip);
+		bioanalyzerService.saveOrUpdateJobDraftMeta(jobDraft, bioanalyzerService.bioanalyzerAssayLibrariesAreForMeta, assayLibrariesAreFor.trim());
+		
+		//have to do this next line somewhere; this is best place for it:
+		//set isAnalysisSelected to false; bioanalyzer workflow does NOT require it (default setting is true)
+		jobDraftService.setIsAnalysisSelected(jobDraft, false);
 		
 		waspMessage("bioanalyzer.chipChoiceAndInfo_updateSuccessfullyRecorded.error");
 		return nextPage(jobDraft);

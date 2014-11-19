@@ -4,6 +4,7 @@
  */
 package edu.yu.einstein.wasp.plugin.bioanalyzer.service;
 
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.service.WaspService;
 
@@ -23,5 +24,7 @@ public interface BioanalyzerService extends WaspService {
 		 */
 		public String performAction();
 
-		public void saveOrUpdateMeta (JobDraft jobDraft, String metaK, String metaV);
+		public void saveOrUpdateJobDraftMeta (JobDraft jobDraft, String metaK, String metaV);
+		public String getMeta(JobDraft jobDraft, String metaK);
+		public String getMeta(Job job, String metaK);
 }
