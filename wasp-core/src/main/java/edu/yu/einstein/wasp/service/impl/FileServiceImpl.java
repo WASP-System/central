@@ -1040,6 +1040,9 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 			s.getFileGroups().remove(fileGroup);
 		for (FileHandle fh : fileGroup.getFileHandles())
 			fileGroup.getFileHandles().remove(fh);
+		for (FileGroup fg : fileGroup.getBegat())
+			fg.getChildren().remove(fileGroup);
+		fileGroup.getChildren().clear();
 		fileGroupDao.remove(fileGroup);
 	}
 	
