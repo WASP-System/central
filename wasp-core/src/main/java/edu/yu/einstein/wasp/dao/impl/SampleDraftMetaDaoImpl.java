@@ -107,41 +107,41 @@ public class SampleDraftMetaDaoImpl extends WaspMetaDaoImpl<SampleDraftMeta> imp
 	public Map<SampleSubtype,List<SampleDraftMeta>> getAllowableMetaFields(final int workflowId) {
 		
 	   String sql=
-		   "select master.area,master.name,master.pos,label.attrValue as label,error.attrValue as error,\n"+ 
-		   "control.attrValue as control,suffix.attrValue as suffix,constr.attrValue as 'constraint',\n"+
-		   "type.attrValue as `type`,\n"+
-		   "range.attrValue as `range`,\n"+
+		   "SELECT master.area, master.name, master.pos, label.attrValue AS label, error.attrValue AS error,\n"+ 
+		   "control.attrValue AS control, suffix.attrValue AS suffix, constr.attrValue AS 'constraint',\n"+
+		   "type.attrValue AS `type`,\n"+
+		   "range.attrValue AS `range`,\n"+
 		   "master.samplesubtypeid, master.sampletypeid, master.subtypeName, master.arealist\n"+
-		   "from \n"+
-		   "(select distinct f.area,f.name,convert(f.attrValue, signed) pos, st.id, st.sampletypeid, st.name as subtypeName, st.arealist as arealist\n"+
-		   "from samplesubtype st\n"+					   
-		   "join uifield f on  (\n"+
-		   "st.arealist regexp concat('^\\s*' , f.area , '\\s*$') or\n"+
-		   "st.arealist regexp concat('^\\s*' , f.area , '\\s*,') or\n"+
-		   "st.arealist regexp concat(',\\s*' , f.area , '\\s*,') or\n"+
+		   "FROM \n"+
+		   "(SELECT DISTINCT f.area, f.name, convert(f.attrValue, signed) pos, st.id, st.sampletypeid, st.name AS subtypeName, st.arealist AS arealist\n"+
+		   "FROM SampleSubtype st\n"+					   
+		   "JOIN UiField f ON  (\n"+
+		   "st.arealist regexp concat('^\\s*' , f.area , '\\s*$') OR\n"+
+		   "st.arealist regexp concat('^\\s*' , f.area , '\\s*,') OR\n"+
+		   "st.arealist regexp concat(',\\s*' , f.area , '\\s*,') OR\n"+
 		   "st.arealist regexp concat(',\\s*' , f.area , '\\s*$') )\n"+
-		   "and f.attrName='metaposition'\n"+
-		   "and f.locale='en_US'\n"+
-		   "where st.id in (\n"+
-		   "select st.id samplesubtypeid\n"+
-		   "from workflowSampleSubtype wst\n"+
-		   "join samplesubtype st on st.id = wst.samplesubtypeid\n"+
-		   "where wst.workflowid=:workflowid\n"+
+		   "AND f.attrName='metaposition'\n"+
+		   "AND f.locale='en_US'\n"+
+		   "WHERE st.id in (\n"+
+		   "SELECT st.id samplesubtypeid\n"+
+		   "FROM WorkflowSampleSubtype wst\n"+
+		   "JOIN samplesubtype st on st.id = wst.samplesubtypeid\n"+
+		   "WHERE wst.workflowid=:workflowid\n"+
 		   ")\n"+
-		   ") as master\n"+
-		   "left outer join uifield label on master.area=label.area and master.name=label.name and label.attrName='label'\n"+
-		   "left outer join uifield error on master.area=error.area and master.name=error.name and error.attrName='error'\n"+
-		   "left outer join uifield control on master.area=control.area and master.name=control.name and control.attrName='control'\n"+
-		   "left outer join uifield suffix on master.area=suffix.area and master.name=suffix.name and suffix.attrName='suffix'\n"+
-		   "left outer join uifield constr on master.area=constr.area and master.name=constr.name and constr.attrName='constraint'\n"+
-		   "left outer join uifield `type` on master.area=type.area and master.name=type.name and type.attrName='type'\n"+
-		   "left outer join uifield `range` on master.area=range.area and master.name=range.name and range.attrName='range'\n"+
-		   "order by master.sampleSubtypeId,master.area,master.pos;\n";
+		   ") AS master\n"+
+		   "LEFT OUTER JOIN uifield label ON master.area=label.area AND master.name=label.name AND label.attrName='label'\n"+
+		   "LEFT OUTER JOIN uifield error ON master.area=error.area AND master.name=error.name AND error.attrName='error'\n"+
+		   "LEFT OUTER JOIN uifield control ON master.area=control.area AND master.name=control.name AND control.attrName='control'\n"+
+		   "LEFT OUTER JOIN uifield suffix ON master.area=suffix.area AND master.name=suffix.name AND suffix.attrName='suffix'\n"+
+		   "LEFT OUTER JOIN uifield constr ON master.area=constr.area AND master.name=constr.name AND constr.attrName='constraint'\n"+
+		   "LEFT OUTER JOIN uifield `type` ON master.area=type.area AND master.name=type.name AND type.attrName='type'\n"+
+		   "LEFT OUTER JOIN uifield `range` ON master.area=range.area AND master.name=range.name AND range.attrName='range'\n"+
+		   "ORDER BY master.sampleSubtypeId, master.area,master.pos;\n";
 
 	   
 	   Map<SampleSubtype,List<SampleDraftMeta>> result=new LinkedHashMap<SampleSubtype,List<SampleDraftMeta>>();
 	   Map<SampleSubtype, Map<String,List<SampleDraftMeta>> > tmp = new LinkedHashMap<SampleSubtype, Map<String,List<SampleDraftMeta>> >();
-	   List<Object[]> listObj=entityManager.createNativeQuery(sql).setParameter("workflowid", workflowId).getResultList();
+	   List<Object[]> listObj=entityManager.createQuery(sql).setParameter("workflowid", workflowId).getResultList();
 	   List<SampleSubtype> loggedInUserAccessibleSampleSubtypes = sampleService.getSampleSubtypesForWorkflowByLoggedInUserRoles(workflowId);
 	   for(Object[] o:listObj) {
 		   
