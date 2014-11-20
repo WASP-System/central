@@ -112,26 +112,25 @@ public class MacstwoTaskletModel extends WaspRemotingTasklet implements StepExec
 		logger.debug("Starting MacstwoTaskletModel execute");
 		
 		JobExecution jobExecution = this.stepExecution.getJobExecution();
-		JobParameters jobParameters = jobExecution.getJobParameters();
-		Map<String, JobParameter> map = jobParameters.getParameters();
-		
-		if(map.containsKey(MacstwoSoftwareJobParameters.JOB_ID_AS_STRING)){
-			this.jobIdAsString = (String) map.get(MacstwoSoftwareJobParameters.JOB_ID_AS_STRING).getValue();
+		ExecutionContext executionContext = jobExecution.getExecutionContext();
+				
+		if(executionContext.containsKey(MacstwoSoftwareJobParameters.JOB_ID_AS_STRING)){
+			this.jobIdAsString = (String) executionContext.get(MacstwoSoftwareJobParameters.JOB_ID_AS_STRING);
 			this.jobId = Integer.parseInt(jobIdAsString);
 			this.job = jobService.getJobByJobId(jobId);
 		}
-		if(map.containsKey(MacstwoSoftwareJobParameters.PREFIX_FOR_FILE_NAME)){
-			this.prefixForFileName = (String) map.get(MacstwoSoftwareJobParameters.PREFIX_FOR_FILE_NAME).getValue();
+		if(executionContext.containsKey(MacstwoSoftwareJobParameters.PREFIX_FOR_FILE_NAME)){
+			this.prefixForFileName = (String) executionContext.get(MacstwoSoftwareJobParameters.PREFIX_FOR_FILE_NAME);
 		}		
-		if(map.containsKey(MacstwoSoftwareJobParameters.MACSTWO_ANALYSIS_FILEGROUP_ID_AS_STRING)){
-			this.macs2AnalysisFileGroupIdAsString = (String) map.get(MacstwoSoftwareJobParameters.MACSTWO_ANALYSIS_FILEGROUP_ID_AS_STRING).getValue();
+		if(executionContext.containsKey(MacstwoSoftwareJobParameters.MACSTWO_ANALYSIS_FILEGROUP_ID_AS_STRING)){
+			this.macs2AnalysisFileGroupIdAsString = (String) executionContext.get(MacstwoSoftwareJobParameters.MACSTWO_ANALYSIS_FILEGROUP_ID_AS_STRING);
 			macs2AnalysisFileGroupId = Integer.parseInt(macs2AnalysisFileGroupIdAsString);
 		}		
-		if(map.containsKey(MacstwoSoftwareJobParameters.WORKING_DIRECTORY)){
-			this.workingDirectory = (String) map.get(MacstwoSoftwareJobParameters.WORKING_DIRECTORY).getValue();
+		if(executionContext.containsKey(MacstwoSoftwareJobParameters.WORKING_DIRECTORY)){
+			this.workingDirectory = (String) executionContext.get(MacstwoSoftwareJobParameters.WORKING_DIRECTORY);
 		}		
-		if(map.containsKey(MacstwoSoftwareJobParameters.RESULTS_DIRECTORY)){
-			this.resultsDirectory = (String) map.get(MacstwoSoftwareJobParameters.RESULTS_DIRECTORY).getValue();
+		if(executionContext.containsKey(MacstwoSoftwareJobParameters.RESULTS_DIRECTORY)){
+			this.resultsDirectory = (String) executionContext.get(MacstwoSoftwareJobParameters.RESULTS_DIRECTORY);
 		}
 		logger.debug("in MacstwoTaskletModel.doExecute this.jobIdAsString: " + this.jobIdAsString);
 		logger.debug("in MacstwoTaskletModel.doExecute this.jobId (an integer.tostring()): " + this.jobId.toString());

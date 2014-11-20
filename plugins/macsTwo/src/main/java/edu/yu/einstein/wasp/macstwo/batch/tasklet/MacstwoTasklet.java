@@ -454,11 +454,14 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		logger.debug("****Executed gridHostResolver.execute(w) in MactwoTasklet.doExecute()");
 		
 		//these will be promoted if necessary to deal with Rscript and imagemagic if model is generated; they will be used in subsequent tasklet if model is generated
-		stepContext.put(MacstwoSoftwareJobParameters.JOB_ID_AS_STRING, jobId.toString());//may not actually be required
-		stepContext.put(MacstwoSoftwareJobParameters.PREFIX_FOR_FILE_NAME, prefixForFileName);
-		stepContext.put(MacstwoSoftwareJobParameters.MACSTWO_ANALYSIS_FILEGROUP_ID_AS_STRING, macs2AnalysisFileGroupId.toString());
-		stepContext.put(MacstwoSoftwareJobParameters.WORKING_DIRECTORY, result.getWorkingDirectory());
-		stepContext.put(MacstwoSoftwareJobParameters.RESULTS_DIRECTORY, result.getResultsDirectory());
+		stepContext.put(MacstwoSoftwareJobParameters.NAME_OF_FILE_WHOSE_CREATION_MUST_BE_CONFIRMED, prefixForFileName + "_model.r");//this one doesn't need to be promoted; it's only used below in doPreFinish
+		stepContext.put(MacstwoSoftwareJobParameters.IS_MODEL_FILE_CREATED, "false");//promote; note value is reset in doPreFinish()
+		
+		stepContext.put(MacstwoSoftwareJobParameters.JOB_ID_AS_STRING, jobId.toString());//promote; may not actually be required
+		stepContext.put(MacstwoSoftwareJobParameters.PREFIX_FOR_FILE_NAME, prefixForFileName);//promote
+		stepContext.put(MacstwoSoftwareJobParameters.MACSTWO_ANALYSIS_FILEGROUP_ID_AS_STRING, macs2AnalysisFileGroupId.toString());//promote
+		stepContext.put(MacstwoSoftwareJobParameters.WORKING_DIRECTORY, result.getWorkingDirectory());//promote
+		stepContext.put(MacstwoSoftwareJobParameters.RESULTS_DIRECTORY, result.getResultsDirectory());//promote
 		
 		return result;
 	
@@ -528,6 +531,9 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		this.macs2AnalysisFileGroupId = (Integer) stepContext.get("macs2AnalysisFileGroupId");
 		this.softwareIdUsedListAsString = (String) stepContext.get("softwareIdUsedListAsString");
 		
+		String nameOfFileWhoseCreationMustBeConfirmed = (String) stepContext.get(MacstwoSoftwareJobParameters.NAME_OF_FILE_WHOSE_CREATION_MUST_BE_CONFIRMED);
+		String isModelFileCreated = "false";
+		
 		// associate test sample with the new file groups		
 		Sample testSample = sampleService.getSampleById(testSampleId);		
 		
@@ -550,7 +556,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 			WorkUnit w = new WorkUnit(c);
 			w.addCommand("cat totalCountMappedReads.txt");//will appear on first line of output
 			w.addCommand("cat totalCountMappedReadsInPeaks.txt");//will appear on second line of output
-			
+			w.addCommand("[ -f " + nameOfFileWhoseCreationMustBeConfirmed + " ] && echo true || echo false");
 			GridResult r = transportConnection.sendExecToRemote(w);
 			InputStream is = r.getStdOutStream();
 			BufferedReader br = new BufferedReader(new InputStreamReader(is)); 
@@ -570,6 +576,11 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 					} else if (lineNumber == 2){
 						totalCountMappedReadsInPeaksAsString = line.replaceAll("\\n", "");//just in case there is a trailing new line;
 						logger.debug("totalCountMappedReadsInPeaksAsString = " + totalCountMappedReadsInPeaksAsString);
+					} else if (lineNumber == 3){
+						isModelFileCreated = line.replaceAll("\\n", "");//just in case there is a trailing new line;
+						logger.debug("isModelFileCreated = " + isModelFileCreated);
+						//update this (decider will act on this information):
+						stepContext.put(MacstwoSoftwareJobParameters.IS_MODEL_FILE_CREATED, isModelFileCreated);
 					} else {
 						keepReading = false;
 					}
@@ -578,8 +589,8 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 			br.close();
 			
 		} catch (Exception e) {
-			logger.debug("unable to get totalCountMappedReads.txt value and/or totalCountMappedReadsInPeaks.txt in MacsTwo");
-		} 
+			logger.debug("unable to get totalCountMappedReads.txt value and/or totalCountMappedReadsInPeaks.txt in MacsTwo or isModelFileCreated");
+		} 		
 		
 		logger.debug("getting ready to save testSample metadata  in MacstwoTasklet");
 		
