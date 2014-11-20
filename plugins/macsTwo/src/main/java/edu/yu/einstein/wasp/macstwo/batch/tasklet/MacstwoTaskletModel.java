@@ -114,23 +114,23 @@ public class MacstwoTaskletModel extends WaspRemotingTasklet implements StepExec
 		JobExecution jobExecution = this.stepExecution.getJobExecution();
 		ExecutionContext executionContext = jobExecution.getExecutionContext();
 				
-		if(executionContext.containsKey(MacstwoSoftwareJobParameters.JOB_ID_AS_STRING)){
-			this.jobIdAsString = (String) executionContext.get(MacstwoSoftwareJobParameters.JOB_ID_AS_STRING);
+		if(executionContext.containsKey(MacstwoService.JOB_ID_AS_STRING)){
+			this.jobIdAsString = (String) executionContext.get(MacstwoService.JOB_ID_AS_STRING);
 			this.jobId = Integer.parseInt(jobIdAsString);
 			this.job = jobService.getJobByJobId(jobId);
 		}
-		if(executionContext.containsKey(MacstwoSoftwareJobParameters.PREFIX_FOR_FILE_NAME)){
-			this.prefixForFileName = (String) executionContext.get(MacstwoSoftwareJobParameters.PREFIX_FOR_FILE_NAME);
+		if(executionContext.containsKey(MacstwoService.PREFIX_FOR_FILE_NAME)){
+			this.prefixForFileName = (String) executionContext.get(MacstwoService.PREFIX_FOR_FILE_NAME);
 		}		
-		if(executionContext.containsKey(MacstwoSoftwareJobParameters.MACSTWO_ANALYSIS_FILEGROUP_ID_AS_STRING)){
-			this.macs2AnalysisFileGroupIdAsString = (String) executionContext.get(MacstwoSoftwareJobParameters.MACSTWO_ANALYSIS_FILEGROUP_ID_AS_STRING);
+		if(executionContext.containsKey(MacstwoService.MACSTWO_ANALYSIS_FILEGROUP_ID_AS_STRING)){
+			this.macs2AnalysisFileGroupIdAsString = (String) executionContext.get(MacstwoService.MACSTWO_ANALYSIS_FILEGROUP_ID_AS_STRING);
 			macs2AnalysisFileGroupId = Integer.parseInt(macs2AnalysisFileGroupIdAsString);
 		}		
-		if(executionContext.containsKey(MacstwoSoftwareJobParameters.WORKING_DIRECTORY)){
-			this.workingDirectory = (String) executionContext.get(MacstwoSoftwareJobParameters.WORKING_DIRECTORY);
+		if(executionContext.containsKey(MacstwoService.WORKING_DIRECTORY)){
+			this.workingDirectory = (String) executionContext.get(MacstwoService.WORKING_DIRECTORY);
 		}		
-		if(executionContext.containsKey(MacstwoSoftwareJobParameters.RESULTS_DIRECTORY)){
-			this.resultsDirectory = (String) executionContext.get(MacstwoSoftwareJobParameters.RESULTS_DIRECTORY);
+		if(executionContext.containsKey(MacstwoService.RESULTS_DIRECTORY)){
+			this.resultsDirectory = (String) executionContext.get(MacstwoService.RESULTS_DIRECTORY);
 		}
 		logger.debug("in MacstwoTaskletModel.doExecute this.jobIdAsString: " + this.jobIdAsString);
 		logger.debug("in MacstwoTaskletModel.doExecute this.jobId (an integer.tostring()): " + this.jobId.toString());

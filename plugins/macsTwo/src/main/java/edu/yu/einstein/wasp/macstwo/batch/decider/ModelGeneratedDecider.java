@@ -8,7 +8,7 @@ import org.springframework.batch.core.job.flow.FlowExecutionStatus;
 import org.springframework.batch.core.job.flow.JobExecutionDecider;
 import org.springframework.batch.item.ExecutionContext;
 
-import edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters;
+import edu.yu.einstein.wasp.macstwo.service.MacstwoService;
 
 public class ModelGeneratedDecider implements JobExecutionDecider {
 	
@@ -18,10 +18,11 @@ public class ModelGeneratedDecider implements JobExecutionDecider {
 	public FlowExecutionStatus decide(JobExecution jobExecution, StepExecution stepExecution) {
 		ExecutionContext executionContext = jobExecution.getExecutionContext();
 		
-		String isModelGenerated = (String) executionContext.get(MacstwoSoftwareJobParameters.IS_MODEL_FILE_CREATED);
+		String isModelGenerated = (String) executionContext.get(MacstwoService.IS_MODEL_FILE_CREATED);
 		
-		if (isModelGenerated != null){			
-	            return new FlowExecutionStatus(isModelGenerated);	       
+		if (isModelGenerated != null){	
+			logger.warn("in ModelGeneratedDecider.decide(), isModelGenerated is not null and it has a value of: " + isModelGenerated);
+	        return new FlowExecutionStatus(isModelGenerated);	       
 		}
 		logger.warn("isModelGenerated=" + isModelGenerated + " so returning 'UNKNOWN'");
 		return FlowExecutionStatus.UNKNOWN;

@@ -454,14 +454,14 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		logger.debug("****Executed gridHostResolver.execute(w) in MactwoTasklet.doExecute()");
 		
 		//these will be promoted if necessary to deal with Rscript and imagemagic if model is generated; they will be used in subsequent tasklet if model is generated
-		stepContext.put(MacstwoSoftwareJobParameters.NAME_OF_FILE_WHOSE_CREATION_MUST_BE_CONFIRMED, prefixForFileName + "_model.r");//this one doesn't need to be promoted; it's only used below in doPreFinish
-		stepContext.put(MacstwoSoftwareJobParameters.IS_MODEL_FILE_CREATED, "false");//promote; note value is reset in doPreFinish()
+		stepContext.put(MacstwoService.NAME_OF_FILE_WHOSE_CREATION_MUST_BE_CONFIRMED, prefixForFileName + "_model.r");//this one doesn't need to be promoted; it's only used below in doPreFinish
+		stepContext.put(MacstwoService.IS_MODEL_FILE_CREATED, "false");//promote; note value is reset in doPreFinish()
 		
-		stepContext.put(MacstwoSoftwareJobParameters.JOB_ID_AS_STRING, jobId.toString());//promote; may not actually be required
-		stepContext.put(MacstwoSoftwareJobParameters.PREFIX_FOR_FILE_NAME, prefixForFileName);//promote
-		stepContext.put(MacstwoSoftwareJobParameters.MACSTWO_ANALYSIS_FILEGROUP_ID_AS_STRING, macs2AnalysisFileGroupId.toString());//promote
-		stepContext.put(MacstwoSoftwareJobParameters.WORKING_DIRECTORY, result.getWorkingDirectory());//promote
-		stepContext.put(MacstwoSoftwareJobParameters.RESULTS_DIRECTORY, result.getResultsDirectory());//promote
+		stepContext.put(MacstwoService.JOB_ID_AS_STRING, jobId.toString());//promote; may not actually be required
+		stepContext.put(MacstwoService.PREFIX_FOR_FILE_NAME, prefixForFileName);//promote
+		stepContext.put(MacstwoService.MACSTWO_ANALYSIS_FILEGROUP_ID_AS_STRING, macs2AnalysisFileGroupId.toString());//promote
+		stepContext.put(MacstwoService.WORKING_DIRECTORY, result.getWorkingDirectory());//promote
+		stepContext.put(MacstwoService.RESULTS_DIRECTORY, result.getResultsDirectory());//promote
 		
 		return result;
 	
@@ -531,7 +531,8 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		this.macs2AnalysisFileGroupId = (Integer) stepContext.get("macs2AnalysisFileGroupId");
 		this.softwareIdUsedListAsString = (String) stepContext.get("softwareIdUsedListAsString");
 		
-		String nameOfFileWhoseCreationMustBeConfirmed = (String) stepContext.get(MacstwoSoftwareJobParameters.NAME_OF_FILE_WHOSE_CREATION_MUST_BE_CONFIRMED);
+		String nameOfFileWhoseCreationMustBeConfirmed = (String) stepContext.get(MacstwoService.NAME_OF_FILE_WHOSE_CREATION_MUST_BE_CONFIRMED);
+		logger.trace("nameOfFileWhoseCreationMustBeConfirmed: " + nameOfFileWhoseCreationMustBeConfirmed);
 		String isModelFileCreated = "false";
 		
 		// associate test sample with the new file groups		
@@ -580,7 +581,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 						isModelFileCreated = line.replaceAll("\\n", "");//just in case there is a trailing new line;
 						logger.debug("isModelFileCreated = " + isModelFileCreated);
 						//update this (decider will act on this information):
-						stepContext.put(MacstwoSoftwareJobParameters.IS_MODEL_FILE_CREATED, isModelFileCreated);
+						stepContext.put(MacstwoService.IS_MODEL_FILE_CREATED, isModelFileCreated);
 					} else {
 						keepReading = false;
 					}

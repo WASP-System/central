@@ -29,7 +29,7 @@
 				<batch:listeners>
 					<batch:listener>
 						<bean id="macstwoPromotionListener" class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
-							<property name="keys" value="#{T(edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters).IS_MODEL_FILE_CREATED}, #{T(edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters).JOB_ID_AS_STRING}, #{T(edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters).PREFIX_FOR_FILE_NAME}, #{T(edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters).MACSTWO_ANALYSIS_FILEGROUP_ID_AS_STRING}, #{T(edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters).WORKING_DIRECTORY}, #{T(edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters).RESULTS_DIRECTORY}"  />
+							<property name="keys" value="#{T(edu.yu.einstein.wasp.macstwo.service.MacstwoService).IS_MODEL_FILE_CREATED}, #{T(edu.yu.einstein.wasp.macstwo.service.MacstwoService).JOB_ID_AS_STRING}, #{T(edu.yu.einstein.wasp.macstwo.service.MacstwoService).PREFIX_FOR_FILE_NAME}, #{T(edu.yu.einstein.wasp.macstwo.service.MacstwoService).MACSTWO_ANALYSIS_FILEGROUP_ID_AS_STRING}, #{T(edu.yu.einstein.wasp.macstwo.service.MacstwoService).WORKING_DIRECTORY}, #{T(edu.yu.einstein.wasp.macstwo.service.MacstwoService).RESULTS_DIRECTORY}"  />
 							<property name="statuses" value="COMPLETED,FAILED" />
 						</bean>						
 					</batch:listener>
