@@ -53,10 +53,8 @@ public class SshFileService implements GridFileService {
 			
 			@Override
 			public void log(int level, String message) {
-				if (level == com.jcraft.jsch.Logger.DEBUG)
+				if (level == com.jcraft.jsch.Logger.DEBUG || level == com.jcraft.jsch.Logger.INFO) // info is still too verbose for us
 					logger.debug(message);
-				else if (level == com.jcraft.jsch.Logger.INFO)
-					logger.info(message);
 				else if (level == com.jcraft.jsch.Logger.ERROR || level == com.jcraft.jsch.Logger.FATAL)
 					logger.error(message);
 				else if (level == com.jcraft.jsch.Logger.WARN)
