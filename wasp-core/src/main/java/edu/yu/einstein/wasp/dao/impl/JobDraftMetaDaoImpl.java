@@ -96,7 +96,7 @@ public class JobDraftMetaDaoImpl extends WaspMetaDaoImpl<JobDraftMeta> implement
 	@Override
 	@Transactional("entityManager")
 	public void replaceByJobDraftId (final String area, final int jobDraftId, final List<JobDraftMeta> metaList) {
-		entityManager.createNativeQuery("delete from jobdraftmeta where jobDraftId=:jobDraftId and k like :area").setParameter("jobDraftId", jobDraftId).setParameter("area", area + ".%").executeUpdate();
+		entityManager.createQuery("DELETE from JobDraftMeta jdm WHERE jdm.jobDraftId=:jobDraftId AND jdm.k LIKE :area").setParameter("jobDraftId", jobDraftId).setParameter("area", area + ".%").executeUpdate();
 
 		for (JobDraftMeta m:metaList) {
 			m.setJobDraftId(jobDraftId);

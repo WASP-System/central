@@ -31,22 +31,21 @@ public class UiFieldDaoImpl extends WaspDaoImpl<UiField> implements edu.yu.einst
 @SuppressWarnings("unchecked")
 @Override
 public List<String> getUniqueAreas() {
-	String sql="SELECT DISTINCT area FROM  uifield ORDER BY area";
-    return entityManager.createNativeQuery(sql).getResultList();
+	String query="SELECT DISTINCT u.area FROM  UiField u ORDER BY u.area";
+    return entityManager.createQuery(query).getResultList();
   }
   
   //returns true if a combination of locale, area, name, attrName already exists
   @Override
 public boolean exists(final String locale, final String area, final String name, final String attrName) {
-	String sql=
-		   
-		   	"select 1 from uifield \n"+
-		   	"where locale=:locale\n"+
-		   	"and area=:area\n"+
-		   	"and name=:name\n"+
-		   	"and attrname=:attrname\n";
+	String query=
+		   	"SELECT 1 from UiField u \n"+
+		   	"WHERE u.locale=:locale\n"+
+		   	"AND u.area=:area\n"+
+		   	"AND u.name=:name\n"+
+		   	"AND u.attrname=:attrname\n";
 		 
-    Query q = entityManager.createNativeQuery(sql)
+    Query q = entityManager.createQuery(query)
     .setParameter("locale", locale)
     .setParameter("area", area)
     .setParameter("name", name)

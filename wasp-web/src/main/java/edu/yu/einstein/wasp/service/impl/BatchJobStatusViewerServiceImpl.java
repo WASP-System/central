@@ -22,6 +22,7 @@ import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.dao.wasp.BatchJobSortAttribute;
 import org.springframework.batch.core.repository.dao.wasp.BatchJobSortAttribute.SortDirection;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,16 +67,20 @@ public class BatchJobStatusViewerServiceImpl extends WaspServiceImpl implements 
 	
 	@Override
 	public ExtTreeModel getTreeModel(JobExecution je){
-		je = jobExplorer.getJobExecution(je.getId());
 		BatchJobTreeModel model = new BatchJobTreeModel();
 		model.setId(JOB_EXECUTION_ID_PREFIX + je.getId().toString());
 		model.setExecutionId(je.getId());
 		String name = je.getJobInstance().getJobName();
-		Integer retryCount = 0;
-		if (je.getExecutionContext().containsKey(GridResult.RESTART_COUNT))
-			retryCount = Integer.parseInt(je.getExecutionContext().get(GridResult.RESTART_COUNT).toString());
-		if (retryCount > 0)
-			name += " (retries=" + retryCount.toString() + " )";
+		try {
+			Integer retryCount = 0;
+			ExecutionContext ec = jobExplorer.getJobExecution(je.getId()).getExecutionContext();
+			if (ec.containsKey(GridResult.RESTART_COUNT))
+				retryCount = Integer.parseInt(ec.get(GridResult.RESTART_COUNT).toString());
+			if (retryCount > 0)
+				name += " (retries=" + retryCount.toString() + " )";
+		} catch (Exception e){
+			logger.warn(e.getCause());
+		}
 		model.setName(name);
 		model.setStartTime(je.getStartTime());
 		if (!je.getExitStatus().isRunning() && !je.getExitStatus().getExitCode().equals(ExitStatus.UNKNOWN.getExitCode()))
@@ -95,10 +100,14 @@ public class BatchJobStatusViewerServiceImpl extends WaspServiceImpl implements 
 		model.setExecutionId(se.getId());
 		String name = se.getStepName();
 		Integer retryCount = 0;
-		if (se.getExecutionContext().containsKey(GridResult.RESTART_COUNT))
-			retryCount = Integer.parseInt(se.getExecutionContext().get(GridResult.RESTART_COUNT).toString());
-		if (retryCount > 0)
-			name += " (retries=" + retryCount.toString() + " )";
+		try {
+			if (se.getExecutionContext().containsKey(GridResult.RESTART_COUNT))
+				retryCount = Integer.parseInt(se.getExecutionContext().get(GridResult.RESTART_COUNT).toString());
+			if (retryCount > 0)
+				name += " (retries=" + retryCount.toString() + " )";
+		} catch (Exception e){
+			logger.warn(e.getCause());
+		}
 		model.setName(name);
 		model.setStartTime(se.getStartTime());
 		if (!se.getExitStatus().isRunning() && !se.getExitStatus().getExitCode().equals(ExitStatus.UNKNOWN.getExitCode()))

@@ -14,6 +14,8 @@ import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jcraft.jsch.JSch;
+
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 
@@ -47,6 +49,25 @@ public class SshFileService implements GridFileService {
 		this.transportConnection = transportConnection;
 		identityFile = transportConnection.getIdentityFile();
 		logger.debug("configured transport service: " + transportConnection.getUserName() + "@" + transportConnection.getHostName());
+		JSch.setLogger(new com.jcraft.jsch.Logger() {
+			
+			@Override
+			public void log(int level, String message) {
+				if (level == com.jcraft.jsch.Logger.DEBUG)
+					logger.debug(message);
+				else if (level == com.jcraft.jsch.Logger.INFO)
+					logger.info(message);
+				else if (level == com.jcraft.jsch.Logger.ERROR || level == com.jcraft.jsch.Logger.FATAL)
+					logger.error(message);
+				else if (level == com.jcraft.jsch.Logger.WARN)
+					logger.warn(message);
+			}
+			
+			@Override
+			public boolean isEnabled(int level) {
+				return true;
+			}
+		});
 	}
 
 	public void setUserDirIsRoot(boolean isRoot) {
@@ -291,7 +312,6 @@ public class SshFileService implements GridFileService {
 		SftpFileSystemConfigBuilder.getInstance().setStrictHostKeyChecking(opts, hostKeyChecking);
 		SftpFileSystemConfigBuilder.getInstance().setUserDirIsRoot(opts, userDirIsRoot);
 		SftpFileSystemConfigBuilder.getInstance().setTimeout(opts, timeout);
-
 		File[] ifs = new File[1];
 		ifs[0] = identityFile.getAbsoluteFile();
 		SftpFileSystemConfigBuilder.getInstance().setIdentities(opts, ifs);

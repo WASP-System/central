@@ -17,9 +17,9 @@ public class WaspSqlServiceImpl implements WaspSqlService{
 	WaspPersistenceDaoImpl waspPersistenceDaoImpl;
 	
 	@Override
-	public void executeNativeSqlUpdateOnList(List<String> updateQuery){
+	public void executeQueryUpdateOnList(List<String> updateQuery){
 		for (String query: updateQuery)
-			waspPersistenceDaoImpl.getEntityManager().createNativeQuery(query).executeUpdate();
+			waspPersistenceDaoImpl.getEntityManager().createQuery(query).executeUpdate();
 	}
 	
 }

@@ -990,7 +990,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<dependency>
 				<groupId>com.jcraft</groupId>
 				<artifactId>jsch</artifactId>
-				<version>0.1.50</version>
+				<version>0.1.51</version>
 			</dependency>
 			<dependency>
 				<groupId>com.mchange</groupId>
