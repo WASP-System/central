@@ -129,7 +129,10 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 				throw new GridException("Maximum number of retry attempts (" + maxRetryAttempts + ") exceeded.", e);
 		} finally {
 			logger.trace("saving GridResult from finally block");
-			saveGridResult(context, result); // do this whatever else happens in the try block
+			if (result != null)
+				saveGridResult(context, result); // do this whatever else happens in the try block
+			else
+				logger.warn("Not saving GridResult for StepExecution id=" + stepExecutionId + " as is null! (wasHibernationRequested=" + wasHibernationRequested + ")");
 		}
 		if (!wasHibernationRequested){
 			Long timeoutInterval;

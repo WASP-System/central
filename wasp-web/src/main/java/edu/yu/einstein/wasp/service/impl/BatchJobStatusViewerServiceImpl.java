@@ -70,18 +70,17 @@ public class BatchJobStatusViewerServiceImpl extends WaspServiceImpl implements 
 		BatchJobTreeModel model = new BatchJobTreeModel();
 		model.setId(JOB_EXECUTION_ID_PREFIX + je.getId().toString());
 		model.setExecutionId(je.getId());
-		String name = je.getJobInstance().getJobName();
 		try {
 			Integer retryCount = 0;
 			ExecutionContext ec = jobExplorer.getJobExecution(je.getId()).getExecutionContext();
 			if (ec.containsKey(GridResult.RESTART_COUNT))
 				retryCount = Integer.parseInt(ec.get(GridResult.RESTART_COUNT).toString());
 			if (retryCount > 0)
-				name += " (retries=" + retryCount.toString() + " )";
+				model.setRetries(retryCount);
 		} catch (Exception e){
 			logger.warn(e.getCause());
 		}
-		model.setName(name);
+		model.setName(je.getJobInstance().getJobName());
 		model.setStartTime(je.getStartTime());
 		if (!je.getExitStatus().isRunning() && !je.getExitStatus().getExitCode().equals(ExitStatus.UNKNOWN.getExitCode()))
 			model.setEndTime(je.getEndTime()); // only set if not running or unknown
@@ -98,17 +97,16 @@ public class BatchJobStatusViewerServiceImpl extends WaspServiceImpl implements 
 		BatchJobTreeModel model = new BatchJobTreeModel();
 		model.setId(JOB_EXECUTION_ID_PREFIX + se.getJobExecutionId().toString() + STEP_EXECUTION_ID_PREFIX + se.getId().toString());
 		model.setExecutionId(se.getId());
-		String name = se.getStepName();
 		Integer retryCount = 0;
 		try {
 			if (se.getExecutionContext().containsKey(GridResult.RESTART_COUNT))
 				retryCount = Integer.parseInt(se.getExecutionContext().get(GridResult.RESTART_COUNT).toString());
 			if (retryCount > 0)
-				name += " (retries=" + retryCount.toString() + " )";
+				model.setRetries(retryCount);
 		} catch (Exception e){
 			logger.warn(e.getCause());
 		}
-		model.setName(name);
+		model.setName(se.getStepName());
 		model.setStartTime(se.getStartTime());
 		if (!se.getExitStatus().isRunning() && !se.getExitStatus().getExitCode().equals(ExitStatus.UNKNOWN.getExitCode()))
 			model.setEndTime(se.getEndTime()); // only set if not running or unknown
