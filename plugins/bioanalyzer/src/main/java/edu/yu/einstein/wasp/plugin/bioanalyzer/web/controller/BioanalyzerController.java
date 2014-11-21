@@ -59,6 +59,7 @@ import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
+import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.plugin.bioanalyzer.service.BioanalyzerService;
 
 
@@ -176,6 +177,15 @@ public class BioanalyzerController extends WaspController {
 		availableBioanalyzerChipList.add(messageService.getMessage("bioanalyzer.create_bioanalyzerChipHighSensitivity.label"));
 		availableBioanalyzerChipList.add(messageService.getMessage("bioanalyzer.create_bioanalyzerChip7500.label"));
 		availableBioanalyzerChipList.add(messageService.getMessage("bioanalyzer.create_bioanalyzerChip1000.label"));
+		Workflow wf = jobDraft.getWorkflow();
+		List<Workflowresourcecategory> wfrcList = wf.getWorkflowresourcecategory();
+		for(Workflowresourcecategory wfrc : wfrcList){
+			if(wfrc.getResourceCategory().getResourceType().getIName().equals("bioanalyzer")){
+				wfrc.getWorkflowresourcecategoryMeta();
+			}
+		}
+		//WorkflowResourcecategory wfrc = 
+		
 		m.put("availableBioanalyzerChipList", availableBioanalyzerChipList);
 		m.put("userSelectedBioanalyzerChip", bioanalyzerService.getMeta(jobDraft, bioanalyzerService.bioanalyzerChipMeta));
 		m.put("assayLibrariesAreFor", bioanalyzerService.getMeta(jobDraft, bioanalyzerService.bioanalyzerAssayLibrariesAreForMeta));

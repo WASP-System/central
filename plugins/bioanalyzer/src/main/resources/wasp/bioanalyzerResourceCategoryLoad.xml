@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd"
+    default-autowire="byName">
+    
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="bioanalyzerUiFieldWrapper">
+   <property name="baseArea" value="bioanalyzer" />
+  </bean>
+
+  <bean id="bioanalyzerResourceCategory" class="edu.yu.einstein.wasp.load.ResourceCategoryLoaderAndFactory">
+    <property name="name" value="Agilent Bioanalyzer" />
+    <property name="area" value="bioanalyzer" />
+    <property name="resourceType" ref="bioanalyzerResourceType" />
+	 <property name="metaFromWrapper">
+       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
+         <property name="area" value="bioanalyzer" />
+         <property name="metaList">
+         	<list>
+         		<value>allowableUiField.chip=High Sensitivity DNA Chip:High Sensitivity DNA Chip;7500 DNA Chip:7500 DNA Chip;1000 DNA Chip:1000 DNA Chip</value>
+         	</list>
+         </property>
+       </bean>
+    </property> 
+
+    <property name="uiFieldsFromWrapper">
+      <list>
+        <bean parent="bioanalyzerUiFieldWrapper">
+          <property name="baseName" value="chip" />
+          <property name="metaposition" value="10" />
+          <property name="label" value="bioanalyzer.chipChoiceAndInfo_availableChips.label" />
+          <property name="control" value="select:#{dollar}{resourceOptions.get(chip)}:value:label" /> 
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="bioanalyzer.chipChoiceAndInfo_chipMissing.error" />
+        </bean>
+      </list>
+    </property>
+  </bean>
+
+</beans>
