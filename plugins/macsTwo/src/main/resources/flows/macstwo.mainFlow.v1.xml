@@ -48,11 +48,12 @@
 			<batch:tasklet>
 				<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.macstwo.batch.tasklet.MacstwoTaskletModel" scope="step">
-					<constructor-arg name="jobIdAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.macstwo.service.MacstwoService).JOB_ID_AS_STRING]}" />
+					<!--  <constructor-arg name="jobIdAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.macstwo.service.MacstwoService).JOB_ID_AS_STRING]}" />
 					<constructor-arg name="prefixForFileName" value="#{jobParameters[T(edu.yu.einstein.wasp.macstwo.service.MacstwoService).PREFIX_FOR_FILE_NAME]}" />
 					<constructor-arg name="macs2AnalysisFileGroupIdAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.macstwo.service.MacstwoService).MACSTWO_ANALYSIS_FILEGROUP_ID_AS_STRING]}" />
 					<constructor-arg name="workingDirectory" value="#{jobParameters[T(edu.yu.einstein.wasp.macstwo.service.MacstwoService).WORKING_DIRECTORY]}" />
 					<constructor-arg name="resultsDirectory" value="#{jobParameters[T(edu.yu.einstein.wasp.macstwo.service.MacstwoService).RESULTS_DIRECTORY]}" />
+					-->
 				</bean>
 			</batch:tasklet>
 			<batch:next on="FAILED" to="edu.yu.einstein.wasp.macstwo.mainFlow.notifyFail" />
