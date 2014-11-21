@@ -44,7 +44,7 @@ public boolean exists(final String locale, final String area, final String name,
 		   	"WHERE u.locale=:locale\n"+
 		   	"AND u.area=:area\n"+
 		   	"AND u.name=:name\n"+
-		   	"AND u.attrname=:attrname\n";
+		   	"AND u.attrName=:attrname\n";
 		 
     Query q = entityManager.createQuery(query)
     .setParameter("locale", locale)
