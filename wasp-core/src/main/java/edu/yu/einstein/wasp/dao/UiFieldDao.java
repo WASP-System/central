@@ -17,9 +17,10 @@ import edu.yu.einstein.wasp.model.UiField;
 
 
 public interface UiFieldDao extends WaspDao<UiField> {
-	List<String> getUniqueAreas();
-	boolean exists(String locale, String area, String name, String attrName);
+	public List<String> getUniqueAreas();
+	public boolean exists(String locale, String area, String name, String attrName);
+	public UiField get(String locale, String area, String name, String attrName);
 	
-	String dumpUiFieldTable();
+	public String dumpUiFieldTable();
 }
 

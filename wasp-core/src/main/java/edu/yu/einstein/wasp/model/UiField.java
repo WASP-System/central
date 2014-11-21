@@ -7,6 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import edu.yu.einstein.wasp.exception.UiFieldParseException;
@@ -152,28 +154,36 @@ public final class UiField extends WaspModel implements Serializable {
 	}
 	  
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-
-// uiFieldId now Integer instead of in, so avoid npe
-	if (getId() == null) { return prime * result + 0; }
-		result = prime * result + getId().intValue();
-		return result;
+	public int hashCode(){
+	    int hc = new HashCodeBuilder()
+	        .append(area)
+	        .append(attrName)
+	        .append(attrValue)
+	        .append(domain)
+	        .append(locale)
+	        .append(name)
+	        .toHashCode();
+	    // logger.trace("uifield hashcode: " + hc);
+	    return hc;
 	}
 
+
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		UiField other = (UiField) obj;
-		if (getId().intValue() != other.getId().intValue())
-			return false;
-		return true;
+	public boolean equals(final Object obj){
+		boolean equals = false;
+	    if(obj instanceof UiField){
+	        final UiField other = (UiField) obj;
+	        equals = new EqualsBuilder()
+	            .append(area, other.area)
+	            .append(attrName, other.attrName)
+	            .append(attrValue, other.attrValue)
+	            .append(domain, other.domain)
+	            .append(locale, other.locale)
+	            .append(name, other.name)
+	            .isEquals();
+	    } 
+	    // logger.trace("uifield " + name + " equals= " + equals);
+	    return equals;
 	}
 
 	@Override

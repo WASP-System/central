@@ -131,7 +131,7 @@ public class GatkPlugin extends WaspPlugin
 	
 	private Message<String> launchPreprocessingFlowHelp() {
 		String mstr = "\nLaunch the gatk data preprocessing flow with provided cellLibrary id.\n" +
-				"wasp -T gatk -t launchTestFlow -m \'{id:\"1\"}\'\n";
+				"wasp -T gatk -t launchPreprocessingFlow -m \'{id:\"1\"}\'\n";
 		return MessageBuilder.withPayload(mstr).build();
 	}
 	
@@ -158,7 +158,7 @@ public class GatkPlugin extends WaspPlugin
 	
 	private Message<String> launchDiscoveryFlowHelp() {
 		String mstr = "\nLaunch the gatk variant discovery flow with specified cellLibrary id list.\n" +
-				"wasp -T gatk -t launchCallFlow -m \'{ids:[\"11\",\"12\"]}\'\n";
+				"wasp -T gatk -t launchDiscoveryFlow -m \'{ids:[\"11\",\"12\"]}\'\n";
 		return MessageBuilder.withPayload(mstr).build();
 	}
 	
