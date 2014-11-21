@@ -4,7 +4,9 @@
  */
 package edu.yu.einstein.wasp.plugin.bioanalyzer.batch.tasklet;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
@@ -20,6 +22,7 @@ import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.service.JobService;
 
@@ -55,7 +58,7 @@ public class BioanalyzerTasklet extends WaspRemotingTasklet {
 	 */
 	@Override
 	@Transactional("entityManager") // transactional for wasp system entities (e.g. Job)
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 		
 		// get step execution for this tasklet step
 		StepExecution stepExecution = context.getStepContext().getStepExecution();
@@ -85,11 +88,13 @@ public class BioanalyzerTasklet extends WaspRemotingTasklet {
 		GridResult result = gridHostResolver.execute(w);
 		
 		// persist the grid result in the step context (saves state in the batch db)
-		saveGridResult(context, result);
+		//saveGridResult(context, result);
 		
 		logger.info("Batch job execution submitted with id=" + result.getGridJobId() + 
 				" on host '" + result.getHostname() + "' from step (name='" + stepExecution.getStepName() +
 							"', id=" +  stepExecution.getId() + ")");
+		
+		return result;
 	}
 	
 	/**
@@ -140,5 +145,9 @@ public class BioanalyzerTasklet extends WaspRemotingTasklet {
 							"', id=" +  stepExecution.getId() + ") with ExitStatus=" + exitStatus);
 		return exitStatus;
 	}
-	
+	@Override
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		ExecutionContext stepContext = stepExecution.getExecutionContext();
+		
+	}
 }
