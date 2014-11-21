@@ -11,6 +11,7 @@ package edu.yu.einstein.wasp.dao.impl;
 import java.util.List;
 
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -104,5 +105,25 @@ public String dumpUiFieldTable() {
 
 	  return result+"";
   }
+
+	@Override
+	public UiField get(String locale, String area, String name, String attrName) {
+		String query = "SELECT u FROM UiField AS u " + 
+						"WHERE locale=:locale " + 
+						"AND area=:area " + 
+						"AND name=:name " + 
+						"AND attrname=:attrname";
+
+		TypedQuery<UiField> q = entityManager.createQuery(query, UiField.class)
+				.setParameter("locale", locale)
+				.setParameter("area", area)
+				.setParameter("name", name)
+				.setParameter("attrname", attrName);
+
+		if (!exists(locale, area, name, attrName)) {
+			return null;
+		}
+		return q.getResultList().get(0);
+	}
 }
 
