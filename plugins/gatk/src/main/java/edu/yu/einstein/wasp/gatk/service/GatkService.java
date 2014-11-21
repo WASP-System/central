@@ -4,6 +4,7 @@
  */
 package edu.yu.einstein.wasp.gatk.service;
 
+import java.util.List;
 import java.util.Set;
 
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -30,6 +31,8 @@ public interface GatkService extends WaspService {
 		public String getWxsIntervalFile(Job job, Build build);
 
 		public Build getBuildForFg(FileGroup fileGroup);
+
+		public void doLaunchFlow(List<Integer> cellLibraryIds, Integer softwareId,	String flowName) throws Exception;
 
 
 }

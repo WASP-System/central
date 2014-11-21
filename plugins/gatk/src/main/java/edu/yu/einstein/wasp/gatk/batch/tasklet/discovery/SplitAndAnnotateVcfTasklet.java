@@ -119,4 +119,9 @@ public class SplitAndAnnotateVcfTasklet extends AbstractGatkTasklet {
 		return w;
 	}
 
+	@Override
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		super.doCleanupBeforeRestart(stepExecution);
+	}
+
 }

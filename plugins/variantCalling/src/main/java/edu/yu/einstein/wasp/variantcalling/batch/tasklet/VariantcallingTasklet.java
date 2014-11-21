@@ -50,15 +50,12 @@ public class VariantcallingTasklet extends WaspRemotingTasklet {
 	 */
 	@Override
 	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 		//configure
 		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
 		c.setResultsDirectory(WorkUnitGridConfiguration.RESULTS_DIR_PLACEHOLDER + "/" + job.getId());
 		WorkUnit w = new WorkUnit(c);
-		GridResult result = gridHostResolver.execute(w);
-		
-		//place the grid result in the step context
-		saveGridResult(context, result);
+		return gridHostResolver.execute(w);
 	}
 	
 	/**
@@ -91,6 +88,12 @@ public class VariantcallingTasklet extends WaspRemotingTasklet {
 		// any post-step logic goes here
 	
 		return exitStatus;
+	}
+
+	@Override
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

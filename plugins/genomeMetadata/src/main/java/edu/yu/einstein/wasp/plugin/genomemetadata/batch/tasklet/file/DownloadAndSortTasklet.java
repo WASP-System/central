@@ -71,7 +71,7 @@ public class DownloadAndSortTasklet extends AbstractRemoteFileTasklet {
 	}
 
 	@Override
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 
 		GridWorkService host = hostResolver.getGridWorkService(hostname);
 		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
@@ -143,9 +143,7 @@ public class DownloadAndSortTasklet extends AbstractRemoteFileTasklet {
 		
 		w.addCommand("date > " + fileName + "_" + FILE_TRANSFER_COMPLETE_SEMAPHORE);
 
-		GridResult r = host.execute(w);
-
-		saveGridResult(context, r);
+		return host.execute(w);
 	}
 
 	@Override
@@ -173,6 +171,12 @@ public class DownloadAndSortTasklet extends AbstractRemoteFileTasklet {
 	 */
 	public void setChecksum(String checksum) {
 		this.checksum = checksum;
+	}
+
+	@Override
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

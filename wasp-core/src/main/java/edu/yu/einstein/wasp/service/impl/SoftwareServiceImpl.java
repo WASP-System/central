@@ -11,10 +11,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.dao.JobSoftwareDao;
 import edu.yu.einstein.wasp.dao.SoftwareDao;
+import edu.yu.einstein.wasp.exception.JobContextInitializationException;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobSoftware;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.service.SoftwareService;
+import edu.yu.einstein.wasp.software.SoftwareConfiguration;
+import edu.yu.einstein.wasp.util.WaspJobContext;
 
 @Service
 @Transactional("entityManager")
@@ -55,6 +58,19 @@ public class SoftwareServiceImpl extends WaspServiceImpl implements SoftwareServ
 	@Override
 	public JobSoftware saveJobSoftware(JobSoftware jobSoftware){
 		return jobSoftwareDao.save(jobSoftware);
+	}
+	
+	@Override
+	public SoftwareConfiguration getDefaultSoftwareConfig(Software software) throws JobContextInitializationException{
+		List<JobSoftware> jobSoftware = new ArrayList<>();
+		JobSoftware js = new JobSoftware();
+		Job job = new Job();
+		js.setJob(job);
+		js.setSoftware(software);
+		jobSoftware.add(js);
+		job.setJobSoftware(jobSoftware);
+		WaspJobContext waspJobContext = new WaspJobContext(job);
+		return waspJobContext.getConfiguredSoftware(software.getResourceType());
 	}
 
 }

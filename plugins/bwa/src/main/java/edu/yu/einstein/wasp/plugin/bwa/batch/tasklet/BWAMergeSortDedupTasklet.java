@@ -96,7 +96,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 	 */
 	@Override
 	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 		StepExecution stepExecution = context.getStepContext().getStepExecution();
 		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
 		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
@@ -248,10 +248,7 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 		
 		w.setResultFiles(files);
 		
-		GridResult result = gridHostResolver.execute(w);
-
-		// place the grid result in the step context
-		saveGridResult(context, result);
+		return gridHostResolver.execute(w);
 	}
 	
 	/** 
@@ -307,6 +304,29 @@ public class BWAMergeSortDedupTasklet extends WaspRemotingTasklet implements Ste
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
 		super.beforeStep(stepExecution);
+	}
+
+	@Override
+	@Transactional("entityManager")
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
+		Integer bamGId = null;
+		if (stepExecutionContext.containsKey("bamGID"))
+			bamGId = stepExecutionContext.getInt("bamGID");
+		Integer baiGId = null;
+		if (stepExecutionContext.containsKey("baiGID"))
+			baiGId = stepExecutionContext.getInt("baiGID");
+		Integer metricsGId = null; 
+		if (stepExecutionContext.containsKey("metricsGID"))
+			metricsGId = stepExecutionContext.getInt("metricsGID");
+		logger.debug("Cleaning filegroup entries");
+		// remove .bam and .bai file group entries
+		if (bamGId != null)
+			fileService.removeWithAllAssociatedFilehandles(fileService.getFileGroupById(bamGId));
+		if (baiGId != null)
+			fileService.removeWithAllAssociatedFilehandles(fileService.getFileGroupById(baiGId));
+		if (metricsGId != null)
+			fileService.removeWithAllAssociatedFilehandles(fileService.getFileGroupById(metricsGId));
 	}
 
 }

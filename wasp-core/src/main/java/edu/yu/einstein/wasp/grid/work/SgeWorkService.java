@@ -382,6 +382,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 				}
 			}
 			try {
+				logger.trace("Going to execute command " + w.getWrapperCommand());
 				result = (GridResultImpl) transportConnection.sendExecToRemote(w);
 				if (result.getExitStatus() > 0){
 					logger.warn("Unable to get qacct data for grid job id=" + g.getGridJobId() + 

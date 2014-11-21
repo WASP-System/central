@@ -51,7 +51,6 @@ public class UpdateRunCompletedTasklet extends AbandonMessageHandlingTasklet {
 	}
 
 	@Override
-	@RetryOnExceptionFixed
 	@Transactional("entityManager")
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws GridException {
 		run = runService.getRunById(runId);

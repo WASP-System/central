@@ -7,6 +7,7 @@ import java.net.URL;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -43,7 +44,7 @@ public class DownloadTasklet extends AbstractRemoteFileTasklet {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 		GridWorkService host = hostResolver.getGridWorkService(hostname);
 		URL url = new URL(fileUrl);
 		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
@@ -64,9 +65,7 @@ public class DownloadTasklet extends AbstractRemoteFileTasklet {
 		}
 		w.addCommand("date > " + url.getFile() + "_" + FILE_TRANSFER_COMPLETE_SEMAPHORE);
 		
-		GridResult r = host.execute(w);
-		
-		saveGridResult(context, r);
+		return host.execute(w);
 
 	}
 
@@ -82,6 +81,12 @@ public class DownloadTasklet extends AbstractRemoteFileTasklet {
 	 */
 	public void setFilename(String filename) {
 		this.filename = filename;
+	}
+
+	@Override
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

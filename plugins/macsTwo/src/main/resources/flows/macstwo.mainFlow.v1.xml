@@ -17,7 +17,7 @@
 			</batch:tasklet>
 		</batch:step>
 	
-		<batch:step id="edu.yu.einstein.wasp.macstwo.mainFlow.performAction" >
+		<batch:step id="edu.yu.einstein.wasp.macstwo.mainFlow.performAction" next="macstwo.modelGeneratedDecider.result">
 			<batch:tasklet>
 				<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.macstwo.batch.tasklet.MacstwoTasklet" scope="step">
@@ -25,6 +25,34 @@
 					<constructor-arg name="peakType" value="#{jobParameters[T(edu.yu.einstein.wasp.chipseq.integration.messages.ChipSeqSoftwareJobParameters).PEAK_TYPE]}" />
 					<constructor-arg name="testCellLibraryIdListAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.chipseq.integration.messages.ChipSeqSoftwareJobParameters).TEST_LIBRARY_CELL_ID_LIST]}" />
 					<constructor-arg name="controlCellLibraryIdListAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.chipseq.integration.messages.ChipSeqSoftwareJobParameters).CONTROL_LIBRARY_CELL_ID_LIST]}" />
+				</bean>
+				<batch:listeners>
+					<batch:listener>
+						<bean id="macstwoPromotionListener" class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
+							<property name="keys" value="#{T(edu.yu.einstein.wasp.macstwo.service.MacstwoService).IS_MODEL_FILE_CREATED}, #{T(edu.yu.einstein.wasp.macstwo.service.MacstwoService).JOB_ID_AS_STRING}, #{T(edu.yu.einstein.wasp.macstwo.service.MacstwoService).PREFIX_FOR_FILE_NAME}, #{T(edu.yu.einstein.wasp.macstwo.service.MacstwoService).MACSTWO_ANALYSIS_FILEGROUP_ID_AS_STRING}, #{T(edu.yu.einstein.wasp.macstwo.service.MacstwoService).WORKING_DIRECTORY}, #{T(edu.yu.einstein.wasp.macstwo.service.MacstwoService).RESULTS_DIRECTORY}"  />
+							<property name="statuses" value="COMPLETED,FAILED" />
+						</bean>						
+					</batch:listener>
+				</batch:listeners>
+			</batch:tasklet>
+		</batch:step>
+		
+		<!-- decider bean is actually defined below: <bean id="macstwo.modelGeneratedDecider.decide" class="edu.yu.einstein.wasp.macstwo.batch.decider.ModelGeneratedDecider" /> -->
+		<batch:decision id="macstwo.modelGeneratedDecider.result" decider="macstwo.modelGeneratedDecider.decide">
+			<batch:next on="true" to="edu.yu.einstein.wasp.macstwo.mainFlow.performAction.model"/>
+			<batch:next on="false" to="edu.yu.einstein.wasp.macstwo.mainFlow.notifyComplete"/>
+			<batch:fail on="*" /> <!-- unexpected message -->
+		</batch:decision>
+
+		<batch:step id="edu.yu.einstein.wasp.macstwo.mainFlow.performAction.model" >
+			<batch:tasklet>
+				<batch:transaction-attributes propagation="NEVER"/>
+				<bean class="edu.yu.einstein.wasp.macstwo.batch.tasklet.MacstwoTaskletModel" scope="step">
+					<constructor-arg name="jobIdAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.chipseq.integration.messages.MacstwoSoftwareJobParameters).JOB_ID_AS_STRING]}" />
+					<constructor-arg name="prefixForFileName" value="#{jobParameters[T(edu.yu.einstein.wasp.chipseq.integration.messages.MacstwoSoftwareJobParameters).PREFIX_FOR_FILE_NAME]}" />
+					<constructor-arg name="macs2AnalysisFileGroupIdAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.chipseq.integration.messages.MacstwoSoftwareJobParameters).MACSTWO_ANALYSIS_FILEGROUP_ID_AS_STRING]}" />
+					<constructor-arg name="workingDirectory" value="#{jobParameters[T(edu.yu.einstein.wasp.chipseq.integration.messages.MacstwoSoftwareJobParameters).WORKING_DIRECTORY]}" />
+					<constructor-arg name="resultsDirectory" value="#{jobParameters[T(edu.yu.einstein.wasp.chipseq.integration.messages.MacstwoSoftwareJobParameters).RESULTS_DIRECTORY]}" />
 				</bean>
 			</batch:tasklet>
 			<batch:next on="FAILED" to="edu.yu.einstein.wasp.macstwo.mainFlow.notifyFail" />
@@ -62,7 +90,13 @@
 		
 	</batch:job>
 
+	<!-- decider bean defined here -->
+	<bean id="macstwo.modelGeneratedDecider.decide" class="edu.yu.einstein.wasp.macstwo.batch.decider.ModelGeneratedDecider" />
+
 	<bean id="edu.yu.einstein.wasp.macstwo.mainFlow.skipTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" scope="step" />
+
+	
+	
 <!--  	
 	<bean id="macstwoPromotionListener" class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
 		<property name="keys" value="#{T(edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters).MODEL_SCRIPT_FILEGROUP_ID}, #{T(edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters).TEST_SAMPLE_ID}, #{T(edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters).CONTROL_SAMPLE_ID}"  />

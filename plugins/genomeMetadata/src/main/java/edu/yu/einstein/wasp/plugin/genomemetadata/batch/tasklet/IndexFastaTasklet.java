@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -54,7 +55,7 @@ public class IndexFastaTasklet extends WaspRemotingTasklet {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 		
 		GridWorkService host = hostResolver.getGridWorkService(hostname);
 		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
@@ -80,10 +81,14 @@ public class IndexFastaTasklet extends WaspRemotingTasklet {
 		
 		w.setSecureResults(true);
 		
-		GridResult r = host.execute(w);
-		
-		saveGridResult(context, r);
+		return host.execute(w);
 
+	}
+
+	@Override
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -131,4 +131,9 @@ public class RealignTasklet extends AbstractGatkTasklet {
 		return w;
 	}
 
+	@Override
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		super.doCleanupBeforeRestart(stepExecution);
+	}
+
 }

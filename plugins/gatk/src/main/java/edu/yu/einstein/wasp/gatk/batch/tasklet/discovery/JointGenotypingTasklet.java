@@ -180,6 +180,18 @@ public class JointGenotypingTasklet extends TestForGenomeIndexTasklet {
 		w.setCommand(gatk.genotypeGVCFs(inputFileNames, rawVcfFilename, referenceGenomeFile, AbstractGatkTasklet.MEMORY_GB_16));
 		return w;
 	}
+
+
+	@Override
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		ExecutionContext stepExecutionContext = getStepExecutionContext(stepExecution);
+		if (stepExecutionContext.containsKey("combinedGenotypedVcfFgId")){
+			Integer rawVcfFgId = Integer.parseInt(stepExecutionContext.getString("combinedGenotypedVcfFgId"));
+			logger.debug("Deleting FileGroup with id=: " + rawVcfFgId);
+			fileService.removeWithAllAssociatedFilehandles(fileService.getFileGroupById(rawVcfFgId));
+		}
+		
+	}
 	
 
 }

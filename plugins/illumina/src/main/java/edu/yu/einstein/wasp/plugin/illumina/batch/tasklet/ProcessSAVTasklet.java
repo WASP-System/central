@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -67,7 +68,7 @@ public class ProcessSAVTasklet extends WaspRemotingTasklet {
 
 	@Override
 	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 		
 		run = runService.getRunById(runId);
 		
@@ -97,9 +98,7 @@ public class ProcessSAVTasklet extends WaspRemotingTasklet {
 		GridResult result = gws.execute(w);
 		
 		logger.debug("started savR processing: " + result.getUuid());
-		
-		//place the grid result in the step context
-		saveGridResult(context, result);
+		return result;
 	}
 
 
@@ -116,6 +115,12 @@ public class ProcessSAVTasklet extends WaspRemotingTasklet {
 	@Autowired
 	public void setRunService(RunService runService) {
 		this.runService = runService;
+	}
+
+	@Override
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

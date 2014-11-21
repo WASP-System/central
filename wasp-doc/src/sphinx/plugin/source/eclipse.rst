@@ -4,20 +4,13 @@ Creating a Wasp Plugin Project (WPP)
 Wasp Plugin Projects (WPPs) are extensions of the Wasp System (WS) Core code which enable users to add new features to a local instance of the WS or for open-source 
 distribution. WPPs can provide a variety of functionalities, common examples being:
 
-* New assays: Sample submission form definitions and flow, analysis workflows.
-* Software: definition, dependencies and workflows
-* Visualization tools: Generation of panels
+* New assays: Sample submission form definitions and flow; analysis workflows.
+* Software: definition; dependencies and workflows
+* Visualization tools: Generation of panels for viewing data
 
 This section demonstrates how to create working WPPs from scratch, walking the reader through the process step by step. We will first create a simple
 plugin for the "Picard" suite of tools. `Picard <http://picard.sourceforge.net>`_ is a set of command line Java executables that manipulate SAM / BAM files. 
 Next we will make a plugin for BAM file QC which depends on the BWA plugin to implement the *CollectAlignmentSummaryMetrics* tool).
-
-Our main tasks include:
-
-1. Defining a plugin class and software wrapper for Picard.
-2. Hook into the Wasp messaging system (wasp-daemon) to be notified when any BAM files are made in order to the QC tools on those files automatically.
-3. Defining a plugin class and software wrapper for BamQC
-3. Parse output from the QC analyses for display in a panel when a system user is examining output related to a particular BAM file.
 
 So what is a WPP and individual plugin to The Wasp System? A WPP represents a project which is built into a single versioned jar. 
 Each plugin within the WPP is defined by a bean implementing an extension of the ``wasp-core:edu.yu.einstein.wasp.plugin.WaspPlugin`` class. During bean 
@@ -148,8 +141,8 @@ In the above example two properties called *foobar* and *name* are being set. Th
 Wasp System, custom and system properties are both defined in the *wasp-config* WPP within the ``src/main/resources/\*.properties`` files. In this example,
 one of these files is expected to contain the line ``wasp.config.foobar=My Foo Plugin``. Thus, during bean instantiation, the *${wasp.config.foobar}* placeholder
 is replaced with the String value "My Foo Plugin". The *name* property value is obtained by evaluating a `Spring Expression Language (SpEL) 
-<http://static.springsource.org/spring/docs/3.0.x/reference/expressions.html>`_ construct. In this case, it assumes a bean called "anotherBean" is defined, and 
-evaluates its ``getName()`` method.
+<http://docs.spring.io/spring-framework/docs/3.2.x/spring-framework-reference/html/expressions.html>`_ construct. In this case, it assumes a bean called "anotherBean" 
+is defined, and evaluates its ``getName()`` method.
 
 An alternative to injecting constructor / property values in the XML bean definitions is to do it in the Class definition. An ``@Autowired`` annotation placed 
 above a field, setter method or constructor 
@@ -220,7 +213,91 @@ With a basic introduction to the concepts of Spring required to generate WPPs, w
 
   **<package_root>.batch.tasklet** 
     Location for batch job tasklets. Tasklets contain the code executed in each step of the batch flow. They extend abstract class 
-    ``wasp-daemon:edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet``
+    ``wasp-daemon:edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet``. The example below is taken from the Babraham plugin's ``TrimGaloreTrimming`` tasklet:
+    
+    .. code-block:: java
+
+       // extend WaspRemotingTasklet which is designed to handle waiting for cluster jobs to finish
+       public class TrimGaloreTrimmingTasklet extends WaspRemotingTasklet {
+
+       private String software;
+       private int cellLibraryId;
+       private int fileGroupId;
+       private int fileNumber;
+       private int readSegments;
+       private int runId;
+
+       @Autowired
+       private SampleService sampleService;
+
+       @Autowired
+       private AdaptorService adaptorService;
+
+       @Autowired
+       @Qualifier("trim_galore")
+       private TrimGalore trimGalore; // thr TrimGalore software object
+
+       @Autowired
+       private GridHostResolver hostResolver; // we need this in order to execute a WorkUnit
+
+       public TrimGaloreTrimmingTasklet(String softwareName, int runId, int cellLibraryId, int fileGroupId, int fileNumber, int readSegments) {
+           this.software = softwareName;
+           this.runId = runId;
+           this.cellLibraryId = cellLibraryId;
+           this.fileGroupId = fileGroupId;
+           this.fileNumber = fileNumber;
+           this.readSegments = readSegments;
+       }
+
+       /*
+        * Business logic necessary to prepare and execute a grid job
+        * Uncomment the @Retryable annotation to restart the tasklet in the event of failure.
+        * It is possible to set the number of retry attempt and backoff time in the 
+        * wasp-config: wasp.site.properties file e.g.:
+        * # setting applicable to the @Retryable annotation
+        * wasp.batch.retryBasic.fixed.maxattempts=3
+        * wasp.batch.retryBasic.fixed.interval=5000
+        */
+       @Override
+       // @Retryable
+       @Transactional("entityManager")
+       public void doExecute(ChunkContext context) throws Exception {
+           SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);
+           Sample library = sampleService.getLibrary(cellLibrary);
+           TrimGaloreParameters params = new TrimGaloreParameters();
+           String adapter = adaptorService.getAdaptor(library).getSequence();
+           if (adapter.length() > 13)
+               adapter = adapter.substring(0, 13);
+           params.setAdapter(adapter);
+           if (readSegments > 1)
+               params.setAdapter2(adapter);
+           WorkUnit w = trimGalore.getTrimCommand(params, software, runId, cellLibraryId, fileGroupId, fileNumber);
+           GridResult result = hostResolver.execute(w);
+           logger.debug("submitted trim step, going for hibernation");
+           saveGridResult(context, result);
+       }
+       
+       @Override
+       @Transactional("entityManager")
+       public void doPreFinish(ChunkContext context) throws Exception{
+           // put any business logic in here to execute immediately after successful completion of the WorkUnit 
+           // execution that was submitted from the doExecute() method but before completion of the execution block. 
+           // This code is not called if an exception was thrown by the execution block
+       }
+       
+       @Override
+       public void beforeStep(StepExecution stepExecution) {
+           // code to prepare for tasklet execution goes here. Also cleanup code in case of restart.
+           super.beforeStep(stepExecution);
+       }
+    
+       @Override
+       public ExitStatus afterStep(StepExecution stepExecution) {
+           // This block is called before exiting the step even if the step failed (an exception was thrown from the execution block). 
+           // It is possible to modify the exit status code and message here.
+           return super.afterStep(stepExecution);
+       }
+       
     
   **<package_root>.batch.controller**
     MVC controller code. For web-enabled WPPs the request mappings and associated business logic are defined here. Classes should extend the 
@@ -231,8 +308,8 @@ With a basic introduction to the concepts of Spring required to generate WPPs, w
     
   **<package_root>.integration.endpoints**
     This package is where custom Spring Integration message endpoint classes can be defined. These include service activators, channel adapters, transformers, 
-    filters, routers, splitters and aggregators. See the SpringSource documentation (http://static.springsource.org/spring-integration/reference) for more 
-    information message endpoints.
+    filters, routers, splitters and aggregators. See the `SpringSource documentation <http://docs.spring.io/spring-integration/docs/4.0.3.RELEASE/reference/html/>`_ 
+    for more information message endpoints.
   
   **<package_root>.integration.messages**
     Spring Integration provides for messages and message channels to be defined that allow communication between the core wasp systems and WPPs. Messages 
@@ -242,7 +319,7 @@ With a basic introduction to the concepts of Spring required to generate WPPs, w
     package may contain message template classes that extend the ``wasp-core:edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate`` and 
     ``wasp-core:edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate`` classes. Extensions of the 
     ``wasp-core:edu.yu.einstein.wasp.integration.messages.WaspMessageType`` and ``WaspStatus`` classes may also be provided here. The base classes for 
-    ``WaspMessageType`` and ``WaspStatus`` are shown below.
+    ``WaspMessageType`` and ``WaspStatus`` are shown below:
     
     .. code-block:: java
     
@@ -285,14 +362,171 @@ With a basic introduction to the concepts of Spring required to generate WPPs, w
     and "handles" which declare services that the plugin implements and resources that it may act upon.  For example, a plugin may declare that it implements
     "referenceBasedAligner", or "illuminaSequenceRunProcessor". An illuminaSequenceRunProcessor might additionally handle "illuminaHiSeq2000Area". 
     For example, the *Babraham* WPP contains three plugins each 
-    representing wrappers around three software applications provided by Babraham Bioinformatics: FastQC, FastQ Screen and Trim Galore.
+    representing wrappers around three software applications provided by Babraham Bioinformatics: FastQC, FastQ Screen and Trim Galore, e.g. for Trim Galore:
+        
+    .. code-block:: java
     
+ 
+       public class TrimGalorePlugin extends WaspPlugin implements ClientMessageI, FileDataTabViewing {
+
+         protected final Logger logger = LoggerFactory.getLogger(getClass());
+    
+         public static final String TRIM_GALORE_PLOT_KEY = "size-plot";
+
+         @Autowired
+         BabrahamService babrahamService;
+    
+         @Autowired
+         protected RunService runService;
+
+         protected WaspJobExplorer batchJobExplorer;
+
+         @Autowired
+         void setJobExplorer(JobExplorer jobExplorer) {
+           this.batchJobExplorer = (WaspJobExplorer) jobExplorer;
+         }
+
+         @Autowired
+         @Qualifier("trim_galore")
+         private Software trim_galore;
+
+         public TrimGalorePlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
+           super(iName, waspSiteProperties, channel);
+         }
+
+         /**
+          * {@inheritDoc}
+          */
+         @Override
+           public Hyperlink getDescriptionPageHyperlink() {
+           return new Hyperlink("trimgalore.hyperlink.label", "/babraham/trimgalore/description.do");
+         }
+
+         /**
+          * Trimming is happening prior to returning the file to the user,
+          * so the status of analysis of a fastq file is always complete
+          * when the user wants to visualize any information.
+          * {@inheritDoc}
+          */
+         @Override
+         public Status getStatus(FileGroup fileGroup) {
+           Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+           Run run = babrahamService.getRunForFileGroup(fileGroup);
+           if (run == null){
+              logger.warn("Unable to determine status as failed to obtain a run for filegroup with id = " 
+                     + fileGroup.getId());
+              return Status.UNKNOWN;
+           }
+           Set<String> runIdStringSet = new LinkedHashSet<String>();
+           runIdStringSet.add(run.getId().toString());
+           parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
+           try{
+              if (!getViewPanelTab(fileGroup).getPanels().isEmpty())
+                  return Status.COMPLETED;
+           } catch (PanelException e){}
+      
+           JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer
+                  .getJobExecutions(TrimGalore.FLOW_NAME, parameterMap, false));
+           if (je == null){
+              logger.info("No TrimGalore batch jobs found for FileGroup id=" + fileGroup.getId());
+              return Status.UNKNOWN;
+           }
+           ExitStatus jobExitStatus = je.getExitStatus();
+           if (jobExitStatus.isFailed())
+              return Status.FAILED; 
+           if (jobExitStatus.isRunning())
+              return Status.STARTED; // trumps previously set status of COMPLETED
+           return Status.UNKNOWN;
+         }
+
+         /**
+          * get view data to display
+          */
+         @Override
+         public PanelTab getViewPanelTab(FileGroup fileGroup) throws PanelException {
+           return ((BabrahamWebServiceImpl) babrahamService).getTrimGaloreDataToDisplay(fileGroup.getId());
+         }
+    
+    
+         /**
+          * Method called from the CLI. Message payload is a run id
+          */
+         public Message<String> trim(Message<String> m) {
+           if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
+              return trimHelp();
+      
+           Map<String, String> jobParameters = new HashMap<String, String>();
+      
+           logger.info("launching TrimGalore flow");
+      
+           try {
+              Integer id = getIDFromMessage(m);
+              if (id == null)
+                  return MessageBuilder.withPayload("Unable to determine run id from message: " 
+                        + m.getPayload().toString()).build();
+          
+              jobParameters.put(WaspJobParameters.RUN_ID, id.toString());
+              jobParameters.put(WaspJobParameters.BEAN_NAME, "casava");
+              // the next line overcomes limitation of job being run only once
+              jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); 
+              logger.info("Sending launch message to flow '" + TrimGalore.FLOW_NAME + "' on run with id=" + id);
+              runService.launchBatchJob(TrimGalore.FLOW_NAME, jobParameters);
+          
+              return (Message<String>) MessageBuilder
+                        .withPayload("Initiating TrimGalore flow on run with id=" + id).build();
+           } catch (WaspMessageBuildingException e1) {
+              logger.warn("unable to build message around jobParameters: " + jobParameters.toString());
+              return MessageBuilder.withPayload("Unable to launch TrimGalore").build();
+           }
+      
+         }
+   
+         /**
+          * Method called from the CLI to display help
+          */
+         private Message<String> trimHelp() {
+           String mstr = "\nBabraham Trim Galore plugin: launch the trim flow with given run Id.\n" +
+                 "wasp -T trim_galore -t trim -m \'{id:\"1\"}\'\n";
+           return MessageBuilder.withPayload(mstr).build();
+         }
+   
+         /**
+          * parse json from message payload to extract run id
+          */
+         private Integer getIDFromMessage(Message<String> m) {
+           Integer id = null;
+      
+           JSONObject jo;
+           try {
+              jo = new JSONObject(m.getPayload().toString());
+              if (jo.has("id")) {
+                  id = new Integer(jo.get("id").toString());
+              } 
+           } catch (JSONException e) {
+              logger.warn("unable to parse JSON");
+           }
+           return id;
+         }
+       }
+       
+    This Plugin implements the FileTabViewing interface and so implements the ``getViewPanelTab(FileGroup fileGroup)`` method. 
+    The ``PanelTab`` object returned is displayed in a web browser as shown in figure :num:`figure #fig-trimGalorePanelTab`:
+
+    .. _fig-trimGalorePanelTab:
+ 
+    .. figure:: figures/trimGalorePanelTab.png 
+       :width: 20cm
+       :align: center
+   
+       PanelTab displayed in a web browser view
+       
     .. note::
     
        Any class derived from ``WaspPlugin`` is registered in a bean of type ``wasp-core:edu.yu.einstein.wasp.plugin.WaspPluginRegistry`` which 
        can be autowired into any class and interrogated using the ``Set<WaspPlugin> getPluginsHandlingArea(String area)`` and 
        ``List<T> getPluginsHandlingArea(String area, Class<T> clazz)`` methods.
   
+
   **<package_root>.service.impl**
     WPP business logic that accesses data access objects (DAOs) defined in the wasp-core can be implemented here. Any classes defined in here with 
     annotations ``@Service`` or ``@Component`` will be automatically instantiated as beans on application startup.
@@ -302,7 +536,52 @@ With a basic introduction to the concepts of Spring required to generate WPPs, w
     this package should provide methods relevant for executing the software it is wrapping. A loader configuration file (filename ending in ``Load.xml``) should 
     be provided in the ``src/main/resources:wasp/`` folder which creates a bean instance of each software class via the 
     ``edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory`` factory bean. This is pre-configured for you when you created the project. The bean is generated via 
-    a "factory bean" because certain attributes must be stored in the core database.
+    a "factory bean" because certain attributes must be stored in the core database. For trim galore a cut down version of the Software class is shown below along 
+    with the accompanying XML configuration:
+    
+    .. code-block:: java
+    
+       @Transactional("entityManager")
+       public class TrimGalore extends SoftwarePackage {
+           public static final String MANY_FLOW_NAME = "babraham.trim_galore.fileTrim";
+           public static final String FLOW_NAME = "babraham.trim_galore.mainFlow";
+           public static final String MANY_REGISTRATION_NAME = "babraham.trim_galore.register";
+
+           public TrimGalore() {
+               setSoftwareVersion("0.3.3"); // this default may be overridden in
+                                            // wasp.site.properties
+               }
+
+           public String getTrimCommand(TrimGaloreParameters params, String softwareName, int runId, int cellLibraryId, int fileGroupId, int firstFile)
+                throws Exception {      
+                // code to configure and return a bash command for trimming a fastq file to be executed from a configured WorkUnit
+           }
+
+           public String getRegisterTrimmedCommand(int runId, int cellLibraryId, String softwareName) throws Exception {
+               // code to configure and return a bash command for registering a trimmed fastq file
+           }
+    
+ 
+           /**
+            * Given a GridResult (used for host and working dir info) and a file group id, this method 
+            * will return a DataSeries representation of the total number of reads and the trimming result 
+            * summary statistics.
+            */
+           public JSONObject parseOutput(GridResult result, FileGroup fileGroup) throws Exception {
+             // code to obtain a json representation of trimmed summary data
+           }
+
+       }
+    
+    .. code-block:: xml
+    
+       <bean id="trim_galore" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
+           <property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.babraham.software.TrimGalore</value></property>
+           <property name="name" value="Trim Galore" />
+           <property name="description" value="A quality and adapter sequence FASTQ trimming tool." />
+           <property name="area" ref="trimGaloreArea" />
+           <property name="resourceType" ref="fastqProcessorResourceType" />
+       </bean> 
   
 * **src/main/resources**
 
@@ -381,31 +660,7 @@ With a basic introduction to the concepts of Spring required to generate WPPs, w
 * **src/test/resources**
     location of test resources including test database files, test contexts, test flows etc.
     
-.. important:: **Note about Testing**
-
-   **ALL** software applications require an extensive test suite to aid development, **excercise as much code as possible after each build**
-   and guard against side effects of bug fixes and framework / dependency updates. Without such tests code only gets exercised, on an adhoc basis, in 
-   production and this is very bad practice for obvious reasons. Of course, writing tests takes time, but in the lifecycle of the code it is proven time and 
-   again that a good testing strategy saves significantly more time than it takes to formulate and write them, so it is a false economy to avoid writing tests. 
-   Here are the advantages gained from embracing unit tests (other than the time it takes to write them there are no disadvantages):
-    
-   1. Tests demonstrate that software components always behave as the designer expects according to the software specification, giving expected results each
-      time. Ideally a variety of success and failure use cases should be exercised, especially corner cases and 'out of range' data handling.
-   2. When components are tested in isolation, they are more likely to work as expected during integration testing, saving time debugging at that stage
-      when there are many components, any of which may cause a particular bug. Think: would you manufacture any other product without testing the components 
-      before assembling them?
-   3. Thinking about testing forces the developer to think about how their code is designed which enhances software quality. Code that is easy to test is 
-      designed to be highly cohesive and loosely coupled which is, therefore, also easier to re-use and maintain.
-   4. Unit tests build and run quickly so time is saved not having to reboot an entire application to see if a change has the desired effect.
-   5. Unit tests can be analyzed easily with the debugger to verify behavior. 
-   6. When a third party has made a change that breaks a test - the presence of that test alerts the developer to discover side-effects of their change and 
-      identify immediately exactly what happened. This also applies to discovering side-effects of framework updates etc. Inadequate testing leads to the 
-      accumulation of hidden bugs which may be discovered by a customer rather than by the developer before the code gets to the customer.
-   7. Tests provide excellent discrete examples of how code is intended to be used in various use cases - aiding developers new to working with that code. 
-    
-   **NEVER** think that writing tests is a waste of time or that not writing tests is ok because it saves time - in the long run this is simply not true and 
-   you can end up compromising the quality, reliability and maintainability of an entire project by not taking testing seriously.
-   
+  
 Developing the Picard WPP
 *************************
 

@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
+import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy;
@@ -61,10 +62,10 @@ public class SampleSheetTasklet extends WaspRemotingTasklet {
 
 	@Override
 	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 		run = runService.getRunById(runId);
 		logger.debug("preparing sample sheet for " + run.getName() + ":" + run.getPlatformUnit().getName());
-		saveGridResult(context, casava.doSampleSheet(run, method));
+		return casava.doSampleSheet(run, method);
 	}
 	
 	@Override
@@ -94,5 +95,11 @@ public class SampleSheetTasklet extends WaspRemotingTasklet {
     public void beforeStep(StepExecution stepExecution) {
         super.beforeStep(stepExecution);
     }
+
+	@Override
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

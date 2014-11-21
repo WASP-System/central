@@ -62,50 +62,9 @@ public class HelptagTasklet extends WaspRemotingTasklet  implements StepExecutio
 	 */
 	@Override
 	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
-		
-/*
-		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
-		
-		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
-		stepContext.put("cellLibId", cellLib.getId()); //place in the step context
-		
-		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
-		
-		logger.debug("Beginning HelpTagging step 1 (generate hcount file) for cellLibrary " + cellLib.getId() + " from job " + job.getId());
-		
-		Set<FileGroup> fileGroups = fileService.getFilesForCellLibraryByType(cellLib, fastqFileType); // TODO: change to bamFileType later
-		
-		logger.debug("ffileGroups.size()="+fileGroups.size());
-		Assert.assertTrue(fileGroups.size() == 1);
-		FileGroup fg = fileGroups.iterator().next();
-		
-		logger.debug("file group: " + fg.getId() + ":" + fg.getDescription());
-		
-		Map<String,Object> jobParameters = context.getStepContext().getJobParameters();
-		
-		for (String key : jobParameters.keySet()) {
-			logger.debug("Key: " + key + " Value: " + jobParameters.get(key).toString());
-		}
-		
-		WorkUnit w = helptag.getHelptag(cellLib, fg);
-*/
-		// get work unit
-		WorkUnit w = helptag.getHelptag(cellLibraryId);
-
-//		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, helptag));
-   
-		GridResult result = gridHostResolver.execute(w);
-		
-		//place the grid result in the step context
-		saveGridResult(context, result);
-		
-		// place scratch directory in step execution context, to be promoted
-		// to the job context at run time.
-/*		stepContext.put("scrDir", result.getWorkingDirectory());
-		stepContext.put("createHcountName", result.getId());
-*/
-
+	public GridResult doExecute(ChunkContext context) throws Exception {
+			WorkUnit w = helptag.getHelptag(cellLibraryId);
+			return gridHostResolver.execute(w);
 	}
 	
 	public static void doWork(int cellLibraryId) {
@@ -129,6 +88,12 @@ public class HelptagTasklet extends WaspRemotingTasklet  implements StepExecutio
 		super.beforeStep(stepExecution);
 		logger.debug("StepExecutionListener beforeStep saving StepExecution");
 		this.stepExecution = stepExecution;
+		
+	}
+
+	@Override
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		// TODO Auto-generated method stub
 		
 	}
 

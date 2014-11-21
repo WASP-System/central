@@ -3,6 +3,7 @@
  */
 package edu.yu.einstein.wasp.plugin.babraham.batch.tasklet;
 
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,15 +56,12 @@ public class FastQScreenTasklet extends WaspRemotingTasklet {
 	 */
 	@Override
 	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 		// get work unit
 		WorkUnit w = fastqscreen.getFastQScreen(fileGroupId);
 		
 		// execute it
-		GridResult result = hostResolver.execute(w);
-		
-		//place the grid result in the step context
-		saveGridResult(context, result);
+		return  hostResolver.execute(w);
 	}
 	
 	/**
@@ -76,6 +74,12 @@ public class FastQScreenTasklet extends WaspRemotingTasklet {
 		GridResult result = getGridResult(context);
 		// parse and save output
 		babrahamService.saveJsonForParsedSoftwareOutput(fastqscreen.parseOutput(result.getResultsDirectory()), FASTQSCREEN_PLOT_META_KEY, fastqscreen, fileGroupId);
+	}
+
+	@Override
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

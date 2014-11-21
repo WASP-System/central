@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -85,7 +86,7 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 	
 	@Override
 	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 		
 		// TODO: check to see if the Makefile exists already (already configured and re-run because of grid exception).
 		
@@ -135,8 +136,7 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 		
 		logger.debug("started illumina pipeline: " + result.getUuid());
 		
-		//place the grid result in the step context
-		saveGridResult(context, result);
+		return result;
 	}
 	
 	private String getConfigureBclToFastqString(SoftwareManager sm, Run run, int proc, String sampleSheetName, String outputFolder) throws MetadataException {
@@ -247,6 +247,13 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 	@Autowired
 	public void setRunService(RunService runService) {
 		this.runService = runService;
+	}
+
+
+	@Override
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

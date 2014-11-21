@@ -21,7 +21,6 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessagingException;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.AbandonMessageHandlingTasklet;
 import edu.yu.einstein.wasp.exception.SoftwareConfigurationException;
@@ -35,7 +34,7 @@ import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.util.SoftwareConfiguration;
+import edu.yu.einstein.wasp.software.SoftwareConfiguration;
 import edu.yu.einstein.wasp.util.WaspJobContext;
 
 
@@ -135,7 +134,6 @@ public class WaspJobSoftwareLaunchTaskletImpl extends AbandonMessageHandlingTask
 
 	@Override
 	@Transactional("entityManager") // Omission of this results in: edu.yu.einstein.wasp.exception.JobContextInitializationException: could not initialize proxy - no Session
-	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
 		WaspJobContext waspJobContext = new WaspJobContext(jobId, jobService);
 		SoftwareConfiguration softwareConfig = waspJobContext.getConfiguredSoftware(softwareResourceType);
@@ -200,9 +198,9 @@ public class WaspJobSoftwareLaunchTaskletImpl extends AbandonMessageHandlingTask
 		this.additionalJobParameters = additionalJobParameters;
 	}
 
-	@PostConstruct
-	public void init(){
-		super.init();
+	@Override
+	public void afterPropertiesSet() throws Exception{
+		super.afterPropertiesSet();
 		// if jobId is not set, get it from the first cellLibrary in the list and check it is unique across all in the list
 		// in this scenario (otherwise we have no idea which is supposed to be used)
 		if (this.jobId == null){

@@ -218,6 +218,22 @@ public class HardFilterTasklet extends TestForGenomeIndexTasklet {
 	public void beforeStep(StepExecution stepExecution) {
 		super.beforeStep(stepExecution);
 	}
+
+
+	@Override
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		ExecutionContext stepExecutionContext = getStepExecutionContext(stepExecution);
+		if (stepExecutionContext.containsKey("filteredSnpsVcfFgId")){
+			Integer filteredSnpsVcfFgId = Integer.parseInt(stepExecutionContext.getString("filteredSnpsVcfFgId"));
+			logger.debug("Deleting FileGroup with id=: " + filteredSnpsVcfFgId);
+			fileService.removeWithAllAssociatedFilehandles(fileService.getFileGroupById(filteredSnpsVcfFgId));
+		}
+		if (stepExecutionContext.containsKey("filteredIndelsVcfFgId")){
+			Integer filteredIndelsVcfFgId = Integer.parseInt(stepExecutionContext.getString("filteredIndelsVcfFgId"));
+			logger.debug("Deleting FileGroup with id=: " + filteredIndelsVcfFgId);
+			fileService.removeWithAllAssociatedFilehandles(fileService.getFileGroupById(filteredIndelsVcfFgId));
+		}
+	}
 	
 
 }

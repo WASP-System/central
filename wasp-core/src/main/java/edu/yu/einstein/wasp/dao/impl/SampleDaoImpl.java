@@ -65,17 +65,17 @@ public class SampleDaoImpl extends WaspDaoImpl<Sample> implements edu.yu.einstei
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Sample> getSamplesByJobId (final int jobId) {
-		   String sql=
+		   String query=
 			   "SELECT s.id, s.name\n"+
-			   "FROM jobsample js\n"+
-			   "JOIN sample s ON s.id = js.sampleId\n"+
-			   "WHERE jobId = :jobId\n"+
-			   "ORDER by s.name";
+			   "FROM JobSample js\n"+
+			   "JOIN Sample s ON s.id = js.sampleId\n"+
+			   "WHERE js.jobId = :jobId\n"+
+			   "ORDER BY s.name";
 			  
 		   
 		   List<Sample> result=new ArrayList<Sample>();
 		   
-		   List<Object[]> listObj=entityManager.createNativeQuery(sql).setParameter("jobId", jobId).getResultList();
+		   List<Object[]> listObj=entityManager.createQuery(query).setParameter("jobId", jobId).getResultList();
 		   
 		   for(Object[] o:listObj) {
 			   

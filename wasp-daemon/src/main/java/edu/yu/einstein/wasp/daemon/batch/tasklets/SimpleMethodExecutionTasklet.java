@@ -5,6 +5,7 @@ package edu.yu.einstein.wasp.daemon.batch.tasklets;
 
 import java.util.List;
 
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -95,7 +96,7 @@ public class SimpleMethodExecutionTasklet extends WaspRemotingTasklet {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
 		c.setSoftwareDependencies(softwareDependencies);
 		c.setMemoryRequirements(memoryRequirements);
@@ -112,8 +113,13 @@ public class SimpleMethodExecutionTasklet extends WaspRemotingTasklet {
 		} else {
 			r = hostResolver.execute(w);
 		}
+		return r;
 		
-		saveGridResult(context, r);
+	}
+
+	@Override
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		// TODO Auto-generated method stub
 		
 	}
 	

@@ -54,11 +54,13 @@ public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
 	@Override
 	@Transactional("entityManager")
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
+		StepExecution stepExecution = context.getStepContext().getStepExecution();
 		Long stepExecutionId = context.getStepContext().getStepExecution().getId();
 		if (wasWokenOnTimeout(context)){
 			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation after a timeout.");
 			wasHibernationRequested = false;
 			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
+			removeWokenOnTimeoutStatus(stepExecution);
 		}
 		if (!wasHibernationRequested){
 			if (getIsGenomeAvailable(getStepExecutionContext(context)))
@@ -79,7 +81,7 @@ public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
 			logger.debug("genome index is currently being built, going to request hibernation before alignment begins");
 			Long timeoutInterval = exponentiallyIncreaseTimeoutIntervalInContext(context);
 			logger.trace("Going to request hibernation for " + timeoutInterval + " ms");
-			addStatusMessagesToAbandonStepToContext(context, abandonTemplates);
+			addStatusMessagesToAbandonStepToContext(stepExecution, abandonTemplates);
 			requestHibernation(context);
 		} else 
 			logger.debug("Doing nothing as StepExecution id=" + stepExecutionId + " has already requested hibernation");
@@ -88,12 +90,8 @@ public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
 	
 	@Override
 	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
-		
-		GridResult result = executeWorkUnit(context);
-		
-		//place the grid result in the step context
-		saveGridResult(context, result);
+	public GridResult doExecute(ChunkContext context) throws Exception {
+		return executeWorkUnit(context);
 	}
 	
 	/** 

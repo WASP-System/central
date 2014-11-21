@@ -10,7 +10,6 @@ import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +51,7 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  * @author jcai
  * @author asmclellan
  */
-public class BamPreProcessingTasklet extends TestForGenomeIndexTasklet implements StepExecutionListener {
+public class BamPreProcessingTasklet extends TestForGenomeIndexTasklet {
 
 	private Integer cellLibraryId;
 	
@@ -96,15 +95,11 @@ public class BamPreProcessingTasklet extends TestForGenomeIndexTasklet implement
 		Assert.assertTrue(cids.size() == 1);
 		this.cellLibraryId = cids.get(0);
 	}
-
+	
 	@Override
 	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
-		
-		GridResult result = executeWorkUnit(context);
-		
-		//place the grid result in the step context
-		saveGridResult(context, result);
+	public GridResult doExecute(ChunkContext context) throws Exception {
+		return executeWorkUnit(context);
 	}
 	
 	/** 
@@ -266,6 +261,24 @@ public class BamPreProcessingTasklet extends TestForGenomeIndexTasklet implement
 	private Job getJobForCellLibrary(){
 		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
 		return sampleService.getJobOfLibraryOnCell(cellLib);
+	}
+
+	@Override
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
+		Integer bamGId = null;
+		if (stepExecutionContext.containsKey("bamGID"))
+			bamGId = stepExecutionContext.getInt("bamGID");
+		Integer baiGId = null;
+		if (stepExecutionContext.containsKey("baiGID"))
+			baiGId = stepExecutionContext.getInt("baiGID");
+		logger.debug("Cleaning filegroup entries");
+		// remove .bam and .bai file group entries
+		if (bamGId != null)
+			fileService.removeWithAllAssociatedFilehandles(fileService.getFileGroupById(bamGId));
+		if (baiGId != null)
+			fileService.removeWithAllAssociatedFilehandles(fileService.getFileGroupById(baiGId));
+		
 	}
 
 }

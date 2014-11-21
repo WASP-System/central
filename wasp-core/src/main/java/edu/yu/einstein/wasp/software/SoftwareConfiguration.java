@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.util;
+package edu.yu.einstein.wasp.software;
 
 import java.io.Serializable;
 import java.util.HashMap;

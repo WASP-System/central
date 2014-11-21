@@ -64,7 +64,7 @@ public class BuildStarIndexTasklet extends WaspRemotingTasklet {
 	}
 
 	@Override
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 		
 		Build build = genomeService.getBuild(config.getOrganism(), config.getGenome(), config.getBuild());
 
@@ -95,9 +95,7 @@ public class BuildStarIndexTasklet extends WaspRemotingTasklet {
 		w.addCommand(star.getStarGenomeBuildString(host, config));
 		w.addCommand("rm -f " + GenomeService.INDEX_CREATION_STARTED + ".tmp");
 		
-		GridResult r = host.execute(w);
-
-		saveGridResult(context, r);
+		return host.execute(w);
 	}
 
 	@Override
@@ -110,6 +108,12 @@ public class BuildStarIndexTasklet extends WaspRemotingTasklet {
 	public ExitStatus afterStep(StepExecution stepExecution) {
 		// TODO Auto-generated method stub
 		return super.afterStep(stepExecution);
+	}
+
+	@Override
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

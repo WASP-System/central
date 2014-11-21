@@ -146,4 +146,10 @@ public class CallVariantsWithHCTasklet extends AbstractGatkTasklet implements St
 		super.beforeStep(stepExecution);
 	}
 
+
+	@Override
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		super.doCleanupBeforeRestart(stepExecution);
+	}
+
 }

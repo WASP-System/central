@@ -21,7 +21,6 @@ import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.MessagingException;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager.LockType;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
@@ -85,21 +84,19 @@ public class ListenForStatusTasklet extends WaspHibernatingTasklet implements Me
 	}
 	
 	@Override
-	@PostConstruct
-	protected void init() throws MessagingException{
+	public void afterPropertiesSet() throws Exception{
 		if (messageTemplates == null)
 			throw new MessagingException("No message templates defined to check against");
-		super.init();
+		super.afterPropertiesSet();
 	}
 	
 	@Override
-	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		StepExecution stepExecution =  context.getStepContext().getStepExecution();
 		Long stepExecutionId =stepExecution.getId();
 		Long jobExecutionId = context.getStepContext().getStepExecution().getJobExecutionId();
 		logger.trace(name + "execute() invoked");
-		if (wasWokenOnMessage(context)){
+		if (wasWokenOnMessage(stepExecution)){
 			logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + 
 					") was woken up from hibernation for a message. Skipping to next step...");
 			setStepStatusInJobExecutionContext(stepExecution, BatchStatus.COMPLETED);
@@ -116,8 +113,8 @@ public class ListenForStatusTasklet extends WaspHibernatingTasklet implements Me
 			// all steps if this isn't done.
 			logger.info("Going to request hibernation from StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + 
 					") as not previously requested");
-			addStatusMessagesToWakeStepToContext(context, messageTemplates);
-			addStatusMessagesToAbandonStepToContext(context, abandonTemplates);
+			addStatusMessagesToWakeStepToContext(stepExecution, messageTemplates);
+			addStatusMessagesToAbandonStepToContext(stepExecution, abandonTemplates);
 			requestHibernation(context);
 		} else if (!wasHibernationRequestGranted){
 				logger.debug("Previous hibernation request made by this StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId + 
@@ -181,6 +178,7 @@ public class ListenForStatusTasklet extends WaspHibernatingTasklet implements Me
 			exitStatus = exitStatus.and(getExitStatus(stepExecution, status));
 			logger.debug("Updating exit status as step id= " + stepExecution.getId() + " was woken on message with status: " + status+ 
 					". Exit status now set to " + exitStatus);
+			removeWokenOnMessageStatus(stepExecution);
 		}
 		else {
 			logger.debug("Step id= " + stepExecution.getId() +
