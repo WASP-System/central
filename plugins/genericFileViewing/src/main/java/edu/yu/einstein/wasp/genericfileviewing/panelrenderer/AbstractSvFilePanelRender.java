@@ -38,7 +38,9 @@ public class AbstractSvFilePanelRender {
 			String headerLine = "";
 			boolean isFirstNonHeaderLineNotProcessed = true;
 			int lineNumber = 1;
-			while ((line = br.readLine()) != null && !line.trim().isEmpty() && (lineLimit == -1 || lineNumber <= lineLimit)) {
+			while ((line = br.readLine()) != null && (lineLimit == -1 || lineNumber <= lineLimit)) {
+				if (line.trim().replaceAll(seperator, "").isEmpty())
+					continue;
 				line = line.trim();
 				if (isFirstNonHeaderLineNotProcessed){
 					// If the first line starts with #, it might be a header line There may be more than one so only consider the 
