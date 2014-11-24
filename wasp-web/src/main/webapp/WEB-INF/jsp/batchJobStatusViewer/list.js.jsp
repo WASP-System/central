@@ -36,6 +36,7 @@ Ext.define('BatchTreeModel', {
         {name: 'status',     type: 'string'},
         {name: 'exitCode', type: 'string'},
         {name: 'exitMessage',     type: 'string'},
+        {name: 'retries',     type: 'integer'},
         {name: 'resultAvailable', type: 'boolean'}
     ]
 });
@@ -195,9 +196,14 @@ Ext.onReady(function() {
         columns: [{
         	xtype: 'treecolumn', //this is so we know which column will show the tree
             text: '<fmt:message key="batchViewer.nameCol.label"/>',
-            width: 420,
+            width: 400,
             sortable: true,
             dataIndex: 'name'
+        },{
+            text: '<fmt:message key="batchViewer.retries.label"/>',
+            width: 50,
+            sortable: true,
+            dataIndex: 'retries'
         },{
             text: '<fmt:message key="batchViewer.idCol.label"/>',
             width: 70,
