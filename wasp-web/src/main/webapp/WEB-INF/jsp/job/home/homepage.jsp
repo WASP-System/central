@@ -22,11 +22,14 @@
 		<li><a id="viewerManagerAnchor"  href="<wasp:relativeUrl value="job/${job.getId()}/viewerManager.do" />"><fmt:message key="jobHomeHomepage.shareTab.label" /></a></li>
 		<li><a id="comments"  href="<wasp:relativeUrl value="job/${job.getId()}/comments.do" />" ><fmt:message key="jobHomeHomepage.commentsTab.label" /></a></li>
 		<li><a id="fileUploadAnchor"  href="<wasp:relativeUrl value="job/${job.getId()}/fileUploadManager.do" />" ><fmt:message key="jobHomeHomepage.uploadedFilesTab.label" /></a></li>
-		<li><a id="requestsAnchor"  href="<wasp:relativeUrl value="job/${job.getId()}/requests.do" />" ><fmt:message key="jobHomeHomepage.requestsTab.label" /></a></li>
+		<c:if test="${job.getWorkflow().getIName()!='bioanalyzer'}">
+		  <li><a id="requestsAnchor"  href="<wasp:relativeUrl value="job/${job.getId()}/requests.do" />" ><fmt:message key="jobHomeHomepage.requestsTab.label" /></a></li>
+	    </c:if>
 	    <li><a id="sampleDetailsAnchor"  href="<wasp:relativeUrl value="job/${job.getId()}/sampleDetails.do" />" ><fmt:message key="jobHomeHomepage.sampleDetailsTab.label" /></a></li>
-	    <li><a id="samplesAnchor"  href="<wasp:relativeUrl value="job/${job.getId()}/samples.do" />" ><fmt:message key="jobHomeHomepage.samplesLibrariesRunsTab.label" /></a></li>
-		<li><a id="dataByTreeViewAnchor"  href="javascript:void(0);" onclick='window.location.href="<wasp:relativeUrl value="jobresults/treeview/job/${job.getId()}.do" />"; return false;' ><fmt:message key="jobHomeHomepage.dataTreeViewTab.label" /></a></li>
-		
+	   	<c:if test="${job.getWorkflow().getIName()!='bioanalyzer'}">
+	      <li><a id="samplesAnchor"  href="<wasp:relativeUrl value="job/${job.getId()}/samples.do" />" ><fmt:message key="jobHomeHomepage.samplesLibrariesRunsTab.label" /></a></li>
+		  <li><a id="dataByTreeViewAnchor"  href="javascript:void(0);" onclick='window.location.href="<wasp:relativeUrl value="jobresults/treeview/job/${job.getId()}.do" />"; return false;' ><fmt:message key="jobHomeHomepage.dataTreeViewTab.label" /></a></li>
+		</c:if>
 
 	</ul>
 </div>

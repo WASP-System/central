@@ -110,7 +110,9 @@
 					<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="sampleDetails.species.label" /></label></td>
 					<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="sampleDetails.arrived?.label" /></label></td>
 					<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="sampleDetails.qc.label" /></label></td>
-					<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="sampleDetails.adaptor.label" /></label></td>
+					<c:if test="${fn:length(libraryAdaptorsetMap) > 1 }">
+						<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="sampleDetails.adaptor.label" /></label></td>
+					</c:if>
 					<c:set var="_area" value = "sample" scope="request"/>
 					<c:set var="_metaList" value = "${sampleNormalizedSampleMetaListMap.get(submittedLibrary)}" scope="request" />		
 				    <c:forEach items="${_metaList}" var="_meta" varStatus="status">
@@ -164,10 +166,12 @@
 				</td>
 				<c:set value="${libraryAdaptorsetMap.get(submittedLibrary)}" var="adaptorSet"/>
 				<c:set value="${libraryAdaptorMap.get(submittedLibrary)}" var="adaptor"/>
-				<td class="DataTD"  style="text-align:center; white-space:nowrap;">
+				<c:if test="${fn:length(libraryAdaptorsetMap) > 1 }">
+				  <td class="DataTD"  style="text-align:center; white-space:nowrap;">
 					<c:out value="${adaptorSet.getName()}" /><br />
 					<fmt:message key="sampleDetails.index.label" /> <c:out value="${adaptor.getBarcodenumber()}" /> [<c:out value="${adaptor.getBarcodesequence()}" />]
-				</td>
+				  </td>
+				</c:if>
 				<c:set var="_area" value = "sample" scope="request"/>
 				<c:set var="_metaList" value = "${sampleNormalizedSampleMetaListMap.get(submittedLibrary)}" scope="request" />		
 				<c:forEach items="${_metaList}" var="_meta" varStatus="status">
@@ -205,7 +209,9 @@
 					<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="sampleDetails.sampleName.label" /><br />(<fmt:message key="sampleDetails.internalID.label" />)<br />[<fmt:message key="sampleDetails.derivedFrom.label" />]</label></td> 
 					<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="sampleDetails.type.label" /></label></td>
 					<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="sampleDetails.qc.label" /></label></td>
-					<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="sampleDetails.adaptor.label" /></label></td>
+					<c:if test="${fn:length(libraryAdaptorsetMap) > 1 }">
+					  <td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="sampleDetails.adaptor.label" /></label></td>
+					</c:if>
 					<c:set var="_area" value = "sample" scope="request"/>
 					<c:set var="_metaList" value = "${sampleNormalizedSampleMetaListMap.get(facilityLibrary)}" scope="request" />		
 				    <c:forEach items="${_metaList}" var="_meta" varStatus="status">
@@ -248,10 +254,12 @@
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><c:out value="${qcStatusMap.get(facilityLibrary)}" /></td>
 				<c:set value="${libraryAdaptorsetMap.get(facilityLibrary)}" var="adaptorSet"/>
 				<c:set value="${libraryAdaptorMap.get(facilityLibrary)}" var="adaptor"/>
-				<td class="DataTD"  style="text-align:center; white-space:nowrap;">
+				<c:if test="${fn:length(libraryAdaptorsetMap) > 1 }">
+				  <td class="DataTD"  style="text-align:center; white-space:nowrap;">
 					<c:out value="${adaptorSet.getName()}" /><br />
 					<fmt:message key="sampleDetails.index.label" /> <c:out value="${adaptor.getBarcodenumber()}" /> [<c:out value="${adaptor.getBarcodesequence()}" />]
-				</td>
+				  </td>
+				</c:if>
 				<c:set var="_area" value = "sample" scope="request"/>
 				<c:set var="_metaList" value = "${sampleNormalizedSampleMetaListMap.get(facilityLibrary)}" scope="request" />		
 				<c:forEach items="${_metaList}" var="_meta" varStatus="status">

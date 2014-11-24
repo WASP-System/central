@@ -939,7 +939,9 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
 				  //Index <c:out value="${adaptor.getBarcodenumber()}" /> [<c:out value="${adaptor.getBarcodesequence()}" />]
 				  adaptorString = "Index " + adaptor.getBarcodenumber() + "\n[" + adaptor.getBarcodesequence() + "]"; 
 				}catch(Exception e){ logger.debug("unable to access adaptor in addSubmittedSamplesQuickViewDetailsAsTable"); }		  
-				
+				if(adaptorSetNameString.isEmpty() && adaptorString.isEmpty() && job.getWorkflow().getIName().equalsIgnoreCase("bioanalyzer")){
+					adaptorSetNameString="Not Captured From User";
+				}
 				PdfPCell adaptor = new PdfPCell(new Phrase(adaptorSetNameString+"\n"+adaptorString, TINY_BOLD));
 				adaptor.setHorizontalAlignment(Element.ALIGN_CENTER);
 				submittedSamplesQuickViewTable.addCell(adaptor);
