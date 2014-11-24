@@ -32,11 +32,13 @@
 
     <property name="dependencies">
       <list>
-       <!--  <ref bean="mpsResourceType" />
+      	<ref bean="bioanalyzerResourceType" />
+      	<ref bean="libraryStrategyResourceType" />
+       	<!--  
+       	<ref bean="mpsResourceType" />
         <ref bean="referenceBasedAlignerResourceType" />
         <ref bean="peakcallerResourceType" />
-       -->
-        <ref bean="libraryStrategyResourceType" />
+       	-->
       </list>
     </property>
  
