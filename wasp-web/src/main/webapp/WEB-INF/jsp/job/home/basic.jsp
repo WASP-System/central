@@ -31,9 +31,12 @@
 			</td>
 		</tr>
 	</c:forEach> 
-	
 	<tr class="FormData"><td>&nbsp;</td><td></td></tr>
-
+	
+	<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobGrantDetails.label" />:</td><td class="DataTD"><c:out value="${grantDetails}" /></td></tr>
+	<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.Quote_Job_Price.label" />:</td><td class="DataTD"><c:out value="${currentQuoteCost}" /></td></tr>
+	<tr class="FormData"><td>&nbsp;</td><td></td></tr>
+	
 	<c:if test="${not empty strategy && not empty strategy.getId()}">
 		<tr class="FormData">
 			<td class="CaptionTD">
@@ -51,7 +54,6 @@
 	</c:if>
 	<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobWorkflow.label" />:</td><td class="DataTD"><c:out value="${job.workflow.name}" /></td></tr>
 	<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobAnalysisRequested.label" />:</td><td class="DataTD"><c:out value="${isAnalysisRequested}" /></td></tr>
-	<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobGrantDetails.label" />:</td><td class="DataTD"><c:out value="${grantDetails}" /></td></tr>
 	
 	<c:forEach items="${extraJobDetailsMap.keySet()}" var="detailKey">
 		<tr class="FormData"><td class="CaptionTD"><fmt:message key="${detailKey}" />:</td><td class="DataTD"><c:out value="${extraJobDetailsMap.get(detailKey)}" /></td></tr>

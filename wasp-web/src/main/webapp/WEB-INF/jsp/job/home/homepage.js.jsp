@@ -30,7 +30,7 @@ waspOnLoad=function() {
 	$("#smallModalessDialog").dialog({
         autoOpen: false,
         modal: false,
-        height: 600,
+        height: 700,
         width: 600,
         position: { my: "right top", at: "right top", of: window } 
     });

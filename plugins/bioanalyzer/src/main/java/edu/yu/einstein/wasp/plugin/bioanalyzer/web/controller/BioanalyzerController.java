@@ -32,6 +32,7 @@ import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.Strategy.StrategyType;
 import edu.yu.einstein.wasp.controller.WaspController;
 import edu.yu.einstein.wasp.controller.util.SampleAndSampleDraftMetaHelper;
+import edu.yu.einstein.wasp.dao.JobDraftresourcecategoryDao;
 import edu.yu.einstein.wasp.exception.MetadataTypeException;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.AccountsService;
@@ -39,6 +40,7 @@ import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobDraftService;
 import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
+import edu.yu.einstein.wasp.service.ResourceService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.StrategyService;
 import edu.yu.einstein.wasp.service.WorkflowService;
@@ -49,8 +51,10 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
+import edu.yu.einstein.wasp.model.JobDraftresourcecategory;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
+import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
@@ -67,6 +71,8 @@ import edu.yu.einstein.wasp.plugin.bioanalyzer.service.BioanalyzerService;
 @RequestMapping("/bioanalyzer")
 public class BioanalyzerController extends WaspController {
 	@Autowired
+	protected JobDraftresourcecategoryDao jobDraftresourcecategoryDao;
+	@Autowired
 	protected AccountsService accountsService;
 	@Autowired
 	protected AuthenticationService authenticationService;
@@ -78,6 +84,8 @@ public class BioanalyzerController extends WaspController {
 	private LabService labService;
 	@Autowired
 	private MessageServiceWebapp messageService;
+	@Autowired
+	private ResourceService resourceService;
 	@Autowired
 	private SampleService sampleService;
 	@Autowired
@@ -189,6 +197,7 @@ public class BioanalyzerController extends WaspController {
 		m.put("availableBioanalyzerChipList", availableBioanalyzerChipList);
 		m.put("userSelectedBioanalyzerChip", bioanalyzerService.getMeta(jobDraft, bioanalyzerService.bioanalyzerChipMeta));
 		m.put("assayLibrariesAreFor", bioanalyzerService.getMeta(jobDraft, bioanalyzerService.bioanalyzerAssayLibrariesAreForMeta));
+		m.put("assayLibrariesAreForToolTip", messageService.getMessage("bioanalyzer.chipChoiceAndInfo_assayLibrariesAreForToolTip.label"));
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
 		
 		return "bioanalyzer/chipChoiceAndInfo";
@@ -233,6 +242,21 @@ public class BioanalyzerController extends WaspController {
 		//set isAnalysisSelected to false; bioanalyzer workflow does NOT require it (default setting is true)
 		jobDraftService.setIsAnalysisSelected(jobDraft, false);
 		
+		//set jobdraftresourcecategory
+		ResourceCategory bioanalyzerRC = resourceService.getResourceCategoryDao().getResourceCategoryByIName("bioanalyzer");
+		List<JobDraftresourcecategory> jdrcList = jobDraft.getJobDraftresourcecategory();
+		boolean jdrcRecorded = false;
+		for(JobDraftresourcecategory jdrc : jdrcList){
+			if(jdrc.getJobDraftId().intValue()==jobDraft.getId().intValue() && jdrc.getResourcecategoryId().intValue()==bioanalyzerRC.getId().intValue()){
+				jdrcRecorded=true;
+			}
+		}
+		if(!jdrcRecorded){
+			JobDraftresourcecategory newJdr = new JobDraftresourcecategory();
+			newJdr.setJobDraftId(jobDraftId);
+			newJdr.setResourcecategoryId(bioanalyzerRC.getId());
+			jobDraftresourcecategoryDao.save(newJdr);
+		}
 		waspMessage("bioanalyzer.chipChoiceAndInfo_updateSuccessfullyRecorded.error");
 		return nextPage(jobDraft);
 	}

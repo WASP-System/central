@@ -929,6 +929,13 @@ public class JobController extends WaspController {
 			grantDetails += ", expires " + dateFormat.format(grant.getExpirationdt());
 		}
 	    m.addAttribute("grantDetails", grantDetails);
+	    AcctQuote currentQuote = job.getCurrentQuote();
+	    String currentQuoteCost = Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??";
+	    if(currentQuote != null && currentQuote.getId()!=null){
+		  Float price = new Float(job.getCurrentQuote().getAmount());
+		  currentQuoteCost = Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price);
+	    }
+	    m.addAttribute("currentQuoteCost", currentQuoteCost);
 		return "job/home/basic";
 	}
   

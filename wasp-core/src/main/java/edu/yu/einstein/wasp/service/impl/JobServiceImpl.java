@@ -901,21 +901,32 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			  if(jrc.getResourceCategory().getResourceType().getIName().equals("mps")){
 				  extraJobDetailsMap.put("jobdetail_for_import.Machine.label", jrc.getResourceCategory().getName());
 				  area = jrc.getResourceCategory().getIName();
-				  break;
+			  }
+			  if(jrc.getResourceCategory().getResourceType().getIName().equals("bioanalyzer")){
+				  area = jrc.getResourceCategory().getIName();
 			  }
 		  }
 		  for(JobMeta jobMeta : job.getJobMeta()){
 			String strRunType = area+".runType";
 			String strReadType = area+".readType";
 			String strReadLength = area+".readLength";
+			String bioanalyzerChip = area+".chip";
+			String bioanalyzerAssayLibrariesAreFor = area+".assayLibrariesAreFor";
+			
 			if(strRunType.toLowerCase().equals(jobMeta.getK().toLowerCase().trim())){
 				extraJobDetailsMap.put("jobdetail_for_import.Run_Type.label", jobMeta.getV());
 			}
 			else if(strReadType.toLowerCase().equals(jobMeta.getK().toLowerCase().trim())){
 				extraJobDetailsMap.put("jobdetail_for_import.Read_Type.label", jobMeta.getV());
 			}
-			if(strReadLength.toLowerCase().equals(jobMeta.getK().toLowerCase().trim())){
+			else if(strReadLength.toLowerCase().equals(jobMeta.getK().toLowerCase().trim())){
 				extraJobDetailsMap.put("jobdetail_for_import.Read_Length.label", jobMeta.getV());
+			}			
+			else if(bioanalyzerChip.toLowerCase().equals(jobMeta.getK().toLowerCase().trim())){
+				extraJobDetailsMap.put("jobdetail_for_import.Bioanalyzer_Chip.label", jobMeta.getV());
+			}			
+			else if(bioanalyzerAssayLibrariesAreFor.toLowerCase().equals(jobMeta.getK().toLowerCase().trim())){
+				extraJobDetailsMap.put("jobdetail_for_import.Bioanalyzer_AssayLibrariesAreFor.label", jobMeta.getV());
 			}
 		  }
 		  /*
@@ -942,6 +953,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??"); 
 		  }	
 		  */
+		  /* moved out of here and into basic.jsp controller 
 		  AcctQuote currentQuote = job.getCurrentQuote();
 		  if(currentQuote == null || currentQuote.getId()==null){
 			  extraJobDetailsMap.put("jobdetail_for_import.Quote_Job_Price.label", Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??");
@@ -950,6 +962,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			  Float price = new Float(job.getCurrentQuote().getAmount());
 			  extraJobDetailsMap.put("jobdetail_for_import.Quote_Job_Price.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 		  }
+		  */
 		  return extraJobDetailsMap;	  
 	  }
 
