@@ -64,6 +64,7 @@ import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
+import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.plugin.bioanalyzer.service.BioanalyzerService;
 
 
@@ -181,19 +182,14 @@ public class BioanalyzerController extends WaspController {
 			return "redirect:/dashboard.do";
 		}
 		m.put("jobDraft", jobDraft);
-		List<String> availableBioanalyzerChipList = new ArrayList<String>();
-		availableBioanalyzerChipList.add(messageService.getMessage("bioanalyzer.create_bioanalyzerChipHighSensitivity.label"));
-		availableBioanalyzerChipList.add(messageService.getMessage("bioanalyzer.create_bioanalyzerChip7500.label"));
-		availableBioanalyzerChipList.add(messageService.getMessage("bioanalyzer.create_bioanalyzerChip1000.label"));
-		Workflow wf = jobDraft.getWorkflow();
-		List<Workflowresourcecategory> wfrcList = wf.getWorkflowresourcecategory();
-		for(Workflowresourcecategory wfrc : wfrcList){
-			if(wfrc.getResourceCategory().getResourceType().getIName().equals("bioanalyzer")){
-				wfrc.getWorkflowresourcecategoryMeta();
-			}
-		}
-		//WorkflowResourcecategory wfrc = 
 		
+		Workflow wf = jobDraft.getWorkflow();
+		if(!wf.getIName().equalsIgnoreCase("bioanalyzer")){
+			waspErrorMessage("bioanalyzer.chipChoiceAndInfo_workflowError.error");
+			return "redirect:/dashboard.do";
+		}
+		
+		List<String> availableBioanalyzerChipList = bioanalyzerService.getAvailableBioanalyzerChips(wf);//new ArrayList<String>();
 		m.put("availableBioanalyzerChipList", availableBioanalyzerChipList);
 		m.put("userSelectedBioanalyzerChip", bioanalyzerService.getMeta(jobDraft, bioanalyzerService.bioanalyzerChipMeta));
 		m.put("assayLibrariesAreFor", bioanalyzerService.getMeta(jobDraft, bioanalyzerService.bioanalyzerAssayLibrariesAreForMeta));
@@ -213,7 +209,14 @@ public class BioanalyzerController extends WaspController {
 		if ( ! isJobDraftEditable(jobDraft) ){
 			return "redirect:/dashboard.do";
 		}
-
+		m.put("jobDraft", jobDraft);
+		
+		Workflow wf = jobDraft.getWorkflow();
+		if(!wf.getIName().equalsIgnoreCase("bioanalyzer")){
+			waspErrorMessage("bioanalyzer.chipChoiceAndInfo_workflowError.error");
+			return "redirect:/dashboard.do";
+		}
+		
 		if(bioanalyzerChip==null || bioanalyzerChip.isEmpty() || bioanalyzerChip.equals("-1") ||assayLibrariesAreFor==null || assayLibrariesAreFor.trim().isEmpty()){
 			
 			if(bioanalyzerChip==null || bioanalyzerChip.isEmpty() || bioanalyzerChip.equals("-1")){
@@ -222,15 +225,13 @@ public class BioanalyzerController extends WaspController {
 			if(assayLibrariesAreFor==null || assayLibrariesAreFor.trim().isEmpty()){
 				m.put("assayLibrariesAreForError", messageService.getMessage("bioanalyzer.chipChoiceAndInfo_assayMissing.error"));
 			}
-			m.put("jobDraft", jobDraft);
+			
+			List<String> availableBioanalyzerChipList = bioanalyzerService.getAvailableBioanalyzerChips(wf);			
+			m.put("availableBioanalyzerChipList", availableBioanalyzerChipList);
 			m.put("userSelectedBioanalyzerChip", bioanalyzerChip);
-			m.put("", assayLibrariesAreFor);
-			m.put("pageFlowMap", getPageFlowMap(jobDraft));			
-			List<String> availableBioanalyzerChipList = new ArrayList<String>();
-			availableBioanalyzerChipList.add(messageService.getMessage("bioanalyzer.create_bioanalyzerChipHighSensitivity.label"));
-			availableBioanalyzerChipList.add(messageService.getMessage("bioanalyzer.create_bioanalyzerChip7500.label"));
-			availableBioanalyzerChipList.add(messageService.getMessage("bioanalyzer.create_bioanalyzerChip1000.label"));
-			m.put("availableBioanalyzerChipList", availableBioanalyzerChipList);			
+			m.put("assayLibrariesAreFor", assayLibrariesAreFor);
+			m.put("assayLibrariesAreForToolTip", messageService.getMessage("bioanalyzer.chipChoiceAndInfo_assayLibrariesAreForToolTip.label"));
+			m.put("pageFlowMap", getPageFlowMap(jobDraft));	
 			waspErrorMessage("bioanalyzer.chipChoiceAndInfo_errorsExist.error");
 			return "bioanalyzer/chipChoiceAndInfo";
 		}

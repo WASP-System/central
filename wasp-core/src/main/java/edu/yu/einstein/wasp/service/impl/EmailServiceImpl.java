@@ -676,6 +676,8 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 		String machine = null;
 		String readType = null;
 		String readLength = null;
+		String runType = null;
+		String bioanalyzerChip = null;
 		/*
 		 Do NOT go through using the key for extraJobDetailsMap, as it is the value of things like "jobdetail_for_import.Read_Length.label" which can easily change
 		LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
@@ -697,6 +699,10 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 				  machine = jrc.getResourceCategory().getName();
 				  break;
 			}
+			if(jrc.getResourceCategory().getResourceType().getIName().equals("bioanalyzer")){
+				  machine = jrc.getResourceCategory().getName();
+				  break;
+			}
 		}
 		for(JobMeta jm : job.getJobMeta()){
 			if(jm.getK().toLowerCase().contains("readlength")){
@@ -705,16 +711,26 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 			if(jm.getK().toLowerCase().contains("readtype")){
 				readType = new String(jm.getV());
 			}
-			if(readType!=null && readLength!=null){
-				break;
+			if(jm.getK().toLowerCase().contains("runtype")){
+				runType = new String(jm.getV());
 			}
+			if(jm.getK().toLowerCase().equals("bioanalyzer.chip")){
+				bioanalyzerChip = new String(jm.getV());
+			}
+			////if(readType!=null && readLength!=null){
+			/////	break;
+			////}
 		}
 		if(machine==null){machine = new String("");}
 		if(readType==null){readType = new String("");}
 		if(readLength==null){readLength = new String("");}
+		if(runType==null || runType.isEmpty()){runType = new String("Standard");}
+		if(bioanalyzerChip==null){bioanalyzerChip = new String("");}
 		model.put("machine", machine);
 		model.put("readType", readType);
 		model.put("readLength", readLength);
+		model.put("runType", runType);
+		model.put("bioanalyzerChip", bioanalyzerChip);
 		
 		List<Sample> submittedSampleList = new ArrayList<Sample>();
 		for(Sample s : job.getSample()){

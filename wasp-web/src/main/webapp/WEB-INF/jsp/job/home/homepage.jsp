@@ -2,7 +2,8 @@
 
 <%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
 
-<h1><fmt:message key="jobHomeHomepage.jobId.label" /> J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" /></h1>
+<h2><fmt:message key="jobHomeHomepage.jobId.label" /> J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" /><br />
+<fmt:message key="jobHomeHomepage.workflow.label" />: <c:out value="${job.getWorkflow().getName()}" /></h2>
 <%-- these dialog areas are not displayed until called --%>
 <div id="modalDialog">
 	<%-- used to use for iframe: style="overflow-x: scroll; overflow-y: scroll" height="800" width="99%" --%>
@@ -28,8 +29,7 @@
 	    <li><a id="sampleDetailsAnchor"  href="<wasp:relativeUrl value="job/${job.getId()}/sampleDetails.do" />" ><fmt:message key="jobHomeHomepage.sampleDetailsTab.label" /></a></li>
 	   	<c:if test="${job.getWorkflow().getIName()!='bioanalyzer'}">
 	      <li><a id="samplesAnchor"  href="<wasp:relativeUrl value="job/${job.getId()}/samples.do" />" ><fmt:message key="jobHomeHomepage.samplesLibrariesRunsTab.label" /></a></li>
-		  <li><a id="dataByTreeViewAnchor"  href="javascript:void(0);" onclick='window.location.href="<wasp:relativeUrl value="jobresults/treeview/job/${job.getId()}.do" />"; return false;' ><fmt:message key="jobHomeHomepage.dataTreeViewTab.label" /></a></li>
 		</c:if>
-
+		<li><a id="dataByTreeViewAnchor"  href="javascript:void(0);" onclick='window.location.href="<wasp:relativeUrl value="jobresults/treeview/job/${job.getId()}.do" />"; return false;' ><fmt:message key="jobHomeHomepage.dataTreeViewTab.label" /></a></li>
 	</ul>
 </div>

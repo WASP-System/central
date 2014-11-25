@@ -1295,7 +1295,10 @@ public class JobController extends WaspController {
 		//11-6-14 additionalCostReasonsList to populate dropdown//jobHomeCreateUpdateQuote.DepartmentalCostShare.label
 		List<String> additionalCostReasonsList = new ArrayList<String>();
 		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonAdaptors.label"));//Adaptors
-		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonFragmentAnalysisBioanalyzer.label"));//Fragment Analysis (Bioanalyzer)
+		//no longer used additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonFragmentAnalysisBioanalyzer.label"));//Fragment Analysis (Bioanalyzer)
+		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonBioanalyzerHighSensitivity.label"));
+		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonBioanalyzer7500.label"));
+		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonBioanalyzer1000.label"));
 		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonMultiplexing.label"));//Multiplexing
 		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonPrimers.label"));//Primers
 		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonQuantificationQubit.label"));//Quantification (Qubit)

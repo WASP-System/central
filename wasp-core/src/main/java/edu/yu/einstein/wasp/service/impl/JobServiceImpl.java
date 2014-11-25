@@ -898,12 +898,12 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		  List<JobResourcecategory> jobResourceCategoryList = job.getJobResourcecategory();
 		  String area = null;
 		  for(JobResourcecategory jrc : jobResourceCategoryList){
-			  if(jrc.getResourceCategory().getResourceType().getIName().equals("mps")){
+			  if(jrc.getResourceCategory().getResourceType().getIName().equals("mps")
+					  ||
+				 jrc.getResourceCategory().getResourceType().getIName().equals("bioanalyzer")){
 				  extraJobDetailsMap.put("jobdetail_for_import.Machine.label", jrc.getResourceCategory().getName());
 				  area = jrc.getResourceCategory().getIName();
-			  }
-			  if(jrc.getResourceCategory().getResourceType().getIName().equals("bioanalyzer")){
-				  area = jrc.getResourceCategory().getIName();
+				  break;
 			  }
 		  }
 		  for(JobMeta jobMeta : job.getJobMeta()){
@@ -929,40 +929,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 				extraJobDetailsMap.put("jobdetail_for_import.Bioanalyzer_AssayLibrariesAreFor.label", jobMeta.getV());
 			}
 		  }
-		  /*
-		  try {
-			  String resourceIName = job.getJobResourcecategory().get(0).getResourceCategory().getIName();
-			  logger.debug("Getting configured properties for plugin with iname=" + resourceIName);
-			  ConfigureablePropertyProviding plugin = (ConfigureablePropertyProviding) waspPluginRegistry.getPluginsHandlingArea(resourceIName, ConfigureablePropertyProviding.class).get(0);
-			  ResourceConfigurableProperties rcp = plugin.getConfiguredProperties(job, area, JobMeta.class);
-			  for (String key : rcp.keySet())
-				  extraJobDetailsMap.put(rcp.getI18nMessageKey(key), rcp.get(key).toString());
-		  } catch (Exception e) {
-			  logger.warn("Cannot get resource-configured properties: " + e.getLocalizedMessage());
-			  e.printStackTrace();
-		  }
-		 */
-		  
-		  /* replaced with code below
-		  try{
-			  Float price = new Float(job.getAcctJobquotecurrent().get(0).getAcctQuote().getAmount());
-			  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
-		  }
-		  catch(Exception e){
-			  logger.debug("JobServiceImpl::getExtraJobDetails(): " + e);
-			  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??"); 
-		  }	
-		  */
-		  /* moved out of here and into basic.jsp controller 
-		  AcctQuote currentQuote = job.getCurrentQuote();
-		  if(currentQuote == null || currentQuote.getId()==null){
-			  extraJobDetailsMap.put("jobdetail_for_import.Quote_Job_Price.label", Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??");
-		  }
-		  else{
-			  Float price = new Float(job.getCurrentQuote().getAmount());
-			  extraJobDetailsMap.put("jobdetail_for_import.Quote_Job_Price.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
-		  }
-		  */
+		 
 		  return extraJobDetailsMap;	  
 	  }
 

@@ -19,11 +19,19 @@ Date Submitted: ${job.getCreated()}<br />
 Submitter: ${jobSubmitter.firstName} ${jobSubmitter.lastName} (email: ${jobSubmitter.getEmail()})<br />
 Principal Investigator: ${pi.firstName} ${pi.lastName} (email: ${pi.getEmail()})<br /><br />
 
-<b>Workflow &amp; Sequencer</b><br />
+<b>Workflow Details</b><br />
 Workflow: ${job.getWorkflow().getName()}<br />
-Sequencing Machine: ${machine}<br />
-ReadType: ${readType}<br />
-ReadLength: ${readLength} bp<br /><br />
+#set ( $bioanalyzerWorkflowIName = "bioanalyzer" )
+#set ( $thisJobWorkflowIName = $job.getWorkflow().getIName() )
+#if( $bioanalyzerWorkflowIName == $thisJobWorkflowIName )
+  Requested Machine: ${machine}<br />
+  Requested Bioanalyzer Chip: ${bioanalyzerChip}<br /><br />
+#else
+  Requested Sequencing Machine: ${machine}<br />
+  Requested ReadLength: ${readLength} bp<br />
+  Requested ReadType: ${readType}<br />  
+  Requested RunType: ${runType}<br /><br />
+#end
 
 <b>Samples</b><br />
 #foreach(${sample} in ${submittedSampleList}) ## velocityCount is the default name for a foreach counter and it begins at 1
