@@ -2644,13 +2644,9 @@ public class JobController extends WaspController {
 		  Map<Sample, Adaptorset> libraryAdaptorsetMap = new HashMap<Sample, Adaptorset>();
 		  Map<Sample, Adaptor> libraryAdaptorMap = new HashMap<Sample, Adaptor>();
 		  Map<Sample, Boolean> assignLibraryToPlatformUnitStatusMap = new HashMap<Sample, Boolean>();
-		  int numberOfLibrariesAwaitingPlatformUnitPlacement = 0;
 		  for(Sample library : allJobLibraries){
 			  
 			  boolean b = sampleService.isLibraryAwaitingPlatformUnitPlacement(library);
-			  if(b==true){
-				  numberOfLibrariesAwaitingPlatformUnitPlacement++;
-			  }
 			  assignLibraryToPlatformUnitStatusMap.put(library, b);
 
 			  Adaptor adaptor;
@@ -2663,8 +2659,8 @@ public class JobController extends WaspController {
 		  m.addAttribute("libraryAdaptorsetMap", libraryAdaptorsetMap);
 		  m.addAttribute("libraryAdaptorMap", libraryAdaptorMap);
 		  m.addAttribute("assignLibraryToPlatformUnitStatusMap", assignLibraryToPlatformUnitStatusMap);
-		  m.addAttribute("numberOfLibrariesAwaitingPlatformUnitPlacement", numberOfLibrariesAwaitingPlatformUnitPlacement);
-		 
+		  m.addAttribute("isAggregationAnalysisStarted", jobService.isAggregationAnalysisBatchJob(job));
+		  
 		  Map<Sample, List<Sample>> cellLibraryListMap = new HashMap<Sample, List<Sample>>();
 		  Map<Sample, Integer> cellIndexMap = new HashMap<Sample, Integer>();
 		  Map<Sample, Sample> cellPUMap = new HashMap<Sample, Sample>();

@@ -182,17 +182,24 @@
 							</c:if>
 							
 							<c:if test='${qcStatusMap.get(library) == "PASSED"}'>								
-								<c:if test='${assignLibraryToPlatformUnitStatusMap.get(library) == true }'> 
+								<c:if test='${isAggregationAnalysisStarted == false }'> 
 				 					 <table class='data' style="margin: 5px 5px 5px 5px;">
-											<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" /></td></tr>
+										<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" /></td></tr>
+										<c:if test='${assignLibraryToPlatformUnitStatusMap.get(library) == false }'>
 											<tr>
-												<td>				 					  
-				 					  				<fmt:message key="listJobSamples.finalConcentrationPM.label" />: 
-				 					 				<input type='text' name="libConcInCellPicoM_${library.getId()}"  size='3' maxlength='5'>
-				 									<input type='hidden' name='libraryId' value='<c:out value="${library.getId()}" />'/>	
-				 								</td>
-				 							</tr>
-				 						</table>
+												<td>
+													<span style="color:red"><fmt:message key="listJobSamples.userRequestMet.label" /></span>
+												</td>
+											</tr>
+										</c:if>	
+										<tr>
+											<td>				 					  
+			 					  				<fmt:message key="listJobSamples.finalConcentrationPM.label" />: 
+			 					 				<input type='text' name="libConcInCellPicoM_${library.getId()}"  size='3' maxlength='5'>
+			 									<input type='hidden' name='libraryId' value='<c:out value="${library.getId()}" />'/>	
+			 								</td>
+			 							</tr>
+			 						</table>
 				 				</c:if>							
  	 						 </c:if> 	 						
 						</td>								   				

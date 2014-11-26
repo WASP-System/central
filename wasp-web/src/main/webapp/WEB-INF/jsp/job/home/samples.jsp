@@ -6,7 +6,7 @@
 <a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${job.getId()}/requests.do?onlyDisplayCellsRequested=true" />");' ><fmt:message key="jobHomeSamples.viewLaneRequest.label" /></a>
 <a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${job.getId()}/samplePrepComment.do" />");' ><fmt:message key="jobHomeSamples.viewSamplePrepComment.label" /></a>
 <sec:authorize access="hasRole('su') or hasRole('ft')">
-	<c:if test="${numberOfLibrariesAwaitingPlatformUnitPlacement>1}"> 
+	<c:if test="${isAggregationAnalysisStarted == false}"> 
 		<a class="button" href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/addLibrariesToCell.do" />");' ><fmt:message key="jobHomeSamples.assignMultipleLibraries.label" /></a><br />
 	</c:if> 
 </sec:authorize>
@@ -61,7 +61,7 @@
 						<br />		  
 					</c:if>
 					<sec:authorize access="hasRole('su') or hasRole('ft')">
-						<c:if test='${jobStatus != "Completed" and receivedStatusMap.get(submittedObject)=="RECEIVED" && qcStatusMap.get(submittedObject)=="PASSED"}'>
+						<c:if test='${isAggregationAnalysisStarted == false && receivedStatusMap.get(submittedObject)=="RECEIVED" && qcStatusMap.get(submittedObject)=="PASSED"}'>
 							<c:choose>	 	 						
  	 							<c:when test='${sizeOfLibraryList == 0}'>
  	 								<br />	 	 								
@@ -136,7 +136,7 @@
 									<br /><span style="color:green;font-weight:bold"><c:out value="${addLibraryToPlatformUnitSuccessMessage}" /></span>
 								</c:if>	
 								
-								<c:if test='${assignLibraryToPlatformUnitStatusMap.get(library) == true}'> 
+								<c:if test='${isAggregationAnalysisStarted == false}'> 
 			 															 							
  	 								<form  method='post' name='addLibToCell_${library.getId()}' id="addLibToCell_${library.getId()}" action="" 
  	 									onsubmit='	var s = document.getElementById("cellId_${library.getId()}"); 
@@ -165,6 +165,13 @@
  	 												return false;' >
 										<table class='data' style="margin: 0 auto;">
 											<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" /></td></tr>
+											<c:if test='${assignLibraryToPlatformUnitStatusMap.get(library) == false }'>
+												<tr>
+													<td>
+														<span style="color:red"><fmt:message key="listJobSamples.userRequestMet.label" /></span>
+													</td>
+												</tr>
+											</c:if>	
 											<tr>
 												<td>
 													<br />
