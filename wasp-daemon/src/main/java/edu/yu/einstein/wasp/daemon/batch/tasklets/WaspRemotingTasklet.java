@@ -162,6 +162,10 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 	
 	protected static GridResult getGridResult(ChunkContext context) {
 		StepExecution stepExecution = context.getStepContext().getStepExecution();
+		return getGridResult(stepExecution);
+	}
+	
+	protected static GridResult getGridResult(StepExecution stepExecution) {
 		if (!stepExecution.getExecutionContext().containsKey(GridResult.GRID_RESULT_KEY))
 			return null;
 		return (GridResult) stepExecution.getExecutionContext().get(GridResult.GRID_RESULT_KEY);

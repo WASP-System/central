@@ -252,8 +252,21 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 
 	@Override
 	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
-		// TODO Auto-generated method stub
-		
+		// delete semaphore file
+		GridResult result = getGridResult(stepExecution);
+		if (result == null || result.getWorkingDirectory() == null){
+			logger.debug("Unable to retrieve a working directory for stepExecution id=" + stepExecution.getId());
+			return;
+		}
+		String workingDir = result.getWorkingDirectory();
+		String semaphore;
+		if (method == IlluminaIndexingStrategy.TRUSEQ) {
+			semaphore = IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_SEMAPHORE;
+		} else {
+			semaphore = IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_SEMAPHORE;
+		}
+		String remoteFile = workingDir + "/" + semaphore;
+		hostResolver.getGridWorkService(result).getGridFileService().delete(remoteFile);
 	}
 
 }
