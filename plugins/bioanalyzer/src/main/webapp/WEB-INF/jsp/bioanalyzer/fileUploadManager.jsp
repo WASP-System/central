@@ -10,7 +10,6 @@
 
 <%-- What was used was: from http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/ --%>
 <%--Apparently need onsubmit='return false' to suppress hitting the event when the ENTER key is pressed with the cursor in the description input box --%>
-<br /><h1>Reality check: this is the bioanalyzer file upload page: must remove this </h1><br />
 <%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
 <br />
 <form id="fileUploadFormId" action="<wasp:relativeUrl value="bioanalyzer/job/${job.getId()}/fileUploadManager.do" />" method="POST"  enctype="multipart/form-data" onsubmit='return false;' >
@@ -49,6 +48,22 @@
 				</c:forEach>
 				</td></tr>
 		</c:if>
+		
+		<c:if test="${userIsFacilityPersonel==true}">
+			<c:if test="${currentJobStatus=='In Progress'}">
+				<tr class="FormData">
+					<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="bioanalyzer.fileUpload_currentJobStatus.label"/></td>
+					<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="bioanalyzer.fileUpload_nextPossibleJobStatus.label"/></td>
+					<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="bioanalyzer.fileUpload_action.label"/></td>
+				</tr>
+				<tr>
+					<td class="DataTD value-centered"><c:out value="${currentJobStatus}" /></td>
+					<td class="DataTD value-centered"><fmt:message key="bioanalyzer.fileUpload_completedJobStatus.label"/></td>
+					<td class="DataTD value-centered"><a  href='javascript:void(0)' onclick = 'if(confirm("<fmt:message key="bioanalyzer.fileUpload_confirmMarkJobAsCompleted.label" />")){doGetWithAjax("<wasp:relativeUrl value="bioanalyzer/${job.getId()}/markBioanalyzerJobAsCompleted.do" />"); return false; }'><fmt:message key="bioanalyzer.fileUpload_markJobAsCompleted.label" /></a></td>
+				</tr>
+			</c:if>
+		</c:if>
+		
 		<c:forEach items="${fileGroups}" var="fileGroup" varStatus="fileGroupCounter">
 			<c:if test="${fileGroupCounter.first}">
 				<tr class="FormData">
