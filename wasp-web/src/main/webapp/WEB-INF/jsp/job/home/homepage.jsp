@@ -22,7 +22,15 @@
 		<li><a id="costAnchor"   href="<wasp:relativeUrl value="job/${job.getId()}/costManager.do" />" ><fmt:message key="jobHomeHomepage.costsTab.label" /></a></li>
 		<li><a id="viewerManagerAnchor"  href="<wasp:relativeUrl value="job/${job.getId()}/viewerManager.do" />"><fmt:message key="jobHomeHomepage.shareTab.label" /></a></li>
 		<li><a id="comments"  href="<wasp:relativeUrl value="job/${job.getId()}/comments.do" />" ><fmt:message key="jobHomeHomepage.commentsTab.label" /></a></li>
-		<li><a id="fileUploadAnchor"  href="<wasp:relativeUrl value="job/${job.getId()}/fileUploadManager.do" />" ><fmt:message key="jobHomeHomepage.uploadedFilesTab.label" /></a></li>
+		<c:choose>
+			<c:when test="${job.getWorkflow().getIName()=='bioanalyzer'}">
+				<li><a id="fileUploadAnchor"  href="<wasp:relativeUrl value="bioanalyzer/job/${job.getId()}/fileUploadManager.do" />" ><fmt:message key="jobHomeHomepage.uploadedFilesTab.label" /></a></li>
+			</c:when>
+			<c:otherwise>
+				<li><a id="fileUploadAnchor"  href="<wasp:relativeUrl value="job/${job.getId()}/fileUploadManager.do" />" ><fmt:message key="jobHomeHomepage.uploadedFilesTab.label" /></a></li>
+			</c:otherwise>			
+		</c:choose>
+		
 		<c:if test="${job.getWorkflow().getIName()!='bioanalyzer'}">
 		  <li><a id="requestsAnchor"  href="<wasp:relativeUrl value="job/${job.getId()}/requests.do" />" ><fmt:message key="jobHomeHomepage.requestsTab.label" /></a></li>
 	    </c:if>

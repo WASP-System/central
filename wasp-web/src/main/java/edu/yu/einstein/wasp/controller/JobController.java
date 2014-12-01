@@ -617,6 +617,10 @@ public class JobController extends WaspController {
 
 		//For a list of the macromolecule and library samples initially submitted to a job, pull from table jobcell and exclude duplicates
 		//Note that table jobsample is not appropriate, as it will eventually contain records for libraries made by the facility 
+		
+		//Note 11-26-14: well, actually, taking form jobcell is NOT a good idea, since bioanalyzer samples are not in the jobcell list
+		//11-26-14 So, return to using jobsample and here display ONLY those samples in which sample.getParent is null
+		/* so, as of 11-26-14, no longer used
 		Set<Sample> samplesAsSet = new HashSet<Sample>();//used to store set of unique samples submitted by the user for a specific job
 		Map<String, Integer> filter = new HashMap<String, Integer>();
 		filter.put("jobId", job.getJobId());
@@ -630,7 +634,16 @@ public class JobController extends WaspController {
 		List<Sample> samples = new ArrayList<Sample>();//this List is needed in order to be able to sort the list (so that it appears the same each time it is displayed on the web; you can't sort a set)
 		for(Sample sample : samplesAsSet){
 			samples.add(sample);
+		*/
+		List<Sample> samples = job.getSample();//ALL samples (submitted and created by facility)
+		//first remove those samples that have a parent (as they are facility created)
+		Iterator<Sample> iterator = samples.iterator();
+		while (iterator.hasNext()) {
+			if(iterator.next().getParent()!=null){
+				iterator.remove();
+			}
 		}
+		//second, order by sample name for convenience
 		class SampleNameComparator implements Comparator<Sample> {
 		    @Override
 		    public int compare(Sample arg0, Sample arg1) {

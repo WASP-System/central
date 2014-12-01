@@ -8,9 +8,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -26,6 +29,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.Strategy;
@@ -33,25 +38,34 @@ import edu.yu.einstein.wasp.Strategy.StrategyType;
 import edu.yu.einstein.wasp.controller.WaspController;
 import edu.yu.einstein.wasp.controller.util.SampleAndSampleDraftMetaHelper;
 import edu.yu.einstein.wasp.dao.JobDraftresourcecategoryDao;
+import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.MetadataTypeException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.AccountsService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobDraftService;
+import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.ResourceService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.StrategyService;
 import edu.yu.einstein.wasp.service.WorkflowService;
+import edu.yu.einstein.wasp.viewpanel.Action;
+import edu.yu.einstein.wasp.viewpanel.Action.CallbackFunctionType;
+import edu.yu.einstein.wasp.viewpanel.Action.GroupActionAlignType;
 import edu.yu.einstein.wasp.model.AcctGrant;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.JobDraftresourcecategory;
+import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.ResourceCategory;
@@ -59,6 +73,7 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
@@ -66,6 +81,8 @@ import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.plugin.bioanalyzer.service.BioanalyzerService;
+import edu.yu.einstein.wasp.plugin.bioanalyzer.software.Bioanalyzer;
+import edu.yu.einstein.wasp.plugin.mps.genomebrowser.GenomeBrowserProviding;
 
 
 @Controller
@@ -80,6 +97,10 @@ public class BioanalyzerController extends WaspController {
 	@Autowired
 	private BioanalyzerService bioanalyzerService;
 	@Autowired
+	private FileService fileService;
+	@Autowired
+	private JobService jobService;
+	@Autowired
 	private JobDraftService jobDraftService;
 	@Autowired
 	private LabService labService;
@@ -93,6 +114,13 @@ public class BioanalyzerController extends WaspController {
 	private StrategyService strategyService;
 	@Autowired
 	private WorkflowService workflowService;
+	
+	@Autowired
+	private Bioanalyzer bioanalyzer;
+	
+	@Autowired
+	private FileType pdfFileType;//pdf file 
+	
 	
 	@RequestMapping(value="/displayDescription", method=RequestMethod.GET)
 	public String displayDescription(ModelMap m){
@@ -261,40 +289,160 @@ public class BioanalyzerController extends WaspController {
 		waspMessage("bioanalyzer.chipChoiceAndInfo_updateSuccessfullyRecorded.error");
 		return nextPage(jobDraft);
 	}
-	/*
-	@RequestMapping(value="/submitSampleAndUploadFiles/{jobDraftId}.do", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
-	public String submitSampleAndUploadFiles(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m){
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	  @Transactional
+	  @RequestMapping(value="/job/{jobId}/fileUploadManager", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobFileUploadPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+		  
+		  Job job = jobService.getJobByJobId(jobId);
+		  if(job.getId()==null){
+		   	logger.warn("Bioanalyzer job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		  }
+		  populateFileUploadPage(job, m);
+		  return "bioanalyzer/fileUploadManager";
+	  }
+
+	  @Transactional
+	  private void populateFileUploadPage(Job job, ModelMap m){
 		
-		JobDraft jobDraft = jobDraftService.getJobDraftDao().getJobDraftByJobDraftId(jobDraftId);
-		if (! isJobDraftEditable(jobDraft))
-			return "redirect:/dashboard.do";
-		List<SampleDraft> sampleDraftList = jobDraft.getSampleDraft();
-		String[] roles = new String[1];
-		roles[0] = "lu";
-		List<SampleSubtype> sampleSubtypeList = sampleService.getSampleSubtypesForWorkflowByRole(jobDraft.getWorkflowId(), roles);
-		List<FileGroup> fileGroups = new ArrayList<FileGroup>();
-		Map<FileGroup, List<FileHandle>> fileGroupFileHandlesMap = new HashMap<FileGroup, List<FileHandle>>();
-		for(JobDraftFile jdf: jobDraft.getJobDraftFile()){
-			FileGroup fileGroup = jdf.getFileGroup();
-			fileGroups.add(fileGroup);
-			List<FileHandle> fileHandles = new ArrayList<FileHandle>();
-			for(FileHandle fh : fileGroup.getFileHandles()){
-				fileHandles.add(fh);
+			m.addAttribute("job", job);
+			
+			m.addAttribute("userIsFacilityPersonel", false);
+			if(authenticationService.hasRole("su")||authenticationService.hasRole("fm")||authenticationService.hasRole("ft")
+				||authenticationService.hasRole("sa")||authenticationService.hasRole("ga")||authenticationService.hasRole("da")){
+				m.addAttribute("userIsFacilityPersonel", true);
 			}
-			fileGroupFileHandlesMap.put(fileGroup, fileHandles);
-		}
-		m.addAttribute("jobDraft", jobDraft);
-		m.addAttribute("sampleDraftList", sampleDraftList);
-		m.addAttribute("sampleSubtypeList", sampleSubtypeList);
-		//m.addAttribute("pageFlowMap", getPageFlowMap(jobDraft));
-		m.addAttribute("fileGroups", fileGroups);
-		m.addAttribute("fileGroupFileHandlesMap", fileGroupFileHandlesMap);
-		//m.addAttribute("adaptorSetsUsedOnThisJobDraft", getAdaptorSets(jobDraft));
-		//return "jobsubmit/sample";
-		return "bioanalyzer/submitSampleAndUploadFiles";
-	}
-	*/
+			
+			List<FileGroup> fileGroups = new ArrayList<FileGroup>();
+			Map<FileGroup, List<FileHandle>> fileGroupFileHandlesMap = new HashMap<FileGroup, List<FileHandle>>();
+			List<FileHandle> fileHandlesThatCanBeViewedList = new ArrayList<FileHandle>();
+			for(JobFile jf: job.getJobFile()){
+				FileGroup fileGroup = jf.getFile();//returns a FileGroup
+				//no need to explicitly exclude quotes and invoices; as of 8/22/13 such files are stored through acctQuoteMeta or acctInvoiceMeta
+				fileGroups.add(fileGroup);
+				List<FileHandle> fileHandles = new ArrayList<FileHandle>();
+				for(FileHandle fh : fileGroup.getFileHandles()){
+					fileHandles.add(fh);
+					String mimeType = fileService.getMimeType(fh.getFileName());
+					if(!mimeType.isEmpty()){
+						fileHandlesThatCanBeViewedList.add(fh);
+					}
+				}
+				fileGroupFileHandlesMap.put(fileGroup, fileHandles);
+			}
+			m.addAttribute("fileGroups", fileGroups);
+			m.addAttribute("fileGroupFileHandlesMap", fileGroupFileHandlesMap);
+			m.addAttribute("fileHandlesThatCanBeViewedList", fileHandlesThatCanBeViewedList);
+	  }
+	
+	  //Remember, this is an ajax call
+	  //Note: we use MultipartHttpServletRequest to be able to upload files using Ajax. See http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/
+	  @RequestMapping(value="/job/{jobId}/fileUploadManager", method=RequestMethod.POST)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobFileUploadPostPage(@PathVariable("jobId") final Integer jobId,
+			  final MultipartHttpServletRequest request, 
+			  final HttpServletResponse response,
+			  final ModelMap m) throws SampleTypeException {
+	
+			Job job = jobService.getJobByJobId(jobId);
+			if(job.getId()==null){
+			   	logger.debug("Bioanalyzer job unexpectedly not found");
+			   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+				return "job/home/message";
+			}
+			
+			List<String> errorMessageList = new ArrayList<String>();
+			
+			List<MultipartFile> mpFiles = request.getFiles("file_upload");
+		    if(mpFiles.isEmpty() || mpFiles.get(0) == null){
+		    	String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed_fileEmpty.error");
+		    	logger.warn(errorMessage);
+		    	errorMessageList.add(errorMessage);					    	
+		    }
+		    
+		   	String fileDescription = request.getParameter("file_description");
+		    fileDescription = fileDescription==null?"":fileDescription.trim();
+		    if(fileDescription.isEmpty()){
+		    	String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed_fileDescriptionEmpty.error");
+		    	logger.warn(errorMessage);
+		    	errorMessageList.add(errorMessage);
+		    }
+		    
+		    //fileIsFromBioanalyzer will appear on the web page only if the web user is a facility member.
+		    //if the select box containing fileIsFromBioanalyzer is not on web page, then fileIsFromBioanalyzer is null
+		    //if it's on the web page and no selection made, then its value is -1; other valid values are "yes" and "no"
+		    String fileIsFromBioanalyzer = request.getParameter("fileIsFromBioanalyzer");
+		    //diagnostic
+		    if(fileIsFromBioanalyzer==null){//not on web page, so ignore
+		    	logger.debug("dubin 12-1-14 fileIsFromBioanalyzer: NULL");
+		    }
+		    else{
+		    	logger.debug("dubin 12-1-14   fileIsFromBioanalyzer: " + fileIsFromBioanalyzer);
+		    }					    
+		    if( fileIsFromBioanalyzer!=null && fileIsFromBioanalyzer.equals("-1") ){//fileIsFromBioanalyzer is on web page, but no selection was made
+		    	String errorMessage = messageService.getMessage("bioanalyzer.fileUploadFileIsBioanalyzerFileNotSelected.error");
+		    	logger.warn(errorMessage);
+		    	errorMessageList.add(errorMessage);
+		    }
+		    
+		    if(!errorMessageList.isEmpty()){//errors exist
+		    	m.addAttribute("errorMessageList", errorMessageList);
+		    	populateFileUploadPage(job, m);
+		    	if(fileIsFromBioanalyzer!=null){
+		    		m.addAttribute("userSelectedFileIsFromBioanalyzer", fileIsFromBioanalyzer);
+		    	}
+		    	m.addAttribute("userProvidedFileDescription", fileDescription);
+		    	m.addAttribute("fadingErrorMessage", messageService.getMessage("bioanalyzer.fileUpload_errorsExist.error"));
+		    	return "bioanalyzer/fileUploadManager";
+		    }		   	    
+		   			
+			Random randomNumberGenerator = new Random(System.currentTimeMillis());
+			try{
+				MultipartFile mpFile = mpFiles.get(0);
+				FileGroup fileGroup = fileService.uploadJobFile(mpFile, job, fileDescription, randomNumberGenerator);//will upload and perform all database updates
+				//if this uploaded file is a bionalayzer file, then set filetype for fileHandle AND set filetype and software for fileGroup; this will enable automatic display of the bionalayzer files on Data page - files tab
+				if( fileIsFromBioanalyzer!=null && fileIsFromBioanalyzer.equals("yes") ){
+					for(FileHandle fileHandle : fileGroup.getFileHandles()){
+						fileHandle.setFileType(pdfFileType);
+						fileService.getFileHandleDao().save(fileHandle);
+					}
+					fileGroup.setFileType(pdfFileType);
+					fileGroup.setSoftwareGeneratedBy(bioanalyzer);
+					fileService.getFileGroupDao().save(fileGroup);
+				}
+				m.addAttribute("fadingSuccessMessage", messageService.getMessage("listJobSamples.fileUploadedSuccessfully.label"));
+			} catch(FileUploadException e){
+				String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed.error");
+				logger.warn(errorMessage);
+				errorMessageList.add(errorMessage);
+				m.addAttribute("errorMessage", errorMessageList);
+				if(fileIsFromBioanalyzer!=null){
+		    		m.addAttribute("userSelectedFileIsFromBioanalyzer", fileIsFromBioanalyzer);
+		    	}
+		    	m.addAttribute("userProvidedFileDescription", fileDescription);
+		    	m.addAttribute("fadingErrorMessage", messageService.getMessage("bioanalyzer.fileUpload_errorsExist.error"));		    	
+			}
+			populateFileUploadPage(job, m);
+			return "bioanalyzer/fileUploadManager";		
+	  	}
+	
+	
 	@RequestMapping(value="/create", method=RequestMethod.GET)
 	public String createNewBioanalyzerJobGet(ModelMap m){
 		/*

@@ -17,7 +17,7 @@
   	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.bioanalyzer.software.Bioanalyzer</value></property> <!-- must be derived from the SoftwarePackage class -->
     <property name="name" value="Bioanalyzer" />
     <property name="version" value="0.0.0" /> <!-- TODO: Set this value. This default may also be overridden in wasp.site.properties -->
-    <property name="description" value="Service to provide bioanalyzer runs for user-generated libraries" />
+    <property name="description" value="Agilent Bioanalyzer service, resource, and software for gel-based characterization of user-generated libraries" />
     <property name="area" ref="bioanalyzerPluginArea" />
     <property name="resourceType" ref="genericPluginResourceType" /> <!-- TODO: choose a more appropriate resource type -->
 	

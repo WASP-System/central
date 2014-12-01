@@ -1187,17 +1187,14 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			// jobDraftFile -> jobFile
 			if (jobDraft.getJobDraftFile() != null) {
 				for (JobDraftFile jdf : jobDraft.getJobDraftFile()) {
-					FileGroup group = jdf.getFileGroup();
-	
-					JobFile jobFile = new JobFile();
-					jobFile.setJob(jobDb);
+					FileGroup group = jdf.getFileGroup();				
 					try {
-						jobFile.setFileGroup(fileService.promoteJobDraftFileGroupToJob(jobDb, group));
+						//jobFile.setFileGroup(fileService.promoteJobDraftFileGroupToJob(jobDb, group));
+						fileService.promoteJobDraftFileGroupToJob(jobDb, group);
 					} catch (Exception e) {
 						logger.warn(e.getLocalizedMessage());
 						throw new RuntimeException(e);
-					}
-					jobFileDao.save(jobFile);
+					}					
 				}
 			}	
 			AcctGrant grant = accountsService.getGrantForJobDraft(jobDraft);

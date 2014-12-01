@@ -129,6 +129,7 @@ public class ResultViewController extends WaspController {
 			m.addAttribute("type", type);
 			m.addAttribute("workflow", job.getWorkflow().getIName());
 			m.addAttribute("wf_name", job.getWorkflow().getName());
+			m.addAttribute("job", job);
 		}
 
 		return "jobresults/treeview";
