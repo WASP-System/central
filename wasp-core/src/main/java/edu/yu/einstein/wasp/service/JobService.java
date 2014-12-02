@@ -684,4 +684,6 @@ public interface JobService extends WaspMessageHandlingService {
 
 	public ExitStatus getJobStatus(Job job);
 	public List<String> getAllPossibleJobStatusAsString();
+	
+	public void sendNotifyJobCompleteMessage(Job job) throws WaspMessageBuildingException;
 }

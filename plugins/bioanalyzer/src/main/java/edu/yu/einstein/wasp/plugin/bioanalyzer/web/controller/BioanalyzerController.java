@@ -547,8 +547,14 @@ public class BioanalyzerController extends WaspController {
 		  logger.warn("dubin 12-1-14 in markBioanalyzerJobAsCompleted");
 		  logger.warn("dubin 12-1-14 in markBioanalyzerJobAsCompleted");
 		  logger.warn("dubin 12-1-14 in markBioanalyzerJobAsCompleted");
-		  
-		  m.addAttribute("fadingSuccessMessage", messageService.getMessage("bioanalyzer.fileUpload_jobMarkedAsCompleted.label"));
+		  try{
+			  jobService.sendNotifyJobCompleteMessage(job);
+			  m.addAttribute("fadingSuccessMessage", messageService.getMessage("bioanalyzer.fileUpload_jobMarkedAsCompleted.label"));
+			  
+		  }catch(Exception e){
+			  m.addAttribute("fadingErrorMessage", messageService.getMessage("bioanalyzer.fileUpload_jobMarkedAsCompletedUnexpectedlyFailed.label"));
+			  logger.debug("error marking bioanalyzer job complete: " + e.getMessage());
+		  }	  
 		  
 		  populateFileUploadPage(job, m);
 		  return "bioanalyzer/fileUploadManager";

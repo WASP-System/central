@@ -2595,4 +2595,11 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		list.add("Failed");
 		return list;		
 	}
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void sendNotifyJobCompleteMessage(Job job) throws WaspMessageBuildingException{
+		updateJobStatus(job, WaspStatus.COMPLETED, WaspJobTask.NOTIFY_STATUS, "", true);
+	}
 }

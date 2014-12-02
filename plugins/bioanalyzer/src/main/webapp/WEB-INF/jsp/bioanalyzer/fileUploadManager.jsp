@@ -6,11 +6,40 @@
 <%@ taglib prefix="wasp" uri="http://einstein.yu.edu/wasp" %>
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
+<script type="text/javascript">
+	$(document).ready(function(){
+		//$("#markJobCompleteDiv").toggle();
+		$("#toggleButton").click(function(){
+			  $("#markJobCompleteDiv").toggle();
+		});
+	}); 
+</script>
+
 <c:import url="/WEB-INF/jsp/bioanalyzer/fadingMessage.jsp" />
 
 <%-- What was used was: from http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/ --%>
 <%--Apparently need onsubmit='return false' to suppress hitting the event when the ENTER key is pressed with the cursor in the description input box --%>
 <%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
+<c:if test="${userIsFacilityPersonel==true && currentJobStatus=='In Progress'}">
+	<br />
+		<a class="button" id="toggleButton" href='javascript:void(0)' ><fmt:message key="bioanalyzer.fileUpload_markJobAsCompleted.label" /></a>
+	<br /><br />
+	<div id="markJobCompleteDiv" style="display:none">
+		<table class="data" style="margin: 0px 0px">
+			<tr class="FormData">
+				<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="bioanalyzer.fileUpload_currentJobStatus.label"/></td>
+				<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="bioanalyzer.fileUpload_nextPossibleJobStatus.label"/></td>
+				<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="bioanalyzer.fileUpload_action.label"/></td>
+			</tr>
+			<tr>
+				<td class="DataTD value-centered"><c:out value="${currentJobStatus}" /></td>
+				<td class="DataTD value-centered"><fmt:message key="bioanalyzer.fileUpload_completedJobStatus.label"/></td>
+				<td class="DataTD value-centered"><a  href='javascript:void(0)' onclick = 'if(confirm("<fmt:message key="bioanalyzer.fileUpload_confirmMarkJobAsCompleted.label" />")){doGetWithAjax("<wasp:relativeUrl value="bioanalyzer/${job.getId()}/markBioanalyzerJobAsCompleted.do" />"); return false; }'><fmt:message key="bioanalyzer.fileUpload_markJobAsCompleted.label" /></a></td>
+			</tr>
+		</table>
+	</div>	
+</c:if>
+
 <br />
 <form id="fileUploadFormId" action="<wasp:relativeUrl value="bioanalyzer/job/${job.getId()}/fileUploadManager.do" />" method="POST"  enctype="multipart/form-data" onsubmit='return false;' >
 	<table class="data" style="margin: 0px 0px">
@@ -48,7 +77,7 @@
 				</c:forEach>
 				</td></tr>
 		</c:if>
-		
+		<!-- 
 		<c:if test="${userIsFacilityPersonel==true}">
 			<c:if test="${currentJobStatus=='In Progress'}">
 				<tr class="FormData">
@@ -63,7 +92,8 @@
 				</tr>
 			</c:if>
 		</c:if>
-		
+		 -->
+		 
 		<c:forEach items="${fileGroups}" var="fileGroup" varStatus="fileGroupCounter">
 			<c:if test="${fileGroupCounter.first}">
 				<tr class="FormData">
